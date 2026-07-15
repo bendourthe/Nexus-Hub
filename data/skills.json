@@ -6253,6 +6253,37 @@
       }
     },
     {
+      "name": "end-of-shift-validation",
+      "title": "end-of-shift-validation",
+      "description": "Run one composed, autonomous full-validation pass at the end of an autonomous or night-shift session - tests, performance-regression gate, visual regression, commit sweep, false-confidence test audit, multi-agent review, and lint repair - so the work is as pristine as possible when you return. Make sure to use this skill whenever the user says \"end of shift validation\", \"full validation pass\", \"run everything before I'm back\", \"night shift wrap-up\", \"make it all pristine\", \"validate the whole session before I return\", or wants a single comprehensive pre-return sweep rather than one isolated check. SKIP, do NOT use for, cutting a release (use /update release), a single review or a single test run (use /review or /test), or a one-off check of one dimension (invoke that dimension's skill directly).",
+      "long_description": "One composed autonomous validation pass for the end of a night-shift or unattended session: tests + coverage, performance-regression gate, visual regression, commit sweep, false-confidence test audit, multi-agent review, and lint repair, ending in a single GO / work-remaining verdict with a prioritized follow-up backlog. Explicitly not a release.",
+      "summary_l0": "\"Compose tests, perf, visual, sweep, audit, review, and repair into one end-of-shift pass\"",
+      "overview_l1": "\"This skill runs one composed, autonomous full-validation pass at the end of an autonomous or night-shift session so the work is as pristine as possible when the human returns. In a defined order it chains: the full test suite with coverage, the performance-regression gate, visual regression, a commit sweep over the session's commits, a false-confidence test audit of new or changed tests, a multi-agent code review of the session diff, and a lint-repair loop for residual lint - then emits a single consolidated report with a GO / work-remaining verdict and a prioritized follow-up list. It is explicitly NOT a release: it never bumps versions, merges, tags, or pushes (that is /update release). It cross-links the autonomous-run budget controls (hard caps, scope-first) because a full sweep carries a real token cost. Trigger phrases: end of shift validation, full validation pass, run everything before I'm back, night shift wrap-up, make it all pristine.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "workflow",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/workflow/end-of-shift-validation/",
+      "file": "catalog/skills/workflow/end-of-shift-validation/SKILL.md",
+      "size": {
+        "lines": 84,
+        "characters": 8229,
+        "tokens_estimate": 1257
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
       "name": "plan-before-code",
       "title": "plan-before-code",
       "description": "Guide exploration and planning phases before implementation (Anthropic best practice). Includes LLM task suitability assessment, token cost estimation, and pipeline design. Use when starting non-trivial features, fixing bugs that need root cause analysis, refactoring code, or working in unfamiliar codebases.",

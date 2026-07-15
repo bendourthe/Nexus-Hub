@@ -276,5 +276,6 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | performance-regression-gate | tests-generation | "Commit a benchmark baseline and fail CI when a metric regresses beyond a threshold" | catalog/skills/tests-generation/performance-regression-gate/SKILL.md |
 | visual-regression-testing | testing | "Baseline screenshots, perceptual diff, and an agent visual-review gate for UI drift" | catalog/skills/testing/visual-regression-testing/SKILL.md |
 | helper-script-authoring | developer-experience | "Author and grow project helper scripts so the agent stops re-typing incantations" | catalog/skills/developer-experience/helper-script-authoring/SKILL.md |
+| end-of-shift-validation | workflow | "Compose tests, perf, visual, sweep, audit, review, and repair into one end-of-shift pass" | catalog/skills/workflow/end-of-shift-validation/SKILL.md |
 
-**Total: 272 skills across 21 categories**
+**Total: 273 skills across 21 categories**

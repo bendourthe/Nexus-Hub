@@ -1,8 +1,8 @@
 # Known Gaps - v3.14
 
 **Project**: Nexus-Hub
-**Status**: in development (Phase 6 of 8 complete)
-**Last updated**: 2026-07-13 (Phase 6: skill-native conventions - doc-headers, run-and-verify verb, worksheet handoff, helper-script skill, persona-docs)
+**Status**: in development (Phase 7 of 8 complete)
+**Last updated**: 2026-07-13 (Phase 7: end-of-shift-validation orchestrator skill)
 
 ## v3.14.0
 
