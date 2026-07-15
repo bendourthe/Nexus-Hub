@@ -1,8 +1,8 @@
 # Session History -- agentic-setup-adoption, Phase 4 (visual-regression discipline)
 
 **Date**: 2026-07-13
-**Version**: v3.15.0
-**Plan**: `docs/v3/v3.15/plans/v3.15.0-agentic-setup-adoption.md`
+**Version**: v3.14.0
+**Plan**: `docs/v3/v3.14/plans/v3.14.0-agentic-setup-adoption.md`
 **Phase**: 4 of 8 -- Visual-regression discipline
 **Branch**: `feat/agentic-setup-adoption` (off `develop`)
 

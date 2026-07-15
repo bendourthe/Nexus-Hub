@@ -1,8 +1,8 @@
 # Session History -- agentic-setup-adoption, Phase 1 (skill-native quick wins)
 
 **Date**: 2026-07-13
-**Version**: v3.15.0
-**Plan**: `docs/v3/v3.15/plans/v3.15.0-agentic-setup-adoption.md`
+**Version**: v3.14.0
+**Plan**: `docs/v3/v3.14/plans/v3.14.0-agentic-setup-adoption.md`
 **Phase**: 1 of 8 -- Skill-native quick wins: false-confidence test audit + commit sweep
 **Branch**: `feat/agentic-setup-adoption` (off `develop`)
 
@@ -26,7 +26,7 @@ Registered both skills across the three metadata files: `data/skills.json` (entr
 
 ## Deviations
 
-- **Version renumber**: the plan was drafted as v3.13.0, but v3.13.0 is the committed presentify-universal-ingestion version, so the plan was renumbered to v3.15.0 (user-confirmed) and moved to `docs/v3/v3.15/plans/`, with its internal version labels updated. v3.14.0 holds an untracked codex-lb-adoption draft.
+- **Version renumber**: the plan was drafted as v3.13.0, but v3.13.0 is the committed presentify-universal-ingestion version, so the plan was renumbered to v3.14.0 (user-confirmed) and moved to `docs/v3/v3.14/plans/`, with its internal version labels updated. v3.14.0 holds an untracked codex-lb-adoption draft.
 - **Generator not used**: `infrastructure/tools/build_skills_catalog.py` was NOT run to regenerate `data/`, because it rewrites the whole tree (a 6281-line diff - the committed files diverge from that generator's output/ordering). The three registry files were hand-edited for a minimal, reviewable diff instead; JSON validity and the skill count were verified afterward.
 
 ## Validation

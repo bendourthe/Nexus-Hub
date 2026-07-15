@@ -1,8 +1,8 @@
 # Session History -- agentic-setup-adoption, Phase 3 (performance-regression gate)
 
 **Date**: 2026-07-13
-**Version**: v3.15.0
-**Plan**: `docs/v3/v3.15/plans/v3.15.0-agentic-setup-adoption.md`
+**Version**: v3.14.0
+**Plan**: `docs/v3/v3.14/plans/v3.14.0-agentic-setup-adoption.md`
 **Phase**: 3 of 8 -- Performance-regression gate
 **Branch**: `feat/agentic-setup-adoption` (off `develop`)
 

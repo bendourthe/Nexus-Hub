@@ -296,7 +296,7 @@ jobs:
       - name: CI validator tests (v2.3.0 Phase 2)
         run: pytest tests/validators -v
 
-      - name: Skill bundled-script tests (v3.15.0)
+      - name: Skill bundled-script tests (v3.14.0)
         run: pytest tests/skills -v
 
       - name: Install skill-server (and transitive deps like pydantic via mcp)

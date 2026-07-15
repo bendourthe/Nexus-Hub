@@ -1,10 +1,10 @@
-# Known Gaps - v3.15
+# Known Gaps - v3.14
 
 **Project**: Nexus-Hub
 **Status**: in development (Phase 4 of 8 complete)
 **Last updated**: 2026-07-13 (Phase 4: visual-regression-testing skill + perceptual-diff / capture scripts)
 
-## v3.15.0
+## v3.14.0
 
 ### Summary
 
@@ -24,7 +24,7 @@
 ##### WN-1 - New pushy skill descriptions exceed the 250-char full-mode length check
 
 - **Source phase**: Phase 1 (1.1, 1.2), Phase 2 (2.1)
-- **Plan reference**: `docs/v3/v3.15/plans/v3.15.0-agentic-setup-adoption.md` sub-tasks 1.1-1.2, 2.1
+- **Plan reference**: `docs/v3/v3.14/plans/v3.14.0-agentic-setup-adoption.md` sub-tasks 1.1-1.2, 2.1
 - **Reason**: `false-confidence-test-audit`, `commit-sweep`, and `lint-repair-loop` carry pushy descriptions (verbatim trigger phrases plus a SKIP clause) well over 250 characters, so `validate_skills.py` FULL mode would flag them. This is the known catalog-wide pushy-description-vs-250-char tension (the WN-v3121 family); `make validate` does not run full mode and is clean. Intentional per the AGENTS.md description-style rule (combat under-triggering).
 - **Suggested next step**: None required. Track with the catalog-wide description-length decision; do not shorten at the cost of trigger coverage.
 
@@ -47,7 +47,7 @@
 ##### MT-1 - capture_screenshot.py is not unit-tested
 
 - **Source phase**: Phase 4 (4.2)
-- **Plan reference**: `docs/v3/v3.15/plans/v3.15.0-agentic-setup-adoption.md` sub-task 4.2
+- **Plan reference**: `docs/v3/v3.14/plans/v3.14.0-agentic-setup-adoption.md` sub-task 4.2
 - **Reason**: `capture_screenshot.py` drives a headless Chromium-family browser, which is not reliably present in CI or on the dev host, so it is documented and degrades gracefully (exit 3 with an install hint) rather than unit-tested. The perceptual-diff core (`perceptual_diff.py`) IS fully tested (7 cases, Pillow-gated), and `Pillow` was added to the CI tests job so those run.
 - **Suggested next step**: Add a browser-gated smoke test in a CI job that installs a headless browser, or exercise it in the Phase 7 end-of-shift orchestrator's visual-regression step when a browser is available.
 
@@ -55,4 +55,4 @@
 
 - Phase 1 and Phase 2 added Markdown skills. Skills have no pytest surface by design (they are validated structurally by `validate_skills.py`, not unit-tested), so the absence of unit tests is not an MT gap. The Phase 2 `lint-autofix` hook DOES have a test (`test_lint_autofix.py`).
 - Phase 2's `lint-autofix` hook is registered but OPT-IN (inert unless `NEXUS_ENABLE_LINT_AUTOFIX=1`), a deliberate deviation from the plan's "opt-out" wording because the hook mutates files; it is placed after `git-guardrails` so a blocked commit is not autofixed, and it never touches a file with unstaged changes. The LLM-judgment repair half is the `lint-repair-loop` skill, run on the session model (no external repair vendor, per the MCP Registry Policy hard-no on generation-as-service).
-- The plan was renumbered from v3.13.0 to v3.15.0 during Phase 1: v3.13.0 is the committed presentify-universal-ingestion version and an untracked v3.14.0-codex-lb-adoption draft already exists.
+- The plan was renumbered from v3.13.0 to v3.14.0 during Phase 1: v3.13.0 is the committed presentify-universal-ingestion version and an untracked v3.14.0-codex-lb-adoption draft already exists.
