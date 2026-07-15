@@ -1,8 +1,8 @@
 # Known Gaps - v3.15
 
 **Project**: Nexus-Hub
-**Status**: in development (Phase 2 of 8 complete)
-**Last updated**: 2026-07-13 (Phase 2: lint-repair-loop skill + opt-in lint-autofix hook)
+**Status**: in development (Phase 3 of 8 complete)
+**Last updated**: 2026-07-13 (Phase 3: performance-regression-gate skill + bundled perf_baseline.py)
 
 ## v3.15.0
 

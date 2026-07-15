@@ -174,7 +174,7 @@
       "id": "tests-generation",
       "name": "Test Generation",
       "description": "Unit, integration, E2E, property-based, mutation, fuzz, and BDD test generation",
-      "skill_count": 19
+      "skill_count": 20
     },
     {
       "id": "workflow",

@@ -5621,6 +5621,37 @@
       }
     },
     {
+      "name": "performance-regression-gate",
+      "title": "performance-regression-gate",
+      "description": "Catch performance regressions automatically by committing a benchmark baseline and failing when a metric degrades beyond a threshold. Make sure to use this skill whenever the user says \"catch performance regressions\", \"benchmark gate\", \"fail the build if it got slower\", \"performance baseline\", \"perf CI check\", \"alert when latency or throughput or bundle size degrades\", or wants automated detection of performance drift over time rather than a one-off measurement. SKIP, do NOT use for, one-off profiling or optimizing a specific function (use code-optimizer), writing the benchmarks themselves or load/stress testing (use performance-testing), or correctness testing (use unit-tests / integration-test-generator).",
+      "long_description": "The CI-facing half of performance testing: commit a benchmark baseline and fail when a metric degrades beyond a threshold, so performance drift is caught automatically instead of noticed in production. A bundled stdlib-only script records and checks the baseline with a per-metric direction and threshold.",
+      "summary_l0": "\"Commit a benchmark baseline and fail CI when a metric regresses beyond a threshold\"",
+      "overview_l1": "\"This skill adds the CI-facing half of performance testing: commit a benchmark BASELINE and fail (or flag) when a metric degrades beyond a threshold, so performance drift is caught automatically instead of noticed in production. It teaches which hot-path metrics to gate (latency, throughput, allocations, bundle size), how to capture and commit a baseline, how to compare current-vs-baseline with a per-metric direction (lower-is-better for latency and size, higher-is-better for throughput) and a noise-tolerant threshold, how to wire the check into CI, and when to deliberately re-baseline. The bundled scripts/perf_baseline.py records and checks the baseline deterministically (stdlib-only, zero-network) and exits non-zero on a regression. It complements performance-testing (which writes the benchmarks) and code-optimizer (one-off profiling). Trigger phrases: catch performance regressions, benchmark gate, fail the build if it got slower, performance baseline, perf CI check.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "tests-generation",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/tests-generation/performance-regression-gate/",
+      "file": "catalog/skills/tests-generation/performance-regression-gate/SKILL.md",
+      "size": {
+        "lines": 82,
+        "characters": 7007,
+        "tokens_estimate": 1033
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
       "name": "property-based-test-generator",
       "title": "property-based-test-generator",
       "description": "Generate property-based tests using QuickCheck/Hypothesis-style frameworks that verify invariants over randomly generated inputs. Use when testing mathematical properties, round-trip conversions, idempotent operations, model-based state machines, or when you need to discover edge cases automatically through shrinking.",
