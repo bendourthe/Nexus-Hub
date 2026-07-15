@@ -167,8 +167,8 @@
     {
       "id": "testing",
       "name": "Testing",
-      "description": "Domain contract validation, E2E test automation",
-      "skill_count": 3
+      "description": "Domain contract validation, E2E test automation, visual regression testing",
+      "skill_count": 4
     },
     {
       "id": "tests-generation",

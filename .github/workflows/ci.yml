@@ -282,7 +282,7 @@ jobs:
           cache-dependency-path: 'extensions/*/pyproject.toml'
 
       - name: Install pytest
-        run: pip install pytest ruff
+        run: pip install pytest ruff Pillow
 
       - name: Platform-parity + installer-smoke tests (v0.9.7 regression guards)
         run: pytest catalog/hooks/tests/test_platform_parity.py catalog/hooks/tests/test_installer_smoke.py -v

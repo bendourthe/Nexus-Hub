@@ -6619,6 +6619,37 @@
       }
     },
     {
+      "name": "visual-regression-testing",
+      "title": "visual-regression-testing",
+      "description": "Catch unintended UI changes by capturing baseline screenshots, diffing current renders against them, and gating on the difference with an agent visual review. Make sure to use this skill whenever the user says \"visual regression\", \"screenshot tests\", \"did the UI change\", \"pixel diff\", \"catch unintended UI changes\", \"visual review of the render\", \"baseline screenshots\", or wants to detect visual drift in a rendered UI over time rather than testing behavior. SKIP, do NOT use for, functional or end-to-end behavior testing (use e2e-testing-automation), one-off demo or PR screenshot capture (use demo-capture), or non-visual regressions (use commit-sweep / regression-root-cause-analyzer).",
+      "long_description": "Layer a regression discipline on top of screenshot capture: baseline screenshots, a perceptual diff against them, and an agent visual-review gate, so unintended UI changes are caught before they ship. Ships a Pillow-based perceptual-diff script and a best-effort headless-browser capture helper.",
+      "summary_l0": "\"Baseline screenshots, perceptual diff, and an agent visual-review gate for UI drift\"",
+      "overview_l1": "\"This skill catches unintended UI changes by layering a regression discipline on top of screenshot capture: capture BASELINE screenshots of key views at defined viewports, store them (git-lfs when available, otherwise attach baseline + current + diff to the PR), diff current renders against the baseline with a perceptual metric, and GATE on the difference - below threshold passes silently, above threshold triggers an agent visual review that reads the before / after / diff images and decides whether the change is intended, and only a reviewed-and-approved change re-baselines. The bundled scripts/perceptual_diff.py computes the diff and exits non-zero on regression (a size change is treated as a regression); scripts/capture_screenshot.py is a best-effort headless-browser capture that degrades gracefully when no browser is present. It builds on browser-testing-with-devtools and demo-capture (which capture) and adds the missing baseline + diff + review gate. Trigger phrases: visual regression, screenshot tests, did the UI change, pixel diff, catch unintended UI changes.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "testing",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/testing/visual-regression-testing/",
+      "file": "catalog/skills/testing/visual-regression-testing/SKILL.md",
+      "size": {
+        "lines": 74,
+        "characters": 7386,
+        "tokens_estimate": 1133
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
       "name": "code-simplification",
       "title": "code-simplification",
       "description": "Reduces code complexity by removing unnecessary abstraction, dead code, and over-engineering without changing behavior. Use when code has grown hard to understand or when simplification is the explicit goal.",
