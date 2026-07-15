@@ -1965,6 +1965,37 @@
       }
     },
     {
+      "name": "helper-script-authoring",
+      "title": "helper-script-authoring",
+      "description": "Author and grow small, well-documented helper scripts in a project tools/ or bin/ folder so the agent stops re-typing fragile multi-step incantations. Make sure to use this skill whenever the user says \"write a helper script\", \"make a bin script for this\", \"automate this repetitive command\", \"build a CLI wrapper for the agent\", \"I keep running the same commands\", or when the agent notices it is repeating a multi-command sequence it could encapsulate. SKIP, do NOT use for, authoring a slash command (use create-custom-command), building an MCP server (use mcp-builder), or a genuinely one-off command that will not recur.",
+      "long_description": "Identify a recurring multi-step incantation and encapsulate it as a small, robust, well-documented helper script in a project tools/ or bin/ folder, then keep growing that collection over time. Covers when a helper is worth writing, how to make it robust and discoverable, and the discipline of building the collection out.",
+      "summary_l0": "\"Author and grow project helper scripts so the agent stops re-typing incantations\"",
+      "overview_l1": "\"This skill teaches the agent to identify a recurring multi-step incantation and encapsulate it as a small, robust, well-documented helper script in a project tools/ or bin/ folder, then keep growing that collection over time. It covers when a helper is worth writing (a sequence run more than a few times, or one whose exact flags are easy to get wrong), how to make it robust (safety flags, argument validation, clear errors, per the bash / python code-style rules), how to make it DISCOVERABLE so future sessions find and reuse it (a header comment, a --help, and a one-line entry in a tools README), and the discipline of building the collection out continuously rather than re-deriving commands each session. The worked example is an agent_review-style wrapper that kicks off cross-agent reviews without the agent memorizing each tool's flags. Trigger phrases: write a helper script, automate this repetitive command, build a CLI wrapper for the agent, I keep running the same commands.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "developer-experience",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/developer-experience/helper-script-authoring/",
+      "file": "catalog/skills/developer-experience/helper-script-authoring/SKILL.md",
+      "size": {
+        "lines": 65,
+        "characters": 6552,
+        "tokens_estimate": 1048
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
       "name": "code-translation",
       "title": "code-translation",
       "description": "Translate code between programming languages while preserving logic, idiomatic style, and test coverage. Use when porting code between languages, migrating projects, converting snippets, or adapting library examples from one language to another.",

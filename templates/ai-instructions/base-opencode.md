@@ -42,6 +42,11 @@
 
 - Follow the project's declared branching strategy. Do not commit feature or version work directly to the protected (release) branch -- branch off the integration branch and integrate through it. If the strategy is unstated, infer it (a `develop` branch implies a develop+main model; otherwise assume GitHub Flow) and confirm before branching. See the `git-branching-workflow` skill for the per-model discipline.
 
+## Run and Verify
+
+- When you change how the app behaves, actually run it and observe the change end-to-end before claiming it works - do not rely on tests, type-checks, or a clean build alone. Drive the affected flow (CLI command, endpoint, screen, or script) and confirm the observed behavior matches the intent, especially when working autonomously or asynchronously.
+- If a change has no runnable surface (docs or config only), say so plainly instead of implying it was exercised. See the `verification-before-completion` skill for the fresh-evidence rule that must hold before any completion claim.
+
 ## Output Minimization
 - Suppress verbose progress bars, banners, and informational logs from commands unless they indicate an error
 - Prefer `--quiet`, `--silent`, or `-q` flags when running package managers, build tools, and test runners

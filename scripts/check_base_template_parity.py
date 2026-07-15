@@ -104,6 +104,7 @@ REQUIRED_HEADINGS = [
     "Non-Obvious Tooling",
     "{{PRIMARY_LANGUAGE}} Conventions",
     "Branching",
+    "Run and Verify",
     "Output Minimization",
     "MCP Registry Policy",
     "Skill Discovery",
@@ -140,6 +141,7 @@ INVARIANT_SECTIONS = [
     "Tech Stack",
     "Key Commands",
     "Branching",
+    "Run and Verify",
     "MCP Registry Policy",
 ]
 

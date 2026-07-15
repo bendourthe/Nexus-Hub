@@ -275,5 +275,6 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | lint-repair-loop | code-cleanup | "Run linters and repair what they flag in a bounded loop, not just report it" | catalog/skills/code-cleanup/lint-repair-loop/SKILL.md |
 | performance-regression-gate | tests-generation | "Commit a benchmark baseline and fail CI when a metric regresses beyond a threshold" | catalog/skills/tests-generation/performance-regression-gate/SKILL.md |
 | visual-regression-testing | testing | "Baseline screenshots, perceptual diff, and an agent visual-review gate for UI drift" | catalog/skills/testing/visual-regression-testing/SKILL.md |
+| helper-script-authoring | developer-experience | "Author and grow project helper scripts so the agent stops re-typing incantations" | catalog/skills/developer-experience/helper-script-authoring/SKILL.md |
 
-**Total: 271 skills across 21 categories**
+**Total: 272 skills across 21 categories**

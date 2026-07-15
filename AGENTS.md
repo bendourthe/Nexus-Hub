@@ -282,6 +282,8 @@ When reverse-engineering an external pattern into Nexus-Hub content (a skill, a 
 
 Every Markdown file Nexus-Hub generates or modifies (READMEs, CHANGELOG, DEVLOG, RELEASE_NOTES, plans, comparison reports, pen test reports, session histories, skills, commands, generated `/research report` and `/research compile` outputs) must follow the conventions in [`catalog/style-guides/markdown.md`](catalog/style-guides/markdown.md). The guide is also installed at `~/.nexus-hub/style-guides/markdown.md` for global reference.
 
+System docs additionally follow the doc-header summary convention in [`catalog/style-guides/doc-headers.md`](catalog/style-guides/doc-headers.md) (also installed at `~/.nexus-hub/style-guides/doc-headers.md`): open every durable system doc (architecture, policy, reference, runbook) with a dense, greppable summary in its first few lines - what it covers, who reads it and when, and its key topics - analogous to a SKILL.md's `summary_l0` / `overview_l1`, and keep that summary in sync when the system it describes changes.
+
 The most common rendering bugs that the style guide prevents:
 
 - **No blank line before a list** - the list runs into the preceding paragraph in some renderers
