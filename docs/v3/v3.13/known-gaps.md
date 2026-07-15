@@ -1,8 +1,8 @@
 # Known Gaps - v3.13
 
 **Project**: Nexus-Hub
-**Status**: in progress - presentify imagery-and-interactivity follow-on (Phase 4 of 5 complete); the universal-ingestion overhaul is complete and release-ready
-**Last updated**: 2026-07-15 (Phase 4 of the presentify imagery-and-interactivity follow-on)
+**Status**: release-ready - both the universal-ingestion overhaul and the imagery-and-interactivity follow-on (all 5 phases) are complete; pending `/update release` (version bump / merge / tag / push)
+**Last updated**: 2026-07-15 (Phase 5 reconciliation for the presentify imagery-and-interactivity follow-on)
 
 ## v3.13.0
 
@@ -27,6 +27,11 @@
 - Tier 2 license-free stock media (imagery-and-interactivity follow-on, Phase 2): `scripts/fetch_stock_media.py`, an opt-in, consent-gated build-time fetcher (NO network without `--consent`) that queries Openverse (default, keyless) / Wikimedia (keyless) / Pexels (key-gated), enforces a free-for-commercial-use license allow-list (CC0 / PDM / CC-BY / CC-BY-SA plus blanket-license sources; any nc/nd term rejected), builds CC-BY attribution strings, base64-embeds each asset (output stays offline), and emits a credits manifest feeding the Phase 1 credits convention; graceful degrade to Tier 1 on any missing library / key / network error / zero results. Wired into SKILL.md + `presentify.md` behind the consent gate. Live-verified end-to-end against Openverse (a CC-BY-SA asset fetched, verified, and embedded).
 - Tier 3 local AI-generated images (imagery-and-interactivity follow-on, Phase 3): `scripts/generate_local_image.py`, an opt-in, LOCAL-ONLY generator that makes NO network call and imports no hosted-API client (a third-party generation API is a generation-as-service hard-no). It runs `diffusers` + `torch` (forced offline with `local_files_only=True` + `HF_HUB_OFFLINE=1` so it never downloads weights) or a user-configured local CLI (`NEXUS_LOCAL_IMAGE_CMD`), uses a commercially-clean default model (FLUX.1 schnell, Apache-2.0; or SDXL, CreativeML Open RAIL++-M), records model + license + the "AI-generated; may not be copyrightable" caveat, base64-embeds the PNG, and degrades to Tier 1 when no local runtime / weights are present. Wired into SKILL.md + `presentify.md` + a "Tier 3" reference subsection. Verified: the degrade path (no runtime => exit 3, no network) and a static check confirming zero network / hosted-API imports.
 - Command surface + worked examples + registration (imagery-and-interactivity follow-on, Phase 4): the SKILL.md `description` / `summary_l0` / `overview_l1` document the imagery tiers, interactivity levels, `--images` / `--interactivity`, the consent gate, and the offline / commercial-use guarantees, mirrored into `data/skills.json` (+ recomputed `size`) and the `data/SKILL_INDEX.md` row (hand-edited; `marketplace.json` counts unchanged); a CHANGELOG `[Unreleased]` block added. Worked evidence under `development/worked-example/`: the Tier-1 sample (Phase 1) plus a LIVE Tier-2 example (`tier2-stock-sample.html` + `tier2-credits-manifest.json`, two CC-BY-2.0 Openverse assets fetched, verified, base64-embedded, credited) and `imagery-worked-example.md`. Change-relevant validators green; both example pages offline-clean; no hosted-service client in the diff.
+- Refactor + CI verifier + reconciliation (imagery-and-interactivity follow-on, Phase 5): a scoped refactor audit (clean - no sprawl / duplicates / orphans in the plan's footprint; two pre-existing v3.9.0 skill-internal empty dirs flagged, out of scope, untracked); an offline, deterministic CI verifier `docs/v3/v3.13/development/fixtures/verify_imagery.py` (34 checks: the license filter incl. nc/nd rejection, the CC-BY attribution builder, `accept_candidate`, the credits-manifest / asset shape via a stubbed download, the consent-default-offline invariant via a stubbed transport, the Tier-3 model-license registry / `parse_size` / degrade path, and the no-network-import static invariant), wired into `.github/workflows/presentify-extractor.yml` (path filters + a run step, no new CI dependency).
+
+### Advisory
+
+- Purely AI-generated images (Tier 3) may not be copyrightable in some jurisdictions; the tool records the caveat `AI-generated; may not be copyrightable` in each asset's provenance and the credits section. This is an inherent legal advisory surfaced to the user, not a defect.
 
 ### Open Items
 
@@ -63,8 +68,8 @@
 ##### DF-6 - Tier 2 stock: Coverr / Mixkit sources and general video fetch not implemented
 
 - **Source phase**: Phase 2 (2.1)
-- **Reason**: `fetch_stock_media.py` implements Openverse (default, keyless), Wikimedia Commons (keyless), and Pexels (API-key-gated) for images. Coverr / Mixkit are accepted on the CLI for interface parity but have no keyless search API in this helper, so they degrade with a note; video is supported only via a Pexels key. This keeps the helper honest rather than shipping unverified API integrations.
-- **Suggested next step**: Add a Coverr / Mixkit (or a generic configured-endpoint) source and a broader video path only if a real need appears; document them as configured sources.
+- **Reason**: `fetch_stock_media.py` implements Openverse (default, keyless), Wikimedia Commons (keyless), and Pexels (API-key-gated) for images. Coverr / Mixkit are accepted on the CLI for interface parity but have no keyless search API in this helper, so they degrade with a note; video is supported only via a Pexels key. This keeps the helper honest rather than shipping unverified API integrations. Video also inherits the base64 size ceiling: any fetched asset is base64-embedded and rejected past `--max-bytes`, so a large video degrades rather than bloating the single-file output (video embedding at scale remains constrained by the offline single-file guarantee, per DF-4).
+- **Suggested next step**: Add a Coverr / Mixkit (or a generic configured-endpoint) source and a broader video path only if a real need appears; document them as configured sources, and keep video within a sensible `--max-bytes` cap.
 
 #### Warnings
 
@@ -88,11 +93,12 @@
 - **Reason**: `verify_universal_ingestion.py` (28 checks) covers the text / code / CSV / image walk, repository assembly, determinism, caps, and the prominence sink (rounding / clamp / absence / native dims), but not the PDF-bbox / PPTX-shape `page_fraction` computation end-to-end. The v3.12 `verify_phase1.py` exercises PDF/PPTX extraction but predates `page_fraction`.
 - **Suggested next step**: Add a `page_fraction` assertion to `verify_phase1.py` (it already generates a PDF/PPTX fixture with `reportlab` / `python-pptx` in CI), or a small dedicated fixture check, in a follow-up.
 
-##### MT-2 - No committed automated verifier for the Tier 2 / Tier 3 helper pure-function logic
+##### MT-2 - Live Tier-2 fetch paths and Tier-3 generation not exercised in CI (residual)
 
-- **Source phase**: Phase 2 (2.1-2.3), Phase 3 (3.1-3.2)
-- **Reason**: Both helpers were verified ad-hoc this cycle but have no committed automated verifier yet. Tier 2 (`fetch_stock_media.py`): the free-for-commercial-use license filter (nc/nd rejection), the CC-BY attribution builder, the credits-manifest shape, and the consent-default-offline invariant - checked via a live Openverse smoke fetch (a CC-BY-SA asset verified + embedded), a no-`--consent` run (exit 3 + no network), and an inline filter/attribution unit check; the Wikimedia / Pexels paths were not live-exercised (Openverse only; Pexels needs a key). Tier 3 (`generate_local_image.py`): the degrade path (no runtime => exit 3, no network) and a static no-hosted-client import check were verified, but the actual generation path was NOT run locally (no `diffusers` / `torch` / GPU / weights on the dev host).
-- **Suggested next step**: The committed verifier is the Phase 5 (5.3) deliverable (`docs/v3/v3.13/development/fixtures/verify_imagery.py`): keyword derivation, license filter/rejection, credits-manifest shape, CC-BY attribution builder, the no-`--consent`-no-network invariant (stubbed transport), and the Tier-3 license-registry / degrade / no-network-import invariants - wired into `.github/workflows/presentify-extractor.yml`. The live Tier-3 generation path stays a documented manual step on a GPU-capable host.
+- **Source phase**: Phase 2 (2.1-2.3), Phase 3 (3.1-3.2), Phase 5 (5.3)
+- **Status**: the committed automated verifier is DELIVERED - `docs/v3/v3.13/development/fixtures/verify_imagery.py` (34 offline checks: license filter incl. nc/nd rejection, CC-BY attribution builder, `accept_candidate`, the credits-manifest / asset shape via a stubbed download, the consent-default-offline invariant via a stubbed transport, and the Tier-3 model-license registry / `parse_size` / degrade / no-network-import invariants), wired into `presentify-extractor.yml`. It runs on a plain ubuntu runner with no extra dependency, network, or GPU.
+- **Residual gap**: only the LIVE network / GPU paths remain un-CI'd - the Wikimedia and Pexels source paths were not live-exercised (Openverse was, returning verified CC-BY assets; Pexels needs a key), and the Tier-3 diffusers generation path needs a local GPU runtime + weights absent from the dev host and CI.
+- **Suggested next step**: Optionally gate a live Openverse smoke test behind a manual / scheduled CI job; keep the Tier-3 GPU generation a documented manual step on a GPU-capable host. Neither blocks release (both degrade cleanly and the pure-function logic is CI-covered).
 
 #### Hand-offs
 
