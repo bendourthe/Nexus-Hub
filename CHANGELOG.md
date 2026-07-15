@@ -7,9 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [3.13.0] - 2026-07-15
 
-**presentify universal ingestion + prominence + output-aspect (v3.13.0, in progress).** Extends `/presentify` + `document-to-interactive-html` beyond the four document formats: it now ingests source code and config, Markdown / plain text, CSV / TSV, and standalone images, and can take a whole directory or repository (walked recursively) as input; it preserves each source visual's prominence; and it lets the caller choose the output aspect. Builds on the released v3.12.0 fidelity work without changing it. Catalog totals unchanged (no new skill or command).
+**presentify universal ingestion + prominence + output-aspect (v3.13.0).** Extends `/presentify` + `document-to-interactive-html` beyond the four document formats: it now ingests source code and config, Markdown / plain text, CSV / TSV, and standalone images, and can take a whole directory or repository (walked recursively) as input; it preserves each source visual's prominence; and it lets the caller choose the output aspect. Builds on the released v3.12.0 fidelity work without changing it. Catalog totals unchanged (no new skill or command).
 
 ### Added
 
