@@ -72,6 +72,40 @@ The extractor is local-only and makes no network calls. Every parser is lazy-imp
     - Caption text also remains inside the page's paragraph text (it is attached, not moved); the authoring stage should prefer the block `caption` and drop the duplicate line.
     - OCR table recovery is geometry-based (aligned multi-cell rows) and works best on well-separated columns; the `pytesseract` path recovers paragraphs only. The scanned-page image block plus the figure-reconstruction protocol's transcription pass are the accuracy backstop either way.
 
+## Source code and config (universal ingestion)
+
+- No third-party library: files are read with the standard library.
+- Extensions map to a syntax-highlight `language` via an in-script table (`.py` -> `python`, `.ts` -> `typescript`, `.go` -> `go`, `.rs` -> `rust`, `.sh` -> `bash`, `.sql` -> `sql`, `.json`/`.yaml`/`.toml`/`.ini` -> the config language, and so on); known extensionless basenames (`Dockerfile`, `Makefile`, `CMakeLists.txt`, `Rakefile`, `Gemfile`) are recognized too.
+- Each file becomes one `content` section whose `heading` is the repository-relative path and whose single `code` block carries the source, `language`, and `path`.
+- A file larger than `--max-text-bytes` (default 300000) is TRUNCATED (not dropped): the `code` block ends with a `... [truncated at the text-byte cap] ...` marker and `truncated: true`.
+- Gotchas: files are decoded as UTF-8 with a latin-1 `errors="replace"` fallback (a fallback is noted in `coverage.skip_reasons`); the walk skips files that sniff as binary; no secret redaction is performed, so do not point the walk at a repository holding plaintext secrets (dotfiles such as `.env` have no recognized extension and are not ingested, but a `secrets.yaml` would be).
+
+## Markdown and plain text (universal ingestion)
+
+- No third-party library: an intentionally-minimal in-house parser (not a full CommonMark implementation).
+- Markdown (`.md`, `.markdown`, `.mdown`, `.mkd`): ATX (`#`) and setext headings start sections; blank-line-separated prose becomes `paragraph` blocks; `-`/`*`/`+`/ordered items become a `bullets` block (indent / 2 -> `depth`); fenced code (```` ``` ````/`~~~`) becomes a `code` block (language from the info string); pipe tables (a header row plus a `---` separator row) become `table` blocks; a standalone `![alt](path)` line becomes an `image` block when `path` is LOCAL (resolved relative to the Markdown file), and a remote `http(s)` image is recorded as a `[Image: ... (remote: ...)]` note, never fetched.
+- Plain text (`.txt`, `.text`, `.rst`, `.log`): one section of blank-line-separated paragraphs; `.rst` promotes an underlined first-line title on a best-effort basis.
+- Gotchas: nested list depth is approximated from leading whitespace (2 spaces per level); reference-style links, footnotes, and HTML blocks are passed through as prose; the parser is deliberately small, so complex Markdown may render as paragraphs rather than its richest form.
+
+## CSV / TSV (universal ingestion)
+
+- Library: the standard-library `csv` module.
+- The delimiter is sniffed (a `.tsv` file forces tab). The parsed grid goes through the SAME grid-to-block logic as Excel: a header row plus a numeric body becomes a `chart` block (`provenance: "source-data"`, inferred `chart_type_hint`); a non-numeric grid becomes a `table` block. Numeric-looking cells (including thousands separators) are coerced to numbers before the chart / table decision.
+- Caps: at most 2000 rows and 64 columns are read; an over-cap file is recorded in `coverage.skip_reasons` as `csv-cap`.
+
+## Standalone images (universal ingestion)
+
+- An image supplied as its own input file (`.png`, `.jpg`, `.jpeg`, `.gif`, `.webp`, `.bmp`, `.svg`) becomes one `image` section with `origin: "standalone-image"` and no `page`.
+- Raster images go through the base64 budget / Pillow downscale path (below); `.svg` is embedded as an `image/svg+xml` data URI (its markup, not a rasterization), bypassing the raster path.
+
+## Directory / repository walk (universal ingestion)
+
+- A directory argument is walked RECURSIVELY (`os.walk`), collecting only files whose extension / basename maps to a supported format. When the SOLE input is one directory, repository assembly runs (a synthesized `overview` section, a `tree`, README / docs first, code grouped by top-level directory, then data and images); otherwise a directory contributes its files to the normal multi-file merge.
+- Excluded by default (each counted in `coverage.walk`): tooling / VCS directories (`.git`, `.hg`, `.svn`, `.idea`, `.vscode`, ...), dependency / build output (`node_modules`, `.venv`, `venv`, `__pycache__`, `dist`, `build`, `target`, `vendor`, `site-packages`, ...), lockfiles (`package-lock.json`, `poetry.lock`, `Cargo.lock`, ...), files whose bytes sniff as binary (NUL byte or a high non-text ratio in the first 4 KB) when their format is a text format, and everything a root `.gitignore` matches.
+- `.gitignore` matching is BEST-EFFORT: it reads the walk root's `.gitignore`, supports leading-`/` anchoring, basename globs, and path globs via `fnmatch`, but does NOT implement negation (`!pattern`) or the full `**` semantics git uses. Treat it as a convenience, not a faithful git implementation.
+- Caps: `--max-files` (default 400) bounds the total files ingested (extras are dropped, counted as `file_count_capped`); `--max-text-bytes` (default 300000) truncates large text / code files. A capped or trimmed walk prints one stderr summary; nothing is silently dropped.
+- The `coverage.walk` object records `files_included`, `gitignored`, `binary_skipped`, `dirs_ignored`, `file_count_capped`, and a bounded `notes` list. The per-source `coverage` manifest still governs per-file visual reconciliation.
+
 ## Image handling and the base64 budget
 
 - Images are carried inline as base64 `data:` URIs in `image` blocks so the final HTML is fully self-contained and works offline.
@@ -80,13 +114,13 @@ The extractor is local-only and makes no network calls. Every parser is lazy-imp
 
 ## Determinism
 
-- Output ordering is fully deterministic: sources in input order, sections in source order, blocks in document order. Folder inputs are expanded to their supported files sorted by name (non-recursive).
+- Output ordering is fully deterministic: sources in input order, sections in source order, blocks in document order. A directory input is walked RECURSIVELY and its included files are sorted by repository-relative path, so re-running on the same tree yields byte-identical JSON.
 - The extractor never injects non-ASCII characters of its own; source text is preserved as valid UTF-8 in the JSON output.
 - Re-running the extractor on the same inputs produces byte-identical JSON.
 
 ## Multi-file behavior
 
-- Inputs are processed in the order given on the command line. A folder argument expands to its supported files sorted by name.
+- Inputs are processed in the order given on the command line. A folder argument expands to its supported files, walked recursively and sorted by repository-relative path (see the directory / repository walk section above); a single-directory input additionally triggers repository assembly.
 - Each source contributes a labeled, contiguous run of sections; within a source, that source's own order is preserved.
 - Every section carries a `source_index` pointing at its entry in the top-level `sources` manifest, so attribution survives the merge.
 - A `section-break` is inserted at each source boundary (its heading is the source title), and a synthesized overview title section listing all sources is prepended. This is the "compile multiple sources into one presentation" behavior.

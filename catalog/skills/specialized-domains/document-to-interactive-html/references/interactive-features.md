@@ -30,6 +30,43 @@ Implementation approach (no library): render to a `<canvas>` (or an inline SVG y
 
 If the source has figures, tables, or images, they appear in the site: images inline as base64; numeric data as the interactive charts above; large tables as sortable / filterable tables where that helps the reader.
 
+### Prominence preservation
+
+Respect the source's visual hierarchy. A visual the author made dominant stays dominant in the site; do not flatten a hero image into a uniform thumbnail grid. Each `image` block carries prominence signals from the extractor: `page_fraction` (0..1, the share of the source page / slide it occupied) and native `width` / `height` (see `references/content-model.md`).
+
+- **Rank each section's visuals** by `page_fraction`, falling back to relative `width * height`, then to whether the image is the sole / primary visual of its section.
+- **Heroes render as heroes.** A visual that dominates its source - roughly `page_fraction >= 0.5`, OR the single primary visual of a section, OR (when `page_fraction` is absent) markedly larger than its siblings - gets a prominent treatment: its own full-width band or a wide column, sized to be seen, not shrunk into a row of equal thumbnails.
+- **Group only genuinely-secondary visuals.** Several small images of comparable, low `page_fraction` (logos, a strip of thumbnails, incidental screenshots) may become a gallery / grid - but size the grid so each image is legible, never a postage stamp.
+- **Never flatten a hero.** A single dominant image must not be demoted to thumbnail size beside unrelated cards; that width mismatch is the exact fidelity loss this rule prevents.
+- **Native resolution end to end.** Render from the native-resolution asset, and in any lightbox / zoom show that SAME full-resolution `data_uri` - never an upscaled thumbnail. This reinforces the figure-reconstruction lightbox rule; build the viewer once.
+- **When the signals are absent** (`page_fraction` null and no `width` / `height`, e.g. a standalone image or a DOCX inline image), fall back to the image's role in its section: a section's only image is its hero; a run of comparable images is a gallery.
+
+The failure mode to avoid is the "contact sheet": taking a slide that was dominated by two or three large photos and rendering it as a dense, uniform grid of small tiles. Preserve the source's emphasis and enhance it with the lightbox and motion; do not erase it.
+
+### Spacing and density
+
+Complement the horizontal width discipline with vertical discipline: no dead, half-empty screens.
+
+- **Size every section to its content.** Do not stretch a section to a fixed one-screen height that leaves half a viewport empty. Section height follows content, not a slide grid.
+- **Use a consistent vertical rhythm** from the committed spacing token, not large unmotivated gaps between blocks.
+- **Compact or pair sparse sections.** A section with a single chart or a short list either gets a deliberately compact band or is paired with an adjacent related element (its caption, a stat, the source figure, a related image) rather than floating alone in whitespace.
+- **Reserve generous whitespace for intentional emphasis** (a hero, a section transition), never as the page-wide default that produces the empty look.
+
+This is the vertical partner to "use the viewport width on purpose": decide density per section, and let content, not a fixed slide frame, set the height.
+
+### Output aspect (the canvas)
+
+The output aspect is resolved right after the style direction (a named `--layout` binds and skips the menu; otherwise the aspect menu is offered; see the command and SKILL.md). It governs the page's CSS canvas and composes WITH the per-element width discipline and the design tokens - it never overrides them. Record the resolved aspect (and whether it was auto-picked) in the design-record HTML comment.
+
+Four options, mirroring the style menu:
+
+- **Full-width** - the site fills a 16:9 screen edge to edge, so opening it fullscreen occupies most of a typical widescreen display. CSS: a wide page container (`max-width: 100%` or a very large cap) with generous side gutters, full-bleed bands, and multi-column content zones; hero and section backgrounds span the viewport. Best for deck-like sources.
+- **Standard** - a typical centered webpage column (`max-width` about 72-90rem, centered, comfortable side margins). Sections stack in a readable central measure with occasional wider break-outs for charts / tables. Best for reports and repositories.
+- **Portrait** - a tall, narrow, reading- / mobile-oriented canvas (`max-width` about 40-52rem). Single-column, strong vertical rhythm, large tap targets; charts and tables scroll within their own container rather than forcing the page wide. Best for long-form reading and phone-first delivery.
+- **Other** - a caller description (equivalent to `--layout <description>`); interpret it into concrete canvas decisions and record them.
+
+**Non-interactive fallback (content-aware):** when the menu cannot be answered, pick by source - a deck-like source (a `.pptx`, or a PDF whose source entry carries `deck_like: true`) defaults to Full-width; a report, a repository, or a text-dominant source defaults to Standard. Record the chosen aspect and that it was auto-picked.
+
 ### Site-wide interaction layer
 
 Charts are not the only carrier of dynamism - a source with zero chartable data must STILL produce a page that responds to the reader. This layer is the interactivity vocabulary for everything that is not a chart. All patterns are inlined vanilla JS/CSS (no library, no CDN), keyboard-accessible, and guarded by `prefers-reduced-motion`.
@@ -53,6 +90,68 @@ Every run MUST ship ALL FIVE of the following, functional offline with zero exte
 5. At least ONE content-appropriate signature interaction chosen to fit the content: animated counters for a KPI-heavy source, tabs/accordions for a dense report, a comparison slider, a filterable grid, an annotated-figure hotspot layer... (patterns 4/6/7 or a bespoke move).
 
 A page whose only interactivity is its charts FAILS the budget. A page with no charts at all still meets the budget through this layer - that is the point.
+
+### Interactivity spectrum (restrained / balanced / rich)
+
+The interactivity level is resolved right after the output aspect (`--interactivity`, or the menu; see the command and SKILL.md), and it selects HOW MUCH of the layer above is in play. The three levels are a spectrum from a credible, journalistic-report stillness to a full scrollytelling narrative. All three honor the same non-negotiables: offline / no-CDN, keyboard-accessible, and reduced-motion-guarded.
+
+- **RESTRAINED** - user-initiated interaction only. In play: pattern 3 (hover + focus affordances), pattern 6 (expand / collapse), anchor navigation with active-state tracking (a non-animated highlight, not scroll-triggered motion), pattern 5 (the image lightbox), chart readouts, and click-toggle legends. NOT in play: pattern 1 scroll-triggered reveals, pattern 4 scroll-fired counters, and every scrollytelling pattern below. This is the credible end for a report or a white paper, where scroll-driven movement reads as gimmicky. Observable criterion: scrolling the page produces NO content motion; every animation is the direct result of a click, hover, focus, or keypress. It still satisfies the five budget POINTS - point 2 ("scroll-triggered reveals OR an equivalent scroll-responsive treatment") is met by the active-state nav highlight with content always visible, and point 5's signature interaction is a user-initiated one (an accordion, a filterable grid, a click-toggle).
+- **BALANCED** - the current minimum interaction budget, unchanged. Adds pattern 1 (scroll-triggered reveals), pattern 2 (active-section nav tracking, optional reading-progress bar), pattern 4 (animated counters), pattern 5 (lightbox), and pattern 7 (micro-transitions). Observable criterion: sections reveal on scroll, the nav tracks the active section, and at least one signature move is present. This is the default for a deck or a data story.
+- **RICH** - scrollytelling. Everything BALANCED ships, plus at least one pattern from the scrollytelling catalog below (a pinned / sticky graphic sequence, a full-bleed image-to-text transition, parallax layers, a progress-driven timeline, or a before / after slider). Observable criterion: at least one pinned / sticky-graphic sequence OR a progress-driven scroll narrative is present on top of the balanced layer. RICH still honors the offline / no-CDN / reduced-motion guarantees: under `prefers-reduced-motion: reduce`, every scrollytelling effect degrades to a static, linearly-readable form (below), so a rich page and a restrained page are nearly indistinguishable for a reduced-motion user - by design.
+
+Mapping summary: RESTRAINED = user-initiated patterns (3, 6, lightbox, anchor nav) with no scroll motion; BALANCED = RESTRAINED plus scroll-triggered patterns (1, 2, 4, 7); RICH = BALANCED plus one or more scrollytelling patterns. The non-interactive fallback picks the level from the content (a deck or data story -> BALANCED; a report -> RESTRAINED) and records it in the design-record comment.
+
+### Scrollytelling pattern catalog (RICH level)
+
+Each pattern is inlined vanilla JS / CSS - no external library, no CDN - and each carries an accessibility note. The unifying rule: content is NEVER gated behind JS or behind the scroll effect, and every effect has a static, linearly-readable fallback under `prefers-reduced-motion: reduce`.
+
+1. **Pinned / sticky graphic with scroll steps** - a media column that stays fixed (`position: sticky; top: 0`) while a column of text "steps" scrolls past it; an `IntersectionObserver` on each step swaps the pinned graphic's state (a highlighted data series, a map layer, a zoom level). Sketch:
+
+    ```js
+    const steps = document.querySelectorAll('.step');
+    const obs = new IntersectionObserver(es => es.forEach(e => {
+      if (e.isIntersecting) setGraphicState(e.target.dataset.state);
+    }), {rootMargin: '-45% 0px -45% 0px'});  // fire near viewport middle
+    steps.forEach(s => obs.observe(s));
+    ```
+
+    Accessibility: each step is real, self-contained prose (the sequence reads linearly with the graphic absent); the pinned graphic carries a text alternative for its final / most-complete state; under reduced motion, drop the pinning (the graphic renders inline once at its most-complete state and the steps read as an ordinary list).
+
+2. **Full-bleed image-to-text transition** - a full-viewport image that cross-fades or scales into the following text block as it scrolls out. Implement with a sticky image layer whose `opacity` / `transform` is driven by the section's scroll progress (an `IntersectionObserver` threshold list, or a `requestAnimationFrame`-throttled `scroll` read of the section's bounding rect). Accessibility: the image is either decorative (`alt=""`, `aria-hidden`) or carries real `alt`; the following text is present and readable regardless of the transition; under reduced motion the image simply ends, then the text begins (no cross-fade).
+
+3. **Parallax layers** - a background layer translates slower than the foreground for depth. Drive `transform: translate3d(0, <offset>, 0)` from scroll position, throttled with `requestAnimationFrame`; set `will-change: transform` only on the moving layer and only while it is on screen. Sketch:
+
+    ```js
+    let ticking = false;
+    addEventListener('scroll', () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        layer.style.transform = `translate3d(0, ${scrollY * 0.3}px, 0)`;
+        ticking = false;
+      });
+    });
+    ```
+
+    Accessibility: parallax is a known vestibular-motion trigger, so DISABLE it entirely under `prefers-reduced-motion: reduce` (guard the listener behind the media query and leave the layer static) - do not merely shorten it; never parallax text the reader must follow, only decorative background layers.
+
+4. **Progress-driven timeline** - a vertical timeline whose active node tracks the scroll position (an `IntersectionObserver` per node setting an `.active` state) with a progress line that fills via a `requestAnimationFrame`-throttled scroll read. Accessibility: the timeline is a real ordered list (`<ol>`) that reads top-to-bottom without JS; the fill line is `aria-hidden` (decorative); the active node also sets `aria-current="step"`.
+
+5. **Before / after comparison slider** - two stacked images with a draggable divider driven by a native `<input type="range">`; the top image is revealed by a `clip-path: inset(0 <100 - value>% 0 0)` bound to the input value. Sketch:
+
+    ```html
+    <div class="ba"><img class="after" ...><img class="before" ...>
+      <input type="range" min="0" max="100" value="50" aria-label="Reveal before/after">
+    </div>
+    ```
+
+    ```js
+    range.addEventListener('input', () => {
+      before.style.clipPath = `inset(0 ${100 - range.value}% 0 0)`;
+    });
+    ```
+
+    Accessibility: the range input is keyboard-operable (arrow keys move the divider) and labelled; both images carry `alt`; the comparison works without a pointer and needs no motion guard (it is user-driven, not scroll-driven).
 
 ### Design direction (resolve the direction, then brainstorm - creativity-first)
 
@@ -100,6 +199,110 @@ If the committed direction matches that description, it is almost certainly the 
 **Commit to concrete tokens and record them.** Write the direction down before authoring: a name, the exact colors (hex), the font pairing (heading / body / mono), the spacing rhythm, the signature layout move, the motion signature, AND the roll's seed + one-line brief summary (so the run is reproducible and auditable). Embed it as an HTML comment at the top of the output and state it to the user in one line. Then author to those tokens; do not drift back to the attractor mid-build.
 
 **Keep fonts self-contained.** Whatever the direction, keep all fonts as system stacks or base64 `@font-face`; never fetch a web font (it would break the offline guarantee). A named style or theme is resolved up front per "Resolve the direction in order" above and binds the look; the brainstorm only fills the axes it leaves open.
+
+## Imagery tiers (procedural / stock / AI)
+
+Imagery is what turns a well-typeset reflow into a designed, journalistic web story - but MOST of the professional look needs no external image at all. It is typography, layout, color, restraint, and original inline SVG / CSS. That is why Tier 1 is both the always-on default and a large share of the value. The three tiers are resolved by the imagery question (`--images`, or the menu):
+
+- **Tier 1 - procedural visuals** - original inline SVG / CSS. The zero-outbound default and the non-interactive fallback.
+- **Tier 2 - license-free stock** (opt-in, consent-gated for the build-time fetch) - openly-licensed images / video, base64-embedded.
+- **Tier 3 - local AI-generated images** (opt-in) - a LOCAL commercially-clean model; no hosted service.
+
+The offline guarantee is absolute across all three: EVERY visual - procedural, stock, or AI - is emitted as inline SVG / CSS or a base64 `data:` URI. Any fetch or generation happens ONLY at authoring (build) time; nothing external is referenced from the delivered HTML. The default run, and every non-interactive / headless run, uses Tier 1 only - there is no silent outbound path.
+
+### Tier 1 - procedural visuals (default)
+
+The agent authors ORIGINAL visuals, inlined as SVG / CSS, with no external asset and no CDN. This is the default imagery tier and the non-interactive fallback, and it is commercial-safe BY CONSTRUCTION (original work) and fully offline. See `[[generative-art]]` for the procedural / generative vocabulary and `[[ui-component-generation]]` for authoring UI visuals directly with the agent's own output rather than fetching them.
+
+The procedural vocabulary:
+
+- **Backgrounds**: full-bleed color fields and gradient / mesh backgrounds behind hero and section text.
+- **Dividers**: duotone / halftone treatments and rule-line motifs as section transitions.
+- **Editorial devices**: rule lines, drop caps, pull-quotes, and big callout numbers.
+- **Textures and illustrations**: generative textures and simple thematic illustrations (geometric, line-art, or a data-motif) tuned to the content's subject and the committed palette.
+
+The rules that keep Tier 1 safe and coherent:
+
+- **Decorative or supportive, never load-bearing.** A procedural visual never carries information the text does not, so the page stays complete under reduced contrast, monochrome, or print. Anything that conveys data is a chart (per "Dynamic, manipulable charts"), not a background.
+- **Contrast stays within the accessibility gate.** A background field or gradient must keep body and heading text contrast within the `[[hallmark-design]]` accessibility gate; darken / lighten or add a scrim rather than let a gradient wash out text.
+- **Token coherence.** Every procedural visual follows the committed design tokens (palette, type scale, motion signature) so the visuals and the type read as one system, not as bolted-on decoration.
+- **Content-relevant, not cliche.** Motifs match the subject: a clinical topic gets restrained clinical / data motifs, not a stock-photo cliche; a launch gets bolder generative texture. Relevance beats ornament.
+
+Tier 1 is the zero-outbound default: it needs no network, no dependency, and no credential, and it is what every non-interactive run ships.
+
+### Tier 2 - license-free stock (opt-in, consent-gated)
+
+When the user picks the `stock` imagery tier AND consents to the build-time network use, the authoring stage derives short relevance keywords from the content (per section / topic) and runs the bundled helper `scripts/fetch_stock_media.py` to fetch openly-licensed, free-for-commercial-use images / video, verify each license, capture attribution, and base64-embed the result. The output still opens offline with zero external requests: the fetch happens ONLY at build time and every asset is inlined as a `data:` URI. This tier is NEVER the default and NEVER runs in a non-interactive / headless run.
+
+The consent gate is the load-bearing invariant. `fetch_stock_media.py` performs NO network call unless `--consent` is passed; without it, it prints a notice, writes an empty degraded manifest, and exits with the degrade code (3), and the authoring stage stays on Tier 1. The helper also degrades (never raises) on a missing library, a missing API key, a network error, or zero results.
+
+Sources (the helper queries one `--source`, Openverse by default):
+
+- **Openverse** (default, keyless) - a CC / public-domain aggregator with per-file license metadata. The primary source.
+- **Wikimedia Commons** (keyless) - per-file CC / PD license read from the file's `extmetadata`.
+- **Pexels** (needs `PEXELS_API_KEY` in the environment, never hardcoded; absent key => the source is skipped) - a blanket-license platform.
+- **Coverr / Mixkit** - accepted on the CLI for interface parity, but this helper has no keyless search API for them, so they degrade with a note. Prefer Openverse / Wikimedia; a video need is best served by a configured Pexels key.
+
+Per-source license rules (encoded in the helper, enforced before any asset is embedded):
+
+- **Openverse / Wikimedia (CC / PD per file)**: keep the license id and, for **CC-BY / CC-BY-SA**, build the required attribution string (title, author, license label, source name). **CC0 / Public Domain Mark** need no attribution but are still credited for auditability.
+- **Pexels / Coverr / Mixkit (blanket license)**: commercial use is allowed with no per-asset attribution required, but the asset still gets a source credit.
+
+The commercial-use gate is an allow-list, so it fails safe: only `cc0`, `pdm`, `by`, `by-sa` (plus the blanket-license sources) pass; ANY code carrying a NonCommercial (`nc`) or NoDerivatives (`nd`) term is rejected, and any unrecognized license is skipped with a noted reason. A non-commercial asset is never embedded.
+
+The compiling-content trap (why CC0 / PD is preferred): the custom licenses of Unsplash, Pexels, and Pixabay permit commercial use of individual assets but restrict "compiling photos to replicate a similar or competing service". Presentify embeds a few content-relevant assets into a single delivered page; it is NOT a stock-media service, routes only short content-derived keywords (never the source document), and never redistributes a media library. Prefer CC0 / public-domain from Openverse / Wikimedia, and never present the tool as a stock-image service. Per the Attribution Rule, source names appear only in the credits, as a licensing necessity.
+
+Keeping attribution offline-clean: the visible "Image credits" section carries the human-readable attribution (title, author, license label, source name) with NO raw `http(s)` URL, so the delivered HTML still passes the offline external-reference self-check; the asset URL and license URL live in the adjacent HTML comment and in the credits manifest (both machine-readable, both outside the grep). The helper emits its manifest as an array of credit entries (the `assets` array), which is exactly the credits-manifest shape the "Visual provenance and credits" convention below consumes: the authoring stage renders the "Image credits" section from it and drops each adjacent comment.
+
+### Tier 3 - local AI-generated images (opt-in, local-only)
+
+When the user picks the `ai` imagery tier, the authoring stage builds a prompt from the content and the committed style tokens (subject, mood, palette) and runs the bundled helper `scripts/generate_local_image.py` to generate an original image with a LOCAL model runtime, base64-embed it, and record the model + license + copyright caveat. The output still opens offline with zero external requests.
+
+The hard constraint is LOCAL generation only. A third-party generation API (DALL-E, Midjourney, hosted Stable Diffusion, FLUX Pro, ...) is OUT OF SCOPE by policy - generation-as-service is a hard-no on the MCP / capability policy. The helper makes NO network call and imports no hosted-API client; it forces the model runtime into offline mode BEFORE importing it, so a missing runtime or missing weights degrades to a setup hint rather than triggering an implicit weight download. Model weights are obtained by the user out-of-band; the script never downloads them.
+
+Models and runtimes:
+
+- **Models** (commercially-clean, locally runnable): FLUX.1 schnell (Apache-2.0, the default) or SDXL base (CreativeML Open RAIL++-M). A model whose license is not free-for-commercial-use is rejected.
+- **Runtimes** (either, both optional and opt-in): `diffusers` + `torch` (loaded with `local_files_only=True` and `HF_HUB_OFFLINE=1` so no download is attempted), or a user-configured LOCAL CLI via `NEXUS_LOCAL_IMAGE_CMD` (run via subprocess, never a shell; declare its model license via `NEXUS_LOCAL_IMAGE_LICENSE`).
+
+The heavy dependency is opt-in: when no local runtime or weights are present, the helper prints a setup hint and degrades to Tier 1 - it never raises and never falls back to a hosted API.
+
+Copyright caveat: purely AI-generated output may not be copyrightable. The helper records `note: "AI-generated; may not be copyrightable"` in each asset's provenance, and the credits section surfaces the model, its license, and this caveat. Like Tier 2, the helper emits the `assets` array credits-manifest shape the "Visual provenance and credits" convention below consumes.
+
+### Visual provenance and credits
+
+Every visual added to the output carries PROVENANCE, and every non-original visual is CREDITED. This one convention serves all three tiers, so licensing is auditable and attribution is always present when a license requires it. It is the shared contract the Tier 2 and Tier 3 helpers emit into and the verification step reconciles against.
+
+Per-tier provenance:
+
+- **Tier 1 (procedural)**: `original (generated)` - authored by the agent, no external source.
+- **Tier 2 (stock)**: the source name, the asset URL, the license id (e.g. `CC0`, `CC-BY-4.0`, `Pexels License`), the license URL, and the author / attribution text.
+- **Tier 3 (AI)**: the model name, the model license (e.g. `Apache-2.0`, `Open-RAIL-M`), and the note `AI-generated; may not be copyrightable`.
+
+Provenance is recorded in TWO places:
+
+1. **An HTML comment adjacent to the visual**, so the source of any single visual is greppable in place. Use a one-line `credit:` JSON object (below) immediately before the visual's element.
+2. **A visible "Image credits" section near the end of the output**, listing every NON-ORIGINAL asset with its license and attribution. CC-BY / CC-BY-SA assets MUST show the full attribution string here (it is a license requirement); CC0 / public-domain / no-attribution assets are still listed for auditability. On a Tier-1-only page there is nothing to attribute, so the section states that all visuals are original (generated).
+
+The credits data shape (one entry per visual; the adjacent comment carries one object, the credits section renders the array):
+
+```json
+{
+  "tier": "procedural | stock | ai",
+  "provenance": "original (generated)",           // tier 1 only
+  "source": "Openverse",                           // tier 2: aggregator / site name
+  "url": "https://.../asset",                      // tier 2: asset page or file URL
+  "license": "CC-BY-4.0",                          // tier 2/3: SPDX-like id
+  "license_url": "https://creativecommons.org/licenses/by/4.0/",
+  "author": "Jane Doe",                            // tier 2: creator
+  "title": "Cooling towers at dusk",              // tier 2: asset title
+  "attribution": "\"Cooling towers at dusk\" by Jane Doe, CC BY 4.0",  // tier 2: built string, required for CC-BY
+  "model": "FLUX.1 schnell",                       // tier 3: model name
+  "note": "AI-generated; may not be copyrightable" // tier 3
+}
+```
+
+The Tier 2 / Tier 3 helper scripts emit a JSON manifest that is an array of these entries (the `credits manifest`); the authoring stage renders the "Image credits" section from it and drops each adjacent comment. This provenance ledger is parallel to, and does not replace, the Step 7 coverage-reconciliation comment (which accounts for SOURCE visuals): coverage reconciliation answers "is every source visual represented?", the credits ledger answers "does every ADDED visual have a free-for-commercial-use license and required attribution?". Verification reconciles the rendered credits section against the adjacent comments: any non-original visual missing from the credits, or any visual with no provenance at all, is a failure.
 
 ## Optional Baseline: the deterministic builder's features
 

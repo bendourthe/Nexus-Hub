@@ -5,11 +5,12 @@ document-to-interactive-html skill.
 
 This script ships as a Tier-3 bundled resource: the agent invokes it via the
 shell and consumes its JSON output without reading the source into context. It
-maps one OR many source documents - in any mix of PowerPoint (.pptx), Word
-(.docx), Excel (.xlsx), and PDF (.pdf) - into the single normalized "content
-model" (schema_version 2) defined in references/content-model.md. The builder
-(build_presentation.py) consumes that model and never reads a source format
-directly.
+maps one OR many inputs - documents (PowerPoint .pptx, Word .docx, Excel .xlsx,
+PDF .pdf), source code / config, Markdown / plain text, CSV / TSV, standalone
+images, or a whole directory / repository walked recursively - into the single
+normalized "content model" (schema_version 2) defined in
+references/content-model.md. The builder (build_presentation.py) consumes that
+model and never reads a source format directly.
 
 LOCAL-FIRST and ZERO-NETWORK by construction: every parser is a local library,
 imported LAZILY inside the function that needs it so a missing library degrades
@@ -40,6 +41,7 @@ Usage:
     python extract_content.py deck.pptx -o model.json
     python extract_content.py report.docx data.xlsx -o combined.json
     python extract_content.py ./inputs_folder -o model.json --max-image-bytes 1500000
+    python extract_content.py ./my-repo -o repo.json --max-files 400 --max-text-bytes 300000
 
 Output is written to the --out JSON path; all diagnostics go to stderr so stdout
 stays clean. Output ordering is deterministic: sources in input order, sections
@@ -54,11 +56,34 @@ import argparse
 import base64
 import hashlib
 import json
+import os
 import re
 import statistics
 import sys
 from pathlib import Path
 from typing import NoReturn
+
+# Extension -> language for source-code / config files (universal ingestion).
+CODE_LANGUAGES = {
+    ".py": "python", ".pyw": "python", ".js": "javascript",
+    ".mjs": "javascript", ".cjs": "javascript", ".jsx": "jsx",
+    ".ts": "typescript", ".tsx": "tsx", ".go": "go", ".rs": "rust",
+    ".java": "java", ".kt": "kotlin", ".kts": "kotlin", ".c": "c",
+    ".h": "c", ".cpp": "cpp", ".cc": "cpp", ".cxx": "cpp", ".hpp": "cpp",
+    ".cs": "csharp", ".rb": "ruby", ".php": "php", ".swift": "swift",
+    ".scala": "scala", ".r": "r", ".m": "objectivec", ".mm": "objectivec",
+    ".sh": "bash", ".bash": "bash", ".zsh": "bash", ".ps1": "powershell",
+    ".psm1": "powershell", ".sql": "sql", ".pl": "perl", ".lua": "lua",
+    ".dart": "dart", ".vue": "vue", ".svelte": "svelte", ".json": "json",
+    ".jsonc": "json", ".yaml": "yaml", ".yml": "yaml", ".toml": "toml",
+    ".ini": "ini", ".cfg": "ini", ".conf": "ini", ".properties": "ini",
+    ".xml": "xml", ".gradle": "groovy", ".tf": "hcl", ".proto": "protobuf",
+    ".graphql": "graphql", ".css": "css", ".scss": "scss", ".less": "less",
+}
+MARKDOWN_EXTENSIONS = {".md", ".markdown", ".mdown", ".mkd"}
+TEXT_EXTENSIONS = {".txt", ".text", ".rst", ".log"}
+CSV_EXTENSIONS = {".csv", ".tsv"}
+IMAGE_EXTENSIONS = {".png", ".jpg", ".jpeg", ".gif", ".webp", ".bmp", ".svg"}
 
 EXTENSION_FORMATS = {
     ".pptx": "pptx",
@@ -66,6 +91,41 @@ EXTENSION_FORMATS = {
     ".xlsx": "xlsx",
     ".pdf": "pdf",
 }
+EXTENSION_FORMATS.update(dict.fromkeys(CODE_LANGUAGES, "code"))
+EXTENSION_FORMATS.update(dict.fromkeys(MARKDOWN_EXTENSIONS, "markdown"))
+EXTENSION_FORMATS.update(dict.fromkeys(TEXT_EXTENSIONS, "text"))
+EXTENSION_FORMATS.update(dict.fromkeys(CSV_EXTENSIONS, "csv"))
+EXTENSION_FORMATS.update(dict.fromkeys(IMAGE_EXTENSIONS, "image"))
+
+# Files recognized by basename (they carry no useful suffix).
+SPECIAL_BASENAMES = {
+    "dockerfile": ("code", "dockerfile"),
+    "makefile": ("code", "makefile"),
+    "cmakelists.txt": ("code", "cmake"),
+    "rakefile": ("code", "ruby"),
+    "gemfile": ("code", "ruby"),
+}
+
+# Formats whose bytes are text (subject to the binary sniff during a walk).
+TEXT_FORMATS = {"code", "markdown", "text", "csv"}
+
+# Directory / repository walk controls.
+DEFAULT_MAX_TEXT_BYTES = 300_000
+DEFAULT_MAX_FILES = 400
+CSV_MAX_ROWS = 2000
+CSV_MAX_COLS = 64
+IGNORE_DIRS = {
+    ".git", ".hg", ".svn", ".idea", ".vscode", ".vs", "node_modules",
+    ".venv", "venv", "__pycache__", "dist", "build", "out", ".next",
+    ".nuxt", "target", ".pytest_cache", ".mypy_cache", ".ruff_cache",
+    ".tox", ".gradle", ".terraform", "coverage", ".cache", "vendor",
+    "bower_components", ".svelte-kit", ".parcel-cache", "site-packages",
+}
+IGNORE_BASENAMES = {
+    "package-lock.json", "yarn.lock", "pnpm-lock.yaml", "poetry.lock",
+    "cargo.lock", "composer.lock", "gemfile.lock", "go.sum",
+}
+_NUMBER_RE = re.compile(r"^-?\d+(\.\d+)?$")
 
 DEFAULT_MAX_IMAGE_BYTES = 2_000_000
 
@@ -149,6 +209,26 @@ def _sniff_image_type(blob: bytes) -> str:
     return "image/png"
 
 
+def _image_dimensions(blob: bytes) -> tuple:
+    """Native (width, height) in pixels via Pillow, or (None, None) when the
+    library is absent or the bytes will not decode (e.g. SVG).
+
+    Computed from the ORIGINAL blob so the signal reflects the source's native
+    resolution even when the stored image is later downscaled for the budget.
+    """
+    try:
+        from PIL import Image
+    except ImportError:
+        return (None, None)
+    import io
+
+    try:
+        with Image.open(io.BytesIO(blob)) as image:
+            return (int(image.width), int(image.height))
+    except (OSError, ValueError):
+        return (None, None)
+
+
 def _try_downscale(blob: bytes, max_bytes: int) -> bytes | None:
     """Best-effort downscale of an over-budget image via Pillow (optional).
 
@@ -209,9 +289,16 @@ def _image_block(
     origin: str,
     page: int | None = None,
     caption: str | None = None,
+    page_fraction: float | None = None,
 ) -> dict | None:
-    """Coverage-counted image block with the schema-v2 metadata fields."""
+    """Coverage-counted image block with the schema-v2/v3 metadata fields.
+
+    `page_fraction` (0..1) is the share of the source page/slide AREA the image
+    occupies, when the caller can compute it; `width`/`height` are the native
+    pixel dimensions. Both are prominence signals for the authoring stage.
+    """
     cov["images_found"] += 1
+    width, height = _image_dimensions(blob)
     block = _encode_image(blob, content_type, alt, max_bytes)
     if block is None:
         cov["images_skipped"] += 1
@@ -223,6 +310,11 @@ def _image_block(
         block["page"] = page
     if caption:
         block["caption"] = caption
+    if width is not None and height is not None:
+        block["width"] = width
+        block["height"] = height
+    if page_fraction is not None:
+        block["page_fraction"] = round(max(0.0, min(1.0, float(page_fraction))), 3)
     cov["images_kept"] += 1
     return block
 
@@ -239,7 +331,7 @@ def _table_from_grid(grid: list) -> dict | None:
 def _new_coverage(path: str) -> dict:
     """Fresh per-source coverage-manifest entry (schema v2)."""
     return {
-        "path": Path(path).name,
+        "path": path,
         "images_found": 0,
         "images_kept": 0,
         "images_skipped": 0,
@@ -375,13 +467,19 @@ def _pptx_table_block(table: object) -> dict | None:
 
 
 def _pptx_image_block(
-    shape: object, max_bytes: int, cov: dict, slide_no: int
+    shape: object, max_bytes: int, cov: dict, slide_no: int, slide_area: float
 ) -> dict | None:
     try:
         image = shape.image
     except (AttributeError, ValueError):
         return None
     alt = (getattr(shape, "name", "") or "Image").strip() or "Image"
+    page_fraction = None
+    try:
+        if slide_area and shape.width and shape.height:
+            page_fraction = (float(shape.width) * float(shape.height)) / slide_area
+    except (AttributeError, TypeError, ValueError):
+        page_fraction = None
     return _image_block(
         image.blob,
         image.content_type,
@@ -390,6 +488,7 @@ def _pptx_image_block(
         cov,
         origin="shape-picture",
         page=slide_no,
+        page_fraction=page_fraction,
     )
 
 
@@ -463,6 +562,9 @@ def _extract_pptx(path: str, max_bytes: int, cov: dict) -> tuple[str, list]:
         _missing("python-pptx")
 
     presentation = Presentation(path)
+    slide_area = float(presentation.slide_width or 0) * float(
+        presentation.slide_height or 0
+    )
     doc_title: str | None = None
     sections: list = []
     for index, slide in enumerate(presentation.slides):
@@ -493,7 +595,7 @@ def _extract_pptx(path: str, max_bytes: int, cov: dict) -> tuple[str, list]:
             elif getattr(shape, "has_chart", False):
                 block = _pptx_chart_block(shape, cov, slide_no)
             elif shape.shape_type == MSO_SHAPE_TYPE.PICTURE:
-                block = _pptx_image_block(shape, max_bytes, cov, slide_no)
+                block = _pptx_image_block(shape, max_bytes, cov, slide_no, slide_area)
             elif getattr(shape, "has_text_frame", False):
                 block = _pptx_text_block(shape.text_frame)
             if block is not None:
@@ -1505,6 +1607,7 @@ def _extract_pdf(path: str, max_bytes: int, cov: dict) -> tuple[str, list]:
 
             heading = _pdf_heading(page)
             section = _pdf_page_section(text, page_no, heading_override=heading)
+            page_area = float(page.width) * float(page.height) or 1.0
 
             table_bboxes: list = []
             try:
@@ -1544,6 +1647,11 @@ def _extract_pdf(path: str, max_bytes: int, cov: dict) -> tuple[str, list]:
                     )
                 bbox = bboxes_by_order[raster_index] if bboxes_by_order else None
                 caption = _match_caption(bbox, text_lines) if bbox else None
+                frac = (
+                    (bbox[2] - bbox[0]) * (bbox[3] - bbox[1]) / page_area
+                    if bbox
+                    else None
+                )
                 block = _image_block(
                     entry["blob"],
                     _sniff_image_type(entry["blob"]),
@@ -1553,6 +1661,7 @@ def _extract_pdf(path: str, max_bytes: int, cov: dict) -> tuple[str, list]:
                     origin="embedded-raster",
                     page=page_no,
                     caption=caption,
+                    page_fraction=frac,
                 )
                 if block is not None:
                     visuals.append((bbox[1] if bbox else 1e9, block))
@@ -1569,6 +1678,7 @@ def _extract_pdf(path: str, max_bytes: int, cov: dict) -> tuple[str, list]:
                         cov["vector_regions_skipped"] += 1
                         continue
                     caption = _match_caption(bbox, text_lines)
+                    frac = (bbox[2] - bbox[0]) * (bbox[3] - bbox[1]) / page_area
                     block = _image_block(
                         png,
                         "image/png",
@@ -1578,6 +1688,7 @@ def _extract_pdf(path: str, max_bytes: int, cov: dict) -> tuple[str, list]:
                         origin="rasterized-region",
                         page=page_no,
                         caption=caption,
+                        page_fraction=frac,
                     )
                     if block is not None:
                         cov["vector_regions_rasterized"] += 1
@@ -1606,28 +1717,552 @@ def _extract_pdf(path: str, max_bytes: int, cov: dict) -> tuple[str, list]:
     return doc_title or Path(path).stem, sections
 
 
+# --- universal ingestion: text / code / markdown / csv / image -------------
+
+
+def _read_text_file(path: str, max_text_bytes: int) -> tuple[str, bool, bool]:
+    """Read a text file as UTF-8 (latin-1 fallback), capped to max_text_bytes.
+
+    Returns (text, truncated, decode_fallback).
+    """
+    raw = Path(path).read_bytes()
+    decode_fallback = False
+    try:
+        text = raw.decode("utf-8")
+    except UnicodeDecodeError:
+        text = raw.decode("latin-1", errors="replace")
+        decode_fallback = True
+    truncated = False
+    if len(text) > max_text_bytes:
+        text = text[:max_text_bytes]
+        truncated = True
+    return text, truncated, decode_fallback
+
+
+def _one_section(heading: str, blocks: list, kind: str = "content") -> dict:
+    """A single source-index-0 section (the caller fixes source_index later)."""
+    return {
+        "heading": heading,
+        "subheading": None,
+        "kind": kind,
+        "source_index": 0,
+        "blocks": blocks,
+    }
+
+
+def _extract_code(
+    path: str, max_text_bytes: int, cov: dict, rel_path: str
+) -> tuple[str, list]:
+    """A source-code / config file -> one section with a single code block."""
+    text, truncated, fallback = _read_text_file(path, max_text_bytes)
+    if fallback:
+        cov["skip_reasons"].append(f"decode-fallback (latin-1): {rel_path}")
+    if truncated:
+        text = text.rstrip() + "\n\n... [truncated at the text-byte cap] ..."
+    block = {
+        "type": "code",
+        "text": text,
+        "language": _code_language(path),
+        "path": rel_path,
+    }
+    if truncated:
+        block["truncated"] = True
+    return rel_path, [_one_section(rel_path, [block])]
+
+
+def _extract_text(
+    path: str, max_text_bytes: int, cov: dict, rel_path: str
+) -> tuple[str, list]:
+    """A plain-text file -> one section of blank-line-separated paragraphs."""
+    text, truncated, fallback = _read_text_file(path, max_text_bytes)
+    if fallback:
+        cov["skip_reasons"].append(f"decode-fallback (latin-1): {rel_path}")
+    lines = text.splitlines()
+    heading = rel_path
+    start = 0
+    # Best-effort reStructuredText underlined title.
+    if (
+        len(lines) >= 2
+        and lines[0].strip()
+        and len(lines[1].strip()) >= 3
+        and set(lines[1].strip()) <= set("=-~^\"'#*+`")
+    ):
+        heading = lines[0].strip()
+        start = 2
+    paragraphs: list = []
+    current: list = []
+    for line in lines[start:]:
+        if line.strip():
+            current.append(line.strip())
+        elif current:
+            paragraphs.append(" ".join(current))
+            current = []
+    if current:
+        paragraphs.append(" ".join(current))
+    blocks = [{"type": "paragraph", "text": para} for para in paragraphs if para]
+    if truncated:
+        blocks.append(
+            {"type": "paragraph", "text": "[truncated at the text-byte cap]"}
+        )
+    return heading, [_one_section(heading, blocks)]
+
+
+def _md_flush_paragraph(buffer: list, blocks: list) -> None:
+    text = " ".join(buffer).strip()
+    if text:
+        blocks.append({"type": "paragraph", "text": text})
+    buffer.clear()
+
+
+def _md_local_image(
+    line: str, base_dir: Path, max_bytes: int, cov: dict
+) -> dict | None:
+    """A standalone Markdown image line -> an image block or a note paragraph."""
+    match = re.match(
+        r"^!\[([^\]]*)\]\(([^)\s]+)(?:\s+\"[^\"]*\")?\)\s*$", line.strip()
+    )
+    if not match:
+        return None
+    alt, src = match.group(1), match.group(2)
+    if src.startswith(("http://", "https://", "//")):
+        return {"type": "paragraph", "text": f"[Image: {alt or src} (remote: {src})]"}
+    target = (base_dir / src).resolve()
+    try:
+        blob = target.read_bytes()
+    except OSError:
+        return {"type": "paragraph", "text": f"[Image not found: {src}]"}
+    if target.suffix.lower() == ".svg":
+        return _svg_image_block(
+            blob, alt or target.name, max_bytes, cov, origin="inline-image"
+        )
+    return _image_block(
+        blob,
+        _sniff_image_type(blob),
+        alt or target.name,
+        max_bytes,
+        cov,
+        origin="inline-image",
+    )
+
+
+def _extract_markdown(
+    path: str, max_text_bytes: int, max_bytes: int, cov: dict, rel_path: str
+) -> tuple[str, list]:
+    """Parse Markdown into heading-delimited sections (intentionally minimal)."""
+    text, truncated, fallback = _read_text_file(path, max_text_bytes)
+    if fallback:
+        cov["skip_reasons"].append(f"decode-fallback (latin-1): {rel_path}")
+    base_dir = Path(path).parent
+    lines = text.splitlines()
+    doc_title: str | None = None
+    sections: list = []
+    current = _one_section(rel_path, [])
+    para: list = []
+    pending_bullets: list = []
+
+    def close_para() -> None:
+        _md_flush_paragraph(para, current["blocks"])
+
+    def close_bullets() -> None:
+        if pending_bullets:
+            current["blocks"].append(
+                {"type": "bullets", "items": list(pending_bullets)}
+            )
+            pending_bullets.clear()
+
+    def start_section(heading: str) -> None:
+        nonlocal current
+        close_para()
+        close_bullets()
+        if current["blocks"] or current["heading"] != rel_path:
+            sections.append(current)
+        current = _one_section(heading, [])
+
+    index = 0
+    while index < len(lines):
+        line = lines[index]
+        stripped = line.strip()
+        fence = re.match(r"^(`{3,}|~{3,})\s*([\w+#-]*)\s*$", stripped)
+        if fence:
+            close_para()
+            close_bullets()
+            marker = fence.group(1)[0] * 3
+            body: list = []
+            index += 1
+            while index < len(lines) and not lines[index].strip().startswith(marker):
+                body.append(lines[index])
+                index += 1
+            index += 1  # skip the closing fence
+            current["blocks"].append(
+                {"type": "code", "text": "\n".join(body), "language": fence.group(2)}
+            )
+            continue
+        atx = re.match(r"^(#{1,6})\s+(.*?)\s*#*\s*$", stripped)
+        if atx:
+            heading = atx.group(2).strip()
+            if doc_title is None:
+                doc_title = heading
+            start_section(heading)
+            index += 1
+            continue
+        if (
+            stripped
+            and index + 1 < len(lines)
+            and set(lines[index + 1].strip()) in ({"="}, {"-"})
+            and len(lines[index + 1].strip()) >= 3
+            and stripped[0] not in "-*+|>#"
+        ):
+            if doc_title is None:
+                doc_title = stripped
+            start_section(stripped)
+            index += 2
+            continue
+        image_block = _md_local_image(stripped, base_dir, max_bytes, cov)
+        if image_block is not None:
+            close_para()
+            close_bullets()
+            current["blocks"].append(image_block)
+            index += 1
+            continue
+        if (
+            "|" in stripped
+            and index + 1 < len(lines)
+            and "-" in lines[index + 1]
+            and re.match(r"^\s*\|?[\s:|-]+\|?\s*$", lines[index + 1])
+        ):
+            close_para()
+            close_bullets()
+            table_lines = [stripped]
+            index += 2  # skip header + separator
+            while index < len(lines) and "|" in lines[index] and lines[index].strip():
+                table_lines.append(lines[index].strip())
+                index += 1
+            grid = [
+                [cell.strip() for cell in row.strip().strip("|").split("|")]
+                for row in table_lines
+            ]
+            block = _table_from_grid(grid)
+            if block is not None:
+                cov["tables"] += 1
+                current["blocks"].append(block)
+            continue
+        bullet = re.match(r"^(\s*)(?:[-*+]|\d+\.)\s+(.*)$", line)
+        if bullet:
+            close_para()
+            pending_bullets.append(
+                {"text": bullet.group(2).strip(), "depth": len(bullet.group(1)) // 2}
+            )
+            index += 1
+            continue
+        if not stripped:
+            close_para()
+            close_bullets()
+        else:
+            close_bullets()
+            para.append(stripped)
+        index += 1
+
+    close_para()
+    close_bullets()
+    if current["blocks"] or current["heading"] != rel_path or not sections:
+        sections.append(current)
+    if truncated and sections:
+        sections[-1]["blocks"].append(
+            {"type": "paragraph", "text": "[truncated at the text-byte cap]"}
+        )
+    return doc_title or rel_path, sections
+
+
+def _coerce_cell(value: str) -> object:
+    """Turn a numeric-looking CSV cell into a float; keep everything else."""
+    stripped = value.strip().replace(",", "")
+    if _NUMBER_RE.match(stripped):
+        try:
+            return float(stripped)
+        except ValueError:
+            return value
+    return value
+
+
+def _extract_csv(
+    path: str, max_text_bytes: int, cov: dict, rel_path: str
+) -> tuple[str, list]:
+    """A CSV / TSV file -> a chart (numeric) or table block via the grid logic."""
+    import csv
+    import io
+
+    text, truncated, fallback = _read_text_file(path, max_text_bytes)
+    if fallback:
+        cov["skip_reasons"].append(f"decode-fallback (latin-1): {rel_path}")
+    if Path(path).suffix.lower() == ".tsv":
+        delimiter = "\t"
+    else:
+        try:
+            delimiter = csv.Sniffer().sniff(text[:4096], delimiters=",\t;|").delimiter
+        except csv.Error:
+            delimiter = ","
+    rows: list = []
+    capped = truncated
+    for row in csv.reader(io.StringIO(text), delimiter=delimiter):
+        if len(rows) >= CSV_MAX_ROWS:
+            capped = True
+            break
+        rows.append([_coerce_cell(cell) for cell in row[:CSV_MAX_COLS]])
+    if capped:
+        cov["skip_reasons"].append(f"csv-cap: {rel_path} truncated for size")
+    block = _grid_to_block(rows) if rows else None
+    if block is not None and block["type"] == "table":
+        cov["tables"] += 1
+    return Path(path).stem, [
+        _one_section(rel_path, [block] if block is not None else [], kind="data")
+    ]
+
+
+def _svg_image_block(
+    data: bytes, alt: str, max_bytes: int, cov: dict, origin: str = "standalone-image"
+) -> dict | None:
+    """Embed SVG markup as an image/svg+xml data URI (never rasterized)."""
+    cov["images_found"] += 1
+    if len(data) > max_bytes:
+        cov["images_skipped"] += 1
+        cov["skip_reasons"].append(f"over-budget svg: {alt}")
+        return None
+    encoded = base64.b64encode(data).decode("ascii")
+    cov["images_kept"] += 1
+    return {
+        "type": "image",
+        "data_uri": f"data:image/svg+xml;base64,{encoded}",
+        "alt": alt or "Image",
+        "origin": origin,
+    }
+
+
+def _extract_image_file(
+    path: str, max_bytes: int, cov: dict, rel_path: str
+) -> tuple[str, list]:
+    """A standalone image file -> one image section (origin standalone-image)."""
+    data = Path(path).read_bytes()
+    name = Path(path).stem
+    if Path(path).suffix.lower() == ".svg":
+        block = _svg_image_block(data, name, max_bytes, cov)
+    else:
+        block = _image_block(
+            data,
+            _sniff_image_type(data),
+            name,
+            max_bytes,
+            cov,
+            origin="standalone-image",
+        )
+    return name, [_one_section(rel_path, [block] if block is not None else [], kind="image")]
+
+
+# --- directory / repository walk --------------------------------------------
+
+
+def _note(report: dict, message: str, limit: int = 40) -> None:
+    """Append a bounded human-readable note to a walk report."""
+    if len(report["notes"]) < limit:
+        report["notes"].append(message)
+
+
+def _is_binary(path: str) -> bool:
+    """True when a file looks binary (a NUL byte or many non-text bytes)."""
+    try:
+        with open(path, "rb") as handle:
+            chunk = handle.read(4096)
+    except OSError:
+        return True
+    if not chunk:
+        return False
+    if b"\x00" in chunk:
+        return True
+    printable = set(range(32, 127)) | set(b"\n\r\t\f\b")
+    nontext = sum(1 for byte in chunk if byte not in printable)
+    return nontext / len(chunk) > 0.30
+
+
+def _load_gitignore(root: Path) -> list:
+    """Best-effort .gitignore patterns (limits documented in the runbook)."""
+    patterns: list = []
+    gitignore = root / ".gitignore"
+    if gitignore.is_file():
+        try:
+            content = gitignore.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            return patterns
+        for line in content.splitlines():
+            line = line.strip()
+            if line and not line.startswith("#") and not line.startswith("!"):
+                patterns.append(line.rstrip("/"))
+    return patterns
+
+
+def _gitignored(rel_posix: str, name: str, patterns: list) -> bool:
+    """Approximate .gitignore match (no negation, no full '**' semantics)."""
+    import fnmatch
+
+    for pattern in patterns:
+        if pattern.startswith("/"):
+            anchored = pattern.lstrip("/")
+            if (
+                rel_posix == anchored
+                or rel_posix.startswith(anchored + "/")
+                or fnmatch.fnmatch(rel_posix, anchored)
+            ):
+                return True
+        elif (
+            fnmatch.fnmatch(name, pattern)
+            or fnmatch.fnmatch(rel_posix, pattern)
+            or fnmatch.fnmatch(rel_posix, "*/" + pattern)
+            or ("/" + pattern + "/") in ("/" + rel_posix + "/")
+        ):
+            return True
+    return False
+
+
+def _walk_directory(root: str, max_files: int) -> tuple[list, dict]:
+    """Recursively collect supported files under a directory (deterministic).
+
+    Ignored dirs, lockfiles, .gitignore matches, and binaries are excluded;
+    beyond the file-count cap, extra files are dropped. Returns
+    (sorted file paths, walk-report dict).
+    """
+    root_path = Path(root)
+    patterns = _load_gitignore(root_path)
+    report = {
+        "root": root_path.name,
+        "files_included": 0,
+        "gitignored": 0,
+        "binary_skipped": 0,
+        "dirs_ignored": 0,
+        "file_count_capped": 0,
+        "notes": [],
+    }
+    included: list = []
+    for dirpath, dirnames, filenames in os.walk(root):
+        kept: list = []
+        for name in sorted(dirnames):
+            if name.lower() in IGNORE_DIRS:
+                report["dirs_ignored"] += 1
+            else:
+                kept.append(name)
+        dirnames[:] = kept
+        for filename in sorted(filenames):
+            full = Path(dirpath) / filename
+            rel = full.relative_to(root_path).as_posix()
+            if filename.lower() in IGNORE_BASENAMES:
+                _note(report, f"ignored lockfile: {rel}")
+                continue
+            if _gitignored(rel, filename, patterns):
+                report["gitignored"] += 1
+                continue
+            fmt = _detect_format(str(full))
+            if fmt is None:
+                continue
+            if fmt in TEXT_FORMATS and _is_binary(str(full)):
+                report["binary_skipped"] += 1
+                _note(report, f"binary-skipped: {rel}")
+                continue
+            included.append((rel, str(full)))
+    included.sort(key=lambda item: item[0])
+    if len(included) > max_files:
+        dropped = len(included) - max_files
+        report["file_count_capped"] = dropped
+        _note(report, f"file-count-cap: kept {max_files}, skipped {dropped}")
+        included = included[:max_files]
+    report["files_included"] = len(included)
+    return [full for _rel, full in included], report
+
+
+def _build_tree(rel_paths: list, root_name: str) -> dict:
+    """Nested {name, kind, children} tree of the ingested files (sorted)."""
+    root = {"name": root_name, "kind": "dir", "children": []}
+    for rel in rel_paths:
+        parts = rel.split("/")
+        node = root
+        for depth, part in enumerate(parts):
+            is_file = depth == len(parts) - 1
+            child = next(
+                (
+                    c
+                    for c in node["children"]
+                    if c["name"] == part and (c["kind"] == "file") == is_file
+                ),
+                None,
+            )
+            if child is None:
+                child = {"name": part, "kind": "file" if is_file else "dir"}
+                if not is_file:
+                    child["children"] = []
+                node["children"].append(child)
+            if not is_file:
+                node = child
+    _sort_tree(root)
+    return root
+
+
+def _sort_tree(node: dict) -> None:
+    children = node.get("children")
+    if not children:
+        return
+    children.sort(key=lambda c: (c["kind"] != "dir", c["name"].lower()))
+    for child in children:
+        _sort_tree(child)
+
+
 # --- dispatch and merge ----------------------------------------------------
 
 
 def _detect_format(path: str) -> str | None:
+    name = Path(path).name.lower()
+    if name in SPECIAL_BASENAMES:
+        return SPECIAL_BASENAMES[name][0]
     return EXTENSION_FORMATS.get(Path(path).suffix.lower())
 
 
-def _expand_inputs(paths: list) -> list:
-    """Expand folders to their supported files (sorted), keep files as-is."""
-    expanded: list = []
+def _code_language(path: str) -> str:
+    """The syntax-highlight language for a source-code / config file."""
+    name = Path(path).name.lower()
+    if name in SPECIAL_BASENAMES:
+        return SPECIAL_BASENAMES[name][1]
+    return CODE_LANGUAGES.get(Path(path).suffix.lower(), "")
+
+
+def _expand_inputs(
+    paths: list, max_files: int
+) -> tuple[list, dict | None, str | None]:
+    """Expand inputs to a file list, walking any directory recursively.
+
+    Returns (files, walk_report, repo_root). repo_root is set (enabling
+    repository assembly) only when the sole input is a single directory.
+    """
+    single_dir = len(paths) == 1 and Path(paths[0]).is_dir()
+    files: list = []
+    walk_report: dict | None = None
+    repo_root: str | None = None
     for raw in paths:
         path = Path(raw)
         if path.is_dir():
-            for child in sorted(path.iterdir()):
-                if child.is_file() and _detect_format(str(child)):
-                    expanded.append(str(child))
+            walked, report = _walk_directory(str(path), max_files)
+            files.extend(walked)
+            if walk_report is None:
+                walk_report = report
+            if single_dir:
+                repo_root = str(path)
         else:
-            expanded.append(str(path))
-    return expanded
+            files.append(str(path))
+    return files, walk_report, repo_root
 
 
-def _extract_one(path: str, fmt: str, max_bytes: int, cov: dict) -> tuple[str, list]:
+def _extract_one(
+    path: str,
+    fmt: str,
+    max_bytes: int,
+    max_text_bytes: int,
+    cov: dict,
+    rel_path: str,
+) -> tuple[str, list]:
     if fmt == "pptx":
         return _extract_pptx(path, max_bytes, cov)
     if fmt == "docx":
@@ -1636,6 +2271,16 @@ def _extract_one(path: str, fmt: str, max_bytes: int, cov: dict) -> tuple[str, l
         return _extract_xlsx(path, cov)
     if fmt == "pdf":
         return _extract_pdf(path, max_bytes, cov)
+    if fmt == "code":
+        return _extract_code(path, max_text_bytes, cov, rel_path)
+    if fmt == "markdown":
+        return _extract_markdown(path, max_text_bytes, max_bytes, cov, rel_path)
+    if fmt == "text":
+        return _extract_text(path, max_text_bytes, cov, rel_path)
+    if fmt == "csv":
+        return _extract_csv(path, max_text_bytes, cov, rel_path)
+    if fmt == "image":
+        return _extract_image_file(path, max_bytes, cov, rel_path)
     raise ValueError(f"unsupported format: {fmt}")
 
 
@@ -1654,16 +2299,173 @@ def _agenda_section(headings: list) -> dict:
     }
 
 
+def _title_section(title: str) -> dict:
+    return {
+        "heading": title,
+        "subheading": None,
+        "kind": "title",
+        "source_index": 0,
+        "blocks": [],
+    }
+
+
+def _repo_category(fmt: str, rel_path: str) -> int:
+    """Ordering rank for repository assembly (README, docs, code, data, ...)."""
+    base = rel_path.rsplit("/", 1)[-1].lower()
+    if fmt in ("markdown", "text"):
+        return 0 if base.startswith("readme") else 1
+    if fmt == "code":
+        return 2
+    if fmt == "csv":
+        return 3
+    if fmt == "image":
+        return 4
+    return 5
+
+
+def _top_level_dir(rel_path: str) -> str:
+    return rel_path.split("/", 1)[0] if "/" in rel_path else "(root)"
+
+
+def _assemble_single(per_source: list, title_override: str | None) -> tuple[list, str]:
+    _index, fmt, title, sections, _rel = per_source[0]
+    model_title = title_override or title
+    out: list = []
+    if fmt in ("docx", "pdf", "xlsx"):
+        out.append(_title_section(model_title))
+        headings = [
+            section["heading"]
+            for section in sections
+            if section["kind"] in ("content", "data") and section["heading"]
+        ]
+        if fmt in ("docx", "pdf") and len(headings) >= 2:
+            out.append(_agenda_section(headings))
+    for section in sections:
+        section["source_index"] = 0
+        out.append(section)
+    return out, model_title
+
+
+def _assemble_multi(
+    per_source: list, sources: list, title_override: str | None
+) -> tuple[list, str]:
+    umbrella = title_override or sources[0]["title"]
+    out: list = [
+        {
+            "heading": umbrella,
+            "subheading": "Combined sources",
+            "kind": "title",
+            "source_index": 0,
+            "blocks": [
+                {
+                    "type": "bullets",
+                    "items": [{"text": src["title"], "depth": 0} for src in sources],
+                }
+            ],
+        }
+    ]
+    for index, _fmt, title, sections, _rel in per_source:
+        out.append(
+            {
+                "heading": title,
+                "subheading": None,
+                "kind": "section-break",
+                "source_index": index,
+                "blocks": [],
+            }
+        )
+        for section in sections:
+            section["source_index"] = index
+            out.append(section)
+    return out, umbrella
+
+
+def _repo_readme_blurb(per_source: list) -> str | None:
+    """The first non-empty paragraph of a README, for the overview section."""
+    for _index, fmt, _title, sections, rel in per_source:
+        base = rel.rsplit("/", 1)[-1].lower()
+        if fmt in ("markdown", "text") and base.startswith("readme"):
+            for section in sections:
+                for block in section["blocks"]:
+                    if block["type"] == "paragraph" and block["text"].strip():
+                        return block["text"].strip()
+    return None
+
+
+def _assemble_repository(
+    per_source: list, root_path: Path, title_override: str | None
+) -> tuple[list, str]:
+    model_title = title_override or root_path.name
+    top_entries: set = set()
+    for _index, _fmt, _title, _sections, rel in per_source:
+        tld = _top_level_dir(rel)
+        top_entries.add((tld + "/") if tld != "(root)" else rel)
+    overview_blocks: list = []
+    blurb = _repo_readme_blurb(per_source)
+    if blurb:
+        overview_blocks.append({"type": "paragraph", "text": blurb})
+    if top_entries:
+        overview_blocks.append(
+            {
+                "type": "bullets",
+                "items": [
+                    {"text": entry, "depth": 0} for entry in sorted(top_entries)[:24]
+                ],
+            }
+        )
+    out: list = [
+        {
+            "heading": model_title,
+            "subheading": "Project overview",
+            "kind": "overview",
+            "source_index": 0,
+            "blocks": overview_blocks,
+        }
+    ]
+    ordered = sorted(
+        per_source,
+        key=lambda entry: (
+            _repo_category(entry[1], entry[4]),
+            _top_level_dir(entry[4]),
+            entry[4],
+        ),
+    )
+    last_code_dir: str | None = None
+    for index, fmt, _title, sections, rel in ordered:
+        if fmt == "code":
+            tld = _top_level_dir(rel)
+            if tld != last_code_dir:
+                out.append(
+                    {
+                        "heading": tld if tld != "(root)" else "Top-level files",
+                        "subheading": None,
+                        "kind": "section-break",
+                        "source_index": 0,
+                        "blocks": [],
+                    }
+                )
+                last_code_dir = tld
+        for section in sections:
+            section["source_index"] = index
+            out.append(section)
+    return out, model_title
+
+
 def build_model(
     paths: list,
     max_bytes: int = DEFAULT_MAX_IMAGE_BYTES,
     title_override: str | None = None,
+    max_text_bytes: int = DEFAULT_MAX_TEXT_BYTES,
+    max_files: int = DEFAULT_MAX_FILES,
 ) -> dict:
     """Extract every input into one merged, deterministic content model."""
+    files, walk_report, repo_root = _expand_inputs(paths, max_files)
+    root_path = Path(repo_root) if repo_root else None
+
     sources: list = []
     coverage: list = []
-    per_source: list = []  # (index, fmt, title, sections)
-    for path in _expand_inputs(paths):
+    per_source: list = []  # (index, fmt, title, sections, rel_path)
+    for path in files:
         fmt = _detect_format(path)
         if fmt is None:
             print(f"Warning: skipping unsupported file: {path}", file=sys.stderr)
@@ -1671,9 +2473,18 @@ def build_model(
         if not Path(path).is_file():
             print(f"Warning: input not found: {path}", file=sys.stderr)
             continue
-        cov = _new_coverage(path)
+        if root_path is not None:
+            try:
+                rel_path = Path(path).relative_to(root_path).as_posix()
+            except ValueError:
+                rel_path = Path(path).name
+        else:
+            rel_path = Path(path).name
+        cov = _new_coverage(rel_path)
         try:
-            detected_title, sections = _extract_one(path, fmt, max_bytes, cov)
+            detected_title, sections = _extract_one(
+                path, fmt, max_bytes, max_text_bytes, cov, rel_path
+            )
         except SystemExit:
             raise  # missing-dependency exit must propagate
         except Exception as exc:  # noqa: BLE001 - logged, then this file is skipped
@@ -1681,96 +2492,59 @@ def build_model(
             continue
         index = len(sources)
         title = detected_title or Path(path).stem
-        source = {"path": Path(path).name, "format": fmt, "title": title}
+        source = {"path": rel_path, "format": fmt, "title": title}
         if cov.pop("_deck_like", False):
             source["deck_like"] = True
         sources.append(source)
         coverage.append(cov)
-        per_source.append((index, fmt, title, sections))
+        per_source.append((index, fmt, title, sections, rel_path))
 
     if not sources:
         print(
-            "Error: no supported input documents found (.pptx/.docx/.xlsx/.pdf).",
+            "Error: no supported input found (.pptx/.docx/.xlsx/.pdf, "
+            "code/markdown/text/csv, or images).",
             file=sys.stderr,
         )
         raise SystemExit(2)
 
-    out_sections: list = []
-    if len(sources) > 1:
-        umbrella = title_override or sources[0]["title"]
-        out_sections.append(
-            {
-                "heading": umbrella,
-                "subheading": "Combined sources",
-                "kind": "title",
-                "source_index": 0,
-                "blocks": [
-                    {
-                        "type": "bullets",
-                        "items": [
-                            {"text": src["title"], "depth": 0} for src in sources
-                        ],
-                    }
-                ],
-            }
+    tree: dict | None = None
+    if root_path is not None:
+        out_sections, model_title = _assemble_repository(
+            per_source, root_path, title_override
         )
-        for index, _fmt, title, sections in per_source:
-            out_sections.append(
-                {
-                    "heading": title,
-                    "subheading": None,
-                    "kind": "section-break",
-                    "source_index": index,
-                    "blocks": [],
-                }
-            )
-            for section in sections:
-                section["source_index"] = index
-                out_sections.append(section)
-        model_title = umbrella
+        tree = _build_tree([entry[4] for entry in per_source], root_path.name)
+    elif len(sources) > 1:
+        out_sections, model_title = _assemble_multi(per_source, sources, title_override)
     else:
-        index, fmt, title, sections = per_source[0]
-        model_title = title_override or title
-        if fmt in ("docx", "pdf", "xlsx"):
-            out_sections.append(
-                {
-                    "heading": model_title,
-                    "subheading": None,
-                    "kind": "title",
-                    "source_index": 0,
-                    "blocks": [],
-                }
-            )
-            headings = [
-                section["heading"]
-                for section in sections
-                if section["kind"] in ("content", "data") and section["heading"]
-            ]
-            if fmt in ("docx", "pdf") and len(headings) >= 2:
-                out_sections.append(_agenda_section(headings))
-        for section in sections:
-            section["source_index"] = 0
-            out_sections.append(section)
+        out_sections, model_title = _assemble_single(per_source, title_override)
 
-    return {
+    coverage_obj: dict = {"per_source": coverage}
+    if walk_report is not None:
+        coverage_obj["walk"] = walk_report
+    model: dict = {
         "schema_version": 2,
         "title": model_title,
         "sources": sources,
         "sections": out_sections,
-        "coverage": {"per_source": coverage},
+        "coverage": coverage_obj,
     }
+    if tree is not None:
+        model["tree"] = tree
+    return model
 
 
 def main(argv: list | None = None) -> int:
     parser = argparse.ArgumentParser(
         description=(
-            "Extract one or more documents (.pptx/.docx/.xlsx/.pdf, or a folder "
-            "of them) into the normalized content-model JSON consumed by "
-            "build_presentation.py. Local-only parsing; no network calls."
+            "Extract one or more inputs into the normalized content-model JSON "
+            "consumed by build_presentation.py. Inputs may be documents "
+            "(.pptx/.docx/.xlsx/.pdf), source code / config, Markdown / text, "
+            "CSV / TSV, standalone images, or a directory / repository (walked "
+            "recursively). Local-only parsing; no network calls."
         )
     )
     parser.add_argument(
-        "inputs", nargs="+", help="Input file(s) or folder(s) to extract."
+        "inputs", nargs="+", help="Input file(s), folder(s), or a repository."
     )
     parser.add_argument(
         "-o", "--out", required=True, help="Output content-model JSON path."
@@ -1782,17 +2556,44 @@ def main(argv: list | None = None) -> int:
         help="Per-image byte budget before downscale/skip (default 2000000).",
     )
     parser.add_argument(
+        "--max-text-bytes",
+        type=int,
+        default=DEFAULT_MAX_TEXT_BYTES,
+        help="Per-text-file byte cap before truncation (default 300000).",
+    )
+    parser.add_argument(
+        "--max-files",
+        type=int,
+        default=DEFAULT_MAX_FILES,
+        help="Max files ingested from a directory walk (default 400).",
+    )
+    parser.add_argument(
         "--title", default=None, help="Override the synthesized presentation title."
     )
     args = parser.parse_args(argv)
 
-    model = build_model(args.inputs, args.max_image_bytes, args.title)
+    model = build_model(
+        args.inputs,
+        args.max_image_bytes,
+        args.title,
+        args.max_text_bytes,
+        args.max_files,
+    )
     out_path = Path(args.out)
     if out_path.parent and not out_path.parent.exists():
         out_path.parent.mkdir(parents=True, exist_ok=True)
     with out_path.open("w", encoding="utf-8") as handle:
         json.dump(model, handle, ensure_ascii=False, indent=2)
         handle.write("\n")
+    walk = model.get("coverage", {}).get("walk")
+    if walk is not None:
+        print(
+            f"Walked {walk['root']}: {walk['files_included']} file(s) included, "
+            f"{walk['gitignored']} gitignored, {walk['binary_skipped']} binary, "
+            f"{walk['dirs_ignored']} dir(s) ignored, "
+            f"{walk['file_count_capped']} over the file cap.",
+            file=sys.stderr,
+        )
     print(
         f"Wrote {out_path} ({len(model['sources'])} source(s), "
         f"{len(model['sections'])} section(s)).",

@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.12.1 -->
+<!-- nexus-hub-version: 3.13.0 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 266 skills, 16 commands, 25 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -30,12 +30,16 @@ Nexus-Hub is the upstream skill catalog for AI coding assistants: 266 skills, 16
 
 Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of the same idea, split along a deliberate seam.
 
-- **Nexus-Hub (this repo)** is the catalog: 265 curated skills, 16 commands, 25 hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`). It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
+- **Nexus-Hub (this repo)** is the catalog: 266 curated skills, 16 commands, 25 hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`). It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
 - **Nexus** is a local-first desktop AI Studio that consumes Nexus-Hub as its skill feed. Nexus's `AGENTS.md` names this repo as "the only external project we deliberately link to" -- the upstream feed for its skill harness.
 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v3.13.0
+
+v3.13.0 is the presentify reach-and-voice release: `/presentify` and its `document-to-interactive-html` skill now ingest almost anything and give the output a professional, journalistic visual voice - without ever breaking the single-file, offline, zero-external-request guarantee. **Universal ingestion**: beyond the four document formats, the extractor now reads source code and config, Markdown / plain text, CSV / TSV, and standalone images, and can take a whole directory or repository (walked recursively, with ignore rules, a best-effort `.gitignore` matcher, a binary sniff, and file / byte caps) - a repo becomes a synthesized overview, a navigable file tree, README-first ordering, and code grouped by directory. Dominant source visuals keep their **prominence** (a hero stays a hero, never flattened into a thumbnail grid), and a new `--layout` control picks the output **aspect** (full-width / standard / portrait). **Tiered imagery** gives the output its designed look: Tier 1 (the always-on, zero-outbound default) authors original procedural visuals as inline SVG / CSS (color fields, editorial devices, generative textures); Tier 2 (opt-in, consent-gated) fetches license-free, free-for-commercial-use stock images from Openverse / Wikimedia / Pexels at build time; and Tier 3 (opt-in, LOCAL-only) generates images with a local commercially-clean model (a hosted generation API is a policy hard-no). Every fetched or generated asset is license-verified, base64-embedded so the page still opens offline, and recorded in a visible credits block. A new **interactivity level** (restrained / balanced / rich scrollytelling) tunes how the page responds, always reduced-motion-guarded. Everything stays local-only with zero telemetry; catalog counts unchanged: **266 skills**, **16 commands**, **25 hooks**.
 
 ## What's New in v3.12.1
 

@@ -1,0 +1,495 @@
+{
+  "schema_version": 2,
+  "title": "mixed-repo",
+  "sources": [
+    {
+      "path": "README.md",
+      "format": "markdown",
+      "title": "Mixed Repo Fixture"
+    },
+    {
+      "path": "assets/logo.svg",
+      "format": "image",
+      "title": "logo"
+    },
+    {
+      "path": "assets/pixel.png",
+      "format": "image",
+      "title": "pixel"
+    },
+    {
+      "path": "data/metrics.csv",
+      "format": "csv",
+      "title": "metrics"
+    },
+    {
+      "path": "data/notes.txt",
+      "format": "text",
+      "title": "data/notes.txt"
+    },
+    {
+      "path": "src/app.py",
+      "format": "code",
+      "title": "src/app.py"
+    },
+    {
+      "path": "src/lib/helper.go",
+      "format": "code",
+      "title": "src/lib/helper.go"
+    },
+    {
+      "path": "src/util.js",
+      "format": "code",
+      "title": "src/util.js"
+    }
+  ],
+  "sections": [
+    {
+      "heading": "mixed-repo",
+      "subheading": "Project overview",
+      "kind": "overview",
+      "source_index": 0,
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "A tiny project used to exercise universal ingestion: Markdown, source code, CSV, text, and images."
+        },
+        {
+          "type": "bullets",
+          "items": [
+            {
+              "text": "README.md",
+              "depth": 0
+            },
+            {
+              "text": "assets/",
+              "depth": 0
+            },
+            {
+              "text": "data/",
+              "depth": 0
+            },
+            {
+              "text": "src/",
+              "depth": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Mixed Repo Fixture",
+      "subheading": null,
+      "kind": "content",
+      "source_index": 0,
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "A tiny project used to exercise universal ingestion: Markdown, source code, CSV, text, and images."
+        }
+      ]
+    },
+    {
+      "heading": "Features",
+      "subheading": null,
+      "kind": "content",
+      "source_index": 0,
+      "blocks": [
+        {
+          "type": "bullets",
+          "items": [
+            {
+              "text": "Recursive directory walk",
+              "depth": 0
+            },
+            {
+              "text": "Numeric CSV rendered as a chart",
+              "depth": 0
+            },
+            {
+              "text": "Local image embedded from Markdown",
+              "depth": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Quick metrics",
+      "subheading": null,
+      "kind": "content",
+      "source_index": 0,
+      "blocks": [
+        {
+          "type": "table",
+          "header": [
+            "Quarter",
+            "Revenue"
+          ],
+          "rows": [
+            [
+              "Q1",
+              "120"
+            ],
+            [
+              "Q2",
+              "145"
+            ]
+          ]
+        }
+      ]
+    },
+    {
+      "heading": "Usage",
+      "subheading": null,
+      "kind": "content",
+      "source_index": 0,
+      "blocks": [
+        {
+          "type": "code",
+          "text": "from app import run\nrun()",
+          "language": "python"
+        },
+        {
+          "type": "image",
+          "data_uri": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgdmlld0JveD0iMCAwIDY0IDY0Ij48Y2lyY2xlIGN4PSIzMiIgY3k9IjMyIiByPSIyOCIgZmlsbD0iIzJiNmNiMCIvPjx0ZXh0IHg9IjMyIiB5PSI0MCIgZm9udC1zaXplPSIyNCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iI2ZmZiI+Tlg8L3RleHQ+PC9zdmc+Cg==",
+          "alt": "Project logo",
+          "origin": "inline-image"
+        }
+      ]
+    },
+    {
+      "heading": "data/notes.txt",
+      "subheading": null,
+      "kind": "content",
+      "source_index": 4,
+      "blocks": [
+        {
+          "type": "paragraph",
+          "text": "Release notes for the fixture."
+        },
+        {
+          "type": "paragraph",
+          "text": "First paragraph describes the change."
+        },
+        {
+          "type": "paragraph",
+          "text": "Second paragraph describes the follow-up."
+        }
+      ]
+    },
+    {
+      "heading": "src",
+      "subheading": null,
+      "kind": "section-break",
+      "source_index": 0,
+      "blocks": []
+    },
+    {
+      "heading": "src/app.py",
+      "subheading": null,
+      "kind": "content",
+      "source_index": 5,
+      "blocks": [
+        {
+          "type": "code",
+          "text": "\"\"\"Entry point for the fixture app.\"\"\"\n\n\ndef run() -> str:\n    return \"hello from app\"\n\n\nif __name__ == \"__main__\":\n    print(run())\n",
+          "language": "python",
+          "path": "src/app.py"
+        }
+      ]
+    },
+    {
+      "heading": "src/lib/helper.go",
+      "subheading": null,
+      "kind": "content",
+      "source_index": 6,
+      "blocks": [
+        {
+          "type": "code",
+          "text": "package lib\n\n// Helper returns a fixed greeting.\nfunc Helper() string {\n\treturn \"hello from go\"\n}\n",
+          "language": "go",
+          "path": "src/lib/helper.go"
+        }
+      ]
+    },
+    {
+      "heading": "src/util.js",
+      "subheading": null,
+      "kind": "content",
+      "source_index": 7,
+      "blocks": [
+        {
+          "type": "code",
+          "text": "export function greet(name) {\n  return `hello ${name}`;\n}\n",
+          "language": "javascript",
+          "path": "src/util.js"
+        }
+      ]
+    },
+    {
+      "heading": "data/metrics.csv",
+      "subheading": null,
+      "kind": "data",
+      "source_index": 3,
+      "blocks": [
+        {
+          "type": "chart",
+          "chart_type_hint": "bar",
+          "categories": [
+            "Q1",
+            "Q2",
+            "Q3",
+            "Q4"
+          ],
+          "series": [
+            {
+              "name": "Revenue",
+              "values": [
+                120.0,
+                145.0,
+                160.0,
+                190.0
+              ]
+            },
+            {
+              "name": "Cost",
+              "values": [
+                80.0,
+                90.0,
+                95.0,
+                110.0
+              ]
+            }
+          ],
+          "provenance": "source-data"
+        }
+      ]
+    },
+    {
+      "heading": "assets/logo.svg",
+      "subheading": null,
+      "kind": "image",
+      "source_index": 1,
+      "blocks": [
+        {
+          "type": "image",
+          "data_uri": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgdmlld0JveD0iMCAwIDY0IDY0Ij48Y2lyY2xlIGN4PSIzMiIgY3k9IjMyIiByPSIyOCIgZmlsbD0iIzJiNmNiMCIvPjx0ZXh0IHg9IjMyIiB5PSI0MCIgZm9udC1zaXplPSIyNCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iI2ZmZiI+Tlg8L3RleHQ+PC9zdmc+Cg==",
+          "alt": "logo",
+          "origin": "standalone-image"
+        }
+      ]
+    },
+    {
+      "heading": "assets/pixel.png",
+      "subheading": null,
+      "kind": "image",
+      "source_index": 2,
+      "blocks": [
+        {
+          "type": "image",
+          "data_uri": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==",
+          "alt": "pixel",
+          "origin": "standalone-image",
+          "width": 1,
+          "height": 1
+        }
+      ]
+    }
+  ],
+  "coverage": {
+    "per_source": [
+      {
+        "path": "README.md",
+        "images_found": 1,
+        "images_kept": 1,
+        "images_skipped": 0,
+        "skip_reasons": [],
+        "native_charts": 0,
+        "tables": 1,
+        "vector_regions_rasterized": 0,
+        "vector_regions_skipped": 0,
+        "scanned_pages_detected": 0,
+        "ocr_pages": 0,
+        "ocr_low_confidence": 0,
+        "agent_read_pages": 0
+      },
+      {
+        "path": "assets/logo.svg",
+        "images_found": 1,
+        "images_kept": 1,
+        "images_skipped": 0,
+        "skip_reasons": [],
+        "native_charts": 0,
+        "tables": 0,
+        "vector_regions_rasterized": 0,
+        "vector_regions_skipped": 0,
+        "scanned_pages_detected": 0,
+        "ocr_pages": 0,
+        "ocr_low_confidence": 0,
+        "agent_read_pages": 0
+      },
+      {
+        "path": "assets/pixel.png",
+        "images_found": 1,
+        "images_kept": 1,
+        "images_skipped": 0,
+        "skip_reasons": [],
+        "native_charts": 0,
+        "tables": 0,
+        "vector_regions_rasterized": 0,
+        "vector_regions_skipped": 0,
+        "scanned_pages_detected": 0,
+        "ocr_pages": 0,
+        "ocr_low_confidence": 0,
+        "agent_read_pages": 0
+      },
+      {
+        "path": "data/metrics.csv",
+        "images_found": 0,
+        "images_kept": 0,
+        "images_skipped": 0,
+        "skip_reasons": [],
+        "native_charts": 0,
+        "tables": 0,
+        "vector_regions_rasterized": 0,
+        "vector_regions_skipped": 0,
+        "scanned_pages_detected": 0,
+        "ocr_pages": 0,
+        "ocr_low_confidence": 0,
+        "agent_read_pages": 0
+      },
+      {
+        "path": "data/notes.txt",
+        "images_found": 0,
+        "images_kept": 0,
+        "images_skipped": 0,
+        "skip_reasons": [],
+        "native_charts": 0,
+        "tables": 0,
+        "vector_regions_rasterized": 0,
+        "vector_regions_skipped": 0,
+        "scanned_pages_detected": 0,
+        "ocr_pages": 0,
+        "ocr_low_confidence": 0,
+        "agent_read_pages": 0
+      },
+      {
+        "path": "src/app.py",
+        "images_found": 0,
+        "images_kept": 0,
+        "images_skipped": 0,
+        "skip_reasons": [],
+        "native_charts": 0,
+        "tables": 0,
+        "vector_regions_rasterized": 0,
+        "vector_regions_skipped": 0,
+        "scanned_pages_detected": 0,
+        "ocr_pages": 0,
+        "ocr_low_confidence": 0,
+        "agent_read_pages": 0
+      },
+      {
+        "path": "src/lib/helper.go",
+        "images_found": 0,
+        "images_kept": 0,
+        "images_skipped": 0,
+        "skip_reasons": [],
+        "native_charts": 0,
+        "tables": 0,
+        "vector_regions_rasterized": 0,
+        "vector_regions_skipped": 0,
+        "scanned_pages_detected": 0,
+        "ocr_pages": 0,
+        "ocr_low_confidence": 0,
+        "agent_read_pages": 0
+      },
+      {
+        "path": "src/util.js",
+        "images_found": 0,
+        "images_kept": 0,
+        "images_skipped": 0,
+        "skip_reasons": [],
+        "native_charts": 0,
+        "tables": 0,
+        "vector_regions_rasterized": 0,
+        "vector_regions_skipped": 0,
+        "scanned_pages_detected": 0,
+        "ocr_pages": 0,
+        "ocr_low_confidence": 0,
+        "agent_read_pages": 0
+      }
+    ],
+    "walk": {
+      "root": "mixed-repo",
+      "files_included": 8,
+      "gitignored": 1,
+      "binary_skipped": 0,
+      "dirs_ignored": 1,
+      "file_count_capped": 0,
+      "notes": []
+    }
+  },
+  "tree": {
+    "name": "mixed-repo",
+    "kind": "dir",
+    "children": [
+      {
+        "name": "assets",
+        "kind": "dir",
+        "children": [
+          {
+            "name": "logo.svg",
+            "kind": "file"
+          },
+          {
+            "name": "pixel.png",
+            "kind": "file"
+          }
+        ]
+      },
+      {
+        "name": "data",
+        "kind": "dir",
+        "children": [
+          {
+            "name": "metrics.csv",
+            "kind": "file"
+          },
+          {
+            "name": "notes.txt",
+            "kind": "file"
+          }
+        ]
+      },
+      {
+        "name": "src",
+        "kind": "dir",
+        "children": [
+          {
+            "name": "lib",
+            "kind": "dir",
+            "children": [
+              {
+                "name": "helper.go",
+                "kind": "file"
+              }
+            ]
+          },
+          {
+            "name": "app.py",
+            "kind": "file"
+          },
+          {
+            "name": "util.js",
+            "kind": "file"
+          }
+        ]
+      },
+      {
+        "name": "README.md",
+        "kind": "file"
+      }
+    ]
+  }
+}

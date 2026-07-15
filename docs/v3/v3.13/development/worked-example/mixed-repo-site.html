@@ -1,0 +1,264 @@
+<!doctype html>
+<!--
+  design-record (v3.13.0 Phase 4 worked example, hand-authored from mixed-repo-model.json)
+  style: Technical & Precise (clean, structured, data-forward)
+  palette: ink #0f172a on surface #f8fafc; accent #2b6cb0; muted #64748b
+  fonts: system sans (heading/body), system mono (code)
+  aspect: standard (content-aware auto-pick: single-directory / repository input -> standard)
+  spacing: 8px vertical rhythm; sections sized to content (no dead screens)
+  layout signature: sticky file-tree sidebar + single content column
+  motion: crisp, reduced-motion-guarded
+  self-contained: all CSS/JS inline, images base64, zero external requests
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>mixed-repo - interactive site</title>
+<style>
+  :root { --ink:#0f172a; --surface:#f8fafc; --panel:#fff; --accent:#2b6cb0; --muted:#64748b; --line:#e2e8f0; --code-bg:#0f172a; --code-ink:#e2e8f0; }
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body { margin:0; background:var(--surface); color:var(--ink);
+    font:16px/1.6 system-ui,-apple-system,Segoe UI,Roboto,sans-serif; }
+  .shell { max-width:78rem; margin:0 auto; display:grid; grid-template-columns:16rem 1fr; gap:2rem; padding:2rem 1.5rem; }
+  nav.tree { position:sticky; top:1.5rem; align-self:start; max-height:calc(100vh - 3rem); overflow:auto;
+    background:var(--panel); border:1px solid var(--line); border-radius:10px; padding:1rem; font-size:.92rem; }
+  nav.tree h2 { font-size:.7rem; letter-spacing:.08em; text-transform:uppercase; color:var(--muted); margin:.2rem 0 .8rem; }
+  nav.tree ul { list-style:none; margin:0; padding:0; }
+  nav.tree li { margin:.1rem 0; }
+  nav.tree .dir { color:var(--muted); font-weight:600; margin-top:.5rem; }
+  nav.tree a { color:var(--ink); text-decoration:none; display:block; padding:.2rem .4rem; border-radius:6px; border-left:2px solid transparent; }
+  nav.tree a:hover, nav.tree a:focus-visible { background:#eef4fb; }
+  nav.tree a.active { color:var(--accent); border-left-color:var(--accent); background:#eef4fb; }
+  main { min-width:0; }
+  section { background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:1.5rem 1.75rem; margin-bottom:1.25rem; }
+  section.overview { background:linear-gradient(180deg,#eef4fb,#fff); }
+  h1 { font-size:2rem; margin:.2rem 0 .4rem; }
+  h2.sec { font-size:1.25rem; margin:0 0 .8rem; }
+  .kicker { font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; color:var(--accent); font-weight:700; }
+  p { max-width:70ch; }
+  ul.bullets { max-width:70ch; }
+  table { border-collapse:collapse; width:auto; margin:.5rem 0; }
+  th,td { border:1px solid var(--line); padding:.4rem .8rem; text-align:left; }
+  th { background:#f1f5f9; }
+  pre { background:var(--code-bg); color:var(--code-ink); border-radius:10px; padding:1rem 1rem 1rem 3rem;
+    overflow:auto; counter-reset:ln; margin:.4rem 0; }
+  pre code { font:0.86rem/1.5 ui-monospace,SFMono-Regular,Consolas,monospace; white-space:pre; }
+  pre code .ln { counter-increment:ln; display:block; }
+  pre code .ln::before { content:counter(ln); position:absolute; left:0; width:2.4rem; text-align:right; color:#475569; }
+  .lang { display:inline-block; font:0.7rem ui-monospace,monospace; color:var(--accent); background:#eef4fb; border-radius:6px; padding:.1rem .5rem; margin-bottom:.4rem; }
+  .tok-kw { color:#93c5fd; } .tok-str { color:#86efac; } .tok-com { color:#94a3b8; font-style:italic; }
+  figure { margin:.5rem 0; }
+  .gallery { display:flex; gap:1rem; flex-wrap:wrap; }
+  .gallery img { border:1px solid var(--line); border-radius:8px; background:#fff; cursor:zoom-in; width:120px; height:120px; object-fit:contain; padding:.5rem; }
+  .hero-img { max-width:100%; border:1px solid var(--line); border-radius:8px; }
+  figcaption { color:var(--muted); font-size:.85rem; margin-top:.3rem; }
+  .chart-wrap { max-width:640px; }
+  .legend button { font:inherit; border:1px solid var(--line); background:#fff; border-radius:999px; padding:.15rem .7rem; margin-right:.4rem; cursor:pointer; }
+  .legend button[aria-pressed="false"] { opacity:.4; text-decoration:line-through; }
+  .readout { font-size:.85rem; color:var(--muted); min-height:1.2em; }
+  #lightbox { position:fixed; inset:0; background:rgba(15,23,42,.85); display:none; align-items:center; justify-content:center; padding:2rem; z-index:50; }
+  #lightbox.open { display:flex; }
+  #lightbox img { max-width:90vw; max-height:90vh; image-rendering:auto; background:#fff; border-radius:8px; padding:1rem; }
+  .reveal { opacity:0; transform:translateY(8px); transition:opacity .3s ease, transform .3s ease; }
+  .reveal.shown { opacity:1; transform:none; }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior:auto; } .reveal { opacity:1; transform:none; transition:none; } }
+  @media (max-width: 800px) { .shell { grid-template-columns:1fr; } nav.tree { position:static; max-height:none; } }
+</style>
+</head>
+<body>
+<div class="shell">
+  <nav class="tree" aria-label="File tree">
+    <h2>mixed-repo</h2>
+    <ul>
+      <li class="dir">assets/</li>
+      <li><a href="#s-assets">logo.svg, pixel.png</a></li>
+      <li class="dir">data/</li>
+      <li><a href="#s-metrics">metrics.csv</a></li>
+      <li><a href="#s-notes">notes.txt</a></li>
+      <li class="dir">src/</li>
+      <li><a href="#s-app">app.py</a></li>
+      <li><a href="#s-helper">lib/helper.go</a></li>
+      <li><a href="#s-util">util.js</a></li>
+      <li class="dir">root</li>
+      <li><a href="#s-readme">README.md</a></li>
+    </ul>
+  </nav>
+  <main>
+    <section class="overview reveal" id="s-overview">
+      <div class="kicker">Repository overview</div>
+      <h1>mixed-repo</h1>
+      <p>A tiny project used to exercise universal ingestion: Markdown, source code, CSV, text, and images.</p>
+      <ul class="bullets">
+        <li>assets/</li><li>data/</li><li>src/</li><li>README.md</li>
+      </ul>
+    </section>
+
+    <section class="reveal" id="s-readme">
+      <div class="kicker">README.md</div>
+      <h2 class="sec">Mixed Repo Fixture</h2>
+      <p>A tiny project used to exercise universal ingestion: Markdown, source code, CSV, text, and images.</p>
+      <h3>Features</h3>
+      <ul class="bullets"><li>Recursive directory walk</li><li>Numeric CSV rendered as a chart</li><li>Local image embedded from Markdown</li></ul>
+      <h3>Quick metrics</h3>
+      <table><thead><tr><th>Quarter</th><th>Revenue</th></tr></thead>
+        <tbody><tr><td>Q1</td><td>120</td></tr><tr><td>Q2</td><td>145</td></tr></tbody></table>
+      <h3>Usage</h3>
+      <pre><code data-lang="python"><span class="ln">from app import run</span><span class="ln">run()</span></code></pre>
+      <figure><img class="hero-img" style="max-width:96px" alt="Project logo"
+        src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgdmlld0JveD0iMCAwIDY0IDY0Ij48Y2lyY2xlIGN4PSIzMiIgY3k9IjMyIiByPSIyOCIgZmlsbD0iIzJiNmNiMCIvPjx0ZXh0IHg9IjMyIiB5PSI0MCIgZm9udC1zaXplPSIyNCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iI2ZmZiI+Tlg8L3RleHQ+PC9zdmc+Cg==">
+        <figcaption>Project logo (inline-image, from README)</figcaption></figure>
+    </section>
+
+    <section class="reveal" id="s-notes">
+      <div class="kicker">data/notes.txt</div>
+      <h2 class="sec">Release notes</h2>
+      <p>Release notes for the fixture.</p>
+      <p>First paragraph describes the change.</p>
+      <p>Second paragraph describes the follow-up.</p>
+    </section>
+
+    <section class="reveal" id="s-app">
+      <div class="kicker">src/app.py</div>
+      <span class="lang">python</span>
+      <pre><code data-lang="python"><span class="ln">"""Entry point for the fixture app."""</span><span class="ln"></span><span class="ln">def run() -&gt; str:</span><span class="ln">    return "hello from app"</span></code></pre>
+    </section>
+
+    <section class="reveal" id="s-helper">
+      <div class="kicker">src/lib/helper.go</div>
+      <span class="lang">go</span>
+      <pre><code data-lang="go"><span class="ln">package lib</span><span class="ln"></span><span class="ln">// Helper returns a fixed greeting.</span><span class="ln">func Helper() string {</span><span class="ln">    return "hello from go"</span><span class="ln">}</span></code></pre>
+    </section>
+
+    <section class="reveal" id="s-util">
+      <div class="kicker">src/util.js</div>
+      <span class="lang">javascript</span>
+      <pre><code data-lang="javascript"><span class="ln">export function greet(name) {</span><span class="ln">  return `hello ${name}`;</span><span class="ln">}</span></code></pre>
+    </section>
+
+    <section class="reveal" id="s-metrics">
+      <div class="kicker">data/metrics.csv</div>
+      <h2 class="sec">Metrics (interactive chart)</h2>
+      <div class="chart-wrap">
+        <div class="legend">
+          <button data-series="0" aria-pressed="true">Revenue</button>
+          <button data-series="1" aria-pressed="true">Cost</button>
+        </div>
+        <svg id="chart" viewBox="0 0 640 300" role="img" aria-label="Revenue and Cost by quarter" style="width:100%;height:auto"></svg>
+        <div class="readout" id="readout">Hover a bar to read its value.</div>
+      </div>
+    </section>
+
+    <section class="reveal" id="s-assets">
+      <div class="kicker">assets/</div>
+      <h2 class="sec">Images</h2>
+      <div class="gallery">
+        <img alt="logo" src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI2NCIgaGVpZ2h0PSI2NCIgdmlld0JveD0iMCAwIDY0IDY0Ij48Y2lyY2xlIGN4PSIzMiIgY3k9IjMyIiByPSIyOCIgZmlsbD0iIzJiNmNiMCIvPjx0ZXh0IHg9IjMyIiB5PSI0MCIgZm9udC1zaXplPSIyNCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZmlsbD0iI2ZmZiI+Tlg8L3RleHQ+PC9zdmc+Cg==">
+        <img alt="pixel" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==">
+      </div>
+      <figcaption>Standalone images (origin standalone-image). Click to enlarge (lightbox).</figcaption>
+    </section>
+  </main>
+</div>
+
+<div id="lightbox" role="dialog" aria-modal="true" aria-label="Enlarged image"><img alt=""></div>
+
+<script>
+(function () {
+  document.documentElement.classList.add("js");
+  var mrm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // Scroll reveals.
+  var revs = document.querySelectorAll(".reveal");
+  if (mrm) { revs.forEach(function (e) { e.classList.add("shown"); }); }
+  else {
+    var ro = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add("shown"); ro.unobserve(e.target); } });
+    }, { threshold: 0.12 });
+    revs.forEach(function (e) { ro.observe(e); });
+  }
+
+  // File-tree active-section tracking.
+  var links = Array.prototype.slice.call(document.querySelectorAll("nav.tree a"));
+  var byId = {}; links.forEach(function (a) { byId[a.getAttribute("href").slice(1)] = a; });
+  var so = new IntersectionObserver(function (es) {
+    es.forEach(function (e) {
+      if (e.isIntersecting) {
+        links.forEach(function (a) { a.classList.remove("active"); });
+        if (byId[e.target.id]) byId[e.target.id].classList.add("active");
+      }
+    });
+  }, { rootMargin: "-40% 0px -55% 0px" });
+  document.querySelectorAll("main section").forEach(function (s) { so.observe(s); });
+
+  // Offline keyword highlighter (no CDN): a light pass over code blocks.
+  var KW = { python:["from","import","def","return","str"], go:["package","func","string","return"], javascript:["export","function","return","const","let"] };
+  document.querySelectorAll("pre code[data-lang]").forEach(function (code) {
+    var kws = KW[code.getAttribute("data-lang")] || [];
+    code.querySelectorAll(".ln").forEach(function (ln) {
+      var html = ln.innerHTML;
+      html = html.replace(/(&quot;|&#39;|`)(.*?)\1/g, '<span class="tok-str">$1$2$1</span>');
+      html = html.replace(/(\/\/.*|#.*|&quot;&quot;&quot;.*?&quot;&quot;&quot;)/g, '<span class="tok-com">$1</span>');
+      kws.forEach(function (k) { html = html.replace(new RegExp("\\b" + k + "\\b", "g"), '<span class="tok-kw">' + k + "</span>"); });
+      ln.innerHTML = html;
+    });
+  });
+
+  // Interactive bar chart (inline SVG, real CSV data), hover readout + series toggle.
+  var cats = ["Q1", "Q2", "Q3", "Q4"];
+  var series = [{ name: "Revenue", color: "#2b6cb0", values: [120, 145, 160, 190] },
+                { name: "Cost", color: "#f59e0b", values: [80, 90, 95, 110] }];
+  var hidden = {};
+  var svg = document.getElementById("chart"), readout = document.getElementById("readout");
+  var W = 640, H = 300, padL = 44, padB = 30, padT = 12, padR = 8;
+  function draw() {
+    var vis = series.filter(function (s, i) { return !hidden[i]; });
+    var max = 1; vis.forEach(function (s) { s.values.forEach(function (v) { if (v > max) max = v; }); });
+    var plotW = W - padL - padR, plotH = H - padT - padB;
+    var groups = cats.length, gW = plotW / groups, bW = vis.length ? (gW * 0.7) / vis.length : gW;
+    var out = "";
+    for (var g = 0; g <= 4; g++) { var y = padT + plotH - (g / 4) * plotH, val = Math.round((g / 4) * max);
+      out += '<line x1="' + padL + '" y1="' + y + '" x2="' + (W - padR) + '" y2="' + y + '" stroke="#e2e8f0"/>';
+      out += '<text x="' + (padL - 6) + '" y="' + (y + 4) + '" text-anchor="end" font-size="10" fill="#64748b">' + val + '</text>'; }
+    cats.forEach(function (c, ci) {
+      var x0 = padL + ci * gW;
+      out += '<text x="' + (x0 + gW / 2) + '" y="' + (H - 8) + '" text-anchor="middle" font-size="11" fill="#334155">' + c + '</text>';
+      var bi = 0;
+      series.forEach(function (s, si) {
+        if (hidden[si]) return;
+        var h = (s.values[ci] / max) * plotH, x = x0 + gW * 0.15 + bi * bW, y = padT + plotH - h;
+        out += '<rect x="' + x + '" y="' + y + '" width="' + (bW - 2) + '" height="' + h + '" fill="' + s.color + '" tabindex="0" ' +
+          'data-label="' + s.name + " " + c + " = " + s.values[ci] + '"><title>' + s.name + " " + c + ": " + s.values[ci] + "</title></rect>";
+        bi++;
+      });
+    });
+    svg.innerHTML = out;
+    svg.querySelectorAll("rect").forEach(function (r) {
+      function show() { readout.textContent = r.getAttribute("data-label"); }
+      r.addEventListener("mouseenter", show); r.addEventListener("focus", show);
+    });
+  }
+  document.querySelectorAll(".legend button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var i = +b.getAttribute("data-series"); hidden[i] = !hidden[i];
+      b.setAttribute("aria-pressed", hidden[i] ? "false" : "true"); draw();
+    });
+  });
+  draw();
+
+  // Image lightbox (native-resolution asset; Escape / backdrop to close).
+  var lb = document.getElementById("lightbox"), lbImg = lb.querySelector("img"), lastFocus = null;
+  document.querySelectorAll(".gallery img").forEach(function (img) {
+    img.tabIndex = 0;
+    function open() { lbImg.src = img.src; lb.classList.add("open"); lastFocus = img; lb.focus(); }
+    img.addEventListener("click", open);
+    img.addEventListener("keydown", function (e) { if (e.key === "Enter") open(); });
+  });
+  function close() { lb.classList.remove("open"); if (lastFocus) lastFocus.focus(); }
+  lb.addEventListener("click", close);
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") close(); });
+})();
+</script>
+</body>
+</html>

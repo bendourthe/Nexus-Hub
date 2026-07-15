@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.13.0] - 2026-07-15
+
+**presentify universal ingestion + prominence + output-aspect (v3.13.0).** Extends `/presentify` + `document-to-interactive-html` beyond the four document formats: it now ingests source code and config, Markdown / plain text, CSV / TSV, and standalone images, and can take a whole directory or repository (walked recursively) as input; it preserves each source visual's prominence; and it lets the caller choose the output aspect. Builds on the released v3.12.0 fidelity work without changing it. Catalog totals unchanged (no new skill or command).
+
+### Added
+
+- **Universal ingestion** (`catalog/skills/specialized-domains/document-to-interactive-html/scripts/extract_content.py`): new extractors for source code / config (extension -> language, truncation at `--max-text-bytes`), Markdown / plain text (an intentionally-minimal in-house parser), CSV / TSV (delimiter sniff + the Excel grid-to-block logic), and standalone images; a recursive directory / repository walk with ignore rules (VCS / dependency / build dirs, lockfiles), a best-effort `.gitignore` matcher, a binary sniff, and `--max-files` / `--max-text-bytes` caps; repository assembly emits a synthesized `overview` section, a `tree`, README-first ordering, and code grouped by top-level directory. New CLI flags `--max-text-bytes` and `--max-files`.
+- **Image prominence signals**: `image` blocks now carry native `width` / `height` and `page_fraction` (from PDF bbox and PPTX shape-vs-slide geometry), and a "Prominence preservation" authoring rule keeps a dominant source visual a hero at native resolution instead of flattening it into a uniform thumbnail grid.
+- **Output-aspect control**: a `--layout` flag (and a post-style menu) choosing full-width (16:9), standard webpage, portrait, or a custom canvas, with a content-aware non-interactive fallback; plus a spacing / vertical-density rule that avoids dead half-empty screens.
+- Content-model additive v3 fields (`schema_version` stays 2): code `path` / `truncated`, the `standalone-image` origin, the `code` / `markdown` / `text` / `csv` source formats, a top-level `tree`, `coverage.walk`, the `overview` section kind, and image `width` / `height` / `page_fraction`.
+
+### Changed
+
+- `catalog/commands/presentify.md` and the `document-to-interactive-html` SKILL.md frontmatter broadened to cover the new inputs, directory / repository ingestion, the `project` mode, and `--layout`; `data/skills.json` + `data/SKILL_INDEX.md` synced.
+- All changes stay local-only (standard-library-first parsing; existing lazy-imports degrade gracefully), zero external requests, and installer-neutral (skill bundle + one command). No new outbound call, dependency, or credential.
+
+**presentify imagery + interactivity (v3.13.0, in progress).** Gives `/presentify` + `document-to-interactive-html` a professional / journalistic visual voice through a tiered imagery system and a richer interactivity control, WITHOUT breaking the self-contained / offline / zero-external-request guarantee or the local-first ethos. Tier 1 (LLM-native procedural visuals) is the always-on, zero-outbound default; Tiers 2 (license-free stock) and 3 (local AI-generated) are opt-in, and any build-time network use is explicit-consent-gated. Every fetched or generated asset is base64-embedded so the output still opens offline with zero external requests, is verified free-for-commercial-use, and is recorded in a visible credits block. Catalog totals unchanged (no new skill or command).
+
+### Added
+
+- **Imagery tiers** (`references/interactive-features.md`, two new bundled helpers): Tier 1 procedural visuals (original inline SVG / CSS - color fields, gradient backgrounds, editorial devices, generative textures - commercial-safe by construction, the default and non-interactive fallback); Tier 2 license-free stock via `scripts/fetch_stock_media.py` (opt-in, consent-gated: NO network without `--consent`; Openverse-first, Wikimedia / Pexels fallbacks; a fail-safe free-for-commercial license allow-list rejecting any nc/nd term; CC-BY attribution built; base64-embedded + credits manifest; graceful degrade); Tier 3 local AI via `scripts/generate_local_image.py` (opt-in, LOCAL-only: diffusers + torch forced offline, or a configured local CLI; commercially-clean default model; NO hosted-API client; records model + license + the "AI-generated; may not be copyrightable" caveat; degrades to Tier 1).
+- **Imagery and interactivity design question**: `--images <procedural|stock|ai|auto|none>` and `--interactivity <restrained|balanced|rich>`, asked after style + layout; non-interactive fallback = procedural + a content-aware level; both recorded in the design-record comment.
+- **Interactivity spectrum + scrollytelling catalog**: restrained / balanced / rich levels (balanced == the existing minimum interaction budget), plus a rich-level catalog (pinned graphics, image-to-text transitions, parallax, progress timeline, before / after slider) - all inline vanilla JS / CSS, keyboard-accessible, and reduced-motion-guarded (parallax disabled entirely under reduced motion).
+- **Visual provenance and credits convention** shared by all three tiers: per-tier provenance in an adjacent HTML comment plus a visible "Image credits" section (attribution text in the body, raw URLs confined to comments / the manifest so the output stays offline-grep-clean).
+
+### Changed
+
+- `catalog/commands/presentify.md` and the SKILL.md `description` / `summary_l0` / `overview_l1` document the imagery tiers, interactivity levels, `--images` / `--interactivity`, the consent gate, and the offline / commercial-use guarantees; `data/skills.json` + `data/SKILL_INDEX.md` synced.
+- New opt-in lazy dependencies only: `requests` (Tier 2, with a stdlib `urllib` fallback) and `diffusers` + `torch` (Tier 3); both lazy-imported with hints and degrading to Tier 1 when absent. No MCP registry entry, no hosted generation-as-service or paid-search-as-service, no new credential. The default and every non-interactive run stay fully offline on Tier 1.
+
+---
+
 ## [3.12.1] - 2026-07-13
 
 **Cross-platform install adapters + per-release format verification.** Fixes that Nexus-Hub skills and commands were not discoverable in the new ChatGPT desktop app (Chat + Work + Codex) or the Antigravity IDE, and hardens the install against future platform format drift. The canonical catalog is unchanged; each platform integration is now an adapter that materializes the catalog into that platform's native shape and location, and every command surfaces both as a slash command and as a reusable skill (`$name`). Catalog: **266 skills** (+1: `platform-contract-verification`), **16 commands**, **25 hooks**.

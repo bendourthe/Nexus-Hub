@@ -6,13 +6,14 @@ The model is plain JSON. It is described here in prose plus a commented example;
 
 ## Top-level object
 
-A content model is a single JSON object with three required fields and two optional fields.
+A content model is a single JSON object with three required fields and three optional fields.
 
 - `schema_version` (optional integer, default `1`): the model version. Present so the builder can reject a model it does not understand. The current extractor emits `2`. **Compatibility rule**: every v2 addition is ADDITIVE and optional - a v1 consumer that ignores unknown fields (exactly as it must ignore unknown block types) reads a v2 model correctly, and a v2 consumer treats every new field as absent-by-default when reading a v1 model. A consumer MUST NOT reject a model solely because `schema_version` is higher than it knows, as long as the required v1 fields are present.
 - `title` (string, required): the presentation title. For a single source this is the document title; for multiple sources it is a synthesized umbrella title.
-- `sources` (array, required): an ordered list of source descriptors, one per input document, in input order. Each entry is `{ "path": string, "format": string, "title": string }` where `format` is one of `pptx`, `docx`, `xlsx`, `pdf`. The order of this list defines multi-file ordering and is the attribution lookup for each section (see `source_index` below). **v2 optional field**: `deck_like` (boolean) - set `true` on a PDF source whose pages are landscape-oriented with low text density (a PDF exported from slides), so the mode auto-detect treats it as deck-like (preserve page order as slide flow).
+- `sources` (array, required): an ordered list of source descriptors, one per input document, in input order. Each entry is `{ "path": string, "format": string, "title": string }` where `format` is one of `pptx`, `docx`, `xlsx`, `pdf`, `code`, `markdown`, `text`, `csv` (the last four are the universal-ingestion formats). The order of this list defines multi-file ordering and is the attribution lookup for each section (see `source_index` below). **v2 optional field**: `deck_like` (boolean) - set `true` on a PDF source whose pages are landscape-oriented with low text density (a PDF exported from slides), so the mode auto-detect treats it as deck-like (preserve page order as slide flow).
 - `sections` (array, required): an ordered list of section objects (defined below). Order is significant and is preserved end to end.
-- `coverage` (object, optional, v2): the extraction coverage manifest the authoring stage reconciles against. Shape: `{ "per_source": [ <entry>, ... ] }` with one entry per source, in `sources` order. Each entry carries `path` (string) plus integer counts `images_found`, `images_kept`, `images_skipped`, `native_charts`, `tables`, `vector_regions_rasterized`, `vector_regions_skipped`, `scanned_pages_detected`, `ocr_pages`, `ocr_low_confidence`, `agent_read_pages`, and `skip_reasons` (array of human-readable strings, one per skipped item or aggregated skip decision, e.g. `"repeated-asset: image on 4 pages kept once (page 1)"`). Verification rule: every visual the manifest counts as found must be accounted for in the output - rendered, reconstructed, or explicitly skipped with a reason.
+- `coverage` (object, optional, v2): the extraction coverage manifest the authoring stage reconciles against. Shape: `{ "per_source": [ <entry>, ... ] }` with one entry per source, in `sources` order. Each entry carries `path` (string) plus integer counts `images_found`, `images_kept`, `images_skipped`, `native_charts`, `tables`, `vector_regions_rasterized`, `vector_regions_skipped`, `scanned_pages_detected`, `ocr_pages`, `ocr_low_confidence`, `agent_read_pages`, and `skip_reasons` (array of human-readable strings, one per skipped item or aggregated skip decision, e.g. `"repeated-asset: image on 4 pages kept once (page 1)"`). Verification rule: every visual the manifest counts as found must be accounted for in the output - rendered, reconstructed, or explicitly skipped with a reason. **v3 optional sub-object**: `walk` (present only for a directory / repository input) records the recursive-walk accounting: `{ "root": string, "files_included": int, "gitignored": int, "binary_skipped": int, "dirs_ignored": int, "file_count_capped": int, "notes": [string] }`, where `notes` is a bounded, human-readable list of the ignore / cap decisions. The walk manifest is informational (it explains what the walk did NOT include); the per-source manifest still governs the per-file visual reconciliation.
+- `tree` (object, optional, v3): present only for a directory / repository input, a nested representation of the ingested layout the authoring stage renders as a file-tree overview. Each node is `{ "name": string, "kind": "dir" | "file", "children": [ <node>, ... ] }`; a `file` node omits `children`. Only ingested (non-ignored) files appear, so the tree reflects what the site actually presents, not the raw on-disk directory.
 
 Commented example (JSON does not allow comments; the `//` lines are illustrative only and must be removed in real output):
 
@@ -64,6 +65,7 @@ Each entry in `sections` is an object with these fields.
     - `quote`: a section built around a pulled quotation.
     - `image`: a section dominated by a single image (a full-bleed figure).
     - `appendix`: supplementary material placed after the main flow (for example, overflow tables or collected speaker notes).
+    - `overview`: a synthesized landing section for a directory / repository input (the repository name, a short description drawn from the README when present, and a bullets summary of the top-level areas). Typically the first section for a repository input. Unknown kinds already fall back to `content` in the builder, so a v1 / v2 builder renders it as a content section.
 - `source_index` (integer, required): the zero-based index into the top-level `sources` array that this section came from. This is how multi-file attribution is preserved. A synthesized section (an agenda or overview the extractor generates rather than reads from a source) uses the index of the source it summarizes, or `0` when it summarizes all sources.
 - `blocks` (array, required): an ordered list of block objects (defined below). May be empty (for example, a `title` or `section-break` section).
 
@@ -83,7 +85,8 @@ Every entry in a section's `blocks` array is an object whose `type` field select
 - `image`: a raster figure. Bytes are carried inline as a base64 `data:` URI so the final HTML is self-contained (see `references/extraction-runbook.md` for the size budget and how bytes are extracted per format). `alt` is required for accessibility even when synthesized.
     - `{ "type": "image", "data_uri": string, "alt": string }`
     - `data_uri` has the form `data:image/<subtype>;base64,<...>`.
-    - **v2 optional fields**: `caption` (string; nearby caption text when detected, e.g. a "Figure 3: ..." line directly below the figure), `page` (integer; 1-based source page or slide number), `origin` (one of `embedded-raster` - a raster embedded in a PDF page; `rasterized-region` - a vector-figure region rendered to a bitmap; `shape-picture` - a PPTX picture shape; `inline-image` - a DOCX inline image; `scanned-page` - a full-page image of a scanned PDF page for agent-vision reading), and `classification` (string, default empty; filled by the figure-reconstruction protocol - one of `chart`, `map`, `diagram`, `table-image`, `photo`, `screenshot`, `decorative`).
+    - **v2 optional fields**: `caption` (string; nearby caption text when detected, e.g. a "Figure 3: ..." line directly below the figure), `page` (integer; 1-based source page or slide number), `origin` (one of `embedded-raster` - a raster embedded in a PDF page; `rasterized-region` - a vector-figure region rendered to a bitmap; `shape-picture` - a PPTX picture shape; `inline-image` - a DOCX inline image; `scanned-page` - a full-page image of a scanned PDF page for agent-vision reading; `standalone-image` - an image supplied as its own input file, e.g. a `.png` / `.jpg` / `.svg` in an ingested folder), and `classification` (string, default empty; filled by the figure-reconstruction protocol - one of `chart`, `map`, `diagram`, `table-image`, `photo`, `screenshot`, `decorative`).
+    - **v3 optional prominence fields**: `width` and `height` (integers; the image's NATIVE pixel dimensions, computed from the original bytes before any budget downscale; absent when Pillow is unavailable or the bytes will not decode, e.g. SVG), and `page_fraction` (number 0..1, 3 decimals; the share of the source page / slide AREA the image occupied). `page_fraction` is set where source geometry exists (PDF embedded rasters and rasterized regions via their bbox, PPTX pictures via shape-vs-slide area) and is ABSENT for DOCX inline images, Markdown-embedded images, standalone image files, and scanned-page renders. The authoring stage uses these to preserve source prominence: a visual with a high `page_fraction` (roughly >= 0.5) or the sole / primary visual of its section is rendered as a hero, never flattened into a uniform thumbnail grid (see `references/interactive-features.md`).
 - `chart`: a typed data series derived from a spreadsheet range (or any numeric source). The builder renders it as an inline SVG or canvas chart with no charting library. `chart_type_hint` is advisory; the builder or the enrichment pass may override it for the data shape.
     - `{ "type": "chart", "chart_type_hint": string, "categories": [string, ...], "series": [ { "name": string, "values": [number, ...] }, ... ] }`
     - `chart_type_hint` is one of `bar`, `line`, `pie`, `doughnut`. `categories` labels the x-axis (or the slices for pie/doughnut). Each series `values` array aligns positionally with `categories`.
@@ -96,6 +99,7 @@ Every entry in a section's `blocks` array is an object whose `type` field select
 - `code`: a preformatted code or monospace block.
     - `{ "type": "code", "text": string, "language": string }`
     - `language` may be an empty string when unknown.
+    - **v3 optional fields**: `path` (string; the repository-relative source path, set when the block comes from the source-code / config extractor) and `truncated` (boolean; `true` when a large source file was cut to the text-byte cap, in which case `text` ends with a clear truncation marker line). The authoring stage should offer the source file at native fidelity (offline syntax highlighting) and note the truncation when present.
 - `quote`: a pulled quotation with optional attribution.
     - `{ "type": "quote", "text": string, "attribution": string }`
     - `attribution` may be an empty string.
@@ -134,6 +138,30 @@ Each extractor maps its format into the model as follows. The full per-format co
 - Each worksheet maps to one `section`, in workbook order, usually `kind: "data"`. The sheet name is the `heading`.
 - A contiguous range with a label row/column and numeric body maps to a `chart` block with `provenance: "source-data"`: the label row becomes `categories`, each labeled numeric column (or row) becomes a series `{ name, values }`, and `chart_type_hint` is inferred (a small category count with one series leans `pie`/`doughnut`; multiple series or a time-like first column leans `line`; otherwise `bar`).
 - Ranges that are not cleanly numeric map to `table` blocks instead, so no data is silently dropped.
+
+### Source code and config (.py, .js, .ts, .go, .rs, .java, .sh, .sql, .json, .yaml, .toml, ...) -- present the file
+
+- Each source-code or config file maps to one `section` whose `heading` is the repository-relative path and whose single block is a `code` block. `language` is inferred from the file extension (or a known basename such as `Dockerfile` / `Makefile`); `path` carries the repository-relative path.
+- A file larger than the text-byte cap (`--max-text-bytes`) is TRUNCATED, not dropped: the `code` block's `text` ends with a clear truncation marker and `truncated` is `true`.
+- The section `kind` is `content`.
+
+### Markdown and plain text (.md, .markdown, .txt, .rst, .log) -- present the document
+
+- Markdown is segmented into `section`s by ATX (`#`) and setext headings: the heading text becomes the section `heading`, body paragraphs become `paragraph` blocks, lists become `bullets` (with `depth` from the marker indent), fenced code becomes `code` blocks (language from the fence info string), pipe tables become `table` blocks, and image references to LOCAL files become `image` blocks (resolved relative to the Markdown file, through the base64 budget path). A remote image URL is not fetched; it is recorded as a caption note only.
+- Plain text (`.txt`, `.rst`, `.log`) maps to one `section` of blank-line-separated `paragraph` blocks; `.rst` promotes underlined titles to the `heading` on a best-effort basis. The in-house Markdown / text parser is intentionally minimal (documented in the runbook); it is not a full CommonMark implementation.
+
+### CSV / TSV (.csv, .tsv) -- chart or tabulate the data
+
+- A CSV / TSV file maps to one `section` (`kind: "data"`, heading = the file stem or repository-relative path). The delimiter is sniffed (`.tsv` forces tab). The parsed grid goes through the SAME grid-to-block logic as Excel: a header row plus a numeric body becomes a `chart` block (`provenance: "source-data"`, inferred `chart_type_hint`); a non-numeric grid becomes a `table` block. A row / column cap guards pathological files (over-cap rows are dropped and counted in coverage).
+
+### Standalone images (.png, .jpg, .jpeg, .gif, .webp, .svg) -- present the image
+
+- An image supplied as its own input file maps to one `section` (`kind: "image"`) whose single block is an `image` block with `origin: "standalone-image"` (no `page`; `page_fraction` is null - there is no page geometry). Raster images go through the base64 budget / downscale path; `.svg` is embedded as `image/svg+xml` markup (not rasterized), bypassing the raster downscale path.
+
+### Directory / repository input -- compile the project
+
+- A directory argument is walked RECURSIVELY (see the runbook for the ignore list, the `.gitignore` best-effort matcher, the binary sniff, and the `--max-files` / `--max-text-bytes` caps). Each ingested file becomes its own source (with its class as `format`), so per-source attribution and the per-source coverage manifest work unchanged.
+- The model gains a top-level `tree` (the ingested layout) and a leading `kind: "overview"` section. Body sections are ordered legibly: README / top-level docs first, then remaining Markdown / docs, then source code grouped by top-level directory (a `section-break` per top-level directory carrying its name), then data files and standalone images, then the document formats. The top-level `coverage.walk` object records what the walk excluded and why.
 
 ## Multi-file merge
 
