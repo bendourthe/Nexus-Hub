@@ -272,5 +272,6 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | prompt-injection-defense | security | "Recognize and resist prompt injection and poisoned tool output with instruction-origin discipline" | catalog/skills/security/prompt-injection-defense/SKILL.md |
 | false-confidence-test-audit | tests-generation | "Audit existing tests for false confidence: tests that pass regardless of correctness" | catalog/skills/tests-generation/false-confidence-test-audit/SKILL.md |
 | commit-sweep | workflow | "Sweep recent commits for cross-commit problems a per-diff review misses" | catalog/skills/workflow/commit-sweep/SKILL.md |
+| lint-repair-loop | code-cleanup | "Run linters and repair what they flag in a bounded loop, not just report it" | catalog/skills/code-cleanup/lint-repair-loop/SKILL.md |
 
-**Total: 268 skills across 21 categories**
+**Total: 269 skills across 21 categories**

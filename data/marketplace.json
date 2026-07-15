@@ -90,7 +90,7 @@
       "id": "code-cleanup",
       "name": "Code Cleanup",
       "description": "Code, layout, and docs cleanup: per-language modernization plus repo and docs structural refactoring",
-      "skill_count": 10
+      "skill_count": 11
     },
     {
       "id": "code-review",

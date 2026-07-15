@@ -6628,6 +6628,37 @@
       }
     },
     {
+      "name": "lint-repair-loop",
+      "title": "lint-repair-loop",
+      "description": "Run the project's linters, formatters, and type-checkers and REPAIR what they flag - not just report it - in a bounded loop that ends with a clean run and a reviewable diff. Make sure to use this skill whenever the user says \"fix the lint errors\", \"clean up the linter output\", \"make lint pass\", \"repair the type errors\", \"auto-fix and fix the rest\", \"the linter is complaining\", or wants flagged issues actually resolved rather than listed. Any judgment repairs beyond the formatters' native --fix are performed by the agent's OWN session model; this skill never shells out to an external repair model. SKIP, do NOT use for, designing or choosing the lint/type config itself, large behavioral refactors (use refactoring-expert), or reducing structural complexity / over-abstraction (use code-simplification).",
+      "long_description": "Make the linter, formatter, and type-checker pass by actually fixing what they flag, not by printing the errors and stopping. A bounded repair loop: cheap deterministic autofix first, the agent's own judgment for the rest, a clean run at the end, and a reviewable diff.",
+      "summary_l0": "\"Run linters and repair what they flag in a bounded loop, not just report it\"",
+      "overview_l1": "\"This skill runs the project's linters, formatters, and type-checkers and REPAIRS what they flag in a bounded loop, rather than only reporting problems. The loop is: run the tools; apply their native --fix / --write autofix first (deterministic and cheapest); re-run; for residual failures the autofixers cannot handle, the agent reads each failure and edits the code to satisfy it, using its OWN session model - never an external repair service; re-run until clean or a max-iteration cap is hit, then stop and surface what remains rather than looping forever. It always leaves a reviewable diff and never force-pushes or bypasses hooks. Per the MCP Registry Policy (hard-no on generation-as-service; reverse-engineer-first), the LLM-judgment half runs on the session model, and only the deterministic native-formatter pass may be automated by the opt-in lint-autofix precommit hook. Trigger phrases: fix the lint errors, make lint pass, repair type errors, auto-fix and fix the rest, clean up the linter output.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "code-cleanup",
+      "language": "Multi-language",
+      "tags": [],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/code-cleanup/lint-repair-loop/",
+      "file": "catalog/skills/code-cleanup/lint-repair-loop/SKILL.md",
+      "size": {
+        "lines": 71,
+        "characters": 7334,
+        "tokens_estimate": 1203
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
       "name": "shipping-and-launch",
       "title": "shipping-and-launch",
       "description": "Confirms launch readiness and executes a safe, monitored deployment to production. Use at the end of any feature cycle before a production deployment. Covers go/no-go decisions, pre-flight checks, deployment execution, and post-deployment verification.",
