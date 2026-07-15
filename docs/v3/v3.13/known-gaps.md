@@ -1,8 +1,8 @@
 # Known Gaps - v3.13
 
 **Project**: Nexus-Hub
-**Status**: release-ready (pending `/update release` commit / merge / tag / push)
-**Last updated**: 2026-07-13 (Phase 5 reconciliation for the presentify universal-ingestion overhaul)
+**Status**: in progress - presentify imagery-and-interactivity follow-on (Phase 1 of 5 complete); the universal-ingestion overhaul is complete and release-ready
+**Last updated**: 2026-07-15 (Phase 1 of the presentify imagery-and-interactivity follow-on)
 
 ## v3.13.0
 
@@ -23,6 +23,7 @@
 - Universal ingestion: source code / config, Markdown / plain text, CSV / TSV, standalone images, and a recursive directory / repository walk with ignore rules, a best-effort `.gitignore` matcher, a binary sniff, and `--max-files` / `--max-text-bytes` caps; repository assembly (synthesized overview + file tree + README-first + code grouped by directory).
 - Image prominence signals (`width` / `height` / `page_fraction`) and a prominence-preservation authoring rule (a dominant source visual stays a hero, never flattened into a uniform thumbnail grid).
 - Spacing / vertical-density discipline and an output-aspect control (`--layout` + a full-width / standard / portrait / other menu, content-aware non-interactive fallback).
+- Imagery + interactivity foundation (imagery-and-interactivity follow-on, Phase 1): the "Imagery and interactivity" design question (`--images` / `--interactivity`, asked after style + layout, non-interactive fallback = procedural + content-aware, both recorded in the design-record comment); the interactivity spectrum (restrained / balanced / rich) + a scrollytelling pattern catalog (pinned graphics, image-to-text, parallax, timeline, before/after slider - all inline / reduced-motion-guarded / keyboard-accessible); the Tier-1 LLM-native procedural-visual rule (zero-outbound default); and the visual-provenance / credits convention shared by all three tiers. Tiers 2 (license-free stock) and 3 (local AI-gen) are wired in later phases.
 
 ### Open Items
 
@@ -61,8 +62,8 @@
 ##### WN-1 - Full-repo validators and browser visual-QA unavailable on the Windows dev host
 
 - **Source phase**: Phases 1-5
-- **Reason**: `validate_unicode_safety.py` / `validate_no_personal_paths.py` (full-repo scans) and the compression eval time out on the dev host, and no headless browser is installed, so the rendered visual-QA loop (screenshots) and the per-aspect / hero-vs-gallery rendered demonstrations could not run locally. Change-relevant validators were run directly (bundle audit, JSON integrity, version-sync, ASCII, ruff); edited files are ASCII-verified.
-- **Suggested next step**: Rely on CI for the full validator chain; run the rendered visual-QA in a browser-capable session.
+- **Reason**: `validate_unicode_safety.py` / `validate_no_personal_paths.py` (full-repo scans) and the compression eval time out on the dev host, and no headless browser is installed, so the rendered visual-QA loop (screenshots) and the per-aspect / hero-vs-gallery rendered demonstrations could not run locally. Change-relevant validators were run directly (bundle audit, JSON integrity, version-sync, ASCII, ruff); edited files are ASCII-verified. The imagery-and-interactivity Phase 1 Tier-1 sample (`development/worked-example/tier1-imagery-sample.html`) was likewise reviewed statically (offline-refs grep clean, tag-balance and ASCII checked), not browser-rendered.
+- **Suggested next step**: Rely on CI for the full validator chain; run the rendered visual-QA of the Tier-1 sample and the universal-ingestion worked example in a browser-capable session.
 
 ##### WN-2 - Deck-PDF prominence path not exercised end-to-end locally
 

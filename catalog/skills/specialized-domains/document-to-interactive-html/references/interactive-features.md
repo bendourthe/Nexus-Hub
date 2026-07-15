@@ -91,6 +91,68 @@ Every run MUST ship ALL FIVE of the following, functional offline with zero exte
 
 A page whose only interactivity is its charts FAILS the budget. A page with no charts at all still meets the budget through this layer - that is the point.
 
+### Interactivity spectrum (restrained / balanced / rich)
+
+The interactivity level is resolved right after the output aspect (`--interactivity`, or the menu; see the command and SKILL.md), and it selects HOW MUCH of the layer above is in play. The three levels are a spectrum from a credible, journalistic-report stillness to a full scrollytelling narrative. All three honor the same non-negotiables: offline / no-CDN, keyboard-accessible, and reduced-motion-guarded.
+
+- **RESTRAINED** - user-initiated interaction only. In play: pattern 3 (hover + focus affordances), pattern 6 (expand / collapse), anchor navigation with active-state tracking (a non-animated highlight, not scroll-triggered motion), pattern 5 (the image lightbox), chart readouts, and click-toggle legends. NOT in play: pattern 1 scroll-triggered reveals, pattern 4 scroll-fired counters, and every scrollytelling pattern below. This is the credible end for a report or a white paper, where scroll-driven movement reads as gimmicky. Observable criterion: scrolling the page produces NO content motion; every animation is the direct result of a click, hover, focus, or keypress. It still satisfies the five budget POINTS - point 2 ("scroll-triggered reveals OR an equivalent scroll-responsive treatment") is met by the active-state nav highlight with content always visible, and point 5's signature interaction is a user-initiated one (an accordion, a filterable grid, a click-toggle).
+- **BALANCED** - the current minimum interaction budget, unchanged. Adds pattern 1 (scroll-triggered reveals), pattern 2 (active-section nav tracking, optional reading-progress bar), pattern 4 (animated counters), pattern 5 (lightbox), and pattern 7 (micro-transitions). Observable criterion: sections reveal on scroll, the nav tracks the active section, and at least one signature move is present. This is the default for a deck or a data story.
+- **RICH** - scrollytelling. Everything BALANCED ships, plus at least one pattern from the scrollytelling catalog below (a pinned / sticky graphic sequence, a full-bleed image-to-text transition, parallax layers, a progress-driven timeline, or a before / after slider). Observable criterion: at least one pinned / sticky-graphic sequence OR a progress-driven scroll narrative is present on top of the balanced layer. RICH still honors the offline / no-CDN / reduced-motion guarantees: under `prefers-reduced-motion: reduce`, every scrollytelling effect degrades to a static, linearly-readable form (below), so a rich page and a restrained page are nearly indistinguishable for a reduced-motion user - by design.
+
+Mapping summary: RESTRAINED = user-initiated patterns (3, 6, lightbox, anchor nav) with no scroll motion; BALANCED = RESTRAINED plus scroll-triggered patterns (1, 2, 4, 7); RICH = BALANCED plus one or more scrollytelling patterns. The non-interactive fallback picks the level from the content (a deck or data story -> BALANCED; a report -> RESTRAINED) and records it in the design-record comment.
+
+### Scrollytelling pattern catalog (RICH level)
+
+Each pattern is inlined vanilla JS / CSS - no external library, no CDN - and each carries an accessibility note. The unifying rule: content is NEVER gated behind JS or behind the scroll effect, and every effect has a static, linearly-readable fallback under `prefers-reduced-motion: reduce`.
+
+1. **Pinned / sticky graphic with scroll steps** - a media column that stays fixed (`position: sticky; top: 0`) while a column of text "steps" scrolls past it; an `IntersectionObserver` on each step swaps the pinned graphic's state (a highlighted data series, a map layer, a zoom level). Sketch:
+
+    ```js
+    const steps = document.querySelectorAll('.step');
+    const obs = new IntersectionObserver(es => es.forEach(e => {
+      if (e.isIntersecting) setGraphicState(e.target.dataset.state);
+    }), {rootMargin: '-45% 0px -45% 0px'});  // fire near viewport middle
+    steps.forEach(s => obs.observe(s));
+    ```
+
+    Accessibility: each step is real, self-contained prose (the sequence reads linearly with the graphic absent); the pinned graphic carries a text alternative for its final / most-complete state; under reduced motion, drop the pinning (the graphic renders inline once at its most-complete state and the steps read as an ordinary list).
+
+2. **Full-bleed image-to-text transition** - a full-viewport image that cross-fades or scales into the following text block as it scrolls out. Implement with a sticky image layer whose `opacity` / `transform` is driven by the section's scroll progress (an `IntersectionObserver` threshold list, or a `requestAnimationFrame`-throttled `scroll` read of the section's bounding rect). Accessibility: the image is either decorative (`alt=""`, `aria-hidden`) or carries real `alt`; the following text is present and readable regardless of the transition; under reduced motion the image simply ends, then the text begins (no cross-fade).
+
+3. **Parallax layers** - a background layer translates slower than the foreground for depth. Drive `transform: translate3d(0, <offset>, 0)` from scroll position, throttled with `requestAnimationFrame`; set `will-change: transform` only on the moving layer and only while it is on screen. Sketch:
+
+    ```js
+    let ticking = false;
+    addEventListener('scroll', () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        layer.style.transform = `translate3d(0, ${scrollY * 0.3}px, 0)`;
+        ticking = false;
+      });
+    });
+    ```
+
+    Accessibility: parallax is a known vestibular-motion trigger, so DISABLE it entirely under `prefers-reduced-motion: reduce` (guard the listener behind the media query and leave the layer static) - do not merely shorten it; never parallax text the reader must follow, only decorative background layers.
+
+4. **Progress-driven timeline** - a vertical timeline whose active node tracks the scroll position (an `IntersectionObserver` per node setting an `.active` state) with a progress line that fills via a `requestAnimationFrame`-throttled scroll read. Accessibility: the timeline is a real ordered list (`<ol>`) that reads top-to-bottom without JS; the fill line is `aria-hidden` (decorative); the active node also sets `aria-current="step"`.
+
+5. **Before / after comparison slider** - two stacked images with a draggable divider driven by a native `<input type="range">`; the top image is revealed by a `clip-path: inset(0 <100 - value>% 0 0)` bound to the input value. Sketch:
+
+    ```html
+    <div class="ba"><img class="after" ...><img class="before" ...>
+      <input type="range" min="0" max="100" value="50" aria-label="Reveal before/after">
+    </div>
+    ```
+
+    ```js
+    range.addEventListener('input', () => {
+      before.style.clipPath = `inset(0 ${100 - range.value}% 0 0)`;
+    });
+    ```
+
+    Accessibility: the range input is keyboard-operable (arrow keys move the divider) and labelled; both images carry `alt`; the comparison works without a pointer and needs no motion guard (it is user-driven, not scroll-driven).
+
 ### Design direction (resolve the direction, then brainstorm - creativity-first)
 
 Before writing any markup, resolve a design direction and commit to one. The goal each run is a UNIQUE, creative, interactive design; "fit the document type" is never the rule. "Be unique" is not enough on its own either: the agent has a strong default attractor it returns to unless forced off it, and that sameness is what makes a run read as AI-generated. Make this a real, deliberate stage, not an afterthought during authoring.
@@ -137,6 +199,71 @@ If the committed direction matches that description, it is almost certainly the 
 **Commit to concrete tokens and record them.** Write the direction down before authoring: a name, the exact colors (hex), the font pairing (heading / body / mono), the spacing rhythm, the signature layout move, the motion signature, AND the roll's seed + one-line brief summary (so the run is reproducible and auditable). Embed it as an HTML comment at the top of the output and state it to the user in one line. Then author to those tokens; do not drift back to the attractor mid-build.
 
 **Keep fonts self-contained.** Whatever the direction, keep all fonts as system stacks or base64 `@font-face`; never fetch a web font (it would break the offline guarantee). A named style or theme is resolved up front per "Resolve the direction in order" above and binds the look; the brainstorm only fills the axes it leaves open.
+
+## Imagery tiers (procedural / stock / AI)
+
+Imagery is what turns a well-typeset reflow into a designed, journalistic web story - but MOST of the professional look needs no external image at all. It is typography, layout, color, restraint, and original inline SVG / CSS. That is why Tier 1 is both the always-on default and a large share of the value. The three tiers are resolved by the imagery question (`--images`, or the menu):
+
+- **Tier 1 - procedural visuals** - original inline SVG / CSS. The zero-outbound default and the non-interactive fallback.
+- **Tier 2 - license-free stock** (opt-in, consent-gated for the build-time fetch) - openly-licensed images / video, base64-embedded.
+- **Tier 3 - local AI-generated images** (opt-in) - a LOCAL commercially-clean model; no hosted service.
+
+The offline guarantee is absolute across all three: EVERY visual - procedural, stock, or AI - is emitted as inline SVG / CSS or a base64 `data:` URI. Any fetch or generation happens ONLY at authoring (build) time; nothing external is referenced from the delivered HTML. The default run, and every non-interactive / headless run, uses Tier 1 only - there is no silent outbound path.
+
+### Tier 1 - procedural visuals (default)
+
+The agent authors ORIGINAL visuals, inlined as SVG / CSS, with no external asset and no CDN. This is the default imagery tier and the non-interactive fallback, and it is commercial-safe BY CONSTRUCTION (original work) and fully offline. See `[[generative-art]]` for the procedural / generative vocabulary and `[[ui-component-generation]]` for authoring UI visuals directly with the agent's own output rather than fetching them.
+
+The procedural vocabulary:
+
+- **Backgrounds**: full-bleed color fields and gradient / mesh backgrounds behind hero and section text.
+- **Dividers**: duotone / halftone treatments and rule-line motifs as section transitions.
+- **Editorial devices**: rule lines, drop caps, pull-quotes, and big callout numbers.
+- **Textures and illustrations**: generative textures and simple thematic illustrations (geometric, line-art, or a data-motif) tuned to the content's subject and the committed palette.
+
+The rules that keep Tier 1 safe and coherent:
+
+- **Decorative or supportive, never load-bearing.** A procedural visual never carries information the text does not, so the page stays complete under reduced contrast, monochrome, or print. Anything that conveys data is a chart (per "Dynamic, manipulable charts"), not a background.
+- **Contrast stays within the accessibility gate.** A background field or gradient must keep body and heading text contrast within the `[[hallmark-design]]` accessibility gate; darken / lighten or add a scrim rather than let a gradient wash out text.
+- **Token coherence.** Every procedural visual follows the committed design tokens (palette, type scale, motion signature) so the visuals and the type read as one system, not as bolted-on decoration.
+- **Content-relevant, not cliche.** Motifs match the subject: a clinical topic gets restrained clinical / data motifs, not a stock-photo cliche; a launch gets bolder generative texture. Relevance beats ornament.
+
+Tier 1 is the zero-outbound default: it needs no network, no dependency, and no credential, and it is what every non-interactive run ships.
+
+### Visual provenance and credits
+
+Every visual added to the output carries PROVENANCE, and every non-original visual is CREDITED. This one convention serves all three tiers, so licensing is auditable and attribution is always present when a license requires it. It is the shared contract the Tier 2 and Tier 3 helpers emit into and the verification step reconciles against.
+
+Per-tier provenance:
+
+- **Tier 1 (procedural)**: `original (generated)` - authored by the agent, no external source.
+- **Tier 2 (stock)**: the source name, the asset URL, the license id (e.g. `CC0`, `CC-BY-4.0`, `Pexels License`), the license URL, and the author / attribution text.
+- **Tier 3 (AI)**: the model name, the model license (e.g. `Apache-2.0`, `Open-RAIL-M`), and the note `AI-generated; may not be copyrightable`.
+
+Provenance is recorded in TWO places:
+
+1. **An HTML comment adjacent to the visual**, so the source of any single visual is greppable in place. Use a one-line `credit:` JSON object (below) immediately before the visual's element.
+2. **A visible "Image credits" section near the end of the output**, listing every NON-ORIGINAL asset with its license and attribution. CC-BY / CC-BY-SA assets MUST show the full attribution string here (it is a license requirement); CC0 / public-domain / no-attribution assets are still listed for auditability. On a Tier-1-only page there is nothing to attribute, so the section states that all visuals are original (generated).
+
+The credits data shape (one entry per visual; the adjacent comment carries one object, the credits section renders the array):
+
+```json
+{
+  "tier": "procedural | stock | ai",
+  "provenance": "original (generated)",           // tier 1 only
+  "source": "Openverse",                           // tier 2: aggregator / site name
+  "url": "https://.../asset",                      // tier 2: asset page or file URL
+  "license": "CC-BY-4.0",                          // tier 2/3: SPDX-like id
+  "license_url": "https://creativecommons.org/licenses/by/4.0/",
+  "author": "Jane Doe",                            // tier 2: creator
+  "title": "Cooling towers at dusk",              // tier 2: asset title
+  "attribution": "\"Cooling towers at dusk\" by Jane Doe, CC BY 4.0",  // tier 2: built string, required for CC-BY
+  "model": "FLUX.1 schnell",                       // tier 3: model name
+  "note": "AI-generated; may not be copyrightable" // tier 3
+}
+```
+
+The Tier 2 / Tier 3 helper scripts emit a JSON manifest that is an array of these entries (the `credits manifest`); the authoring stage renders the "Image credits" section from it and drops each adjacent comment. This provenance ledger is parallel to, and does not replace, the Step 7 coverage-reconciliation comment (which accounts for SOURCE visuals): coverage reconciliation answers "is every source visual represented?", the credits ledger answers "does every ADDED visual have a free-for-commercial-use license and required attribution?". Verification reconciles the rendered credits section against the adjacent comments: any non-original visual missing from the credits, or any visual with no provenance at all, is a failure.
 
 ## Optional Baseline: the deterministic builder's features
 
