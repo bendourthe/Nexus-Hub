@@ -1,8 +1,8 @@
 # Known Gaps - v3.14
 
 **Project**: Nexus-Hub
-**Status**: in development (Phase 4 of 8 complete)
-**Last updated**: 2026-07-13 (Phase 4: visual-regression-testing skill + perceptual-diff / capture scripts)
+**Status**: in development (Phase 5 of 8 complete)
+**Last updated**: 2026-07-13 (Phase 5: profiling harness bundled into code-optimizer)
 
 ## v3.14.0
 
@@ -55,4 +55,5 @@
 
 - Phase 1 and Phase 2 added Markdown skills. Skills have no pytest surface by design (they are validated structurally by `validate_skills.py`, not unit-tested), so the absence of unit tests is not an MT gap. The Phase 2 `lint-autofix` hook DOES have a test (`test_lint_autofix.py`).
 - Phase 2's `lint-autofix` hook is registered but OPT-IN (inert unless `NEXUS_ENABLE_LINT_AUTOFIX=1`), a deliberate deviation from the plan's "opt-out" wording because the hook mutates files; it is placed after `git-guardrails` so a blocked commit is not autofixed, and it never touches a file with unstaged changes. The LLM-judgment repair half is the `lint-repair-loop` skill, run on the session model (no external repair vendor, per the MCP Registry Policy hard-no on generation-as-service).
-- The plan was renumbered from v3.13.0 to v3.14.0 during Phase 1: v3.13.0 is the committed presentify-universal-ingestion version and an untracked v3.14.0-codex-lb-adoption draft already exists.
+- The plan was renumbered twice before landing at v3.14.0: drafted as v3.13.0, moved to v3.15.0 during Phase 1 to avoid the committed presentify v3.13.0, then consolidated to v3.14.0 alongside codex-lb-adoption (v3.13 is now presentify-only).
+- Phase 5 augmented the existing `code-optimizer` skill's bundle (two profiler scripts) without changing its frontmatter, so no registry row changed; its `data/skills.json` `size` field is now slightly stale (it was already stale before this phase) and is reconciled at the next catalog rebuild - `make validate` does not gate the size field.

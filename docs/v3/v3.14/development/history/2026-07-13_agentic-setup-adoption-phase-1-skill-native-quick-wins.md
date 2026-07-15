@@ -26,7 +26,7 @@ Registered both skills across the three metadata files: `data/skills.json` (entr
 
 ## Deviations
 
-- **Version renumber**: the plan was drafted as v3.13.0, but v3.13.0 is the committed presentify-universal-ingestion version, so the plan was renumbered to v3.14.0 (user-confirmed) and moved to `docs/v3/v3.14/plans/`, with its internal version labels updated. v3.14.0 holds an untracked codex-lb-adoption draft.
+- **Version renumber**: the plan was drafted as v3.13.0, but v3.13.0 is the committed presentify-universal-ingestion version, so it was renumbered to v3.15.0 (user-confirmed) during this phase. A later consolidation refactor moved it from v3.15.0 to v3.14.0 (this file's current home), pairing agentic-setup with codex-lb-adoption under the v3.14 cycle.
 - **Generator not used**: `infrastructure/tools/build_skills_catalog.py` was NOT run to regenerate `data/`, because it rewrites the whole tree (a 6281-line diff - the committed files diverge from that generator's output/ordering). The three registry files were hand-edited for a minimal, reviewable diff instead; JSON validity and the skill count were verified afterward.
 
 ## Validation
