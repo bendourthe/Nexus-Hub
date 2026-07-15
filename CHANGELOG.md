@@ -23,6 +23,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `catalog/commands/presentify.md` and the `document-to-interactive-html` SKILL.md frontmatter broadened to cover the new inputs, directory / repository ingestion, the `project` mode, and `--layout`; `data/skills.json` + `data/SKILL_INDEX.md` synced.
 - All changes stay local-only (standard-library-first parsing; existing lazy-imports degrade gracefully), zero external requests, and installer-neutral (skill bundle + one command). No new outbound call, dependency, or credential.
 
+**presentify imagery + interactivity (v3.13.0, in progress).** Gives `/presentify` + `document-to-interactive-html` a professional / journalistic visual voice through a tiered imagery system and a richer interactivity control, WITHOUT breaking the self-contained / offline / zero-external-request guarantee or the local-first ethos. Tier 1 (LLM-native procedural visuals) is the always-on, zero-outbound default; Tiers 2 (license-free stock) and 3 (local AI-generated) are opt-in, and any build-time network use is explicit-consent-gated. Every fetched or generated asset is base64-embedded so the output still opens offline with zero external requests, is verified free-for-commercial-use, and is recorded in a visible credits block. Catalog totals unchanged (no new skill or command).
+
+### Added
+
+- **Imagery tiers** (`references/interactive-features.md`, two new bundled helpers): Tier 1 procedural visuals (original inline SVG / CSS - color fields, gradient backgrounds, editorial devices, generative textures - commercial-safe by construction, the default and non-interactive fallback); Tier 2 license-free stock via `scripts/fetch_stock_media.py` (opt-in, consent-gated: NO network without `--consent`; Openverse-first, Wikimedia / Pexels fallbacks; a fail-safe free-for-commercial license allow-list rejecting any nc/nd term; CC-BY attribution built; base64-embedded + credits manifest; graceful degrade); Tier 3 local AI via `scripts/generate_local_image.py` (opt-in, LOCAL-only: diffusers + torch forced offline, or a configured local CLI; commercially-clean default model; NO hosted-API client; records model + license + the "AI-generated; may not be copyrightable" caveat; degrades to Tier 1).
+- **Imagery and interactivity design question**: `--images <procedural|stock|ai|auto|none>` and `--interactivity <restrained|balanced|rich>`, asked after style + layout; non-interactive fallback = procedural + a content-aware level; both recorded in the design-record comment.
+- **Interactivity spectrum + scrollytelling catalog**: restrained / balanced / rich levels (balanced == the existing minimum interaction budget), plus a rich-level catalog (pinned graphics, image-to-text transitions, parallax, progress timeline, before / after slider) - all inline vanilla JS / CSS, keyboard-accessible, and reduced-motion-guarded (parallax disabled entirely under reduced motion).
+- **Visual provenance and credits convention** shared by all three tiers: per-tier provenance in an adjacent HTML comment plus a visible "Image credits" section (attribution text in the body, raw URLs confined to comments / the manifest so the output stays offline-grep-clean).
+
+### Changed
+
+- `catalog/commands/presentify.md` and the SKILL.md `description` / `summary_l0` / `overview_l1` document the imagery tiers, interactivity levels, `--images` / `--interactivity`, the consent gate, and the offline / commercial-use guarantees; `data/skills.json` + `data/SKILL_INDEX.md` synced.
+- New opt-in lazy dependencies only: `requests` (Tier 2, with a stdlib `urllib` fallback) and `diffusers` + `torch` (Tier 3); both lazy-imported with hints and degrading to Tier 1 when absent. No MCP registry entry, no hosted generation-as-service or paid-search-as-service, no new credential. The default and every non-interactive run stay fully offline on Tier 1.
+
 ---
 
 ## [3.12.1] - 2026-07-13
