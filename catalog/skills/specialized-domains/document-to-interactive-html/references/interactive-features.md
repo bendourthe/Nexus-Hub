@@ -230,6 +230,30 @@ The rules that keep Tier 1 safe and coherent:
 
 Tier 1 is the zero-outbound default: it needs no network, no dependency, and no credential, and it is what every non-interactive run ships.
 
+### Tier 2 - license-free stock (opt-in, consent-gated)
+
+When the user picks the `stock` imagery tier AND consents to the build-time network use, the authoring stage derives short relevance keywords from the content (per section / topic) and runs the bundled helper `scripts/fetch_stock_media.py` to fetch openly-licensed, free-for-commercial-use images / video, verify each license, capture attribution, and base64-embed the result. The output still opens offline with zero external requests: the fetch happens ONLY at build time and every asset is inlined as a `data:` URI. This tier is NEVER the default and NEVER runs in a non-interactive / headless run.
+
+The consent gate is the load-bearing invariant. `fetch_stock_media.py` performs NO network call unless `--consent` is passed; without it, it prints a notice, writes an empty degraded manifest, and exits with the degrade code (3), and the authoring stage stays on Tier 1. The helper also degrades (never raises) on a missing library, a missing API key, a network error, or zero results.
+
+Sources (the helper queries one `--source`, Openverse by default):
+
+- **Openverse** (default, keyless) - a CC / public-domain aggregator with per-file license metadata. The primary source.
+- **Wikimedia Commons** (keyless) - per-file CC / PD license read from the file's `extmetadata`.
+- **Pexels** (needs `PEXELS_API_KEY` in the environment, never hardcoded; absent key => the source is skipped) - a blanket-license platform.
+- **Coverr / Mixkit** - accepted on the CLI for interface parity, but this helper has no keyless search API for them, so they degrade with a note. Prefer Openverse / Wikimedia; a video need is best served by a configured Pexels key.
+
+Per-source license rules (encoded in the helper, enforced before any asset is embedded):
+
+- **Openverse / Wikimedia (CC / PD per file)**: keep the license id and, for **CC-BY / CC-BY-SA**, build the required attribution string (title, author, license label, source name). **CC0 / Public Domain Mark** need no attribution but are still credited for auditability.
+- **Pexels / Coverr / Mixkit (blanket license)**: commercial use is allowed with no per-asset attribution required, but the asset still gets a source credit.
+
+The commercial-use gate is an allow-list, so it fails safe: only `cc0`, `pdm`, `by`, `by-sa` (plus the blanket-license sources) pass; ANY code carrying a NonCommercial (`nc`) or NoDerivatives (`nd`) term is rejected, and any unrecognized license is skipped with a noted reason. A non-commercial asset is never embedded.
+
+The compiling-content trap (why CC0 / PD is preferred): the custom licenses of Unsplash, Pexels, and Pixabay permit commercial use of individual assets but restrict "compiling photos to replicate a similar or competing service". Presentify embeds a few content-relevant assets into a single delivered page; it is NOT a stock-media service, routes only short content-derived keywords (never the source document), and never redistributes a media library. Prefer CC0 / public-domain from Openverse / Wikimedia, and never present the tool as a stock-image service. Per the Attribution Rule, source names appear only in the credits, as a licensing necessity.
+
+Keeping attribution offline-clean: the visible "Image credits" section carries the human-readable attribution (title, author, license label, source name) with NO raw `http(s)` URL, so the delivered HTML still passes the offline external-reference self-check; the asset URL and license URL live in the adjacent HTML comment and in the credits manifest (both machine-readable, both outside the grep). The helper emits its manifest as an array of credit entries (the `assets` array), which is exactly the credits-manifest shape the "Visual provenance and credits" convention below consumes: the authoring stage renders the "Image credits" section from it and drops each adjacent comment.
+
 ### Visual provenance and credits
 
 Every visual added to the output carries PROVENANCE, and every non-original visual is CREDITED. This one convention serves all three tiers, so licensing is auditable and attribution is always present when a license requires it. It is the shared contract the Tier 2 and Tier 3 helpers emit into and the verification step reconciles against.
