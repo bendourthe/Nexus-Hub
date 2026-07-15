@@ -254,6 +254,21 @@ The compiling-content trap (why CC0 / PD is preferred): the custom licenses of U
 
 Keeping attribution offline-clean: the visible "Image credits" section carries the human-readable attribution (title, author, license label, source name) with NO raw `http(s)` URL, so the delivered HTML still passes the offline external-reference self-check; the asset URL and license URL live in the adjacent HTML comment and in the credits manifest (both machine-readable, both outside the grep). The helper emits its manifest as an array of credit entries (the `assets` array), which is exactly the credits-manifest shape the "Visual provenance and credits" convention below consumes: the authoring stage renders the "Image credits" section from it and drops each adjacent comment.
 
+### Tier 3 - local AI-generated images (opt-in, local-only)
+
+When the user picks the `ai` imagery tier, the authoring stage builds a prompt from the content and the committed style tokens (subject, mood, palette) and runs the bundled helper `scripts/generate_local_image.py` to generate an original image with a LOCAL model runtime, base64-embed it, and record the model + license + copyright caveat. The output still opens offline with zero external requests.
+
+The hard constraint is LOCAL generation only. A third-party generation API (DALL-E, Midjourney, hosted Stable Diffusion, FLUX Pro, ...) is OUT OF SCOPE by policy - generation-as-service is a hard-no on the MCP / capability policy. The helper makes NO network call and imports no hosted-API client; it forces the model runtime into offline mode BEFORE importing it, so a missing runtime or missing weights degrades to a setup hint rather than triggering an implicit weight download. Model weights are obtained by the user out-of-band; the script never downloads them.
+
+Models and runtimes:
+
+- **Models** (commercially-clean, locally runnable): FLUX.1 schnell (Apache-2.0, the default) or SDXL base (CreativeML Open RAIL++-M). A model whose license is not free-for-commercial-use is rejected.
+- **Runtimes** (either, both optional and opt-in): `diffusers` + `torch` (loaded with `local_files_only=True` and `HF_HUB_OFFLINE=1` so no download is attempted), or a user-configured LOCAL CLI via `NEXUS_LOCAL_IMAGE_CMD` (run via subprocess, never a shell; declare its model license via `NEXUS_LOCAL_IMAGE_LICENSE`).
+
+The heavy dependency is opt-in: when no local runtime or weights are present, the helper prints a setup hint and degrades to Tier 1 - it never raises and never falls back to a hosted API.
+
+Copyright caveat: purely AI-generated output may not be copyrightable. The helper records `note: "AI-generated; may not be copyrightable"` in each asset's provenance, and the credits section surfaces the model, its license, and this caveat. Like Tier 2, the helper emits the `assets` array credits-manifest shape the "Visual provenance and credits" convention below consumes.
+
 ### Visual provenance and credits
 
 Every visual added to the output carries PROVENANCE, and every non-original visual is CREDITED. This one convention serves all three tiers, so licensing is auditable and attribution is always present when a license requires it. It is the shared contract the Tier 2 and Tier 3 helpers emit into and the verification step reconciles against.
