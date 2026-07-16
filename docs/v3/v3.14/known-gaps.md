@@ -1,10 +1,10 @@
 # Known Gaps - v3.14
 
 **Project**: Nexus-Hub
-**Status**: in progress - Phases 1-5 of 6 complete on `feat/codex-lb-adoption`; Phase 6 (terminal refactor + release readiness) pending
-**Last updated**: 2026-07-16 (Phase 5 post-phase reconciliation)
+**Status**: RELEASE-READY (v3.14.0) - all 6 phases complete on `feat/codex-lb-adoption`; pending `/update release` (version bump / merge / tag / push). The user resolved the v3.14.0 numbering collision in favor of codex-lb; `agentic-setup-adoption` renumbers on its own branch.
+**Last updated**: 2026-07-16 (Phase 6 terminal reconciliation)
 
-> **Prior-version ingest**: the open v3.13 items (presentify DF-1..DF-5, WN-1/2, MT-1) are unrelated to this feature set and do not carry in. HO-1 (flat/nested skill-name collision across skill layouts) now ENGAGES as of Phase 2, which ships the new `review-trapdoors` catalog skill; it must be re-checked by the Phase 6 dry-run install (verify no flat/nested same-`name` collision for `review-trapdoors`).
+> **Prior-version ingest**: the open v3.13 items (presentify DF-1..DF-5, WN-1/2, MT-1) are unrelated to this feature set and do not carry in. HO-1 (flat/nested skill-name collision across skill layouts) was VERIFIED clean by the Phase 6.4 dry-run install: `review-trapdoors` lands flattened at `skills/review-trapdoors/SKILL.md` across all seven platform skill paths with no nested `skills/code-review/review-trapdoors/` variant.
 
 ## v3.14.0
 
@@ -13,12 +13,12 @@
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 2 | 0 |
-| Bugs / regressions (BG) | 1 | 0 |
+| Deferred (DF) | 3 | 0 |
+| Bugs / regressions (BG) | 0 | 1 |
 | Warnings (WN) | 0 | 0 |
 | Missing tests / coverage gaps (MT) | 1 | 0 |
-| Quality-gate gaps (QG) | 1 | 0 |
-| Hand-offs (HO) | 1 | 0 |
+| Quality-gate gaps (QG) | 0 | 1 |
+| Hand-offs (HO) | 0 | 1 |
 
 ### Capabilities added this version
 
@@ -27,6 +27,7 @@
 - **Spec/context split + spec-as-merge-gate convention (Phase 3, C5)**: a body-only extension to `spec-driven-development` adding a normative-spec vs free-form-context split (the normative `spec.md` holds only testable FR-### / SC-### items; rationale/decisions/failure-modes/examples ride the existing per-version `docs/` tree) and a spec-as-merge-gate rule (behavior / API / schema / CLI changes update the spec before code; not review-ready until spec, code, and tests agree), mapped onto `/spec`, `cross-artifact-analyzer`, `implementation-convergence`, and the merge-readiness contract. The external `openspec` CLI is explicitly not adopted (convention only, per the MCP Registry Policy). No new skill, no frontmatter change, no registry update; catalog stays 267 skills.
 - **Declarative skill-activation ruleset + guard/tracker hooks (Phase 4, C1)**: a project-local `skill-rules.json` schema (`catalog/hooks/skill-rules.example.json` + `catalog/style-guides/skill-activation-rules.md`) and three opt-in, fail-open hooks (`skill-activation-suggest.py` on UserPromptSubmit, `skill-guard.py` on PreToolUse Edit|MultiEdit|Write, `skill-tracker.py` on PostToolUse Skill, plus a shared `_skill_rules.py`), registered in `settings.json` (ask-first, confirmed). The guard suggests by default and blocks only under `NEXUS_SKILL_GUARD_BLOCK=1` with an `enforcement: block` rule (fail-open inversion of the source pattern). All hooks are no-ops without `skill-rules.json`, honor `NEXUS_DISABLED_HOOKS` / `NEXUS_HOOK_PROFILE=minimal`, are stdlib-only with no outbound calls, and never log secrets; `.py` hooks run cross-platform via `python3` (no `.ps1` sibling, matching the existing `.py` hooks). Covered by `test_skill_activation.py` (14 tests). Hooks 25 -> 28.
 - **Cross-model review recipe concretization (Phase 5, C2)**: a body-only extension to `cross-model-orchestrator` adding a runnable, vendor-neutral "Cross-Model Review Loop" recipe (resolve scope -> review on a different operator-configured model -> findings schema -> HITL gate -> atomic per-finding fix-verify-commit -> re-review with safety limits max 3 iterations + recurrence do-not-refix -> final report), with an inline env-var-driven invocation, a vendor-neutrality rationalization, and cross-links. Cites the MCP Registry Policy generation-as-service hard-no (adopts the loop shape, not a Codex-CLI lock-in). No wrapper script bundled (documented inline); no frontmatter change, no registry update; catalog stays 267 skills / 28 hooks.
+- **Terminal refactor + reconciliation + CI/CD (Phase 6)**: a repo-wide consistency pass over all Phase 1-5 additions found no drift (no empty dirs, no orphaned bundle files, all validators green). BG-1 resolved (declared `verify_platform_contracts.py` dev-only). QG-1 resolved (new path-filtered `.github/workflows/claude-usage-monitor.yml` compiles + Vitest-tests the extension). HO-1 verified clean by the dry-run install. Full validation green: catalog validators 0 errors; workflow-security / platform-contracts / base-template-parity PASS; full pytest suite 459 passed / 0 failed; extension compiles + 35 tests pass; version-sync consistent at 3.13.0 (bumps to 3.14.0 at `/update release`).
 
 ### Advisory
 
@@ -43,6 +44,13 @@
 - **Reason**: This build targets the ChatGPT Codex **app** (not the open-source Codex CLI, per the user's clarification), and the app's on-disk credential path and field names could not be verified from this environment. The provider therefore reads a **configurable** path (`usageMonitor.codex.authPath`, then `CODEX_HOME/auth.json`, then `~/.codex/auth.json`) and parses **shape-tolerantly** (nested `tokens.{access_token,account_id}` or flat `{access_token,account_id}`, plus camelCase), failing soft when nothing usable is found.
 - **Suggested next step**: Confirm the real Codex-app credential path and field names against a live install; set the probed default accordingly (or document the setting prominently). The configurable-path + fail-soft design means a wrong default is user-correctable without a code change.
 
+##### DF-3 - P1: provider failover / settlement invariants as multi-provider-ai reference content
+
+- **Source phase**: comparison scope (out of the seven selected v3.14 candidates); the Definition of Done defers it here
+- **Plan reference**: plan "Definition of Done" ("P1 (provider-routing reference content) is deferred to `docs/v3/v3.14/known-gaps.md` as an optional follow-up")
+- **Reason**: codex-lb's provider failover / settlement invariants (from its load-balancer product) are a different product category from Nexus-Hub's catalog and were not selected for adoption. They survive only as OPTIONAL reference content for the `multi-provider-ai` skill.
+- **Suggested next step**: If provider-routing reference content is wanted later, distill the failover / settlement invariants into `multi-provider-ai` as a body-only reference (skill-native, no external dependency), in a separate version.
+
 ##### DF-2 - wham/usage is an undocumented endpoint (durability risk)
 
 - **Source phase**: Phase 1 (1.3)
@@ -57,7 +65,7 @@
 - **Source phase**: discovered during Phase 4 validation (pre-existing on the branch; NOT introduced by this release)
 - **Plan reference**: none (out of the codex-lb plan's scope; traces to v3.12.1 when the script was added)
 - **Reason**: `scripts/verify_platform_contracts.py` (a v3.12.1 script) is registered in NEITHER `scripts/installer.sh` NOR `scripts/installer.ps1`, and is not in the test's `DEV_ONLY_SCRIPTS` allow-list, so `catalog/hooks/tests/test_installer_smoke.py::test_installers_copy_every_scripts_dir_py_file` fails. Phase 4 touched no `scripts/` or installer files (`git diff main...HEAD -- scripts/` is empty), so this failure is inherited, not caused by this phase.
-- **Suggested next step**: Register `verify_platform_contracts.py` in both installers' copy blocks (or add it to `DEV_ONLY_SCRIPTS` if it is intentionally dev-only), as a small standalone fix or in the Phase 6.3 CI/CD pass. Editing installers is an ask-first change.
+- **Resolution (Phase 6.3)**: RESOLVED. `verify_platform_contracts.py` added to `DEV_ONLY_SCRIPTS` in `test_installer_smoke.py` (it is a repo-internal validator like `check_base_template_parity.py`, correctly not installer-copied). `test_installer_smoke.py` now passes (28/28); the full suite is 459 passed / 0 failed.
 
 #### Missing tests / coverage gaps
 
@@ -75,7 +83,7 @@
 - **Source phase**: Phase 1 (1.5 / post-phase 8.3)
 - **Plan reference**: Phase 6.3 ("add or extend a path-filtered job that compiles and tests the `claude-usage-monitor` extension only when `extensions/claude-usage-monitor/**` changes")
 - **Reason**: `.github/workflows/ci.yml`'s `tests` job installs and tests the Python extensions only; there is no Node/npm job that runs `tsc` compile + the Vitest provider suite for this extension. Editing CI is an ask-first gate and Phase 6.3 formally owns creating this job, so it is deferred rather than wired in this non-final phase.
-- **Suggested next step**: In Phase 6.3, add a path-filtered `extensions/claude-usage-monitor/**` job that runs `npm ci`, `npm run compile`, and `npm test`, mirroring the concurrency-cancelled, cached pattern of the existing workflows.
+- **Resolution (Phase 6.3)**: RESOLVED. Added `.github/workflows/claude-usage-monitor.yml` - a path-filtered (`extensions/claude-usage-monitor/**`), concurrency-cancelled job running `npm ci` + `npm run compile` + `npm test` (Vitest). Passes the workflow-security validator (checkout pinned to SHA; GitHub-owned `setup-node@v4`).
 
 #### Hand-offs
 
@@ -84,4 +92,4 @@
 - **Source phase**: Phase 2 (2.1)
 - **Plan reference**: Prior-Version Known-Gaps Ingest (v3.13 HO-1); Phase 6.4 dry-run install
 - **Reason**: Carried forward from v3.13. The flattening migration means a same-`name` skill can collide across flat and nested install layouts. Phase 2 ships the first new catalog skill of this release (`review-trapdoors`), so the collision check now applies to it.
-- **Suggested next step**: The Phase 6.4 throwaway dry-run install must confirm `review-trapdoors` lands flattened at each platform's skill path with NO flat/nested same-`name` collision.
+- **Resolution (Phase 6.4)**: RESOLVED. The throwaway dry-run global install (`runner.py`, all platforms) confirmed `review-trapdoors` lands flattened at `skills/review-trapdoors/SKILL.md` across all seven platform skill paths with NO nested `skills/code-review/review-trapdoors/` variant; the C1 hooks + `skill-rules.example.json` landed at `.claude/hooks/` and are registered in the installed `settings.json`.
