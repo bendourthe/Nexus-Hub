@@ -2,15 +2,58 @@ import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
 import { execFileSync } from "child_process";
+import { UsageData, UsageMetric } from "../types";
+import { formatResetTime } from "../usageStore";
 import {
-  UsageData,
-  UsageMetric,
-  ApiUsageResponse,
-  ApiUsageLimit,
-  CredentialsFile,
-  OAuthCredentials,
+  UsageProvider,
+  ProviderFetchError,
+  ProviderFetchErrorCode,
+  ProviderFetchResult,
+  CredentialResult,
 } from "./types";
-import { formatResetTime } from "./usageStore";
+
+/* ------------------------------------------------------------------ */
+/*  Anthropic account API shapes (Claude-specific; not part of the    */
+/*  normalized model)                                                  */
+/* ------------------------------------------------------------------ */
+
+/** Shape returned by https://api.anthropic.com/api/oauth/usage */
+interface ApiUsageLimit {
+  utilization: number;
+  resets_at: string;
+}
+
+interface ApiExtraUsage {
+  is_enabled: boolean;
+  monthly_limit: number;
+  used_credits: number;
+  utilization: number | null;
+}
+
+interface ApiUsageResponse {
+  five_hour: ApiUsageLimit | null;
+  seven_day: ApiUsageLimit | null;
+  seven_day_oauth_apps: ApiUsageLimit | null;
+  seven_day_opus: ApiUsageLimit | null;
+  seven_day_sonnet: ApiUsageLimit | null;
+  seven_day_cowork: ApiUsageLimit | null;
+  iguana_necktie: unknown;
+  extra_usage: ApiExtraUsage | null;
+}
+
+interface OAuthCredentials {
+  accessToken: string;
+  refreshToken: string;
+  expiresAt: number;
+  scopes: string[];
+  subscriptionType: string | null;
+  rateLimitTier: string | null;
+}
+
+interface CredentialsFile {
+  claudeAiOauth?: OAuthCredentials;
+  organizationUuid?: string;
+}
 
 const CREDENTIALS_PATH = path.join(os.homedir(), ".claude", ".credentials.json");
 // On macOS, Claude Code stores its OAuth credentials in the login Keychain as a
@@ -34,34 +77,39 @@ const TOKEN_REFRESH_COOLDOWN_MS = 30 * 60 * 1_000; // 30 minutes
 const SERVER_ERROR_CODES = new Set([500, 502, 503, 504]);
 const RETRY_DELAYS_MS = [2_000, 5_000];
 
-export type FetchErrorCode =
-  | "no-credentials-file"
-  | "invalid-credentials"
-  | "token-expired"
-  | "token-refresh-failed"
-  | "token-invalid"
-  | "rate-limited"
-  | "network-error"
-  | "api-error"
-  | "parse-error";
+/**
+ * The Claude usage provider: reads the Claude Code OAuth token (file on
+ * Linux/Windows, login Keychain on macOS), refreshes it when expired, fetches
+ * account usage from the Anthropic OAuth usage endpoint, and maps it onto the
+ * normalized {@link UsageData} model. This is the original `UsageFetcher` logic,
+ * unchanged in behavior, now expressed as a {@link UsageProvider}.
+ */
+export class ClaudeUsageProvider implements UsageProvider {
+  readonly id = "claude" as const;
+  readonly displayName = "Claude";
 
-export interface FetchError {
-  code: FetchErrorCode;
-  statusCode?: number;
-  statusText?: string;
-}
-
-export type FetchResult =
-  | { success: true; data: UsageData }
-  | { success: false; error: FetchError };
-
-export class UsageFetcher {
   // Tracks where the active credentials came from so a refreshed token is
   // written back to the same store (file on Linux/Windows, Keychain on macOS).
   private credentialSource: "file" | "keychain" = "file";
   // The Keychain service name that actually held the credentials, so write-back
   // updates the same item. Defaults to the canonical name.
   private keychainService: string = KEYCHAIN_SERVICES[0];
+
+  /** Locate and validate the Claude credential without exposing the token. */
+  readCredential(): CredentialResult {
+    const credentials = this.readCredentials();
+    if (!credentials) {
+      return { ok: false, reason: "missing" };
+    }
+    if (this.isTokenExpired(credentials)) {
+      return { ok: false, reason: "expired" };
+    }
+    return { ok: true };
+  }
+
+  private fail(code: ProviderFetchErrorCode, extra?: Partial<ProviderFetchError>): ProviderFetchResult {
+    return { success: false, error: { providerId: this.id, code, ...extra } };
+  }
 
   private readCredentials(): OAuthCredentials | null {
     // 1. The credentials file (Linux/Windows, and any macOS setup that still
@@ -143,15 +191,15 @@ export class UsageFetcher {
     return Date.now() >= credentials.expiresAt;
   }
 
-  async fetch(currentModel?: string): Promise<FetchResult> {
+  async fetchUsage(currentModel?: string): Promise<ProviderFetchResult> {
     let credentials = this.readCredentials();
     if (!credentials) {
-      return { success: false, error: { code: "no-credentials-file" } };
+      return this.fail("no-credentials");
     }
 
     if (this.isTokenExpired(credentials)) {
       if (tokenRefreshInProgress) {
-        return { success: false, error: { code: "token-expired" } };
+        return this.fail("token-expired");
       }
       tokenRefreshInProgress = true;
       try {
@@ -160,7 +208,7 @@ export class UsageFetcher {
         lastTokenRefreshAt = Date.now();
         credentials = fresh;
       } catch {
-        return { success: false, error: { code: "token-refresh-failed" } };
+        return this.fail("token-refresh-failed");
       } finally {
         tokenRefreshInProgress = false;
       }
@@ -175,19 +223,15 @@ export class UsageFetcher {
     try {
       response = await this.fetchWithRetry(USAGE_API_URL, headers);
     } catch {
-      return { success: false, error: { code: "network-error" } };
+      return this.fail("network-error");
     }
 
     if (!response.ok) {
       if (response.status === 401) {
-        return {
-          success: false,
-          error: {
-            code: "token-invalid",
-            statusCode: response.status,
-            statusText: response.statusText,
-          },
-        };
+        return this.fail("token-invalid", {
+          statusCode: response.status,
+          statusText: response.statusText,
+        });
       }
       if (response.status === 429) {
         // Attempt a token refresh to reset the per-token rate limit allocation
@@ -208,49 +252,41 @@ export class UsageFetcher {
             try {
               retryResponse = await this.fetchWithRetry(USAGE_API_URL, newHeaders);
             } catch {
-              return { success: false, error: { code: "network-error" } };
+              return this.fail("network-error");
             }
             if (retryResponse.ok) {
               let apiData: ApiUsageResponse;
               try {
                 apiData = (await retryResponse.json()) as ApiUsageResponse;
               } catch {
-                return { success: false, error: { code: "parse-error" } };
+                return this.fail("parse-error");
               }
               return { success: true, data: this.mapApiResponse(apiData, currentModel ?? "claude-opus-4-6[1m]") };
             }
-            // Retry also failed — fall through to rate-limited
+            // Retry also failed - fall through to rate-limited
           } catch {
-            // Token refresh failed — fall through to rate-limited
+            // Token refresh failed - fall through to rate-limited
           } finally {
             tokenRefreshInProgress = false;
           }
         }
 
-        return {
-          success: false,
-          error: {
-            code: "rate-limited",
-            statusCode: response.status,
-            statusText: response.statusText,
-          },
-        };
-      }
-      return {
-        success: false,
-        error: {
-          code: "api-error",
+        return this.fail("rate-limited", {
           statusCode: response.status,
           statusText: response.statusText,
-        },
-      };
+        });
+      }
+      return this.fail("api-error", {
+        statusCode: response.status,
+        statusText: response.statusText,
+      });
     }
 
     let apiData: ApiUsageResponse;
     try {
       apiData = (await response.json()) as ApiUsageResponse;
     } catch {
-      return { success: false, error: { code: "parse-error" } };
+      return this.fail("parse-error");
     }
 
     return {
@@ -395,34 +431,6 @@ export class UsageFetcher {
       );
     } catch {
       // Non-fatal: extension will use the refreshed token for this session only
-    }
-  }
-
-  static getErrorMessage(error: FetchError): string {
-    const suffix =
-      error.statusCode != null
-        ? ` (${error.statusCode}${error.statusText ? " " + error.statusText : ""})`
-        : "";
-
-    switch (error.code) {
-      case "no-credentials-file":
-        return "Claude Code credentials not found. Log in to Claude Code first.";
-      case "invalid-credentials":
-        return "Claude Code credentials are invalid.";
-      case "token-expired":
-        return "Claude Code session has expired. Re-authenticate in Claude Code.";
-      case "token-refresh-failed":
-        return "Could not refresh the Claude session token. Re-authenticate by running Claude Code.";
-      case "token-invalid":
-        return `Your Claude session token was rejected by the API${suffix}. Re-authenticate in Claude Code.`;
-      case "rate-limited":
-        return "Usage API temporarily unavailable. Showing cached data.";
-      case "network-error":
-        return "Could not reach the Claude API. Check your internet connection.";
-      case "api-error":
-        return `The Claude API returned an error${suffix}.`;
-      case "parse-error":
-        return "Could not parse the API response.";
     }
   }
 }

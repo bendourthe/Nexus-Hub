@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+**Codex Usage Monitor (unified multi-provider extension).** The `claude-usage-monitor` VS Code extension (bumped independently to 0.7.0) is generalized behind a provider interface and gains a second provider for Codex (ChatGPT / OpenAI): it reads the local Codex app OAuth token and fetches account usage from the undocumented `chatgpt.com/backend-api/wham/usage` endpoint, rendering it in the same status-bar / tooltip / dashboard / warning UI as Claude. It fails soft on the undocumented endpoint, keeps the Claude path unchanged, and its single outbound call goes only to the user's own account. This is an extension change only: NO catalog skill, command, metadata, installer, or base-template is touched, and the catalog version is unaffected.
+
+### Added
+
+- **Multi-provider usage monitor** (`extensions/claude-usage-monitor`): a `UsageProvider` interface separating the data layer from the shared UI; a Codex provider (`src/providers/codex.ts`) that reads the Codex app credential (from `usageMonitor.codex.authPath`, `CODEX_HOME/auth.json`, or `~/.codex/auth.json`) and fetches `wham/usage`, mapping the primary and secondary rate-limit windows onto the session and weekly metrics plus plan type, credits, and additional-limit rows; a `usageMonitor.provider` setting, a "Usage: Switch Provider" command, and a settings-panel provider selector; Codex-appropriate recommendations (throttle, wait-for-reset, rotate-account) in place of model-switch advice; and a Vitest provider unit-test suite. Extension version 0.6.2 -> 0.7.0.
+
+### Changed
+
+- The extension's Claude data path was extracted into `src/providers/claude.ts` behind the new interface with no behavior change; the extension `displayName` and `description` were updated to reflect Claude and Codex support (the extension `name` and publisher are preserved so existing installs are not orphaned).
+
+---
+
 ## [3.13.0] - 2026-07-15
 
 **presentify universal ingestion + prominence + output-aspect (v3.13.0).** Extends `/presentify` + `document-to-interactive-html` beyond the four document formats: it now ingests source code and config, Markdown / plain text, CSV / TSV, and standalone images, and can take a whole directory or repository (walked recursively) as input; it preserves each source visual's prominence; and it lets the caller choose the output aspect. Builds on the released v3.12.0 fidelity work without changing it. Catalog totals unchanged (no new skill or command).

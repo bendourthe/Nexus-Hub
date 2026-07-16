@@ -1,8 +1,8 @@
 {
   "name": "claude-usage-monitor",
-  "displayName": "Claude Usage Monitor",
-  "description": "Monitor your Claude Code usage limits and get smart model-switching recommendations",
-  "version": "0.6.2",
+  "displayName": "Claude & Codex Usage Monitor",
+  "description": "Monitor your Claude Code and Codex (ChatGPT) usage limits with smart, provider-aware recommendations",
+  "version": "0.7.0",
   "publisher": "nexus-hub",
   "icon": "icon.png",
   "repository": {
@@ -51,6 +51,11 @@
         "command": "claude-usage.settings",
         "title": "Claude Usage: Settings",
         "category": "Claude Usage"
+      },
+      {
+        "command": "claude-usage.switchProvider",
+        "title": "Usage: Switch Provider (Claude / Codex)",
+        "category": "Claude Usage"
       }
     ],
     "icons": {
@@ -84,6 +89,24 @@
     "configuration": {
       "title": "Claude Usage Monitor",
       "properties": {
+        "usageMonitor.provider": {
+          "type": "string",
+          "default": "claude",
+          "enum": [
+            "claude",
+            "codex"
+          ],
+          "enumDescriptions": [
+            "Monitor Claude Code usage limits (Anthropic account)",
+            "Monitor Codex usage limits (ChatGPT / OpenAI account)"
+          ],
+          "description": "Which provider's usage to monitor. 'claude' reads Claude Code credentials and fetches Anthropic account usage; 'codex' reads the Codex app credentials and fetches ChatGPT account usage."
+        },
+        "usageMonitor.codex.authPath": {
+          "type": "string",
+          "default": "",
+          "description": "Optional path to the Codex app credential file (the JSON holding your ChatGPT access token and account id). Leave empty to use CODEX_HOME/auth.json when CODEX_HOME is set, otherwise ~/.codex/auth.json. Set this if your Codex app stores credentials elsewhere."
+        },
         "claudeUsage.autoFetch": {
           "type": "boolean",
           "default": true,
@@ -147,7 +170,11 @@
         "claudeUsage.thresholdMetric": {
           "type": "string",
           "default": "highest",
-          "enum": ["highest", "session", "weekly"],
+          "enum": [
+            "highest",
+            "session",
+            "weekly"
+          ],
           "enumDescriptions": [
             "Automatically evaluate thresholds against whichever metric is currently highest",
             "Evaluate thresholds against the Current Session usage",
@@ -162,6 +189,7 @@
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
+    "test": "vitest run",
     "package": "vsce package --no-dependencies"
   },
   "devDependencies": {
@@ -172,6 +200,7 @@
     "svg2ttf": "^6.1.0",
     "svgpath": "^2.6.0",
     "ttf2woff2": "^8.0.0",
-    "typescript": "^5.3.0"
+    "typescript": "^5.3.0",
+    "vitest": "^4.1.10"
   }
 }
