@@ -1,7 +1,14 @@
 import * as vscode from "vscode";
 import { UsageStore } from "./usageStore";
 import { StatusBarManager } from "./statusBarManager";
-import { UsageFetcher, FetchError } from "./usageFetcher";
+import {
+  UsageProvider,
+  ProviderId,
+  ProviderFetchError,
+  createProvider,
+  getConfiguredProviderId,
+  describeProviderError,
+} from "./providers";
 import { DashboardPanel } from "./dashboardPanel";
 import { SettingsPanel } from "./settingsPanel";
 import { WarningViewProvider, WARNING_VIEW_ID, WARNING_ACTIVE_CONTEXT } from "./warningView";
@@ -46,9 +53,10 @@ const RESET_COMMAND = "claude-usage.reset";
 const DASHBOARD_COMMAND = "claude-usage.dashboard";
 const REFRESH_COMMAND = "claude-usage.refresh";
 const SETTINGS_COMMAND = "claude-usage.settings";
+const SWITCH_PROVIDER_COMMAND = "claude-usage.switchProvider";
 
 let consecutiveFailures = 0;
-let lastFetchError: FetchError | undefined;
+let lastFetchError: ProviderFetchError | undefined;
 let failureNotificationShown = false;
 let fetchInFlight = false;
 // The warning WebviewView provider, created in activate() so evaluateAndNotify
@@ -71,7 +79,7 @@ export function activate(context: vscode.ExtensionContext): void {
   );
 
   const store = new UsageStore(context.globalState);
-  const fetcher = new UsageFetcher();
+  let provider = createProvider(getConfiguredProviderId());
   const statusBar = new StatusBarManager(store, DASHBOARD_COMMAND, SETTINGS_COMMAND);
 
   const config = vscode.workspace.getConfiguration("claudeUsage");
@@ -80,17 +88,17 @@ export function activate(context: vscode.ExtensionContext): void {
   }
 
   // Wire up auto-refresh: when the timer fires, trigger a fetch
-  statusBar.setAutoRefreshCallback(() => autoFetchAndUpdate(fetcher, store, statusBar));
+  statusBar.setAutoRefreshCallback(() => autoFetchAndUpdate(provider, store, statusBar));
 
   // Wire up reset-expiry detection: when a cached reset timestamp passes, refetch
-  statusBar.setResetExpiredCallback(() => autoFetchAndUpdate(fetcher, store, statusBar));
+  statusBar.setResetExpiredCallback(() => autoFetchAndUpdate(provider, store, statusBar));
 
   // Apply user color settings to workbench.colorCustomizations on startup
   syncColorsToWorkbench(getColorConfig());
 
   // Auto-fetch on activation (silent)
   if (config.get<boolean>("autoFetch", true)) {
-    autoFetchAndUpdate(fetcher, store, statusBar);
+    autoFetchAndUpdate(provider, store, statusBar);
   }
 
   // Command: Show dashboard panel
@@ -101,10 +109,16 @@ export function activate(context: vscode.ExtensionContext): void {
     DashboardPanel.show(data, timeSince, lastFetchError, {
       onRefresh: async () => {
         statusBar.showLoading();
-        await autoFetchAndUpdate(fetcher, store, statusBar);
+        await autoFetchAndUpdate(provider, store, statusBar);
       },
       onOpenUsagePage: () =>
-        vscode.env.openExternal(vscode.Uri.parse("https://claude.ai/settings/usage")),
+        vscode.env.openExternal(
+          vscode.Uri.parse(
+            getConfiguredProviderId() === "codex"
+              ? "https://chatgpt.com"
+              : "https://claude.ai/settings/usage",
+          ),
+        ),
       onOpenSettings: () => vscode.commands.executeCommand(SETTINGS_COMMAND),
     }, context.extensionUri);
   });
@@ -112,7 +126,7 @@ export function activate(context: vscode.ExtensionContext): void {
   // Command: Refresh
   const refreshCommand = vscode.commands.registerCommand(REFRESH_COMMAND, async () => {
     statusBar.showLoading();
-    const result = await fetcher.fetch(store.getCurrentModel());
+    const result = await provider.fetchUsage(store.getCurrentModel());
     if (result.success) {
       consecutiveFailures = 0;
       lastFetchError = undefined;
@@ -127,7 +141,7 @@ export function activate(context: vscode.ExtensionContext): void {
       statusBar.refresh();
       if (result.error.code !== "rate-limited") {
         showAutoDismissNotification(
-          `Claude Usage: fetch failed - ${UsageFetcher.getErrorMessage(result.error)}`,
+          `Claude Usage: fetch failed - ${describeProviderError(result.error)}`,
           "warning"
         );
       }
@@ -198,6 +212,25 @@ export function activate(context: vscode.ExtensionContext): void {
     SettingsPanel.show(context.extensionUri);
   });
 
+  // Command: Switch provider (Claude <-> Codex). Writes the setting; the config
+  // watcher below rebuilds the provider and refetches.
+  const switchProviderCommand = vscode.commands.registerCommand(SWITCH_PROVIDER_COMMAND, async () => {
+    const current = getConfiguredProviderId();
+    const picks: Array<vscode.QuickPickItem & { id: ProviderId }> = [
+      { id: "claude", label: "Claude", description: "Anthropic account (Claude Code)" },
+      { id: "codex", label: "Codex", description: "ChatGPT account (Codex app)" },
+    ];
+    const pick = await vscode.window.showQuickPick(picks, {
+      title: "Usage Monitor: Select Provider",
+      placeHolder: `Currently monitoring ${current === "codex" ? "Codex" : "Claude"}`,
+    });
+    if (pick && pick.id !== current) {
+      await vscode.workspace
+        .getConfiguration("usageMonitor")
+        .update("provider", pick.id, vscode.ConfigurationTarget.Global);
+    }
+  });
+
   // Command: Clear stored data
   const resetCommand = vscode.commands.registerCommand(RESET_COMMAND, async () => {
     const confirm = await vscode.window.showWarningMessage(
@@ -258,6 +291,16 @@ export function activate(context: vscode.ExtensionContext): void {
       );
     }
 
+    // When the provider changes, rebuild it, drop the previous account's cached
+    // data (different account and semantics), and fetch fresh usage.
+    if (event.affectsConfiguration("usageMonitor.provider")) {
+      provider = createProvider(getConfiguredProviderId());
+      lastFetchError = undefined;
+      notifiedThresholds.clear();
+      statusBar.showLoading();
+      void store.clear().then(() => autoFetchAndUpdate(provider, store, statusBar));
+    }
+
   });
 
   context.subscriptions.push(
@@ -266,6 +309,7 @@ export function activate(context: vscode.ExtensionContext): void {
     recommendCommand,
     resetCommand,
     settingsCommand,
+    switchProviderCommand,
     configWatcher,
     { dispose: () => statusBar.dispose() }
   );
@@ -276,7 +320,7 @@ export function deactivate(): void {
 }
 
 async function autoFetchAndUpdate(
-  fetcher: UsageFetcher,
+  provider: UsageProvider,
   store: UsageStore,
   statusBar: StatusBarManager,
 ): Promise<void> {
@@ -288,7 +332,7 @@ async function autoFetchAndUpdate(
   }
   fetchInFlight = true;
   try {
-    const result = await fetcher.fetch(store.getCurrentModel());
+    const result = await provider.fetchUsage(store.getCurrentModel());
     if (result.success) {
       consecutiveFailures = 0;
       lastFetchError = undefined;
@@ -324,7 +368,7 @@ async function autoFetchAndUpdate(
         // Only show popup for actionable errors
         failureNotificationShown = true;
         showAutoDismissNotification(
-          `Claude Usage: auto-fetch failed - ${UsageFetcher.getErrorMessage(result.error)}`,
+          `Claude Usage: auto-fetch failed - ${describeProviderError(result.error)}`,
           "warning"
         );
       }
@@ -377,6 +421,7 @@ async function evaluateAndNotify(data: UsageData): Promise<boolean> {
     suggestion,
     classifyUrgency(trigger.percent),
     { onOpenDashboard: () => vscode.commands.executeCommand(DASHBOARD_COMMAND) },
+    data.providerId ?? "claude",
   );
   return true;
 }

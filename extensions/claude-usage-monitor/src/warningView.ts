@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { UrgencyLevel } from "./types";
+import { UrgencyLevel, ProviderId, providerLabel } from "./types";
 import { formatResetLabel } from "./usageStore";
 import { UsageSuggestion } from "./recommendations";
 
@@ -34,6 +34,7 @@ export class WarningViewProvider implements vscode.WebviewViewProvider {
   private view: vscode.WebviewView | undefined;
   private suggestion: UsageSuggestion | undefined;
   private urgency: UrgencyLevel = "moderate";
+  private providerId: ProviderId = "claude";
   private callbacks: WarningCallbacks | undefined;
 
   resolveWebviewView(view: vscode.WebviewView): void {
@@ -73,9 +74,11 @@ export class WarningViewProvider implements vscode.WebviewViewProvider {
     suggestion: UsageSuggestion,
     urgency: UrgencyLevel,
     callbacks: WarningCallbacks,
+    providerId: ProviderId = "claude",
   ): Promise<void> {
     this.suggestion = suggestion;
     this.urgency = urgency;
+    this.providerId = providerId;
     this.callbacks = callbacks;
 
     await vscode.commands.executeCommand("setContext", WARNING_ACTIVE_CONTEXT, true);
@@ -102,6 +105,7 @@ export class WarningViewProvider implements vscode.WebviewViewProvider {
     }
 
     const color = URGENCY_COLOR[this.urgency];
+    const label = providerLabel(this.providerId);
     const pct = Math.max(0, Math.min(100, Math.round(s.percent)));
 
     // Ring geometry: an SVG circle whose visible arc is `pct` of its circumference.
@@ -120,7 +124,7 @@ export class WarningViewProvider implements vscode.WebviewViewProvider {
       <div class="warn">
         <div class="header">
           <span class="warn-icon" style="color:${color}">${ICON.warning}</span>
-          <h1>Claude Usage Warning</h1>
+          <h1>${escapeHtml(label)} Usage Warning</h1>
           <button class="close" data-command="cancel" title="Dismiss" aria-label="Dismiss">${ICON.close}</button>
         </div>
 
@@ -153,7 +157,7 @@ export class WarningViewProvider implements vscode.WebviewViewProvider {
         <div class="divider"></div>
 
         <div class="footer">
-          <span class="source">${ICON.chart}<span>Source: Claude Usage Monitor</span></span>
+          <span class="source">${ICON.chart}<span>Source: ${escapeHtml(label)} Usage Monitor</span></span>
           <div class="footer-actions">
             <button class="secondary" data-command="openDashboard">Open Dashboard</button>
             <button class="primary" data-command="cancel">OK</button>
