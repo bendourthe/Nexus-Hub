@@ -7,6 +7,50 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+**Codex Usage Monitor (unified multi-provider extension).** The `claude-usage-monitor` VS Code extension (bumped independently to 0.7.0) is generalized behind a provider interface and gains a second provider for Codex (ChatGPT / OpenAI): it reads the local Codex app OAuth token and fetches account usage from the undocumented `chatgpt.com/backend-api/wham/usage` endpoint, rendering it in the same status-bar / tooltip / dashboard / warning UI as Claude. It fails soft on the undocumented endpoint, keeps the Claude path unchanged, and its single outbound call goes only to the user's own account. This is an extension change only: NO catalog skill, command, metadata, installer, or base-template is touched, and the catalog version is unaffected.
+
+### Added
+
+- **Multi-provider usage monitor** (`extensions/claude-usage-monitor`): a `UsageProvider` interface separating the data layer from the shared UI; a Codex provider (`src/providers/codex.ts`) that reads the Codex app credential (from `usageMonitor.codex.authPath`, `CODEX_HOME/auth.json`, or `~/.codex/auth.json`) and fetches `wham/usage`, mapping the primary and secondary rate-limit windows onto the session and weekly metrics plus plan type, credits, and additional-limit rows; a `usageMonitor.provider` setting, a "Usage: Switch Provider" command, and a settings-panel provider selector; Codex-appropriate recommendations (throttle, wait-for-reset, rotate-account) in place of model-switch advice; and a Vitest provider unit-test suite. Extension version 0.6.2 -> 0.7.0.
+
+### Changed
+
+- The extension's Claude data path was extracted into `src/providers/claude.ts` behind the new interface with no behavior change; the extension `displayName` and `description` were updated to reflect Claude and Codex support (the extension `name` and publisher are preserved so existing installs are not orphaned).
+
+**Skill-native review/verification cluster (C4 + C3 + C6).** Adopts three composing agentic-review disciplines as catalog content: a curated review-trapdoors convention plus a light skill, a PR/CI-state evidence example folded into `verification-before-completion`, and a merge-readiness contract extending `quality-gate-definitions`. Catalog: 267 skills (+1: `review-trapdoors`).
+
+### Added
+
+- **`review-trapdoors` skill + convention** (`catalog/skills/code-review/review-trapdoors/SKILL.md`, `catalog/style-guides/review-trapdoors.md`): a project maintains a short, curated list of recurring, project-specific review blockers, each phrased as a check; the skill reads that artifact before a review or a review-ready claim, applies each matched entry as a gate, and appends a new trapdoor when a review surfaces a recurring class of blocker (fed by `continuous-learning` instincts). Registered in all three metadata files (code-review 14 -> 15).
+- **Merge-readiness contract** (`catalog/skills/orchestration/quality-gate-definitions/SKILL.md` new `merge-ready` gate + contract section; `catalog/style-guides/merge-readiness-contract.md`): a named, machine-checkable composite gate binding CI + cross-model/multi-agent review + PR hygiene + issue linkage + the C3 evidence discipline + the review-trapdoors check, with the collaborator rules (no-self-merge, net-lines/one-concern ceiling, time-boxed bus-factor self-merge escape hatch) documented as configurable convention.
+
+### Changed
+
+- **`verification-before-completion`** (`catalog/skills/workflow/verification-before-completion/SKILL.md`, body-only): added a "Review is clean / PR is mergeable" claim-to-evidence row and a worked "PR / CI review state" example - verify review and CI state against the authoritative current-head source (status rollup, latest review submissions, unresolved threads, `mergeable`), treating a usage-limit / environment / missing-review result as MISSING EVIDENCE, not approval. The C3 and C6 edits are body-only (no frontmatter change), so no registry update; every new and edited artifact is ASCII-only and passes the catalog validators. No new outbound call, dependency, or credential.
+
+**Spec/context split + spec-as-merge-gate convention (C5).** Extends `spec-driven-development` (body-only) with two adopted conventions: a normative `spec.md` (testable FR-### / SC-### requirements only) separated from free-form context (rationale, decisions, failure modes, examples) that rides on the existing per-version `docs/` tree, and a spec-as-merge-gate rule (behavior / API / schema / CLI changes update the spec before code, and a change is not review-ready until the spec, the code, and the tests agree). The external `openspec` CLI is explicitly NOT adopted - only the convention - per the MCP Registry Policy (reverse-engineer-first; skill-native convention over an external tool dependency). Body-only, no registry change; catalog count unchanged (267 skills).
+
+### Changed
+
+- **`spec-driven-development`** (`catalog/skills/developer-experience/spec-driven-development/SKILL.md`, body-only): new "Normative Spec vs Free-Form Context" and "The Spec as a Merge Gate" sections that map the convention onto `/spec`, the spec template, the per-version `docs/` tree, `cross-artifact-analyzer`, `implementation-convergence`, and the merge-readiness contract (no parallel `openspec/`-style change-folder tree); two Common Rationalizations rows; and cross-links to `implementation-convergence`, `review-trapdoors`, and `quality-gate-definitions`. No frontmatter change, so no registry update.
+
+**Declarative skill-activation ruleset + guard/tracker hooks (C1).** Adds a project-local `skill-rules.json` ruleset and three opt-in, fail-open hooks that give Nexus-Hub's model-judgment skill triggering a deterministic backstop, inverted from the source pattern's fail-closed posture to suggest-by-default. Hooks: 25 -> 28.
+
+### Added
+
+- **skill-rules schema + template + convention** (`catalog/hooks/skill-rules.example.json`, `catalog/style-guides/skill-activation-rules.md`): a declarative ruleset mapping prompt keywords / intent regexes and edited file paths to skills, with per-rule `enforcement` (suggest / remind / block), `promptTriggers`, `fileTriggers` (pathPatterns / pathExclusions / contentPatterns), `skipConditions`, and a `message`. Seeded with Nexus-Hub-relevant suggest rules (security-review on auth code, test-driven-development on new source, verification-before-completion and review-trapdoors on completion / review prompts).
+- **Three opt-in, fail-open hooks** (`catalog/hooks/skill-activation-suggest.py` [UserPromptSubmit], `catalog/hooks/skill-guard.py` [PreToolUse Edit|MultiEdit|Write], `catalog/hooks/skill-tracker.py` [PostToolUse Skill], plus a shared `_skill_rules.py`): the activation hook suggests a skill when the prompt matches; the guard SUGGESTS by default and blocks ONLY when `NEXUS_SKILL_GUARD_BLOCK=1` AND a matched rule is `enforcement: block`; the tracker records used skills so `skipConditions.skillAlreadyUsed` dedupes. All exit 0 on any error, are no-ops without `skill-rules.json`, honor `NEXUS_DISABLED_HOOKS` / `NEXUS_HOOK_PROFILE=minimal`, are stdlib-only with no outbound calls, and never log secrets. Registered in `catalog/hooks/settings.json` (ask-first) behind opt-in; the `.py` hooks run cross-platform via the `python3` interpreter convention (no `.ps1` sibling, matching the existing `.py` hooks). Covered by `catalog/hooks/tests/test_skill_activation.py` (14 tests).
+
+**Cross-model review recipe concretization (C2).** Extends `cross-model-orchestrator` (body-only) with a runnable, vendor-neutral loop-until-clean review recipe. Body-only, no registry change; catalog unchanged (267 skills, 28 hooks).
+
+### Changed
+
+- **`cross-model-orchestrator`** (`catalog/skills/orchestration/cross-model-orchestrator/SKILL.md`, body-only): a new "Cross-Model Review Loop" recipe - resolve scope, review on a DIFFERENT operator-configured model (never a hardcoded vendor), parse to a findings schema (id / severity / category / location / effort / status), a HITL disposition gate, an atomic per-finding fix-verify-commit cycle, re-review with safety limits (max 3 iterations; a recurring finding is marked do-not-refix), and a final report - plus an inline env-var-driven invocation, a vendor-neutrality rationalization row, and cross-links to `multi-agent-code-review`, `adversarial-verifier`, `receiving-code-review`, and `verification-before-completion`. It cites the MCP Registry Policy generation-as-service hard-no: the recipe adopts the loop's shape, not a Codex-CLI lock-in. No wrapper script bundled (invocation documented inline); no frontmatter change.
+
+---
+
 ## [3.13.0] - 2026-07-15
 
 **presentify universal ingestion + prominence + output-aspect (v3.13.0).** Extends `/presentify` + `document-to-interactive-html` beyond the four document formats: it now ingests source code and config, Markdown / plain text, CSV / TSV, and standalone images, and can take a whole directory or repository (walked recursively) as input; it preserves each source visual's prominence; and it lets the caller choose the output aspect. Builds on the released v3.12.0 fidelity work without changing it. Catalog totals unchanged (no new skill or command).

@@ -8451,6 +8451,45 @@
       }
     },
     {
+      "name": "review-trapdoors",
+      "title": "review-trapdoors",
+      "description": "Use before reviewing a change or before declaring your own change review-ready, to pre-empt the project's known recurring review blockers. Trigger phrases: review trapdoors, recurring review blockers, what usually gets flagged, what gets sent back in review, pre-empt review issues, PR readiness gotchas, is this review-ready, common review failures, project-specific review checks. Reads the project's curated trapdoors artifact and applies each entry as a gate, and appends a new trapdoor when a review surfaces a recurring class of blocker. SKIP for a one-off full review with no trapdoors artifact in play (use /review or the code-review producing skills), and for authoring durable project principles (use project-constitution).",
+      "long_description": "Applies a project's curated review-trapdoors artifact - a short, project-specific list of recurring review blockers, each phrased as a check - as a gate, both before reviewing someone else's change and before declaring your own change review-ready. It locates the artifact (a review-trapdoors.md or a Review Trapdoors section in AGENTS.md / CONTRIBUTING.md / the constitution), reads every entry, confirms the required evidence for each matched trigger against the real diff, and appends a new one-line trapdoor when a review surfaces a recurring class of blocker. It complements model-judgment review rather than replacing it, and draws new entries from continuous-learning instincts.",
+      "summary_l0": "\"Pre-empt a project's recurring review blockers from a curated trapdoors list before review\"",
+      "overview_l1": "\"This skill applies a project's curated review-trapdoors artifact (a short, project-specific list of recurring review blockers, each phrased as a check) as a gate, both before reviewing someone else's change and before declaring your own change review-ready. It forces a sequence: locate the trapdoors artifact (a review-trapdoors.md or a Review Trapdoors section in AGENTS.md / CONTRIBUTING.md / the constitution), read every entry, and for each one whose trigger the diff matches, confirm the required evidence is present or flag it as a blocker. It also closes the loop: when a review surfaces a blocker that is a recurring class rather than a one-off, append a new one-line trapdoor so the next review catches it deterministically. It complements model-judgment review (which catches general issues but under-triggers on narrow project-specific gotchas) rather than replacing it, and it draws its new entries from continuous-learning instincts. Use it as a fast pre-review and pre-ready pass; do not use it as a substitute for a full review or for authoring governing principles.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "code-review",
+      "language": "Multi-language",
+      "tags": [
+        "code-review",
+        "discipline",
+        "pr-readiness",
+        "review-blockers"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "PR-readiness / recurring-review-blocker review convention (v3.14.0 adoption plan, Phase 2)",
+      "tools_required": [
+        "Read",
+        "Grep"
+      ],
+      "path": "catalog/skills/code-review/review-trapdoors/",
+      "file": "catalog/skills/code-review/review-trapdoors/SKILL.md",
+      "size": {
+        "lines": 92,
+        "characters": 9446,
+        "tokens_estimate": 1259
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
       "name": "receiving-code-review",
       "title": "receiving-code-review",
       "description": "Use when responding to code review feedback, a reviewer's comments, PR suggestions, or critique of code you wrote, and before you implement any requested change. Trigger phrases: the reviewer said, address this comment, they want me to change, PR feedback, review comments, you should refactor this, please fix, can you also handle, the review suggests. Especially when a suggestion is unclear, debatable, or expands scope. SKIP when you are the one authoring or producing a review of someone else's code (use the code-review producing skills instead), or when there is no review feedback to act on.",

@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
-import { UsageData, formatModelName } from "./types";
+import { UsageData, formatModelName, providerLabel } from "./types";
 import { formatResetLabel, nextMonthlyResetLabel } from "./usageStore";
-import { FetchError, UsageFetcher } from "./usageFetcher";
+import { ProviderFetchError, describeProviderError } from "./providers";
 import {
   getRecommendation,
   pickTriggerMetric,
@@ -23,7 +23,7 @@ export class DashboardPanel {
     panel: vscode.WebviewPanel,
     private data: UsageData | undefined,
     private timeSince: string,
-    private fetchError: FetchError | undefined,
+    private fetchError: ProviderFetchError | undefined,
     private callbacks: DashboardCallbacks,
   ) {
     this.panel = panel;
@@ -55,7 +55,7 @@ export class DashboardPanel {
   static show(
     data: UsageData | undefined,
     timeSince: string,
-    fetchError: FetchError | undefined,
+    fetchError: ProviderFetchError | undefined,
     callbacks: DashboardCallbacks,
     extensionUri?: vscode.Uri,
   ): DashboardPanel {
@@ -94,7 +94,7 @@ export class DashboardPanel {
     return DashboardPanel.currentPanel;
   }
 
-  update(data: UsageData | undefined, timeSince: string, fetchError?: FetchError): void {
+  update(data: UsageData | undefined, timeSince: string, fetchError?: ProviderFetchError): void {
     this.data = data;
     this.timeSince = timeSince;
     if (fetchError !== undefined) {
@@ -106,7 +106,7 @@ export class DashboardPanel {
   static updateIfOpen(
     data: UsageData | undefined,
     timeSince: string,
-    fetchError: FetchError | undefined,
+    fetchError: ProviderFetchError | undefined,
   ): void {
     if (!DashboardPanel.currentPanel) {
       return;
@@ -129,7 +129,7 @@ export class DashboardPanel {
     const errorBanner = showErrorBanner
       ? `<div class="error-banner">
           <span class="error-icon">&#9888;</span>
-          <span>${escapeHtml(UsageFetcher.getErrorMessage(this.fetchError!))}</span>
+          <span>${escapeHtml(describeProviderError(this.fetchError!))}</span>
           <button onclick="send('refresh')" class="retry-btn">Retry</button>
         </div>`
       : "";
@@ -155,9 +155,32 @@ export class DashboardPanel {
     const suggestion = activeSuggestion(data);
     const sourceLabel = data.dataSource === "api" ? "Auto-fetched" : "Manually entered";
 
+    const providerId = data.providerId ?? "claude";
+    const isCodex = providerId === "codex";
+    const label = providerLabel(providerId);
+
+    // Codex exposes extra rate-limit windows and a credits summary; render them
+    // as additional sections. Claude leaves both unset, so these are empty there.
+    const additionalRows = (data.additionalLimits ?? [])
+      .map(
+        (row) => `
+      <div class="section">
+        <h3>${escapeHtml(row.label)}</h3>
+        ${this.renderProgressBar(row.percent, row.resetsIn, row.resetsAt)}
+      </div>`,
+      )
+      .join("");
+    const creditsSection = data.creditsSummary
+      ? `
+      <div class="section">
+        <h3>Credits</h3>
+        <div class="extra-credits-info">${escapeHtml(data.creditsSummary)}</div>
+      </div>`
+      : "";
+
     return this.wrapHtml(`
       ${errorBanner}
-      <h2>Claude Usage Dashboard</h2>
+      <h2>${escapeHtml(label)} Usage Dashboard</h2>
 
       <div class="section">
         <h3>Current Session</h3>
@@ -169,6 +192,8 @@ export class DashboardPanel {
         ${this.renderProgressBar(data.weeklyAllModels.percent, data.weeklyAllModels.resetsIn, data.weeklyAllModels.resetsAt)}
       </div>
 
+      ${additionalRows}
+
       ${data.extraUsage && data.extraUsage.isEnabled ? `
       <div class="section">
         <h3>Extra Credits</h3>
@@ -176,12 +201,13 @@ export class DashboardPanel {
         ${data.extraUsage.utilization != null ? this.renderProgressBar(Math.round(data.extraUsage.utilization), nextMonthlyResetLabel(), null) : ""}
       </div>
       ` : ""}
+      ${creditsSection}
 
       <div class="divider"></div>
 
       <div class="section">
-        <h3>Current Model</h3>
-        <div class="model-name">${escapeHtml(formatModelName(data.currentModel))}</div>
+        <h3>${isCodex ? "Plan" : "Current Model"}</h3>
+        <div class="model-name">${escapeHtml(isCodex ? (data.planLabel ?? "Codex") : formatModelName(data.currentModel))}</div>
       </div>
 
       <div class="section">

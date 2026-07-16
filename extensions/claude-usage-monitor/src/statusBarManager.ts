@@ -1,7 +1,13 @@
 import * as vscode from "vscode";
-import { UsageData, UrgencyLevel, ColorConfig, getColorConfig, getThresholdConfig, WORKBENCH_COLOR_KEYS, syncActiveColorToWorkbench } from "./types";
+import { UsageData, UrgencyLevel, ColorConfig, ProviderId, providerLabel, getColorConfig, getThresholdConfig, WORKBENCH_COLOR_KEYS, syncActiveColorToWorkbench } from "./types";
 import { getActiveUrgency, pickTriggerMetric } from "./recommendations";
+import { getConfiguredProviderId } from "./providers";
 import { UsageStore, formatResetLabel, nextMonthlyResetLabel } from "./usageStore";
+
+/** Status-bar glyph per provider: the Claude logo font for Claude, a neutral codicon for Codex. */
+function providerIcon(providerId: ProviderId): string {
+  return providerId === "codex" ? "$(pulse)" : "$(claude-icon)";
+}
 
 // When the active metric is within this many percentage points below the
 // moderate threshold (or already at/above it), the poll cadence drops to
@@ -105,18 +111,23 @@ export class StatusBarManager {
 
   private updateDisplay(data: UsageData | undefined): void {
     if (!data) {
-      this.statusBarItem.text = "$(claude-icon) Claude Usage: --% (current) --% (week)";
-      this.statusBarItem.tooltip = "Click to view Claude usage dashboard";
+      // No cached data yet: label from the configured provider setting.
+      const configuredId = getConfiguredProviderId();
+      const label = providerLabel(configuredId);
+      this.statusBarItem.text = `${providerIcon(configuredId)} ${label} Usage: --% (current) --% (week)`;
+      this.statusBarItem.tooltip = `Click to view ${label} usage dashboard`;
       this.statusBarItem.backgroundColor = undefined;
       this.gearItem.backgroundColor = undefined;
       return;
     }
 
+    const providerId = data.providerId ?? "claude";
+    const label = providerLabel(providerId);
     const overallUrgency = getActiveUrgency(data);
     const staleLabel = this.isDataStale(data) ? " $(warning)" : "";
 
     this.statusBarItem.text =
-      `$(claude-icon) Claude Usage: ${data.session.percent}% (current) ${data.weeklyAllModels.percent}% (week)${staleLabel}`;
+      `${providerIcon(providerId)} ${label} Usage: ${data.session.percent}% (current) ${data.weeklyAllModels.percent}% (week)${staleLabel}`;
 
     this.statusBarItem.tooltip = this.buildTooltip(data);
     const bgColor = this.getBackgroundColor(overallUrgency);
@@ -180,17 +191,24 @@ export class StatusBarManager {
 
     // Extra Credits: mirror the dashboard section. When extra usage is disabled,
     // absent, or the monthly limit is 0 (no extra credit available on the
-    // account), show an N/A line instead of a progress bar.
+    // account), show an N/A line instead of a progress bar. For Codex, show the
+    // provider-supplied credits summary line when present, otherwise nothing.
+    const providerId = data.providerId ?? "claude";
+    const label = providerLabel(providerId);
     const extra = data.extraUsage;
     const extraCredits =
-      extra && extra.isEnabled && extra.monthlyLimit > 0
-        ? `<img src="${sectionImg("Extra Credits", extra.utilization != null ? Math.round(extra.utilization) : 0)}" width="${W}" height="${svgH}"><br>` +
-          `<em>$${extra.usedCredits.toFixed(2)} / $${extra.monthlyLimit.toFixed(2)} used this month &middot; ${formatResetLabel(nextMonthlyResetLabel())}</em><br><br>`
-        : `<span style="color:${labelColor};font-weight:bold">Extra Credits</span><br>` +
-          `<em style="color:${dimColor}">No extra credit available on your account</em><br><br>`;
+      providerId === "codex"
+        ? data.creditsSummary
+          ? `<span style="color:${labelColor}">${data.creditsSummary}</span><br><br>`
+          : ""
+        : extra && extra.isEnabled && extra.monthlyLimit > 0
+          ? `<img src="${sectionImg("Extra Credits", extra.utilization != null ? Math.round(extra.utilization) : 0)}" width="${W}" height="${svgH}"><br>` +
+            `<em>$${extra.usedCredits.toFixed(2)} / $${extra.monthlyLimit.toFixed(2)} used this month &middot; ${formatResetLabel(nextMonthlyResetLabel())}</em><br><br>`
+          : `<span style="color:${labelColor};font-weight:bold">Extra Credits</span><br>` +
+            `<em style="color:${dimColor}">No extra credit available on your account</em><br><br>`;
 
     md.appendMarkdown(
-      `<span style="opacity:0.6">Claude Usage</span><br><br>` +
+      `<span style="opacity:0.6">${label} Usage</span><br><br>` +
       staleWarning +
       section("Current Session", data.session.percent, data.session.resetsIn) +
       section("Weekly", data.weeklyAllModels.percent, data.weeklyAllModels.resetsIn) +
