@@ -108,6 +108,15 @@
             "command": "bash .claude/hooks/old-version-docs-guard.sh"
           }
         ]
+      },
+      {
+        "matcher": "Edit|MultiEdit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .claude/hooks/skill-guard.py"
+          }
+        ]
       }
     ],
     "PostToolUse": [
@@ -153,6 +162,15 @@
             "command": "bash .claude/hooks/dependency-staleness-notice.sh"
           }
         ]
+      },
+      {
+        "matcher": "Skill",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 .claude/hooks/skill-tracker.py"
+          }
+        ]
       }
     ],
     "UserPromptSubmit": [
@@ -162,6 +180,10 @@
           {
             "type": "command",
             "command": "bash .claude/hooks/learning-capture.sh"
+          },
+          {
+            "type": "command",
+            "command": "python3 .claude/hooks/skill-activation-suggest.py"
           }
         ]
       }

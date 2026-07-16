@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "_comment": "Deterministic skill-activation backstop for Nexus-Hub. Copy this file to .claude/skill-rules.json (or skill-rules.json at the repo root) and tailor the rules. The hooks that read it (skill-activation-suggest.py, skill-guard.py) are ADVISORY by default: they only SUGGEST a skill and never block. A rule blocks an edit ONLY when its enforcement is 'block' AND the environment sets NEXUS_SKILL_GUARD_BLOCK=1. This is a deterministic backstop to the model-judgment description triggering, aimed at the under-triggering the AGENTS.md description-style section acknowledges - not a replacement for it. See catalog/style-guides/skill-activation-rules.md for the full schema.",
+  "rules": [
+    {
+      "skill": "security-review",
+      "enforcement": "suggest",
+      "promptTriggers": {
+        "keywords": ["auth", "login", "password", "oauth", "session cookie", "jwt", "permission check"],
+        "intentPatterns": ["\\b(add|change|implement|refactor)\\b.{0,24}\\b(auth|login|permission|token)\\b"]
+      },
+      "fileTriggers": {
+        "pathPatterns": ["*/auth/*", "*auth*", "*/security/*", "*/middleware/auth*"],
+        "pathExclusions": ["*.test.*", "*.spec.*", "*/tests/*", "*/__tests__/*"],
+        "contentPatterns": ["password", "secret", "api[_-]?key", "authorization", "bearer "]
+      },
+      "skipConditions": {
+        "skillAlreadyUsed": true,
+        "env": "NEXUS_SKIP_SECURITY_REVIEW"
+      },
+      "message": "Editing auth/security code - consider loading the security-review skill to check for OWASP issues before you claim it is done."
+    },
+    {
+      "skill": "test-driven-development",
+      "enforcement": "suggest",
+      "fileTriggers": {
+        "pathPatterns": ["src/*", "lib/*", "app/*"],
+        "pathExclusions": ["*.test.*", "*.spec.*", "*/tests/*", "*/__tests__/*", "*.md", "*.json"]
+      },
+      "skipConditions": {
+        "skillAlreadyUsed": true,
+        "env": "NEXUS_SKIP_TDD"
+      },
+      "message": "Writing source under src/ - consider test-driven-development (write the failing test first, then the code)."
+    },
+    {
+      "skill": "verification-before-completion",
+      "enforcement": "suggest",
+      "promptTriggers": {
+        "keywords": ["it works", "all tests pass", "done", "fixed", "ready to commit", "should work now", "the build is green"],
+        "intentPatterns": []
+      },
+      "skipConditions": {
+        "skillAlreadyUsed": false,
+        "env": "NEXUS_SKIP_VBC"
+      },
+      "message": "That reads like a completion claim - load verification-before-completion and run the proving command before claiming done."
+    },
+    {
+      "skill": "review-trapdoors",
+      "enforcement": "suggest",
+      "promptTriggers": {
+        "keywords": ["review", "ready for review", "pr ready", "is this mergeable", "before i merge"],
+        "intentPatterns": []
+      },
+      "skipConditions": {
+        "skillAlreadyUsed": true,
+        "env": "NEXUS_SKIP_REVIEW_TRAPDOORS"
+      },
+      "message": "Reviewing or preparing a change - apply review-trapdoors to pre-empt this project's recurring review blockers."
+    }
+  ]
+}

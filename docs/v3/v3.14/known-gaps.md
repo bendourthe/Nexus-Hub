@@ -1,8 +1,8 @@
 # Known Gaps - v3.14
 
 **Project**: Nexus-Hub
-**Status**: in progress - Phases 1-3 of 6 complete on `feat/codex-lb-adoption`; Phases 4-6 pending
-**Last updated**: 2026-07-16 (Phase 3 post-phase reconciliation)
+**Status**: in progress - Phases 1-4 of 6 complete on `feat/codex-lb-adoption`; Phases 5-6 pending
+**Last updated**: 2026-07-16 (Phase 4 post-phase reconciliation)
 
 > **Prior-version ingest**: the open v3.13 items (presentify DF-1..DF-5, WN-1/2, MT-1) are unrelated to this feature set and do not carry in. HO-1 (flat/nested skill-name collision across skill layouts) now ENGAGES as of Phase 2, which ships the new `review-trapdoors` catalog skill; it must be re-checked by the Phase 6 dry-run install (verify no flat/nested same-`name` collision for `review-trapdoors`).
 
@@ -14,7 +14,7 @@
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 2 | 0 |
-| Bugs / regressions (BG) | 0 | 0 |
+| Bugs / regressions (BG) | 1 | 0 |
 | Warnings (WN) | 0 | 0 |
 | Missing tests / coverage gaps (MT) | 1 | 0 |
 | Quality-gate gaps (QG) | 1 | 0 |
@@ -25,6 +25,7 @@
 - **Codex Usage Monitor (Phase 1)**: the `claude-usage-monitor` VS Code extension (independently versioned 0.6.2 -> 0.7.0) generalized behind a `UsageProvider` interface, with a second provider for Codex (ChatGPT / OpenAI). The Codex provider reads the local Codex app OAuth token (from `usageMonitor.codex.authPath`, `CODEX_HOME/auth.json`, or `~/.codex/auth.json`) and fetches account usage from the undocumented `chatgpt.com/backend-api/wham/usage` endpoint, mapping the primary and secondary rate-limit windows onto the session and weekly metrics plus plan type, credits, and additional-limit rows. The whole status-bar / tooltip / dashboard / warning UI is reused; recommendations are reframed for Codex (throttle, wait-for-reset, rotate-account) since Codex has no cheaper model tier. A `usageMonitor.provider` setting, a "Usage: Switch Provider" command, and a settings-panel selector switch providers. Fail-soft throughout; the Claude path is byte-for-byte unchanged; the single outbound call goes only to the user's own account. Provider logic, the Codex payload mapper, the error resolver, and the Codex recommendation branches are covered by a 35-test Vitest suite. No catalog skill, command, metadata, installer, or base-template was touched.
 - **Skill-native review/verification cluster (Phase 2)**: a new `review-trapdoors` code-review skill plus a `review-trapdoors.md` style guide (a curated, project-specific recurring-blocker convention applied before review or a review-ready claim); a PR/CI-state evidence example folded into `verification-before-completion` (verify review/CI state against the authoritative current-head source; missing-review is not approval); and a merge-readiness contract extending `quality-gate-definitions` (a `merge-ready` composite gate + a `merge-readiness-contract.md` style guide documenting the configurable collaborator rules). C3 and C6 are body-only edits (no registry change); `review-trapdoors` is registered in all three metadata files. Catalog: 267 skills. Count references reconciled to 267 across skills.json, `data/SKILL_INDEX.md`, and AGENTS.md (the SKILL_INDEX total line had been stale at 265).
 - **Spec/context split + spec-as-merge-gate convention (Phase 3, C5)**: a body-only extension to `spec-driven-development` adding a normative-spec vs free-form-context split (the normative `spec.md` holds only testable FR-### / SC-### items; rationale/decisions/failure-modes/examples ride the existing per-version `docs/` tree) and a spec-as-merge-gate rule (behavior / API / schema / CLI changes update the spec before code; not review-ready until spec, code, and tests agree), mapped onto `/spec`, `cross-artifact-analyzer`, `implementation-convergence`, and the merge-readiness contract. The external `openspec` CLI is explicitly not adopted (convention only, per the MCP Registry Policy). No new skill, no frontmatter change, no registry update; catalog stays 267 skills.
+- **Declarative skill-activation ruleset + guard/tracker hooks (Phase 4, C1)**: a project-local `skill-rules.json` schema (`catalog/hooks/skill-rules.example.json` + `catalog/style-guides/skill-activation-rules.md`) and three opt-in, fail-open hooks (`skill-activation-suggest.py` on UserPromptSubmit, `skill-guard.py` on PreToolUse Edit|MultiEdit|Write, `skill-tracker.py` on PostToolUse Skill, plus a shared `_skill_rules.py`), registered in `settings.json` (ask-first, confirmed). The guard suggests by default and blocks only under `NEXUS_SKILL_GUARD_BLOCK=1` with an `enforcement: block` rule (fail-open inversion of the source pattern). All hooks are no-ops without `skill-rules.json`, honor `NEXUS_DISABLED_HOOKS` / `NEXUS_HOOK_PROFILE=minimal`, are stdlib-only with no outbound calls, and never log secrets; `.py` hooks run cross-platform via `python3` (no `.ps1` sibling, matching the existing `.py` hooks). Covered by `test_skill_activation.py` (14 tests). Hooks 25 -> 28.
 
 ### Advisory
 
@@ -47,6 +48,15 @@
 - **Plan reference**: Phase 1 stability gate ("fail soft when the undocumented endpoint is unavailable"); Phase 6.2 durability note
 - **Reason**: `chatgpt.com/backend-api/wham/usage` is an internal, undocumented ChatGPT backend endpoint that OpenAI can change without notice (the same fragility class as the Claude monitor's dependency on the Anthropic usage endpoint, arguably higher because it is reverse-engineered). The mapper validates defensively and any parse failure, HTTP error, timeout, or missing field yields the fail-soft "usage unavailable" state.
 - **Suggested next step**: None guaranteeable in code; monitor for breakage. The fail-soft behavior and the manual-entry fallback contain the blast radius.
+
+#### Bugs / regressions
+
+##### BG-1 - Pre-existing: verify_platform_contracts.py not registered in either installer
+
+- **Source phase**: discovered during Phase 4 validation (pre-existing on the branch; NOT introduced by this release)
+- **Plan reference**: none (out of the codex-lb plan's scope; traces to v3.12.1 when the script was added)
+- **Reason**: `scripts/verify_platform_contracts.py` (a v3.12.1 script) is registered in NEITHER `scripts/installer.sh` NOR `scripts/installer.ps1`, and is not in the test's `DEV_ONLY_SCRIPTS` allow-list, so `catalog/hooks/tests/test_installer_smoke.py::test_installers_copy_every_scripts_dir_py_file` fails. Phase 4 touched no `scripts/` or installer files (`git diff main...HEAD -- scripts/` is empty), so this failure is inherited, not caused by this phase.
+- **Suggested next step**: Register `verify_platform_contracts.py` in both installers' copy blocks (or add it to `DEV_ONLY_SCRIPTS` if it is intentionally dev-only), as a small standalone fix or in the Phase 6.3 CI/CD pass. Editing installers is an ask-first change.
 
 #### Missing tests / coverage gaps
 

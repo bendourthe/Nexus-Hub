@@ -36,6 +36,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **`spec-driven-development`** (`catalog/skills/developer-experience/spec-driven-development/SKILL.md`, body-only): new "Normative Spec vs Free-Form Context" and "The Spec as a Merge Gate" sections that map the convention onto `/spec`, the spec template, the per-version `docs/` tree, `cross-artifact-analyzer`, `implementation-convergence`, and the merge-readiness contract (no parallel `openspec/`-style change-folder tree); two Common Rationalizations rows; and cross-links to `implementation-convergence`, `review-trapdoors`, and `quality-gate-definitions`. No frontmatter change, so no registry update.
 
+**Declarative skill-activation ruleset + guard/tracker hooks (C1).** Adds a project-local `skill-rules.json` ruleset and three opt-in, fail-open hooks that give Nexus-Hub's model-judgment skill triggering a deterministic backstop, inverted from the source pattern's fail-closed posture to suggest-by-default. Hooks: 25 -> 28.
+
+### Added
+
+- **skill-rules schema + template + convention** (`catalog/hooks/skill-rules.example.json`, `catalog/style-guides/skill-activation-rules.md`): a declarative ruleset mapping prompt keywords / intent regexes and edited file paths to skills, with per-rule `enforcement` (suggest / remind / block), `promptTriggers`, `fileTriggers` (pathPatterns / pathExclusions / contentPatterns), `skipConditions`, and a `message`. Seeded with Nexus-Hub-relevant suggest rules (security-review on auth code, test-driven-development on new source, verification-before-completion and review-trapdoors on completion / review prompts).
+- **Three opt-in, fail-open hooks** (`catalog/hooks/skill-activation-suggest.py` [UserPromptSubmit], `catalog/hooks/skill-guard.py` [PreToolUse Edit|MultiEdit|Write], `catalog/hooks/skill-tracker.py` [PostToolUse Skill], plus a shared `_skill_rules.py`): the activation hook suggests a skill when the prompt matches; the guard SUGGESTS by default and blocks ONLY when `NEXUS_SKILL_GUARD_BLOCK=1` AND a matched rule is `enforcement: block`; the tracker records used skills so `skipConditions.skillAlreadyUsed` dedupes. All exit 0 on any error, are no-ops without `skill-rules.json`, honor `NEXUS_DISABLED_HOOKS` / `NEXUS_HOOK_PROFILE=minimal`, are stdlib-only with no outbound calls, and never log secrets. Registered in `catalog/hooks/settings.json` (ask-first) behind opt-in; the `.py` hooks run cross-platform via the `python3` interpreter convention (no `.ps1` sibling, matching the existing `.py` hooks). Covered by `catalog/hooks/tests/test_skill_activation.py` (14 tests).
+
 ---
 
 ## [3.13.0] - 2026-07-15
