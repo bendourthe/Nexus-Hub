@@ -30,6 +30,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **`verification-before-completion`** (`catalog/skills/workflow/verification-before-completion/SKILL.md`, body-only): added a "Review is clean / PR is mergeable" claim-to-evidence row and a worked "PR / CI review state" example - verify review and CI state against the authoritative current-head source (status rollup, latest review submissions, unresolved threads, `mergeable`), treating a usage-limit / environment / missing-review result as MISSING EVIDENCE, not approval. The C3 and C6 edits are body-only (no frontmatter change), so no registry update; every new and edited artifact is ASCII-only and passes the catalog validators. No new outbound call, dependency, or credential.
 
+**Spec/context split + spec-as-merge-gate convention (C5).** Extends `spec-driven-development` (body-only) with two adopted conventions: a normative `spec.md` (testable FR-### / SC-### requirements only) separated from free-form context (rationale, decisions, failure modes, examples) that rides on the existing per-version `docs/` tree, and a spec-as-merge-gate rule (behavior / API / schema / CLI changes update the spec before code, and a change is not review-ready until the spec, the code, and the tests agree). The external `openspec` CLI is explicitly NOT adopted - only the convention - per the MCP Registry Policy (reverse-engineer-first; skill-native convention over an external tool dependency). Body-only, no registry change; catalog count unchanged (267 skills).
+
+### Changed
+
+- **`spec-driven-development`** (`catalog/skills/developer-experience/spec-driven-development/SKILL.md`, body-only): new "Normative Spec vs Free-Form Context" and "The Spec as a Merge Gate" sections that map the convention onto `/spec`, the spec template, the per-version `docs/` tree, `cross-artifact-analyzer`, `implementation-convergence`, and the merge-readiness contract (no parallel `openspec/`-style change-folder tree); two Common Rationalizations rows; and cross-links to `implementation-convergence`, `review-trapdoors`, and `quality-gate-definitions`. No frontmatter change, so no registry update.
+
 ---
 
 ## [3.13.0] - 2026-07-15

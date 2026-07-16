@@ -246,6 +246,33 @@ Execute tasks following `incremental-implementation` (one task at a time, test a
 - **Commit the spec**: The spec belongs in version control alongside the code
 - **Reference in PRs**: Link back to the spec section each PR implements
 
+## Normative Spec vs Free-Form Context
+
+Split the specification into two artifacts with different jobs, so the spec cannot promise behavior the code does not implement:
+
+- **The normative spec** holds ONLY testable requirements: the `**FR-###**: System MUST/SHALL <capability>` and `**SC-###**: <measurable outcome>` items, plus the acceptance scenarios that verify them. No rationale, no prose narrative, no "why". Every line is a claim the code and tests can be checked against. Prose in the normative spec is a liability: it reads like a commitment but nothing verifies it, so it drifts silently from the code.
+- **The free-form context** holds everything that explains the spec but is not itself testable: the rationale, the decisions and their alternatives, constraints, known failure modes, and at least one concrete worked example. Context is where "why session cookies, not JWT" lives; the spec only records "the system MUST authenticate via session cookies".
+
+Map this onto Nexus-Hub's EXISTING surfaces - do not introduce a parallel change-folder tree:
+
+- The normative spec is the `spec.md` this skill already produces from `catalog/templates/spec-template.md` (the FR-### / SC-### blocks). `/spec` creates and updates it.
+- The context lives in the surrounding per-version `docs/` tree already in use: the plan, the comparison report, and any decision records under `docs/v<MAJOR>/v<MAJOR>.<MINOR>/`. A dedicated `context.md` beside the spec is fine when a feature warrants one, but the default is the docs tree you already keep.
+
+**The external `openspec` CLI is NOT adopted - only the convention is.** The normative/context separation is a convention Nexus-Hub adopts skill-natively; the external `openspec` tool that popularized it is not added as a dependency. Per the AGENTS.md MCP Registry Policy (reverse-engineer-first: prefer an LLM-native / skill-native convention over an external tool dependency), a convention the agent can follow with its own judgment beats a new CLI, and no parallel `openspec/`-style change-folder tree is created. The convention rides on `/spec`, the spec template, and the per-version `docs/` tree.
+
+## The Spec as a Merge Gate
+
+A change to behavior, a public API, a data schema, or a CLI surface requires the spec to be created or updated BEFORE the code, and the change is not review-ready until the spec, the code, and the tests all agree. This extends the hard gate at the top of this skill (which governs starting new work) to the merge boundary (which governs that a shipped change leaves the spec in sync, not stale).
+
+It composes with tooling Nexus-Hub already has:
+
+- `/spec` creates or updates the normative spec first.
+- `[[cross-artifact-analyzer]]` (via `/analyze-spec`) verifies the FR-### / SC-### coverage between the spec and the plan or tasks - the spec-to-task join.
+- `[[implementation-convergence]]` closes the loop after implementation: it assesses the built code against the plan/spec, classifies gaps, and appends remaining work, so "the code matches the spec" is a checked assertion, not a hope.
+- The merge-readiness contract in `[[quality-gate-definitions]]` treats "spec and code and tests agree" as one condition of a mergeable change, and "a behavior / API / schema / CLI change updated its spec first" is a natural project entry for `[[review-trapdoors]]`.
+
+The rule is scoped on purpose: a typo fix, a refactor with no behavior change, or an internal-only change needs no spec update. It is behavior, API, schema, and CLI surface - the things a consumer can observe - that must not ship ahead of their spec.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |
@@ -259,6 +286,8 @@ Execute tasks following `incremental-implementation` (one task at a time, test a
 | "The user knows what they want" | Users know what outcome they want; they rarely know which implementation delivers it. The spec surfaces that gap before code is written. |
 | "I'll just use bullet points instead of FR/SC IDs" | The IDs are not decoration - they are the join key the `[[cross-artifact-analyzer]]` skill uses to build the Coverage Summary table in `/analyze-spec`. A spec written with prose bullets produces an empty matrix and the analyzer cannot flag missing tasks. Use the format from `catalog/templates/spec-template.md`. |
 | "This feature only has one user story" | Still write it as `### User Story 1 - [Title] (Priority: P1)` with the full Independent Test paragraph and Acceptance Scenarios. The single-story case is the most common; `/analyze-spec` and the Phase 6 task discipline both key off the story heading regardless of count. A spec with no `## User Stories` block fails the analyzer's underspecification pass. |
+| "I changed the behavior; I'll sync the spec after" | A behavior / API / schema / CLI change that ships ahead of its spec leaves the spec promising the old contract - the silent drift the spec/context split exists to prevent. Update the normative spec first, then the code and tests, and treat "they disagree" as a merge blocker, not a follow-up. |
+| "I'll put the rationale right in the spec so it's all in one place" | Prose in the normative spec reads like a commitment but nothing verifies it, so it drifts from the code silently. Rationale, decisions, and examples belong in the free-form context (the docs tree or a context.md); the spec holds only testable FR-### / SC-### items. |
 
 ## Verification
 
@@ -276,6 +305,9 @@ Execute tasks following `incremental-implementation` (one task at a time, test a
 - [[incremental-implementation]] -- execute the plan one task at a time
 - [[ambiguity-detector]] -- detect gaps in an existing spec before implementation
 - [[cross-artifact-analyzer]] -- verify the FR-### / SC-### IDs in the spec have matching tasks in the plan via the Coverage Summary table emitted by `/analyze-spec`
+- [[implementation-convergence]] -- after implementation, assess the built code against the spec/plan, classify gaps, and append remaining work (the merge-gate's post-build check)
+- [[review-trapdoors]] -- "a behavior / API / schema / CLI change must update its spec first" is a natural project review trapdoor
+- [[quality-gate-definitions]] -- its merge-readiness contract treats "spec, code, and tests agree" as one condition of a mergeable change
 - [[project-constitution]] -- establish the MUST/SHOULD principles that the `Constitution Check` section of every plan validates against
 - `/clarify-spec` (Phase 5 command) -- sequential 5-question loop that resolves spec ambiguities after the template's slots are filled; pairs with the spec-quality-checklist for the final readiness gate before `/generate-plan`
 
