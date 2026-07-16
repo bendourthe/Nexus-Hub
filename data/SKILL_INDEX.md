@@ -249,6 +249,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | malware-triage-analysis | security-operations | "Safely triage a suspicious file, classify maliciousness, and extract IOCs" | catalog/skills/security-operations/malware-triage-analysis/SKILL.md |
 | verification-before-completion | workflow | "Require fresh verification evidence before making any completion or success claim" | catalog/skills/workflow/verification-before-completion/SKILL.md |
 | receiving-code-review | code-review | "Act on code review feedback with technical rigor and no performative agreement" | catalog/skills/code-review/receiving-code-review/SKILL.md |
+| review-trapdoors | code-review | "Pre-empt a project's recurring review blockers from a curated trapdoors list before review" | catalog/skills/code-review/review-trapdoors/SKILL.md |
 | using-git-worktrees | workflow | "Set up isolated worktree workspaces safely, preferring the native tool over raw git" | catalog/skills/workflow/using-git-worktrees/SKILL.md |
 | hallmark-design | developer-experience | "Produce and review UI that avoids the 'looks AI-generated' failure mode using anti-slop gates and four verbs" | catalog/skills/developer-experience/hallmark-design/SKILL.md |
 | html-output-conventions | developer-experience | "Prefer HTML over Markdown for human-facing artifacts that are read, compared, or interacted with, using four self-contained templates" | catalog/skills/developer-experience/html-output-conventions/SKILL.md |
@@ -271,4 +272,4 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | egress-redaction | security | "Detect sensitive data and apply a typed block/redact/hash/pass policy before egress" | catalog/skills/security/egress-redaction/SKILL.md |
 | prompt-injection-defense | security | "Recognize and resist prompt injection and poisoned tool output with instruction-origin discipline" | catalog/skills/security/prompt-injection-defense/SKILL.md |
 
-**Total: 265 skills across 21 categories**
+**Total: 267 skills across 21 categories**

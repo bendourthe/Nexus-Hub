@@ -19,6 +19,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - The extension's Claude data path was extracted into `src/providers/claude.ts` behind the new interface with no behavior change; the extension `displayName` and `description` were updated to reflect Claude and Codex support (the extension `name` and publisher are preserved so existing installs are not orphaned).
 
+**Skill-native review/verification cluster (C4 + C3 + C6).** Adopts three composing agentic-review disciplines as catalog content: a curated review-trapdoors convention plus a light skill, a PR/CI-state evidence example folded into `verification-before-completion`, and a merge-readiness contract extending `quality-gate-definitions`. Catalog: 267 skills (+1: `review-trapdoors`).
+
+### Added
+
+- **`review-trapdoors` skill + convention** (`catalog/skills/code-review/review-trapdoors/SKILL.md`, `catalog/style-guides/review-trapdoors.md`): a project maintains a short, curated list of recurring, project-specific review blockers, each phrased as a check; the skill reads that artifact before a review or a review-ready claim, applies each matched entry as a gate, and appends a new trapdoor when a review surfaces a recurring class of blocker (fed by `continuous-learning` instincts). Registered in all three metadata files (code-review 14 -> 15).
+- **Merge-readiness contract** (`catalog/skills/orchestration/quality-gate-definitions/SKILL.md` new `merge-ready` gate + contract section; `catalog/style-guides/merge-readiness-contract.md`): a named, machine-checkable composite gate binding CI + cross-model/multi-agent review + PR hygiene + issue linkage + the C3 evidence discipline + the review-trapdoors check, with the collaborator rules (no-self-merge, net-lines/one-concern ceiling, time-boxed bus-factor self-merge escape hatch) documented as configurable convention.
+
+### Changed
+
+- **`verification-before-completion`** (`catalog/skills/workflow/verification-before-completion/SKILL.md`, body-only): added a "Review is clean / PR is mergeable" claim-to-evidence row and a worked "PR / CI review state" example - verify review and CI state against the authoritative current-head source (status rollup, latest review submissions, unresolved threads, `mergeable`), treating a usage-limit / environment / missing-review result as MISSING EVIDENCE, not approval. The C3 and C6 edits are body-only (no frontmatter change), so no registry update; every new and edited artifact is ASCII-only and passes the catalog validators. No new outbound call, dependency, or credential.
+
 ---
 
 ## [3.13.0] - 2026-07-15

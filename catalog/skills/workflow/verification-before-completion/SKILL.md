@@ -57,10 +57,21 @@ Every completion claim maps to a specific proving artifact. Never make the claim
 | Feature works end to end | running the actual flow (start the app, hit the endpoint, drive the UI) | Observed correct behavior in the running system, not just green unit tests. Unit tests prove units; they do not prove integration. |
 | File / change is in place | reading the file back, or `git diff` / `git status` | The change is visible in the current file content, not just in your memory of having written it. |
 | Loop exit condition met | the loop's `check_command` (e.g. `npm test`, `gh pr checks`, `make validate`) | The `check_command` exits 0 and its output satisfies the loop's `exit_condition`, confirmed by a checker that did not produce the iteration -- not the maker's sense that the loop has converged. |
+| Review is clean / PR is mergeable | the authoritative current-head source: the status-check rollup plus the latest review submissions and unresolved threads (e.g. `gh pr checks`, `gh pr view --json statusCheckRollup,reviewDecision,reviews,mergeable`) | The current-head status rollup is all green, `reviewDecision` is APPROVED with no outstanding CHANGES_REQUESTED, there are zero unresolved review threads, and `mergeable` is true. A usage-limit, environment, or missing-review result is MISSING EVIDENCE, not approval. |
 
 A loop's exit condition is itself a completion claim: "the loop is done" asserts something about the current state of the code, so it is bound by this same gate. The evidence is the `check_command` output gathered this turn, not the maker agent's reassurance that it converged. See [[loop-engineering]] for assembling the loop and [[agent-orchestration-primitives]] (Step 8) for why the checker that certifies the exit must not be the agent that produced the work.
 
 If a claim has no proving command, say so explicitly: "I have not verified this; I believe X because Y" is honest and useful. "X works" without evidence is neither.
+
+### PR / CI review state: verify against current-head evidence
+
+A review-state claim ("the review is clean", "CI is green", "this is mergeable") is a completion claim about the PR's CURRENT head, so it demands current-head evidence, not history. The failure mode is asserting approval from a stale signal:
+
+- A top-level "LGTM" comment from three commits ago describes code that no longer exists; a force-push or a new commit since then may have introduced the very problem the review would catch. Read the review submissions and status checks for the current head commit, not the conversation's oldest approving comment.
+- A green checkmark you remember from an earlier run is stale the moment a new commit lands. Re-read `gh pr checks` (or the status rollup) for the head commit in this turn.
+- An absence of a review is not an approval, and neither is an inconclusive one. A review that could not be produced because of a usage limit, a broken CI environment, or a reviewer who never responded is MISSING EVIDENCE. Report it as "not verified" with the reason; never round it up to "approved".
+
+Verify the four current-head signals together: the status-check rollup is all green, `reviewDecision` is APPROVED (no outstanding CHANGES_REQUESTED), every review thread is resolved, and `mergeable` is true. Anything less is a blocker, not a pass. This is the same discipline the [[review-trapdoors]] pass applies to project-specific gotchas, and [[receiving-code-review]] governs acting on whatever the review returns.
 
 ## Common Rationalizations
 
@@ -104,6 +115,7 @@ The rule is "no completion claim without fresh proving evidence", not "run a com
 - [[quality-gate-definitions]] -- defines the GO/NO-GO thresholds (tests, coverage, lint, build) that this gate proves at each checkpoint.
 - [[adversarial-verifier]] -- goes beyond "does it pass" to stress-test the change against edge cases and attack inputs once the basic gate is green.
 - [[receiving-code-review]] -- applies the same verify-before-claiming discipline when acting on review feedback (verify the suggestion against the codebase before agreeing it is correct).
+- [[review-trapdoors]] -- the project-specific counterpart: before a review-ready claim, check the project's curated recurring-blocker list as part of the evidence.
 - [[test-driven-development]] -- supplies the failing-then-passing reproduction that the "bug fixed" row of the claim-to-evidence table depends on.
 - [[debug-with-logs]] -- when the proving command fails, this skill helps locate why before re-entering the gate.
 - [[loop-engineering]] -- assembles goal-terminated loops whose exit condition is the evidence-bearing completion claim this gate enforces.
