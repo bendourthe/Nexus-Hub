@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.14.0] - 2026-07-16
+
 **Codex Usage Monitor (unified multi-provider extension).** The `claude-usage-monitor` VS Code extension (bumped independently to 0.7.0) is generalized behind a provider interface and gains a second provider for Codex (ChatGPT / OpenAI): it reads the local Codex app OAuth token and fetches account usage from the undocumented `chatgpt.com/backend-api/wham/usage` endpoint, rendering it in the same status-bar / tooltip / dashboard / warning UI as Claude. It fails soft on the undocumented endpoint, keeps the Claude path unchanged, and its single outbound call goes only to the user's own account. This is an extension change only: NO catalog skill, command, metadata, installer, or base-template is touched, and the catalog version is unaffected.
 
 ### Added

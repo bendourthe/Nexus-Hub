@@ -4,9 +4,9 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.13.0 -->
+<!-- nexus-hub-version: 3.14.0 -->
 
-Nexus-Hub is the upstream skill catalog for AI coding assistants: 266 skills, 16 commands, 25 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
+Nexus-Hub is the upstream skill catalog for AI coding assistants: 267 skills, 16 commands, 28 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
 ## Interactive Guide -- start here
 
@@ -30,12 +30,16 @@ Nexus-Hub is the upstream skill catalog for AI coding assistants: 266 skills, 16
 
 Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of the same idea, split along a deliberate seam.
 
-- **Nexus-Hub (this repo)** is the catalog: 266 curated skills, 16 commands, 25 hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`). It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
+- **Nexus-Hub (this repo)** is the catalog: 267 curated skills, 16 commands, 28 hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`). It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
 - **Nexus** is a local-first desktop AI Studio that consumes Nexus-Hub as its skill feed. Nexus's `AGENTS.md` names this repo as "the only external project we deliberately link to" -- the upstream feed for its skill harness.
 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v3.14.0
+
+v3.14.0 is the codex-lb adoption release: it brings a directly-requested product build plus four skill-native agentic-review disciplines reverse-engineered from an external Codex workflow, with zero new outbound calls, dependencies, or credentials in the catalog. The headline build is the **Codex Usage Monitor**: the `claude-usage-monitor` VS Code extension (independently bumped to 0.7.0) is generalized behind a `UsageProvider` interface and gains a second provider for Codex (ChatGPT / OpenAI) that reads the local Codex app OAuth token and renders account usage in the same status-bar, tooltip, dashboard, and warning UI as Claude, with its single outbound call going only to the user's own account endpoint. On the catalog side, a **skill-native review and verification cluster** adds a `review-trapdoors` skill and convention (a project's curated list of recurring, project-specific review blockers, each applied as a gate) and a machine-checkable **merge-readiness contract** in `quality-gate-definitions`, and folds a PR/CI-state evidence discipline into `verification-before-completion`. A **spec/context split** convention extends `spec-driven-development` with a normative `spec.md` (testable requirements only) separated from free-form context, plus a spec-as-merge-gate rule. A **declarative skill-activation ruleset** (`skill-rules.json`) with three opt-in, fail-open hooks gives the model-judgment triggering a deterministic, suggest-by-default backstop. And a **cross-model review loop** recipe in `cross-model-orchestrator` documents a vendor-neutral, loop-until-clean review flow. Catalog: **267 skills** (+1: `review-trapdoors`), **16 commands**, **28 hooks**.
 
 ## What's New in v3.13.0
 
@@ -126,7 +130,7 @@ That is the whole setup -- no prompts. The installer prechecks its dependencies 
 
 After the installer completes:
 
-- **Globally**: your user profile has all 266 skills, 16 commands, 25 hooks, 23 agents, plus Gemini and Codex instructions.
+- **Globally**: your user profile has all 267 skills, 16 commands, 28 hooks, 23 agents, plus Gemini and Codex instructions.
 - **Locally**: your project has `copilot-instructions.md` and `AGENTS.md` tailored to your language.
 
 **Power-user flags**: `--workspace <path>` installs into a single repo instead of globally; `--platforms <comma-list>` limits the install to a subset of assistants; `--yes` runs fully unattended (refreshes managed files with no prompt -- ideal for CI). Prefer to clone first? `git clone` the repo and run `./install.sh` (macOS / Linux) or `install.bat` (Windows) -- the in-repo path still works exactly as before.
