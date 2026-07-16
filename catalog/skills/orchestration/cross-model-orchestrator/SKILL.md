@@ -268,6 +268,52 @@ When the reviewer or verifier disagrees with the planner or implementer, follow 
 **Resolved by**: [human / evidence / codebase convention]
 ```
 
+## Cross-Model Review Loop (loop-until-clean recipe)
+
+A concrete, runnable specialization of the workflow above for the most common cross-model case: drive a SECOND model as a review pass over a change, then fix its findings and re-review until the change is clean. It adapts the shape of a mature review loop (scope -> review -> structured findings -> fix -> re-review) while staying strictly vendor-neutral.
+
+**Vendor-neutrality rule.** The reviewing model is whatever the operator has configured - any second CLI or model they already run (Codex, Gemini, a local model, a separate Claude session). NEVER hardcode a specific vendor's CLI. Per the AGENTS.md MCP Registry Policy hard-no on generation-as-service, this recipe adopts the loop's SHAPE, not a lock-in to any one review tool: invoke whatever the operator names (for example via a `NEXUS_REVIEW_CLI` environment variable), never a fixed binary.
+
+### The loop
+
+1. **Resolve scope.** Decide what the reviewer sees: a PR diff (`git diff <base>...HEAD`), the diff against a base branch, or the uncommitted working tree (`git diff` / `git diff --staged`). Capture it once so every iteration reviews the same defined surface.
+
+2. **Launch the review on a DIFFERENT model.** Run the configured review model over the scope as a background subagent in a fresh session (the independence rule from Best Practices), so the model that implemented the change is not the one reviewing it. The reviewing model / CLI is whatever the operator configured, never hardcoded. Apply the [Handoff Egress Hygiene](#handoff-egress-hygiene) gate when that model reaches an external service.
+
+3. **Parse to a findings schema.** Normalize the raw review into structured findings so the loop can act on them deterministically:
+
+    | Field | Meaning |
+    |---|---|
+    | `id` | stable identifier for the finding (used to detect recurrence across iterations) |
+    | `severity` | critical / high / medium / low |
+    | `category` | correctness / security / performance / style / test-gap / ... |
+    | `location` | `file:line` |
+    | `effort` | rough fix size (S / M / L) |
+    | `status` | open / fixed / wont-fix / do-not-refix |
+
+4. **HITL gate on the finding set.** Present the parsed findings and let the human choose the disposition BEFORE any code changes: fix all, criticals-only, or report-only. A report-only run stops here with the findings written out. This is the human-in-the-loop control point; it is not optional. A notes-only reviewer cannot certify "clean" on its own (see the reviewer-vs-judge distinction in Step 4).
+
+5. **Atomic per-finding fix-verify-commit.** For each finding to be fixed, one at a time: apply the fix, run the project's lint / type-check / tests, and commit ONLY if they pass; if they fail, roll the change back so the tree stays clean and mark the finding `open` with a note. One finding per commit keeps history bisectable and stops a failed fix from poisoning the next. This is the [[verification-before-completion]] gate applied per finding.
+
+6. **Re-review with safety limits.** Re-run steps 1-5 on the updated scope until the reviewer returns zero open findings, bounded by explicit limits so the loop always terminates:
+
+    - **Max 3 iterations.** Stop after the third and report whatever remains.
+    - **Recurrence -> do-not-refix.** A finding whose `id` reappears across two iterations (the fix did not satisfy the reviewer, or the reviewer is oscillating) is marked `do-not-refix`, skipped for the rest of the loop, and surfaced for a human. This prevents an infinite fix-review-refix cycle.
+
+7. **Final report.** Emit a summary: findings found, fixed (with commit SHAs), wont-fix / do-not-refix (with reasons), and the iteration count. If findings remain after the iteration cap, say so plainly - a loop that hit its limit is not a clean result.
+
+### Invocation
+
+The recipe drives whatever review tool the operator configures. Point it at the review CLI via an environment variable rather than a hardcoded binary, and pass the program plus discrete arguments (never an interpolated shell string), matching the project Bash security rules:
+
+```
+# The operator chooses which reviewer to use; the recipe never hardcodes one.
+export NEXUS_REVIEW_CLI="<your review model CLI>"
+git diff "origin/main...HEAD" | "$NEXUS_REVIEW_CLI" review --format json
+```
+
+Run this in a fresh session (Step 2's independence rule), parse the output into the findings schema (Step 3), and drive the loop. For a richer multi-persona review pass instead of a single reviewer, use [[multi-agent-code-review]]; to have the reviewer actively try to BREAK the change rather than critique it, add the breaker phase from [[adversarial-verifier]]; to act on the findings without reflexive agreement, follow [[receiving-code-review]]. If you ship a wrapper script for this loop, keep it under the skill's `scripts/` bundle, cross-platform, and calling the operator's configured CLI (never a fixed vendor); this repo documents the invocation inline rather than bundling one.
+
 ## Best Practices
 
 - **Use fresh sessions** for each model role to avoid context contamination from previous phases
@@ -287,6 +333,7 @@ When the reviewer or verifier disagrees with the planner or implementer, follow 
 | "One capable model can plan, code, and review the change itself." | A model reviewing its own work re-confirms its own assumptions; the blind spot that produced the bug also hides it during self-review. The cross-model gate exists so a second model with different training catches what the first cannot see. |
 | "The plan is obvious, so I will let the implementer skip the review handoff." | "Obvious" plans are where unverified assumptions hide. Skipping the independent review phase is the single most common way a cross-model workflow degrades into an expensive single-model workflow. |
 | "I will reuse the same session across roles to save setup time." | Carrying the planner's context into the reviewer role contaminates the review with the planner's framing. Fresh sessions per role are what make the second opinion genuinely independent. |
+| "I will just script the review loop against the one CLI I have." | Hardcoding a single vendor's review CLI turns a model-agnostic recipe into lock-in and violates the MCP Registry Policy's generation-as-service hard-no. Drive whatever reviewer the operator configured via an env var; the loop's value is its shape, not the tool. |
 
 ## Verification
 
@@ -302,6 +349,10 @@ When the reviewer or verifier disagrees with the planner or implementer, follow 
 - [[workflow-orchestrator]] - General workflow orchestration patterns
 - [[task-coordinator]] - Breaking down tasks across phases
 - [[quality-gate-definitions]] - Reusable gate criteria referenced in Step 4
+- [[multi-agent-code-review]] - a richer multi-persona review pass to run as the reviewer in the review loop
+- [[adversarial-verifier]] - the breaker phase: have the reviewer try to break the change, not just critique it
+- [[receiving-code-review]] - act on the review loop's findings without reflexive agreement
+- [[verification-before-completion]] - the per-finding fix-verify gate the review loop's Step 5 applies
 
 ---
 
