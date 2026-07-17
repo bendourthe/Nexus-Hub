@@ -306,6 +306,9 @@ jobs:
       - name: CI validator tests (v2.3.0 Phase 2)
         run: pytest tests/validators -v
 
+      - name: Skills-script tests (v3.14.3 media-key setup helper + docs-audit resolver)
+        run: pytest tests/skills -v
+
       - name: Install skill-server (and transitive deps like pydantic via mcp)
         run: pip install -e "extensions/nexus-skill-server/[dev]"
 

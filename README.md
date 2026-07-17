@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.14.2 -->
+<!-- nexus-hub-version: 3.14.3 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 267 skills, 16 commands, 28 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -36,6 +36,10 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v3.14.3
+
+v3.14.3 fixes `/presentify` end-to-end and reworks its design intake (no catalog change; counts unchanged). First, it restores skill loading: `document-to-interactive-html` (and 46 other skills) carried an unquoted `description` frontmatter value containing a `: ` sequence that broke strict YAML parsing, so the skill silently failed to load with "Unknown skill" - the values are now quoted, a strict-YAML gate in `validate_skills.py` prevents regression, and both installers now flatten skills for Claude to the discoverable `~/.claude/skills/<name>/` layout instead of an undiscoverable category-nested copy. On top of that, `/presentify` now asks its four high-level design questions - style, layout, interactivity, imagery - in a single batched round UP FRONT before any document is read (instead of one menu at a time mid-pipeline), and never pre-answers a choice from a recalled memory or saved preference. The imagery choice now prefers real license-free stock and minimizes AI, and offers gated license-free stock video (Pexels key + consent, degrading to images-only otherwise), reconciling the old "video out of scope" wording so source-embedded media stays ignored while output-side stock video is supported. And a new guided `nexus-hub setup-media` bring-your-own-key flow stores a free Pexels key securely under `~/.nexus-hub/` (hidden prompt, mode 0600) so stock video "just works" - stock images still need no setup.
 
 ## What's New in v3.14.2
 
