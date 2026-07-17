@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+**Installer hotfix: global-install manifest path plus graceful degradation (v3.14.1).** A global install run from an arbitrary working directory (including an elevated `C:\Windows\System32` prompt) no longer emits a `PermissionError [WinError 5]` traceback for each integration, and its manifest is written under the user home. Installer-side only, in `scripts/lib/integrations/`, so the fix auto-distributes via the integration-registry folder copy with no installer copy-step edit and no `base-*.md` change.
+
+### Fixed
+
+- **Global-install manifest path** (`scripts/lib/integrations/runner.py`): the target-root fallback is now centralized in a single `_resolve_target_root(args)` helper so global scope resolves the manifest under the user home (`~/.nexus-hub/install-manifest.json`) regardless of the process CWD, instead of falling back to `Path.cwd()` and attempting an unwritable `C:\Windows\System32\.nexus-hub\` write. Workspace scope (and any subcommand without a `--scope` flag) keeps its CWD default unchanged. The `install --target` help text now states that global scope defaults to the user home.
+- **Manifest-write graceful degradation** (`scripts/lib/integrations/runner.py`): a failed `manifest.save(...)` in `cmd_install` and `cmd_teardown` now emits a single stderr warning and continues, rather than aborting the runner with a traceback and a non-zero exit. The manifest is bookkeeping for upgrade / doctor / repair, so its failure no longer masks an otherwise-successful install. Regression coverage added in `tests/integrations/test_runner_target_root.py`.
+
 ## [3.14.0] - 2026-07-16
 
 **Codex Usage Monitor (unified multi-provider extension).** The `claude-usage-monitor` VS Code extension (bumped independently to 0.7.0) is generalized behind a provider interface and gains a second provider for Codex (ChatGPT / OpenAI): it reads the local Codex app OAuth token and fetches account usage from the undocumented `chatgpt.com/backend-api/wham/usage` endpoint, rendering it in the same status-bar / tooltip / dashboard / warning UI as Claude. It fails soft on the undocumented endpoint, keeps the Claude path unchanged, and its single outbound call goes only to the user's own account. This is an extension change only: NO catalog skill, command, metadata, installer, or base-template is touched, and the catalog version is unaffected.

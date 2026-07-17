@@ -1,10 +1,36 @@
 # Known Gaps - v3.14
 
 **Project**: Nexus-Hub
-**Status**: RELEASE-READY (v3.14.0) - all 6 phases complete on `feat/codex-lb-adoption`; pending `/update release` (version bump / merge / tag / push). The user resolved the v3.14.0 numbering collision in favor of codex-lb; `agentic-setup-adoption` renumbers on its own branch.
-**Last updated**: 2026-07-16 (Phase 6 terminal reconciliation)
+**Status**: v3.14.0 RELEASED (2026-07-16: `feat/codex-lb-adoption` -> `develop` -> `main`, tag `v3.14.0`, pushed; GitHub Release publish handed to the user due to an invalid local `gh` token). v3.14.1 installer-hotfix IN PROGRESS on `fix/installer-hotfix` (cut off the released `develop`): Phase 1 of 3 complete.
+**Last updated**: 2026-07-16 (v3.14.1 Phase 1)
 
 > **Prior-version ingest**: the open v3.13 items (presentify DF-1..DF-5, WN-1/2, MT-1) are unrelated to this feature set and do not carry in. HO-1 (flat/nested skill-name collision across skill layouts) was VERIFIED clean by the Phase 6.4 dry-run install: `review-trapdoors` lands flattened at `skills/review-trapdoors/SKILL.md` across all seven platform skill paths with no nested `skills/code-review/review-trapdoors/` variant.
+
+## v3.14.1
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 1 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+| Hand-offs (HO) | 0 | 0 |
+
+### Capabilities added this version
+
+- **Global-install manifest path + graceful degradation (Phase 1)**: `scripts/lib/integrations/runner.py` now centralizes the target-root fallback in a single `_resolve_target_root(args)` helper, so a `--scope global` install resolves the manifest under the user home (`~/.nexus-hub/install-manifest.json`) regardless of the process CWD. This resolves the `PermissionError [WinError 5]` traceback (one per integration) that fired when the one-line bootstrap ran from an elevated `C:\Windows\System32` prompt and the manifest write resolved to `C:\Windows\System32\.nexus-hub\`. A failed `manifest.save(...)` in `cmd_install` / `cmd_teardown` now degrades to one stderr warning instead of aborting the runner with a traceback and a non-zero exit. Covered by `tests/integrations/test_runner_target_root.py` (7 tests). Installer-side only (auto-distributed via the integration-registry folder copy); no installer copy-step edit and no `base-*.md` change.
+
+### Advisory
+
+- **CI (Phase 1.3), informational (not an open gap)**: no dedicated path-filtered CI job was added for the integration tests. The existing `tests` job in `.github/workflows/ci.yml` already runs `pytest tests/integrations` on every non-docs change (changes under `scripts/lib/integrations/` and `tests/integrations/` are outside `docs/`, so they trigger it), and workflow-level `concurrency: cancel-in-progress` is already set, so a separate path-filtered job would only duplicate the run and raise action minutes. Phase 3.3 revisits CI holistically.
+
+### Open Items
+
+None open for Phase 1. Phase 2 (orphaned auth-monitor scheduled-task cleanup in `scripts/lib/integrations/legacy.py`) and Phase 3 (refactor + known-gaps + CI/CD, then `/update release`) are pending.
 
 ## v3.14.0
 
