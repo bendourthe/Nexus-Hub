@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.14.3] - 2026-07-17
+
 **Restore skill loading + presentify upfront design questions (v3.14.3).** Fixes the two independent root causes that made `/presentify` fail with "Unknown skill: document-to-interactive-html" on a normal install, then reworks `/presentify` to ask its four high-level design questions up front. Phase 0 restores skill loading: it corrects invalid YAML frontmatter across 47 skills, adds a strict-YAML validator gate so the defect cannot regress, and switches both installers to flatten skills for Claude into the discoverable one-level layout. Phase 1 hoists and batches the four design questions and forbids memory-based pre-answering. Phase 3 adds a guided bring-your-own-key setup so stock video works after a one-time key paste.
 
 ### Added
