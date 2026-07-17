@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.14.1 -->
+<!-- nexus-hub-version: 3.14.2 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 267 skills, 16 commands, 28 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -36,6 +36,10 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v3.14.2
+
+v3.14.2 is an internal convention fix (no catalog change; counts unchanged). It closes a systemic flaw where a `/compare` report and the `/plan from-comparison` plan it seeds could land in different version directories. A comparison now declares an `Adoption target: vX.Y.Z` and is versioned and placed by the release that will ADOPT it rather than the authoring cycle (Fix A); `/plan from-comparison` reads that field and co-locates the generated plan in the same version tree, degrading gracefully for comparisons authored before the convention (Fix B); and the `documentation-consistency` audit plus a dedicated CI workflow flag any comparison/plan version-directory drift so the misplacement cannot silently recur (Fix C). All edits are instruction-level (command and skill-body changes that auto-distribute via folder copy), with `docs/archive/**` and prior-major trees grandfathered.
 
 ## What's New in v3.14.1
 

@@ -43,7 +43,9 @@ Guide the user through a structured discovery interview, then generate a compreh
 
 `<version_dir>` is resolved per the `[[docs-layout-refactor]]` skill's Version-directory resolution algorithm. The canonical layout is `docs/v<MAJOR>/v<MAJOR>.<MINOR>/` (e.g., `docs/v3/v3.11/`), with patch releases sharing their minor dir; legacy projects using the flat `docs/<vSEMVER>/` or the old three-level `docs/versions/<vMAJOR>/<vSEMVER>/` layout are auto-detected and respected to avoid mid-version path churn. Use `/update refactor` to migrate a legacy project to the canonical layout.
 
-The command entry point is `/generate-plan`. When invoked with a comparison report path (`/generate-plan <version_dir>/comparisons/v<MAJOR>.<MINOR>.<PATCH>-comparison-<name>.md`; glob `<version_dir>/comparisons/*-comparison-<name>.md` to find it), the command enters *From-comparison mode* (Step 0.5): it pre-seeds the interview from the report's Adoption Plan section, skipping questions the report already answers, and writes the plan to `<version_dir>/plans/v<MAJOR>.<MINOR>.<PATCH>-adoption-<name>.md`.
+The command entry point is `/generate-plan`. When invoked with a comparison report path (`/generate-plan <version_dir>/comparisons/v<MAJOR>.<MINOR>.<PATCH>-comparison-<name>.md`; glob `<version_dir>/comparisons/*-comparison-<name>.md` to find it), the command enters *From-comparison mode* (Step 0.5): it pre-seeds the interview from the report's Adoption Plan section, skipping questions the report already answers, and writes the plan **co-located with the seeding comparison**.
+
+In From-comparison mode the plan's target version and `version_dir` are NOT resolved fresh from git tags / CHANGELOG. They come from the comparison report's `Adoption target: vX.Y.Z` header field (written by the `[[cross-project-comparison]]` Step 6.5 "Resolve Adoption Target") - the release that will ADOPT the comparison. The plan is written to `<adoption_version_dir>/plans/vX.Y.Z-adoption-<name>.md`, where `<adoption_version_dir>` is the version directory for that adoption target, so the plan always lives in the same version tree as the comparison that seeded it. The generated plan's header carries `**Seeded from**: <path to the comparison>` (in that same tree) and its `**Version**:` and `**Filename**:` fields match the adoption target. **Graceful degradation**: if the comparison has no `Adoption target:` field (a legacy comparison authored before this convention), fall back to the normal version resolution (Phase C / Step 4) and emit a one-line note recommending the comparison be given an `Adoption target:` field so it and the plan it seeds stay co-located.
 
 ## When to Use This Skill
 
@@ -149,6 +151,8 @@ When neither file exists, note that and proceed - grounding is best-effort, not 
 ### Phase C: Generate the Plan File
 
 Resolve the target version (from git tags, CHANGELOG, or package manifests; default `v0.1.0` for fresh greenfield projects), then resolve `<version_dir>` per the `[[docs-layout-refactor]]` Version-directory resolution algorithm (canonical `docs/v<MAJOR>/v<MAJOR>.<MINOR>/` for new content, patch releases sharing their minor dir; legacy `docs/<vSEMVER>/` or `docs/versions/<vMAJOR>/<vSEMVER>/` preserved when already present). Derive a slug from the one-sentence scope statement collected at the start of the interview (lowercase, hyphen-separated, ~5 words, sanitized to `[a-z0-9-]+`); the plan file is then named with a release prefix - `v<MAJOR>.<MINOR>.<PATCH>-<slug>.md` - so multiple patch releases sharing one minor dir never collide. Confirm both with the user before writing.
+
+**From-comparison mode overrides the version resolution above.** When the plan is seeded from a comparison report (Step 0.5), do NOT resolve the target version fresh from git tags / CHANGELOG. Read the comparison's `Adoption target: vX.Y.Z` field and use it for both the target version and `<version_dir>`, so the plan co-locates with the comparison, and name the file `vX.Y.Z-adoption-<name>.md`. Only fall back to the fresh resolution above when the comparison lacks the field (a legacy comparison), emitting the one-line note described in From-comparison mode. Either way, still confirm the resolved target with the user before writing.
 
 Create `<version_dir>/plans/` if it does not exist and write to `<version_dir>/plans/v<MAJOR>.<MINOR>.<PATCH>-<slug>.md` following the structure below.
 
@@ -397,6 +401,7 @@ Incorporate feedback, then write the final file.
 - [ ] `## Constitution Check` section present between `## Overview` and `## Phases at a Glance` (with PASS / FAIL / N/A per MUST principle, or the informational note when no constitution file exists)
 - [ ] `## Complexity Tracking` section present near the end of the file (empty table when no FAIL bullets; populated row per FAIL otherwise)
 - [ ] File written to the resolved `<version_dir>/plans/v<MAJOR>.<MINOR>.<PATCH>-<slug>.md` (canonical `docs/v<MAJOR>/v<MAJOR>.<MINOR>/plans/v<MAJOR>.<MINOR>.<PATCH>-<slug>.md` or legacy `docs/<vSEMVER>/plans/<slug>.md`)
+- [ ] For From-comparison mode: the plan's target version, `<version_dir>`, `**Version**`, `**Filename**`, and `**Seeded from**` all derive from the comparison's `Adoption target:` field so the plan is co-located with its comparison; for a legacy comparison lacking the field, the fallback resolution ran and the one-line note was emitted
 - [ ] User confirmed the phase breakdown before final generation
 
 ## Related Skills
@@ -412,5 +417,5 @@ Incorporate feedback, then write the final file.
 
 ---
 
-**Version**: 1.4.0
-**Last Updated**: June 2026
+**Version**: 1.5.0
+**Last Updated**: July 2026
