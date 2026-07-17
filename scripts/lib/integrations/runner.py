@@ -84,6 +84,29 @@ def _manifest_path(target_root: Path) -> Path:
     return target_root / ".nexus-hub" / "install-manifest.json"
 
 
+def _resolve_target_root(args: argparse.Namespace) -> Path:
+    """Resolve the target root (and therefore the manifest path) for a command.
+
+    Precedence:
+        1. An explicit ``--target`` always wins (workspace installs pass it).
+        2. Otherwise a ``--scope global`` invocation resolves to the user home,
+           so the manifest lands under ``~/.nexus-hub/`` regardless of the
+           process CWD. This fixes the ``PermissionError [WinError 5]`` traceback
+           that fired when the one-line bootstrap was run from an elevated
+           ``C:\\Windows\\System32`` prompt and the manifest write resolved to
+           ``C:\\Windows\\System32\\.nexus-hub\\``.
+        3. Otherwise fall back to the CWD (standalone workspace CLI use, and any
+           subcommand that has no ``--scope`` flag, e.g. init / doctor / repair /
+           list-installed -- their behavior is unchanged).
+    """
+    target = getattr(args, "target", None)
+    if target:
+        return Path(target).expanduser().resolve()
+    if getattr(args, "scope", None) == "global":
+        return Path.home().resolve()
+    return Path.cwd().resolve()
+
+
 def _template_vars_from_args(args: argparse.Namespace) -> dict:
     """Build the template-var map from --project-name plus repeated --var pairs.
 
@@ -92,7 +115,7 @@ def _template_vars_from_args(args: argparse.Namespace) -> dict:
     BUILD_CMD, OS_CONTEXT, ...) through these so the registry renders the same
     instruction body the legacy bash `render_template` produced (DF-001).
     """
-    target_root = Path(args.target).expanduser().resolve() if getattr(args, "target", None) else Path.cwd().resolve()
+    target_root = _resolve_target_root(args)
     vars_map = {"PROJECT_NAME": args.project_name or target_root.name}
     for pair in getattr(args, "var", None) or []:
         key, sep, value = pair.partition("=")
@@ -123,7 +146,7 @@ def cmd_list(args: argparse.Namespace) -> int:
 
 def cmd_install(args: argparse.Namespace) -> int:
     keys = _resolve_integration_keys(args.integrations)
-    target_root = Path(args.target).expanduser().resolve() if args.target else Path.cwd().resolve()
+    target_root = _resolve_target_root(args)
     manifest_path = _manifest_path(target_root)
     manifest = InstallManifest.load(manifest_path)
     ctx = InstallContext(
@@ -154,9 +177,19 @@ def cmd_install(args: argparse.Namespace) -> int:
             print(f"[error:{key}] {exc}", file=sys.stderr)
             failures.append(key)
     if not args.dry_run:
-        manifest.save(manifest_path)
-        if not args.quiet:
-            print(f"Manifest written to: {manifest_path}")
+        try:
+            manifest.save(manifest_path)
+            if not args.quiet:
+                print(f"Manifest written to: {manifest_path}")
+        except OSError as exc:
+            # The manifest is bookkeeping for upgrade / doctor / repair; a write
+            # failure (e.g. a read-only or privileged CWD) must not mask an
+            # otherwise-successful install nor emit a scary traceback.
+            print(
+                f"[warn] could not write install manifest to {manifest_path}: {exc}; "
+                "install content is unaffected",
+                file=sys.stderr,
+            )
     elif not args.quiet:
         print("(dry-run: manifest not written)")
     if failures:
@@ -187,7 +220,14 @@ def cmd_teardown(args: argparse.Namespace) -> int:
         except KeyError:
             print(f"[skip:{key}] not in registry", file=sys.stderr)
     if not args.dry_run:
-        manifest.save(manifest_path)
+        try:
+            manifest.save(manifest_path)
+        except OSError as exc:
+            print(
+                f"[warn] could not write install manifest to {manifest_path}: {exc}; "
+                "teardown content is unaffected",
+                file=sys.stderr,
+            )
     return 0
 
 
@@ -202,7 +242,7 @@ def cmd_print_config(args: argparse.Namespace) -> int:
     except KeyError as exc:
         print(str(exc), file=sys.stderr)
         return 1
-    target_root = Path(args.target).expanduser().resolve() if args.target else Path.cwd().resolve()
+    target_root = _resolve_target_root(args)
     ctx = InstallContext(
         repo_root=REPO_ROOT,
         target_root=target_root,
@@ -226,7 +266,7 @@ def cmd_check(args: argparse.Namespace) -> int:
     / remove. Always prints a per-integration summary unless ``--quiet``.
     """
     keys = _resolve_integration_keys(args.integrations) if args.integrations else list_keys()
-    target_root = Path(args.target).expanduser().resolve() if args.target else Path.cwd().resolve()
+    target_root = _resolve_target_root(args)
     manifest_path = _manifest_path(target_root)
     manifest = InstallManifest.load(manifest_path)
     ctx = InstallContext(
@@ -273,7 +313,7 @@ def cmd_init(args: argparse.Namespace) -> int:
     .cursor/rules/nexus-hub.mdc, Claude's .claude/settings.json stub, etc.)
     from a *global* install without re-running the full workspace install.
     """
-    target_root = Path(args.target).expanduser().resolve() if args.target else Path.cwd().resolve()
+    target_root = _resolve_target_root(args)
     manifest_path = _manifest_path(target_root)
     manifest = InstallManifest.load(manifest_path)
     ctx = InstallContext(
@@ -355,7 +395,7 @@ def cmd_doctor(args: argparse.Namespace) -> int:
     summaries that lack a content hash). Exits 1 on any `missing` or
     `drifted` finding so CI can gate on the result.
     """
-    target_root = Path(args.target).expanduser().resolve() if args.target else Path.cwd().resolve()
+    target_root = _resolve_target_root(args)
     manifest_path = _manifest_path(target_root)
     if not manifest_path.exists():
         if args.json:
@@ -381,7 +421,7 @@ def cmd_repair(args: argparse.Namespace) -> int:
     """Re-run install for every integration the manifest reports as drifted
     or missing. Files marked `ok` are left untouched (`unchanged` action).
     """
-    target_root = Path(args.target).expanduser().resolve() if args.target else Path.cwd().resolve()
+    target_root = _resolve_target_root(args)
     manifest_path = _manifest_path(target_root)
     if not manifest_path.exists():
         print(
@@ -426,7 +466,7 @@ def cmd_list_installed(args: argparse.Namespace) -> int:
     JSON mode dumps the raw `{integration_key: [action_record, ...]}` map;
     text mode prints one line per recorded file.
     """
-    target_root = Path(args.target).expanduser().resolve() if args.target else Path.cwd().resolve()
+    target_root = _resolve_target_root(args)
     manifest_path = _manifest_path(target_root)
     if not manifest_path.exists():
         if args.json:
@@ -544,9 +584,7 @@ def cmd_verify(args: argparse.Namespace) -> int:
     .agents/) into a visible, actionable line. Never fails the install.
     """
     home = Path.home()
-    target_root = (
-        Path(args.target).expanduser().resolve() if args.target else Path.cwd().resolve()
-    )
+    target_root = _resolve_target_root(args)
     checks = _verify_checks(home, target_root)
     if not checks:
         if not args.quiet:
@@ -583,7 +621,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     p_install = sub.add_parser("install", help="Install one or more integrations.")
     p_install.add_argument("--scope", choices=["global", "workspace"], default="workspace")
-    p_install.add_argument("--target", help="Workspace root (defaults to CWD for workspace scope; ignored for global).")
+    p_install.add_argument("--target", help="Workspace root. Defaults to CWD for workspace scope; for global scope defaults to the user home (~/.nexus-hub lands under it).")
     p_install.add_argument("--integrations", required=True, help="Comma-separated keys, or 'all'.")
     p_install.add_argument("--overwrite", action="store_true")
     p_install.add_argument("--dry-run", action="store_true")
