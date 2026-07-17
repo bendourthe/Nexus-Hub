@@ -1845,6 +1845,15 @@ install_templates() {
     if [ -f "$verify_source" ]; then
         safe_copy "$verify_source" "$scripts_dest/verify_install.py" true "[OK] Install verifier installed at: $scripts_dest/verify_install.py"
     fi
+    # setup_media_keys.py powers `nexus-hub setup-media`, the opt-in guided
+    # bring-your-own-key helper for optional stock-media API keys (Pexels, for
+    # stock video). Stdlib-only single .py (NI-v24-1, no .ps1 sibling -- the
+    # nexus-hub.cmd launcher covers Windows via nexus_hub_cli.py, where the
+    # setup-media subcommand is dispatched). Lockstep with scripts/installer.ps1.
+    local media_setup_source="$repo_root/scripts/setup_media_keys.py"
+    if [ -f "$media_setup_source" ]; then
+        safe_copy "$media_setup_source" "$scripts_dest/setup_media_keys.py" true "[OK] Media-key setup helper installed at: $scripts_dest/setup_media_keys.py"
+    fi
     local manifest_source="$repo_root/MANIFEST.sha256"
     if [ -f "$manifest_source" ]; then
         safe_copy "$manifest_source" "$nexus_home/MANIFEST.sha256" true "[OK] Supply-chain manifest installed at: $nexus_home/MANIFEST.sha256"

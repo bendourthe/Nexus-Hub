@@ -93,6 +93,12 @@ data/benchmarks/
 .nexus-hub/install-manifest.json
 .nexus-hub/
 
+# Bring-your-own-key media config written by `nexus-hub setup-media` (v3.14.3).
+# It is always written under ~/.nexus-hub/config/media.env (outside any repo);
+# listed defensively so a stray in-repo copy (e.g. a mis-scoped test run) can
+# never be committed - it holds a Pexels API key.
+media.env
+
 # skill-eval-loop user workspaces (v1.2.0-wip / Phase 5). Users running the
 # eval loop produce <skill-name>-workspace/ directories at the repo root with
 # per-iteration outputs, benchmarks, and feedback. Ignore them so iteration

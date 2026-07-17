@@ -2173,6 +2173,15 @@ function Install-Templates {
     if (Test-Path $verifySource) {
         Safe-Copy -Source $verifySource -Destination (Join-Path $scriptsDest "verify_install.py") -Confirm:$true -CustomMessage "✓ Install verifier installed at: $scriptsDest\verify_install.py"
     }
+    # setup_media_keys.py powers `nexus-hub setup-media`, the opt-in guided
+    # bring-your-own-key helper for optional stock-media API keys (Pexels, for
+    # stock video). Stdlib-only single .py (NI-v24-1, no .ps1 sibling -- the
+    # nexus-hub.cmd launcher covers Windows via nexus_hub_cli.py, where the
+    # setup-media subcommand is dispatched). Mirror of scripts\installer.sh.
+    $mediaSetupSource = Join-Path $RepoRoot "scripts\setup_media_keys.py"
+    if (Test-Path $mediaSetupSource) {
+        Safe-Copy -Source $mediaSetupSource -Destination (Join-Path $scriptsDest "setup_media_keys.py") -Confirm:$true -CustomMessage "✓ Media-key setup helper installed at: $scriptsDest\setup_media_keys.py"
+    }
     $manifestSource = Join-Path $RepoRoot "MANIFEST.sha256"
     if (Test-Path $manifestSource) {
         Safe-Copy -Source $manifestSource -Destination (Join-Path $nexusHome "MANIFEST.sha256") -Confirm:$true -CustomMessage "✓ Supply-chain manifest installed at: $nexusHome\MANIFEST.sha256"

@@ -63,6 +63,8 @@ The aspect governs the CSS canvas (page width, section bands, grid columns) and 
 
 Priority when you opt beyond procedural: PREFER real license-free stock over AI-generated visuals - real stock is provably licensed and content-relevant, while AI output may not be copyrightable and reads as generic. Tier 1 procedural stays the default and the non-interactive fallback.
 
+First-time stock video: stock images need no setup, but stock video needs a free Pexels key. The first time you pick video with no key configured, `/presentify` points you to run `nexus-hub setup-media` in your TERMINAL (a guided, hidden-input, one-time setup) and proceeds with images / procedural in the meantime, rather than asking you to paste a key into the chat. A stored key does not bypass consent - a build-time fetch still requires it.
+
 The stock and AI tiers are OPT-IN and, for any outbound path, require explicit consent for the build-time network use: when you pick `stock` (or `auto` and a fetch would help), the command confirms the network use before running the fetch helper, and only then does any request leave the machine; a non-interactive or headless run never fetches or generates and stays on Tier 1. If the round cannot be answered (a non-interactive run), the agent auto-picks by content - design -> surprise-me / creative; aspect -> full-width for a deck, standard for a report / repository; interactivity -> balanced for a deck / data story, restrained for a report; imagery -> procedural (Tier 1, offline) - and records each (with its auto-pick note) in the output's design-record HTML comment. A named `--style` / `--theme` / `--layout` / `--interactivity` / `--images` skips its respective question.
 
 ## Modes (auto-detected, overridable)

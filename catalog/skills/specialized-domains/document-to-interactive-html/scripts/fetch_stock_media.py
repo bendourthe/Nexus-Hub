@@ -27,8 +27,10 @@ sources need no attribution but are still credited for auditability.
 
 SOURCES: Openverse (default, keyless - a CC / public-domain aggregator) and
 Wikimedia Commons (keyless) are fully implemented for images. Pexels is
-supported when PEXELS_API_KEY is present in the environment (never hardcoded);
-absent key => that source is skipped. Coverr / Mixkit are accepted on the CLI
+supported when a key is present - PEXELS_API_KEY in the environment, or
+~/.nexus-hub/config/media.env (written by `nexus-hub setup-media`); never
+hardcoded, resolved by _resolve_pexels_key(); absent key => that source is
+skipped. Coverr / Mixkit are accepted on the CLI
 for interface parity but have no keyless search API, so they degrade with a
 note (see references/interactive-features.md, "Tier 2 - license-free stock").
 
@@ -464,6 +466,37 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     return parser.parse_args(argv)
 
 
+def _resolve_pexels_key() -> str | None:
+    """Resolve the Pexels API key: the environment first, then the persisted
+    config file (`~/.nexus-hub/config/media.env`), else None.
+
+    The env var wins so a shell / CI override always takes precedence. The config
+    file is the bring-your-own-key fallback written by `nexus-hub setup-media`
+    (simple `KEY=VALUE` lines; blanks and `#` comments ignored). This function
+    NEVER logs or prints the value - any diagnostic that references the key must
+    mask it (length or last-4 only). A missing / unreadable file or an absent key
+    all yield None, so the video / Pexels path degrades to Tier 1 exactly as
+    before, with no network call.
+    """
+    env = os.environ.get("PEXELS_API_KEY", "").strip()
+    if env:
+        return env
+    config = Path.home() / ".nexus-hub" / "config" / "media.env"
+    try:
+        for raw in config.read_text(encoding="utf-8").splitlines():
+            line = raw.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            name, _, value = line.partition("=")
+            if name.strip() == "PEXELS_API_KEY":
+                value = value.strip().strip('"').strip("'")
+                if value:
+                    return value
+    except OSError:
+        pass
+    return None
+
+
 def run_source(args: argparse.Namespace) -> list[dict[str, Any]]:
     """Dispatch to the chosen source. Returns candidates (may be empty)."""
     if args.source == "openverse":
@@ -475,9 +508,11 @@ def run_source(args: argparse.Namespace) -> list[dict[str, Any]]:
             raise LookupError("Wikimedia video is out of scope; use --source pexels for video")
         return query_wikimedia(args.query, args.count)
     if args.source == "pexels":
-        api_key = os.environ.get("PEXELS_API_KEY", "").strip()
+        api_key = _resolve_pexels_key()
         if not api_key:
-            raise LookupError("PEXELS_API_KEY not set in the environment; source skipped")
+            raise LookupError(
+                "PEXELS_API_KEY not found (environment or ~/.nexus-hub/config/media.env); "
+                "source skipped. Run `nexus-hub setup-media` to store a free key.")
         return query_pexels(args.query, args.kind, args.count, api_key)
     # coverr / mixkit: no keyless search API in this helper
     raise LookupError(
