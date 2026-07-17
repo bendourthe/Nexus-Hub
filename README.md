@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.14.0 -->
+<!-- nexus-hub-version: 3.14.1 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 267 skills, 16 commands, 28 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -36,6 +36,10 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v3.14.1
+
+v3.14.1 is an installer hotfix (no catalog change; counts unchanged). A global install run from an arbitrary working directory (including an elevated `C:\Windows\System32` prompt) no longer emits a `PermissionError [WinError 5]` traceback for each integration and now writes its install manifest under `~/.nexus-hub/` regardless of the working directory, with a manifest-write failure degrading to a warning instead of aborting the run. And re-running the installer (or `nexus-hub upgrade`) now unregisters the orphaned DevAI-Hub "Claude Code Auth Monitor" Windows scheduled task and sweeps its leftover `run-auth-monitor.vbs` launcher, stopping the recurring "Can not find script file" popup. Users who cannot re-run yet can remove the task manually with `Unregister-ScheduledTask -TaskName "Claude Code Auth Monitor" -Confirm:$false`. Both fixes are installer-side only (in `scripts/lib/integrations/`), so they auto-distribute with no installer copy-step edit and no platform-template change.
 
 ## What's New in v3.14.0
 
