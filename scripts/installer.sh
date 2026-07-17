@@ -7,7 +7,7 @@ set -e
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-NEXUS_HUB_VERSION="3.14.2"
+NEXUS_HUB_VERSION="3.14.3"
 
 # --- Window Title ---
 printf '\033]0;Nexus-Hub Installer\007'
@@ -247,6 +247,54 @@ safe_folder_copy() {
             write_item "[OK] Installed to $destination" "$GREEN"
         fi
     fi
+}
+
+# Install the skills catalog FLATTENED to the one-level layout Claude Code
+# requires. Claude discovers skills exactly one level deep
+# (<dir>/skills/<name>/SKILL.md), so the catalog's <category>/ tier must be
+# dropped (this honors scripts/lib/integrations/claude.py's
+# flatten_skills_layout: True; Codex / Gemini already flatten via the registry
+# adapter). A verbatim category-nested copy leaves every SKILL.md at
+# <dir>/skills/<category>/<name>/, which Claude cannot see. We stage a flattened
+# copy in a temp dir, then hand it to safe_folder_copy, reusing its refresh-prune
+# (rsync --delete) and merge semantics unchanged - so a prior category-nested
+# layout and any upstream-removed skill are pruned in refresh mode, with no
+# bespoke prune logic here and strict parity with the PowerShell installer.
+flatten_skills_into() {
+    local source="$1"       # catalog/skills
+    local destination="$2"  # <claude>/skills
+    local custom_message="$3"
+
+    if [ ! -d "$source" ]; then
+        return
+    fi
+
+    local staging
+    staging="$(mktemp -d)"
+
+    local category skill
+    for category in "$source"/*/; do
+        [ -d "$category" ] || continue
+        for skill in "$category"*/; do
+            [ -d "$skill" ] || continue
+            cp -R "${skill%/}" "$staging/"
+        done
+    done
+
+    # Drop any category directories left by a PRIOR category-nested install so
+    # the undiscoverable <dir>/skills/<category>/ layout never lingers. In refresh
+    # mode safe_folder_copy's --delete already prunes them; this also covers merge
+    # mode (catalog category names are never skill names, so flat skills and any
+    # user-added skills are untouched).
+    if [ -d "$destination" ]; then
+        for category in "$source"/*/; do
+            [ -d "$category" ] || continue
+            rm -rf "${destination:?}/$(basename "$category")"
+        done
+    fi
+
+    safe_folder_copy "$staging" "$destination" "$custom_message"
+    rm -rf "$staging"
 }
 
 # Resolve any conflicts accumulated by safe_copy during an interactive install
@@ -897,7 +945,7 @@ install_global() {
     # the safe_folder_copy block below.
     invoke_registry_platform "$repo_root" "global" "" "claude" "CLAUDE.md (instruction file)" "" "true"
 
-    safe_folder_copy "$repo_root/catalog/skills"   "$global_claude/skills"   "[OK] Skills catalog installed at: $global_claude/skills"
+    flatten_skills_into "$repo_root/catalog/skills"   "$global_claude/skills"   "[OK] Skills catalog installed (flattened) at: $global_claude/skills"
     safe_folder_copy "$repo_root/catalog/commands" "$global_claude/commands" "[OK] Commands installed at: $global_claude/commands"
     safe_folder_copy "$repo_root/catalog/agents"   "$global_claude/agents"   "[OK] Agents installed at: $global_claude/agents"
     safe_folder_copy "$repo_root/catalog/rules"    "$global_claude/rules"    "[OK] Rules installed at: $global_claude/rules"
@@ -1298,7 +1346,7 @@ install_workspace() {
 
         invoke_registry_platform "$repo_root" "workspace" "$target_path" "claude" "CLAUDE.md (instruction file)" "$languages" "true"
 
-        safe_folder_copy "$repo_root/catalog/skills"   "$claude_dir/skills"   "[OK] Skills catalog installed at: $claude_dir/skills"
+        flatten_skills_into "$repo_root/catalog/skills"   "$claude_dir/skills"   "[OK] Skills catalog installed (flattened) at: $claude_dir/skills"
         safe_folder_copy "$repo_root/catalog/commands" "$claude_dir/commands" "[OK] Commands installed at: $claude_dir/commands"
         safe_folder_copy "$repo_root/catalog/agents"   "$claude_dir/agents"   "[OK] Agents installed at: $claude_dir/agents"
         safe_folder_copy "$repo_root/catalog/rules"    "$claude_dir/rules"    "[OK] Rules installed at: $claude_dir/rules"
@@ -1796,6 +1844,15 @@ install_templates() {
     local verify_source="$repo_root/scripts/verify_install.py"
     if [ -f "$verify_source" ]; then
         safe_copy "$verify_source" "$scripts_dest/verify_install.py" true "[OK] Install verifier installed at: $scripts_dest/verify_install.py"
+    fi
+    # setup_media_keys.py powers `nexus-hub setup-media`, the opt-in guided
+    # bring-your-own-key helper for optional stock-media API keys (Pexels, for
+    # stock video). Stdlib-only single .py (NI-v24-1, no .ps1 sibling -- the
+    # nexus-hub.cmd launcher covers Windows via nexus_hub_cli.py, where the
+    # setup-media subcommand is dispatched). Lockstep with scripts/installer.ps1.
+    local media_setup_source="$repo_root/scripts/setup_media_keys.py"
+    if [ -f "$media_setup_source" ]; then
+        safe_copy "$media_setup_source" "$scripts_dest/setup_media_keys.py" true "[OK] Media-key setup helper installed at: $scripts_dest/setup_media_keys.py"
     fi
     local manifest_source="$repo_root/MANIFEST.sha256"
     if [ -f "$manifest_source" ]; then

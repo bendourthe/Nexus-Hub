@@ -127,6 +127,6 @@ The extractor is local-only and makes no network calls. Every parser is lazy-imp
 
 ## Out of scope
 
-- Video and audio embedding. Media in any source format is ignored (the output is a single self-contained offline HTML file; embedded media would break the offline / size guarantee).
+- Video and audio EMBEDDED IN A SOURCE document. The extractor ignores media in any input format and never carries it into the output (source-embedded media would break the offline / size guarantee). This limit is the EXTRACTOR's only: output-side, license-free stock VIDEO is supported by the imagery stock tier via `scripts/fetch_stock_media.py` (Pexels-only, opt-in, consent-gated, base64-embedded within the media budget), NOT by the extractor - see "Tier 2 - license-free stock" in `references/interactive-features.md`.
 - Full layout reflow of complex multi-column PDFs; column interleaving in text order is possible.
 - Formerly out of scope, now implemented (v2): PDF embedded-image extraction, PDF vector-figure region capture, native PPTX/DOCX chart objects, and scanned-PDF reading via the two-tier local-OCR + agent-vision path (see the PDF section above).

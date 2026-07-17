@@ -21,6 +21,13 @@ Subcommands:
                                single PASS / FAIL. Strictly local, no outbound
                                call (see scripts/verify_install.py for the
                                threat-model boundary).
+    nexus-hub setup-media      Guided, opt-in bring-your-own-key setup for
+                               optional license-free stock-media API keys (Pexels,
+                               for stock video). Captures the key via a HIDDEN
+                               terminal prompt and stores it under
+                               ~/.nexus-hub/config/media.env at mode 0600. Strictly
+                               local, no outbound call (see
+                               scripts/setup_media_keys.py).
     nexus-hub --help           Usage.
 
 THE ONLY OUTBOUND CALL this CLI makes is `upgrade`'s version check, and it goes
@@ -388,6 +395,26 @@ def cmd_verify(argv: list[str]) -> int:
     return verify_install.main(argv)
 
 
+def cmd_setup_media(argv: list[str]) -> int:
+    """Dispatch `nexus-hub setup-media` to the installed setup_media_keys sibling.
+
+    The helper captures an optional stock-media API key (Pexels, for stock video)
+    via a HIDDEN terminal prompt and stores it under ~/.nexus-hub/config/. It is
+    run as a SUBPROCESS (not imported) with this CLI's own interpreter, inheriting
+    stdin / stdout / stderr so the hidden getpass prompt reads from the real
+    terminal; the key is never passed as an argument. This adds no outbound call
+    (the setup helper makes none).
+    """
+    helper = Path(__file__).resolve().parent / "setup_media_keys.py"
+    if not helper.is_file():  # pragma: no cover - missing install artifact
+        _eprint(
+            "nexus-hub setup-media: setup_media_keys.py not found "
+            f"at {helper}. Re-run the installer."
+        )
+        return 2
+    return subprocess.run([sys.executable, str(helper), *argv]).returncode
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="nexus-hub",
@@ -410,6 +437,14 @@ def build_parser() -> argparse.ArgumentParser:
         add_help=False,
         help="Verify the installed catalog against the published SHA-256 manifest.",
     )
+    # Like `verify`, `setup-media` is intercepted in main() before parsing and its
+    # args are forwarded verbatim to the helper; registered here only so
+    # `nexus-hub --help` lists it.
+    sub.add_parser(
+        "setup-media",
+        add_help=False,
+        help="Configure optional license-free stock-media API keys (e.g. Pexels for stock video).",
+    )
     return parser
 
 
@@ -421,6 +456,11 @@ def main(argv: list[str] | None = None) -> int:
     # parser. Intercept it before argparse runs (see build_parser for why).
     if raw and raw[0] == "verify":
         return cmd_verify(raw[1:])
+
+    # `setup-media` forwards its remaining tokens to the helper verbatim and runs
+    # it as a subprocess (interactive hidden prompt), so intercept before argparse.
+    if raw and raw[0] == "setup-media":
+        return cmd_setup_media(raw[1:])
 
     parser = build_parser()
     args = parser.parse_args(raw)
