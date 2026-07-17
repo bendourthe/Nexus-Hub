@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.14.2] - 2026-07-17
+
 **Comparison versioning fix (v3.14.2).** A comparison report and the adoption plan it seeds no longer drift into different version directories. Instruction-level changes to `/compare`, `/plan from-comparison`, and the `documentation-consistency` audit make a comparison versioned and placed by the release that will ADOPT it (not the authoring cycle), co-locate the seeded plan with its comparison, and flag any comparison/plan version-directory mismatch so the misplacement that surfaced on 2026-07-16 cannot silently recur. All edits are to command `.md` files and skill bodies, which the installer auto-distributes via folder copy, so there is no installer copy-step edit and no `base-*.md` lockstep change.
 
 ### Fixed
