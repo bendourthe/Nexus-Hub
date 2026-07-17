@@ -2,7 +2,11 @@
 """Validate all Nexus-Hub skills for structural compliance and security.
 
 Checks YAML frontmatter, required fields, directory naming, and scans for
-hardcoded secrets. Also exposes a non-blocking quality-heuristics pass
+hardcoded secrets. A strict-YAML gate additionally fails the run when a
+frontmatter block does not parse under PyYAML (e.g. an unquoted `description:`
+scalar containing a `: ` sequence that a strict skill-discovery consumer would
+silently reject); it runs in both the full validator and `--bundles-only`.
+Also exposes a non-blocking quality-heuristics pass
 behind `--quality` (missing Common Rationalizations, prose-only
 Verification, over-long Tier-1 fields, missing Related Skills links) --
 warnings only, never errors. Returns exit code 0 if all checks pass
@@ -23,6 +27,13 @@ import os
 import re
 import sys
 from pathlib import Path
+
+try:
+    import yaml  # PyYAML: powers the strict-frontmatter gate below.
+    _HAS_YAML = True
+except ImportError:  # pragma: no cover - PyYAML is a catalog-tooling dependency.
+    yaml = None  # type: ignore[assignment]
+    _HAS_YAML = False
 
 
 # ---------------------------------------------------------------------------
@@ -96,6 +107,73 @@ def parse_frontmatter(content: str) -> dict[str, str] | None:
             key, _, value = line.partition(":")
             result[key.strip()] = value.strip().strip('"').strip("'")
     return result
+
+
+def _frontmatter_block(content: str) -> str | None:
+    """Return the raw text between the first two `---` fences, or None.
+
+    Unlike parse_frontmatter (which returns a naive line-split dict), this hands
+    back the untouched YAML source so it can be fed to a strict parser.
+    """
+    if not content.startswith("---"):
+        return None
+    end = content.find("---", 3)
+    if end == -1:
+        return None
+    return content[3:end]
+
+
+def validate_frontmatter_strict_yaml(skill_file: Path, content: str) -> list[str]:
+    """Hard gate: the frontmatter block must parse under a strict YAML parser.
+
+    The tolerant parse_frontmatter() above line-splits on the first `:` and so
+    silently accepts malformed YAML that a strict consumer rejects -- most
+    commonly an UNQUOTED `description:` scalar whose text contains a `: `
+    sequence (e.g. from a `SKIP:` clause), which makes PyYAML raise a
+    ScannerError and the skill fail to load in Claude Code skill discovery and
+    the flatten adapter's downstream parsers. This gate fails the run on any
+    such file so the defect cannot regress.
+
+    When PyYAML is unavailable, degrades to a minimal heuristic: an unquoted
+    top-level scalar value containing `: ` is reported, with a clear message
+    that a heuristic (not a full parse) was used.
+
+    Returns a list of error strings (empty when the block parses cleanly or is
+    absent -- a missing fence is the caller's own concern).
+    """
+    block = _frontmatter_block(content)
+    if block is None:
+        return []
+    if _HAS_YAML:
+        try:
+            yaml.safe_load(block)
+        except yaml.YAMLError as exc:
+            msg = " ".join(str(exc).split())
+            return [
+                f"{skill_file}: frontmatter is not valid YAML ({msg}); quote the "
+                f"offending scalar value (e.g. wrap the description: value in "
+                f"double quotes) so a strict parser can load the skill"
+            ]
+        return []
+    # Fallback (PyYAML absent): flag an unquoted top-level scalar with `: `.
+    errors: list[str] = []
+    for raw_line in block.splitlines():
+        line = raw_line.rstrip()
+        if not line or line.startswith("#") or line[0].isspace():
+            continue
+        key, sep, value = line.partition(":")
+        if not sep:
+            continue
+        value = value.strip()
+        if not value or value.startswith(('"', "'")):
+            continue
+        if ": " in value:
+            errors.append(
+                f"{skill_file}: frontmatter key '{key.strip()}' has an unquoted "
+                f"value containing ': ' (heuristic; PyYAML unavailable for a full "
+                f"parse) -- wrap the value in double quotes"
+            )
+    return errors
 
 
 # ---------------------------------------------------------------------------
@@ -180,6 +258,12 @@ def validate_skill_dir(
     if fm is None:
         errors.append(f"{skill_file}: no valid YAML frontmatter (must start with ---)")
         return errors, warnings
+
+    # Hard rule (v3.14.3): the frontmatter block must parse under a STRICT YAML
+    # parser. parse_frontmatter above is tolerant and would accept an unquoted
+    # scalar with a `: ` sequence that a strict consumer (Claude skill discovery)
+    # rejects, so the skill would silently fail to load.
+    errors.extend(validate_frontmatter_strict_yaml(skill_file, content))
 
     # Hard rule: required fields present
     for field in REQUIRED_FRONTMATTER_FIELDS:
@@ -502,8 +586,13 @@ def main() -> int:
                 total_errors.append(f"{skill_file}: cannot read ({exc})")
                 continue
             if args.bundles_only:
+                # The strict-YAML gate is a hard error even in --bundles-only,
+                # the mode CI runs, so an unparseable frontmatter fails CI.
+                total_errors.extend(validate_frontmatter_strict_yaml(skill_file, content))
                 total_warnings.extend(validate_skill_bundles(skill_dir, content))
             if args.quality:
+                # --quality keeps its always-exit-0 contract, so the gate is not
+                # run here (it runs in the full validator and --bundles-only).
                 total_warnings.extend(validate_skill_quality(skill_dir, content))
         else:
             errs, warns = validate_skill_dir(skill_dir, grandfathered)

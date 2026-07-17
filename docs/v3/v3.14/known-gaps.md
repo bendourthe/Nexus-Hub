@@ -2,9 +2,68 @@
 
 **Project**: Nexus-Hub
 **Status**: v3.14.0 RELEASED (2026-07-16: `feat/codex-lb-adoption` -> `develop` -> `main`, tag `v3.14.0`, pushed; GitHub Release publish handed to the user due to an invalid local `gh` token). v3.14.1 installer-hotfix on `fix/installer-hotfix` (cut off the released `develop`): all 3 phases complete; RELEASE-READY, pending `/update release` (v3.14.1 bump / `develop` -> `main` merge / tag / push / GitHub Release). v3.14.2 comparison-versioning-fix on `fix/comparison-versioning` (cut off `develop`): Phases 1-3 (Fix A adoption-target placement + Fix B from-comparison co-location + Fix C co-location drift check) complete; Phase 4 (terminal refactor/known-gaps/CI-CD) pending.
-**Last updated**: 2026-07-17 (v3.14.2 Phase 3)
+**Last updated**: 2026-07-17 (v3.14.3 Phase 0)
 
 > **Prior-version ingest**: the open v3.13 items (presentify DF-1..DF-5, WN-1/2, MT-1) are unrelated to this feature set and do not carry in. HO-1 (flat/nested skill-name collision across skill layouts) was VERIFIED clean by the Phase 6.4 dry-run install: `review-trapdoors` lands flattened at `skills/review-trapdoors/SKILL.md` across all seven platform skill paths with no nested `skills/code-review/review-trapdoors/` variant.
+
+## v3.14.3
+
+**Status**: Phase 0 (restore skill loading) complete on `feat/presentify-upfront-questions` (cut off `develop`); Phases 1-4 (presentify upfront design questions, imagery upgrade, bring-your-own-key media setup, terminal refactor) pending.
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 3 | 0 |
+| Bugs / regressions (BG) | 0 | 2 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 1 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+| Hand-offs (HO) | 0 | 0 |
+
+### Capabilities added this version (Phase 0)
+
+- **Strict-YAML frontmatter gate** (`scripts/validate_skills.py`): a new `validate_frontmatter_strict_yaml` check feeds each SKILL.md frontmatter block to `yaml.safe_load` and fails the run (in the full validator AND `--bundles-only`, the mode CI runs) on any `YAMLError`, closing the gap where the tolerant line-split parser accepted frontmatter a strict consumer rejects. Degrades to an unquoted-`: `-scalar heuristic when PyYAML is absent.
+- **Claude skill flatten in both installers** (`scripts/installer.sh` `flatten_skills_into`, `scripts/installer.ps1` `Flatten-SkillsInto`): the Claude global and workspace blocks now flatten `catalog/skills/<category>/<name>/` to `<claude>/skills/<name>/` (one level, discoverable), staging a flattened copy and reusing the existing `safe_folder_copy` / `Safe-Folder-Copy` refresh-prune / merge machinery, plus an explicit category-directory cleanup so a prior nested layout never lingers. Verified: refresh prunes stale flat + category dirs, merge preserves user extras, target skill discoverable at one level, 275-dir parity with the Python `flatten_skills` adapter, bundled `scripts/`/`references/` preserved; ShellCheck green, `installer.ps1` parses clean.
+
+### Resolution
+
+The "Unknown skill: document-to-interactive-html" load failure had TWO independent root causes, both **RESOLVED in v3.14.3 Phase 0**: (1) an invalid unquoted `description` YAML scalar containing a `: ` sequence across 47 skills (quoted, byte-identical parsed value, with a strict-YAML validator gate so it cannot regress), and (2) both installers never flattening skills for Claude (now flattened to the one-level layout Claude Code discovers). Three stray `scripts/__pycache__/` directories (gitignored, never shipped) were removed from the working tree.
+
+### Open Items
+
+#### Deferred
+
+##### DF-1 - Pre-existing `data/skills.json` description drift (not parse-truncation; shares a root with v3.14.2 WN-1 / Advisory)
+
+- **Source phase**: Phase 0 (0.4 registry re-verify)
+- **Plan reference**: sub-task 0.4 ("re-verify the data/ registry ... re-sync only if a stored value had been truncated")
+- **Reason**: The mandatory 0.4 check found NO parse-truncation (the registry generator uses a tolerant parser, so it stored the full description, never cutting at the `: `), so the Phase 0 quoting fix required no registry edit (the parsed value is byte-identical). However, `data/skills.json` stores an older, SHORTER `description` for 17 of the 47 fixed skills (and more catalog-wide) - pre-existing content drift where SKILL.md descriptions were expanded without a registry re-sync. This is the same root as the v3.14.2 Advisory and WN-1 (auto-generated `data/skills.json` out of step with the current SKILL.md set).
+- **Suggested next step**: fold a hand-synced `data/skills.json` description reconciliation into the WN-1 cleanup patch; do NOT run the full catalog rebuild (it rewrites the whole tree).
+
+##### DF-2 - `.claude-plugin/plugin.json` declares a category-nested skills path; PLUGIN-surface discovery unverified
+
+- **Source phase**: Phase 0 (0.5 installer flatten)
+- **Plan reference**: sub-task 0.5 ("confirm whether Claude Code's PLUGIN discovery reads that recursively ... flag this if reproduction shows the plugin surface is also affected")
+- **Reason**: `.claude-plugin/plugin.json` sets `"skills": "./catalog/skills"` (category-nested). The installer path (what users run) is fixed by 0.5, but whether Claude Code's PLUGIN/marketplace skill discovery reads the nested tree recursively could not be reproduced in this environment. If it does not, the plugin surface needs the same flat layout (a flattened skills dir or a manifest pointing at one).
+- **Suggested next step**: reproduce a plugin install and confirm discovery; if nested is unreadable, add a flat skills path for the plugin manifest. Feeds Phase 4.2.
+
+##### DF-3 - 8 non-skill level-2 directories are flattened identically to the Python adapter
+
+- **Source phase**: Phase 0 (0.5 installer flatten)
+- **Plan reference**: sub-task 0.5
+- **Reason**: `catalog/skills` has 275 level-2 directories but only 267 carry a `SKILL.md`; the other 8 are a shared `code-review/references/` directory and 7 skill-named dirs without a `SKILL.md` (`lint-repair-loop`, `helper-script-authoring`, `visual-regression-testing`, `false-confidence-test-audit`, `performance-regression-gate`, `commit-sweep`, `end-of-shift-validation`). The new flatten copies all 275 to `<claude>/skills/<name>/`, exactly as the Python `flatten_skills` adapter already does for Codex/Gemini - harmless (Claude ignores a dir with no `SKILL.md`) but a catalog-hygiene item, and a flattened shared `references/` could break a `../references/` relative link if any code-review skill uses one.
+- **Suggested next step**: catalog-hygiene sweep - give the 7 skill-named dirs a `SKILL.md` (or remove them) and confirm no skill relies on a cross-skill `../references/` path; out of scope for this patch (pre-existing, affects all flattened platforms equally).
+
+#### Missing tests / coverage gaps
+
+##### MT-1 - No dedicated automated regression test for the new strict-YAML gate
+
+- **Source phase**: Phase 0 (0.3 validator gate)
+- **Plan reference**: sub-task 0.3 ("Confirm the gate fails on a deliberately-broken fixture")
+- **Reason**: The strict-YAML gate was validated by a manual broken-fixture run (fails as expected) and is effectively covered in CI by the existing `validate_skills.py --bundles-only` run against the real catalog (a reintroduced unquoted `description` would fail it). There is no dedicated unit test asserting the gate's behavior in isolation.
+- **Suggested next step**: add a small `tests/validators/` regression test that feeds a broken and a good frontmatter block through `validate_frontmatter_strict_yaml`; low priority given the CI coverage.
 
 ## v3.14.2
 

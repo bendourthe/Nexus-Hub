@@ -514,6 +514,52 @@ function Safe-Folder-Copy {
     }
 }
 
+# Install the skills catalog FLATTENED to the one-level layout Claude Code
+# requires. Claude discovers skills exactly one level deep
+# (<dir>\skills\<name>\SKILL.md), so the catalog's <category>\ tier must be
+# dropped (this honors scripts\lib\integrations\claude.py's
+# flatten_skills_layout: True; Codex / Gemini already flatten via the registry
+# adapter). A verbatim category-nested copy leaves every SKILL.md at
+# <dir>\skills\<category>\<name>\, which Claude cannot see. We stage a flattened
+# copy in a temp dir, then hand it to Safe-Folder-Copy, reusing its refresh
+# (robocopy /MIR prune) and merge semantics unchanged - so a prior
+# category-nested layout and any upstream-removed skill are pruned in refresh
+# mode, with strict parity to the bash installer's flatten_skills_into.
+function Flatten-SkillsInto {
+    param(
+        [string]$Source,       # catalog\skills
+        [string]$Destination,  # <claude>\skills
+        [string]$CustomMessage
+    )
+    if (-not (Test-Path $Source)) {
+        Write-Item -Message "Skip: Source folder not found ($(Split-Path $Source -Leaf))" -Color "DarkGray"
+        return
+    }
+    $staging = Join-Path ([System.IO.Path]::GetTempPath()) ("nexus-skills-" + [System.Guid]::NewGuid().ToString('N'))
+    New-Item -ItemType Directory -Force -Path $staging | Out-Null
+    try {
+        Get-ChildItem -Path $Source -Directory | ForEach-Object {          # category
+            Get-ChildItem -Path $_.FullName -Directory | ForEach-Object {  # skill
+                Copy-Item -Path $_.FullName -Destination (Join-Path $staging $_.Name) -Recurse -Force
+            }
+        }
+        # Drop any category directories left by a PRIOR category-nested install so
+        # the undiscoverable <dir>\skills\<category>\ layout never lingers. In
+        # refresh mode robocopy /MIR already prunes them; this also covers merge
+        # mode (catalog category names are never skill names).
+        if (Test-Path $Destination) {
+            Get-ChildItem -Path $Source -Directory | ForEach-Object {
+                $stale = Join-Path $Destination $_.Name
+                if (Test-Path $stale) { Remove-Item -Recurse -Force -Path $stale -ErrorAction SilentlyContinue }
+            }
+        }
+        Safe-Folder-Copy -Source $staging -Destination $Destination -CustomMessage $CustomMessage
+    }
+    finally {
+        Remove-Item -Recurse -Force -Path $staging -ErrorAction SilentlyContinue
+    }
+}
+
 # --- Hook Installation ---
 
 function Install-GitGuardrails {
@@ -1259,7 +1305,7 @@ function Install-Global {
         # to the Safe-Folder-Copy block below.
         Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "claude" -DisplayName "CLAUDE.md (instruction file)" -InstructionOnly
 
-        Safe-Folder-Copy -Source "$RepoRoot\catalog\skills"   -Destination (Join-Path $globalClaude "skills")   -CustomMessage "✓ Skills catalog installed at: $(Join-Path $globalClaude "skills")"
+        Flatten-SkillsInto -Source "$RepoRoot\catalog\skills"   -Destination (Join-Path $globalClaude "skills")   -CustomMessage "✓ Skills catalog installed (flattened) at: $(Join-Path $globalClaude "skills")"
         Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $globalClaude "commands") -CustomMessage "✓ Commands installed at: $(Join-Path $globalClaude "commands")"
         Safe-Folder-Copy -Source "$RepoRoot\catalog\agents"   -Destination (Join-Path $globalClaude "agents")   -CustomMessage "✓ Agents installed at: $(Join-Path $globalClaude "agents")"
         Safe-Folder-Copy -Source "$RepoRoot\catalog\rules"    -Destination (Join-Path $globalClaude "rules")    -CustomMessage "✓ Rules installed at: $(Join-Path $globalClaude "rules")"
@@ -1626,7 +1672,7 @@ function Install-Workspace {
 
             Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "claude" -DisplayName "CLAUDE.md (instruction file)" -Languages ($languages -join ',') -InstructionOnly
 
-            Safe-Folder-Copy -Source "$RepoRoot\catalog\skills"   -Destination (Join-Path $claudeDir "skills")   -CustomMessage "✓ Skills catalog installed at: $(Join-Path $claudeDir "skills")"
+            Flatten-SkillsInto -Source "$RepoRoot\catalog\skills"   -Destination (Join-Path $claudeDir "skills")   -CustomMessage "✓ Skills catalog installed (flattened) at: $(Join-Path $claudeDir "skills")"
             Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $claudeDir "commands") -CustomMessage "✓ Commands installed at: $(Join-Path $claudeDir "commands")"
             Safe-Folder-Copy -Source "$RepoRoot\catalog\agents"   -Destination (Join-Path $claudeDir "agents")   -CustomMessage "✓ Agents installed at: $(Join-Path $claudeDir "agents")"
             Safe-Folder-Copy -Source "$RepoRoot\catalog\rules"    -Destination (Join-Path $claudeDir "rules")    -CustomMessage "✓ Rules installed at: $(Join-Path $claudeDir "rules")"
