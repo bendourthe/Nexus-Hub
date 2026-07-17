@@ -1,10 +1,39 @@
 # Known Gaps - v3.14
 
 **Project**: Nexus-Hub
-**Status**: v3.14.0 RELEASED (2026-07-16: `feat/codex-lb-adoption` -> `develop` -> `main`, tag `v3.14.0`, pushed; GitHub Release publish handed to the user due to an invalid local `gh` token). v3.14.1 installer-hotfix on `fix/installer-hotfix` (cut off the released `develop`): all 3 phases complete; RELEASE-READY, pending `/update release` (v3.14.1 bump / `develop` -> `main` merge / tag / push / GitHub Release).
-**Last updated**: 2026-07-16 (v3.14.1 Phase 1)
+**Status**: v3.14.0 RELEASED (2026-07-16: `feat/codex-lb-adoption` -> `develop` -> `main`, tag `v3.14.0`, pushed; GitHub Release publish handed to the user due to an invalid local `gh` token). v3.14.1 installer-hotfix on `fix/installer-hotfix` (cut off the released `develop`): all 3 phases complete; RELEASE-READY, pending `/update release` (v3.14.1 bump / `develop` -> `main` merge / tag / push / GitHub Release). v3.14.2 comparison-versioning-fix on `fix/comparison-versioning` (cut off `develop`): Phase 1 (Fix A - adoption-target placement) complete; Phases 2-4 pending.
+**Last updated**: 2026-07-17 (v3.14.2 Phase 1)
 
 > **Prior-version ingest**: the open v3.13 items (presentify DF-1..DF-5, WN-1/2, MT-1) are unrelated to this feature set and do not carry in. HO-1 (flat/nested skill-name collision across skill layouts) was VERIFIED clean by the Phase 6.4 dry-run install: `review-trapdoors` lands flattened at `skills/review-trapdoors/SKILL.md` across all seven platform skill paths with no nested `skills/code-review/review-trapdoors/` variant.
+
+## v3.14.2
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 1 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+| Hand-offs (HO) | 0 | 0 |
+
+### Capabilities added this version
+
+- **Adoption-target placement (Phase 1, Fix A)**: `cross-project-comparison` gains Step 6.5 "Resolve Adoption Target" (and a matching Verification item), which resolves the release that will ADOPT a comparison (default: the next free version slot after the locked in-flight release, always confirmed with the user) and records it in the report header as an `Adoption target: vX.Y.Z` field. `catalog/commands/compare.md` now versions and places the report under that adoption target's directory and filename prefix, not the in-flight authoring cycle, and documents the field as the authority for the `/plan from-comparison` hand-off (forward reference to Phase 2). The two live reports were given the field retroactively (codex-lb -> v3.14.0, codesight -> v3.15.0). Skill `version` bumped 1.1.0 -> 1.2.0 and hand-synced in `data/skills.json`; a `python scripts/validate_skills.py --bundles-only` step was added to the CI `validate` job. Instruction-level only; no installer copy-step edit, no `base-*.md` change, no new outbound call/dependency.
+
+### Open Items
+
+#### Warnings
+
+##### WN-1 - Pre-existing: 8 recent skills fail the strict `validate_skills.py` description-length check and are not allowlisted
+
+- **Source phase**: Phase 1 (1.3b, CI wiring); pre-existing on the branch, NOT introduced by this phase
+- **Plan reference**: sub-task 1.3 ("Create or update the CI job so `python scripts/validate_skills.py` runs ... with a path filter")
+- **Reason**: The strict `python scripts/validate_skills.py` enforces a 250-char single-line `description` budget. 165 skills exceed it; 157 are grandfathered via `scripts/validate_skills.allowlist.json` under `--allow-existing`, but 8 recent v3.x skills are neither trimmed nor allowlisted, so even `--allow-existing` fails with 8 errors: `implementation-convergence`, `review-trapdoors`, `analyze-codebase`, `label-gated-agent-pipelines`, `setup-project`, `document-to-interactive-html`, `implement-phase`, `platform-contract-verification`. None is the skill this phase edited (`cross-project-comparison` validates clean in strict mode). To avoid a red-on-arrival CI gate over pre-existing drift outside this phase's scope, the new CI step runs `--bundles-only` (the same mode `make validate` uses), which passes catalog-wide (0 errors). This is a warning, not a blocker: the AGENTS.md "pushy description" guidance and the 250-char cap are in tension, so the cap itself may warrant review.
+- **Suggested next step**: In a dedicated cleanup (candidate for Phase 4 CI/CD or a separate patch), either top up `scripts/validate_skills.allowlist.json` with the 8 offenders (or trim them via `scripts/optimize_skill_description.py`), then upgrade the CI step from `--bundles-only` to the stricter `--allow-existing` so genuinely new frontmatter/description/secret violations are caught per-PR. Separately, reconcile the 250-char cap with the AGENTS.md long-description guidance.
 
 ## v3.14.1
 
