@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.14.1] - 2026-07-16
+
 **Installer hotfix: global-install manifest path, graceful degradation, and orphaned auth-monitor cleanup (v3.14.1).** A global install run from an arbitrary working directory (including an elevated `C:\Windows\System32` prompt) no longer emits a `PermissionError [WinError 5]` traceback for each integration, and its manifest is written under the user home; and re-running the installer now unregisters the orphaned DevAI-Hub "Claude Code Auth Monitor" Windows scheduled task that fired every two minutes against a deleted `.vbs` and popped a recurring "Can not find script file" dialog. Installer-side only, in `scripts/lib/integrations/`, so both fixes auto-distribute via the integration-registry folder copy with no installer copy-step edit and no `base-*.md` change.
 
 ### Fixed
