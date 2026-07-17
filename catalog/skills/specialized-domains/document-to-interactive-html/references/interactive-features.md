@@ -210,6 +210,8 @@ Imagery is what turns a well-typeset reflow into a designed, journalistic web st
 
 The offline guarantee is absolute across all three: EVERY visual - procedural, stock, or AI - is emitted as inline SVG / CSS or a base64 `data:` URI. Any fetch or generation happens ONLY at authoring (build) time; nothing external is referenced from the delivered HTML. The default run, and every non-interactive / headless run, uses Tier 1 only - there is no silent outbound path.
 
+**Priority among the non-default tiers (stock-first, minimize AI).** When the user opts BEYOND procedural, PREFER real, license-free, free-for-commercial-use STOCK media (Tier 2) whose relevance is derived from the content (per-section / topic keywords), and MINIMIZE AI-generated images. Tier 3 (local AI) remains offered but is the LAST RESORT: reach for it only when relevant stock cannot be found for a placement, or the user explicitly asks for AI. This is a priority ORDER among the non-default tiers, not a change to the default - Tier 1 procedural stays the always-on default and the non-interactive fallback, and the offline / consent-gated guarantees are unchanged. Rationale: real commercial-free stock is provably licensed and content-relevant, while AI output may not be copyrightable (see Tier 3) and reads as generic; prefer the real photograph over the synthesized one whenever a relevant, license-clean asset exists.
+
 ### Tier 1 - procedural visuals (default)
 
 The agent authors ORIGINAL visuals, inlined as SVG / CSS, with no external asset and no CDN. This is the default imagery tier and the non-interactive fallback, and it is commercial-safe BY CONSTRUCTION (original work) and fully offline. See `[[generative-art]]` for the procedural / generative vocabulary and `[[ui-component-generation]]` for authoring UI visuals directly with the agent's own output rather than fetching them.
@@ -242,6 +244,8 @@ Sources (the helper queries one `--source`, Openverse by default):
 - **Wikimedia Commons** (keyless) - per-file CC / PD license read from the file's `extmetadata`.
 - **Pexels** (needs `PEXELS_API_KEY` in the environment, never hardcoded; absent key => the source is skipped) - a blanket-license platform.
 - **Coverr / Mixkit** - accepted on the CLI for interface parity, but this helper has no keyless search API for them, so they degrade with a note. Prefer Openverse / Wikimedia; a video need is best served by a configured Pexels key.
+
+**Stock video (Pexels-only, gated).** Video is offered when the `stock` (or mix) tier is chosen, but it is gated more tightly than images: `fetch_stock_media.py --kind video` runs only with explicit build-time `--consent`, and video specifically requires `--source pexels` and a `PEXELS_API_KEY` in the environment - Openverse and Wikimedia have NO license-clean keyless video path (the helper raises for them, pointing the pipeline at Pexels, then degrades). When the key, the consent, or a relevant result is absent, the run DEGRADES to images-only (or Tier 1) with a one-line note - it never blocks and never hotlinks (every clip is base64-embedded like any other asset, and the `https`-only SSRF guard applies). Size caution: a base64-embedded clip is heavy, so stock video counts against the media budget and is reserved for a SMALL number of genuinely high-value placements (a hero loop, one section accent), never a page of autoplaying clips; keep each clip short and muted and honor `prefers-reduced-motion`.
 
 Per-source license rules (encoded in the helper, enforced before any asset is embedded):
 
