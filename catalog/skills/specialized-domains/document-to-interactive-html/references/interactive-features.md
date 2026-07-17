@@ -56,7 +56,7 @@ This is the vertical partner to "use the viewport width on purpose": decide dens
 
 ### Output aspect (the canvas)
 
-The output aspect is resolved right after the style direction (a named `--layout` binds and skips the menu; otherwise the aspect menu is offered; see the command and SKILL.md). It governs the page's CSS canvas and composes WITH the per-element width discipline and the design tokens - it never overrides them. Record the resolved aspect (and whether it was auto-picked) in the design-record HTML comment.
+The output aspect is one of the four high-level design choices resolved TOGETHER in a single batched round UP FRONT, before extraction (a named `--layout` binds and drops it from the round; otherwise it is offered as part of that batch; see the command and SKILL.md's Step 2). It governs the page's CSS canvas and composes WITH the per-element width discipline and the design tokens - it never overrides them. Record the resolved aspect (and whether it was auto-picked) in the design-record HTML comment.
 
 Four options, mirroring the style menu:
 
@@ -93,7 +93,7 @@ A page whose only interactivity is its charts FAILS the budget. A page with no c
 
 ### Interactivity spectrum (restrained / balanced / rich)
 
-The interactivity level is resolved right after the output aspect (`--interactivity`, or the menu; see the command and SKILL.md), and it selects HOW MUCH of the layer above is in play. The three levels are a spectrum from a credible, journalistic-report stillness to a full scrollytelling narrative. All three honor the same non-negotiables: offline / no-CDN, keyboard-accessible, and reduced-motion-guarded.
+The interactivity level is one of the four high-level design choices resolved TOGETHER in the single up-front batched round, before extraction (`--interactivity` binds it; otherwise it is offered as part of that batch; see the command and SKILL.md's Step 2), and it selects HOW MUCH of the layer above is in play. The three levels are a spectrum from a credible, journalistic-report stillness to a full scrollytelling narrative. All three honor the same non-negotiables: offline / no-CDN, keyboard-accessible, and reduced-motion-guarded.
 
 - **RESTRAINED** - user-initiated interaction only. In play: pattern 3 (hover + focus affordances), pattern 6 (expand / collapse), anchor navigation with active-state tracking (a non-animated highlight, not scroll-triggered motion), pattern 5 (the image lightbox), chart readouts, and click-toggle legends. NOT in play: pattern 1 scroll-triggered reveals, pattern 4 scroll-fired counters, and every scrollytelling pattern below. This is the credible end for a report or a white paper, where scroll-driven movement reads as gimmicky. Observable criterion: scrolling the page produces NO content motion; every animation is the direct result of a click, hover, focus, or keypress. It still satisfies the five budget POINTS - point 2 ("scroll-triggered reveals OR an equivalent scroll-responsive treatment") is met by the active-state nav highlight with content always visible, and point 5's signature interaction is a user-initiated one (an accordion, a filterable grid, a click-toggle).
 - **BALANCED** - the current minimum interaction budget, unchanged. Adds pattern 1 (scroll-triggered reveals), pattern 2 (active-section nav tracking, optional reading-progress bar), pattern 4 (animated counters), pattern 5 (lightbox), and pattern 7 (micro-transitions). Observable criterion: sections reveal on scroll, the nav tracks the active section, and at least one signature move is present. This is the default for a deck or a data story.
@@ -153,14 +153,14 @@ Each pattern is inlined vanilla JS / CSS - no external library, no CDN - and eac
 
     Accessibility: the range input is keyboard-operable (arrow keys move the divider) and labelled; both images carry `alt`; the comparison works without a pointer and needs no motion guard (it is user-driven, not scroll-driven).
 
-### Design direction (resolve the direction, then brainstorm - creativity-first)
+### Design direction (choose the direction up front, then brainstorm after extraction - creativity-first)
 
-Before writing any markup, resolve a design direction and commit to one. The goal each run is a UNIQUE, creative, interactive design; "fit the document type" is never the rule. "Be unique" is not enough on its own either: the agent has a strong default attractor it returns to unless forced off it, and that sameness is what makes a run read as AI-generated. Make this a real, deliberate stage, not an afterthought during authoring.
+The design DIRECTION is chosen up front, as one of the four batched design choices resolved before extraction; the concrete-token brainstorm below then runs after the content is extracted. The goal each run is a UNIQUE, creative, interactive design; "fit the document type" is never the rule. "Be unique" is not enough on its own either: the agent has a strong default attractor it returns to unless forced off it, and that sameness is what makes a run read as AI-generated. Make this a real, deliberate stage, not an afterthought during authoring.
 
 **Resolve the direction in order.**
 
 1. **A named style binds.** When `--style` words (or the natural `using the style <description>` phrasing), a `[[theme-tokens]]` set, or a `[[brand-styling]]` brand `tokens.json` is supplied, that is the binding direction: honor it instead of offering the menu (a partial `--style` still leaves the unspecified axes to brainstorm). Ask the user for brand tokens before inventing a brand's colors.
-2. **Otherwise, offer the design-direction menu first.** With no style named, ask the user to choose before authoring:
+2. **Otherwise, offer the design-direction choice as part of the up-front batch.** With no style named, ask the user to choose it together with the other three choices (output aspect, interactivity, imagery) in the single batched round before extraction:
     1. **Corporate & Professional** - polished, restrained, business-ready.
     2. **Creative & Expressive** - bold, artistic, unexpected.
     3. **Technical & Precise** - clean, structured, data-forward.

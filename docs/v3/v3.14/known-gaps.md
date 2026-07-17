@@ -2,13 +2,13 @@
 
 **Project**: Nexus-Hub
 **Status**: v3.14.0 RELEASED (2026-07-16: `feat/codex-lb-adoption` -> `develop` -> `main`, tag `v3.14.0`, pushed; GitHub Release publish handed to the user due to an invalid local `gh` token). v3.14.1 installer-hotfix on `fix/installer-hotfix` (cut off the released `develop`): all 3 phases complete; RELEASE-READY, pending `/update release` (v3.14.1 bump / `develop` -> `main` merge / tag / push / GitHub Release). v3.14.2 comparison-versioning-fix on `fix/comparison-versioning` (cut off `develop`): Phases 1-3 (Fix A adoption-target placement + Fix B from-comparison co-location + Fix C co-location drift check) complete; Phase 4 (terminal refactor/known-gaps/CI-CD) pending.
-**Last updated**: 2026-07-17 (v3.14.3 Phase 0)
+**Last updated**: 2026-07-17 (v3.14.3 Phase 1)
 
 > **Prior-version ingest**: the open v3.13 items (presentify DF-1..DF-5, WN-1/2, MT-1) are unrelated to this feature set and do not carry in. HO-1 (flat/nested skill-name collision across skill layouts) was VERIFIED clean by the Phase 6.4 dry-run install: `review-trapdoors` lands flattened at `skills/review-trapdoors/SKILL.md` across all seven platform skill paths with no nested `skills/code-review/review-trapdoors/` variant.
 
 ## v3.14.3
 
-**Status**: Phase 0 (restore skill loading) complete on `feat/presentify-upfront-questions` (cut off `develop`); Phases 1-4 (presentify upfront design questions, imagery upgrade, bring-your-own-key media setup, terminal refactor) pending.
+**Status**: Phases 0 (restore skill loading) and 1 (hoist + batch the four design questions, forbid memory pre-answering) complete on `feat/presentify-upfront-questions` (cut off `develop`); Phases 2-4 (imagery upgrade, bring-your-own-key media setup, terminal refactor) pending.
 
 ### Summary
 
@@ -22,14 +22,15 @@
 | Quality-gate gaps (QG) | 0 | 0 |
 | Hand-offs (HO) | 0 | 0 |
 
-### Capabilities added this version (Phase 0)
+### Capabilities added this version (Phases 0-1)
 
 - **Strict-YAML frontmatter gate** (`scripts/validate_skills.py`): a new `validate_frontmatter_strict_yaml` check feeds each SKILL.md frontmatter block to `yaml.safe_load` and fails the run (in the full validator AND `--bundles-only`, the mode CI runs) on any `YAMLError`, closing the gap where the tolerant line-split parser accepted frontmatter a strict consumer rejects. Degrades to an unquoted-`: `-scalar heuristic when PyYAML is absent.
 - **Claude skill flatten in both installers** (`scripts/installer.sh` `flatten_skills_into`, `scripts/installer.ps1` `Flatten-SkillsInto`): the Claude global and workspace blocks now flatten `catalog/skills/<category>/<name>/` to `<claude>/skills/<name>/` (one level, discoverable), staging a flattened copy and reusing the existing `safe_folder_copy` / `Safe-Folder-Copy` refresh-prune / merge machinery, plus an explicit category-directory cleanup so a prior nested layout never lingers. Verified: refresh prunes stale flat + category dirs, merge preserves user extras, target skill discoverable at one level, 275-dir parity with the Python `flatten_skills` adapter, bundled `scripts/`/`references/` preserved; ShellCheck green, `installer.ps1` parses clean.
+- **Presentify upfront batched design questions + no memory pre-answer (Phase 1, instruction-only)** (`catalog/commands/presentify.md`, `catalog/skills/specialized-domains/document-to-interactive-html/SKILL.md`, `references/interactive-features.md`): the four high-level design choices (style, output aspect, interactivity, imagery) are hoisted to a new up-front Step 2 (a single batched round before extraction / figure analysis), the generative token brainstorm stays at Step 5 (after extraction), the pipeline diagram / rationalizations / verification bullets are aligned, and an explicit rule forbids pre-answering any of the four from a recalled memory / saved preference / prior run / inferred context (only an explicit flag or the headless fallback skips a question). Verified: validator PASS 0/0, stale-sequencing grep ZERO, SKILL.md frontmatter byte-identical to the Phase 0 baseline (body-only), all three files ASCII-only.
 
 ### Resolution
 
-The "Unknown skill: document-to-interactive-html" load failure had TWO independent root causes, both **RESOLVED in v3.14.3 Phase 0**: (1) an invalid unquoted `description` YAML scalar containing a `: ` sequence across 47 skills (quoted, byte-identical parsed value, with a strict-YAML validator gate so it cannot regress), and (2) both installers never flattening skills for Claude (now flattened to the one-level layout Claude Code discovers). Three stray `scripts/__pycache__/` directories (gitignored, never shipped) were removed from the working tree.
+The "Unknown skill: document-to-interactive-html" load failure had TWO independent root causes, both **RESOLVED in v3.14.3 Phase 0**: (1) an invalid unquoted `description` YAML scalar containing a `: ` sequence across 47 skills (quoted, byte-identical parsed value, with a strict-YAML validator gate so it cannot regress), and (2) both installers never flattening skills for Claude (now flattened to the one-level layout Claude Code discovers). Three stray `scripts/__pycache__/` directories (gitignored, never shipped) were removed from the working tree. Separately, the two presentify UX defects from Finding B are **RESOLVED in Phase 1**: the design questions arriving too late / one at a time (the last three often never appearing) is fixed by hoisting all four into one up-front batched round before extraction, and the memory-pre-answer defect (a recalled `presentation-style-preference` silently selecting the style) is fixed by an explicit no-memory rule in the skill and command. No new gaps were opened in Phase 1 (instruction-only, verified clean); DF-1..DF-3 and MT-1 remain as recorded.
 
 ### Open Items
 
