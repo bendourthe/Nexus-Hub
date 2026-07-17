@@ -14,7 +14,7 @@ Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scop
 
 - If `$ARGUMENTS` names a recognized scope, set SCOPE and skip the menu.
 - `/plan goals <one-liner>` accepts an inline goal (Codex `/plan <inline>` style): return a crisp goal statement + definition-of-done, no full plan.
-- `/plan from-comparison <path>` or a bare `*.md` comparison-report path routes to `from-comparison` and pre-seeds from the report's Adoption Plan.
+- `/plan from-comparison <path>` or a bare `*.md` comparison-report path routes to `from-comparison` and pre-seeds from the report's Adoption Plan. The generated plan is written into the SAME version directory as its seeding comparison, driven by the comparison's `Adoption target: vX.Y.Z` field (not a freshly-resolved in-flight version), so a comparison and the plan it seeds always live together; the `[[implementation-plan]]` skill owns the resolution and its legacy-comparison fallback.
 - Otherwise, present this menu and wait for a selection:
 
       What scope?

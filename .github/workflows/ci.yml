@@ -51,7 +51,17 @@ jobs:
       - name: Validate bundles.json
         run: python -c "import json; d = json.load(open('data/bundles.json')); print(f'bundles.json OK — {len(d[\"bundles\"])} bundles')"
 
-      - name: Validate no personal paths leaked (v2.3.0 Phase 2)
+      - name: Validate skill catalog (bundle orphan audit) (v3.14.2 Phase 1)
+        # Skill/command changes reach this job via the workflow's paths-ignore:
+        # docs/** trigger (catalog/** is outside docs/), and the workflow-level
+        # concurrency cancel-in-progress above supersedes stale runs. Uses
+        # --bundles-only to match `make validate`: the strict single-line
+        # frontmatter/description pass is transitional (grandfathered via
+        # scripts/validate_skills.allowlist.json; the residual over-long
+        # descriptions are tracked as a v3.14.2 known-gaps WN entry) and is not
+        # yet green catalog-wide, so wiring the strict gate here would fail CI on
+        # pre-existing drift unrelated to any given change.
+        run: python scripts/validate_skills.py --bundles-only
         run: |
           python scripts/validate_no_personal_paths.py
 
