@@ -1,7 +1,7 @@
 # Known Gaps - v3.14
 
 **Project**: Nexus-Hub
-**Status**: v3.14.0 RELEASED (2026-07-16: `feat/codex-lb-adoption` -> `develop` -> `main`, tag `v3.14.0`, pushed; GitHub Release publish handed to the user due to an invalid local `gh` token). v3.14.1 installer-hotfix IN PROGRESS on `fix/installer-hotfix` (cut off the released `develop`): Phase 1 of 3 complete.
+**Status**: v3.14.0 RELEASED (2026-07-16: `feat/codex-lb-adoption` -> `develop` -> `main`, tag `v3.14.0`, pushed; GitHub Release publish handed to the user due to an invalid local `gh` token). v3.14.1 installer-hotfix IN PROGRESS on `fix/installer-hotfix` (cut off the released `develop`): Phases 1-2 of 3 complete.
 **Last updated**: 2026-07-16 (v3.14.1 Phase 1)
 
 > **Prior-version ingest**: the open v3.13 items (presentify DF-1..DF-5, WN-1/2, MT-1) are unrelated to this feature set and do not carry in. HO-1 (flat/nested skill-name collision across skill layouts) was VERIFIED clean by the Phase 6.4 dry-run install: `review-trapdoors` lands flattened at `skills/review-trapdoors/SKILL.md` across all seven platform skill paths with no nested `skills/code-review/review-trapdoors/` variant.
@@ -14,7 +14,7 @@
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
-| Bugs / regressions (BG) | 0 | 1 |
+| Bugs / regressions (BG) | 0 | 2 |
 | Warnings (WN) | 0 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
@@ -23,6 +23,7 @@
 ### Capabilities added this version
 
 - **Global-install manifest path + graceful degradation (Phase 1)**: `scripts/lib/integrations/runner.py` now centralizes the target-root fallback in a single `_resolve_target_root(args)` helper, so a `--scope global` install resolves the manifest under the user home (`~/.nexus-hub/install-manifest.json`) regardless of the process CWD. This resolves the `PermissionError [WinError 5]` traceback (one per integration) that fired when the one-line bootstrap ran from an elevated `C:\Windows\System32` prompt and the manifest write resolved to `C:\Windows\System32\.nexus-hub\`. A failed `manifest.save(...)` in `cmd_install` / `cmd_teardown` now degrades to one stderr warning instead of aborting the runner with a traceback and a non-zero exit. Covered by `tests/integrations/test_runner_target_root.py` (7 tests). Installer-side only (auto-distributed via the integration-registry folder copy); no installer copy-step edit and no `base-*.md` change.
+- **Orphaned auth-monitor scheduled-task cleanup (Phase 2)**: `scripts/lib/integrations/legacy.py` gains `_cleanup_windows_auth_monitor_task` (unregisters the orphaned DevAI-Hub "Claude Code Auth Monitor" Windows scheduled task via `schtasks /Delete`, Windows-only and no-op without `schtasks`, idempotent, dry-run-aware, no elevation needed since the task is user-level) plus two sibling cleanups that sweep leftover `~/.devai-hub/scripts/run-auth-monitor.vbs` / `claude-auth-monitor.ps1` launchers without ever removing the whole `~/.devai-hub/` tree (that stays gated on `~/.nexus-hub/`). All three are registered under `LEGACY_CLEANUPS["claude"]`, so `run_cleanups` reports one `FileAction` per artifact removed. This stops the recurring "Can not find script file" Windows Script Host popup on the next install / `nexus-hub upgrade`. Covered by 9 new cases in `tests/integrations/test_legacy_cleanups.py`. Installer-side only; no installer copy-step edit and no `base-*.md` change.
 
 ### Advisory
 
@@ -30,7 +31,7 @@
 
 ### Open Items
 
-None open for Phase 1. Phase 2 (orphaned auth-monitor scheduled-task cleanup in `scripts/lib/integrations/legacy.py`) and Phase 3 (refactor + known-gaps + CI/CD, then `/update release`) are pending.
+None open for Phases 1-2. Phase 3 (architecture refactor + known-gaps reconciliation + CI/CD, then `/update release` for the v3.14.1 bump / merge / tag / push) is pending.
 
 ## v3.14.0
 

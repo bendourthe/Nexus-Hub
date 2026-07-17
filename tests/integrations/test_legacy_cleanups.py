@@ -254,3 +254,199 @@ def test_vscode_cleanup_uninstalls_when_extension_installed(
     assert action.path == "devai-hub.claude-usage-monitor"
     # The cleanup should have invoked `code --uninstall-extension`.
     assert any("--uninstall-extension" in args for args in call_log)
+
+
+# ---------------------------------------------------------------------------
+# Windows auth-monitor scheduled-task cleanup (v3.14.1 Phase 2)
+# ---------------------------------------------------------------------------
+
+
+def _fake_schtasks(task_present: bool, delete_rc: int = 0, call_log=None):
+    """Return a fake `subprocess.run` for the schtasks Query/Delete calls."""
+
+    class _Result:
+        def __init__(self, returncode: int) -> None:
+            self.returncode = returncode
+            self.stdout = ""
+
+    def _run(args, **kwargs):
+        if call_log is not None:
+            call_log.append(list(args))
+        if "/Query" in args:
+            return _Result(0 if task_present else 1)
+        if "/Delete" in args:
+            return _Result(delete_rc)
+        return _Result(0)
+
+    return _run
+
+
+def test_auth_monitor_task_removed_when_present(
+    fake_home: Path, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """Task present on Windows -> removed, and `schtasks /Delete` was invoked."""
+    monkeypatch.setattr(legacy.os, "name", "nt")
+    monkeypatch.setattr(legacy.shutil, "which", lambda name: "schtasks.exe")
+    calls: list = []
+    monkeypatch.setattr(
+        legacy.subprocess, "run", _fake_schtasks(task_present=True, call_log=calls)
+    )
+    ctx = _make_ctx(tmp_path, tmp_path)
+
+    action = legacy._cleanup_windows_auth_monitor_task(ctx)
+
+    assert isinstance(action, FileAction)
+    assert action.path == "Claude Code Auth Monitor"
+    assert action.action == "removed"
+    assert any("/Delete" in c for c in calls)
+
+
+def test_auth_monitor_task_absent_returns_none(
+    fake_home: Path, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """`schtasks /Query` non-zero (task absent) -> None; no delete attempted."""
+    monkeypatch.setattr(legacy.os, "name", "nt")
+    monkeypatch.setattr(legacy.shutil, "which", lambda name: "schtasks.exe")
+    calls: list = []
+    monkeypatch.setattr(
+        legacy.subprocess, "run", _fake_schtasks(task_present=False, call_log=calls)
+    )
+    ctx = _make_ctx(tmp_path, tmp_path)
+
+    assert legacy._cleanup_windows_auth_monitor_task(ctx) is None
+    assert all("/Delete" not in c for c in calls)
+
+
+def test_auth_monitor_noop_off_windows(
+    fake_home: Path, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """Not Windows -> None with no subprocess call at all."""
+    monkeypatch.setattr(legacy.os, "name", "posix")
+
+    def _fail(*args, **kwargs):
+        raise AssertionError("subprocess.run must not run off Windows")
+
+    monkeypatch.setattr(legacy.subprocess, "run", _fail)
+    ctx = _make_ctx(tmp_path, tmp_path)
+
+    assert legacy._cleanup_windows_auth_monitor_task(ctx) is None
+
+
+def test_auth_monitor_noop_without_schtasks(
+    fake_home: Path, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """`schtasks` not on PATH -> None with no subprocess call."""
+    monkeypatch.setattr(legacy.os, "name", "nt")
+    monkeypatch.setattr(legacy.shutil, "which", lambda name: None)
+
+    def _fail(*args, **kwargs):
+        raise AssertionError("subprocess.run must not run without schtasks")
+
+    monkeypatch.setattr(legacy.subprocess, "run", _fail)
+    ctx = _make_ctx(tmp_path, tmp_path)
+
+    assert legacy._cleanup_windows_auth_monitor_task(ctx) is None
+
+
+def test_auth_monitor_dry_run_reports_without_deleting(
+    fake_home: Path, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """dry_run + task present -> FileAction returned, but no `/Delete` ran."""
+    monkeypatch.setattr(legacy.os, "name", "nt")
+    monkeypatch.setattr(legacy.shutil, "which", lambda name: "schtasks.exe")
+    calls: list = []
+    monkeypatch.setattr(
+        legacy.subprocess, "run", _fake_schtasks(task_present=True, call_log=calls)
+    )
+    ctx = _make_ctx(tmp_path, tmp_path, dry_run=True)
+
+    action = legacy._cleanup_windows_auth_monitor_task(ctx)
+
+    assert isinstance(action, FileAction)
+    assert action.path == "Claude Code Auth Monitor"
+    assert all("/Delete" not in c for c in calls)
+
+
+def test_auth_monitor_task_idempotent(
+    fake_home: Path, monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    """First pass removes the task; a second pass (now absent) returns None."""
+    monkeypatch.setattr(legacy.os, "name", "nt")
+    monkeypatch.setattr(legacy.shutil, "which", lambda name: "schtasks.exe")
+    state = {"present": True}
+
+    class _Result:
+        def __init__(self, returncode: int) -> None:
+            self.returncode = returncode
+            self.stdout = ""
+
+    def _run(args, **kwargs):
+        if "/Query" in args:
+            return _Result(0 if state["present"] else 1)
+        if "/Delete" in args:
+            state["present"] = False
+            return _Result(0)
+        return _Result(0)
+
+    monkeypatch.setattr(legacy.subprocess, "run", _run)
+    ctx = _make_ctx(tmp_path, tmp_path)
+
+    first = legacy._cleanup_windows_auth_monitor_task(ctx)
+    second = legacy._cleanup_windows_auth_monitor_task(ctx)
+
+    assert isinstance(first, FileAction)
+    assert second is None
+
+
+# ---------------------------------------------------------------------------
+# Auth-monitor leftover launcher files (v3.14.1 Phase 2, 2.2)
+# ---------------------------------------------------------------------------
+
+
+def test_auth_monitor_leftover_vbs_removed(
+    fake_home: Path, disable_vscode: None, tmp_path: Path
+) -> None:
+    """A leftover ~/.devai-hub/scripts/run-auth-monitor.vbs is swept, and the
+    whole ~/.devai-hub/ tree is NOT removed by this sweep (that stays gated on
+    ~/.nexus-hub/ existing in the separate global-dir cleanup).
+    """
+    scripts_dir = fake_home / ".devai-hub" / "scripts"
+    scripts_dir.mkdir(parents=True)
+    vbs = scripts_dir / "run-auth-monitor.vbs"
+    vbs.write_text("' stale launcher")
+
+    ctx = _make_ctx(tmp_path, tmp_path)
+    action = legacy._cleanup_devai_hub_auth_monitor_vbs(ctx)
+
+    assert isinstance(action, FileAction)
+    assert action.path == str(vbs)
+    assert action.action == "removed"
+    assert not vbs.exists()
+    # No ~/.nexus-hub/ present, so the gated tree cleanup must NOT fire here.
+    assert (fake_home / ".devai-hub").exists()
+
+
+def test_auth_monitor_leftover_ps1_removed(
+    fake_home: Path, disable_vscode: None, tmp_path: Path
+) -> None:
+    """A leftover ~/.devai-hub/scripts/claude-auth-monitor.ps1 is swept."""
+    scripts_dir = fake_home / ".devai-hub" / "scripts"
+    scripts_dir.mkdir(parents=True)
+    ps1 = scripts_dir / "claude-auth-monitor.ps1"
+    ps1.write_text("# stale launcher")
+
+    ctx = _make_ctx(tmp_path, tmp_path)
+    action = legacy._cleanup_devai_hub_auth_monitor_ps1(ctx)
+
+    assert isinstance(action, FileAction)
+    assert action.path == str(ps1)
+    assert not ps1.exists()
+
+
+def test_auth_monitor_leftover_absent_returns_none(
+    fake_home: Path, disable_vscode: None, tmp_path: Path
+) -> None:
+    """No leftover launcher -> None (the normal case on every system)."""
+    ctx = _make_ctx(tmp_path, tmp_path)
+    assert legacy._cleanup_devai_hub_auth_monitor_vbs(ctx) is None
+    assert legacy._cleanup_devai_hub_auth_monitor_ps1(ctx) is None
