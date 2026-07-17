@@ -2,24 +2,24 @@
 
 **Project**: Nexus-Hub
 **Status**: v3.14.0 RELEASED (2026-07-16: `feat/codex-lb-adoption` -> `develop` -> `main`, tag `v3.14.0`, pushed; GitHub Release publish handed to the user due to an invalid local `gh` token). v3.14.1 installer-hotfix on `fix/installer-hotfix` (cut off the released `develop`): all 3 phases complete; RELEASE-READY, pending `/update release` (v3.14.1 bump / `develop` -> `main` merge / tag / push / GitHub Release). v3.14.2 comparison-versioning-fix on `fix/comparison-versioning` (cut off `develop`): Phases 1-3 (Fix A adoption-target placement + Fix B from-comparison co-location + Fix C co-location drift check) complete; Phase 4 (terminal refactor/known-gaps/CI-CD) pending.
-**Last updated**: 2026-07-17 (v3.14.3 Phase 3)
+**Last updated**: 2026-07-17 (v3.14.3 Phase 4, release-ready)
 
 > **Prior-version ingest**: the open v3.13 items (presentify DF-1..DF-5, WN-1/2, MT-1) are unrelated to this feature set and do not carry in. HO-1 (flat/nested skill-name collision across skill layouts) was VERIFIED clean by the Phase 6.4 dry-run install: `review-trapdoors` lands flattened at `skills/review-trapdoors/SKILL.md` across all seven platform skill paths with no nested `skills/code-review/review-trapdoors/` variant.
 
 ## v3.14.3
 
-**Status**: Phases 0-3 complete on `feat/presentify-upfront-questions` (cut off `develop`) - 0 (restore skill loading), 1 (hoist + batch the four design questions, forbid memory pre-answering), 2 (imagery stock-first priority + gated stock video, "video out of scope" reconciled), 3 (bring-your-own-key `nexus-hub setup-media`); Phase 4 (terminal refactor + release readiness) pending.
+**Status**: Phases 0-4 COMPLETE on `feat/presentify-upfront-questions` (cut off `develop`) - 0 (restore skill loading), 1 (hoist + batch the four design questions, forbid memory pre-answering), 2 (imagery stock-first priority + gated stock video, "video out of scope" reconciled), 3 (bring-your-own-key `nexus-hub setup-media`), 4 (terminal refactor + known-gaps reconciliation + CI/CD). RELEASE-READY, pending `/update release` (v3.14.3 bump / `develop` -> `main` merge / tag / push / GitHub Release) - which per the plan's sequencing must run only AFTER v3.14.0, v3.14.1, and v3.14.2 land. Phase 4 audit: all 66 changed files traced to a phase; no `data/` or `base-*.md` drift; installer parity confirmed (Phase 0 flatten + Phase 3 `setup-media` copy in both); CI wired (validate_skills.py strict-YAML gate + new `tests/skills` step).
 
 ### Summary
 
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 5 | 0 |
+| Deferred (DF) | 6 | 0 |
 | Bugs / regressions (BG) | 0 | 2 |
 | Warnings (WN) | 0 | 0 |
 | Missing tests / coverage gaps (MT) | 1 | 0 |
-| Quality-gate gaps (QG) | 1 | 0 |
+| Quality-gate gaps (QG) | 0 | 1 |
 | Hand-offs (HO) | 0 | 0 |
 
 ### Capabilities added this version (Phases 0-3)
@@ -32,7 +32,7 @@
 
 ### Resolution
 
-The "Unknown skill: document-to-interactive-html" load failure had TWO independent root causes, both **RESOLVED in v3.14.3 Phase 0**: (1) an invalid unquoted `description` YAML scalar containing a `: ` sequence across 47 skills (quoted, byte-identical parsed value, with a strict-YAML validator gate so it cannot regress), and (2) both installers never flattening skills for Claude (now flattened to the one-level layout Claude Code discovers). Three stray `scripts/__pycache__/` directories (gitignored, never shipped) were removed from the working tree. Separately, the two presentify UX defects from Finding B are **RESOLVED in Phase 1**: the design questions arriving too late / one at a time (the last three often never appearing) is fixed by hoisting all four into one up-front batched round before extraction, and the memory-pre-answer defect (a recalled `presentation-style-preference` silently selecting the style) is fixed by an explicit no-memory rule in the skill and command. No new gaps were opened in Phase 1 (instruction-only, verified clean); DF-1..DF-3 and MT-1 remain as recorded. Phase 2 (also instruction-only) upgraded the imagery choice to prefer real license-free stock over AI and to offer gated Pexels-only stock video, and reconciled the "video out of scope" wording (source-embedded media stays ignored; output-side stock video is supported through the consent-gated stock tier); the described gate was confirmed against `fetch_stock_media.py` with no script change, and no new gaps were opened. Phase 3 (code-bearing) makes stock video "just work" after a guided one-paste `nexus-hub setup-media` setup that stores a free Pexels key securely under `~/.nexus-hub/`, adds `_resolve_pexels_key` env-then-file resolution, and points first-time video users at the terminal command rather than the chat; it opened two accepted by-design limits (DF-4 can't auto-provision a Pexels key; DF-5 Windows 0600 is best-effort) and no defects.
+The "Unknown skill: document-to-interactive-html" load failure had TWO independent root causes, both **RESOLVED in v3.14.3 Phase 0**: (1) an invalid unquoted `description` YAML scalar containing a `: ` sequence across 47 skills (quoted, byte-identical parsed value, with a strict-YAML validator gate so it cannot regress), and (2) both installers never flattening skills for Claude (now flattened to the one-level layout Claude Code discovers). Three stray `scripts/__pycache__/` directories (gitignored, never shipped) were removed from the working tree. Separately, the two presentify UX defects from Finding B are **RESOLVED in Phase 1**: the design questions arriving too late / one at a time (the last three often never appearing) is fixed by hoisting all four into one up-front batched round before extraction, and the memory-pre-answer defect (a recalled `presentation-style-preference` silently selecting the style) is fixed by an explicit no-memory rule in the skill and command. No new gaps were opened in Phase 1 (instruction-only, verified clean); DF-1..DF-3 and MT-1 remain as recorded. Phase 2 (also instruction-only) upgraded the imagery choice to prefer real license-free stock over AI and to offer gated Pexels-only stock video, and reconciled the "video out of scope" wording (source-embedded media stays ignored; output-side stock video is supported through the consent-gated stock tier); the described gate was confirmed against `fetch_stock_media.py` with no script change, and no new gaps were opened. Phase 3 (code-bearing) makes stock video "just work" after a guided one-paste `nexus-hub setup-media` setup that stores a free Pexels key securely under `~/.nexus-hub/`, adds `_resolve_pexels_key` env-then-file resolution, and points first-time video users at the terminal command rather than the chat; it opened two accepted by-design limits (DF-4 can't auto-provision a Pexels key; DF-5 Windows 0600 is best-effort) and no defects. Phase 4 (terminal gate) confirmed the release-readiness of the whole set: (0) the "Unknown skill: document-to-interactive-html" load failure is FULLY resolved (both root causes - invalid YAML across 47 skills, and the missing Claude installer-flatten); (1) the presentify late-and-partial design-question defect and the memory-pre-answer defect are resolved (four choices batched up front, no memory/preference pre-answering); (2) stock-video setup is a guided one-paste `nexus-hub setup-media` flow. The diff-scope / parity audit passed (no `data/` or `base-*.md` drift, installer parity), CI is wired (strict-YAML validator gate + new `tests/skills` step, resolving QG-1), and the remaining open items are all deferred by-design limits (DF-1..DF-6) or a low-priority test-coverage nice-to-have (MT-1) - none a release-blocker.
 
 ### Advisory (pre-existing failures surfaced during Phase 3 testing, NOT caused by this plan)
 
@@ -80,6 +80,13 @@ Two `tests/installer/` tests fail on this branch, and BOTH were verified to fail
 - **Reason**: `setup_media_keys.py` sets mode `0o600` on `media.env` via `os.chmod`, which is exact on POSIX but has no direct equivalent on Windows (the file lives under the user profile, so it inherits the profile ACLs). Accepted limit; the test skips the 0600 assertion on non-POSIX.
 - **Suggested next step**: none for this patch; a future hardening could set an explicit Windows ACL (`icacls`) if a stronger guarantee is ever required.
 
+##### DF-6 - Headless aspect auto-pick uses the deck_like signal only after extraction (by design)
+
+- **Source phase**: Phase 1 (design intake) / Phase 4.2 residual (a)
+- **Plan reference**: Phase 4.2 residual (a)
+- **Reason**: The four design choices are resolved up front in the batched round (Phase 1). In the non-interactive / headless fallback, the aspect auto-pick uses a coarse "deck -> full-width, report -> standard" rule at intake, but the FINE-GRAINED `deck_like` signal is only available after extraction, so the headless path resolves the precise aspect slightly later than the interactive batch. This is by design - nothing waits on it, and the coarse intake pick is recorded and refined post-extraction. Not a defect.
+- **Suggested next step**: none (by design).
+
 #### Missing tests / coverage gaps
 
 ##### MT-1 - No dedicated automated regression test for the new strict-YAML gate
@@ -91,12 +98,12 @@ Two `tests/installer/` tests fail on this branch, and BOTH were verified to fail
 
 #### Quality-gate gaps
 
-##### QG-1 - The new tests/skills/ module is not yet CI-gated
+##### QG-1 - The new tests/skills/ module was not CI-gated (RESOLVED in Phase 4.3)
 
-- **Source phase**: Phase 3 (3.5 test module)
-- **Plan reference**: sub-task 3.5 + Phase 4.3 ("CI runs the new `tests/skills/test_media_key_setup.py` ... with a path filter")
-- **Reason**: The CI `tests` job runs `catalog/hooks/tests/`, `tests/integrations`, `tests/installer`, `tests/validators`, and the extension suites, but NOT `tests/skills/`, so the new `tests/skills/test_media_key_setup.py` (and the pre-existing `tests/skills/test_audit_docs_version_topic.py`) are not gated per-PR. Deferred rather than silently rewriting CI mid-phase, per the runbook's "never silently rewrite CI" rule; Phase 4.3 is the designated CI phase.
-- **Suggested next step**: in Phase 4.3, add a `pytest tests/skills -v` step to the CI `tests` job (path-filtered to `tests/skills/**`, `scripts/**`, and `catalog/skills/**/scripts/**`), which also fixes the pre-existing tests/skills coverage gap.
+- **Source phase**: Phase 3 (3.5 test module); resolved Phase 4.3
+- **Plan reference**: sub-task 3.5 + Phase 4.3 ("CI runs the new `tests/skills/test_media_key_setup.py`")
+- **Reason**: The CI `tests` job ran `catalog/hooks/tests/`, `tests/integrations`, `tests/installer`, `tests/validators`, and the extension suites, but NOT `tests/skills/`, so the new `tests/skills/test_media_key_setup.py` (and the pre-existing `tests/skills/test_audit_docs_version_topic.py`) were not gated per-PR.
+- **Resolution**: Phase 4.3 added a `pytest tests/skills -v` step to the CI `tests` job (after the validator-tests step). The workflow already scopes to non-docs changes (`paths-ignore: docs/**`), so the step runs on `scripts/`, `tests/`, and `catalog/skills/` changes; this also fixes the pre-existing `tests/skills` coverage gap. `ci.yml` re-parses clean.
 
 ## v3.14.2
 
