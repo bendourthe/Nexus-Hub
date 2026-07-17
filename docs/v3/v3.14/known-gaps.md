@@ -1,7 +1,7 @@
 # Known Gaps - v3.14
 
 **Project**: Nexus-Hub
-**Status**: v3.14.0 RELEASED (2026-07-16: `feat/codex-lb-adoption` -> `develop` -> `main`, tag `v3.14.0`, pushed; GitHub Release publish handed to the user due to an invalid local `gh` token). v3.14.1 installer-hotfix IN PROGRESS on `fix/installer-hotfix` (cut off the released `develop`): Phases 1-2 of 3 complete.
+**Status**: v3.14.0 RELEASED (2026-07-16: `feat/codex-lb-adoption` -> `develop` -> `main`, tag `v3.14.0`, pushed; GitHub Release publish handed to the user due to an invalid local `gh` token). v3.14.1 installer-hotfix on `fix/installer-hotfix` (cut off the released `develop`): all 3 phases complete; RELEASE-READY, pending `/update release` (v3.14.1 bump / `develop` -> `main` merge / tag / push / GitHub Release).
 **Last updated**: 2026-07-16 (v3.14.1 Phase 1)
 
 > **Prior-version ingest**: the open v3.13 items (presentify DF-1..DF-5, WN-1/2, MT-1) are unrelated to this feature set and do not carry in. HO-1 (flat/nested skill-name collision across skill layouts) was VERIFIED clean by the Phase 6.4 dry-run install: `review-trapdoors` lands flattened at `skills/review-trapdoors/SKILL.md` across all seven platform skill paths with no nested `skills/code-review/review-trapdoors/` variant.
@@ -27,11 +27,12 @@
 
 ### Advisory
 
-- **CI (Phase 1.3), informational (not an open gap)**: no dedicated path-filtered CI job was added for the integration tests. The existing `tests` job in `.github/workflows/ci.yml` already runs `pytest tests/integrations` on every non-docs change (changes under `scripts/lib/integrations/` and `tests/integrations/` are outside `docs/`, so they trigger it), and workflow-level `concurrency: cancel-in-progress` is already set, so a separate path-filtered job would only duplicate the run and raise action minutes. Phase 3.3 revisits CI holistically.
+- **CI (Phase 1.3), informational (not an open gap)**: no dedicated path-filtered CI job was added for the integration tests. The existing `tests` job in `.github/workflows/ci.yml` already runs `pytest tests/integrations` on every non-docs change (changes under `scripts/lib/integrations/` and `tests/integrations/` are outside `docs/`, so they trigger it), and workflow-level `concurrency: cancel-in-progress` is already set, so a separate path-filtered job would only duplicate the run and raise action minutes. Phase 3.3 confirmed this holistically.
+- **Residual latent installer behavior (Phase 3.2), informational (not an open gap)**: `scripts/installer.ps1` and `scripts/installer.sh` still pass `--target` to the integration runner only for workspace scope, never for global scope. This is now correct-by-construction and needs no change: the runner resolves global scope to the user home centrally in `_resolve_target_root(args)` (Phase 1), so a global install with no `--target` writes the manifest under `~/.nexus-hub/` regardless of the installer's invocation directory. The fix was deliberately centralized in the runner (which both installers already call) rather than duplicated into the two installer scripts, avoiding a `base-*.md` lockstep change and an installer copy-step edit.
 
 ### Open Items
 
-None open for Phases 1-2. Phase 3 (architecture refactor + known-gaps reconciliation + CI/CD, then `/update release` for the v3.14.1 bump / merge / tag / push) is pending.
+None open. Phases 1-2 resolved both reported defects (BG resolved 2); Phase 3 (architecture refactor confirmed clean, known-gaps reconciled, CI/CD confirmed) is complete. Ready to hand off to `/update release` for the v3.14.1 bump / changelog finalize / `develop` -> `main` merge / tag / push / GitHub Release.
 
 ## v3.14.0
 
