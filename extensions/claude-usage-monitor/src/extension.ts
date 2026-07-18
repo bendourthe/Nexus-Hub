@@ -3,10 +3,8 @@ import { UsageStore } from "./usageStore";
 import { StatusBarManager } from "./statusBarManager";
 import {
   UsageProvider,
-  ProviderId,
   ProviderFetchError,
-  createProvider,
-  getConfiguredProviderId,
+  ClaudeUsageProvider,
   describeProviderError,
 } from "./providers";
 import { DashboardPanel } from "./dashboardPanel";
@@ -53,7 +51,6 @@ const RESET_COMMAND = "claude-usage.reset";
 const DASHBOARD_COMMAND = "claude-usage.dashboard";
 const REFRESH_COMMAND = "claude-usage.refresh";
 const SETTINGS_COMMAND = "claude-usage.settings";
-const SWITCH_PROVIDER_COMMAND = "claude-usage.switchProvider";
 
 let consecutiveFailures = 0;
 let lastFetchError: ProviderFetchError | undefined;
@@ -79,7 +76,7 @@ export function activate(context: vscode.ExtensionContext): void {
   );
 
   const store = new UsageStore(context.globalState);
-  let provider = createProvider(getConfiguredProviderId());
+  const provider = new ClaudeUsageProvider();
   const statusBar = new StatusBarManager(store, DASHBOARD_COMMAND, SETTINGS_COMMAND);
 
   const config = vscode.workspace.getConfiguration("claudeUsage");
@@ -113,11 +110,7 @@ export function activate(context: vscode.ExtensionContext): void {
       },
       onOpenUsagePage: () =>
         vscode.env.openExternal(
-          vscode.Uri.parse(
-            getConfiguredProviderId() === "codex"
-              ? "https://chatgpt.com"
-              : "https://claude.ai/settings/usage",
-          ),
+          vscode.Uri.parse("https://claude.ai/settings/usage"),
         ),
       onOpenSettings: () => vscode.commands.executeCommand(SETTINGS_COMMAND),
     }, context.extensionUri);
@@ -212,25 +205,6 @@ export function activate(context: vscode.ExtensionContext): void {
     SettingsPanel.show(context.extensionUri);
   });
 
-  // Command: Switch provider (Claude <-> Codex). Writes the setting; the config
-  // watcher below rebuilds the provider and refetches.
-  const switchProviderCommand = vscode.commands.registerCommand(SWITCH_PROVIDER_COMMAND, async () => {
-    const current = getConfiguredProviderId();
-    const picks: Array<vscode.QuickPickItem & { id: ProviderId }> = [
-      { id: "claude", label: "Claude", description: "Anthropic account (Claude Code)" },
-      { id: "codex", label: "Codex", description: "ChatGPT account (Codex app)" },
-    ];
-    const pick = await vscode.window.showQuickPick(picks, {
-      title: "Usage Monitor: Select Provider",
-      placeHolder: `Currently monitoring ${current === "codex" ? "Codex" : "Claude"}`,
-    });
-    if (pick && pick.id !== current) {
-      await vscode.workspace
-        .getConfiguration("usageMonitor")
-        .update("provider", pick.id, vscode.ConfigurationTarget.Global);
-    }
-  });
-
   // Command: Clear stored data
   const resetCommand = vscode.commands.registerCommand(RESET_COMMAND, async () => {
     const confirm = await vscode.window.showWarningMessage(
@@ -290,17 +264,6 @@ export function activate(context: vscode.ExtensionContext): void {
         lastFetchError,
       );
     }
-
-    // When the provider changes, rebuild it, drop the previous account's cached
-    // data (different account and semantics), and fetch fresh usage.
-    if (event.affectsConfiguration("usageMonitor.provider")) {
-      provider = createProvider(getConfiguredProviderId());
-      lastFetchError = undefined;
-      notifiedThresholds.clear();
-      statusBar.showLoading();
-      void store.clear().then(() => autoFetchAndUpdate(provider, store, statusBar));
-    }
-
   });
 
   context.subscriptions.push(
@@ -309,7 +272,6 @@ export function activate(context: vscode.ExtensionContext): void {
     recommendCommand,
     resetCommand,
     settingsCommand,
-    switchProviderCommand,
     configWatcher,
     { dispose: () => statusBar.dispose() }
   );
@@ -421,7 +383,6 @@ async function evaluateAndNotify(data: UsageData): Promise<boolean> {
     suggestion,
     classifyUrgency(trigger.percent),
     { onOpenDashboard: () => vscode.commands.executeCommand(DASHBOARD_COMMAND) },
-    data.providerId ?? "claude",
   );
   return true;
 }

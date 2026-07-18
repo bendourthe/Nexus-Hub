@@ -6,6 +6,31 @@
 
 > **Prior-version ingest**: the open v3.13 items (presentify DF-1..DF-5, WN-1/2, MT-1) are unrelated to this feature set and do not carry in. HO-1 (flat/nested skill-name collision across skill layouts) was VERIFIED clean by the Phase 6.4 dry-run install: `review-trapdoors` lands flattened at `skills/review-trapdoors/SKILL.md` across all seven platform skill paths with no nested `skills/code-review/review-trapdoors/` variant.
 
+## v3.14.4
+
+**Status**: Phase 1 (De-Codex the Claude extension) COMPLETE on `feat/usage-monitor-split` (cut off `develop`). The `claude-usage-monitor` extension is Claude-only again (`0.7.0 -> 0.8.0`): Codex provider, provider switch/config/dropdown, and all Codex render/recommendation branches removed; compiles clean, Vitest green (3 tests), VSIX packages with no Codex code. Phases 2-4 (scaffold the separate `codex-usage-monitor` extension, wire distribution, terminal refactor + release) pending. Plan: [plans/v3.14.4-usage-monitor-split.md](plans/v3.14.4-usage-monitor-split.md).
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 1 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+| Hand-offs (HO) | 0 | 0 |
+
+### Open Items
+
+#### MT-1 - Claude extension UI orchestration remains unit-test-light
+
+- **Source phase**: v3.14.4 Phase 1
+- **Plan reference**: Phase 1 sub-task 1.4 (Testing and Stabilization)
+- **Reason**: Removing the Codex provider dropped the Vitest suite from 35 tests to 3; the survivors cover `describeProviderError` and provider identity. The UI orchestration files (`statusBarManager`, `dashboardPanel`, `settingsPanel`, `warningView`, `extension`) and the `recommendations` engine have no direct unit tests. This is a pre-existing gap for a VS Code extension whose bulk is webview/status-bar UI (hard to unit-test without a VS Code host), not a regression introduced by the de-Codex work - the removed tests exercised Codex code that moves to the new extension in Phase 2.
+- **Suggested next step**: In Phase 2, port the recommendations/mapping-style tests to the new Codex extension and consider adding pure-function unit tests for the shared `recommendations.ts` Claude branches (they are host-independent). Not a release blocker.
+
 ## v3.14.3
 
 **Status**: Phases 0-4 COMPLETE on `feat/presentify-upfront-questions` (cut off `develop`) - 0 (restore skill loading), 1 (hoist + batch the four design questions, forbid memory pre-answering), 2 (imagery stock-first priority + gated stock video, "video out of scope" reconciled), 3 (bring-your-own-key `nexus-hub setup-media`), 4 (terminal refactor + known-gaps reconciliation + CI/CD). RELEASE-READY, pending `/update release` (v3.14.3 bump / `develop` -> `main` merge / tag / push / GitHub Release) - which per the plan's sequencing must run only AFTER v3.14.0, v3.14.1, and v3.14.2 land. Phase 4 audit: all 66 changed files traced to a phase; no `data/` or `base-*.md` drift; installer parity confirmed (Phase 0 flatten + Phase 3 `setup-media` copy in both); CI wired (validate_skills.py strict-YAML gate + new `tests/skills` step).

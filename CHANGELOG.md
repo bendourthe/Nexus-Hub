@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **Claude Usage Monitor is Claude-only again (v3.14.4 Phase 1)** (`extensions/claude-usage-monitor/`): the v3.14.0 "unified multi-provider" extension is being split back into two separate extensions. This phase reverts the Claude extension to monitor only Claude Code: removed the Codex provider (`src/providers/codex.ts`), the `usageMonitor.provider` switch and the `claude-usage.switchProvider` command, the `usageMonitor.provider` / `usageMonitor.codex.authPath` settings, the settings-panel provider dropdown, and every Codex render/recommendation branch across the status bar, tooltip, dashboard, warning view, and recommendations engine. The provider abstraction is collapsed to a single `ClaudeUsageProvider`; the normalized `UsageData` model drops its Codex-only fields (`providerId`, `planLabel`, `additionalLimits`, `creditsSummary`). `displayName` is back to "Claude Usage Monitor" and the README is Claude-only. The extension is independently versioned `0.7.0 -> 0.8.0`. The Codex-only monitoring moves to a new, separate `codex-usage-monitor` extension in a later phase. Compiles clean; Vitest green (3 tests); packages to a VSIX with no Codex code.
+
 ## [3.14.3] - 2026-07-17
 
 **Restore skill loading + presentify upfront design questions (v3.14.3).** Fixes the two independent root causes that made `/presentify` fail with "Unknown skill: document-to-interactive-html" on a normal install, then reworks `/presentify` to ask its four high-level design questions up front. Phase 0 restores skill loading: it corrects invalid YAML frontmatter across 47 skills, adds a strict-YAML validator gate so the defect cannot regress, and switches both installers to flatten skills for Claude into the discoverable one-level layout. Phase 1 hoists and batches the four design questions and forbids memory-based pre-answering. Phase 3 adds a guided bring-your-own-key setup so stock video works after a one-time key paste.

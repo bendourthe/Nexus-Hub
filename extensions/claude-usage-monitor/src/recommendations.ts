@@ -120,10 +120,6 @@ export function buildUsageSuggestion(data: UsageData, trigger: TriggerMetric): U
     return null;
   }
 
-  if (data.providerId === "codex") {
-    return buildCodexSuggestion(trigger, t);
-  }
-
   const pct = Math.round(trigger.percent);
   const opus = isOpus(data.currentModel);
   const haiku = /haiku/i.test(data.currentModel);
@@ -175,10 +171,6 @@ export function buildUsageSuggestion(data: UsageData, trigger: TriggerMetric): U
 }
 
 export function getRecommendation(data: UsageData): Recommendation {
-  if (data.providerId === "codex") {
-    return getCodexRecommendation(data);
-  }
-
   const sessionUrgency = classifyUrgency(data.session.percent);
   const weeklyUrgency = classifyUrgency(data.weeklyAllModels.percent);
   const overallUrgency = getOverallUrgency(data);
@@ -293,114 +285,6 @@ export function getRecommendation(data: UsageData): Recommendation {
     suggestedModel: null,
     tips,
   };
-}
-
-/* ------------------------------------------------------------------ */
-/*  Codex advice (reframed: Codex has no cheaper model tier, so the    */
-/*  model-switch guidance becomes throttle / wait-for-reset /          */
-/*  rotate-account guidance keyed to the same thresholds)              */
-/* ------------------------------------------------------------------ */
-
-/**
- * Build the Codex threshold suggestion for the toast + dashboard + warning view.
- * There is no model to switch down to, so `switchModel` is always null and the
- * single advice row carries throttle / pause / wait guidance; the reset box in
- * the warning view already conveys "wait for the reset".
- */
-function buildCodexSuggestion(trigger: TriggerMetric, t: ReturnType<typeof getThresholdConfig>): UsageSuggestion {
-  const pct = Math.round(trigger.percent);
-  const resetClause = /^(Mon|Tue|Wed|Thu|Fri|Sat|Sun)/.test(trigger.resetsIn)
-    ? `before it resets on ${trigger.resetsIn}`
-    : `before it resets (in ${trigger.resetsIn})`;
-
-  if (trigger.percent >= t.critical) {
-    return {
-      bucket: t.critical,
-      message: `${trigger.label} Codex usage at ${pct}% → Pause non-essential work and wait for the reset, or switch to another Codex account, ${resetClause}.`,
-      percent: pct,
-      label: trigger.label,
-      resetsIn: trigger.resetsIn,
-      switchModel: null,
-      effortAdvice: "Wait for the reset, or rotate to another Codex account",
-    };
-  }
-  if (trigger.percent >= t.high) {
-    return {
-      bucket: t.high,
-      message: `${trigger.label} Codex usage at ${pct}% → Slow down and focus on essential tasks to avoid hitting your limit ${resetClause}.`,
-      percent: pct,
-      label: trigger.label,
-      resetsIn: trigger.resetsIn,
-      switchModel: null,
-      effortAdvice: "Pause non-essential Codex tasks until the reset",
-    };
-  }
-  return {
-    bucket: t.moderate,
-    message: `${trigger.label} Codex usage at ${pct}% → Throttle your usage (batch prompts, shorter sessions) to extend your remaining allowance ${resetClause}.`,
-    percent: pct,
-    label: trigger.label,
-    resetsIn: trigger.resetsIn,
-    switchModel: null,
-    effortAdvice: "Throttle usage: batch prompts, shorter sessions",
-  };
-}
-
-/** The Codex equivalent of getRecommendation: throttle / wait / rotate advice, no model swap. */
-function getCodexRecommendation(data: UsageData): Recommendation {
-  const overall = getOverallUrgency(data);
-  const tips = getCodexTips(data);
-
-  if (overall === "critical") {
-    return {
-      urgency: overall,
-      message: `Codex usage is critical (${getHighestMetricSummary(data)}). Pause non-essential work and wait for the reset, or switch to another Codex account.`,
-      suggestedModel: null,
-      tips,
-    };
-  }
-  if (overall === "high") {
-    return {
-      urgency: overall,
-      message: `Codex usage is high (${getHighestMetricSummary(data)}). Slow down and focus on essential tasks until the reset.`,
-      suggestedModel: null,
-      tips,
-    };
-  }
-  if (overall === "moderate") {
-    return {
-      urgency: overall,
-      message: `Codex usage is moderate. Throttle your usage (batch prompts, shorter sessions) to extend your allowance. ${getHighestMetricSummary(data)}`,
-      suggestedModel: null,
-      tips,
-    };
-  }
-  return {
-    urgency: "low",
-    message: "All Codex usage levels are healthy. Keep working normally.",
-    suggestedModel: null,
-    tips: [
-      "Batch related requests into fewer, well-structured prompts to conserve your allowance.",
-      "Prefer shorter, focused sessions to spread usage across the reset window.",
-    ],
-  };
-}
-
-function getCodexTips(data: UsageData): string[] {
-  const overall = getOverallUrgency(data);
-  if (overall === "low") {
-    return ["Batch related requests into fewer prompts to conserve your Codex allowance."];
-  }
-
-  const tips: string[] = ["Batch related questions into single, well-structured prompts."];
-  if (data.session.percent > 75) {
-    tips.push("Take a short break and resume after the session window resets.");
-  }
-  if (data.weeklyAllModels.percent > 50) {
-    tips.push("Spread heavier work across days to stay under the weekly limit.");
-  }
-  tips.push("If you have a second Codex account, switch to it while this one resets.");
-  return tips;
 }
 
 function getHighestMetricSummary(data: UsageData): string {

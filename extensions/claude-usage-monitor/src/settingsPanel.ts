@@ -9,7 +9,6 @@ import {
   ColorConfig,
   ThresholdMetric,
 } from "./types";
-import { getConfiguredProviderId } from "./providers";
 
 type Level = "moderate" | "high" | "critical";
 
@@ -20,9 +19,8 @@ interface DraftState {
 }
 
 interface SettingsMessage {
-  command: "save" | "reset" | "setProvider";
+  command: "save" | "reset";
   draft?: DraftState;
-  provider?: string;
 }
 
 const FACTORY_DEFAULTS: DraftState = {
@@ -44,15 +42,6 @@ export class SettingsPanel {
       async (message: SettingsMessage) => {
         const config = vscode.workspace.getConfiguration("claudeUsage");
         const target = vscode.ConfigurationTarget.Global;
-
-        if (message.command === "setProvider" && message.provider) {
-          // Provider lives in the usageMonitor namespace and applies immediately
-          // (independent of the threshold/color draft save flow).
-          await vscode.workspace
-            .getConfiguration("usageMonitor")
-            .update("provider", message.provider, target);
-          return;
-        }
 
         if (message.command === "save" && message.draft) {
           const d = message.draft;
@@ -131,7 +120,6 @@ export class SettingsPanel {
     const thresholds = getThresholdConfig();
     const colors = getColorConfig();
     const metric = getThresholdMetric();
-    const provider = getConfiguredProviderId();
 
     const initialJson = JSON.stringify({
       metric,
@@ -389,14 +377,6 @@ export class SettingsPanel {
 <p class="subtitle">Adjust thresholds and colors. Click <strong>Save changes</strong> to apply.</p>
 
 <div class="metric-section">
-  <label class="metric-label" for="provider-select">Provider</label>
-  <select id="provider-select" class="metric-select" onchange="onProvider(this)">
-    <option value="claude" ${provider === "claude" ? "selected" : ""}>Claude (Anthropic)</option>
-    <option value="codex" ${provider === "codex" ? "selected" : ""}>Codex (ChatGPT)</option>
-  </select>
-</div>
-
-<div class="metric-section">
   <label class="metric-label" for="metric-select">Apply thresholds to</label>
   <select id="metric-select" class="metric-select" onchange="onMetric(this)">
     <option value="highest" ${metric === "highest" ? "selected" : ""}>Highest (auto)</option>
@@ -441,11 +421,6 @@ ${levelSection("critical", "Critical", "Maximum alert level",  thresholds.critic
     resetBtn.disabled = !notDefault;
     saveBtn.classList.toggle('dirty',  hasDraft);
     resetBtn.classList.toggle('dirty', notDefault);
-  }
-
-  // --- Provider (applies immediately, independent of the save draft) ---
-  function onProvider(el) {
-    vscode.postMessage({ command: 'setProvider', provider: el.value });
   }
 
   // --- Metric ---
