@@ -43,7 +43,7 @@ export type CodexCredentialReadResult =
  * environment, or the real home directory.
  */
 export interface CodexAuthPathInputs {
-  /** Explicit override from the `usageMonitor.codex.authPath` setting. */
+  /** Explicit override from the `codexUsage.authPath` setting. */
   configuredPath?: string;
   /** The `CODEX_HOME` environment variable, when set. */
   codexHome?: string;
@@ -347,7 +347,6 @@ export function mapCodexUsageResponse(raw: unknown): UsageModel | null {
     currentModel: planLabel ?? "Codex",
     lastUpdated: now,
     dataSource: "api",
-    providerId: "codex",
     planLabel: planLabel ?? "Codex",
     ...(additionalLimits.length > 0 ? { additionalLimits } : {}),
     ...(creditsSummary ? { creditsSummary } : {}),
@@ -368,8 +367,8 @@ export class CodexUsageProvider implements UsageProvider {
   /** Resolve the auth-file path from settings, `CODEX_HOME`, and the home dir. */
   private resolveAuthPath(): string {
     const configuredPath = vscode.workspace
-      .getConfiguration("usageMonitor")
-      .get<string>("codex.authPath", "");
+      .getConfiguration("codexUsage")
+      .get<string>("authPath", "");
     return resolveCodexAuthPath({
       configuredPath,
       codexHome: process.env.CODEX_HOME,
@@ -389,7 +388,7 @@ export class CodexUsageProvider implements UsageProvider {
   }
 
   private fail(code: ProviderFetchErrorCode, extra?: Partial<ProviderFetchError>): ProviderFetchResult {
-    return { success: false, error: { providerId: this.id, code, ...extra } };
+    return { success: false, error: { code, ...extra } };
   }
 
   async fetchUsage(_currentModel?: string): Promise<ProviderFetchResult> {

@@ -6,6 +6,52 @@
 
 > **Prior-version ingest**: the open v3.13 items (presentify DF-1..DF-5, WN-1/2, MT-1) are unrelated to this feature set and do not carry in. HO-1 (flat/nested skill-name collision across skill layouts) was VERIFIED clean by the Phase 6.4 dry-run install: `review-trapdoors` lands flattened at `skills/review-trapdoors/SKILL.md` across all seven platform skill paths with no nested `skills/code-review/review-trapdoors/` variant.
 
+## v3.14.4
+
+**Status**: Phases 1-4 COMPLETE on `feat/usage-monitor-split` (cut off `develop`); RELEASE-READY, pending `/update release` (v3.14.4 bump 3.14.3 -> 3.14.4 / CHANGELOG `[Unreleased]` -> `[3.14.4]` / `develop` -> `main` merge / tag / push / GitHub Release). Phase 1 (de-Codex the Claude extension): `claude-usage-monitor` is Claude-only again (`0.7.0 -> 0.8.0`), 3 Vitest tests green. Phase 2 (scaffold the separate Codex extension): new `extensions/codex-usage-monitor/` (`0.1.0`), Codex-only, own identity/branding/glyph-font/`#5244BB` bars, collision-free with the Claude extension, 34 Vitest tests green, VSIX packages, path-filtered CI workflow added. Phase 3 (distribution wiring): both installers generalized to build/install both extensions via a shared per-extension helper, dependabot entry added for the Codex extension, installer smoke test asserts both (29 pass); `bash -n` + ShellCheck + `installer.ps1` parse all clean. Phase 4 (terminal refactor + docs): repo-wide sweep found no stale live "unified extension" references (only historical change-records + the v3.14.0 plan, correctly frozen); root `README.md` (extensions section + a v3.14.4 What's New), `llms.txt`, and `SECURITY.md` now describe both extensions; per the implement-phase runbook the version bump / changelog finalization / merge / tag / push are handed to `/update release`, so the CHANGELOG stays under `[Unreleased]` and version-sync stays consistent at 3.14.3 until release. Phase 4 validation: no empty dirs / orphans; `validate_skills --bundles-only` PASS (267 skills, 0/0); `check_version_sync` consistent at 3.14.3; `validate_workflow_security` + `check_base_template_parity` PASS; both extension suites green (Claude 3, Codex 34); hooks/installer suite 460 passed / 36 skipped; no new TODO/FIXME/DEVIATION markers. Plan: [plans/v3.14.4-usage-monitor-split.md](plans/v3.14.4-usage-monitor-split.md).
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 2 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 1 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+| Hand-offs (HO) | 1 | 0 |
+
+### Open Items
+
+#### HO-1 - Runtime side-by-side install not verified in this environment
+
+- **Source phase**: v3.14.4 Phase 3
+- **Plan reference**: Phase 3 sub-task 3.4 ("side-by-side coexistence verification")
+- **Reason**: The static coexistence guarantees were verified (both extensions build + package to distinct VSIX; a scan confirms zero shared extension-id / command / `globalState`-key / webview-id / view-container / `when`-context; the smoke test asserts both installers wire both ids). The runtime confirmation that BOTH status-bar items render simultaneously in a live VS Code window (`$(claude-icon) Claude Usage: ...` and `$(codex-icon) Codex Usage: ...`) could not be automated here - it needs an interactive VS Code instance.
+- **Suggested next step**: On any machine with VS Code, run the installer (or install both VSIX with `code --install-extension`), reload, and confirm both status-bar items appear and each dashboard/settings/warning surface targets the correct extension. Low risk given the static guarantees; a manual smoke check before release is sufficient.
+
+#### DF-1 - Codex extension `icon.png` reconstructed from `codex-white.png`, not the user's `codex-2048x2048.png`
+
+- **Source phase**: v3.14.4 Phase 2
+- **Plan reference**: Phase 2 sub-task 2.2 ("Save the two provided images")
+- **Reason**: The user referenced two brand assets: `codex-white.png` (found in the user's Downloads, 640x640 white cloud silhouette with the `>_` knocked out) and `codex-2048x2048.png` (the full-color Marketplace icon). Only `codex-white.png` was on disk; `codex-2048x2048.png` could not be located anywhere on the machine, and no SVG rasterizer (ImageMagick / rsvg / cairosvg / inkscape) was available to synthesize one. `icon.png` (512x512) was therefore reconstructed with Pillow from `codex-white.png`'s exact silhouette: the cloud body filled with a periwinkle->`#5244BB` vertical gradient and the `>_` knockout painted black. The result is a faithful match to the described design, but it is a reconstruction rather than the user's original file.
+- **Suggested next step**: If the user has the exact `codex-2048x2048.png`, drop it in as `extensions/codex-usage-monitor/icon.png` (a one-file swap; the manifest already points at `icon.png`, so no code change). By-design acceptable otherwise - the reconstructed icon is on-brand and functional.
+
+#### DF-2 - Exact Codex-app credential location and field shape are unverified (carried from v3.14.0)
+
+- **Source phase**: v3.14.4 Phase 2 (inherited from the v3.14.0 Codex provider)
+- **Plan reference**: Known-Gaps Ingest
+- **Reason**: The Codex provider targets the ChatGPT Codex **app** (not the open-source CLI); the app's on-disk credential path and field names could not be verified from this environment. The provider reads a configurable path (`codexUsage.authPath`, then `CODEX_HOME/auth.json`, then `~/.codex/auth.json`) and parses shape-tolerantly (nested `tokens.{access_token,account_id}` or flat, plus camelCase), failing soft when nothing usable is found.
+- **Suggested next step**: Confirm the real path/field shape against a live Codex-app install and tighten the default if warranted. Fail-soft behavior means this is not a blocker.
+
+#### MT-1 - Claude extension UI orchestration remains unit-test-light
+
+- **Source phase**: v3.14.4 Phase 1
+- **Plan reference**: Phase 1 sub-task 1.4 (Testing and Stabilization)
+- **Reason**: Removing the Codex provider dropped the Vitest suite from 35 tests to 3; the survivors cover `describeProviderError` and provider identity. The UI orchestration files (`statusBarManager`, `dashboardPanel`, `settingsPanel`, `warningView`, `extension`) and the `recommendations` engine have no direct unit tests. This is a pre-existing gap for a VS Code extension whose bulk is webview/status-bar UI (hard to unit-test without a VS Code host), not a regression introduced by the de-Codex work - the removed tests exercised Codex code that moves to the new extension in Phase 2.
+- **Suggested next step**: In Phase 2, port the recommendations/mapping-style tests to the new Codex extension and consider adding pure-function unit tests for the shared `recommendations.ts` Claude branches (they are host-independent). Not a release blocker.
+
 ## v3.14.3
 
 **Status**: Phases 0-4 COMPLETE on `feat/presentify-upfront-questions` (cut off `develop`) - 0 (restore skill loading), 1 (hoist + batch the four design questions, forbid memory pre-answering), 2 (imagery stock-first priority + gated stock video, "video out of scope" reconciled), 3 (bring-your-own-key `nexus-hub setup-media`), 4 (terminal refactor + known-gaps reconciliation + CI/CD). RELEASE-READY, pending `/update release` (v3.14.3 bump / `develop` -> `main` merge / tag / push / GitHub Release) - which per the plan's sequencing must run only AFTER v3.14.0, v3.14.1, and v3.14.2 land. Phase 4 audit: all 66 changed files traced to a phase; no `data/` or `base-*.md` drift; installer parity confirmed (Phase 0 flatten + Phase 3 `setup-media` copy in both); CI wired (validate_skills.py strict-YAML gate + new `tests/skills` step).

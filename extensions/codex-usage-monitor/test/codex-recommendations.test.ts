@@ -8,7 +8,7 @@ function makeData(overrides: Partial<UsageData>): UsageData {
   return {
     session: { percent: 0, resetsIn: "2h", resetsAt: null },
     weeklyAllModels: { percent: 0, resetsIn: "3d", resetsAt: null },
-    currentModel: "codex",
+    currentModel: "Codex",
     lastUpdated: 0,
     ...overrides,
   };
@@ -16,7 +16,7 @@ function makeData(overrides: Partial<UsageData>): UsageData {
 
 describe("Codex recommendations", () => {
   it("advises wait/rotate with no model switch at critical usage", () => {
-    const data = makeData({ providerId: "codex", session: { percent: 97, resetsIn: "2h", resetsAt: null } });
+    const data = makeData({ session: { percent: 97, resetsIn: "2h", resetsAt: null } });
     const suggestion = buildUsageSuggestion(data, pickTriggerMetric(data));
     expect(suggestion).not.toBeNull();
     expect(suggestion!.switchModel).toBeNull();
@@ -25,28 +25,28 @@ describe("Codex recommendations", () => {
   });
 
   it("advises throttling at moderate usage", () => {
-    const data = makeData({ providerId: "codex", session: { percent: 55, resetsIn: "2h", resetsAt: null } });
+    const data = makeData({ session: { percent: 55, resetsIn: "2h", resetsAt: null } });
     const suggestion = buildUsageSuggestion(data, pickTriggerMetric(data));
     expect(suggestion!.switchModel).toBeNull();
     expect(suggestion!.effortAdvice.toLowerCase()).toContain("throttle");
   });
 
+  it("returns null below the moderate threshold", () => {
+    const data = makeData({ session: { percent: 20, resetsIn: "2h", resetsAt: null } });
+    expect(buildUsageSuggestion(data, pickTriggerMetric(data))).toBeNull();
+  });
+
   it("getRecommendation suggests no model and mentions account rotation at critical", () => {
-    const data = makeData({ providerId: "codex", session: { percent: 98, resetsIn: "2h", resetsAt: null } });
+    const data = makeData({ session: { percent: 98, resetsIn: "2h", resetsAt: null } });
     const rec = getRecommendation(data);
     expect(rec.suggestedModel).toBeNull();
     expect(rec.message.toLowerCase()).toContain("account");
   });
-});
 
-describe("Claude recommendations are unchanged", () => {
-  it("suggests switching Opus to Sonnet at high usage", () => {
-    const data = makeData({
-      providerId: undefined,
-      currentModel: "claude-opus-4-6",
-      session: { percent: 80, resetsIn: "2h", resetsAt: null },
-    });
-    const suggestion = buildUsageSuggestion(data, pickTriggerMetric(data));
-    expect(suggestion!.switchModel).toBe("Sonnet");
+  it("getRecommendation is healthy when usage is low", () => {
+    const rec = getRecommendation(makeData({}));
+    expect(rec.urgency).toBe("low");
+    expect(rec.suggestedModel).toBeNull();
+    expect(rec.message.toLowerCase()).toContain("healthy");
   });
 });

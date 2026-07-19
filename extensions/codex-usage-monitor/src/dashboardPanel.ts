@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
-import { UsageData, formatModelName } from "./types";
-import { formatResetLabel, nextMonthlyResetLabel } from "./usageStore";
+import { UsageData } from "./types";
+import { formatResetLabel } from "./usageStore";
 import { ProviderFetchError, describeProviderError } from "./providers";
 import {
   getRecommendation,
@@ -71,16 +71,16 @@ export class DashboardPanel {
     }
 
     const panel = vscode.window.createWebviewPanel(
-      "claudeUsageDashboard",
-      "Claude Usage",
+      "codexUsageDashboard",
+      "Codex Usage",
       vscode.ViewColumn.Beside,
       { enableScripts: true }
     );
 
     if (extensionUri) {
       panel.iconPath = {
-        light: vscode.Uri.joinPath(extensionUri, "icons", "claude-dark.svg"),
-        dark: vscode.Uri.joinPath(extensionUri, "icons", "claude-light.svg"),
+        light: vscode.Uri.joinPath(extensionUri, "icons", "codex.svg"),
+        dark: vscode.Uri.joinPath(extensionUri, "icons", "codex.svg"),
       };
     }
 
@@ -155,9 +155,28 @@ export class DashboardPanel {
     const suggestion = activeSuggestion(data);
     const sourceLabel = data.dataSource === "api" ? "Auto-fetched" : "Manually entered";
 
+    // Codex exposes extra rate-limit windows and a credits summary; render them
+    // as additional sections when the payload provided them.
+    const additionalRows = (data.additionalLimits ?? [])
+      .map(
+        (row) => `
+      <div class="section">
+        <h3>${escapeHtml(row.label)}</h3>
+        ${this.renderProgressBar(row.percent, row.resetsIn, row.resetsAt)}
+      </div>`,
+      )
+      .join("");
+    const creditsSection = data.creditsSummary
+      ? `
+      <div class="section">
+        <h3>Credits</h3>
+        <div class="extra-credits-info">${escapeHtml(data.creditsSummary)}</div>
+      </div>`
+      : "";
+
     return this.wrapHtml(`
       ${errorBanner}
-      <h2>Claude Usage Dashboard</h2>
+      <h2>Codex Usage Dashboard</h2>
 
       <div class="section">
         <h3>Current Session</h3>
@@ -169,25 +188,19 @@ export class DashboardPanel {
         ${this.renderProgressBar(data.weeklyAllModels.percent, data.weeklyAllModels.resetsIn, data.weeklyAllModels.resetsAt)}
       </div>
 
-      ${data.extraUsage && data.extraUsage.isEnabled ? `
-      <div class="section">
-        <h3>Extra Credits</h3>
-        <div class="extra-credits-info">$${data.extraUsage.usedCredits.toFixed(2)} / $${data.extraUsage.monthlyLimit.toFixed(2)} used this month</div>
-        ${data.extraUsage.utilization != null ? this.renderProgressBar(Math.round(data.extraUsage.utilization), nextMonthlyResetLabel(), null) : ""}
-      </div>
-      ` : ""}
+      ${additionalRows}
+      ${creditsSection}
 
       <div class="divider"></div>
 
       <div class="section">
-        <h3>Current Model</h3>
-        <div class="model-name">${escapeHtml(formatModelName(data.currentModel))}</div>
+        <h3>Plan</h3>
+        <div class="model-name">${escapeHtml(data.planLabel ?? "Codex")}</div>
       </div>
 
       <div class="section">
         <h3>Recommendation</h3>
         <p class="recommendation urgency-${recommendation.urgency}">${escapeHtml(suggestion ?? recommendation.message)}</p>
-        ${!suggestion && recommendation.suggestedModel ? `<p class="suggested-model">Suggested: <strong>${escapeHtml(formatModelName(recommendation.suggestedModel))}</strong></p>` : ""}
       </div>
 
       ${recommendation.tips.length > 0 ? `
@@ -204,7 +217,7 @@ export class DashboardPanel {
       <div class="actions">
         <button id="refreshBtn" onclick="send('refresh')">Refresh Now</button>
         <button onclick="send('openUsagePage')" class="secondary">Open Usage Page</button>
-        <button onclick="send('openSettings')" class="icon-btn" title="Claude Usage: Settings" aria-label="Claude Usage Settings">
+        <button onclick="send('openSettings')" class="icon-btn" title="Codex Usage: Settings" aria-label="Codex Usage Settings">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
             <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.687.706-1.99 1.99l.169.31a1.464 1.464 0 0 1-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.697 1.283.707 2.687 1.99 1.99l.311-.17a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.687-.706 1.99-1.99l-.169-.31a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.697-1.283-.707-2.687-1.99-1.99l-.311.17a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/>
           </svg>
@@ -327,7 +340,7 @@ export class DashboardPanel {
     }
     .progress-fill {
       height: 100%;
-      background: #C15F3C;
+      background: #5244BB;
       border-radius: 4px;
       transition: width 0.3s ease;
     }

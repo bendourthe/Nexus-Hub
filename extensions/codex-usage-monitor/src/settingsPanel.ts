@@ -40,7 +40,7 @@ export class SettingsPanel {
 
     this.panel.webview.onDidReceiveMessage(
       async (message: SettingsMessage) => {
-        const config = vscode.workspace.getConfiguration("claudeUsage");
+        const config = vscode.workspace.getConfiguration("codexUsage");
         const target = vscode.ConfigurationTarget.Global;
 
         if (message.command === "save" && message.draft) {
@@ -92,16 +92,16 @@ export class SettingsPanel {
     }
 
     const panel = vscode.window.createWebviewPanel(
-      "claudeUsageSettings",
-      "Claude Usage: Settings",
+      "codexUsageSettings",
+      "Codex Usage: Settings",
       vscode.ViewColumn.Beside,
       { enableScripts: true }
     );
 
     if (extensionUri) {
       panel.iconPath = {
-        light: vscode.Uri.joinPath(extensionUri, "icons", "claude-dark.svg"),
-        dark:  vscode.Uri.joinPath(extensionUri, "icons", "claude-light.svg"),
+        light: vscode.Uri.joinPath(extensionUri, "icons", "codex.svg"),
+        dark:  vscode.Uri.joinPath(extensionUri, "icons", "codex.svg"),
       };
     }
 
@@ -201,7 +201,7 @@ export class SettingsPanel {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Claude Usage Settings</title>
+<title>Codex Usage Settings</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -373,7 +373,7 @@ export class SettingsPanel {
 </style>
 </head>
 <body>
-<h1>Claude Usage Settings</h1>
+<h1>Codex Usage Settings</h1>
 <p class="subtitle">Adjust thresholds and colors. Click <strong>Save changes</strong> to apply.</p>
 
 <div class="metric-section">

@@ -1547,23 +1547,16 @@ install_vscode_extensions() {
     local repo_root="$1"
 
     echo ""
-    echo -e "  ${DARK_YELLOW}> Claude Usage Monitor${RESET}"
+    echo -e "  ${DARK_YELLOW}> Usage Monitors${RESET}"
 
-    write_item "The Claude Usage Monitor is a VS Code extension that displays your Claude" "$RESET"
-    write_item "Code usage limits in the status bar and recommends when to switch models" "$RESET"
-    write_item "(e.g., Opus to Sonnet) to stay within your session and weekly limits." "$RESET"
+    write_item "The Claude Usage Monitor and Codex Usage Monitor are VS Code extensions that" "$RESET"
+    write_item "show your Claude Code and Codex (ChatGPT) usage limits in the status bar and" "$RESET"
+    write_item "recommend how to pace your usage to stay within your session and weekly limits." "$RESET"
     echo ""
 
-    local extension_dir="$repo_root/extensions/claude-usage-monitor"
-
-    if [ ! -d "$extension_dir" ]; then
-        write_item "Extension source not found at: $extension_dir" "$RED"
-        return
-    fi
-
-    # Check for Node.js
+    # Check for Node.js (shared by both extensions)
     if ! command -v node >/dev/null 2>&1; then
-        write_item "Node.js is not installed (required to build the extension)." "$DARK_YELLOW"
+        write_item "Node.js is not installed (required to build the extensions)." "$DARK_YELLOW"
 
         # Detect platform and suggest install method
         if command -v brew >/dev/null 2>&1; then
@@ -1607,14 +1600,74 @@ install_vscode_extensions() {
         write_item "Found Node.js $node_version" "$GREEN"
     fi
 
-    # Check for npm
+    # Check for npm (shared)
     if ! command -v npm >/dev/null 2>&1; then
         write_item "npm not found. Please ensure Node.js is properly installed." "$RED"
         return
     fi
 
-    # Build the extension
-    write_item "Building Claude Usage Monitor extension..." "$RESET"
+    # Locate a VS Code-family CLI once, shared by both extensions. On a fresh Mac
+    # the `code` command is not on PATH unless the user ran "Shell Command: Install
+    # 'code' command in PATH", so fall back to the standard application-bundle /
+    # install locations. This lets each VSIX auto-install instead of by hand.
+    local code_cli=""
+    local code_label="VS Code"
+    if command -v code >/dev/null 2>&1; then
+        code_cli="code"
+    else
+        local candidate
+        for candidate in \
+            "/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code" \
+            "$HOME/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code" \
+            "/Applications/Visual Studio Code - Insiders.app/Contents/Resources/app/bin/code" \
+            "/usr/share/code/bin/code" \
+            "/usr/bin/code" \
+            "/snap/bin/code" \
+            "/var/lib/flatpak/exports/bin/com.visualstudio.code" \
+            "/Applications/Cursor.app/Contents/Resources/app/bin/cursor" \
+            "$HOME/Applications/Cursor.app/Contents/Resources/app/bin/cursor" \
+            "/Applications/VSCodium.app/Contents/Resources/app/bin/codium"; do
+            if [ -x "$candidate" ]; then
+                code_cli="$candidate"
+                case "$candidate" in
+                    *Cursor*) code_label="Cursor" ;;
+                    *VSCodium*) code_label="VSCodium" ;;
+                esac
+                break
+            fi
+        done
+    fi
+
+    # Build, package, and install each extension in turn. Each is independent, so
+    # a missing folder or a build failure in one does not block the other.
+    build_and_install_one_extension "$repo_root/extensions/claude-usage-monitor" "nexus-hub.claude-usage-monitor" "Claude Usage Monitor" "Claude: --%" "$code_cli" "$code_label"
+    build_and_install_one_extension "$repo_root/extensions/codex-usage-monitor" "nexus-hub.codex-usage-monitor" "Codex Usage Monitor" "Codex: --%" "$code_cli" "$code_label"
+
+    echo ""
+    echo -e "  ${GREEN}[OK] Usage Monitor Installation Complete.${RESET}"
+}
+
+# Build, package, and install one VS Code usage-monitor extension. Shared by
+# install_vscode_extensions so the Claude and Codex monitors install identically.
+# Args: $1 extension_dir  $2 extension_id  $3 display_name  $4 status_hint
+#       $5 code_cli (may be empty)  $6 code_label
+build_and_install_one_extension() {
+    local extension_dir="$1"
+    local extension_id="$2"
+    local display_name="$3"
+    local status_hint="$4"
+    local code_cli="$5"
+    local code_label="$6"
+
+    echo ""
+    echo -e "  ${DARK_YELLOW}> ${display_name}${RESET}"
+
+    if [ ! -d "$extension_dir" ]; then
+        write_item "Extension source not found at: $extension_dir" "$RED"
+        return
+    fi
+
+    write_item "Building ${display_name} extension..." "$RESET"
 
     pushd "$extension_dir" > /dev/null || return
 
@@ -1672,46 +1725,14 @@ install_vscode_extensions() {
 
     popd > /dev/null
 
-    # Locate a VS Code-family CLI. On a fresh Mac the `code` command is not on
-    # PATH unless the user ran "Shell Command: Install 'code' command in PATH", so
-    # fall back to the standard application-bundle / install locations. This lets
-    # the VSIX auto-install instead of leaving the user to do it by hand.
-    local code_cli=""
-    local code_label="VS Code"
-    if command -v code >/dev/null 2>&1; then
-        code_cli="code"
-    else
-        local candidate
-        for candidate in \
-            "/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code" \
-            "$HOME/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code" \
-            "/Applications/Visual Studio Code - Insiders.app/Contents/Resources/app/bin/code" \
-            "/usr/share/code/bin/code" \
-            "/usr/bin/code" \
-            "/snap/bin/code" \
-            "/var/lib/flatpak/exports/bin/com.visualstudio.code" \
-            "/Applications/Cursor.app/Contents/Resources/app/bin/cursor" \
-            "$HOME/Applications/Cursor.app/Contents/Resources/app/bin/cursor" \
-            "/Applications/VSCodium.app/Contents/Resources/app/bin/codium"; do
-            if [ -x "$candidate" ]; then
-                code_cli="$candidate"
-                case "$candidate" in
-                    *Cursor*) code_label="Cursor" ;;
-                    *VSCodium*) code_label="VSCodium" ;;
-                esac
-                break
-            fi
-        done
-    fi
-
     # Install into the detected editor
     if [ -n "$code_cli" ]; then
         # Uninstall any existing version first so the editor does not skip the reinstall
-        "$code_cli" --uninstall-extension "nexus-hub.claude-usage-monitor" 2>/dev/null || true
+        "$code_cli" --uninstall-extension "$extension_id" 2>/dev/null || true
         # --force ensures reinstall even when the version number has not changed
         if "$code_cli" --install-extension "$vsix_file" --force 2>/dev/null; then
-            write_item "[OK] Claude Usage Monitor extension installed in $code_label!" "$GREEN"
-            write_item "  Restart $code_label to activate. Look for 'Claude: --%' in the status bar." "$RESET"
+            write_item "[OK] ${display_name} extension installed in $code_label!" "$GREEN"
+            write_item "  Restart $code_label to activate. Look for '${status_hint}' in the status bar." "$RESET"
         else
             write_item "$code_label install failed. Install manually:" "$YELLOW"
             write_item "  \"$code_cli\" --install-extension \"$vsix_file\"" "$RESET"
@@ -1721,9 +1742,6 @@ install_vscode_extensions() {
         write_item "VSIX saved at: $vsix_file" "$RESET"
         write_item "Install manually via VS Code: Extensions > ... > Install from VSIX" "$GRAY"
     fi
-
-    echo ""
-    echo -e "  ${GREEN}[OK] Claude Usage Monitor Installation Complete.${RESET}"
 }
 
 # --- Template & Script Installation ---

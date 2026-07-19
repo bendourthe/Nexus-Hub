@@ -1,10 +1,14 @@
 import * as vscode from "vscode";
 import { UsageData, UrgencyLevel, ColorConfig, getColorConfig, getThresholdConfig, WORKBENCH_COLOR_KEYS, syncActiveColorToWorkbench } from "./types";
 import { getActiveUrgency, pickTriggerMetric } from "./recommendations";
-import { UsageStore, formatResetLabel, nextMonthlyResetLabel } from "./usageStore";
+import { UsageStore, formatResetLabel } from "./usageStore";
 
-/** The Claude logo glyph, contributed as an icon font in package.json. */
-const CLAUDE_ICON = "$(claude-icon)";
+/** The Codex logo glyph, contributed as an icon font in package.json. */
+const CODEX_ICON = "$(codex-icon)";
+
+/** The progress-bar brand fill (Codex periwinkle) and its 20%-alpha track. */
+const BAR_FILL = "#5244BB";
+const BAR_TRACK = "rgba(82,68,187,0.2)";
 
 // When the active metric is within this many percentage points below the
 // moderate threshold (or already at/above it), the poll cadence drops to
@@ -33,16 +37,16 @@ export class StatusBarManager {
       100
     );
     this.statusBarItem.command = dashboardCommandId;
-    this.statusBarItem.name = "Claude Usage Monitor";
+    this.statusBarItem.name = "Codex Usage Monitor";
 
     this.gearItem = vscode.window.createStatusBarItem(
       vscode.StatusBarAlignment.Right,
       99
     );
     this.gearItem.text = "$(gear)";
-    this.gearItem.tooltip = "Claude Usage: Settings";
+    this.gearItem.tooltip = "Codex Usage: Settings";
     this.gearItem.command = settingsCommandId;
-    this.gearItem.name = "Claude Usage Settings";
+    this.gearItem.name = "Codex Usage Settings";
   }
 
   setAutoRefreshCallback(callback: () => void | Promise<void>): void {
@@ -75,7 +79,7 @@ export class StatusBarManager {
 
   showLoading(): void {
     this.statusBarItem.text = "$(sync~spin) Refreshing...";
-    this.statusBarItem.tooltip = "Fetching usage data\u2026";
+    this.statusBarItem.tooltip = "Fetching usage data…";
   }
 
   applyBackoff(): void {
@@ -108,8 +112,8 @@ export class StatusBarManager {
 
   private updateDisplay(data: UsageData | undefined): void {
     if (!data) {
-      this.statusBarItem.text = `${CLAUDE_ICON} Claude Usage: --% (current) --% (week)`;
-      this.statusBarItem.tooltip = "Click to view Claude usage dashboard";
+      this.statusBarItem.text = `${CODEX_ICON} Codex Usage: --% (current) --% (week)`;
+      this.statusBarItem.tooltip = "Click to view Codex usage dashboard";
       this.statusBarItem.backgroundColor = undefined;
       this.gearItem.backgroundColor = undefined;
       return;
@@ -119,20 +123,20 @@ export class StatusBarManager {
     const staleLabel = this.isDataStale(data) ? " $(warning)" : "";
 
     this.statusBarItem.text =
-      `${CLAUDE_ICON} Claude Usage: ${data.session.percent}% (current) ${data.weeklyAllModels.percent}% (week)${staleLabel}`;
+      `${CODEX_ICON} Codex Usage: ${data.session.percent}% (current) ${data.weeklyAllModels.percent}% (week)${staleLabel}`;
 
     this.statusBarItem.tooltip = this.buildTooltip(data);
     const bgColor = this.getBackgroundColor(overallUrgency);
     this.statusBarItem.backgroundColor = bgColor;
     // Mirror the urgency color on the gear so the user sees that the gear icon
-    // belongs to the Claude Usage Monitor, and not to some unrelated extension.
+    // belongs to the Codex Usage Monitor, and not to some unrelated extension.
     this.gearItem.backgroundColor = bgColor;
     // Swap warningBackground hex between moderate and high colors (they share the same ThemeColor ID)
     void syncActiveColorToWorkbench(overallUrgency, getColorConfig());
   }
 
   private isDataStale(data: UsageData): boolean {
-    const config = vscode.workspace.getConfiguration("claudeUsage");
+    const config = vscode.workspace.getConfiguration("codexUsage");
     const intervalMinutes = config.get<number>("refreshInterval", 5);
     const staleThresholdMs = intervalMinutes * 2 * 60_000;
     return Date.now() - data.lastUpdated > staleThresholdMs;
@@ -167,8 +171,8 @@ export class StatusBarManager {
         `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${svgH}">` +
         `<text x="0" y="${textY}" fill="${labelColor}" font-weight="bold" font-family="system-ui,sans-serif" font-size="${fontSize}">${label}</text>` +
         `<text x="${W}" y="${textY}" fill="${dimColor}" font-family="system-ui,sans-serif" font-size="${fontSize}" text-anchor="end">${pct}%</text>` +
-        `<rect y="${barY}" width="${W}" height="${barH}" rx="3" fill="rgba(193,95,60,0.2)"/>` +
-        `<rect y="${barY}" width="${fillW}" height="${barH}" rx="3" fill="#C15F3C"/>` +
+        `<rect y="${barY}" width="${W}" height="${barH}" rx="3" fill="${BAR_TRACK}"/>` +
+        `<rect y="${barY}" width="${fillW}" height="${barH}" rx="3" fill="${BAR_FILL}"/>` +
         `</svg>`;
       return `data:image/svg+xml,${encodeURIComponent(svg)}`;
     };
@@ -181,23 +185,18 @@ export class StatusBarManager {
       ? `<span style="color:#cca700">&#9888; Data may be stale (last updated ${timeSince})</span><br><br>`
       : "";
 
-    // Extra Credits: mirror the dashboard section. When extra usage is disabled,
-    // absent, or the monthly limit is 0 (no extra credit available on the
-    // account), show an N/A line instead of a progress bar.
-    const extra = data.extraUsage;
-    const extraCredits =
-      extra && extra.isEnabled && extra.monthlyLimit > 0
-        ? `<img src="${sectionImg("Extra Credits", extra.utilization != null ? Math.round(extra.utilization) : 0)}" width="${W}" height="${svgH}"><br>` +
-          `<em>$${extra.usedCredits.toFixed(2)} / $${extra.monthlyLimit.toFixed(2)} used this month &middot; ${formatResetLabel(nextMonthlyResetLabel())}</em><br><br>`
-        : `<span style="color:${labelColor};font-weight:bold">Extra Credits</span><br>` +
-          `<em style="color:${dimColor}">No extra credit available on your account</em><br><br>`;
+    // Codex exposes a credits summary line rather than a dollar-denominated
+    // extra-usage pool; show it when the payload provided one, otherwise nothing.
+    const credits = data.creditsSummary
+      ? `<span style="color:${labelColor}">${data.creditsSummary}</span><br><br>`
+      : "";
 
     md.appendMarkdown(
-      `<span style="opacity:0.6">Claude Usage</span><br><br>` +
+      `<span style="opacity:0.6">Codex Usage</span><br><br>` +
       staleWarning +
       section("Current Session", data.session.percent, data.session.resetsIn) +
       section("Weekly", data.weeklyAllModels.percent, data.weeklyAllModels.resetsIn) +
-      extraCredits +
+      credits +
       `<span style="opacity:0.6">Last updated: ${timeSince}</span>`
     );
 
@@ -259,7 +258,7 @@ export class StatusBarManager {
    * still scales both paths.
    */
   private computeRefreshDelayMs(): number {
-    const config = vscode.workspace.getConfiguration("claudeUsage");
+    const config = vscode.workspace.getConfiguration("codexUsage");
     const intervalMinutes = config.get<number>("refreshInterval", 10);
     const baseMs = intervalMinutes * 60_000 * this.backoffMultiplier;
 

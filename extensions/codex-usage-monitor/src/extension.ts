@@ -4,14 +4,14 @@ import { StatusBarManager } from "./statusBarManager";
 import {
   UsageProvider,
   ProviderFetchError,
-  ClaudeUsageProvider,
+  CodexUsageProvider,
   describeProviderError,
 } from "./providers";
 import { DashboardPanel } from "./dashboardPanel";
 import { SettingsPanel } from "./settingsPanel";
 import { WarningViewProvider, WARNING_VIEW_ID, WARNING_ACTIVE_CONTEXT } from "./warningView";
 import { getRecommendation, getActiveUrgency, pickTriggerMetric, buildUsageSuggestion, classifyUrgency } from "./recommendations";
-import { UrgencyLevel, UsageData, formatModelName, getThresholdConfig, getNotificationTimeoutMs, syncColorsToWorkbench, getColorConfig } from "./types";
+import { UrgencyLevel, UsageData, getThresholdConfig, getNotificationTimeoutMs, syncColorsToWorkbench, getColorConfig } from "./types";
 
 type NotificationSeverity = "info" | "warning";
 
@@ -46,11 +46,11 @@ function showAutoDismissNotification(message: string, _severity: NotificationSev
   );
 }
 
-const RECOMMEND_COMMAND = "claude-usage.recommend";
-const RESET_COMMAND = "claude-usage.reset";
-const DASHBOARD_COMMAND = "claude-usage.dashboard";
-const REFRESH_COMMAND = "claude-usage.refresh";
-const SETTINGS_COMMAND = "claude-usage.settings";
+const RECOMMEND_COMMAND = "codex-usage.recommend";
+const RESET_COMMAND = "codex-usage.reset";
+const DASHBOARD_COMMAND = "codex-usage.dashboard";
+const REFRESH_COMMAND = "codex-usage.refresh";
+const SETTINGS_COMMAND = "codex-usage.settings";
 
 let consecutiveFailures = 0;
 let lastFetchError: ProviderFetchError | undefined;
@@ -76,10 +76,10 @@ export function activate(context: vscode.ExtensionContext): void {
   );
 
   const store = new UsageStore(context.globalState);
-  const provider = new ClaudeUsageProvider();
+  const provider = new CodexUsageProvider();
   const statusBar = new StatusBarManager(store, DASHBOARD_COMMAND, SETTINGS_COMMAND);
 
-  const config = vscode.workspace.getConfiguration("claudeUsage");
+  const config = vscode.workspace.getConfiguration("codexUsage");
   if (config.get<boolean>("showInStatusBar", true)) {
     statusBar.show();
   }
@@ -109,9 +109,7 @@ export function activate(context: vscode.ExtensionContext): void {
         await autoFetchAndUpdate(provider, store, statusBar);
       },
       onOpenUsagePage: () =>
-        vscode.env.openExternal(
-          vscode.Uri.parse("https://claude.ai/settings/usage"),
-        ),
+        vscode.env.openExternal(vscode.Uri.parse("https://chatgpt.com")),
       onOpenSettings: () => vscode.commands.executeCommand(SETTINGS_COMMAND),
     }, context.extensionUri);
   });
@@ -119,7 +117,7 @@ export function activate(context: vscode.ExtensionContext): void {
   // Command: Refresh
   const refreshCommand = vscode.commands.registerCommand(REFRESH_COMMAND, async () => {
     statusBar.showLoading();
-    const result = await provider.fetchUsage(store.getCurrentModel());
+    const result = await provider.fetchUsage();
     if (result.success) {
       consecutiveFailures = 0;
       lastFetchError = undefined;
@@ -129,26 +127,26 @@ export function activate(context: vscode.ExtensionContext): void {
       await evaluateAndNotify(result.data);
       statusBar.refresh();
       DashboardPanel.updateIfOpen(store.getWithFreshCountdowns(), store.getTimeSinceUpdate(), lastFetchError);
-      showAutoDismissNotification("Claude Usage: usage data refreshed.", "info");
+      showAutoDismissNotification("Codex Usage: usage data refreshed.", "info");
     } else {
       statusBar.refresh();
       if (result.error.code !== "rate-limited") {
         showAutoDismissNotification(
-          `Claude Usage: fetch failed - ${describeProviderError(result.error)}`,
+          `Codex Usage: fetch failed - ${describeProviderError(result.error)}`,
           "warning"
         );
       }
     }
   });
 
-  // Command: Show model recommendation
+  // Command: Show recommendation
   const recommendCommand = vscode.commands.registerCommand(RECOMMEND_COMMAND, () => {
     const data = store.get();
 
     if (!data) {
       vscode.window
         .showInformationMessage(
-          "No usage data available. Run 'Claude Usage: Refresh' first.",
+          "No usage data available. Run 'Codex Usage: Refresh' first.",
           "Refresh Now"
         )
         .then((action) => {
@@ -169,13 +167,6 @@ export function activate(context: vscode.ExtensionContext): void {
       },
     ];
 
-    if (recommendation.suggestedModel) {
-      items.push({
-        label: `$(arrow-right) Suggested: ${formatModelName(recommendation.suggestedModel)}`,
-        description: "Use this model for your current tasks",
-      });
-    }
-
     items.push({ label: "", kind: vscode.QuickPickItemKind.Separator });
 
     for (const tip of recommendation.tips) {
@@ -190,7 +181,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
     vscode.window
       .showQuickPick(items, {
-        title: "Claude Usage: Model Recommendation",
+        title: "Codex Usage: Recommendation",
         placeHolder: "Review recommendation and tips",
       })
       .then((selected) => {
@@ -208,7 +199,7 @@ export function activate(context: vscode.ExtensionContext): void {
   // Command: Clear stored data
   const resetCommand = vscode.commands.registerCommand(RESET_COMMAND, async () => {
     const confirm = await vscode.window.showWarningMessage(
-      "Clear all stored Claude usage data?",
+      "Clear all stored Codex usage data?",
       { modal: true },
       "Clear"
     );
@@ -216,15 +207,15 @@ export function activate(context: vscode.ExtensionContext): void {
     if (confirm === "Clear") {
       await store.clear();
       statusBar.refresh();
-      vscode.window.showInformationMessage("Claude usage data cleared.");
+      vscode.window.showInformationMessage("Codex usage data cleared.");
     }
   });
 
   // Watch for config changes
   const configWatcher = vscode.workspace.onDidChangeConfiguration((event) => {
-    if (event.affectsConfiguration("claudeUsage.showInStatusBar")) {
+    if (event.affectsConfiguration("codexUsage.showInStatusBar")) {
       const show = vscode.workspace
-        .getConfiguration("claudeUsage")
+        .getConfiguration("codexUsage")
         .get<boolean>("showInStatusBar", true);
       if (show) {
         statusBar.show();
@@ -234,28 +225,18 @@ export function activate(context: vscode.ExtensionContext): void {
     }
 
     if (
-      event.affectsConfiguration("claudeUsage.refreshInterval") ||
-      event.affectsConfiguration("claudeUsage.autoFetch")
+      event.affectsConfiguration("codexUsage.refreshInterval") ||
+      event.affectsConfiguration("codexUsage.autoFetch")
     ) {
       statusBar.hide();
       statusBar.show();
     }
 
-    // When the model changes in Claude Code, refresh status bar and dashboard immediately.
-    if (event.affectsConfiguration("claudeCode.selectedModel")) {
-      statusBar.refresh();
-      DashboardPanel.updateIfOpen(
-        store.getWithFreshCountdowns(),
-        store.getTimeSinceUpdate(),
-        lastFetchError,
-      );
-    }
-
     // When threshold, color, or metric settings change, re-evaluate the status bar immediately.
     if (
-      event.affectsConfiguration("claudeUsage.thresholds") ||
-      event.affectsConfiguration("claudeUsage.colors") ||
-      event.affectsConfiguration("claudeUsage.thresholdMetric")
+      event.affectsConfiguration("codexUsage.thresholds") ||
+      event.affectsConfiguration("codexUsage.colors") ||
+      event.affectsConfiguration("codexUsage.thresholdMetric")
     ) {
       statusBar.refresh();
       DashboardPanel.updateIfOpen(
@@ -294,7 +275,7 @@ async function autoFetchAndUpdate(
   }
   fetchInFlight = true;
   try {
-    const result = await provider.fetchUsage(store.getCurrentModel());
+    const result = await provider.fetchUsage();
     if (result.success) {
       consecutiveFailures = 0;
       lastFetchError = undefined;
@@ -314,7 +295,7 @@ async function autoFetchAndUpdate(
 
       if (!suggestionFired && previousUrgency && urgencyEscalated(previousUrgency, newUrgency)) {
         const recommendation = getRecommendation(result.data);
-        showAutoDismissNotification(`Claude Usage: ${recommendation.message}`, "warning");
+        showAutoDismissNotification(`Codex Usage: ${recommendation.message}`, "warning");
       }
 
       statusBar.refresh();
@@ -325,12 +306,12 @@ async function autoFetchAndUpdate(
 
       if (result.error.code === "rate-limited") {
         statusBar.applyBackoff();
-        // Don't show popup for rate-limiting (known upstream Anthropic issue)
+        // Don't show a popup for rate-limiting; showing cached data is enough.
       } else if (consecutiveFailures >= 2 && !failureNotificationShown) {
         // Only show popup for actionable errors
         failureNotificationShown = true;
         showAutoDismissNotification(
-          `Claude Usage: auto-fetch failed - ${describeProviderError(result.error)}`,
+          `Codex Usage: auto-fetch failed - ${describeProviderError(result.error)}`,
           "warning"
         );
       }

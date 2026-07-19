@@ -9,15 +9,15 @@ import { UsageSuggestion } from "./recommendations";
  * contributed view container and fills only the (user-resizable) sidebar width,
  * which keeps the warning from stealing a whole editor column.
  *
- * Visibility is gated by the `claudeUsage.warningActive` context key: the view
+ * Visibility is gated by the `codexUsage.warningActive` context key: the view
  * (and its container icon) exist only while a warning is live, so revealing it
  * on a threshold crossing and dismissing it via Cancel both map cleanly onto
  * flipping that context key. Icons render as a stacked, narrow card. VS Code
  * notifications render `$(...)` literally and collapse newlines, so the icon-rich
  * layout is only achievable in a webview.
  */
-export const WARNING_VIEW_ID = "claudeUsageWarningView";
-export const WARNING_ACTIVE_CONTEXT = "claudeUsage.warningActive";
+export const WARNING_VIEW_ID = "codexUsageWarningView";
+export const WARNING_ACTIVE_CONTEXT = "codexUsage.warningActive";
 
 export interface WarningCallbacks {
   onOpenDashboard: () => void;
@@ -102,7 +102,7 @@ export class WarningViewProvider implements vscode.WebviewViewProvider {
     }
 
     const color = URGENCY_COLOR[this.urgency];
-    const label = "Claude";
+    const label = "Codex";
     const pct = Math.max(0, Math.min(100, Math.round(s.percent)));
 
     // Ring geometry: an SVG circle whose visible arc is `pct` of its circumference.

@@ -1,8 +1,5 @@
 import * as vscode from "vscode";
 
-/** Any Claude model ID string, e.g. "claude-sonnet-4-6" or "claude-sonnet-4-6[1m]". */
-export type ClaudeModel = string;
-
 export type UrgencyLevel = "low" | "moderate" | "high" | "critical";
 
 export interface UsageMetric {
@@ -11,28 +8,39 @@ export interface UsageMetric {
   resetsAt: number | null;
 }
 
-export type DataSource = "api" | "manual";
-
-export interface ExtraUsageInfo {
-  isEnabled: boolean;
-  monthlyLimit: number;
-  usedCredits: number;
-  utilization: number | null;
+/**
+ * An extra Codex rate-limit window beyond the primary session/weekly pair (a
+ * `wham/usage` `additional_rate_limits` entry). Rendered as a dashboard row.
+ */
+export interface UsageMetricRow {
+  label: string;
+  percent: number;
+  resetsIn: string;
+  resetsAt: number | null;
 }
+
+export type DataSource = "api" | "manual";
 
 export interface UsageData {
   session: UsageMetric;
   weeklyAllModels: UsageMetric;
-  currentModel: ClaudeModel;
+  /** For Codex this mirrors {@link planLabel} (the account tier); there is no per-model dimension. */
+  currentModel: string;
   lastUpdated: number;
   dataSource?: DataSource;
-  extraUsage?: ExtraUsageInfo;
+  /** The Codex plan/tier label shown in place of a model name (e.g. "ChatGPT Plus"). */
+  planLabel?: string;
+  /** Extra Codex rate-limit windows beyond session/weekly, rendered as additional dashboard rows. */
+  additionalLimits?: UsageMetricRow[];
+  /** A short, Codex-formatted credits summary line (e.g. "Credits: 5 remaining"). */
+  creditsSummary?: string;
 }
 
 export interface Recommendation {
   urgency: UrgencyLevel;
   message: string;
-  suggestedModel: ClaudeModel | null;
+  /** Codex has no cheaper model tier to switch to, so this is always null; kept for shape parity. */
+  suggestedModel: string | null;
   tips: string[];
 }
 
@@ -41,50 +49,6 @@ export interface StatusBarState {
   weeklyPercent: number;
   urgency: UrgencyLevel;
   tooltip: string;
-}
-
-/**
- * Parse any Claude model ID into its bare family name (Fable, Opus, Sonnet, Haiku).
- * Handles short aliases ("sonnet", "opus", "haiku", "default") and full IDs
- * ("claude-fable-5"), stripping any [1m]-style bracket suffix. No "Default" label
- * and no context-window suffix — the dashboard shows only the model family.
- * Examples:
- *   "claude-fable-5[1m]"    → "Fable"
- *   "sonnet[1m]"            → "Sonnet"
- *   "default"               → "Opus"  (Claude Code's default tier)
- *   "claude-opus-4-6"       → "Opus"
- *   "claude-haiku-4-5"      → "Haiku"
- */
-export function formatModelName(modelId: string): string {
-  const base = modelId.replace(/\[.*?\]/g, "").trim();
-  if (/^default$/i.test(base)) {
-    return "Opus";
-  }
-  if (/fable/i.test(base)) {
-    return "Fable";
-  }
-  if (/opus/i.test(base)) {
-    return "Opus";
-  }
-  if (/sonnet/i.test(base)) {
-    return "Sonnet";
-  }
-  if (/haiku/i.test(base)) {
-    return "Haiku";
-  }
-  // Unknown future model: strip prefix and version, capitalize
-  const cleaned = base.replace(/^claude-?/i, "").replace(/-\d.*/, "").replace(/-/g, " ").trim();
-  return cleaned ? cleaned.charAt(0).toUpperCase() + cleaned.slice(1) : modelId;
-}
-
-/** Strip the [1m] or any bracket suffix to get the base model ID. */
-export function baseModelId(modelId: string): string {
-  return modelId.replace(/\[.*?\]/g, "").trim();
-}
-
-/** Returns true if the model ID indicates the 1M extended-context variant. */
-export function is1MContext(modelId: string): boolean {
-  return /\[1m\]/i.test(modelId);
 }
 
 /** Upper boundary for each level. At or above this value, you enter the next level. */
@@ -144,7 +108,7 @@ export interface ColorConfig {
 
 /** Read threshold settings from VS Code configuration, falling back to hardcoded defaults. */
 export function getThresholdConfig(): ThresholdConfig {
-  const c = vscode.workspace.getConfiguration("claudeUsage");
+  const c = vscode.workspace.getConfiguration("codexUsage");
   return {
     moderate: c.get<number>("thresholds.moderate", URGENCY_THRESHOLDS.moderate),
     high:     c.get<number>("thresholds.high",     URGENCY_THRESHOLDS.high),
@@ -165,7 +129,7 @@ function migrateColorValue(raw: string | undefined, defaultHex: string): string 
 
 /** Read color settings from VS Code configuration, migrating legacy enum values. */
 export function getColorConfig(): ColorConfig {
-  const c = vscode.workspace.getConfiguration("claudeUsage");
+  const c = vscode.workspace.getConfiguration("codexUsage");
   return {
     moderate: migrateColorValue(c.get<string>("colors.moderate"), DEFAULT_URGENCY_COLORS.moderate),
     high:     migrateColorValue(c.get<string>("colors.high"),     DEFAULT_URGENCY_COLORS.high),
@@ -176,13 +140,8 @@ export function getColorConfig(): ColorConfig {
 /** Read which usage metric the thresholds should be evaluated against. */
 export function getThresholdMetric(): ThresholdMetric {
   const raw = vscode.workspace
-    .getConfiguration("claudeUsage")
+    .getConfiguration("codexUsage")
     .get<string>("thresholdMetric", "highest");
-  // Legacy migration: the Weekly (Sonnet) limit is no longer tracked on the
-  // Claude Usage page; a persisted "sonnet" selection folds into "weekly".
-  if (raw === "sonnet") {
-    return "weekly";
-  }
   return raw === "session" || raw === "weekly" ? raw : "highest";
 }
 
@@ -193,7 +152,7 @@ export function getThresholdMetric(): ThresholdMetric {
  */
 export function getNotificationTimeoutMs(): number {
   const seconds = vscode.workspace
-    .getConfiguration("claudeUsage")
+    .getConfiguration("codexUsage")
     .get<number>("notificationTimeoutSeconds", DEFAULT_NOTIFICATION_TIMEOUT_SECONDS);
   const clamped = Math.max(3, Math.min(60, seconds));
   return clamped * 1000;
@@ -203,7 +162,7 @@ export function getNotificationTimeoutMs(): number {
  * Write user-chosen hex colors into workbench.colorCustomizations for the three
  * standard VS Code status bar ThemeColor IDs, so they take effect immediately.
  * Only writes entries whose value has actually changed; removes entries for "none".
- * Old contributed-color entries (claudeUsageMonitor.*) from a previous build are
+ * Old contributed-color entries (codexUsageMonitor.*) from a previous build are
  * cleaned up automatically.
  */
 export async function syncColorsToWorkbench(colors: ColorConfig): Promise<void> {
@@ -217,9 +176,9 @@ export async function syncColorsToWorkbench(colors: ColorConfig): Promise<void> 
 
   // Remove any stale keys from the previous contributed-color implementation
   for (const stale of [
-    "claudeUsageMonitor.moderateBackground",
-    "claudeUsageMonitor.highBackground",
-    "claudeUsageMonitor.criticalBackground",
+    "codexUsageMonitor.moderateBackground",
+    "codexUsageMonitor.highBackground",
+    "codexUsageMonitor.criticalBackground",
   ]) {
     if (stale in existing) { delete existing[stale]; changed = true; }
   }

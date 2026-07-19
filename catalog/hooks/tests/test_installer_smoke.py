@@ -241,6 +241,36 @@ def test_installers_use_claude_usage_monitor_banner():
         )
 
 
+def test_installers_build_both_usage_monitor_extensions():
+    """v3.14.4 split the usage monitor into two separate extensions. Both
+    installers must build and install BOTH the Claude and the Codex
+    usage-monitor extensions (installer.sh uses '/' paths, installer.ps1 '\\').
+    """
+    for path in (INSTALLER_SH, INSTALLER_PS1):
+        body = path.read_text(encoding="utf-8")
+        lower = body.lower()
+        # Both extension source directories are referenced (either path separator).
+        assert (
+            "extensions/claude-usage-monitor" in body
+            or "extensions\\claude-usage-monitor" in body
+        ), f"{path.name} must build the Claude usage-monitor extension"
+        assert (
+            "extensions/codex-usage-monitor" in body
+            or "extensions\\codex-usage-monitor" in body
+        ), f"{path.name} must build the Codex usage-monitor extension"
+        # Both extension ids are installed by their explicit marketplace id.
+        assert "nexus-hub.claude-usage-monitor" in body, (
+            f"{path.name} must install nexus-hub.claude-usage-monitor"
+        )
+        assert "nexus-hub.codex-usage-monitor" in body, (
+            f"{path.name} must install nexus-hub.codex-usage-monitor"
+        )
+        # Both display names appear.
+        assert "codex usage monitor" in lower, (
+            f"{path.name} must reference the 'Codex Usage Monitor' display name"
+        )
+
+
 def test_installer_ps1_surfaces_vsce_errors():
     """When `vsce package` fails, the installer must surface the captured output
     rather than silently hiding it with `2>$null | Out-Null`. This was a real

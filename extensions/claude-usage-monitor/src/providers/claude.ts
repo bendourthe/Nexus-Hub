@@ -108,7 +108,7 @@ export class ClaudeUsageProvider implements UsageProvider {
   }
 
   private fail(code: ProviderFetchErrorCode, extra?: Partial<ProviderFetchError>): ProviderFetchResult {
-    return { success: false, error: { providerId: this.id, code, ...extra } };
+    return { success: false, error: { code, ...extra } };
   }
 
   private readCredentials(): OAuthCredentials | null {
