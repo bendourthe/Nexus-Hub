@@ -8,7 +8,7 @@
 
 ## v3.14.4
 
-**Status**: Phases 1-2 COMPLETE on `feat/usage-monitor-split` (cut off `develop`). Phase 1 (de-Codex the Claude extension): `claude-usage-monitor` is Claude-only again (`0.7.0 -> 0.8.0`), 3 Vitest tests green. Phase 2 (scaffold the separate Codex extension): new `extensions/codex-usage-monitor/` (`0.1.0`), Codex-only, own identity/branding/glyph-font/`#5244BB` bars, collision-free with the Claude extension, compiles clean, 34 Vitest tests green, VSIX packages, path-filtered CI workflow added. Phases 3-4 (wire both installers + dependabot + coexistence verification, then terminal refactor + docs + version bump + release) pending. Plan: [plans/v3.14.4-usage-monitor-split.md](plans/v3.14.4-usage-monitor-split.md).
+**Status**: Phases 1-3 COMPLETE on `feat/usage-monitor-split` (cut off `develop`). Phase 1 (de-Codex the Claude extension): `claude-usage-monitor` is Claude-only again (`0.7.0 -> 0.8.0`), 3 Vitest tests green. Phase 2 (scaffold the separate Codex extension): new `extensions/codex-usage-monitor/` (`0.1.0`), Codex-only, own identity/branding/glyph-font/`#5244BB` bars, collision-free with the Claude extension, 34 Vitest tests green, VSIX packages, path-filtered CI workflow added. Phase 3 (distribution wiring): both installers generalized to build/install both extensions via a shared per-extension helper, dependabot entry added for the Codex extension, installer smoke test asserts both (29 pass); `bash -n` + ShellCheck + `installer.ps1` parse all clean. Phase 4 (terminal refactor + root docs/llms.txt sync + version bump to 3.14.4 + release) pending. Plan: [plans/v3.14.4-usage-monitor-split.md](plans/v3.14.4-usage-monitor-split.md).
 
 ### Summary
 
@@ -20,9 +20,16 @@
 | Warnings (WN) | 0 | 0 |
 | Missing tests / coverage gaps (MT) | 1 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
-| Hand-offs (HO) | 0 | 0 |
+| Hand-offs (HO) | 1 | 0 |
 
 ### Open Items
+
+#### HO-1 - Runtime side-by-side install not verified in this environment
+
+- **Source phase**: v3.14.4 Phase 3
+- **Plan reference**: Phase 3 sub-task 3.4 ("side-by-side coexistence verification")
+- **Reason**: The static coexistence guarantees were verified (both extensions build + package to distinct VSIX; a scan confirms zero shared extension-id / command / `globalState`-key / webview-id / view-container / `when`-context; the smoke test asserts both installers wire both ids). The runtime confirmation that BOTH status-bar items render simultaneously in a live VS Code window (`$(claude-icon) Claude Usage: ...` and `$(codex-icon) Codex Usage: ...`) could not be automated here - it needs an interactive VS Code instance.
+- **Suggested next step**: On any machine with VS Code, run the installer (or install both VSIX with `code --install-extension`), reload, and confirm both status-bar items appear and each dashboard/settings/warning surface targets the correct extension. Low risk given the static guarantees; a manual smoke check before release is sufficient.
 
 #### DF-1 - Codex extension `icon.png` reconstructed from `codex-white.png`, not the user's `codex-2048x2048.png`
 
