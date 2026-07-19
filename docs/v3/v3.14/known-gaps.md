@@ -8,14 +8,14 @@
 
 ## v3.14.4
 
-**Status**: Phase 1 (De-Codex the Claude extension) COMPLETE on `feat/usage-monitor-split` (cut off `develop`). The `claude-usage-monitor` extension is Claude-only again (`0.7.0 -> 0.8.0`): Codex provider, provider switch/config/dropdown, and all Codex render/recommendation branches removed; compiles clean, Vitest green (3 tests), VSIX packages with no Codex code. Phases 2-4 (scaffold the separate `codex-usage-monitor` extension, wire distribution, terminal refactor + release) pending. Plan: [plans/v3.14.4-usage-monitor-split.md](plans/v3.14.4-usage-monitor-split.md).
+**Status**: Phases 1-2 COMPLETE on `feat/usage-monitor-split` (cut off `develop`). Phase 1 (de-Codex the Claude extension): `claude-usage-monitor` is Claude-only again (`0.7.0 -> 0.8.0`), 3 Vitest tests green. Phase 2 (scaffold the separate Codex extension): new `extensions/codex-usage-monitor/` (`0.1.0`), Codex-only, own identity/branding/glyph-font/`#5244BB` bars, collision-free with the Claude extension, compiles clean, 34 Vitest tests green, VSIX packages, path-filtered CI workflow added. Phases 3-4 (wire both installers + dependabot + coexistence verification, then terminal refactor + docs + version bump + release) pending. Plan: [plans/v3.14.4-usage-monitor-split.md](plans/v3.14.4-usage-monitor-split.md).
 
 ### Summary
 
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 0 | 0 |
+| Deferred (DF) | 2 | 0 |
 | Bugs / regressions (BG) | 0 | 0 |
 | Warnings (WN) | 0 | 0 |
 | Missing tests / coverage gaps (MT) | 1 | 0 |
@@ -23,6 +23,20 @@
 | Hand-offs (HO) | 0 | 0 |
 
 ### Open Items
+
+#### DF-1 - Codex extension `icon.png` reconstructed from `codex-white.png`, not the user's `codex-2048x2048.png`
+
+- **Source phase**: v3.14.4 Phase 2
+- **Plan reference**: Phase 2 sub-task 2.2 ("Save the two provided images")
+- **Reason**: The user referenced two brand assets: `codex-white.png` (found in the user's Downloads, 640x640 white cloud silhouette with the `>_` knocked out) and `codex-2048x2048.png` (the full-color Marketplace icon). Only `codex-white.png` was on disk; `codex-2048x2048.png` could not be located anywhere on the machine, and no SVG rasterizer (ImageMagick / rsvg / cairosvg / inkscape) was available to synthesize one. `icon.png` (512x512) was therefore reconstructed with Pillow from `codex-white.png`'s exact silhouette: the cloud body filled with a periwinkle->`#5244BB` vertical gradient and the `>_` knockout painted black. The result is a faithful match to the described design, but it is a reconstruction rather than the user's original file.
+- **Suggested next step**: If the user has the exact `codex-2048x2048.png`, drop it in as `extensions/codex-usage-monitor/icon.png` (a one-file swap; the manifest already points at `icon.png`, so no code change). By-design acceptable otherwise - the reconstructed icon is on-brand and functional.
+
+#### DF-2 - Exact Codex-app credential location and field shape are unverified (carried from v3.14.0)
+
+- **Source phase**: v3.14.4 Phase 2 (inherited from the v3.14.0 Codex provider)
+- **Plan reference**: Known-Gaps Ingest
+- **Reason**: The Codex provider targets the ChatGPT Codex **app** (not the open-source CLI); the app's on-disk credential path and field names could not be verified from this environment. The provider reads a configurable path (`codexUsage.authPath`, then `CODEX_HOME/auth.json`, then `~/.codex/auth.json`) and parses shape-tolerantly (nested `tokens.{access_token,account_id}` or flat, plus camelCase), failing soft when nothing usable is found.
+- **Suggested next step**: Confirm the real path/field shape against a live Codex-app install and tighten the default if warranted. Fail-soft behavior means this is not a blocker.
 
 #### MT-1 - Claude extension UI orchestration remains unit-test-light
 
