@@ -1201,8 +1201,8 @@ install_global() {
     install_permissions "$repo_root" "COPILOT" "Global"
     fi
 
-    # --- Claude Code Utilities sub-section ---
-    write_subsection_banner "Claude Code Utilities"
+    # --- Usage Monitor VS Code extensions sub-section ---
+    write_subsection_banner "Usage Monitors (VS Code Extensions)"
     install_vscode_extensions "$repo_root"
 
     # --- Skill Discovery sub-section ---
@@ -1655,12 +1655,8 @@ invoke_registry_platform() {
 install_vscode_extensions() {
     local repo_root="$1"
 
-    echo ""
-    echo -e "  ${DARK_YELLOW}> Usage Monitors${RESET}"
-
-    write_item "The Claude Usage Monitor and Codex Usage Monitor are VS Code extensions that" "$RESET"
-    write_item "show your Claude Code and Codex (ChatGPT) usage limits in the status bar and" "$RESET"
-    write_item "recommend how to pace your usage to stay within your session and weekly limits." "$RESET"
+    write_item "Usage Monitor VS Code extensions show your Claude Code and Codex (ChatGPT)" "$RESET"
+    write_item "usage limits in the status bar, with pacing recommendations. Grouped by vendor." "$RESET"
     echo ""
 
     # Check for Node.js (shared by both extensions)
@@ -1747,13 +1743,14 @@ install_vscode_extensions() {
         done
     fi
 
-    # Build, package, and install each extension in turn. Each is independent, so
-    # a missing folder or a build failure in one does not block the other.
+    # Build each extension under its own vendor header so the Anthropic and
+    # OpenAI utilities are visually separated. Each is independent, so a missing
+    # folder or a build failure in one does not block the other.
+    write_header "ANTHROPIC"
     build_and_install_one_extension "$repo_root/extensions/claude-usage-monitor" "nexus-hub.claude-usage-monitor" "Claude Usage Monitor" "Claude: --%" "$code_cli" "$code_label"
-    build_and_install_one_extension "$repo_root/extensions/codex-usage-monitor" "nexus-hub.codex-usage-monitor" "Codex Usage Monitor" "Codex: --%" "$code_cli" "$code_label"
 
-    echo ""
-    echo -e "  ${GREEN}[OK] Usage Monitor Installation Complete.${RESET}"
+    write_header "OPENAI"
+    build_and_install_one_extension "$repo_root/extensions/codex-usage-monitor" "nexus-hub.codex-usage-monitor" "Codex Usage Monitor" "Codex: --%" "$code_cli" "$code_label"
 }
 
 # Build, package, and install one VS Code usage-monitor extension. Shared by
@@ -2185,7 +2182,6 @@ install_cli_launcher() {
     local nexus_home="$HOME/.nexus-hub"
     local bin_dest="$nexus_home/bin"
 
-    echo ""
     write_subsection_banner "nexus-hub CLI"
     echo ""
 
@@ -2223,7 +2219,6 @@ install_cli_launcher() {
             write_item "  Until then, run it directly: $bin_dest/nexus-hub --version" "$GRAY"
             ;;
     esac
-    echo ""
 }
 
 # --- Project auto-seed + on-open hook (v3.11.0 Phase 7.3) ---
@@ -2243,7 +2238,6 @@ install_project_autoseed() {
     local hooks_dest="$nexus_home/hooks"
     local runner="$repo_root/scripts/lib/integrations/runner.py"
 
-    echo ""
     write_subsection_banner "Project auto-seed (Antigravity .agents/, Cursor, Claude)"
     echo ""
 
@@ -2961,7 +2955,6 @@ install_project_autoseed "$REPO_ROOT" "$SCOPE_LABEL"
 # fails the install).
 if [ -f "$REPO_ROOT/scripts/lib/integrations/runner.py" ]; then
     if py=$(resolve_python_executable 2>/dev/null); then
-        echo ""
         write_subsection_banner "Install verification"
         "$py" "$REPO_ROOT/scripts/lib/integrations/runner.py" verify --target "$(pwd -P 2>/dev/null || pwd)" 2>/dev/null || true
     fi

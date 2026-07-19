@@ -1515,8 +1515,8 @@ function Install-Global {
         Install-Permissions -RepoRoot $RepoRoot -Platform "COPILOT" -Scope "Global"
     }
 
-    # --- Claude Code Utilities sub-section ---
-    Write-SubSectionBanner -Text "Claude Code Utilities"
+    # --- Usage Monitor VS Code extensions sub-section ---
+    Write-SubSectionBanner -Text "Usage Monitors (VS Code Extensions)"
     Install-VSCodeExtensions -RepoRoot $RepoRoot
 
     # --- Skill Discovery sub-section ---
@@ -1962,12 +1962,8 @@ function Invoke-RegistryPlatform {
 
 function Install-VSCodeExtensions {
     param ($RepoRoot)
-    Write-Host ""
-    Write-Host "  > Usage Monitors" -ForegroundColor DarkYellow
-
-    Write-Item -Message "The Claude Usage Monitor and Codex Usage Monitor are VS Code extensions that" -Color "White"
-    Write-Item -Message "show your Claude Code and Codex (ChatGPT) usage limits in the status bar and" -Color "White"
-    Write-Item -Message "recommend how to pace your usage to stay within your session and weekly limits." -Color "White"
+    Write-Item -Message "Usage Monitor VS Code extensions show your Claude Code and Codex (ChatGPT)" -Color "White"
+    Write-Item -Message "usage limits in the status bar, with pacing recommendations. Grouped by vendor." -Color "White"
     Write-Host ""
 
     # Check for Node.js (shared by both extensions)
@@ -2055,16 +2051,17 @@ function Install-VSCodeExtensions {
         }
     }
 
-    # Build, package, and install each extension in turn. Each is independent, so
-    # a missing folder or a build failure in one does not block the other.
+    # Build each extension under its own vendor header so the Anthropic and
+    # OpenAI utilities are visually separated. Each is independent, so a missing
+    # folder or a build failure in one does not block the other.
+    Write-Header -Provider "ANTHROPIC"
     Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\claude-usage-monitor") -ExtensionId "nexus-hub.claude-usage-monitor" -DisplayName "Claude Usage Monitor" -StatusHint "Claude: --%" -CodeCli $codeCli -CodeLabel $codeLabel
+
+    Write-Header -Provider "OPENAI"
     Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\codex-usage-monitor") -ExtensionId "nexus-hub.codex-usage-monitor" -DisplayName "Codex Usage Monitor" -StatusHint "Codex: --%" -CodeCli $codeCli -CodeLabel $codeLabel
 
     # Restore strict error mode
     $ErrorActionPreference = $savedErrorPref
-
-    Write-Host ""
-    Write-Host "  ✓ Usage Monitor Installation Complete." -ForegroundColor Green
 }
 
 # Build, package, and install one VS Code usage-monitor extension. Shared by
@@ -2512,7 +2509,6 @@ function Install-CliLauncher {
     $nexusHome = Join-Path $env:USERPROFILE ".nexus-hub"
     $binDest = Join-Path $nexusHome "bin"
 
-    Write-Host ""
     Write-SubSectionBanner -Text "nexus-hub CLI"
     Write-Host ""
 
@@ -2541,7 +2537,6 @@ function Install-CliLauncher {
         Write-Item -Message "    [Environment]::SetEnvironmentVariable('PATH', `"`$([Environment]::GetEnvironmentVariable('PATH','User'));$binDest`", 'User')" -Color "Cyan"
         Write-Item -Message "  Until then, run it directly: $binDest\nexus-hub.cmd --version" -Color "Gray"
     }
-    Write-Host ""
 }
 
 
@@ -2560,7 +2555,6 @@ function Install-ProjectAutoseed {
     $hooksDest = Join-Path $nexusHome "hooks"
     $runner = Join-Path $RepoRoot "scripts\lib\integrations\runner.py"
 
-    Write-Host ""
     Write-SubSectionBanner -Text "Project auto-seed (Antigravity .agents/, Cursor, Claude)"
     Write-Host ""
 
@@ -3115,7 +3109,6 @@ $verifyRunner = Join-Path $repoRoot "scripts\lib\integrations\runner.py"
 $pyVerify = $null
 foreach ($c in @("python", "py", "python3")) { if (Get-Command $c -ErrorAction SilentlyContinue) { $pyVerify = $c; break } }
 if ($pyVerify -and (Test-Path $verifyRunner)) {
-    Write-Host ""
     Write-SubSectionBanner -Text "Install verification"
     if ($pyVerify -eq "py") { & $pyVerify -3 $verifyRunner verify --target (Get-Location).Path 2>$null }
     else { & $pyVerify $verifyRunner verify --target (Get-Location).Path 2>$null }
