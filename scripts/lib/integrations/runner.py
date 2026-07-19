@@ -133,18 +133,49 @@ def _classify_surface(path_str: str, instruction_file: Optional[str]) -> Optiona
     return None
 
 
-def _common_path(paths: List[str]) -> str:
-    """Return the representative path for a surface: the single path, or the
-    common parent directory when a surface spans many FileActions (e.g. one per
-    flattened skill). Falls back to the first path on any mismatch."""
-    if not paths:
-        return ""
-    if len(paths) == 1:
-        return paths[0]
-    try:
-        return os.path.commonpath(paths)
-    except (ValueError, OSError):
-        return paths[0]
+# Path segments that identify each directory surface, used to trim a FileAction
+# path down to its surface directory for display.
+_SURFACE_SEGMENTS = {
+    "skills": frozenset({"skills"}),
+    "commands": _COMMANDS_SEGMENTS,
+    "agents": _AGENTS_SEGMENTS,
+    "rules": frozenset({"rules"}),
+    "hooks": frozenset({"hooks"}),
+}
+
+
+def _surface_root(path_str: str, surface: str) -> str:
+    """Return the surface's directory for one FileAction path.
+
+    FileActions within a surface land at inconsistent depths (a flattened skill
+    dir ``~/.codex/skills/foo`` vs a command-skill file
+    ``~/.codex/skills/bar/SKILL.md``), so trimming each path to the ancestor
+    ending at the surface segment (``~/.codex/skills``) is what makes the
+    distinct-directory set meaningful. File surfaces (instruction, settings) and
+    unmatched paths return the path unchanged.
+    """
+    segs = _SURFACE_SEGMENTS.get(surface)
+    if not segs:
+        return path_str
+    parts = PurePath(path_str).parts
+    for i, part in enumerate(parts):
+        if part.lower() in segs:
+            return str(PurePath(*parts[: i + 1]))
+    return path_str
+
+
+def _join_distinct(values: List[str]) -> str:
+    """Join distinct non-empty values in first-seen order with ', '.
+
+    A surface can span more than one root (Codex writes skills to BOTH
+    ``~/.codex/skills`` and ``~/.agents/skills``), so the checklist shows every
+    distinct surface directory rather than collapsing to their shared parent.
+    """
+    seen: List[str] = []
+    for v in values:
+        if v and v not in seen:
+            seen.append(v)
+    return ", ".join(seen)
 
 
 def _build_platform_summary(key: str, integ, result: WriteResult) -> dict:
@@ -172,15 +203,15 @@ def _build_platform_summary(key: str, integ, result: WriteResult) -> dict:
         surface = _classify_surface(fa.path, instruction_file)
         if surface is None:
             continue
-        entry = grouped.setdefault(surface, {"paths": [], "present": False})
-        entry["paths"].append(fa.path)
+        entry = grouped.setdefault(surface, {"roots": [], "present": False})
+        entry["roots"].append(_surface_root(fa.path, surface))
         if fa.action in _PRESENT_ACTIONS:
             entry["present"] = True
 
     surfaces = {
         surface: {
             "status": "installed" if entry["present"] else "error",
-            "path": _common_path(entry["paths"]),
+            "path": _join_distinct(entry["roots"]),
         }
         for surface, entry in grouped.items()
     }

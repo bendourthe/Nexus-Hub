@@ -2,27 +2,43 @@
 
 **Project**: Nexus-Hub
 **Status**: v3.14.0 RELEASED (2026-07-16: `feat/codex-lb-adoption` -> `develop` -> `main`, tag `v3.14.0`, pushed; GitHub Release publish handed to the user due to an invalid local `gh` token). v3.14.1 installer-hotfix on `fix/installer-hotfix` (cut off the released `develop`): all 3 phases complete; RELEASE-READY, pending `/update release` (v3.14.1 bump / `develop` -> `main` merge / tag / push / GitHub Release). v3.14.2 comparison-versioning-fix on `fix/comparison-versioning` (cut off `develop`): Phases 1-3 (Fix A adoption-target placement + Fix B from-comparison co-location + Fix C co-location drift check) complete; Phase 4 (terminal refactor/known-gaps/CI-CD) pending.
-**Last updated**: 2026-07-19 (v3.14.5 Phase 1, runner structured per-surface results)
+**Last updated**: 2026-07-19 (v3.14.5 Phase 2, installer checklist log + undetected grouping + colors)
 
 > **Prior-version ingest**: the open v3.13 items (presentify DF-1..DF-5, WN-1/2, MT-1) are unrelated to this feature set and do not carry in. HO-1 (flat/nested skill-name collision across skill layouts) was VERIFIED clean by the Phase 6.4 dry-run install: `review-trapdoors` lands flattened at `skills/review-trapdoors/SKILL.md` across all seven platform skill paths with no nested `skills/code-review/review-trapdoors/` variant.
 
 ## v3.14.5
 
-**Status**: Phase 1 of 7 COMPLETE on `feat/installer-ux-monitor-fixes` (cut off `develop`). Runner structured per-surface summary channel (`runner.py --summary-json`) + `WriteResult.detected` / `mark_not_detected()` + the five detection-gated subclasses (kimi/qwen/openclaw/windsurf/copilot) now report detected-vs-skipped, so the installer can render an accurate per-platform checklist and stop reporting undetected platforms as installed. This is the foundation for the Phase 2 checklist log. Per-phase gates green (new suite 25/25; full tests/integrations green after a 1-iteration troubleshooting fix). Plan: [plans/v3.14.5-installer-ux-and-monitor-fixes.md](plans/v3.14.5-installer-ux-and-monitor-fixes.md).
+**Status**: Phase 1 of 7 COMPLETE on `feat/installer-ux-monitor-fixes` (cut off `develop`). Runner structured per-surface summary channel (`runner.py --summary-json`) + `WriteResult.detected` / `mark_not_detected()` + the five detection-gated subclasses (kimi/qwen/openclaw/windsurf/copilot) now report detected-vs-skipped, so the installer can render an accurate per-platform checklist and stop reporting undetected platforms as installed. **Phase 2 COMPLETE** (global scope): both installers now render that summary as the mockup per-platform checklist with lazy vendor headers, a single grouped "NOT DETECTED" section, colors for Kimi/Qwen/OpenClaw (+ Aider/Windsurf in bash), and the verbose per-platform caveats removed; Claude renders the unified checklist via quiet helpers (`6>$null` / `>/dev/null`). A `_surface_root`/`_join_distinct` refinement of the Phase 1 runner makes multi-root surfaces (Codex skills) render clean paths. Gates green (installer smoke 29/29; tests/integrations 354; `installer.ps1` parse + `bash -n` + ShellCheck clean). Plan: [plans/v3.14.5-installer-ux-and-monitor-fixes.md](plans/v3.14.5-installer-ux-and-monitor-fixes.md).
 
 ### Summary
 
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 0 | 0 |
+| Deferred (DF) | 1 | 0 |
 | Bugs / regressions (BG) | 0 | 0 |
 | Warnings (WN) | 1 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 | Hand-offs (HO) | 0 | 0 |
 
+### Advisory (pre-existing test failures, NOT caused by v3.14.5)
+
+Two `tests/installer/` tests fail on this branch; both are pre-existing (documented identically in the v3.14.3 advisory) and neither touches any file this version changed:
+
+- `test_init_subcommand.py::test_default_wire_project_surfaces_returns_none` - the test's `overrides` set omits `copilot`, which has overridden `wire_project_surfaces` since v3.11.0 (returns a skip-note `WriteResult`, not `None`). Phase 1/2 never touched `wire_project_surfaces`. Fix: add `copilot` to the test's `overrides` set (a one-line test update, separate patch).
+- `test_bootstrap.py::test_ps_standalone_extracts_and_hands_off` - the Git-Bash `/usr/bin/tar` misparses the `C:\...` tarball path on this Windows host; env-only, does not reproduce on the Linux CI runner. No file this version changed is involved.
+
 ### Open Items
+
+#### Deferred
+
+##### DF-1 - Workspace-scope Claude checklist + workspace undetected grouping deferred
+
+- **Source phase**: v3.14.5 Phase 2
+- **Plan reference**: Phase 2 (2.1/2.3 - the plan's stability gate is a global side-by-side install)
+- **Reason**: Phase 2 scoped the checklist + grouping to the GLOBAL install (`Install-Global` / `install_global`), which is what every screenshot showed. Workspace-scope registry platforms already get the checklist automatically via the shared `Invoke-RegistryPlatform` / `invoke_registry_platform` (the rewrite is scope-agnostic), but the workspace-scope Claude block still prints its bespoke verbose output, and workspace undetected platforms print an inline `(reason)` note rather than being collected into a grouped section (the grouping is gated on the `-Provider` arg, which only the global caller passes).
+- **Suggested next step**: apply the same `6>$null`/`>/dev/null` + checklist treatment to the workspace Claude block and add `reset_undetected_platforms`/`write_undetected_group` (+ pass provider) to `Install-Workspace` / `install_workspace`. Low risk (mirrors the global rewrite); out of scope for the global-focused Phase 2.
 
 #### Warnings
 

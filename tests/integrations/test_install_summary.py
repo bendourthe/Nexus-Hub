@@ -145,11 +145,25 @@ def test_classify_surface(path: str, instruction_file, expected) -> None:
 # ---------------------------------------------------------------------------
 
 
-def test_common_path_empty_single_and_multi() -> None:
-    assert runner._common_path([]) == ""
-    assert runner._common_path(["/a/b/c"]) == "/a/b/c"
-    multi = [os.path.join("x", "skills", "a"), os.path.join("x", "skills", "b")]
-    assert runner._common_path(multi) == os.path.commonpath(multi)
+def test_surface_root_trims_to_surface_dir() -> None:
+    # A deep command-skill file and a flattened skill dir both trim to the
+    # surface directory, so the distinct-roots set stays meaningful.
+    deep = os.path.join("h", ".codex", "skills", "commit", "SKILL.md")
+    shallow = os.path.join("h", ".codex", "skills", "foo")
+    assert runner._surface_root(deep, "skills") == os.path.join("h", ".codex", "skills")
+    assert runner._surface_root(shallow, "skills") == os.path.join("h", ".codex", "skills")
+    # File surfaces (instruction, settings) return the path unchanged.
+    inst = os.path.join("h", ".codex", "AGENTS.md")
+    assert runner._surface_root(inst, "instruction") == inst
+
+
+def test_join_distinct_multi_root() -> None:
+    # A surface spanning two roots (Codex skills) lists both, deduped.
+    a = os.path.join("h", ".codex", "skills")
+    b = os.path.join("h", ".agents", "skills")
+    assert runner._join_distinct([a, a, b]) == a + ", " + b
+    assert runner._join_distinct([]) == ""
+    assert runner._join_distinct(["/only"]) == "/only"
 
 
 # ---------------------------------------------------------------------------
@@ -171,9 +185,7 @@ def test_build_platform_summary_groups_surfaces() -> None:
     assert summary["detected"] is None
     assert summary["surfaces"]["instruction"]["status"] == "installed"
     assert summary["surfaces"]["skills"]["status"] == "installed"
-    assert summary["surfaces"]["skills"]["path"] == os.path.commonpath(
-        [os.path.join(skills_dir, "a"), os.path.join(skills_dir, "b")]
-    )
+    assert summary["surfaces"]["skills"]["path"] == skills_dir
     assert summary["surfaces"]["commands"]["status"] == "installed"
 
 
@@ -210,7 +222,8 @@ def test_summary_json_reports_installed_surfaces(
     assert data["scope"] == "global"
     codex = next(p for p in data["platforms"] if p["platform"] == "codex")
     assert codex["surfaces"]["skills"]["status"] == "installed"
-    assert codex["surfaces"]["skills"]["path"] == str(fake_home / ".codex" / "skills" / "s")
+    # The skill leaf (~/.codex/skills/s) trims to the surface directory.
+    assert codex["surfaces"]["skills"]["path"] == str(fake_home / ".codex" / "skills")
     assert codex["surfaces"]["instruction"]["status"] == "installed"
 
 
