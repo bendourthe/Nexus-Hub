@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { UrgencyLevel, ProviderId, providerLabel } from "./types";
+import { UrgencyLevel } from "./types";
 import { formatResetLabel } from "./usageStore";
 import { UsageSuggestion } from "./recommendations";
 
@@ -34,7 +34,6 @@ export class WarningViewProvider implements vscode.WebviewViewProvider {
   private view: vscode.WebviewView | undefined;
   private suggestion: UsageSuggestion | undefined;
   private urgency: UrgencyLevel = "moderate";
-  private providerId: ProviderId = "claude";
   private callbacks: WarningCallbacks | undefined;
 
   resolveWebviewView(view: vscode.WebviewView): void {
@@ -74,11 +73,9 @@ export class WarningViewProvider implements vscode.WebviewViewProvider {
     suggestion: UsageSuggestion,
     urgency: UrgencyLevel,
     callbacks: WarningCallbacks,
-    providerId: ProviderId = "claude",
   ): Promise<void> {
     this.suggestion = suggestion;
     this.urgency = urgency;
-    this.providerId = providerId;
     this.callbacks = callbacks;
 
     await vscode.commands.executeCommand("setContext", WARNING_ACTIVE_CONTEXT, true);
@@ -105,7 +102,7 @@ export class WarningViewProvider implements vscode.WebviewViewProvider {
     }
 
     const color = URGENCY_COLOR[this.urgency];
-    const label = providerLabel(this.providerId);
+    const label = "Claude";
     const pct = Math.max(0, Math.min(100, Math.round(s.percent)));
 
     // Ring geometry: an SVG circle whose visible arc is `pct` of its circumference.

@@ -3,29 +3,9 @@ import * as vscode from "vscode";
 /** Any Claude model ID string, e.g. "claude-sonnet-4-6" or "claude-sonnet-4-6[1m]". */
 export type ClaudeModel = string;
 
-/** Identifier for a usage provider family. */
-export type ProviderId = "claude" | "codex";
-
-/** Human-facing label for a provider, used in status-bar text and panel headers. */
-export function providerLabel(providerId: ProviderId | undefined): string {
-  return providerId === "codex" ? "Codex" : "Claude";
-}
-
 export type UrgencyLevel = "low" | "moderate" | "high" | "critical";
 
 export interface UsageMetric {
-  percent: number;
-  resetsIn: string;
-  resetsAt: number | null;
-}
-
-/**
- * An extra usage window a provider exposes beyond the primary session/weekly
- * pair (e.g. a Codex `additional_rate_limits` entry). Rendered as a dashboard
- * row when present; the Claude provider leaves these unset.
- */
-export interface UsageMetricRow {
-  label: string;
   percent: number;
   resetsIn: string;
   resetsAt: number | null;
@@ -47,22 +27,6 @@ export interface UsageData {
   lastUpdated: number;
   dataSource?: DataSource;
   extraUsage?: ExtraUsageInfo;
-  /**
-   * Which provider produced this data. Optional so persisted Claude data from
-   * older versions (which never set it) reads back as Claude. The UI and the
-   * recommendation engine branch on this to render provider-appropriate labels
-   * and advice.
-   */
-  providerId?: ProviderId;
-  /**
-   * A plan/tier label to display in place of a model name (e.g. Codex "Plus").
-   * When set, the dashboard shows it instead of `formatModelName(currentModel)`.
-   */
-  planLabel?: string;
-  /** Extra usage windows beyond session/weekly, rendered as additional dashboard rows. */
-  additionalLimits?: UsageMetricRow[];
-  /** A short, provider-formatted credits summary line (e.g. "Credits: $5.00 remaining"). */
-  creditsSummary?: string;
 }
 
 export interface Recommendation {

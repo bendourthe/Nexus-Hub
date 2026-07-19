@@ -1,0 +1,12 @@
+.vscode/**
+node_modules/**
+src/**
+icons/*.png
+fonts/*.ttf
+fonts/*.svg
+scripts/**
+tsconfig.json
+.fantasticonrc.json
+test/**
+vitest.config.ts
+**/*.map

@@ -108,7 +108,7 @@ function Get-SanitizedBranchName {
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:NexusHubVersion = "3.14.3"
+$script:NexusHubVersion = "3.14.4"
 
 $Host.UI.RawUI.WindowTitle = "Nexus-Hub Installer"
 $script:InstallerTitle = "Nexus-Hub Installer"
@@ -1856,24 +1856,17 @@ function Invoke-RegistryPlatform {
 function Install-VSCodeExtensions {
     param ($RepoRoot)
     Write-Host ""
-    Write-Host "  > Claude Usage Monitor" -ForegroundColor DarkYellow
+    Write-Host "  > Usage Monitors" -ForegroundColor DarkYellow
 
-    Write-Item -Message "The Claude Usage Monitor is a VS Code extension that displays your Claude" -Color "White"
-    Write-Item -Message "Code usage limits in the status bar and recommends when to switch models" -Color "White"
-    Write-Item -Message "(e.g., Opus to Sonnet) to stay within your session and weekly limits." -Color "White"
+    Write-Item -Message "The Claude Usage Monitor and Codex Usage Monitor are VS Code extensions that" -Color "White"
+    Write-Item -Message "show your Claude Code and Codex (ChatGPT) usage limits in the status bar and" -Color "White"
+    Write-Item -Message "recommend how to pace your usage to stay within your session and weekly limits." -Color "White"
     Write-Host ""
 
-    $extensionDir = Join-Path $RepoRoot "extensions\claude-usage-monitor"
-
-    if (-not (Test-Path $extensionDir)) {
-        Write-Item -Message "Extension source not found at: $extensionDir" -Color "Red"
-        return
-    }
-
-    # Check for Node.js
+    # Check for Node.js (shared by both extensions)
     $nodeCmd = Get-Command "node" -ErrorAction SilentlyContinue
     if (-not $nodeCmd) {
-        Write-Item -Message "Node.js is not installed (required to build the extension)." -Color "DarkYellow"
+        Write-Item -Message "Node.js is not installed (required to build the extensions)." -Color "DarkYellow"
         # A non-interactive run (the piped one-command bootstrap, -Yes, or CI) installs
         # without asking so every dependency is present in one pass; interactive prompts.
         if ($script:AssumeYes) { $installResp = "y" } else { $installResp = Read-Prompt "Install Node.js LTS via winget? [Y]es / [N]o" }
@@ -1882,7 +1875,7 @@ function Install-VSCodeExtensions {
             $wingetCmd = Get-Command "winget" -ErrorAction SilentlyContinue
             if (-not $wingetCmd) {
                 Write-Item -Message "winget is not available. Please install Node.js manually from https://nodejs.org" -Color "Red"
-                Write-Item -Message "After installing Node.js, re-run this installer to build the extension." -Color "Yellow"
+                Write-Item -Message "After installing Node.js, re-run this installer to build the extensions." -Color "Yellow"
                 return
             }
 
@@ -1907,7 +1900,7 @@ function Install-VSCodeExtensions {
             }
         }
         else {
-            Write-Item -Message "Skipped. Install Node.js from https://nodejs.org and re-run to build the extension." -Color "Gray"
+            Write-Item -Message "Skipped. Install Node.js from https://nodejs.org and re-run to build the extensions." -Color "Gray"
             return
         }
     }
@@ -1916,7 +1909,7 @@ function Install-VSCodeExtensions {
         Write-Item -Message "Found Node.js $nodeVersion" -Color "DarkGreen"
     }
 
-    # Check for npm
+    # Check for npm (shared)
     $npmCmd = Get-Command "npm" -ErrorAction SilentlyContinue
     if (-not $npmCmd) {
         Write-Item -Message "npm not found. Please ensure Node.js is properly installed." -Color "Red"
@@ -1924,84 +1917,14 @@ function Install-VSCodeExtensions {
     }
 
     # Suspend strict error mode for native CLI tools (npm/npx write warnings to stderr
-    # which PowerShell converts to terminating errors under $ErrorActionPreference = "Stop")
+    # which PowerShell converts to terminating errors under $ErrorActionPreference = "Stop").
+    # Shared across both extension builds; restored once at the end.
     $savedErrorPref = $ErrorActionPreference
     $ErrorActionPreference = "Continue"
 
-    # Build the extension
-    Write-Item -Message "Building Claude Usage Monitor extension..." -Color "White"
-    Push-Location $extensionDir
-
-    # Clean compiled output so deleted source files don't linger as stale JS
-    $outDir = Join-Path $extensionDir "out"
-    if (Test-Path $outDir) {
-        Remove-Item -Path $outDir -Recurse -Force
-    }
-
-    # A node_modules tree copied in from another OS leaves bin shims the current
-    # shell cannot exec, so the build fails with a confusing error. Removing it
-    # forces a clean, OS-correct dependency tree (mirrors installer.sh).
-    $nmDir = Join-Path $extensionDir "node_modules"
-    if (Test-Path $nmDir) {
-        Remove-Item -Path $nmDir -Recurse -Force
-    }
-
-    Write-Item -Message "  Installing dependencies..." -Color "Gray"
-    $npmOutput = & npm install --silent 2>&1
-    Restore-Title
-    if ($LASTEXITCODE -ne 0) {
-        Write-Item -Message "Build failed: npm install failed" -Color "Red"
-        if ($npmOutput) { $npmOutput | Select-Object -Last 20 | ForEach-Object { Write-Item -Message "    $_" -Color "Gray" } }
-        Pop-Location
-        $ErrorActionPreference = $savedErrorPref
-        return
-    }
-
-    Write-Item -Message "  Compiling TypeScript..." -Color "Gray"
-    $compileOutput = & npm run compile 2>&1
-    Restore-Title
-    if ($LASTEXITCODE -ne 0) {
-        Write-Item -Message "Build failed: TypeScript compilation failed" -Color "Red"
-        if ($compileOutput) { $compileOutput | Select-Object -Last 30 | ForEach-Object { Write-Item -Message "    $_" -Color "Gray" } }
-        Pop-Location
-        $ErrorActionPreference = $savedErrorPref
-        return
-    }
-
-    Write-Item -Message "✓ Extension built successfully." -Color "DarkGreen"
-    Pop-Location
-
-    # Package as VSIX (uses locally installed @vscode/vsce from devDependencies)
-    Write-Item -Message "Packaging extension as VSIX..." -Color "White"
-    Push-Location $extensionDir
-    # Capture stdout + stderr so failures surface the real vsce diagnostic
-    # (previously swallowed by 2>$null | Out-Null, leaving operators with no clue).
-    # The bundled LICENSE removes vsce's only packaging warning, so it no longer
-    # shows its interactive "Do you want to continue? [y/N]" prompt; piping "y" is
-    # belt-and-suspenders for any future warning on an unattended run.
-    $vsceOutput = "y" | & npx vsce package --no-dependencies 2>&1
-    Restore-Title
-    $vsixExitCode = $LASTEXITCODE
-    Pop-Location
-
-    $vsixFile = Get-ChildItem $extensionDir -Filter "*.vsix" -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1
-
-    if (($vsixExitCode -ne 0) -or (-not $vsixFile)) {
-        Write-Item -Message "Packaging failed (exit code: $vsixExitCode)." -Color "Red"
-        if ($vsceOutput) {
-            Write-Item -Message "vsce output:" -Color "Gray"
-            $vsceOutput | ForEach-Object { Write-Item -Message "    $_" -Color "Gray" }
-        }
-        Write-Item -Message "You can still use the extension in development mode (F5 in VS Code)." -Color "Yellow"
-        $ErrorActionPreference = $savedErrorPref
-        return
-    }
-
-    Write-Item -Message "✓ Packaged: $($vsixFile.Name)" -Color "DarkGreen"
-
-    # Locate a VS Code-family CLI. On a fresh machine `code` is not always on PATH,
-    # so fall back to the standard Windows install locations. This lets the VSIX
-    # auto-install instead of leaving the user to do it by hand (mirrors installer.sh).
+    # Locate a VS Code-family CLI once, shared by both extensions. On a fresh machine
+    # `code` is not always on PATH, so fall back to the standard Windows install
+    # locations. This lets each VSIX auto-install instead of by hand (mirrors installer.sh).
     $codeCli = $null
     $codeLabel = "VS Code"
     if (Get-Command "code" -ErrorAction SilentlyContinue) {
@@ -2025,21 +1948,114 @@ function Install-VSCodeExtensions {
         }
     }
 
+    # Build, package, and install each extension in turn. Each is independent, so
+    # a missing folder or a build failure in one does not block the other.
+    Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\claude-usage-monitor") -ExtensionId "nexus-hub.claude-usage-monitor" -DisplayName "Claude Usage Monitor" -StatusHint "Claude: --%" -CodeCli $codeCli -CodeLabel $codeLabel
+    Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\codex-usage-monitor") -ExtensionId "nexus-hub.codex-usage-monitor" -DisplayName "Codex Usage Monitor" -StatusHint "Codex: --%" -CodeCli $codeCli -CodeLabel $codeLabel
+
+    # Restore strict error mode
+    $ErrorActionPreference = $savedErrorPref
+
+    Write-Host ""
+    Write-Host "  ✓ Usage Monitor Installation Complete." -ForegroundColor Green
+}
+
+# Build, package, and install one VS Code usage-monitor extension. Shared by
+# Install-VSCodeExtensions so the Claude and Codex monitors install identically.
+function Build-And-Install-One-Extension {
+    param ($ExtensionDir, $ExtensionId, $DisplayName, $StatusHint, $CodeCli, $CodeLabel)
+
+    Write-Host ""
+    Write-Host "  > $DisplayName" -ForegroundColor DarkYellow
+
+    if (-not (Test-Path $ExtensionDir)) {
+        Write-Item -Message "Extension source not found at: $ExtensionDir" -Color "Red"
+        return
+    }
+
+    # Build the extension
+    Write-Item -Message "Building $DisplayName extension..." -Color "White"
+    Push-Location $ExtensionDir
+
+    # Clean compiled output so deleted source files don't linger as stale JS
+    $outDir = Join-Path $ExtensionDir "out"
+    if (Test-Path $outDir) {
+        Remove-Item -Path $outDir -Recurse -Force
+    }
+
+    # A node_modules tree copied in from another OS leaves bin shims the current
+    # shell cannot exec, so the build fails with a confusing error. Removing it
+    # forces a clean, OS-correct dependency tree (mirrors installer.sh).
+    $nmDir = Join-Path $ExtensionDir "node_modules"
+    if (Test-Path $nmDir) {
+        Remove-Item -Path $nmDir -Recurse -Force
+    }
+
+    Write-Item -Message "  Installing dependencies..." -Color "Gray"
+    $npmOutput = & npm install --silent 2>&1
+    Restore-Title
+    if ($LASTEXITCODE -ne 0) {
+        Write-Item -Message "Build failed: npm install failed" -Color "Red"
+        if ($npmOutput) { $npmOutput | Select-Object -Last 20 | ForEach-Object { Write-Item -Message "    $_" -Color "Gray" } }
+        Pop-Location
+        return
+    }
+
+    Write-Item -Message "  Compiling TypeScript..." -Color "Gray"
+    $compileOutput = & npm run compile 2>&1
+    Restore-Title
+    if ($LASTEXITCODE -ne 0) {
+        Write-Item -Message "Build failed: TypeScript compilation failed" -Color "Red"
+        if ($compileOutput) { $compileOutput | Select-Object -Last 30 | ForEach-Object { Write-Item -Message "    $_" -Color "Gray" } }
+        Pop-Location
+        return
+    }
+
+    Write-Item -Message "✓ Extension built successfully." -Color "DarkGreen"
+    Pop-Location
+
+    # Package as VSIX (uses locally installed @vscode/vsce from devDependencies)
+    Write-Item -Message "Packaging extension as VSIX..." -Color "White"
+    Push-Location $ExtensionDir
+    # Capture stdout + stderr so failures surface the real vsce diagnostic
+    # (previously swallowed by 2>$null | Out-Null, leaving operators with no clue).
+    # The bundled LICENSE removes vsce's only packaging warning, so it no longer
+    # shows its interactive "Do you want to continue? [y/N]" prompt; piping "y" is
+    # belt-and-suspenders for any future warning on an unattended run.
+    $vsceOutput = "y" | & npx vsce package --no-dependencies 2>&1
+    Restore-Title
+    $vsixExitCode = $LASTEXITCODE
+    Pop-Location
+
+    $vsixFile = Get-ChildItem $ExtensionDir -Filter "*.vsix" -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+
+    if (($vsixExitCode -ne 0) -or (-not $vsixFile)) {
+        Write-Item -Message "Packaging failed (exit code: $vsixExitCode)." -Color "Red"
+        if ($vsceOutput) {
+            Write-Item -Message "vsce output:" -Color "Gray"
+            $vsceOutput | ForEach-Object { Write-Item -Message "    $_" -Color "Gray" }
+        }
+        Write-Item -Message "You can still use the extension in development mode (F5 in VS Code)." -Color "Yellow"
+        return
+    }
+
+    Write-Item -Message "✓ Packaged: $($vsixFile.Name)" -Color "DarkGreen"
+
     # Install into the detected editor
-    if ($codeCli) {
+    if ($CodeCli) {
         # Uninstall any existing version first so the editor does not skip the reinstall
-        & $codeCli --uninstall-extension "nexus-hub.claude-usage-monitor" 2>$null | Out-Null
+        & $CodeCli --uninstall-extension $ExtensionId 2>$null | Out-Null
         Restore-Title
         # --force ensures reinstall even when the version number has not changed
-        & $codeCli --install-extension $vsixFile.FullName --force 2>$null | Out-Null
+        & $CodeCli --install-extension $vsixFile.FullName --force 2>$null | Out-Null
         Restore-Title
         if ($LASTEXITCODE -eq 0) {
-            Write-Item -Message "✓ Claude Usage Monitor extension installed in $codeLabel!" -Color "DarkGreen"
-            Write-Item -Message "  Restart $codeLabel to activate. Look for 'Claude: --%' in the status bar." -Color "White"
+            Write-Item -Message "✓ $DisplayName extension installed in $CodeLabel!" -Color "DarkGreen"
+            Write-Item -Message "  Restart $CodeLabel to activate. Look for '$StatusHint' in the status bar." -Color "White"
         }
         else {
-            Write-Item -Message "$codeLabel install failed. You can install manually:" -Color "Yellow"
-            Write-Item -Message "  `"$codeCli`" --install-extension `"$($vsixFile.FullName)`"" -Color "White"
+            Write-Item -Message "$CodeLabel install failed. You can install manually:" -Color "Yellow"
+            Write-Item -Message "  `"$CodeCli`" --install-extension `"$($vsixFile.FullName)`"" -Color "White"
         }
     }
     else {
@@ -2047,12 +2063,6 @@ function Install-VSCodeExtensions {
         Write-Item -Message "VSIX saved at: $($vsixFile.FullName)" -Color "White"
         Write-Item -Message "Install manually via VS Code: Extensions > ... > Install from VSIX" -Color "Gray"
     }
-
-    # Restore strict error mode
-    $ErrorActionPreference = $savedErrorPref
-
-    Write-Host ""
-    Write-Host "  ✓ Claude Usage Monitor Installation Complete." -ForegroundColor Green
 }
 
 # --- Template & Script Installation ---

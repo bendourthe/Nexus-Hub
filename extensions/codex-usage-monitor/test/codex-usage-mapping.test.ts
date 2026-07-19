@@ -33,7 +33,6 @@ describe("mapCodexUsageResponse", () => {
     const model = mapCodexUsageResponse(payload);
 
     expect(model).not.toBeNull();
-    expect(model!.providerId).toBe("codex");
     expect(model!.dataSource).toBe("api");
     expect(model!.planLabel).toBe("ChatGPT Plus");
     expect(model!.currentModel).toBe("ChatGPT Plus");

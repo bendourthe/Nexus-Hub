@@ -1,22 +1,17 @@
-import type { UsageData, ProviderId } from "../types";
-
-export type { ProviderId };
+import type { UsageData } from "../types";
 
 /**
- * The normalized usage model every provider returns and the entire UI
+ * The normalized usage model the provider returns and the entire UI
  * (status bar, tooltip, dashboard, warning view) renders from. It is an alias
  * of the existing {@link UsageData} shape so the UI consumes provider output
- * unchanged - the whole point of the provider abstraction is that the model is
- * vendor-neutral.
+ * unchanged.
  */
 export type UsageModel = UsageData;
 
 /**
- * Fetch error codes shared across providers. The first nine mirror the original
- * Anthropic fetcher's codes verbatim so the Claude path's messages are
- * unchanged; `usage-unavailable` is the provider-agnostic fail-soft catch-all a
- * provider returns when an undocumented endpoint is unreachable or its payload
- * cannot be parsed.
+ * Fetch error codes returned by the Claude usage provider. These mirror the
+ * original Anthropic fetcher's codes verbatim so the Claude path's messages are
+ * unchanged.
  */
 export type ProviderFetchErrorCode =
   | "no-credentials"
@@ -27,16 +22,10 @@ export type ProviderFetchErrorCode =
   | "rate-limited"
   | "network-error"
   | "api-error"
-  | "parse-error"
-  | "usage-unavailable";
+  | "parse-error";
 
-/**
- * A fetch error. It is self-describing: it carries the `providerId` that
- * produced it so a single {@link describeProviderError} can render the right
- * message without the caller holding a provider reference.
- */
+/** A fetch error, rendered into a human-readable message by {@link describeProviderError}. */
 export interface ProviderFetchError {
-  providerId: ProviderId;
   code: ProviderFetchErrorCode;
   statusCode?: number;
   statusText?: string;
@@ -66,7 +55,7 @@ export type CredentialResult =
  * typed error. Implementations MUST NOT throw from `fetchUsage`.
  */
 export interface UsageProvider {
-  readonly id: ProviderId;
+  readonly id: "claude";
   readonly displayName: string;
   readCredential(): CredentialResult;
   fetchUsage(currentModel?: string): Promise<ProviderFetchResult>;

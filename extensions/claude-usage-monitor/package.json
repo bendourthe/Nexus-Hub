@@ -1,8 +1,8 @@
 {
   "name": "claude-usage-monitor",
-  "displayName": "Claude & Codex Usage Monitor",
-  "description": "Monitor your Claude Code and Codex (ChatGPT) usage limits with smart, provider-aware recommendations",
-  "version": "0.7.0",
+  "displayName": "Claude Usage Monitor",
+  "description": "Monitor your Claude Code usage limits in the status bar with smart model and effort recommendations",
+  "version": "0.8.0",
   "publisher": "nexus-hub",
   "icon": "icon.png",
   "repository": {
@@ -51,11 +51,6 @@
         "command": "claude-usage.settings",
         "title": "Claude Usage: Settings",
         "category": "Claude Usage"
-      },
-      {
-        "command": "claude-usage.switchProvider",
-        "title": "Usage: Switch Provider (Claude / Codex)",
-        "category": "Claude Usage"
       }
     ],
     "icons": {
@@ -89,24 +84,6 @@
     "configuration": {
       "title": "Claude Usage Monitor",
       "properties": {
-        "usageMonitor.provider": {
-          "type": "string",
-          "default": "claude",
-          "enum": [
-            "claude",
-            "codex"
-          ],
-          "enumDescriptions": [
-            "Monitor Claude Code usage limits (Anthropic account)",
-            "Monitor Codex usage limits (ChatGPT / OpenAI account)"
-          ],
-          "description": "Which provider's usage to monitor. 'claude' reads Claude Code credentials and fetches Anthropic account usage; 'codex' reads the Codex app credentials and fetches ChatGPT account usage."
-        },
-        "usageMonitor.codex.authPath": {
-          "type": "string",
-          "default": "",
-          "description": "Optional path to the Codex app credential file (the JSON holding your ChatGPT access token and account id). Leave empty to use CODEX_HOME/auth.json when CODEX_HOME is set, otherwise ~/.codex/auth.json. Set this if your Codex app stores credentials elsewhere."
-        },
         "claudeUsage.autoFetch": {
           "type": "boolean",
           "default": true,

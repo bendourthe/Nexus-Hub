@@ -1,27 +1,17 @@
-# Claude & Codex Usage Monitor
+# Claude Usage Monitor
 
-A VS Code extension that monitors your AI coding usage limits for either Claude Code (Anthropic) or Codex (ChatGPT / OpenAI), displays them in the status bar with a rich SVG tooltip, and provides a full dashboard with provider-aware recommendations. Pick the provider with the `usageMonitor.provider` setting or the "Usage: Switch Provider" command.
+A VS Code extension that monitors your Claude Code (Anthropic) usage limits, displays them in the status bar with a rich SVG tooltip, and provides a full dashboard with model and effort recommendations.
+
+> Looking to monitor Codex (ChatGPT / OpenAI) usage? That lives in the separate **Codex Usage Monitor** extension (`nexus-hub.codex-usage-monitor`). This extension is Claude-only.
 
 ## Features
 
-- **Two providers**: Monitor Claude Code (Anthropic) or Codex (ChatGPT / OpenAI); switch with the `usageMonitor.provider` setting or the "Usage: Switch Provider" command
-- **Auto-fetch**: Reads your provider's local OAuth token and fetches usage from your own account (the Anthropic usage API for Claude, `chatgpt.com/backend-api/wham/usage` for Codex)
-- **Status bar**: Shows session and weekly usage percentages with a provider-appropriate icon
+- **Auto-fetch**: Reads your Claude Code local OAuth token and fetches usage from your own Anthropic account
+- **Status bar**: Shows session and weekly usage percentages with the Claude icon
 - **SVG tooltip**: Hover for theme-aware progress bars showing per-metric breakdown with reset timers
-- **Dashboard panel**: Click for a full usage dashboard with provider-aware recommendations and optimization tips
-- **Fail-soft**: When credentials are missing or an endpoint is unavailable, shows "usage unavailable" and keeps the manual-entry fallback rather than erroring
+- **Dashboard panel**: Click for a full usage dashboard with model recommendations and optimization tips
+- **Fail-soft**: When credentials are missing or the endpoint is unavailable, shows cached data rather than erroring
 - **Auto-refresh**: Configurable interval (default 10 min) to keep data current
-
-## Providers
-
-Select which account to monitor with the `usageMonitor.provider` setting (`claude` or `codex`), the "Usage: Switch Provider" command, or the provider dropdown in the settings panel. The entire UI (status bar, tooltip, dashboard, warning view) is shared; only the credential source and the usage endpoint differ.
-
-- **Claude (default)**: reads the Claude Code OAuth token from `~/.claude/.credentials.json` (Windows/Linux) or the macOS login Keychain, and fetches from the Anthropic usage API. Behavior is unchanged from earlier versions.
-- **Codex**: reads the Codex app OAuth token (your ChatGPT access token and account id) and makes a single authenticated call to `https://chatgpt.com/backend-api/wham/usage` for your own account. Because Codex has no cheaper model tier, its recommendations are reframed as throttle / wait-for-reset / rotate-account guidance keyed to the same thresholds.
-
-  The Codex credential is located, most-specific first: the `usageMonitor.codex.authPath` setting, then `CODEX_HOME/auth.json` when `CODEX_HOME` is set, otherwise `~/.codex/auth.json`. Set `usageMonitor.codex.authPath` if your Codex app stores its credential elsewhere.
-
-  **Caveat**: `wham/usage` is an undocumented ChatGPT backend endpoint and may change without notice. The extension fails soft (shows "usage unavailable", keeps the manual-entry fallback) rather than erroring if the endpoint or credential is unavailable.
 
 ## Setup
 
@@ -66,6 +56,7 @@ $(claude-icon) Claude Usage: 12% (current) 5% (week)
 - **Click** to open the full usage dashboard panel
 
 The status bar background changes color based on urgency:
+
 - No highlight: Healthy (0-50%)
 - Yellow: Moderate (51-75%)
 - Red: High/Critical (76-100%)
@@ -80,19 +71,19 @@ Open the Command Palette (`Ctrl+Shift+P`) and search:
 | `Claude Usage: Refresh` | Fetch latest usage data from the API |
 | `Claude Usage: Recommend Model` | View recommendation and tips |
 | `Claude Usage: Clear Data` | Reset all stored usage data |
-| `Usage: Switch Provider (Claude / Codex)` | Switch the monitored provider |
+| `Claude Usage: Settings` | Open the thresholds and colors settings panel |
 
 ### Settings
 
-Open Settings (`Ctrl+,`) and search "Usage Monitor" or "Claude Usage":
+Open Settings (`Ctrl+,`) and search "Claude Usage":
 
 | Setting | Default | Description |
 |---|---|---|
-| `usageMonitor.provider` | `claude` | Which provider to monitor: `claude` (Anthropic) or `codex` (ChatGPT) |
-| `usageMonitor.codex.authPath` | `""` | Optional path to the Codex app credential file. Empty uses `CODEX_HOME/auth.json` or `~/.codex/auth.json` |
 | `claudeUsage.autoFetch` | `true` | Auto-fetch usage data on startup and at intervals |
-| `claudeUsage.refreshInterval` | `10` | Minutes between automatic usage data refreshes (5-120) |
+| `claudeUsage.refreshInterval` | `10` | Minutes between automatic usage data refreshes (1-120) |
 | `claudeUsage.showInStatusBar` | `true` | Show/hide the status bar item |
+| `claudeUsage.thresholds.*` | `50` / `75` / `95` | Moderate / High / Critical urgency thresholds |
+| `claudeUsage.thresholdMetric` | `highest` | Which metric the thresholds evaluate against |
 
 ## How It Works
 
@@ -115,19 +106,6 @@ The API returns `five_hour` (session), `seven_day` (weekly all-models), `seven_d
 
 If credentials are missing or expired, the extension falls back gracefully to cached data.
 
-#### Codex provider
-
-When the provider is `codex`, the extension reads the Codex app OAuth token (see [Providers](#providers) for the credential location) and makes a single request:
-
-```
-GET https://chatgpt.com/backend-api/wham/usage
-Authorization: Bearer {access_token}
-chatgpt-account-id: {account_id}
-Accept: application/json
-```
-
-The `chatgpt-account-id` header is omitted for a synthetic (`email_` / `local_`) account id. The response's primary and secondary rate-limit windows map to the session and weekly metrics; the plan type, credits, and any additional rate limits appear as extra dashboard rows. The endpoint is undocumented, so the payload is parsed defensively: any parse failure, HTTP error, timeout, or missing field yields the fail-soft "usage unavailable" state instead of an error.
-
 ### Model Recommendations
 
 The extension classifies your usage into four levels:
@@ -149,7 +127,7 @@ Based on your current model and usage level, the dashboard also shows model-spec
 
 ## Data Storage
 
-Usage data is stored in VS Code's `globalState` (persists across sessions, local to your machine). The only external call is to your provider's own account API (the Anthropic usage API for Claude, `chatgpt.com/backend-api/wham/usage` for Codex) to fetch your own usage data; the OAuth token is read locally and never transmitted anywhere except back to your own account. Use `Claude Usage: Clear Data` to remove all stored data.
+Usage data is stored in VS Code's `globalState` (persists across sessions, local to your machine). The only external call is to the Anthropic usage API to fetch your own usage data; the OAuth token is read locally and never transmitted anywhere except back to your own account. Use `Claude Usage: Clear Data` to remove all stored data.
 
 ## Effort Level - Current State & Roadmap
 
