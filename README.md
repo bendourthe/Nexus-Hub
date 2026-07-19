@@ -45,6 +45,10 @@ v3.14.3 fixes `/presentify` end-to-end and reworks its design intake (no catalog
 
 v3.14.2 is an internal convention fix (no catalog change; counts unchanged). It closes a systemic flaw where a `/compare` report and the `/plan from-comparison` plan it seeds could land in different version directories. A comparison now declares an `Adoption target: vX.Y.Z` and is versioned and placed by the release that will ADOPT it rather than the authoring cycle (Fix A); `/plan from-comparison` reads that field and co-locates the generated plan in the same version tree, degrading gracefully for comparisons authored before the convention (Fix B); and the `documentation-consistency` audit plus a dedicated CI workflow flag any comparison/plan version-directory drift so the misplacement cannot silently recur (Fix C). All edits are instruction-level (command and skill-body changes that auto-distribute via folder copy), with `docs/archive/**` and prior-major trees grandfathered.
 
+## What's New in v3.14.4
+
+v3.14.4 splits the usage monitor into two separate VS Code extensions. The v3.14.0 build had folded Codex monitoring into the Claude extension behind a provider switch (renaming it "Claude & Codex Usage Monitor"), which mislabeled the Claude monitor and buried Codex behind a setting. It is now two independently-installable, branded extensions that run side by side: the **Claude Usage Monitor** (`nexus-hub.claude-usage-monitor`, reverted to Claude Code only) and a new **Codex Usage Monitor** (`nexus-hub.codex-usage-monitor`) with its own identity, icon, status-bar glyph, and periwinkle `#5244BB` progress bars, tracking what Codex exposes (the plan tier in place of a model, extra rate-limit windows, a credits line) with throttle / pace / wait / rotate recommendations. The two share no extension id, command, storage key, or view, so installing one never affects the other. Both installers build and install both; each has its own path-filtered CI workflow and dependabot entry. Catalog counts unchanged: **267 skills**, **16 commands**, **28 hooks**.
+
 ## What's New in v3.14.1
 
 v3.14.1 is an installer hotfix (no catalog change; counts unchanged). A global install run from an arbitrary working directory (including an elevated `C:\Windows\System32` prompt) no longer emits a `PermissionError [WinError 5]` traceback for each integration and now writes its install manifest under `~/.nexus-hub/` regardless of the working directory, with a manifest-write failure degrading to a warning instead of aborting the run. And re-running the installer (or `nexus-hub upgrade`) now unregisters the orphaned DevAI-Hub "Claude Code Auth Monitor" Windows scheduled task and sweeps its leftover `run-auth-monitor.vbs` launcher, stopping the recurring "Can not find script file" popup. Users who cannot re-run yet can remove the task manually with `Unregister-ScheduledTask -TaskName "Claude Code Auth Monitor" -Confirm:$false`. Both fixes are installer-side only (in `scripts/lib/integrations/`), so they auto-distribute with no installer copy-step edit and no platform-template change.
@@ -337,16 +341,14 @@ Usage: Session 72% | Weekly 15% | Sonnet 3%  (Session resets in 28m)
 
 Installed automatically by the Nexus-Hub installer. Requires `curl` and `jq`.
 
-### VS Code Extension
+### VS Code Extensions
 
-Monitor usage from the VS Code status bar with a full dashboard.
+Monitor your AI coding usage from the VS Code status bar with a full dashboard. Two separate, independently-installable extensions - one per tool - that install and run side by side:
 
-- **Auto-fetch**: reads your OAuth token and fetches live usage data from the Anthropic API.
-- **Status bar**: shows session and weekly usage percentages with a custom Claude icon.
-- **SVG tooltip**: hover for theme-aware progress bars with per-metric breakdown and reset timers.
-- **Dashboard**: click for a full usage dashboard with model recommendations and optimization tips.
+- **Claude Usage Monitor** (`nexus-hub.claude-usage-monitor`): Claude Code (Anthropic) session and weekly limits, with model and effort recommendations. See [extensions/claude-usage-monitor/](extensions/claude-usage-monitor/).
+- **Codex Usage Monitor** (`nexus-hub.codex-usage-monitor`): Codex (ChatGPT / OpenAI) usage, with the plan tier, extra rate-limit windows, a credits line, and throttle / pacing recommendations (periwinkle `#5244BB` progress bars). See [extensions/codex-usage-monitor/](extensions/codex-usage-monitor/).
 
-See [extensions/claude-usage-monitor/](extensions/claude-usage-monitor/) for setup instructions.
+Both read your local OAuth token, show usage in the status bar with a theme-aware SVG hover tooltip and a full dashboard, and make a single outbound call only to your own account. The installer builds and installs both; install either one alone by pointing `code --install-extension` at its VSIX.
 
 ### `/usage` Command
 

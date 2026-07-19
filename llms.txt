@@ -139,4 +139,5 @@ scripts/generate_report.py Word/PowerPoint report generator (Python 3.8+)
 data/skills.json          Machine-readable catalog of all 134 skills
 data/workflows.json       18 goal-based workflow definitions
 data/bundles.json         11 role-based bundle definitions
-extensions/claude-usage-monitor/  VS Code extension for real-time usage monitoring
+extensions/claude-usage-monitor/  VS Code extension: Claude Code usage monitoring
+extensions/codex-usage-monitor/   VS Code extension: Codex (ChatGPT) usage monitoring
