@@ -12,6 +12,8 @@ export interface DashboardCallbacks {
   onRefresh: () => void;
   onOpenUsagePage: () => void;
   onOpenSettings: () => void;
+  /** Prompt the user to type in their current usage (the manual-entry fallback). */
+  onEnterManual: () => void;
 }
 
 export class DashboardPanel {
@@ -42,6 +44,9 @@ export class DashboardPanel {
             break;
           case "openSettings":
             this.callbacks.onOpenSettings();
+            break;
+          case "enterManual":
+            this.callbacks.onEnterManual();
             break;
         }
       },
@@ -78,9 +83,13 @@ export class DashboardPanel {
     );
 
     if (extensionUri) {
+      // Theme-adaptive tab icon: a dark glyph on light themes, a light glyph on
+      // dark themes (mirrors the Claude extension's {light, dark} pair). The
+      // plain codex.svg has no fill (defaults to black), so it was invisible on
+      // dark themes when used for both.
       panel.iconPath = {
-        light: vscode.Uri.joinPath(extensionUri, "icons", "codex.svg"),
-        dark: vscode.Uri.joinPath(extensionUri, "icons", "codex.svg"),
+        light: vscode.Uri.joinPath(extensionUri, "icons", "codex-dark.svg"),
+        dark: vscode.Uri.joinPath(extensionUri, "icons", "codex-light.svg"),
       };
     }
 
@@ -137,7 +146,7 @@ export class DashboardPanel {
     if (!data) {
       const emptyMessage = this.fetchError?.code === "rate-limited"
         ? "Waiting for first successful fetch. The usage API may be temporarily unavailable."
-        : "Usage data will appear here once auto-fetch completes or you enter data manually.";
+        : "Automated Codex usage retrieval isn't available (the ChatGPT usage endpoint is undocumented and may have changed). Open the usage page to read your current limits, then enter them manually - they will show here and in the status bar.";
 
       return this.wrapHtml(`
         ${errorBanner}
@@ -145,7 +154,9 @@ export class DashboardPanel {
           <h2>No Usage Data</h2>
           <p>${escapeHtml(emptyMessage)}</p>
           <div class="actions">
-            <button id="refreshBtn" onclick="send('refresh')">Fetch Now</button>
+            <button onclick="send('enterManual')">Enter usage manually</button>
+            <button onclick="send('openUsagePage')" class="secondary">Open Usage Page</button>
+            <button id="refreshBtn" onclick="send('refresh')" class="secondary">Retry auto-fetch</button>
           </div>
         </div>
       `);

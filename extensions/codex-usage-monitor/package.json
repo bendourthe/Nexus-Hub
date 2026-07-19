@@ -51,6 +51,11 @@
         "command": "codex-usage.settings",
         "title": "Codex Usage: Settings",
         "category": "Codex Usage"
+      },
+      {
+        "command": "codex-usage.enterManual",
+        "title": "Codex Usage: Enter Usage Manually",
+        "category": "Codex Usage"
       }
     ],
     "icons": {

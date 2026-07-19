@@ -30,6 +30,6 @@ export function describeProviderError(error: ProviderFetchError): string {
       return `The Codex usage endpoint returned an error${suffix}.`;
     case "parse-error":
     case "usage-unavailable":
-      return "Codex usage is unavailable right now (the usage endpoint is undocumented and may have changed).";
+      return "Automated Codex usage isn't available (the ChatGPT usage endpoint is undocumented and may have changed). Open the usage page to read your limits, then use 'Codex Usage: Enter Usage Manually' to enter them.";
   }
 }
