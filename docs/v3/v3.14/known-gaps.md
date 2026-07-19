@@ -2,9 +2,36 @@
 
 **Project**: Nexus-Hub
 **Status**: v3.14.0 RELEASED (2026-07-16: `feat/codex-lb-adoption` -> `develop` -> `main`, tag `v3.14.0`, pushed; GitHub Release publish handed to the user due to an invalid local `gh` token). v3.14.1 installer-hotfix on `fix/installer-hotfix` (cut off the released `develop`): all 3 phases complete; RELEASE-READY, pending `/update release` (v3.14.1 bump / `develop` -> `main` merge / tag / push / GitHub Release). v3.14.2 comparison-versioning-fix on `fix/comparison-versioning` (cut off `develop`): Phases 1-3 (Fix A adoption-target placement + Fix B from-comparison co-location + Fix C co-location drift check) complete; Phase 4 (terminal refactor/known-gaps/CI-CD) pending.
-**Last updated**: 2026-07-17 (v3.14.3 Phase 4, release-ready)
+**Last updated**: 2026-07-19 (v3.14.5 Phase 1, runner structured per-surface results)
 
 > **Prior-version ingest**: the open v3.13 items (presentify DF-1..DF-5, WN-1/2, MT-1) are unrelated to this feature set and do not carry in. HO-1 (flat/nested skill-name collision across skill layouts) was VERIFIED clean by the Phase 6.4 dry-run install: `review-trapdoors` lands flattened at `skills/review-trapdoors/SKILL.md` across all seven platform skill paths with no nested `skills/code-review/review-trapdoors/` variant.
+
+## v3.14.5
+
+**Status**: Phase 1 of 7 COMPLETE on `feat/installer-ux-monitor-fixes` (cut off `develop`). Runner structured per-surface summary channel (`runner.py --summary-json`) + `WriteResult.detected` / `mark_not_detected()` + the five detection-gated subclasses (kimi/qwen/openclaw/windsurf/copilot) now report detected-vs-skipped, so the installer can render an accurate per-platform checklist and stop reporting undetected platforms as installed. This is the foundation for the Phase 2 checklist log. Per-phase gates green (new suite 25/25; full tests/integrations green after a 1-iteration troubleshooting fix). Plan: [plans/v3.14.5-installer-ux-and-monitor-fixes.md](plans/v3.14.5-installer-ux-and-monitor-fixes.md).
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 1 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+| Hand-offs (HO) | 0 | 0 |
+
+### Open Items
+
+#### Warnings
+
+##### WN-1 - Pre-existing: `qwen.py` imports `FileAction` unused
+
+- **Source phase**: v3.14.5 Phase 1 (observed during lint; pre-existing, NOT introduced by this phase)
+- **Plan reference**: Phase 1 (Phase 3 lint gate)
+- **Reason**: `scripts/lib/integrations/qwen.py` line 20 imports `FileAction` from `.result` but never uses it. `git show HEAD:scripts/lib/integrations/qwen.py` confirms the import predates this phase (Phase 1 edited only the `install_global` body, not the imports). Ruff flags it F401, but ruff is not a project gate (no ruff config; not in the Makefile or CI - the repo gates on the python validators + pytest + ShellCheck), so it does not fail validation. Left untouched per the "every changed line must trace to the request; no out-of-scope cleanup" rule.
+- **Suggested next step**: drop the unused import in a dedicated lint-cleanup patch (or opportunistically when a later phase legitimately edits qwen.py's imports); trivial and safe, just out of this phase's scope.
 
 ## v3.14.4
 

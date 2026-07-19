@@ -82,8 +82,9 @@ class KimiIntegration(MarkdownIntegration):
         kimi_root = (Path.home() / ".kimi").resolve()
         if not kimi_root.exists():
             ctx.manifest.log(self.key, "~/.kimi not found; skipping global Kimi files")
-            result.note("Kimi (~/.kimi) not found; global agent.yaml + system.md skipped")
+            result.mark_not_detected("Kimi (~/.kimi) not found; global agent.yaml + system.md skipped")
             return result
+        result.detected = True
         self._ensure_dir(kimi_root, ctx)
         action = self._write_instruction(kimi_root, ctx)
         if action is not None:

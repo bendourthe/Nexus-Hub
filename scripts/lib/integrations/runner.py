@@ -21,9 +21,10 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
-from pathlib import Path
-from typing import List
+from pathlib import Path, PurePath
+from typing import List, Optional
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 if str(REPO_ROOT) not in sys.path:
@@ -67,6 +68,129 @@ def _render_write_result(integration_key: str, result: WriteResult, quiet: bool)
         print(f"  {prefix} {fa.action:<10} {fa.path}")
     for note in result.notes:
         print(f"  (note) {note}")
+
+
+# --- Per-platform install summary (v3.14.5 Phase 1) -------------------------
+# The installer runs the runner with --quiet and needs a structured, per-surface
+# view of what each platform installed so it can render a checklist (and group
+# undetected platforms) instead of an unconditional "Installed" line. The summary
+# is built directly from each integration's WriteResult, so it is populated even
+# under --quiet; _render_write_result's quiet early-return only suppresses the
+# per-file PRINTING, not the data captured here.
+
+# Canonical surface order used by the installer checklist.
+_CANONICAL_SURFACES = (
+    "instruction",
+    "skills",
+    "commands",
+    "agents",
+    "rules",
+    "hooks",
+    "settings",
+)
+
+# Path segments (lowercased) that identify the commands and agents surfaces.
+_COMMANDS_SEGMENTS = frozenset({"commands", "workflows", "global_workflows", "prompts"})
+_AGENTS_SEGMENTS = frozenset({"agents", "subagents"})
+
+# FileAction actions that mean the surface is present on disk after the install.
+_PRESENT_ACTIONS = frozenset({"created", "updated", "unchanged", "kept"})
+
+
+def _classify_surface(path_str: str, instruction_file: Optional[str]) -> Optional[str]:
+    """Map one FileAction path to a canonical surface, or None if uncategorized.
+
+    Classification is by path shape (basename / suffix / segment names) rather
+    than a FileAction field, so it works uniformly regardless of how each
+    integration computed the path. Order is load-bearing: the instruction file
+    is matched by exact basename first, and ``skills`` is checked before
+    ``agents`` so a shared ``~/.agents/skills`` path classifies as skills (its
+    ``.agents`` container segment is deliberately not treated as the agents
+    surface).
+    """
+    pure = PurePath(path_str)
+    name = pure.name
+    lower_name = name.lower()
+    suffix = pure.suffix.lower()
+    segments = {part.lower() for part in pure.parts}
+
+    if instruction_file and name == instruction_file:
+        return "instruction"
+    if lower_name == "settings.json":
+        return "settings"
+    if lower_name == "hooks.json":
+        return "hooks"
+    if "skills" in segments:
+        return "skills"
+    if segments & _COMMANDS_SEGMENTS or suffix == ".toml" or lower_name.endswith(".prompt.md"):
+        return "commands"
+    if segments & _AGENTS_SEGMENTS:
+        return "agents"
+    if "rules" in segments or suffix == ".mdc" or lower_name == ".windsurfrules":
+        return "rules"
+    if "hooks" in segments:
+        return "hooks"
+    return None
+
+
+def _common_path(paths: List[str]) -> str:
+    """Return the representative path for a surface: the single path, or the
+    common parent directory when a surface spans many FileActions (e.g. one per
+    flattened skill). Falls back to the first path on any mismatch."""
+    if not paths:
+        return ""
+    if len(paths) == 1:
+        return paths[0]
+    try:
+        return os.path.commonpath(paths)
+    except (ValueError, OSError):
+        return paths[0]
+
+
+def _build_platform_summary(key: str, integ, result: WriteResult) -> dict:
+    """Build the structured per-surface summary for one integration's result.
+
+    ``key`` is the registry key the runner is iterating (the authoritative
+    platform identity); ``integ`` supplies the display name and instruction-file
+    config. Reading the key from the caller rather than ``integ.key`` keeps this
+    robust to minimal integration objects (e.g. test doubles).
+
+    Groups the WriteResult's FileActions by classified surface and reports, per
+    surface, a status (``installed`` when any action left the surface present on
+    disk, else ``error``) and a representative path. Carries the detection-gate
+    outcome (``result.detected``) so the installer can group undetected
+    platforms. Surfaces with no FileAction are omitted (the installer renders
+    the fixed canonical order, filling absent surfaces itself).
+    """
+    instruction_file = None
+    config = getattr(integ, "config", None)
+    if isinstance(config, dict):
+        instruction_file = config.get("instruction_file")
+
+    grouped: dict[str, dict] = {}
+    for fa in result.files:
+        surface = _classify_surface(fa.path, instruction_file)
+        if surface is None:
+            continue
+        entry = grouped.setdefault(surface, {"paths": [], "present": False})
+        entry["paths"].append(fa.path)
+        if fa.action in _PRESENT_ACTIONS:
+            entry["present"] = True
+
+    surfaces = {
+        surface: {
+            "status": "installed" if entry["present"] else "error",
+            "path": _common_path(entry["paths"]),
+        }
+        for surface, entry in grouped.items()
+    }
+    return {
+        "platform": key,
+        "display_name": getattr(integ, "display_name", key),
+        "detected": result.detected,
+        "surfaces": surfaces,
+        "notes": list(result.notes),
+    }
 
 
 def _resolve_integration_keys(arg: str) -> List[str]:
@@ -161,6 +285,7 @@ def cmd_install(args: argparse.Namespace) -> int:
         instruction_only=args.instruction_only,
     )
     failures = []
+    summaries: List[dict] = []
     for key in keys:
         try:
             integ = get(key)
@@ -172,10 +297,29 @@ def cmd_install(args: argparse.Namespace) -> int:
             # the manifest is not saved in that case.
             if not args.dry_run:
                 manifest.record_actions(key, result.files)
+            # v3.14.5 Phase 1 -- capture the structured per-surface summary from
+            # the WriteResult directly (not via _render_write_result, which is
+            # print-only and suppressed under --quiet), so the installer can
+            # render its per-platform checklist even when it runs us quietly.
+            summaries.append(_build_platform_summary(key, integ, result))
             _render_write_result(key, result, args.quiet)
         except Exception as exc:  # noqa: BLE001
             print(f"[error:{key}] {exc}", file=sys.stderr)
             failures.append(key)
+    # Opt-in structured summary channel (v3.14.5 Phase 1). Written regardless of
+    # --quiet and of --dry-run (a dry-run summary reflects what WOULD install).
+    summary_path = getattr(args, "summary_json", None)
+    if summary_path:
+        payload = {"scope": args.scope, "platforms": summaries}
+        try:
+            Path(summary_path).expanduser().write_text(
+                json.dumps(payload, indent=2, default=str) + "\n", encoding="utf-8"
+            )
+        except OSError as exc:
+            print(
+                f"[warn] could not write install summary to {summary_path}: {exc}",
+                file=sys.stderr,
+            )
     if not args.dry_run:
         try:
             manifest.save(manifest_path)
@@ -645,6 +789,11 @@ def build_parser() -> argparse.ArgumentParser:
         "--quiet",
         action="store_true",
         help="Suppress informational output. The installer uses this so it can print its own per-platform headers; errors still go to stderr.",
+    )
+    p_install.add_argument(
+        "--summary-json",
+        metavar="PATH",
+        help="Write a structured per-platform, per-surface install summary (JSON) to PATH. Populated regardless of --quiet; the installer consumes it to render the per-platform checklist and to group undetected platforms.",
     )
     p_install.set_defaults(func=cmd_install)
 

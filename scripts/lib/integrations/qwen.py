@@ -48,8 +48,9 @@ class QwenIntegration(MarkdownIntegration):
         qwen_root = (Path.home() / ".qwen").resolve()
         if not qwen_root.exists():
             ctx.manifest.log(self.key, "~/.qwen not found; skipping global QWEN.md")
-            result.note("Qwen (~/.qwen) not found; global QWEN.md skipped")
+            result.mark_not_detected("Qwen (~/.qwen) not found; global QWEN.md skipped")
             return result
+        result.detected = True
         self._ensure_dir(qwen_root, ctx)
         action = self._write_instruction(qwen_root, ctx)
         if action is not None:

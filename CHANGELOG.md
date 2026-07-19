@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+**Installer UX modernization, Codex monitor fixes, and mandatory contract verification (v3.14.5, in progress).** Rebuilds the installer's per-platform console output into an accurate checklist, fixes the Codex Usage Monitor, and makes per-release platform-contract re-verification a hard gate. Phase 1 lands the foundation.
+
+### Added
+
+- **Structured per-platform install summary (Phase 1)** (`scripts/lib/integrations/runner.py`, `scripts/lib/integrations/result.py`): the integrations runner's `install` subcommand gained an opt-in `--summary-json PATH` that writes a per-platform, per-surface JSON summary - which of instruction / skills / commands / agents / rules / hooks / settings installed, each surface's representative path, and whether the platform was detected or skipped. It is populated even under `--quiet` (built directly from each integration's `WriteResult`, so the runner's existing stdout is byte-identical when the flag is not passed), giving the installer the data to render an accurate per-platform checklist instead of an unconditional "Installed" line, and to stop reporting an undetected platform (Kimi / Qwen / OpenClaw / Windsurf / Copilot) as installed. Adds `WriteResult.detected` and a `mark_not_detected()` helper; the five detection-gated integrations now record their detected-vs-skipped outcome. Covered by 25 new tests in `tests/integrations/test_install_summary.py`.
+
 ## [3.14.4] - 2026-07-18
 
 **Split the usage monitor into two separate VS Code extensions (v3.14.4).** The v3.14.0 build had folded Codex monitoring into the Claude extension behind a provider switch (renaming it "Claude & Codex Usage Monitor"), which mislabeled the Claude monitor and buried Codex behind a setting. It is now two independently-installable, branded extensions that install and run side by side, sharing no extension id, command, storage key, or view: the Claude Usage Monitor (reverted to Claude Code only) and a new Codex Usage Monitor with its own identity, icon, status-bar glyph, and periwinkle `#5244BB` progress bars. Both installers build and install both; each has its own path-filtered CI workflow and dependabot entry. Catalog counts unchanged: 267 skills, 16 commands, 28 hooks.

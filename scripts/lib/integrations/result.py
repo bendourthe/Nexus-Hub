@@ -20,7 +20,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import List, Literal, Union
+from typing import List, Literal, Optional, Union
 
 Action = Literal[
     "created",
@@ -62,10 +62,18 @@ class WriteResult:
     `files` holds one `FileAction` per disk-touching call (or per skipped call).
     `notes` holds free-form strings the runner / tests can surface alongside
     the structured action list (e.g., "skipped: no global_dir configured").
+    `detected` is the detection-gate outcome for platforms whose global install
+    is skipped when the tool is not present (Kimi, Qwen, OpenClaw, Windsurf,
+    Copilot): ``False`` means "the tool was not detected, so the surface was
+    skipped", ``True`` means "detected and written", and ``None`` (the default)
+    means the integration is not detection-gated. The installer's per-platform
+    checklist reads this to group undetected platforms instead of falsely
+    reporting them as installed.
     """
 
     files: List[FileAction] = field(default_factory=list)
     notes: List[str] = field(default_factory=list)
+    detected: Optional[bool] = None
 
     def add(self, path: Union[str, Path], action: Action) -> FileAction:
         """Append a `FileAction` to `files` and return it for chaining."""
@@ -77,10 +85,27 @@ class WriteResult:
         """Merge `other` into `self` in place and return `self`."""
         self.files.extend(other.files)
         self.notes.extend(other.notes)
+        # Carry over a decisive detection outcome so a merged result keeps the
+        # gate signal (e.g. super().install_*() then extend()); an explicit
+        # value on self always wins.
+        if self.detected is None and other.detected is not None:
+            self.detected = other.detected
         return self
 
     def note(self, message: str) -> None:
         """Append a free-form note."""
+        self.notes.append(message)
+
+    def mark_not_detected(self, message: str) -> None:
+        """Record a detection-gated skip: flag it AND append the note.
+
+        Used by detection-gated integrations (Kimi/Qwen/OpenClaw/Windsurf/
+        Copilot) when the tool's config root is absent, so the runner's install
+        summary and the installer's per-platform checklist can group the
+        platform as "not detected (skipped)" rather than reporting the empty
+        write as a successful install.
+        """
+        self.detected = False
         self.notes.append(message)
 
     def actions_by_kind(self) -> dict[str, int]:

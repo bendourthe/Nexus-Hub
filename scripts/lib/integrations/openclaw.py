@@ -87,8 +87,9 @@ class OpenClawIntegration(MarkdownIntegration):
         oc_root = (Path.home() / ".openclaw").resolve()
         if not oc_root.exists():
             ctx.manifest.log(self.key, "~/.openclaw not found; skipping global OpenClaw files")
-            result.note("OpenClaw (~/.openclaw) not found; global SOUL/AGENTS/IDENTITY skipped")
+            result.mark_not_detected("OpenClaw (~/.openclaw) not found; global SOUL/AGENTS/IDENTITY skipped")
             return result
+        result.detected = True
         self._ensure_dir(oc_root, ctx)
         action = self._write_instruction(oc_root, ctx)
         if action is not None:
