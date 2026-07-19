@@ -2,7 +2,7 @@
   "name": "claude-usage-monitor",
   "displayName": "Claude Usage Monitor",
   "description": "Monitor your Claude Code usage limits in the status bar with smart model and effort recommendations",
-  "version": "0.8.0",
+  "version": "0.9.0",
   "publisher": "nexus-hub",
   "icon": "icon.png",
   "repository": {
@@ -100,6 +100,11 @@
           "type": "boolean",
           "default": true,
           "description": "Show Claude usage in the status bar"
+        },
+        "claudeUsage.compactStatusBar": {
+          "type": "boolean",
+          "default": false,
+          "description": "Use a compact status-bar label: '<icon> X% (current) Y% (week)' instead of '<icon> Claude Usage: X% (current) Y% (week)'."
         },
         "claudeUsage.thresholds.moderate": {
           "type": "number",

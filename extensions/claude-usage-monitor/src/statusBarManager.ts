@@ -28,16 +28,22 @@ export class StatusBarManager {
     private readonly dashboardCommandId: string,
     private readonly settingsCommandId: string
   ) {
+    // Status-bar priority orders BOTH usage monitors left-to-right (VS Code
+    // renders a higher Right-aligned priority further LEFT). To read
+    // [Claude usage][Claude gear][Codex usage][Codex gear], the Claude monitor
+    // uses 103/102 and the Codex monitor uses 101/100 - the load-bearing
+    // constraint is that Codex's usage item (101) sits below this gear (102).
+    // See the Codex extension's matching values.
     this.statusBarItem = vscode.window.createStatusBarItem(
       vscode.StatusBarAlignment.Right,
-      100
+      103
     );
     this.statusBarItem.command = dashboardCommandId;
     this.statusBarItem.name = "Claude Usage Monitor";
 
     this.gearItem = vscode.window.createStatusBarItem(
       vscode.StatusBarAlignment.Right,
-      99
+      102
     );
     this.gearItem.text = "$(gear)";
     this.gearItem.tooltip = "Claude Usage: Settings";
@@ -108,7 +114,7 @@ export class StatusBarManager {
 
   private updateDisplay(data: UsageData | undefined): void {
     if (!data) {
-      this.statusBarItem.text = `${CLAUDE_ICON} Claude Usage: --% (current) --% (week)`;
+      this.statusBarItem.text = this.statusText("--", "--", "");
       this.statusBarItem.tooltip = "Click to view Claude usage dashboard";
       this.statusBarItem.backgroundColor = undefined;
       this.gearItem.backgroundColor = undefined;
@@ -118,8 +124,11 @@ export class StatusBarManager {
     const overallUrgency = getActiveUrgency(data);
     const staleLabel = this.isDataStale(data) ? " $(warning)" : "";
 
-    this.statusBarItem.text =
-      `${CLAUDE_ICON} Claude Usage: ${data.session.percent}% (current) ${data.weeklyAllModels.percent}% (week)${staleLabel}`;
+    this.statusBarItem.text = this.statusText(
+      String(data.session.percent),
+      String(data.weeklyAllModels.percent),
+      staleLabel,
+    );
 
     this.statusBarItem.tooltip = this.buildTooltip(data);
     const bgColor = this.getBackgroundColor(overallUrgency);
@@ -129,6 +138,20 @@ export class StatusBarManager {
     this.gearItem.backgroundColor = bgColor;
     // Swap warningBackground hex between moderate and high colors (they share the same ThemeColor ID)
     void syncActiveColorToWorkbench(overallUrgency, getColorConfig());
+  }
+
+  /**
+   * Build the status-bar text. The full form is
+   * "<icon> Claude Usage: X% (current) Y% (week)"; when the user enables the
+   * `claudeUsage.compactStatusBar` setting the "Claude Usage: " label is dropped,
+   * leaving "<icon> X% (current) Y% (week)".
+   */
+  private statusText(sessionPct: string, weeklyPct: string, staleLabel: string): string {
+    const compact = vscode.workspace
+      .getConfiguration("claudeUsage")
+      .get<boolean>("compactStatusBar", false);
+    const label = compact ? "" : "Claude Usage: ";
+    return `${CLAUDE_ICON} ${label}${sessionPct}% (current) ${weeklyPct}% (week)${staleLabel}`;
   }
 
   private isDataStale(data: UsageData): boolean {
