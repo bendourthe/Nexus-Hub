@@ -2,9 +2,31 @@
 
 **Project**: Nexus-Hub
 **Status**: v3.14.0 RELEASED (2026-07-16: `feat/codex-lb-adoption` -> `develop` -> `main`, tag `v3.14.0`, pushed; GitHub Release publish handed to the user due to an invalid local `gh` token). v3.14.1 installer-hotfix on `fix/installer-hotfix` (cut off the released `develop`): all 3 phases complete; RELEASE-READY, pending `/update release` (v3.14.1 bump / `develop` -> `main` merge / tag / push / GitHub Release). v3.14.2 comparison-versioning-fix on `fix/comparison-versioning` (cut off `develop`): Phases 1-3 (Fix A adoption-target placement + Fix B from-comparison co-location + Fix C co-location drift check) complete; Phase 4 (terminal refactor/known-gaps/CI-CD) pending.
-**Last updated**: 2026-07-19 (v3.14.5 Phase 6, mandatory platform-contract verification gate)
+**Last updated**: 2026-07-20 (v3.14.6 release - usage-monitor fixes + installer-log overhaul)
 
 > **Prior-version ingest**: the open v3.13 items (presentify DF-1..DF-5, WN-1/2, MT-1) are unrelated to this feature set and do not carry in. HO-1 (flat/nested skill-name collision across skill layouts) was VERIFIED clean by the Phase 6.4 dry-run install: `review-trapdoors` lands flattened at `skills/review-trapdoors/SKILL.md` across all seven platform skill paths with no nested `skills/code-review/review-trapdoors/` variant.
+
+## v3.14.6
+
+**Status**: RELEASED. Post-v3.14.5 fix release (`fix/usage-monitor-and-installer-ux` off `develop`): Codex auto-fetch schema-mismatch fix (retires the v3.14.5 DF-2 wham/usage uncertainty - the endpoint + schema are now verified against a live 200 response), manual-entry removal, inline dashboard settings (both extensions, gear removed), and the installer-log overhaul. No new open gaps; catalog counts unchanged (267 skills, 16 commands, 28 hooks).
+
+### Open Items
+
+#### Hand-offs
+
+##### HO-1 - Host-only manual smoke for the two usage-monitor extensions (carried + extended from v3.14.5)
+
+- **Source**: v3.14.6 (extends the v3.14.5 HO-1)
+- **Reason**: the extension webview rendering + status-bar behavior can only be confirmed in a live VS Code (no automatable surface here). The unit tests lock the constants + mapper + logic; rendering is host-only.
+- **Manual smoke checklist** (verified by the user this cycle for the new items):
+    - Status bar shows only the two usage items (no gear); order Claude Usage, Codex Usage, Copilot. [verified]
+    - The dashboard gear toggles the inline Settings section under the dashboard; Save/Reset persist; the open/closed state survives a dashboard refresh. [verified]
+    - Codex auto-fetch shows the real weekly usage; the compact toggle drops the "<Name> Usage:" label live. [verified]
+- **Disposition**: verified by the user during this cycle; retained as the standing per-release smoke checklist for the extensions (no code gap).
+
+### Advisory
+
+- **`platform-read-contracts` reaffirmed, not re-verified**: v3.14.6 touched no platform read-paths, so the 2026-07-19 full 13-platform web re-verification (v3.14.5) still holds and the freshness marker was re-stamped to 3.14.6 without a fresh web-search cycle. The additive drift (Copilot/Cursor/Codex/OpenCode gained skills/agents/hooks surfaces) remains tracked for v3.15.0 (in progress on `feat/platform-parity-all-gaps`).
 
 ## v3.14.5
 

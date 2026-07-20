@@ -4,13 +4,14 @@ import { describeProviderError, CodexUsageProvider } from "../src/providers";
 describe("describeProviderError", () => {
   it("renders Codex-specific messages", () => {
     expect(describeProviderError({ code: "no-credentials" })).toBe(
-      "Codex credentials not found. Sign in to the Codex app first.",
+      "Codex credentials not found (~/.codex/auth.json). Run 'codex' in a terminal to sign in.",
     );
-    // The usage-unavailable banner must stay honest (undocumented endpoint) AND
-    // actionable (point at manual entry), per v3.14.5 Phase 4.3.
+    // v3.14.6: auto-fetch works against the verified endpoint, so the
+    // usage-unavailable message no longer points at manual entry; it is a real
+    // failure diagnostic that stays actionable (retry / re-auth via `codex`).
     const unavailable = describeProviderError({ code: "usage-unavailable" });
-    expect(unavailable).toContain("undocumented");
-    expect(unavailable.toLowerCase()).toContain("manual");
+    expect(unavailable.toLowerCase()).not.toContain("manual");
+    expect(unavailable).toContain("codex");
   });
 
   it("appends the status code and text for an api-error", () => {

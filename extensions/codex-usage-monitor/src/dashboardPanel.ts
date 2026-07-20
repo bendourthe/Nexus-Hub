@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { UsageData } from "./types";
+import { UsageData, isTracked } from "./types";
 import { formatResetLabel } from "./usageStore";
 import { ProviderFetchError, describeProviderError } from "./providers";
 import {
@@ -7,13 +7,19 @@ import {
   pickTriggerMetric,
   buildUsageSuggestion,
 } from "./recommendations";
+import {
+  DraftState,
+  currentSettings,
+  saveSettings,
+  resetSettings,
+  settingsStylesCss,
+  settingsSectionHtml,
+  settingsScriptJs,
+} from "./settingsPanel";
 
 export interface DashboardCallbacks {
   onRefresh: () => void;
   onOpenUsagePage: () => void;
-  onOpenSettings: () => void;
-  /** Prompt the user to type in their current usage (the manual-entry fallback). */
-  onEnterManual: () => void;
 }
 
 export class DashboardPanel {
@@ -33,7 +39,7 @@ export class DashboardPanel {
     this.panel.onDidDispose(() => this.dispose(), null, this.disposables);
 
     this.panel.webview.onDidReceiveMessage(
-      (message: { command: string }) => {
+      async (message: { command: string; draft?: DraftState }) => {
         switch (message.command) {
           case "refresh":
             this.panel.webview.postMessage({ command: "setLoading" });
@@ -42,12 +48,19 @@ export class DashboardPanel {
           case "openUsagePage":
             this.callbacks.onOpenUsagePage();
             break;
-          case "openSettings":
-            this.callbacks.onOpenSettings();
+          case "save": {
+            // Persist the inline settings form. The extension's config watcher
+            // re-renders this dashboard; we also echo the stored values back so
+            // the form reflects them immediately.
+            const persisted = await saveSettings(message.draft as DraftState);
+            this.panel.webview.postMessage({ command: "loadSettings", settings: persisted });
             break;
-          case "enterManual":
-            this.callbacks.onEnterManual();
+          }
+          case "reset": {
+            const persisted = await resetSettings();
+            this.panel.webview.postMessage({ command: "loadSettings", settings: persisted });
             break;
+          }
         }
       },
       null,
@@ -126,6 +139,11 @@ export class DashboardPanel {
     DashboardPanel.currentPanel.panel.webview.html = DashboardPanel.currentPanel.getHtml();
   }
 
+  /** Reveal the inline settings section (used by the palette "Settings" command). */
+  static revealSettings(): void {
+    DashboardPanel.currentPanel?.panel.webview.postMessage({ command: "openSettings" });
+  }
+
   private getHtml(): string {
     const data = this.data;
 
@@ -145,8 +163,8 @@ export class DashboardPanel {
 
     if (!data) {
       const emptyMessage = this.fetchError?.code === "rate-limited"
-        ? "Waiting for first successful fetch. The usage API may be temporarily unavailable."
-        : "Automated Codex usage retrieval isn't available (the ChatGPT usage endpoint is undocumented and may have changed). Open the usage page to read your current limits, then enter them manually - they will show here and in the status bar.";
+        ? "The usage API is rate-limiting right now. This clears on its own - press Retry in a moment."
+        : "Couldn't retrieve Codex usage automatically. If this keeps happening, your Codex sign-in may have expired - open a terminal, run 'codex' to sign in again, then press Retry.";
 
       return this.wrapHtml(`
         ${errorBanner}
@@ -154,9 +172,8 @@ export class DashboardPanel {
           <h2>No Usage Data</h2>
           <p>${escapeHtml(emptyMessage)}</p>
           <div class="actions">
-            <button onclick="send('enterManual')">Enter usage manually</button>
+            <button id="refreshBtn" onclick="send('refresh')">Retry</button>
             <button onclick="send('openUsagePage')" class="secondary">Open Usage Page</button>
-            <button id="refreshBtn" onclick="send('refresh')" class="secondary">Retry auto-fetch</button>
           </div>
         </div>
       `);
@@ -185,19 +202,30 @@ export class DashboardPanel {
       </div>`
       : "";
 
+    // Render only the windows the account actually exposes; an untracked window
+    // (e.g. no 5-hour "session" limit on a weekly-only plan) is omitted entirely
+    // rather than shown as an empty 0% bar.
+    const sessionSection = isTracked(data.session)
+      ? `
+      <div class="section">
+        <h3>Current Session</h3>
+        ${this.renderProgressBar(data.session.percent, data.session.resetsIn, data.session.resetsAt)}
+      </div>`
+      : "";
+    const weeklySection = isTracked(data.weeklyAllModels)
+      ? `
+      <div class="section">
+        <h3>Weekly</h3>
+        ${this.renderProgressBar(data.weeklyAllModels.percent, data.weeklyAllModels.resetsIn, data.weeklyAllModels.resetsAt)}
+      </div>`
+      : "";
+
     return this.wrapHtml(`
       ${errorBanner}
       <h2>Codex Usage Dashboard</h2>
 
-      <div class="section">
-        <h3>Current Session</h3>
-        ${this.renderProgressBar(data.session.percent, data.session.resetsIn, data.session.resetsAt)}
-      </div>
-
-      <div class="section">
-        <h3>Weekly</h3>
-        ${this.renderProgressBar(data.weeklyAllModels.percent, data.weeklyAllModels.resetsIn, data.weeklyAllModels.resetsAt)}
-      </div>
+      ${sessionSection}
+      ${weeklySection}
 
       ${additionalRows}
       ${creditsSection}
@@ -223,12 +251,14 @@ export class DashboardPanel {
       </div>
       ` : ""}
 
+      ${settingsSectionHtml(currentSettings())}
+
       <div class="divider"></div>
 
       <div class="actions">
         <button id="refreshBtn" onclick="send('refresh')">Refresh Now</button>
         <button onclick="send('openUsagePage')" class="secondary">Open Usage Page</button>
-        <button onclick="send('openSettings')" class="icon-btn" title="Codex Usage: Settings" aria-label="Codex Usage Settings">
+        <button onclick="toggleSettings()" class="icon-btn" title="Settings" aria-label="Settings">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
             <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.687.706-1.99 1.99l.169.31a1.464 1.464 0 0 1-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.697 1.283.707 2.687 1.99 1.99l.311-.17a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.687-.706 1.99-1.99l-.169-.31a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.697-1.283-.707-2.687-1.99-1.99l-.311.17a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/>
           </svg>
@@ -448,6 +478,7 @@ export class DashboardPanel {
     .empty-state .actions {
       justify-content: center;
     }
+    ${settingsStylesCss()}
   </style>
 </head>
 <body>
@@ -457,6 +488,7 @@ export class DashboardPanel {
     function send(command) {
       vscode.postMessage({ command });
     }
+    ${settingsScriptJs(currentSettings())}
     // Live countdown: recompute the reset labels from embedded epoch timestamps.
     // Mirrors formatResetTime + formatResetLabel in usageStore.ts: "Resets in 2h 20m"
     // under 24h; "Resets on Tuesday July 7th at 7:00 AM (3d 11h 28m)" for 24h+.
@@ -485,11 +517,21 @@ export class DashboardPanel {
         if (epoch) { el.textContent = fmtCountdown(epoch); }
       });
     }, 60000);
-    // Loading state: disable Refresh button when a fetch is in progress
+    // Loading state + inline-settings messages from the extension.
     window.addEventListener("message", function(event) {
-      if (event.data.command === "setLoading") {
+      const msg = event.data;
+      if (msg.command === "setLoading") {
         const btn = document.getElementById("refreshBtn");
         if (btn) { btn.textContent = "Refreshing\u2026"; btn.disabled = true; }
+      } else if (msg.command === "loadSettings") {
+        applySettings(msg.settings);
+      } else if (msg.command === "openSettings") {
+        const s = document.getElementById("settings-section");
+        if (s) {
+          s.removeAttribute("hidden");
+          s.scrollIntoView({ behavior: "smooth", block: "start" });
+          try { const st = vscode.getState() || {}; st.settingsOpen = true; vscode.setState(st); } catch (e) {}
+        }
       }
     });
   </script>
