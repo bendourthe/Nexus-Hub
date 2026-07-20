@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.14.6 -->
+<!-- nexus-hub-version: 3.14.7 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 267 skills, 16 commands, 28 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -36,6 +36,10 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v3.14.7
+
+v3.14.7 is a cosmetic fix for both usage-monitor VS Code extensions (no catalog change; counts unchanged). The status-bar items rendered the icon glued to the usage text (`icon47% (current)...`) because VS Code collapses consecutive plain spaces in a status-bar label. Both extensions now place a non-collapsing en-space (U+2002) between the icon and the label, so the icon reads with a small, consistent gap before the numbers. Extension versions bumped **Claude Usage Monitor 0.9.3** and **Codex Usage Monitor 0.2.4**. Catalog: **267 skills**, **16 commands**, **28 hooks**.
 
 ## What's New in v3.14.6
 

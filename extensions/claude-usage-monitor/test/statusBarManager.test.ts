@@ -35,10 +35,10 @@ describe("StatusBarManager (Claude)", () => {
     const mgr = new StatusBarManager(emptyStore, "claude-usage.dashboard");
 
     mgr.refresh();
-    expect(createdStatusBarItems[0].text).toBe("$(claude-icon) Claude Usage: --% (current) --% (week)");
+    expect(createdStatusBarItems[0].text).toBe("$(claude-icon)\u2002Claude Usage: --% (current) --% (week)");
 
     __setStubConfig("claudeUsage", "compactStatusBar", true);
     mgr.refresh();
-    expect(createdStatusBarItems[0].text).toBe("$(claude-icon) --% (current) --% (week)");
+    expect(createdStatusBarItems[0].text).toBe("$(claude-icon)\u2002--% (current) --% (week)");
   });
 });

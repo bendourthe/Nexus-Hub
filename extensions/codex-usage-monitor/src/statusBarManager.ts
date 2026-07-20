@@ -6,6 +6,11 @@ import { UsageStore, formatResetLabel } from "./usageStore";
 /** The Codex logo glyph, contributed as an icon font in package.json. */
 const CODEX_ICON = "$(codex-icon)";
 
+// A wider, non-collapsing gap between the icon and the text so the icon does not
+// look glued to the numbers. An en-space (U+2002) is used instead of extra plain
+// spaces, which the VS Code status bar can collapse to one, so the gap always renders.
+const ICON_GAP = "\u2002";
+
 /** The progress-bar brand fill (Codex periwinkle) and its 20%-alpha track. */
 const BAR_FILL = "#5244BB";
 const BAR_TRACK = "rgba(82,68,187,0.2)";
@@ -134,7 +139,7 @@ export class StatusBarManager {
       .get<boolean>("compactStatusBar", false);
     const label = compact ? "" : "Codex Usage: ";
     if (!data) {
-      return `${CODEX_ICON} ${label}--${staleLabel}`;
+      return `${CODEX_ICON}${ICON_GAP}${label}--${staleLabel}`;
     }
     const parts: string[] = [];
     if (isTracked(data.session)) {
@@ -144,7 +149,7 @@ export class StatusBarManager {
       parts.push(`${data.weeklyAllModels.percent}% (week)`);
     }
     const body = parts.length > 0 ? parts.join(" ") : "--";
-    return `${CODEX_ICON} ${label}${body}${staleLabel}`;
+    return `${CODEX_ICON}${ICON_GAP}${label}${body}${staleLabel}`;
   }
 
   private isDataStale(data: UsageData): boolean {
