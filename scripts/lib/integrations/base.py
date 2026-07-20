@@ -727,6 +727,15 @@ class SkillsIntegration(IntegrationBase):
             subdir = self.config.get(cfg_key)
             if not subdir:
                 continue
+            # Hook installation is gated on the declared capability so a
+            # platform's hook support lives in exactly one place
+            # (`hooks_supported`). Every integration that declares
+            # `hooks_subdir` today also sets `hooks_supported: True`, so this is
+            # byte-identical to the prior unconditional copy; the gate prevents a
+            # future `hooks_subdir` declaration from silently shipping hooks to a
+            # platform that cannot run them.
+            if cfg_key == "hooks_subdir" and not self.config.get("hooks_supported"):
+                continue
             actions.append(
                 self._copy_tree(ctx.repo_root / src_rel, parent_dir / subdir, ctx, self.key)
             )

@@ -79,7 +79,6 @@ class CopilotIntegration(MarkdownIntegration):
         "instruction_file": "copilot-instructions.md",
         "instruction_template": "templates/ai-instructions/base-codex.md",
         "hooks_supported": False,
-        "permissions_file": "configs/permissions/copilot-permissions.json",
     }
 
     def install_global(self, ctx: InstallContext) -> WriteResult:
