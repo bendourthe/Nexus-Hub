@@ -2,7 +2,7 @@
 
 This is the durable, sourced source of truth for where every supported platform READS each surface (instruction file, slash commands, skills, agents, rules, hooks) and where the Nexus-Hub installer WRITES it. It supersedes the point-in-time snapshot at `docs/v3/v3.11/platform-read-contracts.md` (which resolved the v3.11.0 Phase 7 audit but left the Codex and Antigravity contracts flagged as unverified).
 
-**Last verified**: 2026-07-19 (full 13-platform web re-verification during the v3.14.5 release, via the `platform-contract-verification` skill; see the Re-verification log below for what changed and what is deferred to v3.15.0).
+**Last verified**: 2026-07-19 (full 13-platform web re-verification during the v3.14.5 release, via the `platform-contract-verification` skill; reaffirmed unchanged for the v3.14.6 release, which touched no platform read-paths - see the Re-verification log below for what changed and what is deferred to v3.15.0).
 
 ## How this doc is maintained
 
@@ -17,6 +17,10 @@ The machine-readable source of truth is the sibling `docs/policy/platform-read-c
 The catalog itself is never reorganized per platform. Each integration is an adapter that materializes the canonical catalog into the shape below via the shared helpers in `scripts/lib/integrations/_catalog_adapters.py` (`flatten_skills`, `commands_to_skills`, `commands_to_slash`).
 
 ## Re-verification log
+
+### 2026-07-20 (v3.14.6 release - reaffirmed, no re-verification)
+
+v3.14.6 is a usage-monitor + installer-log fix release: it changed no platform read-paths, integration adapters, or installer copy targets (only the two VS Code usage-monitor extensions and the installer's console output). The 2026-07-19 full 13-platform web re-verification therefore still holds, so the contract is reaffirmed and the freshness marker re-stamped to 3.14.6 without a fresh web-search cycle. The additive drift recorded below remains deferred to v3.15.0.
 
 ### 2026-07-19 (v3.14.5 release)
 

@@ -8,7 +8,6 @@ import {
   describeProviderError,
 } from "./providers";
 import { DashboardPanel } from "./dashboardPanel";
-import { SettingsPanel } from "./settingsPanel";
 import { WarningViewProvider, WARNING_VIEW_ID, WARNING_ACTIVE_CONTEXT } from "./warningView";
 import { getRecommendation, getActiveUrgency, pickTriggerMetric, buildUsageSuggestion, classifyUrgency } from "./recommendations";
 import { UrgencyLevel, UsageData, formatModelName, getThresholdConfig, getNotificationTimeoutMs, syncColorsToWorkbench, getColorConfig } from "./types";
@@ -77,7 +76,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
   const store = new UsageStore(context.globalState);
   const provider = new ClaudeUsageProvider();
-  const statusBar = new StatusBarManager(store, DASHBOARD_COMMAND, SETTINGS_COMMAND);
+  const statusBar = new StatusBarManager(store, DASHBOARD_COMMAND);
 
   const config = vscode.workspace.getConfiguration("claudeUsage");
   if (config.get<boolean>("showInStatusBar", true)) {
@@ -112,7 +111,6 @@ export function activate(context: vscode.ExtensionContext): void {
         vscode.env.openExternal(
           vscode.Uri.parse("https://claude.ai/settings/usage"),
         ),
-      onOpenSettings: () => vscode.commands.executeCommand(SETTINGS_COMMAND),
     }, context.extensionUri);
   });
 
@@ -201,8 +199,9 @@ export function activate(context: vscode.ExtensionContext): void {
   });
 
   // Command: Open settings panel
-  const settingsCommand = vscode.commands.registerCommand(SETTINGS_COMMAND, () => {
-    SettingsPanel.show(context.extensionUri);
+  const settingsCommand = vscode.commands.registerCommand(SETTINGS_COMMAND, async () => {
+    await vscode.commands.executeCommand(DASHBOARD_COMMAND);
+    DashboardPanel.revealSettings();
   });
 
   // Command: Clear stored data

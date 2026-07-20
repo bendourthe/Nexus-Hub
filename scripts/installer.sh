@@ -7,7 +7,7 @@ set -e
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-NEXUS_HUB_VERSION="3.14.5"
+NEXUS_HUB_VERSION="3.14.6"
 
 # --- Window Title ---
 printf '\033]0;Nexus-Hub Installer\007'
@@ -141,6 +141,17 @@ write_subsection_banner() {
     local color="${2:-$YELLOW}"
     echo ""
     echo -e "  ${color}- ${text}${RESET}"
+}
+
+# A top-level "> SECTION" banner (column 0, uppercase) - the bash analogue of the
+# PowerShell installer's "> TEXT" main-section header. Prepends its own single
+# blank line so callers do not add one. Providers (write_header) and
+# subsections (write_subsection_banner) render indented beneath it.
+write_section_banner() {
+    local text="$1"
+    local color="${2:-$CYAN}"
+    echo ""
+    echo -e "${color}> ${text}${RESET}"
 }
 
 # --- Per-platform install checklist (v3.14.5 Phase 2) ---
@@ -1019,10 +1030,10 @@ install_global() {
 
     # OVERWRITE_ALL is resolved once at startup (refresh vs interactive-conflict);
     # the install functions no longer toggle it.
-    echo ""
-    echo -e "${CYAN}> Global install${RESET}"
-
-    write_subsection_banner "Skills & Commands"
+    # Each main section is a "> UPPERCASE" banner (write_section_banner prepends
+    # its own single blank); there is no separate "Global install" super-header -
+    # the scope is already stated in the welcome + farewell lines.
+    write_section_banner "SKILLS & COMMANDS"
 
     echo -e "${GRAY}Checking User Profile ($user_home)...${RESET}"
     reset_undetected_platforms
@@ -1179,7 +1190,7 @@ install_global() {
     # Permissions only apply to the legacy 4 (CLAUDE / GEMINI / CODEX /
     # COPILOT). Mirrored to provider headers for visual consistency. Each is
     # gated on the same --platforms subset as its provider block above.
-    write_subsection_banner "Auto-Approve Permissions"
+    write_section_banner "AUTO-APPROVE PERMISSIONS"
 
     if should_install claude; then
     write_header "ANTHROPIC"
@@ -1201,19 +1212,22 @@ install_global() {
     install_permissions "$repo_root" "COPILOT" "Global"
     fi
 
-    # --- Usage Monitor VS Code extensions sub-section ---
-    write_subsection_banner "Usage Monitors (VS Code Extensions)"
+    # --- VS Code Extensions section ---
+    write_section_banner "VS CODE EXTENSIONS"
     install_vscode_extensions "$repo_root"
 
-    # --- Skill Discovery sub-section ---
-    write_subsection_banner "Skill Discovery (All Platforms)"
+    # --- Cross-Platform Tools: capabilities that apply to every platform, grouped
+    # under one section. Skill discovery + the git hook run here; install_templates
+    # (next in the main flow) adds its own "- Report templates" subsection under
+    # this same header.
+    write_section_banner "CROSS-PLATFORM TOOLS"
+
+    write_subsection_banner "Skill discovery"
     install_skill_discovery "$repo_root"
 
-    # --- Git Commit-Msg Hook sub-section ---
-    write_subsection_banner "Git Commit-Msg Hook (All Platforms)"
+    write_subsection_banner "Git commit-msg hook"
     echo ""
     install_git_commit_msg_hook "$repo_root"
-    echo ""
 }
 
 detect_languages() {
@@ -1417,8 +1431,9 @@ install_workspace() {
     local repo_root="$1"
     local target_path="$2"  # pre-validated by main() in v0.9.7+
 
-    echo ""
-    echo -e "${CYAN}> Workspace install${RESET}"
+    # Main-section banner; no separate "Workspace install" super-header - the
+    # scope is already stated in the welcome + farewell lines.
+    write_section_banner "SKILLS & COMMANDS"
 
     if [ -z "$target_path" ] || [ ! -d "$target_path" ]; then
         write_item "Invalid target path: $target_path" "$RED"
@@ -1855,8 +1870,8 @@ build_and_install_one_extension() {
 install_templates() {
     local repo_root="$1"
 
-    echo ""
-    write_subsection_banner "Templates & Report Generator Installation"
+    # A "- subsection" under the CROSS-PLATFORM TOOLS section opened in install_global.
+    write_subsection_banner "Report templates & generator"
     echo ""
     write_item "Nexus-Hub can generate professional Word (.docx) and PowerPoint (.pptx)" "$RESET"
     write_item "reports from Markdown files using the /research report command." "$RESET"
@@ -2164,7 +2179,7 @@ install_templates() {
     if [ "$found_templates" = false ]; then
         write_item "  (none)" "$GRAY"
     fi
-    echo ""
+    # No trailing blank: the next section banner prepends its own single blank.
 }
 
 # --- nexus-hub CLI launcher (v3.7.0 Phase 3) ---
@@ -2182,7 +2197,7 @@ install_cli_launcher() {
     local nexus_home="$HOME/.nexus-hub"
     local bin_dest="$nexus_home/bin"
 
-    write_subsection_banner "nexus-hub CLI"
+    write_section_banner "NEXUS-HUB CLI"
     echo ""
 
     # Installed-version marker (install-mode independent; read by the CLI's
@@ -2238,7 +2253,9 @@ install_project_autoseed() {
     local hooks_dest="$nexus_home/hooks"
     local runner="$repo_root/scripts/lib/integrations/runner.py"
 
-    write_subsection_banner "Project auto-seed (Antigravity .agents/, Cursor, Claude)"
+    # A "- subsection" folded under the INSTALL VERIFICATION section: it is the
+    # project-scoped follow-up to any NEEDS-ACTION hints the verify step printed.
+    write_subsection_banner "Project seeding (this repo + other projects)"
     echo ""
 
     # Ship the on-open hook script (fail-open, idempotent, opt-out) regardless of scope.
@@ -2938,6 +2955,12 @@ else
     install_global "$REPO_ROOT"
 fi
 
+# CROSS-PLATFORM TOOLS: for a global install this header (plus the skill-discovery
+# and git-hook subsections) was already opened inside install_global; a workspace
+# install skips those global-only tools, so open the header here so the report
+# templates below still render under a section rather than orphaned.
+if [ "$SCOPE_LABEL" = "Workspace" ]; then write_section_banner "CROSS-PLATFORM TOOLS"; fi
+
 # Bundled report-generator templates + scripts are user-scope and always install silently.
 # Interactive custom-template import moved to /research report at use time (v0.9.7).
 install_templates "$REPO_ROOT"
@@ -2945,20 +2968,22 @@ install_templates "$REPO_ROOT"
 # Install the nexus-hub CLI launcher + version marker (v3.7.0 Phase 3).
 install_cli_launcher "$REPO_ROOT"
 
-# Project auto-seed + on-open hook (v3.11.0 Phase 7.3): seed the current repo on a
-# global install run from inside it, ship the opt-in on-open hook, and surface
-# `nexus-hub init` for other projects.
-install_project_autoseed "$REPO_ROOT" "$SCOPE_LABEL"
-
+# --- INSTALL VERIFICATION (with project seeding folded in) ---
 # Post-install per-platform verification (v3.11.0 Phase 7.4): report PASS /
 # NEEDS-ACTION per detected platform against its real read-path (advisory; never
 # fails the install).
+write_section_banner "INSTALL VERIFICATION"
 if [ -f "$REPO_ROOT/scripts/lib/integrations/runner.py" ]; then
     if py=$(resolve_python_executable 2>/dev/null); then
-        write_subsection_banner "Install verification"
         "$py" "$REPO_ROOT/scripts/lib/integrations/runner.py" verify --target "$(pwd -P 2>/dev/null || pwd)" 2>/dev/null || true
     fi
 fi
+
+# Project seeding (v3.11.0 Phase 7.3): seed the current repo on a global install
+# run from inside it, ship the opt-in on-open hook, and surface `nexus-hub init`
+# for other projects. Folded under INSTALL VERIFICATION as the project-scoped
+# follow-up to any NEEDS-ACTION hints above.
+install_project_autoseed "$REPO_ROOT" "$SCOPE_LABEL"
 
 # Resolve any managed-file conflicts collected during an interactive install
 # (single end-of-run prompt). No-op on the non-interactive / --yes / --force path.

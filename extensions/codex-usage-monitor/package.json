@@ -2,7 +2,7 @@
   "name": "codex-usage-monitor",
   "displayName": "Codex Usage Monitor",
   "description": "Monitor your Codex (ChatGPT) usage limits in the status bar with smart throttle and pacing recommendations",
-  "version": "0.2.0",
+  "version": "0.2.3",
   "publisher": "nexus-hub",
   "icon": "icon.png",
   "repository": {
@@ -50,11 +50,6 @@
       {
         "command": "codex-usage.settings",
         "title": "Codex Usage: Settings",
-        "category": "Codex Usage"
-      },
-      {
-        "command": "codex-usage.enterManual",
-        "title": "Codex Usage: Enter Usage Manually",
         "category": "Codex Usage"
       }
     ],

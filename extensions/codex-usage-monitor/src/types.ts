@@ -9,6 +9,28 @@ export interface UsageMetric {
 }
 
 /**
+ * Sentinel percent marking a rate-limit window the account does NOT expose (e.g.
+ * a Codex plan that currently has only a weekly limit and no 5-hour "session"
+ * window). Kept negative so the urgency / trigger math treats it as the lowest
+ * possible value and never inflates a warning or surfaces a fake 0% window; the
+ * display surfaces (status bar, tooltip, dashboard) hide untracked windows via
+ * {@link isTracked}.
+ */
+export const UNTRACKED_PERCENT = -1;
+
+/** A window the account does not expose. See {@link UNTRACKED_PERCENT}. */
+export const UNTRACKED_METRIC: UsageMetric = {
+  percent: UNTRACKED_PERCENT,
+  resetsIn: "N/A",
+  resetsAt: null,
+};
+
+/** True when a window is actually exposed by the account (not the untracked sentinel). */
+export function isTracked(metric: UsageMetric | undefined): boolean {
+  return metric != null && metric.percent >= 0;
+}
+
+/**
  * An extra Codex rate-limit window beyond the primary session/weekly pair (a
  * `wham/usage` `additional_rate_limits` entry). Rendered as a dashboard row.
  */

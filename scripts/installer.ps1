@@ -108,7 +108,7 @@ function Get-SanitizedBranchName {
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:NexusHubVersion = "3.14.5"
+$script:NexusHubVersion = "3.14.6"
 
 $Host.UI.RawUI.WindowTitle = "Nexus-Hub Installer"
 $script:InstallerTitle = "Nexus-Hub Installer"
@@ -1334,11 +1334,10 @@ function Install-Permissions {
 function Install-Global {
     param ($RepoRoot)
     Restore-Title
-    Write-Host ""
-    Write-CenteredBanner -Text "Global Installation" -Color "Cyan"
-    # Write-SubSectionBanner below prepends its own blank line; no explicit Write-Host "" needed.
-
-    Write-SubSectionBanner -Text "Skills & Commands"
+    # Each main section is a "▶ UPPERCASE" banner (Write-CenteredBanner prepends
+    # its own single blank line); there is no separate "Global Installation"
+    # super-header - the scope is already stated in the welcome + farewell lines.
+    Write-CenteredBanner -Text "SKILLS & COMMANDS"
 
     # Scope/platform/overwrite are resolved once at startup (v3.7.0 / Phase 2):
     # $script:OverwriteMode and $script:SelectedPlatforms are already set, so no
@@ -1496,7 +1495,7 @@ function Install-Global {
     # COPILOT); the registry-driven platforms do not ship their own
     # auto-approve configs yet. Mirrored to provider headers for visual
     # consistency with the install-skills section above.
-    Write-SubSectionBanner -Text "Auto-Approve Permissions"
+    Write-CenteredBanner -Text "AUTO-APPROVE PERMISSIONS"
 
     if ($platforms -contains "CLAUDE") {
         Write-Header -Provider "ANTHROPIC"
@@ -1515,20 +1514,22 @@ function Install-Global {
         Install-Permissions -RepoRoot $RepoRoot -Platform "COPILOT" -Scope "Global"
     }
 
-    # --- Usage Monitor VS Code extensions sub-section ---
-    Write-SubSectionBanner -Text "Usage Monitors (VS Code Extensions)"
+    # --- VS Code Extensions section ---
+    Write-CenteredBanner -Text "VS CODE EXTENSIONS"
     Install-VSCodeExtensions -RepoRoot $RepoRoot
 
-    # --- Skill Discovery sub-section ---
-    Write-SubSectionBanner -Text "Skill Discovery (All Platforms)"
+    # --- Cross-Platform Tools: capabilities that apply to every platform, grouped
+    # under one section. Skill discovery + the git hook run here; Install-Templates
+    # (next in the main flow) adds its own "· Report templates" subsection under
+    # this same header.
+    Write-CenteredBanner -Text "CROSS-PLATFORM TOOLS"
+
+    Write-SubSectionBanner -Text "Skill discovery"
     Install-SkillDiscovery -RepoRoot $RepoRoot
 
-    # --- Git Commit-Msg Hook sub-section ---
-    Write-SubSectionBanner -Text "Git Commit-Msg Hook (All Platforms)"
+    Write-SubSectionBanner -Text "Git commit-msg hook"
     Write-Host ""
     Install-GitCommitMsgHook -RepoRoot $RepoRoot
-    # Install-Templates below calls Write-SubSectionBanner which prepends its own blank;
-    # no trailing Write-Host "" needed here.
 }
 
 function Get-LanguageSelection {
@@ -1697,9 +1698,9 @@ function Install-Workspace {
         $RepoRoot,
         $TargetPath  # pre-validated by main (v0.9.7+)
     )
-    Write-Host ""
-    Write-CenteredBanner -Text "Workspace Installation" -Color "Cyan"
-    # Write-SubSectionBanner below prepends its own blank; no explicit Write-Host "" needed here.
+    # Main-section banner; no separate "Workspace Installation" super-header - the
+    # scope is already stated in the welcome + farewell lines.
+    Write-CenteredBanner -Text "SKILLS & COMMANDS"
 
     if ([string]::IsNullOrWhiteSpace($TargetPath) -or -not (Test-Path $TargetPath)) {
         Write-Host "Invalid target path: $TargetPath" -ForegroundColor Red
@@ -2173,8 +2174,8 @@ function Build-And-Install-One-Extension {
 
 function Install-Templates {
     param ($RepoRoot)
-    # Write-SubSectionBanner prepends its own blank line; no leading Write-Host "" needed.
-    Write-SubSectionBanner -Text "Templates & Report Generator Installation"
+    # A "· subsection" under the CROSS-PLATFORM TOOLS section opened in Install-Global.
+    Write-SubSectionBanner -Text "Report templates & generator"
     Write-Host ""
     Write-Item -Message "Nexus-Hub can generate professional Word (.docx) and PowerPoint (.pptx)" -Color "White"
     Write-Item -Message "reports from Markdown files using the /research report command." -Color "White"
@@ -2489,7 +2490,7 @@ function Install-Templates {
     else {
         Write-Item -Message "  (none)" -Color "Gray"
     }
-    Write-Host ""
+    # No trailing blank: the next section banner prepends its own single blank.
 }
 
 
@@ -2509,7 +2510,7 @@ function Install-CliLauncher {
     $nexusHome = Join-Path $env:USERPROFILE ".nexus-hub"
     $binDest = Join-Path $nexusHome "bin"
 
-    Write-SubSectionBanner -Text "nexus-hub CLI"
+    Write-CenteredBanner -Text "NEXUS-HUB CLI"
     Write-Host ""
 
     # Installed-version marker (read by the CLI's --version and upgrade).
@@ -2555,7 +2556,9 @@ function Install-ProjectAutoseed {
     $hooksDest = Join-Path $nexusHome "hooks"
     $runner = Join-Path $RepoRoot "scripts\lib\integrations\runner.py"
 
-    Write-SubSectionBanner -Text "Project auto-seed (Antigravity .agents/, Cursor, Claude)"
+    # A "· subsection" folded under the INSTALL VERIFICATION section: it is the
+    # project-scoped follow-up to any NEEDS-ACTION hints the verify step printed.
+    Write-SubSectionBanner -Text "Project seeding (this repo + other projects)"
     Write-Host ""
 
     # Ship the on-open hook script regardless of scope.
@@ -3091,6 +3094,12 @@ else {
     Install-Global -RepoRoot $repoRoot
 }
 
+# CROSS-PLATFORM TOOLS: for a global install this header (plus the skill-discovery
+# and git-hook subsections) was already opened inside Install-Global; a workspace
+# install skips those global-only tools, so open the header here so the report
+# templates below still render under a section rather than orphaned.
+if ($scopeLabel -eq "Workspace") { Write-CenteredBanner -Text "CROSS-PLATFORM TOOLS" }
+
 # Bundled report-generator templates + scripts are user-scope and always install silently.
 # Interactive custom-template import moved to /research report at use time (v0.9.7).
 Install-Templates -RepoRoot $repoRoot
@@ -3098,21 +3107,23 @@ Install-Templates -RepoRoot $repoRoot
 # Install the nexus-hub CLI launcher + version marker (v3.7.0 Phase 3).
 Install-CliLauncher -RepoRoot $repoRoot
 
-# Project auto-seed + on-open hook (v3.11.0 Phase 7.3): seed the current repo on a
-# global install run from inside it, ship the opt-in on-open hook, and surface
-# `nexus-hub init` for other projects.
-Install-ProjectAutoseed -RepoRoot $repoRoot -ScopeLabel $scopeLabel
-
+# --- INSTALL VERIFICATION (with project seeding folded in) ---
 # Post-install per-platform verification (v3.11.0 Phase 7.4): report PASS /
 # NEEDS-ACTION per detected platform against its real read-path (advisory).
+Write-CenteredBanner -Text "INSTALL VERIFICATION"
 $verifyRunner = Join-Path $repoRoot "scripts\lib\integrations\runner.py"
 $pyVerify = $null
 foreach ($c in @("python", "py", "python3")) { if (Get-Command $c -ErrorAction SilentlyContinue) { $pyVerify = $c; break } }
 if ($pyVerify -and (Test-Path $verifyRunner)) {
-    Write-SubSectionBanner -Text "Install verification"
     if ($pyVerify -eq "py") { & $pyVerify -3 $verifyRunner verify --target (Get-Location).Path 2>$null }
     else { & $pyVerify $verifyRunner verify --target (Get-Location).Path 2>$null }
 }
+
+# Project seeding (v3.11.0 Phase 7.3): seed the current repo on a global install
+# run from inside it, ship the opt-in on-open hook, and surface `nexus-hub init`
+# for other projects. Folded under INSTALL VERIFICATION as the project-scoped
+# follow-up to any NEEDS-ACTION hints above.
+Install-ProjectAutoseed -RepoRoot $repoRoot -ScopeLabel $scopeLabel
 
 # Resolve any managed-file conflicts collected during an interactive install
 # (single end-of-run prompt). No-op on the non-interactive / -Yes / -Force path.

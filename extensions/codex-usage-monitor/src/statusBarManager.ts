@@ -1,5 +1,5 @@
 import * as vscode from "vscode";
-import { UsageData, UrgencyLevel, ColorConfig, getColorConfig, getThresholdConfig, WORKBENCH_COLOR_KEYS, syncActiveColorToWorkbench } from "./types";
+import { UsageData, UrgencyLevel, ColorConfig, getColorConfig, getThresholdConfig, WORKBENCH_COLOR_KEYS, syncActiveColorToWorkbench, isTracked } from "./types";
 import { getActiveUrgency, pickTriggerMetric } from "./recommendations";
 import { UsageStore, formatResetLabel } from "./usageStore";
 
@@ -19,7 +19,6 @@ const NEAR_THRESHOLD_INTERVAL_MS = 60_000;
 
 export class StatusBarManager {
   private readonly statusBarItem: vscode.StatusBarItem;
-  private readonly gearItem: vscode.StatusBarItem;
   private autoRefreshTimer: ReturnType<typeof setTimeout> | undefined;
   private autoRefreshEnabled = false;
   private displayTickTimer: ReturnType<typeof setInterval> | undefined;
@@ -29,30 +28,19 @@ export class StatusBarManager {
 
   constructor(
     private readonly store: UsageStore,
-    private readonly dashboardCommandId: string,
-    private readonly settingsCommandId: string
+    private readonly dashboardCommandId: string
   ) {
-    // Status-bar priority orders BOTH usage monitors left-to-right (VS Code
-    // renders a higher Right-aligned priority further LEFT). To read
-    // [Claude usage][Claude gear][Codex usage][Codex gear], the Claude monitor
-    // uses 103/102 and Codex uses 101/100 - the load-bearing constraint is that
-    // Codex's usage item (101) sits below the Claude gear (102). See the Claude
-    // extension's matching values.
+    // Status-bar priority orders the two usage monitors left-to-right (VS Code
+    // renders a higher Right-aligned priority further LEFT). Claude uses 105 and
+    // Codex 103 - both ABOVE GitHub Copilot's ~100.5 slot, so the usage items
+    // group together with Copilot to their right. There is no gear item: settings
+    // now live inline in the dashboard, opened from this usage item.
     this.statusBarItem = vscode.window.createStatusBarItem(
       vscode.StatusBarAlignment.Right,
-      101
+      103
     );
     this.statusBarItem.command = dashboardCommandId;
     this.statusBarItem.name = "Codex Usage Monitor";
-
-    this.gearItem = vscode.window.createStatusBarItem(
-      vscode.StatusBarAlignment.Right,
-      100
-    );
-    this.gearItem.text = "$(gear)";
-    this.gearItem.tooltip = "Codex Usage: Settings";
-    this.gearItem.command = settingsCommandId;
-    this.gearItem.name = "Codex Usage Settings";
   }
 
   setAutoRefreshCallback(callback: () => void | Promise<void>): void {
@@ -66,14 +54,12 @@ export class StatusBarManager {
   show(): void {
     this.refresh();
     this.statusBarItem.show();
-    this.gearItem.show();
     this.scheduleAutoRefresh();
     this.startDisplayTick();
   }
 
   hide(): void {
     this.statusBarItem.hide();
-    this.gearItem.hide();
     this.stopAutoRefreshTimer();
     this.stopDisplayTick();
   }
@@ -104,7 +90,6 @@ export class StatusBarManager {
     this.stopAutoRefreshTimer();
     this.stopDisplayTick();
     this.statusBarItem.dispose();
-    this.gearItem.dispose();
   }
 
   private tick(): void {
@@ -118,44 +103,48 @@ export class StatusBarManager {
 
   private updateDisplay(data: UsageData | undefined): void {
     if (!data) {
-      this.statusBarItem.text = this.statusText("--", "--", "");
+      this.statusBarItem.text = this.statusText(undefined, "");
       this.statusBarItem.tooltip = "Click to view Codex usage dashboard";
       this.statusBarItem.backgroundColor = undefined;
-      this.gearItem.backgroundColor = undefined;
       return;
     }
 
     const overallUrgency = getActiveUrgency(data);
     const staleLabel = this.isDataStale(data) ? " $(warning)" : "";
 
-    this.statusBarItem.text = this.statusText(
-      String(data.session.percent),
-      String(data.weeklyAllModels.percent),
-      staleLabel,
-    );
+    this.statusBarItem.text = this.statusText(data, staleLabel);
 
     this.statusBarItem.tooltip = this.buildTooltip(data);
-    const bgColor = this.getBackgroundColor(overallUrgency);
-    this.statusBarItem.backgroundColor = bgColor;
-    // Mirror the urgency color on the gear so the user sees that the gear icon
-    // belongs to the Codex Usage Monitor, and not to some unrelated extension.
-    this.gearItem.backgroundColor = bgColor;
+    this.statusBarItem.backgroundColor = this.getBackgroundColor(overallUrgency);
     // Swap warningBackground hex between moderate and high colors (they share the same ThemeColor ID)
     void syncActiveColorToWorkbench(overallUrgency, getColorConfig());
   }
 
   /**
-   * Build the status-bar text. The full form is
-   * "<icon> Codex Usage: X% (current) Y% (week)"; when the user enables the
-   * `codexUsage.compactStatusBar` setting the "Codex Usage: " label is dropped,
-   * leaving "<icon> X% (current) Y% (week)".
+   * Build the status-bar text from whichever windows the account actually
+   * exposes. The full form is "<icon> Codex Usage: X% (current) Y% (week)", but
+   * an untracked window is omitted - so a weekly-only plan reads
+   * "<icon> Codex Usage: Y% (week)" with no dead "--% (current)". The
+   * `codexUsage.compactStatusBar` setting drops the "Codex Usage: " label. When
+   * there is no data at all, a single "--" placeholder is shown.
    */
-  private statusText(sessionPct: string, weeklyPct: string, staleLabel: string): string {
+  private statusText(data: UsageData | undefined, staleLabel: string): string {
     const compact = vscode.workspace
       .getConfiguration("codexUsage")
       .get<boolean>("compactStatusBar", false);
     const label = compact ? "" : "Codex Usage: ";
-    return `${CODEX_ICON} ${label}${sessionPct}% (current) ${weeklyPct}% (week)${staleLabel}`;
+    if (!data) {
+      return `${CODEX_ICON} ${label}--${staleLabel}`;
+    }
+    const parts: string[] = [];
+    if (isTracked(data.session)) {
+      parts.push(`${data.session.percent}% (current)`);
+    }
+    if (isTracked(data.weeklyAllModels)) {
+      parts.push(`${data.weeklyAllModels.percent}% (week)`);
+    }
+    const body = parts.length > 0 ? parts.join(" ") : "--";
+    return `${CODEX_ICON} ${label}${body}${staleLabel}`;
   }
 
   private isDataStale(data: UsageData): boolean {
@@ -217,8 +206,8 @@ export class StatusBarManager {
     md.appendMarkdown(
       `<span style="opacity:0.6">Codex Usage</span><br><br>` +
       staleWarning +
-      section("Current Session", data.session.percent, data.session.resetsIn) +
-      section("Weekly", data.weeklyAllModels.percent, data.weeklyAllModels.resetsIn) +
+      (isTracked(data.session) ? section("Current Session", data.session.percent, data.session.resetsIn) : "") +
+      (isTracked(data.weeklyAllModels) ? section("Weekly", data.weeklyAllModels.percent, data.weeklyAllModels.resetsIn) : "") +
       credits +
       `<span style="opacity:0.6">Last updated: ${timeSince}</span>`
     );
