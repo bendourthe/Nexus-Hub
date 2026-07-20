@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.14.5 -->
+<!-- nexus-hub-version: 3.14.6 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 267 skills, 16 commands, 28 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -36,6 +36,10 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v3.14.6
+
+v3.14.6 fixes the Codex Usage Monitor's auto-fetch, unifies both usage monitors' settings UX, and modernizes the installer's console output (no catalog change; counts unchanged). The **Codex Usage Monitor** now pulls your real usage automatically like the Claude monitor does: the root cause was a schema mismatch (the mapper read `rate_limits`/`primary`/`secondary`, but the live endpoint nests the windows under `rate_limit`/`primary_window`/`secondary_window`), so a weekly-only plan came up empty. The mapper now reads the verified schema and classifies each window by its real duration, and the manual-entry fallback is removed (auto-fetch is the path; a genuine failure shows an honest diagnostic). **Both monitors** drop the status-bar gear icon and render **Settings inline under the dashboard** (toggled by the dashboard gear, state-persisted, fonts unified with the dashboard) instead of opening a separate panel, and the status-bar items stay grouped (Copilot no longer wedges between them). The **installer log** is flattened to single-level `UPPERCASE` sections, "Usage Monitors" is renamed **VS CODE EXTENSIONS**, skill discovery + git hook + report templates are grouped under **CROSS-PLATFORM TOOLS**, project seeding is folded under **INSTALL VERIFICATION**, and the stray blank-line spacing is cleaned up. Catalog: **267 skills**, **16 commands**, **28 hooks**.
 
 ## What's New in v3.14.5
 

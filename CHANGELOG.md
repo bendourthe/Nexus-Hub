@@ -20,6 +20,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Dead `permissions_file` config key (Phase 1.1)** (`scripts/lib/integrations/{claude,codex,copilot,gemini,gemini_cli,nexus_ai,antigravity}.py`): the `permissions_file` key was declared on 7 integration subclass configs but never read by `base.py` / `runner.py` / `lifecycle.py` or any other code, ending the dead-metadata ambiguity the v3.15.0 plan called out. The permission JSON files under `configs/permissions/` are installed by a separate mechanism (`Install-Nexus-Hub-Permissions.ps1` and the installer permission blocks) and are untouched.
 
+## [3.14.6] - 2026-07-20
+
+**Usage-monitor fixes and installer-log overhaul.** Fixes the Codex Usage Monitor's auto-fetch, unifies both monitors' settings UX, and modernizes the installer's console layout. No catalog change; counts unchanged: **267 skills**, **16 commands**, **28 hooks**.
+
+### Fixed
+
+- **Codex Usage Monitor now auto-fetches real usage** (`extensions/codex-usage-monitor/src/providers/codex.ts`): the `wham/usage` response was being discarded because the mapper looked for a `rate_limits` (plural) object with `primary`/`secondary` keys, but the live endpoint nests the windows under `rate_limit` (singular) as `primary_window`/`secondary_window`. The endpoint and token were always fine (verified returning HTTP 200); only the mapping was wrong. The mapper now reads the verified schema and classifies each window by its own `limit_window_seconds` duration, so a weekly-only plan (e.g. a Team plan whose single window is 7 days) maps to the weekly metric instead of being dropped or mislabeled "current session". The undocumented-endpoint caveat is retired.
+- **Status-bar item order** (`extensions/*/src/statusBarManager.ts`): the four items no longer let GitHub Copilot's status item (which sorts at ~100.5) wedge between the Codex usage and gear items. With the gear removed (below), the two usage items sit in a contiguous band above Copilot's slot, reading `Claude Usage, Codex Usage, Copilot`.
+
+### Changed
+
+- **Settings moved inline into the dashboard** (both extensions): the separate settings webview panel is gone. The status-bar gear item is removed; the dashboard's gear now toggles a Settings section rendered inline under the dashboard (collapsed by default, open/closed state persisted across refreshes), with fonts and headings unified with the dashboard so they read as one panel.
+- **Manual usage entry removed** (Codex): now that auto-fetch works, the "Enter Usage Manually" command, dashboard button, and input prompts are gone; the empty state is an honest fetch-failure diagnostic (retry / re-auth via `codex`) shown only on a genuine failure.
+- **Installer log overhaul** (`scripts/installer.ps1`, `scripts/installer.sh`, lockstep): flattened to single-level `UPPERCASE` main sections (no "Global Installation" super-header; one blank line after the welcome). "Usage Monitors (VS Code Extensions)" renamed "VS CODE EXTENSIONS"; skill discovery + git commit-msg hook + report templates grouped under a new "CROSS-PLATFORM TOOLS" section; project seeding folded under "INSTALL VERIFICATION"; stray double-blank lines removed; the workspace-scope path made consistent with the global one.
+- Extension versions bumped: `claude-usage-monitor` 0.9.0 -> 0.9.2, `codex-usage-monitor` 0.2.0 -> 0.2.3.
+
+### Notes
+
+- The platform read-contract was reaffirmed (not re-verified) for this release: v3.14.6 changed no platform read-paths, integration adapters, or installer copy targets, so the 2026-07-19 full 13-platform re-verification from v3.14.5 still holds; the freshness marker is re-stamped to 3.14.6.
+
 ## [3.14.5] - 2026-07-19
 
 **Installer UX modernization, Codex monitor fixes, and mandatory platform-contract verification.** Rebuilds the installer's per-platform console output into an accurate checklist (fixed surface order, undetected-platform grouping, per-vendor colors, tightened spacing, Anthropic/OpenAI utility split), fixes the Codex Usage Monitor (manual-entry fallback, honest empty state, theme-adaptive dashboard icon, correct status-bar ordering, compact-mode toggle), and makes per-release platform-contract re-verification a hard gate (a single machine-readable `platform-read-contracts.json` consumed by both verifiers, plus a `check_platform_contract_freshness.py` guard in `make validate` + CI). The release re-verification itself (`/update release` governance step 4) then web-verified all 13 platforms and fixed three dead-path installer bugs (OpenCode `~/.config/opencode`, Kimi `.kimi/AGENTS.md`, OpenClaw `~/.openclaw/workspace/`); the additive drift it found (Copilot/Cursor/Codex/OpenCode gained skills/agents/hooks surfaces) is routed to v3.15.0. Catalog counts unchanged: **267 skills**, **16 commands**, **28 hooks**.

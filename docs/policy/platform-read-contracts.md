@@ -2,7 +2,7 @@
 
 This is the durable, sourced source of truth for where every supported platform READS each surface (instruction file, slash commands, skills, agents, rules, hooks) and where the Nexus-Hub installer WRITES it. It supersedes the point-in-time snapshot at `docs/v3/v3.11/platform-read-contracts.md` (which resolved the v3.11.0 Phase 7 audit but left the Codex and Antigravity contracts flagged as unverified).
 
-**Last verified**: 2026-07-20 (v3.15.0 Phase 1.2 parity re-verification of Cursor, OpenCode, Qwen, Kimi, and Copilot; preceded by the 2026-07-19 full 13-platform re-verification during the v3.14.5 release). Both cycles used the `platform-contract-verification` skill; see the Re-verification log below. The JSON's `meta.verified_for_version` stays at the last release (3.14.5) and is re-stamped to 3.15.0 at release time (Phase 7 / `/update release`), so the freshness gate stays green during development.
+**Last verified**: 2026-07-20 (v3.15.0 Phase 1.2 parity re-verification of Cursor, OpenCode, Qwen, Kimi, and Copilot; preceded by the 2026-07-19 full 13-platform re-verification during the v3.14.5 release, reaffirmed unchanged for v3.14.6 which touched no platform read-paths). All cycles used the `platform-contract-verification` skill; see the Re-verification log below. The JSON's `meta.verified_for_version` is 3.14.6 (the last release); the v3.15.0 parity additions re-stamp it to 3.15.0 at release time (Phase 7 / `/update release`) as each integration lands, so the freshness gate stays green during development.
 
 ## How this doc is maintained
 
@@ -76,6 +76,10 @@ Web re-verification of the five platforms the v3.14.5 log deferred to v3.15.0 (t
 - Qwen Code skills / commands / sub-agents / settings: <https://qwenlm.github.io/qwen-code-docs/en/users/features/skills/>, <https://qwenlm.github.io/qwen-code-docs/en/users/features/commands/>, <https://qwenlm.github.io/qwen-code-docs/en/users/features/sub-agents/>, <https://qwenlm.github.io/qwen-code-docs/en/users/configuration/settings/>
 - Kimi Code CLI skills / slash-commands / agents / hooks / data-locations / migration: <https://www.kimi.com/code/docs/en/kimi-code-cli/customization/skills.html>, <https://www.kimi.com/code/docs/en/kimi-code-cli/reference/slash-commands.html>, <https://www.kimi.com/code/docs/en/kimi-code-cli/customization/agents.html>, <https://www.kimi.com/code/docs/en/kimi-code-cli/customization/hooks.html>, <https://www.kimi.com/code/docs/en/kimi-code-cli/configuration/data-locations.html>, <https://www.kimi.com/code/docs/en/kimi-code-cli/guides/migration.html>
 - Copilot Agent Skills / custom agents / hooks / instructions / prompts: <https://docs.github.com/en/copilot/concepts/agents/about-agent-skills>, <https://docs.github.com/en/copilot/reference/custom-agents-configuration>, <https://code.visualstudio.com/docs/agent-customization/hooks>, <https://code.visualstudio.com/docs/agent-customization/custom-instructions>, <https://code.visualstudio.com/docs/copilot/customization/prompt-files>
+
+### 2026-07-20 (v3.14.6 release - reaffirmed, no re-verification)
+
+v3.14.6 is a usage-monitor + installer-log fix release: it changed no platform read-paths, integration adapters, or installer copy targets (only the two VS Code usage-monitor extensions and the installer's console output). The 2026-07-19 full 13-platform web re-verification therefore still holds, so the contract is reaffirmed and the freshness marker re-stamped to 3.14.6 without a fresh web-search cycle. The additive drift recorded below remains deferred to v3.15.0.
 
 ### 2026-07-19 (v3.14.5 release)
 
