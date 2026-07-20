@@ -7,9 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [3.14.5] - 2026-07-19
 
-**Installer UX modernization, Codex monitor fixes, and mandatory contract verification (v3.14.5, in progress).** Rebuilds the installer's per-platform console output into an accurate checklist, fixes the Codex Usage Monitor, and makes per-release platform-contract re-verification a hard gate. Phases 1-6 land the installer UX, the Codex monitor fixes, and the DRY contract-verification gate.
+**Installer UX modernization, Codex monitor fixes, and mandatory platform-contract verification.** Rebuilds the installer's per-platform console output into an accurate checklist (fixed surface order, undetected-platform grouping, per-vendor colors, tightened spacing, Anthropic/OpenAI utility split), fixes the Codex Usage Monitor (manual-entry fallback, honest empty state, theme-adaptive dashboard icon, correct status-bar ordering, compact-mode toggle), and makes per-release platform-contract re-verification a hard gate (a single machine-readable `platform-read-contracts.json` consumed by both verifiers, plus a `check_platform_contract_freshness.py` guard in `make validate` + CI). The release re-verification itself (`/update release` governance step 4) then web-verified all 13 platforms and fixed three dead-path installer bugs (OpenCode `~/.config/opencode`, Kimi `.kimi/AGENTS.md`, OpenClaw `~/.openclaw/workspace/`); the additive drift it found (Copilot/Cursor/Codex/OpenCode gained skills/agents/hooks surfaces) is routed to v3.15.0. Catalog counts unchanged: **267 skills**, **16 commands**, **28 hooks**.
 
 ### Added
 
