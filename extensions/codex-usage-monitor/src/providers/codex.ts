@@ -240,22 +240,30 @@ function readWindow(win: unknown, nowMs: number): UsageMetric | null {
   };
 }
 
-/** Locate the primary and secondary rate-limit windows across plausible payload shapes. */
+/**
+ * Locate the primary (5-hour) and secondary (weekly) rate-limit windows across
+ * plausible payload shapes. The endpoint is undocumented; public reports of the
+ * Codex CLI's own `get_rate_limits` parsing indicate the windows may appear as
+ * `primary`/`secondary`, `primary_window`/`secondary_window`, or
+ * `five_hour_limit`/`weekly_limit`, either nested under `rate_limits` or at the
+ * top level, so all of those aliases are probed. The exact schema remains
+ * unverified (no live capture available) - see the v3.14.5 known-gap.
+ */
 function locateWindows(payload: Record<string, unknown>): { primary: unknown; secondary: unknown } {
   const rl = payload.rate_limits ?? payload.rateLimits ?? payload.limits;
   const rlRec = asRecord(rl);
   if (rlRec) {
     return {
-      primary: rlRec.primary ?? rlRec.session ?? rlRec.five_hour ?? rlRec["5h"],
-      secondary: rlRec.secondary ?? rlRec.weekly ?? rlRec.seven_day ?? rlRec["7d"],
+      primary: rlRec.primary ?? rlRec.primary_window ?? rlRec.session ?? rlRec.five_hour ?? rlRec.five_hour_limit ?? rlRec["5h"],
+      secondary: rlRec.secondary ?? rlRec.secondary_window ?? rlRec.weekly ?? rlRec.weekly_limit ?? rlRec.seven_day ?? rlRec["7d"],
     };
   }
   if (Array.isArray(rl)) {
     return { primary: rl[0], secondary: rl[1] };
   }
   return {
-    primary: payload.primary ?? payload.session ?? payload.five_hour,
-    secondary: payload.secondary ?? payload.weekly ?? payload.seven_day,
+    primary: payload.primary ?? payload.primary_window ?? payload.session ?? payload.five_hour ?? payload.five_hour_limit,
+    secondary: payload.secondary ?? payload.secondary_window ?? payload.weekly ?? payload.weekly_limit ?? payload.seven_day,
   };
 }
 

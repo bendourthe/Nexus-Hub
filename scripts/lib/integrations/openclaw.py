@@ -75,23 +75,31 @@ class OpenClawIntegration(MarkdownIntegration):
         return result
 
     def install_global(self, ctx: InstallContext) -> WriteResult:
-        """Write ``~/.openclaw/{SOUL,AGENTS,IDENTITY}.md`` when OpenClaw is
-        detected, else skip with a note.
+        """Write ``~/.openclaw/workspace/{SOUL,AGENTS,IDENTITY}.md`` when OpenClaw
+        is detected, else skip with a note.
+
+        v3.14.5: OpenClaw reads its agent files from the single global workspace
+        directory ``~/.openclaw/workspace/`` (per-machine/profile), NOT from the
+        config root ``~/.openclaw/`` directly - so the trio now lands under
+        ``workspace/``. Re-verified 2026-07-19 against
+        https://docs.openclaw.ai/concepts/agent-workspace (overridable via
+        ``OPENCLAW_WORKSPACE_DIR`` / ``agents.defaults.workspace``).
 
         Detection: the OpenClaw config root ``~/.openclaw`` must exist. When it
         does not, OpenClaw is not installed for this user and the global write is
-        skipped (the workspace-scope ``.openclaw/`` trio is the primary surface
-        and is unaffected).
+        skipped.
         """
         result = WriteResult()
         oc_root = (Path.home() / ".openclaw").resolve()
         if not oc_root.exists():
             ctx.manifest.log(self.key, "~/.openclaw not found; skipping global OpenClaw files")
-            result.note("OpenClaw (~/.openclaw) not found; global SOUL/AGENTS/IDENTITY skipped")
+            result.mark_not_detected("OpenClaw (~/.openclaw) not found; global SOUL/AGENTS/IDENTITY skipped")
             return result
-        self._ensure_dir(oc_root, ctx)
-        action = self._write_instruction(oc_root, ctx)
+        result.detected = True
+        oc_workspace = (oc_root / "workspace").resolve()
+        self._ensure_dir(oc_workspace, ctx)
+        action = self._write_instruction(oc_workspace, ctx)
         if action is not None:
             result.files.append(action)
-        result.files.extend(self._write_companions(oc_root, ctx))
+        result.files.extend(self._write_companions(oc_workspace, ctx))
         return result

@@ -62,8 +62,13 @@ jobs:
         # yet green catalog-wide, so wiring the strict gate here would fail CI on
         # pre-existing drift unrelated to any given change.
         run: python scripts/validate_skills.py --bundles-only
-        run: |
-          python scripts/validate_no_personal_paths.py
+
+      - name: Validate no personal paths (v2.3.0 Phase 2)
+        # v3.14.5 Phase 7: split out of the bundle-audit step above, which had a
+        # duplicate `run:` key - YAML keeps only the last, so the bundle-orphan
+        # audit was silently dropped in CI (present on develop too; not caused by
+        # this release). Both now run as distinct steps, matching `make validate`.
+        run: python scripts/validate_no_personal_paths.py
 
       - name: Validate Unicode safety (v2.3.0 Phase 2)
         run: |
@@ -84,6 +89,14 @@ jobs:
         # platform-agnostic edit (shared heading, placeholder, or invariant
         # block like the MCP Registry Policy) lands in a subset of the five.
         run: python scripts/check_base_template_parity.py
+
+      - name: Validate platform read-contract freshness (v3.14.5 Phase 6)
+        # Mandatory per-release gate: docs/policy/platform-read-contracts.json's
+        # meta.verified_for_version must equal the plugin.json version being cut.
+        # Green during development (both are the last-released version); fails a
+        # release bump until the platform-contract-verification skill re-verifies
+        # each platform's current discovery format and re-stamps the marker.
+        run: python scripts/check_platform_contract_freshness.py
 
       - name: Scan catalog for skill-security findings (v3.0.0 Phase 6)
         # Deterministic static gate: fails on any HIGH/CRITICAL finding across

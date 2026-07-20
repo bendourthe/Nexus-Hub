@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.14.4 -->
+<!-- nexus-hub-version: 3.14.5 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 267 skills, 16 commands, 28 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -36,6 +36,10 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v3.14.5
+
+v3.14.5 modernizes the installer output, fixes the Codex Usage Monitor, and makes per-release platform-contract verification a hard gate (no catalog change; counts unchanged). The **installer** now prints a per-platform checklist in a fixed surface order (Core Files / Skills / Commands / Agents / Rules / Hooks / Core Settings) with real install paths, groups undetected platforms into one "NOT DETECTED (skipped)" section instead of reporting them as installed, colors every vendor, tightens end-of-run spacing, and splits the VS Code utilities into Anthropic (Claude Usage Monitor) and OpenAI (Codex Usage Monitor) sections. The **Codex Usage Monitor** gains a manual-entry fallback (so it is useful even when the undocumented usage endpoint can't be read), an honest and actionable empty state, a theme-adaptive dashboard tab icon, correct status-bar ordering across both extensions ([Claude usage][Claude gear][Codex usage][Codex gear]), and a `compactStatusBar` toggle. A new **mandatory contract-verification gate** consolidates the "expected read-paths per platform" data into one machine-readable `docs/policy/platform-read-contracts.json` (consumed by both the code-vs-contract checker and the runtime `nexus-hub verify` pass) and adds `check_platform_contract_freshness.py`, which fails `make validate` and CI unless the contract was re-verified for the release being cut. That release-time re-verification web-checked all 13 platforms and fixed three dead-path installer bugs (**OpenCode** `~/.config/opencode/`, **Kimi** `.kimi/AGENTS.md`, **OpenClaw** `~/.openclaw/workspace/`); the additive drift it surfaced (Copilot / Cursor / Codex / OpenCode have gained native skills / agents / hooks surfaces) is routed to the v3.15.0 platform-parity release. Catalog: **267 skills**, **16 commands**, **28 hooks**.
 
 ## What's New in v3.14.3
 

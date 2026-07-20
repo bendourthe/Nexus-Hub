@@ -11,10 +11,11 @@ reusing the Aider/Windsurf pattern proven in Phase 2:
   - Qwen writes a project-root QWEN.md at workspace scope; at global scope it
     writes ~/.qwen/QWEN.md only when Qwen is detected (~/.qwen present),
     skipping with a note otherwise;
-  - Kimi writes a .kimi/system.md (marker-merged) + .kimi/agent.yaml companion
-    at workspace scope; global behavior detects ~/.kimi;
+  - Kimi writes a .kimi/AGENTS.md (marker-merged, v3.14.5) + .kimi/agent.yaml
+    companion at workspace scope; global behavior detects ~/.kimi;
   - OpenClaw writes the .openclaw/{AGENTS,SOUL,IDENTITY}.md split at workspace
-    scope; global behavior detects ~/.openclaw.
+    scope; global behavior detects ~/.openclaw and writes the trio under
+    ~/.openclaw/workspace/ (v3.14.5, the path OpenClaw actually reads).
 """
 
 from __future__ import annotations
@@ -119,17 +120,22 @@ def test_qwen_global_skips_when_not_detected(fake_home: Path) -> None:
 # ---------------------------------------------------------------------------
 
 
-def test_kimi_workspace_writes_system_and_agent_yaml(fake_home: Path, tmp_path: Path) -> None:
+def test_kimi_workspace_writes_agents_md_and_agent_yaml(fake_home: Path, tmp_path: Path) -> None:
+    # v3.14.5: Kimi Code CLI reads the merged AGENTS.md (incl. .kimi/AGENTS.md),
+    # NOT .kimi/system.md, so the instruction file is .kimi/AGENTS.md.
     target = tmp_path / "ws"
     target.mkdir()
     get("kimi").install(_ctx(target, scope="workspace"))
 
-    system_md = target / ".kimi" / "system.md"
+    agents_md = target / ".kimi" / "AGENTS.md"
     agent_yaml = target / ".kimi" / "agent.yaml"
-    assert system_md.is_file(), "Kimi must write .kimi/system.md"
+    assert agents_md.is_file(), "Kimi must write .kimi/AGENTS.md"
     assert agent_yaml.is_file(), "Kimi must write .kimi/agent.yaml"
-    assert "catalog/skills/" in system_md.read_text(encoding="utf-8")
-    assert "system_prompt_file: system.md" in agent_yaml.read_text(encoding="utf-8")
+    assert "catalog/skills/" in agents_md.read_text(encoding="utf-8")
+    assert "system_prompt_file: AGENTS.md" in agent_yaml.read_text(encoding="utf-8")
+    # .kimi/AGENTS.md is namespaced; it must not clobber the project-root AGENTS.md
+    # that codex/cursor/opencode manage.
+    assert not (target / "AGENTS.md").exists()
 
 
 def test_kimi_global_skips_when_not_detected(fake_home: Path) -> None:
@@ -142,7 +148,7 @@ def test_kimi_global_skips_when_not_detected(fake_home: Path) -> None:
 def test_kimi_global_writes_when_detected(fake_home: Path) -> None:
     (fake_home / ".kimi").mkdir()
     get("kimi").install(_ctx(fake_home, scope="global"))
-    assert (fake_home / ".kimi" / "system.md").is_file()
+    assert (fake_home / ".kimi" / "AGENTS.md").is_file()
     assert (fake_home / ".kimi" / "agent.yaml").is_file()
 
 
@@ -181,3 +187,15 @@ def test_openclaw_global_skips_when_not_detected(fake_home: Path) -> None:
     assert result.files == []
     assert result.notes, "OpenClaw global install should skip-with-note when undetected"
     assert not (fake_home / ".openclaw").exists()
+
+
+def test_openclaw_global_writes_to_workspace_when_detected(fake_home: Path) -> None:
+    # v3.14.5: OpenClaw reads ~/.openclaw/workspace/, not ~/.openclaw/ directly.
+    (fake_home / ".openclaw").mkdir()
+    get("openclaw").install(_ctx(fake_home, scope="global"))
+    ws = fake_home / ".openclaw" / "workspace"
+    assert (ws / "AGENTS.md").is_file(), "OpenClaw global must write ~/.openclaw/workspace/AGENTS.md"
+    assert (ws / "SOUL.md").is_file()
+    assert (ws / "IDENTITY.md").is_file()
+    # The trio must NOT land directly under ~/.openclaw/ (the dead path).
+    assert not (fake_home / ".openclaw" / "AGENTS.md").exists()

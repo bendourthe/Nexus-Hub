@@ -1,6 +1,6 @@
 # AGENTS.md
 
-<!-- nexus-hub-version: 3.14.4 -->
+<!-- nexus-hub-version: 3.14.5 -->
 
 This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, Gemini CLI, etc.) when working with code in this repository.
 
@@ -348,7 +348,7 @@ Nexus-Hub is a **template repository**. Nothing you add is "live" until a user r
 
 | Artifact you add/modify | Installer edit required? | Platforms reached |
 |---|---|---|
-| `catalog/skills/<cat>/<name>/SKILL.md` | No — folder auto-copied | As of v3.12.0 every SKILL.md-standard platform (Claude, Codex/ChatGPT, Antigravity, Gemini, Gemini CLI, OpenCode, Nexus-AI) receives skills FLATTENED to `skills/<name>/` (one level, per the SKILL.md open standard) plus one skill per command (`$name`); Cursor/Copilot get skills via the `{{SKILL_INDEX}}` block in their instruction file. Exact per-platform read-paths: `docs/policy/platform-read-contracts.md` (the living contract, maintained by the `/update release` platform-contract-verification step). |
+| `catalog/skills/<cat>/<name>/SKILL.md` | No — folder auto-copied | As of v3.12.0 every SKILL.md-standard platform (Claude, Codex/ChatGPT, Antigravity, Gemini, Gemini CLI, OpenCode, Nexus-AI) receives skills FLATTENED to `skills/<name>/` (one level, per the SKILL.md open standard) plus one skill per command (`$name`); Cursor/Copilot get skills via the `{{SKILL_INDEX}}` block in their instruction file. Exact per-platform read-paths: `docs/policy/platform-read-contracts.json` (the machine-readable source of truth; human-readable companion in the sibling `.md`), the living contract re-verified and freshness-gated (`check_platform_contract_freshness.py`, run by `make validate` + CI) at every `/update release` by the platform-contract-verification step. |
 | `catalog/commands/<name>.md` | No — folder auto-copied | Claude (`commands/`), Gemini (`workflows/`), Codex (`prompts/`). Cursor and GitHub Copilot get a **user-global** slash surface too (v3.3.4): a global install mirrors every command into `~/.cursor/commands/<name>.md` and into VS Code's user-profile `prompts/<name>.prompt.md`, so `/<name>` works in any repo with no local install. As of v3.12.0 Antigravity 2.0 gets a global slash surface at `~/.gemini/config/global_workflows/` AND the open project's `.agents/workflows/` (the latter seeded by `nexus-hub init`), and every command is also emitted as a skill. OpenCode has no slash surface — it sees the command body only via its instruction file (and its skills folder). |
 | `catalog/style-guides/<name>.md` (companion reference for a command, NOT a slash command) | No — folder auto-copied to `~/.nexus-hub/style-guides/` by `install_templates` | All platforms (shared). Located outside `catalog/commands/` so the file does not surface in the slash menu. |
 | `catalog/agents/<name>.md` | No — folder auto-copied | Claude, Gemini, Codex |

@@ -108,7 +108,7 @@ function Get-SanitizedBranchName {
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:NexusHubVersion = "3.14.4"
+$script:NexusHubVersion = "3.14.5"
 
 $Host.UI.RawUI.WindowTitle = "Nexus-Hub Installer"
 $script:InstallerTitle = "Nexus-Hub Installer"
@@ -262,6 +262,9 @@ function Get-ProviderColor {
         "OPENCODE"        { "Cyan" }
         "AIDER"           { "Green" }
         "WINDSURF"        { "DarkGreen" }
+        "KIMI"            { "Red" }
+        "QWEN"            { "DarkRed" }
+        "OPENCLAW"        { "Yellow" }
         "NEXUS"           { "DarkBlue" }
         Default           { "White" }
     }
@@ -283,6 +286,75 @@ function Write-Item {
     )
     $spaces = " " * $Indent
     Write-Host "${spaces}$Message" -ForegroundColor $Color
+}
+
+# --- Per-platform install checklist (v3.14.5 Phase 2) ---
+#
+# The registry runner emits a structured per-surface summary
+# (runner.py --summary-json); the installer renders it as a fixed-order
+# checklist so every platform reads identically, and collects platforms whose
+# tool was not detected into one "NOT DETECTED" group instead of a colored
+# header plus a caveat line per platform.
+
+# Canonical surface order + display labels (matches the bash installer).
+$script:ChecklistSurfaces = @(
+    @{ Key = "instruction"; Label = "Core Files" },
+    @{ Key = "skills";      Label = "Skills" },
+    @{ Key = "commands";    Label = "Commands" },
+    @{ Key = "agents";      Label = "Agents" },
+    @{ Key = "rules";       Label = "Rules" },
+    @{ Key = "hooks";       Label = "Hooks" },
+    @{ Key = "settings";    Label = "Core Settings" }
+)
+
+# Platforms whose tool was not detected on this machine (grouped at run end).
+$script:UndetectedPlatforms = @()
+
+function Reset-UndetectedPlatforms { $script:UndetectedPlatforms = @() }
+
+function Add-UndetectedPlatform {
+    param([string]$Name, [string]$Reason = "not detected")
+    $script:UndetectedPlatforms += [pscustomobject]@{ Name = $Name; Reason = $Reason }
+}
+
+function Write-ChecklistRow {
+    param(
+        [string]$Label,
+        [string]$State,          # "ok" | "warn"
+        [string]$Detail = ""
+    )
+    $mark = if ($State -eq "ok") { [char]0x2713 } else { "!" }
+    $color = if ($State -eq "ok") { "Green" } else { "Yellow" }
+    $col = ("{0}:" -f $Label).PadRight(16)
+    Write-Host ("    [{0}] {1} {2}" -f $mark, $col, $Detail) -ForegroundColor $color
+}
+
+function Write-PlatformChecklist {
+    # Render a registry platform's summary object as the fixed-order checklist.
+    param($PlatformSummary)
+    foreach ($s in $script:ChecklistSurfaces) {
+        $entry = $null
+        if ($PlatformSummary.surfaces -and $PlatformSummary.surfaces.PSObject.Properties[$s.Key]) {
+            $entry = $PlatformSummary.surfaces.($s.Key)
+        }
+        if ($null -eq $entry) { continue }
+        if ($entry.status -eq "installed") {
+            Write-ChecklistRow -Label $s.Label -State "ok" -Detail $entry.path
+        }
+        else {
+            Write-ChecklistRow -Label $s.Label -State "warn" -Detail "install reported an issue"
+        }
+    }
+}
+
+function Write-UndetectedGroup {
+    # Print the single grouped section for platforms not found on this machine.
+    if ($script:UndetectedPlatforms.Count -eq 0) { return }
+    Write-Host ""
+    Write-Host "  > NOT DETECTED (skipped)" -ForegroundColor DarkGray
+    foreach ($p in $script:UndetectedPlatforms) {
+        Write-Host ("    - {0} ({1})" -f $p.Name, $p.Reason) -ForegroundColor DarkGray
+    }
 }
 
 function Read-Prompt {
@@ -1272,6 +1344,7 @@ function Install-Global {
     # $script:OverwriteMode and $script:SelectedPlatforms are already set, so no
     # interactive Overwrite/platform prompts here.
     $platforms = $script:SelectedPlatforms
+    Reset-UndetectedPlatforms
     Write-Host ""
     Write-Host "Checking User Profile ($env:USERPROFILE)..." -ForegroundColor Gray
 
@@ -1284,11 +1357,10 @@ function Install-Global {
     # --- Anthropic -- Claude Code ----------------------------------------
     if ($platforms -contains "CLAUDE") {
         Write-Header -Provider "ANTHROPIC"
-        Write-Item -Message "Claude Code" -Color "Gray"
         $globalClaude = Join-Path $env:USERPROFILE ".claude"
         if (-not (Test-Path $globalClaude)) { New-Item -ItemType Directory -Force -Path $globalClaude | Out-Null }
 
-        # Global CLAUDE.md (new concise template with WHAT/WHY/HOW structure)
+        # Global CLAUDE.md (concise WHAT/WHY/HOW template).
         $script:ProjectName = "Global"
         $script:OSContext = "I am a Windows user. Ensure shell commands are PowerShell-compatible."
         $script:PrimaryLanguage = ""
@@ -1300,133 +1372,124 @@ function Install-Global {
         $script:TestCmd = "# specify test command"
         $script:LintCmd = "# specify lint command"
         $script:NonObviousTooling = "- (configure per project with /setup project)"
-        # DF-001: the registry runner renders CLAUDE.md (marker-merged, full
-        # placeholder substitution). -InstructionOnly leaves the catalog mirror
-        # to the Safe-Folder-Copy block below.
-        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "claude" -DisplayName "CLAUDE.md (instruction file)" -InstructionOnly
 
-        Flatten-SkillsInto -Source "$RepoRoot\catalog\skills"   -Destination (Join-Path $globalClaude "skills")   -CustomMessage "✓ Skills catalog installed (flattened) at: $(Join-Path $globalClaude "skills")"
-        Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $globalClaude "commands") -CustomMessage "✓ Commands installed at: $(Join-Path $globalClaude "commands")"
-        Safe-Folder-Copy -Source "$RepoRoot\catalog\agents"   -Destination (Join-Path $globalClaude "agents")   -CustomMessage "✓ Agents installed at: $(Join-Path $globalClaude "agents")"
-        Safe-Folder-Copy -Source "$RepoRoot\catalog\rules"    -Destination (Join-Path $globalClaude "rules")    -CustomMessage "✓ Rules installed at: $(Join-Path $globalClaude "rules")"
+        # Claude is the one bespoke (non-registry) install. Each helper below
+        # prints its own progress via Write-Host; run every step quietly
+        # (`6>$null` redirects PowerShell's information stream, which is where
+        # Write-Host writes since PS 5.0, suppressing the "Merging..." lines and
+        # per-step notices) and render ONE unified checklist afterward so Claude
+        # reads identically to the registry platforms. DF-001: the registry
+        # runner renders CLAUDE.md; the Safe-Folder-Copy block does the mirror.
+        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "claude" -DisplayName "CLAUDE.md (instruction file)" -InstructionOnly 6>$null
+        Flatten-SkillsInto -Source "$RepoRoot\catalog\skills"   -Destination (Join-Path $globalClaude "skills")   6>$null
+        Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $globalClaude "commands") 6>$null
+        Safe-Folder-Copy -Source "$RepoRoot\catalog\agents"   -Destination (Join-Path $globalClaude "agents")   6>$null
+        Safe-Folder-Copy -Source "$RepoRoot\catalog\rules"    -Destination (Join-Path $globalClaude "rules")    6>$null
 
         $mcpConfigDest = Join-Path $globalClaude "mcp-configs"
         if (-not (Test-Path $mcpConfigDest)) { New-Item -ItemType Directory -Force -Path $mcpConfigDest | Out-Null }
-        Safe-Copy -Source "$RepoRoot\catalog\mcp-configs\mcp-servers.json" -Destination (Join-Path $mcpConfigDest "mcp-servers.json") -Confirm:$false -CustomMessage "✓ MCP server config installed at: $mcpConfigDest"
+        Safe-Copy -Source "$RepoRoot\catalog\mcp-configs\mcp-servers.json" -Destination (Join-Path $mcpConfigDest "mcp-servers.json") -Confirm:$false 6>$null
 
-        Install-GitGuardrails    -RepoRoot $RepoRoot -TargetClaudeDir $globalClaude -Scope "Global"
-        Install-UsageDisplay     -RepoRoot $RepoRoot -TargetClaudeDir $globalClaude -Scope "Global"
-        Install-RequireDescription -RepoRoot $RepoRoot -TargetClaudeDir $globalClaude -Scope "Global"
-        Install-CoreSettings     -RepoRoot $RepoRoot -TargetClaudeDir $globalClaude -Scope "Global"
+        Install-GitGuardrails      -RepoRoot $RepoRoot -TargetClaudeDir $globalClaude -Scope "Global" 6>$null
+        Install-UsageDisplay       -RepoRoot $RepoRoot -TargetClaudeDir $globalClaude -Scope "Global" 6>$null
+        Install-RequireDescription -RepoRoot $RepoRoot -TargetClaudeDir $globalClaude -Scope "Global" 6>$null
+        Install-CoreSettings       -RepoRoot $RepoRoot -TargetClaudeDir $globalClaude -Scope "Global" 6>$null
+
+        # Unified checklist, built from the resulting on-disk state.
+        Write-Item -Message "Claude Code" -Color "Gray"
+        if (Test-Path (Join-Path $globalClaude "CLAUDE.md")) { Write-ChecklistRow -Label "Core Files" -State "ok" -Detail (Join-Path $globalClaude "CLAUDE.md") }
+        if (Test-Path (Join-Path $globalClaude "skills"))    { Write-ChecklistRow -Label "Skills" -State "ok" -Detail (Join-Path $globalClaude "skills") }
+        if (Test-Path (Join-Path $globalClaude "commands"))  { Write-ChecklistRow -Label "Commands" -State "ok" -Detail (Join-Path $globalClaude "commands") }
+        if (Test-Path (Join-Path $globalClaude "agents"))    { Write-ChecklistRow -Label "Agents" -State "ok" -Detail (Join-Path $globalClaude "agents") }
+        if (Test-Path (Join-Path $globalClaude "rules"))     { Write-ChecklistRow -Label "Rules" -State "ok" -Detail (Join-Path $globalClaude "rules") }
+        if (Test-Path (Join-Path $globalClaude "settings.json")) {
+            Write-ChecklistRow -Label "Hooks" -State "ok" -Detail "git-guardrails, usage, require-description, compress-output"
+            Write-ChecklistRow -Label "Core Settings" -State "ok" -Detail "effortLevel, model, env (settings.json)"
+        }
     }
 
     # --- OpenAI -- Codex --------------------------------------------------
     if ($platforms -contains "CODEX") {
-        Write-Header -Provider "OPENAI"
-        Write-Item -Message "Codex" -Color "Gray"
         $globalCodexDir = Join-Path $env:USERPROFILE ".codex"
         if (-not (Test-Path $globalCodexDir)) { New-Item -ItemType Directory -Force -Path $globalCodexDir | Out-Null }
-
-        # Full registry mirror (v3.12.0): the codex integration flattens skills to
-        # ~/.codex/skills AND ~/.agents/skills (one level, as Codex and the ChatGPT
-        # desktop app scan), emits every catalog command as a skill ($name) plus a
-        # legacy top-level prompt (/prompts:name), and renders ~/.codex/AGENTS.md.
-        # Replaces the prior verbatim copies that buried every SKILL.md under a
-        # category folder Codex could not read. See docs/policy/platform-read-contracts.md.
-        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "codex" -DisplayName "Codex (AGENTS.md + skills + commands)"
+        # The codex integration flattens skills to ~/.codex/skills AND
+        # ~/.agents/skills, emits every command as a skill plus a legacy prompt,
+        # and renders ~/.codex/AGENTS.md (see docs/policy/platform-read-contracts.md).
+        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "codex" -DisplayName "Codex" -Provider "OPENAI"
     }
 
-    # --- Google -- Gemini / Antigravity 1.0 + 2.0 / Gemini CLI -----------
-    $googleHas = ($platforms -contains "GEMINI") -or ($platforms -contains "ANTIGRAVITY2") -or ($platforms -contains "GEMINI_CLI")
-    if ($googleHas) {
-        Write-Header -Provider "GOOGLE"
-
-        if ($platforms -contains "GEMINI") {
-            Write-Item -Message "Gemini IDE" -Color "Gray"
-            $globalGeminiDir = Join-Path $env:USERPROFILE ".gemini"
-            if (-not (Test-Path $globalGeminiDir)) { New-Item -ItemType Directory -Force -Path $globalGeminiDir | Out-Null }
-
-            # Full registry mirror (v3.11.0): renders GEMINI.md AND mirrors the catalog
-            # to ~/.gemini/{skills,workflows,agents,rules} per gemini.py. Replaces the
-            # prior instruction-only call plus the hardcoded skills / global_workflows
-            # copies, fixing the bash/PowerShell parity break (C1) and the never-delivered
-            # agents/rules (C2) from the Phase 7.1 read-contract audit. Antigravity 2.0 is
-            # handled by the antigravity2 block below.
-            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "gemini" -DisplayName "Gemini IDE (GEMINI.md + catalog mirror)"
+    # --- Google -- Gemini / Antigravity 2.0 / Gemini CLI ----------------
+    # The GOOGLE header is shared by up to three platforms, so it prints eagerly
+    # only when a platform that always renders (Gemini IDE / Antigravity 2.0) is
+    # selected. Gemini CLI (non-enterprise) is a deliberate skip -> the group.
+    $googleRenders = ($platforms -contains "GEMINI") -or ($platforms -contains "ANTIGRAVITY2")
+    if ($googleRenders) { Write-Header -Provider "GOOGLE" }
+    if ($platforms -contains "GEMINI") {
+        $globalGeminiDir = Join-Path $env:USERPROFILE ".gemini"
+        if (-not (Test-Path $globalGeminiDir)) { New-Item -ItemType Directory -Force -Path $globalGeminiDir | Out-Null }
+        # Renders GEMINI.md and mirrors the catalog to ~/.gemini/{skills,workflows,agents,rules}.
+        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "gemini" -DisplayName "Gemini IDE"
+    }
+    if ($platforms -contains "ANTIGRAVITY2") {
+        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "antigravity2" -DisplayName "Antigravity 2.0 + CLI"
+    }
+    if ($platforms -contains "GEMINI_CLI") {
+        if ($Enterprise) {
+            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "gemini-cli" -DisplayName "Gemini CLI" -Provider "GOOGLE"
         }
-
-        if ($platforms -contains "ANTIGRAVITY2") {
-            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "antigravity2" -DisplayName "Antigravity 2.0 + CLI"
-            Write-Item -Message "Antigravity 2.0: global skills -> ~/.gemini/config/skills, slash commands -> ~/.gemini/config/global_workflows, rules -> ~/.gemini/GEMINI.md; the agy CLI reads ~/.gemini/antigravity-cli. Per-project .agents/ is still seeded by 'nexus-hub init' for project-scoped workflows and rules." -Color "Yellow"
-        }
-        if ($platforms -contains "GEMINI_CLI") {
-            if ($Enterprise) {
-                Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "gemini-cli" -DisplayName "Gemini CLI (enterprise)"
-            }
-            else {
-                Write-Item -Message "Gemini CLI: skipped (sunset on 2026-06-18 for free / Google AI Pro / Ultra / GitHub-installed users). Re-run with -Enterprise to install (requires paid Gemini API key); Antigravity CLI above covers the same functionality." -Color "Yellow"
-            }
+        else {
+            Add-UndetectedPlatform -Name "Gemini CLI" -Reason "enterprise-only; re-run with -Enterprise"
         }
     }
 
     # --- Microsoft -- GitHub Copilot -------------------------------------
     if ($platforms -contains "COPILOT") {
-        Write-Header -Provider "MICROSOFT"
-        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "copilot" -DisplayName "GitHub Copilot (global prompt files)"
+        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "copilot" -DisplayName "GitHub Copilot" -Provider "MICROSOFT"
     }
 
     # --- Anysphere -- Cursor ---------------------------------------------
     if ($platforms -contains "CURSOR") {
-        Write-Header -Provider "ANYSPHERE"
-        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "cursor" -DisplayName "Cursor"
+        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "cursor" -DisplayName "Cursor" -Provider "ANYSPHERE"
     }
 
     # --- OpenCode --------------------------------------------------------
     if ($platforms -contains "OPENCODE") {
-        Write-Header -Provider "OPENCODE"
-        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "opencode" -DisplayName "OpenCode"
+        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "opencode" -DisplayName "OpenCode" -Provider "OPENCODE"
     }
 
     # --- Aider -----------------------------------------------------------
     if ($platforms -contains "AIDER") {
-        Write-Header -Provider "AIDER"
-        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "aider" -DisplayName "Aider (CONVENTIONS.md)"
-        Write-Item -Message "Aider: reads a project-root CONVENTIONS.md; there is no global instruction surface. Run a workspace/project install in your repo to get it." -Color "DarkYellow"
+        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "aider" -DisplayName "Aider" -Provider "AIDER"
     }
 
     # --- Windsurf --------------------------------------------------------
     if ($platforms -contains "WINDSURF") {
-        Write-Header -Provider "WINDSURF"
-        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "windsurf" -DisplayName "Windsurf (global_rules.md)"
-        Write-Item -Message "Windsurf: global rules are written to ~/.codeium/windsurf/memories/global_rules.md only when Windsurf is detected (~/.codeium present); the project-root .windsurfrules installs at workspace scope." -Color "DarkYellow"
+        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "windsurf" -DisplayName "Windsurf" -Provider "WINDSURF"
     }
 
     # --- Kimi ------------------------------------------------------------
     if ($platforms -contains "KIMI") {
-        Write-Header -Provider "KIMI"
-        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "kimi" -DisplayName "Kimi (.kimi/agent.yaml + system.md)"
-        Write-Item -Message "Kimi: global files are written to ~/.kimi/ only when Kimi is detected (~/.kimi present); the project-local .kimi/ pair installs at workspace scope." -Color "DarkYellow"
+        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "kimi" -DisplayName "Kimi" -Provider "KIMI"
     }
 
     # --- Qwen ------------------------------------------------------------
     if ($platforms -contains "QWEN") {
-        Write-Header -Provider "QWEN"
-        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "qwen" -DisplayName "Qwen Code (QWEN.md)"
-        Write-Item -Message "Qwen: ~/.qwen/QWEN.md is written only when Qwen is detected (~/.qwen present); the project-root QWEN.md installs at workspace scope." -Color "DarkYellow"
+        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "qwen" -DisplayName "Qwen Code" -Provider "QWEN"
     }
 
     # --- OpenClaw --------------------------------------------------------
     if ($platforms -contains "OPENCLAW") {
-        Write-Header -Provider "OPENCLAW"
-        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "openclaw" -DisplayName "OpenClaw (.openclaw/ SOUL+AGENTS+IDENTITY)"
-        Write-Item -Message "OpenClaw: global files are written to ~/.openclaw/ only when OpenClaw is detected (~/.openclaw present); the project-local .openclaw/ split installs at workspace scope." -Color "DarkYellow"
+        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "openclaw" -DisplayName "OpenClaw" -Provider "OPENCLAW"
     }
 
     # --- Nexus -- Nexus-AI (Local Desktop Studio) ------------------------
     if ($platforms -contains "NEXUS_AI") {
-        Write-Header -Provider "NEXUS"
-        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "nexus-ai" -DisplayName "Nexus-AI (Local Desktop Studio)"
+        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "nexus-ai" -DisplayName "Nexus-AI" -Provider "NEXUS"
     }
+
+    # Platforms whose tool was not detected on this machine (or a scope with no
+    # surface, e.g. Aider at global) were collected above; print them once here.
+    Write-UndetectedGroup
 
     # --- Auto-Approve Permissions sub-section ---
     # Permissions only apply to the legacy 4 (CLAUDE / GEMINI / CODEX /
@@ -1452,8 +1515,8 @@ function Install-Global {
         Install-Permissions -RepoRoot $RepoRoot -Platform "COPILOT" -Scope "Global"
     }
 
-    # --- Claude Code Utilities sub-section ---
-    Write-SubSectionBanner -Text "Claude Code Utilities"
+    # --- Usage Monitor VS Code extensions sub-section ---
+    Write-SubSectionBanner -Text "Usage Monitors (VS Code Extensions)"
     Install-VSCodeExtensions -RepoRoot $RepoRoot
 
     # --- Skill Discovery sub-section ---
@@ -1810,9 +1873,10 @@ function Invoke-RegistryPlatform {
         [string]$Scope,            # "global" or "workspace"
         [string]$TargetPath,       # used for workspace scope only
         [string]$IntegrationKey,   # registry key, e.g. "antigravity2"
-        [string]$DisplayName,      # human-readable label printed as a sub-item
+        [string]$DisplayName,      # product label printed above the checklist
         [string]$Languages = "",   # csv; appends coding-snippet fragments
-        [switch]$InstructionOnly   # render only the instruction file (skip catalog mirror)
+        [switch]$InstructionOnly,  # render only the instruction file (skip catalog mirror)
+        [string]$Provider = ""     # vendor header; printed lazily only when the platform delivers
     )
     $runner = Join-Path $RepoRoot "scripts\lib\integrations\runner.py"
     if (-not (Test-Path $runner)) { return }
@@ -1822,8 +1886,8 @@ function Invoke-RegistryPlatform {
         return
     }
 
-    Write-Item -Message "$DisplayName" -Color "Gray"
-    $argsList = @($runner, "install", "--scope", $Scope, "--integrations", $IntegrationKey, "--quiet")
+    $summaryFile = Join-Path ([System.IO.Path]::GetTempPath()) ("nexus-summary-" + [System.Guid]::NewGuid().ToString('N') + ".json")
+    $argsList = @($runner, "install", "--scope", $Scope, "--integrations", $IntegrationKey, "--quiet", "--summary-json", $summaryFile)
     if ($Scope -eq "workspace") {
         $argsList += @("--target", $TargetPath)
     }
@@ -1846,21 +1910,60 @@ function Invoke-RegistryPlatform {
     $argsList += @("--var", "OS_CONTEXT=$($script:OSContext)")
 
     & $py @argsList
-    if ($LASTEXITCODE -ne 0) {
-        Write-Item -Message "$DisplayName install reported non-zero exit; continuing." -Color "Yellow"
-    } else {
-        Write-Item -Message "✓ Installed ($Scope scope)" -Color "DarkGreen"
+    $exitCode = $LASTEXITCODE
+
+    # Parse the structured per-surface summary the runner just wrote.
+    $platformSummary = $null
+    try {
+        if (Test-Path $summaryFile) {
+            $summary = Get-Content $summaryFile -Raw | ConvertFrom-Json
+            $platformSummary = $summary.platforms | Where-Object { $_.platform -eq $IntegrationKey } | Select-Object -First 1
+        }
     }
+    catch { $platformSummary = $null }
+    Remove-Item $summaryFile -Force -ErrorAction SilentlyContinue
+
+    if ($exitCode -ne 0) {
+        if ($Provider) { Write-Header -Provider $Provider }
+        Write-Item -Message "$DisplayName" -Color "Gray"
+        Write-Item -Message "install reported a non-zero exit; continuing." -Color "Yellow"
+        return
+    }
+
+    # Did the platform actually deliver any surface here?
+    $surfaceCount = 0
+    if ($platformSummary -and $platformSummary.surfaces) {
+        $surfaceCount = @($platformSummary.surfaces.PSObject.Properties).Count
+    }
+    if ($surfaceCount -eq 0) {
+        # Not delivered here (undetected tool, or no surface at this scope).
+        $reason = "not detected"
+        if ($platformSummary -and $platformSummary.notes -and (@($platformSummary.notes).Count -gt 0) -and -not ($platformSummary.detected -eq $false)) {
+            $reason = "no surface at this scope"
+        }
+        if ($Provider) {
+            # Global install: collect into the single grouped section rather than
+            # printing a colored header with nothing under it.
+            Add-UndetectedPlatform -Name $DisplayName -Reason $reason
+        }
+        else {
+            # Workspace / caller-managed header: keep an inline note so nothing vanishes.
+            Write-Item -Message "$DisplayName" -Color "Gray"
+            Write-Item -Message "($reason)" -Color "DarkGray" -Indent 4
+        }
+        return
+    }
+
+    # Delivered: lazy vendor header, product label, then the fixed-order checklist.
+    if ($Provider) { Write-Header -Provider $Provider }
+    Write-Item -Message "$DisplayName" -Color "Gray"
+    Write-PlatformChecklist -PlatformSummary $platformSummary
 }
 
 function Install-VSCodeExtensions {
     param ($RepoRoot)
-    Write-Host ""
-    Write-Host "  > Usage Monitors" -ForegroundColor DarkYellow
-
-    Write-Item -Message "The Claude Usage Monitor and Codex Usage Monitor are VS Code extensions that" -Color "White"
-    Write-Item -Message "show your Claude Code and Codex (ChatGPT) usage limits in the status bar and" -Color "White"
-    Write-Item -Message "recommend how to pace your usage to stay within your session and weekly limits." -Color "White"
+    Write-Item -Message "Usage Monitor VS Code extensions show your Claude Code and Codex (ChatGPT)" -Color "White"
+    Write-Item -Message "usage limits in the status bar, with pacing recommendations. Grouped by vendor." -Color "White"
     Write-Host ""
 
     # Check for Node.js (shared by both extensions)
@@ -1948,16 +2051,17 @@ function Install-VSCodeExtensions {
         }
     }
 
-    # Build, package, and install each extension in turn. Each is independent, so
-    # a missing folder or a build failure in one does not block the other.
+    # Build each extension under its own vendor header so the Anthropic and
+    # OpenAI utilities are visually separated. Each is independent, so a missing
+    # folder or a build failure in one does not block the other.
+    Write-Header -Provider "ANTHROPIC"
     Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\claude-usage-monitor") -ExtensionId "nexus-hub.claude-usage-monitor" -DisplayName "Claude Usage Monitor" -StatusHint "Claude: --%" -CodeCli $codeCli -CodeLabel $codeLabel
+
+    Write-Header -Provider "OPENAI"
     Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\codex-usage-monitor") -ExtensionId "nexus-hub.codex-usage-monitor" -DisplayName "Codex Usage Monitor" -StatusHint "Codex: --%" -CodeCli $codeCli -CodeLabel $codeLabel
 
     # Restore strict error mode
     $ErrorActionPreference = $savedErrorPref
-
-    Write-Host ""
-    Write-Host "  ✓ Usage Monitor Installation Complete." -ForegroundColor Green
 }
 
 # Build, package, and install one VS Code usage-monitor extension. Shared by
@@ -2405,7 +2509,6 @@ function Install-CliLauncher {
     $nexusHome = Join-Path $env:USERPROFILE ".nexus-hub"
     $binDest = Join-Path $nexusHome "bin"
 
-    Write-Host ""
     Write-SubSectionBanner -Text "nexus-hub CLI"
     Write-Host ""
 
@@ -2434,7 +2537,6 @@ function Install-CliLauncher {
         Write-Item -Message "    [Environment]::SetEnvironmentVariable('PATH', `"`$([Environment]::GetEnvironmentVariable('PATH','User'));$binDest`", 'User')" -Color "Cyan"
         Write-Item -Message "  Until then, run it directly: $binDest\nexus-hub.cmd --version" -Color "Gray"
     }
-    Write-Host ""
 }
 
 
@@ -2453,7 +2555,6 @@ function Install-ProjectAutoseed {
     $hooksDest = Join-Path $nexusHome "hooks"
     $runner = Join-Path $RepoRoot "scripts\lib\integrations\runner.py"
 
-    Write-Host ""
     Write-SubSectionBanner -Text "Project auto-seed (Antigravity .agents/, Cursor, Claude)"
     Write-Host ""
 
@@ -3008,7 +3109,6 @@ $verifyRunner = Join-Path $repoRoot "scripts\lib\integrations\runner.py"
 $pyVerify = $null
 foreach ($c in @("python", "py", "python3")) { if (Get-Command $c -ErrorAction SilentlyContinue) { $pyVerify = $c; break } }
 if ($pyVerify -and (Test-Path $verifyRunner)) {
-    Write-Host ""
     Write-SubSectionBanner -Text "Install verification"
     if ($pyVerify -eq "py") { & $pyVerify -3 $verifyRunner verify --target (Get-Location).Path 2>$null }
     else { & $pyVerify $verifyRunner verify --target (Get-Location).Path 2>$null }
