@@ -18,21 +18,21 @@ const emptyStore = {
 describe("StatusBarManager (Claude)", () => {
   afterEach(() => __resetStubState());
 
-  // v3.14.5 Phase 5.1: the cross-extension priority scheme is load-bearing
-  // (Claude 103/102 must outrank the Codex monitor's 101/100 so the items read
-  // [Claude usage][Claude gear][Codex usage][Codex gear] left-to-right).
-  it("creates the usage item at priority 103 and the gear at 102", () => {
+  // v3.14.6: settings moved inline into the dashboard, so there is no gear item -
+  // only the single usage item. Its priority (105) sits above the Codex monitor's
+  // 103 and above GitHub Copilot's ~100.5 slot, so the usage items group together
+  // with Copilot to their right ("Copilot last").
+  it("creates a single usage item at priority 105 (no gear item)", () => {
     __resetStubState();
-    new StatusBarManager(emptyStore, "claude-usage.dashboard", "claude-usage.settings");
-    expect(createdStatusBarItems).toHaveLength(2);
-    expect(createdStatusBarItems[0].priority).toBe(103); // usage item (created first)
-    expect(createdStatusBarItems[1].priority).toBe(102); // gear
+    new StatusBarManager(emptyStore, "claude-usage.dashboard");
+    expect(createdStatusBarItems).toHaveLength(1);
+    expect(createdStatusBarItems[0].priority).toBe(105);
   });
 
   // v3.14.5 Phase 5.2: compact-mode toggle drops the "Claude Usage: " label.
   it("shows the full label by default and drops it when compactStatusBar is set", () => {
     __resetStubState();
-    const mgr = new StatusBarManager(emptyStore, "claude-usage.dashboard", "claude-usage.settings");
+    const mgr = new StatusBarManager(emptyStore, "claude-usage.dashboard");
 
     mgr.refresh();
     expect(createdStatusBarItems[0].text).toBe("$(claude-icon) Claude Usage: --% (current) --% (week)");

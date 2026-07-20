@@ -2,7 +2,7 @@ import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
 import * as vscode from "vscode";
-import { UsageMetric, UsageMetricRow } from "../types";
+import { UsageMetric, UsageMetricRow, UNTRACKED_METRIC, isTracked } from "../types";
 import { formatResetTime } from "../usageStore";
 import {
   UsageProvider,
@@ -158,10 +158,11 @@ export function readCodexCredential(authPath: string): CodexCredentialReadResult
 /* ------------------------------------------------------------------ */
 /*  wham/usage payload mapping                                         */
 /*                                                                     */
-/*  The endpoint is undocumented, so every accessor below is defensive */
-/*  and tolerant of shape variation. The mapper returns null when it   */
-/*  cannot find a usable primary window, which the fetcher turns into  */
-/*  the fail-soft "usage-unavailable" state.                           */
+/*  Schema verified against the live endpoint (2026-07); accessors stay */
+/*  defensive (aliases + fallbacks) so a future schema change degrades  */
+/*  rather than breaks. The mapper returns null only when NO usable     */
+/*  window is present, which the fetcher turns into the fail-soft       */
+/*  "usage-unavailable" state.                                          */
 /* ------------------------------------------------------------------ */
 
 function asRecord(value: unknown): Record<string, unknown> | null {
@@ -216,8 +217,11 @@ function resolveResetsAt(win: Record<string, unknown>, nowMs: number): number | 
   return null;
 }
 
-/** Extract a usage metric from a rate-limit window object, or null when it has no percentage. */
-function readWindow(win: unknown, nowMs: number): UsageMetric | null {
+/** A parsed window plus its declared duration, used to classify it as the 5-hour or weekly bucket. */
+type RawWindow = UsageMetric & { windowSeconds: number | null };
+
+/** Extract a usage metric (and its window duration) from a rate-limit window object, or null when it has no percentage. */
+function readWindow(win: unknown, nowMs: number): RawWindow | null {
   const rec = asRecord(win);
   if (!rec) {
     return null;
@@ -233,37 +237,43 @@ function readWindow(win: unknown, nowMs: number): UsageMetric | null {
     return null;
   }
   const resetsAt = resolveResetsAt(rec, nowMs);
+  // The window's own length (verified field `limit_window_seconds`), used to tell
+  // a 5-hour "session" window from a 7-day "weekly" one regardless of position.
+  const windowSeconds = firstNumber(rec.limit_window_seconds, rec.window_seconds, rec.limitWindowSeconds) ?? null;
   return {
     percent: Math.round(percent),
     resetsIn: resetsAt != null ? formatResetTime(resetsAt) : "N/A",
     resetsAt,
+    windowSeconds,
   };
 }
 
 /**
- * Locate the primary (5-hour) and secondary (weekly) rate-limit windows across
- * plausible payload shapes. The endpoint is undocumented; public reports of the
- * Codex CLI's own `get_rate_limits` parsing indicate the windows may appear as
- * `primary`/`secondary`, `primary_window`/`secondary_window`, or
- * `five_hour_limit`/`weekly_limit`, either nested under `rate_limits` or at the
- * top level, so all of those aliases are probed. The exact schema remains
- * unverified (no live capture available) - see the v3.14.5 known-gap.
+ * Locate the two rate-limit windows across the payload shapes. Verified against
+ * the live `wham/usage` endpoint (2026-07): the windows are nested under
+ * `rate_limit` (SINGULAR) as `primary_window` / `secondary_window`, where a
+ * window may be null (e.g. a plan with only a weekly window has a weekly
+ * `primary_window` and a null `secondary_window`). Older/alternative shapes
+ * (`rate_limits` plural, top-level, five_hour_limit/weekly_limit aliases, an
+ * array) are kept as fallbacks so a schema change degrades rather than breaks.
+ * The returned windows are position-tagged only; `mapCodexUsageResponse`
+ * classifies each as the 5-hour or weekly bucket by its actual duration.
  */
 function locateWindows(payload: Record<string, unknown>): { primary: unknown; secondary: unknown } {
-  const rl = payload.rate_limits ?? payload.rateLimits ?? payload.limits;
+  const rl = payload.rate_limit ?? payload.rate_limits ?? payload.rateLimits ?? payload.limits;
   const rlRec = asRecord(rl);
   if (rlRec) {
     return {
-      primary: rlRec.primary ?? rlRec.primary_window ?? rlRec.session ?? rlRec.five_hour ?? rlRec.five_hour_limit ?? rlRec["5h"],
-      secondary: rlRec.secondary ?? rlRec.secondary_window ?? rlRec.weekly ?? rlRec.weekly_limit ?? rlRec.seven_day ?? rlRec["7d"],
+      primary: rlRec.primary_window ?? rlRec.primary ?? rlRec.session ?? rlRec.five_hour ?? rlRec.five_hour_limit ?? rlRec["5h"],
+      secondary: rlRec.secondary_window ?? rlRec.secondary ?? rlRec.weekly ?? rlRec.weekly_limit ?? rlRec.seven_day ?? rlRec["7d"],
     };
   }
   if (Array.isArray(rl)) {
     return { primary: rl[0], secondary: rl[1] };
   }
   return {
-    primary: payload.primary ?? payload.primary_window ?? payload.session ?? payload.five_hour ?? payload.five_hour_limit,
-    secondary: payload.secondary ?? payload.secondary_window ?? payload.weekly ?? payload.weekly_limit ?? payload.seven_day,
+    primary: payload.primary_window ?? payload.primary ?? payload.session ?? payload.five_hour ?? payload.five_hour_limit,
+    secondary: payload.secondary_window ?? payload.secondary ?? payload.weekly ?? payload.weekly_limit ?? payload.seven_day,
   };
 }
 
@@ -321,10 +331,13 @@ function formatCreditsSummary(raw: unknown): string | undefined {
 }
 
 /**
- * Map a raw `wham/usage` payload onto the normalized {@link UsageModel}. Returns
- * null when no usable primary window is present, so the fetcher can fail soft.
- * The primary window becomes the session metric and the secondary window the
- * weekly metric, matching what the UI already renders.
+ * Map a raw `wham/usage` payload onto the normalized {@link UsageModel}. Verified
+ * against the live endpoint (2026-07): the two windows are nested under
+ * `rate_limit` (singular) as `primary_window` / `secondary_window`, each carrying
+ * `used_percent`, `limit_window_seconds`, and `reset_at` (epoch seconds); either
+ * may be null. Each present window is bucketed as the 5-hour "session" or the
+ * weekly metric by its own duration, so a weekly-only plan maps correctly.
+ * Returns null only when NEITHER window is usable, so the fetcher can fail soft.
  */
 export function mapCodexUsageResponse(raw: unknown): UsageModel | null {
   const payload = asRecord(raw);
@@ -334,11 +347,35 @@ export function mapCodexUsageResponse(raw: unknown): UsageModel | null {
   const now = Date.now();
 
   const { primary, secondary } = locateWindows(payload);
-  const session = readWindow(primary, now);
-  if (!session) {
+  const pWin = readWindow(primary, now);
+  const sWin = readWindow(secondary, now);
+
+  // Classify each present window as the 5-hour "session" bucket or the weekly
+  // bucket by its own declared duration, so a plan that exposes only a weekly
+  // window (its single window is 7 days = 604800s) maps to weekly rather than
+  // being mislabeled "current session". Windows are optional; an absent one is
+  // the untracked sentinel the UI hides. Fall back to position (primary=session,
+  // secondary=weekly) only when a window omits its length.
+  const SESSION_MAX_SECONDS = 6 * 3600; // longer than a 5-hour window => weekly
+  let session: UsageMetric = UNTRACKED_METRIC;
+  let weekly: UsageMetric = UNTRACKED_METRIC;
+  const assign = (w: RawWindow | null, isPrimaryPosition: boolean): void => {
+    if (!w) {
+      return;
+    }
+    const metric: UsageMetric = { percent: w.percent, resetsIn: w.resetsIn, resetsAt: w.resetsAt };
+    const isWeekly = w.windowSeconds != null ? w.windowSeconds > SESSION_MAX_SECONDS : !isPrimaryPosition;
+    if (isWeekly) {
+      weekly = metric;
+    } else {
+      session = metric;
+    }
+  };
+  assign(pWin, true);
+  assign(sWin, false);
+  if (!isTracked(session) && !isTracked(weekly)) {
     return null;
   }
-  const weekly = readWindow(secondary, now) ?? { percent: 0, resetsIn: "N/A", resetsAt: null };
 
   const planLabel = formatPlanLabel(
     firstNonEmptyString(payload.plan_type, payload.planType, payload.plan),

@@ -8,7 +8,6 @@ import {
   describeProviderError,
 } from "./providers";
 import { DashboardPanel } from "./dashboardPanel";
-import { SettingsPanel } from "./settingsPanel";
 import { WarningViewProvider, WARNING_VIEW_ID, WARNING_ACTIVE_CONTEXT } from "./warningView";
 import { getRecommendation, getActiveUrgency, pickTriggerMetric, buildUsageSuggestion, classifyUrgency } from "./recommendations";
 import { UrgencyLevel, UsageData, getThresholdConfig, getNotificationTimeoutMs, syncColorsToWorkbench, getColorConfig } from "./types";
@@ -51,9 +50,8 @@ const RESET_COMMAND = "codex-usage.reset";
 const DASHBOARD_COMMAND = "codex-usage.dashboard";
 const REFRESH_COMMAND = "codex-usage.refresh";
 const SETTINGS_COMMAND = "codex-usage.settings";
-const MANUAL_COMMAND = "codex-usage.enterManual";
 
-// The ChatGPT usage/limits page users read to enter usage manually.
+// The ChatGPT usage/limits page (opened from the dashboard as a manual cross-check).
 const CODEX_USAGE_PAGE_URL = "https://chatgpt.com/codex/settings/usage";
 
 let consecutiveFailures = 0;
@@ -81,7 +79,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
   const store = new UsageStore(context.globalState);
   const provider = new CodexUsageProvider();
-  const statusBar = new StatusBarManager(store, DASHBOARD_COMMAND, SETTINGS_COMMAND);
+  const statusBar = new StatusBarManager(store, DASHBOARD_COMMAND);
 
   const config = vscode.workspace.getConfiguration("codexUsage");
   if (config.get<boolean>("showInStatusBar", true)) {
@@ -114,8 +112,6 @@ export function activate(context: vscode.ExtensionContext): void {
       },
       onOpenUsagePage: () =>
         vscode.env.openExternal(vscode.Uri.parse(CODEX_USAGE_PAGE_URL)),
-      onOpenSettings: () => vscode.commands.executeCommand(SETTINGS_COMMAND),
-      onEnterManual: () => vscode.commands.executeCommand(MANUAL_COMMAND),
     }, context.extensionUri);
   });
 
@@ -196,24 +192,11 @@ export function activate(context: vscode.ExtensionContext): void {
       });
   });
 
-  // Command: Open settings panel
-  const settingsCommand = vscode.commands.registerCommand(SETTINGS_COMMAND, () => {
-    SettingsPanel.show(context.extensionUri);
-  });
-
-  // Command: Enter usage manually (the guaranteed fallback when the undocumented
-  // ChatGPT usage endpoint cannot be read). Writes a dataSource:"manual" record,
-  // which the status bar and dashboard already render.
-  const manualCommand = vscode.commands.registerCommand(MANUAL_COMMAND, async () => {
-    const data = await promptManualUsage();
-    if (!data) {
-      return; // user cancelled
-    }
-    await store.save(data);
-    await store.saveLastUrgency(getActiveUrgency(data));
-    statusBar.refresh();
-    DashboardPanel.updateIfOpen(store.getWithFreshCountdowns(), store.getTimeSinceUpdate(), lastFetchError);
-    showAutoDismissNotification("Codex Usage: manual usage saved.", "info");
+  // Command: Open settings (now an inline section of the dashboard). Open the
+  // dashboard and reveal the settings section under it.
+  const settingsCommand = vscode.commands.registerCommand(SETTINGS_COMMAND, async () => {
+    await vscode.commands.executeCommand(DASHBOARD_COMMAND);
+    DashboardPanel.revealSettings();
   });
 
   // Command: Clear stored data
@@ -274,7 +257,6 @@ export function activate(context: vscode.ExtensionContext): void {
     recommendCommand,
     resetCommand,
     settingsCommand,
-    manualCommand,
     configWatcher,
     { dispose: () => statusBar.dispose() }
   );
@@ -399,55 +381,4 @@ const URGENCY_ORDER: Record<UrgencyLevel, number> = {
 
 function urgencyEscalated(previous: UrgencyLevel, current: UrgencyLevel): boolean {
   return URGENCY_ORDER[current] > URGENCY_ORDER[previous];
-}
-
-/**
- * Prompt for the user's current Codex usage percentages and build a manual
- * {@link UsageData} record. Returns undefined if the user cancels either prompt.
- * This is the guaranteed fallback when the undocumented ChatGPT usage endpoint
- * cannot be read: the numbers come from the user reading their own usage page.
- */
-async function promptManualUsage(): Promise<UsageData | undefined> {
-  const session = await promptPercent(
-    "Current 5-hour (session) usage %",
-    "A whole number 0-100, read from your ChatGPT usage page",
-  );
-  if (session == null) {
-    return undefined;
-  }
-  const weekly = await promptPercent(
-    "Weekly usage %",
-    "A whole number 0-100, read from your ChatGPT usage page",
-  );
-  if (weekly == null) {
-    return undefined;
-  }
-  return {
-    session: { percent: session, resetsIn: "N/A", resetsAt: null },
-    weeklyAllModels: { percent: weekly, resetsIn: "N/A", resetsAt: null },
-    currentModel: "Codex",
-    lastUpdated: Date.now(),
-    dataSource: "manual",
-    planLabel: "Codex",
-  };
-}
-
-/** Show an input box that accepts a whole number 0-100, or undefined on cancel. */
-async function promptPercent(prompt: string, placeHolder: string): Promise<number | undefined> {
-  const raw = await vscode.window.showInputBox({
-    title: "Codex Usage: Enter Usage Manually",
-    prompt,
-    placeHolder,
-    validateInput: (value) => {
-      const n = Number(value.trim());
-      if (value.trim() === "" || !Number.isFinite(n) || n < 0 || n > 100) {
-        return "Enter a whole number between 0 and 100.";
-      }
-      return undefined;
-    },
-  });
-  if (raw == null) {
-    return undefined;
-  }
-  return Math.round(Number(raw.trim()));
 }

@@ -1,44 +1,79 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { StatusBarManager } from "../src/statusBarManager";
 import type { UsageStore } from "../src/usageStore";
+import { UNTRACKED_PERCENT } from "../src/types";
 import { __resetStubState, __setStubConfig, createdStatusBarItems } from "./vscode-stub";
 
-/**
- * A minimal store whose only used method returns no data. The no-data path is
- * all `refresh()` needs to exercise the priority scheme (constructor) and the
- * compact-label logic (`statusText`), and it avoids the data-path tooltip which
- * needs the host-only `vscode.MarkdownString`.
- */
+/** A minimal no-data store; enough to exercise the constructor priority scheme. */
 const emptyStore = {
   getWithFreshCountdowns: () => undefined,
   getTimeSinceUpdate: () => "just now",
   hasResetExpired: () => false,
 } as unknown as UsageStore;
 
+/**
+ * A store returning one usage record. `session`/`weekly` percentages may be
+ * UNTRACKED_PERCENT to model a window the account does not expose. Exercises the
+ * data path (adaptive status text + the now-stubbed MarkdownString tooltip).
+ */
+function dataStore(session: number, weekly: number): UsageStore {
+  const data = {
+    session: { percent: session, resetsIn: "N/A", resetsAt: null },
+    weeklyAllModels: { percent: weekly, resetsIn: "N/A", resetsAt: null },
+    currentModel: "Codex",
+    lastUpdated: Date.now(),
+    dataSource: "manual" as const,
+    planLabel: "Codex",
+  };
+  return {
+    getWithFreshCountdowns: () => data,
+    getTimeSinceUpdate: () => "just now",
+    hasResetExpired: () => false,
+  } as unknown as UsageStore;
+}
+
 describe("StatusBarManager (Codex)", () => {
   afterEach(() => __resetStubState());
 
-  // v3.14.5 Phase 5.1: the cross-extension priority scheme is load-bearing
-  // (Codex 101/100 must sit below the Claude monitor's 103/102). Lock it so a
-  // future edit cannot silently reintroduce the collision the two extensions had.
-  it("creates the usage item at priority 101 and the gear at 100", () => {
+  // v3.14.6: settings moved inline into the dashboard, so there is no gear item -
+  // only the single usage item. Its priority (103) sits below the Claude monitor's
+  // 105 and above GitHub Copilot's ~100.5 slot, so the usage items group together
+  // with Copilot to their right ("Copilot last").
+  it("creates a single usage item at priority 103 (no gear item)", () => {
     __resetStubState();
-    new StatusBarManager(emptyStore, "codex-usage.dashboard", "codex-usage.settings");
-    expect(createdStatusBarItems).toHaveLength(2);
-    expect(createdStatusBarItems[0].priority).toBe(101); // usage item (created first)
-    expect(createdStatusBarItems[1].priority).toBe(100); // gear
+    new StatusBarManager(emptyStore, "codex-usage.dashboard");
+    expect(createdStatusBarItems).toHaveLength(1);
+    expect(createdStatusBarItems[0].priority).toBe(103);
   });
 
   // v3.14.5 Phase 5.2: compact-mode toggle drops the "Codex Usage: " label.
   it("shows the full label by default and drops it when compactStatusBar is set", () => {
     __resetStubState();
-    const mgr = new StatusBarManager(emptyStore, "codex-usage.dashboard", "codex-usage.settings");
+    const mgr = new StatusBarManager(dataStore(42, 10), "codex-usage.dashboard");
 
     mgr.refresh();
-    expect(createdStatusBarItems[0].text).toBe("$(codex-icon) Codex Usage: --% (current) --% (week)");
+    expect(createdStatusBarItems[0].text).toBe("$(codex-icon) Codex Usage: 42% (current) 10% (week)");
 
     __setStubConfig("codexUsage", "compactStatusBar", true);
     mgr.refresh();
-    expect(createdStatusBarItems[0].text).toBe("$(codex-icon) --% (current) --% (week)");
+    expect(createdStatusBarItems[0].text).toBe("$(codex-icon) 42% (current) 10% (week)");
+  });
+
+  // v3.14.6 issue 3: a weekly-only plan (no 5-hour "session" window) must not
+  // render a dead "--% (current)"; only the tracked window(s) appear.
+  it("omits the untracked 5-hour window from the status bar (weekly-only plan)", () => {
+    __resetStubState();
+    const mgr = new StatusBarManager(dataStore(UNTRACKED_PERCENT, 91), "codex-usage.dashboard");
+
+    mgr.refresh();
+    expect(createdStatusBarItems[0].text).toBe("$(codex-icon) Codex Usage: 91% (week)");
+  });
+
+  it("shows a single -- placeholder when there is no data at all", () => {
+    __resetStubState();
+    const mgr = new StatusBarManager(emptyStore, "codex-usage.dashboard");
+
+    mgr.refresh();
+    expect(createdStatusBarItems[0].text).toBe("$(codex-icon) Codex Usage: --");
   });
 });

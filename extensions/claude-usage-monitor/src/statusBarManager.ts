@@ -15,7 +15,6 @@ const NEAR_THRESHOLD_INTERVAL_MS = 60_000;
 
 export class StatusBarManager {
   private readonly statusBarItem: vscode.StatusBarItem;
-  private readonly gearItem: vscode.StatusBarItem;
   private autoRefreshTimer: ReturnType<typeof setTimeout> | undefined;
   private autoRefreshEnabled = false;
   private displayTickTimer: ReturnType<typeof setInterval> | undefined;
@@ -25,30 +24,19 @@ export class StatusBarManager {
 
   constructor(
     private readonly store: UsageStore,
-    private readonly dashboardCommandId: string,
-    private readonly settingsCommandId: string
+    private readonly dashboardCommandId: string
   ) {
-    // Status-bar priority orders BOTH usage monitors left-to-right (VS Code
-    // renders a higher Right-aligned priority further LEFT). To read
-    // [Claude usage][Claude gear][Codex usage][Codex gear], the Claude monitor
-    // uses 103/102 and the Codex monitor uses 101/100 - the load-bearing
-    // constraint is that Codex's usage item (101) sits below this gear (102).
-    // See the Codex extension's matching values.
+    // Status-bar priority orders the two usage monitors left-to-right (VS Code
+    // renders a higher Right-aligned priority further LEFT). Claude uses 105 and
+    // Codex 103 - both ABOVE GitHub Copilot's ~100.5 slot, so the usage items
+    // group together with Copilot to their right. There is no gear item: settings
+    // now live inline in the dashboard, opened from this usage item.
     this.statusBarItem = vscode.window.createStatusBarItem(
       vscode.StatusBarAlignment.Right,
-      103
+      105
     );
     this.statusBarItem.command = dashboardCommandId;
     this.statusBarItem.name = "Claude Usage Monitor";
-
-    this.gearItem = vscode.window.createStatusBarItem(
-      vscode.StatusBarAlignment.Right,
-      102
-    );
-    this.gearItem.text = "$(gear)";
-    this.gearItem.tooltip = "Claude Usage: Settings";
-    this.gearItem.command = settingsCommandId;
-    this.gearItem.name = "Claude Usage Settings";
   }
 
   setAutoRefreshCallback(callback: () => void | Promise<void>): void {
@@ -62,14 +50,12 @@ export class StatusBarManager {
   show(): void {
     this.refresh();
     this.statusBarItem.show();
-    this.gearItem.show();
     this.scheduleAutoRefresh();
     this.startDisplayTick();
   }
 
   hide(): void {
     this.statusBarItem.hide();
-    this.gearItem.hide();
     this.stopAutoRefreshTimer();
     this.stopDisplayTick();
   }
@@ -100,7 +86,6 @@ export class StatusBarManager {
     this.stopAutoRefreshTimer();
     this.stopDisplayTick();
     this.statusBarItem.dispose();
-    this.gearItem.dispose();
   }
 
   private tick(): void {
@@ -117,7 +102,6 @@ export class StatusBarManager {
       this.statusBarItem.text = this.statusText("--", "--", "");
       this.statusBarItem.tooltip = "Click to view Claude usage dashboard";
       this.statusBarItem.backgroundColor = undefined;
-      this.gearItem.backgroundColor = undefined;
       return;
     }
 
@@ -131,11 +115,7 @@ export class StatusBarManager {
     );
 
     this.statusBarItem.tooltip = this.buildTooltip(data);
-    const bgColor = this.getBackgroundColor(overallUrgency);
-    this.statusBarItem.backgroundColor = bgColor;
-    // Mirror the urgency color on the gear so the user sees that the gear icon
-    // belongs to the Claude Usage Monitor, and not to some unrelated extension.
-    this.gearItem.backgroundColor = bgColor;
+    this.statusBarItem.backgroundColor = this.getBackgroundColor(overallUrgency);
     // Swap warningBackground hex between moderate and high colors (they share the same ThemeColor ID)
     void syncActiveColorToWorkbench(overallUrgency, getColorConfig());
   }

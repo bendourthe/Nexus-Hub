@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { mapCodexUsageResponse } from "../src/providers/codex";
+import { UNTRACKED_PERCENT } from "../src/types";
 
 // Freeze time so relative reset windows and duration labels are deterministic.
 const NOW = Date.UTC(2026, 6, 16, 12, 0, 0); // 2026-07-16T12:00:00Z
@@ -112,11 +113,72 @@ describe("mapCodexUsageResponse", () => {
     expect(model!.weeklyAllModels.percent).toBe(25);
   });
 
-  it("defaults the weekly metric when only a primary window is present", () => {
+  it("marks the weekly window untracked when only a primary window is present", () => {
     const payload = { rate_limits: { primary: { used_percent: 12, reset_after_seconds: 3600 } } };
     const model = mapCodexUsageResponse(payload);
     expect(model!.session.percent).toBe(12);
-    expect(model!.weeklyAllModels).toEqual({ percent: 0, resetsIn: "N/A", resetsAt: null });
+    // Absent weekly window is now untracked (hidden by the UI), not a fake 0%.
+    expect(model!.weeklyAllModels.percent).toBe(UNTRACKED_PERCENT);
+  });
+
+  it("maps a weekly-only plan with no 5-hour/session window (the current Codex reality)", () => {
+    const payload = {
+      rate_limits: {
+        weekly_limit: { used_percent: 91, reset_after_seconds: THREE_DAYS / 1000 },
+      },
+    };
+    const model = mapCodexUsageResponse(payload);
+    expect(model).not.toBeNull();
+    expect(model!.weeklyAllModels.percent).toBe(91);
+    // No 5-hour window on this plan -> session is untracked, so the UI shows
+    // only the weekly figure instead of a dead "--% (current)".
+    expect(model!.session.percent).toBe(UNTRACKED_PERCENT);
+  });
+
+  // v3.14.6: the REAL wham/usage schema (captured from the live endpoint) nests
+  // the windows under `rate_limit` (singular) as primary_window/secondary_window,
+  // each with a `limit_window_seconds` duration and an epoch-seconds `reset_at`.
+  it("maps the verified live schema: a Team plan with a single weekly window", () => {
+    const payload = {
+      plan_type: "team",
+      rate_limit: {
+        allowed: true,
+        limit_reached: false,
+        primary_window: {
+          used_percent: 91,
+          limit_window_seconds: 604800, // 7 days -> weekly, even though it is the PRIMARY window
+          reset_after_seconds: 604800,
+          reset_at: Math.floor((NOW + THREE_DAYS) / 1000), // epoch SECONDS
+        },
+        secondary_window: null,
+      },
+      credits: { has_credits: false, unlimited: false, balance: null },
+    };
+    const model = mapCodexUsageResponse(payload);
+    expect(model).not.toBeNull();
+    expect(model!.planLabel).toBe("Team");
+    // The single 7-day window is classified as weekly (not mislabeled "session").
+    expect(model!.weeklyAllModels.percent).toBe(91);
+    expect(model!.weeklyAllModels.resetsAt).toBe(NOW + THREE_DAYS);
+    // No 5-hour window on this plan -> session untracked, so the UI hides it.
+    expect(model!.session.percent).toBe(UNTRACKED_PERCENT);
+    // credits block present but empty -> no credits summary line.
+    expect(model!.creditsSummary).toBeUndefined();
+  });
+
+  it("maps the verified live schema: a plan with both a 5-hour and a weekly window", () => {
+    const payload = {
+      plan_type: "plus",
+      rate_limit: {
+        primary_window: { used_percent: 40, limit_window_seconds: 18000, reset_at: Math.floor((NOW + ONE_HOUR) / 1000) },
+        secondary_window: { used_percent: 12, limit_window_seconds: 604800, reset_at: Math.floor((NOW + THREE_DAYS) / 1000) },
+      },
+    };
+    const model = mapCodexUsageResponse(payload);
+    expect(model!.planLabel).toBe("Plus");
+    // 5-hour window -> session; 7-day window -> weekly, classified by duration.
+    expect(model!.session.percent).toBe(40);
+    expect(model!.weeklyAllModels.percent).toBe(12);
   });
 
   it("reports unlimited credits", () => {

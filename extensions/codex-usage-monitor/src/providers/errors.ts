@@ -13,15 +13,15 @@ export function describeProviderError(error: ProviderFetchError): string {
 
   switch (error.code) {
     case "no-credentials":
-      return "Codex credentials not found. Sign in to the Codex app first.";
+      return "Codex credentials not found (~/.codex/auth.json). Run 'codex' in a terminal to sign in.";
     case "invalid-credentials":
-      return "Codex credentials could not be read. Sign in to the Codex app again.";
+      return "Codex credentials at ~/.codex/auth.json could not be read. Run 'codex' to sign in again.";
     case "token-expired":
-      return "Your Codex session has expired. Sign in to the Codex app again.";
+      return "Your Codex sign-in has expired. Run 'codex' in a terminal to sign in again.";
     case "token-refresh-failed":
-      return "Could not refresh your Codex session. Sign in to the Codex app again.";
+      return "Could not refresh your Codex sign-in. Run 'codex' in a terminal to sign in again.";
     case "token-invalid":
-      return `Your Codex session token was rejected${suffix}. Sign in to the Codex app again.`;
+      return `Your Codex token was rejected${suffix}. Run 'codex' in a terminal to sign in again.`;
     case "rate-limited":
       return "Codex usage endpoint is temporarily unavailable. Showing cached data.";
     case "network-error":
@@ -30,6 +30,6 @@ export function describeProviderError(error: ProviderFetchError): string {
       return `The Codex usage endpoint returned an error${suffix}.`;
     case "parse-error":
     case "usage-unavailable":
-      return "Automated Codex usage isn't available (the ChatGPT usage endpoint is undocumented and may have changed). Open the usage page to read your limits, then use 'Codex Usage: Enter Usage Manually' to enter them.";
+      return `The Codex usage endpoint returned an unexpected response${suffix}. Press Retry; if it persists, run 'codex' in a terminal to refresh your sign-in.`;
   }
 }

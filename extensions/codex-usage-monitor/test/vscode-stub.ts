@@ -81,6 +81,22 @@ export class ThemeColor {
   constructor(public readonly id: string) {}
 }
 
+/** Minimal MarkdownString so the status-bar data path (buildTooltip) runs in tests. */
+export class MarkdownString {
+  value: string;
+  isTrusted = false;
+  supportThemeIcons = false;
+  supportHtml = false;
+  constructor(value = "", supportThemeIcons = false) {
+    this.value = value;
+    this.supportThemeIcons = supportThemeIcons;
+  }
+  appendMarkdown(md: string): this {
+    this.value += md;
+    return this;
+  }
+}
+
 export const commands = {
   executeCommand(): Promise<void> {
     return Promise.resolve();
