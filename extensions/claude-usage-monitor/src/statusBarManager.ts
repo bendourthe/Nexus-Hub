@@ -6,6 +6,11 @@ import { UsageStore, formatResetLabel, nextMonthlyResetLabel } from "./usageStor
 /** The Claude logo glyph, contributed as an icon font in package.json. */
 const CLAUDE_ICON = "$(claude-icon)";
 
+// A wider, non-collapsing gap between the icon and the text so the icon does not
+// look glued to the numbers. An en-space (U+2002) is used instead of extra plain
+// spaces, which the VS Code status bar can collapse to one, so the gap always renders.
+const ICON_GAP = "\u2002";
+
 // When the active metric is within this many percentage points below the
 // moderate threshold (or already at/above it), the poll cadence drops to
 // NEAR_THRESHOLD_INTERVAL_MS so a threshold crossing surfaces the warning
@@ -131,7 +136,7 @@ export class StatusBarManager {
       .getConfiguration("claudeUsage")
       .get<boolean>("compactStatusBar", false);
     const label = compact ? "" : "Claude Usage: ";
-    return `${CLAUDE_ICON} ${label}${sessionPct}% (current) ${weeklyPct}% (week)${staleLabel}`;
+    return `${CLAUDE_ICON}${ICON_GAP}${label}${sessionPct}% (current) ${weeklyPct}% (week)${staleLabel}`;
   }
 
   private isDataStale(data: UsageData): boolean {
