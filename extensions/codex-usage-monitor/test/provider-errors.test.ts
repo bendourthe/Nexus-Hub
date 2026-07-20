@@ -6,7 +6,11 @@ describe("describeProviderError", () => {
     expect(describeProviderError({ code: "no-credentials" })).toBe(
       "Codex credentials not found. Sign in to the Codex app first.",
     );
-    expect(describeProviderError({ code: "usage-unavailable" })).toContain("undocumented");
+    // The usage-unavailable banner must stay honest (undocumented endpoint) AND
+    // actionable (point at manual entry), per v3.14.5 Phase 4.3.
+    const unavailable = describeProviderError({ code: "usage-unavailable" });
+    expect(unavailable).toContain("undocumented");
+    expect(unavailable.toLowerCase()).toContain("manual");
   });
 
   it("appends the status code and text for an api-error", () => {

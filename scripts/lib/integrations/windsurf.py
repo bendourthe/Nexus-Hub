@@ -63,9 +63,10 @@ class WindsurfIntegration(MarkdownIntegration):
         codeium_root = (Path.home() / ".codeium").resolve()
         if not codeium_root.exists():
             ctx.manifest.log(self.key, "~/.codeium not found; skipping global Windsurf rules")
-            result.note("Windsurf (~/.codeium) not found; global rules skipped")
+            result.mark_not_detected("Windsurf (~/.codeium) not found; global rules skipped")
             return result
 
+        result.detected = True
         template = ctx.repo_root / self.config["instruction_template"]
         if not template.exists():
             ctx.manifest.log(self.key, f"missing-template: {template}")

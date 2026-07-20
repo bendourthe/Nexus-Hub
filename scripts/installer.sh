@@ -25,6 +25,8 @@ DARK_YELLOW='\033[0;33m' # Approximate
 BRIGHT_CYAN='\033[0;96m'    # OpenCode - distinct from the teal CYAN used by Microsoft
 BRIGHT_MAGENTA='\033[0;95m' # Anysphere/Cursor - distinct from the dark MAGENTA used by OpenAI
 DARK_BLUE='\033[38;5;18m'   # Nexus - navy, distinct from the BLUE used by Google
+DARK_GREEN='\033[38;5;22m'  # Windsurf - distinct from the GREEN used by Aider
+DARK_RED='\033[38;5;88m'    # Qwen - distinct from the RED used by Kimi
 # DARK_CYAN removed in v2.1.0 - only used by the legacy 120-char banner rules.
 
 # Resolved overwrite decision (v3.7.0 / Phase 2).
@@ -92,6 +94,11 @@ get_provider_color() {
         "MICROSOFT")        echo -ne "${CYAN}" ;;
         "ANYSPHERE")        echo -ne "${BRIGHT_MAGENTA}" ;;
         "OPENCODE")         echo -ne "${BRIGHT_CYAN}" ;;
+        "AIDER")            echo -ne "${GREEN}" ;;
+        "WINDSURF")         echo -ne "${DARK_GREEN}" ;;
+        "KIMI")             echo -ne "${RED}" ;;
+        "QWEN")             echo -ne "${DARK_RED}" ;;
+        "OPENCLAW")         echo -ne "${YELLOW}" ;;
         "NEXUS")            echo -ne "${DARK_BLUE}" ;;
         *)                  echo -ne "${RESET}" ;;
     esac
@@ -134,6 +141,118 @@ write_subsection_banner() {
     local color="${2:-$YELLOW}"
     echo ""
     echo -e "  ${color}- ${text}${RESET}"
+}
+
+# --- Per-platform install checklist (v3.14.5 Phase 2) ---
+# The registry runner emits a structured per-surface summary
+# (runner.py --summary-json); render it as a fixed-order checklist so every
+# platform reads identically, and collect platforms whose tool was not detected
+# into one "NOT DETECTED" group. Mirrors the PowerShell installer.
+
+CHECKLIST_ORDER="instruction skills commands agents rules hooks settings"
+
+checklist_label() {
+    case "$1" in
+        instruction) echo "Core Files" ;;
+        skills)      echo "Skills" ;;
+        commands)    echo "Commands" ;;
+        agents)      echo "Agents" ;;
+        rules)       echo "Rules" ;;
+        hooks)       echo "Hooks" ;;
+        settings)    echo "Core Settings" ;;
+        *)           echo "$1" ;;
+    esac
+}
+
+# Platforms whose tool was not detected on this machine (grouped at run end).
+UNDETECTED_PLATFORMS=()
+
+reset_undetected_platforms() { UNDETECTED_PLATFORMS=(); }
+
+add_undetected_platform() {
+    # Args: name reason
+    UNDETECTED_PLATFORMS+=("$1 ($2)")
+}
+
+write_undetected_group() {
+    [ "${#UNDETECTED_PLATFORMS[@]}" -eq 0 ] && return 0
+    echo ""
+    echo -e "  ${GRAY}> NOT DETECTED (skipped)${RESET}"
+    local entry
+    for entry in "${UNDETECTED_PLATFORMS[@]}"; do
+        echo -e "    ${GRAY}- ${entry}${RESET}"
+    done
+}
+
+write_checklist_row() {
+    # Args: label state detail   (state: ok|warn)
+    local label="$1" state="$2" detail="$3"
+    local mark color col
+    if [ "$state" = "ok" ]; then mark="[OK]"; color="$GREEN"; else mark="[!]"; color="$YELLOW"; fi
+    # Pad the label column (printf, no color escapes) then colorize via echo -e.
+    col="$(printf '%-16s' "${label}:")"
+    echo -e "    ${color}${mark} ${col} ${detail}${RESET}"
+}
+
+render_platform_from_summary() {
+    # Args: summary_file key provider display py
+    # Renders the platform's fixed-order checklist (lazy header when provider is
+    # set) or records it in the undetected group when it delivered no surface.
+    local sfile="$1" key="$2" provider="$3" display="$4" py="$5"
+    local extract
+    extract="$("$py" - "$sfile" "$key" <<'PYEOF'
+import json, sys
+sfile, key = sys.argv[1], sys.argv[2]
+try:
+    data = json.load(open(sfile, encoding="utf-8"))
+except Exception:
+    print("META\t\t0\t0"); sys.exit(0)
+plat = next((p for p in data.get("platforms", []) if p.get("platform") == key), None)
+if not plat:
+    print("META\t\t0\t0"); sys.exit(0)
+det = plat.get("detected")
+det_s = "true" if det is True else ("false" if det is False else "")
+notes = plat.get("notes") or []
+surfaces = plat.get("surfaces", {}) or {}
+print("META\t%s\t%d\t%d" % (det_s, len(surfaces), len(notes)))
+for skey, entry in surfaces.items():
+    print("ROW\t%s\t%s\t%s" % (skey, entry.get("status", ""), entry.get("path", "")))
+PYEOF
+)"
+    local detected surface_count note_count
+    detected="$(printf '%s\n' "$extract" | awk -F'\t' '$1=="META"{print $2; exit}')"
+    surface_count="$(printf '%s\n' "$extract" | awk -F'\t' '$1=="META"{print $3; exit}')"
+    note_count="$(printf '%s\n' "$extract" | awk -F'\t' '$1=="META"{print $4; exit}')"
+
+    if [ "${surface_count:-0}" -eq 0 ]; then
+        local reason="not detected"
+        if [ "$detected" != "false" ] && [ "${note_count:-0}" -gt 0 ]; then
+            reason="no surface at this scope"
+        fi
+        if [ -n "$provider" ]; then
+            add_undetected_platform "$display" "$reason"
+        else
+            write_item "$display" "$GRAY"
+            write_item "($reason)" "$GRAY" 4
+        fi
+        return 0
+    fi
+
+    [ -n "$provider" ] && write_header "$provider"
+    write_item "$display" "$GRAY"
+    local surface line status path label
+    for surface in $CHECKLIST_ORDER; do
+        line="$(printf '%s\n' "$extract" | awk -F'\t' -v s="$surface" '$1=="ROW" && $2==s {print; exit}')"
+        [ -z "$line" ] && continue
+        status="$(printf '%s\n' "$line" | cut -f3)"
+        path="$(printf '%s\n' "$line" | cut -f4)"
+        label="$(checklist_label "$surface")"
+        if [ "$status" = "installed" ]; then
+            write_checklist_row "$label" "ok" "$path"
+        else
+            write_checklist_row "$label" "warn" "install reported an issue"
+        fi
+    done
 }
 
 # Copy a single managed file with conflict-only overwrite semantics (v3.7.0 /
@@ -906,6 +1025,7 @@ install_global() {
     write_subsection_banner "Skills & Commands"
 
     echo -e "${GRAY}Checking User Profile ($user_home)...${RESET}"
+    reset_undetected_platforms
 
     # Instruction-template placeholders, set unconditionally so every selected
     # provider renders a complete instruction body even when --platforms excludes
@@ -936,140 +1056,124 @@ install_global() {
     # --- Anthropic -- Claude Code ---------------------------------------
     if should_install claude; then
     write_header "ANTHROPIC"
-    write_item "Claude Code" "$GRAY"
     local global_claude="$user_home/.claude"
     mkdir -p "$global_claude"
 
-    # DF-001: the registry runner renders CLAUDE.md (marker-merged, full
-    # placeholder substitution). --instruction-only leaves the catalog mirror to
-    # the safe_folder_copy block below.
-    invoke_registry_platform "$repo_root" "global" "" "claude" "CLAUDE.md (instruction file)" "" "true"
-
-    flatten_skills_into "$repo_root/catalog/skills"   "$global_claude/skills"   "[OK] Skills catalog installed (flattened) at: $global_claude/skills"
-    safe_folder_copy "$repo_root/catalog/commands" "$global_claude/commands" "[OK] Commands installed at: $global_claude/commands"
-    safe_folder_copy "$repo_root/catalog/agents"   "$global_claude/agents"   "[OK] Agents installed at: $global_claude/agents"
-    safe_folder_copy "$repo_root/catalog/rules"    "$global_claude/rules"    "[OK] Rules installed at: $global_claude/rules"
+    # Claude is the one bespoke (non-registry) install; each helper prints its
+    # own progress to stdout. Run every step quietly (>/dev/null suppresses the
+    # "Merging..." lines and per-step notices; errors still go to stderr) and
+    # render ONE unified checklist afterward so Claude reads identically to the
+    # registry platforms. DF-001: the registry runner renders CLAUDE.md;
+    # safe_folder_copy does the catalog mirror.
+    invoke_registry_platform "$repo_root" "global" "" "claude" "CLAUDE.md (instruction file)" "" "true" >/dev/null
+    flatten_skills_into "$repo_root/catalog/skills"   "$global_claude/skills"   >/dev/null
+    safe_folder_copy "$repo_root/catalog/commands" "$global_claude/commands" >/dev/null
+    safe_folder_copy "$repo_root/catalog/agents"   "$global_claude/agents"   >/dev/null
+    safe_folder_copy "$repo_root/catalog/rules"    "$global_claude/rules"    >/dev/null
 
     mkdir -p "$global_claude/mcp-configs"
-    safe_copy "$repo_root/catalog/mcp-configs/mcp-servers.json" "$global_claude/mcp-configs/mcp-servers.json" false "[OK] MCP server config installed at: $global_claude/mcp-configs"
+    safe_copy "$repo_root/catalog/mcp-configs/mcp-servers.json" "$global_claude/mcp-configs/mcp-servers.json" false >/dev/null
 
-    install_git_guardrails    "$repo_root" "$global_claude" "Global"
-    install_usage_display     "$repo_root" "$global_claude" "Global"
-    install_require_description "$repo_root" "$global_claude" "Global"
-    install_core_settings     "$repo_root" "$global_claude" "Global"
+    install_git_guardrails    "$repo_root" "$global_claude" "Global" >/dev/null
+    install_usage_display     "$repo_root" "$global_claude" "Global" >/dev/null
+    install_require_description "$repo_root" "$global_claude" "Global" >/dev/null
+    install_core_settings     "$repo_root" "$global_claude" "Global" >/dev/null
+
+    # Unified checklist, built from the resulting on-disk state.
+    write_item "Claude Code" "$GRAY"
+    [ -f "$global_claude/CLAUDE.md" ] && write_checklist_row "Core Files" "ok" "$global_claude/CLAUDE.md"
+    [ -d "$global_claude/skills" ]    && write_checklist_row "Skills" "ok" "$global_claude/skills"
+    [ -d "$global_claude/commands" ]  && write_checklist_row "Commands" "ok" "$global_claude/commands"
+    [ -d "$global_claude/agents" ]    && write_checklist_row "Agents" "ok" "$global_claude/agents"
+    [ -d "$global_claude/rules" ]     && write_checklist_row "Rules" "ok" "$global_claude/rules"
+    if [ -f "$global_claude/settings.json" ]; then
+        write_checklist_row "Hooks" "ok" "git-guardrails, usage, require-description, compress-output"
+        write_checklist_row "Core Settings" "ok" "effortLevel, model, env (settings.json)"
+    fi
     fi
 
     # --- OpenAI -- Codex ------------------------------------------------
     if should_install codex; then
-    write_header "OPENAI"
-    write_item "Codex" "$GRAY"
     local global_codex_dir="$user_home/.codex"
     mkdir -p "$global_codex_dir"
-
-    # Full registry mirror (v3.12.0): the codex integration flattens skills to
-    # ~/.codex/skills/<name>/ AND ~/.agents/skills/<name>/ (one level, as Codex and
-    # the ChatGPT desktop app scan), emits every catalog command as a skill ($name)
-    # plus a legacy top-level prompt (~/.codex/prompts, /prompts:name), and renders
-    # ~/.codex/AGENTS.md. Replaces the prior verbatim skills/commands copies, which
-    # buried every SKILL.md under a category folder Codex could not read. See
-    # docs/policy/platform-read-contracts.md.
-    invoke_registry_platform "$repo_root" "global" "" "codex" "Codex (AGENTS.md + skills + commands)" "" ""
+    # The codex integration flattens skills to ~/.codex/skills AND ~/.agents/skills,
+    # emits every command as a skill plus a legacy prompt, and renders
+    # ~/.codex/AGENTS.md (see docs/policy/platform-read-contracts.md).
+    invoke_registry_platform "$repo_root" "global" "" "codex" "Codex" "" "" "OPENAI"
     fi
 
-    # --- Google -- Gemini / Antigravity 1.0 + 2.0 / Gemini CLI ---------
-    if should_install gemini || should_install antigravity2 || should_install gemini-cli; then
+    # --- Google -- Gemini / Antigravity 2.0 / Gemini CLI --------------
+    # The GOOGLE header is shared by up to three platforms, so it prints eagerly
+    # only when a platform that always renders (Gemini IDE / Antigravity 2.0) is
+    # selected. Gemini CLI (non-enterprise) is a deliberate skip -> the group.
+    if should_install gemini || should_install antigravity2; then
     write_header "GOOGLE"
+    fi
     if should_install gemini; then
-    write_item "Gemini IDE" "$GRAY"
     local global_gemini_dir="$user_home/.gemini"
     mkdir -p "$global_gemini_dir"
-
-    # Full registry mirror (v3.11.0): renders GEMINI.md AND mirrors the catalog to
-    # ~/.gemini/{skills,workflows,agents,rules} per gemini.py. Dropping the prior
-    # instruction-only call fixes the bash/PowerShell parity break (C1) and the
-    # never-delivered agents/rules (C2) from the Phase 7.1 read-contract audit.
-    invoke_registry_platform "$repo_root" "global" "" "gemini" "Gemini IDE (GEMINI.md + catalog mirror)" "" ""
+    # Renders GEMINI.md and mirrors the catalog to ~/.gemini/{skills,workflows,agents,rules}.
+    invoke_registry_platform "$repo_root" "global" "" "gemini" "Gemini IDE" "" ""
     fi
-
-    # Antigravity 2.0 + CLI: the antigravity2 integration below owns the entire
-    # Antigravity mirror. It flattens skills to skills/<name>/SKILL.md (the flat
-    # folder-per-skill layout the IDE actually scans), mirrors commands to
-    # workflows/, installs the curated hooks + hooks.json, and writes to BOTH the
-    # IDE global root (~/.gemini/antigravity) and the CLI global root
-    # (~/.gemini/antigravity-cli). The previous verbatim copies here buried every
-    # SKILL.md under a category folder the IDE could not read and only targeted
-    # the CLI root, so skills and commands never surfaced in the 2.0 IDE.
     if should_install antigravity2; then
-    invoke_registry_platform "$repo_root" "global" "" "antigravity2" "Antigravity 2.0 + CLI"
-    write_item "Antigravity 2.0: global skills -> ~/.gemini/config/skills, slash commands -> ~/.gemini/config/global_workflows, rules -> ~/.gemini/GEMINI.md; the agy CLI reads ~/.gemini/antigravity-cli. Per-project .agents/ is still seeded by 'nexus-hub init' for project-scoped workflows and rules." "$DARK_YELLOW"
+    invoke_registry_platform "$repo_root" "global" "" "antigravity2" "Antigravity 2.0 + CLI" "" ""
     fi
     if should_install gemini-cli; then
     if [ "${ENTERPRISE:-0}" = "1" ]; then
-        invoke_registry_platform "$repo_root" "global" "" "gemini-cli"   "Gemini CLI (enterprise)"
+        invoke_registry_platform "$repo_root" "global" "" "gemini-cli" "Gemini CLI" "" "" "GOOGLE"
     else
-        write_item "Gemini CLI: skipped (sunset on 2026-06-18 for free / Google AI Pro / Ultra / GitHub-installed users). Re-run with --enterprise to install (requires paid Gemini API key); Antigravity CLI above covers the same functionality." "$DARK_YELLOW"
-    fi
+        add_undetected_platform "Gemini CLI" "enterprise-only; re-run with --enterprise"
     fi
     fi
 
     # --- Microsoft -- GitHub Copilot -----------------------------------
     if should_install copilot; then
-    write_header "MICROSOFT"
-    invoke_registry_platform "$repo_root" "global" "" "copilot" "GitHub Copilot (global prompt files)"
+    invoke_registry_platform "$repo_root" "global" "" "copilot" "GitHub Copilot" "" "" "MICROSOFT"
     fi
 
     # --- Anysphere -- Cursor -------------------------------------------
     if should_install cursor; then
-    write_header "ANYSPHERE"
-    invoke_registry_platform "$repo_root" "global" "" "cursor" "Cursor"
+    invoke_registry_platform "$repo_root" "global" "" "cursor" "Cursor" "" "" "ANYSPHERE"
     fi
 
     # --- OpenCode ------------------------------------------------------
     if should_install opencode; then
-    write_header "OPENCODE"
-    invoke_registry_platform "$repo_root" "global" "" "opencode" "OpenCode"
+    invoke_registry_platform "$repo_root" "global" "" "opencode" "OpenCode" "" "" "OPENCODE"
     fi
 
     # --- Aider ---------------------------------------------------------
     if should_install aider; then
-    write_header "AIDER"
-    invoke_registry_platform "$repo_root" "global" "" "aider" "Aider (CONVENTIONS.md)"
-    write_item "Aider: reads a project-root CONVENTIONS.md; there is no global instruction surface. Run a workspace/project install in your repo to get it." "$DARK_YELLOW"
+    invoke_registry_platform "$repo_root" "global" "" "aider" "Aider" "" "" "AIDER"
     fi
 
     # --- Windsurf ------------------------------------------------------
     if should_install windsurf; then
-    write_header "WINDSURF"
-    invoke_registry_platform "$repo_root" "global" "" "windsurf" "Windsurf (global_rules.md)"
-    write_item "Windsurf: global rules are written to ~/.codeium/windsurf/memories/global_rules.md only when Windsurf is detected (~/.codeium present); the project-root .windsurfrules installs at workspace scope." "$DARK_YELLOW"
+    invoke_registry_platform "$repo_root" "global" "" "windsurf" "Windsurf" "" "" "WINDSURF"
     fi
 
     # --- Kimi ----------------------------------------------------------
     if should_install kimi; then
-    write_header "KIMI"
-    invoke_registry_platform "$repo_root" "global" "" "kimi" "Kimi (.kimi/agent.yaml + system.md)"
-    write_item "Kimi: global files are written to ~/.kimi/ only when Kimi is detected (~/.kimi present); the project-local .kimi/ pair installs at workspace scope." "$DARK_YELLOW"
+    invoke_registry_platform "$repo_root" "global" "" "kimi" "Kimi" "" "" "KIMI"
     fi
 
     # --- Qwen ----------------------------------------------------------
     if should_install qwen; then
-    write_header "QWEN"
-    invoke_registry_platform "$repo_root" "global" "" "qwen" "Qwen Code (QWEN.md)"
-    write_item "Qwen: ~/.qwen/QWEN.md is written only when Qwen is detected (~/.qwen present); the project-root QWEN.md installs at workspace scope." "$DARK_YELLOW"
+    invoke_registry_platform "$repo_root" "global" "" "qwen" "Qwen Code" "" "" "QWEN"
     fi
 
     # --- OpenClaw ------------------------------------------------------
     if should_install openclaw; then
-    write_header "OPENCLAW"
-    invoke_registry_platform "$repo_root" "global" "" "openclaw" "OpenClaw (.openclaw/ SOUL+AGENTS+IDENTITY)"
-    write_item "OpenClaw: global files are written to ~/.openclaw/ only when OpenClaw is detected (~/.openclaw present); the project-local .openclaw/ split installs at workspace scope." "$DARK_YELLOW"
+    invoke_registry_platform "$repo_root" "global" "" "openclaw" "OpenClaw" "" "" "OPENCLAW"
     fi
 
     # --- Nexus -- Nexus-AI (Local Desktop Studio) ----------------------
     if should_install nexus-ai; then
-    write_header "NEXUS"
-    invoke_registry_platform "$repo_root" "global" "" "nexus-ai" "Nexus-AI (Local Desktop Studio)"
+    invoke_registry_platform "$repo_root" "global" "" "nexus-ai" "Nexus-AI" "" "" "NEXUS"
     fi
+
+    # Platforms whose tool was not detected on this machine (or a scope with no
+    # surface, e.g. Aider at global) were collected above; print them once here.
+    write_undetected_group
 
     # --- Auto-Approve Permissions sub-section --------------------------
     # Permissions only apply to the legacy 4 (CLAUDE / GEMINI / CODEX /
@@ -1097,8 +1201,8 @@ install_global() {
     install_permissions "$repo_root" "COPILOT" "Global"
     fi
 
-    # --- Claude Code Utilities sub-section ---
-    write_subsection_banner "Claude Code Utilities"
+    # --- Usage Monitor VS Code extensions sub-section ---
+    write_subsection_banner "Usage Monitors (VS Code Extensions)"
     install_vscode_extensions "$repo_root"
 
     # --- Skill Discovery sub-section ---
@@ -1501,6 +1605,7 @@ invoke_registry_platform() {
     local display="$5"
     local languages="${6:-}"
     local instruction_only="${7:-}"
+    local provider="${8:-}"
 
     local runner="$repo_root/scripts/lib/integrations/runner.py"
     if [ ! -f "$runner" ]; then return 0; fi
@@ -1510,8 +1615,9 @@ invoke_registry_platform() {
         return 0
     fi
 
-    write_item "$display" "$GRAY"
-    local args=("$runner" "install" "--scope" "$scope" "--integrations" "$key" "--quiet")
+    local summary_file
+    summary_file="$(mktemp)"
+    local args=("$runner" "install" "--scope" "$scope" "--integrations" "$key" "--quiet" "--summary-json" "$summary_file")
     if [ "$scope" = "workspace" ]; then
         args+=("--target" "$target_path")
     fi
@@ -1537,21 +1643,20 @@ invoke_registry_platform() {
     args+=("--var" "NON_OBVIOUS_TOOLING=${NON_OBVIOUS_TOOLING:-}")
     args+=("--var" "OS_CONTEXT=${OS_CONTEXT:-}")
     if "$py" "${args[@]}"; then
-        write_item "[OK] Installed (${scope} scope)" "$GREEN"
+        render_platform_from_summary "$summary_file" "$key" "$provider" "$display" "$py"
     else
-        write_item "${display} install reported non-zero exit; continuing." "$YELLOW"
+        [ -n "$provider" ] && write_header "$provider"
+        write_item "$display" "$GRAY"
+        write_item "install reported a non-zero exit; continuing." "$YELLOW"
     fi
+    rm -f "$summary_file"
 }
 
 install_vscode_extensions() {
     local repo_root="$1"
 
-    echo ""
-    echo -e "  ${DARK_YELLOW}> Usage Monitors${RESET}"
-
-    write_item "The Claude Usage Monitor and Codex Usage Monitor are VS Code extensions that" "$RESET"
-    write_item "show your Claude Code and Codex (ChatGPT) usage limits in the status bar and" "$RESET"
-    write_item "recommend how to pace your usage to stay within your session and weekly limits." "$RESET"
+    write_item "Usage Monitor VS Code extensions show your Claude Code and Codex (ChatGPT)" "$RESET"
+    write_item "usage limits in the status bar, with pacing recommendations. Grouped by vendor." "$RESET"
     echo ""
 
     # Check for Node.js (shared by both extensions)
@@ -1638,13 +1743,14 @@ install_vscode_extensions() {
         done
     fi
 
-    # Build, package, and install each extension in turn. Each is independent, so
-    # a missing folder or a build failure in one does not block the other.
+    # Build each extension under its own vendor header so the Anthropic and
+    # OpenAI utilities are visually separated. Each is independent, so a missing
+    # folder or a build failure in one does not block the other.
+    write_header "ANTHROPIC"
     build_and_install_one_extension "$repo_root/extensions/claude-usage-monitor" "nexus-hub.claude-usage-monitor" "Claude Usage Monitor" "Claude: --%" "$code_cli" "$code_label"
-    build_and_install_one_extension "$repo_root/extensions/codex-usage-monitor" "nexus-hub.codex-usage-monitor" "Codex Usage Monitor" "Codex: --%" "$code_cli" "$code_label"
 
-    echo ""
-    echo -e "  ${GREEN}[OK] Usage Monitor Installation Complete.${RESET}"
+    write_header "OPENAI"
+    build_and_install_one_extension "$repo_root/extensions/codex-usage-monitor" "nexus-hub.codex-usage-monitor" "Codex Usage Monitor" "Codex: --%" "$code_cli" "$code_label"
 }
 
 # Build, package, and install one VS Code usage-monitor extension. Shared by
@@ -2076,7 +2182,6 @@ install_cli_launcher() {
     local nexus_home="$HOME/.nexus-hub"
     local bin_dest="$nexus_home/bin"
 
-    echo ""
     write_subsection_banner "nexus-hub CLI"
     echo ""
 
@@ -2114,7 +2219,6 @@ install_cli_launcher() {
             write_item "  Until then, run it directly: $bin_dest/nexus-hub --version" "$GRAY"
             ;;
     esac
-    echo ""
 }
 
 # --- Project auto-seed + on-open hook (v3.11.0 Phase 7.3) ---
@@ -2134,7 +2238,6 @@ install_project_autoseed() {
     local hooks_dest="$nexus_home/hooks"
     local runner="$repo_root/scripts/lib/integrations/runner.py"
 
-    echo ""
     write_subsection_banner "Project auto-seed (Antigravity .agents/, Cursor, Claude)"
     echo ""
 
@@ -2852,7 +2955,6 @@ install_project_autoseed "$REPO_ROOT" "$SCOPE_LABEL"
 # fails the install).
 if [ -f "$REPO_ROOT/scripts/lib/integrations/runner.py" ]; then
     if py=$(resolve_python_executable 2>/dev/null); then
-        echo ""
         write_subsection_banner "Install verification"
         "$py" "$REPO_ROOT/scripts/lib/integrations/runner.py" verify --target "$(pwd -P 2>/dev/null || pwd)" 2>/dev/null || true
     fi

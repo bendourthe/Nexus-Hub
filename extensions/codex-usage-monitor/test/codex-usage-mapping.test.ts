@@ -80,6 +80,38 @@ describe("mapCodexUsageResponse", () => {
     expect(model!.weeklyAllModels.percent).toBe(8);
   });
 
+  // v3.14.5 Phase 4.1: the undocumented endpoint may name its windows
+  // primary_window / secondary_window (or five_hour_limit / weekly_limit),
+  // nested under rate_limits or at the top level. Probe those aliases too.
+  it("supports primary_window / secondary_window aliases (nested and top-level)", () => {
+    const nested = mapCodexUsageResponse({
+      rate_limits: {
+        primary_window: { used_percent: 60, reset_after_seconds: 3600 },
+        secondary_window: { used_percent: 15, reset_after_seconds: THREE_DAYS / 1000 },
+      },
+    });
+    expect(nested!.session.percent).toBe(60);
+    expect(nested!.weeklyAllModels.percent).toBe(15);
+
+    const topLevel = mapCodexUsageResponse({
+      primary_window: { used_percent: 33, reset_after_seconds: 3600 },
+      secondary_window: { used_percent: 4, reset_after_seconds: THREE_DAYS / 1000 },
+    });
+    expect(topLevel!.session.percent).toBe(33);
+    expect(topLevel!.weeklyAllModels.percent).toBe(4);
+  });
+
+  it("supports five_hour_limit / weekly_limit aliases", () => {
+    const model = mapCodexUsageResponse({
+      rate_limits: {
+        five_hour_limit: { used_percent: 70, reset_after_seconds: 3600 },
+        weekly_limit: { used_percent: 25, reset_after_seconds: THREE_DAYS / 1000 },
+      },
+    });
+    expect(model!.session.percent).toBe(70);
+    expect(model!.weeklyAllModels.percent).toBe(25);
+  });
+
   it("defaults the weekly metric when only a primary window is present", () => {
     const payload = { rate_limits: { primary: { used_percent: 12, reset_after_seconds: 3600 } } };
     const model = mapCodexUsageResponse(payload);

@@ -255,7 +255,8 @@ export function activate(context: vscode.ExtensionContext): void {
     if (
       event.affectsConfiguration("claudeUsage.thresholds") ||
       event.affectsConfiguration("claudeUsage.colors") ||
-      event.affectsConfiguration("claudeUsage.thresholdMetric")
+      event.affectsConfiguration("claudeUsage.thresholdMetric") ||
+      event.affectsConfiguration("claudeUsage.compactStatusBar")
     ) {
       statusBar.refresh();
       DashboardPanel.updateIfOpen(

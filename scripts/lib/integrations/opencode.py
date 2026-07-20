@@ -14,7 +14,13 @@ class OpenCodeIntegration(MarkdownIntegration, SkillsIntegration):
     display_name = "OpenCode"
     instruction_mode = "shared"
     config = {
-        "global_dir": "~/.opencode",
+        # v3.14.5: OpenCode's canonical GLOBAL config dir is ~/.config/opencode
+        # (XDG), not ~/.opencode -- the latter was a dead global path (the
+        # instruction file + commands never reached OpenCode there). Re-verified
+        # 2026-07-19 against https://opencode.ai/docs/config/ + /rules/ + /commands/.
+        # Skills still reached OpenCode via its ~/.claude/skills + ~/.agents/skills
+        # aliases even before this fix; the instruction file + commands did not.
+        "global_dir": "~/.config/opencode",
         "workspace_dir": ".opencode",
         "instruction_file": "AGENTS.md",
         "instruction_template": "templates/ai-instructions/base-opencode.md",

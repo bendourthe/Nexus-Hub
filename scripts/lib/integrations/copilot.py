@@ -92,8 +92,9 @@ class CopilotIntegration(MarkdownIntegration):
         user_dir = _vscode_user_dir()
         if user_dir is None:
             ctx.manifest.log(self.key, "VS Code user dir not found; skipping global prompt-file install")
-            result.note("VS Code user dir not found; global Copilot prompt files skipped")
+            result.mark_not_detected("VS Code user dir not found; global Copilot prompt files skipped")
             return result
+        result.detected = True
         prompts_dir = (user_dir / "prompts").resolve()
         self._ensure_dir(prompts_dir, ctx)
         result.files.extend(

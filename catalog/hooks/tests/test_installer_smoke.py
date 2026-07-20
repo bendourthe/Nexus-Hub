@@ -394,6 +394,11 @@ DEV_ONLY_SCRIPTS = {
     # `make validate` and CI; an end user has no catalog source to check, so
     # like check_base_template_parity.py it is deliberately not installer-copied.
     "verify_platform_contracts.py",
+    # Repo-internal release freshness gate (v3.14.5): fails a release when the
+    # platform read-contract JSON's meta.verified_for_version does not match the
+    # plugin.json version being cut. Runs in `make validate` and CI; a repo-only
+    # guard like the two above, so it is deliberately not installer-copied.
+    "check_platform_contract_freshness.py",
 }
 
 

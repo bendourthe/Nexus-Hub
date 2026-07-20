@@ -2,9 +2,97 @@
 
 **Project**: Nexus-Hub
 **Status**: v3.14.0 RELEASED (2026-07-16: `feat/codex-lb-adoption` -> `develop` -> `main`, tag `v3.14.0`, pushed; GitHub Release publish handed to the user due to an invalid local `gh` token). v3.14.1 installer-hotfix on `fix/installer-hotfix` (cut off the released `develop`): all 3 phases complete; RELEASE-READY, pending `/update release` (v3.14.1 bump / `develop` -> `main` merge / tag / push / GitHub Release). v3.14.2 comparison-versioning-fix on `fix/comparison-versioning` (cut off `develop`): Phases 1-3 (Fix A adoption-target placement + Fix B from-comparison co-location + Fix C co-location drift check) complete; Phase 4 (terminal refactor/known-gaps/CI-CD) pending.
-**Last updated**: 2026-07-17 (v3.14.3 Phase 4, release-ready)
+**Last updated**: 2026-07-19 (v3.14.5 Phase 6, mandatory platform-contract verification gate)
 
 > **Prior-version ingest**: the open v3.13 items (presentify DF-1..DF-5, WN-1/2, MT-1) are unrelated to this feature set and do not carry in. HO-1 (flat/nested skill-name collision across skill layouts) was VERIFIED clean by the Phase 6.4 dry-run install: `review-trapdoors` lands flattened at `skills/review-trapdoors/SKILL.md` across all seven platform skill paths with no nested `skills/code-review/review-trapdoors/` variant.
+
+## v3.14.5
+
+**Status**: Phases 1-7 COMPLETE on `feat/installer-ux-monitor-fixes` (cut off `develop`). v3.14.5's own work is RELEASE-READY pending `/update release`. The one pre-existing release caveat (the `scan_skill_security` catalog gate red on a v3.14.3 Pexels false-positive) was RESOLVED during release-prep via a class-2 heuristic refinement (self-authenticating API clients report MEDIUM, real exfiltration stays HIGH) - the catalog gate is now green; see the third Advisory item. **Phase 1 COMPLETE**: Runner structured per-surface summary channel (`runner.py --summary-json`) + `WriteResult.detected` / `mark_not_detected()` + the five detection-gated subclasses (kimi/qwen/openclaw/windsurf/copilot) now report detected-vs-skipped, so the installer can render an accurate per-platform checklist and stop reporting undetected platforms as installed. **Phase 2 COMPLETE** (global scope): both installers now render that summary as the mockup per-platform checklist with lazy vendor headers, a single grouped "NOT DETECTED" section, colors for Kimi/Qwen/OpenClaw (+ Aider/Windsurf in bash), and the verbose per-platform caveats removed; Claude renders the unified checklist via quiet helpers (`6>$null` / `>/dev/null`). A `_surface_root`/`_join_distinct` refinement of the Phase 1 runner makes multi-root surfaces (Codex skills) render clean paths. Gates green (installer smoke 29/29; tests/integrations 354; `installer.ps1` parse + `bash -n` + ShellCheck clean). **Phase 3 COMPLETE**: the stacked blank lines between the tail sub-sections (nexus-hub CLI / Project auto-seed / Install verification) are collapsed to one blank, and the "Usage Monitors" block is split into vendor-grouped Anthropic (Claude Usage Monitor) + OpenAI (Codex Usage Monitor) sections; both installers in lockstep (installer smoke 29/29; parse + `bash -n` + ShellCheck clean; no Python changed so tests/integrations unaffected). **Phase 4 COMPLETE** (Codex Usage Monitor): manual-entry fallback (`codex-usage.enterManual` + dashboard button, writing `dataSource:"manual"`) + honest/actionable empty state + fixed usage-page deep link (`chatgpt.com/codex/settings/usage`) + theme-adaptive `codex-dark`/`codex-light` dashboard tab icon; the `wham/usage` auto-fetch mapper is broadened best-effort (added `primary_window`/`secondary_window`/`five_hour_limit`/`weekly_limit` aliases) with residual shape-uncertainty in DF-2. Gates green (tsc compile clean; Vitest 36/36; VSIX packages with the new icons included). **Phase 5 COMPLETE** (both extensions): status-bar priorities fixed so the four items read [Claude usage][Claude gear][Codex usage][Codex gear] (Claude 103/102, Codex 101/100) + a `compactStatusBar` toggle in both that drops the "<Name> Usage:" label; versions bumped (Claude 0.8.0->0.9.0, Codex 0.1.0->0.2.0). Gates green (both compile clean; Codex Vitest 38, Claude 5; both package). The priority constants + compact label are unit-tested; live left-to-right ordering + the live toggle are host-only manual smoke (HO-1 class). **Phase 6 COMPLETE** (mandatory contract-verification gate): the duplicated "expected paths per platform" data is consolidated into one machine-readable `docs/policy/platform-read-contracts.json` (`contract_checks` + `install_verify` + a `meta` marker) consumed by both `verify_platform_contracts.py` (behavior-preserving DRY refactor) and the runner's `_verify_checks`; a new `check_platform_contract_freshness.py` fails `make validate` + CI whenever `meta.verified_for_version` != the release version, so a release cannot ship on a contract not re-verified for it; the `platform-contract-verification` skill + `/update release` step 4 now re-stamp the marker at release. The `meta` marker was left honest at `last_verified` 2026-07-13 / `verified_for_version` 3.14.4 (Phase 6 builds the gate infrastructure; the actual platform web re-verification + re-stamp to 3.14.5 is `/update release`'s job) - so the gate is green now and correctly fires at the release bump. No new open gaps. Gates green (validators' suites 8/8; both guards OK on the real repo; simulated release bump fails end-to-end; workflow-security exit 0). **Phase 7 COMPLETE** (terminal refactor + known-gaps + CI/CD): the cumulative `develop..HEAD` scope is 49 files, all tracing to v3.14.5 phases (no stray artifacts); no v3.14.5-introduced empty dirs / duplicates / orphans (the new `codex-dark`/`codex-light` SVGs are referenced from `dashboardPanel.ts`; the new `platform-read-contracts.json` sits beside its prose companion); AGENTS.md updated for the new contract-freshness gate; a PRE-EXISTING AGENTS.md doc-staleness (the "legacy installer copy blocks" framing - false on `develop` too, so NOT changed by this release) triaged and deferred as DF-3 rather than rewritten mid-release; CI/CD audited (freshness guard added to the `validate` job; both extension workflows + installer smoke + integration coverage confirmed; all path-filtered + concurrency-cancelled + npm-cached). All repo validators green (no-personal-paths exit 0, unicode-safety 0 errors, base-parity 5/5, orphan-bundle PASS 0/0). Plan: [plans/v3.14.5-installer-ux-and-monitor-fixes.md](plans/v3.14.5-installer-ux-and-monitor-fixes.md).
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 4 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 1 | 0 |
+| Missing tests / coverage gaps (MT) | 1 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+| Hand-offs (HO) | 1 | 0 |
+
+### Advisory (pre-existing test failures, NOT caused by v3.14.5)
+
+Three pre-existing test failures surfaced on this branch; none was caused by v3.14.5's phases. One (the `scan_skill_security` catalog gate) was RESOLVED during the v3.14.5 release-prep (see the third item); the other two remain (both env-only / pre-existing):
+
+- `test_init_subcommand.py::test_default_wire_project_surfaces_returns_none` - the test's `overrides` set omits `copilot`, which has overridden `wire_project_surfaces` since v3.11.0 (returns a skip-note `WriteResult`, not `None`). Phase 1/2 never touched `wire_project_surfaces`. Fix: add `copilot` to the test's `overrides` set (a one-line test update, separate patch).
+- `test_bootstrap.py::test_ps_standalone_extracts_and_hands_off` - the Git-Bash `/usr/bin/tar` misparses the `C:\...` tarball path on this Windows host; env-only, does not reproduce on the Linux CI runner. No file this version changed is involved.
+- `tests/validators/test_scan_skill_security.py::test_catalog_gate_is_clean` (surfaced during the Phase 7 regression net) - **RESOLVED during the v3.14.5 release-prep** (maintainer chose the heuristic-refinement adjudication). The `scan_skill_security` catalog gate had reported 1 HIGH finding: "class 2 Data Exfiltration - credential exfiltration (env read + network egress)" at `catalog/skills/specialized-domains/document-to-interactive-html/scripts/fetch_stock_media.py:481` (`os.environ.get("PEXELS_API_KEY")` + the Pexels API call). It was a FALSE POSITIVE - a legitimate, consent-gated stock-media API client that reads its own user-provided key and calls its own API (the v3.14.3 bring-your-own-key feature), not credential harvesting - and pre-existing (present at the v3.14.4 tag; `git diff develop..HEAD` shows the file unchanged by this branch). **Fix**: refined the class-2 behavioral-AST heuristic (`extensions/nexus-skill-scanner/src/nexus_skill_scanner/analyzers/behavioral_ast.py`) so an "env read + network egress" whose credential service token matches an egress host the script calls (a self-authenticating API client sending its OWN key to its OWN service) is reported at MEDIUM (still visible, below the HIGH gate) instead of HIGH; a credential going to an UNRELATED host (no shared service token), an all-generic credential name, or a non-literal key stays HIGH. The scanner's never-relax invariant is otherwise untouched. Verified: catalog gate exit 0; malicious fixture still HIGH; two new regression tests (`test_ast_self_authenticating_api_client_is_medium`, `test_ast_credential_to_unrelated_host_stays_high`) lock both sides; full scanner suite green (95 + 2).
+
+### Open Items
+
+#### Deferred
+
+##### DF-1 - Workspace-scope Claude checklist + workspace undetected grouping deferred
+
+- **Source phase**: v3.14.5 Phase 2
+- **Plan reference**: Phase 2 (2.1/2.3 - the plan's stability gate is a global side-by-side install)
+- **Reason**: Phase 2 scoped the checklist + grouping to the GLOBAL install (`Install-Global` / `install_global`), which is what every screenshot showed. Workspace-scope registry platforms already get the checklist automatically via the shared `Invoke-RegistryPlatform` / `invoke_registry_platform` (the rewrite is scope-agnostic), but the workspace-scope Claude block still prints its bespoke verbose output, and workspace undetected platforms print an inline `(reason)` note rather than being collected into a grouped section (the grouping is gated on the `-Provider` arg, which only the global caller passes).
+- **Suggested next step**: apply the same `6>$null`/`>/dev/null` + checklist treatment to the workspace Claude block and add `reset_undetected_platforms`/`write_undetected_group` (+ pass provider) to `Install-Workspace` / `install_workspace`. Low risk (mirrors the global rewrite); out of scope for the global-focused Phase 2.
+
+##### DF-2 - Codex `wham/usage` response schema unverified (auto-fetch is best-effort; manual entry is the guaranteed path)
+
+- **Source phase**: v3.14.5 Phase 4 (carries the v3.14.0 DF-2 "wham/usage is undocumented" and the v3.14.4 DF-2 "Codex-app credential path unverified")
+- **Plan reference**: Phase 4.1 ("Record any residual uncertainty about the shape as a known-gap")
+- **Reason**: `https://chatgpt.com/backend-api/wham/usage` is the real endpoint the official Codex CLI polls, but it is undocumented and could not be exercised from this environment (no live ChatGPT auth/network), so the exact response schema is unverified. `locateWindows` now probes a broadened alias set based on public reports (`primary`/`secondary`, `primary_window`/`secondary_window`, `five_hour_limit`/`weekly_limit`, `five_hour`/`weekly`/`5h`/`7d`, plus an array form), and every accessor stays fail-soft. But because the shape is a best-effort guess, auto-fetch may still return `usage-unavailable`; the GUARANTEED path is the new manual-entry fallback (`codex-usage.enterManual` + the dashboard "Enter usage manually" button), and the empty state is honest about which is which.
+- **Suggested next step**: capture a real `wham/usage` response from a live ChatGPT/Codex login and tighten `locateWindows` + `readWindow` to the confirmed field names; add a fixture test from the captured shape. Until then, manual entry covers the user.
+
+##### DF-3 - Pre-existing: AGENTS.md "legacy installer copy blocks" framing predates the registry migration
+
+- **Source phase**: v3.14.5 Phase 7 (observed during the terminal refactor audit; pre-existing, NOT caused by this release)
+- **Plan reference**: Phase 7.1 (flagged the "legacy 4 copy blocks" line as stale prose to update)
+- **Reason**: AGENTS.md (lines ~381/389) describes Codex / Gemini / Copilot as installing via "legacy installer copy blocks", but `install_global` in both installers routes every platform except Claude through `invoke_registry_platform` -> `runner.py` (the integration registry). `git show develop:scripts/installer.sh` confirms this was already true on `develop`, so the framing was stale BEFORE v3.14.5 - this release did not change the install mechanism. Per the "every changed line traces to the request; no out-of-scope cleanup" rule, rewriting the canonical historical architecture prose (intertwined with the v2.1.0/v2.2.0 migration notes + DF-001) was judged out of scope for a release that did not touch it, and higher-risk than leaving it. The genuinely-new fact (the contract-freshness gate) WAS documented. The plan's 7.1 premise that "this release changed the fact" was incorrect (recorded as the Phase 7 DEVIATION in the session history).
+- **Suggested next step**: a dedicated AGENTS.md doc-accuracy pass to reframe "Original 4 (legacy copy blocks) / Extended 4" around the current reality (Claude = the one bespoke installer block; every other platform = the integration registry), keeping the separate permissions "legacy 4" grouping intact.
+
+##### DF-4 - Platform additive-surface drift deferred to v3.15.0 (found by the v3.14.5 release re-verification)
+
+- **Source phase**: v3.14.5 release governance step 4 (full 13-platform web re-verification, 2026-07-19)
+- **Plan reference**: `/update release` governance step 4; maintainer chose "fix dead-path bugs now, defer additive"
+- **Reason**: the release re-verification found the DEAD-PATH bugs (OpenCode `~/.config/opencode`, Kimi `.kimi/AGENTS.md`, OpenClaw `~/.openclaw/workspace/`) - all FIXED in v3.14.5 - plus a larger set of ADDITIVE drift: platforms that GAINED reusable-action surfaces Nexus-Hub does not yet target. These are net-new capability, not breakage, and are the scope of the already-planned v3.15.0 platform-parity release. Deferred items (full detail + sources in `docs/policy/platform-read-contracts.md` Re-verification log): (1) **Copilot** now natively reads Agent Skills on by default (`.github/skills/`, `~/.copilot/skills/`, `~/.claude/skills/`), custom agents (`.github/agents/*.agent.md`), and hooks; (2) **Cursor** gained Agent Skills (`.cursor/skills/`, `~/.cursor/skills/`, `.agents/skills/`), subagents, and hooks; (3) **Codex** gained a hooks system (`~/.codex/hooks.json`) and one source reports `~/.codex/skills` is no longer read (kept pending a second confirmation - removing a possibly-live path on single-source evidence could break delivery, and `~/.agents/skills` already covers Codex); (4) **OpenCode** supports agents (`~/.config/opencode/agents/`) + plugin hooks, commands are a TUI slash surface, and it has no `rules/` dir. UNVERIFIED (official docs unreachable): **Antigravity** global-workflows dir community-reported as `~/.gemini/antigravity/global_workflows/` (vs contract `~/.gemini/config/global_workflows/`; SPA docs unfetchable) and `.agents/subagents/` appears obsolete; **Gemini IDE** per-tool paths undocumented + IDE sunset for free/Pro/Ultra. NOTE: Windsurf rebranded "Devin Desktop" (legacy surfaces still served; `.devin/rules/` now preferred).
+- **Suggested next step**: fold these verified findings into `docs/v3/v3.15/plans/v3.15.0-platform-parity-all-gaps.md` (the plan already targets Cursor skills/hooks/agents, OpenCode agents/plugins, Copilot skill broadening). Confirm the Antigravity global-workflows path against an authoritative source and the Codex `~/.codex/skills` read-status before acting on either.
+
+#### Warnings
+
+##### WN-1 - Pre-existing: `qwen.py` imports `FileAction` unused
+
+- **Source phase**: v3.14.5 Phase 1 (observed during lint; pre-existing, NOT introduced by this phase)
+- **Plan reference**: Phase 1 (Phase 3 lint gate)
+- **Reason**: `scripts/lib/integrations/qwen.py` line 20 imports `FileAction` from `.result` but never uses it. `git show HEAD:scripts/lib/integrations/qwen.py` confirms the import predates this phase (Phase 1 edited only the `install_global` body, not the imports). Ruff flags it F401, but ruff is not a project gate (no ruff config; not in the Makefile or CI - the repo gates on the python validators + pytest + ShellCheck), so it does not fail validation. Left untouched per the "every changed line must trace to the request; no out-of-scope cleanup" rule.
+- **Suggested next step**: drop the unused import in a dedicated lint-cleanup patch (or opportunistically when a later phase legitimately edits qwen.py's imports); trivial and safe, just out of this phase's scope.
+
+#### Missing tests / coverage gaps
+
+##### MT-1 - Usage-monitor extensions' UI orchestration remains partially host-only
+
+- **Source phase**: v3.14.5 Phases 4-5 (carries the v3.14.4 MT-1)
+- **Plan reference**: Phase 7.2
+- **Reason**: Phases 4-5 ADDED Vitest coverage to both extensions - Codex 38 tests (the `wham/usage` window-alias mapper, the actionable empty-state banner, the status-bar priority constants + compact label) and Claude 5 (priority constants + compact label) - closing the largest prior gaps. What remains host-only (not unit-testable without a live VS Code extension host): the actual webview rendering (dashboard HTML, the theme-adaptive tab icon), the manual-entry input-box flow end to end, and the live status-bar left-to-right ordering. These are covered by the HO-1 manual smoke checklist below.
+- **Suggested next step**: a `@vscode/test-electron` integration harness if UI-render regressions ever recur; today the unit tests plus the manual smoke checklist are proportionate.
+
+#### Hand-offs
+
+##### HO-1 - Host-only manual smoke for the two usage-monitor extensions
+
+- **Source phase**: v3.14.5 Phases 4-5 (carries the v3.14.4 HO-1)
+- **Plan reference**: Phase 7.2
+- **Reason**: A handful of the extension changes can only be confirmed in a live VS Code (no automatable surface here). The unit tests lock the constants + logic; the rendering + live behavior are host-only.
+- **Manual smoke checklist** (run once in a live VS Code with both extensions installed):
+    - The four status-bar items render left-to-right as [Claude usage][Claude gear][Codex usage][Codex gear].
+    - Toggling `compactStatusBar` on either extension updates its status-bar text live (drops the "<Name> Usage:" label).
+    - The Codex dashboard tab icon appears dark on light themes and light on dark themes (matching Claude's).
+    - "Codex Usage: Enter Usage Manually" (palette + dashboard empty-state button) accepts two percentages and fills the dashboard + status bar.
+    - Both extensions install and run side by side with no id / command / view collision.
 
 ## v3.14.4
 
