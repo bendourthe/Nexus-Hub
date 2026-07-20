@@ -2,7 +2,7 @@
 
 This is the durable, sourced source of truth for where every supported platform READS each surface (instruction file, slash commands, skills, agents, rules, hooks) and where the Nexus-Hub installer WRITES it. It supersedes the point-in-time snapshot at `docs/v3/v3.11/platform-read-contracts.md` (which resolved the v3.11.0 Phase 7 audit but left the Codex and Antigravity contracts flagged as unverified).
 
-**Last verified**: 2026-07-13 (Codex + Antigravity rows against current official docs; other rows inherited from the v3.11.0 audit and re-verified per the maintenance rule below).
+**Last verified**: 2026-07-19 (full 13-platform web re-verification during the v3.14.5 release, via the `platform-contract-verification` skill; see the Re-verification log below for what changed and what is deferred to v3.15.0).
 
 ## How this doc is maintained
 
@@ -15,6 +15,32 @@ The machine-readable source of truth is the sibling `docs/policy/platform-read-c
 - `scripts/check_platform_contract_freshness.py` (run by `make validate` and CI) fails the build when the JSON's `meta.verified_for_version` does not match the version being released, so a release cannot ship on a contract that was not re-verified for it (freshness-vs-release).
 
 The catalog itself is never reorganized per platform. Each integration is an adapter that materializes the canonical catalog into the shape below via the shared helpers in `scripts/lib/integrations/_catalog_adapters.py` (`flatten_skills`, `commands_to_skills`, `commands_to_slash`).
+
+## Re-verification log
+
+### 2026-07-19 (v3.14.5 release)
+
+A full web re-verification of all supported platforms against current official docs. Dead-path bugs (our installer wrote where the platform no longer reads) were fixed in this release; additive drift (platforms that GAINED skills/agents/hooks surfaces we do not yet use) is deferred to v3.15.0 (platform parity), tracked in `docs/v3/v3.14/known-gaps.md`.
+
+**Fixed in v3.14.5:**
+
+- **OpenCode** - canonical global dir moved from `~/.opencode/` to `~/.config/opencode/` (XDG). The instruction file + commands were never reaching OpenCode at the old path (skills still did, via the `~/.claude/skills` + `~/.agents/skills` aliases). Adapter + contract + install-verify updated.
+- **Kimi** - the instruction file moved from `.kimi/system.md` to `.kimi/AGENTS.md`. Kimi Code CLI auto-injects the merged `AGENTS.md` (including `.kimi/AGENTS.md`); `.kimi/system.md` is only loaded via `--agent-file`, so the old surface never reached Kimi. Resolves the v3.11.0-deferred Kimi known-gap.
+- **OpenClaw** - global trio moved from `~/.openclaw/` to `~/.openclaw/workspace/` (the single global workspace dir OpenClaw actually reads).
+
+**Deferred to v3.15.0 (additive - platforms gained surfaces; not breakage):**
+
+- **Copilot** now natively reads Agent Skills (on by default: `.github/skills/`, `~/.copilot/skills/`, and `~/.claude/skills/`), custom agents (`.github/agents/*.agent.md`), and hooks.
+- **Cursor** gained Agent Skills (`.cursor/skills/`, `~/.cursor/skills/`, `.agents/skills/`), subagents, and hooks (`hooks.json`).
+- **Codex** gained a hooks system (`~/.codex/hooks.json` / `[hooks]` in `config.toml`). Also: one source reports `~/.codex/skills` is no longer read (only `~/.agents/skills` is); Nexus-Hub still writes both, so skills reach Codex regardless - the redundant `~/.codex/skills` write is kept pending a second confirmation (removing a possibly-live path on single-source evidence could break delivery).
+- **OpenCode** supports agents (`~/.config/opencode/agents/`) and plugin-based hooks; its commands ARE a TUI slash surface and it has no `rules/` dir (uses `AGENTS.md` + an `instructions[]` array).
+
+**Unverified this cycle (official docs unreachable / undocumented):**
+
+- **Antigravity 2.0** global-workflows dir is community-reported as `~/.gemini/antigravity/global_workflows/` (vs the contract's `~/.gemini/config/global_workflows/`); the official docs are a client-rendered SPA that could not be fetched, so this is NOT changed pending an authoritative source. Its `.agents/subagents/` static dir appears obsolete (subagents are now dynamic).
+- **Gemini IDE** per-tool read-paths (`~/.gemini/workflows`, `agents/`, `rules/`) are undocumented in official sources; the IDE was also sunset for free/Pro/Ultra on 2026-06-18 (enterprise-only), like the CLI.
+
+**Notes:** Windsurf rebranded to "Devin Desktop"; the legacy `.windsurfrules` + `~/.codeium/windsurf/memories/global_rules.md` surfaces are still served (a `.devin/rules/` surface is now preferred - optional future adoption). Claude, Aider, Qwen verified clean.
 
 ## Read/write surface table
 
@@ -35,13 +61,13 @@ Formats: skills = folder-per-skill `SKILL.md`. "flattened" means one level deep 
 | Copilot | workspace | `<project>/.github/copilot-instructions.md` | none | opt-in `.github/skills/<name>/SKILL.md` | none | none | none |
 | Cursor (`cursor`) | global | none | `~/.cursor/commands/<name>.md` (slash, any repo) | none | none | none | not supported |
 | Cursor | workspace | `<project>/AGENTS.md` (marker-merged) | (Cursor-native project cmds) | none | none | `<project>/.cursor/rules/*.mdc` (flattened) | none |
-| OpenCode (`opencode`) | global | `~/.opencode/AGENTS.md` | `~/.opencode/commands/*.md` (body-only, NOT slash) | flattened `~/.opencode/skills/<name>/`; also reads `~/.claude/skills` + `~/.agents/skills` (canonical global may be `~/.config/opencode/skills` -- gap #5) | none | `~/.opencode/rules/` | not supported |
+| OpenCode (`opencode`) | global | `~/.config/opencode/AGENTS.md` | `~/.config/opencode/commands/*.md` (slash in the TUI) | flattened `~/.config/opencode/skills/<name>/`; also reads `~/.claude/skills` + `~/.agents/skills` | none (uses AGENTS.md + `instructions[]`) | via plugins | not a folder surface |
 | OpenCode | workspace | `<project>/.opencode/AGENTS.md` | `.opencode/commands/` | flattened `.opencode/skills/<name>/` (also `.claude/skills`, `.agents/skills`) | none | `.opencode/rules/` | none |
 | Aider (`aider`) | workspace | `<project>/CONVENTIONS.md` (root) | none (skills via embedded SKILL_INDEX) | none | none | none | none |
 | Windsurf (`windsurf`) | workspace | `<project>/.windsurfrules` (root) | none | none | none | none | none |
-| Kimi (`kimi`) | workspace | `<project>/.kimi/system.md` + `.kimi/agent.yaml` | none | none | none | none | none |
+| Kimi (`kimi`) | workspace | `<project>/.kimi/AGENTS.md` (in Kimi Code CLI's merged-AGENTS.md context) + `.kimi/agent.yaml` | none | none | none | none | none |
 | Qwen (`qwen`) | workspace | `<project>/QWEN.md` (root) | none | none | none | none | none |
-| OpenClaw (`openclaw`) | workspace | `<project>/.openclaw/AGENTS.md` + SOUL/IDENTITY | none | none | none | none | none |
+| OpenClaw (`openclaw`) | workspace | `<project>/.openclaw/AGENTS.md` + SOUL/IDENTITY (global detected: `~/.openclaw/workspace/`) | none | none | none | none | none |
 | Nexus-AI (`nexus-ai`) | global | `~/.nexus-ai/catalog/NEXUS_AI.md` (dedicated) | `~/.nexus-ai/catalog/commands/` | flattened `~/.nexus-ai/catalog/skills/<name>/` (+ command-skills) | `~/.nexus-ai/catalog/agents/` | `~/.nexus-ai/catalog/rules/` | `~/.nexus-ai/catalog/hooks/` |
 
 ## Sources (corrected rows, verified 2026-07-13)

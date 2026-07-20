@@ -15,7 +15,7 @@
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 3 | 0 |
+| Deferred (DF) | 4 | 0 |
 | Bugs / regressions (BG) | 0 | 0 |
 | Warnings (WN) | 1 | 0 |
 | Missing tests / coverage gaps (MT) | 1 | 0 |
@@ -54,6 +54,13 @@ Three pre-existing test failures surfaced on this branch; none was caused by v3.
 - **Plan reference**: Phase 7.1 (flagged the "legacy 4 copy blocks" line as stale prose to update)
 - **Reason**: AGENTS.md (lines ~381/389) describes Codex / Gemini / Copilot as installing via "legacy installer copy blocks", but `install_global` in both installers routes every platform except Claude through `invoke_registry_platform` -> `runner.py` (the integration registry). `git show develop:scripts/installer.sh` confirms this was already true on `develop`, so the framing was stale BEFORE v3.14.5 - this release did not change the install mechanism. Per the "every changed line traces to the request; no out-of-scope cleanup" rule, rewriting the canonical historical architecture prose (intertwined with the v2.1.0/v2.2.0 migration notes + DF-001) was judged out of scope for a release that did not touch it, and higher-risk than leaving it. The genuinely-new fact (the contract-freshness gate) WAS documented. The plan's 7.1 premise that "this release changed the fact" was incorrect (recorded as the Phase 7 DEVIATION in the session history).
 - **Suggested next step**: a dedicated AGENTS.md doc-accuracy pass to reframe "Original 4 (legacy copy blocks) / Extended 4" around the current reality (Claude = the one bespoke installer block; every other platform = the integration registry), keeping the separate permissions "legacy 4" grouping intact.
+
+##### DF-4 - Platform additive-surface drift deferred to v3.15.0 (found by the v3.14.5 release re-verification)
+
+- **Source phase**: v3.14.5 release governance step 4 (full 13-platform web re-verification, 2026-07-19)
+- **Plan reference**: `/update release` governance step 4; maintainer chose "fix dead-path bugs now, defer additive"
+- **Reason**: the release re-verification found the DEAD-PATH bugs (OpenCode `~/.config/opencode`, Kimi `.kimi/AGENTS.md`, OpenClaw `~/.openclaw/workspace/`) - all FIXED in v3.14.5 - plus a larger set of ADDITIVE drift: platforms that GAINED reusable-action surfaces Nexus-Hub does not yet target. These are net-new capability, not breakage, and are the scope of the already-planned v3.15.0 platform-parity release. Deferred items (full detail + sources in `docs/policy/platform-read-contracts.md` Re-verification log): (1) **Copilot** now natively reads Agent Skills on by default (`.github/skills/`, `~/.copilot/skills/`, `~/.claude/skills/`), custom agents (`.github/agents/*.agent.md`), and hooks; (2) **Cursor** gained Agent Skills (`.cursor/skills/`, `~/.cursor/skills/`, `.agents/skills/`), subagents, and hooks; (3) **Codex** gained a hooks system (`~/.codex/hooks.json`) and one source reports `~/.codex/skills` is no longer read (kept pending a second confirmation - removing a possibly-live path on single-source evidence could break delivery, and `~/.agents/skills` already covers Codex); (4) **OpenCode** supports agents (`~/.config/opencode/agents/`) + plugin hooks, commands are a TUI slash surface, and it has no `rules/` dir. UNVERIFIED (official docs unreachable): **Antigravity** global-workflows dir community-reported as `~/.gemini/antigravity/global_workflows/` (vs contract `~/.gemini/config/global_workflows/`; SPA docs unfetchable) and `.agents/subagents/` appears obsolete; **Gemini IDE** per-tool paths undocumented + IDE sunset for free/Pro/Ultra. NOTE: Windsurf rebranded "Devin Desktop" (legacy surfaces still served; `.devin/rules/` now preferred).
+- **Suggested next step**: fold these verified findings into `docs/v3/v3.15/plans/v3.15.0-platform-parity-all-gaps.md` (the plan already targets Cursor skills/hooks/agents, OpenCode agents/plugins, Copilot skill broadening). Confirm the Antigravity global-workflows path against an authoritative source and the Codex `~/.codex/skills` read-status before acting on either.
 
 #### Warnings
 
