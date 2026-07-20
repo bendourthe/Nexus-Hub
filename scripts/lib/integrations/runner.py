@@ -683,70 +683,73 @@ def _file_contains(p: Path, needle: str) -> bool:
         return False
 
 
+# The machine-readable single source shared with scripts/verify_platform_contracts.py
+# (its `contract_checks`) and the release freshness guard (its `meta`). This
+# function reads the `install_verify` block, so the runtime `[verify]` pass and
+# the code-vs-contract guard cannot drift apart.
+_CONTRACT_JSON = REPO_ROOT / "docs" / "policy" / "platform-read-contracts.json"
+
+
+def _resolve_contract_path(spec: str, home: Path, target_root: Path) -> Path:
+    """Resolve a contract path token: ``~/`` -> home, ``{project}/`` -> target_root."""
+    if spec.startswith("~/"):
+        return home / spec[2:]
+    if spec.startswith("{project}/"):
+        return target_root / spec[len("{project}/"):]
+    return Path(spec)
+
+
+def _evaluate_surface(surface: dict, home: Path, target_root: Path) -> tuple:
+    """Evaluate one JSON surface check into ``(label, ok_bool)``."""
+    label = str(surface.get("label", "?"))
+    path = _resolve_contract_path(str(surface.get("path", "")), home, target_root)
+    kind = surface.get("kind")
+    if kind == "nonempty_dir":
+        ok = _nonempty_dir(path)
+    elif kind == "is_file":
+        ok = path.is_file()
+    elif kind == "file_contains":
+        ok = _file_contains(path, str(surface.get("needle", "")))
+    else:
+        ok = False
+    return (label, ok)
+
+
 def _verify_checks(home: Path, target_root: Path) -> list:
-    """Build the per-platform read-path checks (v3.11.0 Phase 7.4).
+    """Build the per-platform read-path checks from the machine-readable single
+    source (docs/policy/platform-read-contracts.json, `install_verify`).
 
     Each entry is ``(platform_label, [(surface, ok_bool), ...], remediation_or_None)``.
-    Only platforms whose config dir is present are included, so the report reflects
-    what the user actually has installed. Asserts the surfaces the platform actually
-    READS (per docs/policy/platform-read-contracts.md), not what the installer wrote.
+    Only platforms whose detect path(s) are present are included, so the report
+    reflects what the user actually has installed. Reading the same JSON that the
+    code-vs-contract guard (scripts/verify_platform_contracts.py) uses keeps the
+    two verifiers from drifting apart. Fail-soft: an unreadable/absent JSON yields
+    no checks (the advisory verify then reports no detected platforms).
     """
+    try:
+        data = json.loads(_CONTRACT_JSON.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return []
+    entries = data.get("install_verify")
+    if not isinstance(entries, list):
+        return []
     checks: list = []
-    # Claude
-    d = home / ".claude"
-    if d.exists():
-        checks.append(("Claude", [
-            ("commands", _nonempty_dir(d / "commands")),
-            ("skills", _nonempty_dir(d / "skills")),
-            ("CLAUDE.md SKILL_INDEX", _file_contains(d / "CLAUDE.md", "Skill Index")),
-        ], "re-run the installer (Claude block)"))
-    # Codex / new ChatGPT desktop app - flattened skills (~/.codex/skills +
-    # ~/.agents/skills), legacy prompts, and the AGENTS.md SKILL_INDEX.
-    d = home / ".codex"
-    if d.exists():
-        checks.append(("Codex / ChatGPT", [
-            ("skills", _nonempty_dir(d / "skills")),
-            ("~/.agents/skills", _nonempty_dir(home / ".agents" / "skills")),
-            ("prompts", _nonempty_dir(d / "prompts")),
-            ("AGENTS.md SKILL_INDEX", _file_contains(d / "AGENTS.md", "Skill Index")),
-        ], "re-run the installer with --platforms codex"))
-    # Gemini IDE (full mirror as of v3.11.0)
-    d = home / ".gemini"
-    if d.exists():
-        checks.append(("Gemini IDE", [
-            ("skills", _nonempty_dir(d / "skills")),
-            ("workflows", _nonempty_dir(d / "workflows")),
-            ("GEMINI.md", (d / "GEMINI.md").is_file()),
-        ], "re-run the installer with --platforms gemini"))
-    # Antigravity 2.0 - IDE global (~/.gemini/config) + CLI (~/.gemini/antigravity-cli)
-    # + the project .agents/ surface. Detected on our own write targets.
-    cfg = home / ".gemini" / "config"
-    cli = home / ".gemini" / "antigravity-cli"
-    if cfg.exists() or cli.exists():
-        checks.append(("Antigravity 2.0 IDE (global)", [
-            ("skills", _nonempty_dir(cfg / "skills")),
-            ("global_workflows", _nonempty_dir(cfg / "global_workflows")),
-            ("GEMINI.md", (home / ".gemini" / "GEMINI.md").is_file()),
-        ], "re-run the installer with --platforms antigravity2"))
-        checks.append(("Antigravity 2.0 CLI (agy)", [
-            ("skills", _nonempty_dir(cli / "skills")),
-        ], "re-run the installer with --platforms antigravity2"))
-        checks.append(("Antigravity 2.0 (this project .agents/)", [
-            ("workflows", _nonempty_dir(target_root / ".agents" / "workflows")),
-        ], "run `nexus-hub init` in this project for project-scoped .agents/ workflows"))
-    # Cursor - global slash surface
-    d = home / ".cursor"
-    if d.exists():
-        checks.append(("Cursor", [
-            ("commands", _nonempty_dir(d / "commands")),
-        ], "re-run the installer with --platforms cursor"))
-    # OpenCode
-    d = home / ".opencode"
-    if d.exists():
-        checks.append(("OpenCode", [
-            ("skills", _nonempty_dir(d / "skills")),
-            ("AGENTS.md", (d / "AGENTS.md").is_file()),
-        ], "re-run the installer with --platforms opencode"))
+    for entry in entries:
+        if not isinstance(entry, dict):
+            continue
+        detected = any(
+            _resolve_contract_path(str(d), home, target_root).exists()
+            for d in entry.get("detect", [])
+            if isinstance(d, str)
+        )
+        if not detected:
+            continue
+        surfaces = [
+            _evaluate_surface(s, home, target_root)
+            for s in entry.get("surfaces", [])
+            if isinstance(s, dict)
+        ]
+        checks.append((str(entry.get("label", "?")), surfaces, entry.get("remediation")))
     return checks
 
 

@@ -6,10 +6,13 @@ This is the durable, sourced source of truth for where every supported platform 
 
 ## How this doc is maintained
 
-`/update release` runs a Nexus-Hub-specific "Platform read-contract re-verification" step before every version bump (see the `platform-contract-verification` skill). For each platform below it runs targeted web searches for that platform's CURRENT skill/command/rule/hook discovery format, diffs the findings against this doc, and on any drift updates this doc's row (plus its source URL and the Last-verified date), the corresponding integration adapter under `scripts/lib/integrations/`, and both installers. Two automated guards keep the code aligned with this doc between releases:
+The machine-readable source of truth is the sibling `docs/policy/platform-read-contracts.json`; this `.md` is the human-readable table plus narrative and mirrors it. The JSON carries three sections: `contract_checks` (per-platform expected read-paths, consumed by `verify_platform_contracts.py`), `install_verify` (post-install surface checks, consumed by `runner.py`'s verify path), and `meta` (`last_verified` + `verified_for_version`, consumed by the release freshness gate). When a platform's row changes, edit the JSON entry first, then mirror it into the table below.
 
-- `scripts/verify_platform_contracts.py` (run by `make validate`) asserts each integration's config and the installer copy targets match the paths declared here (code-vs-contract).
-- `nexus-hub verify` (`runner.py cmd_verify`) asserts, after an install, that each detected platform's read-paths are actually populated (install-vs-reality).
+`/update release` runs a Nexus-Hub-specific "Platform read-contract re-verification" step before every version bump (see the `platform-contract-verification` skill). For each platform below it runs targeted web searches for that platform's CURRENT skill/command/rule/hook discovery format, diffs the findings against the JSON, and on any drift updates the JSON entry (mirrored here, plus its source URL and the Last-verified date), the corresponding integration adapter under `scripts/lib/integrations/`, and both installers. Three automated guards keep the release honest:
+
+- `scripts/verify_platform_contracts.py` (run by `make validate`) asserts each integration's config and the installer copy targets match the `contract_checks` paths declared in the JSON (code-vs-contract).
+- `nexus-hub verify` (`runner.py cmd_verify`) asserts, after an install, that each detected platform's read-paths (from the JSON's `install_verify`) are actually populated (install-vs-reality).
+- `scripts/check_platform_contract_freshness.py` (run by `make validate` and CI) fails the build when the JSON's `meta.verified_for_version` does not match the version being released, so a release cannot ship on a contract that was not re-verified for it (freshness-vs-release).
 
 The catalog itself is never reorganized per platform. Each integration is an adapter that materializes the canonical catalog into the shape below via the shared helpers in `scripts/lib/integrations/_catalog_adapters.py` (`flatten_skills`, `commands_to_skills`, `commands_to_slash`).
 

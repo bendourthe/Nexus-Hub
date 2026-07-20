@@ -85,6 +85,14 @@ jobs:
         # block like the MCP Registry Policy) lands in a subset of the five.
         run: python scripts/check_base_template_parity.py
 
+      - name: Validate platform read-contract freshness (v3.14.5 Phase 6)
+        # Mandatory per-release gate: docs/policy/platform-read-contracts.json's
+        # meta.verified_for_version must equal the plugin.json version being cut.
+        # Green during development (both are the last-released version); fails a
+        # release bump until the platform-contract-verification skill re-verifies
+        # each platform's current discovery format and re-stamps the marker.
+        run: python scripts/check_platform_contract_freshness.py
+
       - name: Scan catalog for skill-security findings (v3.0.0 Phase 6)
         # Deterministic static gate: fails on any HIGH/CRITICAL finding across
         # catalog/skills and catalog/mcp-configs. MEDIUM/LOW findings in a

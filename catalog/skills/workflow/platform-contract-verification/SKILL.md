@@ -29,7 +29,9 @@ Confirm this repo is a multi-platform distribution catalog: both `docs/policy/pl
 
 ### Step 1 - Enumerate the platforms
 
-Read `docs/policy/platform-read-contracts.md` and list every platform row and its declared read-paths (instruction file, skills, commands/slash surface, rules, hooks) at global and workspace scope, plus its "Sources" URLs and the "Last verified" date.
+The contract has two co-located files: `docs/policy/platform-read-contracts.json` is the machine-readable source of truth (consumed by both `scripts/verify_platform_contracts.py` and the installer's `runner.py` verify path), and `docs/policy/platform-read-contracts.md` is the human-readable table plus narrative. Treat the JSON as authoritative; the `.md` mirrors it.
+
+Read the JSON's `contract_checks` (per-platform expected read-paths), its `install_verify` entries (the post-install surface checks), and its `meta` block (`last_verified`, `verified_for_version`). List every platform and its declared read-paths (instruction file, skills, commands/slash surface, rules, hooks) at global and workspace scope, plus its "Sources" URLs from the `.md`.
 
 ### Step 2 - Re-verify each platform against its current docs (web search)
 
@@ -43,7 +45,7 @@ For each surface, compare the verified format to the contract doc row. Classify 
 
 For each DRIFT finding, in lockstep:
 
-1. Update the platform's row in `docs/policy/platform-read-contracts.md` (plus its Source URL and the "Last verified" date).
+1. Update the platform's entry in `docs/policy/platform-read-contracts.json` (the `contract_checks` row and, if a post-install surface path changed, its `install_verify` entry). Mirror the same change into the `docs/policy/platform-read-contracts.md` table (plus its Source URL).
 2. Update the platform's adapter in `scripts/lib/integrations/<platform>.py` (path, flatten flag, or the `_mirror_*` override) to match.
 3. Update both `scripts/installer.sh` and `scripts/installer.ps1` if the delivery call changed (keep them byte-equivalent in behavior).
 4. Add a `CHANGELOG.md` `[Unreleased]` note describing the platform format change and the fix.
@@ -52,7 +54,11 @@ Use the shared adapters (`flatten_skills`, `commands_to_skills`, `commands_to_sl
 
 ### Step 5 - Re-run the code-vs-contract checker
 
-Run `python scripts/verify_platform_contracts.py`. It MUST exit 0 (code matches the updated contract doc). Then run `make validate` and the integration tests. Fix any failure before the release proceeds.
+Run `python scripts/verify_platform_contracts.py`. It MUST exit 0 (installer code matches the updated JSON contract). Then run `make validate` and the integration tests. Fix any failure before the release proceeds.
+
+### Step 6 - Re-stamp the freshness marker
+
+This cycle is only complete once the contract is stamped for the release being cut. In `docs/policy/platform-read-contracts.json`'s `meta` block, set `last_verified` to today's date and `verified_for_version` to the version this release will publish (the value `.claude-plugin/plugin.json` is bumped to). Update the "Last verified" line at the top of the `.md` to the same date. Then run `python scripts/check_platform_contract_freshness.py --version <release-version>` and confirm it exits 0. This is the guard that hard-gates the release: until the marker matches the release version, `make validate` and CI fail, so a release literally cannot ship on a stale contract.
 
 ## Common Rationalizations
 
@@ -60,15 +66,17 @@ Run `python scripts/verify_platform_contracts.py`. It MUST exit 0 (code matches 
 |---|---|
 | "No platform would change its paths between releases." | Codex deprecated custom prompts and moved to skills; Antigravity's global paths moved from `~/.gemini/antigravity/` to `~/.gemini/config/`. Both silently emptied installs. Formats DO drift; that is why this gate exists. |
 | "The install copied files successfully, so it works." | A successful copy to the wrong path is the exact failure mode. Delivery success is not discovery success; verify against the platform's real read-path. |
-| "verify_platform_contracts.py passed, so we are fine." | That checker only proves code matches the DOC. If the doc itself is stale relative to the platform's current behavior, it passes while installs break. Only the web-search re-verification (this skill) keeps the doc true. |
-| "I'll just skip it this release, nothing changed." | Skipping is how the last silent breakage shipped. If offline, record 'unverified this cycle' explicitly; do not silently skip. |
+| "verify_platform_contracts.py passed, so we are fine." | That checker only proves code matches the JSON contract. If the JSON itself is stale relative to the platform's current behavior, it passes while installs break. Only the web-search re-verification (this skill) keeps the contract true. |
+| "I'll just skip it this release, nothing changed." | You cannot silently skip: `check_platform_contract_freshness.py` fails `make validate` and CI the moment the version is bumped past the stamped `verified_for_version`. Skipping forces you to either do the verification or consciously re-stamp a stale marker (a visible, reviewable act). If offline, record 'unverified this cycle' explicitly. |
 
 ## Verification
 
 - [ ] Self-gate ran: in a non-catalog repo the skill is a no-op; in Nexus-Hub it proceeded.
-- [ ] Every platform row in `docs/policy/platform-read-contracts.md` is classified MATCH / DRIFT / UNVERIFIED for this cycle, and the "Last verified" date is updated.
-- [ ] Every DRIFT finding has a corresponding contract-doc + adapter + installer edit and a CHANGELOG note.
+- [ ] Every platform entry in `docs/policy/platform-read-contracts.json` is classified MATCH / DRIFT / UNVERIFIED for this cycle.
+- [ ] Every DRIFT finding has a corresponding JSON + `.md` + adapter + installer edit and a CHANGELOG note.
+- [ ] `docs/policy/platform-read-contracts.json` `meta.last_verified` is today and `meta.verified_for_version` equals the release version; the `.md` "Last verified" line matches.
 - [ ] `python scripts/verify_platform_contracts.py` exits 0.
+- [ ] `python scripts/check_platform_contract_freshness.py --version <release-version>` exits 0.
 - [ ] `make validate` passes and the integration test suite is green.
 
 ## Related Skills
