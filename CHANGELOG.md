@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.14.7] - 2026-07-20
+
+**Usage-monitor status-bar icon spacing.** A cosmetic fix for both usage-monitor VS Code extensions. No catalog change; counts unchanged: **267 skills**, **16 commands**, **28 hooks**.
+
+### Fixed
+
+- **Status-bar icon glued to the usage text** (`extensions/claude-usage-monitor/src/statusBarManager.ts`, `extensions/codex-usage-monitor/src/statusBarManager.ts`): both status-bar items rendered the icon immediately against the label (`icon47% (current)...`) because VS Code collapses consecutive plain spaces in a status-bar label, so a normal separating space did not survive. Each extension now defines an `ICON_GAP` constant (an en-space, U+2002, non-collapsing) and places it between the icon and the label in every `statusText` branch (Codex's no-data and data paths, Claude's compact and full paths), giving the icon a small, consistent gap before the numbers. Written as the ASCII `\u2002` escape to keep the source ASCII-clean.
+
+### Changed
+
+- Extension versions bumped: `claude-usage-monitor` 0.9.2 -> 0.9.3, `codex-usage-monitor` 0.2.3 -> 0.2.4.
+
+### Notes
+
+- The platform read-contract was reaffirmed (not re-verified) for this release: v3.14.7 changes only the two VS Code extensions' status-bar label rendering, touching no platform read-paths, integration adapters, or installer copy targets, so the v3.14.5 full 13-platform re-verification still holds; the freshness marker is re-stamped to 3.14.7.
+
 ## [3.14.6] - 2026-07-20
 
 **Usage-monitor fixes and installer-log overhaul.** Fixes the Codex Usage Monitor's auto-fetch, unifies both monitors' settings UX, and modernizes the installer's console layout. No catalog change; counts unchanged: **267 skills**, **16 commands**, **28 hooks**.
