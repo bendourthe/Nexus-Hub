@@ -24,8 +24,8 @@
         "classification": "DRIFT",
         "note": "Agents folder is new; a plugins/hooks mechanism exists but is a JS/TS (Bun) runtime that Nexus-Hub's shell/python hook scripts cannot drop into. Skills, commands, rules unchanged.",
         "surfaces": {
-          "agents": { "verdict": "DRIFT", "global": ["~/.config/opencode/agents"], "project": [".opencode/agents"], "format": ".md + YAML frontmatter", "source": "https://opencode.ai/docs/agents/" },
-          "plugins_hooks": { "verdict": "DRIFT-INCOMPATIBLE", "global": ["~/.config/opencode/plugins"], "project": [".opencode/plugins"], "format": "JS/TS module (Bun); event API, not shell/py hooks", "recommendation": "Phase 3.2: document as out-of-scope (different runtime) unless a JS/TS wrapper is warranted", "source": "https://opencode.ai/docs/plugins/" },
+          "agents": { "verdict": "DRIFT", "global": ["~/.config/opencode/agents"], "project": [".opencode/agents"], "format": ".md + YAML frontmatter", "source": "https://opencode.ai/docs/agents/", "phase3_delivered": "2026-07-21: shipped via the agents_subdir config; the base _mirror_catalog copies catalog/agents/*.md verbatim to both scopes. OpenCode reads .md + frontmatter with mode defaulting to all, and ignores the non-native name/tools keys, so the catalog personas load as-is." },
+          "plugins_hooks": { "verdict": "DRIFT-INCOMPATIBLE", "global": ["~/.config/opencode/plugins"], "project": [".opencode/plugins"], "format": "JS/TS module (Bun); event API, not shell/py hooks", "phase3_decision": "OUT-OF-SCOPE (Phase 3.2, 2026-07-21): re-confirmed plugins are JS/TS Bun modules exporting event hooks; a .sh/.py hook cannot be dropped in and run. hooks_supported stays False; DF-4 resolved as a documented non-gap.", "source": "https://opencode.ai/docs/plugins/" },
           "skills": { "verdict": "MATCH", "source": "https://opencode.ai/docs/skills/" },
           "commands": { "verdict": "MATCH", "source": "https://opencode.ai/docs/commands/" },
           "rules": { "verdict": "MATCH", "note": "No rules/ folder; AGENTS.md + instructions[] array", "source": "https://opencode.ai/docs/rules/" }
@@ -96,7 +96,7 @@
     "opencode": {
       "config": { "global_dir": "~/.config/opencode" },
       "flatten": "flag",
-      "doc_mentions": ["~/.config/opencode/skills"]
+      "doc_mentions": ["~/.config/opencode/skills", "~/.config/opencode/agents"]
     },
     "nexus-ai": {
       "config": { "global_dir": "~/.nexus-ai/catalog" },
@@ -184,6 +184,7 @@
       "remediation": "re-run the installer with --platforms opencode",
       "surfaces": [
         { "label": "skills", "kind": "nonempty_dir", "path": "~/.config/opencode/skills" },
+        { "label": "agents", "kind": "nonempty_dir", "path": "~/.config/opencode/agents" },
         { "label": "AGENTS.md", "kind": "is_file", "path": "~/.config/opencode/AGENTS.md" }
       ]
     }

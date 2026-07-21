@@ -18,6 +18,15 @@ The catalog itself is never reorganized per platform. Each integration is an ada
 
 ## Re-verification log
 
+### 2026-07-21 (v3.15.0 Phase 3 - OpenCode agents + plugins/hooks decision)
+
+Targeted re-read of OpenCode's official docs to finalize the two Phase 3 items:
+
+- **Agents - DELIVERED.** [opencode.ai/docs/agents](https://opencode.ai/docs/agents/) confirms OpenCode reads custom agents from `~/.config/opencode/agents/` (global) and `.opencode/agents/` (project) as Markdown files with YAML frontmatter, the filename being the agent id. The `mode` field is OPTIONAL and defaults to `all`, so the catalog's `agents/*.md` personas (which carry `name`/`description`/`tools` frontmatter, not `mode`) load as-is - OpenCode uses `description` + the filename and ignores the non-native keys, exactly as Cursor consumes the same files. Delivered via a config-only `agents_subdir: "agents"` addition (the base `_mirror_catalog` does the verbatim tree copy). Contract JSON `contract_checks.opencode` + `install_verify` updated with the agents path.
+- **Plugins / hooks - OUT OF SCOPE (documented non-gap, resolves DF-4).** [opencode.ai/docs/plugins](https://opencode.ai/docs/plugins/) confirms plugins are JavaScript/TypeScript modules loaded by Bun, each exporting plugin functions that subscribe to events (`tool.execute.before`, `file.edited`, ...); the docs state a plugin must be a JS/TS module and that a `.sh`/`.py` script cannot be dropped into `plugins/` and run. Nexus-Hub's shell/py hooks therefore cannot be delivered without authoring a JS/TS wrapper per hook, so OpenCode hooks stay out of scope (`hooks_supported: False`).
+
+Source docs read: [Agents | OpenCode Docs](https://opencode.ai/docs/agents/), [Plugins | OpenCode Docs](https://opencode.ai/docs/plugins/).
+
 ### 2026-07-21 (v3.15.0 Phase 2 - Cursor DF-1 resolution)
 
 Targeted re-read of Cursor's official docs to close the two Cursor items Phase 1.2 left UNVERIFIED (known-gap DF-1) before finalizing the Cursor integration:

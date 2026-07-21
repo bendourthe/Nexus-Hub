@@ -1,8 +1,8 @@
 # Known Gaps - v3.15
 
 **Project**: Nexus-Hub
-**Status**: v3.15.0 platform-parity-all-gaps IN PROGRESS on `feat/platform-parity-all-gaps` (cut off `develop`). Phases 1 (capability model + read-contract web re-verification) and 2 (Cursor parity) COMPLETE; Phases 3-7 pending.
-**Last updated**: 2026-07-21 (v3.15.0 Phase 2)
+**Status**: v3.15.0 platform-parity-all-gaps IN PROGRESS on `feat/platform-parity-all-gaps` (cut off `develop`). Phases 1 (capability model + read-contract web re-verification), 2 (Cursor parity), and 3 (OpenCode parity) COMPLETE; Phases 4-7 pending.
+**Last updated**: 2026-07-21 (v3.15.0 Phase 3)
 
 > **Prior-version ingest**: v3.14.5's DF-4 (platform additive-surface drift) is the direct input to this release and is now being actioned per phase; it does not carry forward as a separate open item. The v3.14.5 Advisory pre-existing failure `test_init_subcommand.py::test_default_wire_project_surfaces_returns_none` is re-confirmed on this branch (see Advisory below) and is owned by Phase 5.2.
 
@@ -12,12 +12,14 @@
 
 **Phase 2 (Cursor parity) COMPLETE.** The Cursor integration surfaces were already implemented in the branch-untangle commit `a56cdffa` (skills flattened to `.cursor/skills`, subagents to `.cursor/agents`, a `version:1` `hooks.json` with `git-guardrails` gated on `hooks_supported`, project `.cursor/commands/`), with a full 8-test `test_cursor.py`. Phase 2 closed the DF-1 verification gate that `a56cdffa` deferred and completed sub-task 2.3: (1) a 2026-07-21 direct re-read of Cursor's official docs RESOLVED DF-1(b) - the `hooks.json` schema is confirmed and the minimal writer is valid as-is (no code change); (2) DF-1(a) global `~/.cursor/commands/` remains UNVERIFIED (no official doc; community feature-request) - the write is retained per plan 2.3 and tracked as the DF-1 residual; (3) `wire_project_surfaces` now also seeds project `.cursor/commands/` so `nexus-hub init` gives a project the slash surface, not just the rules stub (sub-task 2.3 literal acceptance). Tests: `test_cursor.py` 9/9 (added a `wire_project_surfaces` command-seeding test). Contract JSON `parity_verification_v3_15_0.cursor` + the `.md` Re-verification log updated with the 2026-07-21 findings.
 
+**Phase 3 (OpenCode parity) COMPLETE.** **3.1 (agents surface)**: added `agents_subdir: "agents"` to `OpenCodeIntegration.config` - a config-only change, since the base `_mirror_catalog` copies `catalog/agents/*.md` verbatim to `~/.config/opencode/agents/` (global) and `.opencode/agents/` (project). A 2026-07-21 direct re-read of `opencode.ai/docs/agents/` confirmed OpenCode reads `.md` + YAML frontmatter there with `mode` OPTIONAL (default `all`), so the catalog personas (`name`/`description`/`tools` frontmatter) load as-is - OpenCode uses `description` + the filename, defaults the mode, and ignores the non-native keys (same way Cursor consumes these files). **3.2 (plugins/hooks)**: OUT OF SCOPE, confirmed - a 2026-07-21 re-read of `opencode.ai/docs/plugins/` verified plugins are JavaScript/TypeScript modules loaded by Bun (exporting functions that subscribe to events like `tool.execute.before`); a `.sh`/`.py` hook cannot be dropped in and run, so Nexus-Hub's shell/py hooks do not translate without a JS/TS wrapper. `hooks_supported` stays `False`; DF-4 resolved as a documented non-gap. **3.3 (tests)**: added `tests/integrations/test_opencode.py` (6 tests: agents written both scopes, verbatim `.md`, skills/commands/rules preserved, no hooks surface, idempotent). Validation: `test_opencode.py` 6/6; ruff clean; workspace + global dry-runs land agents at the verified paths and write no hooks. Contract JSON `parity_verification_v3_15_0.opencode` + `contract_checks`/`install_verify` + the `.md` Re-verification log updated.
+
 ### Summary
 
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 5 | 0 |
+| Deferred (DF) | 4 | 1 |
 | Bugs / regressions (BG) | 0 | 0 |
 | Warnings (WN) | 0 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
@@ -54,12 +56,13 @@
 - **Reason**: the current product is Kimi Code CLI (`MoonshotAI/kimi-code`, data root `~/.kimi-code/`), the Node.js successor to the deprecated Python Kimi CLI (`~/.kimi/`) that the current integration baseline targets. Kimi Code CLI reads a folder-per-skill `SKILL.md` tree (`~/.kimi-code/skills/`, `~/.agents/skills/`, project `.kimi-code/skills/`, `.agents/skills/`) and exposes each skill as `/skill:<name>` (there is no separate command file format; `commands.html` 404s). It has no user-definable agents surface (three fixed built-ins) and its hooks are a `[[hooks]]` TOML array in `~/.kimi-code/config.toml` (config-merge, not a folder copy). The baseline `.kimi/agent.yaml` is unsupported in the new product.
 - **Suggested next step**: Phase 4 must resolve the write target - new `~/.kimi-code/skills/` vs the cross-tool `.agents/skills/` (which both variants honor) - drop the unsupported `.kimi/agent.yaml`, and preserve the `.kimi/AGENTS.md` instruction write for back-compat while adding the `~/.kimi-code/` surfaces.
 
-##### DF-4 - OpenCode plugins/hooks are a different (JS/TS Bun) runtime; hook parity is out of scope unless a wrapper is warranted
+##### DF-4 - OpenCode plugins/hooks out of scope (RESOLVED as a documented non-gap in Phase 3.2)
 
-- **Source phase**: v3.15.0 Phase 1.2
+- **Source phase**: v3.15.0 Phase 1.2; resolved Phase 3.2 (2026-07-21)
 - **Plan reference**: Phase 3.2 (OpenCode plugins/hooks surface, ask-first)
-- **Reason**: OpenCode's agents folder (`~/.config/opencode/agents/`, `.opencode/agents/`) is a clean additive surface Phase 3 can deliver, but its hook mechanism is a `plugins/` directory of JS/TS modules on a Bun runtime with an event-subscription API, not a Claude-style shell/python hook model. Nexus-Hub's `catalog/hooks/*.sh` / `*.py` cannot be dropped into `plugins/` and run; delivering hooks here would require authoring a JS/TS plugin wrapper that shells out.
-- **Suggested next step**: Phase 3.2 should record OpenCode's plugin model as a documented non-gap (out of scope: different runtime) unless a thin JS/TS wrapper that invokes the shell hooks is judged worth it.
+- **Status**: RESOLVED (decision: out of scope). Phase 3 delivered OpenCode's agents surface (3.1) and made the plugins/hooks call (3.2). A 2026-07-21 re-read of [opencode.ai/docs/plugins](https://opencode.ai/docs/plugins) confirmed plugins are JavaScript/TypeScript modules loaded by Bun (each exporting plugin functions that subscribe to events like `tool.execute.before` / `file.edited`); the docs state plainly that plugins must be JS/TS modules and that a `.sh` / `.py` script cannot be dropped into `plugins/` and run. Nexus-Hub's `catalog/hooks/*.{sh,py}` therefore cannot be delivered here without authoring a JS/TS wrapper per hook that shells out.
+- **Decision**: OpenCode hooks are OUT OF SCOPE. `hooks_supported` stays `False` (the base `_mirror_catalog` gates the hook copy on it, so no hook surface is written); recorded in `opencode.py`'s docstring + config comment and the contract. A thin JS/TS wrapper that invokes the shell hooks is a possible future item but is not judged worth the per-hook authoring + Bun-runtime maintenance for this release.
+- **Suggested next step**: none required. Revisit only if a maintainer wants OpenCode hook parity badly enough to own a JS/TS plugin wrapper.
 
 ##### DF-5 - Copilot skills are now native default-on; the `.github/skills` commit-visibility policy remains a Nexus-Hub concern
 
