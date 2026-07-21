@@ -18,6 +18,15 @@ The catalog itself is never reorganized per platform. Each integration is an ada
 
 ## Re-verification log
 
+### 2026-07-21 (v3.15.0 Phase 4 - Qwen + Kimi reclassification)
+
+Direct re-read of both platforms' official docs before reclassifying them from instruction-file-only to skills-bearing integrations (acting on Phase 1's GO verdicts; resolving DF-2 and DF-3).
+
+- **Qwen Code - reclassified.** [qwenlm.github.io/qwen-code-docs](https://qwenlm.github.io/qwen-code-docs/) confirms skills at `~/.qwen/skills/` (global) + `.qwen/skills/` (project, folder-per-skill `SKILL.md`), agents at `~/.qwen/agents/<name>.md`, and commands at `~/.qwen/commands/` where **Markdown is the primary format and TOML is deprecated** (Qwen shows a migration prompt on TOML). So the integration delivers flattened skills + agents + **Markdown** commands (not TOML), preserving `QWEN.md`. **DF-2**: the docs only document "restart to load"; the auto-load bug is GitHub issue #2343 (not documented). Skills are delivered to BOTH scopes (global `~/.qwen/skills/` is the reliable path), which mitigates it. No `~/.agents/skills` alias for Qwen, so only native paths are written.
+- **Kimi - reclassified + migrated (resolves DF-3).** [kimi.com/code/docs](https://www.kimi.com/code/docs/) confirms the current product is **Kimi Code CLI** (`MoonshotAI/kimi-code`, data root `~/.kimi-code/`) - a DIFFERENT product from the older "Kimi CLI" (`~/.kimi/`, moonshotai.github.io/kimi-cli) the prior integration targeted. Kimi Code CLI reads skills at `~/.kimi-code/skills/` + `~/.agents/skills/` (each auto-registering as `/skill:<name>`; no separate command format), AGENTS.md at `~/.kimi-code/AGENTS.md`, has no user-definable agents, and takes hooks as `config.toml` `[[hooks]]` (out of scope). Per the maintainer decision, the integration FULLY MIGRATED to `~/.kimi-code/` (AGENTS.md + native `~/.kimi-code/skills`), dropping the old `~/.kimi/` writes and the `.kimi/agent.yaml` companion. Native skills path only (not the shared `~/.agents/skills`), to avoid a teardown conflict with codex.
+
+Source docs read: [Qwen skills](https://qwenlm.github.io/qwen-code-docs/en/users/features/skills/), [Qwen commands](https://qwenlm.github.io/qwen-code-docs/en/users/features/commands/), [Kimi Code CLI data-locations](https://www.kimi.com/code/docs/en/kimi-code-cli/configuration/data-locations.html), [Kimi Code CLI skills](https://www.kimi.com/code/docs/en/kimi-code-cli/customization/skills.html).
+
 ### 2026-07-21 (v3.15.0 Phase 3 - OpenCode agents + plugins/hooks decision)
 
 Targeted re-read of OpenCode's official docs to finalize the two Phase 3 items:

@@ -1,8 +1,8 @@
 # Known Gaps - v3.15
 
 **Project**: Nexus-Hub
-**Status**: v3.15.0 platform-parity-all-gaps IN PROGRESS on `feat/platform-parity-all-gaps` (cut off `develop`). Phases 1 (capability model + read-contract web re-verification), 2 (Cursor parity), and 3 (OpenCode parity) COMPLETE; Phases 4-7 pending.
-**Last updated**: 2026-07-21 (v3.15.0 Phase 3)
+**Status**: v3.15.0 platform-parity-all-gaps IN PROGRESS on `feat/platform-parity-all-gaps` (cut off `develop`). Phases 1 (capability model + read-contract web re-verification), 2 (Cursor parity), 3 (OpenCode parity), and 4 (Qwen + Kimi reclassification) COMPLETE; Phases 5-7 pending.
+**Last updated**: 2026-07-21 (v3.15.0 Phase 4)
 
 > **Prior-version ingest**: v3.14.5's DF-4 (platform additive-surface drift) is the direct input to this release and is now being actioned per phase; it does not carry forward as a separate open item. The v3.14.5 Advisory pre-existing failure `test_init_subcommand.py::test_default_wire_project_surfaces_returns_none` is re-confirmed on this branch (see Advisory below) and is owned by Phase 5.2.
 
@@ -14,12 +14,14 @@
 
 **Phase 3 (OpenCode parity) COMPLETE.** **3.1 (agents surface)**: added `agents_subdir: "agents"` to `OpenCodeIntegration.config` - a config-only change, since the base `_mirror_catalog` copies `catalog/agents/*.md` verbatim to `~/.config/opencode/agents/` (global) and `.opencode/agents/` (project). A 2026-07-21 direct re-read of `opencode.ai/docs/agents/` confirmed OpenCode reads `.md` + YAML frontmatter there with `mode` OPTIONAL (default `all`), so the catalog personas (`name`/`description`/`tools` frontmatter) load as-is - OpenCode uses `description` + the filename, defaults the mode, and ignores the non-native keys (same way Cursor consumes these files). **3.2 (plugins/hooks)**: OUT OF SCOPE, confirmed - a 2026-07-21 re-read of `opencode.ai/docs/plugins/` verified plugins are JavaScript/TypeScript modules loaded by Bun (exporting functions that subscribe to events like `tool.execute.before`); a `.sh`/`.py` hook cannot be dropped in and run, so Nexus-Hub's shell/py hooks do not translate without a JS/TS wrapper. `hooks_supported` stays `False`; DF-4 resolved as a documented non-gap. **3.3 (tests)**: added `tests/integrations/test_opencode.py` (6 tests: agents written both scopes, verbatim `.md`, skills/commands/rules preserved, no hooks surface, idempotent). Validation: `test_opencode.py` 6/6; ruff clean; workspace + global dry-runs land agents at the verified paths and write no hooks. Contract JSON `parity_verification_v3_15_0.opencode` + `contract_checks`/`install_verify` + the `.md` Re-verification log updated.
 
+**Phase 4 (Qwen + Kimi reclassification) COMPLETE.** Both were GO per Phase 1; a 2026-07-21 direct doc re-read informed each reclassification. **4.1 (Qwen)**: reclassified `QwenIntegration` to `MarkdownIntegration + SkillsIntegration`; it now delivers flattened skills + agents + **Markdown** commands at `~/.qwen/{skills,agents,commands}` (global, detection-gated) and `.qwen/{skills,agents,commands}` (project), preserving `QWEN.md`. Commands are Markdown, NOT the plan's TOML - a documented deviation, because Qwen's docs make TOML deprecated (it triggers a migration nag). **DF-2 resolved**: skills delivered to both scopes (global is the reliable path); the #2343 project-auto-load issue is mitigated and documented. **4.2 (Kimi)**: reclassified `KimiIntegration` to `MarkdownIntegration + SkillsIntegration` and, per the maintainer decision, FULLY MIGRATED to the current Kimi Code CLI product (`~/.kimi-code/`), delivering AGENTS.md + flattened skills (command-skills reach Kimi as `/skill:<name>`) at `~/.kimi-code/` (global, detection-gated on `~/.kimi-code`) and `.kimi-code/` (project). The old `~/.kimi/` writes and the `.kimi/agent.yaml` companion are DROPPED. **DF-3 resolved**. **4.3 (tests)**: updated `test_kimi_qwen_openclaw.py` (reclassification asserts) + `test_install_summary.py` (Kimi detection dir `~/.kimi-code`); 41 passed. Contract JSON: `parity_verification` phase4 notes + NEW `contract_checks` + `install_verify` rows for qwen + kimi (`verify_platform_contracts` now covers 10 platforms); `.md` Re-verification log carries the Phase 4 entry.
+
 ### Summary
 
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 4 | 1 |
+| Deferred (DF) | 2 | 3 |
 | Bugs / regressions (BG) | 0 | 0 |
 | Warnings (WN) | 0 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
@@ -42,19 +44,20 @@
 - **Decision**: the global write is RETAINED per plan sub-task 2.3 ("keep the global mirror unchanged") and the contract's negative-only-evidence caution (removing a possibly-live path could break delivery); it is harmless if unread. Recorded in `cursor.py`'s docstring, the contract JSON `parity_verification_v3_15_0.cursor.commands.phase2_note`, and the contract `.md` Re-verification log (2026-07-21).
 - **Suggested next step**: a future cycle with a reachable Cursor commands doc (or an empirical test on a live Cursor install) should confirm or drop the global `~/.cursor/commands/` write. Not blocking - the confirmed project `.cursor/commands/` surface (seeded by both the workspace install and `nexus-hub init`) is the load-bearing path.
 
-##### DF-2 - Qwen skills auto-load reliability (open issue #2343) needs a live smoke test before Phase 4 ships the reclassification
+##### DF-2 - Qwen skills auto-load reliability (open issue #2343) - RESOLVED (mitigated in Phase 4)
 
-- **Source phase**: v3.15.0 Phase 1.2
-- **Plan reference**: Phase 4 (Qwen reclassification, gated GO)
-- **Reason**: Qwen Code's official docs unambiguously document a skills folder (`~/.qwen/skills/<name>/SKILL.md`, project `.qwen/skills/`) and TOML/Markdown commands (`~/.qwen/commands/`), so the Gemini-CLI-class verdict is GO. But open issue QwenLM/qwen-code#2343 reports that project-scoped skills may not auto-load on some builds after a terminal restart, a docs-vs-behavior gap.
-- **Suggested next step**: Phase 4 should live-smoke-test actual skill discovery on a current Qwen Code build before shipping the reclassification; if auto-load is unreliable, prefer the global `~/.qwen/skills/` path and/or document the caveat.
+- **Source phase**: v3.15.0 Phase 1.2; resolved Phase 4 (2026-07-21)
+- **Plan reference**: Phase 4 (Qwen reclassification, GO)
+- **Status**: RESOLVED (mitigated). A live smoke test on a current Qwen build was not possible in this environment, so the mitigation the gap itself suggested was taken: skills are delivered to BOTH the global `~/.qwen/skills/` (the reliable path) and the project `.qwen/skills/`. Qwen's official docs document only a "changes take effect on the next start (restart to load)" behavior; the #2343 project-auto-load issue is an open upstream GitHub issue, not documented behavior. A user who hits it on project-scoped skills still gets the full set from the global path.
+- **Residual**: none blocking. If a future maintainer can live-test a current Qwen build and confirms project auto-load is reliable, the caveat can be dropped; if it is confirmed broken, the global path already covers it.
 
-##### DF-3 - Kimi current product is `~/.kimi-code/`, not the baseline's deprecated `~/.kimi/`
+##### DF-3 - Kimi current product is `~/.kimi-code/`, not the baseline's deprecated `~/.kimi/` - RESOLVED (Phase 4)
 
-- **Source phase**: v3.15.0 Phase 1.2
-- **Plan reference**: Phase 4 (Kimi reclassification, gated GO)
-- **Reason**: the current product is Kimi Code CLI (`MoonshotAI/kimi-code`, data root `~/.kimi-code/`), the Node.js successor to the deprecated Python Kimi CLI (`~/.kimi/`) that the current integration baseline targets. Kimi Code CLI reads a folder-per-skill `SKILL.md` tree (`~/.kimi-code/skills/`, `~/.agents/skills/`, project `.kimi-code/skills/`, `.agents/skills/`) and exposes each skill as `/skill:<name>` (there is no separate command file format; `commands.html` 404s). It has no user-definable agents surface (three fixed built-ins) and its hooks are a `[[hooks]]` TOML array in `~/.kimi-code/config.toml` (config-merge, not a folder copy). The baseline `.kimi/agent.yaml` is unsupported in the new product.
-- **Suggested next step**: Phase 4 must resolve the write target - new `~/.kimi-code/skills/` vs the cross-tool `.agents/skills/` (which both variants honor) - drop the unsupported `.kimi/agent.yaml`, and preserve the `.kimi/AGENTS.md` instruction write for back-compat while adding the `~/.kimi-code/` surfaces.
+- **Source phase**: v3.15.0 Phase 1.2; resolved Phase 4 (2026-07-21)
+- **Plan reference**: Phase 4 (Kimi reclassification, GO)
+- **Status**: RESOLVED. A 2026-07-21 re-read of kimi.com/code/docs confirmed the current product is Kimi Code CLI (`MoonshotAI/kimi-code`, data root `~/.kimi-code/`), a separate product from the older "Kimi CLI" (`~/.kimi/`) the prior integration targeted. Kimi Code CLI reads skills at `~/.kimi-code/skills/` + `~/.agents/skills/` (each auto-registering as `/skill:<name>`; no separate command format), AGENTS.md at `~/.kimi-code/AGENTS.md`, has no user-definable agents, and takes hooks as `config.toml` `[[hooks]]` (out of scope).
+- **Decision (maintainer)**: FULL migration to `~/.kimi-code/`. The integration now writes AGENTS.md + native `~/.kimi-code/skills` (not the shared `~/.agents/skills`, to avoid a codex teardown conflict) at both scopes (global detection-gated on `~/.kimi-code`); the old `~/.kimi/` writes and the `.kimi/agent.yaml` companion are DROPPED.
+- **Residual**: a user still on the OLD "Kimi CLI" (`~/.kimi/`) no longer receives a surface (accepted trade-off of the full-migration choice); pre-existing `~/.kimi/` files from earlier installs are left in place (removed only by an explicit `uninstall`). Not blocking.
 
 ##### DF-4 - OpenCode plugins/hooks out of scope (RESOLVED as a documented non-gap in Phase 3.2)
 

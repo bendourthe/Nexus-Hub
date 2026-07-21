@@ -35,6 +35,7 @@
         "gemini_cli_class": "YES",
         "decision": "GO",
         "note": "Qwen Code is an open-source Gemini CLI fork; reproduces skills + commands + agents under ~/.qwen / .qwen. Reclassify in Phase 4. Caveat: open issue #2343 reports project-scoped skills may not auto-load on some builds; a live smoke test is prudent before shipping.",
+        "phase4_delivered": "2026-07-21 (Phase 4): reclassified to SkillsIntegration. Delivers flattened skills + agents + MARKDOWN commands (TOML is deprecated per the docs, so NOT used) at ~/.qwen/{skills,agents,commands} (global, detection-gated) and .qwen/{skills,agents,commands} (project), preserving the QWEN.md write. Skills delivered to BOTH scopes to mitigate DF-2 (#2343 project auto-load); docs confirm a restart loads them.",
         "surfaces": {
           "skills": { "verdict": "GAINED", "global": ["~/.qwen/skills/<name>/SKILL.md"], "project": [".qwen/skills/<name>/SKILL.md"], "format": "folder-per-skill SKILL.md, one level, name+description frontmatter", "source": "https://qwenlm.github.io/qwen-code-docs/en/users/features/skills/" },
           "commands": { "verdict": "GAINED", "global": ["~/.qwen/commands/<name>.{md,toml}"], "project": [".qwen/commands/<name>.{md,toml}"], "format": "Markdown primary; TOML (description+prompt) deprecated-but-supported, matches Gemini CLI", "source": "https://qwenlm.github.io/qwen-code-docs/en/users/features/commands/" },
@@ -46,6 +47,7 @@
         "gemini_cli_class": "YES",
         "decision": "GO",
         "note": "CRITICAL: the current product is Kimi Code CLI (MoonshotAI/kimi-code, data root ~/.kimi-code/), NOT the deprecated old Kimi CLI (~/.kimi/) the baseline targets. Kimi Code CLI reads a folder-per-skill SKILL.md tree and exposes skills as slash commands; there is NO separate command file format (commands == skills; commands.html 404s) and NO user-definable agents surface. Drop the baseline .kimi/agent.yaml (unsupported in the new product). Phase 4 should resolve old ~/.kimi/ vs new ~/.kimi-code/ vs the cross-tool .agents/skills/.",
+        "phase4_delivered": "2026-07-21 (Phase 4): reclassified to SkillsIntegration and FULLY MIGRATED to Kimi Code CLI (~/.kimi-code) per the maintainer decision. Delivers AGENTS.md + flattened skills (incl. command-skills, which reach Kimi as /skill:<name>) at ~/.kimi-code/ (global, detection-gated) and .kimi-code/ (project). Writes only the NATIVE ~/.kimi-code/skills (not the shared ~/.agents/skills, to avoid a teardown conflict with codex). The old ~/.kimi/ writes and the .kimi/agent.yaml companion are DROPPED (neither is read by the current product). No agents surface (Kimi has only built-ins); hooks are config.toml [[hooks]] (out of scope).",
         "surfaces": {
           "skills": { "verdict": "GAINED", "global": ["~/.kimi-code/skills", "~/.agents/skills"], "project": [".kimi-code/skills", ".agents/skills"], "format": "folder-per-skill SKILL.md (or flat <name>.md), one level; does NOT scan ~/.claude/skills in the new product", "source": "https://www.kimi.com/code/docs/en/kimi-code-cli/customization/skills.html" },
           "commands": { "verdict": "GAINED-AS-SKILLS", "note": "No standalone command format; each skill auto-registers as /skill:<name>", "source": "https://www.kimi.com/code/docs/en/kimi-code-cli/reference/slash-commands.html" },
@@ -107,6 +109,16 @@
       "config": { "skills_subdir": "skills", "agents_subdir": "agents", "commands_subdir": "commands", "hooks_supported": true },
       "flatten": "flag",
       "doc_mentions": ["~/.cursor/skills", "~/.cursor/agents", "~/.cursor/commands", "~/.cursor/hooks.json"]
+    },
+    "qwen": {
+      "config": { "skills_subdir": "skills", "agents_subdir": "agents" },
+      "flatten": "flag",
+      "doc_mentions": ["~/.qwen/skills", "~/.qwen/commands"]
+    },
+    "kimi": {
+      "config": { "skills_subdir": "skills" },
+      "flatten": "flag",
+      "doc_mentions": ["~/.kimi-code/skills"]
     }
   },
   "install_verify": [
@@ -186,6 +198,25 @@
         { "label": "skills", "kind": "nonempty_dir", "path": "~/.config/opencode/skills" },
         { "label": "agents", "kind": "nonempty_dir", "path": "~/.config/opencode/agents" },
         { "label": "AGENTS.md", "kind": "is_file", "path": "~/.config/opencode/AGENTS.md" }
+      ]
+    },
+    {
+      "label": "Qwen Code",
+      "detect": ["~/.qwen"],
+      "remediation": "re-run the installer with --platforms qwen",
+      "surfaces": [
+        { "label": "skills", "kind": "nonempty_dir", "path": "~/.qwen/skills" },
+        { "label": "commands", "kind": "nonempty_dir", "path": "~/.qwen/commands" },
+        { "label": "QWEN.md", "kind": "is_file", "path": "~/.qwen/QWEN.md" }
+      ]
+    },
+    {
+      "label": "Kimi Code CLI",
+      "detect": ["~/.kimi-code"],
+      "remediation": "re-run the installer with --platforms kimi",
+      "surfaces": [
+        { "label": "skills", "kind": "nonempty_dir", "path": "~/.kimi-code/skills" },
+        { "label": "AGENTS.md", "kind": "is_file", "path": "~/.kimi-code/AGENTS.md" }
       ]
     }
   ]

@@ -12,7 +12,7 @@ This suite covers:
 * `_common_path` representative-path selection;
 * `_build_platform_summary` shaping a WriteResult into the summary dict;
 * `cmd_install --summary-json`: a detected platform reports `installed`
-  surfaces with real paths; an undetected platform (absent `~/.kimi`) reports
+  surfaces with real paths; an undetected platform (absent `~/.kimi-code`) reports
   `detected: false` with no surfaces; and `--quiet` stdout stays free of the
   per-file action lines while the summary file is still written.
 
@@ -233,7 +233,9 @@ def test_summary_json_marks_undetected_platform(
     """A real detection-gated platform with its config root absent reports
     detected: false and no surfaces (the group-me-as-skipped signal)."""
     summary_path = tmp_path / "summary.json"
-    assert not (fake_home / ".kimi").exists()
+    # v3.15.0 Phase 4: Kimi migrated to Kimi Code CLI; detection is gated on
+    # ~/.kimi-code (not the old ~/.kimi).
+    assert not (fake_home / ".kimi-code").exists()
 
     rc = runner.cmd_install(
         _install_args(integrations="kimi", summary_json=str(summary_path))
