@@ -46,6 +46,7 @@ The installer ships with the repo. Alternatively install via the Nexus-Hub insta
 | `code_explore(symbol, depth=2)` | Combined search + traversal payload (matches + callers + callees + impact). |
 | `watch_for_changes(root, debounce_ms=2000)` | Start a debounced filesystem watcher that re-indexes the graph as files change. Returns immediately; the watcher runs in a background thread. |
 | `code_affected_tests(changed_files, depth=5, test_glob=None)` | Reverse-import BFS: given a list of changed files, return every test file in the index whose code transitively imports any of them. Conservative -- false positives favored over false negatives. Companion CLI: `nexus-hub affected` (see "CLI dispatcher" below). |
+| `generate_context_map(root, force=False)` | Compile a committed `<root>/.nexus/CONTEXT-MAP.md` (plus a `<root>/.nexus/context/` article set) from the graph, so an AI reads the codebase map once at session start instead of re-exploring files. Deterministic and local-only; writes only under `<root>/.nexus/`. Unchanged graph is a no-op unless `force=True`. Run `index_graph` first. Companion CLI: `nexus-hub map` (see "Context map" below). |
 
 ## NodeKind / EdgeKind taxonomy
 
@@ -77,6 +78,35 @@ nexus-hub affected --root /repo --depth 3 --json src/foo.py src/bar.py
 ```
 
 The dispatcher exits with code 2 if no graph index is found at `<root>/.nexus/code-index/codegraph.db` (run `index_graph` via the MCP server first).
+
+## Context map
+
+`generate_context_map` (MCP tool) and `nexus-hub map` (CLI) compile the AST graph into a committed, deterministic context map an AI can read once at session start, instead of paying the file-exploration cost every session. Build the graph first (`index_graph`), then:
+
+```bash
+# Compile <root>/.nexus/CONTEXT-MAP.md + <root>/.nexus/context/ from the graph.
+nexus-hub map
+
+# Target another repo, force a rebuild, or emit JSON for tooling.
+nexus-hub map /repo --force --json
+```
+
+Outputs, written ONLY under `<root>/.nexus/`:
+
+- `CONTEXT-MAP.md` - overview (languages, file / symbol / module counts), a module-structure table, a most-imported-files placeholder, and an index of the per-module articles.
+- `context/index.md` plus `context/<module>.md` - one article per top-level module (files, symbol counts, and key symbols).
+
+Every file carries a metadata header with an accurate token count and a source fingerprint. Properties, all locked by the test suite:
+
+- **Neutral path**: writes are confined to `<root>/.nexus/`; the map never touches `CLAUDE.md`, `AGENTS.md`, `.cursorrules`, or any other AI-config file (those are owned by the Nexus-Hub installer).
+- **Deterministic**: output is a pure function of the graph (no wall-clock timestamp), so the MCP tool and the CLI produce byte-identical output for the same input.
+- **Content-hash incremental**: the source fingerprint is embedded in the map, so regenerating on an unchanged graph is a no-op unless `--force` / `force=True`.
+
+The token-count header prefers `tiktoken` (cl100k_base) when it is importable and loads offline, and otherwise falls back to a stdlib heuristic - the extension adds no dependency on tiktoken.
+
+`.gitignore` guidance for consumer repos: commit `.nexus/CONTEXT-MAP.md` and `.nexus/context/`, but ignore the `.nexus/code-index/` graph database.
+
+The CLI exits with code 2 if no graph index is found at `<root>/.nexus/code-index/codegraph.db` (run `index_graph` first), and code 1 for a missing root.
 
 ## Eval harness
 

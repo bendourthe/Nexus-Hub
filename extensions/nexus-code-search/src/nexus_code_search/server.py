@@ -31,6 +31,7 @@ from mcp.server.stdio import stdio_server
 from mcp.types import TextContent, Tool
 
 from nexus_code_search.config import CodeSearchConfig, index_dir_for, resolve_config
+from nexus_code_search.contextmap import generate_context_map
 from nexus_code_search.db.schema import open_database
 from nexus_code_search.extraction import ExtractionOrchestrator
 from nexus_code_search.graph import GraphQueryManager, affected_tests
@@ -55,6 +56,11 @@ Tools (what / when):
   get_indexing_status   Report current state (IDLE / RUNNING) and counts.
   index_graph           v2.0: build the tree-sitter AST graph (nodes / edges
                         / FTS5) for Python + TypeScript source files.
+  generate_context_map  Compile a committed .nexus/CONTEXT-MAP.md + a
+                        .nexus/context/ article set from the graph. A cheap
+                        cold-start map the AI reads once; deterministic,
+                        local-only, writes only under .nexus/. Run index_graph
+                        first; force=True bypasses the unchanged-graph no-op.
   code_search           v2.0: full-text search over graph node names
                         (name-scoped by default; all_fields=true also matches
                         qualified_name + docstring); returns symbol records.
@@ -107,6 +113,8 @@ async def run_server() -> None:
                 return _handle_status(arguments, config)
             if name == "index_graph":
                 return _handle_index_graph(arguments, config)
+            if name == "generate_context_map":
+                return _handle_generate_context_map(arguments, config)
             if name in (
                 "code_search",
                 "code_callers",
@@ -215,6 +223,25 @@ def _all_tools() -> list[Tool]:
             description=(
                 "Build the tree-sitter AST graph (nodes + edges + FTS) for Python and "
                 "TypeScript files under `root`. Idempotent; unchanged files are skipped."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    **root_arg,
+                    "force": {"type": "boolean", "default": False},
+                },
+                "required": ["root"],
+            },
+        ),
+        Tool(
+            name="generate_context_map",
+            description=(
+                "Compile a committed .nexus/CONTEXT-MAP.md (plus a .nexus/context/ "
+                "article set) from the AST graph so an AI reads the codebase map "
+                "once at session start instead of re-exploring files. Deterministic "
+                "and local-only; writes only under <root>/.nexus/ (never CLAUDE.md / "
+                "AGENTS.md). Unchanged graphs are a no-op unless force=True. Run "
+                "index_graph first."
             ),
             inputSchema={
                 "type": "object",
@@ -516,6 +543,18 @@ def _handle_index_graph(arguments: dict, config: CodeSearchConfig) -> list[TextC
         stats = orch.run(force=force)
     payload = {"root": str(root), **stats.to_dict()}
     return [TextContent(type="text", text=json.dumps(payload))]
+
+
+def _handle_generate_context_map(
+    arguments: dict, config: CodeSearchConfig
+) -> list[TextContent]:
+    root = _resolve_root(arguments)
+    if not root.exists() or not root.is_dir():
+        raise ValueError(f"root path does not exist or is not a directory: {root}")
+    force = bool(arguments.get("force", False))
+    index_dir = index_dir_for(root, config)
+    result = generate_context_map(root, index_dir, force=force)
+    return [TextContent(type="text", text=json.dumps(result.to_dict()))]
 
 
 def _handle_graph_query(
