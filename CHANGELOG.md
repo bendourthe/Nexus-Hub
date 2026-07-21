@@ -9,7 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-**v3.15.0 platform-parity-all-gaps (in progress).** Every supported platform receives all Nexus-Hub surfaces it can actually consume (skills, commands, agents, rules, hooks), verified against each platform's current docs. Phase 1 gives the integration layer a real capability signal and web-re-verifies the parity-target platforms before wiring them.
+**v3.15.0 platform-parity-all-gaps (in progress).** Every supported platform receives all Nexus-Hub surfaces it can actually consume (skills, commands, agents, rules, hooks), verified against each platform's current docs. Phase 1 gives the integration layer a real capability signal and web-re-verifies the parity-target platforms before wiring them; Phase 2 brings Cursor to full parity.
+
+### Added
+
+- **Cursor full-surface parity (Phase 2)** (`scripts/lib/integrations/cursor.py`): Cursor now receives the complete Nexus-Hub surface set, not just rules + an instruction file. It gets flattened skills at `.cursor/skills/<name>/SKILL.md` (native path only - the shared `~/.agents/skills` is intentionally left to the codex integration to avoid an uninstall teardown conflict), every command as a skill and as a project `.cursor/commands/<name>.md` file, subagents copied verbatim to `.cursor/agents/*.md`, and a Cursor-schema `hooks.json` (`{version:1, hooks:{beforeShellExecution:[{command}]}}`) shipping the `git-guardrails` guardrail (the only Nexus-Hub hook that maps onto a clean blocking Cursor event), gated on `hooks_supported`. `nexus-hub init` now seeds project `.cursor/commands/` in addition to the `.cursor/rules/nexus-hub.mdc` stub. The `hooks.json` schema and the confirmed project-commands path were verified against Cursor's official docs (2026-07-21); the global `~/.cursor/commands/` mirror is retained but its read-path is UNVERIFIED (community feature-request; tracked as known-gap DF-1). Covered by `tests/integrations/test_cursor.py` (9 tests) and the cross-platform flatten sweep (Cursor promoted to a first-class flattened platform).
 
 ### Changed
 

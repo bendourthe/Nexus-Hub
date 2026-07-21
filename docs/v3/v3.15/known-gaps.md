@@ -1,14 +1,16 @@
 # Known Gaps - v3.15
 
 **Project**: Nexus-Hub
-**Status**: v3.15.0 platform-parity-all-gaps IN PROGRESS on `feat/platform-parity-all-gaps` (cut off `develop`). Phase 1 (capability model + read-contract web re-verification) COMPLETE; Phases 2-7 pending.
-**Last updated**: 2026-07-20 (v3.15.0 Phase 1)
+**Status**: v3.15.0 platform-parity-all-gaps IN PROGRESS on `feat/platform-parity-all-gaps` (cut off `develop`). Phases 1 (capability model + read-contract web re-verification) and 2 (Cursor parity) COMPLETE; Phases 3-7 pending.
+**Last updated**: 2026-07-21 (v3.15.0 Phase 2)
 
 > **Prior-version ingest**: v3.14.5's DF-4 (platform additive-surface drift) is the direct input to this release and is now being actioned per phase; it does not carry forward as a separate open item. The v3.14.5 Advisory pre-existing failure `test_init_subcommand.py::test_default_wire_project_surfaces_returns_none` is re-confirmed on this branch (see Advisory below) and is owned by Phase 5.2.
 
 ## v3.15.0
 
 **Status**: Phase 1 COMPLETE on `feat/platform-parity-all-gaps`. **1.1**: `hooks_supported` is now the single load-bearing hook-capability signal - `SkillsIntegration._mirror_catalog` (base) and `Antigravity20Integration._mirror_surface` (bespoke hooks.json writer) both gate hook installation on it; the change is byte-identical for the live registry (every integration declaring `hooks_subdir` also sets `hooks_supported: True`). The dead `permissions_file` config key (declared on 7 subclasses, never read by any code) was removed; the permission JSON files themselves are installed by a separate mechanism and are untouched. **1.2/1.3**: the five parity-target platforms (Cursor, OpenCode, Qwen, Kimi, Copilot) were web re-verified against current official docs (2026-07-20); findings + source URLs + MATCH/DRIFT/UNVERIFIED classifications are recorded in `docs/policy/platform-read-contracts.md` (Re-verification log) and the sibling JSON's non-consumed `parity_verification_v3_15_0` block. The Qwen and Kimi Gemini-CLI-class verdicts both came back GO (the Phase 4 reclassification gate). Gates green: hook-gating tests 5/5; full integrations + contract-validator suites 378 passed (1 pre-existing failure, see Advisory); `verify_platform_contracts.py`, `check_platform_contract_freshness.py`, base-parity, no-personal-paths, unicode-safety (0 errors), version-sync all exit 0; `ruff check` clean. Plan: [plans/v3.15.0-platform-parity-all-gaps.md](plans/v3.15.0-platform-parity-all-gaps.md).
+
+**Phase 2 (Cursor parity) COMPLETE.** The Cursor integration surfaces were already implemented in the branch-untangle commit `a56cdffa` (skills flattened to `.cursor/skills`, subagents to `.cursor/agents`, a `version:1` `hooks.json` with `git-guardrails` gated on `hooks_supported`, project `.cursor/commands/`), with a full 8-test `test_cursor.py`. Phase 2 closed the DF-1 verification gate that `a56cdffa` deferred and completed sub-task 2.3: (1) a 2026-07-21 direct re-read of Cursor's official docs RESOLVED DF-1(b) - the `hooks.json` schema is confirmed and the minimal writer is valid as-is (no code change); (2) DF-1(a) global `~/.cursor/commands/` remains UNVERIFIED (no official doc; community feature-request) - the write is retained per plan 2.3 and tracked as the DF-1 residual; (3) `wire_project_surfaces` now also seeds project `.cursor/commands/` so `nexus-hub init` gives a project the slash surface, not just the rules stub (sub-task 2.3 literal acceptance). Tests: `test_cursor.py` 9/9 (added a `wire_project_surfaces` command-seeding test). Contract JSON `parity_verification_v3_15_0.cursor` + the `.md` Re-verification log updated with the 2026-07-21 findings.
 
 ### Summary
 
@@ -30,12 +32,13 @@
 
 #### Deferred
 
-##### DF-1 - Cursor global commands path and hooks.json field spelling need a direct confirmation before Phase 2
+##### DF-1 - Cursor global commands path UNVERIFIED (residual; hooks.json schema RESOLVED in Phase 2)
 
-- **Source phase**: v3.15.0 Phase 1.2
+- **Source phase**: v3.15.0 Phase 1.2; actioned in Phase 2 (2026-07-21)
 - **Plan reference**: Phase 2 (Cursor parity - skills, hooks.json, agents, project commands)
-- **Reason**: the 2026-07-20 web re-verification confirmed Cursor 2.4 reads skills (`~/.cursor/skills`, `.cursor/skills`, `.agents/skills`, `.claude/skills`), subagents (`.cursor/agents/*.md`, NOT `.agent.md`), and hooks (`~/.cursor/hooks.json`, `.cursor/hooks.json`), and project commands at `.cursor/commands/<name>.md`. Two items are not fully pinned: (a) the baseline global `~/.cursor/commands/` path could not be confirmed against reachable official docs (the commands doc redirected to the skills page); (b) the exact optional-field spelling of the `hooks.json` schema (`type`/`timeout`/`loop_limit`/`failClosed`) was enumerated in a single fetch, while `version:1`, `command`, `matcher`, the event names, and the exit-code semantics were double-confirmed.
-- **Suggested next step**: Phase 2 should do one direct human read of `cursor.com/docs/hooks` and the commands doc to lock the optional-field spelling and confirm the global commands path before emitting the `hooks.json` writer and project-command mirror.
+- **Status**: PARTIALLY RESOLVED. Phase 2 did the direct doc re-read the original gap asked for. **DF-1(b) hooks.json schema - RESOLVED**: [cursor.com/docs/hooks](https://cursor.com/docs/hooks) confirms `{version:1, hooks:{<event>:[{...}]}}` with `type`/`timeout`/`loop_limit`/`failClosed`/`matcher` all OPTIONAL (defaults `type=command`, `failClosed=false`), so the integration's minimal `beforeShellExecution -> {command}` writer is schema-valid as-is (no code change). **DF-1(a) global `~/.cursor/commands/` - RESIDUAL (still UNVERIFIED)**: project `.cursor/commands/<name>.md` is officially documented (Cursor 1.6+) and confirmed, but the user-global `~/.cursor/commands/` dir has no reachable official doc (the commands page 404s / redirects to Skills) and [forum.cursor.com](https://forum.cursor.com/t/personal-custom-slash-commands/133386) reports it as an open feature-request, not a built-in.
+- **Decision**: the global write is RETAINED per plan sub-task 2.3 ("keep the global mirror unchanged") and the contract's negative-only-evidence caution (removing a possibly-live path could break delivery); it is harmless if unread. Recorded in `cursor.py`'s docstring, the contract JSON `parity_verification_v3_15_0.cursor.commands.phase2_note`, and the contract `.md` Re-verification log (2026-07-21).
+- **Suggested next step**: a future cycle with a reachable Cursor commands doc (or an empirical test on a live Cursor install) should confirm or drop the global `~/.cursor/commands/` write. Not blocking - the confirmed project `.cursor/commands/` surface (seeded by both the workspace install and `nexus-hub init`) is the load-bearing path.
 
 ##### DF-2 - Qwen skills auto-load reliability (open issue #2343) needs a live smoke test before Phase 4 ships the reclassification
 

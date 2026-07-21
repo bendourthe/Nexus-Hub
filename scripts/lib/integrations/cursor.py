@@ -6,8 +6,15 @@ block in the sibling .json):
 
   - **Rules**: project ``.cursor/rules/<name>.mdc`` (Markdown + YAML frontmatter)
     plus ``AGENTS.md`` at repo root as the canonical instruction file.
-  - **Commands**: global ``~/.cursor/commands/<name>.md`` (offered as ``/<name>``
-    in ANY repo) AND project ``<project>/.cursor/commands/<name>.md``.
+  - **Commands**: project ``<project>/.cursor/commands/<name>.md`` (offered as
+    ``/<name>`` in that repo) is confirmed (documented since Cursor 1.6) and is
+    seeded by both the workspace install and ``nexus-hub init``. The global
+    ``~/.cursor/commands/<name>.md`` mirror is ALSO written (by ``install_global``,
+    unchanged from v3.3.4) but its read-path is UNVERIFIED: the 2026-07-21 (Phase 2)
+    re-verification found no official doc for a user-global commands dir -- it is an
+    open community feature-request -- so the global write is retained (harmless if
+    unread; removing a possibly-live path on negative-only evidence could break
+    delivery) and tracked as UNVERIFIED in the known-gaps + contract.
   - **Skills**: folder-per-skill ``SKILL.md``, discovered one level deep, at
     ``~/.cursor/skills/<name>/`` (global) and ``.cursor/skills/<name>/`` (project).
     Cursor ALSO reads the shared ``~/.agents/skills`` and ``~/.claude/skills``
@@ -272,15 +279,31 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
         return FileAction(path=str(dst), action="updated" if existed else "created")
 
     def wire_project_surfaces(self, ctx: InstallContext) -> WriteResult:
-        """Write a single ``.cursor/rules/nexus-hub.mdc`` to the project root.
+        """Seed the project-scoped Cursor surfaces for ``nexus-hub init``.
 
-        Distilled from the workspace install: a global Cursor user keeps the
-        catalog at ``~/.cursor/`` but each project still needs the rules file
-        Cursor scans. This hook lets ``nexus-hub init`` drop only that file
-        without rendering AGENTS.md or re-mirroring every catalog rule.
+        A global Cursor user keeps the catalog at ``~/.cursor/`` but each project
+        still needs (a) the ``.cursor/rules/nexus-hub.mdc`` stub Cursor scans and
+        (b) the project-scoped ``.cursor/commands/`` slash surface (added v3.15.0
+        Phase 2, sub-task 2.3). This hook drops both without rendering AGENTS.md
+        or re-mirroring every catalog rule/skill. The global ``~/.cursor/commands/``
+        mirror is written separately by ``install_global``.
         """
         result = WriteResult()
-        rules_dst = (ctx.target_root / self.config["workspace_dir"] / self.config["rules_subdir"]).resolve()
+        workspace_root = (ctx.target_root / self.config["workspace_dir"]).resolve()
+        result.files.append(self._write_project_rules_stub(workspace_root, ctx))
+        if not ctx.instruction_only:
+            commands_dir = workspace_root / self.config["commands_subdir"]
+            self._ensure_dir(commands_dir, ctx)
+            result.files.extend(
+                mirror_command_surface(ctx, self.key, commands_dir, suffix=".md")
+            )
+        return result
+
+    def _write_project_rules_stub(
+        self, workspace_root: Path, ctx: InstallContext
+    ) -> FileAction:
+        """Write the single ``.cursor/rules/nexus-hub.mdc`` project stub."""
+        rules_dst = workspace_root / self.config["rules_subdir"]
         if not ctx.dry_run:
             rules_dst.mkdir(parents=True, exist_ok=True)
         dst = rules_dst / "nexus-hub.mdc"
@@ -298,15 +321,12 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
         if dst.exists():
             if dst.read_bytes() == body_bytes:
                 ctx.manifest.track(self.key, str(dst))
-                result.files.append(FileAction(path=str(dst), action="unchanged"))
-                return result
+                return FileAction(path=str(dst), action="unchanged")
             if not ctx.dry_run:
                 dst.write_bytes(body_bytes)
             ctx.manifest.track(self.key, str(dst))
-            result.files.append(FileAction(path=str(dst), action="updated"))
-            return result
+            return FileAction(path=str(dst), action="updated")
         if not ctx.dry_run:
             dst.write_bytes(body_bytes)
         ctx.manifest.track(self.key, str(dst))
-        result.files.append(FileAction(path=str(dst), action="created"))
-        return result
+        return FileAction(path=str(dst), action="created")

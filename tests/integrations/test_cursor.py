@@ -128,3 +128,23 @@ def test_cursor_idempotent_workspace_install(install_ctx: InstallContext):
     result = get("cursor").install(install_ctx)
     actions = {a.action for a in result.files}
     assert "unchanged" in actions, f"second install should produce 'unchanged'; got {actions}"
+
+
+def test_cursor_wire_project_surfaces_seeds_rules_and_commands(install_ctx: InstallContext):
+    """`nexus-hub init` seeds the rules stub AND project .cursor/commands/ (Phase 2, 2.3).
+
+    The confirmed project command surface must be seeded on init, not only via a
+    full workspace install; the rules stub behaviour is preserved.
+    """
+    result = get("cursor").wire_project_surfaces(install_ctx)
+    root = install_ctx.target_root
+
+    # Rules stub still seeded (pre-Phase-2 behaviour preserved).
+    assert (root / ".cursor" / "rules" / "nexus-hub.mdc").exists(), "rules stub not seeded"
+
+    # Project-scoped commands now seeded by init (sub-task 2.3 literal acceptance).
+    commands_dir = root / ".cursor" / "commands"
+    assert commands_dir.is_dir(), "project .cursor/commands/ not seeded by wire_project_surfaces"
+    assert (commands_dir / "presentify.md").exists(), "expected a catalog command in .cursor/commands/"
+    joined = " ".join(fa.path.replace("\\", "/") for fa in result.files)
+    assert "/.cursor/commands/" in joined, "wire_project_surfaces should report the command mirror"
