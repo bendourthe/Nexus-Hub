@@ -12,8 +12,6 @@ import json
 import sys
 from pathlib import Path
 
-import pytest
-
 REPO_ROOT = Path(__file__).resolve().parents[2]
 if str(REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(REPO_ROOT))
@@ -108,7 +106,9 @@ def test_default_wire_project_surfaces_returns_none(tmp_path: Path) -> None:
     # antigravity2 overrides the hook (v3.3.4): the Antigravity 2.0 IDE reads
     # slash commands only from the open project's .agents/, so `nexus-hub init`
     # seeds that tree per-repo (there is no global command surface to mirror).
-    overrides = {"cursor", "claude", "antigravity2"}
+    # copilot overrides it too (since v3.11.0): it returns a WriteResult (a note
+    # when the opt-in is unset, or seeded .github/skills wrappers when set), never None.
+    overrides = {"cursor", "claude", "antigravity2", "copilot"}
     for key, integ in INTEGRATION_REGISTRY.items():
         out = integ.wire_project_surfaces(ctx)
         if key in overrides:

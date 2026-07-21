@@ -31,16 +31,41 @@ from .result import FileAction, WriteResult
 from ._command_surface import mirror_command_surface
 from scripts.lib.installer.instruction_merge import merge_marker_section
 
-# v3.11.0 Phase 5 (S3): opt-in project-scoped skills surface.
-# .github/skills/ is commit-visible in the user's repo, so seeding is OFF by
-# default and activates only when this env var is truthy (mirrors the Phase 7.3
-# NEXUS_HUB_NO_AUTOSEED opt-out pattern; no installer.sh/ps1 edit required).
+# v3.11.0 Phase 5 (S3): opt-in project-scoped skills surface, WIDENED to a
+# selector in v3.15.0 Phase 5.
+#
+# GitHub Copilot now reads project Agent Skills natively and default-on
+# (`.github/skills/` is canonical, verified 2026-07-20, v3.15.0 Phase 1.2 / DF-5).
+# The Nexus-Hub opt-in is therefore NOT a Copilot technical requirement anymore --
+# it is a COMMIT-VISIBILITY policy: `.github/skills/` lives in the user's repo and
+# is committed, so Nexus-Hub never seeds it unless the user asks. The env var is
+# now a SELECTOR, not just a toggle:
+#   unset / "" / 0 / false / no / off  -> OFF (nothing seeded)
+#   1 / true / yes / on                -> the default bundle (core-developer)
+#   <bundle-id>                        -> that skill bundle (see data/bundles.json)
+#   all                                -> the full catalog (heavy: every skill is a
+#                                         committed .github/skills/<name>/ wrapper)
 _COPILOT_SKILLS_ENV = "NEXUS_HUB_COPILOT_SKILLS"
 _COPILOT_CURATED_BUNDLE = "core-developer"
+_COPILOT_OFF_VALUES = {"", "0", "false", "no", "off"}
+_COPILOT_BARE_TRUTHY = {"1", "true", "yes", "on"}
 
 
-def _is_truthy(val: Optional[str]) -> bool:
-    return (val or "").strip().lower() in {"1", "true", "yes", "on"}
+def _copilot_skills_enabled(val: Optional[str]) -> bool:
+    """Copilot project-skill seeding is ON for any non-empty, non-falsy value."""
+    return (val or "").strip().lower() not in _COPILOT_OFF_VALUES
+
+
+def _copilot_skill_selection(val: Optional[str]) -> str:
+    """Resolve NEXUS_HUB_COPILOT_SKILLS to ``all`` or a bundle id.
+
+    Bare-truthy (or any off value) maps to the default bundle; ``all`` selects the
+    full catalog; anything else is treated as a bundle id.
+    """
+    v = (val or "").strip().lower()
+    if v in _COPILOT_BARE_TRUTHY or v in _COPILOT_OFF_VALUES:
+        return _COPILOT_CURATED_BUNDLE
+    return v
 
 
 def _vscode_user_dir() -> Optional[Path]:
@@ -124,27 +149,30 @@ class CopilotIntegration(MarkdownIntegration):
         return result
 
     def wire_project_surfaces(self, ctx: InstallContext) -> Optional[WriteResult]:
-        """Opt-in: seed a curated skill set as ``.github/skills/<name>/SKILL.md``.
+        """Opt-in: seed a selectable skill set as ``.github/skills/<name>/SKILL.md``.
 
-        GitHub Copilot reads project Agent Skills from
+        GitHub Copilot reads project Agent Skills natively from
         ``.github/skills/<name>/SKILL.md`` (the frontmatter ``name`` must match the
         directory; only ``name`` / ``description`` / ``license`` are recognized).
-        This is OFF by default because ``.github/skills/`` is commit-visible; it
-        activates only when ``NEXUS_HUB_COPILOT_SKILLS`` is truthy. It seeds thin
+        Copilot reads this default-on (it no longer requires an opt-in), but
+        ``.github/skills/`` is COMMIT-VISIBLE in the user's repo, so Nexus-Hub keeps
+        seeding OFF by default and gated on ``NEXUS_HUB_COPILOT_SKILLS`` as a policy
+        choice. The env var is a SELECTOR (v3.15.0 Phase 5): bare-truthy seeds the
+        ``core-developer`` bundle (default), a bundle id from ``data/bundles.json``
+        seeds that bundle, and ``all`` seeds the full catalog (heavy). It seeds thin
         WRAPPER files (Copilot-safe ``name`` + ``description`` frontmatter plus a
-        pointer to the installed ``~/.nexus-hub/`` content) for the
-        ``core-developer`` bundle, ASCII-sanitized, never overwriting an existing
-        file. See docs/v3/v3.11/development/copilot-skills-design.md.
+        pointer to the installed ``~/.nexus-hub/`` content), ASCII-sanitized, never
+        overwriting an existing file. See docs/v3/v3.11/development/copilot-skills-design.md.
         """
         result = WriteResult()
-        if not _is_truthy(os.environ.get(_COPILOT_SKILLS_ENV)):
+        if not _copilot_skills_enabled(os.environ.get(_COPILOT_SKILLS_ENV)):
             ctx.manifest.log(
                 self.key,
                 f"{_COPILOT_SKILLS_ENV} not set; skipping .github/skills seeding",
             )
             result.note(
-                f"Copilot project skills opt-in ({_COPILOT_SKILLS_ENV}=1) not set; "
-                ".github/skills/ not seeded"
+                f"Copilot project skills opt-in ({_COPILOT_SKILLS_ENV}=1, "
+                "a bundle id, or 'all') not set; .github/skills/ not seeded"
             )
             return result
         skills_root = (ctx.target_root / ".github" / "skills").resolve()
@@ -165,18 +193,46 @@ class CopilotIntegration(MarkdownIntegration):
             )
         return result
 
+    @classmethod
+    def _curated_skill_names(cls, ctx: InstallContext) -> list[str]:
+        """Resolve ``NEXUS_HUB_COPILOT_SKILLS`` to the skill names to seed.
+
+        ``all`` -> every catalog skill; a bundle id -> that bundle; bare-truthy or
+        an unset value -> the default ``core-developer`` bundle. An unknown bundle
+        id falls back to the default (with a logged note) so an opted-in user still
+        gets a sensible set rather than nothing.
+        """
+        sel = _copilot_skill_selection(os.environ.get(_COPILOT_SKILLS_ENV))
+        if sel == "all":
+            return cls._all_catalog_skill_names(ctx)
+        names = cls._bundle_skill_names(ctx, sel)
+        if names:
+            return names
+        if sel != _COPILOT_CURATED_BUNDLE:
+            ctx.manifest.log(
+                cls.key,
+                f"unknown Copilot skill bundle {sel!r}; using {_COPILOT_CURATED_BUNDLE!r}",
+            )
+        return cls._bundle_skill_names(ctx, _COPILOT_CURATED_BUNDLE)
+
     @staticmethod
-    def _curated_skill_names(ctx: InstallContext) -> list[str]:
-        """Return the curated bundle's skill names from data/bundles.json."""
+    def _bundle_skill_names(ctx: InstallContext, bundle_id: str) -> list[str]:
+        """Return the skill names for a bundle id from data/bundles.json (or [])."""
         try:
             data = json.loads((ctx.repo_root / "data" / "bundles.json").read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError):
             return []
         bundles = data.get("bundles", []) if isinstance(data, dict) else data
         for b in bundles if isinstance(bundles, list) else []:
-            if (b.get("id") or b.get("name")) == _COPILOT_CURATED_BUNDLE:
+            if (b.get("id") or b.get("name")) == bundle_id:
                 return [str(s) for s in b.get("skills", [])]
         return []
+
+    @staticmethod
+    def _all_catalog_skill_names(ctx: InstallContext) -> list[str]:
+        """Return every catalog skill's directory name (``catalog/skills/<cat>/<name>``)."""
+        root = ctx.repo_root / "catalog" / "skills"
+        return sorted({p.parent.name for p in root.glob("*/*/SKILL.md")})
 
     @staticmethod
     def _find_skill_md(repo_root: Path, name: str) -> Optional[Path]:

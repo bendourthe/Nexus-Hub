@@ -1,8 +1,8 @@
 # Known Gaps - v3.15
 
 **Project**: Nexus-Hub
-**Status**: v3.15.0 platform-parity-all-gaps IN PROGRESS on `feat/platform-parity-all-gaps` (cut off `develop`). Phases 1 (capability model + read-contract web re-verification), 2 (Cursor parity), 3 (OpenCode parity), and 4 (Qwen + Kimi reclassification) COMPLETE; Phases 5-7 pending.
-**Last updated**: 2026-07-21 (v3.15.0 Phase 4)
+**Status**: v3.15.0 platform-parity-all-gaps IN PROGRESS on `feat/platform-parity-all-gaps` (cut off `develop`). Phases 1 (capability model + read-contract web re-verification), 2 (Cursor parity), 3 (OpenCode parity), 4 (Qwen + Kimi reclassification), and 5 (Copilot skill broadening) COMPLETE; Phases 6-7 pending.
+**Last updated**: 2026-07-21 (v3.15.0 Phase 5)
 
 > **Prior-version ingest**: v3.14.5's DF-4 (platform additive-surface drift) is the direct input to this release and is now being actioned per phase; it does not carry forward as a separate open item. The v3.14.5 Advisory pre-existing failure `test_init_subcommand.py::test_default_wire_project_surfaces_returns_none` is re-confirmed on this branch (see Advisory below) and is owned by Phase 5.2.
 
@@ -16,21 +16,23 @@
 
 **Phase 4 (Qwen + Kimi reclassification) COMPLETE.** Both were GO per Phase 1; a 2026-07-21 direct doc re-read informed each reclassification. **4.1 (Qwen)**: reclassified `QwenIntegration` to `MarkdownIntegration + SkillsIntegration`; it now delivers flattened skills + agents + **Markdown** commands at `~/.qwen/{skills,agents,commands}` (global, detection-gated) and `.qwen/{skills,agents,commands}` (project), preserving `QWEN.md`. Commands are Markdown, NOT the plan's TOML - a documented deviation, because Qwen's docs make TOML deprecated (it triggers a migration nag). **DF-2 resolved**: skills delivered to both scopes (global is the reliable path); the #2343 project-auto-load issue is mitigated and documented. **4.2 (Kimi)**: reclassified `KimiIntegration` to `MarkdownIntegration + SkillsIntegration` and, per the maintainer decision, FULLY MIGRATED to the current Kimi Code CLI product (`~/.kimi-code/`), delivering AGENTS.md + flattened skills (command-skills reach Kimi as `/skill:<name>`) at `~/.kimi-code/` (global, detection-gated on `~/.kimi-code`) and `.kimi-code/` (project). The old `~/.kimi/` writes and the `.kimi/agent.yaml` companion are DROPPED. **DF-3 resolved**. **4.3 (tests)**: updated `test_kimi_qwen_openclaw.py` (reclassification asserts) + `test_install_summary.py` (Kimi detection dir `~/.kimi-code`); 41 passed. Contract JSON: `parity_verification` phase4 notes + NEW `contract_checks` + `install_verify` rows for qwen + kimi (`verify_platform_contracts` now covers 10 platforms); `.md` Re-verification log carries the Phase 4 entry.
 
+**Phase 5 (Copilot skill broadening) COMPLETE.** **5.1**: widened Copilot's opt-in `.github/skills` seeding from a bare on/off toggle to a SELECTOR (`scripts/lib/integrations/copilot.py`). `NEXUS_HUB_COPILOT_SKILLS` now accepts a bundle id (any of the 15 in `data/bundles.json`) or `all` (the full catalog), with bare-truthy (`1`/`true`/`yes`/`on`) still meaning the default `core-developer` bundle and any off value meaning off. An unknown bundle id falls back to the default (with a logged note). Kept OFF by default and never-overwrite - `.github/skills/` is commit-visible, a Nexus-Hub POLICY choice, not a Copilot requirement (per DF-5, Copilot reads skills natively default-on); the stale opt-in framing is corrected in the integration docstring. **5.2**: fixed the pre-existing `test_init_subcommand.py::test_default_wire_project_surfaces_returns_none` advisory by adding `copilot` to the test's `overrides` set (it has overridden `wire_project_surfaces` since v3.11.0, returning a `WriteResult`, not `None`); also removed a pre-existing unused `import pytest` from that file (surfaced by ruff once the file was in scope). **Validation**: `test_copilot_skills_surface.py` (9 tests, incl. new bundle-id/`all`/explicit-off/unknown-fallback) + `test_init_subcommand.py` (6, advisory now GREEN); ruff clean. Contract JSON `parity_verification_v3_15_0.copilot.phase5_delivered` + DF-5 resolved.
+
 ### Summary
 
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 2 | 3 |
+| Deferred (DF) | 1 | 4 |
 | Bugs / regressions (BG) | 0 | 0 |
 | Warnings (WN) | 0 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 1 | 0 |
 | Hand-offs (HO) | 0 | 0 |
 
-### Advisory (pre-existing test failure, NOT caused by v3.15.0 Phase 1)
+### Advisory (pre-existing test failure) - RESOLVED in Phase 5.2
 
-- `test_init_subcommand.py::test_default_wire_project_surfaces_returns_none` - the test's `overrides` set omits `copilot`, which has overridden `wire_project_surfaces` since v3.11.0 (it returns a skip-note `WriteResult`, not `None`, when the `.github/skills` opt-in is unset). Confirmed PRE-EXISTING on this branch by stashing all Phase 1 tracked edits and reproducing the identical failure on the bare `develop` baseline; Phase 1 never touched `wire_project_surfaces`. The plan assigns the fix to Phase 5.2 (which broadens Copilot skills and therefore touches copilot). Fix: add `copilot` to the test's `overrides` set (a one-line test update).
+- `test_init_subcommand.py::test_default_wire_project_surfaces_returns_none` - the test's `overrides` set omitted `copilot`, which has overridden `wire_project_surfaces` since v3.11.0 (it returns a skip-note `WriteResult`, not `None`, when the `.github/skills` opt-in is unset). It was confirmed PRE-EXISTING (reproduced on the bare `develop` baseline; Phases 1-4 never touched `wire_project_surfaces`). **RESOLVED (Phase 5.2, 2026-07-21)**: added `copilot` to the test's `overrides` set (and removed a pre-existing unused `import pytest` ruff flagged once the file was in scope). The test now passes (6/6).
 
 ### Open Items
 
@@ -67,12 +69,13 @@
 - **Decision**: OpenCode hooks are OUT OF SCOPE. `hooks_supported` stays `False` (the base `_mirror_catalog` gates the hook copy on it, so no hook surface is written); recorded in `opencode.py`'s docstring + config comment and the contract. A thin JS/TS wrapper that invokes the shell hooks is a possible future item but is not judged worth the per-hook authoring + Bun-runtime maintenance for this release.
 - **Suggested next step**: none required. Revisit only if a maintainer wants OpenCode hook parity badly enough to own a JS/TS plugin wrapper.
 
-##### DF-5 - Copilot skills are now native default-on; the `.github/skills` commit-visibility policy remains a Nexus-Hub concern
+##### DF-5 - Copilot skill broadening + stale opt-in framing - RESOLVED (Phase 5)
 
-- **Source phase**: v3.15.0 Phase 1.2
+- **Source phase**: v3.15.0 Phase 1.2; resolved Phase 5 (2026-07-21)
 - **Plan reference**: Phase 5 (Copilot skill broadening)
-- **Reason**: the re-verification found Copilot now reads Agent Skills natively and default-on (`.github/skills/` canonical, also `.claude/skills/`, `.agents/skills/`, and user paths `~/.copilot/skills/`, `~/.agents/skills/`, VS Code `~/.claude/skills/`); the `.github/skills` PATH matches the current opt-in path, but the baseline's "opt-in / env-gated / off-by-default" FRAMING is stale. Copilot also gained custom agents (`.github/agents/*.agent.md`) and hooks (`.github/hooks/*.json`, Preview).
-- **Suggested next step**: Phase 5 broadens the delivered skill set while keeping the never-overwrite-existing-file guarantee, because `.github/skills/` is commit-visible (a Nexus-Hub policy consideration independent of Copilot no longer technically requiring opt-in).
+- **Reason**: Phase 1 found Copilot now reads Agent Skills natively and default-on (`.github/skills/` canonical, also `.claude/skills/`, `.agents/skills/`, and user paths); the `.github/skills` PATH matched the baseline but the "opt-in / env-gated / off-by-default" FRAMING was stale (it read as a Copilot requirement when it is actually a Nexus-Hub commit-visibility policy). Copilot also gained custom agents (`.github/agents/*.agent.md`) and hooks (`.github/hooks/*.json`, Preview).
+- **Status**: RESOLVED. Phase 5 widened `.github/skills` seeding from a bare toggle to a SELECTOR (bundle id or `all`; bare-truthy = default `core-developer`), keeping OFF-by-default + never-overwrite as the commit-visibility policy, and corrected the framing in `copilot.py`'s docstring to state the opt-in is a Nexus-Hub policy, not a Copilot requirement.
+- **Residual (out of scope, not blocking)**: Copilot's custom agents (`.github/agents/*.agent.md`) and Preview hooks (`.github/hooks/*.json`) are new native surfaces Nexus-Hub does not yet populate. Not in Phase 5's charter (skill broadening); a candidate for a future release.
 
 #### Quality-gate gaps
 
