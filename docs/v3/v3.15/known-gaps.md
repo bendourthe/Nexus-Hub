@@ -1,8 +1,8 @@
 # Known Gaps - v3.15
 
 **Project**: Nexus-Hub
-**Status**: v3.15.0 platform-parity-all-gaps IN PROGRESS on `feat/platform-parity-all-gaps` (cut off `develop`). Phases 1 (capability model + read-contract web re-verification), 2 (Cursor parity), 3 (OpenCode parity), 4 (Qwen + Kimi reclassification), and 5 (Copilot skill broadening) COMPLETE; Phases 6-7 pending.
-**Last updated**: 2026-07-21 (v3.15.0 Phase 5)
+**Status**: v3.15.0 platform-parity-all-gaps IN PROGRESS on `feat/platform-parity-all-gaps` (cut off `develop`). Phases 1 (capability model + read-contract web re-verification), 2 (Cursor parity), 3 (OpenCode parity), 4 (Qwen + Kimi reclassification), 5 (Copilot skill broadening), and 6 (installer checklist + runtime verify parity) COMPLETE; Phase 7 (terminal refactor) pending.
+**Last updated**: 2026-07-21 (v3.15.0 Phase 6)
 
 > **Prior-version ingest**: v3.14.5's DF-4 (platform additive-surface drift) is the direct input to this release and is now being actioned per phase; it does not carry forward as a separate open item. The v3.14.5 Advisory pre-existing failure `test_init_subcommand.py::test_default_wire_project_surfaces_returns_none` is re-confirmed on this branch (see Advisory below) and is owned by Phase 5.2.
 
@@ -18,6 +18,8 @@
 
 **Phase 5 (Copilot skill broadening) COMPLETE.** **5.1**: widened Copilot's opt-in `.github/skills` seeding from a bare on/off toggle to a SELECTOR (`scripts/lib/integrations/copilot.py`). `NEXUS_HUB_COPILOT_SKILLS` now accepts a bundle id (any of the 15 in `data/bundles.json`) or `all` (the full catalog), with bare-truthy (`1`/`true`/`yes`/`on`) still meaning the default `core-developer` bundle and any off value meaning off. An unknown bundle id falls back to the default (with a logged note). Kept OFF by default and never-overwrite - `.github/skills/` is commit-visible, a Nexus-Hub POLICY choice, not a Copilot requirement (per DF-5, Copilot reads skills natively default-on); the stale opt-in framing is corrected in the integration docstring. **5.2**: fixed the pre-existing `test_init_subcommand.py::test_default_wire_project_surfaces_returns_none` advisory by adding `copilot` to the test's `overrides` set (it has overridden `wire_project_surfaces` since v3.11.0, returning a `WriteResult`, not `None`); also removed a pre-existing unused `import pytest` from that file (surfaced by ruff once the file was in scope). **Validation**: `test_copilot_skills_surface.py` (9 tests, incl. new bundle-id/`all`/explicit-off/unknown-fallback) + `test_init_subcommand.py` (6, advisory now GREEN); ruff clean. Contract JSON `parity_verification_v3_15_0.copilot.phase5_delivered` + DF-5 resolved.
 
+**Phase 6 (installer checklist + runtime verify parity) COMPLETE - confirmation, no production change.** The v3.14.5 summary-driven checklist and the JSON-driven `[verify]` pass are both generic (path-shape surface classification; `install_verify` rows loaded from `platform-read-contracts.json`), so the Cursor/OpenCode/Qwen/Kimi surfaces added in Phases 2-4 already flow through both automatically - no installer or runner edit was needed. **6.1** confirmed (`_build_platform_summary` reports the new surfaces: cursor {skills,commands,agents,hooks,rules,instruction}, opencode {+agents}, qwen {skills,commands,agents,instruction}, kimi {skills,instruction}), including Cursor's custom `hooks.json` writer (its FileAction classifies as `hooks`). **6.2** confirmed (`_verify_checks` emits `[verify]` rows for Cursor/OpenCode/Qwen Code/Kimi Code CLI when detected, from the `install_verify` rows added in Phases 2-4). **6.3** locked it in with tests: 4 new `_verify_checks` tests in `tests/installer/test_verify_read_paths.py` and a parametrized newly-parity summary test in `tests/integrations/test_install_summary.py`. Both installers parse clean (`bash -n`, PowerShell `ParseFile`). No `contract_checks`/`install_verify` change (the rows already exist); no CHANGELOG production entry (the surfaces are the Phases 2-5 entries).
+
 ### Summary
 
 | Category | Open | Resolved |
@@ -25,7 +27,7 @@
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 1 | 4 |
 | Bugs / regressions (BG) | 0 | 0 |
-| Warnings (WN) | 0 | 0 |
+| Warnings (WN) | 1 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 1 | 0 |
 | Hand-offs (HO) | 0 | 0 |
@@ -76,6 +78,14 @@
 - **Reason**: Phase 1 found Copilot now reads Agent Skills natively and default-on (`.github/skills/` canonical, also `.claude/skills/`, `.agents/skills/`, and user paths); the `.github/skills` PATH matched the baseline but the "opt-in / env-gated / off-by-default" FRAMING was stale (it read as a Copilot requirement when it is actually a Nexus-Hub commit-visibility policy). Copilot also gained custom agents (`.github/agents/*.agent.md`) and hooks (`.github/hooks/*.json`, Preview).
 - **Status**: RESOLVED. Phase 5 widened `.github/skills` seeding from a bare toggle to a SELECTOR (bundle id or `all`; bare-truthy = default `core-developer`), keeping OFF-by-default + never-overwrite as the commit-visibility policy, and corrected the framing in `copilot.py`'s docstring to state the opt-in is a Nexus-Hub policy, not a Copilot requirement.
 - **Residual (out of scope, not blocking)**: Copilot's custom agents (`.github/agents/*.agent.md`) and Preview hooks (`.github/hooks/*.json`) are new native surfaces Nexus-Hub does not yet populate. Not in Phase 5's charter (skill broadening); a candidate for a future release.
+
+#### Warnings
+
+##### WN-1 - `test_bootstrap.py::test_ps_standalone_extracts_and_hands_off` fails in this Windows Git-Bash dev env (pre-existing, environmental)
+
+- **Source phase**: surfaced during v3.15.0 Phase 6's `tests/installer` run (pre-existing, NOT caused by any v3.15.0 phase)
+- **Reason**: the standalone-bootstrap test drives `install.ps1`, which shells out to extract the downloaded `main` tarball; on this Windows Git-Bash host `/usr/bin/tar` fails with `unexpected end of file` / `Child returned status 128` (a `tar`-binary / path-handling quirk of the local environment, not a code defect). Phase 6 touched no bootstrap/install file - only `tests/installer/test_verify_read_paths.py` and `tests/integrations/test_install_summary.py` - and this test was already failing on the branch before Phase 6. `tests/installer` is otherwise 120 passed / 15 skipped.
+- **Suggested next step**: Phase 7 / `/update release` should confirm the bootstrap test passes in CI (Linux/macOS `tar`), where this environmental quirk does not apply; if it also fails in CI, investigate the `install.ps1` extraction path. Not a release blocker on its own (the core installers `scripts/installer.{sh,ps1}` are unaffected).
 
 #### Quality-gate gaps
 

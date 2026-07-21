@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-**v3.15.0 platform-parity-all-gaps (in progress).** Every supported platform receives all Nexus-Hub surfaces it can actually consume (skills, commands, agents, rules, hooks), verified against each platform's current docs. Phase 1 gives the integration layer a real capability signal and web-re-verifies the parity-target platforms before wiring them; Phase 2 brings Cursor to full parity; Phase 3 adds OpenCode's agents surface; Phase 4 reclassifies Qwen and Kimi to skills-bearing integrations; Phase 5 widens Copilot's skill selection.
+**v3.15.0 platform-parity-all-gaps (in progress).** Every supported platform receives all Nexus-Hub surfaces it can actually consume (skills, commands, agents, rules, hooks), verified against each platform's current docs. Phase 1 gives the integration layer a real capability signal and web-re-verifies the parity-target platforms before wiring them; Phase 2 brings Cursor to full parity; Phase 3 adds OpenCode's agents surface; Phase 4 reclassifies Qwen and Kimi to skills-bearing integrations; Phase 5 widens Copilot's skill selection; Phase 6 confirms the installer per-platform checklist and the runtime `[verify]` pass now cover the newly-parity platforms (no code change - the v3.14.5 summary + verify plumbing is generic - just locked in with tests).
 
 ### Added
 

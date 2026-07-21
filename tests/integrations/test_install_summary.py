@@ -248,6 +248,43 @@ def test_summary_json_marks_undetected_platform(
     assert kimi["surfaces"] == {}
 
 
+# ---------------------------------------------------------------------------
+# Newly-parity checklist surfaces (v3.15.0 Phase 6)
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "key, expected_surfaces",
+    [
+        ("cursor", {"skills", "commands", "agents", "hooks", "rules", "instruction"}),
+        ("opencode", {"skills", "commands", "agents", "rules", "instruction"}),
+        ("qwen", {"skills", "commands", "agents", "instruction"}),
+        ("kimi", {"skills", "instruction"}),
+    ],
+)
+def test_newly_parity_summary_surfaces(key, expected_surfaces, tmp_path: Path) -> None:
+    """v3.15.0 Phase 6: the summary-driven checklist captures the parity surfaces
+    added in Phases 2-4 for each newly-parity platform (dry-run, real integrations)."""
+    from scripts.lib.integrations import get
+    from scripts.lib.integrations.base import InstallContext
+    from scripts.lib.integrations.manifest import InstallManifest
+
+    ctx = InstallContext(
+        repo_root=REPO_ROOT,
+        target_root=tmp_path,
+        scope="workspace",
+        dry_run=True,
+        manifest=InstallManifest(),
+        template_vars={"PROJECT_NAME": "t"},
+    )
+    integ = get(key)
+    summary = runner._build_platform_summary(key, integ, integ.install(ctx))
+    got = set(summary.get("surfaces", {}).keys())
+    assert expected_surfaces <= got, f"{key}: missing surfaces {expected_surfaces - got}"
+    for surf, info in summary["surfaces"].items():
+        assert info["status"] == "installed", f"{key}: {surf} status={info['status']!r}"
+
+
 def test_quiet_output_unchanged_but_summary_written(
     fake_home: Path,
     tmp_path: Path,
