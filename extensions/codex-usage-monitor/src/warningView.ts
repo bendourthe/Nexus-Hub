@@ -30,6 +30,9 @@ const URGENCY_COLOR: Record<UrgencyLevel, string> = {
   critical: "#f85149",
 };
 
+const LOGO_DATA_URI =
+  "data:image/png;base64,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";
+
 export class WarningViewProvider implements vscode.WebviewViewProvider {
   private view: vscode.WebviewView | undefined;
   private suggestion: UsageSuggestion | undefined;
@@ -119,19 +122,14 @@ export class WarningViewProvider implements vscode.WebviewViewProvider {
 
     return this.wrapHtml(webview, `
       <div class="warn">
-        <div class="header">
-          <span class="warn-icon" style="color:${color}">${ICON.warning}</span>
-          <h1>${escapeHtml(label)} Usage Warning</h1>
-          <button class="close" data-command="cancel" title="Dismiss" aria-label="Dismiss">${ICON.close}</button>
-        </div>
+        <button class="close" data-command="cancel" title="Dismiss" aria-label="Dismiss">${ICON.close}</button>
 
-        <div class="divider"></div>
-
-        <div class="rec-head"><span>Ways to extend your usage</span></div>
-
-        <div class="recs">
-          ${switchRow}
-          <div class="rec">${ICON.gauge}<span>${escapeHtml(s.effortAdvice)}</span></div>
+        <div class="brand">
+          <img class="brand-logo" src="${LOGO_DATA_URI}" alt="" />
+          <div class="brand-title">
+            <div class="brand-name">${escapeHtml(label)}</div>
+            <div class="brand-sub">Usage Monitor</div>
+          </div>
         </div>
 
         <div class="ring-wrap">
@@ -145,6 +143,13 @@ export class WarningViewProvider implements vscode.WebviewViewProvider {
             <div class="ring-pct">${pct}%</div>
             <div class="ring-label">${escapeHtml(s.label)}</div>
           </div>
+        </div>
+
+        <div class="rec-head"><span>Ways to extend your usage</span></div>
+
+        <div class="recs">
+          ${switchRow}
+          <div class="rec">${ICON.gauge}<span>${escapeHtml(s.effortAdvice)}</span></div>
         </div>
 
         <div class="reset-box">
@@ -172,7 +177,7 @@ export class WarningViewProvider implements vscode.WebviewViewProvider {
 <html>
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src ${webview.cspSource} 'unsafe-inline'; script-src 'nonce-${nonce}';">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
@@ -181,22 +186,40 @@ export class WarningViewProvider implements vscode.WebviewViewProvider {
       background: var(--vscode-sideBar-background, var(--vscode-editor-background));
       padding: 12px 14px;
     }
-    .warn { width: 100%; }
+    .warn { width: 100%; position: relative; }
     .empty { opacity: 0.7; font-size: 13px; }
-    .header {
+    /* Centered brand block: real product icon above a two-line "<PRODUCT>" / "Usage Monitor" title. */
+    .brand {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
+      text-align: center;
+      padding: 2px 0;
     }
-    .header h1 {
-      font-size: 15px;
+    /* The full-color extension icon (data URI), sized down from its native resolution so it
+       stays crisp; no tinting, so it renders in its original brand colors. */
+    .brand-logo { display: block; width: 44px; height: 44px; }
+    .brand-title { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+    .brand-name {
+      font-size: 22px;
       font-weight: 700;
-      margin: 0;
-      flex: 1;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      line-height: 1.1;
       color: var(--vscode-sideBarTitle-foreground, var(--vscode-foreground));
     }
-    .warn-icon svg { display: block; width: 22px; height: 22px; }
+    .brand-sub {
+      font-size: 16px;
+      font-weight: 600;
+      line-height: 1.1;
+      color: var(--vscode-sideBarTitle-foreground, var(--vscode-foreground));
+    }
+    /* Dismiss control pinned to the top-right corner, clear of the centered brand. */
     .close {
+      position: absolute;
+      top: 0;
+      right: 0;
       background: transparent;
       border: none;
       color: var(--vscode-descriptionForeground, var(--vscode-foreground));
@@ -211,14 +234,14 @@ export class WarningViewProvider implements vscode.WebviewViewProvider {
       border-top: 1px solid var(--vscode-widget-border, rgba(128,128,128,0.25));
       margin: 12px 0;
     }
-    /* One-line, centered recommendations heading above the ring (wraps only if the
-       sidebar is dragged very narrow). */
+    /* Small, centered section heading below the ring (previously the large hero heading). */
     .rec-head {
-      font-size: 26px;
-      font-weight: 500;
-      line-height: 1.25;
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.3;
       text-align: center;
-      margin: 2px 0 16px;
+      opacity: 0.85;
+      margin: 20px 0 12px;
     }
     .recs {
       display: flex;
@@ -241,7 +264,7 @@ export class WarningViewProvider implements vscode.WebviewViewProvider {
     .icon-clock { color: var(--vscode-charts-blue, #4aa5f0); }
     .icon-chart { color: var(--vscode-descriptionForeground, #8b949e); }
     .rec strong { font-weight: 700; }
-    /* Ring centered below the recommendations. */
+    /* Ring centered below the brand block. */
     .ring-wrap { position: relative; width: 132px; height: 132px; margin: 16px auto 0; }
     .ring-track { stroke: rgba(128,128,128,0.25); }
     .ring-center {
