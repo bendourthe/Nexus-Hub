@@ -32,6 +32,7 @@ from mcp.types import TextContent, Tool
 
 from nexus_code_search.config import CodeSearchConfig, index_dir_for, resolve_config
 from nexus_code_search.contextmap import generate_context_map
+from nexus_code_search.contextmap.knowledge import generate_knowledge_map
 from nexus_code_search.contextmap.maphealth import lint_context_map
 from nexus_code_search.db.schema import open_database
 from nexus_code_search.extraction import ExtractionOrchestrator
@@ -118,6 +119,8 @@ async def run_server() -> None:
                 return _handle_generate_context_map(arguments, config)
             if name == "map_health":
                 return _handle_map_health(arguments, config)
+            if name == "generate_knowledge_map":
+                return _handle_generate_knowledge_map(arguments)
             if name in (
                 "code_search",
                 "code_callers",
@@ -266,6 +269,27 @@ def _all_tools() -> list[Tool]:
             inputSchema={
                 "type": "object",
                 "properties": root_arg,
+                "required": ["root"],
+            },
+        ),
+        Tool(
+            name="generate_knowledge_map",
+            description=(
+                "Compile a committed <root>/.nexus/KNOWLEDGE.md from the Markdown "
+                "notes under `notes_path` (default: root): key decisions, open "
+                "questions, and a categorized note index (decision / meeting / "
+                "retro / spec / research). Deterministic, local-only, graph-"
+                "independent; writes only under <root>/.nexus/."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    **root_arg,
+                    "notes_path": {
+                        "type": "string",
+                        "description": "Folder of Markdown notes (default: root).",
+                    },
+                },
                 "required": ["root"],
             },
         ),
@@ -571,6 +595,16 @@ def _handle_generate_context_map(
     force = bool(arguments.get("force", False))
     index_dir = index_dir_for(root, config)
     result = generate_context_map(root, index_dir, force=force)
+    return [TextContent(type="text", text=json.dumps(result.to_dict()))]
+
+
+def _handle_generate_knowledge_map(arguments: dict) -> list[TextContent]:
+    root = _resolve_root(arguments)
+    if not root.exists() or not root.is_dir():
+        raise ValueError(f"root path does not exist or is not a directory: {root}")
+    notes_raw = arguments.get("notes_path")
+    notes_path = Path(notes_raw).expanduser().resolve() if notes_raw else None
+    result = generate_knowledge_map(root, notes_path)
     return [TextContent(type="text", text=json.dumps(result.to_dict()))]
 
 

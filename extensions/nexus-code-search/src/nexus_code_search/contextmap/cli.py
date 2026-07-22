@@ -23,6 +23,7 @@ from pathlib import Path
 from nexus_code_search.config import index_dir_for, resolve_config
 from nexus_code_search.contextmap.changemap import compute_change_map
 from nexus_code_search.contextmap.generator import generate_context_map
+from nexus_code_search.contextmap.knowledge import generate_knowledge_map
 from nexus_code_search.contextmap.maphealth import lint_context_map
 from nexus_code_search.db.schema import DB_FILENAME, open_database
 
@@ -68,12 +69,29 @@ def main(argv: list[str] | None = None) -> int:
             "staleness) instead of generating. Exit 1 if unhealthy."
         ),
     )
+    parser.add_argument(
+        "--knowledge",
+        nargs="?",
+        const="",
+        default=None,
+        metavar="NOTES_PATH",
+        help=(
+            "Compile .nexus/KNOWLEDGE.md from the Markdown notes under NOTES_PATH "
+            "(default: root). Graph-independent; classifies decisions / meetings / "
+            "retros / specs / research and extracts decisions + open questions."
+        ),
+    )
     args = parser.parse_args(argv)
 
     root = Path(args.root).expanduser().resolve()
     if not root.exists() or not root.is_dir():
         print(f"error: root {root} does not exist", file=sys.stderr)
         return 1
+
+    # Knowledge extraction reads Markdown, not the code graph, so it runs before
+    # the graph-index check below.
+    if args.knowledge is not None:
+        return _run_knowledge(root, args.knowledge or None, as_json=args.json)
 
     config = resolve_config()
     index_dir = index_dir_for(root, config)
@@ -143,6 +161,27 @@ def _run_change_map(root: Path, index_dir: Path, ref: str, *, as_json: bool) -> 
     _print_list("affected models", change.affected_models)
     _print_list("affected symbols", change.affected_symbols)
     _print_list("affected tests", change.affected_tests)
+    return 0
+
+
+def _run_knowledge(root: Path, notes_path: str | None, *, as_json: bool) -> int:
+    resolved = Path(notes_path).expanduser().resolve() if notes_path else None
+    if resolved is not None and not resolved.exists():
+        print(f"error: notes path {resolved} does not exist", file=sys.stderr)
+        return 1
+    result = generate_knowledge_map(root, resolved)
+    if as_json:
+        print(json.dumps(result.to_dict(), indent=2))
+        return 0
+    action = "unchanged (no-op)" if result.skipped else "generated"
+    print(f"Knowledge map {action}: {result.knowledge_path}")
+    print(
+        f"  notes: {result.note_count} | decisions: {result.decision_count} | "
+        f"open questions: {result.open_question_count}"
+    )
+    if result.categories:
+        summary = ", ".join(f"{k}: {v}" for k, v in result.categories.items())
+        print(f"  by category: {summary}")
     return 0
 
 

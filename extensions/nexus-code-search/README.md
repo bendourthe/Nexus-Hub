@@ -48,6 +48,7 @@ The installer ships with the repo. Alternatively install via the Nexus-Hub insta
 | `code_affected_tests(changed_files, depth=5, test_glob=None)` | Reverse-import BFS: given a list of changed files, return every test file in the index whose code transitively imports any of them. Conservative -- false positives favored over false negatives. Companion CLI: `nexus-hub affected` (see "CLI dispatcher" below). |
 | `generate_context_map(root, force=False)` | Compile a committed `<root>/.nexus/CONTEXT-MAP.md` (plus a `<root>/.nexus/context/` article set) from the graph, so an AI reads the codebase map once at session start instead of re-exploring files. Includes framework-aware Routes (method / path / params / behavior tags), an Environment audit (required vs default), Middleware, ORM Data Models (fields / keys / relations), UI Components (props), background Events, and a Most-Imported Files ranking. Deterministic and local-only; writes only under `<root>/.nexus/`. Unchanged graph is a no-op unless `force=True`. Run `index_graph` first. Companion CLI: `nexus-hub map` (see "Context map" below). |
 | `map_health(root)` | Lint the compiled map: orphan articles, missing backlinks, and staleness (source changed since the map was generated). Deterministic and local-only; returns a health report. Companion CLI: `nexus-hub map --lint`. |
+| `generate_knowledge_map(root, notes_path=None)` | Compile a committed `<root>/.nexus/KNOWLEDGE.md` from the Markdown notes under `notes_path` (default: root): key decisions, open questions, and a categorized note index (decision / meeting / retro / spec / research). Deterministic, local-only, graph-independent. Companion CLI: `nexus-hub map --knowledge`. |
 
 ## NodeKind / EdgeKind taxonomy
 
@@ -125,9 +126,12 @@ nexus-hub map --since HEAD~1 --json
 
 # Lint the compiled map: orphan articles, missing backlinks, staleness (exit 1 if unhealthy).
 nexus-hub map --lint
+
+# Compile a knowledge primer from a folder of Markdown notes (decisions, open questions).
+nexus-hub map --knowledge docs/notes
 ```
 
-The lint is also the `map_health` MCP tool. Its richer, semantic companion (prose quality, cross-doc consistency) stays in the LLM-native `documentation-consistency` skill; the lint is the mechanical, CI-runnable half only, and ships no new skill.
+The lint is also the `map_health` MCP tool. The knowledge extractor (also the `generate_knowledge_map` MCP tool) is graph-independent - it classifies `.md` notes (decision / meeting / retro / spec / research) by filename and heading heuristics and emits `.nexus/KNOWLEDGE.md` with key decisions, open questions, and a categorized index; narrative synthesis stays in the `solution-knowledge-base` skill. Its richer, semantic companion (prose quality, cross-doc consistency) stays in the LLM-native `documentation-consistency` skill; the lint is the mechanical, CI-runnable half only, and ships no new skill.
 
 ## Token-savings benchmark
 
