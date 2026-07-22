@@ -46,7 +46,8 @@ The installer ships with the repo. Alternatively install via the Nexus-Hub insta
 | `code_explore(symbol, depth=2)` | Combined search + traversal payload (matches + callers + callees + impact). |
 | `watch_for_changes(root, debounce_ms=2000)` | Start a debounced filesystem watcher that re-indexes the graph as files change. Returns immediately; the watcher runs in a background thread. |
 | `code_affected_tests(changed_files, depth=5, test_glob=None)` | Reverse-import BFS: given a list of changed files, return every test file in the index whose code transitively imports any of them. Conservative -- false positives favored over false negatives. Companion CLI: `nexus-hub affected` (see "CLI dispatcher" below). |
-| `generate_context_map(root, force=False)` | Compile a committed `<root>/.nexus/CONTEXT-MAP.md` (plus a `<root>/.nexus/context/` article set) from the graph, so an AI reads the codebase map once at session start instead of re-exploring files. Includes framework-aware Routes (method / path / params / behavior tags), an Environment audit (required vs default), Middleware, ORM Data Models (fields / keys / relations), UI Components (props), and background Events. Deterministic and local-only; writes only under `<root>/.nexus/`. Unchanged graph is a no-op unless `force=True`. Run `index_graph` first. Companion CLI: `nexus-hub map` (see "Context map" below). |
+| `generate_context_map(root, force=False)` | Compile a committed `<root>/.nexus/CONTEXT-MAP.md` (plus a `<root>/.nexus/context/` article set) from the graph, so an AI reads the codebase map once at session start instead of re-exploring files. Includes framework-aware Routes (method / path / params / behavior tags), an Environment audit (required vs default), Middleware, ORM Data Models (fields / keys / relations), UI Components (props), background Events, and a Most-Imported Files ranking. Deterministic and local-only; writes only under `<root>/.nexus/`. Unchanged graph is a no-op unless `force=True`. Run `index_graph` first. Companion CLI: `nexus-hub map` (see "Context map" below). |
+| `map_health(root)` | Lint the compiled map: orphan articles, missing backlinks, and staleness (source changed since the map was generated). Deterministic and local-only; returns a health report. Companion CLI: `nexus-hub map --lint`. |
 
 ## NodeKind / EdgeKind taxonomy
 
@@ -115,6 +116,32 @@ The token-count header prefers `tiktoken` (cl100k_base) when it is importable an
 `.gitignore` guidance for consumer repos: commit `.nexus/CONTEXT-MAP.md` and `.nexus/context/`, but ignore the `.nexus/code-index/` graph database.
 
 The CLI exits with code 2 if no graph index is found at `<root>/.nexus/code-index/codegraph.db` (run `index_graph` first), and code 1 for a missing root.
+
+Two more `nexus-hub map` modes:
+
+```bash
+# Change-scoped view since a git ref (affected routes / models / symbols / tests).
+nexus-hub map --since HEAD~1 --json
+
+# Lint the compiled map: orphan articles, missing backlinks, staleness (exit 1 if unhealthy).
+nexus-hub map --lint
+```
+
+The lint is also the `map_health` MCP tool. Its richer, semantic companion (prose quality, cross-doc consistency) stays in the LLM-native `documentation-consistency` skill; the lint is the mechanical, CI-runnable half only, and ships no new skill.
+
+## Token-savings benchmark
+
+`python -m nexus_code_search.contextmap.benchmark` measures how many tokens the compiled map saves versus reading the codebase manually. The manual-exploration cost is modeled as the sum of per-file tokens times a revisit multiplier (an AI re-reads files while exploring) plus a per-entity discovery overhead for each route / model / component / env var; the map cost is the map + article tokens. The reduction ratio is `1 - map_cost / manual_cost`. The estimation constants (`REVISIT_MULTIPLIER`, `TOKENS_PER_ROUTE`, ...) are the tool's own heuristic, documented in `benchmark.py`.
+
+```bash
+# Benchmark the committed sample corpus and gate against the baseline.
+python -m nexus_code_search.contextmap.benchmark --check
+
+# Benchmark any real repository (prints the ratio; no gate).
+python -m nexus_code_search.contextmap.benchmark --repo /path/to/repo --json
+```
+
+A committed `benchmark_baseline.json` records a per-repo floor (a margin below the measured ratio) so a regression - the map silently losing its savings - fails the gate; re-baseline intentionally with `--update-baseline`. On the sample corpus the map saves ~44-55% of exploration tokens; on Nexus-Hub itself a ~22k-token map replaces ~1.9M tokens of manual exploration (~99% reduction, 443 files). A map is not worth its fixed overhead on a trivially small repo - the savings scale with codebase size.
 
 ## Eval harness
 

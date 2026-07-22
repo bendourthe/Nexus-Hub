@@ -105,6 +105,11 @@ class ContextMapResult:
     files_indexed: int = 0
     symbols: int = 0
     modules: int = 0
+    routes_count: int = 0
+    models_count: int = 0
+    components_count: int = 0
+    env_count: int = 0
+    events_count: int = 0
 
     def to_dict(self) -> dict:
         return {
@@ -119,6 +124,11 @@ class ContextMapResult:
             "files_indexed": self.files_indexed,
             "symbols": self.symbols,
             "modules": self.modules,
+            "routes_count": self.routes_count,
+            "models_count": self.models_count,
+            "components_count": self.components_count,
+            "env_count": self.env_count,
+            "events_count": self.events_count,
         }
 
 
@@ -150,6 +160,58 @@ def generate_context_map(
 
     _write_outputs(root_path, model)
     return _collect_result(root_path, model, skipped=False)
+
+
+@dataclass(frozen=True)
+class TokenEstimate:
+    """Token counts + entity counts for a map, computed WITHOUT writing files."""
+
+    map_tokens: int
+    total_tokens: int
+    files_indexed: int
+    routes_count: int
+    models_count: int
+    components_count: int
+    env_count: int
+    events_count: int
+
+
+def estimate_map_tokens(root: Path | str, index_dir: Path | str) -> TokenEstimate:
+    """Compute the map + article token counts in memory (no `.nexus/` writes).
+
+    Used by the benchmark to measure a repo's map cost without polluting it. The
+    per-document token counts match exactly what a written map would report
+    (each is measured over the document minus its metadata line).
+    """
+    root_path = Path(root).resolve()
+    conn = open_database(Path(index_dir).resolve())
+    try:
+        model = _load_model(conn, root_path)
+    finally:
+        conn.close()
+
+    total = _document_tokens("# Codebase Context Map", _map_body_lines(model))
+    map_tokens = total
+    total += _document_tokens("# Context Articles", _index_body_lines(model))
+    if model.routes:
+        total += _document_tokens("# Routes", _routes_article_lines(model))
+    if model.models:
+        total += _document_tokens("# Database", _database_article_lines(model))
+    for module in model.modules:
+        total += _document_tokens(
+            f"# Module: `{module.name}`", _article_body_lines(module)
+        )
+
+    return TokenEstimate(
+        map_tokens=map_tokens,
+        total_tokens=total,
+        files_indexed=model.total_files,
+        routes_count=len(model.routes),
+        models_count=len(model.models),
+        components_count=len(model.components),
+        env_count=len(model.env_vars),
+        events_count=len(model.events),
+    )
 
 
 # --- Graph -> model ---------------------------------------------------------
@@ -228,18 +290,7 @@ def _load_model(conn: sqlite3.Connection, root: Path) -> ContextMapModel:
     events = tuple(detect_events(root, code_files))
     hot_files = tuple(most_imported_files(conn, limit=MAX_HOT_FILES))
 
-    # Fingerprint over the graph's files PLUS any non-code file an extractor reads
-    # (env-example + .prisma), so a change to one still invalidates the map.
-    fingerprint_rows = [(p, h) for _, p, _, h in file_rows]
-    for env_file in env_example_fingerprint_files(root):
-        fingerprint_rows.append(
-            (_relative(root, env_file), f"env:{_hash_file(env_file)}")
-        )
-    for prisma_file in prisma_fingerprint_files(root):
-        fingerprint_rows.append(
-            (_relative(root, prisma_file), f"prisma:{_hash_file(prisma_file)}")
-        )
-    source_hash = compute_source_hash(fingerprint_rows)
+    source_hash = _source_fingerprint(root, [(p, h) for _, p, _, h in file_rows])
 
     return ContextMapModel(
         root_name=root.name,
@@ -256,6 +307,36 @@ def _load_model(conn: sqlite3.Connection, root: Path) -> ContextMapModel:
         events=events,
         hot_files=hot_files,
     )
+
+
+def _source_fingerprint(root: Path, file_rows: list[tuple[str, str]]) -> str:
+    """Fingerprint over the graph's files PLUS any non-code file an extractor
+    reads (env-example + .prisma), so a change to one still invalidates the map.
+    Single source of truth, shared by the generator and the map-health lint."""
+    fingerprint_rows = list(file_rows)
+    for env_file in env_example_fingerprint_files(root):
+        fingerprint_rows.append(
+            (_relative(root, env_file), f"env:{_hash_file(env_file)}")
+        )
+    for prisma_file in prisma_fingerprint_files(root):
+        fingerprint_rows.append(
+            (_relative(root, prisma_file), f"prisma:{_hash_file(prisma_file)}")
+        )
+    return compute_source_hash(fingerprint_rows)
+
+
+def current_source_hash(root: Path, index_dir: Path) -> str:
+    """Recompute the current source fingerprint from the graph + non-code files.
+
+    Used by the map-health lint to detect staleness (the map's embedded
+    source-hash vs the current one). Matches exactly what the generator embeds.
+    """
+    conn = open_database(index_dir)
+    try:
+        file_rows = conn.execute("SELECT path, content_hash FROM files").fetchall()
+    finally:
+        conn.close()
+    return _source_fingerprint(root, [(p, h) for p, h in file_rows])
 
 
 def _hash_file(path: Path) -> str:
@@ -284,6 +365,11 @@ def _symbol_sort_key(symbol: SymbolEntry) -> tuple[str, str, str]:
 # --- Rendering --------------------------------------------------------------
 
 
+def _document_tokens(h1: str, body_lines: list[str]) -> int:
+    """Token count of a document excluding its (not-yet-added) metadata line."""
+    return count_tokens("\n".join([h1, "", *body_lines]) + "\n")
+
+
 def _document(h1: str, body_lines: list[str], source_hash: str) -> str:
     """Render a document with a token-count header placed after the H1.
 
@@ -291,8 +377,7 @@ def _document(h1: str, body_lines: list[str], source_hash: str) -> str:
     line, which avoids the circular dependency where the digit count would
     change the token count. Every output file carries this header.
     """
-    without_meta = "\n".join([h1, "", *body_lines]) + "\n"
-    tokens = count_tokens(without_meta)
+    tokens = _document_tokens(h1, body_lines)
     meta = (
         f"{_META_PREFIX} v{GENERATOR_VERSION} | "
         f"source-hash: {source_hash} | tokens: {tokens} -->"
@@ -715,4 +800,9 @@ def _collect_result(
         files_indexed=model.total_files,
         symbols=model.total_symbols,
         modules=len(model.modules),
+        routes_count=len(model.routes),
+        models_count=len(model.models),
+        components_count=len(model.components),
+        env_count=len(model.env_vars),
+        events_count=len(model.events),
     )

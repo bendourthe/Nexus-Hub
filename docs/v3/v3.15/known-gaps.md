@@ -1,8 +1,8 @@
 # Known Gaps - v3.15
 
 **Project**: Nexus-Hub
-**Status**: v3.15.0 adoption-codesight IN PROGRESS on `feat/adoption-codesight` (cut off `develop`). Phases 1-4 of 7 COMPLETE (Phase 1: compiled context-map generator + `generate_context_map` MCP tool + `nexus-hub map` CLI; Phase 2: routes + env + middleware; Phase 3: ORM schema + components + events, with relation resolution; Phase 4: file-level hot-file ranking + git-scoped `--since` change map). Phases 5-7 (measurement + health, knowledge layer, terminal refactor + release) pending.
-**Last updated**: 2026-07-21 (v3.15.0 adoption-codesight Phase 4)
+**Status**: v3.15.0 adoption-codesight IN PROGRESS on `feat/adoption-codesight` (cut off `develop`). Phases 1-5 of 7 COMPLETE (Phase 1: generator + tool + CLI; Phase 2: routes + env + middleware; Phase 3: ORM schema + components + events; Phase 4: hot files + `--since` change map; Phase 5: token-savings benchmark + map-health lint). **Both DoD axes now hold**: the measured token-reduction ratio is validated (benchmark) AND extractor accuracy is verified (zero-FP + recall harness). Phases 6-7 (knowledge layer, terminal refactor + release) pending.
+**Last updated**: 2026-07-21 (v3.15.0 adoption-codesight Phase 5)
 
 > **Scope note (version collision)**: three plans under `docs/v3/v3.15/plans/` are all stamped `v3.15.0` - `platform-parity-all-gaps` (appears complete on its own branch), `adoption-codesight` (this file), and `adoption-awesome-llm-apps`. Only one feature set can ship as v3.15.0. This is the comparison-versioning artifact (plans stamped with the authoring-cycle version, not the real adoption target). It is NOT a Phase-1 blocker (Phase 1 is extension-only code with its own package version and touches no catalog version surface), but it MUST be reconciled before this plan's release phase (Phase 7 / `/update release`). See QG-2.
 
@@ -52,6 +52,13 @@
 
 #### Missing tests / coverage gaps
 
+##### MT-2 - Benchmark `--update-baseline` write path not automated-tested
+
+- **Source phase**: v3.15.0 adoption-codesight Phase 5 (5.1)
+- **Plan reference**: Phase 5.1 / 5.3
+- **Reason**: `measured_baseline()` (the value builder) is unit-tested, but the `benchmark --update-baseline` CLI branch that OVERWRITES the committed `benchmark_baseline.json` is deliberately not exercised in the suite - a test that ran it would clobber the committed baseline. The gate path (`--check`), JSON/report output, and `--repo` mode are all tested.
+- **Suggested next step**: if desired, test `--update-baseline` against a monkeypatched `BASELINE_PATH` pointing at a temp file. Low value (the write is a two-line `Path.write_text`).
+
 ##### MT-1 - Repo-level `nexus-hub map` dispatch has no automated test
 
 - **Source phase**: v3.15.0 adoption-codesight Phase 1 (1.2)
@@ -89,13 +96,15 @@
 | Deferred (DF) | 2 | 1 |
 | Bugs / regressions (BG) | 0 | 0 |
 | Warnings (WN) | 2 | 0 |
-| Missing tests / coverage gaps (MT) | 1 | 0 |
+| Missing tests / coverage gaps (MT) | 2 | 0 |
 | Quality-gate gaps (QG) | 2 | 0 |
 | Hand-offs (HO) | 0 | 0 |
 
-DF-1 is fully RESOLVED (frameworks line in Phase 2, Most-Imported Files in Phase 4). DF-2 (extension version bump) and DF-3 (deferred detectors) remain open. WN-2 was added in Phase 4 (pre-existing ruff findings in `graph/affected.py`). WN-1, MT-1, QG-1, QG-2 carry unchanged.
+DF-1 is fully RESOLVED (frameworks line in Phase 2, Most-Imported Files in Phase 4). DF-2 (extension version bump) and DF-3 (deferred detectors) remain open. MT-2 added in Phase 5 (benchmark `--update-baseline` write path untested). WN-1, WN-2, MT-1, QG-1, QG-2 carry unchanged.
 
 ### Advisory
 
+- **Definition-of-done measured half VALIDATED (Phase 5)**: the token-savings benchmark measures the compiled map vs a simulated manual-exploration cost. On the committed sample corpus (3 realistic repos) the map saves ~44-55% of exploration tokens (regression-guarded by `benchmark_baseline.json`); on Nexus-Hub itself a ~22k-token map replaces ~1.9M tokens (~99% reduction, 443 files, 67 routes / 13 models / 5 components / 42 env vars detected). Combined with the Phase 2-3 zero-FP + recall accuracy harness, both DoD axes hold. The tiny per-framework `contextmap` fixtures are NOT a benchmark corpus - a map is not worth its fixed overhead on a 2-file repo; savings scale with codebase size, which is why the plan specifies real repos.
+- **Map-health lint ships as extension code, not a new catalog skill (Phase 5.2 decision)**: the deterministic checks (orphan articles, missing backlinks, staleness) live in `contextmap/maphealth.py` (exposed as the `map_health` MCP tool + `nexus-hub map --lint`); the richer semantic checks stay in the LLM-native `documentation-consistency` skill. No `data/` registry files were touched - Phases 1-5 remain entirely extension-only.
 - **tiktoken is optional, not a dependency**: the token-count header prefers `tiktoken` (cl100k_base) when it is importable and loads without a network fetch, and otherwise falls back to a deterministic stdlib heuristic (word + punctuation runs). The extension adds no dependency on tiktoken, preserving its zero-outbound posture. Token counts therefore differ between an environment with tiktoken cached and one without; within any single environment they are deterministic, so the tool-vs-CLI byte-identity and the token-header self-consistency both hold.
 - **`.nexus/` layout for consumers**: the generator writes `<root>/.nexus/CONTEXT-MAP.md` and `<root>/.nexus/context/*.md` (intended to be committed) alongside the pre-existing `<root>/.nexus/code-index/` graph database (gitignored). Consumer-repo `.gitignore` guidance (commit the map, ignore the index) is documented in the extension README and will be expanded in Phase 5/7.

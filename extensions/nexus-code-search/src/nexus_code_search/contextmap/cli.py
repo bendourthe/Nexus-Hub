@@ -23,6 +23,7 @@ from pathlib import Path
 from nexus_code_search.config import index_dir_for, resolve_config
 from nexus_code_search.contextmap.changemap import compute_change_map
 from nexus_code_search.contextmap.generator import generate_context_map
+from nexus_code_search.contextmap.maphealth import lint_context_map
 from nexus_code_search.db.schema import DB_FILENAME, open_database
 
 
@@ -59,6 +60,14 @@ def main(argv: list[str] | None = None) -> int:
             "tests) for what changed since GIT_REF, instead of the full map."
         ),
     )
+    parser.add_argument(
+        "--lint",
+        action="store_true",
+        help=(
+            "Lint the existing compiled map (orphan articles, missing backlinks, "
+            "staleness) instead of generating. Exit 1 if unhealthy."
+        ),
+    )
     args = parser.parse_args(argv)
 
     root = Path(args.root).expanduser().resolve()
@@ -79,6 +88,9 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.since is not None:
         return _run_change_map(root, index_dir, args.since, as_json=args.json)
+
+    if args.lint:
+        return _run_lint(root, index_dir, as_json=args.json)
 
     result = generate_context_map(root, index_dir, force=args.force)
 
@@ -132,6 +144,25 @@ def _run_change_map(root: Path, index_dir: Path, ref: str, *, as_json: bool) -> 
     _print_list("affected symbols", change.affected_symbols)
     _print_list("affected tests", change.affected_tests)
     return 0
+
+
+def _run_lint(root: Path, index_dir: Path, *, as_json: bool) -> int:
+    report = lint_context_map(root, index_dir)
+    if as_json:
+        print(json.dumps(report.to_dict(), indent=2))
+    elif not report.map_present:
+        print("no context map found; run `nexus-hub map` first.", file=sys.stderr)
+    elif report.healthy:
+        print("Context map is healthy (no orphans, backlinks OK, not stale).")
+    else:
+        print("Context map health issues:")
+        if report.orphans:
+            print(f"  orphan articles: {', '.join(report.orphans)}")
+        if report.missing_backlinks:
+            print(f"  missing backlinks: {', '.join(report.missing_backlinks)}")
+        if report.stale:
+            print("  stale: source files changed since the map was generated")
+    return 0 if (report.map_present and report.healthy) else 1
 
 
 def _print_list(label: str, items: list[str], cap: int = 25) -> None:

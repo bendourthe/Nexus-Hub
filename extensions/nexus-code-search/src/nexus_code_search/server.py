@@ -32,6 +32,7 @@ from mcp.types import TextContent, Tool
 
 from nexus_code_search.config import CodeSearchConfig, index_dir_for, resolve_config
 from nexus_code_search.contextmap import generate_context_map
+from nexus_code_search.contextmap.maphealth import lint_context_map
 from nexus_code_search.db.schema import open_database
 from nexus_code_search.extraction import ExtractionOrchestrator
 from nexus_code_search.graph import GraphQueryManager, affected_tests
@@ -115,6 +116,8 @@ async def run_server() -> None:
                 return _handle_index_graph(arguments, config)
             if name == "generate_context_map":
                 return _handle_generate_context_map(arguments, config)
+            if name == "map_health":
+                return _handle_map_health(arguments, config)
             if name in (
                 "code_search",
                 "code_callers",
@@ -249,6 +252,20 @@ def _all_tools() -> list[Tool]:
                     **root_arg,
                     "force": {"type": "boolean", "default": False},
                 },
+                "required": ["root"],
+            },
+        ),
+        Tool(
+            name="map_health",
+            description=(
+                "Lint the compiled context map under <root>/.nexus/: orphan "
+                "articles (not linked from the index), missing backlinks, and "
+                "staleness (source changed since the map was generated). "
+                "Deterministic and local-only; returns a health report."
+            ),
+            inputSchema={
+                "type": "object",
+                "properties": root_arg,
                 "required": ["root"],
             },
         ),
@@ -555,6 +572,15 @@ def _handle_generate_context_map(
     index_dir = index_dir_for(root, config)
     result = generate_context_map(root, index_dir, force=force)
     return [TextContent(type="text", text=json.dumps(result.to_dict()))]
+
+
+def _handle_map_health(arguments: dict, config: CodeSearchConfig) -> list[TextContent]:
+    root = _resolve_root(arguments)
+    if not root.exists() or not root.is_dir():
+        raise ValueError(f"root path does not exist or is not a directory: {root}")
+    index_dir = index_dir_for(root, config)
+    report = lint_context_map(root, index_dir)
+    return [TextContent(type="text", text=json.dumps(report.to_dict()))]
 
 
 def _handle_graph_query(
