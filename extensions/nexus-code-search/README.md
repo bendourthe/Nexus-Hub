@@ -89,11 +89,15 @@ nexus-hub map
 
 # Target another repo, force a rebuild, or emit JSON for tooling.
 nexus-hub map /repo --force --json
+
+# Print a change-scoped view (affected routes / models / symbols / tests) for
+# what changed since a git ref, instead of the full map (writes nothing).
+nexus-hub map --since HEAD~1 --json
 ```
 
 Outputs, written ONLY under `<root>/.nexus/`:
 
-- `CONTEXT-MAP.md` - overview (languages, detected frameworks, file / symbol / module counts), a module-structure table, framework-aware Routes / Environment / Middleware / Data Models / Components / Events sections, a most-imported-files placeholder, and an index of the per-module articles.
+- `CONTEXT-MAP.md` - overview (languages, detected frameworks, file / symbol / module counts), a module-structure table, framework-aware Routes / Environment / Middleware / Data Models / Components / Events sections, a Most-Imported Files ranking (file-level inbound import count, distinct from symbol-level `code_impact`), and an index of the per-module articles.
 - `context/index.md` plus `context/<module>.md` - one article per top-level module (files, symbol counts, and key symbols).
 - `context/routes.md` - the full route list (method, path, params, behavior tags, handler) when any routes are detected.
 - `context/database.md` - per-model field / key / relation detail when any ORM models are detected.

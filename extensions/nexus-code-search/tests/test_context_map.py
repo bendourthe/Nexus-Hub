@@ -102,11 +102,14 @@ def test_map_has_required_sections(graph_repo: Path) -> None:
     assert "`src`" in text  # module row present
 
 
-def test_most_imported_is_placeholder(graph_repo: Path) -> None:
+def test_most_imported_section_present(graph_repo: Path) -> None:
     generate_context_map(graph_repo, _index_dir(graph_repo))
     text = (graph_repo / ".nexus" / "CONTEXT-MAP.md").read_text(encoding="utf-8")
-    # Phase 1 ships a placeholder; Phase 4 fills it from import edges.
-    assert "Not yet available" in text
+    # Phase 4 fills this from import edges; the graph_repo fixture has no
+    # cross-file imports, so it renders the empty-state note (not the old
+    # Phase 1 "Not yet available" placeholder).
+    assert "## Most-Imported Files" in text
+    assert "Not yet available" not in text
 
 
 def test_article_lists_files_and_symbols(graph_repo: Path) -> None:

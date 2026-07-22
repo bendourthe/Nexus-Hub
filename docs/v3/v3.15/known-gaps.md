@@ -1,8 +1,8 @@
 # Known Gaps - v3.15
 
 **Project**: Nexus-Hub
-**Status**: v3.15.0 adoption-codesight IN PROGRESS on `feat/adoption-codesight` (cut off `develop`). Phases 1-3 of 7 COMPLETE (Phase 1: compiled context-map generator + `generate_context_map` MCP tool + `nexus-hub map` CLI; Phase 2: framework-aware route extraction + env-var audit + middleware detection; Phase 3: ORM schema extraction + component + event extraction, with relation resolution). Phases 4-7 (graph enrichment, measurement + health, knowledge layer, terminal refactor + release) pending.
-**Last updated**: 2026-07-21 (v3.15.0 adoption-codesight Phase 3)
+**Status**: v3.15.0 adoption-codesight IN PROGRESS on `feat/adoption-codesight` (cut off `develop`). Phases 1-4 of 7 COMPLETE (Phase 1: compiled context-map generator + `generate_context_map` MCP tool + `nexus-hub map` CLI; Phase 2: routes + env + middleware; Phase 3: ORM schema + components + events, with relation resolution; Phase 4: file-level hot-file ranking + git-scoped `--since` change map). Phases 5-7 (measurement + health, knowledge layer, terminal refactor + release) pending.
+**Last updated**: 2026-07-21 (v3.15.0 adoption-codesight Phase 4)
 
 > **Scope note (version collision)**: three plans under `docs/v3/v3.15/plans/` are all stamped `v3.15.0` - `platform-parity-all-gaps` (appears complete on its own branch), `adoption-codesight` (this file), and `adoption-awesome-llm-apps`. Only one feature set can ship as v3.15.0. This is the comparison-versioning artifact (plans stamped with the authoring-cycle version, not the real adoption target). It is NOT a Phase-1 blocker (Phase 1 is extension-only code with its own package version and touches no catalog version surface), but it MUST be reconciled before this plan's release phase (Phase 7 / `/update release`). See QG-2.
 
@@ -15,13 +15,6 @@
 ### Open Items
 
 #### Deferred
-
-##### DF-1 - "Most-Imported Files" section is a placeholder (Phase 4)
-
-- **Source phase**: v3.15.0 adoption-codesight Phase 1 (1.1); frameworks half resolved in Phase 2
-- **Plan reference**: Phase 1.1 ("most-imported files (placeholder in this phase, filled in Phase 4)"); Phase 4.1
-- **Reason**: the compiled map still renders a "Most-Imported Files" section as an explicit placeholder. File-level import ranking is Phase 4 (graph enrichment). The Overview "frameworks best-effort" half of the original DF-1 is RESOLVED in Phase 2 - the Overview now carries a `Frameworks:` line inferred from the detected routes and middleware.
-- **Suggested next step**: Phase 4 fills the Most-Imported Files section from the import edges the graph already stores (a file-level view labeled distinct from symbol-level `code_impact`).
 
 ##### DF-3 - Additional frameworks / ORMs / component libs / event patterns deferred (explicit coverage, not silent)
 
@@ -50,6 +43,13 @@
 - **Reason**: ruff flags `F401 json imported but unused` in `scripts/nexus_hub_cli.py`. The import is PRE-EXISTING (present on `develop`; only referenced in a docstring string "plugin.json"), not introduced by this phase, and `scripts/` is not ruff-gated in this repo's CI. Per the no-out-of-scope-cleanup rule it was left untouched. All Phase 1 new/modified extension code is ruff-clean.
 - **Suggested next step**: remove the unused import as part of a dedicated `scripts/` lint pass, or in Phase 7's terminal refactor if it touches this file.
 
+##### WN-2 - Pre-existing ruff findings in graph/affected.py
+
+- **Source phase**: v3.15.0 adoption-codesight Phase 4 (4.1)
+- **Plan reference**: Phase 4.1 (adding `most_imported_files` to `graph/affected.py`)
+- **Reason**: ruff flags an unused `EdgeKind` import (F401) and an unused `frontier` local (F841) in `graph/affected.py`. Both are PRE-EXISTING (confirmed present on committed HEAD; Phase 4 only ADDED `most_imported_files`, which is ruff-clean), and the extension `src/` is not ruff-gated in this repo's CI. Left untouched per the no-out-of-scope-cleanup rule.
+- **Suggested next step**: remove both in Phase 7's terminal refactor (or a dedicated extension lint pass).
+
 #### Missing tests / coverage gaps
 
 ##### MT-1 - Repo-level `nexus-hub map` dispatch has no automated test
@@ -75,19 +75,25 @@
 - **Reason**: `platform-parity-all-gaps`, `adoption-codesight`, and `adoption-awesome-llm-apps` are all stamped `v3.15.0`. Only one can ship under that version. Not a Phase-1 blocker (extension-only code, no catalog version surface touched), but a release blocker for this plan until reconciled.
 - **Suggested next step**: before Phase 7 / `/update release`, decide which plan is the real v3.15.0 and re-stamp the others to their true adoption targets (this is the comparison-versioning-flaw pattern the v3.14.2 fix addressed for future comparisons).
 
+#### Resolved
+
+##### DF-1 - Overview frameworks line + Most-Imported Files section (RESOLVED)
+
+- Originally Phase 1's placeholder for the Overview `Frameworks:` line and the "Most-Imported Files" section. The frameworks half was resolved in Phase 2 (the Overview now carries a `Frameworks:` line inferred from detected routes + middleware); the Most-Imported Files half was resolved in Phase 4 (`most_imported_files` fills the section from inbound import edges, labeled distinct from symbol-level `code_impact`). Both halves shipped and are fixture-tested.
+
 ### Summary
 
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 3 | 0 |
+| Deferred (DF) | 2 | 1 |
 | Bugs / regressions (BG) | 0 | 0 |
-| Warnings (WN) | 1 | 0 |
+| Warnings (WN) | 2 | 0 |
 | Missing tests / coverage gaps (MT) | 1 | 0 |
 | Quality-gate gaps (QG) | 2 | 0 |
 | Hand-offs (HO) | 0 | 0 |
 
-DF-1's "frameworks" half was resolved in Phase 2 (the Overview `Frameworks:` line); the "Most-Imported Files" half remains open for Phase 4. DF-2 (extension version bump) is open. DF-3 (deferred detectors) was expanded in Phase 3 to cover additional ORMs, component libraries, and event patterns alongside the additional route frameworks. WN-1 (pre-existing `json` F401 in `nexus_hub_cli.py`) was not touched this phase. MT-1, QG-1, QG-2 carry unchanged.
+DF-1 is fully RESOLVED (frameworks line in Phase 2, Most-Imported Files in Phase 4). DF-2 (extension version bump) and DF-3 (deferred detectors) remain open. WN-2 was added in Phase 4 (pre-existing ruff findings in `graph/affected.py`). WN-1, MT-1, QG-1, QG-2 carry unchanged.
 
 ### Advisory
 

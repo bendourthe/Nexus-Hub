@@ -16,7 +16,8 @@ from dataclasses import dataclass
 # of the source fingerprint, so a format change forces a regeneration.
 # v2 (Phase 2): adds Routes / Environment / Middleware sections.
 # v3 (Phase 3): adds Schema / Components / Events sections.
-GENERATOR_VERSION = "3"
+# v4 (Phase 4): fills the Most-Imported Files section (file-level hot-file ranking).
+GENERATOR_VERSION = "4"
 
 # Node kinds that count as a "symbol" for the overview and per-module rollups.
 # The synthetic ``file`` node and structural kinds (import / export / parameter
@@ -176,6 +177,7 @@ class ContextMapModel:
     models: tuple[ModelInfo, ...] = ()
     components: tuple[ComponentInfo, ...] = ()
     events: tuple[EventInfo, ...] = ()
+    hot_files: tuple[tuple[str, int], ...] = ()
 
 
 def compute_source_hash(file_hash_rows: list[tuple[str, str]]) -> str:

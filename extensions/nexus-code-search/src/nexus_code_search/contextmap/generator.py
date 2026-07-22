@@ -55,6 +55,7 @@ from nexus_code_search.contextmap.schema import (
 )
 from nexus_code_search.contextmap.tokens import count_tokens
 from nexus_code_search.db.schema import open_database
+from nexus_code_search.graph.affected import most_imported_files
 
 MAP_FILENAME = "CONTEXT-MAP.md"
 CONTEXT_DIRNAME = "context"
@@ -70,6 +71,9 @@ MAX_KEY_SYMBOLS = 25
 # always lives in the routes article.
 MAX_ROUTES_IN_MAP = 100
 
+# Cap on how many most-imported files the map lists.
+MAX_HOT_FILES = 25
+
 _META_PREFIX = "<!-- nexus-context-map"
 _TOKENS_RE = re.compile(r"tokens:\s*(\d+)")
 _SOURCE_HASH_RE = re.compile(r"source-hash:\s*([0-9a-f]+)")
@@ -79,9 +83,10 @@ _INTRO = (
     "from a local AST graph by `nexus-code-search`. Regenerate it with "
     "`nexus-hub map` or the `generate_context_map` tool. Do not edit by hand."
 )
-_MOST_IMPORTED_PLACEHOLDER = (
-    "Populated by the graph-enrichment pass (file-level import-edge ranking), a "
-    "view distinct from symbol-level impact. Not yet available in this map."
+_HOT_FILES_NOTE = (
+    "File-level ranking by inbound import count (which files break the most on "
+    "change). This is a file-level view, distinct from the symbol-level "
+    "`code_impact` blast radius."
 )
 
 
@@ -221,6 +226,7 @@ def _load_model(conn: sqlite3.Connection, root: Path) -> ContextMapModel:
     models = tuple(extract_schema(conn, root))
     components = tuple(extract_components(root, code_files))
     events = tuple(detect_events(root, code_files))
+    hot_files = tuple(most_imported_files(conn, limit=MAX_HOT_FILES))
 
     # Fingerprint over the graph's files PLUS any non-code file an extractor reads
     # (env-example + .prisma), so a change to one still invalidates the map.
@@ -248,6 +254,7 @@ def _load_model(conn: sqlite3.Connection, root: Path) -> ContextMapModel:
         models=models,
         components=components,
         events=events,
+        hot_files=hot_files,
     )
 
 
@@ -329,7 +336,7 @@ def _map_body_lines(model: ContextMapModel) -> list[str]:
     lines.extend(_components_section(model))
     lines.extend(_events_section(model))
 
-    lines.extend(["", "## Most-Imported Files", "", _MOST_IMPORTED_PLACEHOLDER])
+    lines.extend(_hot_files_section(model))
 
     lines.extend(["", "## Context Articles", ""])
     lines.append("Per-module detail lives under `.nexus/context/`:")
@@ -457,6 +464,18 @@ def _events_section(model: ContextMapModel) -> list[str]:
     lines.append("| --- | --- | --- |")
     for event in model.events:
         lines.append(f"| `{event.name}` | {event.kind} | `{event.source_file}` |")
+    return lines
+
+
+def _hot_files_section(model: ContextMapModel) -> list[str]:
+    lines = ["", "## Most-Imported Files", "", _HOT_FILES_NOTE, ""]
+    if not model.hot_files:
+        lines.append("No import relationships detected.")
+        return lines
+    lines.append("| File | Imported by |")
+    lines.append("| --- | --- |")
+    for path, count in model.hot_files:
+        lines.append(f"| `{path}` | {count} |")
     return lines
 
 

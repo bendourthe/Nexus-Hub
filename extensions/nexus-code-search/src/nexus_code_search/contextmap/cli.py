@@ -5,10 +5,11 @@ The top-level ``nexus-hub`` launcher forwards ``map`` here (see
 package and needs no installer change. It can also be run directly:
 
     python -m nexus_code_search.contextmap.cli [root] [--force] [--json]
+    python -m nexus_code_search.contextmap.cli [root] --since <git-ref> [--json]
 
 Exit codes:
-    0 -> generated (or a content-hash no-op skip)
-    1 -> bad arguments / missing root
+    0 -> generated (or a content-hash no-op skip / change map printed)
+    1 -> bad arguments / missing root / git diff failed
     2 -> no graph index found at <root>/.nexus/code-index/codegraph.db
 """
 
@@ -20,8 +21,9 @@ import sys
 from pathlib import Path
 
 from nexus_code_search.config import index_dir_for, resolve_config
+from nexus_code_search.contextmap.changemap import compute_change_map
 from nexus_code_search.contextmap.generator import generate_context_map
-from nexus_code_search.db.schema import DB_FILENAME
+from nexus_code_search.db.schema import DB_FILENAME, open_database
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -48,6 +50,15 @@ def main(argv: list[str] | None = None) -> int:
         action="store_true",
         help="Print the result as JSON instead of a human summary.",
     )
+    parser.add_argument(
+        "--since",
+        metavar="GIT_REF",
+        default=None,
+        help=(
+            "Print a change-scoped view (affected routes / models / symbols / "
+            "tests) for what changed since GIT_REF, instead of the full map."
+        ),
+    )
     args = parser.parse_args(argv)
 
     root = Path(args.root).expanduser().resolve()
@@ -65,6 +76,9 @@ def main(argv: list[str] | None = None) -> int:
             file=sys.stderr,
         )
         return 2
+
+    if args.since is not None:
+        return _run_change_map(root, index_dir, args.since, as_json=args.json)
 
     result = generate_context_map(root, index_dir, force=args.force)
 
@@ -90,6 +104,42 @@ def main(argv: list[str] | None = None) -> int:
             file=sys.stderr,
         )
     return 0
+
+
+def _run_change_map(root: Path, index_dir: Path, ref: str, *, as_json: bool) -> int:
+    conn = open_database(index_dir)
+    try:
+        change = compute_change_map(conn, root, ref)
+    finally:
+        conn.close()
+
+    if change is None:
+        print(
+            f"error: could not compute a git diff for '{ref}' (not a git "
+            "repository, or an invalid ref).",
+            file=sys.stderr,
+        )
+        return 1
+
+    if as_json:
+        print(json.dumps(change.to_dict(), indent=2))
+        return 0
+
+    print(f"Change map since {ref}:")
+    print(f"  changed files: {len(change.changed_files)}")
+    _print_list("affected routes", change.affected_routes)
+    _print_list("affected models", change.affected_models)
+    _print_list("affected symbols", change.affected_symbols)
+    _print_list("affected tests", change.affected_tests)
+    return 0
+
+
+def _print_list(label: str, items: list[str], cap: int = 25) -> None:
+    print(f"  {label}: {len(items)}")
+    for item in items[:cap]:
+        print(f"    - {item}")
+    if len(items) > cap:
+        print(f"    ... {len(items) - cap} more")
 
 
 if __name__ == "__main__":
