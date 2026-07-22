@@ -24,12 +24,18 @@ Local-only by policy: no network calls, no model downloads, no telemetry.
 
 from __future__ import annotations
 
+import hashlib
 import re
 import sqlite3
 from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from nexus_code_search.contextmap.env import (
+    audit_env_vars,
+    env_example_fingerprint_files,
+)
+from nexus_code_search.contextmap.middleware import detect_middleware
 from nexus_code_search.contextmap.model import (
     GENERATOR_VERSION,
     ROOT_MODULE,
@@ -40,16 +46,22 @@ from nexus_code_search.contextmap.model import (
     SymbolEntry,
     compute_source_hash,
 )
+from nexus_code_search.contextmap.routes import extract_routes
 from nexus_code_search.contextmap.tokens import count_tokens
 from nexus_code_search.db.schema import open_database
 
 MAP_FILENAME = "CONTEXT-MAP.md"
 CONTEXT_DIRNAME = "context"
 INDEX_FILENAME = "index.md"
+ROUTES_FILENAME = "routes.md"
 
 # Cap on how many key symbols an individual module article lists, so a large
 # module does not blow up the map. Files and counts are always complete.
 MAX_KEY_SYMBOLS = 25
+
+# Cap on how many routes the top-level map table lists inline; the full set
+# always lives in the routes article.
+MAX_ROUTES_IN_MAP = 100
 
 _META_PREFIX = "<!-- nexus-context-map"
 _TOKENS_RE = re.compile(r"tokens:\s*(\d+)")
@@ -113,7 +125,7 @@ def generate_context_map(
 
     conn = open_database(index_path)
     try:
-        model = _load_model(conn, root_path.name)
+        model = _load_model(conn, root_path)
     finally:
         conn.close()
 
@@ -131,7 +143,7 @@ def generate_context_map(
 # --- Graph -> model ---------------------------------------------------------
 
 
-def _load_model(conn: sqlite3.Connection, root_name: str) -> ContextMapModel:
+def _load_model(conn: sqlite3.Connection, root: Path) -> ContextMapModel:
     cur = conn.cursor()
     file_rows = cur.execute(
         "SELECT id, path, language, content_hash FROM files"
@@ -191,16 +203,48 @@ def _load_model(conn: sqlite3.Connection, root_name: str) -> ContextMapModel:
         )
 
     languages = tuple(sorted(language_counts.items(), key=lambda kv: (-kv[1], kv[0])))
-    source_hash = compute_source_hash([(p, h) for _, p, _, h in file_rows])
+
+    # Framework-extraction passes (Phase 2). Routes read the graph; env + middleware
+    # scan the indexed source files (and env-example files for env NAMES only).
+    code_files = [(path, language) for _, path, language, _ in file_rows]
+    routes = tuple(extract_routes(conn, root))
+    env_vars = tuple(audit_env_vars(root, code_files))
+    middleware = tuple(detect_middleware(root, code_files))
+
+    # Fingerprint over the graph's files PLUS any env-example file the audit reads
+    # (those are not code nodes, so a change to one must still invalidate the map).
+    fingerprint_rows = [(p, h) for _, p, _, h in file_rows]
+    for env_file in env_example_fingerprint_files(root):
+        fingerprint_rows.append(
+            (_relative(root, env_file), f"env:{_hash_file(env_file)}")
+        )
+    source_hash = compute_source_hash(fingerprint_rows)
 
     return ContextMapModel(
-        root_name=root_name,
+        root_name=root.name,
         total_files=len(files_by_id),
         total_symbols=total_symbols,
         languages=languages,
         modules=tuple(modules),
         source_hash=source_hash,
+        routes=routes,
+        env_vars=env_vars,
+        middleware=middleware,
     )
+
+
+def _hash_file(path: Path) -> str:
+    try:
+        return hashlib.sha256(path.read_bytes()).hexdigest()[:16]
+    except OSError:
+        return "0"
+
+
+def _relative(root: Path, path: Path) -> str:
+    try:
+        return path.resolve().relative_to(root.resolve()).as_posix()
+    except ValueError:
+        return path.name
 
 
 def _module_of(path: str) -> str:
@@ -242,6 +286,9 @@ def _map_body_lines(model: ContextMapModel) -> list[str]:
     else:
         langs = "none detected"
     lines.append(f"- Languages: {langs}")
+    frameworks = _detected_frameworks(model)
+    if frameworks:
+        lines.append(f"- Frameworks: {', '.join(frameworks)}")
 
     lines.extend(["", "## Module Structure", ""])
     if model.modules:
@@ -257,15 +304,88 @@ def _map_body_lines(model: ContextMapModel) -> list[str]:
             "`nexus-hub` indexing) for this repository first."
         )
 
+    lines.extend(_routes_section(model, limit=MAX_ROUTES_IN_MAP))
+    lines.extend(_environment_section(model))
+    lines.extend(_middleware_section(model))
+
     lines.extend(["", "## Most-Imported Files", "", _MOST_IMPORTED_PLACEHOLDER])
 
     lines.extend(["", "## Context Articles", ""])
     lines.append("Per-module detail lives under `.nexus/context/`:")
     lines.append("")
     lines.append(f"- [Overview]({CONTEXT_DIRNAME}/{INDEX_FILENAME})")
+    if model.routes:
+        lines.append(f"- [Routes]({CONTEXT_DIRNAME}/{ROUTES_FILENAME})")
     for module in model.modules:
         filename = _article_filename(module.name)
         lines.append(f"- [`{module.name}`]({CONTEXT_DIRNAME}/{filename})")
+    return lines
+
+
+def _detected_frameworks(model: ContextMapModel) -> list[str]:
+    """Best-effort frameworks, inferred from the detected routes and middleware."""
+    names = {r.framework for r in model.routes if r.framework}
+    names |= {m.framework for m in model.middleware if m.framework}
+    return sorted(names)
+
+
+def _routes_section(model: ContextMapModel, *, limit: int | None) -> list[str]:
+    lines = ["", "## Routes", ""]
+    if not model.routes:
+        lines.append(
+            "No routes detected. Framework route detection covers FastAPI, "
+            "Flask, Django, and Express."
+        )
+        return lines
+    shown = model.routes if limit is None else model.routes[:limit]
+    lines.append("| Method | Path | Params | Tags | Handler | Source |")
+    lines.append("| --- | --- | --- | --- | --- | --- |")
+    for route in shown:
+        lines.append(_route_row(route))
+    if limit is not None and len(model.routes) > limit:
+        remaining = len(model.routes) - limit
+        lines.append("")
+        lines.append(
+            f"...{remaining} more route(s) in "
+            f"[{CONTEXT_DIRNAME}/{ROUTES_FILENAME}]({CONTEXT_DIRNAME}/{ROUTES_FILENAME})."
+        )
+    return lines
+
+
+def _route_row(route) -> str:
+    params = ", ".join(route.params) if route.params else "-"
+    tags = ", ".join(route.behavior_tags) if route.behavior_tags else "-"
+    handler = route.handler or "-"
+    return (
+        f"| {route.method} | `{route.path}` | {params} | {tags} | "
+        f"`{handler}` | `{route.source_file}` |"
+    )
+
+
+def _environment_section(model: ContextMapModel) -> list[str]:
+    lines = ["", "## Environment", ""]
+    if not model.env_vars:
+        lines.append("No environment variables detected.")
+        return lines
+    lines.append("| Variable | Required | Source |")
+    lines.append("| --- | --- | --- |")
+    for var in model.env_vars:
+        required = "yes" if var.required else "no"
+        lines.append(f"| `{var.name}` | {required} | `{var.source_file}` |")
+    return lines
+
+
+def _middleware_section(model: ContextMapModel) -> list[str]:
+    lines = ["", "## Middleware", ""]
+    if not model.middleware:
+        lines.append("No middleware detected.")
+        return lines
+    lines.append("| Middleware | Category | Framework | Source |")
+    lines.append("| --- | --- | --- | --- |")
+    for mw in model.middleware:
+        lines.append(
+            f"| `{mw.name}` | {mw.category} | {mw.framework} | `{mw.source_file}` |"
+        )
     return lines
 
 
@@ -273,9 +393,17 @@ def _index_body_lines(model: ContextMapModel) -> list[str]:
     lines: list[str] = [
         "Back to the [context map](../CONTEXT-MAP.md).",
         "",
-        "Per-module articles:",
-        "",
     ]
+    if model.routes:
+        lines.extend(
+            [
+                "Cross-cutting articles:",
+                "",
+                f"- [Routes]({ROUTES_FILENAME}) - {len(model.routes)} routes",
+                "",
+            ]
+        )
+    lines.extend(["Per-module articles:", ""])
     if not model.modules:
         lines.append("No modules indexed yet.")
         return lines
@@ -285,6 +413,21 @@ def _index_body_lines(model: ContextMapModel) -> list[str]:
             f"- [`{module.name}`]({filename}) - {module.file_count} files, "
             f"{module.symbol_count} symbols"
         )
+    return lines
+
+
+def _routes_article_lines(model: ContextMapModel) -> list[str]:
+    lines = [
+        "Back to the [context map](../CONTEXT-MAP.md) | [article index](index.md).",
+        "",
+        f"- Total routes: {len(model.routes)}",
+        "",
+        "## All Routes",
+        "",
+        "| Method | Path | Params | Tags | Handler | Source |",
+        "| --- | --- | --- | --- | --- | --- |",
+    ]
+    lines.extend(_route_row(route) for route in model.routes)
     return lines
 
 
@@ -352,6 +495,14 @@ def _write_outputs(root: Path, model: ContextMapModel) -> None:
         _document("# Context Articles", _index_body_lines(model), model.source_hash),
         nexus_dir,
     )
+
+    if model.routes:
+        routes_path = context_dir / ROUTES_FILENAME
+        _write_document(
+            routes_path,
+            _document("# Routes", _routes_article_lines(model), model.source_hash),
+            nexus_dir,
+        )
 
     for module in model.modules:
         article_path = context_dir / _article_filename(module.name)

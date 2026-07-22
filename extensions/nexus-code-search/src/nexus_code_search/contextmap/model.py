@@ -14,7 +14,8 @@ from dataclasses import dataclass
 # Bumped when the compiled-map format changes in a way that should invalidate a
 # previously committed map even though the source tree is unchanged. It is part
 # of the source fingerprint, so a format change forces a regeneration.
-GENERATOR_VERSION = "1"
+# v2 (Phase 2): adds Routes / Environment / Middleware sections.
+GENERATOR_VERSION = "2"
 
 # Node kinds that count as a "symbol" for the overview and per-module rollups.
 # The synthetic ``file`` node and structural kinds (import / export / parameter
@@ -75,6 +76,40 @@ class ModuleSummary:
 
 
 @dataclass(frozen=True)
+class RouteInfo:
+    """One HTTP route surfaced from a framework `route` node in the graph."""
+
+    framework: str
+    method: str
+    path: str
+    params: tuple[str, ...]
+    handler: str
+    handler_file: str
+    behavior_tags: tuple[str, ...]
+    source_file: str
+
+
+@dataclass(frozen=True)
+class EnvVar:
+    """One environment variable referenced in code or declared in a
+    `.env.example`-style file. Values are NEVER read or stored - name only."""
+
+    name: str
+    required: bool
+    source_file: str
+
+
+@dataclass(frozen=True)
+class MiddlewareInfo:
+    """One middleware registration, categorized by a conservative name match."""
+
+    name: str
+    category: str
+    framework: str
+    source_file: str
+
+
+@dataclass(frozen=True)
 class ContextMapModel:
     """The full compiled-map content model, ready to render deterministically."""
 
@@ -84,6 +119,9 @@ class ContextMapModel:
     languages: tuple[tuple[str, int], ...]
     modules: tuple[ModuleSummary, ...]
     source_hash: str
+    routes: tuple[RouteInfo, ...] = ()
+    env_vars: tuple[EnvVar, ...] = ()
+    middleware: tuple[MiddlewareInfo, ...] = ()
 
 
 def compute_source_hash(file_hash_rows: list[tuple[str, str]]) -> str:

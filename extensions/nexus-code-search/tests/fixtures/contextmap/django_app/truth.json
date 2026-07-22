@@ -1,0 +1,10 @@
+{
+  "routes": [
+    "ANY users/<int:user_id>/",
+    "ANY ^articles/(?P<year>[0-9]{4})/$",
+    "ANY admin/",
+    "INCLUDE admin.urls"
+  ],
+  "env": ["DJANGO_SECRET"],
+  "middleware": ["AuthenticationMiddleware", "CorsMiddleware"]
+}
