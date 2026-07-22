@@ -1,8 +1,8 @@
 # Known Gaps - v3.15
 
 **Project**: Nexus-Hub
-**Status**: v3.15.0 adoption-codesight IN PROGRESS on `feat/adoption-codesight` (cut off `develop`). Phases 1-6 of 7 COMPLETE (Phase 1: generator + tool + CLI; Phase 2: routes + env + middleware; Phase 3: ORM schema + components + events; Phase 4: hot files + `--since` change map; Phase 5: token-savings benchmark + map-health lint; Phase 6: knowledge-map extractor). **Both DoD axes hold** (measured token-reduction + verified extractor accuracy). Phase 7 (terminal refactor + known-gaps reconciliation + matrix + CI/CD + release) pending.
-**Last updated**: 2026-07-21 (v3.15.0 adoption-codesight Phase 6)
+**Status**: v3.15.0 adoption-codesight - ALL 7 PHASES BUILT on `feat/adoption-codesight` (cut off `develop`). Phases 1-6 shipped the compiled context map end to end; Phase 7 completed the terminal refactor, known-gaps reconciliation, reverse-engineering-matrix update, and CI/CD (context-map Action recipe). **Both DoD axes hold** (measured token-reduction + verified extractor accuracy). **RELEASE HELD**: the `/update release` handoff (version bump / changelog / develop->main merge / tag) is NOT run because of the v3.15.0 version collision (QG-2) - three plans claim v3.15.0 - and because the branch is not yet pushed. The release step runs only after the user reconciles which plan is v3.15.0.
+**Last updated**: 2026-07-22 (v3.15.0 adoption-codesight Phase 7)
 
 > **Scope note (version collision)**: three plans under `docs/v3/v3.15/plans/` are all stamped `v3.15.0` - `platform-parity-all-gaps` (appears complete on its own branch), `adoption-codesight` (this file), and `adoption-awesome-llm-apps`. Only one feature set can ship as v3.15.0. This is the comparison-versioning artifact (plans stamped with the authoring-cycle version, not the real adoption target). It is NOT a Phase-1 blocker (Phase 1 is extension-only code with its own package version and touches no catalog version surface), but it MUST be reconciled before this plan's release phase (Phase 7 / `/update release`). See QG-2.
 
@@ -26,13 +26,6 @@
     - **Components**: React (props via destructuring or the resolved prop type). Deferred: Vue, Svelte. Design-system-primitive auto-filtering is also deferred (JSX-file scoping + node_modules exclusion already filter library primitives).
     - **Events**: declaration-strong signals (Celery task decorators, BullMQ `new Queue/Worker`, Kafka, `new EventEmitter`). Deferred: invocation-only patterns (`.delay(`, `.emit(`, Redis `.publish(`/`.subscribe(`) - too common to detect without false positives.
 - **Suggested next step**: add a detector + fixture per additional target in a follow-on pass; Phase 7 records the final deferred-coverage list. The map's section renderers and the accuracy harness already handle any new detector's output generically.
-
-##### DF-2 - nexus-code-search extension package version not bumped
-
-- **Source phase**: v3.15.0 adoption-codesight Phase 1
-- **Plan reference**: Constitution Check ("The extension carries its own package version, independent of the catalog version"; version bumps happen at release)
-- **Reason**: Phase 1 added a feature (the context-map surface) but left `extensions/nexus-code-search/pyproject.toml` at `2.0.0`. Per the plan, version bumps are a release-phase action, and the full context-map feature set spans Phases 1-6; bumping mid-feature would be premature.
-- **Suggested next step**: bump the extension package version (e.g. `2.0.0 -> 2.1.0`) in Phase 7 once all context-map phases have landed, alongside the README surface documentation.
 
 #### Warnings
 
@@ -68,19 +61,13 @@
 
 #### Quality-gate gaps
 
-##### QG-1 - code-search extension tests run in both ci.yml and code-search.yml on extension changes
-
-- **Source phase**: v3.15.0 adoption-codesight Phase 1 (1.3)
-- **Plan reference**: Phase 1.3 ("path-filtered ... while minimizing action minutes")
-- **Reason**: Phase 1 added `.github/workflows/code-search.yml` (path-filtered to `extensions/nexus-code-search/**`, pip-cached, concurrency cancel-in-progress) for fast scoped feedback, but the always-on `tests` job in `ci.yml` still installs and runs the extension suite too. On an extension-touching change both run, a small duplicate cost. Removing the extension step from the monolithic `tests` job was NOT done in Phase 1 because it is an invasive edit to a shared CI file that also weakens cross-cutting coverage (a non-extension change that breaks the extension's imports would no longer be caught by an always-on job), and CI optimization is explicitly Phase 7's charter.
-- **Suggested next step**: in Phase 7's CI/CD optimization pass, decide whether the path-filtered `code-search.yml` becomes the sole runner for the extension suite (dropping the `ci.yml` step) or whether the always-on gate is retained for cross-cutting safety.
-
-##### QG-2 - Three plans stamped v3.15.0 (release-time version reconciliation)
+##### QG-2 - Three plans stamped v3.15.0 (release-time version reconciliation) - ACTIVE RELEASE HOLD
 
 - **Source phase**: v3.15.0 adoption-codesight Phase 1 (Phase 0 resolution)
 - **Plan reference**: n/a (surfaced during plan/phase resolution)
-- **Reason**: `platform-parity-all-gaps`, `adoption-codesight`, and `adoption-awesome-llm-apps` are all stamped `v3.15.0`. Only one can ship under that version. Not a Phase-1 blocker (extension-only code, no catalog version surface touched), but a release blocker for this plan until reconciled.
-- **Suggested next step**: before Phase 7 / `/update release`, decide which plan is the real v3.15.0 and re-stamp the others to their true adoption targets (this is the comparison-versioning-flaw pattern the v3.14.2 fix addressed for future comparisons).
+- **Reason**: `platform-parity-all-gaps`, `adoption-codesight`, and `adoption-awesome-llm-apps` are all stamped `v3.15.0`. Only one can ship under that version. Not an implementation blocker (extension-only code, no catalog version surface touched), but the release blocker for this plan.
+- **Status**: OPEN - this is the reason Phase 7 completed the terminal refactor / gaps / matrix / CI work but did NOT run the `/update release` handoff. The release step is held until resolved.
+- **Suggested next step**: decide which plan is the real v3.15.0 and re-stamp the others to their true adoption targets (the comparison-versioning-flaw pattern the v3.14.2 fix addressed), THEN run `/update release` (which owns the catalog version bump / changelog / develop->main merge / tag / GitHub Release).
 
 #### Resolved
 
@@ -88,19 +75,27 @@
 
 - Originally Phase 1's placeholder for the Overview `Frameworks:` line and the "Most-Imported Files" section. The frameworks half was resolved in Phase 2 (the Overview now carries a `Frameworks:` line inferred from detected routes + middleware); the Most-Imported Files half was resolved in Phase 4 (`most_imported_files` fills the section from inbound import edges, labeled distinct from symbol-level `code_impact`). Both halves shipped and are fixture-tested.
 
+##### DF-2 - nexus-code-search extension package version bump (RESOLVED, Phase 7)
+
+- The extension carries its own package version, independent of the catalog release version. Phase 7 bumped `extensions/nexus-code-search/pyproject.toml` `2.0.0 -> 2.1.0` and refreshed the description to cover the context-map surface. This is NOT a `check_version_sync.py` surface (that guard covers the catalog release version, which `/update release` owns and is HELD by QG-2).
+
+##### QG-1 - Duplicate extension-test run across ci.yml and code-search.yml (RESOLVED by decision, Phase 7)
+
+- Decision: RETAIN both. `code-search.yml` (path-filtered, cached, concurrency) is the fast scoped signal on extension changes; the always-on `tests` job in `ci.yml` is the cross-cutting safety gate (it catches a non-extension change that breaks the extension's imports, which a path-filtered-only setup would miss). The small duplicate on extension-only changes is an intentional coverage-over-minutes trade-off, consistent with the plan's "keep comprehensive testing". The benchmark + lint + knowledge tests run in that suite on every extension change (fast on the 3-repo corpus), satisfying "run the benchmark in CI"; the context-map GitHub Action recipe (H-ci) is documented in the extension README.
+
 ### Summary
 
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 2 | 1 |
+| Deferred (DF) | 1 | 2 |
 | Bugs / regressions (BG) | 0 | 0 |
 | Warnings (WN) | 2 | 0 |
 | Missing tests / coverage gaps (MT) | 2 | 0 |
-| Quality-gate gaps (QG) | 2 | 0 |
+| Quality-gate gaps (QG) | 1 | 1 |
 | Hand-offs (HO) | 0 | 0 |
 
-DF-1 is fully RESOLVED (frameworks line in Phase 2, Most-Imported Files in Phase 4). DF-2 (extension version bump) and DF-3 (deferred detectors) remain open. MT-2 added in Phase 5 (benchmark `--update-baseline` write path untested). WN-1, WN-2, MT-1, QG-1, QG-2 carry unchanged.
+RESOLVED: DF-1 (frameworks line P2 + Most-Imported Files P4), DF-2 (extension version bump P7), QG-1 (CI duplicate-run decision P7). OPEN and carried as documented, non-blocking deferrals: DF-3 (deferred detectors - explicit future coverage), WN-1 / WN-2 (pre-existing ruff findings in `scripts/nexus_hub_cli.py` and `graph/affected.py`, in files this plan edited but not introduced by it; a future dedicated lint pass), MT-1 (repo-level `nexus-hub map` dispatch not auto-tested), MT-2 (benchmark `--update-baseline` write path untested). OPEN and BLOCKING the release only: QG-2 (three plans stamped v3.15.0).
 
 ### Advisory
 

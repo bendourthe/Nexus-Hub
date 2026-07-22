@@ -147,6 +147,53 @@ python -m nexus_code_search.contextmap.benchmark --repo /path/to/repo --json
 
 A committed `benchmark_baseline.json` records a per-repo floor (a margin below the measured ratio) so a regression - the map silently losing its savings - fails the gate; re-baseline intentionally with `--update-baseline`. On the sample corpus the map saves ~44-55% of exploration tokens; on Nexus-Hub itself a ~22k-token map replaces ~1.9M tokens of manual exploration (~99% reduction, 443 files). A map is not worth its fixed overhead on a trivially small repo - the savings scale with codebase size.
 
+## Keeping the map fresh (CI recipe)
+
+Regenerate and commit `.nexus/CONTEXT-MAP.md` on every push so the map never drifts from the code. The recipe is platform-agnostic; GitHub Actions is shown. Pin the action refs to commit SHAs in production.
+
+```yaml
+name: context-map
+on:
+  push:
+    branches: [main]
+permissions:
+  contents: write
+jobs:
+  context-map:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install nexus-code-search
+      - name: Build the graph and regenerate the context map
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          from nexus_code_search.config import CodeSearchConfig, index_dir_for
+          from nexus_code_search.contextmap import generate_context_map
+          from nexus_code_search.extraction import ExtractionOrchestrator
+          root = Path(".").resolve()
+          cfg = CodeSearchConfig(hub_root=None)
+          index_dir = index_dir_for(root, cfg)
+          with ExtractionOrchestrator(root, cfg, index_dir) as orch:
+              orch.run()
+          generate_context_map(root, index_dir, force=True)
+          PY
+      - name: Commit the map if it changed
+        run: |
+          git add .nexus/CONTEXT-MAP.md .nexus/context
+          git diff --cached --quiet || {
+            git config user.name "github-actions"
+            git config user.email "github-actions@users.noreply.github.com"
+            git commit -m "chore: refresh context map"
+            git push
+          }
+```
+
+Because the map is deterministic and content-hash incremental, an unchanged graph produces an identical map, so the commit step is a no-op on pushes that do not affect the graph. Add a `map --lint` step (exit 1 on orphan / backlink / staleness issues) to fail CI when a committed map goes stale.
+
 ## Eval harness
 
 `make eval` (or `python -m nexus_code_search.eval` from this directory) runs the synthetic-codebase harness under `src/nexus_code_search/eval/`. The harness ships eight fixture codebases (minimal / python_app / fastapi_app / ts_express / go_app / rust_app / java_app / csharp_app), scores recall + precision against the answer keys, and writes a Markdown report. The current baseline is captured at `docs/archive/v2/v2.3/eval-baseline.md` (100% aggregate recall, 96.2% aggregate precision; every fixture clears the >=80% per-fixture recall gate).
