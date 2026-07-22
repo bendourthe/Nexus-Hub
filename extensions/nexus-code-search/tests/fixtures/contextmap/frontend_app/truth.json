@@ -1,0 +1,4 @@
+{
+  "components": ["Button", "Card"],
+  "events": ["celery-task:send_email", "bullmq-queue:jobs", "event-emitter:bus"]
+}

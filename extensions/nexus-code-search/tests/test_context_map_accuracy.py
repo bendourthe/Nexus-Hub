@@ -25,7 +25,13 @@ from nexus_code_search.db.schema import open_database
 from nexus_code_search.extraction import ExtractionOrchestrator
 
 FIXTURES = Path(__file__).parent / "fixtures" / "contextmap"
-FIXTURE_APPS = ["fastapi_app", "express_app", "django_app"]
+FIXTURE_APPS = [
+    "fastapi_app",
+    "express_app",
+    "django_app",
+    "schema_app",
+    "frontend_app",
+]
 
 
 def _evaluate_fixture(app: str, tmp_path: Path) -> dict[str, SectionScore]:
@@ -68,6 +74,16 @@ def test_each_section_detects_something(app: str, tmp_path: Path) -> None:
     scores = _evaluate_fixture(app, tmp_path)
     for section, score in scores.items():
         assert score.detected >= 1, f"{app}/{section} detected nothing"
+
+
+def test_relation_resolution(tmp_path: Path) -> None:
+    # The plan calls ORM relation resolution the hardest extraction; assert it
+    # explicitly across Django, SQLAlchemy, and Prisma via the schema fixture.
+    scores = _evaluate_fixture("schema_app", tmp_path)
+    relations = scores["relations"]
+    assert relations.fp_count == 0, relations.false_positives
+    assert relations.missed == (), f"unresolved relations: {relations.missed}"
+    assert relations.recall == 1.0
 
 
 # --- Unit tests for the scoring math ----------------------------------------

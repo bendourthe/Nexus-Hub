@@ -35,6 +35,8 @@ from nexus_code_search.contextmap.env import (
     audit_env_vars,
     env_example_fingerprint_files,
 )
+from nexus_code_search.contextmap.components import extract_components
+from nexus_code_search.contextmap.events import detect_events
 from nexus_code_search.contextmap.middleware import detect_middleware
 from nexus_code_search.contextmap.model import (
     GENERATOR_VERSION,
@@ -47,6 +49,10 @@ from nexus_code_search.contextmap.model import (
     compute_source_hash,
 )
 from nexus_code_search.contextmap.routes import extract_routes
+from nexus_code_search.contextmap.schema import (
+    extract_schema,
+    prisma_fingerprint_files,
+)
 from nexus_code_search.contextmap.tokens import count_tokens
 from nexus_code_search.db.schema import open_database
 
@@ -54,6 +60,7 @@ MAP_FILENAME = "CONTEXT-MAP.md"
 CONTEXT_DIRNAME = "context"
 INDEX_FILENAME = "index.md"
 ROUTES_FILENAME = "routes.md"
+DATABASE_FILENAME = "database.md"
 
 # Cap on how many key symbols an individual module article lists, so a large
 # module does not blow up the map. Files and counts are always complete.
@@ -204,19 +211,27 @@ def _load_model(conn: sqlite3.Connection, root: Path) -> ContextMapModel:
 
     languages = tuple(sorted(language_counts.items(), key=lambda kv: (-kv[1], kv[0])))
 
-    # Framework-extraction passes (Phase 2). Routes read the graph; env + middleware
-    # scan the indexed source files (and env-example files for env NAMES only).
+    # Framework-extraction passes. Routes/schema read the graph; env + middleware
+    # + components + events scan the indexed source files (and env-example / .prisma
+    # files for env NAMES / schema, which are not code nodes).
     code_files = [(path, language) for _, path, language, _ in file_rows]
     routes = tuple(extract_routes(conn, root))
     env_vars = tuple(audit_env_vars(root, code_files))
     middleware = tuple(detect_middleware(root, code_files))
+    models = tuple(extract_schema(conn, root))
+    components = tuple(extract_components(root, code_files))
+    events = tuple(detect_events(root, code_files))
 
-    # Fingerprint over the graph's files PLUS any env-example file the audit reads
-    # (those are not code nodes, so a change to one must still invalidate the map).
+    # Fingerprint over the graph's files PLUS any non-code file an extractor reads
+    # (env-example + .prisma), so a change to one still invalidates the map.
     fingerprint_rows = [(p, h) for _, p, _, h in file_rows]
     for env_file in env_example_fingerprint_files(root):
         fingerprint_rows.append(
             (_relative(root, env_file), f"env:{_hash_file(env_file)}")
+        )
+    for prisma_file in prisma_fingerprint_files(root):
+        fingerprint_rows.append(
+            (_relative(root, prisma_file), f"prisma:{_hash_file(prisma_file)}")
         )
     source_hash = compute_source_hash(fingerprint_rows)
 
@@ -230,6 +245,9 @@ def _load_model(conn: sqlite3.Connection, root: Path) -> ContextMapModel:
         routes=routes,
         env_vars=env_vars,
         middleware=middleware,
+        models=models,
+        components=components,
+        events=events,
     )
 
 
@@ -307,6 +325,9 @@ def _map_body_lines(model: ContextMapModel) -> list[str]:
     lines.extend(_routes_section(model, limit=MAX_ROUTES_IN_MAP))
     lines.extend(_environment_section(model))
     lines.extend(_middleware_section(model))
+    lines.extend(_schema_section(model))
+    lines.extend(_components_section(model))
+    lines.extend(_events_section(model))
 
     lines.extend(["", "## Most-Imported Files", "", _MOST_IMPORTED_PLACEHOLDER])
 
@@ -316,6 +337,8 @@ def _map_body_lines(model: ContextMapModel) -> list[str]:
     lines.append(f"- [Overview]({CONTEXT_DIRNAME}/{INDEX_FILENAME})")
     if model.routes:
         lines.append(f"- [Routes]({CONTEXT_DIRNAME}/{ROUTES_FILENAME})")
+    if model.models:
+        lines.append(f"- [Database]({CONTEXT_DIRNAME}/{DATABASE_FILENAME})")
     for module in model.modules:
         filename = _article_filename(module.name)
         lines.append(f"- [`{module.name}`]({CONTEXT_DIRNAME}/{filename})")
@@ -389,20 +412,69 @@ def _middleware_section(model: ContextMapModel) -> list[str]:
     return lines
 
 
+def _schema_section(model: ContextMapModel) -> list[str]:
+    lines = ["", "## Data Models", ""]
+    if not model.models:
+        lines.append(
+            "No ORM models detected. Schema detection covers SQLAlchemy, Django "
+            "ORM, and Prisma."
+        )
+        return lines
+    lines.append("| Model | Framework | Fields | Relations | Source |")
+    lines.append("| --- | --- | --- | --- | --- |")
+    for m in model.models:
+        lines.append(
+            f"| `{m.name}` | {m.framework} | {len(m.fields)} | {len(m.relations)} | "
+            f"`{m.source_file}` |"
+        )
+    lines.append("")
+    lines.append(
+        f"Full field / key / relation detail: "
+        f"[{CONTEXT_DIRNAME}/{DATABASE_FILENAME}]({CONTEXT_DIRNAME}/{DATABASE_FILENAME})."
+    )
+    return lines
+
+
+def _components_section(model: ContextMapModel) -> list[str]:
+    lines = ["", "## Components", ""]
+    if not model.components:
+        lines.append("No UI components detected. Component detection covers React.")
+        return lines
+    lines.append("| Component | Framework | Props |")
+    lines.append("| --- | --- | --- |")
+    for comp in model.components:
+        props = ", ".join(comp.props) if comp.props else "-"
+        lines.append(f"| `{comp.name}` | {comp.framework} | {props} |")
+    return lines
+
+
+def _events_section(model: ContextMapModel) -> list[str]:
+    lines = ["", "## Events", ""]
+    if not model.events:
+        lines.append("No background-work surfaces detected.")
+        return lines
+    lines.append("| Name | Kind | Source |")
+    lines.append("| --- | --- | --- |")
+    for event in model.events:
+        lines.append(f"| `{event.name}` | {event.kind} | `{event.source_file}` |")
+    return lines
+
+
 def _index_body_lines(model: ContextMapModel) -> list[str]:
     lines: list[str] = [
         "Back to the [context map](../CONTEXT-MAP.md).",
         "",
     ]
-    if model.routes:
-        lines.extend(
-            [
-                "Cross-cutting articles:",
-                "",
-                f"- [Routes]({ROUTES_FILENAME}) - {len(model.routes)} routes",
-                "",
-            ]
-        )
+    if model.routes or model.models:
+        lines.append("Cross-cutting articles:")
+        lines.append("")
+        if model.routes:
+            lines.append(f"- [Routes]({ROUTES_FILENAME}) - {len(model.routes)} routes")
+        if model.models:
+            lines.append(
+                f"- [Database]({DATABASE_FILENAME}) - {len(model.models)} models"
+            )
+        lines.append("")
     lines.extend(["Per-module articles:", ""])
     if not model.modules:
         lines.append("No modules indexed yet.")
@@ -429,6 +501,37 @@ def _routes_article_lines(model: ContextMapModel) -> list[str]:
     ]
     lines.extend(_route_row(route) for route in model.routes)
     return lines
+
+
+def _database_article_lines(model: ContextMapModel) -> list[str]:
+    lines = [
+        "Back to the [context map](../CONTEXT-MAP.md) | [article index](index.md).",
+        "",
+        f"- Total models: {len(model.models)}",
+    ]
+    for m in model.models:
+        lines.extend(
+            ["", f"## `{m.name}` ({m.framework})", "", f"Source: `{m.source_file}`", ""]
+        )
+        if m.fields:
+            lines.append("| Field | Type | PK | FK | Unique |")
+            lines.append("| --- | --- | --- | --- | --- |")
+            for f in m.fields:
+                lines.append(
+                    f"| `{f.name}` | {f.type} | {_yn(f.primary_key)} | "
+                    f"{_yn(f.foreign_key)} | {_yn(f.unique)} |"
+                )
+        else:
+            lines.append("No scalar fields detected.")
+        if m.relations:
+            lines.extend(["", "Relations:", ""])
+            for r in m.relations:
+                lines.append(f"- `{r.name}` -> `{r.target}` ({r.kind})")
+    return lines
+
+
+def _yn(flag: bool) -> str:
+    return "yes" if flag else "-"
 
 
 def _article_body_lines(module: ModuleSummary) -> list[str]:
@@ -501,6 +604,14 @@ def _write_outputs(root: Path, model: ContextMapModel) -> None:
         _write_document(
             routes_path,
             _document("# Routes", _routes_article_lines(model), model.source_hash),
+            nexus_dir,
+        )
+
+    if model.models:
+        database_path = context_dir / DATABASE_FILENAME
+        _write_document(
+            database_path,
+            _document("# Database", _database_article_lines(model), model.source_hash),
             nexus_dir,
         )
 

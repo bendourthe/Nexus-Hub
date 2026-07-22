@@ -1,8 +1,8 @@
 # Known Gaps - v3.15
 
 **Project**: Nexus-Hub
-**Status**: v3.15.0 adoption-codesight IN PROGRESS on `feat/adoption-codesight` (cut off `develop`). Phases 1-2 of 7 COMPLETE (Phase 1: compiled context-map generator + `generate_context_map` MCP tool + `nexus-hub map` CLI; Phase 2: framework-aware route extraction + env-var audit + middleware detection with an accuracy harness). Phases 3-7 (schema/component/event extraction, graph enrichment, measurement + health, knowledge layer, terminal refactor + release) pending.
-**Last updated**: 2026-07-21 (v3.15.0 adoption-codesight Phase 2)
+**Status**: v3.15.0 adoption-codesight IN PROGRESS on `feat/adoption-codesight` (cut off `develop`). Phases 1-3 of 7 COMPLETE (Phase 1: compiled context-map generator + `generate_context_map` MCP tool + `nexus-hub map` CLI; Phase 2: framework-aware route extraction + env-var audit + middleware detection; Phase 3: ORM schema extraction + component + event extraction, with relation resolution). Phases 4-7 (graph enrichment, measurement + health, knowledge layer, terminal refactor + release) pending.
+**Last updated**: 2026-07-21 (v3.15.0 adoption-codesight Phase 3)
 
 > **Scope note (version collision)**: three plans under `docs/v3/v3.15/plans/` are all stamped `v3.15.0` - `platform-parity-all-gaps` (appears complete on its own branch), `adoption-codesight` (this file), and `adoption-awesome-llm-apps`. Only one feature set can ship as v3.15.0. This is the comparison-versioning artifact (plans stamped with the authoring-cycle version, not the real adoption target). It is NOT a Phase-1 blocker (Phase 1 is extension-only code with its own package version and touches no catalog version surface), but it MUST be reconciled before this plan's release phase (Phase 7 / `/update release`). See QG-2.
 
@@ -10,7 +10,7 @@
 
 ## v3.15.0
 
-**Status**: Phases 1-2 of 7 COMPLETE on `feat/adoption-codesight`. Extension-only, no catalog registry / installer / `base-*.md` changes. Phase 1: a deterministic `.nexus/CONTEXT-MAP.md` + `.nexus/context/` article set compiled from the existing tree-sitter graph, exposed as the `generate_context_map` MCP tool and a `nexus-hub map` one-shot CLI (neutral-path, byte-identical tool/CLI, content-hash no-op). Phase 2: framework-aware route extraction (method / path / params / behavior tags, over the FastAPI / Flask / Django / Express route nodes the resolvers already emit), an env-var audit (required vs has-default, `.env.example` names only), and middleware detection/categorization, all feeding new Routes / Environment / Middleware map sections + a routes article, gated by an extraction-accuracy harness (per-section recall + a hard zero-false-positive gate) over per-framework fixtures. `GENERATOR_VERSION` 1 -> 2. New-code coverage 95%; full extension suite green (245 passed, 1 pre-existing skip).
+**Status**: Phases 1-3 of 7 COMPLETE on `feat/adoption-codesight`. Extension-only, no catalog registry / installer / `base-*.md` changes. Phase 1: a deterministic `.nexus/CONTEXT-MAP.md` + `.nexus/context/` article set compiled from the existing tree-sitter graph, exposed as the `generate_context_map` MCP tool and a `nexus-hub map` one-shot CLI (neutral-path, byte-identical tool/CLI, content-hash no-op). Phase 2: framework-aware route extraction (method / path / params / behavior tags), an env-var audit (required vs has-default, `.env.example` names only), and middleware detection/categorization, feeding Routes / Environment / Middleware sections. Phase 3: ORM schema extraction (SQLAlchemy / Django / Prisma - fields, PK/FK/unique, and relation resolution), React component extraction (props), and background-event detection (Celery / BullMQ / Kafka / EventEmitter), feeding Data Models / Components / Events sections + a `database` article. All gated by an extraction-accuracy harness (per-section recall + a hard zero-false-positive gate, plus an explicit relation-resolution assertion) over per-framework fixtures. `GENERATOR_VERSION` 1 -> 3. New-code coverage 95%; full extension suite green (257 passed, 1 pre-existing skip).
 
 ### Open Items
 
@@ -23,12 +23,16 @@
 - **Reason**: the compiled map still renders a "Most-Imported Files" section as an explicit placeholder. File-level import ranking is Phase 4 (graph enrichment). The Overview "frameworks best-effort" half of the original DF-1 is RESOLVED in Phase 2 - the Overview now carries a `Frameworks:` line inferred from the detected routes and middleware.
 - **Suggested next step**: Phase 4 fills the Most-Imported Files section from the import edges the graph already stores (a file-level view labeled distinct from symbol-level `code_impact`).
 
-##### DF-3 - Additional route frameworks and ORMs deferred (explicit coverage, not silent)
+##### DF-3 - Additional frameworks / ORMs / component libs / event patterns deferred (explicit coverage, not silent)
 
-- **Source phase**: v3.15.0 adoption-codesight Phase 2 (2.1)
-- **Plan reference**: Phase 2.1 ("START with the frameworks Nexus-Hub's own users actually run, verifying each with a fixture before adding the next ... Do NOT attempt every framework at once")
-- **Reason**: Phase 2's route layer reads the `route` nodes the EXISTING extraction-time resolvers emit, which cover FastAPI, Flask, Django, and Express. The other prioritized frameworks (Hono / Fastify / Next / NestJS for TS, Gin for Go, Rails for Ruby, Spring Boot for Java, Laravel for PHP) each require a NEW extraction-time resolver plus its own fixture and recall/zero-FP check; per the plan's incremental posture these are added one at a time, not all in Phase 2. ORM schema, component, and event extraction are Phase 3.
-- **Suggested next step**: add a resolver + fixture per additional framework in a follow-on pass (or a later phase); Phase 7 records the final deferred-coverage list. The route/env/middleware layer already handles any new framework's route nodes generically once a resolver emits them.
+- **Source phase**: v3.15.0 adoption-codesight Phase 2 (2.1) + Phase 3 (3.1, 3.2)
+- **Plan reference**: Phase 2.1 / Phase 3.1 / Phase 3.2 ("verifying each with a fixture before adding the next ... Do NOT attempt every framework at once")
+- **Reason**: per the plan's incremental posture, each detector lands with its own fixture rather than all at once. Currently covered:
+    - **Routes**: FastAPI, Flask, Django, Express (via the existing resolvers). Deferred: Hono / Fastify / Next / NestJS (TS), Gin (Go), Rails (Ruby), Spring Boot (Java), Laravel (PHP) - each needs a new extraction-time resolver + fixture.
+    - **ORM schema**: SQLAlchemy, Django ORM, Prisma. Deferred: TypeORM, Drizzle (TS), ActiveRecord (Ruby), GORM (Go) - decorator/call-based, each needs its own detector + fixture.
+    - **Components**: React (props via destructuring or the resolved prop type). Deferred: Vue, Svelte. Design-system-primitive auto-filtering is also deferred (JSX-file scoping + node_modules exclusion already filter library primitives).
+    - **Events**: declaration-strong signals (Celery task decorators, BullMQ `new Queue/Worker`, Kafka, `new EventEmitter`). Deferred: invocation-only patterns (`.delay(`, `.emit(`, Redis `.publish(`/`.subscribe(`) - too common to detect without false positives.
+- **Suggested next step**: add a detector + fixture per additional target in a follow-on pass; Phase 7 records the final deferred-coverage list. The map's section renderers and the accuracy harness already handle any new detector's output generically.
 
 ##### DF-2 - nexus-code-search extension package version not bumped
 
@@ -83,7 +87,7 @@
 | Quality-gate gaps (QG) | 2 | 0 |
 | Hand-offs (HO) | 0 | 0 |
 
-DF-1's "frameworks" half was resolved in Phase 2 (the Overview now carries a `Frameworks:` line); the "Most-Imported Files" half remains open for Phase 4. DF-2 (extension version bump) and DF-3 (deferred frameworks/ORMs) are open. WN-1 (pre-existing `json` F401 in `nexus_hub_cli.py`) was not touched this phase. MT-1, QG-1, QG-2 carry unchanged.
+DF-1's "frameworks" half was resolved in Phase 2 (the Overview `Frameworks:` line); the "Most-Imported Files" half remains open for Phase 4. DF-2 (extension version bump) is open. DF-3 (deferred detectors) was expanded in Phase 3 to cover additional ORMs, component libraries, and event patterns alongside the additional route frameworks. WN-1 (pre-existing `json` F401 in `nexus_hub_cli.py`) was not touched this phase. MT-1, QG-1, QG-2 carry unchanged.
 
 ### Advisory
 

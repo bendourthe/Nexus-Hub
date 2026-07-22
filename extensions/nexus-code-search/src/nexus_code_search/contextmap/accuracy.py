@@ -17,10 +17,13 @@ import sqlite3
 from dataclasses import dataclass
 from pathlib import Path
 
+from nexus_code_search.contextmap.components import extract_components
 from nexus_code_search.contextmap.env import audit_env_vars
+from nexus_code_search.contextmap.events import detect_events
 from nexus_code_search.contextmap.middleware import detect_middleware
 from nexus_code_search.contextmap.model import RouteInfo
 from nexus_code_search.contextmap.routes import extract_routes
+from nexus_code_search.contextmap.schema import extract_schema
 
 # Per-section recall below this is a soft warning to triage, not a hard failure.
 RECALL_THRESHOLD = 0.8
@@ -53,6 +56,16 @@ def route_key(route: RouteInfo) -> str:
     return f"{route.method} {route.path}"
 
 
+def relation_key(model_name: str, rel) -> str:
+    """Canonical `Model.rel->Target` key for comparing a relation to truth."""
+    return f"{model_name}.{rel.name}->{rel.target}"
+
+
+def event_key(event) -> str:
+    """Canonical `kind:name` key for comparing an event to ground truth."""
+    return f"{event.kind}:{event.name}"
+
+
 def score_section(section: str, detected: set[str], truth: set[str]) -> SectionScore:
     """Compare a detected set to ground truth for one section."""
     tp = detected & truth
@@ -69,25 +82,38 @@ def score_section(section: str, detected: set[str], truth: set[str]) -> SectionS
 def evaluate(
     conn: sqlite3.Connection, root: Path, truth: dict
 ) -> dict[str, SectionScore]:
-    """Run every section extractor over the graph and score against ``truth``.
+    """Run the relevant extractors over the graph and score against ``truth``.
 
-    ``truth`` maps "routes" / "env" / "middleware" to a list of expected keys
-    (routes as "METHOD path", env as variable names, middleware as names).
+    Only sections declared in ``truth`` are scored, so a fixture opts into the
+    sections it exercises. Keys: routes ("METHOD path"), env (names), middleware
+    (names), models (names), relations ("Model.rel->Target"), components (names),
+    events ("kind:name").
     """
     code_files = [
         (path, language)
         for path, language in conn.execute("SELECT path, language FROM files")
     ]
-    detected_routes = {route_key(r) for r in extract_routes(conn, root)}
-    detected_env = {e.name for e in audit_env_vars(root, code_files)}
-    detected_mw = {m.name for m in detect_middleware(root, code_files)}
+    detected: dict[str, set[str]] = {}
+    if "routes" in truth:
+        detected["routes"] = {route_key(r) for r in extract_routes(conn, root)}
+    if "env" in truth:
+        detected["env"] = {e.name for e in audit_env_vars(root, code_files)}
+    if "middleware" in truth:
+        detected["middleware"] = {m.name for m in detect_middleware(root, code_files)}
+    if "models" in truth or "relations" in truth:
+        models = extract_schema(conn, root)
+        if "models" in truth:
+            detected["models"] = {m.name for m in models}
+        if "relations" in truth:
+            detected["relations"] = {
+                relation_key(m.name, r) for m in models for r in m.relations
+            }
+    if "components" in truth:
+        detected["components"] = {c.name for c in extract_components(root, code_files)}
+    if "events" in truth:
+        detected["events"] = {event_key(e) for e in detect_events(root, code_files)}
 
     return {
-        "routes": score_section(
-            "routes", detected_routes, set(truth.get("routes", []))
-        ),
-        "env": score_section("env", detected_env, set(truth.get("env", []))),
-        "middleware": score_section(
-            "middleware", detected_mw, set(truth.get("middleware", []))
-        ),
+        section: score_section(section, found, set(truth.get(section, [])))
+        for section, found in detected.items()
     }

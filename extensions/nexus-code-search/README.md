@@ -46,7 +46,7 @@ The installer ships with the repo. Alternatively install via the Nexus-Hub insta
 | `code_explore(symbol, depth=2)` | Combined search + traversal payload (matches + callers + callees + impact). |
 | `watch_for_changes(root, debounce_ms=2000)` | Start a debounced filesystem watcher that re-indexes the graph as files change. Returns immediately; the watcher runs in a background thread. |
 | `code_affected_tests(changed_files, depth=5, test_glob=None)` | Reverse-import BFS: given a list of changed files, return every test file in the index whose code transitively imports any of them. Conservative -- false positives favored over false negatives. Companion CLI: `nexus-hub affected` (see "CLI dispatcher" below). |
-| `generate_context_map(root, force=False)` | Compile a committed `<root>/.nexus/CONTEXT-MAP.md` (plus a `<root>/.nexus/context/` article set) from the graph, so an AI reads the codebase map once at session start instead of re-exploring files. Includes framework-aware Routes (method / path / params / behavior tags), an Environment audit (required vs default), and a Middleware section. Deterministic and local-only; writes only under `<root>/.nexus/`. Unchanged graph is a no-op unless `force=True`. Run `index_graph` first. Companion CLI: `nexus-hub map` (see "Context map" below). |
+| `generate_context_map(root, force=False)` | Compile a committed `<root>/.nexus/CONTEXT-MAP.md` (plus a `<root>/.nexus/context/` article set) from the graph, so an AI reads the codebase map once at session start instead of re-exploring files. Includes framework-aware Routes (method / path / params / behavior tags), an Environment audit (required vs default), Middleware, ORM Data Models (fields / keys / relations), UI Components (props), and background Events. Deterministic and local-only; writes only under `<root>/.nexus/`. Unchanged graph is a no-op unless `force=True`. Run `index_graph` first. Companion CLI: `nexus-hub map` (see "Context map" below). |
 
 ## NodeKind / EdgeKind taxonomy
 
@@ -93,11 +93,12 @@ nexus-hub map /repo --force --json
 
 Outputs, written ONLY under `<root>/.nexus/`:
 
-- `CONTEXT-MAP.md` - overview (languages, detected frameworks, file / symbol / module counts), a module-structure table, framework-aware Routes / Environment / Middleware sections, a most-imported-files placeholder, and an index of the per-module articles.
+- `CONTEXT-MAP.md` - overview (languages, detected frameworks, file / symbol / module counts), a module-structure table, framework-aware Routes / Environment / Middleware / Data Models / Components / Events sections, a most-imported-files placeholder, and an index of the per-module articles.
 - `context/index.md` plus `context/<module>.md` - one article per top-level module (files, symbol counts, and key symbols).
 - `context/routes.md` - the full route list (method, path, params, behavior tags, handler) when any routes are detected.
+- `context/database.md` - per-model field / key / relation detail when any ORM models are detected.
 
-Framework extraction (route detection covers FastAPI, Flask, Django, and Express) reads the graph the resolvers already build; the env audit reads `.env.example`-style files by NAME only (never the real `.env`, never a value). Detection is gated by an extraction-accuracy harness (per-section recall + a hard zero-false-positive check) - see the accuracy fixtures under `tests/fixtures/contextmap/`.
+Framework extraction reads the graph the resolvers already build (routes cover FastAPI, Flask, Django, Express); schema covers SQLAlchemy, Django ORM, and Prisma (with relation resolution); components cover React; events cover Celery, BullMQ, Kafka, and EventEmitter. The env audit reads `.env.example`-style files by NAME only (never the real `.env`, never a value). Detection is gated by an extraction-accuracy harness (per-section recall + a hard zero-false-positive check, plus a relation-resolution assertion) - see the accuracy fixtures under `tests/fixtures/contextmap/`.
 
 Every file carries a metadata header with an accurate token count and a source fingerprint. Properties, all locked by the test suite:
 

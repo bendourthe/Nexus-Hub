@@ -15,7 +15,8 @@ from dataclasses import dataclass
 # previously committed map even though the source tree is unchanged. It is part
 # of the source fingerprint, so a format change forces a regeneration.
 # v2 (Phase 2): adds Routes / Environment / Middleware sections.
-GENERATOR_VERSION = "2"
+# v3 (Phase 3): adds Schema / Components / Events sections.
+GENERATOR_VERSION = "3"
 
 # Node kinds that count as a "symbol" for the overview and per-module rollups.
 # The synthetic ``file`` node and structural kinds (import / export / parameter
@@ -110,6 +111,56 @@ class MiddlewareInfo:
 
 
 @dataclass(frozen=True)
+class FieldInfo:
+    """One ORM model field."""
+
+    name: str
+    type: str
+    primary_key: bool = False
+    foreign_key: bool = False
+    unique: bool = False
+
+
+@dataclass(frozen=True)
+class RelationInfo:
+    """One relation from an ORM model to another model."""
+
+    name: str
+    target: str
+    kind: str  # e.g. one-to-many, many-to-one, many-to-many, one-to-one, relation
+
+
+@dataclass(frozen=True)
+class ModelInfo:
+    """One ORM model / table surfaced from the source."""
+
+    name: str
+    framework: str
+    source_file: str
+    fields: tuple[FieldInfo, ...] = ()
+    relations: tuple[RelationInfo, ...] = ()
+
+
+@dataclass(frozen=True)
+class ComponentInfo:
+    """One UI component with its props (names only)."""
+
+    name: str
+    framework: str
+    props: tuple[str, ...]
+    source_file: str
+
+
+@dataclass(frozen=True)
+class EventInfo:
+    """One background-work / event surface (task, queue, topic, emitter)."""
+
+    name: str
+    kind: str
+    source_file: str
+
+
+@dataclass(frozen=True)
 class ContextMapModel:
     """The full compiled-map content model, ready to render deterministically."""
 
@@ -122,6 +173,9 @@ class ContextMapModel:
     routes: tuple[RouteInfo, ...] = ()
     env_vars: tuple[EnvVar, ...] = ()
     middleware: tuple[MiddlewareInfo, ...] = ()
+    models: tuple[ModelInfo, ...] = ()
+    components: tuple[ComponentInfo, ...] = ()
+    events: tuple[EventInfo, ...] = ()
 
 
 def compute_source_hash(file_hash_rows: list[tuple[str, str]]) -> str:
