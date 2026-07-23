@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.14.7 -->
+<!-- nexus-hub-version: 3.15.0 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 267 skills, 16 commands, 28 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -36,6 +36,10 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v3.15.0
+
+v3.15.0 brings every supported platform to full surface parity: each platform now receives all the Nexus-Hub surfaces it can actually consume (skills, commands, agents, rules, hooks), re-verified against each platform's current official docs. **Cursor** reaches full parity (flattened skills, every command as a skill and a project `.cursor/commands/` file, subagents, and a Cursor-schema `hooks.json` carrying `git-guardrails`). **OpenCode** gains the subagents surface (`~/.config/opencode/agents/`). **Qwen Code** and **Kimi** are reclassified from instruction-file-only guardrails to full skills-bearing integrations (Qwen ships Markdown commands since its TOML path is deprecated; Kimi is migrated to the current Kimi Code CLI product at `~/.kimi-code/`). **GitHub Copilot**'s opt-in skill seeding is widened from an on/off toggle to a bundle-or-all selector (`NEXUS_HUB_COPILOT_SKILLS`). Under the hood, `hooks_supported` becomes the single load-bearing hook-capability signal (the dead `permissions_file` config key is removed), and the platform read-contract is re-verified for all parity targets and re-stamped for this release. No catalog change; counts unchanged: **267 skills**, **16 commands**, **28 hooks**.
 
 ## What's New in v3.14.7
 
