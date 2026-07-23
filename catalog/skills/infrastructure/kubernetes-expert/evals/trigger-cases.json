@@ -1,0 +1,12 @@
+{
+  "skill": "kubernetes-expert",
+  "purpose": "Route Kubernetes cluster / Helm / RBAC / pod work here.",
+  "cases": [
+    {"id": "pos-k8s-helm", "prompt": "deploy to kubernetes with a helm chart", "should_trigger": true, "assert": "routes to kubernetes-expert first", "lexical": true},
+    {"id": "pos-k8s-rbac", "prompt": "configure rbac and troubleshoot pods in the cluster", "should_trigger": true, "assert": "routes to kubernetes-expert first", "lexical": true},
+    {"id": "pos-k8s-cluster", "prompt": "optimize kubernetes cluster resources and orchestration", "should_trigger": true, "assert": "routes to kubernetes-expert first", "lexical": true},
+    {"id": "neg-react", "prompt": "build a react component with hooks", "should_trigger": false, "assert": "routes to react-expert, not kubernetes-expert", "lexical": true},
+    {"id": "neg-gdpr", "prompt": "implement gdpr data subject rights", "should_trigger": false, "assert": "routes to gdpr-compliance, not kubernetes-expert", "lexical": true},
+    {"id": "neg-docx", "prompt": "generate a word document from a template", "should_trigger": false, "assert": "routes to docx-generation, not kubernetes-expert", "lexical": true}
+  ]
+}

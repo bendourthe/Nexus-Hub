@@ -1,8 +1,8 @@
 # Known Gaps - v3.15
 
 **Project**: Nexus-Hub
-**Status**: The v3.15 minor line carries THREE releases. **v3.15.0 platform-parity-all-gaps** (all 7 phases, RELEASED 2026-07-23): every supported platform receives all the surfaces it can consume, re-verified against current docs. **v3.15.1 adoption-codesight** (all 7 phases built, releasing 2026-07-23): the deterministic compiled context-map inside `nexus-code-search`, both DoD axes holding. **v3.15.2 adoption-awesome-llm-apps** (IN PROGRESS; Phases 1-2 of 6 complete): a deterministic, model-free skill trigger-and-routing quality gate plus an unfilled-placeholder lint. The v3.15.0 version collision (three plans stamped v3.15.0) was reconciled on 2026-07-22 by re-stamping: v3.15.0 = platform-parity-all-gaps, v3.15.1 = adoption-codesight, v3.15.2 = adoption-awesome-llm-apps.
-**Last updated**: 2026-07-23 (v3.15.2 Phase 2 - unfilled-placeholder lint)
+**Status**: The v3.15 minor line carries THREE releases. **v3.15.0 platform-parity-all-gaps** (all 7 phases, RELEASED 2026-07-23): every supported platform receives all the surfaces it can consume, re-verified against current docs. **v3.15.1 adoption-codesight** (all 7 phases built, releasing 2026-07-23): the deterministic compiled context-map inside `nexus-code-search`, both DoD axes holding. **v3.15.2 adoption-awesome-llm-apps** (IN PROGRESS; Phases 1-3 of 6 complete): a deterministic, model-free skill trigger-and-routing quality gate, an unfilled-placeholder lint, and per-skill routing assertions. The v3.15.0 version collision (three plans stamped v3.15.0) was reconciled on 2026-07-22 by re-stamping: v3.15.0 = platform-parity-all-gaps, v3.15.1 = adoption-codesight, v3.15.2 = adoption-awesome-llm-apps.
+**Last updated**: 2026-07-23 (v3.15.2 Phase 3 - per-skill trigger-cases + routing assertions)
 
 > **Prior-version ingest (platform-parity)**: v3.14.5's DF-4 (platform additive-surface drift) is the direct input to the v3.15.0 release and was actioned per phase; it does not carry forward as a separate open item. The v3.14.5 Advisory pre-existing failure `test_init_subcommand.py::test_default_wire_project_surfaces_returns_none` was re-confirmed and owned by Phase 5.2 (resolved; see the v3.15.0 Advisory below).
 
@@ -194,11 +194,13 @@ RESOLVED: DF-1 (frameworks line P2 + Most-Imported Files P4), DF-2 (extension ve
 
 ## v3.15.2 - adoption-awesome-llm-apps
 
-**Status**: IN PROGRESS. Phases 1-2 COMPLETE; Phases 3-6 pending. This section is appended per-phase and finalized at the v3.15.2 release (Phase 6). Plan: [plans/v3.15.2-adoption-awesome-llm-apps.md](plans/v3.15.2-adoption-awesome-llm-apps.md).
+**Status**: IN PROGRESS. Phases 1-3 COMPLETE; Phases 4-6 pending. This section is appended per-phase and finalized at the v3.15.2 release (Phase 6). Plan: [plans/v3.15.2-adoption-awesome-llm-apps.md](plans/v3.15.2-adoption-awesome-llm-apps.md).
 
 **Phase 1 (catalog-wide trigger-and-routing eval, A1) COMPLETE.** Shipped `scripts/run_trigger_evals.py` (Python stdlib only, model-free): it tokenizes every skill `description`, stems light inflections (ing/es/ed/s), and flags any pair whose trigger vocabulary overlaps at or above a configurable threshold (default 0.5, containment metric `|A n B| / min(|A|, |B|)`). First-run triage over all 267 skills surfaced 39 near-collisions. 38 are by-design category siblings (parallel `<lang>-cleanup` / `<lang>-expert` / `init-<lang>-project` / framework-expert / `*-generation` / mobile-platform / compliance-regulation pairs, plus two matched pairs that already carry mutual SKIP clauses) recorded in `scripts/run_trigger_evals.allowlist.json`; the one genuine collision (the broad `technical-documentation` skill lacked a SKIP clause carving out the single-artifact `architecture-decision-record` and `project-constitution` skills) was FIXED by sharpening `technical-documentation`'s description (and its `data/skills.json` mirror). Registered warning-first in `installer.sh`, `installer.ps1`, the `Makefile` (`make trigger-evals` plus a `make validate` step), and `.github/workflows/ci.yml`. Tests: `tests/validators/test_run_trigger_evals.py` (25 tests, 96% line coverage). Promotion from warning-only to a hard `--gate` is deferred to Phase 6 per the plan.
 
 **Phase 2 (unfilled-placeholder lint, A3) COMPLETE.** Extended `scripts/validate_skills.py` with `validate_placeholders`: it flags unfilled multi-word angle-bracket template placeholders (two or more single-space-separated lowercase words, e.g. `<what this skill does>`) as a HARD ERROR in both the `description` frontmatter field and the SKILL.md body prose. Single-word CLI notation (`<path>`), uppercase template tokens (`<MAJOR>`), and HTML tags are excluded by the tight regex shape, and fenced code blocks + inline-code spans are skipped (CommonMark-aware fence tracking mirrored from the secret scanner). The check runs inside the `--bundles-only` mode that `make validate` and CI already invoke, so NO new CI job was added. First run over all 267 skills produced ZERO findings (no genuine scaffolds, no false positives), so no SKILL.md fix was needed. Tests: 14 cases added to `tests/validators/test_validate_skills.py` (description hit, body hit, CLI-notation / HTML / uppercase-token / comparison-operator negatives, fenced + inline-code + backticked-description exemptions, nested-fence guard, `_body_after_frontmatter`, and two `--bundles-only` CLI tests) - new-code line coverage 100% in-process. AGENTS.md documents the new lint alongside the orphan-bundle detection block.
+
+**Phase 3 (per-skill trigger-cases + routing assertions, A2) COMPLETE.** Extended `scripts/run_trigger_evals.py` to consume optional `catalog/skills/<cat>/<name>/evals/trigger-cases.json` files and assert lexical routing: (a) each `should_trigger: true` prompt must rank its own skill first among all skills (else it names the mis-routed-to skill), and (b) within a skill's cases the weakest positive must clear the strongest near-miss negative by a configurable `--margin` (default 1.15x). `lexical: false` cases are skipped (left for behavioral evals); skills without a file emit a WARN (never a FAIL), so the catalog never blocks on incomplete coverage. The schema and `evals/` convention are documented in AGENTS.md; the orphan-bundle audit is reconciled (a code comment on `BUNDLED_SUBDIRS` records that `evals/` is intentionally excluded because it is runner-consumed, not SKILL.md-referenced). First tranche authored for 6 distinctive-noun skills (react-expert, vue-expert, gdpr-compliance, ccpa-compliance, kubernetes-expert, docx-generation), chosen from the Phase 1 near-collision pairs plus a high-value standalone; all 36 lexical cases pass (0 routing failures). One vue near-miss was retuned to lean on react-distinctive vocabulary after the margin check correctly flagged that generic component/state words did not separate vue from react - the eval working as intended. Tests: routing cases added to `tests/validators/test_run_trigger_evals.py` (rank-first pass, misroute, margin-fail, lexical-false skip, malformed file, no-cases WARN, JSON routing block, real-catalog tranche) - runner line coverage 95%. No CI edit needed (the extended eval is the same warning-only step; new tests run via the existing `pytest tests/validators` step).
 
 ### v3.15.2 Open Items
 
@@ -220,6 +222,15 @@ RESOLVED: DF-1 (frameworks line P2 + Most-Imported Files P4), DF-2 (extension ve
 - **Reason**: the bash installer cannot fully run on the Windows dev host (WN-v36-1). The new copy block mirrors the `generate_report.py` pattern exactly, is shellcheck-clean, and targets `$scripts_dest` (which resolves to `~/.nexus-hub/scripts`).
 - **Suggested next step**: none required - CI's `bootstrap` and `install-smoke` jobs exercise the installer end-to-end on ubuntu / macOS / Windows.
 
+#### Missing tests / coverage gaps
+
+##### MT-1 - trigger-cases.json routing coverage is a first tranche (6/267 skills)
+
+- **Source phase**: v3.15.2 Phase 3.3.
+- **Plan reference**: Phase 3.3 ("leave the rest of the catalog on the WARN path for incremental authoring in later releases") and Phase 6.2 ("Explicitly record the deferred incremental work ... skills still on the WARN path").
+- **Reason**: routing cases were authored for 6 distinctive-noun skills; the remaining 261 skills have no `evals/trigger-cases.json` and are on the WARN path (never fails the gate). This is by design - lexical routing cases are only meaningful for skills with distinctive description vocabulary, and command-dispatcher skills (`/plan`, `/implement`, `/review`, `/compare`, `/update`) lexically overlap their sub-skills, so they need `lexical: false` reasoning-routed cases (deferred).
+- **Suggested next step**: author further tranches incrementally in later releases; for the command dispatchers, add `lexical: false` cases covered by behavioral evals (ties into Phase 4 schema interop).
+
 ### v3.15.2 Summary
 
 | Category | Open | Resolved |
@@ -228,8 +239,8 @@ RESOLVED: DF-1 (frameworks line P2 + Most-Imported Files P4), DF-2 (extension ve
 | Deferred (DF) | 1 | 0 |
 | Bugs / regressions (BG) | 0 | 0 |
 | Warnings (WN) | 1 | 0 |
-| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 1 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 | Hand-offs (HO) | 0 | 0 |
 
-> **Forward pointer (Phase 3 coverage gap)**: the per-skill `trigger-cases.json` routing-assertion coverage gap (skills left on the WARN path) is a Phase 3 deliverable and will be tracked here when Phase 3 lands, per the plan's Phase 6.2 instruction.
+> **Note**: the trigger-cases coverage gap (MT-1) is the tracked deferred item the plan's Phase 6.2 calls out; the Phase 6 reconciliation carries it forward to the next release.

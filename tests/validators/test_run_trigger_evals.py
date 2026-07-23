@@ -51,6 +51,13 @@ def _write_skill(root: Path, category: str, name: str, description: str) -> None
     )
 
 
+def _write_cases(root: Path, category: str, name: str, data: dict) -> None:
+    """Write a skill's evals/trigger-cases.json fixture."""
+    evals_dir = root / category / name / "evals"
+    evals_dir.mkdir(parents=True, exist_ok=True)
+    (evals_dir / "trigger-cases.json").write_text(json.dumps(data), encoding="utf-8")
+
+
 # ---------------------------------------------------------------------------
 # Tokenizer + stemmer
 # ---------------------------------------------------------------------------
@@ -322,3 +329,141 @@ def test_real_catalog_has_zero_unallowlisted_collisions() -> None:
     result = _run_cli("--gate")
     assert result.returncode == 0, result.stdout
     assert "0 un-allowlisted collisions" in result.stdout
+
+
+# ---------------------------------------------------------------------------
+# Routing assertions (Phase 3)
+# ---------------------------------------------------------------------------
+
+def _cases(*case_dicts: dict) -> dict:
+    return {"skill": "s", "purpose": "p", "cases": list(case_dicts)}
+
+
+def test_assert_routing_positive_ranks_own_skill_first() -> None:
+    tokens = {"alpha": {"alpha", "widget", "dashboard"}, "beta": {"beta", "report", "export"}}
+    by_skill = {"alpha": _cases({"id": "p1", "prompt": "alpha widget", "should_trigger": True})}
+    failures, stats = rte.assert_routing(tokens, by_skill, margin=1.15)
+    assert failures == []
+    assert stats["cases_evaluated"] == 1
+
+
+def test_assert_routing_misroute_is_flagged() -> None:
+    tokens = {"alpha": {"alpha", "common"}, "beta": {"beta", "common", "widget", "dashboard"}}
+    by_skill = {"alpha": _cases({"id": "p1", "prompt": "widget dashboard common", "should_trigger": True})}
+    failures, _ = rte.assert_routing(tokens, by_skill, margin=1.15)
+    assert len(failures) == 1
+    assert failures[0]["kind"] == "misroute"
+    assert failures[0]["mis_routed_to"] == "beta"
+
+
+def test_assert_routing_margin_failure_is_flagged() -> None:
+    # Positive scores 1.0 against alpha; near-miss negative also scores 1.0, so the
+    # weakest positive does not clear the strongest negative by 1.15x. Tokens are
+    # stemmer-stable words (no ing/es/ed/s suffix) so a prompt tokenizes to them
+    # verbatim, matching how real token sets are built from tokenize(description).
+    tokens = {"alpha": {"alpha", "common", "widget"}, "beta": {"beta"}}
+    by_skill = {"alpha": _cases(
+        {"id": "pos", "prompt": "alpha", "should_trigger": True},
+        {"id": "neg", "prompt": "common widget", "should_trigger": False},
+    )}
+    failures, _ = rte.assert_routing(tokens, by_skill, margin=1.15)
+    assert len(failures) == 1
+    assert failures[0]["kind"] == "margin"
+
+
+def test_assert_routing_skips_non_lexical_cases() -> None:
+    tokens = {"alpha": {"alpha"}, "beta": {"beta", "widget", "dashboard"}}
+    # A lexical:false positive that WOULD mis-route is skipped, so no failure.
+    by_skill = {"alpha": _cases(
+        {"id": "nl", "prompt": "widget dashboard", "should_trigger": True, "lexical": False},
+    )}
+    failures, stats = rte.assert_routing(tokens, by_skill, margin=1.15)
+    assert failures == []
+    assert stats["cases_evaluated"] == 0
+    assert stats["skipped_nonlexical"] == 1
+
+
+def test_assert_routing_malformed_file_is_flagged() -> None:
+    failures, _ = rte.assert_routing({"alpha": {"alpha"}}, {"alpha": {"_error": "bad json"}}, margin=1.15)
+    assert len(failures) == 1
+    assert failures[0]["kind"] == "malformed"
+
+
+def test_assert_routing_margin_needs_both_positive_and_negative() -> None:
+    # Only positives (no negatives) -> the margin check is not run.
+    tokens = {"alpha": {"alpha", "shared"}, "beta": {"beta"}}
+    by_skill = {"alpha": _cases({"id": "pos", "prompt": "alpha shared", "should_trigger": True})}
+    failures, _ = rte.assert_routing(tokens, by_skill, margin=1.15)
+    assert failures == []
+
+
+def test_find_trigger_cases_discovers_evals_file(tmp_path: Path) -> None:
+    root = tmp_path / "skills"
+    _write_skill(root, "cat", "widget-skill", "widget dashboard chart filter")
+    _write_cases(root, "cat", "widget-skill", _cases(
+        {"id": "p1", "prompt": "widget dashboard", "should_trigger": True},
+    ))
+    found = rte.find_trigger_cases(root)
+    assert "widget-skill" in found
+    assert found["widget-skill"]["cases"][0]["id"] == "p1"
+
+
+def test_find_trigger_cases_carries_malformed_file_as_error(tmp_path: Path) -> None:
+    root = tmp_path / "skills"
+    _write_skill(root, "cat", "broken-skill", "widget dashboard chart")
+    (root / "cat" / "broken-skill" / "evals").mkdir(parents=True, exist_ok=True)
+    (root / "cat" / "broken-skill" / "evals" / "trigger-cases.json").write_text("{not json", encoding="utf-8")
+    found = rte.find_trigger_cases(root)
+    assert "_error" in found["broken-skill"]
+    # ... and assert_routing surfaces it as a malformed failure.
+    failures, _ = rte.assert_routing({"broken-skill": {"widget"}}, found, margin=1.15)
+    assert any(f["kind"] == "malformed" for f in failures)
+
+
+# --- Routing via the CLI ---
+
+def _routing_catalog(tmp_path: Path) -> Path:
+    """Two distinct skills; widget-skill ships a positive that mis-routes to report-skill."""
+    root = tmp_path / "skills"
+    _write_skill(root, "cat", "widget-skill", "widget dashboard chart filter panel")
+    _write_skill(root, "cat", "report-skill", "report export widget dashboard chart data table")
+    _write_cases(root, "cat", "widget-skill", _cases(
+        {"id": "misroute", "prompt": "report export data table", "should_trigger": True},
+    ))
+    return root
+
+
+def test_cli_gate_fails_on_routing_misroute(tmp_path: Path) -> None:
+    root = _routing_catalog(tmp_path)
+    result = _run_cli("--path", str(root), "--allowlist", str(tmp_path / "none.json"), "--gate")
+    assert result.returncode == 1, result.stdout
+    assert "FAIL routing" in result.stdout
+
+
+def test_cli_warning_only_no_cases_warns_and_passes(tmp_path: Path) -> None:
+    root = tmp_path / "skills"
+    _write_skill(root, "cat", "lonely-skill", "deploy kubernetes clusters with helm and rbac")
+    result = _run_cli("--path", str(root), "--allowlist", str(tmp_path / "none.json"))
+    assert result.returncode == 0, result.stdout
+    assert "no trigger-cases.json" in result.stdout
+
+
+def test_cli_json_reports_routing_block(tmp_path: Path) -> None:
+    root = _routing_catalog(tmp_path)
+    result = _run_cli("--path", str(root), "--allowlist", str(tmp_path / "none.json"), "--json")
+    payload = json.loads(result.stdout)
+    assert payload["routing"]["skills_with_cases"] == 1
+    assert payload["routing"]["skills_without_cases"] == 1
+    assert len(payload["routing"]["failures"]) == 1
+
+
+def test_real_catalog_routing_tranche_passes() -> None:
+    # Phase 3 stability gate: the authored first tranche routes cleanly (zero
+    # routing failures) so the Phase 6 promotion to --gate stays green, while the
+    # rest of the catalog stays on the WARN path.
+    result = _run_cli("--json")
+    payload = json.loads(result.stdout)
+    routing = payload["routing"]
+    assert routing["failures"] == [], routing["failures"]
+    assert routing["skills_with_cases"] >= 6
+    assert routing["skills_without_cases"] > 0  # incremental coverage, not the whole catalog

@@ -61,7 +61,11 @@ SCANNABLE_EXTENSIONS = {
 }
 
 # Per-skill bundled-resource subdirectories per the AGENTS.md
-# "Per-skill Bundled Resources" convention.
+# "Per-skill Bundled Resources" convention. `evals/` is deliberately NOT in this
+# tuple: its trigger-cases.json is consumed by scripts/run_trigger_evals.py, not
+# referenced from SKILL.md, so it is exempt from the SKILL.md-reference orphan
+# audit below. Do not add "evals" here or every trigger-cases.json would be
+# flagged as an orphan.
 BUNDLED_SUBDIRS = ("scripts", "references", "assets")
 BUNDLE_EXEMPT_FILENAMES = {".gitkeep"}
 

@@ -264,6 +264,163 @@ def find_collisions(
 
 
 # ---------------------------------------------------------------------------
+# Routing assertions (optional per-skill trigger-cases)
+# ---------------------------------------------------------------------------
+
+DEFAULT_ROUTING_MARGIN = 1.15
+
+# A skill MAY ship routing cases at catalog/skills/<cat>/<name>/evals/
+# trigger-cases.json. Schema (all keys lowercase):
+#   {
+#     "skill":   "<skill-name>",         # informational; the SKILL.md name is authoritative
+#     "purpose": "one-line purpose",     # informational
+#     "cases": [
+#       {"id": "pos-1", "prompt": "real user phrasing",
+#        "should_trigger": true,  "assert": "routes to <skill> first", "lexical": true},
+#       {"id": "neg-1", "prompt": "look-alike request",
+#        "should_trigger": false, "assert": "routes to <other>, not here", "lexical": true}
+#     ]
+#   }
+# `lexical` is optional (default true). A `lexical: false` case triggers via
+# agent reasoning rather than description vocabulary, so the deterministic runner
+# SKIPS it (it is left for behavioral evals). Cases are OPTIONAL per skill; a
+# skill without a file is reported as a WARN, never a FAIL.
+TRIGGER_CASES_RELPATH = ("evals", "trigger-cases.json")
+
+
+def find_trigger_cases(root: Path) -> dict[str, dict[str, object]]:
+    """Map skill name -> parsed evals/trigger-cases.json, for skills that ship one.
+
+    The skill name is resolved the same way as find_skill_descriptions (the
+    frontmatter `name`, or the SKILL.md parent directory name), so the key aligns
+    with the descriptions/tokens maps. A file that fails to parse is carried with
+    an `_error` key so the caller can surface it as a routing failure rather than
+    silently skipping it.
+    """
+    cases: dict[str, dict[str, object]] = {}
+    for dirpath, _dirnames, filenames in os.walk(root):
+        if "SKILL.md" not in filenames:
+            continue
+        skill_dir = Path(dirpath)
+        case_file = skill_dir.joinpath(*TRIGGER_CASES_RELPATH)
+        if not case_file.is_file():
+            continue
+        content = (skill_dir / "SKILL.md").read_text(encoding="utf-8", errors="replace")
+        fm = parse_frontmatter(content) or {}
+        name = fm.get("name") or skill_dir.name
+        try:
+            data = json.loads(case_file.read_text(encoding="utf-8"))
+            if not isinstance(data, dict):
+                data = {"_error": "top-level JSON is not an object"}
+        except (OSError, ValueError) as exc:
+            data = {"_error": " ".join(str(exc).split())}
+        cases[name] = data
+    return cases
+
+
+def _top_competitor(
+    prompt_tokens: set[str], tokens: dict[str, set[str]], own_skill: str
+) -> tuple[str | None, float]:
+    """Return (skill, score) of the highest-scoring skill other than own_skill."""
+    best_skill: str | None = None
+    best_score = -1.0
+    for skill, skill_tokens in tokens.items():
+        if skill == own_skill:
+            continue
+        score = overlap_ratio(prompt_tokens, skill_tokens)
+        if score > best_score:
+            best_skill, best_score = skill, score
+    return best_skill, best_score
+
+
+def assert_routing(
+    tokens: dict[str, set[str]],
+    cases_by_skill: dict[str, dict[str, object]],
+    margin: float,
+) -> tuple[list[dict[str, object]], dict[str, int]]:
+    """Assert lexical routing for every skill that ships trigger cases.
+
+    For each skill with cases, and for each lexical case (`lexical` != False):
+      (a) a `should_trigger` case must rank its own skill first among ALL skills
+          (no other skill STRICTLY outranks it; ties are tolerated); otherwise it
+          mis-routed and the top competitor is named.
+      (b) within a skill's case set, the weakest positive's score to that skill
+          must clear the strongest near-miss negative's score by `margin`.
+
+    Returns (failures, stats). Each failure carries a `kind`
+    (malformed / misroute / margin) and a human-readable `message`.
+    `lexical: false` cases are skipped (left for behavioral evals) and counted.
+    """
+    failures: list[dict[str, object]] = []
+    cases_evaluated = 0
+    skipped_nonlexical = 0
+
+    for skill in sorted(cases_by_skill):
+        data = cases_by_skill[skill]
+        if "_error" in data:
+            failures.append({
+                "kind": "malformed",
+                "skill": skill,
+                "message": f"{skill}: trigger-cases.json is unreadable ({data['_error']})",
+            })
+            continue
+        own_tokens = tokens.get(skill, set())
+        positives: list[tuple[str, float]] = []
+        negatives: list[tuple[str, float]] = []
+        raw_cases = data.get("cases", [])
+        if not isinstance(raw_cases, list):
+            raw_cases = []
+        for case in raw_cases:
+            if not isinstance(case, dict):
+                continue
+            if case.get("lexical", True) is False:
+                skipped_nonlexical += 1
+                continue
+            cases_evaluated += 1
+            case_id = str(case.get("id", "?"))
+            prompt_tokens = tokenize(str(case.get("prompt", "")))
+            score_here = overlap_ratio(prompt_tokens, own_tokens)
+            if bool(case.get("should_trigger")):
+                positives.append((case_id, score_here))
+                if len(tokens) >= 2:
+                    competitor, comp_score = _top_competitor(prompt_tokens, tokens, skill)
+                    if comp_score > score_here:
+                        failures.append({
+                            "kind": "misroute",
+                            "skill": skill,
+                            "case": case_id,
+                            "mis_routed_to": competitor,
+                            "message": (
+                                f"{skill}: case '{case_id}' should route to {skill} "
+                                f"but ranks {competitor} first "
+                                f"({comp_score:.2f} vs {score_here:.2f})"
+                            ),
+                        })
+            else:
+                negatives.append((case_id, score_here))
+        if positives and negatives:
+            weakest_pos_id, weakest_pos = min(positives, key=lambda p: p[1])
+            strongest_neg_id, strongest_neg = max(negatives, key=lambda n: n[1])
+            if weakest_pos < margin * strongest_neg:
+                failures.append({
+                    "kind": "margin",
+                    "skill": skill,
+                    "message": (
+                        f"{skill}: weakest positive '{weakest_pos_id}' ({weakest_pos:.2f}) "
+                        f"does not clear strongest near-miss '{strongest_neg_id}' "
+                        f"({strongest_neg:.2f}) by the {margin}x margin"
+                    ),
+                })
+
+    stats = {
+        "skills_with_cases": len(cases_by_skill),
+        "cases_evaluated": cases_evaluated,
+        "skipped_nonlexical": skipped_nonlexical,
+    }
+    return failures, stats
+
+
+# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
@@ -305,9 +462,18 @@ def main() -> int:
         help="Emit a structured JSON report instead of human-readable lines",
     )
     parser.add_argument(
+        "--margin",
+        type=float,
+        default=DEFAULT_ROUTING_MARGIN,
+        help=f"Routing near-miss margin: the weakest positive must clear the "
+             f"strongest near-miss negative by this factor "
+             f"(default: {DEFAULT_ROUTING_MARGIN})",
+    )
+    parser.add_argument(
         "--verbose", "-v",
         action="store_true",
-        help="Also print allowlisted (informational) near-neighbor pairs",
+        help="Also print allowlisted near-neighbor pairs and the per-skill "
+             "list of skills missing trigger-cases.json",
     )
     args = parser.parse_args()
 
@@ -320,23 +486,42 @@ def main() -> int:
     collisions = find_collisions(descriptions, args.threshold, allowlist)
     unallowlisted = [c for c in collisions if not c["allowlisted"]]
 
+    # Phase 3 routing assertions: score each skill's trigger-case prompts against
+    # every skill's description tokens and assert the intended skill routes first.
+    tokens = {name: tokenize(desc) for name, desc in descriptions.items()}
+    cases_by_skill = find_trigger_cases(args.path)
+    routing_failures, routing_stats = assert_routing(tokens, cases_by_skill, args.margin)
+    skills_total = len(descriptions)
+    skills_without_cases = sorted(name for name in descriptions if name not in cases_by_skill)
+    missing_count = len(skills_without_cases)
+
     if args.as_json:
         report = {
-            "scanned": len(descriptions),
+            "scanned": skills_total,
             "threshold": args.threshold,
+            "margin": args.margin,
             "gate": args.gate,
             "collisions": collisions,
             "unallowlisted_count": len(unallowlisted),
+            "routing": {
+                "skills_total": skills_total,
+                "skills_with_cases": routing_stats["skills_with_cases"],
+                "skills_without_cases": missing_count,
+                "cases_evaluated": routing_stats["cases_evaluated"],
+                "skipped_nonlexical": routing_stats["skipped_nonlexical"],
+                "failures": routing_failures,
+            },
         }
         print(json.dumps(report, indent=2))
-        return 1 if (args.gate and unallowlisted) else 0
+        return 1 if (args.gate and (unallowlisted or routing_failures)) else 0
 
     mode = "gate" if args.gate else "warning-only"
     print(
-        f"Scanned {len(descriptions)} skill descriptions under {args.path} "
-        f"(threshold {args.threshold}, {mode} mode)"
+        f"Scanned {skills_total} skill descriptions under {args.path} "
+        f"(threshold {args.threshold}, margin {args.margin}, {mode} mode)"
     )
 
+    # --- Collision detection (Phase 1) ---
     for c in collisions:
         if c["allowlisted"]:
             if args.verbose:
@@ -351,18 +536,41 @@ def main() -> int:
                 f"{c['a']} vs {c['b']} ({c['pct']}% shared vocabulary)"
             )
 
+    # --- Routing assertions (Phase 3) ---
+    for f in routing_failures:
+        print(f"  FAIL routing: {f['message']}")
+    print(
+        f"  Routing coverage: {routing_stats['skills_with_cases']}/{skills_total} "
+        f"skills have trigger-cases.json "
+        f"({routing_stats['cases_evaluated']} lexical case(s) evaluated, "
+        f"{routing_stats['skipped_nonlexical']} non-lexical skipped)"
+    )
+    if missing_count:
+        print(
+            f"  WARN: {missing_count}/{skills_total} skills have no trigger-cases.json "
+            f"(incremental coverage; never fails the gate)"
+        )
+        if args.verbose:
+            for name in skills_without_cases:
+                print(f"    WARN missing trigger-cases: {name}")
+
+    # --- Combined result + exit code ---
     allowlisted_count = len(collisions) - len(unallowlisted)
-    if unallowlisted:
+    gate_failing = bool(unallowlisted) or bool(routing_failures)
+    if gate_failing:
         print(
             f"\nRESULT: {len(unallowlisted)} un-allowlisted near-collision(s), "
-            f"{allowlisted_count} allowlisted"
+            f"{allowlisted_count} allowlisted; {len(routing_failures)} routing failure(s)"
         )
         if args.gate:
             return 1
         print("(warning-only mode: not failing; run with --gate to enforce)")
         return 0
 
-    print(f"\nRESULT: PASS (0 un-allowlisted collisions, {allowlisted_count} allowlisted)")
+    print(
+        f"\nRESULT: PASS (0 un-allowlisted collisions, {allowlisted_count} allowlisted; "
+        f"0 routing failures across {routing_stats['skills_with_cases']} skill(s) with cases)"
+    )
     return 0
 
 
