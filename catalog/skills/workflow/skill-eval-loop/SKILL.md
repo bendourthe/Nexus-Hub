@@ -204,6 +204,17 @@ Single-prompt trigger rate catches the most common failure (a description too na
 
 Use premature-action detection on discipline/gate skills, multi-turn on skills whose real use arrives mid-workflow, and the cheap-model test before shipping to users not on the strongest model. Full guidance - what each catches, how to author the eval, how to read the output fields - is at `references/trigger-testing.md`. The `turns`, `trigger_turn`, and `model` eval fields are documented in `references/schemas.md` and are opt-in (single-turn, default-model evals are unaffected).
 
+## Behavioral-eval schema interop (A4)
+
+The eval set can be exported to and imported from a portable, interoperable behavioral-eval schema so Nexus-Hub's evals interoperate with external skill-eval tooling. The internal `evals.json` stays the source of truth (it carries `should_trigger`, `turns`, `trigger_turn`, `model`, and `tags` that the interoperable schema cannot express); a bidirectional converter handles interop rather than a native re-alignment, so no eval-loop capability is lost and the grading path is unchanged. Run:
+
+```bash
+python scripts/skill_eval_convert.py --to-interop evals.json --skill-name <skill> -o interop.json
+python scripts/skill_eval_convert.py --to-internal interop.json -o evals.json
+```
+
+The converter stashes internal-only fields under an `x_nexus` extension key so both round-trips are lossless. The interoperable schema, the field mapping, and the align-vs-adapter decision are documented at `references/schemas.md`.
+
 ## CLI-agnostic adapter
 
 The loop must work on whichever AI CLI the user has installed. The design follows the v1.1.3 four-hook precedent (`catalog/hooks/{claude,gemini,codex,opencode}-diff-review.sh`):

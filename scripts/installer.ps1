@@ -2227,6 +2227,14 @@ function Install-Templates {
     if (Test-Path $evalOptimizerSource) {
         Safe-Copy -Source $evalOptimizerSource -Destination (Join-Path $scriptsDest "optimize_skill_description.py") -Confirm:$true -CustomMessage "✓ Skill-description optimizer installed at: $scriptsDest\optimize_skill_description.py"
     }
+    # Copy the behavioral-eval schema converter (v3.15.2 / A4). Mirror of the bash
+    # block in scripts\installer.sh. Bidirectional, lossless converter between the
+    # eval-loop's internal evals.json and the interoperable behavioral-eval schema.
+    # Stdlib-only single .py (cross-platform, no .ps1 sibling).
+    $evalConvertSource = Join-Path $RepoRoot "scripts\skill_eval_convert.py"
+    if (Test-Path $evalConvertSource) {
+        Safe-Copy -Source $evalConvertSource -Destination (Join-Path $scriptsDest "skill_eval_convert.py") -Confirm:$true -CustomMessage "✓ Eval-loop schema converter installed at: $scriptsDest\skill_eval_convert.py"
+    }
 
     # Copy the trigger-and-routing eval (v3.15.2 / A1). Mirror of the bash block
     # in scripts\installer.sh. A stdlib-only, model-free detector that flags

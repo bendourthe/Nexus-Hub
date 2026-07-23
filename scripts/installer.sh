@@ -1922,6 +1922,16 @@ install_templates() {
     if [ -f "$eval_optimizer_source" ]; then
         safe_copy "$eval_optimizer_source" "$scripts_dest/optimize_skill_description.py" true "[OK] Skill-description optimizer installed at: $scripts_dest/optimize_skill_description.py"
     fi
+    # Copy the behavioral-eval schema converter (v3.15.2 / A4). Bidirectional,
+    # lossless converter between the eval-loop's internal evals.json and the
+    # interoperable behavioral-eval schema, for interop with external skill-eval
+    # tooling. Stdlib-only single .py (cross-platform, no .ps1 sibling), sibling
+    # of the eval-loop scripts above. Lockstep with the same block in
+    # scripts/installer.ps1.
+    local eval_convert_source="$repo_root/scripts/skill_eval_convert.py"
+    if [ -f "$eval_convert_source" ]; then
+        safe_copy "$eval_convert_source" "$scripts_dest/skill_eval_convert.py" true "[OK] Eval-loop schema converter installed at: $scripts_dest/skill_eval_convert.py"
+    fi
 
     # Copy the trigger-and-routing eval (v3.15.2 / A1). A stdlib-only,
     # model-free detector that flags skill-description trigger-vocabulary

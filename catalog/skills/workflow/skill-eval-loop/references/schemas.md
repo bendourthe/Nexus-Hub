@@ -171,3 +171,43 @@ Produced by `scripts/optimize_skill_description.py` at `<workspace>/optimizer/it
 ```
 
 The `best_description` is selected by `test_trigger_rate` (held-out test), never by `train_trigger_rate`. The full optimizer reasoning is at `references/description-optimizer.md`.
+
+## Interoperable behavioral-eval schema (interop)
+
+For interoperability with external skill-eval tooling, the eval set can be exported to and imported from a portable behavioral-eval schema:
+
+```json
+{
+  "skill_name": "my-skill",
+  "evals": [
+    {
+      "id": "eval-001",
+      "prompt": "User-facing prompt (maps to the internal `query`)",
+      "expected_output": "optional golden output; empty for assertion-only evals",
+      "expectations": ["Output references at least one Stage 1 question", "Output does not exceed 250 lines"]
+    }
+  ]
+}
+```
+
+Field mapping to the internal `evals.json` above:
+
+- internal `query` <-> interop `prompt`
+- internal `assertions[].text` <-> interop `expectations[]` (flattened to plain strings)
+- interop `expected_output` has no internal equivalent (the internal format is assertion-based, not golden-output-based); it is preserved verbatim across a round-trip.
+
+**Decision (align vs adapter)**: the internal format is the source of truth and an ADAPTER is shipped, rather than natively adopting the interoperable schema. Rationale: the internal format is a strict superset - it carries `should_trigger` (the optimizer's trigger-rate metric), `turns` / `trigger_turn` (multi-turn triggering), `model` (cheap-model fragility), and `tags`, none of which the interoperable schema can express. Adopting the interoperable schema natively would drop those capabilities and force a rewrite of the grader / aggregator / optimizer / viewer; a converter keeps every capability and changes nothing in the grading path (behavior preserved by construction).
+
+**Lossless round-trip**: the converter (`scripts/skill_eval_convert.py`) stashes every internal-only field (and any assertion keys beyond `text`) under an `x_nexus` extension key on each interop eval. External tools ignore the unknown key; the converter reads it back, so both directions are lossless:
+
+- `internal -> interop -> internal == internal`
+- `interop -> internal -> interop == interop`
+
+Usage:
+
+```bash
+python scripts/skill_eval_convert.py --to-interop evals.json --skill-name my-skill -o interop.json
+python scripts/skill_eval_convert.py --to-internal interop.json -o evals.json
+```
+
+The converter is stdlib-only (no third-party import, no outbound call, no new dependency) and is installer-distributed to `~/.nexus-hub/scripts/` alongside the other eval-loop scripts.
