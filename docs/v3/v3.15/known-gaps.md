@@ -1,8 +1,8 @@
 # Known Gaps - v3.15
 
 **Project**: Nexus-Hub
-**Status**: The v3.15 minor line carries THREE releases. **v3.15.0 platform-parity-all-gaps** (all 7 phases, RELEASED 2026-07-23): every supported platform receives all the surfaces it can consume, re-verified against current docs. **v3.15.1 adoption-codesight** (all 7 phases built, releasing 2026-07-23): the deterministic compiled context-map inside `nexus-code-search`, both DoD axes holding. **v3.15.2 adoption-awesome-llm-apps** (IN PROGRESS; Phases 1-5 of 6 complete): a deterministic, model-free skill trigger-and-routing quality gate, an unfilled-placeholder lint, per-skill routing assertions, behavioral-eval schema interop, and a Hermes platform-roster integration. The v3.15.0 version collision (three plans stamped v3.15.0) was reconciled on 2026-07-22 by re-stamping: v3.15.0 = platform-parity-all-gaps, v3.15.1 = adoption-codesight, v3.15.2 = adoption-awesome-llm-apps.
-**Last updated**: 2026-07-23 (v3.15.2 Phase 5 - Hermes roster + shared .agents/skills/)
+**Status**: The v3.15 minor line carries THREE releases. **v3.15.0 platform-parity-all-gaps** (all 7 phases, RELEASED 2026-07-23): every supported platform receives all the surfaces it can consume, re-verified against current docs. **v3.15.1 adoption-codesight** (all 7 phases built, releasing 2026-07-23): the deterministic compiled context-map inside `nexus-code-search`, both DoD axes holding. **v3.15.2 adoption-awesome-llm-apps** (ALL 6 PHASES COMPLETE; RELEASE HELD): a deterministic, model-free skill trigger-and-routing quality gate (now a hard `--gate`), an unfilled-placeholder lint, per-skill routing assertions, behavioral-eval schema interop, and a Hermes platform-roster integration. Implementation is done and verified on `feat/adoption-awesome-llm-apps`; the `/update release` hand-off is HELD (see the v3.15.2 Release hold section). The v3.15.0 version collision (three plans stamped v3.15.0) was reconciled on 2026-07-22 by re-stamping: v3.15.0 = platform-parity-all-gaps, v3.15.1 = adoption-codesight, v3.15.2 = adoption-awesome-llm-apps.
+**Last updated**: 2026-07-23 (v3.15.2 Phase 6 - refactor + known-gaps reconciliation + CI/CD; release held)
 
 > **Prior-version ingest (platform-parity)**: v3.14.5's DF-4 (platform additive-surface drift) is the direct input to the v3.15.0 release and was actioned per phase; it does not carry forward as a separate open item. The v3.14.5 Advisory pre-existing failure `test_init_subcommand.py::test_default_wire_project_surfaces_returns_none` was re-confirmed and owned by Phase 5.2 (resolved; see the v3.15.0 Advisory below).
 
@@ -206,16 +206,11 @@ RESOLVED: DF-1 (frameworks line P2 + Most-Imported Files P4), DF-2 (extension ve
 
 **Phase 5 (Hermes roster + shared `.agents/skills/`, A5) COMPLETE.** Added `scripts/lib/integrations/hermes.py` as a `SkillsIntegration` (skills-native: reads folder-per-skill `SKILL.md` directly, so NO instruction file and NO `base-hermes.md` - a `SkillsIntegration`, not a `MarkdownIntegration`), registered in `_register_builtins()`. It writes flattened skills to `~/.hermes/skills/` (global, detection-gated on `~/.hermes`) and `.hermes/skills/` (project), each catalog command also surfacing as a skill. Per the shared-path ownership rule Kimi follows, Hermes READS but does not WRITE the shared `~/.agents/skills/` (owned by `codex`) or the project `.agents/skills/` (seeded by `antigravity2`'s `wire_project_surfaces` on `nexus-hub init`), avoiding a teardown conflict. The shared-project `.agents/skills/` path is therefore CONFIRMED present (`cmd_init` walks every integration's `wire_project_surfaces`, and `antigravity2` seeds `.agents/skills/`), not newly added. Documented in `docs/policy/platform-read-contracts.md` (surface-table rows + a Hermes section) and the AGENTS.md platform-coverage section. Tests: `tests/integrations/test_hermes.py` (6 cases) + the parameterized `test_contract.py` (hermes: 4 passed, 1 skipped) + a runner dry-run confirming `.hermes/skills/` and zero disk writes. No `base-*.md`, catalog-registry, or hook change; `verify_platform_contracts` stays green (Hermes intentionally not in `contract_checks`, see DF-2).
 
+**Phase 6 (architecture refactor + known-gaps reconciliation + CI/CD) COMPLETE (release HELD).** **6.1 refactor**: audited this plan's cumulative diff (2584 insertions across 33 files) - all additions are cohesive and correctly placed (repo scripts under `scripts/` referenced in both installers + Makefile + CI; the `hermes` integration under `scripts/lib/integrations/` registered in `_register_builtins()`; per-skill `evals/trigger-cases.json` consumed by the runner; tests under `tests/validators` + `tests/integrations`). No empty dirs, duplicates, orphans, or overcomplicated structure - a no-op cleanup. Docs-tree refactoring (`docs-layout-refactor`) was DEFERRED because a parallel task is actively re-stamping `docs/v3/v3.16` -> `docs/v3/v3.15` plans/comparisons; running it now would collide (see the release hold below). **6.2 known-gaps**: this reconciliation (DF-1 resolved by the CI-review decision; DF-2 / WN-1 / MT-1 carried as documented non-blocking deferrals; MT-1 - the trigger-cases WARN-path coverage - is the explicit item the next release picks up). **6.3 CI/CD**: promoted the trigger-and-routing eval from warning-only to a HARD `--gate` in both `.github/workflows/ci.yml` and the Makefile `validate` step (catalog is clean: 0 un-allowlisted collisions, 0 routing failures); confirmed CI covers every plan change (A1/A2 via the `--gate` step, A3 inside `validate_skills.py --bundles-only`, A4 via `pytest tests/validators`, A5 via `pytest tests/integrations`) with no new/redundant job and the existing concurrency + caching + gated-matrix optimizations intact. **6.4 verification**: validators + `tests/validators` (302) + `tests/integrations` (398) green; `--gate` passes; dry-run install lands `.hermes/skills/`. RELEASE HELD - the release-readiness sub-phases (9A/9B) ran, but 9C-9E (`/update release`: version bump / changelog / develop->main merge / tag / GitHub Release) is NOT run pending the active-parallel-re-stamp reconciliation, the unpushed branch, and the in-flux v3.15.x version numbering (see the release-hold note below).
+
 ### v3.15.2 Open Items
 
 #### Deferred
-
-##### DF-1 - CI per-path-filter granularity for the trigger-eval step not implemented
-
-- **Source phase**: v3.15.2 Phase 1.5.
-- **Plan reference**: Phase 1.5 ("path filters so it only runs on `catalog/skills/**` and `scripts/run_trigger_evals*` changes").
-- **Reason**: the repo runs all validators in a single `validate` job triggered by the workflow-level `paths-ignore: docs/**`. The eval is a sub-second stdlib step; splitting it into a separately-path-filtered job would ADD checkout + setup minutes, defeating the stated optimization goal. It was kept as a step in the existing optimized job (which already has `concurrency` cancel-in-progress, pip caching, and cost-gated macOS/Windows matrix legs).
-- **Suggested next step**: revisit only if the `validate` job's runtime grows materially; otherwise close as a non-gap in the Phase 6 CI review.
 
 ##### DF-2 - Hermes not yet first-class installer-wired (registry-only)
 
@@ -242,16 +237,33 @@ RESOLVED: DF-1 (frameworks line P2 + Most-Imported Files P4), DF-2 (extension ve
 - **Reason**: routing cases were authored for 6 distinctive-noun skills; the remaining 261 skills have no `evals/trigger-cases.json` and are on the WARN path (never fails the gate). This is by design - lexical routing cases are only meaningful for skills with distinctive description vocabulary, and command-dispatcher skills (`/plan`, `/implement`, `/review`, `/compare`, `/update`) lexically overlap their sub-skills, so they need `lexical: false` reasoning-routed cases (deferred).
 - **Suggested next step**: author further tranches incrementally in later releases; for the command dispatchers, add `lexical: false` cases covered by behavioral evals (ties into Phase 4 schema interop).
 
+### v3.15.2 Resolved
+
+##### DF-1 - CI per-path-filter granularity for the trigger-eval step - RESOLVED (Phase 6.3 CI review, by decision)
+
+- **Source phase**: v3.15.2 Phase 1.5; closed in Phase 6.3.
+- **Resolution**: the Phase 6.3 CI review confirmed the design decision - the eval is a sub-second stdlib step that rides the existing single `validate` job (which already has `concurrency` cancel-in-progress, pip caching, and cost-gated macOS/Windows matrix legs). Splitting it into a separately-path-filtered job would ADD checkout + setup minutes, defeating the stated optimization goal, so no per-path-filter granularity is added. Closed as a non-gap by decision (mirrors the v3.15.1 QG-1 CI-dedup resolution pattern).
+
 ### v3.15.2 Summary
 
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 2 | 0 |
+| Deferred (DF) | 1 | 1 |
 | Bugs / regressions (BG) | 0 | 0 |
 | Warnings (WN) | 1 | 0 |
 | Missing tests / coverage gaps (MT) | 1 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 | Hand-offs (HO) | 0 | 0 |
 
-> **Note**: the trigger-cases coverage gap (MT-1) is the tracked deferred item the plan's Phase 6.2 calls out; the Phase 6 reconciliation carries it forward to the next release.
+RESOLVED: DF-1 (CI per-path-filter granularity, closed by the Phase 6.3 CI-review decision). OPEN and carried as documented, non-blocking deferrals: DF-2 (Hermes registry-only, not yet default-installer-wired), WN-1 (Windows-local dry-run not run; CI is authoritative), MT-1 (trigger-cases WARN-path coverage - the explicit item the next release picks up).
+
+### v3.15.2 Release hold (Phase 6, release-readiness 9C-9E)
+
+The final phase's `/update release` hand-off (version bump / changelog / develop->main merge / tag / push / GitHub Release) is HELD. Active hold conditions at Phase 6 completion:
+
+1. **Active parallel re-stamp in the working tree** - a concurrent task is renumbering `docs/v3/v3.16/{plans,comparisons}/*` into the `docs/v3/v3.15/` line (v3.15.3 / v3.15.4 / v3.15.5 / v3.15.6 plans + comparisons appearing, v3.16.x files deleted/renamed). These are uncommitted and NOT part of this plan; the Phase 1-6 commits deliberately excluded them via surgical staging. A release must not run over a half-reorganized docs tree.
+2. **In-flux version numbering** - with v3.15.3-.6 being created from former v3.16.x plans, whether v3.15.2 is still the correct release stamp for this plan needs user confirmation (the comparison-versioning-flaw pattern).
+3. **Unpushed branch** - `feat/adoption-awesome-llm-apps` (Phases 1-6) is local-only; nothing is pushed.
+
+Resolution path (user-owned): reconcile the parallel re-stamp, confirm the version stamp, push the branch, then run `/update release` for whichever version this plan ships as (it re-verifies the platform contract, bumps every version surface via `check_version_sync`, finalizes the changelog, merges develop->main, tags, and publishes the GitHub Release under its own gates).

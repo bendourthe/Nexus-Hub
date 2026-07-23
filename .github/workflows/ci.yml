@@ -63,17 +63,18 @@ jobs:
         # pre-existing drift unrelated to any given change.
         run: python scripts/validate_skills.py --bundles-only
 
-      - name: Trigger-and-routing eval (description near-collision detector) (v3.15.2 Phase 1)
-        # Deterministic, model-free, stdlib-only gate: flags any two skill
-        # descriptions whose trigger vocabulary overlaps beyond the threshold,
-        # with an intentional-neighbor allowlist for by-design category siblings
-        # (scripts/run_trigger_evals.allowlist.json). Ships WARNING-ONLY here in
-        # v3.15.2 Phase 1 (always exits 0) so first-run findings are triaged
-        # before it becomes a merge gate; promoted to `--gate` in Phase 6 once
-        # the catalog is clean and allowlisted. Reaches this job via the
-        # workflow's paths-ignore: docs/** trigger (catalog/** and scripts/** are
-        # outside docs/).
-        run: python scripts/run_trigger_evals.py
+      - name: Trigger-and-routing eval (description near-collision + routing gate) (v3.15.2)
+        # Deterministic, model-free, stdlib-only HARD GATE: fails CI on any
+        # un-allowlisted skill-description near-collision OR any per-skill
+        # trigger-cases.json routing failure (mis-route / near-miss margin). The
+        # intentional-neighbor allowlist (scripts/run_trigger_evals.allowlist.json)
+        # covers by-design category siblings; skills without trigger-cases stay on
+        # the WARN path and never fail the gate. Shipped WARNING-ONLY in v3.15.2
+        # Phase 1 and PROMOTED to `--gate` in Phase 6 now that the catalog is clean
+        # and allowlisted (0 un-allowlisted collisions, 0 routing failures). Reaches
+        # this job via the workflow's paths-ignore: docs/** trigger (catalog/** and
+        # scripts/** are outside docs/).
+        run: python scripts/run_trigger_evals.py --gate
 
       - name: Validate no personal paths (v2.3.0 Phase 2)
         # v3.14.5 Phase 7: split out of the bundle-audit step above, which had a

@@ -12,8 +12,8 @@ validate: ## Validate all JSON catalog files and skill bundles
 	@python scripts/validate_skills.py --bundles-only
 	@echo "Running non-blocking skill quality-heuristics pass (warnings only)..."
 	@python scripts/validate_skills.py --quality
-	@echo "Running trigger-and-routing eval (description near-collision detector, warning-only)..."
-	@python scripts/run_trigger_evals.py
+	@echo "Running trigger-and-routing eval (description near-collision + routing hard gate)..."
+	@python scripts/run_trigger_evals.py --gate
 	@echo "Running v2.3.0 CI validators (no-personal-paths, unicode-safety, supply-chain-iocs, workflow-security)..."
 	@python scripts/validate_no_personal_paths.py
 	@python scripts/validate_unicode_safety.py
