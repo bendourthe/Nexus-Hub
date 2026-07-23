@@ -1,0 +1,44 @@
+name: code-search
+
+# Fast, path-scoped feedback for the nexus-code-search extension (v3.15.0
+# context-map Phase 1). Triggers ONLY when the extension tree or this workflow
+# changes, so unrelated commits spend no minutes here. The comprehensive,
+# always-on gate remains the `tests` job in ci.yml; this job is the quick scoped
+# signal for extension-only work.
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'extensions/nexus-code-search/**'
+      - '.github/workflows/code-search.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'extensions/nexus-code-search/**'
+      - '.github/workflows/code-search.yml'
+
+# Cancel superseded runs of the same ref so only the latest commit's run
+# survives (the single largest action-minute saver).
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.11'
+          # Cache pip downloads keyed on the extension manifest so the tree-sitter
+          # grammar wheels (the heaviest cold download) are not refetched.
+          cache: 'pip'
+          cache-dependency-path: 'extensions/nexus-code-search/pyproject.toml'
+
+      - name: Install code-search MCP server (with dev extras)
+        run: pip install -e "extensions/nexus-code-search/[dev]"
+
+      - name: Code-search test suite
+        run: pytest extensions/nexus-code-search/tests/ -v

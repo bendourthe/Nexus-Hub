@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.15.0 -->
+<!-- nexus-hub-version: 3.15.1 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 267 skills, 16 commands, 28 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -36,6 +36,10 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v3.15.1
+
+v3.15.1 adds a **CodeSight context-map** to the `nexus-code-search` extension: a deterministic, committed map compiled from the extension's existing tree-sitter AST graph, so an AI reads a cheap cold-start map once (`<root>/.nexus/CONTEXT-MAP.md` plus a `.nexus/context/` article set) instead of re-exploring files every session. It is exposed as a `nexus-hub map` CLI verb and a `generate_context_map` MCP tool, with framework-aware extraction (HTTP routes, ORM schema with relations, React components, env-var audit, middleware, background events) gated by a per-section recall + zero-false-positive accuracy harness. Companion surfaces: `nexus-hub map --since <ref>` (a git-scoped change map), `nexus-hub map --lint` (`map_health`: orphan articles / missing backlinks / staleness), `nexus-hub map --knowledge` (`generate_knowledge_map`: a `.nexus/KNOWLEDGE.md` from Markdown notes), and a regression-guarded token-savings benchmark (~44-55% reduction on the sample corpus, ~99% on Nexus-Hub itself). Entirely extension-local (no new outbound call, dependency, or credential; no catalog registry, installer, or `base-*.md` change); the extension package moves 2.0.0 -> 2.1.0. Catalog counts unchanged: **267 skills**, **16 commands**, **28 hooks**.
 
 ## What's New in v3.15.0
 
