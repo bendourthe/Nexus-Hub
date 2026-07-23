@@ -119,6 +119,74 @@ def test_codex_pass_and_needs_action(tmp_path):
     assert not _all_ok(check2)
 
 
+def test_cursor_verify_pass_and_needs_action(tmp_path):
+    """v3.15.0 Phase 6: Cursor verify covers skills / commands / agents / hooks.json."""
+    home = tmp_path / "home"
+    c = home / ".cursor"
+    (c / "skills" / "s").mkdir(parents=True)
+    (c / "skills" / "s" / "SKILL.md").write_text("s", encoding="utf-8")
+    (c / "commands").mkdir(parents=True)
+    (c / "commands" / "x.md").write_text("x", encoding="utf-8")
+    (c / "agents").mkdir(parents=True)
+    (c / "agents" / "a.md").write_text("a", encoding="utf-8")
+    (c / "hooks.json").write_text("{}", encoding="utf-8")
+
+    check = _by_label(runner._verify_checks(home, tmp_path / "proj"))["Cursor"]
+    assert _all_ok(check)
+    assert {name for name, _ in check[1]} >= {"skills", "commands", "agents", "hooks.json"}
+
+    # Remove the hooks.json file -> NEEDS-ACTION.
+    (c / "hooks.json").unlink()
+    check2 = _by_label(runner._verify_checks(home, tmp_path / "proj"))["Cursor"]
+    assert not _all_ok(check2)
+
+
+def test_opencode_agents_verify_pass(tmp_path):
+    """v3.15.0 Phase 6: OpenCode verify now includes the new agents surface."""
+    home = tmp_path / "home"
+    d = home / ".config" / "opencode"
+    (d / "skills" / "s").mkdir(parents=True)
+    (d / "skills" / "s" / "SKILL.md").write_text("s", encoding="utf-8")
+    (d / "agents").mkdir(parents=True)
+    (d / "agents" / "a.md").write_text("a", encoding="utf-8")
+    (d / "AGENTS.md").write_text("# Nexus-Hub Skill Index\n", encoding="utf-8")
+
+    check = _by_label(runner._verify_checks(home, tmp_path / "proj"))["OpenCode"]
+    assert _all_ok(check)
+    assert any(name == "agents" for name, _ in check[1]), "agents surface must be verified"
+
+
+def test_qwen_verify_pass_and_needs_action(tmp_path):
+    """v3.15.0 Phase 6: Qwen Code verify (skills / commands / QWEN.md), newly-parity."""
+    home = tmp_path / "home"
+    d = home / ".qwen"
+    (d / "skills" / "s").mkdir(parents=True)
+    (d / "skills" / "s" / "SKILL.md").write_text("s", encoding="utf-8")
+    (d / "commands").mkdir(parents=True)
+    (d / "commands" / "x.md").write_text("x", encoding="utf-8")
+    (d / "QWEN.md").write_text("# idx", encoding="utf-8")
+
+    check = _by_label(runner._verify_checks(home, tmp_path / "proj"))["Qwen Code"]
+    assert _all_ok(check)
+
+    import shutil
+    shutil.rmtree(d / "commands")
+    check2 = _by_label(runner._verify_checks(home, tmp_path / "proj"))["Qwen Code"]
+    assert not _all_ok(check2)
+
+
+def test_kimi_verify_pass(tmp_path):
+    """v3.15.0 Phase 6: Kimi Code CLI verify (skills / AGENTS.md at ~/.kimi-code)."""
+    home = tmp_path / "home"
+    d = home / ".kimi-code"
+    (d / "skills" / "s").mkdir(parents=True)
+    (d / "skills" / "s" / "SKILL.md").write_text("s", encoding="utf-8")
+    (d / "AGENTS.md").write_text("# idx", encoding="utf-8")
+
+    check = _by_label(runner._verify_checks(home, tmp_path / "proj"))["Kimi Code CLI"]
+    assert _all_ok(check)
+
+
 def test_no_platforms_detected(tmp_path):
     home = tmp_path / "home"
     home.mkdir()

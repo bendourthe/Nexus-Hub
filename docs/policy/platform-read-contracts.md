@@ -2,7 +2,7 @@
 
 This is the durable, sourced source of truth for where every supported platform READS each surface (instruction file, slash commands, skills, agents, rules, hooks) and where the Nexus-Hub installer WRITES it. It supersedes the point-in-time snapshot at `docs/v3/v3.11/platform-read-contracts.md` (which resolved the v3.11.0 Phase 7 audit but left the Codex and Antigravity contracts flagged as unverified).
 
-**Last verified**: 2026-07-19 (full 13-platform web re-verification during the v3.14.5 release, via the `platform-contract-verification` skill; reaffirmed unchanged for the v3.14.6 and v3.14.7 releases, neither of which touched any platform read-path - see the Re-verification log below for what changed and what is deferred to v3.15.0).
+**Last verified**: 2026-07-20 (v3.15.0 Phase 1.2 parity re-verification of Cursor, OpenCode, Qwen, Kimi, and Copilot; preceded by the 2026-07-19 full 13-platform re-verification during the v3.14.5 release, reaffirmed unchanged for v3.14.6 and v3.14.7, neither of which touched any platform read-path). All cycles used the `platform-contract-verification` skill; see the Re-verification log below. The JSON's `meta.verified_for_version` is 3.14.7 (the last release); the v3.15.0 parity additions re-stamp it to 3.15.0 at release time (Phase 7 / `/update release`) as each integration lands, so the freshness gate stays green during development.
 
 ## How this doc is maintained
 
@@ -17,6 +17,92 @@ The machine-readable source of truth is the sibling `docs/policy/platform-read-c
 The catalog itself is never reorganized per platform. Each integration is an adapter that materializes the canonical catalog into the shape below via the shared helpers in `scripts/lib/integrations/_catalog_adapters.py` (`flatten_skills`, `commands_to_skills`, `commands_to_slash`).
 
 ## Re-verification log
+
+### 2026-07-21 (v3.15.0 Phase 4 - Qwen + Kimi reclassification)
+
+Direct re-read of both platforms' official docs before reclassifying them from instruction-file-only to skills-bearing integrations (acting on Phase 1's GO verdicts; resolving DF-2 and DF-3).
+
+- **Qwen Code - reclassified.** [qwenlm.github.io/qwen-code-docs](https://qwenlm.github.io/qwen-code-docs/) confirms skills at `~/.qwen/skills/` (global) + `.qwen/skills/` (project, folder-per-skill `SKILL.md`), agents at `~/.qwen/agents/<name>.md`, and commands at `~/.qwen/commands/` where **Markdown is the primary format and TOML is deprecated** (Qwen shows a migration prompt on TOML). So the integration delivers flattened skills + agents + **Markdown** commands (not TOML), preserving `QWEN.md`. **DF-2**: the docs only document "restart to load"; the auto-load bug is GitHub issue #2343 (not documented). Skills are delivered to BOTH scopes (global `~/.qwen/skills/` is the reliable path), which mitigates it. No `~/.agents/skills` alias for Qwen, so only native paths are written.
+- **Kimi - reclassified + migrated (resolves DF-3).** [kimi.com/code/docs](https://www.kimi.com/code/docs/) confirms the current product is **Kimi Code CLI** (`MoonshotAI/kimi-code`, data root `~/.kimi-code/`) - a DIFFERENT product from the older "Kimi CLI" (`~/.kimi/`, moonshotai.github.io/kimi-cli) the prior integration targeted. Kimi Code CLI reads skills at `~/.kimi-code/skills/` + `~/.agents/skills/` (each auto-registering as `/skill:<name>`; no separate command format), AGENTS.md at `~/.kimi-code/AGENTS.md`, has no user-definable agents, and takes hooks as `config.toml` `[[hooks]]` (out of scope). Per the maintainer decision, the integration FULLY MIGRATED to `~/.kimi-code/` (AGENTS.md + native `~/.kimi-code/skills`), dropping the old `~/.kimi/` writes and the `.kimi/agent.yaml` companion. Native skills path only (not the shared `~/.agents/skills`), to avoid a teardown conflict with codex.
+
+Source docs read: [Qwen skills](https://qwenlm.github.io/qwen-code-docs/en/users/features/skills/), [Qwen commands](https://qwenlm.github.io/qwen-code-docs/en/users/features/commands/), [Kimi Code CLI data-locations](https://www.kimi.com/code/docs/en/kimi-code-cli/configuration/data-locations.html), [Kimi Code CLI skills](https://www.kimi.com/code/docs/en/kimi-code-cli/customization/skills.html).
+
+### 2026-07-21 (v3.15.0 Phase 3 - OpenCode agents + plugins/hooks decision)
+
+Targeted re-read of OpenCode's official docs to finalize the two Phase 3 items:
+
+- **Agents - DELIVERED.** [opencode.ai/docs/agents](https://opencode.ai/docs/agents/) confirms OpenCode reads custom agents from `~/.config/opencode/agents/` (global) and `.opencode/agents/` (project) as Markdown files with YAML frontmatter, the filename being the agent id. The `mode` field is OPTIONAL and defaults to `all`, so the catalog's `agents/*.md` personas (which carry `name`/`description`/`tools` frontmatter, not `mode`) load as-is - OpenCode uses `description` + the filename and ignores the non-native keys, exactly as Cursor consumes the same files. Delivered via a config-only `agents_subdir: "agents"` addition (the base `_mirror_catalog` does the verbatim tree copy). Contract JSON `contract_checks.opencode` + `install_verify` updated with the agents path.
+- **Plugins / hooks - OUT OF SCOPE (documented non-gap, resolves DF-4).** [opencode.ai/docs/plugins](https://opencode.ai/docs/plugins/) confirms plugins are JavaScript/TypeScript modules loaded by Bun, each exporting plugin functions that subscribe to events (`tool.execute.before`, `file.edited`, ...); the docs state a plugin must be a JS/TS module and that a `.sh`/`.py` script cannot be dropped into `plugins/` and run. Nexus-Hub's shell/py hooks therefore cannot be delivered without authoring a JS/TS wrapper per hook, so OpenCode hooks stay out of scope (`hooks_supported: False`).
+
+Source docs read: [Agents | OpenCode Docs](https://opencode.ai/docs/agents/), [Plugins | OpenCode Docs](https://opencode.ai/docs/plugins/).
+
+### 2026-07-21 (v3.15.0 Phase 2 - Cursor DF-1 resolution)
+
+Targeted re-read of Cursor's official docs to close the two Cursor items Phase 1.2 left UNVERIFIED (known-gap DF-1) before finalizing the Cursor integration:
+
+- **`hooks.json` schema - RESOLVED (no code change).** [cursor.com/docs/hooks](https://cursor.com/docs/hooks) confirms the top-level shape `{"version": 1, "hooks": {<event>: [{...}]}}`; each entry's fields `type` / `timeout` / `loop_limit` / `failClosed` / `matcher` are all OPTIONAL (defaults `type="command"`, `failClosed=false`, `loop_limit=5`), so the entry may be the minimal `{"command": "..."}`. `beforeShellExecution` is a documented event; exit code `2` (or `{"permission":"deny"}`) blocks, other non-zero codes fail-open. Cursor reads both `~/.cursor/hooks.json` (user) and `<project>/.cursor/hooks.json` (project). The integration's minimal git-guardrails writer is therefore schema-valid as-is; DF-1(b) resolved.
+- **Global `~/.cursor/commands/` path - still UNVERIFIED (kept, tracked).** Project `.cursor/commands/<name>.md` is officially documented (custom slash commands, Cursor 1.6+) and confirmed. The user-global `~/.cursor/commands/` dir has NO reachable official doc (the dedicated commands page 404s / redirects to Skills); [forum.cursor.com](https://forum.cursor.com/t/personal-custom-slash-commands/133386) reports it as an open feature-request, not a built-in. Per plan sub-task 2.3 ("keep the global mirror unchanged") and the contract's negative-only-evidence caution, the global write is RETAINED (harmless if unread; removing a possibly-live path on negative evidence could break delivery) and recorded as the DF-1 residual for a future direct-confirmation cycle. Cursor read-paths that ARE confirmed this cycle: skills (recursive `SKILL.md`), subagents (plain `.md`), rules (`.mdc`), project commands, and the `hooks.json` schema.
+
+Source docs read: [Hooks | Cursor Docs](https://cursor.com/docs/hooks), [Slash commands | Cursor Docs](https://cursor.com/docs/cli/reference/slash-commands), [Rules | Cursor Docs](https://cursor.com/docs/rules), [Cursor community: personal custom slash commands](https://forum.cursor.com/t/personal-custom-slash-commands/133386).
+
+### 2026-07-20 (v3.15.0 platform-parity, Phase 1.2)
+
+Web re-verification of the five platforms the v3.14.5 log deferred to v3.15.0 (the additive-surface parity targets), confirming exact read-paths against current official docs before wiring them in Phases 2-6. The findings are also recorded machine-readably in the sibling JSON's `parity_verification_v3_15_0` block. This cycle records READ-paths only; the installer WRITE side, the JSON `contract_checks` / `install_verify` rows, and the surface table below are updated per phase as each integration lands (adding a `contract_checks` row before its integration writes the surface would fail `verify_platform_contracts.py`). Classifications: MATCH (unchanged), DRIFT (gained a surface or the framing is stale), GAINED (a previously-unused surface confirmed), UNVERIFIED (not confirmable from reachable docs).
+
+**Cursor (DRIFT - gained Skills, Subagents, and Hooks in Cursor 2.4):**
+
+- Skills: reads `~/.cursor/skills/`, `~/.agents/skills/`, `~/.claude/skills/` (global) and `.cursor/skills/`, `.agents/skills/`, `.claude/skills/` (project); folder-per-skill `SKILL.md`, and discovery is RECURSIVE (nested and flattened both register).
+- Subagents: `~/.cursor/agents/` / `.cursor/agents/` (also reads `.claude/agents/`); plain `.md` with YAML frontmatter, NOT `.agent.md` (correcting the pre-scout guess).
+- Hooks: `~/.cursor/hooks.json` / `<project>/.cursor/hooks.json`; schema `{"version":1,"hooks":{<event>:[{"command":...}]}}`; events include `beforeShellExecution`, `afterShellExecution`, `afterFileEdit`, `preToolUse`, `postToolUse`, `sessionStart`, `stop`; exit 0 = ok, 2 = block, any other = fail-open; a `matcher` field is supported. A direct human read of the hooks doc is recommended before Phase 2 emits optional fields, to lock exact spelling.
+- Commands: project `.cursor/commands/<name>.md` (flat `.md`, `/name`) CONFIRMED; the baseline global `~/.cursor/commands/` path is UNVERIFIED against reachable docs (kept, not removed, pending a direct check).
+- Rules: `.cursor/rules/*.mdc` MATCH (root `AGENTS.md` also read).
+
+**OpenCode (DRIFT - gained an agents folder; a plugins/hooks mechanism exists but on an incompatible runtime):**
+
+- Agents: `~/.config/opencode/agents/` / `.opencode/agents/`; `.md` + YAML frontmatter (filename becomes the agent name).
+- Plugins/hooks: `~/.config/opencode/plugins/` / `.opencode/plugins/`; JS/TS modules on a Bun runtime, NOT a Claude-style shell/python hook model. Nexus-Hub's `.sh`/`.py` hooks cannot be dropped in; delivering hooks here would require a JS/TS wrapper. Phase 3.2 recommendation: document as out-of-scope unless a wrapper is warranted.
+- Skills and Commands MATCH; Rules MATCH (no `rules/` folder; `AGENTS.md` + an `instructions[]` array).
+
+**Qwen Code (Gemini-CLI-class: YES; Phase 4 decision: GO):**
+
+- Qwen Code is an open-source Gemini CLI fork and reproduces the full surface family under `~/.qwen` / `.qwen`.
+- Skills: `~/.qwen/skills/<name>/SKILL.md` (global), `.qwen/skills/<name>/SKILL.md` (project); folder-per-skill one level, `name` + `description` frontmatter.
+- Commands: `~/.qwen/commands/<name>.{md,toml}`; Markdown primary, TOML (`description` + `prompt`) deprecated-but-supported and identical to Gemini CLI's format.
+- Agents: `~/.qwen/agents/<name>.md`. Rules: `QWEN.md` context file; no `rules/` folder.
+- Caveat: open issue #2343 reports project-scoped skills may not auto-load on some builds; Phase 4 should live-smoke-test skill discovery before shipping.
+
+**Kimi Code CLI (Gemini-CLI-class: YES; Phase 4 decision: GO) - with a product disambiguation:**
+
+- The current product is Kimi Code CLI (`MoonshotAI/kimi-code`, data root `~/.kimi-code/`), the Node.js successor to the deprecated Python Kimi CLI (`~/.kimi/`) that the current baseline targets. Migration preserves `~/.kimi/`, so both coexist, but the new product reads `~/.kimi-code/`.
+- Skills: `~/.kimi-code/skills/` + `~/.agents/skills/` (global), `.kimi-code/skills/` + `.agents/skills/` (project); folder-per-skill `SKILL.md` (or flat `<name>.md`), one level. The new product does NOT scan `~/.claude/skills`.
+- Commands: no standalone command format; every skill auto-registers as `/skill:<name>` (the docs' `commands.html` returns 404). Commands are skills.
+- Agents: not a distribution surface (three fixed built-in subagents). The baseline `.kimi/agent.yaml` is unsupported in the new product and should be dropped.
+- Hooks: a `[[hooks]]` TOML array in `~/.kimi-code/config.toml` (config-merge, not a folder copy).
+- Phase 4 note: resolve the old `~/.kimi/` vs new `~/.kimi-code/` vs the cross-tool `.agents/skills/` path choice before wiring.
+
+**Copilot (DRIFT - skills are now native and default-on; agents and hooks are new):**
+
+- Skills: `.github/skills/<name>/SKILL.md` is the native canonical path (also reads `.claude/skills/`, `.agents/skills/`; global `~/.copilot/skills/`, `~/.agents/skills/`, and in VS Code `~/.claude/skills/`); folder-per-skill one level, now DEFAULT-ON. The `.github/skills` PATH matches the baseline; the "opt-in / env-gated / off-by-default" FRAMING is stale.
+- Agents: `.github/agents/*.agent.md` (project), `~/.copilot/agents/` (global).
+- Hooks: `.github/hooks/*.json` (Preview), Claude-compat `.claude/settings.json`.
+- Instruction: `.github/copilot-instructions.md` MATCH (`AGENTS.md` / `CLAUDE.md` additively supported behind settings). Prompts: `.github/prompts/*.prompt.md` MATCH.
+- Phase 5 note: `.github/skills/` is commit-visible, so Nexus-Hub keeps the never-overwrite-existing-file guarantee even though Copilot no longer technically requires opt-in.
+
+**Reclassification go/no-go (the Phase 4 gate, sub-task 1.3):**
+
+- Qwen: GO - reclassify from instruction-file-only to skills + commands (+ agents) at the verified `~/.qwen` / `.qwen` paths.
+- Kimi: GO - reclassify to skills + skills-as-commands, resolving the `~/.kimi-code/` (new) vs `.agents/skills/` (cross-tool) path in Phase 4; drop the unsupported `.kimi/agent.yaml`.
+
+**Sources (fetched 2026-07-20):**
+
+- Cursor skills: <https://cursor.com/docs/skills>
+- Cursor subagents: <https://cursor.com/docs/subagents>
+- Cursor hooks: <https://cursor.com/docs/hooks>
+- Cursor rules / commands: <https://cursor.com/docs/rules>, <https://cursor.com/docs/customize-cursor>
+- OpenCode agents / plugins / skills / commands / rules: <https://opencode.ai/docs/agents/>, <https://opencode.ai/docs/plugins/>, <https://opencode.ai/docs/skills/>, <https://opencode.ai/docs/commands/>, <https://opencode.ai/docs/rules/>
+- Qwen Code skills / commands / sub-agents / settings: <https://qwenlm.github.io/qwen-code-docs/en/users/features/skills/>, <https://qwenlm.github.io/qwen-code-docs/en/users/features/commands/>, <https://qwenlm.github.io/qwen-code-docs/en/users/features/sub-agents/>, <https://qwenlm.github.io/qwen-code-docs/en/users/configuration/settings/>
+- Kimi Code CLI skills / slash-commands / agents / hooks / data-locations / migration: <https://www.kimi.com/code/docs/en/kimi-code-cli/customization/skills.html>, <https://www.kimi.com/code/docs/en/kimi-code-cli/reference/slash-commands.html>, <https://www.kimi.com/code/docs/en/kimi-code-cli/customization/agents.html>, <https://www.kimi.com/code/docs/en/kimi-code-cli/customization/hooks.html>, <https://www.kimi.com/code/docs/en/kimi-code-cli/configuration/data-locations.html>, <https://www.kimi.com/code/docs/en/kimi-code-cli/guides/migration.html>
+- Copilot Agent Skills / custom agents / hooks / instructions / prompts: <https://docs.github.com/en/copilot/concepts/agents/about-agent-skills>, <https://docs.github.com/en/copilot/reference/custom-agents-configuration>, <https://code.visualstudio.com/docs/agent-customization/hooks>, <https://code.visualstudio.com/docs/agent-customization/custom-instructions>, <https://code.visualstudio.com/docs/copilot/customization/prompt-files>
 
 ### 2026-07-20 (v3.14.7 release - reaffirmed, no re-verification)
 
@@ -67,8 +153,8 @@ Formats: skills = folder-per-skill `SKILL.md`. "flattened" means one level deep 
 | Gemini CLI (`gemini-cli`, enterprise) | global | `~/.gemini/GEMINI.md` | `~/.gemini/commands/*.toml` (TOML, slash) | flattened `~/.gemini/skills/<name>/` (also reads `~/.agents/skills`) | `~/.gemini/agents/` | `~/.gemini/rules/` | not supported |
 | Copilot (`copilot`) | global | none | VS Code `<user>/prompts/<name>.prompt.md` (slash) | none (opt-in `.github/skills/`) | none | none | not supported |
 | Copilot | workspace | `<project>/.github/copilot-instructions.md` | none | opt-in `.github/skills/<name>/SKILL.md` | none | none | none |
-| Cursor (`cursor`) | global | none | `~/.cursor/commands/<name>.md` (slash, any repo) | none | none | none | not supported |
-| Cursor | workspace | `<project>/AGENTS.md` (marker-merged) | (Cursor-native project cmds) | none | none | `<project>/.cursor/rules/*.mdc` (flattened) | none |
+| Cursor (`cursor`) | global | none | `~/.cursor/commands/<name>.md` (slash, any repo) | flattened `~/.cursor/skills/<name>/` (+ command-skills) | `~/.cursor/agents/*.md` | none | `~/.cursor/hooks.json` + `~/.cursor/hooks/` (git-guardrails) |
+| Cursor | workspace | `<project>/AGENTS.md` (marker-merged) | `<project>/.cursor/commands/<name>.md` (slash) | flattened `.cursor/skills/<name>/` (+ command-skills) | `.cursor/agents/*.md` | `<project>/.cursor/rules/*.mdc` (flattened) | `.cursor/hooks.json` + `.cursor/hooks/` |
 | OpenCode (`opencode`) | global | `~/.config/opencode/AGENTS.md` | `~/.config/opencode/commands/*.md` (slash in the TUI) | flattened `~/.config/opencode/skills/<name>/`; also reads `~/.claude/skills` + `~/.agents/skills` | none (uses AGENTS.md + `instructions[]`) | via plugins | not a folder surface |
 | OpenCode | workspace | `<project>/.opencode/AGENTS.md` | `.opencode/commands/` | flattened `.opencode/skills/<name>/` (also `.claude/skills`, `.agents/skills`) | none | `.opencode/rules/` | none |
 | Aider (`aider`) | workspace | `<project>/CONVENTIONS.md` (root) | none (skills via embedded SKILL_INDEX) | none | none | none | none |

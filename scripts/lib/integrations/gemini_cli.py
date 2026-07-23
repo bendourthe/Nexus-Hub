@@ -39,7 +39,6 @@ class GeminiCliIntegration(MarkdownIntegration, SkillsIntegration, TomlIntegrati
         "agents_subdir": "agents",
         "rules_subdir": "rules",
         "hooks_supported": False,
-        "permissions_file": "configs/permissions/gemini-permissions.json",
     }
 
     def install_global(self, ctx: InstallContext) -> WriteResult:

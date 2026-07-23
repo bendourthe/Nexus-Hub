@@ -57,7 +57,6 @@ class CodexIntegration(MarkdownIntegration, SkillsIntegration):
         "skills_subdir": "skills",
         "commands_subdir": "prompts",
         "hooks_supported": False,
-        "permissions_file": "configs/permissions/codex-permissions.json",
     }
 
     # ----- install entry points -------------------------------------------

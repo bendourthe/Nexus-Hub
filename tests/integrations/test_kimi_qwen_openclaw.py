@@ -6,13 +6,16 @@ we assert the platform-specific behavior the three A3-ext integrations add,
 reusing the Aider/Windsurf pattern proven in Phase 2:
 
   - all three keys are registered in `_register_builtins()`;
-  - all three are behavioral-guardrails surfaces (MarkdownIntegration, NOT
+  - OpenClaw remains a behavioral-guardrails surface (MarkdownIntegration, NOT
     SkillsIntegration -> no catalog file-tree mirror);
-  - Qwen writes a project-root QWEN.md at workspace scope; at global scope it
-    writes ~/.qwen/QWEN.md only when Qwen is detected (~/.qwen present),
-    skipping with a note otherwise;
-  - Kimi writes a .kimi/AGENTS.md (marker-merged, v3.14.5) + .kimi/agent.yaml
-    companion at workspace scope; global behavior detects ~/.kimi;
+  - Qwen (reclassified v3.15.0 Phase 4) is now a full skills+commands+agents
+    mirror: project-root QWEN.md + .qwen/{skills,agents,commands} at workspace
+    scope; ~/.qwen/{QWEN.md,skills,agents,commands} at global scope when ~/.qwen
+    is detected, skipping with a note otherwise;
+  - Kimi (reclassified v3.15.0 Phase 4) migrated to the current Kimi Code CLI
+    product (~/.kimi-code): .kimi-code/{AGENTS.md,skills} at workspace scope;
+    ~/.kimi-code/{AGENTS.md,skills} at global scope when ~/.kimi-code is detected.
+    The old ~/.kimi/ writes and the .kimi/agent.yaml companion are gone;
   - OpenClaw writes the .openclaw/{AGENTS,SOUL,IDENTITY}.md split at workspace
     scope; global behavior detects ~/.openclaw and writes the trio under
     ~/.openclaw/workspace/ (v3.14.5, the path OpenClaw actually reads).
@@ -68,17 +71,27 @@ def test_kimi_qwen_openclaw_registered() -> None:
     assert {"kimi", "qwen", "openclaw"}.issubset(keys)
 
 
-@pytest.mark.parametrize("key", ["kimi", "qwen", "openclaw"])
-def test_behavioral_guardrails_not_skills_mirror(key: str) -> None:
-    """All three are MarkdownIntegration but NOT SkillsIntegration: they embed
-    the SKILL_INDEX in the instruction file rather than mirroring the catalog
-    tree.
+def test_openclaw_behavioral_guardrails_not_skills_mirror() -> None:
+    """OpenClaw remains a MarkdownIntegration but NOT SkillsIntegration: it embeds
+    the SKILL_INDEX in the instruction file rather than mirroring the catalog tree.
     """
-    integ = get(key)
+    integ = get("openclaw")
     assert isinstance(integ, MarkdownIntegration)
     assert not isinstance(integ, SkillsIntegration)
     for cfg_key in ("skills_subdir", "commands_subdir", "agents_subdir", "hooks_subdir"):
-        assert cfg_key not in integ.config, f"{key} should not mirror {cfg_key}"
+        assert cfg_key not in integ.config, f"openclaw should not mirror {cfg_key}"
+
+
+@pytest.mark.parametrize("key", ["qwen", "kimi"])
+def test_qwen_kimi_reclassified_to_skills(key: str) -> None:
+    """v3.15.0 Phase 4: Qwen and Kimi are now SkillsIntegration (flattened skills
+    mirror), reclassified from the old instruction-file-only guardrails surface.
+    """
+    integ = get(key)
+    assert isinstance(integ, MarkdownIntegration)
+    assert isinstance(integ, SkillsIntegration)
+    assert integ.config.get("skills_subdir") == "skills"
+    assert integ.config.get("flatten_skills_layout") is True
 
 
 # ---------------------------------------------------------------------------
@@ -99,6 +112,25 @@ def test_qwen_workspace_writes_root_qwen_md(fake_home: Path, tmp_path: Path) -> 
     assert any(fa.path == str(qwen_md) for fa in result.files)
 
 
+def test_qwen_workspace_writes_skills_agents_and_markdown_commands(fake_home: Path, tmp_path: Path) -> None:
+    """v3.15.0 Phase 4: workspace install also writes flattened .qwen/skills,
+    .qwen/agents, and MARKDOWN .qwen/commands (never the deprecated TOML).
+    """
+    target = tmp_path / "ws"
+    target.mkdir()
+    get("qwen").install(_ctx(target, scope="workspace"))
+    qwen = target / ".qwen"
+
+    skills = qwen / "skills"
+    assert skills.is_dir(), "Qwen must write flattened .qwen/skills"
+    assert not (skills / "workflow").is_dir(), "category layer must be flattened away"
+    assert (qwen / "agents").is_dir() and list((qwen / "agents").glob("*.md")), "agents missing"
+
+    cmds = qwen / "commands"
+    assert (cmds / "presentify.md").exists(), "Markdown command mirror missing"
+    assert not list(cmds.glob("*.toml")), "Qwen commands must be Markdown, not deprecated TOML"
+
+
 def test_qwen_global_writes_when_detected(fake_home: Path) -> None:
     (fake_home / ".qwen").mkdir()
     result = get("qwen").install(_ctx(fake_home, scope="global"))
@@ -106,6 +138,8 @@ def test_qwen_global_writes_when_detected(fake_home: Path) -> None:
     global_md = fake_home / ".qwen" / "QWEN.md"
     assert global_md.is_file(), "Qwen global QWEN.md must be written when detected"
     assert any(fa.path == str(global_md) for fa in result.files)
+    # v3.15.0 Phase 4: global scope also mirrors skills at ~/.qwen/skills.
+    assert (fake_home / ".qwen" / "skills").is_dir(), "global install must mirror ~/.qwen/skills"
 
 
 def test_qwen_global_skips_when_not_detected(fake_home: Path) -> None:
@@ -120,21 +154,28 @@ def test_qwen_global_skips_when_not_detected(fake_home: Path) -> None:
 # ---------------------------------------------------------------------------
 
 
-def test_kimi_workspace_writes_agents_md_and_agent_yaml(fake_home: Path, tmp_path: Path) -> None:
-    # v3.14.5: Kimi Code CLI reads the merged AGENTS.md (incl. .kimi/AGENTS.md),
-    # NOT .kimi/system.md, so the instruction file is .kimi/AGENTS.md.
+def test_kimi_workspace_writes_agents_md_and_skills(fake_home: Path, tmp_path: Path) -> None:
+    # v3.15.0 Phase 4: migrated to Kimi Code CLI (~/.kimi-code). Workspace scope
+    # writes .kimi-code/AGENTS.md + a flattened .kimi-code/skills tree; the old
+    # .kimi/ writes and the .kimi/agent.yaml companion are gone.
     target = tmp_path / "ws"
     target.mkdir()
     get("kimi").install(_ctx(target, scope="workspace"))
 
-    agents_md = target / ".kimi" / "AGENTS.md"
-    agent_yaml = target / ".kimi" / "agent.yaml"
-    assert agents_md.is_file(), "Kimi must write .kimi/AGENTS.md"
-    assert agent_yaml.is_file(), "Kimi must write .kimi/agent.yaml"
+    agents_md = target / ".kimi-code" / "AGENTS.md"
+    assert agents_md.is_file(), "Kimi must write .kimi-code/AGENTS.md"
     assert "catalog/skills/" in agents_md.read_text(encoding="utf-8")
-    assert "system_prompt_file: AGENTS.md" in agent_yaml.read_text(encoding="utf-8")
-    # .kimi/AGENTS.md is namespaced; it must not clobber the project-root AGENTS.md
-    # that codex/cursor/opencode manage.
+
+    skills = target / ".kimi-code" / "skills"
+    assert skills.is_dir(), "Kimi must write a flattened .kimi-code/skills tree"
+    assert not (skills / "workflow").is_dir(), "category layer must be flattened away"
+    # command-skills reach Kimi as /skill:<name>
+    assert (skills / "presentify" / "SKILL.md").exists(), "command-skill missing"
+
+    # The old product surfaces are gone, and .kimi-code/ never clobbers the
+    # project-root AGENTS.md that codex/cursor/opencode manage.
+    assert not (target / ".kimi").exists(), "old .kimi/ surface must not be written"
+    assert not (target / ".kimi-code" / "agent.yaml").exists(), "agent.yaml is dropped"
     assert not (target / "AGENTS.md").exists()
 
 
@@ -142,14 +183,14 @@ def test_kimi_global_skips_when_not_detected(fake_home: Path) -> None:
     result = get("kimi").install(_ctx(fake_home, scope="global"))
     assert result.files == []
     assert result.notes, "Kimi global install should skip-with-note when undetected"
-    assert not (fake_home / ".kimi").exists()
+    assert not (fake_home / ".kimi-code").exists()
 
 
 def test_kimi_global_writes_when_detected(fake_home: Path) -> None:
-    (fake_home / ".kimi").mkdir()
+    (fake_home / ".kimi-code").mkdir()
     get("kimi").install(_ctx(fake_home, scope="global"))
-    assert (fake_home / ".kimi" / "AGENTS.md").is_file()
-    assert (fake_home / ".kimi" / "agent.yaml").is_file()
+    assert (fake_home / ".kimi-code" / "AGENTS.md").is_file()
+    assert (fake_home / ".kimi-code" / "skills").is_dir()
 
 
 # ---------------------------------------------------------------------------

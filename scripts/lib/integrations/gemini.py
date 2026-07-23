@@ -35,5 +35,4 @@ class GeminiIntegration(MarkdownIntegration, SkillsIntegration):
         "agents_subdir": "agents",
         "rules_subdir": "rules",
         "hooks_supported": False,
-        "permissions_file": "configs/permissions/gemini-permissions.json",
     }
