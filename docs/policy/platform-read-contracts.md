@@ -163,6 +163,14 @@ Formats: skills = folder-per-skill `SKILL.md`. "flattened" means one level deep 
 | Qwen (`qwen`) | workspace | `<project>/QWEN.md` (root) | none | none | none | none | none |
 | OpenClaw (`openclaw`) | workspace | `<project>/.openclaw/AGENTS.md` + SOUL/IDENTITY (global detected: `~/.openclaw/workspace/`) | none | none | none | none | none |
 | Nexus-AI (`nexus-ai`) | global | `~/.nexus-ai/catalog/NEXUS_AI.md` (dedicated) | `~/.nexus-ai/catalog/commands/` | flattened `~/.nexus-ai/catalog/skills/<name>/` (+ command-skills) | `~/.nexus-ai/catalog/agents/` | `~/.nexus-ai/catalog/rules/` | `~/.nexus-ai/catalog/hooks/` |
+| Hermes (`hermes`) | global | none (skills-native; no instruction file) | none (skills are the action surface) | flattened `~/.hermes/skills/<name>/` (+ command-skills); ALSO reads the shared `~/.agents/skills/` written by `codex` | none | none | not supported |
+| Hermes | workspace | none | none | flattened `.hermes/skills/<name>/` (+ command-skills); ALSO reads the project `.agents/skills/` seeded by `antigravity2` on `nexus-hub init` | none | none | none |
+
+### Hermes and the shared `.agents/skills/` path (v3.15.2 Phase 5)
+
+Hermes is a skills-native agent: it discovers folder-per-skill `SKILL.md` directly (the open standard) and needs no instruction file. It reads skills from its native `~/.hermes/skills/` (global) / `.hermes/skills/` (project) AND from the cross-tool open-standard alias `~/.agents/skills/` (global) / `.agents/skills/` (project). Per the shared-path ownership rule that Kimi already follows, the `hermes` integration writes ONLY its native `~/.hermes/skills`; it does NOT write the shared `~/.agents/skills` (owned by `codex`) or the project `.agents/skills` (seeded by `antigravity2`'s `wire_project_surfaces` on `nexus-hub init`), so an `uninstall --platforms hermes` never fights the integration that owns each shared path. The shared-project `.agents/skills/` write path is therefore CONFIRMED present (via `antigravity2` on `nexus-hub init`), not newly added.
+
+Wiring status: the `hermes` integration is registered in `_register_builtins()` and installs on demand via `scripts/lib/integrations/runner.py install --integrations hermes` (detection-gated on `~/.hermes` at global scope), consistent with the extended-platform tier (aider / windsurf / openclaw). It is intentionally NOT in the JSON `contract_checks` block or the installers' default `should_install` / `known_platform_keys` wiring yet; promoting Hermes to a first-class default-installed platform (with a `contract_checks` entry + installer `invoke_registry_platform` blocks) is a tracked follow-on (see the v3.15.2 known-gaps).
 
 ## Sources (corrected rows, verified 2026-07-13)
 

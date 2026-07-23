@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.15.2] - 2026-07-23
+
+**v3.15.2 adoption-awesome-llm-apps.** A deterministic, model-free skill trigger-and-routing quality gate for the 267-skill catalog, an unfilled-placeholder lint, per-skill routing assertions, behavioral-eval schema interop, and a Hermes platform-roster integration. Everything is local-first (Python stdlib only; no new outbound call, dependency, or credential). Catalog counts unchanged: **267 skills**, **16 commands**, **28 hooks**.
+
+### Added
+
+- **Catalog-wide trigger-and-routing eval (A1)** (`scripts/run_trigger_evals.py` + `scripts/run_trigger_evals.allowlist.json`): a stdlib-only, model-free detector that flags any two skill descriptions whose trigger vocabulary near-collides (a containment metric `|A n B| / min(|A|, |B|)` over stopword-filtered, lightly-stemmed tokens). Shipped warning-first, then PROMOTED to a hard `--gate` in `.github/workflows/ci.yml` and the `make validate` step once the catalog was clean. First-run triage over all 267 skills fixed one genuine collision (see Changed) and allowlisted 39 by-design category siblings.
+- **Per-skill routing assertions (A2)** (`catalog/skills/<category>/<name>/evals/trigger-cases.json`): an optional per-skill file declaring positive and near-miss prompts; the runner asserts each `should_trigger` prompt ranks its own skill first among all skills and clears the strongest near-miss by a configurable `--margin` (default 1.15x). `lexical: false` cases are left for behavioral evals; skills without a file stay on a never-failing WARN path. A first tranche ships for 6 distinctive-noun skills (react-expert, vue-expert, gdpr-compliance, ccpa-compliance, kubernetes-expert, docx-generation). Documented in AGENTS.md.
+- **Behavioral-eval schema converter (A4)** (`scripts/skill_eval_convert.py`): a stdlib-only bidirectional converter between `skill-eval-loop`'s internal `evals.json` and an interoperable behavioral-eval schema, lossless in both directions via an `x_nexus` extension namespace, so Nexus-Hub's behavioral evals interoperate with external skill-eval tooling. Documented in the skill's `references/schemas.md`.
+- **Hermes platform integration (A5)** (`scripts/lib/integrations/hermes.py`): a skills-native `SkillsIntegration` that mirrors flattened skills to `~/.hermes/skills/` (global, detection-gated on `~/.hermes`) and `.hermes/skills/` (project), reading the shared `~/.agents/skills/` (owned by `codex`) and project `.agents/skills/` (seeded by `antigravity2`) without writing them. Registered in `_register_builtins()` and runner-installable; documented in `docs/policy/platform-read-contracts.md` and the AGENTS.md platform-coverage section.
+
+### Changed
+
+- **Unfilled-placeholder lint (A3)** (`scripts/validate_skills.py`): the validator now fails any skill shipping an unfilled multi-word angle-bracket placeholder (for example `<what this skill does>`) in its `description` frontmatter or body prose, running inside the `--bundles-only` mode `make validate` and CI already invoke. Single-word CLI notation (`<path>`), uppercase template tokens (`<MAJOR>`), HTML tags, and fenced / inline-code examples are exempt.
+- **`technical-documentation` description sharpened**: the broad documentation skill now defers to the single-artifact `architecture-decision-record` and `project-constitution` skills via an explicit `SKIP` clause - the one genuine near-collision the A1 triage surfaced - with its `data/skills.json` mirror updated to match.
+
 ## [3.15.1] - 2026-07-23
 
 **CodeSight context-map (nexus-code-search 2.1.0).** The `nexus-code-search` extension gains a deterministic, committed context-map compiled from its existing tree-sitter AST graph, so an AI reads a cheap cold-start map once instead of re-exploring files every session. Entirely extension-local: no new outbound call, dependency, or credential, and no catalog registry, installer, or `base-*.md` change. Catalog counts unchanged: **267 skills**, **16 commands**, **28 hooks**.

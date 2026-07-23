@@ -108,7 +108,7 @@ function Get-SanitizedBranchName {
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:NexusHubVersion = "3.15.1"
+$script:NexusHubVersion = "3.15.2"
 
 $Host.UI.RawUI.WindowTitle = "Nexus-Hub Installer"
 $script:InstallerTitle = "Nexus-Hub Installer"
@@ -2226,6 +2226,29 @@ function Install-Templates {
     $evalOptimizerSource = Join-Path $RepoRoot "scripts\optimize_skill_description.py"
     if (Test-Path $evalOptimizerSource) {
         Safe-Copy -Source $evalOptimizerSource -Destination (Join-Path $scriptsDest "optimize_skill_description.py") -Confirm:$true -CustomMessage "✓ Skill-description optimizer installed at: $scriptsDest\optimize_skill_description.py"
+    }
+    # Copy the behavioral-eval schema converter (v3.15.2 / A4). Mirror of the bash
+    # block in scripts\installer.sh. Bidirectional, lossless converter between the
+    # eval-loop's internal evals.json and the interoperable behavioral-eval schema.
+    # Stdlib-only single .py (cross-platform, no .ps1 sibling).
+    $evalConvertSource = Join-Path $RepoRoot "scripts\skill_eval_convert.py"
+    if (Test-Path $evalConvertSource) {
+        Safe-Copy -Source $evalConvertSource -Destination (Join-Path $scriptsDest "skill_eval_convert.py") -Confirm:$true -CustomMessage "✓ Eval-loop schema converter installed at: $scriptsDest\skill_eval_convert.py"
+    }
+
+    # Copy the trigger-and-routing eval (v3.15.2 / A1). Mirror of the bash block
+    # in scripts\installer.sh. A stdlib-only, model-free detector that flags
+    # skill-description trigger-vocabulary near-collisions across the whole
+    # catalog, plus its intentional-neighbor allowlist. The runner reads the
+    # allowlist from the file beside it, so both must land together under
+    # scripts\.
+    $triggerEvalsSource = Join-Path $RepoRoot "scripts\run_trigger_evals.py"
+    if (Test-Path $triggerEvalsSource) {
+        Safe-Copy -Source $triggerEvalsSource -Destination (Join-Path $scriptsDest "run_trigger_evals.py") -Confirm:$true -CustomMessage "✓ Trigger-and-routing eval installed at: $scriptsDest\run_trigger_evals.py"
+    }
+    $triggerEvalsAllowlistSource = Join-Path $RepoRoot "scripts\run_trigger_evals.allowlist.json"
+    if (Test-Path $triggerEvalsAllowlistSource) {
+        Safe-Copy -Source $triggerEvalsAllowlistSource -Destination (Join-Path $scriptsDest "run_trigger_evals.allowlist.json") -Confirm:$true -CustomMessage "✓ Trigger-eval allowlist installed at: $scriptsDest\run_trigger_evals.allowlist.json"
     }
 
     # Copy .skill packager script (v1.2.0-wip / Phase 7 / A16). Produces a

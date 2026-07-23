@@ -1,4 +1,4 @@
-.PHONY: all validate lint build-catalog test scan eval compress-eval benchmark clean help
+.PHONY: all validate lint build-catalog test scan eval trigger-evals compress-eval benchmark clean help
 
 all: validate lint ## Run validation and linting
 
@@ -12,6 +12,8 @@ validate: ## Validate all JSON catalog files and skill bundles
 	@python scripts/validate_skills.py --bundles-only
 	@echo "Running non-blocking skill quality-heuristics pass (warnings only)..."
 	@python scripts/validate_skills.py --quality
+	@echo "Running trigger-and-routing eval (description near-collision + routing hard gate)..."
+	@python scripts/run_trigger_evals.py --gate
 	@echo "Running v2.3.0 CI validators (no-personal-paths, unicode-safety, supply-chain-iocs, workflow-security)..."
 	@python scripts/validate_no_personal_paths.py
 	@python scripts/validate_unicode_safety.py
@@ -61,6 +63,10 @@ eval: ## Run the nexus-code-search synthetic-codebase eval harness
 	@echo "Running nexus-code-search eval harness..."
 	@cd extensions/nexus-code-search && python -m nexus_code_search.eval --out ../../docs/v3/v3.0/eval-baseline.md
 	@echo "Eval complete. Report: docs/v3/v3.0/eval-baseline.md"
+
+trigger-evals: ## Detect skill-description trigger-vocabulary near-collisions (warning-only; --gate to enforce)
+	@echo "Running trigger-and-routing eval (skill-description near-collision detector)..."
+	@python scripts/run_trigger_evals.py --verbose
 
 compress-eval: ## Run the context-compressor accuracy-regression harness + gate
 	@echo "Running context-compressor accuracy-regression harness..."

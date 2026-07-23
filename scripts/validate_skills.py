@@ -61,7 +61,11 @@ SCANNABLE_EXTENSIONS = {
 }
 
 # Per-skill bundled-resource subdirectories per the AGENTS.md
-# "Per-skill Bundled Resources" convention.
+# "Per-skill Bundled Resources" convention. `evals/` is deliberately NOT in this
+# tuple: its trigger-cases.json is consumed by scripts/run_trigger_evals.py, not
+# referenced from SKILL.md, so it is exempt from the SKILL.md-reference orphan
+# audit below. Do not add "evals" here or every trigger-cases.json would be
+# flagged as an orphan.
 BUNDLED_SUBDIRS = ("scripts", "references", "assets")
 BUNDLE_EXEMPT_FILENAMES = {".gitkeep"}
 
@@ -264,6 +268,11 @@ def validate_skill_dir(
     # scalar with a `: ` sequence that a strict consumer (Claude skill discovery)
     # rejects, so the skill would silently fail to load.
     errors.extend(validate_frontmatter_strict_yaml(skill_file, content))
+
+    # Hard rule (v3.15.2): no unfilled multi-word angle-bracket template
+    # placeholders in the description or the body prose, so a scaffolded-but-
+    # unfinished skill cannot pass validation silently.
+    errors.extend(validate_placeholders(skill_file, content, fm))
 
     # Hard rule: required fields present
     for field in REQUIRED_FRONTMATTER_FIELDS:
@@ -500,6 +509,90 @@ def scan_for_secrets(directory: Path) -> list[str]:
 
 
 # ---------------------------------------------------------------------------
+# Unfilled-placeholder lint
+# ---------------------------------------------------------------------------
+
+# A multi-word lowercase angle-bracket template placeholder in prose, e.g.
+# `<what this skill does>` or `<multi word placeholder>`: two or more
+# single-space-separated lowercase words (hyphens allowed) inside the brackets.
+# Single-word CLI notation (`<path>`, `<name>`, `<category>`) has no interior
+# space and is not matched; HTML tags carry `=`, `"`, `/`, or digits (never a
+# lowercase-words-and-spaces-only interior) and are likewise excluded. The shape
+# is deliberately tight to keep the real catalog at zero false positives.
+PLACEHOLDER_PATTERN = re.compile(r"<[a-z]+(?: [a-z-]+)+>")
+
+
+def _strip_inline_code(text: str) -> str:
+    """Blank out `...` inline-code spans so an example placeholder shown inside
+    backticks (legitimate documentation) is not flagged."""
+    return re.sub(r"`[^`]*`", "", text)
+
+
+def _body_after_frontmatter(content: str) -> str:
+    """Return the SKILL.md body: everything after the closing frontmatter `---`."""
+    if content.startswith("---"):
+        end = content.find("---", 3)
+        if end != -1:
+            newline = content.find("\n", end)
+            return content[newline + 1:] if newline != -1 else ""
+    return content
+
+
+def validate_placeholders(
+    skill_file: Path, content: str, fm: dict[str, str]
+) -> list[str]:
+    """Detect unfilled multi-word angle-bracket template placeholders.
+
+    Two surfaces, both hard errors (a scaffolded-but-unfinished skill must never
+    ship):
+
+      1. the `description` frontmatter field, and
+      2. the SKILL.md body prose, EXCLUDING fenced code blocks and inline-code
+         spans (which legitimately contain example placeholders).
+
+    Fence tracking follows the same CommonMark rule as scan_text_for_secrets so
+    nested example fences do not invert the in-fence state. Returns a list of
+    error strings (empty when the skill carries no unfilled placeholder).
+    """
+    errors: list[str] = []
+
+    # (1) description field (inline code stripped so a quoted example is exempt).
+    description = fm.get("description", "")
+    dm = PLACEHOLDER_PATTERN.search(_strip_inline_code(description))
+    if dm:
+        errors.append(
+            f"{skill_file}: description contains an unfilled template placeholder "
+            f"'{dm.group(0)}' (fill it in before shipping)"
+        )
+
+    # (2) body prose, skipping fenced code blocks and inline-code spans.
+    in_fence = False
+    fence_char = ""
+    fence_len = 0
+    for line in _body_after_frontmatter(content).splitlines():
+        m = _FENCE_RE.match(line)
+        if m:
+            fence = m.group("fence")
+            info = m.group("info").strip()
+            char = fence[0]
+            if not in_fence:
+                in_fence, fence_char, fence_len = True, char, len(fence)
+                continue
+            if char == fence_char and len(fence) >= fence_len and not info:
+                in_fence, fence_char, fence_len = False, "", 0
+                continue
+        if in_fence:
+            continue
+        bm = PLACEHOLDER_PATTERN.search(_strip_inline_code(line))
+        if bm:
+            errors.append(
+                f"{skill_file}: body contains an unfilled template placeholder "
+                f"'{bm.group(0)}' (fill it in, or wrap the example in backticks)"
+            )
+    return errors
+
+
+# ---------------------------------------------------------------------------
 # Discovery
 # ---------------------------------------------------------------------------
 
@@ -587,8 +680,13 @@ def main() -> int:
                 continue
             if args.bundles_only:
                 # The strict-YAML gate is a hard error even in --bundles-only,
-                # the mode CI runs, so an unparseable frontmatter fails CI.
+                # the mode CI runs, so an unparseable frontmatter fails CI. The
+                # unfilled-placeholder lint (v3.15.2) rides the same mode so
+                # `make validate` and CI both enforce it.
                 total_errors.extend(validate_frontmatter_strict_yaml(skill_file, content))
+                total_errors.extend(
+                    validate_placeholders(skill_file, content, parse_frontmatter(content) or {})
+                )
                 total_warnings.extend(validate_skill_bundles(skill_dir, content))
             if args.quality:
                 # --quality keeps its always-exit-0 contract, so the gate is not

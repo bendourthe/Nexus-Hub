@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.15.1 -->
+<!-- nexus-hub-version: 3.15.2 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 267 skills, 16 commands, 28 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -36,6 +36,10 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v3.15.2
+
+v3.15.2 gives the 267-skill catalog its first deterministic, model-free skill-quality gate and extends the platform roster. The headline is a **trigger-and-routing eval** (`scripts/run_trigger_evals.py`, Python stdlib only, zero outbound): it flags any two skill descriptions whose trigger vocabulary near-collides (a containment metric over stopword-filtered, lightly-stemmed tokens) and, for skills that ship an optional `evals/trigger-cases.json`, asserts that real prompts route to the intended skill first and clear near-miss look-alikes by a margin. First-run triage over all 267 skills fixed one genuine collision (the broad `technical-documentation` skill now defers to `architecture-decision-record` and `project-constitution` via a SKIP clause) and allowlisted 39 by-design category siblings; the eval is now a **hard CI + `make validate` gate**. A companion **unfilled-placeholder lint** in `validate_skills.py` fails any skill shipping an unfilled `<multi word placeholder>` in its description or body (single-word CLI notation like `<path>`, `<MAJOR>` tokens, HTML tags, and fenced examples are exempt). On the tooling side, `skill-eval-loop` gains a **behavioral-eval schema converter** (`skill_eval_convert.py`) that losslessly round-trips its internal `evals.json` to and from an interoperable schema for external skill-eval tools, and a new **Hermes** platform integration (registry-registered, runner-installable, detection-gated) mirrors flattened skills to `~/.hermes/skills/` while reading the shared `~/.agents/skills/`. Everything is local-first (no new outbound call, dependency, or credential); catalog counts unchanged: **267 skills**, **16 commands**, **28 hooks**.
 
 ## What's New in v3.15.1
 
