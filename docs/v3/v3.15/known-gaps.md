@@ -1,8 +1,8 @@
 # Known Gaps - v3.15
 
 **Project**: Nexus-Hub
-**Status**: The v3.15 minor line carries TWO releases. **v3.15.0 platform-parity-all-gaps** (all 7 phases, RELEASED 2026-07-23): every supported platform receives all the surfaces it can consume, re-verified against current docs. **v3.15.1 adoption-codesight** (all 7 phases built, releasing 2026-07-23): the deterministic compiled context-map inside `nexus-code-search`, both DoD axes holding. The v3.15.0 version collision (three plans stamped v3.15.0) was reconciled on 2026-07-22 by re-stamping: v3.15.0 = platform-parity-all-gaps, v3.15.1 = adoption-codesight, v3.15.2 = adoption-awesome-llm-apps.
-**Last updated**: 2026-07-23 (v3.15.1 codesight release; v3.15.0 platform-parity released the same day)
+**Status**: The v3.15 minor line carries THREE releases. **v3.15.0 platform-parity-all-gaps** (all 7 phases, RELEASED 2026-07-23): every supported platform receives all the surfaces it can consume, re-verified against current docs. **v3.15.1 adoption-codesight** (all 7 phases built, releasing 2026-07-23): the deterministic compiled context-map inside `nexus-code-search`, both DoD axes holding. **v3.15.2 adoption-awesome-llm-apps** (IN PROGRESS; Phase 1 of 6 complete): a deterministic, model-free skill trigger-and-routing quality gate. The v3.15.0 version collision (three plans stamped v3.15.0) was reconciled on 2026-07-22 by re-stamping: v3.15.0 = platform-parity-all-gaps, v3.15.1 = adoption-codesight, v3.15.2 = adoption-awesome-llm-apps.
+**Last updated**: 2026-07-23 (v3.15.2 Phase 1 - catalog-wide trigger-and-routing eval)
 
 > **Prior-version ingest (platform-parity)**: v3.14.5's DF-4 (platform additive-surface drift) is the direct input to the v3.15.0 release and was actioned per phase; it does not carry forward as a separate open item. The v3.14.5 Advisory pre-existing failure `test_init_subcommand.py::test_default_wire_project_surfaces_returns_none` was re-confirmed and owned by Phase 5.2 (resolved; see the v3.15.0 Advisory below).
 
@@ -191,3 +191,43 @@ RESOLVED: DF-1 (frameworks line P2 + Most-Imported Files P4), DF-2 (extension ve
 - **Knowledge-map extractor ships as extension code, not a new catalog skill (Phase 6.1 decision)**: the mechanical classification + decision / open-question extraction lives in `contextmap/knowledge.py` (exposed as the `generate_knowledge_map` MCP tool + `nexus-hub map --knowledge`); narrative synthesis stays with the LLM-native `solution-knowledge-base` skill. Phases 1-6 remained entirely extension-only.
 - **tiktoken is optional, not a dependency**: the token-count header prefers `tiktoken` (cl100k_base) when it is importable and loads without a network fetch, and otherwise falls back to a deterministic stdlib heuristic. The extension adds no dependency on tiktoken, preserving its zero-outbound posture. Token counts differ between an environment with tiktoken cached and one without; within any single environment they are deterministic, so the tool-vs-CLI byte-identity and the token-header self-consistency both hold.
 - **`.nexus/` layout for consumers**: the generator writes `<root>/.nexus/CONTEXT-MAP.md` and `<root>/.nexus/context/*.md` (intended to be committed) alongside the pre-existing `<root>/.nexus/code-index/` graph database (gitignored). Consumer-repo `.gitignore` guidance (commit the map, ignore the index) is documented in the extension README.
+
+## v3.15.2 - adoption-awesome-llm-apps
+
+**Status**: IN PROGRESS. Phase 1 (catalog-wide trigger-and-routing eval, A1) COMPLETE; Phases 2-6 pending. This section is appended per-phase and finalized at the v3.15.2 release (Phase 6). Plan: [plans/v3.15.2-adoption-awesome-llm-apps.md](plans/v3.15.2-adoption-awesome-llm-apps.md).
+
+**Phase 1 (catalog-wide trigger-and-routing eval, A1) COMPLETE.** Shipped `scripts/run_trigger_evals.py` (Python stdlib only, model-free): it tokenizes every skill `description`, stems light inflections (ing/es/ed/s), and flags any pair whose trigger vocabulary overlaps at or above a configurable threshold (default 0.5, containment metric `|A n B| / min(|A|, |B|)`). First-run triage over all 267 skills surfaced 39 near-collisions. 38 are by-design category siblings (parallel `<lang>-cleanup` / `<lang>-expert` / `init-<lang>-project` / framework-expert / `*-generation` / mobile-platform / compliance-regulation pairs, plus two matched pairs that already carry mutual SKIP clauses) recorded in `scripts/run_trigger_evals.allowlist.json`; the one genuine collision (the broad `technical-documentation` skill lacked a SKIP clause carving out the single-artifact `architecture-decision-record` and `project-constitution` skills) was FIXED by sharpening `technical-documentation`'s description (and its `data/skills.json` mirror). Registered warning-first in `installer.sh`, `installer.ps1`, the `Makefile` (`make trigger-evals` plus a `make validate` step), and `.github/workflows/ci.yml`. Tests: `tests/validators/test_run_trigger_evals.py` (25 tests, 96% line coverage). Promotion from warning-only to a hard `--gate` is deferred to Phase 6 per the plan.
+
+### v3.15.2 Open Items
+
+#### Deferred
+
+##### DF-1 - CI per-path-filter granularity for the trigger-eval step not implemented
+
+- **Source phase**: v3.15.2 Phase 1.5.
+- **Plan reference**: Phase 1.5 ("path filters so it only runs on `catalog/skills/**` and `scripts/run_trigger_evals*` changes").
+- **Reason**: the repo runs all validators in a single `validate` job triggered by the workflow-level `paths-ignore: docs/**`. The eval is a sub-second stdlib step; splitting it into a separately-path-filtered job would ADD checkout + setup minutes, defeating the stated optimization goal. It was kept as a step in the existing optimized job (which already has `concurrency` cancel-in-progress, pip caching, and cost-gated macOS/Windows matrix legs).
+- **Suggested next step**: revisit only if the `validate` job's runtime grows materially; otherwise close as a non-gap in the Phase 6 CI review.
+
+#### Warnings
+
+##### WN-1 - Windows-local dry-run install of the new copy block not executed
+
+- **Source phase**: v3.15.2 Phase 1.4.
+- **Plan reference**: Phase 1.4 ("do a dry-run install into a throwaway directory and confirm the script lands at `~/.nexus-hub/scripts/`").
+- **Reason**: the bash installer cannot fully run on the Windows dev host (WN-v36-1). The new copy block mirrors the `generate_report.py` pattern exactly, is shellcheck-clean, and targets `$scripts_dest` (which resolves to `~/.nexus-hub/scripts`).
+- **Suggested next step**: none required - CI's `bootstrap` and `install-smoke` jobs exercise the installer end-to-end on ubuntu / macOS / Windows.
+
+### v3.15.2 Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 1 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 1 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+| Hand-offs (HO) | 0 | 0 |
+
+> **Forward pointer (Phase 3 coverage gap)**: the per-skill `trigger-cases.json` routing-assertion coverage gap (skills left on the WARN path) is a Phase 3 deliverable and will be tracked here when Phase 3 lands, per the plan's Phase 6.2 instruction.

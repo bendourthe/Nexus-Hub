@@ -1,6 +1,6 @@
 ---
 name: technical-documentation
-description: Generate architecture documentation, ADRs (Architecture Decision Records), design documents, and technical specifications. Use when documenting system design, architectural decisions, technical workflows, or developer onboarding.
+description: Generate architecture docs, design documents, and technical specifications for system design, technical workflows, or developer onboarding. SKIP a single ADR (use architecture-decision-record) or a project constitution (use project-constitution).
 summary_l0: "Generate architecture docs, ADRs, design documents, and technical specifications"
 overview_l1: "This skill documents technical architecture, design decisions, system design, and development workflows for developers and technical stakeholders. Use it when documenting system architecture, writing Architecture Decision Records (ADRs), creating design documents, documenting data flows, explaining module organization, or creating developer onboarding guides. Key capabilities include architecture overview generation, ADR authoring with context, decision, and consequences sections, design document creation, data flow diagramming, module dependency documentation, developer onboarding guide creation, and technical specification writing. The expected output is structured technical documentation with architecture overviews, ADRs, design documents, data flow diagrams, and developer guides. Trigger phrases: architecture documentation, design document, ADR, technical spec, system design, developer guide."
 ---

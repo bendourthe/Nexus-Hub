@@ -1923,6 +1923,21 @@ install_templates() {
         safe_copy "$eval_optimizer_source" "$scripts_dest/optimize_skill_description.py" true "[OK] Skill-description optimizer installed at: $scripts_dest/optimize_skill_description.py"
     fi
 
+    # Copy the trigger-and-routing eval (v3.15.2 / A1). A stdlib-only,
+    # model-free detector that flags skill-description trigger-vocabulary
+    # near-collisions across the whole catalog, plus its intentional-neighbor
+    # allowlist. The runner defaults to warning-only and reads the allowlist
+    # from the file beside it, so both must land together under scripts/.
+    # Lockstep with the same block in scripts/installer.ps1.
+    local trigger_evals_source="$repo_root/scripts/run_trigger_evals.py"
+    if [ -f "$trigger_evals_source" ]; then
+        safe_copy "$trigger_evals_source" "$scripts_dest/run_trigger_evals.py" true "[OK] Trigger-and-routing eval installed at: $scripts_dest/run_trigger_evals.py"
+    fi
+    local trigger_evals_allowlist_source="$repo_root/scripts/run_trigger_evals.allowlist.json"
+    if [ -f "$trigger_evals_allowlist_source" ]; then
+        safe_copy "$trigger_evals_allowlist_source" "$scripts_dest/run_trigger_evals.allowlist.json" true "[OK] Trigger-eval allowlist installed at: $scripts_dest/run_trigger_evals.allowlist.json"
+    fi
+
     # Copy .skill packager script (v1.2.0-wip / Phase 7 / A16). Produces a
     # portable .skill ZIP archive from a catalog/skills/<cat>/<name>/ directory
     # for distribution to Claude.ai or the Anthropic API skill-upload endpoint

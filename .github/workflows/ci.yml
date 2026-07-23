@@ -63,6 +63,18 @@ jobs:
         # pre-existing drift unrelated to any given change.
         run: python scripts/validate_skills.py --bundles-only
 
+      - name: Trigger-and-routing eval (description near-collision detector) (v3.15.2 Phase 1)
+        # Deterministic, model-free, stdlib-only gate: flags any two skill
+        # descriptions whose trigger vocabulary overlaps beyond the threshold,
+        # with an intentional-neighbor allowlist for by-design category siblings
+        # (scripts/run_trigger_evals.allowlist.json). Ships WARNING-ONLY here in
+        # v3.15.2 Phase 1 (always exits 0) so first-run findings are triaged
+        # before it becomes a merge gate; promoted to `--gate` in Phase 6 once
+        # the catalog is clean and allowlisted. Reaches this job via the
+        # workflow's paths-ignore: docs/** trigger (catalog/** and scripts/** are
+        # outside docs/).
+        run: python scripts/run_trigger_evals.py
+
       - name: Validate no personal paths (v2.3.0 Phase 2)
         # v3.14.5 Phase 7: split out of the bundle-audit step above, which had a
         # duplicate `run:` key - YAML keeps only the last, so the bundle-orphan

@@ -2228,6 +2228,21 @@ function Install-Templates {
         Safe-Copy -Source $evalOptimizerSource -Destination (Join-Path $scriptsDest "optimize_skill_description.py") -Confirm:$true -CustomMessage "✓ Skill-description optimizer installed at: $scriptsDest\optimize_skill_description.py"
     }
 
+    # Copy the trigger-and-routing eval (v3.15.2 / A1). Mirror of the bash block
+    # in scripts\installer.sh. A stdlib-only, model-free detector that flags
+    # skill-description trigger-vocabulary near-collisions across the whole
+    # catalog, plus its intentional-neighbor allowlist. The runner reads the
+    # allowlist from the file beside it, so both must land together under
+    # scripts\.
+    $triggerEvalsSource = Join-Path $RepoRoot "scripts\run_trigger_evals.py"
+    if (Test-Path $triggerEvalsSource) {
+        Safe-Copy -Source $triggerEvalsSource -Destination (Join-Path $scriptsDest "run_trigger_evals.py") -Confirm:$true -CustomMessage "✓ Trigger-and-routing eval installed at: $scriptsDest\run_trigger_evals.py"
+    }
+    $triggerEvalsAllowlistSource = Join-Path $RepoRoot "scripts\run_trigger_evals.allowlist.json"
+    if (Test-Path $triggerEvalsAllowlistSource) {
+        Safe-Copy -Source $triggerEvalsAllowlistSource -Destination (Join-Path $scriptsDest "run_trigger_evals.allowlist.json") -Confirm:$true -CustomMessage "✓ Trigger-eval allowlist installed at: $scriptsDest\run_trigger_evals.allowlist.json"
+    }
+
     # Copy .skill packager script (v1.2.0-wip / Phase 7 / A16). Produces a
     # portable .skill ZIP archive from a catalog\skills\<cat>\<name>\ directory
     # for distribution to Claude.ai or the Anthropic API skill-upload endpoint
