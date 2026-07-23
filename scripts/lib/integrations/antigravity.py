@@ -125,7 +125,6 @@ class Antigravity20Integration(MarkdownIntegration, SkillsIntegration):
         "rules_subdir": "rules",
         "hooks_subdir": "hooks",
         "hooks_supported": True,
-        "permissions_file": "configs/permissions/gemini-permissions.json",
     }
 
     # Curated, platform-agnostic hooks ported to Antigravity. Excludes the
@@ -300,7 +299,12 @@ class Antigravity20Integration(MarkdownIntegration, SkillsIntegration):
                 actions.append(
                     self._copy_tree(ctx.repo_root / src_rel, root / subdir, ctx, self.key)
                 )
-        actions.extend(self._install_hooks(root, ctx, scope))
+        # Gate the bespoke hooks.json + script install on the declared
+        # capability (`hooks_supported`), mirroring the base-class gate so a
+        # platform's hook support is declared in exactly one place. Antigravity
+        # 2.0 sets `hooks_supported: True`, so this is byte-identical today.
+        if self.config.get("hooks_supported"):
+            actions.extend(self._install_hooks(root, ctx, scope))
         return actions
 
     def _install_hooks(

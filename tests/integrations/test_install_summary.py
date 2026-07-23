@@ -12,7 +12,7 @@ This suite covers:
 * `_common_path` representative-path selection;
 * `_build_platform_summary` shaping a WriteResult into the summary dict;
 * `cmd_install --summary-json`: a detected platform reports `installed`
-  surfaces with real paths; an undetected platform (absent `~/.kimi`) reports
+  surfaces with real paths; an undetected platform (absent `~/.kimi-code`) reports
   `detected: false` with no surfaces; and `--quiet` stdout stays free of the
   per-file action lines while the summary file is still written.
 
@@ -233,7 +233,9 @@ def test_summary_json_marks_undetected_platform(
     """A real detection-gated platform with its config root absent reports
     detected: false and no surfaces (the group-me-as-skipped signal)."""
     summary_path = tmp_path / "summary.json"
-    assert not (fake_home / ".kimi").exists()
+    # v3.15.0 Phase 4: Kimi migrated to Kimi Code CLI; detection is gated on
+    # ~/.kimi-code (not the old ~/.kimi).
+    assert not (fake_home / ".kimi-code").exists()
 
     rc = runner.cmd_install(
         _install_args(integrations="kimi", summary_json=str(summary_path))
@@ -244,6 +246,43 @@ def test_summary_json_marks_undetected_platform(
     kimi = next(p for p in data["platforms"] if p["platform"] == "kimi")
     assert kimi["detected"] is False
     assert kimi["surfaces"] == {}
+
+
+# ---------------------------------------------------------------------------
+# Newly-parity checklist surfaces (v3.15.0 Phase 6)
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    "key, expected_surfaces",
+    [
+        ("cursor", {"skills", "commands", "agents", "hooks", "rules", "instruction"}),
+        ("opencode", {"skills", "commands", "agents", "rules", "instruction"}),
+        ("qwen", {"skills", "commands", "agents", "instruction"}),
+        ("kimi", {"skills", "instruction"}),
+    ],
+)
+def test_newly_parity_summary_surfaces(key, expected_surfaces, tmp_path: Path) -> None:
+    """v3.15.0 Phase 6: the summary-driven checklist captures the parity surfaces
+    added in Phases 2-4 for each newly-parity platform (dry-run, real integrations)."""
+    from scripts.lib.integrations import get
+    from scripts.lib.integrations.base import InstallContext
+    from scripts.lib.integrations.manifest import InstallManifest
+
+    ctx = InstallContext(
+        repo_root=REPO_ROOT,
+        target_root=tmp_path,
+        scope="workspace",
+        dry_run=True,
+        manifest=InstallManifest(),
+        template_vars={"PROJECT_NAME": "t"},
+    )
+    integ = get(key)
+    summary = runner._build_platform_summary(key, integ, integ.install(ctx))
+    got = set(summary.get("surfaces", {}).keys())
+    assert expected_surfaces <= got, f"{key}: missing surfaces {expected_surfaces - got}"
+    for surf, info in summary["surfaces"].items():
+        assert info["status"] == "installed", f"{key}: {surf} status={info['status']!r}"
 
 
 def test_quiet_output_unchanged_but_summary_written(
