@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.15.1] - 2026-07-23
+
+**CodeSight context-map (nexus-code-search 2.1.0).** The `nexus-code-search` extension gains a deterministic, committed context-map compiled from its existing tree-sitter AST graph, so an AI reads a cheap cold-start map once instead of re-exploring files every session. Entirely extension-local: no new outbound call, dependency, or credential, and no catalog registry, installer, or `base-*.md` change. Catalog counts unchanged: **267 skills**, **16 commands**, **28 hooks**.
+
+### Added
+
+- **Compiled context-map generator** (`extensions/nexus-code-search/src/nexus_code_search/contextmap/`): a `nexus-hub map` CLI verb and a `generate_context_map` MCP tool compile `<root>/.nexus/CONTEXT-MAP.md` plus a `.nexus/context/` article set from the AST graph, with three test-locked guarantees - neutral path (writes only under `<root>/.nexus/`), deterministic (no wall-clock in the output, so the tool and CLI are byte-identical), and content-hash incremental (an embedded source fingerprint makes an unchanged graph a no-op unless `--force`). Framework-aware extraction feeds the map: HTTP routes (FastAPI / Flask / Django / Express) with method / path / params / behavior tags, ORM schema (SQLAlchemy / Django / Prisma) with fields and relation resolution, React components with props, an env-var audit (required vs has-default, `.env.example` names only), middleware, and background events (Celery / BullMQ / Kafka / EventEmitter) - all gated by a per-section recall + hard zero-false-positive accuracy harness over per-framework fixtures.
+- **Graph enrichment** (`extensions/nexus-code-search/src/nexus_code_search/graph/affected.py`, `.../contextmap/changemap.py`): file-level most-imported ("hot files") ranking fills the map's Most-Imported Files section, and `nexus-hub map --since <ref>` produces a git-scoped change map (changed files plus the affected routes / models / symbols / transitive tests).
+- **Measurement, health, and knowledge surfaces**: a regression-guarded token-savings benchmark (`benchmark_baseline.json`, `nexus-hub map` benchmark) measures the compiled map against a simulated manual-exploration cost on a realistic corpus (~44-55% reduction on the sample repos; ~99% on Nexus-Hub itself); `nexus-hub map --lint` (the `map_health` MCP tool) checks orphan articles, missing backlinks, and staleness; and `nexus-hub map --knowledge` (the `generate_knowledge_map` MCP tool) compiles a `.nexus/KNOWLEDGE.md` from a folder of Markdown notes. A path-filtered `.github/workflows/code-search.yml` runs the extension suite (including the benchmark / lint / knowledge tests) on extension changes.
+
+### Changed
+
+- **nexus-code-search 2.0.0 -> 2.1.0** (`extensions/nexus-code-search/pyproject.toml`): the extension package version and description are updated to cover the context-map surface. The `docs/policy/mcp-reverse-engineering-matrix.md` `nexus-code-search` row records the context-map / extraction capability and its reverse-engineering provenance.
+
 ## [3.15.0] - 2026-07-23
 
 **v3.15.0 platform-parity-all-gaps.** Every supported platform receives all Nexus-Hub surfaces it can actually consume (skills, commands, agents, rules, hooks), verified against each platform's current docs. Phase 1 gives the integration layer a real capability signal and web-re-verifies the parity-target platforms before wiring them; Phase 2 brings Cursor to full parity; Phase 3 adds OpenCode's agents surface; Phase 4 reclassifies Qwen and Kimi to skills-bearing integrations; Phase 5 widens Copilot's skill selection; Phase 6 confirms the installer per-platform checklist and the runtime `[verify]` pass now cover the newly-parity platforms (no code change - the v3.14.5 summary + verify plumbing is generic - just locked in with tests); Phase 7 corrects the AGENTS.md platform-coverage docs (Cursor is full-parity; OpenCode / Qwen / Kimi are now skills-bearing, not "behavioral-guardrails only"), reconciles the known gaps, and confirms CI/CD coverage.
