@@ -415,6 +415,27 @@ def cmd_setup_media(argv: list[str]) -> int:
     return subprocess.run([sys.executable, str(helper), *argv]).returncode
 
 
+def cmd_map(argv: list[str]) -> int:
+    """Dispatch `nexus-hub map` to the nexus-code-search context-map CLI.
+
+    Late-imports the extension so this network-capable CLI core does not pull in
+    the code-search package on every invocation. The heavy logic lives entirely
+    in the extension (`nexus_code_search.contextmap.cli`), so no installer change
+    is needed to surface this verb -- this dispatcher is already installed. Adds
+    no outbound call (context-map generation is strictly local). Mirrors the
+    late-import + pip-hint pattern used by scripts/nexus_hub_affected.py.
+    """
+    try:
+        from nexus_code_search.contextmap.cli import main as map_main
+    except ImportError as exc:  # pragma: no cover - missing optional extension
+        _eprint(
+            "nexus-hub map: nexus-code-search package not installed "
+            f"({exc}). Install with `pip install nexus-code-search`."
+        )
+        return 2
+    return map_main(argv)
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="nexus-hub",
@@ -445,6 +466,14 @@ def build_parser() -> argparse.ArgumentParser:
         add_help=False,
         help="Configure optional license-free stock-media API keys (e.g. Pexels for stock video).",
     )
+    # `map` is intercepted in main() before parsing and forwarded verbatim to the
+    # nexus-code-search context-map CLI (its own args: [root] --force --json).
+    # Registered here only so `nexus-hub --help` lists it.
+    sub.add_parser(
+        "map",
+        add_help=False,
+        help="Compile a committed .nexus/CONTEXT-MAP.md from the local code graph.",
+    )
     return parser
 
 
@@ -461,6 +490,11 @@ def main(argv: list[str] | None = None) -> int:
     # it as a subprocess (interactive hidden prompt), so intercept before argparse.
     if raw and raw[0] == "setup-media":
         return cmd_setup_media(raw[1:])
+
+    # `map` forwards its remaining tokens ([root] --force --json) to the
+    # extension's context-map CLI verbatim, so intercept before argparse.
+    if raw and raw[0] == "map":
+        return cmd_map(raw[1:])
 
     parser = build_parser()
     args = parser.parse_args(raw)
