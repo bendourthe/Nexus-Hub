@@ -59,6 +59,13 @@ enriched model  (classifications, reconstructed chart blocks, verified text)
    |                         references/interactive-features.md + [[hallmark-design]])
    v
 unique interactive .html  (self-contained, offline, dynamic JS charts)
+   |
+   |  iterative visual-QA loop  (render -> per-segment grade vs source + the
+   |  rubric -> adversarially verify -> synthesize fixes -> re-render, until the
+   |  page-level bar passes; references/visual-qa-rubric.md +
+   |  scripts/visual_qa_score.py; structural-review fallback without a browser)
+   v
+verified, shareable interactive .html
 
    (optional)  scripts/build_presentation.py  ->  a plain deterministic baseline,
                only when a fast, simple, reproducible draft is explicitly wanted
@@ -113,7 +120,7 @@ unique interactive .html  (self-contained, offline, dynamic JS charts)
     - **Segment and grade.** Segment the page into top-level bands / sections and grade EACH segment independently against `references/visual-qa-rubric.md` and its SOURCE figure / section: full-width band metric (Phase 1), image sizing / crop / dead-space (Phase 2), annotation-overlay fidelity vs the source (Phase 3), imagery-integration into starved sections (Phase 4), and readability / contrast / layout integrity at 100% zoom. Run the deterministic STRUCTURAL checks with `scripts/visual_qa_score.py` (full-width band, image caps, overlay well-formedness, imagery count, offline / layout integrity) and add the AGENT-VISION judgments (crop of meaningful content, dead space, annotation placement, imagery relevance, contrast) from the screenshots. Optionally fan the per-segment grading out via the `assets/visual-qa-workflow.js` Dynamic-Workflow template when Dynamic Workflows are available.
     - **Adversarially verify.** Before accepting a HIGH-severity finding, have an independent skeptic try to REFUTE it (default to refuted when uncertain), so the fix pass chases real defects only.
     - **Synthesize fixes and re-render.** Apply ONLY the confirmed fixes to the HTML, rebuild, and re-render.
-    - **Iterate** until the page-level pass bar holds (no open high-severity finding) or a cap (up to 3-4 passes) or the token budget is hit; then report the specific issues found and fixed. Scope-first + budget caution: a per-segment fan-out is a 5-15x token multiplier, so calibrate on ONE segment first and confirm before full-scale (cross-link `[[agent-orchestration-primitives]]` for whether a fan-out is warranted and `[[ai-billing-safeguards]]` for the hard caps).
+    - **Iterate** until the page-level pass bar holds (no open high-severity finding) or the `--qa-depth`-bounded cap or the token budget is hit; then report the specific issues found and fixed. The command's `--qa-depth` sets the bound: `light` = a single grading pass, `standard` = the capped iterative loop (up to 3-4 passes), `deep` = the full per-segment fan-out (the default per the chosen ambition). Scope-first + budget caution: a per-segment fan-out is a 5-15x token multiplier, so calibrate on ONE segment first and confirm before full-scale (cross-link `[[agent-orchestration-primitives]]` for whether a fan-out is warranted and `[[ai-billing-safeguards]]` for the hard caps).
     - **Robust either way (the degradation ladder).** WITH a headless browser, grade from screenshots (measure band widths and image boxes, compare overlays to the source, confirm integrated imagery). WITHOUT one, degrade to the STRUCTURAL subset (`scripts/visual_qa_score.py` plus a careful markup / computed-CSS read: full-width via the canvas vars, image caps via CSS, overlay elements + labels via the DOM, imagery presence via `data:` count) and note the degradation in one line; a structural-only pass is a weaker but valid gate. Orthogonally, when Dynamic Workflows are absent the fan-out degrades to isolated subagents, then to a single sequential pass. NEVER hard-fail the run on a missing browser or a missing workflow runtime.
 
 ## Common Rationalizations
