@@ -252,6 +252,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | review-trapdoors | code-review | "Pre-empt a project's recurring review blockers from a curated trapdoors list before review" | catalog/skills/code-review/review-trapdoors/SKILL.md |
 | using-git-worktrees | workflow | "Set up isolated worktree workspaces safely, preferring the native tool over raw git" | catalog/skills/workflow/using-git-worktrees/SKILL.md |
 | hallmark-design | developer-experience | "Produce and review UI that avoids the 'looks AI-generated' failure mode using anti-slop gates and four verbs" | catalog/skills/developer-experience/hallmark-design/SKILL.md |
+| anti-slop-editing | developer-experience | "Remove named AI-slop prose patterns while preserving voice, or detect slop without rewriting" | catalog/skills/developer-experience/anti-slop-editing/SKILL.md |
 | html-output-conventions | developer-experience | "Prefer HTML over Markdown for human-facing artifacts that are read, compared, or interacted with, using four self-contained templates" | catalog/skills/developer-experience/html-output-conventions/SKILL.md |
 | advanced-attack-patterns | security | "Advanced and web-app attack surfaces: state desync, cache poisoning, SSRF, XXE, deserialization, request smuggling, IDOR" | catalog/skills/security/advanced-attack-patterns/SKILL.md |
 | business-logic-abuse | security | "Business-logic abuse: race conditions, TOCTOU, double-spending, workflow bypass, pricing/refund abuse, anti-fraud defeat" | catalog/skills/security/business-logic-abuse/SKILL.md |

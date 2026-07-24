@@ -4,9 +4,9 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.15.2 -->
+<!-- nexus-hub-version: 3.15.3 -->
 
-Nexus-Hub is the upstream skill catalog for AI coding assistants: 267 skills, 16 commands, 28 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
+Nexus-Hub is the upstream skill catalog for AI coding assistants: 268 skills, 16 commands, 28 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
 ## Interactive Guide -- start here
 
@@ -30,12 +30,16 @@ Nexus-Hub is the upstream skill catalog for AI coding assistants: 267 skills, 16
 
 Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of the same idea, split along a deliberate seam.
 
-- **Nexus-Hub (this repo)** is the catalog: 267 curated skills, 16 commands, 28 hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`). It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
+- **Nexus-Hub (this repo)** is the catalog: 268 curated skills, 16 commands, 28 hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`). It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
 - **Nexus** is a local-first desktop AI Studio that consumes Nexus-Hub as its skill feed. Nexus's `AGENTS.md` names this repo as "the only external project we deliberately link to" -- the upstream feed for its skill harness.
 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v3.15.3
+
+v3.15.3 adds **`anti-slop-editing`**, a dedicated prose de-slop skill, reverse-engineered skill-native from an MIT-licensed external skill (no new code, outbound call, dependency, or credential). It removes 20+ named AI-slop patterns (binary contrasts, throat-clearing openers, importance puffery, robotic rhythm, fake-profound kickers, formatting slop, and more), each with a quoted smell and a concrete before/after fix, while preserving the writer's voice. It runs in two modes: **Edit** (default) makes the minimum effective edit and reports what changed; **Detect** names each pattern with a quoted line and a short fix without rewriting, scoring, or guessing AI authorship. It ships two on-demand reference files (a banned-word / empty-phrase list applied with judgment, and a pass/fail self-check rubric the skill grades its own output against before returning) plus a routing-eval file, and adopts the project em-dash ceiling (no em-dashes, no clause-joining spaced hyphens). The single-line description was lexically co-engineered against the trigger-and-routing gate so a de-slop request routes to it ahead of the generic `writing-editing` and the UI-focused `hallmark-design` skills. Catalog: **268 skills** (+1: `anti-slop-editing`), **16 commands**, **28 hooks**.
 
 ## What's New in v3.15.2
 
@@ -170,7 +174,7 @@ That is the whole setup -- no prompts. The installer prechecks its dependencies 
 
 After the installer completes:
 
-- **Globally**: your user profile has all 267 skills, 16 commands, 28 hooks, 23 agents, plus Gemini and Codex instructions.
+- **Globally**: your user profile has all 268 skills, 16 commands, 28 hooks, 23 agents, plus Gemini and Codex instructions.
 - **Locally**: your project has `copilot-instructions.md` and `AGENTS.md` tailored to your language.
 
 **Power-user flags**: `--workspace <path>` installs into a single repo instead of globally; `--platforms <comma-list>` limits the install to a subset of assistants; `--yes` runs fully unattended (refreshes managed files with no prompt -- ideal for CI). Prefer to clone first? `git clone` the repo and run `./install.sh` (macOS / Linux) or `install.bat` (Windows) -- the in-repo path still works exactly as before.

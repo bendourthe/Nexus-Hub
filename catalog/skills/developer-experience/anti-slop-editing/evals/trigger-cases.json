@@ -1,0 +1,14 @@
+{
+  "skill": "anti-slop-editing",
+  "purpose": "Route AI-slop prose editing/detection here, not to the general writing-editing or technical-writer skills.",
+  "cases": [
+    {"id": "pos-de-slop", "prompt": "de-slop this and keep the writer's voice", "should_trigger": true, "assert": "routes to anti-slop-editing first", "lexical": true},
+    {"id": "pos-read-as-ai", "prompt": "make this read less like AI slop", "should_trigger": true, "assert": "routes to anti-slop-editing first", "lexical": true},
+    {"id": "pos-detect", "prompt": "detect the AI slop patterns here", "should_trigger": true, "assert": "routes to anti-slop-editing first", "lexical": true},
+    {"id": "pos-remove-filler", "prompt": "remove the robotic filler and AI-slop from this", "should_trigger": true, "assert": "routes to anti-slop-editing first", "lexical": true},
+    {"id": "neg-readme", "prompt": "write me a README for this library", "should_trigger": false, "assert": "routes to writing-editing or user-documentation, not here", "lexical": true},
+    {"id": "neg-structure", "prompt": "improve the structure of this technical document", "should_trigger": false, "assert": "routes to writing-editing or technical-writer, not here", "lexical": true},
+    {"id": "neg-proofread", "prompt": "proofread this report for typos and grammar", "should_trigger": false, "assert": "routes to writing-editing, not here", "lexical": true},
+    {"id": "neg-flow", "prompt": "rewrite my blog post for better flow", "should_trigger": false, "assert": "routes to writing-editing, not here", "lexical": true}
+  ]
+}
