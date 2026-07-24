@@ -43,6 +43,13 @@ Respect the source's visual hierarchy. A visual the author made dominant stays d
 
 The failure mode to avoid is the "contact sheet": taking a slide that was dominated by two or three large photos and rendering it as a dense, uniform grid of small tiles. Preserve the source's emphasis and enhance it with the lightbox and motion; do not erase it.
 
+**Measurable image-box rules (the Phase 5 QA gate checks these).** Prominence is bounded, not unbounded: a visual is sized to its source role AND kept inside the layout so nothing breaks at 100% zoom.
+
+- **Hero height cap.** A hero occupies a full-width band or wide column, but its RENDERED height is capped (about `<= 80vh`) so it never fills the whole viewport at 100% zoom. Metric: rendered image height over viewport height stays at or below ~0.8.
+- **Secondary cap (the inverse of the contact sheet).** A secondary image (low `page_fraction`, or low relative area) is capped to a legible gallery-tile size and MUST NOT be enlarged past a hero. A low-prominence image ballooned to hero scale is as much a fidelity loss as a hero shrunk to a thumbnail. Metric: a low-`page_fraction` block renders no wider than its section's hero (secondary rendered width at or below hero rendered width).
+- **Object-fit / crop policy.** Use `object-fit: contain` (with letterboxing or a matched background) for any image whose meaningful content would be clipped by `cover`; reserve `cover` for genuinely decorative backdrops where no content is lost. Cropping away a chart axis, a labeled map region, or a face is a defect. Metric: for a non-decorative image the rendered aspect ratio matches the native `width:height` within a small tolerance, so there is no crop and no distortion (the ratio of `rendered_ratio` to `native_ratio` sits within about 2 percent of 1).
+- **No oversized tile.** In a gallery of comparable-prominence images, each tile is bounded to a legible-but-capped box; none is enlarged to hero scale. Metric: every gallery tile's rendered width sits within a single bounded range (no tile exceeds the committed tile cap).
+
 ### Spacing and density
 
 Complement the horizontal width discipline with vertical discipline: no dead, half-empty screens.
@@ -51,6 +58,7 @@ Complement the horizontal width discipline with vertical discipline: no dead, ha
 - **Use a consistent vertical rhythm** from the committed spacing token, not large unmotivated gaps between blocks.
 - **Compact or pair sparse sections.** A section with a single chart or a short list either gets a deliberately compact band or is paired with an adjacent related element (its caption, a stat, the source figure, a related image) rather than floating alone in whitespace.
 - **Reserve generous whitespace for intentional emphasis** (a hero, a section transition), never as the page-wide default that produces the empty look.
+- **Dead-space ceiling around image bands.** An image band's surrounding empty area should not exceed a stated fraction of the band (roughly `<= 30%` whitespace); a sparse image section is paired or compacted per the rules above rather than floated alone in a mostly-empty band. Metric: the empty area within an image band over the band area stays at or below ~0.3 at 100% zoom.
 
 This is the vertical partner to "use the viewport width on purpose": decide density per section, and let content, not a fixed slide frame, set the height.
 
@@ -60,10 +68,19 @@ The output aspect is one of the four high-level design choices resolved TOGETHER
 
 Four options, mirroring the style menu:
 
-- **Full-width** - the site fills a 16:9 screen edge to edge, so opening it fullscreen occupies most of a typical widescreen display. CSS: a wide page container (`max-width: 100%` or a very large cap) with generous side gutters, full-bleed bands, and multi-column content zones; hero and section backgrounds span the viewport. Best for deck-like sources.
+- **Full-width** - a true edge-to-edge canvas that fills the viewport natively, with no global zoom. It is a concrete, measurable contract, not a vibe:
+
+    - **Page shell**: the shell spans the viewport. Use `--page-max: 100%` (or a very large cap such as `120rem`, and only when the content is genuinely sparse) plus named side-gutter tokens (`--gutter: clamp(1.5rem, 4vw, 5rem)`). It is NOT a fixed centered `max-width` column.
+    - **Full-bleed bands**: top-level section bands, heroes, and section backgrounds are full-bleed (they span `100vw`), and the content zones inside them use multi-column or wide grids.
+    - **Per-element measure (load-bearing)**: the 45-85ch reading `--measure` is set PER LONG-FORM-PROSE ELEMENT only. It MUST NOT be applied to the page wrapper, to headings, to hero / display text, to charts, to tables, or to image bands. Applying it to the wrapper is what produces the narrow-column defect.
+    - **Success metric (verification and the Phase 5 gate)**: at a 1920px viewport, the widest top-level content band's rendered width is at least ~95% of the viewport width (after subtracting the defined gutters), and NO global zoom, `transform: scale()`, or `zoom` is used to simulate width.
+
+    Best for deck-like sources.
 - **Standard** - a typical centered webpage column (`max-width` about 72-90rem, centered, comfortable side margins). Sections stack in a readable central measure with occasional wider break-outs for charts / tables. Best for reports and repositories.
 - **Portrait** - a tall, narrow, reading- / mobile-oriented canvas (`max-width` about 40-52rem). Single-column, strong vertical rhythm, large tap targets; charts and tables scroll within their own container rather than forcing the page wide. Best for long-form reading and phone-first delivery.
 - **Other** - a caller description (equivalent to `--layout <description>`); interpret it into concrete canvas decisions and record them.
+
+**Failure to avoid (full-width):** a narrow centered column with large empty side margins that only looks right at 200% browser zoom is the exact defect this contract prevents. If the reader has to zoom the browser to fill the screen, the page is not full-width.
 
 **Non-interactive fallback (content-aware):** when the menu cannot be answered, pick by source - a deck-like source (a `.pptx`, or a PDF whose source entry carries `deck_like: true`) defaults to Full-width; a report, a repository, or a text-dominant source defaults to Standard. Record the chosen aspect and that it was auto-picked.
 
@@ -235,6 +252,15 @@ Tier 1 is the zero-outbound default: it needs no network, no dependency, and no 
 ### Tier 2 - license-free stock (opt-in, consent-gated)
 
 When the user picks the `stock` imagery tier AND consents to the build-time network use, the authoring stage derives short relevance keywords from the content (per section / topic) and runs the bundled helper `scripts/fetch_stock_media.py` to fetch openly-licensed, free-for-commercial-use images / video, verify each license, capture attribution, and base64-embed the result. The output still opens offline with zero external requests: the fetch happens ONLY at build time and every asset is inlined as a `data:` URI. This tier is NEVER the default and NEVER runs in a non-interactive / headless run.
+
+**Image-starved-section detection (where to fetch).** A consented `stock` / `mix` run does not scatter decoration; it targets the sections that actually need an image. After the structure is drafted, run a detection pass:
+
+- **Identify the starved sections.** A section is image-starved when it carries NO source visual (no extracted image, chart, or reconstructed figure) AND would be materially clearer with one, meaning it has a concrete subject a relevant photograph or illustration would support (a place, an object, a process, a domain). A section already carrying a source figure, a pure-data / chart section, and a section with no concrete visual subject (an abstract summary, a table of numbers) are NOT starved and get no fetched image.
+- **Derive per-section keywords.** For each starved section, derive SHORT relevance keywords from the section's TOPIC (its heading and gist), never from the raw source document text: two to four words that name the subject (for example "coastal wind turbines", "microscope laboratory"). Routing only short content-derived keywords, never the document, is what keeps the compiling-content trap (below) closed.
+- **Fetch one relevant asset per starved section.** Run `scripts/fetch_stock_media.py --consent` per starved section (Openverse-first, then Wikimedia; Pexels when a key is configured), take ONE highly-relevant, license-verified asset, and place it per the Phase 2 prominence + sizing rules (it is an accent, not a hero, unless the section genuinely centers on it). Prefer CC0 / public-domain. Record provenance + credits per "Visual provenance and credits".
+- **Relevance and restraint.** Integrate an asset ONLY when it is genuinely relevant and helpful; a loosely-related or purely decorative stock photo is worse than none because it reads as filler. Skipping a section for lack of a relevant, license-clean asset is a valid outcome; record the per-section reason (see the gate below).
+
+**Integration gate (a consented run must not silently add nothing).** A consented `stock` / `mix` / `ai` run MUST, for EACH image-starved section, either integrate at least one relevant, license-verified asset OR record a per-section reason (no relevant license-clean asset found, or the section did not warrant an image). A consented stock / mix run that produced ZERO integrated assets across all starved sections with NO recorded reason FAILS verification: that silent zero-integration is the exact defect this tier exists to prevent (the fetch helper always records a degrade reason, so a "no reason" state is itself the bug). The offline and license-safety gates are unchanged: every asset stays base64-embedded, the commercial-use allow-list still fails safe, and a non-commercial asset is never embedded. `mix` = a procedural base plus real stock accents FIRST, and local AI (Tier 3) only where stock cannot serve a placement (the unchanged priority).
 
 The consent gate is the load-bearing invariant. `fetch_stock_media.py` performs NO network call unless `--consent` is passed; without it, it prints a notice, writes an empty degraded manifest, and exits with the degrade code (3), and the authoring stage stays on Tier 1. The helper also degrades (never raises) on a missing library, a missing API key, a network error, or zero results.
 

@@ -14,11 +14,13 @@ The extractor is local-only and makes no network calls. Every parser is lazy-imp
     - A body text frame with a single top-level paragraph becomes a `paragraph` block; a multi-paragraph or indented text frame becomes a `bullets` block, with each paragraph's indent level mapped to the item `depth`.
     - Slide tables become `table` blocks (the table's `first_row` flag decides whether row 0 is a header). Embedded pictures become base64 `image` blocks (`origin: "shape-picture"`, `page` = slide number). The notes-slide text becomes one `notes` block (hidden by default in the output).
     - Grouped shapes ARE recursed into (depth-capped at 8), so text, tables, and pictures inside groups extract in order.
+    - Author-added overlay shapes drawn OVER a picture (a region rectangle or shaded zone, a callout label, a leader line) are captured as an `annotations` array on that image block, NOT as separate text blocks: a non-picture shape whose CENTER lies inside a picture and whose area is smaller than the picture attaches to that image with an image-relative `bbox` ([x, y, w, h], 0..1 within the picture's placed rectangle), its `text`, its solid `fill` / `line` colors, and its enclosing `group` name when grouped. This feeds the overlay-recreation path in `references/figure-reconstruction.md` (part 5). A shape BESIDE (not over) a picture stays normal content.
     - Native PowerPoint chart shapes become `chart` blocks with `provenance: "native-chart"`, the source's real categories and series values, a `chart_type_hint` mapped from the chart type, and the chart title as `caption`. An unreadable chart lands in `coverage.skip_reasons`, never as silent loss.
 - Gotchas:
     - SmartArt and WordArt are not extracted as text.
     - A chart data point with an empty cache is recorded as `0.0` with a stderr warning; verify against the source when that warning fires.
     - Pictures placed as picture-filled placeholders (rather than picture shapes) are not extracted as images.
+    - Overlay-annotation detection is geometric (center-inside plus smaller-than-picture), so a full-slide background picture with body text on top captures that text as annotations. Theme-colored (non-RGB) fills / lines are omitted from an annotation rather than guessed. Annotation capture is PPTX-only; flattened sources route through the agent-vision overlay path (see the PDF section and `references/figure-reconstruction.md`).
 
 ## Word (.docx)
 
@@ -71,6 +73,7 @@ The extractor is local-only and makes no network calls. Every parser is lazy-imp
     - Figure images are placed after the page's text and tables, ordered by their vertical position; exact text/figure interleaving within a page is not reconstructed.
     - Caption text also remains inside the page's paragraph text (it is attached, not moved); the authoring stage should prefer the block `caption` and drop the duplicate line.
     - OCR table recovery is geometry-based (aligned multi-cell rows) and works best on well-separated columns; the `pytesseract` path recovers paragraphs only. The scanned-page image block plus the figure-reconstruction protocol's transcription pass are the accuracy backstop either way.
+    - Author-added annotations on a PDF figure (region overlays, callout labels on a map) are BAKED into the page's pixels, so the extractor does NOT recover them as structured `annotations` metadata (unlike PPTX overlay shapes). The base figure ships as an `embedded-raster` or `rasterized-region` image, and the agent recreates its annotations from the rendered image via the overlay-recreation path in `references/figure-reconstruction.md` (part 5), under the confidence gate.
 
 ## Source code and config (universal ingestion)
 
