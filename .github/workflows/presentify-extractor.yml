@@ -13,7 +13,8 @@ on:
   push:
     branches: [main, develop]
     paths:
-      - 'catalog/skills/specialized-domains/document-to-interactive-html/scripts/**'
+      - 'catalog/skills/specialized-domains/document-to-interactive-html/**'
+      - 'tests/skills/**'
       - 'docs/v3/v3.12/development/fixtures/gen_fixtures.py'
       - 'docs/v3/v3.12/development/fixtures/verify_phase1.py'
       - 'docs/v3/v3.12/development/fixtures/enrich_models.py'
@@ -24,7 +25,8 @@ on:
   pull_request:
     branches: [main, develop]
     paths:
-      - 'catalog/skills/specialized-domains/document-to-interactive-html/scripts/**'
+      - 'catalog/skills/specialized-domains/document-to-interactive-html/**'
+      - 'tests/skills/**'
       - 'docs/v3/v3.12/development/fixtures/gen_fixtures.py'
       - 'docs/v3/v3.12/development/fixtures/verify_phase1.py'
       - 'docs/v3/v3.12/development/fixtures/enrich_models.py'
@@ -52,10 +54,21 @@ jobs:
       - name: Install extractor + fixture dependencies
         run: >
           pip install python-pptx python-docx openpyxl pdfplumber pypdf
-          pypdfium2 Pillow reportlab rapidocr-onnxruntime ruff
+          pypdfium2 Pillow reportlab rapidocr-onnxruntime ruff pytest
 
       - name: Lint the bundled scripts
         run: ruff check catalog/skills/specialized-domains/document-to-interactive-html/scripts/
+
+      - name: Run the presentify skills suite (v3.15.4 Phase 1 + 2)
+        # Full-width canvas + image-sizing contract (layout suite) and the
+        # extractor prominence signals (page_fraction + native width/height for
+        # PPTX and PDF). This runner installs the heavy extractor libs, so the
+        # prominence tests run here (they importorskip elsewhere). The two
+        # headless-render checks skip-with-note (no browser on this runner); the
+        # injected-var, offline, head-integrity, CSS-heuristic band, image-cap,
+        # and extractor-signal assertions all run browser-free. A gated headless
+        # render job is deferred to a later phase per the plan.
+        run: python -m pytest tests/skills/ -v
 
       - name: Generate fixtures
         run: python docs/v3/v3.12/development/fixtures/gen_fixtures.py
