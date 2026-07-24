@@ -1,7 +1,7 @@
 {
   "meta": {
     "last_verified": "2026-07-20",
-    "verified_for_version": "3.15.2",
+    "verified_for_version": "3.15.3",
     "description": "Machine-readable single source for the platform read-contract guards. The human-readable surface table, formats, and source URLs live alongside in platform-read-contracts.md. Consumed by: scripts/verify_platform_contracts.py (contract_checks, code-vs-contract), scripts/lib/integrations/runner.py _verify_checks (install_verify, install-vs-reality), and scripts/check_platform_contract_freshness.py (meta, the release freshness gate). Re-verified against each platform's current docs and re-stamped (last_verified + verified_for_version) at every /update release by the platform-contract-verification skill.",
     "path_tokens": "In install_verify paths, '~/' resolves to the user home and '{project}/' resolves to the workspace/target root."
   },

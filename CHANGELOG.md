@@ -7,9 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [3.15.3] - 2026-07-24
 
-**v3.15.3 adoption-no-ai-slop (in progress).** A dedicated prose anti-slop-editing skill, reverse-engineered skill-native from an MIT-licensed external skill (no new code, outbound call, dependency, or credential). Catalog counts: **268 skills** (+1), **16 commands**, **28 hooks**.
+**v3.15.3 adoption-no-ai-slop.** A dedicated prose anti-slop-editing skill, reverse-engineered skill-native from an MIT-licensed external skill (no new code, outbound call, dependency, or credential). Catalog counts: **268 skills** (+1), **16 commands**, **28 hooks**.
 
 ### Added
 
