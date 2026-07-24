@@ -261,3 +261,81 @@ def _build_path(tmp_path: Path, layout: str) -> Path:
     rendered helper, which reads from disk)."""
     _build(tmp_path, layout)
     return tmp_path / f"out-{layout}.html"
+
+
+# --- image sizing caps (Phase 2) -------------------------------------------
+
+
+def test_template_carries_image_caps(tmp_path):
+    """Browser-free coverage: the hero height cap, the no-crop object-fit
+    policy, and the bounded gallery-tile style are all present in the output."""
+    html = _build(tmp_path, "standard")
+    assert "max-height: 80vh" in html  # hero image height cap
+    assert "object-fit: contain" in html  # no meaningful-content crop
+    assert ".gallery {" in html  # bounded gallery grid
+    assert ".gallery img {" in html
+    assert "max-height: 40vh" in html  # gallery-tile height cap
+
+
+def _tall_png_data_uri(width: int = 240, height: int = 2000) -> str:
+    """A tall base64 PNG so the 80vh hero cap is observable when rendered."""
+    import base64
+    import io as _io
+
+    image_mod = pytest.importorskip("PIL.Image")
+    img = image_mod.new("RGB", (width, height), (30, 90, 140))
+    buffer = _io.BytesIO()
+    img.save(buffer, "PNG")
+    return "data:image/png;base64," + base64.b64encode(buffer.getvalue()).decode("ascii")
+
+
+def _image_model_json(data_uri: str) -> str:
+    import json
+
+    return json.dumps(
+        {
+            "schema_version": 2,
+            "title": "Image Fixture",
+            "sections": [
+                {
+                    "heading": "Tall image",
+                    "kind": "image",
+                    "blocks": [
+                        {"type": "image", "data_uri": data_uri, "alt": "Tall image"}
+                    ],
+                }
+            ],
+        }
+    )
+
+
+def test_rendered_image_box_respects_caps(tmp_path):
+    """Headless-optional (the 1.4 pattern): a tall image renders within the 80vh
+    cap with object-fit: contain. Skip-with-note when no headless browser (or no
+    Pillow to build the fixture) is present."""
+    data_uri = _tall_png_data_uri()
+    model = tmp_path / "img-model.json"
+    model.write_text(_image_model_json(data_uri), encoding="utf-8")
+    out = tmp_path / "img.html"
+    assert build.main([str(model), "-o", str(out)]) == 0
+    try:
+        from playwright.sync_api import sync_playwright  # type: ignore
+    except Exception:
+        pytest.skip("no headless browser available; rendered image-box check skipped")
+    try:
+        with sync_playwright() as p:
+            browser = p.chromium.launch()
+            page = browser.new_page(viewport={"width": 1280, "height": 1000})
+            page.goto(out.as_uri())
+            box = page.evaluate(
+                "() => { const el = document.querySelector('figure img');"
+                " if (!el) return null;"
+                " const cs = getComputedStyle(el);"
+                " return {h: el.getBoundingClientRect().height, fit: cs.objectFit}; }"
+            )
+            browser.close()
+    except Exception:
+        pytest.skip("headless browser present but render failed; check skipped")
+    assert box is not None, "no figure img rendered"
+    assert box["fit"] == "contain", f"object-fit was {box['fit']!r}, expected contain"
+    assert box["h"] <= 0.8 * 1000 + 1, f"image height {box['h']}px exceeds the 80vh cap"

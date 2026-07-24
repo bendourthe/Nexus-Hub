@@ -297,9 +297,17 @@ html[data-aspect="full"] .chart-figure { max-width: 100%; }
 .block-bullets ul li::marker { color: var(--color-muted); }
 
 figure { margin: 0; }
+/* Image sizing discipline (Phase 2): a hero image is bounded to <= 80vh so it
+   never dominates the whole viewport at 100% zoom; object-fit: contain plus a
+   matched background keeps meaningful content uncropped (reserve cover for
+   decorative backdrops); height: auto + max-width keep the native aspect ratio,
+   so no crop and no distortion. */
 figure img {
   max-width: 100%;
+  max-height: 80vh;
   height: auto;
+  object-fit: contain;
+  background: var(--ui-bg);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   display: block;
@@ -308,6 +316,26 @@ figcaption {
   font-size: var(--step--1);
   color: var(--color-muted);
   margin-top: var(--space-2);
+}
+
+/* Image gallery: comparable-prominence images in a legible, bounded grid. Each
+   tile is capped (a minimum tile width plus a <= 40vh height cap) so no
+   secondary image balloons to hero scale (the inverse-of-contact-sheet defect
+   the Phase 2 prominence rules prevent), and object-fit: contain keeps each
+   tile uncropped. Token-driven and offline. */
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+  gap: var(--space-4);
+}
+.gallery img {
+  width: 100%;
+  max-height: 40vh;
+  object-fit: contain;
+  background: var(--ui-bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  display: block;
 }
 
 table {

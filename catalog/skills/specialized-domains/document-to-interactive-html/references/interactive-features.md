@@ -43,6 +43,13 @@ Respect the source's visual hierarchy. A visual the author made dominant stays d
 
 The failure mode to avoid is the "contact sheet": taking a slide that was dominated by two or three large photos and rendering it as a dense, uniform grid of small tiles. Preserve the source's emphasis and enhance it with the lightbox and motion; do not erase it.
 
+**Measurable image-box rules (the Phase 5 QA gate checks these).** Prominence is bounded, not unbounded: a visual is sized to its source role AND kept inside the layout so nothing breaks at 100% zoom.
+
+- **Hero height cap.** A hero occupies a full-width band or wide column, but its RENDERED height is capped (about `<= 80vh`) so it never fills the whole viewport at 100% zoom. Metric: rendered image height over viewport height stays at or below ~0.8.
+- **Secondary cap (the inverse of the contact sheet).** A secondary image (low `page_fraction`, or low relative area) is capped to a legible gallery-tile size and MUST NOT be enlarged past a hero. A low-prominence image ballooned to hero scale is as much a fidelity loss as a hero shrunk to a thumbnail. Metric: a low-`page_fraction` block renders no wider than its section's hero (secondary rendered width at or below hero rendered width).
+- **Object-fit / crop policy.** Use `object-fit: contain` (with letterboxing or a matched background) for any image whose meaningful content would be clipped by `cover`; reserve `cover` for genuinely decorative backdrops where no content is lost. Cropping away a chart axis, a labeled map region, or a face is a defect. Metric: for a non-decorative image the rendered aspect ratio matches the native `width:height` within a small tolerance, so there is no crop and no distortion (the ratio of `rendered_ratio` to `native_ratio` sits within about 2 percent of 1).
+- **No oversized tile.** In a gallery of comparable-prominence images, each tile is bounded to a legible-but-capped box; none is enlarged to hero scale. Metric: every gallery tile's rendered width sits within a single bounded range (no tile exceeds the committed tile cap).
+
 ### Spacing and density
 
 Complement the horizontal width discipline with vertical discipline: no dead, half-empty screens.
@@ -51,6 +58,7 @@ Complement the horizontal width discipline with vertical discipline: no dead, ha
 - **Use a consistent vertical rhythm** from the committed spacing token, not large unmotivated gaps between blocks.
 - **Compact or pair sparse sections.** A section with a single chart or a short list either gets a deliberately compact band or is paired with an adjacent related element (its caption, a stat, the source figure, a related image) rather than floating alone in whitespace.
 - **Reserve generous whitespace for intentional emphasis** (a hero, a section transition), never as the page-wide default that produces the empty look.
+- **Dead-space ceiling around image bands.** An image band's surrounding empty area should not exceed a stated fraction of the band (roughly `<= 30%` whitespace); a sparse image section is paired or compacted per the rules above rather than floated alone in a mostly-empty band. Metric: the empty area within an image band over the band area stays at or below ~0.3 at 100% zoom.
 
 This is the vertical partner to "use the viewport width on purpose": decide density per section, and let content, not a fixed slide frame, set the height.
 

@@ -14,7 +14,7 @@ on:
     branches: [main, develop]
     paths:
       - 'catalog/skills/specialized-domains/document-to-interactive-html/**'
-      - 'tests/skills/test_presentify_layout.py'
+      - 'tests/skills/**'
       - 'docs/v3/v3.12/development/fixtures/gen_fixtures.py'
       - 'docs/v3/v3.12/development/fixtures/verify_phase1.py'
       - 'docs/v3/v3.12/development/fixtures/enrich_models.py'
@@ -26,7 +26,7 @@ on:
     branches: [main, develop]
     paths:
       - 'catalog/skills/specialized-domains/document-to-interactive-html/**'
-      - 'tests/skills/test_presentify_layout.py'
+      - 'tests/skills/**'
       - 'docs/v3/v3.12/development/fixtures/gen_fixtures.py'
       - 'docs/v3/v3.12/development/fixtures/verify_phase1.py'
       - 'docs/v3/v3.12/development/fixtures/enrich_models.py'
@@ -59,13 +59,16 @@ jobs:
       - name: Lint the bundled scripts
         run: ruff check catalog/skills/specialized-domains/document-to-interactive-html/scripts/
 
-      - name: Run the Phase 1 full-width layout suite (v3.15.4)
-        # Builder --layout / template canvas contract. The rendered-width check
-        # skips-with-note here (no headless browser on this runner); the injected
-        # --page-max/--gutter, offline, head-integrity, and CSS-heuristic band
-        # assertions all run browser-free. A headless render job is gated to a
-        # later phase per the plan (merges/schedule), not added here.
-        run: python -m pytest tests/skills/test_presentify_layout.py -v
+      - name: Run the presentify skills suite (v3.15.4 Phase 1 + 2)
+        # Full-width canvas + image-sizing contract (layout suite) and the
+        # extractor prominence signals (page_fraction + native width/height for
+        # PPTX and PDF). This runner installs the heavy extractor libs, so the
+        # prominence tests run here (they importorskip elsewhere). The two
+        # headless-render checks skip-with-note (no browser on this runner); the
+        # injected-var, offline, head-integrity, CSS-heuristic band, image-cap,
+        # and extractor-signal assertions all run browser-free. A gated headless
+        # render job is deferred to a later phase per the plan.
+        run: python -m pytest tests/skills/ -v
 
       - name: Generate fixtures
         run: python docs/v3/v3.12/development/fixtures/gen_fixtures.py
