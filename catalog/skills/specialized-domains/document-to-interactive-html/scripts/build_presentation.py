@@ -119,6 +119,19 @@ def _esc_attr(text: object) -> str:
     return html.escape(str(text), quote=True)
 
 
+_HEX_COLOR_RE = re.compile(r"#[0-9A-Fa-f]{3,8}\Z")
+
+
+def _safe_color(value: object) -> str | None:
+    """Return `value` only when it is a strict #hex color (3-8 hex digits),
+    else None. Annotation colors flow into a `style="..."` attribute, so a value
+    that is not a plain hex color is dropped rather than interpolated, closing
+    the attribute-context injection path (the model is a general input contract,
+    not only the trusted extractor output)."""
+    text = str(value or "")
+    return text if _HEX_COLOR_RE.fullmatch(text) else None
+
+
 def _fmt_num(value: float) -> str:
     """Format a number without a trailing .0 (3.0 -> '3', 1.25 -> '1.25')."""
     number = float(value)
@@ -457,7 +470,7 @@ def _render_annotated_figure(uri: str, alt: str, annotations: list, caption: str
         x, y, w, h = (float(value) for value in bbox[:4])
         label = str(annotation.get("text", "") or "")
         group = str(annotation.get("group", "") or "")
-        fill = annotation.get("fill")
+        fill = _safe_color(annotation.get("fill"))  # dropped unless a strict #hex
         style = (
             f"left:{x * 100:.2f}%;top:{y * 100:.2f}%;"
             f"width:{w * 100:.2f}%;height:{h * 100:.2f}%"

@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **Annotation fill colors are validated before entering a `style` attribute** (Phase 3) (`scripts/build_presentation.py`): a content-model `annotations[].fill` / legend color now passes a strict `#hex` check (`_safe_color`) before it is interpolated into an inline `style="..."`; any non-hex value is dropped rather than emitted, closing an attribute-context injection path (the content-model JSON is a general input contract, not only the trusted extractor output, which always emits `#RRGGBB`). Legitimate hex colors are unaffected; regression-tested in `tests/skills/test_presentify_annotations.py`.
 - **Baseline builder no longer deletes the document head** (Phase 1) (`scripts/build_presentation.py`): the title-substitution regex (`<title>.*?</title>`) matched the template header comment's literal "<title>" mention and spanned to the real closing tag, silently deleting the comment close, the `<html>` element, `<head>`, and the `<meta>` tags on every build. Constraining it to `<title>[^<]*</title>` keeps the match to a single well-formed title element; the built output is now valid HTML with an intact head. Regression-guarded by the new layout suite.
 
 ## [3.15.3] - 2026-07-24

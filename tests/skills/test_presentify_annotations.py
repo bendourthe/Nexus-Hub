@@ -198,6 +198,36 @@ def test_builder_renders_overlay_from_annotations(tmp_path):
     build.assert_no_external(html)
 
 
+def test_builder_rejects_malicious_fill_color(tmp_path):
+    """A non-hex `fill` (an attribute-context injection attempt) is DROPPED,
+    never interpolated into the `style="..."` attribute. The model is a general
+    input contract, not only the trusted extractor output."""
+    annotations = [
+        {
+            "shape_type": "RECTANGLE",
+            "bbox": [0.1, 0.2, 0.25, 0.2],
+            "text": "North",
+            "fill": '#fff;} </style><script>alert(1)</script>',
+        },
+        {
+            "shape_type": "OVAL",
+            "bbox": [0.5, 0.3, 0.15, 0.2],
+            "text": "Hub",
+            "fill": '"><img src=x onerror=alert(1)>',
+        },
+    ]
+    model = tmp_path / "m.json"
+    model.write_text(json.dumps(_annotated_model(annotations)), encoding="utf-8")
+    out = tmp_path / "o.html"
+    assert build.main([str(model), "-o", str(out)]) == 0
+    html = out.read_text(encoding="utf-8")
+    assert html.count('class="fig-region"') == 2  # regions still render
+    # The payloads never reach the output; both invalid fills were dropped.
+    assert "<script>alert(1)</script>" not in html
+    assert "onerror=alert(1)" not in html
+    assert "--region-color:" not in html  # no inline color set from a bad fill
+
+
 def test_builder_no_fabricated_regions_without_annotations(tmp_path):
     """The low-confidence / flattened degrade: an image with NO annotations
     renders as the plain enhanced original, with zero fabricated regions."""
