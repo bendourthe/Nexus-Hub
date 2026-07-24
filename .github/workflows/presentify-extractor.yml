@@ -13,7 +13,8 @@ on:
   push:
     branches: [main, develop]
     paths:
-      - 'catalog/skills/specialized-domains/document-to-interactive-html/scripts/**'
+      - 'catalog/skills/specialized-domains/document-to-interactive-html/**'
+      - 'tests/skills/test_presentify_layout.py'
       - 'docs/v3/v3.12/development/fixtures/gen_fixtures.py'
       - 'docs/v3/v3.12/development/fixtures/verify_phase1.py'
       - 'docs/v3/v3.12/development/fixtures/enrich_models.py'
@@ -24,7 +25,8 @@ on:
   pull_request:
     branches: [main, develop]
     paths:
-      - 'catalog/skills/specialized-domains/document-to-interactive-html/scripts/**'
+      - 'catalog/skills/specialized-domains/document-to-interactive-html/**'
+      - 'tests/skills/test_presentify_layout.py'
       - 'docs/v3/v3.12/development/fixtures/gen_fixtures.py'
       - 'docs/v3/v3.12/development/fixtures/verify_phase1.py'
       - 'docs/v3/v3.12/development/fixtures/enrich_models.py'
@@ -52,10 +54,18 @@ jobs:
       - name: Install extractor + fixture dependencies
         run: >
           pip install python-pptx python-docx openpyxl pdfplumber pypdf
-          pypdfium2 Pillow reportlab rapidocr-onnxruntime ruff
+          pypdfium2 Pillow reportlab rapidocr-onnxruntime ruff pytest
 
       - name: Lint the bundled scripts
         run: ruff check catalog/skills/specialized-domains/document-to-interactive-html/scripts/
+
+      - name: Run the Phase 1 full-width layout suite (v3.15.4)
+        # Builder --layout / template canvas contract. The rendered-width check
+        # skips-with-note here (no headless browser on this runner); the injected
+        # --page-max/--gutter, offline, head-integrity, and CSS-heuristic band
+        # assertions all run browser-free. A headless render job is gated to a
+        # later phase per the plan (merges/schedule), not added here.
+        run: python -m pytest tests/skills/test_presentify_layout.py -v
 
       - name: Generate fixtures
         run: python docs/v3/v3.12/development/fixtures/gen_fixtures.py

@@ -26,6 +26,7 @@ Usage:
     python build_presentation.py model.json -o deck.html
     python build_presentation.py model.json -o deck.html --theme my-brand.json
     python build_presentation.py model.json -o deck.html --title "Q3 Review"
+    python build_presentation.py model.json -o deck.html --layout full
 
 All diagnostics go to stderr; the only stdout is none (the artifact is the file).
 Output is deterministic: section order, block order, and chart geometry are a
@@ -60,10 +61,33 @@ SUPPORTED_KINDS = {
 THEME_BLOCK_RE = re.compile(
     r"/\* NEXUS_THEME_START.*?\*/.*?/\* NEXUS_THEME_END \*/", re.DOTALL
 )
+ASPECT_BLOCK_RE = re.compile(
+    r"/\* NEXUS_ASPECT_START.*?\*/.*?/\* NEXUS_ASPECT_END \*/", re.DOTALL
+)
 SLIDES_RE = re.compile(
     r"(<!-- NEXUS_SLIDES_START -->).*?(<!-- NEXUS_SLIDES_END -->)", re.DOTALL
 )
-TITLE_RE = re.compile(r"<title>.*?</title>", re.DOTALL)
+# DEVIATION (Phase 1.3): the title content must not contain "<", so this match
+# cannot span from the header comment's literal "<title>" mention across the
+# head to the real </title> (which the prior DOTALL `.*?` did, deleting the
+# comment close, <html>, <head>, and the <meta> tags). [^<]* keeps the match to
+# a single well-formed title element.
+TITLE_RE = re.compile(r"<title>[^<]*</title>")
+HTML_TAG_RE = re.compile(r"<html\b[^>]*>", re.IGNORECASE)
+
+# Output-aspect canvas presets. Each maps a --layout value to the
+# (--page-max, --gutter) pair the builder injects into the template's
+# NEXUS_ASPECT block; the builder also stamps data-aspect on <html>. "standard"
+# reproduces the historical centered column; "full" is a true edge-to-edge
+# canvas (page-max 100% with small gutters, so the widest content band clears
+# ~95% of a 1920px viewport); "portrait" is a narrow reading column. --measure
+# stays scoped to prose only and is never set here or on the slide wrapper.
+ASPECTS: dict[str, tuple[str, str]] = {
+    "full": ("100%", "clamp(1rem, 2vw, 2rem)"),
+    "standard": ("1180px", "clamp(24px, 7vw, 140px)"),
+    "portrait": ("46rem", "clamp(20px, 6vw, 72px)"),
+}
+DEFAULT_LAYOUT = "standard"
 
 # A fetch is a construct that loads a resource off-host. Plain URL text in a
 # slide body is escaped and lives in element content, so it is not a fetch.
@@ -157,6 +181,32 @@ def theme_to_css(theme: dict) -> str:
     lines.append(f"  --shadow: {theme.get('shadow', 'none')};")
     lines.append("  /* NEXUS_THEME_END */")
     return "\n  ".join(lines)
+
+
+def aspect_to_css(layout: str) -> str:
+    """Render the NEXUS_ASPECT custom-property block for the chosen layout."""
+    page_max, gutter = ASPECTS.get(layout, ASPECTS[DEFAULT_LAYOUT])
+    lines = [
+        "/* NEXUS_ASPECT_START */",
+        f"  --page-max: {page_max};",
+        f"  --gutter: {gutter};",
+        "  /* NEXUS_ASPECT_END */",
+    ]
+    return "\n  ".join(lines)
+
+
+def set_aspect_attr(html_text: str, layout: str) -> str:
+    """Stamp data-aspect=<layout> on the root <html> element (first tag only)."""
+
+    def _replace(match: re.Match) -> str:
+        tag = match.group(0)
+        if "data-aspect=" in tag:
+            return re.sub(
+                r'data-aspect="[^"]*"', f'data-aspect="{layout}"', tag, count=1
+            )
+        return tag[:-1] + f' data-aspect="{layout}">'
+
+    return HTML_TAG_RE.sub(_replace, html_text, count=1)
 
 
 def _chart_colors(theme: dict, count: int) -> list[str]:
@@ -499,8 +549,14 @@ def assert_no_external(html_text: str) -> None:
         raise SystemExit(3)
 
 
-def build_html(model: dict, theme: dict, template_text: str, title: str) -> str:
-    """Populate the template's title, theme block, and slides region."""
+def build_html(
+    model: dict,
+    theme: dict,
+    template_text: str,
+    title: str,
+    layout: str = DEFAULT_LAYOUT,
+) -> str:
+    """Populate the template's title, theme block, aspect block, and slides."""
     css = theme_to_css(theme)
     slides = render_slides(model, theme)
     safe_title = _esc(title)
@@ -508,6 +564,8 @@ def build_html(model: dict, theme: dict, template_text: str, title: str) -> str:
         lambda _m: f"<title>{safe_title}</title>", template_text, count=1
     )
     result = THEME_BLOCK_RE.sub(lambda _m: css, result, count=1)
+    result = ASPECT_BLOCK_RE.sub(lambda _m: aspect_to_css(layout), result, count=1)
+    result = set_aspect_attr(result, layout)
     result = SLIDES_RE.sub(
         lambda m: f"{m.group(1)}\n{slides}\n{m.group(2)}", result, count=1
     )
@@ -540,6 +598,14 @@ def main(argv: list | None = None) -> int:
     parser.add_argument(
         "--title", default=None, help="Override the presentation title."
     )
+    parser.add_argument(
+        "--layout",
+        choices=sorted(ASPECTS),
+        default=DEFAULT_LAYOUT,
+        help="Output aspect / canvas: 'full' (edge-to-edge, page-max 100%), "
+        "'standard' (centered column, the default), or 'portrait' (narrow "
+        "reading column). Sets data-aspect and the injected --page-max/--gutter.",
+    )
     args = parser.parse_args(argv)
 
     model_path = Path(args.model)
@@ -566,7 +632,7 @@ def main(argv: list | None = None) -> int:
     theme = load_theme(Path(args.theme) if args.theme else None)
     title = args.title or model.get("title", "Presentation")
 
-    output = build_html(model, theme, template_text, title)
+    output = build_html(model, theme, template_text, title, args.layout)
     assert_no_external(output)
 
     out_path = Path(args.out)

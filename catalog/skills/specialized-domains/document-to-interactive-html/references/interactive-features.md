@@ -60,10 +60,19 @@ The output aspect is one of the four high-level design choices resolved TOGETHER
 
 Four options, mirroring the style menu:
 
-- **Full-width** - the site fills a 16:9 screen edge to edge, so opening it fullscreen occupies most of a typical widescreen display. CSS: a wide page container (`max-width: 100%` or a very large cap) with generous side gutters, full-bleed bands, and multi-column content zones; hero and section backgrounds span the viewport. Best for deck-like sources.
+- **Full-width** - a true edge-to-edge canvas that fills the viewport natively, with no global zoom. It is a concrete, measurable contract, not a vibe:
+
+    - **Page shell**: the shell spans the viewport. Use `--page-max: 100%` (or a very large cap such as `120rem`, and only when the content is genuinely sparse) plus named side-gutter tokens (`--gutter: clamp(1.5rem, 4vw, 5rem)`). It is NOT a fixed centered `max-width` column.
+    - **Full-bleed bands**: top-level section bands, heroes, and section backgrounds are full-bleed (they span `100vw`), and the content zones inside them use multi-column or wide grids.
+    - **Per-element measure (load-bearing)**: the 45-85ch reading `--measure` is set PER LONG-FORM-PROSE ELEMENT only. It MUST NOT be applied to the page wrapper, to headings, to hero / display text, to charts, to tables, or to image bands. Applying it to the wrapper is what produces the narrow-column defect.
+    - **Success metric (verification and the Phase 5 gate)**: at a 1920px viewport, the widest top-level content band's rendered width is at least ~95% of the viewport width (after subtracting the defined gutters), and NO global zoom, `transform: scale()`, or `zoom` is used to simulate width.
+
+    Best for deck-like sources.
 - **Standard** - a typical centered webpage column (`max-width` about 72-90rem, centered, comfortable side margins). Sections stack in a readable central measure with occasional wider break-outs for charts / tables. Best for reports and repositories.
 - **Portrait** - a tall, narrow, reading- / mobile-oriented canvas (`max-width` about 40-52rem). Single-column, strong vertical rhythm, large tap targets; charts and tables scroll within their own container rather than forcing the page wide. Best for long-form reading and phone-first delivery.
 - **Other** - a caller description (equivalent to `--layout <description>`); interpret it into concrete canvas decisions and record them.
+
+**Failure to avoid (full-width):** a narrow centered column with large empty side margins that only looks right at 200% browser zoom is the exact defect this contract prevents. If the reader has to zoom the browser to fill the screen, the page is not full-width.
 
 **Non-interactive fallback (content-aware):** when the menu cannot be answered, pick by source - a deck-like source (a `.pptx`, or a PDF whose source entry carries `deck_like: true`) defaults to Full-width; a report, a repository, or a text-dominant source defaults to Standard. Record the chosen aspect and that it was auto-picked.
 

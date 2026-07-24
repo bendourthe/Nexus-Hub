@@ -1,8 +1,8 @@
 # Known Gaps - v3.15
 
 **Project**: Nexus-Hub
-**Status**: The v3.15 minor line carries THREE releases. **v3.15.0 platform-parity-all-gaps** (all 7 phases, RELEASED 2026-07-23): every supported platform receives all the surfaces it can consume, re-verified against current docs. **v3.15.1 adoption-codesight** (all 7 phases built, releasing 2026-07-23): the deterministic compiled context-map inside `nexus-code-search`, both DoD axes holding. **v3.15.2 adoption-awesome-llm-apps** (ALL 6 PHASES COMPLETE; RELEASE HELD): a deterministic, model-free skill trigger-and-routing quality gate (now a hard `--gate`), an unfilled-placeholder lint, per-skill routing assertions, behavioral-eval schema interop, and a Hermes platform-roster integration. Implementation is done and verified on `feat/adoption-awesome-llm-apps`; the `/update release` hand-off is HELD (see the v3.15.2 Release hold section). The v3.15.0 version collision (three plans stamped v3.15.0) was reconciled on 2026-07-22 by re-stamping: v3.15.0 = platform-parity-all-gaps, v3.15.1 = adoption-codesight, v3.15.2 = adoption-awesome-llm-apps. A fourth release, **v3.15.3 adoption-no-ai-slop** (ALL 3 PHASES COMPLETE / RELEASED 2026-07-24), adds a dedicated prose `anti-slop-editing` skill.
-**Last updated**: 2026-07-24 (v3.15.3 RELEASED - anti-slop-editing skill, 268 skills)
+**Status**: The v3.15 minor line carries THREE releases. **v3.15.0 platform-parity-all-gaps** (all 7 phases, RELEASED 2026-07-23): every supported platform receives all the surfaces it can consume, re-verified against current docs. **v3.15.1 adoption-codesight** (all 7 phases built, releasing 2026-07-23): the deterministic compiled context-map inside `nexus-code-search`, both DoD axes holding. **v3.15.2 adoption-awesome-llm-apps** (ALL 6 PHASES COMPLETE; RELEASE HELD): a deterministic, model-free skill trigger-and-routing quality gate (now a hard `--gate`), an unfilled-placeholder lint, per-skill routing assertions, behavioral-eval schema interop, and a Hermes platform-roster integration. Implementation is done and verified on `feat/adoption-awesome-llm-apps`; the `/update release` hand-off is HELD (see the v3.15.2 Release hold section). The v3.15.0 version collision (three plans stamped v3.15.0) was reconciled on 2026-07-22 by re-stamping: v3.15.0 = platform-parity-all-gaps, v3.15.1 = adoption-codesight, v3.15.2 = adoption-awesome-llm-apps. A fourth release, **v3.15.3 adoption-no-ai-slop** (ALL 3 PHASES COMPLETE / RELEASED 2026-07-24), adds a dedicated prose `anti-slop-editing` skill. A fifth cycle, **v3.15.4 presentify-visual-fidelity** (IN PROGRESS; Phase 1 of 7 COMPLETE), makes presentify's output visually faithful and self-correcting, starting with a concrete full-width canvas contract.
+**Last updated**: 2026-07-24 (v3.15.4 Phase 1 COMPLETE - full-width canvas contract)
 
 > **Prior-version ingest (platform-parity)**: v3.14.5's DF-4 (platform additive-surface drift) is the direct input to the v3.15.0 release and was actioned per phase; it does not carry forward as a separate open item. The v3.14.5 Advisory pre-existing failure `test_init_subcommand.py::test_default_wire_project_surfaces_returns_none` was re-confirmed and owned by Phase 5.2 (resolved; see the v3.15.0 Advisory below).
 
@@ -323,3 +323,56 @@ OPEN and carried as documented, non-blocking deferrals: NI-1 (description carrie
 - The whole-tree bundle audit reports one orphan: `catalog/skills/workflow/demo-capture/scripts/__pycache__/capture-demo.cpython-312.pyc` (a compiled-bytecode artifact). It is PRE-EXISTING (not created by this plan), lives in a different skill, and is a warning, never an error. Left untouched per the no-out-of-scope-cleanup rule; a future `demo-capture` touch or a `.gitignore` / clean pass should remove the stray `.pyc`.
 - **`marketplace.json` `statistics.total_skills` does not exist** (Phase 2 reconciliation): the plan's sub-task 2.1 said to "increment ... `statistics.total_skills`", but the current `marketplace.json` schema has an empty `statistics: {}` block and derives the catalog total from the sum of `categories[].skill_count`. Registration therefore only bumped the developer-experience `skill_count` (31 -> 32), which keeps the derived total (268) consistent with `skills.json`. No `statistics.total_skills` field was invented (that would risk breaking schema consumers). Non-blocking; the derived total is correct.
 - **`marketplace.json` `plugin.description` skill count is stale** ("265 curated skills"): PRE-EXISTING drift (it already read 265 while the catalog held 267), not introduced by this plan and not made worse by it. It is a marketing-prose count, not a `check_version_sync` surface. Left untouched per the no-out-of-scope-cleanup rule; `/update release` should reconcile it (along with the README / AGENTS.md "267 skills" prose) to 268 at release time.
+
+## v3.15.4 - presentify-visual-fidelity
+
+**Status**: IN PROGRESS. Phase 1 (full-width canvas contract) COMPLETE; Phases 2-7 pending. This section is appended per-phase and finalized at the v3.15.4 release (Phase 7). Plan: [plans/v3.15.4-presentify-visual-fidelity.md](plans/v3.15.4-presentify-visual-fidelity.md).
+
+> **Prior-version ingest**: checked this file (docs/v3/v3.15/known-gaps.md). The open v3.15.0-.3 items are unrelated to presentify visual fidelity and do not carry in. The v3.15.2/.3 `__pycache__` `.pyc` advisory recurs (a transient, gitignored bytecode artifact); see the v3.15.4 Advisory.
+
+**Phase 1 (full-width canvas contract) COMPLETE.** Made "full-width" a concrete, measurable edge-to-edge canvas across both the LLM-native authoring path and the deterministic baseline builder. **1.1**: replaced the prose "Full-width" bullet in `references/interactive-features.md` ("Output aspect (the canvas)") with an enforceable contract (page shell spans the viewport via named `--gutter` tokens not a centered `max-width` column; full-bleed top-level bands; the 45-85ch `--measure` scoped per prose element only; and a success metric - the widest top-level content band reaches at least ~95% of a 1920px viewport with no global zoom) plus a "failure to avoid" note. **1.2**: tightened SKILL.md Step 6 (the "Use the viewport width on purpose" and "Spacing, density, and aspect" bullets) to cite the contract by name and state the binary full-width rule, and added a distinct Common Rationalizations row rebutting the full-width centered-column retreat. **1.3**: added `--layout {full|standard|portrait}` (default standard) to `build_presentation.py`, which injects a `--page-max`/`--gutter` pair into a new `NEXUS_ASPECT` marker block and stamps `data-aspect` on the root `<html>`; the template (`assets/presentation-template.html`) now drives the canvas from those vars (`--slide-max` -> `--page-max`, `.slide` padding -> `--gutter`), keeps `--measure` scoped to prose only, widens a full-width chart to its band, and gates the projector-padding widening to non-full aspects. `standard` reproduces the historical centered column; `full` is edge-to-edge (page-max 100%, small gutters, ~96.7% band at 1920px); `portrait` is a 46rem reading column. **1.4**: `tests/skills/test_presentify_layout.py` (11 pass / 1 skip) asserts the injected vars + `data-aspect` per layout, offline-cleanliness, head integrity, and a browser-free CSS heuristic proving the >=95% full-width / <95% standard metric; it also ships a headless-optional `measure_widest_band` helper (the Phase 5 gate seed) whose true-render check skips-with-note without a browser. CI: `presentify-extractor.yml` path filter broadened to the whole bundle + the new test, `pytest` added, and the layout suite wired in (concurrency-cancel + pip cache already present). Gates green: ruff clean, `validate_skills.py --bundles-only` (0 errors), `validate_unicode_safety.py` (0 errors), `validate_workflow_security.py`, and the full `tests/skills` suite (33 pass / 1 skip).
+
+### v3.15.4 Open Items
+
+#### Bugs / regressions
+
+##### BG-1 - baseline builder loses theme background/foreground colors in built output (PRE-EXISTING, discovered in Phase 1.3)
+
+- **Source phase**: discovered during v3.15.4 Phase 1.3 (out of scope to fix here).
+- **Plan reference**: Phase 1.3 (builder + template aspect support; colors are orthogonal to the full-width canvas contract).
+- **Reason**: `theme_to_css()` in `build_presentation.py` emits `--color-background` / `--color-foreground`, but the template CSS references `var(--color-bg)` / `var(--color-fg)` (and the template's own `:root` defaults define `--color-bg` / `--color-fg`). The raw template renders correctly standalone; the BUILT output leaves `--color-bg` / `--color-fg` undefined, so `body` background / foreground fall back to initial values. This is PRE-EXISTING (both `theme_to_css` and the template default names are unchanged by this phase) and unrelated to the full-width canvas contract; fixing it would change "today's look" for `--layout standard`, which Phase 1 must reproduce. Not fixed here per the no-out-of-scope-cleanup rule.
+- **Suggested next step**: align the two names (either `theme_to_css` emits `--color-bg`/`--color-fg`, or the template consumes `--color-background`/`--color-foreground`) in a later presentify phase (Phase 2 image/color work or Phase 7 refactor) or a dedicated fix; add a builder-output color-var assertion to the layout suite when fixed.
+
+#### Missing tests / coverage gaps
+
+##### MT-1 - rendered-width full-width check skips without a headless browser (browser-free heuristic covers the metric)
+
+- **Source phase**: v3.15.4 Phase 1.4.
+- **Plan reference**: Phase 1.4 ("when no headless browser is present, the helper falls back to a computed-CSS/markup heuristic and the test skips-with-note rather than failing") and the plan's Phase 7 deferral ("the headless-browser-optional degradation - structural review is weaker than a real render").
+- **Reason**: `measure_widest_band` renders and measures the widest `.slide__body` when a headless browser (Playwright) is present, but no browser is installed on the dev host or in the `presentify-extractor` CI runner, so `test_rendered_band_width` SKIPS. The >=95% full-width / <95% standard metric IS asserted browser-free by `test_heuristic_band_fraction_meets_contract` (deterministic CSS/markup math), and the injected-var / offline / head-integrity assertions all run without a browser.
+- **Suggested next step**: Phase 5 builds the iterative visual-QA loop and its gate; gate a headless-render job to merges/schedule there (per the plan) so the true rendered-width check runs in CI, and reuse `measure_widest_band` as its seed.
+
+### v3.15.4 Resolved
+
+##### BG (deviation) - TITLE_RE swallowed the document head (PRE-EXISTING, root-cause fixed in Phase 1.3)
+
+- **Source phase**: discovered and fixed in v3.15.4 Phase 1.3 (logged as a `# DEVIATION:` in `build_presentation.py`).
+- **Status**: RESOLVED. `TITLE_RE = <title>.*?</title>` (DOTALL) matched the template header comment's literal "<title>" mention and spanned to the real `</title>`, deleting the comment close (`-->`), the `<html>` tag, `<head>`, and the `<meta>` tags on every build - so the baseline builder had been emitting malformed HTML with no document head (unnoticed because no test checked builder output structure and `assert_no_external` strips comments before scanning). Constraining the pattern to `<title>[^<]*</title>` keeps the match to a single well-formed title element. Fixed here because Phase 1.3 requires the builder to emit a valid `<html data-aspect="...">` (the head must survive); guarded by `test_head_survives_title_substitution`.
+
+### v3.15.4 Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 1 | 1 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 1 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+| Hand-offs (HO) | 0 | 0 |
+
+OPEN and carried as documented, non-blocking items: BG-1 (pre-existing builder color-var mismatch, out of scope for the full-width canvas phase), MT-1 (rendered-width check skips without a headless browser; the metric is covered browser-free by the CSS heuristic). RESOLVED: the pre-existing TITLE_RE head-corruption bug (root-cause fixed because Phase 1.3 depends on a valid document head).
+
+### v3.15.4 Advisory (pre-existing, not introduced by this phase)
+
+- The whole-tree bundle audit reports transient `__pycache__/*.pyc` orphan warnings (e.g. `catalog/skills/specialized-domains/document-to-interactive-html/scripts/__pycache__/build_presentation.cpython-312.pyc`) whenever the bundle's Python is executed locally. These are gitignored (`.gitignore` line 60, `__pycache__/`), never staged, and were cleaned after the Phase 1 test runs. Warning, never error; no action needed.

@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+**v3.15.4 presentify-visual-fidelity (in progress).** Making the presentify skill's output visually faithful and self-correcting. Phase 1 lands the full-width canvas contract; Phases 2-7 (image sizing, annotated-figure overlays, reliable stock imagery, the iterative visual-QA loop, polish, and the refactor gate) follow. No version surface is bumped until release. Catalog counts unchanged: **268 skills**, **16 commands**, **28 hooks**.
+
+### Added
+
+- **Full-width canvas contract for `document-to-interactive-html` / `/presentify`** (Phase 1): `references/interactive-features.md` now defines "full-width" as an enforceable, measurable contract (the page shell spans the viewport via named `--gutter` tokens rather than a centered `max-width` column; top-level bands are full-bleed; the 45-85ch reading `--measure` is scoped per prose element only; and the widest top-level content band must reach at least ~95% of a 1920px viewport with no global zoom). SKILL.md Step 6 cites the contract by name and adds a Common Rationalizations row rebutting the full-width centered-column retreat.
+- **`--layout {full|standard|portrait}` for the baseline builder** (Phase 1) (`scripts/build_presentation.py`): the optional deterministic builder now injects a `--page-max`/`--gutter` canvas pair and stamps `data-aspect` on the root element, so `full` is a true edge-to-edge canvas, `standard` reproduces the historical centered column (the default), and `portrait` is a narrow reading column. The template (`assets/presentation-template.html`) drives its canvas from those variables and keeps the reading measure scoped to prose. Covered by `tests/skills/test_presentify_layout.py` (with a headless-optional rendered-width helper that is the seed of the later visual-QA gate) and wired into the `presentify-extractor` CI workflow.
+
+### Fixed
+
+- **Baseline builder no longer deletes the document head** (Phase 1) (`scripts/build_presentation.py`): the title-substitution regex (`<title>.*?</title>`) matched the template header comment's literal "<title>" mention and spanned to the real closing tag, silently deleting the comment close, the `<html>` element, `<head>`, and the `<meta>` tags on every build. Constraining it to `<title>[^<]*</title>` keeps the match to a single well-formed title element; the built output is now valid HTML with an intact head. Regression-guarded by the new layout suite.
+
 ## [3.15.3] - 2026-07-24
 
 **v3.15.3 adoption-no-ai-slop.** A dedicated prose anti-slop-editing skill, reverse-engineered skill-native from an MIT-licensed external skill (no new code, outbound call, dependency, or credential). Catalog counts: **268 skills** (+1), **16 commands**, **28 hooks**.

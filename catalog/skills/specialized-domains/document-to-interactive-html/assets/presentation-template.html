@@ -27,7 +27,7 @@
   the SVG namespace attribute on purpose: it is implied for inline SVG in HTML
   and would otherwise read as an external reference.
 -->
-<html lang="en">
+<html lang="en" data-aspect="standard">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -60,7 +60,16 @@
   /* NEXUS_THEME_END */
 
   --measure: 68ch;
-  --slide-max: 1180px;
+
+  /* NEXUS_ASPECT_START - the builder replaces the lines between these markers
+     with the resolved canvas vars (--page-max / --gutter) for the chosen
+     --layout; the defaults below match --layout standard so the raw template
+     renders correctly on its own. --measure is intentionally scoped to prose
+     elements only (see below), never to --page-max / the slide wrapper. */
+  --page-max: 1180px;
+  --gutter: clamp(24px, 7vw, 140px);
+  /* NEXUS_ASPECT_END */
+
   --step--1: clamp(0.85rem, 0.8rem + 0.25vw, 0.95rem);
   --step-0: clamp(1rem, 0.95rem + 0.4vw, 1.18rem);
   --step-1: clamp(1.2rem, 1.05rem + 0.7vw, 1.5rem);
@@ -191,7 +200,7 @@ a { color: var(--color-accent); }
   position: absolute;
   inset: 0;
   display: none;
-  padding: clamp(var(--space-6), 6vh, var(--space-8)) clamp(var(--space-5), 7vw, 140px);
+  padding: clamp(var(--space-6), 6vh, var(--space-8)) var(--gutter);
   overflow-y: auto;
   flex-direction: column;
   justify-content: center;
@@ -229,7 +238,7 @@ a { color: var(--color-accent); }
   max-width: var(--measure);
   margin-bottom: var(--space-4);
 }
-.slide__body { width: 100%; max-width: var(--slide-max); }
+.slide__body { width: 100%; max-width: var(--page-max); }
 .slide__body > * + * { margin-top: var(--space-4); }
 
 /* Title slide: large, asymmetric, accent rule on the left */
@@ -268,6 +277,16 @@ a { color: var(--color-accent); }
 
 /* Image slide: figure-forward */
 .slide--image .slide__body { max-width: 100%; }
+
+/* --- output aspect (the canvas) ------------------------------------------- */
+/* The builder injects --page-max / --gutter (the NEXUS_ASPECT block above) and
+   stamps data-aspect on the root element. Those vars drive the shell width; the
+   rules here add the per-aspect band behavior that does NOT redefine
+   --page-max / --gutter, so there is no specificity conflict with the injected
+   :root block. At data-aspect="full" the shell spans the viewport
+   (--page-max: 100% with small gutters), so a chart may fill its band instead
+   of the standard 980px cap. */
+html[data-aspect="full"] .chart-figure { max-width: 100%; }
 
 /* --- block typography ----------------------------------------------------- */
 
@@ -507,10 +526,15 @@ body:not(.notes-on) .notes { display: none; }
   .slide--section-break .slide__heading { grid-template-columns: 1fr; gap: var(--space-2); }
 }
 
-/* Large projector displays: widen the reading measure a touch */
+/* Large projector displays: widen the reading measure a touch. The extra side
+   padding applies to centered/portrait aspects only; full-width keeps its small
+   gutter so the canvas stays edge-to-edge on a large display. */
 @media (min-width: 1700px) {
   :root { --measure: 76ch; }
-  .slide { padding-left: clamp(140px, 12vw, 320px); padding-right: clamp(140px, 12vw, 320px); }
+  html:not([data-aspect="full"]) .slide {
+    padding-left: clamp(140px, 12vw, 320px);
+    padding-right: clamp(140px, 12vw, 320px);
+  }
 }
 
 /* --- print / PDF: stack every slide, drop the chrome --------------------- */
