@@ -7,9 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [3.15.4] - 2026-07-24
 
-**v3.15.4 presentify-visual-fidelity (in progress).** Making the presentify skill's output visually faithful and self-correcting. Phases 1-6 land the full-width canvas contract, measurable image-sizing discipline, annotated-figure overlay recreation, reliable stock/mix imagery integration, an iterative multi-agent visual-QA self-critique loop, and the command/skill polish (a `--qa-depth` loop-depth knob); Phase 7 (the terminal refactor + known-gaps + CI/CD gate) closes the version. No version surface is bumped until release. Catalog counts unchanged: **268 skills**, **16 commands**, **28 hooks**.
+**v3.15.4 presentify-visual-fidelity.** Making the presentify skill's output visually faithful and self-correcting, driven by four defects observed on a real board-deck run. Seven phases land a full-width canvas contract, measurable image-sizing discipline, annotated-figure overlay recreation, reliable stock/mix imagery integration, an iterative multi-agent visual-QA self-critique loop, command/skill polish (a `--qa-depth` loop-depth knob), and the terminal refactor + known-gaps + CI/CD gate. Entirely inside the existing `document-to-interactive-html` skill bundle and the `/presentify` command: no new distribution channel, no `base-*.md` lockstep, no new outbound call / dependency / credential. Catalog counts unchanged: **268 skills**, **16 commands**, **28 hooks**.
 
 ### Added
 

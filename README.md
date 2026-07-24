@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.15.3 -->
+<!-- nexus-hub-version: 3.15.4 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 268 skills, 16 commands, 28 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -36,6 +36,10 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v3.15.4
+
+v3.15.4 makes the **`/presentify`** skill's output visually faithful and self-correcting, fixing four defects observed on a real board-deck run. **Full-width is now a concrete, measurable canvas contract** (the shell spans the viewport via gutters, not a centered column; the widest band reaches at least ~95% of a 1920px viewport, with no global zoom), honored in both the LLM-native path and the deterministic baseline builder (a new `--layout {full|standard|portrait}`). **Images are sized with discipline**: a hero is capped at ~80vh, a low-prominence secondary can no longer balloon past a hero, `object-fit: contain` prevents meaningful-content crops, and a dead-space ceiling keeps bands tight. **Annotated figures keep their annotations**: a map's author-added regions and labels are recreated as a registered, interactive overlay on the base image (confidence-gated, with a view-original toggle) instead of being dropped to a textual list. **Stock/mix imagery reliably integrates**: consent is captured up front, image-starved sections are detected, and a gate fails a consented run that silently added nothing. All of this is enforced by a new **iterative multi-agent visual-QA self-critique loop** that renders the page, grades each segment against its source and a measurable rubric, adversarially verifies, synthesizes fixes, and re-renders until a page-level bar passes, degrading gracefully to a deterministic structural scorer when no headless browser is present. A `--qa-depth {light|standard|deep}` knob bounds the loop's cost. Entirely inside the existing skill bundle and command: no new distribution channel and no new outbound call, dependency, or credential. Catalog unchanged: **268 skills**, **16 commands**, **28 hooks**.
 
 ## What's New in v3.15.3
 
