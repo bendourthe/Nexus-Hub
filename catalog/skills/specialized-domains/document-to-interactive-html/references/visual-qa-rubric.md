@@ -1,0 +1,60 @@
+# Visual-QA Rubric (per-segment grading)
+
+The measurable pass criteria the Step 9 visual-QA loop grades each output segment against, assembled from Phases 1-4 plus baseline readability. It is the single source of truth the loop scores against, the fan-out template (`assets/visual-qa-workflow.js`) fans out over, and the deterministic scorer (`scripts/visual_qa_score.py`) checks.
+
+Two kinds of check run against every segment:
+
+- **STRUCTURAL** - deterministic, checkable from the rendered DOM, the computed CSS, or the markup by `scripts/visual_qa_score.py` (headless-optional). These certify the measurable metrics without a human eye.
+- **AGENT-VISION** - a judgment the agent makes by reading a screenshot and comparing it to the SOURCE segment (crop of meaningful content, dead space, annotation placement vs the source, imagery relevance, contrast and legibility). These cannot be certified structurally.
+
+The loop runs BOTH kinds when a headless browser and the agent's vision are available; without a browser it degrades to the STRUCTURAL subset with a one-line note (see the degradation contract below). It never hard-fails on a missing browser.
+
+## Segmenting the page
+
+A "segment" is one top-level content band or section: a slide section, a hero, a figure with its overlay, an image band, or a data section. Grade each segment independently against the applicable criteria, then roll the findings up to the page-level pass bar. Per-segment grading is deliberate: a single whole-page pass misses per-segment defects (a ballooned image in one section, a dropped overlay in another), which is exactly how the four observed defects reached production.
+
+## The five criteria
+
+Each criterion lists what it checks, the observable metric, the check kind, and the severity of a failure.
+
+1. **Full-width compliance** (Phase 1). When the resolved aspect is full-width, the widest top-level content band's rendered width is at least ~95% of a 1920px viewport (after the defined gutters), and NO global zoom, `transform: scale()`, or `zoom` is used to simulate width. Metric: band width / viewport at or above 0.95. Kind: STRUCTURAL. Severity: HIGH (a full-width run that renders a narrow centered column is the Phase 1 defect). N/A when the resolved aspect is not full-width.
+2. **Image sizing** (Phase 2). No image breaks its prominence box: a hero's rendered height stays at or below ~80vh; a low-`page_fraction` secondary renders no wider than its section's hero (no balloon); no meaningful content is cropped (rendered aspect ratio matches the native ratio within ~2%); no image band carries dead space beyond ~30% of the band. Metrics: rendered box vs viewport, aspect-distortion ratio, whitespace fraction. Kind: STRUCTURAL for the caps (the `max-height` and `object-fit: contain` rules are present, the rendered box is within the cap); AGENT-VISION for "meaningful content cropped" and "dead space". Severity: HIGH for a hero filling the whole viewport or a cropped chart axis / labeled region / face; MEDIUM for dead space.
+3. **Annotation fidelity** (Phase 3). For an annotated source figure, the built segment reproduces the source's regions and labels as a registered overlay over the base image, not a flat image beside a textual list. Metric: the overlay is present with a region element and a label per source annotation, and a view-original toggle; the placement is compared against the SOURCE figure. Kind: STRUCTURAL for overlay presence, region and label count, and the view-original toggle (from the DOM); AGENT-VISION for placement fidelity vs the source. Severity: HIGH (a dropped overlay demoted to side text is the Phase 3 defect). A LOW-confidence figure that CORRECTLY degraded to the enhanced-original viewer plus a textual complement is a PASS on this criterion, never a fail (the confidence gate did its job).
+4. **Imagery integration** (Phase 4). A consented `stock` / `mix` run integrated at least one relevant, license-verified asset into each image-starved section OR recorded a per-section reason. Metric: per starved section, an embedded `data:` image is present OR a recorded reason exists; a consented stock / mix run with zero integrated assets and no recorded reason FAILS. Kind: STRUCTURAL for embedded-asset presence and count (given the run's consent and its starved-section expectation); AGENT-VISION for relevance. Severity: HIGH for silent zero-integration; MEDIUM for a loosely-relevant asset. N/A for a procedural, non-consented, or non-interactive run (those stay on Tier 1 by design).
+5. **Readability and layout integrity** (at 100% zoom). No horizontal page overflow; text is legible (contrast within the `[[hallmark-design]]` accessibility gate, no overlap or clipping); every chart draws; no table overflows its container; the page is well-formed and opens offline. Metrics: no element wider than the viewport at 100%; contrast within the gate; no broken chart or overflowing table. Kind: STRUCTURAL for horizontal overflow, offline-cleanliness, and well-formedness; AGENT-VISION for contrast, legibility, and broken renders. Severity: HIGH for a broken render, unreadable text, or horizontal overflow.
+
+## Per-segment score schema
+
+Each segment yields one entry per applicable criterion:
+
+```json
+{
+  "segment": "<id or heading>",
+  "criterion": "full-width | image-sizing | annotation-fidelity | imagery-integration | readability-layout",
+  "status": "pass | fail | n/a",
+  "severity": "high | medium | low",
+  "kind": "structural | agent-vision",
+  "evidence": "<measured value, DOM observation, or screenshot note>"
+}
+```
+
+`severity` is present only when `status` is `fail`. `evidence` records the concrete basis: a measured fraction (`band 0.61 of viewport`), a DOM observation (`fig-annotated has 0 regions`), or a screenshot note (`chart axis cropped on the right`).
+
+## Page-level pass bar (binary)
+
+The page PASSES when there is NO open finding with `severity: high`. A `medium` or `low` finding is recorded and surfaced for the fix pass (the loop tries to clear it within the iteration cap) but does not by itself block. A criterion that is `n/a` for the run does not count against the page (full-width when the aspect is not full; imagery-integration for a procedural run; annotation-fidelity when there is no annotated figure). A LOW-confidence annotated figure that shipped the enhanced-original plus textual complement is a PASS on annotation-fidelity.
+
+## The degradation contract (structural vs agent-vision)
+
+- **Headless browser AND agent vision**: grade both kinds. Measure bands and boxes, AND compare each segment's screenshot to its SOURCE figure / section.
+- **Headless browser, no vision step**: grade the STRUCTURAL kind from the rendered DOM and computed CSS (`scripts/visual_qa_score.py --render`).
+- **No headless browser**: degrade to the STRUCTURAL kind via the markup / computed-CSS heuristic (`scripts/visual_qa_score.py`, structural mode) and note the degradation in one line. NEVER hard-fail on a missing browser.
+
+When only the structural subset ran, label the page-level verdict "structural-only" so the reader knows the AGENT-VISION criteria (crop of meaningful content, dead space, annotation placement vs source, imagery relevance, contrast and legibility) were not graded. A structural-only pass is a weaker but valid gate, recorded as such.
+
+## Related
+
+- `references/interactive-features.md` - the Phase 1 full-width contract, the Phase 2 image-box rules, and the Phase 4 imagery detection + integration gate whose metrics this rubric grades.
+- `references/figure-reconstruction.md` - the Phase 3 annotated-figure overlay-recreation pattern and its confidence gate.
+- `scripts/visual_qa_score.py` - the deterministic structural scorer that checks the STRUCTURAL subset headless-optional.
+- `assets/visual-qa-workflow.js` - the Dynamic-Workflow template that fans the per-segment grading out (Dynamic Workflows when available, degrading to subagents then a single sequential pass).
