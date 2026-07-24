@@ -36,6 +36,7 @@ pure function of the input model and theme.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import html
 import json
 import math
@@ -441,6 +442,64 @@ def _render_table(block: dict) -> str:
     return "".join(parts)
 
 
+def _render_annotated_figure(uri: str, alt: str, annotations: list, caption: str) -> str:
+    """Recreate an annotated figure: the base image plus a registered overlay
+    layer (regions positioned by image-relative percentage coords), a legend,
+    and a CSS-only view-original toggle. Offline, no JS (see the overlay-
+    recreation pattern in references/figure-reconstruction.md part 5)."""
+    toggle_id = "figorig-" + hashlib.md5(
+        json.dumps(annotations, sort_keys=True).encode("utf-8")
+    ).hexdigest()[:10]
+    regions: list[str] = []
+    legend: list[tuple[str, str | None]] = []
+    for annotation in annotations:
+        bbox = list(annotation.get("bbox") or []) + [0.0, 0.0, 0.0, 0.0]
+        x, y, w, h = (float(value) for value in bbox[:4])
+        label = str(annotation.get("text", "") or "")
+        group = str(annotation.get("group", "") or "")
+        fill = annotation.get("fill")
+        style = (
+            f"left:{x * 100:.2f}%;top:{y * 100:.2f}%;"
+            f"width:{w * 100:.2f}%;height:{h * 100:.2f}%"
+        )
+        if fill:
+            style += f";--region-color:{fill}"
+        label_html = (
+            f'<span class="fig-region__label">{_esc(label)}</span>' if label else ""
+        )
+        group_attr = f' data-group="{_esc_attr(group)}"' if group else ""
+        regions.append(
+            f'<div class="fig-region" style="{style}" tabindex="0"{group_attr} '
+            f'role="img" aria-label="{_esc_attr(label or "annotated region")}">'
+            f"{label_html}</div>"
+        )
+        key = label or group
+        if key and key not in [item[0] for item in legend]:
+            legend.append((key, fill))
+    legend_html = ""
+    if legend:
+        items = "".join(
+            f'<li><span class="fig-legend__swatch" '
+            f'style="{("background:" + color) if color else ""}"></span>'
+            f"{_esc(key)}</li>"
+            for key, color in legend
+        )
+        legend_html = f'<ul class="fig-legend">{items}</ul>'
+    return (
+        '<figure class="fig-annotated">'
+        f'<input type="checkbox" id="{toggle_id}" class="fig-toggle" hidden>'
+        '<div class="fig-figure">'
+        f'<img src="{_esc_attr(uri)}" alt="{_esc_attr(alt)}">'
+        f'<div class="fig-overlay">{"".join(regions)}</div>'
+        '<span class="fig-provenance">recreated from source figure</span>'
+        "</div>"
+        f"{legend_html}"
+        f'<label class="fig-view-original" for="{toggle_id}">View original</label>'
+        f"{caption}"
+        "</figure>"
+    )
+
+
 def _render_image(block: dict) -> str:
     uri = str(block.get("data_uri", ""))
     if not uri.startswith("data:"):
@@ -449,6 +508,9 @@ def _render_image(block: dict) -> str:
     caption = ""
     if alt and alt != "Image":
         caption = f"<figcaption>{_esc(alt)}</figcaption>"
+    annotations = block.get("annotations") or []
+    if annotations:
+        return _render_annotated_figure(uri, alt, annotations, caption)
     return (
         f'<figure><img src="{_esc_attr(uri)}" alt="{_esc_attr(alt)}">{caption}</figure>'
     )

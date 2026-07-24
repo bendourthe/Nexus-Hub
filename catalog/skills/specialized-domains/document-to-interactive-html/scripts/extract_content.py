@@ -428,15 +428,18 @@ def _chart_xml_block(xml_bytes: bytes, cov: dict, where: str) -> dict | None:
 # --- PowerPoint ------------------------------------------------------------
 
 
-def _iter_pptx_shapes(shapes: object, depth: int = 0):
-    """Yield leaf shapes, recursing into groups (depth-capped)."""
+def _iter_pptx_shapes(shapes: object, depth: int = 0, group_name: str | None = None):
+    """Yield (leaf shape, enclosing group name or None), recursing into groups
+    (depth-capped). The group name lets overlay-annotation capture group related
+    shapes (a region plus its label, a legend) under one grouping."""
     from pptx.enum.shapes import MSO_SHAPE_TYPE
 
     for shape in shapes:
         if shape.shape_type == MSO_SHAPE_TYPE.GROUP and depth < 8:
-            yield from _iter_pptx_shapes(shape.shapes, depth + 1)
+            name = (getattr(shape, "name", "") or "").strip() or group_name
+            yield from _iter_pptx_shapes(shape.shapes, depth + 1, name)
         else:
-            yield shape
+            yield shape, group_name
 
 
 def _pptx_text_block(text_frame: object) -> dict | None:
@@ -490,6 +493,79 @@ def _pptx_image_block(
         page=slide_no,
         page_fraction=page_fraction,
     )
+
+
+def _shape_bbox(shape: object) -> tuple | None:
+    """(left, top, width, height) in EMU, or None when the geometry is absent."""
+    try:
+        left, top, width, height = shape.left, shape.top, shape.width, shape.height
+    except (AttributeError, TypeError, ValueError):
+        return None
+    if None in (left, top, width, height):
+        return None
+    return (float(left), float(top), float(width), float(height))
+
+
+def _pptx_solid_hex(fill: object) -> str | None:
+    """A solid fill's fore color as #RRGGBB, or None (theme / gradient / no fill)."""
+    try:
+        from pptx.enum.dml import MSO_FILL
+
+        if fill is None or fill.type != MSO_FILL.SOLID:
+            return None
+        return "#" + str(fill.fore_color.rgb)
+    except Exception:  # noqa: BLE001 - color read is best-effort, never fatal
+        return None
+
+
+def _pptx_line_hex(line: object) -> str | None:
+    """A line's color as #RRGGBB, or None when unset or theme-colored."""
+    try:
+        if line is None:
+            return None
+        return "#" + str(line.color.rgb)
+    except Exception:  # noqa: BLE001 - color read is best-effort, never fatal
+        return None
+
+
+def _pptx_annotation(
+    shape: object, group_name: str | None, picture_bbox: tuple
+) -> dict | None:
+    """Overlay-shape metadata for a shape sitting over a picture (Phase 3).
+
+    The bbox is normalized to the underlying image's placed rectangle
+    (image-relative, 0..1) - the coordinate space the overlay-recreation pattern
+    consumes directly (references/figure-reconstruction.md part 5), so no
+    re-projection is needed at authoring time.
+    """
+    bbox = _shape_bbox(shape)
+    if bbox is None:
+        return None
+    pic_left, pic_top, pic_width, pic_height = picture_bbox
+    if pic_width <= 0 or pic_height <= 0:
+        return None
+    annotation: dict = {
+        "shape_type": getattr(shape.shape_type, "name", None) or str(shape.shape_type),
+        "bbox": [
+            round((bbox[0] - pic_left) / pic_width, 4),
+            round((bbox[1] - pic_top) / pic_height, 4),
+            round(bbox[2] / pic_width, 4),
+            round(bbox[3] / pic_height, 4),
+        ],
+    }
+    if getattr(shape, "has_text_frame", False):
+        text = shape.text_frame.text.strip()
+        if text:
+            annotation["text"] = text
+    fill = _pptx_solid_hex(getattr(shape, "fill", None))
+    if fill:
+        annotation["fill"] = fill
+    line = _pptx_line_hex(getattr(shape, "line", None))
+    if line:
+        annotation["line"] = line
+    if group_name:
+        annotation["group"] = group_name
+    return annotation
 
 
 def _pptx_chart_block(shape: object, cov: dict, slide_no: int) -> dict | None:
@@ -583,9 +659,49 @@ def _extract_pptx(path: str, max_bytes: int, cov: dict) -> tuple[str, list]:
                     break
             except (AttributeError, ValueError):
                 continue
+        shape_items = [
+            (shape, group)
+            for shape, group in _iter_pptx_shapes(slide.shapes)
+            if shape.shape_id not in skip_ids
+        ]
+        # Pass 1: picture placed rectangles, for overlay-annotation assignment.
+        picture_bboxes: dict = {}  # shape index -> bbox (EMU)
+        for index, (shape, _group) in enumerate(shape_items):
+            if shape.shape_type == MSO_SHAPE_TYPE.PICTURE:
+                bbox = _shape_bbox(shape)
+                if bbox is not None:
+                    picture_bboxes[index] = bbox
+        # Pass 2: a non-picture shape whose CENTER lies inside a picture, and
+        # which is smaller than that picture, is an author-added overlay - it
+        # attaches to that image as annotation metadata and is consumed (not
+        # also emitted as a stray text block). Tables and charts never qualify.
+        annotations_for: dict = {}  # picture index -> [annotation, ...]
+        consumed: set = set()
+        for index, (shape, group) in enumerate(shape_items):
+            if index in picture_bboxes:
+                continue
+            if getattr(shape, "has_table", False) or getattr(shape, "has_chart", False):
+                continue
+            bbox = _shape_bbox(shape)
+            if bbox is None:
+                continue
+            center_x, center_y = bbox[0] + bbox[2] / 2, bbox[1] + bbox[3] / 2
+            for pic_index, pic_bbox in picture_bboxes.items():
+                inside = (
+                    pic_bbox[0] <= center_x <= pic_bbox[0] + pic_bbox[2]
+                    and pic_bbox[1] <= center_y <= pic_bbox[1] + pic_bbox[3]
+                )
+                if inside and bbox[2] * bbox[3] < pic_bbox[2] * pic_bbox[3]:
+                    annotation = _pptx_annotation(shape, group, pic_bbox)
+                    if annotation is not None:
+                        annotations_for.setdefault(pic_index, []).append(annotation)
+                        consumed.add(index)
+                    break
+        # Pass 3: build blocks in document order, attaching annotations to their
+        # picture's image block.
         blocks: list = []
-        for shape in _iter_pptx_shapes(slide.shapes):
-            if shape.shape_id in skip_ids:
+        for index, (shape, _group) in enumerate(shape_items):
+            if index in consumed:
                 continue
             block = None
             if getattr(shape, "has_table", False):
@@ -596,6 +712,8 @@ def _extract_pptx(path: str, max_bytes: int, cov: dict) -> tuple[str, list]:
                 block = _pptx_chart_block(shape, cov, slide_no)
             elif shape.shape_type == MSO_SHAPE_TYPE.PICTURE:
                 block = _pptx_image_block(shape, max_bytes, cov, slide_no, slide_area)
+                if block is not None and annotations_for.get(index):
+                    block["annotations"] = annotations_for[index]
             elif getattr(shape, "has_text_frame", False):
                 block = _pptx_text_block(shape.text_frame)
             if block is not None:
