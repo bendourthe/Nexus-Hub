@@ -184,8 +184,22 @@ def theme_to_css(theme: dict) -> str:
     fonts = theme.get("fonts", {})
     spaces = _space_values(theme.get("spacing", {}))
     lines = ["/* NEXUS_THEME_START */"]
-    for slot in ("primary", "secondary", "accent", "background", "foreground", "muted"):
-        lines.append(f"  --color-{slot}: {palette.get(slot, '#1c1c1c')};")
+    # The template CSS references --color-bg / --color-fg (and primary /
+    # secondary / accent / muted), so emit those exact names, mapping the
+    # theme's `background` / `foreground` palette keys to `bg` / `fg`. Emitting
+    # --color-background / --color-foreground left those two vars undefined in
+    # the built output, so the body lost its theme background / foreground
+    # colors (BG-1, resolved in v3.15.4 Phase 7).
+    color_vars = {
+        "primary": "primary",
+        "secondary": "secondary",
+        "accent": "accent",
+        "background": "bg",
+        "foreground": "fg",
+        "muted": "muted",
+    }
+    for slot, var in color_vars.items():
+        lines.append(f"  --color-{var}: {palette.get(slot, '#1c1c1c')};")
     lines.append(f"  --font-heading: {fonts.get('heading', 'Georgia, serif')};")
     lines.append(f"  --font-body: {fonts.get('body', 'system-ui, sans-serif')};")
     lines.append(f"  --font-mono: {fonts.get('mono', 'monospace')};")

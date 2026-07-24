@@ -277,6 +277,17 @@ def test_template_carries_image_caps(tmp_path):
     assert "max-height: 40vh" in html  # gallery-tile height cap
 
 
+def test_builder_emits_matching_theme_color_vars(tmp_path):
+    """BG-1 regression (v3.15.4 Phase 7): the built output defines the
+    --color-bg / --color-fg custom properties the template CSS references, not
+    the mismatched --color-background / --color-foreground that left them
+    undefined (and the body without its theme colors)."""
+    html = _build(tmp_path, "standard")
+    assert "--color-bg:" in html and "--color-fg:" in html
+    assert "--color-background:" not in html
+    assert "--color-foreground:" not in html
+
+
 def _tall_png_data_uri(width: int = 240, height: int = 2000) -> str:
     """A tall base64 PNG so the 80vh hero cap is observable when rendered."""
     import base64
