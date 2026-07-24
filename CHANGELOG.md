@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+**v3.15.3 adoption-no-ai-slop (in progress).** A dedicated prose anti-slop-editing skill, reverse-engineered skill-native from an MIT-licensed external skill (no new code, outbound call, dependency, or credential). Catalog counts: **268 skills** (+1), **16 commands**, **28 hooks**.
+
+### Added
+
+- **`anti-slop-editing` skill** (`catalog/skills/developer-experience/anti-slop-editing/`): a prose de-slop editor that removes 20+ named AI-slop patterns (binary contrasts, throat-clearing openers, importance puffery, robotic rhythm, fake-profound kickers, formatting slop, and more), each with a quoted smell and a concrete before/after fix, while preserving the writer's voice. It runs in two modes: Edit (default) makes the minimum effective edit and reports what changed; Detect names each pattern with a quoted line and a short fix without rewriting, scoring, or guessing AI authorship. Ships two on-demand reference files (a banned-word / empty-phrase list and a pass/fail self-check rubric the skill grades its own output against) plus a routing-eval file, and adopts the project em-dash ceiling (no em-dashes, no clause-joining spaced hyphens). Registered in the three `data/` catalog files; reverse-engineering provenance recorded in `docs/policy/mcp-reverse-engineering-matrix.md`.
+
 ## [3.15.2] - 2026-07-23
 
 **v3.15.2 adoption-awesome-llm-apps.** A deterministic, model-free skill trigger-and-routing quality gate for the 267-skill catalog, an unfilled-placeholder lint, per-skill routing assertions, behavioral-eval schema interop, and a Hermes platform-roster integration. Everything is local-first (Python stdlib only; no new outbound call, dependency, or credential). Catalog counts unchanged: **267 skills**, **16 commands**, **28 hooks**.
