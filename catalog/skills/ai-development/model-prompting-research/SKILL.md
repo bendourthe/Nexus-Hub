@@ -44,9 +44,19 @@ enumerate live roster  ->  plan work-list  ->  per model: search + fetch primary
                                     adversarially refute each claim (3 skeptics)
                                                     |
                               survivors only  ->  deterministic writer  ->  profile layer
+                                                    |
+                                     classify each survivor by scope
+                                        /                        \
+                            model-specific                   model-agnostic
+                            (stops here)                          |
+                                                  guard-gated apply, one edit at a time,
+                                                  on an isolated branch, auto-reverting
+                                                  anything a guard rejects
+                                                                  |
+                                                          gap report + known gaps
 ```
 
-The two ends of that pipeline are deliberately NOT agent work. Choosing which models need research, and writing the result, both run through `scripts/write_model_prompting_profile.py`, so the work-list is reproducible and the written layer is schema-valid by construction. The middle (search, read, judge, refute) is the part that genuinely needs an agent.
+The two ends of that pipeline are deliberately NOT agent work. Choosing which models need research, writing the result, classifying findings, and applying edits all run through bundled scripts, so the work-list is reproducible, the written layer is schema-valid by construction, and no edit can bypass a guard. The middle (search, read, judge, refute, and authoring the edit text) is the part that genuinely needs an agent.
 
 ## Instructions
 
@@ -59,6 +69,9 @@ The full procedure, including the exact prompts, the payload shape, and the enum
 5. **Research each model** against that vendor's own primary sources only: official prompting docs, cookbook, model card or system card, changelog. Never cite a page you did not fetch, and never cite a secondary summary. No primary source found means zero claims, not a guess.
 6. **Adversarially verify before recording.** A claim survives only when a primary source supports it AND a majority of independent skeptics fail to refute it. Confidence follows the margin. See [[adversarial-verifier]].
 7. **Write through the deterministic writer**, per model as verification completes, then re-run the structural gate. Report every model left unverified as a known gap rather than omitting it silently.
+8. **Classify every survivor** with `apply_prompting_edits.py classify`. Model-specific findings stop at the profile layer. Only a finding explicitly scoped model-agnostic, targeting an allowed surface, and introducing no model identifier is eligible to propose a shared-body edit. The routing rules are in `references/edit-routing.md`.
+9. **Apply eligible edits behind the guards**, one at a time, on the isolated `feat/tune-prompting-<stamp>` branch. Each edit is applied, guarded, and either kept or auto-reverted and quarantined. A quarantine never aborts the run. Confirm before committing; the branch always stops for human merge.
+10. **Emit the gap report** and record every quarantined edit and every unverified model as a known gap. A run is reviewable even when nothing was applied.
 
 ### The hard rail
 
@@ -69,7 +82,11 @@ Each claim carries a `scope`, and that field alone decides where it may be writt
 | `model-specific` | the profile layer | any shared body, ever |
 | `model-agnostic-candidate` | the profile layer, and eligible to PROPOSE a shared-body edit behind the guard suite | a shared body directly, without the guards |
 
-Ambiguity resolves to `model-specific`. A verifier may tighten a claim's scope but never loosen it: moving a claim toward shared-body eligibility needs a stronger evidence bar, not a majority vote. `scripts/check_base_template_parity.py` is what makes the rail physical, since a model-named line that diverges across the five `base-*.md` templates fails the build.
+Ambiguity resolves to `model-specific`. A verifier may tighten a claim's scope but never loosen it: moving a claim toward shared-body eligibility needs a stronger evidence bar, not a majority vote.
+
+On top of the `scope` tag, the apply engine enforces an independent rail: **an edit may not INTRODUCE a model identifier into a shared body, whatever its declared scope**. Detection compares the edit's new text against its old text, so rewording a line that already names a model is fine while smuggling a new name in is blocked.
+
+That rail lives in the engine on purpose. `scripts/check_base_template_parity.py` does NOT catch model-specific content, contrary to a natural reading: it compares the five `base-*.md` files to each other, so the same model-named line applied to all five is perfect lockstep and passes. The parity guard prevents drift between the templates; it says nothing about whether their shared content is model-specific. `references/edit-routing.md` documents the evidence and the residual (this rail binds the engine, not a human hand-editing a shared body).
 
 ### Running the fan-out, and degrading when you cannot
 
@@ -85,10 +102,12 @@ The default cap is **60k output tokens per model branch** (`PER_MODEL_BUDGET` in
 |---|---|
 | `references/research-runbook.md` | The full procedure: enumeration, calibration, prompts, verification bar, payload shape, degradation ladder, budget |
 | `references/schema.md` | The profile-layer contract: index schema, claim fields, and why ambiguity resolves to model-specific |
+| `references/edit-routing.md` | The routing table, the hard rail and the evidence behind it, the guard loop, and branch isolation |
 | `references/models/claude-opus-5.md` | A per-model profile mirror, human-readable, generated from the index |
 | `assets/profiles-index.json` | The authoritative machine index: roster, roster hash, freshness marker, and every claim |
 | `assets/research-workflow.js` | The Dynamic-Workflow fan-out template to adapt |
 | `scripts/write_model_prompting_profile.py` | The deterministic planner (`plan`) and writer (`write`) |
+| `scripts/apply_prompting_edits.py` | The edit-routing classifier (`classify`) and the guard-gated apply loop (`apply`), plus the gap report |
 
 Two repo-level scripts sit alongside the bundle: `verify_model_prompting_profiles.py` is the structural hard gate that runs in `make validate`, and `check_model_prompting_freshness.py` is the advisory roster-drift check that is deliberately never a blocking gate.
 
@@ -103,6 +122,10 @@ Two repo-level scripts sit alongside the bundle: `verify_model_prompting_profile
 | "A blog post explains it more clearly than the vendor docs." | Clarity is not authority. A secondary source can be stale, wrong, or describing a different model generation, and the citation recorded in the layer is what a future reader will trust. Vendor primary sources only. |
 | "I'll fan out across the whole roster immediately to save a round-trip." | A roster sweep is a 5-15x multiplier, and a bad prompt fanned across every model wastes all of it and fills the layer with claims you then have to delete. Calibrating on one model first is cheaper than one wasted sweep. |
 | "The run hit the budget cap, so I'll drop the partial results." | Writes happen per model as verification completes, so the partial layer is already valid and already useful. Discarding it throws away paid-for work; the correct action is to log the shortfall and record the skipped models as gaps. |
+| "The parity guard will catch it if I get the shared-body edit wrong." | It will not. The parity guard compares the five `base-*.md` files to each other, so a model-named line applied to all five is perfect lockstep and passes. Relying on it is how model-specific content reaches every platform. The engine's own rail is what blocks that, and it only runs if the edit goes through the apply loop. |
+| "This edit is obviously safe, so I'll just make it directly instead of through the loop." | A direct edit skips the per-edit guard run, the auto-revert, the quarantine record, and the branch isolation all at once. The loop is not ceremony: it is the only reason an unattended run can write to the shipping catalog at all. |
+| "A guard failed, so I should stop the run and investigate." | A guard failure quarantines that ONE edit and the run continues. Aborting discards every other edit's verified work, and the quarantine record already contains what an investigation needs (the failing guard and its output). |
+| "I'll commit the branch and merge it since every guard passed." | Guards prove the edits do not break the build, not that they are good authoring changes. The branch always stops for human merge, and the engine never merges, tags, or pushes. |
 
 ## Verification
 
@@ -113,6 +136,11 @@ Two repo-level scripts sit alongside the bundle: `verify_model_prompting_profile
 - [ ] The layer was written by `scripts/write_model_prompting_profile.py`, not hand-edited, and `python scripts/verify_model_prompting_profiles.py` exits 0 afterwards.
 - [ ] Every rostered model with no surviving claim is reported as UNVERIFIED rather than omitted.
 - [ ] The degradation rung actually used is stated, and an offline run wrote nothing and re-stamped nothing.
+- [ ] Every finding was routed by `apply_prompting_edits.py`, and no shared-body edit was made by hand outside the guard loop.
+- [ ] No applied edit introduced a model identifier into a shared body (the engine's rail, not the parity guard, is what proves this).
+- [ ] Every applied edit passed the full guard suite, and every guard failure produced a reverted file plus a quarantine record naming the failing guard.
+- [ ] `git status` shows the work on `feat/tune-prompting-<stamp>`, and `main` / `master` / `develop` carry no commit from this run.
+- [ ] The gap report exists and lists applied, quarantined, profile-only, and rejected findings, with a known-gaps entry per quarantined edit and per unverified model.
 - [ ] No new outbound call, dependency, or credential was introduced; web access was the agent's own search and fetch tools.
 
 ## Related Skills
