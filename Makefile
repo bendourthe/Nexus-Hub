@@ -25,6 +25,8 @@ validate: ## Validate all JSON catalog files and skill bundles
 	@python scripts/check_version_sync.py
 	@echo "Checking base-*.md lockstep parity (claude/codex/cursor/gemini/opencode)..."
 	@python scripts/check_base_template_parity.py
+	@echo "Checking per-model prompting profile layer (structural schema gate)..."
+	@python scripts/verify_model_prompting_profiles.py
 	@echo "Checking platform read-contract alignment (code vs docs/policy/platform-read-contracts.md)..."
 	@python scripts/verify_platform_contracts.py
 	@echo "Checking platform read-contract freshness (re-verified for the release being cut)..."

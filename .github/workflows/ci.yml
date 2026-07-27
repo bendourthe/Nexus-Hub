@@ -103,6 +103,24 @@ jobs:
         # block like the MCP Registry Policy) lands in a subset of the five.
         run: python scripts/check_base_template_parity.py
 
+      - name: Validate per-model prompting profile layer (v3.15.5 Phase 1)
+        # Structural gate on the model-prompting-research skill's profile layer:
+        # the index parses, meta is well-typed, meta.roster_hash matches
+        # meta.roster, every claim carries an allowed confidence/scope with no
+        # unknown keys, and index models match references/models/*.md in both
+        # directions. Mirrors the `make validate` step of the same name.
+        #
+        # Two deliberate omissions. (1) scripts/check_model_prompting_freshness.py
+        # is NOT run here: roster staleness is advisory by design, and gating it
+        # would let a vendor shipping a new model wedge every release. Contrast the
+        # platform read-contract freshness gate immediately below, which DOES gate
+        # because it must be re-verified for the release being cut. (2) No separate
+        # path-filtered job for these two scripts: this job already runs on any
+        # non-docs change (the workflow-level paths-ignore), so a dedicated job
+        # would add a cold runner instead of saving minutes. Their pytests ride the
+        # existing `tests/validators` step in the tests job.
+        run: python scripts/verify_model_prompting_profiles.py
+
       - name: Validate platform read-contract freshness (v3.14.5 Phase 6)
         # Mandatory per-release gate: docs/policy/platform-read-contracts.json's
         # meta.verified_for_version must equal the plugin.json version being cut.
