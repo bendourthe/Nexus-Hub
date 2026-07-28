@@ -18,6 +18,8 @@ Every model release quietly shifts what "good prompting" means, and a skill cata
 
 The discipline that makes it safe is a split between two kinds of finding. Guidance that is true of ONE model goes into a per-model profile layer bundled with this skill and nowhere else. Guidance that is genuinely model-agnostic is the only kind ever eligible to change a shared body (a `SKILL.md`, a command, a `base-*.md` template), and even then only behind the repo's own guard suite. Anything ambiguous is treated as model-specific. That asymmetry is the whole safety story, because a shared body is distributed verbatim to every platform, so one model-named line there is wrong for every reader running something else.
 
+The entry point is the `/tune-prompting` command, run on demand the day a new model ships. It accepts a single model id for the scope-first calibration run, `--dry-run` to propose shared-body edits without applying them, and `--profiles-only` to skip the shared-body stage entirely. The release flow only ever reports roster drift and offers to run it; it never blocks a release on prompting freshness.
+
 ## When to Use This Skill
 
 Use this skill when:

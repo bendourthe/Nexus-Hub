@@ -22,6 +22,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | prompt-engineering | ai-development | "Design, test, and optimize prompts for LLM applications with structured evaluation" | catalog/skills/ai-development/prompt-engineering/SKILL.md |
 | rag-implementation | ai-development | "Implement RAG pipelines with chunking, embeddings, vector stores, and retrieval optimization" | catalog/skills/ai-development/rag-implementation/SKILL.md |
 | model-routing | ai-development | "Detect the platform, enumerate models live, and route a task to the cheapest capable model" | catalog/skills/ai-development/model-routing/SKILL.md |
+| model-prompting-research | ai-development | "Research and verify current per-model prompting guidance, then tune the catalog to it" | catalog/skills/ai-development/model-prompting-research/SKILL.md |
 | api-design | architecture | "Design REST, GraphQL, and gRPC APIs with versioning, pagination, and error handling" | catalog/skills/architecture/api-design/SKILL.md |
 | architecture-decision-record | architecture | "Author one architecturally-significant decision record with context, options, decision, status, and consequences" | catalog/skills/architecture/architecture-decision-record/SKILL.md |
 | architecture-design | architecture | "Design software architectures with trade-off analysis, ADRs, and C4 decomposition" | catalog/skills/architecture/architecture-design/SKILL.md |
@@ -273,4 +274,4 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | egress-redaction | security | "Detect sensitive data and apply a typed block/redact/hash/pass policy before egress" | catalog/skills/security/egress-redaction/SKILL.md |
 | prompt-injection-defense | security | "Recognize and resist prompt injection and poisoned tool output with instruction-origin discipline" | catalog/skills/security/prompt-injection-defense/SKILL.md |
 
-**Total: 267 skills across 21 categories**
+**Total: 269 skills across 21 categories**
