@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.15.4 -->
+<!-- nexus-hub-version: 3.15.5 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 269 skills, 17 commands, 28 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -36,6 +36,10 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v3.15.5
+
+v3.15.5 gives Nexus-Hub a way to keep pace with new model releases instead of drifting behind them, and lowers what a fresh install costs per turn. The centerpiece is **`model-prompting-research`** plus the **`/tune-prompting`** command: run it the day a model ships and it enumerates the live model roster from whatever platform you are on (never a hardcoded list), reads each model vendor's OWN prompting documentation, cookbook, model card, and changelog, and records only the claims that survive an adversarial refutation pass backed by a primary source. Verified guidance lands in a **per-model profile layer** bundled with the skill, schema-valid by construction and hard-gated in validation, with a deterministic planner and writer owning the two ends of the pipeline that an LLM does inconsistently. **The safety story is a hard rail**: guidance that is true of one model can only ever reach that profile layer, and the apply engine blocks any edit that would introduce a model identifier into a shared body regardless of what the finding claims. Only genuinely model-agnostic authoring improvements are eligible to touch a `SKILL.md`, a command, or a `base-*.md`, and those are applied one edit at a time behind the full guard suite on an isolated branch that auto-reverts anything a guard rejects and always stops for human merge. Building it disproved the design's own premise: `check_base_template_parity.py` does NOT prevent model-specific content from reaching a shared body (it compares the five templates to each other, so the same model-named line in all five is perfect lockstep and passes), so the rail was moved into the engine and a paired test now pins the guard's real behaviour so the false premise cannot return. `/update release` gains an **advisory** staleness check that reports roster drift and offers to refresh, deliberately never blocking a release, because models ship on the vendor's clock. Separately, the **installed default reasoning effort drops from `xhigh` to `medium`**, so the deeper tiers become a deliberate per-task escalation rather than a standing cost on every turn (raise it any time with `/effort`). Also fixed: pre-existing catalog count drift in `data/` that no gate was checking, now guarded by a registry-consistency test. Catalog: **269 skills** (+1: `model-prompting-research`), **17 commands** (+1: `/tune-prompting`), **28 hooks**.
 
 ## What's New in v3.15.4
 
