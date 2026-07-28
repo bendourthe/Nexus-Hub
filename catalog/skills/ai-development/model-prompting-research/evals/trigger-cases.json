@@ -1,0 +1,15 @@
+{
+  "skill": "model-prompting-research",
+  "purpose": "Route 'refresh how we prompt the current models' here, and keep the two same-category near-neighbours (model-routing, which PICKS a model, and prompt-engineering, which tunes ONE prompt) routing to themselves.",
+  "cases": [
+    {"id": "pos-new-model", "prompt": "a new model just shipped, check our prompting conventions against it", "should_trigger": true, "assert": "routes to model-prompting-research first", "lexical": true},
+    {"id": "pos-tune-model", "prompt": "tune prompting for this model", "should_trigger": true, "assert": "routes to model-prompting-research first", "lexical": true},
+    {"id": "pos-refresh-guidance", "prompt": "refresh the per-model prompting guidance in the catalog", "should_trigger": true, "assert": "routes to model-prompting-research first", "lexical": true},
+    {"id": "pos-stale", "prompt": "are our catalog prompting conventions stale for the current models", "should_trigger": true, "assert": "routes to model-prompting-research first", "lexical": true},
+    {"id": "neg-pick-model", "prompt": "which model should I use for this plan phase", "should_trigger": false, "assert": "routes to model-routing, not here", "lexical": true},
+    {"id": "neg-cheapest", "prompt": "pick the cheapest model that can carry this task", "should_trigger": false, "assert": "routes to model-routing, not here", "lexical": true},
+    {"id": "neg-one-prompt", "prompt": "optimize this system prompt for my summarization feature", "should_trigger": false, "assert": "routes to prompt-engineering, not here", "lexical": true},
+    {"id": "neg-eval-prompt", "prompt": "design an evaluation for this prompt template", "should_trigger": false, "assert": "routes to prompt-engineering, not here", "lexical": true},
+    {"id": "neg-read-paths", "prompt": "re-verify each platform skill install path before the release", "should_trigger": false, "assert": "routes to platform-contract-verification, not here", "lexical": true}
+  ]
+}

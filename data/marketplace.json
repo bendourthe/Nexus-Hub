@@ -2,7 +2,7 @@
   "plugin": {
     "name": "nexus-hub",
     "version": "3.15.4",
-    "description": "Enterprise-grade skill library for AI coding assistants with 268 curated skills, 16 commands, 28 hooks, and cross-platform support",
+    "description": "Enterprise-grade skill library for AI coding assistants with 269 curated skills, 17 commands, 28 hooks, and cross-platform support",
     "author": "Benjamin Dourthe",
     "license": "MIT",
     "repository": "https://github.com/bendourthe/Nexus-Hub",
@@ -66,7 +66,7 @@
       "id": "ai-development",
       "name": "AI Development",
       "description": "Build and deploy AI agents, manage billing, route across providers, build MCP servers",
-      "skill_count": 11
+      "skill_count": 12
     },
     {
       "id": "architecture",

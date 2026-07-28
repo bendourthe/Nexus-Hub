@@ -2251,6 +2251,22 @@ function Install-Templates {
         Safe-Copy -Source $triggerEvalsAllowlistSource -Destination (Join-Path $scriptsDest "run_trigger_evals.allowlist.json") -Confirm:$true -CustomMessage "✓ Trigger-eval allowlist installed at: $scriptsDest\run_trigger_evals.allowlist.json"
     }
 
+    # Copy the per-model prompting profile-layer scripts (v3.15.5 Phase 1). Mirror
+    # of the bash block in scripts\installer.sh. The structural schema gate for the
+    # model-prompting-research skill's profile layer, plus the ADVISORY
+    # roster-staleness checker. Both stdlib-only, no outbound call. They must land
+    # together: the freshness checker imports the bundle discovery and the
+    # canonical roster-hash definition from the validator beside it. The skill
+    # bundle itself auto-copies via the recursive skill-folder copy.
+    $profileSchemaSource = Join-Path $RepoRoot "scripts\verify_model_prompting_profiles.py"
+    if (Test-Path $profileSchemaSource) {
+        Safe-Copy -Source $profileSchemaSource -Destination (Join-Path $scriptsDest "verify_model_prompting_profiles.py") -Confirm:$true -CustomMessage "✓ Prompting-profile schema validator installed at: $scriptsDest\verify_model_prompting_profiles.py"
+    }
+    $profileFreshnessSource = Join-Path $RepoRoot "scripts\check_model_prompting_freshness.py"
+    if (Test-Path $profileFreshnessSource) {
+        Safe-Copy -Source $profileFreshnessSource -Destination (Join-Path $scriptsDest "check_model_prompting_freshness.py") -Confirm:$true -CustomMessage "✓ Prompting-profile freshness checker installed at: $scriptsDest\check_model_prompting_freshness.py"
+    }
+
     # Copy .skill packager script (v1.2.0-wip / Phase 7 / A16). Produces a
     # portable .skill ZIP archive from a catalog\skills\<cat>\<name>\ directory
     # for distribution to Claude.ai or the Anthropic API skill-upload endpoint

@@ -251,7 +251,7 @@ Use Claude Code's Agent tool to launch subagents. The key patterns are parallel 
 
 **Pattern A: Parallel Launch for Independent Agents**
 
-> **Opus 4.7 behavior - explicit fan-out required.** Unlike Opus 4.6, Opus 4.7 does not volunteer concurrent subagent spawning. If you want N agents to work in parallel, prompt explicitly: `"Spawn 3 subagents in parallel: one to do X, one to do Y, one to do Z. Send them in a single message."` An ambiguous instruction like "explore these areas" will typically sequentialize. For parallel fan-out, de-escalate per-agent `effortLevel` to `high` (from the shipped default `xhigh`) - aggregate cost compounds across the fan-out. See [Effort-Level Strategy](../../ai-development/prompt-engineering/SKILL.md#effort-level-strategy).
+> **Opus 4.7 behavior - explicit fan-out required.** Unlike Opus 4.6, Opus 4.7 does not volunteer concurrent subagent spawning. If you want N agents to work in parallel, prompt explicitly: `"Spawn 3 subagents in parallel: one to do X, one to do Y, one to do Z. Send them in a single message."` An ambiguous instruction like "explore these areas" will typically sequentialize. For parallel fan-out, keep per-agent `effortLevel` at the shipped `medium` default (or at most `high`) rather than escalating each agent to `xhigh`, because aggregate cost compounds across the fan-out. See [Effort-Level Strategy](../../ai-development/prompt-engineering/SKILL.md#effort-level-strategy).
 
 **Three concrete fan-out prompt patterns**:
 
