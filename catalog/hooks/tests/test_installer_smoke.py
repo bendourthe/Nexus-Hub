@@ -7,7 +7,7 @@ is deferred to v0.9.8 and tracked as a follow-up). Instead it verifies:
    refactor (global-vs-workspace upfront choice, no template-import prompt).
 2. The source artifacts the installer will copy exist at their expected paths
    (new v0.9.7 skills, guides, checklist, templates).
-3. The canonical template (`catalog/hooks/settings.json`) has `effortLevel: high`
+3. The canonical template (`catalog/hooks/settings.json`) has `effortLevel: medium`
    which is what the installer writes into `~/.claude/settings.json` on a fresh
    install.
 4. The installer scripts are syntactically valid (bash -n for .sh; PowerShell
@@ -332,20 +332,27 @@ def test_installer_ps1_removed_template_import_prompt():
 
 # --- (2) Canonical template settings assertion -------------------------------
 
-def test_catalog_hooks_settings_effort_level_is_xhigh():
-    """Regression guard for the shipped v0.9.7 default `xhigh`.
+def test_catalog_hooks_settings_effort_level_is_medium():
+    """Regression guard for the shipped default `medium`.
 
-    A mid-release interlude briefly reduced this to `high`; the reduction
-    was reverted before tag. If a future change wants to reduce the default
-    again, update the CHANGELOG + this test together so the intent is explicit.
+    The default was `xhigh` through v3.15.4 and was lowered to `medium` so a
+    fresh install starts at a balanced speed/cost tier that the operator raises
+    deliberately. Both the scalar and the `env` override are pinned, because
+    `env.CLAUDE_CODE_EFFORT_LEVEL` is the higher-precedence lever: leaving the
+    two out of step would make the scalar a no-op. If a future change wants to
+    move the default again, update the CHANGELOG + this test together so the
+    intent is explicit.
     """
     assert SETTINGS_TEMPLATE.is_file(), f"Missing: {SETTINGS_TEMPLATE}"
     data = json.loads(SETTINGS_TEMPLATE.read_text(encoding="utf-8"))
     assert "effortLevel" in data, "catalog/hooks/settings.json is missing 'effortLevel'"
-    assert data["effortLevel"] == "xhigh", (
-        f"Expected effortLevel='xhigh' (v0.9.7 shipped default), got {data['effortLevel']!r}. "
-        "If this was a deliberate change, update the CHANGELOG + test and remove "
-        "this assertion's tag."
+    assert data["effortLevel"] == "medium", (
+        f"Expected effortLevel='medium' (shipped default), got {data['effortLevel']!r}. "
+        "If this was a deliberate change, update the CHANGELOG + test together."
+    )
+    assert data.get("env", {}).get("CLAUDE_CODE_EFFORT_LEVEL") == "medium", (
+        "env.CLAUDE_CODE_EFFORT_LEVEL must match effortLevel ('medium'); it is "
+        "the higher-precedence lever, so a mismatch silently wins over the scalar."
     )
 
 
@@ -355,7 +362,7 @@ def test_installer_ps1_fallback_literal_matches_template():
 
     installer.ps1 seeds the core defaults dynamically from the template
     (`$coreKeys = @("effortLevel", "model")` plus the env effort override)
-    rather than hardcoding the `xhigh` literal, so the fallback hint points the
+    rather than hardcoding the effort literal, so the fallback hint points the
     user at copying effortLevel/model/env from the template file. The hint MUST
     name those keys so it stays consistent with catalog/hooks/settings.json
     whatever the shipped default value is.
@@ -557,7 +564,7 @@ def _run_all():
         test_installer_ps1_has_overwrite_request_subsection,
         test_installer_sh_removed_template_import_prompt,
         test_installer_ps1_removed_template_import_prompt,
-        test_catalog_hooks_settings_effort_level_is_xhigh,
+        test_catalog_hooks_settings_effort_level_is_medium,
         test_installer_ps1_fallback_literal_matches_template,
         test_installers_copy_every_scripts_dir_py_file,
         test_all_v0_9_7_source_artifacts_exist,
