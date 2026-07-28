@@ -22,7 +22,7 @@
           "source_url": "https://docs.claude.com/en/docs/build-with-claude/prompt-engineering/overview",
           "confidence": "unverified",
           "scope": "model-specific",
-          "note": "TODO(phase-2): re-fetch the primary source, run the adversarial-verify pass, and re-tag confidence. Seeded at scope model-specific per the ambiguous-defaults-to-model-specific rule, so it cannot reach a shared body until a verified run re-scopes it."
+          "note": "TODO(first-verified-run): re-fetch the primary source, confirm the URL resolves, run the adversarial-verify pass, and re-tag confidence. This is a hand-seeded contract example, not research output, so the planner correctly still lists this model as needing research. Seeded at scope model-specific per the ambiguous-defaults-to-model-specific rule, so it cannot reach a shared body until a verified run re-scopes it."
         }
       ]
     }
