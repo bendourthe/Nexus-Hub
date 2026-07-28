@@ -135,7 +135,7 @@ The Claude Code effort level (`xhigh` / `high` / `max` / `medium` / `low`) is a 
 
 ### Where the effort level is configured today
 
-- Harness template: [catalog/hooks/settings.json](../../catalog/hooks/settings.json) (`effortLevel: xhigh` is the shipped default)
+- Harness template: [catalog/hooks/settings.json](../../catalog/hooks/settings.json) (`effortLevel: medium` is the shipped default, pinned alongside a matching `env.CLAUDE_CODE_EFFORT_LEVEL`)
 - User override: `~/.claude/settings.json` (written by the installer on first run; edit directly or via the `/model` slash command in a Claude Code session)
 - Decision guidance: [prompt-engineering/SKILL.md - Effort-Level Strategy](../../catalog/skills/ai-development/prompt-engineering/SKILL.md#effort-level-strategy)
 - Setting reference: [guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md - Effort Levels](../../guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md)
@@ -154,7 +154,7 @@ Until both blockers are resolved, surfacing the effort level in this extension w
 Target design if the read/live-update blockers are resolved in a future Claude Code release:
 
 - **Display** the current effort level in the status bar tooltip and dashboard.
-- **Auto-band switching** based on current usage percentage (opt-in; PROMOTES above the installed `high` default when usage is low, then reduces as usage rises):
+- **Auto-band switching** based on current usage percentage (opt-in; PROMOTES above the installed `medium` default when usage is low, then reduces as usage rises):
 
   | Usage % | Effort Level |
   |---------|--------------|
@@ -163,7 +163,7 @@ Target design if the read/live-update blockers are resolved in a future Claude C
   | 76-95%  | `medium`     |
   | 96-100% | `low`        |
 
-  Note: the top-of-band `xhigh` matches the installed Nexus-Hub default. The intent is cost-aware de-escalation - keep the default when usage headroom is plentiful, then step down as the budget tightens. The feature is opt-in so operators who keep `xhigh` across the board are never surprised by automatic de-escalation.
+  Note: the bands sit above the installed Nexus-Hub default of `medium`, so the intent is cost-aware modulation in both directions. Spend the headroom on deeper reasoning while usage is plentiful, then step back down toward (and below) the default as the budget tightens. The feature is opt-in so operators who pin a single tier across the board are never surprised by an automatic change.
 
 - **Manual override** via a settings-panel control and a Command Palette entry.
 - **Opt-in only** - auto-switching is off by default; operators enable it explicitly.

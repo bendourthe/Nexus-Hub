@@ -1,8 +1,8 @@
 {
-  "effortLevel": "xhigh",
+  "effortLevel": "medium",
   "model": "opus",
   "env": {
-    "CLAUDE_CODE_EFFORT_LEVEL": "xhigh"
+    "CLAUDE_CODE_EFFORT_LEVEL": "medium"
   },
   "hooks": {
     "SessionStart": [

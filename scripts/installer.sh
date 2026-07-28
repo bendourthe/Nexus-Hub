@@ -7,7 +7,7 @@ set -e
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-NEXUS_HUB_VERSION="3.15.4"
+NEXUS_HUB_VERSION="3.15.5"
 
 # --- Window Title ---
 printf '\033]0;Nexus-Hub Installer\007'
@@ -1946,6 +1946,24 @@ install_templates() {
     local trigger_evals_allowlist_source="$repo_root/scripts/run_trigger_evals.allowlist.json"
     if [ -f "$trigger_evals_allowlist_source" ]; then
         safe_copy "$trigger_evals_allowlist_source" "$scripts_dest/run_trigger_evals.allowlist.json" true "[OK] Trigger-eval allowlist installed at: $scripts_dest/run_trigger_evals.allowlist.json"
+    fi
+
+    # Copy the per-model prompting profile-layer scripts (v3.15.5 Phase 1). The
+    # structural schema gate for the model-prompting-research skill's profile
+    # layer, plus the ADVISORY roster-staleness checker. Both are stdlib-only and
+    # make no outbound call. They must land together: the freshness checker
+    # imports the bundle discovery and the canonical roster-hash definition from
+    # the validator beside it, the same pairing rule as the trigger-eval allowlist
+    # above. The skill bundle itself (profiles, references, assets) auto-copies via
+    # the recursive skill-folder copy and needs no entry here; only these two
+    # standalone scripts do. Lockstep with the same block in scripts/installer.ps1.
+    local profile_schema_source="$repo_root/scripts/verify_model_prompting_profiles.py"
+    if [ -f "$profile_schema_source" ]; then
+        safe_copy "$profile_schema_source" "$scripts_dest/verify_model_prompting_profiles.py" true "[OK] Prompting-profile schema validator installed at: $scripts_dest/verify_model_prompting_profiles.py"
+    fi
+    local profile_freshness_source="$repo_root/scripts/check_model_prompting_freshness.py"
+    if [ -f "$profile_freshness_source" ]; then
+        safe_copy "$profile_freshness_source" "$scripts_dest/check_model_prompting_freshness.py" true "[OK] Prompting-profile freshness checker installed at: $scripts_dest/check_model_prompting_freshness.py"
     fi
 
     # Copy .skill packager script (v1.2.0-wip / Phase 7 / A16). Produces a

@@ -6,33 +6,33 @@
     "description": "Comprehensive catalog of Nexus-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-    "total_skills": 260,
+    "total_skills": 269,
     "categories": {
-      "ai-development": 11,
+      "ai-development": 12,
       "architecture": 7,
       "bug-fixing": 5,
       "business-product": 6,
       "code-cleanup": 10,
-      "code-review": 13,
+      "code-review": 15,
       "compliance": 9,
-      "developer-experience": 30,
+      "developer-experience": 32,
       "documentation": 6,
       "framework-specialists": 6,
       "infrastructure": 19,
       "language-specialists": 10,
-      "orchestration": 15,
-      "project-setup": 4,
+      "orchestration": 16,
+      "project-setup": 5,
       "research": 3,
       "security": 15,
       "security-operations": 15,
       "specialized-domains": 14,
       "testing": 3,
       "tests-generation": 18,
-      "workflow": 41
+      "workflow": 43
     },
     "priorities": {
       "HIGH": 3,
-      "MEDIUM": 255
+      "MEDIUM": 266
     },
     "total_lines": 127584,
     "total_tokens_estimate": 625245,
@@ -7292,6 +7292,50 @@
       "size": {
         "lines": 242,
         "tokens_estimate": 5200
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "model-prompting-research",
+      "title": "model-prompting-research",
+      "description": "Refresh stale prompting conventions as new models ship: web-verify per-model guidance into a bundled profile layer, then tune model-agnostic authoring. For 'a new model shipped', 'tune prompting for X'. SKIP choosing a model (model-routing).",
+      "long_description": "Keeps a skill catalog current as models ship. Enumerates the live model roster from the running platform (never a hardcoded list), fans a research branch out per model to read that vendor's own prompting documentation, cookbook, model card, and changelog, and extracts discrete claims. Every claim must survive an adversarial refutation pass backed by a primary source before it is recorded. Verified claims are written by a deterministic script into a bundled per-model profile layer that is schema-valid by construction and hard-gated in validation. Model-specific guidance is confined to that layer by a rail enforced in the apply engine; only genuinely model-agnostic authoring improvements are eligible to touch a shared body, and those are applied one at a time behind the full guard suite on an isolated branch that auto-reverts anything a guard rejects and stops for human merge. Adds no outbound dependency or credential: web access is the agent's own search and fetch tools.",
+      "summary_l0": "Research and verify current per-model prompting guidance, then tune the catalog to it",
+      "overview_l1": "This skill keeps a skill catalog current as models ship. It enumerates the live model roster from the running platform (never a hardcoded list), fans a research branch out per model to read that vendor's own prompting docs, cookbook, model card, and changelog, and extracts discrete claims. Every claim must survive an adversarial refutation pass backed by a primary source before it is recorded, so plausible-but-unsourced guidance never lands. Verified claims are written by a deterministic script into a bundled per-model profile layer, schema-valid by construction. Model-specific guidance is confined to that layer by a hard rail; only genuinely model-agnostic authoring improvements are ever eligible to touch a shared body. Web access is the agent's own search and fetch tools, so no MCP server, dependency, or credential is introduced. Trigger phrases: a new model shipped, tune prompting for this model, refresh our prompting conventions, are our prompts stale.",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "ai-development",
+      "language": "Multi-language",
+      "tags": [
+        "prompting",
+        "model-research",
+        "web-verification",
+        "catalog-maintenance",
+        "profiles",
+        "adversarial-verification"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Write",
+        "Edit",
+        "Bash",
+        "WebSearch",
+        "WebFetch"
+      ],
+      "path": "catalog/skills/ai-development/model-prompting-research/",
+      "file": "catalog/skills/ai-development/model-prompting-research/SKILL.md",
+      "size": {
+        "lines": 161,
+        "tokens_estimate": 4600
       },
       "downloads": 0,
       "status": "production",
