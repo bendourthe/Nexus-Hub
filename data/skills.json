@@ -6,7 +6,7 @@
     "description": "Comprehensive catalog of Nexus-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-    "total_skills": 269,
+    "total_skills": 270,
     "categories": {
       "ai-development": 12,
       "architecture": 7,
@@ -24,18 +24,18 @@
       "project-setup": 5,
       "research": 3,
       "security": 15,
-      "security-operations": 15,
+      "security-operations": 16,
       "specialized-domains": 14,
       "testing": 3,
       "tests-generation": 18,
       "workflow": 43
     },
     "priorities": {
-      "HIGH": 3,
+      "HIGH": 4,
       "MEDIUM": 266
     },
-    "total_lines": 127584,
-    "total_tokens_estimate": 625245,
+    "total_lines": 127828,
+    "total_tokens_estimate": 629217,
     "average_lines_per_skill": 496,
     "languages_supported": [
       "Python",
@@ -9455,6 +9455,45 @@
         "structural": 100,
         "integrity": 100,
         "semantic": 95
+      }
+    },
+    {
+      "name": "agentic-endpoint-hardening",
+      "title": "agentic-endpoint-hardening",
+      "description": "Harden a local coding agent's endpoint against the config-write-then-executed escape pattern: enumerate every file the agent can write, name the trusted component that later executes each one, and apply nine layered controls across that trust seam. Make sure to use this skill whenever the user mentions \"agent sandbox escape\", \"config-write-then-executed\", \"trust seam\", \"harden the coding agent endpoint\", \"which files the agent writes get trusted\", \"can the agent escape its sandbox\", \"the agent wrote a hook config\", hooksPath or fsmonitor abuse, a privileged daemon socket reachable from the agent, or a safe-command allowlist that a dangerous argument slipped past, even when they only describe the symptom (something executed that the agent never directly ran). SKIP, do NOT use for: governing a deployed autonomous service agent's lifecycle, RBAC, or observability (use [[ai-agent-governance]]); writing the access-control policy itself once the seam is known (use [[agent-access-policy]]); recognizing a hostile instruction as it reaches the agent (use [[prompt-injection-defense]]); or adjudicating scanner findings on an imported skill bundle (use [[skill-security-scan]]).",
+      "long_description": "This skill models and hardens the trust seam where a local coding agent's file writes become another component's execution. It teaches that the practical escape is not a direct sandbox break but a three-step pattern: the agent writes a workspace file that is legal and in scope, a trusted component outside the sandbox later reads that file as its own configuration, and that component executes it at host privilege on a trigger the agent no longer controls. The skill supplies a six-form escape taxonomy (harness hook configuration, editor task and launch configuration, interpreter or shim substitution, version-control metadata indirection, safe-name argument smuggling, and privileged local daemons), a normative list of execution-trigger surfaces split by matching input (file paths, command strings, and interpreter paths) so that each guardrail matches the right thing, nine layered controls marked enforced, advisory, or guidance-only, an enumeration checklist for privileged local daemons, and a seven-question audit checklist to put to any agent platform. It states plainly that a pattern denylist is defense-in-depth rather than a boundary, and it records the residual boundary (uninstrumentable executors, partial local provenance, advisory-only signals) as accepted risk rather than omitting it.",
+      "summary_l0": "\"Harden the coding-agent endpoint against config-write-then-executed sandbox escapes at the trust seam\"",
+      "overview_l1": "\"This skill models and hardens the trust seam where a local coding agent's file writes become some other component's execution. The threat is rarely a direct sandbox break. It is a three-step pattern: the agent writes a workspace file that is legal and in scope, a trusted component outside the sandbox later reads that file as its own configuration, and that component executes it at host privilege once the agent is no longer being watched. The skill enumerates the canonical execution-trigger surfaces (agent-harness settings and hooks, editor task and launch files, version-control hook paths and filesystem-monitor commands, interpreter and virtual-environment paths), names the executor and trigger behind each, and applies nine layered controls running from deny-by-default through provenance and seam monitoring. It supplies a seven-question audit checklist for evaluating any agent platform, and it states plainly that a pattern denylist is defense-in-depth rather than a boundary.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security-operations",
+      "language": "Multi-language",
+      "tags": [
+        "security",
+        "security-operations",
+        "sandbox-escape",
+        "trust-seam",
+        "threat-model",
+        "agent-security",
+        "mitre-attack"
+      ],
+      "priority": "HIGH",
+      "based_on": "reverse-engineered from public security advisories plus the MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/v3/v3.15/plans/v3.15.6-adoption-sandbox-escapes.md Phase 1)",
+      "tools_required": [],
+      "path": "catalog/skills/security-operations/agentic-endpoint-hardening/",
+      "file": "catalog/skills/security-operations/agentic-endpoint-hardening/SKILL.md",
+      "size": {
+        "lines": 244,
+        "characters": 29790,
+        "tokens_estimate": 3972
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
       }
     }
   ]
