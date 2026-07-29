@@ -1,7 +1,21 @@
-"""Tests for catalog/hooks/git-guardrails.sh.
+"""Tests for catalog/hooks/git-guardrails.{sh,ps1}.
 
-Covers the existing dangerous-pattern blocking (regression) and the opt-in
-protected-branch guard added for the develop+main workflow.
+Covers:
+
+  * the existing dangerous-pattern blocking (regression),
+  * the opt-in protected-branch guard added for the develop+main workflow,
+  * the v3.15.6 Phase 2 execution-indirection patterns (AC4): core.hooksPath and
+    core.fsmonitor in both the inline `git -c key=value` form and the persistent
+    `git config` form, which is group B of the canonical execution-trigger
+    surface list in
+    catalog/skills/security-operations/agentic-endpoint-hardening/SKILL.md,
+  * the false-positive guards that matter for group B: a READ of the same key
+    (`git config --get core.hooksPath`) and a benign `-c` option must both be
+    allowed, or the guardrail becomes an obstacle to ordinary work.
+
+Every test runs against BOTH the bash hook and its PowerShell sibling via the
+`run` fixture, so the suite is also the .sh/.ps1 parity check. A missing
+interpreter skips only that parameter.
 
 Run from the repo root:
     python -m pytest catalog/hooks/tests/test_git_guardrails.py -v
@@ -16,28 +30,51 @@ from pathlib import Path
 
 import pytest
 
-_HOOK = Path(__file__).parent.parent / "git-guardrails.sh"
+_HOOKS_DIR = Path(__file__).resolve().parent.parent
+_HOOK_SH = _HOOKS_DIR / "git-guardrails.sh"
+_HOOK_PS1 = _HOOKS_DIR / "git-guardrails.ps1"
 
 pytestmark = pytest.mark.skipif(
-    shutil.which("bash") is None or shutil.which("git") is None,
-    reason="git-guardrails.sh requires bash and git on PATH",
+    shutil.which("git") is None, reason="git-guardrails requires git on PATH"
 )
 
+_ALLOW = 0
+_BLOCK = 2
 
-def _run(
-    command: str, cwd: Path, env_extra: dict[str, str] | None = None
-) -> subprocess.CompletedProcess:
-    """Pipe a PreToolUse JSON payload to the hook and capture its exit + stderr."""
-    payload = json.dumps({"tool_input": {"command": command}})
-    env = {**os.environ, **env_extra} if env_extra is not None else None
-    return subprocess.run(
-        ["bash", str(_HOOK)],
-        input=payload,
-        text=True,
-        capture_output=True,
-        cwd=str(cwd),
-        env=env,
-    )
+
+@pytest.fixture(params=["sh", "ps1"])
+def run(request):
+    """Invoke either hook implementation with a PreToolUse Bash payload."""
+    if request.param == "sh":
+        prefix = [request.getfixturevalue("bash_bin"), str(_HOOK_SH)]
+    else:
+        prefix = [
+            request.getfixturevalue("powershell_bin"),
+            "-NoProfile",
+            "-File",
+            str(_HOOK_PS1),
+        ]
+
+    def _run(
+        command: str, cwd: Path, env_extra: dict[str, str] | None = None
+    ) -> subprocess.CompletedProcess:
+        payload = json.dumps({"tool_input": {"command": command}})
+        env = {**os.environ}
+        for key in ("NEXUS_PROTECTED_BRANCHES", "NEXUS_PROTECTED_BRANCH_ALLOW"):
+            env.pop(key, None)
+        if env_extra:
+            env.update(env_extra)
+        return subprocess.run(
+            prefix,
+            input=payload,
+            text=True,
+            capture_output=True,
+            cwd=str(cwd),
+            env=env,
+            timeout=120,
+        )
+
+    return _run
 
 
 def _git(repo: Path, *args: str) -> None:
@@ -66,56 +103,149 @@ def repo(tmp_path: Path) -> Path:
 # --- existing dangerous-pattern behavior (regression) ---
 
 
-def test_force_push_blocked(repo: Path) -> None:
-    res = _run("git push --force origin main", repo)
-    assert res.returncode == 2
+def test_force_push_blocked(run, repo: Path) -> None:
+    res = run("git push --force origin main", repo)
+    assert res.returncode == _BLOCK
     assert "BLOCKED" in res.stderr
 
 
-def test_safe_command_allowed(repo: Path) -> None:
-    assert _run("git status", repo).returncode == 0
+def test_safe_command_allowed(run, repo: Path) -> None:
+    assert run("git status", repo).returncode == _ALLOW
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "git reset --hard HEAD~1",
+        "git clean -fd",
+        "git branch -D feat-x",
+        "git stash drop",
+        "git stash clear",
+        "rm -rf .git",
+    ],
+)
+def test_destructive_patterns_still_blocked(run, repo: Path, command: str) -> None:
+    assert run(command, repo).returncode == _BLOCK, f"regressed: {command}"
+
+
+# --- v3.15.6 AC4: execution indirection via git metadata (group B) ---
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "git -c core.hooksPath=/tmp/evil status",
+        "git -c core.fsmonitor=evil.sh status",
+        # Interleaving another -c option must not be an evasion.
+        "git -c protocol.version=2 -c core.hooksPath=/tmp/x status",
+        "git -c http.sslVerify=false -c core.fsmonitor=x.sh diff",
+        # Spacing around the assignment must not be an evasion.
+        "git -c core.hooksPath = /tmp/x status",
+    ],
+)
+def test_inline_execution_indirection_blocked(run, repo: Path, command: str) -> None:
+    """`git -c core.hooksPath=` / `core.fsmonitor=` name something git EXECUTES."""
+    res = run(command, repo)
+    assert res.returncode == _BLOCK, f"not blocked: {command}"
+    assert "BLOCKED" in res.stderr
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        "git config core.hooksPath .githooks",
+        "git config --local core.fsmonitor evil.sh",
+        "git config --global core.hooksPath /tmp/x",
+        "git config --add core.hooksPath .githooks",
+    ],
+)
+def test_persistent_execution_indirection_blocked(
+    run, repo: Path, command: str
+) -> None:
+    """The `git config` form persists into .git/config and applies to every later
+    operation, so it needs its own check beyond the inline `-c` patterns."""
+    res = run(command, repo)
+    assert res.returncode == _BLOCK, f"not blocked: {command}"
+    assert "execution-indirection" in res.stderr
+
+
+# --- AC4 false-positive guards (a denylist that blocks real work is a liability) ---
+
+
+@pytest.mark.parametrize(
+    "command",
+    [
+        # Reads of the same key are harmless and must stay allowed.
+        "git config --get core.hooksPath",
+        "git config --get-all core.fsmonitor",
+        "git config --get-regexp core.*",
+        "git config --list",
+        "git config --unset core.hooksPath",
+        # Benign -c options must stay allowed.
+        "git -c user.name=Bob commit -m x",
+        "git -c core.pager=cat log",
+        "git -c core.autocrlf=false checkout feat-x",
+        # Ordinary config writes to unrelated keys.
+        "git config user.email a@b.c",
+        "git config core.autocrlf false",
+    ],
+)
+def test_benign_git_commands_allowed(run, repo: Path, command: str) -> None:
+    res = run(command, repo)
+    assert res.returncode == _ALLOW, (
+        f"false positive on a benign command: {command} (stderr={res.stderr!r})"
+    )
 
 
 # --- opt-in protected-branch guard ---
 
 
-def test_guard_inert_without_env(repo: Path) -> None:
-    """With no NEXUS_PROTECTED_BRANCHES, committing on main is allowed (no behavior change)."""
+def test_guard_inert_without_env(run, repo: Path) -> None:
+    """With no NEXUS_PROTECTED_BRANCHES, committing on main is allowed."""
     _git(repo, "checkout", "main")
-    assert _run('git commit -m "x"', repo).returncode == 0
+    assert run('git commit -m "x"', repo).returncode == _ALLOW
 
 
-def test_guard_blocks_commit_on_protected(repo: Path) -> None:
+def test_guard_blocks_commit_on_protected(run, repo: Path) -> None:
     _git(repo, "checkout", "main")
-    res = _run('git commit -m "x"', repo, {"NEXUS_PROTECTED_BRANCHES": "main"})
-    assert res.returncode == 2
+    res = run('git commit -m "x"', repo, {"NEXUS_PROTECTED_BRANCHES": "main"})
+    assert res.returncode == _BLOCK
     assert "protected branch 'main'" in res.stderr
 
 
-def test_guard_allows_commit_on_feature_branch(repo: Path) -> None:
+def test_guard_allows_commit_on_feature_branch(run, repo: Path) -> None:
     _git(repo, "checkout", "feat-x")
-    res = _run('git commit -m "x"', repo, {"NEXUS_PROTECTED_BRANCHES": "main"})
-    assert res.returncode == 0
+    res = run('git commit -m "x"', repo, {"NEXUS_PROTECTED_BRANCHES": "main"})
+    assert res.returncode == _ALLOW
 
 
-def test_guard_override_allows_one_commit(repo: Path) -> None:
+def test_guard_override_allows_one_commit(run, repo: Path) -> None:
     _git(repo, "checkout", "main")
-    res = _run(
+    res = run(
         'git commit -m "x"',
         repo,
         {"NEXUS_PROTECTED_BRANCHES": "main", "NEXUS_PROTECTED_BRANCH_ALLOW": "1"},
     )
-    assert res.returncode == 0
+    assert res.returncode == _ALLOW
 
 
-def test_guard_does_not_block_merge(repo: Path) -> None:
+def test_guard_does_not_block_merge(run, repo: Path) -> None:
     """Release merges onto the protected branch are intentionally allowed."""
     _git(repo, "checkout", "main")
-    res = _run("git merge --no-ff develop", repo, {"NEXUS_PROTECTED_BRANCHES": "main"})
-    assert res.returncode == 0
+    res = run("git merge --no-ff develop", repo, {"NEXUS_PROTECTED_BRANCHES": "main"})
+    assert res.returncode == _ALLOW
 
 
-def test_guard_accepts_comma_separated_list(repo: Path) -> None:
+def test_guard_accepts_comma_separated_list(run, repo: Path) -> None:
     _git(repo, "checkout", "develop")
-    res = _run('git commit -m "x"', repo, {"NEXUS_PROTECTED_BRANCHES": "main,develop"})
-    assert res.returncode == 2
+    res = run('git commit -m "x"', repo, {"NEXUS_PROTECTED_BRANCHES": "main,develop"})
+    assert res.returncode == _BLOCK
+
+
+# --- quiet paths ---
+
+
+@pytest.mark.parametrize("payload_cmd", ["", "   "])
+def test_no_command_is_allowed(run, repo: Path, payload_cmd: str) -> None:
+    """A payload without a usable command must not block non-Bash tools."""
+    assert run(payload_cmd, repo).returncode == _ALLOW
