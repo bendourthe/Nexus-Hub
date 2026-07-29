@@ -730,6 +730,78 @@ ensure_codex_cli() {
     fi
 }
 
+# v3.15.6 / AC5 -- opt-in hardened deny/ask overlay.
+#
+# Union-merges the `deny` and `ask` arrays from claude-permissions-strict.json
+# into settings.json. Three deliberate properties:
+#   * ADDITIVE: a user's existing deny/ask entries are never removed.
+#   * NO defaultMode: that key's documented value set is unverified in this repo
+#     (see the v3.16.0 autonomy plan, which confirms it as scheduled work), and
+#     "default" is already Claude Code's behavior, so writing it would be a
+#     schema bet on a user's config file with no benefit.
+#   * SEPARATE from install_permissions(): that function has early `return`s in
+#     its allow-merge path (jq missing, nothing new to add, merge failed), so
+#     calling this from inside it would silently skip the overlay in the common
+#     "allow list already up to date" case. It is invoked from the call site.
+merge_strict_permissions() {
+    local settings_file="$1"
+    local overlay_file="$2"
+    local scope="$3"
+
+    if [ ! -f "$overlay_file" ]; then
+        write_item "Skip: strict permissions overlay not found" "$GRAY"
+        return
+    fi
+
+    if ! command -v jq >/dev/null 2>&1; then
+        write_item "Warning: jq not found, cannot merge the strict permission overlay" "$YELLOW"
+        write_item "  Copy the deny/ask entries manually from: $overlay_file" "$YELLOW"
+        return
+    fi
+
+    if [ ! -f "$settings_file" ]; then
+        write_item "Skip: settings.json not present, cannot apply the strict overlay" "$GRAY"
+        return
+    fi
+
+    local added
+    added=$(jq -sr '
+        .[0] as $s | .[1] as $o |
+        (($s.permissions.deny // []) as $sd | ($o.permissions.deny // []) as $od |
+          (($sd + $od) | unique | length) - ($sd | length))
+        +
+        (($s.permissions.ask // []) as $sa | ($o.permissions.ask // []) as $oa |
+          (($sa + $oa) | unique | length) - ($sa | length))
+    ' "$settings_file" "$overlay_file" 2>/dev/null)
+
+    if [ "${added:-0}" = "0" ]; then
+        write_item "[OK] Strict deny/ask entries already up to date (0 new)" "$GREEN"
+        return
+    fi
+
+    local backup_path
+    backup_path="$settings_file.bak.$(date +%Y%m%d-%H%M%S)"
+    cp "$settings_file" "$backup_path"
+    write_item "  Backup created: $backup_path" "$GRAY"
+
+    local merged
+    merged=$(jq -s '
+        .[0] as $s | .[1] as $o |
+        $s
+        | .permissions.deny = ((($s.permissions.deny // []) + ($o.permissions.deny // [])) | unique)
+        | .permissions.ask  = ((($s.permissions.ask  // []) + ($o.permissions.ask  // [])) | unique)
+    ' "$settings_file" "$overlay_file" 2>/dev/null)
+
+    if [ -n "$merged" ]; then
+        echo "$merged" > "$settings_file"
+        write_item "[OK] $scope STRICT permission overlay applied (${added} new deny/ask entries)" "$GREEN"
+        write_item "  Denied: version-control hook/config writes, interpreter paths, git execution-indirection commands" "$GRAY"
+        write_item "  Ask: harness settings and hooks, editor task/launch config, editor rules" "$GRAY"
+    else
+        write_item "Warning: Could not merge the strict permission overlay into settings.json" "$YELLOW"
+    fi
+}
+
 install_permissions() {
     local repo_root="$1"
     local platform="$2"    # "CLAUDE", "GEMINI", "CODEX", "COPILOT"
@@ -1195,6 +1267,16 @@ install_global() {
     if should_install claude; then
     write_header "ANTHROPIC"
     install_permissions "$repo_root" "CLAUDE" "Global"
+    # v3.15.6 / AC5: opt-in only. Without --strict-permissions this is a no-op and
+    # the install stays exactly as it was (allow-only, no prompts). Invoked here
+    # rather than inside install_permissions because that function returns early
+    # in its allow-merge path; see the note on merge_strict_permissions.
+    if [ "${STRICT_PERMISSIONS:-0}" = "1" ]; then
+        merge_strict_permissions \
+            "$HOME/.claude/settings.json" \
+            "$repo_root/configs/permissions/claude-permissions-strict.json" \
+            "Global"
+    fi
     fi
 
     if should_install codex; then
@@ -2685,6 +2767,12 @@ PLATFORMS_ARG=""    # set by --platforms <csv>; empty => all platforms (default)
 YES_FLAG=0          # --yes : non-interactive, auto-confirm + refresh
 FORCE_FLAG=0        # --force : overwrite existing managed files without asking
 
+# v3.15.6 / AC5 -- opt-in hardened permission posture.
+# Default 0 keeps the convenience default (allow-only auto-approve, no prompts)
+# exactly as it was. With --strict-permissions the installer ALSO merges the
+# deny/ask overlay from configs/permissions/claude-permissions-strict.json.
+STRICT_PERMISSIONS=0
+
 # Map an arbitrary git branch name to a filesystem-safe cache token: every
 # character outside [A-Za-z0-9._-] becomes '-', parent-dir tokens are
 # neutralized, and a leading dot/dash is stripped so the result is never a
@@ -2752,6 +2840,15 @@ Options:
                  warning and skips the Gemini CLI install, but still installs
                  Antigravity CLI (which covers the same functionality via the
                  antigravity2 integration).
+  --strict-permissions
+                 Install the OPT-IN hardened Claude Code permission posture in
+                 addition to the read-only auto-approve list: deny/ask entries
+                 for the execution-trigger config surfaces (version-control
+                 hooks and config, interpreter paths, harness and editor config)
+                 from configs/permissions/claude-permissions-strict.json.
+                 Without this flag the install is unchanged (allow-only,
+                 no-prompt). This is a deliberate posture split: convenience by
+                 default, hardened on request.
   --branch <name>  Install the catalog from a pushed branch instead of the
                  current checkout. Shallow-clones the repo at <name> into a
                  deterministic cache directory (~/.nexus-hub/branches/<name>/),
@@ -2769,6 +2866,11 @@ while [ $# -gt 0 ]; do
         --enterprise)
             ENTERPRISE=1
             PASSTHRU_ARGS+=("--enterprise")
+            shift
+            ;;
+        --strict-permissions)
+            STRICT_PERMISSIONS=1
+            PASSTHRU_ARGS+=("--strict-permissions")
             shift
             ;;
         --workspace)
@@ -2927,6 +3029,24 @@ if [ "$SUBCOMMAND" = "init" ] || [ -n "$PRINT_CONFIG_KEY" ] || [ "$CHECK_MODE" =
         exit 2
     fi
     if [ "$SUBCOMMAND" = "init" ]; then
+        # v3.15.6 / HO-2: declare installer-owned intent for the
+        # escalation-trigger carve-out, which suppresses the sensitive-path
+        # advisory for the project surfaces `init` legitimately writes
+        # (.claude/settings.json, .cursor/rules, .agents/, .github/skills).
+        #
+        # Scope this honestly. Claude Code's PreToolUse Write/Edit hooks observe
+        # the AGENT's tool calls, not this process, so `init`'s own writes never
+        # reach that hook and were never going to warn. What this export buys is
+        # an explicit, greppable intent marker for any hook chain that DOES wrap
+        # the installer, and consistency with the PowerShell installer. The
+        # carve-out's practical consumer is an operator exporting the same
+        # variable for a deliberate setup pass in an agent session.
+        #
+        # It is NOT a security control: an agent can set this variable itself, so
+        # it is a self-asserted signal. That is acceptable only because the hook
+        # is advisory, so the carve-out suppresses a warning and never grants a
+        # capability. Do not promote it to a boundary.
+        export NEXUS_HUB_INIT=1
         exec "$py" "$runner" init "${SUBCOMMAND_ARGS[@]}"
     elif [ -n "$PRINT_CONFIG_KEY" ]; then
         exec "$py" "$runner" print-config "$PRINT_CONFIG_KEY"

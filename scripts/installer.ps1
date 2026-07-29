@@ -24,6 +24,11 @@ param(
     [string]$Platforms,        # comma-separated integration keys; default = all
     [switch]$Yes,              # non-interactive: never prompt, refresh managed files
     [switch]$Force,            # overwrite existing managed files without asking
+    # v3.15.6 / AC5 -- opt-in hardened permission posture. Absent (the default)
+    # keeps the convenience default (allow-only auto-approve, no prompts) exactly
+    # as it was; present ALSO merges the deny/ask overlay from
+    # configs/permissions/claude-permissions-strict.json.
+    [switch]$StrictPermissions,
     [Parameter(Position = 0)]
     [string]$Subcommand,
     [Parameter(ValueFromRemainingArguments = $true)]
@@ -34,7 +39,7 @@ if ($Help) {
     @"
 Usage:
   pwsh scripts/installer.ps1 [-Workspace PATH] [-Platforms LIST] [-Yes]
-                             [-Force] [-Enterprise] [-Help]
+                             [-Force] [-Enterprise] [-StrictPermissions] [-Help]
   pwsh scripts/installer.ps1 init [-Target PATH] [-DryRun]
   pwsh scripts/installer.ps1 -PrintConfig <integration-key>
   pwsh scripts/installer.ps1 -Check
@@ -60,6 +65,15 @@ Read-only modes (no disk writes):
                       would create / update / remove a file. Useful in CI.
 
 Options:
+  -StrictPermissions
+                Install the OPT-IN hardened Claude Code permission posture in
+                addition to the read-only auto-approve list: deny/ask entries for
+                the execution-trigger config surfaces (version-control hooks and
+                config, interpreter paths, harness and editor config) from
+                configs/permissions/claude-permissions-strict.json. Without this
+                switch the install is unchanged (allow-only, no prompts). A
+                deliberate posture split: convenience by default, hardened on
+                request.
   -Workspace <path>  Install into a single project directory instead of the
                 default global (all-projects) scope.
   -Platforms <list>  Install only the given comma-separated integration keys
@@ -1043,6 +1057,77 @@ function Ensure-CodexCli {
     }
 }
 
+# v3.15.6 / AC5 -- opt-in hardened deny/ask overlay. Mirrors
+# merge_strict_permissions() in installer.sh.
+#
+# Union-merges the `deny` and `ask` arrays from claude-permissions-strict.json
+# into settings.json. Three deliberate properties:
+#   * ADDITIVE: a user's existing deny/ask entries are never removed.
+#   * NO defaultMode: that key's documented value set is unverified in this repo
+#     (the v3.16.0 autonomy plan schedules confirming it), and "default" is
+#     already Claude Code's behavior, so writing it would be a schema bet on a
+#     user's config file with no benefit.
+#   * SEPARATE from Install-Permissions: that function returns early in its
+#     allow-merge path (nothing new to add, merge failed), so calling this from
+#     inside it would silently skip the overlay in the common "allow list already
+#     up to date" case. It is invoked from the call site instead.
+function Merge-StrictPermissions {
+    param(
+        [string]$SettingsFile,
+        [string]$OverlayFile,
+        [string]$Scope
+    )
+
+    if (-not (Test-Path $OverlayFile)) {
+        Write-Item -Message "Skip: strict permissions overlay not found" -Color "DarkGray"
+        return
+    }
+    if (-not (Test-Path $SettingsFile)) {
+        Write-Item -Message "Skip: settings.json not present, cannot apply the strict overlay" -Color "DarkGray"
+        return
+    }
+
+    try {
+        $overlay = Get-Content $OverlayFile -Raw | ConvertFrom-Json
+        $existing = Get-Content $SettingsFile -Raw | ConvertFrom-Json
+
+        if (-not $existing.permissions) {
+            $existing | Add-Member -NotePropertyName "permissions" -NotePropertyValue ([PSCustomObject]@{})
+        }
+
+        $added = 0
+        foreach ($key in @("deny", "ask")) {
+            $overlayEntries = @($overlay.permissions.$key)
+            if ($overlayEntries.Count -eq 0) { continue }
+
+            if (-not ($existing.permissions.PSObject.Properties.Name -contains $key)) {
+                $existing.permissions | Add-Member -NotePropertyName $key -NotePropertyValue @()
+            }
+            $current = @($existing.permissions.$key)
+            $merged = @($current + $overlayEntries | Select-Object -Unique)
+            $added += ($merged.Count - $current.Count)
+            $existing.permissions.$key = $merged
+        }
+
+        if ($added -eq 0) {
+            Write-Item -Message "[OK] Strict deny/ask entries already up to date (0 new)" -Color "DarkGreen"
+            return
+        }
+
+        $backupPath = "$SettingsFile.bak.$(Get-Date -Format 'yyyyMMdd-HHmmss')"
+        Copy-Item -Path $SettingsFile -Destination $backupPath -Force
+        Write-Item -Message "  Backup created: $backupPath" -Color "DarkGray"
+
+        Write-JsonFile -Path $SettingsFile -Object $existing
+        Write-Item -Message "[OK] $Scope STRICT permission overlay applied ($added new deny/ask entries)" -Color "DarkGreen"
+        Write-Item -Message "  Denied: version-control hook/config writes, interpreter paths, git execution-indirection commands" -Color "Gray"
+        Write-Item -Message "  Ask: harness settings and hooks, editor task/launch config, editor rules" -Color "Gray"
+    }
+    catch {
+        Write-Item -Message "Warning: Could not merge the strict permission overlay ($($_.Exception.Message))" -Color "Yellow"
+    }
+}
+
 function Install-Permissions {
     param(
         [string]$RepoRoot,
@@ -1500,6 +1585,17 @@ function Install-Global {
     if ($platforms -contains "CLAUDE") {
         Write-Header -Provider "ANTHROPIC"
         Install-Permissions -RepoRoot $RepoRoot -Platform "CLAUDE" -Scope "Global"
+        # v3.15.6 / AC5: opt-in only. Without -StrictPermissions this is a no-op
+        # and the install stays exactly as it was (allow-only, no prompts).
+        # Invoked here rather than inside Install-Permissions because that
+        # function returns early in its allow-merge path; see the note on
+        # Merge-StrictPermissions.
+        if ($StrictPermissions) {
+            Merge-StrictPermissions `
+                -SettingsFile (Join-Path (Join-Path $env:USERPROFILE ".claude") "settings.json") `
+                -OverlayFile (Join-Path (Join-Path $RepoRoot "configs\permissions") "claude-permissions-strict.json") `
+                -Scope "Global"
+        }
     }
     if ($platforms -contains "CODEX") {
         Write-Header -Provider "OPENAI"
@@ -3077,6 +3173,24 @@ if ($Subcommand -eq "init" -or $PrintConfig -or $Check) {
         exit 2
     }
     if ($Subcommand -eq "init") {
+        # v3.15.6 / HO-2: declare installer-owned intent for the
+        # escalation-trigger carve-out, which suppresses the sensitive-path
+        # advisory for the project surfaces `init` legitimately writes
+        # (.claude/settings.json, .cursor/rules, .agents/, .github/skills).
+        # Mirrors the bash installer.
+        #
+        # Scope this honestly. Claude Code's PreToolUse Write/Edit hooks observe
+        # the AGENT's tool calls, not this process, so `init`'s own writes never
+        # reach that hook and were never going to warn. What this buys is an
+        # explicit intent marker for any hook chain that DOES wrap the installer,
+        # and lockstep with installer.sh. The carve-out's practical consumer is an
+        # operator setting the same variable for a deliberate setup pass.
+        #
+        # It is NOT a security control: an agent can set this variable itself, so
+        # it is self-asserted. That is acceptable only because the hook is
+        # advisory, so the carve-out suppresses a warning and never grants a
+        # capability. Do not promote it to a boundary.
+        $env:NEXUS_HUB_INIT = "1"
         $passthrough = @("init")
         if ($SubcommandArgs) { $passthrough += $SubcommandArgs }
         & $py $runner @passthrough

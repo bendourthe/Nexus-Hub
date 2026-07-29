@@ -158,15 +158,26 @@ Write down what remains uncovered: executors you cannot instrument, daemons you 
 
 | # | Layer | What it means | Typical enforceability |
 |---|---|---|---|
-| 1 | Deny by default | Start from no execution and no write, then add only the narrowest globs the task needs. A denylist sandbox cannot keep pace with the surface it must cover. | Enforced, through the permission configuration |
+| 1 | Deny by default | Start from no execution and no write, then add only the narrowest globs the task needs. A denylist sandbox cannot keep pace with the surface it must cover. | Enforced, through the permission configuration (opt-in; see the posture split below) |
 | 2 | Treat execution-triggering config as sensitive | Every surface in the normative list is classified sensitive, so a write to it is an event rather than a routine edit. | Enforced or advisory, through a write-path guardrail |
 | 3 | Approve host-side automation explicitly | When the agent creates or modifies anything that will later run on the host, require a human decision at write time. | Enforced through an approval gate, per [[agent-access-policy]] |
 | 4 | Run helpers under the same policy as the agent | A helper process, extension, or subprocess that executes on the agent's behalf should carry the agent's policy, not the host's. | Guidance-only where the helper belongs to the platform vendor |
 | 5 | Constrain automatic discovery | Discovery that executes workspace-controlled binaries should not run unsandboxed or unprompted. | Guidance-only where discovery is the platform's own behavior |
 | 6 | Model command policy on effects, not names | Policy decisions key on the invocation and its side effects, never on the command name alone. | Enforced where you own the approval layer |
 | 7 | Restrict privileged local daemons | Deny reachability to privileged daemons unless a specific need is documented. | Enforced, through command and socket scoping |
-| 8 | Preserve provenance | Distinguish user-created, repository-created, and agent-created files, so an agent-authored config is not read as user intent. | Partly enforceable locally; see the limits section |
-| 9 | Monitor the trust handoff | Instrument the seam itself, not just the agent process, so a write that is later executed leaves a correlated record. | Partly enforceable locally; see the limits section |
+| 8 | Preserve provenance | Distinguish user-created, repository-created, and agent-created files, so an agent-authored config is not read as user intent. | Partly enforceable locally; a same-session ledger ships, full provenance does not (see the limits section) |
+| 9 | Monitor the trust handoff | Instrument the seam itself, not just the agent process, so a write that is later executed leaves a correlated record. | Partly enforceable locally; same-session correlation ships, cross-executor instrumentation does not (see the limits section) |
+
+### What this catalog actually ships for these layers
+
+Naming the concrete controls keeps the table honest, and shows which layers are enforced here versus left to the reader's own project.
+
+- **Layer 2, advisory** (`escalation-trigger`): warns on a write to any group A or C surface. Default action is `warn`, never `block`, so first-party tooling is never self-blocked.
+- **Layer 6, blocking** (`git-guardrails`): blocks the group B command patterns, including the interleaved-option form a glob cannot express.
+- **Layer 1, opt-in** (the strict permission overlay): `deny` and `ask` entries for the same surfaces, installed only with `--strict-permissions` / `-StrictPermissions`.
+- **Layers 8 and 9, best-effort** (`provenance-ledger`): records path and content hash on each agent write, then flags a later same-session command that references one of those paths. Paths and hashes only, never file contents.
+
+**The deliberate posture split.** The default install is convenience-first: an allow-only auto-approve list, no prompts. The hardened posture is opt-in behind a flag. That is a decision, not an oversight. A default deny stub would contradict the no-prompt install philosophy and would surprise every existing user on upgrade, so the project ships the guardrails advisory-by-default and the hard enforcement on request. State the split plainly when assessing a project against layer 1: doctrine present and enforceable, enforcement opt-in.
 
 Layers 4 and 5 are marked guidance-only deliberately. Whether a platform's language extension or version-control integration runs sandboxed is that platform's architecture, not something a catalog, a hook, or a permission file can change. The correct action for those two layers is to put them to the vendor as questions (see the checklist below) and to record the answer as an accepted risk, rather than claiming a control that does not exist.
 
