@@ -1,6 +1,6 @@
 # AGENTS.md
 
-<!-- nexus-hub-version: 3.15.5 -->
+<!-- nexus-hub-version: 3.15.6 -->
 
 This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, Gemini CLI, etc.) when working with code in this repository.
 
@@ -8,7 +8,7 @@ This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, G
 
 Nexus-Hub is a production-grade skill harness for AI coding assistants. It is the **upstream catalog** consumed by Nexus (the local-first desktop AI Studio, see `https://github.com/bendourthe/Nexus-AI`) and by every other major agent platform: Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, and GitHub CLI. Skills, commands, hooks, agents, and rules are distributed via installer scripts into users' `~/.nexus-hub/` directory and into their AI assistant's per-platform config locations.
 
-Current catalog: **269 skills** across 21 categories, 17 commands (plus 3 permanent aliases), 28 hooks, 23 agents. The 40 v3.x deprecation shims were removed in v3.2.0.
+Current catalog: **270 skills** across 21 categories, 17 commands (plus 3 permanent aliases), 29 hooks, 23 agents. The 40 v3.x deprecation shims were removed in v3.2.0.
 
 ## Project Structure
 
@@ -24,7 +24,7 @@ Nexus-Hub/
 │   ├── mcp-configs/          # MCP server registry
 │   ├── memory/               # Memory template files
 │   ├── rules/                # Code style/security rules (4 languages)
-│   └── skills/               # 269 skills across 21 categories
+│   └── skills/               # 270 skills across 21 categories
 │       └── <category>/
 │           └── <skill-name>/
 │               └── SKILL.md
@@ -346,9 +346,15 @@ Hook scripts live in `catalog/hooks/`. Rules:
 - All hooks: write error messages to stderr, write output to stdout
 - Security hooks (secret-scan, large-file-guard): follow the patterns in `catalog/rules/bash/security.md`
 
-The hook registration template is `catalog/hooks/settings.json`. Supported events: `SessionStart`, `PreToolUse`, `PostToolUse`, `Stop`.
+**PowerShell sibling required (v3.15.6+).** Every `catalog/hooks/<name>.sh` MUST ship a `catalog/hooks/<name>.ps1` with matching behavior, so a Windows user running hooks through PowerShell gets the same guardrail rather than silent non-coverage. This is machine-enforced in BOTH directions by `catalog/hooks/tests/test_hook_sibling_parity.py`, which fails when either file is missing, when a `.ps1` does not parse, or when a pair disagrees on the exit code for the same payload. CI adds an unconditional `.ps1` AST-parse gate in the `shellcheck` job, and the `tests-windows` job runs the suite on Windows PowerShell 5.1.
 
-**Write tests for any new hook** following the pytest pattern in `catalog/hooks/tests/test_format_bash_description.py`. Run with `make test`.
+Two lessons sit behind those gates, both from real defects. `session-summary.ps1` shipped in v3.11.0 with a parse error and was therefore dead on Windows for four minor versions, because nothing parsed catalog `.ps1` files. And the v3.15.6 provenance ledger diverged from its `.sh` sibling in two ways (`Add-Content -Encoding utf8` emitting a UTF-8 BOM on PowerShell 5.1, and `sha256sum` escaping backslash-containing filenames) that a POSIX-only test could not reach. Exit-code parity plus a 5.1 leg is what catches that class.
+
+When authoring a sibling, prefer the native equivalent over emulating shell mechanics: `ConvertFrom-Json` instead of a `jq` dependency, `[System.IO.File]::WriteAllText` with `UTF8Encoding($false)` instead of `Set-Content -Encoding utf8` (which emits a BOM on 5.1), and `[Console]::IsInputRedirected` as the equivalent of `[ ! -t 0 ]`. A sibling that works where the bash version silently no-ops (for example on a host with no `jq`) is an acceptable and documented improvement, provided it acts in the safe direction: warn or block MORE, never less.
+
+The hook registration template is `catalog/hooks/settings.json`. Supported events: `SessionStart`, `PreToolUse`, `PostToolUse`, `Stop`. Register the `bash` invocation there; `.ps1` siblings are not registered separately, matching the existing convention.
+
+**Write tests for any new hook** following the pytest pattern in `catalog/hooks/tests/test_format_bash_description.py`. Prefer a `run` fixture parametrized over both implementations (see `test_escalation_trigger.py` or `test_provenance_ledger.py`) so every behavioral assertion doubles as a parity assertion. Run with `make test`.
 
 ### Workflow-phase automation (N1a)
 

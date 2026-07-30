@@ -4,9 +4,9 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.15.5 -->
+<!-- nexus-hub-version: 3.15.6 -->
 
-Nexus-Hub is the upstream skill catalog for AI coding assistants: 269 skills, 17 commands, 28 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
+Nexus-Hub is the upstream skill catalog for AI coding assistants: 270 skills, 17 commands, 28 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
 ## Interactive Guide -- start here
 
@@ -30,12 +30,24 @@ Nexus-Hub is the upstream skill catalog for AI coding assistants: 269 skills, 17
 
 Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of the same idea, split along a deliberate seam.
 
-- **Nexus-Hub (this repo)** is the catalog: 269 curated skills, 17 commands, 28 hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`). It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
+- **Nexus-Hub (this repo)** is the catalog: 270 curated skills, 17 commands, 29 hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`). It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
 - **Nexus** is a local-first desktop AI Studio that consumes Nexus-Hub as its skill feed. Nexus's `AGENTS.md` names this repo as "the only external project we deliberately link to" -- the upstream feed for its skill harness.
 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v3.15.6
+
+v3.15.6 hardens the seam where a coding agent's file writes become some other program's execution. The threat is rarely a direct sandbox break: the agent writes a workspace file that is legal and in scope, a trusted component outside the sandbox later reads it as its own configuration, and that component runs it at host privilege once nobody is watching. This release matters to Nexus-Hub specifically because one of the disclosed advisories it is built on (CVE-2026-48124) names **workspace-controlled agent-harness hook configuration** as the attack surface, which is exactly the artifact class this installer ships.
+
+The centerpiece is the new **`agentic-endpoint-hardening`** skill: a six-form escape taxonomy, nine control layers each marked enforced / advisory / guidance-only, a privileged-local-daemon enumeration, and a seven-question checklist to put to any agent platform. It defines the **normative execution-trigger surface list** once, split into three groups by what each is matched against (file paths, shell commands, interpreter paths), and every guardrail in the release consumes that one list rather than carrying its own copy. Enforcement ships in three layers: **`escalation-trigger`** now warns on those surfaces (advisory by default, so the catalog never self-blocks its own `nexus-hub init` writes), **`git-guardrails`** blocks the `core.hooksPath` / `core.fsmonitor` execution-indirection commands including the interleaved-option form a glob cannot express, and an **opt-in `--strict-permissions` / `-StrictPermissions`** overlay adds `deny` and `ask` entries on top of the read-only allow list. **Without that flag the install is unchanged**: allow-only and no-prompt. That split is deliberate, convenience by default and hardened on request, not an oversight. A new **`provenance-ledger`** hook records a path and content hash for each agent write and flags a later same-session command that references one, recording paths and hashes only, never file contents.
+
+Every claim above is bounded by something the release states plainly rather than glossing: a pattern denylist is defense-in-depth, not a boundary; a local hook cannot instrument executors in other processes, so full cross-executor seam monitoring is explicitly out of scope; and two of the nine control layers are marked guidance-only because whether a vendor's language extension runs sandboxed is that vendor's architecture, not something a permission file can change.
+
+**Also in this release, beyond that plan: full PowerShell hook parity.** Every `catalog/hooks/*.sh` now ships a `.ps1` sibling, taking coverage from 8 of 25 to **25 of 25**, so Windows users who run hooks through PowerShell get every guardrail instead of two thirds of them. A generic parity harness enforces the invariant in both directions, a syntax floor per file, and exit-code agreement per pair, so hooks nobody has written yet are protected too.
+
+**Six real defects were found and fixed, four of them only because assertions run against both implementations.** `escalation-trigger.sh` had never fired in production (it read an environment variable Claude Code does not set). `session-summary.ps1` had not parsed since v3.11.0, so that hook was dead on Windows for four minor versions. The two description gates silently failed to **block** on any host without `jq`, because a `grep` matching nothing aborts a `set -e` script before it reaches its refusal. Plus a UTF-8 BOM and a `sha256sum` filename-escaping bug that no POSIX-only test could reach. A long-standing note claiming "bash cannot be fully exercised on the Windows dev host" was also disproven: it was PATH shadowing, and 103 test failures carried across several releases are now structurally fixed. Catalog: **270 skills** (+1: `agentic-endpoint-hardening`), **17 commands**, **29 hooks** (+1: `provenance-ledger`), 25 of 25 with PowerShell siblings.
 
 ## What's New in v3.15.5
 
@@ -182,7 +194,7 @@ That is the whole setup -- no prompts. The installer prechecks its dependencies 
 
 After the installer completes:
 
-- **Globally**: your user profile has all 269 skills, 17 commands, 28 hooks, 23 agents, plus Gemini and Codex instructions.
+- **Globally**: your user profile has all 270 skills, 17 commands, 29 hooks, 23 agents, plus Gemini and Codex instructions.
 - **Locally**: your project has `copilot-instructions.md` and `AGENTS.md` tailored to your language.
 
 **Power-user flags**: `--workspace <path>` installs into a single repo instead of globally; `--platforms <comma-list>` limits the install to a subset of assistants; `--yes` runs fully unattended (refreshes managed files with no prompt -- ideal for CI). Prefer to clone first? `git clone` the repo and run `./install.sh` (macOS / Linux) or `install.bat` (Windows) -- the in-repo path still works exactly as before.
