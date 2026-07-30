@@ -18,10 +18,18 @@ These tests cover:
     installer is invoked;
   * in-repo detection (a sibling `scripts/installer.*` is delegated to).
 
-WN-v36-1: bash cannot always be fully run on the Windows dev host. The bash
-functional tests skip cleanly when bash is absent; CI (ubuntu) is authoritative
-for the bash path. The PowerShell functional tests skip where no PowerShell is
-present.
+The bash functional tests skip cleanly when bash is absent, and on Windows (see
+the `bash_functional` marker below for the specific reason); CI (ubuntu) is
+authoritative for the bash path. The PowerShell functional tests skip where no
+PowerShell is present.
+
+Note on WN-v36-1, which this file used to cite as "bash cannot always be fully run
+on the Windows dev host": that framing was DISPROVEN in v3.15.6 Phase 4. The cause
+was PATH shadowing (the WSL launcher stub preceding Git Bash), not host
+incapability, and the hook and repo test suites now pass on Windows with no PATH
+assistance. The Windows skip HERE is retained for a narrower and still-valid
+reason, spelled out at the marker: this file drives the full bootstrap, not a hook
+script, and that path is unverified on Windows.
 """
 
 from __future__ import annotations
@@ -43,13 +51,19 @@ BASH = shutil.which("bash")
 PWSH = shutil.which("pwsh") or shutil.which("powershell")
 WINDOWS = sys.platform == "win32"
 
-# WN-v36-1: on the Windows dev host `bash` resolves to the WSL launcher, which
-# translates the CWD and does not forward Windows env vars across the boundary,
-# so the env-var seams the bootstrap relies on are not honored. The bash path is
-# verified on CI (ubuntu) and a manual Mac smoke test; skip it on Windows.
+# On Windows, `bash` commonly resolves to the WSL launcher stub, which translates
+# the CWD and does not forward Windows env vars across the boundary, so the env-var
+# seams the bootstrap relies on are not honored. (Git Bash, being a native Windows
+# process, does forward them, and v3.15.6 Phase 4 added a conftest PATH repair that
+# prefers it. But that only makes bash RESOLVABLE: whether the full download,
+# extract, and install bootstrap behaves correctly on Windows is a separate
+# question this suite has never verified.) So the skip is retained deliberately,
+# on the narrow ground that the path is unverified rather than the disproven
+# claim that Windows cannot run bash. The bash path is verified on CI (ubuntu)
+# and a manual Mac smoke test.
 bash_functional = pytest.mark.skipif(
     not BASH or WINDOWS,
-    reason="bash path verified on CI/macOS, not the Windows dev host (WN-v36-1)",
+    reason="full bash bootstrap verified on CI/macOS; unverified on Windows",
 )
 
 # Capture subprocess output as UTF-8 with replacement so ANSI/banner bytes never

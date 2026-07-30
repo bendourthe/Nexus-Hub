@@ -48,11 +48,16 @@ DANGEROUS_PATTERNS=(
 INPUT=$(cat)
 
 # Extract the command from tool_input.command
+# The `|| true` on both branches is load-bearing under `set -euo pipefail`: a
+# grep that matches nothing, or jq on a malformed payload, returns non-zero, and a
+# failing command substitution in an assignment ABORTS the script with exit 1
+# instead of reaching the allow path below. Without it this hook exited 1 on any
+# payload carrying no command (empty, malformed, or a non-Bash tool call).
 if command -v jq >/dev/null 2>&1; then
-  COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // empty' 2>/dev/null)
+  COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // empty' 2>/dev/null || true)
 else
   # Fallback: basic JSON extraction via grep/sed
-  COMMAND=$(echo "$INPUT" | grep -o '"command"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 | sed 's/.*"command"[[:space:]]*:[[:space:]]*"//;s/"$//')
+  COMMAND=$(echo "$INPUT" | grep -o '"command"[[:space:]]*:[[:space:]]*"[^"]*"' | head -1 | sed 's/.*"command"[[:space:]]*:[[:space:]]*"//;s/"$//' || true)
 fi
 
 # If we couldn't extract a command, allow (don't block non-Bash tools)

@@ -202,10 +202,17 @@ jobs:
     # Phase 5 widens the bash path to a macOS runner as well as ubuntu: the
     # installer is bash-3.2-safe (no associative arrays / mapfile / case-mod
     # expansions), so the same code path runs on the BSD-userland macOS runner.
-    # ubuntu remains the authoritative bash gate under WN-v36-1 (bash cannot be
-    # fully run on the Windows dev host); macOS adds real-platform proof that the
-    # Mac smoke test (docs/v3/v3.7/development/mac-smoke-test.md) used to carry
-    # alone.
+    # ubuntu remains the authoritative bash gate; macOS adds real-platform proof
+    # that the Mac smoke test (docs/v3/v3.7/development/mac-smoke-test.md) used to
+    # carry alone.
+    #
+    # This used to cite WN-v36-1 as "bash cannot be fully run on the Windows dev
+    # host". That premise was DISPROVEN in v3.15.6 Phase 4: the cause was PATH
+    # shadowing (the WSL launcher stub in System32 preceding Git Bash and unable to
+    # resolve a Windows-style script path), not host incapability. ubuntu is still
+    # the authoritative gate for the bash INSTALLER path, but for the ordinary
+    # reason that it is the reference POSIX environment, not because Windows cannot
+    # run bash.
     strategy:
       fail-fast: false
       matrix:
@@ -288,9 +295,14 @@ jobs:
   bootstrap-windows:
     # v3.7.0 Phase 5: run the standalone PowerShell bootstrap end-to-end on a real
     # Windows runner. Before Phase 5 the Windows path had only been AST-parsed and
-    # precheck-run (under pwsh on Linux); the dev host cannot run the bash path at
-    # all (WN-v36-1), so a Windows runner is the only place the real `irm | iex`
-    # standalone flow is exercised. It drives install.ps1 in forced-standalone mode
+    # precheck-run (under pwsh on Linux), so a Windows runner is the only place the
+    # real `irm | iex` standalone flow is exercised.
+    #
+    # This used to justify itself with WN-v36-1 ("the dev host cannot run the bash
+    # path at all"). That premise was DISPROVEN in v3.15.6 Phase 4: the cause was
+    # PATH shadowing, not host incapability. The job's real justification is
+    # unaffected and stands on its own: the `irm | iex` standalone flow is a
+    # Windows-native path that only a Windows runner exercises. It drives install.ps1 in forced-standalone mode
     # against a GitHub-shaped tarball of the checkout (zero network), then asserts a
     # populated ~/.nexus-hub and a working `nexus-hub --version`.
     runs-on: windows-latest
