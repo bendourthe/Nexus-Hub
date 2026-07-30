@@ -7,7 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [3.15.6] - 2026-07-30
+
+**v3.15.6 agentic-endpoint hardening (sandbox-escapes adoption).** Closes the config-write-then-executed trust-seam gap that Nexus-Hub's own distributed artifacts expose: the agent writes a workspace file that is legal and in scope, a trusted component outside the sandbox later reads it as its own configuration, and that component runs it at host privilege once nobody is watching. One of the source advisories (CVE-2026-48124) names workspace-controlled agent-harness hook configuration as the attack surface, which is exactly the artifact class this installer ships. Delivered in four phases: a threat-model skill defining the normative execution-trigger surface list, advisory enforcement in two hooks, an opt-in hardened permission overlay plus a best-effort provenance ledger, and a terminal refactor / known-gaps / CI-hardening gate. Every adopted item is local: no new outbound call, API key, third-party data processor, or runtime dependency. The one candidate that would have introduced endpoint telemetry to a third party was dropped under the MCP Registry Policy hard-no list. Catalog: **270 skills** (+1: `agentic-endpoint-hardening`), **17 commands**, **29 hooks** (+1: `provenance-ledger`).
+
+This release also carries one independent change beyond that plan: **full PowerShell hook parity** (every `catalog/hooks/*.sh` now ships a `.ps1` sibling, 8 of 25 to 25 of 25), which surfaced three further security-relevant bash defects. See the dedicated section below.
+
+Six real defects were found and fixed across the release, four of them only because assertions run against both the bash and PowerShell implementations of each hook.
 
 **v3.15.6 adoption-sandbox-escapes (Phase 1 of 4).** Closes the config-write-then-executed trust-seam gap that Nexus-Hub's own distributed artifacts expose. One of the source advisories (CVE-2026-48124) names workspace-controlled agent-harness hook configuration as the attack surface, which is exactly the artifact class the installer ships. Phase 1 is skill-native only: no hook, installer, script, or platform template is touched, and no outbound call, API key, third-party data processor, or runtime dependency is introduced. Enforcement lands in Phases 2 and 3.
 
