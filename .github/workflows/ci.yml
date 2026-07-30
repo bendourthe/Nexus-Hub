@@ -157,8 +157,39 @@ jobs:
           shellcheck --severity=warning scripts/installer.sh install.sh
 
       - name: Lint hook and per-skill scripts
+        # v3.15.6 Phase 4 (QG-1): the `|| true` that used to terminate this line is
+        # removed, so the catalog lint is a real gate. Safe as of this release:
+        # all 36 catalog *.sh files pass --severity=warning with zero warnings, so
+        # the gate starts green and any future regression fails CI instead of
+        # scrolling past. If a legitimate warning ever needs accepting, add a
+        # targeted `# shellcheck disable=` with a reason at the call site rather
+        # than restoring the blanket `|| true`.
         run: |
-          find catalog -name '*.sh' -print0 | xargs -0 shellcheck --severity=warning || true
+          find catalog -name '*.sh' -print0 | xargs -0 shellcheck --severity=warning
+
+      - name: Parse catalog PowerShell hooks (v3.15.6 Phase 4)
+        # v3.15.6 introduced the first catalog *.ps1 files carrying security logic
+        # (escalation-trigger, git-guardrails, provenance-ledger). Their behavior is
+        # covered by the parametrized hook tests, but those SKIP when no PowerShell
+        # interpreter is present, and a skip emits no signal. This step is the
+        # unconditional syntax floor: it fails on a parse error even if the runner
+        # image ever drops pwsh.
+        shell: pwsh
+        run: |
+          $failed = $false
+          Get-ChildItem catalog/hooks -Filter *.ps1 -File | ForEach-Object {
+            $errs = $null
+            $null = [System.Management.Automation.Language.Parser]::ParseFile(
+              $_.FullName, [ref]$null, [ref]$errs)
+            if ($errs -and $errs.Count -gt 0) {
+              Write-Host "FAIL $($_.Name)"
+              $errs | ForEach-Object { Write-Host "  $($_.Message)" }
+              $failed = $true
+            } else {
+              Write-Host "OK   $($_.Name)"
+            }
+          }
+          if ($failed) { exit 1 }
 
   bootstrap:
     # v3.7.0 Phase 1 + Phase 5: exercise the dual-mode self-fetching bootstrap
@@ -382,6 +413,44 @@ jobs:
 
       - name: Context-compressor tests
         run: pytest extensions/nexus-context-compressor/tests/ -v
+
+  tests-windows:
+    # v3.15.6 Phase 4: run the hook suite on a real Windows host so the catalog's
+    # *.ps1 hooks are exercised on Windows PowerShell 5.1, not only on the ubuntu
+    # leg's pwsh 7.
+    #
+    # This is evidence-driven, not belt-and-braces. The v3.15.6 Phase 3 provenance
+    # ledger shipped a defect where `Add-Content -Encoding utf8` emits a UTF-8 BOM:
+    # that behavior is specific to Windows PowerShell 5.1 and does NOT reproduce
+    # under pwsh 7, so the ubuntu leg would have passed a ledger whose first field
+    # was unparseable on every Windows user's machine. Only a 5.1 leg catches the
+    # class. NEXUS_TEST_POWERSHELL pins the edition, because the test fixture
+    # otherwise prefers pwsh and the Windows image has both.
+    #
+    # Cost control: windows-latest is a 2x-minute runner, so this runs on pushes
+    # only, matching the bootstrap-windows and install-smoke gating.
+    runs-on: windows-latest
+    if: ${{ github.event_name != 'pull_request' }}
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.11'
+
+      - name: Install pytest
+        run: pip install pytest
+
+      - name: Hook suite on Windows PowerShell 5.1
+        env:
+          # Pin the edition under test; see the job comment above.
+          NEXUS_TEST_POWERSHELL: powershell
+        run: python -m pytest catalog/hooks/tests -q
+
+      - name: Installer + validator suites on Windows
+        env:
+          NEXUS_TEST_POWERSHELL: powershell
+        run: python -m pytest tests/installer tests/validators -q
 
   install-smoke:
     # v3.11.0 Phase 7.5: prove the catalog lands at each platform's real read-path
