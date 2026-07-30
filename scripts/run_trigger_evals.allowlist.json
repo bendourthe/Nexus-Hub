@@ -39,6 +39,7 @@
     {"pair": ["oncall-runbook", "runbook-writer"], "reason": "matched runbook pair (infrastructure); already carry mutual SKIP clauses (per-alert on-call vs general operational)"},
     {"pair": ["docs-layout-refactor", "project-refactor"], "reason": "matched refactor pair (code-cleanup); already carry mutual SKIP clauses (docs/ tree vs repo project artifacts)"},
     {"pair": ["architecture-decision-record", "technical-documentation"], "reason": "broad-vs-specific doc pair; technical-documentation is the multi-document skill and now defers to architecture-decision-record via an explicit SKIP clause"},
-    {"pair": ["project-constitution", "technical-documentation"], "reason": "broad-vs-specific doc pair; technical-documentation is the multi-document skill and now defers to project-constitution via an explicit SKIP clause"}
+    {"pair": ["project-constitution", "technical-documentation"], "reason": "broad-vs-specific doc pair; technical-documentation is the multi-document skill and now defers to project-constitution via an explicit SKIP clause"},
+    {"pair": ["agentic-endpoint-hardening", "ai-agent-governance"], "reason": "broad-vs-specific agent-security pair; the overlap is created BY agentic-endpoint-hardening's SKIP clause, which names the deployed-service governance territory in order to defer to ai-agent-governance (local coding-agent endpoint seam vs deployed autonomous service lifecycle/RBAC/observability). Routing is verified in both directions by agentic-endpoint-hardening's trigger-cases.json: neg-service-governance routes away, and all six positives beat every competitor including ai-agent-governance"}
   ]
 }

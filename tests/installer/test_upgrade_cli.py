@@ -19,8 +19,11 @@ These tests cover:
     confirmed dry-run, offline) driven by env seams against a `file://` fixture;
   * the only-the-project's-own-GitHub outbound invariant.
 
-Everything runs on the Python interpreter directly (no bash), so WN-v36-1 (bash
-cannot be fully run on the Windows dev host) does not bite this suite.
+Everything runs on the Python interpreter directly (no bash), so the Windows
+bash-resolution problem that used to be tracked as WN-v36-1 never applied to this
+suite. (That item's framing, "bash cannot be fully run on the Windows dev host",
+was DISPROVEN in v3.15.6 Phase 4: the cause was PATH shadowing by the WSL launcher
+stub, not host incapability.)
 """
 
 from __future__ import annotations

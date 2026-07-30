@@ -136,7 +136,15 @@ $lines.Add("Duration: $duration")
 $lines.Add("")
 $lines.Add("## Git context")
 $lines.Add("")
-$lines.Add("- Branch: `$branch`")
+# NOTE (v3.15.6): this line previously read "- Branch: `$branch`" in a
+# double-quoted string, which is broken twice over, because the backtick is
+# PowerShell's escape character: `$branch emitted the LITERAL text "$branch"
+# instead of the value, and the trailing backtick escaped the closing quote so the
+# string never terminated. The result was a parse error that made this entire hook
+# non-functional on Windows from v3.11.0 until the v3.15.6 AST gate caught it.
+# Single quotes plus concatenation avoids the escape rules entirely and matches
+# the .sh sibling's output exactly (a markdown code span around the value).
+$lines.Add('- Branch: `' + $branch + '`')
 $lines.Add("- Status: $statusLine")
 $lines.Add("")
 if ($recentCommits -and $recentCommits.Count -gt 0) {
