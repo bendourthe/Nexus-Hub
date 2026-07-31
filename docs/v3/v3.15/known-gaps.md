@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: The v3.15 minor line carries THREE releases. **v3.15.0 platform-parity-all-gaps** (all 7 phases, RELEASED 2026-07-23): every supported platform receives all the surfaces it can consume, re-verified against current docs. **v3.15.1 adoption-codesight** (all 7 phases built, releasing 2026-07-23): the deterministic compiled context-map inside `nexus-code-search`, both DoD axes holding. **v3.15.2 adoption-awesome-llm-apps** (ALL 6 PHASES COMPLETE; RELEASE HELD): a deterministic, model-free skill trigger-and-routing quality gate (now a hard `--gate`), an unfilled-placeholder lint, per-skill routing assertions, behavioral-eval schema interop, and a Hermes platform-roster integration. Implementation is done and verified on `feat/adoption-awesome-llm-apps`; the `/update release` hand-off is HELD (see the v3.15.2 Release hold section). The v3.15.0 version collision (three plans stamped v3.15.0) was reconciled on 2026-07-22 by re-stamping: v3.15.0 = platform-parity-all-gaps, v3.15.1 = adoption-codesight, v3.15.2 = adoption-awesome-llm-apps. A fourth release, **v3.15.3 adoption-no-ai-slop** (ALL 3 PHASES COMPLETE / RELEASED 2026-07-24), adds a dedicated prose `anti-slop-editing` skill. A fifth cycle, **v3.15.4 presentify-visual-fidelity** (ALL 7 PHASES COMPLETE; release-ready, pending the user-driven `/update release`), makes presentify's output visually faithful and self-correcting: a full-width canvas contract, image-sizing discipline, annotated-figure overlay recreation, reliable stock/mix imagery integration, an iterative multi-agent visual-QA self-critique loop, command/skill polish (the `--qa-depth` knob), and the terminal refactor + known-gaps + CI/CD gate. A sixth cycle, **v3.15.5 model-prompting-research** (PHASES 1-2 OF 6 COMPLETE, in progress on `feat/model-prompting-research`), adds a research-and-tune capability that keeps the catalog current with new model releases: Phase 1 landed the schema-validated per-model prompting profile layer, its structural hard gate, and its advisory staleness checker; Phase 2 landed the skill itself plus the verify-before-record research engine (a Dynamic-Workflow fan-out template with a budget kill switch, and a deterministic planner/writer). A seventh cycle, **v3.15.6 adoption-sandbox-escapes** (PHASE 1 OF 4 COMPLETE, in progress on `feat/adoption-sandbox-escapes`), closes the config-write-then-executed trust-seam gap that Nexus-Hub's own distributed artifacts expose (one of the source advisories, CVE-2026-48124, names workspace-controlled agent-harness hook configs, which is exactly the artifact class the installer ships): Phase 1 landed the `agentic-endpoint-hardening` skill carrying the escape taxonomy, the normative execution-trigger surface list that the later phases' guardrails consume, nine control layers, and the framework-mapping reference.
-**Last updated**: 2026-07-30 (v3.15.7 Phase 1 COMPLETE - finding-disposition doctrine)
+**Last updated**: 2026-07-31 (v3.15.7 Phase 2 COMPLETE - refutation discipline)
 
 > **Correction notice (2026-07-30, applies file-wide)**: several advisory blocks below, in the v3.15.0 through v3.15.5 sections, attribute repo-wide Windows test failures to **WN-v36-1** ("bash cannot be fully exercised on the Windows dev host", covered on Linux in CI only). **That premise is disproven.** The cause was PATH shadowing: `C:\Windows\System32\bash.exe` (the WSL launcher stub) preceded Git Bash and could not resolve a Windows-style script path at all, so it exited 127 before executing a line. v3.15.6 Phase 4 fixed it structurally with a module-level PATH repair in `catalog/hooks/tests/conftest.py` and `tests/conftest.py`; both test trees now pass on Windows with no PATH assistance (658 and 516, zero failures). Those earlier blocks are left as written because they record what was believed at the time, which is what a gap ledger is for. Read them with this correction in mind, and do not cite WN-v36-1 as evidence that a Windows host cannot run bash. Canonical entry updated in [docs/v3/v3.6/known-gaps.md](../v3.6/known-gaps.md); resolution detail in the v3.15.6 HO-1 and DF-2 entries below.
 
@@ -809,3 +809,29 @@ None. No pre-existing bug or deferred item was pulled into this phase.
 | Hand-offs (HO) | 0 | 0 |
 
 **Verification boundary.** The two changed skill bodies passed the catalog bundle, placeholder, routing, security, and registry gates. The complete edited-content test matrix reports 1,793 passed, 21 skipped, and 0 failed. No executable module changed, so code coverage is not applicable to this prose-only phase.
+
+### v3.15.7 Phase 2 checkpoint
+
+Phase 2 added the refutation-validity taxonomy and rejection proof burden to `adversarial-verifier`. A finding can now be rejected only by observed contradictory evidence, including an actual input-source inventory, per-route accounting, and build or default-configuration evidence for reachability claims. Unseen server behavior and merely plausible framework protections are invalid refutations; when the relevant layer is unavailable, the finding moves to `needs-live-validation`. `security-review` now points to this doctrine through a thin rejection gate rather than duplicating it.
+
+### v3.15.7 Phase 2 Open Items
+
+No new items. WN-3 remains open and unchanged from Phase 1; the authoritative full installer suite remains green.
+
+### v3.15.7 Phase 2 Resolved
+
+None. Phase 2 did not take ownership of WN-3 or any older v3.15 gap.
+
+### v3.15.7 Phase 2 Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 1 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+| Hand-offs (HO) | 0 | 0 |
+
+**Verification boundary.** The complete edited-content test matrix reports 1,793 passed, 21 skipped, and 0 failed. The two mandatory dry checks passed: one candidate was rejected on observed evidence, and one candidate with an unobservable server layer was escalated to `needs-live-validation`. No executable module changed, so code coverage is not applicable to this prose-only phase.

@@ -1,5 +1,34 @@
 # Development Log
 
+## [2026-07-31] - v3.15.7 adoption-raptor-loop-hunt Phase 2: refutation discipline [feature]
+
+### What Changed
+
+Implemented Phase 2 of 7 on `feat/adoption-raptor-loop-hunt`. `adversarial-verifier` now owns a refutation-validity taxonomy that permits rejection only on observed contradictions, verified unreachability or gating, observable mitigation, or an established trust model. Every rejection must identify the counter-hypothesis, inventory actual input sources, account for each relevant route, and provide build or default-configuration evidence for reachability claims. Unseen server behavior and plausible framework protections are invalid refutations; an unobservable layer produces `needs-live-validation`. `security-review` now exposes a thin rejection gate that points to this owner instead of duplicating the doctrine.
+
+### Why It Changed
+
+The Phase 1 disposition model prevented partially observed findings from collapsing to Low, but it did not yet constrain what evidence could kill a finding. Phase 2 closes that false-negative path: false confirmations remain visible and retestable, while false rejections silently erase defects from the report.
+
+### Decisions Made
+
+- Kept the full taxonomy and proof burden in `adversarial-verifier`; `security-review` carries only the integration gate.
+- Treated a single passing route as insufficient when other actual input sources or routes remain untested.
+- Required `needs-live-validation` when the decisive layer is unavailable instead of accepting an assumption as counter-evidence.
+
+### Troubleshooting Trail
+
+<details>
+<summary>Foreground test wrapper timed out</summary>
+
+The first foreground `tests/skills` wrapper timed out after 124 seconds and left its own output pipe detached. Its orphaned test process was stopped, then the same suite was rerun with file-backed output and completed cleanly with 209 passed and 3 skipped. The repository's GNU Make entry point remains unavailable on this Windows host, so the Makefile's exact underlying commands were run directly.
+
+</details>
+
+### Impact and Context
+
+The two required dry checks passed: an observable non-sink candidate was rejected with a complete evidence record, while an unauthorized password-reset candidate whose server layer was unavailable was escalated to `needs-live-validation`. All direct validation equivalents passed; ShellCheck reported zero warnings for both installer scripts; and the complete matrix reports 1,793 passed, 21 skipped, and 0 failed. Existing CI already covers `catalog/skills/**`, so no workflow edit was justified. The active v3.15 docs audit found 57 Markdown files and no cleanup candidate. Phase 2 introduced no new known gap; WN-3 remains open and unchanged. No frontmatter, registry metadata, executable module, dependency, version, tag, merge, push, or release artifact changed.
+
 ## [2026-07-30] - v3.15.7 adoption-raptor-loop-hunt Phase 1: finding-disposition doctrine
 
 Implemented Phase 1 of 7 on `feat/adoption-raptor-loop-hunt`. `pentest-reporting` now separates confirmed severity from potential severity when part of a system is unobservable, carries the higher axis into triage, requires exactly one of `confirmed`, `needs-live-validation`, `corrected`, or `rejected`, and makes `needs-live-validation` a first-class outcome with an exact safe test, vulnerable response, safe response, and potential severity. `exploitability-analyzer` now emits the same two axes and dispositions, supplies the ratings consumed by `pentest-reporting`, and leaves the full CVSS-vector rule with that owner rather than duplicating it. A worked unauthorized password-reset case remained potential-Critical and produced `needs-live-validation` instead of collapsing to Low.

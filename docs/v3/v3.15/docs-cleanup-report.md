@@ -1,6 +1,6 @@
-# Documentation Cleanup Report - v3.15.7 Phase 1
+# Documentation Cleanup Report - v3.15.7
 
-**Date**: 2026-07-30
+**Last updated**: 2026-07-31
 **Scope**: `docs/v3/v3.15/`
 **Mode**: Audit and report; no file moves
 
@@ -28,3 +28,11 @@ No new repository-local cache, build output, audit scratch file, or generated bi
 ## Decision
 
 Keep the v3.15 tree unchanged. Re-run the audit after a phase that adds or relocates documentation, and reserve archival moves for a later major-version cleanup rather than moving active v3.15 records during Phase 1.
+
+## Phase 2 Audit - 2026-07-31
+
+The bundled inventory helper found 58 Markdown files and no binaries under `docs/v3/v3.15/` after the required Phase 2 history was written: 2 at the version root, 5 under `comparisons/`, 8 under `plans/`, and 43 under `development/`. The reference graph found 73 inbound references across 3 active targets. Every file remains part of the active v3.15 release record, so the Phase 2 disposition is Cat 4 for all 58 files and zero files in Cat 1, Cat 2, or Cat 3.
+
+Phase 2 added no repository-local cache, build output, generated binary, or audit scratch file. Temporary test logs were written outside the repository and removed during closeout. Existing ignore rules remain sufficient; zero `.gitignore` patterns were added.
+
+No move, rename, deletion, archive operation, or reference repair was applied. The report remains self-classified as Cat 4 while v3.15.7 is active.

@@ -179,6 +179,10 @@ Sub-categories:
 
 For each finding, document both **exploitability** (how easy to exploit) and **impact** (what damage results).
 
+#### Rejection Gate
+
+Apply the refutation-validity taxonomy and rejection proof burden owned by `[[adversarial-verifier]]` before marking any candidate rejected. A bare non-reproduction or route list is not enough: the owner requires a reason-specific counter-hypothesis, the sink's actual input sources, a result for every applicable route, and observed build or configuration evidence for reachability claims. When an unobservable layer is the only remaining barrier, route the candidate to `needs-live-validation` through `[[pentest-reporting]]` rather than rejecting or understating it. This skill references that gate but does not restate its taxonomy.
+
 ```markdown
 ## Security Finding
 
@@ -261,6 +265,8 @@ For each finding, document both **exploitability** (how easy to exploit) and **i
 - [ ] Dependency vulnerability scan completed and output saved (e.g., `pip-audit`, `npm audit`)
 - [ ] Static analysis tool run (bandit, eslint-plugin-security, or equivalent) with zero unreviewed findings
 - [ ] Every finding includes severity (P0-P3), exploitability assessment, and remediation code
+- [ ] Every rejected finding satisfies `[[adversarial-verifier]]`'s observed, route-complete rejection record
+- [ ] Every candidate blocked only by an unobservable layer is routed to `needs-live-validation` rather than rejected or rated Low
 - [ ] OWASP Top 10 items are explicitly mapped to findings or marked "not applicable" with justification
 - [ ] Race condition sub-categories (9a shared state, 9b TOCTOU, 9c database, 9d distributed) each addressed
 
@@ -273,6 +279,8 @@ For each finding, document both **exploitability** (how easy to exploit) and **i
 - [[testing-review]] -- Test assessment (Phase 5)
 - [[final-report]] -- Consolidated report (Phase 6)
 - [[security-patch-advisor]] -- generate fixes for the XSS, injection, and SSRF findings this review surfaces
+- [[adversarial-verifier]] -- owns the valid/invalid refutation taxonomy and the proof burden required to reject a candidate
+- [[pentest-reporting]] -- owns `needs-live-validation` receipts and the confirmed-versus-potential severity reporting discipline
 
 ---
 

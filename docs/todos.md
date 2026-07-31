@@ -8,8 +8,9 @@
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
-| Plan phases complete | 1 | 7 | 6 |
+| Plan phases complete | 2 | 7 | 5 |
 | Phase 1 tasks complete | 3 | 3 | 0 |
+| Phase 2 tasks complete | 3 | 3 | 0 |
 | Open phase blockers | 0 | 0 | 0 |
 
 ## Phase 1 - Finding-disposition doctrine [DONE]
@@ -18,9 +19,11 @@
 - [x] Align `catalog/skills/security/exploitability-analyzer/SKILL.md` with the shared disposition vocabulary
 - [x] Run validation, lint, tests, the partial-visibility dry check, CI audit, and post-phase documentation
 
-## Phase 2 - Refutation discipline
+## Phase 2 - Refutation discipline [DONE]
 
-- [ ] Add the refutation-validity taxonomy and rejection proof burden
+- [x] Add the refutation-validity taxonomy to `catalog/skills/orchestration/adversarial-verifier/SKILL.md`
+- [x] Add the rejection proof burden and thin `security-review` rejection gate
+- [x] Run validation, lint, tests, dry checks, and post-phase documentation
 
 ## Phase 3 - Hunt coverage accounting
 
