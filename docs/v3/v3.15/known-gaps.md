@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: The v3.15 minor line carries THREE releases. **v3.15.0 platform-parity-all-gaps** (all 7 phases, RELEASED 2026-07-23): every supported platform receives all the surfaces it can consume, re-verified against current docs. **v3.15.1 adoption-codesight** (all 7 phases built, releasing 2026-07-23): the deterministic compiled context-map inside `nexus-code-search`, both DoD axes holding. **v3.15.2 adoption-awesome-llm-apps** (ALL 6 PHASES COMPLETE; RELEASE HELD): a deterministic, model-free skill trigger-and-routing quality gate (now a hard `--gate`), an unfilled-placeholder lint, per-skill routing assertions, behavioral-eval schema interop, and a Hermes platform-roster integration. Implementation is done and verified on `feat/adoption-awesome-llm-apps`; the `/update release` hand-off is HELD (see the v3.15.2 Release hold section). The v3.15.0 version collision (three plans stamped v3.15.0) was reconciled on 2026-07-22 by re-stamping: v3.15.0 = platform-parity-all-gaps, v3.15.1 = adoption-codesight, v3.15.2 = adoption-awesome-llm-apps. A fourth release, **v3.15.3 adoption-no-ai-slop** (ALL 3 PHASES COMPLETE / RELEASED 2026-07-24), adds a dedicated prose `anti-slop-editing` skill. A fifth cycle, **v3.15.4 presentify-visual-fidelity** (ALL 7 PHASES COMPLETE; release-ready, pending the user-driven `/update release`), makes presentify's output visually faithful and self-correcting: a full-width canvas contract, image-sizing discipline, annotated-figure overlay recreation, reliable stock/mix imagery integration, an iterative multi-agent visual-QA self-critique loop, command/skill polish (the `--qa-depth` knob), and the terminal refactor + known-gaps + CI/CD gate. A sixth cycle, **v3.15.5 model-prompting-research** (PHASES 1-2 OF 6 COMPLETE, in progress on `feat/model-prompting-research`), adds a research-and-tune capability that keeps the catalog current with new model releases: Phase 1 landed the schema-validated per-model prompting profile layer, its structural hard gate, and its advisory staleness checker; Phase 2 landed the skill itself plus the verify-before-record research engine (a Dynamic-Workflow fan-out template with a budget kill switch, and a deterministic planner/writer). A seventh cycle, **v3.15.6 adoption-sandbox-escapes** (PHASE 1 OF 4 COMPLETE, in progress on `feat/adoption-sandbox-escapes`), closes the config-write-then-executed trust-seam gap that Nexus-Hub's own distributed artifacts expose (one of the source advisories, CVE-2026-48124, names workspace-controlled agent-harness hook configs, which is exactly the artifact class the installer ships): Phase 1 landed the `agentic-endpoint-hardening` skill carrying the escape taxonomy, the normative execution-trigger surface list that the later phases' guardrails consume, nine control layers, and the framework-mapping reference.
-**Last updated**: 2026-07-30 (v3.15.6 ALL 4 PHASES COMPLETE - release-ready, pending the user-driven `/update release`)
+**Last updated**: 2026-07-30 (v3.15.7 Phase 1 COMPLETE - finding-disposition doctrine)
 
 > **Correction notice (2026-07-30, applies file-wide)**: several advisory blocks below, in the v3.15.0 through v3.15.5 sections, attribute repo-wide Windows test failures to **WN-v36-1** ("bash cannot be fully exercised on the Windows dev host", covered on Linux in CI only). **That premise is disproven.** The cause was PATH shadowing: `C:\Windows\System32\bash.exe` (the WSL launcher stub) preceded Git Bash and could not resolve a Windows-style script path at all, so it exited 127 before executing a line. v3.15.6 Phase 4 fixed it structurally with a module-level PATH repair in `catalog/hooks/tests/conftest.py` and `tests/conftest.py`; both test trees now pass on Windows with no PATH assistance (658 and 516, zero failures). Those earlier blocks are left as written because they record what was believed at the time, which is what a gap ledger is for. Read them with this correction in mind, and do not cite WN-v36-1 as evidence that a Windows host cannot run bash. Canonical entry updated in [docs/v3/v3.6/known-gaps.md](../v3.6/known-gaps.md); resolution detail in the v3.15.6 HO-1 and DF-2 entries below.
 
@@ -772,3 +772,40 @@ Beyond the two fixes: the init carve-out is implemented as a writer-identity sig
 - **A stale `.git/worktrees/nh-baseline-dev` metadata directory could not be pruned** (permission denied, most likely a OneDrive or scanner lock). It is not this phase's artifact and predates it, `git worktree list` already excludes it, and nothing inside `.git/` is committed, so it has zero repo impact. The worktree this phase created for baseline verification was removed and its metadata cleaned up successfully.
 - **An unrelated working-tree modification was present and deliberately excluded from this phase's commit**: `docs/v3/v3.16/plans/v3.16.0-agent-autonomy-toggle.md` carries a coherent authored edit (refining that plan's Phase 1 around PowerShell-block coverage and workspace scope) written by a parallel session, not by this phase. It was left unstaged and untouched. Notably, that plan already cites "the v3.15.6 escape taxonomy" and its execution-trigger config paths as a dependency, so a downstream plan is already consuming the list this phase authored.
 - **The unicode-safety validator still reports its pre-existing repo-wide warnings (0 errors).** All four Markdown files touched by this phase are strictly ASCII, verified explicitly.
+
+## v3.15.7 - adoption-raptor-loop-hunt
+
+### v3.15.7 Phase 1 checkpoint
+
+Phase 1 added the shared finding-disposition doctrine to `pentest-reporting` and `exploitability-analyzer`: confirmed and potential severity remain separate under partial visibility, the higher axis drives triage, every surviving finding receives exactly one of four dispositions, and `needs-live-validation` carries a concrete safe validation receipt. The existing full-CVSS-vector requirement remains owned by `pentest-reporting`.
+
+### v3.15.7 Phase 1 Open Items
+
+#### Warnings
+
+##### WN-3 - `test_instruction_merge.py` depends on installer-suite import order
+
+- **Source phase**: v3.15.7 Phase 1 - Finding-disposition doctrine.
+- **Plan reference**: `docs/v3/v3.15/plans/v3.15.7-adoption-raptor-loop-hunt.md` (sub-task 1.3).
+- **Reason**: `python -m pytest tests/installer/test_instruction_merge.py -q` fails during collection with `ImportError: cannot import name 'merge_marker_section' from partially initialized module 'scripts.lib.installer.instruction_merge' (most likely due to a circular import)`. The authoritative full `tests/installer` run passes 143 tests and skips 16, so this is a pre-existing isolated-test order dependency rather than a Phase 1 product regression.
+- **Suggested next step**: break the `instruction_merge` / integrations package import cycle or add an isolated-import regression test in a later maintenance phase.
+
+The remaining v3.15.7 phases are scheduled plan work, not gaps in the completed Phase 1 scope.
+
+### v3.15.7 Phase 1 Resolved
+
+None. No pre-existing bug or deferred item was pulled into this phase.
+
+### v3.15.7 Phase 1 Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 1 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+| Hand-offs (HO) | 0 | 0 |
+
+**Verification boundary.** The two changed skill bodies passed the catalog bundle, placeholder, routing, security, and registry gates. The complete edited-content test matrix reports 1,793 passed, 21 skipped, and 0 failed. No executable module changed, so code coverage is not applicable to this prose-only phase.
