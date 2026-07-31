@@ -8,11 +8,12 @@
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
-| Plan phases complete | 4 | 7 | 3 |
+| Plan phases complete | 5 | 7 | 2 |
 | Phase 1 tasks complete | 3 | 3 | 0 |
 | Phase 2 tasks complete | 3 | 3 | 0 |
 | Phase 3 tasks complete | 4 | 4 | 0 |
 | Phase 4 tasks complete | 3 | 3 | 0 |
+| Phase 5 tasks complete | 4 | 4 | 0 |
 | Open phase blockers | 0 | 0 | 0 |
 
 ## Phase 1 - Finding-disposition doctrine [DONE]
@@ -40,9 +41,12 @@
 - [x] Reference the audit owner from `catalog/skills/security/pentest-reporting/SKILL.md` and add binary report-claim checks
 - [x] Run validation, two full test matrices, the mechanical table audit, the CI audit, and post-phase documentation
 
-## Phase 5 - Execution-authorization broker
+## Phase 5 - Execution-authorization broker [DONE]
 
-- [ ] Build, test, and document the typed capability-grant broker
+- [x] Build the pure-standard-library typed capability-grant broker under `agent-access-policy`
+- [x] Add denial-first, plan-only, sandbox-execution, import, and installer-distribution tests
+- [x] Document the broker, v3.15.6 composition seam, and `re-full` policy disposition
+- [x] Run validation, coverage, cross-shell smoke checks, full tests, CI audit, and post-phase documentation
 
 ## Phase 6 - Closure gate, eval hardening, and monotonicity
 
