@@ -8,9 +8,10 @@
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
-| Plan phases complete | 2 | 7 | 5 |
+| Plan phases complete | 3 | 7 | 4 |
 | Phase 1 tasks complete | 3 | 3 | 0 |
 | Phase 2 tasks complete | 3 | 3 | 0 |
+| Phase 3 tasks complete | 4 | 4 | 0 |
 | Open phase blockers | 0 | 0 | 0 |
 
 ## Phase 1 - Finding-disposition doctrine [DONE]
@@ -25,9 +26,12 @@
 - [x] Add the rejection proof burden and thin `security-review` rejection gate
 - [x] Run validation, lint, tests, dry checks, and post-phase documentation
 
-## Phase 3 - Hunt coverage accounting
+## Phase 3 - Hunt coverage accounting [DONE]
 
-- [ ] Add the component denominator, UNCOVERED records, multi-altitude traversal, and proven-dirty sweep
+- [x] Add component denominator and explicit COVERED, OMITTED, and UNCOVERED accounting to `catalog/skills/code-review/security-review/SKILL.md`
+- [x] Add multi-altitude traversal and the proven-dirty sink sweep with reciprocal ownership pointers
+- [x] Surface the N-of-M coverage promise in `catalog/commands/review.md`
+- [x] Run validation, full tests, the coverage dry check, and post-phase documentation
 
 ## Phase 4 - Anti-costume-rigor
 

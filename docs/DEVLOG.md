@@ -1,5 +1,35 @@
 # Development Log
 
+## [2026-07-31] - v3.15.7 adoption-raptor-loop-hunt Phase 3: hunt coverage accounting [feature]
+
+### What Changed
+
+Implemented Phase 3 of 7 on `feat/adoption-raptor-loop-hunt`. `security-review` now enumerates a target-wide component denominator before review, assigns every component exactly one of COVERED, OMITTED, or UNCOVERED, and verifies `N + O + U = M` before making a coverage claim. It separately tracks whole-project, file-by-file, functionality-by-functionality, and function-by-function passes, so domain coverage cannot mask an altitude gap. Once attacker influence reaches a sensitive sink, a proven-dirty sweep now enumerates every route, command, action, internal caller, and subsystem deserialization or import path; negative evidence clears only the tested path, and an unresolved path remains UNKNOWN or produces `needs-live-validation`. `/review` exposes the exact `N of M components covered; O omitted; U UNCOVERED` promise while leaving all mechanics in the owning skill. `advanced-attack-patterns` and `business-logic-abuse` carry reciprocal ownership pointers without restating the rules.
+
+### Why It Changed
+
+A domain checklist has no target denominator, so a reviewer can inspect only the interesting modules and still produce a report that reads as complete. A sink can also remain reachable through an alternate trigger after one route passes. Phase 3 makes both omissions visible and supplies the coverage artifact that Phase 6's deterministic closure gate will compare against recorded review actions.
+
+### Decisions Made
+
+- Kept all coverage mechanics in `security-review`; the command and deep attack skills contain only thin guarantees or ownership pointers.
+- Used three explicit component states and a balance equation so unassigned work cannot vanish between inventory and report.
+- Kept domain, component, and altitude accounting distinct; no one axis is accepted as evidence for another.
+- Treated a depth flag as an effort control only: it may lower `N`, but it cannot shrink `M` or hide UNCOVERED components.
+
+### Troubleshooting Trail
+
+<details>
+<summary>Validation wrapper and unrelated workspace finding</summary>
+
+The first JSON-validation wrapper failed before reading a catalog because PowerShell mangled nested f-string quotes and Python reported `SyntaxError: unterminated string literal`. Replacing the wrapper with quote-safe `%` formatting ran the exact checks successfully. The repository-wide personal-path validator then found only a Windows user-profile path in the unrelated untracked v3.16.7 interactive-guide plan; rerunning with that single file excluded passed the Phase 3 scope. No Phase 3 file contained a personal path.
+
+</details>
+
+### Impact and Context
+
+The required dry check enumerated all seven real `extensions/` components, deliberately assigned only six, and forced `nexus-web-fetch` to remain visible as UNCOVERED. Its statement was `5 of 7 components covered; 1 omitted; 1 UNCOVERED`, with completeness prohibited. All validation commands and ShellCheck passed. The complete matrix reports 1,793 passed, 21 skipped, and 0 failed; the repository tree alone completed in 20:51 with 1,123 passed and 20 skipped. Existing CI already triggers on `catalog/commands/**` and `catalog/skills/**`, uses concurrency cancellation and pip caching, and gates expensive OS jobs, so no workflow edit was justified. Phase 3 introduced no new known gap; WN-3 remains open and unchanged. No frontmatter, generated registry, executable module, dependency, version, tag, merge, push, or release artifact changed.
+
 ## [2026-07-31] - v3.15.7 adoption-raptor-loop-hunt Phase 2: refutation discipline [feature]
 
 ### What Changed

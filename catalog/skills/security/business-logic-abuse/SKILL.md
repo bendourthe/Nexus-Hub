@@ -303,7 +303,7 @@ def transition(order: Order, to: OrderStatus) -> None:
 
 - [[advanced-attack-patterns]] -- companion skill; its Step 5 injection/access-control vectors and Step 1 state-desync pair with these business-logic playbooks on multi-step flows
 - [[security-patch-advisor]] -- patch generation for the remediation code
-- [[security-review]] -- general application security review (this skill extends it with domain-specific checks)
+- [[security-review]] -- general application security review that owns the target denominator, altitude ledger, and proven-dirty sink sweep for these playbooks
 - [[authentication-patterns]] -- auth-specific invariants (one active session per user, MFA enrollment sequencing)
 - [[pentest-reporting]] -- writes up the business-impact findings these playbooks produce
 - [[fintech-engineer]] -- domain knowledge for financial ledger invariants
