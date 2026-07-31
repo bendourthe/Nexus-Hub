@@ -861,3 +861,29 @@ None. Phase 3 did not take ownership of WN-3 or any older v3.15 gap.
 | Hand-offs (HO) | 0 | 0 |
 
 **Verification boundary.** The complete matrix reports 1,793 passed, 21 skipped, and 0 failed. The required dry check enumerated seven real `extensions/` components, assigned only six, and forced `nexus-web-fetch` to remain visible as UNCOVERED; its report stated `5 of 7 components covered; 1 omitted; 1 UNCOVERED` and correctly prohibited a completeness claim. No executable module changed, so code coverage is not applicable to this prose-only phase.
+
+### v3.15.7 Phase 4 checkpoint
+
+Phase 4 added the anti-costume-rigor fraud-class table to `verification-before-completion`. Its ten rows cover fabricated and stale evidence, overstated outcomes, false tested-route claims, unsupported N/A entries, read-derived coverage, wrong-instrument sweeps, completeness-unknown enumeration, dropped pending work, and escalation avoidance. Every row states the exact artifacts or sets an auditor compares. `pentest-reporting` references the owner table through a thin pre-delivery gate and adds binary checks for confirmation evidence, rejection receipts, and component coverage actions.
+
+### v3.15.7 Phase 4 Open Items
+
+No new items. WN-3 remains open and unchanged from Phase 1; both complete test passes remain green.
+
+### v3.15.7 Phase 4 Resolved
+
+None. Phase 4 did not take ownership of WN-3 or any older v3.15 gap.
+
+### v3.15.7 Phase 4 Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 1 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+| Hand-offs (HO) | 0 | 0 |
+
+**Verification boundary.** Both complete matrices report 1,793 passed, 21 skipped, and 0 failed. The mechanical table audit found exactly ten required rows and reduced each tell to an explicit Compare or Diff operation. No executable module changed, so code coverage is not applicable to this prose-only phase.

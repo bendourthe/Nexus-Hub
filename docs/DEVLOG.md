@@ -1,5 +1,35 @@
 # Development Log
 
+## [2026-07-31] - v3.15.7 adoption-raptor-loop-hunt Phase 4: anti-costume-rigor [feature]
+
+### What Changed
+
+Implemented Phase 4 of 7 on `feat/adoption-raptor-loop-hunt`. `verification-before-completion` now owns an anti-costume-rigor audit with exactly ten fraud classes, each expressed as an objective Compare or Diff operation over recorded claims and artifacts. The audit covers fabricated or stale evidence, overstated outcomes, untested items presented as tested, rationale-free not-applicable decisions, read-derived coverage, wrong-instrument sweeps, completeness-unknown enumerations sold as complete, dropped pending work, and escalation avoidance. `pentest-reporting` now points to that owner and adds binary pre-delivery checks for confirmed, rejected, and covered claims without duplicating the full doctrine.
+
+### Why It Changed
+
+Security work can look rigorous while its evidence trail does not support the report. Phase 4 turns that failure mode into a mechanical comparison problem: every claim must reconcile with a concrete artifact, action, result, or explicit unresolved state, so polish and procedural language cannot substitute for proof.
+
+### Decisions Made
+
+- Kept the complete fraud-class table in `verification-before-completion`; `pentest-reporting` carries only a thin ownership reference and report-specific binary checks.
+- Required each tell to begin with Compare or Diff so the audit remains executable and does not drift into subjective style judgment.
+- Preserved false confirmations as visible and retestable while requiring a complete rejection record before a finding can disappear from the report.
+- Added no bundled reference because the two owning skill files remain well below the 500-line size target.
+
+### Troubleshooting Trail
+
+<details>
+<summary>Patch context, JSON wrapper, and documentation ordering</summary>
+
+The first combined patch missed an existing verification-checklist context and made no change; splitting it into narrow, anchored patches applied cleanly. A PowerShell `ConvertFrom-Json` convenience wrapper then rejected the valid templates catalog because its case-insensitive object model treats `Cpp` and `cpp` as duplicate keys; the repository's exact Python JSON checks passed all four catalogs. The first docs-cleanup insertion matched a repeated heading and placed Phase 4 before Phase 3; a targeted correction restored chronological phase order. The first final focused pytest wrapper reached its 124-second command limit without an assertion failure and briefly left pytest running; the process exited during cleanup inspection, and the same suites passed with a ten-minute budget at 582 passed and 3 skipped in 67.37 seconds.
+
+</details>
+
+### Impact and Context
+
+The mechanical audit confirms exactly ten fraud-class rows, all required classes present, and every tell expressed as a Compare or Diff operation. All direct validation equivalents and ShellCheck passed. The complete test matrix was run twice and produced the same result each time: 1,793 passed, 21 skipped, and 0 failed, including 1,123 passed and 20 skipped in the repository tree. Existing CI already triggers for `catalog/skills/**`, validates skills, cancels superseded runs, caches dependencies, and gates expensive operating-system jobs, so no workflow edit was justified. Phase 4 introduced no new known gap; WN-3 remains open and unchanged. No frontmatter, generated registry, executable module, dependency, version, tag, merge, push, or release artifact changed.
+
 ## [2026-07-31] - v3.15.7 adoption-raptor-loop-hunt Phase 3: hunt coverage accounting [feature]
 
 ### What Changed

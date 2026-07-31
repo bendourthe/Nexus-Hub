@@ -8,10 +8,11 @@
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
-| Plan phases complete | 3 | 7 | 4 |
+| Plan phases complete | 4 | 7 | 3 |
 | Phase 1 tasks complete | 3 | 3 | 0 |
 | Phase 2 tasks complete | 3 | 3 | 0 |
 | Phase 3 tasks complete | 4 | 4 | 0 |
+| Phase 4 tasks complete | 3 | 3 | 0 |
 | Open phase blockers | 0 | 0 | 0 |
 
 ## Phase 1 - Finding-disposition doctrine [DONE]
@@ -33,9 +34,11 @@
 - [x] Surface the N-of-M coverage promise in `catalog/commands/review.md`
 - [x] Run validation, full tests, the coverage dry check, and post-phase documentation
 
-## Phase 4 - Anti-costume-rigor
+## Phase 4 - Anti-costume-rigor [DONE]
 
-- [ ] Add the mechanical fraud-class table and report checks
+- [x] Add ten fraud-class rows with objective Compare or Diff tells to `catalog/skills/workflow/verification-before-completion/SKILL.md`
+- [x] Reference the audit owner from `catalog/skills/security/pentest-reporting/SKILL.md` and add binary report-claim checks
+- [x] Run validation, two full test matrices, the mechanical table audit, the CI audit, and post-phase documentation
 
 ## Phase 5 - Execution-authorization broker
 
