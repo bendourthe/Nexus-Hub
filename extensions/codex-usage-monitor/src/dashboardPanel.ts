@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import { UsageData, isTracked } from "./types";
-import { formatResetLabel } from "./usageStore";
+import { formatCreditCount, formatResetLabel } from "./usageStore";
 import { ProviderFetchError, describeProviderError } from "./providers";
 import {
   getRecommendation,
@@ -194,13 +194,20 @@ export class DashboardPanel {
       </div>`,
       )
       .join("");
-    const creditsSection = data.creditsSummary
+    const creditsSection = data.extraCredits
       ? `
       <div class="section">
-        <h3>Credits</h3>
+        <h3>Extra Credits</h3>
+        ${this.renderProgressBar(data.extraCredits.percent, data.extraCredits.resetsIn, data.extraCredits.resetsAt)}
+        <div class="extra-credits-info">${formatCreditCount(data.extraCredits.usedCredits)} of ${formatCreditCount(data.extraCredits.monthlyLimit)} credits used</div>
+      </div>`
+      : data.creditsSummary
+        ? `
+      <div class="section">
+        <h3>Extra Credits</h3>
         <div class="extra-credits-info">${escapeHtml(data.creditsSummary)}</div>
       </div>`
-      : "";
+        : "";
 
     // Render only the windows the account actually exposes; an untracked window
     // (e.g. no 5-hour "session" limit on a weekly-only plan) is omitted entirely

@@ -8,8 +8,8 @@ A VS Code extension that monitors your Codex (ChatGPT / OpenAI) usage limits, di
 
 - **Auto-fetch**: Reads your local Codex-app OAuth token and fetches usage from your own ChatGPT account
 - **Status bar**: Shows session and weekly usage percentages with the Codex icon
-- **SVG tooltip**: Hover for theme-aware progress bars (in Codex periwinkle, `#5244BB`) showing per-metric breakdown with reset timers
-- **Dashboard panel**: Click for a full usage dashboard with your plan tier, extra rate-limit windows, a credits line, and throttle / pacing recommendations
+- **SVG tooltip**: Hover for theme-aware progress bars (in Codex periwinkle, `#5244BB`) showing rate-limit windows and monthly Extra Credits usage with reset timers
+- **Dashboard panel**: Click for a full usage dashboard with your plan tier, extra rate-limit windows, an Extra Credits progress bar, and throttle / pacing recommendations
 - **Fail-soft**: When credentials are missing or the endpoint is unavailable, shows "usage unavailable" and keeps cached data rather than erroring
 - **Auto-refresh**: Configurable interval (default 10 min) to keep data current
 
@@ -52,7 +52,7 @@ $(codex-icon) Codex Usage: 12% (current) 5% (week)
 ```
 
 - The extension auto-fetches usage data on startup using your Codex-app OAuth credentials
-- **Hover** for a detailed SVG tooltip with progress bars for the Current Session and Weekly metrics and their reset timers
+- **Hover** for a detailed SVG tooltip with progress bars for the tracked rate-limit windows and, when available, monthly Extra Credits usage
 - **Click** to open the full usage dashboard panel
 
 The status bar background changes color based on urgency:
@@ -99,7 +99,7 @@ chatgpt-account-id: {account_id}
 Accept: application/json
 ```
 
-The `chatgpt-account-id` header is omitted for a synthetic (`email_` / `local_`) account id. The response's primary and secondary rate-limit windows map to the session and weekly metrics; the plan type, credits, and any additional rate limits appear as extra dashboard rows. The endpoint is undocumented, so the payload is parsed defensively: any parse failure, HTTP error, timeout, or missing field yields the fail-soft "usage unavailable" state instead of an error.
+The `chatgpt-account-id` header is omitted for a synthetic (`email_` / `local_`) account id. The response's primary and secondary rate-limit windows map to the session and weekly metrics; detailed monthly credit data maps to the Extra Credits progress bar, while simpler balance-only payloads retain the text summary. The plan type and any additional rate limits appear as extra dashboard rows. The endpoint is undocumented, so the payload is parsed defensively: any parse failure, HTTP error, timeout, or missing field yields the fail-soft "usage unavailable" state instead of an error.
 
 The Codex credential is located, most-specific first: the `codexUsage.authPath` setting, then `CODEX_HOME/auth.json` when `CODEX_HOME` is set, otherwise `~/.codex/auth.json`. Set `codexUsage.authPath` if your Codex app stores its credential elsewhere.
 
@@ -121,3 +121,15 @@ The thresholds (50 / 75 / 95) and the per-bucket guidance can be customized in `
 ## Data Storage
 
 Usage data is stored in VS Code's `globalState` (persists across sessions, local to your machine), under Codex-specific keys that do not collide with the Claude Usage Monitor extension. The only external call is to `chatgpt.com/backend-api/wham/usage` to fetch your own usage data; the OAuth token is read locally and never transmitted anywhere except back to your own account. Use `Codex Usage: Clear Data` to remove all stored data.
+
+## Development
+
+```powershell
+npm ci
+npm run compile
+npm test
+npm run test:coverage
+npm run package
+```
+
+`npm run test:coverage` enforces at least 80% line and statement coverage plus 75% branch and function coverage.

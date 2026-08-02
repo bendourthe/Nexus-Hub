@@ -2,7 +2,7 @@
   "name": "codex-usage-monitor",
   "displayName": "Codex Usage Monitor",
   "description": "Monitor your Codex (ChatGPT) usage limits in the status bar with smart throttle and pacing recommendations",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "publisher": "nexus-hub",
   "icon": "icon.png",
   "repository": {
@@ -177,12 +177,14 @@
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "package": "vsce package --no-dependencies"
   },
   "devDependencies": {
     "@types/node": "^20.19.41",
     "@types/vscode": "^1.85.0",
     "@vscode/vsce": "^3.0.0",
+    "@vitest/coverage-v8": "^4.1.10",
     "fantasticon": "^4.1.0",
     "svg2ttf": "^6.1.0",
     "svgpath": "^2.6.0",

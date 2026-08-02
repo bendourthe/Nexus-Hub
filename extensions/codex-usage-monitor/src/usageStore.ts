@@ -27,6 +27,7 @@ export class UsageStore {
       ...data,
       session: refreshMetricCountdown(data.session),
       weeklyAllModels: refreshMetricCountdown(data.weeklyAllModels),
+      ...(data.extraCredits ? { extraCredits: refreshMetricCountdown(data.extraCredits) } : {}),
     };
   }
 
@@ -54,7 +55,9 @@ export class UsageStore {
       return false;
     }
     const now = Date.now();
-    const metrics = [data.session, data.weeklyAllModels];
+    const metrics = [data.session, data.weeklyAllModels, data.extraCredits].filter(
+      (metric): metric is UsageMetric => metric != null,
+    );
     return metrics.some(
       (m) => m.resetsAt != null && m.resetsAt <= now && data.lastUpdated < m.resetsAt
     );
@@ -98,7 +101,7 @@ export class UsageStore {
 
 }
 
-function refreshMetricCountdown(metric: UsageMetric): UsageMetric {
+function refreshMetricCountdown<T extends UsageMetric>(metric: T): T {
   if (metric.resetsAt == null) {
     return metric;
   }
@@ -167,6 +170,17 @@ export function nextMonthlyResetLabel(): string {
   const now = new Date();
   const next = new Date(now.getFullYear(), now.getMonth() + 1, 1);
   return next.toLocaleDateString("en-US", { month: "long", day: "numeric" });
+}
+
+/** Epoch milliseconds for the next calendar-month boundary in UTC. */
+export function nextMonthlyResetAt(nowMs = Date.now()): number {
+  const now = new Date(nowMs);
+  return Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 1);
+}
+
+/** Format a credit count for compact user-facing amount lines. */
+export function formatCreditCount(value: number): string {
+  return new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }).format(value);
 }
 
 /** 1 → "1st", 2 → "2nd", 7 → "7th", 11 → "11th", 22 → "22nd". */

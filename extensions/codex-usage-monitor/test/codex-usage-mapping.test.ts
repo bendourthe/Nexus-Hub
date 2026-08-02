@@ -29,6 +29,11 @@ describe("mapCodexUsageResponse", () => {
         { name: "Codex tasks", used_percent: 20, reset_after_seconds: 3600 },
       ],
       credits: { has_credits: true, unlimited: false, balance: 5 },
+      workspace_monthly_credit_limit: {
+        used_credits: 0,
+        monthly_limit: 5_000,
+        reset_at: Math.floor((NOW + THREE_DAYS) / 1000),
+      },
     };
 
     const model = mapCodexUsageResponse(payload);
@@ -55,6 +60,52 @@ describe("mapCodexUsageResponse", () => {
 
     // Credits summary.
     expect(model!.creditsSummary).toBe("Credits: 5 remaining");
+    expect(model!.extraCredits).toMatchObject({
+      usedCredits: 0,
+      monthlyLimit: 5_000,
+      percent: 0,
+      resetsAt: NOW + THREE_DAYS,
+    });
+  });
+
+  it("maps camelCase monthly credit limits and derives usage from the remaining balance", () => {
+    const model = mapCodexUsageResponse({
+      rate_limit: {
+        primary_window: {
+          used_percent: 10,
+          limit_window_seconds: 604800,
+          reset_at: Math.floor((NOW + THREE_DAYS) / 1000),
+        },
+      },
+      credits: {
+        monthlyLimit: 5_000,
+        balance: 4_250,
+        resetAt: new Date(NOW + THREE_DAYS).toISOString(),
+      },
+    });
+
+    expect(model!.extraCredits).toMatchObject({
+      usedCredits: 750,
+      monthlyLimit: 5_000,
+      percent: 15,
+      resetsAt: NOW + THREE_DAYS,
+    });
+  });
+
+  it("maps a top-level numeric workspace credit limit and credit-specific reset alias", () => {
+    const model = mapCodexUsageResponse({
+      weekly_limit: { used_percent: 25, reset_after_seconds: THREE_DAYS / 1000 },
+      workspace_monthly_credit_limit: 5_000,
+      credits_used: 1_250,
+      credit_reset_at: Math.floor((NOW + THREE_DAYS) / 1000),
+    });
+
+    expect(model!.extraCredits).toMatchObject({
+      usedCredits: 1_250,
+      monthlyLimit: 5_000,
+      percent: 25,
+      resetsAt: NOW + THREE_DAYS,
+    });
   });
 
   it("supports top-level primary/secondary windows", () => {

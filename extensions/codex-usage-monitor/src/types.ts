@@ -41,6 +41,15 @@ export interface UsageMetricRow {
   resetsAt: number | null;
 }
 
+/** Monthly workspace Extra Credits usage returned by the Codex account endpoint. */
+export interface CreditUsageInfo {
+  usedCredits: number;
+  monthlyLimit: number;
+  percent: number;
+  resetsIn: string;
+  resetsAt: number | null;
+}
+
 export type DataSource = "api" | "manual";
 
 export interface UsageData {
@@ -56,6 +65,8 @@ export interface UsageData {
   additionalLimits?: UsageMetricRow[];
   /** A short, Codex-formatted credits summary line (e.g. "Credits: 5 remaining"). */
   creditsSummary?: string;
+  /** Detailed monthly Extra Credits usage, rendered as a progress bar when available. */
+  extraCredits?: CreditUsageInfo;
 }
 
 export interface Recommendation {

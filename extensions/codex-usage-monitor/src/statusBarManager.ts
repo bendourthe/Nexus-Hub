@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { UsageData, UrgencyLevel, ColorConfig, getColorConfig, getThresholdConfig, WORKBENCH_COLOR_KEYS, syncActiveColorToWorkbench, isTracked } from "./types";
 import { getActiveUrgency, pickTriggerMetric } from "./recommendations";
-import { UsageStore, formatResetLabel } from "./usageStore";
+import { UsageStore, formatCreditCount, formatResetLabel } from "./usageStore";
 
 /** The Codex logo glyph, contributed as an icon font in package.json. */
 const CODEX_ICON = "$(codex-icon)";
@@ -202,11 +202,12 @@ export class StatusBarManager {
       ? `<span style="color:#cca700">&#9888; Data may be stale (last updated ${timeSince})</span><br><br>`
       : "";
 
-    // Codex exposes a credits summary line rather than a dollar-denominated
-    // extra-usage pool; show it when the payload provided one, otherwise nothing.
-    const credits = data.creditsSummary
-      ? `<span style="color:${labelColor}">${data.creditsSummary}</span><br><br>`
-      : "";
+    const credits = data.extraCredits
+      ? `<img src="${sectionImg("Extra Credits", data.extraCredits.percent)}" width="${W}" height="${svgH}"><br>` +
+        `<em>${formatCreditCount(data.extraCredits.usedCredits)} of ${formatCreditCount(data.extraCredits.monthlyLimit)} credits used &middot; ${formatResetLabel(data.extraCredits.resetsIn)}</em><br><br>`
+      : data.creditsSummary
+        ? `<span style="color:${labelColor}">${data.creditsSummary}</span><br><br>`
+        : "";
 
     md.appendMarkdown(
       `<span style="opacity:0.6">Codex Usage</span><br><br>` +

@@ -19,6 +19,21 @@ describe("describeProviderError", () => {
       describeProviderError({ code: "api-error", statusCode: 502, statusText: "Bad Gateway" }),
     ).toBe("The Codex usage endpoint returned an error (502 Bad Gateway).");
   });
+
+  it.each([
+    ["invalid-credentials", "could not be read"],
+    ["token-expired", "sign-in has expired"],
+    ["token-refresh-failed", "Could not refresh"],
+    ["token-invalid", "rejected (401)"],
+    ["rate-limited", "temporarily unavailable"],
+    ["network-error", "Check your internet connection"],
+    ["parse-error", "unexpected response"],
+  ] as const)("renders the %s failure", (code, fragment) => {
+    const error = code === "token-invalid"
+      ? { code, statusCode: 401 }
+      : { code };
+    expect(describeProviderError(error)).toContain(fragment);
+  });
 });
 
 describe("CodexUsageProvider", () => {
