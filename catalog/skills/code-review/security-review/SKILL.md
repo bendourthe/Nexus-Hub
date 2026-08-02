@@ -55,6 +55,30 @@ When this review runs as one lens inside a multi-agent pipeline, or when `run-pe
 
 ## Instructions
 
+### Step 0: Establish the Coverage Denominator
+
+Before reviewing findings, enumerate the entire target as a flat component inventory. Include every top-level module, package, service, transport, and deployable unit visible in the source tree, build manifests, and deployment configuration. Do not build the inventory from the subsystems that look security-sensitive; that silently turns a hot-spot sample into the denominator.
+
+Rebuild this inventory for every new clone, revision, or release under review. A prior inventory is context, not evidence that newly added components were considered.
+
+Track every component in one coverage record:
+
+| Component | Kind | Status | Review action or omission reason |
+|---|---|---|---|
+| `api` | service | COVERED | Reviewed route registration, authentication boundary, and input-to-sink paths |
+| `generated-client` | package | OMITTED | Generated from the reviewed schema; generator output is outside the declared scope |
+| `worker` | deployable unit | UNCOVERED | No review action assigned yet |
+
+Use exactly these states:
+
+- **COVERED**: at least one logged review action names what was examined and records its result. Reading or listing a component without a review action is not coverage.
+- **OMITTED**: intentionally outside the assessment, with a concrete reason such as declared scope, build-time-only tooling, generated code, or vendored third-party code.
+- **UNCOVERED**: no review action or justified omission exists yet. This is the default for every newly enumerated component; an unassigned component stays visible rather than disappearing.
+
+Let `M` be the complete component denominator, `N` the COVERED count, `O` the OMITTED count, and `U` the UNCOVERED count. Verify `N + O + U = M`, then report: `N of M components covered; O omitted for the reasons below; U remain UNCOVERED.` Never describe the whole target as fully reviewed while `U > 0`. When `O > 0`, describe the assessment as scoped and name every omission instead of implying whole-target completeness.
+
+If time or budget cannot cover a large target, scale the number of review passes or state the incomplete coverage. Never shrink `M` to fit the available effort. This follows the established `[[model-prompting-research]]` pattern: an unresearched model is reported as UNVERIFIED rather than omitted silently.
+
 ### Step 1: Dependency Vulnerability Scan
 
 ```bash
@@ -175,9 +199,69 @@ Sub-categories:
 - Lost updates from concurrent writes
 - Cascade failures from unguarded deletes
 
+### Step 3A: Track Multi-Altitude Traversal
+
+Domain coverage and altitude coverage are orthogonal. Checking all 10 domains at one zoom level can still miss defects that exist only across modules, within a feature's end-to-end flow, or inside one parser. Track a separate altitude ledger and attach evidence to each required pass:
+
+| Altitude | Required review pass | Defects it surfaces |
+|---|---|---|
+| Whole project | Map architecture, trust boundaries, authorization model, and cross-module data flow | Boundary gaps, confused deputies, inconsistent authorization, unsafe service composition |
+| File by file | Review each file's responsibilities, imports, exported surface, and security-sensitive state | Hidden entry points, unsafe defaults, local trust assumptions, missed handlers |
+| Functionality by functionality | Trace every feature from source to sink and apply every relevant defect class, not only the headline risk | Workflow bypass, missing validation on alternate steps, cross-layer inconsistencies |
+| Function by function | Inspect parsing, memory use, encoding, length arithmetic, and comparison logic in security-sensitive functions | Truncation, overflow, canonicalization, parser differentials, subtle logic errors |
+
+Record each altitude as COVERED with a logged action and result, OMITTED with a reason, or UNCOVERED. A component or domain checklist does not substitute for this ledger. The report may claim the review is complete only when both the component denominator and the required altitude passes are fully accounted for.
+
+### Step 3B: Sweep Every Proven-Dirty Sink
+
+Once attacker-influenced data or control reaches a security-sensitive operation, enumerate that sink's other trigger paths before rating, downgrading, rejecting, or closing the finding. Include every route, command, action, internal caller, and the subsystem's own deserialization or import path.
+
+Use a sink-sweep record:
+
+| Sink | Trigger path | Input source | Result | Evidence |
+|---|---|---|---|---|
+| `execute_task` | HTTP `POST /tasks` | request body | REACHABLE | Handler-to-call trace and safe reproduction |
+| `execute_task` | worker dispatch | decoded queue message | UNKNOWN | Worker implementation unavailable |
+| `execute_task` | CLI `task run` | command argument | NOT-APPLICABLE | CLI invokes a separate non-executing renderer |
+
+A passing check is negative evidence for that trigger path only. It does not clear the sink. A trigger that cannot be resolved is UNKNOWN, never unaffected; preserve it as an explicit coverage caveat or route the finding to `needs-live-validation` when an unobservable layer is decisive. Apply `[[adversarial-verifier]]`'s rejection proof burden to any attempt to kill the candidate after this sweep.
+
 ### Step 4: Document Findings
 
 For each finding, document both **exploitability** (how easy to exploit) and **impact** (what damage results).
+
+#### Rejection Gate
+
+Apply the refutation-validity taxonomy and rejection proof burden owned by `[[adversarial-verifier]]` before marking any candidate rejected. A bare non-reproduction or route list is not enough: the owner requires a reason-specific counter-hypothesis, the sink's actual input sources, a result for every applicable route, and observed build or configuration evidence for reachability claims. When an unobservable layer is the only remaining barrier, route the candidate to `needs-live-validation` through `[[pentest-reporting]]` rather than rejecting or understating it. This skill references that gate but does not restate its taxonomy.
+
+Begin the report with the coverage artifact before listing individual findings:
+
+```markdown
+## Security Review Coverage
+
+**Coverage statement**: N of M components covered; O omitted; U UNCOVERED.
+
+### Component Coverage
+
+| Component | Kind | Status | Review action or omission reason |
+|---|---|---|---|
+| ... | ... | COVERED / OMITTED / UNCOVERED | ... |
+
+### Altitude Coverage
+
+| Altitude | Status | Logged action and result |
+|---|---|---|
+| Whole project | COVERED / OMITTED / UNCOVERED | ... |
+| File by file | COVERED / OMITTED / UNCOVERED | ... |
+| Functionality by functionality | COVERED / OMITTED / UNCOVERED | ... |
+| Function by function | COVERED / OMITTED / UNCOVERED | ... |
+
+### Proven-Dirty Sink Sweeps
+
+| Sink | Trigger path | Input source | Result | Evidence |
+|---|---|---|---|---|
+| ... | ... | ... | REACHABLE / BLOCKED / NOT-APPLICABLE / UNKNOWN | ... |
+```
 
 ```markdown
 ## Security Finding
@@ -211,6 +295,28 @@ For each finding, document both **exploitability** (how easy to exploit) and **i
 ### References
 - [Relevant OWASP link or advisory]
 ```
+
+### Step 5: Run the Deterministic Closure Gate
+
+Do not ask the reviewer to re-read its own report and grade whether it missed anything. A reasoner re-reading its own work tends to ratify the same omissions, while noticing an absent component, candidate, or receipt is precisely the task it already failed. Replace that self-audit with a mechanical claim-to-evidence set difference.
+
+Build the local review record defined in `references/closure-gate-review-record.md`, then run the bundled pure-standard-library gate:
+
+```bash
+python scripts/closure-gate.py review-record.json
+```
+
+The gate computes five diffs:
+
+- Component inventory minus components with a logged review action or an explicit `OMITTED` / `UNCOVERED` caveat, surfacing components silently implied as covered.
+- Findings minus findings with one of the four terminal or explicitly pending dispositions, surfacing dropped candidates. A `needs-live-validation` item counts as explicitly pending only when its safe-test receipt is complete.
+- Confirmed findings minus evidence-bearing facts, surfacing unproven confirmations.
+- Rejected findings minus the route-complete rejection record owned by `[[adversarial-verifier]]`, surfacing rejections that skipped their proof burden.
+- Report claims minus matching evidence-bearing facts, surfacing claims with no recorded support. Use the claim classes in `[[verification-before-completion]]`'s fraud-class table; do not invent a second taxonomy here.
+
+Any non-empty diff is a FAILURE, not advice. The report does not ship until every diff is empty or each remaining component is recorded as an explicit caveat. Verify coverage and rejection claims as aggressively as confirmations because those two claim types suppress further work. The gate is Nexus-Hub-native and deliberately does not reproduce an external run-directory layout.
+
+`tests/skills/test_closure_gate.py` seeds every mismatch class, proves a clean record passes, asserts the explicit-caveat path, checks the CLI exit codes, and verifies recursive installer distribution. Exit `0` is clean, exit `1` is a non-empty closure diff, and exit `2` is malformed or unreadable input.
 
 ## Common Vulnerabilities by Language
 
@@ -254,13 +360,25 @@ For each finding, document both **exploitability** (how easy to exploit) and **i
 | "Our internal API isn't internet-facing so OWASP doesn't apply" | Insider threats and supply chain compromises mean internal APIs are regularly attacked; the Capital One breach in 2019 originated from an internal SSRF call. |
 | "We passed a pentest last quarter, so we're fine" | A pentest is a point-in-time snapshot; new code paths, dependency CVEs, and configuration changes introduced after the test are not covered. |
 | "Race conditions only matter at scale" | Check-Then-Act race conditions in balance deduction logic have been exploited at low request volumes via simple two-tab browser attacks, enabling duplicate payments and negative balances. |
+| "I reviewed the security-sensitive modules, so the target is covered" | A hot-spot list is not the target denominator. Any module, package, service, transport, or deployable unit without a review action must remain visible as OMITTED or UNCOVERED. |
+| "One route to this sink is blocked, so the sink is safe" | The clean result applies only to that route. Another command, internal caller, decoded message, or import path may still reach the same operation and must be recorded separately. |
 
 ## Verification
 
 - [ ] All 10 security domains have been checked with their diagnostic questions and findings are documented
+- [ ] The target was re-enumerated for the reviewed revision, and every component appears exactly once as COVERED, OMITTED, or UNCOVERED
+- [ ] The coverage arithmetic holds (`N + O + U = M`), every omission has a reason, and the report does not imply completeness while any component is UNCOVERED
+- [ ] Whole-project, file-by-file, functionality-by-functionality, and function-by-function passes each have a logged status and result; domain coverage was not substituted for altitude coverage
+- [ ] Every proven-dirty sink has a trigger-path sweep covering routes, commands, actions, internal callers, and subsystem deserialization or import paths where applicable
+- [ ] Negative evidence is scoped to the tested trigger path, and every unresolved path remains UNKNOWN or produces `needs-live-validation`
 - [ ] Dependency vulnerability scan completed and output saved (e.g., `pip-audit`, `npm audit`)
 - [ ] Static analysis tool run (bandit, eslint-plugin-security, or equivalent) with zero unreviewed findings
 - [ ] Every finding includes severity (P0-P3), exploitability assessment, and remediation code
+- [ ] Every rejected finding satisfies `[[adversarial-verifier]]`'s observed, route-complete rejection record
+- [ ] Every candidate blocked only by an unobservable layer is routed to `needs-live-validation` rather than rejected or rated Low
+- [ ] `scripts/closure-gate.py` exits `0` for the current `references/closure-gate-review-record.md` shape, and all five reported diff sets are empty
+- [ ] Every `OMITTED` or `UNCOVERED` component that has no logged review action carries an explicit caveat rather than disappearing from the closure record
+- [ ] `tests/skills/test_closure_gate.py` passes, including every seeded mismatch class, malformed-data handling, and recursive distribution
 - [ ] OWASP Top 10 items are explicitly mapped to findings or marked "not applicable" with justification
 - [ ] Race condition sub-categories (9a shared state, 9b TOCTOU, 9c database, 9d distributed) each addressed
 
@@ -273,6 +391,9 @@ For each finding, document both **exploitability** (how easy to exploit) and **i
 - [[testing-review]] -- Test assessment (Phase 5)
 - [[final-report]] -- Consolidated report (Phase 6)
 - [[security-patch-advisor]] -- generate fixes for the XSS, injection, and SSRF findings this review surfaces
+- [[adversarial-verifier]] -- owns the valid/invalid refutation taxonomy and the proof burden required to reject a candidate
+- [[pentest-reporting]] -- owns `needs-live-validation` receipts and the confirmed-versus-potential severity reporting discipline
+- [[model-prompting-research]] -- established precedent for reporting an unverified inventory item instead of omitting it silently
 
 ---
 

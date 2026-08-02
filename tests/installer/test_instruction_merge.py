@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -20,6 +22,22 @@ END = DEFAULT_END_MARKER
 @pytest.fixture
 def doc_path(tmp_path: Path) -> Path:
     return tmp_path / "CLAUDE.md"
+
+
+def test_module_imports_without_preloading_integration_registry() -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+    result = subprocess.run(
+        [
+            sys.executable,
+            "-c",
+            "from scripts.lib.installer.instruction_merge import merge_marker_section",
+        ],
+        cwd=repo_root,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stderr
 
 
 def test_creates_file_when_missing(doc_path: Path) -> None:
@@ -98,7 +116,9 @@ def test_user_content_outside_markers_preserved(doc_path: Path) -> None:
     assert "- bar" in text
 
 
-def test_remove_marker_section_strips_block_and_keeps_user_content(doc_path: Path) -> None:
+def test_remove_marker_section_strips_block_and_keeps_user_content(
+    doc_path: Path,
+) -> None:
     doc_path.write_text(
         f"User preamble.\n\n{START}\nNexus content.\n{END}\n\nUser appendix.\n",
         encoding="utf-8",
@@ -112,10 +132,10 @@ def test_remove_marker_section_strips_block_and_keeps_user_content(doc_path: Pat
     assert "User appendix." in text
 
 
-def test_remove_marker_section_deletes_file_when_block_was_only_content(doc_path: Path) -> None:
-    doc_path.write_text(
-        f"{START}\nNexus content.\n{END}\n", encoding="utf-8"
-    )
+def test_remove_marker_section_deletes_file_when_block_was_only_content(
+    doc_path: Path,
+) -> None:
+    doc_path.write_text(f"{START}\nNexus content.\n{END}\n", encoding="utf-8")
     action = remove_marker_section(doc_path)
     assert action.action == "removed"
     assert not doc_path.exists()
@@ -127,7 +147,9 @@ def test_remove_marker_section_returns_kept_when_no_marker(doc_path: Path) -> No
     assert action.action == "kept"
 
 
-def test_remove_marker_section_returns_not_found_when_file_missing(doc_path: Path) -> None:
+def test_remove_marker_section_returns_not_found_when_file_missing(
+    doc_path: Path,
+) -> None:
     action = remove_marker_section(doc_path)
     assert action.action == "not-found"
 

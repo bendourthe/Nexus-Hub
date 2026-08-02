@@ -1,8 +1,10 @@
 # Known Gaps - v3.15
 
 **Project**: Nexus-Hub
-**Status**: The v3.15 minor line carries THREE releases. **v3.15.0 platform-parity-all-gaps** (all 7 phases, RELEASED 2026-07-23): every supported platform receives all the surfaces it can consume, re-verified against current docs. **v3.15.1 adoption-codesight** (all 7 phases built, releasing 2026-07-23): the deterministic compiled context-map inside `nexus-code-search`, both DoD axes holding. **v3.15.2 adoption-awesome-llm-apps** (ALL 6 PHASES COMPLETE; RELEASE HELD): a deterministic, model-free skill trigger-and-routing quality gate (now a hard `--gate`), an unfilled-placeholder lint, per-skill routing assertions, behavioral-eval schema interop, and a Hermes platform-roster integration. Implementation is done and verified on `feat/adoption-awesome-llm-apps`; the `/update release` hand-off is HELD (see the v3.15.2 Release hold section). The v3.15.0 version collision (three plans stamped v3.15.0) was reconciled on 2026-07-22 by re-stamping: v3.15.0 = platform-parity-all-gaps, v3.15.1 = adoption-codesight, v3.15.2 = adoption-awesome-llm-apps. A fourth release, **v3.15.3 adoption-no-ai-slop** (ALL 3 PHASES COMPLETE / RELEASED 2026-07-24), adds a dedicated prose `anti-slop-editing` skill. A fifth cycle, **v3.15.4 presentify-visual-fidelity** (ALL 7 PHASES COMPLETE; release-ready, pending the user-driven `/update release`), makes presentify's output visually faithful and self-correcting: a full-width canvas contract, image-sizing discipline, annotated-figure overlay recreation, reliable stock/mix imagery integration, an iterative multi-agent visual-QA self-critique loop, command/skill polish (the `--qa-depth` knob), and the terminal refactor + known-gaps + CI/CD gate. A sixth cycle, **v3.15.5 model-prompting-research** (PHASES 1-2 OF 6 COMPLETE, in progress on `feat/model-prompting-research`), adds a research-and-tune capability that keeps the catalog current with new model releases: Phase 1 landed the schema-validated per-model prompting profile layer, its structural hard gate, and its advisory staleness checker; Phase 2 landed the skill itself plus the verify-before-record research engine (a Dynamic-Workflow fan-out template with a budget kill switch, and a deterministic planner/writer). A seventh cycle, **v3.15.6 adoption-sandbox-escapes** (PHASE 1 OF 4 COMPLETE, in progress on `feat/adoption-sandbox-escapes`), closes the config-write-then-executed trust-seam gap that Nexus-Hub's own distributed artifacts expose (one of the source advisories, CVE-2026-48124, names workspace-controlled agent-harness hook configs, which is exactly the artifact class the installer ships): Phase 1 landed the `agentic-endpoint-hardening` skill carrying the escape taxonomy, the normative execution-trigger surface list that the later phases' guardrails consume, nine control layers, and the framework-mapping reference.
-**Last updated**: 2026-07-30 (v3.15.6 ALL 4 PHASES COMPLETE - release-ready, pending the user-driven `/update release`)
+**Status**: The v3.15 line now includes v3.15.0 through v3.15.7. v3.15.7 implementation is complete on `release/v3.15.7`, and release PR #28 has passed its corrected workflow matrix. Protected-branch promotion, post-merge CI, tag, and GitHub Release remain pending. Earlier release history and per-phase evidence remain in the sections below.
+**Last updated**: 2026-08-02 (v3.15.7 ALL 7 PHASES COMPLETE - release readiness handed to `/update release`)
+
+**Current v3.15.7 status**: Implementation is complete on `release/v3.15.7`. The release scope is fixed: evidence-closed security review hardening, Codex Usage Monitor Extra Credits, the isolated installer import-cycle fix, and CI corrections discovered by the reactivated pipelines. Newly verified additive platform capabilities are explicitly deferred to v3.15.8. The maintainer authorized the remote sequence; release PR #28 is green, with protected-branch promotion, post-merge CI, tag, and GitHub Release still gated in order.
 
 > **Correction notice (2026-07-30, applies file-wide)**: several advisory blocks below, in the v3.15.0 through v3.15.5 sections, attribute repo-wide Windows test failures to **WN-v36-1** ("bash cannot be fully exercised on the Windows dev host", covered on Linux in CI only). **That premise is disproven.** The cause was PATH shadowing: `C:\Windows\System32\bash.exe` (the WSL launcher stub) preceded Git Bash and could not resolve a Windows-style script path at all, so it exited 127 before executing a line. v3.15.6 Phase 4 fixed it structurally with a module-level PATH repair in `catalog/hooks/tests/conftest.py` and `tests/conftest.py`; both test trees now pass on Windows with no PATH assistance (658 and 516, zero failures). Those earlier blocks are left as written because they record what was believed at the time, which is what a gap ledger is for. Read them with this correction in mind, and do not cite WN-v36-1 as evidence that a Windows host cannot run bash. Canonical entry updated in [docs/v3/v3.6/known-gaps.md](../v3.6/known-gaps.md); resolution detail in the v3.15.6 HO-1 and DF-2 entries below.
 
@@ -772,3 +774,248 @@ Beyond the two fixes: the init carve-out is implemented as a writer-identity sig
 - **A stale `.git/worktrees/nh-baseline-dev` metadata directory could not be pruned** (permission denied, most likely a OneDrive or scanner lock). It is not this phase's artifact and predates it, `git worktree list` already excludes it, and nothing inside `.git/` is committed, so it has zero repo impact. The worktree this phase created for baseline verification was removed and its metadata cleaned up successfully.
 - **An unrelated working-tree modification was present and deliberately excluded from this phase's commit**: `docs/v3/v3.16/plans/v3.16.0-agent-autonomy-toggle.md` carries a coherent authored edit (refining that plan's Phase 1 around PowerShell-block coverage and workspace scope) written by a parallel session, not by this phase. It was left unstaged and untouched. Notably, that plan already cites "the v3.15.6 escape taxonomy" and its execution-trigger config paths as a dependency, so a downstream plan is already consuming the list this phase authored.
 - **The unicode-safety validator still reports its pre-existing repo-wide warnings (0 errors).** All four Markdown files touched by this phase are strictly ASCII, verified explicitly.
+
+## v3.15.7 - adoption-raptor-loop-hunt
+
+### v3.15.7 Phase 1 checkpoint
+
+Phase 1 added the shared finding-disposition doctrine to `pentest-reporting` and `exploitability-analyzer`: confirmed and potential severity remain separate under partial visibility, the higher axis drives triage, every surviving finding receives exactly one of four dispositions, and `needs-live-validation` carries a concrete safe validation receipt. The existing full-CVSS-vector requirement remains owned by `pentest-reporting`.
+
+### v3.15.7 Phase 1 Open Items
+
+#### Warnings
+
+##### WN-3 - `test_instruction_merge.py` depends on installer-suite import order
+
+- **Source phase**: v3.15.7 Phase 1 - Finding-disposition doctrine.
+- **Plan reference**: `docs/v3/v3.15/plans/v3.15.7-adoption-raptor-loop-hunt.md` (sub-task 1.3).
+- **Reason**: `python -m pytest tests/installer/test_instruction_merge.py -q` fails during collection with `ImportError: cannot import name 'merge_marker_section' from partially initialized module 'scripts.lib.installer.instruction_merge' (most likely due to a circular import)`. The authoritative full `tests/installer` run passes 143 tests and skips 16, so this is a pre-existing isolated-test order dependency rather than a Phase 1 product regression.
+- **Suggested next step**: break the `instruction_merge` / integrations package import cycle or add an isolated-import regression test in a later maintenance phase.
+
+The remaining v3.15.7 phases are scheduled plan work, not gaps in the completed Phase 1 scope.
+
+### v3.15.7 Phase 1 Resolved
+
+None. No pre-existing bug or deferred item was pulled into this phase.
+
+### v3.15.7 Phase 1 Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 1 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+| Hand-offs (HO) | 0 | 0 |
+
+**Verification boundary.** The two changed skill bodies passed the catalog bundle, placeholder, routing, security, and registry gates. The complete edited-content test matrix reports 1,793 passed, 21 skipped, and 0 failed. No executable module changed, so code coverage is not applicable to this prose-only phase.
+
+### v3.15.7 Phase 2 checkpoint
+
+Phase 2 added the refutation-validity taxonomy and rejection proof burden to `adversarial-verifier`. A finding can now be rejected only by observed contradictory evidence, including an actual input-source inventory, per-route accounting, and build or default-configuration evidence for reachability claims. Unseen server behavior and merely plausible framework protections are invalid refutations; when the relevant layer is unavailable, the finding moves to `needs-live-validation`. `security-review` now points to this doctrine through a thin rejection gate rather than duplicating it.
+
+### v3.15.7 Phase 2 Open Items
+
+No new items. WN-3 remains open and unchanged from Phase 1; the authoritative full installer suite remains green.
+
+### v3.15.7 Phase 2 Resolved
+
+None. Phase 2 did not take ownership of WN-3 or any older v3.15 gap.
+
+### v3.15.7 Phase 2 Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 1 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+| Hand-offs (HO) | 0 | 0 |
+
+**Verification boundary.** The complete edited-content test matrix reports 1,793 passed, 21 skipped, and 0 failed. The two mandatory dry checks passed: one candidate was rejected on observed evidence, and one candidate with an unobservable server layer was escalated to `needs-live-validation`. No executable module changed, so code coverage is not applicable to this prose-only phase.
+
+### v3.15.7 Phase 3 checkpoint
+
+Phase 3 added a target-wide component denominator, explicit COVERED / OMITTED / UNCOVERED accounting, and the `N + O + U = M` balance to `security-review`. It also added an orthogonal four-altitude ledger and the proven-dirty sink sweep, which scopes negative evidence to the tested trigger path and keeps unresolved paths UNKNOWN. The `/review` command exposes the exact `N of M` coverage promise while delegating its mechanics to the owner skill; `advanced-attack-patterns` and `business-logic-abuse` carry reciprocal ownership pointers without duplicating the rules.
+
+### v3.15.7 Phase 3 Open Items
+
+No new items. WN-3 remains open and unchanged from Phase 1; the authoritative complete repository suite remains green.
+
+### v3.15.7 Phase 3 Resolved
+
+None. Phase 3 did not take ownership of WN-3 or any older v3.15 gap.
+
+### v3.15.7 Phase 3 Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 1 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+| Hand-offs (HO) | 0 | 0 |
+
+**Verification boundary.** The complete matrix reports 1,793 passed, 21 skipped, and 0 failed. The required dry check enumerated seven real `extensions/` components, assigned only six, and forced `nexus-web-fetch` to remain visible as UNCOVERED; its report stated `5 of 7 components covered; 1 omitted; 1 UNCOVERED` and correctly prohibited a completeness claim. No executable module changed, so code coverage is not applicable to this prose-only phase.
+
+### v3.15.7 Phase 4 checkpoint
+
+Phase 4 added the anti-costume-rigor fraud-class table to `verification-before-completion`. Its ten rows cover fabricated and stale evidence, overstated outcomes, false tested-route claims, unsupported N/A entries, read-derived coverage, wrong-instrument sweeps, completeness-unknown enumeration, dropped pending work, and escalation avoidance. Every row states the exact artifacts or sets an auditor compares. `pentest-reporting` references the owner table through a thin pre-delivery gate and adds binary checks for confirmation evidence, rejection receipts, and component coverage actions.
+
+### v3.15.7 Phase 4 Open Items
+
+No new items. WN-3 remains open and unchanged from Phase 1; both complete test passes remain green.
+
+### v3.15.7 Phase 4 Resolved
+
+None. Phase 4 did not take ownership of WN-3 or any older v3.15 gap.
+
+### v3.15.7 Phase 4 Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 1 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+| Hand-offs (HO) | 0 | 0 |
+
+**Verification boundary.** Both complete matrices report 1,793 passed, 21 skipped, and 0 failed. The mechanical table audit found exactly ten required rows and reduced each tell to an explicit Compare or Diff operation. No executable module changed, so code coverage is not applicable to this prose-only phase.
+
+### v3.15.7 Phase 5 checkpoint
+
+Phase 5 added a pure-standard-library typed capability-grant broker under `agent-access-policy`. Authorization is side-effect-free and produces only a least-privilege plan unless execution is explicitly requested. The broker rejects missing authorization sources, ungranted capabilities, out-of-scope writes, off-allowlist network destinations, malformed requests, and execution without a reachable sandbox. Its four capabilities are `network`, `write`, `use_secret`, and `destructive_test`; write paths are absolute and scoped, and network destinations are exact normalized strings. The owning skill documents the enforcement boundary and its composition with the v3.15.6 strict permission overlay and trust-seam provenance hook. The policy matrix records the local `re-full` adoption, with no outbound service, API key, third-party processor, runtime dependency, or installer edit.
+
+### v3.15.7 Phase 5 Open Items
+
+No new items. WN-3 remains open and unchanged from Phase 1. The monolithic Windows integration wrapper exceeded its command budget while repeatedly copying all platform surfaces, but file-level isolation found no failing test: the two heavy files passed separately, and all 80 contract nodes passed through a bounded exact-node scheduler. This is verification-environment throughput, not a product defect or deferred implementation.
+
+### v3.15.7 Phase 5 Resolved
+
+None. Phase 5 did not take ownership of WN-3 or any older v3.15 gap.
+
+### v3.15.7 Phase 5 Summary
+
+| Category | Open | Resolved |
+|---|---:|---:|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 1 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+| Hand-offs (HO) | 0 | 0 |
+
+**Verification boundary.** The focused broker suite reports 24 passed with 87% branch coverage. Ruff check and format verification are clean. Catalog bundle, quality, routing, and security gates pass. The complete test matrix accounts for 1,818 passed, 20 skipped, and 0 failed: five extension suites supplied 670 passes and 1 skip; repository installer, integration, skill, and validator groups supplied 1,148 passes and 19 skips. The integration total includes all 399 collected cases, with the 80 heavy contract nodes run exactly and independently after the monolithic Windows wrapper exceeded its time budget.
+
+### v3.15.7 Phase 6 checkpoint
+
+Phase 6 added a pure-standard-library closure gate under `security-review`. It mechanically computes five claim-to-evidence differences over a local review record: components without a logged action or explicit caveat, findings without a terminal or explicitly pending disposition, confirmed findings without supporting evidence, rejected findings without a complete rejection record, and report claims without matching facts. Any non-empty difference exits non-zero. `skill-eval-loop` now requires separately scored adversarial axes, objective traps, deterministic and live-model tiers, judge-only ground truth, randomized fixtures, and artifact-based verdicts. `known-gaps-tracker` now states that cross-cycle memory may only raise scrutiny; prior work is a priority and recheck signal, never a coverage or exclusion signal. Building the durable store remains explicitly deferred to a future cycle.
+
+### v3.15.7 Phase 6 Open Items
+
+No new repository item. WN-3 remains open and unchanged from Phase 1. The durable cross-run store is plan-owned future work rather than an incomplete Phase 6 deliverable because this phase intentionally adopted doctrine only. The Windows integration wrapper again exceeded its command budget during repeated all-platform catalog copies, but all 399 integration cases were accounted for through non-contract grouping plus exact contract-node execution, with no failed test. The disposable mirror and coverage data remain outside the repository because the sandbox rejected their removal; they do not affect repository state or distribution.
+
+### v3.15.7 Phase 6 Resolved
+
+None. Phase 6 did not take ownership of WN-3 or any older v3.15 gap.
+
+### v3.15.7 Phase 6 Summary
+
+| Category | Open | Resolved |
+|---|---:|---:|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 1 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+| Hand-offs (HO) | 0 | 0 |
+
+**Verification boundary.** The focused closure-gate suite reports 17 passed with 87% branch coverage. Ruff check and format verification are clean. Catalog bundle, quality, routing, security, version, platform-contract, freshness, and compression gates pass. The complete test matrix accounts for 1,834 passed, 21 skipped, and 0 failed: five extension suites supplied 670 passes and 1 skip; repository installer, integration, skill, and validator groups supplied 1,164 passes and 20 skips. The integration total includes all 399 collected cases; 79 contract nodes passed and the Hermes sibling-preservation node produced its expected environment skip.
+
+### v3.15.7 Phase 7 checkpoint
+
+Phase 7 audited the repository and active v3.15 documentation layout, reconciled the version ledger, reviewed every GitHub Actions workflow, resolved the isolated installer import cycle, and completed the local release-readiness matrix. The architecture audit proposed no moves or deletions: all 63 active v3.15 Markdown files are correctly classified, the six duplicate-content groups are intentional parity or placeholder artifacts, no tracked empty directory needs cleanup, and no receiving skill crossed the 500-line target because of this plan. The catalog remains at 270 skills, no skill frontmatter changed, and no generated catalog sync is required. The v3.15.6 composition seam remains accurate: endpoint permission and provenance controls constrain host reachability, while the v3.15.7 broker authorizes one typed model-emitted action above that layer; neither replaces the sandbox.
+
+### v3.15.7 Phase 7 Open Items
+
+#### Deferred
+
+##### DF-6 - Durable monotonic-scrutiny store remains deferred
+
+- **Source phase**: v3.15.7 Phase 7 - Known-gaps reconciliation.
+- **Plan reference**: `docs/v3/v3.15/plans/v3.15.7-adoption-raptor-loop-hunt.md` (sub-task 7.2; comparison candidate B11).
+- **Reason**: Phase 6 adopted the safety invariant that prior-cycle memory may only raise scrutiny, never establish coverage or exclude a candidate. A durable store is locally buildable but was intentionally deferred because its persistence, invalidation, and poisoning-resistance surface exceeds this patch's bounded scope.
+- **Re-entry condition**: Re-propose only with a local storage schema, explicit invalidation rules, poisoning tests, and proof that every stored signal can only increase review priority.
+
+##### DF-7 - External vulnerability-database reconnaissance remains declined
+
+- **Source phase**: v3.15.7 Phase 7 - Known-gaps reconciliation.
+- **Plan reference**: `docs/v3/v3.15/comparisons/v3.15.7-comparison-raptor-loop-hunt.md` (prior-art recon via OSV, NVD, or GitHub).
+- **Reason**: Mandating this step would add third-party egress to a local skill surface and duplicate existing `dependency-security-audit` and `cve-reachability-analyzer` ownership. The MCP Registry Policy prefers those existing local skills over a new search-as-service dependency.
+- **Re-entry condition**: Reconsider only if the capability cannot be expressed through the existing local skills and a future proposal passes the registry's reverse-engineer-first audit.
+
+##### DF-8 - Provider-key cross-vendor judging remains declined
+
+- **Source phase**: v3.15.7 Phase 7 - Known-gaps reconciliation.
+- **Plan reference**: `docs/v3/v3.15/comparisons/v3.15.7-comparison-raptor-loop-hunt.md` (cross-vendor judge).
+- **Reason**: A mandated provider-key path would transmit source and findings to another model vendor. Nexus-Hub already owns the local `cross-model-orchestrator` path and the comparison adopted the harness-as-second-evaluator fallback instead.
+- **Re-entry condition**: Reconsider only for an explicit user-owned provider workflow with egress disclosure, hard spending controls, and no claim that a second vendor is required for correctness.
+
+##### DF-9 - Additive platform capability drift is deferred to v3.15.8
+
+- **Source phase**: v3.15.7 release-time platform read-contract re-verification on 2026-08-02.
+- **Affected surfaces**: Codex custom agents and native hooks; Gemini CLI and Qwen native hooks; Kimi custom agents and TOML hook configuration; Copilot custom agents and hooks. Hermes documentation now also demonstrates category-nested skill layouts, while the current flattened child layout remains discoverable and functional.
+- **Reason**: These are additive upstream capabilities, not dead delivery paths in v3.15.7. Implementing them safely requires adapter design, config-merge ownership, teardown semantics, and cross-platform tests beyond this release's approved scope.
+- **Decision**: The maintainer approved release-with-documented-drift on 2026-08-02. The machine contract keeps enforcing the currently delivered paths; a non-consumed findings block records the new capabilities without making unsupported adapter promises.
+- **Re-entry condition**: v3.15.8 must reconcile each surface against the cost-effective CI/CD foundation work, add exact contract checks only as the corresponding adapter behavior lands, and preserve shared-path ownership during install, repair, and teardown.
+
+#### Bugs / regressions
+
+##### BG-1 - Claude Usage Monitor lockfile blocks a clean-install workflow run
+
+- **Source phase**: v3.15.7 release-time workflow-equivalent verification on 2026-08-02.
+- **Evidence**: `npm ci` in `extensions/claude-usage-monitor` exits with `EUSAGE` because the committed lockfile does not satisfy the current package manifest's `@emnapi` dependency graph. The Codex monitor's clean install, compile, 75 tests, and coverage gate pass.
+- **Release impact**: Non-blocking for v3.15.7. This release does not change any Claude Usage Monitor path, so its path-filtered workflow is not triggered. The broad CI workflow does not install this extension. No claim is made that a manual Claude monitor workflow dispatch would pass.
+- **Owner and re-entry condition**: v3.15.8 cost-effective CI/CD foundation. Regenerate the lockfile using the repository-supported Node/npm version, prove `npm ci`, compile, and tests from a clean tree, and keep the repair atomic with the pipeline reconciliation.
+
+### v3.15.7 Phase 7 Resolved
+
+##### BG-2 - First release PR exposed three CI defects
+
+- **Resolution**: normalized terminal newlines in the four files rejected by the end-of-file hook; made `secret-scan.sh` fail open when `jq` cannot parse the payload, matching `secret-scan.ps1`; restored the reactivated Presentify check by pinning Ruff 0.16.1, preserving intentional security suppressions, tracking all six shebang scripts as executable, and normalizing OCR spacing in the fixture enrichment protocol; and changed Linux CI to invoke `python -m pytest` so repository-package imports resolve during skills-test collection.
+- **Evidence**: the exact malformed secret-scan parity node passes, Ruff 0.16.1 reports no findings, both OCR spacing regression cases pass within a 46-passed focused suite, all four artifacts end with LF, and the regenerated 1,194-entry manifest verifies. Release PR #28 is green at `c204162b`: validation, Presentify, full tests, bootstrap, install smoke, ShellCheck, and doc colocation all pass.
+
+##### WN-3 - `test_instruction_merge.py` isolated import cycle resolved
+
+- **Resolution**: `scripts/lib/installer/instruction_merge.py` now defers the `FileAction` runtime import until a result is created, so importing the merge helper no longer initializes the integrations registry and loops back through `copilot.py`. `tests/installer/test_instruction_merge.py` includes a fresh-interpreter regression test that imports the helper without preloading the registry.
+- **Evidence**: The exact former reproduction now reports 13 passed; the full installer suite reports 144 passed and 16 skipped; the changed module reports 87% branch coverage.
+
+### v3.15.7 Phase 7 Summary
+
+| Category | Open | Resolved |
+|---|---:|---:|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 4 | 0 |
+| Bugs / regressions (BG) | 1 | 1 |
+| Warnings (WN) | 0 | 1 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+| Hand-offs (HO) | 1 | 0 |
+
+**Verification boundary.** The Phase 7 complete local matrix accounts for 1,835 passed, 21 skipped, and 0 failed across five extensions plus repository installer, integration, skill, and validator groups; the separately required hook suite reports 900 passed and 36 skipped. Release-time re-verification passes every hard validator, manifest integrity, 75 Codex monitor tests with coverage, and 54 focused broker, closure, and instruction-merge tests. A fresh monolithic rerun of the 559 integration and installer cases exceeded the Windows command budget without a failure; collection remained healthy, and no runtime code changed after the Phase 7 pass. Release PR #28 passes every triggered workflow at `c204162b`; post-merge protected-branch runs remain the next authority. The non-triggered Claude monitor lockfile mismatch is BG-1 and the model-profile roster drift remains advisory.
+
+### v3.15.7 Release readiness (Phase 7, release-readiness 9A/9B)
+
+- **9A resolve known gaps**: WN-3 is resolved with an isolated-import regression test. The durable store, both declined external candidates, additive platform drift, and the non-triggered Claude monitor lockfile mismatch have explicit reasons, owners, and re-entry conditions. No unowned v3.15.7 release blocker remains.
+- **9B verify tests and CI/CD**: Every changed executable has focused branch coverage and belongs to an already-collected test surface. Existing CI covers skill validation, bundle and placeholder checks, broker and closure tests, version/platform gates, Linux integration, and gated Windows/macOS legs without adding a cold runner. The broad `ci.yml` trigger remains intentional because it also owns installers, integrations, and extensions; narrower focused workflows retain their path filters, concurrency controls, caches, or scheduled security semantics.
+- **9C-9E handoff**: Release notes, the 3.15.6 to 3.15.7 version bump, README and CHANGELOG updates, release-branch push, and green release PR #28 are complete. The maintainer authorized the sequence; develop/main promotion, post-merge CI, tag, and GitHub Release remain pending in that order.

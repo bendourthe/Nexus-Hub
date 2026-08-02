@@ -2,7 +2,7 @@
 
 This is the durable, sourced source of truth for where every supported platform READS each surface (instruction file, slash commands, skills, agents, rules, hooks) and where the Nexus-Hub installer WRITES it. It supersedes the point-in-time snapshot at `docs/v3/v3.11/platform-read-contracts.md` (which resolved the v3.11.0 Phase 7 audit but left the Codex and Antigravity contracts flagged as unverified).
 
-**Last verified**: 2026-07-20 (v3.15.0 Phase 1.2 parity re-verification of Cursor, OpenCode, Qwen, Kimi, and Copilot; preceded by the 2026-07-19 full 13-platform re-verification during the v3.14.5 release, reaffirmed unchanged for v3.14.6 and v3.14.7, neither of which touched any platform read-path). All cycles used the `platform-contract-verification` skill; see the Re-verification log below. The JSON's `meta.verified_for_version` is 3.14.7 (the last release); the v3.15.0 parity additions re-stamp it to 3.15.0 at release time (Phase 7 / `/update release`) as each integration lands, so the freshness gate stays green during development.
+**Last verified**: 2026-08-02 for v3.15.7. The full current-documentation audit found no dead delivery path in the surfaces Nexus-Hub already writes, but it found additive agent and hook capabilities that the current adapters do not yet deliver. The maintainer approved an audited-with-known-drift release: the enforced contract remains the currently delivered behavior, the JSON's non-consumed `release_verification_v3_15_7` block records the findings, and adapter implementation is assigned to v3.15.8.
 
 ## How this doc is maintained
 
@@ -17,6 +17,16 @@ The machine-readable source of truth is the sibling `docs/policy/platform-read-c
 The catalog itself is never reorganized per platform. Each integration is an adapter that materializes the canonical catalog into the shape below via the shared helpers in `scripts/lib/integrations/_catalog_adapters.py` (`flatten_skills`, `commands_to_skills`, `commands_to_slash`).
 
 ## Re-verification log
+
+### 2026-08-02 (v3.15.7 release - full re-verification)
+
+The release audit re-read current official documentation across the supported roster. Existing v3.15.7 write paths remain functional, so no `contract_checks`, `install_verify`, adapter, or installer path changed. The release classification is `RELEASE_WITH_DOCUMENTED_DRIFT`, not an all-MATCH claim.
+
+- **MATCH or functionally aligned**: Claude, Cursor, OpenCode's supported surfaces, Aider, Nexus-AI's local contract, and Hermes's existing flattened skill children. Hermes now documents category-nested skill directories, but its recursive discovery still accepts the delivered flattened layout.
+- **DRIFT-ADDITIVE, deferred to v3.15.8**: Codex custom TOML agents and native hooks; Gemini CLI and Qwen native hooks; Kimi custom agents and TOML hooks; Copilot custom agents and hooks. These are new upstream capabilities, not broken v3.15.7 delivery paths.
+- **UNVERIFIED or partial**: Antigravity's exact global hook and `agy` workflow paths, Gemini IDE-specific skill discovery, Windsurf, and OpenClaw. Existing detection-gated or best-effort behavior is retained without promoting those rows to MATCH.
+
+Primary sources: [Codex AGENTS.md](https://learn.chatgpt.com/docs/agent-configuration/agents-md), [Codex skills](https://learn.chatgpt.com/docs/build-skills), [Codex custom agents](https://learn.chatgpt.com/docs/agent-configuration/subagents), [Codex hooks](https://learn.chatgpt.com/docs/hooks), [Claude features](https://code.claude.com/docs/en/features-overview), [Claude hooks](https://code.claude.com/docs/en/hooks), [Gemini CLI skills](https://geminicli.com/docs/cli/using-agent-skills/), [Gemini CLI context](https://geminicli.com/docs/cli/gemini-md/), [Qwen skills](https://qwenlm.github.io/qwen-code-docs/en/users/features/skills/), [Qwen hooks](https://qwenlm.github.io/qwen-code-docs/en/users/features/hooks/), [Kimi skills](https://www.kimi.com/code/docs/en/kimi-code-cli/customization/skills.html), [Kimi agents](https://www.kimi.com/code/docs/en/kimi-code-cli/customization/agents.html), [Kimi hooks](https://www.kimi.com/code/docs/en/kimi-code-cli/customization/hooks.html), [Copilot skills](https://docs.github.com/en/copilot/how-tos/copilot-on-github/customize-copilot/customize-cloud-agent/add-skills), [Copilot agents](https://docs.github.com/en/copilot/concepts/agents/copilot-cli/about-custom-agents), [Copilot hooks](https://docs.github.com/en/copilot/concepts/agents/hooks), [OpenCode skills](https://opencode.ai/docs/skills/), [OpenCode commands](https://opencode.ai/docs/commands/), [OpenCode agents](https://opencode.ai/docs/agents), [Aider conventions](https://aider.chat/docs/usage/conventions.html), [Antigravity skills](https://codelabs.developers.google.com/getting-started-with-antigravity-skills), and [Hermes skills](https://hermes-agent.nousresearch.com/docs/user-guide/features/skills).
 
 ### 2026-07-21 (v3.15.0 Phase 4 - Qwen + Kimi reclassification)
 
@@ -144,23 +154,25 @@ Formats: skills = folder-per-skill `SKILL.md`. "flattened" means one level deep 
 |---|---|---|---|---|---|---|---|
 | Claude (`claude`) | global | `~/.claude/CLAUDE.md` (marker-merged) | `~/.claude/commands/*.md` (slash) | flattened `~/.claude/skills/<name>/` (+ command-skills) | `~/.claude/agents/` | `~/.claude/rules/` | `~/.claude/hooks/` + settings.json |
 | Claude | workspace | `<project>/CLAUDE.md` (root) | `<project>/.claude/commands/*.md` | flattened `.claude/skills/<name>/` (+ command-skills) | `.claude/agents/` | `.claude/rules/` | `.claude/hooks/` |
-| Codex (`codex`) | global | `~/.codex/AGENTS.md` (marker-merged) | `~/.codex/prompts/*.md` (flat, `/prompts:name`, deprecated) + skills below (`$name`) | flattened `~/.codex/skills/<name>/` AND `~/.agents/skills/<name>/` (+ one per command) | not read | not read | not supported |
-| Codex | workspace | `<project>/AGENTS.md` (root) | `<project>/.codex/prompts/*.md` + skills below | flattened `.codex/skills/<name>/` AND `.agents/skills/<name>/` (+ one per command) | not read | not read | none |
+| Codex (`codex`) | global | `~/.codex/AGENTS.md` (marker-merged) | `~/.codex/prompts/*.md` (flat, `/prompts:name`, deprecated) + skills below (`$name`) | flattened `~/.codex/skills/<name>/` AND `~/.agents/skills/<name>/` (+ one per command) | upstream `~/.codex/agents/*.toml`; not delivered (v3.15.8) | not read | upstream `~/.codex/hooks.json`; not delivered (v3.15.8) |
+| Codex | workspace | `<project>/AGENTS.md` (root) | `<project>/.codex/prompts/*.md` + skills below | flattened `.codex/skills/<name>/` AND `.agents/skills/<name>/` (+ one per command) | upstream `.codex/agents/*.toml`; not delivered (v3.15.8) | not read | upstream `.codex/hooks.json`; not delivered (v3.15.8) |
 | Antigravity 2.0 IDE (`antigravity2`) | global | `~/.gemini/GEMINI.md` (global rules) | `~/.gemini/config/global_workflows/<name>.md` (slash) + skills below | flattened `~/.gemini/config/skills/<name>/` (+ one per command) | `~/.gemini/config/skills/` (as skills) | `~/.gemini/GEMINI.md` | `hooks/` + `hooks.json` (best-effort) |
 | Antigravity `agy` CLI (`antigravity2`) | global | `~/.gemini/antigravity-cli/` instruction | `~/.gemini/antigravity-cli/` workflows (best-effort, unverified) | flattened `~/.gemini/antigravity-cli/skills/<name>/` | (as skills) | (CLI global) | `hooks/` + `hooks.json` |
 | Antigravity 2.0 | workspace | `<project>/.agents/` instruction (root `AGENTS.md` may also be read) | `<project>/.agents/workflows/*.md` (slash) + skills below | flattened `.agents/skills/<name>/` (+ one per command) | `.agents/subagents/` | `.agents/rules/` | `.agents/hooks/` + hooks.json |
 | Gemini IDE (`gemini`) | global | `~/.gemini/GEMINI.md` | `~/.gemini/workflows/` (see v3.11 defects C1/C2) | flattened `~/.gemini/skills/<name>/` (+ command-skills) | `~/.gemini/agents/` | `~/.gemini/rules/` | not supported |
-| Gemini CLI (`gemini-cli`, enterprise) | global | `~/.gemini/GEMINI.md` | `~/.gemini/commands/*.toml` (TOML, slash) | flattened `~/.gemini/skills/<name>/` (also reads `~/.agents/skills`) | `~/.gemini/agents/` | `~/.gemini/rules/` | not supported |
-| Copilot (`copilot`) | global | none | VS Code `<user>/prompts/<name>.prompt.md` (slash) | none (opt-in `.github/skills/`) | none | none | not supported |
-| Copilot | workspace | `<project>/.github/copilot-instructions.md` | none | opt-in `.github/skills/<name>/SKILL.md` | none | none | none |
+| Gemini CLI (`gemini-cli`, enterprise) | global | `~/.gemini/GEMINI.md` | `~/.gemini/commands/*.toml` (TOML, slash) | flattened `~/.gemini/skills/<name>/` (also reads `~/.agents/skills`) | `~/.gemini/agents/` | `~/.gemini/rules/` | upstream native hooks; not delivered (v3.15.8) |
+| Copilot (`copilot`) | global | none | VS Code `<user>/prompts/<name>.prompt.md` (slash) | opt-in selector writes native skill folders | upstream `~/.copilot/agents/`; not delivered | none | upstream native hooks; not delivered |
+| Copilot | workspace | `<project>/.github/copilot-instructions.md` | project prompt files are not seeded | opt-in `.github/skills/<name>/SKILL.md` | upstream `.github/agents/*.agent.md`; not delivered | none | upstream `.github/hooks/*.json`; not delivered |
 | Cursor (`cursor`) | global | none | `~/.cursor/commands/<name>.md` (slash, any repo) | flattened `~/.cursor/skills/<name>/` (+ command-skills) | `~/.cursor/agents/*.md` | none | `~/.cursor/hooks.json` + `~/.cursor/hooks/` (git-guardrails) |
 | Cursor | workspace | `<project>/AGENTS.md` (marker-merged) | `<project>/.cursor/commands/<name>.md` (slash) | flattened `.cursor/skills/<name>/` (+ command-skills) | `.cursor/agents/*.md` | `<project>/.cursor/rules/*.mdc` (flattened) | `.cursor/hooks.json` + `.cursor/hooks/` |
-| OpenCode (`opencode`) | global | `~/.config/opencode/AGENTS.md` | `~/.config/opencode/commands/*.md` (slash in the TUI) | flattened `~/.config/opencode/skills/<name>/`; also reads `~/.claude/skills` + `~/.agents/skills` | none (uses AGENTS.md + `instructions[]`) | via plugins | not a folder surface |
-| OpenCode | workspace | `<project>/.opencode/AGENTS.md` | `.opencode/commands/` | flattened `.opencode/skills/<name>/` (also `.claude/skills`, `.agents/skills`) | none | `.opencode/rules/` | none |
+| OpenCode (`opencode`) | global | `~/.config/opencode/AGENTS.md` | `~/.config/opencode/commands/*.md` (slash in the TUI) | flattened `~/.config/opencode/skills/<name>/`; also reads `~/.claude/skills` + `~/.agents/skills` | `~/.config/opencode/agents/*.md` | via AGENTS.md + `instructions[]` | plugins require JS/TS; shell/py hooks incompatible |
+| OpenCode | workspace | `<project>/.opencode/AGENTS.md` | `.opencode/commands/` | flattened `.opencode/skills/<name>/` (also `.claude/skills`, `.agents/skills`) | `.opencode/agents/*.md` | via AGENTS.md + `instructions[]` | plugins require JS/TS; shell/py hooks incompatible |
 | Aider (`aider`) | workspace | `<project>/CONVENTIONS.md` (root) | none (skills via embedded SKILL_INDEX) | none | none | none | none |
 | Windsurf (`windsurf`) | workspace | `<project>/.windsurfrules` (root) | none | none | none | none | none |
-| Kimi (`kimi`) | workspace | `<project>/.kimi/AGENTS.md` (in Kimi Code CLI's merged-AGENTS.md context) + `.kimi/agent.yaml` | none | none | none | none | none |
-| Qwen (`qwen`) | workspace | `<project>/QWEN.md` (root) | none | none | none | none | none |
+| Kimi (`kimi`) | global | `~/.kimi-code/AGENTS.md` | skills register as `/skill:<name>` | flattened `~/.kimi-code/skills/<name>/` (+ command-skills) | upstream custom agents; not delivered (v3.15.8) | via AGENTS.md | upstream `config.toml` `[[hooks]]`; not delivered (v3.15.8) |
+| Kimi | workspace | `<project>/.kimi-code/AGENTS.md` | skills register as `/skill:<name>` | flattened `.kimi-code/skills/<name>/` (+ command-skills) | upstream custom agents; not delivered (v3.15.8) | via AGENTS.md | upstream `config.toml` `[[hooks]]`; not delivered (v3.15.8) |
+| Qwen (`qwen`) | global | `~/.qwen/QWEN.md` | `~/.qwen/commands/*.md` | flattened `~/.qwen/skills/<name>/` (+ command-skills) | `~/.qwen/agents/*.md` | via QWEN.md | upstream native hooks; not delivered (v3.15.8) |
+| Qwen | workspace | `<project>/QWEN.md` | `.qwen/commands/*.md` | flattened `.qwen/skills/<name>/` (+ command-skills) | `.qwen/agents/*.md` | via QWEN.md | upstream native hooks; not delivered (v3.15.8) |
 | OpenClaw (`openclaw`) | workspace | `<project>/.openclaw/AGENTS.md` + SOUL/IDENTITY (global detected: `~/.openclaw/workspace/`) | none | none | none | none | none |
 | Nexus-AI (`nexus-ai`) | global | `~/.nexus-ai/catalog/NEXUS_AI.md` (dedicated) | `~/.nexus-ai/catalog/commands/` | flattened `~/.nexus-ai/catalog/skills/<name>/` (+ command-skills) | `~/.nexus-ai/catalog/agents/` | `~/.nexus-ai/catalog/rules/` | `~/.nexus-ai/catalog/hooks/` |
 | Hermes (`hermes`) | global | none (skills-native; no instruction file) | none (skills are the action surface) | flattened `~/.hermes/skills/<name>/` (+ command-skills); ALSO reads the shared `~/.agents/skills/` written by `codex` | none | none | not supported |
@@ -192,11 +204,13 @@ Wiring status: the `hermes` integration is registered in `_register_builtins()` 
 
 ## Residual live-verification gaps
 
-Cannot be confirmed from docs alone; write to all documented candidates (additive) and confirm via the `/update release` re-verification step or a live probe:
+The 2026-08-02 audit leaves these items open. UNVERIFIED paths require a live probe or newly reachable primary documentation; DRIFT-ADDITIVE surfaces require v3.15.8 adapter design and tests before they enter the enforced contract:
 
-1. Whether the new ChatGPT desktop app canonically prefers `~/.codex/skills` or `~/.agents/skills` (we write both).
-2. The `agy` CLI global workflow directory (skills confirmed at `~/.gemini/antigravity-cli/skills/`; the workflow path is best-effort).
-3. Antigravity 2.0 global hooks path (the codelabs document `skills/` + `workflows/`, not hooks at global scope).
-4. Antigravity 2.0 project instruction: root `AGENTS.md` vs `.agents/` (v3.11 defect C4).
-5. OpenCode canonical global skills dir: docs cite `~/.config/opencode/skills`, but we flatten to `~/.opencode/skills` and rely on OpenCode also reading `~/.claude/skills` + `~/.agents/skills` (both flattened by the claude/codex integrations on a full install). Confirm the canonical global dir on a live install.
-6. Gemini IDE (Code Assist) skill discovery: `~/.gemini/skills` flattening is applied on weight-of-evidence (the SKILL.md open standard, confirmed for Gemini CLI); confirm Code Assist reads `~/.gemini/skills` as well.
+1. The `agy` CLI global workflow directory and Antigravity global hooks path remain best-effort; official codelabs confirm skills and workflows but not those exact global destinations.
+2. Antigravity 2.0 project instruction precedence between root `AGENTS.md` and `.agents/` remains unresolved.
+3. Gemini IDE-specific skill discovery remains inferred from the open SKILL.md standard and Gemini CLI; confirm Code Assist independently.
+4. Windsurf and OpenClaw current discovery formats lacked a reachable primary source in this cycle; retain detection-gated behavior without a MATCH claim.
+5. Codex custom TOML agents and native hooks require v3.15.8 delivery, teardown, and contract tests.
+6. Gemini CLI and Qwen native hooks require v3.15.8 event mapping and cross-shell parity tests.
+7. Kimi custom agents and `config.toml` `[[hooks]]` require v3.15.8 config-merge ownership and non-destructive teardown semantics.
+8. Copilot custom agents and hooks remain known additive drift and require an explicit project-file ownership policy before delivery.
