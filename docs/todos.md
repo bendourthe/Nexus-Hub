@@ -33,7 +33,8 @@
 - [x] Record the non-triggered Claude monitor lockfile mismatch for the v3.15.8 CI foundation
 - [x] Obtain explicit approval before push, pull request, protected-branch promotion, tag, or GitHub Release
 - [x] Diagnose the release PR failures and correct hook parity, Presentify lint and OCR enrichment, pytest module discovery, executable modes, and EOF hygiene
-- [ ] Pass the updated release PR checks, promote through protected branches, tag v3.15.7, and publish the GitHub Release
+- [x] Pass the updated release PR checks
+- [ ] Promote through protected branches, pass post-merge CI, tag v3.15.7, and publish the GitHub Release
 
 ## Phase 1 - Finding-disposition doctrine [DONE]
 

@@ -33,6 +33,8 @@ The second Presentify run cleared lint and reached a stale protocol assertion: L
 
 The next main CI run cleared validation and Presentify, then exposed a collection-path defect in the skills-script step: invoking the installed `pytest` console script omitted the checkout root from `sys.path`, so the capability-broker and closure-gate tests could not import the repository's `scripts` package. Every Linux pytest step now uses `python -m pytest`, matching the Windows job and preserving the root import path while retaining the existing per-tree isolation.
 
+Release PR #28 is green at `c204162b`. Validation, Presentify, the full repository and extension test job, bootstrap, install smoke, ShellCheck, and doc colocation all pass. The next gate is protected-branch promotion followed by post-merge CI; no tag or GitHub Release is created before those runs are green.
+
 </details>
 
 ### Impact and Context
