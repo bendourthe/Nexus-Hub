@@ -16,6 +16,7 @@ Run after: gen_fixtures.py + verify_phase1.py (which produce models/*.json).
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 MODELS = Path(__file__).resolve().parent / "models"
@@ -91,13 +92,14 @@ def enrich_scanned() -> None:
         for block in section["blocks"]:
             if block.get("provenance") == "ocr" and block["type"] == "paragraph":
                 text = block["text"]
-                if text == "QUARTERLYUPDATE":
+                compact = re.sub(r"[^a-z0-9]+", "", text.casefold())
+                if compact == "quarterlyupdate":
                     block["text"] = "QUARTERLY UPDATE"
                     block["provenance"] = "agent-read"
                     corrections += 1
                     new_blocks.append(block)
                     continue
-                if text.startswith("Revenue grewtwelvepercent"):
+                if compact.startswith("revenuegrewtwelvepercent"):
                     new_blocks.append(
                         {
                             "type": "paragraph",
@@ -115,7 +117,7 @@ def enrich_scanned() -> None:
                     )
                     corrections += 1
                     continue
-                if text == "REVENUEFIGURE":
+                if compact == "revenuefigure":
                     block["text"] = "REVENUE FIGURE"
                     block["provenance"] = "agent-read"
                     corrections += 1

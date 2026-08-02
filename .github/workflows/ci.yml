@@ -365,6 +365,8 @@ jobs:
     # tree so pytest does not accidentally adopt a nested `pyproject.toml` as
     # the rootdir (which previously broke module discovery when combining
     # `catalog/hooks/tests/` with `extensions/nexus-skill-server/tests/`).
+    # Invoke pytest as a module so the checkout root remains importable by
+    # tests that exercise the repository's `scripts` package.
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
@@ -382,49 +384,49 @@ jobs:
         run: pip install pytest
 
       - name: Platform-parity + installer-smoke tests (v0.9.7 regression guards)
-        run: pytest catalog/hooks/tests/test_platform_parity.py catalog/hooks/tests/test_installer_smoke.py -v
+        run: python -m pytest catalog/hooks/tests/test_platform_parity.py catalog/hooks/tests/test_installer_smoke.py -v
 
       - name: Full catalog/hooks test suite
-        run: pytest catalog/hooks/tests/ -v
+        run: python -m pytest catalog/hooks/tests/ -v
 
       - name: Repo-level integration-registry + installer tests (v2.2.0+)
-        run: pytest tests/integrations tests/installer -v
+        run: python -m pytest tests/integrations tests/installer -v
 
       - name: CI validator tests (v2.3.0 Phase 2)
-        run: pytest tests/validators -v
+        run: python -m pytest tests/validators -v
 
       - name: Skills-script tests (v3.14.3 media-key setup helper + docs-audit resolver)
-        run: pytest tests/skills -v
+        run: python -m pytest tests/skills -v
 
       - name: Install skill-server (and transitive deps like pydantic via mcp)
         run: pip install -e "extensions/nexus-skill-server/[dev]"
 
       - name: Skill-server tests
-        run: pytest extensions/nexus-skill-server/tests/ -v
+        run: python -m pytest extensions/nexus-skill-server/tests/ -v
 
       - name: Install code-search MCP server (v1.0.0+)
         run: pip install -e "extensions/nexus-code-search/[dev]"
 
       - name: Code-search tests
-        run: pytest extensions/nexus-code-search/tests/ -v
+        run: python -m pytest extensions/nexus-code-search/tests/ -v
 
       - name: Install web-fetch MCP server (v1.0.0+)
         run: pip install -e "extensions/nexus-web-fetch/[dev]"
 
       - name: Web-fetch tests
-        run: pytest extensions/nexus-web-fetch/tests/ -v
+        run: python -m pytest extensions/nexus-web-fetch/tests/ -v
 
       - name: Install skill-security scanner (v3.0.0+)
         run: pip install -e "extensions/nexus-skill-scanner/[dev]"
 
       - name: Skill-scanner tests
-        run: pytest extensions/nexus-skill-scanner/tests/ -v
+        run: python -m pytest extensions/nexus-skill-scanner/tests/ -v
 
       - name: Install context-compressor engine (v3.2.0+)
         run: pip install -e "extensions/nexus-context-compressor/[dev]"
 
       - name: Context-compressor tests
-        run: pytest extensions/nexus-context-compressor/tests/ -v
+        run: python -m pytest extensions/nexus-context-compressor/tests/ -v
 
   tests-windows:
     # v3.15.6 Phase 4: run the hook suite on a real Windows host so the catalog's

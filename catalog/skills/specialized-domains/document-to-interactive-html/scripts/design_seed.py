@@ -276,7 +276,7 @@ def load_history(path: Path) -> dict:
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
         if not isinstance(data, dict) or not isinstance(data.get("entries"), list):
-            raise ValueError("unexpected history shape")
+            raise ValueError("unexpected history shape")  # noqa: TRY004 - caught below to degrade safely
         return data
     except (ValueError, OSError) as exc:
         print(

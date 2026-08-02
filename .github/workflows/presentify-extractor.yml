@@ -54,10 +54,10 @@ jobs:
       - name: Install extractor + fixture dependencies
         run: >
           pip install python-pptx python-docx openpyxl pdfplumber pypdf
-          pypdfium2 Pillow reportlab rapidocr-onnxruntime ruff pytest
+          pypdfium2 Pillow reportlab rapidocr-onnxruntime ruff==0.16.1 pytest
 
       - name: Lint the bundled scripts
-        run: ruff check catalog/skills/specialized-domains/document-to-interactive-html/scripts/
+        run: ruff check --ignore RUF100 catalog/skills/specialized-domains/document-to-interactive-html/scripts/
 
       - name: Run the presentify skills suite (v3.15.4 Phase 1 + 2)
         # Full-width canvas + image-sizing contract (layout suite) and the

@@ -151,6 +151,16 @@ ID prefixes are stable: `NI-`, `DF-`, `BG-`, `WN-`, `MT-`, `QG-`. Numbers are mo
 5. Selected items are seeded into the discovery interview at Q2 (Scope) and Q3 (Affected Areas). They become tagged sub-tasks in Step 4 with the prefix `[from <prior-version> known-gaps: NI-2]`. Each Step 4 sub-task `Prompt` block must restate the original `Reason` and `Suggested next step` so the executable prompt is self-contained.
 6. After the new plan file is written, edit each ingested item in its source `known-gaps.md`: move it from `## Open Items` to the `## Resolved` table with `Resolved in: transferred to <new-version> plan`. Items are not yet *fixed* - just transferred to a different tracking surface.
 
+## Monotonic Scrutiny Across Cycles
+
+Any durable record carried across review, hunt, or implementation cycles may only RAISE attention. It stores no "this was checked and is fine" signal, never deprioritizes an item because a prior cycle placed it out of scope, and never excludes an item from re-examination. Prior work is a PRIORITY and RECHECK signal, never a coverage claim.
+
+This invariant makes stale or wrong memory fail safely. Because a carried signal can only add effort, a bad record can waste budget by causing a redundant recheck, but it cannot silently remove work. The opposite design lets a stale "already handled" entry reduce attention; the skipped re-examination then leaves no visible failure artifact.
+
+Apply the invariant whenever this skill feeds another cycle: an ingested gap may raise ordering or urgency, but the receiving plan must re-establish current scope, coverage, evidence, and disposition from the current revision. Moving an item to `Resolved` records its lifecycle state in this tracker; it does not authorize a later security review to omit the component or finding.
+
+This phase adopts doctrine only. A separate durable cross-run scrutiny store is explicitly deferred on effort and must be tracked as future work; do not build or imply that store as part of this skill change.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |
@@ -160,6 +170,7 @@ ID prefixes are stable: `NI-`, `DF-`, `BG-`, `WN-`, `MT-`, `QG-`. Numbers are mo
 | "I'll add it to docs/todos.md instead" | `docs/todos.md` is forward-looking and manually maintained; it does not flow into `/generate-plan` automatically. Use `known-gaps.md` for items that came out of an actual implemented phase. |
 | "This warning isn't really a gap" | If a future version would benefit from fixing it, it is a gap. Record at the appropriate severity - `WN` is fine for low-impact items. Better to over-record and let `/generate-plan` Step 0.6's "pick a subset" option filter than to lose the signal entirely. |
 | "I already wrote this up in the session history" | Session-history files are per-session, not per-version. The known-gaps file aggregates across every phase of a single version and is the only artifact `/generate-plan` reads to pull work forward. |
+| "A prior cycle marked this safe, so the next review can skip it" | A prior result may be stale against the current revision or scope. Cross-cycle memory may raise priority and require a recheck, but it can never serve as current coverage or suppress examination. |
 
 ## Verification
 
@@ -169,6 +180,8 @@ ID prefixes are stable: `NI-`, `DF-`, `BG-`, `WN-`, `MT-`, `QG-`. Numbers are mo
 - [ ] After `/wrap-up-session` runs on a version bump, `Status:` reads `finalized` and the version-bump note is present immediately after the Summary table.
 - [ ] When `/generate-plan` ingests items, the corresponding entries in the source file have moved from `## Open Items` to `## Resolved` with `Resolved in: transferred to <new-version> plan`.
 - [ ] Item IDs are not reused: a resolved `NI-3` does not become a new `NI-3` later.
+- [ ] Any cross-cycle record is used only to raise priority or require re-examination; no prior "safe", out-of-scope, or resolved state suppresses current coverage work.
+- [ ] The durable cross-run scrutiny store is recorded as deferred work and was not built or implied by this doctrine-only change.
 
 ## Related Skills
 

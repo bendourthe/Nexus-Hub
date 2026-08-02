@@ -2,8 +2,8 @@ import * as fs from "fs";
 import * as path from "path";
 import * as os from "os";
 import * as vscode from "vscode";
-import { UsageMetric, UsageMetricRow, UNTRACKED_METRIC, isTracked } from "../types";
-import { formatResetTime } from "../usageStore";
+import { CreditUsageInfo, UsageMetric, UsageMetricRow, UNTRACKED_METRIC, isTracked } from "../types";
+import { formatResetTime, nextMonthlyResetAt } from "../usageStore";
 import {
   UsageProvider,
   UsageModel,
@@ -194,7 +194,16 @@ function firstNonEmptyString(...values: unknown[]): string | undefined {
 
 /** Resolve a reset instant (epoch ms) from a window's absolute or relative reset fields. */
 function resolveResetsAt(win: Record<string, unknown>, nowMs: number): number | null {
-  const absolute = win.reset_at ?? win.resets_at ?? win.resetAt;
+  const absolute =
+    win.reset_at ??
+    win.resets_at ??
+    win.resetAt ??
+    win.credit_reset_at ??
+    win.creditResetAt ??
+    win.monthly_reset_at ??
+    win.monthlyResetAt ??
+    win.period_end ??
+    win.periodEnd;
   if (typeof absolute === "string" && absolute.length > 0) {
     const parsed = Date.parse(absolute);
     if (!Number.isNaN(parsed)) {
@@ -330,6 +339,87 @@ function formatCreditsSummary(raw: unknown): string | undefined {
   return undefined;
 }
 
+/** Parse a detailed monthly workspace credit limit from supported payload aliases. */
+function readExtraCredits(payload: Record<string, unknown>, nowMs: number): CreditUsageInfo | undefined {
+  const credits = asRecord(payload.credits ?? payload.credit_balance);
+  const candidates: unknown[] = [
+    payload.workspace_monthly_credit_limit,
+    payload.workspaceMonthlyCreditLimit,
+    payload.monthly_credit_limit,
+    payload.monthlyCreditLimit,
+    payload.workspace_credit_limit,
+    payload.workspaceCreditLimit,
+    payload.extra_credits,
+    payload.extraCredits,
+    credits?.workspace_monthly_credit_limit,
+    credits?.workspaceMonthlyCreditLimit,
+    credits?.monthly_credit_limit,
+    credits?.monthlyCreditLimit,
+    credits,
+    payload,
+  ];
+
+  for (const candidate of candidates) {
+    const rec = asRecord(candidate);
+    if (!rec) {
+      continue;
+    }
+
+    const monthlyLimit = firstNumber(
+      rec.monthly_limit,
+      rec.monthlyLimit,
+      rec.workspace_monthly_credit_limit,
+      rec.workspaceMonthlyCreditLimit,
+      rec.credit_limit,
+      rec.creditLimit,
+      rec.total_credits,
+      rec.totalCredits,
+      rec.limit,
+      rec.total,
+    );
+    if (monthlyLimit == null || monthlyLimit <= 0) {
+      continue;
+    }
+
+    const directPercent = firstNumber(rec.used_percent, rec.usedPercent, rec.utilization, rec.percent);
+    const remaining = firstNumber(rec.balance, rec.remaining, rec.remaining_credits, rec.remainingCredits);
+    let usedCredits = firstNumber(
+      rec.used_credits,
+      rec.usedCredits,
+      rec.credits_used,
+      rec.creditsUsed,
+      rec.credit_usage,
+      rec.creditUsage,
+      rec.used,
+      rec.consumed,
+    );
+    if (usedCredits == null && remaining != null) {
+      usedCredits = monthlyLimit - remaining;
+    }
+    if (usedCredits == null && directPercent != null) {
+      usedCredits = monthlyLimit * directPercent / 100;
+    }
+    if (usedCredits == null) {
+      continue;
+    }
+
+    const normalizedUsed = Math.max(0, usedCredits);
+    const percent = Math.round(
+      Math.min(100, Math.max(0, directPercent ?? normalizedUsed / monthlyLimit * 100)),
+    );
+    const resetsAt = resolveResetsAt(rec, nowMs) ?? nextMonthlyResetAt(nowMs);
+    return {
+      usedCredits: normalizedUsed,
+      monthlyLimit,
+      percent,
+      resetsIn: formatResetTime(resetsAt),
+      resetsAt,
+    };
+  }
+
+  return undefined;
+}
+
 /**
  * Map a raw `wham/usage` payload onto the normalized {@link UsageModel}. Verified
  * against the live endpoint (2026-07): the two windows are nested under
@@ -385,6 +475,7 @@ export function mapCodexUsageResponse(raw: unknown): UsageModel | null {
     now,
   );
   const creditsSummary = formatCreditsSummary(payload.credits ?? payload.credit_balance);
+  const extraCredits = readExtraCredits(payload, now);
 
   return {
     session,
@@ -395,6 +486,7 @@ export function mapCodexUsageResponse(raw: unknown): UsageModel | null {
     planLabel: planLabel ?? "Codex",
     ...(additionalLimits.length > 0 ? { additionalLimits } : {}),
     ...(creditsSummary ? { creditsSummary } : {}),
+    ...(extraCredits ? { extraCredits } : {}),
   };
 }
 

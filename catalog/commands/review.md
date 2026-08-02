@@ -50,6 +50,10 @@ Dispatch the resolved scope to the retained skill(s):
 
 Pass any remaining arguments (target path, `--scope` glob, depth flags) through unchanged. Heavy logic stays in the retained skills; this file only resolves scope and delegates.
 
+## Security coverage contract
+
+For `security`, and for the security lens inside `full`, require the delegated `[[security-review]]` report to state its component denominator and the exact line `N of M components covered; O omitted; U UNCOVERED`, followed by the named omissions and uncovered components. Never present a partial assessment as complete. A depth flag may reduce how many components receive review actions, but it never reduces the denominator or the honesty of the coverage statement; unreviewed components remain UNCOVERED. All inventory, altitude, and sink-sweep mechanics stay in the owning skill.
+
 ## Project health (full and structure scopes)
 
 For the `full` and `structure` scopes, `/review` emits the same read-only Project-health block that `[[analyze-codebase]]` produces, so a review surfaces governance gaps consistently with `/describe`. Report each surface as OK or MISSING:

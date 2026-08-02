@@ -93,13 +93,24 @@ $ledger = Join-Path $ledgerDir "$safeSession.tsv"
 function Get-LedgerHash {
     param([string]$Path)
     if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { return "NOFILE" }
+    $stream = $null
+    $sha256 = $null
     try {
         $len = (Get-Item -LiteralPath $Path).Length
         if ($len -gt $hashMaxBytes) { return "SKIPPED-LARGE" }
+        # Use the .NET stream directly. Get-FileHash has returned NOHASH on some
+        # Windows PowerShell 5.1 runner images even when Test-Path and Get-Item
+        # succeed for the same file.
+        $stream = [System.IO.File]::OpenRead($Path)
+        $sha256 = [System.Security.Cryptography.SHA256]::Create()
+        $bytes = $sha256.ComputeHash($stream)
         # Lowercased so the value is byte-identical to the .sh sibling's sha256sum.
-        return (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLower()
+        return ([System.BitConverter]::ToString($bytes) -replace '-', '').ToLowerInvariant()
     } catch {
         return "NOHASH"
+    } finally {
+        if ($stream) { $stream.Dispose() }
+        if ($sha256) { $sha256.Dispose() }
     }
 }
 

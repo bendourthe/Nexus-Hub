@@ -19,11 +19,8 @@ Run from the repo root:
 from __future__ import annotations
 
 import os
-import shutil
 import subprocess
 from pathlib import Path
-
-import pytest
 
 _SCRIPTS = (
     Path(__file__).resolve().parents[3]
@@ -35,14 +32,9 @@ _SCRIPTS = (
 )
 _SWITCH_SH = _SCRIPTS / "switch-model.sh"
 
-pytestmark = pytest.mark.skipif(
-    shutil.which("bash") is None,
-    reason="switch-model.sh requires bash on PATH",
-)
-
 
 def _run(
-    *args: str, models: str | None = None
+    bash_bin: str, *args: str, models: str | None = None
 ) -> subprocess.CompletedProcess:
     """Run switch-model.sh with the given positional args.
 
@@ -55,7 +47,7 @@ def _run(
     if models is not None:
         env["NEXUS_ROUTING_MODELS"] = models
     return subprocess.run(
-        ["bash", str(_SWITCH_SH), *args],
+        [bash_bin, str(_SWITCH_SH), *args],
         text=True,
         capture_output=True,
         env=env,
@@ -65,22 +57,22 @@ def _run(
 # ── Manual / one-action tiers (no enumeration needed) ───────────────────────
 
 
-def test_claude_code_prints_model_and_effort_keystrokes():
-    r = _run("claude-code", "claude-opus-4-8", "high")
+def test_claude_code_prints_model_and_effort_keystrokes(bash_bin: str):
+    r = _run(bash_bin, "claude-code", "claude-opus-4-8", "high")
     assert r.returncode == 0
     assert "/model claude-opus-4-8" in r.stdout
     assert "/effort high" in r.stdout
 
 
-def test_claude_code_without_effort_omits_effort_line():
-    r = _run("claude-code", "claude-opus-4-8")
+def test_claude_code_without_effort_omits_effort_line(bash_bin: str):
+    r = _run(bash_bin, "claude-code", "claude-opus-4-8")
     assert r.returncode == 0
     assert "/model claude-opus-4-8" in r.stdout
     assert "/effort" not in r.stdout
 
 
-def test_manual_platform_prints_picker_instruction():
-    r = _run("cursor", "claude-sonnet-4-6")
+def test_manual_platform_prints_picker_instruction(bash_bin: str):
+    r = _run(bash_bin, "cursor", "claude-sonnet-4-6")
     assert r.returncode == 0
     assert "model picker" in r.stdout
 
@@ -88,32 +80,44 @@ def test_manual_platform_prints_picker_instruction():
 # ── Scriptable tier: model validation against the enumerated set ────────────
 
 
-def test_scriptable_emits_switch_when_model_in_set():
-    r = _run("codex", "gpt-5-codex", "high", models="gpt-5,o3,gpt-5-codex")
+def test_scriptable_emits_switch_when_model_in_set(bash_bin: str):
+    r = _run(
+        bash_bin,
+        "codex",
+        "gpt-5-codex",
+        "high",
+        models="gpt-5,o3,gpt-5-codex",
+    )
     assert r.returncode == 0
     assert "codex -c model=gpt-5-codex" in r.stdout
     assert "model_reasoning_effort=high" in r.stdout
 
 
-def test_scriptable_refuses_when_model_not_in_set():
-    r = _run("codex", "nonexistent-model", models="gpt-5,o3")
+def test_scriptable_refuses_when_model_not_in_set(bash_bin: str):
+    r = _run(bash_bin, "codex", "nonexistent-model", models="gpt-5,o3")
     assert r.returncode == 3
     assert "not in the enumerated set" in r.stderr
 
 
-def test_scriptable_effort_ignored_where_no_effort_knob():
-    r = _run("antigravity", "some-model", "high", models="some-model,other")
+def test_scriptable_effort_ignored_where_no_effort_knob(bash_bin: str):
+    r = _run(
+        bash_bin,
+        "antigravity",
+        "some-model",
+        "high",
+        models="some-model,other",
+    )
     assert r.returncode == 0
     assert "agy -m some-model" in r.stdout
     assert "no documented effort knob" in r.stderr
 
 
-def test_scriptable_refuses_when_set_unresolvable():
+def test_scriptable_refuses_when_set_unresolvable(bash_bin: str):
     # gemini-cli's enumerate helper always returns an empty-model sentinel
     # (its models live in alias config), so with no NEXUS_ROUTING_MODELS the
     # set cannot be resolved and the helper must refuse with exit 4 rather
     # than guess. This holds regardless of whether ~/.gemini exists.
-    r = _run("gemini-cli", "gemini-2.5-pro")
+    r = _run(bash_bin, "gemini-cli", "gemini-2.5-pro")
     assert r.returncode == 4
     assert "enumeration is unavailable" in r.stderr
 
@@ -121,14 +125,14 @@ def test_scriptable_refuses_when_set_unresolvable():
 # ── Unknown / unrecognized platforms refuse cleanly ─────────────────────────
 
 
-def test_unknown_platform_refused():
-    r = _run("unknown", "some-model")
+def test_unknown_platform_refused(bash_bin: str):
+    r = _run(bash_bin, "unknown", "some-model")
     assert r.returncode == 2
     assert "unknown" in r.stderr.lower()
 
 
-def test_unrecognized_platform_refused():
-    r = _run("frobnicator", "some-model")
+def test_unrecognized_platform_refused(bash_bin: str):
+    r = _run(bash_bin, "frobnicator", "some-model")
     assert r.returncode == 2
     assert "unrecognized platform" in r.stderr
 

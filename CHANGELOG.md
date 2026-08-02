@@ -7,6 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.15.7] - 2026-08-02
+
+**v3.15.7 evidence-closed security review hardening.** Security findings now carry explicit dispositions, refutations must meet a proof burden, hunt coverage is measurable, rigor claims are mechanically auditable, one typed broker owns execution authorization, and a deterministic closure gate rejects unresolved claim-to-evidence mismatches. The release also includes Codex Usage Monitor Extra Credits and the isolated installer import-cycle fix. No new external dependency, credential, data processor, or catalog entry is introduced. Catalog: **270 skills**, **17 commands**, **29 hooks**, **23 agents**.
+
+### Added
+
+- **Four-state finding disposition doctrine** across `pentest-reporting` and `exploitability-analyzer`, separating confirmed, unresolved, rejected, and accepted-risk findings from severity.
+- **Hunt coverage accounting** in `security-review`: an explicit component denominator, COVERED / OMITTED / UNCOVERED states, multiple traversal altitudes, and proven-dirty sink sweeps.
+- **Anti-costume-rigor audit** in `verification-before-completion`, with objective Compare or Diff evidence for ten fraud classes and report-claim checks in `pentest-reporting`.
+- **Typed capability-grant broker** under `agent-access-policy`, implemented with the Python standard library and denial-first tests for plan-only, sandbox execution, import, and installer distribution paths.
+- **Deterministic claim-to-evidence closure gate**, adversarial-evaluation doctrine, and the monotonic-scrutiny invariant. Prior-cycle memory may increase scrutiny but cannot establish coverage or exclude a candidate.
+- **Codex Usage Monitor Extra Credits progress bar** (`extensions/codex-usage-monitor` 0.2.6 -> 0.2.7): monthly workspace credit usage now appears after Weekly as a second progress bar in both the status-bar hover tooltip and dashboard, including used-versus-limit credit counts and the monthly reset time. The undocumented account payload is parsed defensively across snake_case and camelCase field variants; balance-only responses keep the existing text summary.
+
+### Changed
+
+- **Rejection proof burden** in `adversarial-verifier` and `security-review`: a clean label requires evidence that actually reaches and refutes the candidate claim.
+- **Exact `/review` coverage contract**: reports now state N-of-M scoped components and expose omissions instead of using qualitative completeness language.
+
+### Fixed
+
+- **Isolated instruction-merge import cycle**: `scripts/lib/installer/instruction_merge.py` defers the `FileAction` runtime import until a result is created, so a fresh interpreter can import the helper without initializing the integration registry and looping through `copilot.py`.
+- **Malformed secret-scan payload parity**: the bash hook now fails open on invalid JSON, matching its PowerShell sibling instead of leaking `jq`'s parse exit code through `set -e`.
+- **Presentify extractor CI reproducibility**: the workflow pins Ruff 0.16.1, preserves intentional security suppressions, and tracks shebang scripts as executable. The protocol round-trip now normalizes OCR spacing before matching its three known fixture corrections.
+- **Linux test module discovery**: CI invokes pytest through `python -m pytest`, keeping the checkout root importable for skills tests that exercise the repository's `scripts` package.
+- **Usage-monitor CI reproducibility**: the Claude and Codex workflows pin `setup-node` and run on Node 22, both packages declare that engine floor, and both npm 10 lockfiles are regenerated so clean install, compile, and unit tests pass.
+- **Windows push-gate reliability**: model-routing tests invoke the exact Bash executable already proven by the shared fixture instead of the ambiguous Windows `bash` alias, and the PowerShell 5.1 provenance ledger computes SHA-256 through a direct .NET stream instead of the runner-sensitive `Get-FileHash` cmdlet.
+- **Repository EOF hygiene**: four pre-existing HTML, JSON, and web-manifest artifacts now end with a newline so the pre-commit release gate is clean.
+
+### Deferred
+
+- **Durable monotonic-scrutiny storage** remains deferred pending a local schema, explicit invalidation rules, poisoning tests, and proof that stored signals can only increase review priority.
+- **New upstream agent and hook surfaces** found during the 2026-08-02 platform audit are documented as additive drift and assigned to v3.15.8. Existing v3.15.7 delivery paths remain functional; no adapter behavior changes in this release.
+
 ## [3.15.6] - 2026-07-30
 
 **v3.15.6 agentic-endpoint hardening (sandbox-escapes adoption).** Closes the config-write-then-executed trust-seam gap that Nexus-Hub's own distributed artifacts expose: the agent writes a workspace file that is legal and in scope, a trusted component outside the sandbox later reads it as its own configuration, and that component runs it at host privilege once nobody is watching. One of the source advisories (CVE-2026-48124) names workspace-controlled agent-harness hook configuration as the attack surface, which is exactly the artifact class this installer ships. Delivered in four phases: a threat-model skill defining the normative execution-trigger surface list, advisory enforcement in two hooks, an opt-in hardened permission overlay plus a best-effort provenance ledger, and a terminal refactor / known-gaps / CI-hardening gate. Every adopted item is local: no new outbound call, API key, third-party data processor, or runtime dependency. The one candidate that would have introduced endpoint telemetry to a third party was dropped under the MCP Registry Policy hard-no list. Catalog: **270 skills** (+1: `agentic-endpoint-hardening`), **17 commands**, **29 hooks** (+1: `provenance-ledger`).

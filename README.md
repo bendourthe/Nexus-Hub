@@ -4,9 +4,9 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.15.6 -->
+<!-- nexus-hub-version: 3.15.7 -->
 
-Nexus-Hub is the upstream skill catalog for AI coding assistants: 270 skills, 17 commands, 28 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
+Nexus-Hub is the upstream skill catalog for AI coding assistants: 270 skills, 17 commands, 29 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
 ## Interactive Guide -- start here
 
@@ -36,6 +36,14 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v3.15.7
+
+v3.15.7 makes security-review conclusions evidence-closed instead of confidence-shaped. Findings now move through four explicit dispositions, rejected findings carry a concrete refutation burden, and `/review` reports exact N-of-M component coverage across multiple traversal altitudes plus proven-dirty sink sweeps. An anti-costume-rigor audit detects claims that sound rigorous without the required comparison evidence, while a deterministic closure gate blocks unresolved claim-to-evidence mismatches.
+
+The release also adds a typed, standard-library-only capability-grant broker above the v3.15.6 endpoint controls. It authorizes one bounded model-emitted action without weakening the sandbox, permission overlay, or provenance controls beneath it. Durable monotonic-scrutiny storage remains intentionally deferred until its invalidation and poisoning-resistance rules are designed and tested.
+
+Two independent fixes are included. Codex Usage Monitor 0.2.7 adds the Extra Credits monthly progress bar, used-versus-limit counts, and reset time while preserving balance-only responses. The installer instruction-merge helper no longer enters an isolated import cycle when loaded in a fresh interpreter. Catalog counts remain **270 skills**, **17 commands**, **29 hooks**, and **23 agents**.
 
 ## What's New in v3.15.6
 
