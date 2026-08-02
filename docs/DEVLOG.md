@@ -31,6 +31,8 @@ The first release PR run exposed three concrete CI defects. The validation job's
 
 The second Presentify run cleared lint and reached a stale protocol assertion: Linux OCR emitted spaces in one of three known fixture strings, while `enrich_models.py` recognized only the concatenated form and asserted exactly three corrections. Matching now compacts OCR text to lowercase alphanumerics before applying the same canonical corrections. Two regression cases prove concatenated and spaced inputs produce identical enriched output. The expanded focused suite reports 46 passed and 3 environment skips.
 
+The next main CI run cleared validation and Presentify, then exposed a collection-path defect in the skills-script step: invoking the installed `pytest` console script omitted the checkout root from `sys.path`, so the capability-broker and closure-gate tests could not import the repository's `scripts` package. Every Linux pytest step now uses `python -m pytest`, matching the Windows job and preserving the root import path while retaining the existing per-tree isolation.
+
 </details>
 
 ### Impact and Context
