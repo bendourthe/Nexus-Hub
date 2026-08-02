@@ -2,7 +2,7 @@ import { defineConfig } from "vitest/config";
 import { fileURLToPath } from "node:url";
 
 /**
- * Vitest configuration for the extension's provider unit tests.
+ * Vitest configuration for the extension's unit tests.
  *
  * The provider data layer is VS-Code-independent (it uses fs / os / fetch), but
  * its modules transitively `import * as vscode from "vscode"`, which only
@@ -13,6 +13,17 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["test/**/*.test.ts"],
+    coverage: {
+      provider: "v8",
+      reporter: ["text", "html", "json", "clover"],
+      exclude: ["test/**"],
+      thresholds: {
+        statements: 80,
+        branches: 75,
+        functions: 75,
+        lines: 80,
+      },
+    },
   },
   resolve: {
     alias: {

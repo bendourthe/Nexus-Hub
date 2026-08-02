@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { StatusBarManager } from "../src/statusBarManager";
 import type { UsageStore } from "../src/usageStore";
-import { UNTRACKED_PERCENT } from "../src/types";
+import { UNTRACKED_PERCENT, type CreditUsageInfo } from "../src/types";
 import { __resetStubState, __setStubConfig, createdStatusBarItems } from "./vscode-stub";
 
 /** A minimal no-data store; enough to exercise the constructor priority scheme. */
@@ -16,7 +16,7 @@ const emptyStore = {
  * UNTRACKED_PERCENT to model a window the account does not expose. Exercises the
  * data path (adaptive status text + the now-stubbed MarkdownString tooltip).
  */
-function dataStore(session: number, weekly: number): UsageStore {
+function dataStore(session: number, weekly: number, extraCredits?: CreditUsageInfo): UsageStore {
   const data = {
     session: { percent: session, resetsIn: "N/A", resetsAt: null },
     weeklyAllModels: { percent: weekly, resetsIn: "N/A", resetsAt: null },
@@ -24,6 +24,7 @@ function dataStore(session: number, weekly: number): UsageStore {
     lastUpdated: Date.now(),
     dataSource: "manual" as const,
     planLabel: "Codex",
+    extraCredits,
   };
   return {
     getWithFreshCountdowns: () => data,
@@ -67,6 +68,27 @@ describe("StatusBarManager (Codex)", () => {
 
     mgr.refresh();
     expect(createdStatusBarItems[0].text).toBe("$(codex-icon)\u2002Codex Usage: 91% (week)");
+  });
+
+  it("renders Extra Credits as a second tooltip progress bar after Weekly", () => {
+    __resetStubState();
+    const mgr = new StatusBarManager(
+      dataStore(UNTRACKED_PERCENT, 10, {
+        usedCredits: 750,
+        monthlyLimit: 5_000,
+        percent: 15,
+        resetsIn: "August 31, 2026 5:00 PM",
+        resetsAt: Date.UTC(2026, 8, 1),
+      }),
+      "codex-usage.dashboard",
+    );
+
+    mgr.refresh();
+    const tooltip = createdStatusBarItems[0].tooltip as { value: string };
+    expect(tooltip.value).toContain("Weekly");
+    expect(tooltip.value).toContain("Extra%20Credits");
+    expect(tooltip.value).toContain("750 of 5,000 credits used");
+    expect(tooltip.value.indexOf("Weekly")).toBeLessThan(tooltip.value.indexOf("Extra%20Credits"));
   });
 
   it("shows a single -- placeholder when there is no data at all", () => {

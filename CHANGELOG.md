@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+**Planned for v3.15.7.**
+
+### Added
+
+- **Codex Usage Monitor Extra Credits progress bar** (`extensions/codex-usage-monitor` 0.2.6 -> 0.2.7): monthly workspace credit usage now appears after Weekly as a second progress bar in both the status-bar hover tooltip and dashboard, including used-versus-limit credit counts and the monthly reset time. The undocumented account payload is parsed defensively across snake_case and camelCase field variants; balance-only responses keep the existing text summary.
+
 ## [3.15.6] - 2026-07-30
 
 **v3.15.6 agentic-endpoint hardening (sandbox-escapes adoption).** Closes the config-write-then-executed trust-seam gap that Nexus-Hub's own distributed artifacts expose: the agent writes a workspace file that is legal and in scope, a trusted component outside the sandbox later reads it as its own configuration, and that component runs it at host privilege once nobody is watching. One of the source advisories (CVE-2026-48124) names workspace-controlled agent-harness hook configuration as the attack surface, which is exactly the artifact class this installer ships. Delivered in four phases: a threat-model skill defining the normative execution-trigger surface list, advisory enforcement in two hooks, an opt-in hardened permission overlay plus a best-effort provenance ledger, and a terminal refactor / known-gaps / CI-hardening gate. Every adopted item is local: no new outbound call, API key, third-party data processor, or runtime dependency. The one candidate that would have introduced endpoint telemetry to a third party was dropped under the MCP Registry Policy hard-no list. Catalog: **270 skills** (+1: `agentic-endpoint-hardening`), **17 commands**, **29 hooks** (+1: `provenance-ledger`).

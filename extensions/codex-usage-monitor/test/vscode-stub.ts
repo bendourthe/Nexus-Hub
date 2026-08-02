@@ -10,6 +10,7 @@
 export const ConfigurationTarget = { Global: 1, Workspace: 2, WorkspaceFolder: 3 } as const;
 
 export const StatusBarAlignment = { Left: 1, Right: 2 } as const;
+export const ViewColumn = { Beside: 2 } as const;
 
 interface StubConfiguration {
   get<T>(key: string, defaultValue: T): T;
@@ -21,6 +22,12 @@ interface StubConfiguration {
 // writes here; `get` reads here first, else returns the caller's default - so
 // existing provider tests (which never set anything) still get the default.
 export const stubConfig: Record<string, Record<string, unknown>> = {};
+export const configurationUpdates: Array<{
+  section: string | undefined;
+  key: string;
+  value: unknown;
+  target: unknown;
+}> = [];
 export function __setStubConfig(section: string, key: string, value: unknown): void {
   (stubConfig[section] ??= {})[key] = value;
 }
@@ -28,8 +35,26 @@ export function __setStubConfig(section: string, key: string, value: unknown): v
 // Every status-bar item created, in creation order, so tests can assert the
 // priorities. `__resetStubState` clears both stores between tests.
 export const createdStatusBarItems: Array<Record<string, unknown>> = [];
+export interface StubWebviewPanel {
+  webview: {
+    html: string;
+    postedMessages: unknown[];
+    postMessage(message: unknown): Promise<boolean>;
+    onDidReceiveMessage(handler: (message: unknown) => void | Promise<void>): { dispose(): void };
+    __dispatchMessage(message: unknown): Promise<void>;
+  };
+  iconPath?: unknown;
+  revealCount: number;
+  disposed: boolean;
+  reveal(): void;
+  dispose(): void;
+  onDidDispose(handler: () => void): { dispose(): void };
+}
+export const createdWebviewPanels: StubWebviewPanel[] = [];
 export function __resetStubState(): void {
   createdStatusBarItems.length = 0;
+  createdWebviewPanels.length = 0;
+  configurationUpdates.length = 0;
   for (const k of Object.keys(stubConfig)) {
     delete stubConfig[k];
   }
@@ -45,8 +70,15 @@ export const workspace = {
         }
         return defaultValue;
       },
-      async update(): Promise<void> {
-        /* no-op in tests */
+      async update(key: string, value: unknown, target: unknown): Promise<void> {
+        configurationUpdates.push({ section, key, value, target });
+        const sectionKey = section ?? "";
+        const sectionMap = (stubConfig[sectionKey] ??= {});
+        if (value === undefined) {
+          delete sectionMap[key];
+        } else {
+          sectionMap[key] = value;
+        }
       },
     };
   },
@@ -72,6 +104,45 @@ export const window = {
     };
     createdStatusBarItems.push(item);
     return item;
+  },
+  createWebviewPanel(): StubWebviewPanel {
+    let messageHandler: ((message: unknown) => void | Promise<void>) | undefined;
+    let disposeHandler: (() => void) | undefined;
+    const panel: StubWebviewPanel = {
+      webview: {
+        html: "",
+        postedMessages: [],
+        async postMessage(message: unknown): Promise<boolean> {
+          panel.webview.postedMessages.push(message);
+          return true;
+        },
+        onDidReceiveMessage(handler: (message: unknown) => void | Promise<void>) {
+          messageHandler = handler;
+          return { dispose() { messageHandler = undefined; } };
+        },
+        async __dispatchMessage(message: unknown): Promise<void> {
+          await messageHandler?.(message);
+        },
+      },
+      revealCount: 0,
+      disposed: false,
+      reveal() {
+        panel.revealCount += 1;
+      },
+      dispose() {
+        if (panel.disposed) {
+          return;
+        }
+        panel.disposed = true;
+        disposeHandler?.();
+      },
+      onDidDispose(handler: () => void) {
+        disposeHandler = handler;
+        return { dispose() { disposeHandler = undefined; } };
+      },
+    };
+    createdWebviewPanels.push(panel);
+    return panel;
   },
 };
 
