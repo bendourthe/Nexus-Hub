@@ -15,7 +15,7 @@ The release needed one coherent boundary around the completed security-review ha
 - Kept v3.15.7 functional scope fixed and assigned additive Codex, Gemini CLI, Qwen, Kimi, and Copilot surfaces to v3.15.8.
 - Kept current `contract_checks` and `install_verify` behavior unchanged because every delivered path remains functional; added only a findings block that guards do not consume.
 - Retained the existing workflow trigger topology for v3.15.7. The approved cost-effective CI/CD restructuring remains the v3.15.8 foundation rather than a release-time workflow rewrite.
-- Recorded the Claude Usage Monitor's pre-existing out-of-sync lockfile as v3.15.8 work. This release changes only the Codex monitor, so the Claude path-filtered workflow is not triggered.
+- Initially recorded the Claude Usage Monitor's out-of-sync lockfile as v3.15.8 work, then promoted it into this release after the active-workflow audit showed every recorded Claude monitor run failed for the same Node and lockfile class as Codex.
 - Received explicit maintainer confirmation for the complete remote publication sequence. Opened release PR #28 against `develop`; protected-branch promotion, tag, and GitHub Release remain gated on green checks.
 
 ### Troubleshooting Trail
@@ -25,7 +25,7 @@ The release needed one coherent boundary around the completed security-review ha
 
 The Makefile wrapper is unavailable on the Windows host, so each command in `make validate` was executed directly in the same fail-fast order. A fresh monolithic rerun of the 559 integration and installer cases exceeded 15 minutes, and four file-balanced shards also exceeded their ten-minute command budgets; collection remained healthy at 559 tests in 2.01 seconds. This is a Windows throughput limitation already handled during Phase 7, where the exact integrated code passed the complete matrix. Release-time changes after that matrix are metadata and documentation only, so fresh verification focused on all hard validators plus the three runtime release additions.
 
-Codex's initial local dependency tree had a missing Windows binary shim; a clean `npm ci` repaired it and reproduced the workflow. The unrelated Claude monitor's `npm ci` exposed an existing package-lock mismatch involving `@emnapi` packages. Because no Claude monitor path changes in v3.15.7, its focused workflow will not run for this release; the lockfile repair belongs to the v3.15.8 CI foundation and is recorded in known gaps.
+Codex's initial local dependency tree had a missing Windows binary shim; a clean `npm ci` repaired it and reproduced the workflow. The Claude and Codex monitor histories then exposed the same real pipeline defect: Node 20 was below current dev-dependency engine floors, and npm 10 rejected both lockfiles for missing or inconsistent `@emnapi` packages. Both workflows now pin `setup-node` by commit and use Node 22; both packages declare `node >=22.0.0`; and both lockfiles were rebuilt from their exact manifests with npm 10.9.4. Clean npm 10 installs, compile, and tests pass for both monitors; Codex also passes its 75-test coverage gate.
 
 The first release PR run exposed three concrete CI defects. The validation job's end-of-file hook found four pre-existing tracked artifacts without terminal newlines. The hook-parity suite found that malformed JSON made `secret-scan.sh` return `jq`'s exit code 5 while the PowerShell sibling failed open. The reactivated Presentify workflow installed an unpinned current Ruff, whose executable-shebang and lint rules had never passed on `develop`. The correction normalizes the four EOFs, makes both secret-scan parsers fail open, pins Ruff 0.16.1, applies that version's mechanical lint fixes, and tracks the six shebang scripts as executable. Focused local verification now passes; the updated PR run remains the release authority.
 
@@ -34,6 +34,8 @@ The second Presentify run cleared lint and reached a stale protocol assertion: L
 The next main CI run cleared validation and Presentify, then exposed a collection-path defect in the skills-script step: invoking the installed `pytest` console script omitted the checkout root from `sys.path`, so the capability-broker and closure-gate tests could not import the repository's `scripts` package. Every Linux pytest step now uses `python -m pytest`, matching the Windows job and preserving the root import path while retaining the existing per-tree isolation.
 
 Release PR #28 is green at `c204162b`. Validation, Presentify, the full repository and extension test job, bootstrap, install smoke, ShellCheck, and doc colocation all pass. The next gate is protected-branch promotion followed by post-merge CI; no tag or GitHub Release is created before those runs are green.
+
+PR #28 merged into `develop` as `e8cab7ab`. Before opening the `develop` to `main` promotion, workflow-history review found that the Codex monitor's Extra Credits commit had a failed focused run and that every recorded Claude monitor run also failed. The follow-up usage-monitor CI repair is therefore release-blocking rather than deferred; both focused workflows must pass on the repair PR and again after merge to `develop`.
 
 </details>
 

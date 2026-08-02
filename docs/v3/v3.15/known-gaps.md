@@ -1,10 +1,10 @@
 # Known Gaps - v3.15
 
 **Project**: Nexus-Hub
-**Status**: The v3.15 line now includes v3.15.0 through v3.15.7. v3.15.7 implementation is complete on `release/v3.15.7`, and release PR #28 has passed its corrected workflow matrix. Protected-branch promotion, post-merge CI, tag, and GitHub Release remain pending. Earlier release history and per-phase evidence remain in the sections below.
+**Status**: The v3.15 line now includes v3.15.0 through v3.15.7. Release PR #28 is merged into `develop`; a focused Claude/Codex usage-monitor CI repair is the remaining develop gate before main promotion, post-merge CI, tag, and GitHub Release. Earlier release history and per-phase evidence remain in the sections below.
 **Last updated**: 2026-08-02 (v3.15.7 ALL 7 PHASES COMPLETE - release readiness handed to `/update release`)
 
-**Current v3.15.7 status**: Implementation is complete on `release/v3.15.7`. The release scope is fixed: evidence-closed security review hardening, Codex Usage Monitor Extra Credits, the isolated installer import-cycle fix, and CI corrections discovered by the reactivated pipelines. Newly verified additive platform capabilities are explicitly deferred to v3.15.8. The maintainer authorized the remote sequence; release PR #28 is green, with protected-branch promotion, post-merge CI, tag, and GitHub Release still gated in order.
+**Current v3.15.7 status**: Implementation is complete and merged into `develop`. The release scope is fixed: evidence-closed security review hardening, Codex Usage Monitor Extra Credits, the isolated installer import-cycle fix, and CI corrections discovered by the reactivated pipelines. Newly verified additive platform capabilities are explicitly deferred to v3.15.8. The maintainer authorized the remote sequence; the focused monitor repair must merge and pass on `develop` before main promotion, post-merge CI, tag, and GitHub Release proceed in order.
 
 > **Correction notice (2026-07-30, applies file-wide)**: several advisory blocks below, in the v3.15.0 through v3.15.5 sections, attribute repo-wide Windows test failures to **WN-v36-1** ("bash cannot be fully exercised on the Windows dev host", covered on Linux in CI only). **That premise is disproven.** The cause was PATH shadowing: `C:\Windows\System32\bash.exe` (the WSL launcher stub) preceded Git Bash and could not resolve a Windows-style script path at all, so it exited 127 before executing a line. v3.15.6 Phase 4 fixed it structurally with a module-level PATH repair in `catalog/hooks/tests/conftest.py` and `tests/conftest.py`; both test trees now pass on Windows with no PATH assistance (658 and 516, zero failures). Those earlier blocks are left as written because they record what was believed at the time, which is what a gap ledger is for. Read them with this correction in mind, and do not cite WN-v36-1 as evidence that a Windows host cannot run bash. Canonical entry updated in [docs/v3/v3.6/known-gaps.md](../v3.6/known-gaps.md); resolution detail in the v3.15.6 HO-1 and DF-2 entries below.
 
@@ -979,16 +979,12 @@ Phase 7 audited the repository and active v3.15 documentation layout, reconciled
 - **Decision**: The maintainer approved release-with-documented-drift on 2026-08-02. The machine contract keeps enforcing the currently delivered paths; a non-consumed findings block records the new capabilities without making unsupported adapter promises.
 - **Re-entry condition**: v3.15.8 must reconcile each surface against the cost-effective CI/CD foundation work, add exact contract checks only as the corresponding adapter behavior lands, and preserve shared-path ownership during install, repair, and teardown.
 
-#### Bugs / regressions
-
-##### BG-1 - Claude Usage Monitor lockfile blocks a clean-install workflow run
-
-- **Source phase**: v3.15.7 release-time workflow-equivalent verification on 2026-08-02.
-- **Evidence**: `npm ci` in `extensions/claude-usage-monitor` exits with `EUSAGE` because the committed lockfile does not satisfy the current package manifest's `@emnapi` dependency graph. The Codex monitor's clean install, compile, 75 tests, and coverage gate pass.
-- **Release impact**: Non-blocking for v3.15.7. This release does not change any Claude Usage Monitor path, so its path-filtered workflow is not triggered. The broad CI workflow does not install this extension. No claim is made that a manual Claude monitor workflow dispatch would pass.
-- **Owner and re-entry condition**: v3.15.8 cost-effective CI/CD foundation. Regenerate the lockfile using the repository-supported Node/npm version, prove `npm ci`, compile, and tests from a clean tree, and keep the repair atomic with the pipeline reconciliation.
-
 ### v3.15.7 Phase 7 Resolved
+
+##### BG-1 - Usage-monitor clean-install workflows repaired
+
+- **Resolution**: both usage-monitor workflows now pin `actions/setup-node` by commit and use Node 22, both package manifests declare `node >=22.0.0`, and both lockfiles were rebuilt from their exact manifests with npm 10.9.4. This resolves the Claude monitor's long-standing missing and inconsistent `@emnapi` graph and the equivalent Codex monitor failure discovered on the Extra Credits commit.
+- **Evidence**: clean npm 10 installs and TypeScript compilation pass for both extensions. Claude reports 5 passing Vitest cases. Codex reports 75 passing cases and 80.55% statements, 80.29% branches, 77.19% functions, and 81% lines. The two focused GitHub workflows remain the remote release gate.
 
 ##### BG-2 - First release PR exposed three CI defects
 
@@ -1006,7 +1002,7 @@ Phase 7 audited the repository and active v3.15 documentation layout, reconciled
 |---|---:|---:|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 4 | 0 |
-| Bugs / regressions (BG) | 1 | 1 |
+| Bugs / regressions (BG) | 0 | 2 |
 | Warnings (WN) | 0 | 1 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
