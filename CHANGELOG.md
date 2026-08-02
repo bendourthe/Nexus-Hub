@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Malformed secret-scan payload parity**: the bash hook now fails open on invalid JSON, matching its PowerShell sibling instead of leaking `jq`'s parse exit code through `set -e`.
 - **Presentify extractor CI reproducibility**: the workflow pins Ruff 0.16.1, preserves intentional security suppressions, and tracks shebang scripts as executable. The protocol round-trip now normalizes OCR spacing before matching its three known fixture corrections.
 - **Linux test module discovery**: CI invokes pytest through `python -m pytest`, keeping the checkout root importable for skills tests that exercise the repository's `scripts` package.
+- **Usage-monitor CI reproducibility**: the Claude and Codex workflows pin `setup-node` and run on Node 22, both packages declare that engine floor, and both npm 10 lockfiles are regenerated so clean install, compile, and unit tests pass.
 - **Repository EOF hygiene**: four pre-existing HTML, JSON, and web-manifest artifacts now end with a newline so the pre-commit release gate is clean.
 
 ### Deferred
