@@ -137,7 +137,7 @@ def _fmt_num(value: float) -> str:
     number = float(value)
     if number == int(number):
         return str(int(number))
-    return ("%.2f" % number).rstrip("0").rstrip(".")
+    return f"{number:.2f}".rstrip("0").rstrip(".")
 
 
 # --- theme merge + CSS emission --------------------------------------------
@@ -351,8 +351,10 @@ def _svg_pie(categories: list, values: list, colors: list, doughnut: bool) -> st
     radius = 132
     total = sum(float(v) for v in values) or 1.0
     parts = [
-        f'<svg viewBox="0 0 {size} {size}" role="img" '
-        f'aria-label="{"Doughnut" if doughnut else "Pie"} chart">'
+        (
+            f'<svg viewBox="0 0 {size} {size}" role="img" '
+            f'aria-label="{"Doughnut" if doughnut else "Pie"} chart">'
+        )
     ]
     if doughnut:
         circumference = 2 * math.pi * radius
@@ -438,8 +440,7 @@ def _render_bullets(items: list) -> str:
     for item in items:
         text = _esc(str(item.get("text", "")).strip())
         depth = max(0, int(item.get("depth", 0) or 0))
-        if depth > prev + 1:
-            depth = prev + 1
+        depth = min(depth, prev + 1)
         if first:
             out.append("<li>" + text)
             first = False
@@ -579,8 +580,10 @@ def render_section(section: dict, index: int, theme: dict) -> str:
     heading = section.get("heading", "") or ""
     subheading = section.get("subheading")
     parts = [
-        f'<section class="slide slide--{kind}" data-kind="{kind}" '
-        f'aria-roledescription="slide">',
+        (
+            f'<section class="slide slide--{kind}" data-kind="{kind}" '
+            f'aria-roledescription="slide">'
+        ),
         '<div class="slide__body">',
     ]
     if heading:

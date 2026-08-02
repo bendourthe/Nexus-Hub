@@ -31,7 +31,9 @@
 - [x] Bump version surfaces and reconcile release documentation
 - [x] Regenerate the release manifest and pass all local release gates
 - [x] Record the non-triggered Claude monitor lockfile mismatch for the v3.15.8 CI foundation
-- [ ] Obtain explicit approval before push, pull request, protected-branch promotion, tag, or GitHub Release
+- [x] Obtain explicit approval before push, pull request, protected-branch promotion, tag, or GitHub Release
+- [x] Diagnose the first release PR failures and correct hook parity, Presentify lint, executable modes, and EOF hygiene
+- [ ] Pass the updated release PR checks, promote through protected branches, tag v3.15.7, and publish the GitHub Release
 
 ## Phase 1 - Finding-disposition doctrine [DONE]
 

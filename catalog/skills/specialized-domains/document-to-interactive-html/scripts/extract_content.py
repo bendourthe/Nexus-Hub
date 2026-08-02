@@ -376,7 +376,7 @@ def _chart_xml_points(container: object) -> list:
 
 def _chart_xml_block(xml_bytes: bytes, cov: dict, where: str) -> dict | None:
     """Parse an OOXML chart part (chart*.xml) into a chart block (stdlib only)."""
-    import xml.etree.ElementTree as ElementTree
+    from xml.etree import ElementTree
 
     c = f"{{{_CHART_NS}}}"
     try:

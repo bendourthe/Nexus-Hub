@@ -28,6 +28,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - **Isolated instruction-merge import cycle**: `scripts/lib/installer/instruction_merge.py` defers the `FileAction` runtime import until a result is created, so a fresh interpreter can import the helper without initializing the integration registry and looping through `copilot.py`.
+- **Malformed secret-scan payload parity**: the bash hook now fails open on invalid JSON, matching its PowerShell sibling instead of leaking `jq`'s parse exit code through `set -e`.
+- **Presentify extractor CI reproducibility**: the workflow pins Ruff 0.16.1, the bundled scripts satisfy that lint version, and their tracked executable modes now match their shebangs.
+- **Repository EOF hygiene**: four pre-existing HTML, JSON, and web-manifest artifacts now end with a newline so the pre-commit release gate is clean.
 
 ### Deferred
 

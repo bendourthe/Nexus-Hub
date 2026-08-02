@@ -16,7 +16,7 @@ The release needed one coherent boundary around the completed security-review ha
 - Kept current `contract_checks` and `install_verify` behavior unchanged because every delivered path remains functional; added only a findings block that guards do not consume.
 - Retained the existing workflow trigger topology for v3.15.7. The approved cost-effective CI/CD restructuring remains the v3.15.8 foundation rather than a release-time workflow rewrite.
 - Recorded the Claude Usage Monitor's pre-existing out-of-sync lockfile as v3.15.8 work. This release changes only the Codex monitor, so the Claude path-filtered workflow is not triggered.
-- Left all push, pull request, protected-branch promotion, tag, and GitHub Release actions pending explicit maintainer confirmation.
+- Received explicit maintainer confirmation for the complete remote publication sequence. Opened release PR #28 against `develop`; protected-branch promotion, tag, and GitHub Release remain gated on green checks.
 
 ### Troubleshooting Trail
 
@@ -26,6 +26,8 @@ The release needed one coherent boundary around the completed security-review ha
 The Makefile wrapper is unavailable on the Windows host, so each command in `make validate` was executed directly in the same fail-fast order. A fresh monolithic rerun of the 559 integration and installer cases exceeded 15 minutes, and four file-balanced shards also exceeded their ten-minute command budgets; collection remained healthy at 559 tests in 2.01 seconds. This is a Windows throughput limitation already handled during Phase 7, where the exact integrated code passed the complete matrix. Release-time changes after that matrix are metadata and documentation only, so fresh verification focused on all hard validators plus the three runtime release additions.
 
 Codex's initial local dependency tree had a missing Windows binary shim; a clean `npm ci` repaired it and reproduced the workflow. The unrelated Claude monitor's `npm ci` exposed an existing package-lock mismatch involving `@emnapi` packages. Because no Claude monitor path changes in v3.15.7, its focused workflow will not run for this release; the lockfile repair belongs to the v3.15.8 CI foundation and is recorded in known gaps.
+
+The first release PR run exposed three concrete CI defects. The validation job's end-of-file hook found four pre-existing tracked artifacts without terminal newlines. The hook-parity suite found that malformed JSON made `secret-scan.sh` return `jq`'s exit code 5 while the PowerShell sibling failed open. The reactivated Presentify workflow installed an unpinned current Ruff, whose executable-shebang and lint rules had never passed on `develop`. The correction normalizes the four EOFs, makes both secret-scan parsers fail open, pins Ruff 0.16.1, applies that version's mechanical lint fixes, and tracks the six shebang scripts as executable. Focused local verification now passes; the updated PR run remains the release authority.
 
 </details>
 
