@@ -296,6 +296,28 @@ Begin the report with the coverage artifact before listing individual findings:
 - [Relevant OWASP link or advisory]
 ```
 
+### Step 5: Run the Deterministic Closure Gate
+
+Do not ask the reviewer to re-read its own report and grade whether it missed anything. A reasoner re-reading its own work tends to ratify the same omissions, while noticing an absent component, candidate, or receipt is precisely the task it already failed. Replace that self-audit with a mechanical claim-to-evidence set difference.
+
+Build the local review record defined in `references/closure-gate-review-record.md`, then run the bundled pure-standard-library gate:
+
+```bash
+python scripts/closure-gate.py review-record.json
+```
+
+The gate computes five diffs:
+
+- Component inventory minus components with a logged review action or an explicit `OMITTED` / `UNCOVERED` caveat, surfacing components silently implied as covered.
+- Findings minus findings with one of the four terminal or explicitly pending dispositions, surfacing dropped candidates. A `needs-live-validation` item counts as explicitly pending only when its safe-test receipt is complete.
+- Confirmed findings minus evidence-bearing facts, surfacing unproven confirmations.
+- Rejected findings minus the route-complete rejection record owned by `[[adversarial-verifier]]`, surfacing rejections that skipped their proof burden.
+- Report claims minus matching evidence-bearing facts, surfacing claims with no recorded support. Use the claim classes in `[[verification-before-completion]]`'s fraud-class table; do not invent a second taxonomy here.
+
+Any non-empty diff is a FAILURE, not advice. The report does not ship until every diff is empty or each remaining component is recorded as an explicit caveat. Verify coverage and rejection claims as aggressively as confirmations because those two claim types suppress further work. The gate is Nexus-Hub-native and deliberately does not reproduce an external run-directory layout.
+
+`tests/skills/test_closure_gate.py` seeds every mismatch class, proves a clean record passes, asserts the explicit-caveat path, checks the CLI exit codes, and verifies recursive installer distribution. Exit `0` is clean, exit `1` is a non-empty closure diff, and exit `2` is malformed or unreadable input.
+
 ## Common Vulnerabilities by Language
 
 ### Python
@@ -354,6 +376,9 @@ Begin the report with the coverage artifact before listing individual findings:
 - [ ] Every finding includes severity (P0-P3), exploitability assessment, and remediation code
 - [ ] Every rejected finding satisfies `[[adversarial-verifier]]`'s observed, route-complete rejection record
 - [ ] Every candidate blocked only by an unobservable layer is routed to `needs-live-validation` rather than rejected or rated Low
+- [ ] `scripts/closure-gate.py` exits `0` for the current `references/closure-gate-review-record.md` shape, and all five reported diff sets are empty
+- [ ] Every `OMITTED` or `UNCOVERED` component that has no logged review action carries an explicit caveat rather than disappearing from the closure record
+- [ ] `tests/skills/test_closure_gate.py` passes, including every seeded mismatch class, malformed-data handling, and recursive distribution
 - [ ] OWASP Top 10 items are explicitly mapped to findings or marked "not applicable" with justification
 - [ ] Race condition sub-categories (9a shared state, 9b TOCTOU, 9c database, 9d distributed) each addressed
 

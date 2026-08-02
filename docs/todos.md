@@ -8,12 +8,13 @@
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
-| Plan phases complete | 5 | 7 | 2 |
+| Plan phases complete | 6 | 7 | 1 |
 | Phase 1 tasks complete | 3 | 3 | 0 |
 | Phase 2 tasks complete | 3 | 3 | 0 |
 | Phase 3 tasks complete | 4 | 4 | 0 |
 | Phase 4 tasks complete | 3 | 3 | 0 |
 | Phase 5 tasks complete | 4 | 4 | 0 |
+| Phase 6 tasks complete | 4 | 4 | 0 |
 | Open phase blockers | 0 | 0 | 0 |
 
 ## Phase 1 - Finding-disposition doctrine [DONE]
@@ -48,9 +49,12 @@
 - [x] Document the broker, v3.15.6 composition seam, and `re-full` policy disposition
 - [x] Run validation, coverage, cross-shell smoke checks, full tests, CI audit, and post-phase documentation
 
-## Phase 6 - Closure gate, eval hardening, and monotonicity
+## Phase 6 - Closure gate, eval hardening, and monotonicity [DONE]
 
-- [ ] Build the closure gate and add adversarial-eval and monotonic-scrutiny doctrine
+- [x] Build the pure-standard-library claim-to-evidence closure gate and its review-record schema
+- [x] Add mismatch, clean-record, malformed-input, documentation, and installer-distribution tests
+- [x] Add adversarial-eval doctrine and the monotonic-scrutiny invariant with durable storage deferred
+- [x] Run validation, coverage, full tests, coherence and CI audits, and post-phase documentation
 
 ## Phase 7 - Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
 

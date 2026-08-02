@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: The v3.15 minor line carries THREE releases. **v3.15.0 platform-parity-all-gaps** (all 7 phases, RELEASED 2026-07-23): every supported platform receives all the surfaces it can consume, re-verified against current docs. **v3.15.1 adoption-codesight** (all 7 phases built, releasing 2026-07-23): the deterministic compiled context-map inside `nexus-code-search`, both DoD axes holding. **v3.15.2 adoption-awesome-llm-apps** (ALL 6 PHASES COMPLETE; RELEASE HELD): a deterministic, model-free skill trigger-and-routing quality gate (now a hard `--gate`), an unfilled-placeholder lint, per-skill routing assertions, behavioral-eval schema interop, and a Hermes platform-roster integration. Implementation is done and verified on `feat/adoption-awesome-llm-apps`; the `/update release` hand-off is HELD (see the v3.15.2 Release hold section). The v3.15.0 version collision (three plans stamped v3.15.0) was reconciled on 2026-07-22 by re-stamping: v3.15.0 = platform-parity-all-gaps, v3.15.1 = adoption-codesight, v3.15.2 = adoption-awesome-llm-apps. A fourth release, **v3.15.3 adoption-no-ai-slop** (ALL 3 PHASES COMPLETE / RELEASED 2026-07-24), adds a dedicated prose `anti-slop-editing` skill. A fifth cycle, **v3.15.4 presentify-visual-fidelity** (ALL 7 PHASES COMPLETE; release-ready, pending the user-driven `/update release`), makes presentify's output visually faithful and self-correcting: a full-width canvas contract, image-sizing discipline, annotated-figure overlay recreation, reliable stock/mix imagery integration, an iterative multi-agent visual-QA self-critique loop, command/skill polish (the `--qa-depth` knob), and the terminal refactor + known-gaps + CI/CD gate. A sixth cycle, **v3.15.5 model-prompting-research** (PHASES 1-2 OF 6 COMPLETE, in progress on `feat/model-prompting-research`), adds a research-and-tune capability that keeps the catalog current with new model releases: Phase 1 landed the schema-validated per-model prompting profile layer, its structural hard gate, and its advisory staleness checker; Phase 2 landed the skill itself plus the verify-before-record research engine (a Dynamic-Workflow fan-out template with a budget kill switch, and a deterministic planner/writer). A seventh cycle, **v3.15.6 adoption-sandbox-escapes** (PHASE 1 OF 4 COMPLETE, in progress on `feat/adoption-sandbox-escapes`), closes the config-write-then-executed trust-seam gap that Nexus-Hub's own distributed artifacts expose (one of the source advisories, CVE-2026-48124, names workspace-controlled agent-harness hook configs, which is exactly the artifact class the installer ships): Phase 1 landed the `agentic-endpoint-hardening` skill carrying the escape taxonomy, the normative execution-trigger surface list that the later phases' guardrails consume, nine control layers, and the framework-mapping reference.
-**Last updated**: 2026-07-31 (v3.15.7 Phase 5 COMPLETE - execution-authorization broker)
+**Last updated**: 2026-07-31 (v3.15.7 Phase 6 COMPLETE - closure gate, eval hardening, and monotonicity)
 
 > **Correction notice (2026-07-30, applies file-wide)**: several advisory blocks below, in the v3.15.0 through v3.15.5 sections, attribute repo-wide Windows test failures to **WN-v36-1** ("bash cannot be fully exercised on the Windows dev host", covered on Linux in CI only). **That premise is disproven.** The cause was PATH shadowing: `C:\Windows\System32\bash.exe` (the WSL launcher stub) preceded Git Bash and could not resolve a Windows-style script path at all, so it exited 127 before executing a line. v3.15.6 Phase 4 fixed it structurally with a module-level PATH repair in `catalog/hooks/tests/conftest.py` and `tests/conftest.py`; both test trees now pass on Windows with no PATH assistance (658 and 516, zero failures). Those earlier blocks are left as written because they record what was believed at the time, which is what a gap ledger is for. Read them with this correction in mind, and do not cite WN-v36-1 as evidence that a Windows host cannot run bash. Canonical entry updated in [docs/v3/v3.6/known-gaps.md](../v3.6/known-gaps.md); resolution detail in the v3.15.6 HO-1 and DF-2 entries below.
 
@@ -913,3 +913,29 @@ None. Phase 5 did not take ownership of WN-3 or any older v3.15 gap.
 | Hand-offs (HO) | 0 | 0 |
 
 **Verification boundary.** The focused broker suite reports 24 passed with 87% branch coverage. Ruff check and format verification are clean. Catalog bundle, quality, routing, and security gates pass. The complete test matrix accounts for 1,818 passed, 20 skipped, and 0 failed: five extension suites supplied 670 passes and 1 skip; repository installer, integration, skill, and validator groups supplied 1,148 passes and 19 skips. The integration total includes all 399 collected cases, with the 80 heavy contract nodes run exactly and independently after the monolithic Windows wrapper exceeded its time budget.
+
+### v3.15.7 Phase 6 checkpoint
+
+Phase 6 added a pure-standard-library closure gate under `security-review`. It mechanically computes five claim-to-evidence differences over a local review record: components without a logged action or explicit caveat, findings without a terminal or explicitly pending disposition, confirmed findings without supporting evidence, rejected findings without a complete rejection record, and report claims without matching facts. Any non-empty difference exits non-zero. `skill-eval-loop` now requires separately scored adversarial axes, objective traps, deterministic and live-model tiers, judge-only ground truth, randomized fixtures, and artifact-based verdicts. `known-gaps-tracker` now states that cross-cycle memory may only raise scrutiny; prior work is a priority and recheck signal, never a coverage or exclusion signal. Building the durable store remains explicitly deferred to a future cycle.
+
+### v3.15.7 Phase 6 Open Items
+
+No new repository item. WN-3 remains open and unchanged from Phase 1. The durable cross-run store is plan-owned future work rather than an incomplete Phase 6 deliverable because this phase intentionally adopted doctrine only. The Windows integration wrapper again exceeded its command budget during repeated all-platform catalog copies, but all 399 integration cases were accounted for through non-contract grouping plus exact contract-node execution, with no failed test. The disposable mirror and coverage data remain outside the repository because the sandbox rejected their removal; they do not affect repository state or distribution.
+
+### v3.15.7 Phase 6 Resolved
+
+None. Phase 6 did not take ownership of WN-3 or any older v3.15 gap.
+
+### v3.15.7 Phase 6 Summary
+
+| Category | Open | Resolved |
+|---|---:|---:|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 1 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+| Hand-offs (HO) | 0 | 0 |
+
+**Verification boundary.** The focused closure-gate suite reports 17 passed with 87% branch coverage. Ruff check and format verification are clean. Catalog bundle, quality, routing, security, version, platform-contract, freshness, and compression gates pass. The complete test matrix accounts for 1,834 passed, 21 skipped, and 0 failed: five extension suites supplied 670 passes and 1 skip; repository installer, integration, skill, and validator groups supplied 1,164 passes and 20 skips. The integration total includes all 399 collected cases; 79 contract nodes passed and the Hermes sibling-preservation node produced its expected environment skip.

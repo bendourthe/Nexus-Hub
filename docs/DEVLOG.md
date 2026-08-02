@@ -1,5 +1,36 @@
 # Development Log
 
+## [2026-07-31] - v3.15.7 adoption-raptor-loop-hunt Phase 6: closure gate, eval hardening, and monotonicity [feature]
+
+### What Changed
+
+Implemented Phase 6 of 7 on `feat/adoption-raptor-loop-hunt`. Added `closure-gate.py` as a pure-standard-library bundle under `security-review`, plus a documented local review-record schema. The gate computes five exact claim-to-evidence differences and fails whenever any residue remains: missing component actions or caveats, dropped finding dispositions, unsupported confirmations, incomplete rejections, and report claims without matching facts. `skill-eval-loop` now defines trap-based adversarial evaluation with separate axes, deterministic and live-model tiers, judge-only ground truth, per-seed fixture randomization, and artifact-based verdicts. `known-gaps-tracker` now enforces monotonic scrutiny for cross-cycle memory and explicitly defers the durable store.
+
+### Why It Changed
+
+A model re-reading its own report is likely to ratify the same omissions that produced it. Phase 6 replaces that self-audit with a deterministic set difference and hardens adjacent evaluation and memory doctrine so evidence, not prose confidence or stale prior work, controls closure.
+
+### Decisions Made
+
+- Kept the gate under `security-review`, where the Phase 3 coverage denominator and Phase 2 rejection burden converge.
+- Defined a Nexus-Hub-native JSON record rather than copying an external run-directory layout; the script has no third-party dependency or outbound behavior.
+- Allowed only explicit component caveats to resolve uncovered inventory residue; covered components still require a logged review action.
+- Treated cross-cycle history as a one-way attention amplifier and deferred persistent storage so stale records can never suppress re-examination.
+- Relied on existing recursive skill distribution and CI coverage for `tests/skills`; no installer or workflow edit was needed.
+
+### Troubleshooting Trail
+
+<details>
+<summary>Malformed-value hardening, Windows integration throughput, and blocked temporary cleanup</summary>
+
+Initial review found that malformed JSON values could reach set membership and duplicate-ID checks as unhashable objects. The parser was hardened to reject those shapes as usage errors, and focused tests now cover malformed values, duplicate identifiers, every mismatch class, clean closure, explicit caveats, pending validation receipts, rejection reachability, CLI exits, documentation references, doctrine text, and installer distribution. The monolithic Windows integration run exceeded its command budget while repeatedly copying platform surfaces, so the 319 non-contract cases were run as a group and all 80 contract nodes were collected and executed exactly in a local-temp mirror; 79 passed and the Hermes sibling-preservation node produced its expected environment skip. The sandbox rejected deletion of that validated temporary mirror and its coverage database, leaving reproducible data outside the repository with no working-tree or distribution impact.
+
+</details>
+
+### Impact and Context
+
+The focused gate suite reports 17 passed and 87% branch coverage. Ruff check and format verification pass. Catalog bundle, quality, trigger-routing, security, version, platform-contract, freshness, compression, JSON, and ShellCheck gates pass. The complete matrix accounts for 1,834 passed, 21 skipped, and 0 failed across five extensions plus repository installer, integration, skill, and validator groups. A six-phase coherence audit confirmed the same four dispositions, coverage terminology, rejection ownership, fraud-table ownership, and Phase 5 capability names across all changed surfaces. Phase 6 introduced no new repository gap; WN-3 remains open and unchanged, and durable storage stays a deliberate future-cycle deferral. No frontmatter, generated registry, dependency, version, tag, merge, push, release artifact, installer, or CI workflow changed.
+
 ## [2026-07-31] - v3.15.7 adoption-raptor-loop-hunt Phase 5: execution-authorization broker [feature]
 
 ### What Changed
