@@ -2,7 +2,9 @@
 
 **Project**: Nexus-Hub
 **Status**: The v3.15 minor line carries THREE releases. **v3.15.0 platform-parity-all-gaps** (all 7 phases, RELEASED 2026-07-23): every supported platform receives all the surfaces it can consume, re-verified against current docs. **v3.15.1 adoption-codesight** (all 7 phases built, releasing 2026-07-23): the deterministic compiled context-map inside `nexus-code-search`, both DoD axes holding. **v3.15.2 adoption-awesome-llm-apps** (ALL 6 PHASES COMPLETE; RELEASE HELD): a deterministic, model-free skill trigger-and-routing quality gate (now a hard `--gate`), an unfilled-placeholder lint, per-skill routing assertions, behavioral-eval schema interop, and a Hermes platform-roster integration. Implementation is done and verified on `feat/adoption-awesome-llm-apps`; the `/update release` hand-off is HELD (see the v3.15.2 Release hold section). The v3.15.0 version collision (three plans stamped v3.15.0) was reconciled on 2026-07-22 by re-stamping: v3.15.0 = platform-parity-all-gaps, v3.15.1 = adoption-codesight, v3.15.2 = adoption-awesome-llm-apps. A fourth release, **v3.15.3 adoption-no-ai-slop** (ALL 3 PHASES COMPLETE / RELEASED 2026-07-24), adds a dedicated prose `anti-slop-editing` skill. A fifth cycle, **v3.15.4 presentify-visual-fidelity** (ALL 7 PHASES COMPLETE; release-ready, pending the user-driven `/update release`), makes presentify's output visually faithful and self-correcting: a full-width canvas contract, image-sizing discipline, annotated-figure overlay recreation, reliable stock/mix imagery integration, an iterative multi-agent visual-QA self-critique loop, command/skill polish (the `--qa-depth` knob), and the terminal refactor + known-gaps + CI/CD gate. A sixth cycle, **v3.15.5 model-prompting-research** (PHASES 1-2 OF 6 COMPLETE, in progress on `feat/model-prompting-research`), adds a research-and-tune capability that keeps the catalog current with new model releases: Phase 1 landed the schema-validated per-model prompting profile layer, its structural hard gate, and its advisory staleness checker; Phase 2 landed the skill itself plus the verify-before-record research engine (a Dynamic-Workflow fan-out template with a budget kill switch, and a deterministic planner/writer). A seventh cycle, **v3.15.6 adoption-sandbox-escapes** (PHASE 1 OF 4 COMPLETE, in progress on `feat/adoption-sandbox-escapes`), closes the config-write-then-executed trust-seam gap that Nexus-Hub's own distributed artifacts expose (one of the source advisories, CVE-2026-48124, names workspace-controlled agent-harness hook configs, which is exactly the artifact class the installer ships): Phase 1 landed the `agentic-endpoint-hardening` skill carrying the escape taxonomy, the normative execution-trigger surface list that the later phases' guardrails consume, nine control layers, and the framework-mapping reference.
-**Last updated**: 2026-07-31 (v3.15.7 Phase 6 COMPLETE - closure gate, eval hardening, and monotonicity)
+**Last updated**: 2026-08-02 (v3.15.7 ALL 7 PHASES COMPLETE - release readiness handed to `/update release`)
+
+**Current v3.15.7 status**: Implementation is complete and locally verified on `feat/adoption-raptor-loop-hunt`. The release workflow, version bump, integration into `develop`, remote CI, tag, push, and GitHub Release remain owned by the user-driven `/update release` handoff.
 
 > **Correction notice (2026-07-30, applies file-wide)**: several advisory blocks below, in the v3.15.0 through v3.15.5 sections, attribute repo-wide Windows test failures to **WN-v36-1** ("bash cannot be fully exercised on the Windows dev host", covered on Linux in CI only). **That premise is disproven.** The cause was PATH shadowing: `C:\Windows\System32\bash.exe` (the WSL launcher stub) preceded Git Bash and could not resolve a Windows-style script path at all, so it exited 127 before executing a line. v3.15.6 Phase 4 fixed it structurally with a module-level PATH repair in `catalog/hooks/tests/conftest.py` and `tests/conftest.py`; both test trees now pass on Windows with no PATH assistance (658 and 516, zero failures). Those earlier blocks are left as written because they record what was believed at the time, which is what a gap ledger is for. Read them with this correction in mind, and do not cite WN-v36-1 as evidence that a Windows host cannot run bash. Canonical entry updated in [docs/v3/v3.6/known-gaps.md](../v3.6/known-gaps.md); resolution detail in the v3.15.6 HO-1 and DF-2 entries below.
 
@@ -939,3 +941,59 @@ None. Phase 6 did not take ownership of WN-3 or any older v3.15 gap.
 | Hand-offs (HO) | 0 | 0 |
 
 **Verification boundary.** The focused closure-gate suite reports 17 passed with 87% branch coverage. Ruff check and format verification are clean. Catalog bundle, quality, routing, security, version, platform-contract, freshness, and compression gates pass. The complete test matrix accounts for 1,834 passed, 21 skipped, and 0 failed: five extension suites supplied 670 passes and 1 skip; repository installer, integration, skill, and validator groups supplied 1,164 passes and 20 skips. The integration total includes all 399 collected cases; 79 contract nodes passed and the Hermes sibling-preservation node produced its expected environment skip.
+
+### v3.15.7 Phase 7 checkpoint
+
+Phase 7 audited the repository and active v3.15 documentation layout, reconciled the version ledger, reviewed every GitHub Actions workflow, resolved the isolated installer import cycle, and completed the local release-readiness matrix. The architecture audit proposed no moves or deletions: all 63 active v3.15 Markdown files are correctly classified, the six duplicate-content groups are intentional parity or placeholder artifacts, no tracked empty directory needs cleanup, and no receiving skill crossed the 500-line target because of this plan. The catalog remains at 270 skills, no skill frontmatter changed, and no generated catalog sync is required. The v3.15.6 composition seam remains accurate: endpoint permission and provenance controls constrain host reachability, while the v3.15.7 broker authorizes one typed model-emitted action above that layer; neither replaces the sandbox.
+
+### v3.15.7 Phase 7 Open Items
+
+#### Deferred
+
+##### DF-6 - Durable monotonic-scrutiny store remains deferred
+
+- **Source phase**: v3.15.7 Phase 7 - Known-gaps reconciliation.
+- **Plan reference**: `docs/v3/v3.15/plans/v3.15.7-adoption-raptor-loop-hunt.md` (sub-task 7.2; comparison candidate B11).
+- **Reason**: Phase 6 adopted the safety invariant that prior-cycle memory may only raise scrutiny, never establish coverage or exclude a candidate. A durable store is locally buildable but was intentionally deferred because its persistence, invalidation, and poisoning-resistance surface exceeds this patch's bounded scope.
+- **Re-entry condition**: Re-propose only with a local storage schema, explicit invalidation rules, poisoning tests, and proof that every stored signal can only increase review priority.
+
+##### DF-7 - External vulnerability-database reconnaissance remains declined
+
+- **Source phase**: v3.15.7 Phase 7 - Known-gaps reconciliation.
+- **Plan reference**: `docs/v3/v3.15/comparisons/v3.15.7-comparison-raptor-loop-hunt.md` (prior-art recon via OSV, NVD, or GitHub).
+- **Reason**: Mandating this step would add third-party egress to a local skill surface and duplicate existing `dependency-security-audit` and `cve-reachability-analyzer` ownership. The MCP Registry Policy prefers those existing local skills over a new search-as-service dependency.
+- **Re-entry condition**: Reconsider only if the capability cannot be expressed through the existing local skills and a future proposal passes the registry's reverse-engineer-first audit.
+
+##### DF-8 - Provider-key cross-vendor judging remains declined
+
+- **Source phase**: v3.15.7 Phase 7 - Known-gaps reconciliation.
+- **Plan reference**: `docs/v3/v3.15/comparisons/v3.15.7-comparison-raptor-loop-hunt.md` (cross-vendor judge).
+- **Reason**: A mandated provider-key path would transmit source and findings to another model vendor. Nexus-Hub already owns the local `cross-model-orchestrator` path and the comparison adopted the harness-as-second-evaluator fallback instead.
+- **Re-entry condition**: Reconsider only for an explicit user-owned provider workflow with egress disclosure, hard spending controls, and no claim that a second vendor is required for correctness.
+
+### v3.15.7 Phase 7 Resolved
+
+##### WN-3 - `test_instruction_merge.py` isolated import cycle resolved
+
+- **Resolution**: `scripts/lib/installer/instruction_merge.py` now defers the `FileAction` runtime import until a result is created, so importing the merge helper no longer initializes the integrations registry and loops back through `copilot.py`. `tests/installer/test_instruction_merge.py` includes a fresh-interpreter regression test that imports the helper without preloading the registry.
+- **Evidence**: The exact former reproduction now reports 13 passed; the full installer suite reports 144 passed and 16 skipped; the changed module reports 87% branch coverage.
+
+### v3.15.7 Phase 7 Summary
+
+| Category | Open | Resolved |
+|---|---:|---:|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 3 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 1 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+| Hand-offs (HO) | 1 | 0 |
+
+**Verification boundary.** The complete local release matrix accounts for 1,835 passed, 21 skipped, and 0 failed across five extensions plus repository installer, integration, skill, and validator groups. The separately required hook suite reports 900 passed and 36 skipped. Ruff check and format verification pass, the changed installer module has 87% branch coverage, all 399 integration cases are accounted for, and all catalog, bundle, placeholder, routing, security, version, template, model-profile-structure, platform-contract, freshness, compression, and JSON gates pass. Remote CI is intentionally not claimed: it will run only after the user chooses the final commit-and-push path. Model-profile freshness is advisory DRIFTED against the live Codex roster and is handed to `/tune-prompting`; it is not a release gate.
+
+### v3.15.7 Release readiness (Phase 7, release-readiness 9A/9B)
+
+- **9A resolve known gaps**: WN-3 is resolved with an isolated-import regression test. The durable store and both declined external candidates have explicit reasons and re-entry conditions. No unowned release blocker remains.
+- **9B verify tests and CI/CD**: Every changed executable has focused branch coverage and belongs to an already-collected test surface. Existing CI covers skill validation, bundle and placeholder checks, broker and closure tests, version/platform gates, Linux integration, and gated Windows/macOS legs without adding a cold runner. The broad `ci.yml` trigger remains intentional because it also owns installers, integrations, and extensions; narrower focused workflows retain their path filters, concurrency controls, caches, or scheduled security semantics.
+- **9C-9E handoff**: HANDED to `/update release` and NOT performed here. That workflow owns release-note approval, the version bump from 3.15.6 to 3.15.7, CHANGELOG and README updates, integration into `develop`, remote CI, tag, push, and GitHub Release. Phase 7 performed no version bump, merge, tag, push, or release.

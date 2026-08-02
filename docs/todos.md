@@ -8,13 +8,14 @@
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
-| Plan phases complete | 6 | 7 | 1 |
+| Plan phases complete | 7 | 7 | 0 |
 | Phase 1 tasks complete | 3 | 3 | 0 |
 | Phase 2 tasks complete | 3 | 3 | 0 |
 | Phase 3 tasks complete | 4 | 4 | 0 |
 | Phase 4 tasks complete | 3 | 3 | 0 |
 | Phase 5 tasks complete | 4 | 4 | 0 |
 | Phase 6 tasks complete | 4 | 4 | 0 |
+| Phase 7 tasks complete | 4 | 4 | 0 |
 | Open phase blockers | 0 | 0 | 0 |
 
 ## Phase 1 - Finding-disposition doctrine [DONE]
@@ -56,6 +57,9 @@
 - [x] Add adversarial-eval doctrine and the monotonic-scrutiny invariant with durable storage deferred
 - [x] Run validation, coverage, full tests, coherence and CI audits, and post-phase documentation
 
-## Phase 7 - Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
+## Phase 7 - Architecture Refactor, Known-Gaps Reconciliation, and CI/CD [DONE]
 
-- [ ] Reconcile structure, known gaps, CI/CD, and release readiness
+- [x] Audit repository and documentation structure and retain the canonical layout
+- [x] Resolve WN-3 and reconcile the durable-store and declined-candidate gaps
+- [x] Audit all CI workflows for coverage and action-minute optimization
+- [x] Run validation, coverage, full tests, hook tests, and release-readiness checks

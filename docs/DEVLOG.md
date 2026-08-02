@@ -1,5 +1,38 @@
 # Development Log
 
+## [2026-08-02] - v3.15.7 adoption-raptor-loop-hunt Phase 7: architecture, gaps, and CI/CD [refactor]
+
+### What Changed
+
+Completed the terminal Phase 7 audit on `feat/adoption-raptor-loop-hunt`. The repository and active v3.15 documentation layouts remain canonical, so no speculative move or deletion was applied. Reconciled the gap ledger by resolving WN-3, recording the durable monotonic-scrutiny store as deferred, and preserving the policy reasons for declining external vulnerability-database reconnaissance and provider-key cross-vendor judging. Audited all seven GitHub Actions workflows and retained their existing optimized divisions of responsibility. Fixed the isolated `instruction_merge` import cycle by lazily importing `FileAction`, and added a fresh-interpreter regression test.
+
+### Why It Changed
+
+The final phase exists to close architectural, verification, and handoff gaps after the feature phases land. WN-3 was the only open implementation warning and could be fixed without changing installer behavior; the remaining three candidates are deliberate scope and policy decisions that need durable reasoning so future plans do not rediscover and re-propose them.
+
+### Decisions Made
+
+- Kept the repository and v3.15 documentation layouts unchanged because every audited artifact has an active owner and all duplicate groups are intentional parity or placeholder files.
+- Kept `ci.yml` broad because it owns installers, integrations, extensions, and catalog changes; retained the six focused workflows because their narrower filters, concurrency, caching, schedules, or security matrices already minimize unnecessary minutes.
+- Resolved the import cycle at the dependency boundary with a lazy result import rather than altering integrations package registration or test import order.
+- Kept the v3.15.6 endpoint permission and provenance controls below the v3.15.7 typed broker; the layers compose and neither substitutes for sandbox enforcement.
+- Handed versioning, integration, remote CI, tagging, pushing, and GitHub Release creation to `/update release` rather than performing release actions inside `/implement`.
+
+### Troubleshooting Trail
+
+<details>
+<summary>Isolated import cycle and Windows verification throughput</summary>
+
+The exact WN-3 reproduction failed during collection with `ImportError: cannot import name 'merge_marker_section' from partially initialized module 'scripts.lib.installer.instruction_merge' (most likely due to a circular import)`. The cycle was `instruction_merge` to `integrations.result` to integrations package registration to `copilot` and back to `instruction_merge`. Moving the runtime `FileAction` import behind a small result factory broke that registry initialization path while preserving returned values and type checking. The exact reproduction then passed 13 tests and the full installer suite passed 144 tests with 16 skips.
+
+The shared worktree's personal-path validation was blocked by an unrelated untracked v3.16 plan containing a user-profile path, so Phase 7 was validated in a detached local-temp worktree containing committed Phases 1-6 plus only the two Phase 7 code files. Monolithic test wrappers exceeded their Windows command budgets while buffering repeated all-platform copies. Independent suite processes produced stable counts; the 399 integration cases were split into 319 non-contract cases plus 80 exact contract nodes under bounded eight-process concurrency.
+
+</details>
+
+### Impact and Context
+
+The focused import suite reports 13 passed with 87% branch coverage, and Ruff check and format verification pass. The release matrix reports 1,835 passed, 21 skipped, and 0 failed across five extensions plus repository installer, integration, skill, and validator groups; the separate hook suite reports 900 passed and 36 skipped. All 399 integration cases are accounted for. Catalog, bundle, placeholder, routing, security, JSON, version, template, model-profile-structure, platform-contract, freshness, compression, and skill-security gates pass. The catalog remains at 270 skills and no frontmatter or generated catalog changed. Live Codex model-profile freshness is advisory DRIFTED and is handed to `/tune-prompting`. No version, tag, merge, push, remote CI run, or release was performed.
+
 ## [2026-07-31] - v3.15.7 adoption-raptor-loop-hunt Phase 6: closure gate, eval hardening, and monotonicity [feature]
 
 ### What Changed
