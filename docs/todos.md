@@ -34,6 +34,7 @@
 - [x] Obtain explicit approval before push, pull request, protected-branch promotion, tag, or GitHub Release
 - [x] Diagnose the release PR failures and correct hook parity, Presentify lint and OCR enrichment, pytest module discovery, executable modes, and EOF hygiene
 - [x] Pass the updated release PR checks
+- [ ] Repair the Windows PowerShell 5.1 post-merge CI failures and pass the follow-up PR and `develop` push gates
 - [ ] Merge the usage-monitor CI repair into `develop`, promote to `main`, pass post-merge CI, tag v3.15.7, and publish the GitHub Release
 
 ## Phase 1 - Finding-disposition doctrine [DONE]
