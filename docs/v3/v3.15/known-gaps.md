@@ -992,8 +992,8 @@ Phase 7 audited the repository and active v3.15 documentation layout, reconciled
 
 ##### BG-2 - First release PR exposed three CI defects
 
-- **Resolution**: normalized terminal newlines in the four files rejected by the end-of-file hook; made `secret-scan.sh` fail open when `jq` cannot parse the payload, matching `secret-scan.ps1`; and restored the reactivated Presentify check by pinning Ruff 0.16.1, applying its lint fixes, and tracking all six shebang scripts as executable.
-- **Evidence**: the exact malformed secret-scan parity node passes, Ruff 0.16.1 reports no findings, all four artifacts end with LF, and the regenerated 1,194-entry manifest verifies. The updated remote PR run remains the final release gate.
+- **Resolution**: normalized terminal newlines in the four files rejected by the end-of-file hook; made `secret-scan.sh` fail open when `jq` cannot parse the payload, matching `secret-scan.ps1`; and restored the reactivated Presentify check by pinning Ruff 0.16.1, preserving intentional security suppressions, tracking all six shebang scripts as executable, and normalizing OCR spacing in the fixture enrichment protocol.
+- **Evidence**: the exact malformed secret-scan parity node passes, Ruff 0.16.1 reports no findings, both OCR spacing regression cases pass within a 46-passed focused suite, all four artifacts end with LF, and the regenerated 1,194-entry manifest verifies. The updated remote PR run remains the final release gate.
 
 ##### WN-3 - `test_instruction_merge.py` isolated import cycle resolved
 

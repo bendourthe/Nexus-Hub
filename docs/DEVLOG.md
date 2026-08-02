@@ -29,6 +29,8 @@ Codex's initial local dependency tree had a missing Windows binary shim; a clean
 
 The first release PR run exposed three concrete CI defects. The validation job's end-of-file hook found four pre-existing tracked artifacts without terminal newlines. The hook-parity suite found that malformed JSON made `secret-scan.sh` return `jq`'s exit code 5 while the PowerShell sibling failed open. The reactivated Presentify workflow installed an unpinned current Ruff, whose executable-shebang and lint rules had never passed on `develop`. The correction normalizes the four EOFs, makes both secret-scan parsers fail open, pins Ruff 0.16.1, applies that version's mechanical lint fixes, and tracks the six shebang scripts as executable. Focused local verification now passes; the updated PR run remains the release authority.
 
+The second Presentify run cleared lint and reached a stale protocol assertion: Linux OCR emitted spaces in one of three known fixture strings, while `enrich_models.py` recognized only the concatenated form and asserted exactly three corrections. Matching now compacts OCR text to lowercase alphanumerics before applying the same canonical corrections. Two regression cases prove concatenated and spaced inputs produce identical enriched output. The expanded focused suite reports 46 passed and 3 environment skips.
+
 </details>
 
 ### Impact and Context
