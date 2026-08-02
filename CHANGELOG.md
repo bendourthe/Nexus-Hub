@@ -32,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Presentify extractor CI reproducibility**: the workflow pins Ruff 0.16.1, preserves intentional security suppressions, and tracks shebang scripts as executable. The protocol round-trip now normalizes OCR spacing before matching its three known fixture corrections.
 - **Linux test module discovery**: CI invokes pytest through `python -m pytest`, keeping the checkout root importable for skills tests that exercise the repository's `scripts` package.
 - **Usage-monitor CI reproducibility**: the Claude and Codex workflows pin `setup-node` and run on Node 22, both packages declare that engine floor, and both npm 10 lockfiles are regenerated so clean install, compile, and unit tests pass.
+- **Windows push-gate reliability**: model-routing tests invoke the exact Bash executable already proven by the shared fixture instead of the ambiguous Windows `bash` alias, and the PowerShell 5.1 provenance ledger computes SHA-256 through a direct .NET stream instead of the runner-sensitive `Get-FileHash` cmdlet.
 - **Repository EOF hygiene**: four pre-existing HTML, JSON, and web-manifest artifacts now end with a newline so the pre-commit release gate is clean.
 
 ### Deferred
