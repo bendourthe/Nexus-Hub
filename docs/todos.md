@@ -1,6 +1,6 @@
 # Nexus-Hub Progress Dashboard
 
-**Branch:** `feat/adoption-raptor-loop-hunt`
+**Branch:** `release/v3.15.7`
 
 ---
 
@@ -16,7 +16,22 @@
 | Phase 5 tasks complete | 4 | 4 | 0 |
 | Phase 6 tasks complete | 4 | 4 | 0 |
 | Phase 7 tasks complete | 4 | 4 | 0 |
+| Local release integration | 1 | 1 | 0 |
+| Release metadata and docs | 1 | 1 | 0 |
+| Platform contract audit | 1 | 1 | 0 |
+| Local release gates | 1 | 1 | 0 |
+| Remote publication gates | 0 | 1 | 1 |
 | Open phase blockers | 0 | 0 | 0 |
+
+## Release Preparation - v3.15.7 [IN PROGRESS]
+
+- [x] Integrate `feat/adoption-raptor-loop-hunt` into the isolated `release/v3.15.7` worktree
+- [x] Confirm the release scope and defer newly discovered additive platform drift to v3.15.8
+- [x] Reactivate the CI and CodeQL workflows that were manually disabled
+- [x] Bump version surfaces and reconcile release documentation
+- [x] Regenerate the release manifest and pass all local release gates
+- [x] Record the non-triggered Claude monitor lockfile mismatch for the v3.15.8 CI foundation
+- [ ] Obtain explicit approval before push, pull request, protected-branch promotion, tag, or GitHub Release
 
 ## Phase 1 - Finding-disposition doctrine [DONE]
 

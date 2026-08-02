@@ -7,13 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [3.15.7] - 2026-08-02
 
-**Planned for v3.15.7.**
+**v3.15.7 evidence-closed security review hardening.** Security findings now carry explicit dispositions, refutations must meet a proof burden, hunt coverage is measurable, rigor claims are mechanically auditable, one typed broker owns execution authorization, and a deterministic closure gate rejects unresolved claim-to-evidence mismatches. The release also includes Codex Usage Monitor Extra Credits and the isolated installer import-cycle fix. No new external dependency, credential, data processor, or catalog entry is introduced. Catalog: **270 skills**, **17 commands**, **29 hooks**, **23 agents**.
 
 ### Added
 
+- **Four-state finding disposition doctrine** across `pentest-reporting` and `exploitability-analyzer`, separating confirmed, unresolved, rejected, and accepted-risk findings from severity.
+- **Hunt coverage accounting** in `security-review`: an explicit component denominator, COVERED / OMITTED / UNCOVERED states, multiple traversal altitudes, and proven-dirty sink sweeps.
+- **Anti-costume-rigor audit** in `verification-before-completion`, with objective Compare or Diff evidence for ten fraud classes and report-claim checks in `pentest-reporting`.
+- **Typed capability-grant broker** under `agent-access-policy`, implemented with the Python standard library and denial-first tests for plan-only, sandbox execution, import, and installer distribution paths.
+- **Deterministic claim-to-evidence closure gate**, adversarial-evaluation doctrine, and the monotonic-scrutiny invariant. Prior-cycle memory may increase scrutiny but cannot establish coverage or exclude a candidate.
 - **Codex Usage Monitor Extra Credits progress bar** (`extensions/codex-usage-monitor` 0.2.6 -> 0.2.7): monthly workspace credit usage now appears after Weekly as a second progress bar in both the status-bar hover tooltip and dashboard, including used-versus-limit credit counts and the monthly reset time. The undocumented account payload is parsed defensively across snake_case and camelCase field variants; balance-only responses keep the existing text summary.
+
+### Changed
+
+- **Rejection proof burden** in `adversarial-verifier` and `security-review`: a clean label requires evidence that actually reaches and refutes the candidate claim.
+- **Exact `/review` coverage contract**: reports now state N-of-M scoped components and expose omissions instead of using qualitative completeness language.
+
+### Fixed
+
+- **Isolated instruction-merge import cycle**: `scripts/lib/installer/instruction_merge.py` defers the `FileAction` runtime import until a result is created, so a fresh interpreter can import the helper without initializing the integration registry and looping through `copilot.py`.
+
+### Deferred
+
+- **Durable monotonic-scrutiny storage** remains deferred pending a local schema, explicit invalidation rules, poisoning tests, and proof that stored signals can only increase review priority.
+- **New upstream agent and hook surfaces** found during the 2026-08-02 platform audit are documented as additive drift and assigned to v3.15.8. Existing v3.15.7 delivery paths remain functional; no adapter behavior changes in this release.
 
 ## [3.15.6] - 2026-07-30
 

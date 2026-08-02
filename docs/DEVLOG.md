@@ -1,5 +1,38 @@
 # Development Log
 
+## [2026-08-02] - v3.15.7 release preparation and platform audit [release]
+
+### What Changed
+
+Integrated `feat/adoption-raptor-loop-hunt` into the isolated `release/v3.15.7` worktree, bumped all version surfaces, generated release notes from the integrated diff, updated README and known-gap handoffs, and regenerated the 1,194-entry supply-chain manifest. Confirmed that Codex Usage Monitor 0.2.7 Extra Credits is present in the release. Reactivated the manually disabled CI and CodeQL workflows. Re-verified the platform roster against current documentation and recorded additive agent and hook capabilities as non-consumed findings deferred to v3.15.8; no adapter or enforced contract path changed in v3.15.7.
+
+### Why It Changed
+
+The release needed one coherent boundary around the completed security-review hardening, the already-merged Codex monitor work, and the isolated installer import-cycle fix. Newly discovered platform capabilities require adapter ownership, config-merge, teardown, and cross-platform testing work, so the maintainer approved release-with-documented-drift rather than expanding this patch after implementation was complete.
+
+### Decisions Made
+
+- Kept v3.15.7 functional scope fixed and assigned additive Codex, Gemini CLI, Qwen, Kimi, and Copilot surfaces to v3.15.8.
+- Kept current `contract_checks` and `install_verify` behavior unchanged because every delivered path remains functional; added only a findings block that guards do not consume.
+- Retained the existing workflow trigger topology for v3.15.7. The approved cost-effective CI/CD restructuring remains the v3.15.8 foundation rather than a release-time workflow rewrite.
+- Recorded the Claude Usage Monitor's pre-existing out-of-sync lockfile as v3.15.8 work. This release changes only the Codex monitor, so the Claude path-filtered workflow is not triggered.
+- Left all push, pull request, protected-branch promotion, tag, and GitHub Release actions pending explicit maintainer confirmation.
+
+### Troubleshooting Trail
+
+<details>
+<summary>Windows test duration and monitor dependency state</summary>
+
+The Makefile wrapper is unavailable on the Windows host, so each command in `make validate` was executed directly in the same fail-fast order. A fresh monolithic rerun of the 559 integration and installer cases exceeded 15 minutes, and four file-balanced shards also exceeded their ten-minute command budgets; collection remained healthy at 559 tests in 2.01 seconds. This is a Windows throughput limitation already handled during Phase 7, where the exact integrated code passed the complete matrix. Release-time changes after that matrix are metadata and documentation only, so fresh verification focused on all hard validators plus the three runtime release additions.
+
+Codex's initial local dependency tree had a missing Windows binary shim; a clean `npm ci` repaired it and reproduced the workflow. The unrelated Claude monitor's `npm ci` exposed an existing package-lock mismatch involving `@emnapi` packages. Because no Claude monitor path changes in v3.15.7, its focused workflow will not run for this release; the lockfile repair belongs to the v3.15.8 CI foundation and is recorded in known gaps.
+
+</details>
+
+### Impact and Context
+
+Version synchronization, platform code-vs-contract, contract freshness, manifest integrity, bundle and placeholder validation, quality heuristics, trigger routing, personal-path, Unicode-safety, supply-chain, workflow-security, solution-frontmatter, template-parity, model-profile-structure, and compression gates pass. The Codex monitor compiles and reports 75 tests passed with 80.55% statements, 80.29% branches, 77.19% functions, and 81% lines. The capability broker, closure gate, and isolated instruction-merge regression suites report 54 passed. The Phase 7 integrated matrix remains 1,835 passed, 21 skipped, and 0 failed, plus 900 passed and 36 skipped in the hook suite. Remote CI and publication are not claimed or performed.
+
 ## [2026-08-02] - v3.15.7 adoption-raptor-loop-hunt Phase 7: architecture, gaps, and CI/CD [refactor]
 
 ### What Changed
