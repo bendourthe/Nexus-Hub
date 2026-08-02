@@ -1,5 +1,194 @@
 # Development Log
 
+## [2026-08-02] - v3.15.7 adoption-raptor-loop-hunt Phase 7: architecture, gaps, and CI/CD [refactor]
+
+### What Changed
+
+Completed the terminal Phase 7 audit on `feat/adoption-raptor-loop-hunt`. The repository and active v3.15 documentation layouts remain canonical, so no speculative move or deletion was applied. Reconciled the gap ledger by resolving WN-3, recording the durable monotonic-scrutiny store as deferred, and preserving the policy reasons for declining external vulnerability-database reconnaissance and provider-key cross-vendor judging. Audited all seven GitHub Actions workflows and retained their existing optimized divisions of responsibility. Fixed the isolated `instruction_merge` import cycle by lazily importing `FileAction`, and added a fresh-interpreter regression test.
+
+### Why It Changed
+
+The final phase exists to close architectural, verification, and handoff gaps after the feature phases land. WN-3 was the only open implementation warning and could be fixed without changing installer behavior; the remaining three candidates are deliberate scope and policy decisions that need durable reasoning so future plans do not rediscover and re-propose them.
+
+### Decisions Made
+
+- Kept the repository and v3.15 documentation layouts unchanged because every audited artifact has an active owner and all duplicate groups are intentional parity or placeholder files.
+- Kept `ci.yml` broad because it owns installers, integrations, extensions, and catalog changes; retained the six focused workflows because their narrower filters, concurrency, caching, schedules, or security matrices already minimize unnecessary minutes.
+- Resolved the import cycle at the dependency boundary with a lazy result import rather than altering integrations package registration or test import order.
+- Kept the v3.15.6 endpoint permission and provenance controls below the v3.15.7 typed broker; the layers compose and neither substitutes for sandbox enforcement.
+- Handed versioning, integration, remote CI, tagging, pushing, and GitHub Release creation to `/update release` rather than performing release actions inside `/implement`.
+
+### Troubleshooting Trail
+
+<details>
+<summary>Isolated import cycle and Windows verification throughput</summary>
+
+The exact WN-3 reproduction failed during collection with `ImportError: cannot import name 'merge_marker_section' from partially initialized module 'scripts.lib.installer.instruction_merge' (most likely due to a circular import)`. The cycle was `instruction_merge` to `integrations.result` to integrations package registration to `copilot` and back to `instruction_merge`. Moving the runtime `FileAction` import behind a small result factory broke that registry initialization path while preserving returned values and type checking. The exact reproduction then passed 13 tests and the full installer suite passed 144 tests with 16 skips.
+
+The shared worktree's personal-path validation was blocked by an unrelated untracked v3.16 plan containing a user-profile path, so Phase 7 was validated in a detached local-temp worktree containing committed Phases 1-6 plus only the two Phase 7 code files. Monolithic test wrappers exceeded their Windows command budgets while buffering repeated all-platform copies. Independent suite processes produced stable counts; the 399 integration cases were split into 319 non-contract cases plus 80 exact contract nodes under bounded eight-process concurrency.
+
+</details>
+
+### Impact and Context
+
+The focused import suite reports 13 passed with 87% branch coverage, and Ruff check and format verification pass. The release matrix reports 1,835 passed, 21 skipped, and 0 failed across five extensions plus repository installer, integration, skill, and validator groups; the separate hook suite reports 900 passed and 36 skipped. All 399 integration cases are accounted for. Catalog, bundle, placeholder, routing, security, JSON, version, template, model-profile-structure, platform-contract, freshness, compression, and skill-security gates pass. The catalog remains at 270 skills and no frontmatter or generated catalog changed. Live Codex model-profile freshness is advisory DRIFTED and is handed to `/tune-prompting`. No version, tag, merge, push, remote CI run, or release was performed.
+
+## [2026-07-31] - v3.15.7 adoption-raptor-loop-hunt Phase 6: closure gate, eval hardening, and monotonicity [feature]
+
+### What Changed
+
+Implemented Phase 6 of 7 on `feat/adoption-raptor-loop-hunt`. Added `closure-gate.py` as a pure-standard-library bundle under `security-review`, plus a documented local review-record schema. The gate computes five exact claim-to-evidence differences and fails whenever any residue remains: missing component actions or caveats, dropped finding dispositions, unsupported confirmations, incomplete rejections, and report claims without matching facts. `skill-eval-loop` now defines trap-based adversarial evaluation with separate axes, deterministic and live-model tiers, judge-only ground truth, per-seed fixture randomization, and artifact-based verdicts. `known-gaps-tracker` now enforces monotonic scrutiny for cross-cycle memory and explicitly defers the durable store.
+
+### Why It Changed
+
+A model re-reading its own report is likely to ratify the same omissions that produced it. Phase 6 replaces that self-audit with a deterministic set difference and hardens adjacent evaluation and memory doctrine so evidence, not prose confidence or stale prior work, controls closure.
+
+### Decisions Made
+
+- Kept the gate under `security-review`, where the Phase 3 coverage denominator and Phase 2 rejection burden converge.
+- Defined a Nexus-Hub-native JSON record rather than copying an external run-directory layout; the script has no third-party dependency or outbound behavior.
+- Allowed only explicit component caveats to resolve uncovered inventory residue; covered components still require a logged review action.
+- Treated cross-cycle history as a one-way attention amplifier and deferred persistent storage so stale records can never suppress re-examination.
+- Relied on existing recursive skill distribution and CI coverage for `tests/skills`; no installer or workflow edit was needed.
+
+### Troubleshooting Trail
+
+<details>
+<summary>Malformed-value hardening, Windows integration throughput, and blocked temporary cleanup</summary>
+
+Initial review found that malformed JSON values could reach set membership and duplicate-ID checks as unhashable objects. The parser was hardened to reject those shapes as usage errors, and focused tests now cover malformed values, duplicate identifiers, every mismatch class, clean closure, explicit caveats, pending validation receipts, rejection reachability, CLI exits, documentation references, doctrine text, and installer distribution. The monolithic Windows integration run exceeded its command budget while repeatedly copying platform surfaces, so the 319 non-contract cases were run as a group and all 80 contract nodes were collected and executed exactly in a local-temp mirror; 79 passed and the Hermes sibling-preservation node produced its expected environment skip. The sandbox rejected deletion of that validated temporary mirror and its coverage database, leaving reproducible data outside the repository with no working-tree or distribution impact.
+
+</details>
+
+### Impact and Context
+
+The focused gate suite reports 17 passed and 87% branch coverage. Ruff check and format verification pass. Catalog bundle, quality, trigger-routing, security, version, platform-contract, freshness, compression, JSON, and ShellCheck gates pass. The complete matrix accounts for 1,834 passed, 21 skipped, and 0 failed across five extensions plus repository installer, integration, skill, and validator groups. A six-phase coherence audit confirmed the same four dispositions, coverage terminology, rejection ownership, fraud-table ownership, and Phase 5 capability names across all changed surfaces. Phase 6 introduced no new repository gap; WN-3 remains open and unchanged, and durable storage stays a deliberate future-cycle deferral. No frontmatter, generated registry, dependency, version, tag, merge, push, release artifact, installer, or CI workflow changed.
+
+## [2026-07-31] - v3.15.7 adoption-raptor-loop-hunt Phase 5: execution-authorization broker [feature]
+
+### What Changed
+
+Implemented Phase 5 of 7 on `feat/adoption-raptor-loop-hunt`. Added `capability-grant-broker.py` as a pure-standard-library bundle under `agent-access-policy`, with typed grants for `network`, `write`, `use_secret`, and `destructive_test`. Authorization is pure and plan-only by default; it returns a least-privilege plan or specific denial reasons. Optional execution requires an explicit `--execute` flag and a reachable list-based sandbox prefix, always uses `shell=False`, and has distinct authorized, usage, denial, and child-error exit codes. The owner skill now documents the grant schema, enforcement boundary, CLI, sandbox responsibilities, and composition with `agentic-endpoint-hardening`. The reverse-engineering matrix records the broker as a local `re-full` adoption with no service, credential, processor, dependency, or installer edit.
+
+### Why It Changed
+
+Model reasoning and narrative approval are not security boundaries. Phase 5 inserts a typed, deny-by-default authorization decision between model-emitted actions and an executor, while preserving the v3.15.6 endpoint controls as the lower host-trust layer rather than duplicating them.
+
+### Decisions Made
+
+- Bundled the broker under `agent-access-policy`, whose least-privilege ownership is narrower than the broader endpoint-hardening threat model.
+- Kept authorization side-effect-free and execution separately opt-in so callers can test or inspect plans without starting a process.
+- Required exact network destinations and absolute path containment, while stating that the sandbox remains responsible for symbolic links, filesystem reality, secret isolation, and egress enforcement.
+- Relied on existing recursive skill copying, `make test` coverage of `tests/`, and CI's dedicated `tests/skills` step; no installer or workflow edit was needed.
+
+### Troubleshooting Trail
+
+<details>
+<summary>Coverage threshold, generated bytecode, and Windows integration throughput</summary>
+
+The first focused run had two expected failures: Windows normalized path casing differed from the unnormalized assertion, and the owner skill did not yet reference the new bundle. Normalizing the expected path and completing the documentation made all 15 initial tests pass. Branch coverage then measured 79%, one point below the phase gate, so denial cases for undeclared resource use, missing scopes, unreachable sandboxes, malformed grants, and child-process failure were added; 24 tests now pass at 87% branch coverage. Importing the script created an orphan-audit warning for a generated `.pyc`; bytecode was removed, subsequent checks set `PYTHONDONTWRITEBYTECODE=1`, and the audit returned to its eight pre-existing warnings. The complete repository test wrapper then exceeded ten minutes because filesystem-heavy integration tests were contending and timed-out wrappers left pytest children alive. Process inspection identified and stopped only those session-owned children. File-level timing proved 26 integration files green and isolated the two heavy install-matrix files; `test_base_writeresult.py` passed 42 tests, and all 80 `test_contract.py` nodes passed through a bounded eight-worker exact-node scheduler in a disposable local-temp mirror. The mirror was removed after verification.
+
+</details>
+
+### Impact and Context
+
+The focused broker suite reports 24 passed and 87% branch coverage; Ruff check and format verification pass. Catalog bundle, quality, trigger-routing, and security gates pass. The complete matrix accounts for 1,818 passed, 20 skipped, and 0 failed across five extensions plus repository installer, integration, skill, and validator groups. Windows plan-only CLI and Git Bash invocation both succeed. Existing Ubuntu CI will exercise the same standard-library tests when the branch is eventually pushed under the plan's final-phase publication rule. No new known gap was introduced; WN-3 remains open and unchanged. No frontmatter, generated registry, dependency, version, tag, merge, push, or release artifact changed.
+
+## [2026-07-31] - v3.15.7 adoption-raptor-loop-hunt Phase 4: anti-costume-rigor [feature]
+
+### What Changed
+
+Implemented Phase 4 of 7 on `feat/adoption-raptor-loop-hunt`. `verification-before-completion` now owns an anti-costume-rigor audit with exactly ten fraud classes, each expressed as an objective Compare or Diff operation over recorded claims and artifacts. The audit covers fabricated or stale evidence, overstated outcomes, untested items presented as tested, rationale-free not-applicable decisions, read-derived coverage, wrong-instrument sweeps, completeness-unknown enumerations sold as complete, dropped pending work, and escalation avoidance. `pentest-reporting` now points to that owner and adds binary pre-delivery checks for confirmed, rejected, and covered claims without duplicating the full doctrine.
+
+### Why It Changed
+
+Security work can look rigorous while its evidence trail does not support the report. Phase 4 turns that failure mode into a mechanical comparison problem: every claim must reconcile with a concrete artifact, action, result, or explicit unresolved state, so polish and procedural language cannot substitute for proof.
+
+### Decisions Made
+
+- Kept the complete fraud-class table in `verification-before-completion`; `pentest-reporting` carries only a thin ownership reference and report-specific binary checks.
+- Required each tell to begin with Compare or Diff so the audit remains executable and does not drift into subjective style judgment.
+- Preserved false confirmations as visible and retestable while requiring a complete rejection record before a finding can disappear from the report.
+- Added no bundled reference because the two owning skill files remain well below the 500-line size target.
+
+### Troubleshooting Trail
+
+<details>
+<summary>Patch context, JSON wrapper, and documentation ordering</summary>
+
+The first combined patch missed an existing verification-checklist context and made no change; splitting it into narrow, anchored patches applied cleanly. A PowerShell `ConvertFrom-Json` convenience wrapper then rejected the valid templates catalog because its case-insensitive object model treats `Cpp` and `cpp` as duplicate keys; the repository's exact Python JSON checks passed all four catalogs. The first docs-cleanup insertion matched a repeated heading and placed Phase 4 before Phase 3; a targeted correction restored chronological phase order. The first final focused pytest wrapper reached its 124-second command limit without an assertion failure and briefly left pytest running; the process exited during cleanup inspection, and the same suites passed with a ten-minute budget at 582 passed and 3 skipped in 67.37 seconds.
+
+</details>
+
+### Impact and Context
+
+The mechanical audit confirms exactly ten fraud-class rows, all required classes present, and every tell expressed as a Compare or Diff operation. All direct validation equivalents and ShellCheck passed. The complete test matrix was run twice and produced the same result each time: 1,793 passed, 21 skipped, and 0 failed, including 1,123 passed and 20 skipped in the repository tree. Existing CI already triggers for `catalog/skills/**`, validates skills, cancels superseded runs, caches dependencies, and gates expensive operating-system jobs, so no workflow edit was justified. Phase 4 introduced no new known gap; WN-3 remains open and unchanged. No frontmatter, generated registry, executable module, dependency, version, tag, merge, push, or release artifact changed.
+
+## [2026-07-31] - v3.15.7 adoption-raptor-loop-hunt Phase 3: hunt coverage accounting [feature]
+
+### What Changed
+
+Implemented Phase 3 of 7 on `feat/adoption-raptor-loop-hunt`. `security-review` now enumerates a target-wide component denominator before review, assigns every component exactly one of COVERED, OMITTED, or UNCOVERED, and verifies `N + O + U = M` before making a coverage claim. It separately tracks whole-project, file-by-file, functionality-by-functionality, and function-by-function passes, so domain coverage cannot mask an altitude gap. Once attacker influence reaches a sensitive sink, a proven-dirty sweep now enumerates every route, command, action, internal caller, and subsystem deserialization or import path; negative evidence clears only the tested path, and an unresolved path remains UNKNOWN or produces `needs-live-validation`. `/review` exposes the exact `N of M components covered; O omitted; U UNCOVERED` promise while leaving all mechanics in the owning skill. `advanced-attack-patterns` and `business-logic-abuse` carry reciprocal ownership pointers without restating the rules.
+
+### Why It Changed
+
+A domain checklist has no target denominator, so a reviewer can inspect only the interesting modules and still produce a report that reads as complete. A sink can also remain reachable through an alternate trigger after one route passes. Phase 3 makes both omissions visible and supplies the coverage artifact that Phase 6's deterministic closure gate will compare against recorded review actions.
+
+### Decisions Made
+
+- Kept all coverage mechanics in `security-review`; the command and deep attack skills contain only thin guarantees or ownership pointers.
+- Used three explicit component states and a balance equation so unassigned work cannot vanish between inventory and report.
+- Kept domain, component, and altitude accounting distinct; no one axis is accepted as evidence for another.
+- Treated a depth flag as an effort control only: it may lower `N`, but it cannot shrink `M` or hide UNCOVERED components.
+
+### Troubleshooting Trail
+
+<details>
+<summary>Validation wrapper and unrelated workspace finding</summary>
+
+The first JSON-validation wrapper failed before reading a catalog because PowerShell mangled nested f-string quotes and Python reported `SyntaxError: unterminated string literal`. Replacing the wrapper with quote-safe `%` formatting ran the exact checks successfully. The repository-wide personal-path validator then found only a Windows user-profile path in the unrelated untracked v3.16.7 interactive-guide plan; rerunning with that single file excluded passed the Phase 3 scope. No Phase 3 file contained a personal path.
+
+</details>
+
+### Impact and Context
+
+The required dry check enumerated all seven real `extensions/` components, deliberately assigned only six, and forced `nexus-web-fetch` to remain visible as UNCOVERED. Its statement was `5 of 7 components covered; 1 omitted; 1 UNCOVERED`, with completeness prohibited. All validation commands and ShellCheck passed. The complete matrix reports 1,793 passed, 21 skipped, and 0 failed; the repository tree alone completed in 20:51 with 1,123 passed and 20 skipped. Existing CI already triggers on `catalog/commands/**` and `catalog/skills/**`, uses concurrency cancellation and pip caching, and gates expensive OS jobs, so no workflow edit was justified. Phase 3 introduced no new known gap; WN-3 remains open and unchanged. No frontmatter, generated registry, executable module, dependency, version, tag, merge, push, or release artifact changed.
+
+## [2026-07-31] - v3.15.7 adoption-raptor-loop-hunt Phase 2: refutation discipline [feature]
+
+### What Changed
+
+Implemented Phase 2 of 7 on `feat/adoption-raptor-loop-hunt`. `adversarial-verifier` now owns a refutation-validity taxonomy that permits rejection only on observed contradictions, verified unreachability or gating, observable mitigation, or an established trust model. Every rejection must identify the counter-hypothesis, inventory actual input sources, account for each relevant route, and provide build or default-configuration evidence for reachability claims. Unseen server behavior and plausible framework protections are invalid refutations; an unobservable layer produces `needs-live-validation`. `security-review` now exposes a thin rejection gate that points to this owner instead of duplicating the doctrine.
+
+### Why It Changed
+
+The Phase 1 disposition model prevented partially observed findings from collapsing to Low, but it did not yet constrain what evidence could kill a finding. Phase 2 closes that false-negative path: false confirmations remain visible and retestable, while false rejections silently erase defects from the report.
+
+### Decisions Made
+
+- Kept the full taxonomy and proof burden in `adversarial-verifier`; `security-review` carries only the integration gate.
+- Treated a single passing route as insufficient when other actual input sources or routes remain untested.
+- Required `needs-live-validation` when the decisive layer is unavailable instead of accepting an assumption as counter-evidence.
+
+### Troubleshooting Trail
+
+<details>
+<summary>Foreground test wrapper timed out</summary>
+
+The first foreground `tests/skills` wrapper timed out after 124 seconds and left its own output pipe detached. Its orphaned test process was stopped, then the same suite was rerun with file-backed output and completed cleanly with 209 passed and 3 skipped. The repository's GNU Make entry point remains unavailable on this Windows host, so the Makefile's exact underlying commands were run directly.
+
+</details>
+
+### Impact and Context
+
+The two required dry checks passed: an observable non-sink candidate was rejected with a complete evidence record, while an unauthorized password-reset candidate whose server layer was unavailable was escalated to `needs-live-validation`. All direct validation equivalents passed; ShellCheck reported zero warnings for both installer scripts; and the complete matrix reports 1,793 passed, 21 skipped, and 0 failed. Existing CI already covers `catalog/skills/**`, so no workflow edit was justified. The active v3.15 docs audit found 57 Markdown files and no cleanup candidate. Phase 2 introduced no new known gap; WN-3 remains open and unchanged. No frontmatter, registry metadata, executable module, dependency, version, tag, merge, push, or release artifact changed.
+
+## [2026-07-30] - v3.15.7 adoption-raptor-loop-hunt Phase 1: finding-disposition doctrine
+
+Implemented Phase 1 of 7 on `feat/adoption-raptor-loop-hunt`. `pentest-reporting` now separates confirmed severity from potential severity when part of a system is unobservable, carries the higher axis into triage, requires exactly one of `confirmed`, `needs-live-validation`, `corrected`, or `rejected`, and makes `needs-live-validation` a first-class outcome with an exact safe test, vulnerable response, safe response, and potential severity. `exploitability-analyzer` now emits the same two axes and dispositions, supplies the ratings consumed by `pentest-reporting`, and leaves the full CVSS-vector rule with that owner rather than duplicating it. A worked unauthorized password-reset case remained potential-Critical and produced `needs-live-validation` instead of collapsing to Low.
+
+Validation and testing are green for the edited content: all direct `make validate` equivalents passed after excluding one unrelated untracked v3.16 draft from the personal-path scan, ShellCheck reported zero warnings for both installer scripts, and the complete matrix reports 1,793 passed, 21 skipped, and 0 failed. The matrix includes all five extension suites plus `tests/skills`, `tests/validators`, all 399 integration cases, and the full installer suite; the long integration tree was partitioned in a detached temporary worktree after live verbose output proved the apparent hang was slow progress, with the contract partition alone taking 10:54. Existing CI already covers `catalog/skills/**` through its non-docs trigger, uses concurrency cancellation and pip caching, and runs the relevant validators and tests, so no workflow edit or additional cold runner was justified. The v3.15 docs layout audit found 55 files in canonical buckets and required no moves; the Phase 1 known-gaps checkpoint records zero open or resolved items. No frontmatter, registry metadata, executable module, dependency, version, tag, merge, push, or release artifact changed.
+
 ## [2026-08-02] - Codex Usage Monitor Extra Credits progress bar
 
 Added a normalized monthly Extra Credits metric to the Codex Usage Monitor and rendered it after the tracked rate-limit windows in both the status-bar hover tooltip and dashboard. The mapper accepts workspace/monthly/extra-credit wrappers plus snake_case and camelCase amount fields, derives used credits from a remaining balance when necessary, uses the account reset timestamp when present, and falls back to the next UTC calendar-month boundary. Existing balance-only payloads retain the text summary, and warning thresholds remain scoped to session/weekly rate limits. Extension version: 0.2.6 -> 0.2.7. Planned repository release: v3.15.7. Verification: TypeScript compile, 75 Vitest tests, enforced source-only coverage above 80% for lines and statements, package build, and repository validators.

@@ -73,6 +73,25 @@ A review-state claim ("the review is clean", "CI is green", "this is mergeable")
 
 Verify the four current-head signals together: the status-check rollup is all green, `reviewDecision` is APPROVED (no outstanding CHANGES_REQUESTED), every review thread is resolved, and `mergeable` is true. Anything less is a blocker, not a pass. This is the same discipline the [[review-trapdoors]] pass applies to project-specific gotchas, and [[receiving-code-review]] governs acting on whatever the review returns.
 
+## Anti-Costume-Rigor Audit
+
+A report can look rigorous while claiming work its evidence does not support. Search actively for the fraud classes below; this is an evidence audit, not a formatting check. For every applicable row, an auditor re-derives the stated comparison from artifacts, receipts, logs, exit codes, or set differences. A row whose tell depends on whether the claim "seems weak" is not mechanical and must be removed or rewritten.
+
+| Fraud class | Mechanical tell an auditor re-derives |
+|---|---|
+| Fabricated evidence | Compare every claimed observation and evidence identifier with the referenced artifact or logged run; the claim fails when the artifact or run record does not exist or does not contain the observation. |
+| Stale evidence | Compare the evidence receipt's commit, build, or artifact digest with the report's target identifier; any mismatch means the evidence was produced against a different target. |
+| Overstated outcome | Compare the observed evidence class with the prerequisites of the claimed outcome; for example, a crash receipt without control, impact, or exploitability evidence cannot support a proven-exploitability claim. |
+| Untested item listed as tested | Diff the tested-route identifiers against route-specific execution records; every tested entry must have a matching command or request, result, and exit or response receipt. |
+| Rationale-free not-applicable | Compare every N/A entry with its recorded applicability rule and reason; an N/A row without both is unsupported. |
+| Read-derived coverage | Diff components marked COVERED against the review-action ledger; each needs a component-scoped check and result, and a raw file-open or file-read receipt alone does not satisfy that record. |
+| Wrong-instrument sweep | Compare the enumeration claim's required instrument class with the tool and mode in its receipt; a text-search receipt cannot support a semantic, dispatch, or call-graph completeness claim. |
+| Completeness-unknown enumeration sold as complete | Compare the claimed denominator with affirmative pagination, limit, and truncation metadata proving the result set is complete; fail closed when completeness metadata is absent because absence of a truncation flag proves nothing. |
+| Dropped pending work | Diff the candidate, UNCOVERED, and awaiting-validation sets against terminal dispositions and explicit report caveats; any unmatched item is pending work omitted from the completion claim. |
+| Escalation avoidance | Compare each finding's observability boundary with its disposition and severity; a finding whose deciding layer is unobserved but is marked rejected or Low instead of `needs-live-validation` fails the comparison. |
+
+Record the result of each applicable comparison. A clean visual layout, detailed prose, or a long tool list is never a substitute for an empty mismatch set.
+
 ## Common Rationalizations
 
 Each row is an excuse that precedes a false completion claim, with the concrete failure mode it causes.
@@ -108,6 +127,7 @@ The rule is "no completion claim without fresh proving evidence", not "run a com
 - [ ] The full output was read to the end and the exit code was checked.
 - [ ] The observed evidence matches the specific claim (passing summary line, zero exit, correct observed behavior).
 - [ ] The completion statement quotes the proving artifact so the user can see why it is true.
+- [ ] Every applicable anti-costume-rigor row was checked through its concrete artifact comparison, with no subjective tell accepted.
 - [ ] No celebratory or satisfaction phrase ("done", "perfect", "great") was emitted before the gate completed.
 
 ## Related Skills
@@ -121,3 +141,4 @@ The rule is "no completion claim without fresh proving evidence", not "run a com
 - [[loop-engineering]] -- assembles goal-terminated loops whose exit condition is the evidence-bearing completion claim this gate enforces.
 - [[agent-orchestration-primitives]] -- Step 8 supplies the independent-evaluator rule: the checker that certifies a loop exit must not be the agent that produced the work.
 - [[session-teach-back]] -- the comprehension-debt countermeasure: a Socratic loop that confirms the operator understands what a loop shipped, not just that it passed.
+- [[pentest-reporting]] -- applies this skill's anti-costume-rigor comparisons to security-report coverage, evidence, rejection, and disposition claims before delivery.

@@ -204,6 +204,21 @@ Single-prompt trigger rate catches the most common failure (a description too na
 
 Use premature-action detection on discipline/gate skills, multi-turn on skills whose real use arrives mid-workflow, and the cheap-model test before shipping to users not on the strongest model. Full guidance - what each catches, how to author the eval, how to read the output fields - is at `references/trigger-testing.md`. The `turns`, `trigger_turn`, and `model` eval fields are documented in `references/schemas.md` and are opt-in (single-turn, default-model evals are unaffected).
 
+## Adversarial Eval Battery Design
+
+Paired runs and trigger assertions measure marginal value and routing, but they do not prove the executor resists a tempting shortcut. Add an adversarial battery when the skill claims a discipline, gate, or security property.
+
+Apply these rules:
+
+- **Score axes separately.** Define one axis per claimed behavior and report each result. Do not score "find exactly the planted item": a realistic fixture may contain incidental valid findings, and penalizing those findings trains under-reporting. Score whether the planted discipline held while preserving extra valid results.
+- **Give every axis an objective trap.** State the tempting shortcut that constitutes failure, the disciplined behavior that passes, and the artifact comparison that detects the violation. A trap whose verdict depends on whether the report "sounds rigorous" is not an eval.
+- **Split the battery into two tiers.** Deterministic axes use no model, are true regression tests, and run on every relevant change. Live-model axes execute the skill against seeded fixtures. One seed is a smoke test, not a benchmark; run multiple seeds and report the exact count.
+- **Keep ground truth judge-only.** Store expected results separately from the executor-visible fixture and never place the expected-results file in the executor's context. Exposure turns the eval into answer copying.
+- **Randomize each fixture seed.** Vary names, layout, and the path to the planted item while holding the tested invariant constant. A fixed corpus measures recall of that corpus rather than application of the method.
+- **Judge artifacts, not self-reports.** Derive the verdict from produced files, execution receipts, and a working-tree diff. The executor's prose claim that it ran a check or preserved a boundary is never the evidence for that claim.
+
+For each axis, record `axis`, `tier`, `trap`, `pass_condition`, `artifact_check`, and `seed`. Keep the judge-only expected result outside the executor-visible fixture. The benchmark reports per-axis results and the number of seeds run, while incidental valid findings remain visible as additional observations rather than false-positive penalties.
+
 ## Behavioral-eval schema interop (A4)
 
 The eval set can be exported to and imported from a portable, interoperable behavioral-eval schema so Nexus-Hub's evals interoperate with external skill-eval tooling. The internal `evals.json` stays the source of truth (it carries `should_trigger`, `turns`, `trigger_turn`, `model`, and `tags` that the interoperable schema cannot express); a bidirectional converter handles interop rather than a native re-alignment, so no eval-loop capability is lost and the grading path is unchanged. Run:
@@ -235,6 +250,7 @@ This is option B from the design space (single dispatcher with `--cli` flag) ove
 | "Held-out test split is overkill for a 10-prompt eval set" | The optimizer specifically uses held-out test for `best_description` selection because train-only optimization will pick a description that is verbose enough to memorize the train queries verbatim and lose generalizability. Even at N=10, a 60/40 split prevents that overfitting failure mode. |
 | "I'll grade the outputs myself - I don't need a grader sub-agent" | Manual grading drifts across an iteration loop: the grader (the user, mid-iteration) starts seeing what they want to see. The grader sub-agent reads the assertion text and the output cold, every time, and writes structured `evidence` per assertion. The user then reviews the grader's calls in the viewer - that is two passes, not one. |
 | "I'll run with-skill and look at it, then later run baseline if needed" | "Later" never happens. The iteration directory is structured to hold both runs from the start because the marginal-value question is the only one that matters for skill iteration. A with-skill-only run is a demo, not an eval. |
+| "The planted finding is the answer key, so extra findings should lose points" | Penalizing incidental valid findings teaches the executor to suppress discoveries that were not in the seed manifest. Score the planted discipline on its own axis and retain extra valid results as observations. |
 | "The four-CLI parity test is bureaucracy" | The test exists because the v1.1.3 four-hook precedent was reverse-engineered from a real bug (a hook fell through to a different CLI when its primary was missing, silently doing the wrong thing). The parity test is a regression guard for that bug class - it costs ~50 lines of pytest and prevents a class of failure that is invisible in production. |
 | "I'll run iterations until I feel good about the skill" | The stop condition is data-driven: pass-rate stable across two consecutive iterations on held-out test. "Feel good" is what produced the original draft you are now iterating on. |
 
@@ -253,6 +269,10 @@ Binary checklist - each item must describe an observable artifact or state.
 - [ ] `<workspace>/iteration-N/feedback.json` exists after a viewer review pass.
 - [ ] If the optimizer was run, `<workspace>/optimizer/iteration-N.json` exists with a `best_description` field selected by held-out test score (NOT train score).
 - [ ] For a multi-iteration run, an append-only `<workspace>/run-log.jsonl` exists and every completed experiment has a crash-recovery marker with `status: done`; a simulated resume recomputes no already-`done` experiment.
+- [ ] Every adversarial axis records a tempting shortcut, disciplined pass condition, and objective artifact comparison; no verdict depends on the executor's prose claim.
+- [ ] Deterministic adversarial axes run without a model on every relevant change, while live-model results report the exact seed count and do not label one seed a benchmark.
+- [ ] Judge-only expected results were absent from the executor-visible fixture, and fixture names, layout, and planted-item paths vary across seeds.
+- [ ] Incidental valid findings are retained as observations rather than penalized for differing from the planted item.
 - [ ] `catalog/hooks/tests/test_eval_loop.py::TestEvalLoopCLIAdapter` passes (no cross-CLI bleed in any dispatcher script).
 
 "The skill seems better now" is not a valid verification criterion. Pass-rate must be measured numerically and compared across at least 2 consecutive iterations.
