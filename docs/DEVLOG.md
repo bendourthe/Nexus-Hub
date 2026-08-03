@@ -1,5 +1,41 @@
 # Development Log
 
+## [2026-08-03] - v3.15.8 Phase 8 Copilot agents and hooks, Hermes layout verification [feature]
+
+### What Changed
+
+Closed the last four platform rows, mostly by proving they were already delivered. Copilot in VS Code reads Claude-format customization files by default -- `~/.claude/settings.json` and `.claude/settings.json` for hooks, `.claude/agents` for project agents -- all of which Nexus-Hub already writes, so those three rows are now enforceable as **inherited with no owned write** and no committed `.github/` duplicate. The one real gap, global agents, ships verbatim to `~/.copilot/agents/<name>.agent.md`. Hermes was re-verified and its rows flipped to fully enforceable without migration: discovery probes each direct subdirectory of the skills root, so the flattened layout is required rather than optional. Added 30 tests, a Windows CI leg, and fixed a pre-existing catalog defect the Hermes test caught.
+
+### Why It Changed
+
+Phase 1 recorded Copilot's agents and hooks as finding-only and Hermes's layout as an open question. Both turned out to hinge on facts the plan did not have: Copilot's Claude-compatibility defaults, and Hermes's actual depth-1 discovery rule. Building what the matrix assumed would have produced redundant commit-visible files in one case and broken discovery in the other.
+
+### Decisions Made
+
+- Recorded Copilot hooks and project agents as inherited rather than writing parallel `.github/` copies. Copilot already loads them; a duplicate would add committed files to the user's repo -- the concern that keeps `.github/skills` opt-in -- and agent files dedup across levels by filename anyway, so the copy would change nothing.
+- Kept `hooks_supported = false` for Copilot. It is the accurate statement: Nexus-Hub owns no Copilot hook surface, and the install summary should not imply otherwise when the Claude path is what carries them.
+- Asserted the inheritance in a test rather than a comment. The dependency now runs Copilot-on-Claude, so if the `claude` integration stopped writing those paths, Copilot's coverage would vanish silently; the test makes that a failure instead.
+- Delivered global agents verbatim, the third time in this plan the right answer was a validated copy rather than a transform. Copilot documents Claude's tool names as aliases and ignores unrecognized frontmatter, so the catalog files load as-is.
+- Accepted the maintainer's call to fix the `code-review/references` defect now rather than defer it, since three shipped skills had relative reference paths that did not resolve.
+- Folded Hermes into the ownership-guard's phase map and dropped its special case, so no row is exempt from stating which phase made it enforceable.
+
+### Troubleshooting Trail
+
+<details>
+<summary>A nine-platform catalog defect, and a test that wrote into my real home directory</summary>
+
+The Hermes depth-1 test failed on its first run against a `references` directory sitting at the skills root with no `SKILL.md`. The cause was pre-existing and had nothing to do with Hermes: `catalog/skills/code-review/references/` held four checklists at the *category* level instead of inside a skill, so `flatten_skills` -- which treats every direct child of a category as a skill -- shipped `references` as a bogus skill on all nine flattened platforms. The same misplacement also meant `code-quality`, `security-review`, and `performance-review` each cited `references/<file>.md` as a path relative to themselves that resolved to a sibling directory instead. The checklists were relocated into each citing skill's own `references/` per the per-skill bundling convention and the category-level directory removed, keeping the bundle audit at 0 errors.
+
+The full sweep then caught a defect this phase introduced. `test_copilot_install_global_skips_without_vscode` patched `_vscode_user_dir` to `None` and relied on that making `install_global` a no-op; adding a second detection signal broke that, so on a host that really has `~/.copilot` the test wrote 23 agent files into the developer's actual home directory. The files were removed and the design fixed rather than just the test: `~/.copilot` is now reached only through a patchable `_copilot_home()` accessor mirroring `_vscode_user_dir()`, both affected tests isolate it, and a new test asserts `install_global` routes through the accessor so a future global surface cannot bypass it. Separately, folding Hermes into the phase map surfaced that its guard branch still asserted the old `Enforceable existing` wording, which is exactly the staleness the Phase 7 reason-required test was added to catch.
+
+</details>
+
+### Impact & Context
+
+- **Affected**: `scripts/lib/integrations/copilot.py`, `docs/policy/platform-read-contracts.json`, `docs/policy/platform-read-contracts.md`, `docs/v3/v3.15/development/platform-capability-ownership.md`, `scripts/installer.sh`, `scripts/installer.ps1`, `.github/workflows/ci.yml`, `tests/integrations/test_copilot_hermes_native.py` (new), `tests/integrations/test_global_command_surface.py`, `tests/plans/test_v3_15_8_contracts.py`, four relocated `catalog/skills/code-review/**/references/*.md` files, the v3.15.8 plan, known-gaps ledger, cleanup report, and Phase 8 history.
+- **Verified**: 31 new Copilot/Hermes tests, `tests/plans` at 29 with a new inherited-row guard, 69 focused tests after the accessor fix with the real `~/.copilot/agents` confirmed absent, every `make validate` gate run individually (bundle audit at 0 errors, trigger evals, personal-paths, unicode safety, supply-chain IOCs, workflow security, version sync, base-template parity, platform contracts and freshness), ruff check and format on the changed files, and a full 2302-test sweep whose single failure was the stale detection test described above.
+- **Deferred**: nothing new. The carryovers (DF-13, MT-8, DF-12, MT-7, HO-4, MT-6, DF-11, MT-5, QG-4) are unchanged and owned by Phase 9. No push or release action was performed.
+
 ## [2026-08-02] - v3.15.8 Phase 7 Kimi custom agents and TOML hooks [feature]
 
 ### What Changed

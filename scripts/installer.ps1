@@ -1536,6 +1536,10 @@ function Install-Global {
     }
 
     # --- Microsoft -- GitHub Copilot -------------------------------------
+    # VS Code user-profile prompt files (slash commands) + custom agents at
+    # ~/.copilot/agents (v3.15.8 Phase 8, verbatim catalog Markdown). Hooks are
+    # NOT written: Copilot's default hook locations include ~/.claude/settings.json,
+    # which the Claude block above already populates, so they are inherited.
     if ($platforms -contains "COPILOT") {
         Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "copilot" -DisplayName "GitHub Copilot" -Provider "MICROSOFT"
     }

@@ -1219,6 +1219,10 @@ install_global() {
     fi
 
     # --- Microsoft -- GitHub Copilot -----------------------------------
+    # VS Code user-profile prompt files (slash commands) + custom agents at
+    # ~/.copilot/agents (v3.15.8 Phase 8, verbatim catalog Markdown). Hooks are
+    # NOT written: Copilot's default hook locations include ~/.claude/settings.json,
+    # which the Claude block above already populates, so they are inherited.
     if should_install copilot; then
     invoke_registry_platform "$repo_root" "global" "" "copilot" "GitHub Copilot" "" "" "MICROSOFT"
     fi

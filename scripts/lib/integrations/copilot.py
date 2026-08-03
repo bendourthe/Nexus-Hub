@@ -16,6 +16,37 @@ still installs per-workspace.
 GitHub CLI's `gh copilot` extension is also implicitly supported because it
 reads the same .github/copilot-instructions.md and the user's gh-installed
 extensions independently.
+
+Claude-format compatibility (v3.15.8 Phase 8)
+---------------------------------------------
+Re-verification on 2026-08-03 established that Copilot in VS Code reads
+Claude-format customization files BY DEFAULT, which changes what this integration
+needs to write rather than what Copilot receives:
+
+  - **Hooks**: the default ``chat.hookFilesLocations`` is
+    ``{".github/hooks": true, ".claude/settings.local.json": true,
+    ".claude/settings.json": true, "~/.claude/settings.json": true}``, and
+    "VS Code uses the same hook format as Claude Code and Copilot CLI for
+    compatibility". Nexus-Hub already merges ``catalog/hooks/settings.json`` into
+    ``~/.claude/settings.json`` (global) and ``.claude/settings.json`` (project),
+    so Copilot already runs those hooks at both scopes with no write here.
+  - **Project agents**: the default workspace agent locations are
+    ``.github/agents`` AND ``.claude/agents``; the ``claude`` integration already
+    populates ``.claude/agents``.
+
+So no ``.github/hooks`` or ``.github/agents`` copy is written. Doing so would put
+a redundant, COMMIT-VISIBLE duplicate in the user's repository -- the same
+policy concern that keeps ``.github/skills`` opt-in -- for a surface Copilot
+already reads. Agent files also deduplicate across levels by filename (minus
+``.md`` / ``.agent.md``) with the lowest level winning, so a parallel copy would
+buy nothing.
+
+The one real gap is GLOBAL agents: Copilot's documented user-profile agent
+location is ``~/.copilot/agents``, not ``~/.claude/agents``, so the catalog
+agents were unavailable to Copilot outside a repository. That IS written here
+(v3.15.8 Phase 8), verbatim, because Copilot accepts the Claude frontmatter shape
+-- ``description`` is the only required field and Claude's tool names are mapped
+to VS Code tools.
 """
 
 from __future__ import annotations
@@ -26,10 +57,24 @@ import platform
 from pathlib import Path
 from typing import Optional
 
+from scripts.lib.installer.instruction_merge import merge_marker_section
+
+from ._catalog_adapters import _split_frontmatter
+from ._command_surface import mirror_command_surface
+from ._owned import remove_dir_if_empty, write_owned_file
 from .base import InstallContext, MarkdownIntegration
 from .result import FileAction, WriteResult
-from ._command_surface import mirror_command_surface
-from scripts.lib.installer.instruction_merge import merge_marker_section
+
+# Copilot's documented user-profile custom-agent directory. Agent files use the
+# `.agent.md` extension, and the name minus that suffix is the dedup key across
+# levels, so a project `.claude/agents/planner.md` still wins over the global copy.
+_COPILOT_HOME = ".copilot"
+_COPILOT_AGENTS_SUBDIR = "agents"
+_AGENT_SUFFIX = ".agent.md"
+
+# Copilot caps an agent prompt at 30,000 characters. A longer body is skipped
+# rather than shipped truncated or rejected at load time.
+_MAX_AGENT_PROMPT_CHARS = 30_000
 
 # v3.11.0 Phase 5 (S3): opt-in project-scoped skills surface, WIDENED to a
 # selector in v3.15.0 Phase 5.
@@ -66,6 +111,18 @@ def _copilot_skill_selection(val: Optional[str]) -> str:
     if v in _COPILOT_BARE_TRUTHY or v in _COPILOT_OFF_VALUES:
         return _COPILOT_CURATED_BUNDLE
     return v
+
+
+def _copilot_home() -> Path:
+    """Return Copilot's user-profile root (``~/.copilot``).
+
+    A module-level accessor rather than an inline ``Path.home()`` so tests can
+    redirect it, matching the ``_vscode_user_dir`` pattern next to it. Both
+    surfaces this integration writes globally are reachable only through one of
+    these two functions, which is what keeps a test run out of the developer's
+    real home directory.
+    """
+    return (Path.home() / _COPILOT_HOME).resolve()
 
 
 def _vscode_user_dir() -> Optional[Path]:
@@ -107,23 +164,97 @@ class CopilotIntegration(MarkdownIntegration):
     }
 
     def install_global(self, ctx: InstallContext) -> WriteResult:
-        """Mirror catalog commands into VS Code's user-profile ``prompts/`` dir.
+        """Write the user-global Copilot surfaces: prompt files and custom agents.
 
-        Each ``<name>.prompt.md`` becomes ``/<name>`` in Copilot Chat from any
-        repo. Skipped with a note when no VS Code user dir is found.
+        Commands become ``<name>.prompt.md`` under VS Code's user-profile
+        ``prompts/`` dir, offered as ``/<name>`` in Copilot Chat from any repo.
+        Catalog agents become ``<name>.agent.md`` under ``~/.copilot/agents``,
+        Copilot's documented user-profile agent location (v3.15.8 Phase 8).
+
+        Detection accepts either signal, because the two surfaces live in
+        different places: a VS Code user-data dir covers the prompt files, and an
+        existing ``~/.copilot`` covers a Copilot CLI user with no VS Code install.
+        When neither is present, Copilot is not installed for this user and the
+        whole global write is skipped.
         """
         result = WriteResult()
         user_dir = _vscode_user_dir()
-        if user_dir is None:
-            ctx.manifest.log(self.key, "VS Code user dir not found; skipping global prompt-file install")
-            result.mark_not_detected("VS Code user dir not found; global Copilot prompt files skipped")
+        copilot_home = _copilot_home()
+        if user_dir is None and not copilot_home.exists():
+            ctx.manifest.log(
+                self.key,
+                "no VS Code user dir and no ~/.copilot; skipping global install",
+            )
+            result.mark_not_detected(
+                "Copilot not detected (no VS Code user dir, no ~/.copilot); "
+                "global prompt files + agents skipped"
+            )
             return result
         result.detected = True
-        prompts_dir = (user_dir / "prompts").resolve()
-        self._ensure_dir(prompts_dir, ctx)
-        result.files.extend(
-            mirror_command_surface(ctx, self.key, prompts_dir, suffix=".prompt.md")
-        )
+        if user_dir is not None:
+            prompts_dir = (user_dir / "prompts").resolve()
+            self._ensure_dir(prompts_dir, ctx)
+            result.files.extend(
+                mirror_command_surface(ctx, self.key, prompts_dir, suffix=".prompt.md")
+            )
+        if not ctx.instruction_only:
+            result.files.extend(self._install_global_agents(copilot_home, ctx))
+        return result
+
+    # ----- global custom agents (v3.15.8 Phase 8) --------------------------
+
+    @staticmethod
+    def agent_skip_reason(markdown: str) -> Optional[str]:
+        """Return why Copilot would reject this agent file, or None if it is fine.
+
+        Copilot requires only ``description``; ``name`` is an optional display
+        name, unrecognized frontmatter is ignored, and Claude's tool names are
+        mapped to VS Code tools. The one hard limit is the 30,000-character
+        prompt cap, which a catalog agent could plausibly reach.
+        """
+        meta, body = _split_frontmatter(markdown)
+        if not meta.get("description", "").strip():
+            return "no description field (required by Copilot)"
+        if not body.strip():
+            return "no body to use as the agent prompt"
+        if len(body) > _MAX_AGENT_PROMPT_CHARS:
+            return f"prompt is {len(body)} chars, over Copilot's {_MAX_AGENT_PROMPT_CHARS} cap"
+        return None
+
+    def _install_global_agents(
+        self, copilot_home: Path, ctx: InstallContext
+    ) -> list[FileAction]:
+        """Copy catalog agents to ``~/.copilot/agents/<name>.agent.md``, verbatim.
+
+        Copilot accepts the catalog's Claude-style frontmatter as-is, so this is a
+        validated copy rather than a transform -- the same conclusion Phase 7
+        reached for Kimi. Writes go through ``write_owned_file`` so a user-authored
+        agent at the same path is preserved and a drifted owned one is repaired.
+        """
+        src_dir = ctx.repo_root / "catalog" / "agents"
+        if not src_dir.exists():
+            ctx.manifest.log(self.key, f"missing-tree: {src_dir}")
+            return [FileAction(path=str(src_dir), action="not-found")]
+        dst_dir = copilot_home / _COPILOT_AGENTS_SUBDIR
+        self._ensure_dir(dst_dir, ctx)
+        actions: list[FileAction] = []
+        for md in sorted(src_dir.glob("*.md")):
+            content = md.read_bytes()
+            reason = self.agent_skip_reason(content.decode("utf-8"))
+            if reason is not None:
+                ctx.manifest.log(self.key, f"skip agent ({reason}): {md.name}")
+                continue
+            dst = dst_dir / f"{md.stem}{_AGENT_SUFFIX}"
+            actions.append(write_owned_file(ctx, self.key, dst, content))
+        return actions
+
+    def teardown(self, ctx: InstallContext) -> WriteResult:
+        """Run the manifest sweep, then drop the agents dir if it emptied."""
+        result = super().teardown(ctx)
+        if ctx.scope == "global":
+            remove_dir_if_empty(
+                _copilot_home() / _COPILOT_AGENTS_SUBDIR, ctx, result
+            )
         return result
 
     def install_workspace(self, ctx: InstallContext) -> WriteResult:

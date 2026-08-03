@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: The v3.15 line now includes v3.15.0 through v3.15.7. Release PR #28 and usage-monitor repair PR #29 are merged into `develop`; a focused Windows PowerShell 5.1 CI repair is the remaining develop gate before main promotion, post-merge CI, tag, and GitHub Release. Earlier release history and per-phase evidence remain in the sections below.
-**Last updated**: 2026-08-02 (v3.15.8 Phase 7 checkpoint; v3.15.7 release status retained below)
+**Last updated**: 2026-08-03 (v3.15.8 Phase 8 checkpoint; v3.15.7 release status retained below)
 
 **Current v3.15.7 status**: Implementation is complete and merged into `develop`. The release scope is fixed: evidence-closed security review hardening, Codex Usage Monitor Extra Credits, the isolated installer import-cycle fix, and CI corrections discovered by the reactivated pipelines. Newly verified additive platform capabilities are explicitly deferred to v3.15.8. The maintainer authorized the remote sequence; both repaired monitor workflows pass on the merged `develop` commit, and the Windows PowerShell 5.1 push-gate repair must pass before main promotion, post-merge CI, tag, and GitHub Release proceed in order.
 
@@ -1334,3 +1334,44 @@ Two incidental corrections came out of the work. `IntegrationBase._copy_file` is
 It also resolves four defects, three of them latent and none introduced by this phase's own feature work. Two came from the pre-existing `test_contract.py`, which is worth noting because it is the suite that runs every integration through the same lifecycle: its dry-run histogram caught the double agent write, and its uninstall case caught a teardown crash that had shipped in Phase 5 and Phase 6 and would have abandoned an uninstall partway through on Windows. The other two are the ownership-blind `_copy_file` that would have left a drifted agent unrepaired on any platform using it, and the stale `.kimi/agent.yaml` label both installers were still printing a full minor version after that path was dropped.
 
 Existing deny controls are unaffected; `git-guardrails` and `secret-scan` are registered wherever Kimi has a matching tool name, and Kimi's fail-open hook semantics are stated in the install summary rather than left implied. Phase 7 introduces no skipped implementation, known production bug, suppressed warning, or bypassed hard gate.
+
+### v3.15.8 Phase 8 checkpoint
+
+Phase 8 closes the last four platform rows, and the headline finding is that most of the Copilot surface did not need building. Copilot in VS Code reads Claude-format customization files **by default**: its documented `chat.hookFilesLocations` default includes `~/.claude/settings.json` and `.claude/settings.json`, it "uses the same hook format as Claude Code and Copilot CLI for compatibility", and its default workspace agent locations include `.claude/agents`. Nexus-Hub already writes all three. So Copilot hooks at both scopes and Copilot project agents were already live, and the correct action was to record that rather than build a parallel surface -- a `.github/hooks/*.json` or `.github/agents/*.md` copy would be a redundant, commit-visible duplicate in the user's repository, which is the same policy concern that keeps `.github/skills/` opt-in, and agent files deduplicate across levels by filename anyway. Those rows are marked enforceable-as-inherited, with a new contract test asserting the dependency in the direction it actually runs: if the `claude` integration ever stopped writing those paths, Copilot's coverage would silently vanish.
+
+The one genuine gap was global agents. `~/.copilot/agents` is Copilot's documented user-profile agent path and `~/.claude/agents` is not, so outside a repository Copilot saw no catalog agents at all. Those now ship verbatim as `<name>.agent.md`, since Copilot accepts the catalog's Claude-style frontmatter as-is and documents Claude's tool names as aliases -- the third platform in this plan (after Kimi and, for its body, Codex) where the right answer was a validated copy rather than a transform. Validation covers Copilot's required `description` and its 30,000-character prompt cap, detection accepts either a VS Code user dir or an existing `~/.copilot`, and absence produces a not-detected note rather than a false claim.
+
+Hermes resolved in the opposite direction from the v3.15.2 expectation. The upstream rule is quoted plainly -- "Hermes discovers skills by listing every subdirectory of the tap path and probing each for `SKILL.md`" -- so discovery is one level, not recursive, and the flattened layout Nexus-Hub already writes is **required**. A category-nested migration, which the v3.15.2 note treated as a possible future alignment, would have hidden every skill at depth 2 and broken discovery outright. No migration was performed; a regression test now pins both halves of the invariant.
+
+### v3.15.8 Phase 8 Open Items
+
+None. Phase 8 introduces no deferred item, missing-test gap, or hand-off of its own.
+
+### v3.15.8 Phase 8 Resolved
+
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+| - | Copilot custom agents finding-only (both scopes) | Phase 8 | Global ships verbatim to `~/.copilot/agents/*.agent.md`, validated and manifest-owned. Workspace is enforceable-as-inherited from `.claude/agents`, a documented Copilot default, with no committed `.github/agents` duplicate. |
+| - | Copilot native hooks finding-only (both scopes) | Phase 8 | Both scopes enforceable-as-inherited from `~/.claude/settings.json` and `.claude/settings.json`, both documented Copilot default hook locations carrying the same format. `hooks_supported` stays false so no summary claims a Copilot-owned hook surface. |
+| - | Copilot global hooks recorded as "no supported destination proven" | Phase 8 | Disproven. The destination exists and is already populated; the row is now inherited rather than unavailable. |
+| - | Hermes nesting claim unresolved since v3.15.2 | Phase 8 | Resolved against the upstream discovery rule. Discovery is depth-1, so the existing flattened delivery is required; the earlier "recursive discovery" premise in the drift audit is corrected. Rows flipped to fully enforceable with no migration. |
+| BG | Category-level `catalog/skills/code-review/references/` shipped as a bogus skill on nine platforms | Phase 8 | Found by the new Hermes depth-1 test. Four checklists sat at the category level instead of inside a skill, so `flatten_skills` presented `references` as a skill with no `SKILL.md` on every flattened platform, and the three sibling skills citing `references/<file>.md` had relative paths that did not resolve. Relocated into each citing skill's own `references/` per the per-skill bundling convention; the bundle audit stays at 0 errors. |
+| BG | A test run wrote 23 agent files into the developer's real `~/.copilot/agents` | Phase 8 | Introduced and fixed within this phase. Adding a second global detection signal meant `test_copilot_install_global_skips_without_vscode`, which patched only `_vscode_user_dir`, no longer short-circuited `install_global` on a host that really has `~/.copilot`. The leaked files were removed and the design corrected: `~/.copilot` is now reached only through a patchable `_copilot_home()` accessor mirroring `_vscode_user_dir()`, both affected tests isolate it, and a new test asserts `install_global` routes through the accessor so a future global surface cannot bypass it. |
+
+### v3.15.8 Phase 8 Summary
+
+| Category | Open | Resolved |
+|---|---:|---:|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 2 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+| Hand-offs (HO) | 0 | 0 |
+
+**Carryovers.** DF-13, MT-8, DF-12, MT-7, HO-4, MT-6, DF-11, MT-5, and QG-4 remain open and unchanged, and Phase 9 owns the reconciliation. Phase 8 adds nothing to that list: the two things it could not prove locally are the same live-observation boundary already tracked as MT-6, MT-7, and MT-8, and no new deferral was needed because the Copilot rows resolved to inheritance rather than to partial delivery.
+
+Both resolved bugs were found by tests rather than by review, and one of them was this phase's own: adding a second global detection signal let an existing Copilot test escape its patch and write into the developer's real home directory. That is worth recording rather than quietly fixing, because the lesson generalizes -- a global surface must be reachable only through a patchable accessor, and adding a second one to an existing gate silently widens what an old test can touch.
+
+The existing Copilot skills selector is unchanged and asserted non-regressed (off by default, bundle-id or `all`, never overwriting a committed file). Existing deny controls are unaffected -- and in Copilot's case they were already active through the Claude path, which is precisely what this phase established. Phase 8 introduces no skipped implementation, known production bug, suppressed warning, or bypassed hard gate.

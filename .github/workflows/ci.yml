@@ -483,6 +483,14 @@ jobs:
           NEXUS_TEST_POWERSHELL: powershell
         run: python -m pytest tests/integrations/test_codex_native.py -q
 
+      - name: Copilot agents + Hermes layout on Windows (v3.15.8 Phase 8)
+        # Copilot's global agent dir resolves off the user profile, and the
+        # Hermes depth-1 guard walks a delivered tree, so both are worth running
+        # where path semantics and case-insensitivity differ from ubuntu.
+        env:
+          NEXUS_TEST_POWERSHELL: powershell
+        run: python -m pytest tests/integrations/test_copilot_hermes_native.py -q
+
       - name: Kimi native agent/hook delivery on Windows (v3.15.8 Phase 7)
         # Two Windows-specific things here: the host-selected .ps1 command, and
         # the config.toml marker-block splice, whose line handling is where a

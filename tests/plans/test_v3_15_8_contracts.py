@@ -63,6 +63,26 @@ IMPLEMENTED_CAPABILITIES = {
     ("Kimi native hooks", "global"): "Phase 7",
     # ("Kimi native hooks", "workspace") is intentionally absent: Kimi documents
     # no project-scoped hook path, so that row must still read finding-only.
+    ("Copilot custom agents", "global"): "Phase 8",
+    ("Copilot custom agents", "workspace"): "Phase 8",
+    ("Copilot native hooks", "global"): "Phase 8",
+    ("Copilot native hooks", "workspace"): "Phase 8",
+    # Hermes was already delivering the flattened layout at Phase 1; Phase 8
+    # re-verified the discovery rule and confirmed no migration was warranted,
+    # so its rows now carry a phase like every other enforceable row.
+    ("Hermes skill layout", "global"): "Phase 8",
+    ("Hermes skill layout", "workspace"): "Phase 8",
+}
+
+# Rows that are enforceable WITHOUT Nexus-Hub owning a write, because the
+# platform's own default read paths already point at files another integration
+# produces. Recorded explicitly so "no write" can never be confused with
+# "not delivered" -- and so a future phase cannot quietly add a duplicate write
+# without updating this list.
+INHERITED_ROWS = {
+    ("Copilot custom agents", "workspace"),
+    ("Copilot native hooks", "global"),
+    ("Copilot native hooks", "workspace"),
 }
 
 SECRET_PATTERNS = (
@@ -120,9 +140,7 @@ def test_every_ownership_row_covers_lifecycle_and_tests() -> None:
 def test_unimplemented_surfaces_are_finding_only() -> None:
     for row in _ownership_rows():
         capability, scope, status = row[0], row[1], row[10]
-        if capability == "Hermes skill layout":
-            assert "Enforceable existing" in status
-        elif (capability, scope) in IMPLEMENTED_CAPABILITIES:
+        if (capability, scope) in IMPLEMENTED_CAPABILITIES:
             phase = IMPLEMENTED_CAPABILITIES[(capability, scope)]
             assert "Enforceable" in status and phase in status, (
                 f"implemented but not marked enforceable in {phase}: "
@@ -132,6 +150,23 @@ def test_unimplemented_surfaces_are_finding_only() -> None:
             assert "Finding-only" in status, (
                 f"premature enforcement: {capability} {scope}"
             )
+
+
+def test_inherited_rows_say_so_and_claim_no_owned_write() -> None:
+    """An inherited row must name its source and disclaim ownership.
+
+    "Enforceable" on a row Nexus-Hub does not write is only honest if the row
+    says where the delivery actually comes from, so a reader does not go looking
+    for a writer that is deliberately absent.
+    """
+    for row in _ownership_rows():
+        key = (row[0], row[1])
+        if key not in INHERITED_ROWS:
+            continue
+        source, write_mode, status = row[2], row[5], row[10]
+        assert "INHERITED" in source, f"{key} does not name its inherited source"
+        assert write_mode.strip().lower() == "no write", f"{key} claims a write mode"
+        assert "inherited" in status.lower(), f"{key} status hides the inheritance"
 
 
 def test_undelivered_rows_state_why_not_just_that_they_are_pending() -> None:
