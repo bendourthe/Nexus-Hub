@@ -1366,11 +1366,13 @@ None. Phase 8 introduces no deferred item, missing-test gap, or hand-off of its 
 |---|---:|---:|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
-| Bugs / regressions (BG) | 0 | 2 |
+| Bugs / regressions (BG) | 0 | 3 |
 | Warnings (WN) | 0 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 | Hand-offs (HO) | 0 | 0 |
+
+*(The third BG is the GitHub monitor lockfile defect recorded in the Phase 9 reconciliation section below; it surfaced during the integration push, after the Phase 8 commit.)*
 
 **Carryovers.** DF-13, MT-8, DF-12, MT-7, HO-4, MT-6, DF-11, MT-5, and QG-4 remain open and unchanged, and Phase 9 owns the reconciliation. Phase 8 adds nothing to that list: the two things it could not prove locally are the same live-observation boundary already tracked as MT-6, MT-7, and MT-8, and no new deferral was needed because the Copilot rows resolved to inheritance rather than to partial delivery.
 
@@ -1393,7 +1395,17 @@ Every v3.15.8 gap now has a disposition, an owner, and a next step. This is the 
 | QG-2 / QG-3 | **Resolved** (Phase 4) | `ci.yml` now collects `tests/plans` and `tests/workflows`; the GitHub monitor has a path-filtered Node 22 gate. |
 | QG-4 | **Retained deferral** (environment-blocked) | The interactive light/dark/high-contrast smoke needs a GUI session this non-interactive environment cannot observe. Automated tests cover theme tokens, semantic labels, focus styling, responsive layout, reduced motion, CSP, escaping, and the unknown-limit fallback; what is missing is a human render, including the teal meter fill. Joins the same release-readiness pass as MT-6/7/8. |
 
-**Nothing was deleted.** Every historical gap from v3.15.0 through v3.15.7 remains as written, including the v3.15.6 correction notice about WN-v36-1. Two items are transferred rather than closed (MT-5 to v3.15.9) or consolidated (MT-6/7/8 plus QG-4 and the Copilot check into one live pass); the rest are resolved or are genuine upstream and environment limitations with dated reasons.
+**Nothing was deleted.** Every historical gap from v3.15.0 through v3.15.7 remains as written, including the v3.15.6 correction notice about WN-v36-1.
+
+#### Post-commit addition: the integration push found one more defect
+
+##### BG - GitHub monitor lockfile was Linux-incomplete by construction - RESOLVED (2026-08-03)
+
+- **Source**: the v3.15.8 integration push to `develop`, after the Phase 9 commit. The `github-usage-monitor` workflow failed on `npm ci` with `@emnapi/runtime@1.11.3` and `@emnapi/core@2.0.0-alpha.3` missing from the lock file, while the identical command passed on the Windows dev host.
+- **Root cause**: the extension devDepended on `sharp` (plus `svg2ttf`, `svgpath`, `ttf2woff2`). On Linux npm resolves `@img/sharp-linux-*`, which requires those two `@emnapi` packages; on Windows it resolves `sharp-win32-*`, which does not. A lockfile generated on Windows is therefore Linux-incomplete **by construction**, and no Windows-side npm invocation repairs it -- `--package-lock-only`, a full delete-and-regenerate, and `--os=linux --cpu=x64 --libc=glibc` all reproduce the same Windows-shaped tree.
+- **Why it recurred**: this is the same class v3.15.7 fixed for the Claude and Codex monitors (commit `598519c0`), which is why those two locks already carried hoisted `@emnapi` entries and the newer GitHub monitor did not. Fixing it the same way would have left the next dependency bump to reintroduce it.
+- **Resolution (commit `17ed7317`)**: the four packages exist only to regenerate `icon.png` and `fonts/github-icons.woff2` via `npm run generate:icons`. Both assets are committed and no build, test, coverage, or packaging step reads them from source -- CI runs only compile, `test:coverage`, `package`, and `verify:package`. They were removed from `devDependencies` and documented as install-on-demand in a `//generate:icons` note beside the script. The lock drops from 494 to 378 packages with zero `@emnapi`, `sharp`, or `wasm32-wasi` entries, so the platform divergence is eliminated at the root rather than patched, and `npm audit` now reports 0 vulnerabilities. Verified by a clean `npm ci`, compile, 103 tests, unchanged coverage (82.09% statements / 87.32% lines), a 39-file VSIX, 37-file content verification, and a green `github-usage-monitor` run on `develop`.
+- **Standing lesson**: a lockfile committed from a single platform is only valid for that platform's optional-dependency graph. Prefer removing a build-time-only native dependency over regenerating its lock, because the removal is permanent and the regeneration is per-bump. Two items are transferred rather than closed (MT-5 to v3.15.9) or consolidated (MT-6/7/8 plus QG-4 and the Copilot check into one live pass); the rest are resolved or are genuine upstream and environment limitations with dated reasons.
 
 **Monitor-specific findings recorded explicitly**, per 9.2's requirement: GitHub's billing summary APIs remain public preview and may change shape without notice (the provider normalizes defensively and keeps unknown quotas percentage-free); personal-scope endpoints omit managed Copilot seats; no authorized billing credential was ever available in this plan, so every live billing path is unexercised (HO-3's original subject, resolved by choosing the fine-grained-token fallback); and the supplied brand asset limitation is DF-10 above. No monitor claims a percentage it cannot compute, and nothing is scraped.
 
