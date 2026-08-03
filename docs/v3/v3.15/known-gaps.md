@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: The v3.15 line now includes v3.15.0 through v3.15.7. Release PR #28 and usage-monitor repair PR #29 are merged into `develop`; a focused Windows PowerShell 5.1 CI repair is the remaining develop gate before main promotion, post-merge CI, tag, and GitHub Release. Earlier release history and per-phase evidence remain in the sections below.
-**Last updated**: 2026-08-02 (v3.15.7 ALL 7 PHASES COMPLETE - release readiness handed to `/update release`)
+**Last updated**: 2026-08-02 (v3.15.8 Phase 2 checkpoint; v3.15.7 release status retained below)
 
 **Current v3.15.7 status**: Implementation is complete and merged into `develop`. The release scope is fixed: evidence-closed security review hardening, Codex Usage Monitor Extra Credits, the isolated installer import-cycle fix, and CI corrections discovered by the reactivated pipelines. Newly verified additive platform capabilities are explicitly deferred to v3.15.8. The maintainer authorized the remote sequence; both repaired monitor workflows pass on the merged `develop` commit, and the Windows PowerShell 5.1 push-gate repair must pass before main promotion, post-merge CI, tag, and GitHub Release proceed in order.
 
@@ -1047,18 +1047,10 @@ Phase 1 converted DF-9 and the GitHub monitor requirements into explicit ownersh
 - **Reason**: `.github/workflows/ci.yml` collects integration, installer, validator, and skill suites but not the new semantic contract suite under `tests/plans`. The v3.15.8 plan explicitly defers unnecessary workflow restructuring until later design and final CI reconciliation, so Phase 1 did not silently broaden the workflow.
 - **Re-entry condition**: add the Phase 1 contract suite to an appropriate existing CI job during Phase 4 design or Phase 9 reconciliation, preserving path filters, caching, concurrency cancellation, and gated expensive matrices.
 
-#### Hand-offs
-
-##### HO-3 - Authorized GitHub billing probe is required before Phase 2 authentication is finalized
-
-- **Source phase**: v3.15.8 Phase 1.2 - Define and Probe GitHub Billing.
-- **Plan reference**: `docs/v3/v3.15/plans/v3.15.8-platform-parity-and-github-usage-monitor.md` (sub-task 1.2 and Phase 2.2).
-- **Reason**: no authorized token with the documented user, organization, or enterprise billing permissions was available during Phase 1. The data contract therefore records the official endpoint and permission behavior plus a bounded sanitized probe procedure, but does not claim a successful live response or that VS Code GitHub authentication is accepted by the billing endpoint.
-- **Re-entry condition**: run the bounded probe with maintainer-authorized credentials before Phase 2 chooses between VS Code authentication and a fine-grained token stored in `ExtensionContext.secrets`; retain the documented manual fallback if access is unavailable.
-
 ### v3.15.8 Phase 1 Resolved
 
 - The repository-wide personal-path validator initially found a pre-existing absolute portfolio path in `docs/v3/v3.16/plans/v3.16.7-interactive-guide-redesign.md`. With explicit maintainer authorization, the path was replaced by `../online-portfolio/nexus-hub/index.html`; `python scripts/validate_no_personal_paths.py` now exits 0.
+- HO-3 was resolved in Phase 2 by retaining the documented fine-grained-token fallback in `ExtensionContext.secrets` and keeping VS Code GitHub session reuse disabled until billing-endpoint acceptance is proven by an authorized probe.
 
 ### v3.15.8 Phase 1 Summary
 
@@ -1070,6 +1062,41 @@ Phase 1 converted DF-9 and the GitHub monitor requirements into explicit ownersh
 | Warnings (WN) | 0 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 1 | 0 |
-| Hand-offs (HO) | 1 | 0 |
+| Hand-offs (HO) | 0 | 1 |
 
 **Verification boundary.** Phase 1 reports 27 contract tests with 100% statement coverage plus 103 affected platform, lifecycle, summary, verification, and Codex tests, for 130 focused passes and no failures. Ruff check and format verification are clean; all eleven JSON fixtures parse; the direct Windows equivalents of `make validate` pass every hard validator; the repository-wide personal-path gate and `git diff --check` pass. The full 399-case integration collection advanced without a failure but exceeded the bounded Windows command duration, so this checkpoint does not claim a fresh complete integration-suite pass.
+
+### v3.15.8 Phase 2 checkpoint
+
+Phase 2 adds the independent `extensions/github-usage-monitor/` TypeScript package with typed billing models, SecretStorage-backed token lifecycle commands, explicit user/organization/enterprise ownership, a versioned GitHub REST client, defensive Copilot and Actions normalization, verified-or-manual allowance resolution, and last-known-good cache behavior. The implementation keeps unknown limits percentage-free, keeps errors distinct from zero usage, and does not reuse a VS Code GitHub session without evidence that the billing endpoints accept it.
+
+### v3.15.8 Phase 2 Open Items
+
+#### Quality-gate gaps
+
+##### QG-3 - GitHub Usage Monitor tests are not collected by CI
+
+- **Source phase**: v3.15.8 Phase 2.5 - Testing and Stabilization.
+- **Plan reference**: `docs/v3/v3.15/plans/v3.15.8-platform-parity-and-github-usage-monitor.md` (sub-task 2.5 and Phase 4.3).
+- **Reason**: `.github/workflows/ci.yml` runs Python suites, while the focused Claude and Codex workflows collect only their own extension paths. The new GitHub monitor therefore has no remote Node 22 compile-and-coverage gate yet. Phase 4 explicitly owns a path-filtered monitor workflow, so Phase 2 does not add a partial or duplicate CI definition.
+- **Suggested next step**: implement T028 and T029 in Phase 4 with a path-filtered Node 22 workflow that uses the lockfile cache, concurrency cancellation, clean install, compile, coverage, and VSIX dry-package gates.
+
+### v3.15.8 Phase 2 Resolved
+
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+| HO-3 | Authorized GitHub billing probe required before authentication choice | Phase 2 | No authorized credential was available, so the contract's fine-grained-token fallback was selected; tokens are validated before storage in `ExtensionContext.secrets`, and VS Code session reuse remains disabled pending live proof. |
+
+### v3.15.8 Phase 2 Summary
+
+| Category | Open | Resolved |
+|---|---:|---:|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 1 | 0 |
+| Hand-offs (HO) | 0 | 1 |
+
+**Carryovers.** DF-10 remains owned by Phase 3 visual packaging, and QG-2 remains owned by Phase 4 or Phase 9 repository-CI reconciliation. Phase 2 adds only QG-3; it introduces no skipped implementation, known bug, suppressed warning, or uncovered source file.

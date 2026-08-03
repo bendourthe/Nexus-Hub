@@ -84,3 +84,11 @@ The bundled audit helper inventoried 366 active documentation files repository-w
 All Phase 1 documentation remains Cat 4 active/current. No file qualifies as Cat 1 deletion, Cat 2 historical archive, or Cat 3 relocation. The plan, development contracts, fixtures, and semantic tests use their canonical directories, and the v3.16.7 portable-path correction changes content only, not document ownership or placement.
 
 Phase 1 created only already-ignored Python coverage and cache outputs. Existing ignore rules cover `.coverage`, `.pytest_cache`, `.ruff_cache`, and `__pycache__`; zero `.gitignore` patterns were added. No move, rename, deletion, archive operation, or reference repair was applied.
+
+## v3.15.8 Phase 2 Audit - 2026-08-02
+
+The bundled audit helper inventoried 367 documentation files repository-wide and 69 files under `docs/v3/v3.15/` before the Phase 2 session history was added. The reference graph contained 48 referenced documentation targets and 240 inbound edges. The new history file brings the expected active v3.15 total to 70.
+
+All Phase 2 documentation remains Cat 4 active/current. The v3.15.8 plan, shared known-gaps ledger, cleanup report, DEVLOG, progress tracker, and phase history are current implementation records in their canonical locations. No file qualifies as Cat 1 deletion, Cat 2 archive, or Cat 3 refresh or relocation.
+
+Phase 2 produced package-local build, dependency, coverage, and VSIX outputs. Root rules already covered `node_modules/`, `out/`, and `*.vsix`, but not the monitor's `coverage/` directory, so `extensions/github-usage-monitor/.gitignore` now records the package-local `node_modules/`, `out/`, `coverage/`, and `*.vsix` convention. Four scoped patterns were added. No move, rename, deletion, archive operation, or reference repair was applied.

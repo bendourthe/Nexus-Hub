@@ -22,13 +22,14 @@
 | Local release gates | 1 | 1 | 0 |
 | Remote publication gates | 0 | 1 | 1 |
 | Open phase blockers | 0 | 0 | 0 |
-| v3.15.8 plan phases complete | 1 | 9 | 8 |
+| v3.15.8 plan phases complete | 2 | 9 | 7 |
 | v3.15.8 Phase 1 tasks complete | 7 | 7 | 0 |
+| v3.15.8 Phase 2 tasks complete | 9 | 9 | 0 |
 
 ## Parallel Plan - v3.15.8 Platform Parity and GitHub Usage Monitor [IN PROGRESS]
 
 - [x] Phase 1 - Contracts, probes, and test foundation
-- [ ] Phase 2 - GitHub usage data and authentication core
+- [x] Phase 2 - GitHub usage data and authentication core
 - [ ] Phase 3 - GitHub usage monitor extension and visual assets
 - [ ] Phase 4 - Monitor integration, reliability, and CI design checkpoint
 - [ ] Phase 5 - Codex capability parity

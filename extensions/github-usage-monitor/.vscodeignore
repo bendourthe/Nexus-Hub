@@ -1,0 +1,8 @@
+.vscode/**
+node_modules/**
+coverage/**
+src/**
+test/**
+tsconfig.json
+vitest.config.mts
+**/*.map

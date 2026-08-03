@@ -1,5 +1,38 @@
 # Development Log
 
+## [2026-08-02] - v3.15.8 Phase 2 GitHub billing provider and secure authentication [feature]
+
+### What Changed
+
+Added the independent `extensions/github-usage-monitor/` Node 22 and TypeScript package. The provider now models user, organization, and enterprise billing owners; stores validated fine-grained tokens only in VS Code SecretStorage; builds bounded, cancellable, versioned GitHub billing requests; normalizes Copilot AI credits, premium requests, Actions minutes, storage, SKU costs, and discounts; resolves only verified or explicitly configured allowances; and preserves last-known-good data through stale, empty, reset, and error states. Added 72 fixture-driven tests across authentication, scope, client, normalization, allowances, store, and command registration.
+
+### Why It Changed
+
+The Phase 1 contracts established that GitHub billing data varies by owner, product, API generation, unit, permission, and enhanced-billing availability. Phase 2 turns those contracts into a typed provider boundary without scraping billing pages, storing credentials in settings, inferring plan limits, merging incompatible units, or converting request failures into zero usage.
+
+### Decisions Made
+
+- Selected the documented fine-grained-token fallback because no authorized billing credential was available for the bounded live probe. Tokens are syntax-checked and remotely validated before storage or rotation, and VS Code GitHub session reuse remains disabled until billing-endpoint acceptance is proven.
+- Kept Copilot AI credits and premium requests as distinct metric kinds and units, while aggregating Actions minutes only across compatible runner records and retaining raw SKU breakdowns.
+- Applied API allowances before exact-unit manual allowances. Missing, zero, negative, non-finite, or unit-mismatched denominators remain unknown and cannot produce percentages.
+- Preserved cached usage with explicit staleness and errors; an empty failure state remains actionable and never synthesizes zero consumption.
+- Left CI unchanged because Phase 4 owns the focused GitHub monitor workflow. QG-3 records the temporary absence of remote collection.
+
+### Troubleshooting Trail
+
+<details>
+<summary>Authentication and endpoint classification regressions</summary>
+
+The first test run reported 68 passes and 2 failures. Token syntax validation trimmed a trailing newline before checking it, which could accept a control character, and the 404 classifier used a broad `/usage` suffix that confused the AI-credit endpoint with detailed billing usage. Validation now rejects control characters from the original token before normalization, and detailed-usage detection now matches the exact `/settings/billing/usage` endpoint. The clean rerun reports 72 passes.
+
+</details>
+
+### Impact & Context
+
+- **Affected**: the new GitHub monitor package, v3.15.8 Phase 2 plan state, known gaps, cleanup report, DEVLOG, session history, and progress tracker.
+- **Verified**: clean npm install, TypeScript compile, 72 tests, 95.01% statements, 89.23% branches, 96.77% functions, 95.46% lines, 400 repository contract and validator tests, personal-path validation, direct Windows equivalents of `make validate`, secret-pattern audit, manifest-lock synchronization, and whitespace checks.
+- **Deferred**: UI, alerts, visual assets, installer integration, VSIX dry packaging, focused CI, live authorized billing verification, push, protected-branch integration, and release actions.
+
 ## [2026-08-02] - v3.15.8 Phase 1 contracts, probes, and test foundation [decision]
 
 ### What Changed
