@@ -217,7 +217,7 @@ def test_billing_contract_covers_scopes_permissions_and_endpoints() -> None:
 
 def test_visual_contract_locks_brand_dimensions_and_resolved_assets() -> None:
     text = _read(VISUAL_CONTRACT_PATH)
-    assert "`#651DA8`" in text
+    assert "`#008080`" in text
     assert 'viewBox="0 0 20 20"' in text
     assert "`14x14`" in text
     assert "`256x256` rgba png" in text.lower()

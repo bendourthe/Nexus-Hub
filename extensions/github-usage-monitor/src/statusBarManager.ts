@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import type { ProviderError, UsageMetric, UsageSnapshot, UsageState } from "./types";
 import { formatResetCountdown } from "./usageStore";
 
-export const GITHUB_BAR_FILL = "#651DA8";
+export const GITHUB_BAR_FILL = "#008080";
 const GITHUB_ICON = "$(github-icon)";
 const ICON_GAP = "\u2002";
 

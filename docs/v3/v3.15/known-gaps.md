@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: The v3.15 line now includes v3.15.0 through v3.15.7. Release PR #28 and usage-monitor repair PR #29 are merged into `develop`; a focused Windows PowerShell 5.1 CI repair is the remaining develop gate before main promotion, post-merge CI, tag, and GitHub Release. Earlier release history and per-phase evidence remain in the sections below.
-**Last updated**: 2026-08-02 (v3.15.8 Phase 3 checkpoint; v3.15.7 release status retained below)
+**Last updated**: 2026-08-02 (v3.15.8 Phase 4 checkpoint; v3.15.7 release status retained below)
 
 **Current v3.15.7 status**: Implementation is complete and merged into `develop`. The release scope is fixed: evidence-closed security review hardening, Codex Usage Monitor Extra Credits, the isolated installer import-cycle fix, and CI corrections discovered by the reactivated pipelines. Newly verified additive platform capabilities are explicitly deferred to v3.15.8. The maintainer authorized the remote sequence; both repaired monitor workflows pass on the merged `develop` commit, and the Windows PowerShell 5.1 push-gate repair must pass before main promotion, post-merge CI, tag, and GitHub Release proceed in order.
 
@@ -1144,3 +1144,41 @@ Phase 3 adds the GitHub Usage Monitor status item, detailed hover, theme-adaptiv
 | Hand-offs (HO) | 0 | 0 |
 
 **Carryovers.** QG-2 and QG-3 remain owned by Phase 4 or Phase 9 CI reconciliation. Authorized live billing verification remains a release-readiness activity. Phase 3 adds MT-5 and QG-4; it introduces no skipped implementation, known production bug, suppressed warning, or bypassed hard gate.
+
+### v3.15.8 Phase 4 checkpoint
+
+Phase 4 makes the GitHub Usage Monitor a distributed utility rather than a local package. Both installers build and install it under a `GITHUB` vendor header after Anthropic and OpenAI, using an absolute-usage status hint that promises no percentage, and the installer smoke test now enforces presence, identity, and vendor order across both shells so a monitor cannot be wired into one and forgotten in the other. A path-filtered `github-usage-monitor.yml` adds the extension's remote gate (read-only token, SHA-pinned actions, Node 22, exact lockfile cache, concurrency cancellation, clean install, compile, coverage thresholds, VSIX packaging, packaged-content verification), and fourteen semantic workflow-policy tests assert those properties instead of snapshotting the file. A new `verify:package` gate asserts the VSIX carries every runtime asset and no coverage report, source tree, nested VSIX, or credential-shaped file. The extension README documents installer and VSIX setup, billing scopes, SecretStorage token lifecycle, permissions, manual allowances, alerts, cache and fallback behavior, and the four honesty limits (personal endpoints omit managed Copilot, summary APIs are preview, unknown quotas stay absolute, nothing is scraped).
+
+Two decisions are worth recording. The focused workflow deliberately does not trigger on `scripts/installer.{sh,ps1}`, because `ci.yml` already runs on every non-docs change and owns the installer parity assertion; listing the installers would rebuild an unchanged VSIX on every installer edit. And on maintainer request during this phase, the usage-meter fill changed from `#651DA8` to teal `#008080` across the status hover and dashboard accent, the visual contract, both READMEs, and the contract test; the maintainer-supplied gradient artwork and the package icon derived from it keep their original purple stops.
+
+### v3.15.8 Phase 4 Open Items
+
+#### Deferred
+
+##### DF-11 - Focused monitor workflow does not trigger on installer changes
+
+- **Source phase**: v3.15.8 Phase 4.2 - Add Focused CI.
+- **Plan reference**: `docs/v3/v3.15/plans/v3.15.8-platform-parity-and-github-usage-monitor.md` (sub-task 4.2, T028).
+- **Reason**: T028 lists "relevant installer lines" among the workflow's triggers, but GitHub path filters are file-scoped, so the narrowest expression of that intent is the whole of `scripts/installer.sh` and `scripts/installer.ps1`. Including them would start a Node runner and rebuild an unchanged VSIX on every installer edit. The compensating control is real rather than notional: `ci.yml` has no path filter beyond `paths-ignore: docs/**`, so any installer change runs `catalog/hooks/tests/test_installer_smoke.py`, which is what asserts both shells build every monitor in the same order.
+- **Suggested next step**: during Phase 9 CI reconciliation, either accept this divergence explicitly in the workflow comparison or, if per-path job gating is adopted repository-wide, add an installer-parity job gated to installer changes.
+
+### v3.15.8 Phase 4 Resolved
+
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+| QG-2 | Repository CI does not collect `tests/plans` | Phase 4 | `ci.yml`'s `tests` job enumerates directories by name, so `tests/plans` was never collected. A `Plan-contract + workflow-policy tests` step now runs `tests/plans` and the new `tests/workflows` together, with a comment recording why a new directory is invisible until listed. |
+| QG-3 | GitHub Usage Monitor tests are not collected by CI | Phase 4 | `.github/workflows/github-usage-monitor.yml` gives the extension a path-filtered Node 22 gate with clean install, compile, coverage thresholds, VSIX packaging, and packaged-content verification, mirroring the Claude and Codex monitor workflows and pinned to the same action SHAs (enforced by a cross-workflow policy test). |
+
+### v3.15.8 Phase 4 Summary
+
+| Category | Open | Resolved |
+|---|---:|---:|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 1 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 2 |
+| Hand-offs (HO) | 0 | 0 |
+
+**Carryovers.** MT-5 (extension activation coverage) and QG-4 (interactive light/dark/high-contrast smoke) remain open and are now more pointed: the meter color changed after Phase 3's accessibility pass, so the first Extension Development Host session should confirm the teal fill in all three themes. `#008080` clears the 3:1 non-text contrast floor against both a white and a black backdrop by calculation, which the previous purple did only against white, but that is arithmetic rather than an observed render. Authorized live billing verification remains a release-readiness activity. Phase 4 adds DF-11 and resolves QG-2 and QG-3; it introduces no skipped implementation, known production bug, suppressed warning, or bypassed hard gate.

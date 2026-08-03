@@ -398,6 +398,13 @@ jobs:
       - name: Skills-script tests (v3.14.3 media-key setup helper + docs-audit resolver)
         run: python -m pytest tests/skills -v
 
+      - name: Plan-contract + workflow-policy tests (v3.15.8 Phase 4.4)
+        # This job enumerates test directories by name rather than running
+        # `pytest tests`, so a new directory is invisible to CI until it is
+        # listed here. tests/plans (added in v3.15.8 Phase 1) was in exactly that
+        # state; tests/workflows (Phase 4.2) would have been too.
+        run: python -m pytest tests/plans tests/workflows -v
+
       - name: Install skill-server (and transitive deps like pydantic via mcp)
         run: pip install -e "extensions/nexus-skill-server/[dev]"
 

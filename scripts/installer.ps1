@@ -2059,11 +2059,11 @@ function Invoke-RegistryPlatform {
 
 function Install-VSCodeExtensions {
     param ($RepoRoot)
-    Write-Item -Message "Usage Monitor VS Code extensions show your Claude Code and Codex (ChatGPT)" -Color "White"
-    Write-Item -Message "usage limits in the status bar, with pacing recommendations. Grouped by vendor." -Color "White"
+    Write-Item -Message "Usage Monitor VS Code extensions show your Claude Code, Codex (ChatGPT), and" -Color "White"
+    Write-Item -Message "GitHub usage in the status bar, with pacing recommendations. Grouped by vendor." -Color "White"
     Write-Host ""
 
-    # Check for Node.js (shared by both extensions)
+    # Check for Node.js (shared by every extension)
     $nodeCmd = Get-Command "node" -ErrorAction SilentlyContinue
     if (-not $nodeCmd) {
         Write-Item -Message "Node.js is not installed (required to build the extensions)." -Color "DarkYellow"
@@ -2118,11 +2118,11 @@ function Install-VSCodeExtensions {
 
     # Suspend strict error mode for native CLI tools (npm/npx write warnings to stderr
     # which PowerShell converts to terminating errors under $ErrorActionPreference = "Stop").
-    # Shared across both extension builds; restored once at the end.
+    # Shared across every extension build; restored once at the end.
     $savedErrorPref = $ErrorActionPreference
     $ErrorActionPreference = "Continue"
 
-    # Locate a VS Code-family CLI once, shared by both extensions. On a fresh machine
+    # Locate a VS Code-family CLI once, shared by every extension. On a fresh machine
     # `code` is not always on PATH, so fall back to the standard Windows install
     # locations. This lets each VSIX auto-install instead of by hand (mirrors installer.sh).
     $codeCli = $null
@@ -2148,21 +2148,32 @@ function Install-VSCodeExtensions {
         }
     }
 
-    # Build each extension under its own vendor header so the Anthropic and
-    # OpenAI utilities are visually separated. Each is independent, so a missing
-    # folder or a build failure in one does not block the other.
+    # Build each extension under its own vendor header so the Anthropic, OpenAI,
+    # and GitHub utilities are visually separated. Each is independent, so a
+    # missing folder or a build failure in one does not block the others. The
+    # vendor order (Anthropic, OpenAI, GitHub) is asserted by the installer smoke
+    # test and must match scripts/installer.sh.
     Write-Header -Provider "ANTHROPIC"
     Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\claude-usage-monitor") -ExtensionId "nexus-hub.claude-usage-monitor" -DisplayName "Claude Usage Monitor" -StatusHint "Claude: --%" -CodeCli $codeCli -CodeLabel $codeLabel
 
     Write-Header -Provider "OPENAI"
     Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\codex-usage-monitor") -ExtensionId "nexus-hub.codex-usage-monitor" -DisplayName "Codex Usage Monitor" -StatusHint "Codex: --%" -CodeCli $codeCli -CodeLabel $codeLabel
 
+    # The GitHub monitor's status hint carries no "%" because GitHub does not
+    # guarantee an included allowance: until a verified denominator or a manual
+    # one is configured the bar shows absolute usage, so promising a percentage
+    # here would be the false-quota claim the v3.15.8 contract forbids. The
+    # install itself never authenticates to GitHub - the token is supplied later
+    # through the extension's SecretStorage command.
+    Write-Header -Provider "GITHUB"
+    Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\github-usage-monitor") -ExtensionId "nexus-hub.github-usage-monitor" -DisplayName "GitHub Usage Monitor" -StatusHint "GitHub Usage: --" -CodeCli $codeCli -CodeLabel $codeLabel
+
     # Restore strict error mode
     $ErrorActionPreference = $savedErrorPref
 }
 
 # Build, package, and install one VS Code usage-monitor extension. Shared by
-# Install-VSCodeExtensions so the Claude and Codex monitors install identically.
+# Install-VSCodeExtensions so every monitor installs identically.
 function Build-And-Install-One-Extension {
     param ($ExtensionDir, $ExtensionId, $DisplayName, $StatusHint, $CodeCli, $CodeLabel)
 

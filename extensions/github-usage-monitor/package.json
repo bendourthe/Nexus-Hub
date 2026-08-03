@@ -121,6 +121,7 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "package": "vsce package --no-dependencies",
+    "verify:package": "node scripts/verify-package-contents.js",
     "generate:icons": "node scripts/generate-icon-font.js && node scripts/generate-package-icon.js"
   },
   "devDependencies": {

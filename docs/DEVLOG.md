@@ -1,5 +1,38 @@
 # Development Log
 
+## [2026-08-02] - v3.15.8 Phase 4 GitHub monitor installer distribution, packaging, and focused CI [feature]
+
+### What Changed
+
+Made the GitHub Usage Monitor obtainable. Both installers now build and install it under a `GITHUB` vendor header after Anthropic and OpenAI, with an absolute-usage status hint that promises no percentage. Added `.github/workflows/github-usage-monitor.yml`, a path-filtered Node 22 gate with a read-only token, SHA-pinned actions, exact lockfile cache, concurrency cancellation, and a clean install to compile to coverage to package to content-verification chain. Added a `verify:package` gate asserting the VSIX carries every runtime asset and no coverage report, source tree, source map, nested VSIX, or credential-shaped file. Added the extension README and repository inventory entry. On maintainer request, the usage-meter fill changed from `#651DA8` to teal `#008080`. The package is at 103 tests; the phase adds 14 workflow-policy tests, 3 package-content tests, and 3 installer parity tests.
+
+### Why It Changed
+
+Phase 3 produced a complete, tested extension that no user could install and no remote pipeline could see. Phase 4 is the delivery boundary, and it also owned two inherited quality-gate debts: QG-3 (the monitor had no CI at all) and QG-2 (repository CI never collected `tests/plans`). Both are now resolved.
+
+### Decisions Made
+
+- Parameterized the installer smoke test over a monitor tuple and added a separate order assertion, so a fourth monitor cannot be wired into one shell and forgotten in the other.
+- Gated packaged contents with `vsce ls` rather than unzipping the archive: it applies `.vscodeignore` identically and costs nothing in CI.
+- Omitted `scripts/installer.{sh,ps1}` from the focused workflow's triggers. `ci.yml` has no path filter beyond `paths-ignore: docs/**`, so it already runs installer-parity on every installer edit; listing them would rebuild an unchanged VSIX. Recorded as DF-11 for Phase 9 to accept or reverse.
+- Scoped the color change to meter fills and the dashboard accent. The maintainer-supplied gradient artwork and the package icon derived from it keep their purple stops, because those are the supplied mark rather than a UI accent.
+- Left dated history files and the Phase 3 known-gaps checkpoint on `#651DA8`; they record what those phases shipped.
+
+### Troubleshooting Trail
+
+<details>
+<summary>Windows `.cmd` spawn refusal and a CI job that silently ignored two test directories</summary>
+
+`verify-package-contents.js` failed with `EINVAL` spawning `npx.cmd`: current Node refuses to execute a `.cmd` shim without a shell, and adding a shell would make the gate depend on host quoting rules. The script now invokes vsce's JavaScript entry point directly through `process.execPath`, which is portable and shell-free. More consequentially, writing the workflow tests revealed that `ci.yml`'s `tests` job enumerates test directories by name instead of running `pytest tests`, so the new `tests/workflows` would never have run remotely - and `tests/plans` had already been invisible since Phase 1, which is precisely what QG-2 recorded. A single added step now collects both, with a comment explaining that a new directory stays invisible until it is listed.
+
+</details>
+
+### Impact & Context
+
+- **Affected**: `scripts/installer.sh`, `scripts/installer.ps1`, `.github/workflows/github-usage-monitor.yml`, `.github/workflows/ci.yml`, `.github/dependabot.yml`, `extensions/github-usage-monitor/`, `tests/workflows/`, `tests/plans/`, `catalog/hooks/tests/test_installer_smoke.py`, both READMEs, the v3.15.8 plan, visual contract, known-gaps ledger, cleanup report, and Phase 4 history.
+- **Verified**: clean `npm ci`, compile, 103 tests, 82.09% statements and 87.32% lines, 39-file VSIX, 37-file content verification, ShellCheck and PowerShell AST parse on both installers, `pytest tests` at 1208 passed, `pytest catalog/hooks/tests` at 902 passed, workflow-security validation, every direct Windows equivalent of `make validate`, and `git diff --check`.
+- **Deferred**: DF-11 (installer-path triggers) for Phase 9; QG-4 interactive theme inspection, now also covering the teal fill; MT-5 activation coverage; authorized live billing verification. No push or release action was performed.
+
 ## [2026-08-02] - v3.15.8 Phase 3 GitHub monitor UX, alerts, and brand assets [feature]
 
 ### What Changed

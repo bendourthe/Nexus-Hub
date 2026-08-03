@@ -100,3 +100,13 @@ The active documents changed in Phase 3 are the existing v3.15.8 plan, shared kn
 Phase 3 intentionally adds committed binary distribution assets under `extensions/github-usage-monitor/`: the byte-identical supplied warning PNG, deterministic WOFF2 glyph, and deterministic transparent 256x256 package PNG. They are product artifacts, not generated scratch output. Package-local `node_modules/`, `out/`, `coverage/`, and `*.vsix` remain covered by the Phase 2 `.gitignore`; zero additional ignore patterns are required.
 
 No move, rename, deletion, archive operation, or reference repair was applied. The report remains Cat 4 while v3.15.8 is active.
+
+## v3.15.8 Phase 4 Audit - 2026-08-02
+
+After the Phase 4 session history was written, the tree holds 73 Markdown files and no non-Markdown files under `docs/v3/v3.15/`: 2 at the version root, 5 under `comparisons/`, 10 under `plans/`, and 56 under `development/`. The `plans/` count includes one untracked plan created by a parallel session (`v3.15.9-cross-provider-routing-and-cursor-usage-monitor.md`); it is not part of this phase's change set and was neither modified nor committed here.
+
+The active documents changed in Phase 4 are the v3.15.8 plan, shared known-gaps ledger, visual contract, this cleanup report, DEVLOG, one new session history, and the new `extensions/github-usage-monitor/README.md`. Each remains a Cat 4 active/current record in its canonical directory. The extension README belongs beside its package rather than under `docs/`, matching the Claude and Codex monitors. No file qualifies for deletion, archival, consolidation, or relocation.
+
+Phase 4 added one new tracked test directory (`tests/workflows/`) and one new tracked script (`extensions/github-usage-monitor/scripts/verify-package-contents.js`); both are source, not scratch. Generated output was limited to the package-local `out/`, `coverage/`, and `*.vsix` paths already covered by the Phase 2 `.gitignore`, plus repository Python caches already covered by root rules. Zero `.gitignore` patterns were added.
+
+No move, rename, deletion, archive operation, or reference repair was applied. The report remains Cat 4 while v3.15.8 is active.

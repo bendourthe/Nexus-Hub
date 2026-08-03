@@ -1,12 +1,14 @@
 # GitHub Usage Monitor Visual Contract
 
 **Version:** v3.15.8
-**Brand meter color:** `#651DA8`
+**Brand meter color:** `#008080`
 **Verified:** 2026-08-02
 
 ## Decision
 
-The monitor uses a theme-colored monochrome GitHub status glyph, the maintainer-supplied Streamline purple gradient mark in the warning panel, and `#651DA8` for usage-bar fills and neutral brand accents. Warning states always pair color with explicit severity text and iconography. The 14x14 gradient bitmap is preserved byte-for-byte for alert branding and is not used as the package-icon source.
+The monitor uses a theme-colored monochrome GitHub status glyph, the maintainer-supplied Streamline purple gradient mark in the warning panel, and `#008080` for usage-bar fills and neutral brand accents. Warning states always pair color with explicit severity text and iconography. The 14x14 gradient bitmap is preserved byte-for-byte for alert branding and is not used as the package-icon source.
+
+The meter color was `#651DA8` through Phase 3 and was changed to teal `#008080` on maintainer request during Phase 4. The change is scoped to meter fills and the dashboard accent rule; the supplied gradient artwork and the vector-derived package icon keep their original purple stops, because those are the maintainer-supplied mark rather than a UI accent. Teal also reads better on dark themes: `#008080` clears 3:1 against both a white and a black backdrop, where the previous purple cleared it only against white.
 
 ## Source Asset Inventory
 
@@ -27,7 +29,7 @@ The source wrapper translations combine to `translate(-84, -7399)`. Phase 3 appl
 | Surface | Light theme | Dark theme | High contrast |
 |---|---|---|---|
 | Status-bar glyph | VS Code status-bar foreground through the icon font | VS Code status-bar foreground through the icon font | System foreground; the filled silhouette has no gradient dependency |
-| Usage-bar fill | `#651DA8` on a neutral track with numeric text | `#651DA8` on a neutral dark track with numeric text | Semantic labels and values remain present even when forced colors replace the fill |
+| Usage-bar fill | `#008080` on a neutral track with numeric text | `#008080` on a neutral dark track with numeric text | Semantic labels and values remain present even when forced colors replace the fill |
 | Warning panel mark | Gradient mark is secondary branding on the panel background | Gradient mark remains secondary to severity text | Decorative image has empty alt text; GitHub title, severity word, and warning icon retain meaning |
 | Warning severity | Icon plus `Moderate`, `High`, or `Critical` text | Icon plus explicit severity text | System warning/error border plus text and distinct icon |
 
@@ -47,7 +49,7 @@ The status source is published as CC0 by SVG Repo. The Streamline free icon is u
 
 ## Mechanical Acceptance Results
 
-- [x] The usage-bar fill contains `#651DA8` exactly.
+- [x] The usage-bar fill contains `#008080` exactly.
 - [x] The normalized status SVG contains `viewBox="0 0 20 20"`, one path, no wrapper group, and no external load.
 - [x] The supplied bitmap remains `14x14` with its original SHA-256.
 - [x] The package icon is a transparent `256x256` vector-derived PNG, not a raster upscale.

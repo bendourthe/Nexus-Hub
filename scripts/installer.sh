@@ -1752,11 +1752,11 @@ invoke_registry_platform() {
 install_vscode_extensions() {
     local repo_root="$1"
 
-    write_item "Usage Monitor VS Code extensions show your Claude Code and Codex (ChatGPT)" "$RESET"
-    write_item "usage limits in the status bar, with pacing recommendations. Grouped by vendor." "$RESET"
+    write_item "Usage Monitor VS Code extensions show your Claude Code, Codex (ChatGPT), and" "$RESET"
+    write_item "GitHub usage in the status bar, with pacing recommendations. Grouped by vendor." "$RESET"
     echo ""
 
-    # Check for Node.js (shared by both extensions)
+    # Check for Node.js (shared by every extension)
     if ! command -v node >/dev/null 2>&1; then
         write_item "Node.js is not installed (required to build the extensions)." "$DARK_YELLOW"
 
@@ -1808,7 +1808,7 @@ install_vscode_extensions() {
         return
     fi
 
-    # Locate a VS Code-family CLI once, shared by both extensions. On a fresh Mac
+    # Locate a VS Code-family CLI once, shared by every extension. On a fresh Mac
     # the `code` command is not on PATH unless the user ran "Shell Command: Install
     # 'code' command in PATH", so fall back to the standard application-bundle /
     # install locations. This lets each VSIX auto-install instead of by hand.
@@ -1840,18 +1840,29 @@ install_vscode_extensions() {
         done
     fi
 
-    # Build each extension under its own vendor header so the Anthropic and
-    # OpenAI utilities are visually separated. Each is independent, so a missing
-    # folder or a build failure in one does not block the other.
+    # Build each extension under its own vendor header so the Anthropic, OpenAI,
+    # and GitHub utilities are visually separated. Each is independent, so a
+    # missing folder or a build failure in one does not block the others. The
+    # vendor order (Anthropic, OpenAI, GitHub) is asserted by the installer smoke
+    # test and must match scripts/installer.ps1.
     write_header "ANTHROPIC"
     build_and_install_one_extension "$repo_root/extensions/claude-usage-monitor" "nexus-hub.claude-usage-monitor" "Claude Usage Monitor" "Claude: --%" "$code_cli" "$code_label"
 
     write_header "OPENAI"
     build_and_install_one_extension "$repo_root/extensions/codex-usage-monitor" "nexus-hub.codex-usage-monitor" "Codex Usage Monitor" "Codex: --%" "$code_cli" "$code_label"
+
+    # The GitHub monitor's status hint carries no "%" because GitHub does not
+    # guarantee an included allowance: until a verified denominator or a manual
+    # one is configured the bar shows absolute usage, so promising a percentage
+    # here would be the false-quota claim the v3.15.8 contract forbids. The
+    # install itself never authenticates to GitHub - the token is supplied later
+    # through the extension's SecretStorage command.
+    write_header "GITHUB"
+    build_and_install_one_extension "$repo_root/extensions/github-usage-monitor" "nexus-hub.github-usage-monitor" "GitHub Usage Monitor" "GitHub Usage: --" "$code_cli" "$code_label"
 }
 
 # Build, package, and install one VS Code usage-monitor extension. Shared by
-# install_vscode_extensions so the Claude and Codex monitors install identically.
+# install_vscode_extensions so every monitor installs identically.
 # Args: $1 extension_dir  $2 extension_id  $3 display_name  $4 status_hint
 #       $5 code_cli (may be empty)  $6 code_label
 build_and_install_one_extension() {
