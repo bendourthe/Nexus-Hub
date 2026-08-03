@@ -1020,3 +1020,56 @@ Phase 7 audited the repository and active v3.15 documentation layout, reconciled
 - **9A resolve known gaps**: WN-3 is resolved with an isolated-import regression test. The durable store, both declined external candidates, and additive platform drift have explicit reasons, owners, and re-entry conditions. The monitor and Windows push-gate defects are owned by BG-1 and BG-3; no unowned v3.15.7 release blocker remains.
 - **9B verify tests and CI/CD**: Every changed executable has focused branch coverage and belongs to an already-collected test surface. Existing CI covers skill validation, bundle and placeholder checks, broker and closure tests, version/platform gates, Linux integration, and gated Windows/macOS legs without adding a cold runner. The broad `ci.yml` trigger remains intentional because it also owns installers, integrations, and extensions; narrower focused workflows retain their path filters, concurrency controls, caches, or scheduled security semantics.
 - **9C-9E handoff**: Release notes, the 3.15.6 to 3.15.7 version bump, README and CHANGELOG updates, release-branch push, green release PR #28, and green monitor repair PR #29 are complete. The maintainer authorized the sequence; the Windows follow-up PR, develop/main promotion, post-merge CI, tag, and GitHub Release remain pending in that order.
+
+## v3.15.8
+
+### v3.15.8 Phase 1 checkpoint
+
+Phase 1 converted DF-9 and the GitHub monitor requirements into explicit ownership, billing-data, authentication, visual, fixture, and test contracts. The platform matrix keeps all newly observed Codex, Gemini CLI, Qwen, Kimi, and Copilot surfaces finding-only until their implementation phases add owned writes and lifecycle tests; the existing Hermes flattened layout remains the only enforceable Hermes claim. Eleven sanitized billing fixtures and 27 semantic tests now reject unsupported ownership, unsafe fixture content, false denominators, and invalid visual requirements.
+
+### v3.15.8 Phase 1 Open Items
+
+#### Deferred
+
+##### DF-10 - Exact GitHub status SVG and redistribution evidence remain unavailable
+
+- **Source phase**: v3.15.8 Phase 1.3 - Fix the Visual Contract.
+- **Plan reference**: `docs/v3/v3.15/plans/v3.15.8-platform-parity-and-github-usage-monitor.md` (sub-task 1.3).
+- **Reason**: the declared 20x20 SVG was not present in the supplied assets or repository, and the observed 14x14 gradient PNG does not include confirmed redistribution or trademark-use evidence. Phase 1 therefore cannot record exact SVG geometry, copy either asset into the extension package, or derive a non-blurry 128x128 or 256x256 package icon without inventing source data.
+- **Re-entry condition**: before Phase 3 packages visual assets, the maintainer supplies the exact SVG plus provenance and redistribution approval, and supplies or approves a high-resolution source suitable for a 256x256 icon.
+
+#### Quality-gate gaps
+
+##### QG-2 - Repository CI does not collect `tests/plans`
+
+- **Source phase**: v3.15.8 Phase 1.5 - Testing and Stabilization.
+- **Plan reference**: `docs/v3/v3.15/plans/v3.15.8-platform-parity-and-github-usage-monitor.md` (sub-task 1.5 and Phase 9.3).
+- **Reason**: `.github/workflows/ci.yml` collects integration, installer, validator, and skill suites but not the new semantic contract suite under `tests/plans`. The v3.15.8 plan explicitly defers unnecessary workflow restructuring until later design and final CI reconciliation, so Phase 1 did not silently broaden the workflow.
+- **Re-entry condition**: add the Phase 1 contract suite to an appropriate existing CI job during Phase 4 design or Phase 9 reconciliation, preserving path filters, caching, concurrency cancellation, and gated expensive matrices.
+
+#### Hand-offs
+
+##### HO-3 - Authorized GitHub billing probe is required before Phase 2 authentication is finalized
+
+- **Source phase**: v3.15.8 Phase 1.2 - Define and Probe GitHub Billing.
+- **Plan reference**: `docs/v3/v3.15/plans/v3.15.8-platform-parity-and-github-usage-monitor.md` (sub-task 1.2 and Phase 2.2).
+- **Reason**: no authorized token with the documented user, organization, or enterprise billing permissions was available during Phase 1. The data contract therefore records the official endpoint and permission behavior plus a bounded sanitized probe procedure, but does not claim a successful live response or that VS Code GitHub authentication is accepted by the billing endpoint.
+- **Re-entry condition**: run the bounded probe with maintainer-authorized credentials before Phase 2 chooses between VS Code authentication and a fine-grained token stored in `ExtensionContext.secrets`; retain the documented manual fallback if access is unavailable.
+
+### v3.15.8 Phase 1 Resolved
+
+- The repository-wide personal-path validator initially found a pre-existing absolute portfolio path in `docs/v3/v3.16/plans/v3.16.7-interactive-guide-redesign.md`. With explicit maintainer authorization, the path was replaced by `../online-portfolio/nexus-hub/index.html`; `python scripts/validate_no_personal_paths.py` now exits 0.
+
+### v3.15.8 Phase 1 Summary
+
+| Category | Open | Resolved |
+|---|---:|---:|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 1 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 1 | 0 |
+| Hand-offs (HO) | 1 | 0 |
+
+**Verification boundary.** Phase 1 reports 27 contract tests with 100% statement coverage plus 103 affected platform, lifecycle, summary, verification, and Codex tests, for 130 focused passes and no failures. Ruff check and format verification are clean; all eleven JSON fixtures parse; the direct Windows equivalents of `make validate` pass every hard validator; the repository-wide personal-path gate and `git diff --check` pass. The full 399-case integration collection advanced without a failure but exceeded the bounded Windows command duration, so this checkpoint does not claim a fresh complete integration-suite pass.

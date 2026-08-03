@@ -76,3 +76,11 @@ After the required Phase 7 history was written, the bundled inventory and refere
 The repository-wide structural audit found no tracked empty directory that requires removal, no accidental duplicate file group, no obsolete plan artifact, and no unjustified single-child chain. The duplicate hashes correspond to intentional empty package markers, parity templates, paired usage-monitor assets, licenses, warning icons, and equivalent test configuration. The only empty skill scaffolds visible in the shared worktree are untracked parallel-session artifacts and were not modified.
 
 No receiving skill crossed the 500-line target because of this plan: the one edited skill above 500 lines was already grandfathered and grew by only 25 lines without crossing a threshold. Every new bundled script is referenced by its parent skill, the bundle audit reports zero errors, and the plan created no monolithic replacement security skill. No move, rename, deletion, archive operation, reference repair, `.gitignore` edit, or generated catalog sync was justified.
+
+## v3.15.8 Phase 1 Audit - 2026-08-02
+
+The bundled audit helper inventoried 366 active documentation files repository-wide and 68 files under `docs/v3/v3.15/` before the Phase 1 session history was added. The reference graph contained 48 referenced documentation targets. The three new contract documents, the v3.15.8 plan update, and this checkpoint all belong to the active v3.15 development record; the session history brings the expected active v3.15 total to 69.
+
+All Phase 1 documentation remains Cat 4 active/current. No file qualifies as Cat 1 deletion, Cat 2 historical archive, or Cat 3 relocation. The plan, development contracts, fixtures, and semantic tests use their canonical directories, and the v3.16.7 portable-path correction changes content only, not document ownership or placement.
+
+Phase 1 created only already-ignored Python coverage and cache outputs. Existing ignore rules cover `.coverage`, `.pytest_cache`, `.ruff_cache`, and `__pycache__`; zero `.gitignore` patterns were added. No move, rename, deletion, archive operation, or reference repair was applied.

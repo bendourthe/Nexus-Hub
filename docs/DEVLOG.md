@@ -1,5 +1,38 @@
 # Development Log
 
+## [2026-08-02] - v3.15.8 Phase 1 contracts, probes, and test foundation [decision]
+
+### What Changed
+
+Implemented Phase 1 of 9 on `feat/v3.15.8-platform-parity` in an isolated worktree. Added an 18-row global/workspace platform capability ownership matrix for Codex, Gemini CLI, Qwen, Kimi, Copilot, and Hermes; a GitHub billing data and authentication contract grounded in official user, organization, and enterprise usage APIs; eleven sanitized response and error fixtures; a visual contract for the supplied GitHub artwork; and 27 semantic tests that lock those decisions before runtime adapters or extension code are introduced. Corrected the unrelated personal absolute path in the v3.16.7 interactive-guide plan after explicit maintainer authorization, allowing the repository-wide personal-path gate to pass.
+
+### Why It Changed
+
+DF-9 and the GitHub Usage Monitor requirements span shared paths, user-owned configuration, preview billing APIs, multiple usage units, credentials, and branded assets. Later phases need stable ownership, error, allowance, and visual contracts so they cannot silently infer unsupported platform paths, overwrite user content, report false percentages, scrape billing pages, or package an unlicensed or blurry icon.
+
+### Decisions Made
+
+- Kept every newly observed Codex, Gemini CLI, Qwen, Kimi, and Copilot agent or hook surface finding-only in Phase 1. Their implementation phases must add exact owned writes plus install, upgrade, repair, verification, collision, and teardown tests before the enforced platform contract changes.
+- Kept the existing flattened Hermes skill layout enforceable because it remains discoverable and functional; the category-nested layout is an additive finding, not a migration instruction.
+- Normalized GitHub billing into explicit owner scope, product, unit, gross quantity, discount, net quantity, cost, allowance, reset, and typed error fields. Unknown allowances remain unknown instead of being converted to zero or a percentage.
+- Recorded a bounded live-probe procedure but did not claim a successful probe because no authorized billing credential was available. Phase 2 must resolve the authentication path before choosing VS Code authentication or a fine-grained token in SecretStorage.
+- Rejected upscaling the observed 14x14 PNG into a package icon and did not copy supplied artwork into the repository. Exact SVG geometry, high-resolution source material, and redistribution approval remain required.
+- Left CI unchanged because the plan defers workflow design changes; QG-2 records that `tests/plans` is not yet collected and assigns reconciliation to Phase 4 or Phase 9.
+
+### Troubleshooting Trail
+
+<details>
+<summary>Windows validation and repository gate</summary>
+
+The repository does not have `make` on this Windows host, so the commands behind `make validate` were run directly and passed their hard gates. The personal-path validator initially reported `docs/v3/v3.16/plans/v3.16.7-interactive-guide-redesign.md:11`; the maintainer explicitly brought that file into scope, its machine-specific target was replaced by `../online-portfolio/nexus-hub/index.html`, and the validator then exited 0. The full 399-case integration collection advanced without a test failure but exceeded the bounded command duration, so Phase 1 relies on 130 fresh focused passes and does not claim a fresh complete integration run.
+
+</details>
+
+### Impact & Context
+
+- **Affected**: active v3.15 development contracts, v3.15.8 plan state, sanitized GitHub usage fixtures, semantic plan tests, known gaps, cleanup report, DEVLOG, session history, and progress tracker.
+- **Deferred**: runtime adapters, installer behavior, GitHub monitor implementation, packaged visual assets, CI collection of `tests/plans`, live billing authentication proof, integration, push, and release.
+
 ## [2026-08-02] - v3.15.7 release preparation and platform audit [release]
 
 ### What Changed

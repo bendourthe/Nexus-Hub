@@ -1,6 +1,6 @@
 # Nexus-Hub Progress Dashboard
 
-**Branch:** `release/v3.15.7`
+**Branch:** `feat/v3.15.8-platform-parity`
 
 ---
 
@@ -22,6 +22,20 @@
 | Local release gates | 1 | 1 | 0 |
 | Remote publication gates | 0 | 1 | 1 |
 | Open phase blockers | 0 | 0 | 0 |
+| v3.15.8 plan phases complete | 1 | 9 | 8 |
+| v3.15.8 Phase 1 tasks complete | 7 | 7 | 0 |
+
+## Parallel Plan - v3.15.8 Platform Parity and GitHub Usage Monitor [IN PROGRESS]
+
+- [x] Phase 1 - Contracts, probes, and test foundation
+- [ ] Phase 2 - GitHub usage data and authentication core
+- [ ] Phase 3 - GitHub usage monitor extension and visual assets
+- [ ] Phase 4 - Monitor integration, reliability, and CI design checkpoint
+- [ ] Phase 5 - Codex capability parity
+- [ ] Phase 6 - Gemini CLI and Qwen hook parity
+- [ ] Phase 7 - Kimi and Copilot capability parity
+- [ ] Phase 8 - Cross-platform lifecycle and contract verification
+- [ ] Phase 9 - Architecture refactor, known-gaps reconciliation, and CI/CD
 
 ## Release Preparation - v3.15.7 [IN PROGRESS]
 
