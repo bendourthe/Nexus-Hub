@@ -5,7 +5,8 @@ import {
   queueInput,
   resetVscodeStub,
   runCommand,
-  setConfiguration
+  setConfiguration,
+  Uri
 } from "./vscode-stub";
 
 class FakeSecrets {
@@ -32,7 +33,8 @@ describe("extension authentication commands", () => {
     secrets = new FakeSecrets();
     setConfiguration("githubUsage.billingScope", "user");
     setConfiguration("githubUsage.billingOwner", "fixture-user");
-    activate({ secrets, subscriptions: [] } as never);
+    setConfiguration("githubUsage.autoFetch", false);
+    activate(context(secrets) as never);
     vi.stubGlobal("fetch", vi.fn());
   });
 
@@ -47,7 +49,8 @@ describe("extension authentication commands", () => {
     resetVscodeStub();
     setConfiguration("githubUsage.billingScope", "user");
     setConfiguration("githubUsage.billingOwner", "");
-    activate({ secrets, subscriptions: [] } as never);
+    setConfiguration("githubUsage.autoFetch", false);
+    activate(context(secrets) as never);
     await runCommand("github-usage.setToken");
     expect(messages.errors[0]).toContain("valid GitHub user name");
   });
@@ -68,3 +71,15 @@ describe("extension authentication commands", () => {
     expect(deactivate()).toBeUndefined();
   });
 });
+  const context = (secretStorage: FakeSecrets) => {
+    const values = new Map<string, unknown>();
+    return {
+      secrets: secretStorage,
+      subscriptions: [],
+      extensionUri: Uri.file("fixture-extension"),
+      globalState: {
+        get<T>(key: string): T | undefined { return values.get(key) as T | undefined; },
+        async update(key: string, value: unknown): Promise<void> { if (value === undefined) values.delete(key); else values.set(key, value); }
+      }
+    };
+  };

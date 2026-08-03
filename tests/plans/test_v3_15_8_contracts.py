@@ -215,15 +215,17 @@ def test_billing_contract_covers_scopes_permissions_and_endpoints() -> None:
     assert "No authorized billing credential or account scope was supplied" in text
 
 
-def test_visual_contract_locks_brand_dimensions_and_asset_limitations() -> None:
+def test_visual_contract_locks_brand_dimensions_and_resolved_assets() -> None:
     text = _read(VISUAL_CONTRACT_PATH)
     assert "`#651DA8`" in text
     assert 'viewBox="0 0 20 20"' in text
     assert "`14x14`" in text
-    assert "minimum `128x128`; target `256x256`" in text.lower()
-    assert "must not be blindly enlarged" in text
+    assert "`256x256` rgba png" in text.lower()
+    assert "is not used as the package-icon source" in text
     assert "DE9D1B04630AB8FC29B6E40D85B6018A6E0BD0F621BDC1BE2608663F9DFD90D8" in text
-    assert "source file is not present" in text
+    assert "76B15E4712E3B279E0A063A1E21794DC4E665FFC54B261A014E73F9A78D72B05" in text
+    assert "CC0" in text
+    assert "one visible path" in text
 
 
 @pytest.mark.parametrize(

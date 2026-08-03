@@ -92,3 +92,11 @@ The bundled audit helper inventoried 367 documentation files repository-wide and
 All Phase 2 documentation remains Cat 4 active/current. The v3.15.8 plan, shared known-gaps ledger, cleanup report, DEVLOG, progress tracker, and phase history are current implementation records in their canonical locations. No file qualifies as Cat 1 deletion, Cat 2 archive, or Cat 3 refresh or relocation.
 
 Phase 2 produced package-local build, dependency, coverage, and VSIX outputs. Root rules already covered `node_modules/`, `out/`, and `*.vsix`, but not the monitor's `coverage/` directory, so `extensions/github-usage-monitor/.gitignore` now records the package-local `node_modules/`, `out/`, `coverage/`, and `*.vsix` convention. Four scoped patterns were added. No move, rename, deletion, archive operation, or reference repair was applied.
+
+## v3.15.8 Phase 3 Audit - 2026-08-02
+
+The active documents changed in Phase 3 are the existing v3.15.8 plan, shared known-gaps ledger, visual contract, cleanup report, DEVLOG, progress tracker, and one new session history. Each remains a Cat 4 active/current record in its canonical directory. No file qualifies for deletion, archival, consolidation, or relocation, and no comparison or adoption-plan co-location changed.
+
+Phase 3 intentionally adds committed binary distribution assets under `extensions/github-usage-monitor/`: the byte-identical supplied warning PNG, deterministic WOFF2 glyph, and deterministic transparent 256x256 package PNG. They are product artifacts, not generated scratch output. Package-local `node_modules/`, `out/`, `coverage/`, and `*.vsix` remain covered by the Phase 2 `.gitignore`; zero additional ignore patterns are required.
+
+No move, rename, deletion, archive operation, or reference repair was applied. The report remains Cat 4 while v3.15.8 is active.

@@ -6,73 +6,59 @@
 
 ## Decision
 
-The monitor uses a theme-colored monochrome GitHub status glyph, the maintainer-supplied purple gradient mark in the warning panel, and `#651DA8` for usage-bar fills and neutral brand accents. Warning states always pair color with text and iconography. The 14x14 gradient bitmap must not be blindly enlarged into the packaged extension icon.
+The monitor uses a theme-colored monochrome GitHub status glyph, the maintainer-supplied Streamline purple gradient mark in the warning panel, and `#651DA8` for usage-bar fills and neutral brand accents. Warning states always pair color with explicit severity text and iconography. The 14x14 gradient bitmap is preserved byte-for-byte for alert branding and is not used as the package-icon source.
 
 ## Source Asset Inventory
 
-| Asset | Provenance | Verified dimensions / geometry | Integrity | Approved use | Distribution state |
-|---|---|---|---|---|---|
-| `%USERPROFILE%/Downloads/Github-Logo--Streamline-Flex-Gradient.png` | Maintainer-supplied local file; filename identifies Streamline Flex, but no separate license grant was supplied | `14x14` PNG with transparent background; purple-blue gradient Octocat silhouette | SHA-256 `DE9D1B04630AB8FC29B6E40D85B6018A6E0BD0F621BDC1BE2608663F9DFD90D8` | Warning-panel branding at native or integer-scaled display sizes where it remains crisp | Do not copy into the extension until redistribution permission is confirmed |
-| Maintainer-supplied GitHub status SVG | Declared by the approved plan; source file is not present in the repository or Downloads as of 2026-08-02 | Required `viewBox="0 0 20 20"`; exact paths, fills, strokes, and hash are not independently verified because the file is unavailable | Pending source attachment | Source for the monochrome icon-font glyph after geometry inspection | Blocked until the exact file is supplied and its provenance is recorded |
-| Packaged `icon.png` | Derived artifact, not yet generated | Minimum `128x128`; target `256x256` PNG | Must be reproducible from an approved high-resolution or vector source | VS Code Marketplace and VSIX extension icon | Blocked until a non-blurry approved source and license evidence exist |
+| Asset | Provenance and license | Verified dimensions / geometry | Integrity | Packaged use |
+|---|---|---|---|---|
+| `github-142-svgrepo-com.svg` | Maintainer-supplied SVG Repo asset; exact source page identifies the asset as CC0 | `viewBox="0 0 20 20"`; one visible path inside non-rendering translation wrappers; no scripts, images, or external references | SHA-256 `76B15E4712E3B279E0A063A1E21794DC4E665FFC54B261A014E73F9A78D72B05` | Normalized into `extensions/github-usage-monitor/icons/github.svg` for status glyph and vector derivatives |
+| `Github-Logo--Streamline-Flex-Gradient.png` | Maintainer-supplied Streamline Flex Gradient asset; Streamline free-license attribution is included in the package notice and warning view | `14x14` RGBA PNG with transparent background | SHA-256 `DE9D1B04630AB8FC29B6E40D85B6018A6E0BD0F621BDC1BE2608663F9DFD90D8` | Copied byte-for-byte to `extensions/github-usage-monitor/icons/github-gradient.png` for warning-panel branding |
+| `extensions/github-usage-monitor/icon.png` | Generated locally from the normalized CC0 vector silhouette with a three-stop gradient sampled from the supplied reference | `256x256` RGBA PNG with transparent background | SHA-256 `4FDF86BFE7CF22C81CD6ADF2859975883E444C69A9057F41CF66405C3C2CD556` | VS Code Marketplace and VSIX extension icon |
 
-## Geometry Contract
+## Geometry and Derivation
 
-The status SVG must satisfy all of these checks before the icon-font pipeline consumes it:
+The source wrapper translations combine to `translate(-84, -7399)`. Phase 3 applied that transform directly to the path coordinates, removed the wrapper groups, changed the fill to `currentColor`, and committed a single normalized path within the original 20x20 view box. The normalized SVG hash is `BA379E7165614DEA760B29E5616098A10FB6369771BD3857431E7BA2D5783950`.
 
-- Root `viewBox` is exactly `0 0 20 20`.
-- Geometry is a single-color silhouette or can be normalized to `currentColor` without changing the mark.
-- No embedded bitmap, external URL, script, metadata payload, or hidden off-canvas geometry exists.
-- Paths fit inside the view box without clipping at one device pixel.
-- The normalized SVG is hashed and committed beside the generation script before the WOFF2 font is generated.
-
-Because the actual SVG is unavailable, Phase 1 records these as mandatory acceptance checks rather than inventing or downloading substitute geometry.
-
-## Derivation Contract
-
-1. Inspect the supplied SVG source and record its hash, license status, and exact path count.
-2. Normalize its monochrome geometry to `currentColor` and retain the `20x20` coordinate system.
-3. Run a deterministic icon-font generator modeled on the Claude and Codex monitor pipelines. Commit the source SVG, generator, and generated WOFF2 together.
-4. Produce `icon.png` at `256x256` from an approved vector or high-resolution source. Do not use nearest-neighbor or interpolated enlargement of the 14x14 PNG as the package icon.
-5. Compare source and derivative at `16x16`, `20x20`, `32x32`, `128x128`, and `256x256`. Reject clipping, halos, broken transparency, softened edges, or a materially changed silhouette.
-
-If no approved vector or high-resolution package-icon source is available, request one from the maintainer and keep packaging blocked. The 14x14 gradient mark may still be used inside the warning panel after redistribution approval because that use does not claim marketplace-icon fidelity.
+`scripts/generate-icon-font.js` scales and flips the normalized 20x20 path into a 1024-unit font glyph at `U+E102`, then writes `fonts/github-icons.woff2`. `scripts/generate-package-icon.js` injects the approved gradient into the same vector geometry and rasterizes a transparent 256x256 PNG with Sharp. Neither pipeline reads or enlarges the 14x14 warning raster.
 
 ## Color and Theme States
 
 | Surface | Light theme | Dark theme | High contrast |
 |---|---|---|---|
-| Status-bar glyph | VS Code status-bar foreground via icon font; no baked color | VS Code status-bar foreground via icon font; no baked color | System foreground; glyph remains a filled silhouette with no gradient dependency |
-| Usage-bar fill | `#651DA8` on a neutral track with readable numeric text | `#651DA8` on a neutral dark track with readable numeric text | System highlight or bordered fill when `#651DA8` does not meet forced-color requirements |
-| Warning panel mark | Gradient mark may appear as secondary branding on a neutral background | Gradient mark may appear as secondary branding with sufficient edge contrast | Hide decorative gradient if forced colors erase it; retain GitHub label and warning icon |
-| Warning severity | Icon plus explicit `Warning` or `Critical` text; color is supplemental | Icon plus explicit `Warning` or `Critical` text; color is supplemental | System warning colors plus text and icon |
+| Status-bar glyph | VS Code status-bar foreground through the icon font | VS Code status-bar foreground through the icon font | System foreground; the filled silhouette has no gradient dependency |
+| Usage-bar fill | `#651DA8` on a neutral track with numeric text | `#651DA8` on a neutral dark track with numeric text | Semantic labels and values remain present even when forced colors replace the fill |
+| Warning panel mark | Gradient mark is secondary branding on the panel background | Gradient mark remains secondary to severity text | Decorative image has empty alt text; GitHub title, severity word, and warning icon retain meaning |
+| Warning severity | Icon plus `Moderate`, `High`, or `Critical` text | Icon plus explicit severity text | System warning/error border plus text and distinct icon |
 
-`#651DA8` is the canonical meter fill, not a severity-only signal. Text contrast is evaluated against the panel background independently; white text is not placed directly over the narrow gradient bitmap.
+## Accessibility and Package Checks
 
-## Accessibility Checks
-
-- Every meter has a text label, used value, unit, source, freshness, and allowance state.
-- Unknown allowances use absolute values and never render a percentage bar with an invented maximum.
-- Warning and critical states use icons and words in addition to color.
-- Light, dark, and high-contrast screenshots include the status bar, hover, dashboard, and warning panel.
-- At 200 percent zoom, labels and values remain visible without overlap or truncation.
-- Forced-colors mode retains a visible glyph outline or system foreground fill.
+- Every percentage meter has `role="meter"`, an accessible label, numeric value, used amount, unit, allowance source, reset, owner, source, and freshness context.
+- Unknown allowances use a bordered absolute-usage treatment and never render a percentage or invented maximum.
+- Dashboard and settings controls are keyboard-focusable and expose visible `:focus-visible` outlines.
+- Dashboard layout uses VS Code theme tokens, responsive breakpoints, and `prefers-reduced-motion`; warning severity is not color-only.
+- Webview CSP blocks external loads. The only external URL is a user-activated attribution link; no remote image, font, style, or script is fetched.
+- The generated VSIX includes `icon.png`, `icons/github.svg`, `icons/github-gradient.png`, `icons/warning.svg`, `fonts/github-icons.woff2`, and `THIRD_PARTY_NOTICES.md`; it excludes tests, coverage, source maps, and dependencies.
+- Automated structural smoke tests cover light/dark/high-contrast-compatible theme tokens and semantic fallback. Interactive Extension Development Host screenshots remain a recorded manual verification gap because this session cannot observe the VS Code GUI.
 
 ## License and Trademark Gate
 
-The filename alone is not license evidence. Before either source asset is committed, the maintainer must confirm the redistribution right or provide the applicable Streamline license record. GitHub marks must follow GitHub logo and trademark guidance: do not imply GitHub endorsement, alter the Octocat into a different character, or use the mark as Nexus-Hub's own product identity. The extension name and description must state that it is an independent usage monitor.
+The status source is published as CC0 by SVG Repo. The Streamline free icon is used with the required "Free icon from Streamline" attribution in `THIRD_PARTY_NOTICES.md` and the warning view. The extension is titled "GitHub Usage Monitor" and described as an independent monitor; no text claims endorsement. The mark remains an Octocat silhouette and is not presented as Nexus-Hub's product identity.
 
-## Mechanical Acceptance Criteria
+## Mechanical Acceptance Results
 
-- The visual contract contains `#651DA8` exactly.
-- The source status SVG requirement contains `viewBox="0 0 20 20"` exactly.
-- The source bitmap record contains `14x14` and its SHA-256.
-- The package icon record contains minimum `128x128` and target `256x256`.
-- The contract explicitly rejects enlarging the 14x14 bitmap into the package icon.
-- The license/trademark gate is resolved before an asset enters a VSIX.
+- [x] The usage-bar fill contains `#651DA8` exactly.
+- [x] The normalized status SVG contains `viewBox="0 0 20 20"`, one path, no wrapper group, and no external load.
+- [x] The supplied bitmap remains `14x14` with its original SHA-256.
+- [x] The package icon is a transparent `256x256` vector-derived PNG, not a raster upscale.
+- [x] Redistribution terms and required attribution are recorded in the package.
+- [x] Font, gradient artwork, package icon, and notice are included in the VSIX.
 
 ## Sources
 
+- [SVG Repo asset page and CC0 license](https://www.svgrepo.com/svg/512317/github%20142.svg)
+- [Streamline free license](https://help.streamlinehq.com/en/articles/5354376-streamline-free-license)
+- [Streamline attribution guidance](https://help.streamlinehq.com/en/articles/5354403-how-to-create-an-attribution-link/)
+- [Streamline GitHub Flex Gradient asset](https://www.streamlinehq.com/icons/download/github--27759)
 - [VS Code extension manifest and icon requirements](https://code.visualstudio.com/api/references/extension-manifest)
 - [GitHub Logos and Usage](https://github.com/logos)
-- Existing local icon pipelines: `extensions/claude-usage-monitor/scripts/generate-icon-font.js` and `extensions/codex-usage-monitor/scripts/generate-icon-font.js`

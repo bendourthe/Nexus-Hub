@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: The v3.15 line now includes v3.15.0 through v3.15.7. Release PR #28 and usage-monitor repair PR #29 are merged into `develop`; a focused Windows PowerShell 5.1 CI repair is the remaining develop gate before main promotion, post-merge CI, tag, and GitHub Release. Earlier release history and per-phase evidence remain in the sections below.
-**Last updated**: 2026-08-02 (v3.15.8 Phase 2 checkpoint; v3.15.7 release status retained below)
+**Last updated**: 2026-08-02 (v3.15.8 Phase 3 checkpoint; v3.15.7 release status retained below)
 
 **Current v3.15.7 status**: Implementation is complete and merged into `develop`. The release scope is fixed: evidence-closed security review hardening, Codex Usage Monitor Extra Credits, the isolated installer import-cycle fix, and CI corrections discovered by the reactivated pipelines. Newly verified additive platform capabilities are explicitly deferred to v3.15.8. The maintainer authorized the remote sequence; both repaired monitor workflows pass on the merged `develop` commit, and the Windows PowerShell 5.1 push-gate repair must pass before main promotion, post-merge CI, tag, and GitHub Release proceed in order.
 
@@ -1100,3 +1100,47 @@ Phase 2 adds the independent `extensions/github-usage-monitor/` TypeScript packa
 | Hand-offs (HO) | 0 | 1 |
 
 **Carryovers.** DF-10 remains owned by Phase 3 visual packaging, and QG-2 remains owned by Phase 4 or Phase 9 repository-CI reconciliation. Phase 2 adds only QG-3; it introduces no skipped implementation, known bug, suppressed warning, or uncovered source file.
+
+### v3.15.8 Phase 3 checkpoint
+
+Phase 3 adds the GitHub Usage Monitor status item, detailed hover, theme-adaptive dashboard, secure settings surface, threshold recommendations, de-duplicated activity-bar warning view, normalized icon-font glyph, supplied gradient alert mark, vector-derived 256x256 package icon, third-party notice, and 16 focused UI and asset tests. The package preserves absolute-only display for unknown allowances, uses `#651DA8` for meters, escapes provider content, and packages without source, tests, coverage, dependencies, or source maps.
+
+### v3.15.8 Phase 3 Open Items
+
+#### Missing tests / coverage gaps
+
+##### MT-5 - Extension activation and live VS Code lifecycle branches remain below 80 percent file coverage
+
+- **Source phase**: v3.15.8 Phase 3.5 - Testing and Stabilization.
+- **Plan reference**: `docs/v3/v3.15/plans/v3.15.8-platform-parity-and-github-usage-monitor.md` (sub-task 3.5).
+- **Reason**: global package coverage passes at 82.09% statements, 77.93% branches, 85.27% functions, and 87.32% lines, but `src/extension.ts` remains at 34.74% statements because authorized refresh, native settings dispatch, toast actions, and repeated activation timing require broader VS Code lifecycle integration than the current unit stub provides.
+- **Suggested next step**: add Extension Development Host integration coverage for activation, authorized refresh, native settings dispatch, alert actions, and configuration changes during Phase 4 packaging or Phase 9 final reconciliation.
+
+#### Quality-gate gaps
+
+##### QG-4 - Interactive light, dark, and high-contrast visual smoke remains unobserved
+
+- **Source phase**: v3.15.8 Phase 3.5 - Testing and Stabilization.
+- **Plan reference**: `docs/v3/v3.15/plans/v3.15.8-platform-parity-and-github-usage-monitor.md` (sub-task 3.5).
+- **Reason**: VS Code CLI 1.131.0 is installed, but this non-interactive session cannot observe or capture the Extension Development Host GUI. Automated tests verify theme tokens, semantic meter and alert labels, focus-visible styling, responsive layout, reduced motion, CSP, escaping, and unknown-limit fallback, but they are not screenshots or a human visual inspection.
+- **Suggested next step**: during Phase 4 packaging, install the locally built VSIX into an isolated Extension Development Host and capture status, hover, dashboard, settings, and warning surfaces in light, dark, high-contrast, keyboard-only, 200 percent zoom, and forced-colors modes.
+
+### v3.15.8 Phase 3 Resolved
+
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+| DF-10 | Exact GitHub status SVG and redistribution evidence unavailable | Phase 3 | The maintainer supplied both assets. SVG Repo identifies the exact SVG as CC0; Streamline's free-license and attribution terms cover the supplied warning mark. The normalized one-path SVG, byte-identical 14x14 PNG, WOFF2 glyph, vector-derived 256x256 icon, hashes, and attribution are recorded in the visual contract and package notice. |
+
+### v3.15.8 Phase 3 Summary
+
+| Category | Open | Resolved |
+|---|---:|---:|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 1 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 1 | 0 |
+| Quality-gate gaps (QG) | 1 | 0 |
+| Hand-offs (HO) | 0 | 0 |
+
+**Carryovers.** QG-2 and QG-3 remain owned by Phase 4 or Phase 9 CI reconciliation. Authorized live billing verification remains a release-readiness activity. Phase 3 adds MT-5 and QG-4; it introduces no skipped implementation, known production bug, suppressed warning, or bypassed hard gate.

@@ -1,5 +1,38 @@
 # Development Log
 
+## [2026-08-02] - v3.15.8 Phase 3 GitHub monitor UX, alerts, and brand assets [feature]
+
+### What Changed
+
+Completed the GitHub Usage Monitor user experience on top of the Phase 2 provider: a right-aligned status item and detailed hover, responsive theme-adaptive dashboard, SecretStorage-safe settings surface, percentage-only threshold recommendations, de-duplicated timed activity-bar warnings, and extension refresh/clear/manual-settings lifecycle. Added the normalized one-path GitHub SVG, deterministic WOFF2 icon font, byte-identical supplied Streamline gradient warning mark, vector-derived transparent 256x256 package icon, attribution notice, and 16 focused UI and asset tests, bringing the package to 88 tests.
+
+### Why It Changed
+
+Phase 3 needed to turn the stable billing domain into an operational VS Code surface without inventing plan limits, leaking tokens, creating notification storms, relying on color alone, or degrading the supplied 14x14 artwork into a blurry package icon. The maintainer supplied the previously blocked PNG and SVG, allowing DF-10 to close with independently verified provenance and deterministic derivatives.
+
+### Decisions Made
+
+- Kept status ordering compatible with Claude priority 105 and Codex priority 103 by assigning GitHub priority 101.
+- Rendered unknown allowances as absolute values with an explicit unknown state; only finite metrics with verified denominators can produce bars or percentage alerts.
+- Reused the normalized CC0 vector silhouette for both the icon font and package icon. The supplied 14x14 Streamline PNG remains byte-identical and is used only in the warning view with required attribution.
+- Used VS Code theme tokens, semantic meter roles, explicit severity words/icons, escaped provider content, strict CSP, visible focus states, responsive layout, and reduced-motion support.
+- Kept interactive visual QA and low-covered activation branches visible as MT-5 and QG-4 rather than treating structural tests as live GUI evidence.
+
+### Troubleshooting Trail
+
+<details>
+<summary>Manifest, asset assertion, coverage, timeout, and lockfile repairs</summary>
+
+The first npm install found an extra closing brace in `package.json`; a narrow manifest correction restored valid JSON. Asset generation then succeeded, while TypeScript reported `TS2532: Object is possibly 'undefined'` for the highest status metric; introducing an explicit first-element guard fixed the strict check. The first UI suite reached 83/84 passes because the no-external-reference assertion matched the mandatory `xmlns="http://www.w3.org/2000/svg"`; the check now rejects external `href` or `src` values instead, and the SVG path itself was normalized to remove its transform. Initial coverage passed branches/functions/lines but missed the 80% statement gate at 76.81%; lifecycle tests for status, dashboard, settings, and warning providers raised statements to 82.52%. Review also found the warning timeout was armed only after the toast promise resolved; it now runs concurrently and has a fake-timer test. Finally, `npm ci` reported `Missing: @emnapi/runtime@2.0.0-alpha.3 from lock file`; a full `npm install` repaired the native dependency resolution, after which clean `npm ci` passed.
+
+</details>
+
+### Impact & Context
+
+- **Affected**: `extensions/github-usage-monitor/`, the v3.15.8 plan, visual contract, known-gaps ledger, cleanup report, progress tracker, DEVLOG, and Phase 3 history.
+- **Verified**: clean npm install, deterministic asset generation, TypeScript compile, 88 tests, 82.09% statements, 77.93% branches, 85.27% functions, 87.32% lines, VSIX packaging and content inspection, source/asset hashes, secret and personal-path search, direct Windows equivalents of every `make validate` hard gate, and `git diff --check` during implementation.
+- **Deferred**: remote CI collection remains QG-2/QG-3 for Phase 4 or Phase 9; live billing credentials and interactive light/dark/high-contrast Extension Development Host inspection remain release-readiness work. No push or release action was performed.
+
 ## [2026-08-02] - v3.15.8 Phase 2 GitHub billing provider and secure authentication [feature]
 
 ### What Changed
