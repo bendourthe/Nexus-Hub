@@ -4,9 +4,9 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.15.7 -->
+<!-- nexus-hub-version: 3.15.8 -->
 
-Nexus-Hub is the upstream skill catalog for AI coding assistants: 270 skills, 17 commands, 29 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
+Nexus-Hub is the upstream skill catalog for AI coding assistants: 270 skills, 17 commands, 30 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
 ## Interactive Guide -- start here
 
@@ -30,12 +30,22 @@ Nexus-Hub is the upstream skill catalog for AI coding assistants: 270 skills, 17
 
 Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of the same idea, split along a deliberate seam.
 
-- **Nexus-Hub (this repo)** is the catalog: 270 curated skills, 17 commands, 29 hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`). It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
+- **Nexus-Hub (this repo)** is the catalog: 270 curated skills, 17 commands, 30 hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`). It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
 - **Nexus** is a local-first desktop AI Studio that consumes Nexus-Hub as its skill feed. Nexus's `AGENTS.md` names this repo as "the only external project we deliberately link to" -- the upstream feed for its skill harness.
 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v3.15.8
+
+v3.15.8 closes the platform-capability gap the v3.15.7 audit opened, and adds a fourth usage monitor. Every one of the 18 rows in the platform ownership matrix is now enforceable rather than finding-only: **Codex** receives custom agents as native TOML plus hooks merged into `hooks.json` with a PowerShell command beside every shell one; **Gemini CLI** and **Qwen** receive hooks merged into their own `settings.json`; **Kimi Code CLI** receives agents and a marker-managed `[[hooks]]` block in `config.toml` that preserves the user's comments and tables byte-for-byte; and **Copilot** receives custom agents at `~/.copilot/agents`.
+
+Two of those results are worth stating plainly, because they are the opposite of what the plan assumed. Copilot already reads Nexus-Hub's hooks and project agents through its own default Claude-format read paths, so those surfaces are documented as **inherited** rather than duplicated into commit-visible `.github/` copies. And Hermes discovery probes only direct subdirectories, so the existing flattened skill layout is required rather than merely tolerated - a category-nested migration would have broken it. Where a platform genuinely does not support something, that is recorded instead of inferred: Kimi documents no project-scoped hook path, and Gemini CLI's extension-packaged hooks have no documented direct-write path.
+
+The new **GitHub Usage Monitor** VS Code extension tracks Copilot premium requests and Actions minutes and storage across user, organization, and enterprise scopes. It stores its fine-grained token only in `ExtensionContext.secrets`, never invents a denominator for a quota GitHub does not report, scrapes nothing, and both installers build and install it alongside the Claude and Codex monitors.
+
+Repository hygiene improved alongside the features: every workflow now declares least-privilege permissions and a bounded job timeout, enforced by repo-wide policy tests; a shared `_hooks_common` module replaced the duplication four platform adapters had accumulated; and the GitHub monitor's lockfile is now platform-portable after a native build-time dependency that made it Linux-incomplete was removed. Catalog counts are **270 skills**, **17 commands**, **30 hooks**, and **23 agents**.
 
 ## What's New in v3.15.7
 
@@ -202,7 +212,7 @@ That is the whole setup -- no prompts. The installer prechecks its dependencies 
 
 After the installer completes:
 
-- **Globally**: your user profile has all 270 skills, 17 commands, 29 hooks, 23 agents, plus Gemini and Codex instructions.
+- **Globally**: your user profile has all 270 skills, 17 commands, 30 hooks, 23 agents, plus Gemini and Codex instructions.
 - **Locally**: your project has `copilot-instructions.md` and `AGENTS.md` tailored to your language.
 
 **Power-user flags**: `--workspace <path>` installs into a single repo instead of globally; `--platforms <comma-list>` limits the install to a subset of assistants; `--yes` runs fully unattended (refreshes managed files with no prompt -- ideal for CI). Prefer to clone first? `git clone` the repo and run `./install.sh` (macOS / Linux) or `install.bat` (Windows) -- the in-repo path still works exactly as before.

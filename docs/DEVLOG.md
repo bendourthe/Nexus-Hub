@@ -1,5 +1,36 @@
 # Development Log
 
+## [2026-08-03] - v3.15.8 release: platform capability parity + GitHub Usage Monitor [release]
+
+### What Changed
+
+Cut v3.15.8. Merged `feat/v3.15.8-platform-parity` into `develop` (nine phase commits), bumped every version-carrying surface from 3.15.7 to 3.15.8, wrote the CHANGELOG entry and the README "What's New" section, corrected two documentation counts that had drifted, re-stamped the platform read-contract for the release, and regenerated the supply-chain manifest.
+
+### Why It Changed
+
+v3.15.7 shipped with documented additive drift: the release-time audit found native agent and hook capabilities across five platforms that Nexus-Hub did not yet deliver, recorded as DF-9 and deferred here rather than expanding that release. v3.15.8 consumes that finding in full.
+
+### Decisions Made
+
+- Re-stamped `meta.verified_for_version` to 3.15.8 on the strength of six platforms re-verified against live documentation during Phases 5-8 (Codex, Gemini CLI, Qwen, Kimi, Copilot, Hermes), and recorded explicitly in the stamp note that the other nine were audited one day earlier for v3.15.7 and carried forward unchanged. The freshness guard is a claim about evidence, so the note says exactly which platforms the evidence covers.
+- Corrected the documented hook count from 29 to 30 and left the command count at 17, which is correct once the three permanent aliases are excluded from the 20 command files.
+- Kept the release on `develop` with a direct merge rather than a PR, per the maintainer's choice, with CI validating the merged result on the push.
+
+### Troubleshooting Trail
+
+<details>
+<summary>PowerShell re-encoded three files during the version bump</summary>
+
+The first bump used `Set-Content -Encoding utf8`, which both prepends a BOM and re-encodes non-ASCII characters. `check_version_sync.py` caught the BOM immediately ("Unexpected UTF-8 BOM"), but stripping it revealed worse damage underneath: `AGENTS.md` showed 124 changed lines for a one-word edit, `installer.sh` failed ShellCheck on a mangled quote character, and `installer.ps1` failed its AST parse with 47 errors. All six files were reverted and every edit reapplied through Python with an explicit UTF-8 codec and `newline=''`, which brought the diff down to two lines per installer. This is the same class `AGENTS.md` already warns about for `.ps1` hook siblings; the warning now has a second instance behind it.
+
+</details>
+
+### Impact & Context
+
+- **Affected**: `.claude-plugin/plugin.json`, `data/marketplace.json`, `scripts/installer.sh`, `scripts/installer.ps1`, `README.md`, `AGENTS.md`, `CHANGELOG.md`, `docs/policy/platform-read-contracts.json`, `MANIFEST.sha256`, the v3.15 known-gaps ledger, and this DEVLOG.
+- **Verified**: version sync clean at 3.15.8 across all six surfaces, both contract guards green, ShellCheck and the PowerShell AST parse clean after the re-encode repair, and the full local gate from Phase 9 (2360 tests, zero failures) plus green CI on `develop`.
+- **Deferred**: the consolidated live-observation pass (five platform surfaces, the interactive visual smoke, and an authorized billing refresh) and extension activation coverage, transferred to v3.15.9.
+
 ## [2026-08-03] - v3.15.8 Phase 9 architecture refactor, gap reconciliation, and CI/CD [refactor]
 
 ### What Changed
