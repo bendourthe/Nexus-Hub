@@ -1,5 +1,39 @@
 # Development Log
 
+## [2026-08-03] - v3.15.8 Phase 9 architecture refactor, gap reconciliation, and CI/CD [refactor]
+
+### What Changed
+
+Closed the plan. Added `scripts/lib/integrations/_hooks_common.py` (126 lines) and removed 152 lines from the four native-hook adapters Phases 5-8 built, collapsing three copies of the script-basename split, two of the ownership predicate, and two of the host-command builder into one each. Reconciled every v3.15.8 gap: DF-9 closes with all 18 ownership rows enforceable, DF-11 is accepted as a retained difference, MT-5 transfers to v3.15.9, and MT-6/7/8 plus QG-4 consolidate into one release-readiness live pass. The repo-wide workflow audit found two uniform gaps and fixed both: six workflows declared no `permissions` and none declared `timeout-minutes`. Added `tests/workflows/test_workflow_policy_repo_wide.py` (70 assertions across all 8 workflows) so a new workflow inherits the standard by failing rather than by review.
+
+### Why It Changed
+
+Four phases of platform adapters accumulated the same three low-level operations in each module, and Kimi ended up importing host helpers from a file named after Gemini CLI -- a dependency that read as intentional and was not. The workflow gaps were invisible per-workflow and only showed up in a field-by-field comparison across all eight, which is exactly what 9.3 asked for.
+
+### Decisions Made
+
+- Kept the per-platform differences per-platform. Event maps, matcher vocabularies, file formats, and merge strategies stayed in their own modules, because those divergences are real and collapsing them would hide the schema differences the read contract exists to document. Only the operations that were genuinely identical moved.
+- Left `codeql.yml` alone. Its job-level `security-events: write` is required to upload results, a job-level block replaces the default outright, and narrowing it would break the security scan. Encoded as a documented exception in the policy test rather than a silent skip.
+- Sized timeouts generously (60 minutes for the two long test jobs and CodeQL, 30 elsewhere) rather than tightly. The repository suites run 17-28 minutes locally with no CI baseline in this branch to size from, and a wrong timeout fails the release gate; 30-60 is still an order of magnitude below the 6-hour default.
+- Accepted DF-11 rather than reversing it, because the audit confirmed per-path job gating was never adopted repo-wide, so its premise still holds. The compensating control is now test-asserted instead of merely described.
+- Transferred MT-5 to v3.15.9 rather than deferring it indefinitely: an Extension Development Host harness is its own piece of work, and package coverage already passes its thresholds.
+- Consolidated the four live-observation items into one pass. They share a single precondition -- a host with those products installed -- so tracking them separately would have implied four independent checks.
+
+### Troubleshooting Trail
+
+<details>
+<summary>Two audit-script regex bugs that would have hidden the real gaps</summary>
+
+The first workflow audit reported no path filters anywhere and permissions on only two files. Both were wrong: `re.search` with a `^`-anchored pattern and no `re.M` only matches the start of the whole file, so `paths:` and indented `permissions:` were invisible. Re-running with multiline anchors showed 7 of 8 workflows do filter by path (with `ci.yml` correctly using `paths-ignore` as the catch-all) and that the real gap was six workflows declaring no permissions at all. Worth noting because the first result would have led to fixing something that was not broken while missing what was.
+
+</details>
+
+### Impact & Context
+
+- **Affected**: `scripts/lib/integrations/_hooks_common.py` (new), `_settings_hooks.py`, `_settings_hooks_mixin.py`, `_codex_native.py`, `_kimi_native.py`, `kimi.py`, `gemini_cli.py`, `qwen.py`, all eight `.github/workflows/*.yml`, `tests/workflows/test_workflow_policy_repo_wide.py` (new), the v3.15.8 plan, known-gaps ledger, cleanup report, and Phase 9 history.
+- **Verified**: the full `pytest tests catalog/hooks/tests` sweep at **2360 passed, 56 skipped, zero failures** -- the first fully clean sweep of this plan; 70 workflow-policy assertions; the GitHub monitor chain from a clean `npm ci` through compile, 103 tests, 82.09% statements, a 39-file VSIX, and 37-file content verification; every `make validate` gate individually; ShellCheck and a PowerShell AST parse; and `git diff --check`.
+- **Deferred**: DF-10 and QG-4 (asset and GUI environment limits), DF-12 and DF-13 (upstream-blocked), HO-4 (interactive trust by design), MT-5 (transferred to v3.15.9), and the consolidated live-observation pass. No push or release action was performed by this phase; the remote sequence is a separate, approval-gated step.
+
 ## [2026-08-03] - v3.15.8 Phase 8 Copilot agents and hooks, Hermes layout verification [feature]
 
 ### What Changed

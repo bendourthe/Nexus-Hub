@@ -60,8 +60,13 @@ from pathlib import Path
 import tomllib
 
 from ._catalog_adapters import _split_frontmatter
+from ._hooks_common import (
+    command_for,
+    script_basename,
+    script_for_host,
+    sibling_scripts,
+)
 from ._owned import write_owned_file
-from ._settings_hooks import command_for, script_for_host
 from .base import IntegrationBase
 from .result import FileAction
 
@@ -207,13 +212,6 @@ def _matcher_regex(matcher: str) -> str | None:
     return f"^({'|'.join(names)})$"
 
 
-def _script_name(command: str) -> str | None:
-    parts = command.split()
-    if len(parts) < 2:
-        return None
-    return os.path.basename(parts[-1])
-
-
 def build_kimi_hooks(
     settings: dict, src_hooks_dir: Path, command_base: str, windows: bool
 ) -> tuple[list[dict], set[str], list[str]]:
@@ -241,7 +239,7 @@ def build_kimi_hooks(
                 skipped.append(f"{event}/{source_matcher}: no Kimi tool of that name")
                 continue
             for handler in group.get("hooks", []):
-                script = _script_name(handler.get("command", ""))
+                script = script_basename(handler.get("command", ""))
                 if script is None:
                     continue
                 host_script = script_for_host(script, windows)
@@ -252,10 +250,7 @@ def build_kimi_hooks(
                 # Ship the other sibling too, so re-running the installer on a
                 # different OS only has to re-point the command.
                 if not script.endswith(".py"):
-                    for sibling in (
-                        f"{Path(script).stem}.sh",
-                        f"{Path(script).stem}.ps1",
-                    ):
+                    for sibling in sibling_scripts(script):
                         if (src_hooks_dir / sibling).exists():
                             scripts.add(sibling)
                 command = command_for(host_script, command_base, windows)

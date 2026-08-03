@@ -16,6 +16,12 @@ on:
 
 # v3.11.0 Phase 7.5 / 8.4 CI optimization: cancel superseded runs of the same ref
 # (the single largest action-minute saver) so only the latest push/PR commit runs.
+# v3.15.8 Phase 9.3: least privilege. This workflow builds and tests only --
+# no artifact upload, no gh CLI, no comments, no pushes -- so read-only
+# contents is the complete requirement.
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -23,6 +29,7 @@ concurrency:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
@@ -146,6 +153,7 @@ jobs:
 
   shellcheck:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
@@ -220,6 +228,7 @@ jobs:
         # pushes to shared branches, where real-platform proof matters.
         os: ${{ github.event_name == 'pull_request' && fromJSON('["ubuntu-latest"]') || fromJSON('["ubuntu-latest","macos-latest"]') }}
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
@@ -306,6 +315,7 @@ jobs:
     # against a GitHub-shaped tarball of the checkout (zero network), then asserts a
     # populated ~/.nexus-hub and a working `nexus-hub --version`.
     runs-on: windows-latest
+    timeout-minutes: 30
     # Cost control: Windows is a 2x-minute runner. Run the real end-to-end
     # bootstrap on pushes only, not on PRs (PRs still get the pwsh AST-parse in
     # the `bootstrap` job).
@@ -368,6 +378,7 @@ jobs:
     # Invoke pytest as a module so the checkout root remains importable by
     # tests that exercise the repository's `scripts` package.
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
@@ -451,6 +462,7 @@ jobs:
     # Cost control: windows-latest is a 2x-minute runner, so this runs on pushes
     # only, matching the bootstrap-windows and install-smoke gating.
     runs-on: windows-latest
+    timeout-minutes: 60
     if: ${{ github.event_name != 'pull_request' }}
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
@@ -520,6 +532,7 @@ jobs:
       matrix:
         os: ${{ github.event_name == 'pull_request' && fromJSON('["ubuntu-latest"]') || fromJSON('["ubuntu-latest","macos-latest","windows-latest"]') }}
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 

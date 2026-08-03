@@ -34,6 +34,12 @@ guardrails, a POSIX install registers the ``.sh`` and the Bash-flavored ones.
 Both siblings are copied either way, so re-running the installer on the other OS
 re-points the registration without touching the scripts.
 
+The low-level pieces this shares with the other native-hook adapters -- host
+command construction, the script-basename split, and the ownership predicate --
+live in ``_hooks_common`` since v3.15.8 Phase 9. What stays here is what is
+genuinely specific to these two platforms: the event maps, the tool-id matcher
+vocabulary, and the settings.json merge.
+
 **Ownership is the handler ``name``.** Both schemas carry an optional ``name``
 for logging, which makes it the natural stable identity: every Nexus-Hub handler
 is named ``nexus-hub:<script-stem>``. That survives a path change, and it is
@@ -52,6 +58,16 @@ import os
 from dataclasses import dataclass, field
 from pathlib import Path
 
+from ._hooks_common import (
+    OWNED_NAME_PREFIX,
+    command_for,
+    host_shell,
+    is_windows_host,
+    script_basename,
+    script_for_host,
+    sibling_scripts,
+    strip_owned_handlers,
+)
 from .result import FileAction
 
 # Nexus-Hub matcher token -> the tool id its platform actually exposes. Both
@@ -69,8 +85,6 @@ _TOOL_IDS = {
 # Matchers with no tool of that kind on either platform. `Skill` has no
 # equivalent because neither CLI surfaces skill invocation as a tool call.
 _UNMAPPABLE_MATCHERS = frozenset({"Skill"})
-
-OWNED_NAME_PREFIX = "nexus-hub:"
 
 # Milliseconds. Both platforms default to 60000 and run hooks synchronously, so
 # an explicit, shorter budget keeps a wedged guardrail from stalling the agent
@@ -151,44 +165,7 @@ QWEN_SPEC = SettingsHookSpec(
 )
 
 
-# ----- host-aware command construction ------------------------------------
-
-
-def is_windows_host() -> bool:
-    """True when the installing host runs Windows.
-
-    Isolated in a function so tests can exercise both branches without touching
-    ``os.name``, and so the single place this decision is made is obvious.
-    """
-    return os.name == "nt"
-
-
-def host_shell(windows: bool) -> str:
-    return "powershell" if windows else "bash"
-
-
-def script_for_host(script: str, windows: bool) -> str:
-    """Return the sibling of ``script`` that the host can execute.
-
-    Relies on the v3.15.6 invariant that every ``catalog/hooks/<name>.sh`` ships
-    a behavior-matched ``<name>.ps1``. Python hooks are cross-platform already
-    and are returned unchanged.
-    """
-    if script.endswith(".py"):
-        return script
-    if windows:
-        return f"{Path(script).stem}.ps1"
-    return f"{Path(script).stem}.sh"
-
-
-def command_for(script: str, base: str, windows: bool) -> str:
-    """Build the command string that runs ``script`` out of ``base``."""
-    target = f"{base}/{script}"
-    if script.endswith(".py"):
-        return f"{'python' if windows else 'python3'} {target}"
-    if windows:
-        return f'powershell -NoProfile -ExecutionPolicy Bypass -File "{target}"'
-    return f'bash "{target}"'
+# ----- command paths -------------------------------------------------------
 
 
 def command_base(
@@ -241,14 +218,6 @@ def _matcher_regex(matcher: str, windows: bool) -> str | None:
     return f"^({'|'.join(tool_ids)})$"
 
 
-def _split_command(command: str) -> str | None:
-    """Return the script basename from a ``catalog/hooks/settings.json`` command."""
-    parts = command.split()
-    if len(parts) < 2:
-        return None
-    return os.path.basename(parts[-1])
-
-
 def build_settings_hooks(
     spec: SettingsHookSpec,
     settings: dict,
@@ -283,7 +252,7 @@ def build_settings_hooks(
                 continue
             handlers: list[dict] = []
             for handler in group.get("hooks", []):
-                script = _split_command(handler.get("command", ""))
+                script = script_basename(handler.get("command", ""))
                 if script is None:
                     continue
                 host_script = script_for_host(script, windows)
@@ -295,12 +264,10 @@ def build_settings_hooks(
                 scripts.add(host_script)
                 # The other sibling ships too, so re-running the installer on a
                 # different OS only has to re-point the registration.
-                for sibling in (f"{Path(script).stem}.sh", f"{Path(script).stem}.ps1"):
-                    if (
-                        not script.endswith(".py")
-                        and (src_hooks_dir / sibling).exists()
-                    ):
-                        scripts.add(sibling)
+                if not script.endswith(".py"):
+                    for sibling in sibling_scripts(script):
+                        if (src_hooks_dir / sibling).exists():
+                            scripts.add(sibling)
                 stem = Path(script).stem
                 entry: dict[str, object] = {
                     "type": "command",
@@ -330,39 +297,6 @@ def build_settings_hooks(
 
 
 # ----- ownership-scoped merge ---------------------------------------------
-
-
-def _handler_is_owned(handler: dict, owned_base: str) -> bool:
-    name = handler.get("name")
-    if isinstance(name, str) and name.startswith(OWNED_NAME_PREFIX):
-        return True
-    command = handler.get("command")
-    return isinstance(command, str) and owned_base in command
-
-
-def _strip_owned(groups: list, owned_base: str) -> list:
-    """Drop Nexus-Hub handlers, keeping every group and handler that is not ours.
-
-    Filtering is per handler rather than per group, so a user who added their own
-    handler beside ours under the same matcher keeps it.
-    """
-    kept: list = []
-    for group in groups:
-        if not isinstance(group, dict) or "hooks" not in group:
-            kept.append(group)
-            continue
-        handlers = [
-            handler
-            for handler in group.get("hooks", [])
-            if not (
-                isinstance(handler, dict) and _handler_is_owned(handler, owned_base)
-            )
-        ]
-        if handlers:
-            survivor = dict(group)
-            survivor["hooks"] = handlers
-            kept.append(survivor)
-    return kept
 
 
 def _load_settings(path: Path, log) -> dict | None:
@@ -403,7 +337,7 @@ def merge_settings_hooks(
     merged = dict(existing)
     hooks = dict(merged.get("hooks") or {})
     for event in list(hooks):
-        hooks[event] = _strip_owned(list(hooks[event] or []), owned_base)
+        hooks[event] = strip_owned_handlers(list(hooks[event] or []), owned_base)
     for event, groups in owned_events.items():
         hooks[event] = list(hooks.get(event) or []) + list(groups)
     surviving = {event: groups for event, groups in hooks.items() if groups}
@@ -448,7 +382,7 @@ def prune_settings_hooks(dst: Path, owned_base: str, dry_run: bool) -> FileActio
 
     hooks = dict(parsed.get("hooks") or {})
     for event in list(hooks):
-        survivors = _strip_owned(list(hooks[event] or []), owned_base)
+        survivors = strip_owned_handlers(list(hooks[event] or []), owned_base)
         if survivors:
             hooks[event] = survivors
         else:
@@ -490,6 +424,9 @@ def hooks_disabled_note(dst: Path) -> str | None:
     return None
 
 
+# `OWNED_NAME_PREFIX` and the host-command helpers are re-exported from
+# `_hooks_common` so existing importers (and the Phase 6 tests) keep working
+# after the Phase 9 consolidation.
 __all__ = [
     "GEMINI_CLI_SPEC",
     "OWNED_NAME_PREFIX",

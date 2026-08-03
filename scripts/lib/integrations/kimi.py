@@ -45,6 +45,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from ._hooks_common import is_windows_host
 from ._kimi_native import (
     agents_to_kimi,
     build_kimi_hooks,
@@ -53,7 +54,6 @@ from ._kimi_native import (
     render_hooks_block,
 )
 from ._owned import remove_dir_if_empty
-from ._settings_hooks import is_windows_host
 from .base import InstallContext, MarkdownIntegration, SkillsIntegration
 from .result import FileAction, WriteResult
 

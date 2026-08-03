@@ -18,7 +18,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from ._owned import remove_dir_if_empty
 from ._settings_hooks import (
     SettingsHookSpec,
     build_settings_hooks,
@@ -113,12 +112,9 @@ class SettingsHooksMixin:
             ctx.manifest.untrack(self.key, str(settings_dst))
         return result
 
-    @staticmethod
-    def _remove_dir_if_empty(
-        path: Path, ctx: InstallContext, result: WriteResult
-    ) -> None:
-        """Drop a directory only when teardown emptied it completely."""
-        remove_dir_if_empty(path, ctx, result)
+    # Directory cleanup is `_owned.remove_dir_if_empty`, called directly by each
+    # integration's teardown. The Phase 6 wrapper that used to sit here was
+    # removed in Phase 9 once the shared helper existed.
 
 
 __all__ = ["HOOKS_SUBDIR", "SETTINGS_FILE", "SettingsHooksMixin"]

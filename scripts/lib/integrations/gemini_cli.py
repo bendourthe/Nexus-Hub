@@ -22,6 +22,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from ._owned import remove_dir_if_empty
 from ._settings_hooks import GEMINI_CLI_SPEC
 from ._settings_hooks_mixin import HOOKS_SUBDIR, SettingsHooksMixin
 from .base import (
@@ -78,7 +79,7 @@ class GeminiCliIntegration(
         result = self._teardown_settings_hooks(roots, ctx)
         result.extend(super().teardown(ctx))
         for root in roots:
-            self._remove_dir_if_empty(root / HOOKS_SUBDIR, ctx, result)
+            remove_dir_if_empty(root / HOOKS_SUBDIR, ctx, result)
         return result
 
     @staticmethod

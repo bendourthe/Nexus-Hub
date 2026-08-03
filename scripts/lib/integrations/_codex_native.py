@@ -44,6 +44,7 @@ import re
 from pathlib import Path
 
 from ._catalog_adapters import _split_frontmatter
+from ._hooks_common import script_basename, strip_owned_handlers
 from ._owned import write_owned_file
 from .base import IntegrationBase
 from .result import FileAction
@@ -215,11 +216,17 @@ def _normalize_matcher(event: str, matcher: str) -> str | None:
 
 
 def _split_command(command: str) -> tuple[str, str] | None:
-    """Split a ``catalog/hooks/settings.json`` command into (runner, script)."""
+    """Split a catalog hook command into (runner, script).
+
+    Codex is the only adapter that needs the runner as well as the script, to
+    preserve ``python3`` vs ``python`` for a ``.py`` hook, so it keeps this thin
+    wrapper over the shared ``script_basename``.
+    """
     parts = command.split()
-    if len(parts) < 2:
+    script = script_basename(command)
+    if script is None:
         return None
-    return parts[0], os.path.basename(parts[-1])
+    return parts[0], script
 
 
 def build_hook_entries(
@@ -285,40 +292,6 @@ def build_hook_entries(
     return events, scripts, skipped
 
 
-def _handler_is_owned(handler: dict, owned_base: str) -> bool:
-    """True when a hooks.json handler points into the Nexus-Hub hooks dir."""
-    for field in ("command", "commandWindows", "command_windows"):
-        value = handler.get(field)
-        if isinstance(value, str) and owned_base in value:
-            return True
-    return False
-
-
-def _strip_owned(groups: list, owned_base: str) -> list:
-    """Drop Nexus-Hub handlers from ``groups``, preserving everything else.
-
-    Filtering happens per handler, not per group, so a user who added their own
-    handler beside ours inside the same matcher group keeps it.
-    """
-    kept: list = []
-    for group in groups:
-        if not isinstance(group, dict) or "hooks" not in group:
-            kept.append(group)
-            continue
-        handlers = [
-            handler
-            for handler in group.get("hooks", [])
-            if not (
-                isinstance(handler, dict) and _handler_is_owned(handler, owned_base)
-            )
-        ]
-        if handlers:
-            survivor = dict(group)
-            survivor["hooks"] = handlers
-            kept.append(survivor)
-    return kept
-
-
 def merge_hooks_json(
     ctx, key: str, dst: Path, owned_events: dict, owned_base: str
 ) -> FileAction:
@@ -347,7 +320,7 @@ def merge_hooks_json(
     merged = dict(existing)
     hooks = dict(merged.get("hooks") or {})
     for event in list(hooks):
-        hooks[event] = _strip_owned(list(hooks[event] or []), owned_base)
+        hooks[event] = strip_owned_handlers(list(hooks[event] or []), owned_base)
     for event, groups in owned_events.items():
         hooks[event] = list(hooks.get(event) or []) + list(groups)
     merged["hooks"] = {event: groups for event, groups in hooks.items() if groups}
@@ -388,7 +361,7 @@ def prune_hooks_json(dst: Path, owned_base: str, dry_run: bool) -> FileAction:
 
     hooks = dict(parsed.get("hooks") or {})
     for event in list(hooks):
-        survivors = _strip_owned(list(hooks[event] or []), owned_base)
+        survivors = strip_owned_handlers(list(hooks[event] or []), owned_base)
         if survivors:
             hooks[event] = survivors
         else:
