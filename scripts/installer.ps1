@@ -1524,6 +1524,10 @@ function Install-Global {
     }
     if ($platforms -contains "GEMINI_CLI") {
         if ($Enterprise) {
+            # GEMINI.md + skills + TOML commands + agents + rules + native hooks
+            # merged into ~/.gemini/settings.json (v3.15.8 Phase 6). Gemini CLI has
+            # no commandWindows slot, so running from PowerShell registers the .ps1
+            # siblings and the PowerShell-flavored guardrails; both siblings ship.
             Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "gemini-cli" -DisplayName "Gemini CLI" -Provider "GOOGLE"
         }
         else {
@@ -1562,6 +1566,9 @@ function Install-Global {
     }
 
     # --- Qwen ------------------------------------------------------------
+    # QWEN.md + skills + Markdown commands + agents + native hooks merged into
+    # ~/.qwen/settings.json (v3.15.8 Phase 6). A PowerShell install registers the
+    # .ps1 siblings and sets Qwen's own shell field to "powershell" to match.
     if ($platforms -contains "QWEN") {
         Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "qwen" -DisplayName "Qwen Code" -Provider "QWEN"
     }
@@ -1894,6 +1901,8 @@ function Install-Workspace {
             }
             if ($workspacePlatforms -contains "GEMINI_CLI") {
                 if ($Enterprise) {
+                    # Project .gemini/ surfaces plus hooks in .gemini/settings.json;
+                    # commands resolve via $env:GEMINI_PROJECT_DIR on Windows.
                     Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "gemini-cli" -DisplayName "Gemini CLI (enterprise)"
                 }
                 else {
@@ -1944,6 +1953,8 @@ function Install-Workspace {
         }
 
         # --- Qwen -------------------------------------------------------
+        # Project QWEN.md + .qwen/ surfaces plus hooks in .qwen/settings.json,
+        # resolved via $env:QWEN_PROJECT_DIR on Windows (v3.15.8 Phase 6).
         if ($workspacePlatforms -contains "QWEN") {
             Write-Header -Provider "QWEN"
             Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "qwen" -DisplayName "Qwen Code (QWEN.md)" -Languages ($languages -join ',')

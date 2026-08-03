@@ -1,5 +1,39 @@
 # Development Log
 
+## [2026-08-02] - v3.15.8 Phase 6 Gemini CLI and Qwen native hooks [feature]
+
+### What Changed
+
+Gemini CLI and Qwen Code now receive Nexus-Hub's guardrails as native hooks. Added `scripts/lib/integrations/_settings_hooks.py`, which translates `catalog/hooks/settings.json` into each platform's own `settings.json` `hooks` key, and `_settings_hooks_mixin.py`, which owns the install and teardown choreography both platforms share. The per-platform differences sit in a spec object: Gemini CLI renamed every lifecycle event (`PreToolUse` is `BeforeTool`, `Stop` is `AfterAgent`, `PreCompact` is `PreCompress`), Qwen kept the Claude-style names, both match on their own tool ids as regexes, and only Qwen documents `shell` and `statusMessage`. Both integrations now install and tear down hooks at global and workspace scope, flipped their four ownership-matrix rows to enforceable, gained contract-check and `install_verify` entries, and are covered by 71 shared tests wired into a Windows CI leg.
+
+### Why It Changed
+
+Phase 1 recorded both platforms' hooks as finding-only. Phase 6 is where that comes due, and it is the first surface in this plan where two platforms are close enough to share an implementation but different enough that sharing it naively would be wrong. Qwen Code is a Gemini CLI fork, so the file shape and merge semantics are identical while the event vocabulary is not.
+
+### Decisions Made
+
+- Merged into `settings.json` as the matrix specifies, and recorded Gemini CLI's extension-packaged hooks as DF-12 rather than adopting them. An extension directory would be a perfectly-owned write path with `${extensionPath}` substitution, but the reference documents only `gemini extensions install` for populating it, and it has no project scope. Shipping a directly-written extension would be the inferred write path sub-task 6.1 explicitly says to record instead.
+- Chose the command string from the installing host, because neither platform has Codex's `commandWindows` slot and both collapse `Bash` and `PowerShell` onto one `run_shell_command` tool. Registering both siblings would double-fire the same guardrail on one shell call, so Windows gets the `.ps1` and the PowerShell-flavored hooks and POSIX gets the `.sh` and the Bash-flavored ones. Both siblings ship regardless, so re-running on the other OS only re-points the registration.
+- Made ownership the `nexus-hub:` handler `name` rather than a path prefix. Both schemas carry `name`, and it is what Gemini CLI fingerprints project hooks on, so a stable name also stops the untrusted-hook warning from firing on every install. The installed hooks directory is a second signal for a handler someone renamed by hand.
+- Treated the user's `settings.json` more carefully than Codex's `hooks.json`: this file holds their model, theme, and MCP configuration, so a malformed one is left exactly as found. Losing that to a transient syntax error is worse than skipping a hook registration and logging why.
+- Left `disableAllHooks` alone and reported it. Unlike Codex there is no feature switch to enable; there is a kill switch the user set, and reversing it silently is the behavior this contract exists to prevent.
+- Inherited the existing gates unchanged, so Gemini CLI hooks stay behind `--enterprise` and Qwen's global scope stays detection-gated on `~/.qwen`.
+
+### Troubleshooting Trail
+
+<details>
+<summary>A duplicate-handler assertion that was wrong about the catalog, a stale verify fixture, and a PowerShell pipe that looked like a hang</summary>
+
+The reinstall test asserted no repeated handler name within an event, and failed at 10 versus 7 under `PreToolUse`. The code was right and the test was wrong: the catalog registers `secret-scan` against both `Write` and `Edit`, which are distinct tool ids here, so it legitimately appears under two different matchers in the same event. The assertion now keys on the event-matcher-name triple, which is the condition that would actually double-fire a guardrail on one tool call, and byte-equality across two installs already proved idempotence independently. `test_qwen_verify_pass_and_needs_action` then failed on the two new `install_verify` surfaces, the same way its Codex counterpart did in Phase 5; its fixture now provisions every verified surface, and a new sibling test covers the case where a user's settings file carries no Nexus-Hub handler. Separately, a re-run appeared to hang for twelve minutes with no output; the cause was piping pytest through PowerShell's `Select-Object -Last`, which buffers everything. The same run without the pipe finished in six seconds.
+
+</details>
+
+### Impact & Context
+
+- **Affected**: `scripts/lib/integrations/_settings_hooks.py` (new), `scripts/lib/integrations/_settings_hooks_mixin.py` (new), `scripts/lib/integrations/gemini_cli.py`, `scripts/lib/integrations/qwen.py`, `docs/policy/platform-read-contracts.json`, `docs/policy/platform-read-contracts.md`, `docs/v3/v3.15/development/platform-capability-ownership.md`, `scripts/installer.sh`, `scripts/installer.ps1`, `.github/workflows/ci.yml`, `tests/integrations/test_settings_hooks.py` (new), `tests/installer/test_verify_read_paths.py`, `tests/plans/test_v3_15_8_contracts.py`, the v3.15.8 plan, known-gaps ledger, cleanup report, and Phase 6 history.
+- **Verified**: 71 new hook tests parametrized across both platforms and both host branches, `tests/plans` at 27, `tests/installer/test_verify_read_paths.py` at 11 including the new absent-registration case, the affected integration / installer / validator / workflow suites at 1039 passed with the one stale fixture fixed and re-verified, all four contract and parity validators, ruff check and format on the changed files, ShellCheck on `installer.sh`, and a PowerShell AST parse of `installer.ps1`.
+- **Deferred**: DF-12 (extension-packaged hooks as a cleaner but undocumented write path), MT-7 (which shell each CLI dispatches through on Windows is not documented upstream), plus the unchanged HO-4, MT-6, DF-11, MT-5, and QG-4 carryovers. No push or release action was performed.
+
 ## [2026-08-02] - v3.15.8 Phase 5 Codex custom agents and native hooks [feature]
 
 ### What Changed

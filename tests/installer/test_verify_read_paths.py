@@ -196,23 +196,58 @@ def test_opencode_agents_verify_pass(tmp_path):
     assert any(name == "agents" for name, _ in check[1]), "agents surface must be verified"
 
 
-def test_qwen_verify_pass_and_needs_action(tmp_path):
-    """v3.15.0 Phase 6: Qwen Code verify (skills / commands / QWEN.md), newly-parity."""
-    home = tmp_path / "home"
+def _provision_qwen(home: Path) -> Path:
+    """Lay down every Qwen surface the read contract verifies."""
     d = home / ".qwen"
     (d / "skills" / "s").mkdir(parents=True)
     (d / "skills" / "s" / "SKILL.md").write_text("s", encoding="utf-8")
     (d / "commands").mkdir(parents=True)
     (d / "commands" / "x.md").write_text("x", encoding="utf-8")
     (d / "QWEN.md").write_text("# idx", encoding="utf-8")
+    # v3.15.8 Phase 6: native hooks are a `hooks` key in settings.json plus the
+    # owned script directory the handler commands point at.
+    (d / "hooks").mkdir(parents=True)
+    (d / "hooks" / "secret-scan.sh").write_text("#!/bin/sh\n", encoding="utf-8")
+    (d / "settings.json").write_text(
+        '{"hooks": {"PreToolUse": [{"hooks": [{"name": "nexus-hub:secret-scan"}]}]}}',
+        encoding="utf-8",
+    )
+    return d
+
+
+def test_qwen_verify_pass_and_needs_action(tmp_path):
+    """v3.15.0 Phase 6 + v3.15.8 Phase 6: skills / commands / QWEN.md / hooks."""
+    home = tmp_path / "home"
+    d = _provision_qwen(home)
 
     check = _by_label(runner._verify_checks(home, tmp_path / "proj"))["Qwen Code"]
     assert _all_ok(check)
+    names = {name for name, _ok in check[1]}
+    assert {"hooks registration", "hook scripts"} <= names
 
     import shutil
     shutil.rmtree(d / "commands")
     check2 = _by_label(runner._verify_checks(home, tmp_path / "proj"))["Qwen Code"]
     assert not _all_ok(check2)
+
+
+def test_qwen_hook_surfaces_flag_when_absent(tmp_path):
+    """A settings.json with no Nexus-Hub handler is NEEDS-ACTION, not a pass.
+
+    Qwen enables hooks by default, so there is no feature switch to check. What
+    a verify run can prove is that our handlers are actually registered, which
+    is what distinguishes an installed guardrail from a settings file the user
+    happens to have.
+    """
+    home = tmp_path / "home"
+    d = _provision_qwen(home)
+    # A user's own settings file, with no Nexus-Hub registration in it.
+    (d / "settings.json").write_text('{"ui": {"theme": "dark"}}', encoding="utf-8")
+
+    check = _by_label(runner._verify_checks(home, tmp_path / "proj"))["Qwen Code"]
+    assert not _all_ok(check)
+    failed = {name for name, ok in check[1] if not ok}
+    assert failed == {"hooks registration"}
 
 
 def test_kimi_verify_pass(tmp_path):

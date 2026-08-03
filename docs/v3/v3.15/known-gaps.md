@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: The v3.15 line now includes v3.15.0 through v3.15.7. Release PR #28 and usage-monitor repair PR #29 are merged into `develop`; a focused Windows PowerShell 5.1 CI repair is the remaining develop gate before main promotion, post-merge CI, tag, and GitHub Release. Earlier release history and per-phase evidence remain in the sections below.
-**Last updated**: 2026-08-02 (v3.15.8 Phase 5 checkpoint; v3.15.7 release status retained below)
+**Last updated**: 2026-08-02 (v3.15.8 Phase 6 checkpoint; v3.15.7 release status retained below)
 
 **Current v3.15.7 status**: Implementation is complete and merged into `develop`. The release scope is fixed: evidence-closed security review hardening, Codex Usage Monitor Extra Credits, the isolated installer import-cycle fix, and CI corrections discovered by the reactivated pipelines. Newly verified additive platform capabilities are explicitly deferred to v3.15.8. The maintainer authorized the remote sequence; both repaired monitor workflows pass on the merged `develop` commit, and the Windows PowerShell 5.1 push-gate repair must pass before main promotion, post-merge CI, tag, and GitHub Release proceed in order.
 
@@ -1228,3 +1228,50 @@ Two upstream constraints shaped the design and are surfaced rather than papered 
 | Hand-offs (HO) | 1 | 0 |
 
 **Carryovers.** DF-11, MT-5, and QG-4 remain open and unchanged; Phase 9 still owns the CI reconciliation and the live visual smoke. Phase 5 adds HO-4 and MT-6, both of which are boundaries of what an installer and a filesystem-level suite can establish rather than work that was skipped. It introduces no skipped implementation, known production bug, suppressed warning, or bypassed hard gate.
+
+### v3.15.8 Phase 6 checkpoint
+
+Phase 6 turns the four Gemini CLI and Qwen hook rows enforceable. Both platforms read hooks from a `hooks` key inside their own `settings.json`, so both are served by one shared module (`_settings_hooks.py`) plus a mixin that owns the install and teardown choreography, with the per-platform differences isolated in a spec object. Those differences are real: Gemini CLI renamed every lifecycle event, so `PreToolUse` is `BeforeTool` and `Stop` is `AfterAgent`, while Qwen kept the Claude-style names Nexus-Hub already uses. Both match on their own tool ids as regexes rather than on Claude's tool names as literals, so `Bash` becomes `^(run_shell_command)$` and `Edit` becomes `^(replace)$`, and `Skill` is dropped for want of any equivalent. Only the tool events carry a matcher, because the lifecycle events match on a session source or compact trigger rather than a tool.
+
+Two constraints shaped the design. Neither platform has Codex's `commandWindows` override, and both funnel every shell call through a single `run_shell_command` tool, which collapses Nexus-Hub's separate `Bash` and `PowerShell` matchers onto one id. A registration therefore has to commit to one command string, so the installing host picks it: a Windows install registers the `.ps1` sibling and the PowerShell-flavored guardrails, a POSIX install the `.sh` and the Bash-flavored ones, with both siblings copied either way. And because these hooks live in the file that also holds the user's model, theme, and MCP configuration, the merge is stricter than Codex's dedicated `hooks.json` -- every unrelated key survives, the previous content is backed up, and a malformed file is never rewritten. Ownership is the `nexus-hub:` handler `name`, which is also what Gemini CLI fingerprints project hooks on, so a stable name avoids re-triggering its untrusted-hook warning on every install.
+
+### v3.15.8 Phase 6 Open Items
+
+#### Deferred
+
+##### DF-12 - Gemini CLI extension-packaged hooks are a cleaner write path left unused
+
+- **Source phase**: v3.15.8 Phase 6.1 - Map Gemini CLI Hooks.
+- **Plan reference**: `docs/v3/v3.15/plans/v3.15.8-platform-parity-and-github-usage-monitor.md` (sub-task 6.1).
+- **Reason**: the [extension reference](https://github.com/google-gemini/gemini-cli/blob/main/docs/extensions/reference.md) documents extensions as a fourth hook-precedence layer, reading `~/.gemini/extensions/<name>/hooks/hooks.json` with `${extensionPath}` and `${/}` substitution. That would give Nexus-Hub a fully-owned directory instead of a merge into the user's main config, and would solve the absolute-path and path-separator problems outright. It is not used because the reference documents only `gemini extensions install` for populating that directory, so writing it directly would be an inferred write path of exactly the kind sub-task 6.1 says to record rather than ship; it also has no project scope, where half of this phase's delivery lives. The maintainer chose settings.json now with this recorded as a follow-on.
+- **Suggested next step**: if a later release can verify that a directly-written extension directory is loaded (or can shell out to `gemini extensions install` against a local path), migrate global-scope hooks there and keep the settings.json merge for workspace scope.
+
+#### Missing tests / coverage gaps
+
+##### MT-7 - Windows shell dispatch for these two platforms is asserted, not observed
+
+- **Source phase**: v3.15.8 Phase 6.3 - Testing and Stabilization.
+- **Plan reference**: `docs/v3/v3.15/plans/v3.15.8-platform-parity-and-github-usage-monitor.md` (sub-task 6.3).
+- **Reason**: the host-aware branch is fully tested in both directions, and CI runs the suite on a Windows runner, so what gets *written* on Windows is proven. What is not proven is which shell each CLI actually launches the command with. The workspace-scope command references `$env:GEMINI_PROJECT_DIR` / `$env:QWEN_PROJECT_DIR` in PowerShell syntax; if a Windows build dispatches through `cmd.exe` instead, the variable stays literal and the hook fails to find its script. Neither platform's documentation states the Windows shell, and the failure mode is bounded: Gemini CLI's exit-code contract makes any non-zero exit other than 2 a warning that lets the interaction proceed, so a wrong guess degrades to a warning rather than a block.
+- **Suggested next step**: during release readiness, run one project-scope hook on a Windows host with each CLI installed and record the observed shell in the read contract; if it is `cmd.exe`, switch the workspace reference to `%VAR%` form behind the same host check.
+
+### v3.15.8 Phase 6 Resolved
+
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+| - | Gemini CLI native hooks finding-only | Phase 6 | Row flipped to enforceable, backed by an ownership-scoped `settings.json` merge at both scopes, a `hooks_supported` contract-check entry, and the shared `tests/integrations/test_settings_hooks.py`. |
+| - | Qwen native hooks finding-only | Phase 6 | Same, plus `install_verify` surfaces for `~/.qwen/settings.json` and `~/.qwen/hooks`, and the `shell` / `statusMessage` fields Qwen documents and Gemini CLI does not. |
+
+### v3.15.8 Phase 6 Summary
+
+| Category | Open | Resolved |
+|---|---:|---:|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 1 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 1 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+| Hand-offs (HO) | 0 | 0 |
+
+**Carryovers.** HO-4, MT-6, DF-11, MT-5, and QG-4 remain open and unchanged. Phase 6 adds DF-12 (a documented alternative write path deliberately not inferred) and MT-7 (the Windows shell each CLI dispatches through is undocumented upstream). Both are limits of what verified documentation supports rather than work that was skipped, and both have bounded failure modes. Existing deny controls are unaffected: the `git-guardrails` and `secret-scan` guardrails are registered on both platforms wherever a matcher exists, and no hook was mapped onto an approximation. Phase 6 introduces no skipped implementation, known production bug, suppressed warning, or bypassed hard gate.

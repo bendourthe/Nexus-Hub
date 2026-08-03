@@ -483,6 +483,16 @@ jobs:
           NEXUS_TEST_POWERSHELL: powershell
         run: python -m pytest tests/integrations/test_codex_native.py -q
 
+      - name: Gemini CLI + Qwen hook delivery on Windows (v3.15.8 Phase 6)
+        # Higher stakes on Windows than the Codex leg: neither platform has a
+        # commandWindows slot, so the command that gets registered is chosen from
+        # the HOST. On a Windows runner this asserts the real branch -- the .ps1
+        # sibling, the PowerShell-flavored guardrails, and the $env: form of the
+        # project-dir variable -- which an ubuntu-only run can only simulate.
+        env:
+          NEXUS_TEST_POWERSHELL: powershell
+        run: python -m pytest tests/integrations/test_settings_hooks.py -q
+
   install-smoke:
     # v3.11.0 Phase 7.5: prove the catalog lands at each platform's real read-path
     # and that the project auto-seed produces .agents/workflows. Uses the registry

@@ -1208,6 +1208,10 @@ install_global() {
     fi
     if should_install gemini-cli; then
     if [ "${ENTERPRISE:-0}" = "1" ]; then
+        # GEMINI.md + skills + TOML commands + agents + rules + native hooks
+        # (v3.15.8 Phase 6: a hooks key merged into ~/.gemini/settings.json,
+        # with the .sh or .ps1 sibling chosen from the installing host because
+        # Gemini CLI has no commandWindows equivalent).
         invoke_registry_platform "$repo_root" "global" "" "gemini-cli" "Gemini CLI" "" "" "GOOGLE"
     else
         add_undetected_platform "Gemini CLI" "enterprise-only; re-run with --enterprise"
@@ -1245,6 +1249,9 @@ install_global() {
     fi
 
     # --- Qwen ----------------------------------------------------------
+    # QWEN.md + skills + Markdown commands + agents + native hooks (v3.15.8
+    # Phase 6: a hooks key merged into ~/.qwen/settings.json, host-selected
+    # command plus Qwen's own shell field). Detection-gated on ~/.qwen.
     if should_install qwen; then
     invoke_registry_platform "$repo_root" "global" "" "qwen" "Qwen Code" "" "" "QWEN"
     fi
@@ -1605,6 +1612,9 @@ install_workspace() {
         fi
         if should_install gemini-cli; then
         if [ "${ENTERPRISE:-0}" = "1" ]; then
+            # Project .gemini/ surfaces plus native hooks merged into
+            # .gemini/settings.json; commands resolve via $GEMINI_PROJECT_DIR so
+            # a committed settings file carries no absolute local path.
             invoke_registry_platform "$repo_root" "workspace" "$target_path" "gemini-cli"   "Gemini CLI (enterprise)"
         else
             write_item "Gemini CLI: skipped (sunset on 2026-06-18 for free / Google AI Pro / Ultra / GitHub-installed users). Re-run with --enterprise to install (requires paid Gemini API key); Antigravity CLI above covers the same functionality." "$DARK_YELLOW"
@@ -1654,6 +1664,8 @@ install_workspace() {
         fi
 
         # --- Qwen ---------------------------------------------------
+        # Project QWEN.md + .qwen/ surfaces plus native hooks merged into
+        # .qwen/settings.json, resolved via $QWEN_PROJECT_DIR (v3.15.8 Phase 6).
         if should_install qwen; then
         write_header "QWEN"
         invoke_registry_platform "$repo_root" "workspace" "$target_path" "qwen" "Qwen Code (QWEN.md)" "$languages"

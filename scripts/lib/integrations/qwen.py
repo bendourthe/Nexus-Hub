@@ -17,6 +17,13 @@ not just an instruction file:
     TOML.
   - **Agents**: ``~/.qwen/agents/<name>.md`` (global) and ``.qwen/agents/`` (project).
   - **Rules**: none as a folder -- Qwen uses ``QWEN.md`` for guidance.
+  - **Hooks**: a ``hooks`` key inside ``~/.qwen/settings.json`` (global) and
+    ``.qwen/settings.json`` (project), added v3.15.8. Qwen kept the Claude-style
+    event names Nexus-Hub already uses, but matches on its own tool ids
+    (``run_shell_command``, ``write_file``, ``replace``) as a REGEX, and adds
+    ``shell`` and ``statusMessage`` handler fields Gemini CLI lacks. All of that
+    lives in ``QWEN_SPEC``; the install choreography is shared with Gemini CLI
+    through ``SettingsHooksMixin``.
 
 Reclassified from instruction-file-only to a full skills + commands + agents mirror
 in v3.15.0 Phase 4 (acting on the Gemini-CLI-class GO from Phase 1). Global scope is
@@ -33,14 +40,17 @@ from __future__ import annotations
 from pathlib import Path
 
 from ._command_surface import mirror_command_surface
+from ._settings_hooks import QWEN_SPEC
+from ._settings_hooks_mixin import HOOKS_SUBDIR, SettingsHooksMixin
 from .base import InstallContext, MarkdownIntegration, SkillsIntegration
 from .result import WriteResult
 
 
-class QwenIntegration(MarkdownIntegration, SkillsIntegration):
+class QwenIntegration(MarkdownIntegration, SkillsIntegration, SettingsHooksMixin):
     key = "qwen"
     display_name = "Qwen Code"
     instruction_mode = "shared"
+    hook_spec = QWEN_SPEC
     config = {
         # Global surfaces live under ~/.qwen, written by install_global below
         # (detection-gated), so there is no simple home-relative global_dir.
@@ -53,7 +63,9 @@ class QwenIntegration(MarkdownIntegration, SkillsIntegration):
         "skills_subdir": "skills",
         "flatten_skills_layout": True,
         "agents_subdir": "agents",
-        "hooks_supported": False,
+        # Hooks land in settings.json via the mixin rather than as a tree copy,
+        # so hooks_subdir is not set on the base class.
+        "hooks_supported": True,
     }
 
     def install_workspace(self, ctx: InstallContext) -> WriteResult:
@@ -62,10 +74,14 @@ class QwenIntegration(MarkdownIntegration, SkillsIntegration):
         # .qwen/ (workspace_dir). Add the native Markdown command surface.
         result = super().install_workspace(ctx)
         if not ctx.instruction_only:
-            commands_dst = (ctx.target_root / self.config["workspace_dir"] / "commands").resolve()
+            qwen_root = (ctx.target_root / self.config["workspace_dir"]).resolve()
+            commands_dst = qwen_root / "commands"
             self._ensure_dir(commands_dst, ctx)
             result.files.extend(
                 mirror_command_surface(ctx, self.key, commands_dst, suffix=".md")
+            )
+            result.extend(
+                self._install_settings_hooks(qwen_root, ctx, scope="workspace")
             )
         return result
 
@@ -79,8 +95,12 @@ class QwenIntegration(MarkdownIntegration, SkillsIntegration):
         result = WriteResult()
         qwen_root = (Path.home() / ".qwen").resolve()
         if not qwen_root.exists():
-            ctx.manifest.log(self.key, "~/.qwen not found; skipping global Qwen surfaces")
-            result.mark_not_detected("Qwen (~/.qwen) not found; global QWEN.md + skills skipped")
+            ctx.manifest.log(
+                self.key, "~/.qwen not found; skipping global Qwen surfaces"
+            )
+            result.mark_not_detected(
+                "Qwen (~/.qwen) not found; global QWEN.md + skills skipped"
+            )
             return result
         result.detected = True
         self._ensure_dir(qwen_root, ctx)
@@ -94,4 +114,20 @@ class QwenIntegration(MarkdownIntegration, SkillsIntegration):
             result.files.extend(
                 mirror_command_surface(ctx, self.key, commands_dst, suffix=".md")
             )
+            result.extend(self._install_settings_hooks(qwen_root, ctx, scope="global"))
         return result
+
+    def teardown(self, ctx: InstallContext) -> WriteResult:
+        """Prune our hook entries from settings.json, then run the normal sweep."""
+        roots = self._qwen_roots(ctx)
+        result = self._teardown_settings_hooks(roots, ctx)
+        result.extend(super().teardown(ctx))
+        for root in roots:
+            self._remove_dir_if_empty(root / HOOKS_SUBDIR, ctx, result)
+        return result
+
+    @staticmethod
+    def _qwen_roots(ctx: InstallContext) -> list[Path]:
+        if ctx.scope == "global":
+            return [(Path.home() / ".qwen").resolve()]
+        return [(ctx.target_root / ".qwen").resolve()]

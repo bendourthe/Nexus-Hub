@@ -49,6 +49,8 @@ EXPECTED_CAPABILITIES = {
 IMPLEMENTED_CAPABILITIES = {
     "Codex custom agents": "Phase 5",
     "Codex native hooks": "Phase 5",
+    "Gemini CLI native hooks": "Phase 6",
+    "Qwen native hooks": "Phase 6",
 }
 
 SECRET_PATTERNS = (

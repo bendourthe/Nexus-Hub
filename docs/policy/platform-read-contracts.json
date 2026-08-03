@@ -284,7 +284,8 @@
       "gemini_cli": {
         "classification": "DRIFT-ADDITIVE",
         "note": "Instruction, commands, skills, and agents remain functional. Native hooks are now documented but are not delivered by the current adapter.",
-        "sources": ["https://geminicli.com/docs/cli/using-agent-skills/", "https://geminicli.com/docs/cli/gemini-md/", "https://geminicli.com/docs/cli/commands/"]
+        "resolved_in": "3.15.8 Phase 6. Re-verified 2026-08-02 against the upstream hooks reference: hooks live under a `hooks` key in settings.json across four precedence layers, every lifecycle event was RENAMED relative to the Claude-style names Nexus-Hub uses (PreToolUse -> BeforeTool, Stop -> AfterAgent, PreCompact -> PreCompress), tool matchers are REGEX over Gemini tool ids, and there is no commandWindows equivalent. Delivered as an ownership-scoped structured merge at both scopes, so this DRIFT-ADDITIVE finding is closed. Extension-packaged hooks (~/.gemini/extensions/<name>/hooks/hooks.json) are a documented second read path recorded as a follow-on rather than used, because only `gemini extensions install` is documented for populating it.",
+        "sources": ["https://geminicli.com/docs/cli/using-agent-skills/", "https://geminicli.com/docs/cli/gemini-md/", "https://geminicli.com/docs/cli/commands/", "https://github.com/google-gemini/gemini-cli/blob/main/docs/hooks/index.md", "https://github.com/google-gemini/gemini-cli/blob/main/docs/extensions/reference.md"]
       },
       "copilot": {
         "classification": "KNOWN-DRIFT",
@@ -319,6 +320,7 @@
       "qwen": {
         "classification": "DRIFT-ADDITIVE",
         "note": "Instruction, skills, Markdown commands, and agents remain functional. Native hooks are now documented but are not delivered by the current adapter.",
+        "resolved_in": "3.15.8 Phase 6. Re-verified 2026-08-02 against the Qwen Code hooks documentation: hooks live under a `hooks` key in settings.json, Qwen KEPT the Claude-style event names (PreToolUse, PostToolUse, UserPromptSubmit, SessionStart, SessionEnd, Stop, PreCompact), matchers are REGEX over Qwen tool ids (run_shell_command, write_file, replace), and handlers accept `shell` (bash|powershell) and `statusMessage` fields Gemini CLI lacks. Enabled by default with a top-level `disableAllHooks` kill switch. Delivered as an ownership-scoped structured merge at both scopes, so this DRIFT-ADDITIVE finding is closed.",
         "sources": ["https://qwenlm.github.io/qwen-code-docs/en/users/features/skills/", "https://qwenlm.github.io/qwen-code-docs/en/users/features/commands/", "https://qwenlm.github.io/qwen-code-docs/en/users/features/hooks/"]
       },
       "openclaw": {
@@ -388,11 +390,13 @@
     },
     "gemini-cli": {
       "config": {
-        "global_dir": "~/.gemini"
+        "global_dir": "~/.gemini",
+        "hooks_supported": true
       },
       "flatten": "flag",
       "doc_mentions": [
-        "~/.gemini/skills"
+        "~/.gemini/skills",
+        "~/.gemini/settings.json"
       ]
     },
     "opencode": {
@@ -432,12 +436,14 @@
     "qwen": {
       "config": {
         "skills_subdir": "skills",
-        "agents_subdir": "agents"
+        "agents_subdir": "agents",
+        "hooks_supported": true
       },
       "flatten": "flag",
       "doc_mentions": [
         "~/.qwen/skills",
-        "~/.qwen/commands"
+        "~/.qwen/commands",
+        "~/.qwen/settings.json"
       ]
     },
     "kimi": {
@@ -677,6 +683,17 @@
           "label": "QWEN.md",
           "kind": "is_file",
           "path": "~/.qwen/QWEN.md"
+        },
+        {
+          "label": "hooks registration",
+          "kind": "file_contains",
+          "path": "~/.qwen/settings.json",
+          "needle": "nexus-hub:"
+        },
+        {
+          "label": "hook scripts",
+          "kind": "nonempty_dir",
+          "path": "~/.qwen/hooks"
         }
       ]
     },
