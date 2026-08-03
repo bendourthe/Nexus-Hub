@@ -1,6 +1,6 @@
 # Nexus-Hub Progress Dashboard
 
-**Branch:** `release/v3.15.7`
+**Branch:** `develop`
 
 ---
 
@@ -16,12 +16,32 @@
 | Phase 5 tasks complete | 4 | 4 | 0 |
 | Phase 6 tasks complete | 4 | 4 | 0 |
 | Phase 7 tasks complete | 4 | 4 | 0 |
+| v3.16.8 CI/CD plan phases complete | 0 | 8 | 8 |
+| v3.16.9 planning milestones complete | 2 | 2 | 0 |
+| v3.16.9 plan phases complete | 0 | 8 | 8 |
 | Local release integration | 1 | 1 | 0 |
 | Release metadata and docs | 1 | 1 | 0 |
 | Platform contract audit | 1 | 1 | 0 |
 | Local release gates | 1 | 1 | 0 |
 | Remote publication gates | 0 | 1 | 1 |
 | Open phase blockers | 0 | 0 | 0 |
+| v3.15.8 plan phases complete | 4 | 9 | 5 |
+| v3.15.8 Phase 1 tasks complete | 7 | 7 | 0 |
+| v3.15.8 Phase 2 tasks complete | 9 | 9 | 0 |
+| v3.15.8 Phase 3 tasks complete | 9 | 9 | 0 |
+| v3.15.8 Phase 4 tasks complete | 7 | 7 | 0 |
+
+## Parallel Plan - v3.15.8 Platform Parity and GitHub Usage Monitor [IN PROGRESS]
+
+- [x] Phase 1 - Contracts, probes, and test foundation
+- [x] Phase 2 - GitHub usage data and authentication core
+- [x] Phase 3 - GitHub usage monitor extension and visual assets
+- [x] Phase 4 - Installer distribution, packaging, and focused CI
+- [ ] Phase 5 - Codex capability parity
+- [ ] Phase 6 - Gemini CLI and Qwen hook parity
+- [ ] Phase 7 - Kimi and Copilot capability parity
+- [ ] Phase 8 - Cross-platform lifecycle and contract verification
+- [ ] Phase 9 - Architecture refactor, known-gaps reconciliation, and CI/CD
 
 ## Release Preparation - v3.15.7 [IN PROGRESS]
 
@@ -82,3 +102,25 @@
 - [x] Resolve WN-3 and reconcile the durable-store and declined-candidate gaps
 - [x] Audit all CI workflows for coverage and action-minute optimization
 - [x] Run validation, coverage, full tests, hook tests, and release-readiness checks
+
+## Parallel Plan - v3.16.8 Cost-Effective CI/CD
+
+- [ ] Complete Phase 1: Canonical Lifecycle Contract and Baseline Audit
+- [ ] Complete Phase 2: Canonical CI/CD Skill Architecture
+- [ ] Complete Phase 3: Plan Generation Defaults
+- [ ] Complete Phase 4: Implementation and Commit Lifecycle
+- [ ] Complete Phase 5: Branch, Release, and Cross-Platform Policy
+- [ ] Complete Phase 6: Nexus-Hub Repository-Native CI Engine
+- [ ] Complete Phase 7: Nexus-Hub Workflow Migration
+- [ ] Complete Phase 8: Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
+
+## Parallel Plan - v3.16.9 Evaluation Methodology and Selective Installation
+
+- [x] Complete `docs/v3/v3.16/comparisons/v3.16.9-comparison-evals-skills-and-claude-codex-settings.md`
+- [x] Generate and approve `docs/v3/v3.16/plans/v3.16.9-adoption-evals-and-selective-installation.md`
+- [ ] Complete Phase 1: Evaluation Contract and RAG Metrics
+- [ ] Complete Phase 2: Evaluation Pipeline Audit Skill
+- [ ] Complete Phase 3: Error Analysis and Evaluator Calibration
+- [ ] Complete Phase 4: Synthetic Data, Human Review, and Skill Quality
+- [ ] Complete Phase 5: Selective Installation Contract and Resolution
+- [ ] Complete Phase 6: Cross-Platform Selective Installation

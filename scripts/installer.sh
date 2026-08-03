@@ -7,7 +7,7 @@ set -e
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-NEXUS_HUB_VERSION="3.15.7"
+NEXUS_HUB_VERSION="3.15.8"
 
 # --- Window Title ---
 printf '\033]0;Nexus-Hub Installer\007'
@@ -1181,7 +1181,12 @@ install_global() {
     mkdir -p "$global_codex_dir"
     # The codex integration flattens skills to ~/.codex/skills AND ~/.agents/skills,
     # emits every command as a skill plus a legacy prompt, and renders
-    # ~/.codex/AGENTS.md (see docs/policy/platform-read-contracts.md).
+    # ~/.codex/AGENTS.md. Since v3.15.8 it also writes ~/.codex/agents/*.toml
+    # (custom agents) and merges ~/.codex/hooks.json + ~/.codex/hooks/, enabling
+    # [features] hooks in ~/.codex/config.toml (see
+    # docs/policy/platform-read-contracts.md). Both surfaces ship through the
+    # registry, so this bash path and installer.ps1 stay in lockstep by
+    # construction rather than by duplicated copy blocks.
     invoke_registry_platform "$repo_root" "global" "" "codex" "Codex" "" "" "OPENAI"
     fi
 
@@ -1203,6 +1208,10 @@ install_global() {
     fi
     if should_install gemini-cli; then
     if [ "${ENTERPRISE:-0}" = "1" ]; then
+        # GEMINI.md + skills + TOML commands + agents + rules + native hooks
+        # (v3.15.8 Phase 6: a hooks key merged into ~/.gemini/settings.json,
+        # with the .sh or .ps1 sibling chosen from the installing host because
+        # Gemini CLI has no commandWindows equivalent).
         invoke_registry_platform "$repo_root" "global" "" "gemini-cli" "Gemini CLI" "" "" "GOOGLE"
     else
         add_undetected_platform "Gemini CLI" "enterprise-only; re-run with --enterprise"
@@ -1210,6 +1219,10 @@ install_global() {
     fi
 
     # --- Microsoft -- GitHub Copilot -----------------------------------
+    # VS Code user-profile prompt files (slash commands) + custom agents at
+    # ~/.copilot/agents (v3.15.8 Phase 8, verbatim catalog Markdown). Hooks are
+    # NOT written: Copilot's default hook locations include ~/.claude/settings.json,
+    # which the Claude block above already populates, so they are inherited.
     if should_install copilot; then
     invoke_registry_platform "$repo_root" "global" "" "copilot" "GitHub Copilot" "" "" "MICROSOFT"
     fi
@@ -1235,11 +1248,17 @@ install_global() {
     fi
 
     # --- Kimi ----------------------------------------------------------
+    # AGENTS.md + skills + custom agents (verbatim catalog Markdown) + native
+    # hooks as a marker-managed [[hooks]] block in ~/.kimi-code/config.toml
+    # (v3.15.8 Phase 7). Detection-gated on ~/.kimi-code.
     if should_install kimi; then
-    invoke_registry_platform "$repo_root" "global" "" "kimi" "Kimi" "" "" "KIMI"
+    invoke_registry_platform "$repo_root" "global" "" "kimi" "Kimi Code CLI" "" "" "KIMI"
     fi
 
     # --- Qwen ----------------------------------------------------------
+    # QWEN.md + skills + Markdown commands + agents + native hooks (v3.15.8
+    # Phase 6: a hooks key merged into ~/.qwen/settings.json, host-selected
+    # command plus Qwen's own shell field). Detection-gated on ~/.qwen.
     if should_install qwen; then
     invoke_registry_platform "$repo_root" "global" "" "qwen" "Qwen Code" "" "" "QWEN"
     fi
@@ -1571,9 +1590,11 @@ install_workspace() {
         mkdir -p "$codex_dir"
 
         # Full registry mirror (v3.12.0): see the global Codex block. Workspace scope
-        # writes .codex/{skills,prompts}, .agents/skills (flattened + command skills),
-        # and a repo-root AGENTS.md.
-        invoke_registry_platform "$repo_root" "workspace" "$target_path" "codex" "Codex (AGENTS.md + skills + commands)" "$languages" ""
+        # writes .codex/{skills,prompts,agents,hooks}, .codex/hooks.json,
+        # .agents/skills (flattened + command skills), and a repo-root AGENTS.md.
+        # The [features] hooks switch is user-global, so a workspace install advises
+        # rather than editing ~/.codex/config.toml.
+        invoke_registry_platform "$repo_root" "workspace" "$target_path" "codex" "Codex (AGENTS.md + skills + commands + agents + hooks)" "$languages" ""
         fi
 
         # --- Google -- Gemini / Antigravity 1.0 + 2.0 / Gemini CLI -
@@ -1598,6 +1619,9 @@ install_workspace() {
         fi
         if should_install gemini-cli; then
         if [ "${ENTERPRISE:-0}" = "1" ]; then
+            # Project .gemini/ surfaces plus native hooks merged into
+            # .gemini/settings.json; commands resolve via $GEMINI_PROJECT_DIR so
+            # a committed settings file carries no absolute local path.
             invoke_registry_platform "$repo_root" "workspace" "$target_path" "gemini-cli"   "Gemini CLI (enterprise)"
         else
             write_item "Gemini CLI: skipped (sunset on 2026-06-18 for free / Google AI Pro / Ultra / GitHub-installed users). Re-run with --enterprise to install (requires paid Gemini API key); Antigravity CLI above covers the same functionality." "$DARK_YELLOW"
@@ -1641,12 +1665,17 @@ install_workspace() {
         fi
 
         # --- Kimi ---------------------------------------------------
+        # Project .kimi-code/ AGENTS.md + skills + custom agents. NO hooks at
+        # workspace scope: Kimi's project config is local.toml and documents only
+        # a [workspace] table, so there is no project hook path to write.
         if should_install kimi; then
         write_header "KIMI"
-        invoke_registry_platform "$repo_root" "workspace" "$target_path" "kimi" "Kimi (.kimi/agent.yaml + system.md)" "$languages"
+        invoke_registry_platform "$repo_root" "workspace" "$target_path" "kimi" "Kimi Code CLI (.kimi-code/)" "$languages"
         fi
 
         # --- Qwen ---------------------------------------------------
+        # Project QWEN.md + .qwen/ surfaces plus native hooks merged into
+        # .qwen/settings.json, resolved via $QWEN_PROJECT_DIR (v3.15.8 Phase 6).
         if should_install qwen; then
         write_header "QWEN"
         invoke_registry_platform "$repo_root" "workspace" "$target_path" "qwen" "Qwen Code (QWEN.md)" "$languages"
@@ -1752,11 +1781,11 @@ invoke_registry_platform() {
 install_vscode_extensions() {
     local repo_root="$1"
 
-    write_item "Usage Monitor VS Code extensions show your Claude Code and Codex (ChatGPT)" "$RESET"
-    write_item "usage limits in the status bar, with pacing recommendations. Grouped by vendor." "$RESET"
+    write_item "Usage Monitor VS Code extensions show your Claude Code, Codex (ChatGPT), and" "$RESET"
+    write_item "GitHub usage in the status bar, with pacing recommendations. Grouped by vendor." "$RESET"
     echo ""
 
-    # Check for Node.js (shared by both extensions)
+    # Check for Node.js (shared by every extension)
     if ! command -v node >/dev/null 2>&1; then
         write_item "Node.js is not installed (required to build the extensions)." "$DARK_YELLOW"
 
@@ -1808,7 +1837,7 @@ install_vscode_extensions() {
         return
     fi
 
-    # Locate a VS Code-family CLI once, shared by both extensions. On a fresh Mac
+    # Locate a VS Code-family CLI once, shared by every extension. On a fresh Mac
     # the `code` command is not on PATH unless the user ran "Shell Command: Install
     # 'code' command in PATH", so fall back to the standard application-bundle /
     # install locations. This lets each VSIX auto-install instead of by hand.
@@ -1840,18 +1869,29 @@ install_vscode_extensions() {
         done
     fi
 
-    # Build each extension under its own vendor header so the Anthropic and
-    # OpenAI utilities are visually separated. Each is independent, so a missing
-    # folder or a build failure in one does not block the other.
+    # Build each extension under its own vendor header so the Anthropic, OpenAI,
+    # and GitHub utilities are visually separated. Each is independent, so a
+    # missing folder or a build failure in one does not block the others. The
+    # vendor order (Anthropic, OpenAI, GitHub) is asserted by the installer smoke
+    # test and must match scripts/installer.ps1.
     write_header "ANTHROPIC"
     build_and_install_one_extension "$repo_root/extensions/claude-usage-monitor" "nexus-hub.claude-usage-monitor" "Claude Usage Monitor" "Claude: --%" "$code_cli" "$code_label"
 
     write_header "OPENAI"
     build_and_install_one_extension "$repo_root/extensions/codex-usage-monitor" "nexus-hub.codex-usage-monitor" "Codex Usage Monitor" "Codex: --%" "$code_cli" "$code_label"
+
+    # The GitHub monitor's status hint carries no "%" because GitHub does not
+    # guarantee an included allowance: until a verified denominator or a manual
+    # one is configured the bar shows absolute usage, so promising a percentage
+    # here would be the false-quota claim the v3.15.8 contract forbids. The
+    # install itself never authenticates to GitHub - the token is supplied later
+    # through the extension's SecretStorage command.
+    write_header "GITHUB"
+    build_and_install_one_extension "$repo_root/extensions/github-usage-monitor" "nexus-hub.github-usage-monitor" "GitHub Usage Monitor" "GitHub Usage: --" "$code_cli" "$code_label"
 }
 
 # Build, package, and install one VS Code usage-monitor extension. Shared by
-# install_vscode_extensions so the Claude and Codex monitors install identically.
+# install_vscode_extensions so every monitor installs identically.
 # Args: $1 extension_dir  $2 extension_id  $3 display_name  $4 status_hint
 #       $5 code_cli (may be empty)  $6 code_label
 build_and_install_one_extension() {

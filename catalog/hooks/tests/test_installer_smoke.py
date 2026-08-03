@@ -241,33 +241,69 @@ def test_installers_use_claude_usage_monitor_banner():
         )
 
 
-def test_installers_build_both_usage_monitor_extensions():
-    """v3.14.4 split the usage monitor into two separate extensions. Both
-    installers must build and install BOTH the Claude and the Codex
-    usage-monitor extensions (installer.sh uses '/' paths, installer.ps1 '\\').
+# Every VS Code usage monitor the installers must build, in the vendor order
+# both shells present them (Anthropic, OpenAI, GitHub). Adding a monitor means
+# adding a row here; the tests below then enforce presence AND ordering in both
+# shells, so a monitor cannot be wired into one installer and forgotten in the
+# other, and the two cannot drift out of order.
+USAGE_MONITORS = (
+    ("claude-usage-monitor", "nexus-hub.claude-usage-monitor", "Claude Usage Monitor"),
+    ("codex-usage-monitor", "nexus-hub.codex-usage-monitor", "Codex Usage Monitor"),
+    ("github-usage-monitor", "nexus-hub.github-usage-monitor", "GitHub Usage Monitor"),
+)
+
+
+def test_installers_build_every_usage_monitor_extension():
+    """v3.14.4 split the usage monitor into separate extensions and v3.15.8 added
+    a third. Both installers must build and install EVERY monitor in
+    ``USAGE_MONITORS`` (installer.sh uses '/' paths, installer.ps1 '\\').
     """
     for path in (INSTALLER_SH, INSTALLER_PS1):
         body = path.read_text(encoding="utf-8")
         lower = body.lower()
-        # Both extension source directories are referenced (either path separator).
-        assert (
-            "extensions/claude-usage-monitor" in body
-            or "extensions\\claude-usage-monitor" in body
-        ), f"{path.name} must build the Claude usage-monitor extension"
-        assert (
-            "extensions/codex-usage-monitor" in body
-            or "extensions\\codex-usage-monitor" in body
-        ), f"{path.name} must build the Codex usage-monitor extension"
-        # Both extension ids are installed by their explicit marketplace id.
-        assert "nexus-hub.claude-usage-monitor" in body, (
-            f"{path.name} must install nexus-hub.claude-usage-monitor"
+        for folder, extension_id, display_name in USAGE_MONITORS:
+            assert (
+                f"extensions/{folder}" in body or f"extensions\\{folder}" in body
+            ), f"{path.name} must build the {display_name} extension"
+            assert extension_id in body, f"{path.name} must install {extension_id}"
+            assert display_name.lower() in lower, (
+                f"{path.name} must reference the '{display_name}' display name"
+            )
+
+
+def test_installers_agree_on_usage_monitor_order():
+    """The monitors must be built in the same vendor order by both shells.
+
+    Order is user-visible: each monitor prints under its own vendor header and
+    then claims a status-bar slot in install order, so a reordering in one shell
+    alone gives Windows and macOS/Linux users a different status bar from the
+    same release.
+    """
+    for path in (INSTALLER_SH, INSTALLER_PS1):
+        body = path.read_text(encoding="utf-8")
+        positions = [body.index(extension_id) for _, extension_id, _ in USAGE_MONITORS]
+        assert positions == sorted(positions), (
+            f"{path.name} builds the usage monitors out of order; expected "
+            f"{[extension_id for _, extension_id, _ in USAGE_MONITORS]}"
         )
-        assert "nexus-hub.codex-usage-monitor" in body, (
-            f"{path.name} must install nexus-hub.codex-usage-monitor"
+
+
+def test_github_monitor_status_hint_promises_no_percentage():
+    """The GitHub monitor's installer status hint must not promise a percentage.
+
+    GitHub does not guarantee an included allowance for Copilot or Actions, so
+    the monitor shows absolute usage until a verified or manually configured
+    denominator exists. A 'GitHub: --%' hint would advertise the false-quota
+    claim the v3.15.8 data contract forbids.
+    """
+    for path in (INSTALLER_SH, INSTALLER_PS1):
+        body = path.read_text(encoding="utf-8")
+        assert "GitHub Usage: --" in body, (
+            f"{path.name} must use the absolute-usage 'GitHub Usage: --' status hint"
         )
-        # Both display names appear.
-        assert "codex usage monitor" in lower, (
-            f"{path.name} must reference the 'Codex Usage Monitor' display name"
+        assert "GitHub: --%" not in body, (
+            f"{path.name} must not promise a GitHub usage percentage before a "
+            "denominator is verified"
         )
 
 

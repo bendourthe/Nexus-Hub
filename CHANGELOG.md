@@ -7,6 +7,43 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.15.8] - 2026-08-03
+
+**v3.15.8 platform capability parity and the GitHub Usage Monitor.** Every one of the 18 rows in the platform ownership matrix is now enforceable rather than finding-only, closing DF-9. A fourth usage-monitor extension tracks GitHub Copilot and Actions consumption. Repository hygiene improves alongside: least-privilege permissions and bounded timeouts on every workflow, a shared module replacing four adapters' duplication, and a platform-portable extension lockfile. No new external dependency, credential, data processor, or catalog entry is introduced. Catalog: **270 skills**, **17 commands**, **30 hooks**, **23 agents**.
+
+### Added
+
+- **GitHub Usage Monitor** (`extensions/github-usage-monitor/`): a VS Code extension reporting current-month Copilot premium requests and Actions minutes plus storage across user, organization, and enterprise scopes. Fine-grained token stored only in `ExtensionContext.secrets`; verified-or-manual allowance resolution; last-known-good cache; teal (`#008080`) usage meters. Both installers build and install it under a `GITHUB` vendor header after Anthropic and OpenAI.
+- **Codex custom agents and native hooks**: `catalog/agents/*.md` transform into Codex TOML at `~/.codex/agents/` and `.codex/agents/`, with `sandbox_mode = "read-only"` inferred when every declared tool is non-mutating. Hooks merge structurally into `hooks.json` at both scopes with `commandWindows` carrying the `.ps1` sibling, and the installer sets `[features] hooks = true` idempotently.
+- **Gemini CLI and Qwen native hooks**: ownership-scoped merges into each platform's own `settings.json`. Gemini CLI's renamed events are translated (`PreToolUse` to `BeforeTool`, `Stop` to `AfterAgent`, `PreCompact` to `PreCompress`); Qwen keeps the Claude-style names and additionally receives its documented `shell` and `statusMessage` fields.
+- **Kimi Code CLI custom agents and TOML hooks**: catalog agents copy verbatim to `~/.kimi-code/agents/` and `.kimi-code/agents/`, since Kimi accepts the Claude frontmatter shape natively. Hooks install as a marker-delimited managed block in `~/.kimi-code/config.toml` that preserves the user's comments and tables byte-for-byte.
+- **Copilot global custom agents** at `~/.copilot/agents/*.agent.md`, verbatim, validated against Copilot's required `description` and its 30,000-character prompt cap.
+- **Repo-wide workflow policy tests** (`tests/workflows/test_workflow_policy_repo_wide.py`): 56 assertions holding all eight workflows to least-privilege permissions, bounded job timeouts, full-SHA action pins, concurrency cancellation, protected-branch push scoping, and path filtering.
+- **Path-filtered GitHub monitor CI** (`.github/workflows/github-usage-monitor.yml`) plus a `verify:package` gate asserting the VSIX carries every runtime asset and no coverage report, source tree, nested VSIX, or credential-shaped file.
+
+### Changed
+
+- **Copilot hooks and project agents are documented as inherited, not duplicated.** Copilot reads Claude-format files by default -- its `chat.hookFilesLocations` default includes `~/.claude/settings.json` and `.claude/settings.json`, and its workspace agent defaults include `.claude/agents` -- all paths Nexus-Hub already writes. No parallel `.github/hooks` or `.github/agents` copy is created, since it would add commit-visible duplicates for surfaces Copilot already loads.
+- **Hermes flattened skill layout confirmed required, not merely tolerated.** Discovery lists every direct subdirectory of the tap path and probes each for `SKILL.md`, so a category-nested migration would hide every skill at depth 2. No migration performed; a regression test pins the invariant.
+- **Least-privilege permissions and bounded timeouts on every workflow.** Six workflows previously declared no `permissions` at all and none declared `timeout-minutes`.
+- **Shared native-hook primitives** (`scripts/lib/integrations/_hooks_common.py`) replace three copies of the script-basename split, two of the ownership predicate, and two of the host-command builder across the Codex, Gemini CLI/Qwen, and Kimi adapters.
+- **`~/.copilot` and the Codex/Kimi/Gemini directory cleanup** now route through patchable accessors and a shared tolerant `remove_dir_if_empty`, so a teardown cannot abort partway through on a Windows delete-pending directory.
+
+### Fixed
+
+- **GitHub monitor lockfile was Linux-incomplete by construction.** The extension devDepended on `sharp`, whose Linux variant requires `@emnapi` packages the Windows variant does not, so a Windows-generated lock failed `npm ci` on the ubuntu runner. The four asset-generation tools (`sharp`, `svg2ttf`, `svgpath`, `ttf2woff2`) regenerate only committed assets and are now install-on-demand; the lock drops from 494 to 378 packages with zero platform-specific `@emnapi` entries and no audit advisories.
+- **Category-level `catalog/skills/code-review/references/`** shipped as a bogus skill with no `SKILL.md` on all nine flattened platforms, and left three sibling skills citing reference paths that did not resolve. The four checklists moved into each citing skill's own `references/`.
+- **`ci.yml` never collected `tests/plans` or `tests/workflows`**, because its `tests` job enumerates directories by name.
+- **Both installers advertised the deprecated `.kimi/agent.yaml` path** in the Kimi workspace summary, a full minor version after it was dropped.
+- **`IntegrationBase._copy_file` could not repair a drifted owned file**, so a manifest-owned agent that changed on disk stayed changed; the native adapters now use a manifest-aware write.
+- **Codex Windows CI coverage**: `test_codex_native.py`, `test_settings_hooks.py`, `test_kimi_native.py`, and `test_copilot_hermes_native.py` each run on the Windows leg, where host-selected commands and path handling differ from ubuntu.
+
+### Deferred
+
+- Kimi documents no project-scoped hook path (`local.toml` carries only `[workspace]`), and Gemini CLI's extension-packaged hooks have no documented direct-write path. Both are recorded rather than inferred.
+- Codex hooks stay inert until the user trusts them via `/hooks`, which no installer can perform.
+- Live observation of the five platform surfaces, the interactive light/dark/high-contrast visual smoke, and an authorized GitHub billing refresh are consolidated into one release-readiness pass. Extension activation coverage transfers to v3.15.9.
+
 ## [3.15.7] - 2026-08-02
 
 **v3.15.7 evidence-closed security review hardening.** Security findings now carry explicit dispositions, refutations must meet a proof burden, hunt coverage is measurable, rigor claims are mechanically auditable, one typed broker owns execution authorization, and a deterministic closure gate rejects unresolved claim-to-evidence mismatches. The release also includes Codex Usage Monitor Extra Credits and the isolated installer import-cycle fix. No new external dependency, credential, data processor, or catalog entry is introduced. Catalog: **270 skills**, **17 commands**, **29 hooks**, **23 agents**.

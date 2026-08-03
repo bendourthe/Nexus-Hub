@@ -1,5 +1,343 @@
 # Development Log
 
+## [2026-08-03] - v3.15.8 release: platform capability parity + GitHub Usage Monitor [release]
+
+### What Changed
+
+Cut v3.15.8. Merged `feat/v3.15.8-platform-parity` into `develop` (nine phase commits), bumped every version-carrying surface from 3.15.7 to 3.15.8, wrote the CHANGELOG entry and the README "What's New" section, corrected two documentation counts that had drifted, re-stamped the platform read-contract for the release, and regenerated the supply-chain manifest.
+
+### Why It Changed
+
+v3.15.7 shipped with documented additive drift: the release-time audit found native agent and hook capabilities across five platforms that Nexus-Hub did not yet deliver, recorded as DF-9 and deferred here rather than expanding that release. v3.15.8 consumes that finding in full.
+
+### Decisions Made
+
+- Re-stamped `meta.verified_for_version` to 3.15.8 on the strength of six platforms re-verified against live documentation during Phases 5-8 (Codex, Gemini CLI, Qwen, Kimi, Copilot, Hermes), and recorded explicitly in the stamp note that the other nine were audited one day earlier for v3.15.7 and carried forward unchanged. The freshness guard is a claim about evidence, so the note says exactly which platforms the evidence covers.
+- Corrected the documented hook count from 29 to 30 and left the command count at 17, which is correct once the three permanent aliases are excluded from the 20 command files.
+- Kept the release on `develop` with a direct merge rather than a PR, per the maintainer's choice, with CI validating the merged result on the push.
+
+### Troubleshooting Trail
+
+<details>
+<summary>PowerShell re-encoded three files during the version bump</summary>
+
+The first bump used `Set-Content -Encoding utf8`, which both prepends a BOM and re-encodes non-ASCII characters. `check_version_sync.py` caught the BOM immediately ("Unexpected UTF-8 BOM"), but stripping it revealed worse damage underneath: `AGENTS.md` showed 124 changed lines for a one-word edit, `installer.sh` failed ShellCheck on a mangled quote character, and `installer.ps1` failed its AST parse with 47 errors. All six files were reverted and every edit reapplied through Python with an explicit UTF-8 codec and `newline=''`, which brought the diff down to two lines per installer. This is the same class `AGENTS.md` already warns about for `.ps1` hook siblings; the warning now has a second instance behind it.
+
+</details>
+
+### Impact & Context
+
+- **Affected**: `.claude-plugin/plugin.json`, `data/marketplace.json`, `scripts/installer.sh`, `scripts/installer.ps1`, `README.md`, `AGENTS.md`, `CHANGELOG.md`, `docs/policy/platform-read-contracts.json`, `MANIFEST.sha256`, the v3.15 known-gaps ledger, and this DEVLOG.
+- **Verified**: version sync clean at 3.15.8 across all six surfaces, both contract guards green, ShellCheck and the PowerShell AST parse clean after the re-encode repair, and the full local gate from Phase 9 (2360 tests, zero failures) plus green CI on `develop`.
+- **Deferred**: the consolidated live-observation pass (five platform surfaces, the interactive visual smoke, and an authorized billing refresh) and extension activation coverage, transferred to v3.15.9.
+
+## [2026-08-03] - v3.15.8 Phase 9 architecture refactor, gap reconciliation, and CI/CD [refactor]
+
+### What Changed
+
+Closed the plan. Added `scripts/lib/integrations/_hooks_common.py` (126 lines) and removed 152 lines from the four native-hook adapters Phases 5-8 built, collapsing three copies of the script-basename split, two of the ownership predicate, and two of the host-command builder into one each. Reconciled every v3.15.8 gap: DF-9 closes with all 18 ownership rows enforceable, DF-11 is accepted as a retained difference, MT-5 transfers to v3.15.9, and MT-6/7/8 plus QG-4 consolidate into one release-readiness live pass. The repo-wide workflow audit found two uniform gaps and fixed both: six workflows declared no `permissions` and none declared `timeout-minutes`. Added `tests/workflows/test_workflow_policy_repo_wide.py` (70 assertions across all 8 workflows) so a new workflow inherits the standard by failing rather than by review.
+
+### Why It Changed
+
+Four phases of platform adapters accumulated the same three low-level operations in each module, and Kimi ended up importing host helpers from a file named after Gemini CLI -- a dependency that read as intentional and was not. The workflow gaps were invisible per-workflow and only showed up in a field-by-field comparison across all eight, which is exactly what 9.3 asked for.
+
+### Decisions Made
+
+- Kept the per-platform differences per-platform. Event maps, matcher vocabularies, file formats, and merge strategies stayed in their own modules, because those divergences are real and collapsing them would hide the schema differences the read contract exists to document. Only the operations that were genuinely identical moved.
+- Left `codeql.yml` alone. Its job-level `security-events: write` is required to upload results, a job-level block replaces the default outright, and narrowing it would break the security scan. Encoded as a documented exception in the policy test rather than a silent skip.
+- Sized timeouts generously (60 minutes for the two long test jobs and CodeQL, 30 elsewhere) rather than tightly. The repository suites run 17-28 minutes locally with no CI baseline in this branch to size from, and a wrong timeout fails the release gate; 30-60 is still an order of magnitude below the 6-hour default.
+- Accepted DF-11 rather than reversing it, because the audit confirmed per-path job gating was never adopted repo-wide, so its premise still holds. The compensating control is now test-asserted instead of merely described.
+- Transferred MT-5 to v3.15.9 rather than deferring it indefinitely: an Extension Development Host harness is its own piece of work, and package coverage already passes its thresholds.
+- Consolidated the four live-observation items into one pass. They share a single precondition -- a host with those products installed -- so tracking them separately would have implied four independent checks.
+
+### Troubleshooting Trail
+
+<details>
+<summary>Two audit-script regex bugs that would have hidden the real gaps</summary>
+
+The first workflow audit reported no path filters anywhere and permissions on only two files. Both were wrong: `re.search` with a `^`-anchored pattern and no `re.M` only matches the start of the whole file, so `paths:` and indented `permissions:` were invisible. Re-running with multiline anchors showed 7 of 8 workflows do filter by path (with `ci.yml` correctly using `paths-ignore` as the catch-all) and that the real gap was six workflows declaring no permissions at all. Worth noting because the first result would have led to fixing something that was not broken while missing what was.
+
+</details>
+
+### Impact & Context
+
+- **Affected**: `scripts/lib/integrations/_hooks_common.py` (new), `_settings_hooks.py`, `_settings_hooks_mixin.py`, `_codex_native.py`, `_kimi_native.py`, `kimi.py`, `gemini_cli.py`, `qwen.py`, all eight `.github/workflows/*.yml`, `tests/workflows/test_workflow_policy_repo_wide.py` (new), the v3.15.8 plan, known-gaps ledger, cleanup report, and Phase 9 history.
+- **Verified**: the full `pytest tests catalog/hooks/tests` sweep at **2360 passed, 56 skipped, zero failures** -- the first fully clean sweep of this plan; 70 workflow-policy assertions; the GitHub monitor chain from a clean `npm ci` through compile, 103 tests, 82.09% statements, a 39-file VSIX, and 37-file content verification; every `make validate` gate individually; ShellCheck and a PowerShell AST parse; and `git diff --check`.
+- **Deferred**: DF-10 and QG-4 (asset and GUI environment limits), DF-12 and DF-13 (upstream-blocked), HO-4 (interactive trust by design), MT-5 (transferred to v3.15.9), and the consolidated live-observation pass. No push or release action was performed by this phase; the remote sequence is a separate, approval-gated step.
+
+## [2026-08-03] - v3.15.8 Phase 8 Copilot agents and hooks, Hermes layout verification [feature]
+
+### What Changed
+
+Closed the last four platform rows, mostly by proving they were already delivered. Copilot in VS Code reads Claude-format customization files by default -- `~/.claude/settings.json` and `.claude/settings.json` for hooks, `.claude/agents` for project agents -- all of which Nexus-Hub already writes, so those three rows are now enforceable as **inherited with no owned write** and no committed `.github/` duplicate. The one real gap, global agents, ships verbatim to `~/.copilot/agents/<name>.agent.md`. Hermes was re-verified and its rows flipped to fully enforceable without migration: discovery probes each direct subdirectory of the skills root, so the flattened layout is required rather than optional. Added 30 tests, a Windows CI leg, and fixed a pre-existing catalog defect the Hermes test caught.
+
+### Why It Changed
+
+Phase 1 recorded Copilot's agents and hooks as finding-only and Hermes's layout as an open question. Both turned out to hinge on facts the plan did not have: Copilot's Claude-compatibility defaults, and Hermes's actual depth-1 discovery rule. Building what the matrix assumed would have produced redundant commit-visible files in one case and broken discovery in the other.
+
+### Decisions Made
+
+- Recorded Copilot hooks and project agents as inherited rather than writing parallel `.github/` copies. Copilot already loads them; a duplicate would add committed files to the user's repo -- the concern that keeps `.github/skills` opt-in -- and agent files dedup across levels by filename anyway, so the copy would change nothing.
+- Kept `hooks_supported = false` for Copilot. It is the accurate statement: Nexus-Hub owns no Copilot hook surface, and the install summary should not imply otherwise when the Claude path is what carries them.
+- Asserted the inheritance in a test rather than a comment. The dependency now runs Copilot-on-Claude, so if the `claude` integration stopped writing those paths, Copilot's coverage would vanish silently; the test makes that a failure instead.
+- Delivered global agents verbatim, the third time in this plan the right answer was a validated copy rather than a transform. Copilot documents Claude's tool names as aliases and ignores unrecognized frontmatter, so the catalog files load as-is.
+- Accepted the maintainer's call to fix the `code-review/references` defect now rather than defer it, since three shipped skills had relative reference paths that did not resolve.
+- Folded Hermes into the ownership-guard's phase map and dropped its special case, so no row is exempt from stating which phase made it enforceable.
+
+### Troubleshooting Trail
+
+<details>
+<summary>A nine-platform catalog defect, and a test that wrote into my real home directory</summary>
+
+The Hermes depth-1 test failed on its first run against a `references` directory sitting at the skills root with no `SKILL.md`. The cause was pre-existing and had nothing to do with Hermes: `catalog/skills/code-review/references/` held four checklists at the *category* level instead of inside a skill, so `flatten_skills` -- which treats every direct child of a category as a skill -- shipped `references` as a bogus skill on all nine flattened platforms. The same misplacement also meant `code-quality`, `security-review`, and `performance-review` each cited `references/<file>.md` as a path relative to themselves that resolved to a sibling directory instead. The checklists were relocated into each citing skill's own `references/` per the per-skill bundling convention and the category-level directory removed, keeping the bundle audit at 0 errors.
+
+The full sweep then caught a defect this phase introduced. `test_copilot_install_global_skips_without_vscode` patched `_vscode_user_dir` to `None` and relied on that making `install_global` a no-op; adding a second detection signal broke that, so on a host that really has `~/.copilot` the test wrote 23 agent files into the developer's actual home directory. The files were removed and the design fixed rather than just the test: `~/.copilot` is now reached only through a patchable `_copilot_home()` accessor mirroring `_vscode_user_dir()`, both affected tests isolate it, and a new test asserts `install_global` routes through the accessor so a future global surface cannot bypass it. Separately, folding Hermes into the phase map surfaced that its guard branch still asserted the old `Enforceable existing` wording, which is exactly the staleness the Phase 7 reason-required test was added to catch.
+
+</details>
+
+### Impact & Context
+
+- **Affected**: `scripts/lib/integrations/copilot.py`, `docs/policy/platform-read-contracts.json`, `docs/policy/platform-read-contracts.md`, `docs/v3/v3.15/development/platform-capability-ownership.md`, `scripts/installer.sh`, `scripts/installer.ps1`, `.github/workflows/ci.yml`, `tests/integrations/test_copilot_hermes_native.py` (new), `tests/integrations/test_global_command_surface.py`, `tests/plans/test_v3_15_8_contracts.py`, four relocated `catalog/skills/code-review/**/references/*.md` files, the v3.15.8 plan, known-gaps ledger, cleanup report, and Phase 8 history.
+- **Verified**: 31 new Copilot/Hermes tests, `tests/plans` at 29 with a new inherited-row guard, 69 focused tests after the accessor fix with the real `~/.copilot/agents` confirmed absent, every `make validate` gate run individually (bundle audit at 0 errors, trigger evals, personal-paths, unicode safety, supply-chain IOCs, workflow security, version sync, base-template parity, platform contracts and freshness), ruff check and format on the changed files, and a full 2302-test sweep whose single failure was the stale detection test described above.
+- **Deferred**: nothing new. The carryovers (DF-13, MT-8, DF-12, MT-7, HO-4, MT-6, DF-11, MT-5, QG-4) are unchanged and owned by Phase 9. No push or release action was performed.
+
+## [2026-08-02] - v3.15.8 Phase 7 Kimi custom agents and TOML hooks [feature]
+
+### What Changed
+
+Kimi Code CLI now receives custom agents and native hooks. Added `scripts/lib/integrations/_kimi_native.py`: agents are a validated **verbatim copy** of `catalog/agents/*.md` into `~/.kimi-code/agents/` and `.kimi-code/agents/`, because Kimi loads the Claude Code frontmatter shape natively and needs no transform. Hooks are a **marker-delimited managed block** of `[[hooks]]` entries spliced into `~/.kimi-code/config.toml`, because Kimi's schema permits only four fields and any extra one makes the config fail to load, leaving no `name` slot for ownership. Also lifted the Phase 5 `write_owned_file` primitive into a shared `_owned` module, corrected both installers' stale Kimi workspace display name, added 76 tests wired into a Windows CI leg, and flipped three of the four Kimi matrix rows to enforceable.
+
+### Why It Changed
+
+Phase 1 recorded Kimi's agents and hooks as finding-only, on the assumption that agents would need a transform and hooks would live in a project `.kimi-code/config.toml`. Both assumptions were wrong in opposite directions, which is the whole argument for re-verifying a contract at implementation time instead of trusting the plan's snapshot of it.
+
+### Decisions Made
+
+- Copied agents **verbatim** rather than augmenting them. Kimi warns that a delegated custom agent loses the built-in "your final message is the entire handoff" framing and suggests stating that in the body, but injecting a generated paragraph would make the delivered agent diverge from its catalog source. The caveat is documented in the read contract instead, so an agent behaves identically on Kimi and Claude.
+- Used a marker block for hooks rather than a TOML round-tripper. Comment preservation is a hard requirement and `tomllib` is read-only, so the alternative was a non-stdlib dependency. Splicing one marker-delimited region means the user's TOML is never parsed and re-emitted at all, so comments and table order survive by construction rather than by a library's best effort.
+- Left an **already-invalid** `config.toml` untouched, distinct from rolling back an invalid merge. A file the user has already broken is theirs to fix; splicing into it would make the Nexus-Hub block look like the cause.
+- Kept hooks **global-scope only** and recorded DF-13. The project config is `local.toml` and documents only a `[workspace]` table, so a project hook path would have been invented rather than verified.
+- Wrote only Kimi's native agent directories, not the shared `~/.agents/agents/` or project `.agents/agents/`, matching the rule Kimi already follows for skills and avoiding a teardown conflict if another platform later claims them.
+- Moved `write_owned_file` into `_owned` instead of duplicating it. Two copies of "is this file ours?" is precisely the drift the shared-module approach exists to prevent, and re-exporting from `_codex_native` kept the Phase 5 tests untouched.
+
+### Troubleshooting Trail
+
+<details>
+<summary>Three latent defects, two of them found by the cross-integration contract suite</summary>
+
+The idempotence test failed because `IntegrationBase._copy_file` treats any existing destination as "kept" unless the entire install runs with `--overwrite`. That is correct for a bulk tree copy but cannot express the matrix's manifest-driven repair requirement, so a drifted Kimi agent would have stayed drifted forever. Codex already had the right primitive from Phase 5, so it moved to a shared `_owned` module and Kimi reuses it.
+
+The pre-existing `test_contract.py` then caught two more. Its dry-run histogram comparison reported 23 files as "unchanged" during a real install -- exactly the catalog agent count -- because declaring `agents_subdir` made the base `_mirror_catalog` copy the agents as well, writing every one twice. The key is now deliberately unset, with the read path still asserted through `doc_mentions` and `install_verify`. And its uninstall test hit `PermissionError` from `rmdir` on a directory `iterdir()` reported as empty: the Windows delete-pending state, where a file another process still holds a handle to vanishes from the listing but keeps blocking removal. That code had shipped in Codex in Phase 5 and in the Phase 6 mixin, so it was a latent teardown crash in three places, and crashing partway through an uninstall is far worse than the leftover directory it was avoiding. All three now share a `remove_dir_if_empty` that logs and continues.
+
+Separately, while updating the installer comments, both shells turned out to still be printing `Kimi (.kimi/agent.yaml + system.md)` as the workspace label -- advertising a path dropped in v3.15.0 Phase 4. Phase 7's own exit checklist requires deprecated Kimi paths to be absent, and a user-visible summary naming one is exactly what that checklist is for, so both now name the real `.kimi-code/` surface.
+
+</details>
+
+### Impact & Context
+
+- **Affected**: `scripts/lib/integrations/_kimi_native.py` (new), `scripts/lib/integrations/_owned.py` (new), `scripts/lib/integrations/kimi.py`, `scripts/lib/integrations/_codex_native.py`, `docs/policy/platform-read-contracts.json`, `docs/policy/platform-read-contracts.md`, `docs/v3/v3.15/development/platform-capability-ownership.md`, `scripts/installer.sh`, `scripts/installer.ps1`, `.github/workflows/ci.yml`, `tests/integrations/test_kimi_native.py` (new), `tests/installer/test_verify_read_paths.py`, `tests/plans/test_v3_15_8_contracts.py`, the v3.15.8 plan, known-gaps ledger, cleanup report, and Phase 7 history.
+- **Verified**: 76 new Kimi tests, the Phase 5 Codex suite unchanged against the relocated primitive, `tests/plans` with a per-scope ownership guard, the read-path suite at 12 including a new absent-block case, `test_contract.py` at 79 passed after the double-write and teardown fixes, 198 focused tests together, all four contract and parity validators, ruff check and format, ShellCheck on `installer.sh`, and a PowerShell AST parse of `installer.ps1`. The full 2270-test sweep surfaced exactly the two defects described above.
+- **Deferred**: DF-13 (Kimi documents no project hook path), MT-8 (delivery not observed against a running Kimi build), plus the unchanged DF-12, MT-7, HO-4, MT-6, DF-11, MT-5, and QG-4 carryovers. No push or release action was performed.
+
+## [2026-08-02] - v3.15.8 Phase 6 Gemini CLI and Qwen native hooks [feature]
+
+### What Changed
+
+Gemini CLI and Qwen Code now receive Nexus-Hub's guardrails as native hooks. Added `scripts/lib/integrations/_settings_hooks.py`, which translates `catalog/hooks/settings.json` into each platform's own `settings.json` `hooks` key, and `_settings_hooks_mixin.py`, which owns the install and teardown choreography both platforms share. The per-platform differences sit in a spec object: Gemini CLI renamed every lifecycle event (`PreToolUse` is `BeforeTool`, `Stop` is `AfterAgent`, `PreCompact` is `PreCompress`), Qwen kept the Claude-style names, both match on their own tool ids as regexes, and only Qwen documents `shell` and `statusMessage`. Both integrations now install and tear down hooks at global and workspace scope, flipped their four ownership-matrix rows to enforceable, gained contract-check and `install_verify` entries, and are covered by 71 shared tests wired into a Windows CI leg.
+
+### Why It Changed
+
+Phase 1 recorded both platforms' hooks as finding-only. Phase 6 is where that comes due, and it is the first surface in this plan where two platforms are close enough to share an implementation but different enough that sharing it naively would be wrong. Qwen Code is a Gemini CLI fork, so the file shape and merge semantics are identical while the event vocabulary is not.
+
+### Decisions Made
+
+- Merged into `settings.json` as the matrix specifies, and recorded Gemini CLI's extension-packaged hooks as DF-12 rather than adopting them. An extension directory would be a perfectly-owned write path with `${extensionPath}` substitution, but the reference documents only `gemini extensions install` for populating it, and it has no project scope. Shipping a directly-written extension would be the inferred write path sub-task 6.1 explicitly says to record instead.
+- Chose the command string from the installing host, because neither platform has Codex's `commandWindows` slot and both collapse `Bash` and `PowerShell` onto one `run_shell_command` tool. Registering both siblings would double-fire the same guardrail on one shell call, so Windows gets the `.ps1` and the PowerShell-flavored hooks and POSIX gets the `.sh` and the Bash-flavored ones. Both siblings ship regardless, so re-running on the other OS only re-points the registration.
+- Made ownership the `nexus-hub:` handler `name` rather than a path prefix. Both schemas carry `name`, and it is what Gemini CLI fingerprints project hooks on, so a stable name also stops the untrusted-hook warning from firing on every install. The installed hooks directory is a second signal for a handler someone renamed by hand.
+- Treated the user's `settings.json` more carefully than Codex's `hooks.json`: this file holds their model, theme, and MCP configuration, so a malformed one is left exactly as found. Losing that to a transient syntax error is worse than skipping a hook registration and logging why.
+- Left `disableAllHooks` alone and reported it. Unlike Codex there is no feature switch to enable; there is a kill switch the user set, and reversing it silently is the behavior this contract exists to prevent.
+- Inherited the existing gates unchanged, so Gemini CLI hooks stay behind `--enterprise` and Qwen's global scope stays detection-gated on `~/.qwen`.
+
+### Troubleshooting Trail
+
+<details>
+<summary>A duplicate-handler assertion that was wrong about the catalog, a stale verify fixture, and a PowerShell pipe that looked like a hang</summary>
+
+The reinstall test asserted no repeated handler name within an event, and failed at 10 versus 7 under `PreToolUse`. The code was right and the test was wrong: the catalog registers `secret-scan` against both `Write` and `Edit`, which are distinct tool ids here, so it legitimately appears under two different matchers in the same event. The assertion now keys on the event-matcher-name triple, which is the condition that would actually double-fire a guardrail on one tool call, and byte-equality across two installs already proved idempotence independently. `test_qwen_verify_pass_and_needs_action` then failed on the two new `install_verify` surfaces, the same way its Codex counterpart did in Phase 5; its fixture now provisions every verified surface, and a new sibling test covers the case where a user's settings file carries no Nexus-Hub handler. Separately, a re-run appeared to hang for twelve minutes with no output; the cause was piping pytest through PowerShell's `Select-Object -Last`, which buffers everything. The same run without the pipe finished in six seconds.
+
+</details>
+
+### Impact & Context
+
+- **Affected**: `scripts/lib/integrations/_settings_hooks.py` (new), `scripts/lib/integrations/_settings_hooks_mixin.py` (new), `scripts/lib/integrations/gemini_cli.py`, `scripts/lib/integrations/qwen.py`, `docs/policy/platform-read-contracts.json`, `docs/policy/platform-read-contracts.md`, `docs/v3/v3.15/development/platform-capability-ownership.md`, `scripts/installer.sh`, `scripts/installer.ps1`, `.github/workflows/ci.yml`, `tests/integrations/test_settings_hooks.py` (new), `tests/installer/test_verify_read_paths.py`, `tests/plans/test_v3_15_8_contracts.py`, the v3.15.8 plan, known-gaps ledger, cleanup report, and Phase 6 history.
+- **Verified**: 71 new hook tests parametrized across both platforms and both host branches, `tests/plans` at 27, `tests/installer/test_verify_read_paths.py` at 11 including the new absent-registration case, the affected integration / installer / validator / workflow suites at 1039 passed with the one stale fixture fixed and re-verified, all four contract and parity validators, ruff check and format on the changed files, ShellCheck on `installer.sh`, and a PowerShell AST parse of `installer.ps1`.
+- **Deferred**: DF-12 (extension-packaged hooks as a cleaner but undocumented write path), MT-7 (which shell each CLI dispatches through on Windows is not documented upstream), plus the unchanged HO-4, MT-6, DF-11, MT-5, and QG-4 carryovers. No push or release action was performed.
+
+## [2026-08-02] - v3.15.8 Phase 5 Codex custom agents and native hooks [feature]
+
+### What Changed
+
+Codex stops being a skills-and-commands platform. Added `scripts/lib/integrations/_codex_native.py`, which transforms each `catalog/agents/*.md` into a Codex agent TOML (`name`, `description`, the Markdown body as `instructions`, and an inferred `sandbox_mode`) and merges Nexus-Hub's hooks into the user's `hooks.json` without disturbing anything the user wrote. `CodexIntegration` now writes agents and hooks at both global and workspace scope, copies each hook's `.sh` and `.ps1` sibling, sets `[features] hooks = true` in the same `config.toml` it already merges permissions into, and overrides `teardown` to prune only its own handlers before removing the two directories if they end up empty. Flipped the four Codex rows in the ownership matrix from finding-only to enforceable, added three `install_verify` checks to the read contract, and added `tests/integrations/test_codex_native.py` at 39 tests, wired into both the main CI job and the Windows leg.
+
+### Why It Changed
+
+Phase 1 observed that Codex reads custom agents and native hooks and recorded both as finding-only, because observing a read path is not the same as owning a write to it. Phase 5 is where that debt comes due. It is also the first surface in this plan that is not a file copy: Codex wants TOML where the catalog has Markdown, and wants a single merged `hooks.json` where the catalog has a settings template, so the delivery needs a transform and a merge algorithm rather than another `safe_folder_copy` call.
+
+### Decisions Made
+
+- Enabled `[features] hooks` idempotently rather than printing an instruction. The installer is already editing `config.toml` for permissions, so a hook engine left disabled would have been a surface that exists on disk and does nothing. An explicit user `false` is respected and never flipped.
+- Inferred `sandbox_mode = "read-only"` when every tool an agent declares is non-mutating. Agents like `planner` and `code-explorer` list only `Read`, `Glob`, and `Grep`; shipping them unsandboxed would grant write authority the agent definition never asked for.
+- Shipped every hook whose matcher has a Codex equivalent instead of a curated subset, and dropped the ones that do not map rather than approximating them. A guardrail that fires on the wrong event is worse than one that is absent.
+- Put `commandWindows` on every handler pointing at the `.ps1` sibling, which is what makes the v3.15.6 PowerShell parity work pay off on a platform whose hook schema happens to have a slot for it.
+- Kept ownership in the install manifest rather than a marker comment in the JSON. It is the same mechanism the rest of the registry uses, and it is what lets a reinstall be byte-identical and a teardown be surgical.
+
+### Troubleshooting Trail
+
+<details>
+<summary>An empty config.toml, a leftover directory, and two guards that fired exactly when they should have</summary>
+
+`enable_hooks_feature` prepended a newline before `[features]` when `config.toml` was empty or absent, producing a file that opened with a blank line. The separator is now chosen from the existing content rather than assumed. Teardown passed while leaving `agents/` and `hooks/` behind as empty directories, which is a clean uninstall only by a generous definition, so `_remove_if_empty` now runs after the prune. Two tests then failed, both correctly. Adding the `install_verify` checks broke `test_codex_pass_and_needs_action`, which had provisioned only the pre-Phase-5 surfaces; the fixture now provisions all three, and a sibling test covers the absent-flag path. And the full sweep failed the Phase 1 guard asserting that no ownership-matrix row claims enforcement before its implementation phase ships - the claim this phase exists to change. The guard now reads an explicit `IMPLEMENTED_CAPABILITIES` map instead of being deleted, so a capability must be marked enforceable and name its phase, and everything not yet built must still read finding-only.
+
+</details>
+
+### Impact & Context
+
+- **Affected**: `scripts/lib/integrations/_codex_native.py` (new), `scripts/lib/integrations/codex.py`, `docs/policy/platform-read-contracts.json`, `docs/policy/platform-read-contracts.md`, `docs/v3/v3.15/development/platform-capability-ownership.md`, `scripts/installer.sh`, `scripts/installer.ps1`, `.github/workflows/ci.yml`, `tests/integrations/test_codex_native.py` (new), `tests/installer/test_verify_read_paths.py`, `tests/plans/test_v3_15_8_contracts.py`, the v3.15.8 plan, known-gaps ledger, cleanup report, and Phase 5 history.
+- **Verified**: 39 new Codex native tests, the updated read-path verification tests, `tests/plans` at 27 passed, `verify_platform_contracts.py`, `check_platform_contract_freshness.py`, `check_version_sync.py`, `check_base_template_parity.py`, `validate_skills.py`, ruff check and format, and a full `pytest tests catalog/hooks/tests` sweep at 2149 passed and 56 skipped whose single failure was the ownership guard described above.
+- **Deferred**: HO-4 (Codex hooks stay inert until trusted via `/hooks`, which no installer can do), MT-6 (delivery is not observed against a running Codex build), plus the unchanged DF-11, MT-5, and QG-4 carryovers. No push or release action was performed.
+
+## [2026-08-02] - v3.15.8 Phase 4 GitHub monitor installer distribution, packaging, and focused CI [feature]
+
+### What Changed
+
+Made the GitHub Usage Monitor obtainable. Both installers now build and install it under a `GITHUB` vendor header after Anthropic and OpenAI, with an absolute-usage status hint that promises no percentage. Added `.github/workflows/github-usage-monitor.yml`, a path-filtered Node 22 gate with a read-only token, SHA-pinned actions, exact lockfile cache, concurrency cancellation, and a clean install to compile to coverage to package to content-verification chain. Added a `verify:package` gate asserting the VSIX carries every runtime asset and no coverage report, source tree, source map, nested VSIX, or credential-shaped file. Added the extension README and repository inventory entry. On maintainer request, the usage-meter fill changed from `#651DA8` to teal `#008080`. The package is at 103 tests; the phase adds 14 workflow-policy tests, 3 package-content tests, and 3 installer parity tests.
+
+### Why It Changed
+
+Phase 3 produced a complete, tested extension that no user could install and no remote pipeline could see. Phase 4 is the delivery boundary, and it also owned two inherited quality-gate debts: QG-3 (the monitor had no CI at all) and QG-2 (repository CI never collected `tests/plans`). Both are now resolved.
+
+### Decisions Made
+
+- Parameterized the installer smoke test over a monitor tuple and added a separate order assertion, so a fourth monitor cannot be wired into one shell and forgotten in the other.
+- Gated packaged contents with `vsce ls` rather than unzipping the archive: it applies `.vscodeignore` identically and costs nothing in CI.
+- Omitted `scripts/installer.{sh,ps1}` from the focused workflow's triggers. `ci.yml` has no path filter beyond `paths-ignore: docs/**`, so it already runs installer-parity on every installer edit; listing them would rebuild an unchanged VSIX. Recorded as DF-11 for Phase 9 to accept or reverse.
+- Scoped the color change to meter fills and the dashboard accent. The maintainer-supplied gradient artwork and the package icon derived from it keep their purple stops, because those are the supplied mark rather than a UI accent.
+- Left dated history files and the Phase 3 known-gaps checkpoint on `#651DA8`; they record what those phases shipped.
+
+### Troubleshooting Trail
+
+<details>
+<summary>Windows `.cmd` spawn refusal and a CI job that silently ignored two test directories</summary>
+
+`verify-package-contents.js` failed with `EINVAL` spawning `npx.cmd`: current Node refuses to execute a `.cmd` shim without a shell, and adding a shell would make the gate depend on host quoting rules. The script now invokes vsce's JavaScript entry point directly through `process.execPath`, which is portable and shell-free. More consequentially, writing the workflow tests revealed that `ci.yml`'s `tests` job enumerates test directories by name instead of running `pytest tests`, so the new `tests/workflows` would never have run remotely - and `tests/plans` had already been invisible since Phase 1, which is precisely what QG-2 recorded. A single added step now collects both, with a comment explaining that a new directory stays invisible until it is listed.
+
+</details>
+
+### Impact & Context
+
+- **Affected**: `scripts/installer.sh`, `scripts/installer.ps1`, `.github/workflows/github-usage-monitor.yml`, `.github/workflows/ci.yml`, `.github/dependabot.yml`, `extensions/github-usage-monitor/`, `tests/workflows/`, `tests/plans/`, `catalog/hooks/tests/test_installer_smoke.py`, both READMEs, the v3.15.8 plan, visual contract, known-gaps ledger, cleanup report, and Phase 4 history.
+- **Verified**: clean `npm ci`, compile, 103 tests, 82.09% statements and 87.32% lines, 39-file VSIX, 37-file content verification, ShellCheck and PowerShell AST parse on both installers, `pytest tests` at 1208 passed, `pytest catalog/hooks/tests` at 902 passed, workflow-security validation, every direct Windows equivalent of `make validate`, and `git diff --check`.
+- **Deferred**: DF-11 (installer-path triggers) for Phase 9; QG-4 interactive theme inspection, now also covering the teal fill; MT-5 activation coverage; authorized live billing verification. No push or release action was performed.
+
+## [2026-08-02] - v3.15.8 Phase 3 GitHub monitor UX, alerts, and brand assets [feature]
+
+### What Changed
+
+Completed the GitHub Usage Monitor user experience on top of the Phase 2 provider: a right-aligned status item and detailed hover, responsive theme-adaptive dashboard, SecretStorage-safe settings surface, percentage-only threshold recommendations, de-duplicated timed activity-bar warnings, and extension refresh/clear/manual-settings lifecycle. Added the normalized one-path GitHub SVG, deterministic WOFF2 icon font, byte-identical supplied Streamline gradient warning mark, vector-derived transparent 256x256 package icon, attribution notice, and 16 focused UI and asset tests, bringing the package to 88 tests.
+
+### Why It Changed
+
+Phase 3 needed to turn the stable billing domain into an operational VS Code surface without inventing plan limits, leaking tokens, creating notification storms, relying on color alone, or degrading the supplied 14x14 artwork into a blurry package icon. The maintainer supplied the previously blocked PNG and SVG, allowing DF-10 to close with independently verified provenance and deterministic derivatives.
+
+### Decisions Made
+
+- Kept status ordering compatible with Claude priority 105 and Codex priority 103 by assigning GitHub priority 101.
+- Rendered unknown allowances as absolute values with an explicit unknown state; only finite metrics with verified denominators can produce bars or percentage alerts.
+- Reused the normalized CC0 vector silhouette for both the icon font and package icon. The supplied 14x14 Streamline PNG remains byte-identical and is used only in the warning view with required attribution.
+- Used VS Code theme tokens, semantic meter roles, explicit severity words/icons, escaped provider content, strict CSP, visible focus states, responsive layout, and reduced-motion support.
+- Kept interactive visual QA and low-covered activation branches visible as MT-5 and QG-4 rather than treating structural tests as live GUI evidence.
+
+### Troubleshooting Trail
+
+<details>
+<summary>Manifest, asset assertion, coverage, timeout, and lockfile repairs</summary>
+
+The first npm install found an extra closing brace in `package.json`; a narrow manifest correction restored valid JSON. Asset generation then succeeded, while TypeScript reported `TS2532: Object is possibly 'undefined'` for the highest status metric; introducing an explicit first-element guard fixed the strict check. The first UI suite reached 83/84 passes because the no-external-reference assertion matched the mandatory `xmlns="http://www.w3.org/2000/svg"`; the check now rejects external `href` or `src` values instead, and the SVG path itself was normalized to remove its transform. Initial coverage passed branches/functions/lines but missed the 80% statement gate at 76.81%; lifecycle tests for status, dashboard, settings, and warning providers raised statements to 82.52%. Review also found the warning timeout was armed only after the toast promise resolved; it now runs concurrently and has a fake-timer test. Finally, `npm ci` reported `Missing: @emnapi/runtime@2.0.0-alpha.3 from lock file`; a full `npm install` repaired the native dependency resolution, after which clean `npm ci` passed.
+
+</details>
+
+### Impact & Context
+
+- **Affected**: `extensions/github-usage-monitor/`, the v3.15.8 plan, visual contract, known-gaps ledger, cleanup report, progress tracker, DEVLOG, and Phase 3 history.
+- **Verified**: clean npm install, deterministic asset generation, TypeScript compile, 88 tests, 82.09% statements, 77.93% branches, 85.27% functions, 87.32% lines, VSIX packaging and content inspection, source/asset hashes, secret and personal-path search, direct Windows equivalents of every `make validate` hard gate, and `git diff --check` during implementation.
+- **Deferred**: remote CI collection remains QG-2/QG-3 for Phase 4 or Phase 9; live billing credentials and interactive light/dark/high-contrast Extension Development Host inspection remain release-readiness work. No push or release action was performed.
+
+## [2026-08-02] - v3.15.8 Phase 2 GitHub billing provider and secure authentication [feature]
+
+### What Changed
+
+Added the independent `extensions/github-usage-monitor/` Node 22 and TypeScript package. The provider now models user, organization, and enterprise billing owners; stores validated fine-grained tokens only in VS Code SecretStorage; builds bounded, cancellable, versioned GitHub billing requests; normalizes Copilot AI credits, premium requests, Actions minutes, storage, SKU costs, and discounts; resolves only verified or explicitly configured allowances; and preserves last-known-good data through stale, empty, reset, and error states. Added 72 fixture-driven tests across authentication, scope, client, normalization, allowances, store, and command registration.
+
+### Why It Changed
+
+The Phase 1 contracts established that GitHub billing data varies by owner, product, API generation, unit, permission, and enhanced-billing availability. Phase 2 turns those contracts into a typed provider boundary without scraping billing pages, storing credentials in settings, inferring plan limits, merging incompatible units, or converting request failures into zero usage.
+
+### Decisions Made
+
+- Selected the documented fine-grained-token fallback because no authorized billing credential was available for the bounded live probe. Tokens are syntax-checked and remotely validated before storage or rotation, and VS Code GitHub session reuse remains disabled until billing-endpoint acceptance is proven.
+- Kept Copilot AI credits and premium requests as distinct metric kinds and units, while aggregating Actions minutes only across compatible runner records and retaining raw SKU breakdowns.
+- Applied API allowances before exact-unit manual allowances. Missing, zero, negative, non-finite, or unit-mismatched denominators remain unknown and cannot produce percentages.
+- Preserved cached usage with explicit staleness and errors; an empty failure state remains actionable and never synthesizes zero consumption.
+- Left CI unchanged because Phase 4 owns the focused GitHub monitor workflow. QG-3 records the temporary absence of remote collection.
+
+### Troubleshooting Trail
+
+<details>
+<summary>Authentication and endpoint classification regressions</summary>
+
+The first test run reported 68 passes and 2 failures. Token syntax validation trimmed a trailing newline before checking it, which could accept a control character, and the 404 classifier used a broad `/usage` suffix that confused the AI-credit endpoint with detailed billing usage. Validation now rejects control characters from the original token before normalization, and detailed-usage detection now matches the exact `/settings/billing/usage` endpoint. The clean rerun reports 72 passes.
+
+</details>
+
+### Impact & Context
+
+- **Affected**: the new GitHub monitor package, v3.15.8 Phase 2 plan state, known gaps, cleanup report, DEVLOG, session history, and progress tracker.
+- **Verified**: clean npm install, TypeScript compile, 72 tests, 95.01% statements, 89.23% branches, 96.77% functions, 95.46% lines, 400 repository contract and validator tests, personal-path validation, direct Windows equivalents of `make validate`, secret-pattern audit, manifest-lock synchronization, and whitespace checks.
+- **Deferred**: UI, alerts, visual assets, installer integration, VSIX dry packaging, focused CI, live authorized billing verification, push, protected-branch integration, and release actions.
+
+## [2026-08-02] - v3.15.8 Phase 1 contracts, probes, and test foundation [decision]
+
+### What Changed
+
+Implemented Phase 1 of 9 on `feat/v3.15.8-platform-parity` in an isolated worktree. Added an 18-row global/workspace platform capability ownership matrix for Codex, Gemini CLI, Qwen, Kimi, Copilot, and Hermes; a GitHub billing data and authentication contract grounded in official user, organization, and enterprise usage APIs; eleven sanitized response and error fixtures; a visual contract for the supplied GitHub artwork; and 27 semantic tests that lock those decisions before runtime adapters or extension code are introduced. Corrected the unrelated personal absolute path in the v3.16.7 interactive-guide plan after explicit maintainer authorization, allowing the repository-wide personal-path gate to pass.
+
+### Why It Changed
+
+DF-9 and the GitHub Usage Monitor requirements span shared paths, user-owned configuration, preview billing APIs, multiple usage units, credentials, and branded assets. Later phases need stable ownership, error, allowance, and visual contracts so they cannot silently infer unsupported platform paths, overwrite user content, report false percentages, scrape billing pages, or package an unlicensed or blurry icon.
+
+### Decisions Made
+
+- Kept every newly observed Codex, Gemini CLI, Qwen, Kimi, and Copilot agent or hook surface finding-only in Phase 1. Their implementation phases must add exact owned writes plus install, upgrade, repair, verification, collision, and teardown tests before the enforced platform contract changes.
+- Kept the existing flattened Hermes skill layout enforceable because it remains discoverable and functional; the category-nested layout is an additive finding, not a migration instruction.
+- Normalized GitHub billing into explicit owner scope, product, unit, gross quantity, discount, net quantity, cost, allowance, reset, and typed error fields. Unknown allowances remain unknown instead of being converted to zero or a percentage.
+- Recorded a bounded live-probe procedure but did not claim a successful probe because no authorized billing credential was available. Phase 2 must resolve the authentication path before choosing VS Code authentication or a fine-grained token in SecretStorage.
+- Rejected upscaling the observed 14x14 PNG into a package icon and did not copy supplied artwork into the repository. Exact SVG geometry, high-resolution source material, and redistribution approval remain required.
+- Left CI unchanged because the plan defers workflow design changes; QG-2 records that `tests/plans` is not yet collected and assigns reconciliation to Phase 4 or Phase 9.
+
+### Troubleshooting Trail
+
+<details>
+<summary>Windows validation and repository gate</summary>
+
+The repository does not have `make` on this Windows host, so the commands behind `make validate` were run directly and passed their hard gates. The personal-path validator initially reported `docs/v3/v3.16/plans/v3.16.7-interactive-guide-redesign.md:11`; the maintainer explicitly brought that file into scope, its machine-specific target was replaced by `../online-portfolio/nexus-hub/index.html`, and the validator then exited 0. The full 399-case integration collection advanced without a test failure but exceeded the bounded command duration, so Phase 1 relies on 130 fresh focused passes and does not claim a fresh complete integration run.
+
+</details>
+
+### Impact & Context
+
+- **Affected**: active v3.15 development contracts, v3.15.8 plan state, sanitized GitHub usage fixtures, semantic plan tests, known gaps, cleanup report, DEVLOG, session history, and progress tracker.
+- **Deferred**: runtime adapters, installer behavior, GitHub monitor implementation, packaged visual assets, CI collection of `tests/plans`, live billing authentication proof, integration, push, and release.
+
 ## [2026-08-02] - v3.15.7 release preparation and platform audit [release]
 
 ### What Changed

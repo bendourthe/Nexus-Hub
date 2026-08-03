@@ -119,21 +119,41 @@ def test_copilot_install_global_populates_vscode_prompts(tmp_path, monkeypatch):
     monkeypatch.setattr(
         "scripts.lib.integrations.copilot._vscode_user_dir", lambda: vscode_user
     )
+    # Redirect the agents surface too (v3.15.8 Phase 8), so a global install in a
+    # test never reaches the developer's real ~/.copilot.
+    monkeypatch.setattr(
+        "scripts.lib.integrations.copilot._copilot_home", lambda: tmp_path / ".copilot"
+    )
     integ = get("copilot")
     integ.install_global(_ctx(tmp_path / "ws"))
     prompts_dir = vscode_user / "prompts"
     assert prompts_dir.is_dir(), "copilot global install must create the prompts/ dir"
     assert any(prompts_dir.glob("*.prompt.md")), "copilot must write *.prompt.md files"
+    assert any((tmp_path / ".copilot" / "agents").glob("*.agent.md")), (
+        "copilot global install must also write custom agents"
+    )
 
 
-def test_copilot_install_global_skips_without_vscode(tmp_path, monkeypatch):
+def test_copilot_install_global_skips_when_copilot_is_absent(tmp_path, monkeypatch):
+    """Both global surfaces must be absent for the install to skip.
+
+    v3.15.8 Phase 8 added a second global surface (`~/.copilot/agents`) with its
+    own detection signal, so patching only `_vscode_user_dir` no longer makes
+    this a no-op -- and on a host that really has `~/.copilot`, leaving it
+    unpatched would write into the developer's home directory. Redirect both
+    accessors.
+    """
     monkeypatch.setattr(
         "scripts.lib.integrations.copilot._vscode_user_dir", lambda: None
+    )
+    monkeypatch.setattr(
+        "scripts.lib.integrations.copilot._copilot_home",
+        lambda: tmp_path / "no-such-copilot",
     )
     integ = get("copilot")
     result = integ.install_global(_ctx(tmp_path / "ws"))
     assert not any(fa.action in ("created", "updated") for fa in result.files)
-    assert result.notes, "should note that VS Code was not found"
+    assert result.notes, "should note that Copilot was not detected"
 
 
 def test_antigravity20_wire_project_surfaces_seeds_workflows(tmp_path):
