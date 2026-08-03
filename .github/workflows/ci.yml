@@ -16,6 +16,12 @@ on:
 
 # v3.11.0 Phase 7.5 / 8.4 CI optimization: cancel superseded runs of the same ref
 # (the single largest action-minute saver) so only the latest push/PR commit runs.
+# v3.15.8 Phase 9.3: least privilege. This workflow builds and tests only --
+# no artifact upload, no gh CLI, no comments, no pushes -- so read-only
+# contents is the complete requirement.
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -23,6 +29,7 @@ concurrency:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
@@ -146,6 +153,7 @@ jobs:
 
   shellcheck:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
@@ -220,6 +228,7 @@ jobs:
         # pushes to shared branches, where real-platform proof matters.
         os: ${{ github.event_name == 'pull_request' && fromJSON('["ubuntu-latest"]') || fromJSON('["ubuntu-latest","macos-latest"]') }}
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
@@ -306,6 +315,7 @@ jobs:
     # against a GitHub-shaped tarball of the checkout (zero network), then asserts a
     # populated ~/.nexus-hub and a working `nexus-hub --version`.
     runs-on: windows-latest
+    timeout-minutes: 30
     # Cost control: Windows is a 2x-minute runner. Run the real end-to-end
     # bootstrap on pushes only, not on PRs (PRs still get the pwsh AST-parse in
     # the `bootstrap` job).
@@ -368,6 +378,7 @@ jobs:
     # Invoke pytest as a module so the checkout root remains importable by
     # tests that exercise the repository's `scripts` package.
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
@@ -397,6 +408,13 @@ jobs:
 
       - name: Skills-script tests (v3.14.3 media-key setup helper + docs-audit resolver)
         run: python -m pytest tests/skills -v
+
+      - name: Plan-contract + workflow-policy tests (v3.15.8 Phase 4.4)
+        # This job enumerates test directories by name rather than running
+        # `pytest tests`, so a new directory is invisible to CI until it is
+        # listed here. tests/plans (added in v3.15.8 Phase 1) was in exactly that
+        # state; tests/workflows (Phase 4.2) would have been too.
+        run: python -m pytest tests/plans tests/workflows -v
 
       - name: Install skill-server (and transitive deps like pydantic via mcp)
         run: pip install -e "extensions/nexus-skill-server/[dev]"
@@ -444,6 +462,7 @@ jobs:
     # Cost control: windows-latest is a 2x-minute runner, so this runs on pushes
     # only, matching the bootstrap-windows and install-smoke gating.
     runs-on: windows-latest
+    timeout-minutes: 60
     if: ${{ github.event_name != 'pull_request' }}
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
@@ -466,6 +485,42 @@ jobs:
           NEXUS_TEST_POWERSHELL: powershell
         run: python -m pytest tests/installer tests/validators -q
 
+      - name: Codex native agent/hook delivery on Windows (v3.15.8 Phase 5)
+        # Scoped to the one integration file rather than all of tests/integrations,
+        # which would add ~15 minutes of Windows runner time for coverage the
+        # ubuntu `tests` job already provides. What is Windows-specific here is the
+        # commandWindows registration and the path handling that decides which
+        # hooks.json handlers Nexus-Hub owns, so that is what this leg proves.
+        env:
+          NEXUS_TEST_POWERSHELL: powershell
+        run: python -m pytest tests/integrations/test_codex_native.py -q
+
+      - name: Copilot agents + Hermes layout on Windows (v3.15.8 Phase 8)
+        # Copilot's global agent dir resolves off the user profile, and the
+        # Hermes depth-1 guard walks a delivered tree, so both are worth running
+        # where path semantics and case-insensitivity differ from ubuntu.
+        env:
+          NEXUS_TEST_POWERSHELL: powershell
+        run: python -m pytest tests/integrations/test_copilot_hermes_native.py -q
+
+      - name: Kimi native agent/hook delivery on Windows (v3.15.8 Phase 7)
+        # Two Windows-specific things here: the host-selected .ps1 command, and
+        # the config.toml marker-block splice, whose line handling is where a
+        # CRLF checkout could silently break the round trip.
+        env:
+          NEXUS_TEST_POWERSHELL: powershell
+        run: python -m pytest tests/integrations/test_kimi_native.py -q
+
+      - name: Gemini CLI + Qwen hook delivery on Windows (v3.15.8 Phase 6)
+        # Higher stakes on Windows than the Codex leg: neither platform has a
+        # commandWindows slot, so the command that gets registered is chosen from
+        # the HOST. On a Windows runner this asserts the real branch -- the .ps1
+        # sibling, the PowerShell-flavored guardrails, and the $env: form of the
+        # project-dir variable -- which an ubuntu-only run can only simulate.
+        env:
+          NEXUS_TEST_POWERSHELL: powershell
+        run: python -m pytest tests/integrations/test_settings_hooks.py -q
+
   install-smoke:
     # v3.11.0 Phase 7.5: prove the catalog lands at each platform's real read-path
     # and that the project auto-seed produces .agents/workflows. Uses the registry
@@ -477,6 +532,7 @@ jobs:
       matrix:
         os: ${{ github.event_name == 'pull_request' && fromJSON('["ubuntu-latest"]') || fromJSON('["ubuntu-latest","macos-latest","windows-latest"]') }}
     runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 

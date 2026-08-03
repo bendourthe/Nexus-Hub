@@ -1,0 +1,18 @@
+{
+  "timePeriod": {"year": 2026, "month": 8},
+  "organization": "fixture-organization",
+  "usageItems": [
+    {
+      "product": "Copilot",
+      "sku": "Copilot AI Credits",
+      "model": "fixture-model",
+      "unitType": "credits",
+      "grossQuantity": 3800,
+      "grossAmount": 38.0,
+      "discountQuantity": 3500,
+      "discountAmount": 35.0,
+      "netQuantity": 300,
+      "netAmount": 3.0
+    }
+  ]
+}

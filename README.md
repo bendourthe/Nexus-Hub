@@ -399,12 +399,13 @@ Installed automatically by the Nexus-Hub installer. Requires `curl` and `jq`.
 
 ### VS Code Extensions
 
-Monitor your AI coding usage from the VS Code status bar with a full dashboard. Two separate, independently-installable extensions - one per tool - that install and run side by side:
+Monitor your AI coding usage from the VS Code status bar with a full dashboard. Three separate, independently-installable extensions - one per tool - that install and run side by side:
 
 - **Claude Usage Monitor** (`nexus-hub.claude-usage-monitor`): Claude Code (Anthropic) session and weekly limits, with model and effort recommendations. See [extensions/claude-usage-monitor/](extensions/claude-usage-monitor/).
 - **Codex Usage Monitor** (`nexus-hub.codex-usage-monitor`): Codex (ChatGPT / OpenAI) usage, with the plan tier, extra rate-limit windows, a credits line, and throttle / pacing recommendations (periwinkle `#5244BB` progress bars). See [extensions/codex-usage-monitor/](extensions/codex-usage-monitor/).
+- **GitHub Usage Monitor** (`nexus-hub.github-usage-monitor`): current-month GitHub Copilot consumption plus GitHub Actions minutes and storage, read from documented GitHub billing APIs for the one billing owner you configure (teal `#008080` progress bars). See [extensions/github-usage-monitor/](extensions/github-usage-monitor/).
 
-Both read your local OAuth token, show usage in the status bar with a theme-aware SVG hover tooltip and a full dashboard, and make a single outbound call only to your own account. The installer builds and installs both; install either one alone by pointing `code --install-extension` at its VSIX.
+Each shows usage in the status bar with a theme-aware hover and a full dashboard, and makes a single outbound call only to your own account. The Claude and Codex monitors read your local OAuth token; the GitHub monitor uses a fine-grained token you supply explicitly, stored only in VS Code SecretStorage, and shows absolute usage rather than inventing a percentage when GitHub exposes no allowance. None of them scrape a billing website or read browser cookies. The installer builds and installs all three; install any one alone by pointing `code --install-extension` at its VSIX.
 
 ### `/usage` Command
 

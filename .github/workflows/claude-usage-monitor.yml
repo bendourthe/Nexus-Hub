@@ -15,6 +15,12 @@ on:
       - 'extensions/claude-usage-monitor/**'
 
 # Cancel superseded runs of the same ref (the single largest action-minute saver).
+# v3.15.8 Phase 9.3: least privilege. This workflow builds and tests only --
+# no artifact upload, no gh CLI, no comments, no pushes -- so read-only
+# contents is the complete requirement.
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -22,6 +28,7 @@ concurrency:
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     defaults:
       run:
         working-directory: extensions/claude-usage-monitor

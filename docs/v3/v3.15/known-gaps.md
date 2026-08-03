@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: The v3.15 line now includes v3.15.0 through v3.15.7. Release PR #28 and usage-monitor repair PR #29 are merged into `develop`; a focused Windows PowerShell 5.1 CI repair is the remaining develop gate before main promotion, post-merge CI, tag, and GitHub Release. Earlier release history and per-phase evidence remain in the sections below.
-**Last updated**: 2026-08-02 (v3.15.7 ALL 7 PHASES COMPLETE - release readiness handed to `/update release`)
+**Last updated**: 2026-08-03 (v3.15.8 Phase 8 checkpoint; v3.15.7 release status retained below)
 
 **Current v3.15.7 status**: Implementation is complete and merged into `develop`. The release scope is fixed: evidence-closed security review hardening, Codex Usage Monitor Extra Credits, the isolated installer import-cycle fix, and CI corrections discovered by the reactivated pipelines. Newly verified additive platform capabilities are explicitly deferred to v3.15.8. The maintainer authorized the remote sequence; both repaired monitor workflows pass on the merged `develop` commit, and the Windows PowerShell 5.1 push-gate repair must pass before main promotion, post-merge CI, tag, and GitHub Release proceed in order.
 
@@ -978,6 +978,7 @@ Phase 7 audited the repository and active v3.15 documentation layout, reconciled
 - **Reason**: These are additive upstream capabilities, not dead delivery paths in v3.15.7. Implementing them safely requires adapter design, config-merge ownership, teardown semantics, and cross-platform tests beyond this release's approved scope.
 - **Decision**: The maintainer approved release-with-documented-drift on 2026-08-02. The machine contract keeps enforcing the currently delivered paths; a non-consumed findings block records the new capabilities without making unsupported adapter promises.
 - **Re-entry condition**: v3.15.8 must reconcile each surface against the cost-effective CI/CD foundation work, add exact contract checks only as the corresponding adapter behavior lands, and preserve shared-path ownership during install, repair, and teardown.
+- **RESOLVED (v3.15.8 Phase 9.2, 2026-08-03)**: every surface named above now has a disposition, and all 18 ownership-matrix rows are enforceable. Codex agents and hooks shipped in Phase 5; Gemini CLI and Qwen hooks in Phase 6; Kimi agents and hooks in Phase 7 (global hooks only -- no project hook path exists, recorded as DF-13); Copilot global agents in Phase 8, with Copilot hooks at both scopes and Copilot project agents established as **inherited** through Copilot's own default Claude-format read paths rather than duplicated. Hermes resolved opposite to the drift-audit premise: discovery probes only direct subdirectories, so the flattened layout is required and the category-nested example would have broken it. Contract checks were added per adapter as its behavior landed (`contract_checks` config keys plus `install_verify` surfaces for Codex, Qwen, and Kimi), shared-path ownership held throughout (`~/.agents/skills` stayed Codex-owned, `.agents/skills` Antigravity-owned, and neither Kimi nor Hermes claimed the shared agent directories), and the machine contract and its Markdown mirror were updated together in every phase. The re-entry condition is met in full; DF-9 closes here.
 
 ### v3.15.7 Phase 7 Resolved
 
@@ -1020,3 +1021,380 @@ Phase 7 audited the repository and active v3.15 documentation layout, reconciled
 - **9A resolve known gaps**: WN-3 is resolved with an isolated-import regression test. The durable store, both declined external candidates, and additive platform drift have explicit reasons, owners, and re-entry conditions. The monitor and Windows push-gate defects are owned by BG-1 and BG-3; no unowned v3.15.7 release blocker remains.
 - **9B verify tests and CI/CD**: Every changed executable has focused branch coverage and belongs to an already-collected test surface. Existing CI covers skill validation, bundle and placeholder checks, broker and closure tests, version/platform gates, Linux integration, and gated Windows/macOS legs without adding a cold runner. The broad `ci.yml` trigger remains intentional because it also owns installers, integrations, and extensions; narrower focused workflows retain their path filters, concurrency controls, caches, or scheduled security semantics.
 - **9C-9E handoff**: Release notes, the 3.15.6 to 3.15.7 version bump, README and CHANGELOG updates, release-branch push, green release PR #28, and green monitor repair PR #29 are complete. The maintainer authorized the sequence; the Windows follow-up PR, develop/main promotion, post-merge CI, tag, and GitHub Release remain pending in that order.
+
+## v3.15.8
+
+### v3.15.8 Phase 1 checkpoint
+
+Phase 1 converted DF-9 and the GitHub monitor requirements into explicit ownership, billing-data, authentication, visual, fixture, and test contracts. The platform matrix keeps all newly observed Codex, Gemini CLI, Qwen, Kimi, and Copilot surfaces finding-only until their implementation phases add owned writes and lifecycle tests; the existing Hermes flattened layout remains the only enforceable Hermes claim. Eleven sanitized billing fixtures and 27 semantic tests now reject unsupported ownership, unsafe fixture content, false denominators, and invalid visual requirements.
+
+### v3.15.8 Phase 1 Open Items
+
+#### Deferred
+
+##### DF-10 - Exact GitHub status SVG and redistribution evidence remain unavailable
+
+- **Source phase**: v3.15.8 Phase 1.3 - Fix the Visual Contract.
+- **Plan reference**: `docs/v3/v3.15/plans/v3.15.8-platform-parity-and-github-usage-monitor.md` (sub-task 1.3).
+- **Reason**: the declared 20x20 SVG was not present in the supplied assets or repository, and the observed 14x14 gradient PNG does not include confirmed redistribution or trademark-use evidence. Phase 1 therefore cannot record exact SVG geometry, copy either asset into the extension package, or derive a non-blurry 128x128 or 256x256 package icon without inventing source data.
+- **Re-entry condition**: before Phase 3 packages visual assets, the maintainer supplies the exact SVG plus provenance and redistribution approval, and supplies or approves a high-resolution source suitable for a 256x256 icon.
+
+#### Quality-gate gaps
+
+##### QG-2 - Repository CI does not collect `tests/plans`
+
+- **Source phase**: v3.15.8 Phase 1.5 - Testing and Stabilization.
+- **Plan reference**: `docs/v3/v3.15/plans/v3.15.8-platform-parity-and-github-usage-monitor.md` (sub-task 1.5 and Phase 9.3).
+- **Reason**: `.github/workflows/ci.yml` collects integration, installer, validator, and skill suites but not the new semantic contract suite under `tests/plans`. The v3.15.8 plan explicitly defers unnecessary workflow restructuring until later design and final CI reconciliation, so Phase 1 did not silently broaden the workflow.
+- **Re-entry condition**: add the Phase 1 contract suite to an appropriate existing CI job during Phase 4 design or Phase 9 reconciliation, preserving path filters, caching, concurrency cancellation, and gated expensive matrices.
+
+### v3.15.8 Phase 1 Resolved
+
+- The repository-wide personal-path validator initially found a pre-existing absolute portfolio path in `docs/v3/v3.16/plans/v3.16.7-interactive-guide-redesign.md`. With explicit maintainer authorization, the path was replaced by `../online-portfolio/nexus-hub/index.html`; `python scripts/validate_no_personal_paths.py` now exits 0.
+- HO-3 was resolved in Phase 2 by retaining the documented fine-grained-token fallback in `ExtensionContext.secrets` and keeping VS Code GitHub session reuse disabled until billing-endpoint acceptance is proven by an authorized probe.
+
+### v3.15.8 Phase 1 Summary
+
+| Category | Open | Resolved |
+|---|---:|---:|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 1 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 1 | 0 |
+| Hand-offs (HO) | 0 | 1 |
+
+**Verification boundary.** Phase 1 reports 27 contract tests with 100% statement coverage plus 103 affected platform, lifecycle, summary, verification, and Codex tests, for 130 focused passes and no failures. Ruff check and format verification are clean; all eleven JSON fixtures parse; the direct Windows equivalents of `make validate` pass every hard validator; the repository-wide personal-path gate and `git diff --check` pass. The full 399-case integration collection advanced without a failure but exceeded the bounded Windows command duration, so this checkpoint does not claim a fresh complete integration-suite pass.
+
+### v3.15.8 Phase 2 checkpoint
+
+Phase 2 adds the independent `extensions/github-usage-monitor/` TypeScript package with typed billing models, SecretStorage-backed token lifecycle commands, explicit user/organization/enterprise ownership, a versioned GitHub REST client, defensive Copilot and Actions normalization, verified-or-manual allowance resolution, and last-known-good cache behavior. The implementation keeps unknown limits percentage-free, keeps errors distinct from zero usage, and does not reuse a VS Code GitHub session without evidence that the billing endpoints accept it.
+
+### v3.15.8 Phase 2 Open Items
+
+#### Quality-gate gaps
+
+##### QG-3 - GitHub Usage Monitor tests are not collected by CI
+
+- **Source phase**: v3.15.8 Phase 2.5 - Testing and Stabilization.
+- **Plan reference**: `docs/v3/v3.15/plans/v3.15.8-platform-parity-and-github-usage-monitor.md` (sub-task 2.5 and Phase 4.3).
+- **Reason**: `.github/workflows/ci.yml` runs Python suites, while the focused Claude and Codex workflows collect only their own extension paths. The new GitHub monitor therefore has no remote Node 22 compile-and-coverage gate yet. Phase 4 explicitly owns a path-filtered monitor workflow, so Phase 2 does not add a partial or duplicate CI definition.
+- **Suggested next step**: implement T028 and T029 in Phase 4 with a path-filtered Node 22 workflow that uses the lockfile cache, concurrency cancellation, clean install, compile, coverage, and VSIX dry-package gates.
+
+### v3.15.8 Phase 2 Resolved
+
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+| HO-3 | Authorized GitHub billing probe required before authentication choice | Phase 2 | No authorized credential was available, so the contract's fine-grained-token fallback was selected; tokens are validated before storage in `ExtensionContext.secrets`, and VS Code session reuse remains disabled pending live proof. |
+
+### v3.15.8 Phase 2 Summary
+
+| Category | Open | Resolved |
+|---|---:|---:|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 1 | 0 |
+| Hand-offs (HO) | 0 | 1 |
+
+**Carryovers.** DF-10 remains owned by Phase 3 visual packaging, and QG-2 remains owned by Phase 4 or Phase 9 repository-CI reconciliation. Phase 2 adds only QG-3; it introduces no skipped implementation, known bug, suppressed warning, or uncovered source file.
+
+### v3.15.8 Phase 3 checkpoint
+
+Phase 3 adds the GitHub Usage Monitor status item, detailed hover, theme-adaptive dashboard, secure settings surface, threshold recommendations, de-duplicated activity-bar warning view, normalized icon-font glyph, supplied gradient alert mark, vector-derived 256x256 package icon, third-party notice, and 16 focused UI and asset tests. The package preserves absolute-only display for unknown allowances, uses `#651DA8` for meters, escapes provider content, and packages without source, tests, coverage, dependencies, or source maps.
+
+### v3.15.8 Phase 3 Open Items
+
+#### Missing tests / coverage gaps
+
+##### MT-5 - Extension activation and live VS Code lifecycle branches remain below 80 percent file coverage
+
+- **Source phase**: v3.15.8 Phase 3.5 - Testing and Stabilization.
+- **Plan reference**: `docs/v3/v3.15/plans/v3.15.8-platform-parity-and-github-usage-monitor.md` (sub-task 3.5).
+- **Reason**: global package coverage passes at 82.09% statements, 77.93% branches, 85.27% functions, and 87.32% lines, but `src/extension.ts` remains at 34.74% statements because authorized refresh, native settings dispatch, toast actions, and repeated activation timing require broader VS Code lifecycle integration than the current unit stub provides.
+- **Suggested next step**: add Extension Development Host integration coverage for activation, authorized refresh, native settings dispatch, alert actions, and configuration changes during Phase 4 packaging or Phase 9 final reconciliation.
+
+#### Quality-gate gaps
+
+##### QG-4 - Interactive light, dark, and high-contrast visual smoke remains unobserved
+
+- **Source phase**: v3.15.8 Phase 3.5 - Testing and Stabilization.
+- **Plan reference**: `docs/v3/v3.15/plans/v3.15.8-platform-parity-and-github-usage-monitor.md` (sub-task 3.5).
+- **Reason**: VS Code CLI 1.131.0 is installed, but this non-interactive session cannot observe or capture the Extension Development Host GUI. Automated tests verify theme tokens, semantic meter and alert labels, focus-visible styling, responsive layout, reduced motion, CSP, escaping, and unknown-limit fallback, but they are not screenshots or a human visual inspection.
+- **Suggested next step**: during Phase 4 packaging, install the locally built VSIX into an isolated Extension Development Host and capture status, hover, dashboard, settings, and warning surfaces in light, dark, high-contrast, keyboard-only, 200 percent zoom, and forced-colors modes.
+
+### v3.15.8 Phase 3 Resolved
+
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+| DF-10 | Exact GitHub status SVG and redistribution evidence unavailable | Phase 3 | The maintainer supplied both assets. SVG Repo identifies the exact SVG as CC0; Streamline's free-license and attribution terms cover the supplied warning mark. The normalized one-path SVG, byte-identical 14x14 PNG, WOFF2 glyph, vector-derived 256x256 icon, hashes, and attribution are recorded in the visual contract and package notice. |
+
+### v3.15.8 Phase 3 Summary
+
+| Category | Open | Resolved |
+|---|---:|---:|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 1 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 1 | 0 |
+| Quality-gate gaps (QG) | 1 | 0 |
+| Hand-offs (HO) | 0 | 0 |
+
+**Carryovers.** QG-2 and QG-3 remain owned by Phase 4 or Phase 9 CI reconciliation. Authorized live billing verification remains a release-readiness activity. Phase 3 adds MT-5 and QG-4; it introduces no skipped implementation, known production bug, suppressed warning, or bypassed hard gate.
+
+### v3.15.8 Phase 4 checkpoint
+
+Phase 4 makes the GitHub Usage Monitor a distributed utility rather than a local package. Both installers build and install it under a `GITHUB` vendor header after Anthropic and OpenAI, using an absolute-usage status hint that promises no percentage, and the installer smoke test now enforces presence, identity, and vendor order across both shells so a monitor cannot be wired into one and forgotten in the other. A path-filtered `github-usage-monitor.yml` adds the extension's remote gate (read-only token, SHA-pinned actions, Node 22, exact lockfile cache, concurrency cancellation, clean install, compile, coverage thresholds, VSIX packaging, packaged-content verification), and fourteen semantic workflow-policy tests assert those properties instead of snapshotting the file. A new `verify:package` gate asserts the VSIX carries every runtime asset and no coverage report, source tree, nested VSIX, or credential-shaped file. The extension README documents installer and VSIX setup, billing scopes, SecretStorage token lifecycle, permissions, manual allowances, alerts, cache and fallback behavior, and the four honesty limits (personal endpoints omit managed Copilot, summary APIs are preview, unknown quotas stay absolute, nothing is scraped).
+
+Two decisions are worth recording. The focused workflow deliberately does not trigger on `scripts/installer.{sh,ps1}`, because `ci.yml` already runs on every non-docs change and owns the installer parity assertion; listing the installers would rebuild an unchanged VSIX on every installer edit. And on maintainer request during this phase, the usage-meter fill changed from `#651DA8` to teal `#008080` across the status hover and dashboard accent, the visual contract, both READMEs, and the contract test; the maintainer-supplied gradient artwork and the package icon derived from it keep their original purple stops.
+
+### v3.15.8 Phase 4 Open Items
+
+#### Deferred
+
+##### DF-11 - Focused monitor workflow does not trigger on installer changes
+
+- **Source phase**: v3.15.8 Phase 4.2 - Add Focused CI.
+- **Plan reference**: `docs/v3/v3.15/plans/v3.15.8-platform-parity-and-github-usage-monitor.md` (sub-task 4.2, T028).
+- **Reason**: T028 lists "relevant installer lines" among the workflow's triggers, but GitHub path filters are file-scoped, so the narrowest expression of that intent is the whole of `scripts/installer.sh` and `scripts/installer.ps1`. Including them would start a Node runner and rebuild an unchanged VSIX on every installer edit. The compensating control is real rather than notional: `ci.yml` has no path filter beyond `paths-ignore: docs/**`, so any installer change runs `catalog/hooks/tests/test_installer_smoke.py`, which is what asserts both shells build every monitor in the same order.
+- **Suggested next step**: during Phase 9 CI reconciliation, either accept this divergence explicitly in the workflow comparison or, if per-path job gating is adopted repository-wide, add an installer-parity job gated to installer changes.
+- **ACCEPTED AS A RETAINED DIFFERENCE (Phase 9.3, 2026-08-03)**: the first option. The repo-wide audit confirmed that per-path job gating was NOT adopted -- every focused workflow keeps a whole-workflow `paths:` filter and `ci.yml` remains the unfiltered catch-all -- so adding installer paths to the monitor workflow would rebuild an unchanged VSIX on every installer edit with no gate that `ci.yml` does not already provide. The compensating control is now also test-asserted rather than merely described: `test_focused_workflows_filter_by_path` requires `ci.yml` to keep a `paths-ignore` filter (so it cannot quietly acquire a `paths` filter that would strand installer changes), and `test_installer_smoke.py` continues to assert both shells build every monitor in the same order. This is a deliberate, documented divergence from T028's literal wording, not an open gap.
+
+### v3.15.8 Phase 4 Resolved
+
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+| QG-2 | Repository CI does not collect `tests/plans` | Phase 4 | `ci.yml`'s `tests` job enumerates directories by name, so `tests/plans` was never collected. A `Plan-contract + workflow-policy tests` step now runs `tests/plans` and the new `tests/workflows` together, with a comment recording why a new directory is invisible until listed. |
+| QG-3 | GitHub Usage Monitor tests are not collected by CI | Phase 4 | `.github/workflows/github-usage-monitor.yml` gives the extension a path-filtered Node 22 gate with clean install, compile, coverage thresholds, VSIX packaging, and packaged-content verification, mirroring the Claude and Codex monitor workflows and pinned to the same action SHAs (enforced by a cross-workflow policy test). |
+
+### v3.15.8 Phase 4 Summary
+
+| Category | Open | Resolved |
+|---|---:|---:|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 1 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 2 |
+| Hand-offs (HO) | 0 | 0 |
+
+**Carryovers.** MT-5 (extension activation coverage) and QG-4 (interactive light/dark/high-contrast smoke) remain open and are now more pointed: the meter color changed after Phase 3's accessibility pass, so the first Extension Development Host session should confirm the teal fill in all three themes. `#008080` clears the 3:1 non-text contrast floor against both a white and a black backdrop by calculation, which the previous purple did only against white, but that is arithmetic rather than an observed render. Authorized live billing verification remains a release-readiness activity. Phase 4 adds DF-11 and resolves QG-2 and QG-3; it introduces no skipped implementation, known production bug, suppressed warning, or bypassed hard gate.
+
+### v3.15.8 Phase 5 checkpoint
+
+Phase 5 turns the two finding-only Codex rows from Phase 1's ownership matrix into owned writes. Custom agents are no longer a file copy: `_codex_native.py` transforms each `catalog/agents/*.md` into a Codex agent TOML at `~/.codex/agents/` and `.codex/agents/`, carrying `name`, `description`, and the Markdown body as `instructions`, and inferring `sandbox_mode = "read-only"` when every tool the agent declares is non-mutating. Native hooks copy their scripts under an owned directory and merge into `hooks.json` at both scopes, with each handler carrying a `commandWindows` that points at the `.ps1` sibling so a PowerShell host gets the same guardrail. Both writes are ownership-gated through the install manifest, so a user-authored `planner.toml` or a hand-written hook group survives an install, a reinstall is byte-identical, and teardown removes only Nexus-Hub entries before deleting `hooks.json` and the two directories if nothing else remains.
+
+Two upstream constraints shaped the design and are surfaced rather than papered over. Codex ships its hook engine disabled behind `[features] hooks`, so the installer sets that flag idempotently in the same `config.toml` it already merges permissions into, and leaves it alone when the user has explicitly set it to `false`. And Codex requires the user to trust hooks interactively via `/hooks` before any of them fire, which no installer can do on the user's behalf; the install summary now says so in both scopes instead of implying the hooks are live.
+
+### v3.15.8 Phase 5 Open Items
+
+#### Hand-offs
+
+##### HO-4 - Codex hooks stay inert until the user trusts them via `/hooks`
+
+- **Source phase**: v3.15.8 Phase 5.2 - Codex Native Hooks.
+- **Plan reference**: `docs/v3/v3.15/plans/v3.15.8-platform-parity-and-github-usage-monitor.md` (sub-task 5.2).
+- **Reason**: Codex gates hook execution behind an interactive trust prompt. Writing `hooks.json` and enabling `[features] hooks` is the whole of what an installer can do; the remaining step is a deliberate human confirmation, and simulating it would defeat the control it exists to provide.
+- **Suggested next step**: none in code. The install summary carries the instruction at both scopes, and the read-contract prose records the trust model, so this is a documented user action rather than an implementation gap.
+
+#### Missing tests / coverage gaps
+
+##### MT-6 - Codex agent and hook delivery is not observed against a real Codex install
+
+- **Source phase**: v3.15.8 Phase 5.3 - Testing and Stabilization.
+- **Plan reference**: `docs/v3/v3.15/plans/v3.15.8-platform-parity-and-github-usage-monitor.md` (sub-task 5.3).
+- **Reason**: the suite proves the TOML schema, the merge algebra, ownership, idempotence, cross-shell parity, and teardown against a temporary filesystem, and the read contract asserts the surfaces exist after an install. What no test can prove from here is that a running Codex build loads the emitted TOML as an agent and fires the merged hooks, because that needs an authorized Codex session on a host that has the product installed.
+- **Suggested next step**: fold a manual Codex load check into the same release-readiness pass that owns the other live verifications, then record the observed result in the read-contract verification block.
+
+### v3.15.8 Phase 5 Resolved
+
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+| - | Codex custom agents finding-only | Phase 5 | The four Codex agent and hook rows in `platform-capability-ownership.md` flip from finding-only to enforceable, backed by owned writes, `install_verify` checks in `platform-read-contracts.json`, and the new `tests/integrations/test_codex_native.py`. The Phase 1 guard that forbids premature enforcement was tightened rather than removed: `test_unimplemented_surfaces_are_finding_only` now reads an explicit `IMPLEMENTED_CAPABILITIES` map, so a listed capability must be marked enforceable and name its phase while every unbuilt row must still read finding-only. |
+
+### v3.15.8 Phase 5 Summary
+
+| Category | Open | Resolved |
+|---|---:|---:|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 1 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+| Hand-offs (HO) | 1 | 0 |
+
+**Carryovers.** DF-11, MT-5, and QG-4 remain open and unchanged; Phase 9 still owns the CI reconciliation and the live visual smoke. Phase 5 adds HO-4 and MT-6, both of which are boundaries of what an installer and a filesystem-level suite can establish rather than work that was skipped. It introduces no skipped implementation, known production bug, suppressed warning, or bypassed hard gate.
+
+### v3.15.8 Phase 6 checkpoint
+
+Phase 6 turns the four Gemini CLI and Qwen hook rows enforceable. Both platforms read hooks from a `hooks` key inside their own `settings.json`, so both are served by one shared module (`_settings_hooks.py`) plus a mixin that owns the install and teardown choreography, with the per-platform differences isolated in a spec object. Those differences are real: Gemini CLI renamed every lifecycle event, so `PreToolUse` is `BeforeTool` and `Stop` is `AfterAgent`, while Qwen kept the Claude-style names Nexus-Hub already uses. Both match on their own tool ids as regexes rather than on Claude's tool names as literals, so `Bash` becomes `^(run_shell_command)$` and `Edit` becomes `^(replace)$`, and `Skill` is dropped for want of any equivalent. Only the tool events carry a matcher, because the lifecycle events match on a session source or compact trigger rather than a tool.
+
+Two constraints shaped the design. Neither platform has Codex's `commandWindows` override, and both funnel every shell call through a single `run_shell_command` tool, which collapses Nexus-Hub's separate `Bash` and `PowerShell` matchers onto one id. A registration therefore has to commit to one command string, so the installing host picks it: a Windows install registers the `.ps1` sibling and the PowerShell-flavored guardrails, a POSIX install the `.sh` and the Bash-flavored ones, with both siblings copied either way. And because these hooks live in the file that also holds the user's model, theme, and MCP configuration, the merge is stricter than Codex's dedicated `hooks.json` -- every unrelated key survives, the previous content is backed up, and a malformed file is never rewritten. Ownership is the `nexus-hub:` handler `name`, which is also what Gemini CLI fingerprints project hooks on, so a stable name avoids re-triggering its untrusted-hook warning on every install.
+
+### v3.15.8 Phase 6 Open Items
+
+#### Deferred
+
+##### DF-12 - Gemini CLI extension-packaged hooks are a cleaner write path left unused
+
+- **Source phase**: v3.15.8 Phase 6.1 - Map Gemini CLI Hooks.
+- **Plan reference**: `docs/v3/v3.15/plans/v3.15.8-platform-parity-and-github-usage-monitor.md` (sub-task 6.1).
+- **Reason**: the [extension reference](https://github.com/google-gemini/gemini-cli/blob/main/docs/extensions/reference.md) documents extensions as a fourth hook-precedence layer, reading `~/.gemini/extensions/<name>/hooks/hooks.json` with `${extensionPath}` and `${/}` substitution. That would give Nexus-Hub a fully-owned directory instead of a merge into the user's main config, and would solve the absolute-path and path-separator problems outright. It is not used because the reference documents only `gemini extensions install` for populating that directory, so writing it directly would be an inferred write path of exactly the kind sub-task 6.1 says to record rather than ship; it also has no project scope, where half of this phase's delivery lives. The maintainer chose settings.json now with this recorded as a follow-on.
+- **Suggested next step**: if a later release can verify that a directly-written extension directory is loaded (or can shell out to `gemini extensions install` against a local path), migrate global-scope hooks there and keep the settings.json merge for workspace scope.
+
+#### Missing tests / coverage gaps
+
+##### MT-7 - Windows shell dispatch for these two platforms is asserted, not observed
+
+- **Source phase**: v3.15.8 Phase 6.3 - Testing and Stabilization.
+- **Plan reference**: `docs/v3/v3.15/plans/v3.15.8-platform-parity-and-github-usage-monitor.md` (sub-task 6.3).
+- **Reason**: the host-aware branch is fully tested in both directions, and CI runs the suite on a Windows runner, so what gets *written* on Windows is proven. What is not proven is which shell each CLI actually launches the command with. The workspace-scope command references `$env:GEMINI_PROJECT_DIR` / `$env:QWEN_PROJECT_DIR` in PowerShell syntax; if a Windows build dispatches through `cmd.exe` instead, the variable stays literal and the hook fails to find its script. Neither platform's documentation states the Windows shell, and the failure mode is bounded: Gemini CLI's exit-code contract makes any non-zero exit other than 2 a warning that lets the interaction proceed, so a wrong guess degrades to a warning rather than a block.
+- **Suggested next step**: during release readiness, run one project-scope hook on a Windows host with each CLI installed and record the observed shell in the read contract; if it is `cmd.exe`, switch the workspace reference to `%VAR%` form behind the same host check.
+
+### v3.15.8 Phase 6 Resolved
+
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+| - | Gemini CLI native hooks finding-only | Phase 6 | Row flipped to enforceable, backed by an ownership-scoped `settings.json` merge at both scopes, a `hooks_supported` contract-check entry, and the shared `tests/integrations/test_settings_hooks.py`. |
+| - | Qwen native hooks finding-only | Phase 6 | Same, plus `install_verify` surfaces for `~/.qwen/settings.json` and `~/.qwen/hooks`, and the `shell` / `statusMessage` fields Qwen documents and Gemini CLI does not. |
+
+### v3.15.8 Phase 6 Summary
+
+| Category | Open | Resolved |
+|---|---:|---:|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 1 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 1 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+| Hand-offs (HO) | 0 | 0 |
+
+**Carryovers.** HO-4, MT-6, DF-11, MT-5, and QG-4 remain open and unchanged. Phase 6 adds DF-12 (a documented alternative write path deliberately not inferred) and MT-7 (the Windows shell each CLI dispatches through is undocumented upstream). Both are limits of what verified documentation supports rather than work that was skipped, and both have bounded failure modes. Existing deny controls are unaffected: the `git-guardrails` and `secret-scan` guardrails are registered on both platforms wherever a matcher exists, and no hook was mapped onto an approximation. Phase 6 introduces no skipped implementation, known production bug, suppressed warning, or bypassed hard gate.
+
+### v3.15.8 Phase 7 checkpoint
+
+Phase 7 delivers three of the four Kimi rows and corrects the fourth rather than shipping it. Re-verification against the official agent, hook, tool, and configuration references changed both halves of the phase from what the matrix assumed.
+
+Custom agents turned out to need no transform at all. Kimi discovers Markdown agent files with YAML frontmatter and explicitly accepts the Claude Code shape the catalog already ships -- `description` is the only required field, `name` falls back to the filename, the comma-separated `tools` form exists specifically to "keep Claude Code-style agent files loadable", and unknown fields are ignored. So the catalog agents are copied verbatim at both scopes, which means an agent behaves identically on Kimi and Claude, and only validation is applied (a file with no description, no body, or a non-kebab-case name is skipped rather than shipped for Kimi to reject).
+
+Hooks went the other way and got harder. Kimi's `[[hooks]]` entries permit only `event`, `matcher`, `command`, and `timeout`, and the docs state that any extra field makes the config file fail to load -- so the handler-`name` ownership Phase 6 used for Gemini CLI and Qwen is not merely unavailable here, emitting it would break the user's entire configuration. Ownership is a marker-delimited managed block instead, spliced into `config.toml` without ever parsing and re-emitting the user's TOML, which preserves their comments and table order byte-for-byte and needs no non-stdlib round-tripper. The merged result is validated with `tomllib` and rolled back on failure, and a file that was already invalid is left untouched so the block cannot be mistaken for the cause. Event names need no translation and Kimi's tool names match Claude's for `Bash`, `Write`, `Edit`, and `Skill`, so the matcher mapping is near-identity.
+
+Two incidental corrections came out of the work. `IntegrationBase._copy_file` is ownership-blind -- it keeps any existing destination unless the whole install runs with `--overwrite` -- so it cannot satisfy the matrix's manifest-driven repair requirement; the Phase 5 `write_owned_file` primitive was lifted into a shared `_owned` module and reused rather than duplicated. And both installers were still printing `Kimi (.kimi/agent.yaml + system.md)` as the workspace display name, advertising a path dropped in v3.15.0 Phase 4; that is now the real `.kimi-code/` surface.
+
+### v3.15.8 Phase 7 Open Items
+
+#### Deferred
+
+##### DF-13 - Kimi has no project-scoped hook path, so workspace hooks are undeliverable
+
+- **Source phase**: v3.15.8 Phase 7.2 - Merge Kimi TOML Hooks.
+- **Plan reference**: `docs/v3/v3.15/plans/v3.15.8-platform-parity-and-github-usage-monitor.md` (sub-task 7.2).
+- **Reason**: the matrix assumed a project `.kimi-code/config.toml`. That file does not exist -- Kimi's project-local configuration is `.kimi-code/local.toml`, which the [configuration reference](https://www.kimi.com/code/docs/en/kimi-code-cli/configuration/config-files) documents as holding only a `[workspace]` table with `additional_dir`, and `[[hooks]]` is documented exclusively in the user-level `~/.kimi-code/config.toml`. Sub-task 7.2 says to reject undocumented paths, so the workspace hook row stays finding-only with the reason recorded in the row itself rather than shipping an invented destination. The practical impact is bounded: hooks installed at global scope apply to every project, so a user loses per-project hook scoping, not the guardrails.
+- **Suggested next step**: if Kimi later documents project-scoped hooks (in `local.toml` or elsewhere), deliver them through the same marker-block merge, which is scope-agnostic already.
+
+#### Missing tests / coverage gaps
+
+##### MT-8 - Kimi agent and hook delivery is not observed against a real Kimi install
+
+- **Source phase**: v3.15.8 Phase 7.3 - Testing and Stabilization.
+- **Plan reference**: `docs/v3/v3.15/plans/v3.15.8-platform-parity-and-github-usage-monitor.md` (sub-task 7.3).
+- **Reason**: the suite proves the verbatim copy, the four-field schema, comment and table preservation, rollback, duplicate suppression, host-selected commands, and teardown against a temporary filesystem, and CI runs it on Windows. What no test here can prove is that a running Kimi build lists the copied agents alongside its built-ins and fires the spliced hooks. This is the same boundary as MT-6 for Codex and MT-7 for the Gemini-CLI-class platforms.
+- **Suggested next step**: fold a Kimi load check into the same release-readiness pass that owns MT-6 and MT-7, confirming `/hooks` lists the block's entries and the agents appear in Kimi's agent list.
+
+### v3.15.8 Phase 7 Resolved
+
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+| - | Kimi custom agents finding-only (both scopes) | Phase 7 | Rows flipped to enforceable. Verbatim validated copy to `~/.kimi-code/agents/` and `.kimi-code/agents/`, manifest-owned so a user-authored agent survives and a drifted owned one is repaired. The shared `~/.agents/agents/` and `.agents/agents/` paths are deliberately not claimed. |
+| - | Kimi native hooks finding-only (global) | Phase 7 | Row flipped to enforceable via a marker-managed `[[hooks]]` block in `~/.kimi-code/config.toml`, with `contract_checks` and three `install_verify` surfaces. |
+| - | Stale deprecated Kimi path in both installer summaries | Phase 7 | The workspace display name advertised `.kimi/agent.yaml`, dropped in v3.15.0 Phase 4. Both installers now name the real `.kimi-code/` surface. |
+| - | `_copy_file` cannot repair a drifted owned file | Phase 7 | Found by a Phase 7 test. `write_owned_file` moved from `_codex_native` into a shared `_owned` module and reused by Kimi, so there is one manifest-aware write rather than two. |
+| - | Teardown could raise `PermissionError` and abandon the rest of an uninstall | Phase 7 | Found by the pre-existing `test_contract.py`. On Windows a delete-pending file vanishes from a directory listing but still blocks `rmdir`, so the empty-directory cleanup shipped in Phase 5 (Codex) and Phase 6 (the settings-hooks mixin) could crash mid-teardown. Consolidated into `_owned.remove_dir_if_empty`, which logs and reports `kept` instead of raising; all three integrations now share it. |
+| - | Kimi agents were written twice per install | Phase 7 | Found by `test_contract.py`'s dry-run histogram comparison. Declaring `agents_subdir` made the base `_mirror_catalog` copy `catalog/agents` in addition to the integration's own validated, ownership-aware writer. The key is now deliberately unset, with the read path still asserted via `doc_mentions` and `install_verify`. |
+
+### v3.15.8 Phase 7 Summary
+
+| Category | Open | Resolved |
+|---|---:|---:|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 1 | 0 |
+| Bugs / regressions (BG) | 0 | 3 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 1 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+| Hand-offs (HO) | 0 | 0 |
+
+**Carryovers.** DF-12, MT-7, HO-4, MT-6, DF-11, MT-5, and QG-4 remain open and unchanged. Phase 7 adds DF-13 (Kimi documents no project hook path, so that row is corrected rather than delivered) and MT-8 (delivery is not observed against a running Kimi build).
+
+It also resolves four defects, three of them latent and none introduced by this phase's own feature work. Two came from the pre-existing `test_contract.py`, which is worth noting because it is the suite that runs every integration through the same lifecycle: its dry-run histogram caught the double agent write, and its uninstall case caught a teardown crash that had shipped in Phase 5 and Phase 6 and would have abandoned an uninstall partway through on Windows. The other two are the ownership-blind `_copy_file` that would have left a drifted agent unrepaired on any platform using it, and the stale `.kimi/agent.yaml` label both installers were still printing a full minor version after that path was dropped.
+
+Existing deny controls are unaffected; `git-guardrails` and `secret-scan` are registered wherever Kimi has a matching tool name, and Kimi's fail-open hook semantics are stated in the install summary rather than left implied. Phase 7 introduces no skipped implementation, known production bug, suppressed warning, or bypassed hard gate.
+
+### v3.15.8 Phase 8 checkpoint
+
+Phase 8 closes the last four platform rows, and the headline finding is that most of the Copilot surface did not need building. Copilot in VS Code reads Claude-format customization files **by default**: its documented `chat.hookFilesLocations` default includes `~/.claude/settings.json` and `.claude/settings.json`, it "uses the same hook format as Claude Code and Copilot CLI for compatibility", and its default workspace agent locations include `.claude/agents`. Nexus-Hub already writes all three. So Copilot hooks at both scopes and Copilot project agents were already live, and the correct action was to record that rather than build a parallel surface -- a `.github/hooks/*.json` or `.github/agents/*.md` copy would be a redundant, commit-visible duplicate in the user's repository, which is the same policy concern that keeps `.github/skills/` opt-in, and agent files deduplicate across levels by filename anyway. Those rows are marked enforceable-as-inherited, with a new contract test asserting the dependency in the direction it actually runs: if the `claude` integration ever stopped writing those paths, Copilot's coverage would silently vanish.
+
+The one genuine gap was global agents. `~/.copilot/agents` is Copilot's documented user-profile agent path and `~/.claude/agents` is not, so outside a repository Copilot saw no catalog agents at all. Those now ship verbatim as `<name>.agent.md`, since Copilot accepts the catalog's Claude-style frontmatter as-is and documents Claude's tool names as aliases -- the third platform in this plan (after Kimi and, for its body, Codex) where the right answer was a validated copy rather than a transform. Validation covers Copilot's required `description` and its 30,000-character prompt cap, detection accepts either a VS Code user dir or an existing `~/.copilot`, and absence produces a not-detected note rather than a false claim.
+
+Hermes resolved in the opposite direction from the v3.15.2 expectation. The upstream rule is quoted plainly -- "Hermes discovers skills by listing every subdirectory of the tap path and probing each for `SKILL.md`" -- so discovery is one level, not recursive, and the flattened layout Nexus-Hub already writes is **required**. A category-nested migration, which the v3.15.2 note treated as a possible future alignment, would have hidden every skill at depth 2 and broken discovery outright. No migration was performed; a regression test now pins both halves of the invariant.
+
+### v3.15.8 Phase 8 Open Items
+
+None. Phase 8 introduces no deferred item, missing-test gap, or hand-off of its own.
+
+### v3.15.8 Phase 8 Resolved
+
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+| - | Copilot custom agents finding-only (both scopes) | Phase 8 | Global ships verbatim to `~/.copilot/agents/*.agent.md`, validated and manifest-owned. Workspace is enforceable-as-inherited from `.claude/agents`, a documented Copilot default, with no committed `.github/agents` duplicate. |
+| - | Copilot native hooks finding-only (both scopes) | Phase 8 | Both scopes enforceable-as-inherited from `~/.claude/settings.json` and `.claude/settings.json`, both documented Copilot default hook locations carrying the same format. `hooks_supported` stays false so no summary claims a Copilot-owned hook surface. |
+| - | Copilot global hooks recorded as "no supported destination proven" | Phase 8 | Disproven. The destination exists and is already populated; the row is now inherited rather than unavailable. |
+| - | Hermes nesting claim unresolved since v3.15.2 | Phase 8 | Resolved against the upstream discovery rule. Discovery is depth-1, so the existing flattened delivery is required; the earlier "recursive discovery" premise in the drift audit is corrected. Rows flipped to fully enforceable with no migration. |
+| BG | Category-level `catalog/skills/code-review/references/` shipped as a bogus skill on nine platforms | Phase 8 | Found by the new Hermes depth-1 test. Four checklists sat at the category level instead of inside a skill, so `flatten_skills` presented `references` as a skill with no `SKILL.md` on every flattened platform, and the three sibling skills citing `references/<file>.md` had relative paths that did not resolve. Relocated into each citing skill's own `references/` per the per-skill bundling convention; the bundle audit stays at 0 errors. |
+| BG | A test run wrote 23 agent files into the developer's real `~/.copilot/agents` | Phase 8 | Introduced and fixed within this phase. Adding a second global detection signal meant `test_copilot_install_global_skips_without_vscode`, which patched only `_vscode_user_dir`, no longer short-circuited `install_global` on a host that really has `~/.copilot`. The leaked files were removed and the design corrected: `~/.copilot` is now reached only through a patchable `_copilot_home()` accessor mirroring `_vscode_user_dir()`, both affected tests isolate it, and a new test asserts `install_global` routes through the accessor so a future global surface cannot bypass it. |
+
+### v3.15.8 Phase 8 Summary
+
+| Category | Open | Resolved |
+|---|---:|---:|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 2 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+| Hand-offs (HO) | 0 | 0 |
+
+**Carryovers.** DF-13, MT-8, DF-12, MT-7, HO-4, MT-6, DF-11, MT-5, and QG-4 remain open and unchanged, and Phase 9 owns the reconciliation. Phase 8 adds nothing to that list: the two things it could not prove locally are the same live-observation boundary already tracked as MT-6, MT-7, and MT-8, and no new deferral was needed because the Copilot rows resolved to inheritance rather than to partial delivery.
+
+Both resolved bugs were found by tests rather than by review, and one of them was this phase's own: adding a second global detection signal let an existing Copilot test escape its patch and write into the developer's real home directory. That is worth recording rather than quietly fixing, because the lesson generalizes -- a global surface must be reachable only through a patchable accessor, and adding a second one to an existing gate silently widens what an old test can touch.
+
+### v3.15.8 Phase 9 reconciliation (9.2)
+
+Every v3.15.8 gap now has a disposition, an owner, and a next step. This is the consolidated view; each item's own entry above carries the detail.
+
+| ID | Disposition | Owner / next step |
+|---|---|---|
+| DF-9 | **Resolved** (Phase 9.2) | All 18 ownership-matrix rows are enforceable across Phases 5-8. Re-entry condition met in full; closed at its own entry above. |
+| DF-10 | **Retained deferral** (maintainer-blocked) | The exact 20x20 SVG and its redistribution/trademark evidence were never supplied, so Phase 3 packaged a deterministic derived icon instead of the observed 14x14 gradient PNG. Nothing in the shipped package depends on the missing asset. Re-entry is unchanged: the maintainer supplies the SVG plus provenance, or the derived icon stands. |
+| DF-11 | **Accepted retained difference** (Phase 9.3) | Per-path job gating was not adopted repo-wide, so the divergence from T028's literal wording stands with `ci.yml` as the compensating control, now test-asserted. |
+| DF-12 | **Retained deferral** (upstream-blocked) | Gemini CLI extension-packaged hooks would be a cleaner write path, but only `gemini extensions install` is documented for populating that directory and it has no project scope. Re-entry: a later release that can verify a directly-written extension directory is loaded. |
+| DF-13 | **Retained deferral** (upstream-blocked) | Kimi documents no project-scoped hook path (`local.toml` carries only `[workspace]`). Global hooks apply to every project, so the loss is per-project scoping, not the guardrails. Re-entry: upstream documenting a project hook path. |
+| MT-5 | **Transferred to v3.15.9** | `src/extension.ts` sits at 34.74% statements because activation, authorized refresh, native settings dispatch, and toast actions need an Extension Development Host harness the package does not have. Package coverage passes its thresholds (82.09% statements, 87.32% lines), so this is a coverage-shape gap rather than a release blocker, and building an EDH harness is its own piece of work. |
+| MT-6 / MT-7 / MT-8 | **Consolidated into one release-readiness live pass** | Codex agents/hooks, the Windows shell each of Gemini CLI and Qwen dispatches through, and Kimi's agents/hooks are all "written correctly, not observed running". They share one precondition -- a host with those products installed -- so they are one pass, not four. The Copilot agents-dropdown check from Phase 8 joins it. |
+| HO-4 | **Retained hand-off** (by design) | Codex hooks stay inert until the user trusts them via `/hooks`. No installer can perform an interactive trust confirmation; the install summary says so at both scopes. Nothing further to do in code. |
+| QG-2 / QG-3 | **Resolved** (Phase 4) | `ci.yml` now collects `tests/plans` and `tests/workflows`; the GitHub monitor has a path-filtered Node 22 gate. |
+| QG-4 | **Retained deferral** (environment-blocked) | The interactive light/dark/high-contrast smoke needs a GUI session this non-interactive environment cannot observe. Automated tests cover theme tokens, semantic labels, focus styling, responsive layout, reduced motion, CSP, escaping, and the unknown-limit fallback; what is missing is a human render, including the teal meter fill. Joins the same release-readiness pass as MT-6/7/8. |
+
+**Nothing was deleted.** Every historical gap from v3.15.0 through v3.15.7 remains as written, including the v3.15.6 correction notice about WN-v36-1. Two items are transferred rather than closed (MT-5 to v3.15.9) or consolidated (MT-6/7/8 plus QG-4 and the Copilot check into one live pass); the rest are resolved or are genuine upstream and environment limitations with dated reasons.
+
+**Monitor-specific findings recorded explicitly**, per 9.2's requirement: GitHub's billing summary APIs remain public preview and may change shape without notice (the provider normalizes defensively and keeps unknown quotas percentage-free); personal-scope endpoints omit managed Copilot seats; no authorized billing credential was ever available in this plan, so every live billing path is unexercised (HO-3's original subject, resolved by choosing the fine-grained-token fallback); and the supplied brand asset limitation is DF-10 above. No monitor claims a percentage it cannot compute, and nothing is scraped.
+
+The existing Copilot skills selector is unchanged and asserted non-regressed (off by default, bundle-id or `all`, never overwriting a committed file). Existing deny controls are unaffected -- and in Copilot's case they were already active through the Claude path, which is precisely what this phase established. Phase 8 introduces no skipped implementation, known production bug, suppressed warning, or bypassed hard gate.

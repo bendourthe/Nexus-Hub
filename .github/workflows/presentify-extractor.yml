@@ -35,6 +35,12 @@ on:
       - 'docs/v3/v3.13/development/fixtures/verify_imagery.py'
       - '.github/workflows/presentify-extractor.yml'
 
+# v3.15.8 Phase 9.3: least privilege. This workflow builds and tests only --
+# no artifact upload, no gh CLI, no comments, no pushes -- so read-only
+# contents is the complete requirement.
+permissions:
+  contents: read
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -42,6 +48,7 @@ concurrency:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 

@@ -1,0 +1,30 @@
+{
+  "timePeriod": {"year": 2026, "month": 8},
+  "organization": "fixture-organization",
+  "usageItems": [
+    {
+      "product": "Actions",
+      "sku": "actions_linux",
+      "unitType": "minutes",
+      "pricePerUnit": 0.008,
+      "grossQuantity": 1200,
+      "grossAmount": 9.6,
+      "discountQuantity": 1000,
+      "discountAmount": 8.0,
+      "netQuantity": 200,
+      "netAmount": 1.6
+    },
+    {
+      "product": "Actions",
+      "sku": "actions_storage",
+      "unitType": "gigabyte-hours",
+      "pricePerUnit": 0.00025,
+      "grossQuantity": 640,
+      "grossAmount": 0.16,
+      "discountQuantity": 400,
+      "discountAmount": 0.1,
+      "netQuantity": 240,
+      "netAmount": 0.06
+    }
+  ]
+}

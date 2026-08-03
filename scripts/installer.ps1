@@ -1498,7 +1498,12 @@ function Install-Global {
         if (-not (Test-Path $globalCodexDir)) { New-Item -ItemType Directory -Force -Path $globalCodexDir | Out-Null }
         # The codex integration flattens skills to ~/.codex/skills AND
         # ~/.agents/skills, emits every command as a skill plus a legacy prompt,
-        # and renders ~/.codex/AGENTS.md (see docs/policy/platform-read-contracts.md).
+        # and renders ~/.codex/AGENTS.md. Since v3.15.8 it also writes
+        # ~/.codex/agents/*.toml (custom agents) and merges ~/.codex/hooks.json +
+        # ~/.codex/hooks/, enabling [features] hooks in ~/.codex/config.toml (see
+        # docs/policy/platform-read-contracts.md). Each hook registration carries
+        # Codex's commandWindows override, so a Windows user runs the .ps1 sibling
+        # of the same guardrail rather than getting no hook at all.
         Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "codex" -DisplayName "Codex" -Provider "OPENAI"
     }
 
@@ -1519,6 +1524,10 @@ function Install-Global {
     }
     if ($platforms -contains "GEMINI_CLI") {
         if ($Enterprise) {
+            # GEMINI.md + skills + TOML commands + agents + rules + native hooks
+            # merged into ~/.gemini/settings.json (v3.15.8 Phase 6). Gemini CLI has
+            # no commandWindows slot, so running from PowerShell registers the .ps1
+            # siblings and the PowerShell-flavored guardrails; both siblings ship.
             Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "gemini-cli" -DisplayName "Gemini CLI" -Provider "GOOGLE"
         }
         else {
@@ -1527,6 +1536,10 @@ function Install-Global {
     }
 
     # --- Microsoft -- GitHub Copilot -------------------------------------
+    # VS Code user-profile prompt files (slash commands) + custom agents at
+    # ~/.copilot/agents (v3.15.8 Phase 8, verbatim catalog Markdown). Hooks are
+    # NOT written: Copilot's default hook locations include ~/.claude/settings.json,
+    # which the Claude block above already populates, so they are inherited.
     if ($platforms -contains "COPILOT") {
         Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "copilot" -DisplayName "GitHub Copilot" -Provider "MICROSOFT"
     }
@@ -1552,11 +1565,17 @@ function Install-Global {
     }
 
     # --- Kimi ------------------------------------------------------------
+    # AGENTS.md + skills + custom agents (verbatim catalog Markdown) + native
+    # hooks as a marker-managed [[hooks]] block in ~/.kimi-code/config.toml
+    # (v3.15.8 Phase 7). A PowerShell install registers the .ps1 siblings.
     if ($platforms -contains "KIMI") {
-        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "kimi" -DisplayName "Kimi" -Provider "KIMI"
+        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "kimi" -DisplayName "Kimi Code CLI" -Provider "KIMI"
     }
 
     # --- Qwen ------------------------------------------------------------
+    # QWEN.md + skills + Markdown commands + agents + native hooks merged into
+    # ~/.qwen/settings.json (v3.15.8 Phase 6). A PowerShell install registers the
+    # .ps1 siblings and sets Qwen's own shell field to "powershell" to match.
     if ($platforms -contains "QWEN") {
         Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "qwen" -DisplayName "Qwen Code" -Provider "QWEN"
     }
@@ -1857,9 +1876,11 @@ function Install-Workspace {
             if (-not (Test-Path $codexDir)) { New-Item -ItemType Directory -Force -Path $codexDir | Out-Null }
 
             # Full registry mirror (v3.12.0): see the global Codex block. Workspace
-            # scope writes .codex/{skills,prompts}, .agents/skills (flattened + command
-            # skills), and a repo-root AGENTS.md.
-            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "codex" -DisplayName "Codex (AGENTS.md + skills + commands)" -Languages ($languages -join ',')
+            # scope writes .codex/{skills,prompts,agents,hooks}, .codex/hooks.json,
+            # .agents/skills (flattened + command skills), and a repo-root AGENTS.md.
+            # The [features] hooks switch is user-global, so a workspace install
+            # advises rather than editing ~/.codex/config.toml.
+            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "codex" -DisplayName "Codex (AGENTS.md + skills + commands + agents + hooks)" -Languages ($languages -join ',')
         }
 
         # --- Google -- Gemini / Antigravity 1.0 + 2.0 / Gemini CLI ------
@@ -1887,6 +1908,8 @@ function Install-Workspace {
             }
             if ($workspacePlatforms -contains "GEMINI_CLI") {
                 if ($Enterprise) {
+                    # Project .gemini/ surfaces plus hooks in .gemini/settings.json;
+                    # commands resolve via $env:GEMINI_PROJECT_DIR on Windows.
                     Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "gemini-cli" -DisplayName "Gemini CLI (enterprise)"
                 }
                 else {
@@ -1931,12 +1954,17 @@ function Install-Workspace {
         }
 
         # --- Kimi -------------------------------------------------------
+        # Project .kimi-code/ AGENTS.md + skills + custom agents. NO hooks at
+        # workspace scope: Kimi's project config is local.toml and documents only
+        # a [workspace] table, so there is no project hook path to write.
         if ($workspacePlatforms -contains "KIMI") {
             Write-Header -Provider "KIMI"
-            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "kimi" -DisplayName "Kimi (.kimi/agent.yaml + system.md)" -Languages ($languages -join ',')
+            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "kimi" -DisplayName "Kimi Code CLI (.kimi-code/)" -Languages ($languages -join ',')
         }
 
         # --- Qwen -------------------------------------------------------
+        # Project QWEN.md + .qwen/ surfaces plus hooks in .qwen/settings.json,
+        # resolved via $env:QWEN_PROJECT_DIR on Windows (v3.15.8 Phase 6).
         if ($workspacePlatforms -contains "QWEN") {
             Write-Header -Provider "QWEN"
             Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "qwen" -DisplayName "Qwen Code (QWEN.md)" -Languages ($languages -join ',')
@@ -2059,11 +2087,11 @@ function Invoke-RegistryPlatform {
 
 function Install-VSCodeExtensions {
     param ($RepoRoot)
-    Write-Item -Message "Usage Monitor VS Code extensions show your Claude Code and Codex (ChatGPT)" -Color "White"
-    Write-Item -Message "usage limits in the status bar, with pacing recommendations. Grouped by vendor." -Color "White"
+    Write-Item -Message "Usage Monitor VS Code extensions show your Claude Code, Codex (ChatGPT), and" -Color "White"
+    Write-Item -Message "GitHub usage in the status bar, with pacing recommendations. Grouped by vendor." -Color "White"
     Write-Host ""
 
-    # Check for Node.js (shared by both extensions)
+    # Check for Node.js (shared by every extension)
     $nodeCmd = Get-Command "node" -ErrorAction SilentlyContinue
     if (-not $nodeCmd) {
         Write-Item -Message "Node.js is not installed (required to build the extensions)." -Color "DarkYellow"
@@ -2118,11 +2146,11 @@ function Install-VSCodeExtensions {
 
     # Suspend strict error mode for native CLI tools (npm/npx write warnings to stderr
     # which PowerShell converts to terminating errors under $ErrorActionPreference = "Stop").
-    # Shared across both extension builds; restored once at the end.
+    # Shared across every extension build; restored once at the end.
     $savedErrorPref = $ErrorActionPreference
     $ErrorActionPreference = "Continue"
 
-    # Locate a VS Code-family CLI once, shared by both extensions. On a fresh machine
+    # Locate a VS Code-family CLI once, shared by every extension. On a fresh machine
     # `code` is not always on PATH, so fall back to the standard Windows install
     # locations. This lets each VSIX auto-install instead of by hand (mirrors installer.sh).
     $codeCli = $null
@@ -2148,21 +2176,32 @@ function Install-VSCodeExtensions {
         }
     }
 
-    # Build each extension under its own vendor header so the Anthropic and
-    # OpenAI utilities are visually separated. Each is independent, so a missing
-    # folder or a build failure in one does not block the other.
+    # Build each extension under its own vendor header so the Anthropic, OpenAI,
+    # and GitHub utilities are visually separated. Each is independent, so a
+    # missing folder or a build failure in one does not block the others. The
+    # vendor order (Anthropic, OpenAI, GitHub) is asserted by the installer smoke
+    # test and must match scripts/installer.sh.
     Write-Header -Provider "ANTHROPIC"
     Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\claude-usage-monitor") -ExtensionId "nexus-hub.claude-usage-monitor" -DisplayName "Claude Usage Monitor" -StatusHint "Claude: --%" -CodeCli $codeCli -CodeLabel $codeLabel
 
     Write-Header -Provider "OPENAI"
     Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\codex-usage-monitor") -ExtensionId "nexus-hub.codex-usage-monitor" -DisplayName "Codex Usage Monitor" -StatusHint "Codex: --%" -CodeCli $codeCli -CodeLabel $codeLabel
 
+    # The GitHub monitor's status hint carries no "%" because GitHub does not
+    # guarantee an included allowance: until a verified denominator or a manual
+    # one is configured the bar shows absolute usage, so promising a percentage
+    # here would be the false-quota claim the v3.15.8 contract forbids. The
+    # install itself never authenticates to GitHub - the token is supplied later
+    # through the extension's SecretStorage command.
+    Write-Header -Provider "GITHUB"
+    Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\github-usage-monitor") -ExtensionId "nexus-hub.github-usage-monitor" -DisplayName "GitHub Usage Monitor" -StatusHint "GitHub Usage: --" -CodeCli $codeCli -CodeLabel $codeLabel
+
     # Restore strict error mode
     $ErrorActionPreference = $savedErrorPref
 }
 
 # Build, package, and install one VS Code usage-monitor extension. Shared by
-# Install-VSCodeExtensions so the Claude and Codex monitors install identically.
+# Install-VSCodeExtensions so every monitor installs identically.
 function Build-And-Install-One-Extension {
     param ($ExtensionDir, $ExtensionId, $DisplayName, $StatusHint, $CodeCli, $CodeLabel)
 

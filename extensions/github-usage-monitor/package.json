@@ -1,0 +1,139 @@
+{
+  "name": "github-usage-monitor",
+  "displayName": "GitHub Usage Monitor",
+  "description": "Monitor authorized GitHub Copilot and Actions billing usage without storing credentials in settings",
+  "version": "0.1.0",
+  "publisher": "nexus-hub",
+  "icon": "icon.png",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bendourthe/Nexus-Hub.git",
+    "directory": "extensions/github-usage-monitor"
+  },
+  "homepage": "https://github.com/bendourthe/Nexus-Hub/tree/main/extensions/github-usage-monitor#readme",
+  "bugs": {
+    "url": "https://github.com/bendourthe/Nexus-Hub/issues"
+  },
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0",
+    "node": ">=22.0.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      { "command": "github-usage.dashboard", "title": "GitHub Usage: Dashboard", "category": "GitHub Usage" },
+      { "command": "github-usage.refresh", "title": "GitHub Usage: Refresh", "category": "GitHub Usage" },
+      { "command": "github-usage.settings", "title": "GitHub Usage: Settings", "category": "GitHub Usage" },
+      { "command": "github-usage.manualEntry", "title": "GitHub Usage: Enter Allowances", "category": "GitHub Usage" },
+      { "command": "github-usage.clearData", "title": "GitHub Usage: Clear Data", "category": "GitHub Usage" },
+      {
+        "command": "github-usage.setToken",
+        "title": "GitHub Usage: Set Token",
+        "category": "GitHub Usage"
+      },
+      {
+        "command": "github-usage.validateToken",
+        "title": "GitHub Usage: Validate Token",
+        "category": "GitHub Usage"
+      },
+      {
+        "command": "github-usage.rotateToken",
+        "title": "GitHub Usage: Rotate Token",
+        "category": "GitHub Usage"
+      },
+      {
+        "command": "github-usage.clearToken",
+        "title": "GitHub Usage: Clear Token",
+        "category": "GitHub Usage"
+      }
+    ],
+    "icons": { "github-icon": { "description": "GitHub icon", "default": { "fontPath": "./fonts/github-icons.woff2", "fontCharacter": "\\E102" } } },
+    "viewsContainers": { "activitybar": [{ "id": "githubUsageWarning", "title": "GitHub Usage Warning", "icon": "icons/warning.svg" }] },
+    "views": { "githubUsageWarning": [{ "id": "githubUsageWarningView", "name": "Usage Warning", "type": "webview", "when": "githubUsage.warningActive" }] },
+    "configuration": {
+      "title": "GitHub Usage Monitor",
+      "properties": {
+        "githubUsage.billingScope": {
+          "type": "string",
+          "enum": ["user", "organization", "enterprise"],
+          "default": "user",
+          "description": "The one GitHub billing owner type queried by this monitor"
+        },
+        "githubUsage.billingOwner": {
+          "type": "string",
+          "default": "",
+          "description": "The personal username, organization slug, or enterprise slug to query"
+        },
+        "githubUsage.copilotMetric": {
+          "type": "string",
+          "enum": ["ai-credits", "premium-requests"],
+          "default": "ai-credits",
+          "description": "The documented Copilot billing counter used for this account"
+        },
+        "githubUsage.allowances.copilot": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Optional manually verified Copilot allowance matching the selected metric unit"
+        },
+        "githubUsage.allowances.actionsMinutes": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Optional manually verified monthly Actions minutes allowance"
+        },
+        "githubUsage.allowances.actionsStorage": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Optional manually verified Actions storage allowance in the exact displayed unit"
+        },
+        "githubUsage.staleAfterMinutes": {
+          "type": "number",
+          "default": 30,
+          "minimum": 1,
+          "maximum": 1440,
+          "description": "Age after which cached GitHub usage is labeled stale"
+        },
+        "githubUsage.autoFetch": { "type": "boolean", "default": true, "description": "Fetch authorized GitHub billing usage on startup and at the configured interval" },
+        "githubUsage.refreshInterval": { "type": "number", "default": 10, "minimum": 1, "maximum": 120, "description": "Minutes between automatic billing refreshes" },
+        "githubUsage.compactStatusBar": { "type": "boolean", "default": false, "description": "Show only the GitHub icon and concise usage value" },
+        "githubUsage.alertMetric": { "type": "string", "default": "highest", "enum": ["highest", "copilot-ai-credits", "copilot-premium-requests", "actions-minutes", "actions-storage"], "description": "Verified percentage metric used for threshold alerts" },
+        "githubUsage.thresholds.moderate": { "type": "number", "default": 50, "minimum": 1, "maximum": 100, "description": "Moderate usage threshold" },
+        "githubUsage.thresholds.high": { "type": "number", "default": 75, "minimum": 1, "maximum": 100, "description": "High usage threshold" },
+        "githubUsage.thresholds.critical": { "type": "number", "default": 95, "minimum": 1, "maximum": 100, "description": "Critical usage threshold" },
+        "githubUsage.notificationTimeoutSeconds": { "type": "number", "default": 12, "minimum": 3, "maximum": 60, "description": "Seconds before the warning view auto-dismisses" },
+        "githubUsage.requestTimeoutMs": { "type": "number", "default": 10000, "minimum": 1000, "maximum": 60000, "description": "GitHub billing request timeout in milliseconds" },
+        "githubUsage.colors.moderate": { "type": "string", "default": "#cca700", "description": "Moderate alert color" },
+        "githubUsage.colors.high": { "type": "string", "default": "#f0643c", "description": "High alert color" },
+        "githubUsage.colors.critical": { "type": "string", "default": "#e05555", "description": "Critical alert color" }
+        }
+      }
+    },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "package": "vsce package --no-dependencies",
+    "verify:package": "node scripts/verify-package-contents.js",
+    "generate:icons": "node scripts/generate-icon-font.js && node scripts/generate-package-icon.js"
+  },
+  "devDependencies": {
+    "@types/node": "^20.19.41",
+    "@types/vscode": "^1.85.0",
+    "@vscode/vsce": "^3.0.0",
+    "@vitest/coverage-v8": "^4.1.10",
+    "sharp": "^0.34.3",
+    "svg2ttf": "^6.0.3",
+    "svgpath": "^2.6.0",
+    "ttf2woff2": "^8.0.0",
+    "typescript": "^5.3.0",
+    "vitest": "^4.1.10"
+  }
+}

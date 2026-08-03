@@ -1,0 +1,15 @@
+.vscode/**
+node_modules/**
+coverage/**
+src/**
+test/**
+scripts/**
+# icons/*.png is deliberately NOT ignored: icons/github-gradient.png is the
+# alert-panel artwork and must ship. Intermediate font build products do not.
+fonts/*.ttf
+fonts/*.svg
+tsconfig.json
+vitest.config.mts
+.gitignore
+**/*.vsix
+**/*.map

@@ -1,0 +1,7 @@
+{
+  "fixtureStatus": 429,
+  "message": "API rate limit exceeded",
+  "retryAfterSeconds": 60,
+  "rateLimitRemaining": 0,
+  "rateLimitResetEpoch": 1785686400
+}
