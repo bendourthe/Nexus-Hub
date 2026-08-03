@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: The v3.15 line now includes v3.15.0 through v3.15.7. Release PR #28 and usage-monitor repair PR #29 are merged into `develop`; a focused Windows PowerShell 5.1 CI repair is the remaining develop gate before main promotion, post-merge CI, tag, and GitHub Release. Earlier release history and per-phase evidence remain in the sections below.
-**Last updated**: 2026-08-02 (v3.15.8 Phase 4 checkpoint; v3.15.7 release status retained below)
+**Last updated**: 2026-08-02 (v3.15.8 Phase 5 checkpoint; v3.15.7 release status retained below)
 
 **Current v3.15.7 status**: Implementation is complete and merged into `develop`. The release scope is fixed: evidence-closed security review hardening, Codex Usage Monitor Extra Credits, the isolated installer import-cycle fix, and CI corrections discovered by the reactivated pipelines. Newly verified additive platform capabilities are explicitly deferred to v3.15.8. The maintainer authorized the remote sequence; both repaired monitor workflows pass on the merged `develop` commit, and the Windows PowerShell 5.1 push-gate repair must pass before main promotion, post-merge CI, tag, and GitHub Release proceed in order.
 
@@ -1182,3 +1182,49 @@ Two decisions are worth recording. The focused workflow deliberately does not tr
 | Hand-offs (HO) | 0 | 0 |
 
 **Carryovers.** MT-5 (extension activation coverage) and QG-4 (interactive light/dark/high-contrast smoke) remain open and are now more pointed: the meter color changed after Phase 3's accessibility pass, so the first Extension Development Host session should confirm the teal fill in all three themes. `#008080` clears the 3:1 non-text contrast floor against both a white and a black backdrop by calculation, which the previous purple did only against white, but that is arithmetic rather than an observed render. Authorized live billing verification remains a release-readiness activity. Phase 4 adds DF-11 and resolves QG-2 and QG-3; it introduces no skipped implementation, known production bug, suppressed warning, or bypassed hard gate.
+
+### v3.15.8 Phase 5 checkpoint
+
+Phase 5 turns the two finding-only Codex rows from Phase 1's ownership matrix into owned writes. Custom agents are no longer a file copy: `_codex_native.py` transforms each `catalog/agents/*.md` into a Codex agent TOML at `~/.codex/agents/` and `.codex/agents/`, carrying `name`, `description`, and the Markdown body as `instructions`, and inferring `sandbox_mode = "read-only"` when every tool the agent declares is non-mutating. Native hooks copy their scripts under an owned directory and merge into `hooks.json` at both scopes, with each handler carrying a `commandWindows` that points at the `.ps1` sibling so a PowerShell host gets the same guardrail. Both writes are ownership-gated through the install manifest, so a user-authored `planner.toml` or a hand-written hook group survives an install, a reinstall is byte-identical, and teardown removes only Nexus-Hub entries before deleting `hooks.json` and the two directories if nothing else remains.
+
+Two upstream constraints shaped the design and are surfaced rather than papered over. Codex ships its hook engine disabled behind `[features] hooks`, so the installer sets that flag idempotently in the same `config.toml` it already merges permissions into, and leaves it alone when the user has explicitly set it to `false`. And Codex requires the user to trust hooks interactively via `/hooks` before any of them fire, which no installer can do on the user's behalf; the install summary now says so in both scopes instead of implying the hooks are live.
+
+### v3.15.8 Phase 5 Open Items
+
+#### Hand-offs
+
+##### HO-4 - Codex hooks stay inert until the user trusts them via `/hooks`
+
+- **Source phase**: v3.15.8 Phase 5.2 - Codex Native Hooks.
+- **Plan reference**: `docs/v3/v3.15/plans/v3.15.8-platform-parity-and-github-usage-monitor.md` (sub-task 5.2).
+- **Reason**: Codex gates hook execution behind an interactive trust prompt. Writing `hooks.json` and enabling `[features] hooks` is the whole of what an installer can do; the remaining step is a deliberate human confirmation, and simulating it would defeat the control it exists to provide.
+- **Suggested next step**: none in code. The install summary carries the instruction at both scopes, and the read-contract prose records the trust model, so this is a documented user action rather than an implementation gap.
+
+#### Missing tests / coverage gaps
+
+##### MT-6 - Codex agent and hook delivery is not observed against a real Codex install
+
+- **Source phase**: v3.15.8 Phase 5.3 - Testing and Stabilization.
+- **Plan reference**: `docs/v3/v3.15/plans/v3.15.8-platform-parity-and-github-usage-monitor.md` (sub-task 5.3).
+- **Reason**: the suite proves the TOML schema, the merge algebra, ownership, idempotence, cross-shell parity, and teardown against a temporary filesystem, and the read contract asserts the surfaces exist after an install. What no test can prove from here is that a running Codex build loads the emitted TOML as an agent and fires the merged hooks, because that needs an authorized Codex session on a host that has the product installed.
+- **Suggested next step**: fold a manual Codex load check into the same release-readiness pass that owns the other live verifications, then record the observed result in the read-contract verification block.
+
+### v3.15.8 Phase 5 Resolved
+
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+| - | Codex custom agents finding-only | Phase 5 | The four Codex agent and hook rows in `platform-capability-ownership.md` flip from finding-only to enforceable, backed by owned writes, `install_verify` checks in `platform-read-contracts.json`, and the new `tests/integrations/test_codex_native.py`. The Phase 1 guard that forbids premature enforcement was tightened rather than removed: `test_unimplemented_surfaces_are_finding_only` now reads an explicit `IMPLEMENTED_CAPABILITIES` map, so a listed capability must be marked enforceable and name its phase while every unbuilt row must still read finding-only. |
+
+### v3.15.8 Phase 5 Summary
+
+| Category | Open | Resolved |
+|---|---:|---:|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 1 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+| Hand-offs (HO) | 1 | 0 |
+
+**Carryovers.** DF-11, MT-5, and QG-4 remain open and unchanged; Phase 9 still owns the CI reconciliation and the live visual smoke. Phase 5 adds HO-4 and MT-6, both of which are boundaries of what an installer and a filesystem-level suite can establish rather than work that was skipped. It introduces no skipped implementation, known production bug, suppressed warning, or bypassed hard gate.

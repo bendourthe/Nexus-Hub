@@ -97,7 +97,8 @@ def test_antigravity_ide_and_cli_global_pass(tmp_path):
 
 def test_codex_pass_and_needs_action(tmp_path):
     """Codex verify checks flattened skills (~/.codex/skills + ~/.agents/skills),
-    legacy prompts, and the AGENTS.md SKILL_INDEX.
+    legacy prompts, the AGENTS.md SKILL_INDEX, and (v3.15.8) the native agent,
+    hook-registration, and hook-feature-switch surfaces.
     """
     home = tmp_path / "home"
     d = home / ".codex"
@@ -106,17 +107,56 @@ def test_codex_pass_and_needs_action(tmp_path):
     (d / "prompts").mkdir(parents=True)
     (d / "prompts" / "presentify.md").write_text("p", encoding="utf-8")
     (d / "AGENTS.md").write_text("# Nexus-Hub Skill Index\n", encoding="utf-8")
+    (d / "agents").mkdir(parents=True)
+    (d / "agents" / "planner.toml").write_text('name = "planner"\n', encoding="utf-8")
+    (d / "hooks.json").write_text(
+        '{"hooks": {"Stop": [{"hooks": [{"statusMessage": "Nexus-Hub x"}]}]}}',
+        encoding="utf-8",
+    )
+    (d / "config.toml").write_text("[features]\nhooks = true\n", encoding="utf-8")
     (home / ".agents" / "skills" / "presentify").mkdir(parents=True)
     (home / ".agents" / "skills" / "presentify" / "SKILL.md").write_text("s", encoding="utf-8")
 
     check = _by_label(runner._verify_checks(home, tmp_path / "proj"))["Codex / ChatGPT"]
     assert _all_ok(check)
+    assert {name for name, _ in check[1]} >= {
+        "custom agents",
+        "hooks registration",
+        "hooks feature switch",
+    }
 
     # Remove the ~/.agents/skills mirror -> NEEDS-ACTION.
     import shutil
     shutil.rmtree(home / ".agents")
     check2 = _by_label(runner._verify_checks(home, tmp_path / "proj"))["Codex / ChatGPT"]
     assert not _all_ok(check2)
+
+
+def test_codex_hook_surfaces_flag_when_absent(tmp_path):
+    """A Codex install missing the v3.15.8 hook surfaces reports NEEDS-ACTION.
+
+    The feature switch matters as much as the registration: Codex ships the hook
+    engine disabled, so a hooks.json without ``[features] hooks = true`` is a
+    guardrail the user does not actually have.
+    """
+    home = tmp_path / "home"
+    d = home / ".codex"
+    (d / "skills" / "presentify").mkdir(parents=True)
+    (d / "skills" / "presentify" / "SKILL.md").write_text("s", encoding="utf-8")
+    (d / "prompts").mkdir(parents=True)
+    (d / "prompts" / "presentify.md").write_text("p", encoding="utf-8")
+    (d / "AGENTS.md").write_text("# Nexus-Hub Skill Index\n", encoding="utf-8")
+    (d / "agents").mkdir(parents=True)
+    (d / "agents" / "planner.toml").write_text('name = "planner"\n', encoding="utf-8")
+    (d / "hooks.json").write_text('{"hooks": {}}', encoding="utf-8")
+    (d / "config.toml").write_text("[features]\nhooks = false\n", encoding="utf-8")
+    (home / ".agents" / "skills" / "presentify").mkdir(parents=True)
+    (home / ".agents" / "skills" / "presentify" / "SKILL.md").write_text("s", encoding="utf-8")
+
+    check = _by_label(runner._verify_checks(home, tmp_path / "proj"))["Codex / ChatGPT"]
+    assert not _all_ok(check)
+    failing = {name for name, ok in check[1] if not ok}
+    assert failing == {"hooks registration", "hooks feature switch"}
 
 
 def test_cursor_verify_pass_and_needs_action(tmp_path):

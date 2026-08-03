@@ -1498,7 +1498,12 @@ function Install-Global {
         if (-not (Test-Path $globalCodexDir)) { New-Item -ItemType Directory -Force -Path $globalCodexDir | Out-Null }
         # The codex integration flattens skills to ~/.codex/skills AND
         # ~/.agents/skills, emits every command as a skill plus a legacy prompt,
-        # and renders ~/.codex/AGENTS.md (see docs/policy/platform-read-contracts.md).
+        # and renders ~/.codex/AGENTS.md. Since v3.15.8 it also writes
+        # ~/.codex/agents/*.toml (custom agents) and merges ~/.codex/hooks.json +
+        # ~/.codex/hooks/, enabling [features] hooks in ~/.codex/config.toml (see
+        # docs/policy/platform-read-contracts.md). Each hook registration carries
+        # Codex's commandWindows override, so a Windows user runs the .ps1 sibling
+        # of the same guardrail rather than getting no hook at all.
         Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "codex" -DisplayName "Codex" -Provider "OPENAI"
     }
 
@@ -1857,9 +1862,11 @@ function Install-Workspace {
             if (-not (Test-Path $codexDir)) { New-Item -ItemType Directory -Force -Path $codexDir | Out-Null }
 
             # Full registry mirror (v3.12.0): see the global Codex block. Workspace
-            # scope writes .codex/{skills,prompts}, .agents/skills (flattened + command
-            # skills), and a repo-root AGENTS.md.
-            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "codex" -DisplayName "Codex (AGENTS.md + skills + commands)" -Languages ($languages -join ',')
+            # scope writes .codex/{skills,prompts,agents,hooks}, .codex/hooks.json,
+            # .agents/skills (flattened + command skills), and a repo-root AGENTS.md.
+            # The [features] hooks switch is user-global, so a workspace install
+            # advises rather than editing ~/.codex/config.toml.
+            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "codex" -DisplayName "Codex (AGENTS.md + skills + commands + agents + hooks)" -Languages ($languages -join ',')
         }
 
         # --- Google -- Gemini / Antigravity 1.0 + 2.0 / Gemini CLI ------

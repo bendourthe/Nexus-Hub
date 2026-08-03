@@ -42,6 +42,15 @@ EXPECTED_CAPABILITIES = {
     "Hermes skill layout",
 }
 
+# A capability may claim enforcement only once its implementation phase has
+# shipped owned writes and lifecycle tests. Hermes was already enforceable at
+# Phase 1; Codex was delivered by Phase 5. Add a capability here in the same
+# commit that implements it, never ahead of it.
+IMPLEMENTED_CAPABILITIES = {
+    "Codex custom agents": "Phase 5",
+    "Codex native hooks": "Phase 5",
+}
+
 SECRET_PATTERNS = (
     re.compile(r"gh[pousr]_[A-Za-z0-9_]{8,}"),
     re.compile(r"(?i)authorization\s*[:=]"),
@@ -96,11 +105,18 @@ def test_every_ownership_row_covers_lifecycle_and_tests() -> None:
 
 def test_unimplemented_surfaces_are_finding_only() -> None:
     for row in _ownership_rows():
-        if row[0] == "Hermes skill layout":
-            assert "Enforceable existing" in row[10]
+        capability, scope, status = row[0], row[1], row[10]
+        if capability == "Hermes skill layout":
+            assert "Enforceable existing" in status
+        elif capability in IMPLEMENTED_CAPABILITIES:
+            phase = IMPLEMENTED_CAPABILITIES[capability]
+            assert "Enforceable" in status and phase in status, (
+                f"implemented but not marked enforceable in {phase}: "
+                f"{capability} {scope}"
+            )
         else:
-            assert "Finding-only" in row[10], (
-                f"premature enforcement: {row[0]} {row[1]}"
+            assert "Finding-only" in status, (
+                f"premature enforcement: {capability} {scope}"
             )
 
 

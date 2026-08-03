@@ -1181,7 +1181,12 @@ install_global() {
     mkdir -p "$global_codex_dir"
     # The codex integration flattens skills to ~/.codex/skills AND ~/.agents/skills,
     # emits every command as a skill plus a legacy prompt, and renders
-    # ~/.codex/AGENTS.md (see docs/policy/platform-read-contracts.md).
+    # ~/.codex/AGENTS.md. Since v3.15.8 it also writes ~/.codex/agents/*.toml
+    # (custom agents) and merges ~/.codex/hooks.json + ~/.codex/hooks/, enabling
+    # [features] hooks in ~/.codex/config.toml (see
+    # docs/policy/platform-read-contracts.md). Both surfaces ship through the
+    # registry, so this bash path and installer.ps1 stay in lockstep by
+    # construction rather than by duplicated copy blocks.
     invoke_registry_platform "$repo_root" "global" "" "codex" "Codex" "" "" "OPENAI"
     fi
 
@@ -1571,9 +1576,11 @@ install_workspace() {
         mkdir -p "$codex_dir"
 
         # Full registry mirror (v3.12.0): see the global Codex block. Workspace scope
-        # writes .codex/{skills,prompts}, .agents/skills (flattened + command skills),
-        # and a repo-root AGENTS.md.
-        invoke_registry_platform "$repo_root" "workspace" "$target_path" "codex" "Codex (AGENTS.md + skills + commands)" "$languages" ""
+        # writes .codex/{skills,prompts,agents,hooks}, .codex/hooks.json,
+        # .agents/skills (flattened + command skills), and a repo-root AGENTS.md.
+        # The [features] hooks switch is user-global, so a workspace install advises
+        # rather than editing ~/.codex/config.toml.
+        invoke_registry_platform "$repo_root" "workspace" "$target_path" "codex" "Codex (AGENTS.md + skills + commands + agents + hooks)" "$languages" ""
         fi
 
         # --- Google -- Gemini / Antigravity 1.0 + 2.0 / Gemini CLI -

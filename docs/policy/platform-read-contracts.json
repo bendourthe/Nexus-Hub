@@ -268,7 +268,8 @@
       "codex": {
         "classification": "DRIFT-ADDITIVE",
         "note": "AGENTS.md and both skill roots remain functional. Codex now documents custom TOML agents and native hooks; Nexus-Hub does not yet deliver those surfaces.",
-        "sources": ["https://learn.chatgpt.com/docs/agent-configuration/agents-md", "https://learn.chatgpt.com/docs/build-skills", "https://learn.chatgpt.com/docs/agent-configuration/subagents", "https://learn.chatgpt.com/docs/hooks"]
+        "resolved_in": "3.15.8 Phase 5. Re-verified 2026-08-02 against the official subagents and hooks references: custom agents are standalone TOML (name, description, developer_instructions required) at ~/.codex/agents and .codex/agents, and hooks.json sits beside an active config layer with the same event names Nexus-Hub already uses. Both are now delivered, so this DRIFT-ADDITIVE finding is closed.",
+        "sources": ["https://learn.chatgpt.com/docs/agent-configuration/agents-md", "https://learn.chatgpt.com/docs/build-skills", "https://learn.chatgpt.com/docs/agent-configuration/subagents", "https://learn.chatgpt.com/docs/hooks", "https://developers.openai.com/codex/subagents", "https://developers.openai.com/codex/hooks"]
       },
       "antigravity2": {
         "classification": "PARTIAL-UNVERIFIED",
@@ -340,14 +341,19 @@
   "contract_checks": {
     "codex": {
       "config": {
-        "global_dir": "~/.codex"
+        "global_dir": "~/.codex",
+        "agents_subdir": "agents",
+        "hooks_subdir": "hooks",
+        "hooks_supported": true
       },
       "flatten": "override",
       "doc_mentions": [
         "~/.codex/skills",
         "~/.agents/skills",
         "~/.codex/prompts",
-        "~/.codex/AGENTS.md"
+        "~/.codex/AGENTS.md",
+        "~/.codex/agents",
+        "~/.codex/hooks.json"
       ]
     },
     "antigravity2": {
@@ -497,6 +503,23 @@
           "kind": "file_contains",
           "path": "~/.codex/AGENTS.md",
           "needle": "Skill Index"
+        },
+        {
+          "label": "custom agents",
+          "kind": "nonempty_dir",
+          "path": "~/.codex/agents"
+        },
+        {
+          "label": "hooks registration",
+          "kind": "file_contains",
+          "path": "~/.codex/hooks.json",
+          "needle": "Nexus-Hub"
+        },
+        {
+          "label": "hooks feature switch",
+          "kind": "file_contains",
+          "path": "~/.codex/config.toml",
+          "needle": "hooks = true"
         }
       ]
     },

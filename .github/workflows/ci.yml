@@ -473,6 +473,16 @@ jobs:
           NEXUS_TEST_POWERSHELL: powershell
         run: python -m pytest tests/installer tests/validators -q
 
+      - name: Codex native agent/hook delivery on Windows (v3.15.8 Phase 5)
+        # Scoped to the one integration file rather than all of tests/integrations,
+        # which would add ~15 minutes of Windows runner time for coverage the
+        # ubuntu `tests` job already provides. What is Windows-specific here is the
+        # commandWindows registration and the path handling that decides which
+        # hooks.json handlers Nexus-Hub owns, so that is what this leg proves.
+        env:
+          NEXUS_TEST_POWERSHELL: powershell
+        run: python -m pytest tests/integrations/test_codex_native.py -q
+
   install-smoke:
     # v3.11.0 Phase 7.5: prove the catalog lands at each platform's real read-path
     # and that the project auto-seed produces .agents/workflows. Uses the registry

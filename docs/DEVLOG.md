@@ -1,5 +1,38 @@
 # Development Log
 
+## [2026-08-02] - v3.15.8 Phase 5 Codex custom agents and native hooks [feature]
+
+### What Changed
+
+Codex stops being a skills-and-commands platform. Added `scripts/lib/integrations/_codex_native.py`, which transforms each `catalog/agents/*.md` into a Codex agent TOML (`name`, `description`, the Markdown body as `instructions`, and an inferred `sandbox_mode`) and merges Nexus-Hub's hooks into the user's `hooks.json` without disturbing anything the user wrote. `CodexIntegration` now writes agents and hooks at both global and workspace scope, copies each hook's `.sh` and `.ps1` sibling, sets `[features] hooks = true` in the same `config.toml` it already merges permissions into, and overrides `teardown` to prune only its own handlers before removing the two directories if they end up empty. Flipped the four Codex rows in the ownership matrix from finding-only to enforceable, added three `install_verify` checks to the read contract, and added `tests/integrations/test_codex_native.py` at 39 tests, wired into both the main CI job and the Windows leg.
+
+### Why It Changed
+
+Phase 1 observed that Codex reads custom agents and native hooks and recorded both as finding-only, because observing a read path is not the same as owning a write to it. Phase 5 is where that debt comes due. It is also the first surface in this plan that is not a file copy: Codex wants TOML where the catalog has Markdown, and wants a single merged `hooks.json` where the catalog has a settings template, so the delivery needs a transform and a merge algorithm rather than another `safe_folder_copy` call.
+
+### Decisions Made
+
+- Enabled `[features] hooks` idempotently rather than printing an instruction. The installer is already editing `config.toml` for permissions, so a hook engine left disabled would have been a surface that exists on disk and does nothing. An explicit user `false` is respected and never flipped.
+- Inferred `sandbox_mode = "read-only"` when every tool an agent declares is non-mutating. Agents like `planner` and `code-explorer` list only `Read`, `Glob`, and `Grep`; shipping them unsandboxed would grant write authority the agent definition never asked for.
+- Shipped every hook whose matcher has a Codex equivalent instead of a curated subset, and dropped the ones that do not map rather than approximating them. A guardrail that fires on the wrong event is worse than one that is absent.
+- Put `commandWindows` on every handler pointing at the `.ps1` sibling, which is what makes the v3.15.6 PowerShell parity work pay off on a platform whose hook schema happens to have a slot for it.
+- Kept ownership in the install manifest rather than a marker comment in the JSON. It is the same mechanism the rest of the registry uses, and it is what lets a reinstall be byte-identical and a teardown be surgical.
+
+### Troubleshooting Trail
+
+<details>
+<summary>An empty config.toml, a leftover directory, and two guards that fired exactly when they should have</summary>
+
+`enable_hooks_feature` prepended a newline before `[features]` when `config.toml` was empty or absent, producing a file that opened with a blank line. The separator is now chosen from the existing content rather than assumed. Teardown passed while leaving `agents/` and `hooks/` behind as empty directories, which is a clean uninstall only by a generous definition, so `_remove_if_empty` now runs after the prune. Two tests then failed, both correctly. Adding the `install_verify` checks broke `test_codex_pass_and_needs_action`, which had provisioned only the pre-Phase-5 surfaces; the fixture now provisions all three, and a sibling test covers the absent-flag path. And the full sweep failed the Phase 1 guard asserting that no ownership-matrix row claims enforcement before its implementation phase ships - the claim this phase exists to change. The guard now reads an explicit `IMPLEMENTED_CAPABILITIES` map instead of being deleted, so a capability must be marked enforceable and name its phase, and everything not yet built must still read finding-only.
+
+</details>
+
+### Impact & Context
+
+- **Affected**: `scripts/lib/integrations/_codex_native.py` (new), `scripts/lib/integrations/codex.py`, `docs/policy/platform-read-contracts.json`, `docs/policy/platform-read-contracts.md`, `docs/v3/v3.15/development/platform-capability-ownership.md`, `scripts/installer.sh`, `scripts/installer.ps1`, `.github/workflows/ci.yml`, `tests/integrations/test_codex_native.py` (new), `tests/installer/test_verify_read_paths.py`, `tests/plans/test_v3_15_8_contracts.py`, the v3.15.8 plan, known-gaps ledger, cleanup report, and Phase 5 history.
+- **Verified**: 39 new Codex native tests, the updated read-path verification tests, `tests/plans` at 27 passed, `verify_platform_contracts.py`, `check_platform_contract_freshness.py`, `check_version_sync.py`, `check_base_template_parity.py`, `validate_skills.py`, ruff check and format, and a full `pytest tests catalog/hooks/tests` sweep at 2149 passed and 56 skipped whose single failure was the ownership guard described above.
+- **Deferred**: HO-4 (Codex hooks stay inert until trusted via `/hooks`, which no installer can do), MT-6 (delivery is not observed against a running Codex build), plus the unchanged DF-11, MT-5, and QG-4 carryovers. No push or release action was performed.
+
 ## [2026-08-02] - v3.15.8 Phase 4 GitHub monitor installer distribution, packaging, and focused CI [feature]
 
 ### What Changed

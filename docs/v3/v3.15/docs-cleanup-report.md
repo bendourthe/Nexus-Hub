@@ -110,3 +110,13 @@ The active documents changed in Phase 4 are the v3.15.8 plan, shared known-gaps 
 Phase 4 added one new tracked test directory (`tests/workflows/`) and one new tracked script (`extensions/github-usage-monitor/scripts/verify-package-contents.js`); both are source, not scratch. Generated output was limited to the package-local `out/`, `coverage/`, and `*.vsix` paths already covered by the Phase 2 `.gitignore`, plus repository Python caches already covered by root rules. Zero `.gitignore` patterns were added.
 
 No move, rename, deletion, archive operation, or reference repair was applied. The report remains Cat 4 while v3.15.8 is active.
+
+## v3.15.8 Phase 5 Audit - 2026-08-02
+
+After the Phase 5 session history was written, the tree holds 74 Markdown files and no non-Markdown files under `docs/v3/v3.15/`: 2 at the version root, 5 under `comparisons/`, 10 under `plans/`, and 57 under `development/`. The single-file increase over Phase 4 is this phase's session history. The `plans/` count still includes the untracked `v3.15.9-cross-provider-routing-and-cursor-usage-monitor.md` created by a parallel session; it was neither modified nor committed here.
+
+The active documents changed in Phase 5 are the v3.15.8 plan, the platform capability ownership matrix, the shared known-gaps ledger, this cleanup report, DEVLOG, one new session history, and the two `docs/policy/platform-read-contracts.{json,md}` files. Each remains a Cat 4 active/current record in its canonical directory. The read-contract pair lives under `docs/policy/` rather than the version tree because it is the living cross-version contract, which is also why its freshness gate runs on every `make validate`.
+
+Phase 5 added two tracked source files (`scripts/lib/integrations/_codex_native.py` and `tests/integrations/test_codex_native.py`) and no new directory, artifact class, or scratch output. Repository Python caches are the only generated output and are already covered by root ignore rules. Zero `.gitignore` patterns were added.
+
+No move, rename, deletion, archive operation, or reference repair was applied. The report remains Cat 4 while v3.15.8 is active.
