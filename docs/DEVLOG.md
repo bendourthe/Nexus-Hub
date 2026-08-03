@@ -1,5 +1,43 @@
 # Development Log
 
+## [2026-08-02] - v3.15.8 Phase 7 Kimi custom agents and TOML hooks [feature]
+
+### What Changed
+
+Kimi Code CLI now receives custom agents and native hooks. Added `scripts/lib/integrations/_kimi_native.py`: agents are a validated **verbatim copy** of `catalog/agents/*.md` into `~/.kimi-code/agents/` and `.kimi-code/agents/`, because Kimi loads the Claude Code frontmatter shape natively and needs no transform. Hooks are a **marker-delimited managed block** of `[[hooks]]` entries spliced into `~/.kimi-code/config.toml`, because Kimi's schema permits only four fields and any extra one makes the config fail to load, leaving no `name` slot for ownership. Also lifted the Phase 5 `write_owned_file` primitive into a shared `_owned` module, corrected both installers' stale Kimi workspace display name, added 76 tests wired into a Windows CI leg, and flipped three of the four Kimi matrix rows to enforceable.
+
+### Why It Changed
+
+Phase 1 recorded Kimi's agents and hooks as finding-only, on the assumption that agents would need a transform and hooks would live in a project `.kimi-code/config.toml`. Both assumptions were wrong in opposite directions, which is the whole argument for re-verifying a contract at implementation time instead of trusting the plan's snapshot of it.
+
+### Decisions Made
+
+- Copied agents **verbatim** rather than augmenting them. Kimi warns that a delegated custom agent loses the built-in "your final message is the entire handoff" framing and suggests stating that in the body, but injecting a generated paragraph would make the delivered agent diverge from its catalog source. The caveat is documented in the read contract instead, so an agent behaves identically on Kimi and Claude.
+- Used a marker block for hooks rather than a TOML round-tripper. Comment preservation is a hard requirement and `tomllib` is read-only, so the alternative was a non-stdlib dependency. Splicing one marker-delimited region means the user's TOML is never parsed and re-emitted at all, so comments and table order survive by construction rather than by a library's best effort.
+- Left an **already-invalid** `config.toml` untouched, distinct from rolling back an invalid merge. A file the user has already broken is theirs to fix; splicing into it would make the Nexus-Hub block look like the cause.
+- Kept hooks **global-scope only** and recorded DF-13. The project config is `local.toml` and documents only a `[workspace]` table, so a project hook path would have been invented rather than verified.
+- Wrote only Kimi's native agent directories, not the shared `~/.agents/agents/` or project `.agents/agents/`, matching the rule Kimi already follows for skills and avoiding a teardown conflict if another platform later claims them.
+- Moved `write_owned_file` into `_owned` instead of duplicating it. Two copies of "is this file ours?" is precisely the drift the shared-module approach exists to prevent, and re-exporting from `_codex_native` kept the Phase 5 tests untouched.
+
+### Troubleshooting Trail
+
+<details>
+<summary>Three latent defects, two of them found by the cross-integration contract suite</summary>
+
+The idempotence test failed because `IntegrationBase._copy_file` treats any existing destination as "kept" unless the entire install runs with `--overwrite`. That is correct for a bulk tree copy but cannot express the matrix's manifest-driven repair requirement, so a drifted Kimi agent would have stayed drifted forever. Codex already had the right primitive from Phase 5, so it moved to a shared `_owned` module and Kimi reuses it.
+
+The pre-existing `test_contract.py` then caught two more. Its dry-run histogram comparison reported 23 files as "unchanged" during a real install -- exactly the catalog agent count -- because declaring `agents_subdir` made the base `_mirror_catalog` copy the agents as well, writing every one twice. The key is now deliberately unset, with the read path still asserted through `doc_mentions` and `install_verify`. And its uninstall test hit `PermissionError` from `rmdir` on a directory `iterdir()` reported as empty: the Windows delete-pending state, where a file another process still holds a handle to vanishes from the listing but keeps blocking removal. That code had shipped in Codex in Phase 5 and in the Phase 6 mixin, so it was a latent teardown crash in three places, and crashing partway through an uninstall is far worse than the leftover directory it was avoiding. All three now share a `remove_dir_if_empty` that logs and continues.
+
+Separately, while updating the installer comments, both shells turned out to still be printing `Kimi (.kimi/agent.yaml + system.md)` as the workspace label -- advertising a path dropped in v3.15.0 Phase 4. Phase 7's own exit checklist requires deprecated Kimi paths to be absent, and a user-visible summary naming one is exactly what that checklist is for, so both now name the real `.kimi-code/` surface.
+
+</details>
+
+### Impact & Context
+
+- **Affected**: `scripts/lib/integrations/_kimi_native.py` (new), `scripts/lib/integrations/_owned.py` (new), `scripts/lib/integrations/kimi.py`, `scripts/lib/integrations/_codex_native.py`, `docs/policy/platform-read-contracts.json`, `docs/policy/platform-read-contracts.md`, `docs/v3/v3.15/development/platform-capability-ownership.md`, `scripts/installer.sh`, `scripts/installer.ps1`, `.github/workflows/ci.yml`, `tests/integrations/test_kimi_native.py` (new), `tests/installer/test_verify_read_paths.py`, `tests/plans/test_v3_15_8_contracts.py`, the v3.15.8 plan, known-gaps ledger, cleanup report, and Phase 7 history.
+- **Verified**: 76 new Kimi tests, the Phase 5 Codex suite unchanged against the relocated primitive, `tests/plans` with a per-scope ownership guard, the read-path suite at 12 including a new absent-block case, `test_contract.py` at 79 passed after the double-write and teardown fixes, 198 focused tests together, all four contract and parity validators, ruff check and format, ShellCheck on `installer.sh`, and a PowerShell AST parse of `installer.ps1`. The full 2270-test sweep surfaced exactly the two defects described above.
+- **Deferred**: DF-13 (Kimi documents no project hook path), MT-8 (delivery not observed against a running Kimi build), plus the unchanged DF-12, MT-7, HO-4, MT-6, DF-11, MT-5, and QG-4 carryovers. No push or release action was performed.
+
 ## [2026-08-02] - v3.15.8 Phase 6 Gemini CLI and Qwen native hooks [feature]
 
 ### What Changed

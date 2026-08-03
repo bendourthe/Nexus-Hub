@@ -250,16 +250,47 @@ def test_qwen_hook_surfaces_flag_when_absent(tmp_path):
     assert failed == {"hooks registration"}
 
 
-def test_kimi_verify_pass(tmp_path):
-    """v3.15.0 Phase 6: Kimi Code CLI verify (skills / AGENTS.md at ~/.kimi-code)."""
-    home = tmp_path / "home"
+def _provision_kimi(home: Path) -> Path:
+    """Lay down every Kimi surface the read contract verifies."""
     d = home / ".kimi-code"
     (d / "skills" / "s").mkdir(parents=True)
     (d / "skills" / "s" / "SKILL.md").write_text("s", encoding="utf-8")
     (d / "AGENTS.md").write_text("# idx", encoding="utf-8")
+    # v3.15.8 Phase 7: verbatim agent Markdown plus the marker-managed hook block.
+    (d / "agents").mkdir(parents=True)
+    (d / "agents" / "planner.md").write_text("---\nname: p\n---\n", encoding="utf-8")
+    (d / "hooks").mkdir(parents=True)
+    (d / "hooks" / "secret-scan.sh").write_text("#!/bin/sh\n", encoding="utf-8")
+    (d / "config.toml").write_text(
+        "# >>> NEXUS_HUB_HOOKS_START >>>\n"
+        '[[hooks]]\nevent = "PreToolUse"\ncommand = "bash x.sh"\n'
+        "# <<< NEXUS_HUB_HOOKS_END <<<\n",
+        encoding="utf-8",
+    )
+    return d
+
+
+def test_kimi_verify_pass(tmp_path):
+    """v3.15.0 Phase 6 + v3.15.8 Phase 7: skills / AGENTS.md / agents / hooks."""
+    home = tmp_path / "home"
+    _provision_kimi(home)
 
     check = _by_label(runner._verify_checks(home, tmp_path / "proj"))["Kimi Code CLI"]
     assert _all_ok(check)
+    assert {"custom agents", "hooks registration", "hook scripts"} <= {
+        name for name, _ok in check[1]
+    }
+
+
+def test_kimi_hook_block_absence_is_needs_action(tmp_path):
+    """A config.toml with no managed block means the hooks were never installed."""
+    home = tmp_path / "home"
+    d = _provision_kimi(home)
+    (d / "config.toml").write_text("verbose = true\n", encoding="utf-8")
+
+    check = _by_label(runner._verify_checks(home, tmp_path / "proj"))["Kimi Code CLI"]
+    assert not _all_ok(check)
+    assert {name for name, ok in check[1] if not ok} == {"hooks registration"}
 
 
 def test_no_platforms_detected(tmp_path):

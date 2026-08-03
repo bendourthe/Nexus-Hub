@@ -42,15 +42,27 @@ EXPECTED_CAPABILITIES = {
     "Hermes skill layout",
 }
 
-# A capability may claim enforcement only once its implementation phase has
+# A capability+scope may claim enforcement only once its implementation phase has
 # shipped owned writes and lifecycle tests. Hermes was already enforceable at
-# Phase 1; Codex was delivered by Phase 5. Add a capability here in the same
-# commit that implements it, never ahead of it.
+# Phase 1. Keys are (capability, scope) rather than capability alone, because a
+# capability can be deliverable at one scope and undocumented at the other --
+# Kimi hooks exist only in the user-level config.toml, so the workspace row must
+# stay finding-only. Add an entry here in the same commit that implements it,
+# never ahead of it.
 IMPLEMENTED_CAPABILITIES = {
-    "Codex custom agents": "Phase 5",
-    "Codex native hooks": "Phase 5",
-    "Gemini CLI native hooks": "Phase 6",
-    "Qwen native hooks": "Phase 6",
+    ("Codex custom agents", "global"): "Phase 5",
+    ("Codex custom agents", "workspace"): "Phase 5",
+    ("Codex native hooks", "global"): "Phase 5",
+    ("Codex native hooks", "workspace"): "Phase 5",
+    ("Gemini CLI native hooks", "global"): "Phase 6",
+    ("Gemini CLI native hooks", "workspace"): "Phase 6",
+    ("Qwen native hooks", "global"): "Phase 6",
+    ("Qwen native hooks", "workspace"): "Phase 6",
+    ("Kimi custom agents", "global"): "Phase 7",
+    ("Kimi custom agents", "workspace"): "Phase 7",
+    ("Kimi native hooks", "global"): "Phase 7",
+    # ("Kimi native hooks", "workspace") is intentionally absent: Kimi documents
+    # no project-scoped hook path, so that row must still read finding-only.
 }
 
 SECRET_PATTERNS = (
@@ -110,8 +122,8 @@ def test_unimplemented_surfaces_are_finding_only() -> None:
         capability, scope, status = row[0], row[1], row[10]
         if capability == "Hermes skill layout":
             assert "Enforceable existing" in status
-        elif capability in IMPLEMENTED_CAPABILITIES:
-            phase = IMPLEMENTED_CAPABILITIES[capability]
+        elif (capability, scope) in IMPLEMENTED_CAPABILITIES:
+            phase = IMPLEMENTED_CAPABILITIES[(capability, scope)]
             assert "Enforceable" in status and phase in status, (
                 f"implemented but not marked enforceable in {phase}: "
                 f"{capability} {scope}"
@@ -120,6 +132,31 @@ def test_unimplemented_surfaces_are_finding_only() -> None:
             assert "Finding-only" in status, (
                 f"premature enforcement: {capability} {scope}"
             )
+
+
+def test_undelivered_rows_state_why_not_just_that_they_are_pending() -> None:
+    """A finding-only row must name its blocker or its owning phase.
+
+    Once a capability's phase has run, "Finding-only; Phase N" is no longer an
+    honest status for a row that phase deliberately did not deliver -- it reads
+    as pending work rather than a documented absence. This forces the reason
+    into the row.
+    """
+    for row in _ownership_rows():
+        capability, scope, status = row[0], row[1], row[10]
+        if "Finding-only" not in status:
+            continue
+        implemented_phases = {
+            phase
+            for (cap, _scope), phase in IMPLEMENTED_CAPABILITIES.items()
+            if cap == capability
+        }
+        if not implemented_phases:
+            continue
+        assert "no documented" in status.lower() or "re-verified" in status.lower(), (
+            f"{capability} {scope} was not delivered by its phase but does not "
+            f"say why: {status!r}"
+        )
 
 
 def test_shared_alias_ownership_is_unambiguous() -> None:

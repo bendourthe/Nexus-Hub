@@ -483,6 +483,14 @@ jobs:
           NEXUS_TEST_POWERSHELL: powershell
         run: python -m pytest tests/integrations/test_codex_native.py -q
 
+      - name: Kimi native agent/hook delivery on Windows (v3.15.8 Phase 7)
+        # Two Windows-specific things here: the host-selected .ps1 command, and
+        # the config.toml marker-block splice, whose line handling is where a
+        # CRLF checkout could silently break the round trip.
+        env:
+          NEXUS_TEST_POWERSHELL: powershell
+        run: python -m pytest tests/integrations/test_kimi_native.py -q
+
       - name: Gemini CLI + Qwen hook delivery on Windows (v3.15.8 Phase 6)
         # Higher stakes on Windows than the Codex leg: neither platform has a
         # commandWindows slot, so the command that gets registered is chosen from

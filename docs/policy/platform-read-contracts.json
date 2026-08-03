@@ -315,7 +315,8 @@
       "kimi": {
         "classification": "DRIFT-ADDITIVE",
         "note": "AGENTS.md and native skill delivery remain functional. Current Kimi Code CLI documents custom agents and TOML hooks, superseding the earlier fixed-built-ins-only finding; both adapter surfaces are deferred.",
-        "sources": ["https://www.kimi.com/code/docs/en/kimi-code-cli/customization/skills.html", "https://www.kimi.com/code/docs/en/kimi-code-cli/customization/agents.html", "https://www.kimi.com/code/docs/en/kimi-code-cli/customization/hooks.html", "https://www.kimi.com/code/docs/en/kimi-code-cli/reference/slash-commands.html"]
+        "resolved_in": "3.15.8 Phase 7. Re-verified 2026-08-02. Custom agents are Markdown with YAML frontmatter at ~/.kimi-code/agents and .kimi-code/agents, and Kimi explicitly accepts the Claude Code shape (description required, name falls back to the filename, comma-separated tools supported, unknown fields ignored), so the catalog agents are copied VERBATIM with no transform. Hooks are a [[hooks]] array in ~/.kimi-code/config.toml permitting ONLY event/matcher/command/timeout -- extra fields make the config fail to load, so there is no name slot for ownership and a marker-delimited managed block is used instead. Kimi's built-in tool names match Claude's for Bash/Write/Edit, so matchers are near-identity (MultiEdit folds into Edit; PowerShell is dropped because Kimi routes every shell call through Bash). GLOBAL SCOPE ONLY: the project config is .kimi-code/local.toml and documents only a [workspace] table, so the workspace hook row stays finding-only rather than inventing a path.",
+        "sources": ["https://www.kimi.com/code/docs/en/kimi-code-cli/customization/skills.html", "https://www.kimi.com/code/docs/en/kimi-code-cli/customization/agents.html", "https://www.kimi.com/code/docs/en/kimi-code-cli/customization/hooks.html", "https://www.kimi.com/code/docs/en/kimi-code-cli/reference/slash-commands.html", "https://www.kimi.com/code/docs/en/kimi-code-cli/reference/tools.html", "https://www.kimi.com/code/docs/en/kimi-code-cli/configuration/config-files"]
       },
       "qwen": {
         "classification": "DRIFT-ADDITIVE",
@@ -447,12 +448,16 @@
       ]
     },
     "kimi": {
+      "_comment": "agents_subdir is intentionally absent from config: Kimi writes catalog/agents itself (validated, manifest-owned) rather than through the base tree copy, so declaring the key would double-write every agent. The read path is asserted via doc_mentions and install_verify instead.",
       "config": {
-        "skills_subdir": "skills"
+        "skills_subdir": "skills",
+        "hooks_supported": true
       },
       "flatten": "flag",
       "doc_mentions": [
-        "~/.kimi-code/skills"
+        "~/.kimi-code/skills",
+        "~/.kimi-code/agents",
+        "~/.kimi-code/config.toml"
       ]
     }
   },
@@ -713,6 +718,22 @@
           "label": "AGENTS.md",
           "kind": "is_file",
           "path": "~/.kimi-code/AGENTS.md"
+        },
+        {
+          "label": "custom agents",
+          "kind": "nonempty_dir",
+          "path": "~/.kimi-code/agents"
+        },
+        {
+          "label": "hooks registration",
+          "kind": "file_contains",
+          "path": "~/.kimi-code/config.toml",
+          "needle": "NEXUS_HUB_HOOKS_START"
+        },
+        {
+          "label": "hook scripts",
+          "kind": "nonempty_dir",
+          "path": "~/.kimi-code/hooks"
         }
       ]
     }

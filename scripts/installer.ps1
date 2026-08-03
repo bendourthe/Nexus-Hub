@@ -1561,8 +1561,11 @@ function Install-Global {
     }
 
     # --- Kimi ------------------------------------------------------------
+    # AGENTS.md + skills + custom agents (verbatim catalog Markdown) + native
+    # hooks as a marker-managed [[hooks]] block in ~/.kimi-code/config.toml
+    # (v3.15.8 Phase 7). A PowerShell install registers the .ps1 siblings.
     if ($platforms -contains "KIMI") {
-        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "kimi" -DisplayName "Kimi" -Provider "KIMI"
+        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "kimi" -DisplayName "Kimi Code CLI" -Provider "KIMI"
     }
 
     # --- Qwen ------------------------------------------------------------
@@ -1947,9 +1950,12 @@ function Install-Workspace {
         }
 
         # --- Kimi -------------------------------------------------------
+        # Project .kimi-code/ AGENTS.md + skills + custom agents. NO hooks at
+        # workspace scope: Kimi's project config is local.toml and documents only
+        # a [workspace] table, so there is no project hook path to write.
         if ($workspacePlatforms -contains "KIMI") {
             Write-Header -Provider "KIMI"
-            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "kimi" -DisplayName "Kimi (.kimi/agent.yaml + system.md)" -Languages ($languages -join ',')
+            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "kimi" -DisplayName "Kimi Code CLI (.kimi-code/)" -Languages ($languages -join ',')
         }
 
         # --- Qwen -------------------------------------------------------

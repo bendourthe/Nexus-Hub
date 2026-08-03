@@ -44,6 +44,7 @@ import re
 from pathlib import Path
 
 from ._catalog_adapters import _split_frontmatter
+from ._owned import write_owned_file
 from .base import IntegrationBase
 from .result import FileAction
 
@@ -98,11 +99,7 @@ _GENERATED_HEADER = (
 def _toml_basic_string(value: str) -> str:
     """Return ``value`` as a single-line TOML basic string."""
     collapsed = " ".join(value.split())
-    escaped = (
-        collapsed.replace("\\", "\\\\")
-        .replace('"', '\\"')
-        .replace("\t", "\\t")
-    )
+    escaped = collapsed.replace("\\", "\\\\").replace('"', '\\"').replace("\t", "\\t")
     return f'"{escaped}"'
 
 
@@ -169,35 +166,9 @@ def render_agent_toml(source_name: str, markdown: str) -> bytes | None:
 # ----- ownership-aware writes ---------------------------------------------
 
 
-def _is_owned(ctx, key: str, path: Path) -> bool:
-    return str(path) in set(ctx.manifest.files_for(key))
-
-
-def write_owned_file(ctx, key: str, dst: Path, content: bytes) -> FileAction:
-    """Write a generated file, never clobbering one Nexus-Hub does not own.
-
-    An existing destination that the manifest does not record as ours is a
-    user-authored file, so it is kept (unless ``--overwrite`` is explicit).
-    A destination we do own is refreshed on byte-difference, which is what makes
-    an upgrade idempotent.
-    """
-    if dst.exists():
-        if dst.read_bytes() == content:
-            ctx.manifest.track(key, str(dst))
-            return FileAction(path=str(dst), action="unchanged")
-        if not _is_owned(ctx, key, dst) and not ctx.overwrite:
-            ctx.manifest.log(key, f"skip-existing (user-authored): {dst}")
-            return FileAction(path=str(dst), action="kept")
-        if not ctx.dry_run:
-            dst.parent.mkdir(parents=True, exist_ok=True)
-            dst.write_bytes(content)
-        ctx.manifest.track(key, str(dst))
-        return FileAction(path=str(dst), action="updated")
-    if not ctx.dry_run:
-        dst.parent.mkdir(parents=True, exist_ok=True)
-        dst.write_bytes(content)
-    ctx.manifest.track(key, str(dst))
-    return FileAction(path=str(dst), action="created")
+# `write_owned_file` moved to `_owned` in Phase 7, when Kimi needed the same
+# manifest-aware write. Re-exported here so this module's public surface (and the
+# Phase 5 tests that import it) is unchanged.
 
 
 def agents_to_codex_toml(
@@ -214,7 +185,9 @@ def agents_to_codex_toml(
         if content is None:
             ctx.manifest.log(key, f"skip agent (missing required fields): {md.name}")
             continue
-        actions.append(write_owned_file(ctx, key, dst_agents_dir / f"{md.stem}.toml", content))
+        actions.append(
+            write_owned_file(ctx, key, dst_agents_dir / f"{md.stem}.toml", content)
+        )
     return actions
 
 
@@ -233,7 +206,9 @@ def _normalize_matcher(event: str, matcher: str) -> str | None:
     matcher = matcher.strip()
     if not matcher:
         return ""
-    supported = [part for part in matcher.split("|") if part.strip() in CODEX_TOOL_MATCHERS]
+    supported = [
+        part for part in matcher.split("|") if part.strip() in CODEX_TOOL_MATCHERS
+    ]
     if not supported:
         return None
     return "|".join(supported)
@@ -279,7 +254,9 @@ def build_hook_entries(
                     continue
                 runner, script = split
                 if not (src_hooks_dir / script).exists():
-                    skipped.append(f"{event}/{script}: script absent from catalog/hooks")
+                    skipped.append(
+                        f"{event}/{script}: script absent from catalog/hooks"
+                    )
                     continue
                 scripts.add(script)
                 entry: dict[str, object] = {"type": "command"}
@@ -331,7 +308,9 @@ def _strip_owned(groups: list, owned_base: str) -> list:
         handlers = [
             handler
             for handler in group.get("hooks", [])
-            if not (isinstance(handler, dict) and _handler_is_owned(handler, owned_base))
+            if not (
+                isinstance(handler, dict) and _handler_is_owned(handler, owned_base)
+            )
         ]
         if handlers:
             survivor = dict(group)
@@ -477,7 +456,8 @@ def enable_hooks_feature(ctx, key: str, config_path: Path) -> FileAction:
             if match:
                 if match.group(2) == "false":
                     ctx.manifest.log(
-                        key, f"keep-user-choice ({match.group(1)} = false): {config_path}"
+                        key,
+                        f"keep-user-choice ({match.group(1)} = false): {config_path}",
                     )
                     return FileAction(path=str(config_path), action="kept")
                 return FileAction(path=str(config_path), action="unchanged")

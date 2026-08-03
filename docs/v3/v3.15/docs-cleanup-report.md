@@ -130,3 +130,13 @@ The active documents changed in Phase 6 are the v3.15.8 plan, the platform capab
 Phase 6 added three tracked source files (`scripts/lib/integrations/_settings_hooks.py`, `scripts/lib/integrations/_settings_hooks_mixin.py`, and `tests/integrations/test_settings_hooks.py`) and no new directory, artifact class, or scratch output. The installer writes `settings.json.nexus-hub.bak` and a transient `.nexus-hub.tmp` beside a user's config at install time, but both land in the user's home or project tree rather than this repository, and the temp file is replaced atomically rather than left behind (asserted by a test). Repository Python caches are the only generated output and are already covered by root ignore rules. Zero `.gitignore` patterns were added.
 
 No move, rename, deletion, archive operation, or reference repair was applied. The report remains Cat 4 while v3.15.8 is active.
+
+## v3.15.8 Phase 7 Audit - 2026-08-02
+
+After the Phase 7 session history was written, the tree holds 76 Markdown files and no non-Markdown files under `docs/v3/v3.15/`: 2 at the version root, 5 under `comparisons/`, 10 under `plans/`, and 59 under `development/`. The single-file increase over Phase 6 is this phase's session history. The `plans/` count still includes the untracked `v3.15.9-cross-provider-routing-and-cursor-usage-monitor.md` created by a parallel session; it was neither modified nor committed here.
+
+The active documents changed in Phase 7 are the v3.15.8 plan, the platform capability ownership matrix, the shared known-gaps ledger, this cleanup report, DEVLOG, one new session history, and the two `docs/policy/platform-read-contracts.{json,md}` files. Each remains a Cat 4 active/current record in its canonical directory. No file qualifies for deletion, archival, consolidation, or relocation.
+
+Phase 7 added three tracked source files (`scripts/lib/integrations/_kimi_native.py`, `scripts/lib/integrations/_owned.py`, and `tests/integrations/test_kimi_native.py`) and moved one function between modules without changing behavior; no new directory, artifact class, or scratch output was introduced. As in Phase 6, the installer writes a `.nexus-hub.bak` companion and a transient `.nexus-hub.tmp` beside the user's `config.toml`, both under the user's home rather than this repository, with the temp file replaced atomically (asserted by a test). Repository Python caches are the only generated output and are already covered by root ignore rules. Zero `.gitignore` patterns were added.
+
+No move, rename, deletion, archive operation, or reference repair was applied to documentation. The report remains Cat 4 while v3.15.8 is active.

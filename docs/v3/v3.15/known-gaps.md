@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: The v3.15 line now includes v3.15.0 through v3.15.7. Release PR #28 and usage-monitor repair PR #29 are merged into `develop`; a focused Windows PowerShell 5.1 CI repair is the remaining develop gate before main promotion, post-merge CI, tag, and GitHub Release. Earlier release history and per-phase evidence remain in the sections below.
-**Last updated**: 2026-08-02 (v3.15.8 Phase 6 checkpoint; v3.15.7 release status retained below)
+**Last updated**: 2026-08-02 (v3.15.8 Phase 7 checkpoint; v3.15.7 release status retained below)
 
 **Current v3.15.7 status**: Implementation is complete and merged into `develop`. The release scope is fixed: evidence-closed security review hardening, Codex Usage Monitor Extra Credits, the isolated installer import-cycle fix, and CI corrections discovered by the reactivated pipelines. Newly verified additive platform capabilities are explicitly deferred to v3.15.8. The maintainer authorized the remote sequence; both repaired monitor workflows pass on the merged `develop` commit, and the Windows PowerShell 5.1 push-gate repair must pass before main promotion, post-merge CI, tag, and GitHub Release proceed in order.
 
@@ -1275,3 +1275,62 @@ Two constraints shaped the design. Neither platform has Codex's `commandWindows`
 | Hand-offs (HO) | 0 | 0 |
 
 **Carryovers.** HO-4, MT-6, DF-11, MT-5, and QG-4 remain open and unchanged. Phase 6 adds DF-12 (a documented alternative write path deliberately not inferred) and MT-7 (the Windows shell each CLI dispatches through is undocumented upstream). Both are limits of what verified documentation supports rather than work that was skipped, and both have bounded failure modes. Existing deny controls are unaffected: the `git-guardrails` and `secret-scan` guardrails are registered on both platforms wherever a matcher exists, and no hook was mapped onto an approximation. Phase 6 introduces no skipped implementation, known production bug, suppressed warning, or bypassed hard gate.
+
+### v3.15.8 Phase 7 checkpoint
+
+Phase 7 delivers three of the four Kimi rows and corrects the fourth rather than shipping it. Re-verification against the official agent, hook, tool, and configuration references changed both halves of the phase from what the matrix assumed.
+
+Custom agents turned out to need no transform at all. Kimi discovers Markdown agent files with YAML frontmatter and explicitly accepts the Claude Code shape the catalog already ships -- `description` is the only required field, `name` falls back to the filename, the comma-separated `tools` form exists specifically to "keep Claude Code-style agent files loadable", and unknown fields are ignored. So the catalog agents are copied verbatim at both scopes, which means an agent behaves identically on Kimi and Claude, and only validation is applied (a file with no description, no body, or a non-kebab-case name is skipped rather than shipped for Kimi to reject).
+
+Hooks went the other way and got harder. Kimi's `[[hooks]]` entries permit only `event`, `matcher`, `command`, and `timeout`, and the docs state that any extra field makes the config file fail to load -- so the handler-`name` ownership Phase 6 used for Gemini CLI and Qwen is not merely unavailable here, emitting it would break the user's entire configuration. Ownership is a marker-delimited managed block instead, spliced into `config.toml` without ever parsing and re-emitting the user's TOML, which preserves their comments and table order byte-for-byte and needs no non-stdlib round-tripper. The merged result is validated with `tomllib` and rolled back on failure, and a file that was already invalid is left untouched so the block cannot be mistaken for the cause. Event names need no translation and Kimi's tool names match Claude's for `Bash`, `Write`, `Edit`, and `Skill`, so the matcher mapping is near-identity.
+
+Two incidental corrections came out of the work. `IntegrationBase._copy_file` is ownership-blind -- it keeps any existing destination unless the whole install runs with `--overwrite` -- so it cannot satisfy the matrix's manifest-driven repair requirement; the Phase 5 `write_owned_file` primitive was lifted into a shared `_owned` module and reused rather than duplicated. And both installers were still printing `Kimi (.kimi/agent.yaml + system.md)` as the workspace display name, advertising a path dropped in v3.15.0 Phase 4; that is now the real `.kimi-code/` surface.
+
+### v3.15.8 Phase 7 Open Items
+
+#### Deferred
+
+##### DF-13 - Kimi has no project-scoped hook path, so workspace hooks are undeliverable
+
+- **Source phase**: v3.15.8 Phase 7.2 - Merge Kimi TOML Hooks.
+- **Plan reference**: `docs/v3/v3.15/plans/v3.15.8-platform-parity-and-github-usage-monitor.md` (sub-task 7.2).
+- **Reason**: the matrix assumed a project `.kimi-code/config.toml`. That file does not exist -- Kimi's project-local configuration is `.kimi-code/local.toml`, which the [configuration reference](https://www.kimi.com/code/docs/en/kimi-code-cli/configuration/config-files) documents as holding only a `[workspace]` table with `additional_dir`, and `[[hooks]]` is documented exclusively in the user-level `~/.kimi-code/config.toml`. Sub-task 7.2 says to reject undocumented paths, so the workspace hook row stays finding-only with the reason recorded in the row itself rather than shipping an invented destination. The practical impact is bounded: hooks installed at global scope apply to every project, so a user loses per-project hook scoping, not the guardrails.
+- **Suggested next step**: if Kimi later documents project-scoped hooks (in `local.toml` or elsewhere), deliver them through the same marker-block merge, which is scope-agnostic already.
+
+#### Missing tests / coverage gaps
+
+##### MT-8 - Kimi agent and hook delivery is not observed against a real Kimi install
+
+- **Source phase**: v3.15.8 Phase 7.3 - Testing and Stabilization.
+- **Plan reference**: `docs/v3/v3.15/plans/v3.15.8-platform-parity-and-github-usage-monitor.md` (sub-task 7.3).
+- **Reason**: the suite proves the verbatim copy, the four-field schema, comment and table preservation, rollback, duplicate suppression, host-selected commands, and teardown against a temporary filesystem, and CI runs it on Windows. What no test here can prove is that a running Kimi build lists the copied agents alongside its built-ins and fires the spliced hooks. This is the same boundary as MT-6 for Codex and MT-7 for the Gemini-CLI-class platforms.
+- **Suggested next step**: fold a Kimi load check into the same release-readiness pass that owns MT-6 and MT-7, confirming `/hooks` lists the block's entries and the agents appear in Kimi's agent list.
+
+### v3.15.8 Phase 7 Resolved
+
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+| - | Kimi custom agents finding-only (both scopes) | Phase 7 | Rows flipped to enforceable. Verbatim validated copy to `~/.kimi-code/agents/` and `.kimi-code/agents/`, manifest-owned so a user-authored agent survives and a drifted owned one is repaired. The shared `~/.agents/agents/` and `.agents/agents/` paths are deliberately not claimed. |
+| - | Kimi native hooks finding-only (global) | Phase 7 | Row flipped to enforceable via a marker-managed `[[hooks]]` block in `~/.kimi-code/config.toml`, with `contract_checks` and three `install_verify` surfaces. |
+| - | Stale deprecated Kimi path in both installer summaries | Phase 7 | The workspace display name advertised `.kimi/agent.yaml`, dropped in v3.15.0 Phase 4. Both installers now name the real `.kimi-code/` surface. |
+| - | `_copy_file` cannot repair a drifted owned file | Phase 7 | Found by a Phase 7 test. `write_owned_file` moved from `_codex_native` into a shared `_owned` module and reused by Kimi, so there is one manifest-aware write rather than two. |
+| - | Teardown could raise `PermissionError` and abandon the rest of an uninstall | Phase 7 | Found by the pre-existing `test_contract.py`. On Windows a delete-pending file vanishes from a directory listing but still blocks `rmdir`, so the empty-directory cleanup shipped in Phase 5 (Codex) and Phase 6 (the settings-hooks mixin) could crash mid-teardown. Consolidated into `_owned.remove_dir_if_empty`, which logs and reports `kept` instead of raising; all three integrations now share it. |
+| - | Kimi agents were written twice per install | Phase 7 | Found by `test_contract.py`'s dry-run histogram comparison. Declaring `agents_subdir` made the base `_mirror_catalog` copy `catalog/agents` in addition to the integration's own validated, ownership-aware writer. The key is now deliberately unset, with the read path still asserted via `doc_mentions` and `install_verify`. |
+
+### v3.15.8 Phase 7 Summary
+
+| Category | Open | Resolved |
+|---|---:|---:|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 1 | 0 |
+| Bugs / regressions (BG) | 0 | 3 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 1 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+| Hand-offs (HO) | 0 | 0 |
+
+**Carryovers.** DF-12, MT-7, HO-4, MT-6, DF-11, MT-5, and QG-4 remain open and unchanged. Phase 7 adds DF-13 (Kimi documents no project hook path, so that row is corrected rather than delivered) and MT-8 (delivery is not observed against a running Kimi build).
+
+It also resolves four defects, three of them latent and none introduced by this phase's own feature work. Two came from the pre-existing `test_contract.py`, which is worth noting because it is the suite that runs every integration through the same lifecycle: its dry-run histogram caught the double agent write, and its uninstall case caught a teardown crash that had shipped in Phase 5 and Phase 6 and would have abandoned an uninstall partway through on Windows. The other two are the ownership-blind `_copy_file` that would have left a drifted agent unrepaired on any platform using it, and the stale `.kimi/agent.yaml` label both installers were still printing a full minor version after that path was dropped.
+
+Existing deny controls are unaffected; `git-guardrails` and `secret-scan` are registered wherever Kimi has a matching tool name, and Kimi's fail-open hook semantics are stated in the install summary rather than left implied. Phase 7 introduces no skipped implementation, known production bug, suppressed warning, or bypassed hard gate.

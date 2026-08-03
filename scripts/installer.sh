@@ -1244,8 +1244,11 @@ install_global() {
     fi
 
     # --- Kimi ----------------------------------------------------------
+    # AGENTS.md + skills + custom agents (verbatim catalog Markdown) + native
+    # hooks as a marker-managed [[hooks]] block in ~/.kimi-code/config.toml
+    # (v3.15.8 Phase 7). Detection-gated on ~/.kimi-code.
     if should_install kimi; then
-    invoke_registry_platform "$repo_root" "global" "" "kimi" "Kimi" "" "" "KIMI"
+    invoke_registry_platform "$repo_root" "global" "" "kimi" "Kimi Code CLI" "" "" "KIMI"
     fi
 
     # --- Qwen ----------------------------------------------------------
@@ -1658,9 +1661,12 @@ install_workspace() {
         fi
 
         # --- Kimi ---------------------------------------------------
+        # Project .kimi-code/ AGENTS.md + skills + custom agents. NO hooks at
+        # workspace scope: Kimi's project config is local.toml and documents only
+        # a [workspace] table, so there is no project hook path to write.
         if should_install kimi; then
         write_header "KIMI"
-        invoke_registry_platform "$repo_root" "workspace" "$target_path" "kimi" "Kimi (.kimi/agent.yaml + system.md)" "$languages"
+        invoke_registry_platform "$repo_root" "workspace" "$target_path" "kimi" "Kimi Code CLI (.kimi-code/)" "$languages"
         fi
 
         # --- Qwen ---------------------------------------------------

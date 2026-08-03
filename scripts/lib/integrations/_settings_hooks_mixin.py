@@ -18,6 +18,7 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from ._owned import remove_dir_if_empty
 from ._settings_hooks import (
     SettingsHookSpec,
     build_settings_hooks,
@@ -117,11 +118,7 @@ class SettingsHooksMixin:
         path: Path, ctx: InstallContext, result: WriteResult
     ) -> None:
         """Drop a directory only when teardown emptied it completely."""
-        if not path.is_dir() or any(path.iterdir()):
-            return
-        if not ctx.dry_run:
-            path.rmdir()
-        result.files.append(FileAction(path=str(path), action="removed"))
+        remove_dir_if_empty(path, ctx, result)
 
 
 __all__ = ["HOOKS_SUBDIR", "SETTINGS_FILE", "SettingsHooksMixin"]

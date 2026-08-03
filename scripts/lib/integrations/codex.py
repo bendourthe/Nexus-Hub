@@ -44,6 +44,7 @@ from ._codex_native import (
     merge_hooks_json,
     prune_hooks_json,
 )
+from ._owned import remove_dir_if_empty
 from .base import InstallContext, MarkdownIntegration, SkillsIntegration
 from .result import FileAction, WriteResult
 
@@ -251,17 +252,8 @@ class CodexIntegration(MarkdownIntegration, SkillsIntegration):
         # dead directory still reads as an install that did not fully uninstall.
         for codex_root in roots:
             for subdir in (self.config["agents_subdir"], self.config["hooks_subdir"]):
-                self._remove_if_empty(codex_root / subdir, ctx, result)
+                remove_dir_if_empty(codex_root / subdir, ctx, result)
         return result
-
-    @staticmethod
-    def _remove_if_empty(path: Path, ctx: InstallContext, result: WriteResult) -> None:
-        """Drop a directory only when teardown emptied it completely."""
-        if not path.is_dir() or any(path.iterdir()):
-            return
-        if not ctx.dry_run:
-            path.rmdir()
-        result.files.append(FileAction(path=str(path), action="removed"))
 
     def _codex_roots(self, ctx: InstallContext) -> list[Path]:
         if ctx.scope == "global":
