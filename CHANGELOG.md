@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Changed
+
+- **Cross-provider `/plan` routing contract (v3.15.9 Phase 1)**: new plans use separate generic `Recommended model tier` and `Recommended effort level` columns plus per-phase rationale. Concrete model ids move to a dated, cited Current model map covering Anthropic, OpenAI, Google, and Cursor. Exact offline fallback markers prevent stale or host-only recommendations from appearing current. `/implement` retains compatibility with historical plan fields, while `/route` remains host-native.
+
+### Added
+
+- **Routing contract tests**: eight semantic tests enforce the four tiers, four effort levels, four-by-four provider map, source/freshness requirements, offline forms, legacy host-locked rejection, and command/skill cross-links.
+
 ## [3.15.8] - 2026-08-03
 
 **v3.15.8 platform capability parity and the GitHub Usage Monitor.** Every one of the 18 rows in the platform ownership matrix is now enforceable rather than finding-only, closing DF-9. A fourth usage-monitor extension tracks GitHub Copilot and Actions consumption. Repository hygiene improves alongside: least-privilege permissions and bounded timeouts on every workflow, a shared module replacing four adapters' duplication, and a platform-portable extension lockfile. No new external dependency, credential, data processor, or catalog entry is introduced. Catalog: **270 skills**, **17 commands**, **30 hooks**, **23 agents**.

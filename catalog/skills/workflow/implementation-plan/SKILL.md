@@ -183,16 +183,34 @@ per principle, with a one-sentence justification. If constitution.md does not ex
 "No constitution file found at docs/<version>/constitution.md - skipping check. Recommend
 running /constitution to establish project principles." - this is informational, not blocking.]
 
+## Current model map
+
+**Model map status**: [Use exactly one status from Step 3.5: "fresh as of YYYY-MM-DD; sources cited below.", "offline fallback; stale as of YYYY-MM-DD.", or "unavailable; assess at implementation time."]
+
+| Tier | Anthropic | OpenAI | Google | Cursor |
+|------|-----------|--------|--------|--------|
+| frontier | [current model id or fallback] | [current model id or fallback] | [current model id or fallback] | [current model id or fallback] |
+| strong | [current model id or fallback] | [current model id or fallback] | [current model id or fallback] | [current model id or fallback] |
+| standard | [current model id or fallback] | [current model id or fallback] | [current model id or fallback] | [current model id or fallback] |
+| fast | [current model id or fallback] | [current model id or fallback] | [current model id or fallback] | [current model id or fallback] |
+
+### Model map sources
+
+- Anthropic: [official model catalog or release-notes URL]
+- OpenAI: [official model catalog or release-notes URL]
+- Google: [official model catalog or release-notes URL]
+- Cursor: [official available-models or models-and-pricing URL]
+
 ## Phases at a Glance
 
-| Phase | Title | Outcome | Rec. model / effort |
-|-------|-------|---------|---------------------|
-| 1 | [Title] | [One-line outcome] | [tier intent + model / effort, or "assess at implementation time"] |
-| 2 | [Title] | [One-line outcome] | [tier intent + model / effort, or "assess at implementation time"] |
-| ... | ... | ... | ... |
+| Phase | Title | Outcome | Recommended model tier | Recommended effort level |
+|-------|-------|---------|------------------------|--------------------------|
+| 1 | [Title] | [One-line outcome] | [frontier / strong / standard / fast] | [low / medium / high / max] |
+| 2 | [Title] | [One-line outcome] | [frontier / strong / standard / fast] | [low / medium / high / max] |
+| ... | ... | ... | ... | ... |
 ```
 
-The "Rec. model / effort" column is populated by the best-effort routing assessment (Step 3.5). It is optional-friendly: an existing plan generated before this column was added still validates without it, and a fresh plan whose routing assessment came back unavailable carries the neutral `assess at implementation time` value rather than a concrete model name.
+The two recommendation columns are populated by Step 3.5 and contain generic intent only. Concrete model ids belong in `## Current model map`, never in the phase rows. Historical plans generated before this contract remain valid inputs to `/implement`; new plans MUST use the two columns and the four-provider map.
 
 The `## Constitution Check` block is **required** in every generated plan. When `docs/<version>/constitution.md` exists, enumerate each MUST principle with PASS / FAIL / N/A and a one-sentence justification tied to the plan's scope. When the file does not exist, emit the informational note verbatim - the check is opt-in by design and does not block plan generation. See `[[project-constitution]]` for how principles are authored, amended, and propagated; failures here mean either the plan needs to change or the constitution itself needs an amendment (a `MAJOR` / `MINOR` / `PATCH` decision made through the constitution skill, not silently inside the plan).
 
@@ -208,7 +226,9 @@ Each phase must follow this template exactly:
 **Goal**: [One sentence describing what this phase delivers.]
 **Prerequisites**: [Phases that must be complete before starting, or "None".]
 **Stability Gate**: [The observable condition that proves this phase is complete and stable.]
-**Recommended model**: [Platform-agnostic tier intent (e.g. "strong reasoning tier, high effort") plus the concretely-enumerated model id + effort when available, and a one-line rationale; or "assess at implementation time" when routing was unavailable at planning time. Written by Step 3.5; re-confirmed by /implement against the then-current model set.]
+**Recommended model tier**: [frontier / strong / standard / fast]
+**Recommended effort level**: [low / medium / high / max]
+**Rationale**: [One sentence tying the tier and effort to the phase's complexity signals. Do not name a concrete provider model here.]
 
 ### Sub-tasks
 
@@ -287,7 +307,9 @@ Every generated plan MUST end with a final phase dedicated to architecture refac
 **Goal**: Leave the project well-organized, its known gaps reconciled, and its CI/CD complete and optimized.
 **Prerequisites**: All prior phases.
 **Stability Gate**: The layout is clean (no deprecated/obsolete files, empty dirs, redundant files/dirs, or overcomplicated structure left un-triaged); the version's known gaps are reconciled; CI/CD covers every change and is optimized; project validation/tests pass.
-**Recommended model**: [Step 3.5 routing; repo-wide refactor + reference repair is high-risk - default to the strong reasoning tier.]
+**Recommended model tier**: frontier
+**Recommended effort level**: max
+**Rationale**: Repo-wide refactor, reference repair, known-gap reconciliation, and release gating carry high context volume and blast radius.
 
 ### Sub-tasks
 
@@ -353,15 +375,16 @@ Before writing the file, outline the phases mentally:
 - Does every feature from Q2 appear somewhere?
 - Where is the installation/packaging step?
 
-### Step 3.5: Assess Each Phase's Model (best-effort routing)
+### Step 3.5: Assess Each Phase's Tier and Refresh the Model Map
 
-Once the phase breakdown is fixed and before writing the file, run a best-effort per-phase model-routing assessment so each phase records the model and reasoning effort it should run on. This is opt-in by availability and never blocks plan generation:
+Once the phase breakdown is fixed and before writing the file, score every phase to generic capability intent and build the plan's cross-provider lookup:
 
-- For each phase, invoke the `[[model-routing]]` skill to score that phase's scope and sub-tasks on its complexity rubric and recommend a model plus reasoning effort, defaulting to the strongest available tier on any uncertainty or high-risk signal (the no-degradation guarantee). The skill detects the platform and enumerates the live model set itself - never hardcode a model list here.
-- Record the recommendation as a platform-agnostic tier intent ("strong reasoning tier, high effort") together with the concretely-enumerated model id and effort when enumeration succeeds, plus a one-line rationale. The tier intent makes the recommendation survive a platform switch between planning and implementation, which is exactly what `/implement` re-confirms against the then-current model set.
-- If the routing skill or live enumeration is unavailable (no platform surface, offline, or a manual-only platform), write the neutral placeholder `assess at implementation time` for that phase rather than failing. The plan stays valid and complete without a concrete model name.
+- **Score each phase.** Invoke `[[model-routing]]` once per phase and map the rubric to `frontier`, `strong`, `standard`, or `fast`, plus `low`, `medium`, `high`, or `max` effort. Any uncertainty or high-risk signal defaults to `frontier` with `high` or `max` effort. Record the generic values in the two glance columns and the three per-phase fields.
+- **Refresh all providers.** On every full `/plan` invocation, use web search and official provider documentation to populate `## Current model map` for Anthropic, OpenAI, Google, and Cursor. Host-platform enumeration may confirm the current host's picker, but it MUST NOT limit the plan to one provider or become the authoritative plan recommendation.
+- **Cite the roster.** Emit `**Model map status**: fresh as of YYYY-MM-DD; sources cited below.` and include at least one official URL per provider under `### Model map sources`.
+- **Degrade visibly, never silently.** If web search or official docs are unavailable, use the dated bundled snapshot and emit `**Model map status**: offline fallback; stale as of YYYY-MM-DD.`. If no verified snapshot exists, fill all 16 cells with `assess at implementation time` and emit `**Model map status**: unavailable; assess at implementation time.`. Plan generation never blocks, but staleness is explicit.
 
-This step adds no outbound call, dependency, or credential of its own - the heavy logic lives in `[[model-routing]]`. The recommendation is written into the plan template by Step 4 (the "Phases at a Glance" "Rec. model / effort" column and each phase's `**Recommended model**` field).
+Web search is the only added network activity and uses public documentation without a new credential or dependency. The exact document contract is defined in `docs/v3/v3.15/development/cross-provider-routing-contract.md`. `/implement` re-confirms the phase tier and effort against a refreshed map and the selected provider's live platform surface before implementation.
 
 ### Step 4: Write the Plan
 
@@ -397,7 +420,8 @@ Incorporate feedback, then write the final file.
 - [ ] The plan's last phase is the mandatory "Architecture Refactor, Known-Gaps Reconciliation, and CI/CD" phase (sub-tasks: N.1 architecture refactor, N.2 known-gaps reconciliation, N.3 CI/CD create/update/optimize, N.4 testing and stabilization)
 - [ ] Every sub-task has a complete, self-contained executable prompt
 - [ ] Every phase has a stability gate and exit checklist
-- [ ] Every phase carries a recommended model (or an explicit assess-at-implementation placeholder) in both the "Phases at a Glance" column and its `**Recommended model**` field
+- [ ] `## Current model map` is present with four tiers, Anthropic / OpenAI / Google / Cursor columns, a dated status, and source URLs (or one exact offline fallback marker)
+- [ ] Every phase carries an allowed generic model tier and effort in both the glance table and its separate per-phase fields; concrete model ids appear only in the Current model map
 - [ ] `## Constitution Check` section present between `## Overview` and `## Phases at a Glance` (with PASS / FAIL / N/A per MUST principle, or the informational note when no constitution file exists)
 - [ ] `## Complexity Tracking` section present near the end of the file (empty table when no FAIL bullets; populated row per FAIL otherwise)
 - [ ] File written to the resolved `<version_dir>/plans/v<MAJOR>.<MINOR>.<PATCH>-<slug>.md` (canonical `docs/v<MAJOR>/v<MAJOR>.<MINOR>/plans/v<MAJOR>.<MINOR>.<PATCH>-<slug>.md` or legacy `docs/<vSEMVER>/plans/<slug>.md`)
@@ -409,7 +433,7 @@ Incorporate feedback, then write the final file.
 - `[[project-constitution]]` - authors and amends the constitution that the Constitution Check section enforces; FAIL verdicts here lead either to plan edits or to a constitution amendment via that skill
 - `[[solution-knowledge-base]]` - writes the `docs/solutions/` store that Phase B.5 grounding reads; closes the capture -> plan half of the compound loop
 - `[[product-strategy]]` - authors the `STRATEGY.md` anchor that Phase B.5 grounding checks the plan against (problem / persona / metrics)
-- `[[model-routing]]` - scores each phase at Step 3.5 to populate the "Rec. model / effort" column and per-phase `**Recommended model**` field; best-effort and platform-agnostic, re-confirmed by `/implement`
+- `[[model-routing]]` - scores each phase to generic tier and effort, refreshes the four-provider Current model map for `/plan`, and preserves host-native enumeration for direct `/route` switching
 - `plan-before-code` - Lightweight planning for individual features within a phase
 - `research-plan-implement` - Structured RPI workflow for a single complex feature
 - `session-history` - Document each completed phase
@@ -417,5 +441,5 @@ Incorporate feedback, then write the final file.
 
 ---
 
-**Version**: 1.5.0
-**Last Updated**: July 2026
+**Version**: 1.6.0
+**Last Updated**: August 2026

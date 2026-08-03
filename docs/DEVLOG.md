@@ -1,5 +1,37 @@
 # Development Log
 
+## [2026-08-03] - v3.15.9 Phase 1 cross-provider routing contract [feature]
+
+### What Changed
+
+Replaced the plan document's combined `Rec. model / effort` field with separate generic model-tier and effort fields, added a required dated Current model map for Anthropic, OpenAI, Google, and Cursor, and defined exact fresh/offline/unavailable status grammar. Updated the implementation-plan template, `/plan`, `/implement`, `/route`, the model-routing overview, and `AGENTS.md`. Added eight semantic contract tests and made the v3.15.9 plan itself the positive repository fixture.
+
+### Why It Changed
+
+Plans authored in Claude Code exposed only Claude models, while plans authored in Codex exposed only OpenAI models. Concrete ids also became stale within weeks. Generic capability intent keeps the phase portable; a separately refreshed provider map gives each implementer a current model name without confusing provider product names with tier semantics.
+
+### Decisions Made
+
+- Standardized tiers as `frontier`, `strong`, `standard`, and `fast`; effort as `low`, `medium`, `high`, and `max`.
+- Standardized per-phase metadata as separate `Recommended model tier`, `Recommended effort level`, and `Rationale` fields.
+- Kept concrete ids out of phase recommendations and confined them to `## Current model map`.
+- Preserved direct `/route` as host-native and retained `/implement` compatibility with historical plans.
+- Deferred helper scripts and the bundled dated snapshot to Phase 2, preserving the approved phase boundary.
+
+### Troubleshooting Trail
+
+- The first focused run found missing rationale fields in three phases of the new plan and a case-sensitive test assertion. Added the rationales and corrected the assertion; the rerun passed 8/8.
+- Ruff found formatting drift in the new test after simplification. `ruff format`, `ruff check`, and `ruff format --check` now pass.
+- The first quiet full-suite run appeared stalled at 19 percent. A verbose rerun showed slow OneDrive-backed integration contract tests rather than a deadlock and completed with 1,466 passed and 20 skipped.
+- GNU Make is unavailable on this Windows host. Every command in the `make validate` recipe was run directly and passed; advisory skill-quality and Unicode warnings remain pre-existing.
+
+### Impact & Context
+
+- **Affected**: `AGENTS.md`, `CHANGELOG.md`, `catalog/commands/{plan,implement,route}.md`, `catalog/skills/ai-development/model-routing/SKILL.md`, `catalog/skills/workflow/implementation-plan/SKILL.md`, the v3.15.9 plan, routing contract, semantic tests, known-gaps ledger, cleanup report, and Phase 1 history.
+- **Tests**: 8 focused routing-contract tests; 37 plan tests; 1,466 repository tests passed with 20 declared skips.
+- **CI/CD**: no workflow edit. `ci.yml` already collects `tests/plans`, triggers on the changed non-doc paths, cancels superseded runs, caches pip, and bounds jobs with timeouts.
+- **Known gaps**: none introduced. Phase 2 owns map-refresh helpers and the fallback snapshot as planned work.
+
 ## [2026-08-03] - v3.15.8 release: platform capability parity + GitHub Usage Monitor [release]
 
 ### What Changed

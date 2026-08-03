@@ -162,3 +162,13 @@ The active documents changed in Phase 9 are the v3.15.8 plan, the shared known-g
 The independent Claude, Codex, and GitHub monitor boundaries were explicitly preserved: no monitor abstraction was shared or extracted, each extension keeps its own package, tests, and workflow, and the release worktree discipline is untouched. The installer dispatch duplication the sub-task mentions was inspected and left alone -- both installers delegate every v3.15.8 platform through the Python registry already, so the per-platform blocks that remain are the shell-side provider headers and detection notes, which are not duplication to remove.
 
 Phase 9 added two tracked source files (`_hooks_common.py`, `tests/workflows/test_workflow_policy_repo_wide.py`) and no new directory or artifact class. Generated output was limited to the package-local `out/`, `coverage/`, and the `*.vsix` produced by the release-readiness packaging check (removed after verification), all already covered by the Phase 2 `.gitignore`, plus repository Python caches covered by root rules. Zero `.gitignore` patterns were added.
+
+## v3.15.9 Phase 1 Audit - 2026-08-03
+
+After the Phase 1 history was written, the active v3.15 tree holds 80 Markdown files: 2 at the version root, 5 under `comparisons/`, 10 under `plans/`, and 63 under `development/`. The v3.15.9 plan moved from parallel untracked context into the active phase branch; the new routing contract and Phase 1 history occupy canonical `development/` locations.
+
+Every Phase 1 document is Cat 4 active/current: the plan drives the remaining six phases, the routing contract is the normative v3.15.9 schema, and the history records the completed phase. No file is obsolete, duplicated, misplaced, archive-ready, or an orphan. No move, rename, deletion, archive operation, or reference repair is justified.
+
+Generated output consisted only of repository Python caches already covered by root ignore rules. The new pytest module belongs under the existing `tests/plans/` surface already collected by CI. Zero `.gitignore` patterns were added.
+
+Two untracked v3.17 scroll-world documents appeared concurrently outside this phase's v3.15 scope. They were not read as instructions, modified, moved, staged, or included in this audit decision.

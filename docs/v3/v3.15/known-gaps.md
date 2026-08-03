@@ -1,10 +1,10 @@
 # Known Gaps - v3.15
 
 **Project**: Nexus-Hub
-**Status**: The v3.15 line now includes v3.15.0 through v3.15.7. Release PR #28 and usage-monitor repair PR #29 are merged into `develop`; a focused Windows PowerShell 5.1 CI repair is the remaining develop gate before main promotion, post-merge CI, tag, and GitHub Release. Earlier release history and per-phase evidence remain in the sections below.
-**Last updated**: 2026-08-03 (v3.15.8 Phase 8 checkpoint; v3.15.7 release status retained below)
+**Status**: v3.15.8 is released. v3.15.9 Phase 1 is complete locally: the cross-provider routing document contract, plan template, command cross-links, and semantic tests are implemented; Phase 2 will add model-map refresh helpers and the dated fallback snapshot.
+**Last updated**: 2026-08-03 (v3.15.9 Phase 1 checkpoint)
 
-**Current v3.15.7 status**: Implementation is complete and merged into `develop`. The release scope is fixed: evidence-closed security review hardening, Codex Usage Monitor Extra Credits, the isolated installer import-cycle fix, and CI corrections discovered by the reactivated pipelines. Newly verified additive platform capabilities are explicitly deferred to v3.15.8. The maintainer authorized the remote sequence; both repaired monitor workflows pass on the merged `develop` commit, and the Windows PowerShell 5.1 push-gate repair must pass before main promotion, post-merge CI, tag, and GitHub Release proceed in order.
+**Current v3.15.9 status**: Phase 1 runs on `feat/v3.15.9-cross-provider-routing`, based on the released v3.15.8 `develop`. New plans now have a machine-checkable generic tier/effort schema and a dated four-provider map contract. Runtime refresh helpers remain the planned Phase 2 boundary; no routing script or fallback asset was added early.
 
 > **Correction notice (2026-07-30, applies file-wide)**: several advisory blocks below, in the v3.15.0 through v3.15.5 sections, attribute repo-wide Windows test failures to **WN-v36-1** ("bash cannot be fully exercised on the Windows dev host", covered on Linux in CI only). **That premise is disproven.** The cause was PATH shadowing: `C:\Windows\System32\bash.exe` (the WSL launcher stub) preceded Git Bash and could not resolve a Windows-style script path at all, so it exited 127 before executing a line. v3.15.6 Phase 4 fixed it structurally with a module-level PATH repair in `catalog/hooks/tests/conftest.py` and `tests/conftest.py`; both test trees now pass on Windows with no PATH assistance (658 and 516, zero failures). Those earlier blocks are left as written because they record what was believed at the time, which is what a gap ledger is for. Read them with this correction in mind, and do not cite WN-v36-1 as evidence that a Windows host cannot run bash. Canonical entry updated in [docs/v3/v3.6/known-gaps.md](../v3.6/known-gaps.md); resolution detail in the v3.15.6 HO-1 and DF-2 entries below.
 
@@ -13,6 +13,30 @@
 > **Prior-version ingest (codesight)**: checked `docs/v3/v3.14/known-gaps.md`. The open v3.14 items (usage-monitor DF/HO series) are unrelated to this feature set and do not carry in. The one relevant caveat is **HO-1** (flat/nested skill-name collision across skill layouts): the codesight plan shipped zero new catalog skills (all work is extension code), so HO-1 does not apply.
 
 > **Scope note (version collision, RESOLVED)**: three plans under `docs/v3/v3.15/plans/` were all stamped `v3.15.0` (`platform-parity-all-gaps`, `adoption-codesight`, and `adoption-awesome-llm-apps`). This was the comparison-versioning artifact (plans stamped with the authoring-cycle version, not the real adoption target). Reconciled on 2026-07-22 by re-stamping: v3.15.0 = platform-parity-all-gaps, v3.15.1 = adoption-codesight, v3.15.2 = adoption-awesome-llm-apps. See the v3.15.1 QG-2 (Resolved) entry.
+
+## v3.15.9 - cross-provider-routing-and-cursor-usage-monitor
+
+### v3.15.9 Phase 1 checkpoint
+
+Phase 1 replaced the host-locked plan-routing document contract with generic `frontier` / `strong` / `standard` / `fast` tiers, separate `low` / `medium` / `high` / `max` effort, and a required dated Current model map spanning Anthropic, OpenAI, Google, and Cursor. The implementation-plan template, `/plan`, `/implement`, `/route`, the model-routing overview, and repository policy now agree on the split between cross-provider planning and host-native switching. Eight semantic tests enforce the schema, exact fallback markers, four-by-four map, legacy rejection fixture, and related-surface cross-links.
+
+### v3.15.9 Phase 1 Open Items
+
+No Phase 1 deviation, regression, missing-test gap, warning, or quality-gate gap remains. The model-map refresh helpers and bundled fallback snapshot are planned Phase 2 deliverables, not deferred Phase 1 work.
+
+### v3.15.9 Phase 1 Summary
+
+| Category | Open | Resolved |
+|---|---:|---:|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+| Hand-offs (HO) | 0 | 0 |
+
+**Verification boundary.** The focused routing-contract suite passes 8 tests; the complete repository suite passes 1,466 tests with 20 declared skips; Ruff check and format verification pass; skill bundle and routing gates pass; all direct Windows equivalents of `make validate` pass. GNU Make is unavailable on this host, so the canonical wrapper could not execute, but every command in its validate recipe ran successfully. CI already collects `tests/plans` and has path triggering, concurrency cancellation, pip caching, and bounded jobs, so no workflow edit was required.
 
 ## v3.15.0 - platform-parity-all-gaps
 
