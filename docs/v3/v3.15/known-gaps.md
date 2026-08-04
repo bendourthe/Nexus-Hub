@@ -1,10 +1,10 @@
 # Known Gaps - v3.15
 
 **Project**: Nexus-Hub
-**Status**: v3.15.8 is released. v3.15.9 Phases 1-3 are complete locally: portable routing is implemented, and the Cursor usage data/auth/visual contracts, sanitized fixtures, and source artwork are locked.
-**Last updated**: 2026-08-04 (v3.15.9 Phase 3 checkpoint)
+**Status**: v3.15.8 is released. v3.15.9 Phases 1-4 are complete locally: portable routing and the Cursor usage contracts, typed provider, explicit-consent auth boundary, normalizers, and reset-aware store are implemented.
+**Last updated**: 2026-08-04 (v3.15.9 Phase 4 checkpoint)
 
-**Current v3.15.9 status**: Phases 1-3 run on `feat/v3.15.9-cross-provider-routing`, based on the released v3.15.8 `develop`. Cursor personal usage now has a fixture-backed contract for two included pools, on-demand spend, shared team context, bounded session/HTML sources, and `#4682B4` visual behavior. Phase 4 builds the typed provider and cache/store against these contracts.
+**Current v3.15.9 status**: Phases 1-4 run on `feat/v3.15.9-cross-provider-routing`, based on the released v3.15.8 `develop`. Cursor personal usage now has a strict TypeScript data layer with source/freshness provenance, SecretStorage-only explicit credentials, bounded JSON/HTML adapters, normalized-only cache/manual fallback, and fixture-driven coverage. Phase 5 adds the user-facing status bar, dashboard, settings, warnings, and generated assets.
 
 > **Correction notice (2026-07-30, applies file-wide)**: several advisory blocks below, in the v3.15.0 through v3.15.5 sections, attribute repo-wide Windows test failures to **WN-v36-1** ("bash cannot be fully exercised on the Windows dev host", covered on Linux in CI only). **That premise is disproven.** The cause was PATH shadowing: `C:\Windows\System32\bash.exe` (the WSL launcher stub) preceded Git Bash and could not resolve a Windows-style script path at all, so it exited 127 before executing a line. v3.15.6 Phase 4 fixed it structurally with a module-level PATH repair in `catalog/hooks/tests/conftest.py` and `tests/conftest.py`; both test trees now pass on Windows with no PATH assistance (658 and 516, zero failures). Those earlier blocks are left as written because they record what was believed at the time, which is what a gap ledger is for. Read them with this correction in mind, and do not cite WN-v36-1 as evidence that a Windows host cannot run bash. Canonical entry updated in [docs/v3/v3.6/known-gaps.md](../v3.6/known-gaps.md); resolution detail in the v3.15.6 HO-1 and DF-2 entries below.
 
@@ -73,7 +73,7 @@ Phase 3 defines the Cursor usage boundary before runtime code. The data contract
 - **Source phase**: v3.15.9 Phase 3.2 - Auth and scrape paths
 - **Plan reference**: `docs/v3/v3.15/plans/v3.15.9-cross-provider-routing-and-cursor-usage-monitor.md` (sub-task 3.2 / T015)
 - **Reason**: The Windows probe verified that `%APPDATA%\Cursor\User\globalStorage\state.vscdb` exists, but no credential value was opened and no authenticated dashboard request was made because that requires separate explicit authorization. Cursor documents no public personal-usage API, so endpoint/schema success cannot be inferred from path presence.
-- **Suggested next step**: Before Phase 4 selects automatic session reuse as the primary live source, request authorization for the bounded one-key/one-request probe in `cursor-usage-auth-probe.md`. If authorization is unavailable or the shape fails, implement SecretStorage plus HTML/cache/manual fallback without claiming automatic reuse works.
+- **Suggested next step**: Phase 4 intentionally shipped SecretStorage plus injected JSON/HTML/cache/manual adapters without a default live transport. Before a later phase enables automatic session reuse, request authorization for the bounded one-key/one-request probe in `cursor-usage-auth-probe.md`; otherwise keep the adapter disabled and preserve the fixture-driven fallback posture.
 
 No Phase 3 implementation, regression, warning, missing-test, or quality-gate gap remains. Phase 5's normalized SVG/font/package icon and Icons8 attribution notice are planned work, not Phase 3 deferrals.
 
@@ -90,6 +90,39 @@ No Phase 3 implementation, regression, warning, missing-test, or quality-gate ga
 | Hand-offs (HO) | 1 | 0 |
 
 **Verification boundary.** The Phase 3 contract suite passes 25 tests and the complete plan-contract surface passes 79. The clean-scaffold repository suite passes 1,508 tests with 20 declared skips. Ruff, IDE lint, secret/personal-path scanning, Unicode safety, skill bundle/quality/routing gates, supply-chain and workflow validators, security scan, version/template/profile/platform checks, and compression accuracy all pass. CI already collects `tests/plans` and the new extension/fixture paths make the workflow run on non-doc changes, so no Phase 3 workflow edit is required.
+
+### v3.15.9 Phase 4 checkpoint
+
+Phase 4 scaffolds an independently compilable Node 22 / VS Code 1.85 extension data layer. Strict TypeScript types separate quantities, money, personal pools, shared team context, source provenance, fresh/stale snapshots, provider errors, and store states. The auth broker exposes only callback-scoped SecretStorage credentials and pure path/auth planning; automatic state-database reuse remains disabled under HO-5. Fixture-driven JSON and semantic-HTML normalizers reject unit/schema drift, provider orchestration enforces one JSON attempt plus bounded HTML fallback, and the store validates persisted unknowns before normalized-only cache/manual fallback with reset-aware percentage suppression.
+
+### v3.15.9 Phase 4 Open Items
+
+HO-5 remains open by design and is honored in code: no live credential, state database, browser cookie, or dashboard endpoint is accessed; no default transport claims live compatibility. Phase 6's focused workflow/installer E2E is approved planned scope, not a Phase 4 quality-gate bypass.
+
+#### Warnings
+
+##### WN-4 - Latest VS Code packaging toolchain emits two transitive deprecation notices
+
+- **Source phase**: v3.15.9 Phase 4.1 - Cursor extension scaffold
+- **Plan reference**: `docs/v3/v3.15/plans/v3.15.9-cross-provider-routing-and-cursor-usage-monitor.md` (sub-task 4.1 / T020)
+- **Reason**: A clean `npm ci` installs the latest `@vscode/vsce` dependency tree and warns that transitive `whatwg-encoding@3.1.1` and `prebuild-install@7.1.3` are deprecated. Neither package is a direct dependency, `npm audit` reports zero vulnerabilities, and replacing them locally would require overriding the supported packaging toolchain.
+- **Suggested next step**: Re-run `npm ci` when `@vscode/vsce` updates in Phase 5/6; accept the upstream warning while audit remains clean, and remove this item when the transitive packages disappear.
+
+No new Phase 4 implementation, regression, missing-test, or quality-gate gap remains.
+
+### v3.15.9 Phase 4 Summary
+
+| Category | Open | Resolved |
+|---|---:|---:|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 1 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+| Hand-offs (HO) | 1 | 0 |
+
+**Verification boundary.** A clean `npm ci` installs 346 packages with zero audit vulnerabilities; TypeScript compilation and all 58 Vitest cases pass. Coverage is 92.12% statements, 87.09% branches, 98.61% functions, and 92.39% lines. The complete plan suite passes 79 tests and the clean-scaffold repository suite passes 1,508 with 20 declared skips. Type-design review is GO at 8/10 encapsulation and 9/10 invariant expression/enforcement/strictness after persisted snapshots, freshness states, provenance, and transport errors were tightened. All direct validation/security gates pass.
 
 ## v3.15.0 - platform-parity-all-gaps
 

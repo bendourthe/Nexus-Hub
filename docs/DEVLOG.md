@@ -1,5 +1,39 @@
 # Development Log
 
+## [2026-08-04] - v3.15.9 Phase 4 Cursor usage provider and store [feature]
+
+### What Changed
+
+Scaffolded `extensions/cursor-usage-monitor/` as a strict Node 22 / VS Code 1.85 TypeScript package. Added source-provenance and freshness-discriminated types, callback-scoped SecretStorage credentials, pure cross-platform auth planning, fixture-driven JSON and semantic-HTML normalization, bounded provider orchestration, fixed safe error classification, and a normalized-only cache/manual store that validates persisted unknowns and suppresses prior-period percentages after reset. The extension activation remains intentionally empty until Phase 5 wires user-facing surfaces.
+
+### Why It Changed
+
+Phase 3 locked the usage/auth/visual contracts but shipped no runtime data layer. Phase 4 turns those contracts into executable invariants without opening the live Cursor state database or claiming undocumented endpoints work. Dependency injection keeps provider behavior deterministic, while strict source/freshness/store types prevent cache and billing semantics from drifting into contradictory states.
+
+### Decisions Made
+
+- Keep automatic Cursor session reuse disabled under HO-5. User-supplied values live only in SecretStorage; an authorized state adapter must be injected later.
+- Attempt one credential-backed JSON source, then only bounded HTML fallback for missing authorization or explicitly unsupported/unavailable paths. Stop on authentication, visibility, rate-limit, and schema drift.
+- Parse visible semantic labels rather than CSS classes, generated IDs, element depth, or fixture-only attributes.
+- Cache normalized snapshots only; never persist raw JSON, HTML, headers, redirects, account identifiers, or credentials.
+- Decode persisted values from `unknown` before use and enforce source-specific cache provenance plus fresh/stale discriminated states.
+- Keep Phase 5 UI/font/package work and Phase 6 installer/workflow/E2E work out of this phase.
+
+### Troubleshooting Trail
+
+- TypeScript 7 did not auto-load Node globals under the initial config. Adding explicit `types: ["node", "vscode"]` restored `node:path`, `NodeJS.Platform`, and `AbortSignal`.
+- The first full unit run exposed host-dependent `node:path.join` behavior while testing macOS paths on Windows. Using `win32.join` for Windows and `posix.join` for macOS/Linux fixed cross-platform path resolution.
+- The unknown-denominator fixture used a space-separated stale reason. The normalizer now canonicalizes safe reason aliases to the typed kebab-case union.
+- Type-design review initially found persisted snapshots, freshness/state relations, cache provenance, and transport error provenance under-enforced. Added storage decoding, `FreshUsageSnapshot` / `StaleUsageSnapshot`, source-discriminated cache origin, exact optional properties, and provider-boundary source stamping; the final review is GO with no medium-or-higher blocker.
+- Clean `npm ci` reports upstream deprecations for transitive `whatwg-encoding` and `prebuild-install`; audit remains at zero vulnerabilities and WN-4 tracks the toolchain warning.
+
+### Impact & Context
+
+- **Affected**: Cursor monitor package metadata/lockfile, strict TypeScript runtime modules, 58 Vitest cases, the v3.15.9 plan, known-gaps ledger, docs audit, DEVLOG, and Phase 4 history.
+- **Tests**: clean install and compilation pass; 58 tests pass at 92.12% statements, 87.09% branches, 98.61% functions, and 92.39% lines; 79 plan tests and 1,508 repository tests pass with 20 declared skips.
+- **CI/CD**: no workflow edit by approved phase boundary. Phase 6 owns the path-filtered Node 22 workflow and Cursor-profile E2E; existing CI continues to validate the repository and plan contracts locally mirrored here.
+- **Known gaps**: HO-5 remains the authorization gate for live session reuse. WN-4 records two non-vulnerable transitive package deprecations.
+
 ## [2026-08-04] - v3.15.9 Phase 3 Cursor usage contracts, auth probe, and artwork [feature]
 
 ### What Changed

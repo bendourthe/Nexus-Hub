@@ -188,3 +188,11 @@ Before the Phase 3 history is written, the active v3.15 tree holds 84 Markdown f
 Every Phase 3 document is Cat 4 active/current. The data contract is the runtime schema for Phases 4-5, the auth probe defines the least-privilege source boundary, the visual contract governs supplied artwork and later derivatives, the plan drives four remaining phases, and the history is the canonical handoff. No document is obsolete, duplicated, misplaced, archive-ready, or orphaned; no move, rename, deletion, archive operation, or reference repair is justified.
 
 The two committed PNGs and their adjacent `icons/README.md` belong under the new `extensions/cursor-usage-monitor/` package scaffold rather than under `docs/`. The fixture directory and plan test are source artifacts. Generated output is limited to ignored Python caches and coverage data, and the temporary clean-scaffold test directory was removed after restoring the pre-existing empty scaffolds. Existing ignore rules are sufficient, so zero `.gitignore` patterns were added.
+
+## v3.15.9 Phase 4 Audit - 2026-08-04
+
+Before the Phase 4 history is written, the active v3.15 tree holds 85 Markdown files and no non-Markdown files: 2 at the version root, 5 under `comparisons/`, 10 under `plans/`, and 68 under `development/` (including 61 prior history files). The new history will bring the active tree to 86 Markdown files.
+
+The Phase 4 plan update, known-gaps checkpoint, DEVLOG entry, cleanup report, and history are Cat 4 active/current. The Cursor extension's README belongs with its package and documents the data-layer boundary for Phase 5. No document is obsolete, duplicated, misplaced, archive-ready, or orphaned; no move, rename, deletion, archive operation, or reference repair is justified.
+
+The new extension-local `.gitignore` adds four standard generated-output patterns (`node_modules/`, `out/`, `coverage/`, and `*.vsix`). Clean install, compile, and coverage created only those ignored paths. The temporary clean-scaffold repository-test directory was removed after restoring the pre-existing empty scaffolds. No root ignore change or generated artifact is included in the phase diff.
