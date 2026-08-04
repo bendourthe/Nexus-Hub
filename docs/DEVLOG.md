@@ -1,5 +1,228 @@
 # Development Log
 
+## [2026-08-04] - v3.15.9 Phase 7 architecture refactor, known-gaps reconciliation, and CI/CD [release-readiness]
+
+### What Changed
+
+Ran the terminal-phase gate for v3.15.9. Removed the one untracked migration remnant (`catalog/skills/code-review/references/`, empty since the v3.15.8 checklist relocation), confirmed the 11 remaining `Rec. model / effort` occurrences are all intentional legacy-compat guidance, fixtures, or history, and verified the installers carry no orphaned single-host helper. Added the Cursor Usage Monitor and the VS Code vs Cursor host-isolation contract to README's usage-monitor roster, completed CHANGELOG Unreleased with the Phases 3-4 data-layer entry, appended the Phase 7 docs-cleanup audit, and finalized the v3.15.9 known-gaps reconciliation. Normalized two branch-introduced Python files with `ruff format` (behavior-neutral).
+
+### Why It Changed
+
+The plan's Phase 7 requires the repository to leave v3.15.9 well-organized, its gaps reconciled, and its CI complete and optimized before the only branch push. The reconciliation makes the version-final open set explicit (HO-5, WN-4) so `/update release` ingests an honest ledger.
+
+### Decisions Made
+
+- No CI edit: `ci.yml` already collects `tests/plans`, `tests/workflows`, `tests/installer`, and the installer smoke suite, and `cursor-usage-monitor.yml` already carries path filters, concurrency cancellation, caching, SHA pins, least-privilege permissions, and the honest E2E degrade.
+- Leave the eight untracked parallel-session skill scaffolds and the local `.antigravitycli/` directory unmodified; remove only the v3.15.8 migration remnant.
+- Record the 7 pre-existing Ruff findings in `test_installer_smoke.py` (present identically on `develop`, dead-path-only) as a known-gaps advisory instead of fixing them, per scope traceability.
+- Reference v3.15.8's MT-5 and QG-4 into the consolidated local release-readiness pass alongside the Cursor live-smoke checklist rather than absorbing them into v3.15.9.
+
+### Troubleshooting Trail
+
+- `ruff format --check` flagged two files this branch introduced; both were formatted and their focused suites re-run green (37 tests).
+- The full validator battery (12 gates including trigger-routing, version sync, template parity, contract freshness, skill security, and the compressor accuracy gate) passed; ShellCheck passed on both installers and all catalog scripts.
+- The terminal test run surfaced one failure: `test_hermes_skills_are_exactly_one_level_deep` (`commit-sweep has no SKILL.md at depth 1`). Running the five test trees as parallel processes localized it to `tests/integrations`, and mapping the failure's progress-character index onto the collection order named the test without waiting for the 19-minute run to finish.
+- Root cause was a contract disagreement, not the scaffolds themselves: `flatten_skills` published all 277 `<category>/<name>/` directories while `validate_skills.py --bundles-only` silently skipped the 7 carrying no `SKILL.md`. Git cannot track an empty directory, so the failure was working-tree-only and a clean CI checkout never reproduced it. Fixed in the shared adapter (correcting every skills-bearing integration at once) and mirrored into the validator as a warning, preserving the maintainer's scaffolds rather than deleting them.
+
+### Impact & Context
+
+- **Affected**: README, CHANGELOG, docs-cleanup report, known-gaps ledger, DEVLOG, plan exit checklist, session history, plus `model-map.py` and `test_cursor_usage_monitor_workflow.py` (formatting only).
+- **Tests**: Cursor extension 132 green with coverage thresholds held (92.39% statements / 85.85% branches); five Python extension suites 670 passed + 1 skip; repository suites all green after the hardening -- `integrations` 589 + 1 skip, `hooks` 909 + 36 skip, `validators` 376, `skills` 252 + 3 skip, `installer` 147 + 16 skip, `plans` 79, `workflows` 91. Five tests were added for the skill-directory contract (2 adapter, 3 validator).
+- **CI/CD**: verified complete and optimized; zero workflow edits.
+- **Known gaps**: version-final open set is HO-5 + WN-4; v3.15.8 MT-5/QG-4 consolidated into the release-readiness pass.
+
+## [2026-08-04] - v3.15.9 Phase 6 installer host isolation and Cursor CI [feature]
+
+### What Changed
+
+Split usage-monitor installation by editor host in both installers: Claude/Codex/GitHub monitors install only through the VS Code CLI, while Cursor Usage Monitor installs only through the Cursor CLI under an ANYSPHERE header. Removed Cursor from the VS Code fallback candidate list. Added installer host-isolation smoke assertions, a path-filtered Cursor monitor GitHub Actions workflow with package verify plus optional throwaway-profile E2E (skip-with-note when `cursor` is absent), Dependabot coverage, and the local live-smoke checklist.
+
+### Why It Changed
+
+Before Phase 6, a machine with only Cursor could receive Claude/Codex/GitHub monitors, and the new Cursor monitor was never installed. Host isolation makes each monitor land in the editor it targets and gives CI a focused packaging gate without pretending hosted runners ship Cursor.
+
+### Decisions Made
+
+- Keep VSCodium in the VS Code-family resolver; exclude every Cursor path from that list.
+- Build all four VSIX packages when Node is present; install only when the matching host CLI is present, otherwise leave the VSIX with a host-specific manual hint.
+- Mirror the GitHub monitor workflow for coverage/package/verify, then add a second E2E job that uploads/downloads the VSIX and degrades to the live-smoke doc when `cursor` is missing.
+- Do not trigger the Cursor workflow on installer path edits; `ci.yml` already runs installer smoke.
+
+### Troubleshooting Trail
+
+- Focused smoke and workflow policy suites passed 123 tests; the Cursor extension suite remains 132 green.
+- Artifact action SHAs were confirmed against the official `actions/upload-artifact@v4` and `actions/download-artifact@v4` tags.
+
+### Impact & Context
+
+- **Affected**: both installers, installer smoke tests, Cursor monitor workflow + policy tests, Dependabot, live-smoke doc, plan/known-gaps/DEVLOG/CHANGELOG/history.
+- **Tests**: installer host isolation + workflow policy green; extension suite unchanged and green.
+- **CI/CD**: new `.github/workflows/cursor-usage-monitor.yml` with path filters, concurrency cancel-in-progress, npm cache, and honest E2E degrade.
+- **Known gaps**: HO-5 and WN-4 remain open; interactive Cursor smoke is local when CI lacks the CLI.
+
+## [2026-08-04] - v3.15.9 Phase 5 Cursor monitor UX and alerts [feature]
+
+### What Changed
+
+Wired the Cursor Usage Monitor user surfaces on the Phase 4 data layer. Added `CursorUsageRuntime` command and refresh orchestration, status-bar labels/hover with Cursor Models and Other Models plus on-demand context, dashboard and settings webviews, threshold recommendations with `alertMetric`, and an activity-bar warning webview. Generated the monochrome status SVG, WOFF2 icon font (`U+E103`), transparent package icon, warning SVG, and Icons8 attribution notice. Packaging and content verification produce a clean `cursor-usage-monitor-0.1.0.vsix`.
+
+### Why It Changed
+
+Phase 4 shipped a typed provider and store with no user-facing shell. Phase 5 makes personal meters, thresholds, and freshness visible in the same form factor as the Claude/Codex/GitHub monitors while keeping `#4682B4` meter fills and the HO-5 live-transport boundary intact.
+
+### Decisions Made
+
+- Keep production `liveTransportCapable: false` so auto-fetch never opens credentials, `state.vscdb`, cookies, or dashboard endpoints until HO-5 is authorized.
+- Prefer GitHub-monitor-style standalone settings and Unicode hover bars over Claude's inline-dashboard settings and SVG hover bars; meter naming stays Cursor Models / Other Models.
+- Omit custom `colors.*` urgency configuration; the visual contract requires semantic tokens plus text/icon severity rather than color-only status-bar backgrounds.
+- Generate icon-font and package-icon tooling on demand (no sharp lockfile entries), matching the GitHub monitor packaging hygiene fix.
+- Leave dual-host installer targeting, path-filtered CI, and interactive theme smoke to Phase 6.
+
+### Troubleshooting Trail
+
+- Phase 5 UX modules were already present as uncommitted working-tree work when the phase session started; validation confirmed compile, 132 tests, coverage thresholds, package, and verify:package before lifecycle closeout.
+- Coverage landed at 92.39% statements / 85.85% branches / 96.96% functions / 92.47% lines, above the Vitest gates.
+- Custom urgency colors were deliberately not added despite sibling Claude/Codex patterns, because the Cursor visual contract and manifest tests forbid color-only warning presentation.
+
+### Impact & Context
+
+- **Affected**: Cursor monitor UX modules, generated assets, package/manifest wiring, UI/settings/assets/manifest tests, visual contract acceptance, v3.15.9 plan, known-gaps, cleanup report, DEVLOG, CHANGELOG, and Phase 5 history.
+- **Tests**: 132 Vitest cases pass; local VSIX packages and verifies.
+- **CI/CD**: no workflow edit by approved phase boundary. Phase 6 owns the path-filtered Cursor monitor workflow and install-host isolation; sibling monitor workflows remain the copy target.
+- **Known gaps**: HO-5 and WN-4 remain open; interactive theme smoke moves to Phase 6 live-smoke / release readiness.
+
+## [2026-08-04] - v3.15.9 Phase 4 Cursor usage provider and store [feature]
+
+### What Changed
+
+Scaffolded `extensions/cursor-usage-monitor/` as a strict Node 22 / VS Code 1.85 TypeScript package. Added source-provenance and freshness-discriminated types, callback-scoped SecretStorage credentials, pure cross-platform auth planning, fixture-driven JSON and semantic-HTML normalization, bounded provider orchestration, fixed safe error classification, and a normalized-only cache/manual store that validates persisted unknowns and suppresses prior-period percentages after reset. The extension activation remains intentionally empty until Phase 5 wires user-facing surfaces.
+
+### Why It Changed
+
+Phase 3 locked the usage/auth/visual contracts but shipped no runtime data layer. Phase 4 turns those contracts into executable invariants without opening the live Cursor state database or claiming undocumented endpoints work. Dependency injection keeps provider behavior deterministic, while strict source/freshness/store types prevent cache and billing semantics from drifting into contradictory states.
+
+### Decisions Made
+
+- Keep automatic Cursor session reuse disabled under HO-5. User-supplied values live only in SecretStorage; an authorized state adapter must be injected later.
+- Attempt one credential-backed JSON source, then only bounded HTML fallback for missing authorization or explicitly unsupported/unavailable paths. Stop on authentication, visibility, rate-limit, and schema drift.
+- Parse visible semantic labels rather than CSS classes, generated IDs, element depth, or fixture-only attributes.
+- Cache normalized snapshots only; never persist raw JSON, HTML, headers, redirects, account identifiers, or credentials.
+- Decode persisted values from `unknown` before use and enforce source-specific cache provenance plus fresh/stale discriminated states.
+- Keep Phase 5 UI/font/package work and Phase 6 installer/workflow/E2E work out of this phase.
+
+### Troubleshooting Trail
+
+- TypeScript 7 did not auto-load Node globals under the initial config. Adding explicit `types: ["node", "vscode"]` restored `node:path`, `NodeJS.Platform`, and `AbortSignal`.
+- The first full unit run exposed host-dependent `node:path.join` behavior while testing macOS paths on Windows. Using `win32.join` for Windows and `posix.join` for macOS/Linux fixed cross-platform path resolution.
+- The unknown-denominator fixture used a space-separated stale reason. The normalizer now canonicalizes safe reason aliases to the typed kebab-case union.
+- Type-design review initially found persisted snapshots, freshness/state relations, cache provenance, and transport error provenance under-enforced. Added storage decoding, `FreshUsageSnapshot` / `StaleUsageSnapshot`, source-discriminated cache origin, exact optional properties, and provider-boundary source stamping; the final review is GO with no medium-or-higher blocker.
+- Clean `npm ci` reports upstream deprecations for transitive `whatwg-encoding` and `prebuild-install`; audit remains at zero vulnerabilities and WN-4 tracks the toolchain warning.
+
+### Impact & Context
+
+- **Affected**: Cursor monitor package metadata/lockfile, strict TypeScript runtime modules, 58 Vitest cases, the v3.15.9 plan, known-gaps ledger, docs audit, DEVLOG, and Phase 4 history.
+- **Tests**: clean install and compilation pass; 58 tests pass at 92.12% statements, 87.09% branches, 98.61% functions, and 92.39% lines; 79 plan tests and 1,508 repository tests pass with 20 declared skips.
+- **CI/CD**: no workflow edit by approved phase boundary. Phase 6 owns the path-filtered Node 22 workflow and Cursor-profile E2E; existing CI continues to validate the repository and plan contracts locally mirrored here.
+- **Known gaps**: HO-5 remains the authorization gate for live session reuse. WN-4 records two non-vulnerable transitive package deprecations.
+
+## [2026-08-04] - v3.15.9 Phase 3 Cursor usage contracts, auth probe, and artwork [feature]
+
+### What Changed
+
+Defined the Cursor Usage Monitor's pre-runtime contract. Added separate personal Cursor Models and Other Models pools, same-unit percentage rules, on-demand spend semantics, shared Teams context, reset/cache behavior, and exact `credential-api` / `html-scrape` / `cache` / `manual` provenance. Documented read-only Windows/macOS/Linux state candidates and bounded dashboard probing without opening a credential. Added nine sanitized JSON/HTML fixtures and 25 semantic tests. Ingested the maintainer-supplied 480px and 48px Cursor artwork from official Icons8 CDN bytes, locked hashes/dimensions, recorded the attribution gate, and fixed `#4682B4` plus the Phase 5 vector/font/package pipeline.
+
+### Why It Changed
+
+The extension cannot safely normalize live usage until billing ownership, units, reset semantics, credential boundaries, scrape provenance, and visual licensing are explicit. Cursor documents dashboard concepts but no public personal-usage API, so the contract must prevent private endpoints from being presented as supported APIs and must fail soft when session reuse or HTML parsing drifts.
+
+### Decisions Made
+
+- Treat Cursor Models and Other Models as independent personal monthly pools; never merge their percentages or denominators.
+- Preserve tokens, requests, percentages, and currency as distinct units; calculate a percentage only from a same-unit numerator and denominator.
+- Keep Teams spend limits as shared context and never derive `$limit / member_count` personal caps.
+- Prefer a bounded existing-session dashboard request, then HTML scrape, cache, and manual fallback; label the first source `credential-api` without claiming it is public.
+- Verify only local path existence in Phase 3. The Windows state database exists, but opening a credential and making an authenticated request requires separate explicit authorization (HO-5).
+- Preserve official Icons8 source bytes and require attribution unless a paid license is documented. Phase 5 generates the monochrome status vector/font and transparent 256px package icon.
+
+### Troubleshooting Trail
+
+- The first contract-test run passed 24 tests and failed one exact-text assertion because the data contract described the shared-pool rule without the plan's literal `$limit / member_count` notation. Added the explicit formula and reran 25/25 green.
+- The chat attachment paths were virtual and unavailable to filesystem tools. The encoded filenames identified Icons8; the official CDN returned the same 480px/48px artwork and exposed icon ID `DiGZkjCzyZXn`, allowing auditable source URLs and deterministic hashes.
+- An attempted generated reproduction added gradients and a checkerboard rather than preserving the supplied art. It was deleted immediately; only byte-exact official CDN assets are committed.
+- The complete repository suite was run with the eight documented untracked empty skill scaffolds temporarily isolated and restored, producing a clean 1,508-pass result.
+
+### Impact & Context
+
+- **Affected**: three v3.15.9 Cursor usage contracts, nine sanitized fixtures, two source PNGs plus provenance README, one plan-contract test module, the v3.15.9 plan, known-gaps ledger, cleanup report, DEVLOG, and Phase 3 history.
+- **Tests**: 25 focused contract tests, 79 complete plan tests, and 1,508 repository tests pass with 20 declared skips.
+- **CI/CD**: no workflow edit. Existing CI collects `tests/plans`; the non-doc extension/fixture paths trigger the workflow, which already has concurrency cancellation, dependency caching, and timeouts.
+- **Known gaps**: HO-5 records the authorization boundary for a live Cursor session/dashboard probe before Phase 4 claims automatic credential reuse.
+
+## [2026-08-03] - v3.15.9 Phase 2 model-routing runtime and command wiring [feature]
+
+### What Changed
+
+Rebuilt `model-routing` around three explicit modes: portable planning, implementation-time reconfirmation, and host-native direct switching. Added a standard-library helper that deterministically scores five complexity signals, validates the four-by-four provider-map schema, and renders exact fresh/offline/unavailable plan Markdown. Added Bash and PowerShell wrappers, a 2026-08-03 fallback snapshot sourced from official Anthropic, OpenAI, Google, and Cursor documentation, fixture-driven tests, and behavioral parity coverage. Updated `/plan`, `/implement`, `/route`, and the retained implement-phase runbook to use the same helper contract.
+
+### Why It Changed
+
+Phase 1 defined the portable document schema but intentionally left runtime behavior unchanged. Without Phase 2, the skill still mapped tasks to "strongest available" on the authoring host and commands described helper behavior that did not exist. The new split keeps long-lived plans provider-neutral while preserving live platform validation at implementation and switch time.
+
+### Decisions Made
+
+- Mapped any high signal to `frontier`; uncertainty or multiple high signals select `max`, exactly one high selects `high`, three or more medium signals select `strong` / `high`, one or two medium signals select `standard` / `medium`, and all-low selects `fast` / `low`.
+- Kept web research agent-native. The helper validates and renders a candidate assembled from official documentation; it makes no outbound call and remains deterministic in CI.
+- Stored the dated fallback as JSON so schema validation and Markdown rendering share one source of truth.
+- Kept platform detection, enumeration, and switching helpers unchanged for `/route`; the cross-provider map is a lookup, never authorization to switch providers.
+- Added the implementation pre-flight to the retained runbook so behavior does not depend on reading the thin dispatcher.
+
+### Troubleshooting Trail
+
+- Ruff required explicit `check=False` in the subprocess test helper and reformatted two new Python files; the corrected files pass lint and format checks.
+- The new Bash wrapper was created with CRLF on Windows, which ShellCheck rejected with `SC1017`. Normalizing it to LF resolved the error.
+- The complete repository suite reported one Hermes layout failure because eight pre-existing untracked empty skill scaffolds were copied as skill directories. The failing assertion passed when those empty directories were temporarily isolated and restored; 1,482 other repository tests passed.
+- The skill-scanner pytest process remained alive after printing `89 passed in 2.65s`; it was terminated only after the completed result was captured.
+- A full skill-catalog rebuild exposed thousands of unrelated pre-existing generated-data differences. Those broad changes were reversed, then the existing builder generated only the `model-routing` entry and its aggregate size deltas, keeping `data/skills.json` and `data/SKILL_INDEX.md` installer metadata current without folding unrelated catalog churn into Phase 2.
+
+### Impact & Context
+
+- **Affected**: `model-routing` skill bundle and generated catalog entry; `/plan`, `/implement`, `/route`; `implement-phase` runbook; routing plan and wrapper tests; v3.15.9 lifecycle documentation.
+- **Tests**: 25 focused tests with 85% helper coverage; 16 wrapper/switch tests; 908 hook tests; 1,482 repository tests plus the isolated Hermes pass; 670 extension tests.
+- **CI/CD**: no workflow edit. Existing CI collects `tests/plans` and `catalog/hooks/tests`, triggers on catalog changes, cancels superseded runs, caches dependencies, and bounds jobs with timeouts.
+- **Known gaps**: none introduced. The existing untracked empty scaffolds remain documented under the v3.15.5 terminal-phase audit and are not part of the Phase 2 diff.
+
+## [2026-08-03] - v3.15.9 Phase 1 cross-provider routing contract [feature]
+
+### What Changed
+
+Replaced the plan document's combined `Rec. model / effort` field with separate generic model-tier and effort fields, added a required dated Current model map for Anthropic, OpenAI, Google, and Cursor, and defined exact fresh/offline/unavailable status grammar. Updated the implementation-plan template, `/plan`, `/implement`, `/route`, the model-routing overview, and `AGENTS.md`. Added eight semantic contract tests and made the v3.15.9 plan itself the positive repository fixture.
+
+### Why It Changed
+
+Plans authored in Claude Code exposed only Claude models, while plans authored in Codex exposed only OpenAI models. Concrete ids also became stale within weeks. Generic capability intent keeps the phase portable; a separately refreshed provider map gives each implementer a current model name without confusing provider product names with tier semantics.
+
+### Decisions Made
+
+- Standardized tiers as `frontier`, `strong`, `standard`, and `fast`; effort as `low`, `medium`, `high`, and `max`.
+- Standardized per-phase metadata as separate `Recommended model tier`, `Recommended effort level`, and `Rationale` fields.
+- Kept concrete ids out of phase recommendations and confined them to `## Current model map`.
+- Preserved direct `/route` as host-native and retained `/implement` compatibility with historical plans.
+- Deferred helper scripts and the bundled dated snapshot to Phase 2, preserving the approved phase boundary.
+
+### Troubleshooting Trail
+
+- The first focused run found missing rationale fields in three phases of the new plan and a case-sensitive test assertion. Added the rationales and corrected the assertion; the rerun passed 8/8.
+- Ruff found formatting drift in the new test after simplification. `ruff format`, `ruff check`, and `ruff format --check` now pass.
+- The first quiet full-suite run appeared stalled at 19 percent. A verbose rerun showed slow OneDrive-backed integration contract tests rather than a deadlock and completed with 1,466 passed and 20 skipped.
+- GNU Make is unavailable on this Windows host. Every command in the `make validate` recipe was run directly and passed; advisory skill-quality and Unicode warnings remain pre-existing.
+
+### Impact & Context
+
+- **Affected**: `AGENTS.md`, `CHANGELOG.md`, `catalog/commands/{plan,implement,route}.md`, `catalog/skills/ai-development/model-routing/SKILL.md`, `catalog/skills/workflow/implementation-plan/SKILL.md`, the v3.15.9 plan, routing contract, semantic tests, known-gaps ledger, cleanup report, and Phase 1 history.
+- **Tests**: 8 focused routing-contract tests; 37 plan tests; 1,466 repository tests passed with 20 declared skips.
+- **CI/CD**: no workflow edit. `ci.yml` already collects `tests/plans`, triggers on the changed non-doc paths, cancels superseded runs, caches pip, and bounds jobs with timeouts.
+- **Known gaps**: none introduced. Phase 2 owns map-refresh helpers and the fallback snapshot as planned work.
+
 ## [2026-08-03] - v3.15.8 release: platform capability parity + GitHub Usage Monitor [release]
 
 ### What Changed

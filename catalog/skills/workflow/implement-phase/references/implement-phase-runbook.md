@@ -25,6 +25,17 @@ The complete, ordered procedure for the `implement-phase` skill. `SKILL.md` link
 
 Read the full plan and the target phase in detail (goals, acceptance criteria, subtasks, files, dependencies). Check prerequisites (marked complete + `git log` references). Scan the codebase for files the phase touches. Report the goal, subtask count, likely-affected files, and prerequisite/dependency status before implementing.
 
+### Model-routing pre-flight
+
+Before Phase 2 begins, run `[[model-routing]]` in implementation mode:
+
+1. Read the target phase's `Recommended model tier`, `Recommended effort level`, and `Rationale` plus its current-provider map cell. Continue accepting historical `Recommended model` / `Rec. model / effort` fields.
+2. Re-score the phase. When web access is available, refresh the four-provider candidate from official sources and validate/render it through `model-routing/scripts/model-map.{sh,ps1}`. Otherwise use the helper's validated dated fallback.
+3. Enumerate the selected provider's live platform surface. If the mapped model is unavailable or the new score is higher, surface the delta and default to the same or stronger tier. Never silently downshift.
+4. Present the recommendation and wait for approval. Then switch only through the platform's supported posture: scripted on Codex/Antigravity/Gemini CLI, one user action on Claude Code, picker-only on Cursor/Copilot/OpenCode. If refresh or enumeration is unavailable, state the fallback and continue on the plan tier or current session model.
+
+During troubleshooting, repeated failures may trigger a confirmation-gated upshift only. Never downshift mid-phase.
+
 ## Phase 2: Implementation
 
 Work subtask by subtask in plan order. After each subtask, confirm the code compiles/imports before moving on (do not accumulate broken subtasks). Log deviations inline with `# DEVIATION:` and keep a running list for Phase 8. Stay in scope: no refactors outside the phase boundary, no speculative features, no unrelated file changes. Compile/import-check the whole phase before linting.

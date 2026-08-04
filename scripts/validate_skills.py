@@ -605,6 +605,36 @@ def find_skill_dirs(root: Path) -> list[Path]:
     return sorted(skill_dirs)
 
 
+# Per-skill bundled subdirectories (AGENTS.md "Per-skill Bundled Resources").
+# Never mistaken for skill folders when the scan root is a single skill.
+_BUNDLE_SUBDIRS = {"scripts", "references", "assets", "evals"}
+
+
+def find_malformed_skill_dirs(root: Path) -> list[Path]:
+    """Find `<category>/<name>/` directories that carry no SKILL.md.
+
+    `find_skill_dirs` locates skills BY their SKILL.md, so a directory without
+    one is invisible to every per-skill check -- it is silently skipped. The
+    installers skip these directories too (see `flatten_skills`), which means an
+    abandoned or in-progress scaffold reaches no platform while nothing reports
+    it. This surfaces them as warnings so both gates agree on what a skill
+    directory is, without failing a work-in-progress branch.
+    """
+    malformed: list[Path] = []
+    if not root.is_dir() or (root / "SKILL.md").is_file():
+        # Root is itself a skill folder (or missing), not a catalog root.
+        return malformed
+    for category in sorted(p for p in root.iterdir() if p.is_dir()):
+        if category.name in _BUNDLE_SUBDIRS:
+            continue
+        for skill in sorted(p for p in category.iterdir() if p.is_dir()):
+            if skill.name in _BUNDLE_SUBDIRS:
+                continue
+            if not (skill / "SKILL.md").is_file():
+                malformed.append(skill)
+    return malformed
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -669,6 +699,18 @@ def main() -> int:
 
     total_errors: list[str] = []
     total_warnings: list[str] = []
+
+    if args.bundles_only:
+        # Warning, not error: a work-in-progress branch legitimately carries a
+        # scaffold that has no SKILL.md yet, and `--bundles-only` is the mode
+        # `make validate` and CI run. Erroring would wedge the release on an
+        # untracked directory git cannot even see.
+        for bad in find_malformed_skill_dirs(scan_root):
+            total_warnings.append(
+                f"{bad}: skill directory has no SKILL.md, so every installer "
+                f"skips it and it reaches no platform "
+                f"(add SKILL.md or remove the directory)"
+            )
 
     for skill_dir in skill_dirs:
         if args.bundles_only or args.quality:

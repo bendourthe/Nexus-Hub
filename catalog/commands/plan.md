@@ -42,14 +42,17 @@ When dynamic workflows are available in the harness, `/plan` can use them as a q
 - **Workflow-aware phase prompts**: when a generated phase is a large fan-out task (audit every endpoint, migrate N files, generate tests for every unit), write that phase's executable prompt to recommend dynamic-workflow execution and cross-link `[[agent-orchestration-primitives]]`.
 - Always present the workflow path with the scope-first token caution: calibrate on a small slice before fanning out across the whole surface. This carries zero new outbound calls, dependencies, or credentials - dynamic workflows are an Anthropic-runtime feature, so this is command behavior plus skill-native guidance.
 
-## Optional per-phase model-routing assessment (graceful degradation)
+## Per-phase tier assessment and current model map
 
-After the phase breakdown is designed and before the plan file is written, `/plan` runs a best-effort model-routing assessment so each phase records the model and reasoning effort it should run on. This is opt-in by availability and never blocks plan generation:
+After the phase breakdown is designed and before the plan file is written, `/plan` records generic capability intent for each phase and builds a portable provider lookup:
 
-- **Assess each phase once.** For every phase in the breakdown, invoke the `[[model-routing]]` skill to score that phase's scope and sub-tasks on its complexity rubric and recommend a model plus reasoning effort, defaulting to the strongest available tier on any uncertainty or high-risk signal (the no-degradation guarantee). The skill detects the platform and enumerates the live model set itself - `/plan` never hardcodes a model list.
-- **Record platform-agnostic intent alongside the concrete name.** Write the recommendation as a tier intent ("strong reasoning tier, high effort") together with the concretely-enumerated model id and effort when enumeration succeeds, so the recommendation survives a platform switch between planning and implementation - `/implement` re-confirms it against the then-current models.
-- **Degrade silently.** If the routing skill or live enumeration is unavailable (no platform surface, offline, manual-only platform), write the neutral placeholder `assess at implementation time` for that phase's recommendation rather than failing. The plan is still valid and complete without a concrete model name.
-- This carries zero new outbound calls, dependencies, or credentials - the heavy logic stays in `[[model-routing]]`; `/plan` only invokes it per phase and records the result in the plan template (see the retained planning skill's "Phases at a Glance" column and per-phase `**Recommended model**` field).
+- **Assess each phase once.** Invoke `[[model-routing]]` for every phase and map the complexity rubric to `frontier`, `strong`, `standard`, or `fast`, plus `low`, `medium`, `high`, or `max` effort. Any uncertainty or high-risk signal defaults to `frontier` with high/max effort (the no-degradation guarantee).
+- **Keep phase rows generic.** Write only `Recommended model tier` and `Recommended effort level` in the glance table. Repeat them in separate per-phase fields with a one-line `Rationale`. Concrete provider model ids never become authoritative phase recommendations.
+- **Refresh every provider on every invocation.** Use web search and official documentation to populate a candidate map with the current Anthropic, OpenAI, Google, and Cursor model for each tier. Validate and render that candidate through `model-routing/scripts/model-map.{sh,ps1}` before writing `## Current model map`. Host-platform enumeration may validate the current picker, but it MUST NOT limit the plan to the host provider.
+- **Cite and date the map.** A fresh plan records `**Model map status**: fresh as of YYYY-MM-DD; sources cited below.` and at least one official URL per provider under `### Model map sources`.
+- **Degrade visibly.** When web access is unavailable, run the helper's `fallback` command, which validates and renders the dated bundled `last-known-model-map.json` snapshot as `offline fallback; stale as of YYYY-MM-DD.`. If that snapshot is absent or invalid, run `unavailable`, fill every map cell with `assess at implementation time`, and mark the map unavailable. The plan remains valid, but never hides staleness.
+
+Web search uses public documentation and adds no new credential or dependency. The retained planning skill owns the exact table and fallback grammar; `[[model-routing]]` owns scoring plus map validation/rendering; `/implement` re-confirms the generic tier and effort against a refreshed map and the selected provider's live platform surface.
 
 ## Mandatory final phase (planning scopes)
 

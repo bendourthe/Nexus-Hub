@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.15.9] - 2026-08-04
+
+### Changed
+
+- **Cross-provider `/plan` routing contract (v3.15.9 Phase 1)**: new plans use separate generic `Recommended model tier` and `Recommended effort level` columns plus per-phase rationale. Concrete model ids move to a dated, cited Current model map covering Anthropic, OpenAI, Google, and Cursor. Exact offline fallback markers prevent stale or host-only recommendations from appearing current. `/implement` retains compatibility with historical plan fields, while `/route` remains host-native.
+- **Model-routing runtime (v3.15.9 Phase 2)**: `/plan` now scores portable `frontier` / `strong` / `standard` / `fast` intent, validates a websearch-refreshed four-provider map, and renders a visibly dated fallback when offline. `/implement` re-confirms the selected provider cell without downshifting, while `/route` keeps live host enumeration and platform-native switch mechanics.
+
+### Added
+
+- **Routing contract tests**: eight semantic tests enforce the four tiers, four effort levels, four-by-four provider map, source/freshness requirements, offline forms, legacy host-locked rejection, and command/skill cross-links.
+- **Cross-platform routing helpers and tests**: standard-library scoring/map validation and rendering ship with Bash and PowerShell wrappers plus a 2026-08-03 official-source snapshot. Fixture-driven tests reject empty provider columns, cover all fallback forms, and hold wrapper behavior in parity.
+- **Cursor Usage Monitor data layer (v3.15.9 Phases 3-4)** (`extensions/cursor-usage-monitor/`): dated data/auth/visual contracts, nine sanitized fixtures, and a typed Node 22 / VS Code 1.85 provider-and-store stack. Strict types separate personal Cursor Models and Other Models pools from shared Teams spend context (never rendered as per-member caps), the auth broker exposes only callback-scoped SecretStorage credentials, JSON and semantic-HTML normalizers reject unit/schema drift, and the store degrades to cache or manual entry with explicit staleness.
+- **Cursor Usage Monitor UX (v3.15.9 Phase 5)**: status bar with Cursor Models / Other Models meters and on-demand hover context, dashboard, settings, threshold warning webview, monochrome `cursor-icon` font glyph, transparent package icon, and Icons8 attribution. Meter fills stay `#4682B4`. Live transport remains disabled under HO-5; cache and manual entry drive the UI until an authorized adapter lands.
+- **Installer host isolation (v3.15.9 Phase 6)**: Claude, Codex, and GitHub usage monitors install only via the VS Code CLI; Cursor Usage Monitor installs only via the Cursor CLI. Cross-host installs are blocked. Path-filtered Cursor monitor CI packages the VSIX and skips profile E2E with a local live-smoke checklist when the runner has no Cursor CLI.
+
+### Fixed
+
+- **A skill directory is now defined by its `SKILL.md` (v3.15.9 Phase 7)**: `flatten_skills` and `catalog_skill_names` skip any `catalog/skills/<category>/<name>/` directory that carries no `SKILL.md`, so an in-progress or abandoned scaffold is never published. Every platform discovers skills at `<skills>/<name>/SKILL.md` exactly one level deep, so copying a bare directory delivered a "skill" nothing could load and broke the depth-1 contract the platform tests assert. Because the shared adapter is fixed, every skills-bearing integration (Hermes, Cursor, Codex, Antigravity, Qwen, Kimi, OpenCode) is corrected at once. Skips are recorded in the manifest log rather than dropped silently.
+- **Validator and installers now agree on what a skill directory is (v3.15.9 Phase 7)**: `validate_skills.py --bundles-only` reports a `<category>/<name>/` directory with no `SKILL.md` instead of silently skipping it. Previously the validator skipped these while the installers shipped them, so a malformed directory passed every gate and only surfaced as an integration-test failure. The finding is a warning, not an error, so a work-in-progress scaffold still passes CI (matching the orphan-bundle audit's precedent). Git cannot track an empty directory, so these exist only in a working tree and never reach a clean CI checkout.
+
 ## [3.15.8] - 2026-08-03
 
 **v3.15.8 platform capability parity and the GitHub Usage Monitor.** Every one of the 18 rows in the platform ownership matrix is now enforceable rather than finding-only, closing DF-9. A fourth usage-monitor extension tracks GitHub Copilot and Actions consumption. Repository hygiene improves alongside: least-privilege permissions and bounded timeouts on every workflow, a shared module replacing four adapters' duplication, and a platform-portable extension lockfile. No new external dependency, credential, data processor, or catalog entry is introduced. Catalog: **270 skills**, **17 commands**, **30 hooks**, **23 agents**.

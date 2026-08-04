@@ -1,0 +1,36 @@
+{
+  "schema_version": 1,
+  "verified_as_of": "2026-08-01",
+  "tiers": {
+    "frontier": {
+      "Anthropic": "anthropic-frontier",
+      "OpenAI": "openai-frontier",
+      "Google": "google-frontier",
+      "Cursor": ""
+    },
+    "strong": {
+      "Anthropic": "anthropic-strong",
+      "OpenAI": "openai-strong",
+      "Google": "google-strong",
+      "Cursor": ""
+    },
+    "standard": {
+      "Anthropic": "anthropic-standard",
+      "OpenAI": "openai-standard",
+      "Google": "google-standard",
+      "Cursor": ""
+    },
+    "fast": {
+      "Anthropic": "anthropic-fast",
+      "OpenAI": "openai-fast",
+      "Google": "google-fast",
+      "Cursor": ""
+    }
+  },
+  "sources": {
+    "Anthropic": ["https://example.test/anthropic"],
+    "OpenAI": ["https://example.test/openai"],
+    "Google": ["https://example.test/google"],
+    "Cursor": ["https://example.test/cursor"]
+  }
+}

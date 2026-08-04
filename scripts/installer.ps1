@@ -122,7 +122,7 @@ function Get-SanitizedBranchName {
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:NexusHubVersion = "3.15.8"
+$script:NexusHubVersion = "3.15.9"
 
 $Host.UI.RawUI.WindowTitle = "Nexus-Hub Installer"
 $script:InstallerTitle = "Nexus-Hub Installer"
@@ -1629,8 +1629,8 @@ function Install-Global {
         Install-Permissions -RepoRoot $RepoRoot -Platform "COPILOT" -Scope "Global"
     }
 
-    # --- VS Code Extensions section ---
-    Write-CenteredBanner -Text "VS CODE EXTENSIONS"
+    # --- Usage Monitor Extensions section (VS Code + Cursor hosts) ---
+    Write-CenteredBanner -Text "USAGE MONITOR EXTENSIONS"
     Install-VSCodeExtensions -RepoRoot $RepoRoot
 
     # --- Cross-Platform Tools: capabilities that apply to every platform, grouped
@@ -2087,8 +2087,9 @@ function Invoke-RegistryPlatform {
 
 function Install-VSCodeExtensions {
     param ($RepoRoot)
-    Write-Item -Message "Usage Monitor VS Code extensions show your Claude Code, Codex (ChatGPT), and" -Color "White"
-    Write-Item -Message "GitHub usage in the status bar, with pacing recommendations. Grouped by vendor." -Color "White"
+    Write-Item -Message "Usage Monitor extensions show Claude Code, Codex (ChatGPT), GitHub, and" -Color "White"
+    Write-Item -Message "Cursor usage in the status bar. Claude/Codex/GitHub install into VS Code only;" -Color "White"
+    Write-Item -Message "Cursor Usage Monitor installs into Cursor only. Never cross-installed." -Color "White"
     Write-Host ""
 
     # Check for Node.js (shared by every extension)
@@ -2150,42 +2151,57 @@ function Install-VSCodeExtensions {
     $savedErrorPref = $ErrorActionPreference
     $ErrorActionPreference = "Continue"
 
-    # Locate a VS Code-family CLI once, shared by every extension. On a fresh machine
-    # `code` is not always on PATH, so fall back to the standard Windows install
-    # locations. This lets each VSIX auto-install instead of by hand (mirrors installer.sh).
-    $codeCli = $null
-    $codeLabel = "VS Code"
+    # Dual-host resolution (v3.15.9 Phase 6): VS Code CLI and Cursor CLI are
+    # discovered independently. Cursor must NEVER be a fallback for the VS Code
+    # monitors, and VS Code must NEVER receive the Cursor monitor.
+    $vscodeCli = $null
+    $vscodeLabel = "VS Code"
     if (Get-Command "code" -ErrorAction SilentlyContinue) {
-        $codeCli = "code"
+        $vscodeCli = "code"
     }
     else {
         # Empty env vars collapse to non-existent paths that Test-Path rejects safely.
-        $candidates = @(
+        $vscodeCandidates = @(
             "$env:LOCALAPPDATA\Programs\Microsoft VS Code\bin\code.cmd",
             "$env:ProgramFiles\Microsoft VS Code\bin\code.cmd",
             "${env:ProgramFiles(x86)}\Microsoft VS Code\bin\code.cmd",
-            "$env:LOCALAPPDATA\Programs\Microsoft VS Code Insiders\bin\code-insiders.cmd",
-            "$env:LOCALAPPDATA\Programs\cursor\resources\app\bin\cursor.cmd"
+            "$env:LOCALAPPDATA\Programs\Microsoft VS Code Insiders\bin\code-insiders.cmd"
         )
-        foreach ($candidate in $candidates) {
+        foreach ($candidate in $vscodeCandidates) {
             if ($candidate -and (Test-Path $candidate)) {
-                $codeCli = $candidate
-                if ($candidate -like "*cursor*") { $codeLabel = "Cursor" }
+                $vscodeCli = $candidate
                 break
             }
         }
     }
 
-    # Build each extension under its own vendor header so the Anthropic, OpenAI,
-    # and GitHub utilities are visually separated. Each is independent, so a
-    # missing folder or a build failure in one does not block the others. The
-    # vendor order (Anthropic, OpenAI, GitHub) is asserted by the installer smoke
-    # test and must match scripts/installer.sh.
+    $cursorCli = $null
+    $cursorLabel = "Cursor"
+    if (Get-Command "cursor" -ErrorAction SilentlyContinue) {
+        $cursorCli = "cursor"
+    }
+    else {
+        $cursorCandidates = @(
+            "$env:LOCALAPPDATA\Programs\cursor\resources\app\bin\cursor.cmd",
+            "$env:LOCALAPPDATA\Programs\Cursor\resources\app\bin\cursor.cmd"
+        )
+        foreach ($candidate in $cursorCandidates) {
+            if ($candidate -and (Test-Path $candidate)) {
+                $cursorCli = $candidate
+                break
+            }
+        }
+    }
+
+    # Build each extension under its own vendor header. VS Code monitors install
+    # only via $vscodeCli; the Cursor monitor installs only via $cursorCli. The
+    # vendor order (Anthropic, OpenAI, GitHub, Anysphere) is asserted by the
+    # installer smoke test and must match scripts/installer.sh.
     Write-Header -Provider "ANTHROPIC"
-    Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\claude-usage-monitor") -ExtensionId "nexus-hub.claude-usage-monitor" -DisplayName "Claude Usage Monitor" -StatusHint "Claude: --%" -CodeCli $codeCli -CodeLabel $codeLabel
+    Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\claude-usage-monitor") -ExtensionId "nexus-hub.claude-usage-monitor" -DisplayName "Claude Usage Monitor" -StatusHint "Claude: --%" -CodeCli $vscodeCli -CodeLabel $vscodeLabel
 
     Write-Header -Provider "OPENAI"
-    Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\codex-usage-monitor") -ExtensionId "nexus-hub.codex-usage-monitor" -DisplayName "Codex Usage Monitor" -StatusHint "Codex: --%" -CodeCli $codeCli -CodeLabel $codeLabel
+    Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\codex-usage-monitor") -ExtensionId "nexus-hub.codex-usage-monitor" -DisplayName "Codex Usage Monitor" -StatusHint "Codex: --%" -CodeCli $vscodeCli -CodeLabel $vscodeLabel
 
     # The GitHub monitor's status hint carries no "%" because GitHub does not
     # guarantee an included allowance: until a verified denominator or a manual
@@ -2194,7 +2210,10 @@ function Install-VSCodeExtensions {
     # install itself never authenticates to GitHub - the token is supplied later
     # through the extension's SecretStorage command.
     Write-Header -Provider "GITHUB"
-    Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\github-usage-monitor") -ExtensionId "nexus-hub.github-usage-monitor" -DisplayName "GitHub Usage Monitor" -StatusHint "GitHub Usage: --" -CodeCli $codeCli -CodeLabel $codeLabel
+    Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\github-usage-monitor") -ExtensionId "nexus-hub.github-usage-monitor" -DisplayName "GitHub Usage Monitor" -StatusHint "GitHub Usage: --" -CodeCli $vscodeCli -CodeLabel $vscodeLabel
+
+    Write-Header -Provider "ANYSPHERE"
+    Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\cursor-usage-monitor") -ExtensionId "nexus-hub.cursor-usage-monitor" -DisplayName "Cursor Usage Monitor" -StatusHint "Cursor: --%" -CodeCli $cursorCli -CodeLabel $cursorLabel
 
     # Restore strict error mode
     $ErrorActionPreference = $savedErrorPref
@@ -2299,9 +2318,9 @@ function Build-And-Install-One-Extension {
         }
     }
     else {
-        Write-Item -Message "VS Code CLI ('code') not found in PATH or standard install locations." -Color "Yellow"
+        Write-Item -Message "$CodeLabel CLI not found in PATH or standard install locations." -Color "Yellow"
         Write-Item -Message "VSIX saved at: $($vsixFile.FullName)" -Color "White"
-        Write-Item -Message "Install manually via VS Code: Extensions > ... > Install from VSIX" -Color "Gray"
+        Write-Item -Message "Install manually via ${CodeLabel}: Extensions > ... > Install from VSIX" -Color "Gray"
     }
 }
 

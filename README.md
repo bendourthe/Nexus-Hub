@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.15.8 -->
+<!-- nexus-hub-version: 3.15.9 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 270 skills, 17 commands, 30 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -36,6 +36,18 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v3.15.9
+
+v3.15.9 makes `/plan`'s model recommendations portable, and adds a fifth usage monitor.
+
+**Plan routing is no longer locked to the host provider or frozen at authoring time.** A plan phase now records a generic `Recommended model tier` (`frontier` / `strong` / `standard` / `fast`) and a separate `Recommended effort level`, with concrete model ids moved out into a dated, source-cited **Current model map** covering Anthropic, OpenAI, Google, and Cursor. `/plan` refreshes that map from each vendor's own public documentation on every full invocation; `/implement` re-confirms the phase's cell before building, so a plan written before a model release picks up the newer equivalent without changing its stated intent. When web access is unavailable the map degrades to a visibly dated snapshot or an explicit `assess at implementation time`, never a silent collapse to whichever provider you happen to be on. `/route` stays host-native by design: the plan map describes what a phase needs, it does not grant cross-provider switching.
+
+**The new Cursor Usage Monitor** tracks personal Cursor Models and Other Models included-usage meters with on-demand spend context in steel-blue `#4682B4`. It ships with **live fetch disabled entirely**: cached or manually-entered dashboard values drive the UI until a bounded, authorized session-reuse probe verifies a safe live path. Teams spend is kept strictly separate from personal caps and never rendered as a per-member allowance. Installer host isolation is now enforced rather than assumed: the Claude, Codex, and GitHub monitors install only through the VS Code CLI, and the Cursor monitor only through the Cursor CLI, with cross-host installs blocked and asserted by test.
+
+One defect found in the terminal phase is worth stating, because two gates had been hiding it from each other. `flatten_skills` published every `catalog/skills/<category>/<name>/` directory to every platform, while `validate_skills.py --bundles-only` silently skipped the ones carrying no `SKILL.md`. A malformed directory therefore passed every gate and surfaced only as an integration-test failure, and because git cannot represent an empty directory it never reproduced on a clean CI checkout. **A skill directory is now defined by its `SKILL.md`** in both places, fixed once in the shared adapter so Hermes, Cursor, Codex, Antigravity, Qwen, Kimi, and OpenCode are all corrected together. Catalog counts are unchanged at **270 skills**, **17 commands**, **30 hooks**, and **23 agents**.
+
+Shipping caveat recorded rather than glossed: the Cursor monitor's **live visual smoke on a real Cursor host was not executed** for this release (tracked as QG-5). Its automated surface is proven (132 extension tests green, packaging verified in CI, host isolation asserted), but the rendered result on a live host is not.
 
 ## What's New in v3.15.8
 
@@ -395,7 +407,7 @@ The full catalog is at [data/SKILL_INDEX.md](data/SKILL_INDEX.md). Per-category 
 
 ## Usage Monitoring
 
-Three complementary ways to track your Claude Code usage limits.
+Three complementary ways to track your AI coding usage limits.
 
 ### CLI Usage Display (Automatic)
 
@@ -407,15 +419,16 @@ Usage: Session 72% | Weekly 15% | Sonnet 3%  (Session resets in 28m)
 
 Installed automatically by the Nexus-Hub installer. Requires `curl` and `jq`.
 
-### VS Code Extensions
+### VS Code and Cursor Extensions
 
-Monitor your AI coding usage from the VS Code status bar with a full dashboard. Three separate, independently-installable extensions - one per tool - that install and run side by side:
+Monitor your AI coding usage from the editor status bar with a full dashboard. Four separate, independently-installable extensions - one per tool - that install and run side by side:
 
 - **Claude Usage Monitor** (`nexus-hub.claude-usage-monitor`): Claude Code (Anthropic) session and weekly limits, with model and effort recommendations. See [extensions/claude-usage-monitor/](extensions/claude-usage-monitor/).
 - **Codex Usage Monitor** (`nexus-hub.codex-usage-monitor`): Codex (ChatGPT / OpenAI) usage, with the plan tier, extra rate-limit windows, a credits line, and throttle / pacing recommendations (periwinkle `#5244BB` progress bars). See [extensions/codex-usage-monitor/](extensions/codex-usage-monitor/).
 - **GitHub Usage Monitor** (`nexus-hub.github-usage-monitor`): current-month GitHub Copilot consumption plus GitHub Actions minutes and storage, read from documented GitHub billing APIs for the one billing owner you configure (teal `#008080` progress bars). See [extensions/github-usage-monitor/](extensions/github-usage-monitor/).
+- **Cursor Usage Monitor** (`nexus-hub.cursor-usage-monitor`): personal Cursor Models and Other Models included-usage meters with on-demand spend context (steel-blue `#4682B4` progress bars), for the Cursor IDE only. This release ships with live fetch disabled entirely - cached or manually-entered dashboard values drive the UI until a bounded, authorized session-reuse probe verifies a safe live path. See [extensions/cursor-usage-monitor/](extensions/cursor-usage-monitor/).
 
-Each shows usage in the status bar with a theme-aware hover and a full dashboard, and makes a single outbound call only to your own account. The Claude and Codex monitors read your local OAuth token; the GitHub monitor uses a fine-grained token you supply explicitly, stored only in VS Code SecretStorage, and shows absolute usage rather than inventing a percentage when GitHub exposes no allowance. None of them scrape a billing website or read browser cookies. The installer builds and installs all three; install any one alone by pointing `code --install-extension` at its VSIX.
+Each shows usage in the status bar with a theme-aware hover and a full dashboard, and makes at most a single outbound call only to your own account. The Claude and Codex monitors read your local OAuth token; the GitHub monitor uses a fine-grained token you supply explicitly, stored only in VS Code SecretStorage, and shows absolute usage rather than inventing a percentage when GitHub exposes no allowance. None of them scrape a billing website or read browser cookies. The installer isolates extensions by editor host: the Claude, Codex, and GitHub monitors install only through the VS Code CLI, and the Cursor monitor installs only through the Cursor CLI - never cross-installed. Install any one alone by pointing `code --install-extension` (or `cursor --install-extension`) at its VSIX.
 
 ### `/usage` Command
 
