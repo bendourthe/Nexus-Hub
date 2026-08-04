@@ -275,7 +275,8 @@ def test_related_routing_surfaces_preserve_host_native_switching() -> None:
     assert "host-native switching command" in route
     assert "The map never authorizes switching" in route
     assert "Planning contract vs. direct switching" in skill
-    assert "Phase 2 supplies the map-refresh helpers" in skill
+    assert "model-map.sh" in skill
+    assert "last-known-model-map.json" in skill
     assert "`## Current model map`" in agents
 
 

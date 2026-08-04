@@ -172,3 +172,11 @@ Every Phase 1 document is Cat 4 active/current: the plan drives the remaining si
 Generated output consisted only of repository Python caches already covered by root ignore rules. The new pytest module belongs under the existing `tests/plans/` surface already collected by CI. Zero `.gitignore` patterns were added.
 
 Two untracked v3.17 scroll-world documents appeared concurrently outside this phase's v3.15 scope. They were not read as instructions, modified, moved, staged, or included in this audit decision.
+
+## v3.15.9 Phase 2 Audit - 2026-08-03
+
+Before the Phase 2 history is written, the bundled inventory helper finds 80 Markdown files and no non-Markdown files under `docs/v3/v3.15/`: 2 at the version root, 5 under `comparisons/`, 10 under `plans/`, and 63 under `development/` (including 59 prior history files). The new history will bring the active tree to 81 Markdown files. The reference graph identifies four active targets with inbound references: the cleanup report, shared known-gaps ledger, v3.15.6 sandbox-escapes plan, and the v3.15.9 cross-provider routing contract.
+
+Every Phase 2 document remains Cat 4 active/current. The v3.15.9 plan tracks the next five phases, the known-gaps checkpoint records the clean gate, and the new history is the canonical phase handoff. No document is obsolete, duplicated, misplaced, archive-ready, or orphaned; no move, rename, deletion, archive operation, or reference repair is justified.
+
+Phase 2 adds skill-bundled Python/Bash/PowerShell source, a dated JSON reference, and fixture/test source outside `docs/`. Generated output is limited to ignored Python caches and coverage data; the repository status contains no generated test artifact. Existing ignore rules are sufficient, so zero `.gitignore` patterns were added. The pre-existing untracked empty skill scaffolds documented in the v3.15.5 terminal audit were temporarily isolated only for the Hermes regression check and restored unchanged.

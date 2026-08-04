@@ -21,7 +21,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | multi-provider-ai | ai-development | "Route LLM requests across Anthropic, Bedrock, Vertex AI, and OpenRouter providers" | catalog/skills/ai-development/multi-provider-ai/SKILL.md |
 | prompt-engineering | ai-development | "Design, test, and optimize prompts for LLM applications with structured evaluation" | catalog/skills/ai-development/prompt-engineering/SKILL.md |
 | rag-implementation | ai-development | "Implement RAG pipelines with chunking, embeddings, vector stores, and retrieval optimization" | catalog/skills/ai-development/rag-implementation/SKILL.md |
-| model-routing | ai-development | "Detect the platform, enumerate models live, and route a task to the cheapest capable model" | catalog/skills/ai-development/model-routing/SKILL.md |
+| model-routing | ai-development | "Score portable routing intent, refresh provider maps, and resolve it on the active platform" | catalog/skills/ai-development/model-routing/SKILL.md |
 | model-prompting-research | ai-development | "Research and verify current per-model prompting guidance, then tune the catalog to it" | catalog/skills/ai-development/model-prompting-research/SKILL.md |
 | api-design | architecture | "Design REST, GraphQL, and gRPC APIs with versioning, pagination, and error handling" | catalog/skills/architecture/api-design/SKILL.md |
 | architecture-decision-record | architecture | "Author one architecturally-significant decision record with context, options, decision, status, and consequences" | catalog/skills/architecture/architecture-decision-record/SKILL.md |

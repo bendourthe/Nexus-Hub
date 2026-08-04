@@ -34,9 +34,9 @@
       "HIGH": 4,
       "MEDIUM": 266
     },
-    "total_lines": 127828,
-    "total_tokens_estimate": 629217,
-    "average_lines_per_skill": 496,
+    "total_lines": 127877,
+    "total_tokens_estimate": 630224,
+    "average_lines_per_skill": 473,
     "languages_supported": [
       "Python",
       "JavaScript",
@@ -220,10 +220,10 @@
     {
       "name": "model-routing",
       "title": "model-routing",
-      "description": "Detect the current agentic platform, enumerate its available models live, score a task's complexity, and recommend (then help apply) the cheapest model and reasoning effort that carries the work with zero quality loss. Use whenever the user says \"route this to the right model\", \"which model should I use\", \"pick the cheapest model that can do this\", \"is this an Opus task or a Sonnet task\", \"save tokens on this phase\", or \"what reasoning effort for this\". SKIP: checking current usage against limits -> use /usage; setting hard spend caps for autonomous agents -> ai-billing-safeguards; choosing an API PROVIDER rather than a model tier -> multi-provider-ai.",
-      "long_description": "Route a task to the cheapest model and reasoning effort that can carry it with no loss in output quality. Detects the platform, enumerates the live model set from that platform's own surface (no hardcoded list), scores the task on a five-signal complexity rubric, and maps the score to a model plus effort with a conservative strong-tier default on any uncertainty...",
-      "summary_l0": "\"Detect the platform, enumerate models live, and route a task to the cheapest capable model\"",
-      "overview_l1": "\"This skill routes a task to the right model and reasoning effort for the platform you are running, so the easy majority of work runs cheaper and faster while the hard minority never downshifts. Use it when deciding which model or effort level a task, plan phase, or session needs, when a user asks to save tokens without losing quality, or when wiring routing into a planning or implementation loop. It detects the platform from environment cues, enumerates the live model set from that platform's own surface (no hardcoded list), scores the task on a five-signal complexity rubric, maps the score to a model plus effort with a conservative strong-tier default on any uncertainty, and describes how to switch per the platform's capabilities. It adds no outbound call, dependency, or credential. SKIP for usage-limit checks, hard spend caps, or provider selection.\"",
+      "description": "\"Score work to a portable model tier and effort, refresh the Anthropic/OpenAI/Google/Cursor model map for plans, and resolve that intent to a live host model for implementation or switching. Use whenever the user says \\\"route this to the right model\\\", \\\"which model should I use\\\", \\\"pick the cheapest model\\\", \\\"save tokens on this phase\\\", \\\"what reasoning effort\\\", or when /plan or /implement needs model routing. SKIP: checking usage limits -> /usage; hard spend caps -> ai-billing-safeguards; choosing an API provider -> multi-provider-ai.\"",
+      "long_description": "Route a task to the cheapest capability tier and reasoning effort that can carry it with no loss in output quality. Long-lived plans record portable intent, not a product name: `frontier` / `strong` / `standard` / `fast` plus `low` / `medium` / `high` / `max`. Concrete model ids live in one dated pr...",
+      "summary_l0": "\"Score portable routing intent, refresh provider maps, and resolve it on the active platform\"",
+      "overview_l1": "\"Routes work without locking a plan to its authoring host. Planning scores five signals to frontier/strong/standard/fast plus low/medium/high/max, then validates a websearch-refreshed Anthropic/OpenAI/Google/Cursor map or emits a visibly dated offline fallback. Implementation re-confirms that generic intent and resolves the selected provider cell without downshifting. Direct /route use still detects the host, enumerates its live models, and applies platform-native switch mechanics. SKIP for usage-limit checks, hard spend caps, or provider selection.\"",
       "version": "1.0.0",
       "author": "Benjamin Dourthe",
       "category": "ai-development",
@@ -231,13 +231,15 @@
       "tags": [],
       "priority": "MEDIUM",
       "based_on": "",
-      "tools_required": [],
+      "tools_required": [
+        "Task"
+      ],
       "path": "catalog/skills/ai-development/model-routing/",
       "file": "catalog/skills/ai-development/model-routing/SKILL.md",
       "size": {
-        "lines": 149,
-        "characters": 13305,
-        "tokens_estimate": 1480
+        "lines": 198,
+        "characters": 17306,
+        "tokens_estimate": 2487
       },
       "downloads": 0,
       "status": "production",

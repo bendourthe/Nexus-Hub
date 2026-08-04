@@ -1,10 +1,10 @@
 # Known Gaps - v3.15
 
 **Project**: Nexus-Hub
-**Status**: v3.15.8 is released. v3.15.9 Phase 1 is complete locally: the cross-provider routing document contract, plan template, command cross-links, and semantic tests are implemented; Phase 2 will add model-map refresh helpers and the dated fallback snapshot.
-**Last updated**: 2026-08-03 (v3.15.9 Phase 1 checkpoint)
+**Status**: v3.15.8 is released. v3.15.9 Phases 1-2 are complete locally: the portable routing contract now has deterministic scoring, map validation/rendering, a dated offline snapshot, command wiring, and cross-platform tests.
+**Last updated**: 2026-08-03 (v3.15.9 Phase 2 checkpoint)
 
-**Current v3.15.9 status**: Phase 1 runs on `feat/v3.15.9-cross-provider-routing`, based on the released v3.15.8 `develop`. New plans now have a machine-checkable generic tier/effort schema and a dated four-provider map contract. Runtime refresh helpers remain the planned Phase 2 boundary; no routing script or fallback asset was added early.
+**Current v3.15.9 status**: Phases 1-2 run on `feat/v3.15.9-cross-provider-routing`, based on the released v3.15.8 `develop`. New plans have a machine-checkable generic tier/effort schema, a websearch-refresh workflow, a validated four-provider map, and visible offline/unavailable fallbacks. Phase 3 begins the Cursor usage data, auth, and visual contracts.
 
 > **Correction notice (2026-07-30, applies file-wide)**: several advisory blocks below, in the v3.15.0 through v3.15.5 sections, attribute repo-wide Windows test failures to **WN-v36-1** ("bash cannot be fully exercised on the Windows dev host", covered on Linux in CI only). **That premise is disproven.** The cause was PATH shadowing: `C:\Windows\System32\bash.exe` (the WSL launcher stub) preceded Git Bash and could not resolve a Windows-style script path at all, so it exited 127 before executing a line. v3.15.6 Phase 4 fixed it structurally with a module-level PATH repair in `catalog/hooks/tests/conftest.py` and `tests/conftest.py`; both test trees now pass on Windows with no PATH assistance (658 and 516, zero failures). Those earlier blocks are left as written because they record what was believed at the time, which is what a gap ledger is for. Read them with this correction in mind, and do not cite WN-v36-1 as evidence that a Windows host cannot run bash. Canonical entry updated in [docs/v3/v3.6/known-gaps.md](../v3.6/known-gaps.md); resolution detail in the v3.15.6 HO-1 and DF-2 entries below.
 
@@ -37,6 +37,28 @@ No Phase 1 deviation, regression, missing-test gap, warning, or quality-gate gap
 | Hand-offs (HO) | 0 | 0 |
 
 **Verification boundary.** The focused routing-contract suite passes 8 tests; the complete repository suite passes 1,466 tests with 20 declared skips; Ruff check and format verification pass; skill bundle and routing gates pass; all direct Windows equivalents of `make validate` pass. GNU Make is unavailable on this host, so the canonical wrapper could not execute, but every command in its validate recipe ran successfully. CI already collects `tests/plans` and has path triggering, concurrency cancellation, pip caching, and bounded jobs, so no workflow edit was required.
+
+### v3.15.9 Phase 2 checkpoint
+
+Phase 2 rewrote `model-routing` around separate planning, implementation, and direct-switching modes. The deterministic helper maps five rubric signals to generic tier/effort, validates dated four-by-four provider-map JSON, renders exact fresh/offline/unavailable Markdown grammar, and ships Bash plus PowerShell entry points. The bundled snapshot was refreshed from official Anthropic, OpenAI, Google, and Cursor sources on 2026-08-03. `/plan`, `/implement`, `/route`, and the retained implement-phase runbook now invoke the same scoring, refresh, fallback, reconfirmation, and no-downshift rules.
+
+### v3.15.9 Phase 2 Open Items
+
+No Phase 2 deviation, regression, warning, missing-test gap, or quality-gate bypass remains. The eight untracked empty skill scaffolds already recorded in the v3.15.5 terminal-phase section remain local parallel-session artifacts with zero tracked files; the Hermes layout assertion passed when those empty directories were temporarily isolated and restored.
+
+### v3.15.9 Phase 2 Summary
+
+| Category | Open | Resolved |
+|---|---:|---:|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+| Hand-offs (HO) | 0 | 0 |
+
+**Verification boundary.** The Phase 2 routing tests pass 25 tests with 85% line coverage on `model-map.py`; Bash/PowerShell wrapper and existing switch tests pass 16; the complete hook suite passes 908 with 36 declared skips. The repository suite ran 1,482 passing tests with 20 declared skips plus the local empty-scaffold Hermes assertion described above, which passed isolated after environmental isolation. All five extension suites passed (670 tests and one declared skip); the skill-scanner process required termination only after pytest had printed its complete 89-pass result. Ruff, ShellCheck, PowerShell parsing, skill bundle/quality/routing gates, security scan, compression gate, and every direct Windows equivalent of `make validate` pass. CI already collects both new test files and has path filtering, concurrency cancellation, pip caching, and bounded jobs, so no workflow edit was justified.
 
 ## v3.15.0 - platform-parity-all-gaps
 

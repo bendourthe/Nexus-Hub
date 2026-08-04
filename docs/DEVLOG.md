@@ -1,5 +1,38 @@
 # Development Log
 
+## [2026-08-03] - v3.15.9 Phase 2 model-routing runtime and command wiring [feature]
+
+### What Changed
+
+Rebuilt `model-routing` around three explicit modes: portable planning, implementation-time reconfirmation, and host-native direct switching. Added a standard-library helper that deterministically scores five complexity signals, validates the four-by-four provider-map schema, and renders exact fresh/offline/unavailable plan Markdown. Added Bash and PowerShell wrappers, a 2026-08-03 fallback snapshot sourced from official Anthropic, OpenAI, Google, and Cursor documentation, fixture-driven tests, and behavioral parity coverage. Updated `/plan`, `/implement`, `/route`, and the retained implement-phase runbook to use the same helper contract.
+
+### Why It Changed
+
+Phase 1 defined the portable document schema but intentionally left runtime behavior unchanged. Without Phase 2, the skill still mapped tasks to "strongest available" on the authoring host and commands described helper behavior that did not exist. The new split keeps long-lived plans provider-neutral while preserving live platform validation at implementation and switch time.
+
+### Decisions Made
+
+- Mapped any high signal to `frontier`; uncertainty or multiple high signals select `max`, exactly one high selects `high`, three or more medium signals select `strong` / `high`, one or two medium signals select `standard` / `medium`, and all-low selects `fast` / `low`.
+- Kept web research agent-native. The helper validates and renders a candidate assembled from official documentation; it makes no outbound call and remains deterministic in CI.
+- Stored the dated fallback as JSON so schema validation and Markdown rendering share one source of truth.
+- Kept platform detection, enumeration, and switching helpers unchanged for `/route`; the cross-provider map is a lookup, never authorization to switch providers.
+- Added the implementation pre-flight to the retained runbook so behavior does not depend on reading the thin dispatcher.
+
+### Troubleshooting Trail
+
+- Ruff required explicit `check=False` in the subprocess test helper and reformatted two new Python files; the corrected files pass lint and format checks.
+- The new Bash wrapper was created with CRLF on Windows, which ShellCheck rejected with `SC1017`. Normalizing it to LF resolved the error.
+- The complete repository suite reported one Hermes layout failure because eight pre-existing untracked empty skill scaffolds were copied as skill directories. The failing assertion passed when those empty directories were temporarily isolated and restored; 1,482 other repository tests passed.
+- The skill-scanner pytest process remained alive after printing `89 passed in 2.65s`; it was terminated only after the completed result was captured.
+- A full skill-catalog rebuild exposed thousands of unrelated pre-existing generated-data differences. Those broad changes were reversed, then the existing builder generated only the `model-routing` entry and its aggregate size deltas, keeping `data/skills.json` and `data/SKILL_INDEX.md` installer metadata current without folding unrelated catalog churn into Phase 2.
+
+### Impact & Context
+
+- **Affected**: `model-routing` skill bundle and generated catalog entry; `/plan`, `/implement`, `/route`; `implement-phase` runbook; routing plan and wrapper tests; v3.15.9 lifecycle documentation.
+- **Tests**: 25 focused tests with 85% helper coverage; 16 wrapper/switch tests; 908 hook tests; 1,482 repository tests plus the isolated Hermes pass; 670 extension tests.
+- **CI/CD**: no workflow edit. Existing CI collects `tests/plans` and `catalog/hooks/tests`, triggers on catalog changes, cancels superseded runs, caches dependencies, and bounds jobs with timeouts.
+- **Known gaps**: none introduced. The existing untracked empty scaffolds remain documented under the v3.15.5 terminal-phase audit and are not part of the Phase 2 diff.
+
 ## [2026-08-03] - v3.15.9 Phase 1 cross-provider routing contract [feature]
 
 ### What Changed

@@ -12,10 +12,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **Cross-provider `/plan` routing contract (v3.15.9 Phase 1)**: new plans use separate generic `Recommended model tier` and `Recommended effort level` columns plus per-phase rationale. Concrete model ids move to a dated, cited Current model map covering Anthropic, OpenAI, Google, and Cursor. Exact offline fallback markers prevent stale or host-only recommendations from appearing current. `/implement` retains compatibility with historical plan fields, while `/route` remains host-native.
+- **Model-routing runtime (v3.15.9 Phase 2)**: `/plan` now scores portable `frontier` / `strong` / `standard` / `fast` intent, validates a websearch-refreshed four-provider map, and renders a visibly dated fallback when offline. `/implement` re-confirms the selected provider cell without downshifting, while `/route` keeps live host enumeration and platform-native switch mechanics.
 
 ### Added
 
 - **Routing contract tests**: eight semantic tests enforce the four tiers, four effort levels, four-by-four provider map, source/freshness requirements, offline forms, legacy host-locked rejection, and command/skill cross-links.
+- **Cross-platform routing helpers and tests**: standard-library scoring/map validation and rendering ship with Bash and PowerShell wrappers plus a 2026-08-03 official-source snapshot. Fixture-driven tests reject empty provider columns, cover all fallback forms, and hold wrapper behavior in parity.
 
 ## [3.15.8] - 2026-08-03
 
