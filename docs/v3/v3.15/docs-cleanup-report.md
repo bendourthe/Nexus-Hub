@@ -196,3 +196,11 @@ Before the Phase 4 history is written, the active v3.15 tree holds 85 Markdown f
 The Phase 4 plan update, known-gaps checkpoint, DEVLOG entry, cleanup report, and history are Cat 4 active/current. The Cursor extension's README belongs with its package and documents the data-layer boundary for Phase 5. No document is obsolete, duplicated, misplaced, archive-ready, or orphaned; no move, rename, deletion, archive operation, or reference repair is justified.
 
 The new extension-local `.gitignore` adds four standard generated-output patterns (`node_modules/`, `out/`, `coverage/`, and `*.vsix`). Clean install, compile, and coverage created only those ignored paths. The temporary clean-scaffold repository-test directory was removed after restoring the pre-existing empty scaffolds. No root ignore change or generated artifact is included in the phase diff.
+
+## v3.15.9 Phase 5 Audit - 2026-08-04
+
+Before the Phase 5 history is written, the active v3.15 tree holds 86 Markdown files and no non-Markdown files: 2 at the version root, 5 under `comparisons/`, 10 under `plans/`, and 69 under `development/` (including the Phase 4 history). The new history will bring the active tree to 87 Markdown files.
+
+Every Phase 5 document is Cat 4 active/current. The visual-contract acceptance update, known-gaps checkpoint, DEVLOG entry, CHANGELOG Unreleased note, plan checkbox closeout, and history are the canonical handoff. The extension README and `THIRD_PARTY_NOTICES.md` belong with the package. No document is obsolete, duplicated, misplaced, archive-ready, or orphaned; no move, rename, deletion, archive operation, or reference repair is justified.
+
+Generated outputs remain covered by the existing extension-local ignore rules (`node_modules/`, `out/`, `coverage/`, `*.vsix`). Source artwork (`icons/cursor-ai-480.png`) stays packaging-excluded via `.vscodeignore` while the derived SVG, WOFF2, 48px warning mark, and package icon ship in the VSIX. Zero new `.gitignore` patterns were required.

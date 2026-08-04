@@ -21,12 +21,17 @@ export interface MementoLike {
 }
 
 export class UsageStore {
-  private readonly staleAfterMs: number;
+  private staleAfterMs: number;
+  private writeQueue: Promise<void> = Promise.resolve();
 
   public constructor(
     private readonly state: MementoLike,
     staleAfterMs = DEFAULT_STALE_AFTER_MS
   ) {
+    this.staleAfterMs = Math.max(60_000, staleAfterMs);
+  }
+
+  public setStaleAfterMs(staleAfterMs: number): void {
     this.staleAfterMs = Math.max(60_000, staleAfterMs);
   }
 
@@ -64,8 +69,10 @@ export class UsageStore {
       stale: false,
       staleReason: null
     };
-    await this.state.update(SNAPSHOT_KEY, fresh);
-    return fresh;
+    return this.serializeWrite(async () => {
+      await this.state.update(SNAPSHOT_KEY, fresh);
+      return fresh;
+    });
   }
 
   public async saveManual(
@@ -78,13 +85,24 @@ export class UsageStore {
       stale: false,
       staleReason: null
     };
-    await this.state.update(MANUAL_KEY, manual);
-    return manual;
+    return this.serializeWrite(async () => {
+      await this.state.update(MANUAL_KEY, manual);
+      return manual;
+    });
   }
 
-  public async clear(): Promise<void> {
-    await this.state.update(SNAPSHOT_KEY, undefined);
-    await this.state.update(MANUAL_KEY, undefined);
+  public clear(): Promise<void> {
+    return this.serializeWrite(async () => {
+      const previousSnapshot = this.state.get<unknown>(SNAPSHOT_KEY);
+      const previousManual = this.state.get<unknown>(MANUAL_KEY);
+      try {
+        await this.state.update(SNAPSHOT_KEY, undefined);
+        await this.state.update(MANUAL_KEY, undefined);
+      } catch (error) {
+        await this.restoreAfterFailedClear(previousSnapshot, previousManual);
+        throw error;
+      }
+    });
   }
 
   public async resolveFetch(
@@ -113,6 +131,27 @@ export class UsageStore {
       ["credential-api", "html-scrape"]
     );
     return snapshot === undefined ? false : resetHasPassed(snapshot, now);
+  }
+
+  private serializeWrite<T>(operation: () => Promise<T>): Promise<T> {
+    const result = this.writeQueue.then(operation);
+    this.writeQueue = result.then(
+      () => undefined,
+      () => undefined
+    );
+    return result;
+  }
+
+  private async restoreAfterFailedClear(
+    snapshot: unknown,
+    manual: unknown
+  ): Promise<void> {
+    try {
+      await this.state.update(SNAPSHOT_KEY, snapshot);
+      await this.state.update(MANUAL_KEY, manual);
+    } catch {
+      // Best effort only: callers retain and re-render their prior in-memory state.
+    }
   }
 }
 

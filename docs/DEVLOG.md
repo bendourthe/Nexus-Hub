@@ -1,5 +1,36 @@
 # Development Log
 
+## [2026-08-04] - v3.15.9 Phase 5 Cursor monitor UX and alerts [feature]
+
+### What Changed
+
+Wired the Cursor Usage Monitor user surfaces on the Phase 4 data layer. Added `CursorUsageRuntime` command and refresh orchestration, status-bar labels/hover with Cursor Models and Other Models plus on-demand context, dashboard and settings webviews, threshold recommendations with `alertMetric`, and an activity-bar warning webview. Generated the monochrome status SVG, WOFF2 icon font (`U+E103`), transparent package icon, warning SVG, and Icons8 attribution notice. Packaging and content verification produce a clean `cursor-usage-monitor-0.1.0.vsix`.
+
+### Why It Changed
+
+Phase 4 shipped a typed provider and store with no user-facing shell. Phase 5 makes personal meters, thresholds, and freshness visible in the same form factor as the Claude/Codex/GitHub monitors while keeping `#4682B4` meter fills and the HO-5 live-transport boundary intact.
+
+### Decisions Made
+
+- Keep production `liveTransportCapable: false` so auto-fetch never opens credentials, `state.vscdb`, cookies, or dashboard endpoints until HO-5 is authorized.
+- Prefer GitHub-monitor-style standalone settings and Unicode hover bars over Claude's inline-dashboard settings and SVG hover bars; meter naming stays Cursor Models / Other Models.
+- Omit custom `colors.*` urgency configuration; the visual contract requires semantic tokens plus text/icon severity rather than color-only status-bar backgrounds.
+- Generate icon-font and package-icon tooling on demand (no sharp lockfile entries), matching the GitHub monitor packaging hygiene fix.
+- Leave dual-host installer targeting, path-filtered CI, and interactive theme smoke to Phase 6.
+
+### Troubleshooting Trail
+
+- Phase 5 UX modules were already present as uncommitted working-tree work when the phase session started; validation confirmed compile, 132 tests, coverage thresholds, package, and verify:package before lifecycle closeout.
+- Coverage landed at 92.39% statements / 85.85% branches / 96.96% functions / 92.47% lines, above the Vitest gates.
+- Custom urgency colors were deliberately not added despite sibling Claude/Codex patterns, because the Cursor visual contract and manifest tests forbid color-only warning presentation.
+
+### Impact & Context
+
+- **Affected**: Cursor monitor UX modules, generated assets, package/manifest wiring, UI/settings/assets/manifest tests, visual contract acceptance, v3.15.9 plan, known-gaps, cleanup report, DEVLOG, CHANGELOG, and Phase 5 history.
+- **Tests**: 132 Vitest cases pass; local VSIX packages and verifies.
+- **CI/CD**: no workflow edit by approved phase boundary. Phase 6 owns the path-filtered Cursor monitor workflow and install-host isolation; sibling monitor workflows remain the copy target.
+- **Known gaps**: HO-5 and WN-4 remain open; interactive theme smoke moves to Phase 6 live-smoke / release readiness.
+
 ## [2026-08-04] - v3.15.9 Phase 4 Cursor usage provider and store [feature]
 
 ### What Changed

@@ -1,9 +1,10 @@
 {
   "name": "cursor-usage-monitor",
   "displayName": "Cursor Usage Monitor",
-  "description": "Monitor personal Cursor included usage and on-demand spend without storing credentials in settings",
+  "description": "Independent Nexus-Hub monitor for personal Cursor included usage and on-demand spend without storing credentials in settings",
   "version": "0.1.0",
   "publisher": "nexus-hub",
+  "icon": "icon.png",
   "repository": {
     "type": "git",
     "url": "https://github.com/bendourthe/Nexus-Hub.git",
@@ -26,13 +27,83 @@
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "commands": [
+      {
+        "command": "cursor-usage.dashboard",
+        "title": "Cursor Usage: Dashboard",
+        "category": "Cursor Usage"
+      },
+      {
+        "command": "cursor-usage.refresh",
+        "title": "Cursor Usage: Refresh",
+        "category": "Cursor Usage"
+      },
+      {
+        "command": "cursor-usage.recommend",
+        "title": "Cursor Usage: Recommendation",
+        "category": "Cursor Usage"
+      },
+      {
+        "command": "cursor-usage.settings",
+        "title": "Cursor Usage: Settings",
+        "category": "Cursor Usage"
+      },
+      {
+        "command": "cursor-usage.manualEntry",
+        "title": "Cursor Usage: Enter Usage Manually",
+        "category": "Cursor Usage"
+      },
+      {
+        "command": "cursor-usage.clearData",
+        "title": "Cursor Usage: Clear Data",
+        "category": "Cursor Usage"
+      },
+      {
+        "command": "cursor-usage.openNativeSettings",
+        "title": "Cursor Usage: Open Native Settings",
+        "category": "Cursor Usage"
+      },
+      {
+        "command": "cursor-usage.openUsagePage",
+        "title": "Cursor Usage: Open Cursor Usage Page",
+        "category": "Cursor Usage"
+      }
+    ],
+    "icons": {
+      "cursor-icon": {
+        "description": "Cursor icon",
+        "default": {
+          "fontPath": "./fonts/cursor-icons.woff2",
+          "fontCharacter": "\\E103"
+        }
+      }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "cursorUsageWarning",
+          "title": "Cursor Usage Warning",
+          "icon": "icons/warning.svg"
+        }
+      ]
+    },
+    "views": {
+      "cursorUsageWarning": [
+        {
+          "id": "cursorUsageWarningView",
+          "name": "Usage Warning",
+          "type": "webview",
+          "when": "cursorUsage.warningActive"
+        }
+      ]
+    },
     "configuration": {
       "title": "Cursor Usage Monitor",
       "properties": {
         "cursorUsage.autoFetch": {
           "type": "boolean",
           "default": true,
-          "description": "Fetch usage through configured provider adapters on startup"
+          "description": "Fetch usage on startup and at regular intervals when an authorized live transport is available. No live transport is enabled while HO-5 remains open."
         },
         "cursorUsage.refreshInterval": {
           "type": "number",
@@ -40,6 +111,52 @@
           "minimum": 1,
           "maximum": 120,
           "description": "Minutes between automatic usage refreshes"
+        },
+        "cursorUsage.showInStatusBar": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show personal Cursor usage in the status bar"
+        },
+        "cursorUsage.compactStatusBar": {
+          "type": "boolean",
+          "default": false,
+          "description": "Use compact C/O labels in the status bar"
+        },
+        "cursorUsage.alertMetric": {
+          "type": "string",
+          "default": "highest",
+          "enum": [
+            "highest",
+            "cursorModels",
+            "otherModels"
+          ],
+          "enumDescriptions": [
+            "Evaluate whichever personal included-usage pool is highest",
+            "Evaluate Cursor Models included usage",
+            "Evaluate Other Models included usage"
+          ],
+          "description": "Personal included-usage meter evaluated by warning thresholds"
+        },
+        "cursorUsage.thresholds.moderate": {
+          "type": "number",
+          "default": 50,
+          "minimum": 1,
+          "maximum": 100,
+          "description": "Percentage that activates a Moderate usage warning"
+        },
+        "cursorUsage.thresholds.high": {
+          "type": "number",
+          "default": 75,
+          "minimum": 1,
+          "maximum": 100,
+          "description": "Percentage that activates a High usage warning"
+        },
+        "cursorUsage.thresholds.critical": {
+          "type": "number",
+          "default": 95,
+          "minimum": 1,
+          "maximum": 100,
+          "description": "Percentage that activates a Critical usage warning"
         },
         "cursorUsage.staleAfterMinutes": {
           "type": "number",
@@ -51,7 +168,7 @@
         "cursorUsage.stateDbPath": {
           "type": "string",
           "default": "",
-          "description": "Optional explicit Cursor state database path; opening it still requires authorization"
+          "description": "Reserved path for a future explicitly authorized session adapter. The current runtime never opens it."
         }
       }
     }
@@ -62,11 +179,14 @@
     "watch": "tsc -watch -p ./",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "package": "vsce package --no-dependencies"
+    "package": "vsce package --no-dependencies",
+    "verify:package": "node scripts/verify-package-contents.js",
+    "generate:icons": "node scripts/generate-icon-font.js && node scripts/generate-package-icon.js"
   },
+  "//generate:icons": "The asset generators use sharp, svgpath, svg2ttf, and ttf2woff2 only on demand. Keep them out of package.json and package-lock.json; regenerate with `npm install --no-save --package-lock=false sharp svgpath svg2ttf ttf2woff2 && npm run generate:icons`.",
   "devDependencies": {
     "@types/node": "^26.1.2",
-    "@types/vscode": "^1.125.0",
+    "@types/vscode": "^1.85.0",
     "@vitest/coverage-v8": "^4.1.10",
     "@vscode/vsce": "^3.9.2",
     "typescript": "^7.0.2",

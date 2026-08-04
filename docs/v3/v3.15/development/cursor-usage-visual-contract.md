@@ -84,8 +84,8 @@ No source PNG is evidence of a paid license. Packaging is blocked until either:
 - [x] Source URLs and the Icons8 attribution requirement are recorded.
 - [x] The package-icon plan uses the 480px source and targets transparent 256x256 output.
 - [x] The status-glyph plan requires a single `currentColor` 20x20 vector and generated WOFF2.
-- [ ] Final normalized SVG, WOFF2, package icon, and package notice are generated in Phase 5.
-- [ ] Interactive light/dark/high-contrast smoke is completed in Phase 5 or release readiness.
+- [x] Final normalized SVG, WOFF2, package icon, and package notice are generated in Phase 5.
+- [ ] Interactive light/dark/high-contrast smoke is completed in Phase 6 live-smoke checklist or release readiness.
 
 ## Sources
 
