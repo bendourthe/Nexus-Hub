@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.15.8 -->
+<!-- nexus-hub-version: 3.15.9 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 270 skills, 17 commands, 30 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -36,6 +36,18 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v3.15.9
+
+v3.15.9 makes `/plan`'s model recommendations portable, and adds a fifth usage monitor.
+
+**Plan routing is no longer locked to the host provider or frozen at authoring time.** A plan phase now records a generic `Recommended model tier` (`frontier` / `strong` / `standard` / `fast`) and a separate `Recommended effort level`, with concrete model ids moved out into a dated, source-cited **Current model map** covering Anthropic, OpenAI, Google, and Cursor. `/plan` refreshes that map from each vendor's own public documentation on every full invocation; `/implement` re-confirms the phase's cell before building, so a plan written before a model release picks up the newer equivalent without changing its stated intent. When web access is unavailable the map degrades to a visibly dated snapshot or an explicit `assess at implementation time`, never a silent collapse to whichever provider you happen to be on. `/route` stays host-native by design: the plan map describes what a phase needs, it does not grant cross-provider switching.
+
+**The new Cursor Usage Monitor** tracks personal Cursor Models and Other Models included-usage meters with on-demand spend context in steel-blue `#4682B4`. It ships with **live fetch disabled entirely**: cached or manually-entered dashboard values drive the UI until a bounded, authorized session-reuse probe verifies a safe live path. Teams spend is kept strictly separate from personal caps and never rendered as a per-member allowance. Installer host isolation is now enforced rather than assumed: the Claude, Codex, and GitHub monitors install only through the VS Code CLI, and the Cursor monitor only through the Cursor CLI, with cross-host installs blocked and asserted by test.
+
+One defect found in the terminal phase is worth stating, because two gates had been hiding it from each other. `flatten_skills` published every `catalog/skills/<category>/<name>/` directory to every platform, while `validate_skills.py --bundles-only` silently skipped the ones carrying no `SKILL.md`. A malformed directory therefore passed every gate and surfaced only as an integration-test failure, and because git cannot represent an empty directory it never reproduced on a clean CI checkout. **A skill directory is now defined by its `SKILL.md`** in both places, fixed once in the shared adapter so Hermes, Cursor, Codex, Antigravity, Qwen, Kimi, and OpenCode are all corrected together. Catalog counts are unchanged at **270 skills**, **17 commands**, **30 hooks**, and **23 agents**.
+
+Shipping caveat recorded rather than glossed: the Cursor monitor's **live visual smoke on a real Cursor host was not executed** for this release (tracked as QG-5). Its automated surface is proven (132 extension tests green, packaging verified in CI, host isolation asserted), but the rendered result on a live host is not.
 
 ## What's New in v3.15.8
 

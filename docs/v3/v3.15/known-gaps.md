@@ -192,6 +192,10 @@ HO-5 remains open by design and carries beyond v3.15.9: live Cursor transport st
 
 WN-4 remains open: a clean `npm ci` of the latest `@vscode/vsce` toolchain still emits the two transitive deprecation notices (`whatwg-encoding@3.1.1`, `prebuild-install@7.1.3`); `npm audit` remains at zero vulnerabilities. Re-check on the next `@vscode/vsce` update.
 
+#### Deferred (added during the v3.15.9 release contract re-verification)
+
+**DF-1 is extended, not resolved.** The release-time platform read-contract re-verification found multiple current sources stating that Cursor exposes **no personal/global skills directory**, only the project `.cursor/skills/<name>/SKILL.md` path. DF-1 previously covered only the unverified global `~/.cursor/commands/` read-path; it now also covers the global `~/.cursor/skills/` path Nexus-Hub writes. The evidence is secondary (community and third-party documentation, not an official Cursor doc page), so the global Cursor surfaces are **retained unchanged** rather than removed: writing a directory Cursor may ignore is harmless, while removing one it does read would silently drop coverage. Settle it against first-party Cursor documentation in a v3.15.10 follow-on and then either keep or drop the global writes deliberately. Recorded in `docs/policy/platform-read-contracts.json` (`meta.verified_for_version_note`) and mirrored in the `.md` companion.
+
 #### Advisory (pre-existing, not introduced by v3.15.9)
 
 `catalog/hooks/tests/test_installer_smoke.py` carries 7 Ruff findings that exist identically on `develop`, including three F821 undefined names in its `if __name__ == "__main__"` manual-runner list (they reference tests deleted in an earlier release). Pytest collection and execution are unaffected, so this is dead-path-only. Left for a hygiene pass outside this release's scope rather than fixed here, per the scope-traceability rule.
