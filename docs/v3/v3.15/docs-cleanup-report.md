@@ -204,3 +204,9 @@ Before the Phase 5 history is written, the active v3.15 tree holds 86 Markdown f
 Every Phase 5 document is Cat 4 active/current. The visual-contract acceptance update, known-gaps checkpoint, DEVLOG entry, CHANGELOG Unreleased note, plan checkbox closeout, and history are the canonical handoff. The extension README and `THIRD_PARTY_NOTICES.md` belong with the package. No document is obsolete, duplicated, misplaced, archive-ready, or orphaned; no move, rename, deletion, archive operation, or reference repair is justified.
 
 Generated outputs remain covered by the existing extension-local ignore rules (`node_modules/`, `out/`, `coverage/`, `*.vsix`). Source artwork (`icons/cursor-ai-480.png`) stays packaging-excluded via `.vscodeignore` while the derived SVG, WOFF2, 48px warning mark, and package icon ship in the VSIX. Zero new `.gitignore` patterns were required.
+
+## v3.15.9 Phase 6 Audit - 2026-08-04
+
+Before the Phase 6 history is written, the active v3.15 tree holds 88 Markdown files after the live-smoke checklist was added (2 at the version root, 5 under `comparisons/`, 10 under `plans/`, and 71 under `development/` including Phase 5 history). The new Phase 6 history will bring the active tree to 89 Markdown files.
+
+Every Phase 6 document is Cat 4 active/current: the live-smoke checklist is the mandatory CI-degrade companion, the plan checkbox closeout and known-gaps checkpoint record the dual-host gate, and the history is the canonical handoff. Workflow YAML and Dependabot entries are CI config, not docs. No document is obsolete, duplicated, misplaced, archive-ready, or orphaned; no move, rename, deletion, archive operation, or reference repair is justified. Zero new `.gitignore` patterns were required.

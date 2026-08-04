@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Routing contract tests**: eight semantic tests enforce the four tiers, four effort levels, four-by-four provider map, source/freshness requirements, offline forms, legacy host-locked rejection, and command/skill cross-links.
 - **Cross-platform routing helpers and tests**: standard-library scoring/map validation and rendering ship with Bash and PowerShell wrappers plus a 2026-08-03 official-source snapshot. Fixture-driven tests reject empty provider columns, cover all fallback forms, and hold wrapper behavior in parity.
 - **Cursor Usage Monitor UX (v3.15.9 Phase 5)**: status bar with Cursor Models / Other Models meters and on-demand hover context, dashboard, settings, threshold warning webview, monochrome `cursor-icon` font glyph, transparent package icon, and Icons8 attribution. Meter fills stay `#4682B4`. Live transport remains disabled under HO-5; cache and manual entry drive the UI until an authorized adapter lands.
+- **Installer host isolation (v3.15.9 Phase 6)**: Claude, Codex, and GitHub usage monitors install only via the VS Code CLI; Cursor Usage Monitor installs only via the Cursor CLI. Cross-host installs are blocked. Path-filtered Cursor monitor CI packages the VSIX and skips profile E2E with a local live-smoke checklist when the runner has no Cursor CLI.
 
 ## [3.15.8] - 2026-08-03
 

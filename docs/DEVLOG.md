@@ -1,5 +1,34 @@
 # Development Log
 
+## [2026-08-04] - v3.15.9 Phase 6 installer host isolation and Cursor CI [feature]
+
+### What Changed
+
+Split usage-monitor installation by editor host in both installers: Claude/Codex/GitHub monitors install only through the VS Code CLI, while Cursor Usage Monitor installs only through the Cursor CLI under an ANYSPHERE header. Removed Cursor from the VS Code fallback candidate list. Added installer host-isolation smoke assertions, a path-filtered Cursor monitor GitHub Actions workflow with package verify plus optional throwaway-profile E2E (skip-with-note when `cursor` is absent), Dependabot coverage, and the local live-smoke checklist.
+
+### Why It Changed
+
+Before Phase 6, a machine with only Cursor could receive Claude/Codex/GitHub monitors, and the new Cursor monitor was never installed. Host isolation makes each monitor land in the editor it targets and gives CI a focused packaging gate without pretending hosted runners ship Cursor.
+
+### Decisions Made
+
+- Keep VSCodium in the VS Code-family resolver; exclude every Cursor path from that list.
+- Build all four VSIX packages when Node is present; install only when the matching host CLI is present, otherwise leave the VSIX with a host-specific manual hint.
+- Mirror the GitHub monitor workflow for coverage/package/verify, then add a second E2E job that uploads/downloads the VSIX and degrades to the live-smoke doc when `cursor` is missing.
+- Do not trigger the Cursor workflow on installer path edits; `ci.yml` already runs installer smoke.
+
+### Troubleshooting Trail
+
+- Focused smoke and workflow policy suites passed 123 tests; the Cursor extension suite remains 132 green.
+- Artifact action SHAs were confirmed against the official `actions/upload-artifact@v4` and `actions/download-artifact@v4` tags.
+
+### Impact & Context
+
+- **Affected**: both installers, installer smoke tests, Cursor monitor workflow + policy tests, Dependabot, live-smoke doc, plan/known-gaps/DEVLOG/CHANGELOG/history.
+- **Tests**: installer host isolation + workflow policy green; extension suite unchanged and green.
+- **CI/CD**: new `.github/workflows/cursor-usage-monitor.yml` with path filters, concurrency cancel-in-progress, npm cache, and honest E2E degrade.
+- **Known gaps**: HO-5 and WN-4 remain open; interactive Cursor smoke is local when CI lacks the CLI.
+
 ## [2026-08-04] - v3.15.9 Phase 5 Cursor monitor UX and alerts [feature]
 
 ### What Changed

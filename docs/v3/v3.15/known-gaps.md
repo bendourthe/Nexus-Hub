@@ -1,10 +1,10 @@
 # Known Gaps - v3.15
 
 **Project**: Nexus-Hub
-**Status**: v3.15.8 is released. v3.15.9 Phases 1-5 are complete locally: portable routing, Cursor usage contracts/provider/store, and the Cursor Usage Monitor UX shell (status bar, dashboard, settings, warnings, generated assets) are implemented.
-**Last updated**: 2026-08-04 (v3.15.9 Phase 5 checkpoint)
+**Status**: v3.15.8 is released. v3.15.9 Phases 1-6 are complete locally: portable routing, Cursor usage data/UX, and dual-host installer isolation with path-filtered Cursor monitor CI are implemented.
+**Last updated**: 2026-08-04 (v3.15.9 Phase 6 checkpoint)
 
-**Current v3.15.9 status**: Phases 1-5 run on `feat/v3.15.9-cross-provider-routing`, based on the released v3.15.8 `develop`. Cursor personal usage now has a strict TypeScript data layer plus a wired status bar, dashboard, settings panel, threshold warning view, `#4682B4` meters, generated icon font/package icon, and Icons8 attribution. Live transport remains disabled under HO-5; the UI hydrates from normalized cache or manual entry. Phase 6 owns dual-host installer isolation, path-filtered CI, and the live-smoke checklist.
+**Current v3.15.9 status**: Phases 1-6 run on `feat/v3.15.9-cross-provider-routing`, based on the released v3.15.8 `develop`. Claude/Codex/GitHub monitors install only into VS Code; Cursor Usage Monitor installs only into Cursor. Focused CI builds/packages the Cursor VSIX and degrades E2E when the hosted runner lacks the Cursor CLI, pointing at the live-smoke checklist. Phase 7 is the terminal architecture/known-gaps/CI/release-readiness gate.
 
 > **Correction notice (2026-07-30, applies file-wide)**: several advisory blocks below, in the v3.15.0 through v3.15.5 sections, attribute repo-wide Windows test failures to **WN-v36-1** ("bash cannot be fully exercised on the Windows dev host", covered on Linux in CI only). **That premise is disproven.** The cause was PATH shadowing: `C:\Windows\System32\bash.exe` (the WSL launcher stub) preceded Git Bash and could not resolve a Windows-style script path at all, so it exited 127 before executing a line. v3.15.6 Phase 4 fixed it structurally with a module-level PATH repair in `catalog/hooks/tests/conftest.py` and `tests/conftest.py`; both test trees now pass on Windows with no PATH assistance (658 and 516, zero failures). Those earlier blocks are left as written because they record what was believed at the time, which is what a gap ledger is for. Read them with this correction in mind, and do not cite WN-v36-1 as evidence that a Windows host cannot run bash. Canonical entry updated in [docs/v3/v3.6/known-gaps.md](../v3.6/known-gaps.md); resolution detail in the v3.15.6 HO-1 and DF-2 entries below.
 
@@ -73,7 +73,7 @@ Phase 3 defines the Cursor usage boundary before runtime code. The data contract
 - **Source phase**: v3.15.9 Phase 3.2 - Auth and scrape paths
 - **Plan reference**: `docs/v3/v3.15/plans/v3.15.9-cross-provider-routing-and-cursor-usage-monitor.md` (sub-task 3.2 / T015)
 - **Reason**: The Windows probe verified that `%APPDATA%\Cursor\User\globalStorage\state.vscdb` exists, but no credential value was opened and no authenticated dashboard request was made because that requires separate explicit authorization. Cursor documents no public personal-usage API, so endpoint/schema success cannot be inferred from path presence.
-- **Suggested next step**: Phases 4-5 intentionally ship SecretStorage, injected JSON/HTML/cache/manual adapters, and a full UX shell without a default live transport. Before a later phase enables automatic session reuse, request authorization for the bounded one-key/one-request probe in `cursor-usage-auth-probe.md`; otherwise keep the adapter disabled and preserve the cache/manual UI posture.
+- **Suggested next step**: Phases 4-6 intentionally ship SecretStorage, injected adapters, UX, and dual-host install without a default live transport. Before a later release enables automatic session reuse, request authorization for the bounded one-key/one-request probe in `cursor-usage-auth-probe.md`; otherwise keep the adapter disabled and preserve the cache/manual UI posture.
 
 No Phase 3 implementation, regression, warning, missing-test, or quality-gate gap remains. Phase 5's normalized SVG/font/package icon and Icons8 attribution notice are planned work, not Phase 3 deferrals.
 
@@ -147,6 +147,30 @@ No new Phase 5 implementation, regression, missing-test, or quality-gate gap rem
 | Hand-offs (HO) | 1 | 0 |
 
 **Verification boundary.** Extension compile, 132 Vitest cases, and V8 coverage pass at 92.39% statements / 85.85% branches / 96.96% functions / 92.47% lines. `npm run package` and `npm run verify:package` succeed for `cursor-usage-monitor-0.1.0.vsix` (43 archived files; 15 runtime modules). Custom `colors.*` urgency config is intentionally omitted per the visual contract (semantic tokens + text/icon severity). Phase 6 owns installer host isolation and the path-filtered workflow; existing sibling usage-monitor workflows remain the CI pattern to copy.
+
+### v3.15.9 Phase 6 checkpoint
+
+Phase 6 splits usage-monitor installation by host. Both installers resolve the VS Code CLI (`code` / standard VS Code and VSCodium paths) and the Cursor CLI (`cursor` / app-bundle paths) independently, install Claude/Codex/GitHub monitors only through the VS Code CLI, and install `nexus-hub.cursor-usage-monitor` only through the Cursor CLI under an ANYSPHERE vendor header. Cursor is no longer a VS Code-family fallback. A path-filtered Cursor monitor workflow runs Node 22 coverage + package + verify, uploads the VSIX, and either installs into a throwaway Cursor profile or skips-with-note to the live-smoke checklist. Dependabot tracks the extension npm tree.
+
+### v3.15.9 Phase 6 Open Items
+
+HO-5 remains open by design (no live Cursor session/dashboard probe). WN-4 remains open (transitive `@vscode/vsce` deprecations; audit clean). Interactive theme/live smoke still requires a local Cursor host when CI lacks the Cursor CLI - that is the documented E2E degrade, not a quality-gate bypass. Phase 7 reconciles gaps and release readiness.
+
+No new Phase 6 implementation, regression, missing-test, or quality-gate gap remains.
+
+### v3.15.9 Phase 6 Summary
+
+| Category | Open | Resolved |
+|---|---:|---:|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 1 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+| Hand-offs (HO) | 1 | 0 |
+
+**Verification boundary.** Installer smoke + host-isolation assertions and Cursor workflow policy tests pass (123 combined with related workflow policy suites in the focused run). Extension suite remains 132 green. CI now includes `.github/workflows/cursor-usage-monitor.yml` with path filters, concurrency cancellation, npm caching, SHA-pinned actions, and an honest Cursor-CLI E2E degrade.
 
 ## v3.15.0 - platform-parity-all-gaps
 

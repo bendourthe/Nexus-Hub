@@ -1313,8 +1313,8 @@ install_global() {
     install_permissions "$repo_root" "COPILOT" "Global"
     fi
 
-    # --- VS Code Extensions section ---
-    write_section_banner "VS CODE EXTENSIONS"
+    # --- Usage Monitor Extensions section (VS Code + Cursor hosts) ---
+    write_section_banner "USAGE MONITOR EXTENSIONS"
     install_vscode_extensions "$repo_root"
 
     # --- Cross-Platform Tools: capabilities that apply to every platform, grouped
@@ -1781,8 +1781,9 @@ invoke_registry_platform() {
 install_vscode_extensions() {
     local repo_root="$1"
 
-    write_item "Usage Monitor VS Code extensions show your Claude Code, Codex (ChatGPT), and" "$RESET"
-    write_item "GitHub usage in the status bar, with pacing recommendations. Grouped by vendor." "$RESET"
+    write_item "Usage Monitor extensions show Claude Code, Codex (ChatGPT), GitHub, and" "$RESET"
+    write_item "Cursor usage in the status bar. Claude/Codex/GitHub install into VS Code only;" "$RESET"
+    write_item "Cursor Usage Monitor installs into Cursor only. Never cross-installed." "$RESET"
     echo ""
 
     # Check for Node.js (shared by every extension)
@@ -1837,14 +1838,13 @@ install_vscode_extensions() {
         return
     fi
 
-    # Locate a VS Code-family CLI once, shared by every extension. On a fresh Mac
-    # the `code` command is not on PATH unless the user ran "Shell Command: Install
-    # 'code' command in PATH", so fall back to the standard application-bundle /
-    # install locations. This lets each VSIX auto-install instead of by hand.
-    local code_cli=""
-    local code_label="VS Code"
+    # Dual-host resolution (v3.15.9 Phase 6): VS Code CLI and Cursor CLI are
+    # discovered independently. Cursor must NEVER be a fallback for the VS Code
+    # monitors, and VS Code must NEVER receive the Cursor monitor.
+    local vscode_cli=""
+    local vscode_label="VS Code"
     if command -v code >/dev/null 2>&1; then
-        code_cli="code"
+        vscode_cli="code"
     else
         local candidate
         for candidate in \
@@ -1855,30 +1855,43 @@ install_vscode_extensions() {
             "/usr/bin/code" \
             "/snap/bin/code" \
             "/var/lib/flatpak/exports/bin/com.visualstudio.code" \
-            "/Applications/Cursor.app/Contents/Resources/app/bin/cursor" \
-            "$HOME/Applications/Cursor.app/Contents/Resources/app/bin/cursor" \
-            "/Applications/VSCodium.app/Contents/Resources/app/bin/codium"; do
+            "/Applications/VSCodium.app/Contents/Resources/app/bin/codium" \
+            "$HOME/Applications/VSCodium.app/Contents/Resources/app/bin/codium"; do
             if [ -x "$candidate" ]; then
-                code_cli="$candidate"
+                vscode_cli="$candidate"
                 case "$candidate" in
-                    *Cursor*) code_label="Cursor" ;;
-                    *VSCodium*) code_label="VSCodium" ;;
+                    *VSCodium*) vscode_label="VSCodium" ;;
                 esac
                 break
             fi
         done
     fi
 
-    # Build each extension under its own vendor header so the Anthropic, OpenAI,
-    # and GitHub utilities are visually separated. Each is independent, so a
-    # missing folder or a build failure in one does not block the others. The
-    # vendor order (Anthropic, OpenAI, GitHub) is asserted by the installer smoke
-    # test and must match scripts/installer.ps1.
+    local cursor_cli=""
+    local cursor_label="Cursor"
+    if command -v cursor >/dev/null 2>&1; then
+        cursor_cli="cursor"
+    else
+        local cursor_candidate
+        for cursor_candidate in \
+            "/Applications/Cursor.app/Contents/Resources/app/bin/cursor" \
+            "$HOME/Applications/Cursor.app/Contents/Resources/app/bin/cursor"; do
+            if [ -x "$cursor_candidate" ]; then
+                cursor_cli="$cursor_candidate"
+                break
+            fi
+        done
+    fi
+
+    # Build each extension under its own vendor header. VS Code monitors install
+    # only via vscode_cli; the Cursor monitor installs only via cursor_cli. The
+    # vendor order (Anthropic, OpenAI, GitHub, Anysphere) is asserted by the
+    # installer smoke test and must match scripts/installer.ps1.
     write_header "ANTHROPIC"
-    build_and_install_one_extension "$repo_root/extensions/claude-usage-monitor" "nexus-hub.claude-usage-monitor" "Claude Usage Monitor" "Claude: --%" "$code_cli" "$code_label"
+    build_and_install_one_extension "$repo_root/extensions/claude-usage-monitor" "nexus-hub.claude-usage-monitor" "Claude Usage Monitor" "Claude: --%" "$vscode_cli" "$vscode_label"
 
     write_header "OPENAI"
-    build_and_install_one_extension "$repo_root/extensions/codex-usage-monitor" "nexus-hub.codex-usage-monitor" "Codex Usage Monitor" "Codex: --%" "$code_cli" "$code_label"
+    build_and_install_one_extension "$repo_root/extensions/codex-usage-monitor" "nexus-hub.codex-usage-monitor" "Codex Usage Monitor" "Codex: --%" "$vscode_cli" "$vscode_label"
 
     # The GitHub monitor's status hint carries no "%" because GitHub does not
     # guarantee an included allowance: until a verified denominator or a manual
@@ -1887,7 +1900,10 @@ install_vscode_extensions() {
     # install itself never authenticates to GitHub - the token is supplied later
     # through the extension's SecretStorage command.
     write_header "GITHUB"
-    build_and_install_one_extension "$repo_root/extensions/github-usage-monitor" "nexus-hub.github-usage-monitor" "GitHub Usage Monitor" "GitHub Usage: --" "$code_cli" "$code_label"
+    build_and_install_one_extension "$repo_root/extensions/github-usage-monitor" "nexus-hub.github-usage-monitor" "GitHub Usage Monitor" "GitHub Usage: --" "$vscode_cli" "$vscode_label"
+
+    write_header "ANYSPHERE"
+    build_and_install_one_extension "$repo_root/extensions/cursor-usage-monitor" "nexus-hub.cursor-usage-monitor" "Cursor Usage Monitor" "Cursor: --%" "$cursor_cli" "$cursor_label"
 }
 
 # Build, package, and install one VS Code usage-monitor extension. Shared by
@@ -1981,9 +1997,9 @@ build_and_install_one_extension() {
             write_item "  \"$code_cli\" --install-extension \"$vsix_file\"" "$RESET"
         fi
     else
-        write_item "VS Code CLI ('code') not found in PATH or standard install locations." "$YELLOW"
+        write_item "$code_label CLI not found in PATH or standard install locations." "$YELLOW"
         write_item "VSIX saved at: $vsix_file" "$RESET"
-        write_item "Install manually via VS Code: Extensions > ... > Install from VSIX" "$GRAY"
+        write_item "Install manually via $code_label: Extensions > ... > Install from VSIX" "$GRAY"
     fi
 }
 

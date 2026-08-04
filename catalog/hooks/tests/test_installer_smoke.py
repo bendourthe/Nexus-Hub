@@ -241,22 +241,27 @@ def test_installers_use_claude_usage_monitor_banner():
         )
 
 
-# Every VS Code usage monitor the installers must build, in the vendor order
-# both shells present them (Anthropic, OpenAI, GitHub). Adding a monitor means
-# adding a row here; the tests below then enforce presence AND ordering in both
-# shells, so a monitor cannot be wired into one installer and forgotten in the
-# other, and the two cannot drift out of order.
+# Every usage monitor the installers must build, in the vendor order both shells
+# present them (Anthropic, OpenAI, GitHub for VS Code; Anysphere/Cursor last).
+# Adding a monitor means adding a row here; the tests below then enforce presence
+# AND ordering in both shells, so a monitor cannot be wired into one installer
+# and forgotten in the other, and the two cannot drift out of order.
 USAGE_MONITORS = (
     ("claude-usage-monitor", "nexus-hub.claude-usage-monitor", "Claude Usage Monitor"),
     ("codex-usage-monitor", "nexus-hub.codex-usage-monitor", "Codex Usage Monitor"),
     ("github-usage-monitor", "nexus-hub.github-usage-monitor", "GitHub Usage Monitor"),
+    ("cursor-usage-monitor", "nexus-hub.cursor-usage-monitor", "Cursor Usage Monitor"),
 )
+
+VS_CODE_USAGE_MONITORS = USAGE_MONITORS[:3]
+CURSOR_USAGE_MONITOR = USAGE_MONITORS[3]
 
 
 def test_installers_build_every_usage_monitor_extension():
-    """v3.14.4 split the usage monitor into separate extensions and v3.15.8 added
-    a third. Both installers must build and install EVERY monitor in
-    ``USAGE_MONITORS`` (installer.sh uses '/' paths, installer.ps1 '\\').
+    """v3.14.4 split the usage monitor into separate extensions; v3.15.8 added
+    GitHub; v3.15.9 Phase 6 added Cursor. Both installers must build and install
+    EVERY monitor in ``USAGE_MONITORS`` (installer.sh uses '/' paths,
+    installer.ps1 '\\').
     """
     for path in (INSTALLER_SH, INSTALLER_PS1):
         body = path.read_text(encoding="utf-8")
@@ -277,7 +282,8 @@ def test_installers_agree_on_usage_monitor_order():
     Order is user-visible: each monitor prints under its own vendor header and
     then claims a status-bar slot in install order, so a reordering in one shell
     alone gives Windows and macOS/Linux users a different status bar from the
-    same release.
+    same release. Cursor (Anysphere) must remain last so VS Code monitors keep
+    their established Anthropic → OpenAI → GitHub sequence.
     """
     for path in (INSTALLER_SH, INSTALLER_PS1):
         body = path.read_text(encoding="utf-8")
@@ -286,6 +292,69 @@ def test_installers_agree_on_usage_monitor_order():
             f"{path.name} builds the usage monitors out of order; expected "
             f"{[extension_id for _, extension_id, _ in USAGE_MONITORS]}"
         )
+
+
+def test_installers_isolate_vscode_and_cursor_hosts():
+    """VS Code monitors must never target the Cursor CLI, and vice versa.
+
+    Before v3.15.9 Phase 6 the installer treated Cursor as a VS Code-family
+    fallback, which installed Claude/Codex/GitHub monitors into Cursor. The
+    dual-host resolver keeps Cursor paths out of the VS Code candidate list and
+    routes the Cursor monitor through a separate ``cursor_cli`` / ``$cursorCli``.
+    """
+    for path in (INSTALLER_SH, INSTALLER_PS1):
+        body = path.read_text(encoding="utf-8")
+        assert "vscode_cli" in body or "$vscodeCli" in body, (
+            f"{path.name} must resolve a dedicated VS Code CLI variable"
+        )
+        assert "cursor_cli" in body or "$cursorCli" in body, (
+            f"{path.name} must resolve a dedicated Cursor CLI variable"
+        )
+
+        # Prefer assignment markers so comments mentioning both names do not
+        # invert the VS Code / Cursor resolution regions.
+        if 'local vscode_cli=""' in body:
+            vscode_block_start = body.index('local vscode_cli=""')
+            cursor_block_start = body.index('local cursor_cli=""')
+        else:
+            vscode_block_start = body.index("$vscodeCli = $null")
+            cursor_block_start = body.index("$cursorCli = $null")
+        assert vscode_block_start < cursor_block_start, (
+            f"{path.name} must resolve the VS Code CLI before the Cursor CLI"
+        )
+        vscode_region = body[vscode_block_start:cursor_block_start]
+        assert "Cursor.app" not in vscode_region, (
+            f"{path.name} must not list Cursor.app as a VS Code CLI fallback"
+        )
+        assert "cursor.cmd" not in vscode_region, (
+            f"{path.name} must not list cursor.cmd as a VS Code CLI fallback"
+        )
+        assert "Programs\\cursor" not in vscode_region, (
+            f"{path.name} must not list the Windows Cursor install as a VS Code fallback"
+        )
+
+        for _, extension_id, _ in VS_CODE_USAGE_MONITORS:
+            idx = body.index(extension_id)
+            window = body[idx : idx + 280]
+            assert "vscode_cli" in window or "vscodeCli" in window, (
+                f"{path.name} must pass the VS Code CLI into {extension_id} install"
+            )
+            assert "cursor_cli" not in window and "cursorCli" not in window, (
+                f"{path.name} must not pass the Cursor CLI into {extension_id} install"
+            )
+
+        _, cursor_id, _ = CURSOR_USAGE_MONITOR
+        cursor_window = body[body.index(cursor_id) : body.index(cursor_id) + 280]
+        assert "cursor_cli" in cursor_window or "cursorCli" in cursor_window, (
+            f"{path.name} must pass the Cursor CLI into {cursor_id} install"
+        )
+        assert "vscode_cli" not in cursor_window and "vscodeCli" not in cursor_window, (
+            f"{path.name} must not pass the VS Code CLI into {cursor_id} install"
+        )
+        assert (
+            'write_header "ANYSPHERE"' in body
+            or 'Write-Header -Provider "ANYSPHERE"' in body
+        ), f"{path.name} must present the Cursor monitor under an ANYSPHERE vendor header"
 
 
 def test_github_monitor_status_hint_promises_no_percentage():
