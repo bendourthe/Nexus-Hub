@@ -1,5 +1,36 @@
 # Development Log
 
+## [2026-08-04] - v3.15.9 Phase 7 architecture refactor, known-gaps reconciliation, and CI/CD [release-readiness]
+
+### What Changed
+
+Ran the terminal-phase gate for v3.15.9. Removed the one untracked migration remnant (`catalog/skills/code-review/references/`, empty since the v3.15.8 checklist relocation), confirmed the 11 remaining `Rec. model / effort` occurrences are all intentional legacy-compat guidance, fixtures, or history, and verified the installers carry no orphaned single-host helper. Added the Cursor Usage Monitor and the VS Code vs Cursor host-isolation contract to README's usage-monitor roster, completed CHANGELOG Unreleased with the Phases 3-4 data-layer entry, appended the Phase 7 docs-cleanup audit, and finalized the v3.15.9 known-gaps reconciliation. Normalized two branch-introduced Python files with `ruff format` (behavior-neutral).
+
+### Why It Changed
+
+The plan's Phase 7 requires the repository to leave v3.15.9 well-organized, its gaps reconciled, and its CI complete and optimized before the only branch push. The reconciliation makes the version-final open set explicit (HO-5, WN-4) so `/update release` ingests an honest ledger.
+
+### Decisions Made
+
+- No CI edit: `ci.yml` already collects `tests/plans`, `tests/workflows`, `tests/installer`, and the installer smoke suite, and `cursor-usage-monitor.yml` already carries path filters, concurrency cancellation, caching, SHA pins, least-privilege permissions, and the honest E2E degrade.
+- Leave the eight untracked parallel-session skill scaffolds and the local `.antigravitycli/` directory unmodified; remove only the v3.15.8 migration remnant.
+- Record the 7 pre-existing Ruff findings in `test_installer_smoke.py` (present identically on `develop`, dead-path-only) as a known-gaps advisory instead of fixing them, per scope traceability.
+- Reference v3.15.8's MT-5 and QG-4 into the consolidated local release-readiness pass alongside the Cursor live-smoke checklist rather than absorbing them into v3.15.9.
+
+### Troubleshooting Trail
+
+- `ruff format --check` flagged two files this branch introduced; both were formatted and their focused suites re-run green (37 tests).
+- The full validator battery (12 gates including trigger-routing, version sync, template parity, contract freshness, skill security, and the compressor accuracy gate) passed; ShellCheck passed on both installers and all catalog scripts.
+- The terminal test run surfaced one failure: `test_hermes_skills_are_exactly_one_level_deep` (`commit-sweep has no SKILL.md at depth 1`). Running the five test trees as parallel processes localized it to `tests/integrations`, and mapping the failure's progress-character index onto the collection order named the test without waiting for the 19-minute run to finish.
+- Root cause was a contract disagreement, not the scaffolds themselves: `flatten_skills` published all 277 `<category>/<name>/` directories while `validate_skills.py --bundles-only` silently skipped the 7 carrying no `SKILL.md`. Git cannot track an empty directory, so the failure was working-tree-only and a clean CI checkout never reproduced it. Fixed in the shared adapter (correcting every skills-bearing integration at once) and mirrored into the validator as a warning, preserving the maintainer's scaffolds rather than deleting them.
+
+### Impact & Context
+
+- **Affected**: README, CHANGELOG, docs-cleanup report, known-gaps ledger, DEVLOG, plan exit checklist, session history, plus `model-map.py` and `test_cursor_usage_monitor_workflow.py` (formatting only).
+- **Tests**: Cursor extension 132 green with coverage thresholds held (92.39% statements / 85.85% branches); five Python extension suites 670 passed + 1 skip; repository suites all green after the hardening -- `integrations` 589 + 1 skip, `hooks` 909 + 36 skip, `validators` 376, `skills` 252 + 3 skip, `installer` 147 + 16 skip, `plans` 79, `workflows` 91. Five tests were added for the skill-directory contract (2 adapter, 3 validator).
+- **CI/CD**: verified complete and optimized; zero workflow edits.
+- **Known gaps**: version-final open set is HO-5 + WN-4; v3.15.8 MT-5/QG-4 consolidated into the release-readiness pass.
+
 ## [2026-08-04] - v3.15.9 Phase 6 installer host isolation and Cursor CI [feature]
 
 ### What Changed

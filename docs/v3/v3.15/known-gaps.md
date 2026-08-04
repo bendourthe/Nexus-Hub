@@ -1,10 +1,10 @@
 # Known Gaps - v3.15
 
 **Project**: Nexus-Hub
-**Status**: v3.15.8 is released. v3.15.9 Phases 1-6 are complete locally: portable routing, Cursor usage data/UX, and dual-host installer isolation with path-filtered Cursor monitor CI are implemented.
-**Last updated**: 2026-08-04 (v3.15.9 Phase 6 checkpoint)
+**Status**: v3.15.8 is released. v3.15.9 Phases 1-7 are complete locally: portable routing, Cursor usage data/UX, dual-host installer isolation with path-filtered Cursor monitor CI, and the terminal architecture/known-gaps/CI gate are all implemented. Awaiting maintainer approval for the only branch push.
+**Last updated**: 2026-08-04 (v3.15.9 Phase 7 final reconciliation)
 
-**Current v3.15.9 status**: Phases 1-6 run on `feat/v3.15.9-cross-provider-routing`, based on the released v3.15.8 `develop`. Claude/Codex/GitHub monitors install only into VS Code; Cursor Usage Monitor installs only into Cursor. Focused CI builds/packages the Cursor VSIX and degrades E2E when the hosted runner lacks the Cursor CLI, pointing at the live-smoke checklist. Phase 7 is the terminal architecture/known-gaps/CI/release-readiness gate.
+**Current v3.15.9 status**: Phases 1-7 run on `feat/v3.15.9-cross-provider-routing`, based on the released v3.15.8 `develop`. Claude/Codex/GitHub monitors install only into VS Code; Cursor Usage Monitor installs only into Cursor. Focused CI builds/packages the Cursor VSIX and degrades E2E when the hosted runner lacks the Cursor CLI, pointing at the live-smoke checklist. Phase 7 reconciled this ledger, confirmed CI coverage and optimization, and completed the README/CHANGELOG record; the remaining steps are the maintainer-approved branch push, the integration PR to protected `develop`, and `/update release` after green integration.
 
 > **Correction notice (2026-07-30, applies file-wide)**: several advisory blocks below, in the v3.15.0 through v3.15.5 sections, attribute repo-wide Windows test failures to **WN-v36-1** ("bash cannot be fully exercised on the Windows dev host", covered on Linux in CI only). **That premise is disproven.** The cause was PATH shadowing: `C:\Windows\System32\bash.exe` (the WSL launcher stub) preceded Git Bash and could not resolve a Windows-style script path at all, so it exited 127 before executing a line. v3.15.6 Phase 4 fixed it structurally with a module-level PATH repair in `catalog/hooks/tests/conftest.py` and `tests/conftest.py`; both test trees now pass on Windows with no PATH assistance (658 and 516, zero failures). Those earlier blocks are left as written because they record what was believed at the time, which is what a gap ledger is for. Read them with this correction in mind, and do not cite WN-v36-1 as evidence that a Windows host cannot run bash. Canonical entry updated in [docs/v3/v3.6/known-gaps.md](../v3.6/known-gaps.md); resolution detail in the v3.15.6 HO-1 and DF-2 entries below.
 
@@ -171,6 +171,52 @@ No new Phase 6 implementation, regression, missing-test, or quality-gate gap rem
 | Hand-offs (HO) | 1 | 0 |
 
 **Verification boundary.** Installer smoke + host-isolation assertions and Cursor workflow policy tests pass (123 combined with related workflow policy suites in the focused run). Extension suite remains 132 green. CI now includes `.github/workflows/cursor-usage-monitor.yml` with path filters, concurrency cancellation, npm caching, SHA-pinned actions, and an honest Cursor-CLI E2E degrade.
+
+### v3.15.9 Phase 7 checkpoint
+
+Phase 7 ran the terminal architecture/known-gaps/CI gate. The structural audit found no tracked empty directory, duplicate group, or orphaned asset introduced by this plan; the one untracked migration remnant (`catalog/skills/code-review/references/`, empty since the v3.15.8 Phase 8 checklist relocation) was removed, and the eight untracked parallel-session skill scaffolds recorded in the v3.15.5 terminal audit were left unmodified. All 11 remaining `Rec. model / effort` occurrences were inspected and are intentional: legacy-compatibility guidance (`model-routing`, `/implement`, the implement-phase runbook, AGENTS.md), the negative fixture in `tests/plans/test_v3_15_9_routing_contract.py`, and historical CHANGELOG/DEVLOG/plan records. No live surface still teaches the deprecated column. CI required no edit: `ci.yml` already collects `tests/plans`, `tests/workflows`, `tests/installer`, and the installer smoke suite, and the Cursor monitor workflow already carries path filters, concurrency cancellation, npm caching, SHA-pinned actions, least-privilege permissions, bounded timeouts, and the honest E2E degrade. README's usage-monitor roster gained the Cursor monitor and the host-isolation contract; CHANGELOG's Unreleased section gained the Phases 3-4 data-layer entry. Two branch-introduced Python files (`model-map.py`, `test_cursor_usage_monitor_workflow.py`) were normalized with `ruff format`; the change is behavior-neutral and their focused suites were re-run green (37 tests).
+
+**Terminal test run correction (2026-08-04).** The claim above that CI required no edit still holds, but the claim that Phase 7 touched no source file does not. The full local suite surfaced one failure, `test_hermes_skills_are_exactly_one_level_deep` (`commit-sweep has no SKILL.md at depth 1`), traced to a genuine contract disagreement rather than to the scaffolds themselves: `flatten_skills` published every `<category>/<name>/` directory (277) while `validate_skills.py --bundles-only` silently skipped the 7 without a `SKILL.md`, so a malformed directory passed every gate and only failed an integration test. Because the scaffolds are untracked empty directories that git cannot represent, a clean CI checkout never reproduced it. Phase 7 fixed the shared adapter (`flatten_skills` and `catalog_skill_names` now require a `SKILL.md`, logging each skip) which corrects Hermes, Cursor, Codex, Antigravity, Qwen, Kimi, and OpenCode simultaneously, and added `find_malformed_skill_dirs` so the validator reports what it used to skip. The validator finding is a WARNING, not an error, so a work-in-progress scaffold still passes CI (the orphan-bundle precedent), and the maintainer's seven scaffolds were preserved rather than deleted. Five tests were added (2 adapter, 3 validator).
+
+**Advisory carried forward (pre-existing, not introduced by v3.15.9).** `_catalog_adapters.py` (RUF022, unsorted `__all__`), `validate_skills.py` (ISC004), and `tests/integrations/test_catalog_adapters.py` (I001, unsorted import block) each carry one pre-existing Ruff finding, and all four files touched by the hardening were already non-`ruff format` conformant at `HEAD`. They were deliberately NOT reformatted: doing so would rewrite hundreds of pre-existing lines and violate scope traceability. Newly added lines were hand-formatted to the `ruff format` shape so the additions themselves are clean. Same disposition as the `test_installer_smoke.py` findings above: left for a hygiene pass outside this release.
+
+### v3.15.9 Phase 7 Open Items (final reconciliation)
+
+The three deliverable gaps this release exists to close are closed: host-locked, staleness-prone plan routing (Phases 1-2), the missing Cursor usage monitor (Phases 3-5), and the installer cross-host install defect (Phase 6). Scrape fragility never materialized as a shipped risk because HO-5 keeps live transport disabled entirely. Remaining items:
+
+#### Hand-offs
+
+HO-5 remains open by design and carries beyond v3.15.9: live Cursor transport stays disabled (cache/manual UI posture) until the maintainer authorizes the bounded one-key/one-request probe recorded in `cursor-usage-auth-probe.md`. This is the intended shipped state, not a defect.
+
+#### Warnings
+
+WN-4 remains open: a clean `npm ci` of the latest `@vscode/vsce` toolchain still emits the two transitive deprecation notices (`whatwg-encoding@3.1.1`, `prebuild-install@7.1.3`); `npm audit` remains at zero vulnerabilities. Re-check on the next `@vscode/vsce` update.
+
+#### Advisory (pre-existing, not introduced by v3.15.9)
+
+`catalog/hooks/tests/test_installer_smoke.py` carries 7 Ruff findings that exist identically on `develop`, including three F821 undefined names in its `if __name__ == "__main__"` manual-runner list (they reference tests deleted in an earlier release). Pytest collection and execution are unaffected, so this is dead-path-only. Left for a hygiene pass outside this release's scope rather than fixed here, per the scope-traceability rule.
+
+#### Release-readiness residuals referenced from v3.15.8
+
+MT-5 (GitHub monitor Extension Development Host activation coverage) and QG-4 (interactive light/dark/high-contrast visual smoke) remain open in the v3.15.8 section below; both are consolidated into the maintainer's local release-readiness pass together with this release's Cursor live-smoke checklist (`docs/v3/v3.15/development/cursor-usage-live-smoke.md`). None of them blocks the v3.15.9 integration push.
+
+**QG-5 (NEW, open at release): the Cursor live smoke was NOT executed for v3.15.9.** The checklist at `docs/v3/v3.15/development/cursor-usage-live-smoke.md` requires a human driving a real Cursor instance to confirm the status bar, meters, dashboard, threshold warning, and theme rendering; it cannot be performed by an automated agent and no local Cursor host ran it before the tag. The maintainer authorized the release to proceed without it (2026-08-04). What IS proven for the Cursor monitor is the automated surface: 132 extension tests green with coverage thresholds held, packaging verified in CI, and installer host isolation asserted by test. What is NOT proven is the rendered visual result on a live Cursor host. Close QG-5 by running the checklist post-release and recording the outcome here; treat any finding as a v3.15.10 fix candidate. This entry exists so the release record does not imply a verification that never happened.
+
+### v3.15.9 Phase 7 Summary
+
+| Category | Open | Resolved |
+|---|---:|---:|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 1 |
+| Warnings (WN) | 1 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 1 | 0 |
+| Hand-offs (HO) | 1 | 0 |
+
+The version-final open set is **HO-5**, **WN-4**, and **QG-5**. HO-5 and WN-4 are by-design or upstream-bounded. QG-5 (Cursor live smoke not executed) is a real, acknowledged verification gap the maintainer accepted to ship past; it is the one item where v3.15.9's evidence is weaker than the plan intended, and it is recorded rather than smoothed over.
+
+One bug was found and resolved inside Phase 7 (BG resolved: the skill-directory contract disagreement between `flatten_skills` and `validate_skills.py --bundles-only`, surfaced by `test_hermes_skills_are_exactly_one_level_deep`). The earlier Phase 7 statement that "Phase 7 introduced no new gap" was written before the terminal test run and is superseded by this table.
 
 ## v3.15.0 - platform-parity-all-gaps
 

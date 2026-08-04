@@ -91,9 +91,7 @@ def validate_map(data: Any) -> dict[str, Any]:
         has_valid_sources = (
             isinstance(urls, list)
             and bool(urls)
-            and all(
-                isinstance(url, str) and URL_PATTERN.match(url) for url in urls
-            )
+            and all(isinstance(url, str) and URL_PATTERN.match(url) for url in urls)
         )
         if not has_valid_sources:
             raise MapValidationError(

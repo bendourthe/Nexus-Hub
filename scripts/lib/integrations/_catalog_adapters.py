@@ -68,13 +68,17 @@ def catalog_skill_names(src_skills_dir: Path) -> set:
 
     Used to guard ``commands_to_skills`` against a command whose name collides
     with a real catalog skill (so the command wrapper never shadows a skill).
+
+    A directory without a ``SKILL.md`` is not a skill (see ``flatten_skills``),
+    so it never reserves a name here either -- otherwise an abandoned scaffold
+    would suppress a legitimate command wrapper that shares its name.
     """
     names: set = set()
     if src_skills_dir.exists():
         for category in src_skills_dir.iterdir():
             if category.is_dir():
                 for skill in category.iterdir():
-                    if skill.is_dir():
+                    if skill.is_dir() and (skill / "SKILL.md").is_file():
                         names.add(skill.name)
     return names
 
@@ -86,6 +90,13 @@ def flatten_skills(ctx, key: str, src_skills_dir: Path, dst_skills_dir: Path) ->
     ``assets/`` subdirs intact) directly under ``dst_skills_dir``, dropping the
     category level. Returns one ``FileAction`` per skill tree copied, or a single
     ``not-found`` action when the source tree is missing.
+
+    A source directory without a ``SKILL.md`` is skipped rather than copied.
+    Every target platform discovers skills by reading ``<skills>/<name>/SKILL.md``
+    one level deep, so publishing a bare directory would deliver a "skill" no
+    platform can load -- and it breaks the depth-1 contract the platform tests
+    assert. Skips are recorded in the manifest log so an in-progress scaffold is
+    visible rather than silently dropped.
     """
     if not src_skills_dir.exists():
         ctx.manifest.log(key, f"missing-tree: {src_skills_dir}")
@@ -94,6 +105,9 @@ def flatten_skills(ctx, key: str, src_skills_dir: Path, dst_skills_dir: Path) ->
     actions: list[FileAction] = []
     for category in sorted(p for p in src_skills_dir.iterdir() if p.is_dir()):
         for skill in sorted(p for p in category.iterdir() if p.is_dir()):
+            if not (skill / "SKILL.md").is_file():
+                ctx.manifest.log(key, f"skipped-no-skill-md: {skill}")
+                continue
             actions.append(
                 IntegrationBase._copy_tree(skill, dst_skills_dir / skill.name, ctx, key)
             )

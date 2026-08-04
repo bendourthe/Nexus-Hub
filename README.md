@@ -395,7 +395,7 @@ The full catalog is at [data/SKILL_INDEX.md](data/SKILL_INDEX.md). Per-category 
 
 ## Usage Monitoring
 
-Three complementary ways to track your Claude Code usage limits.
+Three complementary ways to track your AI coding usage limits.
 
 ### CLI Usage Display (Automatic)
 
@@ -407,15 +407,16 @@ Usage: Session 72% | Weekly 15% | Sonnet 3%  (Session resets in 28m)
 
 Installed automatically by the Nexus-Hub installer. Requires `curl` and `jq`.
 
-### VS Code Extensions
+### VS Code and Cursor Extensions
 
-Monitor your AI coding usage from the VS Code status bar with a full dashboard. Three separate, independently-installable extensions - one per tool - that install and run side by side:
+Monitor your AI coding usage from the editor status bar with a full dashboard. Four separate, independently-installable extensions - one per tool - that install and run side by side:
 
 - **Claude Usage Monitor** (`nexus-hub.claude-usage-monitor`): Claude Code (Anthropic) session and weekly limits, with model and effort recommendations. See [extensions/claude-usage-monitor/](extensions/claude-usage-monitor/).
 - **Codex Usage Monitor** (`nexus-hub.codex-usage-monitor`): Codex (ChatGPT / OpenAI) usage, with the plan tier, extra rate-limit windows, a credits line, and throttle / pacing recommendations (periwinkle `#5244BB` progress bars). See [extensions/codex-usage-monitor/](extensions/codex-usage-monitor/).
 - **GitHub Usage Monitor** (`nexus-hub.github-usage-monitor`): current-month GitHub Copilot consumption plus GitHub Actions minutes and storage, read from documented GitHub billing APIs for the one billing owner you configure (teal `#008080` progress bars). See [extensions/github-usage-monitor/](extensions/github-usage-monitor/).
+- **Cursor Usage Monitor** (`nexus-hub.cursor-usage-monitor`): personal Cursor Models and Other Models included-usage meters with on-demand spend context (steel-blue `#4682B4` progress bars), for the Cursor IDE only. This release ships with live fetch disabled entirely - cached or manually-entered dashboard values drive the UI until a bounded, authorized session-reuse probe verifies a safe live path. See [extensions/cursor-usage-monitor/](extensions/cursor-usage-monitor/).
 
-Each shows usage in the status bar with a theme-aware hover and a full dashboard, and makes a single outbound call only to your own account. The Claude and Codex monitors read your local OAuth token; the GitHub monitor uses a fine-grained token you supply explicitly, stored only in VS Code SecretStorage, and shows absolute usage rather than inventing a percentage when GitHub exposes no allowance. None of them scrape a billing website or read browser cookies. The installer builds and installs all three; install any one alone by pointing `code --install-extension` at its VSIX.
+Each shows usage in the status bar with a theme-aware hover and a full dashboard, and makes at most a single outbound call only to your own account. The Claude and Codex monitors read your local OAuth token; the GitHub monitor uses a fine-grained token you supply explicitly, stored only in VS Code SecretStorage, and shows absolute usage rather than inventing a percentage when GitHub exposes no allowance. None of them scrape a billing website or read browser cookies. The installer isolates extensions by editor host: the Claude, Codex, and GitHub monitors install only through the VS Code CLI, and the Cursor monitor installs only through the Cursor CLI - never cross-installed. Install any one alone by pointing `code --install-extension` (or `cursor --install-extension`) at its VSIX.
 
 ### `/usage` Command
 

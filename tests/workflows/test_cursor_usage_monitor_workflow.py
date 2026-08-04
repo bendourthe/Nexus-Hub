@@ -55,7 +55,9 @@ def step_named(steps: list[dict[str, Any]], name: str) -> dict[str, Any]:
     for step in steps:
         if step.get("name") == name:
             return step
-    raise AssertionError(f"missing step {name!r}; present: {[s.get('name') for s in steps]}")
+    raise AssertionError(
+        f"missing step {name!r}; present: {[s.get('name') for s in steps]}"
+    )
 
 
 def test_triggers_are_path_filtered_to_the_extension(workflow: dict[str, Any]) -> None:
@@ -70,7 +72,9 @@ def test_triggers_are_path_filtered_to_the_extension(workflow: dict[str, Any]) -
         )
 
 
-def test_push_trigger_is_limited_to_protected_branches(workflow: dict[str, Any]) -> None:
+def test_push_trigger_is_limited_to_protected_branches(
+    workflow: dict[str, Any],
+) -> None:
     assert sorted(workflow[ON_KEY]["push"]["branches"]) == ["develop", "main"]
 
 
@@ -100,11 +104,15 @@ def test_node_setup_uses_node_22_and_the_exact_lockfile_cache(
     build_steps: list[dict[str, Any]],
 ) -> None:
     setup = next(
-        step for step in build_steps if step.get("uses", "").startswith("actions/setup-node@")
+        step
+        for step in build_steps
+        if step.get("uses", "").startswith("actions/setup-node@")
     )
     assert setup["with"]["node-version"] == "22"
     assert setup["with"]["cache"] == "npm"
-    assert setup["with"]["cache-dependency-path"] == f"{EXTENSION_DIR}/package-lock.json"
+    assert (
+        setup["with"]["cache-dependency-path"] == f"{EXTENSION_DIR}/package-lock.json"
+    )
 
 
 def test_job_runs_inside_the_extension_directory(workflow: dict[str, Any]) -> None:
@@ -117,23 +125,31 @@ def test_gate_covers_clean_install_compile_coverage_and_packaging(
 ) -> None:
     assert step_named(build_steps, "Install dependencies")["run"].strip() == "npm ci"
     assert "npm run compile" in step_named(build_steps, "Compile (tsc)")["run"]
-    assert "npm run test:coverage" in step_named(
-        build_steps, "Unit tests with V8 coverage (Vitest)"
-    )["run"]
+    assert (
+        "npm run test:coverage"
+        in step_named(build_steps, "Unit tests with V8 coverage (Vitest)")["run"]
+    )
     assert "npm run package" in step_named(build_steps, "Package VSIX")["run"]
-    assert "npm run verify:package" in step_named(build_steps, "Verify packaged contents")["run"]
+    assert (
+        "npm run verify:package"
+        in step_named(build_steps, "Verify packaged contents")["run"]
+    )
 
 
 def test_e2e_job_degrades_when_cursor_cli_is_absent(workflow: dict[str, Any]) -> None:
     e2e = workflow["jobs"]["e2e-cursor-profile"]
     assert e2e["needs"] == "build-and-test" or e2e["needs"] == ["build-and-test"]
-    install_step = step_named(e2e["steps"], "Install into throwaway Cursor profile or skip-with-note")
+    install_step = step_named(
+        e2e["steps"], "Install into throwaway Cursor profile or skip-with-note"
+    )
     script = install_step["run"]
     assert "command -v cursor" in script
     assert "cursor-usage-live-smoke.md" in script
     assert "--user-data-dir" in script
     assert "nexus-hub.cursor-usage-monitor" in script
-    assert "exit 0" in script, "missing Cursor CLI must skip-with-note, not fail the job"
+    assert "exit 0" in script, (
+        "missing Cursor CLI must skip-with-note, not fail the job"
+    )
 
 
 def test_live_smoke_checklist_exists_for_ci_degrade() -> None:
