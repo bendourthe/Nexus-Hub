@@ -1,0 +1,21 @@
+{
+  "fixtureContract": {
+    "source": "html-scrape",
+    "sanitized": true,
+    "provenance": "synthetic-spending-shape"
+  },
+  "onDemand": {
+    "enabled": false,
+    "personalSpend": null
+  },
+  "teamContext": {
+    "sharedSpendLimit": null,
+    "dynamicSpendLimit": null,
+    "personalAllocation": null
+  },
+  "freshness": {
+    "fetchedAt": "2026-08-04T16:00:00Z",
+    "stale": false,
+    "staleReason": null
+  }
+}

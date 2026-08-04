@@ -1,0 +1,5 @@
+{
+  "fixtureStatus": 401,
+  "classification": "missing-or-expired-session",
+  "message": "Sign in to Cursor and try one bounded refresh."
+}

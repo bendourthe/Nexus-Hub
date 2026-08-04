@@ -354,3 +354,85 @@ def test_bundles_only_clean_skill_passes_via_cli(tmp_path: Path) -> None:
         cwd=REPO_ROOT,
     )
     assert result.returncode == 0, result.stdout
+
+
+# ---------------------------------------------------------------------------
+# Malformed skill directories (v3.15.9 Phase 7)
+#
+# `find_skill_dirs` locates skills BY their SKILL.md, so a `<category>/<name>/`
+# folder without one is invisible to every per-skill check -- silently skipped
+# here while the installers used to silently ship it. The two gates disagreed
+# about what a skill directory is. These tests pin the agreement: the validator
+# reports it, and it stays a WARNING so a work-in-progress branch still passes.
+# ---------------------------------------------------------------------------
+
+
+def _catalog_with_scaffold(root: Path) -> Path:
+    """One valid skill plus one scaffold that never got a SKILL.md."""
+    skills = root / "skills"
+    good = skills / "workflow" / "good-skill"
+    good.mkdir(parents=True)
+    (good / "SKILL.md").write_text(
+        _skill_with_body(
+            "good-skill", "A clean, filled-in description.", "Reads <path>."
+        ),
+        encoding="utf-8",
+    )
+    (skills / "workflow" / "abandoned-scaffold").mkdir(parents=True)
+    return skills
+
+
+def test_find_malformed_skill_dirs_flags_missing_skill_md(tmp_path: Path):
+    validator = _load_validator()
+    skills = _catalog_with_scaffold(tmp_path)
+
+    found = [p.name for p in validator.find_malformed_skill_dirs(skills)]
+
+    assert found == ["abandoned-scaffold"]
+
+
+def test_find_malformed_skill_dirs_ignores_bundle_subdirs_of_a_single_skill(
+    tmp_path: Path,
+):
+    """Pointing --path at one skill folder must not flag its bundled subdirs.
+
+    `scripts/`, `references/`, `assets/`, and `evals/` are bundle directories,
+    not skills; treating them as skills would emit noise for every skill that
+    ships resources.
+    """
+    validator = _load_validator()
+    skill = tmp_path / "solo-skill"
+    (skill / "scripts").mkdir(parents=True)
+    (skill / "references").mkdir()
+    (skill / "SKILL.md").write_text(
+        _skill_with_body(
+            "solo-skill", "A clean, filled-in description.", "Reads <path>."
+        ),
+        encoding="utf-8",
+    )
+
+    assert validator.find_malformed_skill_dirs(skill) == []
+
+
+def test_malformed_skill_dir_warns_but_does_not_fail_the_gate(tmp_path: Path):
+    """The CLI surface reports it and still exits 0 (WIP branches must pass)."""
+    skills = _catalog_with_scaffold(tmp_path)
+
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(VALIDATOR),
+            "--bundles-only",
+            "--verbose",
+            "--path",
+            str(skills),
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+        cwd=REPO_ROOT,
+    )
+
+    assert result.returncode == 0, result.stdout
+    assert "abandoned-scaffold" in result.stdout
+    assert "has no SKILL.md" in result.stdout

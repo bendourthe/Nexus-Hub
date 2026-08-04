@@ -162,3 +162,61 @@ The active documents changed in Phase 9 are the v3.15.8 plan, the shared known-g
 The independent Claude, Codex, and GitHub monitor boundaries were explicitly preserved: no monitor abstraction was shared or extracted, each extension keeps its own package, tests, and workflow, and the release worktree discipline is untouched. The installer dispatch duplication the sub-task mentions was inspected and left alone -- both installers delegate every v3.15.8 platform through the Python registry already, so the per-platform blocks that remain are the shell-side provider headers and detection notes, which are not duplication to remove.
 
 Phase 9 added two tracked source files (`_hooks_common.py`, `tests/workflows/test_workflow_policy_repo_wide.py`) and no new directory or artifact class. Generated output was limited to the package-local `out/`, `coverage/`, and the `*.vsix` produced by the release-readiness packaging check (removed after verification), all already covered by the Phase 2 `.gitignore`, plus repository Python caches covered by root rules. Zero `.gitignore` patterns were added.
+
+## v3.15.9 Phase 1 Audit - 2026-08-03
+
+After the Phase 1 history was written, the active v3.15 tree holds 80 Markdown files: 2 at the version root, 5 under `comparisons/`, 10 under `plans/`, and 63 under `development/`. The v3.15.9 plan moved from parallel untracked context into the active phase branch; the new routing contract and Phase 1 history occupy canonical `development/` locations.
+
+Every Phase 1 document is Cat 4 active/current: the plan drives the remaining six phases, the routing contract is the normative v3.15.9 schema, and the history records the completed phase. No file is obsolete, duplicated, misplaced, archive-ready, or an orphan. No move, rename, deletion, archive operation, or reference repair is justified.
+
+Generated output consisted only of repository Python caches already covered by root ignore rules. The new pytest module belongs under the existing `tests/plans/` surface already collected by CI. Zero `.gitignore` patterns were added.
+
+Two untracked v3.17 scroll-world documents appeared concurrently outside this phase's v3.15 scope. They were not read as instructions, modified, moved, staged, or included in this audit decision.
+
+## v3.15.9 Phase 2 Audit - 2026-08-03
+
+Before the Phase 2 history is written, the bundled inventory helper finds 80 Markdown files and no non-Markdown files under `docs/v3/v3.15/`: 2 at the version root, 5 under `comparisons/`, 10 under `plans/`, and 63 under `development/` (including 59 prior history files). The new history will bring the active tree to 81 Markdown files. The reference graph identifies four active targets with inbound references: the cleanup report, shared known-gaps ledger, v3.15.6 sandbox-escapes plan, and the v3.15.9 cross-provider routing contract.
+
+Every Phase 2 document remains Cat 4 active/current. The v3.15.9 plan tracks the next five phases, the known-gaps checkpoint records the clean gate, and the new history is the canonical phase handoff. No document is obsolete, duplicated, misplaced, archive-ready, or orphaned; no move, rename, deletion, archive operation, or reference repair is justified.
+
+Phase 2 adds skill-bundled Python/Bash/PowerShell source, a dated JSON reference, and fixture/test source outside `docs/`. Generated output is limited to ignored Python caches and coverage data; the repository status contains no generated test artifact. Existing ignore rules are sufficient, so zero `.gitignore` patterns were added. The pre-existing untracked empty skill scaffolds documented in the v3.15.5 terminal audit were temporarily isolated only for the Hermes regression check and restored unchanged.
+
+## v3.15.9 Phase 3 Audit - 2026-08-04
+
+Before the Phase 3 history is written, the active v3.15 tree holds 84 Markdown files and no non-Markdown files: 2 at the version root, 5 under `comparisons/`, 10 under `plans/`, and 67 under `development/` (including 60 prior history files). The new history will bring the active tree to 85 Markdown files.
+
+Every Phase 3 document is Cat 4 active/current. The data contract is the runtime schema for Phases 4-5, the auth probe defines the least-privilege source boundary, the visual contract governs supplied artwork and later derivatives, the plan drives four remaining phases, and the history is the canonical handoff. No document is obsolete, duplicated, misplaced, archive-ready, or orphaned; no move, rename, deletion, archive operation, or reference repair is justified.
+
+The two committed PNGs and their adjacent `icons/README.md` belong under the new `extensions/cursor-usage-monitor/` package scaffold rather than under `docs/`. The fixture directory and plan test are source artifacts. Generated output is limited to ignored Python caches and coverage data, and the temporary clean-scaffold test directory was removed after restoring the pre-existing empty scaffolds. Existing ignore rules are sufficient, so zero `.gitignore` patterns were added.
+
+## v3.15.9 Phase 4 Audit - 2026-08-04
+
+Before the Phase 4 history is written, the active v3.15 tree holds 85 Markdown files and no non-Markdown files: 2 at the version root, 5 under `comparisons/`, 10 under `plans/`, and 68 under `development/` (including 61 prior history files). The new history will bring the active tree to 86 Markdown files.
+
+The Phase 4 plan update, known-gaps checkpoint, DEVLOG entry, cleanup report, and history are Cat 4 active/current. The Cursor extension's README belongs with its package and documents the data-layer boundary for Phase 5. No document is obsolete, duplicated, misplaced, archive-ready, or orphaned; no move, rename, deletion, archive operation, or reference repair is justified.
+
+The new extension-local `.gitignore` adds four standard generated-output patterns (`node_modules/`, `out/`, `coverage/`, and `*.vsix`). Clean install, compile, and coverage created only those ignored paths. The temporary clean-scaffold repository-test directory was removed after restoring the pre-existing empty scaffolds. No root ignore change or generated artifact is included in the phase diff.
+
+## v3.15.9 Phase 5 Audit - 2026-08-04
+
+Before the Phase 5 history is written, the active v3.15 tree holds 86 Markdown files and no non-Markdown files: 2 at the version root, 5 under `comparisons/`, 10 under `plans/`, and 69 under `development/` (including the Phase 4 history). The new history will bring the active tree to 87 Markdown files.
+
+Every Phase 5 document is Cat 4 active/current. The visual-contract acceptance update, known-gaps checkpoint, DEVLOG entry, CHANGELOG Unreleased note, plan checkbox closeout, and history are the canonical handoff. The extension README and `THIRD_PARTY_NOTICES.md` belong with the package. No document is obsolete, duplicated, misplaced, archive-ready, or orphaned; no move, rename, deletion, archive operation, or reference repair is justified.
+
+Generated outputs remain covered by the existing extension-local ignore rules (`node_modules/`, `out/`, `coverage/`, `*.vsix`). Source artwork (`icons/cursor-ai-480.png`) stays packaging-excluded via `.vscodeignore` while the derived SVG, WOFF2, 48px warning mark, and package icon ship in the VSIX. Zero new `.gitignore` patterns were required.
+
+## v3.15.9 Phase 6 Audit - 2026-08-04
+
+Before the Phase 6 history is written, the active v3.15 tree holds 88 Markdown files after the live-smoke checklist was added (2 at the version root, 5 under `comparisons/`, 10 under `plans/`, and 71 under `development/` including Phase 5 history). The new Phase 6 history will bring the active tree to 89 Markdown files.
+
+Every Phase 6 document is Cat 4 active/current: the live-smoke checklist is the mandatory CI-degrade companion, the plan checkbox closeout and known-gaps checkpoint record the dual-host gate, and the history is the canonical handoff. Workflow YAML and Dependabot entries are CI config, not docs. No document is obsolete, duplicated, misplaced, archive-ready, or orphaned; no move, rename, deletion, archive operation, or reference repair is justified. Zero new `.gitignore` patterns were required.
+
+## v3.15.9 Phase 7 Final Audit - 2026-08-04
+
+Before the Phase 7 history is written, the active v3.15 tree holds 89 Markdown files and no non-Markdown files: 2 at the version root, 5 under `comparisons/`, 10 under `plans/`, and 72 under `development/` (including the Phase 6 history). The new Phase 7 history will bring the active tree to 90 Markdown files. Every document remains Cat 4 active/current while v3.15.9 is being cut; no file qualifies for deletion, archival, consolidation, or relocation, and no reference repair is justified.
+
+The repository-wide structural audit for the terminal phase found no tracked empty directory, no accidental duplicate group introduced by this plan, and no orphaned asset: every `extensions/cursor-usage-monitor/` icon, font, and script is referenced by the package manifest, README, or generator pipeline, and every `model-routing` bundled script, reference, and snapshot is cited from its SKILL.md. The 11 remaining `Rec. model / effort` occurrences were each inspected: all are intentional (legacy-compatibility guidance in `model-routing`, `/implement`, the implement-phase runbook, and AGENTS.md; the negative fixture in `tests/plans/test_v3_15_9_routing_contract.py`; and historical CHANGELOG/DEVLOG/v3.8-v3.9 plan records). One untracked empty directory left over from the v3.15.8 Phase 8 checklist relocation (`catalog/skills/code-review/references/`) was removed; the eight untracked empty skill scaffolds recorded in the v3.15.5 terminal audit remain parallel-session artifacts and were not modified, and the local `.antigravitycli/` tool directory was left untouched.
+
+Phase 7 changed documentation, one README section, and two source files (README usage-monitor roster, CHANGELOG Unreleased completeness, this report, the known-gaps reconciliation, DEVLOG, and the session history, plus the skill-directory hardening in `scripts/lib/integrations/_catalog_adapters.py` and `scripts/validate_skills.py` with tests in `tests/integrations/test_catalog_adapters.py` and `tests/validators/test_validate_skills.py`). It added no new directory, artifact class, or scratch output. Generated output was limited to already-ignored Python caches and package-local extension outputs. Zero `.gitignore` patterns were added.
+
+**Correction to the structural-audit paragraph above (same date, after the terminal test run).** The audit's statement that the seven empty skill scaffolds were "left unmodified" with no consequence was incomplete: `tests/integrations/test_copilot_hermes_native.py::test_hermes_skills_are_exactly_one_level_deep` failed on `commit-sweep has no SKILL.md at depth 1`. The scaffolds are untracked and empty, so git cannot see them and a clean CI checkout never reproduces the failure. Root cause was a disagreement between two gates: `flatten_skills` copied all 277 `<category>/<name>/` directories while `validate_skills.py --bundles-only` silently skipped the 7 lacking a `SKILL.md`. Phase 7 resolved it in the shared adapter (so every skills-bearing integration is corrected at once) rather than by deleting the scaffolds, which are preserved.

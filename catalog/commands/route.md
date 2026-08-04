@@ -4,9 +4,11 @@ description: Detect the current platform, enumerate its models live, score a tas
 
 # /route Command
 
-Recommend - and, with confirmation, apply - the cheapest model and reasoning effort that can carry a task with no loss in output quality. `/route` detects the agentic platform you are running, enumerates that platform's available models live (no hardcoded list), scores the task on a complexity rubric, and produces a defensible recommendation, defaulting to the strongest available tier whenever the reading is uncertain or any signal is high (the no-degradation guarantee).
+Recommend - and, with confirmation, apply - the cheapest model and reasoning effort that can carry a task with no loss in output quality. `/route` is a host-native switching command: it detects the agentic platform you are running, enumerates that platform's available models live (no hardcoded list), scores the task on a complexity rubric, and produces a defensible recommendation, defaulting to the strongest available tier whenever the reading is uncertain or any signal is high (the no-degradation guarantee).
 
 This is a thin dispatcher over the retained `model-routing` skill. The heavy logic - platform detection, live enumeration, the complexity rubric, the strong-tier-default rule, and the per-platform switch mechanics - lives in that skill; this file resolves the target, delegates, and applies the switch posture.
+
+The host-native switch surface is distinct from `/plan`'s cross-provider document contract. A new plan records generic `frontier` / `strong` / `standard` / `fast` intent and a dated Anthropic / OpenAI / Google / Cursor map. When `/route` targets a plan phase, validate the map through `model-routing/scripts/model-map.{sh,ps1}`, use the phase's generic tier and effort as rubric input, select the current provider's matching map cell, then validate that model against live enumeration before recommending or switching. The map never authorizes switching to a provider the current platform cannot use.
 
 ## Target resolution
 
@@ -22,7 +24,7 @@ Dispatch the resolved target to the `[[model-routing]]` skill, which runs its ow
 
       (any invocation) -> model-routing
 
-The skill detects the platform (`scripts/detect-platform.{sh,ps1}`), enumerates the live model set from that platform's own surface (`scripts/enumerate-models.{sh,ps1}`), scores the task on the five-signal rubric, maps the score to a model + reasoning effort with the conservative strong-tier default, and assembles the recommendation with its per-signal reasoning and best-effort citations. Pass the resolved target through unchanged.
+The skill scores the five-signal rubric to generic tier + effort through `scripts/model-map.{sh,ps1}`, detects the platform (`scripts/detect-platform.{sh,ps1}`), enumerates the live model set from that platform's own surface (`scripts/enumerate-models.{sh,ps1}`), and assembles the recommendation with its per-signal reasoning and best-effort citations. For a new-format plan phase, also pass the phase's generic tier, effort, and validated current-provider map cell. For a legacy plan, pass the old concrete recommendation as evidence, but re-score and validate it rather than treating it as permanently authoritative.
 
 ## Switch posture: confirm, then auto-execute
 
@@ -37,5 +39,5 @@ Never script a switch on a manual-only platform, and never apply a switch withou
 ## Notes
 
 - Keep this dispatcher thin. The routing logic and the platform profiles live entirely in the `model-routing` skill.
-- Platform-agnostic by design: the recommendation records tier intent alongside the concretely-enumerated model name, so it survives a platform switch.
+- Plan portability and host switching are separate: `/plan` owns the cross-provider map; `/route` validates and switches only on the detected host.
 - Adds zero new outbound calls, dependencies, or credentials. The only optional network call is the Anthropic `GET /v1/models` enumeration, made strictly when `ANTHROPIC_API_KEY` is already present; otherwise the model picker is used.
