@@ -1,0 +1,34 @@
+{
+  "fixtureContract": {
+    "source": "credential-api",
+    "sanitized": true,
+    "provenance": "synthetic-dashboard-shape"
+  },
+  "period": {
+    "startsAt": "2026-08-01T00:00:00Z",
+    "resetsAt": "2026-09-01T00:00:00Z"
+  },
+  "cursorModels": {
+    "used": {"value": 345000, "unit": "tokens"},
+    "limit": {"value": 1000000, "unit": "tokens"},
+    "percentUsed": 34.5
+  },
+  "otherModels": {
+    "used": {"value": 127500, "unit": "tokens"},
+    "limit": {"value": 500000, "unit": "tokens"},
+    "percentUsed": 25.5
+  },
+  "onDemand": {
+    "enabled": false,
+    "personalSpend": null
+  },
+  "teamContext": {
+    "sharedSpendLimit": null,
+    "dynamicSpendLimit": null
+  },
+  "freshness": {
+    "fetchedAt": "2026-08-04T16:00:00Z",
+    "stale": false,
+    "staleReason": null
+  }
+}

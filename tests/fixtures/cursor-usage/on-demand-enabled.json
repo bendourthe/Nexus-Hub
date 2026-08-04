@@ -1,0 +1,21 @@
+{
+  "fixtureContract": {
+    "source": "credential-api",
+    "sanitized": true,
+    "provenance": "synthetic-spending-shape"
+  },
+  "onDemand": {
+    "enabled": true,
+    "personalSpend": {"amount": 12.5, "currency": "USD"}
+  },
+  "teamContext": {
+    "sharedSpendLimit": {"amount": 250, "currency": "USD"},
+    "dynamicSpendLimit": true,
+    "personalAllocation": null
+  },
+  "freshness": {
+    "fetchedAt": "2026-08-04T16:00:00Z",
+    "stale": false,
+    "staleReason": null
+  }
+}

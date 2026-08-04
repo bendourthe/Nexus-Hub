@@ -180,3 +180,11 @@ Before the Phase 2 history is written, the bundled inventory helper finds 80 Mar
 Every Phase 2 document remains Cat 4 active/current. The v3.15.9 plan tracks the next five phases, the known-gaps checkpoint records the clean gate, and the new history is the canonical phase handoff. No document is obsolete, duplicated, misplaced, archive-ready, or orphaned; no move, rename, deletion, archive operation, or reference repair is justified.
 
 Phase 2 adds skill-bundled Python/Bash/PowerShell source, a dated JSON reference, and fixture/test source outside `docs/`. Generated output is limited to ignored Python caches and coverage data; the repository status contains no generated test artifact. Existing ignore rules are sufficient, so zero `.gitignore` patterns were added. The pre-existing untracked empty skill scaffolds documented in the v3.15.5 terminal audit were temporarily isolated only for the Hermes regression check and restored unchanged.
+
+## v3.15.9 Phase 3 Audit - 2026-08-04
+
+Before the Phase 3 history is written, the active v3.15 tree holds 84 Markdown files and no non-Markdown files: 2 at the version root, 5 under `comparisons/`, 10 under `plans/`, and 67 under `development/` (including 60 prior history files). The new history will bring the active tree to 85 Markdown files.
+
+Every Phase 3 document is Cat 4 active/current. The data contract is the runtime schema for Phases 4-5, the auth probe defines the least-privilege source boundary, the visual contract governs supplied artwork and later derivatives, the plan drives four remaining phases, and the history is the canonical handoff. No document is obsolete, duplicated, misplaced, archive-ready, or orphaned; no move, rename, deletion, archive operation, or reference repair is justified.
+
+The two committed PNGs and their adjacent `icons/README.md` belong under the new `extensions/cursor-usage-monitor/` package scaffold rather than under `docs/`. The fixture directory and plan test are source artifacts. Generated output is limited to ignored Python caches and coverage data, and the temporary clean-scaffold test directory was removed after restoring the pre-existing empty scaffolds. Existing ignore rules are sufficient, so zero `.gitignore` patterns were added.

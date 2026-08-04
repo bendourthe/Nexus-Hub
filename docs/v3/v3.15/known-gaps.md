@@ -1,10 +1,10 @@
 # Known Gaps - v3.15
 
 **Project**: Nexus-Hub
-**Status**: v3.15.8 is released. v3.15.9 Phases 1-2 are complete locally: the portable routing contract now has deterministic scoring, map validation/rendering, a dated offline snapshot, command wiring, and cross-platform tests.
-**Last updated**: 2026-08-03 (v3.15.9 Phase 2 checkpoint)
+**Status**: v3.15.8 is released. v3.15.9 Phases 1-3 are complete locally: portable routing is implemented, and the Cursor usage data/auth/visual contracts, sanitized fixtures, and source artwork are locked.
+**Last updated**: 2026-08-04 (v3.15.9 Phase 3 checkpoint)
 
-**Current v3.15.9 status**: Phases 1-2 run on `feat/v3.15.9-cross-provider-routing`, based on the released v3.15.8 `develop`. New plans have a machine-checkable generic tier/effort schema, a websearch-refresh workflow, a validated four-provider map, and visible offline/unavailable fallbacks. Phase 3 begins the Cursor usage data, auth, and visual contracts.
+**Current v3.15.9 status**: Phases 1-3 run on `feat/v3.15.9-cross-provider-routing`, based on the released v3.15.8 `develop`. Cursor personal usage now has a fixture-backed contract for two included pools, on-demand spend, shared team context, bounded session/HTML sources, and `#4682B4` visual behavior. Phase 4 builds the typed provider and cache/store against these contracts.
 
 > **Correction notice (2026-07-30, applies file-wide)**: several advisory blocks below, in the v3.15.0 through v3.15.5 sections, attribute repo-wide Windows test failures to **WN-v36-1** ("bash cannot be fully exercised on the Windows dev host", covered on Linux in CI only). **That premise is disproven.** The cause was PATH shadowing: `C:\Windows\System32\bash.exe` (the WSL launcher stub) preceded Git Bash and could not resolve a Windows-style script path at all, so it exited 127 before executing a line. v3.15.6 Phase 4 fixed it structurally with a module-level PATH repair in `catalog/hooks/tests/conftest.py` and `tests/conftest.py`; both test trees now pass on Windows with no PATH assistance (658 and 516, zero failures). Those earlier blocks are left as written because they record what was believed at the time, which is what a gap ledger is for. Read them with this correction in mind, and do not cite WN-v36-1 as evidence that a Windows host cannot run bash. Canonical entry updated in [docs/v3/v3.6/known-gaps.md](../v3.6/known-gaps.md); resolution detail in the v3.15.6 HO-1 and DF-2 entries below.
 
@@ -59,6 +59,37 @@ No Phase 2 deviation, regression, warning, missing-test gap, or quality-gate byp
 | Hand-offs (HO) | 0 | 0 |
 
 **Verification boundary.** The Phase 2 routing tests pass 25 tests with 85% line coverage on `model-map.py`; Bash/PowerShell wrapper and existing switch tests pass 16; the complete hook suite passes 908 with 36 declared skips. The repository suite ran 1,482 passing tests with 20 declared skips plus the local empty-scaffold Hermes assertion described above, which passed isolated after environmental isolation. All five extension suites passed (670 tests and one declared skip); the skill-scanner process required termination only after pytest had printed its complete 89-pass result. Ruff, ShellCheck, PowerShell parsing, skill bundle/quality/routing gates, security scan, compression gate, and every direct Windows equivalent of `make validate` pass. CI already collects both new test files and has path filtering, concurrency cancellation, pip caching, and bounded jobs, so no workflow edit was justified.
+
+### v3.15.9 Phase 3 checkpoint
+
+Phase 3 defines the Cursor usage boundary before runtime code. The data contract separates personal Cursor Models and Other Models pools, preserves source units, keeps on-demand currency separate, and treats Teams spend limits as shared context rather than personal caps. The auth probe records documented CLI/configuration surfaces, bounded cross-OS state candidates, dashboard semantic anchors, and fail-soft source priority without reading a credential. Nine sanitized JSON/HTML fixtures cover healthy pools, on-demand on/off, empty periods, unknown denominators, authentication/visibility errors, and both dashboard routes. The visual contract locks `#4682B4`, preserves official Icons8 480px/48px source bytes with hashes and attribution requirements, and defines the Phase 5 vector/font/package pipeline.
+
+### v3.15.9 Phase 3 Open Items
+
+#### Hand-offs
+
+##### HO-5 - Authorized Cursor session/dashboard probe required before automatic credential reuse
+
+- **Source phase**: v3.15.9 Phase 3.2 - Auth and scrape paths
+- **Plan reference**: `docs/v3/v3.15/plans/v3.15.9-cross-provider-routing-and-cursor-usage-monitor.md` (sub-task 3.2 / T015)
+- **Reason**: The Windows probe verified that `%APPDATA%\Cursor\User\globalStorage\state.vscdb` exists, but no credential value was opened and no authenticated dashboard request was made because that requires separate explicit authorization. Cursor documents no public personal-usage API, so endpoint/schema success cannot be inferred from path presence.
+- **Suggested next step**: Before Phase 4 selects automatic session reuse as the primary live source, request authorization for the bounded one-key/one-request probe in `cursor-usage-auth-probe.md`. If authorization is unavailable or the shape fails, implement SecretStorage plus HTML/cache/manual fallback without claiming automatic reuse works.
+
+No Phase 3 implementation, regression, warning, missing-test, or quality-gate gap remains. Phase 5's normalized SVG/font/package icon and Icons8 attribution notice are planned work, not Phase 3 deferrals.
+
+### v3.15.9 Phase 3 Summary
+
+| Category | Open | Resolved |
+|---|---:|---:|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+| Hand-offs (HO) | 1 | 0 |
+
+**Verification boundary.** The Phase 3 contract suite passes 25 tests and the complete plan-contract surface passes 79. The clean-scaffold repository suite passes 1,508 tests with 20 declared skips. Ruff, IDE lint, secret/personal-path scanning, Unicode safety, skill bundle/quality/routing gates, supply-chain and workflow validators, security scan, version/template/profile/platform checks, and compression accuracy all pass. CI already collects `tests/plans` and the new extension/fixture paths make the workflow run on non-doc changes, so no Phase 3 workflow edit is required.
 
 ## v3.15.0 - platform-parity-all-gaps
 

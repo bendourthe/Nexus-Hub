@@ -1,5 +1,38 @@
 # Development Log
 
+## [2026-08-04] - v3.15.9 Phase 3 Cursor usage contracts, auth probe, and artwork [feature]
+
+### What Changed
+
+Defined the Cursor Usage Monitor's pre-runtime contract. Added separate personal Cursor Models and Other Models pools, same-unit percentage rules, on-demand spend semantics, shared Teams context, reset/cache behavior, and exact `credential-api` / `html-scrape` / `cache` / `manual` provenance. Documented read-only Windows/macOS/Linux state candidates and bounded dashboard probing without opening a credential. Added nine sanitized JSON/HTML fixtures and 25 semantic tests. Ingested the maintainer-supplied 480px and 48px Cursor artwork from official Icons8 CDN bytes, locked hashes/dimensions, recorded the attribution gate, and fixed `#4682B4` plus the Phase 5 vector/font/package pipeline.
+
+### Why It Changed
+
+The extension cannot safely normalize live usage until billing ownership, units, reset semantics, credential boundaries, scrape provenance, and visual licensing are explicit. Cursor documents dashboard concepts but no public personal-usage API, so the contract must prevent private endpoints from being presented as supported APIs and must fail soft when session reuse or HTML parsing drifts.
+
+### Decisions Made
+
+- Treat Cursor Models and Other Models as independent personal monthly pools; never merge their percentages or denominators.
+- Preserve tokens, requests, percentages, and currency as distinct units; calculate a percentage only from a same-unit numerator and denominator.
+- Keep Teams spend limits as shared context and never derive `$limit / member_count` personal caps.
+- Prefer a bounded existing-session dashboard request, then HTML scrape, cache, and manual fallback; label the first source `credential-api` without claiming it is public.
+- Verify only local path existence in Phase 3. The Windows state database exists, but opening a credential and making an authenticated request requires separate explicit authorization (HO-5).
+- Preserve official Icons8 source bytes and require attribution unless a paid license is documented. Phase 5 generates the monochrome status vector/font and transparent 256px package icon.
+
+### Troubleshooting Trail
+
+- The first contract-test run passed 24 tests and failed one exact-text assertion because the data contract described the shared-pool rule without the plan's literal `$limit / member_count` notation. Added the explicit formula and reran 25/25 green.
+- The chat attachment paths were virtual and unavailable to filesystem tools. The encoded filenames identified Icons8; the official CDN returned the same 480px/48px artwork and exposed icon ID `DiGZkjCzyZXn`, allowing auditable source URLs and deterministic hashes.
+- An attempted generated reproduction added gradients and a checkerboard rather than preserving the supplied art. It was deleted immediately; only byte-exact official CDN assets are committed.
+- The complete repository suite was run with the eight documented untracked empty skill scaffolds temporarily isolated and restored, producing a clean 1,508-pass result.
+
+### Impact & Context
+
+- **Affected**: three v3.15.9 Cursor usage contracts, nine sanitized fixtures, two source PNGs plus provenance README, one plan-contract test module, the v3.15.9 plan, known-gaps ledger, cleanup report, DEVLOG, and Phase 3 history.
+- **Tests**: 25 focused contract tests, 79 complete plan tests, and 1,508 repository tests pass with 20 declared skips.
+- **CI/CD**: no workflow edit. Existing CI collects `tests/plans`; the non-doc extension/fixture paths trigger the workflow, which already has concurrency cancellation, dependency caching, and timeouts.
+- **Known gaps**: HO-5 records the authorization boundary for a live Cursor session/dashboard probe before Phase 4 claims automatic credential reuse.
+
 ## [2026-08-03] - v3.15.9 Phase 2 model-routing runtime and command wiring [feature]
 
 ### What Changed
