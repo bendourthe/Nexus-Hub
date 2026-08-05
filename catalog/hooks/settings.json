@@ -197,6 +197,17 @@
         ]
       }
     ],
+    "Notification": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/notify-attention-required.sh"
+          }
+        ]
+      }
+    ],
     "Stop": [
       {
         "matcher": "",
