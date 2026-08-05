@@ -95,6 +95,58 @@ def test_cursor_workspace_writes_schema_valid_hooks_json(install_ctx: InstallCon
     assert (cursor_root / "hooks" / "git-guardrails.sh").exists(), "hook script not copied"
 
 
+def test_cursor_stop_carries_the_completion_notification(install_ctx: InstallContext):
+    """v3.15.10: `stop` is Cursor's documented agent-completion event.
+
+    Verified 2026-08-04 against cursor.com/docs/agent/hooks, which documents
+    `stop` as "Handle agent completion".
+    """
+    get("cursor").install(install_ctx)
+    cursor_root = install_ctx.target_root / ".cursor"
+    data = json.loads((cursor_root / "hooks.json").read_text(encoding="utf-8"))
+
+    assert "stop" in data["hooks"], "the completion notification must ride Cursor's `stop`"
+    entry = data["hooks"]["stop"][0]
+    assert entry["command"].endswith("notify-on-complete.sh"), entry
+    assert (cursor_root / "hooks" / "notify-on-complete.sh").exists()
+
+
+def test_cursor_ships_the_notify_helper_module_alongside_the_hook(install_ctx: InstallContext):
+    """notify-on-complete.sh sources _notify_common.sh from its own directory.
+
+    Without the module the hook exits silently on every run, which is the worst
+    possible failure mode: registered, executable, and permanently inert.
+    """
+    get("cursor").install(install_ctx)
+    hooks_dir = install_ctx.target_root / ".cursor" / "hooks"
+
+    assert (hooks_dir / "_notify_common.sh").exists(), (
+        "_notify_common.sh missing; notify-on-complete.sh would source nothing and no-op"
+    )
+
+
+def test_cursor_does_not_wire_a_trigger_it_cannot_express(install_ctx: InstallContext):
+    """Cursor documents no event meaning "blocked on the human".
+
+    `beforeShellExecution` can return an "ask" status but fires before EVERY shell
+    command, so notifying there would recreate the per-turn storm v3.15.10 removed.
+    `subagentStop` exists in Cursor and must never carry a notifier either.
+    """
+    get("cursor").install(install_ctx)
+    data = json.loads(
+        (install_ctx.target_root / ".cursor" / "hooks.json").read_text(encoding="utf-8")
+    )
+
+    assert "subagentStop" not in data["hooks"], "a sub-task completion must never notify"
+    for event, entries in data["hooks"].items():
+        for entry in entries:
+            if event != "stop":
+                assert "notify-" not in entry.get("command", ""), (
+                    f"a notification hook is wired to {event!r}, which does not mean "
+                    f"'the human is needed'"
+                )
+
+
 def test_cursor_hooks_gated_on_hooks_supported(install_ctx: InstallContext):
     """A Cursor subclass with hooks_supported=False writes no hooks.json / hooks dir."""
 

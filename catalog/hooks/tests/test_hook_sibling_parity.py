@@ -117,6 +117,13 @@ def isolated_env(tmp_path: Path) -> dict[str, str]:
 
     HOME / USERPROFILE are redirected so credential reads, cache writes, and ledger
     writes all land in (or miss in) a temp directory instead of the real one.
+
+    The notification hooks are held in dry-run mode for the same reason. Raising a
+    real desktop toast IS touching the developer's environment, and the Windows
+    path deliberately keeps a tray icon alive for seconds per notification so the
+    balloon renders, which would also add minutes to this suite. Dry run prints
+    the notification to stdout instead; the parity assertion is on exit codes, so
+    the comparison is unaffected.
     """
     fake_home = tmp_path / "home"
     fake_home.mkdir()
@@ -124,10 +131,12 @@ def isolated_env(tmp_path: Path) -> dict[str, str]:
     env["HOME"] = str(fake_home)
     env["USERPROFILE"] = str(fake_home)
     env["NEXUS_PROVENANCE_DIR"] = str(tmp_path / "ledger")
+    env["NEXUS_NOTIFY_DRY_RUN"] = "1"
     # Never let an ambient control leak into a parity expectation.
     for key in ("NEXUS_DISABLED_HOOKS", "NEXUS_HOOK_PROFILE", "CLAUDE_FILE_PATH",
                 "ESCALATION_MODE", "NEXUS_HUB_INIT", "NEXUS_CONTEXT_COMPRESS",
-                "AUTO_DEVLOG_AI", "NEXUS_PROTECTED_BRANCHES"):
+                "AUTO_DEVLOG_AI", "NEXUS_PROTECTED_BRANCHES",
+                "NEXUS_NOTIFY_DISABLED_FILE"):
         env.pop(key, None)
     return env
 
