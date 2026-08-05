@@ -1,5 +1,37 @@
 # Development Log
 
+## [2026-08-04] - v3.15.10 end-of-task agent behavior, Phases 1-4 [feature]
+
+### What Changed
+
+Made the end of a task deliberate in both directions. **Notifications** moved from one indiscriminate per-turn trigger to two purposeful ones: `Notification` for "the agent is blocked on you" (permission request or idle waiting for input) and `Stop` for "the agent finished", each labeled `<repo> (<branch>)`. `SubagentStop` is never wired and that absence is asserted by test. **Agent output** gained a six-bullet `## End-of-Task Summary` rule in all 12 substantive instruction templates, enforced on the lockstep five by the parity guard. Cursor received the completion trigger on its documented `stop` event. A per-platform coverage record now says, with sources, which platforms can express which trigger.
+
+### Why It Changed
+
+Three defects observed on 2026-08-04. `Stop` fires at the end of every turn, so a session driven by background monitors produced a burst of toasts carrying no signal. The label came from `basename "$(pwd)"`, so it named whatever directory the hook ran in; one observed toast read `Task complete in work`. And the only kill switch was an environment variable, which cannot silence a hook inside a running editor because a child process inherits its parent's environment block rather than the registry.
+
+### Decisions Made
+
+- **Instruction text, not a hook or a skill, for the summary rule.** A `Stop` hook fires after the agent has finished generating, so it can only print its own text and can never cause a summary. A skill would under-trigger against an "always" requirement. That leaves always-loaded text, which is why the rule is budgeted to six bullets.
+- **The carve-out names the rule class, not the section.** Eleven templates carry `## Output Minimization`; a bare "always summarize" rule can be resolved against it in either direction. `generic-instructions.md` has no such section, so naming the heading would dangle there while naming the class reads correctly in all twelve and keeps the body byte-identical, which `INVARIANT_SECTIONS` requires.
+- **Omit a trigger rather than approximate it.** Cursor documents 21 events and none means "blocked on the human". `beforeShellExecution` can return an `ask` status but fires before every shell command, so notifying there would recreate the storm this release removes.
+- **Ship nothing on secondary evidence.** Codex's `PermissionRequest` would make it the only other platform able to express trigger A, but it appears only in community guides. Deferred rather than delivered.
+- **Do not mass-tick the un-ticked exit checkboxes in six released plans.** An exit checkbox is a verification record; ticking it retroactively without re-running the verification would fabricate one. Recorded as a hygiene item instead.
+
+### Troubleshooting Trail
+
+- The full hook tree failed 4 of 984 while the new test file passed 55/55 in isolation. Both causes were real defects in shipped code. First, `& git ... | Select-Object -First 1` stops the upstream pipeline early (`StopUpstreamCommandsException`, PS3+), which can terminate git before `$LASTEXITCODE` is assigned, so a valid result was discarded and the label degraded to the cwd leaf. User-visible: under load a real notification would have read `hooks` instead of the repo name. Second, the kill switch's default path assigned to `$home`, a readonly PowerShell automatic variable, caught by PSScriptAnalyzer because no test reached the line: every suppression test set `NEXUS_NOTIFY_DISABLED_FILE` explicitly, leaving the default branch with zero coverage.
+- The parity suite raised real desktop toasts and burned 5.5s per invocation. Its `isolated_env` fixture exists so tests cannot touch the developer's real environment, and a toast is touching it, so the fixture now sets `NEXUS_NOTIFY_DRY_RUN`.
+- A new test initially grepped the parity guard's source text for a heading, which matched the module docstring and would have passed with the heading absent from either list. Rewritten to import the module and assert the real constants.
+- Verified rather than assumed that the new hook files ship: both installers copy several hooks by explicit name and neither has a folder-level copy, but the registry-based `claude` integration declares `hooks_subdir` + `hooks_supported` and `base.py` tree-copies `catalog/hooks`. No installer edit needed.
+
+### Impact & Context
+
+- **Affected**: `catalog/hooks/` (3 new files + 2 rewritten, each with a `.ps1` sibling), `catalog/hooks/settings.json`, all 12 substantive `templates/ai-instructions/` files, `scripts/check_base_template_parity.py`, `scripts/lib/integrations/cursor.py`, `AGENTS.md`, `docs/policy/platform-read-contracts.{json,md}`, CHANGELOG, known-gaps, plus three new test files.
+- **Tests**: `catalog/hooks/tests` 992 passed / 36 skipped (63 new); `tests/validators` 396 passed (20 new); `tests/integrations` extended with 3 Cursor cases.
+- **CI/CD**: no workflow edit required. `ci.yml` already collects `catalog/hooks/tests`, `tests/validators`, and `tests/integrations` explicitly, so all three new test files ride existing collection.
+- **Known gaps**: DF-14 through DF-17 added (trigger B deferred on four platforms, Codex `PermissionRequest` unsettled, Windows linger unmeasured, DF-1 commands residual). QG-4, QG-5, and MT-5 remain maintainer-only actions that no agent can close.
+
 ## [2026-08-04] - v3.15.9 Phase 7 architecture refactor, known-gaps reconciliation, and CI/CD [release-readiness]
 
 ### What Changed

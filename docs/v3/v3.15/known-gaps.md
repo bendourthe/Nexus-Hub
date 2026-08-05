@@ -1,8 +1,8 @@
 # Known Gaps - v3.15
 
 **Project**: Nexus-Hub
-**Status**: v3.15.8 is released. v3.15.9 Phases 1-7 are complete locally: portable routing, Cursor usage data/UX, dual-host installer isolation with path-filtered Cursor monitor CI, and the terminal architecture/known-gaps/CI gate are all implemented. Awaiting maintainer approval for the only branch push.
-**Last updated**: 2026-08-04 (v3.15.9 Phase 7 final reconciliation)
+**Status**: `v3.15.0` through `v3.15.9` are all released and tagged (10 releases). v3.15.10 Phases 1-4 are complete locally on `feat/v3.15.10-end-of-task-behavior`: two purposeful notification triggers with repo+branch labels and a run-time kill switch, the end-of-task summary rule in all 12 substantive instruction templates, per-platform notification-coverage verification with delivery to Cursor, and the terminal gate. Awaiting `/update release`.
+**Last updated**: 2026-08-04 (v3.15.10 Phase 4 reconciliation)
 
 **Current v3.15.9 status**: Phases 1-7 run on `feat/v3.15.9-cross-provider-routing`, based on the released v3.15.8 `develop`. Claude/Codex/GitHub monitors install only into VS Code; Cursor Usage Monitor installs only into Cursor. Focused CI builds/packages the Cursor VSIX and degrades E2E when the hosted runner lacks the Cursor CLI, pointing at the live-smoke checklist. Phase 7 reconciled this ledger, confirmed CI coverage and optimization, and completed the README/CHANGELOG record; the remaining steps are the maintainer-approved branch push, the integration PR to protected `develop`, and `/update release` after green integration.
 
@@ -13,6 +13,69 @@
 > **Prior-version ingest (codesight)**: checked `docs/v3/v3.14/known-gaps.md`. The open v3.14 items (usage-monitor DF/HO series) are unrelated to this feature set and do not carry in. The one relevant caveat is **HO-1** (flat/nested skill-name collision across skill layouts): the codesight plan shipped zero new catalog skills (all work is extension code), so HO-1 does not apply.
 
 > **Scope note (version collision, RESOLVED)**: three plans under `docs/v3/v3.15/plans/` were all stamped `v3.15.0` (`platform-parity-all-gaps`, `adoption-codesight`, and `adoption-awesome-llm-apps`). This was the comparison-versioning artifact (plans stamped with the authoring-cycle version, not the real adoption target). Reconciled on 2026-07-22 by re-stamping: v3.15.0 = platform-parity-all-gaps, v3.15.1 = adoption-codesight, v3.15.2 = adoption-awesome-llm-apps. See the v3.15.1 QG-2 (Resolved) entry.
+
+## v3.15.10 - end-of-task-agent-behavior
+
+**Status**: Phases 1-4 complete locally on `feat/v3.15.10-end-of-task-behavior`. Awaiting `/update release`.
+
+### What this release closed
+
+Three field defects in the notification path, all observed on 2026-08-04:
+
+1. **Notification storms.** `Stop` fires at the end of every conversational turn, so a session driven by background monitors produced a burst of toasts. Closed by moving to two purposeful triggers and asserting `SubagentStop` is never wired.
+2. **Meaningless labels.** `basename "$(pwd)"` named whatever directory the hook ran in; one observed toast read `Task complete in work`. Closed by resolving from the git root and including the branch.
+3. **An opt-out that could not opt out.** Measured: a User-scope environment variable read back correctly while a freshly spawned child under the running editor read it as empty, because a child process inherits its parent's environment BLOCK rather than the registry. Closed by a switch file stat-ed on every invocation.
+
+Plus **DF-1's skills half**, resolved in Nexus-Hub's favor by first-party documentation, and two PowerShell defects found by the full test tree (see below).
+
+### Open items
+
+#### Hand-offs and by-design (unchanged, carried from earlier versions)
+
+- **HO-5**: live Cursor transport stays disabled until the maintainer authorizes the bounded probe. Intended shipped state, not a defect.
+- **WN-4**: transitive `@vscode/vsce` deprecation notices; `npm audit` clean. Upstream-bounded.
+- **WN-3**: `test_instruction_merge.py` depends on installer-suite import order (v3.15.7). Untouched by this release.
+
+#### Maintainer-only, and NOT closable by an agent
+
+These require a human at a real IDE and are the reason "all known gaps addressed" cannot be literally true at release time:
+
+- **QG-5** (v3.15.9): the Cursor live visual smoke was not executed. Still open.
+- **QG-4** (v3.15.8): interactive light/dark/high-contrast visual smoke.
+- **MT-5** (v3.15.8): GitHub monitor Extension Development Host activation coverage.
+
+#### Deferred, introduced by v3.15.10
+
+- **DF-14 - trigger B deferred on four platforms.** Qwen (`Stop`, verified) and Gemini CLI (`AfterAgent`, verified) each need a writer for their own `settings.json` layout plus a test surface; Gemini CLI is additionally enterprise-only opt-in, making it the lowest-value target. Codex (`Stop` likely) and Kimi have event sets that reachable first-party docs never enumerate, so nothing was delivered for them. Deferring is the honest output of a verification-gated phase.
+- **DF-15 - Codex `PermissionRequest` unsettled.** Secondary sources describe an event that would make Codex the only platform besides Claude Code able to express "blocked on the human". `openai/codex` has no `docs/hooks.md` and the reachable `docs/config.md` "Lifecycle hooks" section does not enumerate events. Highest-value open item from Phase 3, because the payoff is a genuinely new capability rather than a port.
+- **DF-16 - Windows notification linger not shortened.** The 5.5-second post-`ShowBalloonTip` sleep keeps a `powershell.exe` alive per notification. Disposing a `NotifyIcon` early can cancel a queued toast on Windows 10/11, and the shortest safe value requires observing a rendered toast on a live desktop, which no test here can do. Exposed as `NEXUS_NOTIFY_LINGER_MS` to be measured rather than guessed.
+- **DF-17 - DF-1 commands residual.** The global `~/.cursor/commands` write is now documented as redundant (Cursor no longer documents a commands directory, Cursor 2.4 migrates commands into skills, and Nexus-Hub already ships each command as a command-skill). Retained deliberately because the risk is asymmetric: writing a directory Cursor ignores is harmless, removing one it does read silently drops coverage. Remove deliberately in a later release.
+
+#### Advisory (pre-existing or out of scope, recorded so they are not lost)
+
+- **The parity guard covers five of twelve substantive templates.** `check_base_template_parity.py` is scoped to the lockstep five by design. `tests/validators/test_end_of_task_rule.py` closes the gap for the end-of-task rule specifically, but a future shared section added to all twelve would drift silently on the other seven. A general "all substantive templates agree" guard is a candidate for a later release.
+- **`session-summary.sh` carries the same `basename "$(pwd)"` weakness** the notification hooks just shed, so its project label degrades in exactly the same way. NOT fixed here: it is a different hook with a different purpose, and changing it does not trace to this release's scope. Worth a targeted follow-on.
+- **Exit checkboxes are un-ticked in six released plans.** `v3.15.0` through `v3.15.4` and `v3.15.6` carry unchecked exit-checklist items even though all ten of `v3.15.0`-`v3.15.9` are tagged and released. This is a documentation-hygiene artifact, not unfinished work: the release and its tag are the completion evidence. Deliberately NOT mass-ticked, because an exit checkbox is a verification record and ticking it retroactively without re-running the verification would fabricate one. Resolve by re-verifying, or by replacing the boxes with a dated "released" note.
+- **Seven empty skill scaffolds remain** under `catalog/skills/` (maintainer work-in-progress). Since v3.15.9 the installers skip any skill directory with no `SKILL.md` and the validator warns about them, so they no longer break anything. Left in place.
+- **Pre-existing Ruff findings** (`RUF022`, `ISC004`, `I001`, plus 7 in `test_installer_smoke.py`) untouched, per the v3.15.9 disposition.
+
+### v3.15.10 Summary
+
+| Category | Open | Resolved |
+|---|---:|---:|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 4 | 1 |
+| Bugs / regressions (BG) | 0 | 2 |
+| Warnings (WN) | 2 | 0 |
+| Missing tests / coverage gaps (MT) | 1 | 0 |
+| Quality-gate gaps (QG) | 2 | 0 |
+| Hand-offs (HO) | 1 | 0 |
+
+Resolved: DF-1's skills half (overturned in Nexus-Hub's favor by first-party docs) and two PowerShell defects (an intermittent `$LASTEXITCODE` race that degraded the notification label under load, and an assignment to the readonly `$home` automatic variable in the kill switch's default path). Both bugs were user-visible rather than test-only, and both were invisible to the new test file run in isolation.
+
+New this release: DF-14 through DF-17. The three QG/MT items and HO-5 are maintainer or upstream actions, not agent-closable work.
+
+---
 
 ## v3.15.9 - cross-provider-routing-and-cursor-usage-monitor
 
@@ -193,6 +256,8 @@ HO-5 remains open by design and carries beyond v3.15.9: live Cursor transport st
 WN-4 remains open: a clean `npm ci` of the latest `@vscode/vsce` toolchain still emits the two transitive deprecation notices (`whatwg-encoding@3.1.1`, `prebuild-install@7.1.3`); `npm audit` remains at zero vulnerabilities. Re-check on the next `@vscode/vsce` update.
 
 #### Deferred (added during the v3.15.9 release contract re-verification)
+
+> **SUPERSEDED 2026-08-04 by v3.15.10 Phase 3.** The extension recorded below was based on secondary sources and is **withdrawn**. First-party [cursor.com/docs/skills](https://cursor.com/docs/skills) documents `~/.cursor/skills/` and `~/.agents/skills/` as user-level (global) read-paths, with recursive discovery, so the global skills write is correct and load-bearing. The commands half is separately resolved: Cursor no longer documents a commands directory, Cursor 2.4 migrates commands into skills, and Nexus-Hub already delivers each command as a command-skill, so the global commands write is redundant rather than dead-and-load-bearing. See the v3.15.10 Phase 3 entry for the full settlement. The text below is retained as the dated record of what was believed at the time.
 
 **DF-1 is extended, not resolved.** The release-time platform read-contract re-verification found multiple current sources stating that Cursor exposes **no personal/global skills directory**, only the project `.cursor/skills/<name>/SKILL.md` path. DF-1 previously covered only the unverified global `~/.cursor/commands/` read-path; it now also covers the global `~/.cursor/skills/` path Nexus-Hub writes. The evidence is secondary (community and third-party documentation, not an official Cursor doc page), so the global Cursor surfaces are **retained unchanged** rather than removed: writing a directory Cursor may ignore is harmless, while removing one it does read would silently drop coverage. Settle it against first-party Cursor documentation in a v3.15.10 follow-on and then either keep or drop the global writes deliberately. Recorded in `docs/policy/platform-read-contracts.json` (`meta.verified_for_version_note`) and mirrored in the `.md` companion.
 

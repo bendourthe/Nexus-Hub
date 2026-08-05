@@ -54,6 +54,14 @@
 - When a command produces more than ~20 lines of output, summarize what happened rather than quoting the full log
 - For automated compression of structured command output, see `guides/reference/RTK_CONTEXT_COMPRESSION.md` (the internal `nexus-context-compressor` engine; local-first, Python, no Rust)
 
+## End-of-Task Summary
+- End every completed task with a short closing summary, even when the change was small
+- **Completed**: what actually changed, in one or two lines (files, behavior, or decisions)
+- **Next**: the concrete next step, or state plainly that nothing is outstanding
+- State blocked, skipped, or deferred work explicitly rather than omitting it
+- Keep it scannable and factual: do not restate the conversation or add preamble
+- Output-minimization rules never apply to this summary: suppress verbose logs, never the closing summary
+
 ## Context References
 - Skills: `.claude/skills/` (auto-activated by task context)
 - Architecture: `.claude/context/architecture.md`

@@ -4,9 +4,9 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.15.9 -->
+<!-- nexus-hub-version: 3.15.10 -->
 
-Nexus-Hub is the upstream skill catalog for AI coding assistants: 270 skills, 17 commands, 30 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
+Nexus-Hub is the upstream skill catalog for AI coding assistants: 270 skills, 17 commands, 31 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
 ## Interactive Guide -- start here
 
@@ -30,12 +30,26 @@ Nexus-Hub is the upstream skill catalog for AI coding assistants: 270 skills, 17
 
 Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of the same idea, split along a deliberate seam.
 
-- **Nexus-Hub (this repo)** is the catalog: 270 curated skills, 17 commands, 30 hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`). It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
+- **Nexus-Hub (this repo)** is the catalog: 270 curated skills, 17 commands, 31 hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`). It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
 - **Nexus** is a local-first desktop AI Studio that consumes Nexus-Hub as its skill feed. Nexus's `AGENTS.md` names this repo as "the only external project we deliberately link to" -- the upstream feed for its skill harness.
 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v3.15.10
+
+v3.15.10 makes the end of a task deliberate in both directions: when you get told, and what the agent says.
+
+**Notifications now fire only when your attention is actually required.** Before this release a single hook rode the `Stop` event, which fires at the end of *every* conversational turn, so a session driven by background work produced a burst of toasts carrying no signal. There are now two purposeful triggers: **`Notification`** for "the agent is blocked on you" (a permission request, or idle waiting for input) and **`Stop`** for "the agent finished". `SubagentStop` is never wired, and that absence is asserted by test, because a sub-task milestone is not a reason to interrupt a human.
+
+Two smaller defects went with it. Labels came from `basename "$(pwd)"`, so they named whatever directory the hook happened to run in (one real toast read `Task complete in work`); they are now `<repo> (<branch>)` resolved from the git root, with the branch included because worktrees of one repository are routinely open at once. And the only kill switch was an environment variable, which **cannot** silence a hook inside a running editor: a child process inherits its parent's environment block rather than the registry, so a newly-set variable never reaches a process tree that was already launched. Suppression now also checks `~/.nexus-hub/notifications-disabled`, stat-ed on every invocation, so `touch` takes effect on the next notification with no restart.
+
+**Every agent now closes a completed task with a summary.** A six-bullet `## End-of-Task Summary` rule ships in all 12 substantive instruction templates: what changed, the concrete next step or an explicit "nothing outstanding", and blocked or skipped work stated rather than omitted. It is instruction text by necessity rather than preference. A `Stop` hook fires *after* the agent has finished generating, so a hook can only print its own text and can never cause a summary; and a skill would under-trigger against an "always" requirement. The heading is now in both `REQUIRED_HEADINGS` and `INVARIANT_SECTIONS` of the base-template parity guard, so a platform cannot quietly drop or reword it.
+
+**Notification coverage is verified rather than assumed, and the verdicts are uneven.** A trigger ships only when its event name is confirmed against first-party documentation, because an unverified name produces a hook that is registered, executable, and permanently inert. Claude Code gets both triggers; **Cursor** gets the completion trigger on its documented `stop` event. Cursor's documented 21-event set has nothing meaning "blocked on the human", so that trigger was omitted rather than approximated with `beforeShellExecution` (which fires before every shell command and would have recreated the storm). **Gemini CLI renamed every event** -- its completion event is `AfterAgent`, so writing `Stop` there would have shipped a silently dead hook. Codex's promising `PermissionRequest` appears only in secondary sources, so nothing was delivered for it. GitHub Copilot (no hook surface) and OpenCode (a JS/TS Bun plugin runtime) are recorded as permanent non-coverage for notifications -- and both are fully covered by the summary rule, which needs only an instruction file. That asymmetry is why this release has two deliverables instead of one.
+
+Also settled: a v3.15.9 finding of our own was **wrong and is withdrawn**. First-party Cursor documentation confirms `~/.cursor/skills/` and `~/.agents/skills/` as user-level read-paths with recursive discovery, so Nexus-Hub's global skills write is correct and load-bearing. The v3.15.9 note that extended known gap DF-1 to that path was based on secondary sources; the original text stays in place with a superseded notice, because a verification log should record what was believed when. Catalog counts are **270 skills**, **17 commands**, **31 hooks** (+1: `notify-attention-required`), and **23 agents**.
 
 ## What's New in v3.15.9
 
@@ -224,7 +238,7 @@ That is the whole setup -- no prompts. The installer prechecks its dependencies 
 
 After the installer completes:
 
-- **Globally**: your user profile has all 270 skills, 17 commands, 30 hooks, 23 agents, plus Gemini and Codex instructions.
+- **Globally**: your user profile has all 270 skills, 17 commands, 31 hooks, 23 agents, plus Gemini and Codex instructions.
 - **Locally**: your project has `copilot-instructions.md` and `AGENTS.md` tailored to your language.
 
 **Power-user flags**: `--workspace <path>` installs into a single repo instead of globally; `--platforms <comma-list>` limits the install to a subset of assistants; `--yes` runs fully unattended (refreshes managed files with no prompt -- ideal for CI). Prefer to clone first? `git clone` the repo and run `./install.sh` (macOS / Linux) or `install.bat` (Windows) -- the in-repo path still works exactly as before.

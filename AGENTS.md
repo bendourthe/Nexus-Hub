@@ -1,6 +1,6 @@
 # AGENTS.md
 
-<!-- nexus-hub-version: 3.15.9 -->
+<!-- nexus-hub-version: 3.15.10 -->
 
 This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, Gemini CLI, etc.) when working with code in this repository.
 
@@ -8,7 +8,7 @@ This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, G
 
 Nexus-Hub is a production-grade skill harness for AI coding assistants. It is the **upstream catalog** consumed by Nexus (the local-first desktop AI Studio, see `https://github.com/bendourthe/Nexus-AI`) and by every other major agent platform: Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, and GitHub CLI. Skills, commands, hooks, agents, and rules are distributed via installer scripts into users' `~/.nexus-hub/` directory and into their AI assistant's per-platform config locations.
 
-Current catalog: **270 skills** across 21 categories, 17 commands (plus 3 permanent aliases), 30 hooks, 23 agents. The 40 v3.x deprecation shims were removed in v3.2.0.
+Current catalog: **270 skills** across 21 categories, 17 commands (plus 3 permanent aliases), 31 hooks, 23 agents. The 40 v3.x deprecation shims were removed in v3.2.0.
 
 ## Project Structure
 
@@ -352,7 +352,14 @@ Two lessons sit behind those gates, both from real defects. `session-summary.ps1
 
 When authoring a sibling, prefer the native equivalent over emulating shell mechanics: `ConvertFrom-Json` instead of a `jq` dependency, `[System.IO.File]::WriteAllText` with `UTF8Encoding($false)` instead of `Set-Content -Encoding utf8` (which emits a BOM on 5.1), and `[Console]::IsInputRedirected` as the equivalent of `[ ! -t 0 ]`. A sibling that works where the bash version silently no-ops (for example on a host with no `jq`) is an acceptable and documented improvement, provided it acts in the safe direction: warn or block MORE, never less.
 
-The hook registration template is `catalog/hooks/settings.json`. Supported events: `SessionStart`, `PreToolUse`, `PostToolUse`, `Stop`. Register the `bash` invocation there; `.ps1` siblings are not registered separately, matching the existing convention.
+The hook registration template is `catalog/hooks/settings.json`. Supported events, as actually registered there: `SessionStart`, `SessionEnd`, `PreToolUse`, `PostToolUse`, `UserPromptSubmit`, `Notification`, `PreCompact`, and `Stop`. Register the `bash` invocation there; `.ps1` siblings are not registered separately, matching the existing convention.
+
+Two of those are easy to misuse, so pick deliberately:
+
+- **`Notification`** fires when the agent needs permission for a tool, or has been idle waiting for input. It is the only event meaning "blocked on the human", which is why v3.15.10's `notify-attention-required` hook rides it.
+- **`Stop`** fires when the agent finishes responding, which is the end of EVERY turn, not the end of a task. A hook registered here runs constantly in a session driven by background work. Do not treat it as "task complete" without saying so honestly, and never register a notifier on `SubagentStop` (a sub-task milestone is not a reason to interrupt a human). See `docs/v3/v3.15/development/end-of-task-notification-contract.md`.
+
+*(This list previously named only four events while the template already registered six; corrected in v3.15.10 along with the addition of `Notification`.)*
 
 **Write tests for any new hook** following the pytest pattern in `catalog/hooks/tests/test_format_bash_description.py`. Prefer a `run` fixture parametrized over both implementations (see `test_escalation_trigger.py` or `test_provenance_ledger.py`) so every behavioral assertion doubles as a parity assertion. Run with `make test`.
 
@@ -379,7 +386,7 @@ Nexus-Hub is a **template repository**. Nothing you add is "live" until a user r
 | `catalog/hooks/<name>.{sh,py}` | No for the file; **you must register it** in `catalog/hooks/settings.json` | Platforms that honor Claude-style hooks |
 | `catalog/rules/<lang>/<name>.md` | No — folder auto-copied | Claude, Gemini, Codex |
 | `templates/documentation/<name>.{docx,pptx,xlsx,...}` | No — folder auto-copied to `~/.nexus-hub/templates/documentation/` | All platforms (shared) |
-| `templates/ai-instructions/base-*.md` | **Yes — edit all 5 in lockstep** (claude, codex, cursor, gemini, opencode) | The respective platform |
+| `templates/ai-instructions/base-*.md` | **Yes — edit all 5 lockstep files** (claude, codex, cursor, gemini, opencode). **But 5 is not the full set**: 16 template files exist and 12 are substantive. A behavioral rule meant for every agent must also reach `base-google-shared.md` (which covers Antigravity 1.0, Antigravity 2.0, and Gemini CLI by `@`-include, and Antigravity CLI transitively via `@base-antigravity-20.md`), the guardrails-only `base-{aider,kimi,openclaw,qwen,windsurf}.md`, and `generic-instructions.md`. Only the lockstep five are machine-guarded; the other seven are not, so they are the ones a change silently misses. | The respective platform |
 | `scripts/<name>.py` or `scripts/<name>.js` | **Yes — MUST add a copy step** in BOTH `scripts/installer.sh` AND `scripts/installer.ps1`, modeled after the existing `generate_report.py` entry. The installer copies scripts by **explicit name**, never by folder. | All platforms (shared under `~/.nexus-hub/scripts/`) |
 | `data/SKILL_INDEX.md`, `data/skills.json`, `data/marketplace.json` | No — the installer reads these to fill `{{SKILL_INDEX}}` placeholders in every platform's instruction file. Updating them is mandatory when adding a skill. | All platforms whose instruction template embeds the index |
 | `scripts/lib/integrations/<platform>.py` (v2.1.0+) | No file-copy edit; **MUST** import + `_register()` the subclass in `scripts/lib/integrations/__init__.py::_register_builtins()`. The runner is invoked automatically by both installers for the extended-platform set. | The platform configured by the subclass (e.g., Antigravity 2.0, Gemini CLI, Nexus-AI for the v2.1.0 extended set; Claude / Codex / Cursor / Gemini / OpenCode / Copilot subclasses also exist for future v2.2.0 parity migration). |
@@ -392,7 +399,7 @@ Walk this checklist before proposing a PR:
 1. **Is your change inside a folder already copied recursively by the installer?** (`catalog/skills/`, `catalog/commands/`, `catalog/agents/`, `catalog/rules/`, `catalog/hooks/`, `templates/documentation/`.) If yes, no installer edit needed.
 2. **Is your change a standalone script in `scripts/`?** If yes, add a copy line in `scripts/installer.sh` (next to the existing `generate_report.py` block, around line 1395) AND a `Safe-Copy` line in `scripts/installer.ps1` (around line 1656). Both must reference the same destination under `~/.nexus-hub/scripts/`.
 3. **Does your change introduce a new Python or Node dependency?** Prefer a lazy import with a clear `pip install <pkg>` hint on failure (e.g., `try: import X; except ImportError: print("Error: X not installed. Please run: pip install X")`, as used in `scripts/generate_report.py`). If a hard requirement is unavoidable, add a dependency check in both installers next to the existing `python-docx`/`python-pptx` check.
-4. **Does your change touch a platform-specific instruction template?** If you edit any of `templates/ai-instructions/base-*.md`, apply the same change to all five (claude/codex/cursor/gemini/opencode). This is the "platform-agnostic" constraint. It is machine-enforced: `scripts/check_base_template_parity.py` (run by `make validate` and in CI) fails when a shared section heading, a shared placeholder token, or an invariant block (Tech Stack, Key Commands, Branching, MCP Registry Policy) diverges across the five, while tolerating intentional per-platform lines (platform names, install paths). It is a repo-internal guard like `check_version_sync.py`, so it needs no `.ps1` sibling and no installer copy step.
+4. **Does your change touch a platform-specific instruction template?** If you edit any of `templates/ai-instructions/base-*.md`, apply the same change to all five (claude/codex/cursor/gemini/opencode). This is the "platform-agnostic" constraint. It is machine-enforced: `scripts/check_base_template_parity.py` (run by `make validate` and in CI) fails when a shared section heading, a shared placeholder token, or an invariant block (Tech Stack, Key Commands, Branching, End-of-Task Summary, MCP Registry Policy) diverges across the five, while tolerating intentional per-platform lines (platform names, install paths). Note that `Output Minimization` is deliberately NOT an invariant block, because `base-claude.md` carries a legitimate extra bullet; `End-of-Task Summary` (added v3.15.10) IS one, because the rule is platform-agnostic by intent and has no valid per-platform variation. It is a repo-internal guard like `check_version_sync.py`, so it needs no `.ps1` sibling and no installer copy step.
 5. **Validate**: run `make validate` (JSON integrity) and `make lint` (ShellCheck) after edits. For new hooks, run `make test`. For installer changes, do a dry-run install into a throwaway directory and confirm the new artifact lands at the expected path.
 6. **Document**: add an entry under `## [Unreleased]` in `CHANGELOG.md`.
 
