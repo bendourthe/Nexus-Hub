@@ -59,6 +59,11 @@
         "category": "Cursor Usage"
       },
       {
+        "command": "cursor-usage.revokeConsent",
+        "title": "Cursor Usage: Revoke Live Usage Access",
+        "category": "Cursor Usage"
+      },
+      {
         "command": "cursor-usage.openNativeSettings",
         "title": "Cursor Usage: Open Native Settings",
         "category": "Cursor Usage"
@@ -103,7 +108,7 @@
         "cursorUsage.autoFetch": {
           "type": "boolean",
           "default": true,
-          "description": "Fetch usage on startup and at regular intervals when an authorized live transport is available. No live transport is enabled while HO-5 remains open."
+          "description": "Fetch usage on startup and at regular intervals once live usage access has been allowed. Has no effect while access is declined or unavailable."
         },
         "cursorUsage.refreshInterval": {
           "type": "number",
@@ -168,7 +173,7 @@
         "cursorUsage.stateDbPath": {
           "type": "string",
           "default": "",
-          "description": "Reserved path for a future explicitly authorized session adapter. The current runtime never opens it."
+          "description": "Explicit path to Cursor's application state database, for portable, Insiders, or custom profile installs. Leave empty to use the default location for your platform. Opened read-only, for one allowlisted key, and only after you allow live usage access."
         }
       }
     }

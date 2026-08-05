@@ -14,6 +14,7 @@ The runtime registers these commands:
 - `Cursor Usage: Settings`
 - `Cursor Usage: Enter Usage Manually`
 - `Cursor Usage: Clear Data`
+- `Cursor Usage: Revoke Live Usage Access`
 - `Cursor Usage: Open Native Settings`
 - `Cursor Usage: Open Cursor Usage Page`
 
@@ -34,9 +35,13 @@ Percentages are accepted from a source or calculated only from matching finite u
 
 User-supplied credentials may be stored only through VS Code SecretStorage. Credentials never enter extension settings, logs, manual snapshots, or notifications.
 
-**HO-5 remains explicit and open.** The production runtime instantiates the provider with no JSON or HTML transport. It never opens `state.vscdb`, reads browser cookies, searches credential files, or makes a live dashboard request. Consequently, `cursorUsage.autoFetch` does not create a polling timer until a separately authorized transport capability is injected. Refresh reports this boundary and keeps cache/manual data visible.
+**Live usage requires one explicit consent click, and nothing is read before it.** On first activation, if a Cursor state database is present and the host supports reading it, the extension shows a modal prompt stating exactly what it will and will not read. Only the decision is stored, never a credential. Until consent is granted the extension reads nothing and behaves exactly as the cache/manual build did: `cursorUsage.autoFetch` creates no polling timer, and refresh reports the boundary while keeping stored data visible.
 
-The provider remains dependency-injected and fixture-driven. Authorized future adapters can normalize a bounded JSON response or the approved spending/usage HTML pair, then fall back to normalized cache or manual data with explicit staleness.
+Once granted, the extension opens Cursor's own application state database **read-only**, queries **one allowlisted key** (`cursorAuth/accessToken`) with a bound parameter and a one-row cap, and uses that session for a single JSON request. It still never reads browser cookies, a `Login Data` file, an OS keychain, process memory, or shell history, never searches the filesystem for credential-shaped files, and never scrapes an HTML billing page. `Cursor Usage: Revoke Live Usage Access` clears the decision and any usage cached from it in one action, keeping data you entered manually.
+
+The JSON route is undocumented. It is labelled `credential-api`, never a public Cursor API, and its field names and units are pinned by a committed wire fixture: a payload that does not match is rejected rather than coerced. A `401`, a rate limit, or a schema drift demotes to the previous cache with an explicit staleness label instead of blanking or presenting stale numbers as current. **The route's shape is not yet confirmed against a live account**; see `docs/v3/v3.15/development/cursor-usage-auth-probe.md` for the authorization boundary and the outstanding verification step.
+
+Reading the state database requires the extension host to provide Node's built-in SQLite module (Node 22.13 or newer). On an older host the capability check reports it unavailable and the extension degrades to cache or manual rather than failing. User-supplied credentials remain supported through SecretStorage and take precedence over the session path.
 
 ## Development
 
@@ -57,6 +62,6 @@ Node.js 22 or newer is required.
 - Command prefix: `cursor-usage`
 - Configuration prefix: `cursorUsage`
 - Included-usage meter color: `#4682B4`
-- Live transport: disabled under HO-5
+- Live transport: consent-gated, `credential-api` source, wire shape not yet confirmed against a live account
 
 The extension is not affiliated with or endorsed by Cursor. Source-artwork provenance and attribution requirements are recorded in `icons/README.md`.

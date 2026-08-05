@@ -1,0 +1,32 @@
+{
+  "fixtureContract": {
+    "source": "credential-api",
+    "sanitized": true,
+    "provenance": "expected-shape-unverified",
+    "verified": false,
+    "note": "Synthetic values only. No account name, email, team id, request id, or real usage figure appears here."
+  },
+  "billingCycle": {
+    "start": "2026-08-01T00:00:00Z",
+    "end": "2026-09-01T00:00:00Z"
+  },
+  "includedUsage": {
+    "cursorModels": {
+      "usedTokens": 345000,
+      "limitTokens": 1000000,
+      "percentUsed": 34.5
+    },
+    "otherModels": {
+      "usedTokens": 8500,
+      "limitTokens": 500000,
+      "percentUsed": 1.7
+    }
+  },
+  "onDemand": {
+    "enabled": true,
+    "spendCents": 1250,
+    "spendLimitCents": 20000,
+    "currency": "USD",
+    "dynamicLimit": false
+  }
+}

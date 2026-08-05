@@ -1,5 +1,37 @@
 # Development Log
 
+## [2026-08-05] - v3.15.12 Phase 1 Cursor consent-gated live transport [feature]
+
+### What Changed
+
+The Cursor Usage Monitor can now fetch real usage, gated behind one explicit consent click. A modal prompt states exactly what will and will not be read; only the decision is stored, never a credential. Once granted, a session adapter opens Cursor's own state database **read-only**, queries **one allowlisted key** with a bound parameter and a one-row cap, and hands the value to a transport that makes a single JSON request. `liveTransportCapable`, hardcoded `false` since v3.15.9, became a real capability check: SQLite module present, state path present, key allowlisted, consent granted. A new `Cursor Usage: Revoke Live Usage Access` command clears the decision and any usage cached from it in one action while keeping manually entered data. Provenance and staleness moved into the store as a shared vocabulary, so the status bar, dashboard, and runtime notices can no longer describe the same snapshot three different ways.
+
+### Why It Changed
+
+The panel read "No usage data available" on a fresh install because HO-5 kept live transport disabled entirely, which was the correct shipped state for v3.15.9 (no authorization existed) but is not a usable monitor. The maintainer's requirement was live numbers with no API-key setup, and Cursor documents no personal-usage API, so the only path inside the probe's boundary is consent-gated reuse of the session Cursor already holds.
+
+### Decisions Made
+
+- **The fixture is marked unverified, and HO-5 is narrowed rather than closed.** The plan predicted Phase 1 would close HO-5. The implementation landed, but confirming the undocumented route's field names and units needs the maintainer's signed-in session on their host. Inventing a fixture and labelling it verified is the exact failure the plan warns about two phases later, so `verified: false` is committed, the transport rejects any non-matching payload, and the one outstanding step is recorded.
+- **The wire contract is a table of dot-paths, not mapping code.** Correcting it after the probe is a string edit in one place, with a test asserting the code constant and the committed fixture agree.
+- **`node:sqlite`, feature-detected, over a native dependency.** `better-sqlite3` would break the plan's own "no new dependency" Constitution Check and need per-platform prebuilds in the VSIX. The cost is a host requirement of Node 22.13+; an older Cursor reports `sqlite-unavailable` and degrades to today's cache/manual behavior rather than crashing.
+- **The credential source checks consent before touching the adapter.** Ordering, not commentary, is what guarantees a refusal never results in a database read, and a test asserts the adapter is never consulted.
+- **`liveTransportCapable` widened to `boolean | (() => boolean)`.** Capability resolves asynchronously after activation, but activation stays synchronous and 16 existing call sites that pass a boolean still compile unchanged.
+
+### Troubleshooting Trail
+
+- Writing the consent tests exposed a real incoherence: on a failed persist, `ensure()` returned "granted" while `isGranted()` still read `false` from storage, so the capability check and the credential source would have disagreed. Fixed with an explicit non-durable session decision; two tests now pin the coherent behavior in both the grant and refusal directions.
+- The first `session.ts` write embedded raw control characters in a regex character class. Replaced with an explicit codepoint scan, which is both readable and immune to the escaping hazard. A first attempt at the same check, `[ -]`, would have rejected any token containing a hyphen, i.e. most base64url tokens.
+- Two session tests failed because the harness used `overrides.row ?? default`, so a deliberately `undefined` or `null` row silently became a valid token. Switched to an `in` check. The implementation was correct; the harness was hiding it.
+- The "never claims a public API" assertion failed against the fixture's own explanatory note, which legitimately contains the forbidden string. Rewritten to assert over structural values with the note excluded.
+
+### Impact & Context
+
+- **Affected**: `extensions/cursor-usage-monitor/src/providers/{consent,session,liveTransport,liveAccess}.ts` (new), `src/{extension,cursorUsageRuntime,usageStore}.ts`, `package.json`, `README.md`, four new `tests/fixtures/cursor-usage/wire-*.json`, `docs/v3/v3.15/development/cursor-usage-auth-probe.md`.
+- **Tests**: Cursor extension 233 passed (101 new across 4 new files); coverage 93.05 statements / 86.52 branches / 97.55 functions / 93.19 lines, all above the configured 80/75/75/80. Repo-level `tests/` 1571 passed / 20 skipped. Five MCP extension suites 670 passed / 1 skipped. `validate_skills.py --bundles-only` PASS with 0 errors. ShellCheck clean. `tsc` compile clean.
+- **CI/CD**: new sources and tests ride the existing `extensions/cursor-usage-monitor/**` path filter and Vitest's `test/**/*.test.ts` glob; the new Python assertions ride `tests/plans`, already listed in `ci.yml`. One real gap was found and fixed on approval (QG-6): the Cursor workflow did not trigger on `tests/fixtures/cursor-usage/**`, so a fixture-only edit -- exactly what correcting the unverified wire shape looks like -- would have merged without running the test that asserts fixture and constant agree. Two path lines, no new job.
+- **Known gaps**: HO-5 narrowed (live probe outstanding), WN-5 added and open (Node 22.13+ host requirement plus the upstream experimental warning). QG-6 raised and resolved in-phase. QG-4, QG-5, and MT-5 restated as maintainer-only.
+
 ## [2026-08-04] - v3.15.10 end-of-task agent behavior, Phases 1-4 [feature]
 
 ### What Changed

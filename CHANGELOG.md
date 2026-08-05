@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Added
+
+- **Cursor Usage Monitor: consent-gated live usage transport** (v3.15.12 Phase 1). The panel no longer reads "No usage data available" on a fresh install. A single modal prompt states plainly what the extension will read (Cursor's own application state database, opened **read-only**, for **one allowlisted key**, then one request to Cursor's usage endpoint) and what it will never read (browser cookies, a `Login Data` file, an OS keychain, process memory, shell history, any HTML billing page, or any filesystem search for credential-shaped files). Only the decision is stored, never a credential. Refusal is a first-class path with no repeated prompting, and a scope change invalidates a prior grant rather than inheriting it.
+- **`Cursor Usage: Revoke Live Usage Access`** clears the consent decision and any usage cached from it in one action, while preserving usage entered manually.
+- Provenance and staleness are now a shared vocabulary owned by the usage store (`snapshotProvenance`, `describeProvenance`), so every rendered number carries whether it is live, cached, or manual, and a stale snapshot always says so.
+
+### Changed
+
+- **`liveTransportCapable` is a real capability check** instead of a hardcoded `false`. It now requires Node's built-in SQLite module in the extension host, a present state database, an allowlisted key, and granted consent. Runtime notices name the provenance of what is on screen rather than citing the internal `HO-5` gap id.
+- The undocumented usage route is labelled `credential-api` and pinned by a committed wire fixture whose field names and units are a table of dot-paths. A payload that does not match is **rejected rather than coerced**, and a `401`, rate limit, or schema drift demotes to the previous cache with an explicit staleness label instead of presenting stale numbers as current.
+
+### Known limitations
+
+- **The wire shape is not yet confirmed against a live Cursor account.** The fixture and the code constant both record `verified: false`. HO-5 is narrowed to one outstanding maintainer probe rather than closed; see `docs/v3/v3.15/known-gaps.md`.
+- Reading the state database requires Node 22.13 or newer in the extension host. On an older host the capability check reports it unavailable and the extension degrades to cache or manual rather than failing.
+
 ## [3.15.11] - 2026-08-04
 
 ### Added

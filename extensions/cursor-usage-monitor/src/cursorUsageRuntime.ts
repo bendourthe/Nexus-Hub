@@ -20,7 +20,7 @@ import type {
   UsageSnapshot,
   UsageState
 } from "./types";
-import { UsageStore } from "./usageStore";
+import { describeProvenance, UsageStore } from "./usageStore";
 import { providerError } from "./providers/errors";
 import {
   ICONS8_ATTRIBUTION_URL,
@@ -36,6 +36,7 @@ export const COMMAND_IDS = {
   settings: "cursor-usage.settings",
   manualEntry: "cursor-usage.manualEntry",
   clearData: "cursor-usage.clearData",
+  revokeConsent: "cursor-usage.revokeConsent",
   openNativeSettings: "cursor-usage.openNativeSettings",
   openUsagePage: "cursor-usage.openUsagePage"
 } as const;
@@ -49,6 +50,8 @@ const MANUAL_PERSISTENCE_ERROR =
   "Cursor Usage: could not save manual usage. Existing data remains displayed.";
 const CLEAR_PERSISTENCE_ERROR =
   "Cursor Usage: could not clear stored usage. Existing data remains displayed.";
+const REVOKE_PERSISTENCE_ERROR =
+  "Cursor Usage: could not fully revoke live access. Existing data remains displayed.";
 
 interface UsageProviderLike {
   fetch(signal?: AbortSignal): Promise<ProviderResult<UsageSnapshot>>;
@@ -60,7 +63,13 @@ type RefreshReason = "automatic" | "manual";
 
 export interface RuntimeDependencies {
   provider: UsageProviderLike;
-  liveTransportCapable: boolean;
+  /**
+   * A boolean for a fixed capability, or a thunk when the answer is resolved
+   * asynchronously after activation (session adapter present, consent granted).
+   */
+  liveTransportCapable: boolean | (() => boolean);
+  /** Clears the live-transport consent decision. Absent when no gate is wired. */
+  revokeLiveConsent?: () => Promise<void>;
   now?: () => number;
   setInterval?: (callback: () => void, delay: number) => IntervalHandle;
   clearInterval?: (handle: IntervalHandle) => void;
@@ -154,12 +163,12 @@ export class CursorUsageRuntime implements vscode.Disposable {
     if (this.disposed) {
       return Promise.resolve();
     }
-    if (!this.dependencies.liveTransportCapable) {
+    if (!this.liveCapable()) {
       this.state = this.hydrate();
       void this.renderState();
       if (reason === "manual") {
         void vscode.window.showInformationMessage(
-          "Cursor Usage: live refresh is disabled pending an authorized transport (HO-5). Cached and manual data remain available."
+          `Cursor Usage: live refresh is unavailable. ${this.provenanceNotice()}`
         );
       }
       return Promise.resolve();
@@ -212,6 +221,9 @@ export class CursorUsageRuntime implements vscode.Disposable {
       ),
       vscode.commands.registerCommand(COMMAND_IDS.clearData, () =>
         this.clearData()
+      ),
+      vscode.commands.registerCommand(COMMAND_IDS.revokeConsent, () =>
+        this.revokeConsent()
       ),
       vscode.commands.registerCommand(
         COMMAND_IDS.openNativeSettings,
@@ -376,6 +388,54 @@ export class CursorUsageRuntime implements vscode.Disposable {
     );
   }
 
+  /**
+   * Re-evaluates live capability after activation resolved it asynchronously.
+   * Called once consent and the session adapter have both been settled.
+   */
+  public capabilityChanged(): void {
+    if (this.disposed || !this.started) {
+      return;
+    }
+    this.restartRefreshTimer();
+    if (this.shouldPoll()) {
+      void this.refresh("automatic");
+      return;
+    }
+    void this.renderState();
+  }
+
+  /**
+   * Clears the consent decision and the credential-derived cache in one action, so
+   * revoking never leaves behind data the session read produced. Manually entered
+   * usage is the user's own and is deliberately preserved.
+   */
+  private async revokeConsent(): Promise<void> {
+    const confirmation = await vscode.window.showWarningMessage(
+      "Revoke live Cursor usage access? This clears the consent decision and any usage cached from it. Manually entered usage is kept.",
+      { modal: true },
+      "Revoke"
+    );
+    if (confirmation !== "Revoke") {
+      return;
+    }
+
+    this.cancelActiveRefresh();
+    try {
+      await this.store.clearCache();
+      await this.dependencies.revokeLiveConsent?.();
+    } catch {
+      await this.renderState(false);
+      void vscode.window.showWarningMessage(REVOKE_PERSISTENCE_ERROR);
+      return;
+    }
+    this.state = this.hydrate();
+    this.restartRefreshTimer();
+    await this.renderState(false);
+    void vscode.window.showInformationMessage(
+      "Cursor Usage: live access revoked and cached live usage cleared."
+    );
+  }
+
   private async showRecommendation(): Promise<void> {
     const suggestion = this.currentSuggestion();
     if (suggestion === null) {
@@ -445,8 +505,7 @@ export class CursorUsageRuntime implements vscode.Disposable {
       data: snapshot,
       error: {
         ...providerError("endpoint-unavailable", null),
-        message:
-          "Displaying stored Cursor usage because no fresh live transport is available."
+        message: `${describeProvenance(snapshot)}. No fresh live usage is available.`
       }
     };
   }
@@ -508,9 +567,21 @@ export class CursorUsageRuntime implements vscode.Disposable {
 
   private shouldPoll(): boolean {
     return (
-      this.dependencies.liveTransportCapable &&
-      this.configuration().get<boolean>("autoFetch", true)
+      this.liveCapable() && this.configuration().get<boolean>("autoFetch", true)
     );
+  }
+
+  private liveCapable(): boolean {
+    const capability = this.dependencies.liveTransportCapable;
+    return typeof capability === "function" ? capability() : capability;
+  }
+
+  /** Describes what is on screen right now, so a notice never implies live data. */
+  private provenanceNotice(): string {
+    if (this.state.state === "empty") {
+      return "No cached or manual usage is stored yet.";
+    }
+    return `Showing ${describeProvenance(this.state.data).toLowerCase()}.`;
   }
 
   private restartRefreshTimer(): void {
@@ -556,7 +627,7 @@ function emptyState(): UsageState {
     error: {
       ...providerError("endpoint-unavailable", null),
       message:
-        "No cached or manual Cursor usage is available. Enter usage manually while live transport remains disabled under HO-5."
+        "No cached or manual Cursor usage is available. Allow live usage access, or enter usage manually."
     }
   };
 }

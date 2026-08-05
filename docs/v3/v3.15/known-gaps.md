@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: `v3.15.0` through `v3.15.9` are all released and tagged (10 releases). v3.15.10 Phases 1-4 are complete locally on `feat/v3.15.10-end-of-task-behavior`: two purposeful notification triggers with repo+branch labels and a run-time kill switch, the end-of-task summary rule in all 12 substantive instruction templates, per-platform notification-coverage verification with delivery to Cursor, and the terminal gate. Awaiting `/update release`.
-**Last updated**: 2026-08-04 (v3.15.11 reconciliation)
+**Last updated**: 2026-08-05 (v3.15.12 Phase 1 append)
 
 **Current v3.15.9 status**: Phases 1-7 run on `feat/v3.15.9-cross-provider-routing`, based on the released v3.15.8 `develop`. Claude/Codex/GitHub monitors install only into VS Code; Cursor Usage Monitor installs only into Cursor. Focused CI builds/packages the Cursor VSIX and degrades E2E when the hosted runner lacks the Cursor CLI, pointing at the live-smoke checklist. Phase 7 reconciled this ledger, confirmed CI coverage and optimization, and completed the README/CHANGELOG record; the remaining steps are the maintainer-approved branch push, the integration PR to protected `develop`, and `/update release` after green integration.
 
@@ -13,6 +13,70 @@
 > **Prior-version ingest (codesight)**: checked `docs/v3/v3.14/known-gaps.md`. The open v3.14 items (usage-monitor DF/HO series) are unrelated to this feature set and do not carry in. The one relevant caveat is **HO-1** (flat/nested skill-name collision across skill layouts): the codesight plan shipped zero new catalog skills (all work is extension code), so HO-1 does not apply.
 
 > **Scope note (version collision, RESOLVED)**: three plans under `docs/v3/v3.15/plans/` were all stamped `v3.15.0` (`platform-parity-all-gaps`, `adoption-codesight`, and `adoption-awesome-llm-apps`). This was the comparison-versioning artifact (plans stamped with the authoring-cycle version, not the real adoption target). Reconciled on 2026-07-22 by re-stamping: v3.15.0 = platform-parity-all-gaps, v3.15.1 = adoption-codesight, v3.15.2 = adoption-awesome-llm-apps. See the v3.15.1 QG-2 (Resolved) entry.
+
+## v3.15.12 - cursor live transport and github billing monitor
+
+### v3.15.12 Phase 1 checkpoint
+
+**Status**: Phase 1 (Cursor consent-gated live transport) complete locally on `feat/v3.15.12-usage-monitor-transport-and-auth`. Consent gate, read-only allowlisted-key session adapter, `credential-api` transport with a declarative wire contract, provenance/staleness labelling, and a real capability check all landed with 233 extension tests green and coverage at 93.05 statements / 86.52 branches / 97.55 functions / 93.19 lines. Phases 2-5 are not started.
+
+### v3.15.12 Phase 1 Open Items
+
+#### Hand-offs
+
+##### HO-5 - NARROWED, not closed: the wire contract is unverified against a live account
+
+- **Source phase**: v3.15.12 Phase 1.3 - Session adapter and transport (T005 / T006)
+- **Plan reference**: `docs/v3/v3.15/plans/v3.15.12-cursor-live-transport-and-github-billing-monitor.md` (sub-tasks 1.3, 1.5)
+- **Reason**: The plan's "Prior-version gaps ingested" table records HO-5 as "Closed by Phase 1". That is **not** what shipped, and the difference matters. The consent gate, the read-only one-key adapter, the transport, and the degradation path are all implemented and tested, and the authorization boundary is recorded in `cursor-usage-auth-probe.md`. What is NOT established is that the undocumented JSON route exists at the assumed path with the assumed field names and units. Cursor documents no personal-usage API, so that can only be settled by one bounded probe using the maintainer's own signed-in session, on the maintainer's host. Rather than invent a fixture and label it verified, `CURSOR_WIRE_CONTRACT.verified` is `false`, the fixtures carry `provenance: expected-shape-unverified`, and every field name is a dot-path in one table so correcting them is a string edit. A payload that does not match is rejected, so the failure mode is "degrades to cache with a staleness label", never "renders a wrong number as live".
+- **Suggested next step**: Run the Bounded Probe Procedure in `cursor-usage-auth-probe.md` once, record the sanitized field names and units, and correct `tests/fixtures/cursor-usage/wire-contract.json` together with the `CURSOR_WIRE_CONTRACT` constant (a test asserts the two agree). HO-5 closes at that point. If the route turns out not to exist, the honest outcome is to keep the manual/cache posture and say so, not to reach for HTML scraping, which the non-goals exclude.
+
+#### Warnings
+
+##### WN-5 - Live transport requires Node 22.13+ in the extension host, and emits an experimental warning where present
+
+- **Source phase**: v3.15.12 Phase 1.3 - Session adapter (T004)
+- **Plan reference**: same plan, sub-task 1.3
+- **Reason**: Reading `state.vscdb` needs SQLite. Adding `better-sqlite3` would break the plan's own "no new dependency" Constitution Check and require per-platform prebuilds in the VSIX, so the adapter uses Node's built-in `node:sqlite`, feature-detected via a guarded dynamic import. Two consequences. First, a Cursor build whose Electron ships Node 20 has no `node:sqlite`; the capability check reports `sqlite-unavailable` and the extension degrades to cache/manual, which means the plan's Definition of Done ("real numbers after exactly one consent click") is host-dependent and unproven on the maintainer's specific Cursor build. Second, `node:sqlite` is still flagged experimental upstream and emits `ExperimentalWarning: SQLite is an experimental feature` on import; in an extension host that lands in the log, not in front of the user.
+- **Suggested next step**: When running the HO-5 probe, record the Cursor version and whether the capability check reports `available` on that host. If it reports `sqlite-unavailable`, the options are a hand-rolled read-only page parser or accepting the manual posture on that host; do not add a native dependency without revisiting the Constitution Check.
+
+#### Quality gates
+
+##### QG-6 - RESOLVED same phase: the Cursor CI workflow did not trigger on a fixture-only change
+
+- **Source phase**: v3.15.12 Phase 1.5 - Tests and stabilization (post-phase CI/CD pass)
+- **Plan reference**: same plan, sub-task 1.5; `.github/workflows/cursor-usage-monitor.yml`
+- **Reason**: The workflow is path-filtered to `extensions/cursor-usage-monitor/**`, but the wire fixtures live at `tests/fixtures/cursor-usage/` because the repo-level pytest contract suite also asserts over them. `liveTransport.test.ts` asserts that the committed fixture and the `CURSOR_WIRE_CONTRACT` constant agree, which is precisely the check that must run when someone corrects the fixture after the HO-5 probe. Today a fixture-only edit runs the Python suite (via `ci.yml`, which lists `tests/plans`) but not the extension suite, so a fixture edited out of step with the constant could merge with the disagreement unasserted. The diff was proposed rather than applied, per the "never silently rewrite CI" rule.
+- **Resolution**: approved and applied in the same phase. `tests/fixtures/cursor-usage/**` was added to both the `push` and `pull_request` path lists in `.github/workflows/cursor-usage-monitor.yml`, with a comment recording why the fixtures sit outside the extension directory. Two lines, no new job, no extra cold runner on unrelated changes. Recorded as resolved rather than deleted, because the reasoning is what stops a future reader "tidying" the path back out.
+
+#### Maintainer-only, and NOT closable by an agent
+
+- **Phase 1 exit checklist item "One consent click yields live numbers on a real host"** is unverified. It requires a human in Cursor, and it is gated on HO-5 above. Recorded rather than ticked.
+- **QG-5** (v3.15.9 Cursor live visual smoke), **QG-4** (v3.15.8 light/dark/high-contrast smoke), and **MT-5** (v3.15.8 GitHub monitor Extension Development Host activation) are re-stated unchanged. All three need a human observing rendered UI.
+
+#### Deviations from the plan's stated file list (no gap, recorded for accuracy)
+
+- **`src/providers/liveAccess.ts` is new and was not named in the plan.** The credential source and the capability rule were first written inside `extension.ts`, where neither could be asserted without exporting activation internals. They carry the phase's two security invariants (a refusal never reaches the state database; consent is requested only when it could be acted on), so they were moved to a module and are now tested directly.
+- **T007 named `usageStore.ts`, and the work landed in three files.** The provenance vocabulary (`snapshotProvenance`, `describeProvenance`) and `clearCache()` are in `usageStore.ts` as planned. The `liveTransportCapable` change is in `extension.ts` and `cursorUsageRuntime.ts`, because that is where the hardcoded `false` actually lived. The runtime dependency widened to `boolean | (() => boolean)` so all 16 existing call sites that pass a boolean still compile.
+- **`tests/plans/test_v3_15_9_cursor_usage_contracts.py` was modified.** Its `test_fixture_inventory_is_exact_and_parseable` asserts an exact fixture set, so four new fixtures required adding them. Two assertions were added in the same file to hold the wire fixtures to `verified: false`.
+- **`test/vscode-stub.ts` gained an `informationResponses` queue**, mirroring the existing `warningResponses`, so a modal consent choice can be scripted in tests.
+- **One existing assertion changed.** `extension.test.ts` asserted the refresh notice contains `HO-5`. That message was deliberately replaced with provenance text, so the assertion now checks that the notice names what is on screen and explicitly does **not** cite an internal gap id.
+
+No Phase 1 missing-test gap remains: every new source file has a dedicated test file, and coverage exceeds every configured threshold.
+
+### v3.15.12 Phase 1 Summary
+
+| Category | Open | Resolved |
+|---|---:|---:|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 1 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 1 |
+| Hand-offs (HO) | 1 | 0 |
+
+HO-5 is carried forward **narrowed** rather than closed: the plan predicted Phase 1 would close it, and the implementation landed, but the one step that would make the claim true (a live probe of the undocumented route) is maintainer-only. WN-5 is new and open. QG-6 was raised and resolved inside the phase once the CI diff was approved.
 
 ## v3.15.11 - codex notification delivery and the inert-hook regression
 

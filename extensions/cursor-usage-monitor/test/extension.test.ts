@@ -268,7 +268,13 @@ describe("Cursor usage extension lifecycle", () => {
     expect(webviewPanels[1]?.webview.html).toContain(
       "Cursor Usage Settings"
     );
-    expect(informationMessages.at(-1)).toContain("HO-5");
+    // v3.15.12: the refusal notice names the provenance of what is on screen
+    // instead of citing HO-5, so the user is told which data they are looking at
+    // rather than an internal gap id.
+    const notice = informationMessages.at(-1) ?? "";
+    expect(notice).toContain("live refresh is unavailable");
+    expect(notice).toContain("manually entered usage");
+    expect(notice).not.toContain("HO-5");
   });
 
   it("validates interactive manual JSON without persisting invalid input", async () => {

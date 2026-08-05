@@ -32,6 +32,7 @@ const configurationHandlers = new Set<ConfigurationHandler>();
 export const informationMessages: string[] = [];
 export const warningMessages: string[] = [];
 export const warningResponses: Array<string | undefined> = [];
+export const informationResponses: Array<string | undefined> = [];
 export const inputResponses: Array<string | undefined> = [];
 export const openExternalUris: string[] = [];
 
@@ -281,9 +282,12 @@ export const window = {
       }
     };
   },
-  async showInformationMessage(message: string): Promise<undefined> {
+  async showInformationMessage(
+    message: string,
+    ..._items: unknown[]
+  ): Promise<string | undefined> {
     informationMessages.push(message);
-    return undefined;
+    return informationResponses.shift();
   },
   async showWarningMessage(
     message: string,
@@ -426,6 +430,7 @@ export function resetVscodeStub(): void {
   informationMessages.length = 0;
   warningMessages.length = 0;
   warningResponses.length = 0;
+  informationResponses.length = 0;
   inputResponses.length = 0;
   openExternalUris.length = 0;
   statusItems.length = 0;

@@ -15,11 +15,18 @@ on:
     branches: [main, develop]
     paths:
       - 'extensions/cursor-usage-monitor/**'
+      # v3.15.12 Phase 1 (QG-6): the wire fixtures live at the repo root because
+      # tests/plans asserts over them too, but test/liveTransport.test.ts asserts
+      # that the committed fixture and the CURSOR_WIRE_CONTRACT constant agree.
+      # Without this path a fixture-only edit -- exactly what correcting the
+      # unverified wire shape looks like -- would merge with that check unrun.
+      - 'tests/fixtures/cursor-usage/**'
       - '.github/workflows/cursor-usage-monitor.yml'
   pull_request:
     branches: [main, develop]
     paths:
       - 'extensions/cursor-usage-monitor/**'
+      - 'tests/fixtures/cursor-usage/**'
       - '.github/workflows/cursor-usage-monitor.yml'
 
 # Read-only: the job builds and tests, and publishes nothing.

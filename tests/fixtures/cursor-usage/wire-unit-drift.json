@@ -1,0 +1,33 @@
+{
+  "fixtureContract": {
+    "source": "credential-api",
+    "sanitized": true,
+    "provenance": "negative-case",
+    "verified": false,
+    "note": "The field names still match but the payload self-declares a different unit for the included-usage pools. Rejecting on a declared-unit disagreement is what stops a request count being rendered on a token allowance bar."
+  },
+  "billingCycle": {
+    "start": "2026-08-01T00:00:00Z",
+    "end": "2026-09-01T00:00:00Z"
+  },
+  "includedUsage": {
+    "unit": "requests",
+    "cursorModels": {
+      "usedTokens": 120,
+      "limitTokens": 500,
+      "percentUsed": 24
+    },
+    "otherModels": {
+      "usedTokens": 40,
+      "limitTokens": 500,
+      "percentUsed": 8
+    }
+  },
+  "onDemand": {
+    "enabled": false,
+    "spendCents": 0,
+    "spendLimitCents": 0,
+    "currency": "USD",
+    "dynamicLimit": false
+  }
+}

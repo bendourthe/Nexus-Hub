@@ -31,6 +31,18 @@ EXPECTED_FIXTURES = {
     "scrape-spending-page.html",
     "scrape-usage-page.html",
     "unknown-denominator.json",
+    # v3.15.12 Phase 1: the raw wire shape of the undocumented usage route, kept
+    # separate from the normalized fixtures above.
+    "wire-contract.json",
+    "wire-field-drift.json",
+    "wire-unit-drift.json",
+    "wire-usage-summary.json",
+}
+WIRE_FIXTURES = {
+    "wire-contract.json",
+    "wire-field-drift.json",
+    "wire-unit-drift.json",
+    "wire-usage-summary.json",
 }
 ALLOWED_SOURCES = {"credential-api", "html-scrape", "cache", "manual"}
 FORBIDDEN_KEYS = {
@@ -127,6 +139,27 @@ def test_normalized_fixture_sources_are_allowed() -> None:
 
     assert sources <= ALLOWED_SOURCES
     assert {"credential-api", "html-scrape", "cache"} <= sources
+
+
+@pytest.mark.parametrize("name", sorted(WIRE_FIXTURES))
+def test_wire_fixtures_are_marked_unverified(name: str) -> None:
+    """The undocumented route is a discovery lead until a live probe confirms it.
+
+    Marking these fixtures verified would let a later reader treat an invented
+    field name as a confirmed contract, which is the failure mode v3.15.12 Phase 1
+    exists to avoid.
+    """
+    contract = _load(name)["fixtureContract"]
+    assert contract["verified"] is False
+    assert contract["sanitized"] is True
+    assert contract["source"] == "credential-api"
+
+
+def test_wire_contract_never_claims_a_public_api() -> None:
+    payload = _load("wire-contract.json")
+    structure = {key: value for key, value in payload.items() if key != "fixtureContract"}
+    assert "public-api" not in json.dumps(structure)
+    assert payload["fixtureContract"]["provenance"] == "expected-shape-unverified"
 
 
 def test_healthy_included_usage_has_same_unit_math() -> None:

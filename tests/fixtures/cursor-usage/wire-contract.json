@@ -1,0 +1,40 @@
+{
+  "fixtureContract": {
+    "source": "credential-api",
+    "sanitized": true,
+    "provenance": "expected-shape-unverified",
+    "verified": false,
+    "note": "Field names and units are the shape the transport REQUIRES, derived from cursor-usage-data-contract.md. They are NOT confirmed against a live Cursor account. The route is undocumented and is labelled credential-api, never public-api. Correct this file and the matching CURSOR_WIRE_CONTRACT constant together after the maintainer runs the bounded probe in cursor-usage-auth-probe.md."
+  },
+  "version": "wire/v1-unverified",
+  "route": "/api/usage-summary",
+  "fields": {
+    "periodStart": "billingCycle.start",
+    "periodEnd": "billingCycle.end",
+    "cursorModelsUsed": "includedUsage.cursorModels.usedTokens",
+    "cursorModelsLimit": "includedUsage.cursorModels.limitTokens",
+    "cursorModelsPercent": "includedUsage.cursorModels.percentUsed",
+    "otherModelsUsed": "includedUsage.otherModels.usedTokens",
+    "otherModelsLimit": "includedUsage.otherModels.limitTokens",
+    "otherModelsPercent": "includedUsage.otherModels.percentUsed",
+    "onDemandEnabled": "onDemand.enabled",
+    "onDemandSpend": "onDemand.spendCents",
+    "onDemandSharedLimit": "onDemand.spendLimitCents",
+    "onDemandCurrency": "onDemand.currency",
+    "onDemandDynamicLimit": "onDemand.dynamicLimit"
+  },
+  "requiredFields": [
+    "periodEnd",
+    "cursorModelsUsed",
+    "cursorModelsLimit",
+    "otherModelsUsed",
+    "otherModelsLimit",
+    "onDemandEnabled"
+  ],
+  "units": {
+    "includedUsage": "tokens",
+    "money": "currency-minor",
+    "includedUsageDeclaredAt": "includedUsage.unit",
+    "moneyDeclaredAt": "onDemand.amountUnit"
+  }
+}

@@ -102,6 +102,32 @@ The extension stores a user-supplied credential only in SecretStorage. It stores
 - No claim that an undocumented endpoint is public or supported.
 - No team shared limit divided into a personal cap.
 
+## Phase 4 Authorization (v3.15.12)
+
+**Authorized:** 2026-08-05, by the maintainer, for v3.15.12 Phase 1. This section supersedes the "Allowed Phase 4 behavior" column above by stating the boundary as an explicit permit/exclude list. HO-5 was opened precisely because the v3.15.9 probe had no such authorization; this section is what closes that argument.
+
+### Permitted
+
+1. **A one-time explicit consent prompt.** The prompt states plainly what will be read and what will not, and is answerable once. Only the decision is persisted, never the credential. Refusal is a first-class path with no repeated prompting.
+2. **A read-only open of the platform state database** at the documented candidate path for the host platform (the `state.vscdb` rows of the Candidate Local Paths table), and only after consent is granted.
+3. **A query for an allowlisted key name only.** One key, named in advance. No table enumeration, no key enumeration, no value dumping, no `SELECT *`.
+
+### Excluded, and unchanged from the original probe boundary
+
+Browser and Electron cookie stores, `Login Data`, OS keychains, process memory, shell history, recursive filesystem hunting for auth-like filenames, and HTML scraping of any billing page. Consent does not widen this list; it authorizes items 1-3 above and nothing else.
+
+### Labelling obligation
+
+The JSON route is labelled `credential-api`. It must never be described as a documented Cursor API, in code, copy, commit message, changelog, or documentation. Its field names and units are pinned by a committed wire fixture, and a payload that does not match the fixture is rejected rather than guessed at.
+
+### Cursor Admin API: evaluated and rejected
+
+The documented [Cursor Admin API](https://cursor.com/docs/account/teams/admin-api) was evaluated for this purpose and rejected. It is admin-only, team-scoped, and currently omits the included-usage pool metrics, so it cannot produce the personal Cursor Models / Other Models split that the requirement names. This rejection is recorded here so the question is not re-litigated in a later release.
+
+### Verification status of the JSON route
+
+**Not yet verified against a live account.** The v3.15.12 Phase 1 implementation ships the transport with a wire fixture describing the *expected* shape derived from `cursor-usage-data-contract.md`, and rejects any payload that does not match. The route, its field names, and its units remain discovery leads until the maintainer runs the Bounded Probe Procedure below and the fixture is corrected from the sanitized result. Until then HO-5 stays open, narrowed to that single outstanding step.
+
 ## Sources
 
 - [Cursor CLI authentication](https://cursor.com/docs/cli/reference/authentication)
