@@ -105,6 +105,7 @@ REQUIRED_HEADINGS = [
     "{{PRIMARY_LANGUAGE}} Conventions",
     "Branching",
     "Output Minimization",
+    "End-of-Task Summary",
     "MCP Registry Policy",
     "Skill Discovery",
 ]
@@ -140,6 +141,12 @@ INVARIANT_SECTIONS = [
     "Tech Stack",
     "Key Commands",
     "Branching",
+    # v3.15.10: the end-of-task summary rule is platform-agnostic by intent and
+    # has no legitimate per-platform variation, unlike Output Minimization above
+    # (base-claude.md carries a 5th bullet the other four do not). It therefore
+    # belongs in BOTH lists: every lockstep file must carry the heading, and the
+    # body must stay byte-identical so the rule cannot drift on one platform.
+    "End-of-Task Summary",
     "MCP Registry Policy",
 ]
 

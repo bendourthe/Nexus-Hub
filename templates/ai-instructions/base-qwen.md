@@ -48,6 +48,14 @@
 - Summarize long command output rather than echoing it in full; report only counts, errors, and key results
 - When a command produces more than ~20 lines of output, summarize what happened rather than quoting the full log
 
+## End-of-Task Summary
+- End every completed task with a short closing summary, even when the change was small
+- **Completed**: what actually changed, in one or two lines (files, behavior, or decisions)
+- **Next**: the concrete next step, or state plainly that nothing is outstanding
+- State blocked, skipped, or deferred work explicitly rather than omitting it
+- Keep it scannable and factual: do not restate the conversation or add preamble
+- Output-minimization rules never apply to this summary: suppress verbose logs, never the closing summary
+
 ## MCP Registry Policy
 
 Nexus-Hub's MCP registry (`catalog/mcp-configs/mcp-servers.json`) is governed by a strict decision tree. When proposing a new entry, walk it in order and stop at the first bucket that fits:

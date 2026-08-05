@@ -108,6 +108,14 @@ Apply these rules to **ALL** outputs, regardless of the domain:
 
 ---
 
+## End-of-Task Summary
+- End every completed task with a short closing summary, even when the change was small
+- **Completed**: what actually changed, in one or two lines (files, behavior, or decisions)
+- **Next**: the concrete next step, or state plainly that nothing is outstanding
+- State blocked, skipped, or deferred work explicitly rather than omitting it
+- Keep it scannable and factual: do not restate the conversation or add preamble
+- Output-minimization rules never apply to this summary: suppress verbose logs, never the closing summary
+
 ## Domain Instructions
 
 ### 1. Software Development
