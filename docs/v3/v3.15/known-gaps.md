@@ -16,6 +16,17 @@
 
 ## v3.15.11 - codex notification delivery and the inert-hook regression
 
+### v3.15.11 process deviation (recorded 2026-08-05)
+
+**PR-1 - v3.15.11 shipped without a plan document.** Every other v3.15 release has a plan under `plans/` and a session history under `development/history/`. v3.15.11 has neither at release time. The release itself was authorized (the maintainer said "proceed with `/update release`"), but that standing instruction was carried across a task boundary and treated as covering work that had not been planned: settling DF-15 turned into two bug fixes and a new platform capability, and the work went straight to a tag.
+
+**Disposition.** A session history was backfilled on 2026-08-05 (`2026-08-05_v3.15.11-codex-notification-delivery-backfilled.md`), because a history is legitimately written after the fact. A plan was deliberately **NOT** backfilled: a plan records intent formed before the work, so writing one now and dating it earlier would fabricate a planning record. This is the same rule applied to the 144 un-ticked exit checkboxes in released v3.15 plans and to QG-5.
+
+**Correction to an earlier claim.** The v3.15.10 Phase 4 audit concluded "all v3.15 plans complete". That was true when written and is now incomplete: there is a released version with no plan. The accurate statement is that v3.15.0 through v3.15.10 each have a plan and all are released, and v3.15.11 is released without one.
+
+**Rule to carry forward.** A release authorization covers releasing *planned* work. It does not authorize planning-by-omission for new work discovered mid-task. When a follow-up task turns into feature work or bug fixes, stop and plan rather than continuing to a tag.
+
+
 **Status**: complete locally. This is a follow-on patch to v3.15.10, cut because settling DF-15 exposed a regression v3.15.10 had already shipped.
 
 ### Resolved
