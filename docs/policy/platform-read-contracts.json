@@ -1,8 +1,8 @@
 {
   "meta": {
     "last_verified": "2026-08-04",
-    "verified_for_version": "3.15.10",
-    "verified_for_version_note": "Re-verified for v3.15.10 on 2026-08-04. This release's Phase 3 performed a first-party event-vocabulary audit for the end-of-task notification triggers; the per-platform verdicts, sources, and the DF-1 settlement are in the notification_verification_v3_15_10 block. TWO platforms were re-checked against live first-party documentation this cycle. Cursor (cursor.com/docs/agent/hooks and cursor.com/docs/skills): the documented hook set is 21 events; `stop` is 'Handle agent completion' and now carries the completion notification; NOTHING in the set means 'blocked on the human', so that trigger was omitted rather than approximated with beforeShellExecution; and `~/.cursor/skills` plus `~/.agents/skills` are CONFIRMED user-level read-paths with recursive discovery. That last finding OVERTURNS the v3.15.9 note which, on secondary-source evidence, extended DF-1 to the global skills path -- that extension is withdrawn and the global skills write is confirmed load-bearing. The DF-1 commands residual is reclassified as redundant-but-retained (DF-17). Codex (openai/codex docs): hooks are first-party real ('Lifecycle hooks' in docs/config.md) but the event set is NOT enumerated in reachable first-party docs and there is no docs/hooks.md, so the `PermissionRequest` event that would let Codex express the attention trigger stays UNVERIFIED and nothing was delivered for it. Carried forward unchanged from the 2026-08-02 / 2026-08-03 audits and NOT re-checked this cycle: Claude, Antigravity 2.0, Gemini IDE, Gemini CLI, OpenCode, Qwen, Kimi, Nexus-AI, Copilot, Aider, Windsurf, OpenClaw, Hermes. Note that Gemini CLI's renamed event set (Stop -> AfterAgent) and Qwen's explicit closed event list were both established in the v3.15.8 audit and are relied on here without re-fetching.",
+    "verified_for_version": "3.15.11",
+    "verified_for_version_note": "Re-verified for v3.15.11 on 2026-08-04. This release settled DF-15 by auditing the Codex IMPLEMENTATION rather than its prose docs (openai/codex ships no docs/hooks.md): codex-rs/hooks/src/events/permission_request.rs plus the serde wire names in codex-rs/hooks/src/lib.rs confirm PermissionRequest as Codex's blocked-on-the-human event. Codex is therefore the only platform besides Claude Code able to express the attention trigger, and both triggers are now delivered to it. Fixing that surfaced a v3.15.10 regression: the shared _notify_common module was never copied to Codex because modules are deliberately unregistered in settings.json, so the completion hook reached Codex registered, executable, and permanently inert. Every other platform's contract carries forward unchanged from the 2026-08-02 through 2026-08-04 audits and was NOT re-checked this cycle.",
     "description": "Machine-readable single source for the platform read-contract guards. The human-readable surface table, formats, and source URLs live alongside in platform-read-contracts.md. Consumed by: scripts/verify_platform_contracts.py (contract_checks, code-vs-contract), scripts/lib/integrations/runner.py _verify_checks (install_verify, install-vs-reality), and scripts/check_platform_contract_freshness.py (meta, the release freshness gate). Re-verified against each platform's current docs and re-stamped (last_verified + verified_for_version) at every /update release by the platform-contract-verification skill.",
     "path_tokens": "In install_verify paths, '~/' resolves to the user home and '{project}/' resolves to the workspace/target root."
   },
@@ -863,17 +863,22 @@
       },
       "codex": {
         "trigger_a": {
-          "verdict": "UNVERIFIED",
-          "event": null,
-          "delivered": false
+          "verdict": "SUPPORTED",
+          "event": "PermissionRequest",
+          "delivered": true
         },
         "trigger_b": {
-          "verdict": "LIKELY",
+          "verdict": "SUPPORTED",
           "event": "Stop",
-          "delivered": false
+          "delivered": true
         },
-        "source": "openai/codex docs/config.md 'Lifecycle hooks' section; v3.15.8 Phase 5 verification",
-        "note": "Codex hooks are real and first-party (docs/config.md carries a 'Lifecycle hooks' section, and v3.15.8 verified hooks.json 'with the same event names Nexus-Hub already uses'). But the event set is NOT enumerated in reachable first-party docs: openai/codex has no docs/hooks.md, and a `PermissionRequest` event that would carry trigger A appears ONLY in secondary sources (community guides and a docs mirror). Nothing is delivered on secondary evidence. Settle against first-party docs before shipping; PermissionRequest would make Codex the second platform able to express trigger A, so it is worth settling."
+        "source": "openai/codex implementation: codex-rs/hooks/src/events/permission_request.rs + serde wire names in codex-rs/hooks/src/lib.rs",
+        "note": "SETTLED 2026-08-04 (v3.15.11), upgrading the v3.15.10 UNVERIFIED verdict. openai/codex ships no docs/hooks.md, so the event set was verified against the IMPLEMENTATION instead of prose: codex-rs/hooks/src/events/ contains a dedicated permission_request.rs module, and the serde wire names in codex-rs/hooks/src/lib.rs enumerate the full set as PermissionRequest, PostCompact, PostToolUse, PreCompact, PreToolUse, SessionEnd, SessionStart, Stop, SubagentStart, SubagentStop, UserPromptSubmit. PermissionRequest is Codex's 'blocked on the human' event, which makes Codex the ONLY platform besides Claude Code able to express trigger A. Both triggers are now delivered: Nexus-Hub's Notification chain is aliased onto PermissionRequest via CODEX_EVENT_ALIASES, and Stop carries the completion hook. Two v3.15.10 defects were found and fixed while settling this. (1) The Notification chain was being dropped as 'no Codex event of that name' because no alias existed. (2) notify-on-complete WAS reaching Codex but _notify_common.sh was NOT: the module is deliberately unregistered in settings.json, so the settings-driven script collection never saw it, and the hook sourced nothing and exited silently on every run. Both were the same shape as the inert-hook failure this verification discipline exists to prevent, and both are now asserted by test.",
+        "forbidden": [
+          "SubagentStop",
+          "SubagentStart",
+          "PostToolUse"
+        ]
       },
       "kimi": {
         "trigger_a": {
@@ -916,7 +921,7 @@
         "note": "PERMANENT NON-COVERAGE for notifications. OpenCode's plugins/ is a JS/TS Bun module runtime exporting an event API; a .sh or .py hook cannot be dropped in and run (documented non-gap DF-4, hooks_supported stays False). Delivering these triggers would mean authoring and maintaining a Bun plugin, which is out of scope. OpenCode IS fully covered by the end-of-task summary rule. Do not re-litigate."
       }
     },
-    "summary": "Trigger A is expressible on exactly ONE verified platform (Claude Code). Trigger B is verified on three (Claude Code, Cursor, Qwen) and renamed-but-verified on a fourth (Gemini CLI's AfterAgent). v3.15.10 delivers both triggers to Claude Code and trigger B to Cursor. Two platforms are permanently out of reach for notifications (Copilot, OpenCode) and both are fully covered by the summary rule instead.",
+    "summary": "Trigger A is expressible on exactly TWO verified platforms (Claude Code via Notification, Codex via PermissionRequest). Trigger B is verified on four (Claude Code, Cursor, Qwen, and Codex) and renamed-but-verified on a fifth (Gemini CLI's AfterAgent). As of v3.15.11 both triggers are delivered to Claude Code and Codex, and trigger B to Cursor. Qwen and Gemini CLI remain expressible-but-undelivered; Kimi's event set is still unenumerated. Copilot and OpenCode are permanently out of reach for notifications and are fully covered by the end-of-task summary rule.",
     "df1_settlement": "DF-1 SETTLED 2026-08-04 against first-party Cursor documentation, and the v3.15.9 finding is OVERTURNED. cursor.com/docs/skills documents FOUR skills read-paths, two of them user-level: '.agents/skills/', '.cursor/skills/', '~/.agents/skills/' (global), and '~/.cursor/skills/' (global), plus backward-compatible '.claude/skills/' and '.codex/skills/'. Discovery walks the root RECURSIVELY. So the global ~/.cursor/skills write is CORRECT and load-bearing, and the v3.15.9 release note that extended DF-1 to that path on secondary evidence was wrong; that extension is withdrawn. The COMMANDS half is different: Cursor's own docs no longer document a commands directory at all, Cursor 2.4 ships a /migrate-to-skills skill that converts both user-level and workspace-level commands into skills with disable-model-invocation:true, and a community bug report titled 'Commands are not detected in the global cursor directory' reports the global path does not work. Nexus-Hub already delivers every command as a command-skill through the verified skills path, so the global ~/.cursor/commands write is REDUNDANT rather than load-bearing. It is RETAINED unchanged for now (writing a directory Cursor ignores is harmless; removing one it does read would silently drop coverage), and flagged for deliberate removal in a later release."
   }
 }

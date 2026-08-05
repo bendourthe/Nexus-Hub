@@ -21,6 +21,8 @@ import pytest
 
 from scripts.lib.integrations import get
 from scripts.lib.integrations._codex_native import (
+    CODEX_EVENT_ALIASES,
+    CODEX_HOOK_EVENTS,
     CODEX_TOOL_MATCHERS,
     build_hook_entries,
     enable_hooks_feature,
@@ -420,3 +422,71 @@ def test_install_summary_does_not_claim_hooks_are_active(codex, install_ctx):
     """Codex hooks need per-hook trust, so the summary must not overpromise."""
     result = codex.install_workspace(install_ctx)
     assert any("/hooks" in note and "inert" in note for note in result.notes)
+
+
+# ---------------------------------------------------------------------------
+# End-of-task notification delivery (v3.15.11)
+#
+# Two defects v3.15.10 shipped to Codex, both of the same shape: a hook that is
+# copied and registered but permanently inert.
+#
+#   1. The Notification chain was dropped as "no Codex event of that name".
+#      Codex's equivalent is PermissionRequest, verified against the Codex
+#      implementation (codex-rs/hooks/src/events/permission_request.rs and the
+#      serde wire names in codex-rs/hooks/src/lib.rs) because openai/codex ships
+#      no docs/hooks.md.
+#   2. notify-on-complete.sh WAS delivered, but _notify_common.sh was not. The
+#      hook sources that module from its own directory, so it exited silently on
+#      every run.
+# ---------------------------------------------------------------------------
+
+
+def _entries(src_hooks: Path):
+    settings = json.loads((src_hooks / "settings.json").read_text(encoding="utf-8"))
+    return build_hook_entries(settings, src_hooks, "~/.codex/hooks")
+
+
+def test_permission_request_is_a_real_codex_event():
+    """The alias target must exist in the verified event set, or it is a no-op."""
+    assert CODEX_EVENT_ALIASES["Notification"] == "PermissionRequest"
+    assert "PermissionRequest" in CODEX_HOOK_EVENTS
+
+
+def test_notification_chain_reaches_codex_as_permission_request(repo_root: Path):
+    events, _, skipped = _entries(repo_root / "catalog" / "hooks")
+
+    assert "PermissionRequest" in events, (
+        f"the Notification chain was dropped; skips were: {skipped}"
+    )
+    assert "notify-attention-required" in json.dumps(events["PermissionRequest"])
+    assert not any("Notification" in s for s in skipped), (
+        f"Notification should be aliased, not skipped: {skipped}"
+    )
+
+
+def test_completion_hook_reaches_codex_on_stop(repo_root: Path):
+    events, _, _ = _entries(repo_root / "catalog" / "hooks")
+
+    assert "notify-on-complete" in json.dumps(events.get("Stop", []))
+
+
+def test_shared_module_ships_with_the_hooks_that_source_it(repo_root: Path):
+    """Without the module the hooks are registered, executable, and inert."""
+    _, scripts, _ = _entries(repo_root / "catalog" / "hooks")
+
+    assert "_notify_common.sh" in scripts, (
+        "notify hooks source _notify_common.sh; without it they exit silently"
+    )
+    assert "_notify_common.ps1" in scripts, (
+        "the .ps1 hook needs the .ps1 module, which no .sh body names"
+    )
+
+
+def test_codex_never_registers_a_notifier_on_a_subagent_event(repo_root: Path):
+    """A sub-task milestone must never interrupt a human."""
+    events, _, _ = _entries(repo_root / "catalog" / "hooks")
+
+    for event in ("SubagentStop", "SubagentStart"):
+        assert "notify-" not in json.dumps(events.get(event, [])), (
+            f"a notification hook is wired to {event}"
+        )

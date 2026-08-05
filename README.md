@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.15.10 -->
+<!-- nexus-hub-version: 3.15.11 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 270 skills, 17 commands, 31 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -36,6 +36,16 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v3.15.11
+
+A follow-on patch to v3.15.10, cut because settling one open question exposed a regression v3.15.10 had already shipped.
+
+**Codex now receives both notification triggers**, making it the only platform besides Claude Code able to say "I am blocked on you". Its `PermissionRequest` event carries that trigger and `Stop` carries completion. Settling it meant auditing the Codex **implementation** rather than its documentation: `openai/codex` ships no `docs/hooks.md`, so the evidence is `codex-rs/hooks/src/events/permission_request.rs` (a dedicated event module) plus the serde wire names in `codex-rs/hooks/src/lib.rs`. v3.15.10 had recorded this event as unverified and deliberately shipped nothing for it, which was the right call on the evidence available then.
+
+**Two defects fixed, both of the shape this release line exists to prevent: a hook that is registered, executable, and permanently silent.** v3.15.10 delivered `notify-on-complete.sh` to Codex but not `_notify_common.sh`, so the hook sourced nothing and exited on every run. Shared modules are deliberately unregistered in `settings.json` (that is what makes them modules), so the settings-driven collection never saw it; the mapper now resolves `_`-prefixed siblings from the delivered script bodies. Separately the Notification chain was dropped for want of a same-named Codex event, which an alias now resolves. Both are asserted by test, including that the alias target actually exists in the verified event set.
+
+Still open and honestly recorded: the Cursor live visual smoke, the light/dark/high-contrast smoke, and the Extension Development Host activation check all require a human observing rendered UI. The automated surface is green (Cursor extension 132 tests, GitHub extension 103), but the rendered result on a live host is not something an automated release can confirm.
 
 ## What's New in v3.15.10
 

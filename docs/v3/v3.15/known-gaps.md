@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: `v3.15.0` through `v3.15.9` are all released and tagged (10 releases). v3.15.10 Phases 1-4 are complete locally on `feat/v3.15.10-end-of-task-behavior`: two purposeful notification triggers with repo+branch labels and a run-time kill switch, the end-of-task summary rule in all 12 substantive instruction templates, per-platform notification-coverage verification with delivery to Cursor, and the terminal gate. Awaiting `/update release`.
-**Last updated**: 2026-08-04 (v3.15.10 Phase 4 reconciliation)
+**Last updated**: 2026-08-04 (v3.15.11 reconciliation)
 
 **Current v3.15.9 status**: Phases 1-7 run on `feat/v3.15.9-cross-provider-routing`, based on the released v3.15.8 `develop`. Claude/Codex/GitHub monitors install only into VS Code; Cursor Usage Monitor installs only into Cursor. Focused CI builds/packages the Cursor VSIX and degrades E2E when the hosted runner lacks the Cursor CLI, pointing at the live-smoke checklist. Phase 7 reconciled this ledger, confirmed CI coverage and optimization, and completed the README/CHANGELOG record; the remaining steps are the maintainer-approved branch push, the integration PR to protected `develop`, and `/update release` after green integration.
 
@@ -13,6 +13,39 @@
 > **Prior-version ingest (codesight)**: checked `docs/v3/v3.14/known-gaps.md`. The open v3.14 items (usage-monitor DF/HO series) are unrelated to this feature set and do not carry in. The one relevant caveat is **HO-1** (flat/nested skill-name collision across skill layouts): the codesight plan shipped zero new catalog skills (all work is extension code), so HO-1 does not apply.
 
 > **Scope note (version collision, RESOLVED)**: three plans under `docs/v3/v3.15/plans/` were all stamped `v3.15.0` (`platform-parity-all-gaps`, `adoption-codesight`, and `adoption-awesome-llm-apps`). This was the comparison-versioning artifact (plans stamped with the authoring-cycle version, not the real adoption target). Reconciled on 2026-07-22 by re-stamping: v3.15.0 = platform-parity-all-gaps, v3.15.1 = adoption-codesight, v3.15.2 = adoption-awesome-llm-apps. See the v3.15.1 QG-2 (Resolved) entry.
+
+## v3.15.11 - codex notification delivery and the inert-hook regression
+
+**Status**: complete locally. This is a follow-on patch to v3.15.10, cut because settling DF-15 exposed a regression v3.15.10 had already shipped.
+
+### Resolved
+
+- **DF-15 SETTLED, and it was worth settling.** `openai/codex` ships no `docs/hooks.md`, so the event set was verified against the **implementation**: `codex-rs/hooks/src/events/permission_request.rs` is a dedicated module, and the serde wire names in `codex-rs/hooks/src/lib.rs` enumerate the full set. `PermissionRequest` is real and is Codex's "blocked on the human" event, which makes **Codex the only platform besides Claude Code able to express the attention trigger**. Both triggers are now delivered to Codex.
+- **BG-9 (NEW, resolved same release): v3.15.10 shipped Codex a permanently inert completion hook.** `notify-on-complete.sh` reached Codex and was registered on `Stop`, but `_notify_common.sh` was not copied. Shared modules are deliberately unregistered in `settings.json` (that is what makes them modules), so the settings-driven script collection never saw it, and the hook sourced nothing and exited silently on every run. `build_hook_entries` now resolves `_`-prefixed sibling modules from the delivered script bodies and copies both shell variants. Asserted by test.
+- **BG-10 (NEW, resolved same release): the Notification chain was silently dropped for Codex** as "no Codex event of that name", because no alias mapped it onto `PermissionRequest`. Added `CODEX_EVENT_ALIASES`, applied before the membership test. Asserted by test, including that the alias target actually exists in the verified event set.
+
+Both bugs are the same shape as the inert-hook failure the Phase 3 verification discipline exists to prevent, which is a useful result: the discipline caught them, but only when someone went looking at what a platform actually receives rather than what the catalog registers.
+
+### Still open, unchanged
+
+- **QG-5** (Cursor live visual smoke), **QG-4** (light/dark/high-contrast smoke), **MT-5** (Extension Development Host activation). All three require a human observing rendered UI and **cannot be closed by an agent**. What IS verified this release: the automated surface is green (Cursor extension 132 tests, GitHub extension 103 tests, both packaging in CI). What is NOT verified is the rendered result on a live host. These are recorded as open rather than quietly folded into a passing release.
+- **HO-5** (live Cursor transport disabled by design), **WN-4** (upstream `@vscode/vsce` deprecations), **WN-3** (v3.15.7 test import order).
+- **DF-14** trigger B still undelivered on Qwen (`Stop`, verified) and Gemini CLI (`AfterAgent`, verified); Kimi's event set still unenumerated. Codex is now removed from DF-14, having been delivered.
+- **DF-16** Windows notification linger unmeasured. **DF-17** DF-1 commands residual.
+- The 144 un-ticked exit-checklist boxes across six released v3.15 plans, and `session-summary.sh` carrying the same `basename "$(pwd)"` weakness the notification hooks shed.
+
+### v3.15.11 Summary
+
+| Category | Open | Resolved |
+|---|---:|---:|
+| Deferred (DF) | 3 | 1 |
+| Bugs / regressions (BG) | 0 | 2 |
+| Warnings (WN) | 2 | 0 |
+| Missing tests / coverage gaps (MT) | 1 | 0 |
+| Quality-gate gaps (QG) | 2 | 0 |
+| Hand-offs (HO) | 1 | 0 |
+
+---
 
 ## v3.15.10 - end-of-task-agent-behavior
 

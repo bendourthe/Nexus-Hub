@@ -72,6 +72,52 @@ CODEX_HOOK_EVENTS = frozenset(
 # be noise that implies filtering Codex does not perform.
 CODEX_MATCHERLESS_EVENTS = frozenset({"UserPromptSubmit", "Stop"})
 
+# Claude-style event names Codex implements under a DIFFERENT name. Without an
+# alias the chain is dropped for want of a same-named event, which is how
+# Nexus-Hub's Notification chain (the "agent is blocked on the human" trigger)
+# silently failed to reach Codex.
+#
+# Verified 2026-08-04 against the Codex implementation itself rather than prose
+# docs, because openai/codex ships no docs/hooks.md: `codex-rs/hooks/src/events/`
+# contains a dedicated `permission_request.rs` module, and the serde wire names in
+# `codex-rs/hooks/src/lib.rs` enumerate PermissionRequest alongside Stop. That
+# makes Codex the only platform besides Claude Code able to express the
+# attention-required trigger.
+CODEX_EVENT_ALIASES = {"Notification": "PermissionRequest"}
+
+
+def _sourced_modules(scripts: set[str], src_hooks_dir: Path) -> set[str]:
+    """Return `_`-prefixed sibling modules that any delivered script sources.
+
+    A hook that sources a shared module needs that module beside it, or it exits
+    silently on every run: registered, executable, and permanently inert. Modules
+    are deliberately never registered in ``settings.json`` (that is what makes
+    them modules rather than hooks), so they are invisible to the settings-driven
+    collection and must be resolved from the delivered script bodies instead.
+
+    Both shell variants of a module are taken once either is referenced, because
+    the ``.sh`` body names only its own sibling while the ``.ps1`` hook needs the
+    ``.ps1`` module.
+    """
+    found: set[str] = set()
+    modules = [p for p in src_hooks_dir.glob("_*") if p.suffix in (".sh", ".ps1")]
+    for script in sorted(scripts):
+        path = src_hooks_dir / script
+        if path.suffix not in (".sh", ".ps1") or not path.exists():
+            continue
+        try:
+            body = path.read_text(encoding="utf-8", errors="replace")
+        except OSError:
+            continue
+        for module in modules:
+            if module.name == script or module.name not in body:
+                continue
+            found.add(module.name)
+            sibling = module.with_suffix(".ps1" if module.suffix == ".sh" else ".sh")
+            if sibling.exists():
+                found.add(sibling.name)
+    return found
+
 # Tool-name matcher tokens Codex recognizes for PreToolUse / PostToolUse.
 # `apply_patch` is the canonical name for file edits; `Edit` and `Write` are its
 # documented aliases. Nexus-Hub's `PowerShell`, `MultiEdit`, and `Skill` tokens
@@ -244,6 +290,9 @@ def build_hook_entries(
     skipped: list[str] = []
 
     for event, groups in settings.get("hooks", {}).items():
+        # Resolve a Claude-style name onto Codex's own name before the membership
+        # test, or an aliased chain is dropped as "no Codex event of that name".
+        event = CODEX_EVENT_ALIASES.get(event, event)
         if event not in CODEX_HOOK_EVENTS:
             skipped.append(f"{event}: no Codex event of that name")
             continue
@@ -288,6 +337,11 @@ def build_hook_entries(
                 emitted["matcher"] = matcher
             emitted["hooks"] = handlers
             events.setdefault(event, []).append(emitted)
+
+    # Shared modules are not registered anywhere, so they must be resolved from
+    # the delivered script bodies. Without this a hook that sources one is copied
+    # and registered but exits silently on every run.
+    scripts |= _sourced_modules(scripts, src_hooks_dir)
 
     return events, scripts, skipped
 
