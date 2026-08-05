@@ -10,15 +10,50 @@ function sha256(file: string): string {
 }
 
 describe("Cursor brand assets", () => {
-  it("ships one normalized 20x20 currentColor outer silhouette", () => {
+  it("ships one normalized currentColor glyph on a square grid", () => {
     const svg = readFileSync(resolve(root, "icons/cursor.svg"), "utf8");
 
-    expect(svg).toContain('viewBox="0 0 20 20"');
+    // The grid SIZE is deliberately not pinned. generate-icon-font.js derives its
+    // scale from this viewBox, so any square grid is valid; pinning 20x20 here is
+    // what previously locked the artwork to a placeholder.
+    const viewBox = svg.match(/viewBox="0 0 (\d+(?:\.\d+)?) (\d+(?:\.\d+)?)"/u);
+    expect(viewBox, "icons/cursor.svg needs a `viewBox=\"0 0 W H\"`").not.toBeNull();
+    expect(Number(viewBox![1])).toBe(Number(viewBox![2]));
+
     expect(svg.match(/<path\b/gu)).toHaveLength(1);
     expect(svg).toContain('fill="currentColor"');
-    expect(svg).toContain("M10 1.667 17.083 5.833v8.334L10 18.333l-7.083-4.166V5.833L10 1.667Z");
     expect(svg).not.toMatch(/<g\b|<script\b|<image\b|(?:href|src)="https?:/u);
     expect(svg).not.toContain("transform=");
+  });
+
+  it("is the real Cursor mark, not a placeholder silhouette", () => {
+    const svg = readFileSync(resolve(root, "icons/cursor.svg"), "utf8");
+    const d = svg.match(/<path[^>]*\sd="([^"]+)"/u)?.[1] ?? "";
+
+    // The shipped glyph was a bare 6-point hexagon for one release; the status bar
+    // rendered a plain polygon instead of the Cursor mark. Guard the exact string
+    // so a revert to it fails loudly rather than looking merely "simplified".
+    expect(d).not.toContain("M10 1.667 17.083 5.833v8.334L10 18.333l-7.083-4.166V5.833L10 1.667Z");
+
+    // The real mark is a cube outline plus an interior stroke, so it carries a
+    // second subpath. A single-subpath silhouette is the placeholder shape.
+    const subpaths = d.match(/M/gu) ?? [];
+    expect(subpaths.length).toBeGreaterThanOrEqual(2);
+  });
+
+  it("scales inside the 1024 em box on the grid it declares", () => {
+    // Regression guard for the generator's previously hardcoded 51.2 scale
+    // (1024/20). Artwork on a 24-unit grid would have reached x=1126 and been
+    // clipped, with no error explaining why the glyph looked wrong.
+    const svg = readFileSync(resolve(root, "icons/cursor.svg"), "utf8");
+    const width = Number(svg.match(/viewBox="0 0 (\d+(?:\.\d+)?)/u)![1]);
+    const d = svg.match(/<path[^>]*\sd="([^"]+)"/u)![1];
+
+    const scale = 1024 / width;
+    const coords = (d.match(/-?\d+(?:\.\d+)?/gu) ?? []).map(Number);
+    const largest = Math.max(...coords.map(Math.abs));
+
+    expect(largest * scale).toBeLessThanOrEqual(1024);
   });
 
   it("preserves the audited source artwork", () => {
