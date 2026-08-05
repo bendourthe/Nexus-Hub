@@ -792,5 +792,131 @@
         }
       ]
     }
-  ]
+  ],
+  "notification_verification_v3_15_10": {
+    "_comment": "v3.15.10 Phase 3. Findings record only; NOT consumed by any guard. Establishes, per platform, whether the two end-of-task notification triggers can be expressed at all. Trigger A = 'the agent is blocked on the human' (permission request or idle waiting for input). Trigger B = 'the agent finished responding'. A trigger is delivered ONLY when its event name is verified against first-party documentation: an unverified name ships a hook that is registered, executable, and permanently inert, which escalation-trigger.sh already did for four minor versions.",
+    "verified": "2026-08-04",
+    "platforms": {
+      "claude": {
+        "trigger_a": {
+          "verdict": "SUPPORTED",
+          "event": "Notification",
+          "delivered": true
+        },
+        "trigger_b": {
+          "verdict": "SUPPORTED",
+          "event": "Stop",
+          "delivered": true
+        },
+        "forbidden": [
+          "SubagentStop",
+          "PostToolUse"
+        ],
+        "source": "guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md + catalog/hooks/settings.json",
+        "note": "Delivered in Phase 1. Notification fires on permission requests and on idle-waiting-for-input."
+      },
+      "cursor": {
+        "trigger_a": {
+          "verdict": "NOT_SUPPORTED",
+          "event": null,
+          "delivered": false
+        },
+        "trigger_b": {
+          "verdict": "SUPPORTED",
+          "event": "stop",
+          "delivered": true
+        },
+        "forbidden": [
+          "subagentStop",
+          "beforeShellExecution"
+        ],
+        "source": "https://cursor.com/docs/agent/hooks",
+        "note": "Fetched first-party 2026-08-04. The documented set is 21 events across agent, Tab, and app-lifecycle groups. `stop` is documented as 'Handle agent completion' and carries trigger B. NOTHING in the set means 'blocked on the human': `beforeShellExecution` can return an 'ask' permission status but fires before EVERY shell command, so a notifier there would recreate the per-turn storm this release removed. Trigger A is therefore omitted rather than approximated. `subagentStop` exists in Cursor and is deliberately not wired."
+      },
+      "qwen": {
+        "trigger_a": {
+          "verdict": "NOT_SUPPORTED",
+          "event": null,
+          "delivered": false
+        },
+        "trigger_b": {
+          "verdict": "SUPPORTED",
+          "event": "Stop",
+          "delivered": false
+        },
+        "source": "v3.15.8 Phase 6 first-party verification of the Qwen Code hooks documentation",
+        "note": "Qwen KEPT the Claude-style event names and the verified list is explicit and closed: PreToolUse, PostToolUse, UserPromptSubmit, SessionStart, SessionEnd, Stop, PreCompact. No Notification equivalent, so trigger A is unavailable. Trigger B is expressible via Stop but NOT delivered in v3.15.10: deferred rather than rushed, because Qwen's hooks merge into its own settings.json and that writer needs its own test surface. Tracked as a v3.15.11 candidate."
+      },
+      "gemini-cli": {
+        "trigger_a": {
+          "verdict": "NOT_SUPPORTED",
+          "event": null,
+          "delivered": false
+        },
+        "trigger_b": {
+          "verdict": "SUPPORTED",
+          "event": "AfterAgent",
+          "delivered": false
+        },
+        "source": "v3.15.8 Phase 6 first-party verification of the upstream hooks reference",
+        "note": "Gemini CLI RENAMED every lifecycle event relative to the Claude-style set: PreToolUse -> BeforeTool, Stop -> AfterAgent, PreCompact -> PreCompress. So trigger B is `AfterAgent`, and writing `Stop` here would be exactly the inert-hook defect this phase exists to prevent. No notification-equivalent event is documented. NOT delivered: Gemini CLI is enterprise-only opt-in post-2026-06-18 (--enterprise flag), so it is the lowest-value target of the set."
+      },
+      "codex": {
+        "trigger_a": {
+          "verdict": "UNVERIFIED",
+          "event": null,
+          "delivered": false
+        },
+        "trigger_b": {
+          "verdict": "LIKELY",
+          "event": "Stop",
+          "delivered": false
+        },
+        "source": "openai/codex docs/config.md 'Lifecycle hooks' section; v3.15.8 Phase 5 verification",
+        "note": "Codex hooks are real and first-party (docs/config.md carries a 'Lifecycle hooks' section, and v3.15.8 verified hooks.json 'with the same event names Nexus-Hub already uses'). But the event set is NOT enumerated in reachable first-party docs: openai/codex has no docs/hooks.md, and a `PermissionRequest` event that would carry trigger A appears ONLY in secondary sources (community guides and a docs mirror). Nothing is delivered on secondary evidence. Settle against first-party docs before shipping; PermissionRequest would make Codex the second platform able to express trigger A, so it is worth settling."
+      },
+      "kimi": {
+        "trigger_a": {
+          "verdict": "UNVERIFIED",
+          "event": null,
+          "delivered": false
+        },
+        "trigger_b": {
+          "verdict": "UNVERIFIED",
+          "event": null,
+          "delivered": false
+        },
+        "source": "v3.15.8 Phase 7 first-party verification",
+        "note": "The v3.15.8 verification established Kimi's hook SCHEMA (a [[hooks]] array in ~/.kimi-code/config.toml permitting ONLY event/matcher/command/timeout, where extra fields make the config fail to load) and its tool-matcher mapping, but did NOT enumerate the event names. Global scope only. Nothing delivered until the event set is verified."
+      },
+      "copilot": {
+        "trigger_a": {
+          "verdict": "IMPOSSIBLE",
+          "event": null,
+          "delivered": false
+        },
+        "trigger_b": {
+          "verdict": "IMPOSSIBLE",
+          "event": null,
+          "delivered": false
+        },
+        "note": "PERMANENT NON-COVERAGE for notifications. Copilot exposes no hook surface of its own; it receives instruction text plus an opt-in skills wrapper set. It IS fully covered by the v3.15.10 end-of-task summary rule, which needs only an instruction surface. Do not re-litigate."
+      },
+      "opencode": {
+        "trigger_a": {
+          "verdict": "IMPOSSIBLE",
+          "event": null,
+          "delivered": false
+        },
+        "trigger_b": {
+          "verdict": "IMPOSSIBLE",
+          "event": null,
+          "delivered": false
+        },
+        "note": "PERMANENT NON-COVERAGE for notifications. OpenCode's plugins/ is a JS/TS Bun module runtime exporting an event API; a .sh or .py hook cannot be dropped in and run (documented non-gap DF-4, hooks_supported stays False). Delivering these triggers would mean authoring and maintaining a Bun plugin, which is out of scope. OpenCode IS fully covered by the end-of-task summary rule. Do not re-litigate."
+      }
+    },
+    "summary": "Trigger A is expressible on exactly ONE verified platform (Claude Code). Trigger B is verified on three (Claude Code, Cursor, Qwen) and renamed-but-verified on a fourth (Gemini CLI's AfterAgent). v3.15.10 delivers both triggers to Claude Code and trigger B to Cursor. Two platforms are permanently out of reach for notifications (Copilot, OpenCode) and both are fully covered by the summary rule instead.",
+    "df1_settlement": "DF-1 SETTLED 2026-08-04 against first-party Cursor documentation, and the v3.15.9 finding is OVERTURNED. cursor.com/docs/skills documents FOUR skills read-paths, two of them user-level: '.agents/skills/', '.cursor/skills/', '~/.agents/skills/' (global), and '~/.cursor/skills/' (global), plus backward-compatible '.claude/skills/' and '.codex/skills/'. Discovery walks the root RECURSIVELY. So the global ~/.cursor/skills write is CORRECT and load-bearing, and the v3.15.9 release note that extended DF-1 to that path on secondary evidence was wrong; that extension is withdrawn. The COMMANDS half is different: Cursor's own docs no longer document a commands directory at all, Cursor 2.4 ships a /migrate-to-skills skill that converts both user-level and workspace-level commands into skills with disable-model-invocation:true, and a community bug report titled 'Commands are not detected in the global cursor directory' reports the global path does not work. Nexus-Hub already delivers every command as a command-skill through the verified skills path, so the global ~/.cursor/commands write is REDUNDANT rather than load-bearing. It is RETAINED unchanged for now (writing a directory Cursor ignores is harmless; removing one it does read would silently drop coverage), and flagged for deliberate removal in a later release."
+  }
 }

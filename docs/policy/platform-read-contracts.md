@@ -4,7 +4,36 @@ This is the durable, sourced source of truth for where every supported platform 
 
 **Last verified**: 2026-08-04 for v3.15.9. This release changed no platform read path; the only delivery-code change was source-side, in the shared `flatten_skills` adapter, which now skips a `catalog/skills/<category>/<name>/` directory carrying no `SKILL.md` instead of publishing it. Two platforms were re-checked against live documentation because that change affects every skills-bearing platform. **Hermes**: discovery lists every direct subdirectory of the tap path and probes each for `SKILL.md`, confirming the recorded contract and independently validating the fix (it also ignores directories beginning with `.` or `_`, which the current delivery already satisfies). **Cursor**: the project path `.cursor/skills/<name>/SKILL.md` is confirmed, and multiple current sources state Cursor exposes no personal/global skills directory, which corroborates and extends known gap **DF-1** (previously scoped to the unverified global `~/.cursor/commands/`) to the global `~/.cursor/skills/` path. Those are secondary sources, not an official Cursor doc page, so DF-1 stays OPEN and the globally-written Cursor surfaces are retained unchanged pending first-party confirmation in a v3.15.10 follow-on. All other platforms carry forward from the 2026-08-02 / 2026-08-03 audits below and were not re-checked this cycle.
 
-**Prior stamp**: 2026-08-02 for v3.15.7. The full current-documentation audit found no dead delivery path in the surfaces Nexus-Hub already writes, but it found additive agent and hook capabilities that the current adapters do not yet deliver. The maintainer approved an audited-with-known-drift release: the enforced contract remains the currently delivered behavior, the JSON's non-consumed `release_verification_v3_15_7` block records the findings, and adapter implementation is assigned to v3.15.8.
+**Prior stamp**: 2026-08-02 for v3.15.7.
+
+## Correction (2026-08-04): the v3.15.9 Cursor global-skills claim was wrong
+
+The v3.15.9 stamp above records that "multiple current sources state Cursor exposes no personal/global skills directory" and extended known gap DF-1 to `~/.cursor/skills/` on that basis. **That is disproven.** [cursor.com/docs/skills](https://cursor.com/docs/skills) documents four skills read-paths, two of them user-level: `.agents/skills/`, `.cursor/skills/`, `~/.agents/skills/` (global), and `~/.cursor/skills/` (global), plus backward-compatible `.claude/skills/` and `.codex/skills/`. Discovery walks the root **recursively**.
+
+So Nexus-Hub's global `~/.cursor/skills` write is correct and load-bearing, and the DF-1 extension is **withdrawn**. The v3.15.9 text is left in place as the dated record of what was believed at the time, which is what a verification log is for. The lesson is the one the repo already encodes elsewhere: secondary sources are a reason to go read the first-party page, not a finding.
+
+The **commands** half of DF-1 resolves differently. Cursor's docs no longer document a commands directory at all; Cursor 2.4 ships a `/migrate-to-skills` skill that converts both user-level and workspace-level commands into skills with `disable-model-invocation: true`; and a community bug report titled "Commands are not detected in the global cursor directory" reports the global path simply does not work. Nexus-Hub already delivers every command as a command-skill through the verified skills path, so the global `~/.cursor/commands` write is **redundant rather than load-bearing**. It is retained unchanged for now (writing a directory Cursor ignores is harmless; removing one it does read would silently drop coverage) and flagged for deliberate removal in a later release.
+
+## End-of-task notification coverage (v3.15.10)
+
+Two triggers, both meaning "a human's attention is warranted". Trigger A = the agent is blocked on the human (permission request or idle waiting for input). Trigger B = the agent finished responding. A trigger ships **only** when its event name is verified first-party, because an unverified name produces a hook that is registered, executable, and permanently inert -- which `escalation-trigger.sh` already was for four minor versions.
+
+| Platform | Trigger A (attention) | Trigger B (complete) | Shipped in v3.15.10 |
+|---|---|---|---|
+| Claude Code | `Notification` | `Stop` | **both** |
+| Cursor | none exists | `stop` | **trigger B** |
+| Qwen | none exists | `Stop` (verified) | deferred to a later release |
+| Gemini CLI | none documented | `AfterAgent` (renamed) | deferred; enterprise-only opt-in |
+| Codex | unverified (`PermissionRequest` is secondary-source only) | likely `Stop` | nothing, pending first-party proof |
+| Kimi Code CLI | event set never enumerated | event set never enumerated | nothing, pending verification |
+| GitHub Copilot | **impossible** | **impossible** | permanent non-coverage |
+| OpenCode | **impossible** | **impossible** | permanent non-coverage |
+
+Three findings worth carrying:
+
+- **Trigger A is nearly unique to Claude Code.** Only its `Notification` event means "waiting on the human". Cursor's documented 21-event set has nothing equivalent: `beforeShellExecution` can return an `ask` status but fires before *every* shell command, so notifying there would recreate the storm v3.15.10 removed. Approximating a trigger is worse than omitting it.
+- **Gemini CLI renamed everything.** `Stop` does not exist there; the completion event is `AfterAgent`. Writing `Stop` would have shipped a silently dead hook.
+- **Copilot and OpenCode are permanent non-coverage for notifications**, and this must not be re-litigated. Copilot has no hook surface at all. OpenCode's `plugins/` is a JS/TS Bun module runtime, so a `.sh` or `.py` hook cannot be dropped in (documented non-gap DF-4). Both **are** fully covered by the v3.15.10 end-of-task summary rule, which needs only an instruction surface. That asymmetry is why the release has two deliverables rather than one. The full current-documentation audit found no dead delivery path in the surfaces Nexus-Hub already writes, but it found additive agent and hook capabilities that the current adapters do not yet deliver. The maintainer approved an audited-with-known-drift release: the enforced contract remains the currently delivered behavior, the JSON's non-consumed `release_verification_v3_15_7` block records the findings, and adapter implementation is assigned to v3.15.8.
 
 ## How this doc is maintained
 

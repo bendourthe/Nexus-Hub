@@ -83,7 +83,14 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
     # Nexus-Hub guardrails (secret-scan, large-file-guard) guard file WRITES, for
     # which Cursor exposes no before-write blocking event, so they are intentionally
     # not shipped here (post-hoc afterFileEdit cannot prevent the write).
-    _CURATED_HOOK_SCRIPTS = ("git-guardrails.sh",)
+    # `_notify_common.sh` is a MODULE, not a registered hook: notify-on-complete.sh
+    # sources it from its own directory for label resolution and suppression, so
+    # shipping the hook without it makes the hook exit silently on every run.
+    _CURATED_HOOK_SCRIPTS = (
+        "git-guardrails.sh",
+        "_notify_common.sh",
+        "notify-on-complete.sh",
+    )
 
     def _hook_registration(self, command_for) -> dict:
         """Return the Cursor hooks.json body (schema: version 1, hooks object).
@@ -91,12 +98,30 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
         git-guardrails runs on every shell execution and self-filters to
         destructive git commands, so no matcher is needed (beforeShellExecution
         already scopes to shell commands).
+
+        `stop` carries the end-of-task completion notification (v3.15.10). Verified
+        2026-08-04 against cursor.com/docs/agent/hooks, which documents `stop` as
+        "Handle agent completion".
+
+        Only ONE of the two notification triggers ships here. Cursor's documented
+        event set has no equivalent of Claude Code's `Notification` event, i.e. no
+        event meaning "the agent is blocked on the human". `beforeShellExecution`
+        can return an "ask" permission status, but it fires before EVERY shell
+        command rather than only when input is genuinely required, so wiring a
+        notifier there would recreate the per-turn storm this release removed.
+        Approximating a trigger is worse than omitting it.
+
+        `subagentStop` also exists in Cursor and is deliberately NOT wired: a
+        sub-task milestone is not a reason to interrupt a human.
         """
         return {
             "version": 1,
             "hooks": {
                 "beforeShellExecution": [
                     {"command": command_for("git-guardrails.sh")},
+                ],
+                "stop": [
+                    {"command": command_for("notify-on-complete.sh")},
                 ],
             },
         }
