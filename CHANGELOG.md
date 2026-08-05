@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.15.11] - 2026-08-04
+
+### Added
+
+- **Codex receives both end-of-task notification triggers**: `PermissionRequest` carries "the agent is blocked on you" and `Stop` carries "the agent finished". Codex is the only platform besides Claude Code able to express the attention trigger. Settling this required auditing the Codex **implementation** rather than its prose documentation, because `openai/codex` ships no `docs/hooks.md`: `codex-rs/hooks/src/events/permission_request.rs` is a dedicated event module, and the serde wire names in `codex-rs/hooks/src/lib.rs` enumerate the full set. Closes DF-15.
+
+### Fixed
+
+- **v3.15.10 shipped Codex a permanently inert completion hook.** `notify-on-complete.sh` was copied and registered on `Stop`, but `_notify_common.sh` was not, so the hook sourced nothing and exited silently on every run. Shared modules are deliberately unregistered in `settings.json` (that is what makes them modules), so the settings-driven script collection never saw it. `build_hook_entries` now resolves `_`-prefixed sibling modules from the delivered script bodies and copies both shell variants.
+- **The Notification chain was silently dropped for Codex** as "no Codex event of that name", because no alias mapped it onto Codex's `PermissionRequest`. Added `CODEX_EVENT_ALIASES`, applied before the event-membership test so an aliased chain is resolved rather than discarded.
+
+Both defects were the same shape as the inert-hook failure the v3.15.10 verification discipline exists to prevent: a hook that is registered, executable, and permanently silent. Both are now asserted by test, including a test that the alias target actually exists in the verified event set.
+
 ## [3.15.10] - 2026-08-04
 
 ### Changed
