@@ -68,10 +68,17 @@ export const window = {
   async showInputBox(): Promise<string | undefined> { return inputs.shift(); },
   async showInformationMessage(message: string): Promise<string | undefined> { messages.information.push(message); return undefined; },
   async showWarningMessage(message: string): Promise<string | undefined> { messages.warnings.push(message); return undefined; },
-  async showErrorMessage(message: string): Promise<string | undefined> { messages.errors.push(message); return undefined; }
+  async showErrorMessage(message: string): Promise<string | undefined> { messages.errors.push(message); return undefined; },
+  createOutputChannel(name: string): { name: string; appendLine(line: string): void; show(preserve?: boolean): void; dispose(): void } {
+    const channel = { name, appendLine(line: string) { outputLines.push(line); }, show() { /* no-op */ }, dispose() { /* no-op */ } };
+    return channel;
+  }
 };
+
+/** Everything written to the diagnostics output channel, for leak assertions. */
+export const outputLines: string[] = [];
 
 export function setConfiguration(key: string, value: unknown): void { configuration.set(key, value); }
 export function queueInput(value: string | undefined): void { inputs.push(value); }
 export async function runCommand(name: string): Promise<unknown> { const command = commandMap.get(name); if (!command) throw new Error(`Command not registered: ${name}`); return command(); }
-export function resetVscodeStub(): void { commandMap.clear(); configuration.clear(); inputs.length = 0; messages.information.length = 0; messages.warnings.length = 0; messages.errors.length = 0; statusItems.length = 0; webviewPanels.length = 0; webviewProviders.length = 0; sessionResponses.length = 0; sessionRequests.length = 0; }
+export function resetVscodeStub(): void { commandMap.clear(); configuration.clear(); inputs.length = 0; messages.information.length = 0; messages.warnings.length = 0; messages.errors.length = 0; statusItems.length = 0; webviewPanels.length = 0; webviewProviders.length = 0; sessionResponses.length = 0; sessionRequests.length = 0; outputLines.length = 0; }

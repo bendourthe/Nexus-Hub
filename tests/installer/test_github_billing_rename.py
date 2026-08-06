@@ -68,10 +68,10 @@ def test_description_names_both_covered_surfaces() -> None:
 
 def test_every_command_title_and_category_uses_the_new_prefix() -> None:
     commands = _manifest()["contributes"]["commands"]
-    # 9 at the v3.15.12 Phase 3 rename, plus logIn / logOut added by Phase 4's
-    # per-target auth work. The count is asserted so a dropped command is caught,
-    # and it is updated deliberately rather than relaxed to a range.
-    assert len(commands) == 11
+    # 9 at the v3.15.12 Phase 3 rename, plus logIn / logOut / diagnoseAuth from
+    # Phase 4's per-target auth work. The count is asserted so a dropped command is
+    # caught, and it is updated deliberately rather than relaxed to a range.
+    assert len(commands) == 12
     for command in commands:
         assert command["title"].startswith(TITLE_PREFIX), command["title"]
         # A single space after the colon, not zero and not two.

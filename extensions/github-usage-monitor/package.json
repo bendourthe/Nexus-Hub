@@ -34,6 +34,11 @@
       { "command": "github-usage.manualEntry", "title": "GitHub Billing: Enter Allowances", "category": "GitHub Billing" },
       { "command": "github-usage.clearData", "title": "GitHub Billing: Clear Data", "category": "GitHub Billing" },
       {
+        "command": "github-usage.diagnoseAuth",
+        "title": "GitHub Billing: Diagnose Authorization",
+        "category": "GitHub Billing"
+      },
+      {
         "command": "github-usage.logIn",
         "title": "GitHub Billing: Log In or Switch Account",
         "category": "GitHub Billing"

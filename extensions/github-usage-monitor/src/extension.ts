@@ -3,7 +3,9 @@ import { DashboardPanel } from "./dashboardPanel";
 import { applyAllowances, type AllowanceMap } from "./providers/allowances";
 import { GitHubTokenStore, type TokenMutationResult } from "./providers/auth";
 import { DEFAULT_TIMEOUT_MS, GitHubBillingClient } from "./providers/github";
+import { probeWithToken, toMarkdownRow, toSanitizedRecord } from "./providers/authProbe";
 import { CapabilityStore, capabilityKey } from "./providers/capability";
+import { diagnoseTarget, summarizeOutcome } from "./providers/diagnose";
 import { resolveBillingOwner } from "./providers/scope";
 import {
   describeBinding,
@@ -34,6 +36,9 @@ export function activate(context: vscode.ExtensionContext): void {
   let currentState: UsageState = cached === undefined ? { state: "empty" } : { state: cached.stale ? "stale" : "fresh", data: cached };
 
   const capabilities = new CapabilityStore(context.globalState);
+  // The diagnosis writes its sanitized record here rather than to a log line, so it
+  // is copyable without a credential ever reaching the output.
+  const diagnostics = vscode.window.createOutputChannel("GitHub Billing Usage");
   // Adapts VS Code's provider onto the narrow shape `sessionBinding` accepts. That
   // module is given no sign-out capability, so log-out cannot reach the shared
   // GitHub session that Copilot also uses.
@@ -69,6 +74,7 @@ export function activate(context: vscode.ExtensionContext): void {
 
   context.subscriptions.push(
     status,
+    diagnostics,
     vscode.window.registerWebviewViewProvider(WARNING_VIEW_ID, warning, { webviewOptions: { retainContextWhenHidden: true } }),
     vscode.commands.registerCommand("github-usage.dashboard", showDashboard),
     vscode.commands.registerCommand("github-usage.refresh", refresh),
@@ -83,6 +89,35 @@ export function activate(context: vscode.ExtensionContext): void {
       // A new session is a different capability question, so the old verdict goes.
       await capabilities.forget(owner);
       await vscode.window.showInformationMessage(`GitHub Billing: ${describeBinding(next)}`);
+      settings.show(await authDisplay());
+    }),
+    vscode.commands.registerCommand("github-usage.diagnoseAuth", async () => {
+      const owner = configuredOwner(); if (owner === null) return;
+      const outcome = await diagnoseTarget({ getSession, probeWithToken }, owner);
+      if (outcome.status === "probed") {
+        binding = outcome.binding;
+        await capabilities.remember(owner, outcome.binding.fingerprint, outcome.capability);
+        // The sanitized record only: its key set is asserted by test, so it can be
+        // pasted into the probe doc or an issue without carrying a credential.
+        diagnostics.appendLine(JSON.stringify(toSanitizedRecord(outcome.record), null, 2));
+        diagnostics.appendLine(toMarkdownRow(outcome.record));
+        diagnostics.show(true);
+      }
+      const summary = summarizeOutcome(outcome, owner);
+      // A broader scope is offered ONLY when GitHub's accepted-scope header says it
+      // is required, and always as an explicit choice rather than a silent retry.
+      const retry = outcome.status === "probed" && outcome.escalation !== null
+        ? await vscode.window.showWarningMessage(summary, `Retry with ${outcome.escalation.join(", ")}`)
+        : (await vscode.window.showInformationMessage(summary), undefined);
+      if (retry !== undefined && outcome.status === "probed" && outcome.escalation !== null) {
+        const escalated = await diagnoseTarget({ getSession, probeWithToken }, owner, outcome.escalation);
+        if (escalated.status === "probed") {
+          binding = escalated.binding;
+          await capabilities.remember(owner, escalated.binding.fingerprint, escalated.capability);
+          diagnostics.appendLine(toMarkdownRow(escalated.record));
+          await vscode.window.showInformationMessage(summarizeOutcome(escalated, owner));
+        }
+      }
       settings.show(await authDisplay());
     }),
     vscode.commands.registerCommand("github-usage.logOut", async () => {
