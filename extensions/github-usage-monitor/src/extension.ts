@@ -3,9 +3,19 @@ import { DashboardPanel } from "./dashboardPanel";
 import { applyAllowances, type AllowanceMap } from "./providers/allowances";
 import { GitHubTokenStore, type TokenMutationResult } from "./providers/auth";
 import { DEFAULT_TIMEOUT_MS, GitHubBillingClient } from "./providers/github";
+import { CapabilityStore, capabilityKey } from "./providers/capability";
 import { resolveBillingOwner } from "./providers/scope";
+import {
+  describeBinding,
+  isCompleteLogOut,
+  logInToMonitor,
+  logOutOfMonitor,
+  peekBinding,
+  type GetSessionLike,
+  type MonitorBinding
+} from "./providers/sessionBinding";
 import { buildUsageSuggestion, crossedUnnotifiedThreshold, type AlertMetric, type Thresholds } from "./recommendations";
-import { SettingsPanel, validateThresholds } from "./settingsPanel";
+import { SettingsPanel, validateThresholds, type AuthDisplay } from "./settingsPanel";
 import { StatusBarManager } from "./statusBarManager";
 import type { BillingOwner, ProviderError, ProviderResult, UsageSnapshot, UsageState } from "./types";
 import { UsageStore } from "./usageStore";
@@ -23,6 +33,31 @@ export function activate(context: vscode.ExtensionContext): void {
   const cached = store.get();
   let currentState: UsageState = cached === undefined ? { state: "empty" } : { state: cached.stale ? "stale" : "fresh", data: cached };
 
+  const capabilities = new CapabilityStore(context.globalState);
+  // Adapts VS Code's provider onto the narrow shape `sessionBinding` accepts. That
+  // module is given no sign-out capability, so log-out cannot reach the shared
+  // GitHub session that Copilot also uses.
+  const getSession: GetSessionLike = (providerId, scopes, options) =>
+    Promise.resolve(
+      vscode.authentication.getSession(providerId, [...scopes], options)
+    ) as Promise<Awaited<ReturnType<GetSessionLike>>>;
+  let binding: MonitorBinding | null = null;
+
+  const authDisplay = async (): Promise<AuthDisplay | undefined> => {
+    const owner = configuredOwner();
+    if (owner === null) {
+      return undefined;
+    }
+    binding = await peekBinding(getSession, owner).catch(() => null);
+    const stored = await tokens.hasToken().catch(() => false);
+    return {
+      binding,
+      target: capabilityKey(owner),
+      capability: capabilities.get(owner, binding?.fingerprint ?? "none"),
+      hasStoredToken: stored
+    };
+  };
+
   const showDashboard = (): void => dashboard.show(currentState);
   const refresh = async (): Promise<void> => {
     status.showLoading();
@@ -37,7 +72,31 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.window.registerWebviewViewProvider(WARNING_VIEW_ID, warning, { webviewOptions: { retainContextWhenHidden: true } }),
     vscode.commands.registerCommand("github-usage.dashboard", showDashboard),
     vscode.commands.registerCommand("github-usage.refresh", refresh),
-    vscode.commands.registerCommand("github-usage.settings", () => settings.show()),
+    vscode.commands.registerCommand("github-usage.settings", async () => { settings.show(await authDisplay()); }),
+    vscode.commands.registerCommand("github-usage.logIn", async () => {
+      const owner = configuredOwner(); if (owner === null) return;
+      // clearSessionPreference makes GitHub show the account picker, so the billing
+      // account can deliberately differ from the one Copilot uses.
+      const next = await logInToMonitor(getSession, owner);
+      if (next === null) { await vscode.window.showInformationMessage("GitHub Billing: sign-in cancelled; the previous binding is unchanged."); return; }
+      binding = next;
+      // A new session is a different capability question, so the old verdict goes.
+      await capabilities.forget(owner);
+      await vscode.window.showInformationMessage(`GitHub Billing: ${describeBinding(next)}`);
+      settings.show(await authDisplay());
+    }),
+    vscode.commands.registerCommand("github-usage.logOut", async () => {
+      const owner = configuredOwner();
+      const result = await logOutOfMonitor({
+        clearToken: () => tokens.clearToken(),
+        clearCapabilities: () => owner === null ? capabilities.clear() : capabilities.forget(owner),
+        clearSessionPreference: async () => { binding = null; }
+      });
+      await (isCompleteLogOut(result)
+        ? vscode.window.showInformationMessage("GitHub Billing: this monitor's binding was cleared. You are still signed in to the editor's GitHub session, so Copilot is unaffected.")
+        : vscode.window.showWarningMessage("GitHub Billing: the binding was only partly cleared. Re-run Log out, or clear the token explicitly."));
+      settings.show(await authDisplay());
+    }),
     vscode.commands.registerCommand("github-usage.openNativeSettings", () => vscode.commands.executeCommand("workbench.action.openSettings", "@ext:nexus-hub.github-usage-monitor")),
     vscode.commands.registerCommand("github-usage.manualEntry", () => vscode.commands.executeCommand("workbench.action.openSettings", "githubUsage.allowances")),
     vscode.commands.registerCommand("github-usage.clearData", async () => { await store.clear(); currentState = { state: "empty" }; status.show(currentState); showDashboard(); }),
