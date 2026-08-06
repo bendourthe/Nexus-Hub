@@ -7,7 +7,7 @@ export class DashboardPanel {
   private panel: vscode.WebviewPanel | undefined;
   public show(state: UsageState): void {
     if (this.panel === undefined) {
-      this.panel = vscode.window.createWebviewPanel("githubUsageDashboard", "GitHub Usage", vscode.ViewColumn.One, { enableScripts: true, retainContextWhenHidden: true });
+      this.panel = vscode.window.createWebviewPanel("githubUsageDashboard", "GitHub Billing Usage", vscode.ViewColumn.One, { enableScripts: true, retainContextWhenHidden: true });
       this.panel.onDidDispose(() => { this.panel = undefined; });
       this.panel.webview.onDidReceiveMessage((message: { command?: string }) => {
         if (message.command) void vscode.commands.executeCommand(`github-usage.${message.command}`);
@@ -21,7 +21,7 @@ export class DashboardPanel {
 export function renderDashboard(state: UsageState, now = Date.now()): string {
   const nonce = "githubUsageDashboard";
   const body = state.data === undefined
-    ? `<main><h1>GitHub Usage</h1><section class="notice error" role="status"><strong>No billing data available.</strong><p>${escapeHtml(state.error?.message ?? "Set a token and refresh.")}</p></section>${actions()}</main>`
+    ? `<main><h1>GitHub Billing Usage</h1><p class="eyebrow">Actions minutes and storage, plus Copilot billing, for one billing owner you configure</p><section class="notice error" role="status"><strong>No billing data available.</strong><p>${escapeHtml(state.error?.message ?? "Set a token and refresh.")}</p></section>${actions()}</main>`
     : renderSnapshot(state, now);
   return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'nonce-${nonce}';"><style>${styles()}</style></head><body>${body}<script nonce="${nonce}">const vscode=acquireVsCodeApi();document.querySelectorAll('[data-command]').forEach((button)=>button.addEventListener('click',()=>vscode.postMessage({command:button.dataset.command})));</script></body></html>`;
 }
@@ -30,7 +30,7 @@ function renderSnapshot(state: UsageState, now: number): string {
   const snapshot = state.data!;
   const warning = state.state === "stale" || state.error
     ? `<section class="notice warning" role="status"><strong>Last-known-good data.</strong><p>${escapeHtml(state.error?.message ?? "This snapshot is stale.")}</p></section>` : "";
-  return `<main><header><div><p class="eyebrow">Authorized billing data</p><h1>GitHub Usage</h1><p>${escapeHtml(snapshot.owner.name)} - ${snapshot.owner.scope} owner</p></div><div class="freshness"><strong>${snapshot.stale ? "Stale" : "Fresh"}</strong><span>${escapeHtml(new Date(snapshot.fetchedAt).toLocaleString())}</span></div></header>${warning}<nav aria-label="Usage sections"><a href="#copilot">Copilot</a><a href="#actions">Actions</a><a href="#details">Billing detail</a></nav><section id="copilot"><h2>Copilot</h2>${metricCard(snapshot.copilot, now)}</section><section id="actions"><h2>Actions</h2><div class="metrics">${metricCard(snapshot.actionsMinutes, now)}${metricCard(snapshot.actionsStorage, now)}</div></section><section id="details"><h2>Billing detail</h2>${breakdowns(snapshot.copilot)}${breakdowns(snapshot.actionsMinutes)}${breakdowns(snapshot.actionsStorage)}</section>${actions()}</main>`;
+  return `<main><header><div><p class="eyebrow">Actions minutes and storage, plus Copilot billing, for one billing owner</p><h1>GitHub Billing Usage</h1><p>Billing owner: ${escapeHtml(snapshot.owner.name)} - ${snapshot.owner.scope} scope</p></div><div class="freshness"><strong>${snapshot.stale ? "Stale" : "Fresh"}</strong><span>${escapeHtml(new Date(snapshot.fetchedAt).toLocaleString())}</span></div></header>${warning}<nav aria-label="Usage sections"><a href="#copilot">Copilot</a><a href="#actions">Actions</a><a href="#details">Billing detail</a></nav><section id="copilot"><h2>Copilot</h2>${metricCard(snapshot.copilot, now)}</section><section id="actions"><h2>Actions</h2><div class="metrics">${metricCard(snapshot.actionsMinutes, now)}${metricCard(snapshot.actionsStorage, now)}</div></section><section id="details"><h2>Billing detail</h2>${breakdowns(snapshot.copilot)}${breakdowns(snapshot.actionsMinutes)}${breakdowns(snapshot.actionsStorage)}</section>${actions()}</main>`;
 }
 
 function metricCard(metric: UsageMetric, now: number): string {

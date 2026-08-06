@@ -1,5 +1,34 @@
 # Development Log
 
+## [2026-08-06] - v3.15.12 Phase 3 rename to GitHub Billing Usage [feature]
+
+### What Changed
+
+The GitHub monitor now presents as **GitHub Billing Usage** everywhere a user can see it: display name, description, all nine command titles, the command category, the configuration and activity-bar titles, the status-bar label, the dashboard and settings panel headings, the hover, one error message that quotes a command title, both installers, and the README. The description and panel copy now state plainly that it covers Actions minutes and storage **plus** Copilot billing for **one** billing owner you configure. The extension id, command ids, configuration prefix, storage keys, and view ids are all unchanged.
+
+### Why It Changed
+
+The old name invited two wrong readings in opposite directions: that the extension monitored Copilot, or that it monitored Actions only. It reports both, for a single configured billing owner, and it is independent of whichever GitHub account Copilot itself is signed in to.
+
+### Decisions Made
+
+- **Keep the extension id.** A VS Code id is `publisher.name`, so renaming `name` mints a *new* extension rather than updating the installed one. Anyone who had already installed the old id would end up with two extensions, both activating on startup and both writing a status-bar item, with nothing indicating which was which. Avoiding that would need teardown logic in both installers that has to be exactly right on every platform and every re-run, in exchange for a cosmetic id nobody reads. Renaming display surfaces only is non-breaking: an existing install updates in place and keeps its token and cache.
+- **Move the whole visible surface, not just the display name.** The plan asked for a deliberate choice on the command-title prefix; the maintainer chose full consistency. Titles and category are `GitHub Billing`, and so is the status-bar label. The accepted cost is that a palette search for "GitHub Usage" no longer matches, which the README states.
+- **Installer edits are display strings only.** Because the id is unchanged, no uninstall of a superseded id is needed, and a test now asserts none was added, so a later well-meaning edit cannot introduce teardown that has nothing to tear down.
+- **Do not rewrite history.** The v3.15.8 plan, its three phase histories, the root README's `## What's New in v3.15.8` section, and earlier CHANGELOG entries keep the old name, because they record what shipped under that name. The current contracts (`github-usage-data-contract.md`, `github-usage-visual-contract.md`) DID need fixing, because they asserted the old title as present fact.
+
+### Troubleshooting Trail
+
+- **One real defect, and the phase gate would not have caught it (BG-11).** `catalog/hooks/tests/test_installer_smoke.py` pins both renamed strings: the `USAGE_MONITORS` table asserts the display name, and `test_github_monitor_status_hint_promises_no_percentage` asserts the literal `GitHub Usage: --` hint. That file lives under `catalog/`, not `tests/`, which is the tree this phase's gate runs, so the rename went green locally and would have failed on the ubuntu runner. Found by grepping `catalog/hooks/tests` for the old strings on the suspicion that a rename's blast radius exceeds the plan's file list. While fixing it, the no-percentage assertion was extended to also reject `GitHub Billing: --%`, so the renamed prefix cannot smuggle back the false-quota claim that test exists to prevent.
+- **Two self-inflicted test-authoring slips, both mine.** A bulk replace dropped the space after the prefix, producing `GitHub Billing:Dashboard` across nine titles, caught by reading the result back rather than trusting the replace. Then the new installer test filtered on any line mentioning the extension directory, which matched the explanatory comment the rename itself had just added; and its tightened filter matched only the bash function name, missing PowerShell's hyphenated `Build-And-Install-One-Extension`. Both fixed by normalizing before matching.
+
+### Impact & Context
+
+- **Affected**: `extensions/github-usage-monitor/` (`package.json`, `README.md`, `src/{statusBarManager,dashboardPanel,settingsPanel}.ts`, `src/providers/auth.ts`, `test/ui.test.ts`), `scripts/installer.sh`, `scripts/installer.ps1`, `catalog/hooks/tests/test_installer_smoke.py`, the repo-root `README.md`, and both GitHub contracts under `docs/v3/v3.15/development/`.
+- **Tests**: GitHub extension 103 passed; new `tests/installer/test_github_billing_rename.py` 14 passed; `catalog/hooks/tests/test_installer_smoke.py` 32 passed. `installer.ps1` AST-parses; ShellCheck clean at `--severity=warning`.
+- **CI/CD**: no workflow edit. The new test file rides `tests/installer`, already listed in `ci.yml`, and the updated smoke test rides `catalog/hooks/tests`, also already listed.
+- **Known gaps**: BG-11 found and resolved in-phase. No open gap added. HO-5 (narrowed) and WN-5 carry forward. MT-5 gains relevance: the renamed surfaces have not been seen rendered in a real VS Code window.
+
 ## [2026-08-05] - v3.15.12 Phase 2 Cursor usage UI [feature]
 
 ### What Changed

@@ -1,7 +1,7 @@
 {
   "name": "github-usage-monitor",
-  "displayName": "GitHub Usage Monitor",
-  "description": "Monitor authorized GitHub Copilot and Actions billing usage without storing credentials in settings",
+  "displayName": "GitHub Billing Usage",
+  "description": "Monitor Actions minutes and storage plus Copilot billing for one GitHub billing owner you configure, without storing credentials in settings",
   "version": "0.1.0",
   "publisher": "nexus-hub",
   "icon": "icon.png",
@@ -28,37 +28,37 @@
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
-      { "command": "github-usage.dashboard", "title": "GitHub Usage: Dashboard", "category": "GitHub Usage" },
-      { "command": "github-usage.refresh", "title": "GitHub Usage: Refresh", "category": "GitHub Usage" },
-      { "command": "github-usage.settings", "title": "GitHub Usage: Settings", "category": "GitHub Usage" },
-      { "command": "github-usage.manualEntry", "title": "GitHub Usage: Enter Allowances", "category": "GitHub Usage" },
-      { "command": "github-usage.clearData", "title": "GitHub Usage: Clear Data", "category": "GitHub Usage" },
+      { "command": "github-usage.dashboard", "title": "GitHub Billing: Dashboard", "category": "GitHub Billing" },
+      { "command": "github-usage.refresh", "title": "GitHub Billing: Refresh", "category": "GitHub Billing" },
+      { "command": "github-usage.settings", "title": "GitHub Billing: Settings", "category": "GitHub Billing" },
+      { "command": "github-usage.manualEntry", "title": "GitHub Billing: Enter Allowances", "category": "GitHub Billing" },
+      { "command": "github-usage.clearData", "title": "GitHub Billing: Clear Data", "category": "GitHub Billing" },
       {
         "command": "github-usage.setToken",
-        "title": "GitHub Usage: Set Token",
-        "category": "GitHub Usage"
+        "title": "GitHub Billing: Set Token",
+        "category": "GitHub Billing"
       },
       {
         "command": "github-usage.validateToken",
-        "title": "GitHub Usage: Validate Token",
-        "category": "GitHub Usage"
+        "title": "GitHub Billing: Validate Token",
+        "category": "GitHub Billing"
       },
       {
         "command": "github-usage.rotateToken",
-        "title": "GitHub Usage: Rotate Token",
-        "category": "GitHub Usage"
+        "title": "GitHub Billing: Rotate Token",
+        "category": "GitHub Billing"
       },
       {
         "command": "github-usage.clearToken",
-        "title": "GitHub Usage: Clear Token",
-        "category": "GitHub Usage"
+        "title": "GitHub Billing: Clear Token",
+        "category": "GitHub Billing"
       }
     ],
     "icons": { "github-icon": { "description": "GitHub icon", "default": { "fontPath": "./fonts/github-icons.woff2", "fontCharacter": "\\E102" } } },
-    "viewsContainers": { "activitybar": [{ "id": "githubUsageWarning", "title": "GitHub Usage Warning", "icon": "icons/warning.svg" }] },
+    "viewsContainers": { "activitybar": [{ "id": "githubUsageWarning", "title": "GitHub Billing Warning", "icon": "icons/warning.svg" }] },
     "views": { "githubUsageWarning": [{ "id": "githubUsageWarningView", "name": "Usage Warning", "type": "webview", "when": "githubUsage.warningActive" }] },
     "configuration": {
-      "title": "GitHub Usage Monitor",
+      "title": "GitHub Billing Usage",
       "properties": {
         "githubUsage.billingScope": {
           "type": "string",

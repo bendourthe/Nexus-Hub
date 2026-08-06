@@ -1899,8 +1899,13 @@ install_vscode_extensions() {
     # here would be the false-quota claim the v3.15.8 contract forbids. The
     # install itself never authenticates to GitHub - the token is supplied later
     # through the extension's SecretStorage command.
+    # v3.15.12 Phase 3 renamed the display surfaces to "GitHub Billing Usage". The
+    # extension id is deliberately unchanged: an id is publisher.name, so renaming
+    # it would mint a second extension and leave the previously installed one
+    # orphaned, with both writing a status-bar item. The directory path also stays
+    # extensions/github-usage-monitor.
     write_header "GITHUB"
-    build_and_install_one_extension "$repo_root/extensions/github-usage-monitor" "nexus-hub.github-usage-monitor" "GitHub Usage Monitor" "GitHub Usage: --" "$vscode_cli" "$vscode_label"
+    build_and_install_one_extension "$repo_root/extensions/github-usage-monitor" "nexus-hub.github-usage-monitor" "GitHub Billing Usage" "GitHub Billing: --" "$vscode_cli" "$vscode_label"
 
     write_header "ANYSPHERE"
     build_and_install_one_extension "$repo_root/extensions/cursor-usage-monitor" "nexus-hub.cursor-usage-monitor" "Cursor Usage Monitor" "Cursor: --%" "$cursor_cli" "$cursor_label"

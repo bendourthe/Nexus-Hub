@@ -7,7 +7,7 @@
 
 ## Decision
 
-The GitHub Usage Monitor reads documented GitHub REST billing endpoints only. It selects one explicit billing scope (`user`, `organization`, or `enterprise`), stores a user-supplied credential only in VS Code SecretStorage, and never scrapes GitHub.com, reads browser cookies, or converts absolute consumption into a percentage without a verified denominator. Unsupported access falls back to cached data and optional manual allowances, with source and freshness shown to the user.
+GitHub Billing Usage (named "GitHub Usage Monitor" before v3.15.12; extension id `nexus-hub.github-usage-monitor` unchanged) reads documented GitHub REST billing endpoints only. It selects one explicit billing scope (`user`, `organization`, or `enterprise`), stores a user-supplied credential only in VS Code SecretStorage, and never scrapes GitHub.com, reads browser cookies, or converts absolute consumption into a percentage without a verified denominator. Unsupported access falls back to cached data and optional manual allowances, with source and freshness shown to the user.
 
 No authorized billing credential or account scope was supplied for Phase 1, so no live billing request was made. The fixture set uses sanitized shapes derived from GitHub's published examples. The bounded probe below is the approved procedure for a later explicitly authorized run.
 

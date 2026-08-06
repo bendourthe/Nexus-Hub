@@ -248,3 +248,15 @@ v3.15.12 Phase 2 added **no** document to the active v3.15 tree beyond its requi
 One classification worth stating explicitly, because it is the kind of thing that later reads as a contradiction: the visual contract is dated `v3.15.9` in its own header while now carrying a v3.15.12 rule. It was amended rather than superseded by a new file on purpose. A second `cursor-usage-visual-contract-v3.15.12.md` would split one contract across two documents and leave a reader unsure which governs, which is exactly the duplication this report exists to prevent. The amended bullets name the version that changed them, so the provenance survives inside the single document.
 
 Phase 2 added no source file, directory, artifact class, or scratch output. It changed three existing TypeScript sources and one existing test file, all inside the extension tree, and required zero new `.gitignore` patterns.
+
+## v3.15.12 Phase 3 audit (2026-08-06, mode: audit - no files moved)
+
+Phase 3 added one document to the active v3.15 tree (its phase history) and one test file outside it (`tests/installer/test_github_billing_rename.py`, which belongs beside the installer suites it extends). It modified two existing v3.15 development documents in place, `github-usage-data-contract.md` and `github-usage-visual-contract.md`, both of which asserted the old extension title as present fact. Nothing qualifies for deletion, archival, consolidation, or relocation, and no reference repair is justified. The phase created no scratch document.
+
+Two naming classifications are worth stating, because both will otherwise read as oversights later.
+
+First, the **filenames keep `github-usage`** while their content now says `GitHub Billing Usage`: the contracts stay at `github-usage-data-contract.md` and `github-usage-visual-contract.md`, and the extension stays at `extensions/github-usage-monitor/`. That is deliberate and consistent with the phase's central decision. The extension id is `publisher.name`, so the directory name is load-bearing for the id; renaming the directory would either break the id or require a second rename to keep it. The docs follow the code's naming so a reader grepping either finds both. Renaming the doc files would also invalidate every inbound reference from the v3.15.8 plan and its three histories, which are historical records that must not be rewritten.
+
+Second, **history was deliberately not rewritten**. The v3.15.8 plan, its three phase histories, the root README's `## What's New in v3.15.8` section, and earlier CHANGELOG entries all still say "GitHub Usage Monitor". They record what shipped under that name at that time, and editing them would falsify the record. Only documents asserting the old name as *current fact* were changed.
+
+Phase 3 added no directory, artifact class, or scratch output, and required zero new `.gitignore` patterns.

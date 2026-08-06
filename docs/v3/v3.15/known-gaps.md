@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: `v3.15.0` through `v3.15.9` are all released and tagged (10 releases). v3.15.10 Phases 1-4 are complete locally on `feat/v3.15.10-end-of-task-behavior`: two purposeful notification triggers with repo+branch labels and a run-time kill switch, the end-of-task summary rule in all 12 substantive instruction templates, per-platform notification-coverage verification with delivery to Cursor, and the terminal gate. Awaiting `/update release`.
-**Last updated**: 2026-08-05 (v3.15.12 Phase 2 append)
+**Last updated**: 2026-08-06 (v3.15.12 Phase 3 append)
 
 **Current v3.15.9 status**: Phases 1-7 run on `feat/v3.15.9-cross-provider-routing`, based on the released v3.15.8 `develop`. Claude/Codex/GitHub monitors install only into VS Code; Cursor Usage Monitor installs only into Cursor. Focused CI builds/packages the Cursor VSIX and degrades E2E when the hosted runner lacks the Cursor CLI, pointing at the live-smoke checklist. Phase 7 reconciled this ledger, confirmed CI coverage and optimization, and completed the README/CHANGELOG record; the remaining steps are the maintainer-approved branch push, the integration PR to protected `develop`, and `/update release` after green integration.
 
@@ -114,6 +114,48 @@ No Phase 2 missing-test gap remains: every changed file is covered by the new `u
 | Hand-offs (HO) | 0 | 0 |
 
 Phase 2 introduced no new numbered gap. Its one unverifiable item, three-theme visual legibility, folds into the already-open QG-4 / QG-5 smokes rather than becoming a new entry. HO-5 and WN-5 carry forward from Phase 1 unchanged.
+
+### v3.15.12 Phase 3 checkpoint
+
+**Status**: Phase 3 (rename to GitHub Billing Usage) complete locally. Display name, description, all nine command titles, category, configuration and view titles, panel and hover copy, both installers, and the README now read `GitHub Billing`. The extension id is deliberately unchanged. 103 GitHub extension tests green, 14 new installer/manifest tests green, 32 installer-smoke tests green.
+
+### v3.15.12 Phase 3 Open Items
+
+#### Bugs / regressions found and resolved inside the phase
+
+##### BG-11 - RESOLVED: the rename would have failed CI through a suite the phase's own gate did not cover
+
+- **Source phase**: v3.15.12 Phase 3.3 - Tests and stabilization (T020)
+- **Plan reference**: `docs/v3/v3.15/plans/v3.15.12-cursor-live-transport-and-github-billing-monitor.md` (sub-task 3.3)
+- **Reason**: `catalog/hooks/tests/test_installer_smoke.py` pins both renamed strings: the `USAGE_MONITORS` table asserted the display name `GitHub Usage Monitor`, and `test_github_monitor_status_hint_promises_no_percentage` asserted the literal `GitHub Usage: --` status hint. Neither lives under `tests/`, which is the tree the phase gate runs, so the rename would have gone green locally and failed on the ubuntu runner. Found by grepping `catalog/hooks/tests` for the old strings rather than by the gate.
+- **Resolution**: both assertions updated with a comment recording that the folder and id deliberately did not change, and the no-percentage assertion extended to also reject `GitHub Billing: --%` so the renamed prefix cannot smuggle back the false-quota claim it was written to prevent. Suite re-run: 32 passed.
+- **Lesson carried forward**: a rename's blast radius is not bounded by the plan's file list. The gate must include `catalog/hooks/tests` whenever installer text changes, because `ci.yml` collects it separately from `tests/`.
+
+#### Deviations from the plan's stated file list (no gap, recorded for accuracy)
+
+- **T017 decided to KEEP the extension id**, which the plan offered as the recommended branch. An id is `publisher.name`, so renaming `name` mints a new extension instead of updating the installed one, leaving anyone who already installed the old id with two extensions both writing a status-bar item. Renaming display surfaces only is non-breaking: an existing install updates in place and keeps its stored token and cached snapshot. Consequence, recorded in the README: searching the Command Palette for "GitHub Usage" no longer matches.
+- **T018 / T019 became display-string edits, not uninstall logic.** Because the id is unchanged, no teardown of a superseded id is needed, and the new tests assert that none was added (`uninstall-extension.*github` must not appear). This is the smaller and safer half of the branch the plan described.
+- **Six files outside the plan's Phase 3 list were changed.** `catalog/hooks/tests/test_installer_smoke.py` (BG-11 above); the repo-root `README.md` usage-monitor roster; `development/github-usage-data-contract.md` and `development/github-usage-visual-contract.md`, both of which asserted the old title as current fact; and the GitHub extension's `test/ui.test.ts`, which pinned the old status-bar label and settings-panel title. Each was a stale-fact fix required by the rename, not opportunistic editing.
+- **Historical records were deliberately NOT rewritten.** The v3.15.8 plan, its three phase histories, the `## What's New in v3.15.8` section of the root README, and the earlier CHANGELOG entries all keep "GitHub Usage Monitor", because they record what shipped under that name at that time. Rewriting them would falsify the record, the same rule applied to the v3.15.11 plan question (PR-1).
+
+#### Carried forward unchanged
+
+- **HO-5** (narrowed: the Cursor wire contract awaits one maintainer probe) and **WN-5** (Node 22.13+ host requirement) from Phase 1.
+- **QG-4**, **QG-5**, **MT-5** remain maintainer-only. **MT-5** specifically covers GitHub monitor Extension Development Host activation, so the renamed surfaces are new copy for that smoke to read; the rename is asserted statically but has not been seen rendered in a real VS Code window.
+
+### v3.15.12 Phase 3 Summary
+
+| Category | Open | Resolved |
+|---|---:|---:|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 1 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+| Hand-offs (HO) | 0 | 0 |
+
+One bug found and resolved in-phase (BG-11), and it is the useful result of Phase 3: the rename's blast radius reached a test tree the phase gate did not run, and only a deliberate grep for the old strings caught it before CI would have.
 
 ## v3.15.11 - codex notification delivery and the inert-hook regression
 
