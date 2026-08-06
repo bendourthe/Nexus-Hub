@@ -260,3 +260,13 @@ First, the **filenames keep `github-usage`** while their content now says `GitHu
 Second, **history was deliberately not rewritten**. The v3.15.8 plan, its three phase histories, the root README's `## What's New in v3.15.8` section, and earlier CHANGELOG entries all still say "GitHub Usage Monitor". They record what shipped under that name at that time, and editing them would falsify the record. Only documents asserting the old name as *current fact* were changed.
 
 Phase 3 added no directory, artifact class, or scratch output, and required zero new `.gitignore` patterns.
+
+## v3.15.12 Phase 4 pre-work audit (2026-08-06, mode: audit - no files moved)
+
+The Phase 4 pre-work added two documents to the active v3.15 tree, `development/github-billing-auth-probe.md` and its session history, and modified `development/github-usage-data-contract.md`, `known-gaps.md`, the plan, this report, `docs/DEVLOG.md`, `CHANGELOG.md`, and the extension `README.md`. Every one is its canonical location; nothing qualifies for deletion, archival, consolidation, or relocation. No scratch document was created.
+
+One placement decision worth stating: the new probe doc sits beside `cursor-usage-auth-probe.md` under `development/`, matching the existing convention that a probe record lives with the contracts it constrains rather than in `plans/`. The two are deliberately parallel documents for the same reason - each records a premise that only a real host can settle - and a reader who finds one should find the other adjacent.
+
+The orphan audit covers two new source files. `src/providers/authProbe.ts` is imported by `test/auth-probe.test.ts` and referenced by name from the probe doc, and it is deliberately **not** yet wired into `extension.ts`: it is a T022c instrument, and wiring it into activation before the probe has been run would imply a capability the extension does not yet have. That makes it referenced-but-unwired by design, not an orphan. `test/auth-probe.test.ts` is collected by the extension's Vitest glob.
+
+Phase 4 pre-work added no directory, artifact class, or scratch output, and required zero new `.gitignore` patterns.

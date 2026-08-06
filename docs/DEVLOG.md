@@ -1,5 +1,36 @@
 # Development Log
 
+## [2026-08-06] - v3.15.12 Phase 4 pre-work: the GitHub billing auth question [research]
+
+### What Changed
+
+T022 was split into a documentary half (done), a committed probe harness (done), and a maintainer-run live probe (open, blocking). `development/github-billing-auth-probe.md` records the compatibility matrix, the corrected decision rule written before any evidence was read, and an empty results table. `src/providers/authProbe.ts` is a bounded one-read probe with `toSanitizedRecord` as its only serialization path. The extension also became self-diagnosing on permission failures, and the plan's Phase 4 was reshaped from a single global auth default to per-target capability resolution.
+
+### Why It Changed
+
+The plan assumed GitHub's documentation would settle whether VS Code GitHub sessions can authenticate the billing endpoints. It does not, and three premises the plan inherited were wrong.
+
+### Decisions Made
+
+- **The endpoint reference cannot rule OAuth out.** Its token section is titled "Fine-grained access tokens for...", so it enumerates fine-grained support only. The earlier proposed rule ("session unsupported because the docs do not list OAuth") rejects OAuth on absence of evidence and would have permanently foreclosed a viable path. Replaced with a rule requiring a real `200` for a positive and a classic-PAT control for a negative.
+- **Record the documentation conflict as a conflict.** The REST reference says fine-grained PATs work for user and org billing usage; GitHub's own usage-reporting tutorial says they do not and directs users to a classic PAT. Neither was picked. Enterprise is the one documentary negative and is treated as settled without probing.
+- **Classic PAT is a first-class credential class**, which the plan never mentioned, and it is the control that makes any negative interpretable. Insufficient role, org OAuth-app restrictions, and SSO authorization all produce the same `403` / `404`.
+- **Per-target capability resolution, not `DEFAULT_AUTH`.** One user can legitimately end up on a session for their personal account and org A, and on a classic PAT for org B and an enterprise. A global flag cannot express that.
+- **The probe module never imports `vscode`.** It takes a token and a fetch; `probeVsCodeSession` takes an injected session provider. That keeps it unit-testable without the editor stub and keeps credential acquisition at the call site.
+- **Enforce the "never record" list by test, not by comment.** `toSanitizedRecord` rebuilds its output field by field, and tests assert the serialized form cannot contain a token, an `Authorization` header, or a success body, and that the emitted key set is exactly the approved one. A field added to `ProbeRecord` cannot reach a report until it is added deliberately.
+
+### Troubleshooting Trail
+
+- **A false pass in my own verification, worth recording.** An ASCII check on the new docs used `[System.IO.File]::ReadAllText` with relative paths. .NET resolves those against its own current directory, not PowerShell's `Set-Location`, so every read threw and the loop reported "non-ASCII=0" from a stale variable. It looked like a clean pass. Re-run with `Resolve-Path`, and the files are genuinely ASCII-clean, but the first result was measuring nothing.
+- **A trap found while designing the record shape**: `AuthenticationSession.scopes` reflects what the extension requested, not what GitHub granted, so a narrowed consent would read as a full grant. `ProbeRecord` keeps `providerReportedScopes` and `grantedOAuthScopes` as separate fields, and a test asserts they can disagree.
+
+### Impact & Context
+
+- **Affected**: new `docs/v3/v3.15/development/github-billing-auth-probe.md`, new `extensions/github-usage-monitor/src/providers/authProbe.ts` and `test/auth-probe.test.ts`, plus `src/types.ts`, `src/providers/github.ts`, the extension `README.md`, `development/github-usage-data-contract.md`, the v3.15.12 plan, and `known-gaps.md`.
+- **Tests**: GitHub extension 125 passed (22 new); `authProbe.ts` at 100% statements, 100% lines, 90% branches. `tests/plans` + `tests/installer` 249 passed / 16 skipped. Bundle validation PASS, 0 errors.
+- **CI/CD**: no workflow edit. The new test rides the existing `extensions/github-usage-monitor/**` path filter; the docs ride `tests/plans`.
+- **Known gaps**: **HO-6 added and open** - the session premise needs a live probe with a classic-PAT control. This is the second maintainer gate in v3.15.12 alongside HO-5, and Phase 4's implementation is deliberately not started. One shipped improvement fell out regardless: failed billing responses now quote GitHub's own accepted-scope answer instead of only the extension's guess.
+
 ## [2026-08-06] - v3.15.12 Phase 3 rename to GitHub Billing Usage [feature]
 
 ### What Changed

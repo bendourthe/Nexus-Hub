@@ -157,6 +157,56 @@ Phase 2 introduced no new numbered gap. Its one unverifiable item, three-theme v
 
 One bug found and resolved in-phase (BG-11), and it is the useful result of Phase 3: the rename's blast radius reached a test tree the phase gate did not run, and only a deliberate grep for the old strings caught it before CI would have.
 
+### v3.15.12 Phase 4 pre-work (T022a / T022b) - 2026-08-06
+
+**Status**: the documentary half of T022 is done and the probe harness is committed. **T022c, the empirical half, is maintainer-gated and blocks the rest of Phase 4.** No Phase 4 implementation (T023 onward) has been written, deliberately.
+
+#### Hand-offs
+
+##### HO-6 - The VS Code session premise cannot be settled from documentation, and needs a live probe with a classic-PAT control
+
+- **Source phase**: v3.15.12 Phase 4.1 - T022
+- **Plan reference**: `docs/v3/v3.15/plans/v3.15.12-cursor-live-transport-and-github-billing-monitor.md` (sub-task 4.1)
+- **Reason**: The plan assumed first-party documentation would answer whether VS Code GitHub sessions are accepted by the billing endpoints. It does not. GitHub's REST endpoint reference says fine-grained PATs work for user and organization billing usage, while GitHub's own "Automating usage reporting" tutorial says the billing usage endpoints do **not** support fine-grained PATs and directs users to a classic PAT. Enterprise is the single documentary negative (fine-grained PATs and GitHub App tokens explicitly rejected). Because the reference's token section is titled "Fine-grained access tokens for...", OAuth's absence from it is **not** a rejection, so no documentary reading can rule the session path out either. That leaves a live probe as the only resolution, and a probe needs a **classic-PAT control** on an account that genuinely holds the role and has enhanced billing enabled, because insufficient role, organization OAuth-app restrictions, and SSO authorization all produce the same `403` / `404` shapes.
+- **Suggested next step**: run the probe matrix in `development/github-billing-auth-probe.md` using `src/providers/authProbe.ts`, one `/settings/billing/usage` read per credential class per level, and paste the sanitized records into that document's results table. `toMarkdownRow` emits a paste-ready row. Then T023 implements against recorded evidence rather than an assumption.
+- **This is the second maintainer gate in v3.15.12**, alongside HO-5. Both exist for the same reason: a premise that only a real host and a real account can settle.
+
+#### Corrections to premises this plan inherited (recorded so they are not re-derived)
+
+Three assumptions were wrong, and one of them was a wrong decision *rule* rather than a wrong fact. All three are recorded in full in `development/github-billing-auth-probe.md`:
+
+1. **"The endpoint reference's token list settles OAuth support"** - it does not. That section enumerates fine-grained token support only. A rule of the form "session unsupported because the docs do not list OAuth" rejects OAuth on absence of evidence, and would have permanently foreclosed a viable auth path.
+2. **"GitHub has no billing-specific OAuth scope"** - `manage_billing:enterprise` exists, subsumed by `admin:enterprise`.
+3. **"VS Code's provider filters scopes against a fixed allowlist"** - the current provider forwards caller-supplied scopes into the GitHub login flow. It still cannot mint a fine-grained PAT or GitHub App token through `getSession()`.
+
+Plus one trap that would have silently broken the plan's own "never fall back silently" requirement: **`AuthenticationSession.scopes` reports the scopes the extension REQUESTED, not what GitHub granted.** Granted scopes must be read from the `X-OAuth-Scopes` response header. A narrowed consent would otherwise have read as a full grant.
+
+#### Plan revisions applied
+
+- The Definition of Done's global "session default XOR PAT default" line is struck through and replaced with **per-target capability resolution**: a session is used for a given user / organization / enterprise only after that target and endpoint return `200`.
+- T022 is split into T022a (documentary, done), T022b (harness, done), and T022c (maintainer-gated probe).
+- T023 / T024 / T026 are reshaped from a single auth default to a three-state per-target capability (`supported` with evidence class, `blocked` with a diagnosed reason, or `unknown`), with explicit no-silent-broadening and no-silent-swap rules.
+- The Phase 4 Stability Gate and exit checklist now require that every `supported` verdict trace to a recorded `200`, and that no verdict rest on the endpoint reference's silence about OAuth.
+
+#### Shipped improvement made possible by the finding
+
+- **The extension is now self-diagnosing on permission failures.** `withAuthorizationDiagnosis` attaches `X-Accepted-OAuth-Scopes`, `X-OAuth-Scopes`, `X-Accepted-GitHub-Permissions`, and `X-GitHub-Request-Id` to any failed billing response and appends GitHub's own answer to the message, so a `403` now names the scope the operation would accept instead of only what the extension guessed from the configured scope. This is useful independently of how T022c resolves.
+- **The README and data contract no longer present the fine-grained token class as exhaustive.** Classic PAT is documented as a valid class, enterprise is documented as classic-only, and the doc conflict is stated rather than smoothed over.
+
+### v3.15.12 Phase 4 pre-work Summary
+
+| Category | Open | Resolved |
+|---|---:|---:|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+| Hand-offs (HO) | 1 | 0 |
+
+HO-6 is new and open. It is not a defect: it is the honest result of discovering that the question T022 asks cannot be answered from documentation. The alternative, picking whichever documentary reading suited the plan's preferred branch, is precisely the failure mode `auth.ts:99` was written to prevent.
+
 ## v3.15.11 - codex notification delivery and the inert-hook regression
 
 ### v3.15.11 process deviation (recorded 2026-08-05)

@@ -63,13 +63,17 @@ The monitor queries exactly one owner. It never merges scopes or guesses an owne
 
 ### 2. Store a token
 
-Run `GitHub Billing: Set Token` and paste a fine-grained token. It is validated against the billing endpoint before it is saved, and it is stored only in VS Code SecretStorage - never in `settings.json`, never in workspace state, never in a log line.
+Run `GitHub Billing: Set Token` and paste a token of the class your billing scope needs (see the table). It is validated against the billing endpoint before it is saved, and it is stored only in VS Code SecretStorage - never in `settings.json`, never in workspace state, never in a log line.
 
 | Scope | Required authorization |
 |---|---|
-| `user` | Fine-grained PAT or GitHub App user token with user `Plan: read` |
-| `organization` | Organization `Administration: read`, and the caller must be an organization administrator |
-| `enterprise` | Enterprise owner or billing manager credential (the billing endpoints do not accept fine-grained PATs here) |
+| `user` | Fine-grained PAT or GitHub App user token with user `Plan: read`. A classic PAT also works and is what GitHub's own usage-reporting tutorial recommends |
+| `organization` | Organization `Administration: read`, and the caller must be an organization administrator. A classic PAT also works, per the same tutorial |
+| `enterprise` | **Classic PAT** with an enterprise owner or billing manager role. The billing endpoints explicitly do **not** accept fine-grained PATs or GitHub App tokens at this scope |
+
+> **Which token class?** GitHub's first-party docs currently disagree for user and organization scope: the REST endpoint reference says fine-grained PATs work, while the "Automating usage reporting" tutorial says the billing usage endpoints do not support them and directs you to a classic PAT. If a fine-grained token is rejected, try a classic PAT. Enterprise scope is unambiguous: classic PAT only. The conflict and the evidence behind it are recorded in [github-billing-auth-probe.md](../../docs/v3/v3.15/development/github-billing-auth-probe.md).
+>
+> When a token is refused for permissions, the error now quotes GitHub's own answer from the `X-Accepted-OAuth-Scopes` response header, so it names the scope the operation would accept rather than only what the extension expected.
 
 `GitHub Billing: Validate Token` re-checks the stored credential, `GitHub Billing: Rotate Token` replaces it, and `GitHub Billing: Clear Token` deletes it from SecretStorage.
 
