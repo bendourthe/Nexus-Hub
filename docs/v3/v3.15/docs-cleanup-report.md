@@ -270,3 +270,19 @@ One placement decision worth stating: the new probe doc sits beside `cursor-usag
 The orphan audit covers two new source files. `src/providers/authProbe.ts` is imported by `test/auth-probe.test.ts` and referenced by name from the probe doc, and it is deliberately **not** yet wired into `extension.ts`: it is a T022c instrument, and wiring it into activation before the probe has been run would imply a capability the extension does not yet have. That makes it referenced-but-unwired by design, not an orphan. `test/auth-probe.test.ts` is collected by the extension's Vitest glob.
 
 Phase 4 pre-work added no directory, artifact class, or scratch output, and required zero new `.gitignore` patterns.
+
+## v3.15.12 Phase 4 and Phase 5 final audit (2026-08-06, mode: audit - no files moved)
+
+Phase 4 added two session histories and no other document; Phase 5 added its own history and amended `known-gaps.md`, `CHANGELOG.md`, `docs/DEVLOG.md`, this report, and the plan. All canonical locations. Nothing qualifies for deletion, archival, consolidation, or relocation, and no reference repair is justified because nothing moved.
+
+The repository-wide structural audit found: 8 empty directories under `catalog/skills/`, all untracked and all the same set prior reports dispositioned as maintainer work-in-progress or parallel-session artifacts, left untouched; no tracked build or coverage artifact (`git ls-files` matches nothing under `out/`, `coverage/`, or `*.vsix`); and no `TODO` / `FIXME` / `XXX` / `HACK` / `# DEVIATION` marker in any of the 40-plus files this version changed.
+
+One untracked file belongs to a parallel session (`docs/v3/v3.17/comparisons/v3.17.1-comparison-mattpocock-...`, which that session renumbered out of v3.15.13 during this work). It was never staged. Every commit in this version staged by explicit path rather than `git add -A`, after the first Phase 1 commit nearly swept an earlier file of theirs in; that is recorded in the v3.15.12 Phase 2 history as the reason.
+
+New source files this version, all referenced and none orphaned: the Cursor extension gained `providers/{consent,session,liveTransport,liveAccess,wireShape}.ts` plus `scripts/probe-wire-shape.js`, and the GitHub extension gained `providers/{authProbe,capability,sessionBinding,diagnose}.ts` plus `scripts/probe-billing-auth.js`. Each is imported by source or driven by a test; the two `scripts/` runners are referenced from their probe docs and excluded from both VSIXs by `.vscodeignore`.
+
+One deliberate non-orphan worth naming: `providers/authProbe.ts` is now reached from shipped code (the diagnostic) rather than tests alone, which it was during Phase 4 pre-work. At that point it was referenced-but-unwired **by design**, because wiring a probe into activation before the probe had been run would have implied a capability the extension did not have.
+
+An advisory, pre-existing and not introduced here: `docs/DEVLOG.md` carries 22 non-ASCII characters from line 2422 onward, all in v2.0.0-era entries. This version's own entries are ASCII-clean, verified. Left untouched as historical record; line numbers recorded in `known-gaps.md` for a future sweep.
+
+Phases 4 and 5 added no artifact class or scratch output, and required zero new `.gitignore` patterns.

@@ -207,6 +207,44 @@ Plus one trap that would have silently broken the plan's own "never fall back si
 
 HO-6 is new and open. It is not a defect: it is the honest result of discovering that the question T022 asks cannot be answered from documentation. The alternative, picking whichever documentary reading suited the plan's preferred branch, is precisely the failure mode `auth.ts:99` was written to prevent.
 
+### v3.15.12 VERSION-FINAL RECONCILIATION (Phase 5) - 2026-08-06
+
+**Status**: all five phases complete locally. This is the authoritative open/closed set for v3.15.12.
+
+#### Closed this version
+
+| Item | Disposition |
+|---|---|
+| **HO-5** | **CLOSED as a negative.** The authorized probe sequence ran to completion (`401` / `405` with `allow: POST` / `403`) and four independent checks established there is **no supported surface**: no documented personal-usage API, an SDK that does not auto-discover local credentials, no Cursor authentication provider among 116 bundled extensions, and no usage or billing command among them. The question HO-5 asked is answered. Residual permanent state: `CURSOR_WIRE_CONTRACT.verified` stays `false`, and the `CursorAccountApiProvider` seam is retained unused for a future documented API. The constructive follow-on is planned as **v3.15.14** |
+| **WN-5** | **RESOLVED, favorably.** Cursor's extension host is Electron 40.10.3 / Node 24.15.0 with `node:sqlite` available, well above the 22.13 floor. Answered via `ELECTRON_RUN_AS_NODE`, not by a human reading a panel |
+| **BG-11** | Resolved: the rename would have failed CI through `catalog/hooks/tests`, a tree the phase gate did not run |
+| **BG-12** | Resolved: both probe runners aborted on exit via `process.exit()` racing `node:sqlite` teardown |
+| **BG-13** | Resolved: scope escalation would have requested `admin:org` for a non-scope failure |
+| **BG-14** | Resolved: `logIn` / `logOut` were registered with no test driving them, on a stub with no `authentication` surface |
+| **QG-6** | Resolved: the Cursor workflow now triggers on `tests/fixtures/cursor-usage/**` |
+
+#### Open at release
+
+| Item | Why it is open |
+|---|---|
+| **HO-6** | Narrowed to **one command the maintainer runs**. `GitHub Billing: Diagnose Authorization` acquires a session, probes once, and records the verdict. It cannot be closed by an agent: a VS Code session exists only inside the editor, and reading its token from the OS keychain is an explicit non-goal. Until it runs, an unprobed target reports `unknown`, and `unknown` is never treated as `supported` |
+| **QG-4 / QG-5 / MT-5** | Maintainer-only interactive smokes. **Scope widened this version**: QG-4/QG-5 now also cover the Cursor on-demand bar (currency labels, shared-scope note, over-limit clamp, dropped-bar fallback), and MT-5 now also covers the renamed GitHub surfaces and the new Authorization panel section |
+| **WN-3** | Unchanged. `test_instruction_merge.py` depends on installer-suite import order (v3.15.7). Untouched by this release |
+| **DF-14 / DF-16 / DF-17** | Out of scope; carried unchanged |
+
+#### Re-checked
+
+- **WN-4**: `npm audit` reports **0 vulnerabilities** in both usage-monitor extensions. The prior entry recorded transitive `@vscode/vsce` deprecation *notices* alongside a clean audit; the audit remains clean.
+- **PR-1**: remains recorded, and **this release did not repeat it.** v3.15.12 had a plan before implementation, and every phase produced a session history. The plan was also corrected in place three times when evidence contradicted it (the breaking-id assumption, the HO-5 closure prediction, and the global auth default), rather than left describing work that did not happen.
+
+#### Advisory, pre-existing, not introduced by this release
+
+`docs/DEVLOG.md` contains 22 non-ASCII characters at lines 2422 and beyond, all in v2.0.0-era historical entries (em-dashes and one `<=` symbol). The repository's Markdown rule is ASCII-only for English. These were **not** introduced by v3.15.12 (its own entries are ASCII-clean, verified) and were left untouched, because they are historical records and fixing them traces to nothing this release asked for. Recorded so a future ASCII sweep has the line numbers.
+
+#### Verification posture, stated plainly
+
+Every automated gate is green. What is **not** verified is anything requiring a human at a rendered UI: the three Cursor bars in three themes, the renamed GitHub palette entries and Authorization panel, and the in-editor OAuth verdict. Those are QG-4, QG-5, MT-5, and HO-6. This release does not claim them.
+
 ### v3.15.12 Phase 4 checkpoint (T023-T027) - 2026-08-06
 
 **Status**: Phase 4 implementation complete on the HO-6 evidence. Per-target capability resolution, account-identity and verdict display, and a log in / log out pair that structurally cannot end the shared GitHub session. 175 extension tests green.
