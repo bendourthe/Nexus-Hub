@@ -241,6 +241,13 @@ HO-6 is new and open. It is not a defect: it is the honest result of discovering
 
 `docs/DEVLOG.md` contains 22 non-ASCII characters at lines 2422 and beyond, all in v2.0.0-era historical entries (em-dashes and one `<=` symbol). The repository's Markdown rule is ASCII-only for English. These were **not** introduced by v3.15.12 (its own entries are ASCII-clean, verified) and were left untouched, because they are historical records and fixing them traces to nothing this release asked for. Recorded so a future ASCII sweep has the line numbers.
 
+#### BG-15 - RESOLVED: a guard test failed for anyone who had actually installed the product
+
+- **Source phase**: v3.15.12 Phase 5.5 (final gate)
+- **Reason**: `tests/integrations/test_copilot_hermes_native.py::test_global_install_never_touches_the_real_home` asserted the developer's real `~/.copilot/agents` contained **no** `*.agent.md` at all. That conflates "this test wrote here" with "these files exist here". A legitimate global install puts the catalog's 23 agents there, so the assertion failed permanently on a dogfooding maintainer's machine. Corroborated as an installer run rather than a test leak by the shared timestamp window across `~/.nexus-hub/VERSION`, `~/.codex/prompts`, and `~/.copilot/agents`. The test's real guard - that `install_global` routes through the patchable `_copilot_home` accessor - passed throughout, and nothing in v3.15.12 touches the Copilot integration.
+- **Resolution**: snapshot `*.agent.md` before `install_global` and assert the set is unchanged after, naming any offending file in the failure message. Same intent, no longer environment-dependent; the 23-file defect it guards would still fail it.
+- **Lesson**: a guard that asserts on ambient developer state, rather than on the delta a test causes, becomes a false alarm the moment the product is actually used.
+
 #### Verification posture, stated plainly
 
 Every automated gate is green. What is **not** verified is anything requiring a human at a rendered UI: the three Cursor bars in three themes, the renamed GitHub palette entries and Authorization panel, and the in-editor OAuth verdict. Those are QG-4, QG-5, MT-5, and HO-6. This release does not claim them.
