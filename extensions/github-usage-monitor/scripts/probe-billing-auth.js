@@ -35,7 +35,15 @@ const {
 } = require("../out/providers/authProbe.js");
 
 const LEVELS = new Set(["user", "organization", "enterprise"]);
-const CREDENTIALS = new Set(["classic-pat", "fine-grained-pat"]);
+const CREDENTIALS = new Set([
+  "classic-pat",
+  "fine-grained-pat",
+  // A GitHub CLI OAuth-app token (gho_), obtainable without an editor:
+  //   $env:GITHUB_BILLING_PROBE_TOKEN = (gh auth token)
+  // Per-app authorization means this does NOT transfer to VS Code's OAuth app, but
+  // it does answer whether the endpoint accepts an OAuth token class at all.
+  "gh-oauth"
+]);
 const TOKEN_VAR = "GITHUB_BILLING_PROBE_TOKEN";
 
 function parseArgs(argv) {
@@ -158,13 +166,18 @@ async function main() {
   return record.status === 200 ? 0 : 1;
 }
 
+// `process.exitCode` rather than `process.exit()`: forcing exit while the fetch
+// connection is still tearing down can abort the process and replace a usable exit
+// code with a crash code.
 main()
-  .then((code) => process.exit(code))
+  .then((code) => {
+    process.exitCode = code;
+  })
   .catch((error) => {
     // Never print the error object: a thrown fetch error can carry the request,
     // and the request carries the Authorization header.
     console.error(
       `Probe failed: ${error instanceof Error ? error.name : "unknown error"}`
     );
-    process.exit(1);
+    process.exitCode = 1;
   });

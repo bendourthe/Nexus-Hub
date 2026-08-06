@@ -59,6 +59,9 @@ describe("probe boundaries", () => {
     expect(isProbeAllowed("enterprise", "fine-grained-pat")).toBe(false);
     expect(isProbeAllowed("enterprise", "classic-pat")).toBe(true);
     expect(isProbeAllowed("enterprise", "vscode-oauth")).toBe(true);
+    // The documentary negative names fine-grained and GitHub App tokens, not OAuth,
+    // so an OAuth class stays probeable at enterprise scope.
+    expect(isProbeAllowed("enterprise", "gh-oauth")).toBe(true);
     expect(isProbeAllowed("organization", "fine-grained-pat")).toBe(true);
     expect(isProbeAllowed("user", "fine-grained-pat")).toBe(true);
 
@@ -308,6 +311,25 @@ describe("no-leak serialization contract", () => {
     expect(row).toContain("admin:org");
     expect(row).not.toContain(TOKEN);
     expect(row).not.toContain("?year=");
+  });
+});
+
+describe("credential-class labelling", () => {
+  it("keeps the two OAuth app classes distinct in the record", async () => {
+    // OAuth-app authorization and SSO grants are per-app, so a gh result must never
+    // be recorded as though it came from VS Code's app.
+    for (const credentialKind of ["gh-oauth", "vscode-oauth"] as const) {
+      const record = await probeWithToken({
+        owner: ORG,
+        token: TOKEN,
+        credentialKind,
+        now: NOW,
+        fetch: stubFetch({})
+      });
+      expect(record.credentialKind).toBe(credentialKind);
+      expect(toSanitizedRecord(record).credentialKind).toBe(credentialKind);
+      expect(toMarkdownRow(record)).toContain(credentialKind);
+    }
   });
 });
 

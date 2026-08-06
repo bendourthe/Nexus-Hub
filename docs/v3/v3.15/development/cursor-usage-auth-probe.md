@@ -83,6 +83,39 @@ It then reports whether the committed `CURSOR_WIRE_CONTRACT` already matches. If
 
 Note the reported Node version in the output: if the capability check reports `sqlite-unavailable`, that is **WN-5**, and the Cursor version should be recorded with it.
 
+## Probe Run 2026-08-06 (authorized)
+
+Run on the maintainer's Windows host with explicit authorization. **HO-5 is advanced, not closed.**
+
+| Check | Result |
+|---|---|
+| State path | `%APPDATA%\Cursor\User\globalStorage\state.vscdb` resolved and present |
+| Capability | **available** - `node:sqlite` loaded (script ran on system Node v24.13.0) |
+| Allowlisted key | **`cursorAuth/accessToken` EXISTS** and yielded a value passing the shape rule (length and no control characters) |
+| Route | `GET https://cursor.com/api/usage-summary` with `Authorization: Bearer <session>` |
+| HTTP status | **401** |
+| Wire shape | Not obtained - no JSON body was returned |
+
+### What this establishes
+
+- **The allowlisted key name is correct.** `cursorAuth/accessToken` is present in Cursor's state database and holds a plausible token. That part of the adapter's contract is confirmed against a real host, which the v3.15.9 probe could not do (it checked path existence only).
+- **The read-only one-key adapter works end to end.** It opened the database, returned a value, released the handle, and reached the transport.
+- **The route responded rather than failing to resolve**, so `cursor.com` served the request.
+
+### What this does NOT establish, and the three live possibilities
+
+A `401` is ambiguous between:
+
+1. **The stored session is stale or cleared.** Most likely, and the cheapest to rule out: sign in to Cursor and re-run.
+2. **The header form is wrong.** The probe sends `Authorization: Bearer <token>`. The route may expect a cookie or a different header, which the probe boundary does not permit guessing at.
+3. **The route is wrong** and returns `401` before `404` for an unauthenticated caller, which some gateways do.
+
+The boundary forbids probing neighbouring endpoints or header variations, so this is not resolved by more attempts. **Next step**: sign in to Cursor, re-run `node scripts/probe-wire-shape.js`; if still `401`, re-run once with `--route /api/dashboard/get-current-period-usage`, which is the other recorded discovery lead. Stop there and record the result either way.
+
+### WN-5 is NOT resolved by this run
+
+The script ran on **system Node v24.13.0**, where `node:sqlite` is present. Cursor's extension host runs its own Electron Node, which is a different runtime. This run says nothing about whether the extension host has `node:sqlite`. WN-5 stays open and is answered only from inside Cursor, by observing whether the panel reports the capability available.
+
 ## Bounded Probe Procedure
 
 1. Ask for explicit authorization and state exactly which local candidate and dashboard route will be checked.

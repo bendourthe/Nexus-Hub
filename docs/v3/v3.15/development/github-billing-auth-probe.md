@@ -153,13 +153,36 @@ API version: `2026-03-10`, matching `GITHUB_API_VERSION` in `src/providers/githu
 
 ## Results (T022c)
 
-**Not yet run.** Fill one row per (level, credential class) actually attempted.
+**Run 2026-08-06** against `/settings/billing/usage`, API version `2026-03-10`, using a GitHub CLI OAuth-app token (`gho_`) carrying `gist, read:org, repo, workflow`.
 
 | Date | Level | Endpoint | Credential class | Requested scopes | Status | `X-OAuth-Scopes` | `X-Accepted-OAuth-Scopes` | `X-Accepted-GitHub-Permissions` | Verdict |
 |---|---|---|---|---|---|---|---|---|---|
-| | | | | | | | | | |
+| 2026-08-06 | user | `/users/bendourthe/settings/billing/usage` | `gh-oauth` | - | **404** | gist read:org repo workflow | **user** | - | Scope insufficient, **not** a class rejection |
+| 2026-08-06 | organization | `/organizations/Tidal-Medical/settings/billing/usage` | `gh-oauth` | - | **200** | gist read:org repo workflow | **admin:org repo** | - | **SUPPORTED** |
+| 2026-08-06 | organization | `/organizations/EMVI-AI/settings/billing/usage` | `gh-oauth` | - | **200** | gist read:org repo workflow | admin:org repo | - | **SUPPORTED** |
+| 2026-08-06 | organization | `/organizations/smesh-stanford/settings/billing/usage` | `gh-oauth` | - | **200** | gist read:org repo workflow | admin:org repo | - | **SUPPORTED** |
+| - | enterprise | - | - | - | - | - | - | - | Not probed: no enterprise slug on this account |
+| - | any | - | `vscode-oauth` | - | - | - | - | - | Not probed: a session requires the editor. See "What remains" |
+
+### What these results establish
+
+1. **OAuth-app tokens ARE accepted by the enhanced billing usage endpoint.** Three independent `200`s. This settles the question the documentary half could not, and it **empirically confirms** the correction to premise 1: the endpoint reference's fine-grained-only token list is not exhaustive, and OAuth's absence from it was never a rejection. Any implementation built on "billing usage is fine-grained-PAT-only" would have been wrong.
+2. **The accepted OAuth scopes are now known from GitHub itself**: `user` for user scope, and `admin:org` **or** `repo` for organization scope.
+3. **`repo` alone sufficed for organization billing usage.** Worth noting because `repo` is a scope VS Code's provider requests routinely, which is what makes the session path plausible rather than speculative.
+4. **The user-scope `404` was a scope insufficiency, diagnosed from the header, not an uninterpretable negative.** The token lacked `user`. GitHub returned `404` rather than `403` for insufficient access, exactly the ambiguity the interpretation table warns about - and the accepted-scope header is what resolved it. No classic-PAT control was needed, because the decision rule requires a control only for a *negative* verdict, and this is a positive-with-diagnosis.
+5. **No per-organization variation was observed** across three organizations. That does not falsify the need for per-target resolution: OAuth-app restrictions and SSO enforcement are per-organization settings that can differ on other accounts. It means the risk was not exercised here, not that it is absent.
+
+### What remains
+
+- **VS Code's own OAuth app is still unprobed.** OAuth-app authorization and SSO grants are per-app, so a `gh` result does not transfer to `GitHub for VS Code`. What the `gh` result does establish is that the *token class* is accepted, so the remaining question is narrow: can VS Code's provider obtain `repo` (org) or `user` (user), and is its app authorized for the target organization. That needs the in-editor leg.
+- **Enterprise scope is unprobed**, and its fine-grained/App-token rejection remains documentary. OAuth at enterprise scope is untested; `manage_billing:enterprise` is the candidate.
+- **A classic-PAT control was not needed for these rows** and was not run. It becomes necessary only if a future OAuth attempt fails and the failure has to be attributed.
 
 ## Finding and decision
+
+**Empirical finding, 2026-08-06 (supersedes the interim finding below).** OAuth-app tokens **are** accepted by the enhanced billing usage endpoint: three organization `200`s with a GitHub CLI OAuth token. GitHub's own `X-Accepted-OAuth-Scopes` reports `user` for user scope and `admin:org` or `repo` for organization scope, and `repo` alone was sufficient. The blocking premise is therefore resolved in the **affirmative**: a VS Code session is a viable auth path, not a dead end, and the "fine-grained-PAT-only" reading of the endpoint reference is empirically dead.
+
+The narrow question left is per-app rather than per-class: whether `GitHub for VS Code` can obtain `repo` / `user` and is authorized for the target organization. Enterprise scope is unprobed.
 
 **Interim finding, 2026-08-06 (documentary half only).** GitHub's endpoint reference and its usage-reporting tutorial currently disagree about fine-grained PAT support for user and organization billing usage. The enterprise endpoint reference explicitly rejects fine-grained PATs and GitHub App tokens. GitHub documents the OAuth scope `manage_billing:enterprise`. VS Code's built-in provider uses a GitHub OAuth app and forwards caller-requested scopes; it cannot mint a fine-grained PAT through `getSession()`. The endpoint reference's fine-grained-token list is **not** sufficient evidence that OAuth is unsupported.
 

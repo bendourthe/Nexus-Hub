@@ -185,13 +185,19 @@ async function main() {
   return 0;
 }
 
+// `process.exitCode` rather than `process.exit()`: forcing exit while node:sqlite
+// and the fetch connection are still tearing down aborts the process with a libuv
+// assertion (`!(handle->flags & UV_HANDLE_CLOSING)`), which replaces a usable exit
+// code with 0xC0000409 and looks like a crash rather than a 401.
 main()
-  .then((code) => process.exit(code))
+  .then((code) => {
+    process.exitCode = code;
+  })
   .catch((error) => {
     // Never print the error object: a thrown fetch error can carry a request that
     // carries the Authorization header.
     console.error(
       `Probe failed: ${error instanceof Error ? error.name : "unknown error"}`
     );
-    process.exit(1);
+    process.exitCode = 1;
   });

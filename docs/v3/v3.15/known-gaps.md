@@ -207,6 +207,40 @@ Plus one trap that would have silently broken the plan's own "never fall back si
 
 HO-6 is new and open. It is not a defect: it is the honest result of discovering that the question T022 asks cannot be answered from documentation. The alternative, picking whichever documentary reading suited the plan's preferred branch, is precisely the failure mode `auth.ts:99` was written to prevent.
 
+### v3.15.12 probe runs - 2026-08-06 (authorized by the maintainer)
+
+Both probes were run. One premise is resolved; the other advanced but is still open.
+
+#### HO-6 - RESOLVED in the affirmative, narrowed to a per-app question
+
+- **OAuth-app tokens ARE accepted by the enhanced billing usage endpoint.** Three organization `200`s (`Tidal-Medical`, `EMVI-AI`, `smesh-stanford`) using a GitHub CLI OAuth token (`gho_`) carrying `gist, read:org, repo, workflow`.
+- **GitHub's own `X-Accepted-OAuth-Scopes` names the scopes**: `user` for user scope, `admin:org` or `repo` for organization scope. **`repo` alone sufficed**, and `repo` is a scope VS Code's provider requests routinely.
+- **This empirically kills the "billing usage is fine-grained-PAT-only" reading**, and with it the inference that a VS Code session cannot work. An implementation built on that inference would have shipped the wrong default. It is worth stating plainly that the original decision rule proposed for T022 would have reached exactly that wrong conclusion, from the endpoint reference's silence about OAuth.
+- **The user-scope `404` was a scope insufficiency, not a class rejection.** The token lacked `user`. GitHub returned `404` rather than `403` for insufficient access, and the accepted-scope header is what disambiguated it. No classic-PAT control was needed: the decision rule requires a control only for a negative verdict, and this is a positive-with-diagnosis.
+- **Still open, and narrower than before**: OAuth-app authorization and SSO are per-app, so the `gh` result does not transfer to `GitHub for VS Code`. The remaining question is whether VS Code's provider can obtain `repo` / `user` and is authorized for the target organization. That needs an in-editor leg. Enterprise scope is unprobed (no enterprise slug on this account).
+- **Consequence for T023**: the session path can now be designed as the *likely* default with a PAT fallback, per target, instead of being treated as unavailable. No per-organization variation was observed across three organizations, which does not falsify per-target resolution (OAuth-app restrictions are a per-org setting that can differ elsewhere) but does mean the risk was not exercised here.
+
+#### HO-5 - Advanced, still open
+
+- **The allowlisted key name is confirmed against a real host.** `cursorAuth/accessToken` exists in `%APPDATA%\Cursor\User\globalStorage\state.vscdb` and holds a value passing the shape rule. The v3.15.9 probe could only verify that the file existed; this verifies the key.
+- **The read-only one-key adapter works end to end**: opened, read, released, reached the transport.
+- **`GET https://cursor.com/api/usage-summary` returned 401**, so no wire shape was obtained and `CURSOR_WIRE_CONTRACT` remains `verified: false`.
+- **The `401` is ambiguous** between a stale session, a wrong header form, and a wrong route. The probe boundary forbids guessing at header variations or neighbouring endpoints, so more attempts do not resolve it. Next step: sign in to Cursor and re-run; if still `401`, one re-run with `--route /api/dashboard/get-current-period-usage`, then stop and record.
+
+#### WN-5 - NOT resolved, and it would be easy to think it was
+
+The probe script reported `node:sqlite` available, but it ran on **system Node v24.13.0**. Cursor's extension host runs its own Electron Node, a different runtime. This run says nothing about the extension host, so WN-5 stays open and is answered only from inside Cursor by observing whether the panel reports the capability available.
+
+#### BG-12 - RESOLVED same session: the probe script aborted instead of exiting
+
+- **Source**: the HO-5 probe runner, first authorized run.
+- **Reason**: the script called `process.exit(code)` in its promise chain. Forcing exit while `node:sqlite` and the fetch connection were still tearing down tripped a libuv assertion (`!(handle->flags & UV_HANDLE_CLOSING)`) and replaced the exit code with `0xC0000409`. The probe printed its full result first, so the finding was not lost, but the run *looked* like a crash rather than a clean `401`, and the exit code was unusable for scripting.
+- **Resolution**: both probe runners now set `process.exitCode` and let Node drain handles naturally. Verified: the capability-unavailable path now exits `1` cleanly.
+
+#### Instrument change made during the run
+
+`CredentialKind` gained **`gh-oauth`**, tracked separately from `vscode-oauth`, because OAuth-app authorization and SSO grants are per-app and recording a `gh` result as though it came from VS Code's app would have corrupted the evidence. A test asserts the two classes stay distinct through the record, the sanitized form, and the markdown row.
+
 ## v3.15.11 - codex notification delivery and the inert-hook regression
 
 ### v3.15.11 process deviation (recorded 2026-08-05)

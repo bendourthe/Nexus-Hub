@@ -24,8 +24,17 @@ import {
  *    test rather than promised by a comment.
  */
 
+/**
+ * `gh-oauth` is a GitHub CLI OAuth-app token (`gho_`). It is tracked separately
+ * from `vscode-oauth` because OAuth-app authorization and SSO grants are per-app:
+ * a result for one app does NOT transfer to another. What it does answer is the
+ * app-independent question of whether the endpoint accepts an OAuth token class at
+ * all, which is the question the endpoint reference's fine-grained-only token list
+ * cannot settle.
+ */
 export type CredentialKind =
   | "vscode-oauth"
+  | "gh-oauth"
   | "classic-pat"
   | "fine-grained-pat";
 
