@@ -207,6 +207,59 @@ Plus one trap that would have silently broken the plan's own "never fall back si
 
 HO-6 is new and open. It is not a defect: it is the honest result of discovering that the question T022 asks cannot be answered from documentation. The alternative, picking whichever documentary reading suited the plan's preferred branch, is precisely the failure mode `auth.ts:99` was written to prevent.
 
+### v3.15.12 Phase 4 checkpoint (T023-T027) - 2026-08-06
+
+**Status**: Phase 4 implementation complete on the HO-6 evidence. Per-target capability resolution, account-identity and verdict display, and a log in / log out pair that structurally cannot end the shared GitHub session. 175 extension tests green.
+
+#### What made this buildable
+
+HO-6's affirmative resolution. The scope candidates are GitHub's own answers rather than guesses: `user` for user scope, and `repo` first for organizations because `repo` **alone** returned `200` on three organizations and VS Code's provider requests it routinely, with `admin:org` held back for an explicit escalation.
+
+#### Design decisions worth carrying forward
+
+- **The log-out isolation guarantee is structural, not documentary.** `sessionBinding.ts` is injected a `MonitorOwnedState` with exactly three members and **no** sign-out, revoke, or `removeSession` member, so `logOutOfMonitor` has no reachable path to the session Copilot shares. A test asserts the injected surface stays that narrow and that the function takes no session provider at all. A comment saying "do not sign out here" would not survive a refactor; a missing capability does.
+- **An OAuth success is recorded as `probed-only`, never `documented-and-probed`.** GitHub's endpoint reference enumerates fine-grained support only, so a live `200` is real but undocumented. Promoting it would overstate the evidence in the direction this release has twice had to correct.
+- **A `401` is always `credential-invalid`, never `token-type-unsupported`.** That misreading is exactly what the probe's interpretation table exists to prevent, and it is now enforced by the diagnosis function's ordering.
+- **Escalation requires evidence.** `nextScopeEscalation` returns null when the credential already carries an accepted scope, because a failure in that state is role, SSO, or app-approval shaped and broader scope cannot fix it. Found by its own test; the first implementation would have requested `admin:org` for a non-scope problem.
+
+#### Bugs found and resolved inside the phase
+
+##### BG-13 - RESOLVED: scope escalation would have requested breadth it did not need
+
+- **Source phase**: v3.15.12 Phase 4.2 (T023)
+- **Reason**: `nextScopeEscalation` initially escalated whenever an accepted scope was ungranted. A credential already holding `repo` (which GitHub lists as accepted) that still failed would therefore have triggered a request for `admin:org` - silent broadening for a cause broader scope cannot address.
+- **Resolution**: returns null when any accepted scope is already granted, consistent with `diagnoseBlockedReason`, which only reports `insufficient-scope` when none is. Caught by the test written alongside it.
+
+##### BG-14 - RESOLVED: the new commands would have shipped unexercised
+
+- **Source phase**: v3.15.12 Phase 4.3 (T026)
+- **Reason**: `logIn` / `logOut` were registered but no test drove them, and the vscode stub had no `authentication` surface at all - so a test that tried would have failed on a missing API rather than on behavior. This is the same defect class as v3.15.11's BG-9/BG-10, where a hook shipped registered and permanently inert.
+- **Resolution**: the stub gained `authentication.getSession` with a scripted session queue and a request log; three tests now drive the real handlers through `activate()`, including one asserting log out never calls `getSession` with `createIfNone` or `clearSessionPreference`.
+
+#### Deviation, recorded for accuracy
+
+`tests/installer/test_github_billing_rename.py` pinned the manifest command count at 9; the two new commands make 11. Updated deliberately with a note rather than relaxed to a range, because the exact count is what would catch a dropped command.
+
+#### Still open after Phase 4
+
+- **The `vscode-oauth` leg of T022c is unrun.** A session needs the editor, so per-app authorization and SSO for `GitHub for VS Code` specifically remain unverified; the `gh` result does not transfer. The in-editor diagnostic is the remaining piece, and the code is written so that target simply reports `unknown` until it is probed rather than assuming either answer.
+- **Enterprise scope is unprobed** (no enterprise slug on the reference account).
+- **MT-5** still applies: none of the new panel copy has been seen rendered in a real VS Code window.
+
+### v3.15.12 Phase 4 Summary
+
+| Category | Open | Resolved |
+|---|---:|---:|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 2 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+| Hand-offs (HO) | 1 | 0 |
+
+HO-6 stays open, narrowed to the in-editor OAuth leg. Two bugs found and resolved in-phase, both by tests written alongside the code rather than after it.
+
 ### v3.15.12 probe runs - 2026-08-06 (authorized by the maintainer)
 
 Both probes were run. One premise is resolved; the other advanced but is still open.

@@ -1,5 +1,36 @@
 # Development Log
 
+## [2026-08-06] - v3.15.12 Phase 4: per-target GitHub billing auth [feature]
+
+### What Changed
+
+The GitHub monitor resolves auth **per billing target** rather than by one global default. A target is `supported` (naming the credential source, the evidence class, and the granted scopes), `blocked` (naming a diagnosed reason and what GitHub said it would accept), or `unknown`. The settings panel names the bound account and the verdict, and a log in / log out pair reaches GitHub's account picker without touching the session Copilot shares.
+
+### Why It Changed
+
+HO-6 resolved in the affirmative: OAuth-app tokens are accepted by the billing endpoint, and GitHub's own `X-Accepted-OAuth-Scopes` named the scopes. But OAuth-app authorization and SSO are per-organization settings, so one user can legitimately be on a session for their personal account and org A while needing a pasted PAT for org B. A single `DEFAULT_AUTH` cannot express that, and choosing one silently mislabels the rest.
+
+### Decisions Made
+
+- **Log-out isolation is structural.** `sessionBinding.ts` receives a `MonitorOwnedState` with three members and no sign-out, revoke, or `removeSession` member, so `logOutOfMonitor` has no reachable path to VS Code's shared session. A comment saying "do not sign out here" would not survive a refactor; a missing capability does. Tests assert the injected surface stays narrow and that the function takes no session provider.
+- **`clearSessionPreference` on log in.** Without it the editor silently reuses the last account, defeating the point: the billing account may deliberately differ from Copilot's.
+- **Silent peek on activation.** `peekBinding` passes `createIfNone: false`. The user opened an editor, not an auth flow.
+- **Scope candidates are GitHub's answers, not guesses.** `user` for user scope; `repo` first for organizations because `repo` alone returned 200 on three of them; `admin:org` held back for explicit escalation.
+- **An OAuth 200 is `probed-only`.** GitHub's reference enumerates fine-grained support only, so a live success is real but undocumented, and recording it as documented would overstate evidence in the direction this release has already had to correct twice.
+- **A 401 is always `credential-invalid`.** Never `token-type-unsupported` - that is the misreading the probe's interpretation table exists to prevent.
+
+### Troubleshooting Trail
+
+- **Two bugs, both caught by tests written alongside the code.** `nextScopeEscalation` first escalated whenever an accepted scope was ungranted, so a credential already holding `repo` that still failed would have requested `admin:org` - silent broadening for a role, SSO, or app-approval problem that broader scope cannot fix. And the new commands were registered with no test driving them, on a stub that had no `authentication` surface at all, which is the same defect class as v3.15.11's inert hook (BG-9/BG-10). The stub gained a scripted session queue and a request log, and three tests now drive the real handlers through `activate()`.
+- **My own Phase 3 test caught the Phase 4 change**: it pinned the manifest command count at 9, and the two new commands make 11. Updated deliberately with a note rather than relaxed to a range, because the exact count is what catches a dropped command.
+
+### Impact & Context
+
+- **Affected**: new `src/providers/{capability,sessionBinding}.ts`, new `test/{capability,auth}.test.ts`, plus `src/extension.ts`, `src/settingsPanel.ts`, `package.json`, `test/vscode-stub.ts`, and `tests/installer/test_github_billing_rename.py`.
+- **Tests**: GitHub extension 175 passed (49 new across the phase); `capability.ts` 98.4% statements, 100% functions. `tests/installer` 161 passed; `tests/plans` 88 passed; installer-smoke 32 passed; validate 0 errors; compile clean.
+- **CI/CD**: no workflow edit. New sources and tests ride the existing `extensions/github-usage-monitor/**` path filter; the updated Python test rides `tests/installer`, already listed in `ci.yml`.
+- **Known gaps**: BG-13 and BG-14 found and resolved in-phase. HO-6 stays open, narrowed to the in-editor `vscode-oauth` leg, which the code handles by reporting `unknown` for an unprobed target rather than assuming either answer. Enterprise scope unprobed. MT-5 now also covers the new panel copy.
+
 ## [2026-08-06] - v3.15.12 Phase 4 pre-work: the GitHub billing auth question [research]
 
 ### What Changed
