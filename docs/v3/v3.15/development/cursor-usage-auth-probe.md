@@ -96,35 +96,61 @@ Run on the maintainer's Windows host with explicit authorization. **HO-5 is adva
 | Status A | **401** (twice: before and after opening the Cursor app) |
 | Route B | `GET https://cursor.com/api/dashboard/get-current-period-usage`, same header |
 | Status B | **405 Method Not Allowed** |
+| Route B headers | `allow: POST`, `content-type: application/json; charset=utf-8` |
 | Route B, POST | `POST` same route, empty JSON body, separately authorized |
 | Status B POST | **403 Forbidden** |
 | Wire shape | **Not obtained.** No route returned a JSON body |
 
 **The sequence is now closed.** The bounded procedure says to stop on `401`, `403`, or `429` and not to loop or probe neighbouring endpoints. Three routes/verbs were attempted, all pre-recorded leads, and the `403` ends it.
 
-### What the status ladder establishes
+### What the status ladder establishes, stated at the strength the evidence supports
 
-`401` (A/GET) then `405` (B/GET) then `403` (B/POST) is a coherent picture:
+An earlier version of this section over-claimed. Corrected:
 
-- **Route B exists and POST is its correct verb.** The `405` rejected the verb; changing to POST moved past method dispatch to an authorization decision.
-- **The `cursorAuth/accessToken` value is not accepted as a `Bearer` credential by either dashboard route.** It exists and has a valid token shape, but no route returned data with it.
+| Claim | Defensible status |
+|---|---|
+| `/api/usage-summary` accepts `cursorAuth/accessToken` as a Bearer credential | **Negative for the tested request** |
+| `get-current-period-usage` uses POST | **CONFIRMED.** The probe originally captured no response headers, so this was only "probable"; adding header capture and re-running returned `allow: POST` with `content-type: application/json`, a conforming `405` per RFC 9110. The instrument gap paid for itself on the first re-run |
+| The POST reached a refusal decision | **Yes** |
+| The refusal was specifically bearer-token authorization | **UNPROVEN.** `403` means only "understood and refused". It does not distinguish token audience from a missing CSRF token, absent origin headers, a malformed body, an account entitlement, or a WAF rule |
+| `cursorAuth/accessToken` can never authorize a dashboard operation | **UNPROVEN** |
+| A stable, supported extension wire contract exists | **No** |
+| The private route is suitable for production | **No** |
 
-Two readings of the `403` remain, and the boundary does not permit separating them:
+Cursor documents `401` as an invalid or missing API key and `403` as a valid key with insufficient permissions **for its documented APIs on `api.cursor.com`**. Those semantics cannot be transferred to a private dashboard endpoint that may sit behind different middleware.
 
-1. **Wrong credential class or auth form.** The dashboard API may authenticate by session cookie rather than a Bearer token, or `cursorAuth/accessToken` may be scoped to a different audience (the agent/CLI API rather than the dashboard API).
-2. **A documented visibility limitation.** This contract's own failure-mode table already anticipates "`403` or spending hidden by account role - explain visibility limitation; do not treat as zero." A `403` is exactly that shape.
+The recorded result is therefore:
 
-### Consequence: HO-5 is not achievable within the authorized boundary
+```text
+CURSOR_PRIVATE_DASHBOARD_CONTRACT = unsupported
 
-This is the substantive result, and it is a negative one. Reading 1 would be resolved only by reading a browser cookie store or by guessing header forms - both are **explicit non-goals** of this probe and of the v3.15.12 plan. Reading 2 is not something the extension can fix at all.
+The tested app access token did not produce usage data.
+The token's precise audience remains unproven.
+No further private-route, header, or cookie guessing will be performed.
+```
 
-So the plan's premise in Complexity Tracking - that the undocumented route "is the only path that meets the maintainer's stated requirement of live numbers with no API-key setup" - **does not hold with the credential this boundary permits reading.** The remaining ways to live numbers are:
+That keeps the useful negative without overstating it.
 
-- read a cookie store (out of bounds, and the README's no-cookie claim is load-bearing),
-- have the user supply a credential (that is API-key setup, which the requirement existed to remove), or
-- wait for Cursor to publish a personal-usage API.
+### The decisive evidence is not the HTTP ladder, it is the absence of any supported surface
 
-`CURSOR_WIRE_CONTRACT` therefore stays `verified: false` **permanently under this design**, rather than pending one more attempt. What the phase did deliver is intact and worth keeping: the consent gate, the read-only one-key adapter (whose key name is now confirmed against a real host), the fail-closed transport, and the degradation path that turns exactly this outcome into an explicit staleness label rather than a wrong number.
+Four independent checks, all first-party or local and none requiring a guess:
+
+1. **Cursor documents no personal-account usage API.** Its usage and spending APIs are **Enterprise-team** endpoints requiring an explicitly created Admin API key.
+2. **The Cursor SDK requires an explicit API key and states it does not auto-discover credentials from a local Cursor installation.** Wrapping `@cursor/sdk` cannot turn a VSIX into a passive account-usage reader.
+3. **No Cursor-owned authentication provider exists.** Of 116 bundled extensions in Cursor 3.14.27, exactly two declare `contributes.authentication`: `github-authentication` and `microsoft-authentication`. So `getSession('cursor', ['usage:read'])` has nothing to talk to.
+4. **No Cursor-owned usage or billing command exists.** Searching every bundled manifest for commands matching `usage|billing|spend|quota|credit|subscription|account|plan` returns **zero**. The 21 `cursor-*` extensions contribute 8 commands in total (`cursor-deeplink` 1, `cursor-ndjson-ingest` 5, `cursor-retrieval` 2), none usage-related.
+
+**That, not the 403, is what closes HO-5.** Exact personal server-side figures - remaining Cursor Models allowance, remaining Other Models allowance, on-demand charges - depend on Cursor's billing state across other machines, cloud agents, pool resets, discounts, credits, routing, and adjustments. Cursor's own documentation places those authoritative figures in the Spending dashboard, and exposes no supported read path to them.
+
+### Also relevant: Cursor's terms
+
+Cursor's terms of service restrict reverse engineering, probing or scanning the service, and harvesting, scraping, or extracting data. That is an independent reason to stop at this point rather than continue guessing at a private contract, and it means any production integration on that basis would need explicit written authorization from Cursor plus legal review. The README's no-cookie promise is worth keeping on its own merits.
+
+### What Phase 1 delivered is still sound
+
+The consent gate, the read-only allowlisted-key adapter (whose key name is now **confirmed** against a real host), the fail-closed transport with a fixture-pinned contract, and the degradation path all work as designed. The defensive architecture is precisely why this is a clean, legible negative rather than a silent misreport: an unrecognized shape was rejected, and the panel would show a staleness label instead of a wrong number.
+
+`CURSOR_WIRE_CONTRACT` stays `verified: false`, and the `CursorAccountApiProvider` seam is retained for a future supported personal-usage API rather than deleted.
 
 ### What this establishes
 
@@ -186,6 +212,51 @@ Result on the 2026-08-06 host:
 | `node:sqlite` | **AVAILABLE** |
 
 Well above the 22.13 floor, so the capability check reports `available` in the extension host and the consent prompt does appear. **WN-5 does not bite on this host**, and the technique above answers it on any host without needing a human to read a panel.
+
+## Forward path (recommendation, not built in v3.15.12)
+
+Two products are separable, and only the second can be exact:
+
+1. **Install-only local activity tracking** for personal plans, via Cursor Hooks.
+2. **Exact server-side usage and spending** for Enterprise teams, via the documented Admin API with a user-supplied key.
+
+### Cursor Hooks is a supported local source, and Nexus-Hub already owns a channel
+
+Verified on this host (Cursor **3.14.27**):
+
+| Surface | State |
+|---|---|
+| `~/.cursor/hooks.json` | **present**, `version: 1` |
+| Registered hook events | `beforeShellExecution` |
+| Owner of that entry | **`bash ~/.cursor/hooks/git-guardrails.sh` - Nexus-Hub's own**, installed by the v3.15.0 Cursor parity work |
+| `~/.cursor/hooks/`, `~/.cursor/plugins/` | present |
+
+So adding a usage-observation hook is **incremental on infrastructure this repository already installs, owns, and tests**, not new plumbing. The existing marker-managed discipline (modify only our own entries, never replace the user's `hooks.json`) applies unchanged.
+
+Collect a strict allowlist only: timestamp, event type, model id, and hashed conversation/workspace identifiers. Never prompts, responses, source, file names, shell commands, repository URLs, raw conversation ids, tokens, or cookies. Cursor's own cookbook warns that logging hooks can capture sensitive information, so the implementation must select fields explicitly rather than serializing payloads.
+
+Architecture that avoids a write conflict between hook processes and the extension host: hooks append JSONL to an extension-owned `inbox/`, and the extension imports into its own SQLite on a timer.
+
+### Local observations are not billing facts
+
+A snapshot must carry its authority and coverage:
+
+- `authority`: `cursor-official` | `local-observed` | `estimated`
+- `coverage`: which machines, which period, which surfaces (main agent, subagents, tab, cloud agents, CLI)
+
+**Never populate remaining allowance or on-demand spend from local inference.** A model *selection* does not establish whether a request drew on an included pool or was charged on demand, and with Auto or the router it may not even reveal the underlying model. Badge sources persistently (`Official` / `Local` / `Estimated` / `Unavailable`) so a local estimate can never visually resemble an official balance.
+
+### The Enterprise adapter is already possible
+
+The documented Admin API provides `/teams/spend`, `/teams/filtered-usage-events` (model, billing category, token counts, model cost, `chargedCents`), and `/teams/daily-usage-data`, using an Enterprise Admin API key with Basic auth. **This corrects the v3.15.9 rejection of the Admin API**, which said it "omits the included-usage pool metrics": that is true of the *personal* Cursor Models / Other Models split, but the Admin API does deliver official server-side usage and spend for Enterprise teams. It should be an opt-in adapter with a user-pasted key stored only in `ExtensionContext.secrets`, never a key auto-discovered from disk, since team keys can expose other users' usage.
+
+### One local store deliberately NOT opened
+
+`~/.cursor/ai-tracking/ai-code-tracking.db` exists (10.9 MB). It was **not** opened. Its name suggests AI-code attribution rather than billing, its schema is undocumented, and it is outside the one-allowlisted-key boundary this probe authorizes. Recorded as an observation so a later reader does not have to rediscover it, explicitly not as a data path.
+
+### Ask Cursor for the small first-party contract
+
+The permanent fix is narrow: a read-only `usage:read` scope on a `cursor` authentication provider plus a personal endpoint returning billing-cycle dates, per-pool used/included/remaining, and on-demand spend and limit. Or, safer still, a built-in command returning the data without exposing any credential, e.g. `cursor.usage.getCurrentPeriod`.
 
 ## Bounded Probe Procedure
 

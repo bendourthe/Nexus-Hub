@@ -135,6 +135,7 @@ async function main() {
 
   let status = 0;
   let payload;
+  const diagnostics = [];
   const read = await adapter.withSession(async (session) => {
     // The session value is used for exactly one request and is never printed.
     const response = await fetch(`${CURSOR_USAGE_ORIGIN}${args.route}`, {
@@ -149,6 +150,21 @@ async function main() {
       ...(args.method === "POST" ? { body: "{}" } : {})
     });
     status = response.status;
+    // Diagnostic headers, captured because prose cannot answer what a status means.
+    // A conforming 405 MUST carry `Allow` (RFC 9110), which is the only thing that
+    // turns "POST is probably the verb" into a fact; `WWW-Authenticate` is what
+    // distinguishes a token-audience refusal from a policy refusal on a 401/403.
+    for (const name of [
+      "allow",
+      "www-authenticate",
+      "x-request-id",
+      "content-type"
+    ]) {
+      const value = response.headers.get(name);
+      if (value !== null) {
+        diagnostics.push(`${name}: ${value}`);
+      }
+    }
     if (!response.ok) {
       return { ok: true, value: null };
     }
@@ -162,6 +178,12 @@ async function main() {
   }
 
   console.log(`http status: ${status}`);
+  if (diagnostics.length > 0) {
+    console.log("response headers:");
+    for (const line of diagnostics) {
+      console.log(`  ${line}`);
+    }
+  }
   payload = read.value;
   if (payload === null) {
     console.log("RESULT: the route did not return JSON usage data.");

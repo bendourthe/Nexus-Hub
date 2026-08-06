@@ -234,9 +234,27 @@ The boundary says stop on `401` / `403` / `429`, so the sequence is closed.
 
 **What is confirmed**: `cursorAuth/accessToken` exists on a real host and holds a valid-shaped token; the read-only one-key adapter works end to end; route B exists and POST is its verb.
 
-**What is now established as a negative**: the state-database token is **not accepted as a `Bearer` credential** by either dashboard route. The `403` admits two readings the boundary cannot separate - a wrong credential class or auth form (the dashboard API may authenticate by cookie, or the token may be scoped to the agent/CLI audience), or the documented "spending hidden by account role" visibility limitation this contract's own failure table already anticipates.
+**Corrected 2026-08-06: the first version of this entry over-claimed.** `403` means only "understood and refused"; it does not identify the refusal as bearer-token audience rather than a missing CSRF token, absent origin headers, a malformed body, an account entitlement, or a WAF rule. Cursor's documented `401`/`403` semantics apply to `api.cursor.com`, not to a private dashboard endpoint behind possibly different middleware. The defensible record is:
 
-**Both readings lead to the same disposition.** Resolving the first requires reading a cookie store or guessing header forms, which are explicit non-goals of the plan and would break the README's load-bearing no-cookie claim. The second is not fixable by the extension. So the plan's Complexity Tracking premise - that this route "is the only path that meets the maintainer's stated requirement of live numbers with no API-key setup" - **does not hold with the credential this boundary permits reading**. `CURSOR_WIRE_CONTRACT` stays `verified: false` **by conclusion, not pending one more attempt**.
+```text
+CURSOR_PRIVATE_DASHBOARD_CONTRACT = unsupported
+The tested app access token did not produce usage data.
+The token's precise audience remains UNPROVEN.
+No further private-route, header, or cookie guessing will be performed.
+```
+
+**What actually closes HO-5 is the absence of any supported surface, not the 403.** Four checks, all first-party or local:
+
+1. Cursor documents **no personal-account usage API**; its usage/spending APIs are Enterprise-team endpoints needing an explicitly created Admin API key.
+2. The Cursor SDK requires an explicit key and **states it does not auto-discover credentials from a local Cursor installation**.
+3. **No Cursor-owned authentication provider exists**: of 116 bundled extensions in Cursor 3.14.27, only `github-authentication` and `microsoft-authentication` declare `contributes.authentication`.
+4. **No Cursor-owned usage or billing command exists**: zero matches for `usage|billing|spend|quota|credit|subscription|account|plan` across every bundled manifest; the 21 `cursor-*` extensions contribute 8 commands total, none usage-related.
+
+Independently, Cursor's terms restrict reverse engineering, probing or scanning the service, and scraping or extracting data, which is its own reason to stop rather than keep guessing.
+
+**One instrument gap, found and fixed.** The probe captured no response headers, so "POST is route B's verb" was only probable. Adding header capture and re-running returned **`allow: POST`** with `content-type: application/json`, a conforming `405` per RFC 9110. The fix paid for itself on the first re-run, and it is why the `403` is known to be a refusal on the *correct* verb.
+
+`CURSOR_WIRE_CONTRACT` stays `verified: false` by conclusion, and the `CursorAccountApiProvider` seam is retained for a future supported API rather than deleted.
 
 **This affects Definition-of-Done item 1** ("a fresh Cursor install shows real included-usage numbers after exactly one consent click"), which is now known to be unsatisfiable within the plan's own non-goals rather than merely unverified. Items 2, 3, and 4 are unaffected and met.
 
