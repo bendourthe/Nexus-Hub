@@ -1,5 +1,37 @@
 # Development Log
 
+## [2026-08-05] - v3.15.12 Phase 2 Cursor usage UI [feature]
+
+### What Changed
+
+The dashboard renders three bars instead of two. Cursor Models and Other Models keep their percentage-of-token-allowance meters; on-demand spend gains a bar measured against its spend limit, with every label in **currency** and the percentage confined to bar geometry and `aria-valuetext`. The bar carries an annotation naming the sharing scope and the reset date taken from the payload's billing cycle. Percentages now render with one decimal through a single shared formatter, so a 1.7% pool is no longer reported as 2%.
+
+### Why It Changed
+
+Two gaps. The dashboard had no on-demand bar at all: on-demand was a two-row definition list, so the spend most likely to cost money was the least visible number on the panel. And plain `Math.round` overstated a nearly-untouched allowance, which matters precisely for the pool a user is least worried about and would notice least.
+
+### Decisions Made
+
+- **The on-demand bar is dropped, not approximated, when a fraction would be meaningless.** No limit, a limit in a different currency from the spend, or a non-positive limit all fall back to an absolute-spend treatment that says the shared limit is unavailable. Mixing currencies would be the money equivalent of the unit mismatch the included-usage meters already refuse.
+- **Measuring personal spend against a shared limit is permitted only with the annotation.** The data contract forbids deriving a personal cap and forbids `$limit / member_count`, and the v3.15.9 visual contract said Teams limits are "never a personal meter". The reconciliation is that the prohibition targets presenting a shared limit *as if personal*, so the bar ships only while it explicitly names the sharing scope, asserted by test. The visual contract was amended to record that rule rather than left contradicting the code.
+- **One formatter drives three surfaces.** Fixing precision only in the dashboard would have made the same pool read `1.7%` in the panel and `2%` in the status bar, so `formatPercent` in `formatters.ts` is used by the dashboard, status bar, and hover. That is an edit outside the plan's file list, and a deliberate inconsistency between surfaces would have been worse.
+- **Billing-cycle dates format in UTC.** A cycle boundary is a calendar date on Cursor's side; rendering it in the host's local zone would show the previous day west of UTC and make the reset note disagree with the dashboard. It also makes the assertion deterministic instead of host-dependent.
+- **An over-limit bar clamps at full width and says so** rather than overflowing its track or emitting a width above 100.
+
+### Troubleshooting Trail
+
+- One test failure, and the test was wrong rather than the code: 14.25/500 is 2.85%, but `formatPercent` caps at one decimal, so the bar reads `2.9%`. Expectation corrected.
+- Verified before writing anything that T010's two included-usage bars already existed from v3.15.9 with `role="meter"`, the `#4682B4` fill, and per-percent width classes. Treating T010 as greenfield would have rebuilt working, tested UI; the real gap was the precision fix plus T011's new bar.
+- Checked what `tests/plans` actually pins in the visual contract before amending it: brand colour, `viewBox`, the 256x256 target, Icons8, attribution, the icon id, `THIRD_PARTY_NOTICES.md`, both source hashes, and ASCII-only. The superseded on-demand line was not pinned, so recording the change was safe.
+- **Repository hazard observed, not caused by this phase**: the reflog shows another session sharing this working directory. It checked out `develop`, committed `3a01cdc0 docs(v3.15.13): add LoopX comparison and adoption plan`, and switched back, which is why several Phase 1 files briefly appeared reverted (they were develop's content) and why Phase 1's `git add -A` had staged that session's untracked comparison file before it was caught. Phase 2 stages by explicit path.
+
+### Impact & Context
+
+- **Affected**: `extensions/cursor-usage-monitor/src/{formatters,dashboardPanel,statusBarManager}.ts`, `test/ui.test.ts`, `README.md`, `docs/v3/v3.15/development/cursor-usage-visual-contract.md`.
+- **Tests**: Cursor extension 253 passed (20 new); coverage 93.46 statements / 87.29 branches / 97.60 functions / 93.60 lines, up on every metric from Phase 1 and above the configured 80/75/75/80. `tests/plans` 88 passed, confirming the amended visual contract still satisfies its contract tests.
+- **CI/CD**: no workflow edit required. All changed sources and the extended `ui.test.ts` ride the existing `extensions/cursor-usage-monitor/**` path filter; the visual-contract edit is covered by `tests/plans`, already listed in `ci.yml`.
+- **Known gaps**: no new numbered gap. Three-theme visual legibility is unverifiable by an agent and folds into the already-open QG-4 / QG-5 smokes, whose scope the new bar widens. HO-5 and WN-5 carry forward from Phase 1 unchanged.
+
 ## [2026-08-05] - v3.15.12 Phase 1 Cursor consent-gated live transport [feature]
 
 ### What Changed

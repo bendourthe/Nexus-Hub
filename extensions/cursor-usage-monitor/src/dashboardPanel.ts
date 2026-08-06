@@ -2,7 +2,11 @@ import * as vscode from "vscode";
 import {
   escapeHtml,
   formatMoney,
-  formatQuantity
+  formatPercent,
+  formatQuantity,
+  formatSharedSpendNote,
+  formatSpendAgainstLimit,
+  spendFractionOfLimit
 } from "./formatters";
 import {
   METER_FILL_COLOR,
@@ -157,15 +161,17 @@ function meterCard(
     </article>`;
   }
 
-  const rounded = Math.round(meter.percentUsed);
+  const percentText = formatPercent(meter.percentUsed);
+  // The width class stays an integer so a nearly-empty pool still shows a visible
+  // sliver, which is what keeps 1.7% and 100% distinguishable at a glance.
   const fill = Math.round(Math.min(100, Math.max(0, meter.percentUsed)));
   const amountText = [
-    `${rounded}%`,
+    percentText,
     ...(meter.used === null ? [] : [`${used} used`]),
     ...(meter.limit === null ? [] : [`${limit} allowance`])
   ].join("; ");
   return `<article class="metric">
-    <div class="metric-head"><h3>${label}</h3><strong>${rounded}%</strong></div>
+    <div class="metric-head"><h3>${label}</h3><strong>${percentText}</strong></div>
     <div class="meter" role="meter" aria-label="${label} included usage" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${fill}" aria-valuetext="${escapeHtml(amountText)}">
       <span class="fill fill-${fill}"></span>
     </div>
@@ -184,17 +190,47 @@ function onDemandCard(snapshot: UsageSnapshot): string {
   } else if (snapshot.onDemand.enabled === false) {
     state = "Disabled";
   }
-  const spend =
-    snapshot.onDemand.enabled === true
-      ? formatMoney(snapshot.onDemand.personalSpend)
-      : "Not applicable";
+  if (snapshot.onDemand.enabled !== true) {
+    return `<article class="context">
+      <h2>Personal on-demand</h2>
+      <dl>
+        <div><dt>State</dt><dd>${state}</dd></div>
+        <div><dt>Personal spend</dt><dd>Not applicable</dd></div>
+      </dl>
+    </article>`;
+  }
+
+  const spend = snapshot.onDemand.personalSpend;
+  const limit = snapshot.teamContext.sharedSpendLimit;
+  // On-demand is currency against a spend limit, so the headline stays in currency
+  // and the percentage is only ever the bar's geometry.
+  const amountText = formatSpendAgainstLimit(spend, limit);
+  const fraction = spendFractionOfLimit(spend, limit);
   return `<article class="context">
     <h2>Personal on-demand</h2>
+    <div class="metric-head"><h3>Spend</h3><strong>${escapeHtml(amountText)}</strong></div>
+    ${onDemandBar(fraction, amountText)}
+    <p class="context-note">${escapeHtml(formatSharedSpendNote(snapshot.period.resetsAt))}</p>
     <dl>
       <div><dt>State</dt><dd>${state}</dd></div>
-      <div><dt>Personal spend</dt><dd>${escapeHtml(spend)}</dd></div>
+      <div><dt>Personal spend</dt><dd>${escapeHtml(formatMoney(spend))}</dd></div>
+      <div><dt>Shared limit</dt><dd>${escapeHtml(formatMoney(limit))}</dd></div>
     </dl>
   </article>`;
+}
+
+function onDemandBar(fraction: number | null, amountText: string): string {
+  if (fraction === null) {
+    return `<div class="absolute" aria-label="On-demand spend; shared limit unavailable">
+      Shared spend limit unavailable - spend only
+    </div>`;
+  }
+  const fill = Math.round(Math.min(100, Math.max(0, fraction)));
+  const overLimit = fraction > 100 ? " Over the shared limit." : "";
+  const valueText = `${amountText}; ${formatPercent(fraction)} of the limit shared across your team.${overLimit}`;
+  return `<div class="meter" role="meter" aria-label="On-demand spend against the shared team limit" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${fill}" aria-valuetext="${escapeHtml(valueText)}">
+    <span class="fill fill-${fill}"></span>
+  </div>`;
 }
 
 function teamContextCard(snapshot: UsageSnapshot): string {
@@ -229,7 +265,7 @@ function dashboardStyles(): string {
     { length: 101 },
     (_, value) => `.fill-${value}{width:${value}%}`
   ).join("");
-  return `:root{color-scheme:light dark}*{box-sizing:border-box}body{margin:0;background:var(--vscode-editor-background);color:var(--vscode-editor-foreground);font:13px/1.5 var(--vscode-font-family)}main{max-width:960px;margin:0 auto;padding:28px}header{display:grid;grid-template-columns:2fr 1fr;gap:24px;align-items:end;border-bottom:1px solid var(--vscode-widget-border);padding-bottom:20px}.eyebrow{text-transform:uppercase;letter-spacing:.08em;color:var(--vscode-descriptionForeground)}h1{font-size:30px;margin:4px 0}h2{font-size:19px;margin-top:28px}.freshness{display:flex;flex-direction:column;text-align:right}.meters,.context-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}.metric,.context,.details{border-left:3px solid ${METER_FILL_COLOR};padding:16px;background:var(--vscode-editorWidget-background)}.metric-head{display:flex;justify-content:space-between;gap:16px;align-items:baseline}.metric h3{margin:0}.meter{height:10px;background:var(--vscode-progressBar-background);border:1px solid var(--vscode-contrastBorder,transparent);border-radius:5px;overflow:hidden;margin:14px 0}.fill{display:block;height:100%;background:${METER_FILL_COLOR}}.absolute{border:1px dashed var(--vscode-widget-border);padding:10px;margin:14px 0;font-weight:600}.context-grid{margin-top:18px}.context h2{margin-top:0}.context-note{color:var(--vscode-descriptionForeground)}dl{margin:0}dl div{display:grid;grid-template-columns:112px 1fr;gap:8px}dt{color:var(--vscode-descriptionForeground)}dd{margin:0}.details{margin-top:18px}.details h2{margin-top:0}.notice{padding:12px 14px;margin:18px 0;border-left:4px solid}.notice.warning{border-color:var(--vscode-notificationsWarningIcon-foreground)}.notice.error{border-color:var(--vscode-notificationsErrorIcon-foreground)}.notice p{margin:4px 0 0}.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:28px}button{border:1px solid transparent;padding:7px 12px;color:var(--vscode-button-foreground);background:var(--vscode-button-background);font:inherit}button:hover{background:var(--vscode-button-hoverBackground)}button:focus-visible{outline:2px solid var(--vscode-focusBorder);outline-offset:2px}button.secondary{color:var(--vscode-button-secondaryForeground);background:var(--vscode-button-secondaryBackground)}${fillClasses}@media(max-width:600px){main{padding:18px}header{grid-template-columns:1fr}.freshness{text-align:left}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}@media(forced-colors:active){.meter{forced-color-adjust:none;border-color:CanvasText;background:Canvas}.fill{background:Highlight}.metric,.context,.details{border-color:CanvasText}button{border-color:ButtonText}}`;
+  return `:root{color-scheme:light dark}*{box-sizing:border-box}body{margin:0;background:var(--vscode-editor-background);color:var(--vscode-editor-foreground);font:13px/1.5 var(--vscode-font-family)}main{max-width:960px;margin:0 auto;padding:28px}header{display:grid;grid-template-columns:2fr 1fr;gap:24px;align-items:end;border-bottom:1px solid var(--vscode-widget-border);padding-bottom:20px}.eyebrow{text-transform:uppercase;letter-spacing:.08em;color:var(--vscode-descriptionForeground)}h1{font-size:30px;margin:4px 0}h2{font-size:19px;margin-top:28px}.freshness{display:flex;flex-direction:column;text-align:right}.meters,.context-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}.metric,.context,.details{border-left:3px solid ${METER_FILL_COLOR};padding:16px;background:var(--vscode-editorWidget-background)}.metric-head{display:flex;justify-content:space-between;gap:16px;align-items:baseline}.metric h3{margin:0}.meter{height:10px;background:var(--vscode-progressBar-background);border:1px solid var(--vscode-contrastBorder,transparent);border-radius:5px;overflow:hidden;margin:14px 0}.fill{display:block;height:100%;background:${METER_FILL_COLOR}}.absolute{border:1px dashed var(--vscode-widget-border);padding:10px;margin:14px 0;font-weight:600}.context-grid{margin-top:18px}.context h2{margin-top:0}.context h3{margin:0}.context-note{color:var(--vscode-descriptionForeground)}dl{margin:0}dl div{display:grid;grid-template-columns:112px 1fr;gap:8px}dt{color:var(--vscode-descriptionForeground)}dd{margin:0}.details{margin-top:18px}.details h2{margin-top:0}.notice{padding:12px 14px;margin:18px 0;border-left:4px solid}.notice.warning{border-color:var(--vscode-notificationsWarningIcon-foreground)}.notice.error{border-color:var(--vscode-notificationsErrorIcon-foreground)}.notice p{margin:4px 0 0}.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:28px}button{border:1px solid transparent;padding:7px 12px;color:var(--vscode-button-foreground);background:var(--vscode-button-background);font:inherit}button:hover{background:var(--vscode-button-hoverBackground)}button:focus-visible{outline:2px solid var(--vscode-focusBorder);outline-offset:2px}button.secondary{color:var(--vscode-button-secondaryForeground);background:var(--vscode-button-secondaryBackground)}${fillClasses}@media(max-width:600px){main{padding:18px}header{grid-template-columns:1fr}.freshness{text-align:left}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}@media(forced-colors:active){.meter{forced-color-adjust:none;border-color:CanvasText;background:Canvas}.fill{background:Highlight}.metric,.context,.details{border-color:CanvasText}button{border-color:ButtonText}}`;
 }
 
 function formatReset(value: string | null, now: number): string {

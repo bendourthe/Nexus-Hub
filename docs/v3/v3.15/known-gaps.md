@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: `v3.15.0` through `v3.15.9` are all released and tagged (10 releases). v3.15.10 Phases 1-4 are complete locally on `feat/v3.15.10-end-of-task-behavior`: two purposeful notification triggers with repo+branch labels and a run-time kill switch, the end-of-task summary rule in all 12 substantive instruction templates, per-platform notification-coverage verification with delivery to Cursor, and the terminal gate. Awaiting `/update release`.
-**Last updated**: 2026-08-05 (v3.15.12 Phase 1 append)
+**Last updated**: 2026-08-05 (v3.15.12 Phase 2 append)
 
 **Current v3.15.9 status**: Phases 1-7 run on `feat/v3.15.9-cross-provider-routing`, based on the released v3.15.8 `develop`. Claude/Codex/GitHub monitors install only into VS Code; Cursor Usage Monitor installs only into Cursor. Focused CI builds/packages the Cursor VSIX and degrades E2E when the hosted runner lacks the Cursor CLI, pointing at the live-smoke checklist. Phase 7 reconciled this ledger, confirmed CI coverage and optimization, and completed the README/CHANGELOG record; the remaining steps are the maintainer-approved branch push, the integration PR to protected `develop`, and `/update release` after green integration.
 
@@ -77,6 +77,43 @@ No Phase 1 missing-test gap remains: every new source file has a dedicated test 
 | Hand-offs (HO) | 1 | 0 |
 
 HO-5 is carried forward **narrowed** rather than closed: the plan predicted Phase 1 would close it, and the implementation landed, but the one step that would make the claim true (a live probe of the undocumented route) is maintainer-only. WN-5 is new and open. QG-6 was raised and resolved inside the phase once the CI diff was approved.
+
+### v3.15.12 Phase 2 checkpoint
+
+**Status**: Phase 2 (Cursor usage UI) complete locally. The dashboard now renders three bars, the on-demand bar is currency-against-limit with a payload-derived shared-scope annotation, and percentage precision is unified across dashboard, status bar, and hover. 253 extension tests green; coverage 93.46 statements / 87.29 branches / 97.60 functions / 93.60 lines.
+
+### v3.15.12 Phase 2 Open Items
+
+#### Maintainer-only, and NOT closable by an agent
+
+- **The Phase 2 Stability Gate's "theme-legible in light, dark, and high contrast" is unverified.** The automated surface asserts the structural half of it: the meter track and fill use VS Code theme tokens, `@media(forced-colors:active)` overrides the fill to `Highlight` with a `CanvasText` border, every bar pairs its fill with a numeric label so nothing depends on colour alone, and the new on-demand bar reuses that same CSS. What no agent can verify is the rendered result on a real host in three themes. This is the same class as **QG-4** and **QG-5**, which remain open; the new on-demand bar widens what those smokes need to cover rather than adding a separate item.
+
+#### Contract interpretation, recorded because a reviewer should see it
+
+- **Measuring personal spend against a shared team limit is permitted only with the sharing annotation.** `cursor-usage-data-contract.md` forbids deriving a personal hard cap and forbids `$limit / member_count`, and the v3.15.9 visual contract said Teams spend limits are "never a personal meter". Phase 2's plan nonetheless requires an on-demand bar against its limit. These reconcile: the prohibition is against presenting a shared limit *as if it were personal*, not against showing spend in the context of the pool it draws from. The resolution is that the bar is permitted **only** while it carries an explicit annotation naming the sharing scope, which is asserted by test. The visual contract was amended in this phase to record that rule rather than leaving the document contradicting the code.
+
+#### Deviations from the plan's stated file list (no gap, recorded for accuracy)
+
+- **`src/statusBarManager.ts` was changed and is not in the plan's Phase 2 file list.** T010's requirement that a 1.7% pool stay distinguishable from a 100% pool exposed that plain `Math.round` rendered 1.7% as "2%". Fixing that only in `dashboardPanel.ts` would have made the same pool read `1.7%` in the panel and `2%` in the status bar, so the new `formatPercent` in `formatters.ts` drives all three surfaces. The alternative, a deliberate inconsistency between surfaces, is worse than the out-of-list edit.
+- **`docs/v3/v3.15/development/cursor-usage-visual-contract.md` was amended.** Its v3.15.9 text stated on-demand spend "is not a token meter" and is "currency text", which Phase 2 supersedes. The doc now records the third bar, the currency-only labelling rule, the drop-rather-than-approximate cases, the over-limit clamp, and the annotation requirement. `tests/plans` pins the brand pipeline, attribution, hashes, and ASCII in that file, all of which still hold.
+- **T010's two included-usage bars already existed** from v3.15.9 with `role="meter"`, the `#4682B4` fill, and per-percent width classes. Phase 2's actual work on them was the precision fix; the new rendering work was T011's on-demand bar.
+- **`README.md` gained a paragraph** describing the three bars and the drop/clamp rules, since it already documents the data contract the bars express.
+
+No Phase 2 missing-test gap remains: every changed file is covered by the new `ui.test.ts` block, and coverage rose on every metric relative to Phase 1.
+
+### v3.15.12 Phase 2 Summary
+
+| Category | Open | Resolved |
+|---|---:|---:|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+| Hand-offs (HO) | 0 | 0 |
+
+Phase 2 introduced no new numbered gap. Its one unverifiable item, three-theme visual legibility, folds into the already-open QG-4 / QG-5 smokes rather than becoming a new entry. HO-5 and WN-5 carry forward from Phase 1 unchanged.
 
 ## v3.15.11 - codex notification delivery and the inert-hook regression
 

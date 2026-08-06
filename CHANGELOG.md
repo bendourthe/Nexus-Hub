@@ -15,8 +15,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`Cursor Usage: Revoke Live Usage Access`** clears the consent decision and any usage cached from it in one action, while preserving usage entered manually.
 - Provenance and staleness are now a shared vocabulary owned by the usage store (`snapshotProvenance`, `describeProvenance`), so every rendered number carries whether it is live, cached, or manual, and a stale snapshot always says so.
 
+- **Cursor Usage Monitor: a third dashboard bar for on-demand spend** (v3.15.12 Phase 2), measured against its spend limit. Every label stays in **currency**; the percentage is bar geometry only, so token allowances and money are never forced into one unit. The bar always states that the limit is **shared across your team** and gives the reset date from the payload's billing cycle rather than a hardcoded day, because a shared pool is not a personal cap. It is dropped rather than approximated when a fraction would be meaningless (no limit reported, a limit in a different currency than the spend, or a non-positive limit), and an over-limit bar clamps at full width and says so.
+
 ### Changed
 
+- **Percentages render with one decimal** across the dashboard, status bar, and hover through one shared formatter. Plain rounding reported a 1.7% pool as "2%", overstating a nearly-untouched allowance, and a per-surface fix would have let the same pool read `1.7%` in the panel and `2%` in the status bar.
 - **`liveTransportCapable` is a real capability check** instead of a hardcoded `false`. It now requires Node's built-in SQLite module in the extension host, a present state database, an allowlisted key, and granted consent. Runtime notices name the provenance of what is on screen rather than citing the internal `HO-5` gap id.
 - The undocumented usage route is labelled `credential-api` and pinned by a committed wire fixture whose field names and units are a table of dot-paths. A payload that does not match is **rejected rather than coerced**, and a `401`, rate limit, or schema drift demotes to the previous cache with an explicit staleness label instead of presenting stale numbers as current.
 

@@ -31,6 +31,8 @@ The data layer keeps these surfaces separate:
 
 Percentages are accepted from a source or calculated only from matching finite units and a positive denominator. Tokens, requests, percentages, and money are never converted into one another.
 
+The dashboard renders three bars: Cursor Models and Other Models as percentages of their token allowances, and on-demand spend as **currency against its spend limit**. The on-demand bar always states that the limit is shared across your team and gives the reset date from the payload's billing cycle, because a shared pool is not a personal cap. It is dropped rather than approximated when a fraction would be meaningless (no limit reported, a limit in a different currency, or a non-positive limit), and an over-limit bar clamps at full width and says so. Percentages carry one decimal, so a 1.7% pool is not reported as 2%.
+
 ## Authentication Boundary
 
 User-supplied credentials may be stored only through VS Code SecretStorage. Credentials never enter extension settings, logs, manual snapshots, or notifications.

@@ -2,6 +2,7 @@ import * as vscode from "vscode";
 import {
   escapeHtml,
   formatMoney,
+  formatPercent,
   formatQuantity
 } from "./formatters";
 import {
@@ -112,7 +113,9 @@ export function buildHoverMarkdown(
 
 function statusMeter(meter: IncludedUsageMeter, label: string): string {
   if (meter.percentUsed !== null) {
-    return `${label} ${Math.round(meter.percentUsed)}%`;
+    // Shares the dashboard's formatter so one pool cannot read 1.7% in the panel
+    // and 2% in the status bar.
+    return `${label} ${formatPercent(meter.percentUsed)}`;
   }
   return `${label} ${formatQuantity(meter.used)}`;
 }
@@ -134,7 +137,7 @@ function hoverMeter(label: string, meter: IncludedUsageMeter): string {
       ? "<br>Allowance: Not reported"
       : `<br>Allowance: ${escapeHtml(formatQuantity(meter.limit))}`;
   return (
-    `**${label}** - ${Math.round(meter.percentUsed)}%${absolute}${allowance}` +
+    `**${label}** - ${formatPercent(meter.percentUsed)}${absolute}${allowance}` +
     `<br>${bar}<br><br>`
   );
 }

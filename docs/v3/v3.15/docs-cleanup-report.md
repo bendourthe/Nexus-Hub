@@ -240,3 +240,11 @@ The orphan audit covers the four new source files and four new fixtures. All fou
 One structural note, recorded rather than acted on: the wire fixtures sit at repo-root `tests/fixtures/cursor-usage/` while the code that pins them lives under `extensions/cursor-usage-monitor/`, which is why the extension's CI workflow does not trigger on a fixture-only edit (QG-6). Relocating the fixtures into the extension directory would fix the trigger but break the repo-level Python contract suite that also asserts over them, and colocating a copy would create the duplication this report exists to prevent. Adding the path to the workflow's filter is the smaller change and is what QG-6 proposes.
 
 Phase 1 required zero new `.gitignore` patterns: vitest coverage output is already ignored by `extensions/cursor-usage-monitor/.gitignore:3` (`coverage/`), and `*.vsix` plus `extensions/**/out/` are already covered repo-wide.
+
+## v3.15.12 Phase 2 audit (2026-08-05, mode: audit - no files moved)
+
+v3.15.12 Phase 2 added **no** document to the active v3.15 tree beyond its required phase history. It modified two existing documents in place: `development/cursor-usage-visual-contract.md` (the on-demand meter rule, superseded by this phase) and `known-gaps.md`, plus the repo-root `docs/DEVLOG.md`, this report, and the extension's `README.md`. Every one is its canonical location, so nothing qualifies for deletion, archival, consolidation, or relocation, and no reference repair is justified. The phase created no scratch document.
+
+One classification worth stating explicitly, because it is the kind of thing that later reads as a contradiction: the visual contract is dated `v3.15.9` in its own header while now carrying a v3.15.12 rule. It was amended rather than superseded by a new file on purpose. A second `cursor-usage-visual-contract-v3.15.12.md` would split one contract across two documents and leave a reader unsure which governs, which is exactly the duplication this report exists to prevent. The amended bullets name the version that changed them, so the provenance survives inside the single document.
+
+Phase 2 added no source file, directory, artifact class, or scratch output. It changed three existing TypeScript sources and one existing test file, all inside the extension tree, and required zero new `.gitignore` patterns.
