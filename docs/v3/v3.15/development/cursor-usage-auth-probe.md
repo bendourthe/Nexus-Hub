@@ -67,6 +67,22 @@ Community tools report private routes such as `/api/usage-summary` and `/api/das
 
 The extension stores a user-supplied credential only in SecretStorage. It stores normalized usage snapshots in its cache, never raw authenticated responses.
 
+## Probe Runner (v3.15.12)
+
+The procedure below is implemented as a script so it does not have to be performed by hand. From `extensions/cursor-usage-monitor`, after `npm run compile`:
+
+```bash
+node scripts/probe-wire-shape.js
+node scripts/probe-wire-shape.js --route /api/dashboard/get-current-period-usage
+node scripts/probe-wire-shape.js --state-path "<custom path>"
+```
+
+It resolves the platform's candidate state path, reports the capability check before touching anything, opens the database read-only for the one allowlisted key, issues one GET to one JSON route, and prints a **type skeleton plus dot-paths: field names and types, never values**. `summarizeShape` is tested to emit no digits at all for a value-bearing payload, and to reduce any string that is not an ISO timestamp, a 3-letter currency code, or an allowlisted unit word to the bare type `string`, so an account name, email, team id, or usage figure cannot reach the output.
+
+It then reports whether the committed `CURSOR_WIRE_CONTRACT` already matches. If it does not, map the printed paths onto the contract's `fields` table and mirror them into `tests/fixtures/cursor-usage/wire-contract.json`; a test asserts the two agree. Setting `verified: true` in both is what closes HO-5.
+
+Note the reported Node version in the output: if the capability check reports `sqlite-unavailable`, that is **WN-5**, and the Cursor version should be recorded with it.
+
 ## Bounded Probe Procedure
 
 1. Ask for explicit authorization and state exactly which local candidate and dashboard route will be checked.

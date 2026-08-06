@@ -109,7 +109,24 @@ Use an account that holds the correct owner / administrator / billing-manager ro
 
 ### How to run it
 
-The harness is `extensions/github-usage-monitor/src/providers/authProbe.ts`. It is pure and injectable: `probeWithToken` takes a token and a fetch, and `probeVsCodeSession` takes a session provider so the module never imports `vscode`. `toSanitizedRecord` is the only supported way to serialize a result, and `test/auth-probe.test.ts` asserts that its output cannot contain a token, an `Authorization` header, or a success body.
+**Run the classic-PAT control first, for each level you test.** Without a `200` from it on the same target, a failing result from any other credential class is uninterpretable.
+
+The PAT legs run as a standalone script, no editor needed. From `extensions/github-usage-monitor`, after `npm run compile`:
+
+```powershell
+$env:GITHUB_BILLING_PROBE_TOKEN = "ghp_..."
+node scripts/probe-billing-auth.js --level organization --name acme --credential classic-pat
+```
+
+```bash
+GITHUB_BILLING_PROBE_TOKEN=ghp_... node scripts/probe-billing-auth.js --level user --name octocat --credential classic-pat
+```
+
+The token comes from the environment so it never lands in shell history as an argument. The script prints the sanitized record plus a paste-ready results row, refuses `enterprise` + `fine-grained-pat` before issuing a request, and never prints the token or a thrown request object.
+
+**The VS Code OAuth leg cannot run from a script**, because a session is obtainable only inside the editor. Run the PAT controls first; the in-editor diagnostic is the remaining piece.
+
+The harness itself is `src/providers/authProbe.ts`: pure and injectable, so `probeWithToken` takes a token and a fetch while `probeVsCodeSession` takes a session provider, and the module never imports `vscode`. `toSanitizedRecord` is the only supported serialization, and `test/auth-probe.test.ts` asserts its output cannot contain a token, an `Authorization` header, or a success body, and that its key set equals the approved set exactly.
 
 Record the emitted sanitized fields verbatim in the results table below.
 
