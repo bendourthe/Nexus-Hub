@@ -220,7 +220,35 @@ Both probes were run. One premise is resolved; the other advanced but is still o
 - **Still open, and narrower than before**: OAuth-app authorization and SSO are per-app, so the `gh` result does not transfer to `GitHub for VS Code`. The remaining question is whether VS Code's provider can obtain `repo` / `user` and is authorized for the target organization. That needs an in-editor leg. Enterprise scope is unprobed (no enterprise slug on this account).
 - **Consequence for T023**: the session path can now be designed as the *likely* default with a PAT fallback, per target, instead of being treated as unavailable. No per-organization variation was observed across three organizations, which does not falsify per-target resolution (OAuth-app restrictions are a per-org setting that can differ elsewhere) but does mean the risk was not exercised here.
 
-#### HO-5 - Advanced, still open
+#### HO-5 - PROBE COMPLETE: the authorized path does not work (supersedes the "advanced, still open" note below)
+
+The full authorized sequence was run on 2026-08-06. Status ladder, all pre-recorded leads:
+
+| Attempt | Result |
+|---|---|
+| `GET /api/usage-summary` | **401** (twice, before and after opening Cursor) |
+| `GET /api/dashboard/get-current-period-usage` | **405** - route exists, wrong verb |
+| `POST` same route, empty body (separately authorized) | **403** |
+
+The boundary says stop on `401` / `403` / `429`, so the sequence is closed.
+
+**What is confirmed**: `cursorAuth/accessToken` exists on a real host and holds a valid-shaped token; the read-only one-key adapter works end to end; route B exists and POST is its verb.
+
+**What is now established as a negative**: the state-database token is **not accepted as a `Bearer` credential** by either dashboard route. The `403` admits two readings the boundary cannot separate - a wrong credential class or auth form (the dashboard API may authenticate by cookie, or the token may be scoped to the agent/CLI audience), or the documented "spending hidden by account role" visibility limitation this contract's own failure table already anticipates.
+
+**Both readings lead to the same disposition.** Resolving the first requires reading a cookie store or guessing header forms, which are explicit non-goals of the plan and would break the README's load-bearing no-cookie claim. The second is not fixable by the extension. So the plan's Complexity Tracking premise - that this route "is the only path that meets the maintainer's stated requirement of live numbers with no API-key setup" - **does not hold with the credential this boundary permits reading**. `CURSOR_WIRE_CONTRACT` stays `verified: false` **by conclusion, not pending one more attempt**.
+
+**This affects Definition-of-Done item 1** ("a fresh Cursor install shows real included-usage numbers after exactly one consent click"), which is now known to be unsatisfiable within the plan's own non-goals rather than merely unverified. Items 2, 3, and 4 are unaffected and met.
+
+**What Phase 1 delivered remains sound and worth keeping**: the consent gate, the read-only allowlisted-key adapter with a now-confirmed key name, the fail-closed transport with a fixture-pinned contract, and the degradation path that turns exactly this outcome into an explicit staleness label instead of a wrong number. The phase's defensive design is what makes this a clean negative result rather than a silent misreport.
+
+#### WN-5 - RESOLVED, favorably, and answerable without a human
+
+Cursor's extension host is **Electron 40.10.3 / Node 24.15.0** with `node:sqlite` **available**, well above the 22.13 floor. So the capability check reports `available` and the consent prompt does appear on this host.
+
+Recorded as maintainer-only initially, on the correct observation that the extension host is a different runtime from system Node but the wrong conclusion that only a human could inspect it. `ELECTRON_RUN_AS_NODE=1 Cursor.exe -e "..."` reports the host's Node version and module availability directly. The technique is written up in the probe doc and generalizes to any Electron-based editor.
+
+#### HO-5 - Advanced, still open (SUPERSEDED by the probe-complete entry above)
 
 - **The allowlisted key name is confirmed against a real host.** `cursorAuth/accessToken` exists in `%APPDATA%\Cursor\User\globalStorage\state.vscdb` and holds a value passing the shape rule. The v3.15.9 probe could only verify that the file existed; this verifies the key.
 - **The read-only one-key adapter works end to end**: opened, read, released, reached the transport.

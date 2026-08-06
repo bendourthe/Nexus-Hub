@@ -36,7 +36,11 @@ const { summarizeShape, shapePaths } = require("../out/providers/wireShape.js");
 const os = require("node:os");
 
 function parseArgs(argv) {
-  const args = { route: CURSOR_WIRE_CONTRACT.route, statePath: null };
+  const args = {
+    route: CURSOR_WIRE_CONTRACT.route,
+    statePath: null,
+    method: "GET"
+  };
   for (let index = 0; index < argv.length; index += 1) {
     const flag = argv[index];
     const value = argv[index + 1];
@@ -45,6 +49,9 @@ function parseArgs(argv) {
       index += 1;
     } else if (flag === "--state-path" && value) {
       args.statePath = value;
+      index += 1;
+    } else if (flag === "--method" && value) {
+      args.method = value.toUpperCase();
       index += 1;
     } else if (flag === "--help" || flag === "-h") {
       args.help = true;
@@ -115,16 +122,31 @@ async function main() {
   }
   console.log("capability: available (state database present, node:sqlite loaded)");
 
+  if (args.method !== "GET" && args.method !== "POST") {
+    console.log(`RESULT: --method must be GET or POST, got ${args.method}`);
+    return 2;
+  }
+  if (args.method === "POST") {
+    // A POST is write-shaped, so it is opt-in rather than the default. The body is
+    // an empty object: the probe sends no parameters it has not been told to send,
+    // so it cannot express a mutation even by accident.
+    console.log("method: POST with an empty JSON body (authorized separately)");
+  }
+
   let status = 0;
   let payload;
   const read = await adapter.withSession(async (session) => {
     // The session value is used for exactly one request and is never printed.
     const response = await fetch(`${CURSOR_USAGE_ORIGIN}${args.route}`, {
-      method: "GET",
+      method: args.method,
       headers: {
         Authorization: `Bearer ${session}`,
-        Accept: "application/json"
-      }
+        Accept: "application/json",
+        ...(args.method === "POST"
+          ? { "Content-Type": "application/json" }
+          : {})
+      },
+      ...(args.method === "POST" ? { body: "{}" } : {})
     });
     status = response.status;
     if (!response.ok) {
@@ -145,10 +167,12 @@ async function main() {
     console.log("RESULT: the route did not return JSON usage data.");
     console.log(
       status === 401
-        ? "  401 means the Cursor session is expired or cleared. Sign in to Cursor and retry."
+        ? "  401 means the Cursor session is expired or cleared, OR that this route does not accept a Bearer header."
         : status === 404
           ? "  404 means this route is wrong. Retry with --route /api/dashboard/get-current-period-usage."
-          : "  Record this status in the probe doc; do not retry in a loop."
+          : status === 405
+            ? "  405 means the route EXISTS but rejected the verb. Retry once with --method POST (authorize first)."
+            : "  Record this status in the probe doc; do not retry in a loop."
     );
     return 1;
   }

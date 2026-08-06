@@ -93,12 +93,38 @@ Run on the maintainer's Windows host with explicit authorization. **HO-5 is adva
 | Capability | **available** - `node:sqlite` loaded (script ran on system Node v24.13.0) |
 | Allowlisted key | **`cursorAuth/accessToken` EXISTS** and yielded a value passing the shape rule (length and no control characters) |
 | Route A | `GET https://cursor.com/api/usage-summary` with `Authorization: Bearer <session>` |
-| Status A | **401** |
+| Status A | **401** (twice: before and after opening the Cursor app) |
 | Route B | `GET https://cursor.com/api/dashboard/get-current-period-usage`, same header |
 | Status B | **405 Method Not Allowed** |
-| Wire shape | Not obtained - neither route returned a JSON body |
+| Route B, POST | `POST` same route, empty JSON body, separately authorized |
+| Status B POST | **403 Forbidden** |
+| Wire shape | **Not obtained.** No route returned a JSON body |
 
-Route B was re-run once, per the recorded next step, after the maintainer opened the Cursor desktop app. Route A returned `401` on both attempts, before and after.
+**The sequence is now closed.** The bounded procedure says to stop on `401`, `403`, or `429` and not to loop or probe neighbouring endpoints. Three routes/verbs were attempted, all pre-recorded leads, and the `403` ends it.
+
+### What the status ladder establishes
+
+`401` (A/GET) then `405` (B/GET) then `403` (B/POST) is a coherent picture:
+
+- **Route B exists and POST is its correct verb.** The `405` rejected the verb; changing to POST moved past method dispatch to an authorization decision.
+- **The `cursorAuth/accessToken` value is not accepted as a `Bearer` credential by either dashboard route.** It exists and has a valid token shape, but no route returned data with it.
+
+Two readings of the `403` remain, and the boundary does not permit separating them:
+
+1. **Wrong credential class or auth form.** The dashboard API may authenticate by session cookie rather than a Bearer token, or `cursorAuth/accessToken` may be scoped to a different audience (the agent/CLI API rather than the dashboard API).
+2. **A documented visibility limitation.** This contract's own failure-mode table already anticipates "`403` or spending hidden by account role - explain visibility limitation; do not treat as zero." A `403` is exactly that shape.
+
+### Consequence: HO-5 is not achievable within the authorized boundary
+
+This is the substantive result, and it is a negative one. Reading 1 would be resolved only by reading a browser cookie store or by guessing header forms - both are **explicit non-goals** of this probe and of the v3.15.12 plan. Reading 2 is not something the extension can fix at all.
+
+So the plan's premise in Complexity Tracking - that the undocumented route "is the only path that meets the maintainer's stated requirement of live numbers with no API-key setup" - **does not hold with the credential this boundary permits reading.** The remaining ways to live numbers are:
+
+- read a cookie store (out of bounds, and the README's no-cookie claim is load-bearing),
+- have the user supply a credential (that is API-key setup, which the requirement existed to remove), or
+- wait for Cursor to publish a personal-usage API.
+
+`CURSOR_WIRE_CONTRACT` therefore stays `verified: false` **permanently under this design**, rather than pending one more attempt. What the phase did deliver is intact and worth keeping: the consent gate, the read-only one-key adapter (whose key name is now confirmed against a real host), the fail-closed transport, and the degradation path that turns exactly this outcome into an explicit staleness label rather than a wrong number.
 
 ### What this establishes
 
@@ -142,9 +168,24 @@ That is the **old** empty-state message. v3.15.12 Phase 1 replaced it with *"...
 
 Testing the consent flow, and answering WN-5, requires building and installing the current VSIX into Cursor first (`npm run compile && npm run package`, then install the `.vsix`). Until then the panel reflects v3.15.9 behavior, correctly.
 
-### WN-5 is NOT resolved by this run
+### WN-5 is RESOLVED, favorably
 
-The script ran on **system Node v24.13.0**, where `node:sqlite` is present. Cursor's extension host runs its own Electron Node, which is a different runtime. This run says nothing about whether the extension host has `node:sqlite`. WN-5 stays open and is answered only from inside Cursor, by observing whether the panel reports the capability available.
+Initially recorded as maintainer-only on the reasoning that the extension host is a different runtime from system Node. That was true but the conclusion was wrong: the question is answerable directly, because Cursor's own Electron can be run as Node.
+
+```powershell
+$env:ELECTRON_RUN_AS_NODE = '1'
+& "$env:LOCALAPPDATA\Programs\cursor\Cursor.exe" -e "console.log(process.versions.node); require('node:sqlite')"
+```
+
+Result on the 2026-08-06 host:
+
+| Runtime | Value |
+|---|---|
+| Cursor Electron | 40.10.3 |
+| Extension-host Node | **24.15.0** |
+| `node:sqlite` | **AVAILABLE** |
+
+Well above the 22.13 floor, so the capability check reports `available` in the extension host and the consent prompt does appear. **WN-5 does not bite on this host**, and the technique above answers it on any host without needing a human to read a panel.
 
 ## Bounded Probe Procedure
 
