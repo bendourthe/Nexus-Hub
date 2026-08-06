@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [3.15.12] - 2026-08-06
 
 ### Added
 
@@ -30,6 +30,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`liveTransportCapable` is a real capability check** instead of a hardcoded `false`. It now requires Node's built-in SQLite module in the extension host, a present state database, an allowlisted key, and granted consent. Runtime notices name the provenance of what is on screen rather than citing the internal `HO-5` gap id.
 - The undocumented usage route is labelled `credential-api` and pinned by a committed wire fixture whose field names and units are a table of dot-paths. A payload that does not match is **rejected rather than coerced**, and a `401`, rate limit, or schema drift demotes to the previous cache with an explicit staleness label instead of presenting stale numbers as current.
 
+- **Platform read-contract re-verified for this release.** Cursor and Claude Code were re-checked against first-party documentation; the other eight platforms were carried forward because v3.15.12 changes no platform discovery surface. Two corrections fell out: Cursor's hooks documentation moved from `cursor.com/docs/agent/hooks` to `cursor.com/docs/hooks`, and its documented event set is far larger than this repository had recorded. Notably `beforeSubmitPrompt` is documented but carries `{prompt, attachments}` with **no model field**, which is recorded against the v3.15.14 plan whose premise depended on it.
 - **Token-class guidance corrected.** The extension README and the GitHub data contract no longer present the fine-grained PAT as the only credential class. Classic PATs are documented as valid, enterprise scope is documented as classic-PAT-only (its billing endpoints explicitly reject fine-grained PATs and GitHub App tokens), and the conflict between GitHub's endpoint reference and its own usage-reporting tutorial is stated rather than silently resolved.
 
 ### Known limitations

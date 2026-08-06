@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.15.11 -->
+<!-- nexus-hub-version: 3.15.12 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 270 skills, 17 commands, 31 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -36,6 +36,20 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v3.15.12
+
+Both usage monitors got substantially better, and one headline goal turned out to be impossible for a documented reason. Both results are shipped as stated.
+
+**The Cursor monitor gained a consent-gated live transport.** One modal prompt states exactly what will be read (Cursor's own application state database, opened **read-only**, for **one** allowlisted key, then a single JSON request) and what never will (browser cookies, `Login Data`, OS keychain, process memory, shell history, any HTML billing page, any filesystem search for credentials). Only the decision is stored, never a credential. Refusal is a first-class path with no repeated prompting, and a widened disclosure invalidates a prior grant rather than inheriting it. The dashboard now renders **three** bars: both included-usage pools, plus on-demand spend as **currency against its limit**, annotated that the limit is shared across your team with the reset date taken from the payload rather than a hardcoded day. Percentages carry one decimal, so a 1.7% pool is no longer reported as 2%.
+
+**The GitHub monitor is now `GitHub Billing Usage`**, because the old name read as Copilot-only to some and Actions-only to others. It is neither: it reports Actions minutes and storage **plus** Copilot billing for one billing owner you configure. The extension **id deliberately did not change** - an id is `publisher.name`, so renaming it would mint a second extension and leave an existing install orphaned with two status-bar items. Authorization now resolves **per billing target** rather than by one global default, because OAuth-app restrictions and SSO are per-organization settings: you can legitimately be connected via the editor's GitHub session for one org and need a pasted token for another. A new `Log Out of This Monitor` clears only this extension's binding and **cannot** sign you out of the editor's GitHub session, so Copilot is unaffected - a guarantee enforced by giving the log-out path no capability that could. `Diagnose Authorization` answers "why is my billing panel empty" for one target and writes a sanitized, credential-free record you can paste into an issue.
+
+**The headline Cursor goal was withdrawn, with evidence.** The plan promised real included-usage numbers after one consent click. That is not achievable: Cursor documents no personal-usage API, its SDK explicitly does not auto-discover local credentials, and of **116 bundled extensions** in Cursor 3.14.27, **none** declares a Cursor authentication provider and **none** contributes a usage or billing command. There is no supported surface to read personal server-side balances from. The Definition of Done was rewritten rather than quietly missed, and the constructive follow-on - local usage observation over Cursor's **supported** hooks channel, where Nexus-Hub already owns an entry - is planned as v3.15.14. The README's no-cookie promise is now enforced by a test that sweeps the shipped source, not by review.
+
+Six defects were found and fixed during the release, every one by a test written alongside the code or by a deliberate check rather than by the happy path passing. The most instructive: a rename would have failed CI through `catalog/hooks/tests`, a tree the phase gate did not run, because `ci.yml` collects it separately from `tests/`; and a guard test asserted the developer's real `~/.copilot/agents` was empty, so it failed permanently for anyone who had **actually installed Nexus-Hub** - punishing exactly the people most likely to run the suite. Catalog counts are unchanged at **270 skills**, **17 commands**, **31 hooks**, and **23 agents**.
+
+Still open and honestly recorded: the Cursor wire contract is unverified against a live account and stays `verified: false`; the editor's own OAuth app is unproven against the billing endpoints (one command closes it); and the light/dark/high-contrast and Extension Development Host smokes still need a human at a rendered UI.
 
 ## What's New in v3.15.11
 
