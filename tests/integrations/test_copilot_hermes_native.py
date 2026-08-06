@@ -212,7 +212,19 @@ def test_global_install_never_touches_the_real_home(copilot, install_ctx, monkey
     monkeypatch.setattr(
         "scripts.lib.integrations.copilot._vscode_user_dir", lambda: None
     )
-    real_home = Path.home()
+    real_agents = Path.home() / ".copilot" / "agents"
+
+    # Snapshot rather than require emptiness. The original assertion demanded the
+    # real ~/.copilot/agents hold no *.agent.md at all, which conflates "this test
+    # wrote here" with "these files exist". A maintainer who has actually installed
+    # Nexus-Hub globally legitimately has the catalog's agents there, so the old
+    # form failed permanently for exactly the people most likely to run the suite.
+    # What the guard is for is that THIS TEST must not add to that directory.
+    before = (
+        {path.name for path in real_agents.glob("*.agent.md")}
+        if real_agents.is_dir()
+        else set()
+    )
 
     def _fake_home() -> Path:
         called.append("copilot_home")
@@ -222,8 +234,15 @@ def test_global_install_never_touches_the_real_home(copilot, install_ctx, monkey
     copilot.install_global(install_ctx)
 
     assert called, "install_global did not route through _copilot_home"
-    assert not (real_home / ".copilot" / "agents").exists() or not any(
-        (real_home / ".copilot" / "agents").glob("*.agent.md")
+
+    after = (
+        {path.name for path in real_agents.glob("*.agent.md")}
+        if real_agents.is_dir()
+        else set()
+    )
+    assert after == before, (
+        "install_global wrote agent files into the real home: "
+        f"{sorted(after - before)}"
     )
 
 
