@@ -92,9 +92,13 @@ Run on the maintainer's Windows host with explicit authorization. **HO-5 is adva
 | State path | `%APPDATA%\Cursor\User\globalStorage\state.vscdb` resolved and present |
 | Capability | **available** - `node:sqlite` loaded (script ran on system Node v24.13.0) |
 | Allowlisted key | **`cursorAuth/accessToken` EXISTS** and yielded a value passing the shape rule (length and no control characters) |
-| Route | `GET https://cursor.com/api/usage-summary` with `Authorization: Bearer <session>` |
-| HTTP status | **401** |
-| Wire shape | Not obtained - no JSON body was returned |
+| Route A | `GET https://cursor.com/api/usage-summary` with `Authorization: Bearer <session>` |
+| Status A | **401** |
+| Route B | `GET https://cursor.com/api/dashboard/get-current-period-usage`, same header |
+| Status B | **405 Method Not Allowed** |
+| Wire shape | Not obtained - neither route returned a JSON body |
+
+Route B was re-run once, per the recorded next step, after the maintainer opened the Cursor desktop app. Route A returned `401` on both attempts, before and after.
 
 ### What this establishes
 
@@ -102,15 +106,41 @@ Run on the maintainer's Windows host with explicit authorization. **HO-5 is adva
 - **The read-only one-key adapter works end to end.** It opened the database, returned a value, released the handle, and reached the transport.
 - **The route responded rather than failing to resolve**, so `cursor.com` served the request.
 
-### What this does NOT establish, and the three live possibilities
+### What the 405 changes
 
-A `401` is ambiguous between:
+**`405 Method Not Allowed` means route B exists.** A non-existent path returns `404`; `405` is a route that matched and rejected the *verb*. The most likely reading is that `get-current-period-usage` expects **POST**, which is consistent with its RPC-style name.
 
-1. **The stored session is stale or cleared.** Most likely, and the cheapest to rule out: sign in to Cursor and re-run.
-2. **The header form is wrong.** The probe sends `Authorization: Bearer <token>`. The route may expect a cookie or a different header, which the probe boundary does not permit guessing at.
-3. **The route is wrong** and returns `401` before `404` for an unauthenticated caller, which some gateways do.
+The two statuses together are more informative than either alone. Had the session token been simply invalid, `401` on both routes would be expected. Route B answered `405` instead, which admits two readings:
 
-The boundary forbids probing neighbouring endpoints or header variations, so this is not resolved by more attempts. **Next step**: sign in to Cursor, re-run `node scripts/probe-wire-shape.js`; if still `401`, re-run once with `--route /api/dashboard/get-current-period-usage`, which is the other recorded discovery lead. Stop there and record the result either way.
+1. **The method check precedes the auth check** at Cursor's gateway, in which case `405` says nothing about the token.
+2. **Authentication succeeded** and only the verb was wrong, in which case **the token is valid** and route A's `401` is not a stale-session problem at all but a wrong-route or wrong-auth-form problem for that specific path.
+
+These cannot be separated without a `POST` to route B, and that is the next step - but it is **not** a step this probe takes unilaterally. See below.
+
+### What is still not established
+
+- The wire shape. `CURSOR_WIRE_CONTRACT` remains `verified: false`.
+- Whether the stored session is valid. Reading 2 above would imply it is; reading 1 leaves it unknown.
+
+### Next step requires explicit authorization: a POST
+
+Resolving this needs `POST https://cursor.com/api/dashboard/get-current-period-usage`. That is deliberately **not** performed under the existing authorization, for two reasons:
+
+1. **A POST is write-shaped.** The security invariants forbid "automatic mutation of billing, spend limits, teams, or account settings". Although an RPC-style usage query is almost certainly read-only in effect, its contract is undocumented, so the probe cannot know that in advance.
+2. The boundary permits "at most one approved JSON candidate"; two GETs have already been spent on pre-recorded leads.
+
+A POST probe would send an empty JSON body (`{}`) and record only the status and, on success, the type skeleton. It must be authorized as a distinct step.
+
+### The extension installed in Cursor is a PRE-Phase-1 build
+
+Observed in the maintainer's Cursor window during this run: the Cursor Usage panel reads *"No cached or manual Cursor usage is available. Enter usage manually while live transport remains disabled under HO-5."*
+
+That is the **old** empty-state message. v3.15.12 Phase 1 replaced it with *"...Allow live usage access, or enter usage manually."* (`cursorUsageRuntime.ts:630`). So the build running in Cursor predates Phase 1 entirely, which explains two things that would otherwise look like defects:
+
+- **No consent prompt appeared.** That build has no consent gate to prompt with.
+- **The panel cannot be used to evaluate WN-5**, because the capability check it would report does not exist in it.
+
+Testing the consent flow, and answering WN-5, requires building and installing the current VSIX into Cursor first (`npm run compile && npm run package`, then install the `.vsix`). Until then the panel reflects v3.15.9 behavior, correctly.
 
 ### WN-5 is NOT resolved by this run
 
