@@ -119,6 +119,20 @@ export function renderWarning(
   });
 }
 
+const ICON = {
+  gauge:
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><path d="M12 14l4-4"/><path d="M3 20a9 9 0 1 1 18 0"/></svg>',
+  clock:
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15 14"/></svg>',
+  chart:
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" aria-hidden="true"><path d="M3 3v18h18"/><path d="M7 15l4-4 3 3 5-6"/></svg>'
+};
+
+/**
+ * The warning panel, structured to match the Claude and Codex monitors: a centred
+ * brand block, the usage ring, an advice list under one heading, a reset line, and a
+ * footer naming the source alongside the two actions.
+ */
 function warningContent(
   suggestion: UsageSuggestion,
   imageUri: string
@@ -127,29 +141,42 @@ function warningContent(
   const absoluteUsage =
     suggestion.meter.used === null
       ? ""
-      : `<p>Absolute usage: ${escapeHtml(formatQuantity(suggestion.meter.used))}</p>`;
+      : `<div class="rec">${ICON.chart}<span>Absolute usage: ${escapeHtml(formatQuantity(suggestion.meter.used))}</span></div>`;
   const allowance =
     suggestion.meter.limit === null
       ? ""
-      : `<p>Allowance: ${escapeHtml(formatQuantity(suggestion.meter.limit))}</p>`;
-  return `<main>
+      : `<div class="rec">${ICON.chart}<span>Allowance: ${escapeHtml(formatQuantity(suggestion.meter.limit))}</span></div>`;
+  return `<main class="warn">
     <button class="close" data-command="dismiss" aria-label="Dismiss warning">&#10005;</button>
-    <header>
-      <img class="logo" src="${escapeHtml(imageUri)}" width="48" height="48" alt="">
-      <div><h1>Cursor</h1><p>Independent Nexus-Hub Usage Monitor</p></div>
-    </header>
+    <div class="brand">
+      <img class="brand-logo" src="${escapeHtml(imageUri)}" width="48" height="48" alt="">
+      <div class="brand-title">
+        <div class="brand-name">Cursor</div>
+        <div class="brand-sub">Usage Monitor</div>
+      </div>
+    </div>
     <section class="severity ${suggestion.severity}" role="alert">
       <strong>${severityIcon(suggestion.severity)} ${severity} usage warning</strong>
       <p>${escapeHtml(suggestion.message)}</p>
     </section>
     ${usageRing(suggestion)}
-    ${absoluteUsage}
-    ${allowance}
-    <p class="recommendation">${escapeHtml(suggestion.recommendation)}</p>
-    <footer>
-      <button data-command="dashboard">Open dashboard</button>
-      <button class="secondary" data-command="dismiss">Dismiss</button>
-    </footer>
+    <div class="rec-head"><span>Ways to extend your usage</span></div>
+    <div class="recs">
+      <div class="rec">${ICON.gauge}<span>${escapeHtml(suggestion.recommendation)}</span></div>
+      ${absoluteUsage}
+      ${allowance}
+    </div>
+    <div class="reset-box">
+      ${ICON.clock}<span>Usage resets at the end of the billing period.</span>
+    </div>
+    <div class="divider"></div>
+    <div class="footer">
+      <span class="source">${ICON.chart}<span>Source: Cursor Usage Monitor</span></span>
+      <div class="footer-actions">
+        <button class="secondary" data-command="dashboard">Open Dashboard</button>
+        <button class="primary" data-command="dismiss">OK</button>
+      </div>
+    </div>
     <p class="credit">Cursor AI icon by <a href="${ICONS8_ATTRIBUTION_URL}" data-command="attribution">Icons8</a>.</p>
   </main>`;
 }
@@ -179,16 +206,29 @@ function usageRing(suggestion: UsageSuggestion): string {
 }
 
 function warningStyles(): string {
-  return `:root{color-scheme:light dark}*{box-sizing:border-box}body{padding:14px;color:var(--vscode-sideBar-foreground);background:var(--vscode-sideBar-background);font:13px/1.5 var(--vscode-font-family)}main{position:relative}header{display:flex;gap:12px;align-items:center;margin:6px 0 20px}.logo{display:block;width:48px;height:48px}h1{font-size:20px;margin:0}header p{margin:0;color:var(--vscode-descriptionForeground)}.close{position:absolute;right:0;top:0;background:transparent;color:var(--vscode-foreground)}.severity{border-left:4px solid;padding:10px;background:var(--vscode-editorWidget-background)}.severity.moderate{border-color:var(--vscode-notificationsWarningIcon-foreground)}.severity.high,.severity.critical{border-color:var(--vscode-notificationsErrorIcon-foreground)}.severity p{margin:2px 0}.ring-wrap{position:relative;width:132px;height:132px;margin:20px auto 8px}
+  return `:root{color-scheme:light dark}*{box-sizing:border-box}body{padding:14px;color:var(--vscode-sideBar-foreground);background:var(--vscode-sideBar-background);font:13px/1.5 var(--vscode-font-family)}main{position:relative}.logo{display:block;width:48px;height:48px}h1{font-size:20px;margin:0}header p{margin:0;color:var(--vscode-descriptionForeground)}.close{position:absolute;right:0;top:0;background:transparent;color:var(--vscode-foreground)}.severity{border-left:4px solid;padding:10px;background:var(--vscode-editorWidget-background)}.severity.moderate{border-color:var(--vscode-notificationsWarningIcon-foreground)}.severity.high,.severity.critical{border-color:var(--vscode-notificationsErrorIcon-foreground)}.severity p{margin:2px 0}.ring-wrap{position:relative;width:132px;height:132px;margin:20px auto 8px}
 .ring{display:block}
 .ring-track{stroke:color-mix(in srgb,${METER_FILL_COLOR} 22%,transparent)}
 .ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
 .ring-pct{font-size:30px;font-weight:700;line-height:1.1}
 .ring-label{font-size:11px;opacity:.75;max-width:96px}
 main{text-align:center}
-header{justify-content:center}
-.severity{text-align:left}
-footer{justify-content:center}.recommendation{border-top:1px solid var(--vscode-widget-border);padding-top:14px}footer{display:flex;gap:8px;margin-top:18px}button{padding:7px 10px;border:1px solid transparent;color:var(--vscode-button-foreground);background:var(--vscode-button-background);font:inherit}button.secondary{color:var(--vscode-button-secondaryForeground);background:var(--vscode-button-secondaryBackground)}.credit{font-size:11px;color:var(--vscode-descriptionForeground);margin-top:18px}.credit a{color:var(--vscode-textLink-foreground)}button:focus-visible,a:focus-visible{outline:2px solid var(--vscode-focusBorder);outline-offset:2px}@media(prefers-reduced-motion:reduce){*{transition:none!important}}@media(forced-colors:active){.logo{display:none}.ring-track{stroke:CanvasText}.severity,button{border-color:CanvasText}.severity.moderate,.severity.high,.severity.critical{border-color:CanvasText}}`;
+.brand{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;padding:2px 0}
+.brand-logo{display:block;width:48px;height:48px}
+.brand-name{font-size:16px;font-weight:600}
+.brand-sub{font-size:11px;opacity:.7}
+.severity{text-align:left;margin-top:14px}
+.rec-head{font-size:11px;text-transform:uppercase;letter-spacing:.06em;opacity:.7;margin:14px 0 8px;text-align:left}
+.recs{display:flex;flex-direction:column;gap:8px;text-align:left}
+.rec{display:flex;gap:8px;align-items:flex-start;font-size:12px;line-height:1.45}
+.rec svg{flex-shrink:0;margin-top:2px;opacity:.8}
+.reset-box{display:flex;gap:8px;align-items:center;margin-top:14px;padding:8px 10px;border-radius:4px;background:var(--vscode-editorWidget-background);font-size:12px;text-align:left}
+.divider{border-top:1px solid var(--vscode-widget-border,rgba(128,128,128,.35));margin:14px 0}
+.footer{display:flex;flex-direction:column;gap:10px;align-items:center}
+.source{display:flex;gap:6px;align-items:center;font-size:11px;opacity:.65}
+.footer-actions{display:flex;gap:8px;justify-content:center}
+button{border-radius:4px}
+button.primary{color:var(--vscode-button-foreground);background:var(--vscode-button-background)}.recommendation{border-top:1px solid var(--vscode-widget-border);padding-top:14px}footer{display:flex;gap:8px;margin-top:18px}button{padding:7px 10px;border:1px solid transparent;color:var(--vscode-button-foreground);background:var(--vscode-button-background);font:inherit}button.secondary{color:var(--vscode-button-secondaryForeground);background:var(--vscode-button-secondaryBackground)}.credit{font-size:11px;color:var(--vscode-descriptionForeground);margin-top:18px}.credit a{color:var(--vscode-textLink-foreground)}button:focus-visible,a:focus-visible{outline:2px solid var(--vscode-focusBorder);outline-offset:2px}@media(prefers-reduced-motion:reduce){*{transition:none!important}}@media(forced-colors:active){.logo{display:none}.ring-track{stroke:CanvasText}.severity,button{border-color:CanvasText}.severity.moderate,.severity.high,.severity.critical{border-color:CanvasText}}`;
 }
 
 function severityIcon(

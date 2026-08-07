@@ -98,8 +98,11 @@ describe("status bar and hover", () => {
     expect(hover).toContain('alt="Cursor Models');
     expect(hover).toContain("Other Models");
     expect(hover).toContain("Allowance unavailable; absolute usage only");
-    // The user's own spend, distinct from the pool it draws on.
-    expect(hover).toContain("Your spend $14.25");
+    // This fixture carries no pooled figures, so the bar is correctly dropped and
+    // only the user's own spend is stated. The two-line organization/personal form
+    // is asserted in visual-parity.test.ts against a fixture that has pooled data.
+    expect(hover).toContain("$14.25 used by your account");
+    expect(hover).toContain("shared limit not reported");
     // The bar lives in a data: URI, so the brand color is percent-encoded there
     // (# becomes %23). Decode ONLY the URI, not the whole hover: the hover also
     // carries an escaped error message containing a literal %, which makes
@@ -169,8 +172,8 @@ describe("dashboard", () => {
     expect(html).toContain("Other Models");
     expect(html).toContain('role="meter"');
     expect(html).toContain("Allowance unavailable - absolute usage only");
-    expect(html).toContain("Personal on-demand");
-    expect(html).toContain("Shared team context");
+    // Renamed to match the sibling monitors' vocabulary.
+    expect(html).toContain("Extra Credits");
     expect(html).toContain("not a personal allowance");
     expect(html).toContain(METER_FILL_COLOR);
     expect(html).toContain("@media(forced-colors:active)");
@@ -355,11 +358,15 @@ describe("dashboard on-demand bar", () => {
 
   it("never presents the shared pool as a personal cap", () => {
     const html = renderDashboard(fresh(), now, "nonce");
+    // The guarantee is semantic, not a heading: the sharing scope must be stated
+    // and the pool must never be framed as this user's own cap. The separate
+    // "Shared team context" block folded into Extra Credits, matching the siblings.
     expect(html).toContain("Shared limit");
+    expect(html).toContain("shared across your team");
+    expect(html).toContain("not a personal allowance");
     expect(html).not.toMatch(/personal (cap|limit|allowance of)/iu);
     // The shared amount is never divided down into a per-member figure.
     expect(html).not.toContain("per member");
-    expect(html).toContain("Shared team context");
   });
 
   it("drops the bar rather than inventing a denominator when the limit is absent", () => {

@@ -81,13 +81,14 @@ describe("hover bars", () => {
     // The whole point of the shared-pool rendering: personal spend of 157.32 against
     // a 200.00 limit looks like 21% headroom, and there is none.
     const hover = buildHoverMarkdown(fresh(), now).value;
-    expect(hover).toContain("$157.32");
+    // Two lines, matching the siblings: organization draw first, personal second.
+    expect(hover).toContain("$200.86 / $200.00 used this month by the organization");
+    expect(hover).toContain("($157.32 used by your account)");
     expect(hover).toContain("none left");
-    expect(hover).toContain("$200.00");
   });
 
   it("clamps an over-drawn pool instead of overflowing its track", () => {
-    const svg = svgOf(buildHoverMarkdown(fresh(), now).value.split("Extra usage")[0]!);
+    const svg = svgOf(buildHoverMarkdown(fresh(), now).value.split("Extra Credits")[0]!);
     const widths = [...svg.matchAll(/width="(\d+)"/gu)].map((m) => Number(m[1]));
     for (const width of widths) {
       expect(width).toBeLessThanOrEqual(280);
@@ -109,7 +110,8 @@ describe("status bar label toggle", () => {
 describe("dashboard layout", () => {
   it("uses a narrow centered column like the sibling monitors", () => {
     const html = renderDashboard(fresh(), now, "nonce");
-    expect(html).toContain("max-width:520px");
+    // 500px is the sibling monitors' own column width, matched exactly.
+    expect(html).toContain("max-width:500px");
     expect(html).toContain("margin:0 auto");
   });
 
@@ -143,6 +145,16 @@ describe("warning panel", () => {
     meter: { used: null, limit: null, percentUsed: 100, percentOrigin: "source" }
   } as unknown as UsageSuggestion;
 
+  it("carries the siblings' advice, reset, and footer structure", () => {
+    const html = renderWarning(suggestion, "local", "'self'", "nonce");
+    expect(html).toContain("Ways to extend your usage");
+    expect(html).toContain('class="recs"');
+    expect(html).toContain('class="reset-box"');
+    expect(html).toContain("Source: Cursor Usage Monitor");
+    expect(html).toContain('data-command="dashboard"');
+    expect(html).toContain('data-command="dismiss"');
+  });
+
   it("draws a ring rather than a bare number", () => {
     const html = renderWarning(suggestion, "local", "'self'", "nonce");
     expect(html).toContain("<svg");
@@ -162,7 +174,10 @@ describe("warning panel", () => {
   it("centers its content", () => {
     const html = renderWarning(suggestion, "local", "'self'", "nonce");
     expect(html).toContain("main{text-align:center}");
-    expect(html).toContain("footer{justify-content:center}");
+    // The brand block is a centred column (logo above a two-line title), and the
+    // footer actions sit centred beneath the source line - the siblings' layout.
+    expect(html).toContain(".brand{display:flex;flex-direction:column;align-items:center");
+    expect(html).toContain(".footer-actions{display:flex;gap:8px;justify-content:center}");
   });
 
   it("clamps the arc so an over-limit meter cannot wrap past its own start", () => {

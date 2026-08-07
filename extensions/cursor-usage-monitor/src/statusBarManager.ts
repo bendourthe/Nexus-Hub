@@ -208,43 +208,44 @@ function hoverBar(
 function onDemandBar(snapshot: UsageSnapshot, now: number): string {
   const team = snapshot.teamContext;
   // `?? null` rather than a bare read: these fields are additive, so a snapshot
-  // cached by an older build - or any object not built by the normalizer - carries
-  // them as undefined. The declared type says `Money | null`, which is exactly the
-  // kind of assurance that does not survive persisted data.
+  // cached by an older build carries them as undefined. The declared type says
+  // `Money | null`, which is exactly the assurance that does not survive persisted
+  // data.
   const limit = team.sharedSpendLimit ?? null;
   const used = team.sharedSpendUsed ?? null;
   const remaining = team.sharedSpendRemaining ?? null;
   const personal = snapshot.onDemand.personalSpend ?? null;
+  const yours = personal === null ? "not reported" : formatMoney(personal);
 
-  if (!snapshot.onDemand.enabled) {
+  if (snapshot.onDemand.enabled !== true) {
     return (
-      `<span style="font-weight:bold">Extra usage</span><br>` +
+      `<span style="font-weight:bold">Extra Credits</span><br>` +
       `<em>On-demand spending is off for this account</em><br><br>`
     );
   }
   if (limit === null || limit.amount <= 0 || used === null) {
-    const spent = personal === null ? "not reported" : formatMoney(personal);
     return (
-      `<span style="font-weight:bold">Extra usage</span><br>` +
-      `<em>Your spend ${escapeHtml(spent)} &middot; shared limit not reported</em><br><br>`
+      `<span style="font-weight:bold">Extra Credits</span><br>` +
+      `<em>${escapeHtml(yours)} used by your account &middot; shared limit not reported</em><br><br>`
     );
   }
 
   const percent = (used.amount / limit.amount) * 100;
   const left =
     remaining === null
-      ? null
+      ? ""
       : remaining.amount <= 0
-        ? "none left"
-        : `${formatMoney(remaining)} left`;
-  const exhausted = percent >= 100;
+        ? " &middot; none left"
+        : ` &middot; ${escapeHtml(formatMoney(remaining))} left`;
+  // Two lines, matching the sibling monitors: the organization's draw against the
+  // shared limit on top, the user's own contribution in italics beneath. Personal
+  // spend alone is the misleading reading - it looks like headroom that the pool
+  // may not actually have.
   const note =
-    `Your spend ${escapeHtml(personal === null ? "not reported" : formatMoney(personal))}` +
-    ` &middot; pool ${escapeHtml(formatMoney(used))} of ${escapeHtml(formatMoney(limit))}` +
-    (left === null ? "" : ` &middot; ${escapeHtml(left)}`) +
-    (exhausted ? " &middot; shared pool is spent" : "") +
+    `${escapeHtml(formatMoney(used))} / ${escapeHtml(formatMoney(limit))} used this month by the organization${left}` +
+    `<br><em>(${escapeHtml(yours)} used by your account)</em>` +
     `<br>Resets ${escapeHtml(formatReset(snapshot, now))}`;
-  return hoverBarBlock("Extra usage (shared)", left ?? formatMoney(used), percent, note);
+  return hoverBarBlock("Extra Credits", formatPercent(percent), percent, note);
 }
 
 /** The reset sentence repeated under each included-usage bar. */
