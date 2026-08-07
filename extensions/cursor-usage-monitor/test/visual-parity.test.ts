@@ -91,7 +91,7 @@ describe("hover bars", () => {
     const svg = svgOf(buildHoverMarkdown(fresh(), now).value.split("Extra Credits")[0]!);
     const widths = [...svg.matchAll(/width="(\d+)"/gu)].map((m) => Number(m[1]));
     for (const width of widths) {
-      expect(width).toBeLessThanOrEqual(280);
+      expect(width).toBeLessThanOrEqual(360);
     }
   });
 });

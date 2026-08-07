@@ -74,6 +74,19 @@ export class WarningViewProvider implements vscode.WebviewViewProvider {
       WARNING_ACTIVE_CONTEXT,
       false
     );
+    // Clearing the context hides the VIEW, but the side bar stays parked on this
+    // now-empty container - which presents as a blank black panel with the warning
+    // icon still lit, looking like the dismiss failed. Move focus back to the
+    // Explorer so dismissing actually returns the user somewhere useful.
+    //
+    // Failure here is deliberately swallowed: the dismiss itself has already
+    // succeeded, and a host without the Explorer command must not turn a successful
+    // dismiss into a visible error.
+    try {
+      await vscode.commands.executeCommand("workbench.view.explorer");
+    } catch {
+      // Nothing to recover: the warning is already dismissed.
+    }
   }
 
   private render(webview: vscode.Webview): string {

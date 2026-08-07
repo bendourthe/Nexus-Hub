@@ -128,7 +128,7 @@ export function buildHoverMarkdown(
  * identically, and they cannot be given a rounded cap. An SVG gives exact width and
  * a pill shape (rx = half the height) at any percentage.
  */
-const HOVER_BAR_WIDTH = 280;
+const HOVER_BAR_WIDTH = 360;
 const HOVER_BAR_HEIGHT = 6;
 const HOVER_FONT_SIZE = 12;
 

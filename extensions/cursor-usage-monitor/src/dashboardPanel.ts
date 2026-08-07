@@ -117,7 +117,22 @@ export function renderDashboard(
       control.addEventListener('click', () => send(control.getAttribute('data-command')));
     });
     const settingsToggle = document.getElementById('settingsToggle');
-    if (settingsToggle) { settingsToggle.addEventListener('click', () => toggleSettings()); }
+    if (settingsToggle) {
+      settingsToggle.addEventListener('click', () => {
+        toggleSettings();
+        const open = !document.getElementById('settings-section').hidden;
+        vscode.setState({ settingsOpen: open });
+      });
+    }
+    // Setting webview.html re-creates the DOM, so the open/closed state of the
+    // settings form has to be restored explicitly. Without this a configuration
+    // change collapsed the form the moment it was saved, which reads as the change
+    // being discarded.
+    (function restoreSettingsOpen() {
+      const previous = vscode.getState();
+      const section = document.getElementById('settings-section');
+      if (previous && previous.settingsOpen && section) { section.hidden = false; }
+    })();
     ${settingsScriptJs(currentSettings())}
     ${settingsBindJs()}
     window.addEventListener('message', (event) => {
@@ -195,12 +210,6 @@ function renderSnapshot(
     <div class="divider"></div>
 
     <div class="section">
-      <h3>Current Model</h3>
-      <div class="model-name">${escapeHtml(activePoolLabel(snapshot))}</div>
-      <span class="progress-subtitle">Cursor's usage API reports pools, not the editor's selected model.</span>
-    </div>
-
-    <div class="section">
       <h3>Recommendation</h3>
       <p class="recommendation urgency-${recommendation.urgency}">${escapeHtml(recommendation.message)}</p>
       ${recommendation.suggestedPool === null ? "" : `<p class="suggested-model">Prefer: <strong>${escapeHtml(recommendation.suggestedPool)}</strong></p>`}
@@ -217,9 +226,7 @@ function renderSnapshot(
 
     <div class="actions">
       <button data-command="refresh">Refresh Now</button>
-      <button class="secondary" data-command="openUsagePage">Open Usage Page</button>
-      <button class="secondary" data-command="manualEntry">Update Figures</button>
-      <button class="secondary" data-command="clearData">Clear Data</button>
+      <button class="link" data-command="openUsagePage">Open Usage Page</button>
       <button id="settingsToggle" class="icon-btn" title="Settings" aria-label="Settings">
         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">
           <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.687.706-1.99 1.99l.169.31a1.464 1.464 0 0 1-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.697 1.283.707 2.687 1.99 1.99l.311-.17a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.687-.706 1.99-1.99l-.169-.31a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.697-1.283-.707-2.687-1.99-1.99l-.311.17a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/>
@@ -337,25 +344,6 @@ function progressBar(percent: number, label: string, ariaLabel: string): string 
   </div>`;
 }
 
-/**
- * What "Current Model" can honestly say for Cursor.
- *
- * The sibling monitors name the model in use. Cursor's usage API reports per-pool
- * figures and does not expose the editor's selected model, so naming one would be an
- * invention. The pool under most pressure is the closest true statement, and the
- * subtitle says plainly why it is not a model name.
- */
-function activePoolLabel(snapshot: UsageSnapshot): string {
-  const cursor = snapshot.cursorModels.percentUsed;
-  const other = snapshot.otherModels.percentUsed;
-  if (cursor === null && other === null) {
-    return "Not reported";
-  }
-  return (cursor ?? 0) >= (other ?? 0)
-    ? "Cursor Models pool is under most pressure"
-    : "Other Models pool is under most pressure";
-}
-
 function formatTimestamp(value: string): string {
   const parsed = Date.parse(value);
   return Number.isNaN(parsed) ? "Unknown" : new Date(parsed).toLocaleString();
@@ -429,7 +417,6 @@ h3{color:var(--vscode-editor-foreground);margin:0 0 8px 0;font-size:13px;text-tr
 .urgency-high{color:#db6d28}
 .urgency-critical{color:#f85149}
 .suggested-model{margin:4px 0;font-size:13px}
-.model-name{font-size:14px;font-weight:600}
 .tips{padding-left:20px;margin:4px 0}
 .tips li{line-height:1.6;font-size:12px}
 .actions{display:flex;gap:8px;flex-wrap:wrap}
@@ -438,8 +425,10 @@ button:hover{background:var(--vscode-button-hoverBackground)}
 button:focus-visible{outline:2px solid var(--vscode-focusBorder);outline-offset:2px}
 button.secondary{color:var(--vscode-button-secondaryForeground);background:var(--vscode-button-secondaryBackground)}
 button.secondary:hover{background:var(--vscode-button-secondaryHoverBackground)}
-button.icon-btn{display:inline-flex;align-items:center;justify-content:center;padding:6px;width:28px;height:28px;color:var(--vscode-button-secondaryForeground);background:var(--vscode-button-secondaryBackground)}
-button.icon-btn:hover{background:var(--vscode-button-secondaryHoverBackground)}
+button.link{background:none;color:var(--vscode-foreground);padding:6px 8px}
+button.link:hover{background:var(--vscode-toolbar-hoverBackground,rgba(128,128,128,0.2))}
+button.icon-btn{display:inline-flex;align-items:center;justify-content:center;padding:6px;width:28px;height:28px;color:var(--vscode-foreground);background:none}
+button.icon-btn:hover{background:var(--vscode-toolbar-hoverBackground,rgba(128,128,128,0.2))}
 button.icon-btn svg{display:block}
 .last-updated{font-size:11px;opacity:0.6;margin-top:12px}
 .empty-state{padding:8px 0}

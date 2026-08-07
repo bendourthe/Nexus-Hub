@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [3.15.12] - 2026-08-06
+## [3.15.12] - 2026-08-07
 
 ### Added
 
@@ -35,6 +35,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- **The Cursor dashboard footer follows the siblings' emphasis** (v3.15.12 Phase 9): only `Refresh Now` carries a filled background, while `Open Usage Page` and the settings gear are chromeless with hover-only feedback, so one primary action does not compete with three others. `Update Figures` and `Clear Data` left the dashboard and remain in the Command Palette.
+- **Dismissing the usage warning returns the side bar to the Explorer.** Clearing the context hid the view but left the bar parked on the now-empty container, which presented as a blank panel with the warning icon still lit - indistinguishable from a dismiss that had failed.
+- **The hover bars widened to span the tooltip** rather than stopping short of the text beneath them.
+- **The Current Model section was removed rather than faked.** Cursor's usage API reports per-pool figures and never exposes the editor's selected model; the state database holds an `initialModelState`, not the current one. Surfacing the real model would mean widening the allowlist beyond the single auth key and changing the consent scope, which invalidates every existing grant. Reading more of a credential store to populate a cosmetic section is the exact trade the authentication boundary exists to prevent, so the section is gone.
+- **The settings form no longer appears to discard a saved change.** The reported symptom was the Compact status bar toggle reverting after save; a round-trip test written before touching the save path proved persistence was correct all along, which located the two real defects. First, any configuration change rebuilds the whole webview, and the form's `hidden` default reasserted itself - so saving made the panel being edited vanish. It now restores its open state. Second, `saveSettings` wrote all eight keys unconditionally, and every write fires a configuration-change event that triggers another rebuild, so one toggle caused eight writes and eight rebuilds. Only changed keys are written now: one write for one toggle, and none when nothing changed.
 - **The Cursor monitor's dashboard, settings, and warning panel now match the Claude and Codex monitors component for component** (v3.15.12 Phase 8). The settings form moved INLINE into the dashboard, toggled by a gear icon button beneath the progress bars, instead of opening a separate panel. The dashboard gained Current Model, Recommendation, and Tips sections, buttons picked up rounded corners and the siblings' primary/secondary/icon variants, and the column narrowed to the same 500px. The warning panel gained the siblings' centred brand block, a "Ways to extend your usage" advice list, a reset box, and a footer naming the source beside Open Dashboard and OK.
 - **"Personal on-demand" is now "Extra Credits"**, reported in the siblings' two-line grammar: `$200.86 / $200.00 used this month by the organization` with `($157.32 used by your account)` in italics beneath. The headline is the organization's draw because that is what decides whether the next request is billable; the italic line keeps the user's own contribution visible without letting it be mistaken for the whole picture.
 - **The settings CSS, markup, and client script were copied from the Claude monitor byte-for-byte** rather than reimplemented, because "looks the same" is a property a parallel implementation drifts away from on the first divergent tweak. Only the parts that must differ were rewritten: the configuration namespace, the metric options (Cursor has two included pools rather than a session and a week), and the status-bar label text.

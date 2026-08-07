@@ -66,20 +66,40 @@ export function currentSettings(): DraftState {
   };
 }
 
-/** Persist a settings draft; returns the values actually stored. */
+/**
+ * Persist a settings draft; returns the values actually stored.
+ *
+ * Only CHANGED keys are written. Every `config.update` is a write to the user's
+ * settings file that fires `onDidChangeConfiguration`, and the dashboard rebuilds
+ * its entire webview on that event. Writing all eight keys unconditionally meant a
+ * single toggle triggered eight writes and eight rebuilds, which is what made the
+ * panel sit unresponsive for seconds and then appear to discard the change.
+ *
+ * The writes stay sequential rather than concurrent: parallel `config.update` calls
+ * against the same settings file can overwrite each other.
+ */
 export async function saveSettings(d: DraftState): Promise<DraftState> {
   const c = config();
   const target = vscode.ConfigurationTarget.Global;
-  // Sequential writes: concurrent config.update() calls against the same settings
-  // file can overwrite each other.
-  await c.update("alertMetric", d.metric, target);
-  await c.update("thresholds.moderate", d.thresholds.moderate, target);
-  await c.update("thresholds.high", d.thresholds.high, target);
-  await c.update("thresholds.critical", d.thresholds.critical, target);
-  await c.update("colors.moderate", d.colors.moderate, target);
-  await c.update("colors.high", d.colors.high, target);
-  await c.update("colors.critical", d.colors.critical, target);
-  await c.update("showStatusBarLabel", !d.compact, target);
+  const before = currentSettings();
+  const writes: Array<[string, unknown]> = [];
+
+  if (d.metric !== before.metric) writes.push(["alertMetric", d.metric]);
+  for (const level of ["moderate", "high", "critical"] as const) {
+    if (d.thresholds[level] !== before.thresholds[level]) {
+      writes.push([`thresholds.${level}`, d.thresholds[level]]);
+    }
+    if (d.colors[level] !== before.colors[level]) {
+      writes.push([`colors.${level}`, d.colors[level]]);
+    }
+  }
+  if (d.compact !== before.compact) {
+    writes.push(["showStatusBarLabel", !d.compact]);
+  }
+
+  for (const [key, value] of writes) {
+    await c.update(key, value, target);
+  }
   return currentSettings();
 }
 
