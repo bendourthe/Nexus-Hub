@@ -81,7 +81,7 @@ No receiving skill crossed the 500-line target because of this plan: the one edi
 
 The bundled audit helper inventoried 366 active documentation files repository-wide and 68 files under `docs/v3/v3.15/` before the Phase 1 session history was added. The reference graph contained 48 referenced documentation targets. The three new contract documents, the v3.15.8 plan update, and this checkpoint all belong to the active v3.15 development record; the session history brings the expected active v3.15 total to 69.
 
-All Phase 1 documentation remains Cat 4 active/current. No file qualifies as Cat 1 deletion, Cat 2 historical archive, or Cat 3 relocation. The plan, development contracts, fixtures, and semantic tests use their canonical directories, and the v3.16.7 portable-path correction changes content only, not document ownership or placement.
+All Phase 1 documentation remains Cat 4 active/current. No file qualifies as Cat 1 deletion, Cat 2 historical archive, or Cat 3 relocation. The plan, development contracts, fixtures, and semantic tests use their canonical directories, and the v3.20.0 portable-path correction changes content only, not document ownership or placement.
 
 Phase 1 created only already-ignored Python coverage and cache outputs. Existing ignore rules cover `.coverage`, `.pytest_cache`, `.ruff_cache`, and `__pycache__`; zero `.gitignore` patterns were added. No move, rename, deletion, archive operation, or reference repair was applied.
 
@@ -277,7 +277,7 @@ Phase 4 added two session histories and no other document; Phase 5 added its own
 
 The repository-wide structural audit found: 8 empty directories under `catalog/skills/`, all untracked and all the same set prior reports dispositioned as maintainer work-in-progress or parallel-session artifacts, left untouched; no tracked build or coverage artifact (`git ls-files` matches nothing under `out/`, `coverage/`, or `*.vsix`); and no `TODO` / `FIXME` / `XXX` / `HACK` / `# DEVIATION` marker in any of the 40-plus files this version changed.
 
-One untracked file belongs to a parallel session (`docs/v3/v3.17/comparisons/v3.17.1-comparison-mattpocock-...`, which that session renumbered out of v3.15.13 during this work). It was never staged. Every commit in this version staged by explicit path rather than `git add -A`, after the first Phase 1 commit nearly swept an earlier file of theirs in; that is recorded in the v3.15.12 Phase 2 history as the reason.
+One untracked file belongs to a parallel session (`docs/v3/v3.17/comparisons/v3.19.2-comparison-mattpocock-...`, which that session renumbered out of v3.15.13 during this work). It was never staged. Every commit in this version staged by explicit path rather than `git add -A`, after the first Phase 1 commit nearly swept an earlier file of theirs in; that is recorded in the v3.15.12 Phase 2 history as the reason.
 
 New source files this version, all referenced and none orphaned: the Cursor extension gained `providers/{consent,session,liveTransport,liveAccess,wireShape}.ts` plus `scripts/probe-wire-shape.js`, and the GitHub extension gained `providers/{authProbe,capability,sessionBinding,diagnose}.ts` plus `scripts/probe-billing-auth.js`. Each is imported by source or driven by a test; the two `scripts/` runners are referenced from their probe docs and excluded from both VSIXs by `.vscodeignore`.
 
