@@ -1,4 +1,5 @@
 import * as vscode from "vscode";
+import { METER_FILL_COLOR } from "./types";
 import { escapeHtml, formatQuantity } from "./formatters";
 import type { UsageSuggestion } from "./recommendations";
 import { renderWebviewDocument } from "./webview";
@@ -141,8 +142,7 @@ function warningContent(
       <strong>${severityIcon(suggestion.severity)} ${severity} usage warning</strong>
       <p>${escapeHtml(suggestion.message)}</p>
     </section>
-    <div class="value">${Math.round(suggestion.percent)}%</div>
-    <p>${escapeHtml(suggestion.label)} percentage</p>
+    ${usageRing(suggestion)}
     ${absoluteUsage}
     ${allowance}
     <p class="recommendation">${escapeHtml(suggestion.recommendation)}</p>
@@ -154,8 +154,41 @@ function warningContent(
   </main>`;
 }
 
+/**
+ * A ring rather than a bare number, matching the sibling Claude and Codex monitors.
+ *
+ * The arc is `percent` of the circumference, drawn from 12 o'clock by rotating the
+ * circle -90 degrees, and clamped to 100 so an over-limit pool renders a full ring
+ * instead of wrapping past its own start - a second lap would read as a low value.
+ */
+function usageRing(suggestion: UsageSuggestion): string {
+  const percent = Math.max(0, Math.min(100, Math.round(suggestion.percent)));
+  const radius = 52;
+  const circumference = 2 * Math.PI * radius;
+  const arc = (percent / 100) * circumference;
+  return `<div class="ring-wrap">
+    <svg class="ring" viewBox="0 0 120 120" width="132" height="132" role="meter" aria-label="${escapeHtml(suggestion.label)} usage" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${percent}">
+      <circle class="ring-track" cx="60" cy="60" r="${radius}" fill="none" stroke-width="10"/>
+      <circle cx="60" cy="60" r="${radius}" fill="none" stroke="${METER_FILL_COLOR}" stroke-width="10" stroke-linecap="round" stroke-dasharray="${arc.toFixed(2)} ${circumference.toFixed(2)}" transform="rotate(-90 60 60)"/>
+    </svg>
+    <div class="ring-center">
+      <div class="ring-pct">${percent}%</div>
+      <div class="ring-label">${escapeHtml(suggestion.label)}</div>
+    </div>
+  </div>`;
+}
+
 function warningStyles(): string {
-  return `:root{color-scheme:light dark}*{box-sizing:border-box}body{padding:14px;color:var(--vscode-sideBar-foreground);background:var(--vscode-sideBar-background);font:13px/1.5 var(--vscode-font-family)}main{position:relative}header{display:flex;gap:12px;align-items:center;margin:6px 0 20px}.logo{display:block;width:48px;height:48px}h1{font-size:20px;margin:0}header p{margin:0;color:var(--vscode-descriptionForeground)}.close{position:absolute;right:0;top:0;background:transparent;color:var(--vscode-foreground)}.severity{border-left:4px solid;padding:10px;background:var(--vscode-editorWidget-background)}.severity.moderate{border-color:var(--vscode-notificationsWarningIcon-foreground)}.severity.high,.severity.critical{border-color:var(--vscode-notificationsErrorIcon-foreground)}.severity p{margin:2px 0}.value{font-size:34px;font-weight:700;margin-top:18px}.recommendation{border-top:1px solid var(--vscode-widget-border);padding-top:14px}footer{display:flex;gap:8px;margin-top:18px}button{padding:7px 10px;border:1px solid transparent;color:var(--vscode-button-foreground);background:var(--vscode-button-background);font:inherit}button.secondary{color:var(--vscode-button-secondaryForeground);background:var(--vscode-button-secondaryBackground)}.credit{font-size:11px;color:var(--vscode-descriptionForeground);margin-top:18px}.credit a{color:var(--vscode-textLink-foreground)}button:focus-visible,a:focus-visible{outline:2px solid var(--vscode-focusBorder);outline-offset:2px}@media(prefers-reduced-motion:reduce){*{transition:none!important}}@media(forced-colors:active){.logo{display:none}.severity,button{border-color:CanvasText}.severity.moderate,.severity.high,.severity.critical{border-color:CanvasText}}`;
+  return `:root{color-scheme:light dark}*{box-sizing:border-box}body{padding:14px;color:var(--vscode-sideBar-foreground);background:var(--vscode-sideBar-background);font:13px/1.5 var(--vscode-font-family)}main{position:relative}header{display:flex;gap:12px;align-items:center;margin:6px 0 20px}.logo{display:block;width:48px;height:48px}h1{font-size:20px;margin:0}header p{margin:0;color:var(--vscode-descriptionForeground)}.close{position:absolute;right:0;top:0;background:transparent;color:var(--vscode-foreground)}.severity{border-left:4px solid;padding:10px;background:var(--vscode-editorWidget-background)}.severity.moderate{border-color:var(--vscode-notificationsWarningIcon-foreground)}.severity.high,.severity.critical{border-color:var(--vscode-notificationsErrorIcon-foreground)}.severity p{margin:2px 0}.ring-wrap{position:relative;width:132px;height:132px;margin:20px auto 8px}
+.ring{display:block}
+.ring-track{stroke:color-mix(in srgb,${METER_FILL_COLOR} 22%,transparent)}
+.ring-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.ring-pct{font-size:30px;font-weight:700;line-height:1.1}
+.ring-label{font-size:11px;opacity:.75;max-width:96px}
+main{text-align:center}
+header{justify-content:center}
+.severity{text-align:left}
+footer{justify-content:center}.recommendation{border-top:1px solid var(--vscode-widget-border);padding-top:14px}footer{display:flex;gap:8px;margin-top:18px}button{padding:7px 10px;border:1px solid transparent;color:var(--vscode-button-foreground);background:var(--vscode-button-background);font:inherit}button.secondary{color:var(--vscode-button-secondaryForeground);background:var(--vscode-button-secondaryBackground)}.credit{font-size:11px;color:var(--vscode-descriptionForeground);margin-top:18px}.credit a{color:var(--vscode-textLink-foreground)}button:focus-visible,a:focus-visible{outline:2px solid var(--vscode-focusBorder);outline-offset:2px}@media(prefers-reduced-motion:reduce){*{transition:none!important}}@media(forced-colors:active){.logo{display:none}.ring-track{stroke:CanvasText}.severity,button{border-color:CanvasText}.severity.moderate,.severity.high,.severity.critical{border-color:CanvasText}}`;
 }
 
 function severityIcon(

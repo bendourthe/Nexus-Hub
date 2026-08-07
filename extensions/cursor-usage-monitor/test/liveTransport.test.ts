@@ -164,13 +164,18 @@ describe("mapWirePayload", () => {
     }
     const envelope = result.value as {
       onDemand: { enabled: boolean; personalSpend: unknown };
-      teamContext: { sharedSpendLimit: unknown; dynamicSpendLimit: unknown };
+      teamContext: {
+        sharedSpendLimit: unknown;
+        dynamicSpendLimit: unknown;
+        sharedSpendUsed: unknown;
+        sharedSpendRemaining: unknown;
+      };
     };
 
     expect(envelope.onDemand).toEqual({
       enabled: true,
-      // individualUsed 1234 cents -> 12.34 dollars.
-      personalSpend: { amount: 12.34, currency: "USD" }
+      // individualUsed 15732 cents -> 157.32 dollars.
+      personalSpend: { amount: 157.32, currency: "USD" }
     });
     // The spend limit is the team's shared pool. Recording it as team context is
     // what stops it being rendered as a personal cap.
@@ -181,6 +186,17 @@ describe("mapWirePayload", () => {
     // limitType "team" means the limit is pooled, so from this user's seat it is
     // not a fixed personal cap.
     expect(envelope.teamContext.dynamicSpendLimit).toBe(true);
+    // The pool is drawn PAST its limit with nothing left, while personal spend is
+    // far lower. That combination is the whole reason these fields are carried:
+    // personal spend alone would suggest plenty of headroom that does not exist.
+    expect(envelope.teamContext.sharedSpendUsed).toEqual({
+      amount: 200.86,
+      currency: "USD"
+    });
+    expect(envelope.teamContext.sharedSpendRemaining).toEqual({
+      amount: 0,
+      currency: "USD"
+    });
   });
 
   it("rejects a renamed pool rather than coercing it", () => {

@@ -92,13 +92,24 @@ describe("status bar and hover", () => {
 
   it("shows personal meters, on-demand, shared context, source, and escaped errors", () => {
     const hover = buildHoverMarkdown(fresh(), now).value;
-    expect(hover).toContain("Cursor Models");
+    // Pool labels now live in an SVG bar. The `alt` attribute is what keeps them
+    // readable to a screen reader and assertable here - baking label text only into
+    // an image would make the hover unreadable to anyone not looking at it.
+    expect(hover).toContain('alt="Cursor Models');
     expect(hover).toContain("Other Models");
     expect(hover).toContain("Allowance unavailable; absolute usage only");
-    expect(hover).toContain("Personal spend $14.25");
-    expect(hover).toContain("Shared team context");
-    expect(hover).toContain("not a personal allowance");
-    expect(hover).toContain(METER_FILL_COLOR);
+    // The user's own spend, distinct from the pool it draws on.
+    expect(hover).toContain("Your spend $14.25");
+    // The bar lives in a data: URI, so the brand color is percent-encoded there
+    // (# becomes %23). Decode ONLY the URI, not the whole hover: the hover also
+    // carries an escaped error message containing a literal %, which makes
+    // decodeURIComponent throw URIError on the full string.
+    const svgSource = /src="data:image\/svg\+xml,([^"]+)"/u.exec(hover)?.[1];
+    expect(svgSource).toBeDefined();
+    const svg = decodeURIComponent(svgSource!);
+    expect(svg).toContain(`fill="${METER_FILL_COLOR}"`);
+    // Pill shape, not a square-ended bar: rx is half the bar height.
+    expect(svg).toContain('rx="3"');
 
     const empty = buildHoverMarkdown({ state: "empty", error }, now).value;
     expect(empty).toContain("offline &lt;retry&gt;");
@@ -121,13 +132,17 @@ describe("status bar and hover", () => {
     }
     const warning = renderWarning(suggestion, "local", "'self'", "nonce");
 
-    for (const output of [hover, dashboard, warning]) {
+    for (const output of [dashboard, warning]) {
       expect(output).toContain("80%");
       expect(output).toContain("80 requests");
       expect(output).not.toContain("of Not reported");
     }
-    expect(hover).toContain("Absolute usage: 80 requests");
-    expect(warning).toContain("Absolute usage: 80 requests");
+    // The hover renders its percentage inside the bar image, so it is asserted via
+    // the alt text; the absolute figure stays as real text beneath the bar, because
+    // a percentage without the underlying number is less information, not more.
+    expect(hover).toContain('alt="Cursor Models 80%"');
+    expect(hover).toContain("80 requests used");
+    expect(hover).not.toContain("of Not reported");
   });
 
   it("drives the native status item lifecycle", () => {

@@ -244,7 +244,20 @@ export const webviewProviders: Array<{
   provider: unknown;
 }> = [];
 
+/** Mirrors the real enum so a theme-dependent renderer can be exercised. */
+export const ColorThemeKind = {
+  Light: 1,
+  Dark: 2,
+  HighContrast: 3,
+  HighContrastLight: 4
+} as const;
+
 export const window = {
+  // The tooltip builder reads this to pick legible text colors. It was absent from
+  // this stub, so every test touching the status bar threw on `.kind` the moment
+  // the SVG bars landed. The production code guards the read; the stub provides it
+  // so the guard is not the only path the suite ever exercises.
+  activeColorTheme: { kind: ColorThemeKind.Dark as number },
   createStatusBarItem(_alignment?: unknown, priority?: number): StubStatusBarItem {
     const item: StubStatusBarItem = {
       text: "",

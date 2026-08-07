@@ -127,47 +127,168 @@ function renderSnapshot(
   const snapshot = state.data;
   const stale =
     state.state === "stale"
-      ? `<section class="notice warning" role="status">
-          <strong>Stale usage snapshot.</strong>
-          <p>${escapeHtml(state.error.message)} Percentages are not used for alerts until fresh data returns.</p>
-        </section>`
+      ? `<div class="banner warning" role="status"><span aria-hidden="true">&#9888;</span><div><strong>Stale usage snapshot.</strong> ${escapeHtml(state.error.message)} Percentages are not used for alerts until fresh data returns.</div></div>`
       : "";
   return `<main>
-    <header>
-      <div>
-        <p class="eyebrow">Personal included usage</p>
-        <h1>Cursor Usage</h1>
-        <p>Cursor Models and Other Models remain separate pools.</p>
-      </div>
-      <div class="freshness">
-        <strong>${state.state === "stale" ? "Stale" : "Fresh"}</strong>
-        <span>${escapeHtml(formatTimestamp(snapshot.fetchedAt))}</span>
-        <span>${escapeHtml(sourceLabel(snapshot))}</span>
-      </div>
-    </header>
+    <h2>Cursor Usage Dashboard</h2>
     ${stale}
-    <section aria-labelledby="included-heading">
-      <h2 id="included-heading">Included Usage</h2>
-      <div class="meters">
-        ${meterCard("Cursor Models", snapshot.cursorModels, snapshot)}
-        ${meterCard("Other Models", snapshot.otherModels, snapshot)}
-      </div>
-    </section>
-    <section class="context-grid" aria-label="Billing context">
-      ${onDemandCard(snapshot)}
-      ${teamContextCard(snapshot)}
-    </section>
-    <section class="details" aria-labelledby="period-heading">
-      <h2 id="period-heading">Period and freshness</h2>
+    ${poolSection("Cursor Models", snapshot.cursorModels, snapshot, now)}
+    ${poolSection("Other Models", snapshot.otherModels, snapshot, now)}
+    <div class="divider"></div>
+    ${extraUsageSection(snapshot, now)}
+    <div class="divider"></div>
+    <div class="section">
+      <h3>Period and freshness</h3>
       <dl>
         <div><dt>Period starts</dt><dd>${escapeHtml(formatOptionalTimestamp(snapshot.period.startsAt))}</dd></div>
         <div><dt>Resets</dt><dd>${escapeHtml(formatReset(snapshot.period.resetsAt, now))}</dd></div>
         <div><dt>Source</dt><dd>${escapeHtml(sourceLabel(snapshot))}</dd></div>
+        <div><dt>Freshness</dt><dd>${state.state === "stale" ? "Stale" : "Fresh"}</dd></div>
         <div><dt>Updated</dt><dd>${escapeHtml(formatTimestamp(snapshot.fetchedAt))}</dd></div>
       </dl>
-    </section>
+    </div>
     ${actions()}
   </main>`;
+}
+
+/**
+ * One included-usage pool, in the sibling monitors' vertical grammar: an uppercase
+ * section label, a full-width pill bar with the percentage right-aligned, and a
+ * sub-line carrying the reset and any absolute figures.
+ *
+ * The percentage is the payload's own; it is never derived here. See the note on
+ * `CURSOR_WIRE_CONTRACT` for why deriving it renders a healthy pool at ~1079%.
+ */
+function poolSection(
+  label: string,
+  meter: IncludedUsageMeter,
+  snapshot: UsageSnapshot,
+  now: number
+): string {
+  const reset = `Resets ${escapeHtml(formatReset(snapshot.period.resetsAt, now))}`;
+  if (meter.percentUsed === null) {
+    return `<div class="section">
+      <h3>${escapeHtml(label)}</h3>
+      <div class="absolute">${escapeHtml(formatQuantity(meter.used))}</div>
+      <p class="sub">Allowance unavailable - absolute usage only.<br>${reset}</p>
+    </div>`;
+  }
+  const detail = [
+    meter.used === null ? null : `${escapeHtml(formatQuantity(meter.used))} used`,
+    meter.limit === null
+      ? null
+      : `allowance ${escapeHtml(formatQuantity(meter.limit))}`
+  ].filter((part): part is string => part !== null);
+  return `<div class="section">
+    <h3>${escapeHtml(label)}</h3>
+    ${bar(meter.percentUsed, formatPercent(meter.percentUsed), `${label} usage`)}
+    <p class="sub">${detail.length > 0 ? `${detail.join(" &middot; ")}<br>` : ""}${reset}</p>
+  </div>`;
+}
+
+/**
+ * On-demand spend, and the shared pool it draws from.
+ *
+ * The bar deliberately tracks the POOL rather than personal spend. Measuring
+ * personal spend against the shared limit reads as headroom that may not exist: on
+ * a real account, personal spend was 157.32 of a 200.00 limit (a comfortable-looking
+ * 79%) while the pool itself was fully drawn with nothing left. Both figures are
+ * therefore shown, with the bar on the one that decides whether the next request is
+ * billable.
+ *
+ * The Phase 2 rules are unchanged and load-bearing: never present the shared pool as
+ * a personal cap, never divide it into a per-member figure, drop the bar rather than
+ * approximate when a fraction would be meaningless (absent limit, non-positive
+ * limit, or a limit in a different currency than the spend), take the reset date
+ * from the payload, and clamp an over-limit bar while saying so.
+ */
+function extraUsageSection(snapshot: UsageSnapshot, now: number): string {
+  const team = snapshot.teamContext;
+  const limit = team.sharedSpendLimit ?? null;
+  const pooledUsed = team.sharedSpendUsed ?? null;
+  const remaining = team.sharedSpendRemaining ?? null;
+  const personal = snapshot.onDemand.personalSpend ?? null;
+  const reset = `Resets ${escapeHtml(formatReset(snapshot.period.resetsAt, now))}`;
+  const sharing =
+    "This limit is shared across your team, not a personal allowance.";
+
+  if (!snapshot.onDemand.enabled) {
+    return `<div class="section">
+      <h3>Personal on-demand</h3>
+      <div class="absolute">Not applicable</div>
+      <p class="sub">On-demand spending is off for this account.<br>${reset}</p>
+    </div>`;
+  }
+
+  const yours = personal === null ? "Not reported" : formatMoney(personal);
+  // A fraction across two currencies is meaningless, so it is dropped rather than
+  // computed. `spendFractionOfLimit` already encodes that rule for the personal
+  // reading; the same currency guard applies to the pooled reading.
+  const currencyMismatch =
+    limit !== null && personal !== null && limit.currency !== personal.currency;
+  const pooledComparable =
+    limit !== null &&
+    limit.amount > 0 &&
+    pooledUsed !== null &&
+    pooledUsed.currency === limit.currency;
+
+  if (limit === null || limit.amount <= 0 || currencyMismatch) {
+    const why = currencyMismatch
+      ? "The shared limit is reported in a different currency than your spend, so no percentage is shown."
+      : "Shared limit not reported, so no percentage is shown.";
+    return `<div class="section">
+      <h3>Personal on-demand</h3>
+      <div class="absolute">${escapeHtml(yours)}</div>
+      <p class="sub">Shared spend limit unavailable - spend only.<br>${why}<br>${sharing}<br>${reset}</p>
+    </div>`;
+  }
+
+  const personalFraction = spendFractionOfLimit(personal, limit);
+  const percent = pooledComparable
+    ? (pooledUsed.amount / limit.amount) * 100
+    : (personalFraction ?? 0);
+  const left =
+    remaining === null
+      ? ""
+      : remaining.amount <= 0
+        ? "<br><strong>The shared pool is fully spent - nothing left.</strong>"
+        : `<br>${escapeHtml(formatMoney(remaining))} left in the shared pool.`;
+  const pooledLine = pooledComparable
+    ? `<br>Team has drawn ${escapeHtml(formatMoney(pooledUsed))} of ${escapeHtml(formatMoney(limit))}.`
+    : "";
+  const over =
+    percent > 100
+      ? "<br>Over the shared limit; the pool has been drawn past it and the bar is shown full."
+      : "";
+  const personalPercent =
+    personalFraction === null
+      ? ""
+      : `${formatPercent(personalFraction)} of the limit shared across your team`;
+  const overLimit =
+    personalFraction !== null && personalFraction > 100
+      ? "<br>Over the shared limit; the bar is shown full."
+      : "";
+
+  return `<div class="section">
+    <h3>Personal on-demand</h3>
+    ${bar(percent, `${escapeHtml(formatSpendAgainstLimit(personal, limit))}`, "On-demand spend against the shared team limit")}
+    <p class="sub">Your spend ${escapeHtml(yours)}${personalPercent === "" ? "" : ` &middot; ${personalPercent}`}.${pooledLine}${left}<br>Shared limit ${escapeHtml(formatMoney(limit))}. ${sharing}<br>${reset}${over}${overLimit}</p>
+  </div>
+  <div class="section">
+    <h3>Shared team context</h3>
+    <p class="sub">${escapeHtml(formatSharedSpendNote(snapshot.period.resetsAt))}</p>
+  </div>`;
+}
+
+/** A pill-shaped track and fill, clamped so an over-limit pool cannot overflow. */
+function bar(percent: number, right: string, ariaLabel: string): string {
+  const clamped = Math.round(Math.min(100, Math.max(0, percent)));
+  return `<div class="bar-row">
+    <div class="bar" role="meter" aria-label="${escapeHtml(ariaLabel)}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${clamped}">
+      <span class="fill fill-${clamped}"></span>
+    </div>
+    <span class="bar-value">${right}</span>
+  </div>`;
 }
 
 function meterCard(
@@ -293,12 +414,51 @@ function actions(): string {
 }
 
 function dashboardStyles(): string {
+  // Width classes rather than inline widths: the panel runs under a strict CSP with
+  // no inline style attributes, so the fill width has to come from a class.
   const fillClasses = Array.from(
     { length: 101 },
     (_, value) => `.fill-${value}{width:${value}%}`
   ).join("");
-  return `:root{color-scheme:light dark}*{box-sizing:border-box}body{margin:0;background:var(--vscode-editor-background);color:var(--vscode-editor-foreground);font:13px/1.5 var(--vscode-font-family)}main{max-width:960px;margin:0 auto;padding:28px}header{display:grid;grid-template-columns:2fr 1fr;gap:24px;align-items:end;border-bottom:1px solid var(--vscode-widget-border);padding-bottom:20px}.eyebrow{text-transform:uppercase;letter-spacing:.08em;color:var(--vscode-descriptionForeground)}h1{font-size:30px;margin:4px 0}h2{font-size:19px;margin-top:28px}.freshness{display:flex;flex-direction:column;text-align:right}.meters,.context-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}.metric,.context,.details{border-left:3px solid ${METER_FILL_COLOR};padding:16px;background:var(--vscode-editorWidget-background)}.metric-head{display:flex;justify-content:space-between;gap:16px;align-items:baseline}.metric h3{margin:0}.meter{height:10px;background:var(--vscode-progressBar-background);border:1px solid var(--vscode-contrastBorder,transparent);border-radius:5px;overflow:hidden;margin:14px 0}.fill{display:block;height:100%;background:${METER_FILL_COLOR}}.absolute{border:1px dashed var(--vscode-widget-border);padding:10px;margin:14px 0;font-weight:600}.context-grid{margin-top:18px}.context h2{margin-top:0}.context h3{margin:0}.context-note{color:var(--vscode-descriptionForeground)}dl{margin:0}dl div{display:grid;grid-template-columns:112px 1fr;gap:8px}dt{color:var(--vscode-descriptionForeground)}dd{margin:0}.onboarding{border-left:3px solid ${METER_FILL_COLOR};padding:16px;margin:18px 0;background:var(--vscode-editorWidget-background)}.onboarding h2{margin-top:0}.onboarding ol{margin:0;padding-left:22px}.onboarding li{margin-bottom:8px}.diagnostic-detail{margin-top:18px;color:var(--vscode-descriptionForeground)}.diagnostic-detail summary{cursor:pointer}.details{margin-top:18px}.details h2{margin-top:0}.notice{padding:12px 14px;margin:18px 0;border-left:4px solid}.notice.warning{border-color:var(--vscode-notificationsWarningIcon-foreground)}.notice.error{border-color:var(--vscode-notificationsErrorIcon-foreground)}.notice p{margin:4px 0 0}.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:28px}button{border:1px solid transparent;padding:7px 12px;color:var(--vscode-button-foreground);background:var(--vscode-button-background);font:inherit}button:hover{background:var(--vscode-button-hoverBackground)}button:focus-visible{outline:2px solid var(--vscode-focusBorder);outline-offset:2px}button.secondary{color:var(--vscode-button-secondaryForeground);background:var(--vscode-button-secondaryBackground)}${fillClasses}@media(max-width:600px){main{padding:18px}header{grid-template-columns:1fr}.freshness{text-align:left}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}@media(forced-colors:active){.meter{forced-color-adjust:none;border-color:CanvasText;background:Canvas}.fill{background:Highlight}.metric,.context,.details{border-color:CanvasText}button{border-color:ButtonText}}`;
+  return `:root{color-scheme:light dark}
+*{box-sizing:border-box}
+body{margin:0;background:var(--vscode-editor-background);color:var(--vscode-editor-foreground);font:13px/1.5 var(--vscode-font-family)}
+main{max-width:520px;margin:0 auto;padding:20px}
+h2{font-size:16px;margin:0 0 16px}
+h3{font-size:13px;margin:0 0 8px;text-transform:uppercase;letter-spacing:.5px;opacity:.8}
+.section{margin-bottom:16px}
+.divider{border-top:1px solid var(--vscode-widget-border,rgba(128,128,128,.35));margin:16px 0}
+.bar-row{display:flex;align-items:center;gap:10px}
+.bar{flex:1;height:8px;border-radius:4px;background:color-mix(in srgb,${METER_FILL_COLOR} 22%,transparent);overflow:hidden;border:1px solid var(--vscode-contrastBorder,transparent)}
+.fill{display:block;height:100%;border-radius:4px;background:${METER_FILL_COLOR}}
+.bar-value{flex-shrink:0;font-variant-numeric:tabular-nums;opacity:.85}
+.absolute{font-weight:600;font-size:15px}
+.sub{margin:6px 0 0;opacity:.75;font-size:12px}
+.banner{display:flex;gap:8px;align-items:flex-start;padding:8px 12px;margin-bottom:16px;border-radius:4px;font-size:12px;line-height:1.4}
+.banner.warning{background:var(--vscode-inputValidation-warningBackground,rgba(255,204,0,.1));border:1px solid var(--vscode-inputValidation-warningBorder,#cca700)}
+.onboarding{border-left:3px solid ${METER_FILL_COLOR};padding:14px;margin:16px 0;background:var(--vscode-editorWidget-background)}
+.onboarding h2{margin-top:0}
+.onboarding ol{margin:0;padding-left:20px}
+.onboarding li{margin-bottom:8px}
+.context-note{opacity:.8;font-size:12px}
+.diagnostic-detail{margin-top:16px;opacity:.75;font-size:12px}
+.diagnostic-detail summary{cursor:pointer}
+.eyebrow{text-transform:uppercase;letter-spacing:.08em;opacity:.6;font-size:11px;margin:0 0 4px}
+h1{font-size:22px;margin:0 0 12px}
+dl{margin:0}
+dl div{display:grid;grid-template-columns:110px 1fr;gap:8px}
+dt{opacity:.7}
+dd{margin:0}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+button{border:1px solid transparent;padding:6px 12px;color:var(--vscode-button-foreground);background:var(--vscode-button-background);font:inherit;border-radius:2px}
+button:hover{background:var(--vscode-button-hoverBackground)}
+button:focus-visible{outline:2px solid var(--vscode-focusBorder);outline-offset:2px}
+button.secondary{color:var(--vscode-button-secondaryForeground);background:var(--vscode-button-secondaryBackground)}
+${fillClasses}
+@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}
+@media(forced-colors:active){.bar{forced-color-adjust:none;border-color:CanvasText;background:Canvas}.fill{background:Highlight}button{border-color:ButtonText}}`;
 }
+
 
 function formatReset(value: string | null, now: number): string {
   if (value === null) {

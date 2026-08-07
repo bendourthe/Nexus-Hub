@@ -99,7 +99,9 @@ describe("normalizeSnapshotPayload", () => {
       });
       expect(result.value.teamContext).toEqual({
         sharedSpendLimit: null,
-        dynamicSpendLimit: null
+        dynamicSpendLimit: null,
+        sharedSpendUsed: null,
+        sharedSpendRemaining: null
       });
     }
   });

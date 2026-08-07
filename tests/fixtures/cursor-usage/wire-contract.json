@@ -24,6 +24,7 @@
     "onDemandPersonalLimit": "spendLimitUsage.individualLimit",
     "onDemandSharedLimit": "spendLimitUsage.pooledLimit",
     "onDemandSharedUsed": "spendLimitUsage.pooledUsed",
+    "onDemandSharedRemaining": "spendLimitUsage.pooledRemaining",
     "limitType": "spendLimitUsage.limitType"
   },
   "requiredFields": [

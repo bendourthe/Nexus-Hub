@@ -179,6 +179,11 @@
           "type": "string",
           "default": "",
           "description": "Explicit path to Cursor's application state database, for portable, Insiders, or custom profile installs. Leave empty to use the default location for your platform. Opened read-only, for one allowlisted key, and only after you allow live usage access."
+        },
+        "cursorUsage.showStatusBarLabel": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show the 'Cursor Usage: ' prefix in the status bar. Turn it off to keep the icon and figures without the words. Ignored when compactStatusBar is on, which already hides it."
         }
       }
     }

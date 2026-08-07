@@ -63,6 +63,7 @@ export const CURSOR_WIRE_CONTRACT = {
     onDemandPersonalLimit: "spendLimitUsage.individualLimit",
     onDemandSharedLimit: "spendLimitUsage.pooledLimit",
     onDemandSharedUsed: "spendLimitUsage.pooledUsed",
+    onDemandSharedRemaining: "spendLimitUsage.pooledRemaining",
     limitType: "spendLimitUsage.limitType"
   },
   /**
@@ -229,6 +230,16 @@ export function mapWirePayload(payload: unknown): ProviderResult<unknown> {
       teamContext: {
         sharedSpendLimit: minorUnitsToMoney(
           readField(payload, "onDemandSharedLimit"),
+          currency
+        ),
+        // Carried through so the panel can answer "is there anything left in the
+        // pool", which personal spend alone cannot. `used` may exceed `limit`.
+        sharedSpendUsed: minorUnitsToMoney(
+          readField(payload, "onDemandSharedUsed"),
+          currency
+        ),
+        sharedSpendRemaining: minorUnitsToMoney(
+          readField(payload, "onDemandSharedRemaining"),
           currency
         ),
         // A pooled limit is shared and therefore not fixed from this user's
