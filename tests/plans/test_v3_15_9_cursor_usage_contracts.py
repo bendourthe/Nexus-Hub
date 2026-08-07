@@ -141,25 +141,90 @@ def test_normalized_fixture_sources_are_allowed() -> None:
     assert {"credential-api", "html-scrape", "cache"} <= sources
 
 
-@pytest.mark.parametrize("name", sorted(WIRE_FIXTURES))
-def test_wire_fixtures_are_marked_unverified(name: str) -> None:
-    """The undocumented route is a discovery lead until a live probe confirms it.
+# The two fixtures that describe the REAL route, as opposed to the deliberate
+# negative cases used to prove the mapper rejects drift.
+VERIFIED_WIRE_FIXTURES = {"wire-contract.json", "wire-usage-summary.json"}
+NEGATIVE_WIRE_FIXTURES = WIRE_FIXTURES - VERIFIED_WIRE_FIXTURES
 
-    Marking these fixtures verified would let a later reader treat an invented
-    field name as a confirmed contract, which is the failure mode v3.15.12 Phase 1
-    exists to avoid.
+
+@pytest.mark.parametrize("name", sorted(VERIFIED_WIRE_FIXTURES))
+def test_real_wire_fixtures_record_a_live_probe(name: str) -> None:
+    """The route was a discovery lead through Phase 1; Phase 6 confirmed it.
+
+    This assertion was inverted deliberately. It previously required
+    `verified is False`, because an invented field name marked verified would let a
+    later reader treat a guess as a contract. That risk is now the other way round:
+    the contract IS confirmed (HTTP 200 against a live account, recorded in
+    `cursor-usage-auth-probe.md` Phase 6), so the flag guards against a future
+    contract edit made WITHOUT a probe. Flipping it back has to be deliberate.
     """
     contract = _load(name)["fixtureContract"]
-    assert contract["verified"] is False
+    assert contract["verified"] is True
     assert contract["sanitized"] is True
     assert contract["source"] == "credential-api"
+    # The provenance must name a probe, not merely assert confidence.
+    assert "probe" in contract["provenance"]
+
+
+@pytest.mark.parametrize("name", sorted(NEGATIVE_WIRE_FIXTURES))
+def test_drift_fixtures_stay_marked_as_negative_cases(name: str) -> None:
+    """A drift fixture is an intentionally wrong shape and must never read verified."""
+    contract = _load(name)["fixtureContract"]
+    assert contract["verified"] is False
+    assert contract["provenance"] == "negative-case"
 
 
 def test_wire_contract_never_claims_a_public_api() -> None:
+    """Undocumented stays undocumented, however well confirmed it is.
+
+    Verifying that the route works says nothing about it being supported, so the
+    `credential-api` label survives the Phase 6 confirmation unchanged.
+    """
     payload = _load("wire-contract.json")
     structure = {key: value for key, value in payload.items() if key != "fixtureContract"}
     assert "public-api" not in json.dumps(structure)
-    assert payload["fixtureContract"]["provenance"] == "expected-shape-unverified"
+    assert payload["fixtureContract"]["source"] == "credential-api"
+    # Deliberately NOT a substring check over the note: the note earns its keep by
+    # saying "labelled credential-api, never public-api", so a blanket search for
+    # the string flags the very sentence that states the rule. The machine-readable
+    # structure above is what a consumer reads; the note is prose for a human.
+
+
+def test_wire_contract_targets_the_rpc_host_with_a_post() -> None:
+    """The REST assumption is what produced the 405; pin the verb and the host.
+
+    A Connect endpoint is POST-only, so a well-meaning simplification back to a GET
+    would break the live path while leaving every stub-based test green.
+    """
+    payload = _load("wire-contract.json")
+    assert payload["origin"] == "https://api2.cursor.sh"
+    assert payload["method"] == "POST"
+    assert payload["route"] == "/aiserver.v1.DashboardService/GetCurrentPeriodUsage"
+
+
+def test_wire_field_paths_are_camel_case() -> None:
+    """Connect's JSON codec applies the proto3 JSON mapping.
+
+    The protobuf descriptor declares `billing_cycle_start`; the wire delivers
+    `billingCycleStart`. A snake_case path here reads undefined for every field, so
+    the whole payload would be rejected as a schema mismatch.
+    """
+    for path in _load("wire-contract.json")["fields"].values():
+        assert "_" not in path, path
+
+
+def test_sample_payload_reproduces_the_percentage_discrepancy() -> None:
+    """Percentages must be used as delivered, never derived from spend over limit.
+
+    On the probed account those two disagreed by a factor of ~45, because the
+    reported percentage uses a base the payload does not expose. The fixture keeps
+    that discrepancy on purpose: any code that derives a percentage instead of
+    reading it would render a healthy pool near 1079% and pin every threshold alert.
+    """
+    plan = _load("wire-usage-summary.json")["planUsage"]
+    derived = plan["totalSpend"] / plan["limit"] * 100
+    assert derived > 1000
+    assert plan["autoPercentUsed"] < 30
 
 
 def test_healthy_included_usage_has_same_unit_math() -> None:

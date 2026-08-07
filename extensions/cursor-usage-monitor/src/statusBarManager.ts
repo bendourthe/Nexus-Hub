@@ -83,8 +83,12 @@ export function buildHoverMarkdown(
   markdown.supportHtml = true;
 
   if (state.state === "empty") {
+    // The hover is the only guidance a user gets without clicking, so it leads with
+    // an invitation rather than a provider error code. "authorization-required"
+    // reads as a fault; "two steps" reads as something to do. The raw message stays
+    // available, below, for anyone diagnosing rather than starting out.
     markdown.appendMarkdown(
-      `**Cursor Usage**<br><br>${escapeHtml(state.error.message)}<br><br>Click to open the dashboard.`
+      `**Cursor Usage**<br><br>Not connected yet - click to set this up in two steps.<br><br>Cursor offers no personal usage API, so figures are copied from your usage page.<br><br>${escapeHtml(state.error.message)}`
     );
     return markdown;
   }

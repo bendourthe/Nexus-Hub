@@ -37,6 +37,7 @@ export const COMMAND_IDS = {
   manualEntry: "cursor-usage.manualEntry",
   clearData: "cursor-usage.clearData",
   revokeConsent: "cursor-usage.revokeConsent",
+  connectLive: "cursor-usage.connectLive",
   openNativeSettings: "cursor-usage.openNativeSettings",
   openUsagePage: "cursor-usage.openUsagePage"
 } as const;
@@ -70,6 +71,17 @@ export interface RuntimeDependencies {
   liveTransportCapable: boolean | (() => boolean);
   /** Clears the live-transport consent decision. Absent when no gate is wired. */
   revokeLiveConsent?: () => Promise<void>;
+  /**
+   * Re-asks for live-transport consent and re-resolves capability, returning
+   * whether live access ended up available.
+   *
+   * This exists because a DECLINED decision is deliberately never re-prompted on a
+   * timer or on activation - that is what stops the gate becoming nagware. But a
+   * user who clicks "Connect" is asking, and refusing to re-ask them would leave the
+   * decision permanently unreachable from the interface. An explicit action may
+   * reopen a declined decision; automation may not.
+   */
+  reconnectLive?: () => Promise<boolean>;
   now?: () => number;
   setInterval?: (callback: () => void, delay: number) => IntervalHandle;
   clearInterval?: (handle: IntervalHandle) => void;
@@ -224,6 +236,9 @@ export class CursorUsageRuntime implements vscode.Disposable {
       ),
       vscode.commands.registerCommand(COMMAND_IDS.revokeConsent, () =>
         this.revokeConsent()
+      ),
+      vscode.commands.registerCommand(COMMAND_IDS.connectLive, () =>
+        this.connectLive()
       ),
       vscode.commands.registerCommand(
         COMMAND_IDS.openNativeSettings,
@@ -409,6 +424,29 @@ export class CursorUsageRuntime implements vscode.Disposable {
    * revoking never leaves behind data the session read produced. Manually entered
    * usage is the user's own and is deliberately preserved.
    */
+  /**
+   * Asks for live access again, then refreshes if it was granted.
+   *
+   * When no gate is wired (`reconnectLive` absent) this degrades to a plain refresh
+   * rather than reporting a failure, so the button is never a dead control.
+   */
+  private async connectLive(): Promise<void> {
+    if (this.dependencies.reconnectLive === undefined) {
+      await this.refresh("manual");
+      return;
+    }
+    const granted = await this.dependencies.reconnectLive();
+    if (granted) {
+      await this.refresh("manual");
+      return;
+    }
+    // Declining is a first-class outcome, so it gets a plain statement of what
+    // still works rather than an error or a second ask.
+    void vscode.window.showInformationMessage(
+      "Cursor Usage: live access was not granted. Stored and manually entered usage stay available."
+    );
+  }
+
   private async revokeConsent(): Promise<void> {
     const confirmation = await vscode.window.showWarningMessage(
       "Revoke live Cursor usage access? This clears the consent decision and any usage cached from it. Manually entered usage is kept.",

@@ -6,7 +6,7 @@ import {
 } from "../src/extension";
 import { consentPromptRequest } from "../src/providers/consent";
 import {
-  CURSOR_USAGE_ORIGIN,
+
   CURSOR_WIRE_CONTRACT,
   CursorLiveUsageTransport
 } from "../src/providers/liveTransport";
@@ -78,7 +78,7 @@ describe("default fetch client", () => {
 
     expect(calls).toHaveLength(1);
     expect(calls[0]?.url).toBe(
-      `${CURSOR_USAGE_ORIGIN}${CURSOR_WIRE_CONTRACT.route}`
+      `${CURSOR_WIRE_CONTRACT.origin}${CURSOR_WIRE_CONTRACT.route}`
     );
     const headers = calls[0]?.init.headers as Record<string, string>;
     expect(headers.Authorization).toBe(`Bearer ${session}`);

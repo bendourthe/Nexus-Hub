@@ -2,6 +2,28 @@
 
 An independent Nexus-Hub extension for personal Cursor usage. The runtime shows normalized cache or manual data in a status bar, dashboard, settings panel, and threshold warning view. Cursor Models, Other Models, personal on-demand spend, reset context, source, and freshness stay separate.
 
+## How live usage is read
+
+Cursor publishes no *public* personal usage API: its documented APIs (administration, analytics, code tracking) are scoped to Enterprise team administrators. Its own client, however, reads personal usage through a unary Connect RPC, and this extension now uses the same one:
+
+```
+POST https://api2.cursor.sh/aiserver.v1.DashboardService/GetCurrentPeriodUsage
+```
+
+The request body is empty, because the message's team id is optional. Authorization is the session Cursor itself signed you in with, read **read-only** from a single allowlisted key in Cursor's own local state, behind a one-time consent prompt. This is deliberately the same shape as the sibling monitors: the Claude monitor reads `~/.claude/.credentials.json` and calls Anthropic's OAuth usage route, and the Codex monitor reads `~/.codex/auth.json` and calls ChatGPT's backend usage route. None of the three reads a web page.
+
+The route is labelled `credential-api`, never `public-api`, because it is undocumented. A payload that does not match the pinned contract is **rejected rather than coerced**, so schema drift degrades to the previous cache with an explicit staleness label instead of rendering a wrong number as live.
+
+Three properties of the payload are worth knowing, because each is a trap that a reasonable implementation walks into:
+
+- **Field names are camelCase**, not the protobuf descriptor's snake_case, because Connect's JSON codec applies the proto3 JSON mapping. Building from the descriptor alone reads `undefined` for every field.
+- **Percentages are used exactly as delivered and never recomputed.** On a live account, spend over limit came to 1078.70 while the reported figure was 23.97, because the reported percentage uses a base the payload does not expose. Deriving it would render a healthy pool as 1079% and fire every threshold alert continuously.
+- **Money is minor units and cycle bounds are epoch-millisecond strings.** Spend divides by 100; a cycle read as seconds would date to 1970.
+
+If you decline consent, the extension falls back to figures you enter by hand. Understand what that is: a snapshot frozen at the moment you entered it. It does not follow your usage, so it is a reading you took rather than a live meter. `Cursor Usage: Connect Live Usage Tracking` reopens the prompt whenever you want it; consent is never re-requested automatically.
+
+What will not be done, whatever the convenience: reading browser cookies, hunting the filesystem for credentials, or scraping the HTML billing page.
+
 ## Runtime Behavior
 
 On activation, the extension hydrates normalized live cache first, then manual data, then an explicit empty state. Stale snapshots remain visible but never trigger threshold alerts. Refreshes are coalesced, cancellable with `AbortController`, and reflected across the status bar, open dashboard, and warning view.

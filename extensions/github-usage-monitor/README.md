@@ -38,7 +38,13 @@ bash scripts/installer.sh
 pwsh scripts/installer.ps1
 ```
 
-Installing does **not** authenticate to GitHub. The extension has no credential until you supply one.
+Installing does **not** send anything to GitHub on its own. On first refresh the monitor looks for a credential in this order, and stops at the first one it finds:
+
+1. **A token you stored explicitly.** Supplying one is a deliberate act, so it always wins - the monitor will not silently substitute a session for a token you chose.
+2. **The editor's own GitHub session**, if you are already signed in. This is what makes the common case zero-setup. The lookup is always *silent*: a background refresh can never raise a sign-in dialog at you.
+3. **Nothing**, in which case the panel names both ways forward rather than just reporting that it is empty.
+
+For a personal billing owner the account name is taken from the signed-in session when you have not configured one, so `user` scope usually needs no setup at all. Organization and enterprise slugs are **never** guessed from your account name - a personal account name is not an org slug, and guessing would report a different entity's spend.
 
 To build and install it on its own:
 
@@ -61,9 +67,13 @@ Open the Command Palette and run `GitHub Billing: Settings`, or set these direct
 
 The monitor queries exactly one owner. It never merges scopes or guesses an owner from your repositories.
 
-### 2. Store a token
+### 2. Connect, or store a token
 
-Run `GitHub Billing: Set Token` and paste a token of the class your billing scope needs (see the table). It is validated against the billing endpoint before it is saved, and it is stored only in VS Code SecretStorage - never in `settings.json`, never in workspace state, never in a log line.
+If you are signed in to GitHub in the editor, run `GitHub Billing: Refresh` and you may already be done. `GitHub Billing: Log In or Switch Account` reaches GitHub's account picker, so the billing account can deliberately differ from the one Copilot uses; `Log Out of This Monitor` clears only this extension's binding and **cannot** sign you out of the editor's shared session.
+
+Some targets need a token instead: enterprise billing accepts classic PATs only, and an organization that has not authorized OAuth apps or that enforces SSO will refuse a session token. The monitor diagnoses each owner independently and tells you which case you are in, so run `GitHub Billing: Diagnose Authorization` before assuming it is broken.
+
+To store one, run `GitHub Billing: Set Token` and paste a token of the class your billing scope needs (see the table). It is validated against the billing endpoint before it is saved, and it is stored only in VS Code SecretStorage - never in `settings.json`, never in workspace state, never in a log line.
 
 | Scope | Required authorization |
 |---|---|
@@ -76,6 +86,8 @@ Run `GitHub Billing: Set Token` and paste a token of the class your billing scop
 > When a token is refused for permissions, the error now quotes GitHub's own answer from the `X-Accepted-OAuth-Scopes` response header, so it names the scope the operation would accept rather than only what the extension expected.
 
 `GitHub Billing: Validate Token` re-checks the stored credential, `GitHub Billing: Rotate Token` replaces it, and `GitHub Billing: Clear Token` deletes it from SecretStorage.
+
+`GitHub Billing: Open Billing Page` opens GitHub's own billing page for the resolved owner, which stays the authoritative source for any figure you want to verify.
 
 ### 3. Set allowances if you want percentages
 

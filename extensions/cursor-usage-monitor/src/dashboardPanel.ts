@@ -14,6 +14,7 @@ import {
   type UsageSnapshot,
   type UsageState
 } from "./types";
+import { CONSENT_PROMPT_WILL_NOT_READ } from "./providers/consent";
 import { renderWebviewDocument } from "./webview";
 
 export class DashboardPanel {
@@ -79,13 +80,43 @@ export function renderDashboard(
 }
 
 function renderEmpty(message: string): string {
+  // This is a first-run screen, not an error screen. It used to lead with "Enter
+  // usage manually", which asks the user to BE the data source and reads as a
+  // broken extension.
+  //
+  // Automatic tracking WORKS as of Phase 6 (the verified RPC), so this screen's job
+  // is to get consent, not to explain an absence. Connecting is the primary action.
+  //
+  // Manual entry survives as a genuine choice for someone who declines, but its
+  // weakness is stated rather than hidden: a pasted figure is frozen at the moment
+  // it was entered. An earlier draft of this screen led with manual entry and did
+  // not say that, which made a stale number look like a live meter.
   return `<main>
     <h1>Cursor Usage</h1>
-    <section class="notice error" role="status">
-      <strong>No usage data available.</strong>
-      <p>${escapeHtml(message)}</p>
+    <p class="eyebrow">Not connected yet</p>
+    <section class="notice warning" role="status">
+      <strong>Live tracking is available, and off until you allow it.</strong>
+      <p>Your real usage can be read automatically. Doing so needs your permission once, because it uses the same session Cursor itself signed you in with, read from Cursor's own local state. Nothing is read before you agree.</p>
     </section>
-    ${actions()}
+    <section class="onboarding">
+      <h2>Turn it on in one step</h2>
+      <ol>
+        <li><strong>Click "Connect live tracking".</strong> You will see one prompt stating exactly what is read and what is never read. Allow it, and your real figures appear here and in the status bar, refreshing on their own.</li>
+      </ol>
+      <p class="context-note">Prefer not to? You can open your usage page and type the figures in by hand instead. Be aware of what that gives you: a snapshot frozen at the moment you enter it, which does not follow your usage and will quietly go out of date.</p>
+      <p class="context-note">Whichever you choose, this is what is never read:</p>
+      <ul class="context-note">${CONSENT_PROMPT_WILL_NOT_READ.map((line) => `<li>${escapeHtml(line)}</li>`).join("")}</ul>
+    </section>
+    <div class="actions" aria-label="Setup actions">
+      <button data-command="connectLive">Connect live tracking</button>
+      <button class="secondary" data-command="openUsagePage">Open my Cursor usage page</button>
+      <button class="secondary" data-command="manualEntry">Enter figures by hand</button>
+      <button class="secondary" data-command="settings">Settings</button>
+    </div>
+    <details class="diagnostic-detail">
+      <summary>Technical detail</summary>
+      <p>${escapeHtml(message)}</p>
+    </details>
   </main>`;
 }
 
@@ -253,8 +284,9 @@ function teamContextCard(snapshot: UsageSnapshot): string {
 
 function actions(): string {
   return `<div class="actions" aria-label="Dashboard actions">
+    <button data-command="openUsagePage">Open my Cursor usage page</button>
     <button data-command="refresh">Refresh now</button>
-    <button data-command="manualEntry">Enter usage manually</button>
+    <button data-command="manualEntry">Update figures</button>
     <button data-command="settings">Settings</button>
     <button class="secondary" data-command="clearData">Clear data</button>
   </div>`;
@@ -265,7 +297,7 @@ function dashboardStyles(): string {
     { length: 101 },
     (_, value) => `.fill-${value}{width:${value}%}`
   ).join("");
-  return `:root{color-scheme:light dark}*{box-sizing:border-box}body{margin:0;background:var(--vscode-editor-background);color:var(--vscode-editor-foreground);font:13px/1.5 var(--vscode-font-family)}main{max-width:960px;margin:0 auto;padding:28px}header{display:grid;grid-template-columns:2fr 1fr;gap:24px;align-items:end;border-bottom:1px solid var(--vscode-widget-border);padding-bottom:20px}.eyebrow{text-transform:uppercase;letter-spacing:.08em;color:var(--vscode-descriptionForeground)}h1{font-size:30px;margin:4px 0}h2{font-size:19px;margin-top:28px}.freshness{display:flex;flex-direction:column;text-align:right}.meters,.context-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}.metric,.context,.details{border-left:3px solid ${METER_FILL_COLOR};padding:16px;background:var(--vscode-editorWidget-background)}.metric-head{display:flex;justify-content:space-between;gap:16px;align-items:baseline}.metric h3{margin:0}.meter{height:10px;background:var(--vscode-progressBar-background);border:1px solid var(--vscode-contrastBorder,transparent);border-radius:5px;overflow:hidden;margin:14px 0}.fill{display:block;height:100%;background:${METER_FILL_COLOR}}.absolute{border:1px dashed var(--vscode-widget-border);padding:10px;margin:14px 0;font-weight:600}.context-grid{margin-top:18px}.context h2{margin-top:0}.context h3{margin:0}.context-note{color:var(--vscode-descriptionForeground)}dl{margin:0}dl div{display:grid;grid-template-columns:112px 1fr;gap:8px}dt{color:var(--vscode-descriptionForeground)}dd{margin:0}.details{margin-top:18px}.details h2{margin-top:0}.notice{padding:12px 14px;margin:18px 0;border-left:4px solid}.notice.warning{border-color:var(--vscode-notificationsWarningIcon-foreground)}.notice.error{border-color:var(--vscode-notificationsErrorIcon-foreground)}.notice p{margin:4px 0 0}.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:28px}button{border:1px solid transparent;padding:7px 12px;color:var(--vscode-button-foreground);background:var(--vscode-button-background);font:inherit}button:hover{background:var(--vscode-button-hoverBackground)}button:focus-visible{outline:2px solid var(--vscode-focusBorder);outline-offset:2px}button.secondary{color:var(--vscode-button-secondaryForeground);background:var(--vscode-button-secondaryBackground)}${fillClasses}@media(max-width:600px){main{padding:18px}header{grid-template-columns:1fr}.freshness{text-align:left}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}@media(forced-colors:active){.meter{forced-color-adjust:none;border-color:CanvasText;background:Canvas}.fill{background:Highlight}.metric,.context,.details{border-color:CanvasText}button{border-color:ButtonText}}`;
+  return `:root{color-scheme:light dark}*{box-sizing:border-box}body{margin:0;background:var(--vscode-editor-background);color:var(--vscode-editor-foreground);font:13px/1.5 var(--vscode-font-family)}main{max-width:960px;margin:0 auto;padding:28px}header{display:grid;grid-template-columns:2fr 1fr;gap:24px;align-items:end;border-bottom:1px solid var(--vscode-widget-border);padding-bottom:20px}.eyebrow{text-transform:uppercase;letter-spacing:.08em;color:var(--vscode-descriptionForeground)}h1{font-size:30px;margin:4px 0}h2{font-size:19px;margin-top:28px}.freshness{display:flex;flex-direction:column;text-align:right}.meters,.context-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}.metric,.context,.details{border-left:3px solid ${METER_FILL_COLOR};padding:16px;background:var(--vscode-editorWidget-background)}.metric-head{display:flex;justify-content:space-between;gap:16px;align-items:baseline}.metric h3{margin:0}.meter{height:10px;background:var(--vscode-progressBar-background);border:1px solid var(--vscode-contrastBorder,transparent);border-radius:5px;overflow:hidden;margin:14px 0}.fill{display:block;height:100%;background:${METER_FILL_COLOR}}.absolute{border:1px dashed var(--vscode-widget-border);padding:10px;margin:14px 0;font-weight:600}.context-grid{margin-top:18px}.context h2{margin-top:0}.context h3{margin:0}.context-note{color:var(--vscode-descriptionForeground)}dl{margin:0}dl div{display:grid;grid-template-columns:112px 1fr;gap:8px}dt{color:var(--vscode-descriptionForeground)}dd{margin:0}.onboarding{border-left:3px solid ${METER_FILL_COLOR};padding:16px;margin:18px 0;background:var(--vscode-editorWidget-background)}.onboarding h2{margin-top:0}.onboarding ol{margin:0;padding-left:22px}.onboarding li{margin-bottom:8px}.diagnostic-detail{margin-top:18px;color:var(--vscode-descriptionForeground)}.diagnostic-detail summary{cursor:pointer}.details{margin-top:18px}.details h2{margin-top:0}.notice{padding:12px 14px;margin:18px 0;border-left:4px solid}.notice.warning{border-color:var(--vscode-notificationsWarningIcon-foreground)}.notice.error{border-color:var(--vscode-notificationsErrorIcon-foreground)}.notice p{margin:4px 0 0}.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:28px}button{border:1px solid transparent;padding:7px 12px;color:var(--vscode-button-foreground);background:var(--vscode-button-background);font:inherit}button:hover{background:var(--vscode-button-hoverBackground)}button:focus-visible{outline:2px solid var(--vscode-focusBorder);outline-offset:2px}button.secondary{color:var(--vscode-button-secondaryForeground);background:var(--vscode-button-secondaryBackground)}${fillClasses}@media(max-width:600px){main{padding:18px}header{grid-template-columns:1fr}.freshness{text-align:left}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition:none!important}}@media(forced-colors:active){.meter{forced-color-adjust:none;border-color:CanvasText;background:Canvas}.fill{background:Highlight}.metric,.context,.details{border-color:CanvasText}button{border-color:ButtonText}}`;
 }
 
 function formatReset(value: string | null, now: number): string {
@@ -299,11 +331,25 @@ function sourceLabel(snapshot: UsageSnapshot): string {
 
 function isDashboardCommand(
   value: string | undefined
-): value is "refresh" | "manualEntry" | "settings" | "clearData" {
+):
+  value is
+    | "refresh"
+    | "manualEntry"
+    | "settings"
+    | "clearData"
+    | "openUsagePage"
+    | "connectLive" {
   return (
     value === "refresh" ||
     value === "manualEntry" ||
     value === "settings" ||
-    value === "clearData"
+    value === "clearData" ||
+    value === "openUsagePage" ||
+    value === "connectLive"
   );
+}
+
+/** Exposes the panel's command guard so a test can prove no button is inert. */
+export function isDashboardCommandForTest(value: string | undefined): boolean {
+  return isDashboardCommand(value);
 }

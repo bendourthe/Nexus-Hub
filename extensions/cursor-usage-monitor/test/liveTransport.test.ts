@@ -62,15 +62,38 @@ describe("wire contract", () => {
     );
   });
 
-  it("is recorded as unverified in both the code and the fixture", () => {
-    // Load-bearing: the route is a discovery lead, not a confirmed contract, and
-    // nothing in the repository may imply otherwise until the maintainer probes it.
-    expect(CURSOR_WIRE_CONTRACT.verified).toBe(false);
+  it("is recorded as verified in both the code and the fixture", () => {
+    // Inverted in Phase 6: the route, the field names, and the money units were
+    // confirmed against a live account (HTTP 200). `verified` stays load-bearing in
+    // the other direction now - it asserts the claim rests on a recorded probe, so
+    // a future contract edit made without one has to flip this deliberately.
+    expect(CURSOR_WIRE_CONTRACT.verified).toBe(true);
     const declared = fixture("wire-contract.json");
     const contract = declared.fixtureContract as Record<string, unknown>;
-    expect(contract.verified).toBe(false);
+    expect(contract.verified).toBe(true);
     expect(contract.source).toBe("credential-api");
-    expect(contract.provenance).toBe("expected-shape-unverified");
+    expect(contract.provenance).toBe("live-probe-verified-names-and-units");
+  });
+
+  it("targets the RPC host with a POST, not the web origin with a GET", () => {
+    // The original REST assumption is exactly what produced the 405. Pinning both
+    // the verb and the host stops a well-meaning "simplification" back to a GET.
+    expect(CURSOR_WIRE_CONTRACT.origin).toBe("https://api2.cursor.sh");
+    expect(CURSOR_WIRE_CONTRACT.method).toBe("POST");
+    expect(CURSOR_WIRE_CONTRACT.route).toBe(
+      "/aiserver.v1.DashboardService/GetCurrentPeriodUsage"
+    );
+    // team_id is optional, so a personal query is an empty body.
+    expect(CURSOR_WIRE_CONTRACT.body).toBe("{}");
+  });
+
+  it("keeps every field path camelCase, as Connect's JSON codec delivers them", () => {
+    // The descriptor says billing_cycle_start; the wire says billingCycleStart.
+    // A snake_case path here reads undefined for every field, so it is worth an
+    // assertion rather than a comment.
+    for (const path of Object.values(CURSOR_WIRE_CONTRACT.fields)) {
+      expect(path).not.toMatch(/_/u);
+    }
   });
 
   it("never labels the undocumented route as a public API", () => {
@@ -114,14 +137,23 @@ describe("mapWirePayload", () => {
     const snapshot = normalized.value;
     expect(snapshot.source).toBe("credential-api");
     expect(snapshot.stale).toBe(false);
-    expect(snapshot.cursorModels.used).toEqual({
-      value: 345000,
-      unit: "tokens"
-    });
-    expect(snapshot.cursorModels.percentUsed).toBe(34.5);
+    // Per-pool figures arrive as SPEND in cents, and Quantity.unit admits only
+    // tokens/requests/percent, so money is deliberately not placed here. The
+    // percentage carries the meter.
+    expect(snapshot.cursorModels.used).toBeNull();
+    expect(snapshot.cursorModels.limit).toBeNull();
+    // Taken as delivered, to full precision - not rounded and not recomputed.
+    expect(snapshot.cursorModels.percentUsed).toBeCloseTo(23.971111111111114, 10);
     expect(snapshot.cursorModels.percentOrigin).toBe("source");
-    expect(snapshot.otherModels.percentUsed).toBe(1.7);
-    expect(snapshot.period.resetsAt).toBe("2026-09-01T00:00:00Z");
+    expect(snapshot.otherModels.percentUsed).toBe(12);
+    // An epoch-millisecond STRING, normalized to ISO. Read as seconds this would
+    // land in 1970.
+    expect(snapshot.period.resetsAt).toBe(
+      new Date(1788374587000).toISOString()
+    );
+    expect(snapshot.period.startsAt).toBe(
+      new Date(1785782587000).toISOString()
+    );
   });
 
   it("converts minor currency units and keeps the limit as team context", () => {
@@ -137,7 +169,8 @@ describe("mapWirePayload", () => {
 
     expect(envelope.onDemand).toEqual({
       enabled: true,
-      personalSpend: { amount: 12.5, currency: "USD" }
+      // individualUsed 1234 cents -> 12.34 dollars.
+      personalSpend: { amount: 12.34, currency: "USD" }
     });
     // The spend limit is the team's shared pool. Recording it as team context is
     // what stops it being rendered as a personal cap.
@@ -145,7 +178,9 @@ describe("mapWirePayload", () => {
       amount: 200,
       currency: "USD"
     });
-    expect(envelope.teamContext.dynamicSpendLimit).toBe(false);
+    // limitType "team" means the limit is pooled, so from this user's seat it is
+    // not a fixed personal cap.
+    expect(envelope.teamContext.dynamicSpendLimit).toBe(true);
   });
 
   it("rejects a renamed pool rather than coercing it", () => {
@@ -154,15 +189,39 @@ describe("mapWirePayload", () => {
     expect(!result.ok && result.error.sourceAttempt).toBe("credential-api");
   });
 
-  it("rejects a payload that self-declares a different unit", () => {
-    const result = mapWirePayload(fixture("wire-unit-drift.json"));
-    expect(!result.ok && result.error.code).toBe("unit-mismatch");
+  it("uses the reported percentage and never derives one from spend over limit", () => {
+    // The most important assertion in this file. On the probed account
+    // (totalSpend / limit) * 100 was 1078.70 while the reported totalPercentUsed was
+    // 23.97, because the reported figure uses a base the payload does not expose.
+    // The fixture reproduces that discrepancy on purpose, so any refactor that
+    // "helpfully" computes the percentage fails here instead of shipping a 1079%
+    // meter that pins every threshold alert on a healthy account.
+    const payload = fixture("wire-usage-summary.json");
+    const plan = payload.planUsage as Record<string, number>;
+    const derived = (plan.totalSpend / plan.limit) * 100;
+    expect(derived).toBeGreaterThan(1000);
+    expect(plan.autoPercentUsed).toBeLessThan(30);
+
+    const result = mapWirePayload(payload);
+    expect(result.ok).toBe(true);
+    if (!result.ok) {
+      return;
+    }
+    const envelope = result.value as {
+      cursorModels: { percentUsed: number | null };
+    };
+    expect(envelope.cursorModels.percentUsed).toBeCloseTo(plan.autoPercentUsed, 10);
+    expect(envelope.cursorModels.percentUsed).not.toBeCloseTo(derived, 0);
   });
 
-  it("rejects a declared money unit that disagrees with the contract", () => {
-    const payload = fixture("wire-usage-summary.json");
-    (payload.onDemand as Record<string, unknown>).amountUnit = "currency-major";
-    expect(!mapWirePayload(payload).ok).toBe(true);
+  it("rejects a cycle timestamp that is not an epoch-millisecond string", () => {
+    // Read as seconds, a 10-digit value dates the cycle to 1970; a non-numeric
+    // string must not silently become an Invalid Date rendered as text.
+    for (const bad of ["not-a-number", "", "12", null, {}]) {
+      const payload = fixture("wire-usage-summary.json");
+      payload.billingCycleEnd = bad;
+      expect(!mapWirePayload(payload).ok).toBe(true);
+    }
   });
 
   it.each(CURSOR_WIRE_CONTRACT.requiredFields)(
@@ -192,7 +251,7 @@ describe("mapWirePayload", () => {
 
   it("omits spend entirely when on-demand is disabled", () => {
     const payload = fixture("wire-usage-summary.json");
-    (payload.onDemand as Record<string, unknown>).enabled = false;
+    payload.enabled = false;
     const result = mapWirePayload(payload);
     expect(result.ok).toBe(true);
     if (!result.ok) {
@@ -206,11 +265,7 @@ describe("mapWirePayload", () => {
 
   it("keeps a pool at 100 percent distinguishable from a near-empty one", () => {
     const payload = fixture("wire-usage-summary.json");
-    const pools = payload.includedUsage as Record<
-      string,
-      Record<string, unknown>
-    >;
-    (pools.cursorModels ?? {}).percentUsed = 100;
+    (payload.planUsage as Record<string, unknown>).autoPercentUsed = 100;
     const result = mapWirePayload(payload);
     expect(result.ok).toBe(true);
     if (!result.ok) {
@@ -221,7 +276,7 @@ describe("mapWirePayload", () => {
       otherModels: { percentUsed: number };
     };
     expect(envelope.cursorModels.percentUsed).toBe(100);
-    expect(envelope.otherModels.percentUsed).toBe(1.7);
+    expect(envelope.otherModels.percentUsed).toBe(12);
   });
 });
 
@@ -237,7 +292,7 @@ describe("CursorLiveUsageTransport", () => {
     expect(client.calls).toHaveLength(1);
     const call = client.calls[0];
     expect(call?.url).toBe(
-      `${CURSOR_USAGE_ORIGIN}${CURSOR_WIRE_CONTRACT.route}`
+      `${CURSOR_WIRE_CONTRACT.origin}${CURSOR_WIRE_CONTRACT.route}`
     );
     expect(call?.url).not.toContain("/dashboard");
     expect(call?.headers.Accept).toBe("application/json");
@@ -372,10 +427,11 @@ describe("degradation", () => {
     }
     // The prior numbers survive, and they are labelled rather than presented as
     // current. Blanking or silently reusing them would both be wrong.
-    expect(state.data.cursorModels.used).toEqual({
-      value: 345000,
-      unit: "tokens"
-    });
+    // The cached snapshot came from the live mapper, which leaves per-pool absolute
+    // usage null because this route reports spend rather than tokens. What matters
+    // for degradation is that the cached PERCENTAGE survived with a staleness label.
+    expect(state.data.cursorModels.used).toBeNull();
+    expect(state.data.cursorModels.percentUsed).toBeCloseTo(23.971111111111114, 10);
     expect(state.data.stale).toBe(true);
     expect(state.data.staleReason).toBe("authentication-required");
     expect(state.data.source).toBe("cache");
@@ -460,5 +516,68 @@ describe("degradation", () => {
 
     await provider.fetch();
     expect(fetchUsage).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("the real fetch client, not the stub", () => {
+  // These exist because every other test in this file passed while the production
+  // client still hardcoded `method: "GET"`. A stub that records what it was asked
+  // for proves the transport's intent; it cannot prove the client honors it. A
+  // POST-only Connect endpoint answers a GET with 405, so the suite was green and
+  // production would have been broken.
+  // No injected client: this must exercise the default FetchJsonClient.
+  const realClient = () => new CursorLiveUsageTransport();
+
+  it("issues the contract's verb and body through global fetch", async () => {
+    const calls: Array<{ url: string; init: RequestInit }> = [];
+    const original = globalThis.fetch;
+    globalThis.fetch = (async (url: string, init: RequestInit) => {
+      calls.push({ url: String(url), init });
+      return {
+        ok: true,
+        status: 200,
+        headers: { get: () => null },
+        json: async () => ({})
+      };
+    }) as unknown as typeof fetch;
+    try {
+      await realClient().fetchUsage("session-value");
+    } finally {
+      globalThis.fetch = original;
+    }
+
+    expect(calls).toHaveLength(1);
+    const call = calls[0]!;
+    expect(call.url).toBe(
+      `${CURSOR_WIRE_CONTRACT.origin}${CURSOR_WIRE_CONTRACT.route}`
+    );
+    expect(call.init.method).toBe("POST");
+    expect(call.init.body).toBe("{}");
+  });
+
+  it("sends the session as a bearer header and never in the url", async () => {
+    const calls: Array<{ url: string; init: RequestInit }> = [];
+    const original = globalThis.fetch;
+    globalThis.fetch = (async (url: string, init: RequestInit) => {
+      calls.push({ url: String(url), init });
+      return {
+        ok: true,
+        status: 200,
+        headers: { get: () => null },
+        json: async () => ({})
+      };
+    }) as unknown as typeof fetch;
+    try {
+      await realClient().fetchUsage("super-secret-session");
+    } finally {
+      globalThis.fetch = original;
+    }
+
+    const call = calls[0]!;
+    // A credential in a URL reaches history buffers, proxy logs, and error reports.
+    expect(call.url).not.toContain("super-secret-session");
+    const headers = call.init.headers as Record<string, string>;
+    expect(headers.Authorization).toBe("Bearer super-secret-session");
+    expect(headers["Content-Type"]).toBe("application/json");
   });
 });

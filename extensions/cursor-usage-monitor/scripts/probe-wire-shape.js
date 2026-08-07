@@ -38,13 +38,23 @@ const os = require("node:os");
 function parseArgs(argv) {
   const args = {
     route: CURSOR_WIRE_CONTRACT.route,
+    origin: CURSOR_USAGE_ORIGIN,
     statePath: null,
     method: "GET"
   };
   for (let index = 0; index < argv.length; index += 1) {
     const flag = argv[index];
     const value = argv[index + 1];
-    if (flag === "--route" && value) {
+    if (flag === "--origin" && value) {
+      // Only an https origin, and only a cursor host: a probe that can be pointed
+      // at an arbitrary server is a credential-exfiltration tool.
+      const parsed = new URL(value);
+      if (parsed.protocol !== "https:" || !/(^|\.)cursor\.(com|sh)$/u.test(parsed.host)) {
+        throw new Error(`--origin must be an https cursor.com or cursor.sh host, got ${value}`);
+      }
+      args.origin = `https://${parsed.host}`;
+      index += 1;
+    } else if (flag === "--route" && value) {
       args.route = value.startsWith("/") ? value : `/${value}`;
       index += 1;
     } else if (flag === "--state-path" && value) {
@@ -66,6 +76,7 @@ function usage() {
       "Usage: node scripts/probe-wire-shape.js [--route <path>] [--state-path <file>]",
       "",
       `  --route       JSON route to try (default ${CURSOR_WIRE_CONTRACT.route})`,
+      `  --origin      https cursor host (default ${CURSOR_USAGE_ORIGIN})`,
       "  --state-path  Override the state database location",
       "",
       "Requires `npm run compile` first. Prints field names and types only."
@@ -100,7 +111,7 @@ async function main() {
   console.log(`  platform      ${process.platform}`);
   console.log(`  state path    ${statePath || "(unresolved)"}`);
   console.log(`  allowed key   ${DEFAULT_SESSION_KEY}`);
-  console.log(`  route         ${CURSOR_USAGE_ORIGIN}${args.route}`);
+  console.log(`  route         ${args.origin}${args.route}`);
   console.log("");
 
   const adapter = new CursorSessionAdapter({ statePath });
@@ -138,7 +149,7 @@ async function main() {
   const diagnostics = [];
   const read = await adapter.withSession(async (session) => {
     // The session value is used for exactly one request and is never printed.
-    const response = await fetch(`${CURSOR_USAGE_ORIGIN}${args.route}`, {
+    const response = await fetch(`${args.origin}${args.route}`, {
       method: args.method,
       headers: {
         Authorization: `Bearer ${session}`,

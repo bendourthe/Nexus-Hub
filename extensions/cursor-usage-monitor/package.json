@@ -29,6 +29,11 @@
   "contributes": {
     "commands": [
       {
+        "command": "cursor-usage.connectLive",
+        "title": "Cursor Usage: Connect Live Usage Tracking",
+        "category": "Cursor Usage"
+      },
+      {
         "command": "cursor-usage.dashboard",
         "title": "Cursor Usage: Dashboard",
         "category": "Cursor Usage"

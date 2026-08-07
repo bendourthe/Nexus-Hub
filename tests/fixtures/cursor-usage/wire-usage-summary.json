@@ -2,31 +2,46 @@
   "fixtureContract": {
     "source": "credential-api",
     "sanitized": true,
-    "provenance": "expected-shape-unverified",
-    "verified": false,
-    "note": "Synthetic values only. No account name, email, team id, request id, or real usage figure appears here."
+    "provenance": "shape-from-live-probe-values-synthetic",
+    "note": "Field names, types, and units mirror a live 200 response recorded in cursor-usage-auth-probe.md Phase 6. All VALUES are synthetic and chosen to exercise the mapper, never a real account's figures. Money is minor units (cents). billingCycle* are epoch-millisecond strings, because proto3 JSON encodes 64-bit integers as strings. Percentages are precomputed and deliberately INCONSISTENT with spend over limit here, reproducing the live discrepancy so any attempt to derive them fails the tests.",
+    "deliberatelyAbsent": [
+      "planUsage.autoSpend",
+      "planUsage.autoLimit",
+      "planUsage.apiSpend",
+      "planUsage.apiLimit",
+      "spendLimitUsage.individualLimit",
+      "spendLimitUsage.overallLimit"
+    ],
+    "verified": true
   },
-  "billingCycle": {
-    "start": "2026-08-01T00:00:00Z",
-    "end": "2026-09-01T00:00:00Z"
+  "billingCycleStart": "1785782587000",
+  "billingCycleEnd": "1788374587000",
+  "enabled": true,
+  "displayThreshold": 75,
+  "displayMessage": "Usage for the current period",
+  "autoModelSelectedDisplayMessage": "Auto model selected",
+  "namedModelSelectedDisplayMessage": "Named model selected",
+  "autoBucketModels": [
+    "auto-a",
+    "auto-b"
+  ],
+  "planUsage": {
+    "totalSpend": 21574,
+    "includedSpend": 2000,
+    "bonusSpend": 0,
+    "limit": 2000,
+    "remainingBonus": false,
+    "bonusTooltip": "",
+    "autoPercentUsed": 23.971111111111114,
+    "apiPercentUsed": 12,
+    "totalPercentUsed": 23.971111111111114
   },
-  "includedUsage": {
-    "cursorModels": {
-      "usedTokens": 345000,
-      "limitTokens": 1000000,
-      "percentUsed": 34.5
-    },
-    "otherModels": {
-      "usedTokens": 8500,
-      "limitTokens": 500000,
-      "percentUsed": 1.7
-    }
-  },
-  "onDemand": {
-    "enabled": true,
-    "spendCents": 1250,
-    "spendLimitCents": 20000,
-    "currency": "USD",
-    "dynamicLimit": false
+  "spendLimitUsage": {
+    "totalSpend": 21574,
+    "pooledLimit": 20000,
+    "pooledUsed": 8250,
+    "pooledRemaining": 11750,
+    "individualUsed": 1234,
+    "limitType": "team"
   }
 }

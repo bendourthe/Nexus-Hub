@@ -51,6 +51,7 @@ export function activate(context: vscode.ExtensionContext): void {
   // Resolved asynchronously after activation; the runtime reads it through a thunk
   // so activation stays synchronous and start-up is never blocked on a prompt.
   let liveCapable = false;
+  let runtimeRef: CursorUsageRuntime | undefined;
 
   const dependencies: RuntimeDependencies = {
     provider: new CursorUsageProvider({
@@ -61,10 +62,20 @@ export function activate(context: vscode.ExtensionContext): void {
     revokeLiveConsent: async () => {
       liveCapable = false;
       await consent.revoke();
+    },
+    reconnectLive: async () => {
+      // Clear first, then re-resolve: `ensure` intentionally does not re-prompt an
+      // existing decision, so without the clear a previously declined user could
+      // never reach the prompt again from the interface.
+      await consent.revoke();
+      liveCapable = await resolveLiveCapability(liveAccess);
+      runtimeRef?.capabilityChanged();
+      return liveCapable;
     }
   };
 
   const runtime = new CursorUsageRuntime(context, dependencies);
+  runtimeRef = runtime;
   activeRuntime = runtime;
   context.subscriptions.push(runtime);
   runtime.start();

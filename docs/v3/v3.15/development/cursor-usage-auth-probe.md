@@ -328,3 +328,96 @@ The documented [Cursor Admin API](https://cursor.com/docs/account/teams/admin-ap
 - [Cursor usage limits](https://cursor.com/help/models-and-usage/usage-limits)
 - [Cursor billing](https://cursor.com/help/account-and-billing/billing)
 - [Cursor spend limits](https://cursor.com/help/account-and-billing/spend-limits)
+
+## Phase 6: the personal-usage route, recovered and verified
+
+### How it was found
+
+By reading the locally installed Cursor client bundle (`resources/app/out/vs/workbench/workbench.desktop.main.js`), not by probing candidate paths. The client declares `getCurrentPeriodUsage` on `aiserver.v1.DashboardService` as a unary Connect method, with `GetCurrentPeriodUsageRequest { team_id: int32 optional }` - an optional team id, so a personal query is an empty body.
+
+This retracts the earlier conclusion that no personal usage surface exists. That conclusion inferred absence of a surface from absence in `cursor.com/docs/api`, which is the same absence-of-evidence error this version already corrected once in the GitHub billing auth work. The public docs are accurate and the surface exists; the docs simply do not cover it.
+
+### Verified route
+
+```
+POST https://api2.cursor.sh/aiserver.v1.DashboardService/GetCurrentPeriodUsage
+Authorization: Bearer <cursorAuth/accessToken, read read-only from one allowlisted key>
+Content-Type: application/json
+body: {}
+-> 200, content-type: application/json
+```
+
+The credential is the same one the client itself authenticates with, obtained through the already-shipped consent gate and session adapter. No new credential class, no browser cookie, no keychain, no filesystem search.
+
+### Why the shipped contract failed
+
+`CURSOR_WIRE_CONTRACT` assumed `GET /api/usage-summary` on `https://cursor.com`. That path does not exist, which produced the earlier `401`, `405 Allow: POST`, and `403`. The `405` was the decisive signal and was under-read: a Connect endpoint is POST-only, so a verb rejection on a path that exists points at RPC rather than REST.
+
+### Field names are camelCase, not the descriptor's snake_case
+
+The single most important probe finding, because building from the bundle alone would have shipped a broken mapper. The protobuf descriptor declares `billing_cycle_start`, `auto_percent_used`, and so on; Connect's JSON codec applies the proto3 JSON mapping, so the wire delivers `billingCycleStart` and `planUsage.autoPercentUsed`. Every field would have read `undefined`, and the contract guard would have rejected the payload as a schema mismatch - correct behavior, masking an avoidable defect.
+
+### Observed shape (names and types only; no values recorded)
+
+| Path | Wire type | Note |
+|---|---|---|
+| `billingCycleStart` | string | int64 in the descriptor; proto3 JSON encodes 64-bit ints as strings |
+| `billingCycleEnd` | string | Same |
+| `planUsage.totalSpend` | integer | Spend, almost certainly cents (see units, below) |
+| `planUsage.includedSpend` | integer | |
+| `planUsage.bonusSpend` | integer | |
+| `planUsage.limit` | integer | |
+| `planUsage.autoPercentUsed` | decimal | Precomputed percentage |
+| `planUsage.totalPercentUsed` | decimal | Precomputed percentage |
+| `planUsage.apiPercentUsed` | integer | Integer in this sample; treat as numeric, not integer-only |
+| `planUsage.remainingBonus` | boolean | A flag, NOT a remaining amount - the name invites misreading |
+| `planUsage.bonusTooltip` | string | |
+| `spendLimitUsage.totalSpend` | integer | |
+| `spendLimitUsage.pooledLimit` | integer | The shared team pool |
+| `spendLimitUsage.pooledUsed` | integer | |
+| `spendLimitUsage.pooledRemaining` | integer | |
+| `spendLimitUsage.individualUsed` | integer | |
+| `spendLimitUsage.limitType` | string | Drives the fixed-vs-dynamic shared-limit label |
+| `displayThreshold` | integer | |
+| `enabled` | boolean | |
+| `displayMessage` | string | |
+| `autoBucketModels` | array of string | 27 entries in this sample |
+
+Absent from this response, and therefore **optional** rather than required: `autoSpend`, `autoLimit`, `apiSpend`, `apiLimit`, `remaining`, `individualLimit`, `individualRemaining`, `overallLimit`, `overallUsed`, `overallRemaining`, `freeBestOfNPromotion`. A mapper that requires any of them would reject a valid payload on this account.
+
+### Units are not yet settled
+
+Spend arrives as an integer, which points to cents. This is inference from the type, not evidence: no value was recorded, so the reading was not cross-checked against the figure on the usage page. Formatting cents as dollars overstates spend by 100x, so the mapper must not render money until one recorded comparison settles it. Percentages need no such check because they arrive precomputed and are already rendered to one decimal.
+
+### What stays excluded
+
+Unchanged by this finding: browser cookie stores, `Login Data`, OS keychains, process memory, shell history, recursive filesystem hunting for credential-shaped files, and HTML scraping of any billing page. The route is labelled `credential-api` and must never be described as a documented Cursor API.
+
+### Units settled: spend is CENTS, timestamps are epoch MILLISECONDS
+
+Settled by reading only the plan *limit* (a plan tier, not private spend) and the cycle-start length:
+
+| Field | Observed | Reading |
+|---|---|---|
+| `planUsage.limit` | `2000` | Cents. The plan's included spend is 20 dollars, so 2000 is cents, not dollars. |
+| `planUsage.includedSpend` | `2000` | Cents, and equal to the limit, as expected for an included allowance. |
+| `spendLimitUsage.pooledLimit` | `20000` | Cents: a 200-dollar shared pool. |
+| `spendLimitUsage.limitType` | `"team"` | Drives the shared-pool label; confirms the existing shared-vs-personal split is real. |
+| `billingCycleStart` | 13-digit string | Epoch **milliseconds**, not seconds. Treating it as seconds would date the cycle to 1970. |
+
+So money must be divided by 100 before formatting, and cycle bounds parsed as millisecond epochs from strings.
+
+### Percentages MUST be taken from the payload, never recomputed
+
+The single most dangerous finding of this probe. The reported percentage and the one derived from spend over limit disagree, and not by a rounding margin:
+
+```
+(planUsage.totalSpend / planUsage.limit) * 100  =  1078.70
+planUsage.totalPercentUsed (reported)           =    23.97
+```
+
+A factor of roughly 45. `totalPercentUsed` is evidently computed against a base this response does not expose (neither `limit` nor `pooledLimit` reproduces it), which is consistent with several optional `overall*` fields being absent from the payload. The cause does not need to be known for the rule to be clear:
+
+**Use `autoPercentUsed`, `apiPercentUsed`, and `totalPercentUsed` exactly as delivered. Never derive a percentage from spend over limit.** Deriving it here would have rendered a 24% meter as 1079%, filled and screaming critical, and every threshold alert in the extension would have fired continuously on a healthy account. The existing "drop rather than approximate" rule extends to this: when a percentage is not supplied, show absolute usage and say the allowance is unknown, rather than computing one from fields that do not share a base.
+
+This also means `planUsage.limit` is **not** the denominator of `totalPercentUsed` and must not be labelled as though it were. `remainingBonus` is likewise a boolean flag, not a remaining amount, despite its name.
