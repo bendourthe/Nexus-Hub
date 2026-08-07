@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.15.12 -->
+<!-- nexus-hub-version: 3.15.13 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 270 skills, 17 commands, 31 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -37,7 +37,7 @@ The two projects are designed to be useful independently: you can install Nexus-
 
 ---
 
-## What's New in v3.15.12
+## What's New in v3.15.13
 
 Both usage monitors work now, and the version's most instructive moment was retracting a claim it had already shipped.
 
@@ -56,6 +56,18 @@ Both usage monitors work now, and the version's most instructive moment was retr
 Defects found and fixed during the release, every one by a test written alongside the code rather than by the happy path passing. The most instructive: the production HTTP client hardcoded `method: "GET"` while every test passed against a stub that only recorded intent, so a POST-only endpoint would have returned 405 in production with a green suite; and adding two optional fields broke every snapshot already cached on disk, because the parser accepted `null` but not `undefined` - the strictness that correctly rejects wire drift is exactly wrong applied to your own persisted data. Catalog counts are unchanged at **270 skills**, **17 commands**, **31 hooks**, and **23 agents**.
 
 Still open and honestly recorded: `Current Model` is absent from the Cursor dashboard because that API reports pools, not the editor's selected model, and reading it would mean widening a credential allowlist for a cosmetic section; and one bootstrap test passes or fails depending on which shell launched the suite, because it inherits `PATH` and resolves GNU tar instead of the bundled bsdtar.
+
+## What's New in v3.15.12
+
+The planned scope: a consent gate and a usage UI for the Cursor monitor, and a rename plus per-target authorization for the GitHub monitor. What the plan *concluded* about Cursor turned out to be wrong, and correcting it became v3.15.13 above.
+
+**The Cursor monitor gained a consent-gated transport.** One modal prompt states exactly what will be read (Cursor's own application state database, opened **read-only**, for **one** allowlisted key, then a single JSON request) and what never will (browser cookies, `Login Data`, OS keychain, process memory, shell history, any HTML billing page, any filesystem search for credentials). Only the decision is stored, never a credential. Refusal is a first-class path with no repeated prompting, and a widened disclosure invalidates a prior grant rather than inheriting it. The dashboard renders both included-usage pools plus on-demand spend as **currency against its limit**, annotated that the limit is shared across your team, with the reset date taken from the payload rather than a hardcoded day. Percentages carry one decimal, so a 1.7% pool is no longer reported as 2%.
+
+**The GitHub monitor became `GitHub Billing Usage`**, because the old name read as Copilot-only to some and Actions-only to others. It is neither: it reports Actions minutes and storage **plus** Copilot billing for one billing owner you configure. The extension **id deliberately did not change** - an id is `publisher.name`, so renaming it would mint a second extension and leave an existing install orphaned with two status-bar items. Authorization resolves **per billing target** rather than by one global default, because OAuth-app restrictions and SSO are per-organization settings: you can legitimately be connected via the editor's GitHub session for one organization and need a pasted token for another. `Log Out of This Monitor` clears only this extension's binding and **cannot** sign you out of the editor's GitHub session, so Copilot is unaffected - a guarantee enforced by giving the log-out path no capability that could. `Diagnose Authorization` answers "why is my billing panel empty" for one target and writes a sanitized, credential-free record you can paste into an issue.
+
+Six defects were found and fixed during this release, every one by a test written alongside the code or by a deliberate check rather than by the happy path passing. The most instructive: a rename would have failed CI through `catalog/hooks/tests`, a tree the phase gate did not run, because `ci.yml` collects it separately from `tests/`; and a guard test asserted the developer's real `~/.copilot/agents` was empty, so it failed permanently for anyone who had **actually installed Nexus-Hub** - punishing exactly the people most likely to run the suite. Catalog counts are unchanged at **270 skills**, **17 commands**, **31 hooks**, and **23 agents**.
+
+Recorded as open at the time, and **both resolved in v3.15.13**: the Cursor wire contract was unverified against a live account, and the editor's own OAuth app was unproven against the billing endpoints.
 
 ## What's New in v3.15.11
 

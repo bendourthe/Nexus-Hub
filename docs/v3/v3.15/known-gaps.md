@@ -232,7 +232,7 @@ HO-6 is new and open. It is not a defect: it is the honest result of discovering
 
 | Item | Disposition |
 |---|---|
-| **HO-5** | **CLOSED as a negative.** The authorized probe sequence ran to completion (`401` / `405` with `allow: POST` / `403`) and four independent checks established there is **no supported surface**: no documented personal-usage API, an SDK that does not auto-discover local credentials, no Cursor authentication provider among 116 bundled extensions, and no usage or billing command among them. The question HO-5 asked is answered. Residual permanent state: `CURSOR_WIRE_CONTRACT.verified` stays `false`, and the `CursorAccountApiProvider` seam is retained unused for a future documented API. The constructive follow-on is planned as **v3.15.14** |
+| **HO-5** | **SUPERSEDED, and its stated conclusion RETRACTED.** This row previously read "CLOSED as a negative... there is no supported surface". That was wrong: it inferred the absence of a surface from its absence in the public documentation. Cursor's own client reads personal usage through `GetCurrentPeriodUsage` on `aiserver.v1.DashboardService`, verified against a live account and shipped in v3.15.13. `CURSOR_WIRE_CONTRACT.verified` is now `true`. See HO-7 |
 | **WN-5** | **RESOLVED, favorably.** Cursor's extension host is Electron 40.10.3 / Node 24.15.0 with `node:sqlite` available, well above the 22.13 floor. Answered via `ELECTRON_RUN_AS_NODE`, not by a human reading a panel |
 | **BG-11** | Resolved: the rename would have failed CI through `catalog/hooks/tests`, a tree the phase gate did not run |
 | **BG-12** | Resolved: both probe runners aborted on exit via `process.exit()` racing `node:sqlite` teardown |

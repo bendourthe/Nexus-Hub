@@ -122,7 +122,7 @@ function Get-SanitizedBranchName {
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:NexusHubVersion = "3.15.12"
+$script:NexusHubVersion = "3.15.13"
 
 $Host.UI.RawUI.WindowTitle = "Nexus-Hub Installer"
 $script:InstallerTitle = "Nexus-Hub Installer"
@@ -2209,7 +2209,7 @@ function Install-VSCodeExtensions {
     # here would be the false-quota claim the v3.15.8 contract forbids. The
     # install itself never authenticates to GitHub - the token is supplied later
     # through the extension's SecretStorage command.
-    # v3.15.12 Phase 3 renamed the display surfaces to "GitHub Billing Usage". The
+    # v3.15.13 Phase 3 renamed the display surfaces to "GitHub Billing Usage". The
     # extension id is deliberately unchanged: an id is publisher.name, so renaming
     # it would mint a second extension and leave the previously installed one
     # orphaned, with both writing a status-bar item. The directory path also stays
