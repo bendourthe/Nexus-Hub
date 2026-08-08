@@ -115,6 +115,24 @@ class IntegrationBase:
             # Cleanups happened before the install, so prepend them so the
             # rendered output reads top-to-bottom in execution order.
             result.files = list(cleanup_actions) + list(result.files)
+        if ctx.scope == "global" and result.detected is not False:
+            # v3.16.0 Phase 3: seed the platform's declared install-time
+            # behavioral defaults. Deliberately hooked here rather than in
+            # install_global, because subclasses override that and a subclass
+            # that forgot to call super() would silently skip its defaults.
+            # The dispatcher runs for every integration, so this cannot be
+            # missed. Import locally to keep the module import graph flat.
+            #
+            # Gated on `result.detected is not False`, NOT on truthiness:
+            # `detected` is Optional[bool] where None means "this platform is
+            # not detection-gated at all" (codex, cursor, claude). Only an
+            # explicit False means "the tool was not found". Seeding an
+            # undetected platform would create a config file for software the
+            # user does not have installed, which is worse than shipping no
+            # default at all.
+            from .platform_defaults import seed_platform_defaults
+
+            result.files.extend(seed_platform_defaults(self.key, ctx))
         return result
 
     def install_global(self, ctx: InstallContext) -> WriteResult:

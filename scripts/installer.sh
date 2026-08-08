@@ -2345,6 +2345,20 @@ install_templates() {
         else
             write_item "Note: Install report dependencies with: pip install python-docx python-pptx" "$YELLOW"
         fi
+
+        # v3.16.0 Phase 3: optional seeding dependencies. Platform install-time
+        # behavioral defaults (configs/platform-defaults.json) are seeded into each
+        # platform's own config. JSON targets use the stdlib; TOML targets need
+        # tomlkit (which round-trips a user's comments and layout rather than
+        # rewriting them) and YAML targets need PyYAML. Both are OPTIONAL: without
+        # them the affected platforms simply skip seeding with a one-line hint, so
+        # a missing library never breaks an install.
+        if $python_cmd -c "import tomlkit; import yaml" 2>/dev/null; then
+            write_item "[OK] Python dependencies (tomlkit, PyYAML) are available" "$GREEN"
+        else
+            write_item "Note: Install platform-defaults seeding deps with: pip install tomlkit PyYAML" "$YELLOW"
+            write_item "      (without them, TOML/YAML platform defaults are skipped; JSON platforms are unaffected)" "$YELLOW"
+        fi
     fi
 
     # v0.9.7: The interactive "Import custom Word/PowerPoint templates?" prompt has been

@@ -149,10 +149,51 @@ def test_real_source_parses_and_declares_required_top_level_keys():
     assert isinstance(data["platforms"], dict) and data["platforms"]
 
 
-def test_real_source_declares_exactly_one_platform_in_phase_one():
-    """Phase 1 seeds only Claude; Phase 2 verifies the rest before they appear."""
+def test_every_declared_platform_has_an_install_target_mode():
+    """Phase 3 widened the file past Claude; every entry must say what happens to it.
+
+    Phase 1's assertion here was `== ["claude"]`, which was correct then and is
+    obsolete now. It is replaced rather than deleted so the file still asserts
+    something about the declared set: a platform may be written, already
+    delivered by an existing installer path, or deliberately not written, but it
+    may never be declared without saying which.
+    """
     data = json.loads(REAL_SOURCE.read_text(encoding="utf-8"))
-    assert list(data["platforms"]) == ["claude"]
+    valid = {"write", "already-delivered", "not-writable"}
+    for name, entry in data["platforms"].items():
+        target = entry.get("install_target")
+        assert isinstance(target, dict), f"{name}: missing an install_target block"
+        assert target.get("mode") in valid, (
+            f"{name}: install_target.mode={target.get('mode')!r}; expected one of {sorted(valid)}"
+        )
+
+
+def test_not_writable_platforms_declare_no_settings_and_state_a_reason():
+    """A declared-but-not-writable platform must not carry a half-seeded value."""
+    data = json.loads(REAL_SOURCE.read_text(encoding="utf-8"))
+    for name, entry in data["platforms"].items():
+        if entry["install_target"]["mode"] != "not-writable":
+            continue
+        assert entry["settings"] == {}, (
+            f"{name} is not-writable but declares settings {entry['settings']!r}"
+        )
+        assert entry["install_target"].get("reason"), f"{name}: not-writable needs a reason"
+
+
+def test_writable_platforms_declare_settings_a_path_and_a_format():
+    data = json.loads(REAL_SOURCE.read_text(encoding="utf-8"))
+    for name, entry in data["platforms"].items():
+        target = entry["install_target"]
+        if target["mode"] != "write":
+            continue
+        assert entry["settings"], f"{name} is writable but declares no settings"
+        assert target.get("path"), f"{name}: writable target needs a path"
+        assert target.get("format") in {"json", "toml", "yaml"}, (
+            f"{name}: unsupported target format {target.get('format')!r}"
+        )
+        assert target.get("merge") == "seed-if-absent", (
+            f"{name}: seeding must never overwrite a value the user already set"
+        )
 
 
 def test_every_platform_id_matches_the_integration_registry():
@@ -166,12 +207,41 @@ def test_every_platform_id_matches_the_integration_registry():
     )
 
 
-@pytest.mark.parametrize("field", ["source_url", "verified", "doc_statement", "settings"])
+@pytest.mark.parametrize("field", ["source_url", "verified", "doc_statement"])
 def test_every_platform_entry_carries_provenance(field: str):
-    """The do-not-invent rule in machine form: no lever without evidence."""
+    """The do-not-invent rule in machine form: no lever without evidence.
+
+    `settings` is deliberately NOT in this list. A declared-but-not-writable
+    platform carries an empty settings object on purpose (its emptiness is the
+    point), so its presence is asserted separately by shape rather than by
+    truthiness.
+    """
     data = json.loads(REAL_SOURCE.read_text(encoding="utf-8"))
     for name, entry in data["platforms"].items():
         assert entry.get(field), f"platform {name!r} is missing required {field!r}"
+
+
+def test_every_platform_entry_declares_a_settings_object():
+    data = json.loads(REAL_SOURCE.read_text(encoding="utf-8"))
+    for name, entry in data["platforms"].items():
+        assert isinstance(entry.get("settings"), dict), (
+            f"platform {name!r} must declare a settings object, even if empty"
+        )
+
+
+def test_omitted_keys_state_why_they_were_not_seeded():
+    """Where a lever exists but no safe value is documented, the gap is explained.
+
+    This is the counterpart to the do-not-invent rule: refusing to seed is
+    correct, but refusing silently would leave a reader unable to tell a
+    deliberate omission from an oversight.
+    """
+    data = json.loads(REAL_SOURCE.read_text(encoding="utf-8"))
+    for name, entry in data["platforms"].items():
+        for key, reason in entry.get("omitted", {}).items():
+            assert isinstance(reason, str) and len(reason) > 20, (
+                f"{name}: omitted key {key!r} needs a substantive reason, got {reason!r}"
+            )
 
 
 def test_verified_dates_are_iso_formatted():

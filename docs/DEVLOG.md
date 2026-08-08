@@ -1,5 +1,36 @@
 # Development Log
 
+## [2026-08-08] - v3.16.0 Phase 3: wiring the verified levers into their consumers
+
+### What Changed
+
+`configs/platform-defaults.json` widened from one platform to twelve, and a new seeding engine (`scripts/lib/integrations/platform_defaults.py`) writes each declared default into that platform's own config at global-install time. Seven platforms are seeded (codex, copilot, cursor, gemini-cli, hermes, kimi, qwen), one is already delivered by an existing installer path (claude), and four are declared-but-not-writable with reasons (aider, antigravity2, opencode, openclaw). No installer copy step was needed; both installers already route every platform through the registry runner, so the hook reaches all of them.
+
+### Why It Changed
+
+Phase 2 established what each vendor documents. This phase turns that evidence into behavior, which is where the release's whole risk sits: it writes into files on every user's machine.
+
+### Decisions Made
+
+- **The registry path made installer edits unnecessary, and that was verified rather than assumed.** AGENTS.md still describes an "original 4 via legacy copy blocks, extended 4 via registry" split. That is stale: `invoke_registry_platform` / `Invoke-RegistryPlatform` now route **every** platform through `runner.py install`. Hooking the seeder into `IntegrationBase.install()` therefore reaches all of them with no installer change, which is exactly the path the plan preferred.
+- **The hook went in the dispatcher, not in `install_global`.** Subclasses override `install_global`, and one that forgot to call `super()` would silently skip its defaults. The dispatcher runs for every integration, so the hook cannot be missed.
+- **Model pins were seeded almost nowhere, deliberately.** The maintainer asked for effort, model, and autonomy. Effort and autonomy are seedable because vendors enumerate their values. Model ids are provider-scoped strings, and most vendors document their default as `undefined`; pinning a guess is the exact failure this release exists to prevent. Exactly one model pin ships, Copilot's `model: "auto"`, because GitHub documents it as self-selecting. Every other model key is recorded under `omitted` with its reason, so the refusal is legible rather than silent.
+- **Autonomy is seeded toward approval-required.** Where a vendor documents a default, it is used unchanged (gemini-cli). Where it does not, the conservative documented value is chosen (codex `on-request`, cursor `allowlist`, kimi `manual`). Qwen deliberately differs from its vendor default of `auto` in favour of `default`, because tightening a seeded default the user can loosen is the safe direction.
+- **`tomlkit` was chosen over a plain TOML writer for a specific reason.** A user's `config.toml` carries their comments and layout. Re-serializing it would be the same class of hazard as Phase 1's hooks block, except on someone else's file. YAML has no comment-preserving writer available, so existing YAML files are only ever appended to.
+
+### Troubleshooting Trail
+
+Two defects, both caught by the integration suite rather than by review, and both worse than anything found by reading the code.
+
+- **Seeding escaped the test sandbox and wrote into the real home directory.** `_expand()` used `os.path.expanduser`, which reads `USERPROFILE` / `HOME` from the process environment; the suite isolates installs by patching `Path.home()`. A test run created four real files in the developer's home. All four were removed (each contained only the Nexus-Hub banner and declared keys); the one genuine pre-existing user file, `~/.codex/config.toml`, was left untouched. `expanduser` versus `Path.home()` is not a style choice here: the suite's isolation strategy decides which is correct, and the wrong one fails silently by writing to the right-looking place on the wrong machine.
+- **Undetected platforms were being seeded.** The hook ran unconditionally, so a detection-gated integration that had already marked itself not-detected still got a config file. Installing Nexus-Hub would have created `~/.hermes/config.yaml` on a machine with no Hermes. Fixed with a gate on `result.detected is not False` -- `is not False` rather than truthiness, because `detected=None` means "not detection-gated at all" and a plain truthy check would have wrongly suppressed codex, cursor, and claude.
+- **Aider was declared writable and should not have been.** Its own `install_global` docstring states that `~/.aider.conf.yml` is "a surface Nexus-Hub does not touch", and the integration performs no Aider detection. Reclassified to not-writable, per the plan's own rule about instruction-file-only platforms.
+- **A CI gap that would have looked green.** The TOML and YAML seeding tests use `pytest.importorskip`, so without `tomlkit` and `PyYAML` on the runner, two of the four writable formats would have SKIPPED rather than failed. The CI test job now installs both explicitly.
+
+### Verification
+
+A real throwaway-HOME install seeded `~/.qwen/settings.json` alongside the large `hooks` block that integration writes, and `~/.codex/config.toml` while preserving its pre-existing `[features]` table -- non-clobbering proven against files written by other writers, not just synthetic fixtures. 527 validators and 597 integration tests pass; coverage of the two defaults modules is 95%. ShellCheck is clean and `installer.ps1` AST-parses after the optional-dependency edit.
+
 ## [2026-08-08] - v3.16.0 Phase 2: per-platform lever research and verification
 
 ### What Changed

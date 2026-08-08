@@ -415,7 +415,13 @@ jobs:
           cache-dependency-path: 'extensions/*/pyproject.toml'
 
       - name: Install pytest
-        run: pip install pytest
+        # v3.16.0 Phase 3: tomlkit and PyYAML are the optional seeding
+        # dependencies for platform install-time defaults (TOML and YAML config
+        # targets). They are installed here because the seeding tests use
+        # pytest.importorskip, so without them the TOML/YAML coverage would
+        # SILENTLY SKIP in CI rather than fail -- a green run that proved
+        # nothing about two of the four writable formats.
+        run: pip install pytest tomlkit PyYAML
 
       - name: Platform-parity + installer-smoke tests (v0.9.7 regression guards)
         run: python -m pytest catalog/hooks/tests/test_platform_parity.py catalog/hooks/tests/test_installer_smoke.py -v

@@ -1,8 +1,8 @@
 # Known Gaps - v3.16
 
 **Project**: Nexus-Hub
-**Status**: v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (Phases 1 and 2 of 5 complete; unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
-**Last updated**: 2026-08-08 (v3.16.0 Phase 2 gaps appended; QG-1 found and fixed in-phase)
+**Status**: v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (Phases 1, 2, and 3 of 5 complete; unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
+**Last updated**: 2026-08-08 (v3.16.0 Phase 3 gaps appended; BG-2, BG-3, DF-3, QG-2 found and fixed in-phase; NI-2 resolved)
 
 > **File-lifecycle note**: this ledger was created ahead of any v3.16 implementation, by a comparison that deliberately claimed no release slot, so it began with only the `## Comparison-Sourced Deferrals` section. Each v3.16 version-implementation phase **appends** its own `## v3.16.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` numbering, which is namespaced separately from the `CD-#` and `TR-#` ids used above.
 
@@ -147,6 +147,51 @@ Gaps recorded during implementation of [plans/v3.16.0-platform-defaults-config.m
 - **Why it is open**: each is a correct, evidence-backed "no lever documented" result rather than an oversight, and each is deliberately absent from `configs/platform-defaults.json`. The plan's sub-task 5.2 requires an explicit disposition for every one so a future reader cannot mistake a deliberate omission for a forgotten platform.
 - **Suggested next step**: Phase 5.2 records a disposition per platform. No action is needed before then; the classifications are already machine-checked by `tests/validators/test_platform_defaults_levers.py`.
 
+### BG-2 - CLOSED: seeding escaped the test sandbox and wrote into the real home
+
+- **Source phase**: Phase 3, sub-task 3.2 (found by the integration suite, fixed in-phase).
+- **What went wrong**: `platform_defaults._expand()` resolved `~` with `os.path.expanduser`, which reads `USERPROFILE` / `HOME` from the process environment. The integration test suite isolates installs by patching `Path.home()`, which `expanduser` does not honour, so a test run created real config files in the developer's actual home directory (`~/.hermes/config.yaml`, `~/.aider.conf.yml`, `~/.qwen/settings.json`, `~/.kimi-code/config.toml`). All four were removed; each contained only the Nexus-Hub banner and the declared keys, so nothing user-authored was lost. `~/.codex/config.toml` is a genuine pre-existing user file and was left untouched.
+- **Fix**: `_expand()` resolves `~` through `Path.home()`, matching how `base.py` resolves every other global target. Covered by `test_home_is_resolved_through_path_home_not_expanduser` and `test_seeding_writes_under_a_patched_home`.
+- **Lesson worth keeping**: `expanduser` versus `Path.home()` is not a style choice in this repository. The test suite's isolation strategy decides which one is correct, and the wrong one fails silently by writing to the right-looking place on the wrong machine.
+
+### BG-3 - CLOSED: undetected platforms were seeded
+
+- **Source phase**: Phase 3, sub-task 3.2 (found by the integration suite, fixed in-phase).
+- **What went wrong**: the seeding hook ran in `IntegrationBase.install()` unconditionally, so a detection-gated integration that had already marked itself not-detected still received a seeded config file. Installing Nexus-Hub would have created, for example, `~/.hermes/config.yaml` on a machine with no Hermes installed.
+- **Fix**: gated on `result.detected is not False`. The `is not False` form is deliberate and load-bearing: `WriteResult.detected` is `Optional[bool]` where `None` means "this platform is not detection-gated at all", so a plain truthiness check would have wrongly suppressed seeding for codex, cursor, and claude. Covered by `test_undetected_platforms_are_not_seeded` plus the four integration tests that originally caught it.
+
+### DF-3 - CLOSED: aider was reclassified from writable to not-writable
+
+- **Source phase**: Phase 3, sub-tasks 3.1 and 3.2.
+- **What changed**: aider was initially declared with `install_target.mode = "write"` targeting `~/.aider.conf.yml`. The integration suite caught the contradiction: `AiderIntegration.install_global` is a documented no-op whose own docstring states that `~/.aider.conf.yml` is a surface Nexus-Hub does not touch, and the integration performs no Aider detection at all.
+- **Resolution**: reclassified to `not-writable` with the reason recorded in the defaults file, following the plan's own sub-task 3.2 instruction that a platform whose only Nexus-Hub surface is its instruction file must not have a config file synthesized for it. The lever remains VERIFIED in the lever contract with Surface alignment **Partial**; what is missing is a surface to write it through, not evidence.
+
+### NI-2 - RESOLVED: copilot's surface mismatch was resolved by deliberate expansion
+
+- **Source phase**: raised in Phase 2, dispositioned in Phase 3.
+- **Decision**: the maintainer chose to extend the `copilot` integration to write `~/.copilot/settings.json`, adopting the Copilot CLI as a new product surface rather than recording Copilot as declared-but-not-writable. The defaults entry carries a `notes` field stating plainly that this is a surface expansion, so a future reader does not mistake it for a pre-existing capability.
+- **What is seeded**: `model: "auto"` (the one vendor-documented self-selecting model value in this release), `permissions.disableBypassPermissionsMode: true`, and `sandbox.enabled: true`.
+
+### NI-5 - OPEN: four verified platforms are declared but not writable
+
+- **Source phase**: Phase 3, sub-task 3.2.
+- **The four, each with a distinct reason**: `antigravity2` (the vendor names `toolPermission` and `artifactReviewPolicy` but does NOT enumerate their allowed values, so any seeded value would be invented), `opencode` (model keys are provider-scoped with no documented safe default, and the `permission` key's full schema is not enumerated), `openclaw` (its only documented lever is a provider-scoped model pin), and `aider` (see DF-3).
+- **Why it is open**: each is a declared-for-the-record entry with an empty `settings` object, asserted by `test_not_writable_platforms_declare_no_settings_and_state_a_reason`. These are correct outcomes, not omissions.
+- **Suggested next step**: re-verify at the next lever-contract pass. `antigravity2` in particular becomes seedable the moment Google enumerates the allowed values for its two documented keys.
+
+### NI-6 - OPEN: hermes is seedable but not installed by default
+
+- **Source phase**: Phase 3, sub-task 3.2.
+- **Finding**: `hermes` is VERIFIED, has Exact surface alignment, and is declared writable, but it appears in neither installer's platform list (`invoke_registry_platform` / `Invoke-RegistryPlatform`). Its seeded default therefore reaches only an explicit `runner.py install --integrations hermes` run.
+- **Why it is open**: promoting Hermes to a first-class default-installed platform is a tracked follow-on already recorded in AGENTS.md, and doing it here would have expanded this plan into platform onboarding.
+- **Suggested next step**: fold into whichever cycle promotes Hermes. The seeding side needs no further work; it starts reaching users the moment the platform is installed by default.
+
+### QG-2 - CLOSED: the TOML and YAML seeding tests would have silently skipped in CI
+
+- **Source phase**: Phase 3, post-phase step 8.3.
+- **What was wrong**: the seeding tests use `pytest.importorskip` for `tomlkit` and `yaml`, so on a CI runner without those libraries the entire TOML and YAML coverage would SKIP rather than fail. Two of the four writable formats would have reported green while proving nothing.
+- **Fix**: the CI test job installs them explicitly (`pip install pytest tomlkit PyYAML`), with a comment recording why. Both installers also gained an optional-dependency check for the same two libraries, mirroring the existing `python-docx` / `python-pptx` pattern (approved as an ask-first installer edit).
+
 ### Observations (no action)
 
 - **Local Python lint was not run**: `ruff` is not installed on this host. The repository's own `make lint` target runs ShellCheck only (which passed, on unchanged shell files), so no declared gate was bypassed. Python style was kept to the surrounding conventions by hand, and the generator emits ruff-shaped literals (magic trailing comma) so `--apply` does not fight the formatter.
@@ -165,6 +210,6 @@ Gaps recorded during implementation of [plans/v3.16.0-platform-defaults-config.m
 |---|---|---|
 | Comparison-sourced deferrals (`CD-#`) | 3 (CD-1, CD-2, CD-3) | 0 |
 | Transferred in from v3.15.14 (`TR-#`) | 2 (TR-1, TR-2) | 1 (TR-3) |
-| v3.16.0 version-implementation gaps | 7 (DF-1, NI-1, NI-2, NI-3, NI-4, BG-1, WN-1) | 2 (DF-2, QG-1) |
+| v3.16.0 version-implementation gaps | 8 (DF-1, NI-1, NI-3, NI-4, NI-5, NI-6, BG-1, WN-1) | 7 (DF-2, DF-3, QG-1, QG-2, BG-2, BG-3, NI-2) |
 
-The three comparison-sourced items remain non-blocking prose folds with named target files. Of the v3.16.0 items, BG-1 is pre-existing and reproduces without this plan's changes, WN-1 is environmental, DF-1 is a reasoned non-implementation, NI-1 is a deliberate scope boundary the plan requires, and NI-2 / NI-3 / NI-4 are Phase 2 findings that Phase 3 and Phase 5 are already scheduled to dispose of. QG-1 was found and fixed within Phase 2. None gates the v3.16.0 release.
+The three comparison-sourced items remain non-blocking prose folds with named target files. Of the v3.16.0 items, BG-1 is pre-existing and reproduces without this plan's changes, WN-1 is environmental, DF-1 is a reasoned non-implementation, NI-1 is a deliberate scope boundary the plan requires, and NI-2 / NI-3 / NI-4 are Phase 2 findings that Phase 3 and Phase 5 are already scheduled to dispose of. QG-1 was found and fixed within Phase 2, and Phase 3 found and fixed four more of its own (BG-2, BG-3, DF-3, QG-2) while resolving NI-2. Two of those, BG-2 and BG-3, were caught by the integration suite rather than by review, which is the strongest argument in this cycle for running the full suite before declaring a phase done. None gates the v3.16.0 release.

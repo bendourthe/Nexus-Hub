@@ -69,6 +69,39 @@ python scripts/sync_platform_defaults.py --apply    # rewrite derived artifacts 
 
 `scripts/sync_platform_defaults.py` is a **repo-internal guard**. It has no meaning on an end-user install, so it is listed in `DEV_ONLY_SCRIPTS` in `catalog/hooks/tests/test_installer_smoke.py` and requires no installer copy step. Both installers stay untouched.
 
+### Install-time seeding (v3.16.0 Phase 3)
+
+Beyond generating repo artifacts, a declared platform can have its default seeded into **its own config file** at global-install time. That work is done by `scripts/lib/integrations/platform_defaults.py`, invoked from `IntegrationBase.install()` for every registered integration.
+
+Each platform declares an `install_target` describing what happens to it:
+
+| `mode` | Meaning |
+|---|---|
+| `write` | Seed the declared settings into `path` using `format`. |
+| `already-delivered` | An existing installer path already carries the values (Claude, whose `~/.claude/settings.json` is copied from the derived template). Seeding would race that copy. |
+| `not-writable` | The lever is declared for the record but deliberately not written. `settings` is empty and `install_target.reason` says why. |
+
+Three rules govern every write, and each exists because the alternative is hostile:
+
+1. **Seed-if-absent, never overwrite.** A key the user already set is left exactly as they set it. A reinstall must never quietly reset someone's effort level back to the shipped default.
+2. **Never destroy what we did not write.** TOML is edited through `tomlkit`, which round-trips comments and layout. YAML existing files are only ever **appended** to, because a plain PyYAML round-trip silently strips every comment; a declared key whose top-level parent already exists is skipped rather than merged, since appending a duplicate mapping would silently win or error depending on the reader.
+3. **Degrade, never fail.** A missing source, a missing optional dependency, or an unreadable target config results in a skipped seed and a one-line note on stderr. An install must not break because a default could not be written.
+
+Two further gates apply, both learned the hard way during Phase 3:
+
+- **Undetected platforms receive nothing.** Seeding is gated on `result.detected is not False`. Creating a config file for software the user does not have installed is worse than shipping no default. The `is not False` form matters: `WriteResult.detected` is `Optional[bool]` where `None` means "not detection-gated at all".
+- **`~` resolves through `Path.home()`**, never `os.path.expanduser`. The test suite isolates installs by patching `Path.home()`, and `expanduser` escapes that patch by reading the process environment.
+
+**Optional dependencies**: `tomlkit` (TOML targets) and `PyYAML` (YAML targets). Both are lazily imported. Without them the affected platforms skip seeding with a `pip install` hint; JSON platforms are unaffected. Both installers check for them alongside the existing `python-docx` / `python-pptx` check.
+
+### Choosing a value to seed
+
+Seed conservatively, and record why in the entry's `rationale`:
+
+- **Effort scalars** are seeded to `medium`, matching the deliberate v3.15.5 cost choice.
+- **Autonomy keys** are seeded toward the approval-required direction, or to the vendor's own documented default where one exists.
+- **Model pins** are seeded ONLY where the vendor documents a safe self-selecting value (currently just Copilot's `model: "auto"`). A provider-scoped model id the user's account cannot reach would break their tool, so where no safe value is documented the key goes under `omitted` with the reason instead. Inventing one is the exact failure this file exists to prevent.
+
 ### Adding a platform
 
 1. Find the lever in that platform's **own** official documentation and fetch the page.
