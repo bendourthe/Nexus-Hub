@@ -1,5 +1,143 @@
 # Development Log
 
+## [2026-08-08] - v3.16.0 Phase 5: refactor, reconciliation, and CI/CD [release-readiness]
+
+### What Changed
+
+The plan's terminal phase. The four documentation surfaces corrected in v3.15.5 now point at the defaults source instead of the derived artifact, every one of the sixteen registered platforms received an explicit disposition, a validator blind spot was closed, and the version root was tidied. CI needed no change. The version bump, changelog stamp, tag, and push are handed to `/update release` and were not performed here.
+
+### Why It Changed
+
+The release set out to make one edit propagate everywhere. Phases 1 through 4 built the mechanism; this phase closed the half of the original problem the mechanism does not reach. `guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md`, `extensions/claude-usage-monitor/README.md`, `prompt-engineering`, and `multi-agent-coordinator` each restated `medium` as prose and pointed readers at `catalog/hooks/settings.json` - which this very release turned into a generated file. Left alone, they would have kept sending readers to the wrong place, which is the same drift in a different medium.
+
+### Decisions Made
+
+- **Every platform got a disposition, including the ones this release deliberately did nothing about.** 7 seeded, 1 already delivered, 4 declared-but-not-writable, 4 UNVERIFIED and absent. Naming the eight non-implementations individually with reasons is what stops a future reader from mistaking a deliberate decision for an oversight, and the completeness test fails if a newly registered platform ever appears without a classification.
+- **The bundle-audit fix removed 11 warnings without weakening the check.** All 11 were gitignored `__pycache__/*.pyc` files that existed only on a developer machine, so the audit meant something different locally than in CI. Verified by injecting a real orphan and confirming it is still reported - a filter that silences everything is worse than the noise it replaces.
+- **A frozen session history was deliberately not rewritten.** Moving the loose v3.16 research doc broke two inbound references: a live one in the v3.19.0 plan (repaired) and one inside a v3.15 session history (left alone). A session history records what was true at the time; rewriting its paths to match a later reorganization falsifies the record. A stale path in a dated historical document is correct.
+- **CI was verified rather than changed.** The four optimizations the plan asks for are already present (concurrency cancel-in-progress, pip caching, `timeout-minutes` on seven jobs, expensive Windows and matrix jobs gated to non-PR events), the drift check runs in `validate`, and `tests/validators` covers all three of this plan's test modules with `tomlkit` and `PyYAML` installed since Phase 3. Recording "verified, no change needed" is the honest outcome; the same conclusion was reached and recorded in v3.15.14.
+
+### Troubleshooting Trail
+
+- **The layout move was less trivial than proposed.** The proposal treated it as convention alignment. Execution found that no `research/` convention exists anywhere in `docs/` (only `plans`, `development`, `comparisons` across 21 version directories), and that the file carried a live inbound reference plus a frozen historical one. Proceeded by creating the subdirectory, repairing the live reference, and leaving the history untouched, with the reasoning recorded rather than the wrinkle hidden.
+
+### Verification
+
+All fourteen `validate` guards pass, including the bundle audit at 0 warnings (down from 11), the trigger-and-routing gate (0 collisions, 0 routing failures), base-template parity, and the platform-defaults drift check across 12 platforms. The full repository suite was run for the release handoff.
+
+## [2026-08-08] - v3.16.0 Phase 4: freshness governance and documentation
+
+### What Changed
+
+Lever re-verification now rides along with the existing `platform-contract-verification` remit instead of becoming its own gate, and AGENTS.md documents the new config surface. A stale claim in AGENTS.md about how platforms install was corrected in the process. No production code changed; the phase is prose, a skill, two registry rows, and six tests.
+
+### Why It Changed
+
+A contract nobody re-reads rots. The read-contract already has a per-release re-verification pass, and a platform that renames a setting should surface at the same moment as one that moves its skills directory, so folding the lever contract into that pass costs one extra glance per platform rather than a second cadence.
+
+### Decisions Made
+
+- **The lever contract is deliberately advisory, and the reasoning is now written into the skill so it survives a future edit.** A stale read-contract silently empties a user's install, so blocking is correct. A stale lever contract at worst seeds an outdated default the user can change. Gating it would let a vendor renaming a setting on a Tuesday wedge every unrelated release. That is the same argument that keeps the model-prompting freshness check advisory while the read-contract check hard-gates, and the skill now says so explicitly with a "consistency is the wrong goal here" rationalization row, because the obvious future edit is someone tidying the asymmetry away.
+- **Three new rationalization rows, all drawn from what actually went wrong this cycle.** Not hypotheticals: three vendor doc hosts moved during Phase 2 (one a full rebrand), and every Codex search returned a confident secondary source. The rows encode "fetch the page, a redirect is a signal" and "a blog is not evidence" because those are the specific ways this pass could have gone wrong.
+- **The AGENTS.md correction was made inline and dated rather than silently rewritten.** The doc claimed the Original 4 install via legacy copy blocks *instead of* the registry. Verified against both installers, every platform now routes through `runner.py install`; what differs is that some calls pass `instruction_only`. This mattered beyond bookkeeping: the stale claim implied that reaching every platform needs installer edits, when in fact a hook on `IntegrationBase` reaches all of them, which is exactly what let Phase 3 ship seeding without touching either installer. A reader who remembers the old claim can now see why it changed.
+- **Changing a skill description meant re-syncing two generated registries.** `summary_l0` and `description` live in `data/SKILL_INDEX.md` and `data/skills.json` as well as the SKILL.md; editing one without the others is exactly the drift this whole release is about. Hand-edited, not regenerated, per the repo's registry convention. The catalog count is unchanged at 270.
+
+### Troubleshooting Trail
+
+- **The first governance test was too crude to be correct.** It asserted that `Makefile` and `ci.yml` contain no mention of the lever contract, which failed immediately: `ci.yml` names it in a *comment* explaining Phase 2's paths fix, and that comment is desirable. Rewritten to inspect only executed lines (Makefile recipe lines, CI `run:` steps), then verified against a simulated gate line to confirm it still bites rather than passing vacuously.
+- **One self-inflicted false alarm.** A probe for `statistics.total_skills` in `marketplace.json` returned `None` and printed MISMATCH; that field does not exist (the file carries per-category `skill_count`). No skill was added, so no marketplace edit was needed. Recorded because an unexplained MISMATCH line in a transcript is worse than the ten seconds it took to check.
+
+### Verification
+
+The documented generator commands were run verbatim from AGENTS.md and `configs/README.md`: `--check` exits 0, `--apply` reports "Already in sync" and leaves the tree byte-identical, and `--check` passes again. All seven `validate` guards pass, including `check_base_template_parity.py` (the five templates are untouched, asserted by a new test) and the trigger-and-routing gate after the description change (0 collisions, 0 routing failures). 800 tests pass across `tests/validators` and `tests/skills`.
+
+## [2026-08-08] - v3.16.0 Phase 3: wiring the verified levers into their consumers
+
+### What Changed
+
+`configs/platform-defaults.json` widened from one platform to twelve, and a new seeding engine (`scripts/lib/integrations/platform_defaults.py`) writes each declared default into that platform's own config at global-install time. Seven platforms are seeded (codex, copilot, cursor, gemini-cli, hermes, kimi, qwen), one is already delivered by an existing installer path (claude), and four are declared-but-not-writable with reasons (aider, antigravity2, opencode, openclaw). No installer copy step was needed; both installers already route every platform through the registry runner, so the hook reaches all of them.
+
+### Why It Changed
+
+Phase 2 established what each vendor documents. This phase turns that evidence into behavior, which is where the release's whole risk sits: it writes into files on every user's machine.
+
+### Decisions Made
+
+- **The registry path made installer edits unnecessary, and that was verified rather than assumed.** AGENTS.md still describes an "original 4 via legacy copy blocks, extended 4 via registry" split. That is stale: `invoke_registry_platform` / `Invoke-RegistryPlatform` now route **every** platform through `runner.py install`. Hooking the seeder into `IntegrationBase.install()` therefore reaches all of them with no installer change, which is exactly the path the plan preferred.
+- **The hook went in the dispatcher, not in `install_global`.** Subclasses override `install_global`, and one that forgot to call `super()` would silently skip its defaults. The dispatcher runs for every integration, so the hook cannot be missed.
+- **Model pins were seeded almost nowhere, deliberately.** The maintainer asked for effort, model, and autonomy. Effort and autonomy are seedable because vendors enumerate their values. Model ids are provider-scoped strings, and most vendors document their default as `undefined`; pinning a guess is the exact failure this release exists to prevent. Exactly one model pin ships, Copilot's `model: "auto"`, because GitHub documents it as self-selecting. Every other model key is recorded under `omitted` with its reason, so the refusal is legible rather than silent.
+- **Autonomy is seeded toward approval-required.** Where a vendor documents a default, it is used unchanged (gemini-cli). Where it does not, the conservative documented value is chosen (codex `on-request`, cursor `allowlist`, kimi `manual`). Qwen deliberately differs from its vendor default of `auto` in favour of `default`, because tightening a seeded default the user can loosen is the safe direction.
+- **`tomlkit` was chosen over a plain TOML writer for a specific reason.** A user's `config.toml` carries their comments and layout. Re-serializing it would be the same class of hazard as Phase 1's hooks block, except on someone else's file. YAML has no comment-preserving writer available, so existing YAML files are only ever appended to.
+
+### Troubleshooting Trail
+
+Two defects, both caught by the integration suite rather than by review, and both worse than anything found by reading the code.
+
+- **Seeding escaped the test sandbox and wrote into the real home directory.** `_expand()` used `os.path.expanduser`, which reads `USERPROFILE` / `HOME` from the process environment; the suite isolates installs by patching `Path.home()`. A test run created four real files in the developer's home. All four were removed (each contained only the Nexus-Hub banner and declared keys); the one genuine pre-existing user file, `~/.codex/config.toml`, was left untouched. `expanduser` versus `Path.home()` is not a style choice here: the suite's isolation strategy decides which is correct, and the wrong one fails silently by writing to the right-looking place on the wrong machine.
+- **Undetected platforms were being seeded.** The hook ran unconditionally, so a detection-gated integration that had already marked itself not-detected still got a config file. Installing Nexus-Hub would have created `~/.hermes/config.yaml` on a machine with no Hermes. Fixed with a gate on `result.detected is not False` -- `is not False` rather than truthiness, because `detected=None` means "not detection-gated at all" and a plain truthy check would have wrongly suppressed codex, cursor, and claude.
+- **Aider was declared writable and should not have been.** Its own `install_global` docstring states that `~/.aider.conf.yml` is "a surface Nexus-Hub does not touch", and the integration performs no Aider detection. Reclassified to not-writable, per the plan's own rule about instruction-file-only platforms.
+- **A CI gap that would have looked green.** The TOML and YAML seeding tests use `pytest.importorskip`, so without `tomlkit` and `PyYAML` on the runner, two of the four writable formats would have SKIPPED rather than failed. The CI test job now installs both explicitly.
+
+### Verification
+
+A real throwaway-HOME install seeded `~/.qwen/settings.json` alongside the large `hooks` block that integration writes, and `~/.codex/config.toml` while preserving its pre-existing `[features]` table -- non-clobbering proven against files written by other writers, not just synthetic fixtures. 527 validators and 597 integration tests pass; coverage of the two defaults modules is 95%. ShellCheck is clean and `installer.ps1` AST-parses after the optional-dependency edit.
+
+## [2026-08-08] - v3.16.0 Phase 2: per-platform lever research and verification
+
+### What Changed
+
+All sixteen registered integrations were checked against their own official documentation for a settable install-time behavioral default. Twelve are VERIFIED with a fetched source URL, a quoted statement of what the document says, and a verification date; four are UNVERIFIED with a recorded reason. The result is `docs/policy/platform-defaults-levers.md` plus an 18-case test asserting the contract stays complete and evidenced. A CI hole found during the post-phase check was fixed in the same phase.
+
+### Why It Changed
+
+Phase 1 deliberately seeded only Claude, because seeding a platform on inference is the failure this release is organized around. The `.kimi/agent.yaml` companion was fabricated rather than found, shipped, and had to be dropped in v3.15.0. Establishing what each platform actually documents, with evidence, is the prerequisite for Phase 3 declaring anything.
+
+### Decisions Made
+
+- **UNVERIFIED is a result, not a failure to search harder, and four platforms earned it.** `antigravity` (1.0) and `windsurf` document their model, mode, and approval controls as in-app settings-panel or admin-dashboard options with no config file named. `nexus-ai`'s repository is private, so no publicly-citable document exists; an authenticated inspection found no user-facing behavioral-default surface either. `gemini` is UNVERIFIED for a subtler reason: see below.
+- **`gemini` was NOT given `gemini-cli`'s lever, though they share a home.** Both integrations resolve to `~/.gemini`, and Google documents `~/.gemini/settings.json` for the Gemini CLI. Transferring that to `gemini` would be reasoning by analogy across two products the registry deliberately keeps separate, which is exactly what the do-not-invent rule forbids. The read contract corroborates the split: it records `settings.json` under `gemini-cli` only. The shared home is logged as NI-3, because if Phase 3 ever declares a lever for both, two integrations would race to own one file.
+- **`copilot` is VERIFIED and still must not be written.** GitHub documents `~/.copilot/settings.json` with a `model` key, but that is the Copilot **CLI**, while Nexus-Hub's `copilot` integration targets the instruction surface and installs nothing into `~/.copilot`. A "Surface alignment" column was added to the contract precisely so a VERIFIED classification cannot be misread as permission to write. VERIFIED means "consider it"; alignment says whether it is writable where Nexus-Hub already installs.
+- **Two platforms document half a lever, and the missing half was left missing.** `antigravity2` documents `toolPermission` and `artifactReviewPolicy` but no model or effort key; `cursor` documents `approvalMode` and `sandbox.*` but explicitly no config-file default-model mechanism. Recording what each vendor documents and staying silent on the rest is the whole discipline.
+- **The CI hole was fixed rather than deferred.** `paths-ignore: ['docs/**']` meant a push touching only `docs/policy/` skipped CI, so the completeness test would never run on the edit it exists to guard. The premise in the comment ("docs-only pushes never affect validators") was true when written and had quietly become false: `docs/policy/` is validator input, and had been since the read-contract guards shipped.
+
+### Troubleshooting Trail
+
+- **Every Codex search returned secondary sources.** Blogs, a cheat sheet, aggregators, and a GitHub issue, all confidently quoting `model_reasoning_effort` values. None was citable. The recorded row comes from OpenAI's own configuration reference, reached by following two documented 308 redirects. This is the rule earning its keep on the first platform that tested it.
+- **Three doc hosts had moved.** Claude 301s from `docs.claude.com` to `code.claude.com`; OpenAI Codex 308s to `learn.chatgpt.com`; and `docs.windsurf.com` 307s to `docs.devin.ai`, which is first-hand confirmation of the Cognition rebrand AGENTS.md currently flags as third-party reporting. Redirects are now written into the contract's re-verification instructions as an early signal of vendor reorganization.
+- **The first CI fix drafted would have been silently invalid.** Adding `- '!docs/policy/**'` to the existing `paths-ignore` looks right and is not: GitHub Actions supports `!` in `paths` only, never in `paths-ignore`, and the two filters cannot both be set for one event. Verified against GitHub's workflow-syntax documentation before applying, which turned a plausible one-line addition into a correct filter-type switch.
+
+### Verification
+
+18 new tests plus the existing suite: 483 pass in `tests/validators`. The parser was checked against the real document rather than trusted to pass vacuously (16 rows, registry match exact, 12 VERIFIED / 4 UNVERIFIED), and the load-bearing do-not-invent assertion was confirmed to actually bite by feeding it an UNVERIFIED platform. All seven `validate` guards pass; the edited workflow parses and sets no conflicting `paths` / `paths-ignore` pair.
+
+## [2026-08-08] - v3.16.0 Phase 1: platform defaults contract, generator, and drift guard
+
+### What Changed
+
+`configs/platform-defaults.json` now exists as the authoritative declaration of per-platform install-time behavioral defaults, seeded with Claude only. `scripts/sync_platform_defaults.py` derives the shipped artifacts from it (`--apply`) and fails the build when one drifts away (`--check`), wired into `make validate` and the CI `validate` job. The `nexus-hub init` project stub no longer carries a second hardcoded copy of the three values: `_PROJECT_SETTINGS_STUB` is gone and the stub is composed at call time from the declared source. Three test surfaces that restated `medium` as a literal now assert against the source instead.
+
+### Why It Changed
+
+The v3.15.5 effort-level change had to edit four declarations across two files and correct four documentation surfaces that restated the value as prose. The root cause is that `catalog/hooks/settings.json` plays two roles at once: it declares Claude's defaults AND it is the artifact copied to a user's `~/.claude/settings.json`. With no separate source to point at, the values were copy-pasted into `scripts/lib/integrations/claude.py`. Splitting the source from the artifact resolves the dual role without changing what the installers consume.
+
+### Decisions Made
+
+- **The generator preserves each artifact's line endings, and that is not cosmetic.** This repository runs `core.autocrlf=true` with `* text=auto`, so a Windows working tree holds CRLF (6211 bytes) while git stores LF (5950). A generator writing a fixed `"\n"` would look clean to `git status` while rewriting every line ending on disk, and the plan's mandated "byte-identical after a no-op `--apply`" assertion would have passed in CI and failed on the maintainer's own machine. The dominant newline is detected per artifact and preserved; both conventions are covered by parametrized tests.
+- **The offline fallback is guarded, because removing one hardcoded copy created another.** The plan's goal was to delete the second declaration, but the required safe-degradation path re-introduces literals in `_FALLBACK_SETTINGS`. Drift was therefore moved, not removed, until `--check` was extended to verify the fallback via `ast.literal_eval` (no import, no side effects) and `--apply` was taught to rewrite it. A check that flags something `--apply` cannot fix is an incoherent tool.
+- **Missing-source degradation is silent; malformed-source degradation is not.** The plan said to log a one-line note whenever the source is absent. Tracing the install layout showed the installers only ever *read* `configs/permissions/` from a checkout and never copy `configs/` into `~/.nexus-hub`, so absence is the NORM for installed users and the note would have fired on every `nexus-hub init`. Confirmed with the maintainer, absence now degrades silently and a second candidate path (`~/.nexus-hub/src/configs/`, materialized by the one-line bootstrap) recovers the live value where one exists. A file that exists but cannot be parsed still gets its one line, on stderr.
+- **No installer was touched, and a test proves that was the correct reading.** Classifying `sync_platform_defaults.py` into `DEV_ONLY_SCRIPTS` is what keeps both installers untouched, which matters because installer edits are ask-first. `test_installers_copy_every_scripts_dir_py_file` passes with neither installer edited, so the classification is machine-confirmed rather than asserted.
+- **No CI path filter was added, matching the v3.15.14 Phase 4.5 precedent.** `ci.yml` has no per-job path filters, only a workflow-level `paths-ignore: docs/**`. `configs/` sits outside `docs/`, so the check already runs on every change that can cause drift; a positive `paths:` filter would have narrowed coverage rather than saved minutes.
+
+### Troubleshooting Trail
+
+- **`Path.read_text(newline=...)` is Python 3.13+.** It failed immediately on this 3.12 host and CI pins 3.11, so the newline argument is passed through `open()` via a small `read_text_raw` helper instead.
+- **One test failure in the 1750-test run was pre-existing.** `test_ps_standalone_extracts_and_hands_off` fails with `/usr/bin/tar: unexpected end of file`. Rather than assume, it was re-run in a detached `git worktree` at the base `develop` commit and failed identically in 3.6s: `install.ps1` shells out to `tar`, which on this host resolves to the Git Bash MSYS binary. Recorded as BG-1, not introduced here.
+- **Coverage read low until the measurement was corrected.** The script sat at 78% because its `main()` is exercised only through subprocess CLI tests, which coverage cannot instrument. In-process `main()` tests plus error-branch tests were added, taking the two changed modules to 99% combined.
+
+### Verification
+
+`make` is unavailable on this host, so the eight `validate` guards were run individually and all passed, including `check_base_template_parity.py` (the plan requires the five `base-*.md` templates stay untouched) and `validate_workflow_security.py` (after the `ci.yml` edit). ShellCheck is clean; no shell file changed. Tests: 461 validators, 1750 installer/integrations/hooks (1 pre-existing failure, see above), 69 in the new module. A real `nexus-hub init` into a throwaway project writes a stub whose values match the declared source with the correct key order.
+
 ## [2026-08-08] - v3.15.14 Phase 4: refactor, reconciliation, and CI/CD [release-readiness]
 
 ### What Changed

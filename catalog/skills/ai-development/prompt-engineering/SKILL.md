@@ -882,7 +882,7 @@ Claude Code surfaces an `effortLevel` control that governs how much reasoning th
 
 ### Default: `medium`
 
-Nexus-Hub ships `"effortLevel": "medium"` as the installer default, with the matching `env.CLAUDE_CODE_EFFORT_LEVEL` pinned alongside it (see `catalog/hooks/settings.json`). `medium` keeps routine coding turns fast and cheap, and makes the deeper tiers a deliberate escalation rather than a standing cost on every turn. Escalate for a single session via `/effort xhigh`, the `--effort xhigh` CLI flag, or the `CLAUDE_CODE_EFFORT_LEVEL` environment variable; because that environment variable is the highest-precedence lever, moving your standing default means editing both keys in `settings.json`.
+Nexus-Hub ships `"effortLevel": "medium"` as the installer default, with the matching `env.CLAUDE_CODE_EFFORT_LEVEL` pinned alongside it. Both are declared in `configs/platform-defaults.json`, the single source for per-platform install defaults; `catalog/hooks/settings.json` is generated from it, so consult the source rather than this paragraph if the two ever disagree. `medium` keeps routine coding turns fast and cheap, and makes the deeper tiers a deliberate escalation rather than a standing cost on every turn. Escalate for a single session via `/effort xhigh`, the `--effort xhigh` CLI flag, or the `CLAUDE_CODE_EFFORT_LEVEL` environment variable; because that environment variable is the highest-precedence lever, moving your standing default means editing both keys in `settings.json`.
 
 ### When to escalate to `max`
 

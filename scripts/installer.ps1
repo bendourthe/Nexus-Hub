@@ -122,7 +122,7 @@ function Get-SanitizedBranchName {
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:NexusHubVersion = "3.15.14"
+$script:NexusHubVersion = "3.16.0"
 
 $Host.UI.RawUI.WindowTitle = "Nexus-Hub Installer"
 $script:InstallerTitle = "Nexus-Hub Installer"
@@ -2668,6 +2668,27 @@ function Install-Templates {
         }
         else {
             Write-Item -Message "✓ Python dependencies (python-docx, python-pptx) are available" -Color "DarkGreen"
+        }
+
+        # v3.16.0 Phase 3: optional seeding dependencies. Platform install-time
+        # behavioral defaults (configs/platform-defaults.json) are seeded into each
+        # platform's own config. JSON targets use the stdlib; TOML targets need
+        # tomlkit (which round-trips a user's comments and layout rather than
+        # rewriting them) and YAML targets need PyYAML. Both are OPTIONAL: without
+        # them the affected platforms simply skip seeding with a one-line hint, so
+        # a missing library never breaks an install.
+        $savedErrorPref = $ErrorActionPreference
+        $ErrorActionPreference = "Continue"
+        & python -c "import tomlkit; import yaml" 2>$null | Out-Null
+        $seedDepCheck = $LASTEXITCODE
+        $ErrorActionPreference = $savedErrorPref
+
+        if ($seedDepCheck -ne 0) {
+            Write-Item -Message "Note: Install platform-defaults seeding deps with: pip install tomlkit PyYAML" -Color "Yellow"
+            Write-Item -Message "      (without them, TOML/YAML platform defaults are skipped; JSON platforms are unaffected)" -Color "Yellow"
+        }
+        else {
+            Write-Item -Message "✓ Python dependencies (tomlkit, PyYAML) are available" -Color "DarkGreen"
         }
     }
 
