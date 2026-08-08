@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: `v3.15.0` through `v3.15.9` are all released and tagged (10 releases). v3.15.10 Phases 1-4 are complete locally on `feat/v3.15.10-end-of-task-behavior`: two purposeful notification triggers with repo+branch labels and a run-time kill switch, the end-of-task summary rule in all 12 substantive instruction templates, per-platform notification-coverage verification with delivery to Cursor, and the terminal gate. Awaiting `/update release`.
-**Last updated**: 2026-08-04 (v3.15.11 reconciliation)
+**Last updated**: 2026-08-06 (v3.15.12 Phase 3 append)
 
 **Current v3.15.9 status**: Phases 1-7 run on `feat/v3.15.9-cross-provider-routing`, based on the released v3.15.8 `develop`. Claude/Codex/GitHub monitors install only into VS Code; Cursor Usage Monitor installs only into Cursor. Focused CI builds/packages the Cursor VSIX and degrades E2E when the hosted runner lacks the Cursor CLI, pointing at the live-smoke checklist. Phase 7 reconciled this ledger, confirmed CI coverage and optimization, and completed the README/CHANGELOG record; the remaining steps are the maintainer-approved branch push, the integration PR to protected `develop`, and `/update release` after green integration.
 
@@ -14,7 +14,406 @@
 
 > **Scope note (version collision, RESOLVED)**: three plans under `docs/v3/v3.15/plans/` were all stamped `v3.15.0` (`platform-parity-all-gaps`, `adoption-codesight`, and `adoption-awesome-llm-apps`). This was the comparison-versioning artifact (plans stamped with the authoring-cycle version, not the real adoption target). Reconciled on 2026-07-22 by re-stamping: v3.15.0 = platform-parity-all-gaps, v3.15.1 = adoption-codesight, v3.15.2 = adoption-awesome-llm-apps. See the v3.15.1 QG-2 (Resolved) entry.
 
+## v3.15.12 - cursor live transport and github billing monitor
+
+### v3.15.12 Phase 1 checkpoint
+
+**Status**: Phase 1 (Cursor consent-gated live transport) complete locally on `feat/v3.15.12-usage-monitor-transport-and-auth`. Consent gate, read-only allowlisted-key session adapter, `credential-api` transport with a declarative wire contract, provenance/staleness labelling, and a real capability check all landed with 233 extension tests green and coverage at 93.05 statements / 86.52 branches / 97.55 functions / 93.19 lines. Phases 2-5 are not started.
+
+### v3.15.12 Phase 1 Open Items
+
+#### Hand-offs
+
+##### BG-16 - OPEN: `test_ps_standalone_extracts_and_hands_off` passes or fails depending on which shell launched pytest
+
+- **Status**: Open. A test-harness defect, not a product defect. Recorded rather than fixed, because the fix touches a bootstrap test outside this version's scope.
+- **Symptom**: `tests/installer/test_bootstrap.py::test_ps_standalone_extracts_and_hands_off` fails deterministically when the suite is launched from Git Bash (`/usr/bin/tar: unexpected end of file`, `Child returned status 128`) and passes deterministically when launched from PowerShell. Its four siblings in the same file pass either way. Verified by three consecutive failing runs from Git Bash and a clean `5 passed` from PowerShell on the same tree.
+- **Cause**: The test constructs its subprocess environment as `{**os.environ, ...}`, so `install.ps1` inherits whatever `PATH` pytest itself was started with. From Git Bash, `/usr/bin` precedes `System32`, so the script resolves **GNU tar** (shipped with Git for Windows) instead of the **bsdtar** that Windows bundles as `tar.exe`. GNU tar rejects the archive that Python's `tarfile` module wrote for the fixture; bsdtar accepts it.
+- **Why it matters beyond this repo**: a real user running `install.ps1` from PowerShell gets bsdtar and is unaffected, so the shipped bootstrap is sound. But the test's verdict depends on the shell that launched the suite, which is precisely the property a test must not have. It also means a CI runner whose `PATH` puts a GNU tar first would fail this test while the product works, and the reverse - it silently masked itself in the v3.15.12 final gate, which was run from PowerShell and therefore read green.
+- **Suggested next step**: Have the test resolve the archiver explicitly rather than inherit it - either pin `PATH` to the Windows system directory for the subprocess, or assert against whichever `tar` is resolved and write the fixture archive in a format both accept (GNU tar is stricter about padding on small archives). Do **not** "fix" it by writing the tarball differently without also removing the `PATH` dependency, because that leaves the shell-sensitivity in place for the next fixture.
+
+##### HO-7 - CLOSED: personal usage now reads automatically through the verified Connect RPC
+
+- **Status**: Closed. The route was recovered, probed (HTTP 200), implemented, and verified end-to-end against a live account: the compiled transport returned real percentages, correct billing-cycle dates, and the shared pool correctly identified as pooled team context. This entry previously read "closed as a negative: no such surface exists". **That conclusion was wrong and is retracted.** It rested on `cursor.com/docs/api` documenting only Enterprise-admin APIs, and treated absence from the public docs as absence of a surface - the same reasoning error already corrected once in this version's GitHub auth work.
+- **What the evidence actually shows**: Cursor's own client calls `GetCurrentPeriodUsage` on `aiserver.v1.DashboardService`, a unary Connect RPC. The request message is `GetCurrentPeriodUsageRequest { team_id: int32 optional }`, so a personal query is an empty body. The response carries exactly the figures this extension renders: `billing_cycle_start` / `billing_cycle_end` (int64), a `plan_usage` message with `auto_spend`, `auto_limit`, `auto_percent_used`, `api_spend`, `api_limit`, `api_percent_used`, `total_spend`, `included_spend`, `bonus_spend`, `remaining`, and `limit`, plus a `spend_limit_usage` message distinguishing `pooled_*` (the shared team pool) from `individual_*` and naming `limit_type`. Recovered by reading the locally installed client bundle, not by network probing.
+- **Why the shipped transport fails**: `CURSOR_WIRE_CONTRACT` assumes `GET /api/usage-summary`, a REST path that does not exist. That is what produced the probe's `401`, then `405` with `allow: POST`, then `403`. The `405` was the real signal and was under-read at the time: a Connect endpoint is POST-only. The credential half of the design is unaffected - `cursorAuth/accessToken` read read-only from one allowlisted key is exactly what the client itself authenticates with, and is the direct analogue of how the Claude monitor reads `~/.claude/.credentials.json` and the Codex monitor reads `~/.codex/auth.json`.
+- **What this invalidates**: the claim that automatic personal usage "is not buildable" (retracted), and the plan to reach it through an Enterprise adapter, which would not have served a Team-plan user anyway. The manual copy step is a stopgap and should not be presented as the intended design: a pasted snapshot is frozen at the moment it was entered, so it goes stale silently and reports a stale number as current - the precise failure mode the rest of this extension is built to prevent.
+- **Resolution**: `CURSOR_WIRE_CONTRACT` is now `wire/v2-rpc-verified` with `verified: true`, POSTing an empty body to the RPC host behind the existing consent gate. Three probe findings are pinned by tests: field names are camelCase (Connect's proto3 JSON mapping, not the descriptor's snake_case), percentages are used as delivered and never derived (spend-over-limit gave 1078.70 against a reported 23.97), and money is minor units (limit 2000 for a 20-dollar allowance) with cycle bounds as epoch-millisecond strings. Two defects were caught during implementation: the production `FetchJsonClient` still hardcoded `method: "GET"` while every stub-based test passed, and the panel's command guard would have rendered the new button inert; both now have tests. HO-5 is superseded, since the route it was waiting to verify is not the route that exists.
+- **Superseded next step** (retained for the record): Replace the REST contract with the Connect call (`POST https://api2.cursor.sh/aiserver.v1.DashboardService/GetCurrentPeriodUsage`, `content-type: application/json`, empty `{}` body, bearer token from the existing session adapter) behind the consent gate that already exists. Confirm the field units before rendering money: the spend fields are `int32`, which strongly suggests cents rather than dollars, and formatting cents as dollars would overstate spend by 100x. Keep `verified: false` until one bounded probe on a real account confirms both the field names and the units.
+
+##### HO-5 - NARROWED, not closed: the wire contract is unverified against a live account
+
+- **Source phase**: v3.15.12 Phase 1.3 - Session adapter and transport (T005 / T006)
+- **Plan reference**: `docs/v3/v3.15/plans/v3.15.12-cursor-live-transport-and-github-billing-monitor.md` (sub-tasks 1.3, 1.5)
+- **Reason**: The plan's "Prior-version gaps ingested" table records HO-5 as "Closed by Phase 1". That is **not** what shipped, and the difference matters. The consent gate, the read-only one-key adapter, the transport, and the degradation path are all implemented and tested, and the authorization boundary is recorded in `cursor-usage-auth-probe.md`. What is NOT established is that the undocumented JSON route exists at the assumed path with the assumed field names and units. Cursor documents no personal-usage API, so that can only be settled by one bounded probe using the maintainer's own signed-in session, on the maintainer's host. Rather than invent a fixture and label it verified, `CURSOR_WIRE_CONTRACT.verified` is `false`, the fixtures carry `provenance: expected-shape-unverified`, and every field name is a dot-path in one table so correcting them is a string edit. A payload that does not match is rejected, so the failure mode is "degrades to cache with a staleness label", never "renders a wrong number as live".
+- **Suggested next step**: Run the Bounded Probe Procedure in `cursor-usage-auth-probe.md` once, record the sanitized field names and units, and correct `tests/fixtures/cursor-usage/wire-contract.json` together with the `CURSOR_WIRE_CONTRACT` constant (a test asserts the two agree). HO-5 closes at that point. If the route turns out not to exist, the honest outcome is to keep the manual/cache posture and say so, not to reach for HTML scraping, which the non-goals exclude.
+
+#### Warnings
+
+##### WN-5 - Live transport requires Node 22.13+ in the extension host, and emits an experimental warning where present
+
+- **Source phase**: v3.15.12 Phase 1.3 - Session adapter (T004)
+- **Plan reference**: same plan, sub-task 1.3
+- **Reason**: Reading `state.vscdb` needs SQLite. Adding `better-sqlite3` would break the plan's own "no new dependency" Constitution Check and require per-platform prebuilds in the VSIX, so the adapter uses Node's built-in `node:sqlite`, feature-detected via a guarded dynamic import. Two consequences. First, a Cursor build whose Electron ships Node 20 has no `node:sqlite`; the capability check reports `sqlite-unavailable` and the extension degrades to cache/manual, which means the plan's Definition of Done ("real numbers after exactly one consent click") is host-dependent and unproven on the maintainer's specific Cursor build. Second, `node:sqlite` is still flagged experimental upstream and emits `ExperimentalWarning: SQLite is an experimental feature` on import; in an extension host that lands in the log, not in front of the user.
+- **Suggested next step**: When running the HO-5 probe, record the Cursor version and whether the capability check reports `available` on that host. If it reports `sqlite-unavailable`, the options are a hand-rolled read-only page parser or accepting the manual posture on that host; do not add a native dependency without revisiting the Constitution Check.
+
+#### Quality gates
+
+##### QG-6 - RESOLVED same phase: the Cursor CI workflow did not trigger on a fixture-only change
+
+- **Source phase**: v3.15.12 Phase 1.5 - Tests and stabilization (post-phase CI/CD pass)
+- **Plan reference**: same plan, sub-task 1.5; `.github/workflows/cursor-usage-monitor.yml`
+- **Reason**: The workflow is path-filtered to `extensions/cursor-usage-monitor/**`, but the wire fixtures live at `tests/fixtures/cursor-usage/` because the repo-level pytest contract suite also asserts over them. `liveTransport.test.ts` asserts that the committed fixture and the `CURSOR_WIRE_CONTRACT` constant agree, which is precisely the check that must run when someone corrects the fixture after the HO-5 probe. Today a fixture-only edit runs the Python suite (via `ci.yml`, which lists `tests/plans`) but not the extension suite, so a fixture edited out of step with the constant could merge with the disagreement unasserted. The diff was proposed rather than applied, per the "never silently rewrite CI" rule.
+- **Resolution**: approved and applied in the same phase. `tests/fixtures/cursor-usage/**` was added to both the `push` and `pull_request` path lists in `.github/workflows/cursor-usage-monitor.yml`, with a comment recording why the fixtures sit outside the extension directory. Two lines, no new job, no extra cold runner on unrelated changes. Recorded as resolved rather than deleted, because the reasoning is what stops a future reader "tidying" the path back out.
+
+#### Maintainer-only, and NOT closable by an agent
+
+- **Phase 1 exit checklist item "One consent click yields live numbers on a real host"** is unverified. It requires a human in Cursor, and it is gated on HO-5 above. Recorded rather than ticked.
+- **QG-5** (v3.15.9 Cursor live visual smoke), **QG-4** (v3.15.8 light/dark/high-contrast smoke), and **MT-5** (v3.15.8 GitHub monitor Extension Development Host activation) are re-stated unchanged. All three need a human observing rendered UI.
+
+#### Deviations from the plan's stated file list (no gap, recorded for accuracy)
+
+- **`src/providers/liveAccess.ts` is new and was not named in the plan.** The credential source and the capability rule were first written inside `extension.ts`, where neither could be asserted without exporting activation internals. They carry the phase's two security invariants (a refusal never reaches the state database; consent is requested only when it could be acted on), so they were moved to a module and are now tested directly.
+- **T007 named `usageStore.ts`, and the work landed in three files.** The provenance vocabulary (`snapshotProvenance`, `describeProvenance`) and `clearCache()` are in `usageStore.ts` as planned. The `liveTransportCapable` change is in `extension.ts` and `cursorUsageRuntime.ts`, because that is where the hardcoded `false` actually lived. The runtime dependency widened to `boolean | (() => boolean)` so all 16 existing call sites that pass a boolean still compile.
+- **`tests/plans/test_v3_15_9_cursor_usage_contracts.py` was modified.** Its `test_fixture_inventory_is_exact_and_parseable` asserts an exact fixture set, so four new fixtures required adding them. Two assertions were added in the same file to hold the wire fixtures to `verified: false`.
+- **`test/vscode-stub.ts` gained an `informationResponses` queue**, mirroring the existing `warningResponses`, so a modal consent choice can be scripted in tests.
+- **One existing assertion changed.** `extension.test.ts` asserted the refresh notice contains `HO-5`. That message was deliberately replaced with provenance text, so the assertion now checks that the notice names what is on screen and explicitly does **not** cite an internal gap id.
+
+No Phase 1 missing-test gap remains: every new source file has a dedicated test file, and coverage exceeds every configured threshold.
+
+### v3.15.12 Phase 1 Summary
+
+| Category | Open | Resolved |
+|---|---:|---:|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 1 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 1 |
+| Hand-offs (HO) | 1 | 0 |
+
+HO-5 is carried forward **narrowed** rather than closed: the plan predicted Phase 1 would close it, and the implementation landed, but the one step that would make the claim true (a live probe of the undocumented route) is maintainer-only. WN-5 is new and open. QG-6 was raised and resolved inside the phase once the CI diff was approved.
+
+### v3.15.12 Phase 2 checkpoint
+
+**Status**: Phase 2 (Cursor usage UI) complete locally. The dashboard now renders three bars, the on-demand bar is currency-against-limit with a payload-derived shared-scope annotation, and percentage precision is unified across dashboard, status bar, and hover. 253 extension tests green; coverage 93.46 statements / 87.29 branches / 97.60 functions / 93.60 lines.
+
+### v3.15.12 Phase 2 Open Items
+
+#### Maintainer-only, and NOT closable by an agent
+
+- **The Phase 2 Stability Gate's "theme-legible in light, dark, and high contrast" is unverified.** The automated surface asserts the structural half of it: the meter track and fill use VS Code theme tokens, `@media(forced-colors:active)` overrides the fill to `Highlight` with a `CanvasText` border, every bar pairs its fill with a numeric label so nothing depends on colour alone, and the new on-demand bar reuses that same CSS. What no agent can verify is the rendered result on a real host in three themes. This is the same class as **QG-4** and **QG-5**, which remain open; the new on-demand bar widens what those smokes need to cover rather than adding a separate item.
+
+#### Contract interpretation, recorded because a reviewer should see it
+
+- **Measuring personal spend against a shared team limit is permitted only with the sharing annotation.** `cursor-usage-data-contract.md` forbids deriving a personal hard cap and forbids `$limit / member_count`, and the v3.15.9 visual contract said Teams spend limits are "never a personal meter". Phase 2's plan nonetheless requires an on-demand bar against its limit. These reconcile: the prohibition is against presenting a shared limit *as if it were personal*, not against showing spend in the context of the pool it draws from. The resolution is that the bar is permitted **only** while it carries an explicit annotation naming the sharing scope, which is asserted by test. The visual contract was amended in this phase to record that rule rather than leaving the document contradicting the code.
+
+#### Deviations from the plan's stated file list (no gap, recorded for accuracy)
+
+- **`src/statusBarManager.ts` was changed and is not in the plan's Phase 2 file list.** T010's requirement that a 1.7% pool stay distinguishable from a 100% pool exposed that plain `Math.round` rendered 1.7% as "2%". Fixing that only in `dashboardPanel.ts` would have made the same pool read `1.7%` in the panel and `2%` in the status bar, so the new `formatPercent` in `formatters.ts` drives all three surfaces. The alternative, a deliberate inconsistency between surfaces, is worse than the out-of-list edit.
+- **`docs/v3/v3.15/development/cursor-usage-visual-contract.md` was amended.** Its v3.15.9 text stated on-demand spend "is not a token meter" and is "currency text", which Phase 2 supersedes. The doc now records the third bar, the currency-only labelling rule, the drop-rather-than-approximate cases, the over-limit clamp, and the annotation requirement. `tests/plans` pins the brand pipeline, attribution, hashes, and ASCII in that file, all of which still hold.
+- **T010's two included-usage bars already existed** from v3.15.9 with `role="meter"`, the `#4682B4` fill, and per-percent width classes. Phase 2's actual work on them was the precision fix; the new rendering work was T011's on-demand bar.
+- **`README.md` gained a paragraph** describing the three bars and the drop/clamp rules, since it already documents the data contract the bars express.
+
+No Phase 2 missing-test gap remains: every changed file is covered by the new `ui.test.ts` block, and coverage rose on every metric relative to Phase 1.
+
+### v3.15.12 Phase 2 Summary
+
+| Category | Open | Resolved |
+|---|---:|---:|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+| Hand-offs (HO) | 0 | 0 |
+
+Phase 2 introduced no new numbered gap. Its one unverifiable item, three-theme visual legibility, folds into the already-open QG-4 / QG-5 smokes rather than becoming a new entry. HO-5 and WN-5 carry forward from Phase 1 unchanged.
+
+### v3.15.12 Phase 3 checkpoint
+
+**Status**: Phase 3 (rename to GitHub Billing Usage) complete locally. Display name, description, all nine command titles, category, configuration and view titles, panel and hover copy, both installers, and the README now read `GitHub Billing`. The extension id is deliberately unchanged. 103 GitHub extension tests green, 14 new installer/manifest tests green, 32 installer-smoke tests green.
+
+### v3.15.12 Phase 3 Open Items
+
+#### Bugs / regressions found and resolved inside the phase
+
+##### BG-11 - RESOLVED: the rename would have failed CI through a suite the phase's own gate did not cover
+
+- **Source phase**: v3.15.12 Phase 3.3 - Tests and stabilization (T020)
+- **Plan reference**: `docs/v3/v3.15/plans/v3.15.12-cursor-live-transport-and-github-billing-monitor.md` (sub-task 3.3)
+- **Reason**: `catalog/hooks/tests/test_installer_smoke.py` pins both renamed strings: the `USAGE_MONITORS` table asserted the display name `GitHub Usage Monitor`, and `test_github_monitor_status_hint_promises_no_percentage` asserted the literal `GitHub Usage: --` status hint. Neither lives under `tests/`, which is the tree the phase gate runs, so the rename would have gone green locally and failed on the ubuntu runner. Found by grepping `catalog/hooks/tests` for the old strings rather than by the gate.
+- **Resolution**: both assertions updated with a comment recording that the folder and id deliberately did not change, and the no-percentage assertion extended to also reject `GitHub Billing: --%` so the renamed prefix cannot smuggle back the false-quota claim it was written to prevent. Suite re-run: 32 passed.
+- **Lesson carried forward**: a rename's blast radius is not bounded by the plan's file list. The gate must include `catalog/hooks/tests` whenever installer text changes, because `ci.yml` collects it separately from `tests/`.
+
+#### Deviations from the plan's stated file list (no gap, recorded for accuracy)
+
+- **T017 decided to KEEP the extension id**, which the plan offered as the recommended branch. An id is `publisher.name`, so renaming `name` mints a new extension instead of updating the installed one, leaving anyone who already installed the old id with two extensions both writing a status-bar item. Renaming display surfaces only is non-breaking: an existing install updates in place and keeps its stored token and cached snapshot. Consequence, recorded in the README: searching the Command Palette for "GitHub Usage" no longer matches.
+- **T018 / T019 became display-string edits, not uninstall logic.** Because the id is unchanged, no teardown of a superseded id is needed, and the new tests assert that none was added (`uninstall-extension.*github` must not appear). This is the smaller and safer half of the branch the plan described.
+- **Six files outside the plan's Phase 3 list were changed.** `catalog/hooks/tests/test_installer_smoke.py` (BG-11 above); the repo-root `README.md` usage-monitor roster; `development/github-usage-data-contract.md` and `development/github-usage-visual-contract.md`, both of which asserted the old title as current fact; and the GitHub extension's `test/ui.test.ts`, which pinned the old status-bar label and settings-panel title. Each was a stale-fact fix required by the rename, not opportunistic editing.
+- **Historical records were deliberately NOT rewritten.** The v3.15.8 plan, its three phase histories, the `## What's New in v3.15.8` section of the root README, and the earlier CHANGELOG entries all keep "GitHub Usage Monitor", because they record what shipped under that name at that time. Rewriting them would falsify the record, the same rule applied to the v3.15.11 plan question (PR-1).
+
+#### Carried forward unchanged
+
+- **HO-5** (narrowed: the Cursor wire contract awaits one maintainer probe) and **WN-5** (Node 22.13+ host requirement) from Phase 1.
+- **QG-4**, **QG-5**, **MT-5** remain maintainer-only. **MT-5** specifically covers GitHub monitor Extension Development Host activation, so the renamed surfaces are new copy for that smoke to read; the rename is asserted statically but has not been seen rendered in a real VS Code window.
+
+### v3.15.12 Phase 3 Summary
+
+| Category | Open | Resolved |
+|---|---:|---:|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 1 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+| Hand-offs (HO) | 0 | 0 |
+
+One bug found and resolved in-phase (BG-11), and it is the useful result of Phase 3: the rename's blast radius reached a test tree the phase gate did not run, and only a deliberate grep for the old strings caught it before CI would have.
+
+### v3.15.12 Phase 4 pre-work (T022a / T022b) - 2026-08-06
+
+**Status**: the documentary half of T022 is done and the probe harness is committed. **T022c, the empirical half, is maintainer-gated and blocks the rest of Phase 4.** No Phase 4 implementation (T023 onward) has been written, deliberately.
+
+#### Hand-offs
+
+##### HO-6 - The VS Code session premise cannot be settled from documentation, and needs a live probe with a classic-PAT control
+
+- **Source phase**: v3.15.12 Phase 4.1 - T022
+- **Plan reference**: `docs/v3/v3.15/plans/v3.15.12-cursor-live-transport-and-github-billing-monitor.md` (sub-task 4.1)
+- **Reason**: The plan assumed first-party documentation would answer whether VS Code GitHub sessions are accepted by the billing endpoints. It does not. GitHub's REST endpoint reference says fine-grained PATs work for user and organization billing usage, while GitHub's own "Automating usage reporting" tutorial says the billing usage endpoints do **not** support fine-grained PATs and directs users to a classic PAT. Enterprise is the single documentary negative (fine-grained PATs and GitHub App tokens explicitly rejected). Because the reference's token section is titled "Fine-grained access tokens for...", OAuth's absence from it is **not** a rejection, so no documentary reading can rule the session path out either. That leaves a live probe as the only resolution, and a probe needs a **classic-PAT control** on an account that genuinely holds the role and has enhanced billing enabled, because insufficient role, organization OAuth-app restrictions, and SSO authorization all produce the same `403` / `404` shapes.
+- **Suggested next step**: run the probe matrix in `development/github-billing-auth-probe.md` using `src/providers/authProbe.ts`, one `/settings/billing/usage` read per credential class per level, and paste the sanitized records into that document's results table. `toMarkdownRow` emits a paste-ready row. Then T023 implements against recorded evidence rather than an assumption.
+- **This is the second maintainer gate in v3.15.12**, alongside HO-5. Both exist for the same reason: a premise that only a real host and a real account can settle.
+
+#### Corrections to premises this plan inherited (recorded so they are not re-derived)
+
+Three assumptions were wrong, and one of them was a wrong decision *rule* rather than a wrong fact. All three are recorded in full in `development/github-billing-auth-probe.md`:
+
+1. **"The endpoint reference's token list settles OAuth support"** - it does not. That section enumerates fine-grained token support only. A rule of the form "session unsupported because the docs do not list OAuth" rejects OAuth on absence of evidence, and would have permanently foreclosed a viable auth path.
+2. **"GitHub has no billing-specific OAuth scope"** - `manage_billing:enterprise` exists, subsumed by `admin:enterprise`.
+3. **"VS Code's provider filters scopes against a fixed allowlist"** - the current provider forwards caller-supplied scopes into the GitHub login flow. It still cannot mint a fine-grained PAT or GitHub App token through `getSession()`.
+
+Plus one trap that would have silently broken the plan's own "never fall back silently" requirement: **`AuthenticationSession.scopes` reports the scopes the extension REQUESTED, not what GitHub granted.** Granted scopes must be read from the `X-OAuth-Scopes` response header. A narrowed consent would otherwise have read as a full grant.
+
+#### Plan revisions applied
+
+- The Definition of Done's global "session default XOR PAT default" line is struck through and replaced with **per-target capability resolution**: a session is used for a given user / organization / enterprise only after that target and endpoint return `200`.
+- T022 is split into T022a (documentary, done), T022b (harness, done), and T022c (maintainer-gated probe).
+- T023 / T024 / T026 are reshaped from a single auth default to a three-state per-target capability (`supported` with evidence class, `blocked` with a diagnosed reason, or `unknown`), with explicit no-silent-broadening and no-silent-swap rules.
+- The Phase 4 Stability Gate and exit checklist now require that every `supported` verdict trace to a recorded `200`, and that no verdict rest on the endpoint reference's silence about OAuth.
+
+#### Shipped improvement made possible by the finding
+
+- **The extension is now self-diagnosing on permission failures.** `withAuthorizationDiagnosis` attaches `X-Accepted-OAuth-Scopes`, `X-OAuth-Scopes`, `X-Accepted-GitHub-Permissions`, and `X-GitHub-Request-Id` to any failed billing response and appends GitHub's own answer to the message, so a `403` now names the scope the operation would accept instead of only what the extension guessed from the configured scope. This is useful independently of how T022c resolves.
+- **The README and data contract no longer present the fine-grained token class as exhaustive.** Classic PAT is documented as a valid class, enterprise is documented as classic-only, and the doc conflict is stated rather than smoothed over.
+
+### v3.15.12 Phase 4 pre-work Summary
+
+| Category | Open | Resolved |
+|---|---:|---:|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+| Hand-offs (HO) | 1 | 0 |
+
+HO-6 is new and open. It is not a defect: it is the honest result of discovering that the question T022 asks cannot be answered from documentation. The alternative, picking whichever documentary reading suited the plan's preferred branch, is precisely the failure mode `auth.ts:99` was written to prevent.
+
+### v3.15.12 VERSION-FINAL RECONCILIATION (Phase 5) - 2026-08-06
+
+**Status**: all five phases complete locally. This is the authoritative open/closed set for v3.15.12.
+
+#### Closed this version
+
+| Item | Disposition |
+|---|---|
+| **HO-5** | **SUPERSEDED, and its stated conclusion RETRACTED.** This row previously read "CLOSED as a negative... there is no supported surface". That was wrong: it inferred the absence of a surface from its absence in the public documentation. Cursor's own client reads personal usage through `GetCurrentPeriodUsage` on `aiserver.v1.DashboardService`, verified against a live account and shipped in v3.15.13. `CURSOR_WIRE_CONTRACT.verified` is now `true`. See HO-7 |
+| **WN-5** | **RESOLVED, favorably.** Cursor's extension host is Electron 40.10.3 / Node 24.15.0 with `node:sqlite` available, well above the 22.13 floor. Answered via `ELECTRON_RUN_AS_NODE`, not by a human reading a panel |
+| **BG-11** | Resolved: the rename would have failed CI through `catalog/hooks/tests`, a tree the phase gate did not run |
+| **BG-12** | Resolved: both probe runners aborted on exit via `process.exit()` racing `node:sqlite` teardown |
+| **BG-13** | Resolved: scope escalation would have requested `admin:org` for a non-scope failure |
+| **BG-14** | Resolved: `logIn` / `logOut` were registered with no test driving them, on a stub with no `authentication` surface |
+| **QG-6** | Resolved: the Cursor workflow now triggers on `tests/fixtures/cursor-usage/**` |
+
+#### Open at release
+
+| Item | Why it is open |
+|---|---|
+| **HO-6** | Narrowed to **one command the maintainer runs**. `GitHub Billing: Diagnose Authorization` acquires a session, probes once, and records the verdict. It cannot be closed by an agent: a VS Code session exists only inside the editor, and reading its token from the OS keychain is an explicit non-goal. Until it runs, an unprobed target reports `unknown`, and `unknown` is never treated as `supported` |
+| **QG-4 / QG-5 / MT-5** | Maintainer-only interactive smokes. **Scope widened this version**: QG-4/QG-5 now also cover the Cursor on-demand bar (currency labels, shared-scope note, over-limit clamp, dropped-bar fallback), and MT-5 now also covers the renamed GitHub surfaces and the new Authorization panel section |
+| **WN-3** | Unchanged. `test_instruction_merge.py` depends on installer-suite import order (v3.15.7). Untouched by this release |
+| **DF-14 / DF-16 / DF-17** | Out of scope; carried unchanged |
+
+#### Re-checked
+
+- **WN-4**: `npm audit` reports **0 vulnerabilities** in both usage-monitor extensions. The prior entry recorded transitive `@vscode/vsce` deprecation *notices* alongside a clean audit; the audit remains clean.
+- **PR-1**: remains recorded, and **this release did not repeat it.** v3.15.12 had a plan before implementation, and every phase produced a session history. The plan was also corrected in place three times when evidence contradicted it (the breaking-id assumption, the HO-5 closure prediction, and the global auth default), rather than left describing work that did not happen.
+
+#### Advisory, pre-existing, not introduced by this release
+
+`docs/DEVLOG.md` contains 22 non-ASCII characters at lines 2422 and beyond, all in v2.0.0-era historical entries (em-dashes and one `<=` symbol). The repository's Markdown rule is ASCII-only for English. These were **not** introduced by v3.15.12 (its own entries are ASCII-clean, verified) and were left untouched, because they are historical records and fixing them traces to nothing this release asked for. Recorded so a future ASCII sweep has the line numbers.
+
+#### BG-15 - RESOLVED: a guard test failed for anyone who had actually installed the product
+
+- **Source phase**: v3.15.12 Phase 5.5 (final gate)
+- **Reason**: `tests/integrations/test_copilot_hermes_native.py::test_global_install_never_touches_the_real_home` asserted the developer's real `~/.copilot/agents` contained **no** `*.agent.md` at all. That conflates "this test wrote here" with "these files exist here". A legitimate global install puts the catalog's 23 agents there, so the assertion failed permanently on a dogfooding maintainer's machine. Corroborated as an installer run rather than a test leak by the shared timestamp window across `~/.nexus-hub/VERSION`, `~/.codex/prompts`, and `~/.copilot/agents`. The test's real guard - that `install_global` routes through the patchable `_copilot_home` accessor - passed throughout, and nothing in v3.15.12 touches the Copilot integration.
+- **Resolution**: snapshot `*.agent.md` before `install_global` and assert the set is unchanged after, naming any offending file in the failure message. Same intent, no longer environment-dependent; the 23-file defect it guards would still fail it.
+- **Lesson**: a guard that asserts on ambient developer state, rather than on the delta a test causes, becomes a false alarm the moment the product is actually used.
+
+#### Verification posture, stated plainly
+
+Every automated gate is green. What is **not** verified is anything requiring a human at a rendered UI: the three Cursor bars in three themes, the renamed GitHub palette entries and Authorization panel, and the in-editor OAuth verdict. Those are QG-4, QG-5, MT-5, and HO-6. This release does not claim them.
+
+### v3.15.12 Phase 4 checkpoint (T023-T027) - 2026-08-06
+
+**Status**: Phase 4 implementation complete on the HO-6 evidence. Per-target capability resolution, account-identity and verdict display, and a log in / log out pair that structurally cannot end the shared GitHub session. 175 extension tests green.
+
+#### What made this buildable
+
+HO-6's affirmative resolution. The scope candidates are GitHub's own answers rather than guesses: `user` for user scope, and `repo` first for organizations because `repo` **alone** returned `200` on three organizations and VS Code's provider requests it routinely, with `admin:org` held back for an explicit escalation.
+
+#### Design decisions worth carrying forward
+
+- **The log-out isolation guarantee is structural, not documentary.** `sessionBinding.ts` is injected a `MonitorOwnedState` with exactly three members and **no** sign-out, revoke, or `removeSession` member, so `logOutOfMonitor` has no reachable path to the session Copilot shares. A test asserts the injected surface stays that narrow and that the function takes no session provider at all. A comment saying "do not sign out here" would not survive a refactor; a missing capability does.
+- **An OAuth success is recorded as `probed-only`, never `documented-and-probed`.** GitHub's endpoint reference enumerates fine-grained support only, so a live `200` is real but undocumented. Promoting it would overstate the evidence in the direction this release has twice had to correct.
+- **A `401` is always `credential-invalid`, never `token-type-unsupported`.** That misreading is exactly what the probe's interpretation table exists to prevent, and it is now enforced by the diagnosis function's ordering.
+- **Escalation requires evidence.** `nextScopeEscalation` returns null when the credential already carries an accepted scope, because a failure in that state is role, SSO, or app-approval shaped and broader scope cannot fix it. Found by its own test; the first implementation would have requested `admin:org` for a non-scope problem.
+
+#### Bugs found and resolved inside the phase
+
+##### BG-13 - RESOLVED: scope escalation would have requested breadth it did not need
+
+- **Source phase**: v3.15.12 Phase 4.2 (T023)
+- **Reason**: `nextScopeEscalation` initially escalated whenever an accepted scope was ungranted. A credential already holding `repo` (which GitHub lists as accepted) that still failed would therefore have triggered a request for `admin:org` - silent broadening for a cause broader scope cannot address.
+- **Resolution**: returns null when any accepted scope is already granted, consistent with `diagnoseBlockedReason`, which only reports `insufficient-scope` when none is. Caught by the test written alongside it.
+
+##### BG-14 - RESOLVED: the new commands would have shipped unexercised
+
+- **Source phase**: v3.15.12 Phase 4.3 (T026)
+- **Reason**: `logIn` / `logOut` were registered but no test drove them, and the vscode stub had no `authentication` surface at all - so a test that tried would have failed on a missing API rather than on behavior. This is the same defect class as v3.15.11's BG-9/BG-10, where a hook shipped registered and permanently inert.
+- **Resolution**: the stub gained `authentication.getSession` with a scripted session queue and a request log; three tests now drive the real handlers through `activate()`, including one asserting log out never calls `getSession` with `createIfNone` or `clearSessionPreference`.
+
+#### Deviation, recorded for accuracy
+
+`tests/installer/test_github_billing_rename.py` pinned the manifest command count at 9; the two new commands make 11. Updated deliberately with a note rather than relaxed to a range, because the exact count is what would catch a dropped command.
+
+#### Still open after Phase 4
+
+- **The `vscode-oauth` leg of T022c is unrun.** A session needs the editor, so per-app authorization and SSO for `GitHub for VS Code` specifically remain unverified; the `gh` result does not transfer. The in-editor diagnostic is the remaining piece, and the code is written so that target simply reports `unknown` until it is probed rather than assuming either answer.
+- **Enterprise scope is unprobed** (no enterprise slug on the reference account).
+- **MT-5** still applies: none of the new panel copy has been seen rendered in a real VS Code window.
+
+### v3.15.12 Phase 4 Summary
+
+| Category | Open | Resolved |
+|---|---:|---:|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 2 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+| Hand-offs (HO) | 1 | 0 |
+
+HO-6 stays open, narrowed to the in-editor OAuth leg. Two bugs found and resolved in-phase, both by tests written alongside the code rather than after it.
+
+### v3.15.12 probe runs - 2026-08-06 (authorized by the maintainer)
+
+Both probes were run. One premise is resolved; the other advanced but is still open.
+
+#### HO-6 - RESOLVED in the affirmative, narrowed to a per-app question
+
+- **OAuth-app tokens ARE accepted by the enhanced billing usage endpoint.** Three organization `200`s (`Tidal-Medical`, `EMVI-AI`, `smesh-stanford`) using a GitHub CLI OAuth token (`gho_`) carrying `gist, read:org, repo, workflow`.
+- **GitHub's own `X-Accepted-OAuth-Scopes` names the scopes**: `user` for user scope, `admin:org` or `repo` for organization scope. **`repo` alone sufficed**, and `repo` is a scope VS Code's provider requests routinely.
+- **This empirically kills the "billing usage is fine-grained-PAT-only" reading**, and with it the inference that a VS Code session cannot work. An implementation built on that inference would have shipped the wrong default. It is worth stating plainly that the original decision rule proposed for T022 would have reached exactly that wrong conclusion, from the endpoint reference's silence about OAuth.
+- **The user-scope `404` was a scope insufficiency, not a class rejection.** The token lacked `user`. GitHub returned `404` rather than `403` for insufficient access, and the accepted-scope header is what disambiguated it. No classic-PAT control was needed: the decision rule requires a control only for a negative verdict, and this is a positive-with-diagnosis.
+- **Still open, and narrower than before**: OAuth-app authorization and SSO are per-app, so the `gh` result does not transfer to `GitHub for VS Code`. The remaining question is whether VS Code's provider can obtain `repo` / `user` and is authorized for the target organization. That needs an in-editor leg. Enterprise scope is unprobed (no enterprise slug on this account).
+- **Consequence for T023**: the session path can now be designed as the *likely* default with a PAT fallback, per target, instead of being treated as unavailable. No per-organization variation was observed across three organizations, which does not falsify per-target resolution (OAuth-app restrictions are a per-org setting that can differ elsewhere) but does mean the risk was not exercised here.
+
+#### HO-5 - PROBE COMPLETE: the authorized path does not work (supersedes the "advanced, still open" note below)
+
+The full authorized sequence was run on 2026-08-06. Status ladder, all pre-recorded leads:
+
+| Attempt | Result |
+|---|---|
+| `GET /api/usage-summary` | **401** (twice, before and after opening Cursor) |
+| `GET /api/dashboard/get-current-period-usage` | **405** - route exists, wrong verb |
+| `POST` same route, empty body (separately authorized) | **403** |
+
+The boundary says stop on `401` / `403` / `429`, so the sequence is closed.
+
+**What is confirmed**: `cursorAuth/accessToken` exists on a real host and holds a valid-shaped token; the read-only one-key adapter works end to end; route B exists and POST is its verb.
+
+**Corrected 2026-08-06: the first version of this entry over-claimed.** `403` means only "understood and refused"; it does not identify the refusal as bearer-token audience rather than a missing CSRF token, absent origin headers, a malformed body, an account entitlement, or a WAF rule. Cursor's documented `401`/`403` semantics apply to `api.cursor.com`, not to a private dashboard endpoint behind possibly different middleware. The defensible record is:
+
+```text
+CURSOR_PRIVATE_DASHBOARD_CONTRACT = unsupported
+The tested app access token did not produce usage data.
+The token's precise audience remains UNPROVEN.
+No further private-route, header, or cookie guessing will be performed.
+```
+
+**What actually closes HO-5 is the absence of any supported surface, not the 403.** Four checks, all first-party or local:
+
+1. Cursor documents **no personal-account usage API**; its usage/spending APIs are Enterprise-team endpoints needing an explicitly created Admin API key.
+2. The Cursor SDK requires an explicit key and **states it does not auto-discover credentials from a local Cursor installation**.
+3. **No Cursor-owned authentication provider exists**: of 116 bundled extensions in Cursor 3.14.27, only `github-authentication` and `microsoft-authentication` declare `contributes.authentication`.
+4. **No Cursor-owned usage or billing command exists**: zero matches for `usage|billing|spend|quota|credit|subscription|account|plan` across every bundled manifest; the 21 `cursor-*` extensions contribute 8 commands total, none usage-related.
+
+Independently, Cursor's terms restrict reverse engineering, probing or scanning the service, and scraping or extracting data, which is its own reason to stop rather than keep guessing.
+
+**One instrument gap, found and fixed.** The probe captured no response headers, so "POST is route B's verb" was only probable. Adding header capture and re-running returned **`allow: POST`** with `content-type: application/json`, a conforming `405` per RFC 9110. The fix paid for itself on the first re-run, and it is why the `403` is known to be a refusal on the *correct* verb.
+
+`CURSOR_WIRE_CONTRACT` stays `verified: false` by conclusion, and the `CursorAccountApiProvider` seam is retained for a future supported API rather than deleted.
+
+**This affects Definition-of-Done item 1** ("a fresh Cursor install shows real included-usage numbers after exactly one consent click"), which is now known to be unsatisfiable within the plan's own non-goals rather than merely unverified. Items 2, 3, and 4 are unaffected and met.
+
+**What Phase 1 delivered remains sound and worth keeping**: the consent gate, the read-only allowlisted-key adapter with a now-confirmed key name, the fail-closed transport with a fixture-pinned contract, and the degradation path that turns exactly this outcome into an explicit staleness label instead of a wrong number. The phase's defensive design is what makes this a clean negative result rather than a silent misreport.
+
+#### WN-5 - RESOLVED, favorably, and answerable without a human
+
+Cursor's extension host is **Electron 40.10.3 / Node 24.15.0** with `node:sqlite` **available**, well above the 22.13 floor. So the capability check reports `available` and the consent prompt does appear on this host.
+
+Recorded as maintainer-only initially, on the correct observation that the extension host is a different runtime from system Node but the wrong conclusion that only a human could inspect it. `ELECTRON_RUN_AS_NODE=1 Cursor.exe -e "..."` reports the host's Node version and module availability directly. The technique is written up in the probe doc and generalizes to any Electron-based editor.
+
+#### HO-5 - Advanced, still open (SUPERSEDED by the probe-complete entry above)
+
+- **The allowlisted key name is confirmed against a real host.** `cursorAuth/accessToken` exists in `%APPDATA%\Cursor\User\globalStorage\state.vscdb` and holds a value passing the shape rule. The v3.15.9 probe could only verify that the file existed; this verifies the key.
+- **The read-only one-key adapter works end to end**: opened, read, released, reached the transport.
+- **`GET https://cursor.com/api/usage-summary` returned 401**, so no wire shape was obtained and `CURSOR_WIRE_CONTRACT` remains `verified: false`.
+- **The `401` is ambiguous** between a stale session, a wrong header form, and a wrong route. The probe boundary forbids guessing at header variations or neighbouring endpoints, so more attempts do not resolve it. Next step: sign in to Cursor and re-run; if still `401`, one re-run with `--route /api/dashboard/get-current-period-usage`, then stop and record.
+
+#### WN-5 - NOT resolved, and it would be easy to think it was
+
+The probe script reported `node:sqlite` available, but it ran on **system Node v24.13.0**. Cursor's extension host runs its own Electron Node, a different runtime. This run says nothing about the extension host, so WN-5 stays open and is answered only from inside Cursor by observing whether the panel reports the capability available.
+
+#### BG-12 - RESOLVED same session: the probe script aborted instead of exiting
+
+- **Source**: the HO-5 probe runner, first authorized run.
+- **Reason**: the script called `process.exit(code)` in its promise chain. Forcing exit while `node:sqlite` and the fetch connection were still tearing down tripped a libuv assertion (`!(handle->flags & UV_HANDLE_CLOSING)`) and replaced the exit code with `0xC0000409`. The probe printed its full result first, so the finding was not lost, but the run *looked* like a crash rather than a clean `401`, and the exit code was unusable for scripting.
+- **Resolution**: both probe runners now set `process.exitCode` and let Node drain handles naturally. Verified: the capability-unavailable path now exits `1` cleanly.
+
+#### Instrument change made during the run
+
+`CredentialKind` gained **`gh-oauth`**, tracked separately from `vscode-oauth`, because OAuth-app authorization and SSO grants are per-app and recording a `gh` result as though it came from VS Code's app would have corrupted the evidence. A test asserts the two classes stay distinct through the record, the sanitized form, and the markdown row.
+
 ## v3.15.11 - codex notification delivery and the inert-hook regression
+
+### v3.15.11 process deviation (recorded 2026-08-05)
+
+**PR-1 - v3.15.11 shipped without a plan document.** Every other v3.15 release has a plan under `plans/` and a session history under `development/history/`. v3.15.11 has neither at release time. The release itself was authorized (the maintainer said "proceed with `/update release`"), but that standing instruction was carried across a task boundary and treated as covering work that had not been planned: settling DF-15 turned into two bug fixes and a new platform capability, and the work went straight to a tag.
+
+**Disposition.** A session history was backfilled on 2026-08-05 (`2026-08-05_v3.15.11-codex-notification-delivery-backfilled.md`), because a history is legitimately written after the fact. A plan was deliberately **NOT** backfilled: a plan records intent formed before the work, so writing one now and dating it earlier would fabricate a planning record. This is the same rule applied to the 144 un-ticked exit checkboxes in released v3.15 plans and to QG-5.
+
+**Correction to an earlier claim.** The v3.15.10 Phase 4 audit concluded "all v3.15 plans complete". That was true when written and is now incomplete: there is a released version with no plan. The accurate statement is that v3.15.0 through v3.15.10 each have a plan and all are released, and v3.15.11 is released without one.
+
+**Rule to carry forward.** A release authorization covers releasing *planned* work. It does not authorize planning-by-omission for new work discovered mid-task. When a follow-up task turns into feature work or bug fixes, stop and plan rather than continuing to a tag.
+
 
 **Status**: complete locally. This is a follow-on patch to v3.15.10, cut because settling DF-15 exposed a regression v3.15.10 had already shipped.
 
@@ -478,7 +877,7 @@ One bug was found and resolved inside Phase 7 (BG resolved: the skill-directory 
 
 ##### QG-2 - Three plans stamped v3.15.0 (release-time version reconciliation) (RESOLVED, 2026-07-22)
 
-- Three plans under `docs/v3/v3.15/plans/` were all stamped `v3.15.0` (`platform-parity-all-gaps`, `adoption-codesight`, `adoption-awesome-llm-apps`): the comparison-versioning artifact where plans carry the authoring-cycle version, not the real adoption target. Reconciled by re-stamping the deferred plans: v3.15.0 = platform-parity-all-gaps, v3.15.1 = adoption-codesight (this plan), v3.15.2 = adoption-awesome-llm-apps (and in the v3.16 line, v3.16.0 = model-prompting-research, v3.16.1 = rtk-and-meterless).
+- Three plans under `docs/v3/v3.15/plans/` were all stamped `v3.15.0` (`platform-parity-all-gaps`, `adoption-codesight`, `adoption-awesome-llm-apps`): the comparison-versioning artifact where plans carry the authoring-cycle version, not the real adoption target. Reconciled by re-stamping the deferred plans: v3.15.0 = platform-parity-all-gaps, v3.15.1 = adoption-codesight (this plan), v3.15.2 = adoption-awesome-llm-apps (and in the v3.16 line, v3.17.0 = model-prompting-research, v3.18.2 = rtk-and-meterless).
 
 ### v3.15.1 Summary
 
@@ -892,7 +1291,7 @@ Beyond the two fixes: the init carve-out is implemented as a writer-identity sig
 
 **Phase 3 (hard enforcement and monitoring: AC5, AC3) COMPLETE.** Shipped the opt-in hardened permission posture and the best-effort provenance ledger, plus both PowerShell siblings and 65 tests. **Two schema and correctness problems were resolved before writing anything, and the parity tests then caught two more real defects.**
 
-**The plan's `defaultMode` instruction was wrong and is deliberately not implemented.** Sub-task 3.1 says to set `defaultMode` to "ask/deny", but that key takes permission MODES (`default`, `acceptEdits`, `plan`, `bypassPermissions`), not the sibling array names, and `defaultMode` appears nowhere in `guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md` while the in-flight v3.16.0 autonomy plan schedules confirming its value set as unstarted work. Writing an unverified enum into a user's `settings.json` is a schema bet with no upside, since `default` is already Claude Code's behavior. The overlay therefore ships `deny` and `ask` only (both confirmed with worked examples in that reference) and a test asserts `defaultMode` stays absent. Recorded as DF-3 so v3.16.0 Phase 2 can revisit it once the enum is verified.
+**The plan's `defaultMode` instruction was wrong and is deliberately not implemented.** Sub-task 3.1 says to set `defaultMode` to "ask/deny", but that key takes permission MODES (`default`, `acceptEdits`, `plan`, `bypassPermissions`), not the sibling array names, and `defaultMode` appears nowhere in `guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md` while the in-flight v3.17.0 autonomy plan schedules confirming its value set as unstarted work. Writing an unverified enum into a user's `settings.json` is a schema bet with no upside, since `default` is already Claude Code's behavior. The overlay therefore ships `deny` and `ask` only (both confirmed with worked examples in that reference) and a test asserts `defaultMode` stays absent. Recorded as DF-3 so v3.17.0 Phase 2 can revisit it once the enum is verified.
 
 **The overlay is an overlay, not a second copy.** The plan says the flag installs the strict stub "instead of" the default. Implemented as base-plus-overlay: `claude-permissions-strict.json` carries ONLY `deny` and `ask`, and the installer merges it on top of the existing allow list. The alternative (duplicating the 15KB read-only allow list into a second file) would give the catalog two sources of truth that silently drift. A test asserts the overlay carries no `allow` key. The posture is identical; the maintenance burden is not.
 
@@ -915,7 +1314,7 @@ Beyond the two fixes: the init carve-out is implemented as a writer-identity sig
 
 **4.1 refactor: a verification pass, clean.** The detectors found nothing to apply, which is the expected outcome for a purely additive plan. No empty directories under any path this plan touched, no duplicate content among the 15 added files (compared by SHA-256), the new skill bundle in the conventional `SKILL.md` + `references/` + `evals/` layout, the docs tree still canonical (`comparisons/`, `development/`, `plans/`, `known-gaps.md`), and every hook, sibling, test, and registration in its conventional location. No committed file moved, so no reference repair was needed. One survey result recorded rather than acted on: `catalog/hooks` now carries 8 `.ps1` siblings for 25 `.sh` hooks (this plan added 3); the other 17 are pre-existing and out of scope.
 
-**4.2 known-gaps: every item has a disposition** (below). Two resolved in this phase (DF-2, QG-1), one transferred with a named owner (DF-3 to v3.16.0 Phase 2), one carried as a documented deferral (DF-1), and the two scope boundaries the plan required be tracked explicitly rather than left in prose are now NI-1 and NI-2. Co-resident coordination: the v3.15 minor tree holds eight plans (v3.15.0 through v3.15.7). None of v3.15.5's six carried deferrals interacts with this feature set (its DF-2 concerns model-specific content in shared skill bodies, a different mechanism entirely), and v3.15.7 is unstarted, so nothing needed transferring between sections. This subsection is final for v3.15.6; the file as a whole stays open while v3.15.4, v3.15.5, and v3.15.7 remain in flight.
+**4.2 known-gaps: every item has a disposition** (below). Two resolved in this phase (DF-2, QG-1), one transferred with a named owner (DF-3 to v3.17.0 Phase 2), one carried as a documented deferral (DF-1), and the two scope boundaries the plan required be tracked explicitly rather than left in prose are now NI-1 and NI-2. Co-resident coordination: the v3.15 minor tree holds eight plans (v3.15.0 through v3.15.7). None of v3.15.5's six carried deferrals interacts with this feature set (its DF-2 concerns model-specific content in shared skill bodies, a different mechanism entirely), and v3.15.7 is unstarted, so nothing needed transferring between sections. This subsection is final for v3.15.6; the file as a whole stays open while v3.15.4, v3.15.5, and v3.15.7 remain in flight.
 
 **4.3 CI/CD: three changes, all evidence-driven.** Both QG-1 diffs applied, closing it: the `.ps1` AST-parse gate (new, unconditional, because the parametrized hook tests SKIP when no PowerShell interpreter is present and a skip emits no signal) and the removal of the `|| true` that made the catalog `shellcheck` step decorative rather than enforcing (safe now: all 36 catalog `.sh` files pass `--severity=warning` with zero warnings, so the gate starts green). Third and most consequential, a new push-only `tests-windows` job runs the hook suite plus the installer and validator suites on a real Windows host. **That job exists because of a demonstrated miss, not for symmetry**: the Phase 3 ledger BOM defect is specific to Windows PowerShell 5.1 and does NOT reproduce under the ubuntu leg's pwsh 7, so CI as previously configured would have passed a ledger that was unparseable on every Windows user's machine. The fixture otherwise prefers pwsh, so the job pins the edition with a new `NEXUS_TEST_POWERSHELL` variable, giving coverage of BOTH editions across the two legs (ubuntu: pwsh 7; windows: 5.1) instead of testing one twice. Cost is controlled the same way the existing Windows and macOS legs are: pushes only, never on pull requests.
 
@@ -951,8 +1350,8 @@ Beyond the two fixes: the init carve-out is implemented as a writer-identity sig
 
 - **Source phase**: v3.15.6 Phase 3.1.
 - **Plan reference**: Phase 3.1 ("with `defaultMode` set to ask/deny rather than auto-approve").
-- **Reason**: the instruction is not implementable as written (`ask` and `deny` are sibling array keys, not `defaultMode` values), and the key's valid value set is unverified in this repo: it appears nowhere in `guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md`, and `docs/v3/v3.16/plans/v3.16.0-agent-autonomy-toggle.md` Phase 2 schedules confirming it against official documentation. Writing an unverified enum into a user's `settings.json` risks breaking their config for no benefit, because the safest documented value (`default`) is already Claude Code's behavior. The overlay ships the verified `deny` and `ask` keys instead, and a test pins the omission so it cannot drift back in accidentally.
-- **Suggested next step**: after v3.16.0 Phase 2 verifies the `defaultMode` enum against official docs, decide whether the strict overlay should also set it. If yes, add it plus a test; if no, keep the omission and record the reasoning there. Non-blocking: the deny/ask entries deliver the hardening on their own.
+- **Reason**: the instruction is not implementable as written (`ask` and `deny` are sibling array keys, not `defaultMode` values), and the key's valid value set is unverified in this repo: it appears nowhere in `guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md`, and `docs/v3/v3.16/plans/v3.17.0-agent-autonomy-toggle.md` Phase 2 schedules confirming it against official documentation. Writing an unverified enum into a user's `settings.json` risks breaking their config for no benefit, because the safest documented value (`default`) is already Claude Code's behavior. The overlay ships the verified `deny` and `ask` keys instead, and a test pins the omission so it cannot drift back in accidentally.
+- **Suggested next step**: after v3.17.0 Phase 2 verifies the `defaultMode` enum against official docs, decide whether the strict overlay should also set it. If yes, add it plus a test; if no, keep the omission and record the reasoning there. Non-blocking: the deny/ask entries deliver the hardening on their own.
 
 ##### DF-1 - `ai-agent-governance` carries no SKIP clause (reciprocal carve-out not added)
 
@@ -1026,7 +1425,7 @@ Beyond the two fixes: the init carve-out is implemented as a writer-identity sig
 | Quality-gate gaps (QG) | 0 | 1 |
 | Hand-offs (HO) | 0 | 2 |
 
-**OPEN at plan completion, none blocking.** NI-1 (full cross-executor seam instrumentation is not locally achievable; the deliberately dropped half of AC3's `re-partial` classification), NI-2 (the git guardrail is a fixed-pattern denylist, not argv decomposition; AC4's documented limitation), DF-1 (`ai-agent-governance` reciprocal SKIP clause not added; the near-collision is allowlisted and routing is proven correct in both directions), and DF-3 (`defaultMode` omitted from the strict overlay, transferred to v3.16.0 Phase 2 which verifies its enum). The two NI items are scope boundaries recorded so a future reader cannot mistake the shipped controls for something stronger; both are documented in the skill, in the hooks themselves, and in the reverse-engineering matrix.
+**OPEN at plan completion, none blocking.** NI-1 (full cross-executor seam instrumentation is not locally achievable; the deliberately dropped half of AC3's `re-partial` classification), NI-2 (the git guardrail is a fixed-pattern denylist, not argv decomposition; AC4's documented limitation), DF-1 (`ai-agent-governance` reciprocal SKIP clause not added; the near-collision is allowlisted and routing is proven correct in both directions), and DF-3 (`defaultMode` omitted from the strict overlay, transferred to v3.17.0 Phase 2 which verifies its enum). The two NI items are scope boundaries recorded so a future reader cannot mistake the shipped controls for something stronger; both are documented in the skill, in the hooks themselves, and in the reverse-engineering matrix.
 
 **RESOLVED across the plan and its follow-on (13 items).** HO-1 and DF-2 together eliminated the WN-v36-1 class: the 103 failures carried across several releases as "bash cannot be exercised on the Windows dev host" were PATH shadowing, and a `conftest.py` PATH repair now makes both test trees pass with no assistance (658 + 516, zero failures). HO-2 (`NEXUS_HUB_INIT=1` exported by both installers with its self-asserted, advisory-only scope recorded). QG-1 (both CI hardening diffs applied, plus a Windows PowerShell 5.1 leg). And four real defects: BG-1 (`escalation-trigger.sh` was inert in production, reading an environment variable Claude Code does not set), BG-2 (the no-jq fallback did not decode JSON backslash escapes, so Windows paths matched nothing), BG-3 (the PowerShell ledger wrote a UTF-8 BOM, breaking integer parsing and `.sh`/`.ps1` format parity on a shared ledger file), BG-4 (`sha256sum` escapes backslash-containing filenames, so a Windows path produced a 65-character hash), BG-5 (`session-summary.ps1` never parsed, so that hook was dead on Windows from v3.11.0; PRE-EXISTING, found by the new AST gate on its first run), and, in the post-plan follow-on, BG-6 (the two description gates silently failed to BLOCK on a host without `jq`, because a failing `grep` under `set -e` aborted them before they reached the refusal), BG-7 (`git-guardrails.sh` exited 1 on any payload carrying no command, same cause), and BG-8 (both languages' description gates blocked on a malformed payload instead of failing open).
 
@@ -1078,7 +1477,7 @@ Beyond the two fixes: the init carve-out is implemented as a writer-identity sig
 - **The full repo-wide failure set is pre-existing and was baseline-verified in this phase.** A detached worktree at clean `develop` (`189c3df5`) reproduces the same failures as the feature branch. Totals measured this phase: `catalog/hooks/tests` 99 failed / 361 passed / 36 skipped (identical to baseline), `tests/validators` 1 failed (`test_session_query_extract.py::test_discover_obsidian_vault_marker`) / 372 passed, `tests/installer` 3 failed (all three `test_branch_flag.py::test_bash_*`) / 119 passed / 15 skipped, `tests/integrations` 398 passed / 1 skipped, `tests/skills` 209 passed / 3 skipped, and all five extension suites fully green (670 passed). Every failure is the same `bash.EXE` exit-127 path-resolution class described in HO-1, and the set matches the v3.15.5 Advisory exactly. Aggregate: 2129 passed, 103 pre-existing environmental failures, 0 introduced.
 - **The bundle audit reports 6 orphan warnings, all pre-existing `__pycache__/*.pyc` artifacts** in `docs-layout-refactor` (1), `document-to-interactive-html` (4), and `demo-capture` (1). None is in the new skill. They are already covered by `.gitignore` (`__pycache__/` at line 60) so none is tracked, but the audit walks the filesystem rather than the index and still sees them. Left untouched per the no-out-of-scope-cleanup rule; the `demo-capture` one was already recorded as a v3.15.3 advisory.
 - **A stale `.git/worktrees/nh-baseline-dev` metadata directory could not be pruned** (permission denied, most likely a OneDrive or scanner lock). It is not this phase's artifact and predates it, `git worktree list` already excludes it, and nothing inside `.git/` is committed, so it has zero repo impact. The worktree this phase created for baseline verification was removed and its metadata cleaned up successfully.
-- **An unrelated working-tree modification was present and deliberately excluded from this phase's commit**: `docs/v3/v3.16/plans/v3.16.0-agent-autonomy-toggle.md` carries a coherent authored edit (refining that plan's Phase 1 around PowerShell-block coverage and workspace scope) written by a parallel session, not by this phase. It was left unstaged and untouched. Notably, that plan already cites "the v3.15.6 escape taxonomy" and its execution-trigger config paths as a dependency, so a downstream plan is already consuming the list this phase authored.
+- **An unrelated working-tree modification was present and deliberately excluded from this phase's commit**: `docs/v3/v3.16/plans/v3.17.0-agent-autonomy-toggle.md` carries a coherent authored edit (refining that plan's Phase 1 around PowerShell-block coverage and workspace scope) written by a parallel session, not by this phase. It was left unstaged and untouched. Notably, that plan already cites "the v3.15.6 escape taxonomy" and its execution-trigger config paths as a dependency, so a downstream plan is already consuming the list this phase authored.
 - **The unicode-safety validator still reports its pre-existing repo-wide warnings (0 errors).** All four Markdown files touched by this phase are strictly ASCII, verified explicitly.
 
 ## v3.15.7 - adoption-raptor-loop-hunt
@@ -1356,7 +1755,7 @@ Phase 1 converted DF-9 and the GitHub monitor requirements into explicit ownersh
 
 ### v3.15.8 Phase 1 Resolved
 
-- The repository-wide personal-path validator initially found a pre-existing absolute portfolio path in `docs/v3/v3.16/plans/v3.16.7-interactive-guide-redesign.md`. With explicit maintainer authorization, the path was replaced by `../online-portfolio/nexus-hub/index.html`; `python scripts/validate_no_personal_paths.py` now exits 0.
+- The repository-wide personal-path validator initially found a pre-existing absolute portfolio path in `docs/v3/v3.16/plans/v3.20.0-interactive-guide-redesign.md`. With explicit maintainer authorization, the path was replaced by `../online-portfolio/nexus-hub/index.html`; `python scripts/validate_no_personal_paths.py` now exits 0.
 - HO-3 was resolved in Phase 2 by retaining the documented fine-grained-token fallback in `ExtensionContext.secrets` and keeping VS Code GitHub session reuse disabled until billing-endpoint acceptance is proven by an authorized probe.
 
 ### v3.15.8 Phase 1 Summary

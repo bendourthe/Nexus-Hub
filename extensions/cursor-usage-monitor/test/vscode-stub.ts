@@ -32,6 +32,7 @@ const configurationHandlers = new Set<ConfigurationHandler>();
 export const informationMessages: string[] = [];
 export const warningMessages: string[] = [];
 export const warningResponses: Array<string | undefined> = [];
+export const informationResponses: Array<string | undefined> = [];
 export const inputResponses: Array<string | undefined> = [];
 export const openExternalUris: string[] = [];
 
@@ -243,7 +244,20 @@ export const webviewProviders: Array<{
   provider: unknown;
 }> = [];
 
+/** Mirrors the real enum so a theme-dependent renderer can be exercised. */
+export const ColorThemeKind = {
+  Light: 1,
+  Dark: 2,
+  HighContrast: 3,
+  HighContrastLight: 4
+} as const;
+
 export const window = {
+  // The tooltip builder reads this to pick legible text colors. It was absent from
+  // this stub, so every test touching the status bar threw on `.kind` the moment
+  // the SVG bars landed. The production code guards the read; the stub provides it
+  // so the guard is not the only path the suite ever exercises.
+  activeColorTheme: { kind: ColorThemeKind.Dark as number },
   createStatusBarItem(_alignment?: unknown, priority?: number): StubStatusBarItem {
     const item: StubStatusBarItem = {
       text: "",
@@ -281,9 +295,12 @@ export const window = {
       }
     };
   },
-  async showInformationMessage(message: string): Promise<undefined> {
+  async showInformationMessage(
+    message: string,
+    ..._items: unknown[]
+  ): Promise<string | undefined> {
     informationMessages.push(message);
-    return undefined;
+    return informationResponses.shift();
   },
   async showWarningMessage(
     message: string,
@@ -426,6 +443,7 @@ export function resetVscodeStub(): void {
   informationMessages.length = 0;
   warningMessages.length = 0;
   warningResponses.length = 0;
+  informationResponses.length = 0;
   inputResponses.length = 0;
   openExternalUris.length = 0;
   statusItems.length = 0;

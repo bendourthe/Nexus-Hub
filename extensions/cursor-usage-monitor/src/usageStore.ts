@@ -91,6 +91,27 @@ export class UsageStore {
     });
   }
 
+  /**
+   * Drops only the credential-derived cache, leaving manually entered usage in
+   * place. Revoking consent must purge what the session read produced without
+   * discarding data the user typed themselves.
+   */
+  public clearCache(): Promise<void> {
+    return this.serializeWrite(async () => {
+      const previousSnapshot = this.state.get<unknown>(SNAPSHOT_KEY);
+      try {
+        await this.state.update(SNAPSHOT_KEY, undefined);
+      } catch (error) {
+        try {
+          await this.state.update(SNAPSHOT_KEY, previousSnapshot);
+        } catch {
+          // Best effort only: the caller retains and re-renders prior state.
+        }
+        throw error;
+      }
+    });
+  }
+
   public clear(): Promise<void> {
     return this.serializeWrite(async () => {
       const previousSnapshot = this.state.get<unknown>(SNAPSHOT_KEY);
@@ -153,6 +174,54 @@ export class UsageStore {
       // Best effort only: callers retain and re-render their prior in-memory state.
     }
   }
+}
+
+/**
+ * What the user is actually looking at. Kept here rather than in the panel so the
+ * status bar, dashboard, and runtime notices cannot drift into describing the same
+ * snapshot three different ways.
+ */
+export type UsageProvenance = "live" | "cache" | "manual";
+
+const STALE_REASON_TEXT: Record<StaleReason, string> = {
+  "age-threshold": "older than the staleness window",
+  "fetch-failed": "the last refresh failed",
+  "rate-limited": "Cursor rate limited the refresh",
+  "authentication-required": "the Cursor session needs re-authorizing",
+  "visibility-restricted": "this account role cannot see spending",
+  "schema-drift": "the usage response no longer matches the approved contract",
+  "period-reset-passed": "the billing period reset after this data was captured",
+  "allowance-unavailable": "the allowance denominator is unavailable"
+};
+
+export function snapshotProvenance(snapshot: UsageSnapshot): UsageProvenance {
+  if (snapshot.source === "manual") {
+    return "manual";
+  }
+  if (snapshot.source === "cache") {
+    return snapshot.cachedFrom === "manual" ? "manual" : "cache";
+  }
+  return "live";
+}
+
+/**
+ * Renders provenance and staleness as one phrase. A stale snapshot always says so,
+ * which is the guarantee that stale data is never presented as current.
+ */
+export function describeProvenance(snapshot: UsageSnapshot): string {
+  const origin = provenanceText(snapshotProvenance(snapshot));
+  return snapshot.stale
+    ? `${origin} (stale: ${STALE_REASON_TEXT[snapshot.staleReason]})`
+    : origin;
+}
+
+function provenanceText(provenance: UsageProvenance): string {
+  if (provenance === "live") {
+    return "Live Cursor usage";
+  }
+  return provenance === "manual"
+    ? "Manually entered usage"
+    : "Cached Cursor usage";
 }
 
 export function refreshSnapshot(

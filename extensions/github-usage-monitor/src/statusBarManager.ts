@@ -12,7 +12,7 @@ export class StatusBarManager {
   public constructor(private readonly dashboardCommandId: string) {
     this.item = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 101);
     this.item.command = dashboardCommandId;
-    this.item.name = "GitHub Usage Monitor";
+    this.item.name = "GitHub Billing Usage";
   }
 
   public show(state: UsageState): void {
@@ -22,7 +22,7 @@ export class StatusBarManager {
   }
 
   public showLoading(): void {
-    this.item.text = "$(sync~spin) GitHub Usage";
+    this.item.text = "$(sync~spin) GitHub Billing";
     this.item.tooltip = "Refreshing authorized GitHub billing usage.";
   }
 
@@ -31,7 +31,7 @@ export class StatusBarManager {
 
 export function buildStatusText(snapshot: UsageSnapshot | undefined, stale = false, compact?: boolean): string {
   const isCompact = compact ?? vscode.workspace.getConfiguration("githubUsage").get<boolean>("compactStatusBar", false);
-  const label = isCompact ? "" : "GitHub Usage: ";
+  const label = isCompact ? "" : "GitHub Billing: ";
   if (snapshot === undefined) return `${GITHUB_ICON}${ICON_GAP}${label}--${stale ? " $(warning)" : ""}`;
   const metrics = [snapshot.copilot, snapshot.actionsMinutes, snapshot.actionsStorage]
     .filter((metric): metric is UsageMetric & { percentage: number } => metric.percentage !== null)
@@ -46,7 +46,7 @@ export function buildHoverMarkdown(state: UsageState, now = Date.now()): vscode.
   md.supportThemeIcons = true;
   md.supportHtml = true;
   if (state.data === undefined) {
-    md.appendMarkdown(`**GitHub Usage**<br><br>${escapeHtml(state.error?.message ?? "No billing data yet.")}<br><br>Click to open the dashboard.`);
+    md.appendMarkdown(`**GitHub Billing Usage**<br><br>${escapeHtml(state.error?.message ?? "No billing data yet.")}<br><br>Click to open the dashboard.`);
     return md;
   }
   const snapshot = state.data;
@@ -57,7 +57,7 @@ export function buildHoverMarkdown(state: UsageState, now = Date.now()): vscode.
   ].join("");
   const freshness = snapshot.stale || state.state === "stale" ? "Stale cache" : "Fresh";
   md.appendMarkdown(
-    `**GitHub Usage**<br><br>${sections}` +
+    `**GitHub Billing Usage**<br><br>${sections}` +
     `Owner: ${escapeHtml(snapshot.owner.name)} (${snapshot.owner.scope})<br>` +
     `Source: ${snapshot.source} - ${freshness}<br>` +
     `Updated: ${escapeHtml(relativeTime(snapshot.fetchedAt, now))}` +

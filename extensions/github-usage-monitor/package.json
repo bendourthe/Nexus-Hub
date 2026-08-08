@@ -1,7 +1,7 @@
 {
   "name": "github-usage-monitor",
-  "displayName": "GitHub Usage Monitor",
-  "description": "Monitor authorized GitHub Copilot and Actions billing usage without storing credentials in settings",
+  "displayName": "GitHub Billing Usage",
+  "description": "Monitor Actions minutes and storage plus Copilot billing for one GitHub billing owner you configure, without storing credentials in settings",
   "version": "0.1.0",
   "publisher": "nexus-hub",
   "icon": "icon.png",
@@ -28,41 +28,110 @@
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
-      { "command": "github-usage.dashboard", "title": "GitHub Usage: Dashboard", "category": "GitHub Usage" },
-      { "command": "github-usage.refresh", "title": "GitHub Usage: Refresh", "category": "GitHub Usage" },
-      { "command": "github-usage.settings", "title": "GitHub Usage: Settings", "category": "GitHub Usage" },
-      { "command": "github-usage.manualEntry", "title": "GitHub Usage: Enter Allowances", "category": "GitHub Usage" },
-      { "command": "github-usage.clearData", "title": "GitHub Usage: Clear Data", "category": "GitHub Usage" },
+      {
+        "command": "github-usage.openBillingPage",
+        "title": "GitHub Billing: Open Billing Page",
+        "category": "GitHub Billing"
+      },
+      {
+        "command": "github-usage.dashboard",
+        "title": "GitHub Billing: Dashboard",
+        "category": "GitHub Billing"
+      },
+      {
+        "command": "github-usage.refresh",
+        "title": "GitHub Billing: Refresh",
+        "category": "GitHub Billing"
+      },
+      {
+        "command": "github-usage.settings",
+        "title": "GitHub Billing: Settings",
+        "category": "GitHub Billing"
+      },
+      {
+        "command": "github-usage.manualEntry",
+        "title": "GitHub Billing: Enter Allowances",
+        "category": "GitHub Billing"
+      },
+      {
+        "command": "github-usage.clearData",
+        "title": "GitHub Billing: Clear Data",
+        "category": "GitHub Billing"
+      },
+      {
+        "command": "github-usage.diagnoseAuth",
+        "title": "GitHub Billing: Diagnose Authorization",
+        "category": "GitHub Billing"
+      },
+      {
+        "command": "github-usage.logIn",
+        "title": "GitHub Billing: Log In or Switch Account",
+        "category": "GitHub Billing"
+      },
+      {
+        "command": "github-usage.logOut",
+        "title": "GitHub Billing: Log Out of This Monitor",
+        "category": "GitHub Billing"
+      },
       {
         "command": "github-usage.setToken",
-        "title": "GitHub Usage: Set Token",
-        "category": "GitHub Usage"
+        "title": "GitHub Billing: Set Token",
+        "category": "GitHub Billing"
       },
       {
         "command": "github-usage.validateToken",
-        "title": "GitHub Usage: Validate Token",
-        "category": "GitHub Usage"
+        "title": "GitHub Billing: Validate Token",
+        "category": "GitHub Billing"
       },
       {
         "command": "github-usage.rotateToken",
-        "title": "GitHub Usage: Rotate Token",
-        "category": "GitHub Usage"
+        "title": "GitHub Billing: Rotate Token",
+        "category": "GitHub Billing"
       },
       {
         "command": "github-usage.clearToken",
-        "title": "GitHub Usage: Clear Token",
-        "category": "GitHub Usage"
+        "title": "GitHub Billing: Clear Token",
+        "category": "GitHub Billing"
       }
     ],
-    "icons": { "github-icon": { "description": "GitHub icon", "default": { "fontPath": "./fonts/github-icons.woff2", "fontCharacter": "\\E102" } } },
-    "viewsContainers": { "activitybar": [{ "id": "githubUsageWarning", "title": "GitHub Usage Warning", "icon": "icons/warning.svg" }] },
-    "views": { "githubUsageWarning": [{ "id": "githubUsageWarningView", "name": "Usage Warning", "type": "webview", "when": "githubUsage.warningActive" }] },
+    "icons": {
+      "github-icon": {
+        "description": "GitHub icon",
+        "default": {
+          "fontPath": "./fonts/github-icons.woff2",
+          "fontCharacter": "\\E102"
+        }
+      }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "githubUsageWarning",
+          "title": "GitHub Billing Warning",
+          "icon": "icons/warning.svg"
+        }
+      ]
+    },
+    "views": {
+      "githubUsageWarning": [
+        {
+          "id": "githubUsageWarningView",
+          "name": "Usage Warning",
+          "type": "webview",
+          "when": "githubUsage.warningActive"
+        }
+      ]
+    },
     "configuration": {
-      "title": "GitHub Usage Monitor",
+      "title": "GitHub Billing Usage",
       "properties": {
         "githubUsage.billingScope": {
           "type": "string",
-          "enum": ["user", "organization", "enterprise"],
+          "enum": [
+            "user",
+            "organization",
+            "enterprise"
+          ],
           "default": "user",
           "description": "The one GitHub billing owner type queried by this monitor"
         },
@@ -73,7 +142,10 @@
         },
         "githubUsage.copilotMetric": {
           "type": "string",
-          "enum": ["ai-credits", "premium-requests"],
+          "enum": [
+            "ai-credits",
+            "premium-requests"
+          ],
           "default": "ai-credits",
           "description": "The documented Copilot billing counter used for this account"
         },
@@ -99,21 +171,88 @@
           "maximum": 1440,
           "description": "Age after which cached GitHub usage is labeled stale"
         },
-        "githubUsage.autoFetch": { "type": "boolean", "default": true, "description": "Fetch authorized GitHub billing usage on startup and at the configured interval" },
-        "githubUsage.refreshInterval": { "type": "number", "default": 10, "minimum": 1, "maximum": 120, "description": "Minutes between automatic billing refreshes" },
-        "githubUsage.compactStatusBar": { "type": "boolean", "default": false, "description": "Show only the GitHub icon and concise usage value" },
-        "githubUsage.alertMetric": { "type": "string", "default": "highest", "enum": ["highest", "copilot-ai-credits", "copilot-premium-requests", "actions-minutes", "actions-storage"], "description": "Verified percentage metric used for threshold alerts" },
-        "githubUsage.thresholds.moderate": { "type": "number", "default": 50, "minimum": 1, "maximum": 100, "description": "Moderate usage threshold" },
-        "githubUsage.thresholds.high": { "type": "number", "default": 75, "minimum": 1, "maximum": 100, "description": "High usage threshold" },
-        "githubUsage.thresholds.critical": { "type": "number", "default": 95, "minimum": 1, "maximum": 100, "description": "Critical usage threshold" },
-        "githubUsage.notificationTimeoutSeconds": { "type": "number", "default": 12, "minimum": 3, "maximum": 60, "description": "Seconds before the warning view auto-dismisses" },
-        "githubUsage.requestTimeoutMs": { "type": "number", "default": 10000, "minimum": 1000, "maximum": 60000, "description": "GitHub billing request timeout in milliseconds" },
-        "githubUsage.colors.moderate": { "type": "string", "default": "#cca700", "description": "Moderate alert color" },
-        "githubUsage.colors.high": { "type": "string", "default": "#f0643c", "description": "High alert color" },
-        "githubUsage.colors.critical": { "type": "string", "default": "#e05555", "description": "Critical alert color" }
+        "githubUsage.autoFetch": {
+          "type": "boolean",
+          "default": true,
+          "description": "Fetch authorized GitHub billing usage on startup and at the configured interval"
+        },
+        "githubUsage.refreshInterval": {
+          "type": "number",
+          "default": 10,
+          "minimum": 1,
+          "maximum": 120,
+          "description": "Minutes between automatic billing refreshes"
+        },
+        "githubUsage.compactStatusBar": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show only the GitHub icon and concise usage value"
+        },
+        "githubUsage.alertMetric": {
+          "type": "string",
+          "default": "highest",
+          "enum": [
+            "highest",
+            "copilot-ai-credits",
+            "copilot-premium-requests",
+            "actions-minutes",
+            "actions-storage"
+          ],
+          "description": "Verified percentage metric used for threshold alerts"
+        },
+        "githubUsage.thresholds.moderate": {
+          "type": "number",
+          "default": 50,
+          "minimum": 1,
+          "maximum": 100,
+          "description": "Moderate usage threshold"
+        },
+        "githubUsage.thresholds.high": {
+          "type": "number",
+          "default": 75,
+          "minimum": 1,
+          "maximum": 100,
+          "description": "High usage threshold"
+        },
+        "githubUsage.thresholds.critical": {
+          "type": "number",
+          "default": 95,
+          "minimum": 1,
+          "maximum": 100,
+          "description": "Critical usage threshold"
+        },
+        "githubUsage.notificationTimeoutSeconds": {
+          "type": "number",
+          "default": 12,
+          "minimum": 3,
+          "maximum": 60,
+          "description": "Seconds before the warning view auto-dismisses"
+        },
+        "githubUsage.requestTimeoutMs": {
+          "type": "number",
+          "default": 10000,
+          "minimum": 1000,
+          "maximum": 60000,
+          "description": "GitHub billing request timeout in milliseconds"
+        },
+        "githubUsage.colors.moderate": {
+          "type": "string",
+          "default": "#cca700",
+          "description": "Moderate alert color"
+        },
+        "githubUsage.colors.high": {
+          "type": "string",
+          "default": "#f0643c",
+          "description": "High alert color"
+        },
+        "githubUsage.colors.critical": {
+          "type": "string",
+          "default": "#e05555",
+          "description": "Critical alert color"
         }
       }
-    },
+    }
+  },
   "scripts": {
     "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",

@@ -1,7 +1,7 @@
 # Known Gaps - v3.16
 
 **Project**: Nexus-Hub
-**Status**: No v3.16 release has been implemented yet (latest tag `v3.15.5`; `v3.15.6 adoption-sandbox-escapes` is in flight on `feat/adoption-sandbox-escapes`). The v3.16 line currently holds seven committed plans and no implementations: v3.16.0 agent-autonomy-toggle, v3.16.1 adoption-rtk-and-meterless, v3.16.2 adoption-optmem, v3.16.3 adoption-jcodemunch, v3.16.4 platform-defaults-config, v3.16.5 adoption-interface-craft-skills, and v3.16.6 adoption-spec-driven-development.
+**Status**: No v3.16 release has been implemented yet (latest tag `v3.15.5`; `v3.15.6 adoption-sandbox-escapes` is in flight on `feat/adoption-sandbox-escapes`). The v3.16 line currently holds seven committed plans and no implementations: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
 **Last updated**: 2026-07-29 (seeded by the no-mistakes delta comparison; no version-implementation entries yet)
 
 > **File-lifecycle note**: this ledger was created ahead of any v3.16 implementation, by a comparison that deliberately claimed no release slot. It therefore contains ONLY the `## Comparison-Sourced Deferrals` section below. The first v3.16 version-implementation phase to reconcile its gaps should **append** its own `## v3.16.N - <slug>` section rather than replacing this file, and should keep its own `DF-#` / `NI-#` / `QG-#` numbering, which is namespaced separately from the `CD-#` ids used here (see the numbering note in that section).

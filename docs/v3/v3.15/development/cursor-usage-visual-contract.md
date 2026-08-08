@@ -51,8 +51,11 @@ The warning panel may use `cursor-ai-48.png` byte-for-byte at its native dimensi
 - Render separate `Cursor Models` and `Other Models` meters. Never merge their percentages or denominators.
 - Every percentage meter has `role="meter"`, an accessible name, numeric percentage, used amount and unit when known, reset context, source, and freshness.
 - Unknown denominators use an absolute-usage treatment and never render a percentage or invented maximum.
-- On-demand spend is currency text with enabled/disabled/unknown state. It is not a token meter.
-- Teams spend limits are labeled `Shared team context`; they are never a personal meter or `$limit / member_count`.
+- On-demand spend renders as a **third bar** measured against its spend limit (v3.15.12 Phase 2; supersedes the v3.15.9 rule that on-demand was currency text only). Its headline and every numeric label stay in **currency**; the percentage exists solely as bar geometry and `aria-valuetext`. It is still never a token meter, and token, request, percentage, and money units are never converted into one another.
+- The on-demand bar is dropped, not approximated, whenever a fraction would be meaningless: no limit reported, a limit in a different currency from the spend, or a non-positive limit. Those cases fall back to an absolute-spend treatment that says the shared limit is unavailable.
+- An over-limit bar clamps its fill at 100 and states that it is over the shared limit. It never overflows its track or renders a width above 100.
+- Teams spend limits are labeled `Shared team context`; they are never a personal meter or `$limit / member_count`. The on-demand bar therefore carries an explicit annotation naming the sharing scope and the reset date taken from the payload's billing cycle, never a hardcoded day. Measuring personal spend against a shared limit is permitted **only** with that annotation present.
+- Percentages render with up to one decimal, trailing `.0` trimmed, and the same formatter drives the dashboard, status bar, and hover so one pool cannot read `1.7%` in one surface and `2%` in another. Plain rounding overstated a nearly-untouched allowance.
 - Use VS Code theme tokens for text, backgrounds, borders, focus rings, buttons, and tracks.
 - Respect `prefers-reduced-motion`; no decorative animation is required.
 - Webview CSP blocks remote scripts, styles, fonts, and images. Attribution opens only on an explicit user action.

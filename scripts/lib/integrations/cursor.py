@@ -100,7 +100,8 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
         already scopes to shell commands).
 
         `stop` carries the end-of-task completion notification (v3.15.10). Verified
-        2026-08-04 against cursor.com/docs/agent/hooks, which documents `stop` as
+        2026-08-04, and re-verified 2026-08-06 against cursor.com/docs/hooks (the
+        docs moved there from cursor.com/docs/agent/hooks), which documents `stop` as
         "Handle agent completion".
 
         Only ONE of the two notification triggers ships here. Cursor's documented

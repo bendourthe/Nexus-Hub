@@ -91,8 +91,13 @@ export function buildManualSnapshot(
       otherModels: buildMeter(input.otherModels),
       onDemand: buildOnDemand(input),
       teamContext: {
+        // A hand-entered snapshot carries no team-pool figures: the user is typing
+        // their own numbers, not the team's, so these stay null rather than being
+        // inferred from personal spend.
         sharedSpendLimit: null,
-        dynamicSpendLimit: null
+        dynamicSpendLimit: null,
+        sharedSpendUsed: null,
+        sharedSpendRemaining: null
       },
       fetchedAt: new Date(now).toISOString(),
       stale: false,

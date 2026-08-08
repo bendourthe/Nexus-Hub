@@ -1,8 +1,20 @@
-# GitHub Usage Monitor
+# GitHub Billing Usage
 
-A VS Code extension that shows your current-month GitHub Copilot and GitHub Actions consumption in the status bar, with a hover breakdown, a full dashboard, and threshold alerts.
+A VS Code extension that shows your current-month GitHub **billing** consumption in the status bar, with a hover breakdown, a full dashboard, and threshold alerts. It covers **Actions minutes and storage plus Copilot billing** for **one** billing owner you configure.
+
+> **This is not a Copilot-only monitor, and it is not an Actions-only monitor.** It reports both, for a single billing owner (`githubUsage.billingScope` + `githubUsage.billingOwner`). It is also independent of whichever GitHub account Copilot itself is signed in to, so the billing account it reports may differ from your Copilot account.
 
 > Monitoring Claude Code or Codex instead? Those live in the separate **Claude Usage Monitor** (`nexus-hub.claude-usage-monitor`) and **Codex Usage Monitor** (`nexus-hub.codex-usage-monitor`) extensions. All three share no extension id, command, storage key, or view, and install and run side by side.
+
+## Naming and the extension id (v3.15.12)
+
+The extension was renamed from **GitHub Usage Monitor** to **GitHub Billing Usage** because the old name invited the reading that it monitored Copilot, or that it monitored Actions only. The new name and every command title say `GitHub Billing`, and the description names both covered surfaces.
+
+**The extension id deliberately did NOT change.** It remains `nexus-hub.github-usage-monitor`, and the command ids remain `github-usage.*`, the configuration prefix remains `githubUsage.*`, and the storage keys and view ids are untouched.
+
+That was a decision, not an oversight. A VS Code extension id is `publisher.name`, so renaming `name` would mint a *new* extension rather than update the installed one. Anyone who had already installed the old id would end up with **two** extensions installed, both activating on startup and both writing a status-bar item, with no indication which was which. Avoiding that would have required both installers to uninstall the superseded id before installing the new one, which is teardown logic that has to be exactly right on every platform and every re-run, in exchange for a cosmetic id nobody reads. Renaming only the display surfaces is a non-breaking change: an existing install updates in place, keeps its stored token and cached snapshot, and simply shows the new name.
+
+The consequence to know about: searching the Command Palette for "GitHub Usage" no longer matches. Search "GitHub Billing", or just "billing".
 
 ## What it shows
 
@@ -26,7 +38,13 @@ bash scripts/installer.sh
 pwsh scripts/installer.ps1
 ```
 
-Installing does **not** authenticate to GitHub. The extension has no credential until you supply one.
+Installing does **not** send anything to GitHub on its own. On first refresh the monitor looks for a credential in this order, and stops at the first one it finds:
+
+1. **A token you stored explicitly.** Supplying one is a deliberate act, so it always wins - the monitor will not silently substitute a session for a token you chose.
+2. **The editor's own GitHub session**, if you are already signed in. This is what makes the common case zero-setup. The lookup is always *silent*: a background refresh can never raise a sign-in dialog at you.
+3. **Nothing**, in which case the panel names both ways forward rather than just reporting that it is empty.
+
+For a personal billing owner the account name is taken from the signed-in session when you have not configured one, so `user` scope usually needs no setup at all. Organization and enterprise slugs are **never** guessed from your account name - a personal account name is not an org slug, and guessing would report a different entity's spend.
 
 To build and install it on its own:
 
@@ -40,7 +58,7 @@ code --install-extension github-usage-monitor-*.vsix
 
 ### 1. Choose the billing owner
 
-Open the Command Palette and run `GitHub Usage: Settings`, or set these directly:
+Open the Command Palette and run `GitHub Billing: Settings`, or set these directly:
 
 | Setting | Value |
 |---|---|
@@ -49,35 +67,45 @@ Open the Command Palette and run `GitHub Usage: Settings`, or set these directly
 
 The monitor queries exactly one owner. It never merges scopes or guesses an owner from your repositories.
 
-### 2. Store a token
+### 2. Connect, or store a token
 
-Run `GitHub Usage: Set Token` and paste a fine-grained token. It is validated against the billing endpoint before it is saved, and it is stored only in VS Code SecretStorage - never in `settings.json`, never in workspace state, never in a log line.
+If you are signed in to GitHub in the editor, run `GitHub Billing: Refresh` and you may already be done. `GitHub Billing: Log In or Switch Account` reaches GitHub's account picker, so the billing account can deliberately differ from the one Copilot uses; `Log Out of This Monitor` clears only this extension's binding and **cannot** sign you out of the editor's shared session.
+
+Some targets need a token instead: enterprise billing accepts classic PATs only, and an organization that has not authorized OAuth apps or that enforces SSO will refuse a session token. The monitor diagnoses each owner independently and tells you which case you are in, so run `GitHub Billing: Diagnose Authorization` before assuming it is broken.
+
+To store one, run `GitHub Billing: Set Token` and paste a token of the class your billing scope needs (see the table). It is validated against the billing endpoint before it is saved, and it is stored only in VS Code SecretStorage - never in `settings.json`, never in workspace state, never in a log line.
 
 | Scope | Required authorization |
 |---|---|
-| `user` | Fine-grained PAT or GitHub App user token with user `Plan: read` |
-| `organization` | Organization `Administration: read`, and the caller must be an organization administrator |
-| `enterprise` | Enterprise owner or billing manager credential (the billing endpoints do not accept fine-grained PATs here) |
+| `user` | Fine-grained PAT or GitHub App user token with user `Plan: read`. A classic PAT also works and is what GitHub's own usage-reporting tutorial recommends |
+| `organization` | Organization `Administration: read`, and the caller must be an organization administrator. A classic PAT also works, per the same tutorial |
+| `enterprise` | **Classic PAT** with an enterprise owner or billing manager role. The billing endpoints explicitly do **not** accept fine-grained PATs or GitHub App tokens at this scope |
 
-`GitHub Usage: Validate Token` re-checks the stored credential, `GitHub Usage: Rotate Token` replaces it, and `GitHub Usage: Clear Token` deletes it from SecretStorage.
+> **Which token class?** GitHub's first-party docs currently disagree for user and organization scope: the REST endpoint reference says fine-grained PATs work, while the "Automating usage reporting" tutorial says the billing usage endpoints do not support them and directs you to a classic PAT. If a fine-grained token is rejected, try a classic PAT. Enterprise scope is unambiguous: classic PAT only. The conflict and the evidence behind it are recorded in [github-billing-auth-probe.md](../../docs/v3/v3.15/development/github-billing-auth-probe.md).
+>
+> When a token is refused for permissions, the error now quotes GitHub's own answer from the `X-Accepted-OAuth-Scopes` response header, so it names the scope the operation would accept rather than only what the extension expected.
+
+`GitHub Billing: Validate Token` re-checks the stored credential, `GitHub Billing: Rotate Token` replaces it, and `GitHub Billing: Clear Token` deletes it from SecretStorage.
+
+`GitHub Billing: Open Billing Page` opens GitHub's own billing page for the resolved owner, which stays the authoritative source for any figure you want to verify.
 
 ### 3. Set allowances if you want percentages
 
-GitHub reports what you consumed. It does not guarantee an included allowance, so a percentage is only shown when a denominator is actually known. Supply one per metric with `GitHub Usage: Enter Allowances` or the `githubUsage.allowances.*` settings, in the same unit the metric is reported in. Until then the meters show absolute usage, which is the honest reading rather than a fabricated `0%`.
+GitHub reports what you consumed. It does not guarantee an included allowance, so a percentage is only shown when a denominator is actually known. Supply one per metric with `GitHub Billing: Enter Allowances` or the `githubUsage.allowances.*` settings, in the same unit the metric is reported in. Until then the meters show absolute usage, which is the honest reading rather than a fabricated `0%`.
 
 ## Commands
 
 | Command | Description |
 |---|---|
-| `GitHub Usage: Dashboard` | Open the current-month Copilot and Actions dashboard |
-| `GitHub Usage: Refresh` | Fetch usage now |
-| `GitHub Usage: Settings` | Scope, allowances, refresh, thresholds, and alert colors |
-| `GitHub Usage: Enter Allowances` | Supply verified allowances manually |
-| `GitHub Usage: Clear Data` | Remove the cached snapshot and alert state |
-| `GitHub Usage: Set Token` | Store a validated token in SecretStorage |
-| `GitHub Usage: Validate Token` | Re-check the stored token |
-| `GitHub Usage: Rotate Token` | Replace the stored token |
-| `GitHub Usage: Clear Token` | Delete the stored token |
+| `GitHub Billing: Dashboard` | Open the current-month Copilot and Actions dashboard |
+| `GitHub Billing: Refresh` | Fetch usage now |
+| `GitHub Billing: Settings` | Scope, allowances, refresh, thresholds, and alert colors |
+| `GitHub Billing: Enter Allowances` | Supply verified allowances manually |
+| `GitHub Billing: Clear Data` | Remove the cached snapshot and alert state |
+| `GitHub Billing: Set Token` | Store a validated token in SecretStorage |
+| `GitHub Billing: Validate Token` | Re-check the stored token |
+| `GitHub Billing: Rotate Token` | Replace the stored token |
+| `GitHub Billing: Clear Token` | Delete the stored token |
 
 ## Settings
 
@@ -139,7 +167,7 @@ Errors are typed and specific: an expired credential, a missing `Plan: read`, a 
 - The token lives in VS Code SecretStorage. It is never written to settings, never logged, and never echoed back in any panel.
 - No website is scraped. `github.com/settings/billing` is never fetched, and browser cookies and sessions are never read.
 - Nothing is mutated: no budgets, billing settings, Copilot seats, workflows, repositories, or memberships.
-- The cached snapshot lives in VS Code `globalState` on your machine, under keys that do not collide with the Claude or Codex monitors. `GitHub Usage: Clear Data` removes it.
+- The cached snapshot lives in VS Code `globalState` on your machine, under keys that do not collide with the Claude or Codex monitors. `GitHub Billing: Clear Data` removes it.
 
 ## Development
 

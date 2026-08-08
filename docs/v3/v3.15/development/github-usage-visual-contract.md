@@ -1,4 +1,4 @@
-# GitHub Usage Monitor Visual Contract
+# GitHub Billing Usage Visual Contract
 
 **Version:** v3.15.8
 **Brand meter color:** `#008080`
@@ -45,7 +45,7 @@ The source wrapper translations combine to `translate(-84, -7399)`. Phase 3 appl
 
 ## License and Trademark Gate
 
-The status source is published as CC0 by SVG Repo. The Streamline free icon is used with the required "Free icon from Streamline" attribution in `THIRD_PARTY_NOTICES.md` and the warning view. The extension is titled "GitHub Usage Monitor" and described as an independent monitor; no text claims endorsement. The mark remains an Octocat silhouette and is not presented as Nexus-Hub's product identity.
+The status source is published as CC0 by SVG Repo. The Streamline free icon is used with the required "Free icon from Streamline" attribution in `THIRD_PARTY_NOTICES.md` and the warning view. The extension is titled "GitHub Billing Usage" (renamed from "GitHub Usage Monitor" in v3.15.12 Phase 3; the extension id `nexus-hub.github-usage-monitor` is deliberately unchanged) and described as an independent monitor covering Actions minutes and storage plus Copilot billing for one configured billing owner; no text claims endorsement. The mark remains an Octocat silhouette and is not presented as Nexus-Hub's product identity.
 
 ## Mechanical Acceptance Results
 

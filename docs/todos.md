@@ -16,9 +16,9 @@
 | Phase 5 tasks complete | 4 | 4 | 0 |
 | Phase 6 tasks complete | 4 | 4 | 0 |
 | Phase 7 tasks complete | 4 | 4 | 0 |
-| v3.16.8 CI/CD plan phases complete | 0 | 8 | 8 |
-| v3.16.9 planning milestones complete | 2 | 2 | 0 |
-| v3.16.9 plan phases complete | 0 | 8 | 8 |
+| v3.19.0 CI/CD plan phases complete | 0 | 8 | 8 |
+| v3.16.1 planning milestones complete | 2 | 2 | 0 |
+| v3.16.1 plan phases complete | 0 | 8 | 8 |
 | Local release integration | 1 | 1 | 0 |
 | Release metadata and docs | 1 | 1 | 0 |
 | Platform contract audit | 1 | 1 | 0 |
@@ -103,7 +103,7 @@
 - [x] Audit all CI workflows for coverage and action-minute optimization
 - [x] Run validation, coverage, full tests, hook tests, and release-readiness checks
 
-## Parallel Plan - v3.16.8 Cost-Effective CI/CD
+## Parallel Plan - v3.19.0 Cost-Effective CI/CD
 
 - [ ] Complete Phase 1: Canonical Lifecycle Contract and Baseline Audit
 - [ ] Complete Phase 2: Canonical CI/CD Skill Architecture
@@ -114,10 +114,10 @@
 - [ ] Complete Phase 7: Nexus-Hub Workflow Migration
 - [ ] Complete Phase 8: Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
 
-## Parallel Plan - v3.16.9 Evaluation Methodology and Selective Installation
+## Parallel Plan - v3.16.1 Evaluation Methodology and Selective Installation
 
-- [x] Complete `docs/v3/v3.16/comparisons/v3.16.9-comparison-evals-skills-and-claude-codex-settings.md`
-- [x] Generate and approve `docs/v3/v3.16/plans/v3.16.9-adoption-evals-and-selective-installation.md`
+- [x] Complete `docs/v3/v3.16/comparisons/v3.16.1-comparison-evals-skills-and-claude-codex-settings.md`
+- [x] Generate and approve `docs/v3/v3.16/plans/v3.16.1-adoption-evals-and-selective-installation.md`
 - [ ] Complete Phase 1: Evaluation Contract and RAG Metrics
 - [ ] Complete Phase 2: Evaluation Pipeline Audit Skill
 - [ ] Complete Phase 3: Error Analysis and Evaluator Calibration
