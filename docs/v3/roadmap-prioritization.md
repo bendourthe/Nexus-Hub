@@ -1,7 +1,7 @@
 # v3.16 / v3.17 Roadmap Prioritization
 
 **Created**: 2026-08-07
-**Scope**: the 12 unimplemented plans in `docs/v3/v3.16/` and `docs/v3/v3.17/`
+**Scope**: the 12 unimplemented plans in `docs/v3/v3.16/` and `docs/v3/v3.17/`, plus the LoopX plan that lived only on `develop` and was found during the release merge
 **Purpose**: establish a priority order, classify each plan as patch or feature work, and drive a renumbering so the filenames carry the order.
 
 ---
@@ -31,6 +31,7 @@ The `Previously` column records the number each plan carried before this pass. I
 | 1 | spec-driven-development | `v3.15.14` | `v3.16.6` | **Patch** | It is an active defect, not an enhancement: the canonical spec template cannot express a scope boundary, so every reviewer run on a conformant spec raises a finding the template itself caused, and the skill's Verification checklist validates a rival inline template so "spec complete" is checked against the wrong thing. Users hit this today. Smallest change, highest certainty. |
 | 2 | platform-defaults-config | `v3.16.0` | `v3.16.4` | **Feature** | The highest-leverage item on the list. One edit propagates to every derived artifact, and a guard fails the build on drift. Installer and registry drift is the most recurrent defect class in this repository's history, and this is the plan that makes it structurally impossible rather than caught by review. Shipping it early means the larger plans inherit the guard. |
 | 3 | evals-and-selective-installation | `v3.16.1` | `v3.16.9` | **Feature** | Selective installation is the largest standing user complaint the roadmap addresses: every user installs the full catalog even though profiles, modules, and role bundles already describe smaller coherent sets. The eval half gives every later plan a way to prove it improved something. |
+| 3.5 | loop-longevity-and-doctor-preflight | `v3.16.2` | `v3.15.13` | **Feature** | Not in the original inventory - it existed only on `develop`, which is also why it collided with the release number. Two halves: long-horizon loop concepts (typed human-judgment gates, evidence freshness, resumable instance state), and a `doctor` preflight that verifies what the installer actually landed. The preflight belongs near `platform-defaults-config`, because "verify what landed against what was declared" is the same question the drift guard answers from the other side. |
 | 4 | agent-autonomy-toggle | `v3.17.0` | `v3.16.0` | **Feature** | High user value (removes approval friction on every platform with a verified lever) but it changes the security posture, so it wants the drift guard already in place and deserves its own release rather than riding along with others. |
 | 5 | code-intelligence-hardening | `v3.18.0` | `v3.16.3` | **Feature** | Direct and measurable cost reduction on `nexus-code-search`, with a deterministic local harness to prove it. Contained to one subsystem. |
 | 6 | agent-memory-substrate | `v3.18.1` | `v3.16.2` | **Feature** | A genuinely new subsystem. Ranked above its overlapping sibling because it defines the substrate; the other consumes it. |
