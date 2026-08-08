@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [3.15.14] - 2026-08-08
 
 Spec artifact reconciliation and proportional spec depth, from the v3.15.14 plan at `docs/v3/v3.15/plans/v3.15.14-spec-driven-development.md`. Every change is prose in files this repository already owns. No new skill was created, so the catalog count is unchanged at 270 skills, and no MCP, outbound call, credential, or dependency is introduced.
 
