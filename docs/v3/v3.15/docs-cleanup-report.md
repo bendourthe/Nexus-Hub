@@ -326,3 +326,19 @@ The skill body grew from 445 to 469 lines, which is 31 under the 500-line target
 Marker sweep over the changed file: zero `TODO` / `FIXME` / `XXX` / `HACK` / `# DEVIATION:` hits. No scratch artifact was produced and no `.gitignore` pattern was needed.
 
 The 8 untracked empty directories under `catalog/skills/` are unchanged and were again left in place, for the reason recorded in every prior audit in this version.
+
+## v3.15.14 Phase 4 audit (2026-08-08) - terminal-phase refactor gate
+
+**Mode**: Audit, then apply with maintainer confirmation. This is the plan's final phase, so the mandatory refactor gate ran rather than an audit-only pass.
+
+**The plan's two specific checks are clean.** No orphaned reference to the removed inline spec template survives anywhere in `catalog/`, `guides/`, or `docs/`: a sweep for the distinctive "Objective / Commands / Project Structure / Code Style / Boundaries" cluster attributed to a spec returns nothing. The single `### Objective` heading remaining under `catalog/` belongs to `competitive-generation`'s task-brief template (Objective plus Acceptance Criteria for a competitive-generation brief), which is unrelated and correctly untouched. `catalog/templates/` gained no stray file across the whole plan; it still holds exactly `constitution-template.md`, `spec-quality-checklist.md`, and `spec-template.md`, so no installer registration is required in either installer.
+
+**Eleven empty directories were removed, reversing this version's standing posture on an explicit maintainer decision.** Every prior audit (v3.15.5, v3.15.7, and v3.15.14 Phases 1 to 3) reported the 8 untracked empty directories under `catalog/skills/` and left them as a parallel session's scaffolding. This phase surfaced them again plus a ninth, `docs/v3/v3.17/comparisons`, and the maintainer chose deletion. Each was removed only after verifying it was genuinely empty AND carried zero tracked files. Removing the `scripts/` children exposed two parent shells that held no `SKILL.md` (`catalog/skills/testing/visual-regression-testing` and `catalog/skills/tests-generation/performance-regression-gate`); both passed the same two-part test and were removed. `git status` is unchanged by all eleven removals, which is the proof of zero repository impact.
+
+The decision was better than the precedent it reversed: `validate_skills.py --bundles-only` warnings fell from **18 to 11**, because several of the removed `scripts/` directories were producing orphan-bundle warnings. The standing "report and leave" posture was defensible on the grounds given (do not delete another session's work-in-progress) but was quietly costing validator signal, and nothing tracked was ever at risk.
+
+**Layout otherwise unchanged.** No committed file moved or was renamed across the whole plan, so no reference repair was needed at any phase. The `docs/v3/v3.15/` tree stays canonical (comparisons / development / plans / known-gaps / this report). No tracked build or coverage artifact exists: `git ls-files` matches nothing under `out/`, `coverage/`, or `*.vsix`. No untracked file sits under `docs/`.
+
+**One file was added outside `catalog/` this phase**: `tests/skills/test_spec_artifact_agreement.py`, the MT-1 guard. It lands in the existing `tests/skills/` tree that CI already runs as a directory, so it needs no new job and no installer registration (repo-internal tests are not a distributed surface).
+
+**Marker sweep across every file this version changed**: zero `TODO` / `FIXME` / `XXX` / `HACK` / `# DEVIATION:` markers. Deviations and decisions live in `known-gaps.md` and the session histories, not inline.

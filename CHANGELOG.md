@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+Spec artifact reconciliation and proportional spec depth, from the v3.15.14 plan at `docs/v3/v3.15/plans/v3.15.14-spec-driven-development.md`. Every change is prose in files this repository already owns. No new skill was created, so the catalog count is unchanged at 270 skills, and no MCP, outbound call, credential, or dependency is introduced.
+
+### Fixed
+
+- **The spec template can now express a scope boundary that three surfaces already audited it for.** `spec-quality-checklist.md` asked whether "Scope is clearly bounded", the `scope-guardian-reviewer` agent flagged a missing out-of-scope section, and `idea-refine` gated on scope being explicitly bounded, but `catalog/templates/spec-template.md` had no section holding that content. Every reviewer run on a template-conformant spec therefore raised a finding the template itself caused. The template gains a mandatory `## Non-Goals` section requiring a reason per entry, the checklist item is bound to it, and the reviewer now names the heading the template actually produces.
+- **The `spec-driven-development` completion gate validates the canonical template instead of a rival one.** The skill told authors to use `spec-template.md`, then presented a different inline template further down, and its Verification checklist validated the inline one's areas ("Objective, Commands, Structure, Style, Testing, Boundaries"). "Spec complete" was checked against an artifact the workflow never produces. The skill now declares one canonical skeleton, the rival is removed in both its code-block and prose forms, and the Verification checklist enumerates the canonical template's sections.
+- **`idea-refine`'s hand-off no longer drops the reason.** Its `**Out of Scope**` block is the upstream producer of the spec's `## Non-Goals`, which mandates a reason per entry, so the reason is now produced at the source and the documented copy-not-rewrite hand-off cannot silently fail the checklist.
+
+### Added
+
+- **`## Problem Statement` and `## Invariants` template sections.** Problem Statement is mandatory and first, carrying the actor, the failure, and the observable outcome forward from `idea-refine`. Invariants is required whenever a change touches existing behavior and declares what must not break. Each section states its boundary against its neighbour at the point of use, because the Non-Goal / Assumption and Non-Goal / Invariant distinctions are the ones authors get wrong.
+- **A blast-radius spec-depth tier rule.** Depth now scales with how far a wrong assumption propagates rather than with effort or line count: an internal single-file change needs a problem statement, acceptance criteria, and Non-Goals; a multi-file change adds user scenarios, FR items, and assumptions; a change to behavior, a public API, a data schema, or a CLI surface needs the full template. **The hard approval gate is unchanged and remains unconditional** - the rule scales the document, never the agreement, and the gate's "applies regardless of how simple the change looks" and "Silence is not approval" clauses are untouched.
+- **Mandatory plan-layer failure-mode coverage.** `implementation-plan` now requires, for every component a plan introduces or changes, a statement of what happens on malformed or absent inputs, on an unreachable or slow dependency, and when two operations conflict. This composes with the spec rather than duplicating it: the spec names the user-visible edge case, the plan names the handling. Pushing error handling, data models, interfaces, or schemas into the spec to close this gap is explicitly prohibited.
+- **A scaffolding-versus-load-bearing build class** on plan sub-tasks, so a reviewer can tell disposable code from the code that proves the design without guessing from the diff.
+- **A guard test for the three spec artifacts** (`tests/skills/test_spec_artifact_agreement.py`, 21 cases). It asserts the template carries its mandatory headings, that the skill's Verification checklist names each of them, that the checklist's scope item is bound to `## Non-Goals` on its own line, and that the reviewer agrees with the template's heading. Prose artifacts have no compiler, and this class of silent disagreement is exactly what produced the defects above.
+
+---
+
 ## [3.15.13] - 2026-08-07
 
 Phases 6 to 9 of the v3.15.12 plan, split into their own release. They were not planned work: the version's own conclusion that Cursor exposes no personal usage API turned out to be wrong, and correcting it produced a live transport, a UI rewrite across three surfaces, and a set of defects worth naming. Shipping that under a patch number alongside the planned scope would have buried it. The inline `v3.15.12 Phase N` references below point at the plan that produced them, which is `docs/v3/v3.15/plans/v3.15.12-cursor-live-transport-and-github-billing-monitor.md`.

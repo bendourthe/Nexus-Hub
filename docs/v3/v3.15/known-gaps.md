@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: `v3.15.0` through `v3.15.9` are all released and tagged (10 releases). v3.15.10 Phases 1-4 are complete locally on `feat/v3.15.10-end-of-task-behavior`: two purposeful notification triggers with repo+branch labels and a run-time kill switch, the end-of-task summary rule in all 12 substantive instruction templates, per-platform notification-coverage verification with delivery to Cursor, and the terminal gate. Awaiting `/update release`.
-**Last updated**: 2026-08-07 (v3.15.14 Phase 3 append)
+**Last updated**: 2026-08-08 (v3.15.14 Phase 4 final reconciliation; release-ready, handed to `/update release`)
 
 **Current v3.15.9 status**: Phases 1-7 run on `feat/v3.15.9-cross-provider-routing`, based on the released v3.15.8 `develop`. Claude/Codex/GitHub monitors install only into VS Code; Cursor Usage Monitor installs only into Cursor. Focused CI builds/packages the Cursor VSIX and degrades E2E when the hosted runner lacks the Cursor CLI, pointing at the live-smoke checklist. Phase 7 reconciled this ledger, confirmed CI coverage and optimization, and completed the README/CHANGELOG record; the remaining steps are the maintainer-approved branch push, the integration PR to protected `develop`, and `/update release` after green integration.
 
@@ -15,6 +15,81 @@
 > **Scope note (version collision, RESOLVED)**: three plans under `docs/v3/v3.15/plans/` were all stamped `v3.15.0` (`platform-parity-all-gaps`, `adoption-codesight`, and `adoption-awesome-llm-apps`). This was the comparison-versioning artifact (plans stamped with the authoring-cycle version, not the real adoption target). Reconciled on 2026-07-22 by re-stamping: v3.15.0 = platform-parity-all-gaps, v3.15.1 = adoption-codesight, v3.15.2 = adoption-awesome-llm-apps. See the v3.15.1 QG-2 (Resolved) entry.
 
 ## v3.15.14 - spec artifact reconciliation and proportional spec depth
+
+### v3.15.14 Phase 4 - FINAL RECONCILIATION (release-ready)
+
+**Status**: Phase 4 (Architecture Refactor, Known-Gaps Reconciliation, and CI/CD) complete on `feat/adoption-spec-driven-development`. This is the plan's terminal phase, so the release-readiness workflow ran. The version bump, changelog stamp, tag, and push are handed to `/update release` and were NOT performed here.
+
+**Final disposition of every v3.15.14 open item**: 2 closed this phase (QG-1, MT-1), 1 closed in Phase 2 (NI-1), 2 transferred to v3.16 (NI-2 as TR-1, the spec-kit S5/S6/S8 non-claim as TR-2), 1 closed on verification rather than transferred (the setup-node pin, recorded as TR-3), 3 recorded as decisions or enhancements needing no action (DF-1, EN-1, DC-1). **No open item remains and no release blocker exists.**
+
+#### 4.1 Architecture refactor
+
+Near-no-op as the plan predicted, with one deliberate departure from precedent.
+
+Both of the plan's specific checks are clean. **No orphaned reference to the removed inline spec template survives** anywhere in `catalog/`, `guides/`, or `docs/`: a sweep for the distinctive "Objective / Commands / Project Structure / Code Style / Boundaries" cluster attributed to a spec returns nothing. The one `### Objective` heading remaining in `catalog/` is `competitive-generation`'s task-brief template (Objective plus Acceptance Criteria for a competitive-generation brief), which is unrelated and correctly left alone. **`catalog/templates/` gained no stray file**: it still holds exactly `constitution-template.md`, `spec-quality-checklist.md`, and `spec-template.md`, so no installer registration is required in either `scripts/installer.sh` or `scripts/installer.ps1`.
+
+**The empty-directory posture changed, on an explicit maintainer decision.** Every prior audit in this version (v3.15.5, v3.15.7, and v3.15.14 Phases 1 to 3) reported the 8 untracked empty directories under `catalog/skills/` and left them in place as a parallel session's scaffolding. This phase surfaced them again along with a ninth (`docs/v3/v3.17/comparisons`), and the maintainer chose deletion over the precedent. All nine were removed after verifying each was genuinely empty AND carried zero tracked files; removing them exposed two parent shells (`catalog/skills/testing/visual-regression-testing`, `catalog/skills/tests-generation/performance-regression-gate`) that had held only a `scripts/` child and no `SKILL.md`, and those were removed on the same test. `git status` is unchanged by all eleven removals, confirming zero repository impact.
+
+That decision turned out better than the precedent: `validate_skills.py --bundles-only` warnings dropped from **18 to 11**, because several of the removed `scripts/` directories were generating orphan-bundle warnings. The precedent was defensible but was quietly costing validator signal.
+
+No committed file moved or was renamed, so no reference repair was needed. The docs tree stays canonical, no tracked build or coverage artifact exists (`git ls-files` matches nothing under `out/`, `coverage/`, or `*.vsix`), and no untracked file sits under `docs/`.
+
+#### 4.2 Reverse-engineering matrix
+
+`docs/policy/mcp-reverse-engineering-matrix.md` gains an "Adopted in the v3.15.14 spec-driven-development cycle" section: seven rows, one per candidate. D1, D2, and D7 are classified `re-full` (local artifact edits to owned templates and skills); D6, D5, D4, and D3 are `skill-native` under MCP Registry Policy tier 2. The Rationale column names all three external sources (the spec-driven-development article attributed to Gregor Ojstersek, the `obra/superpowers` example specification, and `github/spec-kit`) and states that per the Reverse-Engineering Attribution Rule none is named in any distributed artifact, which was verified.
+
+Both policy declines are recorded with their actual grounds. The **Spec Kit CLI is declined as redundant, not as a trust concern**: all ten `speckit.*` commands have first-party equivalents, so tier 2's preference for an LLM-native skill over an external tool applies. **Architecture-in-the-spec is declined on layering grounds, not trust grounds**: it conflicts with the normative-versus-context split and would fail `spec-quality-checklist.md`'s implementation-detail checks, so a spec written to the source's shape would fail its own quality gate. The one genuine sub-gap (error handling) was adopted at the plan layer as D4 instead.
+
+Cycle-wide confirmation recorded in the matrix: no adopted item introduces an MCP entry, an outbound call, an API key, a third-party data processor, or a runtime dependency. `catalog/mcp-configs/mcp-servers.json` is untouched and the registry size is unchanged.
+
+#### 4.3 Known-gaps reconciliation and transfers
+
+**Closed this phase:**
+
+- **QG-1 - CLOSED.** The plan asserts a 269-skill catalog in its Overview and in sub-task 4.4; validation reports **270**. The plan's reasoning was sound (this plan creates no skill, so the count is unchanged BY THIS PLAN) but its literal figure had gone stale because a parallel workstream shipped a skill in between. The CHANGELOG entry states 270, re-derived from validator output rather than transcribed from the plan.
+- **MT-1 - CLOSED.** `tests/skills/test_spec_artifact_agreement.py` now guards the three-artifact agreement: 21 cases asserting the template carries its mandatory headings and marks them mandatory, that the skill's Verification checklist names each one, that the skill declares exactly one canonical skeleton and no rival has returned, that the checklist's scope item is bound to `## Non-Goals` **on its own line**, that a reason-per-entry item exists, that the reviewer agrees with the template's heading, and that the template still mandates a reason per Non-Goal. CI already runs `tests/skills`, so it is covered without a workflow change; the step label was updated to name it.
+
+  **The guard was mutation-tested, and the first draft failed that test.** Three mutations were applied and reverted: unbinding `## Non-Goals` from the checklist's scope item, deleting the reason-per-entry item, and repointing the skill's Verification at the rival template's six areas. The third failed correctly on the first draft, but **the first mutation passed**, because the assertion was `"Non-Goals" in checklist` and the heading is also named in the Content Quality section. The test asserted presence of a token rather than the binding. It was rewritten to check the scope line itself, and all three mutations now fail while the baseline passes 21. Recorded because a guard that passes on the defect it was written to catch would have closed MT-1 on a false guarantee.
+
+**Transferred to v3.16** (see [docs/v3/v3.16/known-gaps.md](../v3.16/known-gaps.md), `TR-#` namespace):
+
+- **NI-2 becomes TR-1**: the `A1` example still phrases a Non-Goal as an Assumption. Left by plan instruction; the Non-Goals authoring note names it as the worked illustration. Fixing it while the note still points at it would remove the evidence, so the rewrite belongs to whichever cycle next touches the template.
+- **The spec-kit non-claim becomes TR-2**: v3.11.0 items S5, S6, and S8 were not re-examined by this article-scoped pass and carry **no status claim** in either direction. A future repository-delta comparison must verify them rather than infer from this cycle.
+
+**Closed on verification instead of transferred:**
+
+- **TR-3**: the plan directed transferring "`actions/setup-node@v4` remains tag-pinned at `.github/workflows/claude-usage-monitor.yml`:31". Verification found it SHA-pinned at line 38, along with all three siblings (`codex`, `cursor`, `github` monitor workflows), all at `@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4`, and `validate_workflow_security.py` passes. Transferring it would have carried a false open item into the v3.16 ledger. Recorded as closed rather than dropped silently, so a reader of the plan is not left expecting a transfer that never arrived.
+
+**Phase 1.4 remainder**: none. The plan's fourth transfer was conditional ("if Phase 1.4 revealed that `idea-refine` or `scope-guardian-reviewer` needed more than a naming reconciliation"). Both needed only the minimum change, so there is no deferred remainder to record.
+
+**Needing no action**: DF-1 (Phase 1, resolved in place), EN-1 (Phase 2, an enhancement beyond the plan), DC-1 (Phase 3, the `implementation-plan` skill choice).
+
+**Marker sweep across every file this version changed**: zero `TODO` / `FIXME` / `XXX` / `HACK` / `# DEVIATION:` markers. The plan's deviations and decisions are recorded in this ledger and in the session histories, not left inline.
+
+#### 4.4 CHANGELOG
+
+`CHANGELOG.md` had **no `## [Unreleased]` section** (the file went straight from its header to `## [3.15.13]`), so the section was created rather than appended to. It carries Fixed entries for the template's missing scope boundary, the completion gate validating the wrong artifact, and `idea-refine`'s reasonless hand-off; and Added entries for Problem Statement and Invariants, the blast-radius depth tier (noting explicitly that the hard approval gate is unchanged and unconditional), plan-layer failure-mode coverage, the build-class convention, and the new guard test. ASCII-only. The catalog count is stated as **270**, not the plan's 269. No version-carrying surface was bumped; `/update release` owns that and the `check_version_sync.py` gate.
+
+#### 4.5 CI/CD
+
+**Covered without a structural change, and the reasoning is recorded so it is not re-derived.** Every surface this plan touched (`catalog/templates/**`, `catalog/skills/developer-experience/spec-driven-development/**`, `catalog/skills/workflow/implementation-plan/**`, `catalog/agents/scope-guardian-reviewer.md`) sits outside `docs/`, so `ci.yml`'s workflow-level `paths-ignore: docs/**` fires the full job set for all of them. Adding a positive `paths:` filter restricted to those directories, as sub-task 1.5 literally suggested, would have **narrowed** coverage rather than optimizing it.
+
+The four optimizations the plan asks for are already present and were verified rather than assumed: `concurrency` with `cancel-in-progress` at workflow level, pip caching keyed on `.pre-commit-config.yaml`, expensive Windows and matrix legs gated behind `if: github.event_name != 'pull_request'`, and SHA-pinned action references with version comments. The new guard test needed no new job because the `Skills-script tests` step already runs `tests/skills` as a directory; only its descriptive label was updated to name the new coverage, which is the single CI edit in this phase.
+
+#### 4.6 Definition of Done, re-verified end to end
+
+Each item checked against the tree rather than assumed from the phase reports:
+
+1. **A spec from the template has a section for non-goals, and the checklist's scope item is tickable from the template alone.** Verified in Phase 1 by authoring a throwaway spec and walking the checklist, and now permanently asserted by `test_spec_artifact_agreement.py`.
+2. **`scope-guardian-reviewer`'s out-of-scope finding cannot fire on a template-conformant spec.** The reviewer names `## Non-Goals`, the template produces it, and a test asserts both.
+3. **The skill names exactly one canonical template and its Verification lists that template's sections.** Asserted by three tests, including one that fails if a rival inline template returns.
+4. **The depth rule exists and the hard gate's unconditional clauses survive verbatim.** Proven by diff shape: across Phase 2 the file has exactly two deleted lines, neither in the gate block.
+5. **`make validate`, `make lint`, `make test` pass and the FR-### / SC-### contract is unchanged.** The ID contract was proven in Phase 1 by a 46-insertion, 0-deletion diff on the template.
+
+#### Advisory (no action required)
+
+- **Model-prompting-profile staleness check (9.0 step 4)**: `verify_model_prompting_profiles.py` (the structural gate) passes. The advisory freshness check is deliberately NOT a release blocker and is `/update release`'s governance step 5, where it belongs; it was not run here and was not re-stamped.
+- **Two stale facts in one plan, same lesson.** QG-1 (the 269-skill count) and TR-3 (the setup-node pin) were both true when the plan was written and both went stale before Phase 4 ran. Neither was caught by transcription; both were caught by checking the assertion against the tree. A plan is a decision record, not a data source.
 
 ### v3.15.14 Phase 3 checkpoint
 

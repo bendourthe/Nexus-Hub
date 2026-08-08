@@ -1,5 +1,40 @@
 # Development Log
 
+## [2026-08-08] - v3.15.14 Phase 4: refactor, reconciliation, and CI/CD [release-readiness]
+
+### What Changed
+
+The plan's terminal phase. Eleven empty directories removed, a seven-row reverse-engineering-matrix section added with both policy declines recorded, every v3.15.14 gap given a final disposition with two transferred to v3.16, a `## [Unreleased]` CHANGELOG section created, and a 21-case guard test added for the three spec artifacts. The version bump, changelog stamp, tag, and push are handed to `/update release` and were not performed here.
+
+### Why It Changed
+
+Two of the phase's outcomes were not what the plan predicted, and both matter more than the work itself.
+
+**MT-1 closed with a test that initially did not work.** The defect this whole plan fixed was a silent disagreement between three prose files. Prose has no compiler: a schema reference to a missing column errors, but a checklist item referencing a missing heading just fails forever in silence. So the fix is not complete until something asserts the agreement. That test now exists.
+
+**Two of the plan's factual assertions had gone stale.** Its 269-skill catalog count is 270, and the `actions/setup-node` tag pin it directed transferring as an open gap is SHA-pinned, along with all three sibling workflows. Both were true when the plan was written. Neither was caught by transcription; both were caught by checking the assertion against the tree.
+
+### Decisions Made
+
+- **The empty-directory posture was reversed, and the reversal was right.** Every prior audit in this version reported the 8 untracked empty skill directories and left them as a parallel session's scaffolding. The maintainer chose deletion. Each was removed only after verifying it was genuinely empty AND carried zero tracked files, which also caught two parent shells that had held only a `scripts/` child. Warnings from `validate_skills.py --bundles-only` fell from 18 to 11: several of those directories were producing orphan-bundle warnings, so the standing posture was quietly costing validator signal.
+- **A resolved gap was recorded as closed, not transferred.** Transferring the setup-node item as directed would have carried a false open item into the v3.16 ledger; dropping it silently would have left a reader of the plan expecting a transfer that never came. It is recorded as TR-3, closed on verification, with the evidence.
+- **The CHANGELOG count is re-derived, not transcribed.** Sub-task 4.4's prompt says "unchanged at 269 skills". The entry says 270, taken from validator output. The plan's reasoning was sound (this plan creates no skill, so the count is unchanged BY THIS PLAN); only its literal number had aged.
+- **No CI structural change, and the reasoning is recorded so Phase 4.5's successor does not re-derive it.** Sub-task 1.5 asked for path filters on `catalog/templates/**` and `catalog/skills/**`. Those directories sit outside `docs/`, so `ci.yml`'s existing `paths-ignore: docs/**` already fires the full job set for all of them; a positive `paths:` filter would have narrowed coverage rather than optimizing it. The four requested optimizations were verified present rather than assumed.
+- **The advisory model-prompting freshness check was not run here.** It is `/update release`'s governance step 5 by design, deliberately decoupled from the release clock so a model shipping on a Tuesday cannot wedge a release. The structural gate (`verify_model_prompting_profiles.py`) does run and passes.
+
+### Troubleshooting Trail
+
+- **The first draft of the MT-1 guard passed the defect it was written to catch.** Three mutations were applied and reverted: unbinding `## Non-Goals` from the checklist's scope item, deleting the reason-per-entry item, and repointing the skill's Verification at the rival template's six areas. The third failed correctly. **The first passed**, because the assertion was `"Non-Goals" in checklist` and the heading is also named in the Content Quality section, so the token survived while the binding did not. The test asserted presence of a word rather than a relationship. It was rewritten to check the scope line itself; all three mutations now fail and the baseline passes 21. Without the mutation check, MT-1 would have closed on a false guarantee.
+- **Mutations were run under a shell `trap` that restores on exit**, after Phase 1's lesson: a `git stash && pytest && git stash pop` chain lost its `pop` to a tool timeout and stranded the working tree. A trap fires even when the command is killed.
+
+### Impact & Context
+
+- **Affected**: `docs/policy/mcp-reverse-engineering-matrix.md` (new seven-row section), `CHANGELOG.md` (new `## [Unreleased]`), `docs/v3/v3.15/known-gaps.md` (final reconciliation), `docs/v3/v3.16/known-gaps.md` (TR-1 to TR-3), `.github/workflows/ci.yml` (one step label), `tests/skills/test_spec_artifact_agreement.py` (new), plus the cleanup report, this log, and a session history. Eleven empty directories removed with zero repository impact.
+- **Final gap disposition**: 2 closed this phase (QG-1, MT-1), 1 closed in Phase 2 (NI-1), 2 transferred to v3.16 (TR-1, TR-2), 1 closed on verification instead of transferred (TR-3), 3 recorded as decisions or enhancements needing no action (DF-1, EN-1, DC-1). No open item and no release blocker remain.
+- **Matrix**: D1, D2, D7 classified `re-full`; D6, D5, D4, D3 `skill-native` under tier 2. Both declines recorded with their real grounds: the Spec Kit CLI as redundant against ten shipped first-party equivalents, and architecture-in-the-spec as a layering conflict rather than a trust concern. All three external sources named in the Rationale column only; none appears in any distributed artifact.
+- **Tests and validators**: all 14 validate guards pass, bundle audit 0 errors (warnings 18 to 11), quality heuristics 0 errors, trigger-and-routing gate 0 failures, shellcheck clean, catalog at 270 skills.
+- **Handoff**: `/update release` owns the version bump (3.15.13 to 3.15.14), the changelog stamp, the tag, the push, and the GitHub Release. No tag was created and nothing was pushed.
+
 ## [2026-08-07] - v3.15.14 Phase 3: plan-layer failure modes and build class [feature]
 
 ### What Changed
