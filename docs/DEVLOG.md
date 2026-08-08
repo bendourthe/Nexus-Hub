@@ -1,5 +1,144 @@
 # Development Log
 
+## [2026-08-08] - v3.15.14 Phase 4: refactor, reconciliation, and CI/CD [release-readiness]
+
+### What Changed
+
+The plan's terminal phase. Eleven empty directories removed, a seven-row reverse-engineering-matrix section added with both policy declines recorded, every v3.15.14 gap given a final disposition with two transferred to v3.16, a `## [Unreleased]` CHANGELOG section created, and a 21-case guard test added for the three spec artifacts. The version bump, changelog stamp, tag, and push are handed to `/update release` and were not performed here.
+
+### Why It Changed
+
+Two of the phase's outcomes were not what the plan predicted, and both matter more than the work itself.
+
+**MT-1 closed with a test that initially did not work.** The defect this whole plan fixed was a silent disagreement between three prose files. Prose has no compiler: a schema reference to a missing column errors, but a checklist item referencing a missing heading just fails forever in silence. So the fix is not complete until something asserts the agreement. That test now exists.
+
+**Two of the plan's factual assertions had gone stale.** Its 269-skill catalog count is 270, and the `actions/setup-node` tag pin it directed transferring as an open gap is SHA-pinned, along with all three sibling workflows. Both were true when the plan was written. Neither was caught by transcription; both were caught by checking the assertion against the tree.
+
+### Decisions Made
+
+- **The empty-directory posture was reversed, and the reversal was right.** Every prior audit in this version reported the 8 untracked empty skill directories and left them as a parallel session's scaffolding. The maintainer chose deletion. Each was removed only after verifying it was genuinely empty AND carried zero tracked files, which also caught two parent shells that had held only a `scripts/` child. Warnings from `validate_skills.py --bundles-only` fell from 18 to 11: several of those directories were producing orphan-bundle warnings, so the standing posture was quietly costing validator signal.
+- **A resolved gap was recorded as closed, not transferred.** Transferring the setup-node item as directed would have carried a false open item into the v3.16 ledger; dropping it silently would have left a reader of the plan expecting a transfer that never came. It is recorded as TR-3, closed on verification, with the evidence.
+- **The CHANGELOG count is re-derived, not transcribed.** Sub-task 4.4's prompt says "unchanged at 269 skills". The entry says 270, taken from validator output. The plan's reasoning was sound (this plan creates no skill, so the count is unchanged BY THIS PLAN); only its literal number had aged.
+- **No CI structural change, and the reasoning is recorded so Phase 4.5's successor does not re-derive it.** Sub-task 1.5 asked for path filters on `catalog/templates/**` and `catalog/skills/**`. Those directories sit outside `docs/`, so `ci.yml`'s existing `paths-ignore: docs/**` already fires the full job set for all of them; a positive `paths:` filter would have narrowed coverage rather than optimizing it. The four requested optimizations were verified present rather than assumed.
+- **The advisory model-prompting freshness check was not run here.** It is `/update release`'s governance step 5 by design, deliberately decoupled from the release clock so a model shipping on a Tuesday cannot wedge a release. The structural gate (`verify_model_prompting_profiles.py`) does run and passes.
+
+### Troubleshooting Trail
+
+- **The first draft of the MT-1 guard passed the defect it was written to catch.** Three mutations were applied and reverted: unbinding `## Non-Goals` from the checklist's scope item, deleting the reason-per-entry item, and repointing the skill's Verification at the rival template's six areas. The third failed correctly. **The first passed**, because the assertion was `"Non-Goals" in checklist` and the heading is also named in the Content Quality section, so the token survived while the binding did not. The test asserted presence of a word rather than a relationship. It was rewritten to check the scope line itself; all three mutations now fail and the baseline passes 21. Without the mutation check, MT-1 would have closed on a false guarantee.
+- **Mutations were run under a shell `trap` that restores on exit**, after Phase 1's lesson: a `git stash && pytest && git stash pop` chain lost its `pop` to a tool timeout and stranded the working tree. A trap fires even when the command is killed.
+
+### Impact & Context
+
+- **Affected**: `docs/policy/mcp-reverse-engineering-matrix.md` (new seven-row section), `CHANGELOG.md` (new `## [Unreleased]`), `docs/v3/v3.15/known-gaps.md` (final reconciliation), `docs/v3/v3.16/known-gaps.md` (TR-1 to TR-3), `.github/workflows/ci.yml` (one step label), `tests/skills/test_spec_artifact_agreement.py` (new), plus the cleanup report, this log, and a session history. Eleven empty directories removed with zero repository impact.
+- **Final gap disposition**: 2 closed this phase (QG-1, MT-1), 1 closed in Phase 2 (NI-1), 2 transferred to v3.16 (TR-1, TR-2), 1 closed on verification instead of transferred (TR-3), 3 recorded as decisions or enhancements needing no action (DF-1, EN-1, DC-1). No open item and no release blocker remain.
+- **Matrix**: D1, D2, D7 classified `re-full`; D6, D5, D4, D3 `skill-native` under tier 2. Both declines recorded with their real grounds: the Spec Kit CLI as redundant against ten shipped first-party equivalents, and architecture-in-the-spec as a layering conflict rather than a trust concern. All three external sources named in the Rationale column only; none appears in any distributed artifact.
+- **Tests and validators**: all 14 validate guards pass, bundle audit 0 errors (warnings 18 to 11), quality heuristics 0 errors, trigger-and-routing gate 0 failures, shellcheck clean, catalog at 270 skills.
+- **Handoff**: `/update release` owns the version bump (3.15.13 to 3.15.14), the changelog stamp, the tag, the push, and the GitHub Release. No tag was created and nothing was pushed.
+
+## [2026-08-07] - v3.15.14 Phase 3: plan-layer failure modes and build class [feature]
+
+### What Changed
+
+`implementation-plan` gained two per-sub-task conventions. Failure-mode coverage is now mandatory for every component a plan introduces or changes, across three named situations: malformed or absent inputs, an unreachable or slow dependency, and two operations conflicting. A one-line build class labels each sub-task `scaffolding` (with what replaces it and when) or `load-bearing`. Both appear as fields in the emitted phase template, are explained in a new authoring step, and are enforced by two new Verification items and two new rationalization rows. `plan-before-code` was deliberately not edited.
+
+### Why It Changed
+
+The comparison declined the source's recommendation to put architecture into the spec, because it conflicts with the normative-spec-versus-context split and would fail `spec-quality-checklist.md`'s implementation-detail checks. One narrow slice of that recommendation was a real gap rather than a declined merge: error handling had no mandatory home in either artifact. It appeared only as optional `### Edge Cases` prompts in the spec template, which name the user-visible edge case and deliberately say nothing about the handling.
+
+The second convention answers a different review problem. A reviewer reading a diff cannot tell whether a hardcoded value is a shortcut awaiting replacement or the intended implementation, and that distinction is generally unrecoverable from the code alone.
+
+### Decisions Made
+
+- **`implementation-plan`, not `plan-before-code`.** The plan delegated the choice and required stating it. Four grounds: it produces a durable artifact under `docs/**/plans/` rather than a plan that lives in the conversation turn; it already has a per-sub-task template, which is the native attachment point for a one-line-per-sub-task label; it is the spec's downstream consumer, which is what makes the compose-with-Edge-Cases story work; and the skills' own cross-link describes `plan-before-code` as "lightweight planning for individual features within a phase", settling the layering. Recorded as DC-1.
+- **Three named situations, not "handle errors".** A general instruction to handle errors well is satisfiable by any behavior including a silent swallow. Naming malformed input, unreachable dependency, and conflicting operations makes the field checkable, which is the difference between a requirement and a sentiment.
+- **The spec/plan split is stated as an instruction, not just honored.** Step 3.6 tells future authors explicitly not to close this gap by pushing error handling, data models, interfaces, or schemas back into the spec template. A boundary that is only observed decays; one that is written down survives the next author who notices the same gap.
+- **Build class is a label, not a section.** One line, stated only where a reader could not otherwise tell. The plan asked for lightweight and the temptation with a convention like this is to grow it into a template block that nobody fills in honestly.
+- **The provenance note is recorded honestly and without attribution.** The skill body says the build-class convention is adopted on its own merits, that it was proposed on the strength of an example specification said to demonstrate it, and that the document carried no code blocks and no such labeling, so the cited evidence does not support the claim. No external article, author, or repository is named, per the AGENTS.md attribution rule; full provenance goes in the Phase 4.2 matrix row.
+- **Inline rather than a `references/` file.** `implementation-plan` was at 445 of a 500-line target, so the extraction question was real. Both conventions are authoring-time rules that shape every sub-task written, which is Tier 2 material; a worked catalogue of failure-mode examples would be Tier 3 and is the first thing to move out if this file grows again.
+
+### Troubleshooting Trail
+
+- **The plan-contract tests were checked before editing, not after.** `tests/plans/test_v3_15_9_routing_contract.py` asserts against `implementation-plan/SKILL.md`, so a change to the emitted phase template could plausibly have broken it. Reading the assertions first showed they check for the presence of required fields rather than the absence of others, which made the two new template fields safe as additive changes. Confirmed by running `tests/plans`, `tests/validators`, and `tests/skills`: 739 passed, 3 skipped.
+- **No troubleshooting loop was needed.** Every check passed on the first pass, which is the expected shape for a phase the plan rated mid-tier and whose hard boundary decision had already been settled in the comparison.
+
+### Impact & Context
+
+- **Affected**: `catalog/skills/workflow/implementation-plan/SKILL.md` (445 to 469 lines), plus `docs/v3/v3.15/known-gaps.md`, `docs/v3/v3.15/docs-cleanup-report.md`, `docs/DEVLOG.md`, and a new session-history file.
+- **The declined merge held, verified mechanically.** Phase 3's `git diff --name-only` lists exactly one file under `catalog/`. `spec-template.md` is untouched, its `Key Entities` implementation-detail prohibition is intact at line 107, and a grep of the template for retry / backoff / error-handling / schema / interface / module-boundary language returns only that prohibition line itself.
+- **Exactly one plan-layer skill edited.** `plan-before-code/SKILL.md` is still at `39577bbe` (v3.0.0 Phase 9).
+- **Model routing**: the plan rated this phase mid tier / medium effort (Sonnet class). The session was already on a stronger tier, and per the no-degradation rule no mid-phase downshift was taken.
+- **Tests and validators**: bundle audit 0 errors, quality heuristics 0 errors, trigger-and-routing gate 0 failures, unicode-safety / no-personal-paths / version-sync / base-template-parity all pass, shellcheck clean.
+- **Known gaps**: no new gaps. DC-1 recorded as a decision. QG-1, MT-1, and NI-2 carry forward to Phase 4 unchanged.
+
+## [2026-08-07] - v3.15.14 Phase 2: proportional spec depth [feature]
+
+### What Changed
+
+`spec-driven-development` gained a spec-depth rule keyed on blast radius, placed inside the Hard Gate section rather than after it. Three tiers: a single internal file needs a Problem Statement, acceptance criteria, and Non-Goals; a multi-file or multi-module change adds User Scenarios with an Independent Test, FR-### items, and Assumptions; a change to behavior, a public API, a data schema, or a CLI surface needs the full canonical template including Invariants. The opening motivation now carries the argument that guess cost scales with codebase size rather than change size. "When NOT to use" separates the needs-a-spec question from the how-deep question. Two rationalization rows defend the new rule. `overview_l1` was corrected in passing, closing NI-1.
+
+### Why It Changed
+
+The skill answered "how deep should a spec be?" only through a single rationalization row ("a two-line spec is fine"), which is guidance buried in a rebuttal table rather than a stated rule. Meanwhile "When NOT to use" was keyed purely on change size, so the honest reading of "this change is small" was ambiguous between "write less" and "write nothing". That ambiguity is what left proportionality unanswered, and an unanswered proportionality question resolves itself in whichever direction is cheaper in the moment.
+
+The maintainer decision on 2026-07-29 was explicit and is the constraint this phase had to satisfy: adopt proportionality for spec DEPTH, keep the approval GATE absolute. Full proportionality, meaning a size threshold below which the spec step is skipped, was considered and declined.
+
+### Decisions Made
+
+- **The rule is nested inside the Hard Gate section, not placed after it.** The plan said "immediately after the hard-gate block so a reader meets the gate before the tiering". A sibling `##` section satisfies the letter of that; a `###` subsection under the gate's own heading satisfies the intent more strongly, because the tiering then cannot be encountered detached from the constraint it refines. Document order is doing load-bearing work in a governance rule, so it was worth the extra strictness.
+- **Depth is keyed on blast radius, and the rule says what blast radius is not.** Effort, line count, and elapsed time are all named and excluded, with the counterexample stated inline: three lines touching a public API outrank three hundred lines in a private helper. Without the counterexample "blast radius" reads as a synonym for "size", which is the framing the rule exists to replace.
+- **The top tier reuses the merge gate's four surfaces verbatim.** Behavior, public API, data schema, CLI surface. They are byte-identical between the two sections, so the entry rule and the merge rule cannot drift into contradicting each other, and the skill can state plainly that they are one rule seen from each end.
+- **Two rationalization rows, where the plan asked for one.** The plan named the skip-the-approval misreading. The likelier error in practice is different: reading "the change is small" as qualifying for "When NOT to use" rather than for the bottom tier. That is the shallow-spec-becomes-no-spec slide, a distinct failure from treating a short spec as licence to skip approval, and one row could not rebut both without blurring. Recorded as EN-1.
+- **"Shrinking the artifact does not shrink the gate, shorten it, or make silence count."** Three verbs rather than one, each closing a paraphrase route. The third is aimed directly at the gate's own "Silence is not approval", which is the clause a reader in a hurry is most likely to reinterpret.
+- **NI-1 closed by rewording, not deleting.** `overview_l1` is Tier-1 always-loaded metadata, so removing vocabulary is a routing change. The clause was replaced with "scope bounding through explicit non-goals, spec depth chosen by blast radius", which describes the post-Phase-1-and-2 skill and adds vocabulary for the new capabilities rather than only subtracting.
+
+### Troubleshooting Trail
+
+- **The plan's line anchors were stale and were not trusted.** Phase 1 removed 73 lines from this file, so every line number in the Phase 2 prompts (hard gate 12-23, "When NOT to use" 40, rationalization rows 280-282, merge gate 263-274) had shifted. Each target was located by content instead, and the stability gate was re-expressed as content checks.
+- **A grep for the promoted rationalization row returned zero and was a false alarm.** The row contains an em-dash; the search pattern round-tripped it through the shell and did not match. Re-grepping on an ASCII substring found it at line 286, intact. Worth recording because "grep returned 0" on a Unicode-bearing line is a tooling artifact that looks exactly like a deleted line.
+- **The gate-integrity requirement was met by diff shape rather than string comparison.** Across the whole phase the file has exactly two deleted lines, `overview_l1` and the old "When NOT to use" paragraph. The Hard Gate block therefore has zero deletions, which proves both protected clauses verbatim more strongly than grepping for them.
+
+### Impact & Context
+
+- **Affected**: `catalog/skills/developer-experience/spec-driven-development/SKILL.md` (31 insertions, 2 deletions), plus `docs/v3/v3.15/known-gaps.md`, `docs/v3/v3.15/docs-cleanup-report.md`, `docs/DEVLOG.md`, and a new session-history file.
+- **Tests**: the full repository surface is green for the first time this version. `pytest tests catalog/hooks/tests` from PowerShell gives 2580 passed / 56 skipped / 0 failed; the five extension suites give 670 passed / 1 skipped; the compression accuracy gate passes at CCR 100.0%. Total 3,250 passed, 0 failed. All validate guards pass, the bundle and placeholder lints are clean, shellcheck is clean, and the trigger-and-routing gate passes after the Tier-1 edit.
+- **BG-16 confirmed in both directions.** The same tree that produced `1587 passed, 1 failed` under Git Bash in Phase 1 produces `2580 passed, 0 failed` under PowerShell, the difference being exactly `test_ps_standalone_extracts_and_hands_off`. The shell-dependence is now reproduced deliberately rather than inferred.
+- **Body size**: 332 lines, within the 500-line norm, and still 42 lines shorter than when this plan started despite carrying two new rules.
+- **Known gaps**: NI-1 closed. EN-1 recorded as an enhancement. QG-1 (the plan's stale 269-skill figure; the catalog holds 270) and MT-1 (nothing automated asserts the template / checklist / skill trio stays in agreement) carry forward to Phase 4 unchanged.
+
+## [2026-08-07] - v3.15.14 Phase 1: reconcile the spec artifact [fix]
+
+### What Changed
+
+`catalog/templates/spec-template.md` gained three sections: `## Problem Statement` (mandatory, first), `## Non-Goals` (mandatory, one reason per entry), and `## Invariants` (conditional on the change touching existing behavior). `spec-quality-checklist.md` binds its existing "Scope is clearly bounded" item to the new Non-Goals section and adds two companion items. `spec-driven-development` SKILL.md now declares exactly one canonical spec skeleton, its rival inline template is gone, and its Verification checklist enumerates the canonical template's sections instead of the rival's. `scope-guardian-reviewer` and `idea-refine` were reconciled to the template's heading names.
+
+### Why It Changed
+
+Three surfaces audited specs for a scope boundary that the template could not express. `spec-quality-checklist.md` line 22 asked whether "scope is clearly bounded", `scope-guardian-reviewer` flagged a missing "explicitly out of scope" section, and `idea-refine` gated on "scope is explicitly bounded", but no section in `spec-template.md` held that content. Every reviewer run on a template-conformant spec therefore raised a finding the template itself caused.
+
+Separately, the skill instructed the author to use `spec-template.md` as the skeleton, then presented a different inline template further down, and its Verification checklist validated the inline one's areas. The completion gate was checking the wrong artifact, so "spec complete" meant nothing about the spec that was actually produced.
+
+### Decisions Made
+
+- **One atomic phase, not three.** Adding template sections and repointing the completion gate had to land together. Between them, the skill would validate sections no template produced (gate first) or the template would carry sections no gate checked (sections first).
+- **The rival template was removed in both its forms.** The plan named the inline code block. The same structure also existed as prose immediately above it ("six core areas"), and that prose is what the Verification item actually referenced. Removing only the code block would have left the skill still naming six areas the canonical template lacks. Logged as DF-1.
+- **Relocated, not deleted.** Commands, project structure, code style, tech stack, and the three-tier boundaries are real guidance; they are project-level context, not per-feature spec content. They moved into a new "Project-level context (distinct from a feature spec)" section that names their proper home (`AGENTS.md` / `CLAUDE.md` or the `docs/` tree) and says why restating them per feature guarantees drift.
+- **`idea-refine` gained the reason, not just a cross-reference.** Non-Goals mandates a reason per entry. If the upstream `**Out of Scope**` block emitted reasonless items, the documented copy-not-rewrite hand-off would silently fail the checklist, so the reason is now produced at the source.
+- **`scope-guardian-reviewer` was repointed rather than left generic.** It asserted a heading no artifact in the repo produced, which made its finding permanently fireable and never satisfiable. It now names `## Non-Goals` while staying usable against plans that are not specs.
+- **No CI change.** Sub-task 1.5 asked for path filters on `catalog/templates/**` and `catalog/skills/**`. `ci.yml` already covers both through `paths-ignore: docs/**`, and already carries concurrency cancel-in-progress, pip caching, and cost-gated matrix legs. A positive `paths:` filter on those two directories would have narrowed coverage, not optimized it.
+
+### Troubleshooting Trail
+
+- **One test failure, correctly classified as pre-existing.** `test_ps_standalone_extracts_and_hands_off` failed during validation. It is the already-recorded BG-16: launching pytest from Git Bash puts GNU tar 1.35 ahead of Windows bsdtar 3.8.4 on the `PATH` that `install.ps1` inherits. Re-run from PowerShell on the identical tree, it passes. Phase 1 changed five Markdown files and touches nothing that test exercises.
+- **A stash-based pre-existence check backfired.** The verification ran `git stash`, then the test, then `git stash pop` as one chained command; the test step blew the tool timeout and the pop never executed, leaving the phase's edits stashed. Recovered with an explicit `git stash pop`. The cheaper and safer check was the one used afterward: `git diff --name-only` against the file the test actually drives.
+- **The FR-### / SC-### contract was proven, not assumed.** The template edit is `46 insertions(+), 0 deletions(-)`. With zero deleted lines no existing byte can have changed, which settles the whole-file question that `cross-artifact-analyzer` depends on more firmly than inspecting the two ID blocks by hand.
+
+### Impact & Context
+
+- **Affected**: `catalog/templates/spec-template.md`, `catalog/templates/spec-quality-checklist.md`, `catalog/skills/developer-experience/spec-driven-development/SKILL.md`, `catalog/skills/developer-experience/idea-refine/SKILL.md`, `catalog/agents/scope-guardian-reviewer.md`, plus `docs/v3/v3.15/known-gaps.md` and `docs/v3/v3.15/docs-cleanup-report.md`.
+- **Zero new files**, so no installer registration was required in either `scripts/installer.sh` or `scripts/installer.ps1`, and no `data/` registry file changed (no new skill; catalog stays at 270).
+- **Tests**: extensions 670 passed / 1 skipped; repo-level `tests/` 1587 passed / 20 skipped / 1 pre-existing environment failure (BG-16, passes under PowerShell); `catalog/hooks/tests` 992 passed / 36 skipped; compression accuracy gate passed. All 14 `make validate` guards pass, bundle audit 0 errors, trigger-and-routing gate 0 failures, shellcheck clean. SKILL.md is 303 lines, within the 500-line norm.
+- **Known gaps**: DF-1 (resolved in place), NI-1 (`overview_l1` still advertises project-level areas), NI-2 (`A1` example still phrases a Non-Goal as an Assumption, deliberately per plan), QG-1 (the plan's 269-skill figure is stale; the catalog holds 270, which Phase 4.4 must use), MT-1 (nothing automated asserts the template / checklist / skill trio stays in agreement).
+
 ## [2026-08-06] - v3.15.12 Phase 4: per-target GitHub billing auth [feature]
 
 ### What Changed

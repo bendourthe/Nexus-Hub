@@ -286,3 +286,59 @@ One deliberate non-orphan worth naming: `providers/authProbe.ts` is now reached 
 An advisory, pre-existing and not introduced here: `docs/DEVLOG.md` carries 22 non-ASCII characters from line 2422 onward, all in v2.0.0-era entries. This version's own entries are ASCII-clean, verified. Left untouched as historical record; line numbers recorded in `known-gaps.md` for a future sweep.
 
 Phases 4 and 5 added no artifact class or scratch output, and required zero new `.gitignore` patterns.
+
+## v3.15.14 Phase 1 audit (2026-08-07)
+
+**Mode**: Audit and report; no file moves, no deletions.
+
+Phase 1 is prose-only. It modified five committed Markdown files (`catalog/templates/spec-template.md`, `catalog/templates/spec-quality-checklist.md`, `catalog/skills/developer-experience/spec-driven-development/SKILL.md`, `catalog/skills/developer-experience/idea-refine/SKILL.md`, `catalog/agents/scope-guardian-reviewer.md`) plus this version's `known-gaps.md`. It added no file anywhere, so `catalog/templates/` gained nothing that would need installer registration, and no reference repair was required because nothing moved or was renamed.
+
+One scratch artifact was created and discarded within the phase: a throwaway spec authored from the updated template to confirm every `spec-quality-checklist.md` item can be ticked from the template alone. It was written to the session scratchpad, never to the repository, and deleted after the walkthrough. No `.gitignore` pattern was needed.
+
+Marker sweep over the five changed files: zero `TODO` / `FIXME` / `XXX` / `HACK` / `# DEVIATION:` hits. The phase's one deviation from the plan's literal instruction is recorded as DF-1 in `known-gaps.md` rather than left inline, matching the convention this version has used throughout.
+
+The 8 untracked empty directories under `catalog/skills/` reported in the v3.15.5 and v3.15.7 audits are unchanged and were again left in place, for the same reason: they carry zero tracked files, so they have zero repository impact, and they appear to be a parallel session's in-progress scaffolding.
+
+## v3.15.14 Phase 2 audit (2026-08-07)
+
+**Mode**: Audit and report; no file moves, no deletions.
+
+Phase 2 modified exactly one committed file, `catalog/skills/developer-experience/spec-driven-development/SKILL.md`, plus this version's `known-gaps.md`, `docs-cleanup-report.md`, and `DEVLOG.md`, and added one session-history file. No file was created under `catalog/`, so no installer registration applies and no reference repair was needed.
+
+Marker sweep over the changed file: zero `TODO` / `FIXME` / `XXX` / `HACK` / `# DEVIATION:` hits. The phase produced no scratch artifact of any kind, so no `.gitignore` pattern was needed.
+
+The skill body is 332 lines after this phase, comfortably inside the 500-line size norm, so no `references/` extraction is warranted yet. Phase 1 removed 73 lines from this file and Phase 2 added 31 net, leaving it 42 lines shorter than when this plan started despite carrying two new rules.
+
+The 8 untracked empty directories under `catalog/skills/` are unchanged and were again left in place, for the reason recorded in the v3.15.5, v3.15.7, and v3.15.14 Phase 1 audits: they carry zero tracked files and appear to be a parallel session's scaffolding.
+
+## v3.15.14 Phase 3 audit (2026-08-07)
+
+**Mode**: Audit and report; no file moves, no deletions.
+
+Phase 3 modified exactly one committed file under `catalog/`, `catalog/skills/workflow/implementation-plan/SKILL.md`, plus this version's `known-gaps.md`, `docs-cleanup-report.md`, and `DEVLOG.md`, and added one session-history file. No file was created under `catalog/`, so no installer registration applies and no reference repair was needed.
+
+Two structural notes specific to this phase.
+
+The skill body grew from 445 to 469 lines, which is 31 under the 500-line target and well inside the 800-line hard cap, so no `references/` extraction is warranted. The extraction question was considered rather than assumed: both new conventions are authoring-time rules that shape every sub-task an author writes, which is Tier 2 material, whereas a worked catalogue of failure-mode examples would be Tier 3. If this file grows further, that catalogue is the first thing to move out.
+
+`catalog/skills/workflow/plan-before-code/SKILL.md` was deliberately NOT edited. Sub-task 3.1 required choosing exactly one plan-layer skill, and the exit checklist asks for confirmation that the other was left alone. Its last commit is `39577bbe` (v3.0.0 Phase 9), unchanged by this plan.
+
+Marker sweep over the changed file: zero `TODO` / `FIXME` / `XXX` / `HACK` / `# DEVIATION:` hits. No scratch artifact was produced and no `.gitignore` pattern was needed.
+
+The 8 untracked empty directories under `catalog/skills/` are unchanged and were again left in place, for the reason recorded in every prior audit in this version.
+
+## v3.15.14 Phase 4 audit (2026-08-08) - terminal-phase refactor gate
+
+**Mode**: Audit, then apply with maintainer confirmation. This is the plan's final phase, so the mandatory refactor gate ran rather than an audit-only pass.
+
+**The plan's two specific checks are clean.** No orphaned reference to the removed inline spec template survives anywhere in `catalog/`, `guides/`, or `docs/`: a sweep for the distinctive "Objective / Commands / Project Structure / Code Style / Boundaries" cluster attributed to a spec returns nothing. The single `### Objective` heading remaining under `catalog/` belongs to `competitive-generation`'s task-brief template (Objective plus Acceptance Criteria for a competitive-generation brief), which is unrelated and correctly untouched. `catalog/templates/` gained no stray file across the whole plan; it still holds exactly `constitution-template.md`, `spec-quality-checklist.md`, and `spec-template.md`, so no installer registration is required in either installer.
+
+**Eleven empty directories were removed, reversing this version's standing posture on an explicit maintainer decision.** Every prior audit (v3.15.5, v3.15.7, and v3.15.14 Phases 1 to 3) reported the 8 untracked empty directories under `catalog/skills/` and left them as a parallel session's scaffolding. This phase surfaced them again plus a ninth, `docs/v3/v3.17/comparisons`, and the maintainer chose deletion. Each was removed only after verifying it was genuinely empty AND carried zero tracked files. Removing the `scripts/` children exposed two parent shells that held no `SKILL.md` (`catalog/skills/testing/visual-regression-testing` and `catalog/skills/tests-generation/performance-regression-gate`); both passed the same two-part test and were removed. `git status` is unchanged by all eleven removals, which is the proof of zero repository impact.
+
+The decision was better than the precedent it reversed: `validate_skills.py --bundles-only` warnings fell from **18 to 11**, because several of the removed `scripts/` directories were producing orphan-bundle warnings. The standing "report and leave" posture was defensible on the grounds given (do not delete another session's work-in-progress) but was quietly costing validator signal, and nothing tracked was ever at risk.
+
+**Layout otherwise unchanged.** No committed file moved or was renamed across the whole plan, so no reference repair was needed at any phase. The `docs/v3/v3.15/` tree stays canonical (comparisons / development / plans / known-gaps / this report). No tracked build or coverage artifact exists: `git ls-files` matches nothing under `out/`, `coverage/`, or `*.vsix`. No untracked file sits under `docs/`.
+
+**One file was added outside `catalog/` this phase**: `tests/skills/test_spec_artifact_agreement.py`, the MT-1 guard. It lands in the existing `tests/skills/` tree that CI already runs as a directory, so it needs no new job and no installer registration (repo-internal tests are not a distributed surface).
+
+**Marker sweep across every file this version changed**: zero `TODO` / `FIXME` / `XXX` / `HACK` / `# DEVIATION:` markers. Deviations and decisions live in `known-gaps.md` and the session histories, not inline.
