@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.15.14 -->
+<!-- nexus-hub-version: 3.16.0 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 270 skills, 17 commands, 31 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -36,6 +36,20 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v3.16.0
+
+A per-platform install default lived in two places and was copy-pasted into a third. Changing one value in v3.15.5 meant editing four declarations across two files and correcting four documentation surfaces that restated it as prose. This release gives that value a single home and makes every other copy derived from it.
+
+**One file is now the only place a per-platform default is edited.** `configs/platform-defaults.json` declares the reasoning effort, model pin, and approval policy each platform should ship with. `catalog/hooks/settings.json`'s core keys are **generated** from it, and the `nexus-hub init` project stub reads it at runtime -- the hardcoded `_PROJECT_SETTINGS_STUB` is gone. `python scripts/sync_platform_defaults.py --check` fails `make validate` and CI when any derived artifact drifts, so the duplication cannot silently return. The generator updates only the declared keys **in place**, because that template also carries the full hook registration chains, and it preserves each file's key order, indentation, and line-ending convention -- the repo runs `core.autocrlf=true`, so a naive write would have looked clean in CI while rewriting every line on a Windows checkout.
+
+**Every platform was checked against its own documentation before anything was seeded.** All sixteen registered integrations are now classified in `docs/policy/platform-defaults-levers.md`: **12 VERIFIED** with a fetched vendor URL, a quoted statement, and a date; **4 UNVERIFIED** with reasons. "No lever documented" is a valid result, and four platforms earned it. The rule exists because Nexus-Hub once shipped a `.kimi/agent.yaml` companion that was *invented* rather than found, and had to drop it in v3.15.0. It earned its keep immediately: every search for Codex's config keys returned blogs and aggregators quoting the right names, and the recorded row instead comes from OpenAI's own reference reached through two redirects. Three vendor doc hosts had moved, one of them a full product rebrand -- confirmed first-hand rather than from reporting.
+
+**Defaults now reach each platform's own config, without stepping on anything.** Seven platforms are seeded at install time (Codex, Copilot, Cursor, Gemini CLI, Hermes, Kimi, Qwen), one is already delivered by the existing installer copy (Claude), and four are declared-but-not-writable with recorded reasons. Writes are **seed-if-absent** -- a value you already set is never overwritten on reinstall -- and never destroy what they did not write: TOML is edited through `tomlkit` so your comments and layout survive, and existing YAML is only ever appended to, because a round-trip would silently strip every comment. A platform you do not have installed receives nothing.
+
+**What is deliberately NOT seeded is recorded as carefully as what is.** A model pin ships only where a vendor documents a self-selecting value; exactly one does. Every other model key is listed under `omitted` with its reason, because pinning a provider-scoped id your account cannot reach breaks the tool rather than configuring it.
+
+Two defects worth naming, both caught by the full test suite rather than by review: the seeding code resolved `~` through `os.path.expanduser`, which escapes the fake home the suite installs into, and the install hook ran before the detection gate, so a platform you do not have would still have received a config file. A third was a test that asserted the *key* `paths-ignore` as a proxy for the property it meant (the repo-wide CI gate must not narrow to an allowlist), and so failed a change that widened coverage. Catalog counts are unchanged at **270 skills**, **17 commands**, **31 hooks**, and **23 agents**.
 
 ## What's New in v3.15.14
 
