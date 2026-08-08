@@ -1,5 +1,33 @@
 # Development Log
 
+## [2026-08-08] - v3.16.0 Phase 1: platform defaults contract, generator, and drift guard
+
+### What Changed
+
+`configs/platform-defaults.json` now exists as the authoritative declaration of per-platform install-time behavioral defaults, seeded with Claude only. `scripts/sync_platform_defaults.py` derives the shipped artifacts from it (`--apply`) and fails the build when one drifts away (`--check`), wired into `make validate` and the CI `validate` job. The `nexus-hub init` project stub no longer carries a second hardcoded copy of the three values: `_PROJECT_SETTINGS_STUB` is gone and the stub is composed at call time from the declared source. Three test surfaces that restated `medium` as a literal now assert against the source instead.
+
+### Why It Changed
+
+The v3.15.5 effort-level change had to edit four declarations across two files and correct four documentation surfaces that restated the value as prose. The root cause is that `catalog/hooks/settings.json` plays two roles at once: it declares Claude's defaults AND it is the artifact copied to a user's `~/.claude/settings.json`. With no separate source to point at, the values were copy-pasted into `scripts/lib/integrations/claude.py`. Splitting the source from the artifact resolves the dual role without changing what the installers consume.
+
+### Decisions Made
+
+- **The generator preserves each artifact's line endings, and that is not cosmetic.** This repository runs `core.autocrlf=true` with `* text=auto`, so a Windows working tree holds CRLF (6211 bytes) while git stores LF (5950). A generator writing a fixed `"\n"` would look clean to `git status` while rewriting every line ending on disk, and the plan's mandated "byte-identical after a no-op `--apply`" assertion would have passed in CI and failed on the maintainer's own machine. The dominant newline is detected per artifact and preserved; both conventions are covered by parametrized tests.
+- **The offline fallback is guarded, because removing one hardcoded copy created another.** The plan's goal was to delete the second declaration, but the required safe-degradation path re-introduces literals in `_FALLBACK_SETTINGS`. Drift was therefore moved, not removed, until `--check` was extended to verify the fallback via `ast.literal_eval` (no import, no side effects) and `--apply` was taught to rewrite it. A check that flags something `--apply` cannot fix is an incoherent tool.
+- **Missing-source degradation is silent; malformed-source degradation is not.** The plan said to log a one-line note whenever the source is absent. Tracing the install layout showed the installers only ever *read* `configs/permissions/` from a checkout and never copy `configs/` into `~/.nexus-hub`, so absence is the NORM for installed users and the note would have fired on every `nexus-hub init`. Confirmed with the maintainer, absence now degrades silently and a second candidate path (`~/.nexus-hub/src/configs/`, materialized by the one-line bootstrap) recovers the live value where one exists. A file that exists but cannot be parsed still gets its one line, on stderr.
+- **No installer was touched, and a test proves that was the correct reading.** Classifying `sync_platform_defaults.py` into `DEV_ONLY_SCRIPTS` is what keeps both installers untouched, which matters because installer edits are ask-first. `test_installers_copy_every_scripts_dir_py_file` passes with neither installer edited, so the classification is machine-confirmed rather than asserted.
+- **No CI path filter was added, matching the v3.15.14 Phase 4.5 precedent.** `ci.yml` has no per-job path filters, only a workflow-level `paths-ignore: docs/**`. `configs/` sits outside `docs/`, so the check already runs on every change that can cause drift; a positive `paths:` filter would have narrowed coverage rather than saved minutes.
+
+### Troubleshooting Trail
+
+- **`Path.read_text(newline=...)` is Python 3.13+.** It failed immediately on this 3.12 host and CI pins 3.11, so the newline argument is passed through `open()` via a small `read_text_raw` helper instead.
+- **One test failure in the 1750-test run was pre-existing.** `test_ps_standalone_extracts_and_hands_off` fails with `/usr/bin/tar: unexpected end of file`. Rather than assume, it was re-run in a detached `git worktree` at the base `develop` commit and failed identically in 3.6s: `install.ps1` shells out to `tar`, which on this host resolves to the Git Bash MSYS binary. Recorded as BG-1, not introduced here.
+- **Coverage read low until the measurement was corrected.** The script sat at 78% because its `main()` is exercised only through subprocess CLI tests, which coverage cannot instrument. In-process `main()` tests plus error-branch tests were added, taking the two changed modules to 99% combined.
+
+### Verification
+
+`make` is unavailable on this host, so the eight `validate` guards were run individually and all passed, including `check_base_template_parity.py` (the plan requires the five `base-*.md` templates stay untouched) and `validate_workflow_security.py` (after the `ci.yml` edit). ShellCheck is clean; no shell file changed. Tests: 461 validators, 1750 installer/integrations/hooks (1 pre-existing failure, see above), 69 in the new module. A real `nexus-hub init` into a throwaway project writes a stub whose values match the declared source with the correct key order.
+
 ## [2026-08-08] - v3.15.14 Phase 4: refactor, reconciliation, and CI/CD [release-readiness]
 
 ### What Changed

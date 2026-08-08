@@ -56,12 +56,20 @@ def test_init_creates_claude_settings_stub(tmp_path: Path) -> None:
     data = json.loads(settings.read_text(encoding="utf-8"))
     assert "permissions" in data
     assert "allow" in data["permissions"]
-    # The stub seeds medium effort + the opus model as the project defaults,
-    # plus the highest-precedence env override that pins the effort past the VS
-    # Code toggle. The env value must match the scalar or it silently wins.
-    assert data["effortLevel"] == "medium"
-    assert data["model"] == "opus"
-    assert data["env"]["CLAUDE_CODE_EFFORT_LEVEL"] == "medium"
+    # The stub seeds its effort/model/env defaults from the DECLARED source
+    # (configs/platform-defaults.json) rather than a hardcoded literal, so this
+    # asserts consistency with that source instead of restating the value. That
+    # makes it a real consistency test rather than a second place to edit when
+    # the default moves (v3.16.0 Phase 1).
+    declared = json.loads(
+        (REPO_ROOT / "configs" / "platform-defaults.json").read_text(encoding="utf-8")
+    )["platforms"]["claude"]["settings"]
+    assert data["effortLevel"] == declared["effortLevel"]
+    assert data["model"] == declared["model"]
+    assert (
+        data["env"]["CLAUDE_CODE_EFFORT_LEVEL"]
+        == declared["env"]["CLAUDE_CODE_EFFORT_LEVEL"]
+    )
 
 
 def test_init_never_overwrites_existing_claude_settings(tmp_path: Path) -> None:

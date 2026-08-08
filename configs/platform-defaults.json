@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "meta": {
+    "purpose": "Authoritative declaration of per-platform install-time behavioral defaults. Every consuming artifact is DERIVED from this file rather than maintained beside it, so one edit here propagates everywhere on the next generator run.",
+    "authority": "This is the ONLY place a per-platform behavioral default is edited. Do not hand-edit a derived artifact; scripts/sync_platform_defaults.py --check fails the build when one drifts from this source.",
+    "scope": "Behavioral defaults ONLY (reasoning effort, default model pin, approval or autonomy policy, and equivalents). File-discovery paths and platform capabilities live in docs/policy/platform-read-contracts.json and are deliberately out of scope here.",
+    "do_not_invent": "A platform appears in this file ONLY when a specific official vendor document names the lever, recorded as source_url plus a verified date. Never seed a lever from a blog post, a forum, an aggregator, or an analogy to another platform. The v3.15.0 removal of the fabricated .kimi/agent.yaml companion is why this rule exists.",
+    "platform_id_source": "scripts/lib/integrations/__init__.py::_register_builtins - platform keys below MUST match the integration registry ids exactly, so an entry maps to its integration with no translation table.",
+    "lever_contract": "docs/policy/platform-defaults-levers.md - the per-platform VERIFIED / UNVERIFIED classification with evidence. Populated in v3.16.0 Phase 2; a platform may not appear here without a VERIFIED row there.",
+    "generator": "python scripts/sync_platform_defaults.py --apply   (regenerate derived artifacts)\npython scripts/sync_platform_defaults.py --check   (fail on drift; runs in `make validate` and CI)",
+    "env_precedence_warning": "Where a platform exposes both a scalar setting and an environment-variable counterpart, the env value commonly OUTRANKS the scalar. Declare both together or the scalar becomes decorative while the env value silently wins.",
+    "last_updated": "2026-08-08"
+  },
+  "platforms": {
+    "claude": {
+      "display_name": "Claude Code",
+      "source_url": "https://code.claude.com/docs/en/settings",
+      "verified": "2026-08-08",
+      "doc_statement": "The Claude Code settings.json reference documents effortLevel (\"Persist the effort level across sessions. Accepts low, medium, high, or xhigh.\"), model (read once at session start), and env (\"Environment variables applied to every session and to subprocesses Claude Code spawns from it.\"). The same page states that CLAUDE_CODE_EFFORT_LEVEL overrides effortLevel for a session, which is why both are declared together here.",
+      "settings": {
+        "effortLevel": "medium",
+        "model": "opus",
+        "env": {
+          "CLAUDE_CODE_EFFORT_LEVEL": "medium"
+        }
+      },
+      "rationale": {
+        "effortLevel": "medium is a deliberate cost choice adopted in v3.15.5, chosen over the platform default so routine work does not burn a high-effort budget. Raise to high or xhigh for deeper reasoning.",
+        "model": "opus pins the strongest tier as the default rather than leaving the account default, so a fresh install reasons at full strength unless the user opts down.",
+        "env.CLAUDE_CODE_EFFORT_LEVEL": "Mirrors effortLevel because the environment variable is the higher-precedence lever: it pins the effort past the VS Code effort toggle on every new session. If it disagreed with the scalar it would silently win."
+      },
+      "derived_artifacts": [
+        {
+          "path": "catalog/hooks/settings.json",
+          "format": "json",
+          "strategy": "merge-keys",
+          "keys": [
+            "effortLevel",
+            "model",
+            "env.CLAUDE_CODE_EFFORT_LEVEL"
+          ],
+          "note": "This file is BOTH a declared default and the artifact copied to a user's ~/.claude/settings.json, and it additionally carries the full hook registration chains (SessionStart / PreToolUse / PostToolUse / UserPromptSubmit / Notification / Stop / PreCompact / SessionEnd). The generator therefore updates only the keys listed above in place and leaves every other byte untouched. It is never serialized fresh over the file."
+        },
+        {
+          "path": "scripts/lib/integrations/claude.py",
+          "format": "python",
+          "strategy": "runtime-read",
+          "keys": [
+            "effortLevel",
+            "model",
+            "env.CLAUDE_CODE_EFFORT_LEVEL"
+          ],
+          "fallback_symbol": "_FALLBACK_SETTINGS",
+          "note": "The nexus-hub init project stub reads this file at runtime, so there is nothing to generate. It keeps a hardcoded fallback for installed trees that do not carry configs/; --check verifies that fallback still equals the declared values so it cannot quietly drift into stating something untrue."
+        }
+      ]
+    }
+  }
+}

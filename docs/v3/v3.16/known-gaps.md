@@ -1,10 +1,10 @@
 # Known Gaps - v3.16
 
 **Project**: Nexus-Hub
-**Status**: No v3.16 release has been implemented yet (latest tag `v3.15.5`; `v3.15.6 adoption-sandbox-escapes` is in flight on `feat/adoption-sandbox-escapes`). The v3.16 line currently holds seven committed plans and no implementations: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
-**Last updated**: 2026-08-08 (v3.15.14 Phase 4.3 transfers appended; still no v3.16 version-implementation entries)
+**Status**: v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (Phase 1 of 5 complete; unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
+**Last updated**: 2026-08-08 (v3.16.0 Phase 1 gaps appended)
 
-> **File-lifecycle note**: this ledger was created ahead of any v3.16 implementation, by a comparison that deliberately claimed no release slot. It therefore contains ONLY the `## Comparison-Sourced Deferrals` section below. The first v3.16 version-implementation phase to reconcile its gaps should **append** its own `## v3.16.N - <slug>` section rather than replacing this file, and should keep its own `DF-#` / `NI-#` / `QG-#` numbering, which is namespaced separately from the `CD-#` ids used here (see the numbering note in that section).
+> **File-lifecycle note**: this ledger was created ahead of any v3.16 implementation, by a comparison that deliberately claimed no release slot, so it began with only the `## Comparison-Sourced Deferrals` section. Each v3.16 version-implementation phase **appends** its own `## v3.16.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` numbering, which is namespaced separately from the `CD-#` and `TR-#` ids used above.
 
 ---
 
@@ -78,11 +78,60 @@ Items that a `/compare` pass classified as genuine but too small to justify a re
 
 ---
 
+## v3.16.0 - platform-defaults-config
+
+Gaps recorded during implementation of [plans/v3.16.0-platform-defaults-config.md](plans/v3.16.0-platform-defaults-config.md). Appended at Phase 1 (post-phase step 8.4); later phases append to this same section. Ids use the per-version `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` namespace, distinct from the `CD-#` and `TR-#` ids above.
+
+### DF-1 - OPEN: no per-job CI path filter for the drift check
+
+- **Source phase**: Phase 1, sub-task 1.5.
+- **Plan reference**: 1.5 asks to "create or update the CI workflow to cover the new script and tests with a path filter scoped to `configs/` plus the script plus its tests".
+- **Reason**: `.github/workflows/ci.yml` has no per-job path filters. It uses a single workflow-level `paths-ignore: ['docs/**']`, so `configs/`, `scripts/`, and `tests/` already trigger the `validate` job. Adding a narrowing filter for one step would have *reduced* coverage (the check would stop running on changes that can cause drift) without a meaningful action-minute saving, since the check runs in about a second inside a job that already runs.
+- **Precedent**: v3.15.14 Phase 4.5 reached the same conclusion independently for `catalog/templates/**` and `catalog/skills/**` (recorded in [docs/DEVLOG.md](../../DEVLOG.md) under its 2026-08-08 entry): those paths sit outside `docs/`, so the existing `paths-ignore` already fires the full job set, and a positive `paths:` filter would have narrowed coverage rather than optimized it. The reasoning transfers unchanged to `configs/`.
+- **Suggested next step**: none required. If Phase 5's CI/CD optimization pass introduces per-job path filtering as a general pattern, include this step's inputs (`configs/**`, `scripts/sync_platform_defaults.py`, `tests/validators/test_sync_platform_defaults.py`) in that design rather than bolting one filter onto an otherwise unfiltered job.
+
+### DF-2 - CLOSED: the stub's missing-source fallback is silent rather than noted
+
+- **Source phase**: Phase 1, sub-task 1.3.
+- **Plan reference**: 1.3 says to "fall back to the values currently hardcoded and log a one-line note rather than raising".
+- **What shipped instead**: absence of the source degrades **silently**; only a source that exists but cannot be parsed prints a one-line note to stderr. The plan's wording treated absence as exceptional, but it is the normal case: the installers read `configs/permissions/` from a checkout and never copy `configs/` into `~/.nexus-hub`, so an unconditional note would print on every `nexus-hub init` for installed users. A second candidate path (`~/.nexus-hub/src/configs/`, which the one-line bootstrap materializes) was added so an installed tree still picks up the live value where one exists.
+- **Status**: confirmed with the maintainer at implementation time and closed as a deliberate, documented deviation. Covered by `test_stub_falls_back_silently_when_the_source_is_absent` and `test_stub_notes_once_when_the_source_is_malformed`.
+
+### NI-1 - OPEN: `configs/` is not distributed, so some installed trees use the fallback
+
+- **Source phase**: Phase 1, sub-task 1.3.
+- **Reason it is open**: `configs/platform-defaults.json` is a repo-internal source. An installed tree with no bootstrap-materialized checkout under `~/.nexus-hub/src/` finds no candidate and uses the module's hardcoded fallback. The fallback cannot silently rot (the `--check` guard compares it to the declared values), so the values are always correct at ship time; what such a tree loses is the ability to change the default by editing one file locally.
+- **Why it was not done in Phase 1**: the fix is an installer copy step, and modifying the installers is ask-first under AGENTS.md. The plan explicitly scopes the installers as untouched so this release adds no `jq` dependency and stays independent of the v3.17.0 `jq` removal.
+- **Suggested next step**: decide deliberately in a later cycle whether `configs/platform-defaults.json` should become a distributed artifact. If yes, it needs a copy step in BOTH `scripts/installer.sh` and `scripts/installer.ps1` and a row in the AGENTS.md distribution table. If no, record that end users configure via their own `settings.json` and the source is a maintainer surface only.
+
+### BG-1 - OPEN (pre-existing, not introduced here): PowerShell bootstrap tarball test fails locally
+
+- **Source phase**: Phase 1, sub-task 1.5 (observed, not caused).
+- **Symptom**: `tests/installer/test_bootstrap.py::test_ps_standalone_extracts_and_hands_off` fails with `/usr/bin/tar: unexpected end of file` / `Child returned status 128`. `install.ps1` shells out to `tar`, which on a Windows host with Git Bash ahead of the system `tar` on PATH resolves to the MSYS binary and rejects the fixture archive.
+- **Evidence it is pre-existing**: reproduced identically (3.6s) in a detached `git worktree` at the base `develop` commit with none of this phase's changes present. The full run was 1750 passed / 1 failed / 53 skipped, and this is the one.
+- **Suggested next step**: pin the extraction binary in `install.ps1` (prefer `$env:SystemRoot\System32\tar.exe` on Windows) or skip the test when `tar` resolves to an MSYS path. CI is unaffected because its runners have a consistent `tar`. Fold into whichever cycle next touches the bootstrap.
+
+### WN-1 - OPEN (environmental): stale git worktree admin entries cannot be pruned
+
+- **Source phase**: Phase 1, sub-task 1.5 (observed while classifying BG-1).
+- **Symptom**: `git worktree prune` reports `failed to delete '.git/worktrees/<name>': Permission denied` for `v3.15.8-platform-parity` and `v3157-phase1-tests`, left over from earlier cycles on this OneDrive-backed checkout.
+- **Impact**: none on the catalog or on any distributed artifact; `git worktree list` is already clean, so only the admin directories linger.
+- **Suggested next step**: remove `.git/worktrees/*` for the stale names outside a OneDrive sync window. Not a code gap; recorded so a future reader does not mistake it for repository corruption.
+
+### Observations (no action)
+
+- **Local Python lint was not run**: `ruff` is not installed on this host. The repository's own `make lint` target runs ShellCheck only (which passed, on unchanged shell files), so no declared gate was bypassed. Python style was kept to the surrounding conventions by hand, and the generator emits ruff-shaped literals (magic trailing comma) so `--apply` does not fight the formatter.
+- **`make` is unavailable on this host**: the `validate` steps were run individually as the equivalent, and all eight passed.
+- **Only Claude is seeded, by design**: Phase 2 web-verifies the remaining fifteen registered integrations before any of them appears in the defaults file. A single-platform defaults file at the end of Phase 1 is the intended state, not an omission.
+
+---
+
 ## v3.16 Summary
 
 | Category | Open | Resolved |
 |---|---|---|
 | Comparison-sourced deferrals (`CD-#`) | 3 (CD-1, CD-2, CD-3) | 0 |
-| Version-implementation gaps (`DF-#` / `NI-#` / `QG-#`) | n/a (no v3.16 version implemented yet) | n/a |
+| Transferred in from v3.15.14 (`TR-#`) | 2 (TR-1, TR-2) | 1 (TR-3) |
+| v3.16.0 version-implementation gaps | 4 (DF-1, NI-1, BG-1, WN-1) | 1 (DF-2) |
 
-All three open items are non-blocking prose folds with named target files. None gates any v3.16 release.
+The three comparison-sourced items remain non-blocking prose folds with named target files. Of the v3.16.0 items, BG-1 is pre-existing and reproduces without this phase's changes, WN-1 is environmental, DF-1 is a reasoned non-implementation, and NI-1 is a deliberate scope boundary that the plan requires. None gates the v3.16.0 release.

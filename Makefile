@@ -36,6 +36,8 @@ validate: ## Validate all JSON catalog files and skill bundles
 	@python scripts/verify_platform_contracts.py
 	@echo "Checking platform read-contract freshness (re-verified for the release being cut)..."
 	@python scripts/check_platform_contract_freshness.py
+	@echo "Checking derived artifacts against configs/platform-defaults.json (v3.16.0 Phase 1)..."
+	@python scripts/sync_platform_defaults.py --check
 	@echo "Running compression accuracy-regression gate (v3.2.0 Phase 5)..."
 	@cd extensions/nexus-context-compressor && python -m evals --check
 	@echo "All catalogs valid."

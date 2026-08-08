@@ -136,6 +136,15 @@ jobs:
         # each platform's current discovery format and re-stamps the marker.
         run: python scripts/check_platform_contract_freshness.py
 
+      - name: Check platform install defaults have not drifted (v3.16.0 Phase 1)
+        # configs/platform-defaults.json is the single place a per-platform
+        # install-time behavioral default is declared. Every consuming artifact
+        # (catalog/hooks/settings.json's core keys, the nexus-hub init stub's
+        # offline fallback) is DERIVED from it. This fails the build when one is
+        # hand-edited away from the source, which is the drift that made the
+        # v3.15.5 effort-level change touch four declarations across two files.
+        run: python scripts/sync_platform_defaults.py --check
+
       - name: Scan catalog for skill-security findings (v3.0.0 Phase 6)
         # Deterministic static gate: fails on any HIGH/CRITICAL finding across
         # catalog/skills and catalog/mcp-configs. MEDIUM/LOW findings in a
