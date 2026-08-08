@@ -163,10 +163,10 @@ describe("Cursor usage extension lifecycle", () => {
     expect(context.globalState.values.has("cursorUsage.snapshot")).toBe(false);
     expect(context.globalState.values.has("cursorUsage.manual")).toBe(false);
     expect(statusItems[0]?.text).toContain("--");
-    expect(executedCommands.at(-1)).toEqual({
-      command: "setContext",
-      args: ["cursorUsage.warningActive", false]
-    });
+    // Dismissing does two things, in this order: clear the context so the view
+    // hides, then return the side bar to the Explorer. Without the second step the
+    // bar stays parked on an empty container and the dismiss looks like it failed.
+    await expectDismissRestoresExplorer(executedCommands);
   });
 
   it("alerts once per meter severity and only on upward crossings without reset metadata", async () => {
@@ -268,7 +268,13 @@ describe("Cursor usage extension lifecycle", () => {
     expect(webviewPanels[1]?.webview.html).toContain(
       "Cursor Usage Settings"
     );
-    expect(informationMessages.at(-1)).toContain("HO-5");
+    // v3.15.12: the refusal notice names the provenance of what is on screen
+    // instead of citing HO-5, so the user is told which data they are looking at
+    // rather than an internal gap id.
+    const notice = informationMessages.at(-1) ?? "";
+    expect(notice).toContain("live refresh is unavailable");
+    expect(notice).toContain("manually entered usage");
+    expect(notice).not.toContain("HO-5");
   });
 
   it("validates interactive manual JSON without persisting invalid input", async () => {
@@ -605,10 +611,7 @@ describe("Cursor usage extension lifecycle", () => {
     expect(
       executedCommands.filter((entry) => entry.args[1] === true)
     ).toHaveLength(alertsBeforeFailure);
-    expect(executedCommands.at(-1)).toEqual({
-      command: "setContext",
-      args: ["cursorUsage.warningActive", false]
-    });
+    await expectDismissRestoresExplorer(executedCommands);
     runtime.dispose();
   });
 
@@ -634,3 +637,31 @@ describe("Cursor usage extension lifecycle", () => {
     );
   });
 });
+
+/**
+ * Dismissing the warning must clear the context AND return the side bar to the
+ * Explorer, in that order. Asserted as "the last clear is immediately followed by
+ * the Explorer" rather than by absolute position, because a single action can
+ * dismiss more than once (clearing data dismisses, and the resulting state change
+ * dismisses again) and pinning `at(-2)` makes the test depend on that count.
+ */
+async function expectDismissRestoresExplorer(
+  commands: ReadonlyArray<{ command: string; args: readonly unknown[] }>
+): Promise<void> {
+  // The runtime fires dismiss() without awaiting it, and dismiss awaits the
+  // setContext before switching views, so the Explorer command lands a microtask
+  // after the caller returns. Flush before asserting rather than pinning the
+  // assertion to whichever half has completed.
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  const index = commands.findLastIndex(
+    (entry) =>
+      entry.command === "setContext" &&
+      entry.args[0] === "cursorUsage.warningActive" &&
+      entry.args[1] === false
+  );
+  expect(index).toBeGreaterThan(-1);
+  expect(commands[index + 1]).toEqual({
+    command: "workbench.view.explorer",
+    args: []
+  });
+}

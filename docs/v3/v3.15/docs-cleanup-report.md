@@ -81,7 +81,7 @@ No receiving skill crossed the 500-line target because of this plan: the one edi
 
 The bundled audit helper inventoried 366 active documentation files repository-wide and 68 files under `docs/v3/v3.15/` before the Phase 1 session history was added. The reference graph contained 48 referenced documentation targets. The three new contract documents, the v3.15.8 plan update, and this checkpoint all belong to the active v3.15 development record; the session history brings the expected active v3.15 total to 69.
 
-All Phase 1 documentation remains Cat 4 active/current. No file qualifies as Cat 1 deletion, Cat 2 historical archive, or Cat 3 relocation. The plan, development contracts, fixtures, and semantic tests use their canonical directories, and the v3.16.7 portable-path correction changes content only, not document ownership or placement.
+All Phase 1 documentation remains Cat 4 active/current. No file qualifies as Cat 1 deletion, Cat 2 historical archive, or Cat 3 relocation. The plan, development contracts, fixtures, and semantic tests use their canonical directories, and the v3.20.0 portable-path correction changes content only, not document ownership or placement.
 
 Phase 1 created only already-ignored Python coverage and cache outputs. Existing ignore rules cover `.coverage`, `.pytest_cache`, `.ruff_cache`, and `__pycache__`; zero `.gitignore` patterns were added. No move, rename, deletion, archive operation, or reference repair was applied.
 
@@ -230,3 +230,59 @@ The repository-wide structural audit found no orphan among the files this releas
 Two dead-reference candidates were inspected and both are intentional. The `basename "$(pwd)"` strings remaining in `catalog/hooks/notify-on-complete.sh` and `catalog/hooks/tests/test_notify_triggers.py` are prose explaining the defect that was fixed, not live code. The same expression in `catalog/hooks/session-summary.sh` IS live and carries the identical mislabeling weakness, but that is a different hook with a different purpose and changing it does not trace to this release's scope, so it is recorded as a follow-on in the known-gaps advisory section instead.
 
 Phase 4 changed documentation only (CHANGELOG, DEVLOG, known-gaps, this report, and the session history). It added no source file, directory, artifact class, or scratch output, and required zero new `.gitignore` patterns.
+
+## v3.15.12 Phase 1 audit (2026-08-05, mode: audit - no files moved)
+
+v3.15.12 Phase 1 added exactly one document to the active v3.15 tree: the phase session history under `development/history/`. It modified two existing documents in place (`development/cursor-usage-auth-probe.md` gained a "Phase 4 Authorization" section; `known-gaps.md` gained the v3.15.12 subsection) plus the repo-root `CHANGELOG.md`, `docs/DEVLOG.md`, this report, and the extension's own `README.md`. Every one of those is its canonical location, so nothing qualifies for deletion, archival, consolidation, or relocation, and no reference repair is justified. **The phase created no scratch document**, so there is nothing to propose cleaning up.
+
+The orphan audit covers the four new source files and four new fixtures. All four sources (`consent.ts`, `session.ts`, `liveTransport.ts`, `liveAccess.ts`) are re-exported from `src/providers/index.ts`, imported by `src/extension.ts`, and each has a dedicated test file. All four fixtures (`wire-contract.json`, `wire-usage-summary.json`, `wire-field-drift.json`, `wire-unit-drift.json`) are read by `test/liveTransport.test.ts` and enumerated in `tests/plans/test_v3_15_9_cursor_usage_contracts.py`, whose `test_fixture_inventory_is_exact_and_parseable` asserts the inventory is exact, so an unreferenced fixture in that directory is a hard failure rather than a warning. No orphan exists.
+
+One structural note, recorded rather than acted on: the wire fixtures sit at repo-root `tests/fixtures/cursor-usage/` while the code that pins them lives under `extensions/cursor-usage-monitor/`, which is why the extension's CI workflow does not trigger on a fixture-only edit (QG-6). Relocating the fixtures into the extension directory would fix the trigger but break the repo-level Python contract suite that also asserts over them, and colocating a copy would create the duplication this report exists to prevent. Adding the path to the workflow's filter is the smaller change and is what QG-6 proposes.
+
+Phase 1 required zero new `.gitignore` patterns: vitest coverage output is already ignored by `extensions/cursor-usage-monitor/.gitignore:3` (`coverage/`), and `*.vsix` plus `extensions/**/out/` are already covered repo-wide.
+
+## v3.15.12 Phase 2 audit (2026-08-05, mode: audit - no files moved)
+
+v3.15.12 Phase 2 added **no** document to the active v3.15 tree beyond its required phase history. It modified two existing documents in place: `development/cursor-usage-visual-contract.md` (the on-demand meter rule, superseded by this phase) and `known-gaps.md`, plus the repo-root `docs/DEVLOG.md`, this report, and the extension's `README.md`. Every one is its canonical location, so nothing qualifies for deletion, archival, consolidation, or relocation, and no reference repair is justified. The phase created no scratch document.
+
+One classification worth stating explicitly, because it is the kind of thing that later reads as a contradiction: the visual contract is dated `v3.15.9` in its own header while now carrying a v3.15.12 rule. It was amended rather than superseded by a new file on purpose. A second `cursor-usage-visual-contract-v3.15.12.md` would split one contract across two documents and leave a reader unsure which governs, which is exactly the duplication this report exists to prevent. The amended bullets name the version that changed them, so the provenance survives inside the single document.
+
+Phase 2 added no source file, directory, artifact class, or scratch output. It changed three existing TypeScript sources and one existing test file, all inside the extension tree, and required zero new `.gitignore` patterns.
+
+## v3.15.12 Phase 3 audit (2026-08-06, mode: audit - no files moved)
+
+Phase 3 added one document to the active v3.15 tree (its phase history) and one test file outside it (`tests/installer/test_github_billing_rename.py`, which belongs beside the installer suites it extends). It modified two existing v3.15 development documents in place, `github-usage-data-contract.md` and `github-usage-visual-contract.md`, both of which asserted the old extension title as present fact. Nothing qualifies for deletion, archival, consolidation, or relocation, and no reference repair is justified. The phase created no scratch document.
+
+Two naming classifications are worth stating, because both will otherwise read as oversights later.
+
+First, the **filenames keep `github-usage`** while their content now says `GitHub Billing Usage`: the contracts stay at `github-usage-data-contract.md` and `github-usage-visual-contract.md`, and the extension stays at `extensions/github-usage-monitor/`. That is deliberate and consistent with the phase's central decision. The extension id is `publisher.name`, so the directory name is load-bearing for the id; renaming the directory would either break the id or require a second rename to keep it. The docs follow the code's naming so a reader grepping either finds both. Renaming the doc files would also invalidate every inbound reference from the v3.15.8 plan and its three histories, which are historical records that must not be rewritten.
+
+Second, **history was deliberately not rewritten**. The v3.15.8 plan, its three phase histories, the root README's `## What's New in v3.15.8` section, and earlier CHANGELOG entries all still say "GitHub Usage Monitor". They record what shipped under that name at that time, and editing them would falsify the record. Only documents asserting the old name as *current fact* were changed.
+
+Phase 3 added no directory, artifact class, or scratch output, and required zero new `.gitignore` patterns.
+
+## v3.15.12 Phase 4 pre-work audit (2026-08-06, mode: audit - no files moved)
+
+The Phase 4 pre-work added two documents to the active v3.15 tree, `development/github-billing-auth-probe.md` and its session history, and modified `development/github-usage-data-contract.md`, `known-gaps.md`, the plan, this report, `docs/DEVLOG.md`, `CHANGELOG.md`, and the extension `README.md`. Every one is its canonical location; nothing qualifies for deletion, archival, consolidation, or relocation. No scratch document was created.
+
+One placement decision worth stating: the new probe doc sits beside `cursor-usage-auth-probe.md` under `development/`, matching the existing convention that a probe record lives with the contracts it constrains rather than in `plans/`. The two are deliberately parallel documents for the same reason - each records a premise that only a real host can settle - and a reader who finds one should find the other adjacent.
+
+The orphan audit covers two new source files. `src/providers/authProbe.ts` is imported by `test/auth-probe.test.ts` and referenced by name from the probe doc, and it is deliberately **not** yet wired into `extension.ts`: it is a T022c instrument, and wiring it into activation before the probe has been run would imply a capability the extension does not yet have. That makes it referenced-but-unwired by design, not an orphan. `test/auth-probe.test.ts` is collected by the extension's Vitest glob.
+
+Phase 4 pre-work added no directory, artifact class, or scratch output, and required zero new `.gitignore` patterns.
+
+## v3.15.12 Phase 4 and Phase 5 final audit (2026-08-06, mode: audit - no files moved)
+
+Phase 4 added two session histories and no other document; Phase 5 added its own history and amended `known-gaps.md`, `CHANGELOG.md`, `docs/DEVLOG.md`, this report, and the plan. All canonical locations. Nothing qualifies for deletion, archival, consolidation, or relocation, and no reference repair is justified because nothing moved.
+
+The repository-wide structural audit found: 8 empty directories under `catalog/skills/`, all untracked and all the same set prior reports dispositioned as maintainer work-in-progress or parallel-session artifacts, left untouched; no tracked build or coverage artifact (`git ls-files` matches nothing under `out/`, `coverage/`, or `*.vsix`); and no `TODO` / `FIXME` / `XXX` / `HACK` / `# DEVIATION` marker in any of the 40-plus files this version changed.
+
+One untracked file belongs to a parallel session (`docs/v3/v3.17/comparisons/v3.19.2-comparison-mattpocock-...`, which that session renumbered out of v3.15.13 during this work). It was never staged. Every commit in this version staged by explicit path rather than `git add -A`, after the first Phase 1 commit nearly swept an earlier file of theirs in; that is recorded in the v3.15.12 Phase 2 history as the reason.
+
+New source files this version, all referenced and none orphaned: the Cursor extension gained `providers/{consent,session,liveTransport,liveAccess,wireShape}.ts` plus `scripts/probe-wire-shape.js`, and the GitHub extension gained `providers/{authProbe,capability,sessionBinding,diagnose}.ts` plus `scripts/probe-billing-auth.js`. Each is imported by source or driven by a test; the two `scripts/` runners are referenced from their probe docs and excluded from both VSIXs by `.vscodeignore`.
+
+One deliberate non-orphan worth naming: `providers/authProbe.ts` is now reached from shipped code (the diagnostic) rather than tests alone, which it was during Phase 4 pre-work. At that point it was referenced-but-unwired **by design**, because wiring a probe into activation before the probe had been run would have implied a capability the extension did not have.
+
+An advisory, pre-existing and not introduced here: `docs/DEVLOG.md` carries 22 non-ASCII characters from line 2422 onward, all in v2.0.0-era entries. This version's own entries are ASCII-clean, verified. Left untouched as historical record; line numbers recorded in `known-gaps.md` for a future sweep.
+
+Phases 4 and 5 added no artifact class or scratch output, and required zero new `.gitignore` patterns.

@@ -103,6 +103,6 @@ export function vscodeGitHubSessionProbe(): { supported: false; reason: string }
 function missingTokenError(): ProviderError {
   return {
     code: "missing-token",
-    message: "No GitHub billing token is stored. Run 'GitHub Usage: Set Token'."
+    message: "No GitHub billing token is stored. Run 'GitHub Billing: Set Token'."
   };
 }

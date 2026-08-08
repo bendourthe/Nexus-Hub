@@ -413,7 +413,12 @@ function parseTeamContext(
   if (value === undefined) {
     return {
       ok: true,
-      value: { sharedSpendLimit: null, dynamicSpendLimit: null }
+      value: {
+        sharedSpendLimit: null,
+        dynamicSpendLimit: null,
+        sharedSpendUsed: null,
+        sharedSpendRemaining: null
+      }
     };
   }
   const teamContext = asRecord(value);
@@ -438,11 +443,31 @@ function parseTeamContext(
       sourceAttempt(source)
     );
   }
+  // ABSENT is not INVALID. These two fields were added after the first release, so
+  // every snapshot already cached on a user's machine lacks them. Requiring them
+  // would reject the whole cache on upgrade and blank the panel until the next
+  // successful fetch - a self-inflicted outage for a purely additive field. `null`
+  // and "not present" both mean "not reported".
+  const sharedSpendUsed = parseNullableMoney(
+    teamContext.sharedSpendUsed ?? null
+  );
+  const sharedSpendRemaining = parseNullableMoney(
+    teamContext.sharedSpendRemaining ?? null
+  );
+  if (!sharedSpendUsed.ok || !sharedSpendRemaining.ok) {
+    return failure(
+      "invalid-value",
+      "Cursor shared team spend usage is invalid.",
+      sourceAttempt(source)
+    );
+  }
   return {
     ok: true,
     value: {
       sharedSpendLimit: sharedSpendLimit.value,
-      dynamicSpendLimit: teamContext.dynamicSpendLimit
+      dynamicSpendLimit: teamContext.dynamicSpendLimit,
+      sharedSpendUsed: sharedSpendUsed.value,
+      sharedSpendRemaining: sharedSpendRemaining.value
     }
   };
 }
@@ -529,7 +554,9 @@ function parseHtmlOnDemand(
     state,
     teamContext: {
       sharedSpendLimit: parseMoneyText(text, "Team spend limit"),
-      dynamicSpendLimit: null
+      dynamicSpendLimit: null,
+      sharedSpendUsed: null,
+      sharedSpendRemaining: null
     }
   };
 }

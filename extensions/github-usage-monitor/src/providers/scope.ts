@@ -49,6 +49,46 @@ export function copilotEndpointSuffix(endpoint: CopilotEndpoint): string {
   return endpoint === "ai-credits" ? "ai_credit/usage" : "premium_request/usage";
 }
 
+/**
+ * The human-facing billing page for an owner - the authoritative figures, and the
+ * escape hatch every other Nexus-Hub usage monitor already offers. Built here
+ * rather than in the panel so it is unit-testable and cannot drift per surface.
+ */
+export function billingPageUrl(owner: BillingOwner): string {
+  const encoded = encodeURIComponent(owner.name);
+  switch (owner.scope) {
+    case "user":
+      // GitHub routes personal billing off the signed-in account, not the slug.
+      return "https://github.com/settings/billing";
+    case "organization":
+      return `https://github.com/organizations/${encoded}/settings/billing`;
+    case "enterprise":
+      return `https://github.com/enterprises/${encoded}/settings/billing`;
+  }
+}
+
+/**
+ * The owner actually used, preferring explicit configuration and falling back to
+ * the signed-in account for user scope.
+ *
+ * This is what makes the monitor work with no setup: a personal billing owner is
+ * almost always the account the editor is already signed in as, so requiring it to
+ * be typed is friction for no information gain. Organization and enterprise names
+ * cannot be inferred and are still required, because guessing which of several
+ * organizations someone means would be worse than asking.
+ */
+export function resolveEffectiveOwner(
+  scope: string,
+  configuredName: string,
+  sessionAccountLabel: string | null
+): ScopeResolution {
+  const trimmed = configuredName.trim();
+  if (trimmed.length === 0 && scope === "user" && sessionAccountLabel !== null) {
+    return resolveBillingOwner(scope, sessionAccountLabel);
+  }
+  return resolveBillingOwner(scope, trimmed);
+}
+
 export function requiredPermission(owner: BillingOwner): string {
   switch (owner.scope) {
     case "user":

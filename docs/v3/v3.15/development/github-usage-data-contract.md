@@ -7,7 +7,7 @@
 
 ## Decision
 
-The GitHub Usage Monitor reads documented GitHub REST billing endpoints only. It selects one explicit billing scope (`user`, `organization`, or `enterprise`), stores a user-supplied credential only in VS Code SecretStorage, and never scrapes GitHub.com, reads browser cookies, or converts absolute consumption into a percentage without a verified denominator. Unsupported access falls back to cached data and optional manual allowances, with source and freshness shown to the user.
+GitHub Billing Usage (named "GitHub Usage Monitor" before v3.15.12; extension id `nexus-hub.github-usage-monitor` unchanged) reads documented GitHub REST billing endpoints only. It selects one explicit billing scope (`user`, `organization`, or `enterprise`), stores a user-supplied credential only in VS Code SecretStorage, and never scrapes GitHub.com, reads browser cookies, or converts absolute consumption into a percentage without a verified denominator. Unsupported access falls back to cached data and optional manual allowances, with source and freshness shown to the user.
 
 No authorized billing credential or account scope was supplied for Phase 1, so no live billing request was made. The fixture set uses sanitized shapes derived from GitHub's published examples. The bounded probe below is the approved procedure for a later explicitly authorized run.
 
@@ -18,6 +18,11 @@ No authorized billing credential or account scope was supplied for Phase 1, so n
 | Personal | `/users/{username}/settings/billing` | Fine-grained PAT or GitHub App user token with user `Plan: read` | Includes only Copilot and Actions usage billed directly to that personal account |
 | Organization | `/organizations/{org}/settings/billing` | Fine-grained PAT, GitHub App user token, or installation token with organization `Administration: read`; caller must be an organization administrator | Includes usage billed to the organization; managed Copilot must be queried here or at enterprise scope |
 | Enterprise | `/enterprises/{enterprise}/settings/billing` | Enterprise owner or billing manager authorization; billing usage endpoints do not accept fine-grained PATs or GitHub App tokens | Includes enterprise-billed usage and may aggregate cost centers and organizations |
+
+The Authorization column lists the token classes the **REST endpoint reference** names, and it is not exhaustive. Two corrections recorded in v3.15.12 (T022a):
+
+- **Classic PATs are also a valid credential class**, and GitHub's own "Automating usage reporting" tutorial directs users to one, stating that the billing usage endpoints do not support fine-grained PATs. That **conflicts** with the endpoint reference for personal and organization scope. The conflict is recorded rather than resolved in either direction; see [github-billing-auth-probe.md](github-billing-auth-probe.md).
+- **OAuth-app tokens are not excluded by that column's silence.** The reference's token section is titled "Fine-grained access tokens for...", so it enumerates fine-grained support only. Whether an OAuth token (such as a VS Code GitHub session) is accepted is determined by the `X-Accepted-OAuth-Scopes` response header, not by absence from that list. Enterprise scope is the one documentary negative, and it applies to fine-grained PATs and GitHub App tokens, not to OAuth.
 
 User endpoints must never be presented as managed Copilot totals. A user whose Copilot license is billed by an organization or enterprise can legitimately receive an empty personal Copilot result.
 

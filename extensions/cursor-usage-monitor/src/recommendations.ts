@@ -187,3 +187,93 @@ function severityRank(severity: NotifiedSeverity): number {
       return 3;
   }
 }
+
+/**
+ * The dashboard's Recommendation and Tips sections, mirroring the Claude and Codex
+ * monitors so all three read the same way.
+ *
+ * Cursor's advice differs from Claude's in one structural respect worth stating:
+ * Claude's pools are time-windowed (a session that refills in hours), so its advice
+ * is often "wait it out". Cursor's included pools refill only at the billing-cycle
+ * boundary, which can be weeks away, so waiting is rarely actionable. The advice
+ * therefore centers on what still costs nothing versus what now draws on the shared
+ * pool - and on whether that pool has anything left, which is the fact that actually
+ * changes a user's next decision.
+ */
+export interface CursorRecommendation {
+  urgency: UrgencyLevel;
+  message: string;
+  tips: readonly string[];
+  /** The pool a user should prefer right now, when one is clearly cheaper. */
+  suggestedPool: string | null;
+}
+
+const BASE_TIPS: readonly string[] = [
+  "Cursor Models and Other Models draw on separate pools; switching between them moves the cost, it does not remove it.",
+  "Tab completion and inline edits are far cheaper than long agent runs.",
+  "Narrow the context you attach to a request; a whole-repo context costs more per turn.",
+  "Batch related questions into one well-structured prompt instead of many small turns."
+];
+
+export function getRecommendation(
+  snapshot: {
+    cursorModels: { percentUsed: number | null };
+    otherModels: { percentUsed: number | null };
+    // Tri-state: null means the source did not report whether on-demand is on,
+    // which is not the same as reporting that it is off.
+    onDemand: { enabled: boolean | null };
+    teamContext: { sharedSpendRemaining?: { amount: number } | null };
+  },
+  thresholds: Thresholds = DEFAULT_THRESHOLDS
+): CursorRecommendation {
+  const cursorPercent = snapshot.cursorModels.percentUsed;
+  const otherPercent = snapshot.otherModels.percentUsed;
+  const highest = Math.max(cursorPercent ?? 0, otherPercent ?? 0);
+  const urgency = classifyUrgency(highest, thresholds);
+
+  // The pool being exhausted is what decides whether the next request is billable,
+  // so it outranks any percentage in the advice.
+  const remaining = snapshot.teamContext.sharedSpendRemaining ?? null;
+  const poolSpent =
+    snapshot.onDemand.enabled === true &&
+    remaining !== null &&
+    remaining.amount <= 0;
+
+  const cheaperPool =
+    cursorPercent !== null && otherPercent !== null && Math.abs(cursorPercent - otherPercent) >= 20
+      ? cursorPercent < otherPercent
+        ? "Cursor Models"
+        : "Other Models"
+      : null;
+
+  const tips = [...BASE_TIPS];
+  if (poolSpent) {
+    tips.unshift(
+      "The shared on-demand pool is spent, so further usage beyond your included pools may be billed. Confirm with whoever owns the team budget before continuing."
+    );
+  }
+  if (cheaperPool !== null) {
+    tips.unshift(
+      `${cheaperPool} has noticeably more included usage left; prefer it for routine work.`
+    );
+  }
+
+  let message: string;
+  if (urgency === "critical" && poolSpent) {
+    message =
+      "Included usage is nearly gone and the shared on-demand pool is spent. Anything further is likely billable.";
+  } else if (urgency === "critical") {
+    message =
+      "Included usage is nearly gone. Remaining work will draw on the shared on-demand pool.";
+  } else if (urgency === "high") {
+    message =
+      "Included usage is high. Reserve the heavier pool for work that needs it and prefer inline edits for the rest.";
+  } else if (urgency === "moderate") {
+    message =
+      "Included usage is moderate. Nothing to change yet; keep an eye on the pool that is filling faster.";
+  } else {
+    message = "Included usage is low. No action needed.";
+  }
+
+  return { urgency, message, tips, suggestedPool: cheaperPool };
+}

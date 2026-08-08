@@ -1,4 +1,5 @@
 import type {
+  AcceptedAuthorization,
   BillingOwner,
   ProviderError,
   ProviderResult,
@@ -141,7 +142,13 @@ export class GitHubBillingClient {
       });
       const rate = readRateMetadata(response.headers);
       if (!response.ok) {
-        return failure(classifyHttpError(response, path, rate), rate);
+        return failure(
+          withAuthorizationDiagnosis(
+            classifyHttpError(response, path, rate),
+            response.headers
+          ),
+          rate
+        );
       }
       try {
         return { ok: true, value: await response.json(), rate };
@@ -218,6 +225,72 @@ function classifyHttpError(
     statusCode: response.status,
     message: `GitHub billing returned ${response.status}${statusSuffix}.`
   };
+}
+
+/**
+ * Attaches GitHub's own account of what the operation would have accepted, and
+ * appends it to the message when it is actionable.
+ *
+ * Without this a permission failure reads only "the token needs X", which is the
+ * extension's guess from the configured scope. `X-Accepted-OAuth-Scopes` is
+ * GitHub's answer for the credential actually presented, and it is the documented
+ * way to discover what an operation accepts. A user who granted `read:org` where
+ * `admin:org` was required now gets told exactly that.
+ */
+export function withAuthorizationDiagnosis(
+  error: ProviderError,
+  headers: HeadersLike
+): ProviderError {
+  const accepted = readAcceptedAuthorization(headers);
+  const requestId = headers.get("x-github-request-id");
+  if (accepted === null && requestId === null) {
+    return error;
+  }
+
+  const suffix =
+    accepted === null || accepted.acceptedOAuthScopes.length === 0
+      ? ""
+      : ` GitHub reports this operation accepts OAuth scopes: ${accepted.acceptedOAuthScopes.join(", ")}; the credential presented ${
+          accepted.grantedOAuthScopes.length === 0
+            ? "no OAuth scopes"
+            : accepted.grantedOAuthScopes.join(", ")
+        }.`;
+
+  return {
+    ...error,
+    message: `${error.message}${suffix}`,
+    ...(accepted === null ? {} : { accepted }),
+    ...(requestId === null ? {} : { requestId })
+  };
+}
+
+function readAcceptedAuthorization(
+  headers: HeadersLike
+): AcceptedAuthorization | null {
+  const acceptedOAuth = headers.get("x-accepted-oauth-scopes");
+  const grantedOAuth = headers.get("x-oauth-scopes");
+  const acceptedPermissions = headers.get("x-accepted-github-permissions");
+  if (
+    acceptedOAuth === null &&
+    grantedOAuth === null &&
+    acceptedPermissions === null
+  ) {
+    return null;
+  }
+  return {
+    acceptedOAuthScopes: splitHeaderList(acceptedOAuth),
+    grantedOAuthScopes: splitHeaderList(grantedOAuth),
+    acceptedGitHubPermissions: acceptedPermissions
+  };
+}
+
+function splitHeaderList(value: string | null): string[] {
+  return value === null
+    ? []
+    : value
+        .split(",")
+        .map((entry) => entry.trim())
+        .filter((entry) => entry.length > 0);
 }
 
 function readRateMetadata(headers: HeadersLike): RateMetadata {

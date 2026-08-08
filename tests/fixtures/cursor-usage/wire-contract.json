@@ -1,0 +1,39 @@
+{
+  "fixtureContract": {
+    "source": "credential-api",
+    "sanitized": true,
+    "provenance": "live-probe-verified-names-and-units",
+    "verified": true,
+    "note": "Field names and money units were confirmed against a live Cursor account (HTTP 200) by the Phase 6 probe recorded in cursor-usage-auth-probe.md. Three properties are load-bearing: names are camelCase because Connect's JSON codec applies the proto3 JSON mapping to the snake_case descriptor; percentages are used exactly as delivered and never derived, because on the probed account spend-over-limit gave 1078.70 against a reported 23.97; money is minor units, evidenced by limit 2000 for a 20-dollar included allowance. The route is undocumented and is labelled credential-api, never public-api."
+  },
+  "version": "wire/v2-rpc-verified",
+  "origin": "https://api2.cursor.sh",
+  "route": "/aiserver.v1.DashboardService/GetCurrentPeriodUsage",
+  "method": "POST",
+  "fields": {
+    "periodStart": "billingCycleStart",
+    "periodEnd": "billingCycleEnd",
+    "cursorModelsPercent": "planUsage.autoPercentUsed",
+    "cursorModelsSpend": "planUsage.autoSpend",
+    "cursorModelsLimit": "planUsage.autoLimit",
+    "otherModelsPercent": "planUsage.apiPercentUsed",
+    "otherModelsSpend": "planUsage.apiSpend",
+    "otherModelsLimit": "planUsage.apiLimit",
+    "onDemandEnabled": "enabled",
+    "onDemandSpend": "spendLimitUsage.individualUsed",
+    "onDemandPersonalLimit": "spendLimitUsage.individualLimit",
+    "onDemandSharedLimit": "spendLimitUsage.pooledLimit",
+    "onDemandSharedUsed": "spendLimitUsage.pooledUsed",
+    "onDemandSharedRemaining": "spendLimitUsage.pooledRemaining",
+    "limitType": "spendLimitUsage.limitType"
+  },
+  "requiredFields": [
+    "periodEnd",
+    "onDemandEnabled"
+  ],
+  "units": {
+    "includedUsage": "percent-precomputed",
+    "money": "currency-minor",
+    "timestamps": "epoch-millis-string"
+  }
+}

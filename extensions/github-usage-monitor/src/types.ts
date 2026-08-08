@@ -86,12 +86,29 @@ export interface RateMetadata {
   retryAfterMs: number | null;
 }
 
+/**
+ * What GitHub says a denied operation would accept. Captured from the response
+ * headers because the REST reference's prose cannot answer it: its token section
+ * enumerates fine-grained support only, so OAuth's absence there is not a
+ * rejection. These turn a bare 403 into an actionable reason.
+ */
+export interface AcceptedAuthorization {
+  /** `X-Accepted-OAuth-Scopes`: what this operation would accept. */
+  acceptedOAuthScopes: string[];
+  /** `X-OAuth-Scopes`: what the presented token actually carries. */
+  grantedOAuthScopes: string[];
+  /** `X-Accepted-GitHub-Permissions`: fine-grained equivalent, when reported. */
+  acceptedGitHubPermissions: string | null;
+}
+
 export interface ProviderError {
   code: ProviderErrorCode;
   message: string;
   statusCode?: number;
   retryAt?: number;
   requiredPermission?: string;
+  accepted?: AcceptedAuthorization;
+  requestId?: string;
 }
 
 export type ProviderResult<T> =
