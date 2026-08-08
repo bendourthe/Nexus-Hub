@@ -310,6 +310,24 @@ def validate_skill_dir(
     return errors, warnings
 
 
+# Generated artifacts that appear inside a bundle only because a bundled script
+# was executed locally. They are gitignored and never committed, so they are not
+# authorable content and cannot be "referenced from SKILL.md". Auditing them
+# produced warnings that existed only on a developer's machine (11 of them, all
+# __pycache__/*.pyc, as of v3.16.0) and drowned out real orphans; a clean CI
+# checkout never saw any of them. Excluded so the audit's signal means the same
+# thing locally and in CI.
+BUILD_ARTIFACT_DIRS = frozenset({"__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache", "node_modules"})
+BUILD_ARTIFACT_SUFFIXES = frozenset({".pyc", ".pyo"})
+
+
+def _is_build_artifact(entry: Path) -> bool:
+    """True when a bundled path is a generated artifact rather than content."""
+    if entry.suffix in BUILD_ARTIFACT_SUFFIXES:
+        return True
+    return any(part in BUILD_ARTIFACT_DIRS for part in entry.parts)
+
+
 def validate_skill_bundles(skill_dir: Path, skill_md_content: str) -> list[str]:
     """Detect orphan files under per-skill scripts/, references/, assets/ subdirs.
 
@@ -345,6 +363,8 @@ def validate_skill_bundles(skill_dir: Path, skill_md_content: str) -> list[str]:
             if not entry.is_file():
                 continue
             if entry.name in BUNDLE_EXEMPT_FILENAMES:
+                continue
+            if _is_build_artifact(entry):
                 continue
             # Reference check: look for the basename anywhere in the haystack.
             # We deliberately check basename rather than the full path so that

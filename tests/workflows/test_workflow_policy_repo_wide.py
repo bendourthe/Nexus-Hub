@@ -135,11 +135,37 @@ def test_no_ordinary_feature_branch_push_expansion(path: Path) -> None:
 def test_focused_workflows_filter_by_path(path: Path) -> None:
     """Everything except the catch-all gate should scope itself to its own tree."""
     if path.name in PATHS_FILTER_EXCEPTIONS:
+        # The catch-all gate must not narrow itself to an allowlist. Two shapes
+        # satisfy that, and the invariant is "runs by default, with exclusions",
+        # not any particular key:
+        #   1. `paths-ignore: [...]`                      - a denylist, or
+        #   2. `paths: ['**', '!excluded/**', ...]`       - a catch-all followed
+        #      by negations, which is behaviourally the same thing.
+        #
+        # Form 2 became necessary in v3.16.0 Phase 2: `docs/policy/` is validator
+        # INPUT (it feeds verify_platform_contracts.py, the contract freshness
+        # gate, and the lever-contract completeness tests), so a push touching
+        # only that directory must still run CI. Re-including a subdirectory is
+        # impossible in `paths-ignore` because GitHub Actions supports the `!`
+        # negation character in `paths` ONLY, and the two filters cannot both be
+        # set for one event. This test previously asserted the KEY (`paths-ignore`)
+        # rather than the PROPERTY (does not narrow), so it failed a change that
+        # widened coverage. It now checks the property.
         triggers = load(path)[ON_KEY]
-        assert any(
-            isinstance(v, dict) and "paths-ignore" in v for v in triggers.values()
-        ), f"{path.name} is exempt from `paths` but declares no `paths-ignore`"
-        return
+        for name, cfg in triggers.items():
+            if not isinstance(cfg, dict):
+                continue
+            if "paths-ignore" in cfg:
+                return
+            paths = cfg.get("paths")
+            if isinstance(paths, list) and paths and paths[0] == "**":
+                return
+        raise AssertionError(
+            f"{path.name} is the catch-all gate but narrows its trigger: it declares "
+            "neither `paths-ignore` nor a `paths` list beginning with '**'. The "
+            "repo-wide gate must run by default and subtract exclusions, never "
+            "opt in to an allowlist."
+        )
     triggers = load(path)[ON_KEY]
     filtered = [
         name

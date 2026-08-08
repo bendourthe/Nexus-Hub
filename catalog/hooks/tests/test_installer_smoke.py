@@ -446,27 +446,65 @@ def test_installer_ps1_removed_template_import_prompt():
 
 # --- (2) Canonical template settings assertion -------------------------------
 
-def test_catalog_hooks_settings_effort_level_is_medium():
-    """Regression guard for the shipped default `medium`.
+PLATFORM_DEFAULTS = REPO_ROOT / "configs" / "platform-defaults.json"
+
+
+def _declared_claude_settings() -> dict:
+    """The values declared in configs/platform-defaults.json for Claude."""
+    assert PLATFORM_DEFAULTS.is_file(), f"Missing: {PLATFORM_DEFAULTS}"
+    data = json.loads(PLATFORM_DEFAULTS.read_text(encoding="utf-8"))
+    return data["platforms"]["claude"]["settings"]
+
+
+def test_declared_claude_effort_level_is_medium():
+    """Intent guard for the shipped default `medium`, asserted at the SOURCE.
 
     The default was `xhigh` through v3.15.4 and was lowered to `medium` so a
     fresh install starts at a balanced speed/cost tier that the operator raises
     deliberately. Both the scalar and the `env` override are pinned, because
     `env.CLAUDE_CODE_EFFORT_LEVEL` is the higher-precedence lever: leaving the
-    two out of step would make the scalar a no-op. If a future change wants to
-    move the default again, update the CHANGELOG + this test together so the
-    intent is explicit.
+    two out of step would make the scalar a no-op.
+
+    As of v3.16.0 this assertion lives against configs/platform-defaults.json
+    rather than the derived template, so the intended value is stated in exactly
+    one place. If a future change wants to move the default, edit the source and
+    the CHANGELOG together; the consistency of every derived artifact is checked
+    separately by `scripts/sync_platform_defaults.py --check`.
+    """
+    settings = _declared_claude_settings()
+    assert settings["effortLevel"] == "medium", (
+        f"Expected declared effortLevel='medium', got {settings['effortLevel']!r}. "
+        "If this was a deliberate change, update the CHANGELOG + test together."
+    )
+    assert settings.get("env", {}).get("CLAUDE_CODE_EFFORT_LEVEL") == "medium", (
+        "env.CLAUDE_CODE_EFFORT_LEVEL must match effortLevel ('medium'); it is "
+        "the higher-precedence lever, so a mismatch silently wins over the scalar."
+    )
+
+
+def test_catalog_hooks_settings_matches_declared_defaults():
+    """The shipped template's core keys must equal the declared source.
+
+    catalog/hooks/settings.json is DERIVED from configs/platform-defaults.json
+    (v3.16.0). Asserting equality with the source instead of a repeated literal
+    is what stops this file from becoming a second place to edit when the
+    default moves - the exact duplication that made the v3.15.5 effort change
+    touch four declarations across two files.
     """
     assert SETTINGS_TEMPLATE.is_file(), f"Missing: {SETTINGS_TEMPLATE}"
     data = json.loads(SETTINGS_TEMPLATE.read_text(encoding="utf-8"))
-    assert "effortLevel" in data, "catalog/hooks/settings.json is missing 'effortLevel'"
-    assert data["effortLevel"] == "medium", (
-        f"Expected effortLevel='medium' (shipped default), got {data['effortLevel']!r}. "
-        "If this was a deliberate change, update the CHANGELOG + test together."
-    )
-    assert data.get("env", {}).get("CLAUDE_CODE_EFFORT_LEVEL") == "medium", (
-        "env.CLAUDE_CODE_EFFORT_LEVEL must match effortLevel ('medium'); it is "
-        "the higher-precedence lever, so a mismatch silently wins over the scalar."
+    declared = _declared_claude_settings()
+    for key in ("effortLevel", "model"):
+        assert data.get(key) == declared[key], (
+            f"catalog/hooks/settings.json {key}={data.get(key)!r} has drifted from "
+            f"the declared {declared[key]!r}. Run: "
+            "python scripts/sync_platform_defaults.py --apply"
+        )
+    assert data.get("env", {}).get("CLAUDE_CODE_EFFORT_LEVEL") == declared["env"][
+        "CLAUDE_CODE_EFFORT_LEVEL"
+    ], (
+        "env.CLAUDE_CODE_EFFORT_LEVEL has drifted from the declared value. Run: "
+        "python scripts/sync_platform_defaults.py --apply"
     )
 
 
@@ -520,6 +558,12 @@ DEV_ONLY_SCRIPTS = {
     # plugin.json version being cut. Runs in `make validate` and CI; a repo-only
     # guard like the two above, so it is deliberately not installer-copied.
     "check_platform_contract_freshness.py",
+    # Repo-internal defaults-drift guard (v3.16.0): checks that every artifact
+    # derived from configs/platform-defaults.json still matches the declared
+    # source, and regenerates them with --apply. Runs in `make validate` and CI.
+    # An end-user install carries no configs/ source to derive from, so like the
+    # three guards above it is deliberately not installer-copied.
+    "sync_platform_defaults.py",
 }
 
 

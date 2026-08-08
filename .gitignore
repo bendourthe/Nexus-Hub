@@ -111,3 +111,6 @@ media.env
 # Anthropic API skill-upload endpoint - they should not land in the catalog
 # tree. Default output path is ./<skill-name>.skill in the current directory.
 *.skill
+
+# Antigravity CLI local runtime dir (created on use; never committed)
+.antigravitycli/

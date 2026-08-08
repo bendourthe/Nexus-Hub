@@ -7,7 +7,7 @@ set -e
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-NEXUS_HUB_VERSION="3.15.14"
+NEXUS_HUB_VERSION="3.16.0"
 
 # --- Window Title ---
 printf '\033]0;Nexus-Hub Installer\007'
@@ -2344,6 +2344,20 @@ install_templates() {
             write_item "[OK] Python dependencies (python-docx, python-pptx) are available" "$GREEN"
         else
             write_item "Note: Install report dependencies with: pip install python-docx python-pptx" "$YELLOW"
+        fi
+
+        # v3.16.0 Phase 3: optional seeding dependencies. Platform install-time
+        # behavioral defaults (configs/platform-defaults.json) are seeded into each
+        # platform's own config. JSON targets use the stdlib; TOML targets need
+        # tomlkit (which round-trips a user's comments and layout rather than
+        # rewriting them) and YAML targets need PyYAML. Both are OPTIONAL: without
+        # them the affected platforms simply skip seeding with a one-line hint, so
+        # a missing library never breaks an install.
+        if $python_cmd -c "import tomlkit; import yaml" 2>/dev/null; then
+            write_item "[OK] Python dependencies (tomlkit, PyYAML) are available" "$GREEN"
+        else
+            write_item "Note: Install platform-defaults seeding deps with: pip install tomlkit PyYAML" "$YELLOW"
+            write_item "      (without them, TOML/YAML platform defaults are skipped; JSON platforms are unaffected)" "$YELLOW"
         fi
     fi
 

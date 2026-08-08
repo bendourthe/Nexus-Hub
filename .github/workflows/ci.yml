@@ -3,16 +3,30 @@ name: CI
 on:
   push:
     branches: [main, develop]
-    # v3.11.0 Phase 8.4: docs-only pushes never affect validators, tests, or the
-    # installer, so skip the full job set (incl. the 10x macOS / 2x Windows legs)
-    # when a change touches nothing outside docs/. Skill/template/README/CHANGELOG
-    # changes live OUTSIDE docs/ and still trigger the full run.
-    paths-ignore:
-      - 'docs/**'
+    # v3.11.0 Phase 8.4: most docs-only pushes never affect validators, tests, or
+    # the installer, so skip the full job set (incl. the 10x macOS / 2x Windows
+    # legs) when a change touches nothing outside docs/. Skill/template/README/
+    # CHANGELOG changes live OUTSIDE docs/ and still trigger the full run.
+    #
+    # v3.16.0 Phase 2: docs/policy/ is the ONE exception and is re-included above.
+    # It is not prose -- it is validator INPUT. platform-read-contracts.json feeds
+    # verify_platform_contracts.py and check_platform_contract_freshness.py, and
+    # platform-defaults-levers.md feeds the lever-contract completeness tests. Under
+    # the old blanket `paths-ignore: docs/**`, a push editing ONLY one of those files
+    # skipped CI entirely, so the exact edit each guard exists to catch was the edit
+    # that never ran it. Expressed as `paths` with a negation because GitHub Actions
+    # supports `!` in `paths` only, never in `paths-ignore`, and the two filters
+    # cannot both be set for one event.
+    paths:
+      - '**'
+      - '!docs/**'
+      - 'docs/policy/**'
   pull_request:
     branches: [main, develop]
-    paths-ignore:
-      - 'docs/**'
+    paths:
+      - '**'
+      - '!docs/**'
+      - 'docs/policy/**'
 
 # v3.11.0 Phase 7.5 / 8.4 CI optimization: cancel superseded runs of the same ref
 # (the single largest action-minute saver) so only the latest push/PR commit runs.
@@ -135,6 +149,15 @@ jobs:
         # release bump until the platform-contract-verification skill re-verifies
         # each platform's current discovery format and re-stamps the marker.
         run: python scripts/check_platform_contract_freshness.py
+
+      - name: Check platform install defaults have not drifted (v3.16.0 Phase 1)
+        # configs/platform-defaults.json is the single place a per-platform
+        # install-time behavioral default is declared. Every consuming artifact
+        # (catalog/hooks/settings.json's core keys, the nexus-hub init stub's
+        # offline fallback) is DERIVED from it. This fails the build when one is
+        # hand-edited away from the source, which is the drift that made the
+        # v3.15.5 effort-level change touch four declarations across two files.
+        run: python scripts/sync_platform_defaults.py --check
 
       - name: Scan catalog for skill-security findings (v3.0.0 Phase 6)
         # Deterministic static gate: fails on any HIGH/CRITICAL finding across
@@ -392,7 +415,13 @@ jobs:
           cache-dependency-path: 'extensions/*/pyproject.toml'
 
       - name: Install pytest
-        run: pip install pytest
+        # v3.16.0 Phase 3: tomlkit and PyYAML are the optional seeding
+        # dependencies for platform install-time defaults (TOML and YAML config
+        # targets). They are installed here because the seeding tests use
+        # pytest.importorskip, so without them the TOML/YAML coverage would
+        # SILENTLY SKIP in CI rather than fail -- a green run that proved
+        # nothing about two of the four writable formats.
+        run: pip install pytest tomlkit PyYAML
 
       - name: Platform-parity + installer-smoke tests (v0.9.7 regression guards)
         run: python -m pytest catalog/hooks/tests/test_platform_parity.py catalog/hooks/tests/test_installer_smoke.py -v
