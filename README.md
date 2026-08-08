@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.15.13 -->
+<!-- nexus-hub-version: 3.15.14 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 270 skills, 17 commands, 31 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -36,6 +36,22 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v3.15.14
+
+Three surfaces were checking specs for something the spec template could not express, and the skill's own completion gate was validating the wrong document. This release makes the spec artifact say what everything already assumed it said.
+
+**The spec template can now express a scope boundary.** `spec-quality-checklist.md` asked whether "Scope is clearly bounded", the `scope-guardian-reviewer` agent flagged a missing out-of-scope section, and `idea-refine` gated on scope being explicitly bounded - but no section in `spec-template.md` held that content. Every reviewer run on a perfectly template-conformant spec therefore raised a finding the template itself caused, and the reviewer's complaint was unsatisfiable in one direction and unfalsifiable in the other. The template gains a mandatory `## Non-Goals` section requiring a **reason per entry**, plus `## Problem Statement` and `## Invariants`. Each states its boundary against its neighbour at the point of use, because the Non-Goal / Assumption and Non-Goal / Invariant distinctions are the two authors actually get wrong.
+
+**The completion gate now checks the artifact the workflow produces.** `spec-driven-development` told authors to start from `spec-template.md`, then presented a *different* template inline further down, and its Verification checklist validated the inline one's areas ("Objective, Commands, Structure, Style, Testing, Boundaries"). "Spec complete" was being checked against a document nothing produces. The skill now declares one canonical skeleton, the rival is gone in both its code-block and prose forms, and its genuinely useful content (commands, directory layout, code style, tech stack, the three-tier boundaries) is relocated to a labelled "Project-level context" section that says where it really belongs: your `AGENTS.md` or `CLAUDE.md`, written once, not restated per feature.
+
+**Spec depth is now proportional to blast radius, and the approval gate is not.** How much spec a change needs scales with how far a wrong assumption propagates: an internal single-file change needs a problem statement, acceptance criteria, and non-goals; a multi-file change adds user scenarios and requirements; a change to behavior, a public API, a data schema, or a CLI surface needs the full template. Depth is explicitly *not* keyed on effort or line count - three lines touching a public API outrank three hundred in a private helper. **The hard gate is untouched and stays unconditional.** The rule was placed *inside* the gate's own section rather than after it, so it can never be read detached from the constraint it refines, and two new rationalization rows rebut the misreadings it invites. Its integrity is provable rather than asserted: across that change the file has exactly two deleted lines, neither inside the gate.
+
+**Plans must now say what breaks.** Error handling had no mandatory home in either artifact - the spec names the user-visible edge case by design and says nothing about the handling. `implementation-plan` now requires, per component, what happens on malformed or absent input, on an unreachable or slow dependency, and when two operations conflict. Three named situations rather than "handle errors well", which is satisfiable by any behavior including a silent swallow. Plans also carry a one-line `scaffolding` versus `load-bearing` label, so a reviewer never has to guess whether a hardcoded value is a shortcut awaiting replacement or the intended implementation.
+
+**The fix defends itself now.** A 21-case guard test asserts the three artifacts stay in agreement, because prose has no compiler: a schema reference to a missing column errors, but a checklist item referencing a missing heading just fails forever in silence. The test was mutation-checked against three reproductions of the original defect - and **its first draft passed one of them**, because it asserted that the words "Non-Goals" appeared somewhere in the file rather than that the binding held. Rewritten to check the relationship, all three mutations now fail. Without that pass, the gap would have closed on a false guarantee.
+
+Two of the plan's own factual claims had gone stale between writing and execution: a catalog count and a CI action pin that had since been fixed. Both were caught by checking the assertion against the tree rather than transcribing it, which is the release's quiet lesson - a plan is a decision record, not a data source. Everything here is prose in files this repo already owns: no new skill, no MCP, no outbound call, no credential, no dependency. Catalog counts are unchanged at **270 skills**, **17 commands**, **31 hooks**, and **23 agents**.
 
 ## What's New in v3.15.13
 

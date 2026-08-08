@@ -406,7 +406,7 @@ jobs:
       - name: CI validator tests (v2.3.0 Phase 2)
         run: python -m pytest tests/validators -v
 
-      - name: Skills-script tests (v3.14.3 media-key setup helper + docs-audit resolver)
+      - name: Skills-script tests (v3.14.3 media-key setup helper + docs-audit resolver; v3.15.14 spec-artifact agreement guard)
         run: python -m pytest tests/skills -v
 
       - name: Plan-contract + workflow-policy tests (v3.15.8 Phase 4.4)

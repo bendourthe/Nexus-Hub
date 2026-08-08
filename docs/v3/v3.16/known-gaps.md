@@ -2,9 +2,36 @@
 
 **Project**: Nexus-Hub
 **Status**: No v3.16 release has been implemented yet (latest tag `v3.15.5`; `v3.15.6 adoption-sandbox-escapes` is in flight on `feat/adoption-sandbox-escapes`). The v3.16 line currently holds seven committed plans and no implementations: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
-**Last updated**: 2026-07-29 (seeded by the no-mistakes delta comparison; no version-implementation entries yet)
+**Last updated**: 2026-08-08 (v3.15.14 Phase 4.3 transfers appended; still no v3.16 version-implementation entries)
 
 > **File-lifecycle note**: this ledger was created ahead of any v3.16 implementation, by a comparison that deliberately claimed no release slot. It therefore contains ONLY the `## Comparison-Sourced Deferrals` section below. The first v3.16 version-implementation phase to reconcile its gaps should **append** its own `## v3.16.N - <slug>` section rather than replacing this file, and should keep its own `DF-#` / `NI-#` / `QG-#` numbering, which is namespaced separately from the `CD-#` ids used here (see the numbering note in that section).
+
+---
+
+## Transferred in from v3.15.14 (spec-driven-development cycle)
+
+Items the v3.15.14 plan deliberately excluded from its own scope, transferred here at its Phase 4.3 reconciliation. Each traces to that cycle's comparison rather than being invented at transfer time. These use the `TR-#` (Transferred) namespace, distinct from both `CD-#` above and the per-version `DF-#` / `NI-#` / `QG-#` ids.
+
+**Source**: [docs/v3/v3.15/plans/v3.15.14-spec-driven-development.md](../v3.15/plans/v3.15.14-spec-driven-development.md) sub-task 4.3, reconciled 2026-08-08. The full v3.15.14 open/closed set stays in [docs/v3/v3.15/known-gaps.md](../v3.15/known-gaps.md); only the deliberately out-of-scope remainder lands here.
+
+### TR-1 - OPEN: the `A1` example in `spec-template.md` phrases a Non-Goal as an Assumption
+
+- **Target file**: `catalog/templates/spec-template.md` (the `A1` bullet under `## Assumptions`)
+- **Reason it is open**: `A1` reads "Authentication uses the existing session-cookie middleware; JWT is out of scope for this feature". The second clause is a Non-Goal under the boundary the new `## Non-Goals` authoring note defines, not an Assumption. The v3.15.14 plan instructed Phase 1.1 to leave `A1`'s text alone and instead document the boundary, which is what shipped: the Non-Goals note now names `A1` explicitly as the illustration of getting it wrong.
+- **Suggested next step**: rewrite `A1` into a clean Assumption (keep the session-cookie default, drop the scope clause) and move the scope clause into the Non-Goals example, which already carries a reason. Roughly a two-line edit. Whichever cycle next touches the spec template should absorb it.
+- **Why it was not done in v3.15.14**: teaching the distinction and then silently fixing the example would have removed the worked illustration the note points at. Fixing it is correct once the note has been read by real authors; doing both in one release removes the evidence.
+
+### TR-2 - OPEN: v3.11.0 spec-kit items S5, S6, and S8 carry no status claim
+
+- **Target**: the v3.11.0 spec-kit adoption ledger
+- **Reason it is open**: the v3.15.14 comparison was article-scoped, not a repository-delta pass against `github/spec-kit`, so S5, S6, and S8 were never re-examined. The honest position is that they carry **no status claim** from this cycle rather than an implied "still open" or "now closed".
+- **Suggested next step**: a future repository-delta comparison against `github/spec-kit` should re-verify all three explicitly and record a verdict per item. Do not infer their state from the v3.15.14 cycle, which did not look.
+
+### TR-3 - CLOSED on transfer: `actions/setup-node` SHA-pinning
+
+- **Status**: **Closed, not transferred as open.** The v3.15.14 plan recorded this as an incidental finding to transfer: "`actions/setup-node@v4` remains tag-pinned at `.github/workflows/claude-usage-monitor.yml`:31, a residual of the v3.11.0 S2 SHA-pinning item."
+- **What verification found**: the reference is now SHA-pinned, and so are its three siblings. All four monitor workflows carry `actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4` (`claude-usage-monitor.yml`:38, `codex-usage-monitor.yml`:38, `cursor-usage-monitor.yml`:51, `github-usage-monitor.yml`:44). The gap was closed by a cycle between the v3.15.14 comparison being written and its Phase 4 running, and `validate_workflow_security.py` passes.
+- **Why it is recorded rather than dropped silently**: transferring a resolved gap would have carried a false item into the v3.16 ledger, and dropping it without a note would have left a reader of the v3.15.14 plan expecting a transfer that never arrived. This is the second stale-fact in that plan (the first being its 269-skill catalog count, which is 270), and both are the same lesson: verify a plan's factual assertions at execution time rather than transcribing them.
 
 ---
 
