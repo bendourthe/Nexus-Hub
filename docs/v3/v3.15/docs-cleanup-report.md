@@ -286,3 +286,15 @@ One deliberate non-orphan worth naming: `providers/authProbe.ts` is now reached 
 An advisory, pre-existing and not introduced here: `docs/DEVLOG.md` carries 22 non-ASCII characters from line 2422 onward, all in v2.0.0-era entries. This version's own entries are ASCII-clean, verified. Left untouched as historical record; line numbers recorded in `known-gaps.md` for a future sweep.
 
 Phases 4 and 5 added no artifact class or scratch output, and required zero new `.gitignore` patterns.
+
+## v3.15.14 Phase 1 audit (2026-08-07)
+
+**Mode**: Audit and report; no file moves, no deletions.
+
+Phase 1 is prose-only. It modified five committed Markdown files (`catalog/templates/spec-template.md`, `catalog/templates/spec-quality-checklist.md`, `catalog/skills/developer-experience/spec-driven-development/SKILL.md`, `catalog/skills/developer-experience/idea-refine/SKILL.md`, `catalog/agents/scope-guardian-reviewer.md`) plus this version's `known-gaps.md`. It added no file anywhere, so `catalog/templates/` gained nothing that would need installer registration, and no reference repair was required because nothing moved or was renamed.
+
+One scratch artifact was created and discarded within the phase: a throwaway spec authored from the updated template to confirm every `spec-quality-checklist.md` item can be ticked from the template alone. It was written to the session scratchpad, never to the repository, and deleted after the walkthrough. No `.gitignore` pattern was needed.
+
+Marker sweep over the five changed files: zero `TODO` / `FIXME` / `XXX` / `HACK` / `# DEVIATION:` hits. The phase's one deviation from the plan's literal instruction is recorded as DF-1 in `known-gaps.md` rather than left inline, matching the convention this version has used throughout.
+
+The 8 untracked empty directories under `catalog/skills/` reported in the v3.15.5 and v3.15.7 audits are unchanged and were again left in place, for the same reason: they carry zero tracked files, so they have zero repository impact, and they appear to be a parallel session's in-progress scaffolding.

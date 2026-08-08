@@ -69,7 +69,7 @@ Cross-link: `[[ambiguity-detector]]` emits markers in this same format when it s
 
 ### Spec template
 
-Use `catalog/templates/spec-template.md` (installed at `~/.nexus-hub/templates/spec-template.md`) as the starting skeleton for every feature spec. The template enforces the convention that downstream tooling depends on - in particular, the `**FR-###**: System MUST <capability>` format for functional requirements and the `**SC-###**: <measurable outcome>` format for success criteria.
+`catalog/templates/spec-template.md` (installed at `~/.nexus-hub/templates/spec-template.md`) is the single canonical spec skeleton. Every feature spec starts from it. There is no second skeleton and no abbreviated variant: if a section does not apply, remove that section rather than substituting a different structure. The template enforces the convention that downstream tooling depends on - in particular, the `**FR-###**: System MUST <capability>` format for functional requirements and the `**SC-###**: <measurable outcome>` format for success criteria.
 
 Why the FR-### / SC-### IDs matter: the `[[cross-artifact-analyzer]]` skill (run via `/analyze-spec`) builds a Coverage Summary table by matching each FR-### and SC-### in the spec against the task descriptions in the plan or tasks.md. A spec written with prose bullets instead of FR-### / SC-### IDs produces an empty coverage matrix and the analyzer cannot flag missing tasks. The IDs are the contract between the spec and the analyzer.
 
@@ -79,7 +79,17 @@ Stability rules for IDs:
 - IDs are stable - once an FR or SC is assigned an ID, do not renumber on edits. Removing a requirement leaves a gap in the sequence; do not backfill.
 - IDs are unique within the spec but not globally across the project - FR-001 in `specs/003-auth/spec.md` is a different requirement from FR-001 in `specs/004-billing/spec.md`.
 
-The template also reserves three additional mandatory blocks: User Scenarios & Testing, Requirements (with FR-### IDs and an optional Key Entities subsection), and Success Criteria (with SC-### IDs). An Assumptions section is mandatory whenever any candidate ambiguity was demoted below the 3-marker hard limit.
+The template's mandatory sections, in document order:
+
+1. **Problem Statement** -- the actor, what fails today, and the observable outcome that marks success. This carries forward the problem statement `[[idea-refine]]` produced; it is not re-derived here.
+2. **User Scenarios & Testing** -- at least one prioritized user story with its Independent Test paragraph and Given/When/Then acceptance scenarios.
+3. **Requirements** -- the FR-### items, plus an optional Key Entities subsection when the feature involves data.
+4. **Success Criteria** -- the SC-### items.
+5. **Non-Goals** -- what the system explicitly will NOT do, one reason per entry.
+
+Two conditional sections complete the set. **Assumptions** is mandatory whenever any candidate ambiguity was demoted below the 3-marker hard limit. **Invariants** is required whenever the change touches existing behavior, and declares the behavior that must not break.
+
+`## Non-Goals` is the section three auditing surfaces check against, so an empty or missing one produces findings downstream: `spec-quality-checklist.md`'s "Scope is clearly bounded" item, the `scope-guardian-reviewer` agent's missing-cut-line lens, and `[[idea-refine]]`'s own "scope is explicitly bounded" gate. It is also where `idea-refine`'s **Out of Scope** block lands, so the hand-off is a copy rather than a rewrite. Keep the Non-Goals / Assumptions boundary straight: an Assumption is a decision the reviewer can overturn with one line, whereas a Non-Goal is scope the reviewer is being asked to confirm is excluded.
 
 ### User stories with priorities
 
@@ -131,35 +141,9 @@ ASSUMPTIONS I'M MAKING:
 → Correct me now or I'll proceed with these.
 ```
 
-Write a spec document covering six core areas:
+Then write the spec from the canonical template. Copy `catalog/templates/spec-template.md` into the feature directory as `spec.md` and fill its mandatory sections in document order: Problem Statement, User Scenarios & Testing, Requirements (FR-###), Success Criteria (SC-###), and Non-Goals, adding Assumptions and Invariants where they apply. Do not substitute an alternative structure; the section-by-section contract is in the "Spec template" section above, and the Verification checklist at the end of this skill is keyed to exactly those sections.
 
-**1. Objective** — What are we building and why? Who is the user? What does success look like in observable terms?
-
-**2. Commands** — Full executable commands, not just tool names:
-```
-Build: npm run build
-Test: npm test -- --coverage
-Lint: npm run lint --fix
-Dev: npm run dev
-```
-
-**3. Project Structure** — Where source code lives, where tests go, where docs belong:
-```
-src/           → Application source code
-src/components → React components
-src/lib        → Shared utilities
-tests/         → Unit and integration tests
-docs/          → Documentation
-```
-
-**4. Code Style** — One real code snippet showing your style beats three paragraphs describing it. Include naming conventions, formatting rules, and examples of expected output.
-
-**5. Testing Strategy** — Framework, test locations, coverage targets, which test levels cover which concerns.
-
-**6. Boundaries** — Three-tier system:
-- **Always do**: Run tests before commits, follow naming conventions, validate inputs
-- **Ask first**: Database schema changes, adding dependencies, changing CI config
-- **Never do**: Commit secrets, edit vendor directories, remove failing tests
+Project-level material (build and test commands, the directory layout, code-style conventions, the tech stack, and the three-tier Always / Ask first / Never boundaries) is deliberately NOT part of a feature spec. It is stable across features, so restating it per feature guarantees drift. See "Project-level context (distinct from a feature spec)" below for where it belongs instead.
 
 **Success Criteria**: Reframe instructions as testable conditions:
 ```
@@ -170,40 +154,6 @@ REFRAMED:
 - Initial data load completes in < 500ms
 - No layout shift during load (CLS < 0.1)
 → Are these the right targets?
-```
-
-**Spec template:**
-```markdown
-# Spec: [Project/Feature Name]
-
-## Objective
-[What we're building, who the user is, success criteria]
-
-## Tech Stack
-[Framework, language, key dependencies with versions]
-
-## Commands
-[Build, test, lint, dev — full commands]
-
-## Project Structure
-[Directory layout with descriptions]
-
-## Code Style
-[Example snippet + key conventions]
-
-## Testing Strategy
-[Framework, test locations, coverage requirements]
-
-## Boundaries
-- Always: [...]
-- Ask first: [...]
-- Never: [...]
-
-## Success Criteria
-[Observable, testable conditions — not aspirations]
-
-## Open Questions
-[Unresolved items that need human input before implementation]
 ```
 
 ### Phase 2: Plan
@@ -260,6 +210,35 @@ Map this onto Nexus-Hub's EXISTING surfaces - do not introduce a parallel change
 
 **The external `openspec` CLI is NOT adopted - only the convention is.** The normative/context separation is a convention Nexus-Hub adopts skill-natively; the external `openspec` tool that popularized it is not added as a dependency. Per the AGENTS.md MCP Registry Policy (reverse-engineer-first: prefer an LLM-native / skill-native convention over an external tool dependency), a convention the agent can follow with its own judgment beats a new CLI, and no parallel `openspec/`-style change-folder tree is created. The convention rides on `/spec`, the spec template, and the per-version `docs/` tree.
 
+## Project-level context (distinct from a feature spec)
+
+Five kinds of context are stable across every feature in a repository: the tech stack, the executable commands, the directory layout, the code-style conventions, and the operating boundaries. They are essential for an agent to work in the codebase, and they are NOT feature-spec content. Restating them in each `spec.md` guarantees that N specs eventually disagree about the build command.
+
+Their home is the project's own instruction file (`AGENTS.md`, `CLAUDE.md`, or the platform equivalent) or the `docs/` context tree, written once and referenced from there. A feature spec inherits them silently.
+
+The five, with the shape each should take where it lives:
+
+- **Tech stack**: framework, language, and key dependencies with versions.
+- **Commands**: full executable commands, not tool names. `Build: npm run build`, `Test: npm test -- --coverage`, `Lint: npm run lint --fix`, `Dev: npm run dev`. A bare "we use vitest" is not runnable.
+- **Project structure**: where source, tests, and docs live.
+
+    ```
+    src/            -> Application source code
+    src/components  -> React components
+    src/lib         -> Shared utilities
+    tests/          -> Unit and integration tests
+    docs/           -> Documentation
+    ```
+
+- **Code style**: one real code snippet showing the style beats three paragraphs describing it. Include naming conventions, formatting rules, and an example of expected output.
+- **Testing strategy**: framework, test locations, coverage targets, and which test level covers which concern.
+- **Boundaries**, as a three-tier system:
+    - **Always do**: run tests before commits, follow naming conventions, validate inputs.
+    - **Ask first**: database schema changes, adding dependencies, changing CI config.
+    - **Never do**: commit secrets, edit vendor directories, remove failing tests.
+
+This is the same layering as the normative/context split above, applied one level out: that split separates testable requirements from their rationale within a feature, while this one separates per-feature content from per-project content. A spec that carries project-level context is not merely verbose; it creates a second, staler copy of a fact the instruction file already owns.
+
 ## The Spec as a Merge Gate
 
 A change to behavior, a public API, a data schema, or a CLI surface requires the spec to be created or updated BEFORE the code, and the change is not review-ready until the spec, the code, and the tests all agree. This extends the hard gate at the top of this skill (which governs starting new work) to the merge boundary (which governs that a shipped change leaves the spec in sync, not stale).
@@ -291,10 +270,18 @@ The rule is scoped on purpose: a typo fix, a refactor with no behavior change, o
 
 ## Verification
 
-- [ ] A spec document exists as a committed file in the repository
-- [ ] The spec covers all six core areas (Objective, Commands, Structure, Style, Testing, Boundaries)
-- [ ] Success criteria are specific and observable — not "it works well" but "test X passes and metric Y is met"
-- [ ] Boundaries (Always/Ask First/Never) are defined and non-empty
+Every item below is checked against the canonical template `catalog/templates/spec-template.md`.
+
+- [ ] A spec document exists as a committed file in the repository, started from `catalog/templates/spec-template.md`
+- [ ] `## Problem Statement` names the actor, what fails today, and the observable outcome that marks success
+- [ ] `## User Scenarios & Testing` has at least one story headed `### User Story N - [Title] (Priority: PN)`, each with an Independent Test paragraph and Given/When/Then acceptance scenarios
+- [ ] `## Requirements` uses `**FR-###**: System MUST <capability>` IDs, sequential and not renumbered
+- [ ] `## Success Criteria` uses `**SC-###**` IDs, and each is measurable, technology-agnostic, and verifiable without asking the author
+- [ ] `## Non-Goals` is present and non-empty, and every entry carries a reason
+- [ ] `## Assumptions` records an informed default for every candidate ambiguity demoted below the 3-marker cap
+- [ ] `## Invariants` is present whenever the change touches existing behavior, and each entry is observable enough to assert in a test
+- [ ] No more than 3 `[NEEDS CLARIFICATION]` markers remain, and each names a specific question
+- [ ] No project-level context (commands, directory layout, code style, tech stack, boundaries) leaked into the spec
 - [ ] The human has reviewed and approved the spec before any implementation begins
 - [ ] Open questions are listed; none are silently assumed away
 

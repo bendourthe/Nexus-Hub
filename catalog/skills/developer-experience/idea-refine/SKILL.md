@@ -106,7 +106,7 @@ Synthesize the above into one page or less:
 - <Observable thing this must do>
 
 **Out of Scope**
-- <What we are deliberately not solving>
+- <What we are deliberately not solving>. Reason: <deferred, separate initiative, not validated, or too expensive>
 
 **Success Criteria**
 - [ ] <Observable criterion 1>
@@ -115,6 +115,8 @@ Synthesize the above into one page or less:
 **Open Questions (blocking)**
 - [ ] <Question>
 ```
+
+The **Out of Scope** block above is the upstream producer of the spec's `## Non-Goals` section in `catalog/templates/spec-template.md`; the hand-off is a copy, which is why each entry carries its reason here rather than gaining one later. Likewise the **Problem Statement** heading feeds the spec's `## Problem Statement` section.
 
 Once the human approves this statement, hand off to `spec-driven-development` or `plan-before-code`. Note that approving the problem statement here is a separate approval from approving the *design*. The `spec-driven-development` hard gate still requires an explicit design approval before any code is written; do not treat a green light on the problem as a green light to implement.
 

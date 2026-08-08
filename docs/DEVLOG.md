@@ -1,5 +1,39 @@
 # Development Log
 
+## [2026-08-07] - v3.15.14 Phase 1: reconcile the spec artifact [fix]
+
+### What Changed
+
+`catalog/templates/spec-template.md` gained three sections: `## Problem Statement` (mandatory, first), `## Non-Goals` (mandatory, one reason per entry), and `## Invariants` (conditional on the change touching existing behavior). `spec-quality-checklist.md` binds its existing "Scope is clearly bounded" item to the new Non-Goals section and adds two companion items. `spec-driven-development` SKILL.md now declares exactly one canonical spec skeleton, its rival inline template is gone, and its Verification checklist enumerates the canonical template's sections instead of the rival's. `scope-guardian-reviewer` and `idea-refine` were reconciled to the template's heading names.
+
+### Why It Changed
+
+Three surfaces audited specs for a scope boundary that the template could not express. `spec-quality-checklist.md` line 22 asked whether "scope is clearly bounded", `scope-guardian-reviewer` flagged a missing "explicitly out of scope" section, and `idea-refine` gated on "scope is explicitly bounded", but no section in `spec-template.md` held that content. Every reviewer run on a template-conformant spec therefore raised a finding the template itself caused.
+
+Separately, the skill instructed the author to use `spec-template.md` as the skeleton, then presented a different inline template further down, and its Verification checklist validated the inline one's areas. The completion gate was checking the wrong artifact, so "spec complete" meant nothing about the spec that was actually produced.
+
+### Decisions Made
+
+- **One atomic phase, not three.** Adding template sections and repointing the completion gate had to land together. Between them, the skill would validate sections no template produced (gate first) or the template would carry sections no gate checked (sections first).
+- **The rival template was removed in both its forms.** The plan named the inline code block. The same structure also existed as prose immediately above it ("six core areas"), and that prose is what the Verification item actually referenced. Removing only the code block would have left the skill still naming six areas the canonical template lacks. Logged as DF-1.
+- **Relocated, not deleted.** Commands, project structure, code style, tech stack, and the three-tier boundaries are real guidance; they are project-level context, not per-feature spec content. They moved into a new "Project-level context (distinct from a feature spec)" section that names their proper home (`AGENTS.md` / `CLAUDE.md` or the `docs/` tree) and says why restating them per feature guarantees drift.
+- **`idea-refine` gained the reason, not just a cross-reference.** Non-Goals mandates a reason per entry. If the upstream `**Out of Scope**` block emitted reasonless items, the documented copy-not-rewrite hand-off would silently fail the checklist, so the reason is now produced at the source.
+- **`scope-guardian-reviewer` was repointed rather than left generic.** It asserted a heading no artifact in the repo produced, which made its finding permanently fireable and never satisfiable. It now names `## Non-Goals` while staying usable against plans that are not specs.
+- **No CI change.** Sub-task 1.5 asked for path filters on `catalog/templates/**` and `catalog/skills/**`. `ci.yml` already covers both through `paths-ignore: docs/**`, and already carries concurrency cancel-in-progress, pip caching, and cost-gated matrix legs. A positive `paths:` filter on those two directories would have narrowed coverage, not optimized it.
+
+### Troubleshooting Trail
+
+- **One test failure, correctly classified as pre-existing.** `test_ps_standalone_extracts_and_hands_off` failed during validation. It is the already-recorded BG-16: launching pytest from Git Bash puts GNU tar 1.35 ahead of Windows bsdtar 3.8.4 on the `PATH` that `install.ps1` inherits. Re-run from PowerShell on the identical tree, it passes. Phase 1 changed five Markdown files and touches nothing that test exercises.
+- **A stash-based pre-existence check backfired.** The verification ran `git stash`, then the test, then `git stash pop` as one chained command; the test step blew the tool timeout and the pop never executed, leaving the phase's edits stashed. Recovered with an explicit `git stash pop`. The cheaper and safer check was the one used afterward: `git diff --name-only` against the file the test actually drives.
+- **The FR-### / SC-### contract was proven, not assumed.** The template edit is `46 insertions(+), 0 deletions(-)`. With zero deleted lines no existing byte can have changed, which settles the whole-file question that `cross-artifact-analyzer` depends on more firmly than inspecting the two ID blocks by hand.
+
+### Impact & Context
+
+- **Affected**: `catalog/templates/spec-template.md`, `catalog/templates/spec-quality-checklist.md`, `catalog/skills/developer-experience/spec-driven-development/SKILL.md`, `catalog/skills/developer-experience/idea-refine/SKILL.md`, `catalog/agents/scope-guardian-reviewer.md`, plus `docs/v3/v3.15/known-gaps.md` and `docs/v3/v3.15/docs-cleanup-report.md`.
+- **Zero new files**, so no installer registration was required in either `scripts/installer.sh` or `scripts/installer.ps1`, and no `data/` registry file changed (no new skill; catalog stays at 270).
+- **Tests**: extensions 670 passed / 1 skipped; repo-level `tests/` 1587 passed / 20 skipped / 1 pre-existing environment failure (BG-16, passes under PowerShell); `catalog/hooks/tests` 992 passed / 36 skipped; compression accuracy gate passed. All 14 `make validate` guards pass, bundle audit 0 errors, trigger-and-routing gate 0 failures, shellcheck clean. SKILL.md is 303 lines, within the 500-line norm.
+- **Known gaps**: DF-1 (resolved in place), NI-1 (`overview_l1` still advertises project-level areas), NI-2 (`A1` example still phrases a Non-Goal as an Assumption, deliberately per plan), QG-1 (the plan's 269-skill figure is stale; the catalog holds 270, which Phase 4.4 must use), MT-1 (nothing automated asserts the template / checklist / skill trio stays in agreement).
+
 ## [2026-08-06] - v3.15.12 Phase 4: per-target GitHub billing auth [feature]
 
 ### What Changed
