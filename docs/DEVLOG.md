@@ -1,5 +1,40 @@
 # Development Log
 
+## [2026-08-07] - v3.15.14 Phase 2: proportional spec depth [feature]
+
+### What Changed
+
+`spec-driven-development` gained a spec-depth rule keyed on blast radius, placed inside the Hard Gate section rather than after it. Three tiers: a single internal file needs a Problem Statement, acceptance criteria, and Non-Goals; a multi-file or multi-module change adds User Scenarios with an Independent Test, FR-### items, and Assumptions; a change to behavior, a public API, a data schema, or a CLI surface needs the full canonical template including Invariants. The opening motivation now carries the argument that guess cost scales with codebase size rather than change size. "When NOT to use" separates the needs-a-spec question from the how-deep question. Two rationalization rows defend the new rule. `overview_l1` was corrected in passing, closing NI-1.
+
+### Why It Changed
+
+The skill answered "how deep should a spec be?" only through a single rationalization row ("a two-line spec is fine"), which is guidance buried in a rebuttal table rather than a stated rule. Meanwhile "When NOT to use" was keyed purely on change size, so the honest reading of "this change is small" was ambiguous between "write less" and "write nothing". That ambiguity is what left proportionality unanswered, and an unanswered proportionality question resolves itself in whichever direction is cheaper in the moment.
+
+The maintainer decision on 2026-07-29 was explicit and is the constraint this phase had to satisfy: adopt proportionality for spec DEPTH, keep the approval GATE absolute. Full proportionality, meaning a size threshold below which the spec step is skipped, was considered and declined.
+
+### Decisions Made
+
+- **The rule is nested inside the Hard Gate section, not placed after it.** The plan said "immediately after the hard-gate block so a reader meets the gate before the tiering". A sibling `##` section satisfies the letter of that; a `###` subsection under the gate's own heading satisfies the intent more strongly, because the tiering then cannot be encountered detached from the constraint it refines. Document order is doing load-bearing work in a governance rule, so it was worth the extra strictness.
+- **Depth is keyed on blast radius, and the rule says what blast radius is not.** Effort, line count, and elapsed time are all named and excluded, with the counterexample stated inline: three lines touching a public API outrank three hundred lines in a private helper. Without the counterexample "blast radius" reads as a synonym for "size", which is the framing the rule exists to replace.
+- **The top tier reuses the merge gate's four surfaces verbatim.** Behavior, public API, data schema, CLI surface. They are byte-identical between the two sections, so the entry rule and the merge rule cannot drift into contradicting each other, and the skill can state plainly that they are one rule seen from each end.
+- **Two rationalization rows, where the plan asked for one.** The plan named the skip-the-approval misreading. The likelier error in practice is different: reading "the change is small" as qualifying for "When NOT to use" rather than for the bottom tier. That is the shallow-spec-becomes-no-spec slide, a distinct failure from treating a short spec as licence to skip approval, and one row could not rebut both without blurring. Recorded as EN-1.
+- **"Shrinking the artifact does not shrink the gate, shorten it, or make silence count."** Three verbs rather than one, each closing a paraphrase route. The third is aimed directly at the gate's own "Silence is not approval", which is the clause a reader in a hurry is most likely to reinterpret.
+- **NI-1 closed by rewording, not deleting.** `overview_l1` is Tier-1 always-loaded metadata, so removing vocabulary is a routing change. The clause was replaced with "scope bounding through explicit non-goals, spec depth chosen by blast radius", which describes the post-Phase-1-and-2 skill and adds vocabulary for the new capabilities rather than only subtracting.
+
+### Troubleshooting Trail
+
+- **The plan's line anchors were stale and were not trusted.** Phase 1 removed 73 lines from this file, so every line number in the Phase 2 prompts (hard gate 12-23, "When NOT to use" 40, rationalization rows 280-282, merge gate 263-274) had shifted. Each target was located by content instead, and the stability gate was re-expressed as content checks.
+- **A grep for the promoted rationalization row returned zero and was a false alarm.** The row contains an em-dash; the search pattern round-tripped it through the shell and did not match. Re-grepping on an ASCII substring found it at line 286, intact. Worth recording because "grep returned 0" on a Unicode-bearing line is a tooling artifact that looks exactly like a deleted line.
+- **The gate-integrity requirement was met by diff shape rather than string comparison.** Across the whole phase the file has exactly two deleted lines, `overview_l1` and the old "When NOT to use" paragraph. The Hard Gate block therefore has zero deletions, which proves both protected clauses verbatim more strongly than grepping for them.
+
+### Impact & Context
+
+- **Affected**: `catalog/skills/developer-experience/spec-driven-development/SKILL.md` (31 insertions, 2 deletions), plus `docs/v3/v3.15/known-gaps.md`, `docs/v3/v3.15/docs-cleanup-report.md`, `docs/DEVLOG.md`, and a new session-history file.
+- **Tests**: the full repository surface is green for the first time this version. `pytest tests catalog/hooks/tests` from PowerShell gives 2580 passed / 56 skipped / 0 failed; the five extension suites give 670 passed / 1 skipped; the compression accuracy gate passes at CCR 100.0%. Total 3,250 passed, 0 failed. All validate guards pass, the bundle and placeholder lints are clean, shellcheck is clean, and the trigger-and-routing gate passes after the Tier-1 edit.
+- **BG-16 confirmed in both directions.** The same tree that produced `1587 passed, 1 failed` under Git Bash in Phase 1 produces `2580 passed, 0 failed` under PowerShell, the difference being exactly `test_ps_standalone_extracts_and_hands_off`. The shell-dependence is now reproduced deliberately rather than inferred.
+- **Body size**: 332 lines, within the 500-line norm, and still 42 lines shorter than when this plan started despite carrying two new rules.
+- **Known gaps**: NI-1 closed. EN-1 recorded as an enhancement. QG-1 (the plan's stale 269-skill figure; the catalog holds 270) and MT-1 (nothing automated asserts the template / checklist / skill trio stays in agreement) carry forward to Phase 4 unchanged.
+
 ## [2026-08-07] - v3.15.14 Phase 1: reconcile the spec artifact [fix]
 
 ### What Changed

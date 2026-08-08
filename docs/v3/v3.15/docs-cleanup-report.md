@@ -298,3 +298,15 @@ One scratch artifact was created and discarded within the phase: a throwaway spe
 Marker sweep over the five changed files: zero `TODO` / `FIXME` / `XXX` / `HACK` / `# DEVIATION:` hits. The phase's one deviation from the plan's literal instruction is recorded as DF-1 in `known-gaps.md` rather than left inline, matching the convention this version has used throughout.
 
 The 8 untracked empty directories under `catalog/skills/` reported in the v3.15.5 and v3.15.7 audits are unchanged and were again left in place, for the same reason: they carry zero tracked files, so they have zero repository impact, and they appear to be a parallel session's in-progress scaffolding.
+
+## v3.15.14 Phase 2 audit (2026-08-07)
+
+**Mode**: Audit and report; no file moves, no deletions.
+
+Phase 2 modified exactly one committed file, `catalog/skills/developer-experience/spec-driven-development/SKILL.md`, plus this version's `known-gaps.md`, `docs-cleanup-report.md`, and `DEVLOG.md`, and added one session-history file. No file was created under `catalog/`, so no installer registration applies and no reference repair was needed.
+
+Marker sweep over the changed file: zero `TODO` / `FIXME` / `XXX` / `HACK` / `# DEVIATION:` hits. The phase produced no scratch artifact of any kind, so no `.gitignore` pattern was needed.
+
+The skill body is 332 lines after this phase, comfortably inside the 500-line size norm, so no `references/` extraction is warranted yet. Phase 1 removed 73 lines from this file and Phase 2 added 31 net, leaving it 42 lines shorter than when this plan started despite carrying two new rules.
+
+The 8 untracked empty directories under `catalog/skills/` are unchanged and were again left in place, for the reason recorded in the v3.15.5, v3.15.7, and v3.15.14 Phase 1 audits: they carry zero tracked files and appear to be a parallel session's scaffolding.

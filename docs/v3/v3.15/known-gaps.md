@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: `v3.15.0` through `v3.15.9` are all released and tagged (10 releases). v3.15.10 Phases 1-4 are complete locally on `feat/v3.15.10-end-of-task-behavior`: two purposeful notification triggers with repo+branch labels and a run-time kill switch, the end-of-task summary rule in all 12 substantive instruction templates, per-platform notification-coverage verification with delivery to Cursor, and the terminal gate. Awaiting `/update release`.
-**Last updated**: 2026-08-07 (v3.15.14 Phase 1 append)
+**Last updated**: 2026-08-07 (v3.15.14 Phase 2 append)
 
 **Current v3.15.9 status**: Phases 1-7 run on `feat/v3.15.9-cross-provider-routing`, based on the released v3.15.8 `develop`. Claude/Codex/GitHub monitors install only into VS Code; Cursor Usage Monitor installs only into Cursor. Focused CI builds/packages the Cursor VSIX and degrades E2E when the hosted runner lacks the Cursor CLI, pointing at the live-smoke checklist. Phase 7 reconciled this ledger, confirmed CI coverage and optimization, and completed the README/CHANGELOG record; the remaining steps are the maintainer-approved branch push, the integration PR to protected `develop`, and `/update release` after green integration.
 
@@ -15,6 +15,39 @@
 > **Scope note (version collision, RESOLVED)**: three plans under `docs/v3/v3.15/plans/` were all stamped `v3.15.0` (`platform-parity-all-gaps`, `adoption-codesight`, and `adoption-awesome-llm-apps`). This was the comparison-versioning artifact (plans stamped with the authoring-cycle version, not the real adoption target). Reconciled on 2026-07-22 by re-stamping: v3.15.0 = platform-parity-all-gaps, v3.15.1 = adoption-codesight, v3.15.2 = adoption-awesome-llm-apps. See the v3.15.1 QG-2 (Resolved) entry.
 
 ## v3.15.14 - spec artifact reconciliation and proportional spec depth
+
+### v3.15.14 Phase 2 checkpoint
+
+**Status**: Phase 2 (Proportional spec depth, D6/D5) complete locally on `feat/adoption-spec-driven-development`. A blast-radius depth-tier rule now sits INSIDE the Hard Gate section, the opening motivation carries the guess-cost-scales-with-codebase-size argument, "When NOT to use" separates the needs-a-spec question from the how-deep question, and two rationalization rows defend the new rule against the misreadings it invites. The hard gate is provably unmodified. NI-1 was closed in passing with maintainer approval. Phases 3 and 4 are not started.
+
+**Summary**: 0 new deviations, 1 gap closed (NI-1), 1 scope addition beyond the plan (a second rationalization row, recorded below as an enhancement rather than a deviation), 0 blockers. The full test surface is green for the first time this version: 3,250 passed, 0 failed.
+
+### v3.15.14 Phase 2 Open Items
+
+#### Resolved this phase
+
+##### NI-1 - CLOSED: `overview_l1` no longer advertises project-level areas as spec capabilities
+
+- **Source phase**: opened v3.15.14 Phase 1.3, closed v3.15.14 Phase 2
+- **Reason it was open**: the frontmatter listed "project structure definition, boundaries (Always/Ask/Never)" among the skill's key capabilities, which Phase 1 had relocated out of the feature spec and into project-level context. The statement was not false, but it read as though those areas belong in a spec.
+- **Resolution**: the clause now reads "scope bounding through explicit non-goals, spec depth chosen by blast radius", which describes what the skill actually does after Phases 1 and 2 and adds trigger vocabulary matching the new capability rather than removing vocabulary outright. Closed with maintainer approval to fold it into this phase rather than defer to Phase 4.
+- **Verification**: `run_trigger_evals.py --gate` re-run after the edit, since `overview_l1` is Tier-1 always-loaded metadata and a reword moves routing vocabulary. Result: 0 un-allowlisted collisions, 0 routing failures across the 9 skills carrying cases. No routing regression.
+
+#### Enhancements beyond the plan (recorded, not deviations)
+
+##### EN-1 - A second rationalization row was added; the plan specified one
+
+- **Source phase**: v3.15.14 Phase 2.1
+- **Plan reference**: `docs/v3/v3.15/plans/v3.15.14-spec-driven-development.md` sub-task 2.1 ("Add a Common Rationalizations row rebutting the misreading this rule invites")
+- **Reason**: the plan named the skip-the-approval misreading, which is now row 4. A second misreading is at least as likely and the plan did not name it: reading "the change is small" as qualifying for "When NOT to use" (no spec) rather than for the depth rule's bottom tier (a short spec). That is the shallow-spec-becomes-no-spec slide, and it is a different error from treating a short spec as a licence to skip approval, so one row could not rebut both without blurring. Row 5 covers it. This adds material rather than departing from the plan, so it is recorded as an enhancement rather than as DF-2.
+- **Suggested next step**: None. Recorded so the Phase 2 exit checklist item ("a third added rebutting the depth rule's misreading") reads correctly against a table that now has two additions, not one.
+
+#### Advisory (no action required)
+
+- **The full repository test surface is green.** Running `pytest tests catalog/hooks/tests` from PowerShell rather than Git Bash yielded **2580 passed, 56 skipped, 0 failed** (exit 0), plus 670 passed / 1 skipped across the five extension suites and a passing compression accuracy gate. This is a direct empirical confirmation of Phase 1's BG-16 classification: the identical tree that produced `1587 passed, 1 failed` under Git Bash produces `2580 passed, 0 failed` under PowerShell, with the difference being exactly `test_ps_standalone_extracts_and_hands_off`. BG-16's cause and suggested next step are unchanged; this entry only records that the shell-dependence was reproduced deliberately in both directions.
+- **The hard gate's integrity was proven mechanically, not by reading.** Across all of Phase 2 the file has exactly two deleted lines: the `overview_l1` frontmatter line and the old one-line "When NOT to use" paragraph. The Hard Gate block therefore has zero deleted lines, which establishes that "The gate applies regardless of how simple the change looks" and "Silence is not approval" survive verbatim without needing a string comparison to say so. The four surfaces (behavior, public API, data schema, CLI) are byte-identical between the new tier table and the merge-gate section.
+- **CI/CD unchanged, same reasoning as Phase 1.** This phase modified one file under `catalog/`, which sits outside `docs/` and therefore fires `ci.yml`'s full job set through the existing `paths-ignore: docs/**` trigger. No new surface, no new optimization opportunity.
+- **QG-1 and MT-1 carry forward unchanged.** The catalog holds 270 skills, not the 269 the plan asserts, and nothing automated yet asserts the template / checklist / skill trio stays in agreement. Both remain Phase 4 work.
 
 ### v3.15.14 Phase 1 checkpoint
 
@@ -35,7 +68,9 @@
 
 #### Non-implemented / deferred
 
-##### NI-1 - OPEN: `spec-driven-development`'s `overview_l1` still advertises project-level areas as spec capabilities
+##### NI-1 - CLOSED in Phase 2: `spec-driven-development`'s `overview_l1` still advertises project-level areas as spec capabilities
+
+> **Status update**: closed by v3.15.14 Phase 2 with maintainer approval; see the NI-1 entry under the Phase 2 checkpoint above for the resolution and the trigger-gate verification. The entry below is retained as written, which is what it looked like when it was opened.
 
 - **Source phase**: v3.15.14 Phase 1.3
 - **Plan reference**: same plan, sub-task 1.3

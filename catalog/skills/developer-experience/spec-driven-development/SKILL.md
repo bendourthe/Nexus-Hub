@@ -2,12 +2,14 @@
 name: spec-driven-development
 description: "Writes a structured technical specification before any code is written. Use when starting a new project, feature, or significant change and no written specification exists — especially when requirements are ambiguous, the change touches multiple files, or architectural decisions must be made. Trigger phrases: write a spec, create a specification, spec this out, define the requirements, spec-driven, write the spec before coding."
 summary_l0: "Write a structured specification before coding to prevent rework from misunderstood requirements"
-overview_l1: "This skill produces a written technical specification before implementation begins, following a four-phase gated workflow: Specify → Plan → Tasks → Implement. Use it when requirements are ambiguous, the change spans multiple files or modules, or you are making an architectural decision. Key capabilities include assumption surfacing, success criteria formulation, project structure definition, boundaries (Always/Ask/Never), and task breakdown with per-task acceptance criteria. The spec is committed to the repo as a living document — updated as decisions change, referenced in PRs, and never discarded after implementation begins. Without this skill, implementation risks solving the wrong problem or building an architecture that does not match the team's intent. Trigger phrases: write a spec, spec this out, create a specification, define requirements, spec before coding, what should I build."
+overview_l1: "This skill produces a written technical specification before implementation begins, following a four-phase gated workflow: Specify → Plan → Tasks → Implement. Use it when requirements are ambiguous, the change spans multiple files or modules, or you are making an architectural decision. Key capabilities include assumption surfacing, success criteria formulation, scope bounding through explicit non-goals, spec depth chosen by blast radius, and task breakdown with per-task acceptance criteria. The spec is committed to the repo as a living document — updated as decisions change, referenced in PRs, and never discarded after implementation begins. Without this skill, implementation risks solving the wrong problem or building an architecture that does not match the team's intent. Trigger phrases: write a spec, spec this out, create a specification, define requirements, spec before coding, what should I build."
 ---
 
 # Spec-Driven Development
 
 Write a structured specification before writing any code. The spec is the shared source of truth between you and the human engineer — it defines what we're building, why, and how we'll know it's done. Code without a spec is guessing.
+
+"Guessing" is the precise word, and it explains why the cost is worse than rework. An agent that reaches an unstated requirement does not stop and ask; it fills the gap with the most plausible interpretation and keeps building on it. In a small codebase those guesses stay visible, because there is not much code for them to hide in. In a large one they land in details nobody inspects, so the consequence surfaces later, somewhere else, in code the author never touched, where it reads as an unrelated bug rather than as a decision that was never made. Guess cost therefore scales with the size of the system, not with the size of the change, which is why a small change to a large codebase deserves more written agreement than its diff suggests. The two mechanisms this skill ships exist for exactly this: the `[NEEDS CLARIFICATION]` marker and the mandatory `## Assumptions` section both convert a silent guess into a recorded decision the reviewer can overturn with one line.
 
 ## Hard Gate: No Implementation Before an Approved Design
 
@@ -21,6 +23,27 @@ This is a hard gate, not a guideline. Until a design has been presented in revie
 The gate applies regardless of how simple the change looks. "Simple" is a judgment about implementation effort; the gate is about whether you and the user agree on *what* to build and *why*. Those are independent: a one-file change built against the wrong assumption is still rework. The cost of presenting a short design for a simple change is a minute; the cost of building the wrong simple thing is the build plus the rebuild plus the conversation about why it was wrong.
 
 What satisfies the gate: a design or spec presented in sections the user can react to (objective, the proposed approach, success criteria, boundaries), followed by an explicit approval ("yes, build that", "approved", a clear go-ahead). Silence is not approval. A thumbs-up on the *problem statement* is not approval of the *design*. If the user says "just build it" before any design exists, present the smallest reviewable design first and ask for the go-ahead - that exchange takes one turn and is the entire point of the gate.
+
+### Spec depth is proportional; the gate is not
+
+The gate governs whether you and the user agree on *what* to build. The depth governs how much document that agreement needs. These are independent axes, and this rule moves only the second one.
+
+Depth is keyed on blast radius, meaning how far a wrong assumption propagates, not on effort, line count, or how long the change takes to write. A three-line change to a public API has a larger blast radius than a three-hundred-line change to a private helper.
+
+| Blast radius | Required spec depth |
+|---|---|
+| One file, internal, with no surface a consumer can observe | Problem Statement, acceptance criteria, and Non-Goals. Short enough to fit in a chat message; it does not need its own file. |
+| Multiple files or multiple modules, still internal | The above, plus User Scenarios with an Independent Test, FR-### items, and Assumptions. |
+| A change to behavior, a public API, a data schema, or a CLI surface | The full canonical template written to `spec.md`, including Invariants. |
+
+The top tier names the same four surfaces as "The Spec as a Merge Gate" below, and that is deliberate: a change that must update its spec before it can merge is a change that needed the full spec before it started. The two rules are one rule seen from each end.
+
+Two boundaries keep the tiering honest:
+
+- **Depth never scales the approval.** A three-bullet spec in a chat message is still a design presented in reviewable sections, and it still requires an explicit go-ahead before any code. Shrinking the artifact does not shrink the gate, shorten it, or make silence count.
+- **The bottom tier is a short spec, not an absent one.** Whether a change needs *no* spec is a different question, answered in "When NOT to use" below, and it covers only a single-line fix or a typo. Everything above that floor gets a written statement of the problem, what done means, and what is out of scope, however brief.
+
+When two tiers both look defensible, take the higher one. Over-specifying costs a paragraph; under-specifying costs the rebuild.
 
 ### One Question at a Time
 
@@ -37,7 +60,11 @@ Use when:
 - You are about to make an architectural decision
 - The task would take more than 30 minutes to implement
 
-**When NOT to use:** Single-line fixes, typo corrections, or changes where requirements are unambiguous and self-contained. If you already have a well-defined spec, move directly to `plan-before-code`.
+**When NOT to use:** A single-line fix, a typo correction, or a change whose requirements are already unambiguous and self-contained needs no spec at all.
+
+This section answers only whether a spec is needed. How much spec is a separate question, answered by the depth rule above. Keeping them apart matters, because "the change is small" is an answer to the second question that reads like an answer to the first: a change that is small but real gets a SHALLOW spec, not no spec. Reach for "no spec" only when there is genuinely nothing to agree on, not when there is little to agree on.
+
+If you already have a well-defined spec, move directly to `plan-before-code`.
 
 ### Marking uncertainty with `[NEEDS CLARIFICATION]`
 
@@ -259,6 +286,8 @@ The rule is scoped on purpose: a typo fix, a refactor with no behavior change, o
 | "This is simple — I don't need a spec" | Simple tasks don't need long specs, but they still need acceptance criteria. A two-line spec is fine. |
 | "This is too simple to need a design before I code it" | Simplicity of implementation is independent of agreement on intent. The hard gate is not about effort; it is about whether you and the user agree on what to build. A trivial change built against a wrong assumption is still a rebuild. Present the smallest reviewable design and get the go-ahead — it costs one turn. |
 | "The user said 'just build it', so the gate is satisfied" | "Just build it" before any design exists is a request to skip the design, not approval of one. Present the smallest design in reviewable sections and get an explicit go-ahead first. Approval of the problem is not approval of the design. |
+| "The depth rule says small changes get a short spec, so I can skip the approval step" | The depth rule scales the document, never the agreement. It moves one axis and leaves the other exactly where it was: a one-line spec still requires an explicit go-ahead before code. If reading the tier table made the gate feel negotiable, re-read the gate - it says the approval applies regardless of how simple the change looks, and the tier table is a refinement inside that constraint, not an exception to it. |
+| "The change is small, so it falls under 'When NOT to use'" | "Small" is an answer to how deep the spec should be, not to whether one is needed. "When NOT to use" covers a single-line fix or a typo, where there is nothing to agree on. A small-but-real change gets the bottom tier: problem, acceptance criteria, Non-Goals. Collapsing the two questions is how a shallow spec turns into no spec. |
 | "I'll write the spec after coding" | That's documentation, not specification. The spec's value is forcing clarity *before* code. Writing it after confirms what you built, not what you should have built. |
 | "The spec will slow us down" | A 15-minute spec prevents hours of rework. The spec itself is not the slowdown; vague requirements are. |
 | "Requirements will change anyway" | That's why the spec is a living document. An outdated spec is still better than no spec — it shows the intent at the time. |
