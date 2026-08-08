@@ -310,3 +310,19 @@ Marker sweep over the changed file: zero `TODO` / `FIXME` / `XXX` / `HACK` / `# 
 The skill body is 332 lines after this phase, comfortably inside the 500-line size norm, so no `references/` extraction is warranted yet. Phase 1 removed 73 lines from this file and Phase 2 added 31 net, leaving it 42 lines shorter than when this plan started despite carrying two new rules.
 
 The 8 untracked empty directories under `catalog/skills/` are unchanged and were again left in place, for the reason recorded in the v3.15.5, v3.15.7, and v3.15.14 Phase 1 audits: they carry zero tracked files and appear to be a parallel session's scaffolding.
+
+## v3.15.14 Phase 3 audit (2026-08-07)
+
+**Mode**: Audit and report; no file moves, no deletions.
+
+Phase 3 modified exactly one committed file under `catalog/`, `catalog/skills/workflow/implementation-plan/SKILL.md`, plus this version's `known-gaps.md`, `docs-cleanup-report.md`, and `DEVLOG.md`, and added one session-history file. No file was created under `catalog/`, so no installer registration applies and no reference repair was needed.
+
+Two structural notes specific to this phase.
+
+The skill body grew from 445 to 469 lines, which is 31 under the 500-line target and well inside the 800-line hard cap, so no `references/` extraction is warranted. The extraction question was considered rather than assumed: both new conventions are authoring-time rules that shape every sub-task an author writes, which is Tier 2 material, whereas a worked catalogue of failure-mode examples would be Tier 3. If this file grows further, that catalogue is the first thing to move out.
+
+`catalog/skills/workflow/plan-before-code/SKILL.md` was deliberately NOT edited. Sub-task 3.1 required choosing exactly one plan-layer skill, and the exit checklist asks for confirmation that the other was left alone. Its last commit is `39577bbe` (v3.0.0 Phase 9), unchanged by this plan.
+
+Marker sweep over the changed file: zero `TODO` / `FIXME` / `XXX` / `HACK` / `# DEVIATION:` hits. No scratch artifact was produced and no `.gitignore` pattern was needed.
+
+The 8 untracked empty directories under `catalog/skills/` are unchanged and were again left in place, for the reason recorded in every prior audit in this version.

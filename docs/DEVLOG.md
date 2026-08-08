@@ -1,5 +1,40 @@
 # Development Log
 
+## [2026-08-07] - v3.15.14 Phase 3: plan-layer failure modes and build class [feature]
+
+### What Changed
+
+`implementation-plan` gained two per-sub-task conventions. Failure-mode coverage is now mandatory for every component a plan introduces or changes, across three named situations: malformed or absent inputs, an unreachable or slow dependency, and two operations conflicting. A one-line build class labels each sub-task `scaffolding` (with what replaces it and when) or `load-bearing`. Both appear as fields in the emitted phase template, are explained in a new authoring step, and are enforced by two new Verification items and two new rationalization rows. `plan-before-code` was deliberately not edited.
+
+### Why It Changed
+
+The comparison declined the source's recommendation to put architecture into the spec, because it conflicts with the normative-spec-versus-context split and would fail `spec-quality-checklist.md`'s implementation-detail checks. One narrow slice of that recommendation was a real gap rather than a declined merge: error handling had no mandatory home in either artifact. It appeared only as optional `### Edge Cases` prompts in the spec template, which name the user-visible edge case and deliberately say nothing about the handling.
+
+The second convention answers a different review problem. A reviewer reading a diff cannot tell whether a hardcoded value is a shortcut awaiting replacement or the intended implementation, and that distinction is generally unrecoverable from the code alone.
+
+### Decisions Made
+
+- **`implementation-plan`, not `plan-before-code`.** The plan delegated the choice and required stating it. Four grounds: it produces a durable artifact under `docs/**/plans/` rather than a plan that lives in the conversation turn; it already has a per-sub-task template, which is the native attachment point for a one-line-per-sub-task label; it is the spec's downstream consumer, which is what makes the compose-with-Edge-Cases story work; and the skills' own cross-link describes `plan-before-code` as "lightweight planning for individual features within a phase", settling the layering. Recorded as DC-1.
+- **Three named situations, not "handle errors".** A general instruction to handle errors well is satisfiable by any behavior including a silent swallow. Naming malformed input, unreachable dependency, and conflicting operations makes the field checkable, which is the difference between a requirement and a sentiment.
+- **The spec/plan split is stated as an instruction, not just honored.** Step 3.6 tells future authors explicitly not to close this gap by pushing error handling, data models, interfaces, or schemas back into the spec template. A boundary that is only observed decays; one that is written down survives the next author who notices the same gap.
+- **Build class is a label, not a section.** One line, stated only where a reader could not otherwise tell. The plan asked for lightweight and the temptation with a convention like this is to grow it into a template block that nobody fills in honestly.
+- **The provenance note is recorded honestly and without attribution.** The skill body says the build-class convention is adopted on its own merits, that it was proposed on the strength of an example specification said to demonstrate it, and that the document carried no code blocks and no such labeling, so the cited evidence does not support the claim. No external article, author, or repository is named, per the AGENTS.md attribution rule; full provenance goes in the Phase 4.2 matrix row.
+- **Inline rather than a `references/` file.** `implementation-plan` was at 445 of a 500-line target, so the extraction question was real. Both conventions are authoring-time rules that shape every sub-task written, which is Tier 2 material; a worked catalogue of failure-mode examples would be Tier 3 and is the first thing to move out if this file grows again.
+
+### Troubleshooting Trail
+
+- **The plan-contract tests were checked before editing, not after.** `tests/plans/test_v3_15_9_routing_contract.py` asserts against `implementation-plan/SKILL.md`, so a change to the emitted phase template could plausibly have broken it. Reading the assertions first showed they check for the presence of required fields rather than the absence of others, which made the two new template fields safe as additive changes. Confirmed by running `tests/plans`, `tests/validators`, and `tests/skills`: 739 passed, 3 skipped.
+- **No troubleshooting loop was needed.** Every check passed on the first pass, which is the expected shape for a phase the plan rated mid-tier and whose hard boundary decision had already been settled in the comparison.
+
+### Impact & Context
+
+- **Affected**: `catalog/skills/workflow/implementation-plan/SKILL.md` (445 to 469 lines), plus `docs/v3/v3.15/known-gaps.md`, `docs/v3/v3.15/docs-cleanup-report.md`, `docs/DEVLOG.md`, and a new session-history file.
+- **The declined merge held, verified mechanically.** Phase 3's `git diff --name-only` lists exactly one file under `catalog/`. `spec-template.md` is untouched, its `Key Entities` implementation-detail prohibition is intact at line 107, and a grep of the template for retry / backoff / error-handling / schema / interface / module-boundary language returns only that prohibition line itself.
+- **Exactly one plan-layer skill edited.** `plan-before-code/SKILL.md` is still at `39577bbe` (v3.0.0 Phase 9).
+- **Model routing**: the plan rated this phase mid tier / medium effort (Sonnet class). The session was already on a stronger tier, and per the no-degradation rule no mid-phase downshift was taken.
+- **Tests and validators**: bundle audit 0 errors, quality heuristics 0 errors, trigger-and-routing gate 0 failures, unicode-safety / no-personal-paths / version-sync / base-template-parity all pass, shellcheck clean.
+- **Known gaps**: no new gaps. DC-1 recorded as a decision. QG-1, MT-1, and NI-2 carry forward to Phase 4 unchanged.
+
 ## [2026-08-07] - v3.15.14 Phase 2: proportional spec depth [feature]
 
 ### What Changed

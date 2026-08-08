@@ -236,6 +236,10 @@ Each phase must follow this template exactly:
 
 **Objective**: [What this sub-task accomplishes.]
 
+**Failure modes** *(required when this sub-task introduces or changes a component)*: [What the component does when its inputs are malformed or absent, when a dependency it calls is unreachable or slow, and when two of its operations conflict.]
+
+**Build class** *(state only where a reader could not otherwise tell)*: [load-bearing, or scaffolding naming what replaces it and when.]
+
 **Prompt**:
 > [A complete, self-contained prompt the user can paste directly into a new Claude Code
 > session to perform this sub-task. Include: the goal, specific files or directories to
@@ -386,6 +390,22 @@ Once the phase breakdown is fixed and before writing the file, score every phase
 
 Web search is the only added network activity and uses public documentation without a new credential or dependency. The exact document contract is defined in `docs/v3/v3.15/development/cross-provider-routing-contract.md`. `/implement` re-confirms the phase tier and effort against a refreshed map and the selected provider's live platform surface before implementation.
 
+### Step 3.6: Name Each Sub-task's Failure Modes and Build Class
+
+Two per-sub-task fields close gaps that otherwise surface only during review.
+
+**Failure modes are mandatory for every component the plan introduces or changes.** For each such component, state what happens in three specific situations: its inputs are malformed or absent, a dependency it calls is unreachable or slow, and two of its operations conflict. Three named situations rather than a general instruction to handle errors, because "handle errors well" is satisfiable by any behavior including a silent swallow.
+
+This composes with the spec instead of duplicating it. `catalog/templates/spec-template.md`'s `### Edge Cases` prompts name the user-visible edge case ("what happens when an upstream dependency is unreachable?"); this field names the handling ("retry twice with backoff, then serve cache with a staleness banner"). Error handling has no mandatory home in the spec by design, because a spec that pinned retry policy would fail `spec-quality-checklist.md`'s implementation-detail checks. The plan is where it belongs. Do NOT close this gap by pushing error handling, data models, interfaces, or schemas back into the spec template.
+
+A sub-task that only edits prose, moves a file, or runs a tool introduces no component and carries no failure-mode line.
+
+**Build class separates disposable code from the code that proves the design.** Where a sub-task deliberately produces something provisional (a stub, a hardcoded fixture, a shortcut taken to reach a checkpoint), label it `scaffolding` and say what replaces it and when. Where it produces the part that actually demonstrates the approach works, label it `load-bearing`. A reviewer should never have to guess whether a hardcoded value is a shortcut awaiting replacement or the intended implementation, and that distinction is usually unrecoverable from the diff alone.
+
+Keep this to one line. It is a label, not a section: state the class only where a reader could not otherwise tell, and skip it where the answer is obvious.
+
+The build-class convention is adopted on its own merits rather than on precedent. It was proposed on the strength of an example specification said to demonstrate it, and that document turned out to carry no code blocks and no such labeling, so the cited evidence does not support the claim. The idea survives its evidence failing, because the review problem it names is real and observable.
+
 ### Step 4: Write the Plan
 
 Create `<version_dir>/plans/` if it does not exist (where `<version_dir>` is the path resolved earlier - canonically `docs/v<MAJOR>/v<MAJOR>.<MINOR>/`, with legacy `docs/<vSEMVER>/` or `docs/versions/<vMAJOR>/<vSEMVER>/` honored when already present), then write the release-prefixed `v<MAJOR>.<MINOR>.<PATCH>-<slug>.md` inside it following the structure above. If the target file already exists, ask the user whether to **Regenerate** (overwrite), **Append** (add phases), or **Rename** (pick a new slug).
@@ -407,6 +427,8 @@ Incorporate feedback, then write the final file.
 | "The user already knows what they want, I can skip the discovery questions" | Skipping discovery produces a plan built on the agent's assumptions; the unasked question is exactly the requirement that gets missed and forces a rewrite mid-implementation. |
 | "I will add the install and packaging step at the end" | Deferring packaging to the end means the build is unrunnable for the whole middle of the plan; the install step must land before the halfway point so each phase produces something executable. |
 | "A phase does not need its own testing sub-task if I test at the end" | Batching all testing into a final phase hides which phase introduced a defect; every phase must end with a testing and stabilization sub-task so failures are localized. |
+| "Error handling is an implementation detail, I will let the implementer decide" | Then nobody decided. "Handle errors" is satisfiable by any behavior including a silent swallow, and the spec deliberately holds only the user-visible edge case, not the handling. If the plan does not name what happens on malformed input, an unreachable dependency, and conflicting operations, that choice gets made mid-implementation by whoever hits it first, under time pressure, without review. |
+| "The stub is obviously temporary, labelling it is busywork" | It is obvious to you today and invisible in the diff tomorrow. An unlabelled hardcoded value reads identically whether it is a shortcut awaiting replacement or the intended implementation, so the reviewer has to guess, and the guess that ships is the one that treats scaffolding as finished. One word per sub-task removes the guess. |
 
 ## Verification
 
@@ -419,6 +441,8 @@ Incorporate feedback, then write the final file.
 - [ ] Every phase ends with a testing and stabilization sub-task (which also creates/updates and optimizes CI/CD for that phase's changes)
 - [ ] The plan's last phase is the mandatory "Architecture Refactor, Known-Gaps Reconciliation, and CI/CD" phase (sub-tasks: N.1 architecture refactor, N.2 known-gaps reconciliation, N.3 CI/CD create/update/optimize, N.4 testing and stabilization)
 - [ ] Every sub-task has a complete, self-contained executable prompt
+- [ ] Every sub-task that introduces or changes a component states its failure modes across all three situations (malformed or absent input, unreachable or slow dependency, conflicting operations), and no error-handling, data-model, interface, or schema detail was pushed back into the spec to achieve it
+- [ ] Sub-tasks producing provisional work carry a one-line `scaffolding` build class naming what replaces it and when; `load-bearing` is stated wherever a reader could not otherwise tell
 - [ ] Every phase has a stability gate and exit checklist
 - [ ] `## Current model map` is present with four tiers, Anthropic / OpenAI / Google / Cursor columns, a dated status, and source URLs (or one exact offline fallback marker)
 - [ ] Every phase carries an allowed generic model tier and effort in both the glance table and its separate per-phase fields; concrete model ids appear only in the Current model map

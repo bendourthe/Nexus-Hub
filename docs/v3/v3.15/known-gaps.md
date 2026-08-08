@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: `v3.15.0` through `v3.15.9` are all released and tagged (10 releases). v3.15.10 Phases 1-4 are complete locally on `feat/v3.15.10-end-of-task-behavior`: two purposeful notification triggers with repo+branch labels and a run-time kill switch, the end-of-task summary rule in all 12 substantive instruction templates, per-platform notification-coverage verification with delivery to Cursor, and the terminal gate. Awaiting `/update release`.
-**Last updated**: 2026-08-07 (v3.15.14 Phase 2 append)
+**Last updated**: 2026-08-07 (v3.15.14 Phase 3 append)
 
 **Current v3.15.9 status**: Phases 1-7 run on `feat/v3.15.9-cross-provider-routing`, based on the released v3.15.8 `develop`. Claude/Codex/GitHub monitors install only into VS Code; Cursor Usage Monitor installs only into Cursor. Focused CI builds/packages the Cursor VSIX and degrades E2E when the hosted runner lacks the Cursor CLI, pointing at the live-smoke checklist. Phase 7 reconciled this ledger, confirmed CI coverage and optimization, and completed the README/CHANGELOG record; the remaining steps are the maintainer-approved branch push, the integration PR to protected `develop`, and `/update release` after green integration.
 
@@ -15,6 +15,31 @@
 > **Scope note (version collision, RESOLVED)**: three plans under `docs/v3/v3.15/plans/` were all stamped `v3.15.0` (`platform-parity-all-gaps`, `adoption-codesight`, and `adoption-awesome-llm-apps`). This was the comparison-versioning artifact (plans stamped with the authoring-cycle version, not the real adoption target). Reconciled on 2026-07-22 by re-stamping: v3.15.0 = platform-parity-all-gaps, v3.15.1 = adoption-codesight, v3.15.2 = adoption-awesome-llm-apps. See the v3.15.1 QG-2 (Resolved) entry.
 
 ## v3.15.14 - spec artifact reconciliation and proportional spec depth
+
+### v3.15.14 Phase 3 checkpoint
+
+**Status**: Phase 3 (Plan-layer conventions, D4/D3) complete locally on `feat/adoption-spec-driven-development`. `implementation-plan` was chosen as the single plan-layer skill and now requires per-component failure-mode coverage across three named situations, carries a one-line scaffolding-versus-load-bearing build class per sub-task, and has two matching Verification items plus two rationalization rows. `plan-before-code` was NOT edited. `spec-template.md` was not touched, which is the declined merge this phase had to avoid. Phase 4 is not started.
+
+**Summary**: 0 deviations, 0 new gaps, 1 recorded decision (DC-1, the skill choice), 0 blockers.
+
+### v3.15.14 Phase 3 Open Items
+
+#### Decisions recorded
+
+##### DC-1 - `implementation-plan` chosen over `plan-before-code` as the plan layer for D4 and D3
+
+- **Source phase**: v3.15.14 Phase 3.1
+- **Plan reference**: `docs/v3/v3.15/plans/v3.15.14-spec-driven-development.md` sub-task 3.1 ("or `plan-before-code` if that is the better fit for per-component design detail; pick ONE and state the choice")
+- **Decision**: `implementation-plan`, confirmed with the maintainer before editing. Four grounds. It produces a durable artifact under `docs/**/plans/`, so the convention lands in a document a reviewer reads later, whereas `plan-before-code`'s plan lives in the conversation turn. It already has a per-sub-task template (`#### N.1` with `**Objective**` and `**Prompt**`), which is the native attachment point for D3's one-line-per-sub-task label; `plan-before-code`'s plan template has no per-sub-task slot. It is the spec's downstream consumer via `/spec` then `/plan`, which is what makes D4's compose-with-`### Edge Cases` story work at all. And the two skills' own cross-link settles the layering: `implementation-plan` describes `plan-before-code` as "lightweight planning for individual features within a phase", so per-component detail across a plan belongs to the outer skill.
+- **Cost accepted**: `implementation-plan` was at 445 of the 500-line body target, against `plan-before-code`'s 353. The edits were budgeted to fit inline rather than pushed to a `references/` file, on the reasoning that both conventions are authoring-time rules that shape every sub-task written (Tier 2), not edge-case reference material (Tier 3). Final size 469 lines, 31 under the target.
+- **Suggested next step**: None. Recorded so a future reader does not re-litigate the choice, and so the Phase 3 exit-checklist item "exactly one plan-layer skill chosen" has a stated answer.
+
+#### Advisory (no action required)
+
+- **The declined merge held.** This phase's whole risk was that closing the error-handling gap would pull architecture back into the spec, which the comparison declined because it conflicts with the normative-versus-context split and would fail `spec-quality-checklist.md`'s implementation-detail checks. Verified mechanically: `git diff --name-only` for Phase 3 lists exactly one file, `catalog/skills/workflow/implementation-plan/SKILL.md`. `spec-template.md` was not modified, its `Key Entities` prohibition ("Do not include database schemas, column types, or implementation details") is intact at line 107, and a grep of the template for retry / backoff / error-handling / schema / interface / module-boundary language returns only that prohibition line itself. The new Step 3.6 also states the boundary explicitly as an instruction to future authors: do NOT close this gap by pushing error handling, data models, interfaces, or schemas back into the spec template.
+- **The build-class provenance note is recorded in the skill body without attribution**, per the plan and the AGENTS.md reverse-engineering attribution rule. The skill says the convention is adopted on its own merits, that it was proposed on the strength of an example specification said to demonstrate it, and that the document carried no code blocks and no such labeling, so the cited evidence does not support the claim. No external article, author, newsletter, or repository is named. Full provenance goes in the Phase 4.2 matrix row.
+- **CI/CD unchanged, third phase running.** One file under `catalog/`, outside `docs/`, so `ci.yml`'s existing `paths-ignore: docs/**` trigger fires the full job set. The plan-contract suite (`tests/plans`) is the surface most at risk from a plan-template change and it passes; those tests assert the presence of required fields rather than the absence of others, so the two new template fields are additive.
+- **QG-1, MT-1, and NI-2 carry forward to Phase 4 unchanged.**
 
 ### v3.15.14 Phase 2 checkpoint
 
