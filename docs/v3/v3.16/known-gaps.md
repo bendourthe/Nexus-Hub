@@ -1,8 +1,8 @@
 # Known Gaps - v3.16
 
 **Project**: Nexus-Hub
-**Status**: v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (Phase 1 of 5 complete; unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
-**Last updated**: 2026-08-08 (v3.16.0 Phase 1 gaps appended)
+**Status**: v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (Phases 1 and 2 of 5 complete; unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
+**Last updated**: 2026-08-08 (v3.16.0 Phase 2 gaps appended; QG-1 found and fixed in-phase)
 
 > **File-lifecycle note**: this ledger was created ahead of any v3.16 implementation, by a comparison that deliberately claimed no release slot, so it began with only the `## Comparison-Sourced Deferrals` section. Each v3.16 version-implementation phase **appends** its own `## v3.16.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` numbering, which is namespaced separately from the `CD-#` and `TR-#` ids used above.
 
@@ -118,11 +118,44 @@ Gaps recorded during implementation of [plans/v3.16.0-platform-defaults-config.m
 - **Impact**: none on the catalog or on any distributed artifact; `git worktree list` is already clean, so only the admin directories linger.
 - **Suggested next step**: remove `.git/worktrees/*` for the stale names outside a OneDrive sync window. Not a code gap; recorded so a future reader does not mistake it for repository corruption.
 
+### QG-1 - CLOSED: a docs-only push skipped every CI guard, including the one Phase 2 added
+
+- **Source phase**: Phase 2, post-phase step 8.3.
+- **What was wrong**: `.github/workflows/ci.yml` carried `paths-ignore: ['docs/**']` on both the `push` and `pull_request` triggers, on the stated premise that "docs-only pushes never affect validators, tests, or the installer". That premise was true when written and is no longer true: `docs/policy/` is validator INPUT. `platform-read-contracts.json` feeds `verify_platform_contracts.py` and `check_platform_contract_freshness.py`, and Phase 2 added `platform-defaults-levers.md`, which feeds the lever-contract completeness tests. A push editing only one of those files skipped CI entirely, so the exact edit each guard exists to catch was the edit that never ran it.
+- **Fix applied**: both triggers now use a `paths` filter (`'**'`, `'!docs/**'`, `'docs/policy/**'`) so `docs/policy/` re-triggers the full job set while the rest of `docs/` still skips it. The stale comment is corrected so it does not mislead a future reader.
+- **Why `paths` rather than a negation inside `paths-ignore`**: GitHub Actions supports the `!` negation character in `paths` **only**, never in `paths-ignore`, and the two filters cannot both be set for one event. This was verified against GitHub's own workflow-syntax documentation rather than assumed; the first-drafted fix (adding `- '!docs/policy/**'` to the existing `paths-ignore`) would have been silently invalid.
+- **Scope note**: the hole was pre-existing and affected the read-contract guards too, so the fix benefits more than this plan. Applied here rather than deferred to Phase 5 at the maintainer's direction.
+
+### NI-2 - OPEN: `copilot` has a VERIFIED lever on a surface Nexus-Hub does not integrate
+
+- **Source phase**: Phase 2, sub-task 2.1.
+- **Finding**: GitHub documents `~/.copilot/settings.json` with a `model` key plus `permissions.disableBypassPermissionsMode`, `sandbox.enabled`, and `sandbox.allowBypass`. That is a genuine, first-party-documented lever, so the row is VERIFIED.
+- **Why it is open**: the lever belongs to the **Copilot CLI**, while Nexus-Hub's `copilot` integration targets Copilot's instruction surface (`.github/copilot-instructions.md` plus VS Code user-profile prompt files). The integration has no `global_dir` and installs nothing into `~/.copilot`. It is recorded with Surface alignment **Mismatch** for exactly this reason.
+- **Suggested next step**: Phase 3 must decide deliberately: either extend the `copilot` integration to write `~/.copilot/settings.json` (a new product surface, which is a scope decision rather than a mechanical one), or record Copilot as declared-but-not-writable with the reason. It must NOT write the file merely because a lever was found.
+
+### NI-3 - OPEN: `gemini` and `gemini-cli` share one home, so `~/.gemini/settings.json` needs a single owner
+
+- **Source phase**: Phase 2, sub-task 2.1.
+- **Finding**: the registry keeps `gemini` and `gemini-cli` as two integrations, but both resolve to the `~/.gemini` home. Google's configuration reference documents `~/.gemini/settings.json` (`model.name`, `general.defaultApprovalMode`) for the Gemini CLI. `gemini` is classified UNVERIFIED because no official document names a behavioral-default lever for that specific surface, and transferring the CLI's lever by analogy is what the do-not-invent rule forbids.
+- **Why it is open**: a default written to `~/.gemini/settings.json` on behalf of `gemini-cli` is also visible to anything else using that home. If Phase 3 ever declares a lever for `gemini` as well, two integrations would race to own one file.
+- **Suggested next step**: Phase 3 must assign the `~/.gemini/settings.json` write to exactly one platform id and state which. Note that `gemini-cli` is enterprise-only post-2026-06-18 and installs only under `--enterprise`, so the owning id determines whether the default reaches a default install at all.
+
+### NI-4 - OPEN: four platforms are deliberate non-implementations awaiting a Phase 5 disposition
+
+- **Source phase**: Phase 2, sub-tasks 2.1 and 2.2.
+- **The four**: `antigravity` (Antigravity 1.0 documents in-app settings-panel controls only, naming no config file), `gemini` (see NI-3), `nexus-ai` (the repository is private, so no publicly-citable first-party document exists; an authenticated inspection found no user-facing behavioral-default configuration surface), and `windsurf` (mode, model, and approval behavior are in-app or admin-dashboard controls, with no documented disk file).
+- **Why it is open**: each is a correct, evidence-backed "no lever documented" result rather than an oversight, and each is deliberately absent from `configs/platform-defaults.json`. The plan's sub-task 5.2 requires an explicit disposition for every one so a future reader cannot mistake a deliberate omission for a forgotten platform.
+- **Suggested next step**: Phase 5.2 records a disposition per platform. No action is needed before then; the classifications are already machine-checked by `tests/validators/test_platform_defaults_levers.py`.
+
 ### Observations (no action)
 
 - **Local Python lint was not run**: `ruff` is not installed on this host. The repository's own `make lint` target runs ShellCheck only (which passed, on unchanged shell files), so no declared gate was bypassed. Python style was kept to the surrounding conventions by hand, and the generator emits ruff-shaped literals (magic trailing comma) so `--apply` does not fight the formatter.
 - **`make` is unavailable on this host**: the `validate` steps were run individually as the equivalent, and all eight passed.
 - **Only Claude is seeded, by design**: Phase 2 web-verifies the remaining fifteen registered integrations before any of them appears in the defaults file. A single-platform defaults file at the end of Phase 1 is the intended state, not an omission.
+- **`gemini-cli`'s thinking budget is not a clean lever**: Google documents a thinking budget only nested per model alias, at `modelConfigs.aliases[*].modelConfig.generateContentConfig.thinkingConfig.thinkingBudget`, rather than as a top-level setting. It is recorded in the lever contract for completeness but is NOT recommended for seeding; the clean levers for that platform are `model.name` and `general.defaultApprovalMode`.
+- **Two platforms document a lever but no model or effort key**: `antigravity2` documents an autonomy/approval policy (`toolPermission`, `artifactReviewPolicy`) with no default-model or reasoning-effort key, and `cursor` documents `approvalMode` and `sandbox.*` but explicitly no config-file default-model mechanism (model selection is the runtime `/model` command). Both are VERIFIED for what they document and silent on the rest; Phase 3 must not extrapolate the missing halves from sibling platforms.
+- **`aider`'s alignment is Partial, not Exact**: its lever file `.aider.conf.yml` is searched in the home directory, the git repo root, then the current directory, while Nexus-Hub installs Aider at workspace scope only (project-root `CONVENTIONS.md`, no global surface). Writing a project-root `.aider.conf.yml` would place a new file type in a user's repository, which Phase 3 should weigh deliberately rather than treat as routine.
+- **Doc-host churn is now a tracked signal**: this pass followed three redirects to first-party successors (Claude 301 to `code.claude.com`, OpenAI Codex 308 chain to `learn.chatgpt.com`, and `docs.windsurf.com` 307 to `docs.devin.ai`). The last is first-hand confirmation of the Cognition rebrand that AGENTS.md currently flags as third-party reporting. The lever contract's re-verification instructions now treat a redirect as an early signal of vendor reorganization rather than a cosmetic detail.
 
 ---
 
@@ -132,6 +165,6 @@ Gaps recorded during implementation of [plans/v3.16.0-platform-defaults-config.m
 |---|---|---|
 | Comparison-sourced deferrals (`CD-#`) | 3 (CD-1, CD-2, CD-3) | 0 |
 | Transferred in from v3.15.14 (`TR-#`) | 2 (TR-1, TR-2) | 1 (TR-3) |
-| v3.16.0 version-implementation gaps | 4 (DF-1, NI-1, BG-1, WN-1) | 1 (DF-2) |
+| v3.16.0 version-implementation gaps | 7 (DF-1, NI-1, NI-2, NI-3, NI-4, BG-1, WN-1) | 2 (DF-2, QG-1) |
 
-The three comparison-sourced items remain non-blocking prose folds with named target files. Of the v3.16.0 items, BG-1 is pre-existing and reproduces without this phase's changes, WN-1 is environmental, DF-1 is a reasoned non-implementation, and NI-1 is a deliberate scope boundary that the plan requires. None gates the v3.16.0 release.
+The three comparison-sourced items remain non-blocking prose folds with named target files. Of the v3.16.0 items, BG-1 is pre-existing and reproduces without this plan's changes, WN-1 is environmental, DF-1 is a reasoned non-implementation, NI-1 is a deliberate scope boundary the plan requires, and NI-2 / NI-3 / NI-4 are Phase 2 findings that Phase 3 and Phase 5 are already scheduled to dispose of. QG-1 was found and fixed within Phase 2. None gates the v3.16.0 release.

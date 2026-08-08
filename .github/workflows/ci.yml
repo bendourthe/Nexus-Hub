@@ -3,16 +3,30 @@ name: CI
 on:
   push:
     branches: [main, develop]
-    # v3.11.0 Phase 8.4: docs-only pushes never affect validators, tests, or the
-    # installer, so skip the full job set (incl. the 10x macOS / 2x Windows legs)
-    # when a change touches nothing outside docs/. Skill/template/README/CHANGELOG
-    # changes live OUTSIDE docs/ and still trigger the full run.
-    paths-ignore:
-      - 'docs/**'
+    # v3.11.0 Phase 8.4: most docs-only pushes never affect validators, tests, or
+    # the installer, so skip the full job set (incl. the 10x macOS / 2x Windows
+    # legs) when a change touches nothing outside docs/. Skill/template/README/
+    # CHANGELOG changes live OUTSIDE docs/ and still trigger the full run.
+    #
+    # v3.16.0 Phase 2: docs/policy/ is the ONE exception and is re-included above.
+    # It is not prose -- it is validator INPUT. platform-read-contracts.json feeds
+    # verify_platform_contracts.py and check_platform_contract_freshness.py, and
+    # platform-defaults-levers.md feeds the lever-contract completeness tests. Under
+    # the old blanket `paths-ignore: docs/**`, a push editing ONLY one of those files
+    # skipped CI entirely, so the exact edit each guard exists to catch was the edit
+    # that never ran it. Expressed as `paths` with a negation because GitHub Actions
+    # supports `!` in `paths` only, never in `paths-ignore`, and the two filters
+    # cannot both be set for one event.
+    paths:
+      - '**'
+      - '!docs/**'
+      - 'docs/policy/**'
   pull_request:
     branches: [main, develop]
-    paths-ignore:
-      - 'docs/**'
+    paths:
+      - '**'
+      - '!docs/**'
+      - 'docs/policy/**'
 
 # v3.11.0 Phase 7.5 / 8.4 CI optimization: cancel superseded runs of the same ref
 # (the single largest action-minute saver) so only the latest push/PR commit runs.

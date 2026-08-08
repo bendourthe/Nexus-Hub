@@ -1,8 +1,8 @@
 # Docs Cleanup Audit - v3.16
 
 **Mode**: audit only. No file was moved, renamed, or deleted by this pass.
-**Run at**: v3.16.0 Phase 1, post-phase step 8.5 (2026-08-08).
-**Scope**: `docs/v3/v3.16/`, plus the repo-root and `configs/` surfaces this phase touched.
+**Run at**: v3.16.0 Phase 2, post-phase step 8.5 (2026-08-08). Supersedes the Phase 1 run; findings carried forward below.
+**Scope**: `docs/v3/v3.16/`, plus `docs/policy/` and the repo-root and `configs/` surfaces these phases touched.
 
 ## Layout verdict
 
@@ -29,6 +29,16 @@ The version directory follows the canonical `docs/v<MAJOR>/v<MAJOR>.<MINOR>/` sc
 This phase created exactly two documentation artifacts, both intentional and both at canonical paths: the session-history file under `development/history/` and this report. `configs/README.md` is product documentation, not a scratch doc, and is referenced from the code it documents.
 
 Per the audit rule, no cleanup of this phase's own documents is proposed.
+
+### F-3 - INFORMATIONAL: `docs/policy/` now holds two sibling contracts (Phase 2)
+
+Phase 2 added `docs/policy/platform-defaults-levers.md` alongside the existing `platform-read-contracts.md` / `.json` pair. The two are deliberately separate documents with a stated scope boundary (behavioral defaults here, discovery paths and capabilities there), and each names the other in its header so a reader landing on either learns where the other half lives.
+
+**No action taken, and none recommended.** Merging them would create the single overgrown document the boundary exists to prevent. Worth noting for Phase 5's layout pass so the pairing reads as intentional rather than as duplication.
+
+### F-4 - RESOLVED IN-PHASE: `docs/policy/` was excluded from CI
+
+Phase 2's step 8.3 found that `ci.yml`'s `paths-ignore: ['docs/**']` prevented any CI run for a push touching only `docs/policy/`, even though that directory is validator input rather than prose. Fixed within the phase; recorded in full as known gap QG-1. Noted here because it is a docs-layout fact, not only a CI fact: `docs/policy/` is the one subtree of `docs/` that behaves like source.
 
 ## Cross-surface check
 

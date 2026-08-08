@@ -1,5 +1,33 @@
 # Development Log
 
+## [2026-08-08] - v3.16.0 Phase 2: per-platform lever research and verification
+
+### What Changed
+
+All sixteen registered integrations were checked against their own official documentation for a settable install-time behavioral default. Twelve are VERIFIED with a fetched source URL, a quoted statement of what the document says, and a verification date; four are UNVERIFIED with a recorded reason. The result is `docs/policy/platform-defaults-levers.md` plus an 18-case test asserting the contract stays complete and evidenced. A CI hole found during the post-phase check was fixed in the same phase.
+
+### Why It Changed
+
+Phase 1 deliberately seeded only Claude, because seeding a platform on inference is the failure this release is organized around. The `.kimi/agent.yaml` companion was fabricated rather than found, shipped, and had to be dropped in v3.15.0. Establishing what each platform actually documents, with evidence, is the prerequisite for Phase 3 declaring anything.
+
+### Decisions Made
+
+- **UNVERIFIED is a result, not a failure to search harder, and four platforms earned it.** `antigravity` (1.0) and `windsurf` document their model, mode, and approval controls as in-app settings-panel or admin-dashboard options with no config file named. `nexus-ai`'s repository is private, so no publicly-citable document exists; an authenticated inspection found no user-facing behavioral-default surface either. `gemini` is UNVERIFIED for a subtler reason: see below.
+- **`gemini` was NOT given `gemini-cli`'s lever, though they share a home.** Both integrations resolve to `~/.gemini`, and Google documents `~/.gemini/settings.json` for the Gemini CLI. Transferring that to `gemini` would be reasoning by analogy across two products the registry deliberately keeps separate, which is exactly what the do-not-invent rule forbids. The read contract corroborates the split: it records `settings.json` under `gemini-cli` only. The shared home is logged as NI-3, because if Phase 3 ever declares a lever for both, two integrations would race to own one file.
+- **`copilot` is VERIFIED and still must not be written.** GitHub documents `~/.copilot/settings.json` with a `model` key, but that is the Copilot **CLI**, while Nexus-Hub's `copilot` integration targets the instruction surface and installs nothing into `~/.copilot`. A "Surface alignment" column was added to the contract precisely so a VERIFIED classification cannot be misread as permission to write. VERIFIED means "consider it"; alignment says whether it is writable where Nexus-Hub already installs.
+- **Two platforms document half a lever, and the missing half was left missing.** `antigravity2` documents `toolPermission` and `artifactReviewPolicy` but no model or effort key; `cursor` documents `approvalMode` and `sandbox.*` but explicitly no config-file default-model mechanism. Recording what each vendor documents and staying silent on the rest is the whole discipline.
+- **The CI hole was fixed rather than deferred.** `paths-ignore: ['docs/**']` meant a push touching only `docs/policy/` skipped CI, so the completeness test would never run on the edit it exists to guard. The premise in the comment ("docs-only pushes never affect validators") was true when written and had quietly become false: `docs/policy/` is validator input, and had been since the read-contract guards shipped.
+
+### Troubleshooting Trail
+
+- **Every Codex search returned secondary sources.** Blogs, a cheat sheet, aggregators, and a GitHub issue, all confidently quoting `model_reasoning_effort` values. None was citable. The recorded row comes from OpenAI's own configuration reference, reached by following two documented 308 redirects. This is the rule earning its keep on the first platform that tested it.
+- **Three doc hosts had moved.** Claude 301s from `docs.claude.com` to `code.claude.com`; OpenAI Codex 308s to `learn.chatgpt.com`; and `docs.windsurf.com` 307s to `docs.devin.ai`, which is first-hand confirmation of the Cognition rebrand AGENTS.md currently flags as third-party reporting. Redirects are now written into the contract's re-verification instructions as an early signal of vendor reorganization.
+- **The first CI fix drafted would have been silently invalid.** Adding `- '!docs/policy/**'` to the existing `paths-ignore` looks right and is not: GitHub Actions supports `!` in `paths` only, never in `paths-ignore`, and the two filters cannot both be set for one event. Verified against GitHub's workflow-syntax documentation before applying, which turned a plausible one-line addition into a correct filter-type switch.
+
+### Verification
+
+18 new tests plus the existing suite: 483 pass in `tests/validators`. The parser was checked against the real document rather than trusted to pass vacuously (16 rows, registry match exact, 12 VERIFIED / 4 UNVERIFIED), and the load-bearing do-not-invent assertion was confirmed to actually bite by feeding it an UNVERIFIED platform. All seven `validate` guards pass; the edited workflow parses and sets no conflicting `paths` / `paths-ignore` pair.
+
 ## [2026-08-08] - v3.16.0 Phase 1: platform defaults contract, generator, and drift guard
 
 ### What Changed
