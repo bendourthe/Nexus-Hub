@@ -1,5 +1,31 @@
 # Development Log
 
+## [2026-08-08] - v3.16.0 Phase 4: freshness governance and documentation
+
+### What Changed
+
+Lever re-verification now rides along with the existing `platform-contract-verification` remit instead of becoming its own gate, and AGENTS.md documents the new config surface. A stale claim in AGENTS.md about how platforms install was corrected in the process. No production code changed; the phase is prose, a skill, two registry rows, and six tests.
+
+### Why It Changed
+
+A contract nobody re-reads rots. The read-contract already has a per-release re-verification pass, and a platform that renames a setting should surface at the same moment as one that moves its skills directory, so folding the lever contract into that pass costs one extra glance per platform rather than a second cadence.
+
+### Decisions Made
+
+- **The lever contract is deliberately advisory, and the reasoning is now written into the skill so it survives a future edit.** A stale read-contract silently empties a user's install, so blocking is correct. A stale lever contract at worst seeds an outdated default the user can change. Gating it would let a vendor renaming a setting on a Tuesday wedge every unrelated release. That is the same argument that keeps the model-prompting freshness check advisory while the read-contract check hard-gates, and the skill now says so explicitly with a "consistency is the wrong goal here" rationalization row, because the obvious future edit is someone tidying the asymmetry away.
+- **Three new rationalization rows, all drawn from what actually went wrong this cycle.** Not hypotheticals: three vendor doc hosts moved during Phase 2 (one a full rebrand), and every Codex search returned a confident secondary source. The rows encode "fetch the page, a redirect is a signal" and "a blog is not evidence" because those are the specific ways this pass could have gone wrong.
+- **The AGENTS.md correction was made inline and dated rather than silently rewritten.** The doc claimed the Original 4 install via legacy copy blocks *instead of* the registry. Verified against both installers, every platform now routes through `runner.py install`; what differs is that some calls pass `instruction_only`. This mattered beyond bookkeeping: the stale claim implied that reaching every platform needs installer edits, when in fact a hook on `IntegrationBase` reaches all of them, which is exactly what let Phase 3 ship seeding without touching either installer. A reader who remembers the old claim can now see why it changed.
+- **Changing a skill description meant re-syncing two generated registries.** `summary_l0` and `description` live in `data/SKILL_INDEX.md` and `data/skills.json` as well as the SKILL.md; editing one without the others is exactly the drift this whole release is about. Hand-edited, not regenerated, per the repo's registry convention. The catalog count is unchanged at 270.
+
+### Troubleshooting Trail
+
+- **The first governance test was too crude to be correct.** It asserted that `Makefile` and `ci.yml` contain no mention of the lever contract, which failed immediately: `ci.yml` names it in a *comment* explaining Phase 2's paths fix, and that comment is desirable. Rewritten to inspect only executed lines (Makefile recipe lines, CI `run:` steps), then verified against a simulated gate line to confirm it still bites rather than passing vacuously.
+- **One self-inflicted false alarm.** A probe for `statistics.total_skills` in `marketplace.json` returned `None` and printed MISMATCH; that field does not exist (the file carries per-category `skill_count`). No skill was added, so no marketplace edit was needed. Recorded because an unexplained MISMATCH line in a transcript is worse than the ten seconds it took to check.
+
+### Verification
+
+The documented generator commands were run verbatim from AGENTS.md and `configs/README.md`: `--check` exits 0, `--apply` reports "Already in sync" and leaves the tree byte-identical, and `--check` passes again. All seven `validate` guards pass, including `check_base_template_parity.py` (the five templates are untouched, asserted by a new test) and the trigger-and-routing gate after the description change (0 collisions, 0 routing failures). 800 tests pass across `tests/validators` and `tests/skills`.
+
 ## [2026-08-08] - v3.16.0 Phase 3: wiring the verified levers into their consumers
 
 ### What Changed

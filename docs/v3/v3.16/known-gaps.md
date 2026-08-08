@@ -1,8 +1,8 @@
 # Known Gaps - v3.16
 
 **Project**: Nexus-Hub
-**Status**: v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (Phases 1, 2, and 3 of 5 complete; unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
-**Last updated**: 2026-08-08 (v3.16.0 Phase 3 gaps appended; BG-2, BG-3, DF-3, QG-2 found and fixed in-phase; NI-2 resolved)
+**Status**: v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (Phases 1 through 4 of 5 complete; unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
+**Last updated**: 2026-08-08 (v3.16.0 Phase 4 appended; DF-4 corrected in-phase)
 
 > **File-lifecycle note**: this ledger was created ahead of any v3.16 implementation, by a comparison that deliberately claimed no release slot, so it began with only the `## Comparison-Sourced Deferrals` section. Each v3.16 version-implementation phase **appends** its own `## v3.16.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` numbering, which is namespaced separately from the `CD-#` and `TR-#` ids used above.
 
@@ -192,6 +192,13 @@ Gaps recorded during implementation of [plans/v3.16.0-platform-defaults-config.m
 - **What was wrong**: the seeding tests use `pytest.importorskip` for `tomlkit` and `yaml`, so on a CI runner without those libraries the entire TOML and YAML coverage would SKIP rather than fail. Two of the four writable formats would have reported green while proving nothing.
 - **Fix**: the CI test job installs them explicitly (`pip install pytest tomlkit PyYAML`), with a comment recording why. Both installers also gained an optional-dependency check for the same two libraries, mirroring the existing `python-docx` / `python-pptx` pattern (approved as an ask-first installer edit).
 
+### DF-4 - CLOSED: AGENTS.md described an installer/registry split that no longer exists
+
+- **Source phase**: Phase 4, sub-task 4.2 (discovered in Phase 3, corrected here).
+- **What was wrong**: the "Platform coverage caveats" section described the Original 4 (Claude, Gemini/Antigravity 1.0, Codex, Copilot) as installing via "legacy installer copy blocks" *instead of* the integration registry, with the registry subclasses "standing by" for a future migration. Verified against both installers, that is no longer accurate: `invoke_registry_platform` (bash) and `Invoke-RegistryPlatform` (PowerShell) each call `runner.py install --integrations <key>` for all fourteen default-installed keys, at global and workspace scope.
+- **What is still true**: several platforms are invoked with `instruction_only`, so the registry renders only the marker-merged instruction file while the installer's own `safe_folder_copy` blocks handle the catalog tree (the DF-001 replacement path). The split is about how much each registry call does, not about whether the registry is used at all.
+- **Why it mattered beyond bookkeeping**: the stale description implied that a change reaching every platform would need installer edits. Because the registry path is universal, a hook added to `IntegrationBase` reaches all of them with no installer change, which is exactly what let Phase 3 add install-time seeding without touching either installer. The correction is recorded inline in AGENTS.md as a dated note rather than a silent rewrite, so a reader who remembers the old claim sees why it changed.
+
 ### Observations (no action)
 
 - **Local Python lint was not run**: `ruff` is not installed on this host. The repository's own `make lint` target runs ShellCheck only (which passed, on unchanged shell files), so no declared gate was bypassed. Python style was kept to the surrounding conventions by hand, and the generator emits ruff-shaped literals (magic trailing comma) so `--apply` does not fight the formatter.
@@ -210,6 +217,6 @@ Gaps recorded during implementation of [plans/v3.16.0-platform-defaults-config.m
 |---|---|---|
 | Comparison-sourced deferrals (`CD-#`) | 3 (CD-1, CD-2, CD-3) | 0 |
 | Transferred in from v3.15.14 (`TR-#`) | 2 (TR-1, TR-2) | 1 (TR-3) |
-| v3.16.0 version-implementation gaps | 8 (DF-1, NI-1, NI-3, NI-4, NI-5, NI-6, BG-1, WN-1) | 7 (DF-2, DF-3, QG-1, QG-2, BG-2, BG-3, NI-2) |
+| v3.16.0 version-implementation gaps | 8 (DF-1, NI-1, NI-3, NI-4, NI-5, NI-6, BG-1, WN-1) | 8 (DF-2, DF-3, DF-4, QG-1, QG-2, BG-2, BG-3, NI-2) |
 
 The three comparison-sourced items remain non-blocking prose folds with named target files. Of the v3.16.0 items, BG-1 is pre-existing and reproduces without this plan's changes, WN-1 is environmental, DF-1 is a reasoned non-implementation, NI-1 is a deliberate scope boundary the plan requires, and NI-2 / NI-3 / NI-4 are Phase 2 findings that Phase 3 and Phase 5 are already scheduled to dispose of. QG-1 was found and fixed within Phase 2, and Phase 3 found and fixed four more of its own (BG-2, BG-3, DF-3, QG-2) while resolving NI-2. Two of those, BG-2 and BG-3, were caught by the integration suite rather than by review, which is the strongest argument in this cycle for running the full suite before declaring a phase done. None gates the v3.16.0 release.

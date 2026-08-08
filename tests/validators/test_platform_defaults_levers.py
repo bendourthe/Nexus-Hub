@@ -288,6 +288,86 @@ def test_contract_documents_the_scope_boundary_and_the_rule(contract_body: str):
         )
 
 
+VERIFICATION_SKILL = (
+    REPO_ROOT / "catalog" / "skills" / "workflow" / "platform-contract-verification" / "SKILL.md"
+)
+
+
+def test_reverification_skill_covers_both_contracts():
+    """Phase 4.1 acceptance: one pass re-verifies both documents."""
+    body = VERIFICATION_SKILL.read_text(encoding="utf-8")
+    for doc in ("platform-read-contracts", "platform-defaults-levers"):
+        assert doc in body, f"the re-verification skill must name {doc}"
+
+
+def test_reverification_skill_states_which_contract_hard_gates():
+    """The asymmetry is the design; it must be written down, not inferred."""
+    body = VERIFICATION_SKILL.read_text(encoding="utf-8").lower()
+    assert "hard-gate" in body, "the skill must say which contract gates a release"
+    assert "advisor" in body, "the skill must say which contract is advisory"
+
+
+def test_no_freshness_gate_was_added_for_the_lever_contract():
+    """Phase 4.1 acceptance: reuse the existing mechanism, add no new gate.
+
+    A freshness marker or CI check on the lever contract would let a vendor
+    renaming a setting wedge every unrelated release. The read-contract gates
+    because a stale one silently empties an install; a stale lever contract at
+    worst seeds an outdated default the user can change.
+    """
+    # Checked against EXECUTED lines only. A comment naming the lever contract is
+    # fine and in fact desirable (ci.yml explains why docs/policy/ re-triggers the
+    # job); what must not exist is a command that gates on it.
+    for name, path, is_command in (
+        ("Makefile", REPO_ROOT / "Makefile", lambda ln: ln.startswith(("\t", "\t@"))),
+        (
+            "ci.yml",
+            REPO_ROOT / ".github" / "workflows" / "ci.yml",
+            lambda ln: ln.lstrip().startswith(("run:", "- run:")),
+        ),
+    ):
+        for line in path.read_text(encoding="utf-8").splitlines():
+            stripped = line.strip()
+            if stripped.startswith("#") or not is_command(line):
+                continue
+            assert "platform-defaults-levers" not in line, (
+                f"{name} executes a gate on the lever contract, which is advisory "
+                f"by design: {stripped!r}"
+            )
+    scripts = {p.name for p in (REPO_ROOT / "scripts").glob("*.py")}
+    assert "check_platform_defaults_freshness.py" not in scripts, (
+        "no freshness-marker script may be added for the lever contract"
+    )
+
+
+def test_agents_md_documents_the_defaults_surface():
+    """Phase 4.2 acceptance: a contributor can act without reading the plan."""
+    body = (REPO_ROOT / "AGENTS.md").read_text(encoding="utf-8")
+    for expected in (
+        "configs/platform-defaults.json",
+        "sync_platform_defaults.py",
+        ".kimi/agent.yaml",
+        "do-not-invent",
+    ):
+        assert expected in body, f"AGENTS.md must document {expected}"
+
+
+def test_base_templates_were_not_touched_by_the_defaults_work():
+    """This release introduces no always-loaded instruction text.
+
+    The five base-*.md templates carry text every agent loads on every session.
+    A per-platform install default is maintainer-facing configuration, so it
+    belongs in AGENTS.md only, and check_base_template_parity.py stays green.
+    """
+    templates = sorted((REPO_ROOT / "templates" / "ai-instructions").glob("base-*.md"))
+    assert templates, "expected the base-*.md templates to exist"
+    for path in templates:
+        assert "platform-defaults.json" not in path.read_text(encoding="utf-8"), (
+            f"{path.name} must not carry platform-defaults text; it is not "
+            "always-loaded instruction content"
+        )
+
+
 def test_recorded_counts_match_the_parsed_table(rows: dict[str, Row], contract_body: str):
     """The stated counts line must not drift from the table it summarizes."""
     verified = sum(1 for r in rows.values() if r.is_verified)

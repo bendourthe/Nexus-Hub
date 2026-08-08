@@ -40,6 +40,10 @@ Phase 2 added `docs/policy/platform-defaults-levers.md` alongside the existing `
 
 Phase 2's step 8.3 found that `ci.yml`'s `paths-ignore: ['docs/**']` prevented any CI run for a push touching only `docs/policy/`, even though that directory is validator input rather than prose. Fixed within the phase; recorded in full as known gap QG-1. Noted here because it is a docs-layout fact, not only a CI fact: `docs/policy/` is the one subtree of `docs/` that behaves like source.
 
+### F-5 - INFORMATIONAL: the policy pair is now cross-referenced in both directions (Phase 4)
+
+`docs/policy/platform-defaults-levers.md` and `docs/policy/platform-read-contracts.md` each name the other and state the scope boundary, and the `platform-contract-verification` skill now enumerates both in a single re-verification pass while stating which one hard-gates a release. The pairing is intentional and legible from any entry point; no consolidation is warranted.
+
 ## Cross-surface check
 
 - `README.md` makes no reference to `configs/`, so the new source needs no README change. Documenting the surface in `AGENTS.md` is explicitly Phase 4.2's sub-task and was deliberately NOT done here, to avoid doing a later phase's work.
