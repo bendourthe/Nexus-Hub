@@ -1,8 +1,8 @@
 # Known Gaps - v3.16
 
 **Project**: Nexus-Hub
-**Status**: v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (Phases 1 through 4 of 5 complete; unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
-**Last updated**: 2026-08-08 (v3.16.0 Phase 4 appended; DF-4 corrected in-phase)
+**Status**: v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (all 5 phases complete; reconciled and release-ready, unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
+**Last updated**: 2026-08-08 (v3.16.0 Phase 5 final reconciliation; every open item dispositioned)
 
 > **File-lifecycle note**: this ledger was created ahead of any v3.16 implementation, by a comparison that deliberately claimed no release slot, so it began with only the `## Comparison-Sourced Deferrals` section. Each v3.16 version-implementation phase **appends** its own `## v3.16.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` numbering, which is namespaced separately from the `CD-#` and `TR-#` ids used above.
 
@@ -68,7 +68,15 @@ Items that a `/compare` pass classified as genuine but too small to justify a re
 - **Reason**: a bounded repair loop can fail on accumulated prompt size before it reaches its iteration cap, as findings and fix history pile up across rounds. All three relevant skills exist; nothing connects them at this failure mode.
 - **Suggested next step**: a one-line cross-link noting the failure mode and that inter-round compaction is the mitigation. Marked optional: drop this entry if the ledger is being trimmed. Non-blocking.
 
-#### Observations (no action)
+#### QG-3 - CLOSED: Phase 2's CI trigger change violated an encoded workflow policy
+
+- **Source phase**: found in Phase 5, sub-task 5.4, caused in Phase 2.
+- **What happened**: `tests/workflows/test_workflow_policy_repo_wide.py::test_focused_workflows_filter_by_path[ci.yml]` asserts that the catch-all gate, exempt from the `paths` requirement, declares `paths-ignore`. Phase 2's QG-1 fix replaced `paths-ignore` with `paths: ['**', '!docs/**', 'docs/policy/**']`, so the assertion failed.
+- **Why the workflow was right and the test was wrong**: the test asserted the KEY (`paths-ignore`) as a proxy for the PROPERTY it cares about (the repo-wide gate must run by default and subtract exclusions, never opt in to an allowlist). Phase 2's change preserves that property -- a `paths` list beginning with `**` is behaviourally a denylist -- and the change was *forced*, because re-including `docs/policy/` is impossible in `paths-ignore`: GitHub Actions supports the `!` negation character in `paths` only, and the two filters cannot both be set for one event. So the test failed a change that WIDENED coverage.
+- **Fix**: the assertion now accepts either shape (a `paths-ignore` denylist, or a `paths` list whose first entry is `**`) and rejects anything narrower, with the reasoning recorded inline. Verified against all three shapes: the current form accepts, the old form still accepts, and a narrowing allowlist is still rejected.
+- **Lesson worth keeping**: this was caught only by the FULL suite. `tests/workflows` was never in the partial runs used during Phases 2 through 4, all of which were green. It is the third defect this cycle found by running everything rather than by review (after BG-2 and BG-3), and the second where a test encoded a proxy rather than the invariant it meant.
+
+### Observations (no action)
 
 - **v3.11.0 S2 residual**: `actions/setup-node@v4` remains tag-pinned at `.github/workflows/claude-usage-monitor.yml`:31, while the `actions/checkout` and `actions/setup-python` references are SHA-pinned per the v3.11.0 S2 adoption. Surfaced by the spec-driven-development comparison (2026-07-29) and out of scope for both comparisons, neither of which traced to it. Fold into any cycle that next touches CI workflows.
 - **v3.11.0 S5, S6, S8 unverified**: not re-verified in the article-scoped spec-driven-development pass; no status claim exists for them. A future repository-delta comparison against Spec Kit should re-verify.
@@ -211,12 +219,57 @@ Gaps recorded during implementation of [plans/v3.16.0-platform-defaults-config.m
 
 ---
 
+## v3.16.0 Phase 5 - Final reconciliation
+
+Every open item above receives an explicit disposition here, and every platform that this release deliberately did NOT act on is named individually. The plan's sub-task 5.2 requires this so a future reader can tell a deliberate non-implementation from an oversight.
+
+### Per-platform disposition (the 16 registered integrations)
+
+| Platform | Class | Seeded? | Disposition |
+|---|---|---|---|
+| `claude` | VERIFIED | Already delivered | **Done.** The installer copies the derived `catalog/hooks/settings.json`; a second writer would race it. |
+| `codex` | VERIFIED | Yes (TOML) | **Done.** effort + approval + sandbox seeded; model omitted (no vendor-documented safe default). |
+| `copilot` | VERIFIED | Yes (JSON) | **Done, surface deliberately expanded.** Nexus-Hub now writes `~/.copilot/settings.json`, a Copilot CLI surface it did not previously touch. Maintainer decision, recorded in NI-2. |
+| `cursor` | VERIFIED | Yes (JSON) | **Done.** `approvalMode` seeded; no model key exists to seed (the vendor documents none in the config file). |
+| `gemini-cli` | VERIFIED | Yes (JSON) | **Done, sole owner of `~/.gemini/settings.json`** (NI-3). Enterprise-only, so it reaches users only under `--enterprise`. |
+| `kimi` | VERIFIED | Yes (TOML) | **Done.** thinking effort + permission mode seeded; `default_model` omitted (must reference a predefined alias). |
+| `qwen` | VERIFIED | Yes (JSON) | **Done.** reasoning effort + approval mode seeded. |
+| `hermes` | VERIFIED | Declared, reaches nobody yet | **Deferred (NI-6).** Seedable and correct, but Hermes is absent from both installers' default platform lists. Transfers to whichever cycle promotes it; the seeding side needs no further work. |
+| `aider` | VERIFIED | No - not writable | **Deliberate non-implementation (DF-3).** Its `install_global` is a documented no-op stating `~/.aider.conf.yml` is a surface Nexus-Hub does not touch, and the integration performs no Aider detection. Seeding would create config for possibly-absent software. |
+| `antigravity2` | VERIFIED | No - not writable | **Deliberate non-implementation (NI-5).** The vendor names `toolPermission` and `artifactReviewPolicy` but does not enumerate their allowed values; any seeded value would be invented. Becomes seedable the moment Google publishes the values. |
+| `opencode` | VERIFIED | No - not writable | **Deliberate non-implementation (NI-5).** Model keys are provider-scoped with no documented safe default, and the `permission` key's full schema is not enumerated. |
+| `openclaw` | VERIFIED | No - not writable | **Deliberate non-implementation (NI-5).** Its only documented lever is a provider-scoped model pin, which this release does not seed anywhere without a vendor-documented self-selecting value. |
+| `antigravity` | UNVERIFIED | No - absent from the defaults file | **Deliberate non-implementation (NI-4).** Antigravity 1.0 documents its controls as in-app settings-panel toggles and names no config file. Not a gap in research; a genuine absence of a lever. |
+| `gemini` | UNVERIFIED | No - absent | **Deliberate non-implementation (NI-4).** Distinct from `gemini-cli` in the registry; no official document names a behavioral lever for that surface, and transferring the CLI's lever by analogy is what the do-not-invent rule forbids. |
+| `nexus-ai` | UNVERIFIED | No - absent | **Deliberate non-implementation (NI-4).** The repository is private, so no publicly-citable document exists; an authenticated inspection found no user-facing behavioral-default surface. Re-check if that changes. |
+| `windsurf` | UNVERIFIED | No - absent | **Deliberate non-implementation (NI-4).** Mode, model, and approval are in-app or admin-dashboard controls with no documented disk file. The platform is already deprecated-but-served and detection-gated. |
+
+**Totals**: 7 platforms seeded, 1 already delivered, 4 declared-but-not-writable, 4 UNVERIFIED and absent. Every one of the 16 is accounted for, and `tests/validators/test_platform_defaults_levers.py` fails if a newly registered platform is ever added without a classification.
+
+### Disposition of the remaining open items
+
+| Item | Disposition |
+|---|---|
+| **DF-1** (no per-job CI path filter) | **Closed as deliberate.** The workflow has no per-job path filters at all; a positive filter would narrow coverage rather than save minutes. Phase 2's QG-1 fix additionally ensures `docs/policy/` re-triggers the job, so the check runs on every push that can cause drift. |
+| **NI-1** (`configs/` is not distributed) | **Carried forward, open.** An installed tree with no bootstrap checkout falls back to the module literals, which `--check` keeps honest, so nothing is wrong; what such a tree lacks is local editability. Fixing it means an installer copy step (ask-first) and belongs to a cycle that is already touching the installers. |
+| **NI-3** (`~/.gemini` shared home) | **Closed.** Phase 3 assigned `~/.gemini/settings.json` solely to `gemini-cli`, asserted by `test_gemini_never_declares_a_write_target`. |
+| **NI-4**, **NI-5**, **NI-6** | **Dispositioned individually in the per-platform table above.** NI-4 and NI-5 are closed as deliberate non-implementations with reasons; NI-6 is carried forward to the Hermes-promotion cycle. |
+| **BG-1** (PowerShell bootstrap tar failure) | **Carried forward, open, and explicitly NOT a release blocker.** Pre-existing and reproduced on a clean `develop` worktree with none of this plan's changes present. It affects a Windows host whose PATH resolves `tar` to the Git Bash MSYS binary; CI runners are unaffected. Fold into whichever cycle next touches the bootstrap. |
+| **WN-1** (stale git worktree admin dirs) | **Closed as environmental.** Local `.git/worktrees/*` residue on a OneDrive-backed checkout. Touches no catalog content and no distributed artifact. |
+
+### Phase 5 cleanliness pass
+
+- **Four v3.15.5 documentation surfaces retargeted**: `guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md`, `extensions/claude-usage-monitor/README.md`, `catalog/skills/ai-development/prompt-engineering/SKILL.md`, and `catalog/skills/orchestration/multi-agent-coordinator/SKILL.md` now name `configs/platform-defaults.json` as the source and label `catalog/hooks/settings.json` as generated. This closes the remaining half of the drift problem: those four files previously pointed readers at what is now a derived artifact.
+- **Bundle-audit blind spot fixed**: `validate_skills.py` excluded generated artifacts (`__pycache__`, `*.pyc`, and similar) from the orphan audit. Warnings went from 11 to 0 without weakening the check, verified by injecting a real orphan and confirming it is still reported. All 11 were gitignored build artifacts that existed only on a developer machine, so the audit's signal now means the same thing locally and in CI.
+- **Layout**: `github-ci-cd-cost-effective-alternatives.md` moved from the v3.16 version root into a new `research/` subdirectory. The live inbound reference in `docs/v3/v3.19/plans/v3.19.0-cost-effective-ci-cd.md` was repaired; the reference inside a v3.15 session history was **deliberately left unchanged**, because a session history is a frozen record of what was true at the time and rewriting it would falsify the record.
+- **`.antigravitycli/`** added to `.gitignore` (stray local runtime directory).
+
 ## v3.16 Summary
 
 | Category | Open | Resolved |
 |---|---|---|
 | Comparison-sourced deferrals (`CD-#`) | 3 (CD-1, CD-2, CD-3) | 0 |
 | Transferred in from v3.15.14 (`TR-#`) | 2 (TR-1, TR-2) | 1 (TR-3) |
-| v3.16.0 version-implementation gaps | 8 (DF-1, NI-1, NI-3, NI-4, NI-5, NI-6, BG-1, WN-1) | 8 (DF-2, DF-3, DF-4, QG-1, QG-2, BG-2, BG-3, NI-2) |
+| v3.16.0 version-implementation gaps | 3 carried forward (NI-1, NI-6, BG-1) | 13 closed (DF-1, DF-2, DF-3, DF-4, NI-2, NI-3, NI-4, NI-5, QG-1, QG-2, QG-3, BG-2, BG-3, WN-1) |
 
-The three comparison-sourced items remain non-blocking prose folds with named target files. Of the v3.16.0 items, BG-1 is pre-existing and reproduces without this plan's changes, WN-1 is environmental, DF-1 is a reasoned non-implementation, NI-1 is a deliberate scope boundary the plan requires, and NI-2 / NI-3 / NI-4 are Phase 2 findings that Phase 3 and Phase 5 are already scheduled to dispose of. QG-1 was found and fixed within Phase 2, and Phase 3 found and fixed four more of its own (BG-2, BG-3, DF-3, QG-2) while resolving NI-2. Two of those, BG-2 and BG-3, were caught by the integration suite rather than by review, which is the strongest argument in this cycle for running the full suite before declaring a phase done. None gates the v3.16.0 release.
+The three comparison-sourced items remain non-blocking prose folds with named target files. Of the v3.16.0 items, BG-1 is pre-existing and reproduces without this plan's changes, WN-1 is environmental, DF-1 is a reasoned non-implementation, NI-1 is a deliberate scope boundary the plan requires, and NI-2 / NI-3 / NI-4 are Phase 2 findings that Phase 3 and Phase 5 are already scheduled to dispose of. Phase 5 dispositioned every open item: 13 closed, 3 carried forward. **None gates the v3.16.0 release.** NI-1 and NI-6 are scope decisions for cycles already touching the relevant surfaces, and BG-1 is pre-existing, reproduced on a clean `develop` worktree, and confined to a Windows host whose PATH resolves `tar` to the Git Bash binary. Of the 13 closed, three (BG-2, BG-3, and QG-3) were caught by the test suite rather than by review, which is this cycle's strongest argument for running the full suite before declaring a phase done.

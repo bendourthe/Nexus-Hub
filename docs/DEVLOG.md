@@ -1,5 +1,30 @@
 # Development Log
 
+## [2026-08-08] - v3.16.0 Phase 5: refactor, reconciliation, and CI/CD [release-readiness]
+
+### What Changed
+
+The plan's terminal phase. The four documentation surfaces corrected in v3.15.5 now point at the defaults source instead of the derived artifact, every one of the sixteen registered platforms received an explicit disposition, a validator blind spot was closed, and the version root was tidied. CI needed no change. The version bump, changelog stamp, tag, and push are handed to `/update release` and were not performed here.
+
+### Why It Changed
+
+The release set out to make one edit propagate everywhere. Phases 1 through 4 built the mechanism; this phase closed the half of the original problem the mechanism does not reach. `guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md`, `extensions/claude-usage-monitor/README.md`, `prompt-engineering`, and `multi-agent-coordinator` each restated `medium` as prose and pointed readers at `catalog/hooks/settings.json` - which this very release turned into a generated file. Left alone, they would have kept sending readers to the wrong place, which is the same drift in a different medium.
+
+### Decisions Made
+
+- **Every platform got a disposition, including the ones this release deliberately did nothing about.** 7 seeded, 1 already delivered, 4 declared-but-not-writable, 4 UNVERIFIED and absent. Naming the eight non-implementations individually with reasons is what stops a future reader from mistaking a deliberate decision for an oversight, and the completeness test fails if a newly registered platform ever appears without a classification.
+- **The bundle-audit fix removed 11 warnings without weakening the check.** All 11 were gitignored `__pycache__/*.pyc` files that existed only on a developer machine, so the audit meant something different locally than in CI. Verified by injecting a real orphan and confirming it is still reported - a filter that silences everything is worse than the noise it replaces.
+- **A frozen session history was deliberately not rewritten.** Moving the loose v3.16 research doc broke two inbound references: a live one in the v3.19.0 plan (repaired) and one inside a v3.15 session history (left alone). A session history records what was true at the time; rewriting its paths to match a later reorganization falsifies the record. A stale path in a dated historical document is correct.
+- **CI was verified rather than changed.** The four optimizations the plan asks for are already present (concurrency cancel-in-progress, pip caching, `timeout-minutes` on seven jobs, expensive Windows and matrix jobs gated to non-PR events), the drift check runs in `validate`, and `tests/validators` covers all three of this plan's test modules with `tomlkit` and `PyYAML` installed since Phase 3. Recording "verified, no change needed" is the honest outcome; the same conclusion was reached and recorded in v3.15.14.
+
+### Troubleshooting Trail
+
+- **The layout move was less trivial than proposed.** The proposal treated it as convention alignment. Execution found that no `research/` convention exists anywhere in `docs/` (only `plans`, `development`, `comparisons` across 21 version directories), and that the file carried a live inbound reference plus a frozen historical one. Proceeded by creating the subdirectory, repairing the live reference, and leaving the history untouched, with the reasoning recorded rather than the wrinkle hidden.
+
+### Verification
+
+All fourteen `validate` guards pass, including the bundle audit at 0 warnings (down from 11), the trigger-and-routing gate (0 collisions, 0 routing failures), base-template parity, and the platform-defaults drift check across 12 platforms. The full repository suite was run for the release handoff.
+
 ## [2026-08-08] - v3.16.0 Phase 4: freshness governance and documentation
 
 ### What Changed

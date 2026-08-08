@@ -18,7 +18,16 @@ The version directory follows the canonical `docs/v<MAJOR>/v<MAJOR>.<MINOR>/` sc
 
 ## Findings
 
-### F-1 - LOW: a loose reference doc sits at the version root
+### F-1 - RESOLVED (Phase 5): the loose reference doc was relocated
+
+`github-ci-cd-cost-effective-alternatives.md` moved from the v3.16 version root into a new `research/` subdirectory. Two wrinkles surfaced during the move and are recorded because they shaped how it was done:
+
+1. **No `research/` convention existed.** Across 21 version directories, only `plans` (21), `development` (17), and `comparisons` (17) appear. The subdirectory is new; a future cleanup may prefer to consolidate it.
+2. **Two inbound references, handled differently.** The live one in `docs/v3/v3.19/plans/v3.19.0-cost-effective-ci-cd.md` ("Seeded from") was repaired. The one inside a v3.15 session history was **deliberately left unchanged**: a session history is a frozen record of what was true at the time, and rewriting its paths to match a later reorganization would falsify the record. A stale path in a dated historical document is correct.
+
+The original finding is retained below for the record.
+
+### F-1 (original) - LOW: a loose reference doc sits at the version root
 
 `docs/v3/v3.16/github-ci-cd-cost-effective-alternatives.md` is a research/reference document parked directly in the version directory rather than under a subdirectory, unlike every other file in the tree (which lives in `plans/` or `comparisons/`). It predates this phase.
 
