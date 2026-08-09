@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (all 5 phases complete; reconciled and release-ready, unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
-**Last updated**: 2026-08-09 (v3.16.1 release reconciliation; BG-7, BG-8, NI-6 added post-merge; every open item dispositioned)
+**Last updated**: 2026-08-09 (v3.16.2 Phase 1 append; MT-1 raised, WN-1 and BG-1 re-verified as inherited environmental items)
 
 > **File-lifecycle note**: this ledger was created ahead of any v3.16 implementation, by a comparison that deliberately claimed no release slot, so it began with only the `## Comparison-Sourced Deferrals` section. Each v3.16 version-implementation phase **appends** its own `## v3.16.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` numbering, which is namespaced separately from the `CD-#` and `TR-#` ids used above.
 
@@ -466,6 +466,33 @@ Five findings this cycle were **bugs in work this plan produced**, all caught by
 
 Two were **pre-existing defects the work exposed**: NI-1 (four bundle references to skills that do not exist) and NI-4 (166 of 271 skills unreachable through any module). Neither was visible before this cycle, because nothing resolved selections until Phase 5.
 
+## v3.16.2 - loop-longevity-and-doctor-preflight
+
+Appended by Phase 1 (Loop schema: gates, evidence freshness, instance state) on 2026-08-09. Own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` / `MT-#` namespace, separate from v3.16.0's and v3.16.1's.
+
+### MT-1 - OPEN: the three new schema concepts carry no mechanical assertion
+
+- **Target files**: `catalog/skills/workflow/loop-engineering/references/loop-schema.md`, `catalog/skills/workflow/loop-engineering/references/loop-library.md`
+- **What is missing**: `gates`, `evidence_freshness`, and the Instance State section are prose in a Tier-3 reference file. `validate_skills.py` audits bundle references and orphans, not reference-file content, and `run_trigger_evals.py` scores routing rather than schema shape. Nothing fails today if a later edit deletes a Fields-table row, renames a gate type, or lets the worked example drift out of step with the library entry. The drift risk is now concrete rather than hypothetical: the identical `gates` block for `ship-pr-until-green` exists in **two** files, because the schema's worked example and the library entry are the same loop.
+- **Why it was not done in Phase 1**: the phase's Stability Gate is documentation-scoped, and the plan routes all test construction to Phase 5, which is where this cycle's pytest surface is created. Building a one-off test module here would have put a test directory in front of the phase that must name it in `ci.yml` (v3.15.8 QG-2).
+- **Suggested next step**: when Phase 5 adds its test module, add two cheap assertions alongside it - that the four gate types in the Fields table match those in the Human-Judgment Gates table, and that the `ship-pr-until-green` `gates` block is byte-identical in `loop-schema.md` and `loop-library.md`.
+
+### WN-1 - OPEN (environmental, inherited): no `make` on the implementation host
+
+- **What happened**: `make` is absent on this machine, so neither `make validate` nor `make test` could be invoked as targets. Same condition recorded as v3.16.1 WN-1 and carried forward there.
+- **How it was handled rather than skipped**: every command inside both targets was read out of the `Makefile` and run individually. Seven `validate` guards (`validate_skills.py --bundles-only`, `validate_skills.py --quality`, `run_trigger_evals.py --gate`, `validate_no_personal_paths.py`, `validate_unicode_safety.py`, `check_version_sync.py`, `check_base_template_parity.py`) all pass, and all five extension suites plus `tests/` and `catalog/hooks/tests` were run to completion.
+- **Suggested next step**: none for correctness. CI runs the authoritative gate on Linux and Windows.
+
+### BG-1 - OPEN (pre-existing, inherited): PowerShell bootstrap tarball test fails on this host
+
+- **What happened**: `tests/installer/test_bootstrap.py::test_ps_standalone_extracts_and_hands_off` fails with an MSYS `tar` error. It is the single failure in a 2178-test `tests/` run (2157 passed, 20 skipped).
+- **Why it is not this phase's**: Phase 1 changed three Markdown files inside one skill bundle and touched no bootstrap, installer, or shell file. The failure signature is byte-identical to the one recorded under v3.16.0 BG-1 and v3.16.1 BG-1, where it was reproduced on a clean `develop` worktree carrying none of that cycle's changes.
+- **Bound**: affects a Windows host whose PATH resolves `tar` to the Git Bash binary. CI runners are unaffected.
+
+### Phase 1 disposition
+
+Three items, **zero release blockers, zero caused by this phase**. MT-1 is a real coverage gap with a named owner (Phase 5); WN-1 and BG-1 are both environmental properties of the implementation host, already carried at v3.16.0 and v3.16.1 and re-verified rather than re-asserted.
+
 ## v3.16 Summary
 
 | Category | Open | Resolved |
@@ -474,5 +501,6 @@ Two were **pre-existing defects the work exposed**: NI-1 (four bundle references
 | Transferred in from v3.15.14 (`TR-#`) | 2 (TR-1, TR-2) | 1 (TR-3) |
 | v3.16.0 version-implementation gaps | 3 carried forward (NI-1, NI-6, BG-1) | 13 closed (DF-1, DF-2, DF-3, DF-4, NI-2, NI-3, NI-4, NI-5, QG-1, QG-2, QG-3, BG-2, BG-3, WN-1) |
 | v3.16.1 version-implementation gaps (all 8 phases + release) | 3 carried forward (WN-1, BG-1 environmental; NI-6 bounded and documented) | 21 closed (DF-1..DF-5, NI-1..NI-5, BG-2..BG-8, QG-1, QG-2, WN-2, PX-1) |
+| v3.16.2 version-implementation gaps (Phase 1 of 6, in flight) | 3 open (MT-1 owned by Phase 5; WN-1, BG-1 environmental and inherited) | 0 |
 
 The three comparison-sourced items remain non-blocking prose folds with named target files. Of the v3.16.0 items, BG-1 is pre-existing and reproduces without this plan's changes, WN-1 is environmental, DF-1 is a reasoned non-implementation, NI-1 is a deliberate scope boundary the plan requires, and NI-2 / NI-3 / NI-4 are Phase 2 findings that Phase 3 and Phase 5 are already scheduled to dispose of. Phase 5 dispositioned every open item: 13 closed, 3 carried forward. **None gates the v3.16.0 release.** NI-1 and NI-6 are scope decisions for cycles already touching the relevant surfaces, and BG-1 is pre-existing, reproduced on a clean `develop` worktree, and confined to a Windows host whose PATH resolves `tar` to the Git Bash binary. Of the 13 closed, three (BG-2, BG-3, and QG-3) were caught by the test suite rather than by review, which is this cycle's strongest argument for running the full suite before declaring a phase done.

@@ -76,11 +76,12 @@ When adding a new loop to the library, keep it local and service-free: no instal
 1. Write the loop goal as a falsifiable end state.
 2. Set a hard `iteration_cap` before the first run.
 3. Pick one `check_command` that measures progress between iterations. Express the check, and any model invocation, as an argument array (the program plus discrete arguments) with an explicit timeout, never an interpolated shell string; this is injection-resistant by construction and matches the project Bash security rules.
-4. Define `exit_condition` as command-derived evidence, not reassurance from the maker.
+4. Define `exit_condition` as command-derived evidence, not reassurance from the maker. For a long-horizon loop, also set `evidence_freshness` so the checker re-validates evidence that has aged out of its window instead of terminating on a stale pass (see the Evidence Freshness section of [references/loop-schema.md](references/loop-schema.md)).
 5. Choose the host driver: `/goal` for a hard completion requirement, `/loop` for interval or continuous re-runs, or manual re-invocation when the host lacks those commands.
 6. Decide whether writable work belongs in a git worktree via [[using-git-worktrees]].
 7. Assign maker and checker roles. For high-risk loops, the checker should be independent and should use [[adversarial-verifier]] or the evidence discipline in [[verification-before-completion]]. When a checker or council seat is a different model behind an external CLI, the handoff is an egress event: apply the handoff-egress-hygiene discipline in [[cross-model-orchestrator]] (redaction defaults plus first-send consent before any artifact crosses).
-8. Persist state and unresolved work through [[dev-progress-tracker]], [[known-gaps-tracker]], or [[filesystem-context-patterns]].
+8. Declare a `gates` entry for every step whose decision the loop does not own: an owner call, an action whose blast radius exceeds the loop's authority, anything externally visible, or anything that reads or emits private context. Each gate asks ONE concrete answerable question, and a gate pause never consumes `iteration_cap` (see Human-Judgment Gates in [references/loop-schema.md](references/loop-schema.md)). This is a mid-loop pause that interrupts a loop which is otherwise succeeding, not the post-cap `handoff` destination for work the loop could not finish.
+9. Persist state and unresolved work through [[dev-progress-tracker]], [[known-gaps-tracker]], or [[filesystem-context-patterns]]. For a loop that spans sessions, keep a per-run instance record so a cold start resumes rather than re-derives (see Instance State in [references/loop-schema.md](references/loop-schema.md)); Nexus-Hub ships no runtime for it, so the operator or host driver maintains the file.
 
 ### Step 5: Budget the orchestration tax
 
@@ -146,7 +147,7 @@ A fourth pattern looks like a stall but is not a fault: the loop is waiting on a
 
 Four control patterns extend a loop's vocabulary beyond a single `exit_condition`. All four are **agent-instruction patterns** you encode in the loop body and its state file, NOT a new runtime to build. Where the host harness exposes Dynamic Workflows (the `Workflow` tool), the same shapes map onto its script (a gate is an `AskUserQuestion` between stages, resume is the workflow's native journal-based resume, continue-on-error is a per-item `try/catch` that records the failure and keeps going). In a plain `/loop` or `/goal` run you implement them with the external memory layer from Step 1.
 
-- **Human gate checkpoint.** Pause the loop at a named boundary for an approve/reject decision before continuing (before a maker's change is shipped, or before a destructive step). Record an explicit `on_reject` policy so a rejection is deterministic rather than improvised: `abort` (stop the whole loop), `skip` (drop this item, continue with the rest), or `retry` (re-run the gated step, counting against `iteration_cap`). The reviewer is a human (or an independent checker per Step 4), never the maker.
+- **Human gate checkpoint.** The loop-body implementation of the schema's typed `gates` field: pause the loop at a named boundary for an approve/reject decision before continuing (before a maker's change is shipped, or before a destructive step). The schema declares WHICH steps gate and what each one asks; this pattern is HOW the pause is carried out in the loop body. Record an explicit `on_reject` policy so a rejection is deterministic rather than improvised: `abort` (stop the whole loop), `skip` (drop this item, continue with the rest), or `retry` (re-run the gated step, counting against `iteration_cap`). The reviewer is a human (or an independent checker per Step 4), never the maker.
 
     ```
     gate: "approve PR body before push?"  on_reject: skip   # rejected item is logged to the human inbox; loop continues
@@ -203,6 +204,8 @@ The posture behind this -- deny host execution unless the task needs it, prefer 
 - [ ] State and unresolved gaps persist through [[dev-progress-tracker]], [[known-gaps-tracker]], or [[filesystem-context-patterns]].
 - [ ] The loop introduces no new outbound call, dependency, credential, or third-party processor beyond existing approved project destinations.
 - [ ] Any gate, resume, or continue-on-error step is implemented as a loop-body instruction over the memory layer (or the harness's Dynamic Workflows), not a new runtime; every gate names its `on_reject` policy (abort / skip / retry).
+- [ ] Every declared gate names its `type` (owner / safety / publication / private-data) and asks ONE concrete answerable question, and no gate trips on a step already inside the loop's authority.
+- [ ] A loop that spans sessions has a gitignored instance record, and any long-horizon loop's evidence carries a freshness window the checker re-validates.
 
 ## Related Skills
 

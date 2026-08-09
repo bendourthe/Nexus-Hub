@@ -23,7 +23,14 @@ tags:
   - ci
   - pr
   - checks
+gates:
+  - type: safety
+    question: The base branch moved. Approve a force-push that rewrites this PR's history?
+    unblocks_on: An explicit approve or reject from the PR owner.
+    while_waiting: Hold the rebase unpushed and idle. Does not consume iteration_cap.
 ```
+
+The `gates` entry is a demonstration, not a requirement: `gates` is optional, and the other loops in this library declare none. It gates only the rare history-rewriting step, never the ordinary fix-and-push each iteration.
 
 Use this only when GitHub is already the repository's intrinsic PR destination. If the project uses another CI surface, replace `gh pr checks` with that project's own check command.
 

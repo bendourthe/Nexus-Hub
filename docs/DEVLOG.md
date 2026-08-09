@@ -1,5 +1,34 @@
 # Development Log
 
+## [2026-08-09] - v3.16.2 Phase 1: loop schema gates, evidence freshness, and instance state
+
+### What Changed
+
+Three long-horizon concepts were added to `catalog/skills/workflow/loop-engineering/references/loop-schema.md`, all optional so every existing loop definition stays valid: a typed `gates` field with four types (`owner`, `safety`, `publication`, `private-data`), an `evidence_freshness` field, and an Instance State section separating a loop DEFINITION from one running INSTANCE. `SKILL.md` Step 4 now references all three (steps 4, 8, and 9), and `references/loop-library.md` carries one demonstration gate. No frontmatter changed, so no `data/skills.json` sync was needed and the catalog stays at 271 skills.
+
+### Why It Changed
+
+The v3.16.2 comparison found Nexus-Hub's loop coverage already further along than a first pass suggested - `iteration_cap`, `check_command`, dual-condition `exit_condition`, `driver`, `maturity`, `per_iteration_budget`, `trace_log`, `progress_check`, and `handoff` all shipped across four prior cycles. Only three concepts survived the filter, and each survived for the same structural reason: a static definition cannot express them. A gate pauses a loop that is otherwise succeeding, which `handoff` (a post-cap destination) cannot represent. Freshness is a claim about time, which `trace_log` (append-only history) and `progress_check` (a stall detector) both miss. And an instance record is per-execution state, which a reusable template by definition does not hold.
+
+### Decisions Made
+
+- **The worked example's gate was changed from `publication` to `safety` mid-implementation.** The first draft gated the PR body before each push, which would have tripped on every iteration and turned an automated loop into a manual one - teaching the opposite of the intended lesson. It was replaced with a force-push gate that fires only on the rare history-rewriting step, plus an explicit note that a gate tripping every iteration means the loop's authority was drawn too narrowly, not that the loop is being careful.
+- **A pre-existing collision was reconciled rather than left standing.** `SKILL.md` already carried a "Human gate checkpoint" workflow-control pattern with an `on_reject` policy. Shipping a typed `gates` field beside it would have left two competing gate concepts in one skill. Both sides now cross-link with an explicit split: the schema declares WHICH steps gate and what each asks; the pattern is HOW the pause is carried out. The `retry` interaction is stated once - a retry counts against `iteration_cap` because re-running the gated step is real work, while the wait that preceded it does not.
+- **The library's `ship-pr-until-green` received the same gate.** The schema's worked example and the library entry are the same loop, so leaving only one of them gated would have shipped an internal contradiction. Both carry a note that `gates` is optional and that the other five library loops declare none.
+- **Instance state is documented as a pattern with no runtime.** This preserves the standing decision (restated three times since v3.1.0) that the loop driver is a host command. The record is gitignored by default, carries the `[[egress-redaction]]` discipline, and composes with rather than replaces `[[filesystem-context-patterns]]` and `[[dev-progress-tracker]]`, with ownership stated per layer.
+
+### Test Results
+
+`make` is absent on this host, so both targets were run command by command. All seven `validate` guards pass. Full suites: `tests/` 2157 passed / 20 skipped / 1 failed, `catalog/hooks/tests` 993 passed / 36 skipped, and all five extension suites green (670 passed total). The single failure is `test_ps_standalone_extracts_and_hands_off`, byte-identical to the inherited environmental BG-1 and unreachable from a three-Markdown-file change.
+
+### CI/CD
+
+No change required and none made. `catalog/skills/**` is already inside the `'**'` path filter, `concurrency` cancel-in-progress and dependency caching are already configured, and the skill gate already runs. It stays on `--bundles-only` rather than strict mode, per the standing v3.14.2 WN-1 constraint.
+
+### Known Issues
+
+Three items appended to [docs/v3/v3.16/known-gaps.md](v3/v3.16/known-gaps.md) under `## v3.16.2`. None blocks the release and none was caused by this phase. The one worth naming here is MT-1: the new schema concepts are prose in a Tier-3 reference file with no mechanical assertion, and the `ship-pr-until-green` gates block now exists in two files that can drift apart. Phase 5 owns the fix.
+
 ## [2026-08-09] - v3.16.1 release: evaluation methodology and selective installation
 
 ### What Changed
