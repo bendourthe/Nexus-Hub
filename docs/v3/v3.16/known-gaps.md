@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (all 5 phases complete; reconciled and release-ready, unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
-**Last updated**: 2026-08-09 (v3.16.2 Phase 1 append; MT-1 raised, WN-1 and BG-1 re-verified as inherited environmental items)
+**Last updated**: 2026-08-09 (v3.16.2 Phase 2 append; NI-1 and DF-1 raised plus the capability-gate dry-run evidence, on top of Phase 1's MT-1 / WN-1 / BG-1)
 
 > **File-lifecycle note**: this ledger was created ahead of any v3.16 implementation, by a comparison that deliberately claimed no release slot, so it began with only the `## Comparison-Sourced Deferrals` section. Each v3.16 version-implementation phase **appends** its own `## v3.16.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` numbering, which is namespaced separately from the `CD-#` and `TR-#` ids used above.
 
@@ -489,9 +489,38 @@ Appended by Phase 1 (Loop schema: gates, evidence freshness, instance state) on 
 - **Why it is not this phase's**: Phase 1 changed three Markdown files inside one skill bundle and touched no bootstrap, installer, or shell file. The failure signature is byte-identical to the one recorded under v3.16.0 BG-1 and v3.16.1 BG-1, where it was reproduced on a clean `develop` worktree carrying none of that cycle's changes.
 - **Bound**: affects a Windows host whose PATH resolves `tar` to the Git Bash binary. CI runners are unaffected.
 
+### NI-1 - OPEN (pre-existing, found in Phase 2): `catalog/commands/update.md` references a `nexus-hub doctor` that does not exist
+
+- **Target file**: `catalog/commands/update.md`, the `config` delegation line and the `config scope` section
+- **What is wrong**: both name `nexus-hub doctor` as an existing delegate ("`config-consistency-checker` / `nexus-hub doctor`"). No `doctor` subcommand exists in either installer today. The command file promises a surface a user cannot invoke.
+- **How it was found**: while adding the Phase 2 capability gate to the same file. It is pre-existing and unrelated to this plan's edits, but it is the identical defect class the gate itself guards against - documentation asserting a capability the user cannot actually operate.
+- **Suggested next step**: Phase 5.1 and 5.2 build exactly this subcommand, which closes the gap by making the reference true. Re-verify at Phase 5 rather than editing the prose now; deleting a reference that Phase 5 is about to make correct would be churn.
+
+### DF-1 - DEFERRED by design: the capability usage gate has no mechanical checker
+
+- **Target**: governance step 6 in `catalog/commands/update.md`
+- **What is deferred**: the gate is currently a human read of the release notes. `scripts/check_release_capability_docs.py`, which asserts the five elements per named surface, is Phase 5.3's deliverable.
+- **Why it was not built in Phase 2**: the plan sequences it that way, and Phase 5 declares Phase 2 as its prerequisite. Phase 2 deliberately does NOT name the script in `update.md` yet, because a forward reference to an unbuilt script is the same defect as NI-1 directly above it. The text says a checker is planned and describes its advisory posture without naming a path that does not resolve.
+- **Suggested next step**: Phase 5.3 builds the script and replaces the "planned" sentence with the real invocation.
+
+### Phase 2 dry-run evidence (recorded, not acted on)
+
+The plan asked whether the gate would have caught anything real. Applied retroactively to the two most recent releases:
+
+| Release | Verdict | Detail |
+|---|---|---|
+| **v3.15.10** (notification work) | **Would have FAILED** | It introduced `NEXUS_NOTIFY_DRY_RUN`, `NEXUS_NOTIFY_DISABLED_FILE`, and the `~/.nexus-hub/notifications-disabled` switch file. Element 1 is partial (the env vars are named but their accepted values are not), element 3 is effectively present (the switch file IS the disable path), and elements 2, 4, and 5 are absent outright - no readback command, no statement of what enabling the notification hooks does not grant, and no canonical documentation link. |
+| **v3.15.11** (Codex notification delivery) | **Out of scope** | Its changes are internal hook-delivery fixes (`build_hook_entries` module resolution, `CODEX_EVENT_ALIASES`) to hooks that are on by default. It introduces and materially changes no opt-in surface, so it satisfies the gate with the single no-change declaration. |
+
+One fail and one out-of-scope is the outcome that makes the gate worth having: it discriminates rather than firing on every release. Per the plan, neither release's notes were retroactively edited.
+
 ### Phase 1 disposition
 
 Three items, **zero release blockers, zero caused by this phase**. MT-1 is a real coverage gap with a named owner (Phase 5); WN-1 and BG-1 are both environmental properties of the implementation host, already carried at v3.16.0 and v3.16.1 and re-verified rather than re-asserted.
+
+### Phase 2 disposition
+
+Two further items, **zero release blockers**. NI-1 is pre-existing and closes automatically when Phase 5 builds the subcommand it names. DF-1 is a deliberate plan-ordered deferral, not an omission. Neither was caused by Phase 2's edits, and the dry-run above is evidence rather than a gap.
 
 ## v3.16 Summary
 
@@ -501,6 +530,6 @@ Three items, **zero release blockers, zero caused by this phase**. MT-1 is a rea
 | Transferred in from v3.15.14 (`TR-#`) | 2 (TR-1, TR-2) | 1 (TR-3) |
 | v3.16.0 version-implementation gaps | 3 carried forward (NI-1, NI-6, BG-1) | 13 closed (DF-1, DF-2, DF-3, DF-4, NI-2, NI-3, NI-4, NI-5, QG-1, QG-2, QG-3, BG-2, BG-3, WN-1) |
 | v3.16.1 version-implementation gaps (all 8 phases + release) | 3 carried forward (WN-1, BG-1 environmental; NI-6 bounded and documented) | 21 closed (DF-1..DF-5, NI-1..NI-5, BG-2..BG-8, QG-1, QG-2, WN-2, PX-1) |
-| v3.16.2 version-implementation gaps (Phase 1 of 6, in flight) | 3 open (MT-1 owned by Phase 5; WN-1, BG-1 environmental and inherited) | 0 |
+| v3.16.2 version-implementation gaps (Phases 1-2 of 6, in flight) | 5 open (MT-1 and DF-1 owned by Phase 5; NI-1 pre-existing, closes at Phase 5; WN-1, BG-1 environmental and inherited) | 0 |
 
 The three comparison-sourced items remain non-blocking prose folds with named target files. Of the v3.16.0 items, BG-1 is pre-existing and reproduces without this plan's changes, WN-1 is environmental, DF-1 is a reasoned non-implementation, NI-1 is a deliberate scope boundary the plan requires, and NI-2 / NI-3 / NI-4 are Phase 2 findings that Phase 3 and Phase 5 are already scheduled to dispose of. Phase 5 dispositioned every open item: 13 closed, 3 carried forward. **None gates the v3.16.0 release.** NI-1 and NI-6 are scope decisions for cycles already touching the relevant surfaces, and BG-1 is pre-existing, reproduced on a clean `develop` worktree, and confined to a Windows host whose PATH resolves `tar` to the Git Bash binary. Of the 13 closed, three (BG-2, BG-3, and QG-3) were caught by the test suite rather than by review, which is this cycle's strongest argument for running the full suite before declaring a phase done.

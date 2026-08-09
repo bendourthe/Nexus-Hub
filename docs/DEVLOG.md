@@ -1,5 +1,29 @@
 # Development Log
 
+## [2026-08-09] - v3.16.2 Phase 2: release capability usage gate
+
+### What Changed
+
+Added governance step 6 to the release section of `catalog/commands/update.md`: a release that introduces or materially changes an opt-in capability, installer flag, managed skill, or host surface must document five elements per surface in its release notes - activation, a runnable validation command, the disable/rollback path, the authority boundary activation does NOT grant, and a canonical documentation link. Added a compact cross-reference in `AGENTS.md` under the branching and release workflow so the gate is discoverable from the canonical agent guidance rather than only from the command file.
+
+### Why It Changed
+
+Nexus-Hub ships an unusually high density of opt-in surfaces - `NEXUS_HUB_COPILOT_SKILLS`, the `--enterprise` / `-Enterprise` installer flag, `NEXUS_DISABLED_HOOKS`, `NEXUS_HOOK_PROFILE=minimal` - and nothing in the release flow required any of them to be documented as operable. A capability that ships without its operating instructions is either unused or over-trusted, and neither failure is visible from the diff.
+
+### Decisions Made
+
+- **Element 4 is called out as the load-bearing one.** Elements 1 through 3 fail loudly: a user who cannot activate, verify, or disable a surface finds out immediately. An unstated authority boundary fails silently, by letting someone over-trust a surface they enabled. That asymmetry is written into the gate rather than left implicit.
+- **The gate is scoped to opt-in surfaces only, with a one-line no-change path.** A release changing no opt-in surface satisfies it with a single explicit declaration. The declaration is required rather than optional because an explicit "checked and none applied" is what distinguishes a run from a skip, and one sentence is the correct price for that in an already-long release flow.
+- **The Phase 5 validator is described but deliberately not named.** Writing `scripts/check_release_capability_docs.py` into the file today would have created a reference to a path that does not resolve - the identical defect as NI-1, which was found in this same file during this phase. The text states a checker is planned and describes its advisory posture instead.
+
+### Verification
+
+The gate was dry-run against the two most recent releases. **v3.15.10 would have failed**: it introduced `NEXUS_NOTIFY_DRY_RUN`, `NEXUS_NOTIFY_DISABLED_FILE`, and a switch-file kill path, and its notes carry no readback command, no authority boundary, and no documentation link. **v3.15.11 is out of scope**: its changes are internal hook-delivery fixes to default-on hooks, so it satisfies the gate with the no-change declaration. One fail and one out-of-scope is the result that shows the gate discriminates instead of firing on everything. Neither release's notes were retroactively edited.
+
+### Known Issues
+
+NI-1: `update.md` already referenced a `nexus-hub doctor` subcommand that does not exist, found while editing the same file. Pre-existing, and closed by Phase 5 building it. DF-1: the gate has no mechanical checker until Phase 5.3.
+
 ## [2026-08-09] - v3.16.2 Phase 1: loop schema gates, evidence freshness, and instance state
 
 ### What Changed

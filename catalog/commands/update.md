@@ -109,7 +109,29 @@ Beyond running the `refactor` scope, a `release` performs these governance steps
 
     A future editor who "fixes" this into a blocking gate will couple the release clock to the model-release clock, which is the exact failure this design avoids.
 
-This mirrors the `implement-phase` final-phase gate - `/implement` hands off to `/update release` on a plan's last phase - so the same refactor + known-gaps + CI/CD + platform-contract + prompting-staleness work runs whether the release is reached through `/implement` or invoked directly.
+6. **Capability usage gate**: when the release introduces or materially changes an OPT-IN capability, workflow, managed skill, or host surface, the release notes MUST carry five elements for each affected surface. Shipping a switch without teaching the user how to operate it is how an opt-in surface becomes either unused or over-trusted.
+
+    | # | Element | What it must state |
+    |---|---|---|
+    | 1 | **Activation** | The exact opt-in mechanism, verbatim and copy-pasteable: the env var and its accepted values, the installer flag in both shells, or the file the user must create. |
+    | 2 | **Validation** | A minimum runnable command that reads back whether activation actually took effect, so the user confirms rather than assumes. |
+    | 3 | **Rollback** | The exact disable / uninstall / revert path, including what activation already wrote and whether turning it off removes those artifacts. |
+    | 4 | **Authority boundary** | What activation does NOT grant - the privilege, data access, or scope a user might reasonably infer from the feature's name but that turning it on does not confer. |
+    | 5 | **Documentation link** | A canonical versioned link to where the surface is documented in full. |
+
+    **Element 4 is the one most often skipped and the one whose absence does the most damage.** Elements 1 through 3 fail loudly: a user who cannot activate a surface, cannot verify it, or cannot turn it off finds out immediately. An unstated authority boundary fails silently, by letting a user over-trust a surface they enabled - which is the failure mode with no error message.
+
+    Nexus-Hub ships an unusually high density of these surfaces, so the gate is grounded in real ones rather than stated abstractly. Use them as the worked examples:
+
+    - `NEXUS_HUB_COPILOT_SKILLS` - off by default; writing `.github/skills/` is commit-visible, which is exactly the kind of consequence element 4 exists to surface.
+    - `--enterprise` / `-Enterprise` - the installer flag gating the Gemini CLI integration, and a case where activation differs per shell, so element 1 must give both forms.
+    - `NEXUS_DISABLED_HOOKS` and `NEXUS_HOOK_PROFILE=minimal` - per-session hook suppression, where element 4 must be explicit that suppressing a guardrail hook does not make the underlying action safe.
+
+    **Scope it tightly.** The gate applies ONLY to opt-in surfaces, never to every changed line, and it is not a checklist to run against the diff. A release that changes no opt-in surface satisfies the gate with one explicit declaration in the release notes ("This release changes no opt-in capability, installer flag, or host surface"), which is deliberately one line of work: an already-long release flow earns no ceremony, and an explicit no-change statement is what distinguishes "checked and none applied" from "never checked".
+
+    The gate is currently a human read of the release notes. A mechanical checker that asserts the five elements per named surface is planned; when it lands it runs ADVISORY - it surfaces its output and a maintainer decides - and is promoted to a hard gate only after it has caught a real omission.
+
+This mirrors the `implement-phase` final-phase gate - `/implement` hands off to `/update release` on a plan's last phase - so the same refactor + known-gaps + CI/CD + platform-contract + prompting-staleness + capability-usage work runs whether the release is reached through `/implement` or invoked directly.
 
 ## Notes
 
