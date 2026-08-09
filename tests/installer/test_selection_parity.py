@@ -330,6 +330,21 @@ def _powershell() -> str | None:
 _CAPTURE = {"capture_output": True, "text": True, "encoding": "utf-8", "errors": "replace"}
 
 
+def _install_failure(proc) -> str:
+    """Readable diagnostic for a failed installer run.
+
+    stderr comes FIRST because that is where both shells write the actual
+    error; stdout is a long progress log whose tail is usually the last
+    successful step, not the failure. An earlier version printed only the
+    stdout tail, which sent a CI investigation to the wrong part of the script.
+    """
+    return (
+        f"install failed (rc={proc.returncode})\n"
+        f"--- stderr ---\n{(proc.stderr or '')[-4000:]}\n"
+        f"--- stdout tail ---\n{(proc.stdout or '')[-1500:]}"
+    )
+
+
 @pytest.mark.slow
 @pytest.mark.skipif(_bash() is None, reason="bash not available")
 def test_bash_filtered_install_matches_the_resolver(tmp_path: Path) -> None:
@@ -340,7 +355,7 @@ def test_bash_filtered_install_matches_the_resolver(tmp_path: Path) -> None:
          "--modules", "ai-engineering", "--yes"],
         cwd=str(_ROOT), timeout=900, **_CAPTURE,
     )
-    assert proc.returncode == 0, f"install failed: {proc.stdout[-2000:]}{proc.stderr[-2000:]}"
+    assert proc.returncode == 0, _install_failure(proc)
     expected = json.loads(subprocess.run(
         [sys.executable, str(_RESOLVER), "--repo-root", str(_ROOT), "--modules", "ai-engineering"],
         check=True, **_CAPTURE,
@@ -365,7 +380,7 @@ def test_powershell_filtered_install_matches_bash(tmp_path: Path) -> None:
          "-Workspace", str(target), "-Platforms", "claude", "-Modules", "ai-engineering", "-Yes"],
         cwd=str(_ROOT), timeout=900, **_CAPTURE,
     )
-    assert proc.returncode == 0, f"install failed: {proc.stdout[-2000:]}"
+    assert proc.returncode == 0, _install_failure(proc)
     expected = json.loads(subprocess.run(
         [sys.executable, str(_RESOLVER), "--repo-root", str(_ROOT), "--modules", "ai-engineering"],
         check=True, **_CAPTURE,

@@ -3554,6 +3554,24 @@ Write-Host "✓ Nexus-Hub v$script:NexusHubVersion installed ($scopeLabel scope)
 Write-Host ""
 Write-Host "Restart any running AI assistant sessions (Claude Code, Cursor, Gemini CLI, Codex, Copilot, OpenCode) so they pick up the new settings, hooks, skills, and rules." -ForegroundColor Yellow
 
+# v3.16.1: remove the filtered-selection staging tree. Bash does this with
+# `trap cleanup_selection_stage EXIT`; PowerShell has no script-scope equivalent,
+# so it is called on the normal completion path. Without it the stage leaked a
+# full copy of the selected skills into %TEMP% on every focused install.
+#
+# A `Register-EngineEvent PowerShell.Exiting` handler was considered to cover the
+# early-`exit` paths and deliberately NOT shipped: engine-event actions run in a
+# separate scope where the `$script:`-scoped stage path is not reliably visible,
+# and an unverifiable cleanup is worse than a documented gap.
+#
+# The residual is real but bounded, and measured rather than assumed: an `exit`
+# that happens AFTER Resolve-Selection leaves one stage behind. The workspace
+# validation ("Workspace path not found") is one such path, observed leaking a
+# stage during v3.16.1 testing. The stage lives under %TEMP%, which the OS
+# reclaims, and the normal completion path below cleans up (verified: stage
+# count unchanged across a successful focused install).
+Remove-SelectionStage
+
 Show-FarewellBanner
 # Pause is itself a prompt -- skip it on the non-interactive / -Yes / -Force /
 # piped path so a no-prompt install never blocks (v3.7.0 / Phase 2).
