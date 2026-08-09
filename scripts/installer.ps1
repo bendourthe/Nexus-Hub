@@ -489,6 +489,46 @@ function Write-JsonFile {
 #       OverwriteMode "ALL" (refresh)        -> overwrite now
 #       otherwise (interactive "CONFLICT")   -> record conflict + KEEP; the
 #         single end-of-run Resolve-Conflicts prompt decides whether to overwrite
+# Return the uppercase hex SHA-256 of a file, using .NET directly.
+#
+# This deliberately does NOT use Get-FileHash. That cmdlet lives in the
+# Microsoft.PowerShell.Utility module, and on GitHub's windows-latest image a
+# Windows PowerShell 5.1 session running this script raised
+# CommandNotFoundException for it -- while Write-Host and the rest of Utility
+# worked, and while the same script under pwsh 7 on the same image was fine.
+#
+# The trigger is subtle enough to be worth recording: Safe-Copy only hashes when
+# the destination ALREADY exists, so on a fresh install every call short-circuits
+# and the cmdlet is never invoked. The install-smoke job therefore passed for
+# releases while this line was unreachable; it only fired once a job installed
+# twice into the same HOME, which the v3.16.1 parity suite is the first to do.
+#
+# The exact cause of the missing cmdlet was not reproducible off that image
+# (an empty PSModulePath and a simulated pwsh-7 PSModulePath both resolve
+# Get-FileHash correctly on a local 5.1). It does not need to be: this is the
+# SECOND time the cmdlet has failed on a 5.1 runner image in this repo -- see
+# catalog/hooks/provenance-ledger.ps1, where v3.15.6 hit the same thing and
+# reached for the same .NET stream. Two independent sightings make it a property
+# of the environment, not a one-off.
+#
+# Since the dependency buys nothing -- .NET's SHA256 is available in every
+# edition with no module resolution at all -- it is removed rather than tuned
+# around. Do not reintroduce it.
+function Get-FileSha256 {
+    param([string]$Path)
+    $sha = [System.Security.Cryptography.SHA256]::Create()
+    try {
+        $stream = [System.IO.File]::OpenRead($Path)
+        try {
+            return [System.BitConverter]::ToString($sha.ComputeHash($stream)).Replace("-", "")
+        } finally {
+            $stream.Dispose()
+        }
+    } finally {
+        $sha.Dispose()
+    }
+}
+
 function Safe-Copy {
     param(
         [string]$Source,
@@ -504,8 +544,8 @@ function Safe-Copy {
     }
 
     if (Test-Path $Destination) {
-        $srcHash = (Get-FileHash -Path $Source).Hash
-        $dstHash = (Get-FileHash -Path $Destination).Hash
+        $srcHash = Get-FileSha256 -Path $Source
+        $dstHash = Get-FileSha256 -Path $Destination
         if ($srcHash -eq $dstHash) {
             # Already current -- nothing to write.
             return
