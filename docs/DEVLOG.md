@@ -1,5 +1,28 @@
 # Development Log
 
+## [2026-08-09] - v3.16.1 release: evaluation methodology and selective installation
+
+### What Changed
+
+v3.16.1 shipped. Version bumped across all six version-carrying surfaces, changelog written from the actual diff, README given a What's New section, catalog counts corrected from 270 to 271, known gaps reconciled to 21 closed and 3 carried forward. Two defects were found and fixed between the Phase 8 handoff and the release itself, both by remote CI rather than by the local suite.
+
+### Why It Changed
+
+The `tests-windows` job failed on `test_powershell_filtered_install_matches_bash` with a `CommandNotFoundException` whose command name pytest had truncated out of the log. The name turned out to be `Get-FileHash`, and the reason it had never surfaced before is the interesting part: `Safe-Copy` hashes only when the destination already exists, so a fresh install never reaches the line. `install-smoke` installs into a clean HOME and had therefore been passing over unreachable code for four releases. Only a job that installs twice into one HOME reaches it, and the v3.16.1 parity suite is the first to do that.
+
+### Decisions Made
+
+- **The `Get-FileHash` dependency was removed rather than diagnosed further.** Two hypotheses -- a stripped `PSModulePath`, and a pwsh-7 `PSModulePath` shadowing 5.1's Utility module -- were both tested locally and both disproven; 5.1 resolves the cmdlet fine under either. Continuing to guess at an environment that cannot be reproduced is worse value than deleting the dependency that permits the failure. .NET `SHA256` needs no module resolution at all.
+- **The regression guard is static, not behavioral.** Re-running the install would not catch a reintroduction on any machine where the cmdlet works, which is every developer machine. Only a source assertion fails in the right place.
+- **The skill-count update was audited line by line after a blanket replace corrupted history.** Replacing "270 skills" repo-wide silently rewrote nine historical "What's New" sections, each of which was *correct* about its own release. Only three of the twelve occurrences were current-state claims. The rest were reverted.
+- **A `Register-EngineEvent` cleanup for PowerShell early exits was written and then removed.** Engine-event actions run in a scope where the `$script:`-scoped stage path is not reliably visible, so it could not be verified to run. The residual one-directory leak is documented as NI-6 instead, because an unverifiable cleanup reads as covered while doing nothing.
+
+### Troubleshooting Trail
+
+The first diagnostic attempt failed on my own tooling: both end-to-end tests printed only the stdout tail, which on a long progress log is the last *successful* step rather than the failure. That sent the investigation to the wrong region of the installer. Fixed by printing stderr first, which then named the command immediately. A second false start was self-inflicted: a manual re-test reported `rc=2` because my own shell command had removed the workspace directory without recreating it -- the installer was correctly reporting "Workspace path not found".
+
+One failure was investigated and deliberately left alone: `test_ps_standalone_extracts_and_hands_off` fails locally because Git Bash's `/usr/bin/tar` precedes Windows `bsdtar` on PATH when PowerShell is launched from my shell. It reproduces on a stashed tree with none of this cycle's changes and passes on CI Windows, so it is environmental, not a regression.
+
 ## [2026-08-09] - v3.16.1 Phase 8: refactor, reconciliation, and CI/CD [terminal phase]
 
 ### What Changed

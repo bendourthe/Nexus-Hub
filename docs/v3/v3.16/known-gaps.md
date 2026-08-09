@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (all 5 phases complete; reconciled and release-ready, unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
-**Last updated**: 2026-08-09 (v3.16.1 Phase 8 reconciliation; every open item dispositioned; v3.16.0 Phase 5 reconciliation preserved above)
+**Last updated**: 2026-08-09 (v3.16.1 release reconciliation; BG-7, BG-8, NI-6 added post-merge; every open item dispositioned)
 
 > **File-lifecycle note**: this ledger was created ahead of any v3.16 implementation, by a comparison that deliberately claimed no release slot, so it began with only the `## Comparison-Sourced Deferrals` section. Each v3.16 version-implementation phase **appends** its own `## v3.16.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` numbering, which is namespaced separately from the `CD-#` and `TR-#` ids used above.
 
@@ -432,9 +432,28 @@ Two notes on existing entries:
 `, no CRLF, one-line diff.
 
 
+### BG-7 - CLOSED: `Get-FileHash` broke the PowerShell installer on Windows CI
+
+- **What was wrong**: `Safe-Copy` called `Get-FileHash`, which raised `CommandNotFoundException` inside `installer.ps1` under Windows PowerShell 5.1 on GitHub's `windows-latest` image, while the rest of `Microsoft.PowerShell.Utility` worked in the same session and pwsh 7 on the same image was fine.
+- **Why it hid for four releases**: `Safe-Copy` hashes ONLY when the destination already exists, so on a fresh install every call short-circuits and the line is never reached. `install-smoke` installs into a clean HOME, so it passed release after release over unreachable code. Reaching it needs a job that installs twice into one HOME, which the v3.16.1 parity suite is the first to do.
+- **Two hypotheses were tested and both DISPROVEN**: a stripped `PSModulePath`, and a pwsh-7 `PSModulePath` shadowing 5.1's Utility module. Windows PowerShell 5.1 resolves the cmdlet correctly under both.
+- **Resolution**: the dependency was removed rather than tuned around. Hashing goes through .NET `SHA256`, which needs no module resolution and behaves identically on 5.1 and 7. This is the **second** sighting of the class in this repo (v3.15.6 hit it in `catalog/hooks/provenance-ledger.ps1` and reached for the same .NET stream), and `tests/installer/test_powershell_cmdlet_portability.py` now pins both.
+- **Why the guard is static rather than behavioral**: re-running the install would not catch a reintroduction on any developer machine where the cmdlet works, which is all of them. The defect is only observable on an image we do not control, so a source assertion is the only check that fails in the right place.
+
+### BG-8 - CLOSED: the PowerShell selection stage leaked on every focused install
+
+- **What was wrong**: `Remove-SelectionStage` was written in Phase 6.2 and **never called**. The Bash side cleans its staging tree with `trap cleanup_selection_stage EXIT`; the PowerShell equivalent had no caller, so every focused install left a full copy of the selected skills in `%TEMP%`. Eight leaked stages were found on the development host.
+- **Resolution**: called on the normal completion path. Verified by stage count across a successful focused install (8 -> 8, rc=0, 13 skills).
+
+### NI-6 - OPEN (documented, bounded): one PowerShell early-exit path still leaks a stage
+
+- **What remains**: an exit taken after `Resolve-Selection` but before completion (observed via the "Workspace path not found" validation) leaves its staging directory behind.
+- **Why it is not fixed**: a `Register-EngineEvent PowerShell.Exiting` handler was written and then deliberately removed. Engine-event actions run in a separate scope where the `$script:`-scoped stage path is not reliably visible, so the cleanup could not be verified to run. An unverifiable cleanup is worse than a documented gap: it reads as covered while doing nothing.
+- **Bound**: the residual is one directory under `%TEMP%` on an aborted install, not on the normal path. An earlier draft of the in-file comment claimed no such path existed; that claim was wrong and is corrected to describe the measured path.
+
 ### v3.16.1 final disposition (Phase 8.2)
 
-Every item raised across the eight phases has been dispositioned. **19 closed, 2 carried forward, 0 release blockers.** Three of the closures (WN-2, BG-6, PX-1) came from remote CI after the local suite was green.
+Every item raised across the eight phases and the release itself has been dispositioned. **21 closed, 3 carried forward, 0 release blockers.** Five of the closures (WN-2, BG-6, PX-1, BG-7, BG-8) came from remote CI or from post-merge verification after the local suite was green -- which is this cycle's clearest evidence that a green local run is a weaker signal than it feels like.
 
 The two carried forward are environmental, and neither is a release blocker:
 
@@ -454,6 +473,6 @@ Two were **pre-existing defects the work exposed**: NI-1 (four bundle references
 | Comparison-sourced deferrals (`CD-#`) | 3 (CD-1, CD-2, CD-3) | 0 |
 | Transferred in from v3.15.14 (`TR-#`) | 2 (TR-1, TR-2) | 1 (TR-3) |
 | v3.16.0 version-implementation gaps | 3 carried forward (NI-1, NI-6, BG-1) | 13 closed (DF-1, DF-2, DF-3, DF-4, NI-2, NI-3, NI-4, NI-5, QG-1, QG-2, QG-3, BG-2, BG-3, WN-1) |
-| v3.16.1 version-implementation gaps (all 8 phases + release) | 2 carried forward (WN-1, BG-1; both environmental) | 19 closed (DF-1..DF-5, NI-1..NI-5, BG-2..BG-6, QG-1, QG-2, WN-2, PX-1) |
+| v3.16.1 version-implementation gaps (all 8 phases + release) | 3 carried forward (WN-1, BG-1 environmental; NI-6 bounded and documented) | 21 closed (DF-1..DF-5, NI-1..NI-5, BG-2..BG-8, QG-1, QG-2, WN-2, PX-1) |
 
 The three comparison-sourced items remain non-blocking prose folds with named target files. Of the v3.16.0 items, BG-1 is pre-existing and reproduces without this plan's changes, WN-1 is environmental, DF-1 is a reasoned non-implementation, NI-1 is a deliberate scope boundary the plan requires, and NI-2 / NI-3 / NI-4 are Phase 2 findings that Phase 3 and Phase 5 are already scheduled to dispose of. Phase 5 dispositioned every open item: 13 closed, 3 carried forward. **None gates the v3.16.0 release.** NI-1 and NI-6 are scope decisions for cycles already touching the relevant surfaces, and BG-1 is pre-existing, reproduced on a clean `develop` worktree, and confined to a Windows host whose PATH resolves `tar` to the Git Bash binary. Of the 13 closed, three (BG-2, BG-3, and QG-3) were caught by the test suite rather than by review, which is this cycle's strongest argument for running the full suite before declaring a phase done.
