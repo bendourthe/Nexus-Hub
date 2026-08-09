@@ -89,8 +89,14 @@ def main() -> int:
             if shared >= 2:
                 ok = False
     check("sequential runs never share 2+ of {hue, layout, voice}", ok)
-    hues = {b["hue_family"] for b in briefs}
-    check("5 runs span 4+ hue families", len(hues) >= 4, str(hues))
+    # Hue spread is asserted further down, over the 60 seeded rolls, NOT over
+    # these five. Five unseeded draws from 12 families land on 3-or-fewer
+    # distinct families about 14% of the time (200k-trial simulation), and the
+    # divergence rule above does not prevent it -- it only forbids sharing 2+ of
+    # {hue, layout, voice} with the last three, so a hue may legitimately repeat.
+    # This check therefore failed roughly one run in seven while claiming the
+    # engine's hue spread was broken. It is the only distributional property in
+    # this file that was measured on a sample too small to support it.
 
     # 4. Seed reproducibility (fresh histories so state matches).
     h_a, h_b = tmp / "ha.json", tmp / "hb.json"
@@ -119,8 +125,8 @@ def main() -> int:
         result.stderr[-200:],
     )
 
-    # 7-8. Preset subsets + light/dark coverage over 60 seeded rolls.
-    tech_ok, variants = True, set()
+    # 7-8. Preset subsets + light/dark coverage + hue spread over 60 seeded rolls.
+    tech_ok, variants, hues = True, set(), set()
     allowed_moods = {
         "cool-clinical",
         "high-contrast-editorial",
@@ -139,11 +145,24 @@ def main() -> int:
     for seed in range(60):
         brief = roll(tmp / "s.json", tmp / f"hs{seed}.json", "technical", seed=seed)
         variants.add(brief["base_variant"])
+        hues.add(brief["hue_family"])
         if brief["mood"] not in allowed_moods:
             tech_ok = False
         if brief["type"]["voice"] not in allowed_voices:
             tech_ok = False
     check("technical preset stays within its mood/voice subsets (60 rolls)", tech_ok)
+    # Reuses the rolls above, so this costs no extra subprocess. Seeded 0..59, so
+    # it is deterministic rather than merely large: the same 60 briefs every run.
+    # Measured spread is 12 of 12 families, so the >=8 threshold leaves four
+    # families of slack -- enough that adding or reweighting a family does not
+    # trip it, while still failing if the engine collapses toward a few hues.
+    # Note this samples the CONSTRAINED "technical" preset, which makes it the
+    # stricter claim: even a preset-restricted sample reaches every family.
+    check(
+        "60 seeded rolls span 8+ hue families",
+        len(hues) >= 8,
+        f"{len(hues)} distinct: {sorted(hues)}",
+    )
     check(
         "both light and dark bases appear across the sample",
         variants == {"light", "dark"},
