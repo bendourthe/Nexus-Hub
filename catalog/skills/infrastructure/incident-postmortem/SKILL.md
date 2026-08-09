@@ -23,6 +23,14 @@ Use this skill for:
 
 **Trigger phrases**: "postmortem", "post-incident review", "RCA", "root cause analysis", "outage report", "P1 review", "SEV1 review", "what happened writeup", "post-event analysis".
 
+### The surprising-behavior trigger
+
+An incident is not only an outage. When agent or harness behavior is **surprising, contradictory, smaller than expected, or called out by the user as likely wrong**, that is an incident, not just a correction to make and move past.
+
+This trigger exists because the most instructive failures in a tool-and-catalog project never page anyone. A hook that is registered and permanently silent, a guard whose path filter excludes the file it guards, a cross-platform sibling that never parsed - each of these is a shipped failure with a reusable shape, and each is easy to fix quietly and forget. The test is not "did this hurt a customer" but "would this recur with a different person at the keyboard".
+
+Fixing the immediate symptom and moving on is what turns a one-time surprise into a recurring one. If the surprise had a cause worth naming, write the note.
+
 ### When NOT to use this skill
 
 - **During an active incident** -- use the incident-response runbook and the on-call runbook. A postmortem documents an incident that has already been mitigated.
@@ -169,6 +177,25 @@ Rules:
 - Every row has a ticket reference in the team's tracking system; if a ticket does not exist yet, the postmortem author creates one before the document is published.
 - Severity follows a 3-level scale: High (closes a gap that caused the incident or could cause a repeat), Medium (closes a gap that prolonged the incident), Low (improves response quality but is not gap-closing).
 
+### Step 8b: Classify the Responsible Layer
+
+Before writing the action items, classify WHERE the failure belongs. This is the step that makes the practice produce durable fixes rather than apologies, because a fix applied at the wrong layer looks like a resolution and prevents nothing.
+
+Four layers, from most specific to most systemic:
+
+| Layer | What it means | What a fix at this layer looks like |
+|---|---|---|
+| **Agent behavior** | The agent (or operator) did the wrong thing while the surface it used was correct and clearly documented. | Rarely a code change. Usually a rule, a checklist item, or a guard that makes the wrong action harder than the right one. |
+| **Projection or payload** | The data, config, or output the agent acted on was wrong, malformed, or missing a field. | Fix the producer, and add a schema or shape assertion so a malformed payload fails loudly instead of being interpreted. |
+| **Authoring gap** | The artifact was written incompletely or inconsistently: a missing sibling, an unregistered script, an absent test. | A mechanical gate that fails on the incomplete state, not a note asking authors to remember. |
+| **Docs or process** | The correct behavior was never written down, or was written down somewhere nobody reads at the moment of the decision. | Move the rule to where the decision happens, rather than adding it to a document that is already long. |
+
+**Repair at the lowest durable layer.** "Lowest" means most specific, and "durable" is the constraint that stops you going too low: a fix that only holds while someone remembers it is not durable, however specific it is. An agent-behavior finding whose only remedy is "be more careful" has not been classified yet - push down until you find the projection, authoring, or process condition that permitted it.
+
+The common error runs the other way too. Rewriting a whole process because one payload was malformed is a fix at too high a layer: it is expensive, it disturbs work that was fine, and it usually does not close the specific hole.
+
+Record the classification in the postmortem, next to the root cause. Two incidents that share a layer usually share a fix.
+
 ### Step 9: Apply the Blameless Framing Pass
 
 Before publishing, re-read the entire document and apply the blameless framing pass. Replace every instance of an individual's name in a root cause or contributing factor with the system or process that allowed the action to happen.
@@ -185,7 +212,18 @@ Individuals appear in the document only as:
 
 ### Step 10: Publish and Schedule the Review Meeting
 
-Publish the postmortem to the team's standard location (incident-management tool, wiki, or git repo under `docs/incidents/`). Schedule the postmortem review meeting within 5 business days of incident resolution. The review meeting walks the document, ratifies the root cause and contributing factors, and assigns owners to any action items that did not yet have one.
+Publish the postmortem to `docs/incidents/<slug>-YYYYMMDD.md`, where the slug names the failure rather than the fix and the date is when the failure was identified. In a project with a dedicated incident-management tool, that tool is the system of record and this file is the durable, reviewable copy. See [`docs/incidents/README.md`](../../../../docs/incidents/README.md) for the convention and `TEMPLATE.md` for the shape.
+
+Two sections are **mandatory** on top of the eight above, and a note missing either is not publishable:
+
+- **Public-Safe Shape** - the reusable pattern, abstracted with no local absolute paths, raw log output, private links, or credentials. Write it as a claim someone outside the incident could apply. If a shape recurs across incidents, state it once in `docs/incidents/shapes.md` and reference it from each note.
+- **Durable fix** - the concrete change that makes the lesson survive, named AND linked: a commit, a test, a CI gate, a hook, a validator, a skill edit.
+
+**An incident is closed by a change, not by an explanation.** A note with no linked durable fix is an open item, not an archive entry. When the fix does not exist yet, that is an honest state, but it belongs in the version's gap log as tracked work via [[known-gaps-tracker]], with the note linking to it. This is the single control that stops an incident directory becoming a collection of writeups nobody reads.
+
+When the same failure class shows up a third time, it has outgrown the incident archive: promote it to a solutions entry via [[solution-knowledge-base]], so the answer is discoverable by the problem rather than by the date it happened.
+
+Schedule the postmortem review meeting within 5 business days of incident resolution. The review meeting walks the document, ratifies the root cause and contributing factors, and assigns owners to any action items that did not yet have one.
 
 ## Common Rationalizations
 
@@ -214,6 +252,10 @@ Before publishing the postmortem, walk this binary checklist. Every item must be
 - [ ] Every action item has an owner (one person), a due date (an actual date), a severity, and a ticket reference.
 - [ ] The What Went Well / What Went Poorly sections are factual observations, not praise or criticism.
 - [ ] The document has been read end-to-end with the blameless framing pass applied; no replacement was needed on the final pass.
+- [ ] The root cause carries a responsible-layer classification (agent behavior / projection or payload / authoring gap / docs or process), and the action items repair at the lowest durable layer.
+- [ ] A **Public-Safe Shape** section is present and contains no local absolute path, raw log output, private link, or credential.
+- [ ] A **Durable fix** section is present and every fix it names is also linked, and the link resolves to something that exists.
+- [ ] If no durable fix exists yet, the note links the tracked gap-log item instead of standing alone as though the writeup were the resolution.
 
 If any checklist item is false, do not publish. Fix the document.
 
@@ -224,3 +266,6 @@ If any checklist item is false, do not publish. Fix the document.
 - [[oncall-runbook]] -- per-alert response runbooks. Postmortem action items that close detection-and-response gaps frequently update per-alert runbooks.
 - [[rollback-strategy-advisor]] -- rollback procedures. If the postmortem identified a rollback gap, the action item plan is informed by the rollback advisor.
 - [[observability-setup]] -- detection-pipeline design. If the postmortem identified a detection gap, the action item plan is informed by the observability setup.
+- [[known-gaps-tracker]] -- the version gap log. An incident whose durable fix does not exist yet becomes a tracked gap there, and the note links it; this is what keeps an unfixed incident an open item rather than an archive entry.
+- [[solution-knowledge-base]] -- the problem-indexed store. A failure class that recurs a third time has outgrown the incident archive and graduates into a solutions entry, discoverable by the problem rather than by the date.
+- [[egress-redaction]] -- the redaction discipline the Public-Safe Shape section applies. An incident note is the artifact most likely to carry internal paths and raw output into a public repository.

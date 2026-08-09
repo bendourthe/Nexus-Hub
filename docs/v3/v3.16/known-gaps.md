@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (all 5 phases complete; reconciled and release-ready, unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
-**Last updated**: 2026-08-09 (v3.16.2 Phase 2 append; NI-1 and DF-1 raised plus the capability-gate dry-run evidence, on top of Phase 1's MT-1 / WN-1 / BG-1)
+**Last updated**: 2026-08-09 (v3.16.2 Phase 3 append; BG-2 raised and QG-1 raised-and-closed, on top of Phase 2's NI-1 / DF-1 and Phase 1's MT-1 / WN-1 / BG-1)
 
 > **File-lifecycle note**: this ledger was created ahead of any v3.16 implementation, by a comparison that deliberately claimed no release slot, so it began with only the `## Comparison-Sourced Deferrals` section. Each v3.16 version-implementation phase **appends** its own `## v3.16.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` numbering, which is namespaced separately from the `CD-#` and `TR-#` ids used above.
 
@@ -514,6 +514,20 @@ The plan asked whether the gate would have caught anything real. Applied retroac
 
 One fail and one out-of-scope is the outcome that makes the gate worth having: it discriminates rather than firing on every release. Per the plan, neither release's notes were retroactively edited.
 
+### BG-2 - OPEN (pre-existing, found in Phase 3): `secret-scan.sh` fails OPEN on a host without `jq`
+
+- **Target file**: `catalog/hooks/secret-scan.sh`
+- **What is wrong**: the hook extracts `file_path` and `content` with `jq`, and when `jq` is absent it takes an explicit `exit 0` path commented "Without jq we cannot reliably extract content; allow the write". It therefore scans nothing and blocks nothing. This was found by verifying the hook rather than reading its matcher: on this host (no `jq`), a payload carrying a well-formed AWS access key ID returned exit 0 with no output.
+- **Why it matters**: this is a security guard that fails OPEN. A registered, executable, permanently silent hook is exactly shape S-1 in `docs/incidents/shapes.md`, which the two notes backfilled in this same phase are about. A user on a POSIX host without `jq` believes they have secret scanning and does not.
+- **Bounds, and why it is not a release blocker**: `secret-scan.ps1` is unaffected and was verified working in both directions on this host (exit 2 on a seeded key, exit 0 on a clean note), so Windows users are covered. `AGENTS.md` already documents the asymmetry as acceptable ("a sibling that works where the bash version silently no-ops, for example on a host with no `jq`, is an acceptable and documented improvement"), so the behavior is known rather than newly discovered - what is new is the evidence that the bash side is genuinely inert, not merely degraded.
+- **Suggested next step**: replace the `jq` dependency with a stdlib fallback (a short Python or `sed` extraction) so the bash hook degrades to scanning rather than to allowing, or fail CLOSED with an explicit "cannot scan, install jq" message. Failing open is the wrong default for a guard whose entire job is to block. Out of scope for this plan, which touches no hook logic.
+
+### QG-1 - RESOLVED in Phase 3: `docs/incidents/**` was outside the CI path filters
+
+- **What it was**: `ci.yml` excludes `docs/**` except for `docs/policy/**` and the per-version development contract docs. A new `docs/incidents/` tree would have been invisible to CI, so a note whose Durable fix was a paragraph rather than a link could be pushed without the guard ever running - the identical defect already fixed twice before (v3.16.0 for `docs/policy/**`, v3.16.1 QG-1 for the development contract docs).
+- **Resolution**: added `- 'docs/incidents/**'` to the `paths` filter on BOTH the `push` and `pull_request` events, with a comment stating the rule the re-inclusion follows: a docs path earns a CI trigger only when a guard actually reads it. The guard that earns it (`scripts/check_incident_notes.py`) was built in the same phase and wired into the `validate` job and `make validate`.
+- **Note on the plan's instruction**: sub-task 3.4 asked for the path filter unconditionally. Adding it without a guard would have run the full matrix on every incident note for zero signal, contradicting the reasoning already written into `ci.yml` for session histories. Building the guard first is what makes the instruction correct rather than costly.
+
 ### Phase 1 disposition
 
 Three items, **zero release blockers, zero caused by this phase**. MT-1 is a real coverage gap with a named owner (Phase 5); WN-1 and BG-1 are both environmental properties of the implementation host, already carried at v3.16.0 and v3.16.1 and re-verified rather than re-asserted.
@@ -521,6 +535,12 @@ Three items, **zero release blockers, zero caused by this phase**. MT-1 is a rea
 ### Phase 2 disposition
 
 Two further items, **zero release blockers**. NI-1 is pre-existing and closes automatically when Phase 5 builds the subcommand it names. DF-1 is a deliberate plan-ordered deferral, not an omission. Neither was caused by Phase 2's edits, and the dry-run above is evidence rather than a gap.
+
+### Phase 3 disposition
+
+One new open item and one resolved. **Zero release blockers.** BG-2 is a pre-existing fail-open in a security hook, found by exercising the hook instead of reading its registration, bounded by the verified-working PowerShell sibling and already documented as a known asymmetry in `AGENTS.md`. QG-1 was raised and closed inside the phase.
+
+The phase's own residual risk (named in the comparison) is that the incident archive becomes a directory nobody reads. The control is the Durable-fix requirement, and it is now mechanical rather than aspirational: `scripts/check_incident_notes.py` fails a note whose fix section carries no link, is wired into `make validate` and CI, and is covered by 12 tests asserting failure in each direction. Phase 6.2 should record whether it held.
 
 ## v3.16 Summary
 
@@ -530,6 +550,6 @@ Two further items, **zero release blockers**. NI-1 is pre-existing and closes au
 | Transferred in from v3.15.14 (`TR-#`) | 2 (TR-1, TR-2) | 1 (TR-3) |
 | v3.16.0 version-implementation gaps | 3 carried forward (NI-1, NI-6, BG-1) | 13 closed (DF-1, DF-2, DF-3, DF-4, NI-2, NI-3, NI-4, NI-5, QG-1, QG-2, QG-3, BG-2, BG-3, WN-1) |
 | v3.16.1 version-implementation gaps (all 8 phases + release) | 3 carried forward (WN-1, BG-1 environmental; NI-6 bounded and documented) | 21 closed (DF-1..DF-5, NI-1..NI-5, BG-2..BG-8, QG-1, QG-2, WN-2, PX-1) |
-| v3.16.2 version-implementation gaps (Phases 1-2 of 6, in flight) | 5 open (MT-1 and DF-1 owned by Phase 5; NI-1 pre-existing, closes at Phase 5; WN-1, BG-1 environmental and inherited) | 0 |
+| v3.16.2 version-implementation gaps (Phases 1-3 of 6, in flight) | 6 open (MT-1 and DF-1 owned by Phase 5; NI-1 pre-existing, closes at Phase 5; BG-2 pre-existing fail-open, bounded; WN-1 and BG-1 environmental and inherited) | 1 closed (QG-1, raised and resolved in Phase 3) |
 
 The three comparison-sourced items remain non-blocking prose folds with named target files. Of the v3.16.0 items, BG-1 is pre-existing and reproduces without this plan's changes, WN-1 is environmental, DF-1 is a reasoned non-implementation, NI-1 is a deliberate scope boundary the plan requires, and NI-2 / NI-3 / NI-4 are Phase 2 findings that Phase 3 and Phase 5 are already scheduled to dispose of. Phase 5 dispositioned every open item: 13 closed, 3 carried forward. **None gates the v3.16.0 release.** NI-1 and NI-6 are scope decisions for cycles already touching the relevant surfaces, and BG-1 is pre-existing, reproduced on a clean `develop` worktree, and confined to a Windows host whose PATH resolves `tar` to the Git Bash binary. Of the 13 closed, three (BG-2, BG-3, and QG-3) were caught by the test suite rather than by review, which is this cycle's strongest argument for running the full suite before declaring a phase done.

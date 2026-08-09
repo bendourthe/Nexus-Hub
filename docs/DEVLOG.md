@@ -1,5 +1,33 @@
 # Development Log
 
+## [2026-08-09] - v3.16.2 Phase 3: incident archive practice and backfill
+
+### What Changed
+
+Created `docs/incidents/` with a README documenting the artifact type, a `TEMPLATE.md`, a `shapes.md` holding reusable abstracted patterns, and two backfilled real incidents. Built `scripts/check_incident_notes.py` and wired it into `make validate`, the CI `validate` job, and `DEV_ONLY_SCRIPTS`, with 12 tests. Updated `incident-postmortem` to name the output location, require two new sections, add a surprising-behavior trigger and a responsible-layer classification step, and cross-link three skills. No frontmatter changed, so the catalog stays at 271 skills with no `data/skills.json` sync.
+
+### Why It Changed
+
+Three skills that produce archives (`incident-postmortem`, `known-gaps-tracker`, `solution-knowledge-base`) all shipped while `docs/incidents/` and `docs/solutions/` held nothing at all. The capability was present; only the practice was missing. The risk in starting one is well known - the directory becomes a pile of writeups nobody reads - so the Durable-fix rule is the control, and it was made mechanical rather than left as a request.
+
+### Decisions Made
+
+- **The plan asked for a CI path filter; the guard had to come first.** `ci.yml` deliberately excludes `docs/**` except where a test actually reads the file, with that reasoning written into its comments for session histories. Adding `docs/incidents/**` with nothing reading it would have run the full matrix on every incident note for zero signal. Building `check_incident_notes.py` first is what makes the path filter correct rather than costly, and the comment states the rule: a docs path earns a trigger only when a guard reads it.
+- **The two incidents share one shape, extracted into its own file.** Both are the same failure class (an unverified cross-platform sibling), so `shapes.md` states it once as S-1, with the two failure modes separated - never runs at all, versus runs but disagrees - because they need different controls. Each note references the shape rather than restating it.
+- **The skill's frontmatter was deliberately not touched.** Its `description` already exceeds the 250-character ceiling and is allowlisted; rewriting it to add the new trigger would have risked the gate and forced a `skills.json` sync for no benefit. The surprising-behavior trigger went into the body instead.
+
+### Verification, and what it found
+
+The `secret-scan` coverage was verified by exercising the hook rather than by reading its matcher, which turned up a real defect. **`secret-scan.sh` fails OPEN on a host without `jq`**: it takes an explicit `exit 0` path when `jq` is missing, so a payload carrying a well-formed AWS access key ID returned exit 0 with no output. `secret-scan.ps1` was verified working in both directions on the same host (exit 2 on the seeded key, exit 0 on a clean note), so the coverage claim for `docs/incidents/` holds on Windows and the finding is bounded rather than total.
+
+The irony is the point: a registered, executable, permanently silent security hook is exactly shape S-1, the shape both backfilled notes are about. Recorded as BG-2 with a suggested fix (degrade to scanning, or fail closed - failing open is the wrong default for a guard whose whole job is to block). No hook logic was changed, which is outside this plan's scope.
+
+No scratch file was created and deleted for this test; the payloads were piped to the hooks through their real stdin contract, which is the same evidence with no risk of a seeded secret reaching a commit.
+
+### Known Issues
+
+BG-2 above. QG-1 was raised and closed inside the phase (the path filter). The archive's residual risk - a directory nobody reads - now has a mechanical control rather than an aspirational one; Phase 6.2 should record whether it held.
+
 ## [2026-08-09] - v3.16.2 Phase 2: release capability usage gate
 
 ### What Changed
