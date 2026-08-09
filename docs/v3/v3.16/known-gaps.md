@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (all 5 phases complete; reconciled and release-ready, unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
-**Last updated**: 2026-08-08 (v3.16.0 Phase 5 final reconciliation; every open item dispositioned)
+**Last updated**: 2026-08-08 (v3.16.1 Phase 1 append; v3.16.0 Phase 5 reconciliation preserved above)
 
 > **File-lifecycle note**: this ledger was created ahead of any v3.16 implementation, by a comparison that deliberately claimed no release slot, so it began with only the `## Comparison-Sourced Deferrals` section. Each v3.16 version-implementation phase **appends** its own `## v3.16.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` numbering, which is namespaced separately from the `CD-#` and `TR-#` ids used above.
 
@@ -264,6 +264,35 @@ Every open item above receives an explicit disposition here, and every platform 
 - **Layout**: `github-ci-cd-cost-effective-alternatives.md` moved from the v3.16 version root into a new `research/` subdirectory. The live inbound reference in `docs/v3/v3.19/plans/v3.19.0-cost-effective-ci-cd.md` was repaired; the reference inside a v3.15 session history was **deliberately left unchanged**, because a session history is a frozen record of what was true at the time and rewriting it would falsify the record.
 - **`.antigravitycli/`** added to `.gitignore` (stray local runtime directory).
 
+## v3.16.1 - evals-and-selective-installation
+
+Appended by Phase 1 (Evaluation Contract and RAG Metrics) on 2026-08-08. Own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` namespace, separate from v3.16.0's.
+
+### QG-1 - OPEN: CI path filters exclude the document the new test guards
+
+- **Target files**: `.github/workflows/ci.yml` (the `push` and `pull_request` `paths` filters), `tests/skills/test_evaluation_methodology.py`
+- **What is wrong**: the workflow triggers on `['**', '!docs/**', 'docs/policy/**']`. The new test asserts against `docs/v3/v3.16/development/evaluation-artifact-contract.md`, which sits under `docs/**` and is not re-included. A push that edits only the contract - deleting an artifact definition or the local-first rule - therefore skips CI entirely, so the guard does not run on exactly the edit it exists to catch.
+- **Why it is not fixed here**: this plan's Lifecycle Contract states that pipeline files change before Phase 8 only when a phase's explicit deliverable requires them; otherwise the impact is recorded for terminal reconciliation. Phase 1's deliverables are two documents and a test, none of which is a workflow file.
+- **Suggested next step**: Phase 8.3 (Terminal CI/CD Comparison) adds a third `paths` entry re-including the directory the contract lives in. This is the same defect and the same fix already applied for `docs/policy/**`, whose in-file comment documents the identical reasoning ("the exact edit each guard exists to catch was the edit that never ran it").
+
+### WN-1 - OPEN (environmental): no Python linter or ShellCheck on the implementation host
+
+- **What happened**: `ruff` is not installed on the implementation host, so the Phase 3 lint/format step could not run against the new test module. `make` and `shellcheck` are likewise absent, so `make lint` could not be invoked either.
+- **Impact assessed as low**: `make lint` covers shell scripts only (`scripts/installer.sh`, `install.sh`), and this phase changed no shell file. The one new Python file was hand-checked for style against the neighboring `tests/skills/` modules and is exercised by 74 passing assertions. CI runs the suite on Linux and Windows, so the module is not unlinted in the pipeline sense - only on this machine.
+- **Suggested next step**: none required for correctness. If the repo wants a Python lint gate it does not currently have one in the `Makefile`, which is a separate decision, not a v3.16.1 gap.
+
+### BG-1 - OPEN (pre-existing, inherited): PowerShell bootstrap tarball test fails on this host
+
+- **Failing test**: `tests/installer/test_bootstrap.py::test_ps_standalone_extracts_and_hands_off`, the only failure in a full-suite run of 1818 passed / 20 skipped.
+- **Why it is not this phase's**: the signature is `/usr/bin/tar: Child returned status 128 ... Error is not recoverable`, the MSYS `tar` behavior already recorded as v3.16.0's BG-1 and reproduced there on a clean `develop` worktree with none of that plan's changes present. Phase 1 changed three Markdown documents, one skill body, and one Python test module; it touched no installer, no shell script, and no PowerShell file.
+- **Suggested next step**: none for v3.16.1. It is the same inherited item, carried forward with v3.16.0's disposition: fold into whichever cycle next touches the bootstrap. CI runners are unaffected because their PATH does not resolve `tar` to the Git Bash binary.
+
+### DF-1 - CLOSED: the plan's declared filename did not match the file on disk
+
+- **What was wrong**: the plan header declared `**Slug**: adoption-evals-and-selective-installation` and `**Filename**: v3.16.1-adoption-evals-and-selective-installation.md`, and the Phase 1.1 prompt referenced that path, but the file on disk is `v3.16.1-evals-and-selective-installation.md`. Two further references pointed at the same non-existent path: `docs/todos.md` line 120 and the seeding comparison report's handoff line.
+- **Resolution**: the user chose to correct the plan header rather than rename the file. The header's Slug and Filename fields and the Phase 1.1 prompt path were updated to the on-disk name, and the two stale external references were repaired in the same pass so no surface still names a path that does not exist.
+- **Why this is recorded**: it is a deviation from the plan-as-written, resolved by explicit user decision, and the record is what makes the header edit traceable to an approval rather than to drift.
+
 ## v3.16 Summary
 
 | Category | Open | Resolved |
@@ -271,5 +300,6 @@ Every open item above receives an explicit disposition here, and every platform 
 | Comparison-sourced deferrals (`CD-#`) | 3 (CD-1, CD-2, CD-3) | 0 |
 | Transferred in from v3.15.14 (`TR-#`) | 2 (TR-1, TR-2) | 1 (TR-3) |
 | v3.16.0 version-implementation gaps | 3 carried forward (NI-1, NI-6, BG-1) | 13 closed (DF-1, DF-2, DF-3, DF-4, NI-2, NI-3, NI-4, NI-5, QG-1, QG-2, QG-3, BG-2, BG-3, WN-1) |
+| v3.16.1 version-implementation gaps (Phase 1 of 8) | 3 (QG-1, WN-1, BG-1) | 1 closed (DF-1) |
 
 The three comparison-sourced items remain non-blocking prose folds with named target files. Of the v3.16.0 items, BG-1 is pre-existing and reproduces without this plan's changes, WN-1 is environmental, DF-1 is a reasoned non-implementation, NI-1 is a deliberate scope boundary the plan requires, and NI-2 / NI-3 / NI-4 are Phase 2 findings that Phase 3 and Phase 5 are already scheduled to dispose of. Phase 5 dispositioned every open item: 13 closed, 3 carried forward. **None gates the v3.16.0 release.** NI-1 and NI-6 are scope decisions for cycles already touching the relevant surfaces, and BG-1 is pre-existing, reproduced on a clean `develop` worktree, and confined to a Windows host whose PATH resolves `tar` to the Git Bash binary. Of the 13 closed, three (BG-2, BG-3, and QG-3) were caught by the test suite rather than by review, which is this cycle's strongest argument for running the full suite before declaring a phase done.

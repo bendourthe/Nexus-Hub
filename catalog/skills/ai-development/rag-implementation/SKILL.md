@@ -1,6 +1,6 @@
 ---
 name: rag-implementation
-description: Retrieval-Augmented Generation implementation including document processing, chunking strategies, embedding, vector stores, and retrieval optimization. Use when building RAG pipelines, optimizing retrieval quality, or evaluating RAG systems.
+description: Retrieval-Augmented Generation implementation including document processing, chunking strategies, embedding, vector stores, retrieval optimization, and retrieval-quality measurement. Use when building RAG pipelines, optimizing retrieval quality, or evaluating RAG systems. Make sure to use this skill whenever the user says "evaluate RAG", "measure retrieval quality", "compare chunking strategies", "why is my RAG returning the wrong passages", "Recall@k", "NDCG", "tune my retriever", or asks whether a bad answer came from retrieval or from the model. SKIP, do NOT use for, general model-output scoring, rubric design, or LLM-as-judge calibration that is not about retrieval (use ai-output-evaluation).
 summary_l0: "Implement RAG pipelines with chunking, embeddings, vector stores, and retrieval optimization"
 overview_l1: "This skill provides end-to-end patterns for building Retrieval-Augmented Generation systems, from document ingestion through retrieval optimization to production deployment. Use it when building RAG pipelines from scratch, choosing and configuring vector databases, designing document chunking strategies, selecting embedding models, implementing hybrid retrieval (keyword plus semantic), optimizing retrieval quality with reranking, or evaluating RAG system performance. Key capabilities include document processing (PDF, HTML, code), chunking strategies (fixed-size, semantic, recursive), embedding model selection, vector store configuration, hybrid search implementation, reranking pipelines, and evaluation frameworks measuring faithfulness, relevance, and recall. The expected output is a production-ready RAG pipeline with optimized retrieval, caching, and cost controls. Trigger phrases: RAG pipeline, retrieval augmented generation, vector database, document chunking, embedding, semantic search, retrieval quality, vector store, document ingestion, reranking, hybrid search."
 ---
@@ -20,9 +20,14 @@ Use this skill for:
 - Implementing hybrid retrieval (keyword + semantic)
 - Optimizing retrieval quality with reranking
 - Evaluating RAG system performance (faithfulness, relevance, recall)
+- Measuring retrieval quality on its own terms (Recall@k, Precision@k, MRR, NDCG@k, multi-hop recall)
+- Diagnosing whether a weak answer came from retrieval or from generation
+- Comparing chunking or retrieval configurations against a fixed evaluation set
 - Scaling RAG systems for production (caching, batching, cost control)
 
-**Trigger phrases**: "RAG pipeline", "retrieval augmented generation", "vector database", "document chunking", "embedding", "semantic search", "retrieval quality", "vector store", "document ingestion", "reranking", "hybrid search"
+**Trigger phrases**: "RAG pipeline", "retrieval augmented generation", "vector database", "document chunking", "embedding", "semantic search", "retrieval quality", "vector store", "document ingestion", "reranking", "hybrid search", "evaluate RAG", "measure retrieval quality", "compare chunking strategies", "Recall@k", "NDCG"
+
+**When NOT to use this skill**: general AI-output scoring, rubric design, LLM-as-judge calibration, or evaluator validation that is not about retrieval belongs to `[[ai-output-evaluation]]`. This skill owns the retrieval half of the measurement; that skill owns the generation half and the evaluator itself.
 
 ## What This Skill Does
 
@@ -779,14 +784,25 @@ def rag_query(
 
 ### Step 7: Evaluate RAG Quality
 
+**Measure retrieval before generation.** These are two separate measurements, and running them in the wrong order is the most common RAG debugging error. A model cannot ground an answer in a passage it never received, so a low faithfulness score on top of low recall is not a generation problem. Compute retrieval metrics first; only interpret the generation metrics once the relevant passage is confirmed to have reached the prompt.
+
+| Family | Metrics | Answers | Fails when |
+|--------|---------|---------|------------|
+| **Retrieval** | Recall@k, Precision@k, MRR, NDCG@k, multi-hop recall | Did the retriever find the passages containing the answer? | Chunking, embeddings, index, query formulation, or k are wrong |
+| **Generation** | Faithfulness, Answer Relevance | Did the model use those passages correctly? | Prompt construction, context ordering, or model capability are wrong |
+
+For the retrieval half -- formulas, worked examples, edge cases, relevance-label conventions, confidence intervals, and the one-variable-at-a-time chunking grid search -- see `references/evaluation.md`. It is cold-readable and carries the full method; the summary table below covers the generation half and the two context metrics that bridge them.
+
 **Evaluation Metrics**:
 
-| Metric | Measures | Range | Good Score |
-|--------|----------|-------|------------|
-| **Faithfulness** | Is the answer grounded in retrieved context? | 0-1 | > 0.85 |
-| **Answer Relevance** | Does the answer address the question? | 0-1 | > 0.80 |
-| **Context Recall** | Did retrieval find the relevant passages? | 0-1 | > 0.75 |
-| **Context Precision** | Are retrieved passages relevant (low noise)? | 0-1 | > 0.70 |
+| Metric | Family | Measures | Range | Good Score |
+|--------|--------|----------|-------|------------|
+| **Faithfulness** | generation | Is the answer grounded in retrieved context? | 0-1 | > 0.85 |
+| **Answer Relevance** | generation | Does the answer address the question? | 0-1 | > 0.80 |
+| **Context Recall** | retrieval | Did retrieval find the relevant passages? | 0-1 | > 0.75 |
+| **Context Precision** | retrieval | Are retrieved passages relevant (low noise)? | 0-1 | > 0.70 |
+
+Read the first two only after the last two clear their bar. A system reporting Recall of 0.42 with Faithfulness of 0.91 is faithfully answering from the wrong passages most of the time.
 
 **LLM-as-Judge Evaluation**:
 
@@ -1050,6 +1066,8 @@ def enrich_chunk_metadata(chunk: Chunk) -> Chunk:
 | "I'll skip the eval suite, the answers look right" | "Looks right" on a handful of demo queries hides low recall on the long tail; without a faithfulness/relevance/recall suite a retrieval regression ships undetected. |
 | "I do not need source attribution in the prompt" | Without injected sources the system cannot show provenance and you cannot distinguish a grounded answer from a hallucination, which is the entire point of RAG. |
 | "Full re-indexing on every update is simpler" | Re-embedding the whole corpus on each document change is slow and expensive at scale and creates a stale window; incremental indexing keeps the store current without the full cost. |
+| "The answer was wrong, so I'll rewrite the prompt" | If the relevant passage never entered the top k, no prompt rewrite can recover it; measuring Recall@k first is what separates a retrieval failure from a generation failure, and skipping it sends you tuning the half that was already working. |
+| "One eval run showed a 5-point recall gain, so the new chunk size wins" | On 50 queries a 5-point difference sits well inside the confidence interval; without an interval and a one-variable-at-a-time change, a grid search records noise as progress. |
 
 ## Verification
 
@@ -1060,6 +1078,8 @@ def enrich_chunk_metadata(chunk: Chunk) -> Chunk:
 - [ ] Retrieval strategy tested (similarity, MMR, hybrid, reranking)
 - [ ] Prompt template injects context with source attribution
 - [ ] Evaluation suite measures faithfulness, relevance, and recall
+- [ ] Retrieval metrics were computed and interpreted before any generation metric (see `references/evaluation.md`)
+- [ ] Every reported retrieval metric states its k and its query count
 - [ ] Caching in place for embeddings and frequent queries
 - [ ] Incremental indexing handles document updates without full re-index
 - [ ] Production monitoring tracks retrieval latency, cost, and quality drift
@@ -1070,6 +1090,8 @@ def enrich_chunk_metadata(chunk: Chunk) -> Chunk:
 - [[prompt-engineering]] -- designing prompts for RAG answer generation
 - [[sql-expert]] -- using pgvector with existing Postgres databases
 - [[performance-testing]] -- load testing RAG retrieval endpoints
+- [[ai-output-evaluation]] -- owns the generation half of RAG evaluation: rubrics, LLM-as-judge, and validating the evaluator itself
+- [[egress-redaction]] -- governs any authorized export of queries, passages, or relevance labels produced by an evaluation run
 
 ---
 

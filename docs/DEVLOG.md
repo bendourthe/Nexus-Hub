@@ -1,5 +1,34 @@
 # Development Log
 
+## [2026-08-08] - v3.16.1 Phase 1: evaluation contract and RAG metrics
+
+### What Changed
+
+Two new documents and one new test module. `docs/v3/v3.16/development/evaluation-artifact-contract.md` defines the shared artifact vocabulary the rest of v3.16.1 writes against. `rag-implementation` gained `references/evaluation.md`, a cold-readable Tier-3 reference defining Recall@k, Precision@k, MRR, NDCG@k, and multi-hop recall with formulas, worked examples, confidence intervals, and a one-variable-at-a-time grid search. The parent skill links it and now states the retrieval-before-generation diagnostic order in its own body. No runtime code changed and the catalog count stays at 270.
+
+### Why It Changed
+
+The catalog already had five skills touching evaluation, each with a private vocabulary. `skill-eval-loop` persists a complete artifact chain scoped to skill benchmarking; `ai-output-evaluation` persists nothing beyond a response shape; `rag-implementation` Step 7 built an in-memory dataclass, printed a summary, and dropped it. Nothing could hand a result to anything else. Phases 2 through 4 all consume evaluation artifacts, so the vocabulary had to exist before the first consumer was written, not after three of them had invented their own.
+
+The retrieval half needed the same treatment for a sharper reason. Step 7 listed four metrics in one flat table with no reading order, which lets a low faithfulness score on top of low recall read as a generation problem. It is not: a model cannot ground an answer in a passage it never received. A system reporting Recall of 0.42 and Faithfulness of 0.91 is faithfully answering from the wrong passages most of the time, and the old table gave a reader no way to see that.
+
+### Decisions Made
+
+- **`provenance` and `redaction_status` are embedded blocks, not peer artifacts.** As standalone files they would be optional in practice, letting a trace sample exist with no recorded origin - the exact failure the contract exists to prevent. As required blocks, an artifact cannot be well-formed without them.
+- **The contract fixes field names and refuses to fix a storage engine.** JSON, JSONL, CSV, Parquet, or database rows all satisfy it. Prescribing a format would have forced later phases to comply or fork, buying nothing.
+- **`skill-eval-loop` was not renamed to fit.** Breaking a working skill to satisfy a new document is the wrong trade. The contract instead states the correspondence explicitly: its `evals.json` cases are a `dataset_manifest`, its `grading.json` entries are `evaluator_result` records, its optimizer's 60/40 division is a `split_manifest`. Interoperability came from naming the mapping, not from a migration.
+- **Every test predicate is paired with a mutation test that proves it has teeth.** Each `test_*_has_teeth` case deletes the target content from an in-memory copy and asserts the predicate then fails. The retrieval-first mutation is the load-bearing one: it leaves both "retrieval" and "generation" in the text and removes only the ordering statement, so a check that was merely detecting co-occurrence gets caught by its own suite.
+- **CI was deliberately left alone despite a real gap.** The new test guards a document under `docs/`, which the workflow's `paths` filter excludes (`['**', '!docs/**', 'docs/policy/**']`). A push editing only the contract skips CI, so the guard would not run on the edit that breaks it - the identical defect whose fix for `docs/policy/**` is already documented in that file's own comment. This plan's Lifecycle Contract reserves pipeline edits for Phase 8, so it is recorded as QG-1 with the exact one-line fix rather than applied here.
+
+### Troubleshooting Trail
+
+- **Widening a skill description is a routing risk, so it was checked rather than assumed.** Making `rag-implementation`'s `description` pushier adds vocabulary ("evaluate RAG", "Recall@k", "NDCG") that could collide with a neighbor's routing surface. `run_trigger_evals.py --gate` reported 0 un-allowlisted collisions across 270 skills and 0 routing failures. The explicit SKIP clause pointing general output scoring at `ai-output-evaluation` is what keeps the wider surface from over-triggering.
+- **`make`, `ruff`, and `shellcheck` are all absent on this host.** The `validate` target was replicated by running its fourteen underlying commands directly, all of which pass. The lint gap is narrow in practice: `make lint` covers shell scripts only and this phase changed none. Recorded as WN-1.
+
+### Verification
+
+74 targeted assertions pass, and `tests/skills` plus `tests/validators` run clean at 879 passed, 3 skipped. The full repository suite is 1 failed, 1818 passed, 20 skipped; the single failure is the inherited MSYS `tar` bootstrap test recorded as BG-1, on a phase that touched no installer, shell, or PowerShell file. The full `validate` surface passes: bundle audit at 0 errors and 0 warnings across 270 skills (the new reference is correctly seen as referenced rather than orphaned), quality heuristics at 0 errors with no finding on `rag-implementation`, trigger-and-routing gate clean, unicode safety reporting no finding in either new document, plus version sync, base-template parity, platform read contracts, contract freshness, and platform-defaults drift. `git diff --check` is clean.
+
 ## [2026-08-08] - v3.16.0 Phase 5: refactor, reconciliation, and CI/CD [release-readiness]
 
 ### What Changed

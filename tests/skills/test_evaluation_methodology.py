@@ -1,0 +1,436 @@
+"""Contract tests for the v3.16.1 evaluation methodology (Phase 1).
+
+Phase 1 ships no runtime code. It ships two documents: the shared evaluation
+artifact contract (`docs/v3/v3.16/development/evaluation-artifact-contract.md`)
+and the retrieval-evaluation reference owned by `rag-implementation`. Everything
+Phases 2 through 4 build reads that vocabulary, so what needs guarding is not
+prose style but the specific claims later phases depend on.
+
+Three failure modes motivate this module, all of them silent:
+
+1. **A formula gets dropped in an edit.** A reference that names Recall@k but no
+   longer defines it still reads fine and is useless to anyone computing it.
+2. **The retrieval/generation separation erodes.** The whole point of Phase 1.2
+   is that a weak answer must not be reflexively blamed on retrieval. That
+   separation lives in prose and is exactly the kind of nuance a later
+   consolidating edit flattens.
+3. **The local-first rule quietly disappears.** These artifacts hold production
+   traces and human labels. A reference that stops saying so still passes every
+   Markdown gate in the repo.
+
+Assertions are semantic and targeted rather than whole-file snapshots, so
+rewording a paragraph does not fail the suite but deleting a contract does.
+
+Each predicate below is exercised twice: once against the real file, and once
+against a mutated copy with the target content removed (the `test_*_has_teeth`
+tests). Without the mutation tests, a predicate that accidentally matched
+anything would pass forever and guard nothing.
+"""
+
+from __future__ import annotations
+
+import re
+from pathlib import Path
+
+import pytest
+
+_ROOT = Path(__file__).resolve().parents[2]
+
+_SKILLS = _ROOT / "catalog" / "skills"
+_RAG_SKILL_DIR = _SKILLS / "ai-development" / "rag-implementation"
+_RAG_SKILL = _RAG_SKILL_DIR / "SKILL.md"
+_RAG_EVAL_REF = _RAG_SKILL_DIR / "references" / "evaluation.md"
+_CONTRACT = (
+    _ROOT / "docs" / "v3" / "v3.16" / "development"
+    / "evaluation-artifact-contract.md"
+)
+
+# Metric name -> (section heading pattern, defining-formula pattern).
+# A metric counts as "defined" only when BOTH are present: a heading alone is a
+# mention, and Phase 1.2's deliverable is reproducible arithmetic.
+METRIC_SPECS: dict[str, tuple[str, str]] = {
+    "Recall@k": (r"###\s+Recall@k", r"Recall@k\s*=\s*\|R intersect"),
+    "Precision@k": (r"###\s+Precision@k", r"Precision@k\s*=\s*\|R intersect"),
+    "MRR": (r"###\s+MRR", r"MRR\s*=\s*mean of RR"),
+    "NDCG@k": (r"###\s+NDCG@k", r"NDCG@k\s*=\s*DCG@k\s*/\s*IDCG@k"),
+    "multi-hop recall": (r"###\s+Multi-hop recall", r"hop_recall\(query\)\s*="),
+}
+
+# Every artifact the Phase 1 contract must define. The last two are cross-cutting
+# metadata blocks embedded in the others rather than standalone files, but they
+# are named artifacts in the contract and later phases reference them by name.
+REQUIRED_ARTIFACTS = (
+    "dataset_manifest",
+    "split_manifest",
+    "trace_sample",
+    "error_taxonomy",
+    "evaluator_result",
+    "retrieval_result",
+    "human_annotation",
+    "adjudication_record",
+    "regression_case",
+    "provenance",
+    "redaction_status",
+)
+
+# Phrases that carry the local-first rule. A document satisfies the rule when it
+# states the default AND names the gate that governs an exception.
+LOCAL_FIRST_MARKERS = ("export_authorized", "egress-redaction")
+
+
+# --------------------------------------------------------------------------- #
+# Predicates (shared by the real assertions and the mutation tests)
+# --------------------------------------------------------------------------- #
+
+def defines_metric(text: str, metric: str) -> bool:
+    """True when `metric` has both a section heading and its defining formula."""
+    heading, formula = METRIC_SPECS[metric]
+    return bool(re.search(heading, text)) and bool(re.search(formula, text))
+
+
+def defines_artifact(text: str, artifact: str) -> bool:
+    """True when `artifact` has its own section heading in the contract."""
+    return bool(re.search(rf"###\s+{re.escape(artifact)}\b", text))
+
+
+def maps_artifact_ownership(text: str, artifact: str) -> bool:
+    """True when `artifact` has a row in the ownership map table."""
+    ownership = text.split("## Ownership map", 1)
+    if len(ownership) != 2:
+        return False
+    row = rf"^\|\s*`{re.escape(artifact)}`\s*\|"
+    return bool(re.search(row, ownership[1], re.MULTILINE))
+
+
+def separates_retrieval_from_generation(text: str) -> bool:
+    """True when the reference tells the reader to read retrieval metrics first.
+
+    Requires the ordering rule to be stated, not merely that both words appear:
+    a document can mention retrieval and generation in one breath and still leave
+    a reader blaming the generator for a recall failure.
+    """
+    lowered = text.lower()
+    states_both = "retrieval" in lowered and "generation" in lowered
+    states_order = bool(
+        re.search(r"retrieval\s+(?:metrics\s+)?(?:before|first)", lowered)
+        or re.search(r"measure retrieval (?:first|before)", lowered)
+    )
+    names_generation_metric = "faithfulness" in lowered
+    return states_both and states_order and names_generation_metric
+
+
+def declares_local_first(text: str) -> bool:
+    """True when the document declares the local-first default and its gate."""
+    return all(marker in text for marker in LOCAL_FIRST_MARKERS)
+
+
+def is_ascii(text: str) -> bool:
+    return text.isascii()
+
+
+def _without(text: str, pattern: str) -> str:
+    """Delete every line matching `pattern`. Used to build negative fixtures."""
+    kept = [line for line in text.splitlines() if not re.search(pattern, line)]
+    return "\n".join(kept)
+
+
+# --------------------------------------------------------------------------- #
+# Fixtures
+# --------------------------------------------------------------------------- #
+
+@pytest.fixture(scope="module")
+def rag_reference() -> str:
+    assert _RAG_EVAL_REF.is_file(), (
+        f"Missing the retrieval-evaluation reference at {_RAG_EVAL_REF}. "
+        "Phase 1.2 requires it and Phases 2-4 read its vocabulary."
+    )
+    return _RAG_EVAL_REF.read_text(encoding="utf-8")
+
+
+@pytest.fixture(scope="module")
+def rag_skill() -> str:
+    return _RAG_SKILL.read_text(encoding="utf-8")
+
+
+@pytest.fixture(scope="module")
+def contract() -> str:
+    assert _CONTRACT.is_file(), (
+        f"Missing the evaluation artifact contract at {_CONTRACT}. "
+        "Phase 1.1 requires it as the shared vocabulary for Phases 2-4."
+    )
+    return _CONTRACT.read_text(encoding="utf-8")
+
+
+# --------------------------------------------------------------------------- #
+# The RAG retrieval-evaluation reference
+# --------------------------------------------------------------------------- #
+
+@pytest.mark.parametrize("metric", sorted(METRIC_SPECS))
+def test_reference_defines_each_required_metric(rag_reference: str, metric: str) -> None:
+    assert defines_metric(rag_reference, metric), (
+        f"{_RAG_EVAL_REF.name} must define {metric} with BOTH a section heading "
+        f"and its formula. Expected heading {METRIC_SPECS[metric][0]!r} and "
+        f"formula {METRIC_SPECS[metric][1]!r}. A metric named but not defined "
+        "cannot be computed by a reader."
+    )
+
+
+def test_reference_is_linked_from_the_parent_skill(rag_skill: str) -> None:
+    assert "references/evaluation.md" in rag_skill, (
+        f"{_RAG_SKILL.name} must link the reference by basename path "
+        "('references/evaluation.md'). An unreferenced bundled file is an orphan "
+        "and the catalog bundle audit will flag it."
+    )
+
+
+def test_reference_separates_retrieval_from_generation(rag_reference: str) -> None:
+    assert separates_retrieval_from_generation(rag_reference), (
+        f"{_RAG_EVAL_REF.name} must state that retrieval is measured BEFORE "
+        "generation and name a generation metric (faithfulness) as the thing "
+        "that must not be read first. Losing this ordering rule reintroduces the "
+        "most common RAG debugging error: blaming the generator for low recall."
+    )
+
+
+def test_parent_skill_also_states_the_retrieval_first_order(rag_skill: str) -> None:
+    assert separates_retrieval_from_generation(rag_skill), (
+        f"{_RAG_SKILL.name} Step 7 must carry the retrieval-before-generation "
+        "ordering in the Tier-2 body. A reader who never opens the Tier-3 "
+        "reference still needs the diagnostic order."
+    )
+
+
+def test_reference_has_a_worked_example_with_computed_values(rag_reference: str) -> None:
+    assert re.search(r"##\s+Worked example", rag_reference), (
+        f"{_RAG_EVAL_REF.name} must contain a '## Worked example' section."
+    )
+    # The example is only useful if it carries arithmetic a reader can check.
+    for expected in ("0.667", "0.400", "0.498"):
+        assert expected in rag_reference, (
+            f"{_RAG_EVAL_REF.name} worked example lost the computed value "
+            f"{expected}. Bounded worked examples must show the arithmetic, not "
+            "just describe it."
+        )
+
+
+def test_reference_has_a_multi_hop_case(rag_reference: str) -> None:
+    assert re.search(r"###\s+Multi-hop worked example", rag_reference), (
+        f"{_RAG_EVAL_REF.name} must contain a multi-hop worked example."
+    )
+    assert "all_hops_rate" in rag_reference, (
+        "The multi-hop section must define all_hops_rate. Mean hop_recall alone "
+        "overstates answerability: 3-of-4 hops scores 0.75 and answers nothing."
+    )
+
+
+def test_reference_requires_confidence_intervals(rag_reference: str) -> None:
+    assert "Wilson" in rag_reference, (
+        f"{_RAG_EVAL_REF.name} must give a concrete interval procedure (Wilson "
+        "for rates). Phase 1.2 requires confidence intervals where appropriate."
+    )
+    assert re.search(r"bootstrap", rag_reference, re.IGNORECASE), (
+        "Mean-style metrics (mean Recall@k, mean NDCG@k) are not Bernoulli "
+        "trials, so the reference must name a separate procedure for them."
+    )
+
+
+def test_reference_describes_one_variable_at_a_time_grid_search(rag_reference: str) -> None:
+    assert re.search(r"##\s+Grid search", rag_reference), (
+        f"{_RAG_EVAL_REF.name} must document the chunking/retrieval grid search."
+    )
+    assert re.search(r"one variable at a time|exactly one variable", rag_reference), (
+        "The grid-search procedure must require changing exactly one variable "
+        "per cell. Changing chunk size and k together produces an unattributable "
+        "result, which is the most common wasted grid search."
+    )
+
+
+def test_reference_declares_local_first_artifacts(rag_reference: str) -> None:
+    assert declares_local_first(rag_reference), (
+        f"{_RAG_EVAL_REF.name} must declare that evaluation artifacts stay local "
+        f"by default. Expected all of {LOCAL_FIRST_MARKERS} to appear."
+    )
+
+
+def test_reference_uses_the_shared_artifact_vocabulary(rag_reference: str) -> None:
+    assert "retrieval_result" in rag_reference, (
+        f"{_RAG_EVAL_REF.name} must persist results as `retrieval_result` "
+        "records so Phase 2's audit can inventory them by name."
+    )
+
+
+def test_reference_adds_no_dependency_or_credential(rag_reference: str) -> None:
+    forbidden = ("pip install", "npm install", "API key", "api_key", "curl -")
+    found = [token for token in forbidden if token in rag_reference]
+    assert not found, (
+        f"{_RAG_EVAL_REF.name} must add no package dependency, credential, or "
+        f"remote fetch. Found: {found}. Every metric here is arithmetic over "
+        "records the project already has."
+    )
+
+
+# --------------------------------------------------------------------------- #
+# The shared evaluation artifact contract
+# --------------------------------------------------------------------------- #
+
+@pytest.mark.parametrize("artifact", REQUIRED_ARTIFACTS)
+def test_contract_defines_each_required_artifact(contract: str, artifact: str) -> None:
+    assert defines_artifact(contract, artifact), (
+        f"{_CONTRACT.name} must define `{artifact}` under its own '### {artifact}' "
+        "section with its required fields. Later phases reference these by name."
+    )
+
+
+@pytest.mark.parametrize("artifact", REQUIRED_ARTIFACTS)
+def test_contract_maps_each_artifact_to_an_owner(contract: str, artifact: str) -> None:
+    assert maps_artifact_ownership(contract, artifact), (
+        f"{_CONTRACT.name} ownership map has no row for `{artifact}`. An artifact "
+        "with no single owning skill is the drift this contract exists to stop."
+    )
+
+
+def test_contract_owners_are_real_or_planned_skills(contract: str) -> None:
+    """Every `[[skill]]` named as an owner must exist, or be planned by this plan."""
+    ownership = contract.split("## Ownership map", 1)
+    assert len(ownership) == 2, f"{_CONTRACT.name} must have an '## Ownership map'."
+
+    planned = {"eval-pipeline-audit"}  # created in Phase 2
+    owners = set(re.findall(r"\[\[([a-z0-9-]+)\]\]", ownership[1]))
+    assert owners, "The ownership map must name at least one owning skill."
+
+    missing = [
+        name for name in sorted(owners)
+        if name not in planned and not list(_SKILLS.glob(f"*/{name}/SKILL.md"))
+    ]
+    assert not missing, (
+        f"{_CONTRACT.name} assigns ownership to skills that do not exist and are "
+        f"not planned by v3.16.1: {missing}."
+    )
+
+
+def test_contract_declares_the_local_first_rule(contract: str) -> None:
+    assert declares_local_first(contract), (
+        f"{_CONTRACT.name} must state the local-by-default rule and name "
+        f"`egress-redaction` as the gate. Expected all of {LOCAL_FIRST_MARKERS}."
+    )
+    assert re.search(r"minimiz", contract, re.IGNORECASE), (
+        "The contract must require minimization before any authorized export, "
+        "not merely forbid casual export."
+    )
+
+
+def test_contract_requires_provenance_on_every_artifact(contract: str) -> None:
+    assert re.search(r"###\s+provenance", contract), (
+        "provenance must be defined as a required cross-cutting block."
+    )
+    for field in ("source", "created_at", "created_by"):
+        assert field in contract, (
+            f"provenance is missing the required field `{field}`. An artifact "
+            "with no recorded origin cannot be reproduced or audited."
+        )
+
+
+def test_contract_guards_holdout_leakage(contract: str) -> None:
+    assert "holdout_touched_count" in contract, (
+        "`split_manifest` must record how many times the held-out partition has "
+        "been evaluated against. Repeated tuning on the test split is the "
+        "leakage failure Phase 3's evaluator calibration depends on catching."
+    )
+
+
+# --------------------------------------------------------------------------- #
+# Repository conventions for the new documents
+# --------------------------------------------------------------------------- #
+
+@pytest.mark.parametrize(
+    "path",
+    [_RAG_EVAL_REF, _CONTRACT],
+    ids=lambda p: p.name,
+)
+def test_new_documents_are_ascii_only(path: Path) -> None:
+    text = path.read_text(encoding="utf-8")
+    assert is_ascii(text), (
+        f"{path} contains non-ASCII characters. English Markdown in this repo is "
+        "ASCII-only (hyphens, straight quotes, '...') to avoid encoding "
+        "corruption on Windows."
+    )
+
+
+@pytest.mark.parametrize(
+    "path",
+    [_RAG_EVAL_REF, _CONTRACT],
+    ids=lambda p: p.name,
+)
+def test_new_documents_have_a_verification_section(path: Path) -> None:
+    text = path.read_text(encoding="utf-8")
+    assert re.search(r"##\s+Verification", text), (
+        f"{path.name} must end with a binary Verification checklist. 'The "
+        "document looks complete' is not a verification criterion."
+    )
+
+
+# --------------------------------------------------------------------------- #
+# Negative fixtures: prove each predicate actually fails when content is removed
+# --------------------------------------------------------------------------- #
+
+@pytest.mark.parametrize("metric", sorted(METRIC_SPECS))
+def test_metric_assertion_has_teeth(rag_reference: str, metric: str) -> None:
+    """Deleting a formula line must make `defines_metric` fail for that metric."""
+    _, formula = METRIC_SPECS[metric]
+    mutated = _without(rag_reference, formula)
+    assert not defines_metric(mutated, metric), (
+        f"The {metric} check passes even with its formula deleted, so it guards "
+        "nothing. Tighten METRIC_SPECS."
+    )
+
+
+@pytest.mark.parametrize("artifact", REQUIRED_ARTIFACTS)
+def test_artifact_assertion_has_teeth(contract: str, artifact: str) -> None:
+    """Deleting an artifact's heading must make both artifact checks fail."""
+    mutated = _without(contract, rf"###\s+{re.escape(artifact)}\b")
+    assert not defines_artifact(mutated, artifact), (
+        f"The `{artifact}` definition check passes with its heading deleted."
+    )
+
+
+@pytest.mark.parametrize("artifact", REQUIRED_ARTIFACTS)
+def test_ownership_assertion_has_teeth(contract: str, artifact: str) -> None:
+    """Deleting an ownership row must make the ownership check fail."""
+    mutated = _without(contract, rf"^\|\s*`{re.escape(artifact)}`\s*\|")
+    assert not maps_artifact_ownership(mutated, artifact), (
+        f"The `{artifact}` ownership check passes with its table row deleted."
+    )
+
+
+def test_local_first_assertion_has_teeth(contract: str) -> None:
+    """Deleting the egress gate must make the local-first check fail."""
+    mutated = contract.replace("egress-redaction", "REMOVED")
+    assert not declares_local_first(mutated), (
+        "The local-first check passes with the egress gate removed, so a "
+        "document could drop its only export control and still pass."
+    )
+
+
+def test_retrieval_first_assertion_has_teeth(rag_reference: str) -> None:
+    """Removing the ordering rule must fail the separation check.
+
+    Both words survive the mutation; only the ordering statement is removed. If
+    the check still passes, it is matching mere co-occurrence and would not
+    notice the separation collapsing.
+    """
+    mutated = re.sub(
+        r"retrieval\s+(?:metrics\s+)?(?:before|first)",
+        "retrieval and generation together",
+        rag_reference,
+        flags=re.IGNORECASE,
+    )
+    mutated = re.sub(
+        r"measure retrieval (?:first|before)",
+        "measure retrieval and generation together",
+        mutated,
+        flags=re.IGNORECASE,
+    )
+    assert not separates_retrieval_from_generation(mutated), (
+        "The retrieval-before-generation check passes with the ordering rule "
+        "removed, so it is only detecting that both words appear."
+    )
