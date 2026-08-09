@@ -1,4 +1,4 @@
 interface:
   display_name: Prompt Engineering
   short_description: Prompt engineering principles and techniques for LLM applications including system prompts, chain-of-thought, few-shot learning, and prompt evaluation. Use when designing prompts, optimizing
-    LLM outpu
+    LLM outputs, or building prompt pipelines.

@@ -23,6 +23,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | rag-implementation | ai-development | "Implement RAG pipelines with chunking, embeddings, vector stores, and retrieval optimization" | catalog/skills/ai-development/rag-implementation/SKILL.md |
 | model-routing | ai-development | "Score portable routing intent, refresh provider maps, and resolve it on the active platform" | catalog/skills/ai-development/model-routing/SKILL.md |
 | model-prompting-research | ai-development | "Research and verify current per-model prompting guidance, then tune the catalog to it" | catalog/skills/ai-development/model-prompting-research/SKILL.md |
+| eval-pipeline-audit | ai-development | "Audit an evaluation pipeline end to end and route each gap to its owning skill" | catalog/skills/ai-development/eval-pipeline-audit/SKILL.md |
 | api-design | architecture | "Design REST, GraphQL, and gRPC APIs with versioning, pagination, and error handling" | catalog/skills/architecture/api-design/SKILL.md |
 | architecture-decision-record | architecture | "Author one architecturally-significant decision record with context, options, decision, status, and consequences" | catalog/skills/architecture/architecture-decision-record/SKILL.md |
 | architecture-design | architecture | "Design software architectures with trade-off analysis, ADRs, and C4 decomposition" | catalog/skills/architecture/architecture-design/SKILL.md |
@@ -275,4 +276,4 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | prompt-injection-defense | security | "Recognize and resist prompt injection and poisoned tool output with instruction-origin discipline" | catalog/skills/security/prompt-injection-defense/SKILL.md |
 | agentic-endpoint-hardening | security-operations | "Harden the coding-agent endpoint against config-write-then-executed sandbox escapes at the trust seam" | catalog/skills/security-operations/agentic-endpoint-hardening/SKILL.md |
 
-**Total: 270 skills across 21 categories**
+**Total: 271 skills across 21 categories**

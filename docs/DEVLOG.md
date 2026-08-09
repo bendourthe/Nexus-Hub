@@ -1,5 +1,32 @@
 # Development Log
 
+## [2026-08-08] - v3.16.1 Phase 2: evaluation pipeline audit skill
+
+### What Changed
+
+One new skill, `eval-pipeline-audit` (151 lines), registered into the catalog and both AI selections. It walks a fixed ten-concern inventory of an evaluation process, ranks the gaps by severity, and routes each one to the skill that owns the method. Catalog goes 270 -> 271, ai-development 12 -> 13. Three truncated agent descriptors in the same category were repaired. Two pre-existing catalog defects surfaced and were recorded rather than fixed.
+
+### Why It Changed
+
+Phase 1 gave the evaluation skills a shared vocabulary but no entry point. A team asking "are our evals any good" had five skills to choose between, each answering a narrower question than the one being asked. The gap this fills is the systemic question: not "how did the model score" but "would this pipeline have told us the model got worse". A green eval suite that has never failed is usually evidence for the second question being answered badly, and nothing in the catalog looked for that.
+
+### Decisions Made
+
+- **The non-duplication boundary is enforced by test, not by intent.** A router degrades by helpfully inlining the method it should route to, and that is exactly the change a reviewer waves through as an improvement. `test_does_not_duplicate_specialist_formulas` fails if a Recall@k, NDCG, Wilson, or confusion-matrix formula appears in the body. Naming a metric while routing passes; defining it fails.
+- **Registered by hand rather than by `make build-catalog`, on measured evidence.** T012 says to run the builder. `make` is unavailable here and the standing rule says the builder rewrites the whole tree - which was measured this time rather than recalled: an accidental invocation produced a 6695-line `skills.json` diff, reverted. The hand-edit is 56 lines. Recorded as DF-2.
+- **Recomputed the `skills.json` statistics block rather than incrementing it.** Registering by hand missed a derived block that three registry-consistency tests assert. Recomputing revealed the aggregates were already stale by far more than this phase's contribution (`total_lines` 127877 -> 130166 against a skill contributing 151). Once the block had to be touched, recomputation is the only method yielding a number that matches the field's own contract; incrementing would have written a differently-wrong value and called it correct. Recorded as DF-3 with the root cause: aggregates are only correct right after a builder run, the standing rule is not to run the builder, and nothing tests those three fields.
+- **Fixed three truncated descriptors, not 121.** The scope extension was approved when the defect looked like three files; measurement then showed 121 of 139 are hard-sliced at 200 characters and end mid-word. Fixed the three in scope, recorded the other 118 as NI-2. Expanding silently and dropping the finding silently are both wrong.
+
+### Troubleshooting Trail
+
+- **A probe ran a mutating script.** `build_skills_catalog.py` has no `--help`, so the probe executed a full rebuild and modified two tracked files. Caught with `git status`, reverted, tree verified clean. The accident produced the DF-2 measurement, but reading the script first was the correct move.
+- **The first registry entry was corrupted, and the test suite caught it.** A frontmatter parser used `(?=\n[a-z_]+: )` as its lookahead, which never matches `summary_l0` or `overview_l1` because those keys contain digits. The `description` field ran on and swallowed all three - 2011 characters instead of 906. The identical bug in the test's own copy of the regex is what failed and surfaced it.
+- **Tests written for one purpose found two defects elsewhere.** The bundle-resolution check, written to verify the two AI selections, swept every bundle and found four references to skills with no catalog directory: `core-developer` -> `add-strategic-comments`, `frontend-engineer` -> `cleanup-javascript`, and `devops-engineer` / `tech-lead` -> `release-management`. Inert today, but a Phase 6 focused install must fail closed on them, which made this a v3.16.1 blocker for Phase 6. Fixed at the user's direction. The first two are past renames. The third needed research rather than a guess: `release-management` never existed as a skill in git history, and the naive repairs all fail because `devops-engineer` already lists `release-notes-writer` and `rollback-strategy-advisor` while `tech-lead` already lists `version-upgrade`. It maps to `shipping-and-launch`, which is the capability the id names and was absent from both bundles. The test now runs with no allowlist.
+
+### Verification
+
+59 targeted assertions pass; 133 across both v3.16.1 test modules; `tests/skills` plus `tests/validators` at 938 passed, 3 skipped. The trigger-and-routing gate is clean at 271 skills with 0 un-allowlisted collisions and 0 routing failures across 72 lexical cases. Bundle audit 0/0, quality heuristics 0 errors with no finding on the new skill, skill-security scan 0 findings across all 3 files. Catalog counts agree at 271 in all four places. Ten remaining `validate` guards pass; `git diff --check` clean.
+
 ## [2026-08-08] - v3.16.1 Phase 1: evaluation contract and RAG metrics
 
 ### What Changed

@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (all 5 phases complete; reconciled and release-ready, unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
-**Last updated**: 2026-08-08 (v3.16.1 Phase 1 append; v3.16.0 Phase 5 reconciliation preserved above)
+**Last updated**: 2026-08-08 (v3.16.1 Phase 2 append; v3.16.0 Phase 5 reconciliation preserved above)
 
 > **File-lifecycle note**: this ledger was created ahead of any v3.16 implementation, by a comparison that deliberately claimed no release slot, so it began with only the `## Comparison-Sourced Deferrals` section. Each v3.16 version-implementation phase **appends** its own `## v3.16.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` numbering, which is namespaced separately from the `CD-#` and `TR-#` ids used above.
 
@@ -293,6 +293,42 @@ Appended by Phase 1 (Evaluation Contract and RAG Metrics) on 2026-08-08. Own `DF
 - **Resolution**: the user chose to correct the plan header rather than rename the file. The header's Slug and Filename fields and the Phase 1.1 prompt path were updated to the on-disk name, and the two stale external references were repaired in the same pass so no surface still names a path that does not exist.
 - **Why this is recorded**: it is a deviation from the plan-as-written, resolved by explicit user decision, and the record is what makes the header edit traceable to an approval rather than to drift.
 
+### NI-1 - CLOSED: four role bundles named skills that do not exist in the catalog
+
+- **Target file**: `data/bundles.json`
+- **What was wrong**: four `bundles` entries referenced skill ids with no catalog directory. Found by the Phase 2 test `test_every_selection_skill_resolves_to_a_real_catalog_dir`, which was written to verify the two AI selections and swept the rest for free.
+
+| Bundle | Broken reference | Resolution | Basis |
+|---|---|---|---|
+| `core-developer` | `add-strategic-comments` | `strategic-comments` | Same capability, verb prefix dropped in a past rename |
+| `frontend-engineer` | `cleanup-javascript` | `javascript-cleanup` | Same capability, `<lang>-cleanup` is the catalog's naming convention |
+| `devops-engineer` | `release-management` | `shipping-and-launch` | See below |
+| `tech-lead` | `release-management` | `shipping-and-launch` | See below |
+
+- **Why `shipping-and-launch`**: `release-management` never existed as a skill at any point in git history, so this is not a rename to reverse. It was introduced into `bundles.json` by `927e5af5` (the root-layout refactor) as a forward reference that was never created. The naive repairs are all wrong: `devops-engineer` already lists `release-notes-writer` and `rollback-strategy-advisor`, and `tech-lead` already lists `version-upgrade`, so it duplicates none of them. `shipping-and-launch` ("execute safe production deployments with pre-flight checks, go/no-go decisions, and post-launch verification") is the capability the id names, and it was absent from both bundles, so the mapping adds the intended coverage without duplication.
+- **Impact if left**: today the ids are inert metadata. Once Phase 6 makes selection operational, a `--bundles core-developer` install would resolve against a skill that does not exist, which the Phase 5 contract requires to fail closed before any write. It was therefore a v3.16.1 blocker for Phase 6.
+- **Resolution**: fixed in Phase 2 at the user's direction. `test_every_selection_skill_resolves_to_a_real_catalog_dir` now runs with no allowlist, so any future broken reference fails immediately, and a companion `test_no_selection_lists_a_duplicate_skill` guards the adjacent defect. Phase 7.1 still owns adding the equivalent validation to the resolver itself; this closes the data defect, not the missing guard.
+
+### NI-2 - OPEN: 121 of 139 OpenAI agent descriptors are truncated mid-word
+
+- **Target files**: `catalog/skills/*/*/agents/openai.yaml`
+- **What is wrong**: `short_description` was produced by a hard 200-character slice of the skill description, so most descriptors end mid-word (for example `... designing tool interfaces, or implementin`). Measured this phase: 121 of 139 do not end at a sentence boundary.
+- **What was fixed**: the three in `ai-development` adjacent to this phase's work (`ai-agent-development`, `prompt-engineering`, `rag-implementation`), plus the new `eval-pipeline-audit` descriptor, now end at a sentence boundary. Fix approved by the user as an explicit scope extension when the defect was believed to affect three files.
+- **Why the rest are not fixed**: the true scope is 118 more files across every category, which is a catalog-wide cleanup, not a Phase 2 deliverable. A test in `test_eval_pipeline_audit.py` asserts the new descriptor is not truncated, so the defect cannot spread through this phase's work.
+- **Suggested next step**: a mechanical pass over the remaining 118, ideally by fixing whatever produced the 200-character slice so the fix is not re-applied by the next generator run. Fits naturally in Phase 7.1's generated-catalog verification or any cycle already touching `agents/`.
+
+### DF-2 - CLOSED: registered by hand instead of `make build-catalog`
+
+- **What the plan said**: T012 instructs "Run `make build-catalog` so `data/SKILL_INDEX.md`, `data/skills.json`, templates, and other generator-owned outputs are rebuilt by their authoritative tooling."
+- **What was done and why**: `make` is unavailable on this host (WN-1), and the repository's own precedent (DEVLOG, v3.15.3 Phase 2.1) records the standing rule that `build_skills_catalog.py` rewrites the whole tree. That was measured rather than assumed this phase: running the builder produced a 6695-line diff in `skills.json` and 174 lines in `SKILL_INDEX.md`, which would have made the phase commit unreviewable. Reverted, and the three registry files were hand-edited instead, for a 56-line diff. Decision confirmed by the user.
+- **Residual risk, and how it was closed**: hand-editing missed the derived `statistics` block, which `tests/validators/test_registry_consistency.py` caught (3 failures). See DF-3.
+
+### DF-3 - CLOSED: `skills.json` aggregate statistics were stale and were recomputed
+
+- **What happened**: registering the skill by hand required updating `statistics.total_skills` and `statistics.categories`, which three registry-consistency tests assert. Recomputing those fields from the entries revealed that the aggregate fields had drifted well beyond this phase's contribution: `total_lines` 127877 -> 130166 and `total_tokens_estimate` 630224 -> 672031, against a new skill contributing only 151 lines and 2089 tokens.
+- **Decision**: recompute all derived fields from the entries rather than incrementing by the new skill's delta. Once the block had to be touched, recomputation is the only method that yields a value matching the field's own contract (the sum of the entry sizes); incrementing would have written a differently-wrong number and called it correct.
+- **Root cause, and the residual gap**: aggregates are only correct immediately after a builder run, and the standing rule is not to run the builder. Every subsequent hand-edit leaves them a little more stale. Nothing currently tests `total_lines`, `total_tokens_estimate`, or `average_lines_per_skill`, which is why the drift went unnoticed. Phase 7.1 already owns generated-catalog verification and is the right place to decide whether these fields should be tested, derived on read, or dropped.
+
 ## v3.16 Summary
 
 | Category | Open | Resolved |
@@ -300,6 +336,6 @@ Appended by Phase 1 (Evaluation Contract and RAG Metrics) on 2026-08-08. Own `DF
 | Comparison-sourced deferrals (`CD-#`) | 3 (CD-1, CD-2, CD-3) | 0 |
 | Transferred in from v3.15.14 (`TR-#`) | 2 (TR-1, TR-2) | 1 (TR-3) |
 | v3.16.0 version-implementation gaps | 3 carried forward (NI-1, NI-6, BG-1) | 13 closed (DF-1, DF-2, DF-3, DF-4, NI-2, NI-3, NI-4, NI-5, QG-1, QG-2, QG-3, BG-2, BG-3, WN-1) |
-| v3.16.1 version-implementation gaps (Phase 1 of 8) | 3 (QG-1, WN-1, BG-1) | 1 closed (DF-1) |
+| v3.16.1 version-implementation gaps (Phases 1-2 of 8) | 4 (QG-1, WN-1, BG-1, NI-2) | 4 closed (DF-1, DF-2, DF-3, NI-1) |
 
 The three comparison-sourced items remain non-blocking prose folds with named target files. Of the v3.16.0 items, BG-1 is pre-existing and reproduces without this plan's changes, WN-1 is environmental, DF-1 is a reasoned non-implementation, NI-1 is a deliberate scope boundary the plan requires, and NI-2 / NI-3 / NI-4 are Phase 2 findings that Phase 3 and Phase 5 are already scheduled to dispose of. Phase 5 dispositioned every open item: 13 closed, 3 carried forward. **None gates the v3.16.0 release.** NI-1 and NI-6 are scope decisions for cycles already touching the relevant surfaces, and BG-1 is pre-existing, reproduced on a clean `develop` worktree, and confined to a Windows host whose PATH resolves `tar` to the Git Bash binary. Of the 13 closed, three (BG-2, BG-3, and QG-3) were caught by the test suite rather than by review, which is this cycle's strongest argument for running the full suite before declaring a phase done.

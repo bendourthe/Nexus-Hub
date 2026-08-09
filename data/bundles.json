@@ -86,7 +86,8 @@
         "rag-implementation",
         "prompt-engineering",
         "tool-design",
-        "ai-output-evaluation"
+        "ai-output-evaluation",
+        "eval-pipeline-audit"
       ]
     },
     {
@@ -129,7 +130,7 @@
         "refactoring-expert",
         "unit-tests",
         "code-quality",
-        "add-strategic-comments",
+        "strategic-comments",
         "pre-commit-checklist",
         "research-plan-implement"
       ]
@@ -141,7 +142,7 @@
       "skills": [
         "react-expert",
         "nextjs-expert",
-        "cleanup-javascript",
+        "javascript-cleanup",
         "e2e-testing-automation",
         "api-design",
         "authentication-patterns",
@@ -174,6 +175,7 @@
         "prompt-engineering",
         "tool-design",
         "ai-output-evaluation",
+        "eval-pipeline-audit",
         "data-pipeline-design",
         "async-patterns",
         "cross-model-orchestrator",
@@ -214,7 +216,7 @@
         "config-consistency-checker",
         "observability-setup",
         "cloud-architect",
-        "release-management",
+        "shipping-and-launch",
         "cicd-integration"
       ]
     },
@@ -364,7 +366,7 @@
         "testing-review",
         "final-report",
         "technical-documentation",
-        "release-management",
+        "shipping-and-launch",
         "version-upgrade",
         "cross-model-orchestrator",
         "quality-gate-definitions",
