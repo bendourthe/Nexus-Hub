@@ -299,11 +299,71 @@ def cmd_list(args: argparse.Namespace) -> int:
     return 0
 
 
+def _selection_from_args(args: argparse.Namespace, manifest: InstallManifest, reuse_recorded: bool):
+    """Resolve this invocation's selection, or None for a full install.
+
+    `reuse_recorded` is the difference between `install` and `repair`/`upgrade`:
+    an install with no selector means FULL (the compatibility default), while a
+    repair with no selector must reinstall the scope the user already chose. A
+    repair that silently widened to the full catalog would be the most annoying
+    possible way to lose a focused install.
+    """
+    profile = getattr(args, "profile", None)
+    modules = list(getattr(args, "modules", None) or [])
+    bundles = list(getattr(args, "bundles", None) or [])
+
+    if not profile and not modules and not bundles:
+        if reuse_recorded:
+            recorded = manifest.selection()
+            if recorded:
+                return recorded  # a plain dict; InstallContext accepts either
+        return None
+
+    from scripts.lib.installer.selection import (
+        SelectionRequest,
+        available_from_catalog,
+        load_catalog,
+        resolve,
+    )
+
+    catalog = load_catalog(REPO_ROOT / "data" / "bundles.json")
+    available = available_from_catalog(catalog, repo_root=REPO_ROOT)
+    request = SelectionRequest.from_args(
+        profiles=[profile] if profile else [], modules=modules, bundles=bundles
+    )
+    return resolve(catalog, request, available)
+
+
+def _selection_payload(selection) -> Optional[dict]:
+    """Serialize a plan (or pass through a recorded dict) for the manifest."""
+    if selection is None:
+        return None
+    return selection.to_dict() if hasattr(selection, "to_dict") else dict(selection)
+
+
 def cmd_install(args: argparse.Namespace) -> int:
     keys = _resolve_integration_keys(args.integrations)
     target_root = _resolve_target_root(args)
     manifest_path = _manifest_path(target_root)
     manifest = InstallManifest.load(manifest_path)
+    from scripts.lib.installer.selection import SelectionError
+
+    try:
+        selection = _selection_from_args(args, manifest, reuse_recorded=False)
+    except SelectionError as exc:
+        # Fail before any write. Exit 2 is a bad selector, 3 a bad catalog.
+        print(f"[error:selection] {exc}", file=sys.stderr)
+        return exc.exit_code
+    if selection is not None and not args.quiet:
+        payload = _selection_payload(selection)
+        resolved = payload["resolved"]
+        print(
+            f"[selection] {len(resolved['skills'])} skills, "
+            f"{len(resolved['commands'])} commands, {len(resolved['agents'])} agents "
+            f"({payload['hash'][:19]}...)"
+        )
+        for warning in payload.get("warnings", []):
+            print(f"[selection:warn] {warning}", file=sys.stderr)
     ctx = InstallContext(
         repo_root=REPO_ROOT,
         target_root=target_root,
@@ -314,7 +374,12 @@ def cmd_install(args: argparse.Namespace) -> int:
         template_vars=_template_vars_from_args(args),
         languages=_languages_from_args(args),
         instruction_only=args.instruction_only,
+        selection=selection,
     )
+    # Recorded before the copy loop so a run that fails partway still leaves the
+    # scope it was installing, which is what repair and doctor read.
+    if not args.dry_run:
+        manifest.set_selection(_selection_payload(selection))
     failures = []
     summaries: List[dict] = []
     for key in keys:
@@ -342,6 +407,12 @@ def cmd_install(args: argparse.Namespace) -> int:
     summary_path = getattr(args, "summary_json", None)
     if summary_path:
         payload = {"scope": args.scope, "platforms": summaries}
+        # v3.16.1 Phase 6.3 -- the installers read this file to render their
+        # per-platform checklist, so the selection has to travel with it or the
+        # legacy summary would describe a full install that did not happen.
+        selection_payload = _selection_payload(selection)
+        if selection_payload is not None:
+            payload["selection"] = selection_payload
         try:
             Path(summary_path).expanduser().write_text(
                 json.dumps(payload, indent=2, default=str) + "\n", encoding="utf-8"
@@ -589,7 +660,77 @@ def cmd_doctor(args: argparse.Namespace) -> int:
     )
     report = lifecycle_doctor(manifest, requested)
     _render_doctor_report(report, args.json, args.quiet)
+    _report_selector_drift(manifest, args)
     return 1 if report.has_issues() else 0
+
+
+def _report_selector_drift(manifest: InstallManifest, args: argparse.Namespace) -> None:
+    """Report selector drift separately from content drift, and never as an error.
+
+    Selector drift is when the recorded selectors still resolve, but now resolve
+    to a DIFFERENT set than when they were recorded, because the catalog changed
+    underneath. A skill added to a module the user selected is not corruption and
+    must not be reported as such: nothing is damaged, the user simply has a
+    choice to make about whether to pull the new skills in.
+
+    Conflating the two would train users to ignore doctor output, because a
+    routine catalog update would start reporting their install as broken.
+    """
+    recorded = manifest.selection()
+    if not recorded:
+        return
+    requested = recorded.get("requested") or {}
+    if not any(requested.get(k) for k in ("profile", "modules", "bundles")):
+        return
+    try:
+        from scripts.lib.installer.selection import (
+            SelectionRequest,
+            available_from_catalog,
+            load_catalog,
+            resolve,
+        )
+
+        catalog = load_catalog(REPO_ROOT / "data" / "bundles.json")
+        available = available_from_catalog(catalog, repo_root=REPO_ROOT)
+        fresh = resolve(
+            catalog,
+            SelectionRequest.from_args(
+                profiles=[requested["profile"]] if requested.get("profile") else [],
+                modules=requested.get("modules") or [],
+                bundles=requested.get("bundles") or [],
+            ),
+            available,
+        )
+    except Exception as exc:  # noqa: BLE001
+        # Advisory only. A resolver problem must not turn `doctor` into a
+        # failure about something the user did not ask it to check.
+        if not args.quiet:
+            print(f"[doctor:selection] could not re-resolve recorded selectors: {exc}")
+        return
+
+    if fresh.hash() == recorded.get("hash"):
+        return
+    was = set(recorded.get("resolved", {}).get("skills", []))
+    now = set(fresh.skills)
+    added, removed = sorted(now - was), sorted(was - now)
+    if args.json:
+        print(json.dumps({
+            "selector_drift": True,
+            "added": added,
+            "removed": removed,
+            "recorded_hash": recorded.get("hash"),
+            "current_hash": fresh.hash(),
+        }))
+    elif not args.quiet:
+        print(
+            "[doctor:selection] the recorded selectors now resolve differently "
+            "(catalog changed, not content drift)."
+        )
+        if added:
+            print(f"  would add   : {', '.join(added)}")
+        if removed:
+            print(f"  would remove: {', '.join(removed)}")
+        print("  run `repair` to install into the current resolution.")
 
 
 def cmd_repair(args: argparse.Namespace) -> int:
@@ -605,6 +746,17 @@ def cmd_repair(args: argparse.Namespace) -> int:
         )
         return 1
     manifest = InstallManifest.load(manifest_path)
+    from scripts.lib.installer.selection import SelectionError
+
+    try:
+        # reuse_recorded=True: a repair with no selector must restore the scope
+        # the user already chose. Widening to the full catalog here would be the
+        # most annoying possible way to lose a focused install, and it would
+        # happen at exactly the moment the user was trying to fix something.
+        selection = _selection_from_args(args, manifest, reuse_recorded=True)
+    except SelectionError as exc:
+        print(f"[error:selection] {exc}", file=sys.stderr)
+        return exc.exit_code
     ctx = InstallContext(
         repo_root=REPO_ROOT,
         target_root=target_root,
@@ -613,7 +765,11 @@ def cmd_repair(args: argparse.Namespace) -> int:
         dry_run=args.dry_run,
         manifest=manifest,
         template_vars={"PROJECT_NAME": args.project_name or target_root.name},
+        selection=selection,
     )
+    if not args.dry_run and _selection_payload(selection) != manifest.selection():
+        # An explicit selector on repair replaces the recorded request.
+        manifest.set_selection(_selection_payload(selection))
     requested = (
         [k.strip() for k in args.integrations.split(",") if k.strip()]
         if args.integrations
@@ -651,9 +807,28 @@ def cmd_list_installed(args: argparse.Namespace) -> int:
         return 0
     manifest = InstallManifest.load(manifest_path)
     data = lifecycle_list_installed(manifest)
+    recorded = manifest.selection()
     if args.json:
-        print(json.dumps(data, indent=2, default=str))
+        # Nested under a key rather than merged, so an existing consumer that
+        # iterates the top level as `{key: actions}` does not suddenly find a
+        # "selection" entry among the integration keys.
+        payload = {"integrations": data, "selection": recorded} if recorded else data
+        print(json.dumps(payload, indent=2, default=str))
         return 0
+    if recorded:
+        req = recorded.get("requested") or {}
+        parts = [f"profile={req['profile']}"] if req.get("profile") else []
+        if req.get("modules"):
+            parts.append("modules=" + ",".join(req["modules"]))
+        if req.get("bundles"):
+            parts.append("bundles=" + ",".join(req["bundles"]))
+        resolved = recorded.get("resolved", {})
+        print(
+            f"[selection] {'; '.join(parts) or 'full'} -> "
+            f"{len(resolved.get('skills', []))} skills, "
+            f"{len(resolved.get('commands', []))} commands, "
+            f"{len(resolved.get('agents', []))} agents"
+        )
     if not data:
         print("(manifest contains no recorded actions)")
         return 0
@@ -763,6 +938,34 @@ def cmd_verify(args: argparse.Namespace) -> int:
     """
     home = Path.home()
     target_root = _resolve_target_root(args)
+
+    # v3.16.1 Phase 7.4 -- report the recorded scope first, so a PASS on a
+    # focused install is interpretable. The checks themselves need no change:
+    # they assert each read path is POPULATED, not that the whole catalog is
+    # present, so an intentional exclusion was never going to be penalized.
+    # Stating that here is what stops a future editor from "fixing" verify into
+    # a completeness check, which would report every focused install as broken.
+    try:
+        recorded = InstallManifest.load(_manifest_path(target_root)).selection()
+    except Exception:  # noqa: BLE001
+        recorded = None
+    if recorded and not args.quiet:
+        req = recorded.get("requested") or {}
+        parts = [f"profile={req['profile']}"] if req.get("profile") else []
+        if req.get("modules"):
+            parts.append("modules=" + ",".join(req["modules"]))
+        if req.get("bundles"):
+            parts.append("bundles=" + ",".join(req["bundles"]))
+        resolved = recorded.get("resolved", {})
+        print(
+            f"[verify] focused install ({'; '.join(parts) or 'full'}): "
+            f"{len(resolved.get('skills', []))} skills, "
+            f"{len(resolved.get('commands', []))} commands, "
+            f"{len(resolved.get('agents', []))} agents. "
+            "Read-path checks below assert each surface is populated, not that "
+            "the full catalog is present."
+        )
+
     checks = _verify_checks(home, target_root)
     if not checks:
         if not args.quiet:
@@ -793,6 +996,22 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="nexus-hub-integrations")
     sub = parser.add_subparsers(dest="cmd", required=True)
 
+    _SELECTION_HELP = (
+        "Install-selection selector (v3.16.1). Repeatable and comma-separated "
+        "forms are equivalent. No selector installs the full catalog."
+    )
+
+    def _add_selection_args(parser: argparse.ArgumentParser) -> None:
+        parser.add_argument("--profile", help=f"Profile id. {_SELECTION_HELP}")
+        parser.add_argument(
+            "--modules", action="append", default=[],
+            help=f"Capability module id(s). {_SELECTION_HELP}",
+        )
+        parser.add_argument(
+            "--bundles", action="append", default=[],
+            help=f"Role bundle id(s). {_SELECTION_HELP}",
+        )
+
     p_list = sub.add_parser("list", help="List registered integrations.")
     p_list.add_argument("--json", action="store_true", help="Emit JSON output.")
     p_list.set_defaults(func=cmd_list)
@@ -803,6 +1022,7 @@ def build_parser() -> argparse.ArgumentParser:
     p_install.add_argument("--integrations", required=True, help="Comma-separated keys, or 'all'.")
     p_install.add_argument("--overwrite", action="store_true")
     p_install.add_argument("--dry-run", action="store_true")
+    _add_selection_args(p_install)
     p_install.add_argument("--project-name", help="Template token PROJECT_NAME.")
     p_install.add_argument(
         "--var",
@@ -908,6 +1128,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p_repair.add_argument("--project-name", help="Template token PROJECT_NAME.")
     p_repair.add_argument("--dry-run", action="store_true")
+    _add_selection_args(p_repair)
     p_repair.add_argument("--quiet", action="store_true")
     p_repair.set_defaults(func=cmd_repair)
 

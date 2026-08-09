@@ -1,5 +1,229 @@
 # Development Log
 
+## [2026-08-09] - v3.16.1 Phase 8: refactor, reconciliation, and CI/CD [terminal phase]
+
+### What Changed
+
+The plan's terminal phase. The architecture audit found nothing to change and says so. Known gaps were reconciled to 16 closed and 3 carried forward with reasons. The CI/CD comparison found the pipeline already at the optimized contract apart from one real defect, which was fixed. All 118 remaining truncated agent descriptors were repaired. **The branch is not pushed and `/update release` has not been invoked** - both are approval-gated.
+
+### Why It Changed
+
+Two gaps had been deferred through the whole cycle on the plan's Lifecycle Contract, which reserves pipeline edits for Phase 8. QG-1 was the one that mattered: `ci.yml` triggered on `['**', '!docs/**', 'docs/policy/**']`, but Phase 1 added a test asserting against a contract document under `docs/`. A push editing only that file skipped CI entirely, so the exact edit the guard exists to catch was the edit that never ran it - the identical defect already fixed once for `docs/policy/**`, whose own in-file comment records the reasoning.
+
+### Decisions Made
+
+- **The refactor audit found nothing, and that is reported as nothing.** A terminal phase is under quiet pressure to produce visible cleanup. Moving files to look productive adds risk to a release for no benefit, so each detector's result is listed individually instead: no empty directories, 0 duplicated paragraphs across the three new docs, 0 orphan warnings across 271 skills, one resolver rather than three, canonical docs layout.
+- **The QG-1 glob is deliberately narrow.** `docs/v*/*/development/*.md` matches contract docs but not `development/history/*.md`, because a `*` never crosses a `/`. Re-including all of `development/` would run the full matrix on every session-history write-up for no signal - trading one CI hole for a self-inflicted CI-minute bill.
+- **NI-2's repair takes whole sentences, not a longer character cap.** The original defect was a 200-character hard slice; replacing it with a 300-character hard slice would be the same bug with a bigger number. 140 descriptors, 0 truncated, 0 non-ASCII, median 233 characters, every `display_name` preserved.
+- **The Phase 5 baseline got a dated forward-note rather than a rewrite.** It is an audit record. Editing its findings to match a later state would make it agree with the present at the cost of no longer being true about the past.
+- **WN-2 was recorded although nothing is broken.** A `UnicodeDecodeError` traceback in a passing test's log is a real cost to a future reader; the honest place for it is the gap ledger.
+
+### Troubleshooting Trail
+
+No failures in Phase 8's own work. One recurring cosmetic artifact was chased down rather than ignored: the `UnicodeDecodeError` seen in the slow parity tests and again in the manual install comparison is Python's subprocess reader thread decoding the installer's UTF-8 output as cp1252 on Windows. Confirmed harmless - raised in the reader thread, process exits 0, and every assertion reads the filesystem - and recorded as WN-2 with its one-line fix.
+
+### Verification
+
+All 15 `make validate` guards run individually (WN-1: `make` unavailable here) and pass. `bash -n` and PS 5.1 parse clean. The selector matrix was resolved and inspected rather than trusted to exit codes: full 271/20/23, minimal 10/14/23, core 45/14/23, workflow 43/16/23, ai-engineering 13/16/23, ai-engineer 13/14/23, core+workflow 82/16/23. No-selector and explicit `full` hash identically; CSV and repeatable forms hash identically; three invalid-input cases each exit 2 before any write. Live bash installs: full rc=0 with 271 skill dirs, `--modules ai-engineering` rc=0 with 13, the focused set a strict subset, and rules/commands/agents present in both.
+
+## [2026-08-08] - v3.16.1 Phase 7: distribution, parity, and documentation
+
+### What Changed
+
+Selective installation became coherent as well as smaller. `data/bundles.json` gained `surface_requirements` for six commands and its modules went from 6 to 20, category-complete, so every catalog skill is reachable through at least one module (schema 1.5.0). 54 new assertions across distribution parity and selection-aware verification. A README section and a user-facing reference guide.
+
+### Why It Changed
+
+The 7.1 audit is the phase. It found that **only 105 of 271 skills were reachable through any module or bundle** - the other 166 existed solely under `full`, and six catalog categories were covered by nothing at all. That made `--modules` largely decorative: a module system that cannot express most of the catalog is a menu with two thirds of the dishes missing.
+
+It was invisible until now because nothing resolved selections, so nobody could observe that most of the catalog had no selector reaching it. It surfaced the moment `surface_requirements` landed: all six command-delegate skills were in the unreachable set, so the first run dropped `/implement`, `/describe`, `/route`, `/constitution`, `/presentify`, and `/tune-prompting` from *every* focused install. Curation being a product decision, the expansion was the user's call rather than one made here.
+
+### Decisions Made
+
+- **Modules became category-complete rather than individually curated.** Predictable ("this whole capability area"), explainable in a sentence, and mechanically verifiable by a test that fails when a new skill lands in no module. The cost is recorded rather than hidden: `core` grew 31 -> 45 skills because it composes from two modules that expanded. The 15 curated role bundles were left untouched, since they are opinionated cross-category sets and expanding them was neither needed nor asked for.
+- **Only thin-pointer commands declare requirements.** The first draft was going to derive them from every skill a command *mentions* - but `/presentify` mentions 7 and `/update` mentions 8, and declaring those would have made both vanish from nearly every focused install. Reading what each command file actually says about delegation produced a defensible six, each naming exactly one delegate. Multi-mode commands stay undeclared on purpose.
+- **Agents declare nothing, and that is a finding.** 22 of 23 reference no skill at all and none shares a name with a skill, so they are self-contained. Recording that is more useful than an empty section that looks like an oversight.
+- **The load-bearing distribution assertion is that excluded skills are ABSENT.** Asserting the resolved ones are present is weak - a filter that did nothing would pass it. The exclusion check is what proves filtering happened on each platform's own copy path, and those paths differ (flattened, nested, command-as-skill) so each could bypass the filter independently.
+- **7.4 pinned an existing property instead of inventing a change.** `verify` asserts read paths are populated and `harness_audit` scores surfaces-present over surfaces-declared; neither compares against the catalog, so neither was ever going to penalize an intentional exclusion. The tempting future "fix" in both places is to compare against the catalog - an edit that would look like an improvement while reporting every focused install as broken. The new tests name that specific edit so it fails loudly.
+
+### Troubleshooting Trail
+
+Phase 7's own tests passed on first run. What the full suite did surface was two stale assertions left by Phase 6 (QG-2): that phase's `-Profile` alias fix landed *after* its regression run had already started in the background, so the 873-passed figure cited in its commit had tested the pre-rename tree. Both assertions were corrected here, and the profile one strengthened into a named guard that also asserts a literal `[string]$Profile,` parameter is absent, so the shadowing bug cannot return. The lesson is about process rather than code: a long-running background gate is evidence only for the tree it started against, and any edit made while it runs invalidates it.
+
+### Verification
+
+44 distribution assertions across 5 platforms x 3 selections, 10 verification assertions, and the existing 99 selection and registry-consistency tests all pass. Resolution verified by inspection across the expanded modules (full 271/20, minimal 10/14, core 45/14, workflow 43/16, workflow+ai 56/18). Every profile, module, and bundle resolves; 271/271 skills reachable. Catalog counts agree at 271 in all five places. All 11 validators pass. The README addition is 31 lines, all ASCII.
+
+## [2026-08-08] - v3.16.1 Phase 6: cross-platform selective installation
+
+### What Changed
+
+Selection went live on all three install paths. The registry filters skills, commands, and agents through `InstallContext` predicates; both legacy installers gained `--profile` / `--modules` / `--bundles` (`-Profile` / `-Modules` / `-Bundles`), resolve before any write, and filter through a staged catalog; repair, doctor, list-installed, and upgrade all preserve the recorded scope. 28 parity assertions added. Run in two segments with a checkpoint between the Python work and the installer work, at the user's request.
+
+### Why It Changed
+
+Phase 5 defined the contract and proved one implementation. A contract implemented once is a design document; the value only appears when the same selectors produce the same install through the Bash installer, the PowerShell installer, and the registry, which share no code. The plan hash is what makes that checkable rather than asserted, and it did its job: Python, Bash, and PowerShell independently produced `sha256:74e72e2bc3bd...` for the same selector.
+
+### Decisions Made
+
+- **Both installers delegate resolution rather than implementing it natively, deviating from the plan with approval.** A jq implementation was written first and then found to be untestable: jq is not installed on this host and nothing in CI installs or asserts it. Shipping an unverifiable second implementation of a *hashed* contract is worse than one shared implementation, because divergence surfaces as a silent hash mismatch on a user's machine rather than as a test failure. Deleted unshipped. What the plan's "no Python dependency" wording protects survives exactly: a no-selector full install still needs neither Python nor jq, because both installers return from the selection path before touching Python, and a Python-less host already skipped every registry-backed platform anyway.
+- **Filtering is applied by staging, not at each copy site.** One filtered tree is built and every downstream copy reads it through a single helper. Only 6 of the 25 catalog references in `installer.sh` needed touching, and the three selectable surfaces cannot drift apart from each other. Policy infrastructure is never routed through it.
+- **The filtered nested-skills path is a separate function from the unfiltered bulk copy.** A per-skill walk that must be *proven* byte-identical to `_copy_tree` is a much weaker guarantee than not taking that path at all when unfiltered. That is why the equivalence result (811 files each, identical set, no-selector vs explicit `full`) is structural rather than lucky.
+- **Upgrade selectors are validated, not escaped.** Recorded ids must match `^[a-z0-9][a-z0-9-]*$` before entering the bootstrap command string; an id that cannot contain a quote or semicolon cannot break out of it, and anything failing the check is dropped rather than escaped.
+
+### Troubleshooting Trail
+
+Four real bugs, every one found by running the thing rather than reading it, and each now has a named regression test.
+
+- **`set -e` swallowed the Bash selector error (BG-2).** A bare `out=$(...)` followed by a `$?` check aborts at the assignment under `set -e`, so the handler that prints which selector was wrong never ran. Observed: exit 2 with completely empty stderr.
+- **Windows CRLF made Bash staging select nothing (BG-3).** A Windows Python called from Git Bash writes CRLF, so every parsed value carried a trailing `\r`, `find -name` matched nothing, and the install **completed successfully having copied zero skills**. That is the worst failure shape available: a green run that shipped nothing. It surfaced only because the summary read "0 skills" while the hash was correct, which localized the fault to staging rather than resolution.
+- **PowerShell `2>&1` produced NativeCommandError noise (BG-4).** On PS 5.1, redirecting a native command's stderr wraps each line in an ErrorRecord and sets `$?` false even on a clean exit, turning a good run into a visible error.
+- **`-Profile` shadowed a PowerShell automatic variable (BG-5).** Caught by editor diagnostics, not by a test. Now `$InstallProfile` with `[Alias("Profile")]`, so the user-facing spelling still matches Bash.
+
+### Verification
+
+116 fast selection assertions plus 2 slow end-to-end installs (real Bash and PowerShell runs into temp targets) pass. Segment A's regression was 847 passed, 17 skipped, 1 failed (BG-1, inherited). No-selector and explicit-`full` installs produce 811 files each with an identical set. Live filtered installs verified by inspection on both installers, with rules, commands, and agents intact; fail-closed verified on both (unknown profile exits 2, names the id, writes zero files). `bash -n` and PS 5.1 parse checks clean; all catalog validators, the trigger gate, version sync, and the platform-contract and defaults-drift guards pass.
+
+## [2026-08-08] - v3.16.1 Phase 5: selection contract and resolver
+
+### What Changed
+
+The plan's pivot from documentation to runtime code. An audit of every install path, a normative selection contract, a shared fixture matrix of 27 cases across three small catalogs, a pure-stdlib resolver at `scripts/lib/installer/selection.py`, additive selection state on `InstallContext` and `InstallManifest`, and 90 assertions. Nothing is wired into an installer yet; that is Phase 6.
+
+### Why It Changed
+
+Phase 6 changes two user-facing installers totalling 6600 lines, in three languages that share no code. The only way that lands safely is if the behavior is defined and executable before the mutation starts, so all three implementations are checked against one artifact rather than against each other's source. The fixture matrix and the plan hash exist for exactly that.
+
+### Decisions Made
+
+- **The hash covers the resolved outcome, not the request.** `--modules a,b` and `--modules a --modules b` and the reverse order all produce the same install, so they must produce the same hash; `warnings` is excluded too, so advisory wording cannot move it. This is the join key Phase 6 uses to prove three implementations agree. Had it depended on the request, that check would degrade into comparing each implementation against itself.
+- **Fixture cases declare `same_hash_as` rather than a literal digest.** The property worth asserting is agreement between two requests, not what today's canonicalization emits.
+- **Validation is traversal-scoped.** A cycle or a missing skill in a part of the catalog the user did not select must not block their install. A fixture pins both directions: the cycle catalog resolves fine for a module that does not reach the cycle and fails for one that does.
+- **Undeclared commands and agents always install.** Excluding them would silently shrink every install the moment selection shipped, before a single declaration existed. Verified against the real catalog: with no `surface_requirements` yet, every selection yields all 20 commands and 23 agents, which is the documented behavior rather than a bug, and Phase 7.1 narrows it declaration by declaration.
+- **Empty selection errors, full selection warns.** An empty install is never what anyone wanted; a full one is the default and always a legitimate end state, so refusing it would be obstructive while staying silent about an unintended one would not.
+- **A full install still writes byte-identical manifest bytes.** The `selection` key is emitted only when a selection exists, so an existing diff-based check does not start reporting a change on every default install.
+
+### Troubleshooting Trail
+
+- **The contract, the fixtures, and the resolver all assumed profiles carry a flat `skills` list. They do not.** Real profiles compose from `bundles`, `modules`, and `extra_skills`, and `full` is marked `"all": true`. The first full run had 89 of 90 assertions passing while the resolver could not resolve a single real profile: both returned zero skills and were reported as "empty selection" user errors, blaming the user's selector for a modeling error in the code.
+
+  What caught it was the one test that runs against the actual `data/bundles.json` instead of the fixtures. Every fixture assertion passed throughout, because the fixtures encoded the same wrong assumption as the resolver -- which is the whole argument for keeping a real-data test beside a fixture suite. Fixed in three places (resolver expansion, fixture shape, contract section 2.1a) and recorded as DF-4. Verified after: minimal 10 skills, core 31, ai-engineering 6, ai-engineer 13, full 271.
+
+- **`scripts/lib/installer/` is not distributed by either installer.** Found while checking whether the new module needed an installer entry. Both copy `scripts/lib/integrations/` recursively but not the sibling package six integration modules import from, three of them at top level. Practical impact verified as nil today (the registry always runs from the checkout, never the installed copy), but the copy exists, which means it was meant to be importable and silently is not. Recorded as NI-3 for Phase 6, which is already opening both installers. Not fixed here: AGENTS.md makes installer edits ask-first and this phase's deliverables contain none.
+
+### Verification
+
+90 assertions in the new module; `tests/installer` at 250 passed, 16 skipped, 1 failed (BG-1, the inherited MSYS `tar` bootstrap failure, on a phase that touched no bootstrap file). Real-catalog resolution was inspected rather than trusted to an exit code, and every profile, module, and bundle in `data/bundles.json` resolves. Bundle audit 0/0, trigger gate clean, unicode / personal-paths / supply-chain / version-sync all pass, `git diff --check` clean.
+
+## [2026-08-08] - v3.16.1 Phase 4: synthetic data, human review, and skill quality
+
+### What Changed
+
+Two more Tier-3 references under `ai-output-evaluation` - `synthetic-data.md` builds evaluation sets from a declared coverage model, `review-interface.md` defines the contract a local annotation tool must satisfy for its labels to be usable as ground truth. `skill-stocktake` gained a directive-density review as step 4b. Tests grew by 63 assertions across an extended module and a new one. This completes the skill-native adoption track: A1 through A7 all have their implemented artifact.
+
+### Why It Changed
+
+The two references close the last gap in the evaluation lifecycle, which is that everything upstream depends on inputs somebody had to manufacture. Unbounded generation ("write 200 test questions") clusters around whatever the generating model finds salient and almost never produces unanswerable queries, which is usually where a system behaves worst and is least tested. Careless annotation is worse than noisy: an interface that shows the reviewer the judge's verdict turns checking into confirming, and every metric computed against those labels inherits the bias while looking perfectly precise.
+
+The stocktake addition covers a different blind spot. A skill can pass every structural check, read well, and still not change what the agent does - it explains a domain instead of instructing an agent. The deterministic checklist cannot see that, because nothing is missing.
+
+### Decisions Made
+
+- **Directive density is a binary per-section question, deliberately not a ratio.** The obvious implementation - count imperative verbs, flag a low ratio - would flag the "Reality" column of every Common Rationalizations table in the catalog, which is explanatory by design and required by AGENTS.md to cite a concrete failure mode. It is also tunable, so prose gets optimized toward it. The binary question leaves no number to game, and four explicit non-goals name the content the signal must never argue for deleting: rationale, the two required sections, and Tier-3 references where explanation is the point.
+- **The stocktake test ships a reference implementation of the rule, labeled as such.** Nothing executes an agent-followed prose check, but a signal set that matches everything is worse than no signal because it produces a reassuring report while catching nothing. The test encodes the five signals and proves on near-boundary fixtures that they discriminate - including a Common Rationalizations entry that is mostly prose and a decision-rule section with no command at all, both of which must pass. The module docstring states plainly that this is test-only.
+- **Coverage is recomputed after generation, never inferred from the target.** Declaring a pairwise target and generating against it does not mean the target was hit. The reference requires reporting achieved coverage and naming the uncovered cells, which become the next batch's plan. Skipping it leaves the whole method as setup with no payoff.
+- **Unanswerable is a declared dimension value.** It is the case a generator looking at a corpus will not write, and the case a system usually handles worst. Declaring dimensions before generating is the mechanism that surfaces it.
+- **The review-interface reference names no framework.** It defines observable completion checks so any stack satisfies them, including a terminal loop, and a test asserts no framework appears - the natural drift is a worked example in one library that readers then treat as a requirement.
+
+### Troubleshooting Trail
+
+Nothing failed. All 63 new assertions passed on first run and the full suite was green with no troubleshooting iteration. Recorded explicitly because a clean run and unrecorded failures look identical in a log otherwise. Branch state was verified before any write, following the Phase 3 incident.
+
+### Verification
+
+155 assertions in the methodology module (up from 114) plus 22 in the new stocktake module; `tests/skills` and `tests/validators` at 1041 passed, 3 skipped. Bundle audit 0/0 across 271 skills with all four `ai-output-evaluation` references seen as linked; quality heuristics 0 errors with no finding on either changed skill; trigger gate clean; skill-security scan 0 findings across 7 files; unicode clean. Six remaining `validate` guards pass; `git diff --check` clean. The A1-A7 completion check was run against the comparison's declared target column rather than asserted, and confirmed one new skill across the track rather than seven.
+
+## [2026-08-08] - v3.16.1 Phase 3: error analysis and evaluator calibration
+
+### What Changed
+
+Two Tier-3 references under `ai-output-evaluation`: `error-analysis.md` turns sampled failures into a quantified taxonomy and permanent regression coverage, and `evaluator-validation.md` defines what a judge must prove before it may block a release. The parent skill routes to both and now requires held-out evidence and a documented disagreement review for any release-gating evaluator. Test module grew from 74 to 114 assertions. No new known gaps.
+
+### Why It Changed
+
+Phase 1 named these artifacts and Phase 2's routing table already pointed at both files, so the references were filling targets that already had inbound links. The substantive gap was that `ai-output-evaluation` taught how to score output but said nothing about whether the scorer is right. That distinction matters most exactly where it was missing: a team promoting an LLM judge from "useful signal" to "blocks the merge" was doing so on spot-checks, which confirm agreement on the cases someone chose to look at and are rarely the ambiguous ones.
+
+### Decisions Made
+
+- **Exclusion criteria are mandatory per taxonomy category.** A category with a definition but no boundary drifts into its neighbors, two reviewers file the same trace differently, and the frequency counts stop meaning anything while still looking precise. The worked pair (`unsupported_claim` versus `retrieval_miss`) doubles as enforcement of Phase 1's retrieval-before-generation order, so a retrieval failure cannot be filed as a hallucination.
+- **Single-label by earliest cause is the default.** Retrieval missed, then the model invented an answer: the category is `retrieval_miss`. Fixing the earliest link prevents the downstream failure, so single-label counts point at the work instead of double-counting one root cause across two categories.
+- **The prevalence effect is shown as arithmetic, not stated as a caveat.** Hold recall and specificity fixed, move the failure rate from 30 percent to 5 percent, and precision falls from 0.60 to 0.16 - same judge, same measured metrics. As a warning it reads as a footnote; as a worked example it explains why a judge that validated well gets ignored a week after deployment. A test asserts the 0.156 figure specifically.
+- **Held-out evidence is required for gating evaluators, not all evaluators.** Applying the full validation burden to advisory scoring would make it impractically expensive and push teams to skip evaluation entirely. The cost belongs where the consequence is: a judge that blocks a merge and cannot be appealed.
+
+### Troubleshooting Trail
+
+- **The session had moved to `develop`, and this phase nearly got built on the wrong tree.** At phase start the working tree was on `develop` (`6e345e19`), not the feature branch, and every Phase 1 and 2 artifact was absent from disk - the audit skill, the RAG reference, the artifact contract, and both test modules. The commits were safe on the feature branch, but building here would have produced two references pointing at a contract not present on this branch, and the test extension would have had no file to extend. The failure mode is silent: each individual file operation would have succeeded. Stopped and asked rather than proceeding, then verified all five artifacts present and the tree clean before writing anything.
+
+### Verification
+
+114 assertions in the methodology module (up from 74); `tests/skills` plus `tests/validators` at 978 passed, 3 skipped. Bundle audit 0/0 across 271 skills with both references correctly seen as linked; quality heuristics 0 errors with no finding on the parent skill; trigger gate clean; skill-security scan 0 findings across 4 files; unicode clean on both new files. Six remaining `validate` guards pass; `git diff --check` clean. CI needs no change: both files live under `catalog/skills/`, which the workflow's `paths` filter includes.
+
+## [2026-08-08] - v3.16.1 Phase 2: evaluation pipeline audit skill
+
+### What Changed
+
+One new skill, `eval-pipeline-audit` (151 lines), registered into the catalog and both AI selections. It walks a fixed ten-concern inventory of an evaluation process, ranks the gaps by severity, and routes each one to the skill that owns the method. Catalog goes 270 -> 271, ai-development 12 -> 13. Three truncated agent descriptors in the same category were repaired. Two pre-existing catalog defects surfaced and were recorded rather than fixed.
+
+### Why It Changed
+
+Phase 1 gave the evaluation skills a shared vocabulary but no entry point. A team asking "are our evals any good" had five skills to choose between, each answering a narrower question than the one being asked. The gap this fills is the systemic question: not "how did the model score" but "would this pipeline have told us the model got worse". A green eval suite that has never failed is usually evidence for the second question being answered badly, and nothing in the catalog looked for that.
+
+### Decisions Made
+
+- **The non-duplication boundary is enforced by test, not by intent.** A router degrades by helpfully inlining the method it should route to, and that is exactly the change a reviewer waves through as an improvement. `test_does_not_duplicate_specialist_formulas` fails if a Recall@k, NDCG, Wilson, or confusion-matrix formula appears in the body. Naming a metric while routing passes; defining it fails.
+- **Registered by hand rather than by `make build-catalog`, on measured evidence.** T012 says to run the builder. `make` is unavailable here and the standing rule says the builder rewrites the whole tree - which was measured this time rather than recalled: an accidental invocation produced a 6695-line `skills.json` diff, reverted. The hand-edit is 56 lines. Recorded as DF-2.
+- **Recomputed the `skills.json` statistics block rather than incrementing it.** Registering by hand missed a derived block that three registry-consistency tests assert. Recomputing revealed the aggregates were already stale by far more than this phase's contribution (`total_lines` 127877 -> 130166 against a skill contributing 151). Once the block had to be touched, recomputation is the only method yielding a number that matches the field's own contract; incrementing would have written a differently-wrong value and called it correct. Recorded as DF-3 with the root cause: aggregates are only correct right after a builder run, the standing rule is not to run the builder, and nothing tests those three fields.
+- **Fixed three truncated descriptors, not 121.** The scope extension was approved when the defect looked like three files; measurement then showed 121 of 139 are hard-sliced at 200 characters and end mid-word. Fixed the three in scope, recorded the other 118 as NI-2. Expanding silently and dropping the finding silently are both wrong.
+
+### Troubleshooting Trail
+
+- **A probe ran a mutating script.** `build_skills_catalog.py` has no `--help`, so the probe executed a full rebuild and modified two tracked files. Caught with `git status`, reverted, tree verified clean. The accident produced the DF-2 measurement, but reading the script first was the correct move.
+- **The first registry entry was corrupted, and the test suite caught it.** A frontmatter parser used `(?=\n[a-z_]+: )` as its lookahead, which never matches `summary_l0` or `overview_l1` because those keys contain digits. The `description` field ran on and swallowed all three - 2011 characters instead of 906. The identical bug in the test's own copy of the regex is what failed and surfaced it.
+- **Tests written for one purpose found two defects elsewhere.** The bundle-resolution check, written to verify the two AI selections, swept every bundle and found four references to skills with no catalog directory: `core-developer` -> `add-strategic-comments`, `frontend-engineer` -> `cleanup-javascript`, and `devops-engineer` / `tech-lead` -> `release-management`. Inert today, but a Phase 6 focused install must fail closed on them, which made this a v3.16.1 blocker for Phase 6. Fixed at the user's direction. The first two are past renames. The third needed research rather than a guess: `release-management` never existed as a skill in git history, and the naive repairs all fail because `devops-engineer` already lists `release-notes-writer` and `rollback-strategy-advisor` while `tech-lead` already lists `version-upgrade`. It maps to `shipping-and-launch`, which is the capability the id names and was absent from both bundles. The test now runs with no allowlist.
+
+### Verification
+
+59 targeted assertions pass; 133 across both v3.16.1 test modules; `tests/skills` plus `tests/validators` at 938 passed, 3 skipped. The trigger-and-routing gate is clean at 271 skills with 0 un-allowlisted collisions and 0 routing failures across 72 lexical cases. Bundle audit 0/0, quality heuristics 0 errors with no finding on the new skill, skill-security scan 0 findings across all 3 files. Catalog counts agree at 271 in all four places. Ten remaining `validate` guards pass; `git diff --check` clean.
+
+## [2026-08-08] - v3.16.1 Phase 1: evaluation contract and RAG metrics
+
+### What Changed
+
+Two new documents and one new test module. `docs/v3/v3.16/development/evaluation-artifact-contract.md` defines the shared artifact vocabulary the rest of v3.16.1 writes against. `rag-implementation` gained `references/evaluation.md`, a cold-readable Tier-3 reference defining Recall@k, Precision@k, MRR, NDCG@k, and multi-hop recall with formulas, worked examples, confidence intervals, and a one-variable-at-a-time grid search. The parent skill links it and now states the retrieval-before-generation diagnostic order in its own body. No runtime code changed and the catalog count stays at 270.
+
+### Why It Changed
+
+The catalog already had five skills touching evaluation, each with a private vocabulary. `skill-eval-loop` persists a complete artifact chain scoped to skill benchmarking; `ai-output-evaluation` persists nothing beyond a response shape; `rag-implementation` Step 7 built an in-memory dataclass, printed a summary, and dropped it. Nothing could hand a result to anything else. Phases 2 through 4 all consume evaluation artifacts, so the vocabulary had to exist before the first consumer was written, not after three of them had invented their own.
+
+The retrieval half needed the same treatment for a sharper reason. Step 7 listed four metrics in one flat table with no reading order, which lets a low faithfulness score on top of low recall read as a generation problem. It is not: a model cannot ground an answer in a passage it never received. A system reporting Recall of 0.42 and Faithfulness of 0.91 is faithfully answering from the wrong passages most of the time, and the old table gave a reader no way to see that.
+
+### Decisions Made
+
+- **`provenance` and `redaction_status` are embedded blocks, not peer artifacts.** As standalone files they would be optional in practice, letting a trace sample exist with no recorded origin - the exact failure the contract exists to prevent. As required blocks, an artifact cannot be well-formed without them.
+- **The contract fixes field names and refuses to fix a storage engine.** JSON, JSONL, CSV, Parquet, or database rows all satisfy it. Prescribing a format would have forced later phases to comply or fork, buying nothing.
+- **`skill-eval-loop` was not renamed to fit.** Breaking a working skill to satisfy a new document is the wrong trade. The contract instead states the correspondence explicitly: its `evals.json` cases are a `dataset_manifest`, its `grading.json` entries are `evaluator_result` records, its optimizer's 60/40 division is a `split_manifest`. Interoperability came from naming the mapping, not from a migration.
+- **Every test predicate is paired with a mutation test that proves it has teeth.** Each `test_*_has_teeth` case deletes the target content from an in-memory copy and asserts the predicate then fails. The retrieval-first mutation is the load-bearing one: it leaves both "retrieval" and "generation" in the text and removes only the ordering statement, so a check that was merely detecting co-occurrence gets caught by its own suite.
+- **CI was deliberately left alone despite a real gap.** The new test guards a document under `docs/`, which the workflow's `paths` filter excludes (`['**', '!docs/**', 'docs/policy/**']`). A push editing only the contract skips CI, so the guard would not run on the edit that breaks it - the identical defect whose fix for `docs/policy/**` is already documented in that file's own comment. This plan's Lifecycle Contract reserves pipeline edits for Phase 8, so it is recorded as QG-1 with the exact one-line fix rather than applied here.
+
+### Troubleshooting Trail
+
+- **Widening a skill description is a routing risk, so it was checked rather than assumed.** Making `rag-implementation`'s `description` pushier adds vocabulary ("evaluate RAG", "Recall@k", "NDCG") that could collide with a neighbor's routing surface. `run_trigger_evals.py --gate` reported 0 un-allowlisted collisions across 270 skills and 0 routing failures. The explicit SKIP clause pointing general output scoring at `ai-output-evaluation` is what keeps the wider surface from over-triggering.
+- **`make`, `ruff`, and `shellcheck` are all absent on this host.** The `validate` target was replicated by running its fourteen underlying commands directly, all of which pass. The lint gap is narrow in practice: `make lint` covers shell scripts only and this phase changed none. Recorded as WN-1.
+
+### Verification
+
+74 targeted assertions pass, and `tests/skills` plus `tests/validators` run clean at 879 passed, 3 skipped. The full repository suite is 1 failed, 1818 passed, 20 skipped; the single failure is the inherited MSYS `tar` bootstrap test recorded as BG-1, on a phase that touched no installer, shell, or PowerShell file. The full `validate` surface passes: bundle audit at 0 errors and 0 warnings across 270 skills (the new reference is correctly seen as referenced rather than orphaned), quality heuristics at 0 errors with no finding on `rag-implementation`, trigger-and-routing gate clean, unicode safety reporting no finding in either new document, plus version sync, base-template parity, platform read contracts, contract freshness, and platform-defaults drift. `git diff --check` is clean.
+
 ## [2026-08-08] - v3.16.0 Phase 5: refactor, reconciliation, and CI/CD [release-readiness]
 
 ### What Changed

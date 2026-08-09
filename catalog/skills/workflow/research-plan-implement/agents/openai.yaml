@@ -1,4 +1,4 @@
 interface:
   display_name: Research-Plan-Implement (RPI) Workflow
   short_description: Execute a structured Research-Plan-Implement (RPI) workflow with GO/NO-GO gates and artifact generation at each phase. Use for non-trivial features that benefit from systematic exploration,
-    multi-pers
+    multi-perspective planning, and tracked implementation.

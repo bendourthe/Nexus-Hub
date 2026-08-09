@@ -1,4 +1,4 @@
 interface:
   display_name: Quality Gate Definitions
   short_description: Reusable GO/NO-GO quality gate definitions for multi-phase workflows. Provides predefined gate types, criteria templates, and behavior configuration for planning, implementation, testing,
-    security, an
+    security, and deployment checkpoints.

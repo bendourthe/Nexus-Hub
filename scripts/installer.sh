@@ -1149,9 +1149,11 @@ install_global() {
     # registry platforms. DF-001: the registry runner renders CLAUDE.md;
     # safe_folder_copy does the catalog mirror.
     invoke_registry_platform "$repo_root" "global" "" "claude" "CLAUDE.md (instruction file)" "" "true" >/dev/null
-    flatten_skills_into "$repo_root/catalog/skills"   "$global_claude/skills"   >/dev/null
-    safe_folder_copy "$repo_root/catalog/commands" "$global_claude/commands" >/dev/null
-    safe_folder_copy "$repo_root/catalog/agents"   "$global_claude/agents"   >/dev/null
+    # v3.16.1: catalog_src returns the filtered stage when a selection is active
+    # and the real catalog otherwise, so the no-selector path is unchanged.
+    flatten_skills_into "$(catalog_src "$repo_root" skills)"   "$global_claude/skills"   >/dev/null
+    safe_folder_copy "$(catalog_src "$repo_root" commands)" "$global_claude/commands" >/dev/null
+    safe_folder_copy "$(catalog_src "$repo_root" agents)"   "$global_claude/agents"   >/dev/null
     safe_folder_copy "$repo_root/catalog/rules"    "$global_claude/rules"    >/dev/null
 
     mkdir -p "$global_claude/mcp-configs"
@@ -1566,9 +1568,9 @@ install_workspace() {
 
         invoke_registry_platform "$repo_root" "workspace" "$target_path" "claude" "CLAUDE.md (instruction file)" "$languages" "true"
 
-        flatten_skills_into "$repo_root/catalog/skills"   "$claude_dir/skills"   "[OK] Skills catalog installed (flattened) at: $claude_dir/skills"
-        safe_folder_copy "$repo_root/catalog/commands" "$claude_dir/commands" "[OK] Commands installed at: $claude_dir/commands"
-        safe_folder_copy "$repo_root/catalog/agents"   "$claude_dir/agents"   "[OK] Agents installed at: $claude_dir/agents"
+        flatten_skills_into "$(catalog_src "$repo_root" skills)"   "$claude_dir/skills"   "[OK] Skills catalog installed (flattened) at: $claude_dir/skills"
+        safe_folder_copy "$(catalog_src "$repo_root" commands)" "$claude_dir/commands" "[OK] Commands installed at: $claude_dir/commands"
+        safe_folder_copy "$(catalog_src "$repo_root" agents)"   "$claude_dir/agents"   "[OK] Agents installed at: $claude_dir/agents"
         safe_folder_copy "$repo_root/catalog/rules"    "$claude_dir/rules"    "[OK] Rules installed at: $claude_dir/rules"
 
         mkdir -p "$claude_dir/mcp-configs"
@@ -1706,6 +1708,151 @@ resolve_python_executable() {
     return 1
 }
 
+# ---------------------------------------------------------------------------
+# Install selection (v3.16.1 Phase 6.1)
+#
+# Contract: docs/v3/v3.16/development/install-selection-contract.md
+#
+# Resolution delegates to scripts/lib/installer/selection.py rather than being
+# reimplemented here. The plan originally called for a native implementation so
+# the installer would not depend on Python; that was reversed after the jq
+# version proved untestable on the development host, because two implementations
+# of a hashed contract where one is unverifiable is worse than one shared
+# implementation.
+#
+# What the original constraint protects is preserved exactly: these functions are
+# only reached when the user passed a selector. A NO-SELECTOR install never calls
+# them and still needs neither Python nor jq. A Python-less host already skips
+# every registry-backed platform, so requiring Python for selectors specifically
+# imposes nothing new on that host.
+#
+# Filtering is applied by STAGING: when a selection is active we materialize a
+# filtered copy of catalog/skills, catalog/commands, and catalog/agents once, and
+# every downstream copy reads from the stage via catalog_src(). Concentrating the
+# filter in one place means per-platform copy sites need no per-site logic and
+# cannot drift apart. Only those three surfaces are ever filtered; hooks, rules,
+# context, memory, style-guides, and mcp-configs are policy infrastructure and
+# are always installed in full.
+# ---------------------------------------------------------------------------
+
+SELECT_PROFILE=""
+SELECT_MODULES=""
+SELECT_BUNDLES=""
+SELECTION_ACTIVE=0
+SELECTION_STAGE=""
+SELECTION_HASH=""
+SELECTION_SKILL_COUNT=0
+SELECTION_COMMAND_COUNT=0
+SELECTION_AGENT_COUNT=0
+
+selection_requested() {
+    [ -n "$SELECT_PROFILE" ] || [ -n "$SELECT_MODULES" ] || [ -n "$SELECT_BUNDLES" ]
+}
+
+# Effective source directory for one catalog surface. Callers pass the repo root
+# and the surface name; under an active selection the staged (filtered) tree is
+# returned for the three selectable surfaces, otherwise the real catalog path.
+catalog_src() {
+    local repo_root="$1" surface="$2"
+    if [ "$SELECTION_ACTIVE" = "1" ] && [ -d "$SELECTION_STAGE/$surface" ]; then
+        printf '%s' "$SELECTION_STAGE/$surface"
+    else
+        printf '%s' "$repo_root/catalog/$surface"
+    fi
+}
+
+# Resolve selectors and build the staging tree. Exits non-zero on a bad selector
+# (2) or a catalog defect (3) BEFORE anything is written, which is the contract's
+# fail-before-write rule.
+resolve_selection() {
+    local repo_root="$1"
+    selection_requested || return 0
+
+    local py
+    if ! py=$(resolve_python_executable); then
+        echo "" >&2
+        echo "ERROR: --profile / --modules / --bundles need Python to resolve." >&2
+        echo "       Install Python 3, or re-run without a selector for a full install" >&2
+        echo "       (a full install requires neither Python nor jq)." >&2
+        exit 2
+    fi
+
+    local resolver="$repo_root/scripts/lib/installer/selection.py"
+    if [ ! -f "$resolver" ]; then
+        echo "ERROR: selection resolver not found at $resolver" >&2
+        exit 3
+    fi
+
+    local args=("$resolver" "--repo-root" "$repo_root" "--emit" "lines")
+    [ -n "$SELECT_PROFILE" ] && args+=("--profile" "$SELECT_PROFILE")
+    [ -n "$SELECT_MODULES" ] && args+=("--modules" "$SELECT_MODULES")
+    [ -n "$SELECT_BUNDLES" ] && args+=("--bundles" "$SELECT_BUNDLES")
+
+    # `set -e` is active, so a bare `out=$(...)` on a non-zero exit aborts the
+    # script at the assignment and never reaches the handler below -- the user
+    # would get exit 2 with no explanation of which selector was wrong. Capturing
+    # the status in the `||` branch keeps the failure ours to report.
+    local out rc=0
+    out=$("$py" "${args[@]}" 2>&1) || rc=$?
+    if [ "$rc" -ne 0 ]; then
+        echo "" >&2
+        echo "$out" >&2
+        exit "$rc"
+    fi
+
+    SELECTION_STAGE="$(mktemp -d)"
+    mkdir -p "$SELECTION_STAGE/skills" "$SELECTION_STAGE/commands" "$SELECTION_STAGE/agents"
+
+    local kind value
+    while IFS=$'\t' read -r kind value; do
+        # Strip a trailing CR. A Windows Python invoked from Git Bash writes
+        # CRLF, so without this every value carries a \r, `find -name` matches
+        # nothing, and the install silently stages an empty selection -- which
+        # looks like a working install that shipped no skills.
+        kind="${kind%$'\r'}"
+        value="${value%$'\r'}"
+        case "$kind" in
+            HASH) SELECTION_HASH="$value" ;;
+            SKILL)
+                # Skills live under catalog/skills/<category>/<name>/; the stage
+                # keeps the category level so a nested-layout copy still works.
+                local src
+                src=$(find "$repo_root/catalog/skills" -mindepth 2 -maxdepth 2 -type d -name "$value" 2>/dev/null | head -1)
+                if [ -n "$src" ]; then
+                    local category
+                    category="$(basename "$(dirname "$src")")"
+                    mkdir -p "$SELECTION_STAGE/skills/$category"
+                    cp -R "$src" "$SELECTION_STAGE/skills/$category/"
+                    SELECTION_SKILL_COUNT=$((SELECTION_SKILL_COUNT + 1))
+                fi
+                ;;
+            COMMAND)
+                if [ -f "$repo_root/catalog/commands/$value.md" ]; then
+                    cp "$repo_root/catalog/commands/$value.md" "$SELECTION_STAGE/commands/"
+                    SELECTION_COMMAND_COUNT=$((SELECTION_COMMAND_COUNT + 1))
+                fi
+                ;;
+            AGENT)
+                if [ -f "$repo_root/catalog/agents/$value.md" ]; then
+                    cp "$repo_root/catalog/agents/$value.md" "$SELECTION_STAGE/agents/"
+                    SELECTION_AGENT_COUNT=$((SELECTION_AGENT_COUNT + 1))
+                fi
+                ;;
+            WARN)
+                echo "WARNING: selection resolved to the entire catalog; '--profile full' says this directly." >&2
+                ;;
+        esac
+    done <<< "$out"
+
+    SELECTION_ACTIVE=1
+    return 0
+}
+
+cleanup_selection_stage() {
+    [ -n "$SELECTION_STAGE" ] && [ -d "$SELECTION_STAGE" ] && rm -rf "$SELECTION_STAGE"
+    return 0
+}
+
 # Run runner.py for a single registry-backed integration. Caller is
 # responsible for printing the provider header (write_header). This
 # function prints a sub-item label for the platform display name and
@@ -1747,6 +1894,12 @@ invoke_registry_platform() {
     if [ "$scope" = "workspace" ]; then
         args+=("--target" "$target_path")
     fi
+    # v3.16.1 Phase 6.1: forward the selectors so the registry resolves the same
+    # plan this script did. Passed as separate array elements, never interpolated
+    # into a command string, so a selector value cannot inject an argument.
+    [ -n "$SELECT_PROFILE" ] && args+=("--profile" "$SELECT_PROFILE")
+    [ -n "$SELECT_MODULES" ] && args+=("--modules" "$SELECT_MODULES")
+    [ -n "$SELECT_BUNDLES" ] && args+=("--bundles" "$SELECT_BUNDLES")
     if [ "$OVERWRITE_ALL" = true ]; then
         args+=("--overwrite")
     fi
@@ -2297,10 +2450,17 @@ install_templates() {
     # ships the per-platform install logic for the extended platforms (Windsurf,
     # Antigravity 2.0, Gemini CLI, Nexus-AI). The recursive folder copy lands
     # the whole class hierarchy under ~/.nexus-hub/scripts/lib/integrations/.
-    local integrations_src="$repo_root/scripts/lib/integrations"
-    local integrations_dest="$scripts_dest/lib/integrations"
-    if [ -d "$integrations_src" ]; then
-        safe_folder_copy "$integrations_src" "$integrations_dest" "[OK] Integration registry installed at: $integrations_dest"
+    # v3.16.1 (NI-3): copy the WHOLE scripts/lib tree, not just integrations/.
+    # Six integration modules import from scripts/lib/installer/ (three at module
+    # top level), so copying only integrations/ produced an installed tree that
+    # looked importable and was not. Nothing executed it -- the registry always
+    # runs from the checkout -- but shipping a knowingly-broken copy is worse
+    # than either fixing it or not shipping it, and the resolver added in
+    # v3.16.1 lands in that same directory.
+    local lib_src="$repo_root/scripts/lib"
+    local lib_dest="$scripts_dest/lib"
+    if [ -d "$lib_src" ]; then
+        safe_folder_copy "$lib_src" "$lib_dest" "[OK] Integration registry installed at: $lib_dest/integrations"
     fi
     # Empty package markers so the module can be imported from the installed location.
     if [ -d "$scripts_dest/lib" ]; then
@@ -2865,6 +3025,7 @@ show_installer_usage() {
     cat <<EOF
 Usage:
   bash scripts/installer.sh [--workspace PATH] [--platforms LIST] [--yes]
+                            [--profile ID] [--modules LIST] [--bundles LIST]
                             [--force] [--enterprise] [-h | --help]
   bash scripts/installer.sh init [--target PATH] [--dry-run]
   bash scripts/installer.sh --print-config <integration-key>
@@ -2901,6 +3062,17 @@ Options:
                  antigravity2, gemini-cli, copilot, cursor, opencode, nexus-ai,
                  aider, windsurf, kimi, qwen, openclaw. Use --platforms=<list>
                  or --platforms <list>.
+  --profile <id>      Install one profile instead of the whole catalog:
+                 minimal, core, or full. Default (no selector) is full.
+  --modules <list>    Install the given comma-separated capability modules.
+                 Repeatable; --modules a,b and --modules a --modules b are
+                 equivalent.
+  --bundles <list>    Install the given comma-separated role bundles. Repeatable.
+                 Selectors combine by union: --profile core --modules ai-engineering
+                 installs both. --profile full cannot be combined with others.
+                 Hooks, rules, templates, and settings install under EVERY
+                 selection; only skills and their dependent commands and agents
+                 are filtered. Selectors need Python; a full install does not.
   --yes, -y      Non-interactive: never prompt, and refresh existing managed
                  files to the latest version (also implied when stdin is not a
                  TTY, e.g. a piped curl|bash install).
@@ -2982,6 +3154,60 @@ while [ $# -gt 0 ]; do
                 exit 2
             fi
             PASSTHRU_ARGS+=("--platforms=$PLATFORMS_ARG")
+            shift
+            ;;
+        --profile)
+            SELECT_PROFILE="${2:-}"
+            if [ -z "$SELECT_PROFILE" ]; then
+                echo "--profile requires a profile id" >&2
+                exit 2
+            fi
+            PASSTHRU_ARGS+=("--profile" "$SELECT_PROFILE")
+            shift 2
+            ;;
+        --profile=*)
+            SELECT_PROFILE="${1#--profile=}"
+            if [ -z "$SELECT_PROFILE" ]; then
+                echo "--profile requires a profile id" >&2
+                exit 2
+            fi
+            PASSTHRU_ARGS+=("--profile=$SELECT_PROFILE")
+            shift
+            ;;
+        --modules)
+            if [ -z "${2:-}" ]; then
+                echo "--modules requires a comma-separated list" >&2
+                exit 2
+            fi
+            SELECT_MODULES="${SELECT_MODULES:+$SELECT_MODULES,}$2"
+            PASSTHRU_ARGS+=("--modules" "$2")
+            shift 2
+            ;;
+        --modules=*)
+            if [ -z "${1#--modules=}" ]; then
+                echo "--modules requires a comma-separated list" >&2
+                exit 2
+            fi
+            SELECT_MODULES="${SELECT_MODULES:+$SELECT_MODULES,}${1#--modules=}"
+            PASSTHRU_ARGS+=("$1")
+            shift
+            ;;
+        --bundles)
+            if [ -z "${2:-}" ]; then
+                echo "--bundles requires a comma-separated list" >&2
+                exit 2
+            fi
+            SELECT_BUNDLES="${SELECT_BUNDLES:+$SELECT_BUNDLES,}$2"
+            PASSTHRU_ARGS+=("--bundles" "$2")
+            shift 2
+            ;;
+        --bundles=*)
+            if [ -z "${1#--bundles=}" ]; then
+                echo "--bundles requires a comma-separated list" >&2
+                exit 2
+            fi
+            SELECT_BUNDLES="${SELECT_BUNDLES:+$SELECT_BUNDLES,}${1#--bundles=}"
+            PASSTHRU_ARGS+=("$1")
             shift
             ;;
         --yes|-y)
@@ -3153,6 +3379,18 @@ if [ -n "$PLATFORMS_ARG" ]; then
         echo "--platforms produced an empty platform set" >&2
         exit 2
     fi
+fi
+
+# --- Resolve the install selection (v3.16.1 Phase 6.1) -------------------
+# Deliberately placed beside the --platforms validation above and BEFORE any
+# write: an invalid selector must never leave a half-installed tree. A run with
+# no selector returns immediately and takes the identical path it always did.
+resolve_selection "$REPO_ROOT"
+trap cleanup_selection_stage EXIT
+if [ "$SELECTION_ACTIVE" = "1" ]; then
+    echo ""
+    echo "Selection: ${SELECTION_SKILL_COUNT} skills, ${SELECTION_COMMAND_COUNT} commands, ${SELECTION_AGENT_COUNT} agents"
+    echo "           ${SELECTION_HASH}"
 fi
 
 # Resolve the assume-yes / overwrite decision. --yes or --force force it; a

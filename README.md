@@ -315,6 +315,37 @@ After the installer completes:
 
 **Power-user flags**: `--workspace <path>` installs into a single repo instead of globally; `--platforms <comma-list>` limits the install to a subset of assistants; `--yes` runs fully unattended (refreshes managed files with no prompt -- ideal for CI). Prefer to clone first? `git clone` the repo and run `./install.sh` (macOS / Linux) or `install.bat` (Windows) -- the in-repo path still works exactly as before.
 
+### Installing a subset (selective installation)
+
+By default you get the whole catalog. If you want a smaller install, pick a **profile**, one or more **capability modules**, or one or more **role bundles**. Selectors combine by union.
+
+```bash
+# macOS / Linux
+bash scripts/installer.sh --profile core
+bash scripts/installer.sh --modules ai-engineering,testing
+bash scripts/installer.sh --bundles ai-engineer
+bash scripts/installer.sh --profile core --modules security-operations   # union
+```
+
+```powershell
+# Windows
+.\scripts\installer.ps1 -Profile core
+.\scripts\installer.ps1 -Modules ai-engineering,testing
+.\scripts\installer.ps1 -Bundles ai-engineer
+```
+
+Profiles are `minimal`, `core`, and `full`. Modules group skills by capability (one per catalog category, so every skill is reachable through at least one). Role bundles are curated cross-category sets like `ai-engineer` or `devops-engineer`. List what is available with `python scripts/lib/installer/selection.py --repo-root . --profile core` , which prints the resolved plan without installing anything.
+
+Three things worth knowing before you narrow an install:
+
+- **Hooks, rules, templates, and settings always install**, under every selection including `minimal`. Narrowing your skill set asks for fewer capabilities, never for fewer guardrails.
+- **Commands and agents follow their skills.** A command that is a thin pointer over one skill (for example `/implement` over `implement-phase`) installs only when that skill is selected; everything else installs regardless. So a focused install stays coherent instead of leaving commands that cannot do anything.
+- **No selector means the full catalog**, byte-for-byte identical to what you would have got before selective installation existed.
+
+`nexus-hub upgrade` re-applies whatever you selected, so an upgrade never quietly widens a focused install back to everything. To change scope, pass a new selector; to go back to everything, pass `--profile full`.
+
+Selectors need Python to resolve. A full install does not.
+
 ### Keeping it current
 
 Run `nexus-hub upgrade` -- it reports your installed version against the latest, shows a short what's-new summary, and updates in place on confirmation. Re-running the install command above works too; the installer is idempotent.

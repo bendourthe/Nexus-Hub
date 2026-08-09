@@ -1,4 +1,4 @@
 interface:
   display_name: Data Pipeline Design
   short_description: Data pipeline design for ETL/ELT workflows, streaming architectures, data validation, and orchestration. Use when building data pipelines, choosing batch vs streaming, or implementing
-    data quality che
+    data quality checks.

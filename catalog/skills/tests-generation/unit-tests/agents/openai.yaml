@@ -1,4 +1,4 @@
 interface:
   display_name: Unit Tests Generation
   short_description: Generate comprehensive unit tests following FIRST principles (Fast, Independent, Repeatable, Self-validating, Timely) and AAA pattern (Arrange-Act-Assert). Use when creating tests,
-    improving test cove
+    improving test coverage, writing test suites, implementing TDD, or testing functions and classes in Python, JavaScript, Java, C#, Go, C, or C++.

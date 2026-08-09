@@ -1,4 +1,4 @@
 interface:
   display_name: Event-Driven Architecture
   short_description: Event-driven architecture patterns including event sourcing, CQRS, message brokers, and event schema design. Use when designing asynchronous systems, implementing event stores, or choosing
-    messaging i
+    messaging infrastructure.

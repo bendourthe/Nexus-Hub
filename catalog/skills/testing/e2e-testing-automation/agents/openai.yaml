@@ -1,4 +1,4 @@
 interface:
   display_name: E2E Testing Automation
-  short_description: 'End-to-end testing automation with Playwright, Cypress, and Selenium including page objects, visual regression, and CI integration. Use when implementing browser testing, setting up
-    E2E pipelines, or '
+  short_description: End-to-end testing automation with Playwright, Cypress, and Selenium including page objects, visual regression, and CI integration. Use when implementing browser testing, setting up
+    E2E pipelines, or debugging flaky tests.

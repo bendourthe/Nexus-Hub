@@ -1,4 +1,3 @@
 interface:
   display_name: Cross-Project Comparison
-  short_description: Compare two projects across technology stack, AI configuration, skills, commands, testing, security, documentation, and developer experience to produce a structured gap analysis and
-    adoption plan
+  short_description: Compare the current project with an external knowledge source (Git repo, web article, or local path) to produce a structured gap analysis and adoption plan.

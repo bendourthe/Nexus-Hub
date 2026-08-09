@@ -1,4 +1,4 @@
 interface:
   display_name: Rust Expert
   short_description: Deep Rust expertise for systems programming with ownership, borrowing, and lifetimes. Use when writing Rust code, understanding ownership errors, implementing traits, working with async/await,
-    or opti
+    or optimizing performance-critical code.

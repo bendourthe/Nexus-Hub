@@ -1,4 +1,4 @@
 interface:
   display_name: Initialize Python Project
-  short_description: 'Initialize a complete Python project with standard structure, pyproject.toml, testing framework, and documentation. Use when starting a new Python project, creating CLI tools, web
-    APIs, libraries, or '
+  short_description: Initialize a complete Python project with standard structure, pyproject.toml, testing framework, and documentation. Use when starting a new Python project, creating CLI tools, web APIs,
+    libraries, or data science projects.

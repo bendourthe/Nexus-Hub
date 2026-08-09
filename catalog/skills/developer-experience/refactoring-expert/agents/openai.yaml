@@ -1,4 +1,4 @@
 interface:
   display_name: Refactoring Expert
   short_description: Safe code refactoring using proven patterns from Martin Fowler's catalog. Use when restructuring code, extracting methods/classes, simplifying conditionals, improving naming, or reducing
-    technical deb
+    technical debt without changing behavior.

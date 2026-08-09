@@ -1,4 +1,4 @@
 interface:
   display_name: Code Smell Detector
   short_description: Detect and categorize code smells using Martin Fowler's catalog with severity scoring and refactoring recommendations. Use when reviewing code quality, identifying long methods, god
-    classes, feature e
+    classes, feature envy, data clumps, shotgun surgery, or other structural problems.

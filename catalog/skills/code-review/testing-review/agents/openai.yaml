@@ -1,4 +1,4 @@
 interface:
   display_name: Code Review - Testing Review
   short_description: Assess test coverage, test quality, testing strategy effectiveness, and identify coverage gaps. Use when evaluating test suites, improving test strategy, preparing for releases, or
-    as Phase 5 of compr
+    as Phase 5 of comprehensive code review.

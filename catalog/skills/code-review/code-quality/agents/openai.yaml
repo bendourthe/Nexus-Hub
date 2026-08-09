@@ -1,4 +1,4 @@
 interface:
   display_name: Code Review - Code Quality
   short_description: Evaluate code style, maintainability, complexity metrics, SOLID principles, dead code removal candidates, and adherence to best practices. Use for code quality assessment, technical
-    debt identificatio
+    debt identification, maintainability improvement, or as Phase 2 of comprehensive code review.

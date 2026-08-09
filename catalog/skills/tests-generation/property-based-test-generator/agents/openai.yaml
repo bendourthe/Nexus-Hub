@@ -1,4 +1,4 @@
 interface:
   display_name: Property-Based Test Generator
   short_description: Generate property-based tests using QuickCheck/Hypothesis-style frameworks that verify invariants over randomly generated inputs. Use when testing mathematical properties, round-trip
-    conversions, idem
+    conversions, idempotent operations, model-based state machines, or when you need to discover edge cases automatically through shrinking.

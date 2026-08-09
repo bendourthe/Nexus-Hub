@@ -1,4 +1,4 @@
 interface:
   display_name: Strategic Comments
   short_description: Add high-value comments explaining complex logic, business rules, design decisions, and non-obvious implementations. Use when clarifying code intent, documenting workarounds, explaining
-    algorithms, or
+    algorithms, or adding context that code alone cannot convey.

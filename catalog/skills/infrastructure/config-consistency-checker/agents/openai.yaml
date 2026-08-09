@@ -1,4 +1,4 @@
 interface:
   display_name: Config Consistency Checker
   short_description: Detects configuration drift and inconsistencies across environments by comparing dev, staging, and production configs, validating schemas, and reporting missing keys and type mismatches.
-    Use when audi
+    Use when auditing environment configurations, debugging environment-specific failures, or enforcing configuration standards.

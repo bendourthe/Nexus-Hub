@@ -1,0 +1,91 @@
+{
+  "_comment": "Miniature bundles.json for install-selection tests. Deliberately tiny and platform-neutral so expectations in cases.json stay readable and stable; the real catalog has 271 skills and would make every expectation a maintenance burden. Shape mirrors data/bundles.json (metadata / profiles / modules / bundles) plus the two optional objects the v3.16.1 contract defines (skill_dependencies, surface_requirements). The `_available_*` keys are test-only and stand in for what exists on disk under catalog/.",
+  "metadata": {
+    "version": "1.4.0",
+    "description": "Fixture catalog for install-selection contract tests."
+  },
+  "_available_skills": [
+    "a1", "a2", "a3", "b1", "b2", "c1", "c2", "dep1", "dep2"
+  ],
+  "_available_commands": ["cmd-ai", "cmd-web", "cmd-free"],
+  "_available_agents": ["agent-ai", "agent-free"],
+  "_profile_shape_note": "Profiles COMPOSE from bundles + modules + extra_skills and carry no flat `skills` list, mirroring the real data/bundles.json exactly. A resolver that reads only `skills` resolves every real profile to the empty set. `full` is marked by `all: true`, not by listing the catalog.",
+  "profiles": [
+    {
+      "id": "minimal",
+      "name": "Minimal",
+      "description": "Smallest coherent set: one role bundle.",
+      "bundles": ["role-alpha"],
+      "modules": [],
+      "extra_skills": []
+    },
+    {
+      "id": "core",
+      "name": "Core",
+      "description": "A bundle plus a module plus one extra skill, exercising all three composition keys at once.",
+      "bundles": ["role-alpha"],
+      "modules": ["mod-web"],
+      "extra_skills": ["a2"]
+    },
+    {
+      "id": "full",
+      "name": "Full",
+      "description": "Everything in the catalog. Equivalent to the no-selector default install.",
+      "bundles": [],
+      "modules": [],
+      "extra_skills": [],
+      "all": true
+    },
+    {
+      "id": "empty",
+      "name": "Empty",
+      "description": "Test-only profile that composes from nothing, to exercise the empty-selection error.",
+      "bundles": [],
+      "modules": [],
+      "extra_skills": []
+    }
+  ],
+  "modules": [
+    {
+      "id": "mod-ai",
+      "name": "AI",
+      "capability": "ai",
+      "description": "AI capability module.",
+      "skills": ["a2", "a3"]
+    },
+    {
+      "id": "mod-web",
+      "name": "Web",
+      "capability": "web",
+      "description": "Web capability module.",
+      "skills": ["b1", "b2"]
+    }
+  ],
+  "bundles": [
+    {
+      "id": "role-alpha",
+      "name": "Alpha",
+      "description": "Role bundle with no dependency edges.",
+      "skills": ["a1", "c1"]
+    },
+    {
+      "id": "role-beta",
+      "name": "Beta",
+      "description": "Role bundle whose dep1 pulls dep2 through closure.",
+      "skills": ["b2", "c2", "dep1"]
+    }
+  ],
+  "skill_dependencies": {
+    "dep1": ["dep2"],
+    "a3": ["a1"]
+  },
+  "surface_requirements": {
+    "commands": {
+      "cmd-ai": ["a2", "a3"],
+      "cmd-web": ["b1"]
+    },
+    "agents": {
+      "agent-ai": ["a3"]
+    }
+  }
+}

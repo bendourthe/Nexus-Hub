@@ -66,7 +66,7 @@
       "id": "ai-development",
       "name": "AI Development",
       "description": "Build and deploy AI agents, manage billing, route across providers, build MCP servers",
-      "skill_count": 12
+      "skill_count": 13
     },
     {
       "id": "architecture",

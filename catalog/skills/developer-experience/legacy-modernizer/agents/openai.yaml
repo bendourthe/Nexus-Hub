@@ -1,4 +1,4 @@
 interface:
   display_name: Legacy Modernizer
   short_description: Modernize legacy codebases using proven migration strategies like Strangler Fig pattern. Use when upgrading frameworks, migrating to new architectures, replacing deprecated APIs, or
-    incrementally mode
+    incrementally modernizing old code without full rewrites.

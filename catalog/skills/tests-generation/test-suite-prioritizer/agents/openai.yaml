@@ -1,4 +1,4 @@
 interface:
   display_name: Test Suite Prioritizer
-  short_description: 'Order and prioritize test suites for faster CI feedback using failure history analysis, code change correlation, coverage-based prioritization, risk-based ordering, and test selection
-    strategies. Use '
+  short_description: Order and prioritize test suites for faster CI feedback using failure history analysis, code change correlation, coverage-based prioritization, risk-based ordering, and test selection
+    strategies. Use when CI pipelines are slow, you need faster feedback loops, or you want to run the most important tests first.
