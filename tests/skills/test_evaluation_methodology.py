@@ -45,6 +45,12 @@ _CONTRACT = (
     / "evaluation-artifact-contract.md"
 )
 
+# Phase 3: the two references owned by ai-output-evaluation.
+_AOE_SKILL_DIR = _SKILLS / "developer-experience" / "ai-output-evaluation"
+_AOE_SKILL = _AOE_SKILL_DIR / "SKILL.md"
+_ERROR_ANALYSIS = _AOE_SKILL_DIR / "references" / "error-analysis.md"
+_EVALUATOR_VALIDATION = _AOE_SKILL_DIR / "references" / "evaluator-validation.md"
+
 # Metric name -> (section heading pattern, defining-formula pattern).
 # A metric counts as "defined" only when BOTH are present: a heading alone is a
 # mention, and Phase 1.2's deliverable is reproducible arithmetic.
@@ -433,4 +439,255 @@ def test_retrieval_first_assertion_has_teeth(rag_reference: str) -> None:
     assert not separates_retrieval_from_generation(mutated), (
         "The retrieval-before-generation check passes with the ordering rule "
         "removed, so it is only detecting that both words appear."
+    )
+
+
+# --------------------------------------------------------------------------- #
+# Phase 3: error analysis and evaluator calibration
+#
+# These two references carry the methods that decide whether a judge may block a
+# release. The assertions below target the specific claims that make that
+# decision safe, because each is a rule a well-meaning condensing edit would drop
+# as detail: the held-out split, the tuning isolation, the blind review, and the
+# prevalence caveat all read like caveats and are load-bearing.
+# --------------------------------------------------------------------------- #
+
+@pytest.fixture(scope="module")
+def error_analysis() -> str:
+    assert _ERROR_ANALYSIS.is_file(), (
+        f"Missing the error-analysis reference at {_ERROR_ANALYSIS}. Phase 3.1 "
+        "requires it and eval-pipeline-audit already routes gaps to it."
+    )
+    return _ERROR_ANALYSIS.read_text(encoding="utf-8")
+
+
+@pytest.fixture(scope="module")
+def evaluator_validation() -> str:
+    assert _EVALUATOR_VALIDATION.is_file(), (
+        f"Missing the evaluator-validation reference at {_EVALUATOR_VALIDATION}. "
+        "Phase 3.2 requires it and eval-pipeline-audit already routes gaps to it."
+    )
+    return _EVALUATOR_VALIDATION.read_text(encoding="utf-8")
+
+
+@pytest.fixture(scope="module")
+def aoe_skill() -> str:
+    return _AOE_SKILL.read_text(encoding="utf-8")
+
+
+@pytest.mark.parametrize("basename", ["error-analysis.md", "evaluator-validation.md"])
+def test_phase3_references_are_linked_from_the_parent_skill(aoe_skill: str, basename: str) -> None:
+    assert f"references/{basename}" in aoe_skill, (
+        f"ai-output-evaluation/SKILL.md must link `references/{basename}` by "
+        "basename. An unreferenced bundled file is an orphan and the catalog "
+        "bundle audit flags it."
+    )
+
+
+def test_parent_skill_separates_scoring_from_validating_the_evaluator(aoe_skill: str) -> None:
+    assert "Evaluating Output vs Validating the Evaluator" in aoe_skill, (
+        "The parent skill must name the distinction between scoring output and "
+        "validating the scorer. Without it a reader treats an unvalidated judge "
+        "as interchangeable with a measured one."
+    )
+
+
+def test_parent_skill_requires_held_out_evidence_for_a_gating_evaluator(aoe_skill: str) -> None:
+    section = aoe_skill.split("## Verification", 1)[1].split("\n## ", 1)[0]
+    assert "held-out" in section, (
+        "Verification must require held-out evidence before an evaluator gates a "
+        "release. That is the difference between a measured gate and an "
+        "unmeasured blocker nobody can appeal."
+    )
+    assert "disagreement review" in section, (
+        "Verification must require a documented disagreement review for a "
+        "release-gating evaluator."
+    )
+
+
+@pytest.mark.parametrize(
+    "concept,pattern",
+    [
+        ("trace sampling method", r"sampling_method"),
+        ("failure-biased sampling caveat", r"failure[_ ]biased"),
+        ("inclusion criteria", r"[Ii]nclusion"),
+        ("exclusion criteria", r"[Ee]xclusion"),
+        ("multi-label handling", r"[Mm]ulti-label"),
+        ("severity ranking", r"[Ss]everity"),
+        ("root-cause hypothesis", r"[Hh]ypothesis"),
+        ("refuting evidence", r"[Rr]efut"),
+    ],
+)
+def test_error_analysis_covers_its_required_method(
+    error_analysis: str, concept: str, pattern: str
+) -> None:
+    assert re.search(pattern, error_analysis), (
+        f"error-analysis.md is missing the {concept}. Each exists because it is "
+        "a way a trace review produces numbers that do not mean what they say."
+    )
+
+
+def test_error_analysis_forbids_reporting_biased_samples_as_base_rates(error_analysis: str) -> None:
+    assert re.search(r"base rate", error_analysis, re.I), (
+        "error-analysis.md must warn that a failure-biased sample cannot report "
+        "base rates. Presenting category shares from a failure-biased sample as "
+        "system failure rates is the most common error in trace review."
+    )
+
+
+def test_error_analysis_requires_exclusion_criteria_per_category(error_analysis: str) -> None:
+    assert re.search(r"exclusion_criteria|Exclusion:", error_analysis), (
+        "Every taxonomy category must declare exclusion criteria. Without them "
+        "two reviewers file the same trace differently and the frequency counts "
+        "stop meaning anything."
+    )
+
+
+def test_error_analysis_converts_patterns_into_regression_cases(error_analysis: str) -> None:
+    assert "regression_case" in error_analysis, (
+        "error-analysis.md must promote confirmed patterns into `regression_case` "
+        "artifacts. A pattern with no regression case is a pattern that will be "
+        "rediscovered."
+    )
+    for field in ("origin_trace_id", "assertion", "expected_behavior"):
+        assert field in error_analysis, (
+            f"The regression_case definition is missing `{field}`, so a promoted "
+            "case would not be runnable or traceable to its origin."
+        )
+    assert re.search(r"minimiz", error_analysis, re.I), (
+        "Regression cases must be minimized before promotion: an unminimized "
+        "case drags raw production data into a committed test suite."
+    )
+
+
+@pytest.mark.parametrize(
+    "concept,pattern",
+    [
+        ("held-out split", r"held-out"),
+        ("three-way separation", r"development"),
+        ("holdout touch counting", r"holdout_touched_count"),
+        ("confusion matrix", r"[Cc]onfusion [Mm]atrix"),
+        ("true positive", r"True Positive"),
+        ("true negative", r"True Negative"),
+        ("precision", r"Precision\s+="),
+        ("recall / TPR", r"Recall \(TPR\)"),
+        ("specificity / TNR", r"Specificity \(TNR\)"),
+        ("confidence interval", r"Wilson"),
+        ("recalibration trigger", r"[Rr]ecalibrat"),
+        ("blind annotation", r"[Bb]lind"),
+        ("adjudication", r"[Aa]djudicat"),
+    ],
+)
+def test_evaluator_validation_covers_its_required_method(
+    evaluator_validation: str, concept: str, pattern: str
+) -> None:
+    assert re.search(pattern, evaluator_validation), (
+        f"evaluator-validation.md is missing the {concept}. A judge promoted to "
+        "a release gate without it has an unknown failure mode."
+    )
+
+
+def test_evaluator_validation_isolates_threshold_tuning_from_the_test_split(
+    evaluator_validation: str,
+) -> None:
+    assert "development" in evaluator_validation, (
+        "Thresholds must be tuned on a development split."
+    )
+    assert re.search(r"Never used for|ever\b", evaluator_validation), (
+        "The reference must state that the held-out split is never used for a "
+        "tuning decision. Re-tuning against the test split and reporting the "
+        "improved number turns a test set into a training set."
+    )
+
+
+def test_evaluator_validation_has_a_worked_confusion_matrix(evaluator_validation: str) -> None:
+    for value in ("0.600", "0.750", "0.786"):
+        assert value in evaluator_validation, (
+            f"The worked confusion-matrix example lost the computed value {value}. "
+            "The example must show the arithmetic, not describe it."
+        )
+
+
+def test_evaluator_validation_explains_the_prevalence_effect(evaluator_validation: str) -> None:
+    assert re.search(r"[Pp]revalence", evaluator_validation), (
+        "The reference must cover prevalence: precision is not a property of the "
+        "judge, and a judge validated at one failure rate behaves very "
+        "differently at another."
+    )
+    assert "0.156" in evaluator_validation, (
+        "The prevalence worked example lost its computed precision. Showing "
+        "precision falling from 0.60 to 0.16 with the judge unchanged is what "
+        "makes the caveat concrete rather than a warning to skim."
+    )
+
+
+def test_evaluator_validation_distinguishes_advisory_from_gate(evaluator_validation: str) -> None:
+    assert re.search(r"[Aa]dvisory", evaluator_validation), "Must define the advisory posture."
+    assert re.search(r"[Rr]elease gate", evaluator_validation), (
+        "The reference must state when a judge is qualified to gate a release. "
+        "Promotion between those postures without evidence is the failure this "
+        "whole reference guards."
+    )
+
+
+@pytest.mark.parametrize(
+    "path", [_ERROR_ANALYSIS, _EVALUATOR_VALIDATION], ids=lambda p: p.name
+)
+def test_phase3_references_declare_local_first(path: Path) -> None:
+    text = path.read_text(encoding="utf-8")
+    assert declares_local_first(text), (
+        f"{path.name} must declare the local-by-default rule and name "
+        f"egress-redaction as the gate. Expected all of {LOCAL_FIRST_MARKERS}. "
+        "These references handle production traces and human labels about real "
+        "interactions."
+    )
+
+
+@pytest.mark.parametrize(
+    "path", [_ERROR_ANALYSIS, _EVALUATOR_VALIDATION], ids=lambda p: p.name
+)
+def test_phase3_references_use_the_shared_artifact_vocabulary(path: Path) -> None:
+    text = path.read_text(encoding="utf-8")
+    expected = {
+        "error-analysis.md": ("trace_sample", "error_taxonomy", "regression_case"),
+        "evaluator-validation.md": ("split_manifest", "human_annotation", "adjudication_record"),
+    }[path.name]
+    missing = [a for a in expected if a not in text]
+    assert not missing, (
+        f"{path.name} does not speak the Phase 1 artifact contract: missing "
+        f"{missing}. Shared names are what let eval-pipeline-audit inventory "
+        "these by name."
+    )
+
+
+@pytest.mark.parametrize(
+    "path", [_ERROR_ANALYSIS, _EVALUATOR_VALIDATION], ids=lambda p: p.name
+)
+def test_phase3_references_are_ascii_with_binary_verification(path: Path) -> None:
+    text = path.read_text(encoding="utf-8")
+    assert is_ascii(text), f"{path.name} must be ASCII-only."
+    assert re.search(r"##\s+Verification", text), (
+        f"{path.name} must end with a binary Verification checklist."
+    )
+    items = re.findall(r"^- \[ \] (.+)$", text.split("## Verification", 1)[1], re.M)
+    assert len(items) >= 8, (
+        f"{path.name} has only {len(items)} verification items; these references "
+        "carry enough rules that a short checklist means rules went unchecked."
+    )
+
+
+@pytest.mark.parametrize(
+    "path,pattern,label",
+    [
+        (_ERROR_ANALYSIS, r"regression_case", "regression_case promotion"),
+        (_EVALUATOR_VALIDATION, r"holdout_touched_count", "holdout touch counting"),
+    ],
+    ids=["error-analysis", "evaluator-validation"],
+)
+def test_phase3_assertions_have_teeth(path: Path, pattern: str, label: str) -> None:
+    """Deleting the target lines must make the corresponding check fail."""
+    mutated = _without(path.read_text(encoding="utf-8"), pattern)
+    assert not re.search(pattern, mutated), (
+        f"The {label} check still matches after its lines are deleted, so it "
+        "guards nothing."
     )

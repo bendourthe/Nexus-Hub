@@ -1,5 +1,30 @@
 # Development Log
 
+## [2026-08-08] - v3.16.1 Phase 3: error analysis and evaluator calibration
+
+### What Changed
+
+Two Tier-3 references under `ai-output-evaluation`: `error-analysis.md` turns sampled failures into a quantified taxonomy and permanent regression coverage, and `evaluator-validation.md` defines what a judge must prove before it may block a release. The parent skill routes to both and now requires held-out evidence and a documented disagreement review for any release-gating evaluator. Test module grew from 74 to 114 assertions. No new known gaps.
+
+### Why It Changed
+
+Phase 1 named these artifacts and Phase 2's routing table already pointed at both files, so the references were filling targets that already had inbound links. The substantive gap was that `ai-output-evaluation` taught how to score output but said nothing about whether the scorer is right. That distinction matters most exactly where it was missing: a team promoting an LLM judge from "useful signal" to "blocks the merge" was doing so on spot-checks, which confirm agreement on the cases someone chose to look at and are rarely the ambiguous ones.
+
+### Decisions Made
+
+- **Exclusion criteria are mandatory per taxonomy category.** A category with a definition but no boundary drifts into its neighbors, two reviewers file the same trace differently, and the frequency counts stop meaning anything while still looking precise. The worked pair (`unsupported_claim` versus `retrieval_miss`) doubles as enforcement of Phase 1's retrieval-before-generation order, so a retrieval failure cannot be filed as a hallucination.
+- **Single-label by earliest cause is the default.** Retrieval missed, then the model invented an answer: the category is `retrieval_miss`. Fixing the earliest link prevents the downstream failure, so single-label counts point at the work instead of double-counting one root cause across two categories.
+- **The prevalence effect is shown as arithmetic, not stated as a caveat.** Hold recall and specificity fixed, move the failure rate from 30 percent to 5 percent, and precision falls from 0.60 to 0.16 - same judge, same measured metrics. As a warning it reads as a footnote; as a worked example it explains why a judge that validated well gets ignored a week after deployment. A test asserts the 0.156 figure specifically.
+- **Held-out evidence is required for gating evaluators, not all evaluators.** Applying the full validation burden to advisory scoring would make it impractically expensive and push teams to skip evaluation entirely. The cost belongs where the consequence is: a judge that blocks a merge and cannot be appealed.
+
+### Troubleshooting Trail
+
+- **The session had moved to `develop`, and this phase nearly got built on the wrong tree.** At phase start the working tree was on `develop` (`6e345e19`), not the feature branch, and every Phase 1 and 2 artifact was absent from disk - the audit skill, the RAG reference, the artifact contract, and both test modules. The commits were safe on the feature branch, but building here would have produced two references pointing at a contract not present on this branch, and the test extension would have had no file to extend. The failure mode is silent: each individual file operation would have succeeded. Stopped and asked rather than proceeding, then verified all five artifacts present and the tree clean before writing anything.
+
+### Verification
+
+114 assertions in the methodology module (up from 74); `tests/skills` plus `tests/validators` at 978 passed, 3 skipped. Bundle audit 0/0 across 271 skills with both references correctly seen as linked; quality heuristics 0 errors with no finding on the parent skill; trigger gate clean; skill-security scan 0 findings across 4 files; unicode clean on both new files. Six remaining `validate` guards pass; `git diff --check` clean. CI needs no change: both files live under `catalog/skills/`, which the workflow's `paths` filter includes.
+
 ## [2026-08-08] - v3.16.1 Phase 2: evaluation pipeline audit skill
 
 ### What Changed
