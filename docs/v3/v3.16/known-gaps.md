@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (all 5 phases complete; reconciled and release-ready, unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
-**Last updated**: 2026-08-09 (v3.16.2 Phase 4 append; NI-2 raised, on top of Phase 3's BG-2 / QG-1, Phase 2's NI-1 / DF-1, and Phase 1's MT-1 / WN-1 / BG-1)
+**Last updated**: 2026-08-09 (v3.16.2 Phase 5 append; BG-3 and QG-2 raised-and-closed, NI-1 / DF-1 / WN-2 closed, NI-3 raised)
 
 > **File-lifecycle note**: this ledger was created ahead of any v3.16 implementation, by a comparison that deliberately claimed no release slot, so it began with only the `## Comparison-Sourced Deferrals` section. Each v3.16 version-implementation phase **appends** its own `## v3.16.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` numbering, which is namespaced separately from the `CD-#` and `TR-#` ids used above.
 
@@ -536,6 +536,37 @@ One fail and one out-of-scope is the outcome that makes the gate worth having: i
 - **Watch item**: `observability-setup` at 763 lines is within 37 lines of the hard cap. The next cycle that adds to it should split it into `references/` first rather than discovering the cap mid-edit.
 - **Suggested next step**: Phase 6.1's refactor pass should decide whether to split `observability-setup`, which is the natural place for that call.
 
+### BG-3 - RESOLVED in Phase 5: the Bash doctor read every `file_contains` surface as MISSING
+
+- **What it was**: the Bash `doctor` flattens the contract to tab-separated records. On a Windows host the Python fallback's `print()` emits CRLF, so the LAST field arrived carrying a trailing `\r`. Only `file_contains` surfaces use that final `needle` column, so only they broke: Bash reported 5 complete / 5 incomplete where PowerShell reported 9 / 1, on the same machine, with matching exit codes hiding the disagreement.
+- **How it was found**: by running both implementations against the real machine and diffing the verdict lines. Neither implementation is wrong in isolation, and no single-platform test could have seen it. This is shape S-1 failure mode 2 (runs but disagrees) reproduced within hours of the notes describing it being written.
+- **Resolution**: strip a trailing CR from the final field in the read loop, with the reasoning recorded inline. Verdict lines are now byte-identical across implementations, asserted by `tests/installer/test_doctor_parity.py`.
+- **Why it is recorded rather than fixed silently**: it is the clearest available evidence that the parity requirement earns its cost. The durable fixes from both backfilled incidents caught a real defect on their first application.
+
+### QG-2 - RESOLVED in Phase 5: `scripts/installer.ps1` was never AST-parsed in CI
+
+- **What it was**: CI's unconditional PowerShell AST-parse step globbed `catalog/hooks` only, and the `bootstrap` job parses only the root `install.ps1`. `scripts/installer.ps1` - the largest PowerShell file in the repo, and the one this phase adds a subcommand to - was covered by neither. A parse error in it would have shipped exactly as `session-summary.ps1` did in v3.11.0.
+- **How it was found**: while deciding where to add the AST assertion the plan required for the new `.ps1` code. The gate that the v3.11.0 incident produced turned out not to cover the file most exposed to the failure it guards.
+- **Resolution**: the AST-parse step now covers `catalog/hooks/*.ps1`, `scripts/*.ps1`, and the root `install.ps1`. Verified locally on Windows PowerShell 5.1.
+
+### NI-1 - RESOLVED in Phase 5
+
+The `nexus-hub doctor` reference in `catalog/commands/update.md` (raised in Phase 2 as a documented-but-absent capability) now resolves: the subcommand exists in both installers. Closed by construction rather than by editing the prose, which is what Phase 2 predicted.
+
+### DF-1 - RESOLVED in Phase 5
+
+`scripts/check_release_capability_docs.py` exists, is wired into `DEV_ONLY_SCRIPTS`, and is now named in `update.md`'s governance step 6 with its real invocation. It ships ADVISORY (exits 0 while reporting) per the comparison's sequencing recommendation; `--strict` is the flip a future promotion turns on.
+
+### NI-3 - OPEN (deliberate bound): `doctor --repair` prints remediation and never executes it
+
+- **What it does**: `--repair` prints the exact remediation command for each failing platform and states plainly that nothing was changed.
+- **Why it does not execute**: the remediation for most failures is re-running the installer, which writes across every platform surface. A diagnostic that mutates an install is how a preflight becomes the thing that breaks you, and the plan's own constraint is that doctor is read-only by default with any repair stating what it will change first. Printing the command satisfies the intent; executing it would put a write path inside a command users will reach for precisely when their install is already in an unknown state.
+- **Suggested next step**: leave as-is unless a real user asks for it. If it is ever implemented, it must confirm interactively and name every path it will touch before touching one.
+
+### WN-2 - CLOSED on inspection: `shellcheck` IS available on this host
+
+Phase 1 recorded WN-1 (no `make`) as environmental and the v3.16.1 ledger carried a broader "no ruff or shellcheck" note. Phase 5 needed ShellCheck for the new Bash code and found it present and working: it flagged SC2088 on the first draft of `doctor_resolve_path`, which was then restructured rather than suppressed. `make` remains absent; `shellcheck` does not. Recording the correction so the next cycle does not skip a lint pass on a stale assumption.
+
 ### Phase 1 disposition
 
 Three items, **zero release blockers, zero caused by this phase**. MT-1 is a real coverage gap with a named owner (Phase 5); WN-1 and BG-1 are both environmental properties of the implementation host, already carried at v3.16.0 and v3.16.1 and re-verified rather than re-asserted.
@@ -562,6 +593,6 @@ The phase's own residual risk (named in the comparison) is that the incident arc
 | Transferred in from v3.15.14 (`TR-#`) | 2 (TR-1, TR-2) | 1 (TR-3) |
 | v3.16.0 version-implementation gaps | 3 carried forward (NI-1, NI-6, BG-1) | 13 closed (DF-1, DF-2, DF-3, DF-4, NI-2, NI-3, NI-4, NI-5, QG-1, QG-2, QG-3, BG-2, BG-3, WN-1) |
 | v3.16.1 version-implementation gaps (all 8 phases + release) | 3 carried forward (WN-1, BG-1 environmental; NI-6 bounded and documented) | 21 closed (DF-1..DF-5, NI-1..NI-5, BG-2..BG-8, QG-1, QG-2, WN-2, PX-1) |
-| v3.16.2 version-implementation gaps (Phases 1-4 of 6, in flight) | 7 open (MT-1 and DF-1 owned by Phase 5; NI-1 pre-existing, closes at Phase 5; NI-2 pre-existing size overage for Phase 6.1; BG-2 pre-existing fail-open, bounded; WN-1 and BG-1 environmental and inherited) | 1 closed (QG-1, raised and resolved in Phase 3) |
+| v3.16.2 version-implementation gaps (Phases 1-5 of 6, in flight) | 5 open (MT-1 schema assertions; NI-2 pre-existing size overage for Phase 6.1; NI-3 deliberate `--repair` bound; BG-2 pre-existing fail-open, bounded; WN-1 and BG-1 environmental and inherited) | 6 closed (QG-1, QG-2, BG-3, NI-1, DF-1, WN-2) |
 
 The three comparison-sourced items remain non-blocking prose folds with named target files. Of the v3.16.0 items, BG-1 is pre-existing and reproduces without this plan's changes, WN-1 is environmental, DF-1 is a reasoned non-implementation, NI-1 is a deliberate scope boundary the plan requires, and NI-2 / NI-3 / NI-4 are Phase 2 findings that Phase 3 and Phase 5 are already scheduled to dispose of. Phase 5 dispositioned every open item: 13 closed, 3 carried forward. **None gates the v3.16.0 release.** NI-1 and NI-6 are scope decisions for cycles already touching the relevant surfaces, and BG-1 is pre-existing, reproduced on a clean `develop` worktree, and confined to a Windows host whose PATH resolves `tar` to the Git Bash binary. Of the 13 closed, three (BG-2, BG-3, and QG-3) were caught by the test suite rather than by review, which is this cycle's strongest argument for running the full suite before declaring a phase done.

@@ -3044,6 +3044,13 @@ Subcommands:
                  registered integration that defines wire_project_surfaces()
                  and writes the corresponding files. --target defaults to the
                  current directory.
+  doctor         Preflight: verify that every surface the platform read-contract
+                 promises actually exists on this machine, per detected platform.
+                 READ-ONLY. Exits 0 when every detected platform is complete, 1
+                 when any is missing a promised surface, and 2 when the contract
+                 itself cannot be read (never a false CLEAR). Accepts --target
+                 PATH for the project-scoped checks and --repair to print the
+                 remediation commands without running them.
 
 Read-only modes (no disk writes):
   --print-config <key>  Dump the Markdown readout of what the given integration
@@ -3106,6 +3113,280 @@ Options:
   -h, --help     Show this help and exit.
 EOF
 }
+
+# --- nexus-hub doctor (v3.16.2 Phase 5) ---------------------------------
+#
+# Preflight that answers the question the installer never could: did the install
+# actually land where the read-contract promises? Verifies each DETECTED
+# platform's surfaces against the `install_verify` block of
+# docs/policy/platform-read-contracts.json.
+#
+# NETWORK: none. This function makes no outbound call of any kind, which is what
+# keeps it `re-full` under the MCP Registry Policy. Do not add one.
+#
+# READ-ONLY: it never writes, moves, or deletes. --repair prints the remediation
+# command for each failing platform and explicitly does NOT execute it; a
+# diagnostic that mutates an install is how a preflight becomes the thing that
+# breaks you.
+#
+# Three states are kept distinct, because collapsing them is what makes a doctor
+# untrustworthy:
+#   SKIP  platform absent from this machine    -> not a failure
+#   PASS  platform present, every surface there
+#   FAIL  platform present, a promised surface missing or empty
+#
+# Exit codes: 0 all detected platforms complete; 1 at least one FAIL; 2 the
+# contract could not be read or parsed. A checker that cannot read its own
+# contract must fail LOUDLY rather than report a false CLEAR.
+doctor_contract_path() {
+    # NEXUS_DOCTOR_CONTRACT pins the contract explicitly. It exists so the
+    # unreadable-contract path is testable (REPO_ROOT is derived from the script
+    # location, so a test cannot otherwise steer the lookup) and so an operator
+    # can point the doctor at a specific contract. When set, it is used even if
+    # it does not exist -- an override that silently fell back to the repo copy
+    # would make the fail-loud path untestable, which is the defect this whole
+    # subcommand exists to avoid.
+    if [ -n "${NEXUS_DOCTOR_CONTRACT:-}" ]; then
+        printf '%s\n' "$NEXUS_DOCTOR_CONTRACT"
+        [ -f "$NEXUS_DOCTOR_CONTRACT" ] && return 0
+        return 1
+    fi
+    # Repo checkout first, then the two locations the install bootstrap uses.
+    local candidate
+    for candidate in \
+        "$REPO_ROOT/docs/policy/platform-read-contracts.json" \
+        "$HOME/.nexus-hub/src/docs/policy/platform-read-contracts.json" \
+        "$HOME/.nexus-hub/docs/policy/platform-read-contracts.json"; do
+        if [ -f "$candidate" ]; then
+            printf '%s\n' "$candidate"
+            return 0
+        fi
+    done
+    return 1
+}
+
+# Flatten the install_verify block into tab-separated records the shell logic
+# below consumes. Only the JSON TOKENIZATION is delegated; every decision (path
+# resolution, surface evaluation, state classification, exit code) is made in
+# this script.
+#
+# jq is preferred; Python is the fallback and is already a hard dependency of
+# the init / --check / --print-config subcommands, so this adds none. When
+# NEITHER is available we exit 2 rather than skipping the check: silently
+# allowing is how catalog/hooks/secret-scan.sh became inert on a jq-less host
+# (v3.16.2 BG-2), and a preflight repeating that defect would be worse than
+# having no preflight at all.
+doctor_flatten_contract() {
+    local json="$1"
+    if command -v jq >/dev/null 2>&1; then
+        jq -r '
+            .install_verify[]
+            | . as $e
+            | ($e.detect // [] | join("|")) as $detect
+            | ($e.remediation // "") as $rem
+            | ($e.surfaces // [])[]
+            | [$e.label, $detect, $rem, .label, .kind, .path, (.needle // "")]
+            | @tsv
+        ' "$json" 2>/dev/null && return 0
+        return 1
+    fi
+    local py
+    if py=$(resolve_python_executable); then
+        "$py" -c '
+import json, sys
+with open(sys.argv[1], encoding="utf-8") as fh:
+    data = json.load(fh)
+entries = data["install_verify"]
+if not isinstance(entries, list):
+    raise SystemExit(1)
+for e in entries:
+    detect = "|".join(e.get("detect", []))
+    rem = e.get("remediation", "") or ""
+    for s in e.get("surfaces", []):
+        print("\t".join([
+            e.get("label", "?"), detect, rem,
+            s.get("label", "?"), s.get("kind", ""),
+            s.get("path", ""), s.get("needle", "") or "",
+        ]))
+' "$json" 2>/dev/null && return 0
+        return 1
+    fi
+    return 1
+}
+
+# Resolve a contract path token: `~/` -> $HOME, `{project}/` -> target root.
+#
+# Written with prefix-stripping rather than a `case "~/"*)` pattern on purpose.
+# The tilde here is DATA (it is the literal first character of the contract's
+# path spec), not a shell home reference, and matching it as a quoted glob trips
+# ShellCheck SC2088 -- which CI runs at --severity=warning over this file. The
+# honest fix is to not write the construct, rather than to disable the warning.
+doctor_resolve_path() {
+    local spec="$1" target_root="$2" stripped
+    stripped="${spec#\~/}"
+    if [ "$stripped" != "$spec" ]; then
+        printf '%s\n' "$HOME/$stripped"
+        return 0
+    fi
+    stripped="${spec#\{project\}/}"
+    if [ "$stripped" != "$spec" ]; then
+        printf '%s\n' "$target_root/$stripped"
+        return 0
+    fi
+    printf '%s\n' "$spec"
+}
+
+# Evaluate one surface. Returns 0 when the surface is satisfied.
+doctor_check_surface() {
+    local kind="$1" path="$2" needle="$3"
+    case "$kind" in
+        nonempty_dir)
+            [ -d "$path" ] || return 1
+            # A directory that exists but is empty is a FAILED surface, not a
+            # passing one: an empty skills dir surfaces nothing to the platform.
+            [ -n "$(ls -A "$path" 2>/dev/null || true)" ] || return 1
+            return 0
+            ;;
+        is_file)
+            [ -f "$path" ] || return 1
+            return 0
+            ;;
+        file_contains)
+            [ -f "$path" ] || return 1
+            grep -qF -- "$needle" "$path" 2>/dev/null || return 1
+            return 0
+            ;;
+        *)
+            # An unknown kind is a contract the doctor does not understand.
+            # Treat it as a failure so a contract addition cannot silently
+            # widen the set of things reported CLEAR.
+            return 1
+            ;;
+    esac
+}
+
+run_doctor() {
+    local target_root="$PWD" show_repair=0
+    while [ $# -gt 0 ]; do
+        case "$1" in
+            --target)  target_root="${2:-}"; shift 2 ;;
+            --target=*) target_root="${1#--target=}"; shift ;;
+            --repair)  show_repair=1; shift ;;
+            *) echo "doctor: unknown argument: $1" >&2; return 2 ;;
+        esac
+    done
+
+    local json
+    if ! json=$(doctor_contract_path); then
+        echo "[doctor] FATAL: platform read-contract not found." >&2
+        echo "         Looked in the repo checkout and ~/.nexus-hub/." >&2
+        echo "         Refusing to report a result without the contract." >&2
+        return 2
+    fi
+
+    local flat
+    if ! flat=$(doctor_flatten_contract "$json"); then
+        echo "[doctor] FATAL: could not parse $json" >&2
+        echo "         Install jq or ensure python3 is on PATH, then re-run." >&2
+        echo "         Refusing to report CLEAR on an unreadable contract." >&2
+        return 2
+    fi
+    if [ -z "$flat" ]; then
+        echo "[doctor] FATAL: install_verify block is empty or missing in $json" >&2
+        return 2
+    fi
+
+    echo "[doctor] contract: $json"
+    echo "[doctor] project:  $target_root"
+    echo ""
+
+    local cur_label="" detect="" remediation="" surfaces="" any_fail=0
+    local n_pass=0 n_fail=0 n_skip=0
+    local -a repair_lines=()
+
+    # Emit the verdict for one platform once all of its surfaces are collected.
+    doctor_emit() {
+        [ -n "$cur_label" ] || return 0
+        local detected=0 d
+        local old_ifs="$IFS"
+        IFS='|'
+        for d in $detect; do
+            [ -n "$d" ] || continue
+            if [ -e "$(doctor_resolve_path "$d" "$target_root")" ]; then
+                detected=1
+                break
+            fi
+        done
+        IFS="$old_ifs"
+        if [ "$detected" -eq 0 ]; then
+            printf '  SKIP  %-38s not installed on this machine\n' "$cur_label"
+            n_skip=$((n_skip + 1))
+            return 0
+        fi
+        if printf '%s' "$surfaces" | grep -q 'MISSING'; then
+            printf '  FAIL  %-38s %s\n' "$cur_label" "$surfaces"
+            [ -n "$remediation" ] && printf '        -> %s\n' "$remediation"
+            [ -n "$remediation" ] && repair_lines+=("$cur_label: $remediation")
+            n_fail=$((n_fail + 1))
+            any_fail=1
+        else
+            printf '  PASS  %-38s %s\n' "$cur_label" "$surfaces"
+            n_pass=$((n_pass + 1))
+        fi
+    }
+
+    local label det rem s_label s_kind s_path s_needle resolved state
+    while IFS=$'\t' read -r label det rem s_label s_kind s_path s_needle; do
+        # Strip a trailing CR from the final field. Python's print() emits CRLF
+        # on a Windows host, so the last TSV column arrives as "Skill Index\r"
+        # and every `file_contains` surface would be reported MISSING while the
+        # PowerShell sibling reported it ok -- a silent cross-platform
+        # divergence of exactly the shape docs/incidents/shapes.md S-1 names.
+        # Caught by running both implementations and diffing, which is why that
+        # parity run is a requirement and not a formality.
+        s_needle="${s_needle%$'\r'}"
+        [ -n "$label" ] || continue
+        if [ "$label" != "$cur_label" ]; then
+            doctor_emit
+            cur_label="$label"; detect="$det"; remediation="$rem"; surfaces=""
+        fi
+        resolved="$(doctor_resolve_path "$s_path" "$target_root")"
+        if doctor_check_surface "$s_kind" "$resolved" "$s_needle"; then
+            state="ok"
+        else
+            state="MISSING"
+        fi
+        if [ -z "$surfaces" ]; then
+            surfaces="$s_label:$state"
+        else
+            surfaces="$surfaces, $s_label:$state"
+        fi
+    done <<EOF
+$flat
+EOF
+    doctor_emit
+
+    echo ""
+    echo "[doctor] $n_pass complete, $n_fail incomplete, $n_skip not installed."
+
+    if [ "$any_fail" -eq 1 ]; then
+        if [ "$show_repair" -eq 1 ]; then
+            echo ""
+            echo "[doctor] --repair: the following would fix the failures above."
+            echo "[doctor] NOTHING WAS CHANGED. Run these yourself:"
+            local line
+            for line in "${repair_lines[@]}"; do
+                echo "         $line"
+            done
+        else
+            echo "[doctor] re-run with --repair to print the remediation commands."
+        fi
+        return 1
+    fi
+    echo "[doctor] every detected platform surfaces the catalog."
+    return 0
+}
+
 PRINT_CONFIG_KEY=""
 CHECK_MODE=0
 while [ $# -gt 0 ]; do
@@ -3262,6 +3543,12 @@ while [ $# -gt 0 ]; do
             SUBCOMMAND_ARGS=("$@")
             break
             ;;
+        doctor)
+            SUBCOMMAND="doctor"
+            shift
+            SUBCOMMAND_ARGS=("$@")
+            break
+            ;;
         *)
             echo "Unknown installer flag: $1" >&2
             show_installer_usage >&2
@@ -3319,6 +3606,13 @@ fi
 
 # Dispatch read-only subcommands BEFORE the interactive banner so they remain
 # pipeable / scriptable.
+# `doctor` is self-contained: it reads the contract and evaluates every surface
+# in this script, so it runs even where the Python runner is unavailable.
+if [ "$SUBCOMMAND" = "doctor" ]; then
+    run_doctor "${SUBCOMMAND_ARGS[@]+"${SUBCOMMAND_ARGS[@]}"}"
+    exit $?
+fi
+
 if [ "$SUBCOMMAND" = "init" ] || [ -n "$PRINT_CONFIG_KEY" ] || [ "$CHECK_MODE" = "1" ]; then
     runner="$REPO_ROOT/scripts/lib/integrations/runner.py"
     if [ ! -f "$runner" ]; then

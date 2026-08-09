@@ -258,7 +258,18 @@ jobs:
         shell: pwsh
         run: |
           $failed = $false
-          Get-ChildItem catalog/hooks -Filter *.ps1 -File | ForEach-Object {
+          # v3.16.2 Phase 5: scripts/*.ps1 and the root bootstrap join the
+          # catalog hooks here. scripts/installer.ps1 is the largest PowerShell
+          # file in the repo and was NEVER AST-parsed in CI -- the `bootstrap`
+          # job parses only ./install.ps1, and this step globbed only
+          # catalog/hooks. That is precisely the v3.11.0 failure mode
+          # (docs/incidents/powershell-sibling-parse-error-20260709.md) left
+          # open on the file with the most to lose from it.
+          $targets = @()
+          $targets += Get-ChildItem catalog/hooks -Filter *.ps1 -File
+          $targets += Get-ChildItem scripts -Filter *.ps1 -File
+          $targets += Get-ChildItem . -Filter install.ps1 -File
+          $targets | ForEach-Object {
             $errs = $null
             $null = [System.Management.Automation.Language.Parser]::ParseFile(
               $_.FullName, [ref]$null, [ref]$errs)

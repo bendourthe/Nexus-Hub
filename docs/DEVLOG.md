@@ -1,5 +1,35 @@
 # Development Log
 
+## [2026-08-09] - v3.16.2 Phase 5: local verification tooling (`nexus-hub doctor`)
+
+### What Changed
+
+Added a `doctor` subcommand to BOTH installers: it reads the `install_verify` block of `docs/policy/platform-read-contracts.json`, detects which platforms are present, verifies every surface the contract promises, and reports SKIP / PASS / FAIL per platform. Read-only, no network. Exit 0 when every detected platform is complete, 1 on drift, 2 when the contract cannot be read. Added `scripts/check_release_capability_docs.py` (advisory) for the Phase 2 gate, 22 doctor parity tests, 15 validator tests, and extended CI's PowerShell AST-parse gate to `scripts/*.ps1` and the root bootstrap.
+
+### Why It Changed
+
+Nexus-Hub could install across fourteen platforms and never tell a user whether the install landed where the read-contract promised. Silent non-coverage was discoverable only by noticing an absence months later, which is how most of the incidents in `docs/incidents/` began.
+
+### Decisions Made
+
+- **Full logic in both shells, per an explicit decision.** `runner.py` already has a `verify` that reads the same contract, and a thin dispatch to shared Python would have made parity structural. The alternative was chosen deliberately, so parity is asserted by test rather than guaranteed by construction. That raised the bar on the tests, which is where the phase's main finding came from.
+- **`verify` was left completely untouched.** It is deliberately always exit-0 with a comment warning future editors not to "fix" that, because it must never fail an install. `doctor` is a separate entry point with failing exit codes, which keeps both contracts honest instead of overloading one command with two postures.
+- **Three states kept distinct.** A platform that is absent SKIPs and is not a failure; present-and-complete PASSes; present-with-a-missing-surface FAILs. Collapsing absent into either of the others is what makes a doctor untrustworthy.
+- **The doctor fails LOUDLY on an unreadable contract (exit 2).** `runner.py`'s helper is fail-soft by design, which suits an advisory post-install note. For a preflight, reporting CLEAR because the contract could not be read is the worst possible output. `NEXUS_DOCTOR_CONTRACT` exists so that path is testable at all.
+- **`--repair` prints and does not execute.** The remediation is usually re-running the installer, and a diagnostic that mutates an install is how a preflight becomes the thing that breaks you. Recorded as NI-3 with the bound stated.
+
+### What the parity requirement caught, immediately
+
+Running both implementations against this machine produced **disagreeing verdicts with matching exit codes**: Bash reported 5 complete / 5 incomplete, PowerShell 9 / 1. Cause: the Bash flattener's Python fallback emits CRLF on Windows, so the last tab-separated field carried a trailing `\r`. Only `file_contains` surfaces use that final `needle` column, so only they broke.
+
+That is shape S-1 failure mode 2 (runs but disagrees) from `docs/incidents/shapes.md`, reproduced within hours of the notes describing it being written, and caught on the first application of the durable fixes those notes name. Recorded as BG-3.
+
+A second finding came from the same direction: **`scripts/installer.ps1` had never been AST-parsed in CI.** The gate the v3.11.0 incident produced globbed `catalog/hooks` only, and the bootstrap job parses only the root `install.ps1`, so the largest PowerShell file in the repo was covered by neither. Recorded and closed as QG-2.
+
+### Known Issues
+
+NI-3 (the `--repair` bound, deliberate). MT-1 from Phase 1 remains open and is now the only substantive item Phase 6 inherits. WN-2 corrects a stale assumption: `shellcheck` IS present on this host and was used - it flagged SC2088 on the first draft of the path resolver, which was restructured rather than suppressed.
+
 ## [2026-08-09] - v3.16.2 Phase 4: engineering discipline transfers
 
 ### What Changed
