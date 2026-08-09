@@ -577,3 +577,77 @@ def _describe(request: SelectionRequest) -> str:
     if request.bundles:
         parts.append("bundles=" + ",".join(sorted(set(request.bundles))))
     return "; ".join(parts) or "no selectors"
+
+
+# --------------------------------------------------------------------------- #
+# CLI (v3.16.1 Phase 6.1)
+#
+# `scripts/installer.sh` and `scripts/installer.ps1` shell out to this instead of
+# reimplementing the contract. That is a deliberate reversal of the plan's
+# "implement natively in each installer" wording, made after finding that the jq
+# implementation could not be tested on the development host: two
+# implementations of a hashed contract where one is unverifiable is worse than
+# one implementation both callers share.
+#
+# What the plan's wording actually protects is preserved: a NO-SELECTOR full
+# install still requires neither Python nor jq, because the installers only reach
+# this CLI when a selector was supplied. A Python-less host already skips every
+# registry-backed platform, so requiring Python for selectors specifically adds
+# no new constraint that host was not already under.
+# --------------------------------------------------------------------------- #
+
+def _emit_lines(plan: "SelectionPlan") -> str:
+    """Tab-separated records, for callers without a JSON parser.
+
+    Bash reads this with a plain `while IFS=$'\\t' read -r kind value` loop, so
+    the installer needs no jq and no second Python call to pick fields out.
+    """
+    out: List[str] = [f"HASH\t{plan.hash()}"]
+    out.extend(f"SKILL\t{name}" for name in plan.skills)
+    out.extend(f"COMMAND\t{name}" for name in plan.commands)
+    out.extend(f"AGENT\t{name}" for name in plan.agents)
+    out.extend(f"WARN\t{w}" for w in plan.warnings)
+    return "\n".join(out)
+
+
+def main(argv: Optional[Sequence[str]] = None) -> int:
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        prog="selection.py",
+        description="Resolve a Nexus-Hub install selection. Writes nothing.",
+    )
+    parser.add_argument("--repo-root", default=".", help="Repository root.")
+    parser.add_argument("--catalog", help="Path to bundles.json (default: <repo-root>/data/bundles.json).")
+    parser.add_argument("--profile", default=None)
+    parser.add_argument("--modules", action="append", default=[])
+    parser.add_argument("--bundles", action="append", default=[])
+    parser.add_argument(
+        "--emit", choices=["json", "lines"], default="json",
+        help="json: the full plan. lines: tab-separated records for shell callers.",
+    )
+    args = parser.parse_args(list(argv) if argv is not None else None)
+
+    repo_root = Path(args.repo_root).resolve()
+    catalog_path = Path(args.catalog) if args.catalog else repo_root / "data" / "bundles.json"
+    try:
+        catalog = load_catalog(catalog_path)
+        available = available_from_catalog(catalog, repo_root=repo_root)
+        request = SelectionRequest.from_args(
+            profiles=[args.profile] if args.profile else [],
+            modules=args.modules,
+            bundles=args.bundles,
+        )
+        plan = resolve(catalog, request, available)
+    except SelectionError as exc:
+        print(f"selection: {exc}", file=__import__("sys").stderr)
+        return exc.exit_code
+    if args.emit == "lines":
+        print(_emit_lines(plan))
+    else:
+        print(json.dumps(plan.to_dict(), indent=2))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

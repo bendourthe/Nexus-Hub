@@ -76,3 +76,18 @@ def _repair_bash_on_path() -> str | None:
 
 # Executed at collection time, before any test module is imported.
 BASH_PATH_REPAIRED_WITH = _repair_bash_on_path()
+
+
+def pytest_configure(config):
+    """Register the `slow` marker (v3.16.1 Phase 6.5).
+
+    The install-selection parity suite ends with two end-to-end tests that run a
+    real installer into a temp dir; each takes minutes. They are marked `slow` so
+    a routine `pytest tests/installer` can deselect them with `-m "not slow"`
+    while CI still runs the full set. Registered here rather than in a new root
+    pytest.ini, because this repo deliberately runs several separate pytest roots
+    and a root config would apply to invocations that never asked for it.
+    """
+    config.addinivalue_line(
+        "markers", "slow: end-to-end test that runs a real installer (minutes, not seconds)"
+    )

@@ -108,9 +108,67 @@ def flatten_skills(ctx, key: str, src_skills_dir: Path, dst_skills_dir: Path) ->
             if not (skill / "SKILL.md").is_file():
                 ctx.manifest.log(key, f"skipped-no-skill-md: {skill}")
                 continue
+            # v3.16.1 Phase 6.3 -- selection filter. Returns True for everything
+            # when no selection is active, so an unfiltered install walks the
+            # identical path it always did.
+            if not ctx.selects_skill(skill.name):
+                ctx.manifest.log(key, f"skipped-not-selected: {skill.name}")
+                continue
             actions.append(
                 IntegrationBase._copy_tree(skill, dst_skills_dir / skill.name, ctx, key)
             )
+    return actions
+
+
+def nested_skills_selected(ctx, key: str, src_skills_dir: Path, dst_skills_dir: Path) -> list[FileAction]:
+    """Mirror ``catalog/skills/<category>/<name>/`` keeping the category level,
+    copying only the selected skills.
+
+    This exists ONLY for the filtered case. An unfiltered install still goes
+    through the single whole-tree ``_copy_tree`` call it always used, so the
+    contract's byte-equivalence requirement does not depend on this function
+    reproducing that behavior exactly. Splitting the two paths is deliberate:
+    a per-skill walk that must be proven identical to a bulk tree copy is a
+    much weaker guarantee than simply not taking it.
+    """
+    if not src_skills_dir.exists():
+        ctx.manifest.log(key, f"missing-tree: {src_skills_dir}")
+        return [FileAction(path=str(src_skills_dir), action="not-found")]
+    IntegrationBase._ensure_dir(dst_skills_dir, ctx)
+    actions: list[FileAction] = []
+    for category in sorted(p for p in src_skills_dir.iterdir() if p.is_dir()):
+        for skill in sorted(p for p in category.iterdir() if p.is_dir()):
+            if not (skill / "SKILL.md").is_file():
+                ctx.manifest.log(key, f"skipped-no-skill-md: {skill}")
+                continue
+            if not ctx.selects_skill(skill.name):
+                ctx.manifest.log(key, f"skipped-not-selected: {skill.name}")
+                continue
+            actions.append(
+                IntegrationBase._copy_tree(
+                    skill, dst_skills_dir / category.name / skill.name, ctx, key
+                )
+            )
+    return actions
+
+
+def flat_md_selected(ctx, key: str, src_dir: Path, dst_dir: Path, surface: str) -> list[FileAction]:
+    """Copy ``<src>/<name>.md`` files, keeping only the selected ones.
+
+    `surface` is "command" or "agent" and picks which predicate applies. Like
+    `nested_skills_selected`, this is the filtered path only.
+    """
+    if not src_dir.exists():
+        ctx.manifest.log(key, f"missing-tree: {src_dir}")
+        return [FileAction(path=str(src_dir), action="not-found")]
+    predicate = ctx.selects_command if surface == "command" else ctx.selects_agent
+    IntegrationBase._ensure_dir(dst_dir, ctx)
+    actions: list[FileAction] = []
+    for md in sorted(src_dir.glob("*.md")):
+        if not predicate(md.stem):
+            ctx.manifest.log(key, f"skipped-not-selected: {surface} {md.stem}")
+            continue
+        actions.append(_write_synced(ctx, key, dst_dir / md.name, md.read_bytes()))
     return actions
 
 
@@ -196,6 +254,12 @@ def commands_to_skills(
                 key, f"skip command-skill (name collides with catalog skill): {name}"
             )
             continue
+        # v3.16.1 Phase 6.3 -- a command-as-skill wrapper follows its command's
+        # eligibility. Emitting a wrapper for a command the selection excluded
+        # would reintroduce the surface through the side door.
+        if not ctx.selects_command(name):
+            ctx.manifest.log(key, f"skipped-not-selected: command-skill {name}")
+            continue
         content = _synthesize_skill(name, md.read_text(encoding="utf-8"))
         dst = dst_skills_dir / name / "SKILL.md"
         actions.append(_write_synced(ctx, key, dst, content))
@@ -228,6 +292,11 @@ def commands_to_slash(
     IntegrationBase._ensure_dir(dst_dir, ctx)
     actions: list[FileAction] = []
     for md in sorted(src_commands_dir.glob("*.md")):
+        # v3.16.1 Phase 6.3 -- the slash surface follows command eligibility, so
+        # a focused install cannot leave a /command whose skills are absent.
+        if not ctx.selects_command(md.stem):
+            ctx.manifest.log(key, f"skipped-not-selected: slash {md.stem}")
+            continue
         dst = dst_dir / md.name
         actions.append(_write_synced(ctx, key, dst, md.read_bytes()))
     return actions
@@ -238,4 +307,6 @@ __all__ = [
     "flatten_skills",
     "commands_to_skills",
     "commands_to_slash",
+    "nested_skills_selected",
+    "flat_md_selected",
 ]

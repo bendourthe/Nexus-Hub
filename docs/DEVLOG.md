@@ -1,5 +1,35 @@
 # Development Log
 
+## [2026-08-08] - v3.16.1 Phase 6: cross-platform selective installation
+
+### What Changed
+
+Selection went live on all three install paths. The registry filters skills, commands, and agents through `InstallContext` predicates; both legacy installers gained `--profile` / `--modules` / `--bundles` (`-Profile` / `-Modules` / `-Bundles`), resolve before any write, and filter through a staged catalog; repair, doctor, list-installed, and upgrade all preserve the recorded scope. 28 parity assertions added. Run in two segments with a checkpoint between the Python work and the installer work, at the user's request.
+
+### Why It Changed
+
+Phase 5 defined the contract and proved one implementation. A contract implemented once is a design document; the value only appears when the same selectors produce the same install through the Bash installer, the PowerShell installer, and the registry, which share no code. The plan hash is what makes that checkable rather than asserted, and it did its job: Python, Bash, and PowerShell independently produced `sha256:74e72e2bc3bd...` for the same selector.
+
+### Decisions Made
+
+- **Both installers delegate resolution rather than implementing it natively, deviating from the plan with approval.** A jq implementation was written first and then found to be untestable: jq is not installed on this host and nothing in CI installs or asserts it. Shipping an unverifiable second implementation of a *hashed* contract is worse than one shared implementation, because divergence surfaces as a silent hash mismatch on a user's machine rather than as a test failure. Deleted unshipped. What the plan's "no Python dependency" wording protects survives exactly: a no-selector full install still needs neither Python nor jq, because both installers return from the selection path before touching Python, and a Python-less host already skipped every registry-backed platform anyway.
+- **Filtering is applied by staging, not at each copy site.** One filtered tree is built and every downstream copy reads it through a single helper. Only 6 of the 25 catalog references in `installer.sh` needed touching, and the three selectable surfaces cannot drift apart from each other. Policy infrastructure is never routed through it.
+- **The filtered nested-skills path is a separate function from the unfiltered bulk copy.** A per-skill walk that must be *proven* byte-identical to `_copy_tree` is a much weaker guarantee than not taking that path at all when unfiltered. That is why the equivalence result (811 files each, identical set, no-selector vs explicit `full`) is structural rather than lucky.
+- **Upgrade selectors are validated, not escaped.** Recorded ids must match `^[a-z0-9][a-z0-9-]*$` before entering the bootstrap command string; an id that cannot contain a quote or semicolon cannot break out of it, and anything failing the check is dropped rather than escaped.
+
+### Troubleshooting Trail
+
+Four real bugs, every one found by running the thing rather than reading it, and each now has a named regression test.
+
+- **`set -e` swallowed the Bash selector error (BG-2).** A bare `out=$(...)` followed by a `$?` check aborts at the assignment under `set -e`, so the handler that prints which selector was wrong never ran. Observed: exit 2 with completely empty stderr.
+- **Windows CRLF made Bash staging select nothing (BG-3).** A Windows Python called from Git Bash writes CRLF, so every parsed value carried a trailing `\r`, `find -name` matched nothing, and the install **completed successfully having copied zero skills**. That is the worst failure shape available: a green run that shipped nothing. It surfaced only because the summary read "0 skills" while the hash was correct, which localized the fault to staging rather than resolution.
+- **PowerShell `2>&1` produced NativeCommandError noise (BG-4).** On PS 5.1, redirecting a native command's stderr wraps each line in an ErrorRecord and sets `$?` false even on a clean exit, turning a good run into a visible error.
+- **`-Profile` shadowed a PowerShell automatic variable (BG-5).** Caught by editor diagnostics, not by a test. Now `$InstallProfile` with `[Alias("Profile")]`, so the user-facing spelling still matches Bash.
+
+### Verification
+
+116 fast selection assertions plus 2 slow end-to-end installs (real Bash and PowerShell runs into temp targets) pass. Segment A's regression was 847 passed, 17 skipped, 1 failed (BG-1, inherited). No-selector and explicit-`full` installs produce 811 files each with an identical set. Live filtered installs verified by inspection on both installers, with rules, commands, and agents intact; fail-closed verified on both (unknown profile exits 2, names the id, writes zero files). `bash -n` and PS 5.1 parse checks clean; all catalog validators, the trigger gate, version sync, and the platform-contract and defaults-drift guards pass.
+
 ## [2026-08-08] - v3.16.1 Phase 5: selection contract and resolver
 
 ### What Changed
