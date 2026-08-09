@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (all 5 phases complete; reconciled and release-ready, unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
-**Last updated**: 2026-08-08 (v3.16.1 Phase 6 append; v3.16.0 Phase 5 reconciliation preserved above)
+**Last updated**: 2026-08-08 (v3.16.1 Phase 7 append; v3.16.0 Phase 5 reconciliation preserved above)
 
 > **File-lifecycle note**: this ledger was created ahead of any v3.16 implementation, by a comparison that deliberately claimed no release slot, so it began with only the `## Comparison-Sourced Deferrals` section. Each v3.16 version-implementation phase **appends** its own `## v3.16.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` numbering, which is namespaced separately from the `CD-#` and `TR-#` ids used above.
 
@@ -329,6 +329,28 @@ Appended by Phase 1 (Evaluation Contract and RAG Metrics) on 2026-08-08. Own `DF
 - **Decision**: recompute all derived fields from the entries rather than incrementing by the new skill's delta. Once the block had to be touched, recomputation is the only method that yields a value matching the field's own contract (the sum of the entry sizes); incrementing would have written a differently-wrong number and called it correct.
 - **Root cause, and the residual gap**: aggregates are only correct immediately after a builder run, and the standing rule is not to run the builder. Every subsequent hand-edit leaves them a little more stale. Nothing currently tests `total_lines`, `total_tokens_estimate`, or `average_lines_per_skill`, which is why the drift went unnoticed. Phase 7.1 already owns generated-catalog verification and is the right place to decide whether these fields should be tested, derived on read, or dropped.
 
+### QG-2 - CLOSED: Phase 6's cited regression evidence predated its final edit
+
+- **What happened**: Phase 6's `-Profile` alias fix (BG-5) was made *after* the `tests/installer` + `tests/integrations` regression run had already been started in the background. That run reported 873 passed and was cited in the Phase 6 commit message, but it had tested the tree as it stood before the rename. Two assertions in `test_selection_parity.py` still matched the old `[string]$Profile` / `$argsList += @("--profile", $Profile)` spellings and were therefore stale at commit time.
+- **How it surfaced**: the Phase 7 full-suite run, which failed on exactly those two assertions.
+- **Resolution**: both tests updated to assert the alias arrangement that is now correct, and one of them strengthened into a named guard (`test_powershell_profile_is_an_alias_not_a_parameter_name`) that also asserts a literal `[string]$Profile,` parameter is absent - so the shadowing bug cannot come back. Verified by re-running the module (26 passed) and by a live `-Profile minimal` install resolving 10 skills.
+- **The actual lesson, which is about process rather than code**: a long-running background gate is only evidence for the tree it started against. Any edit made while it runs invalidates it. Either re-run after the last edit, or do not cite that run as the phase's evidence. Phase 6's other results (the 811-file byte-equivalence check, the three-way hash agreement, the live installs) were all produced after the final edit and remain valid.
+
+### NI-4 - CLOSED: 166 of 271 skills were unreachable through any module or bundle
+
+- **What the 7.1 audit found**: only **105 of 271** skills were reachable via any module or role bundle; the other **166 existed solely under `full`**. Six catalog categories were covered by nothing at all (`business-product`, `language-specialists`, `project-setup`, `research`, `security-operations`, `specialized-domains`). Selective installation could therefore never reach 61 percent of the catalog, and every one of the six command-delegate skills was in the unreachable set - which is why the first run of the new `surface_requirements` dropped `/implement`, `/describe`, `/route`, `/constitution`, `/presentify`, and `/tune-prompting` from *every* focused install.
+- **Why it was a real defect rather than a curation preference**: a module system that cannot express most of the catalog makes `--modules` a decoration. The gap was invisible before this phase because nothing resolved selections, so no one could observe that two thirds of the catalog had no selector that reached it.
+- **Resolution (user-directed)**: modules are now **category-complete**. The six existing curated modules were extended to cover their whole capability area (for example `testing` 8 -> 21 skills across `testing` + `tests-generation`), and 14 new modules were added for the categories no module mapped to. 20 modules, **271/271 skills reachable, 0 unreachable**. `data/bundles.json` schema bumped 1.4.0 -> 1.5.0 with the guarantee stated in its metadata. The 15 curated **role bundles were left untouched** - they are opinionated cross-category sets and expanding them was neither needed nor asked for.
+- **Side effect, deliberate and recorded**: `core` grew from 31 to 45 skills, because it composes from `testing` and `code-review`, both of which became category-complete. That is the intended consequence of a module meaning "this whole capability area" rather than "a curated slice of it".
+- **Guarded by**: `test_every_catalog_skill_is_reachable_through_some_module` in `tests/integrations/test_selective_install.py`, so a newly added skill that lands in no module fails the suite.
+
+### NI-5 - CLOSED: no command or agent declared its required skills
+
+- **What was missing**: the Phase 5 contract defines `surface_requirements`, but `data/bundles.json` declared none, so every selection installed all 20 commands and 23 agents regardless of whether the skills behind them were present. A focused install was smaller but not coherent.
+- **Resolution**: six commands are declared, each naming exactly one delegate skill. The criterion is evidence-based rather than inferred: only commands whose own file states they are a thin pointer over one named skill (`/implement` "thin dispatcher over the retained `implement-phase` skill", `/presentify` "thin entry point over the `document-to-interactive-html` skill", and so on). Multi-mode commands (`/plan` "planning **skills**", `/update`, `/review`, `/spec`, `/skills`, `/setup`) are deliberately NOT declared, because requiring every mode's delegate would make them vanish unless all modes' skills were selected.
+- **Agents declare nothing, and that is a finding rather than an omission**: 22 of 23 agents reference no skill at all and none shares a name with a skill, so they are self-contained.
+- **Effect**: a `workflow` module selection now keeps 16 of 20 commands; `workflow` + `ai-engineering` keeps 18. Before the module expansion the same declarations dropped all six from every selection.
+
 ### DF-5 - CLOSED: both installers delegate selector resolution instead of implementing it natively
 
 - **What the plan said**: Phases 6.1 and 6.2 instruct each legacy installer to implement the selection contract **natively**, with "a native fallback that does not make Python mandatory".
@@ -396,6 +418,6 @@ Two notes on existing entries:
 | Comparison-sourced deferrals (`CD-#`) | 3 (CD-1, CD-2, CD-3) | 0 |
 | Transferred in from v3.15.14 (`TR-#`) | 2 (TR-1, TR-2) | 1 (TR-3) |
 | v3.16.0 version-implementation gaps | 3 carried forward (NI-1, NI-6, BG-1) | 13 closed (DF-1, DF-2, DF-3, DF-4, NI-2, NI-3, NI-4, NI-5, QG-1, QG-2, QG-3, BG-2, BG-3, WN-1) |
-| v3.16.1 version-implementation gaps (Phases 1-6 of 8) | 4 (QG-1, WN-1, BG-1, NI-2) | 10 closed (DF-1..DF-5, NI-1, NI-3, BG-2, BG-3, BG-4, BG-5) |
+| v3.16.1 version-implementation gaps (Phases 1-7 of 8) | 4 (QG-1, WN-1, BG-1, NI-2) | 13 closed (DF-1..DF-5, NI-1, NI-3, NI-4, NI-5, BG-2..BG-5, QG-2) |
 
 The three comparison-sourced items remain non-blocking prose folds with named target files. Of the v3.16.0 items, BG-1 is pre-existing and reproduces without this plan's changes, WN-1 is environmental, DF-1 is a reasoned non-implementation, NI-1 is a deliberate scope boundary the plan requires, and NI-2 / NI-3 / NI-4 are Phase 2 findings that Phase 3 and Phase 5 are already scheduled to dispose of. Phase 5 dispositioned every open item: 13 closed, 3 carried forward. **None gates the v3.16.0 release.** NI-1 and NI-6 are scope decisions for cycles already touching the relevant surfaces, and BG-1 is pre-existing, reproduced on a clean `develop` worktree, and confined to a Windows host whose PATH resolves `tar` to the Git Bash binary. Of the 13 closed, three (BG-2, BG-3, and QG-3) were caught by the test suite rather than by review, which is this cycle's strongest argument for running the full suite before declaring a phase done.

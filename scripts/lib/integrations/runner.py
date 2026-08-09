@@ -938,6 +938,34 @@ def cmd_verify(args: argparse.Namespace) -> int:
     """
     home = Path.home()
     target_root = _resolve_target_root(args)
+
+    # v3.16.1 Phase 7.4 -- report the recorded scope first, so a PASS on a
+    # focused install is interpretable. The checks themselves need no change:
+    # they assert each read path is POPULATED, not that the whole catalog is
+    # present, so an intentional exclusion was never going to be penalized.
+    # Stating that here is what stops a future editor from "fixing" verify into
+    # a completeness check, which would report every focused install as broken.
+    try:
+        recorded = InstallManifest.load(_manifest_path(target_root)).selection()
+    except Exception:  # noqa: BLE001
+        recorded = None
+    if recorded and not args.quiet:
+        req = recorded.get("requested") or {}
+        parts = [f"profile={req['profile']}"] if req.get("profile") else []
+        if req.get("modules"):
+            parts.append("modules=" + ",".join(req["modules"]))
+        if req.get("bundles"):
+            parts.append("bundles=" + ",".join(req["bundles"]))
+        resolved = recorded.get("resolved", {})
+        print(
+            f"[verify] focused install ({'; '.join(parts) or 'full'}): "
+            f"{len(resolved.get('skills', []))} skills, "
+            f"{len(resolved.get('commands', []))} commands, "
+            f"{len(resolved.get('agents', []))} agents. "
+            "Read-path checks below assert each surface is populated, not that "
+            "the full catalog is present."
+        )
+
     checks = _verify_checks(home, target_root)
     if not checks:
         if not args.quiet:

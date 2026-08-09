@@ -68,10 +68,32 @@ def test_bash_declares_each_selector(sh: str, selector: str) -> None:
     )
 
 
-@pytest.mark.parametrize("selector", ["Profile", "Modules", "Bundles"])
+@pytest.mark.parametrize("selector", ["Modules", "Bundles"])
 def test_powershell_declares_each_selector(ps1: str, selector: str) -> None:
     assert f"[string]${selector}" in ps1, (
         f"installer.ps1 must declare -{selector} in its param block."
+    )
+
+
+def test_powershell_profile_is_an_alias_not_a_parameter_name(ps1: str) -> None:
+    """-Profile must bind, but must NOT be the variable name.
+
+    `$Profile` is a PowerShell automatic variable (the path to the user's
+    profile script), and a parameter of that name shadows it inside the script.
+    The alias keeps the user-facing spelling identical to the Bash `--profile`
+    without the shadowing, which is what PSScriptAnalyzer's
+    PSAvoidAssignmentToAutomaticVariable flags.
+    """
+    assert '[Alias("Profile")]' in ps1, (
+        "installer.ps1 must expose -Profile via an alias so the spelling stays "
+        "in lockstep with Bash's --profile."
+    )
+    assert "[string]$InstallProfile" in ps1, (
+        "the backing parameter must be $InstallProfile, not $Profile."
+    )
+    assert "[string]$Profile," not in ps1, (
+        "a parameter literally named $Profile shadows a PowerShell automatic "
+        "variable; use the alias arrangement instead."
     )
 
 
@@ -98,8 +120,9 @@ def test_neither_installer_interpolates_selectors_into_a_command_string(sh: str,
     assert 'args+=("--profile" "$SELECT_PROFILE")' in sh, (
         "installer.sh must append --profile as two array elements."
     )
-    assert '$argsList += @("--profile", $Profile)' in ps1, (
-        "installer.ps1 must append -Profile as discrete array elements."
+    assert '$argsList += @("--profile", $InstallProfile)' in ps1, (
+        "installer.ps1 must append the profile as discrete array elements "
+        "(from $InstallProfile, the alias-backed parameter)."
     )
 
 

@@ -1,5 +1,33 @@
 # Development Log
 
+## [2026-08-08] - v3.16.1 Phase 7: distribution, parity, and documentation
+
+### What Changed
+
+Selective installation became coherent as well as smaller. `data/bundles.json` gained `surface_requirements` for six commands and its modules went from 6 to 20, category-complete, so every catalog skill is reachable through at least one module (schema 1.5.0). 54 new assertions across distribution parity and selection-aware verification. A README section and a user-facing reference guide.
+
+### Why It Changed
+
+The 7.1 audit is the phase. It found that **only 105 of 271 skills were reachable through any module or bundle** - the other 166 existed solely under `full`, and six catalog categories were covered by nothing at all. That made `--modules` largely decorative: a module system that cannot express most of the catalog is a menu with two thirds of the dishes missing.
+
+It was invisible until now because nothing resolved selections, so nobody could observe that most of the catalog had no selector reaching it. It surfaced the moment `surface_requirements` landed: all six command-delegate skills were in the unreachable set, so the first run dropped `/implement`, `/describe`, `/route`, `/constitution`, `/presentify`, and `/tune-prompting` from *every* focused install. Curation being a product decision, the expansion was the user's call rather than one made here.
+
+### Decisions Made
+
+- **Modules became category-complete rather than individually curated.** Predictable ("this whole capability area"), explainable in a sentence, and mechanically verifiable by a test that fails when a new skill lands in no module. The cost is recorded rather than hidden: `core` grew 31 -> 45 skills because it composes from two modules that expanded. The 15 curated role bundles were left untouched, since they are opinionated cross-category sets and expanding them was neither needed nor asked for.
+- **Only thin-pointer commands declare requirements.** The first draft was going to derive them from every skill a command *mentions* - but `/presentify` mentions 7 and `/update` mentions 8, and declaring those would have made both vanish from nearly every focused install. Reading what each command file actually says about delegation produced a defensible six, each naming exactly one delegate. Multi-mode commands stay undeclared on purpose.
+- **Agents declare nothing, and that is a finding.** 22 of 23 reference no skill at all and none shares a name with a skill, so they are self-contained. Recording that is more useful than an empty section that looks like an oversight.
+- **The load-bearing distribution assertion is that excluded skills are ABSENT.** Asserting the resolved ones are present is weak - a filter that did nothing would pass it. The exclusion check is what proves filtering happened on each platform's own copy path, and those paths differ (flattened, nested, command-as-skill) so each could bypass the filter independently.
+- **7.4 pinned an existing property instead of inventing a change.** `verify` asserts read paths are populated and `harness_audit` scores surfaces-present over surfaces-declared; neither compares against the catalog, so neither was ever going to penalize an intentional exclusion. The tempting future "fix" in both places is to compare against the catalog - an edit that would look like an improvement while reporting every focused install as broken. The new tests name that specific edit so it fails loudly.
+
+### Troubleshooting Trail
+
+Phase 7's own tests passed on first run. What the full suite did surface was two stale assertions left by Phase 6 (QG-2): that phase's `-Profile` alias fix landed *after* its regression run had already started in the background, so the 873-passed figure cited in its commit had tested the pre-rename tree. Both assertions were corrected here, and the profile one strengthened into a named guard that also asserts a literal `[string]$Profile,` parameter is absent, so the shadowing bug cannot return. The lesson is about process rather than code: a long-running background gate is evidence only for the tree it started against, and any edit made while it runs invalidates it.
+
+### Verification
+
+44 distribution assertions across 5 platforms x 3 selections, 10 verification assertions, and the existing 99 selection and registry-consistency tests all pass. Resolution verified by inspection across the expanded modules (full 271/20, minimal 10/14, core 45/14, workflow 43/16, workflow+ai 56/18). Every profile, module, and bundle resolves; 271/271 skills reachable. Catalog counts agree at 271 in all five places. All 11 validators pass. The README addition is 31 lines, all ASCII.
+
 ## [2026-08-08] - v3.16.1 Phase 6: cross-platform selective installation
 
 ### What Changed
