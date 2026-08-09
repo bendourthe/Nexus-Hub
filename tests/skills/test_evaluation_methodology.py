@@ -51,6 +51,10 @@ _AOE_SKILL = _AOE_SKILL_DIR / "SKILL.md"
 _ERROR_ANALYSIS = _AOE_SKILL_DIR / "references" / "error-analysis.md"
 _EVALUATOR_VALIDATION = _AOE_SKILL_DIR / "references" / "evaluator-validation.md"
 
+# Phase 4: the remaining two references owned by ai-output-evaluation.
+_SYNTHETIC_DATA = _AOE_SKILL_DIR / "references" / "synthetic-data.md"
+_REVIEW_INTERFACE = _AOE_SKILL_DIR / "references" / "review-interface.md"
+
 # Metric name -> (section heading pattern, defining-formula pattern).
 # A metric counts as "defined" only when BOTH are present: a heading alone is a
 # mention, and Phase 1.2's deliverable is reproducible arithmetic.
@@ -691,3 +695,237 @@ def test_phase3_assertions_have_teeth(path: Path, pattern: str, label: str) -> N
         f"The {label} check still matches after its lines are deleted, so it "
         "guards nothing."
     )
+
+
+# --------------------------------------------------------------------------- #
+# Phase 4: synthetic data and human review
+#
+# Both references describe how to MANUFACTURE the inputs that every downstream
+# number depends on, which makes their controls easy to skip and expensive to
+# skip. The assertions target the controls specifically: coverage verified after
+# generation rather than assumed, leakage and duplicate filters, held-out
+# separation, and - for review - blindness, abstention, and the no-implicit-
+# upload rule.
+# --------------------------------------------------------------------------- #
+
+@pytest.fixture(scope="module")
+def synthetic_data() -> str:
+    assert _SYNTHETIC_DATA.is_file(), (
+        f"Missing the synthetic-data reference at {_SYNTHETIC_DATA}. Phase 4.1 "
+        "requires it and eval-pipeline-audit already routes gaps to it."
+    )
+    return _SYNTHETIC_DATA.read_text(encoding="utf-8")
+
+
+@pytest.fixture(scope="module")
+def review_interface() -> str:
+    assert _REVIEW_INTERFACE.is_file(), (
+        f"Missing the review-interface reference at {_REVIEW_INTERFACE}. Phase "
+        "4.2 requires it and eval-pipeline-audit already routes gaps to it."
+    )
+    return _REVIEW_INTERFACE.read_text(encoding="utf-8")
+
+
+@pytest.mark.parametrize("basename", ["synthetic-data.md", "review-interface.md"])
+def test_phase4_references_are_linked_from_the_parent_skill(aoe_skill: str, basename: str) -> None:
+    assert f"references/{basename}" in aoe_skill, (
+        f"ai-output-evaluation/SKILL.md must link `references/{basename}` by "
+        "basename, or the catalog bundle audit flags it as an orphan."
+    )
+
+
+@pytest.mark.parametrize(
+    "concept,pattern",
+    [
+        ("dimensions", r"[Dd]imension"),
+        ("allowed values", r"[Aa]llowed values"),
+        ("constraints", r"CONSTRAINT|[Cc]onstraint"),
+        ("tuple coverage", r"pairwise|2-tuple|tuple"),
+        ("batched generation", r"[Bb]atch"),
+        ("duplicate detection", r"[Dd]uplicate"),
+        ("source leakage", r"leakage|verbatim"),
+        ("difficulty validation", r"[Dd]ifficulty"),
+        ("human spot check", r"spot[- ]check"),
+        ("generator config provenance", r"generator_config"),
+    ],
+)
+def test_synthetic_data_covers_its_required_method(
+    synthetic_data: str, concept: str, pattern: str
+) -> None:
+    assert re.search(pattern, synthetic_data), (
+        f"synthetic-data.md is missing the {concept}. Each control exists "
+        "because generated cases carry generated labels, and an unfiltered "
+        "batch silently reweights every aggregate computed from it."
+    )
+
+
+def test_synthetic_data_has_a_worked_dimension_matrix(synthetic_data: str) -> None:
+    assert re.search(r"query_type", synthetic_data), (
+        "The worked dimension matrix must show concrete dimensions and values, "
+        "not describe the idea of a matrix."
+    )
+    assert "108" in synthetic_data, (
+        "The matrix must show the resulting combination count, which is what "
+        "makes the case for a pairwise target rather than full cartesian."
+    )
+
+
+def test_synthetic_data_verifies_coverage_after_generation(synthetic_data: str) -> None:
+    assert re.search(r"[Uu]ncovered", synthetic_data), (
+        "The reference must require recomputing achieved coverage and reporting "
+        "uncovered cells. Declaring a target and generating against it does not "
+        "mean the target was hit, and without this step nobody finds out."
+    )
+
+
+def test_synthetic_data_keeps_generated_cases_out_of_the_holdout(synthetic_data: str) -> None:
+    assert re.search(r"held-out", synthetic_data), (
+        "The reference must address the held-out split explicitly."
+    )
+    assert re.search(r"proportion|marked", synthetic_data), (
+        "If synthetic cases must appear in a test split, the reference must "
+        "require marking them and reporting their proportion. A test split of "
+        "generated cases measures what a generator imagines users do."
+    )
+
+
+def test_synthetic_data_promotion_has_acceptance_criteria(synthetic_data: str) -> None:
+    assert re.search(r"promot", synthetic_data, re.I), (
+        "The reference must define what a case must satisfy before it is "
+        "promoted into the evaluation set."
+    )
+
+
+@pytest.mark.parametrize(
+    "concept,pattern",
+    [
+        ("annotation schema", r"annotator_id"),
+        ("blind review", r"[Bb]lind"),
+        ("randomized ordering", r"[Rr]andomiz"),
+        ("keyboard-first controls", r"[Kk]eypress|[Kk]eyboard"),
+        ("accessible labels", r"programmatic label"),
+        ("focus behavior", r"[Ff]ocus"),
+        ("reviewer confidence", r"confidence"),
+        ("abstention", r"abstain"),
+        ("adjudication", r"adjudicat"),
+        ("audit history", r"append-only"),
+        ("local autosave", r"[Aa]utosave|after every submission"),
+        ("resume behavior", r"[Rr]esum"),
+        ("deterministic export", r"[Ss]table (?:key|row) order|[Dd]eterministic export"),
+    ],
+)
+def test_review_interface_covers_its_required_contract(
+    review_interface: str, concept: str, pattern: str
+) -> None:
+    assert re.search(pattern, review_interface), (
+        f"review-interface.md is missing the {concept}. Labels collected without "
+        "it are not merely noisy: they are biased in a specific direction while "
+        "looking perfectly precise."
+    )
+
+
+def test_review_interface_forbids_implicit_upload(review_interface: str) -> None:
+    assert re.search(r"[Nn]othing uploads|implicit", review_interface), (
+        "The reference must forbid implicit upload. An interface with a silent "
+        "sync or share is out of contract, not merely undesirable."
+    )
+    assert re.search(r"confirmed.*path|output path", review_interface, re.I), (
+        "Export must write to an operator-confirmed local path."
+    )
+
+
+def test_review_interface_treats_abstention_as_first_class(review_interface: str) -> None:
+    assert re.search(r"never imputed|[Nn]ever impute", review_interface), (
+        "Abstention must never be imputed to a label. A reviewer forced to "
+        "choose on an uncovered item produces a fabricated label that is "
+        "indistinguishable from a real one."
+    )
+
+
+def test_review_interface_does_not_mandate_a_framework(review_interface: str) -> None:
+    frameworks = ("React", "Vue", "Svelte", "Django", "Flask", "Streamlit")
+    named = [f for f in frameworks if f in review_interface]
+    assert not named, (
+        f"review-interface.md names specific frameworks: {named}. The reference "
+        "defines observable completion checks so any stack, including a terminal "
+        "loop, can satisfy it. Prescribing a framework narrows it needlessly."
+    )
+
+
+@pytest.mark.parametrize(
+    "path", [_SYNTHETIC_DATA, _REVIEW_INTERFACE], ids=lambda p: p.name
+)
+def test_phase4_references_declare_local_first(path: Path) -> None:
+    text = path.read_text(encoding="utf-8")
+    assert declares_local_first(text), (
+        f"{path.name} must declare the local-by-default rule and name "
+        f"egress-redaction as the gate. Expected all of {LOCAL_FIRST_MARKERS}."
+    )
+
+
+@pytest.mark.parametrize(
+    "path", [_SYNTHETIC_DATA, _REVIEW_INTERFACE], ids=lambda p: p.name
+)
+def test_phase4_references_use_the_shared_artifact_vocabulary(path: Path) -> None:
+    text = path.read_text(encoding="utf-8")
+    expected = {
+        "synthetic-data.md": ("dataset_manifest", "provenance", "split_manifest"),
+        "review-interface.md": ("human_annotation", "adjudication_record", "redaction_status"),
+    }[path.name]
+    missing = [a for a in expected if a not in text]
+    assert not missing, (
+        f"{path.name} does not speak the Phase 1 artifact contract: missing "
+        f"{missing}."
+    )
+
+
+@pytest.mark.parametrize(
+    "path", [_SYNTHETIC_DATA, _REVIEW_INTERFACE], ids=lambda p: p.name
+)
+def test_phase4_references_are_ascii_with_binary_verification(path: Path) -> None:
+    text = path.read_text(encoding="utf-8")
+    assert is_ascii(text), f"{path.name} must be ASCII-only."
+    assert re.search(r"##\s+Verification", text), (
+        f"{path.name} must end with a binary Verification checklist."
+    )
+    items = re.findall(r"^- \[ \] (.+)$", text.split("## Verification", 1)[1], re.M)
+    assert len(items) >= 10, (
+        f"{path.name} has only {len(items)} verification items; both references "
+        "define more controls than that, so a short checklist means controls "
+        "went unchecked."
+    )
+
+
+@pytest.mark.parametrize(
+    "path,pattern,label",
+    [
+        (_SYNTHETIC_DATA, r"[Uu]ncovered", "coverage verification"),
+        (_REVIEW_INTERFACE, r"[Nn]ever imputed|[Nn]ever impute", "abstention protection"),
+    ],
+    ids=["synthetic-data", "review-interface"],
+)
+def test_phase4_assertions_have_teeth(path: Path, pattern: str, label: str) -> None:
+    """Deleting the target lines must make the corresponding check fail."""
+    mutated = _without(path.read_text(encoding="utf-8"), pattern)
+    assert not re.search(pattern, mutated), (
+        f"The {label} check still matches after its lines are deleted, so it "
+        "guards nothing."
+    )
+
+
+def test_all_four_owned_references_are_linked(aoe_skill: str) -> None:
+    """The Phase 1 contract assigns ai-output-evaluation seven artifacts.
+
+    By the end of Phase 4 all four of its references exist. This asserts the set
+    as a whole, because each individual link test passes even if the routing
+    table has quietly lost a row.
+    """
+    for basename in (
+        "error-analysis.md",
+        "evaluator-validation.md",
+        "synthetic-data.md",
+        "review-interface.md",
+    ):
+        assert f"references/{basename}" in aoe_skill, (
+            f"The routing table lost its `{basename}` row."
+        )

@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (all 5 phases complete; reconciled and release-ready, unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
-**Last updated**: 2026-08-08 (v3.16.1 Phase 3 append; v3.16.0 Phase 5 reconciliation preserved above)
+**Last updated**: 2026-08-08 (v3.16.1 Phase 4 append; v3.16.0 Phase 5 reconciliation preserved above)
 
 > **File-lifecycle note**: this ledger was created ahead of any v3.16 implementation, by a comparison that deliberately claimed no release slot, so it began with only the `## Comparison-Sourced Deferrals` section. Each v3.16 version-implementation phase **appends** its own `## v3.16.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` numbering, which is namespaced separately from the `CD-#` and `TR-#` ids used above.
 
@@ -328,6 +328,14 @@ Appended by Phase 1 (Evaluation Contract and RAG Metrics) on 2026-08-08. Own `DF
 - **What happened**: registering the skill by hand required updating `statistics.total_skills` and `statistics.categories`, which three registry-consistency tests assert. Recomputing those fields from the entries revealed that the aggregate fields had drifted well beyond this phase's contribution: `total_lines` 127877 -> 130166 and `total_tokens_estimate` 630224 -> 672031, against a new skill contributing only 151 lines and 2089 tokens.
 - **Decision**: recompute all derived fields from the entries rather than incrementing by the new skill's delta. Once the block had to be touched, recomputation is the only method that yields a value matching the field's own contract (the sum of the entry sizes); incrementing would have written a differently-wrong number and called it correct.
 - **Root cause, and the residual gap**: aggregates are only correct immediately after a builder run, and the standing rule is not to run the builder. Every subsequent hand-edit leaves them a little more stale. Nothing currently tests `total_lines`, `total_tokens_estimate`, or `average_lines_per_skill`, which is why the drift went unnoticed. Phase 7.1 already owns generated-catalog verification and is the right place to decide whether these fields should be tested, derived on read, or dropped.
+
+### Phase 4 - no new gaps; skill-native track (A1-A7) complete
+
+Phase 4 (synthetic data, human review, and skill quality) added two Tier-3 references, a directive-density review in `skill-stocktake`, and 63 test assertions. No deviation, no skipped test, no suppressed warning, no bypassed gate, so no new entry.
+
+The A1-A7 completion check the plan requires was run against the comparison's own declared target column, not asserted: all seven items have their implemented artifact present, and exactly one new skill was created across the whole track (`eval-pipeline-audit`) rather than the seven-skill verbatim import the Out of Scope section forbids. A8 (selective installation) remains, and is Phases 5-7.
+
+NI-2 is unchanged: Phase 4 touched no `agents/` descriptor.
 
 ### Phase 3 - no new gaps
 

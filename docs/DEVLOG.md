@@ -1,5 +1,33 @@
 # Development Log
 
+## [2026-08-08] - v3.16.1 Phase 4: synthetic data, human review, and skill quality
+
+### What Changed
+
+Two more Tier-3 references under `ai-output-evaluation` - `synthetic-data.md` builds evaluation sets from a declared coverage model, `review-interface.md` defines the contract a local annotation tool must satisfy for its labels to be usable as ground truth. `skill-stocktake` gained a directive-density review as step 4b. Tests grew by 63 assertions across an extended module and a new one. This completes the skill-native adoption track: A1 through A7 all have their implemented artifact.
+
+### Why It Changed
+
+The two references close the last gap in the evaluation lifecycle, which is that everything upstream depends on inputs somebody had to manufacture. Unbounded generation ("write 200 test questions") clusters around whatever the generating model finds salient and almost never produces unanswerable queries, which is usually where a system behaves worst and is least tested. Careless annotation is worse than noisy: an interface that shows the reviewer the judge's verdict turns checking into confirming, and every metric computed against those labels inherits the bias while looking perfectly precise.
+
+The stocktake addition covers a different blind spot. A skill can pass every structural check, read well, and still not change what the agent does - it explains a domain instead of instructing an agent. The deterministic checklist cannot see that, because nothing is missing.
+
+### Decisions Made
+
+- **Directive density is a binary per-section question, deliberately not a ratio.** The obvious implementation - count imperative verbs, flag a low ratio - would flag the "Reality" column of every Common Rationalizations table in the catalog, which is explanatory by design and required by AGENTS.md to cite a concrete failure mode. It is also tunable, so prose gets optimized toward it. The binary question leaves no number to game, and four explicit non-goals name the content the signal must never argue for deleting: rationale, the two required sections, and Tier-3 references where explanation is the point.
+- **The stocktake test ships a reference implementation of the rule, labeled as such.** Nothing executes an agent-followed prose check, but a signal set that matches everything is worse than no signal because it produces a reassuring report while catching nothing. The test encodes the five signals and proves on near-boundary fixtures that they discriminate - including a Common Rationalizations entry that is mostly prose and a decision-rule section with no command at all, both of which must pass. The module docstring states plainly that this is test-only.
+- **Coverage is recomputed after generation, never inferred from the target.** Declaring a pairwise target and generating against it does not mean the target was hit. The reference requires reporting achieved coverage and naming the uncovered cells, which become the next batch's plan. Skipping it leaves the whole method as setup with no payoff.
+- **Unanswerable is a declared dimension value.** It is the case a generator looking at a corpus will not write, and the case a system usually handles worst. Declaring dimensions before generating is the mechanism that surfaces it.
+- **The review-interface reference names no framework.** It defines observable completion checks so any stack satisfies them, including a terminal loop, and a test asserts no framework appears - the natural drift is a worked example in one library that readers then treat as a requirement.
+
+### Troubleshooting Trail
+
+Nothing failed. All 63 new assertions passed on first run and the full suite was green with no troubleshooting iteration. Recorded explicitly because a clean run and unrecorded failures look identical in a log otherwise. Branch state was verified before any write, following the Phase 3 incident.
+
+### Verification
+
+155 assertions in the methodology module (up from 114) plus 22 in the new stocktake module; `tests/skills` and `tests/validators` at 1041 passed, 3 skipped. Bundle audit 0/0 across 271 skills with all four `ai-output-evaluation` references seen as linked; quality heuristics 0 errors with no finding on either changed skill; trigger gate clean; skill-security scan 0 findings across 7 files; unicode clean. Six remaining `validate` guards pass; `git diff --check` clean. The A1-A7 completion check was run against the comparison's declared target column rather than asserted, and confirmed one new skill across the track rather than seven.
+
 ## [2026-08-08] - v3.16.1 Phase 3: error analysis and evaluator calibration
 
 ### What Changed

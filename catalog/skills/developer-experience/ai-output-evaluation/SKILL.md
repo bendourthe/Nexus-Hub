@@ -230,11 +230,15 @@ Two Tier-3 references own the deeper methods. Read them when the work goes past 
 |---|---|---|
 | Turn failing outputs into quantified categories and permanent coverage | `references/error-analysis.md` | Trace sampling and what each method can and cannot support, non-overlapping taxonomies with exclusion criteria, multi-label conventions, severity x frequency ranking, root-cause hypotheses with refuting evidence, promotion to regression cases |
 | Prove a judge agrees with labeled evidence before it gates anything | `references/evaluator-validation.md` | Train / development / held-out separation, blind annotation and adjudication, the confusion matrix, precision / recall / specificity, threshold tuning on development data only, confidence intervals, prevalence effects, recalibration triggers |
+| Build an evaluation set that covers what it claims to cover | `references/synthetic-data.md` | Dimensions and allowed values, constraints, pairwise coverage targets, batched generation against named cells, duplicate and source-leakage filters, difficulty validation, human spot checks, and keeping synthetic cases out of the held-out split |
+| Collect human labels whose bias you can reason about | `references/review-interface.md` | Annotation schema, blind review, randomized ordering, keyboard-first and accessible controls, confidence and abstention, adjudication, append-only history, local autosave and resume, deterministic export with no implicit upload |
 
 Two rules from those references are load-bearing enough to state here:
 
 - **Thresholds are tuned on development data and measured once on held-out data.** Re-tuning against the held-out split and reporting the improved number converts a test set into a training set, and the reported figure into optimism.
 - **Precision is not a property of the judge.** Hold recall and specificity fixed and change only how often failures actually occur, and precision moves enormously - in the worked example, from 0.60 at a 30 percent failure rate to 0.16 at 5 percent. Always re-check precision at the prevalence the evaluator will actually meet.
+- **Coverage is verified after generation, not assumed from the plan.** Declaring a pairwise target and generating against it does not mean the target was hit. Recompute achieved coverage from the promoted cases and report the uncovered cells; those are the next batch's plan.
+- **Abstention is a signal, never an imputed label.** A reviewer forced to choose on an item the rubric does not cover produces a fabricated label indistinguishable from a real one. Report abstention rate alongside every label distribution.
 
 ## Reproducible Receipts
 
@@ -292,6 +296,8 @@ When an evaluation produces a headline score (an LLM-as-judge rate, a rubric ave
 | "The judge agrees with my spot-checks, so it can gate releases" | Spot-checks confirm agreement on the cases you chose to look at, which are rarely the ambiguous ones. A gate needs precision and recall measured against held-out labels; without them the judge's failure mode is unknown, and at production prevalence its precision can be a quarter of what the validation set showed. |
 | "The judge is 95% accurate, so it is ready" | Accuracy alone hides the imbalance: when 95% of items pass, a judge that passes everything scores 0.95 accuracy with 0.0 recall and catches nothing. Report precision, recall, and specificity together or the headline is meaningless. |
 | "We fixed the three failures we looked at, so error analysis is done" | Fixing sampled failures produces no reusable knowledge. Without a taxonomy, frequencies, and regression cases, the same patterns return and are rediscovered from scratch each time. |
+| "I'll just generate 200 test cases and we'll have good coverage" | Unbounded generation clusters around whatever the generating model finds salient and almost never produces unanswerable queries, which is usually where a system behaves worst. Declaring dimensions first is what surfaces the cells nobody would have thought to ask for. |
+| "The reviewers can see the model's verdict, it just speeds them up" | It speeds them up by turning checking into confirming. The resulting agreement number measures whether the human read the judge's answer, so it cannot be used to validate that judge. |
 
 ## Verification
 
@@ -303,6 +309,8 @@ When an evaluation produces a headline score (an LLM-as-judge rate, a rubric ave
 - [ ] Any evaluator used as a release gate has held-out evidence: precision, recall, and specificity measured once on a split never used for tuning, each with a confidence interval
 - [ ] Any evaluator used as a release gate has a documented disagreement review: blind annotation, adjudicated conflicts, and rubric defects recorded as such
 - [ ] Confirmed failure patterns were promoted to regression cases with minimized inputs and binary assertions (see `references/error-analysis.md`)
+- [ ] Any generated evaluation cases declare their coverage dimensions, were filtered for duplicates and source leakage, were human spot-checked, and are absent from the held-out split (see `references/synthetic-data.md`)
+- [ ] Any human review was blind, randomized, and captured confidence and abstention, with disagreements adjudicated and exported deterministically to a confirmed local path (see `references/review-interface.md`)
 
 ## Related Skills
 
