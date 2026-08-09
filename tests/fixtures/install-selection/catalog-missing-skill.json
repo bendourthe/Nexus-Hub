@@ -1,0 +1,27 @@
+{
+  "_comment": "Catalog defect fixture: role-broken references a skill with no catalog directory. This is the exact defect found in the real data/bundles.json during v3.16.1 Phase 2 (NI-1, four broken references) and repaired there. Resolution must exit 3 (catalog fault, not user fault) and name both the bundle and the missing skill.",
+  "metadata": {
+    "version": "1.4.0",
+    "description": "Fixture catalog with an unresolvable bundle reference."
+  },
+  "_available_skills": ["a1", "a2"],
+  "_available_commands": [],
+  "_available_agents": [],
+  "profiles": [
+    {
+      "id": "full",
+      "name": "Full",
+      "description": "Everything in the catalog.",
+      "skills": []
+    }
+  ],
+  "modules": [],
+  "bundles": [
+    {
+      "id": "role-broken",
+      "name": "Broken",
+      "description": "Names a skill that does not exist.",
+      "skills": ["a1", "does-not-exist"]
+    }
+  ]
+}

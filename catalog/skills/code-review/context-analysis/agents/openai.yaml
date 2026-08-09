@@ -1,4 +1,4 @@
 interface:
   display_name: Code Review - Context Analysis
   short_description: Establish comprehensive understanding of project structure, architecture, dependencies, and current state before conducting detailed code review. Use as the first phase of any code
-    review, when onboar
+    review, when onboarding to a new codebase, before proposing architectural changes, or for technical due diligence.

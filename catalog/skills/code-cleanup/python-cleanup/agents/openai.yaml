@@ -1,4 +1,4 @@
 interface:
   display_name: Python Code Cleanup
   short_description: Remove dead code, fix PEP 8 violations, add type hints, consolidate duplicates, and modernize Python codebases. Use when cleaning up Python projects, removing unused imports, upgrading
-    legacy Python c
+    legacy Python code, or improving code maintainability.

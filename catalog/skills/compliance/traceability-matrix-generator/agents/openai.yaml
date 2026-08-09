@@ -1,4 +1,4 @@
 interface:
   display_name: Traceability Matrix Generator
-  short_description: 'Generate requirement-to-code traceability matrices for compliance audits, regulatory reporting, and quality assurance. Use when preparing for audits, validating test coverage against
-    requirements, or '
+  short_description: Generate requirement-to-code traceability matrices for compliance audits, regulatory reporting, and quality assurance. Use when preparing for audits, validating test coverage against
+    requirements, or ensuring all requirements are implemented and verified.

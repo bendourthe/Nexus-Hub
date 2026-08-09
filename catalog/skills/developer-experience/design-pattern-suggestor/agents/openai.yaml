@@ -1,4 +1,4 @@
 interface:
   display_name: Design Pattern Suggestor
   short_description: Analyze code structure and recommend applicable GoF and modern design patterns with implementation guides. Use when code has structural problems, excessive conditionals, tight coupling,
-    inflexible obj
+    inflexible object creation, or needs a proven architectural solution.

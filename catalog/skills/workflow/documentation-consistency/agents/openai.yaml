@@ -1,4 +1,3 @@
 interface:
   display_name: Documentation Consistency Check
-  short_description: Verify documentation is up-to-date and consistent across all files. Check for broken links, outdated references, deprecated content, and mismatched information. Use when auditing documentation,
-    checki
+  short_description: Verify documentation is up-to-date and consistent across all files. Check for broken links, outdated references, deprecated content, and mismatched information.

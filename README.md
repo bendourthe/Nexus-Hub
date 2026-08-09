@@ -4,9 +4,9 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.16.0 -->
+<!-- nexus-hub-version: 3.16.1 -->
 
-Nexus-Hub is the upstream skill catalog for AI coding assistants: 270 skills, 17 commands, 31 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
+Nexus-Hub is the upstream skill catalog for AI coding assistants: 271 skills, 17 commands, 31 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
 ## Interactive Guide -- start here
 
@@ -30,12 +30,24 @@ Nexus-Hub is the upstream skill catalog for AI coding assistants: 270 skills, 17
 
 Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of the same idea, split along a deliberate seam.
 
-- **Nexus-Hub (this repo)** is the catalog: 270 curated skills, 17 commands, 31 hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`). It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
+- **Nexus-Hub (this repo)** is the catalog: 271 curated skills, 17 commands, 31 hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`). It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
 - **Nexus** is a local-first desktop AI Studio that consumes Nexus-Hub as its skill feed. Nexus's `AGENTS.md` names this repo as "the only external project we deliberately link to" -- the upstream feed for its skill harness.
 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v3.16.1
+
+Two things you could not do before: evaluate an AI pipeline with a shared vocabulary, and install part of the catalog instead of all of it.
+
+**Selective installation.** `--profile`, `--modules`, and `--bundles` now work identically across the Bash installer, the PowerShell installer, and the Python integration registry. Selectors union rather than intersect, dependencies close transitively, and a selector that names nothing fails **before** the first file is written rather than half-way through. Exit **2** means your selector was wrong; exit **3** means the catalog is inconsistent. Hooks, rules, templates, and settings are never filtered, so a focused install is never a less safe one.
+
+**Evaluation methodology.** A shared artifact contract fixes the names for the nine things an evaluation pipeline passes around, with provenance and redaction status as **required embedded blocks** rather than optional peers, so an artifact cannot be well-formed without recording where it came from. Around it: retrieval metrics with worked numbers (Recall@k, MRR, NDCG@k), error-analysis exclusion criteria, evaluator calibration with a confusion matrix that shows precision collapsing from 0.600 to 0.156 as prevalence falls, synthetic-data coverage, and a blind human-review contract. The new `eval-pipeline-audit` skill routes between them, taking the catalog to **271 skills**.
+
+**Two pre-existing catalog defects surfaced by the work.** Four bundles referenced skills that do not exist, and **166 of 271 skills were unreachable** through any module -- the modules covered six categories out of twenty-one. Modules are now category-complete, and every skill in the catalog is reachable. Neither defect was visible until something tried to resolve a selection against the whole catalog.
+
+**Defects found and fixed, each by the check that could actually see it.** A resolver bug passed 89 of 90 assertions while no real profile resolved: profiles *compose* other selectors rather than carrying a flat skill list, and the fixtures encoded the same wrong assumption as the code, so only the real-catalog test caught it. `Get-FileHash` raised CommandNotFoundException inside the PowerShell installer on a Windows CI image, hidden for four releases because that line is only reachable on a **second** install into the same home. A CI path filter used `*` where it needed `*/`, so an entire documentation tree was never triggering CI. And a test that "still passed" on Windows was in fact failing while building its own error message, masking the result it was meant to report.
 
 ## What's New in v3.16.0
 
@@ -310,10 +322,41 @@ That is the whole setup -- no prompts. The installer prechecks its dependencies 
 
 After the installer completes:
 
-- **Globally**: your user profile has all 270 skills, 17 commands, 31 hooks, 23 agents, plus Gemini and Codex instructions.
+- **Globally**: your user profile has all 271 skills, 17 commands, 31 hooks, 23 agents, plus Gemini and Codex instructions.
 - **Locally**: your project has `copilot-instructions.md` and `AGENTS.md` tailored to your language.
 
 **Power-user flags**: `--workspace <path>` installs into a single repo instead of globally; `--platforms <comma-list>` limits the install to a subset of assistants; `--yes` runs fully unattended (refreshes managed files with no prompt -- ideal for CI). Prefer to clone first? `git clone` the repo and run `./install.sh` (macOS / Linux) or `install.bat` (Windows) -- the in-repo path still works exactly as before.
+
+### Installing a subset (selective installation)
+
+By default you get the whole catalog. If you want a smaller install, pick a **profile**, one or more **capability modules**, or one or more **role bundles**. Selectors combine by union.
+
+```bash
+# macOS / Linux
+bash scripts/installer.sh --profile core
+bash scripts/installer.sh --modules ai-engineering,testing
+bash scripts/installer.sh --bundles ai-engineer
+bash scripts/installer.sh --profile core --modules security-operations   # union
+```
+
+```powershell
+# Windows
+.\scripts\installer.ps1 -Profile core
+.\scripts\installer.ps1 -Modules ai-engineering,testing
+.\scripts\installer.ps1 -Bundles ai-engineer
+```
+
+Profiles are `minimal`, `core`, and `full`. Modules group skills by capability (one per catalog category, so every skill is reachable through at least one). Role bundles are curated cross-category sets like `ai-engineer` or `devops-engineer`. List what is available with `python scripts/lib/installer/selection.py --repo-root . --profile core` , which prints the resolved plan without installing anything.
+
+Three things worth knowing before you narrow an install:
+
+- **Hooks, rules, templates, and settings always install**, under every selection including `minimal`. Narrowing your skill set asks for fewer capabilities, never for fewer guardrails.
+- **Commands and agents follow their skills.** A command that is a thin pointer over one skill (for example `/implement` over `implement-phase`) installs only when that skill is selected; everything else installs regardless. So a focused install stays coherent instead of leaving commands that cannot do anything.
+- **No selector means the full catalog**, byte-for-byte identical to what you would have got before selective installation existed.
+
+`nexus-hub upgrade` re-applies whatever you selected, so an upgrade never quietly widens a focused install back to everything. To change scope, pass a new selector; to go back to everything, pass `--profile full`.
+
+Selectors need Python to resolve. A full install does not.
 
 ### Keeping it current
 

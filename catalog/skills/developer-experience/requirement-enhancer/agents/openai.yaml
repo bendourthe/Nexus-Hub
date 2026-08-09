@@ -1,4 +1,4 @@
 interface:
   display_name: Requirement Enhancer
   short_description: Improve the quality, completeness, and testability of software requirements by applying quality attributes analysis, enhancement patterns, acceptance criteria generation, and user story
-    refinement. Us
+    refinement. Use when reviewing requirements, refining backlog items, preparing for sprint planning, or auditing requirement quality.

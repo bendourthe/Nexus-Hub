@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (all 5 phases complete; reconciled and release-ready, unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
-**Last updated**: 2026-08-08 (v3.16.0 Phase 5 final reconciliation; every open item dispositioned)
+**Last updated**: 2026-08-09 (v3.16.1 release reconciliation; BG-7, BG-8, NI-6 added post-merge; every open item dispositioned)
 
 > **File-lifecycle note**: this ledger was created ahead of any v3.16 implementation, by a comparison that deliberately claimed no release slot, so it began with only the `## Comparison-Sourced Deferrals` section. Each v3.16 version-implementation phase **appends** its own `## v3.16.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` numbering, which is namespaced separately from the `CD-#` and `TR-#` ids used above.
 
@@ -264,6 +264,208 @@ Every open item above receives an explicit disposition here, and every platform 
 - **Layout**: `github-ci-cd-cost-effective-alternatives.md` moved from the v3.16 version root into a new `research/` subdirectory. The live inbound reference in `docs/v3/v3.19/plans/v3.19.0-cost-effective-ci-cd.md` was repaired; the reference inside a v3.15 session history was **deliberately left unchanged**, because a session history is a frozen record of what was true at the time and rewriting it would falsify the record.
 - **`.antigravitycli/`** added to `.gitignore` (stray local runtime directory).
 
+## v3.16.1 - evals-and-selective-installation
+
+Appended by Phase 1 (Evaluation Contract and RAG Metrics) on 2026-08-08. Own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` namespace, separate from v3.16.0's.
+
+### QG-1 - CLOSED: CI path filters excluded the document the new test guards
+
+- **Target files**: `.github/workflows/ci.yml` (the `push` and `pull_request` `paths` filters), `tests/skills/test_evaluation_methodology.py`
+- **What is wrong**: the workflow triggers on `['**', '!docs/**', 'docs/policy/**']`. The new test asserts against `docs/v3/v3.16/development/evaluation-artifact-contract.md`, which sits under `docs/**` and is not re-included. A push that edits only the contract - deleting an artifact definition or the local-first rule - therefore skips CI entirely, so the guard does not run on exactly the edit it exists to catch.
+- **Why it was not fixed in Phase 1**: this plan's Lifecycle Contract reserves pipeline edits for Phase 8 unless a phase's explicit deliverable requires them. Phase 1's deliverables were two documents and a test.
+- **Resolution (Phase 8.3)**: added `- 'docs/v*/*/development/*.md'` to the `paths` filter on BOTH the `push` and `pull_request` events (GitHub Actions configures them independently). The glob is scoped deliberately: a `*` never crosses a `/`, so it matches the contract docs directly under a `development/` directory and NOT `development/history/*.md` one level deeper. Session histories are frozen records no test reads, and re-including them would run the full matrix on every phase write-up for no signal. Verified on both events; `validate_workflow_security.py` still passes. Full reasoning in [v3.16.1-ci-cd-comparison.md](development/v3.16.1-ci-cd-comparison.md).
+
+### WN-1 - OPEN (environmental): no Python linter or ShellCheck on the implementation host
+
+- **What happened**: `ruff` is not installed on the implementation host, so the Phase 3 lint/format step could not run against the new test module. `make` and `shellcheck` are likewise absent, so `make lint` could not be invoked either.
+- **Impact assessed as low**: `make lint` covers shell scripts only (`scripts/installer.sh`, `install.sh`), and this phase changed no shell file. The one new Python file was hand-checked for style against the neighboring `tests/skills/` modules and is exercised by 74 passing assertions. CI runs the suite on Linux and Windows, so the module is not unlinted in the pipeline sense - only on this machine.
+- **Suggested next step**: none required for correctness. If the repo wants a Python lint gate it does not currently have one in the `Makefile`, which is a separate decision, not a v3.16.1 gap.
+
+### BG-1 - OPEN (pre-existing, inherited): PowerShell bootstrap tarball test fails on this host
+
+- **Failing test**: `tests/installer/test_bootstrap.py::test_ps_standalone_extracts_and_hands_off`, the only failure in a full-suite run of 1818 passed / 20 skipped.
+- **Why it is not this phase's**: the signature is `/usr/bin/tar: Child returned status 128 ... Error is not recoverable`, the MSYS `tar` behavior already recorded as v3.16.0's BG-1 and reproduced there on a clean `develop` worktree with none of that plan's changes present. Phase 1 changed three Markdown documents, one skill body, and one Python test module; it touched no installer, no shell script, and no PowerShell file.
+- **Suggested next step**: none for v3.16.1. It is the same inherited item, carried forward with v3.16.0's disposition: fold into whichever cycle next touches the bootstrap. CI runners are unaffected because their PATH does not resolve `tar` to the Git Bash binary.
+
+### DF-1 - CLOSED: the plan's declared filename did not match the file on disk
+
+- **What was wrong**: the plan header declared `**Slug**: adoption-evals-and-selective-installation` and `**Filename**: v3.16.1-adoption-evals-and-selective-installation.md`, and the Phase 1.1 prompt referenced that path, but the file on disk is `v3.16.1-evals-and-selective-installation.md`. Two further references pointed at the same non-existent path: `docs/todos.md` line 120 and the seeding comparison report's handoff line.
+- **Resolution**: the user chose to correct the plan header rather than rename the file. The header's Slug and Filename fields and the Phase 1.1 prompt path were updated to the on-disk name, and the two stale external references were repaired in the same pass so no surface still names a path that does not exist.
+- **Why this is recorded**: it is a deviation from the plan-as-written, resolved by explicit user decision, and the record is what makes the header edit traceable to an approval rather than to drift.
+
+### NI-1 - CLOSED: four role bundles named skills that do not exist in the catalog
+
+- **Target file**: `data/bundles.json`
+- **What was wrong**: four `bundles` entries referenced skill ids with no catalog directory. Found by the Phase 2 test `test_every_selection_skill_resolves_to_a_real_catalog_dir`, which was written to verify the two AI selections and swept the rest for free.
+
+| Bundle | Broken reference | Resolution | Basis |
+|---|---|---|---|
+| `core-developer` | `add-strategic-comments` | `strategic-comments` | Same capability, verb prefix dropped in a past rename |
+| `frontend-engineer` | `cleanup-javascript` | `javascript-cleanup` | Same capability, `<lang>-cleanup` is the catalog's naming convention |
+| `devops-engineer` | `release-management` | `shipping-and-launch` | See below |
+| `tech-lead` | `release-management` | `shipping-and-launch` | See below |
+
+- **Why `shipping-and-launch`**: `release-management` never existed as a skill at any point in git history, so this is not a rename to reverse. It was introduced into `bundles.json` by `927e5af5` (the root-layout refactor) as a forward reference that was never created. The naive repairs are all wrong: `devops-engineer` already lists `release-notes-writer` and `rollback-strategy-advisor`, and `tech-lead` already lists `version-upgrade`, so it duplicates none of them. `shipping-and-launch` ("execute safe production deployments with pre-flight checks, go/no-go decisions, and post-launch verification") is the capability the id names, and it was absent from both bundles, so the mapping adds the intended coverage without duplication.
+- **Impact if left**: today the ids are inert metadata. Once Phase 6 makes selection operational, a `--bundles core-developer` install would resolve against a skill that does not exist, which the Phase 5 contract requires to fail closed before any write. It was therefore a v3.16.1 blocker for Phase 6.
+- **Resolution**: fixed in Phase 2 at the user's direction. `test_every_selection_skill_resolves_to_a_real_catalog_dir` now runs with no allowlist, so any future broken reference fails immediately, and a companion `test_no_selection_lists_a_duplicate_skill` guards the adjacent defect. Phase 7.1 still owns adding the equivalent validation to the resolver itself; this closes the data defect, not the missing guard.
+
+### NI-2 - CLOSED: 121 of 139 OpenAI agent descriptors were truncated mid-word
+
+- **Target files**: `catalog/skills/*/*/agents/openai.yaml`
+- **What is wrong**: `short_description` was produced by a hard 200-character slice of the skill description, so most descriptors end mid-word (for example `... designing tool interfaces, or implementin`). Measured this phase: 121 of 139 do not end at a sentence boundary.
+- **What was fixed**: the three in `ai-development` adjacent to this phase's work (`ai-agent-development`, `prompt-engineering`, `rag-implementation`), plus the new `eval-pipeline-audit` descriptor, now end at a sentence boundary. Fix approved by the user as an explicit scope extension when the defect was believed to affect three files.
+- **Why the rest were not fixed in Phase 2**: the true scope was 118 more files across every category, a catalog-wide cleanup rather than a Phase 2 deliverable. A test in `test_eval_pipeline_audit.py` asserted the new descriptor was not truncated, so the defect could not spread through that phase's work.
+- **Resolution (Phase 8.2)**: mechanical pass over the remaining 118. Each `short_description` was rebuilt from its skill's own `description` frontmatter, taking whole sentences so the text ends where a thought does instead of at an arbitrary character count. Result: **140 descriptors, 0 truncated, 0 non-ASCII**, every `display_name` preserved, lengths min/median/max 123/233/348. No generator produces these files (they are hand-maintained), so there is nothing that would re-apply the 200-character slice.
+
+### DF-2 - CLOSED: registered by hand instead of `make build-catalog`
+
+- **What the plan said**: T012 instructs "Run `make build-catalog` so `data/SKILL_INDEX.md`, `data/skills.json`, templates, and other generator-owned outputs are rebuilt by their authoritative tooling."
+- **What was done and why**: `make` is unavailable on this host (WN-1), and the repository's own precedent (DEVLOG, v3.15.3 Phase 2.1) records the standing rule that `build_skills_catalog.py` rewrites the whole tree. That was measured rather than assumed this phase: running the builder produced a 6695-line diff in `skills.json` and 174 lines in `SKILL_INDEX.md`, which would have made the phase commit unreviewable. Reverted, and the three registry files were hand-edited instead, for a 56-line diff. Decision confirmed by the user.
+- **Residual risk, and how it was closed**: hand-editing missed the derived `statistics` block, which `tests/validators/test_registry_consistency.py` caught (3 failures). See DF-3.
+
+### DF-3 - CLOSED: `skills.json` aggregate statistics were stale and were recomputed
+
+- **What happened**: registering the skill by hand required updating `statistics.total_skills` and `statistics.categories`, which three registry-consistency tests assert. Recomputing those fields from the entries revealed that the aggregate fields had drifted well beyond this phase's contribution: `total_lines` 127877 -> 130166 and `total_tokens_estimate` 630224 -> 672031, against a new skill contributing only 151 lines and 2089 tokens.
+- **Decision**: recompute all derived fields from the entries rather than incrementing by the new skill's delta. Once the block had to be touched, recomputation is the only method that yields a value matching the field's own contract (the sum of the entry sizes); incrementing would have written a differently-wrong number and called it correct.
+- **Root cause, and the residual gap**: aggregates are only correct immediately after a builder run, and the standing rule is not to run the builder. Every subsequent hand-edit leaves them a little more stale. Nothing currently tests `total_lines`, `total_tokens_estimate`, or `average_lines_per_skill`, which is why the drift went unnoticed. Phase 7.1 already owns generated-catalog verification and is the right place to decide whether these fields should be tested, derived on read, or dropped.
+
+### QG-2 - CLOSED: Phase 6's cited regression evidence predated its final edit
+
+- **What happened**: Phase 6's `-Profile` alias fix (BG-5) was made *after* the `tests/installer` + `tests/integrations` regression run had already been started in the background. That run reported 873 passed and was cited in the Phase 6 commit message, but it had tested the tree as it stood before the rename. Two assertions in `test_selection_parity.py` still matched the old `[string]$Profile` / `$argsList += @("--profile", $Profile)` spellings and were therefore stale at commit time.
+- **How it surfaced**: the Phase 7 full-suite run, which failed on exactly those two assertions.
+- **Resolution**: both tests updated to assert the alias arrangement that is now correct, and one of them strengthened into a named guard (`test_powershell_profile_is_an_alias_not_a_parameter_name`) that also asserts a literal `[string]$Profile,` parameter is absent - so the shadowing bug cannot come back. Verified by re-running the module (26 passed) and by a live `-Profile minimal` install resolving 10 skills.
+- **The actual lesson, which is about process rather than code**: a long-running background gate is only evidence for the tree it started against. Any edit made while it runs invalidates it. Either re-run after the last edit, or do not cite that run as the phase's evidence. Phase 6's other results (the 811-file byte-equivalence check, the three-way hash agreement, the live installs) were all produced after the final edit and remain valid.
+
+### NI-4 - CLOSED: 166 of 271 skills were unreachable through any module or bundle
+
+- **What the 7.1 audit found**: only **105 of 271** skills were reachable via any module or role bundle; the other **166 existed solely under `full`**. Six catalog categories were covered by nothing at all (`business-product`, `language-specialists`, `project-setup`, `research`, `security-operations`, `specialized-domains`). Selective installation could therefore never reach 61 percent of the catalog, and every one of the six command-delegate skills was in the unreachable set - which is why the first run of the new `surface_requirements` dropped `/implement`, `/describe`, `/route`, `/constitution`, `/presentify`, and `/tune-prompting` from *every* focused install.
+- **Why it was a real defect rather than a curation preference**: a module system that cannot express most of the catalog makes `--modules` a decoration. The gap was invisible before this phase because nothing resolved selections, so no one could observe that two thirds of the catalog had no selector that reached it.
+- **Resolution (user-directed)**: modules are now **category-complete**. The six existing curated modules were extended to cover their whole capability area (for example `testing` 8 -> 21 skills across `testing` + `tests-generation`), and 14 new modules were added for the categories no module mapped to. 20 modules, **271/271 skills reachable, 0 unreachable**. `data/bundles.json` schema bumped 1.4.0 -> 1.5.0 with the guarantee stated in its metadata. The 15 curated **role bundles were left untouched** - they are opinionated cross-category sets and expanding them was neither needed nor asked for.
+- **Side effect, deliberate and recorded**: `core` grew from 31 to 45 skills, because it composes from `testing` and `code-review`, both of which became category-complete. That is the intended consequence of a module meaning "this whole capability area" rather than "a curated slice of it".
+- **Guarded by**: `test_every_catalog_skill_is_reachable_through_some_module` in `tests/integrations/test_selective_install.py`, so a newly added skill that lands in no module fails the suite.
+
+### NI-5 - CLOSED: no command or agent declared its required skills
+
+- **What was missing**: the Phase 5 contract defines `surface_requirements`, but `data/bundles.json` declared none, so every selection installed all 20 commands and 23 agents regardless of whether the skills behind them were present. A focused install was smaller but not coherent.
+- **Resolution**: six commands are declared, each naming exactly one delegate skill. The criterion is evidence-based rather than inferred: only commands whose own file states they are a thin pointer over one named skill (`/implement` "thin dispatcher over the retained `implement-phase` skill", `/presentify` "thin entry point over the `document-to-interactive-html` skill", and so on). Multi-mode commands (`/plan` "planning **skills**", `/update`, `/review`, `/spec`, `/skills`, `/setup`) are deliberately NOT declared, because requiring every mode's delegate would make them vanish unless all modes' skills were selected.
+- **Agents declare nothing, and that is a finding rather than an omission**: 22 of 23 agents reference no skill at all and none shares a name with a skill, so they are self-contained.
+- **Effect**: a `workflow` module selection now keeps 16 of 20 commands; `workflow` + `ai-engineering` keeps 18. Before the module expansion the same declarations dropped all six from every selection.
+
+### DF-5 - CLOSED: both installers delegate selector resolution instead of implementing it natively
+
+- **What the plan said**: Phases 6.1 and 6.2 instruct each legacy installer to implement the selection contract **natively**, with "a native fallback that does not make Python mandatory".
+- **What was done and why**: a jq implementation was written first (`selection.jq`, ~150 lines covering composition, closure, cycle detection, eligibility, and canonical-JSON hashing). It was then discovered that **jq is not installed on the development host**, and nothing in `.github/workflows/ci.yml` installs or asserts it either. Shipping an unverifiable second implementation of a hashed contract is worse than one shared implementation: any divergence would surface as a silent hash mismatch on a user's machine. The jq file was deleted unshipped, and both installers now call `scripts/lib/installer/selection.py --emit lines`. Decision confirmed by the user.
+- **What the original constraint protected is preserved**: a **no-selector full install still requires neither Python nor jq**, because both installers return from the selection path before touching Python when no selector was supplied (`selection_requested || return 0`, `if (-not (Test-SelectionRequested)) { return }`). A Python-less host already skipped every registry-backed platform before this change, so requiring Python for selectors specifically imposes nothing new on it. Both installers state this in their error text.
+- **Guarded by**: `test_both_installers_require_python_only_for_selectors` in `tests/installer/test_selection_parity.py`.
+
+### BG-2 - CLOSED: `set -e` swallowed the Bash selector error message
+
+- **What was wrong**: `resolve_selection` captured the resolver with a bare `out=$(...)` and checked `$?` afterwards. `installer.sh` runs under `set -e`, so a non-zero resolver exit aborted the script **at the assignment**, and the handler that prints which selector was wrong never ran. Observed behavior: exit 2 with completely empty stderr.
+- **Resolution**: `out=$("$py" "${args[@]}" 2>&1) || rc=$?`, which keeps the failure ours to report. Guarded by `test_bash_error_path_captures_status_under_set_e`.
+
+### BG-3 - CLOSED: Windows CRLF made the Bash staging loop silently select nothing
+
+- **What was wrong**: the resolver's records are read with `while IFS=$'\t' read -r kind value`. A **Windows Python invoked from Git Bash writes CRLF**, so every `value` carried a trailing `\r`, `find -name "$value"` matched nothing, and the stage was built empty. The install then completed successfully having copied **zero skills** - a green run that shipped nothing, which is the worst failure shape available.
+- **Resolution**: strip the CR from both fields before the `case`. Guarded by `test_bash_strips_carriage_returns_from_resolver_output`.
+
+### BG-4 - CLOSED: PowerShell `2>&1` on the resolver produced NativeCommandError noise
+
+- **What was wrong**: `$output = & $py @resolverArgs 2>&1`. In Windows PowerShell 5.1, redirecting a native command's stderr wraps each line in an ErrorRecord (`NativeCommandError`) and sets `$?` false even on a clean exit, so a good selector run surfaced as a visible error.
+- **Resolution**: drop the redirect. The resolver's stderr already reaches the console, so the user still sees which selector was wrong; only the exit code is needed. Guarded by `test_powershell_does_not_redirect_native_stderr`.
+
+### BG-5 - CLOSED: the PowerShell `-Profile` parameter shadowed an automatic variable
+
+- **What was wrong**: `[string]$Profile` shadows PowerShell's built-in `$PROFILE` automatic variable, flagged by PSScriptAnalyzer as `PSAvoidAssignmentToAutomaticVariable`.
+- **Resolution**: the parameter is now `$InstallProfile` with `[Alias("Profile")]`, so the user-facing spelling stays identical to the Bash `--profile` while nothing is shadowed. Verified by a live `-Profile minimal` install resolving 10 skills.
+
+### DF-4 - CLOSED: the contract and fixtures assumed profiles carry a flat skill list
+
+- **What was wrong**: the Phase 5.2 contract, the fixture catalog, and the first cut of the resolver all read a profile's skills from a `skills` array. Real profiles in `data/bundles.json` have no `skills` array at all: they **compose**, from `bundles`, `modules`, and `extra_skills`, and the `full` profile is marked `"all": true` rather than listing the catalog.
+- **How it surfaced**: `test_every_real_bundle_resolves`, which runs the resolver against the actual `data/bundles.json` rather than only against fixtures. Both real profiles resolved to zero skills and were reported as "empty selection" user errors -- a message that blames the user's selector for what was a modeling error in the resolver.
+- **Resolution**: `_expand_entry` now unions `skills`, `extra_skills`, referenced `modules`, and referenced `bundles`, with cycle protection on the references. The fixture catalog was rewritten to mirror the composed shape (its `core` profile now exercises all three composition keys at once), the affected case expectations were recomputed, and the contract gained section 2.1a stating that selection entries are not uniform.
+- **Why this is recorded rather than quietly fixed**: it is the concrete argument for keeping a real-catalog test alongside fixture tests. Every one of the 89 fixture assertions passed while the resolver could not resolve a single real profile, because the fixtures encoded the same wrong assumption as the code. Verified real numbers after the fix: minimal 10 skills, core 31, ai-engineering 6, ai-engineer 13, full 271.
+
+### NI-3 - CLOSED: `scripts/lib/installer/` was not distributed by either installer
+
+- **Target files**: `scripts/installer.sh` (the `integrations_src` copy block, around line 2295), `scripts/installer.ps1` (its equivalent)
+- **What is wrong**: both installers recursively copy `scripts/lib/integrations/` into `~/.nexus-hub/scripts/lib/integrations/` and write an empty `lib/__init__.py`, but neither copies the sibling `scripts/lib/installer/`. Six integration modules import from it (`base.py`, `copilot.py`, `cursor.py`, `windsurf.py`, `antigravity.py` -- three of them at module top level), so the installed copy of the registry is not importable on its own.
+- **Actual impact today: none.** Verified rather than assumed: the registry is always invoked as `$repo_root/scripts/lib/integrations/runner.py`, i.e. from the checkout (or the bootstrap-materialized `~/.nexus-hub/src/`), never from the installed copy. The installed tree is a reference copy that nothing executes.
+- **Why it still matters**: the copy exists, which means someone intended the installed tree to be importable, and it silently is not. `scripts/lib/installer/selection.py` (added this phase) lands in the same undistributed directory, so Phase 6 inherits the question the moment `runner.py` imports the resolver.
+- **Why it is not fixed here**: AGENTS.md classifies modifying the installer scripts as ask-first, and Phase 5's deliverables are a contract, fixtures, and a pure resolver with no installer edit. Phase 6.1 and 6.2 are already opening both installers.
+- **Resolution (Phase 6.1 / 6.2)**: both installers now **copy `scripts/lib/` wholesale** in Phase 6, replacing the `integrations`-only copy in both installers. This makes the installed tree genuinely importable rather than importable-looking, and covers `selection.py` without a second registration. The alternative considered and rejected was documenting the copy as reference-only, which is a zero-behavior-change option but leaves a tree that looks importable and is not. Phase 6.1 and 6.2 own the edit; the empty `lib/__init__.py` write already present stays.
+
+### Phase 4 - no new gaps; skill-native track (A1-A7) complete
+
+Phase 4 (synthetic data, human review, and skill quality) added two Tier-3 references, a directive-density review in `skill-stocktake`, and 63 test assertions. No deviation, no skipped test, no suppressed warning, no bypassed gate, so no new entry.
+
+The A1-A7 completion check the plan requires was run against the comparison's own declared target column, not asserted: all seven items have their implemented artifact present, and exactly one new skill was created across the whole track (`eval-pipeline-audit`) rather than the seven-skill verbatim import the Out of Scope section forbids. A8 (selective installation) remains, and is Phases 5-7.
+
+NI-2 is unchanged: Phase 4 touched no `agents/` descriptor.
+
+### Phase 3 - no new gaps
+
+Phase 3 (error analysis and evaluator calibration) added two Tier-3 references under `ai-output-evaluation`, routing from the parent skill, and 40 test assertions. It introduced no deviation, no skipped test, no suppressed warning, and no bypassed gate, so it contributes no new entry. Recorded explicitly because a phase with no gaps and a phase whose gaps were never written down look identical in this file otherwise.
+
+Two notes on existing entries:
+
+- **QG-1 does not extend to Phase 3.** Its scope is the CI `paths` filter excluding `docs/**`, which affects only the assertions targeting `evaluation-artifact-contract.md`. Both Phase 3 references live under `catalog/skills/`, so an edit to either does trigger CI.
+- **NI-2 is unchanged.** Phase 3 added no `agents/` descriptor, so the 118 remaining truncated files are neither reduced nor extended.
+
+### WN-2 - CLOSED (was mischaracterized as cosmetic): subprocess decoding killed a test's error reporting
+
+- **What was originally recorded**: a `UnicodeDecodeError` traceback when a Python test harness captured installer output on Windows, assessed as cosmetic because the affected tests still passed locally.
+- **That assessment was wrong, and remote CI proved it.** On the Windows CI leg the same decoding failure left `proc.stdout` as `None`, so the test failed while BUILDING its own assertion message: `TypeError: 'NoneType' object is not subscriptable`. The real outcome was replaced by a confusing type error that pointed nowhere near the cause. A defect that destroys a failure message is not cosmetic - it is the specific thing that makes the next failure expensive to diagnose.
+- **Resolution**: every `subprocess.run` in `tests/installer/test_selection_parity.py` now passes `encoding="utf-8", errors="replace"` through a shared `_CAPTURE` constant, with the reason documented at its definition.
+- **The lesson**: "the test still passes" is not sufficient evidence that a warning is harmless. It passed on the host where the decode happened to succeed. Local green plus an unexplained traceback is a reason to look closer, not to file it as noise.
+
+### BG-6 - CLOSED: the PowerShell end-to-end test ran on Linux CI
+
+- **What was wrong**: `test_powershell_filtered_install_matches_bash` gated on `shutil.which("powershell") or shutil.which("pwsh")`. GitHub's `ubuntu-latest` image **ships `pwsh`**, so the guard did not skip - it found pwsh, ran the Windows installer against a POSIX host, and failed with a bare `rc=1`.
+- **Why local testing missed it**: the development host is Windows, where the test runs legitimately and passes. The failure mode only exists on a Linux runner with pwsh installed, which is exactly the environment no local run reproduces.
+- **Resolution**: the helper now returns `None` unless `sys.platform == "win32"`. `installer.ps1` is a Windows installer (Windows PowerShell 5.1 idioms, `%TEMP%`, Windows path handling); running it on Linux is not a supported scenario, so skipping is correct and reporting a failure was not.
+
+### PX-1 - CLOSED (pre-existing, unrelated to v3.16.1): `end-of-file-fixer` failing on a cursor-usage-monitor source file
+
+- **What was wrong**: `extensions/cursor-usage-monitor/src/statusBarManager.ts` ended with two newlines, so pre-commit's `end-of-file-fixer` rewrote it and failed the `validate` job. This had been failing the CI `validate` job on **every `develop` push for at least three releases**, including the v3.16.0 merge and the v3.15.14 merge.
+- **Why it is fixed here despite being out of scope**: it is a one-byte normalization that the hook itself performs, it touches no logic, and it was the ONLY thing failing `validate`. A release cannot be called green while a long-standing red check is waved through, and leaving it would have meant either shipping red or claiming a pass the pipeline did not give.
+- **Resolution**: trailing newline normalized to exactly one. Verified on the staged blob: single `
+`, no CRLF, one-line diff.
+
+
+### BG-7 - CLOSED: `Get-FileHash` broke the PowerShell installer on Windows CI
+
+- **What was wrong**: `Safe-Copy` called `Get-FileHash`, which raised `CommandNotFoundException` inside `installer.ps1` under Windows PowerShell 5.1 on GitHub's `windows-latest` image, while the rest of `Microsoft.PowerShell.Utility` worked in the same session and pwsh 7 on the same image was fine.
+- **Why it hid for four releases**: `Safe-Copy` hashes ONLY when the destination already exists, so on a fresh install every call short-circuits and the line is never reached. `install-smoke` installs into a clean HOME, so it passed release after release over unreachable code. Reaching it needs a job that installs twice into one HOME, which the v3.16.1 parity suite is the first to do.
+- **Two hypotheses were tested and both DISPROVEN**: a stripped `PSModulePath`, and a pwsh-7 `PSModulePath` shadowing 5.1's Utility module. Windows PowerShell 5.1 resolves the cmdlet correctly under both.
+- **Resolution**: the dependency was removed rather than tuned around. Hashing goes through .NET `SHA256`, which needs no module resolution and behaves identically on 5.1 and 7. This is the **second** sighting of the class in this repo (v3.15.6 hit it in `catalog/hooks/provenance-ledger.ps1` and reached for the same .NET stream), and `tests/installer/test_powershell_cmdlet_portability.py` now pins both.
+- **Why the guard is static rather than behavioral**: re-running the install would not catch a reintroduction on any developer machine where the cmdlet works, which is all of them. The defect is only observable on an image we do not control, so a source assertion is the only check that fails in the right place.
+
+### BG-8 - CLOSED: the PowerShell selection stage leaked on every focused install
+
+- **What was wrong**: `Remove-SelectionStage` was written in Phase 6.2 and **never called**. The Bash side cleans its staging tree with `trap cleanup_selection_stage EXIT`; the PowerShell equivalent had no caller, so every focused install left a full copy of the selected skills in `%TEMP%`. Eight leaked stages were found on the development host.
+- **Resolution**: called on the normal completion path. Verified by stage count across a successful focused install (8 -> 8, rc=0, 13 skills).
+
+### NI-6 - OPEN (documented, bounded): one PowerShell early-exit path still leaks a stage
+
+- **What remains**: an exit taken after `Resolve-Selection` but before completion (observed via the "Workspace path not found" validation) leaves its staging directory behind.
+- **Why it is not fixed**: a `Register-EngineEvent PowerShell.Exiting` handler was written and then deliberately removed. Engine-event actions run in a separate scope where the `$script:`-scoped stage path is not reliably visible, so the cleanup could not be verified to run. An unverifiable cleanup is worse than a documented gap: it reads as covered while doing nothing.
+- **Bound**: the residual is one directory under `%TEMP%` on an aborted install, not on the normal path. An earlier draft of the in-file comment claimed no such path existed; that claim was wrong and is corrected to describe the measured path.
+
+### v3.16.1 final disposition (Phase 8.2)
+
+Every item raised across the eight phases and the release itself has been dispositioned. **21 closed, 3 carried forward, 0 release blockers.** Five of the closures (WN-2, BG-6, PX-1, BG-7, BG-8) came from remote CI or from post-merge verification after the local suite was green -- which is this cycle's clearest evidence that a green local run is a weaker signal than it feels like.
+
+The two carried forward are environmental, and neither is a release blocker:
+
+| Item | Why it is carried rather than fixed |
+|---|---|
+| **WN-1** - no `make`, `ruff`, or `shellcheck` on the implementation host | A property of the development machine, not the codebase. Its practical impact was verified as narrow: `make lint` covers shell scripts only, and every `make validate` guard was run individually by invoking its underlying command directly. CI runs the authoritative gate on both Linux and Windows. Adding a Python lint gate is a repo-wide decision recorded in the CI/CD comparison as a retained difference, not something to introduce in a terminal phase. |
+| **BG-1** - `test_ps_standalone_extracts_and_hands_off` fails with an MSYS `tar` error | Inherited from v3.16.0, where it was reproduced on a clean `develop` worktree with none of that plan's changes present. It affects a Windows host whose PATH resolves `tar` to the Git Bash binary; CI runners are unaffected. v3.16.1 touched no bootstrap file, and the failure signature is byte-identical across every run this cycle. |
+
+Five findings this cycle were **bugs in work this plan produced**, all caught by running the code rather than reading it, and all now carry a named regression test: BG-2 (`set -e` swallowing the selector error), BG-3 (Windows CRLF making Bash stage nothing while reporting success), BG-4 (PowerShell 5.1 `NativeCommandError`), BG-5 (`-Profile` shadowing an automatic variable), and QG-2 (a cited regression run that predated its own final edit).
+
+Two were **pre-existing defects the work exposed**: NI-1 (four bundle references to skills that do not exist) and NI-4 (166 of 271 skills unreachable through any module). Neither was visible before this cycle, because nothing resolved selections until Phase 5.
+
 ## v3.16 Summary
 
 | Category | Open | Resolved |
@@ -271,5 +473,6 @@ Every open item above receives an explicit disposition here, and every platform 
 | Comparison-sourced deferrals (`CD-#`) | 3 (CD-1, CD-2, CD-3) | 0 |
 | Transferred in from v3.15.14 (`TR-#`) | 2 (TR-1, TR-2) | 1 (TR-3) |
 | v3.16.0 version-implementation gaps | 3 carried forward (NI-1, NI-6, BG-1) | 13 closed (DF-1, DF-2, DF-3, DF-4, NI-2, NI-3, NI-4, NI-5, QG-1, QG-2, QG-3, BG-2, BG-3, WN-1) |
+| v3.16.1 version-implementation gaps (all 8 phases + release) | 3 carried forward (WN-1, BG-1 environmental; NI-6 bounded and documented) | 21 closed (DF-1..DF-5, NI-1..NI-5, BG-2..BG-8, QG-1, QG-2, WN-2, PX-1) |
 
 The three comparison-sourced items remain non-blocking prose folds with named target files. Of the v3.16.0 items, BG-1 is pre-existing and reproduces without this plan's changes, WN-1 is environmental, DF-1 is a reasoned non-implementation, NI-1 is a deliberate scope boundary the plan requires, and NI-2 / NI-3 / NI-4 are Phase 2 findings that Phase 3 and Phase 5 are already scheduled to dispose of. Phase 5 dispositioned every open item: 13 closed, 3 carried forward. **None gates the v3.16.0 release.** NI-1 and NI-6 are scope decisions for cycles already touching the relevant surfaces, and BG-1 is pre-existing, reproduced on a clean `develop` worktree, and confined to a Windows host whose PATH resolves `tar` to the Git Bash binary. Of the 13 closed, three (BG-2, BG-3, and QG-3) were caught by the test suite rather than by review, which is this cycle's strongest argument for running the full suite before declaring a phase done.

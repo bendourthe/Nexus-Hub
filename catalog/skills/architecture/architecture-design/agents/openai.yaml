@@ -1,4 +1,4 @@
 interface:
   display_name: Architecture Design
   short_description: System architecture design including requirements analysis, trade-off evaluation, ADRs, and system decomposition. Use when designing new systems, evaluating architectures, or documenting
-    design decisi
+    design decisions.

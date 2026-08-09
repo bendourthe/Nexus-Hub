@@ -1,3 +1,3 @@
 interface:
   display_name: Trend Research & Prompt Generation
-  short_description: Research any topic across Reddit, X (Twitter), and the web to identify recent trends (last 30 days) and generate production-ready prompts or recommendations
+  short_description: Research any topic across Reddit, X (Twitter), and the web to identify recent trends (last 30 days) and generate production-ready prompts or recommendations.

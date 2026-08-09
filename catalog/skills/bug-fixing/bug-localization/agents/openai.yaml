@@ -1,4 +1,4 @@
 interface:
   display_name: Bug Localization
   short_description: Pinpoint bug locations using stack traces, error logs, code flow analysis, spectrum-based fault localization, and bisection techniques. Use when debugging failures, analyzing stack
-    traces, tracing err
+    traces, tracing error origins, or narrowing down faulty code regions.

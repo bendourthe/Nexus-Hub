@@ -1,4 +1,4 @@
 interface:
   display_name: AI Agent Development
   short_description: AI agent architecture and development patterns including tool use, memory systems, planning loops, and multi-agent orchestration. Use when building AI agents, designing tool interfaces,
-    or implementin
+    or implementing agent evaluation.

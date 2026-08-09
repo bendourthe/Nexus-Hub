@@ -1,4 +1,4 @@
 interface:
   display_name: Ambiguity Detector
   short_description: Detect ambiguous, incomplete, or contradictory requirements and specifications with structured clarification templates. Use when reviewing requirements, user stories, API specifications,
-    or any writte
+    or any written specification before implementation begins.

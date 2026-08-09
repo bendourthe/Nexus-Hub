@@ -273,13 +273,78 @@ def extract_changelog_section(changelog: str, version: str) -> str:
 # --- Bootstrap re-run -------------------------------------------------------
 
 
+# A selector id is kebab-case by construction (every id in data/bundles.json is).
+# Validating against this instead of quoting is what makes forwarding safe: the
+# selectors end up inside a shell command string, and an id that cannot contain a
+# quote, space, semicolon, or backtick cannot break out of it. Anything failing
+# this check is dropped rather than escaped, because a selector that does not
+# match is not a selector we wrote.
+_SELECTOR_ID = re.compile(r"^[a-z0-9][a-z0-9-]*$")
+
+
+def recorded_selection() -> dict | None:
+    """The selection recorded by the last global install, or None for full."""
+    manifest = install_home() / "install-manifest.json"
+    try:
+        data = json.loads(manifest.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    selection = data.get("selection")
+    return selection if isinstance(selection, dict) else None
+
+
+def recorded_selector_flags(style: str) -> list[str]:
+    """Selector flags to re-apply on upgrade, in `style` = "sh" or "ps".
+
+    An upgrade must not silently widen a focused install back to the full
+    catalog. That would be the single most annoying way to lose a selection,
+    because it happens during an operation the user expects to be a no-op on
+    scope.
+    """
+    selection = recorded_selection()
+    if not selection:
+        return []
+    requested = selection.get("requested") or {}
+    profile = requested.get("profile")
+    modules = [m for m in (requested.get("modules") or []) if _SELECTOR_ID.match(str(m))]
+    bundles = [b for b in (requested.get("bundles") or []) if _SELECTOR_ID.match(str(b))]
+    flags: list[str] = []
+    prefix = "-" if style == "ps" else "--"
+    name = {"profile": "Profile", "modules": "Modules", "bundles": "Bundles"} if style == "ps" \
+        else {"profile": "profile", "modules": "modules", "bundles": "bundles"}
+    if profile and _SELECTOR_ID.match(str(profile)):
+        flags += [f"{prefix}{name['profile']}", str(profile)]
+    if modules:
+        flags += [f"{prefix}{name['modules']}", ",".join(modules)]
+    if bundles:
+        flags += [f"{prefix}{name['bundles']}", ",".join(bundles)]
+    return flags
+
+
 def _bootstrap_command() -> list[str]:
-    """Build the platform-appropriate bootstrap re-run command (project GitHub)."""
+    """Build the platform-appropriate bootstrap re-run command (project GitHub).
+
+    Any selection recorded by the previous install is re-applied, so an upgrade
+    preserves the user's scope instead of quietly restoring the full catalog.
+    """
     base = _install_base()
     if sys.platform == "win32":
-        ps_cmd = f"irm {base}/install.ps1 | iex"
+        ps_flags = recorded_selector_flags("ps")
+        # `irm | iex` cannot take arguments, so a scriptblock is required to pass
+        # any. Only used when there is something to pass; the plain pipe stays
+        # the default so the common path is unchanged.
+        if ps_flags:
+            ps_cmd = (
+                "&([scriptblock]::Create((irm "
+                + f"{base}/install.ps1))) " + " ".join(ps_flags)
+            )
+        else:
+            ps_cmd = f"irm {base}/install.ps1 | iex"
         return ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", ps_cmd]
-    sh_cmd = f"curl -fsSL {base}/install.sh | bash"
+    sh_flags = recorded_selector_flags("sh")
+    # `bash -s --` is the standard way to hand arguments to a piped script.
+    suffix = (" -s -- " + " ".join(sh_flags)) if sh_flags else ""
+    sh_cmd = f"curl -fsSL {base}/install.sh | bash{suffix}"
     return ["bash", "-c", sh_cmd]
 
 

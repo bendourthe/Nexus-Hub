@@ -61,6 +61,16 @@ class InstallManifest:
         # the runner after each integration install. Stored separately so
         # legacy callers / tests that only touch `_tracked` keep working.
         self._actions: Dict[str, List[Dict[str, object]]] = {}
+        # v3.16.1 Phase 5.4 -- the serialized install-selection plan, or None
+        # when the install was not selector-driven.
+        #
+        # `None` and "absent" mean the same thing here, and both mean FULL. A
+        # manifest written before v3.16.1 has no `selection` key at all, and
+        # `from_dict` reads it with a default, so an old manifest loads cleanly
+        # and is correctly interpreted as the full install it was. That is why
+        # this is an additive key rather than a schema bump: there is no
+        # migration to run and no reader to change.
+        self._selection: Optional[Dict[str, object]] = None
 
     def track(self, integration_key: str, path: str) -> None:
         bucket = self._tracked.setdefault(integration_key, [])
@@ -141,13 +151,44 @@ class InstallManifest:
         """Return every integration key with at least one recorded action."""
         return sorted(self._actions.keys())
 
+    # ------------------------------------------------------------------
+    # v3.16.1 / Phase 5.4 -- install-selection state
+    # ------------------------------------------------------------------
+
+    def set_selection(self, plan: Optional[Dict[str, object]]) -> None:
+        """Record the resolved selection plan (or None for a full install)."""
+        self._selection = dict(plan) if plan is not None else None
+
+    def selection(self) -> Optional[Dict[str, object]]:
+        """The recorded plan, or None when this install was full.
+
+        Callers MUST treat None as "full", not as "unknown". A pre-v3.16.1
+        manifest is indistinguishable from a v3.16.1 full install here, and that
+        is correct: both installed the whole catalog.
+        """
+        return dict(self._selection) if self._selection is not None else None
+
+    def selection_hash(self) -> Optional[str]:
+        if not self._selection:
+            return None
+        value = self._selection.get("hash")
+        return str(value) if value is not None else None
+
     def to_dict(self) -> Dict[str, object]:
-        return {
+        data: Dict[str, object] = {
             "tracked": self._tracked,
             "shared": self._shared,
             "logs": self._logs,
             "actions": self._actions,
         }
+        # Emitted only when a selection exists, so a full install writes exactly
+        # the same manifest bytes it wrote before v3.16.1. The contract's
+        # byte-equivalence requirement covers the installed tree; keeping the
+        # manifest identical too means an existing diff-based check does not
+        # start reporting a change on every full install.
+        if self._selection is not None:
+            data["selection"] = self._selection
+        return data
 
     @classmethod
     def from_dict(cls, data: Dict[str, object]) -> "InstallManifest":
@@ -156,6 +197,8 @@ class InstallManifest:
         m._shared = dict(data.get("shared", {}))
         m._logs = list(data.get("logs", []))
         m._actions = dict(data.get("actions", {}))
+        selection = data.get("selection")
+        m._selection = dict(selection) if isinstance(selection, dict) else None
         return m
 
     def save(self, path: Path) -> None:

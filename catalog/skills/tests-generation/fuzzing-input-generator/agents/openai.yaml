@@ -1,4 +1,4 @@
 interface:
   display_name: Fuzzing Input Generator
   short_description: Generate fuzz testing inputs for security and robustness testing using mutation-based, grammar-based, and coverage-guided fuzzing techniques. Use when testing parsers, APIs, file format
-    handlers, netw
+    handlers, network protocols, or when you need to discover crashes, hangs, and undefined behaviour through automated input generation.

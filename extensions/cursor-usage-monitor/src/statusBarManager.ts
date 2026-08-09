@@ -344,4 +344,3 @@ function relativeTime(timestamp: string, now: number): string {
   const minutes = Math.max(0, Math.floor((now - parsed) / 60_000));
   return minutes === 0 ? "just now" : `${minutes} min ago`;
 }
-

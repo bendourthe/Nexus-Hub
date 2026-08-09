@@ -29,6 +29,18 @@ param(
     # as it was; present ALSO merges the deny/ask overlay from
     # configs/permissions/claude-permissions-strict.json.
     [switch]$StrictPermissions,
+    # v3.16.1 -- install-selection selectors. Contract:
+    # docs/v3/v3.16/development/install-selection-contract.md
+    # Absent (the default) installs the full catalog, exactly as before.
+    # Bound as -Profile for lockstep with the Bash --profile flag, but stored in
+    # $InstallProfile: $Profile is a PowerShell AUTOMATIC variable (the path to
+    # the user's profile script), and a parameter of that name shadows it inside
+    # the script. The alias keeps the user-facing spelling identical across both
+    # installers without the shadowing.
+    [Alias("Profile")]
+    [string]$InstallProfile,   # one profile id
+    [string]$Modules,          # comma-separated capability module ids
+    [string]$Bundles,          # comma-separated role bundle ids
     [Parameter(Position = 0)]
     [string]$Subcommand,
     [Parameter(ValueFromRemainingArguments = $true)]
@@ -39,6 +51,7 @@ if ($Help) {
     @"
 Usage:
   pwsh scripts/installer.ps1 [-Workspace PATH] [-Platforms LIST] [-Yes]
+                             [-Profile ID] [-Modules LIST] [-Bundles LIST]
                              [-Force] [-Enterprise] [-StrictPermissions] [-Help]
   pwsh scripts/installer.ps1 init [-Target PATH] [-DryRun]
   pwsh scripts/installer.ps1 -PrintConfig <integration-key>
@@ -80,6 +93,15 @@ Options:
                 instead of all platforms. Valid keys: claude, codex, gemini,
                 antigravity2, gemini-cli, copilot, cursor, opencode, nexus-ai,
                 aider, windsurf, kimi, qwen, openclaw.
+  -Profile <id> Install one profile instead of the whole catalog: minimal,
+                core, or full. Default (no selector) is full.
+  -Modules <list>  Install the given comma-separated capability modules.
+  -Bundles <list>  Install the given comma-separated role bundles.
+                Selectors combine by union: -Profile core -Modules ai-engineering
+                installs both. -Profile full cannot be combined with others.
+                Hooks, rules, templates, and settings install under EVERY
+                selection; only skills and their dependent commands and agents
+                are filtered. Selectors need Python; a full install does not.
   -Yes          Non-interactive: never prompt, and refresh existing managed
                 files to the latest version (also implied when stdin is not a
                 TTY, e.g. a piped irm|iex install).
@@ -122,7 +144,7 @@ function Get-SanitizedBranchName {
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:NexusHubVersion = "3.16.0"
+$script:NexusHubVersion = "3.16.1"
 
 $Host.UI.RawUI.WindowTitle = "Nexus-Hub Installer"
 $script:InstallerTitle = "Nexus-Hub Installer"
@@ -467,6 +489,46 @@ function Write-JsonFile {
 #       OverwriteMode "ALL" (refresh)        -> overwrite now
 #       otherwise (interactive "CONFLICT")   -> record conflict + KEEP; the
 #         single end-of-run Resolve-Conflicts prompt decides whether to overwrite
+# Return the uppercase hex SHA-256 of a file, using .NET directly.
+#
+# This deliberately does NOT use Get-FileHash. That cmdlet lives in the
+# Microsoft.PowerShell.Utility module, and on GitHub's windows-latest image a
+# Windows PowerShell 5.1 session running this script raised
+# CommandNotFoundException for it -- while Write-Host and the rest of Utility
+# worked, and while the same script under pwsh 7 on the same image was fine.
+#
+# The trigger is subtle enough to be worth recording: Safe-Copy only hashes when
+# the destination ALREADY exists, so on a fresh install every call short-circuits
+# and the cmdlet is never invoked. The install-smoke job therefore passed for
+# releases while this line was unreachable; it only fired once a job installed
+# twice into the same HOME, which the v3.16.1 parity suite is the first to do.
+#
+# The exact cause of the missing cmdlet was not reproducible off that image
+# (an empty PSModulePath and a simulated pwsh-7 PSModulePath both resolve
+# Get-FileHash correctly on a local 5.1). It does not need to be: this is the
+# SECOND time the cmdlet has failed on a 5.1 runner image in this repo -- see
+# catalog/hooks/provenance-ledger.ps1, where v3.15.6 hit the same thing and
+# reached for the same .NET stream. Two independent sightings make it a property
+# of the environment, not a one-off.
+#
+# Since the dependency buys nothing -- .NET's SHA256 is available in every
+# edition with no module resolution at all -- it is removed rather than tuned
+# around. Do not reintroduce it.
+function Get-FileSha256 {
+    param([string]$Path)
+    $sha = [System.Security.Cryptography.SHA256]::Create()
+    try {
+        $stream = [System.IO.File]::OpenRead($Path)
+        try {
+            return [System.BitConverter]::ToString($sha.ComputeHash($stream)).Replace("-", "")
+        } finally {
+            $stream.Dispose()
+        }
+    } finally {
+        $sha.Dispose()
+    }
+}
+
 function Safe-Copy {
     param(
         [string]$Source,
@@ -482,8 +544,8 @@ function Safe-Copy {
     }
 
     if (Test-Path $Destination) {
-        $srcHash = (Get-FileHash -Path $Source).Hash
-        $dstHash = (Get-FileHash -Path $Destination).Hash
+        $srcHash = Get-FileSha256 -Path $Source
+        $dstHash = Get-FileSha256 -Path $Destination
         if ($srcHash -eq $dstHash) {
             # Already current -- nothing to write.
             return
@@ -1465,9 +1527,12 @@ function Install-Global {
         # reads identically to the registry platforms. DF-001: the registry
         # runner renders CLAUDE.md; the Safe-Folder-Copy block does the mirror.
         Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "claude" -DisplayName "CLAUDE.md (instruction file)" -InstructionOnly 6>$null
-        Flatten-SkillsInto -Source "$RepoRoot\catalog\skills"   -Destination (Join-Path $globalClaude "skills")   6>$null
-        Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $globalClaude "commands") 6>$null
-        Safe-Folder-Copy -Source "$RepoRoot\catalog\agents"   -Destination (Join-Path $globalClaude "agents")   6>$null
+        # v3.16.1: Get-CatalogSource returns the filtered stage when a selection
+        # is active and the real catalog otherwise, so the no-selector path is
+        # unchanged.
+        Flatten-SkillsInto -Source (Get-CatalogSource -RepoRoot $RepoRoot -Surface "skills")   -Destination (Join-Path $globalClaude "skills")   6>$null
+        Safe-Folder-Copy -Source (Get-CatalogSource -RepoRoot $RepoRoot -Surface "commands") -Destination (Join-Path $globalClaude "commands") 6>$null
+        Safe-Folder-Copy -Source (Get-CatalogSource -RepoRoot $RepoRoot -Surface "agents")   -Destination (Join-Path $globalClaude "agents")   6>$null
         Safe-Folder-Copy -Source "$RepoRoot\catalog\rules"    -Destination (Join-Path $globalClaude "rules")    6>$null
 
         $mcpConfigDest = Join-Path $globalClaude "mcp-configs"
@@ -1851,9 +1916,9 @@ function Install-Workspace {
 
             Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "claude" -DisplayName "CLAUDE.md (instruction file)" -Languages ($languages -join ',') -InstructionOnly
 
-            Flatten-SkillsInto -Source "$RepoRoot\catalog\skills"   -Destination (Join-Path $claudeDir "skills")   -CustomMessage "✓ Skills catalog installed (flattened) at: $(Join-Path $claudeDir "skills")"
-            Safe-Folder-Copy -Source "$RepoRoot\catalog\commands" -Destination (Join-Path $claudeDir "commands") -CustomMessage "✓ Commands installed at: $(Join-Path $claudeDir "commands")"
-            Safe-Folder-Copy -Source "$RepoRoot\catalog\agents"   -Destination (Join-Path $claudeDir "agents")   -CustomMessage "✓ Agents installed at: $(Join-Path $claudeDir "agents")"
+            Flatten-SkillsInto -Source (Get-CatalogSource -RepoRoot $RepoRoot -Surface "skills")   -Destination (Join-Path $claudeDir "skills")   -CustomMessage "✓ Skills catalog installed (flattened) at: $(Join-Path $claudeDir "skills")"
+            Safe-Folder-Copy -Source (Get-CatalogSource -RepoRoot $RepoRoot -Surface "commands") -Destination (Join-Path $claudeDir "commands") -CustomMessage "✓ Commands installed at: $(Join-Path $claudeDir "commands")"
+            Safe-Folder-Copy -Source (Get-CatalogSource -RepoRoot $RepoRoot -Surface "agents")   -Destination (Join-Path $claudeDir "agents")   -CustomMessage "✓ Agents installed at: $(Join-Path $claudeDir "agents")"
             Safe-Folder-Copy -Source "$RepoRoot\catalog\rules"    -Destination (Join-Path $claudeDir "rules")    -CustomMessage "✓ Rules installed at: $(Join-Path $claudeDir "rules")"
 
             $mcpConfigDestWs = Join-Path $claudeDir "mcp-configs"
@@ -1992,6 +2057,137 @@ function Resolve-PythonExecutable {
     return $null
 }
 
+# ---------------------------------------------------------------------------
+# Install selection (v3.16.1 Phase 6.2) -- lockstep with the Bash implementation
+# in scripts/installer.sh.
+#
+# Contract: docs/v3/v3.16/development/install-selection-contract.md
+#
+# Resolution delegates to scripts/lib/installer/selection.py rather than being
+# reimplemented in PowerShell, matching the Bash decision and for the same
+# reason: one tested implementation of a hashed contract beats several. What the
+# plan's "no Python dependency" wording protects is preserved exactly -- these
+# functions are only reached when a selector was supplied, so a no-selector full
+# install still needs neither Python nor jq.
+#
+# Filtering is applied by STAGING: a filtered copy of catalog\skills,
+# catalog\commands, and catalog\agents is built once and every downstream copy
+# reads it via Get-CatalogSource. Only those three surfaces are ever filtered;
+# hooks, rules, context, memory, style-guides, and mcp-configs are policy
+# infrastructure and always install in full.
+# ---------------------------------------------------------------------------
+
+$script:SelectionActive     = $false
+$script:SelectionStage      = $null
+$script:SelectionHash       = ""
+$script:SelectionSkillCount = 0
+$script:SelectionCmdCount   = 0
+$script:SelectionAgentCount = 0
+
+function Test-SelectionRequested {
+    return ($InstallProfile -or $Modules -or $Bundles)
+}
+
+function Get-CatalogSource {
+    param([string]$RepoRoot, [string]$Surface)
+    if ($script:SelectionActive) {
+        $staged = Join-Path $script:SelectionStage $Surface
+        if (Test-Path $staged) { return $staged }
+    }
+    return (Join-Path $RepoRoot "catalog\$Surface")
+}
+
+function Resolve-Selection {
+    param([string]$RepoRoot)
+
+    if (-not (Test-SelectionRequested)) { return }
+
+    $py = Resolve-PythonExecutable
+    if (-not $py) {
+        Write-Host ""
+        Write-Host "ERROR: -Profile / -Modules / -Bundles need Python to resolve." -ForegroundColor Red
+        Write-Host "       Install Python 3, or re-run without a selector for a full install" -ForegroundColor Red
+        Write-Host "       (a full install requires neither Python nor jq)." -ForegroundColor Red
+        exit 2
+    }
+
+    $resolver = Join-Path $RepoRoot "scripts\lib\installer\selection.py"
+    if (-not (Test-Path $resolver)) {
+        Write-Host "ERROR: selection resolver not found at $resolver" -ForegroundColor Red
+        exit 3
+    }
+
+    $resolverArgs = @($resolver, "--repo-root", $RepoRoot, "--emit", "lines")
+    if ($InstallProfile) { $resolverArgs += @("--profile", $InstallProfile) }
+    if ($Modules) { $resolverArgs += @("--modules", $Modules) }
+    if ($Bundles) { $resolverArgs += @("--bundles", $Bundles) }
+
+    # Deliberately NO `2>&1` here. In Windows PowerShell 5.1 redirecting a native
+    # command's stderr wraps each line in an ErrorRecord (NativeCommandError) and
+    # sets $? to $false even on a clean exit, which turns a good run into a
+    # visible error. The resolver's own stderr already reaches the console, so
+    # the user still sees which selector was wrong; we only need the exit code.
+    $output = & $py @resolverArgs
+    if ($LASTEXITCODE -ne 0) {
+        exit $LASTEXITCODE
+    }
+
+    $script:SelectionStage = Join-Path ([System.IO.Path]::GetTempPath()) ("nexus-selection-" + [System.Guid]::NewGuid().ToString("N"))
+    foreach ($surface in @("skills", "commands", "agents")) {
+        New-Item -ItemType Directory -Force -Path (Join-Path $script:SelectionStage $surface) | Out-Null
+    }
+
+    foreach ($line in $output) {
+        $text = [string]$line
+        if (-not $text) { continue }
+        $parts = $text -split "`t", 2
+        if ($parts.Count -lt 2) { continue }
+        $kind  = $parts[0].Trim()
+        $value = $parts[1].Trim()
+        switch ($kind) {
+            "HASH" { $script:SelectionHash = $value }
+            "SKILL" {
+                # Skills live under catalog\skills\<category>\<name>; the stage
+                # keeps the category level so a nested-layout copy still works.
+                $src = Get-ChildItem -Path (Join-Path $RepoRoot "catalog\skills") -Directory -Recurse -Depth 1 -ErrorAction SilentlyContinue |
+                       Where-Object { $_.Name -eq $value -and $_.Parent.Parent.Name -eq "skills" } |
+                       Select-Object -First 1
+                if ($src) {
+                    $destCategory = Join-Path (Join-Path $script:SelectionStage "skills") $src.Parent.Name
+                    New-Item -ItemType Directory -Force -Path $destCategory | Out-Null
+                    Copy-Item -Path $src.FullName -Destination $destCategory -Recurse -Force
+                    $script:SelectionSkillCount++
+                }
+            }
+            "COMMAND" {
+                $src = Join-Path $RepoRoot "catalog\commands\$value.md"
+                if (Test-Path $src) {
+                    Copy-Item -Path $src -Destination (Join-Path $script:SelectionStage "commands") -Force
+                    $script:SelectionCmdCount++
+                }
+            }
+            "AGENT" {
+                $src = Join-Path $RepoRoot "catalog\agents\$value.md"
+                if (Test-Path $src) {
+                    Copy-Item -Path $src -Destination (Join-Path $script:SelectionStage "agents") -Force
+                    $script:SelectionAgentCount++
+                }
+            }
+            "WARN" {
+                Write-Host "WARNING: selection resolved to the entire catalog; '-Profile full' says this directly." -ForegroundColor Yellow
+            }
+        }
+    }
+
+    $script:SelectionActive = $true
+}
+
+function Remove-SelectionStage {
+    if ($script:SelectionStage -and (Test-Path $script:SelectionStage)) {
+        Remove-Item -Path $script:SelectionStage -Recurse -Force -ErrorAction SilentlyContinue
+    }
+}
+
 function Invoke-RegistryPlatform {
     param(
         [string]$RepoRoot,
@@ -2018,6 +2214,13 @@ function Invoke-RegistryPlatform {
     }
     if ($script:OverwriteMode -eq "ALL") { $argsList += "--overwrite" }
     if ($InstructionOnly) { $argsList += "--instruction-only" }
+    # v3.16.1 Phase 6.2: forward the selectors so the registry resolves the same
+    # plan this script did. Appended as discrete array elements, never
+    # interpolated into a command string, so a selector value cannot inject an
+    # argument.
+    if ($InstallProfile) { $argsList += @("--profile", $InstallProfile) }
+    if ($Modules) { $argsList += @("--modules", $Modules) }
+    if ($Bundles) { $argsList += @("--bundles", $Bundles) }
     if ($Languages) { $argsList += @("--languages", $Languages) }
     # Thread the instruction-template placeholders from the detected script
     # globals so the registry renders the same instruction body the legacy
@@ -2607,10 +2810,14 @@ function Install-Templates {
     # in scripts\installer.sh. Lands the per-platform install hierarchy under
     # ~\.nexus-hub\scripts\lib\integrations\ so users can invoke the runner
     # standalone post-install.
-    $integrationsSrc = Join-Path $RepoRoot "scripts\lib\integrations"
-    $integrationsDest = Join-Path $scriptsDest "lib\integrations"
-    if (Test-Path $integrationsSrc) {
-        Safe-Folder-Copy -Source $integrationsSrc -Destination $integrationsDest -CustomMessage "✓ Integration registry installed at: $integrationsDest"
+    # v3.16.1 (NI-3): copy the WHOLE scripts\lib tree, not just integrations\.
+    # Six integration modules import from scripts\lib\installer\ (three at module
+    # top level), so copying only integrations\ produced an installed tree that
+    # looked importable and was not. Lockstep with the bash block.
+    $libSrc = Join-Path $RepoRoot "scripts\lib"
+    $libDest = Join-Path $scriptsDest "lib"
+    if (Test-Path $libSrc) {
+        Safe-Folder-Copy -Source $libSrc -Destination $libDest -CustomMessage "✓ Integration registry installed at: $(Join-Path $libDest 'integrations')"
     }
     $libInit = Join-Path $scriptsDest "lib\__init__.py"
     if ((Test-Path (Split-Path $libInit -Parent)) -and -not (Test-Path $libInit)) {
@@ -3295,6 +3502,17 @@ $script:TempFiles = @()
 # Validate -Platforms into the internal platform-key set (empty/absent = all).
 $script:SelectedPlatforms = Resolve-Platforms -PlatformsArg $Platforms
 
+# --- Resolve the install selection (v3.16.1 Phase 6.2) -------------------
+# Deliberately beside the -Platforms validation above and BEFORE any write: an
+# invalid selector must never leave a half-installed tree. A run with no
+# selector returns immediately and takes the identical path it always did.
+Resolve-Selection -RepoRoot $repoRoot
+if ($script:SelectionActive) {
+    Write-Host ""
+    Write-Host "Selection: $($script:SelectionSkillCount) skills, $($script:SelectionCmdCount) commands, $($script:SelectionAgentCount) agents"
+    Write-Host "           $($script:SelectionHash)"
+}
+
 # Resolve the assume-yes / overwrite decision. -Yes or -Force force it; a
 # non-interactive stdin (piped irm|iex, CI) also implies it. In that case
 # existing managed files are refreshed silently (OverwriteMode "ALL");
@@ -3375,6 +3593,24 @@ Write-Host ""
 Write-Host "✓ Nexus-Hub v$script:NexusHubVersion installed ($scopeLabel scope)." -ForegroundColor Green
 Write-Host ""
 Write-Host "Restart any running AI assistant sessions (Claude Code, Cursor, Gemini CLI, Codex, Copilot, OpenCode) so they pick up the new settings, hooks, skills, and rules." -ForegroundColor Yellow
+
+# v3.16.1: remove the filtered-selection staging tree. Bash does this with
+# `trap cleanup_selection_stage EXIT`; PowerShell has no script-scope equivalent,
+# so it is called on the normal completion path. Without it the stage leaked a
+# full copy of the selected skills into %TEMP% on every focused install.
+#
+# A `Register-EngineEvent PowerShell.Exiting` handler was considered to cover the
+# early-`exit` paths and deliberately NOT shipped: engine-event actions run in a
+# separate scope where the `$script:`-scoped stage path is not reliably visible,
+# and an unverifiable cleanup is worse than a documented gap.
+#
+# The residual is real but bounded, and measured rather than assumed: an `exit`
+# that happens AFTER Resolve-Selection leaves one stage behind. The workspace
+# validation ("Workspace path not found") is one such path, observed leaking a
+# stage during v3.16.1 testing. The stage lives under %TEMP%, which the OS
+# reclaims, and the normal completion path below cleans up (verified: stage
+# count unchanged across a successful focused install).
+Remove-SelectionStage
 
 Show-FarewellBanner
 # Pause is itself a prompt -- skip it on the non-interactive / -Yes / -Force /

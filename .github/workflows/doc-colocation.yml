@@ -14,11 +14,21 @@ on:
     paths:
       - 'docs/**'
       - 'catalog/skills/**'
+      # The gate must re-run when the gate itself changes. Without this, a fix to
+      # this file cannot be verified by the check it fixes: the push touches no
+      # docs/ or catalog/skills/ path, so nothing runs and the workflow keeps
+      # showing its previous result.
+      - '.github/workflows/doc-colocation.yml'
   pull_request:
     branches: [main, develop]
     paths:
       - 'docs/**'
       - 'catalog/skills/**'
+      # The gate must re-run when the gate itself changes. Without this, a fix to
+      # this file cannot be verified by the check it fixes: the push touches no
+      # docs/ or catalog/skills/ path, so nothing runs and the workflow keeps
+      # showing its previous result.
+      - '.github/workflows/doc-colocation.yml'
 
 # v3.15.8 Phase 9.3: least privilege. This workflow builds and tests only --
 # no artifact upload, no gh CLI, no comments, no pushes -- so read-only
@@ -46,6 +56,19 @@ jobs:
         # `Adoption target:` field is a non-fatal note.
         run: |
           set -uo pipefail
+          # GitHub runs a `run:` block as `bash -e`, but this script is written
+          # for the opposite contract: it collects EVERY mismatch and decides at
+          # the end. It leans on idioms that legitimately return non-zero when
+          # nothing is wrong -- `[ a != b ] && echo ...` on a matching pair, and
+          # a `grep` for a field a legacy comparison is allowed not to have (with
+          # `pipefail`, that failure propagates out of the assignment). Under -e
+          # any of those aborts `out=$(report)` mid-scan.
+          #
+          # This was invisible for as long as real mismatches existed, because an
+          # -e abort and an intended failure both exit 1. Fixing the last
+          # mismatch is what exposed it: the check then failed while CLEAN,
+          # printing the banner and nothing else. `set +e` restores the intent.
+          set +e
           CURRENT_MAJOR=$(ls -d docs/v[0-9]* 2>/dev/null | sed -E 's|docs/v([0-9]+).*|\1|' | sort -n | tail -1)
           [ -z "${CURRENT_MAJOR}" ] && { echo "No docs/v<N> tree found; nothing to check."; exit 0; }
           echo "Enforcing co-location under docs/v${CURRENT_MAJOR}/ (docs/archive/** and prior majors grandfathered)"

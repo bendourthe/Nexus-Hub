@@ -6,9 +6,9 @@
     "description": "Comprehensive catalog of Nexus-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-    "total_skills": 270,
+    "total_skills": 271,
     "categories": {
-      "ai-development": 12,
+      "ai-development": 13,
       "architecture": 7,
       "bug-fixing": 5,
       "business-product": 6,
@@ -24,19 +24,19 @@
       "project-setup": 5,
       "research": 3,
       "security": 15,
-      "security-operations": 16,
       "specialized-domains": 14,
       "testing": 3,
       "tests-generation": 18,
-      "workflow": 43
+      "workflow": 43,
+      "security-operations": 16
     },
     "priorities": {
-      "HIGH": 4,
-      "MEDIUM": 266
+      "MEDIUM": 267,
+      "HIGH": 4
     },
-    "total_lines": 127877,
-    "total_tokens_estimate": 630224,
-    "average_lines_per_skill": 473,
+    "total_lines": 130166,
+    "total_tokens_estimate": 672031,
+    "average_lines_per_skill": 480,
     "languages_supported": [
       "Python",
       "JavaScript",
@@ -7338,6 +7338,47 @@
       "size": {
         "lines": 161,
         "tokens_estimate": 4600
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "eval-pipeline-audit",
+      "title": "eval-pipeline-audit",
+      "description": "Audit an existing LLM or RAG evaluation pipeline end to end, produce a gap matrix over ten evaluation concerns, and route each gap to the skill that owns the fix. Make sure to use this skill whenever the user says \"audit our evals\", \"review our evaluation setup\", \"why are our evals unreliable\", \"our eval scores do not match production\", \"is our LLM judge trustworthy\", \"we have evals but they never catch anything\", \"our eval suite is green and users still complain\", or otherwise asks about the health of an evaluation process rather than about running one measurement. SKIP, do NOT use for, writing unit or integration tests for ordinary code (use unit-tests or integration-test-generator), rewriting a single judge or system prompt (use prompt-engineering), building or tuning a RAG pipeline itself (use rag-implementation), or scoring one batch of outputs against a rubric (use ai-output-evaluation).",
+      "long_description": "Audit an evaluation process as a system. The question this skill answers is not how the model scored but whether the pipeline would have reported a regression. It inventories ten concerns, produces a severity-ranked gap matrix, and routes each gap to the skill that owns the method.",
+      "summary_l0": "\"Audit an evaluation pipeline end to end and route each gap to its owning skill\"",
+      "overview_l1": "\"This skill audits an existing evaluation process rather than performing one evaluation. It inventories ten concerns in a fixed order - objectives, datasets, split provenance, evaluators, thresholds, traces, human labels, regression cases, feedback loops, and deployment gates - records what exists for each as a present, partial, or absent finding, and only then produces a prioritized gap matrix. Each gap routes to the skill that owns the method: retrieval measurement to rag-implementation, error analysis and evaluator calibration to ai-output-evaluation, paired benchmark runs to skill-eval-loop, judge-prompt design to prompt-engineering, and any export of traces or labels to egress-redaction. It duplicates no specialist method, which is what keeps it thin and keeps the owners authoritative. All inputs stay local by default. Trigger phrases: audit our evals, review our evaluation setup, why are our evals unreliable, is our LLM judge trustworthy, our eval suite never catches anything.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "ai-development",
+      "language": "Multi-language",
+      "tags": [
+        "evaluation",
+        "llm-evaluation",
+        "rag-evaluation",
+        "audit",
+        "gap-analysis",
+        "local-first"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Glob",
+        "Grep"
+      ],
+      "path": "catalog/skills/ai-development/eval-pipeline-audit/",
+      "file": "catalog/skills/ai-development/eval-pipeline-audit/SKILL.md",
+      "size": {
+        "lines": 151,
+        "tokens_estimate": 2089
       },
       "downloads": 0,
       "status": "production",
