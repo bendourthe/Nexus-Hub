@@ -249,7 +249,7 @@ def test_resolver_cli_emits_the_documented_line_format() -> None:
     out = subprocess.run(
         [sys.executable, str(_RESOLVER), "--repo-root", str(_ROOT),
          "--modules", "ai-engineering", "--emit", "lines"],
-        capture_output=True, text=True, check=True,
+        check=True, **_CAPTURE,
     ).stdout
     lines = [ln for ln in out.splitlines() if ln.strip()]
     kinds = {ln.split("\t")[0] for ln in lines}
@@ -273,7 +273,7 @@ def test_resolver_cli_emits_the_documented_line_format() -> None:
 def test_resolver_cli_exit_codes(args: list, expected_code: int) -> None:
     proc = subprocess.run(
         [sys.executable, str(_RESOLVER), "--repo-root", str(_ROOT), "--emit", "lines"] + args,
-        capture_output=True, text=True,
+        **_CAPTURE,
     )
     assert proc.returncode == expected_code, (
         f"expected exit {expected_code}, got {proc.returncode}. stderr: {proc.stderr}"
@@ -289,7 +289,7 @@ def test_resolver_cli_writes_nothing(tmp_path: Path) -> None:
         subprocess.run(
             [sys.executable, str(_RESOLVER), "--repo-root", str(_ROOT),
              "--modules", "ai-engineering", "--emit", "lines"],
-            capture_output=True, text=True, check=True,
+            check=True, **_CAPTURE,
         )
         assert list(tmp_path.iterdir()) == []
     finally:
@@ -305,7 +305,29 @@ def _bash() -> str | None:
 
 
 def _powershell() -> str | None:
+    """A PowerShell that can actually run scripts/installer.ps1.
+
+    Gated on Windows deliberately. GitHub's ubuntu-latest image ships `pwsh`, so
+    a bare `which` check does NOT skip on Linux - it finds pwsh, runs the Windows
+    installer against a POSIX host, and fails with a bare `rc=1`. installer.ps1
+    is a Windows installer (registry-adjacent paths, %TEMP%, Windows PowerShell
+    5.1 idioms); running it on Linux is not a supported scenario, so the correct
+    behavior is to skip rather than to report a failure.
+    """
+    if sys.platform != "win32":
+        return None
     return shutil.which("powershell") or shutil.which("pwsh")
+
+
+# Every subprocess that captures installer output MUST pass these.
+#
+# The installers print UTF-8 (check marks, box drawing). On Windows, Python's
+# subprocess reader thread defaults to the ANSI code page, dies with
+# UnicodeDecodeError mid-read, and leaves `proc.stdout` as None. The test then
+# fails while BUILDING its own assertion message - "TypeError: 'NoneType' object
+# is not subscriptable" - which hides whatever actually happened. Decoding
+# explicitly with a replacement policy keeps the real result visible.
+_CAPTURE = {"capture_output": True, "text": True, "encoding": "utf-8", "errors": "replace"}
 
 
 @pytest.mark.slow
@@ -316,12 +338,12 @@ def test_bash_filtered_install_matches_the_resolver(tmp_path: Path) -> None:
     proc = subprocess.run(
         [_bash(), str(_SH), "--workspace", str(target), "--platforms", "claude",
          "--modules", "ai-engineering", "--yes"],
-        capture_output=True, text=True, cwd=str(_ROOT), timeout=900,
+        cwd=str(_ROOT), timeout=900, **_CAPTURE,
     )
     assert proc.returncode == 0, f"install failed: {proc.stdout[-2000:]}{proc.stderr[-2000:]}"
     expected = json.loads(subprocess.run(
         [sys.executable, str(_RESOLVER), "--repo-root", str(_ROOT), "--modules", "ai-engineering"],
-        capture_output=True, text=True, check=True,
+        check=True, **_CAPTURE,
     ).stdout)["resolved"]["skills"]
 
     skills_dir = target / ".claude" / "skills"
@@ -341,12 +363,12 @@ def test_powershell_filtered_install_matches_bash(tmp_path: Path) -> None:
     proc = subprocess.run(
         [_powershell(), "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(_PS1),
          "-Workspace", str(target), "-Platforms", "claude", "-Modules", "ai-engineering", "-Yes"],
-        capture_output=True, text=True, cwd=str(_ROOT), timeout=900,
+        cwd=str(_ROOT), timeout=900, **_CAPTURE,
     )
     assert proc.returncode == 0, f"install failed: {proc.stdout[-2000:]}"
     expected = json.loads(subprocess.run(
         [sys.executable, str(_RESOLVER), "--repo-root", str(_ROOT), "--modules", "ai-engineering"],
-        capture_output=True, text=True, check=True,
+        check=True, **_CAPTURE,
     ).stdout)["resolved"]["skills"]
     installed = {p.name for p in (target / ".claude" / "skills").iterdir() if p.is_dir()}
     missing = [s for s in expected if s not in installed]

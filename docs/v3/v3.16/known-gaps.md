@@ -411,24 +411,37 @@ Two notes on existing entries:
 - **QG-1 does not extend to Phase 3.** Its scope is the CI `paths` filter excluding `docs/**`, which affects only the assertions targeting `evaluation-artifact-contract.md`. Both Phase 3 references live under `catalog/skills/`, so an edit to either does trigger CI.
 - **NI-2 is unchanged.** Phase 3 added no `agents/` descriptor, so the 118 remaining truncated files are neither reduced nor extended.
 
-### WN-2 - OPEN (cosmetic, Windows-only): subprocess output decoding noise in test harnesses
+### WN-2 - CLOSED (was mischaracterized as cosmetic): subprocess decoding killed a test's error reporting
 
-- **What happens**: when a Python test harness captures the installer's stdout on Windows, the reader thread decodes it as cp1252 and raises `UnicodeDecodeError: 'charmap' codec can't decode byte 0x90` on the installer's UTF-8 check-mark glyphs. Observed in the `slow` parity tests and in the Phase 8 manual install comparison.
-- **Impact: none on correctness.** The exception is raised inside `subprocess`'s reader thread, not the test; the process still exits 0, the install completes, and every assertion reads the filesystem rather than the captured text. Both affected tests pass.
-- **Why it is recorded anyway**: the traceback is alarming in a log and could lead a future reader to believe an install failed when it did not. That is a real cost even though nothing is broken.
-- **Suggested next step**: pass `encoding="utf-8", errors="replace"` to the `subprocess.run` calls in the affected tests, or set `PYTHONIOENCODING`. A few lines, no production-code change. Left for whichever cycle next touches those harnesses; fixing it in a terminal phase would edit tests for a cosmetic reason after the suite is already green.
+- **What was originally recorded**: a `UnicodeDecodeError` traceback when a Python test harness captured installer output on Windows, assessed as cosmetic because the affected tests still passed locally.
+- **That assessment was wrong, and remote CI proved it.** On the Windows CI leg the same decoding failure left `proc.stdout` as `None`, so the test failed while BUILDING its own assertion message: `TypeError: 'NoneType' object is not subscriptable`. The real outcome was replaced by a confusing type error that pointed nowhere near the cause. A defect that destroys a failure message is not cosmetic - it is the specific thing that makes the next failure expensive to diagnose.
+- **Resolution**: every `subprocess.run` in `tests/installer/test_selection_parity.py` now passes `encoding="utf-8", errors="replace"` through a shared `_CAPTURE` constant, with the reason documented at its definition.
+- **The lesson**: "the test still passes" is not sufficient evidence that a warning is harmless. It passed on the host where the decode happened to succeed. Local green plus an unexplained traceback is a reason to look closer, not to file it as noise.
+
+### BG-6 - CLOSED: the PowerShell end-to-end test ran on Linux CI
+
+- **What was wrong**: `test_powershell_filtered_install_matches_bash` gated on `shutil.which("powershell") or shutil.which("pwsh")`. GitHub's `ubuntu-latest` image **ships `pwsh`**, so the guard did not skip - it found pwsh, ran the Windows installer against a POSIX host, and failed with a bare `rc=1`.
+- **Why local testing missed it**: the development host is Windows, where the test runs legitimately and passes. The failure mode only exists on a Linux runner with pwsh installed, which is exactly the environment no local run reproduces.
+- **Resolution**: the helper now returns `None` unless `sys.platform == "win32"`. `installer.ps1` is a Windows installer (Windows PowerShell 5.1 idioms, `%TEMP%`, Windows path handling); running it on Linux is not a supported scenario, so skipping is correct and reporting a failure was not.
+
+### PX-1 - CLOSED (pre-existing, unrelated to v3.16.1): `end-of-file-fixer` failing on a cursor-usage-monitor source file
+
+- **What was wrong**: `extensions/cursor-usage-monitor/src/statusBarManager.ts` ended with two newlines, so pre-commit's `end-of-file-fixer` rewrote it and failed the `validate` job. This had been failing the CI `validate` job on **every `develop` push for at least three releases**, including the v3.16.0 merge and the v3.15.14 merge.
+- **Why it is fixed here despite being out of scope**: it is a one-byte normalization that the hook itself performs, it touches no logic, and it was the ONLY thing failing `validate`. A release cannot be called green while a long-standing red check is waved through, and leaving it would have meant either shipping red or claiming a pass the pipeline did not give.
+- **Resolution**: trailing newline normalized to exactly one. Verified on the staged blob: single `
+`, no CRLF, one-line diff.
+
 
 ### v3.16.1 final disposition (Phase 8.2)
 
-Every item raised across the eight phases has been dispositioned. **16 closed, 3 carried forward, 0 release blockers.**
+Every item raised across the eight phases has been dispositioned. **19 closed, 2 carried forward, 0 release blockers.** Three of the closures (WN-2, BG-6, PX-1) came from remote CI after the local suite was green.
 
-The three carried forward are environmental or cosmetic, and none is a release blocker:
+The two carried forward are environmental, and neither is a release blocker:
 
 | Item | Why it is carried rather than fixed |
 |---|---|
 | **WN-1** - no `make`, `ruff`, or `shellcheck` on the implementation host | A property of the development machine, not the codebase. Its practical impact was verified as narrow: `make lint` covers shell scripts only, and every `make validate` guard was run individually by invoking its underlying command directly. CI runs the authoritative gate on both Linux and Windows. Adding a Python lint gate is a repo-wide decision recorded in the CI/CD comparison as a retained difference, not something to introduce in a terminal phase. |
 | **BG-1** - `test_ps_standalone_extracts_and_hands_off` fails with an MSYS `tar` error | Inherited from v3.16.0, where it was reproduced on a clean `develop` worktree with none of that plan's changes present. It affects a Windows host whose PATH resolves `tar` to the Git Bash binary; CI runners are unaffected. v3.16.1 touched no bootstrap file, and the failure signature is byte-identical across every run this cycle. |
-| **WN-2** - `UnicodeDecodeError` noise when a test harness captures installer output on Windows | Cosmetic. The exception is raised in `subprocess`'s reader thread, not the test; both affected tests pass and every assertion reads the filesystem. Fixing it means adding `encoding="utf-8"` to a few `subprocess.run` calls, which is a test-only edit not worth making in a terminal phase after the suite is green. |
 
 Five findings this cycle were **bugs in work this plan produced**, all caught by running the code rather than reading it, and all now carry a named regression test: BG-2 (`set -e` swallowing the selector error), BG-3 (Windows CRLF making Bash stage nothing while reporting success), BG-4 (PowerShell 5.1 `NativeCommandError`), BG-5 (`-Profile` shadowing an automatic variable), and QG-2 (a cited regression run that predated its own final edit).
 
@@ -441,6 +454,6 @@ Two were **pre-existing defects the work exposed**: NI-1 (four bundle references
 | Comparison-sourced deferrals (`CD-#`) | 3 (CD-1, CD-2, CD-3) | 0 |
 | Transferred in from v3.15.14 (`TR-#`) | 2 (TR-1, TR-2) | 1 (TR-3) |
 | v3.16.0 version-implementation gaps | 3 carried forward (NI-1, NI-6, BG-1) | 13 closed (DF-1, DF-2, DF-3, DF-4, NI-2, NI-3, NI-4, NI-5, QG-1, QG-2, QG-3, BG-2, BG-3, WN-1) |
-| v3.16.1 version-implementation gaps (all 8 phases) | 3 carried forward (WN-1, WN-2, BG-1; all environmental or cosmetic) | 15 closed (DF-1..DF-5, NI-1..NI-5, BG-2..BG-5, QG-1, QG-2) |
+| v3.16.1 version-implementation gaps (all 8 phases + release) | 2 carried forward (WN-1, BG-1; both environmental) | 19 closed (DF-1..DF-5, NI-1..NI-5, BG-2..BG-6, QG-1, QG-2, WN-2, PX-1) |
 
 The three comparison-sourced items remain non-blocking prose folds with named target files. Of the v3.16.0 items, BG-1 is pre-existing and reproduces without this plan's changes, WN-1 is environmental, DF-1 is a reasoned non-implementation, NI-1 is a deliberate scope boundary the plan requires, and NI-2 / NI-3 / NI-4 are Phase 2 findings that Phase 3 and Phase 5 are already scheduled to dispose of. Phase 5 dispositioned every open item: 13 closed, 3 carried forward. **None gates the v3.16.0 release.** NI-1 and NI-6 are scope decisions for cycles already touching the relevant surfaces, and BG-1 is pre-existing, reproduced on a clean `develop` worktree, and confined to a Windows host whose PATH resolves `tar` to the Git Bash binary. Of the 13 closed, three (BG-2, BG-3, and QG-3) were caught by the test suite rather than by review, which is this cycle's strongest argument for running the full suite before declaring a phase done.
