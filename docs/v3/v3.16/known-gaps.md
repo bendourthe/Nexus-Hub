@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (all 5 phases complete; reconciled and release-ready, unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
-**Last updated**: 2026-08-08 (v3.16.1 Phase 4 append; v3.16.0 Phase 5 reconciliation preserved above)
+**Last updated**: 2026-08-08 (v3.16.1 Phase 5 append; v3.16.0 Phase 5 reconciliation preserved above)
 
 > **File-lifecycle note**: this ledger was created ahead of any v3.16 implementation, by a comparison that deliberately claimed no release slot, so it began with only the `## Comparison-Sourced Deferrals` section. Each v3.16 version-implementation phase **appends** its own `## v3.16.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` numbering, which is namespaced separately from the `CD-#` and `TR-#` ids used above.
 
@@ -329,6 +329,22 @@ Appended by Phase 1 (Evaluation Contract and RAG Metrics) on 2026-08-08. Own `DF
 - **Decision**: recompute all derived fields from the entries rather than incrementing by the new skill's delta. Once the block had to be touched, recomputation is the only method that yields a value matching the field's own contract (the sum of the entry sizes); incrementing would have written a differently-wrong number and called it correct.
 - **Root cause, and the residual gap**: aggregates are only correct immediately after a builder run, and the standing rule is not to run the builder. Every subsequent hand-edit leaves them a little more stale. Nothing currently tests `total_lines`, `total_tokens_estimate`, or `average_lines_per_skill`, which is why the drift went unnoticed. Phase 7.1 already owns generated-catalog verification and is the right place to decide whether these fields should be tested, derived on read, or dropped.
 
+### DF-4 - CLOSED: the contract and fixtures assumed profiles carry a flat skill list
+
+- **What was wrong**: the Phase 5.2 contract, the fixture catalog, and the first cut of the resolver all read a profile's skills from a `skills` array. Real profiles in `data/bundles.json` have no `skills` array at all: they **compose**, from `bundles`, `modules`, and `extra_skills`, and the `full` profile is marked `"all": true` rather than listing the catalog.
+- **How it surfaced**: `test_every_real_bundle_resolves`, which runs the resolver against the actual `data/bundles.json` rather than only against fixtures. Both real profiles resolved to zero skills and were reported as "empty selection" user errors -- a message that blames the user's selector for what was a modeling error in the resolver.
+- **Resolution**: `_expand_entry` now unions `skills`, `extra_skills`, referenced `modules`, and referenced `bundles`, with cycle protection on the references. The fixture catalog was rewritten to mirror the composed shape (its `core` profile now exercises all three composition keys at once), the affected case expectations were recomputed, and the contract gained section 2.1a stating that selection entries are not uniform.
+- **Why this is recorded rather than quietly fixed**: it is the concrete argument for keeping a real-catalog test alongside fixture tests. Every one of the 89 fixture assertions passed while the resolver could not resolve a single real profile, because the fixtures encoded the same wrong assumption as the code. Verified real numbers after the fix: minimal 10 skills, core 31, ai-engineering 6, ai-engineer 13, full 271.
+
+### NI-3 - OPEN: `scripts/lib/installer/` is not distributed by either installer
+
+- **Target files**: `scripts/installer.sh` (the `integrations_src` copy block, around line 2295), `scripts/installer.ps1` (its equivalent)
+- **What is wrong**: both installers recursively copy `scripts/lib/integrations/` into `~/.nexus-hub/scripts/lib/integrations/` and write an empty `lib/__init__.py`, but neither copies the sibling `scripts/lib/installer/`. Six integration modules import from it (`base.py`, `copilot.py`, `cursor.py`, `windsurf.py`, `antigravity.py` -- three of them at module top level), so the installed copy of the registry is not importable on its own.
+- **Actual impact today: none.** Verified rather than assumed: the registry is always invoked as `$repo_root/scripts/lib/integrations/runner.py`, i.e. from the checkout (or the bootstrap-materialized `~/.nexus-hub/src/`), never from the installed copy. The installed tree is a reference copy that nothing executes.
+- **Why it still matters**: the copy exists, which means someone intended the installed tree to be importable, and it silently is not. `scripts/lib/installer/selection.py` (added this phase) lands in the same undistributed directory, so Phase 6 inherits the question the moment `runner.py` imports the resolver.
+- **Why it is not fixed here**: AGENTS.md classifies modifying the installer scripts as ask-first, and Phase 5's deliverables are a contract, fixtures, and a pure resolver with no installer edit. Phase 6.1 and 6.2 are already opening both installers.
+- **Decided next step (user, 2026-08-08)**: **copy `scripts/lib/` wholesale** in Phase 6, replacing the `integrations`-only copy in both installers. This makes the installed tree genuinely importable rather than importable-looking, and covers `selection.py` without a second registration. The alternative considered and rejected was documenting the copy as reference-only, which is a zero-behavior-change option but leaves a tree that looks importable and is not. Phase 6.1 and 6.2 own the edit; the empty `lib/__init__.py` write already present stays.
+
 ### Phase 4 - no new gaps; skill-native track (A1-A7) complete
 
 Phase 4 (synthetic data, human review, and skill quality) added two Tier-3 references, a directive-density review in `skill-stocktake`, and 63 test assertions. No deviation, no skipped test, no suppressed warning, no bypassed gate, so no new entry.
@@ -353,6 +369,6 @@ Two notes on existing entries:
 | Comparison-sourced deferrals (`CD-#`) | 3 (CD-1, CD-2, CD-3) | 0 |
 | Transferred in from v3.15.14 (`TR-#`) | 2 (TR-1, TR-2) | 1 (TR-3) |
 | v3.16.0 version-implementation gaps | 3 carried forward (NI-1, NI-6, BG-1) | 13 closed (DF-1, DF-2, DF-3, DF-4, NI-2, NI-3, NI-4, NI-5, QG-1, QG-2, QG-3, BG-2, BG-3, WN-1) |
-| v3.16.1 version-implementation gaps (Phases 1-2 of 8) | 4 (QG-1, WN-1, BG-1, NI-2) | 4 closed (DF-1, DF-2, DF-3, NI-1) |
+| v3.16.1 version-implementation gaps (Phases 1-5 of 8) | 5 (QG-1, WN-1, BG-1, NI-2, NI-3) | 5 closed (DF-1, DF-2, DF-3, DF-4, NI-1) |
 
 The three comparison-sourced items remain non-blocking prose folds with named target files. Of the v3.16.0 items, BG-1 is pre-existing and reproduces without this plan's changes, WN-1 is environmental, DF-1 is a reasoned non-implementation, NI-1 is a deliberate scope boundary the plan requires, and NI-2 / NI-3 / NI-4 are Phase 2 findings that Phase 3 and Phase 5 are already scheduled to dispose of. Phase 5 dispositioned every open item: 13 closed, 3 carried forward. **None gates the v3.16.0 release.** NI-1 and NI-6 are scope decisions for cycles already touching the relevant surfaces, and BG-1 is pre-existing, reproduced on a clean `develop` worktree, and confined to a Windows host whose PATH resolves `tar` to the Git Bash binary. Of the 13 closed, three (BG-2, BG-3, and QG-3) were caught by the test suite rather than by review, which is this cycle's strongest argument for running the full suite before declaring a phase done.

@@ -1,5 +1,36 @@
 # Development Log
 
+## [2026-08-08] - v3.16.1 Phase 5: selection contract and resolver
+
+### What Changed
+
+The plan's pivot from documentation to runtime code. An audit of every install path, a normative selection contract, a shared fixture matrix of 27 cases across three small catalogs, a pure-stdlib resolver at `scripts/lib/installer/selection.py`, additive selection state on `InstallContext` and `InstallManifest`, and 90 assertions. Nothing is wired into an installer yet; that is Phase 6.
+
+### Why It Changed
+
+Phase 6 changes two user-facing installers totalling 6600 lines, in three languages that share no code. The only way that lands safely is if the behavior is defined and executable before the mutation starts, so all three implementations are checked against one artifact rather than against each other's source. The fixture matrix and the plan hash exist for exactly that.
+
+### Decisions Made
+
+- **The hash covers the resolved outcome, not the request.** `--modules a,b` and `--modules a --modules b` and the reverse order all produce the same install, so they must produce the same hash; `warnings` is excluded too, so advisory wording cannot move it. This is the join key Phase 6 uses to prove three implementations agree. Had it depended on the request, that check would degrade into comparing each implementation against itself.
+- **Fixture cases declare `same_hash_as` rather than a literal digest.** The property worth asserting is agreement between two requests, not what today's canonicalization emits.
+- **Validation is traversal-scoped.** A cycle or a missing skill in a part of the catalog the user did not select must not block their install. A fixture pins both directions: the cycle catalog resolves fine for a module that does not reach the cycle and fails for one that does.
+- **Undeclared commands and agents always install.** Excluding them would silently shrink every install the moment selection shipped, before a single declaration existed. Verified against the real catalog: with no `surface_requirements` yet, every selection yields all 20 commands and 23 agents, which is the documented behavior rather than a bug, and Phase 7.1 narrows it declaration by declaration.
+- **Empty selection errors, full selection warns.** An empty install is never what anyone wanted; a full one is the default and always a legitimate end state, so refusing it would be obstructive while staying silent about an unintended one would not.
+- **A full install still writes byte-identical manifest bytes.** The `selection` key is emitted only when a selection exists, so an existing diff-based check does not start reporting a change on every default install.
+
+### Troubleshooting Trail
+
+- **The contract, the fixtures, and the resolver all assumed profiles carry a flat `skills` list. They do not.** Real profiles compose from `bundles`, `modules`, and `extra_skills`, and `full` is marked `"all": true`. The first full run had 89 of 90 assertions passing while the resolver could not resolve a single real profile: both returned zero skills and were reported as "empty selection" user errors, blaming the user's selector for a modeling error in the code.
+
+  What caught it was the one test that runs against the actual `data/bundles.json` instead of the fixtures. Every fixture assertion passed throughout, because the fixtures encoded the same wrong assumption as the resolver -- which is the whole argument for keeping a real-data test beside a fixture suite. Fixed in three places (resolver expansion, fixture shape, contract section 2.1a) and recorded as DF-4. Verified after: minimal 10 skills, core 31, ai-engineering 6, ai-engineer 13, full 271.
+
+- **`scripts/lib/installer/` is not distributed by either installer.** Found while checking whether the new module needed an installer entry. Both copy `scripts/lib/integrations/` recursively but not the sibling package six integration modules import from, three of them at top level. Practical impact verified as nil today (the registry always runs from the checkout, never the installed copy), but the copy exists, which means it was meant to be importable and silently is not. Recorded as NI-3 for Phase 6, which is already opening both installers. Not fixed here: AGENTS.md makes installer edits ask-first and this phase's deliverables contain none.
+
+### Verification
+
+90 assertions in the new module; `tests/installer` at 250 passed, 16 skipped, 1 failed (BG-1, the inherited MSYS `tar` bootstrap failure, on a phase that touched no bootstrap file). Real-catalog resolution was inspected rather than trusted to an exit code, and every profile, module, and bundle in `data/bundles.json` resolves. Bundle audit 0/0, trigger gate clean, unicode / personal-paths / supply-chain / version-sync all pass, `git diff --check` clean.
+
 ## [2026-08-08] - v3.16.1 Phase 4: synthetic data, human review, and skill quality
 
 ### What Changed

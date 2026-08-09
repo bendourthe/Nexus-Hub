@@ -76,6 +76,20 @@ class InstallContext:
     # `safe_folder_copy` block and only needs the registry to render the
     # marker-merged instruction file (the DF-001 legacy-block replacement path).
     instruction_only: bool = False
+    # v3.16.1 Phase 5.4 -- the resolved install selection, a
+    # `scripts.lib.installer.selection.SelectionPlan`, or None.
+    #
+    # None means NO FILTERING, i.e. the full catalog. That default is what makes
+    # this additive: every pre-v3.16.1 caller constructs an InstallContext
+    # without this field and keeps its exact current behavior with no edit,
+    # matching how `languages` and `instruction_only` were introduced.
+    #
+    # Typed as Any rather than SelectionPlan on purpose. `base` is the most
+    # widely imported module in the package, and importing the installer package
+    # here would give every integration a hard dependency on the resolver -
+    # including on hosts where the legacy installer path deliberately never
+    # touches it. Phase 6 consumes this field where the copying happens.
+    selection: Optional[Any] = None
 
 
 class IntegrationBase:
