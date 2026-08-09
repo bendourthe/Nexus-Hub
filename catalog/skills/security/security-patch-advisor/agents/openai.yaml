@@ -1,4 +1,4 @@
 interface:
   display_name: Security Patch Advisor
   short_description: Recommend and generate security patches for identified vulnerabilities including XSS, SQL injection, SSRF, CSRF, insecure deserialization, and misconfigurations. Use when remediating
-    vulnerability fin
+    vulnerability findings, hardening application code, or implementing security controls.

@@ -1,4 +1,4 @@
 interface:
   display_name: ISO 27001:2022 Compliance
-  short_description: 'Implement ISO 27001:2022 Information Security Management System controls (114 controls across 14 domains). Use when establishing ISMS, preparing for ISO certification, implementing
-    security controls, '
+  short_description: Implement ISO 27001:2022 Information Security Management System controls (114 controls across 14 domains). Use when establishing ISMS, preparing for ISO certification, implementing
+    security controls, or achieving global security compliance.

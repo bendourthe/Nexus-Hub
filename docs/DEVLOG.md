@@ -1,5 +1,31 @@
 # Development Log
 
+## [2026-08-09] - v3.16.1 Phase 8: refactor, reconciliation, and CI/CD [terminal phase]
+
+### What Changed
+
+The plan's terminal phase. The architecture audit found nothing to change and says so. Known gaps were reconciled to 16 closed and 3 carried forward with reasons. The CI/CD comparison found the pipeline already at the optimized contract apart from one real defect, which was fixed. All 118 remaining truncated agent descriptors were repaired. **The branch is not pushed and `/update release` has not been invoked** - both are approval-gated.
+
+### Why It Changed
+
+Two gaps had been deferred through the whole cycle on the plan's Lifecycle Contract, which reserves pipeline edits for Phase 8. QG-1 was the one that mattered: `ci.yml` triggered on `['**', '!docs/**', 'docs/policy/**']`, but Phase 1 added a test asserting against a contract document under `docs/`. A push editing only that file skipped CI entirely, so the exact edit the guard exists to catch was the edit that never ran it - the identical defect already fixed once for `docs/policy/**`, whose own in-file comment records the reasoning.
+
+### Decisions Made
+
+- **The refactor audit found nothing, and that is reported as nothing.** A terminal phase is under quiet pressure to produce visible cleanup. Moving files to look productive adds risk to a release for no benefit, so each detector's result is listed individually instead: no empty directories, 0 duplicated paragraphs across the three new docs, 0 orphan warnings across 271 skills, one resolver rather than three, canonical docs layout.
+- **The QG-1 glob is deliberately narrow.** `docs/v*/*/development/*.md` matches contract docs but not `development/history/*.md`, because a `*` never crosses a `/`. Re-including all of `development/` would run the full matrix on every session-history write-up for no signal - trading one CI hole for a self-inflicted CI-minute bill.
+- **NI-2's repair takes whole sentences, not a longer character cap.** The original defect was a 200-character hard slice; replacing it with a 300-character hard slice would be the same bug with a bigger number. 140 descriptors, 0 truncated, 0 non-ASCII, median 233 characters, every `display_name` preserved.
+- **The Phase 5 baseline got a dated forward-note rather than a rewrite.** It is an audit record. Editing its findings to match a later state would make it agree with the present at the cost of no longer being true about the past.
+- **WN-2 was recorded although nothing is broken.** A `UnicodeDecodeError` traceback in a passing test's log is a real cost to a future reader; the honest place for it is the gap ledger.
+
+### Troubleshooting Trail
+
+No failures in Phase 8's own work. One recurring cosmetic artifact was chased down rather than ignored: the `UnicodeDecodeError` seen in the slow parity tests and again in the manual install comparison is Python's subprocess reader thread decoding the installer's UTF-8 output as cp1252 on Windows. Confirmed harmless - raised in the reader thread, process exits 0, and every assertion reads the filesystem - and recorded as WN-2 with its one-line fix.
+
+### Verification
+
+All 15 `make validate` guards run individually (WN-1: `make` unavailable here) and pass. `bash -n` and PS 5.1 parse clean. The selector matrix was resolved and inspected rather than trusted to exit codes: full 271/20/23, minimal 10/14/23, core 45/14/23, workflow 43/16/23, ai-engineering 13/16/23, ai-engineer 13/14/23, core+workflow 82/16/23. No-selector and explicit `full` hash identically; CSV and repeatable forms hash identically; three invalid-input cases each exit 2 before any write. Live bash installs: full rc=0 with 271 skill dirs, `--modules ai-engineering` rc=0 with 13, the focused set a strict subset, and rules/commands/agents present in both.
+
 ## [2026-08-08] - v3.16.1 Phase 7: distribution, parity, and documentation
 
 ### What Changed

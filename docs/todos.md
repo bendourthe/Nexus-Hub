@@ -18,7 +18,7 @@
 | Phase 7 tasks complete | 4 | 4 | 0 |
 | v3.19.0 CI/CD plan phases complete | 0 | 8 | 8 |
 | v3.16.1 planning milestones complete | 2 | 2 | 0 |
-| v3.16.1 plan phases complete | 7 | 8 | 1 |
+| v3.16.1 plan phases complete | 8 | 8 | 0 |
 | Local release integration | 1 | 1 | 0 |
 | Release metadata and docs | 1 | 1 | 0 |
 | Platform contract audit | 1 | 1 | 0 |
@@ -125,4 +125,4 @@
 - [x] Complete Phase 5: Selective Installation Contract and Resolution
 - [x] Complete Phase 6: Cross-Platform Selective Installation
 - [x] Complete Phase 7: Distribution, Parity, and Documentation
-- [ ] Complete Phase 8: Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
+- [x] Complete Phase 8: Architecture Refactor, Known-Gaps Reconciliation, and CI/CD

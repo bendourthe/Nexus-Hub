@@ -1,4 +1,4 @@
 interface:
   display_name: Kubernetes Expert
   short_description: Deep Kubernetes expertise for container orchestration, deployment patterns, and cluster management. Use when deploying to K8s, writing Helm charts, configuring RBAC, troubleshooting
-    pods, or optimizin
+    pods, or optimizing cluster resources.

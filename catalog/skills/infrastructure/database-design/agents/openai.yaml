@@ -1,4 +1,4 @@
 interface:
   display_name: Database Design
   short_description: Database design expertise including schema modeling, normalization, indexing strategies, migration patterns, and query optimization. Use when designing database schemas, optimizing
-    queries, or plannin
+    queries, or planning data migrations.

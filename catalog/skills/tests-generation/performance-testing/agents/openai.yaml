@@ -1,4 +1,4 @@
 interface:
   display_name: Performance Testing
-  short_description: 'Implement load testing, stress testing, benchmarking, and performance validation. Use when validating system performance, identifying bottlenecks, establishing performance baselines,
-    or testing under '
+  short_description: Implement load testing, stress testing, benchmarking, and performance validation. Use when validating system performance, identifying bottlenecks, establishing performance baselines,
+    or testing under high load for Python, JavaScript, Java, C#, Go, C, or C++ applications.

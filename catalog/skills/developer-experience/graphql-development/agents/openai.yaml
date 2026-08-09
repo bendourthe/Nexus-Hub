@@ -1,4 +1,4 @@
 interface:
   display_name: GraphQL Development
   short_description: GraphQL API development including schema design, resolvers, N+1 prevention, subscriptions, and federation. Use when building GraphQL APIs, optimizing query performance, or implementing
-    real-time featu
+    real-time features.

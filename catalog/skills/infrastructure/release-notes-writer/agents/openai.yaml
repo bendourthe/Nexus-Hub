@@ -1,4 +1,4 @@
 interface:
   display_name: Release Notes Writer
   short_description: Generates professional release notes from git history, pull requests, and issues with conventional commit parsing and audience-specific formatting. Use when preparing release notes,
-    changelogs, or ver
+    changelogs, or version summaries for any audience.

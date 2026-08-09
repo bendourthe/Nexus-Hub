@@ -1,4 +1,4 @@
 interface:
   display_name: Mocks & Fixtures
   short_description: Build test doubles (mocks, stubs, spies, fakes), data factories, and fixtures for test isolation. Use when tests need external dependency isolation, consistent test data, complex setup
-    scenarios, or w
+    scenarios, or when mocking APIs, databases, and services in Python, JavaScript, Java, C#, Go, C, or C++.

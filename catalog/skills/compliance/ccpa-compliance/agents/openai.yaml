@@ -1,4 +1,4 @@
 interface:
   display_name: CCPA/CPRA Compliance
   short_description: Implement CCPA/CPRA requirements for California consumer privacy including opt-out rights and data disclosure. Use when handling California resident data, preparing for CCPA compliance,
-    or implementin
+    or implementing consumer privacy rights.

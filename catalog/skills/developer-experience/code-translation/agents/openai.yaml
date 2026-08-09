@@ -1,4 +1,4 @@
 interface:
   display_name: Code Translation
   short_description: Translate code between programming languages while preserving logic, idiomatic style, and test coverage. Use when porting code between languages, migrating projects, converting snippets,
-    or adapting l
+    or adapting library examples from one language to another.

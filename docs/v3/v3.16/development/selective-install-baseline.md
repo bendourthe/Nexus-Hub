@@ -101,6 +101,8 @@ The legacy installers must complete a full install with no Python present. Conse
 
 `data/bundles.json` (schema 1.4.0) declares 3 profiles, 6 modules, and 15 role bundles. As of Phase 2 every skill id in every selection resolves to a real catalog directory; four did not before, and were repaired under v3.16.1 NI-1. Nothing currently declares **command-to-skill** or **agent-to-skill** dependencies, so surface eligibility metadata does not yet exist and Phase 7.1 is scoped to finalize it.
 
+> **Forward note (Phase 7.1, added Phase 8).** The paragraph above is the state this audit found and is left as recorded. Phase 7.1 then discovered that those 6 modules reached only 105 of 271 skills, with 166 available solely under `full`, and expanded modules to be **category-complete**: schema **1.5.0**, **20 modules**, 271/271 reachable. It also added the `surface_requirements` block for 6 commands. The role bundles remain 15 and untouched. See v3.16.1 NI-4 and NI-5 in [known-gaps.md](../known-gaps.md).
+
 ## Row-to-phase map
 
 | Baseline row | Owning phase |

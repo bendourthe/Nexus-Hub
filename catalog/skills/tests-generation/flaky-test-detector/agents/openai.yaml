@@ -1,4 +1,4 @@
 interface:
   display_name: Flaky Test Detector
   short_description: Identify and diagnose flaky tests in CI pipelines by analyzing timing dependencies, shared state, ordering assumptions, and network reliance. Use when tests intermittently fail, CI
-    builds are unreliab
+    builds are unreliable, test quarantine is needed, or you need to stabilize a test suite.

@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (all 5 phases complete; reconciled and release-ready, unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
-**Last updated**: 2026-08-08 (v3.16.1 Phase 7 append; v3.16.0 Phase 5 reconciliation preserved above)
+**Last updated**: 2026-08-09 (v3.16.1 Phase 8 reconciliation; every open item dispositioned; v3.16.0 Phase 5 reconciliation preserved above)
 
 > **File-lifecycle note**: this ledger was created ahead of any v3.16 implementation, by a comparison that deliberately claimed no release slot, so it began with only the `## Comparison-Sourced Deferrals` section. Each v3.16 version-implementation phase **appends** its own `## v3.16.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` numbering, which is namespaced separately from the `CD-#` and `TR-#` ids used above.
 
@@ -268,12 +268,12 @@ Every open item above receives an explicit disposition here, and every platform 
 
 Appended by Phase 1 (Evaluation Contract and RAG Metrics) on 2026-08-08. Own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` namespace, separate from v3.16.0's.
 
-### QG-1 - OPEN: CI path filters exclude the document the new test guards
+### QG-1 - CLOSED: CI path filters excluded the document the new test guards
 
 - **Target files**: `.github/workflows/ci.yml` (the `push` and `pull_request` `paths` filters), `tests/skills/test_evaluation_methodology.py`
 - **What is wrong**: the workflow triggers on `['**', '!docs/**', 'docs/policy/**']`. The new test asserts against `docs/v3/v3.16/development/evaluation-artifact-contract.md`, which sits under `docs/**` and is not re-included. A push that edits only the contract - deleting an artifact definition or the local-first rule - therefore skips CI entirely, so the guard does not run on exactly the edit it exists to catch.
-- **Why it is not fixed here**: this plan's Lifecycle Contract states that pipeline files change before Phase 8 only when a phase's explicit deliverable requires them; otherwise the impact is recorded for terminal reconciliation. Phase 1's deliverables are two documents and a test, none of which is a workflow file.
-- **Suggested next step**: Phase 8.3 (Terminal CI/CD Comparison) adds a third `paths` entry re-including the directory the contract lives in. This is the same defect and the same fix already applied for `docs/policy/**`, whose in-file comment documents the identical reasoning ("the exact edit each guard exists to catch was the edit that never ran it").
+- **Why it was not fixed in Phase 1**: this plan's Lifecycle Contract reserves pipeline edits for Phase 8 unless a phase's explicit deliverable requires them. Phase 1's deliverables were two documents and a test.
+- **Resolution (Phase 8.3)**: added `- 'docs/v*/*/development/*.md'` to the `paths` filter on BOTH the `push` and `pull_request` events (GitHub Actions configures them independently). The glob is scoped deliberately: a `*` never crosses a `/`, so it matches the contract docs directly under a `development/` directory and NOT `development/history/*.md` one level deeper. Session histories are frozen records no test reads, and re-including them would run the full matrix on every phase write-up for no signal. Verified on both events; `validate_workflow_security.py` still passes. Full reasoning in [v3.16.1-ci-cd-comparison.md](development/v3.16.1-ci-cd-comparison.md).
 
 ### WN-1 - OPEN (environmental): no Python linter or ShellCheck on the implementation host
 
@@ -309,13 +309,13 @@ Appended by Phase 1 (Evaluation Contract and RAG Metrics) on 2026-08-08. Own `DF
 - **Impact if left**: today the ids are inert metadata. Once Phase 6 makes selection operational, a `--bundles core-developer` install would resolve against a skill that does not exist, which the Phase 5 contract requires to fail closed before any write. It was therefore a v3.16.1 blocker for Phase 6.
 - **Resolution**: fixed in Phase 2 at the user's direction. `test_every_selection_skill_resolves_to_a_real_catalog_dir` now runs with no allowlist, so any future broken reference fails immediately, and a companion `test_no_selection_lists_a_duplicate_skill` guards the adjacent defect. Phase 7.1 still owns adding the equivalent validation to the resolver itself; this closes the data defect, not the missing guard.
 
-### NI-2 - OPEN: 121 of 139 OpenAI agent descriptors are truncated mid-word
+### NI-2 - CLOSED: 121 of 139 OpenAI agent descriptors were truncated mid-word
 
 - **Target files**: `catalog/skills/*/*/agents/openai.yaml`
 - **What is wrong**: `short_description` was produced by a hard 200-character slice of the skill description, so most descriptors end mid-word (for example `... designing tool interfaces, or implementin`). Measured this phase: 121 of 139 do not end at a sentence boundary.
 - **What was fixed**: the three in `ai-development` adjacent to this phase's work (`ai-agent-development`, `prompt-engineering`, `rag-implementation`), plus the new `eval-pipeline-audit` descriptor, now end at a sentence boundary. Fix approved by the user as an explicit scope extension when the defect was believed to affect three files.
-- **Why the rest are not fixed**: the true scope is 118 more files across every category, which is a catalog-wide cleanup, not a Phase 2 deliverable. A test in `test_eval_pipeline_audit.py` asserts the new descriptor is not truncated, so the defect cannot spread through this phase's work.
-- **Suggested next step**: a mechanical pass over the remaining 118, ideally by fixing whatever produced the 200-character slice so the fix is not re-applied by the next generator run. Fits naturally in Phase 7.1's generated-catalog verification or any cycle already touching `agents/`.
+- **Why the rest were not fixed in Phase 2**: the true scope was 118 more files across every category, a catalog-wide cleanup rather than a Phase 2 deliverable. A test in `test_eval_pipeline_audit.py` asserted the new descriptor was not truncated, so the defect could not spread through that phase's work.
+- **Resolution (Phase 8.2)**: mechanical pass over the remaining 118. Each `short_description` was rebuilt from its skill's own `description` frontmatter, taking whole sentences so the text ends where a thought does instead of at an arbitrary character count. Result: **140 descriptors, 0 truncated, 0 non-ASCII**, every `display_name` preserved, lengths min/median/max 123/233/348. No generator produces these files (they are hand-maintained), so there is nothing that would re-apply the 200-character slice.
 
 ### DF-2 - CLOSED: registered by hand instead of `make build-catalog`
 
@@ -411,6 +411,29 @@ Two notes on existing entries:
 - **QG-1 does not extend to Phase 3.** Its scope is the CI `paths` filter excluding `docs/**`, which affects only the assertions targeting `evaluation-artifact-contract.md`. Both Phase 3 references live under `catalog/skills/`, so an edit to either does trigger CI.
 - **NI-2 is unchanged.** Phase 3 added no `agents/` descriptor, so the 118 remaining truncated files are neither reduced nor extended.
 
+### WN-2 - OPEN (cosmetic, Windows-only): subprocess output decoding noise in test harnesses
+
+- **What happens**: when a Python test harness captures the installer's stdout on Windows, the reader thread decodes it as cp1252 and raises `UnicodeDecodeError: 'charmap' codec can't decode byte 0x90` on the installer's UTF-8 check-mark glyphs. Observed in the `slow` parity tests and in the Phase 8 manual install comparison.
+- **Impact: none on correctness.** The exception is raised inside `subprocess`'s reader thread, not the test; the process still exits 0, the install completes, and every assertion reads the filesystem rather than the captured text. Both affected tests pass.
+- **Why it is recorded anyway**: the traceback is alarming in a log and could lead a future reader to believe an install failed when it did not. That is a real cost even though nothing is broken.
+- **Suggested next step**: pass `encoding="utf-8", errors="replace"` to the `subprocess.run` calls in the affected tests, or set `PYTHONIOENCODING`. A few lines, no production-code change. Left for whichever cycle next touches those harnesses; fixing it in a terminal phase would edit tests for a cosmetic reason after the suite is already green.
+
+### v3.16.1 final disposition (Phase 8.2)
+
+Every item raised across the eight phases has been dispositioned. **16 closed, 3 carried forward, 0 release blockers.**
+
+The three carried forward are environmental or cosmetic, and none is a release blocker:
+
+| Item | Why it is carried rather than fixed |
+|---|---|
+| **WN-1** - no `make`, `ruff`, or `shellcheck` on the implementation host | A property of the development machine, not the codebase. Its practical impact was verified as narrow: `make lint` covers shell scripts only, and every `make validate` guard was run individually by invoking its underlying command directly. CI runs the authoritative gate on both Linux and Windows. Adding a Python lint gate is a repo-wide decision recorded in the CI/CD comparison as a retained difference, not something to introduce in a terminal phase. |
+| **BG-1** - `test_ps_standalone_extracts_and_hands_off` fails with an MSYS `tar` error | Inherited from v3.16.0, where it was reproduced on a clean `develop` worktree with none of that plan's changes present. It affects a Windows host whose PATH resolves `tar` to the Git Bash binary; CI runners are unaffected. v3.16.1 touched no bootstrap file, and the failure signature is byte-identical across every run this cycle. |
+| **WN-2** - `UnicodeDecodeError` noise when a test harness captures installer output on Windows | Cosmetic. The exception is raised in `subprocess`'s reader thread, not the test; both affected tests pass and every assertion reads the filesystem. Fixing it means adding `encoding="utf-8"` to a few `subprocess.run` calls, which is a test-only edit not worth making in a terminal phase after the suite is green. |
+
+Five findings this cycle were **bugs in work this plan produced**, all caught by running the code rather than reading it, and all now carry a named regression test: BG-2 (`set -e` swallowing the selector error), BG-3 (Windows CRLF making Bash stage nothing while reporting success), BG-4 (PowerShell 5.1 `NativeCommandError`), BG-5 (`-Profile` shadowing an automatic variable), and QG-2 (a cited regression run that predated its own final edit).
+
+Two were **pre-existing defects the work exposed**: NI-1 (four bundle references to skills that do not exist) and NI-4 (166 of 271 skills unreachable through any module). Neither was visible before this cycle, because nothing resolved selections until Phase 5.
+
 ## v3.16 Summary
 
 | Category | Open | Resolved |
@@ -418,6 +441,6 @@ Two notes on existing entries:
 | Comparison-sourced deferrals (`CD-#`) | 3 (CD-1, CD-2, CD-3) | 0 |
 | Transferred in from v3.15.14 (`TR-#`) | 2 (TR-1, TR-2) | 1 (TR-3) |
 | v3.16.0 version-implementation gaps | 3 carried forward (NI-1, NI-6, BG-1) | 13 closed (DF-1, DF-2, DF-3, DF-4, NI-2, NI-3, NI-4, NI-5, QG-1, QG-2, QG-3, BG-2, BG-3, WN-1) |
-| v3.16.1 version-implementation gaps (Phases 1-7 of 8) | 4 (QG-1, WN-1, BG-1, NI-2) | 13 closed (DF-1..DF-5, NI-1, NI-3, NI-4, NI-5, BG-2..BG-5, QG-2) |
+| v3.16.1 version-implementation gaps (all 8 phases) | 3 carried forward (WN-1, WN-2, BG-1; all environmental or cosmetic) | 15 closed (DF-1..DF-5, NI-1..NI-5, BG-2..BG-5, QG-1, QG-2) |
 
 The three comparison-sourced items remain non-blocking prose folds with named target files. Of the v3.16.0 items, BG-1 is pre-existing and reproduces without this plan's changes, WN-1 is environmental, DF-1 is a reasoned non-implementation, NI-1 is a deliberate scope boundary the plan requires, and NI-2 / NI-3 / NI-4 are Phase 2 findings that Phase 3 and Phase 5 are already scheduled to dispose of. Phase 5 dispositioned every open item: 13 closed, 3 carried forward. **None gates the v3.16.0 release.** NI-1 and NI-6 are scope decisions for cycles already touching the relevant surfaces, and BG-1 is pre-existing, reproduced on a clean `develop` worktree, and confined to a Windows host whose PATH resolves `tar` to the Git Bash binary. Of the 13 closed, three (BG-2, BG-3, and QG-3) were caught by the test suite rather than by review, which is this cycle's strongest argument for running the full suite before declaring a phase done.

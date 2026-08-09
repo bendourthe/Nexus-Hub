@@ -21,12 +21,38 @@ on:
       - '**'
       - '!docs/**'
       - 'docs/policy/**'
+      # v3.16.1 (QG-1): per-version development CONTRACT docs are asserted on by
+      # tests -- tests/skills/test_evaluation_methodology.py reads
+      # docs/v3/v3.16/development/evaluation-artifact-contract.md. Under the
+      # blanket docs exclusion, a push editing only that file skipped CI, so the
+      # exact edit the guard exists to catch was the edit that never ran it --
+      # the identical defect already fixed for docs/policy/** above.
+      #
+      # Scoped to `*.md` directly under a development/ directory ON PURPOSE: a
+      # `*` never crosses a `/`, so this matches the contract docs and NOT
+      # development/history/*.md. Session histories are frozen records that no
+      # test reads, and re-including them would run the full matrix on every
+      # phase write-up for no signal.
+      - 'docs/v*/*/development/*.md'
   pull_request:
     branches: [main, develop]
     paths:
       - '**'
       - '!docs/**'
       - 'docs/policy/**'
+      # v3.16.1 (QG-1): per-version development CONTRACT docs are asserted on by
+      # tests -- tests/skills/test_evaluation_methodology.py reads
+      # docs/v3/v3.16/development/evaluation-artifact-contract.md. Under the
+      # blanket docs exclusion, a push editing only that file skipped CI, so the
+      # exact edit the guard exists to catch was the edit that never ran it --
+      # the identical defect already fixed for docs/policy/** above.
+      #
+      # Scoped to `*.md` directly under a development/ directory ON PURPOSE: a
+      # `*` never crosses a `/`, so this matches the contract docs and NOT
+      # development/history/*.md. Session histories are frozen records that no
+      # test reads, and re-including them would run the full matrix on every
+      # phase write-up for no signal.
+      - 'docs/v*/*/development/*.md'
 
 # v3.11.0 Phase 7.5 / 8.4 CI optimization: cancel superseded runs of the same ref
 # (the single largest action-minute saver) so only the latest push/PR commit runs.
