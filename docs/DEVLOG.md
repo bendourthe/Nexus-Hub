@@ -1,5 +1,29 @@
 # Development Log
 
+## [2026-08-09] - v3.16.2 Phase 4: engineering discipline transfers
+
+### What Changed
+
+Four bounded doctrine items folded into the three files that already own their concerns, with no new skill created. `AGENTS.md` gained a test-retention policy (in the hook-testing section) and a scope-fit pre-add review (opening the Boundaries section). `multi-agent-coordinator` gained peer claim/lease arbitration. `observability-setup` gained a projection-sink design rule. No frontmatter changed on either skill, so `data/skills.json` is untouched and the catalog stays at 271 skills.
+
+### Why It Changed
+
+Each item closes a gate the project had only on one side. The test suite had a keep rule by convention and no delete rule, so it could only grow. `code-simplification` removes complexity after the fact and nothing declined to add it beforehand. The coordinator could partition work in advance but had nothing to say when the partition is not knowable until runtime. And operator displays had no rule keeping them off private source documents.
+
+### Decisions Made
+
+- **The delete half of the retention policy is written to not conflict with the parity rule.** The obvious failure of "consolidate near-identical tests" advice in this repo is that a `.sh` and `.ps1` assertion pair looks near-identical. The policy states explicitly that a behavioral assertion parametrized over both implementations is ONE test covering a durable contract, and that the aggregate-test advice targets per-artifact duplication only.
+- **Claim/lease is scoped narrowly on purpose.** It applies only when several agents contend for one shared queue whose items are not known in advance. A fan-out with disjoint write scopes -- the common case the skill already covers -- needs no leases, and saying so is what stops the guidance being over-applied. The expired-lease-nobody-reclaims case is called out as the actual failure mode, with a bounded attempt count so a perpetually reclaimed item routes to a human instead of cycling.
+- **The projection-sink rule leads with lifecycle-as-data.** The rule's obvious half (do not parse private documents) is easy to agree with and easy to violate under deadline. The non-obvious half is that a superseded row must carry `supersedes` / `superseded_by` / `row_lifecycle` fields rather than an explanatory sentence, with the test stated plainly: a reader should never have to open a private source document to understand why a row changed.
+
+### Verification
+
+All eight relevant validators pass, including `check_base_template_parity.py` run explicitly, which is what sub-task 4.5 asked for: `AGENTS.md` is not one of the five lockstep `base-*.md` templates, so editing it requires no template change. `tests/skills` 509 passed, `tests/validators` 554 passed, `tests/plans` 91 passed. Catalog unchanged at 271 skills; no new skill created.
+
+### Known Issues
+
+NI-2: sub-task 4.5 asked to confirm both edited skills stayed within the 500-line body target, but both were already over it before this phase (742 and 685 lines, now 763 and 703). They are grandfathered by the forward-looking norm in `AGENTS.md` and remain under the 800-line hard cap, so the honest report is that the target was already exceeded rather than that the check passed. `observability-setup` is now within 37 lines of the cap and should be split into `references/` before the next addition, not during it.
+
 ## [2026-08-09] - v3.16.2 Phase 3: incident archive practice and backfill
 
 ### What Changed

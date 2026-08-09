@@ -166,6 +166,24 @@ Each subagent must have a clear role, a defined set of files it is allowed to mo
 3. **Shared files require sequencing**: If two agents must modify the same file (e.g., `package.json`), they must run sequentially, not in parallel.
 4. **Scope declaration is mandatory**: Every agent prompt must explicitly list the files or directories the agent is allowed to modify.
 
+**Peer claim and lease arbitration (shared queue only)**:
+
+The write-scope rules above assume the coordinator can partition the work in advance. When it cannot -- when several agents draw from ONE shared work queue whose items are not known until runtime -- use claims and leases instead of a designated leader. Registered agents are peers; claims, leases, task boundaries, and capabilities decide who acts next, so no durable leader identity is required and no agent is a single point of failure.
+
+Distinguish this sharply from role assignment above: **a role says what an agent does; a claim says which agent does this specific item right now.** An agent keeps its role for the whole run and holds a claim only for one item.
+
+A claim carries three fields at minimum:
+
+| Field | Purpose |
+|---|---|
+| `agent_id` | Who holds it, so a second agent skips the item rather than duplicating it |
+| `item` | The specific work item claimed, at the granularity the queue hands out |
+| `expires_at` | When the claim lapses if the holder has neither completed nor renewed it |
+
+**An expired lease that nobody reclaims is the actual failure mode**, and it is the part most designs leave undefined. Decide explicitly what happens when a lease expires without completion: the item returns to the queue for any peer to reclaim, its attempt count increments, and after N attempts it stops being reclaimed and routes to the human queue instead of cycling forever. An item that is perpetually claimed, expired, and reclaimed looks like progress from the outside while making none, which is the same signature as the no-progress stall in [[loop-engineering]].
+
+**When this is warranted is narrower than it sounds.** It applies only when multiple agents genuinely contend for one shared queue. A fan-out with disjoint write scopes -- the common case, and the one the rules above cover -- needs no leases at all: the partition already decides who does what, and adding claims to it buys nothing but a new expiry bug. Reach for this only when the partition cannot be computed in advance.
+
 **Role Assignment Template**:
 
 ```markdown
