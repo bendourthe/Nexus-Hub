@@ -1,8 +1,24 @@
 # Docs Cleanup Audit - v3.16
 
 **Mode**: audit only. No file was moved, renamed, or deleted by this pass.
-**Run at**: v3.16.0 Phase 2, post-phase step 8.5 (2026-08-08). Supersedes the Phase 1 run; findings carried forward below.
-**Scope**: `docs/v3/v3.16/`, plus `docs/policy/` and the repo-root and `configs/` surfaces these phases touched.
+**Run at**: v3.16.2 Phase 6, terminal-phase gate (2026-08-09). Supersedes the v3.16.0 Phase 2 run; findings carried forward below.
+**Scope**: `docs/v3/v3.16/`, the new `docs/incidents/`, plus `docs/policy/` and the repo-root, `scripts/`, and `configs/` surfaces these cycles touched.
+
+## v3.16.2 pass
+
+Layout is clean and no file needed to move.
+
+| Check | Result |
+|---|---|
+| Legacy `docs/versions/v*/v*/` tree | Absent |
+| Flat `docs/<vSEMVER>/plans/` duplicates | None; every plan is at the canonical `docs/v3/v3.16/plans/` |
+| Stray comparison reports outside `comparisons/` | None. Three filename matches were inspected and are false positives: a session history, a plan *about* comparison versioning, and a development CI/CD comparison doc |
+| Empty directories | Five found, **all gitignored** (`.antigravitycli`, four under `node_modules`). Nothing tracked to clean |
+| Session histories for this cycle | All five present under `development/history/` |
+
+**`docs/incidents/` placement, ratified.** The directory was created at the docs ROOT rather than inside `docs/v3/v3.16/`, and sub-task 6.1 asked for that decision to be recorded explicitly. It is correct and deliberate: an incident is **cross-version by nature**. Both backfilled notes span multiple releases (the v3.11.0 parse error stayed live for four minor versions; the v3.15.6 divergence produced fixes that guard every release since), and filing either under one version directory would bury a lesson that applies to all of them. The placement also matches the existing docs-root convention for cross-version concerns: `policy/`, `security/`, `specs/`, and `git/` all sit there for the same reason. Only per-release artifacts (plans, comparisons, known-gaps, session histories) belong under a version directory.
+
+**One reference repaired.** `docs/v3/v3.16/plans/v3.16.2-loop-longevity-and-doctor-preflight.md` declared `**Slug**: adoption-loopx` and `**Filename**: v3.16.2-adoption-loopx.md` in its own header, naming a file that does not exist. Corrected to match the real slug and filename. This is the plan-metadata half of the drift class the v3.14.2 comparison-versioning work addressed.
 
 ## Layout verdict
 

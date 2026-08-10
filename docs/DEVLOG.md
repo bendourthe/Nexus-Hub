@@ -1,5 +1,32 @@
 # Development Log
 
+## [2026-08-09] - v3.16.2 Phase 6: refactor, reconciliation, and CI/CD [terminal phase]
+
+### What Changed
+
+The plan's terminal phase. The architecture audit found nothing to move and says so. Known gaps were reconciled to 6 closed and 5 carried, with the six declined candidates and the incident-archive residual risk recorded. CI/CD was reviewed and found already at the optimized contract, with this cycle's additions (the `docs/incidents/**` trigger, the widened AST gate) already in place from Phases 3 and 5. One stale reference was repaired. **The branch is not pushed and `/update release` has not been invoked** - both are approval-gated.
+
+### Why It Changed
+
+The terminal phase exists to leave the layout clean, the gaps honest, and the pipeline covering everything the cycle added, so the next plan starts from a true picture rather than an assumed one.
+
+### Decisions Made
+
+- **`docs/incidents/` stays at the docs root, and the reason is recorded.** An incident is cross-version by nature: both backfilled notes span multiple releases, and filing either under one version directory would bury a lesson that applies to all of them. It matches the existing docs-root convention for cross-version concerns (`policy/`, `security/`, `specs/`, `git/`).
+- **NI-2 was carried rather than fixed.** `observability-setup` at 763 lines is 37 from the hard cap and wants splitting into `references/`. A terminal phase is the wrong place to restructure a skill nothing in this plan required changing; the honest move is to name the next-touch action, not to do surgery under a release gate.
+- **BG-2 was carried with an explicit recommendation.** `secret-scan.sh` failing open without `jq` is out of this plan's scope, but a security guard that fails open is the wrong default and the note says so rather than burying it in a table.
+- **The plan's own metadata was repaired.** Its header named a filename that does not exist (`v3.16.2-adoption-loopx.md`), which is the plan-metadata half of the drift class the v3.14.2 work addressed.
+
+### Verification
+
+All 15 `make validate` guards pass individually (`make` itself is absent on this host, WN-1). ShellCheck clean on both installers and every `catalog/**/*.sh`. Every `.ps1` under `scripts/` and `catalog/hooks/` AST-parses on Windows PowerShell 5.1. Catalog is consistent at **271 skills** across `skills.json` and the on-disk `SKILL.md` count, and `data/` is untouched across the entire six-phase cycle - confirming no frontmatter changed anywhere, so no sync was required. `tests/skills` 509, `tests/validators` 569, `tests/workflows` 91, `tests/plans` 91.
+
+The QG-2 constraint was verified empirically rather than assumed: both test files Phase 5 added live in `tests/installer` and `tests/validators`, and both directories are explicitly enumerated in `ci.yml`, so collection actually happens.
+
+### Known Issues
+
+Five carried, zero release blockers: MT-1 (loop-schema concepts still lack a mechanical assertion, and the duplicated `gates` block is the concrete drift risk), NI-2, NI-3, BG-2, and the environmental WN-1 / BG-1. Full disposition table in the v3.16 gap log.
+
 ## [2026-08-09] - v3.16.2 Phase 5: local verification tooling (`nexus-hub doctor`)
 
 ### What Changed

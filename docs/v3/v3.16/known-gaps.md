@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (all 5 phases complete; reconciled and release-ready, unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
-**Last updated**: 2026-08-09 (v3.16.2 Phase 5 append; BG-3 and QG-2 raised-and-closed, NI-1 / DF-1 / WN-2 closed, NI-3 raised)
+**Last updated**: 2026-08-09 (v3.16.2 Phase 6 final reconciliation; 6 closed, 5 carried, 0 release blockers; declined candidates and the incident-archive residual risk recorded)
 
 > **File-lifecycle note**: this ledger was created ahead of any v3.16 implementation, by a comparison that deliberately claimed no release slot, so it began with only the `## Comparison-Sourced Deferrals` section. Each v3.16 version-implementation phase **appends** its own `## v3.16.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` numbering, which is namespaced separately from the `CD-#` and `TR-#` ids used above.
 
@@ -567,6 +567,51 @@ The `nexus-hub doctor` reference in `catalog/commands/update.md` (raised in Phas
 
 Phase 1 recorded WN-1 (no `make`) as environmental and the v3.16.1 ledger carried a broader "no ruff or shellcheck" note. Phase 5 needed ShellCheck for the new Bash code and found it present and working: it flagged SC2088 on the first draft of `doctor_resolve_path`, which was then restructured rather than suppressed. `make` remains absent; `shellcheck` does not. Recording the correction so the next cycle does not skip a lint pass on a stale assumption.
 
+### v3.16.2 Phase 6 final reconciliation
+
+Every item raised across the six phases is dispositioned below. **8 closed, 5 carried forward, 0 release blockers.**
+
+| Item | Disposition | Why |
+|---|---|---|
+| QG-1 | **Closed** (Phase 3) | `docs/incidents/**` added to both CI events' path filters, after the guard that justifies the trigger was built |
+| QG-2 | **Closed** (Phase 5) | `scripts/installer.ps1` now covered by the unconditional AST-parse gate, alongside all `scripts/*.ps1` and the root bootstrap |
+| BG-3 | **Closed** (Phase 5) | Trailing-CR divergence between the two doctors fixed and asserted by parity test |
+| NI-1 | **Closed** (Phase 5) | `nexus-hub doctor` now exists, so `update.md`'s reference resolves |
+| DF-1 | **Closed** (Phase 5) | `check_release_capability_docs.py` built, wired, and named in governance step 6 |
+| WN-2 | **Closed** (Phase 5) | Stale assumption corrected: `shellcheck` IS present on this host and was used |
+| MT-1 | **Carried** | The loop-schema concepts still have no mechanical assertion. Real, bounded, and now the cycle's only substantive open item. The duplicated `gates` block across `loop-schema.md` and `loop-library.md` is the concrete drift risk |
+| NI-2 | **Carried** | `observability-setup` (763 lines) and `multi-agent-coordinator` (703) exceed the 500-line target. Both were already over before this cycle and remain under the 800 hard cap. Splitting `observability-setup` into `references/` is the next-touch action, deliberately not done here: a terminal phase is the wrong place to restructure a skill nothing in this plan required changing |
+| NI-3 | **Carried** | `doctor --repair` prints rather than executes. A deliberate bound, not an omission |
+| BG-2 | **Carried** | `secret-scan.sh` fails OPEN without `jq`. Pre-existing, bounded by a verified-working `.ps1` sibling, and out of this plan's scope (it touches no hook logic). **Worth a dedicated fix in a near-term cycle**: a security guard that fails open is the wrong default |
+| WN-1 / BG-1 | **Carried** (environmental) | No `make` on this host; the inherited PowerShell bootstrap `tar` failure. Both re-verified rather than re-asserted: every `make validate` and `make test` command was run individually, and BG-1's signature is byte-identical to v3.16.0 and v3.16.1 |
+
+Three of the eight closures (BG-3, QG-2, and BG-2's discovery) came from **exercising code rather than reading it** - running both doctors and diffing, checking where the AST gate actually globbed, and piping a payload through the secret-scan hook. That is this cycle's clearest methodological finding.
+
+### Declined candidates (recorded so a future comparison does not re-propose them)
+
+The LoopX comparison surfaced these and each was declined for a stated reason. Recording them here is what stops a later pass re-litigating settled ground.
+
+| Candidate | Why declined |
+|---|---|
+| The LoopX control-plane runtime | Reverses the standing decision, restated three times since v3.1.0, that the loop **driver** is a host command to reference and never a catalog artifact to ship |
+| Benchmark adapters | Out of scope, and they carry a Docker dependency |
+| The dashboard SPA | Duplicates the v3.16.7 interactive-guide track already committed |
+| The Lark extension | Fails the MCP Registry Policy tier-4 test: the vendor is not the intrinsic data destination |
+| Per-skill agent sidecars and `.loopx-skill-scope` | Conflicts with the separate `catalog/agents/` surface and with the committed v3.16.9 selective-installation plan |
+| Single-sentence skill descriptions | Conflicts with the mandated pushy-description style, which exists specifically to combat under-triggering |
+
+One further candidate was **verified and dropped rather than declined on principle**: LoopX's CI hardening (path filters, concurrency groups, `timeout-minutes`, least-privilege `permissions`) is already complete across all nine Nexus-Hub workflows.
+
+### Residual risk: does the incident archive become a directory nobody reads?
+
+The comparison named this as the plan's main residual risk. The control is the Durable-fix requirement from Phase 3.1, and it **held, mechanically rather than aspirationally**:
+
+- `scripts/check_incident_notes.py` fails any note whose Durable fix section carries no link, is wired into `make validate` and CI, and is covered by 12 tests asserting failure in each direction.
+- `docs/incidents/**` triggers CI, so the guard runs on the push that adds a note.
+- Both backfilled notes name AND link real, verified fixes, and each states what its fix would still miss.
+
+The stronger evidence is behavioral rather than structural: within the same cycle, the shape those two notes describe (S-1, an unverified cross-platform sibling) **caught two live defects** - BG-3's Bash/PowerShell verdict divergence and QG-2's unparsed installer. An archive whose shapes are actively catching defects days after being written is not a graveyard. Re-assess after a cycle in which no one adds a note.
+
 ### Phase 1 disposition
 
 Three items, **zero release blockers, zero caused by this phase**. MT-1 is a real coverage gap with a named owner (Phase 5); WN-1 and BG-1 are both environmental properties of the implementation host, already carried at v3.16.0 and v3.16.1 and re-verified rather than re-asserted.
@@ -593,6 +638,6 @@ The phase's own residual risk (named in the comparison) is that the incident arc
 | Transferred in from v3.15.14 (`TR-#`) | 2 (TR-1, TR-2) | 1 (TR-3) |
 | v3.16.0 version-implementation gaps | 3 carried forward (NI-1, NI-6, BG-1) | 13 closed (DF-1, DF-2, DF-3, DF-4, NI-2, NI-3, NI-4, NI-5, QG-1, QG-2, QG-3, BG-2, BG-3, WN-1) |
 | v3.16.1 version-implementation gaps (all 8 phases + release) | 3 carried forward (WN-1, BG-1 environmental; NI-6 bounded and documented) | 21 closed (DF-1..DF-5, NI-1..NI-5, BG-2..BG-8, QG-1, QG-2, WN-2, PX-1) |
-| v3.16.2 version-implementation gaps (Phases 1-5 of 6, in flight) | 5 open (MT-1 schema assertions; NI-2 pre-existing size overage for Phase 6.1; NI-3 deliberate `--repair` bound; BG-2 pre-existing fail-open, bounded; WN-1 and BG-1 environmental and inherited) | 6 closed (QG-1, QG-2, BG-3, NI-1, DF-1, WN-2) |
+| v3.16.2 version-implementation gaps (all 6 phases, reconciled) | 5 carried (MT-1 schema assertions; NI-2 size overage; NI-3 deliberate `--repair` bound; BG-2 pre-existing fail-open; WN-1 / BG-1 environmental) | 6 closed (QG-1, QG-2, BG-3, NI-1, DF-1, WN-2) |
 
 The three comparison-sourced items remain non-blocking prose folds with named target files. Of the v3.16.0 items, BG-1 is pre-existing and reproduces without this plan's changes, WN-1 is environmental, DF-1 is a reasoned non-implementation, NI-1 is a deliberate scope boundary the plan requires, and NI-2 / NI-3 / NI-4 are Phase 2 findings that Phase 3 and Phase 5 are already scheduled to dispose of. Phase 5 dispositioned every open item: 13 closed, 3 carried forward. **None gates the v3.16.0 release.** NI-1 and NI-6 are scope decisions for cycles already touching the relevant surfaces, and BG-1 is pre-existing, reproduced on a clean `develop` worktree, and confined to a Windows host whose PATH resolves `tar` to the Git Bash binary. Of the 13 closed, three (BG-2, BG-3, and QG-3) were caught by the test suite rather than by review, which is this cycle's strongest argument for running the full suite before declaring a phase done.
