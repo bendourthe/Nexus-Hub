@@ -8,9 +8,9 @@ import { isNotConnected, buildHoverMarkdown, buildStatusText } from "../src/stat
 import { renderDashboard } from "../src/dashboardPanel";
 import { activate } from "../src/extension";
 import { Uri, configurationLog, readUserConfiguration, resetVscodeStub, setUserConfiguration } from "./vscode-stub";
-import type { BillingOwner, UsageState } from "../src/types";
+import type { BillingScope, UsageState } from "../src/types";
 
-const OWNER: BillingOwner = { scope: "user", name: "bendourthe" };
+const SCOPE: BillingScope = "user";
 
 interface Recorded {
   scopes: readonly string[];
@@ -37,7 +37,7 @@ function deps(options: {
   return {
     calls,
     declineWrites,
-    owner: OWNER,
+    scope: SCOPE,
     hasStoredToken: async () => options.stored ?? false,
     isDeclined: () => declined,
     recordDecline: async () => { declined = true; declineWrites.push(true); },

@@ -15,7 +15,7 @@ import {
   type MonitorOwnedState
 } from "../src/providers/sessionBinding";
 import { activate } from "../src/extension";
-import { renderAuthSection, renderSettings, readSettings } from "../src/settingsPanel";
+import { renderAuthSection, settingsSectionHtml, readSettings } from "../src/settingsPanel";
 import type { BillingOwner } from "../src/types";
 import {
   messages,
@@ -316,8 +316,11 @@ describe("settings panel auth section", () => {
     expect(html).toContain("Connected");
     expect(html).toContain("organization:acme");
     expect(html).toContain("octocat");
-    expect(html).toContain("logIn");
-    expect(html).toContain("logOut");
+    // v3.16.3 Phase 4 moved the log-in / log-out buttons out of this block and into
+    // the settings section's Account group, so the auth block is now purely a
+    // statement of WHO the monitor is bound to and WHAT the verdict is. The
+    // relocated controls are asserted in ui.test.ts against the settings section.
+    expect(html).not.toContain("data-command=");
   });
 
   it("states that logging out leaves Copilot alone", () => {
@@ -364,8 +367,10 @@ describe("settings panel auth section", () => {
   });
 
   it("is omitted entirely when no auth state is supplied", () => {
-    const html = renderSettings(readSettings());
+    // The section still renders - it carries the relocated commands - but the
+    // Authorization block is skipped rather than rendered empty.
+    const html = settingsSectionHtml(readSettings());
     expect(html).not.toContain("Authorization</legend>");
-    expect(html).toContain("GitHub Usage Monitor Settings");
+    expect(html).toContain("Danger zone");
   });
 });

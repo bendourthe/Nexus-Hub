@@ -10,6 +10,21 @@ import {
 } from "./providers/sessionBinding";
 
 /**
+ * The settings form used to be its own webview panel. As of v3.16.3 Phase 4 it
+ * renders INLINE inside the dashboard webview, toggled by a gear in the action row,
+ * so this module exposes the form as three embeddable pieces the dashboard stitches
+ * into its single document: CSS, HTML, and client JS. There is no standalone panel.
+ *
+ * The composition shape is ported from `extensions/claude-usage-monitor`, which
+ * solved the same problem in v3.14.6. Porting a proven in-repo pattern beats
+ * inventing a second one, and it keeps the two monitors recognizably the same
+ * product to a user who runs both.
+ *
+ * The section is read-only in this phase. Phase 5 makes the fields editable in
+ * place; this phase moves them into the dashboard and gets the shell right first.
+ */
+
+/**
  * The auth block rendered above the settings fields. Kept separate from
  * `SettingsValues` because it is runtime state rather than configuration, and
  * because it must always be renderable even when nothing is configured yet.
@@ -39,21 +54,6 @@ export interface SettingsValues {
   moderateColor: string;
   highColor: string;
   criticalColor: string;
-}
-
-export class SettingsPanel {
-  private panel: vscode.WebviewPanel | undefined;
-  public show(auth?: AuthDisplay): void {
-    if (this.panel === undefined) {
-      this.panel = vscode.window.createWebviewPanel("githubUsageMonitorSettings", "GitHub Usage Monitor Settings", vscode.ViewColumn.One, { enableScripts: true });
-      this.panel.onDidDispose(() => { this.panel = undefined; });
-      this.panel.webview.onDidReceiveMessage((message: { command?: string }) => {
-        if (message.command) void vscode.commands.executeCommand(`githubUsageMonitor.${message.command}`);
-      });
-    }
-    this.panel.webview.html = renderSettings(readSettings(), auth);
-    this.panel.reveal();
-  }
 }
 
 export function readSettings(): SettingsValues {
@@ -95,20 +95,94 @@ export function renderAuthSection(auth: AuthDisplay): string {
     <p class="note">${escapeHtml(describeBinding(auth.binding))}</p>
     <p class="note">${escapeHtml(describeCapability(auth.capability))}</p>
     <p class="note">${escapeHtml(credential)}</p>
-    <div>
-      <button data-command="logIn">Log in / switch account</button>
-      <button data-command="logOut">Log out of this monitor</button>
-    </div>
     <p class="note">Logging out clears only this extension's binding. It never signs you out of the editor's GitHub session, so Copilot is unaffected.</p>
   </fieldset>`;
 }
 
-export function renderSettings(
-  values: SettingsValues,
-  auth?: AuthDisplay
-): string {
-  const field = (label: string, value: string | number | null) => `<label>${label}<input value="${escapeHtml(value === null ? "" : String(value))}" readonly></label>`;
-  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'nonce-settings';"><style>:root{color-scheme:light dark}body{max-width:760px;margin:0 auto;padding:28px;color:var(--vscode-editor-foreground);background:var(--vscode-editor-background);font:13px/1.5 var(--vscode-font-family)}h1{font-size:26px}fieldset{border:1px solid var(--vscode-widget-border);margin:18px 0;padding:16px}legend{font-weight:700}label{display:grid;grid-template-columns:210px 1fr;gap:12px;margin:9px 0;align-items:center}input{padding:6px;color:var(--vscode-input-foreground);background:var(--vscode-input-background);border:1px solid var(--vscode-input-border)}button{padding:7px 12px;margin:4px;color:var(--vscode-button-foreground);background:var(--vscode-button-background);border:0}button:focus-visible{outline:2px solid var(--vscode-focusBorder);outline-offset:2px}.note{color:var(--vscode-descriptionForeground)}@media(max-width:560px){label{grid-template-columns:1fr}}</style></head><body><h1>GitHub Usage Monitor Settings</h1><p class="note">This monitor reports Actions minutes and storage, plus Copilot billing, for the one billing owner configured below. Tokens are stored only in VS Code SecretStorage and are never displayed here. A token is accepted only after GitHub validates access for the configured owner.</p>${auth === undefined ? "" : renderAuthSection(auth)}<fieldset><legend>Billing owner</legend>${field("Scope", values.billingScope)}${field("Owner", values.billingOwner)}${field("Copilot metric", values.copilotMetric)}</fieldset><fieldset><legend>Verified allowances</legend>${field("Copilot", values.copilotAllowance)}${field("Actions minutes", values.actionsMinutesAllowance)}${field("Actions storage", values.actionsStorageAllowance)}</fieldset><fieldset><legend>Refresh and alerts</legend>${field("Refresh interval (minutes)", values.refreshInterval)}${field("Compact status bar", String(values.compactStatusBar))}${field("Alert metric", values.alertMetric)}${field("Moderate threshold", values.moderate)}${field("High threshold", values.high)}${field("Critical threshold", values.critical)}${field("Notification timeout", values.notificationTimeoutSeconds)}${field("Moderate color", values.moderateColor)}${field("High color", values.highColor)}${field("Critical color", values.criticalColor)}</fieldset><div><button data-command="setToken">Set token</button><button data-command="rotateToken">Rotate token</button><button data-command="validateToken">Validate token</button><button data-command="clearToken">Clear token</button><button data-command="openNativeSettings">Edit settings</button></div><script nonce="settings">const vscode=acquireVsCodeApi();document.querySelectorAll('[data-command]').forEach((button)=>button.addEventListener('click',()=>vscode.postMessage({command:button.dataset.command})));</script></body></html>`;
+/**
+ * Component CSS for the inline settings form.
+ *
+ * Deliberately omits base `body` / `*` rules and generic element selectors so it
+ * composes with the dashboard's own styles rather than clobbering them; every
+ * selector here is a settings-specific class or id.
+ */
+export function settingsStylesCss(): string {
+  return `#settings-section{margin-top:8px}` +
+    `#settings-section fieldset{border:1px solid var(--vscode-widget-border);margin:14px 0;padding:14px;border-radius:6px}` +
+    `#settings-section legend{font-weight:700;padding:0 6px}` +
+    `#settings-section .field{display:grid;grid-template-columns:210px 1fr;gap:12px;margin:8px 0;align-items:center}` +
+    `#settings-section .field-value{color:var(--vscode-descriptionForeground)}` +
+    `#settings-section .note{color:var(--vscode-descriptionForeground);margin:6px 0}` +
+    `#settings-section .group-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}` +
+    `#settings-section .danger{border-color:var(--vscode-notificationsErrorIcon-foreground)}` +
+    `@media(max-width:560px){#settings-section .field{grid-template-columns:1fr}}`;
+}
+
+/**
+ * The inline settings section markup, hidden by default and toggled by the gear.
+ *
+ * Every command dropped from the action row lives here, grouped. Nothing was
+ * removed: the action row was shortened, not the capability, and each command also
+ * stays registered so the Command Palette continues to reach it.
+ */
+export function settingsSectionHtml(values: SettingsValues, auth?: AuthDisplay): string {
+  const field = (label: string, value: string | number | null): string =>
+    `<div class="field"><span>${escapeHtml(label)}</span><span class="field-value">${escapeHtml(value === null || value === "" ? "not set" : String(value))}</span></div>`;
+  const button = (command: string, label: string, extraClass = "secondary"): string =>
+    `<button class="${extraClass}" data-command="${command}">${escapeHtml(label)}</button>`;
+
+  return `<section id="settings-section" hidden aria-label="Settings">
+    <h2>Settings</h2>
+    <p class="note">This monitor reports Actions minutes and storage, plus Copilot billing, for the one billing owner configured below. Tokens are stored only in VS Code SecretStorage and are never displayed here.</p>
+    ${auth === undefined ? "" : renderAuthSection(auth)}
+    <fieldset><legend>Account</legend>
+      ${field("Scope", values.billingScope)}${field("Owner", values.billingOwner)}${field("Copilot metric", values.copilotMetric)}
+      <div class="group-actions">
+        ${button("logIn", "Connect / switch account")}${button("logOut", "Log out of this monitor")}
+        ${button("setToken", "Set token")}${button("rotateToken", "Rotate token")}${button("validateToken", "Validate token")}${button("clearToken", "Clear token")}
+        ${button("diagnoseAuth", "Diagnose authorization")}
+      </div>
+    </fieldset>
+    <fieldset><legend>Allowances</legend>
+      ${field("Copilot", values.copilotAllowance)}${field("Actions minutes", values.actionsMinutesAllowance)}${field("Actions storage (GB)", values.actionsStorageAllowance)}
+      <p class="note">Allowances are derived from your plan automatically. Override one only if your account includes a different amount than the published figure.</p>
+      <div class="group-actions">${button("manualEntry", "Override allowances")}${button("openNativeSettings", "Edit in VS Code settings")}</div>
+    </fieldset>
+    <fieldset><legend>Refresh and alerts</legend>
+      ${field("Refresh interval (minutes)", values.refreshInterval)}${field("Compact status bar", String(values.compactStatusBar))}${field("Alert metric", values.alertMetric)}
+      ${field("Moderate threshold", values.moderate)}${field("High threshold", values.high)}${field("Critical threshold", values.critical)}
+      ${field("Notification timeout", values.notificationTimeoutSeconds)}
+      ${field("Moderate color", values.moderateColor)}${field("High color", values.highColor)}${field("Critical color", values.criticalColor)}
+    </fieldset>
+    <fieldset class="danger"><legend>Danger zone</legend>
+      <p class="note">Removes the cached snapshot and alert state from this machine. Your GitHub account and stored token are untouched.</p>
+      <div class="group-actions">${button("clearData", "Clear cached data")}</div>
+    </fieldset>
+  </section>`;
+}
+
+/**
+ * The settings form's client JS, concatenated into the dashboard's single nonced
+ * `<script>`.
+ *
+ * It deliberately does NOT call `acquireVsCodeApi()` - the dashboard already holds
+ * that handle, and calling it twice throws. Running under the dashboard's nonce
+ * rather than adding a second inline block is what keeps the Content-Security-Policy
+ * shape unchanged.
+ */
+export function settingsScriptJs(): string {
+  return `function toggleSettings(){` +
+    `const s=document.getElementById('settings-section');const g=document.getElementById('settings-toggle');if(!s)return;` +
+    `const willOpen=s.hasAttribute('hidden');` +
+    `if(willOpen){s.removeAttribute('hidden');s.scrollIntoView({behavior:'smooth',block:'start'});}else{s.setAttribute('hidden','');}` +
+    `if(g)g.setAttribute('aria-expanded',String(willOpen));` +
+    // Persisted so the section survives a re-render: the dashboard rebuilds its
+    // entire HTML on every refresh, which would otherwise slam the panel shut
+    // underneath a user who had just opened it.
+    `try{const st=vscode.getState()||{};st.settingsOpen=willOpen;vscode.setState(st);}catch(e){}}` +
+    `(function(){try{const st=vscode.getState()||{};` +
+    `if(st.settingsOpen){const s=document.getElementById('settings-section');const g=document.getElementById('settings-toggle');` +
+    `if(s)s.removeAttribute('hidden');if(g)g.setAttribute('aria-expanded','true');}}catch(e){}})();`;
 }
 
 function optionalNumber(value: unknown): number | null { return typeof value === "number" && Number.isFinite(value) ? value : null; }

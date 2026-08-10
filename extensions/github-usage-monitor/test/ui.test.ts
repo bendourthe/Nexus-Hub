@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import { scheduleWarningDismissal } from "../src/extension";
 import { DashboardPanel, renderDashboard } from "../src/dashboardPanel";
 import { buildUsageSuggestion, classifyUrgency, crossedUnnotifiedThreshold, pickTriggerMetric } from "../src/recommendations";
-import { renderSettings, SettingsPanel, validateThresholds, type SettingsValues } from "../src/settingsPanel";
+import { settingsSectionHtml, validateThresholds, type SettingsValues } from "../src/settingsPanel";
 import { buildHoverMarkdown, buildStatusText, GITHUB_BAR_FILL, StatusBarManager } from "../src/statusBarManager";
 import type { UsageMetric, UsageSnapshot } from "../src/types";
 import { renderWarning, WarningViewProvider } from "../src/warningView";
@@ -42,12 +42,74 @@ describe("status bar and hover", () => {
 });
 
 describe("dashboard and settings", () => {
-  it("uses semantic meters, theme tokens, escaped detail, controls, and absolute treatment", () => {
+  it("uses semantic meters, theme tokens, escaped detail, and the absolute treatment", () => {
     const html = renderDashboard({ state: "fresh", data: snapshot() }, now);
     expect(html).toContain('role="meter"'); expect(html).toContain(GITHUB_BAR_FILL); expect(html).toContain("var(--vscode-editor-background)");
     expect(html).toContain("Actions &lt;runner&gt;"); expect(html).not.toContain("fixture-<org>"); expect(html).toContain("Absolute usage; no percentage available");
-    for (const command of ["refresh", "manualEntry", "settings", "clearData"]) expect(html).toContain(`data-command="${command}"`);
     expect(html).toContain("default-src 'none'"); expect(html).toContain("focus-visible"); expect(html).toContain("prefers-reduced-motion");
+  });
+
+  it("renders exactly three action-row controls, in order", () => {
+    const html = renderDashboard({ state: "fresh", data: snapshot() }, now);
+    const row = html.slice(html.indexOf('<div class="actions">'));
+    const buttons = [...row.matchAll(/<button[^>]*>/gu)].slice(0, 3).map((match) => match[0]);
+    expect(buttons).toHaveLength(3);
+    // Refresh Now is primary (no .secondary), the billing page is secondary, and
+    // the gear is the icon button. The order is asserted because the row's shape is
+    // the maintainer-facing part of this phase.
+    expect(buttons[0]).toContain('data-command="refresh"');
+    expect(buttons[0]).not.toContain("secondary");
+    expect(buttons[1]).toContain('data-command="openBillingPage"');
+    expect(buttons[1]).toContain("secondary");
+    expect(buttons[2]).toContain("icon-btn");
+    expect(buttons[2]).toContain('aria-expanded="false"');
+    expect(html).toContain("Refresh Now");
+    expect(html).toContain("Open GitHub Billing Page");
+  });
+
+  it("embeds the settings section hidden, with every relocated command inside it", () => {
+    const html = renderDashboard({ state: "fresh", data: snapshot() }, now);
+    expect(html).toContain('<section id="settings-section" hidden');
+    // Nothing was removed from the row - it was relocated. Each of these was a
+    // button in the six-control row this phase replaced.
+    for (const command of ["logIn", "logOut", "setToken", "rotateToken", "validateToken", "clearToken", "diagnoseAuth", "manualEntry", "openNativeSettings", "clearData"]) {
+      expect(html).toContain(`data-command="${command}"`);
+    }
+    expect(html).toContain("Danger zone");
+  });
+
+  it("runs the settings script under the dashboard's single nonce, not a second block", () => {
+    const html = renderDashboard({ state: "fresh", data: snapshot() }, now);
+    expect(html).toContain("function toggleSettings()");
+    // One script element only. A second inline block would need its own nonce and
+    // would change the Content-Security-Policy shape.
+    expect([...html.matchAll(/<script/gu)]).toHaveLength(1);
+    // acquireVsCodeApi throws if called twice, so the settings script must reuse
+    // the dashboard's handle rather than acquiring its own.
+    expect([...html.matchAll(/acquireVsCodeApi\(\)/gu)]).toHaveLength(1);
+  });
+
+  it("styles the meter as a neutral track with a teal fill and a label beside it", () => {
+    const html = renderDashboard({ state: "fresh", data: snapshot() }, now);
+    expect(html).toContain("rgba(128,128,128,0.2)");
+    expect(html).toContain(`background:${GITHUB_BAR_FILL};border-radius:4px`);
+    expect(html).toContain('<span class="meter-label">80%</span>');
+    // The width transition must not animate for a user who asked for reduced motion.
+    expect(html).toContain("prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}.meter span{transition:none}");
+  });
+
+  it("keeps the accessible meter attributes through the restyle", () => {
+    const html = renderDashboard({ state: "fresh", data: snapshot() }, now);
+    expect(html).toContain('role="meter"');
+    expect(html).toContain('aria-valuenow="80"');
+    expect(html).toContain('aria-label="Actions minutes usage"');
+  });
+
+  it("renders no meter for a null-percentage metric, keeping the bordered treatment", () => {
+    const html = renderDashboard({ state: "fresh", data: snapshot() }, now);
+    // Two metrics have a percentage, one does not; so exactly two meters.
+    expect([...html.matchAll(/role="meter"/gu)]).toHaveLength(2);
+    expect(html).toContain('class="absolute"');
   });
   it("renders actionable empty and stale states", () => {
     expect(renderDashboard({ state: "empty", error: { code: "invalid-token", message: "invalid" } })).toContain("No billing data available");
@@ -58,14 +120,23 @@ describe("dashboard and settings", () => {
     expect(validateThresholds({ moderate: 75, high: 50, critical: 95 })).toContain("increase");
     expect(validateThresholds({ moderate: 0, high: 75, critical: 95 })).toContain("1 to 100");
     const values: SettingsValues = { billingScope: "organization", billingOwner: "fixture-<org>", copilotMetric: "ai-credits", copilotAllowance: null, actionsMinutesAllowance: 1000, actionsStorageAllowance: null, refreshInterval: 10, compactStatusBar: false, alertMetric: "highest", moderate: 50, high: 75, critical: 95, notificationTimeoutSeconds: 12, moderateColor: "#cca700", highColor: "#f0643c", criticalColor: "#e05555" };
-    const html = renderSettings(values);
+    const html = settingsSectionHtml(values);
     expect(html).toContain("SecretStorage"); expect(html).toContain("fixture-&lt;org&gt;"); expect(html).not.toContain('type="password"');
-    expect(html).toContain("Set token"); expect(html).toContain("Edit settings"); expect(html).toContain("focus-visible");
+    expect(html).toContain("Set token"); expect(html).toContain("Edit in VS Code settings");
   });
-  it("creates and reuses dashboard and settings panels", () => {
-    resetVscodeStub(); const dashboard = new DashboardPanel(); dashboard.show({ state: "fresh", data: snapshot() }); dashboard.show({ state: "empty" });
-    expect(webviewPanels).toHaveLength(1); expect(webviewPanels[0]?.revealed).toBe(true); expect(webviewPanels[0]?.webview.html).toContain("No billing data");
-    const settings = new SettingsPanel(); settings.show(); settings.show(); expect(webviewPanels).toHaveLength(2); expect(webviewPanels[1]?.webview.html).toContain("GitHub Usage Monitor Settings");
+  it("creates exactly ONE webview and reuses it", () => {
+    // The second panel is gone. v3.16.3 Phase 4 folded settings into this document,
+    // so any additional createWebviewPanel call is a regression.
+    resetVscodeStub();
+    const dashboard = new DashboardPanel();
+    dashboard.show({ state: "fresh", data: snapshot() });
+    dashboard.show({ state: "empty" });
+    expect(webviewPanels).toHaveLength(1);
+    expect(webviewPanels[0]?.revealed).toBe(true);
+    expect(webviewPanels[0]?.webview.html).toContain("No billing data");
+    // The settings section travels with the dashboard, including on an empty state,
+    // so the gear is never a control that does nothing.
+    expect(webviewPanels[0]?.webview.html).toContain('id="settings-section"');
   });
 });
 

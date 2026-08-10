@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (all 5 phases complete; reconciled and release-ready, unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
-**Last updated**: 2026-08-09 (v3.16.3 Phase 3 append; MT-1 resolved, NI-5 opened, 0 release blockers; first-run connection is guarded by a direct prompt-count assertion)
+**Last updated**: 2026-08-09 (v3.16.3 Phase 4 append; NI-5 resolved, NI-6 opened, 0 release blockers; the second webview is gone and the action row is three controls)
 
 > **File-lifecycle note**: this ledger was created ahead of any v3.16 implementation, by a comparison that deliberately claimed no release slot, so it began with only the `## Comparison-Sourced Deferrals` section. Each v3.16 version-implementation phase **appends** its own `## v3.16.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` numbering, which is namespaced separately from the `CD-#` and `TR-#` ids used above.
 
@@ -753,6 +753,25 @@ One resolved, one new open item, **zero release blockers**. MT-1 closed exactly 
 
 The phase's own residual risk is the failure mode it exists to prevent: a modal on every VS Code start. Three controls, all mechanical. The decline flag lives in `globalState` rather than in memory, so it survives a restart; `runFirstRunConnection` returns an `interactiveAttempts` count and a test asserts it is exactly 1 on the prompting path and 0 on every other, which is the single number that separates correct behaviour from the defect; and a further test loops three additional activations after a decline, which a per-session flag would pass on one re-run and fail here.
 
+### NI-5 - RESOLVED in Phase 4: the first-run sequence takes a scope, not a placeholder owner
+
+- **Raised**: v3.16.3 Phase 3, noting that a fresh install passed `{ scope: <configured>, name: "pending" }` purely to select auth scopes, and that the placeholder read as a real account name.
+- **How it was closed**: `FirstRunDependencies` now takes `scope: BillingScope`. The sequence constructs the throwaway owner internally with a comment stating that `peekBinding` and `logInToMonitor` read the name from it never - they take an owner only to derive scope candidates. Folded into Phase 4 because that phase was already in `extension.ts`, exactly as the gap's suggested next step proposed.
+- **Caught by the change**: the test fixture kept passing `owner`, and because Vitest transpiles without type-checking, the missing `scope` surfaced as five runtime failures rather than a compile error. Worth remembering: a signature change in this codebase is only type-checked by `npm run compile`, not by the test run.
+
+### NI-6 - OPEN (small): the settings section is read-only
+
+- **Target file**: `extensions/github-usage-monitor/src/settingsPanel.ts` (`settingsSectionHtml`)
+- **What is incomplete**: the section renders every value and every relocated command, but the fields themselves are static text. Changing a threshold still means opening VS Code settings via the "Edit in VS Code settings" button.
+- **Why it is deliberate**: Phase 5 owns exactly this ("The current settings panel is entirely read-only... Making it editable is the real work here, not the layout"). Phase 4's remit was the shell.
+- **Suggested next step**: Phase 5, as planned. `validateThresholds` already exists and is exported for it.
+
+### Phase 4 disposition
+
+One resolved, one new open item, **zero release blockers**. NI-5 closed where Phase 3 predicted. NI-6 is the deliberate Phase 4/5 boundary, recorded so a reader does not mistake a read-only section for an oversight.
+
+The phase's own residual risk is that the settings section now shares one webview document with the dashboard, so a rendering error in either takes both down - where previously a broken settings panel left the dashboard usable. Three controls: the section renders on every state including unconnected and no-data, so the gear is never a control that does nothing; a test asserts exactly one `<script>` element and exactly one `acquireVsCodeApi()` call, since a second would throw and blank the whole panel; and `retainContextWhenHidden` was already set, so the merge did not change the panel's lifecycle.
+
 ## v3.16 Summary
 
 | Category | Open | Resolved |
@@ -762,6 +781,6 @@ The phase's own residual risk is the failure mode it exists to prevent: a modal 
 | v3.16.0 version-implementation gaps | 3 carried forward (NI-1, NI-6, BG-1) | 13 closed (DF-1, DF-2, DF-3, DF-4, NI-2, NI-3, NI-4, NI-5, QG-1, QG-2, QG-3, BG-2, BG-3, WN-1) |
 | v3.16.1 version-implementation gaps (all 8 phases + release) | 3 carried forward (WN-1, BG-1 environmental; NI-6 bounded and documented) | 21 closed (DF-1..DF-5, NI-1..NI-5, BG-2..BG-8, QG-1, QG-2, WN-2, PX-1) |
 | v3.16.2 version-implementation gaps (all 6 phases, reconciled) | 5 carried (MT-1 schema assertions; NI-2 size overage; NI-3 deliberate `--repair` bound; BG-2 pre-existing fail-open; WN-1 / BG-1 environmental) | 6 closed (QG-1, QG-2, BG-3, NI-1, DF-1, WN-2) |
-| v3.16.3 version-implementation gaps (Phases 1-3 of 6, in flight) | 8 open (DF-1 deferred key deletion; MT-2 unvalidated runner rules; NI-2 unverifiable weights; NI-3 SKU vocabularies; NI-4 cross-monitor policy; NI-5 placeholder owner; WN-1 / BG-1 / BG-2 environmental) | 3 closed (NI-1, QG-2, MT-1) |
+| v3.16.3 version-implementation gaps (Phases 1-4 of 6, in flight) | 8 open (DF-1 deferred key deletion; MT-2 unvalidated runner rules; NI-2 unverifiable weights; NI-3 SKU vocabularies; NI-4 cross-monitor policy; NI-6 read-only settings section; WN-1 / BG-1 / BG-2 environmental) | 4 closed (NI-1, QG-2, MT-1, NI-5) |
 
 The three comparison-sourced items remain non-blocking prose folds with named target files. Of the v3.16.0 items, BG-1 is pre-existing and reproduces without this plan's changes, WN-1 is environmental, DF-1 is a reasoned non-implementation, NI-1 is a deliberate scope boundary the plan requires, and NI-2 / NI-3 / NI-4 are Phase 2 findings that Phase 3 and Phase 5 are already scheduled to dispose of. Phase 5 dispositioned every open item: 13 closed, 3 carried forward. **None gates the v3.16.0 release.** NI-1 and NI-6 are scope decisions for cycles already touching the relevant surfaces, and BG-1 is pre-existing, reproduced on a clean `develop` worktree, and confined to a Windows host whose PATH resolves `tar` to the Git Bash binary. Of the 13 closed, three (BG-2, BG-3, and QG-3) were caught by the test suite rather than by review, which is this cycle's strongest argument for running the full suite before declaring a phase done.

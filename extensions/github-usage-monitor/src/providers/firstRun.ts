@@ -21,7 +21,7 @@
  * from a dialog on every startup, and asserting it beats asserting any proxy for it.
  */
 
-import type { BillingOwner } from "../types";
+import type { BillingScope } from "../types";
 import { logInToMonitor, peekBinding, type GetSessionLike, type MonitorBinding } from "./sessionBinding";
 
 /** `globalState` key recording that the user dismissed the automatic sign-in. */
@@ -34,8 +34,16 @@ export interface FirstRunDependencies {
   isDeclined(): boolean;
   recordDecline(): Promise<void>;
   clearDecline(): Promise<void>;
-  owner: BillingOwner;
-  /** Scopes for the interactive call; defaults to the owner's first candidate. */
+  /**
+   * The configured billing scope, which is all this sequence needs.
+   *
+   * Deliberately NOT a full owner. On a fresh install there is no session, so no
+   * owner can be detected - and the scope is enough to choose auth scopes. Taking
+   * an owner forced callers to invent a placeholder name, which read as a real
+   * account (v3.16.3 NI-5).
+   */
+  scope: BillingScope;
+  /** Scopes for the interactive call; defaults to the scope's first candidate. */
   scopes?: readonly string[];
 }
 
@@ -60,9 +68,12 @@ export interface FirstRunResult {
  */
 export async function runFirstRunConnection(deps: FirstRunDependencies): Promise<FirstRunResult> {
   let interactiveAttempts = 0;
+  // `peekBinding` and `logInToMonitor` both take an owner only to derive scope
+  // candidates from it, so a name is never read on this path.
+  const owner = { scope: deps.scope, name: "" } as const;
 
   // Step 1: silent. A user already signed in to GitHub in the editor sees nothing.
-  const existing = await peekBinding(deps.getSession, deps.owner).catch(() => null);
+  const existing = await peekBinding(deps.getSession, owner).catch(() => null);
   if (existing !== null) {
     return { outcome: { status: "connected", binding: existing, interactive: false }, interactiveAttempts };
   }
@@ -81,7 +92,7 @@ export async function runFirstRunConnection(deps: FirstRunDependencies): Promise
 
   // Step 2: exactly one modal.
   interactiveAttempts += 1;
-  const binding = await logInToMonitor(deps.getSession, deps.owner, deps.scopes).catch(() => null);
+  const binding = await logInToMonitor(deps.getSession, owner, deps.scopes).catch(() => null);
   if (binding === null) {
     await deps.recordDecline().catch(() => undefined);
     return { outcome: { status: "declined" }, interactiveAttempts };

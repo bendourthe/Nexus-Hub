@@ -1,5 +1,34 @@
 # Development Log
 
+## [2026-08-09] - v3.16.3 Phase 4: panel shell - three buttons, inline settings, teal meters
+
+### What Changed
+
+The monitor now has one panel instead of two. The action row is three controls (Refresh Now, Open GitHub Billing Page, and a gear), the settings form renders inline under that gear rather than in a second webview, and the meters were restyled to match the sibling monitors: a neutral track with a teal fill and the percentage beside the bar.
+
+### Why It Changed
+
+A six-button action row and a second webview were two of the five maintainer-reported gaps. The Claude monitor had already solved the inline-settings problem in v3.14.6, exporting the form as three composable pieces, so this phase ported a proven in-repo pattern rather than inventing a second one.
+
+### Decisions Made
+
+- **Nothing was removed, only relocated.** Every command dropped from the action row lives in the settings section, grouped into Account, Allowances, Refresh and alerts, and a visually separated Danger zone. Each stays registered, so the Command Palette still reaches all of them. A test asserts all ten relocated commands are present in the section.
+- **One script element, one `acquireVsCodeApi()` call.** The settings script runs under the dashboard's existing nonce rather than adding a second inline block, which keeps the Content-Security-Policy shape unchanged. Calling `acquireVsCodeApi()` twice throws and would blank the whole panel, so both counts are asserted.
+- **The Claude monitor's missing `:focus-visible` was not copied.** Its button rules omit the focus outline; porting them wholesale would have dropped keyboard focus visibility. The outline is kept, with a comment saying why.
+- **The settings section renders on every state**, including unconnected and no-data, so the gear is never a control that does nothing.
+- **The open/closed state is persisted** through `vscode.setState`. The dashboard rebuilds its entire HTML on every refresh, which would otherwise slam the section shut underneath a user who had just opened it.
+- **NI-5 folded in.** `runFirstRunConnection` now takes a `scope` rather than a placeholder owner, since scope is all it needs.
+
+### Verification
+
+294 tests passing (up from 288), coverage 82.47% statements / 78.67% branches / 83.44% functions / 85.88% lines, all above threshold; `settingsPanel.ts` at 100% statements. Packaging and `verify:package` succeed at 0.2.0. A grep confirms `SettingsPanel`, `renderSettings`, and the `githubUsageMonitorSettings` webview id are gone from both `src/` and `test/`.
+
+### Known Issues
+
+NI-5 resolved. NI-6 opened, and it is the deliberate Phase 4/5 boundary: the section is read-only, so changing a threshold still routes through VS Code settings. Phase 5 owns making it editable in place, and `validateThresholds` is already exported for it.
+
+One thing worth carrying forward: the NI-5 signature change surfaced as five *runtime* test failures rather than a compile error, because Vitest transpiles without type-checking. In this codebase a signature change is only type-checked by `npm run compile`, never by the test run.
+
 ## [2026-08-09] - v3.16.3 Phase 3: first-run connection
 
 ### What Changed

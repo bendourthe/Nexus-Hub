@@ -27,7 +27,7 @@ import {
   type MonitorBinding
 } from "./providers/sessionBinding";
 import { buildUsageSuggestion, crossedUnnotifiedThreshold, type AlertMetric, type Thresholds } from "./recommendations";
-import { SettingsPanel, validateThresholds, type AuthDisplay } from "./settingsPanel";
+import { validateThresholds, type AuthDisplay } from "./settingsPanel";
 import { StatusBarManager } from "./statusBarManager";
 import type { BillingOwner, ProviderError, ProviderResult, UsageSnapshot, UsageState } from "./types";
 import { UsageStore } from "./usageStore";
@@ -63,7 +63,6 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
   const tokens = new GitHubTokenStore(context.secrets);
   const store = new UsageStore(context.globalState, configuredStaleAfterMs());
   const dashboard = new DashboardPanel();
-  const settings = new SettingsPanel();
   const warning = new WarningViewProvider(context.extensionUri);
   const status = new StatusBarManager("githubUsageMonitor.dashboard");
   const cached = store.get();
@@ -94,7 +93,13 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     };
   };
 
-  const showDashboard = (): void => dashboard.show(currentState);
+  /**
+   * The single panel. `auth` is optional so the common path stays synchronous -
+   * resolving the auth display costs a silent session peek, which is worth paying
+   * when the user opened Settings and not on every alert-driven reveal.
+   */
+  const showDashboard = (auth?: AuthDisplay): void => dashboard.show(currentState, auth);
+  const showDashboardWithAuth = async (): Promise<void> => showDashboard(await authDisplay());
   const refresh = async (): Promise<void> => {
     status.showLoading();
     currentState = await fetchConfiguredUsage(tokens, store, { getSession, capabilities });
@@ -109,7 +114,9 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     vscode.window.registerWebviewViewProvider(WARNING_VIEW_ID, warning, { webviewOptions: { retainContextWhenHidden: true } }),
     vscode.commands.registerCommand("githubUsageMonitor.dashboard", showDashboard),
     vscode.commands.registerCommand("githubUsageMonitor.refresh", refresh),
-    vscode.commands.registerCommand("githubUsageMonitor.settings", async () => { settings.show(await authDisplay()); }),
+    // Reveals the one panel with its settings section available, rather than
+    // opening a second webview. The section itself is toggled by the gear.
+    vscode.commands.registerCommand("githubUsageMonitor.settings", showDashboardWithAuth),
     vscode.commands.registerCommand("githubUsageMonitor.logIn", async () => {
       // Deliberately does NOT require a resolved owner. With nothing configured there
       // is no session yet, so the owner cannot be detected yet, so demanding one here
@@ -129,7 +136,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
       await context.globalState.update(FIRST_RUN_DECLINED_KEY, undefined);
       await vscode.window.showInformationMessage(`GitHub Usage Monitor: ${describeBinding(next)}`);
       void refresh();
-      settings.show(await authDisplay());
+      await showDashboardWithAuth();
     }),
     vscode.commands.registerCommand("githubUsageMonitor.diagnoseAuth", async () => {
       const owner = configuredOwner(); if (owner === null) return;
@@ -158,7 +165,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
           await vscode.window.showInformationMessage(summarizeOutcome(escalated, owner));
         }
       }
-      settings.show(await authDisplay());
+      await showDashboardWithAuth();
     }),
     vscode.commands.registerCommand("githubUsageMonitor.logOut", async () => {
       const owner = configuredOwner();
@@ -170,7 +177,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
       await (isCompleteLogOut(result)
         ? vscode.window.showInformationMessage("GitHub Usage Monitor: this monitor's binding was cleared. You are still signed in to the editor's GitHub session, so Copilot is unaffected.")
         : vscode.window.showWarningMessage("GitHub Usage Monitor: the binding was only partly cleared. Re-run Log out, or clear the token explicitly."));
-      settings.show(await authDisplay());
+      await showDashboardWithAuth();
     }),
     vscode.commands.registerCommand("githubUsageMonitor.openBillingPage", async () => {
       const owner = await resolveOwnerForFetch(getSession);
@@ -206,10 +213,11 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
         isDeclined: () => context.globalState.get<boolean>(FIRST_RUN_DECLINED_KEY) === true,
         recordDecline: () => Promise.resolve(context.globalState.update(FIRST_RUN_DECLINED_KEY, true)),
         clearDecline: () => Promise.resolve(context.globalState.update(FIRST_RUN_DECLINED_KEY, undefined)),
-        // With nothing configured there is no session yet, so the owner cannot be
-        // detected yet. The configured LEVEL always has a value, which is enough to
-        // pick scopes - the same reason the logIn command does not demand an owner.
-        owner: owner ?? { scope: configuredScope(), name: "pending" }
+        // A scope, not an owner. With nothing configured there is no session yet,
+        // so the owner cannot be detected yet - but scope is all the sequence needs
+        // to choose auth scopes, and passing a placeholder owner invited the reading
+        // that "pending" was a real account name (v3.16.3 NI-5).
+        scope: owner?.scope ?? configuredScope()
       });
       if (result.outcome.status === "connected") binding = result.outcome.binding;
       await refresh();
