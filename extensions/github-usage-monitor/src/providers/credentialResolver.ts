@@ -55,7 +55,7 @@ export async function resolveCredential(
       ok: false,
       error: {
         code: "missing-token",
-        message: `The editor's GitHub session cannot read billing for this owner (${capability.reason}). Run "GitHub Billing: Diagnose Authorization" for detail, or store a token.`
+        message: `The editor's GitHub session cannot read billing for this owner (${capability.reason}). Run "GitHub Usage Monitor: Diagnose Authorization" for detail, or store a token.`
       }
     };
   }
@@ -77,7 +77,7 @@ export async function resolveCredential(
       error: {
         code: "missing-token",
         message:
-          'Not connected to GitHub. Run "GitHub Billing: Log In or Switch Account", or store a token with "GitHub Billing: Set Token".'
+          'Not connected to GitHub. Run "GitHub Usage Monitor: Log In or Switch Account", or store a token with "GitHub Usage Monitor: Set Token".'
       }
     };
   }

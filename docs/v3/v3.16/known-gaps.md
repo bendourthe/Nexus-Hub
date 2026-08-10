@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (all 5 phases complete; reconciled and release-ready, unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
-**Last updated**: 2026-08-09 (v3.16.2 Phase 6 final reconciliation; 6 closed, 5 carried, 0 release blockers; declined candidates and the incident-archive residual risk recorded)
+**Last updated**: 2026-08-09 (v3.16.3 Phase 1 append; 1 closed, 4 open, 0 release blockers; the plan's scope note was found incomplete and corrected in-phase)
 
 > **File-lifecycle note**: this ledger was created ahead of any v3.16 implementation, by a comparison that deliberately claimed no release slot, so it began with only the `## Comparison-Sourced Deferrals` section. Each v3.16 version-implementation phase **appends** its own `## v3.16.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` numbering, which is namespaced separately from the `CD-#` and `TR-#` ids used above.
 
@@ -645,6 +645,56 @@ One new open item and one resolved. **Zero release blockers.** BG-2 is a pre-exi
 
 The phase's own residual risk (named in the comparison) is that the incident archive becomes a directory nobody reads. The control is the Durable-fix requirement, and it is now mechanical rather than aspirational: `scripts/check_incident_notes.py` fails a note whose fix section carries no link, is wired into `make validate` and CI, and is covered by 12 tests asserting failure in each direction. Phase 6.2 should record whether it held.
 
+## v3.16.3 - github-usage-monitor-ux
+
+Appended by Phase 1 (Rename to GitHub Usage Monitor, with settings migration) on 2026-08-09. Own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` / `MT-#` namespace, separate from v3.16.0's, v3.16.1's, and v3.16.2's.
+
+### DF-1 - DEFERRED by design: the old `githubUsage.*` configuration keys are not deleted
+
+- **Target file**: `extensions/github-usage-monitor/src/migration.ts`
+- **What is deferred**: v3.16.3 copies every user-set `githubUsage.*` value to `githubUsageMonitor.*` and then leaves the old key exactly where it is. The user's `settings.json` therefore carries both namespaces for one release.
+- **Why it is deliberate, not an oversight**: the plan's sub-task 1.2 requires it, for two reasons that both hold. A user who downgrades to 0.1.0 must still find their settings, and a deletion that races a failed write loses the data outright rather than leaving a recoverable duplicate. The migration is written write-then-keep for the same reason the token path is written store-then-delete.
+- **Suggested next step**: delete the old keys in v3.17.0, after one release has shipped with the migration. The key list is already an exported constant (`MIGRATED_CONFIG_KEYS`), and a test pins it against `package.json`, so the deletion pass has an authoritative list to iterate.
+
+### NI-1 - CLOSED in phase: the plan's scope note omitted two files the rename necessarily breaks
+
+- **What the plan said**: "this plan touches `extensions/github-usage-monitor/` plus four files outside it (`.github/workflows/github-usage-monitor.yml`, `.github/dependabot.yml`, `catalog/hooks/tests/test_installer_smoke.py`, and the two v3.15 contract documents)".
+- **What implementation found**: two more surfaces hard-code the superseded display name and fail the moment it changes. `scripts/installer.sh` and `scripts/installer.ps1` each pass `"GitHub Billing Usage"` and the `"GitHub Billing: --"` status hint into `build_and_install_one_extension`, and `tests/installer/test_github_billing_rename.py` (57 assertions across 15 tests) existed solely to pin the v3.15.12 rename this phase reverses. Ten of its tests failed on the first full run. Neither of the two named workflow files needed any edit, because both key on the folder name, which did not move.
+- **How it was closed**: the installers were updated with explicit maintainer approval (AGENTS.md lists installer edits under "Ask first"). The test file was rewritten and renamed to `tests/installer/test_github_monitor_naming.py`, keeping every durable invariant (the extension id never moves, both installers agree, exactly one install invocation, no teardown step) and re-deriving every naming assertion from a single `DISPLAY_NAME` constant, so the next rename is a one-line change rather than a ten-test rewrite. One assertion was added: the installer's status hint must match the label `statusBarManager.ts` actually renders, which is the drift this class of test was closest to missing.
+- **Why it is recorded rather than dropped**: the plan's scope note is used by Phase 6 to bound the refactor sweep. A reader who trusts it would miss both surfaces.
+
+### MT-1 - OPEN (pre-existing): `extension.ts` is the least-covered module, and the migration call site is only covered indirectly
+
+- **Target file**: `extensions/github-usage-monitor/src/extension.ts` (36.81% statements, 40.38% lines)
+- **What is missing**: `migration.ts` itself is well covered (89.65% statements, 100% functions) by 12 direct unit tests. Its *call site* inside `activate()` is exercised only as a side effect of the three test files that call `activate()`, none of which assert that the migration actually ran before the first configuration read. The ordering is the load-bearing property, and nothing pins it.
+- **Why it was not done in Phase 1**: `extension.ts` was already the module's coverage floor before this phase, and the phase's Stability Gate is scoped to the rename and the migration's own behavior, both of which are covered. The repository thresholds pass with room (81.78% statements against 80, 85.67% lines against 80).
+- **Suggested next step**: Phase 3 adds a first-run connection sequence to `activate()` and will need an activation-ordering test harness anyway. Add one assertion there that a configuration read observed the migrated value, not the default.
+
+### WN-1 - OPEN (environmental, inherited): no `make` on the implementation host
+
+- **What happened**: `make` is absent on this machine, so neither `make validate` nor `make test` could be invoked as targets. Same condition recorded as v3.16.1 WN-1 and v3.16.2 WN-1.
+- **How it was handled rather than skipped**: every command inside both targets was read out of the `Makefile` and run individually. Fifteen `validate` guards pass; ShellCheck is clean on both installers once the Windows working copy is LF-normalized (see BG-2); all five MCP extension suites, `catalog/hooks/tests` (993 passed, 36 skipped), the extension's own Vitest suite (219 passed), and `tests/` were run to completion.
+- **Suggested next step**: none for correctness. CI runs the authoritative gate on Linux and Windows.
+
+### BG-1 - OPEN (pre-existing, inherited): PowerShell bootstrap tarball test fails on this host
+
+- **What happened**: `tests/installer/test_bootstrap.py::test_ps_standalone_extracts_and_hands_off` fails with `/usr/bin/tar: Child returned status 128`. It is the single failure in the `tests/` run.
+- **Why it is not this phase's**: the failure signature is byte-identical to the one recorded under v3.16.0 BG-1, v3.16.1 BG-1, and v3.16.2 BG-1, where it was reproduced on a clean `develop` worktree. This phase's only installer edit is two display strings inside the extension-install block, which the standalone bootstrap path does not reach.
+- **Bound**: affects a Windows host whose PATH resolves `tar` to the Git Bash binary. CI runners are unaffected.
+
+### BG-2 - OPEN (environmental, newly characterized): ShellCheck reports SC1017 on every line of both shell installers on this host
+
+- **What happened**: `shellcheck --severity=warning scripts/installer.sh install.sh` emits SC1017 ("Literal carriage return") on essentially every line, producing 41 KB of output that reads as a total lint failure.
+- **What it actually is**: git normalizes these files to LF on commit (`git diff` prints "CRLF will be replaced by LF the next time Git touches it"), so the CRLF exists only in the Windows working copy. Running ShellCheck against `git show HEAD:scripts/installer.sh` produces zero findings, and piping the working copy through `tr -d '\r'` first is clean for both files.
+- **Why it is recorded rather than silently worked around**: the raw output is indistinguishable from a real regression, and a future phase that hits it on this host will otherwise spend the same time re-deriving that it is noise.
+- **Suggested next step**: none required. If it recurs often enough to be a nuisance, the `lint` target could pipe through `tr -d '\r'` on Windows; that is a convenience change, not a correctness one.
+
+### Phase 1 disposition
+
+Four open items, **zero release blockers, one caused by this phase** (DF-1, which the plan mandates). NI-1 was raised and closed inside the phase. MT-1 is a pre-existing coverage floor with a named next-touch owner in Phase 3. WN-1, BG-1, and BG-2 are all environmental conditions of the Windows implementation host, two of them inherited unchanged from three prior cycles.
+
+The phase's own residual risk is that the settings migration is untestable in the one situation that matters most: a real 0.1.0 install upgrading in place. Every migration assertion here runs against a fake `WorkspaceConfiguration`. The controls are that the migration refuses to record completion on any write failure (so a bad first pass retries rather than silently finishing), that it never deletes an old key, and that the token path writes before it deletes. Phase 6 should record whether an actual upgrade was exercised.
+
 ## v3.16 Summary
 
 | Category | Open | Resolved |
@@ -654,5 +704,6 @@ The phase's own residual risk (named in the comparison) is that the incident arc
 | v3.16.0 version-implementation gaps | 3 carried forward (NI-1, NI-6, BG-1) | 13 closed (DF-1, DF-2, DF-3, DF-4, NI-2, NI-3, NI-4, NI-5, QG-1, QG-2, QG-3, BG-2, BG-3, WN-1) |
 | v3.16.1 version-implementation gaps (all 8 phases + release) | 3 carried forward (WN-1, BG-1 environmental; NI-6 bounded and documented) | 21 closed (DF-1..DF-5, NI-1..NI-5, BG-2..BG-8, QG-1, QG-2, WN-2, PX-1) |
 | v3.16.2 version-implementation gaps (all 6 phases, reconciled) | 5 carried (MT-1 schema assertions; NI-2 size overage; NI-3 deliberate `--repair` bound; BG-2 pre-existing fail-open; WN-1 / BG-1 environmental) | 6 closed (QG-1, QG-2, BG-3, NI-1, DF-1, WN-2) |
+| v3.16.3 version-implementation gaps (Phase 1 of 6, in flight) | 4 open (DF-1 deferred key deletion; MT-1 pre-existing coverage floor; WN-1 / BG-1 / BG-2 environmental) | 1 closed (NI-1) |
 
 The three comparison-sourced items remain non-blocking prose folds with named target files. Of the v3.16.0 items, BG-1 is pre-existing and reproduces without this plan's changes, WN-1 is environmental, DF-1 is a reasoned non-implementation, NI-1 is a deliberate scope boundary the plan requires, and NI-2 / NI-3 / NI-4 are Phase 2 findings that Phase 3 and Phase 5 are already scheduled to dispose of. Phase 5 dispositioned every open item: 13 closed, 3 carried forward. **None gates the v3.16.0 release.** NI-1 and NI-6 are scope decisions for cycles already touching the relevant surfaces, and BG-1 is pre-existing, reproduced on a clean `develop` worktree, and confined to a Windows host whose PATH resolves `tar` to the Git Bash binary. Of the 13 closed, three (BG-2, BG-3, and QG-3) were caught by the test suite rather than by review, which is this cycle's strongest argument for running the full suite before declaring a phase done.

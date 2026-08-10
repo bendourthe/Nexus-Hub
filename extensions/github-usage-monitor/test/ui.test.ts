@@ -18,7 +18,7 @@ function snapshot(): UsageSnapshot {
 
 describe("status bar and hover", () => {
   it("uses the generated glyph, stable ordering, compact mode, and stale signal", () => {
-    expect(buildStatusText(snapshot(), false, false)).toBe("$(github-icon)\u2002GitHub Billing: 80%");
+    expect(buildStatusText(snapshot(), false, false)).toBe("$(github-icon)\u2002GitHub Usage: 80%");
     expect(buildStatusText(snapshot(), true, true)).toBe("$(github-icon)\u200280% $(warning)");
     expect(buildStatusText(undefined, false, false)).toContain("--");
   });
@@ -34,9 +34,9 @@ describe("status bar and hover", () => {
     expect(buildHoverMarkdown({ state: "stale", data: stale, error: { code: "network-error", message: "offline" } }, now).value).toContain("Stale cache");
   });
   it("drives status item loading, display, and disposal", () => {
-    resetVscodeStub(); const manager = new StatusBarManager("github-usage.dashboard");
+    resetVscodeStub(); const manager = new StatusBarManager("githubUsageMonitor.dashboard");
     manager.showLoading(); expect(statusItems[0]?.text).toContain("sync~spin");
-    manager.show({ state: "fresh", data: snapshot() }); expect(statusItems[0]?.shown).toBe(true); expect(statusItems[0]?.command).toBe("github-usage.dashboard");
+    manager.show({ state: "fresh", data: snapshot() }); expect(statusItems[0]?.shown).toBe(true); expect(statusItems[0]?.command).toBe("githubUsageMonitor.dashboard");
     manager.dispose(); expect(statusItems[0]?.shown).toBe(false);
   });
 });
@@ -65,7 +65,7 @@ describe("dashboard and settings", () => {
   it("creates and reuses dashboard and settings panels", () => {
     resetVscodeStub(); const dashboard = new DashboardPanel(); dashboard.show({ state: "fresh", data: snapshot() }); dashboard.show({ state: "empty" });
     expect(webviewPanels).toHaveLength(1); expect(webviewPanels[0]?.revealed).toBe(true); expect(webviewPanels[0]?.webview.html).toContain("No billing data");
-    const settings = new SettingsPanel(); settings.show(); settings.show(); expect(webviewPanels).toHaveLength(2); expect(webviewPanels[1]?.webview.html).toContain("GitHub Billing Usage Settings");
+    const settings = new SettingsPanel(); settings.show(); settings.show(); expect(webviewPanels).toHaveLength(2); expect(webviewPanels[1]?.webview.html).toContain("GitHub Usage Monitor Settings");
   });
 });
 

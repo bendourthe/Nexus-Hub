@@ -238,24 +238,24 @@ describe("registered log in / log out commands are not inert", () => {
     } as unknown as Parameters<typeof activate>[0];
   }
 
-  it("registers both commands", () => {
-    setConfiguration("githubUsage.autoFetch", false);
-    setConfiguration("githubUsage.billingOwner", "acme");
-    setConfiguration("githubUsage.billingScope", "organization");
-    activate(context());
-    expect(() => runCommand("github-usage.logIn")).not.toThrow();
-    expect(() => runCommand("github-usage.logOut")).not.toThrow();
+  it("registers both commands", async () => {
+    setConfiguration("githubUsageMonitor.autoFetch", false);
+    setConfiguration("githubUsageMonitor.billingOwner", "acme");
+    setConfiguration("githubUsageMonitor.billingScope", "organization");
+    await activate(context());
+    expect(() => runCommand("githubUsageMonitor.logIn")).not.toThrow();
+    expect(() => runCommand("githubUsageMonitor.logOut")).not.toThrow();
   });
 
   it("log in requests the account picker with the level's candidate scope", async () => {
-    setConfiguration("githubUsage.autoFetch", false);
-    setConfiguration("githubUsage.billingOwner", "acme");
-    setConfiguration("githubUsage.billingScope", "organization");
-    activate(context());
+    setConfiguration("githubUsageMonitor.autoFetch", false);
+    setConfiguration("githubUsageMonitor.billingOwner", "acme");
+    setConfiguration("githubUsageMonitor.billingScope", "organization");
+    await activate(context());
 
     sessionResponses.push(undefined); // the silent peek inside authDisplay
     sessionResponses.push(session()); // the interactive log-in
-    await runCommand("github-usage.logIn");
+    await runCommand("githubUsageMonitor.logIn");
 
     const interactive = sessionRequests.find(
       (request) => (request.options as { createIfNone?: boolean }).createIfNone === true
@@ -269,13 +269,13 @@ describe("registered log in / log out commands are not inert", () => {
   });
 
   it("log out never calls getSession with createIfNone, so no sign-in or sign-out is triggered", async () => {
-    setConfiguration("githubUsage.autoFetch", false);
-    setConfiguration("githubUsage.billingOwner", "acme");
-    setConfiguration("githubUsage.billingScope", "organization");
-    activate(context());
+    setConfiguration("githubUsageMonitor.autoFetch", false);
+    setConfiguration("githubUsageMonitor.billingOwner", "acme");
+    setConfiguration("githubUsageMonitor.billingScope", "organization");
+    await activate(context());
     sessionRequests.length = 0;
 
-    await runCommand("github-usage.logOut");
+    await runCommand("githubUsageMonitor.logOut");
 
     // Any getSession during log-out must be the silent re-peek for the refreshed
     // panel, never an interactive call. Nothing here can end the shared session.
@@ -366,6 +366,6 @@ describe("settings panel auth section", () => {
   it("is omitted entirely when no auth state is supplied", () => {
     const html = renderSettings(readSettings());
     expect(html).not.toContain("Authorization</legend>");
-    expect(html).toContain("GitHub Billing Usage Settings");
+    expect(html).toContain("GitHub Usage Monitor Settings");
   });
 });

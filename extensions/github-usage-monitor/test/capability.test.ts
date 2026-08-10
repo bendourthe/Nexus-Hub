@@ -312,7 +312,7 @@ describe("CapabilityStore", () => {
 
   it("survives a corrupt stored value", () => {
     const state = new FakeState();
-    state.values.set("githubUsage.authCapability", "not-an-object");
+    state.values.set("githubUsageMonitor.authCapability", "not-an-object");
     expect(new CapabilityStore(state).get(ORG, "fp").status).toBe("unknown");
   });
 });

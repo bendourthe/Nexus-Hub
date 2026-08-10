@@ -1,5 +1,6 @@
 import * as vscode from "vscode";
 import { DashboardPanel } from "./dashboardPanel";
+import { migrateSettings } from "./migration";
 import { applyAllowances, type AllowanceMap } from "./providers/allowances";
 import { GitHubTokenStore, type TokenMutationResult } from "./providers/auth";
 import { DEFAULT_TIMEOUT_MS, GitHubBillingClient } from "./providers/github";
@@ -26,20 +27,29 @@ import { WARNING_VIEW_ID, WarningViewProvider } from "./warningView";
 
 let refreshTimer: ReturnType<typeof setTimeout> | undefined;
 
-export function activate(context: vscode.ExtensionContext): void {
+export async function activate(context: vscode.ExtensionContext): Promise<void> {
+  // Awaited before anything reads configuration or storage. v3.16.3 moved every
+  // key into the `githubUsageMonitor.*` namespace, so a read that races the
+  // migration would see defaults and present a user's configured monitor as a
+  // freshly-installed one. VS Code awaits this promise before marking the
+  // extension active, so the cost is paid once, on the first launch after upgrade.
+  // The old names live only in `migration.ts`, which `rename.test.ts` exempts.
+  // The diagnosis writes its sanitized record here rather than to a log line, so it
+  // is copyable without a credential ever reaching the output. The migration shares
+  // it, so a partial migration is inspectable in the same place.
+  const diagnostics = vscode.window.createOutputChannel("GitHub Usage Monitor");
+  await migrateSettings(context, vscode.workspace.getConfiguration(), (line) => diagnostics.appendLine(line));
+
   const tokens = new GitHubTokenStore(context.secrets);
   const store = new UsageStore(context.globalState, configuredStaleAfterMs());
   const dashboard = new DashboardPanel();
   const settings = new SettingsPanel();
   const warning = new WarningViewProvider(context.extensionUri);
-  const status = new StatusBarManager("github-usage.dashboard");
+  const status = new StatusBarManager("githubUsageMonitor.dashboard");
   const cached = store.get();
   let currentState: UsageState = cached === undefined ? { state: "empty" } : { state: cached.stale ? "stale" : "fresh", data: cached };
 
   const capabilities = new CapabilityStore(context.globalState);
-  // The diagnosis writes its sanitized record here rather than to a log line, so it
-  // is copyable without a credential ever reaching the output.
-  const diagnostics = vscode.window.createOutputChannel("GitHub Billing Usage");
   // Adapts VS Code's provider onto the narrow shape `sessionBinding` accepts. That
   // module is given no sign-out capability, so log-out cannot reach the shared
   // GitHub session that Copilot also uses.
@@ -77,29 +87,29 @@ export function activate(context: vscode.ExtensionContext): void {
     status,
     diagnostics,
     vscode.window.registerWebviewViewProvider(WARNING_VIEW_ID, warning, { webviewOptions: { retainContextWhenHidden: true } }),
-    vscode.commands.registerCommand("github-usage.dashboard", showDashboard),
-    vscode.commands.registerCommand("github-usage.refresh", refresh),
-    vscode.commands.registerCommand("github-usage.settings", async () => { settings.show(await authDisplay()); }),
-    vscode.commands.registerCommand("github-usage.logIn", async () => {
+    vscode.commands.registerCommand("githubUsageMonitor.dashboard", showDashboard),
+    vscode.commands.registerCommand("githubUsageMonitor.refresh", refresh),
+    vscode.commands.registerCommand("githubUsageMonitor.settings", async () => { settings.show(await authDisplay()); }),
+    vscode.commands.registerCommand("githubUsageMonitor.logIn", async () => {
       // Deliberately does NOT require a resolved owner. With nothing configured there
       // is no session yet, so the owner cannot be detected yet, so demanding one here
       // would deadlock the very first connection. The scope candidates come from the
       // configured LEVEL, which always has a value.
-      const level = vscode.workspace.getConfiguration("githubUsage").get("billingScope", "user") as BillingOwner["scope"];
+      const level = vscode.workspace.getConfiguration("githubUsageMonitor").get("billingScope", "user") as BillingOwner["scope"];
       const scopes = SCOPE_CANDIDATES[level]?.slice(0, 1) ?? ["user"];
       // clearSessionPreference makes GitHub show the account picker, so the billing
       // account can deliberately differ from the one Copilot uses.
       const next = await logInToMonitor(getSession, { scope: level, name: "pending" }, scopes);
-      if (next === null) { await vscode.window.showInformationMessage("GitHub Billing: sign-in cancelled; the previous binding is unchanged."); return; }
+      if (next === null) { await vscode.window.showInformationMessage("GitHub Usage Monitor: sign-in cancelled; the previous binding is unchanged."); return; }
       binding = next;
       const resolved = await resolveOwnerForFetch(getSession);
       // A new session is a different capability question, so the old verdict goes.
       if (resolved !== null) await capabilities.forget(resolved);
-      await vscode.window.showInformationMessage(`GitHub Billing: ${describeBinding(next)}`);
+      await vscode.window.showInformationMessage(`GitHub Usage Monitor: ${describeBinding(next)}`);
       void refresh();
       settings.show(await authDisplay());
     }),
-    vscode.commands.registerCommand("github-usage.diagnoseAuth", async () => {
+    vscode.commands.registerCommand("githubUsageMonitor.diagnoseAuth", async () => {
       const owner = configuredOwner(); if (owner === null) return;
       const outcome = await diagnoseTarget({ getSession, probeWithToken }, owner);
       if (outcome.status === "probed") {
@@ -128,7 +138,7 @@ export function activate(context: vscode.ExtensionContext): void {
       }
       settings.show(await authDisplay());
     }),
-    vscode.commands.registerCommand("github-usage.logOut", async () => {
+    vscode.commands.registerCommand("githubUsageMonitor.logOut", async () => {
       const owner = configuredOwner();
       const result = await logOutOfMonitor({
         clearToken: () => tokens.clearToken(),
@@ -136,33 +146,33 @@ export function activate(context: vscode.ExtensionContext): void {
         clearSessionPreference: async () => { binding = null; }
       });
       await (isCompleteLogOut(result)
-        ? vscode.window.showInformationMessage("GitHub Billing: this monitor's binding was cleared. You are still signed in to the editor's GitHub session, so Copilot is unaffected.")
-        : vscode.window.showWarningMessage("GitHub Billing: the binding was only partly cleared. Re-run Log out, or clear the token explicitly."));
+        ? vscode.window.showInformationMessage("GitHub Usage Monitor: this monitor's binding was cleared. You are still signed in to the editor's GitHub session, so Copilot is unaffected.")
+        : vscode.window.showWarningMessage("GitHub Usage Monitor: the binding was only partly cleared. Re-run Log out, or clear the token explicitly."));
       settings.show(await authDisplay());
     }),
-    vscode.commands.registerCommand("github-usage.openBillingPage", async () => {
+    vscode.commands.registerCommand("githubUsageMonitor.openBillingPage", async () => {
       const owner = await resolveOwnerForFetch(getSession);
       // Authoritative figures live on GitHub's own billing page. When no owner is
       // resolved yet, the personal page is still the right destination.
       const url = owner === null ? "https://github.com/settings/billing" : billingPageUrl(owner);
       await vscode.env.openExternal(vscode.Uri.parse(url));
     }),
-    vscode.commands.registerCommand("github-usage.openNativeSettings", () => vscode.commands.executeCommand("workbench.action.openSettings", "@ext:nexus-hub.github-usage-monitor")),
-    vscode.commands.registerCommand("github-usage.manualEntry", () => vscode.commands.executeCommand("workbench.action.openSettings", "githubUsage.allowances")),
-    vscode.commands.registerCommand("github-usage.clearData", async () => { await store.clear(); currentState = { state: "empty" }; status.show(currentState); showDashboard(); }),
-    vscode.commands.registerCommand("github-usage.setToken", async () => { await promptAndStoreToken("Store GitHub billing token", tokens, false); }),
-    vscode.commands.registerCommand("github-usage.validateToken", async () => {
+    vscode.commands.registerCommand("githubUsageMonitor.openNativeSettings", () => vscode.commands.executeCommand("workbench.action.openSettings", "@ext:nexus-hub.github-usage-monitor")),
+    vscode.commands.registerCommand("githubUsageMonitor.manualEntry", () => vscode.commands.executeCommand("workbench.action.openSettings", "githubUsageMonitor.allowances")),
+    vscode.commands.registerCommand("githubUsageMonitor.clearData", async () => { await store.clear(); currentState = { state: "empty" }; status.show(currentState); showDashboard(); }),
+    vscode.commands.registerCommand("githubUsageMonitor.setToken", async () => { await promptAndStoreToken("Store GitHub billing token", tokens, false); }),
+    vscode.commands.registerCommand("githubUsageMonitor.validateToken", async () => {
       const owner = configuredOwner(); if (owner === null) return;
       const result = await tokens.validateToken((token) => new GitHubBillingClient().validateCredential(owner, token));
       await showMutationResult(result, "Stored GitHub billing token is valid.");
     }),
-    vscode.commands.registerCommand("github-usage.rotateToken", async () => { await promptAndStoreToken("Rotate GitHub billing token", tokens, true); }),
-    vscode.commands.registerCommand("github-usage.clearToken", async () => { await tokens.clearToken(); await vscode.window.showInformationMessage("GitHub billing token removed from SecretStorage."); })
+    vscode.commands.registerCommand("githubUsageMonitor.rotateToken", async () => { await promptAndStoreToken("Rotate GitHub billing token", tokens, true); }),
+    vscode.commands.registerCommand("githubUsageMonitor.clearToken", async () => { await tokens.clearToken(); await vscode.window.showInformationMessage("GitHub billing token removed from SecretStorage."); })
   );
 
-  void vscode.commands.executeCommand("setContext", "githubUsage.warningActive", false);
+  void vscode.commands.executeCommand("setContext", "githubUsageMonitor.warningActive", false);
   status.show(currentState);
-  if (vscode.workspace.getConfiguration("githubUsage").get<boolean>("autoFetch", true)) void refresh();
+  if (vscode.workspace.getConfiguration("githubUsageMonitor").get<boolean>("autoFetch", true)) void refresh();
 }
 
 export function deactivate(): void { if (refreshTimer) clearTimeout(refreshTimer); refreshTimer = undefined; }
@@ -179,11 +189,11 @@ export async function fetchConfiguredUsage(
       error: {
         code: "invalid-scope",
         message:
-          'Set githubUsage.billingScope and githubUsage.billingOwner, then Refresh. For a personal account, connect with "GitHub Billing: Log In or Switch Account" and the owner is detected for you.'
+          'Set githubUsageMonitor.billingScope and githubUsageMonitor.billingOwner, then Refresh. For a personal account, connect with "GitHub Usage Monitor: Log In or Switch Account" and the owner is detected for you.'
       }
     };
   }
-  const config = vscode.workspace.getConfiguration("githubUsage");
+  const config = vscode.workspace.getConfiguration("githubUsageMonitor");
   const timeoutMs = config.get<number>("requestTimeoutMs", DEFAULT_TIMEOUT_MS);
   const client = new GitHubBillingClient(undefined, undefined, timeoutMs);
 
@@ -227,7 +237,7 @@ export async function fetchConfiguredUsage(
 }
 
 async function maybeShowAlert(snapshot: UsageSnapshot, store: UsageStore, warning: WarningViewProvider, showDashboard: () => void): Promise<void> {
-  const config = vscode.workspace.getConfiguration("githubUsage");
+  const config = vscode.workspace.getConfiguration("githubUsageMonitor");
   const thresholds: Thresholds = { moderate: config.get("thresholds.moderate", 50), high: config.get("thresholds.high", 75), critical: config.get("thresholds.critical", 95) };
   const invalid = validateThresholds({ moderate: thresholds.moderate, high: thresholds.high, critical: thresholds.critical });
   if (invalid !== null) return;
@@ -252,13 +262,13 @@ export function scheduleWarningDismissal(timeoutMs: number, onTimeout: () => voi
 
 function scheduleRefresh(refresh: () => Promise<void>): void {
   if (refreshTimer) clearTimeout(refreshTimer);
-  const config = vscode.workspace.getConfiguration("githubUsage");
+  const config = vscode.workspace.getConfiguration("githubUsageMonitor");
   if (!config.get<boolean>("autoFetch", true)) return;
   refreshTimer = setTimeout(() => { void refresh(); }, config.get<number>("refreshInterval", 10) * 60_000);
 }
 
 function configuredAllowances(snapshot: UsageSnapshot): AllowanceMap {
-  const config = vscode.workspace.getConfiguration("githubUsage");
+  const config = vscode.workspace.getConfiguration("githubUsageMonitor");
   const result: AllowanceMap = {};
   const add = (kind: UsageSnapshot["copilot"]["kind"] | "actions-minutes" | "actions-storage", key: string, unit: string): void => {
     const value = config.get<number | undefined>(key); if (value !== undefined) result[kind] = { value, unit };
@@ -269,10 +279,10 @@ function configuredAllowances(snapshot: UsageSnapshot): AllowanceMap {
   return result;
 }
 
-function configuredStaleAfterMs(): number { return vscode.workspace.getConfiguration("githubUsage").get<number>("staleAfterMinutes", 30) * 60_000; }
+function configuredStaleAfterMs(): number { return vscode.workspace.getConfiguration("githubUsageMonitor").get<number>("staleAfterMinutes", 30) * 60_000; }
 
 function configuredOwner(): BillingOwner | null {
-  const config = vscode.workspace.getConfiguration("githubUsage");
+  const config = vscode.workspace.getConfiguration("githubUsageMonitor");
   const resolution = resolveBillingOwner(config.get("billingScope", "user"), config.get("billingOwner", ""));
   if (!resolution.ok) { void vscode.window.showErrorMessage(resolution.error.message); return null; }
   return resolution.owner;
@@ -291,7 +301,7 @@ const EMPTY_RATE = { remaining: null, resetAt: null, retryAfterMs: null } as con
 async function resolveOwnerForFetch(
   getSession?: GetSessionLike
 ): Promise<BillingOwner | null> {
-  const config = vscode.workspace.getConfiguration("githubUsage");
+  const config = vscode.workspace.getConfiguration("githubUsageMonitor");
   const scope = config.get("billingScope", "user");
   const configured = config.get("billingOwner", "");
   let accountLabel: string | null = null;

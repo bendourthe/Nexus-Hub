@@ -226,7 +226,7 @@ export interface CapabilityStateLike {
   update(key: string, value: unknown): Thenable<void>;
 }
 
-const STORE_KEY = "githubUsage.authCapability";
+const STORE_KEY = "githubUsageMonitor.authCapability";
 
 interface StoredCapability {
   /** Ties the verdict to the session that produced it. */

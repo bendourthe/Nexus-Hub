@@ -1,5 +1,35 @@
 # Development Log
 
+## [2026-08-09] - v3.16.3 Phase 1: rename to GitHub Usage Monitor, with settings migration
+
+### What Changed
+
+The GitHub VS Code extension is "GitHub Usage Monitor" again, at version `0.2.0`. The rename is deep rather than cosmetic: every command id moved from `github-usage.*` to `githubUsageMonitor.*`, every configuration key from `githubUsage.*` to the same prefix, and the view container, view id, when-clause context key, both webview panel ids, the SecretStorage token key, and the three `globalState` cache keys moved with them. A new `src/migration.ts` carries every user-set value across on first activation. Both v3.15 contract documents carry a dated correction. The extension id `nexus-hub.github-usage-monitor` did not move, in either direction.
+
+### Why It Changed
+
+Three sibling extensions are called "<Vendor> Usage Monitor". The fourth being "GitHub Billing Usage" made a family read as an accident. The v3.15.12 reasoning was not wrong about the risk (that "usage monitor" invites reading the extension as Copilot-only or Actions-only), it was wrong about where to fix it: that belongs in the description and the panel subtitle, which have room to name both surfaces, not in a title competing with three siblings for recognition.
+
+The maintainer chose the deep rename, which is what makes the migration mandatory rather than optional. VS Code keys settings by their literal string, so moving the prefix without a migration leaves every threshold, color, billing owner, and allowance on disk with nothing reading it - a silent reset presented as a fresh install.
+
+### Decisions Made
+
+- **`activate()` is now `async`, and awaits the migration before anything else.** The plan says migration runs "before any other initialization", and a fire-and-forget migration does not satisfy that: `configuredStaleAfterMs()` and the first refresh both read configuration synchronously and would see defaults. VS Code awaits the returned promise before marking the extension active, so the cost is paid once, on the first launch after upgrade.
+- **Only `globalValue` and `workspaceValue` are copied; a `defaultValue` never is.** Writing a default explicitly would pin the user to today's default forever, so a later release that changes a default would silently not reach them. Scope is preserved rather than collapsed, so a workspace-set owner does not become a global one.
+- **The completion flag is recorded only after a clean pass.** Any single failed write leaves the flag unset and the next activation retries. A half-migrated state that claims completion is the failure mode worth designing against; a redundant retry is not.
+- **The token is written before the old key is deleted, and a failed write leaves the old key alone.** A stale key name is recoverable next activation; a lost token forces a full re-authentication.
+- **The old `githubUsage.*` keys are not deleted.** A downgrade must still find them, and a deletion racing a failed write loses the data outright. Recorded as a v3.17.0 follow-up (DF-1).
+- **`globalState` cache keys migrate too, though the plan named only config and the token.** Renaming them was forced by the grep gate; not migrating them would have dropped the cached snapshot, alert cycle, and capability verdict for no reason. The cost is about five lines.
+- **A repository-grep test enforces the rename, with exactly one exemption.** `migration.ts` is the one file that must name the old keys. The guard earned its place on its first run by catching a stale reference in a comment I had just written.
+
+### Verification
+
+`npm run compile`, 219 Vitest tests passing (up from 200), coverage 81.78% statements / 77.32% branches / 84.54% functions / 85.67% lines, all above the configured thresholds. `npm run package` + `verify:package` succeed at `0.2.0`. Fifteen `make validate` guards run individually (`make` is absent on this host, WN-1) and all pass. `catalog/hooks/tests`: 993 passed, 36 skipped. All five MCP extension suites pass. Both shell installers are ShellCheck-clean once the Windows working copy is LF-normalized (BG-2 explains why the raw run looks catastrophic and is not).
+
+### Known Issues
+
+The plan's scope note was incomplete, and the gap was real rather than cosmetic: both installers hard-code the display name and status hint, and `tests/installer/test_github_billing_rename.py` existed solely to pin the rename this phase reverses. Ten of its tests failed on the first full run. The installers were updated with explicit approval; the test file was rewritten and renamed to `test_github_monitor_naming.py`, re-deriving every naming assertion from one constant so the next rename is a one-line change. Full disposition (DF-1, NI-1, MT-1, WN-1, BG-1, BG-2) in the v3.16 gap log. Zero release blockers.
+
 ## [2026-08-09] - v3.16.2 Phase 6: refactor, reconciliation, and CI/CD [terminal phase]
 
 ### What Changed

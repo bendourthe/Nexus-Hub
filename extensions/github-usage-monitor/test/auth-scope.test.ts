@@ -47,7 +47,7 @@ describe("GitHubTokenStore", () => {
     const validator = vi.fn(async (): Promise<ProviderResult<void>> => ({ ok: true, value: undefined, rate }));
     await expect(store.setToken(`  ${validToken}  `, validator)).resolves.toEqual({ ok: true });
     expect(validator).toHaveBeenCalledWith(validToken);
-    expect(secrets.values.get("githubUsage.token")).toBe(validToken);
+    expect(secrets.values.get("githubUsageMonitor.token")).toBe(validToken);
     await expect(store.hasToken()).resolves.toBe(true);
   });
 
@@ -60,15 +60,15 @@ describe("GitHubTokenStore", () => {
   });
 
   it("preserves the prior token when rotation validation fails", async () => {
-    secrets.values.set("githubUsage.token", "existing-fixture-value-123456789");
+    secrets.values.set("githubUsageMonitor.token", "existing-fixture-value-123456789");
     const error = { code: "missing-plan-read" as const, message: "missing permission" };
     const result = await store.rotateToken(validToken, async () => ({ ok: false, error, rate }));
     expect(result).toEqual({ ok: false, error });
-    expect(secrets.values.get("githubUsage.token")).toBe("existing-fixture-value-123456789");
+    expect(secrets.values.get("githubUsageMonitor.token")).toBe("existing-fixture-value-123456789");
   });
 
   it("validates and clears an existing token", async () => {
-    secrets.values.set("githubUsage.token", validToken);
+    secrets.values.set("githubUsageMonitor.token", validToken);
     await expect(store.validateToken(async () => ({ ok: true, value: undefined, rate }))).resolves.toEqual({ ok: true });
     await store.clearToken();
     await expect(store.hasToken()).resolves.toBe(false);
@@ -85,7 +85,7 @@ describe("GitHubTokenStore", () => {
   });
 
   it("returns validator failures from validateToken", async () => {
-    secrets.values.set("githubUsage.token", validToken);
+    secrets.values.set("githubUsageMonitor.token", validToken);
     const error = { code: "invalid-token" as const, message: "rejected" };
     await expect(store.validateToken(async () => ({ ok: false, error, rate }))).resolves.toEqual({ ok: false, error });
   });

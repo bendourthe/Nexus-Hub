@@ -2412,13 +2412,15 @@ function Install-VSCodeExtensions {
     # here would be the false-quota claim the v3.15.8 contract forbids. The
     # install itself never authenticates to GitHub - the token is supplied later
     # through the extension's SecretStorage command.
-    # v3.15.13 Phase 3 renamed the display surfaces to "GitHub Billing Usage". The
-    # extension id is deliberately unchanged: an id is publisher.name, so renaming
-    # it would mint a second extension and leave the previously installed one
-    # orphaned, with both writing a status-bar item. The directory path also stays
+    # v3.15.13 Phase 3 renamed the display surfaces to "GitHub Billing Usage";
+    # v3.16.3 Phase 1 reverted them to "GitHub Usage Monitor" for consistency with
+    # the Claude, Codex, and Cursor monitors. The extension id is deliberately
+    # unchanged through both: an id is publisher.name, so renaming it would mint a
+    # second extension and leave the previously installed one orphaned, with both
+    # writing a status-bar item. The directory path also stays
     # extensions\github-usage-monitor.
     Write-Header -Provider "GITHUB"
-    Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\github-usage-monitor") -ExtensionId "nexus-hub.github-usage-monitor" -DisplayName "GitHub Billing Usage" -StatusHint "GitHub Billing: --" -CodeCli $vscodeCli -CodeLabel $vscodeLabel
+    Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\github-usage-monitor") -ExtensionId "nexus-hub.github-usage-monitor" -DisplayName "GitHub Usage Monitor" -StatusHint "GitHub Usage: --" -CodeCli $vscodeCli -CodeLabel $vscodeLabel
 
     Write-Header -Provider "ANYSPHERE"
     Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\cursor-usage-monitor") -ExtensionId "nexus-hub.cursor-usage-monitor" -DisplayName "Cursor Usage Monitor" -StatusHint "Cursor: --%" -CodeCli $cursorCli -CodeLabel $cursorLabel

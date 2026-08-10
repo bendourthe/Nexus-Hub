@@ -1,8 +1,22 @@
 # Docs Cleanup Audit - v3.16
 
 **Mode**: audit only. No file was moved, renamed, or deleted by this pass.
-**Run at**: v3.16.2 Phase 6, terminal-phase gate (2026-08-09). Supersedes the v3.16.0 Phase 2 run; findings carried forward below.
-**Scope**: `docs/v3/v3.16/`, the new `docs/incidents/`, plus `docs/policy/` and the repo-root, `scripts/`, and `configs/` surfaces these cycles touched.
+**Run at**: v3.16.3 Phase 1 per-phase audit (2026-08-09), over the v3.16.2 Phase 6 terminal-phase run (2026-08-09), which supersedes the v3.16.0 Phase 2 run. Findings carried forward below.
+**Scope**: `docs/v3/v3.16/`, `docs/v3/v3.15/development/` (the two contract documents v3.16.3 amends), the new `docs/incidents/`, plus `docs/policy/` and the repo-root, `scripts/`, and `configs/` surfaces these cycles touched.
+
+## v3.16.3 Phase 1 pass
+
+Layout is clean and no file needed to move. The phase added one document, at the canonical path.
+
+| Check | Result |
+|---|---|
+| New session history placement | `development/history/2026-08-09_github-usage-monitor-ux-phase-1-rename-to-github-usage-monitor-with-settings-migration.md`, correct |
+| Scratch or stray docs created by this phase | None |
+| v3.15 contract amendments | Both edited in place with a dated correction block; neither moved, and no duplicate was created |
+| Known-gaps append target | `docs/v3/v3.16/known-gaps.md`, the correct per-minor ledger; a `## v3.16.3` section was appended rather than the file replaced |
+| Legacy or duplicate plan paths for v3.16.3 | None |
+
+**Cross-version amendment, noted deliberately.** This phase edits two documents under `docs/v3/v3.15/development/` rather than under its own version directory. That is correct rather than a layout violation: both are *contracts* that describe the extension's current behavior, not per-release artifacts, so they are amended in place with a dated correction instead of being forked into a v3.16 copy. Forking would have produced two contract documents disagreeing about the same extension, which is the condition the amendment exists to prevent.
 
 ## v3.16.2 pass
 

@@ -1,8 +1,8 @@
 {
   "name": "github-usage-monitor",
-  "displayName": "GitHub Billing Usage",
-  "description": "Monitor Actions minutes and storage plus Copilot billing for one GitHub billing owner you configure, without storing credentials in settings",
-  "version": "0.1.0",
+  "displayName": "GitHub Usage Monitor",
+  "description": "Monitor current-month GitHub usage - Actions minutes and storage, plus Copilot billing - for one billing owner you configure, without storing credentials in settings",
+  "version": "0.2.0",
   "publisher": "nexus-hub",
   "icon": "icon.png",
   "repository": {
@@ -29,69 +29,74 @@
   "contributes": {
     "commands": [
       {
-        "command": "github-usage.openBillingPage",
-        "title": "GitHub Billing: Open Billing Page",
-        "category": "GitHub Billing"
+        "command": "githubUsageMonitor.openBillingPage",
+        "title": "GitHub Usage Monitor: Open Billing Page",
+        "category": "GitHub Usage Monitor"
       },
       {
-        "command": "github-usage.dashboard",
-        "title": "GitHub Billing: Dashboard",
-        "category": "GitHub Billing"
+        "command": "githubUsageMonitor.dashboard",
+        "title": "GitHub Usage Monitor: Dashboard",
+        "category": "GitHub Usage Monitor"
       },
       {
-        "command": "github-usage.refresh",
-        "title": "GitHub Billing: Refresh",
-        "category": "GitHub Billing"
+        "command": "githubUsageMonitor.refresh",
+        "title": "GitHub Usage Monitor: Refresh",
+        "category": "GitHub Usage Monitor"
       },
       {
-        "command": "github-usage.settings",
-        "title": "GitHub Billing: Settings",
-        "category": "GitHub Billing"
+        "command": "githubUsageMonitor.settings",
+        "title": "GitHub Usage Monitor: Settings",
+        "category": "GitHub Usage Monitor"
       },
       {
-        "command": "github-usage.manualEntry",
-        "title": "GitHub Billing: Enter Allowances",
-        "category": "GitHub Billing"
+        "command": "githubUsageMonitor.manualEntry",
+        "title": "GitHub Usage Monitor: Enter Allowances",
+        "category": "GitHub Usage Monitor"
       },
       {
-        "command": "github-usage.clearData",
-        "title": "GitHub Billing: Clear Data",
-        "category": "GitHub Billing"
+        "command": "githubUsageMonitor.clearData",
+        "title": "GitHub Usage Monitor: Clear Data",
+        "category": "GitHub Usage Monitor"
       },
       {
-        "command": "github-usage.diagnoseAuth",
-        "title": "GitHub Billing: Diagnose Authorization",
-        "category": "GitHub Billing"
+        "command": "githubUsageMonitor.diagnoseAuth",
+        "title": "GitHub Usage Monitor: Diagnose Authorization",
+        "category": "GitHub Usage Monitor"
       },
       {
-        "command": "github-usage.logIn",
-        "title": "GitHub Billing: Log In or Switch Account",
-        "category": "GitHub Billing"
+        "command": "githubUsageMonitor.logIn",
+        "title": "GitHub Usage Monitor: Log In or Switch Account",
+        "category": "GitHub Usage Monitor"
       },
       {
-        "command": "github-usage.logOut",
-        "title": "GitHub Billing: Log Out of This Monitor",
-        "category": "GitHub Billing"
+        "command": "githubUsageMonitor.logOut",
+        "title": "GitHub Usage Monitor: Log Out of This Monitor",
+        "category": "GitHub Usage Monitor"
       },
       {
-        "command": "github-usage.setToken",
-        "title": "GitHub Billing: Set Token",
-        "category": "GitHub Billing"
+        "command": "githubUsageMonitor.setToken",
+        "title": "GitHub Usage Monitor: Set Token",
+        "category": "GitHub Usage Monitor"
       },
       {
-        "command": "github-usage.validateToken",
-        "title": "GitHub Billing: Validate Token",
-        "category": "GitHub Billing"
+        "command": "githubUsageMonitor.validateToken",
+        "title": "GitHub Usage Monitor: Validate Token",
+        "category": "GitHub Usage Monitor"
       },
       {
-        "command": "github-usage.rotateToken",
-        "title": "GitHub Billing: Rotate Token",
-        "category": "GitHub Billing"
+        "command": "githubUsageMonitor.rotateToken",
+        "title": "GitHub Usage Monitor: Rotate Token",
+        "category": "GitHub Usage Monitor"
       },
       {
-        "command": "github-usage.clearToken",
-        "title": "GitHub Billing: Clear Token",
-        "category": "GitHub Billing"
+        "command": "githubUsageMonitor.clearToken",
+        "title": "GitHub Usage Monitor: Clear Token",
+        "category": "GitHub Usage Monitor"
+      },
+      {
+        "command": "githubUsageMonitor.openNativeSettings",
+        "title": "GitHub Usage Monitor: Edit Settings in VS Code Settings",
+        "category": "GitHub Usage Monitor"
       }
     ],
     "icons": {
@@ -106,26 +111,26 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "githubUsageWarning",
-          "title": "GitHub Billing Warning",
+          "id": "githubUsageMonitorWarning",
+          "title": "GitHub Usage Monitor Warning",
           "icon": "icons/warning.svg"
         }
       ]
     },
     "views": {
-      "githubUsageWarning": [
+      "githubUsageMonitorWarning": [
         {
-          "id": "githubUsageWarningView",
+          "id": "githubUsageMonitorWarningView",
           "name": "Usage Warning",
           "type": "webview",
-          "when": "githubUsage.warningActive"
+          "when": "githubUsageMonitor.warningActive"
         }
       ]
     },
     "configuration": {
-      "title": "GitHub Billing Usage",
+      "title": "GitHub Usage Monitor",
       "properties": {
-        "githubUsage.billingScope": {
+        "githubUsageMonitor.billingScope": {
           "type": "string",
           "enum": [
             "user",
@@ -135,12 +140,12 @@
           "default": "user",
           "description": "The one GitHub billing owner type queried by this monitor"
         },
-        "githubUsage.billingOwner": {
+        "githubUsageMonitor.billingOwner": {
           "type": "string",
           "default": "",
           "description": "The personal username, organization slug, or enterprise slug to query"
         },
-        "githubUsage.copilotMetric": {
+        "githubUsageMonitor.copilotMetric": {
           "type": "string",
           "enum": [
             "ai-credits",
@@ -149,46 +154,46 @@
           "default": "ai-credits",
           "description": "The documented Copilot billing counter used for this account"
         },
-        "githubUsage.allowances.copilot": {
+        "githubUsageMonitor.allowances.copilot": {
           "type": "number",
           "minimum": 0,
           "description": "Optional manually verified Copilot allowance matching the selected metric unit"
         },
-        "githubUsage.allowances.actionsMinutes": {
+        "githubUsageMonitor.allowances.actionsMinutes": {
           "type": "number",
           "minimum": 0,
           "description": "Optional manually verified monthly Actions minutes allowance"
         },
-        "githubUsage.allowances.actionsStorage": {
+        "githubUsageMonitor.allowances.actionsStorage": {
           "type": "number",
           "minimum": 0,
           "description": "Optional manually verified Actions storage allowance in the exact displayed unit"
         },
-        "githubUsage.staleAfterMinutes": {
+        "githubUsageMonitor.staleAfterMinutes": {
           "type": "number",
           "default": 30,
           "minimum": 1,
           "maximum": 1440,
           "description": "Age after which cached GitHub usage is labeled stale"
         },
-        "githubUsage.autoFetch": {
+        "githubUsageMonitor.autoFetch": {
           "type": "boolean",
           "default": true,
           "description": "Fetch authorized GitHub billing usage on startup and at the configured interval"
         },
-        "githubUsage.refreshInterval": {
+        "githubUsageMonitor.refreshInterval": {
           "type": "number",
           "default": 10,
           "minimum": 1,
           "maximum": 120,
           "description": "Minutes between automatic billing refreshes"
         },
-        "githubUsage.compactStatusBar": {
+        "githubUsageMonitor.compactStatusBar": {
           "type": "boolean",
           "default": false,
           "description": "Show only the GitHub icon and concise usage value"
         },
-        "githubUsage.alertMetric": {
+        "githubUsageMonitor.alertMetric": {
           "type": "string",
           "default": "highest",
           "enum": [
@@ -200,52 +205,52 @@
           ],
           "description": "Verified percentage metric used for threshold alerts"
         },
-        "githubUsage.thresholds.moderate": {
+        "githubUsageMonitor.thresholds.moderate": {
           "type": "number",
           "default": 50,
           "minimum": 1,
           "maximum": 100,
           "description": "Moderate usage threshold"
         },
-        "githubUsage.thresholds.high": {
+        "githubUsageMonitor.thresholds.high": {
           "type": "number",
           "default": 75,
           "minimum": 1,
           "maximum": 100,
           "description": "High usage threshold"
         },
-        "githubUsage.thresholds.critical": {
+        "githubUsageMonitor.thresholds.critical": {
           "type": "number",
           "default": 95,
           "minimum": 1,
           "maximum": 100,
           "description": "Critical usage threshold"
         },
-        "githubUsage.notificationTimeoutSeconds": {
+        "githubUsageMonitor.notificationTimeoutSeconds": {
           "type": "number",
           "default": 12,
           "minimum": 3,
           "maximum": 60,
           "description": "Seconds before the warning view auto-dismisses"
         },
-        "githubUsage.requestTimeoutMs": {
+        "githubUsageMonitor.requestTimeoutMs": {
           "type": "number",
           "default": 10000,
           "minimum": 1000,
           "maximum": 60000,
           "description": "GitHub billing request timeout in milliseconds"
         },
-        "githubUsage.colors.moderate": {
+        "githubUsageMonitor.colors.moderate": {
           "type": "string",
           "default": "#cca700",
           "description": "Moderate alert color"
         },
-        "githubUsage.colors.high": {
+        "githubUsageMonitor.colors.high": {
           "type": "string",
           "default": "#f0643c",
           "description": "High alert color"
         },
-        "githubUsage.colors.critical": {
+        "githubUsageMonitor.colors.critical": {
           "type": "string",
           "default": "#e05555",
           "description": "Critical alert color"

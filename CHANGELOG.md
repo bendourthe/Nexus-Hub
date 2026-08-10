@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Changed
+
+- **The GitHub VS Code extension is named "GitHub Usage Monitor" again** (v3.16.3 Phase 1, extension `0.2.0`). v3.15.12 had renamed it to "GitHub Billing Usage"; that is reverted for consistency with the Claude, Codex, and Cursor usage monitors, which users read as one family. The v3.15.12 concern that "usage monitor" under-describes the coverage is now carried by the description and the panel subtitle, which name Actions minutes and storage *and* Copilot billing explicitly. The extension id `nexus-hub.github-usage-monitor` was never changed in either direction, so existing installs update in place. Both v3.15 contract documents carry a dated correction rather than a silent overwrite.
+- **Command ids and configuration keys moved to the `githubUsageMonitor.*` prefix**, with a one-time settings migration (`src/migration.ts`) that runs before anything reads configuration. It copies only values the user actually set (never a default, which would pin them to today's default forever), preserves global and workspace scope, migrates the SecretStorage token by writing the new key before clearing the old, and records completion only after a clean pass, so a partial failure retries on the next activation instead of claiming success. The old `githubUsage.*` keys are left readable for one release; their deletion is a v3.17.0 follow-up.
+- `githubUsageMonitor.openNativeSettings` is now declared in the manifest. It was registered but never contributed, so it was unreachable from the Command Palette.
+
 ## [3.16.2] - 2026-08-09
 
 ### Opt-in capability changes (release capability usage gate)
