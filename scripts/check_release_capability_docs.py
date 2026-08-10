@@ -63,7 +63,13 @@ ELEMENTS: dict[str, tuple[str, ...]] = {
     "Activation": ("activation", "activate", "opt-in", "enable"),
     "Validation": ("validation", "validate", "verify", "readback"),
     "Rollback": ("rollback", "disable", "uninstall", "revert", "turn off"),
-    "Authority": ("authority", "boundary", "does not grant", "privacy boundary"),
+    "Authority": (
+        "authority",
+        "boundary",
+        "authority boundary",
+        "privacy boundary",
+        "does not grant",
+    ),
     "Docs": ("docs", "documentation", "reference", "guide"),
 }
 
@@ -77,7 +83,14 @@ NO_CHANGE_PATTERNS = (
     r"no\s+optional\s+capability\s+changes?",
 )
 
+# Two accepted marker forms, both EXPLICIT. A labelled line ("- Activation: ...")
+# and a Markdown table row ("| **Activation** | ... |"). The table form was added
+# after this checker failed on the very release notes that introduced it: a table
+# is a perfectly reasonable way to present five parallel elements, and rejecting
+# it would have pushed the author toward the looser prose the checker cannot
+# verify. Both forms are markers, so neither reintroduces prose inference.
 LABEL_RE = re.compile(r"^\s*[-*]?\s*\**\s*([A-Za-z][A-Za-z /-]*?)\**\s*:", re.MULTILINE)
+TABLE_LABEL_RE = re.compile(r"^\s*\|\s*\**\s*([A-Za-z][A-Za-z /-]*?)\s*\**\s*\|", re.MULTILINE)
 
 
 def surface_block(text: str, surface: str) -> str | None:
@@ -113,13 +126,10 @@ def surface_block(text: str, surface: str) -> str | None:
 def missing_elements(block: str) -> list[str]:
     """Return the required element names absent from `block`."""
     labels = {m.group(1).strip().lower() for m in LABEL_RE.finditer(block)}
-    lowered = block.lower()
+    labels |= {m.group(1).strip().lower() for m in TABLE_LABEL_RE.finditer(block)}
     missing = []
     for element, synonyms in ELEMENTS.items():
-        found = any(label in synonyms for label in labels) or any(
-            f"{syn}:" in lowered for syn in synonyms
-        )
-        if not found:
+        if not any(label in synonyms for label in labels):
             missing.append(element)
     return missing
 

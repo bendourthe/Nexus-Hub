@@ -7,6 +7,57 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.16.2] - 2026-08-09
+
+### Opt-in capability changes (release capability usage gate)
+
+This release introduces **one** opt-in surface. Per the capability usage gate added in this same release, it is documented here with all five required elements.
+
+**`nexus-hub doctor`** -- read-only install preflight.
+
+| Element | Detail |
+|---|---|
+| **Activation** | Opt-in per invocation; nothing is enabled by default and no install behavior changes. Run `bash scripts/installer.sh doctor` (macOS / Linux) or `pwsh scripts/installer.ps1 doctor` (Windows). Optional: `--target PATH` for the project-scoped checks, `--repair` to print remediation commands. `NEXUS_DOCTOR_CONTRACT=<path>` pins a specific contract file. |
+| **Validation** | The command is its own readback: `bash scripts/installer.sh doctor; echo $?`. Exit **0** every detected platform complete, **1** at least one incomplete, **2** the contract could not be read. Per-platform SKIP / PASS / FAIL lines name each surface individually. |
+| **Rollback** | None required, and that is the point: `doctor` is **read-only** and writes, moves, and deletes nothing. There is no state to undo, no file to remove, and no setting to unset. Simply stop running it. |
+| **Authority boundary** | Activation grants **nothing**. `doctor` reads the platform read-contract and the filesystem, and it changes no file, no config, and no permission. `--repair` **prints** remediation commands and explicitly does not execute them. It makes **no network call of any kind**, so it transmits nothing off the machine. A PASS means the promised surfaces exist and are non-empty; it does **not** verify their contents are correct, current, or uncorrupted -- use `nexus-hub verify` against `MANIFEST.sha256` for content integrity. |
+| **Documentation** | [`docs/policy/platform-read-contracts.md`](docs/policy/platform-read-contracts.md) (the contract it verifies) and the `doctor` entry in `bash scripts/installer.sh --help`. |
+
+### Added
+
+- **`nexus-hub doctor` preflight in BOTH installers** (`scripts/installer.sh`, `scripts/installer.ps1`): verifies each **detected** platform's surfaces against the `install_verify` block of `docs/policy/platform-read-contracts.json`. Three states are kept deliberately distinct, because collapsing them is what makes a diagnostic untrustworthy: an absent platform **SKIPs** (never a failure), a present-and-complete platform **PASSes**, and a present platform missing or empty on a promised surface **FAILs** with its remediation hint. It fails **loudly** (exit 2) when the contract is missing, malformed, or empty rather than reporting a false CLEAR, and an unrecognized surface `kind` fails rather than passing, so a future contract addition cannot silently widen the set of things reported clean on an older installer. Read-only, zero network calls, both stated in-code so a later edit does not quietly break them. The existing `runner.py verify` is untouched: it is deliberately always exit-0 and must never fail an install, so `doctor` is a separate entry point rather than two postures overloaded onto one command.
+- **Release capability usage gate** (`catalog/commands/update.md` governance step 6, `AGENTS.md`): a release that introduces or materially changes an opt-in capability, installer flag, managed skill, or host surface must document five elements per surface -- activation, a runnable validation command, the rollback path, the authority boundary activation does **not** grant, and a canonical documentation link. The fourth is called out as load-bearing: elements 1-3 fail loudly the first time someone tries to use them, while an unstated authority boundary fails **silently**, by letting a user over-trust a surface they enabled. Scoped to opt-in surfaces only; a release with none satisfies it with one explicit no-change declaration, required rather than optional so "checked and none applied" stays distinguishable from "never checked".
+- **`scripts/check_release_capability_docs.py`** (repo-internal, stdlib only): asserts the five elements per `--surface`, with `--expect-no-optional-capability-changes` treating silence as a failure. Ships **advisory** (reports, exits 0); `--strict` is the flip a future promotion turns on. Detection is marker-based rather than prose-inferring, because a checker that guessed at free text would produce confident false passes -- and a false CLEAR is precisely the failure the gate exists to prevent.
+- **Incident archive** (`docs/incidents/`): a README defining the artifact type, a template, a `shapes.md` for reusable abstracted patterns, and two backfilled real incidents (the v3.11.0 `session-summary.ps1` parse error that stayed dead on Windows for four minor versions, and the v3.15.6 provenance-ledger `.ps1`/`.sh` divergence). One rule is load-bearing and mechanically enforced: **an incident is closed by a change, not by an explanation**, so a note whose Durable fix section carries no link fails the build.
+- **`scripts/check_incident_notes.py`** (repo-internal, stdlib only): enforces the above in `make validate` and CI, with 12 tests asserting failure in each direction.
+- **Loop-schema long-horizon concepts** (`catalog/skills/workflow/loop-engineering/references/loop-schema.md`): optional `gates` (typed, blocking, mid-loop human-judgment pauses across four types -- `owner`, `safety`, `publication`, `private-data` -- each declaring its question, what unblocks it, and what the loop does while waiting), optional `evidence_freshness` (how long a check stays authoritative and what re-validates it), and a documented **Instance State** pattern separating a loop DEFINITION from one running INSTANCE so a cold start resumes rather than re-derives. All three are additive, so every existing loop definition stays valid. A gate pause never consumes `iteration_cap`, because charging for a pause would penalize a loop that correctly asks for judgment against one that plows ahead.
+- **Four engineering-discipline transfers**: a test-retention policy with both a keep AND a delete rule plus a size trigger (`AGENTS.md`), a scope-fit pre-add review that names the required call site before an abstraction is added (`AGENTS.md` Boundaries), peer claim/lease arbitration for agents contending over one shared queue (`multi-agent-coordinator`), and a projection-sink design rule with lifecycle-as-data fields (`observability-setup`).
+- **Surprising-behavior trigger and responsible-layer classification** in `incident-postmortem`: behavior that is surprising, contradictory, smaller than expected, or flagged by the user as likely wrong is an incident rather than just a correction; and every root cause is classified into agent behavior / projection-or-payload / authoring gap / docs-or-process, repaired at the lowest **durable** layer.
+
+### Fixed
+
+- **`scripts/installer.ps1` had never been AST-parsed in CI** (`.github/workflows/ci.yml`): the unconditional PowerShell parse gate globbed `catalog/hooks` only, and the `bootstrap` job parses only the root `install.ps1`, so the largest PowerShell file in the repository was covered by neither. This is the exact v3.11.0 failure mode left open on the file with the most to lose from it. The gate now covers `catalog/hooks/*.ps1`, `scripts/*.ps1`, and `install.ps1`.
+- **The two `doctor` implementations disagreed while returning the same exit code**: on first cross-implementation run, Bash reported 5 complete / 5 incomplete where PowerShell reported 9 / 1, on the same machine, both exiting 1. The Bash flattener's Python fallback emits CRLF on Windows, so the final tab-separated field carried a trailing `\r` and every `file_contains` surface read as MISSING. Matching exit codes are what made it insidious: an exit-code-only parity test would have passed it. Verdict lines are now byte-identical, asserted by a fixture parametrized over both implementations.
+- **`docs/incidents/**` was outside the CI path filters** (`.github/workflows/ci.yml`): the tree is validator input, so under the blanket `docs/**` exclusion a push adding a note whose "durable fix" was a paragraph would have skipped CI entirely -- the same defect already fixed twice, for `docs/policy/**` and the per-version development contract docs. Re-included on both `push` and `pull_request`, with the general rule now stated in-file: a docs path earns a CI trigger only when a guard actually reads it.
+- **Stale plan self-reference** (`docs/v3/v3.16/plans/v3.16.2-loop-longevity-and-doctor-preflight.md`): its own header declared a `Slug` and `Filename` naming a file that does not exist.
+
+### Platform read-contract re-verification (release governance step 4)
+
+Official vendor documentation was fetched for five platforms this cycle; the rest carry forward from the same-day v3.16.1 pass, and this release changed no integration adapter, contract file, or instruction template. **Claude Code**, **Cursor**, and **Antigravity 2.0** all MATCH their recorded contracts. Two findings:
+
+- **Codex no longer documents `~/.codex/skills` as a user-scope discovery path** -- skills are read from `$HOME/.agents/skills` at user scope and `.agents/skills` from the working directory up to the repo root. Nexus-Hub writes **both** paths, so coverage is unaffected and the `~/.codex/skills` write is now redundant rather than load-bearing. Retained deliberately, following the v3.15.10 precedent for Cursor's commands directory: writing an ignored directory is harmless, whereas removing one that is still read would silently drop coverage.
+- **GitHub Copilot now documents a personal (user-global) skills path** (`~/.copilot/skills` or `~/.agents/skills`) alongside project paths `.github/skills`, `.claude/skills`, and `.agents/skills`. Nexus-Hub treats Copilot as behavioral-guardrails-only plus an opt-in `.github/skills/` project wrapper, so this is a newly available surface it does not yet populate. Recorded as a known gap for a future cycle rather than implemented inside a release; note that `nexus-hub init` already seeds project `.agents/skills` for Antigravity, which Copilot also reads.
+
+### Known limitations
+
+- **`catalog/hooks/secret-scan.sh` fails OPEN on a host without `jq`** (tracked as v3.16.2 BG-2): it takes an explicit `exit 0` path when `jq` is absent, so it scans nothing and blocks nothing. Found by exercising the hook rather than reading its registration. The PowerShell sibling is unaffected and verified working in both directions, so Windows users are covered, and `AGENTS.md` already documented the asymmetry -- what is new is evidence the Bash side is inert rather than merely degraded. A security guard defaulting to allow is the wrong default and is queued for a dedicated fix; no hook logic changed in this release.
+- **`doctor --repair` prints remediation commands and does not execute them** (NI-3, deliberate). The remediation for most failures is re-running the installer, and a diagnostic that mutates an install is how a preflight becomes the thing that breaks you.
+- The loop-schema additions are Tier-3 prose with **no mechanical assertion** (MT-1), and the `ship-pr-until-green` `gates` block now exists in two files that can drift apart.
+
+### Catalog
+
+Unchanged at **271 skills**, 17 commands, 31 hooks, 23 agents. This release edits existing skills and adds two repo-internal guards; it creates no new skill, and `data/` was untouched across all six phases.
+
 ## [3.16.1] - 2026-08-09
 
 ### Added

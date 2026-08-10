@@ -567,6 +567,21 @@ The `nexus-hub doctor` reference in `catalog/commands/update.md` (raised in Phas
 
 Phase 1 recorded WN-1 (no `make`) as environmental and the v3.16.1 ledger carried a broader "no ruff or shellcheck" note. Phase 5 needed ShellCheck for the new Bash code and found it present and working: it flagged SC2088 on the first draft of `doctor_resolve_path`, which was then restructured rather than suppressed. `make` remains absent; `shellcheck` does not. Recording the correction so the next cycle does not skip a lint pass on a stale assumption.
 
+### NI-4 - OPEN (opportunity, found at release governance step 4): GitHub Copilot now documents a user-global skills path
+
+- **What changed on the vendor side**: Copilot's agent-skills documentation now lists **personal** skills at `~/.copilot/skills` or `~/.agents/skills`, and project skills at `.github/skills`, `.claude/skills`, **or** `.agents/skills`. Source: [docs.github.com](https://docs.github.com/en/copilot/concepts/agents/about-agent-skills), fetched 2026-08-09.
+- **Where Nexus-Hub stands**: Copilot is a behavioral-guardrails-only integration plus an OPT-IN `.github/skills/` project wrapper behind `NEXUS_HUB_COPILOT_SKILLS` (off by default because that directory is commit-visible). No user-global Copilot skills surface is written.
+- **Why it is an opportunity, not a defect**: nothing is broken and no install regressed. A documented read-path simply became available that Nexus-Hub could populate, which would upgrade Copilot from guardrails-only to a full skills-bearing platform at global scope. Note that `nexus-hub init` already seeds project `.agents/skills` for Antigravity, which Copilot also reads, so some coverage may already exist incidentally and should be measured before new code is written.
+- **Why it was not done in this release**: adding a new per-platform delivery surface is a feature with installer, adapter, contract, and test consequences across both installers. Implementing it inside a release commit is exactly the scope creep the Phase 4 scope-fit gate rejects.
+- **Suggested next step**: a dedicated cycle. Measure what `.agents/skills` already surfaces to Copilot first, then decide whether `~/.copilot/skills` needs a separate write or whether the shared path suffices.
+
+### NI-5 - OPEN (low): `~/.codex/skills` is no longer a documented Codex read-path
+
+- **What changed**: Codex documents user-scope skill discovery at `$HOME/.agents/skills` only, plus `.agents/skills` scanned from the working directory up to the repo root. `~/.codex/skills` is absent from the current discovery list. Source: [learn.chatgpt.com](https://learn.chatgpt.com/docs/build-skills.md), fetched 2026-08-09.
+- **Impact: none on coverage.** Nexus-Hub writes BOTH paths, and the one Codex reads is populated. The `~/.codex/skills` write is redundant rather than load-bearing, and its `install_verify` surface now asserts a path the vendor does not promise.
+- **Why it is retained rather than removed**: this follows the precedent set for Cursor's commands directory in v3.15.10. Writing a directory the platform ignores is harmless; removing one that is still read would silently drop coverage, and vendor docs omitting a path is weaker evidence than vendor docs contradicting it.
+- **Suggested next step**: re-verify next cycle. If `~/.codex/skills` is still undocumented, drop the write and its `install_verify` surface together.
+
 ### v3.16.2 Phase 6 final reconciliation
 
 Every item raised across the six phases is dispositioned below. **8 closed, 5 carried forward, 0 release blockers.**

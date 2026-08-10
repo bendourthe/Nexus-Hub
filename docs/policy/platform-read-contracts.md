@@ -2,7 +2,25 @@
 
 This is the durable, sourced source of truth for where every supported platform READS each surface (instruction file, slash commands, skills, agents, rules, hooks) and where the Nexus-Hub installer WRITES it. It supersedes the point-in-time snapshot at `docs/v3/v3.11/platform-read-contracts.md` (which resolved the v3.11.0 Phase 7 audit but left the Codex and Antigravity contracts flagged as unverified).
 
-**Last verified**: 2026-08-09 for v3.16.1.
+**Last verified**: 2026-08-09 for v3.16.2.
+
+**v3.16.2 pass.** Official vendor documentation was fetched for five platforms; the remaining entries carry forward from the same-day v3.16.1 pass, and this release changed no integration adapter, no contract file, and no instruction template (34 files, all docs, tests, and the new installer subcommand).
+
+| Platform | Verdict | Evidence |
+|---|---|---|
+| Claude Code | **MATCH** | `~/.claude/skills/<name>/SKILL.md` folder-per-skill confirmed; `.claude/commands/*.md` still honored, with custom commands now formally merged into skills so both produce `/name`. [Source](https://code.claude.com/docs/en/skills) |
+| Codex / ChatGPT | **DRIFT (low)** | `~/.codex/AGENTS.md` + project `AGENTS.md` confirmed. But user-scope skill discovery is documented as `$HOME/.agents/skills` **only**; `~/.codex/skills` is no longer listed as a discovery path. Repo scope scans `.agents/skills` from cwd up to the repo root. [Source](https://learn.chatgpt.com/docs/build-skills.md) |
+| Cursor | **MATCH** | `~/.cursor/skills/` and `~/.agents/skills/` both documented user-level, project `.cursor/skills/` and `.agents/skills/`, walked **recursively**. [Source](https://cursor.com/docs/skills) |
+| Antigravity 2.0 | **MATCH** | `~/.gemini/config/skills/` global (shared across Antigravity, IDE, and CLI) and `<project>/.agents/skills/` project, folder-per-skill `SKILL.md`. [Source](https://codelabs.developers.google.com/getting-started-with-antigravity-skills) |
+| GitHub Copilot | **DRIFT (new surface)** | Copilot now documents **personal** skills at `~/.copilot/skills` or `~/.agents/skills`, and project skills at `.github/skills`, `.claude/skills`, **or** `.agents/skills`. [Source](https://docs.github.com/en/copilot/concepts/agents/about-agent-skills) |
+
+**Codex finding, handling.** Nexus-Hub writes BOTH `~/.codex/skills` and `~/.agents/skills`, so coverage is unaffected: the path Codex actually reads is populated. The `~/.codex/skills` write is now **redundant rather than load-bearing**. It is retained deliberately, following the precedent set for Cursor's commands directory in v3.15.10: writing a directory the platform ignores is harmless, whereas removing one that is still read would silently drop coverage. Flagged for removal once a second cycle confirms it is genuinely unread.
+
+**Copilot finding, handling.** This is an opportunity rather than a breakage: Copilot gained a documented user-global skills read-path that Nexus-Hub does not populate (it currently treats Copilot as behavioral-guardrails-only, plus the opt-in `.github/skills/` project wrapper behind `NEXUS_HUB_COPILOT_SKILLS`). Note also that Copilot reads project `.agents/skills`, which `nexus-hub init` already seeds for Antigravity, so some coverage may already exist incidentally. Promoting Copilot to a full skills-bearing integration is a **feature for a future cycle**, not a release-blocking fix, and is recorded as a known gap rather than implemented inside a release.
+
+---
+
+**Prior entry, retained for the record** -- Last verified 2026-08-09 for v3.16.1.
 
 For v3.16.1 specifically: a **targeted** pass, and it is labeled as such on purpose. The v3.16.0 full pass below ran one day earlier and its per-platform evidence is **carried forward unchanged**. Two platforms were re-fetched from live first-party documentation this cycle: **Codex**, the one platform that drifted last cycle, whose current skills page still lists the five `.agents/skills` paths plus `/etc/codex/skills` and still does **not** list `~/.codex/skills` -- the v3.16.0 finding reproduces exactly, so the retained write stays on the reasoning already recorded; and **Claude**, the highest-traffic platform, which still reads `~/.claude/skills` and `.claude/skills` (plus `.claude/commands`, now documented as merged into skills). The other **eight were not re-fetched**. v3.16.1 changed no integration adapter, no installer read path, and no platform surface, and a full re-fetch one day after a complete pass buys evidence one day fresher at real cost. This paragraph exists so nobody mistakes a carry-forward for a fresh check. **The next MINOR release should run a full pass.**
 

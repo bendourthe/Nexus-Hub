@@ -122,6 +122,55 @@ def test_unreadable_notes_file_is_an_error(tmp_path):
     assert r.returncode == 2
 
 
+TABLE_FORM = """# Release v9.9.9
+
+### nexus-hub doctor
+
+| Element | Detail |
+|---|---|
+| **Activation** | run `installer.sh doctor` |
+| **Validation** | `installer.sh doctor; echo $?` |
+| **Rollback** | read-only, nothing to undo |
+| **Authority boundary** | grants nothing; makes no network call |
+| **Documentation** | docs/policy/platform-read-contracts.md |
+"""
+
+
+def test_markdown_table_labels_are_recognized(tmp_path):
+    """A table is a valid way to present five parallel elements.
+
+    Added after the checker failed on the very release notes that introduced it.
+    Rejecting the table form would push authors toward looser prose the checker
+    cannot verify at all, which is the opposite of the intended effect.
+    """
+    r = run(str(notes(tmp_path, TABLE_FORM)), "--surface", "nexus-hub doctor", "--strict")
+    assert r.returncode == 0, r.stderr + r.stdout
+
+
+def test_prose_mentioning_a_synonym_is_not_a_marker(tmp_path):
+    """Regression: detection must be marker-based, never substring-in-prose.
+
+    An earlier revision also matched a bare `<synonym>:` anywhere in the block,
+    so "its own readback: ..." in a sentence satisfied the Validation element by
+    accident. A checker that passes on incidental prose produces confident false
+    CLEARs, which is worse than having no checker.
+    """
+    body = """# Release
+
+### SOME_FLAG
+
+- Activation: set it
+- Rollback: unset it
+- Authority: grants nothing
+- Docs: https://example.invalid
+
+The command is its own readback: run it and check the exit code.
+"""
+    r = run(str(notes(tmp_path, body)), "--surface", "SOME_FLAG", "--strict")
+    assert r.returncode == 1
+    assert "Validation" in r.stderr
+
+
 def test_multiple_surfaces_all_checked(tmp_path):
     body = COMPLETE + """
 ### NEXUS_HOOK_PROFILE
