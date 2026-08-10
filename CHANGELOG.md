@@ -7,7 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [3.16.3] - 2026-08-10
+
+### Opt-in capability changes (release capability usage gate)
+
+**None.** This release introduces no opt-in capability, installer flag, managed skill, or host surface, so the five-element gate has nothing to document. It adds no environment variable, no installer flag, and no new activation mechanism: `NEXUS_HUB_COPILOT_SKILLS`, `--enterprise` / `-Enterprise`, `NEXUS_DISABLED_HOOKS`, and `NEXUS_HOOK_PROFILE` are all unchanged. The one new configuration key, `githubUsageMonitor.statusBarMetric`, is an ordinary VS Code setting on an extension the installer already builds - it is not a capability gate, it grants no authority, and it defaults to a value that changes only which metric the status bar displays.
+
+This is an explicit no-change declaration rather than an omission, as the gate requires.
+
 
 ### Changed
 
