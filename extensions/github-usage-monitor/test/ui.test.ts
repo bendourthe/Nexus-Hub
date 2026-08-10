@@ -10,7 +10,7 @@ import { resetVscodeStub, statusItems, Uri, webviewPanels } from "./vscode-stub"
 
 const now = Date.UTC(2026, 7, 15, 12);
 function metric(kind: UsageMetric["kind"], unit: string, used: number, allowance: number | null): UsageMetric {
-  return { kind, unit, used, allowance, allowanceSource: allowance === null ? "unknown" : "manual", percentage: allowance === null ? null : used / allowance * 100, reset: { at: Date.UTC(2026, 8, 1), kind: "reporting-period", label: "month" }, breakdowns: [{ product: "Actions <runner>", sku: "linux & standard", unit, grossQuantity: used, discountQuantity: 2, netQuantity: used - 2, grossAmount: 4, discountAmount: 1, netAmount: 3 }], grossAmount: 4, discountAmount: 1, netAmount: 3 };
+  return { kind, unit, used, allowance, drawdown: allowance === null ? null : used, drawdownBasis: allowance === null ? "unavailable" : "reported", allowanceSource: allowance === null ? "unknown" : "manual", allowanceState: allowance === null ? "unknown" : "verified", percentage: allowance === null ? null : used / allowance * 100, reset: { at: Date.UTC(2026, 8, 1), kind: "reporting-period", label: "month" }, breakdowns: [{ product: "Actions <runner>", sku: "linux & standard", unit, grossQuantity: used, discountQuantity: 2, netQuantity: used - 2, repositoryName: "fixture-repo", grossAmount: 4, discountAmount: 1, netAmount: 3 }], grossAmount: 4, discountAmount: 1, netAmount: 3 };
 }
 function snapshot(): UsageSnapshot {
   return { owner: { scope: "organization", name: "fixture-<org>" }, periodStart: Date.UTC(2026, 7, 1), periodEnd: Date.UTC(2026, 8, 1), fetchedAt: now - 120_000, source: "api", stale: false, copilot: metric("copilot-ai-credits", "ai-credits", 60, 100), actionsMinutes: metric("actions-minutes", "minutes", 800, 1000), actionsStorage: metric("actions-storage", "gigabyte-hours", 25, null) };
@@ -25,7 +25,7 @@ describe("status bar and hover", () => {
   it("renders all sections, purple bars, costs, owner, source, freshness, and absolute unknown limits", () => {
     const hover = buildHoverMarkdown({ state: "fresh", data: snapshot() }, now).value;
     expect(hover).toContain("Copilot"); expect(hover).toContain("Actions minutes"); expect(hover).toContain("Actions storage");
-    expect(hover).toContain(GITHUB_BAR_FILL); expect(hover).toContain("Allowance: unknown"); expect(hover).not.toContain("gigabyte-hours (%)");
+    expect(hover).toContain(GITHUB_BAR_FILL); expect(hover).toContain("Allowance not established"); expect(hover).not.toContain("gigabyte-hours (%)");
     expect(hover).toContain("fixture-&lt;org&gt;"); expect(hover).toContain("Source: api - Fresh"); expect(hover).toContain("net $3.00");
   });
   it("renders empty and stale-error states honestly", () => {
@@ -45,7 +45,7 @@ describe("dashboard and settings", () => {
   it("uses semantic meters, theme tokens, escaped detail, controls, and absolute treatment", () => {
     const html = renderDashboard({ state: "fresh", data: snapshot() }, now);
     expect(html).toContain('role="meter"'); expect(html).toContain(GITHUB_BAR_FILL); expect(html).toContain("var(--vscode-editor-background)");
-    expect(html).toContain("Actions &lt;runner&gt;"); expect(html).not.toContain("fixture-<org>"); expect(html).toContain("Absolute usage; allowance unknown");
+    expect(html).toContain("Actions &lt;runner&gt;"); expect(html).not.toContain("fixture-<org>"); expect(html).toContain("Absolute usage; no percentage available");
     for (const command of ["refresh", "manualEntry", "settings", "clearData"]) expect(html).toContain(`data-command="${command}"`);
     expect(html).toContain("default-src 'none'"); expect(html).toContain("focus-visible"); expect(html).toContain("prefers-reduced-motion");
   });

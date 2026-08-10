@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (all 5 phases complete; reconciled and release-ready, unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
-**Last updated**: 2026-08-09 (v3.16.3 Phase 1 append; 1 closed, 4 open, 0 release blockers; the plan's scope note was found incomplete and corrected in-phase)
+**Last updated**: 2026-08-09 (v3.16.3 Phase 2 append; 1 closed, 4 new open, 0 release blockers; live measurement falsified the plan's leading reconstruction and established that drawdown is OS-weighted)
 
 > **File-lifecycle note**: this ledger was created ahead of any v3.16 implementation, by a comparison that deliberately claimed no release slot, so it began with only the `## Comparison-Sourced Deferrals` section. Each v3.16 version-implementation phase **appends** its own `## v3.16.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` numbering, which is namespaced separately from the `CD-#` and `TR-#` ids used above.
 
@@ -695,6 +695,45 @@ Four open items, **zero release blockers, one caused by this phase** (DF-1, whic
 
 The phase's own residual risk is that the settings migration is untestable in the one situation that matters most: a real 0.1.0 install upgrading in place. Every migration assertion here runs against a fake `WorkspaceConfiguration`. The controls are that the migration refuses to record completion on any write failure (so a bad first pass retries rather than silently finishing), that it never deletes an old key, and that the token path writes before it deletes. Phase 6 should record whether an actual upgrade was exercised.
 
+### NI-2 - OPEN by design: the drawdown weights cannot be verified, and the UI says so
+
+- **Target file**: `extensions/github-usage-monitor/src/providers/drawdown.ts` (`OS_DRAWDOWN_WEIGHTS`)
+- **What is unresolved**: GitHub withdrew its minute-multiplier reference page; that path now serves runner pricing on every documentation variant checked. Measurement established that weighting **exists** (July's saturated bar falsified 1:1 outright), but not what the constants are. Two candidates fit every month available - the historical published values (Windows 2x, macOS 10x) and the current list-price ratios (1.67x, 10.33x). They predict 2,104 and 2,051 for July, both above a saturated 2,000, so that month cannot separate them; April, the only month low enough to try, predicts 1,473 versus 1,469.
+- **Decision**: ship the historical published values, chosen with the maintainer, because GitHub once stated them outright where a price ratio never was. The card labels the figure a reconstruction rather than presenting it as GitHub's own.
+- **Suggested next step**: re-check the multiplier path at each release (it is on the probe document's re-verification checklist). If GitHub republishes the basis, replace the constants and delete the caveat. An account with private macOS usage below the cap would also settle it.
+
+### NI-3 - OPEN: the two billing endpoints use different SKU vocabularies
+
+- **Target file**: `extensions/github-usage-monitor/src/providers/drawdown.ts` (`classifySku`)
+- **What is wrong**: `/settings/billing/usage` returns `Actions Linux`; `/usage/summary` returns `actions_linux`. The classifier handles both only because its patterns are substring-based - a rule written against either vocabulary alone would silently misclassify the other endpoint's items, and a misclassified runner is excluded from the drawdown without a trace.
+- **Suggested next step**: pin both vocabularies in the fixtures (the `Actions *` forms already are; add the `actions_*` forms) and state the hazard in a header comment on the pattern constants.
+
+### MT-2 - OPEN: the self-hosted and larger-runner rules are unvalidated against real strings
+
+- **Target file**: `extensions/github-usage-monitor/src/providers/drawdown.ts`
+- **What is missing**: the measured account emitted only `Actions Linux`, `Actions Windows`, `Actions macOS 3-core`, `Actions storage`, and `Git LFS storage`. No self-hosted or larger-runner SKU appeared, so those exclusion rules are tested against **invented** strings only. Both are load-bearing: a larger-runner SKU wrongly counted inflates the drawdown, and a self-hosted one inflates it further.
+- **Why it was not done in Phase 2**: no account was available that uses either runner class, and inventing a plausible string then asserting against it tests the rule against itself.
+- **Suggested next step**: capture a real SKU inventory from an account using larger or self-hosted runners via `scripts/reconcile-drawdown.js`, which prints the inventory and flags anything unrecognized. Treat both rules as provisional until then.
+
+### NI-4 - OPEN (policy, raised by the maintainer): this extension is held to a stricter rule than its three siblings
+
+- **What surfaced**: the Claude, Codex, and Cursor monitors each read a usage endpoint returning used and limit together (`api.anthropic.com/api/oauth/usage`, `chatgpt.com/backend-api/wham/usage`, `api2.cursor.sh`). Two of those three are **not public APIs**. GitHub has an equivalent internal endpoint - it renders the very bars this phase spent its entire budget reconstructing - and the GitHub monitor is barred from it by its own data contract ("never scrapes GitHub.com, reads browser cookies").
+- **Why it matters**: the honest answer to "why can't the GitHub monitor do what the others do" is not that it cannot, but that a rule written for this one extension forbids it. Phase 2's whole difficulty follows from that asymmetry.
+- **Why it was not resolved here**: it is a policy question about what the monitors may read, affecting four extensions rather than one. Settling it inside a phase scoped to allowance derivation would be the wrong venue.
+- **Suggested next step**: decide the standard deliberately in its own cycle - either relax the GitHub monitor's contract to match its siblings, or tighten the siblings to match it. Do not let it be settled by accretion.
+
+### QG-2 - CLOSED in phase: three defects in the measurement tooling itself
+
+- **What happened**: the reconciliation probe was wrong three times before producing a usable result. The first run used a `user`-only token, so private repositories 404'd and every private candidate summed zero. The second misclassified `Actions macOS 3-core` as a larger runner, dropping 111 minutes. The third compared August API data against displayed figures from an earlier month.
+- **How each was closed**: the runner now withholds its verdict when any visibility lookup fails; the core-count rule became a per-OS ceiling with a regression test pinned to the real strings; and the queried period is printed directly above the verdict.
+- **Why it is recorded rather than dropped**: each defect produced a *plausible wrong answer* rather than an error, and two of them briefly left a falsified model looking correct. What actually caught it was checking a candidate against an arithmetic bound rather than a tolerance. **A numeric match near a true value is not evidence.**
+
+### Phase 2 disposition
+
+Four open items, **zero release blockers**, one closed inside the phase. NI-2 is a deliberate, maintainer-approved decision with a named re-check trigger. NI-3 and MT-2 are honest limits of what a single account could validate. NI-4 is a policy question deliberately routed out of this phase.
+
+The phase's own residual risk is that the shipped percentage is a **reconstruction presented inside a product that otherwise reports measured facts**. Three controls: the card states it is reconstructed rather than GitHub's own figure; an unresolved repository or unrecognized SKU excludes usage rather than guessing, so error runs toward understating; and `AllowanceInputs.api` stays unpopulated with a test asserting `allowanceSource` is never `"api"`, so nothing here can later be mistaken for a served entitlement.
+
 ## v3.16 Summary
 
 | Category | Open | Resolved |
@@ -704,6 +743,6 @@ The phase's own residual risk is that the settings migration is untestable in th
 | v3.16.0 version-implementation gaps | 3 carried forward (NI-1, NI-6, BG-1) | 13 closed (DF-1, DF-2, DF-3, DF-4, NI-2, NI-3, NI-4, NI-5, QG-1, QG-2, QG-3, BG-2, BG-3, WN-1) |
 | v3.16.1 version-implementation gaps (all 8 phases + release) | 3 carried forward (WN-1, BG-1 environmental; NI-6 bounded and documented) | 21 closed (DF-1..DF-5, NI-1..NI-5, BG-2..BG-8, QG-1, QG-2, WN-2, PX-1) |
 | v3.16.2 version-implementation gaps (all 6 phases, reconciled) | 5 carried (MT-1 schema assertions; NI-2 size overage; NI-3 deliberate `--repair` bound; BG-2 pre-existing fail-open; WN-1 / BG-1 environmental) | 6 closed (QG-1, QG-2, BG-3, NI-1, DF-1, WN-2) |
-| v3.16.3 version-implementation gaps (Phase 1 of 6, in flight) | 4 open (DF-1 deferred key deletion; MT-1 pre-existing coverage floor; WN-1 / BG-1 / BG-2 environmental) | 1 closed (NI-1) |
+| v3.16.3 version-implementation gaps (Phases 1-2 of 6, in flight) | 8 open (DF-1 deferred key deletion; MT-1 coverage floor; MT-2 unvalidated runner rules; NI-2 unverifiable weights; NI-3 SKU vocabularies; NI-4 cross-monitor policy; WN-1 / BG-1 / BG-2 environmental) | 2 closed (NI-1, QG-2) |
 
 The three comparison-sourced items remain non-blocking prose folds with named target files. Of the v3.16.0 items, BG-1 is pre-existing and reproduces without this plan's changes, WN-1 is environmental, DF-1 is a reasoned non-implementation, NI-1 is a deliberate scope boundary the plan requires, and NI-2 / NI-3 / NI-4 are Phase 2 findings that Phase 3 and Phase 5 are already scheduled to dispose of. Phase 5 dispositioned every open item: 13 closed, 3 carried forward. **None gates the v3.16.0 release.** NI-1 and NI-6 are scope decisions for cycles already touching the relevant surfaces, and BG-1 is pre-existing, reproduced on a clean `develop` worktree, and confined to a Windows host whose PATH resolves `tar` to the Git Bash binary. Of the 13 closed, three (BG-2, BG-3, and QG-3) were caught by the test suite rather than by review, which is this cycle's strongest argument for running the full suite before declaring a phase done.

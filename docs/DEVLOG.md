@@ -1,5 +1,32 @@
 # Development Log
 
+## [2026-08-09] - v3.16.3 Phase 2: allowance and drawdown truth
+
+### What Changed
+
+The monitor can render a real percentage for the first time, and it is derived from the quantity GitHub actually counts rather than from gross consumption. Three things had to be built to get there: a denominator auto-derived from the account's plan, a drawdown numerator reconstructed from private-repository usage with per-runner-OS weighting, and a documented GigabyteHours-to-GB conversion for storage. Allowance handling gained a third state, so "your plan includes nothing for this product" is no longer rendered identically to "we could not work it out".
+
+### Why It Changed
+
+The extension reported **1,287** Actions minutes for a month in which GitHub counted **120.7** against the allowance. Almost all of that usage was in a public repository, which is free and never draws down. Supplying a denominator without fixing the numerator would have rendered 64% where the truth is 6%.
+
+### Decisions Made
+
+- **Measured before designing, and it mattered.** The plan's leading candidate - private-repository minutes counted 1:1 - was **falsified** by a completed month: July predicted 1,584 where GitHub's panel showed a saturated 2,000. Non-Linux minutes really do draw down faster, even though GitHub has withdrawn the page that said so.
+- **A tolerance pass is not proof.** An earlier candidate "reconciled" at 0.6% and was arithmetically impossible: it predicted a Linux-only figure below its own upper bound while the true value sat above it. What caught it was a bound check, not a percentage comparison. Recorded in the gap log as the phase's most transferable lesson.
+- **Never reconcile against the current month.** Three probe runs were invalidated by comparing a still-accruing month against a screenshot taken minutes earlier.
+- **Weights ship as the historical published values (2x / 10x), labelled as a reconstruction.** The list-price alternative (1.67x / 10.33x) fits identically and differs by 0.3%; no month on the measured account can separate them. Chosen with the maintainer, with a re-check trigger recorded.
+- **Manual entry stays, as an override rather than a path.** An earlier draft removed it after conflating Phase 3's auto-connect requirement with a ban on allowance settings. The maintainer corrected that: derive automatically, show provenance, keep a discoverable override - because a published per-plan figure cannot detect its own disagreement with an account.
+- **`AllowanceInputs.api` stays unpopulated.** No documented endpoint serves an entitlement, and `/usage/summary` reports `discountQuantity == grossQuantity` on every row, so it does not serve the drawdown either. A test asserts `allowanceSource` is never `"api"`.
+
+### Verification
+
+273 tests passing (up from 246), coverage 82.78% statements / 78.49% branches / 84.69% functions / 86.3% lines, all above threshold. `npm run package` and `verify:package` succeed at 0.2.0. Installer smoke and naming suites pass. The reconstruction is pinned by fixtures built from the real account: the July figures that falsified 1:1, the 1,287-vs-120.7 regression, and the storage conversion checked in both directions (0.087 GB under the allowance, 0.581 GB over).
+
+### Known Issues
+
+Four open, zero blockers. The weights are unverifiable (NI-2); the two billing endpoints use different SKU vocabularies and the classifier survives both by substring luck (NI-3); the self-hosted and larger-runner rules are tested only against invented strings because the measured account uses neither (MT-2); and the maintainer surfaced a policy asymmetry worth its own cycle (NI-4) - the three sibling monitors read vendor-internal usage endpoints, while this one is barred from GitHub's equivalent by its own data contract, which is the entire reason this phase was hard.
+
 ## [2026-08-09] - v3.16.3 Phase 1: rename to GitHub Usage Monitor, with settings migration
 
 ### What Changed

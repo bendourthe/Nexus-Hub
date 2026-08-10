@@ -15,6 +15,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Command ids and configuration keys moved to the `githubUsageMonitor.*` prefix**, with a one-time settings migration (`src/migration.ts`) that runs before anything reads configuration. It copies only values the user actually set (never a default, which would pin them to today's default forever), preserves global and workspace scope, migrates the SecretStorage token by writing the new key before clearing the old, and records completion only after a clean pass, so a partial failure retries on the next activation instead of claiming success. The old `githubUsage.*` keys are left readable for one release; their deletion is a v3.17.0 follow-up.
 - `githubUsageMonitor.openNativeSettings` is now declared in the manifest. It was registered but never contributed, so it was unreachable from the Command Palette.
 
+### Added
+
+- **The GitHub monitor shows real usage percentages** (v3.16.3 Phase 2), derived from the quantity GitHub actually counts against your allowance rather than from gross consumption. The extension previously reported 1,287 Actions minutes for a month in which GitHub counted 120.7, because almost all of that usage was in a public repository, which is free and never draws down. The numerator is now reconstructed from private-repository, GitHub-hosted, standard-runner usage, weighted per runner OS; the denominator is derived automatically from the account's plan.
+- **Three allowance states, each explained.** `verified` renders a bar; `none` states that the plan includes no allowance for that product (which is why a Copilot card reads as total usage rather than a share of a limit); `unknown` names what would make a percentage available. No state renders `0%` or `100%` for an unknown allowance.
+- **Storage percentages work.** GitHub reports storage consumption in GigabyteHours while expressing the entitlement in GB. The documented conversion (GB-months = GB-hours / hours in month) is now applied, so a storage allowance is no longer silently refused.
+- `scripts/reconcile-drawdown.js`, a development diagnostic that measures candidate reconstructions against a real account. Excluded from the packaged extension.
+
+### Notes for future maintainers
+
+- **The enhanced-billing API serves no entitlement field**, in any endpoint, in any unit. Every field of `/settings/billing/usage`, `/usage/summary`, the AI-credit and premium-request endpoints, and the Budgets API was checked on 2026-08-09; the product-specific endpoints that once returned `included_minutes` [closed down in September 2025](https://github.blog/changelog/2025-09-26-product-specific-billing-apis-are-closing-down/). `/usage/summary` does not serve the drawdown either - it reports `discountQuantity == grossQuantity` on every row. Do not re-investigate; see `docs/v3/v3.16/development/github-entitlement-probe.md`.
+- **The percentage is a reconstruction and is labelled as such.** GitHub has withdrawn its minute-multiplier reference, so the per-OS weights cannot be cited to a live document. That drawdown is weighted at all was established by measurement: a completed month predicted 1,584 unweighted where GitHub's own panel showed a saturated 2,000.
+
 ## [3.16.2] - 2026-08-09
 
 ### Opt-in capability changes (release capability usage gate)

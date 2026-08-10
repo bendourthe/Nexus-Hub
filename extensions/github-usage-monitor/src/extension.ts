@@ -1,7 +1,14 @@
 import * as vscode from "vscode";
 import { DashboardPanel } from "./dashboardPanel";
 import { migrateSettings } from "./migration";
-import { applyAllowances, type AllowanceMap } from "./providers/allowances";
+import { type AllowanceMap } from "./providers/allowances";
+import { enrichSnapshot } from "./providers/enrich";
+import {
+  RepositoryVisibilityCache,
+  fetchAccountPlanName,
+  repositoryNamesIn,
+  type JsonFetch
+} from "./providers/repositories";
 import { GitHubTokenStore, type TokenMutationResult } from "./providers/auth";
 import { DEFAULT_TIMEOUT_MS, GitHubBillingClient } from "./providers/github";
 import { probeWithToken, toMarkdownRow, toSanitizedRecord } from "./providers/authProbe";
@@ -26,6 +33,18 @@ import { UsageStore } from "./usageStore";
 import { WARNING_VIEW_ID, WarningViewProvider } from "./warningView";
 
 let refreshTimer: ReturnType<typeof setTimeout> | undefined;
+
+/**
+ * Repository visibility, cached for the session.
+ *
+ * Module-scoped so a repeating refresh does not re-resolve the same handful of
+ * repositories every interval. Visibility rarely changes, and the cost of getting
+ * it wrong for one session is a bar that reads conservatively, not one that reads
+ * alarmingly.
+ */
+const visibilityCache = new RepositoryVisibilityCache((path, token, signal) =>
+  new GitHubBillingClient().getJson(path, token, signal)
+);
 
 export async function activate(context: vscode.ExtensionContext): Promise<void> {
   // Awaited before anything reads configuration or storage. v3.16.3 moved every
@@ -201,6 +220,10 @@ export async function fetchConfiguredUsage(
   // use the editor's GitHub session. Without this the auth model was complete and
   // inert, and a user with a working session still saw "no token stored".
   let result: ProviderResult<UsageSnapshot>;
+  // Captured so the two non-billing lookups the percentage needs (repository
+  // visibility and the account plan) reuse the SAME credential the billing call
+  // succeeded with, rather than re-resolving and possibly picking a different one.
+  let credentialToken: string | null = null;
   if (auth !== undefined) {
     const binding = await peekBinding(auth.getSession, owner).catch(() => null);
     const resolved = await resolveCredential(
@@ -216,9 +239,10 @@ export async function fetchConfiguredUsage(
       return store.resolveFetch({ ok: false, error: resolved.error, rate: EMPTY_RATE });
     }
     if (resolved.source === "stored-pat") {
-      const nested = await tokens.withToken((token) => client.fetchUsage({ owner, token, copilotEndpoint: config.get("copilotMetric", "ai-credits") }));
+      const nested = await tokens.withToken((token) => { credentialToken = token; return client.fetchUsage({ owner, token, copilotEndpoint: config.get("copilotMetric", "ai-credits") }); });
       result = nested.ok ? nested.value : nested;
     } else {
+      credentialToken = resolved.token;
       result = await client.fetchUsage({ owner, token: resolved.token, copilotEndpoint: config.get("copilotMetric", "ai-credits") });
       // Remember what the session proved, so the panel can explain itself and the
       // next refresh does not re-probe a target already known to work.
@@ -229,10 +253,12 @@ export async function fetchConfiguredUsage(
       }
     }
   } else {
-    const nested = await tokens.withToken((token) => client.fetchUsage({ owner, token, copilotEndpoint: config.get("copilotMetric", "ai-credits") }));
+    const nested = await tokens.withToken((token) => { credentialToken = token; return client.fetchUsage({ owner, token, copilotEndpoint: config.get("copilotMetric", "ai-credits") }); });
     result = nested.ok ? nested.value : nested;
   }
-  if (result.ok) result = { ...result, value: applyAllowances(result.value, { manual: configuredAllowances(result.value) }) };
+  if (result.ok) {
+    result = { ...result, value: await enrichWithAllowances(result.value, client, credentialToken, owner) };
+  }
   return store.resolveFetch(result);
 }
 
@@ -267,6 +293,19 @@ function scheduleRefresh(refresh: () => Promise<void>): void {
   refreshTimer = setTimeout(() => { void refresh(); }, config.get<number>("refreshInterval", 10) * 60_000);
 }
 
+/**
+ * Values the user set explicitly, which override the plan-derived denominator.
+ *
+ * The panel derives a denominator automatically and shows its provenance, so this
+ * is a correction path rather than a setup step. It exists because a published
+ * per-plan figure cannot detect its own disagreement with an account: data packs,
+ * Education benefits, and negotiated terms are all invisible to the API. Without an
+ * override such an account has no way to ever be right.
+ *
+ * Storage is declared in gigabytes because `enrichSnapshot` converts the reported
+ * GigabyteHours consumption into GB-months before allowances are applied - so the
+ * user enters the figure exactly as GitHub's billing page shows it.
+ */
 function configuredAllowances(snapshot: UsageSnapshot): AllowanceMap {
   const config = vscode.workspace.getConfiguration("githubUsageMonitor");
   const result: AllowanceMap = {};
@@ -274,9 +313,37 @@ function configuredAllowances(snapshot: UsageSnapshot): AllowanceMap {
     const value = config.get<number | undefined>(key); if (value !== undefined) result[kind] = { value, unit };
   };
   add(snapshot.copilot.kind, "allowances.copilot", snapshot.copilot.unit);
-  add("actions-minutes", "allowances.actionsMinutes", snapshot.actionsMinutes.unit);
-  add("actions-storage", "allowances.actionsStorage", snapshot.actionsStorage.unit);
+  add("actions-minutes", "allowances.actionsMinutes", "minutes");
+  add("actions-storage", "allowances.actionsStorage", "gigabytes");
   return result;
+}
+
+/**
+ * Resolves the two lookups a percentage needs, then enriches the snapshot.
+ *
+ * Degrades rather than failing. If either lookup is unavailable - no credential, a
+ * token without repository read access, a rate limit - the snapshot comes back with
+ * `allowanceState: "unknown"` and an explanation, which is the honest outcome. A
+ * failed lookup must never produce a percentage, and must never fail the refresh
+ * that already succeeded.
+ */
+async function enrichWithAllowances(
+  snapshot: UsageSnapshot,
+  client: GitHubBillingClient,
+  token: string | null,
+  owner: BillingOwner
+): Promise<UsageSnapshot> {
+  const manualAllowances = configuredAllowances(snapshot);
+  if (token === null) {
+    return enrichSnapshot(snapshot, { visibility: {}, planName: null, manualAllowances }).snapshot;
+  }
+  const fetchJson: JsonFetch = (path, credential, signal) => client.getJson(path, credential, signal);
+  const names = repositoryNamesIn(snapshot.actionsMinutes.breakdowns);
+  const visibility = await visibilityCache
+    .resolve(names, { token, owner: owner.name })
+    .catch(() => ({}));
+  const planName = await fetchAccountPlanName(fetchJson, token).catch(() => null);
+  return enrichSnapshot(snapshot, { visibility, planName, manualAllowances }).snapshot;
 }
 
 function configuredStaleAfterMs(): number { return vscode.workspace.getConfiguration("githubUsageMonitor").get<number>("staleAfterMinutes", 30) * 60_000; }

@@ -151,8 +151,14 @@ function metricFromItems(
     kind,
     unit,
     used: sum(items.map((item) => item.grossQuantity)),
+    // The normalizer reports consumption only. Drawdown reconstruction needs
+    // repository visibility, which is a network concern; `applyAllowances` fills
+    // these in once that has resolved.
+    drawdown: null,
+    drawdownBasis: "unavailable",
     allowance: null,
     allowanceSource: "unknown",
+    allowanceState: "unknown",
     percentage: null,
     reset,
     breakdowns: items.map(({ model: _model, ...item }) => item),
@@ -186,6 +192,9 @@ function parseItems(
       product,
       sku,
       unit,
+      // Retained rather than parsed away: this is the only field that separates free
+      // public-repository usage from allowance-consuming private usage.
+      repositoryName: typeof item.repositoryName === "string" ? item.repositoryName : null,
       grossQuantity,
       grossAmount: optionalNumber(item.grossAmount),
       discountQuantity: optionalNumber(item.discountQuantity),

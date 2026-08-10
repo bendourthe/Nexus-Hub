@@ -4,6 +4,19 @@
 **Run at**: v3.16.3 Phase 1 per-phase audit (2026-08-09), over the v3.16.2 Phase 6 terminal-phase run (2026-08-09), which supersedes the v3.16.0 Phase 2 run. Findings carried forward below.
 **Scope**: `docs/v3/v3.16/`, `docs/v3/v3.15/development/` (the two contract documents v3.16.3 amends), the new `docs/incidents/`, plus `docs/policy/` and the repo-root, `scripts/`, and `configs/` surfaces these cycles touched.
 
+## v3.16.3 Phase 2 pass
+
+Layout is clean and no file needed to move. The phase added two documents, both at canonical paths.
+
+| Check | Result |
+|---|---|
+| New probe document | `development/github-entitlement-probe.md`, matching the sibling `github-usage-*-contract.md` and `github-billing-auth-probe.md` convention |
+| New session history | `development/history/2026-08-09_github-usage-monitor-ux-phase-2-allowance-and-drawdown-truth.md`, correct |
+| Scratch or stray docs created by this phase | None |
+| Known-gaps append target | `docs/v3/v3.16/known-gaps.md`, appended as a `### NI-2 ...` block within the existing `## v3.16.3` section rather than opening a second one |
+
+**Probe document placement, noted.** `github-entitlement-probe.md` sits under `docs/v3/v3.16/development/` rather than alongside the two v3.15 contract documents it repeatedly cites. That is correct: it records what was true **when v3.16.3 measured it**, including three superseded conclusions and their corrections, so it is a per-release artifact rather than a contract. The v3.15 contracts remain the durable statements and were amended in place in Phase 1.
+
 ## v3.16.3 Phase 1 pass
 
 Layout is clean and no file needed to move. The phase added one document, at the canonical path.

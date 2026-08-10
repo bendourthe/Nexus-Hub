@@ -71,7 +71,15 @@ function metricSection(label: string, metric: UsageMetric, now: number): string 
   const costs = formatCosts(metric);
   const reset = metric.reset === null ? "Reset: not reported" : `Reset: ${formatResetCountdown(metric.reset.at, now)} (${escapeHtml(metric.reset.label)})`;
   if (metric.percentage === null || metric.allowance === null) {
-    return `**${label}** - ${amount}<br>Allowance: unknown (${metric.allowanceSource})<br>${costs}${reset}<br><br>`;
+    // The hover mirrors the panel's three states rather than collapsing them into
+    // one "unknown". A Copilot metric with no plan allowance is a different fact
+    // from an Actions metric whose drawdown could not be reconstructed, and a user
+    // reading the tooltip deserves to know which they are looking at.
+    const reason =
+      metric.allowanceState === "none"
+        ? "No allowance included with your plan"
+        : "Allowance not established";
+    return `**${label}** - ${amount}<br>${reason}<br>${costs}${reset}<br><br>`;
   }
   const percent = Math.max(0, metric.percentage);
   const width = Math.min(100, Math.round(percent));
