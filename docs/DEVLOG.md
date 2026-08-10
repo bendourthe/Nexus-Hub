@@ -1,5 +1,167 @@
 # Development Log
 
+## [2026-08-09] - v3.16.2 Phase 6: refactor, reconciliation, and CI/CD [terminal phase]
+
+### What Changed
+
+The plan's terminal phase. The architecture audit found nothing to move and says so. Known gaps were reconciled to 6 closed and 5 carried, with the six declined candidates and the incident-archive residual risk recorded. CI/CD was reviewed and found already at the optimized contract, with this cycle's additions (the `docs/incidents/**` trigger, the widened AST gate) already in place from Phases 3 and 5. One stale reference was repaired. **The branch is not pushed and `/update release` has not been invoked** - both are approval-gated.
+
+### Why It Changed
+
+The terminal phase exists to leave the layout clean, the gaps honest, and the pipeline covering everything the cycle added, so the next plan starts from a true picture rather than an assumed one.
+
+### Decisions Made
+
+- **`docs/incidents/` stays at the docs root, and the reason is recorded.** An incident is cross-version by nature: both backfilled notes span multiple releases, and filing either under one version directory would bury a lesson that applies to all of them. It matches the existing docs-root convention for cross-version concerns (`policy/`, `security/`, `specs/`, `git/`).
+- **NI-2 was carried rather than fixed.** `observability-setup` at 763 lines is 37 from the hard cap and wants splitting into `references/`. A terminal phase is the wrong place to restructure a skill nothing in this plan required changing; the honest move is to name the next-touch action, not to do surgery under a release gate.
+- **BG-2 was carried with an explicit recommendation.** `secret-scan.sh` failing open without `jq` is out of this plan's scope, but a security guard that fails open is the wrong default and the note says so rather than burying it in a table.
+- **The plan's own metadata was repaired.** Its header named a filename that does not exist (`v3.16.2-adoption-loopx.md`), which is the plan-metadata half of the drift class the v3.14.2 work addressed.
+
+### Verification
+
+All 15 `make validate` guards pass individually (`make` itself is absent on this host, WN-1). ShellCheck clean on both installers and every `catalog/**/*.sh`. Every `.ps1` under `scripts/` and `catalog/hooks/` AST-parses on Windows PowerShell 5.1. Catalog is consistent at **271 skills** across `skills.json` and the on-disk `SKILL.md` count, and `data/` is untouched across the entire six-phase cycle - confirming no frontmatter changed anywhere, so no sync was required. `tests/skills` 509, `tests/validators` 569, `tests/workflows` 91, `tests/plans` 91.
+
+The QG-2 constraint was verified empirically rather than assumed: both test files Phase 5 added live in `tests/installer` and `tests/validators`, and both directories are explicitly enumerated in `ci.yml`, so collection actually happens.
+
+### Known Issues
+
+Five carried, zero release blockers: MT-1 (loop-schema concepts still lack a mechanical assertion, and the duplicated `gates` block is the concrete drift risk), NI-2, NI-3, BG-2, and the environmental WN-1 / BG-1. Full disposition table in the v3.16 gap log.
+
+## [2026-08-09] - v3.16.2 Phase 5: local verification tooling (`nexus-hub doctor`)
+
+### What Changed
+
+Added a `doctor` subcommand to BOTH installers: it reads the `install_verify` block of `docs/policy/platform-read-contracts.json`, detects which platforms are present, verifies every surface the contract promises, and reports SKIP / PASS / FAIL per platform. Read-only, no network. Exit 0 when every detected platform is complete, 1 on drift, 2 when the contract cannot be read. Added `scripts/check_release_capability_docs.py` (advisory) for the Phase 2 gate, 22 doctor parity tests, 15 validator tests, and extended CI's PowerShell AST-parse gate to `scripts/*.ps1` and the root bootstrap.
+
+### Why It Changed
+
+Nexus-Hub could install across fourteen platforms and never tell a user whether the install landed where the read-contract promised. Silent non-coverage was discoverable only by noticing an absence months later, which is how most of the incidents in `docs/incidents/` began.
+
+### Decisions Made
+
+- **Full logic in both shells, per an explicit decision.** `runner.py` already has a `verify` that reads the same contract, and a thin dispatch to shared Python would have made parity structural. The alternative was chosen deliberately, so parity is asserted by test rather than guaranteed by construction. That raised the bar on the tests, which is where the phase's main finding came from.
+- **`verify` was left completely untouched.** It is deliberately always exit-0 with a comment warning future editors not to "fix" that, because it must never fail an install. `doctor` is a separate entry point with failing exit codes, which keeps both contracts honest instead of overloading one command with two postures.
+- **Three states kept distinct.** A platform that is absent SKIPs and is not a failure; present-and-complete PASSes; present-with-a-missing-surface FAILs. Collapsing absent into either of the others is what makes a doctor untrustworthy.
+- **The doctor fails LOUDLY on an unreadable contract (exit 2).** `runner.py`'s helper is fail-soft by design, which suits an advisory post-install note. For a preflight, reporting CLEAR because the contract could not be read is the worst possible output. `NEXUS_DOCTOR_CONTRACT` exists so that path is testable at all.
+- **`--repair` prints and does not execute.** The remediation is usually re-running the installer, and a diagnostic that mutates an install is how a preflight becomes the thing that breaks you. Recorded as NI-3 with the bound stated.
+
+### What the parity requirement caught, immediately
+
+Running both implementations against this machine produced **disagreeing verdicts with matching exit codes**: Bash reported 5 complete / 5 incomplete, PowerShell 9 / 1. Cause: the Bash flattener's Python fallback emits CRLF on Windows, so the last tab-separated field carried a trailing `\r`. Only `file_contains` surfaces use that final `needle` column, so only they broke.
+
+That is shape S-1 failure mode 2 (runs but disagrees) from `docs/incidents/shapes.md`, reproduced within hours of the notes describing it being written, and caught on the first application of the durable fixes those notes name. Recorded as BG-3.
+
+A second finding came from the same direction: **`scripts/installer.ps1` had never been AST-parsed in CI.** The gate the v3.11.0 incident produced globbed `catalog/hooks` only, and the bootstrap job parses only the root `install.ps1`, so the largest PowerShell file in the repo was covered by neither. Recorded and closed as QG-2.
+
+### Known Issues
+
+NI-3 (the `--repair` bound, deliberate). MT-1 from Phase 1 remains open and is now the only substantive item Phase 6 inherits. WN-2 corrects a stale assumption: `shellcheck` IS present on this host and was used - it flagged SC2088 on the first draft of the path resolver, which was restructured rather than suppressed.
+
+## [2026-08-09] - v3.16.2 Phase 4: engineering discipline transfers
+
+### What Changed
+
+Four bounded doctrine items folded into the three files that already own their concerns, with no new skill created. `AGENTS.md` gained a test-retention policy (in the hook-testing section) and a scope-fit pre-add review (opening the Boundaries section). `multi-agent-coordinator` gained peer claim/lease arbitration. `observability-setup` gained a projection-sink design rule. No frontmatter changed on either skill, so `data/skills.json` is untouched and the catalog stays at 271 skills.
+
+### Why It Changed
+
+Each item closes a gate the project had only on one side. The test suite had a keep rule by convention and no delete rule, so it could only grow. `code-simplification` removes complexity after the fact and nothing declined to add it beforehand. The coordinator could partition work in advance but had nothing to say when the partition is not knowable until runtime. And operator displays had no rule keeping them off private source documents.
+
+### Decisions Made
+
+- **The delete half of the retention policy is written to not conflict with the parity rule.** The obvious failure of "consolidate near-identical tests" advice in this repo is that a `.sh` and `.ps1` assertion pair looks near-identical. The policy states explicitly that a behavioral assertion parametrized over both implementations is ONE test covering a durable contract, and that the aggregate-test advice targets per-artifact duplication only.
+- **Claim/lease is scoped narrowly on purpose.** It applies only when several agents contend for one shared queue whose items are not known in advance. A fan-out with disjoint write scopes -- the common case the skill already covers -- needs no leases, and saying so is what stops the guidance being over-applied. The expired-lease-nobody-reclaims case is called out as the actual failure mode, with a bounded attempt count so a perpetually reclaimed item routes to a human instead of cycling.
+- **The projection-sink rule leads with lifecycle-as-data.** The rule's obvious half (do not parse private documents) is easy to agree with and easy to violate under deadline. The non-obvious half is that a superseded row must carry `supersedes` / `superseded_by` / `row_lifecycle` fields rather than an explanatory sentence, with the test stated plainly: a reader should never have to open a private source document to understand why a row changed.
+
+### Verification
+
+All eight relevant validators pass, including `check_base_template_parity.py` run explicitly, which is what sub-task 4.5 asked for: `AGENTS.md` is not one of the five lockstep `base-*.md` templates, so editing it requires no template change. `tests/skills` 509 passed, `tests/validators` 554 passed, `tests/plans` 91 passed. Catalog unchanged at 271 skills; no new skill created.
+
+### Known Issues
+
+NI-2: sub-task 4.5 asked to confirm both edited skills stayed within the 500-line body target, but both were already over it before this phase (742 and 685 lines, now 763 and 703). They are grandfathered by the forward-looking norm in `AGENTS.md` and remain under the 800-line hard cap, so the honest report is that the target was already exceeded rather than that the check passed. `observability-setup` is now within 37 lines of the cap and should be split into `references/` before the next addition, not during it.
+
+## [2026-08-09] - v3.16.2 Phase 3: incident archive practice and backfill
+
+### What Changed
+
+Created `docs/incidents/` with a README documenting the artifact type, a `TEMPLATE.md`, a `shapes.md` holding reusable abstracted patterns, and two backfilled real incidents. Built `scripts/check_incident_notes.py` and wired it into `make validate`, the CI `validate` job, and `DEV_ONLY_SCRIPTS`, with 12 tests. Updated `incident-postmortem` to name the output location, require two new sections, add a surprising-behavior trigger and a responsible-layer classification step, and cross-link three skills. No frontmatter changed, so the catalog stays at 271 skills with no `data/skills.json` sync.
+
+### Why It Changed
+
+Three skills that produce archives (`incident-postmortem`, `known-gaps-tracker`, `solution-knowledge-base`) all shipped while `docs/incidents/` and `docs/solutions/` held nothing at all. The capability was present; only the practice was missing. The risk in starting one is well known - the directory becomes a pile of writeups nobody reads - so the Durable-fix rule is the control, and it was made mechanical rather than left as a request.
+
+### Decisions Made
+
+- **The plan asked for a CI path filter; the guard had to come first.** `ci.yml` deliberately excludes `docs/**` except where a test actually reads the file, with that reasoning written into its comments for session histories. Adding `docs/incidents/**` with nothing reading it would have run the full matrix on every incident note for zero signal. Building `check_incident_notes.py` first is what makes the path filter correct rather than costly, and the comment states the rule: a docs path earns a trigger only when a guard reads it.
+- **The two incidents share one shape, extracted into its own file.** Both are the same failure class (an unverified cross-platform sibling), so `shapes.md` states it once as S-1, with the two failure modes separated - never runs at all, versus runs but disagrees - because they need different controls. Each note references the shape rather than restating it.
+- **The skill's frontmatter was deliberately not touched.** Its `description` already exceeds the 250-character ceiling and is allowlisted; rewriting it to add the new trigger would have risked the gate and forced a `skills.json` sync for no benefit. The surprising-behavior trigger went into the body instead.
+
+### Verification, and what it found
+
+The `secret-scan` coverage was verified by exercising the hook rather than by reading its matcher, which turned up a real defect. **`secret-scan.sh` fails OPEN on a host without `jq`**: it takes an explicit `exit 0` path when `jq` is missing, so a payload carrying a well-formed AWS access key ID returned exit 0 with no output. `secret-scan.ps1` was verified working in both directions on the same host (exit 2 on the seeded key, exit 0 on a clean note), so the coverage claim for `docs/incidents/` holds on Windows and the finding is bounded rather than total.
+
+The irony is the point: a registered, executable, permanently silent security hook is exactly shape S-1, the shape both backfilled notes are about. Recorded as BG-2 with a suggested fix (degrade to scanning, or fail closed - failing open is the wrong default for a guard whose whole job is to block). No hook logic was changed, which is outside this plan's scope.
+
+No scratch file was created and deleted for this test; the payloads were piped to the hooks through their real stdin contract, which is the same evidence with no risk of a seeded secret reaching a commit.
+
+### Known Issues
+
+BG-2 above. QG-1 was raised and closed inside the phase (the path filter). The archive's residual risk - a directory nobody reads - now has a mechanical control rather than an aspirational one; Phase 6.2 should record whether it held.
+
+## [2026-08-09] - v3.16.2 Phase 2: release capability usage gate
+
+### What Changed
+
+Added governance step 6 to the release section of `catalog/commands/update.md`: a release that introduces or materially changes an opt-in capability, installer flag, managed skill, or host surface must document five elements per surface in its release notes - activation, a runnable validation command, the disable/rollback path, the authority boundary activation does NOT grant, and a canonical documentation link. Added a compact cross-reference in `AGENTS.md` under the branching and release workflow so the gate is discoverable from the canonical agent guidance rather than only from the command file.
+
+### Why It Changed
+
+Nexus-Hub ships an unusually high density of opt-in surfaces - `NEXUS_HUB_COPILOT_SKILLS`, the `--enterprise` / `-Enterprise` installer flag, `NEXUS_DISABLED_HOOKS`, `NEXUS_HOOK_PROFILE=minimal` - and nothing in the release flow required any of them to be documented as operable. A capability that ships without its operating instructions is either unused or over-trusted, and neither failure is visible from the diff.
+
+### Decisions Made
+
+- **Element 4 is called out as the load-bearing one.** Elements 1 through 3 fail loudly: a user who cannot activate, verify, or disable a surface finds out immediately. An unstated authority boundary fails silently, by letting someone over-trust a surface they enabled. That asymmetry is written into the gate rather than left implicit.
+- **The gate is scoped to opt-in surfaces only, with a one-line no-change path.** A release changing no opt-in surface satisfies it with a single explicit declaration. The declaration is required rather than optional because an explicit "checked and none applied" is what distinguishes a run from a skip, and one sentence is the correct price for that in an already-long release flow.
+- **The Phase 5 validator is described but deliberately not named.** Writing `scripts/check_release_capability_docs.py` into the file today would have created a reference to a path that does not resolve - the identical defect as NI-1, which was found in this same file during this phase. The text states a checker is planned and describes its advisory posture instead.
+
+### Verification
+
+The gate was dry-run against the two most recent releases. **v3.15.10 would have failed**: it introduced `NEXUS_NOTIFY_DRY_RUN`, `NEXUS_NOTIFY_DISABLED_FILE`, and a switch-file kill path, and its notes carry no readback command, no authority boundary, and no documentation link. **v3.15.11 is out of scope**: its changes are internal hook-delivery fixes to default-on hooks, so it satisfies the gate with the no-change declaration. One fail and one out-of-scope is the result that shows the gate discriminates instead of firing on everything. Neither release's notes were retroactively edited.
+
+### Known Issues
+
+NI-1: `update.md` already referenced a `nexus-hub doctor` subcommand that does not exist, found while editing the same file. Pre-existing, and closed by Phase 5 building it. DF-1: the gate has no mechanical checker until Phase 5.3.
+
+## [2026-08-09] - v3.16.2 Phase 1: loop schema gates, evidence freshness, and instance state
+
+### What Changed
+
+Three long-horizon concepts were added to `catalog/skills/workflow/loop-engineering/references/loop-schema.md`, all optional so every existing loop definition stays valid: a typed `gates` field with four types (`owner`, `safety`, `publication`, `private-data`), an `evidence_freshness` field, and an Instance State section separating a loop DEFINITION from one running INSTANCE. `SKILL.md` Step 4 now references all three (steps 4, 8, and 9), and `references/loop-library.md` carries one demonstration gate. No frontmatter changed, so no `data/skills.json` sync was needed and the catalog stays at 271 skills.
+
+### Why It Changed
+
+The v3.16.2 comparison found Nexus-Hub's loop coverage already further along than a first pass suggested - `iteration_cap`, `check_command`, dual-condition `exit_condition`, `driver`, `maturity`, `per_iteration_budget`, `trace_log`, `progress_check`, and `handoff` all shipped across four prior cycles. Only three concepts survived the filter, and each survived for the same structural reason: a static definition cannot express them. A gate pauses a loop that is otherwise succeeding, which `handoff` (a post-cap destination) cannot represent. Freshness is a claim about time, which `trace_log` (append-only history) and `progress_check` (a stall detector) both miss. And an instance record is per-execution state, which a reusable template by definition does not hold.
+
+### Decisions Made
+
+- **The worked example's gate was changed from `publication` to `safety` mid-implementation.** The first draft gated the PR body before each push, which would have tripped on every iteration and turned an automated loop into a manual one - teaching the opposite of the intended lesson. It was replaced with a force-push gate that fires only on the rare history-rewriting step, plus an explicit note that a gate tripping every iteration means the loop's authority was drawn too narrowly, not that the loop is being careful.
+- **A pre-existing collision was reconciled rather than left standing.** `SKILL.md` already carried a "Human gate checkpoint" workflow-control pattern with an `on_reject` policy. Shipping a typed `gates` field beside it would have left two competing gate concepts in one skill. Both sides now cross-link with an explicit split: the schema declares WHICH steps gate and what each asks; the pattern is HOW the pause is carried out. The `retry` interaction is stated once - a retry counts against `iteration_cap` because re-running the gated step is real work, while the wait that preceded it does not.
+- **The library's `ship-pr-until-green` received the same gate.** The schema's worked example and the library entry are the same loop, so leaving only one of them gated would have shipped an internal contradiction. Both carry a note that `gates` is optional and that the other five library loops declare none.
+- **Instance state is documented as a pattern with no runtime.** This preserves the standing decision (restated three times since v3.1.0) that the loop driver is a host command. The record is gitignored by default, carries the `[[egress-redaction]]` discipline, and composes with rather than replaces `[[filesystem-context-patterns]]` and `[[dev-progress-tracker]]`, with ownership stated per layer.
+
+### Test Results
+
+`make` is absent on this host, so both targets were run command by command. All seven `validate` guards pass. Full suites: `tests/` 2157 passed / 20 skipped / 1 failed, `catalog/hooks/tests` 993 passed / 36 skipped, and all five extension suites green (670 passed total). The single failure is `test_ps_standalone_extracts_and_hands_off`, byte-identical to the inherited environmental BG-1 and unreachable from a three-Markdown-file change.
+
+### CI/CD
+
+No change required and none made. `catalog/skills/**` is already inside the `'**'` path filter, `concurrency` cancel-in-progress and dependency caching are already configured, and the skill gate already runs. It stays on `--bundles-only` rather than strict mode, per the standing v3.14.2 WN-1 constraint.
+
+### Known Issues
+
+Three items appended to [docs/v3/v3.16/known-gaps.md](v3/v3.16/known-gaps.md) under `## v3.16.2`. None blocks the release and none was caused by this phase. The one worth naming here is MT-1: the new schema concepts are prose in a Tier-3 reference file with no mechanical assertion, and the `ship-pr-until-green` gates block now exists in two files that can drift apart. Phase 5 owns the fix.
+
 ## [2026-08-09] - v3.16.1 release: evaluation methodology and selective installation
 
 ### What Changed

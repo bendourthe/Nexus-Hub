@@ -1,6 +1,6 @@
 # AGENTS.md
 
-<!-- nexus-hub-version: 3.16.1 -->
+<!-- nexus-hub-version: 3.16.2 -->
 
 This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, Gemini CLI, etc.) when working with code in this repository.
 
@@ -363,6 +363,24 @@ Two of those are easy to misuse, so pick deliberately:
 
 **Write tests for any new hook** following the pytest pattern in `catalog/hooks/tests/test_format_bash_description.py`. Prefer a `run` fixture parametrized over both implementations (see `test_escalation_trigger.py` or `test_provenance_ledger.py`) so every behavioral assertion doubles as a parity assertion. Run with `make test`.
 
+#### Test retention policy
+
+`catalog/hooks/tests/` grows every cycle, and a suite with no delete rule accumulates tests that assert history rather than behavior. Both halves of the rule below are needed; the keep half alone is what produces a suite nobody can prune.
+
+**Keep a test when it validates a durable behavior:**
+
+- Shipped CLI or runtime behavior a user can observe.
+- A reusable contract (a hook's exit-code protocol, a validator's output shape, an installer's copy guarantee).
+- A boundary enforcement (a guard that must block, an allowlist that must reject).
+- A regression that previously broke something real, including the pre-existing defects the incident archive records.
+- A representative fixture likely to catch a future bug in the same class.
+
+**Do not keep a test whose main purpose is asserting the exact text of a dated note, a transitional decision, or a temporary artifact.** That information belongs in the document itself, where it can be read and revised, not frozen into an assertion that fails on a wording change and teaches nothing when it does. Where several artifacts share one invariant, cover it with a single data-driven aggregate test over the set rather than one near-identical test per artifact.
+
+**Size trigger**: when a test file passes roughly 500 lines, re-check whether it is really one test. Usually it has accreted several concerns, or it is carrying logic that belongs in a product module. Prefer moving the reusable logic into the module under test so the test stays a thin behavior check.
+
+None of this loosens the parity rule above. A behavioral assertion parametrized over both the `.sh` and the `.ps1` is ONE test covering a durable contract, not two tests to consolidate; the aggregate-test advice targets near-identical per-artifact tests, never the two implementations of one behavior.
+
 ### Workflow-phase automation (N1a)
 
 To run automation at a `/plan`, `/implement`, or `/spec` **phase boundary**, do NOT invent new harness event types and do NOT import a Spec Kit-style per-command `before_/after_` hook registry (that presupposes the declined third-party extension runtime -- see the v3.6.0 Spec Kit comparison, candidate N1b). A phase boundary surfaces as a specific tool call, so key a `PreToolUse` / `PostToolUse` matcher on it and let the hook inspect the tool input: match `Write`/`Edit` and gate on `tool_input.file_path` (a plan artifact under `docs/**/plans/`, a `spec.md`, a `tasks.md`, a `CHANGELOG.md`), or match `Bash` and gate on `tool_input.command` (a `git commit`). Use `SessionStart` / `Stop` for session-level setup/teardown. The four events relevant to workflow-phase automation are `SessionStart` / `PreToolUse` / `PostToolUse` / `Stop`; this is a usage pattern on the existing surface, not a new runtime. A runnable example ships as [`catalog/hooks/workflow-phase-notice.sh`](catalog/hooks/workflow-phase-notice.sh) (tested in `catalog/hooks/tests/test_workflow_phase_notice.py`) and is registered in the default `settings.json` `PostToolUse` chain; it is advisory only (exit 0) and is disabled per-session with `NEXUS_DISABLED_HOOKS=workflow-phase-notice` or `NEXUS_HOOK_PROFILE=minimal`. Full recipe (matcher-to-phase mapping, authoring rules, registration snippet): the "Workflow-phase automation recipe" in [`guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md`](guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md).
@@ -470,6 +488,8 @@ Nexus-Hub uses a lightweight **`develop` + `main`** model (adopted 2026-06-04). 
 
 Rationale: Nexus-Hub is a catalog consumed directly from the repo by an installer across every supported AI platform, so `main` is effectively a release artifact. Isolating in-progress, multi-phase versions on `develop` protects downstream installer users from half-applied phases.
 
+**Capability usage gate (release notes).** A release that introduces or materially changes an OPT-IN capability, installer flag, managed skill, or host surface must document five things per surface in its release notes: the exact activation mechanism, a runnable validation command, the exact disable / rollback path, the authority or privacy boundary that activation does NOT grant, and a canonical documentation link. Nexus-Hub ships an unusually high density of such surfaces (`NEXUS_HUB_COPILOT_SKILLS`, `--enterprise` / `-Enterprise`, `NEXUS_DISABLED_HOOKS`, `NEXUS_HOOK_PROFILE=minimal`), and the fourth element is both the most-skipped and the only one that fails silently rather than loudly. The gate applies ONLY to opt-in surfaces; a release with none satisfies it with a single explicit no-change declaration. Full definition and worked examples: governance step 6 in [`catalog/commands/update.md`](catalog/commands/update.md).
+
 ## Critical Conventions
 
 - **Never edit `data/` files manually** unless registering a new skill — they are generated. The source of truth is `catalog/skills/`.
@@ -479,6 +499,12 @@ Rationale: Nexus-Hub is a catalog consumed directly from the repo by an installe
 - **skills.json security scores** (`structural`, `integrity`, `semantic`) default to 100/100/95 for new skills; adjust if the skill has known limitations.
 
 ## Boundaries
+
+**Scope-fit review (before adding, not after):** treat code volume as a cost, especially during a refactor. A good change makes the next change easier to localize, test, and revert; it should not turn a design possibility into unused production structure.
+
+Before adding a new module, builder, protocol field, CLI option, fixture, or abstraction, name the shipped behavior, the active call site, or the explicit compatibility contract that requires it. If the only justification is an uncommitted future runner, a design note, or a hypothetical extension with no validation contract, keep the design in docs or todo state until the real call site appears. "We will need it when X lands" is a plan, not a call site.
+
+This is the complement to [[code-simplification]], which removes complexity after the fact. This gate declines to add it in the first place, which is cheaper and leaves no migration behind.
 
 **Always do:**
 - Run `make validate` after modifying any `data/*.json` file

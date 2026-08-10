@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.16.1 -->
+<!-- nexus-hub-version: 3.16.2 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 271 skills, 17 commands, 31 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -36,6 +36,23 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v3.16.2
+
+One thing you could not do before: ask whether your install actually landed where the contract promised.
+
+**`nexus-hub doctor`.** A read-only preflight in both installers. It reads the platform read-contract, detects which of the fourteen platforms are present on your machine, and verifies that every surface the contract promises actually exists -- skills, commands, agents, rules, hooks, and the instruction file, per platform. It keeps three states apart, because collapsing them is what makes a diagnostic untrustworthy: a platform you have not installed **skips** (not a failure), a complete one **passes**, and a present one missing a surface **fails** with the exact remediation command. Exit **0** clean, **1** drift, **2** the contract itself could not be read -- it refuses to report CLEAR on evidence it does not have.
+
+```bash
+bash scripts/installer.sh doctor          # macOS / Linux
+pwsh scripts/installer.ps1 doctor         # Windows
+```
+
+**Loop definitions can now express three things a static schema could not.** Typed human-judgment `gates` pause a running loop to ask one concrete question (an owner call, an action beyond the loop's authority, anything externally visible, anything touching private context) and resume on the answer -- distinct from `handoff`, which only catches work after the cap. `evidence_freshness` declares how long a check stays authoritative, so a long-horizon loop stops trusting a result that passed twenty iterations ago. And a documented instance-state pattern lets a cold start resume rather than re-derive. All three are optional, so every existing loop definition stays valid.
+
+**A release can no longer ship an opt-in surface it does not teach.** `/update release` now requires five things per opt-in capability: activation, a validation command, the rollback path, the authority boundary activation does *not* grant, and a documentation link. The fourth is the one most often skipped and the only one that fails silently, by letting you over-trust something you enabled. Dry-run against the two prior releases: one would have failed, one was out of scope.
+
+**An incident archive that cannot become a graveyard.** `docs/incidents/` ships with two real backfilled failures and one rule enforced by a validator in CI: an incident is closed by a *change*, not an explanation, so a note whose "durable fix" carries no link fails the build. The shape those two notes describe -- a cross-platform sibling that is silently non-functional -- caught two live defects in the same cycle it was written, including one where the two `doctor` implementations disagreed on four platforms while both returned the same exit code.
 
 ## What's New in v3.16.1
 

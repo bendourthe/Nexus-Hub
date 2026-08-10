@@ -644,6 +644,27 @@ service:
 - **Instrument at service boundaries** as a starting point before adding method-level spans
 - **Include a runbook link** in every alert annotation
 
+## Projection-Sink Design Rule
+
+When building an operator-facing display -- a dashboard, a status surface, a chat summary, a generated report -- render it from bounded, public-safe **projections** with stable ids. Do not build it by parsing a project-specific private document, a raw agent transcript, or a local filesystem path.
+
+A projection is data shaped for the sink: a fixed set of fields, stable identifiers, and no content the sink is not cleared to show. A private source document is the opposite of that. Reading one directly couples the display to a file's prose formatting, breaks when someone rewords a heading, and quietly widens the display's blast radius to everything else in that file.
+
+**Represent lifecycle as data, not as prose.** This is the non-obvious half. When a displayed row supersedes, migrates, or retires an earlier one, express that through lifecycle fields rather than an explanatory sentence someone appends to the row:
+
+| Field | Purpose |
+|---|---|
+| `row_lifecycle` | The row's current state (`active`, `superseded`, `retired`, `migrated`) |
+| `supersedes` | The id of the row this one replaces |
+| `superseded_by` | The id of the row that replaced this one |
+| `source_id` | The stable id of the upstream record this row projects |
+
+The test for whether you have this right: **a reader should never have to open a private source document to understand why a row changed.** If the only explanation for a retired row lives in a design note or a commit message, the projection is missing a field. Ad hoc prose also cannot be queried, sorted, or diffed, so a display built on it degrades into something only its author can interpret.
+
+Nexus-Hub's four usage-monitor extensions (Claude, Codex, Cursor, GitHub) are exactly this artifact class and are the local reference for the rule: each renders an operator display from a bounded projection rather than from whatever happens to be on disk.
+
+For any sink that is multi-user, shared, or public, apply [[egress-redaction]] to the projection before it renders. The projection boundary is the natural place to enforce redaction, because it is the one point where you already enumerate every field that leaves.
+
 ## Common Patterns
 
 ### Pattern 1: Correlation ID Propagation

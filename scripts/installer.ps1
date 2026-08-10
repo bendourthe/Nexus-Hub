@@ -144,7 +144,7 @@ function Get-SanitizedBranchName {
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:NexusHubVersion = "3.16.1"
+$script:NexusHubVersion = "3.16.2"
 
 $Host.UI.RawUI.WindowTitle = "Nexus-Hub Installer"
 $script:InstallerTitle = "Nexus-Hub Installer"
@@ -3447,6 +3447,184 @@ if ($Branch -and $env:NEXUS_HUB_BRANCH_RESOLVED -ne "1") {
     if ($Force) { $branchPassthru += "-Force" }
     & powershell -NoProfile -ExecutionPolicy Bypass -File $cachedInstaller @branchPassthru
     exit $LASTEXITCODE
+}
+
+# --- nexus-hub doctor (v3.16.2 Phase 5) ---------------------------------
+#
+# Sibling of run_doctor() in installer.sh. Behavior and EXIT CODES must match
+# the Bash version for the same machine state; that parity is asserted by test
+# (tests/installer/test_doctor_parity.py), not assumed from this file existing.
+# Both backfilled incidents in docs/incidents/ are about exactly this class of
+# change, and their durable fixes are requirements here.
+#
+# Native equivalents rather than emulated shell mechanics: ConvertFrom-Json
+# instead of a jq dependency, and [System.IO.File]::ReadAllText for the
+# contains-check. Nothing is written, so the UTF8Encoding/BOM hazard that
+# produced the v3.15.6 divergence cannot arise here -- a read-only command has
+# no encoding surface.
+#
+# NETWORK: none. Do not add one; it is what keeps this `re-full` under the MCP
+# Registry Policy.
+#
+# Exit codes: 0 every detected platform complete, 1 at least one incomplete,
+# 2 the contract could not be read or parsed (never a false CLEAR).
+function Resolve-DoctorContractPath {
+    # NEXUS_DOCTOR_CONTRACT pins the contract explicitly, mirroring the Bash
+    # override. When set it is used even if absent, so the fail-loud path stays
+    # testable.
+    if ($env:NEXUS_DOCTOR_CONTRACT) { return $env:NEXUS_DOCTOR_CONTRACT }
+    $candidates = @(
+        (Join-Path $repoRoot "docs\policy\platform-read-contracts.json"),
+        (Join-Path $HOME ".nexus-hub\src\docs\policy\platform-read-contracts.json"),
+        (Join-Path $HOME ".nexus-hub\docs\policy\platform-read-contracts.json")
+    )
+    foreach ($c in $candidates) {
+        if (Test-Path -LiteralPath $c -PathType Leaf) { return $c }
+    }
+    return $null
+}
+
+function Resolve-DoctorPath {
+    param([string]$Spec, [string]$TargetRoot)
+    if ($Spec.StartsWith("~/")) { return (Join-Path $HOME $Spec.Substring(2)) }
+    if ($Spec.StartsWith("{project}/")) { return (Join-Path $TargetRoot $Spec.Substring(10)) }
+    return $Spec
+}
+
+function Test-DoctorSurface {
+    param([string]$Kind, [string]$Path, [string]$Needle)
+    switch ($Kind) {
+        "nonempty_dir" {
+            if (-not (Test-Path -LiteralPath $Path -PathType Container)) { return $false }
+            # An existing but EMPTY directory is a failed surface: it surfaces
+            # nothing to the platform that reads it.
+            $entries = @(Get-ChildItem -LiteralPath $Path -Force -ErrorAction SilentlyContinue)
+            return ($entries.Count -gt 0)
+        }
+        "is_file" { return (Test-Path -LiteralPath $Path -PathType Leaf) }
+        "file_contains" {
+            if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) { return $false }
+            try { $text = [System.IO.File]::ReadAllText($Path) } catch { return $false }
+            return $text.Contains($Needle)
+        }
+        default {
+            # An unknown kind is a contract this doctor does not understand.
+            # Fail it, so a contract addition cannot silently widen CLEAR.
+            return $false
+        }
+    }
+}
+
+function Invoke-NexusDoctor {
+    param([string[]]$DoctorArgs)
+
+    $targetRoot = (Get-Location).Path
+    $showRepair = $false
+    for ($i = 0; $i -lt $DoctorArgs.Count; $i++) {
+        $a = $DoctorArgs[$i]
+        if ($a -eq "--target") { $targetRoot = $DoctorArgs[$i + 1]; $i++ }
+        elseif ($a -like "--target=*") { $targetRoot = $a.Substring(9) }
+        elseif ($a -eq "--repair") { $showRepair = $true }
+        else {
+            [Console]::Error.WriteLine("doctor: unknown argument: $a")
+            return 2
+        }
+    }
+
+    $json = Resolve-DoctorContractPath
+    if (-not $json) {
+        [Console]::Error.WriteLine("[doctor] FATAL: platform read-contract not found.")
+        [Console]::Error.WriteLine("         Looked in the repo checkout and ~/.nexus-hub/.")
+        [Console]::Error.WriteLine("         Refusing to report a result without the contract.")
+        return 2
+    }
+    if (-not (Test-Path -LiteralPath $json -PathType Leaf)) {
+        [Console]::Error.WriteLine("[doctor] FATAL: could not parse $json")
+        [Console]::Error.WriteLine("         Refusing to report CLEAR on an unreadable contract.")
+        return 2
+    }
+    try {
+        $data = [System.IO.File]::ReadAllText($json) | ConvertFrom-Json
+    } catch {
+        [Console]::Error.WriteLine("[doctor] FATAL: could not parse $json")
+        [Console]::Error.WriteLine("         Refusing to report CLEAR on an unreadable contract.")
+        return 2
+    }
+    $entries = $data.install_verify
+    if (-not $entries -or @($entries).Count -eq 0) {
+        [Console]::Error.WriteLine("[doctor] FATAL: install_verify block is empty or missing in $json")
+        return 2
+    }
+
+    Write-Host "[doctor] contract: $json"
+    Write-Host "[doctor] project:  $targetRoot"
+    Write-Host ""
+
+    $nPass = 0; $nFail = 0; $nSkip = 0
+    $repairLines = @()
+
+    foreach ($entry in @($entries)) {
+        $label = [string]$entry.label
+        $detected = $false
+        foreach ($d in @($entry.detect)) {
+            if (-not $d) { continue }
+            if (Test-Path -LiteralPath (Resolve-DoctorPath -Spec ([string]$d) -TargetRoot $targetRoot)) {
+                $detected = $true
+                break
+            }
+        }
+        if (-not $detected) {
+            Write-Host ("  SKIP  {0,-38} not installed on this machine" -f $label)
+            $nSkip++
+            continue
+        }
+        $parts = @()
+        $anyMissing = $false
+        foreach ($s in @($entry.surfaces)) {
+            $resolved = Resolve-DoctorPath -Spec ([string]$s.path) -TargetRoot $targetRoot
+            $needle = if ($null -ne $s.needle) { [string]$s.needle } else { "" }
+            $ok = Test-DoctorSurface -Kind ([string]$s.kind) -Path $resolved -Needle $needle
+            if ($ok) { $parts += ("{0}:ok" -f $s.label) }
+            else { $parts += ("{0}:MISSING" -f $s.label); $anyMissing = $true }
+        }
+        $detail = ($parts -join ", ")
+        if ($anyMissing) {
+            Write-Host ("  FAIL  {0,-38} {1}" -f $label, $detail)
+            if ($entry.remediation) {
+                Write-Host ("        -> {0}" -f $entry.remediation)
+                $repairLines += ("{0}: {1}" -f $label, $entry.remediation)
+            }
+            $nFail++
+        } else {
+            Write-Host ("  PASS  {0,-38} {1}" -f $label, $detail)
+            $nPass++
+        }
+    }
+
+    Write-Host ""
+    Write-Host "[doctor] $nPass complete, $nFail incomplete, $nSkip not installed."
+
+    if ($nFail -gt 0) {
+        if ($showRepair) {
+            Write-Host ""
+            Write-Host "[doctor] --repair: the following would fix the failures above."
+            Write-Host "[doctor] NOTHING WAS CHANGED. Run these yourself:"
+            foreach ($line in $repairLines) { Write-Host ("         {0}" -f $line) }
+        } else {
+            Write-Host "[doctor] re-run with --repair to print the remediation commands."
+        }
+        return 1
+    }
+    Write-Host "[doctor] every detected platform surfaces the catalog."
+    return 0
+}
+
+# `doctor` is self-contained: it reads the contract and evaluates every surface
+# in this script, so it runs even where the Python runner is unavailable.
+if ($Subcommand -eq "doctor") {
+    $doctorArgs = @()
+    if ($SubcommandArgs) { $doctorArgs = $SubcommandArgs }
+    exit (Invoke-NexusDoctor -DoctorArgs $doctorArgs)
 }
 
 # Read-only subcommand dispatch (init / -PrintConfig / -Check) - bypass the

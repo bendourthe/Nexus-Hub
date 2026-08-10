@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (all 5 phases complete; reconciled and release-ready, unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
-**Last updated**: 2026-08-09 (v3.16.1 release reconciliation; BG-7, BG-8, NI-6 added post-merge; every open item dispositioned)
+**Last updated**: 2026-08-09 (v3.16.2 Phase 6 final reconciliation; 6 closed, 5 carried, 0 release blockers; declined candidates and the incident-archive residual risk recorded)
 
 > **File-lifecycle note**: this ledger was created ahead of any v3.16 implementation, by a comparison that deliberately claimed no release slot, so it began with only the `## Comparison-Sourced Deferrals` section. Each v3.16 version-implementation phase **appends** its own `## v3.16.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` numbering, which is namespaced separately from the `CD-#` and `TR-#` ids used above.
 
@@ -466,6 +466,185 @@ Five findings this cycle were **bugs in work this plan produced**, all caught by
 
 Two were **pre-existing defects the work exposed**: NI-1 (four bundle references to skills that do not exist) and NI-4 (166 of 271 skills unreachable through any module). Neither was visible before this cycle, because nothing resolved selections until Phase 5.
 
+## v3.16.2 - loop-longevity-and-doctor-preflight
+
+Appended by Phase 1 (Loop schema: gates, evidence freshness, instance state) on 2026-08-09. Own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` / `MT-#` namespace, separate from v3.16.0's and v3.16.1's.
+
+### MT-1 - OPEN: the three new schema concepts carry no mechanical assertion
+
+- **Target files**: `catalog/skills/workflow/loop-engineering/references/loop-schema.md`, `catalog/skills/workflow/loop-engineering/references/loop-library.md`
+- **What is missing**: `gates`, `evidence_freshness`, and the Instance State section are prose in a Tier-3 reference file. `validate_skills.py` audits bundle references and orphans, not reference-file content, and `run_trigger_evals.py` scores routing rather than schema shape. Nothing fails today if a later edit deletes a Fields-table row, renames a gate type, or lets the worked example drift out of step with the library entry. The drift risk is now concrete rather than hypothetical: the identical `gates` block for `ship-pr-until-green` exists in **two** files, because the schema's worked example and the library entry are the same loop.
+- **Why it was not done in Phase 1**: the phase's Stability Gate is documentation-scoped, and the plan routes all test construction to Phase 5, which is where this cycle's pytest surface is created. Building a one-off test module here would have put a test directory in front of the phase that must name it in `ci.yml` (v3.15.8 QG-2).
+- **Suggested next step**: when Phase 5 adds its test module, add two cheap assertions alongside it - that the four gate types in the Fields table match those in the Human-Judgment Gates table, and that the `ship-pr-until-green` `gates` block is byte-identical in `loop-schema.md` and `loop-library.md`.
+
+### WN-1 - OPEN (environmental, inherited): no `make` on the implementation host
+
+- **What happened**: `make` is absent on this machine, so neither `make validate` nor `make test` could be invoked as targets. Same condition recorded as v3.16.1 WN-1 and carried forward there.
+- **How it was handled rather than skipped**: every command inside both targets was read out of the `Makefile` and run individually. Seven `validate` guards (`validate_skills.py --bundles-only`, `validate_skills.py --quality`, `run_trigger_evals.py --gate`, `validate_no_personal_paths.py`, `validate_unicode_safety.py`, `check_version_sync.py`, `check_base_template_parity.py`) all pass, and all five extension suites plus `tests/` and `catalog/hooks/tests` were run to completion.
+- **Suggested next step**: none for correctness. CI runs the authoritative gate on Linux and Windows.
+
+### BG-1 - OPEN (pre-existing, inherited): PowerShell bootstrap tarball test fails on this host
+
+- **What happened**: `tests/installer/test_bootstrap.py::test_ps_standalone_extracts_and_hands_off` fails with an MSYS `tar` error. It is the single failure in a 2178-test `tests/` run (2157 passed, 20 skipped).
+- **Why it is not this phase's**: Phase 1 changed three Markdown files inside one skill bundle and touched no bootstrap, installer, or shell file. The failure signature is byte-identical to the one recorded under v3.16.0 BG-1 and v3.16.1 BG-1, where it was reproduced on a clean `develop` worktree carrying none of that cycle's changes.
+- **Bound**: affects a Windows host whose PATH resolves `tar` to the Git Bash binary. CI runners are unaffected.
+
+### NI-1 - OPEN (pre-existing, found in Phase 2): `catalog/commands/update.md` references a `nexus-hub doctor` that does not exist
+
+- **Target file**: `catalog/commands/update.md`, the `config` delegation line and the `config scope` section
+- **What is wrong**: both name `nexus-hub doctor` as an existing delegate ("`config-consistency-checker` / `nexus-hub doctor`"). No `doctor` subcommand exists in either installer today. The command file promises a surface a user cannot invoke.
+- **How it was found**: while adding the Phase 2 capability gate to the same file. It is pre-existing and unrelated to this plan's edits, but it is the identical defect class the gate itself guards against - documentation asserting a capability the user cannot actually operate.
+- **Suggested next step**: Phase 5.1 and 5.2 build exactly this subcommand, which closes the gap by making the reference true. Re-verify at Phase 5 rather than editing the prose now; deleting a reference that Phase 5 is about to make correct would be churn.
+
+### DF-1 - DEFERRED by design: the capability usage gate has no mechanical checker
+
+- **Target**: governance step 6 in `catalog/commands/update.md`
+- **What is deferred**: the gate is currently a human read of the release notes. `scripts/check_release_capability_docs.py`, which asserts the five elements per named surface, is Phase 5.3's deliverable.
+- **Why it was not built in Phase 2**: the plan sequences it that way, and Phase 5 declares Phase 2 as its prerequisite. Phase 2 deliberately does NOT name the script in `update.md` yet, because a forward reference to an unbuilt script is the same defect as NI-1 directly above it. The text says a checker is planned and describes its advisory posture without naming a path that does not resolve.
+- **Suggested next step**: Phase 5.3 builds the script and replaces the "planned" sentence with the real invocation.
+
+### Phase 2 dry-run evidence (recorded, not acted on)
+
+The plan asked whether the gate would have caught anything real. Applied retroactively to the two most recent releases:
+
+| Release | Verdict | Detail |
+|---|---|---|
+| **v3.15.10** (notification work) | **Would have FAILED** | It introduced `NEXUS_NOTIFY_DRY_RUN`, `NEXUS_NOTIFY_DISABLED_FILE`, and the `~/.nexus-hub/notifications-disabled` switch file. Element 1 is partial (the env vars are named but their accepted values are not), element 3 is effectively present (the switch file IS the disable path), and elements 2, 4, and 5 are absent outright - no readback command, no statement of what enabling the notification hooks does not grant, and no canonical documentation link. |
+| **v3.15.11** (Codex notification delivery) | **Out of scope** | Its changes are internal hook-delivery fixes (`build_hook_entries` module resolution, `CODEX_EVENT_ALIASES`) to hooks that are on by default. It introduces and materially changes no opt-in surface, so it satisfies the gate with the single no-change declaration. |
+
+One fail and one out-of-scope is the outcome that makes the gate worth having: it discriminates rather than firing on every release. Per the plan, neither release's notes were retroactively edited.
+
+### BG-2 - OPEN (pre-existing, found in Phase 3): `secret-scan.sh` fails OPEN on a host without `jq`
+
+- **Target file**: `catalog/hooks/secret-scan.sh`
+- **What is wrong**: the hook extracts `file_path` and `content` with `jq`, and when `jq` is absent it takes an explicit `exit 0` path commented "Without jq we cannot reliably extract content; allow the write". It therefore scans nothing and blocks nothing. This was found by verifying the hook rather than reading its matcher: on this host (no `jq`), a payload carrying a well-formed AWS access key ID returned exit 0 with no output.
+- **Why it matters**: this is a security guard that fails OPEN. A registered, executable, permanently silent hook is exactly shape S-1 in `docs/incidents/shapes.md`, which the two notes backfilled in this same phase are about. A user on a POSIX host without `jq` believes they have secret scanning and does not.
+- **Bounds, and why it is not a release blocker**: `secret-scan.ps1` is unaffected and was verified working in both directions on this host (exit 2 on a seeded key, exit 0 on a clean note), so Windows users are covered. `AGENTS.md` already documents the asymmetry as acceptable ("a sibling that works where the bash version silently no-ops, for example on a host with no `jq`, is an acceptable and documented improvement"), so the behavior is known rather than newly discovered - what is new is the evidence that the bash side is genuinely inert, not merely degraded.
+- **Suggested next step**: replace the `jq` dependency with a stdlib fallback (a short Python or `sed` extraction) so the bash hook degrades to scanning rather than to allowing, or fail CLOSED with an explicit "cannot scan, install jq" message. Failing open is the wrong default for a guard whose entire job is to block. Out of scope for this plan, which touches no hook logic.
+
+### QG-1 - RESOLVED in Phase 3: `docs/incidents/**` was outside the CI path filters
+
+- **What it was**: `ci.yml` excludes `docs/**` except for `docs/policy/**` and the per-version development contract docs. A new `docs/incidents/` tree would have been invisible to CI, so a note whose Durable fix was a paragraph rather than a link could be pushed without the guard ever running - the identical defect already fixed twice before (v3.16.0 for `docs/policy/**`, v3.16.1 QG-1 for the development contract docs).
+- **Resolution**: added `- 'docs/incidents/**'` to the `paths` filter on BOTH the `push` and `pull_request` events, with a comment stating the rule the re-inclusion follows: a docs path earns a CI trigger only when a guard actually reads it. The guard that earns it (`scripts/check_incident_notes.py`) was built in the same phase and wired into the `validate` job and `make validate`.
+- **Note on the plan's instruction**: sub-task 3.4 asked for the path filter unconditionally. Adding it without a guard would have run the full matrix on every incident note for zero signal, contradicting the reasoning already written into `ci.yml` for session histories. Building the guard first is what makes the instruction correct rather than costly.
+
+### NI-2 - OPEN (pre-existing, surfaced in Phase 4): two edited skills are over the 500-line body target
+
+- **Target files**: `catalog/skills/infrastructure/observability-setup/SKILL.md` (763 lines), `catalog/skills/orchestration/multi-agent-coordinator/SKILL.md` (703 lines)
+- **What is wrong, and what is not**: both were already over the 500-line target before this phase (742 and 685), so they are grandfathered under the AGENTS.md rule that the norm is forward-looking. Both remain under the 800-line hard cap. Phase 4.5's instruction to "confirm both edited skills stayed within the 500-line body target" therefore describes a check that could not pass, and the honest report is that the target was already exceeded rather than that the check passed.
+- **Why the additions were made in the body anyway**: each of the two doctrine items is a short rule that belongs where the reader already is. Pushing a 25-line rule into a `references/` file to protect a line count would trade discoverability for a number, which is the opposite of what the norm exists to achieve.
+- **Watch item**: `observability-setup` at 763 lines is within 37 lines of the hard cap. The next cycle that adds to it should split it into `references/` first rather than discovering the cap mid-edit.
+- **Suggested next step**: Phase 6.1's refactor pass should decide whether to split `observability-setup`, which is the natural place for that call.
+
+### BG-3 - RESOLVED in Phase 5: the Bash doctor read every `file_contains` surface as MISSING
+
+- **What it was**: the Bash `doctor` flattens the contract to tab-separated records. On a Windows host the Python fallback's `print()` emits CRLF, so the LAST field arrived carrying a trailing `\r`. Only `file_contains` surfaces use that final `needle` column, so only they broke: Bash reported 5 complete / 5 incomplete where PowerShell reported 9 / 1, on the same machine, with matching exit codes hiding the disagreement.
+- **How it was found**: by running both implementations against the real machine and diffing the verdict lines. Neither implementation is wrong in isolation, and no single-platform test could have seen it. This is shape S-1 failure mode 2 (runs but disagrees) reproduced within hours of the notes describing it being written.
+- **Resolution**: strip a trailing CR from the final field in the read loop, with the reasoning recorded inline. Verdict lines are now byte-identical across implementations, asserted by `tests/installer/test_doctor_parity.py`.
+- **Why it is recorded rather than fixed silently**: it is the clearest available evidence that the parity requirement earns its cost. The durable fixes from both backfilled incidents caught a real defect on their first application.
+
+### QG-2 - RESOLVED in Phase 5: `scripts/installer.ps1` was never AST-parsed in CI
+
+- **What it was**: CI's unconditional PowerShell AST-parse step globbed `catalog/hooks` only, and the `bootstrap` job parses only the root `install.ps1`. `scripts/installer.ps1` - the largest PowerShell file in the repo, and the one this phase adds a subcommand to - was covered by neither. A parse error in it would have shipped exactly as `session-summary.ps1` did in v3.11.0.
+- **How it was found**: while deciding where to add the AST assertion the plan required for the new `.ps1` code. The gate that the v3.11.0 incident produced turned out not to cover the file most exposed to the failure it guards.
+- **Resolution**: the AST-parse step now covers `catalog/hooks/*.ps1`, `scripts/*.ps1`, and the root `install.ps1`. Verified locally on Windows PowerShell 5.1.
+
+### NI-1 - RESOLVED in Phase 5
+
+The `nexus-hub doctor` reference in `catalog/commands/update.md` (raised in Phase 2 as a documented-but-absent capability) now resolves: the subcommand exists in both installers. Closed by construction rather than by editing the prose, which is what Phase 2 predicted.
+
+### DF-1 - RESOLVED in Phase 5
+
+`scripts/check_release_capability_docs.py` exists, is wired into `DEV_ONLY_SCRIPTS`, and is now named in `update.md`'s governance step 6 with its real invocation. It ships ADVISORY (exits 0 while reporting) per the comparison's sequencing recommendation; `--strict` is the flip a future promotion turns on.
+
+### NI-3 - OPEN (deliberate bound): `doctor --repair` prints remediation and never executes it
+
+- **What it does**: `--repair` prints the exact remediation command for each failing platform and states plainly that nothing was changed.
+- **Why it does not execute**: the remediation for most failures is re-running the installer, which writes across every platform surface. A diagnostic that mutates an install is how a preflight becomes the thing that breaks you, and the plan's own constraint is that doctor is read-only by default with any repair stating what it will change first. Printing the command satisfies the intent; executing it would put a write path inside a command users will reach for precisely when their install is already in an unknown state.
+- **Suggested next step**: leave as-is unless a real user asks for it. If it is ever implemented, it must confirm interactively and name every path it will touch before touching one.
+
+### WN-2 - CLOSED on inspection: `shellcheck` IS available on this host
+
+Phase 1 recorded WN-1 (no `make`) as environmental and the v3.16.1 ledger carried a broader "no ruff or shellcheck" note. Phase 5 needed ShellCheck for the new Bash code and found it present and working: it flagged SC2088 on the first draft of `doctor_resolve_path`, which was then restructured rather than suppressed. `make` remains absent; `shellcheck` does not. Recording the correction so the next cycle does not skip a lint pass on a stale assumption.
+
+### NI-4 - OPEN (opportunity, found at release governance step 4): GitHub Copilot now documents a user-global skills path
+
+- **What changed on the vendor side**: Copilot's agent-skills documentation now lists **personal** skills at `~/.copilot/skills` or `~/.agents/skills`, and project skills at `.github/skills`, `.claude/skills`, **or** `.agents/skills`. Source: [docs.github.com](https://docs.github.com/en/copilot/concepts/agents/about-agent-skills), fetched 2026-08-09.
+- **Where Nexus-Hub stands**: Copilot is a behavioral-guardrails-only integration plus an OPT-IN `.github/skills/` project wrapper behind `NEXUS_HUB_COPILOT_SKILLS` (off by default because that directory is commit-visible). No user-global Copilot skills surface is written.
+- **Why it is an opportunity, not a defect**: nothing is broken and no install regressed. A documented read-path simply became available that Nexus-Hub could populate, which would upgrade Copilot from guardrails-only to a full skills-bearing platform at global scope. Note that `nexus-hub init` already seeds project `.agents/skills` for Antigravity, which Copilot also reads, so some coverage may already exist incidentally and should be measured before new code is written.
+- **Why it was not done in this release**: adding a new per-platform delivery surface is a feature with installer, adapter, contract, and test consequences across both installers. Implementing it inside a release commit is exactly the scope creep the Phase 4 scope-fit gate rejects.
+- **Suggested next step**: a dedicated cycle. Measure what `.agents/skills` already surfaces to Copilot first, then decide whether `~/.copilot/skills` needs a separate write or whether the shared path suffices.
+
+### NI-5 - OPEN (low): `~/.codex/skills` is no longer a documented Codex read-path
+
+- **What changed**: Codex documents user-scope skill discovery at `$HOME/.agents/skills` only, plus `.agents/skills` scanned from the working directory up to the repo root. `~/.codex/skills` is absent from the current discovery list. Source: [learn.chatgpt.com](https://learn.chatgpt.com/docs/build-skills.md), fetched 2026-08-09.
+- **Impact: none on coverage.** Nexus-Hub writes BOTH paths, and the one Codex reads is populated. The `~/.codex/skills` write is redundant rather than load-bearing, and its `install_verify` surface now asserts a path the vendor does not promise.
+- **Why it is retained rather than removed**: this follows the precedent set for Cursor's commands directory in v3.15.10. Writing a directory the platform ignores is harmless; removing one that is still read would silently drop coverage, and vendor docs omitting a path is weaker evidence than vendor docs contradicting it.
+- **Suggested next step**: re-verify next cycle. If `~/.codex/skills` is still undocumented, drop the write and its `install_verify` surface together.
+
+### v3.16.2 Phase 6 final reconciliation
+
+Every item raised across the six phases is dispositioned below. **8 closed, 5 carried forward, 0 release blockers.**
+
+| Item | Disposition | Why |
+|---|---|---|
+| QG-1 | **Closed** (Phase 3) | `docs/incidents/**` added to both CI events' path filters, after the guard that justifies the trigger was built |
+| QG-2 | **Closed** (Phase 5) | `scripts/installer.ps1` now covered by the unconditional AST-parse gate, alongside all `scripts/*.ps1` and the root bootstrap |
+| BG-3 | **Closed** (Phase 5) | Trailing-CR divergence between the two doctors fixed and asserted by parity test |
+| NI-1 | **Closed** (Phase 5) | `nexus-hub doctor` now exists, so `update.md`'s reference resolves |
+| DF-1 | **Closed** (Phase 5) | `check_release_capability_docs.py` built, wired, and named in governance step 6 |
+| WN-2 | **Closed** (Phase 5) | Stale assumption corrected: `shellcheck` IS present on this host and was used |
+| MT-1 | **Carried** | The loop-schema concepts still have no mechanical assertion. Real, bounded, and now the cycle's only substantive open item. The duplicated `gates` block across `loop-schema.md` and `loop-library.md` is the concrete drift risk |
+| NI-2 | **Carried** | `observability-setup` (763 lines) and `multi-agent-coordinator` (703) exceed the 500-line target. Both were already over before this cycle and remain under the 800 hard cap. Splitting `observability-setup` into `references/` is the next-touch action, deliberately not done here: a terminal phase is the wrong place to restructure a skill nothing in this plan required changing |
+| NI-3 | **Carried** | `doctor --repair` prints rather than executes. A deliberate bound, not an omission |
+| BG-2 | **Carried** | `secret-scan.sh` fails OPEN without `jq`. Pre-existing, bounded by a verified-working `.ps1` sibling, and out of this plan's scope (it touches no hook logic). **Worth a dedicated fix in a near-term cycle**: a security guard that fails open is the wrong default |
+| WN-1 / BG-1 | **Carried** (environmental) | No `make` on this host; the inherited PowerShell bootstrap `tar` failure. Both re-verified rather than re-asserted: every `make validate` and `make test` command was run individually, and BG-1's signature is byte-identical to v3.16.0 and v3.16.1 |
+
+Three of the eight closures (BG-3, QG-2, and BG-2's discovery) came from **exercising code rather than reading it** - running both doctors and diffing, checking where the AST gate actually globbed, and piping a payload through the secret-scan hook. That is this cycle's clearest methodological finding.
+
+### Declined candidates (recorded so a future comparison does not re-propose them)
+
+The LoopX comparison surfaced these and each was declined for a stated reason. Recording them here is what stops a later pass re-litigating settled ground.
+
+| Candidate | Why declined |
+|---|---|
+| The LoopX control-plane runtime | Reverses the standing decision, restated three times since v3.1.0, that the loop **driver** is a host command to reference and never a catalog artifact to ship |
+| Benchmark adapters | Out of scope, and they carry a Docker dependency |
+| The dashboard SPA | Duplicates the v3.16.7 interactive-guide track already committed |
+| The Lark extension | Fails the MCP Registry Policy tier-4 test: the vendor is not the intrinsic data destination |
+| Per-skill agent sidecars and `.loopx-skill-scope` | Conflicts with the separate `catalog/agents/` surface and with the committed v3.16.9 selective-installation plan |
+| Single-sentence skill descriptions | Conflicts with the mandated pushy-description style, which exists specifically to combat under-triggering |
+
+One further candidate was **verified and dropped rather than declined on principle**: LoopX's CI hardening (path filters, concurrency groups, `timeout-minutes`, least-privilege `permissions`) is already complete across all nine Nexus-Hub workflows.
+
+### Residual risk: does the incident archive become a directory nobody reads?
+
+The comparison named this as the plan's main residual risk. The control is the Durable-fix requirement from Phase 3.1, and it **held, mechanically rather than aspirationally**:
+
+- `scripts/check_incident_notes.py` fails any note whose Durable fix section carries no link, is wired into `make validate` and CI, and is covered by 12 tests asserting failure in each direction.
+- `docs/incidents/**` triggers CI, so the guard runs on the push that adds a note.
+- Both backfilled notes name AND link real, verified fixes, and each states what its fix would still miss.
+
+The stronger evidence is behavioral rather than structural: within the same cycle, the shape those two notes describe (S-1, an unverified cross-platform sibling) **caught two live defects** - BG-3's Bash/PowerShell verdict divergence and QG-2's unparsed installer. An archive whose shapes are actively catching defects days after being written is not a graveyard. Re-assess after a cycle in which no one adds a note.
+
+### Phase 1 disposition
+
+Three items, **zero release blockers, zero caused by this phase**. MT-1 is a real coverage gap with a named owner (Phase 5); WN-1 and BG-1 are both environmental properties of the implementation host, already carried at v3.16.0 and v3.16.1 and re-verified rather than re-asserted.
+
+### Phase 2 disposition
+
+Two further items, **zero release blockers**. NI-1 is pre-existing and closes automatically when Phase 5 builds the subcommand it names. DF-1 is a deliberate plan-ordered deferral, not an omission. Neither was caused by Phase 2's edits, and the dry-run above is evidence rather than a gap.
+
+### Phase 4 disposition
+
+One new open item, **zero release blockers, zero caused by this phase**. NI-2 records a pre-existing condition that a plan instruction assumed away; the four doctrine additions themselves landed without collision, created no new skill, changed no frontmatter, and left `data/skills.json` untouched. `check_base_template_parity.py` was run explicitly and passes: `AGENTS.md` is not one of the five lockstep `base-*.md` templates, so these edits required no template change, which is exactly what sub-task 4.5 asked to verify.
+
+### Phase 3 disposition
+
+One new open item and one resolved. **Zero release blockers.** BG-2 is a pre-existing fail-open in a security hook, found by exercising the hook instead of reading its registration, bounded by the verified-working PowerShell sibling and already documented as a known asymmetry in `AGENTS.md`. QG-1 was raised and closed inside the phase.
+
+The phase's own residual risk (named in the comparison) is that the incident archive becomes a directory nobody reads. The control is the Durable-fix requirement, and it is now mechanical rather than aspirational: `scripts/check_incident_notes.py` fails a note whose fix section carries no link, is wired into `make validate` and CI, and is covered by 12 tests asserting failure in each direction. Phase 6.2 should record whether it held.
+
 ## v3.16 Summary
 
 | Category | Open | Resolved |
@@ -474,5 +653,6 @@ Two were **pre-existing defects the work exposed**: NI-1 (four bundle references
 | Transferred in from v3.15.14 (`TR-#`) | 2 (TR-1, TR-2) | 1 (TR-3) |
 | v3.16.0 version-implementation gaps | 3 carried forward (NI-1, NI-6, BG-1) | 13 closed (DF-1, DF-2, DF-3, DF-4, NI-2, NI-3, NI-4, NI-5, QG-1, QG-2, QG-3, BG-2, BG-3, WN-1) |
 | v3.16.1 version-implementation gaps (all 8 phases + release) | 3 carried forward (WN-1, BG-1 environmental; NI-6 bounded and documented) | 21 closed (DF-1..DF-5, NI-1..NI-5, BG-2..BG-8, QG-1, QG-2, WN-2, PX-1) |
+| v3.16.2 version-implementation gaps (all 6 phases, reconciled) | 5 carried (MT-1 schema assertions; NI-2 size overage; NI-3 deliberate `--repair` bound; BG-2 pre-existing fail-open; WN-1 / BG-1 environmental) | 6 closed (QG-1, QG-2, BG-3, NI-1, DF-1, WN-2) |
 
 The three comparison-sourced items remain non-blocking prose folds with named target files. Of the v3.16.0 items, BG-1 is pre-existing and reproduces without this plan's changes, WN-1 is environmental, DF-1 is a reasoned non-implementation, NI-1 is a deliberate scope boundary the plan requires, and NI-2 / NI-3 / NI-4 are Phase 2 findings that Phase 3 and Phase 5 are already scheduled to dispose of. Phase 5 dispositioned every open item: 13 closed, 3 carried forward. **None gates the v3.16.0 release.** NI-1 and NI-6 are scope decisions for cycles already touching the relevant surfaces, and BG-1 is pre-existing, reproduced on a clean `develop` worktree, and confined to a Windows host whose PATH resolves `tar` to the Git Bash binary. Of the 13 closed, three (BG-2, BG-3, and QG-3) were caught by the test suite rather than by review, which is this cycle's strongest argument for running the full suite before declaring a phase done.

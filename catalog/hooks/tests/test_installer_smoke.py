@@ -564,6 +564,17 @@ DEV_ONLY_SCRIPTS = {
     # An end-user install carries no configs/ source to derive from, so like the
     # three guards above it is deliberately not installer-copied.
     "sync_platform_defaults.py",
+    # Repo-internal incident-note guard (v3.16.2): asserts every docs/incidents/
+    # note carries a Public-Safe Shape section and a Durable fix section with a
+    # link in it. Runs in `make validate` and CI. An end-user install has no
+    # docs/incidents/ tree, so like the four guards above it is deliberately not
+    # installer-copied.
+    "check_incident_notes.py",
+    # Repo-internal release-notes guard (v3.16.2): asserts every opt-in surface a
+    # release ships documents its five capability-usage elements. Advisory until
+    # it has caught a real omission. An end user has no release notes to check,
+    # so like the guards above it is deliberately not installer-copied.
+    "check_release_capability_docs.py",
 }
 
 

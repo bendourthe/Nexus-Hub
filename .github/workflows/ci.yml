@@ -34,6 +34,14 @@ on:
       # test reads, and re-including them would run the full matrix on every
       # phase write-up for no signal.
       - 'docs/v*/*/development/*.md'
+      # v3.16.2 Phase 3: docs/incidents/** is validator INPUT, not prose.
+      # check_incident_notes.py asserts every note carries a Public-Safe Shape
+      # section and a Durable fix section with a link in it. Under the blanket
+      # docs exclusion, a push adding a note whose "fix" is a paragraph would
+      # skip CI entirely -- the same defect already fixed for docs/policy/**
+      # and the development contract docs above. Re-included for that reason
+      # and no other: a docs path earns a trigger only when a guard reads it.
+      - 'docs/incidents/**'
   pull_request:
     branches: [main, develop]
     paths:
@@ -53,6 +61,14 @@ on:
       # test reads, and re-including them would run the full matrix on every
       # phase write-up for no signal.
       - 'docs/v*/*/development/*.md'
+      # v3.16.2 Phase 3: docs/incidents/** is validator INPUT, not prose.
+      # check_incident_notes.py asserts every note carries a Public-Safe Shape
+      # section and a Durable fix section with a link in it. Under the blanket
+      # docs exclusion, a push adding a note whose "fix" is a paragraph would
+      # skip CI entirely -- the same defect already fixed for docs/policy/**
+      # and the development contract docs above. Re-included for that reason
+      # and no other: a docs path earns a trigger only when a guard reads it.
+      - 'docs/incidents/**'
 
 # v3.11.0 Phase 7.5 / 8.4 CI optimization: cancel superseded runs of the same ref
 # (the single largest action-minute saver) so only the latest push/PR commit runs.
@@ -142,6 +158,14 @@ jobs:
 
       - name: Validate version sync across all surfaces (v3.0.0 Phase 1)
         run: python scripts/check_version_sync.py
+
+      - name: Validate incident notes (v3.16.2 Phase 3)
+        # An incident is closed by a change, not by an explanation. This asserts
+        # every docs/incidents/ note carries a Public-Safe Shape section and a
+        # Durable fix section with at least one link in it, so an entry whose
+        # "fix" is a paragraph fails here instead of being merged. No-op when
+        # the directory is absent, which keeps it safe for any fork.
+        run: python scripts/check_incident_notes.py
 
       - name: Validate base-*.md lockstep parity (v3.6.0 Phase 2)
         # Structural parity guard over the five platform-agnostic instruction
@@ -234,7 +258,18 @@ jobs:
         shell: pwsh
         run: |
           $failed = $false
-          Get-ChildItem catalog/hooks -Filter *.ps1 -File | ForEach-Object {
+          # v3.16.2 Phase 5: scripts/*.ps1 and the root bootstrap join the
+          # catalog hooks here. scripts/installer.ps1 is the largest PowerShell
+          # file in the repo and was NEVER AST-parsed in CI -- the `bootstrap`
+          # job parses only ./install.ps1, and this step globbed only
+          # catalog/hooks. That is precisely the v3.11.0 failure mode
+          # (docs/incidents/powershell-sibling-parse-error-20260709.md) left
+          # open on the file with the most to lose from it.
+          $targets = @()
+          $targets += Get-ChildItem catalog/hooks -Filter *.ps1 -File
+          $targets += Get-ChildItem scripts -Filter *.ps1 -File
+          $targets += Get-ChildItem . -Filter install.ps1 -File
+          $targets | ForEach-Object {
             $errs = $null
             $null = [System.Management.Automation.Language.Parser]::ParseFile(
               $_.FullName, [ref]$null, [ref]$errs)
