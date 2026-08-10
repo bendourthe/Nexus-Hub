@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.16.2 -->
+<!-- nexus-hub-version: 3.16.3 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 271 skills, 17 commands, 31 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -36,6 +36,16 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v3.16.3
+
+**The GitHub Usage Monitor shows real percentages, and they are honest ones.** The extension previously reported 1,287 Actions minutes for a month in which GitHub counted about **121** against the allowance - almost all of that usage was in a public repository, which is free and never draws down. Supplying a denominator without fixing that numerator would have rendered 64% where the truth was 6%. The monitor now reconstructs the drawdown (private-repository, GitHub-hosted, standard-runner minutes, weighted per runner OS), derives the denominator automatically from your plan, and labels the result as reconstructed rather than presenting it as GitHub's own figure.
+
+**That reconstruction is the release's real work, and it was measured rather than reasoned.** No documented GitHub endpoint serves an entitlement - every field of `/settings/billing/usage`, `/usage/summary`, the AI-credit and premium-request endpoints, and the Budgets API was checked, and the endpoints that once returned `included_minutes` closed down in September 2025. Neither does any endpoint serve the drawdown: `/usage/summary` reports `discountQuantity == grossQuantity` on every row. A live probe against a real account then **falsified the leading candidate**: counting private minutes 1:1 predicted 1,584 for a month where GitHub's own panel showed a saturated 2,000, which proved non-Linux minutes draw down faster even though GitHub has withdrawn the page that published the multipliers. One candidate "reconciled" at 0.6% and was arithmetically impossible; a bound check caught what a tolerance check had passed. All of it, including three superseded conclusions and their corrections, is recorded in [`docs/v3/v3.16/development/github-entitlement-probe.md`](docs/v3/v3.16/development/github-entitlement-probe.md).
+
+**The rest is the UX the extension always needed.** It is named **GitHub Usage Monitor** again, matching its Claude, Codex, and Cursor siblings, with a one-time migration so no threshold, color, owner, or allowance is lost to the rename. It connects itself on install - silently if you are already signed in to GitHub in the editor, otherwise with exactly one prompt that never returns if you dismiss it. The panel is one window with three controls (Refresh Now, Open GitHub Billing Page, and a gear) and settings that expand in place and are editable there. Storage percentages work for the first time, using GitHub's documented GB-hours conversion, verified in both directions against a real account.
+
+**Three crashes from one root cause**, all found and fixed during the cycle: a `NaN` rendered in the panel, a status-bar hover that threw outright, and a filter that guarded `!== null` and then threw on `undefined.length`. Each came from a snapshot cached by the previous extension version lacking a field the new code assumed. **Cached state outlives the version that wrote it**, and a regression fixture now pins the whole pipeline against a 0.1.0-shaped snapshot. Catalog counts are unchanged at **271 skills**, **17 commands**, **31 hooks**, and **23 agents** - this release touches one VS Code extension and no catalog content.
 
 ## What's New in v3.16.2
 

@@ -7,6 +7,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.16.3] - 2026-08-10
+
+### Opt-in capability changes (release capability usage gate)
+
+**None.** This release introduces no opt-in capability, installer flag, managed skill, or host surface, so the five-element gate has nothing to document. It adds no environment variable, no installer flag, and no new activation mechanism: `NEXUS_HUB_COPILOT_SKILLS`, `--enterprise` / `-Enterprise`, `NEXUS_DISABLED_HOOKS`, and `NEXUS_HOOK_PROFILE` are all unchanged. The one new configuration key, `githubUsageMonitor.statusBarMetric`, is an ordinary VS Code setting on an extension the installer already builds - it is not a capability gate, it grants no authority, and it defaults to a value that changes only which metric the status bar displays.
+
+This is an explicit no-change declaration rather than an omission, as the gate requires.
+
+
+### Changed
+
+- **The GitHub VS Code extension is named "GitHub Usage Monitor" again** (v3.16.3 Phase 1, extension `0.2.0`). v3.15.12 had renamed it to "GitHub Billing Usage"; that is reverted for consistency with the Claude, Codex, and Cursor usage monitors, which users read as one family. The v3.15.12 concern that "usage monitor" under-describes the coverage is now carried by the description and the panel subtitle, which name Actions minutes and storage *and* Copilot billing explicitly. The extension id `nexus-hub.github-usage-monitor` was never changed in either direction, so existing installs update in place. Both v3.15 contract documents carry a dated correction rather than a silent overwrite.
+- **Command ids and configuration keys moved to the `githubUsageMonitor.*` prefix**, with a one-time settings migration (`src/migration.ts`) that runs before anything reads configuration. It copies only values the user actually set (never a default, which would pin them to today's default forever), preserves global and workspace scope, migrates the SecretStorage token by writing the new key before clearing the old, and records completion only after a clean pass, so a partial failure retries on the next activation instead of claiming success. The old `githubUsage.*` keys are left readable for one release; their deletion is a v3.17.0 follow-up.
+- `githubUsageMonitor.openNativeSettings` is now declared in the manifest. It was registered but never contributed, so it was unreachable from the Command Palette.
+
+### Added
+
+- **The GitHub monitor shows real usage percentages** (v3.16.3 Phase 2), derived from the quantity GitHub actually counts against your allowance rather than from gross consumption. The extension previously reported 1,287 Actions minutes for a month in which GitHub counted 120.7, because almost all of that usage was in a public repository, which is free and never draws down. The numerator is now reconstructed from private-repository, GitHub-hosted, standard-runner usage, weighted per runner OS; the denominator is derived automatically from the account's plan.
+- **Three allowance states, each explained.** `verified` renders a bar; `none` states that the plan includes no allowance for that product (which is why a Copilot card reads as total usage rather than a share of a limit); `unknown` names what would make a percentage available. No state renders `0%` or `100%` for an unknown allowance.
+- **Storage percentages work.** GitHub reports storage consumption in GigabyteHours while expressing the entitlement in GB. The documented conversion (GB-months = GB-hours / hours in month) is now applied, so a storage allowance is no longer silently refused.
+- `scripts/reconcile-drawdown.js`, a development diagnostic that measures candidate reconstructions against a real account. Excluded from the packaged extension.
+- **The GitHub monitor connects itself on first run** (v3.16.3 Phase 3). If the editor already holds a GitHub session it binds silently with no prompt at all; otherwise it opens the sign-in flow **exactly once**. Dismissing it records a durable decline, and the flow never opens automatically again - an explicit Connect still works and clears the decline.
+- **One panel, three buttons** (v3.16.3 Phase 4). The action row is now Refresh Now, Open GitHub Billing Page, and a gear. The settings form renders inline under the gear instead of opening a second webview; every command dropped from the row moved into that section, grouped, with a separated Danger zone, and all of them remain reachable from the Command Palette.
+- **Settings are editable in the panel** (v3.16.3 Phase 5). Thresholds, alert colors, the alert metric, the compact status-bar toggle, the notification timeout, and the refresh interval all change in place, with threshold ordering validated inline beside the offending field. The escape hatch to native VS Code settings is kept.
+- **`githubUsageMonitor.statusBarMetric`** chooses what the status bar shows: `actions-minutes` (the default, because it is the metric with a real published entitlement for most accounts), `actions-storage`, `copilot`, or `highest`. Selecting a metric this owner does not report shows an honest indicator and explains it in the hover, rather than silently substituting a different number.
+- **Meters restyled to match the Claude, Codex, and Cursor monitors**: an 8px neutral track with a rounded `#008080` fill and the percentage beside the bar, with the width transition disabled under `prefers-reduced-motion`.
+- **An honest unconnected state.** The status bar reads "Not connected" rather than `--`, and the panel shows a purposeful empty state with one Connect button plus an explicit statement of what is read (billing usage for one configured owner, and whether each repository is public or private) and what is not (your code, commits, or repository contents). A decline is a valid state and is not styled as an error.
+
+### Fixed
+
+- A usage snapshot cached by extension 0.1.0 could be missing a metric entirely, which crashed the status-bar hover outright rather than degrading (`undefined` reaching the amount formatter). Both the metric selector and the hover now render an honest "not reported" instead.
+- The same class again, found by a sweep: `repositoryNamesIn` filtered on `!== null`, which `undefined` passes before throwing on `.length`, so a cached 0.1.0 snapshot could throw during enrichment. Guarded, with a `legacySnapshot()` regression fixture pinning the whole pipeline against a 0.1.0-shaped snapshot.
+
+### Notes for future maintainers
+
+- **The enhanced-billing API serves no entitlement field**, in any endpoint, in any unit. Every field of `/settings/billing/usage`, `/usage/summary`, the AI-credit and premium-request endpoints, and the Budgets API was checked on 2026-08-09; the product-specific endpoints that once returned `included_minutes` [closed down in September 2025](https://github.blog/changelog/2025-09-26-product-specific-billing-apis-are-closing-down/). `/usage/summary` does not serve the drawdown either - it reports `discountQuantity == grossQuantity` on every row. Do not re-investigate; see `docs/v3/v3.16/development/github-entitlement-probe.md`.
+- **The percentage is a reconstruction and is labelled as such.** GitHub has withdrawn its minute-multiplier reference, so the per-OS weights cannot be cited to a live document. That drawdown is weighted at all was established by measurement: a completed month predicted 1,584 unweighted where GitHub's own panel showed a saturated 2,000.
+
 ## [3.16.2] - 2026-08-09
 
 ### Opt-in capability changes (release capability usage gate)

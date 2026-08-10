@@ -1,8 +1,8 @@
 # Known Gaps - v3.16
 
 **Project**: Nexus-Hub
-**Status**: v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (all 5 phases complete; reconciled and release-ready, unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
-**Last updated**: 2026-08-09 (v3.16.2 Phase 6 final reconciliation; 6 closed, 5 carried, 0 release blockers; declined candidates and the incident-archive residual risk recorded)
+**Status**: v3.16.3 `github-usage-monitor-ux` is RELEASED (all six phases; 8 closed, 8 carried, 0 release blockers). v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (all 5 phases complete; reconciled and release-ready, unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
+**Last updated**: 2026-08-09 (v3.16.3 Phase 6 terminal reconciliation; 6 closed, 8 carried, 0 release blockers; NI-4 routed to its own cycle as a cross-monitor policy question)
 
 > **File-lifecycle note**: this ledger was created ahead of any v3.16 implementation, by a comparison that deliberately claimed no release slot, so it began with only the `## Comparison-Sourced Deferrals` section. Each v3.16 version-implementation phase **appends** its own `## v3.16.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` numbering, which is namespaced separately from the `CD-#` and `TR-#` ids used above.
 
@@ -645,6 +645,203 @@ One new open item and one resolved. **Zero release blockers.** BG-2 is a pre-exi
 
 The phase's own residual risk (named in the comparison) is that the incident archive becomes a directory nobody reads. The control is the Durable-fix requirement, and it is now mechanical rather than aspirational: `scripts/check_incident_notes.py` fails a note whose fix section carries no link, is wired into `make validate` and CI, and is covered by 12 tests asserting failure in each direction. Phase 6.2 should record whether it held.
 
+## v3.16.3 - github-usage-monitor-ux
+
+Appended by Phase 1 (Rename to GitHub Usage Monitor, with settings migration) on 2026-08-09. Own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` / `MT-#` namespace, separate from v3.16.0's, v3.16.1's, and v3.16.2's.
+
+### DF-1 - DEFERRED by design: the old `githubUsage.*` configuration keys are not deleted
+
+- **Target file**: `extensions/github-usage-monitor/src/migration.ts`
+- **What is deferred**: v3.16.3 copies every user-set `githubUsage.*` value to `githubUsageMonitor.*` and then leaves the old key exactly where it is. The user's `settings.json` therefore carries both namespaces for one release.
+- **Why it is deliberate, not an oversight**: the plan's sub-task 1.2 requires it, for two reasons that both hold. A user who downgrades to 0.1.0 must still find their settings, and a deletion that races a failed write loses the data outright rather than leaving a recoverable duplicate. The migration is written write-then-keep for the same reason the token path is written store-then-delete.
+- **Suggested next step**: delete the old keys in v3.17.0, after one release has shipped with the migration. The key list is already an exported constant (`MIGRATED_CONFIG_KEYS`), and a test pins it against `package.json`, so the deletion pass has an authoritative list to iterate.
+
+### NI-1 - CLOSED in phase: the plan's scope note omitted two files the rename necessarily breaks
+
+- **What the plan said**: "this plan touches `extensions/github-usage-monitor/` plus four files outside it (`.github/workflows/github-usage-monitor.yml`, `.github/dependabot.yml`, `catalog/hooks/tests/test_installer_smoke.py`, and the two v3.15 contract documents)".
+- **What implementation found**: two more surfaces hard-code the superseded display name and fail the moment it changes. `scripts/installer.sh` and `scripts/installer.ps1` each pass `"GitHub Billing Usage"` and the `"GitHub Billing: --"` status hint into `build_and_install_one_extension`, and `tests/installer/test_github_billing_rename.py` (57 assertions across 15 tests) existed solely to pin the v3.15.12 rename this phase reverses. Ten of its tests failed on the first full run. Neither of the two named workflow files needed any edit, because both key on the folder name, which did not move.
+- **How it was closed**: the installers were updated with explicit maintainer approval (AGENTS.md lists installer edits under "Ask first"). The test file was rewritten and renamed to `tests/installer/test_github_monitor_naming.py`, keeping every durable invariant (the extension id never moves, both installers agree, exactly one install invocation, no teardown step) and re-deriving every naming assertion from a single `DISPLAY_NAME` constant, so the next rename is a one-line change rather than a ten-test rewrite. One assertion was added: the installer's status hint must match the label `statusBarManager.ts` actually renders, which is the drift this class of test was closest to missing.
+- **Why it is recorded rather than dropped**: the plan's scope note is used by Phase 6 to bound the refactor sweep. A reader who trusts it would miss both surfaces.
+
+### MT-1 - OPEN (pre-existing): `extension.ts` is the least-covered module, and the migration call site is only covered indirectly
+
+- **Target file**: `extensions/github-usage-monitor/src/extension.ts` (36.81% statements, 40.38% lines)
+- **What is missing**: `migration.ts` itself is well covered (89.65% statements, 100% functions) by 12 direct unit tests. Its *call site* inside `activate()` is exercised only as a side effect of the three test files that call `activate()`, none of which assert that the migration actually ran before the first configuration read. The ordering is the load-bearing property, and nothing pins it.
+- **Why it was not done in Phase 1**: `extension.ts` was already the module's coverage floor before this phase, and the phase's Stability Gate is scoped to the rename and the migration's own behavior, both of which are covered. The repository thresholds pass with room (81.78% statements against 80, 85.67% lines against 80).
+- **Suggested next step**: Phase 3 adds a first-run connection sequence to `activate()` and will need an activation-ordering test harness anyway. Add one assertion there that a configuration read observed the migrated value, not the default.
+
+### WN-1 - OPEN (environmental, inherited): no `make` on the implementation host
+
+- **What happened**: `make` is absent on this machine, so neither `make validate` nor `make test` could be invoked as targets. Same condition recorded as v3.16.1 WN-1 and v3.16.2 WN-1.
+- **How it was handled rather than skipped**: every command inside both targets was read out of the `Makefile` and run individually. Fifteen `validate` guards pass; ShellCheck is clean on both installers once the Windows working copy is LF-normalized (see BG-2); all five MCP extension suites, `catalog/hooks/tests` (993 passed, 36 skipped), the extension's own Vitest suite (219 passed), and `tests/` were run to completion.
+- **Suggested next step**: none for correctness. CI runs the authoritative gate on Linux and Windows.
+
+### BG-1 - OPEN (pre-existing, inherited): PowerShell bootstrap tarball test fails on this host
+
+- **What happened**: `tests/installer/test_bootstrap.py::test_ps_standalone_extracts_and_hands_off` fails with `/usr/bin/tar: Child returned status 128`. It is the single failure in the `tests/` run.
+- **Why it is not this phase's**: the failure signature is byte-identical to the one recorded under v3.16.0 BG-1, v3.16.1 BG-1, and v3.16.2 BG-1, where it was reproduced on a clean `develop` worktree. This phase's only installer edit is two display strings inside the extension-install block, which the standalone bootstrap path does not reach.
+- **Bound**: affects a Windows host whose PATH resolves `tar` to the Git Bash binary. CI runners are unaffected.
+
+### BG-2 - OPEN (environmental, newly characterized): ShellCheck reports SC1017 on every line of both shell installers on this host
+
+- **What happened**: `shellcheck --severity=warning scripts/installer.sh install.sh` emits SC1017 ("Literal carriage return") on essentially every line, producing 41 KB of output that reads as a total lint failure.
+- **What it actually is**: git normalizes these files to LF on commit (`git diff` prints "CRLF will be replaced by LF the next time Git touches it"), so the CRLF exists only in the Windows working copy. Running ShellCheck against `git show HEAD:scripts/installer.sh` produces zero findings, and piping the working copy through `tr -d '\r'` first is clean for both files.
+- **Why it is recorded rather than silently worked around**: the raw output is indistinguishable from a real regression, and a future phase that hits it on this host will otherwise spend the same time re-deriving that it is noise.
+- **Suggested next step**: none required. If it recurs often enough to be a nuisance, the `lint` target could pipe through `tr -d '\r'` on Windows; that is a convenience change, not a correctness one.
+
+### Phase 1 disposition
+
+Four open items, **zero release blockers, one caused by this phase** (DF-1, which the plan mandates). NI-1 was raised and closed inside the phase. MT-1 is a pre-existing coverage floor with a named next-touch owner in Phase 3. WN-1, BG-1, and BG-2 are all environmental conditions of the Windows implementation host, two of them inherited unchanged from three prior cycles.
+
+The phase's own residual risk is that the settings migration is untestable in the one situation that matters most: a real 0.1.0 install upgrading in place. Every migration assertion here runs against a fake `WorkspaceConfiguration`. The controls are that the migration refuses to record completion on any write failure (so a bad first pass retries rather than silently finishing), that it never deletes an old key, and that the token path writes before it deletes. Phase 6 should record whether an actual upgrade was exercised.
+
+### NI-2 - OPEN by design: the drawdown weights cannot be verified, and the UI says so
+
+- **Target file**: `extensions/github-usage-monitor/src/providers/drawdown.ts` (`OS_DRAWDOWN_WEIGHTS`)
+- **What is unresolved**: GitHub withdrew its minute-multiplier reference page; that path now serves runner pricing on every documentation variant checked. Measurement established that weighting **exists** (July's saturated bar falsified 1:1 outright), but not what the constants are. Two candidates fit every month available - the historical published values (Windows 2x, macOS 10x) and the current list-price ratios (1.67x, 10.33x). They predict 2,104 and 2,051 for July, both above a saturated 2,000, so that month cannot separate them; April, the only month low enough to try, predicts 1,473 versus 1,469.
+- **Decision**: ship the historical published values, chosen with the maintainer, because GitHub once stated them outright where a price ratio never was. The card labels the figure a reconstruction rather than presenting it as GitHub's own.
+- **Suggested next step**: re-check the multiplier path at each release (it is on the probe document's re-verification checklist). If GitHub republishes the basis, replace the constants and delete the caveat. An account with private macOS usage below the cap would also settle it.
+
+### NI-3 - OPEN: the two billing endpoints use different SKU vocabularies
+
+- **Target file**: `extensions/github-usage-monitor/src/providers/drawdown.ts` (`classifySku`)
+- **What is wrong**: `/settings/billing/usage` returns `Actions Linux`; `/usage/summary` returns `actions_linux`. The classifier handles both only because its patterns are substring-based - a rule written against either vocabulary alone would silently misclassify the other endpoint's items, and a misclassified runner is excluded from the drawdown without a trace.
+- **Suggested next step**: pin both vocabularies in the fixtures (the `Actions *` forms already are; add the `actions_*` forms) and state the hazard in a header comment on the pattern constants.
+
+### MT-2 - OPEN: the self-hosted and larger-runner rules are unvalidated against real strings
+
+- **Target file**: `extensions/github-usage-monitor/src/providers/drawdown.ts`
+- **What is missing**: the measured account emitted only `Actions Linux`, `Actions Windows`, `Actions macOS 3-core`, `Actions storage`, and `Git LFS storage`. No self-hosted or larger-runner SKU appeared, so those exclusion rules are tested against **invented** strings only. Both are load-bearing: a larger-runner SKU wrongly counted inflates the drawdown, and a self-hosted one inflates it further.
+- **Why it was not done in Phase 2**: no account was available that uses either runner class, and inventing a plausible string then asserting against it tests the rule against itself.
+- **Suggested next step**: capture a real SKU inventory from an account using larger or self-hosted runners via `scripts/reconcile-drawdown.js`, which prints the inventory and flags anything unrecognized. Treat both rules as provisional until then.
+
+### NI-4 - OPEN (policy, raised by the maintainer): this extension is held to a stricter rule than its three siblings
+
+- **What surfaced**: the Claude, Codex, and Cursor monitors each read a usage endpoint returning used and limit together (`api.anthropic.com/api/oauth/usage`, `chatgpt.com/backend-api/wham/usage`, `api2.cursor.sh`). Two of those three are **not public APIs**. GitHub has an equivalent internal endpoint - it renders the very bars this phase spent its entire budget reconstructing - and the GitHub monitor is barred from it by its own data contract ("never scrapes GitHub.com, reads browser cookies").
+- **Why it matters**: the honest answer to "why can't the GitHub monitor do what the others do" is not that it cannot, but that a rule written for this one extension forbids it. Phase 2's whole difficulty follows from that asymmetry.
+- **Why it was not resolved here**: it is a policy question about what the monitors may read, affecting four extensions rather than one. Settling it inside a phase scoped to allowance derivation would be the wrong venue.
+- **Suggested next step**: decide the standard deliberately in its own cycle - either relax the GitHub monitor's contract to match its siblings, or tighten the siblings to match it. Do not let it be settled by accretion.
+
+### QG-2 - CLOSED in phase: three defects in the measurement tooling itself
+
+- **What happened**: the reconciliation probe was wrong three times before producing a usable result. The first run used a `user`-only token, so private repositories 404'd and every private candidate summed zero. The second misclassified `Actions macOS 3-core` as a larger runner, dropping 111 minutes. The third compared August API data against displayed figures from an earlier month.
+- **How each was closed**: the runner now withholds its verdict when any visibility lookup fails; the core-count rule became a per-OS ceiling with a regression test pinned to the real strings; and the queried period is printed directly above the verdict.
+- **Why it is recorded rather than dropped**: each defect produced a *plausible wrong answer* rather than an error, and two of them briefly left a falsified model looking correct. What actually caught it was checking a candidate against an arithmetic bound rather than a tolerance. **A numeric match near a true value is not evidence.**
+
+### Phase 2 disposition
+
+Four open items, **zero release blockers**, one closed inside the phase. NI-2 is a deliberate, maintainer-approved decision with a named re-check trigger. NI-3 and MT-2 are honest limits of what a single account could validate. NI-4 is a policy question deliberately routed out of this phase.
+
+The phase's own residual risk is that the shipped percentage is a **reconstruction presented inside a product that otherwise reports measured facts**. Three controls: the card states it is reconstructed rather than GitHub's own figure; an unresolved repository or unrecognized SKU excludes usage rather than guessing, so error runs toward understating; and `AllowanceInputs.api` stays unpopulated with a test asserting `allowanceSource` is never `"api"`, so nothing here can later be mistaken for a served entitlement.
+
+### MT-1 - RESOLVED in Phase 3: the activation-ordering assertion now exists
+
+- **Raised**: v3.16.3 Phase 1, noting that `migration.ts` was well covered while its call site inside `activate()` was exercised only incidentally, with nothing pinning the ordering that makes it correct.
+- **How it was closed**: Phase 3 needed an activation harness for the first-run sequence, which is exactly what MT-1's suggested next step anticipated. The vscode stub gained an ordered configuration-access log, and `first-run.test.ts` asserts that the migration WRITE precedes the first READ of the same key, then that the read observed the migrated value rather than the default. Asserting the final value alone would have passed even if the read won the race.
+- **Residual**: `extension.ts` remains the module's coverage floor. That is a breadth gap, not the specific ordering gap MT-1 named, and it is not carried forward as MT-1.
+
+### NI-5 - OPEN (small): the first-run sequence resolves an owner before the session exists
+
+- **Target file**: `extensions/github-usage-monitor/src/extension.ts` (the activation tail)
+- **What is imperfect**: on a truly fresh install there is no session, so `resolveOwnerForFetch` returns null and the sequence falls back to `{ scope: <configured>, name: "pending" }` purely to pick scope candidates. The placeholder name is never used for a billing request - the refresh that follows re-resolves the owner from the now-established session - but a reader could reasonably mistake it for a real owner.
+- **Why it is shaped that way**: the same deadlock the `logIn` command documents. With nothing configured there is no session, so the owner cannot be detected, so demanding one before connecting would prevent the very first connection.
+- **Suggested next step**: give `firstRun` a scope rather than a full owner, since scope is all it needs. A small signature change best done when Phase 4 or 5 is already touching this file.
+
+### Phase 3 disposition
+
+One resolved, one new open item, **zero release blockers**. MT-1 closed exactly where Phase 1 predicted it would be cheapest. NI-5 is cosmetic and has a named next-touch owner.
+
+The phase's own residual risk is the failure mode it exists to prevent: a modal on every VS Code start. Three controls, all mechanical. The decline flag lives in `globalState` rather than in memory, so it survives a restart; `runFirstRunConnection` returns an `interactiveAttempts` count and a test asserts it is exactly 1 on the prompting path and 0 on every other, which is the single number that separates correct behaviour from the defect; and a further test loops three additional activations after a decline, which a per-session flag would pass on one re-run and fail here.
+
+### NI-5 - RESOLVED in Phase 4: the first-run sequence takes a scope, not a placeholder owner
+
+- **Raised**: v3.16.3 Phase 3, noting that a fresh install passed `{ scope: <configured>, name: "pending" }` purely to select auth scopes, and that the placeholder read as a real account name.
+- **How it was closed**: `FirstRunDependencies` now takes `scope: BillingScope`. The sequence constructs the throwaway owner internally with a comment stating that `peekBinding` and `logInToMonitor` read the name from it never - they take an owner only to derive scope candidates. Folded into Phase 4 because that phase was already in `extension.ts`, exactly as the gap's suggested next step proposed.
+- **Caught by the change**: the test fixture kept passing `owner`, and because Vitest transpiles without type-checking, the missing `scope` surfaced as five runtime failures rather than a compile error. Worth remembering: a signature change in this codebase is only type-checked by `npm run compile`, not by the test run.
+
+### NI-6 - OPEN (small): the settings section is read-only
+
+- **Target file**: `extensions/github-usage-monitor/src/settingsPanel.ts` (`settingsSectionHtml`)
+- **What is incomplete**: the section renders every value and every relocated command, but the fields themselves are static text. Changing a threshold still means opening VS Code settings via the "Edit in VS Code settings" button.
+- **Why it is deliberate**: Phase 5 owns exactly this ("The current settings panel is entirely read-only... Making it editable is the real work here, not the layout"). Phase 4's remit was the shell.
+- **Suggested next step**: Phase 5, as planned. `validateThresholds` already exists and is exported for it.
+
+### Phase 4 disposition
+
+One resolved, one new open item, **zero release blockers**. NI-5 closed where Phase 3 predicted. NI-6 is the deliberate Phase 4/5 boundary, recorded so a reader does not mistake a read-only section for an oversight.
+
+The phase's own residual risk is that the settings section now shares one webview document with the dashboard, so a rendering error in either takes both down - where previously a broken settings panel left the dashboard usable. Three controls: the section renders on every state including unconnected and no-data, so the gear is never a control that does nothing; a test asserts exactly one `<script>` element and exactly one `acquireVsCodeApi()` call, since a second would throw and blank the whole panel; and `retainContextWhenHidden` was already set, so the merge did not change the panel's lifecycle.
+
+### NI-6 - RESOLVED in Phase 5: the settings section is editable in place
+
+- **Raised**: v3.16.3 Phase 4, recording the deliberate Phase 4/5 boundary - the section rendered every value but the fields were static text.
+- **How it was closed**: thresholds, colors, the alert metric, the new status-bar metric, the compact toggle, the notification timeout, and the refresh interval all write back through `postMessage`. Threshold ordering is validated in the webview so the message lands beside the offending field, and `extension.ts` re-validates every message before touching configuration. The "Edit in VS Code settings" escape hatch was kept as a secondary control.
+
+### BG-3 - RESOLVED in Phase 5: a snapshot missing a metric crashed the hover
+
+- **Target file**: `extensions/github-usage-monitor/src/statusBarManager.ts`
+- **What was wrong**: `selectStatusMetric` and `metricSection` both assumed all three metrics are always present. A snapshot cached by v0.1.0 can be missing one, and `undefined` reaching `formatAmount` threw, taking the entire tooltip down rather than degrading.
+- **How it was found**: a Phase 5 test fixture that deliberately omitted a metric to exercise the unavailable-selection path. It surfaced two crashes neither the fixture nor the phase was aiming at.
+- **Class**: the same one Phase 2 hit with a `NaN` drawdown. **Cached state outlives the version that wrote it**, so every access to a field added after 0.1.0 must tolerate absence. Worth checking the remaining surfaces in Phase 6.
+
+### NI-7 - OPEN (small): the webview write-back has no dirty/save affordance
+
+- **Target file**: `extensions/github-usage-monitor/src/settingsPanel.ts`
+- **What is different from the sibling**: the Claude monitor's inline settings collect a draft and expose Save / Reset buttons; this one writes each field on `change`. Immediate write is simpler and matches the plan's wording ("each writing back through `postMessage`"), but it means there is no undo and no visible confirmation that a change landed.
+- **Mitigation already in place**: both surfaces re-render immediately after a successful write, so the effect is visible at once. A setting that appears to do nothing for ten minutes is the failure this avoids.
+- **Suggested next step**: only if a user reports wanting it. Adding Save / Reset would also mean adding a dirty-state model, which is real complexity for a form of eleven fields.
+
+### Phase 5 disposition
+
+Two resolved, one new open item, **zero release blockers**. NI-6 closed as planned. BG-3 was a genuine pre-existing crash found by a fixture aimed elsewhere. NI-7 is a deliberate divergence from the sibling pattern, recorded so it is not mistaken for an omission.
+
+The phase's own residual risk is that a webview can now write configuration. Three controls: `EDITABLE_SETTINGS` gates both the key AND the value type, so a crafted message cannot reach an arbitrary VS Code setting; threshold ordering is re-validated in `extension.ts` because the panel's inline check is a convenience for the user and never a guarantee for the extension; and a test asserts that keys outside the set - including `billingOwner`, the allowance keys, and an unrelated `http.proxy` - are all rejected.
+
+### NI-3 - RESOLVED in Phase 6: both SKU vocabularies are pinned
+
+- **Raised**: Phase 2, on discovering that `/settings/billing/usage` returns `Actions Linux` while `/usage/summary` returns `actions_linux`, and that the classifier survived both only because its patterns happened to be substring-based.
+- **How it was closed**: a header comment on the pattern block names the hazard and requires a fixture in BOTH spellings for any new rule, and a test asserts the two vocabularies classify identically across Linux, Windows, macOS, storage, and self-hosted - the last in three separator forms. What was luck is now a contract.
+
+### BG-4 - RESOLVED in Phase 6: `repositoryNamesIn` would throw on a legacy snapshot
+
+- **Target file**: `extensions/github-usage-monitor/src/providers/repositories.ts`
+- **What was wrong**: the filter tested `name !== null`, which `undefined` passes, and then read `.length` on it. A breakdown written by extension 0.1.0 carries no `repositoryName` at all, so a cached snapshot reaching that path would throw.
+- **How it was found**: the BG-3 absence-tolerance sweep this phase was asked to run. `enrich.ts` had the same shape one line away, where `undefined` slipped past a `=== null` guard and landed in the unresolved list as a literal `undefined`.
+- **Now pinned**: `enrich.test.ts` carries a `legacySnapshot()` fixture shaped exactly like a 0.1.0 snapshot - no `drawdown`, no `drawdownBasis`, no `allowanceState`, and breakdowns with no `repositoryName` - and asserts the whole pipeline enriches it without throwing, withholds every percentage, and still converts storage.
+
+### Phase 6 disposition, and the v3.16.3 reconciliation
+
+Every v3.16.3 item was verified against its target file rather than transcribed from a prior phase's assertion, per the v3.16 ledger's own methodological note.
+
+| Item | Verdict | Basis |
+|---|---|---|
+| NI-1 (plan scope note incomplete) | **Closed** in Phase 1 | Installers and the naming test updated; 48 tests pass |
+| QG-2 (three probe-tooling defects) | **Closed** in Phase 2 | Verdict withheld on lookup failure; per-OS core ceiling; queried period printed |
+| MT-1 (activation ordering unasserted) | **Closed** in Phase 3 | `first-run.test.ts` asserts the migration write precedes the first read |
+| NI-5 (placeholder owner) | **Closed** in Phase 4 | `FirstRunDependencies` takes `scope: BillingScope` |
+| NI-6 (read-only settings section) | **Closed** in Phase 5 | Eleven fields editable in place, write-back gated by `EDITABLE_SETTINGS` |
+| BG-3 (missing metric crashed the hover) | **Closed** in Phase 5 | `selectStatusMetric` and `metricSection` both guarded |
+| NI-3 (two SKU vocabularies) | **Closed** in Phase 6 | Header contract plus a both-spellings test |
+| BG-4 (legacy snapshot threw) | **Closed** in Phase 6 | Guard plus the `legacySnapshot()` regression fixture |
+| DF-1 (old `githubUsage.*` keys retained) | **Carried**, deliberate | Plan sub-task 1.2 requires one release of overlap; deletion targeted at v3.17.0 |
+| NI-2 (drawdown weights unverifiable) | **Carried**, deliberate | GitHub publishes no basis; shipped by maintainer decision with the probe's re-verification checklist as the trigger |
+| MT-2 (self-hosted / larger-runner rules) | **Carried** | No account available that uses either runner class; rules remain provisional |
+| NI-4 (cross-monitor endpoint policy) | **Carried, routed out** | Affects four extensions and is a policy question, not an engineering one |
+| NI-7 (no dirty/save affordance) | **Carried**, deliberate | Divergence from the Claude monitor; both surfaces re-render immediately instead |
+| WN-1 / BG-1 / BG-2 | **Carried**, environmental | `make` absent on this host; the pre-existing PowerShell bootstrap tar failure; ShellCheck CRLF noise on a Windows working copy |
+
+**Six closed, eight carried, zero release blockers.**
+
+### The one item that should not be closed here: NI-4
+
+Every other carried item is a scoped engineering decision with a named next step. NI-4 is different in kind and is called out separately so it is not lost in a table.
+
+The Claude, Codex, and Cursor monitors each read a vendor endpoint that returns used and limit together, and **two of those three are not public APIs**. GitHub has an equivalent internal endpoint - it renders the very bars this plan spent two phases reconstructing - and the GitHub monitor alone is barred from it by its own data contract.
+
+That asymmetry is the direct cause of this plan's hardest work: the entire drawdown reconstruction, its unverifiable weights (NI-2), its provisional SKU rules (MT-2), and the "reconstructed" caveat on every bar exist because of a rule written for one extension. Resolving it either way would retire three carried items at once.
+
+It is deliberately **not** decided here. It affects four extensions, it is a question about what the monitors may read rather than about how they compute, and settling it inside a phase scoped to allowance derivation would be the wrong venue. It belongs in its own cycle, with the four monitors considered together.
+
 ## v3.16 Summary
 
 | Category | Open | Resolved |
@@ -654,5 +851,6 @@ The phase's own residual risk (named in the comparison) is that the incident arc
 | v3.16.0 version-implementation gaps | 3 carried forward (NI-1, NI-6, BG-1) | 13 closed (DF-1, DF-2, DF-3, DF-4, NI-2, NI-3, NI-4, NI-5, QG-1, QG-2, QG-3, BG-2, BG-3, WN-1) |
 | v3.16.1 version-implementation gaps (all 8 phases + release) | 3 carried forward (WN-1, BG-1 environmental; NI-6 bounded and documented) | 21 closed (DF-1..DF-5, NI-1..NI-5, BG-2..BG-8, QG-1, QG-2, WN-2, PX-1) |
 | v3.16.2 version-implementation gaps (all 6 phases, reconciled) | 5 carried (MT-1 schema assertions; NI-2 size overage; NI-3 deliberate `--repair` bound; BG-2 pre-existing fail-open; WN-1 / BG-1 environmental) | 6 closed (QG-1, QG-2, BG-3, NI-1, DF-1, WN-2) |
+| v3.16.3 version-implementation gaps (all 6 phases, reconciled) | 8 carried (DF-1 deferred key deletion; NI-2 unverifiable weights; MT-2 provisional runner rules; NI-4 cross-monitor policy, routed out; NI-7 deliberate divergence; WN-1 / BG-1 / BG-2 environmental) | 8 closed (NI-1, QG-2, MT-1, NI-5, NI-6, BG-3, NI-3, BG-4) |
 
 The three comparison-sourced items remain non-blocking prose folds with named target files. Of the v3.16.0 items, BG-1 is pre-existing and reproduces without this plan's changes, WN-1 is environmental, DF-1 is a reasoned non-implementation, NI-1 is a deliberate scope boundary the plan requires, and NI-2 / NI-3 / NI-4 are Phase 2 findings that Phase 3 and Phase 5 are already scheduled to dispose of. Phase 5 dispositioned every open item: 13 closed, 3 carried forward. **None gates the v3.16.0 release.** NI-1 and NI-6 are scope decisions for cycles already touching the relevant surfaces, and BG-1 is pre-existing, reproduced on a clean `develop` worktree, and confined to a Windows host whose PATH resolves `tar` to the Git Bash binary. Of the 13 closed, three (BG-2, BG-3, and QG-3) were caught by the test suite rather than by review, which is this cycle's strongest argument for running the full suite before declaring a phase done.

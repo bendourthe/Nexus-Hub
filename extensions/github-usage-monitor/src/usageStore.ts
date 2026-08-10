@@ -6,8 +6,8 @@ import type {
   UsageState
 } from "./types";
 
-const SNAPSHOT_KEY = "githubUsage.snapshot";
-const ALERT_CYCLE_KEY = "githubUsage.alertCycle";
+const SNAPSHOT_KEY = "githubUsageMonitor.snapshot";
+const ALERT_CYCLE_KEY = "githubUsageMonitor.alertCycle";
 
 export interface MementoLike {
   get<T>(key: string): T | undefined;

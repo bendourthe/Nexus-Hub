@@ -113,11 +113,33 @@ export class GitHubBillingClient {
       : { ok: false, error: normalized.error, rate };
   }
 
+  /**
+   * A plain authenticated GET with no billing-period query.
+   *
+   * Added in v3.16.3 Phase 2 for the two non-billing lookups an honest percentage
+   * needs: `GET /repos/{owner}/{repo}` for visibility, and `GET /user` for the plan
+   * name. Both reuse this client's headers, timeout, and abort handling rather than
+   * opening a second HTTP path with its own failure modes.
+   *
+   * Reads only what it is asked for. The repository call is used for a single
+   * boolean (`private`); no file content is requested or returned.
+   */
+  public async getJson(
+    path: string,
+    token: string,
+    signal?: AbortSignal
+  ): Promise<{ ok: true; value: unknown } | { ok: false; status: number }> {
+    const result = await this.requestJson(path, token, undefined, undefined, signal);
+    return result.ok
+      ? { ok: true, value: result.value }
+      : { ok: false, status: result.error.statusCode ?? 0 };
+  }
+
   private async requestJson(
     path: string,
     token: string,
-    year: number,
-    month: number,
+    year: number | undefined,
+    month: number | undefined,
     externalSignal?: AbortSignal
   ): Promise<ProviderResult<unknown>> {
     const controller = new AbortController();
@@ -130,8 +152,11 @@ export class GitHubBillingClient {
     }, this.timeoutMs);
 
     try {
-      const query = new URLSearchParams({ year: String(year), month: String(month) });
-      const response = await this.request(`${this.baseUrl}${path}?${query.toString()}`, {
+      const query =
+        year === undefined || month === undefined
+          ? ""
+          : `?${new URLSearchParams({ year: String(year), month: String(month) }).toString()}`;
+      const response = await this.request(`${this.baseUrl}${path}${query}`, {
         headers: {
           Accept: GITHUB_ACCEPT,
           Authorization: `Bearer ${token}`,

@@ -1,20 +1,22 @@
-# GitHub Billing Usage
+# GitHub Usage Monitor
 
 A VS Code extension that shows your current-month GitHub **billing** consumption in the status bar, with a hover breakdown, a full dashboard, and threshold alerts. It covers **Actions minutes and storage plus Copilot billing** for **one** billing owner you configure.
 
-> **This is not a Copilot-only monitor, and it is not an Actions-only monitor.** It reports both, for a single billing owner (`githubUsage.billingScope` + `githubUsage.billingOwner`). It is also independent of whichever GitHub account Copilot itself is signed in to, so the billing account it reports may differ from your Copilot account.
+> **This is not a Copilot-only monitor, and it is not an Actions-only monitor.** It reports both, for a single billing owner (`githubUsageMonitor.billingScope` + `githubUsageMonitor.billingOwner`). It is also independent of whichever GitHub account Copilot itself is signed in to, so the billing account it reports may differ from your Copilot account.
 
 > Monitoring Claude Code or Codex instead? Those live in the separate **Claude Usage Monitor** (`nexus-hub.claude-usage-monitor`) and **Codex Usage Monitor** (`nexus-hub.codex-usage-monitor`) extensions. All three share no extension id, command, storage key, or view, and install and run side by side.
 
-## Naming and the extension id (v3.15.12)
+## Naming and the extension id (v3.15.12, reverted in v3.16.3)
 
-The extension was renamed from **GitHub Usage Monitor** to **GitHub Billing Usage** because the old name invited the reading that it monitored Copilot, or that it monitored Actions only. The new name and every command title say `GitHub Billing`, and the description names both covered surfaces.
+The extension was renamed from **GitHub Usage Monitor** to **GitHub Billing Usage** in v3.15.12, on the reasoning that the old name invited the reading that it monitored Copilot, or that it monitored Actions only.
 
-**The extension id deliberately did NOT change.** It remains `nexus-hub.github-usage-monitor`, and the command ids remain `github-usage.*`, the configuration prefix remains `githubUsage.*`, and the storage keys and view ids are untouched.
+**v3.16.3 reverted that.** The name is **GitHub Usage Monitor** again, for consistency with its three siblings (Claude Usage Monitor, Codex Usage Monitor, Cursor Usage Monitor), which a user reads as one family. The v3.15.12 concern is instead addressed where it actually surfaces: the description and the panel subtitle both name Actions minutes and storage *and* Copilot billing explicitly.
 
-That was a decision, not an oversight. A VS Code extension id is `publisher.name`, so renaming `name` would mint a *new* extension rather than update the installed one. Anyone who had already installed the old id would end up with **two** extensions installed, both activating on startup and both writing a status-bar item, with no indication which was which. Avoiding that would have required both installers to uninstall the superseded id before installing the new one, which is teardown logic that has to be exactly right on every platform and every re-run, in exchange for a cosmetic id nobody reads. Renaming only the display surfaces is a non-breaking change: an existing install updates in place, keeps its stored token and cached snapshot, and simply shows the new name.
+v3.16.3 also moved the command ids to `githubUsageMonitor.*` and the configuration prefix to `githubUsageMonitor.*`, with a one-time migration that carries every user-set value across on first activation. The old `githubUsage.*` settings are left readable for one release rather than deleted, so a downgrade still finds them; their deletion is a v3.17.0 follow-up.
 
-The consequence to know about: searching the Command Palette for "GitHub Usage" no longer matches. Search "GitHub Billing", or just "billing".
+**The extension id deliberately did NOT change, in either direction.** It remains `nexus-hub.github-usage-monitor`. A VS Code extension id is `publisher.name`, so renaming `name` would mint a *new* extension rather than update the installed one. Anyone who had already installed the old id would end up with **two** extensions installed, both activating on startup and both writing a status-bar item, with no indication which was which. Avoiding that would have required both installers to uninstall the superseded id before installing the new one, which is teardown logic that has to be exactly right on every platform and every re-run, in exchange for a cosmetic id nobody reads. Renaming only the display surfaces is a non-breaking change: an existing install updates in place and simply shows the new name.
+
+Command Palette search: "GitHub Usage" matches again. "GitHub Billing" no longer does.
 
 ## What it shows
 
@@ -58,22 +60,22 @@ code --install-extension github-usage-monitor-*.vsix
 
 ### 1. Choose the billing owner
 
-Open the Command Palette and run `GitHub Billing: Settings`, or set these directly:
+Open the Command Palette and run `GitHub Usage Monitor: Settings`, or set these directly:
 
 | Setting | Value |
 |---|---|
-| `githubUsage.billingScope` | `user`, `organization`, or `enterprise` |
-| `githubUsage.billingOwner` | your username, the organization slug, or the enterprise slug |
+| `githubUsageMonitor.billingScope` | `user`, `organization`, or `enterprise` |
+| `githubUsageMonitor.billingOwner` | your username, the organization slug, or the enterprise slug |
 
 The monitor queries exactly one owner. It never merges scopes or guesses an owner from your repositories.
 
 ### 2. Connect, or store a token
 
-If you are signed in to GitHub in the editor, run `GitHub Billing: Refresh` and you may already be done. `GitHub Billing: Log In or Switch Account` reaches GitHub's account picker, so the billing account can deliberately differ from the one Copilot uses; `Log Out of This Monitor` clears only this extension's binding and **cannot** sign you out of the editor's shared session.
+If you are signed in to GitHub in the editor, run `GitHub Usage Monitor: Refresh` and you may already be done. `GitHub Usage Monitor: Log In or Switch Account` reaches GitHub's account picker, so the billing account can deliberately differ from the one Copilot uses; `Log Out of This Monitor` clears only this extension's binding and **cannot** sign you out of the editor's shared session.
 
-Some targets need a token instead: enterprise billing accepts classic PATs only, and an organization that has not authorized OAuth apps or that enforces SSO will refuse a session token. The monitor diagnoses each owner independently and tells you which case you are in, so run `GitHub Billing: Diagnose Authorization` before assuming it is broken.
+Some targets need a token instead: enterprise billing accepts classic PATs only, and an organization that has not authorized OAuth apps or that enforces SSO will refuse a session token. The monitor diagnoses each owner independently and tells you which case you are in, so run `GitHub Usage Monitor: Diagnose Authorization` before assuming it is broken.
 
-To store one, run `GitHub Billing: Set Token` and paste a token of the class your billing scope needs (see the table). It is validated against the billing endpoint before it is saved, and it is stored only in VS Code SecretStorage - never in `settings.json`, never in workspace state, never in a log line.
+To store one, run `GitHub Usage Monitor: Set Token` and paste a token of the class your billing scope needs (see the table). It is validated against the billing endpoint before it is saved, and it is stored only in VS Code SecretStorage - never in `settings.json`, never in workspace state, never in a log line.
 
 | Scope | Required authorization |
 |---|---|
@@ -85,51 +87,98 @@ To store one, run `GitHub Billing: Set Token` and paste a token of the class you
 >
 > When a token is refused for permissions, the error now quotes GitHub's own answer from the `X-Accepted-OAuth-Scopes` response header, so it names the scope the operation would accept rather than only what the extension expected.
 
-`GitHub Billing: Validate Token` re-checks the stored credential, `GitHub Billing: Rotate Token` replaces it, and `GitHub Billing: Clear Token` deletes it from SecretStorage.
+`GitHub Usage Monitor: Validate Token` re-checks the stored credential, `GitHub Usage Monitor: Rotate Token` replaces it, and `GitHub Usage Monitor: Clear Token` deletes it from SecretStorage.
 
-`GitHub Billing: Open Billing Page` opens GitHub's own billing page for the resolved owner, which stays the authoritative source for any figure you want to verify.
+`GitHub Usage Monitor: Open Billing Page` opens GitHub's own billing page for the resolved owner, which stays the authoritative source for any figure you want to verify.
 
-### 3. Set allowances if you want percentages
+That is the whole of setup. On first activation the monitor connects itself: if you are already signed in to GitHub in the editor it binds silently with no prompt at all, and otherwise it opens the sign-in flow **exactly once**. Dismiss it and it will not ask again - the Connect button in the panel still works whenever you change your mind.
 
-GitHub reports what you consumed. It does not guarantee an included allowance, so a percentage is only shown when a denominator is actually known. Supply one per metric with `GitHub Billing: Enter Allowances` or the `githubUsage.allowances.*` settings, in the same unit the metric is reported in. Until then the meters show absolute usage, which is the honest reading rather than a fabricated `0%`.
+### 3. Allowances are derived automatically
+
+You do not need to enter anything. The denominator comes from your account's plan, matched against GitHub's published per-plan figures, and the panel shows where the number came from ("published figure for your plan, not read from your account").
+
+Override one only if your account genuinely includes a different amount - a data pack, Education benefits, or negotiated terms are all invisible to the API, so a published figure cannot detect its own disagreement with your account. The Allowances group in the settings section has the control.
+
+## Where the percentages come from
+
+**GitHub does not serve the numbers this panel shows.** It serves consumption; the percentages are computed here. That is worth understanding before trusting a bar.
+
+**The denominator** is not available from any endpoint. Every field of `/settings/billing/usage`, `/usage/summary`, the AI-credit and premium-request endpoints, and the Budgets API was checked on 2026-08-09, and none carries an entitlement, quota, or remaining balance. The endpoints that once returned `included_minutes` [closed down in September 2025](https://github.blog/changelog/2025-09-26-product-specific-billing-apis-are-closing-down/). So the allowance is matched from your plan name against GitHub's published table.
+
+**The numerator is not consumption.** Most of what GitHub reports may never touch your allowance: Actions usage in **public repositories is free**, and so is self-hosted-runner usage, while larger runners cannot draw on included minutes at all. On the account this was developed against, GitHub reported **1,287 Actions minutes** for a month in which only about **121** counted against the allowance. Dividing the reported figure by the allowance would have shown 64% where the truth was 6%.
+
+So the monitor reconstructs the drawdown: private-repository, GitHub-hosted, standard-runner minutes, weighted per runner OS. Windows and macOS minutes consume the quota faster than Linux ones - GitHub has withdrawn the page that published the multipliers, but a completed month on a real account confirmed the weighting exists (an unweighted model predicted 1,584 minutes where GitHub's own panel showed a saturated 2,000).
+
+**This means a percentage is an estimate, and the panel says so.** Cards derived this way are labelled "reconstructed". Where the reconstruction cannot complete - an unresolved repository, an unfamiliar runner SKU - usage is **excluded** rather than guessed, so the figure errs low rather than raising a false alarm.
+
+**Storage is different and exact.** GitHub reports storage in GigabyteHours while expressing the entitlement in GB, and it documents the conversion (divide by the hours in the month). That is applied directly, and it was verified in both directions against a real account.
+
+Full evidence, including three superseded conclusions and their corrections: [github-entitlement-probe.md](../../docs/v3/v3.16/development/github-entitlement-probe.md).
+
+### The three allowance states
+
+Every metric is in exactly one, and none of them is a blank:
+
+| State | What it means | What you see |
+|---|---|---|
+| **Verified** | A denominator and a reconstructed drawdown both exist | A teal bar and a percentage |
+| **None** | Your plan includes no allowance for this product - Copilot Free carries no AI-credit entitlement, for example | Absolute usage, and a line saying the plan includes nothing to draw against |
+| **Unknown** | An allowance may exist but was not established | Absolute usage, and a line naming what would make a percentage available |
+
+Neither `None` nor `Unknown` ever renders as `0%` or `100%`. An unknown allowance is not zero.
+
+## The panel
+
+One panel, three controls: **Refresh Now**, **Open GitHub Billing Page**, and a gear.
+
+The gear expands the settings section in place - there is no second window. Everything that is not one of those three buttons lives in there, grouped:
+
+- **Account** - connect or switch account, log out, the four token commands, and diagnose authorization
+- **Allowances** - the derived values, their provenance, and the override
+- **Status bar** - which metric to show, and the compact toggle
+- **Alerts** - the alert metric, three thresholds, and three colors, editable in place with ordering validated beside the field
+- **Refresh** - the interval
+- **Danger zone** - clear cached data
+
+Every one of these is also a registered command, so the Command Palette still reaches all of them.
 
 ## Commands
 
 | Command | Description |
 |---|---|
-| `GitHub Billing: Dashboard` | Open the current-month Copilot and Actions dashboard |
-| `GitHub Billing: Refresh` | Fetch usage now |
-| `GitHub Billing: Settings` | Scope, allowances, refresh, thresholds, and alert colors |
-| `GitHub Billing: Enter Allowances` | Supply verified allowances manually |
-| `GitHub Billing: Clear Data` | Remove the cached snapshot and alert state |
-| `GitHub Billing: Set Token` | Store a validated token in SecretStorage |
-| `GitHub Billing: Validate Token` | Re-check the stored token |
-| `GitHub Billing: Rotate Token` | Replace the stored token |
-| `GitHub Billing: Clear Token` | Delete the stored token |
+| `GitHub Usage Monitor: Dashboard` | Open the current-month Copilot and Actions dashboard |
+| `GitHub Usage Monitor: Refresh` | Fetch usage now |
+| `GitHub Usage Monitor: Settings` | Reveal the panel with its settings section |
+| `GitHub Usage Monitor: Enter Allowances` (now labelled Override allowances) | Supply verified allowances manually |
+| `GitHub Usage Monitor: Clear Data` | Remove the cached snapshot and alert state |
+| `GitHub Usage Monitor: Set Token` | Store a validated token in SecretStorage |
+| `GitHub Usage Monitor: Validate Token` | Re-check the stored token |
+| `GitHub Usage Monitor: Rotate Token` | Replace the stored token |
+| `GitHub Usage Monitor: Clear Token` | Delete the stored token |
 
 ## Settings
 
 | Setting | Default | Description |
 |---|---|---|
-| `githubUsage.billingScope` | `user` | The one billing owner type to query |
-| `githubUsage.billingOwner` | `""` | Username, organization slug, or enterprise slug |
-| `githubUsage.copilotMetric` | `ai-credits` | `ai-credits` or legacy `premium-requests` |
-| `githubUsage.allowances.copilot` | unset | Verified Copilot allowance in the selected metric's unit |
-| `githubUsage.allowances.actionsMinutes` | unset | Verified monthly Actions minutes allowance |
-| `githubUsage.allowances.actionsStorage` | unset | Verified Actions storage allowance in the displayed unit |
-| `githubUsage.autoFetch` | `true` | Fetch on startup and on the refresh interval |
-| `githubUsage.refreshInterval` | `10` | Minutes between automatic refreshes (1-120) |
-| `githubUsage.staleAfterMinutes` | `30` | Age at which cached data is labeled stale |
-| `githubUsage.compactStatusBar` | `false` | Show only the icon and the usage value |
-| `githubUsage.alertMetric` | `highest` | Which verified percentage drives alerts |
-| `githubUsage.thresholds.*` | `50` / `75` / `95` | Moderate, high, and critical thresholds |
-| `githubUsage.notificationTimeoutSeconds` | `12` | Seconds before the warning view auto-dismisses |
-| `githubUsage.requestTimeoutMs` | `10000` | Request timeout |
-| `githubUsage.colors.*` | see settings | Alert colors for each severity |
+| `githubUsageMonitor.billingScope` | `user` | The one billing owner type to query |
+| `githubUsageMonitor.billingOwner` | `""` | Username, organization slug, or enterprise slug |
+| `githubUsageMonitor.copilotMetric` | `ai-credits` | `ai-credits` or legacy `premium-requests` |
+| `githubUsageMonitor.allowances.copilot` | unset | Verified Copilot allowance in the selected metric's unit |
+| `githubUsageMonitor.allowances.actionsMinutes` | unset | Verified monthly Actions minutes allowance |
+| `githubUsageMonitor.allowances.actionsStorage` | unset | Verified Actions storage allowance in the displayed unit |
+| `githubUsageMonitor.autoFetch` | `true` | Fetch on startup and on the refresh interval |
+| `githubUsageMonitor.refreshInterval` | `10` | Minutes between automatic refreshes (1-120) |
+| `githubUsageMonitor.staleAfterMinutes` | `30` | Age at which cached data is labeled stale |
+| `githubUsageMonitor.compactStatusBar` | `false` | Show only the icon and the usage value |
+| `githubUsageMonitor.alertMetric` | `highest` | Which verified percentage drives alerts |
+| `githubUsageMonitor.thresholds.*` | `50` / `75` / `95` | Moderate, high, and critical thresholds |
+| `githubUsageMonitor.notificationTimeoutSeconds` | `12` | Seconds before the warning view auto-dismisses |
+| `githubUsageMonitor.requestTimeoutMs` | `10000` | Request timeout |
+| `githubUsageMonitor.colors.*` | see settings | Alert colors for each severity |
 
 ## Alerts
 
-Threshold alerts evaluate the metric named by `githubUsage.alertMetric`, or the highest valid percentage across metrics when it is `highest`. A metric with no verified denominator cannot produce a percentage and therefore cannot fire a percentage alert.
+Threshold alerts evaluate the metric named by `githubUsageMonitor.alertMetric`, or the highest valid percentage across metrics when it is `highest`. A metric with no verified denominator cannot produce a percentage and therefore cannot fire a percentage alert.
 
 Each threshold notifies once per billing cycle. Crossing a threshold opens the branded warning view with the triggering metric, its value or absolute amount, reset and freshness context, and a recommendation; the view auto-dismisses after the configured timeout and can be dismissed manually. A new cycle is only recognized from a proven reset, so the alerts do not re-fire on every refresh.
 
@@ -143,7 +192,7 @@ GET /organizations/{org}/settings/billing/usage
 GET /enterprises/{enterprise}/settings/billing/usage
 ```
 
-Requests are bounded by `githubUsage.requestTimeoutMs`, are cancellable, and carry no telemetry. Rate-limit headers are honored: a `429` shows the next eligible refresh rather than retrying in a loop.
+Requests are bounded by `githubUsageMonitor.requestTimeoutMs`, are cancellable, and carry no telemetry. Rate-limit headers are honored: a `429` shows the next eligible refresh rather than retrying in a loop.
 
 ### Failure behavior
 
@@ -167,7 +216,7 @@ Errors are typed and specific: an expired credential, a missing `Plan: read`, a 
 - The token lives in VS Code SecretStorage. It is never written to settings, never logged, and never echoed back in any panel.
 - No website is scraped. `github.com/settings/billing` is never fetched, and browser cookies and sessions are never read.
 - Nothing is mutated: no budgets, billing settings, Copilot seats, workflows, repositories, or memberships.
-- The cached snapshot lives in VS Code `globalState` on your machine, under keys that do not collide with the Claude or Codex monitors. `GitHub Billing: Clear Data` removes it.
+- The cached snapshot lives in VS Code `globalState` on your machine, under keys that do not collide with the Claude or Codex monitors. `GitHub Usage Monitor: Clear Data` removes it.
 
 ## Development
 

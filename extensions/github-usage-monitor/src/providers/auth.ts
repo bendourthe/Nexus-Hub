@@ -1,6 +1,6 @@
 import type { ProviderError, ProviderResult, RateMetadata } from "../types";
 
-const DEFAULT_SECRET_KEY = "githubUsage.token";
+const DEFAULT_SECRET_KEY = "githubUsageMonitor.token";
 
 export interface SecretStorageLike {
   get(key: string): Thenable<string | undefined>;
@@ -103,6 +103,6 @@ export function vscodeGitHubSessionProbe(): { supported: false; reason: string }
 function missingTokenError(): ProviderError {
   return {
     code: "missing-token",
-    message: "No GitHub billing token is stored. Run 'GitHub Billing: Set Token'."
+    message: "No GitHub billing token is stored. Run 'GitHub Usage Monitor: Set Token'."
   };
 }

@@ -118,7 +118,12 @@ describe("resolveCredential", () => {
     const result = await resolveCredential(deps({ session: undefined }), ORG);
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(result.error.code).toBe("missing-token");
+      // `not-connected`, not `missing-token`: having no credential at all is a
+      // different situation from having one that is rejected, and v3.16.3 Phase 3
+      // gives them different UI - one is answered by connecting, the other by
+      // fixing a permission. Collapsing them made an unconnected install present
+      // as a failure rather than as a starting point.
+      expect(result.error.code).toBe("not-connected");
       // A dead end is the defect. Both ways forward must be named.
       expect(result.error.message).toContain("Log In or Switch Account");
       expect(result.error.message).toContain("Set Token");

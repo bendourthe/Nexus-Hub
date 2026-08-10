@@ -1,5 +1,172 @@
 # Development Log
 
+## [2026-08-09] - v3.16.3 Phase 6: refactor, reconciliation, and CI/CD [terminal phase]
+
+### What Changed
+
+The plan's terminal phase. An absence-tolerance sweep found and fixed a latent crash, the two SKU vocabularies were pinned as a contract rather than left as luck, the README was rewritten to explain where the percentages actually come from, and all fourteen v3.16.3 gap items were reconciled against their target files. CI/CD was reviewed and needed no change. **The branch is not pushed and `/update release` has not been invoked** - both are approval-gated.
+
+### Why It Changed
+
+A terminal phase exists to leave the layout clean, the gaps honest, and the pipeline covering everything the cycle added, so the next plan starts from a true picture rather than an assumed one.
+
+### Decisions Made
+
+- **The BG-3 sweep found a second instance, and it was a real crash.** `repositoryNamesIn` filtered on `name !== null`, which `undefined` passes, then read `.length` on it. A breakdown written by extension 0.1.0 has no `repositoryName`, so a cached snapshot reaching that path would throw. `enrich.ts` had the same shape one line away. Both are fixed, and a `legacySnapshot()` fixture now pins the whole pipeline against a 0.1.0-shaped snapshot.
+- **NI-3 was closed rather than carried.** The classifier survived both endpoint vocabularies only because its patterns happened to be substring-based. That is now a stated contract with a test across Linux, Windows, macOS, storage, and self-hosted in three separator forms.
+- **The README explains the derivation, not just the feature.** A user seeing a bar deserves to know GitHub does not serve that number: that public-repository usage is free and excluded, that the weights are no longer published, and that the figure is labelled "reconstructed" for a reason.
+- **`docs-cleanup-report.md` was kept, not removed.** The v3.16.2 pass suggested reconciling or removing it. Each per-phase block is short, dated, and additive; removing it would discard the record of decisions like the `docs/incidents/` placement rationale.
+- **NI-4 was routed out rather than closed.** It is a policy question affecting four extensions, and resolving it would retire three other carried items at once - which is exactly why it deserves its own cycle rather than a decision made in passing here.
+
+### Verification
+
+316 tests passing, coverage 82.61% statements / 78.98% branches / 83.66% functions / 85.66% lines, all above threshold. All fifteen `make validate` guards pass individually (`make` is absent on this host, WN-1). Five MCP extension suites pass. Packaging and `verify:package` succeed at 0.2.0. CI/CD verified: the extension workflow is path-filtered, SHA-pinned, cached, and concurrency-gated, and `ci.yml` explicitly enumerates both `tests/installer` and `catalog/hooks/tests/`, so nothing this cycle added is invisible to collection.
+
+### Known Issues
+
+Six closed this cycle (NI-1, QG-2, MT-1, NI-5, NI-6, BG-3) plus two closed in this phase (NI-3, BG-4). Eight carried, zero release blockers: DF-1 (deferred key deletion, v3.17.0), NI-2 (unverifiable drawdown weights), MT-2 (provisional runner rules), NI-4 (cross-monitor policy, routed out), NI-7 (deliberate divergence), and the environmental WN-1 / BG-1 / BG-2.
+
+## [2026-08-09] - v3.16.3 Phase 5: settings content and status-bar metric selection
+
+### What Changed
+
+The settings section is editable in place - thresholds, colors, the alert metric, the compact toggle, the notification timeout, and the refresh interval all write straight back, with threshold ordering validated beside the offending field. A new `githubUsageMonitor.statusBarMetric` setting decides what the status bar shows, defaulting to Actions minutes.
+
+### Why It Changed
+
+Phase 4 moved the settings form into the dashboard but left it read-only, so changing a threshold still meant opening VS Code settings. And the status bar unconditionally showed whichever metric happened to have the largest percentage, which is a reasonable default but a poor only-option.
+
+### Decisions Made
+
+- **The webview's validation is a convenience; the extension's is the guarantee.** `EDITABLE_SETTINGS` gates both the key and the value type, so a crafted message cannot reach an arbitrary VS Code setting, and threshold ordering is re-checked in `extension.ts` because the panel's inline check can be bypassed. A test asserts `billingOwner`, the allowance keys, and an unrelated `http.proxy` are all rejected.
+- **The write-back is a callback, not a registered command.** A command would need declaring in `package.json` to satisfy the declared-equals-registered parity check, which would put an argument-taking internal write in the Command Palette where invoking it does nothing.
+- **`highest` reproduces the old behaviour exactly**, including the Copilot-amount fallback when no metric has a percentage, and a regression test pins both.
+- **An unavailable selection never falls back silently.** A status bar quietly showing a number other than the one the user chose is a correctness bug; it shows `n/a` and the hover explains which metric this owner does not report.
+- **The migration drift-guard was corrected, not silenced.** It fired on `statusBarMetric`, and its original rule would have forced every new setting into a migration that predates it. It now asserts that every contributed key is either migrated or explicitly listed as new, that no migrated key is stale, and that the two lists never overlap.
+
+### Verification
+
+312 tests passing (up from 294), coverage 82.53% statements / 78.83% branches / 83.66% functions / 85.66% lines, all above threshold; `settingsPanel.ts` at 100% statements and lines. Packaging, installer suites, and repository validators all clean.
+
+### Known Issues
+
+NI-6 resolved. BG-3 resolved: a Phase 5 fixture that omitted a metric surfaced two genuine crashes - `selectStatusMetric` and the hover's `metricSection` both assumed all three metrics always exist, and a snapshot cached by v0.1.0 is exactly that shape. Same class as Phase 2's `NaN` drawdown; cached state outlives the version that wrote it, and Phase 6 should sweep the remaining surfaces.
+
+NI-7 opened: fields write on change rather than collecting a draft behind Save / Reset, which is a deliberate divergence from the Claude monitor's pattern. Both surfaces re-render immediately so the effect is visible, and adding Save / Reset would mean a dirty-state model for a form of eleven fields.
+
+## [2026-08-09] - v3.16.3 Phase 4: panel shell - three buttons, inline settings, teal meters
+
+### What Changed
+
+The monitor now has one panel instead of two. The action row is three controls (Refresh Now, Open GitHub Billing Page, and a gear), the settings form renders inline under that gear rather than in a second webview, and the meters were restyled to match the sibling monitors: a neutral track with a teal fill and the percentage beside the bar.
+
+### Why It Changed
+
+A six-button action row and a second webview were two of the five maintainer-reported gaps. The Claude monitor had already solved the inline-settings problem in v3.14.6, exporting the form as three composable pieces, so this phase ported a proven in-repo pattern rather than inventing a second one.
+
+### Decisions Made
+
+- **Nothing was removed, only relocated.** Every command dropped from the action row lives in the settings section, grouped into Account, Allowances, Refresh and alerts, and a visually separated Danger zone. Each stays registered, so the Command Palette still reaches all of them. A test asserts all ten relocated commands are present in the section.
+- **One script element, one `acquireVsCodeApi()` call.** The settings script runs under the dashboard's existing nonce rather than adding a second inline block, which keeps the Content-Security-Policy shape unchanged. Calling `acquireVsCodeApi()` twice throws and would blank the whole panel, so both counts are asserted.
+- **The Claude monitor's missing `:focus-visible` was not copied.** Its button rules omit the focus outline; porting them wholesale would have dropped keyboard focus visibility. The outline is kept, with a comment saying why.
+- **The settings section renders on every state**, including unconnected and no-data, so the gear is never a control that does nothing.
+- **The open/closed state is persisted** through `vscode.setState`. The dashboard rebuilds its entire HTML on every refresh, which would otherwise slam the section shut underneath a user who had just opened it.
+- **NI-5 folded in.** `runFirstRunConnection` now takes a `scope` rather than a placeholder owner, since scope is all it needs.
+
+### Verification
+
+294 tests passing (up from 288), coverage 82.47% statements / 78.67% branches / 83.44% functions / 85.88% lines, all above threshold; `settingsPanel.ts` at 100% statements. Packaging and `verify:package` succeed at 0.2.0. A grep confirms `SettingsPanel`, `renderSettings`, and the `githubUsageMonitorSettings` webview id are gone from both `src/` and `test/`.
+
+### Known Issues
+
+NI-5 resolved. NI-6 opened, and it is the deliberate Phase 4/5 boundary: the section is read-only, so changing a threshold still routes through VS Code settings. Phase 5 owns making it editable in place, and `validateThresholds` is already exported for it.
+
+One thing worth carrying forward: the NI-5 signature change surfaced as five *runtime* test failures rather than a compile error, because Vitest transpiles without type-checking. In this codebase a signature change is only type-checked by `npm run compile`, never by the test run.
+
+## [2026-08-09] - v3.16.3 Phase 3: first-run connection
+
+### What Changed
+
+A freshly installed monitor now connects itself. If the editor already has a GitHub session it binds silently with no interaction at all; if it does not, it opens the real sign-in flow **exactly once**; and if the user dismisses that, the decline is durable and the flow never opens automatically again. The unconnected state stopped presenting as a failure: the status bar says "Not connected" rather than `--`, and the panel shows a purposeful empty state with one Connect button and an explicit statement of what is read and what is not.
+
+### Why It Changed
+
+The extension was useless until a user found a command, and the plan rated this phase's failure mode as the most user-hostile thing it could ship: a modal dialog on every VS Code start. Both halves needed building, and the second one needed guarding.
+
+### Decisions Made
+
+- **The sequence is deliberately not awaited.** Migration is awaited during activation because a configuration read that races it produces wrong values. Sign-in is the opposite case: it can block on a browser round-trip or hang outright, and activation must not wait on it.
+- **A new `not-connected` error code**, distinct from `missing-token`. Having no credential is a different situation from having one that is rejected: one is answered by connecting, the other by fixing a permission. Collapsing them is what made an unconnected install present as a failure.
+- **A decline is not an error and is not styled as one.** A user who chose not to connect is in a valid state; rendering that as a failure is inaccurate and is nagging by other means.
+- **`runFirstRunConnection` returns an `interactiveAttempts` count.** The single number separating correct behaviour from a dialog on every startup is how many `createIfNone: true` calls happen, so the tests assert that number directly rather than any proxy for it.
+- **The decline flag lives in `globalState`, and the test proves it.** One test loops three further activations after a decline - a per-session flag would pass a single re-run and fail there.
+- **A helper that only documented intent was deleted** rather than kept. `isConnectionRefusalAnError()` returned a constant with no call site; the reasoning belongs in the renderer's comment, where it already was.
+
+### Verification
+
+288 tests passing (up from 273), coverage 82.08% statements / 78.47% branches / 82.09% functions / 85.7% lines, all above threshold. `firstRun.ts` is at 100% line coverage. Packaging and `verify:package` succeed at 0.2.0; installer smoke and naming suites pass; repository validators clean.
+
+### Known Issues
+
+MT-1 from Phase 1 is **resolved** here, exactly where Phase 1 predicted it would be cheapest: this phase needed an activation harness, so the vscode stub gained an ordered configuration-access log and a test now asserts the migration write precedes the first read of the same key. One small new item (NI-5): on a truly fresh install the sequence passes a placeholder owner purely to select scope candidates, which is harmless but reads oddly - the fix is to pass a scope rather than an owner, best done when Phase 4 or 5 is already in that file.
+
+## [2026-08-09] - v3.16.3 Phase 2: allowance and drawdown truth
+
+### What Changed
+
+The monitor can render a real percentage for the first time, and it is derived from the quantity GitHub actually counts rather than from gross consumption. Three things had to be built to get there: a denominator auto-derived from the account's plan, a drawdown numerator reconstructed from private-repository usage with per-runner-OS weighting, and a documented GigabyteHours-to-GB conversion for storage. Allowance handling gained a third state, so "your plan includes nothing for this product" is no longer rendered identically to "we could not work it out".
+
+### Why It Changed
+
+The extension reported **1,287** Actions minutes for a month in which GitHub counted **120.7** against the allowance. Almost all of that usage was in a public repository, which is free and never draws down. Supplying a denominator without fixing the numerator would have rendered 64% where the truth is 6%.
+
+### Decisions Made
+
+- **Measured before designing, and it mattered.** The plan's leading candidate - private-repository minutes counted 1:1 - was **falsified** by a completed month: July predicted 1,584 where GitHub's panel showed a saturated 2,000. Non-Linux minutes really do draw down faster, even though GitHub has withdrawn the page that said so.
+- **A tolerance pass is not proof.** An earlier candidate "reconciled" at 0.6% and was arithmetically impossible: it predicted a Linux-only figure below its own upper bound while the true value sat above it. What caught it was a bound check, not a percentage comparison. Recorded in the gap log as the phase's most transferable lesson.
+- **Never reconcile against the current month.** Three probe runs were invalidated by comparing a still-accruing month against a screenshot taken minutes earlier.
+- **Weights ship as the historical published values (2x / 10x), labelled as a reconstruction.** The list-price alternative (1.67x / 10.33x) fits identically and differs by 0.3%; no month on the measured account can separate them. Chosen with the maintainer, with a re-check trigger recorded.
+- **Manual entry stays, as an override rather than a path.** An earlier draft removed it after conflating Phase 3's auto-connect requirement with a ban on allowance settings. The maintainer corrected that: derive automatically, show provenance, keep a discoverable override - because a published per-plan figure cannot detect its own disagreement with an account.
+- **`AllowanceInputs.api` stays unpopulated.** No documented endpoint serves an entitlement, and `/usage/summary` reports `discountQuantity == grossQuantity` on every row, so it does not serve the drawdown either. A test asserts `allowanceSource` is never `"api"`.
+
+### Verification
+
+273 tests passing (up from 246), coverage 82.78% statements / 78.49% branches / 84.69% functions / 86.3% lines, all above threshold. `npm run package` and `verify:package` succeed at 0.2.0. Installer smoke and naming suites pass. The reconstruction is pinned by fixtures built from the real account: the July figures that falsified 1:1, the 1,287-vs-120.7 regression, and the storage conversion checked in both directions (0.087 GB under the allowance, 0.581 GB over).
+
+### Known Issues
+
+Four open, zero blockers. The weights are unverifiable (NI-2); the two billing endpoints use different SKU vocabularies and the classifier survives both by substring luck (NI-3); the self-hosted and larger-runner rules are tested only against invented strings because the measured account uses neither (MT-2); and the maintainer surfaced a policy asymmetry worth its own cycle (NI-4) - the three sibling monitors read vendor-internal usage endpoints, while this one is barred from GitHub's equivalent by its own data contract, which is the entire reason this phase was hard.
+
+## [2026-08-09] - v3.16.3 Phase 1: rename to GitHub Usage Monitor, with settings migration
+
+### What Changed
+
+The GitHub VS Code extension is "GitHub Usage Monitor" again, at version `0.2.0`. The rename is deep rather than cosmetic: every command id moved from `github-usage.*` to `githubUsageMonitor.*`, every configuration key from `githubUsage.*` to the same prefix, and the view container, view id, when-clause context key, both webview panel ids, the SecretStorage token key, and the three `globalState` cache keys moved with them. A new `src/migration.ts` carries every user-set value across on first activation. Both v3.15 contract documents carry a dated correction. The extension id `nexus-hub.github-usage-monitor` did not move, in either direction.
+
+### Why It Changed
+
+Three sibling extensions are called "<Vendor> Usage Monitor". The fourth being "GitHub Billing Usage" made a family read as an accident. The v3.15.12 reasoning was not wrong about the risk (that "usage monitor" invites reading the extension as Copilot-only or Actions-only), it was wrong about where to fix it: that belongs in the description and the panel subtitle, which have room to name both surfaces, not in a title competing with three siblings for recognition.
+
+The maintainer chose the deep rename, which is what makes the migration mandatory rather than optional. VS Code keys settings by their literal string, so moving the prefix without a migration leaves every threshold, color, billing owner, and allowance on disk with nothing reading it - a silent reset presented as a fresh install.
+
+### Decisions Made
+
+- **`activate()` is now `async`, and awaits the migration before anything else.** The plan says migration runs "before any other initialization", and a fire-and-forget migration does not satisfy that: `configuredStaleAfterMs()` and the first refresh both read configuration synchronously and would see defaults. VS Code awaits the returned promise before marking the extension active, so the cost is paid once, on the first launch after upgrade.
+- **Only `globalValue` and `workspaceValue` are copied; a `defaultValue` never is.** Writing a default explicitly would pin the user to today's default forever, so a later release that changes a default would silently not reach them. Scope is preserved rather than collapsed, so a workspace-set owner does not become a global one.
+- **The completion flag is recorded only after a clean pass.** Any single failed write leaves the flag unset and the next activation retries. A half-migrated state that claims completion is the failure mode worth designing against; a redundant retry is not.
+- **The token is written before the old key is deleted, and a failed write leaves the old key alone.** A stale key name is recoverable next activation; a lost token forces a full re-authentication.
+- **The old `githubUsage.*` keys are not deleted.** A downgrade must still find them, and a deletion racing a failed write loses the data outright. Recorded as a v3.17.0 follow-up (DF-1).
+- **`globalState` cache keys migrate too, though the plan named only config and the token.** Renaming them was forced by the grep gate; not migrating them would have dropped the cached snapshot, alert cycle, and capability verdict for no reason. The cost is about five lines.
+- **A repository-grep test enforces the rename, with exactly one exemption.** `migration.ts` is the one file that must name the old keys. The guard earned its place on its first run by catching a stale reference in a comment I had just written.
+
+### Verification
+
+`npm run compile`, 219 Vitest tests passing (up from 200), coverage 81.78% statements / 77.32% branches / 84.54% functions / 85.67% lines, all above the configured thresholds. `npm run package` + `verify:package` succeed at `0.2.0`. Fifteen `make validate` guards run individually (`make` is absent on this host, WN-1) and all pass. `catalog/hooks/tests`: 993 passed, 36 skipped. All five MCP extension suites pass. Both shell installers are ShellCheck-clean once the Windows working copy is LF-normalized (BG-2 explains why the raw run looks catastrophic and is not).
+
+### Known Issues
+
+The plan's scope note was incomplete, and the gap was real rather than cosmetic: both installers hard-code the display name and status hint, and `tests/installer/test_github_billing_rename.py` existed solely to pin the rename this phase reverses. Ten of its tests failed on the first full run. The installers were updated with explicit approval; the test file was rewritten and renamed to `test_github_monitor_naming.py`, re-deriving every naming assertion from one constant so the next rename is a one-line change. Full disposition (DF-1, NI-1, MT-1, WN-1, BG-1, BG-2) in the v3.16 gap log. Zero release blockers.
+
 ## [2026-08-09] - v3.16.2 Phase 6: refactor, reconciliation, and CI/CD [terminal phase]
 
 ### What Changed

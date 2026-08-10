@@ -249,10 +249,11 @@ def test_installers_use_claude_usage_monitor_banner():
 USAGE_MONITORS = (
     ("claude-usage-monitor", "nexus-hub.claude-usage-monitor", "Claude Usage Monitor"),
     ("codex-usage-monitor", "nexus-hub.codex-usage-monitor", "Codex Usage Monitor"),
-    # v3.15.12 Phase 3 renamed the display surfaces to "GitHub Billing Usage".
-    # The folder and the extension id deliberately did NOT change: an id is
+    # v3.15.12 Phase 3 renamed the display surfaces to "GitHub Billing Usage";
+    # v3.16.3 Phase 1 reverted them to "GitHub Usage Monitor". The folder and the
+    # extension id deliberately did NOT change through either rename: an id is
     # publisher.name, so renaming it would orphan an existing install.
-    ("github-usage-monitor", "nexus-hub.github-usage-monitor", "GitHub Billing Usage"),
+    ("github-usage-monitor", "nexus-hub.github-usage-monitor", "GitHub Usage Monitor"),
     ("cursor-usage-monitor", "nexus-hub.cursor-usage-monitor", "Cursor Usage Monitor"),
 )
 
@@ -370,19 +371,17 @@ def test_github_monitor_status_hint_promises_no_percentage():
     """
     for path in (INSTALLER_SH, INSTALLER_PS1):
         body = path.read_text(encoding="utf-8")
-        # Renamed to the "GitHub Billing" prefix in v3.15.12 Phase 3; the point of
-        # this assertion is the absent "%", not the prefix.
-        assert "GitHub Billing: --" in body, (
-            f"{path.name} must use the absolute-usage 'GitHub Billing: --' status hint"
+        # The prefix moved to "GitHub Billing" in v3.15.12 Phase 3 and back to
+        # "GitHub Usage" in v3.16.3 Phase 1, matching buildStatusText's own label.
+        # The point of this assertion is the absent "%", not the prefix.
+        assert "GitHub Usage: --" in body, (
+            f"{path.name} must use the absolute-usage 'GitHub Usage: --' status hint"
         )
-        assert "GitHub: --%" not in body, (
-            f"{path.name} must not promise a GitHub usage percentage before a "
-            "denominator is verified"
-        )
-        assert "GitHub Billing: --%" not in body, (
-            f"{path.name} must not promise a GitHub usage percentage before a "
-            "denominator is verified"
-        )
+        for promised in ("GitHub: --%", "GitHub Billing: --%", "GitHub Usage: --%"):
+            assert promised not in body, (
+                f"{path.name} must not promise a GitHub usage percentage before a "
+                "denominator is verified"
+            )
 
 
 def test_installer_ps1_surfaces_vsce_errors():

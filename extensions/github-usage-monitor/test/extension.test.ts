@@ -28,42 +28,42 @@ class FakeSecrets {
 describe("extension authentication commands", () => {
   let secrets: FakeSecrets;
 
-  beforeEach(() => {
+  beforeEach(async () => {
     resetVscodeStub();
     secrets = new FakeSecrets();
-    setConfiguration("githubUsage.billingScope", "user");
-    setConfiguration("githubUsage.billingOwner", "fixture-user");
-    setConfiguration("githubUsage.autoFetch", false);
-    activate(context(secrets) as never);
+    setConfiguration("githubUsageMonitor.billingScope", "user");
+    setConfiguration("githubUsageMonitor.billingOwner", "fixture-user");
+    setConfiguration("githubUsageMonitor.autoFetch", false);
+    await activate(context(secrets) as never);
     vi.stubGlobal("fetch", vi.fn());
   });
 
   it("registers clear-token and removes only the SecretStorage value", async () => {
-    secrets.values.set("githubUsage.token", "fixture-token-value-123456789");
-    await runCommand("github-usage.clearToken");
+    secrets.values.set("githubUsageMonitor.token", "fixture-token-value-123456789");
+    await runCommand("githubUsageMonitor.clearToken");
     expect(secrets.values.size).toBe(0);
     expect(messages.information).toContain("GitHub billing token removed from SecretStorage.");
   });
 
   it("rejects set-token when owner configuration is invalid", async () => {
     resetVscodeStub();
-    setConfiguration("githubUsage.billingScope", "user");
-    setConfiguration("githubUsage.billingOwner", "");
-    setConfiguration("githubUsage.autoFetch", false);
-    activate(context(secrets) as never);
-    await runCommand("github-usage.setToken");
+    setConfiguration("githubUsageMonitor.billingScope", "user");
+    setConfiguration("githubUsageMonitor.billingOwner", "");
+    setConfiguration("githubUsageMonitor.autoFetch", false);
+    await activate(context(secrets) as never);
+    await runCommand("githubUsageMonitor.setToken");
     expect(messages.errors[0]).toContain("valid GitHub user name");
   });
 
   it("does nothing when the secret prompt is cancelled", async () => {
     queueInput(undefined);
-    await runCommand("github-usage.rotateToken");
+    await runCommand("githubUsageMonitor.rotateToken");
     expect(secrets.values.size).toBe(0);
     expect(messages.errors).toEqual([]);
   });
 
   it("reports a missing stored token during validation", async () => {
-    await runCommand("github-usage.validateToken");
+    await runCommand("githubUsageMonitor.validateToken");
     expect(messages.errors[0]).toContain("No GitHub billing token");
   });
 

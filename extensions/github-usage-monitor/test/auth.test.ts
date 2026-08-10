@@ -15,7 +15,7 @@ import {
   type MonitorOwnedState
 } from "../src/providers/sessionBinding";
 import { activate } from "../src/extension";
-import { renderAuthSection, renderSettings, readSettings } from "../src/settingsPanel";
+import { renderAuthSection, settingsSectionHtml, readSettings } from "../src/settingsPanel";
 import type { BillingOwner } from "../src/types";
 import {
   messages,
@@ -238,24 +238,24 @@ describe("registered log in / log out commands are not inert", () => {
     } as unknown as Parameters<typeof activate>[0];
   }
 
-  it("registers both commands", () => {
-    setConfiguration("githubUsage.autoFetch", false);
-    setConfiguration("githubUsage.billingOwner", "acme");
-    setConfiguration("githubUsage.billingScope", "organization");
-    activate(context());
-    expect(() => runCommand("github-usage.logIn")).not.toThrow();
-    expect(() => runCommand("github-usage.logOut")).not.toThrow();
+  it("registers both commands", async () => {
+    setConfiguration("githubUsageMonitor.autoFetch", false);
+    setConfiguration("githubUsageMonitor.billingOwner", "acme");
+    setConfiguration("githubUsageMonitor.billingScope", "organization");
+    await activate(context());
+    expect(() => runCommand("githubUsageMonitor.logIn")).not.toThrow();
+    expect(() => runCommand("githubUsageMonitor.logOut")).not.toThrow();
   });
 
   it("log in requests the account picker with the level's candidate scope", async () => {
-    setConfiguration("githubUsage.autoFetch", false);
-    setConfiguration("githubUsage.billingOwner", "acme");
-    setConfiguration("githubUsage.billingScope", "organization");
-    activate(context());
+    setConfiguration("githubUsageMonitor.autoFetch", false);
+    setConfiguration("githubUsageMonitor.billingOwner", "acme");
+    setConfiguration("githubUsageMonitor.billingScope", "organization");
+    await activate(context());
 
     sessionResponses.push(undefined); // the silent peek inside authDisplay
     sessionResponses.push(session()); // the interactive log-in
-    await runCommand("github-usage.logIn");
+    await runCommand("githubUsageMonitor.logIn");
 
     const interactive = sessionRequests.find(
       (request) => (request.options as { createIfNone?: boolean }).createIfNone === true
@@ -269,13 +269,13 @@ describe("registered log in / log out commands are not inert", () => {
   });
 
   it("log out never calls getSession with createIfNone, so no sign-in or sign-out is triggered", async () => {
-    setConfiguration("githubUsage.autoFetch", false);
-    setConfiguration("githubUsage.billingOwner", "acme");
-    setConfiguration("githubUsage.billingScope", "organization");
-    activate(context());
+    setConfiguration("githubUsageMonitor.autoFetch", false);
+    setConfiguration("githubUsageMonitor.billingOwner", "acme");
+    setConfiguration("githubUsageMonitor.billingScope", "organization");
+    await activate(context());
     sessionRequests.length = 0;
 
-    await runCommand("github-usage.logOut");
+    await runCommand("githubUsageMonitor.logOut");
 
     // Any getSession during log-out must be the silent re-peek for the refreshed
     // panel, never an interactive call. Nothing here can end the shared session.
@@ -316,8 +316,11 @@ describe("settings panel auth section", () => {
     expect(html).toContain("Connected");
     expect(html).toContain("organization:acme");
     expect(html).toContain("octocat");
-    expect(html).toContain("logIn");
-    expect(html).toContain("logOut");
+    // v3.16.3 Phase 4 moved the log-in / log-out buttons out of this block and into
+    // the settings section's Account group, so the auth block is now purely a
+    // statement of WHO the monitor is bound to and WHAT the verdict is. The
+    // relocated controls are asserted in ui.test.ts against the settings section.
+    expect(html).not.toContain("data-command=");
   });
 
   it("states that logging out leaves Copilot alone", () => {
@@ -364,8 +367,10 @@ describe("settings panel auth section", () => {
   });
 
   it("is omitted entirely when no auth state is supplied", () => {
-    const html = renderSettings(readSettings());
+    // The section still renders - it carries the relocated commands - but the
+    // Authorization block is skipped rather than rendered empty.
+    const html = settingsSectionHtml(readSettings());
     expect(html).not.toContain("Authorization</legend>");
-    expect(html).toContain("GitHub Billing Usage Settings");
+    expect(html).toContain("Danger zone");
   });
 });

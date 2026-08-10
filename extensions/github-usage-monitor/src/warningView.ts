@@ -3,8 +3,8 @@ import type { UsageSuggestion } from "./recommendations";
 import { escapeHtml, formatAmount } from "./statusBarManager";
 import { formatResetCountdown } from "./usageStore";
 
-export const WARNING_VIEW_ID = "githubUsageWarningView";
-export const WARNING_ACTIVE_CONTEXT = "githubUsage.warningActive";
+export const WARNING_VIEW_ID = "githubUsageMonitorWarningView";
+export const WARNING_ACTIVE_CONTEXT = "githubUsageMonitor.warningActive";
 
 export interface WarningCallbacks { onOpenDashboard(): void; onDismiss(): void; }
 

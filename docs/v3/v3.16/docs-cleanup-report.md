@@ -1,8 +1,83 @@
 # Docs Cleanup Audit - v3.16
 
 **Mode**: audit only. No file was moved, renamed, or deleted by this pass.
-**Run at**: v3.16.2 Phase 6, terminal-phase gate (2026-08-09). Supersedes the v3.16.0 Phase 2 run; findings carried forward below.
-**Scope**: `docs/v3/v3.16/`, the new `docs/incidents/`, plus `docs/policy/` and the repo-root, `scripts/`, and `configs/` surfaces these cycles touched.
+**Run at**: v3.16.3 Phase 1 per-phase audit (2026-08-09), over the v3.16.2 Phase 6 terminal-phase run (2026-08-09), which supersedes the v3.16.0 Phase 2 run. Findings carried forward below.
+**Scope**: `docs/v3/v3.16/`, `docs/v3/v3.15/development/` (the two contract documents v3.16.3 amends), the new `docs/incidents/`, plus `docs/policy/` and the repo-root, `scripts/`, and `configs/` surfaces these cycles touched.
+
+## v3.16.3 Phase 6 pass (terminal)
+
+Layout is clean and no file needed to move.
+
+| Check | Result |
+|---|---|
+| Session histories for this cycle | All six present under `development/history/`, one per phase |
+| Probe document | `development/github-entitlement-probe.md`, canonical |
+| Legacy or duplicate plan paths for v3.16.3 | None |
+| Tracked empty directories | None |
+| Orphaned exports in the extension | None; every exported symbol has at least one importer outside its own file |
+| Stray docs created by this cycle | None |
+
+**`docs-cleanup-report.md` itself.** The v3.16.2 pass noted that this file is regenerated per phase and that "Phase 5 should reconcile or remove it". It is kept: each per-phase block is short, dated, and additive, and the file reads as the cycle's layout history rather than as a stale snapshot. Removing it would discard the record of decisions such as the `docs/incidents/` placement rationale.
+
+## v3.16.3 Phase 5 pass
+
+Layout is clean and no file needed to move. The phase added one document, at the canonical path.
+
+| Check | Result |
+|---|---|
+| New session history | `development/history/2026-08-09_github-usage-monitor-ux-phase-5-settings-content.md`, correct |
+| Scratch or stray docs created by this phase | None |
+| Known-gaps append target | `docs/v3/v3.16/known-gaps.md`, appended within the existing `## v3.16.3` section |
+| Resolved-item handling | NI-6 and BG-3 recorded as RESOLVED in place rather than deleted |
+
+## v3.16.3 Phase 4 pass
+
+Layout is clean and no file needed to move. The phase added one document, at the canonical path.
+
+| Check | Result |
+|---|---|
+| New session history | `development/history/2026-08-09_github-usage-monitor-ux-phase-4-panel-shell.md`, correct |
+| Scratch or stray docs created by this phase | None |
+| Known-gaps append target | `docs/v3/v3.16/known-gaps.md`, appended within the existing `## v3.16.3` section |
+| Orphaned source after the panel merge | None. `SettingsPanel`, `renderSettings`, and the `githubUsageMonitorSettings` webview id are gone from `src/` and `test/`, verified by grep |
+
+## v3.16.3 Phase 3 pass
+
+Layout is clean and no file needed to move. The phase added one document, at the canonical path.
+
+| Check | Result |
+|---|---|
+| New session history | `development/history/2026-08-09_github-usage-monitor-ux-phase-3-first-run-connection.md`, correct |
+| Scratch or stray docs created by this phase | None |
+| Known-gaps append target | `docs/v3/v3.16/known-gaps.md`, appended within the existing `## v3.16.3` section |
+| Resolved-item handling | MT-1 recorded as RESOLVED in place rather than deleted, so a reader of the Phase 1 entry can still find its disposition |
+
+## v3.16.3 Phase 2 pass
+
+Layout is clean and no file needed to move. The phase added two documents, both at canonical paths.
+
+| Check | Result |
+|---|---|
+| New probe document | `development/github-entitlement-probe.md`, matching the sibling `github-usage-*-contract.md` and `github-billing-auth-probe.md` convention |
+| New session history | `development/history/2026-08-09_github-usage-monitor-ux-phase-2-allowance-and-drawdown-truth.md`, correct |
+| Scratch or stray docs created by this phase | None |
+| Known-gaps append target | `docs/v3/v3.16/known-gaps.md`, appended as a `### NI-2 ...` block within the existing `## v3.16.3` section rather than opening a second one |
+
+**Probe document placement, noted.** `github-entitlement-probe.md` sits under `docs/v3/v3.16/development/` rather than alongside the two v3.15 contract documents it repeatedly cites. That is correct: it records what was true **when v3.16.3 measured it**, including three superseded conclusions and their corrections, so it is a per-release artifact rather than a contract. The v3.15 contracts remain the durable statements and were amended in place in Phase 1.
+
+## v3.16.3 Phase 1 pass
+
+Layout is clean and no file needed to move. The phase added one document, at the canonical path.
+
+| Check | Result |
+|---|---|
+| New session history placement | `development/history/2026-08-09_github-usage-monitor-ux-phase-1-rename-to-github-usage-monitor-with-settings-migration.md`, correct |
+| Scratch or stray docs created by this phase | None |
+| v3.15 contract amendments | Both edited in place with a dated correction block; neither moved, and no duplicate was created |
+| Known-gaps append target | `docs/v3/v3.16/known-gaps.md`, the correct per-minor ledger; a `## v3.16.3` section was appended rather than the file replaced |
+| Legacy or duplicate plan paths for v3.16.3 | None |
+
+**Cross-version amendment, noted deliberately.** This phase edits two documents under `docs/v3/v3.15/development/` rather than under its own version directory. That is correct rather than a layout violation: both are *contracts* that describe the extension's current behavior, not per-release artifacts, so they are amended in place with a dated correction instead of being forked into a v3.16 copy. Forking would have produced two contract documents disagreeing about the same extension, which is the condition the amendment exists to prevent.
 
 ## v3.16.2 pass
 

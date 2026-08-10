@@ -20,6 +20,6 @@ describe("brand assets", () => {
     expect(png.readUInt32BE(16)).toBe(256); expect(png.readUInt32BE(20)).toBe(256); expect(png[25]).toBe(6);
     const manifest = JSON.parse(readFileSync(resolve(root, "package.json"), "utf8"));
     expect(manifest.icon).toBe("icon.png"); expect(manifest.contributes.icons["github-icon"].default.fontCharacter).toBe("\\E102");
-    expect(manifest.contributes.views.githubUsageWarning[0].when).toBe("githubUsage.warningActive");
+    expect(manifest.contributes.views.githubUsageMonitorWarning[0].when).toBe("githubUsageMonitor.warningActive");
   });
 });

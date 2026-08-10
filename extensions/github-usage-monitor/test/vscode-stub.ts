@@ -33,11 +33,66 @@ export const commands = {
   async executeCommand(name: string, ...args: unknown[]): Promise<unknown> { const command = commandMap.get(name); return command ? command(...args) : undefined; }
 };
 
+export const ConfigurationTarget = { Global: 1, Workspace: 2, WorkspaceFolder: 3 } as const;
+
+/**
+ * Values a test declared as explicitly user-set, so `inspect()` can distinguish
+ * them from a default. Keyed by fully-qualified setting id.
+ */
+const globalOverrides = new Map<string, unknown>();
+const workspaceOverrides = new Map<string, unknown>();
+/** Sections whose `update()` must reject, so a partial-migration path is testable. */
+const failingUpdates = new Set<string>();
+/**
+ * Ordered log of configuration access, so a test can assert SEQUENCE and not just
+ * outcome. Activation must migrate settings BEFORE anything reads them; a check on
+ * the final value alone passes even when the read raced the write.
+ */
+export const configurationLog: Array<{ op: "get" | "update"; id: string }> = [];
+
 export const workspace = {
-  getConfiguration(section: string): { get<T>(key: string, defaultValue?: T): T } {
-    return { get<T>(key: string, defaultValue?: T): T { return (configuration.get(`${section}.${key}`) as T | undefined) ?? defaultValue as T; } };
+  getConfiguration(section?: string): {
+    get<T>(key: string, defaultValue?: T): T;
+    inspect<T>(key: string): { globalValue?: T; workspaceValue?: T } | undefined;
+    update(key: string, value: unknown, target?: number): Promise<void>;
+  } {
+    const qualify = (key: string): string => (section === undefined ? key : `${section}.${key}`);
+    return {
+      get<T>(key: string, defaultValue?: T): T {
+        configurationLog.push({ op: "get", id: qualify(key) });
+        return (configuration.get(qualify(key)) as T | undefined) ?? defaultValue as T;
+      },
+      inspect<T>(key: string): { globalValue?: T; workspaceValue?: T } | undefined {
+        const id = qualify(key);
+        const globalValue = globalOverrides.get(id) as T | undefined;
+        const workspaceValue = workspaceOverrides.get(id) as T | undefined;
+        if (globalValue === undefined && workspaceValue === undefined && !configuration.has(id)) return undefined;
+        return { globalValue, workspaceValue };
+      },
+      async update(key: string, value: unknown, target = ConfigurationTarget.Global): Promise<void> {
+        const id = qualify(key);
+        if (failingUpdates.has(id)) throw new Error(`stub refused to write ${id}`);
+        configurationLog.push({ op: "update", id });
+        (target === ConfigurationTarget.Workspace ? workspaceOverrides : globalOverrides).set(id, value);
+        configuration.set(id, value);
+      }
+    };
   }
 };
+
+/** Marks a fully-qualified setting as explicitly set by the user at the given scope. */
+export function setUserConfiguration(id: string, value: unknown, target: number = ConfigurationTarget.Global): void {
+  (target === ConfigurationTarget.Workspace ? workspaceOverrides : globalOverrides).set(id, value);
+  configuration.set(id, value);
+}
+
+/** Reads back what `update()` wrote, so a test can assert scope as well as value. */
+export function readUserConfiguration(id: string, target: number = ConfigurationTarget.Global): unknown {
+  return (target === ConfigurationTarget.Workspace ? workspaceOverrides : globalOverrides).get(id);
+}
+
+/** Makes `update()` reject for one setting id, exercising the partial-failure path. */
+export function failConfigurationUpdate(id: string): void { failingUpdates.add(id); }
 
 export interface StubSession { accessToken: string; scopes: string[]; account?: { label?: string } }
 /** Sessions handed out by `authentication.getSession`, in order. */
@@ -81,4 +136,4 @@ export const outputLines: string[] = [];
 export function setConfiguration(key: string, value: unknown): void { configuration.set(key, value); }
 export function queueInput(value: string | undefined): void { inputs.push(value); }
 export async function runCommand(name: string): Promise<unknown> { const command = commandMap.get(name); if (!command) throw new Error(`Command not registered: ${name}`); return command(); }
-export function resetVscodeStub(): void { commandMap.clear(); configuration.clear(); inputs.length = 0; messages.information.length = 0; messages.warnings.length = 0; messages.errors.length = 0; statusItems.length = 0; webviewPanels.length = 0; webviewProviders.length = 0; sessionResponses.length = 0; sessionRequests.length = 0; outputLines.length = 0; }
+export function resetVscodeStub(): void { commandMap.clear(); configuration.clear(); globalOverrides.clear(); workspaceOverrides.clear(); failingUpdates.clear(); configurationLog.length = 0; inputs.length = 0; messages.information.length = 0; messages.warnings.length = 0; messages.errors.length = 0; statusItems.length = 0; webviewPanels.length = 0; webviewProviders.length = 0; sessionResponses.length = 0; sessionRequests.length = 0; outputLines.length = 0; }
