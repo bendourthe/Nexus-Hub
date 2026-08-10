@@ -49,7 +49,9 @@ function lineItemsOf(metric: UsageMetric): UsageLineItem[] {
     grossAmount: row.grossAmount,
     discountAmount: row.discountAmount,
     netAmount: row.netAmount,
-    repositoryName: row.repositoryName
+    // `?? null` for the same reason: a breakdown from 0.1.0 has no such field,
+    // and `undefined` is not caught by the `=== null` guard downstream.
+    repositoryName: row.repositoryName ?? null
   }));
 }
 

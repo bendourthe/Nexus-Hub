@@ -31,6 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - A usage snapshot cached by extension 0.1.0 could be missing a metric entirely, which crashed the status-bar hover outright rather than degrading (`undefined` reaching the amount formatter). Both the metric selector and the hover now render an honest "not reported" instead.
+- The same class again, found by a sweep: `repositoryNamesIn` filtered on `!== null`, which `undefined` passes before throwing on `.length`, so a cached 0.1.0 snapshot could throw during enrichment. Guarded, with a `legacySnapshot()` regression fixture pinning the whole pipeline against a 0.1.0-shaped snapshot.
 
 ### Notes for future maintainers
 

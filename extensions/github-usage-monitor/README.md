@@ -91,9 +91,56 @@ To store one, run `GitHub Usage Monitor: Set Token` and paste a token of the cla
 
 `GitHub Usage Monitor: Open Billing Page` opens GitHub's own billing page for the resolved owner, which stays the authoritative source for any figure you want to verify.
 
-### 3. Set allowances if you want percentages
+That is the whole of setup. On first activation the monitor connects itself: if you are already signed in to GitHub in the editor it binds silently with no prompt at all, and otherwise it opens the sign-in flow **exactly once**. Dismiss it and it will not ask again - the Connect button in the panel still works whenever you change your mind.
 
-GitHub reports what you consumed. It does not guarantee an included allowance, so a percentage is only shown when a denominator is actually known. Supply one per metric with `GitHub Usage Monitor: Enter Allowances` or the `githubUsageMonitor.allowances.*` settings, in the same unit the metric is reported in. Until then the meters show absolute usage, which is the honest reading rather than a fabricated `0%`.
+### 3. Allowances are derived automatically
+
+You do not need to enter anything. The denominator comes from your account's plan, matched against GitHub's published per-plan figures, and the panel shows where the number came from ("published figure for your plan, not read from your account").
+
+Override one only if your account genuinely includes a different amount - a data pack, Education benefits, or negotiated terms are all invisible to the API, so a published figure cannot detect its own disagreement with your account. The Allowances group in the settings section has the control.
+
+## Where the percentages come from
+
+**GitHub does not serve the numbers this panel shows.** It serves consumption; the percentages are computed here. That is worth understanding before trusting a bar.
+
+**The denominator** is not available from any endpoint. Every field of `/settings/billing/usage`, `/usage/summary`, the AI-credit and premium-request endpoints, and the Budgets API was checked on 2026-08-09, and none carries an entitlement, quota, or remaining balance. The endpoints that once returned `included_minutes` [closed down in September 2025](https://github.blog/changelog/2025-09-26-product-specific-billing-apis-are-closing-down/). So the allowance is matched from your plan name against GitHub's published table.
+
+**The numerator is not consumption.** Most of what GitHub reports may never touch your allowance: Actions usage in **public repositories is free**, and so is self-hosted-runner usage, while larger runners cannot draw on included minutes at all. On the account this was developed against, GitHub reported **1,287 Actions minutes** for a month in which only about **121** counted against the allowance. Dividing the reported figure by the allowance would have shown 64% where the truth was 6%.
+
+So the monitor reconstructs the drawdown: private-repository, GitHub-hosted, standard-runner minutes, weighted per runner OS. Windows and macOS minutes consume the quota faster than Linux ones - GitHub has withdrawn the page that published the multipliers, but a completed month on a real account confirmed the weighting exists (an unweighted model predicted 1,584 minutes where GitHub's own panel showed a saturated 2,000).
+
+**This means a percentage is an estimate, and the panel says so.** Cards derived this way are labelled "reconstructed". Where the reconstruction cannot complete - an unresolved repository, an unfamiliar runner SKU - usage is **excluded** rather than guessed, so the figure errs low rather than raising a false alarm.
+
+**Storage is different and exact.** GitHub reports storage in GigabyteHours while expressing the entitlement in GB, and it documents the conversion (divide by the hours in the month). That is applied directly, and it was verified in both directions against a real account.
+
+Full evidence, including three superseded conclusions and their corrections: [github-entitlement-probe.md](../../docs/v3/v3.16/development/github-entitlement-probe.md).
+
+### The three allowance states
+
+Every metric is in exactly one, and none of them is a blank:
+
+| State | What it means | What you see |
+|---|---|---|
+| **Verified** | A denominator and a reconstructed drawdown both exist | A teal bar and a percentage |
+| **None** | Your plan includes no allowance for this product - Copilot Free carries no AI-credit entitlement, for example | Absolute usage, and a line saying the plan includes nothing to draw against |
+| **Unknown** | An allowance may exist but was not established | Absolute usage, and a line naming what would make a percentage available |
+
+Neither `None` nor `Unknown` ever renders as `0%` or `100%`. An unknown allowance is not zero.
+
+## The panel
+
+One panel, three controls: **Refresh Now**, **Open GitHub Billing Page**, and a gear.
+
+The gear expands the settings section in place - there is no second window. Everything that is not one of those three buttons lives in there, grouped:
+
+- **Account** - connect or switch account, log out, the four token commands, and diagnose authorization
+- **Allowances** - the derived values, their provenance, and the override
+- **Status bar** - which metric to show, and the compact toggle
+- **Alerts** - the alert metric, three thresholds, and three colors, editable in place with ordering validated beside the field
+- **Refresh** - the interval
+- **Danger zone** - clear cached data
+
+Every one of these is also a registered command, so the Command Palette still reaches all of them.
 
 ## Commands
 
@@ -101,8 +148,8 @@ GitHub reports what you consumed. It does not guarantee an included allowance, s
 |---|---|
 | `GitHub Usage Monitor: Dashboard` | Open the current-month Copilot and Actions dashboard |
 | `GitHub Usage Monitor: Refresh` | Fetch usage now |
-| `GitHub Usage Monitor: Settings` | Scope, allowances, refresh, thresholds, and alert colors |
-| `GitHub Usage Monitor: Enter Allowances` | Supply verified allowances manually |
+| `GitHub Usage Monitor: Settings` | Reveal the panel with its settings section |
+| `GitHub Usage Monitor: Enter Allowances` (now labelled Override allowances) | Supply verified allowances manually |
 | `GitHub Usage Monitor: Clear Data` | Remove the cached snapshot and alert state |
 | `GitHub Usage Monitor: Set Token` | Store a validated token in SecretStorage |
 | `GitHub Usage Monitor: Validate Token` | Re-check the stored token |

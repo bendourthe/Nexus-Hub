@@ -68,6 +68,33 @@ describe("SKU classification", () => {
     expect(classifySku("Actions macOS 12-core").standard).toBe(false);
   });
 
+  it("classifies BOTH endpoint vocabularies identically", () => {
+    // v3.16.3 NI-3. `/settings/billing/usage` says "Actions Linux";
+    // `/usage/summary` says "actions_linux". A rule written against one vocabulary
+    // would silently misclassify the other endpoint's items, and a misclassified
+    // runner is dropped from the drawdown without a trace.
+    const pairs: ReadonlyArray<readonly [string, string]> = [
+      ["Actions Linux", "actions_linux"],
+      ["Actions Windows", "actions_windows"],
+      ["Actions macOS 3-core", "actions_macos"]
+    ];
+    for (const [usageForm, summaryForm] of pairs) {
+      const fromUsage = classifySku(usageForm);
+      const fromSummary = classifySku(summaryForm);
+      expect(fromSummary.os).toBe(fromUsage.os);
+      expect(fromSummary.githubHosted).toBe(fromUsage.githubHosted);
+      expect(fromSummary.unrecognized).toBe(false);
+    }
+    // Storage SKUs are not runners in either vocabulary.
+    for (const storage of ["Actions storage", "actions_storage", "Git LFS storage", "git_lfs_storage"]) {
+      expect(classifySku(storage).unrecognized).toBe(true);
+    }
+    // Self-hosted must be recognized whichever separator the endpoint uses.
+    for (const selfHosted of ["Actions Self Hosted", "actions_self_hosted", "actions-self-hosted"]) {
+      expect(classifySku(selfHosted).githubHosted).toBe(false);
+    }
+  });
+
   it("uses the real SKU strings observed on a live account", () => {
     // Ground truth from the 2026-08 probe run, so the rules are pinned to strings
     // GitHub actually emits rather than to strings I guessed at.

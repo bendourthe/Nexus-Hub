@@ -98,7 +98,14 @@ export async function fetchAccountPlanName(
   return typeof record?.plan?.name === "string" ? record.plan.name : null;
 }
 
-/** Distinct repository names across a snapshot's line items. */
-export function repositoryNamesIn(breakdowns: readonly { repositoryName: string | null }[]): string[] {
-  return [...new Set(breakdowns.map((row) => row.repositoryName).filter((name): name is string => name !== null && name.length > 0))];
+/**
+ * Distinct repository names across a snapshot's line items.
+ *
+ * Tests `typeof` rather than `!== null`. A breakdown written by extension 0.1.0
+ * carries no `repositoryName` at all, and `undefined` passes a null check before
+ * throwing on `.length` - the same absence-tolerance class as the v3.16.3 BG-3
+ * crash. Cached state outlives the version that wrote it.
+ */
+export function repositoryNamesIn(breakdowns: readonly { repositoryName?: string | null }[]): string[] {
+  return [...new Set(breakdowns.map((row) => row.repositoryName).filter((name): name is string => typeof name === "string" && name.length > 0))];
 }

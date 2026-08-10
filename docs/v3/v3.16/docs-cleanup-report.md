@@ -4,6 +4,21 @@
 **Run at**: v3.16.3 Phase 1 per-phase audit (2026-08-09), over the v3.16.2 Phase 6 terminal-phase run (2026-08-09), which supersedes the v3.16.0 Phase 2 run. Findings carried forward below.
 **Scope**: `docs/v3/v3.16/`, `docs/v3/v3.15/development/` (the two contract documents v3.16.3 amends), the new `docs/incidents/`, plus `docs/policy/` and the repo-root, `scripts/`, and `configs/` surfaces these cycles touched.
 
+## v3.16.3 Phase 6 pass (terminal)
+
+Layout is clean and no file needed to move.
+
+| Check | Result |
+|---|---|
+| Session histories for this cycle | All six present under `development/history/`, one per phase |
+| Probe document | `development/github-entitlement-probe.md`, canonical |
+| Legacy or duplicate plan paths for v3.16.3 | None |
+| Tracked empty directories | None |
+| Orphaned exports in the extension | None; every exported symbol has at least one importer outside its own file |
+| Stray docs created by this cycle | None |
+
+**`docs-cleanup-report.md` itself.** The v3.16.2 pass noted that this file is regenerated per phase and that "Phase 5 should reconcile or remove it". It is kept: each per-phase block is short, dated, and additive, and the file reads as the cycle's layout history rather than as a stale snapshot. Removing it would discard the record of decisions such as the `docs/incidents/` placement rationale.
+
 ## v3.16.3 Phase 5 pass
 
 Layout is clean and no file needed to move. The phase added one document, at the canonical path.

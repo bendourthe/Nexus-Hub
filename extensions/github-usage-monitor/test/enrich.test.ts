@@ -290,3 +290,53 @@ describe("repository lookups", () => {
     ])).toEqual(["a", "b"]);
   });
 });
+
+describe("tolerance for snapshots cached by an older version", () => {
+  /**
+   * The v3.16.3 absence-tolerance class, pinned once for the whole pipeline.
+   *
+   * It has bitten three times: a NaN drawdown rendered in the panel (Phase 2), a
+   * missing metric crashing the hover (Phase 5), and a missing repositoryName
+   * slipping past a `!== null` guard before throwing on `.length` (Phase 6). The
+   * root cause is always the same - cached state outlives the version that wrote
+   * it - so this fixture is deliberately shaped like a 0.1.0 snapshot: no drawdown,
+   * no drawdownBasis, no allowanceState, and breakdowns with no repositoryName.
+   */
+  function legacySnapshot(): UsageSnapshot {
+    const legacyMetric = (kind: UsageMetric["kind"], unit: string, used: number): UsageMetric =>
+      ({
+        kind, unit, used, allowance: null, allowanceSource: "unknown", percentage: null,
+        reset: null, grossAmount: null, discountAmount: null, netAmount: null,
+        breakdowns: [{ product: "Actions", sku: "Actions Linux", unit, grossQuantity: used, discountQuantity: null, netQuantity: null, grossAmount: null, discountAmount: null, netAmount: null }]
+      } as unknown as UsageMetric);
+    return {
+      owner: { scope: "user", name: "bendourthe" },
+      periodStart: Date.UTC(2026, 7, 1), periodEnd: Date.UTC(2026, 8, 1),
+      fetchedAt: Date.UTC(2026, 7, 9), source: "cache", stale: true,
+      copilot: legacyMetric("copilot-ai-credits", "ai-credits", 40),
+      actionsMinutes: legacyMetric("actions-minutes", "minutes", 1287),
+      actionsStorage: legacyMetric("actions-storage", "gigabyte-hours", 64.57)
+    };
+  }
+
+  it("collects no repository names from breakdowns that never had the field", () => {
+    // `undefined` passes a `!== null` check and then throws on `.length`.
+    expect(() => repositoryNamesIn(legacySnapshot().actionsMinutes.breakdowns)).not.toThrow();
+    expect(repositoryNamesIn(legacySnapshot().actionsMinutes.breakdowns)).toEqual([]);
+  });
+
+  it("enriches a legacy snapshot without throwing, and withholds every percentage", () => {
+    const { snapshot } = enrichSnapshot(legacySnapshot(), { visibility: VISIBILITY, planName: "free" });
+    // No repositoryName means nothing can be attributed, so the drawdown is unknown
+    // and no bar may render - the safe direction.
+    expect(snapshot.actionsMinutes.drawdown).toBeNull();
+    expect(snapshot.actionsMinutes.percentage).toBeNull();
+    expect(snapshot.actionsMinutes.allowanceState).toBe("unknown");
+  });
+
+  it("still converts storage on a legacy snapshot, since that needs no attribution", () => {
+    const { snapshot } = enrichSnapshot(legacySnapshot(), { visibility: VISIBILITY, planName: "free" });
+    expect(snapshot.actionsStorage.used).toBeCloseTo(0.0868, 4);
+    expect(snapshot.actionsStorage.percentage).toBeCloseTo(17.36, 2);
+  });
+});

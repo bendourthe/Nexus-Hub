@@ -1,5 +1,31 @@
 # Development Log
 
+## [2026-08-09] - v3.16.3 Phase 6: refactor, reconciliation, and CI/CD [terminal phase]
+
+### What Changed
+
+The plan's terminal phase. An absence-tolerance sweep found and fixed a latent crash, the two SKU vocabularies were pinned as a contract rather than left as luck, the README was rewritten to explain where the percentages actually come from, and all fourteen v3.16.3 gap items were reconciled against their target files. CI/CD was reviewed and needed no change. **The branch is not pushed and `/update release` has not been invoked** - both are approval-gated.
+
+### Why It Changed
+
+A terminal phase exists to leave the layout clean, the gaps honest, and the pipeline covering everything the cycle added, so the next plan starts from a true picture rather than an assumed one.
+
+### Decisions Made
+
+- **The BG-3 sweep found a second instance, and it was a real crash.** `repositoryNamesIn` filtered on `name !== null`, which `undefined` passes, then read `.length` on it. A breakdown written by extension 0.1.0 has no `repositoryName`, so a cached snapshot reaching that path would throw. `enrich.ts` had the same shape one line away. Both are fixed, and a `legacySnapshot()` fixture now pins the whole pipeline against a 0.1.0-shaped snapshot.
+- **NI-3 was closed rather than carried.** The classifier survived both endpoint vocabularies only because its patterns happened to be substring-based. That is now a stated contract with a test across Linux, Windows, macOS, storage, and self-hosted in three separator forms.
+- **The README explains the derivation, not just the feature.** A user seeing a bar deserves to know GitHub does not serve that number: that public-repository usage is free and excluded, that the weights are no longer published, and that the figure is labelled "reconstructed" for a reason.
+- **`docs-cleanup-report.md` was kept, not removed.** The v3.16.2 pass suggested reconciling or removing it. Each per-phase block is short, dated, and additive; removing it would discard the record of decisions like the `docs/incidents/` placement rationale.
+- **NI-4 was routed out rather than closed.** It is a policy question affecting four extensions, and resolving it would retire three other carried items at once - which is exactly why it deserves its own cycle rather than a decision made in passing here.
+
+### Verification
+
+316 tests passing, coverage 82.61% statements / 78.98% branches / 83.66% functions / 85.66% lines, all above threshold. All fifteen `make validate` guards pass individually (`make` is absent on this host, WN-1). Five MCP extension suites pass. Packaging and `verify:package` succeed at 0.2.0. CI/CD verified: the extension workflow is path-filtered, SHA-pinned, cached, and concurrency-gated, and `ci.yml` explicitly enumerates both `tests/installer` and `catalog/hooks/tests/`, so nothing this cycle added is invisible to collection.
+
+### Known Issues
+
+Six closed this cycle (NI-1, QG-2, MT-1, NI-5, NI-6, BG-3) plus two closed in this phase (NI-3, BG-4). Eight carried, zero release blockers: DF-1 (deferred key deletion, v3.17.0), NI-2 (unverifiable drawdown weights), MT-2 (provisional runner rules), NI-4 (cross-monitor policy, routed out), NI-7 (deliberate divergence), and the environmental WN-1 / BG-1 / BG-2.
+
 ## [2026-08-09] - v3.16.3 Phase 5: settings content and status-bar metric selection
 
 ### What Changed

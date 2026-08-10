@@ -79,6 +79,19 @@ export interface RunnerClassification {
   unrecognized: boolean;
 }
 
+/**
+ * SKU classification patterns.
+ *
+ * HAZARD: the two billing endpoints use DIFFERENT SKU vocabularies for the same
+ * runner. `/settings/billing/usage` returns `Actions Linux`; `/usage/summary`
+ * returns `actions_linux`. Both were observed on a real account on 2026-08-09 and
+ * both are pinned in `drawdown.test.ts`.
+ *
+ * Every pattern below is therefore substring-based and separator-tolerant. A rule
+ * written against either vocabulary alone would silently misclassify the other
+ * endpoint's items, and a misclassified runner is dropped from the drawdown without
+ * a trace. If you add a rule, add a fixture in BOTH spellings.
+ */
 const SELF_HOSTED_PATTERN = /self[\s_-]?hosted/iu;
 const CORE_COUNT_PATTERN = /(\d+)\s*-?\s*core/iu;
 const EXPLICIT_LARGER_PATTERN = /larger|xlarge|\bgpu\b/iu;

@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (all 5 phases complete; reconciled and release-ready, unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
-**Last updated**: 2026-08-09 (v3.16.3 Phase 5 append; NI-6 and BG-3 resolved, NI-7 opened, 0 release blockers; settings are editable in place and the status bar takes a metric selection)
+**Last updated**: 2026-08-09 (v3.16.3 Phase 6 terminal reconciliation; 6 closed, 8 carried, 0 release blockers; NI-4 routed to its own cycle as a cross-monitor policy question)
 
 > **File-lifecycle note**: this ledger was created ahead of any v3.16 implementation, by a comparison that deliberately claimed no release slot, so it began with only the `## Comparison-Sourced Deferrals` section. Each v3.16 version-implementation phase **appends** its own `## v3.16.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` numbering, which is namespaced separately from the `CD-#` and `TR-#` ids used above.
 
@@ -797,6 +797,51 @@ Two resolved, one new open item, **zero release blockers**. NI-6 closed as plann
 
 The phase's own residual risk is that a webview can now write configuration. Three controls: `EDITABLE_SETTINGS` gates both the key AND the value type, so a crafted message cannot reach an arbitrary VS Code setting; threshold ordering is re-validated in `extension.ts` because the panel's inline check is a convenience for the user and never a guarantee for the extension; and a test asserts that keys outside the set - including `billingOwner`, the allowance keys, and an unrelated `http.proxy` - are all rejected.
 
+### NI-3 - RESOLVED in Phase 6: both SKU vocabularies are pinned
+
+- **Raised**: Phase 2, on discovering that `/settings/billing/usage` returns `Actions Linux` while `/usage/summary` returns `actions_linux`, and that the classifier survived both only because its patterns happened to be substring-based.
+- **How it was closed**: a header comment on the pattern block names the hazard and requires a fixture in BOTH spellings for any new rule, and a test asserts the two vocabularies classify identically across Linux, Windows, macOS, storage, and self-hosted - the last in three separator forms. What was luck is now a contract.
+
+### BG-4 - RESOLVED in Phase 6: `repositoryNamesIn` would throw on a legacy snapshot
+
+- **Target file**: `extensions/github-usage-monitor/src/providers/repositories.ts`
+- **What was wrong**: the filter tested `name !== null`, which `undefined` passes, and then read `.length` on it. A breakdown written by extension 0.1.0 carries no `repositoryName` at all, so a cached snapshot reaching that path would throw.
+- **How it was found**: the BG-3 absence-tolerance sweep this phase was asked to run. `enrich.ts` had the same shape one line away, where `undefined` slipped past a `=== null` guard and landed in the unresolved list as a literal `undefined`.
+- **Now pinned**: `enrich.test.ts` carries a `legacySnapshot()` fixture shaped exactly like a 0.1.0 snapshot - no `drawdown`, no `drawdownBasis`, no `allowanceState`, and breakdowns with no `repositoryName` - and asserts the whole pipeline enriches it without throwing, withholds every percentage, and still converts storage.
+
+### Phase 6 disposition, and the v3.16.3 reconciliation
+
+Every v3.16.3 item was verified against its target file rather than transcribed from a prior phase's assertion, per the v3.16 ledger's own methodological note.
+
+| Item | Verdict | Basis |
+|---|---|---|
+| NI-1 (plan scope note incomplete) | **Closed** in Phase 1 | Installers and the naming test updated; 48 tests pass |
+| QG-2 (three probe-tooling defects) | **Closed** in Phase 2 | Verdict withheld on lookup failure; per-OS core ceiling; queried period printed |
+| MT-1 (activation ordering unasserted) | **Closed** in Phase 3 | `first-run.test.ts` asserts the migration write precedes the first read |
+| NI-5 (placeholder owner) | **Closed** in Phase 4 | `FirstRunDependencies` takes `scope: BillingScope` |
+| NI-6 (read-only settings section) | **Closed** in Phase 5 | Eleven fields editable in place, write-back gated by `EDITABLE_SETTINGS` |
+| BG-3 (missing metric crashed the hover) | **Closed** in Phase 5 | `selectStatusMetric` and `metricSection` both guarded |
+| NI-3 (two SKU vocabularies) | **Closed** in Phase 6 | Header contract plus a both-spellings test |
+| BG-4 (legacy snapshot threw) | **Closed** in Phase 6 | Guard plus the `legacySnapshot()` regression fixture |
+| DF-1 (old `githubUsage.*` keys retained) | **Carried**, deliberate | Plan sub-task 1.2 requires one release of overlap; deletion targeted at v3.17.0 |
+| NI-2 (drawdown weights unverifiable) | **Carried**, deliberate | GitHub publishes no basis; shipped by maintainer decision with the probe's re-verification checklist as the trigger |
+| MT-2 (self-hosted / larger-runner rules) | **Carried** | No account available that uses either runner class; rules remain provisional |
+| NI-4 (cross-monitor endpoint policy) | **Carried, routed out** | Affects four extensions and is a policy question, not an engineering one |
+| NI-7 (no dirty/save affordance) | **Carried**, deliberate | Divergence from the Claude monitor; both surfaces re-render immediately instead |
+| WN-1 / BG-1 / BG-2 | **Carried**, environmental | `make` absent on this host; the pre-existing PowerShell bootstrap tar failure; ShellCheck CRLF noise on a Windows working copy |
+
+**Six closed, eight carried, zero release blockers.**
+
+### The one item that should not be closed here: NI-4
+
+Every other carried item is a scoped engineering decision with a named next step. NI-4 is different in kind and is called out separately so it is not lost in a table.
+
+The Claude, Codex, and Cursor monitors each read a vendor endpoint that returns used and limit together, and **two of those three are not public APIs**. GitHub has an equivalent internal endpoint - it renders the very bars this plan spent two phases reconstructing - and the GitHub monitor alone is barred from it by its own data contract.
+
+That asymmetry is the direct cause of this plan's hardest work: the entire drawdown reconstruction, its unverifiable weights (NI-2), its provisional SKU rules (MT-2), and the "reconstructed" caveat on every bar exist because of a rule written for one extension. Resolving it either way would retire three carried items at once.
+
+It is deliberately **not** decided here. It affects four extensions, it is a question about what the monitors may read rather than about how they compute, and settling it inside a phase scoped to allowance derivation would be the wrong venue. It belongs in its own cycle, with the four monitors considered together.
+
 ## v3.16 Summary
 
 | Category | Open | Resolved |
@@ -806,6 +851,6 @@ The phase's own residual risk is that a webview can now write configuration. Thr
 | v3.16.0 version-implementation gaps | 3 carried forward (NI-1, NI-6, BG-1) | 13 closed (DF-1, DF-2, DF-3, DF-4, NI-2, NI-3, NI-4, NI-5, QG-1, QG-2, QG-3, BG-2, BG-3, WN-1) |
 | v3.16.1 version-implementation gaps (all 8 phases + release) | 3 carried forward (WN-1, BG-1 environmental; NI-6 bounded and documented) | 21 closed (DF-1..DF-5, NI-1..NI-5, BG-2..BG-8, QG-1, QG-2, WN-2, PX-1) |
 | v3.16.2 version-implementation gaps (all 6 phases, reconciled) | 5 carried (MT-1 schema assertions; NI-2 size overage; NI-3 deliberate `--repair` bound; BG-2 pre-existing fail-open; WN-1 / BG-1 environmental) | 6 closed (QG-1, QG-2, BG-3, NI-1, DF-1, WN-2) |
-| v3.16.3 version-implementation gaps (Phases 1-5 of 6, in flight) | 8 open (DF-1 deferred key deletion; MT-2 unvalidated runner rules; NI-2 unverifiable weights; NI-3 SKU vocabularies; NI-4 cross-monitor policy; NI-7 no dirty/save affordance; WN-1 / BG-1 / BG-2 environmental) | 6 closed (NI-1, QG-2, MT-1, NI-5, NI-6, BG-3) |
+| v3.16.3 version-implementation gaps (all 6 phases, reconciled) | 8 carried (DF-1 deferred key deletion; NI-2 unverifiable weights; MT-2 provisional runner rules; NI-4 cross-monitor policy, routed out; NI-7 deliberate divergence; WN-1 / BG-1 / BG-2 environmental) | 8 closed (NI-1, QG-2, MT-1, NI-5, NI-6, BG-3, NI-3, BG-4) |
 
 The three comparison-sourced items remain non-blocking prose folds with named target files. Of the v3.16.0 items, BG-1 is pre-existing and reproduces without this plan's changes, WN-1 is environmental, DF-1 is a reasoned non-implementation, NI-1 is a deliberate scope boundary the plan requires, and NI-2 / NI-3 / NI-4 are Phase 2 findings that Phase 3 and Phase 5 are already scheduled to dispose of. Phase 5 dispositioned every open item: 13 closed, 3 carried forward. **None gates the v3.16.0 release.** NI-1 and NI-6 are scope decisions for cycles already touching the relevant surfaces, and BG-1 is pre-existing, reproduced on a clean `develop` worktree, and confined to a Windows host whose PATH resolves `tar` to the Git Bash binary. Of the 13 closed, three (BG-2, BG-3, and QG-3) were caught by the test suite rather than by review, which is this cycle's strongest argument for running the full suite before declaring a phase done.
