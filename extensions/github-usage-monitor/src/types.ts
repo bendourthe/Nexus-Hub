@@ -126,6 +126,15 @@ export interface UsageSnapshot {
 
 export type ProviderErrorCode =
   | "missing-token"
+  /**
+   * No credential at all: no stored token and no editor session.
+   *
+   * Distinct from `missing-token`, which means a credential exists but is not
+   * accepted for this owner. The two need different UI: one is answered by
+   * connecting, the other by fixing a permission. Collapsing them is what made an
+   * unconnected install present as a failure rather than as a starting point.
+   */
+  | "not-connected"
   | "invalid-token"
   | "invalid-scope"
   | "missing-plan-read"

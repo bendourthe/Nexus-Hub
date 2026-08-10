@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import type { UsageMetric, UsageState } from "./types";
-import { escapeHtml, formatAmount, GITHUB_BAR_FILL } from "./statusBarManager";
+import { escapeHtml, formatAmount, isNotConnected, GITHUB_BAR_FILL } from "./statusBarManager";
 import { formatResetCountdown } from "./usageStore";
 import { explainMissingPercentage } from "./providers/allowances";
 
@@ -22,9 +22,34 @@ export class DashboardPanel {
 export function renderDashboard(state: UsageState, now = Date.now()): string {
   const nonce = "githubUsageMonitorDashboard";
   const body = state.data === undefined
-    ? `<main><h1>GitHub Usage Monitor</h1><p class="eyebrow">Actions minutes and storage, plus Copilot billing, for one billing owner you configure</p><section class="notice error" role="status"><strong>No billing data available.</strong><p>${escapeHtml(state.error?.message ?? "Set a token and refresh.")}</p></section>${actions()}</main>`
+    ? (isNotConnected(state) ? renderNotConnected() : renderNoData(state))
     : renderSnapshot(state, now);
   return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'nonce-${nonce}';"><style>${styles()}</style></head><body>${body}<script nonce="${nonce}">const vscode=acquireVsCodeApi();document.querySelectorAll('[data-command]').forEach((button)=>button.addEventListener('click',()=>vscode.postMessage({command:button.dataset.command})));</script></body></html>`;
+}
+
+/**
+ * The unconnected state, which is a starting point rather than a failure.
+ *
+ * Deliberately NOT styled as an error. A user who has not connected, or who chose
+ * not to, is in a valid state; presenting it as a failure is inaccurate and is
+ * nagging by other means. One sentence on what the monitor does, one primary action,
+ * and an explicit statement of what is read and what is not - because the honest
+ * answer to "why does this want my GitHub account" belongs where the question is
+ * asked, not buried in a README.
+ */
+function renderNotConnected(): string {
+  return `<main><header><div><p class="eyebrow">Not connected</p><h1>GitHub Usage Monitor</h1></div></header>` +
+    `<section class="notice" role="status">` +
+    `<p>Connect a GitHub account to see your current-month Actions and Copilot usage in the status bar.</p>` +
+    `<div class="actions"><button data-command="logIn">Connect GitHub account</button></div>` +
+    `<p class="explain"><strong>What it reads:</strong> billing usage for one owner you configure, and whether each repository is public or private. ` +
+    `<strong>What it does not read:</strong> your code, your commits, or the contents of any repository. Nothing leaves your machine except the request to GitHub.</p>` +
+    `</section></main>`;
+}
+
+/** A connected monitor that still has no data - a real failure, styled as one. */
+function renderNoData(state: UsageState): string {
+  return `<main><h1>GitHub Usage Monitor</h1><p class="eyebrow">Actions minutes and storage, plus Copilot billing, for one billing owner you configure</p><section class="notice error" role="status"><strong>No billing data available.</strong><p>${escapeHtml(state.error?.message ?? "Set a token and refresh.")}</p></section>${actions()}</main>`;
 }
 
 function renderSnapshot(state: UsageState, now: number): string {

@@ -4,6 +4,17 @@
 **Run at**: v3.16.3 Phase 1 per-phase audit (2026-08-09), over the v3.16.2 Phase 6 terminal-phase run (2026-08-09), which supersedes the v3.16.0 Phase 2 run. Findings carried forward below.
 **Scope**: `docs/v3/v3.16/`, `docs/v3/v3.15/development/` (the two contract documents v3.16.3 amends), the new `docs/incidents/`, plus `docs/policy/` and the repo-root, `scripts/`, and `configs/` surfaces these cycles touched.
 
+## v3.16.3 Phase 3 pass
+
+Layout is clean and no file needed to move. The phase added one document, at the canonical path.
+
+| Check | Result |
+|---|---|
+| New session history | `development/history/2026-08-09_github-usage-monitor-ux-phase-3-first-run-connection.md`, correct |
+| Scratch or stray docs created by this phase | None |
+| Known-gaps append target | `docs/v3/v3.16/known-gaps.md`, appended within the existing `## v3.16.3` section |
+| Resolved-item handling | MT-1 recorded as RESOLVED in place rather than deleted, so a reader of the Phase 1 entry can still find its disposition |
+
 ## v3.16.3 Phase 2 pass
 
 Layout is clean and no file needed to move. The phase added two documents, both at canonical paths.

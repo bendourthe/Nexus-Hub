@@ -1,5 +1,32 @@
 # Development Log
 
+## [2026-08-09] - v3.16.3 Phase 3: first-run connection
+
+### What Changed
+
+A freshly installed monitor now connects itself. If the editor already has a GitHub session it binds silently with no interaction at all; if it does not, it opens the real sign-in flow **exactly once**; and if the user dismisses that, the decline is durable and the flow never opens automatically again. The unconnected state stopped presenting as a failure: the status bar says "Not connected" rather than `--`, and the panel shows a purposeful empty state with one Connect button and an explicit statement of what is read and what is not.
+
+### Why It Changed
+
+The extension was useless until a user found a command, and the plan rated this phase's failure mode as the most user-hostile thing it could ship: a modal dialog on every VS Code start. Both halves needed building, and the second one needed guarding.
+
+### Decisions Made
+
+- **The sequence is deliberately not awaited.** Migration is awaited during activation because a configuration read that races it produces wrong values. Sign-in is the opposite case: it can block on a browser round-trip or hang outright, and activation must not wait on it.
+- **A new `not-connected` error code**, distinct from `missing-token`. Having no credential is a different situation from having one that is rejected: one is answered by connecting, the other by fixing a permission. Collapsing them is what made an unconnected install present as a failure.
+- **A decline is not an error and is not styled as one.** A user who chose not to connect is in a valid state; rendering that as a failure is inaccurate and is nagging by other means.
+- **`runFirstRunConnection` returns an `interactiveAttempts` count.** The single number separating correct behaviour from a dialog on every startup is how many `createIfNone: true` calls happen, so the tests assert that number directly rather than any proxy for it.
+- **The decline flag lives in `globalState`, and the test proves it.** One test loops three further activations after a decline - a per-session flag would pass a single re-run and fail there.
+- **A helper that only documented intent was deleted** rather than kept. `isConnectionRefusalAnError()` returned a constant with no call site; the reasoning belongs in the renderer's comment, where it already was.
+
+### Verification
+
+288 tests passing (up from 273), coverage 82.08% statements / 78.47% branches / 82.09% functions / 85.7% lines, all above threshold. `firstRun.ts` is at 100% line coverage. Packaging and `verify:package` succeed at 0.2.0; installer smoke and naming suites pass; repository validators clean.
+
+### Known Issues
+
+MT-1 from Phase 1 is **resolved** here, exactly where Phase 1 predicted it would be cheapest: this phase needed an activation harness, so the vscode stub gained an ordered configuration-access log and a test now asserts the migration write precedes the first read of the same key. One small new item (NI-5): on a truly fresh install the sequence passes a placeholder owner purely to select scope candidates, which is harmless but reads oddly - the fix is to pass a scope rather than an owner, best done when Phase 4 or 5 is already in that file.
+
 ## [2026-08-09] - v3.16.3 Phase 2: allowance and drawdown truth
 
 ### What Changed

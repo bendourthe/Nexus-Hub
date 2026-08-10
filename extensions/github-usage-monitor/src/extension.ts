@@ -3,6 +3,7 @@ import { DashboardPanel } from "./dashboardPanel";
 import { migrateSettings } from "./migration";
 import { type AllowanceMap } from "./providers/allowances";
 import { enrichSnapshot } from "./providers/enrich";
+import { FIRST_RUN_DECLINED_KEY, runFirstRunConnection } from "./providers/firstRun";
 import {
   RepositoryVisibilityCache,
   fetchAccountPlanName,
@@ -124,6 +125,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
       const resolved = await resolveOwnerForFetch(getSession);
       // A new session is a different capability question, so the old verdict goes.
       if (resolved !== null) await capabilities.forget(resolved);
+      // An explicit connection supersedes any earlier dismissal.
+      await context.globalState.update(FIRST_RUN_DECLINED_KEY, undefined);
       await vscode.window.showInformationMessage(`GitHub Usage Monitor: ${describeBinding(next)}`);
       void refresh();
       settings.show(await authDisplay());
@@ -191,7 +194,27 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
   void vscode.commands.executeCommand("setContext", "githubUsageMonitor.warningActive", false);
   status.show(currentState);
-  if (vscode.workspace.getConfiguration("githubUsageMonitor").get<boolean>("autoFetch", true)) void refresh();
+  if (vscode.workspace.getConfiguration("githubUsageMonitor").get<boolean>("autoFetch", true)) {
+    // Deliberately NOT awaited. The sign-in flow can block on a browser round-trip
+    // or hang outright, and activation must not wait on it - a slow auth provider
+    // would otherwise delay VS Code startup for every user of this extension.
+    void (async () => {
+      const owner = await resolveOwnerForFetch(getSession);
+      const result = await runFirstRunConnection({
+        getSession,
+        hasStoredToken: () => tokens.hasToken(),
+        isDeclined: () => context.globalState.get<boolean>(FIRST_RUN_DECLINED_KEY) === true,
+        recordDecline: () => Promise.resolve(context.globalState.update(FIRST_RUN_DECLINED_KEY, true)),
+        clearDecline: () => Promise.resolve(context.globalState.update(FIRST_RUN_DECLINED_KEY, undefined)),
+        // With nothing configured there is no session yet, so the owner cannot be
+        // detected yet. The configured LEVEL always has a value, which is enough to
+        // pick scopes - the same reason the logIn command does not demand an owner.
+        owner: owner ?? { scope: configuredScope(), name: "pending" }
+      });
+      if (result.outcome.status === "connected") binding = result.outcome.binding;
+      await refresh();
+    })();
+  }
 }
 
 export function deactivate(): void { if (refreshTimer) clearTimeout(refreshTimer); refreshTimer = undefined; }
@@ -344,6 +367,10 @@ async function enrichWithAllowances(
     .catch(() => ({}));
   const planName = await fetchAccountPlanName(fetchJson, token).catch(() => null);
   return enrichSnapshot(snapshot, { visibility, planName, manualAllowances }).snapshot;
+}
+
+function configuredScope(): BillingOwner["scope"] {
+  return vscode.workspace.getConfiguration("githubUsageMonitor").get("billingScope", "user") as BillingOwner["scope"];
 }
 
 function configuredStaleAfterMs(): number { return vscode.workspace.getConfiguration("githubUsageMonitor").get<number>("staleAfterMinutes", 30) * 60_000; }

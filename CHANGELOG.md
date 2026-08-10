@@ -21,6 +21,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Three allowance states, each explained.** `verified` renders a bar; `none` states that the plan includes no allowance for that product (which is why a Copilot card reads as total usage rather than a share of a limit); `unknown` names what would make a percentage available. No state renders `0%` or `100%` for an unknown allowance.
 - **Storage percentages work.** GitHub reports storage consumption in GigabyteHours while expressing the entitlement in GB. The documented conversion (GB-months = GB-hours / hours in month) is now applied, so a storage allowance is no longer silently refused.
 - `scripts/reconcile-drawdown.js`, a development diagnostic that measures candidate reconstructions against a real account. Excluded from the packaged extension.
+- **The GitHub monitor connects itself on first run** (v3.16.3 Phase 3). If the editor already holds a GitHub session it binds silently with no prompt at all; otherwise it opens the sign-in flow **exactly once**. Dismissing it records a durable decline, and the flow never opens automatically again - an explicit Connect still works and clears the decline.
+- **An honest unconnected state.** The status bar reads "Not connected" rather than `--`, and the panel shows a purposeful empty state with one Connect button plus an explicit statement of what is read (billing usage for one configured owner, and whether each repository is public or private) and what is not (your code, commits, or repository contents). A decline is a valid state and is not styled as an error.
 
 ### Notes for future maintainers
 

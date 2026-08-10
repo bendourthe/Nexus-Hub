@@ -75,7 +75,7 @@ export async function resolveCredential(
     return {
       ok: false,
       error: {
-        code: "missing-token",
+        code: "not-connected",
         message:
           'Not connected to GitHub. Run "GitHub Usage Monitor: Log In or Switch Account", or store a token with "GitHub Usage Monitor: Set Token".'
       }

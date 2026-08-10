@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (all 5 phases complete; reconciled and release-ready, unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
-**Last updated**: 2026-08-09 (v3.16.3 Phase 2 append; 1 closed, 4 new open, 0 release blockers; live measurement falsified the plan's leading reconstruction and established that drawdown is OS-weighted)
+**Last updated**: 2026-08-09 (v3.16.3 Phase 3 append; MT-1 resolved, NI-5 opened, 0 release blockers; first-run connection is guarded by a direct prompt-count assertion)
 
 > **File-lifecycle note**: this ledger was created ahead of any v3.16 implementation, by a comparison that deliberately claimed no release slot, so it began with only the `## Comparison-Sourced Deferrals` section. Each v3.16 version-implementation phase **appends** its own `## v3.16.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` numbering, which is namespaced separately from the `CD-#` and `TR-#` ids used above.
 
@@ -734,6 +734,25 @@ Four open items, **zero release blockers**, one closed inside the phase. NI-2 is
 
 The phase's own residual risk is that the shipped percentage is a **reconstruction presented inside a product that otherwise reports measured facts**. Three controls: the card states it is reconstructed rather than GitHub's own figure; an unresolved repository or unrecognized SKU excludes usage rather than guessing, so error runs toward understating; and `AllowanceInputs.api` stays unpopulated with a test asserting `allowanceSource` is never `"api"`, so nothing here can later be mistaken for a served entitlement.
 
+### MT-1 - RESOLVED in Phase 3: the activation-ordering assertion now exists
+
+- **Raised**: v3.16.3 Phase 1, noting that `migration.ts` was well covered while its call site inside `activate()` was exercised only incidentally, with nothing pinning the ordering that makes it correct.
+- **How it was closed**: Phase 3 needed an activation harness for the first-run sequence, which is exactly what MT-1's suggested next step anticipated. The vscode stub gained an ordered configuration-access log, and `first-run.test.ts` asserts that the migration WRITE precedes the first READ of the same key, then that the read observed the migrated value rather than the default. Asserting the final value alone would have passed even if the read won the race.
+- **Residual**: `extension.ts` remains the module's coverage floor. That is a breadth gap, not the specific ordering gap MT-1 named, and it is not carried forward as MT-1.
+
+### NI-5 - OPEN (small): the first-run sequence resolves an owner before the session exists
+
+- **Target file**: `extensions/github-usage-monitor/src/extension.ts` (the activation tail)
+- **What is imperfect**: on a truly fresh install there is no session, so `resolveOwnerForFetch` returns null and the sequence falls back to `{ scope: <configured>, name: "pending" }` purely to pick scope candidates. The placeholder name is never used for a billing request - the refresh that follows re-resolves the owner from the now-established session - but a reader could reasonably mistake it for a real owner.
+- **Why it is shaped that way**: the same deadlock the `logIn` command documents. With nothing configured there is no session, so the owner cannot be detected, so demanding one before connecting would prevent the very first connection.
+- **Suggested next step**: give `firstRun` a scope rather than a full owner, since scope is all it needs. A small signature change best done when Phase 4 or 5 is already touching this file.
+
+### Phase 3 disposition
+
+One resolved, one new open item, **zero release blockers**. MT-1 closed exactly where Phase 1 predicted it would be cheapest. NI-5 is cosmetic and has a named next-touch owner.
+
+The phase's own residual risk is the failure mode it exists to prevent: a modal on every VS Code start. Three controls, all mechanical. The decline flag lives in `globalState` rather than in memory, so it survives a restart; `runFirstRunConnection` returns an `interactiveAttempts` count and a test asserts it is exactly 1 on the prompting path and 0 on every other, which is the single number that separates correct behaviour from the defect; and a further test loops three additional activations after a decline, which a per-session flag would pass on one re-run and fail here.
+
 ## v3.16 Summary
 
 | Category | Open | Resolved |
@@ -743,6 +762,6 @@ The phase's own residual risk is that the shipped percentage is a **reconstructi
 | v3.16.0 version-implementation gaps | 3 carried forward (NI-1, NI-6, BG-1) | 13 closed (DF-1, DF-2, DF-3, DF-4, NI-2, NI-3, NI-4, NI-5, QG-1, QG-2, QG-3, BG-2, BG-3, WN-1) |
 | v3.16.1 version-implementation gaps (all 8 phases + release) | 3 carried forward (WN-1, BG-1 environmental; NI-6 bounded and documented) | 21 closed (DF-1..DF-5, NI-1..NI-5, BG-2..BG-8, QG-1, QG-2, WN-2, PX-1) |
 | v3.16.2 version-implementation gaps (all 6 phases, reconciled) | 5 carried (MT-1 schema assertions; NI-2 size overage; NI-3 deliberate `--repair` bound; BG-2 pre-existing fail-open; WN-1 / BG-1 environmental) | 6 closed (QG-1, QG-2, BG-3, NI-1, DF-1, WN-2) |
-| v3.16.3 version-implementation gaps (Phases 1-2 of 6, in flight) | 8 open (DF-1 deferred key deletion; MT-1 coverage floor; MT-2 unvalidated runner rules; NI-2 unverifiable weights; NI-3 SKU vocabularies; NI-4 cross-monitor policy; WN-1 / BG-1 / BG-2 environmental) | 2 closed (NI-1, QG-2) |
+| v3.16.3 version-implementation gaps (Phases 1-3 of 6, in flight) | 8 open (DF-1 deferred key deletion; MT-2 unvalidated runner rules; NI-2 unverifiable weights; NI-3 SKU vocabularies; NI-4 cross-monitor policy; NI-5 placeholder owner; WN-1 / BG-1 / BG-2 environmental) | 3 closed (NI-1, QG-2, MT-1) |
 
 The three comparison-sourced items remain non-blocking prose folds with named target files. Of the v3.16.0 items, BG-1 is pre-existing and reproduces without this plan's changes, WN-1 is environmental, DF-1 is a reasoned non-implementation, NI-1 is a deliberate scope boundary the plan requires, and NI-2 / NI-3 / NI-4 are Phase 2 findings that Phase 3 and Phase 5 are already scheduled to dispose of. Phase 5 dispositioned every open item: 13 closed, 3 carried forward. **None gates the v3.16.0 release.** NI-1 and NI-6 are scope decisions for cycles already touching the relevant surfaces, and BG-1 is pre-existing, reproduced on a clean `develop` worktree, and confined to a Windows host whose PATH resolves `tar` to the Git Bash binary. Of the 13 closed, three (BG-2, BG-3, and QG-3) were caught by the test suite rather than by review, which is this cycle's strongest argument for running the full suite before declaring a phase done.

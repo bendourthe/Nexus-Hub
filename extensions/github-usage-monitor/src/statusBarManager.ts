@@ -16,7 +16,7 @@ export class StatusBarManager {
   }
 
   public show(state: UsageState): void {
-    this.item.text = buildStatusText(state.data, state.state === "stale");
+    this.item.text = buildStatusText(state.data, state.state === "stale", undefined, isNotConnected(state));
     this.item.tooltip = buildHoverMarkdown(state);
     this.item.show();
   }
@@ -29,9 +29,22 @@ export class StatusBarManager {
   public dispose(): void { this.item.dispose(); }
 }
 
-export function buildStatusText(snapshot: UsageSnapshot | undefined, stale = false, compact?: boolean): string {
+/** True when the state means "no credential at all", rather than a failed request. */
+export function isNotConnected(state: UsageState): boolean {
+  return state.data === undefined && state.error?.code === "not-connected";
+}
+
+export function buildStatusText(
+  snapshot: UsageSnapshot | undefined,
+  stale = false,
+  compact?: boolean,
+  notConnected = false
+): string {
   const isCompact = compact ?? vscode.workspace.getConfiguration("githubUsageMonitor").get<boolean>("compactStatusBar", false);
   const label = isCompact ? "" : "GitHub Usage: ";
+  // `--` reads as "a number that failed to load". An unconnected install has not
+  // failed at anything, so it says what is actually true instead.
+  if (notConnected) return `${GITHUB_ICON}${ICON_GAP}${isCompact ? "" : "GitHub Usage: "}Not connected`;
   if (snapshot === undefined) return `${GITHUB_ICON}${ICON_GAP}${label}--${stale ? " $(warning)" : ""}`;
   const metrics = [snapshot.copilot, snapshot.actionsMinutes, snapshot.actionsStorage]
     .filter((metric): metric is UsageMetric & { percentage: number } => metric.percentage !== null)
@@ -46,6 +59,14 @@ export function buildHoverMarkdown(state: UsageState, now = Date.now()): vscode.
   md.supportThemeIcons = true;
   md.supportHtml = true;
   if (state.data === undefined) {
+    if (isNotConnected(state)) {
+      md.appendMarkdown(
+        "**GitHub Usage Monitor**<br><br>Not connected to GitHub, so there is nothing to report yet." +
+        "<br><br>This monitor reads billing usage for one owner you configure. It never reads your code." +
+        "<br><br>Click to open the panel and connect."
+      );
+      return md;
+    }
     md.appendMarkdown(`**GitHub Usage Monitor**<br><br>${escapeHtml(state.error?.message ?? "No billing data yet.")}<br><br>Click to open the dashboard.`);
     return md;
   }

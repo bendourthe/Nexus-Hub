@@ -43,6 +43,12 @@ const globalOverrides = new Map<string, unknown>();
 const workspaceOverrides = new Map<string, unknown>();
 /** Sections whose `update()` must reject, so a partial-migration path is testable. */
 const failingUpdates = new Set<string>();
+/**
+ * Ordered log of configuration access, so a test can assert SEQUENCE and not just
+ * outcome. Activation must migrate settings BEFORE anything reads them; a check on
+ * the final value alone passes even when the read raced the write.
+ */
+export const configurationLog: Array<{ op: "get" | "update"; id: string }> = [];
 
 export const workspace = {
   getConfiguration(section?: string): {
@@ -52,7 +58,10 @@ export const workspace = {
   } {
     const qualify = (key: string): string => (section === undefined ? key : `${section}.${key}`);
     return {
-      get<T>(key: string, defaultValue?: T): T { return (configuration.get(qualify(key)) as T | undefined) ?? defaultValue as T; },
+      get<T>(key: string, defaultValue?: T): T {
+        configurationLog.push({ op: "get", id: qualify(key) });
+        return (configuration.get(qualify(key)) as T | undefined) ?? defaultValue as T;
+      },
       inspect<T>(key: string): { globalValue?: T; workspaceValue?: T } | undefined {
         const id = qualify(key);
         const globalValue = globalOverrides.get(id) as T | undefined;
@@ -63,6 +72,7 @@ export const workspace = {
       async update(key: string, value: unknown, target = ConfigurationTarget.Global): Promise<void> {
         const id = qualify(key);
         if (failingUpdates.has(id)) throw new Error(`stub refused to write ${id}`);
+        configurationLog.push({ op: "update", id });
         (target === ConfigurationTarget.Workspace ? workspaceOverrides : globalOverrides).set(id, value);
         configuration.set(id, value);
       }
@@ -126,4 +136,4 @@ export const outputLines: string[] = [];
 export function setConfiguration(key: string, value: unknown): void { configuration.set(key, value); }
 export function queueInput(value: string | undefined): void { inputs.push(value); }
 export async function runCommand(name: string): Promise<unknown> { const command = commandMap.get(name); if (!command) throw new Error(`Command not registered: ${name}`); return command(); }
-export function resetVscodeStub(): void { commandMap.clear(); configuration.clear(); globalOverrides.clear(); workspaceOverrides.clear(); failingUpdates.clear(); inputs.length = 0; messages.information.length = 0; messages.warnings.length = 0; messages.errors.length = 0; statusItems.length = 0; webviewPanels.length = 0; webviewProviders.length = 0; sessionResponses.length = 0; sessionRequests.length = 0; outputLines.length = 0; }
+export function resetVscodeStub(): void { commandMap.clear(); configuration.clear(); globalOverrides.clear(); workspaceOverrides.clear(); failingUpdates.clear(); configurationLog.length = 0; inputs.length = 0; messages.information.length = 0; messages.warnings.length = 0; messages.errors.length = 0; statusItems.length = 0; webviewPanels.length = 0; webviewProviders.length = 0; sessionResponses.length = 0; sessionRequests.length = 0; outputLines.length = 0; }
