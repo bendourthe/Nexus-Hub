@@ -11,8 +11,19 @@ import {
   type AuthDisplay
 } from "./settingsPanel";
 
+/** A settings write requested by the panel. Validated by the receiver, never trusted. */
+export type SettingUpdateHandler = (key: unknown, value: unknown) => void;
+
 export class DashboardPanel {
   private panel: vscode.WebviewPanel | undefined;
+
+  /**
+   * `onSettingUpdate` is a callback rather than a registered command deliberately.
+   * A command would have to be declared in `package.json` to satisfy the
+   * declared-equals-registered parity check, which would put an argument-taking
+   * internal write in the Command Palette where invoking it does nothing useful.
+   */
+  public constructor(private readonly onSettingUpdate?: SettingUpdateHandler) {}
 
   /**
    * Renders the single panel. There is no second webview: v3.16.3 Phase 4 folded
@@ -23,7 +34,11 @@ export class DashboardPanel {
     if (this.panel === undefined) {
       this.panel = vscode.window.createWebviewPanel("githubUsageMonitorDashboard", "GitHub Usage Monitor", vscode.ViewColumn.One, { enableScripts: true, retainContextWhenHidden: true });
       this.panel.onDidDispose(() => { this.panel = undefined; });
-      this.panel.webview.onDidReceiveMessage((message: { command?: string }) => {
+      this.panel.webview.onDidReceiveMessage((message: { command?: string; key?: unknown; value?: unknown }) => {
+        if (message.command === "updateSetting") {
+          this.onSettingUpdate?.(message.key, message.value);
+          return;
+        }
         if (message.command) void vscode.commands.executeCommand(`githubUsageMonitor.${message.command}`);
       });
     }

@@ -5,6 +5,7 @@ import {
   MIGRATED_CONFIG_KEYS,
   MIGRATED_STATE_KEYS,
   MIGRATION_FLAG,
+  SETTINGS_ADDED_AFTER_MIGRATION,
   NEW_SECRET_KEY,
   OLD_SECRET_KEY,
   migrateSettings,
@@ -53,16 +54,24 @@ const rootConfig = (): Parameters<typeof migrateSettings>[1] =>
 describe("one-time settings migration", () => {
   beforeEach(() => { resetVscodeStub(); });
 
-  it("covers exactly the settings the old version contributed", () => {
+  it("covers every contributed setting that predates the migration", () => {
     const manifest = JSON.parse(readFileSync(join(__dirname, "..", "package.json"), "utf8")) as {
       contributes: { configuration: { properties: Record<string, unknown> } };
     };
     const contributed = Object.keys(manifest.contributes.configuration.properties)
       .map((key) => key.replace(/^githubUsageMonitor\./u, ""))
       .sort();
-    // A newly contributed setting must be added to MIGRATED_CONFIG_KEYS or it
-    // would be silently left behind on a future namespace move.
-    expect([...MIGRATED_CONFIG_KEYS].sort()).toEqual(contributed);
+    // Every contributed key is either migrated or explicitly declared as new. A key
+    // that is neither would be silently left behind on a future namespace move,
+    // which is the defect this guard exists to catch.
+    const accounted = [...MIGRATED_CONFIG_KEYS, ...SETTINGS_ADDED_AFTER_MIGRATION].sort();
+    expect(accounted).toEqual(contributed);
+    // And no migrated key may name a setting that is no longer contributed, which
+    // would be a stale entry migrating something that does not exist.
+    for (const key of MIGRATED_CONFIG_KEYS) expect(contributed).toContain(key);
+    // The two lists must not overlap: a key cannot both predate the migration and
+    // have been added after it.
+    for (const key of SETTINGS_ADDED_AFTER_MIGRATION) expect(MIGRATED_CONFIG_KEYS).not.toContain(key);
   });
 
   it("carries every user-set old key across, preserving scope", async () => {

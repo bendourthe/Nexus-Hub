@@ -27,7 +27,7 @@ import {
   type MonitorBinding
 } from "./providers/sessionBinding";
 import { buildUsageSuggestion, crossedUnnotifiedThreshold, type AlertMetric, type Thresholds } from "./recommendations";
-import { validateThresholds, type AuthDisplay } from "./settingsPanel";
+import { isEditableSetting, readSettings, validateThresholds, type AuthDisplay } from "./settingsPanel";
 import { StatusBarManager } from "./statusBarManager";
 import type { BillingOwner, ProviderError, ProviderResult, UsageSnapshot, UsageState } from "./types";
 import { UsageStore } from "./usageStore";
@@ -62,7 +62,38 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
   const tokens = new GitHubTokenStore(context.secrets);
   const store = new UsageStore(context.globalState, configuredStaleAfterMs());
-  const dashboard = new DashboardPanel();
+  /**
+   * Applies one setting written from the panel.
+   *
+   * Re-validates rather than trusting the message. A webview is a browser context,
+   * so its client-side checks are a convenience for the user, never a guarantee for
+   * the extension: `isEditableSetting` gates BOTH the key and the value type, so a
+   * message cannot reach an arbitrary VS Code setting, and threshold ordering is
+   * re-checked here because the panel's inline check can be bypassed.
+   */
+  const applySetting = (key: unknown, value: unknown): void => {
+    if (!isEditableSetting(key, value)) return;
+    void (async () => {
+      const config = vscode.workspace.getConfiguration("githubUsageMonitor");
+      if (key.startsWith("thresholds.")) {
+        const current = readSettings();
+        const candidate = {
+          moderate: key === "thresholds.moderate" ? (value as number) : current.moderate,
+          high: key === "thresholds.high" ? (value as number) : current.high,
+          critical: key === "thresholds.critical" ? (value as number) : current.critical
+        };
+        if (validateThresholds(candidate) !== null) return;
+      }
+      await config.update(key, value, vscode.ConfigurationTarget.Global);
+      // Re-render both surfaces so the change is visible immediately rather than at
+      // the next refresh. A setting that appears to do nothing for ten minutes reads
+      // as broken.
+      status.show(currentState);
+      showDashboard();
+    })();
+  };
+
+  const dashboard = new DashboardPanel(applySetting);
   const warning = new WarningViewProvider(context.extensionUri);
   const status = new StatusBarManager("githubUsageMonitor.dashboard");
   const cached = store.get();

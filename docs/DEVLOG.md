@@ -1,5 +1,33 @@
 # Development Log
 
+## [2026-08-09] - v3.16.3 Phase 5: settings content and status-bar metric selection
+
+### What Changed
+
+The settings section is editable in place - thresholds, colors, the alert metric, the compact toggle, the notification timeout, and the refresh interval all write straight back, with threshold ordering validated beside the offending field. A new `githubUsageMonitor.statusBarMetric` setting decides what the status bar shows, defaulting to Actions minutes.
+
+### Why It Changed
+
+Phase 4 moved the settings form into the dashboard but left it read-only, so changing a threshold still meant opening VS Code settings. And the status bar unconditionally showed whichever metric happened to have the largest percentage, which is a reasonable default but a poor only-option.
+
+### Decisions Made
+
+- **The webview's validation is a convenience; the extension's is the guarantee.** `EDITABLE_SETTINGS` gates both the key and the value type, so a crafted message cannot reach an arbitrary VS Code setting, and threshold ordering is re-checked in `extension.ts` because the panel's inline check can be bypassed. A test asserts `billingOwner`, the allowance keys, and an unrelated `http.proxy` are all rejected.
+- **The write-back is a callback, not a registered command.** A command would need declaring in `package.json` to satisfy the declared-equals-registered parity check, which would put an argument-taking internal write in the Command Palette where invoking it does nothing.
+- **`highest` reproduces the old behaviour exactly**, including the Copilot-amount fallback when no metric has a percentage, and a regression test pins both.
+- **An unavailable selection never falls back silently.** A status bar quietly showing a number other than the one the user chose is a correctness bug; it shows `n/a` and the hover explains which metric this owner does not report.
+- **The migration drift-guard was corrected, not silenced.** It fired on `statusBarMetric`, and its original rule would have forced every new setting into a migration that predates it. It now asserts that every contributed key is either migrated or explicitly listed as new, that no migrated key is stale, and that the two lists never overlap.
+
+### Verification
+
+312 tests passing (up from 294), coverage 82.53% statements / 78.83% branches / 83.66% functions / 85.66% lines, all above threshold; `settingsPanel.ts` at 100% statements and lines. Packaging, installer suites, and repository validators all clean.
+
+### Known Issues
+
+NI-6 resolved. BG-3 resolved: a Phase 5 fixture that omitted a metric surfaced two genuine crashes - `selectStatusMetric` and the hover's `metricSection` both assumed all three metrics always exist, and a snapshot cached by v0.1.0 is exactly that shape. Same class as Phase 2's `NaN` drawdown; cached state outlives the version that wrote it, and Phase 6 should sweep the remaining surfaces.
+
+NI-7 opened: fields write on change rather than collecting a draft behind Save / Reset, which is a deliberate divergence from the Claude monitor's pattern. Both surfaces re-render immediately so the effect is visible, and adding Save / Reset would mean a dirty-state model for a form of eleven fields.
+
 ## [2026-08-09] - v3.16.3 Phase 4: panel shell - three buttons, inline settings, teal meters
 
 ### What Changed

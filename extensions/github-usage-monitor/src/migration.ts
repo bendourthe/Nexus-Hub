@@ -26,9 +26,10 @@ export const NEW_CONFIG_PREFIX = "githubUsageMonitor";
  *
  * Kept as an explicit list rather than derived at runtime, because a migration
  * must describe the keys that existed WHEN THE OLD VERSION SHIPPED, not the ones
- * that happen to exist today. `migration.test.ts` asserts this list still matches
- * `package.json`, so a newly contributed setting fails loudly instead of being
- * quietly left behind.
+ * that happen to exist today. `migration.test.ts` asserts every contributed key is
+ * either in this list or in `SETTINGS_ADDED_AFTER_MIGRATION`, so a newly
+ * contributed setting forces an explicit decision instead of being quietly left
+ * behind.
  */
 export const MIGRATED_CONFIG_KEYS: readonly string[] = [
   "billingScope",
@@ -50,6 +51,24 @@ export const MIGRATED_CONFIG_KEYS: readonly string[] = [
   "colors.moderate",
   "colors.high",
   "colors.critical"
+];
+
+/**
+ * Settings contributed AFTER 0.1.0, which therefore have nothing to migrate.
+ *
+ * Without this list the drift guard in `migration.test.ts` could only compare the
+ * migration list against today's contributed keys, which forces every new setting to
+ * be added to a migration that predates it - migrating a key that never existed
+ * under the old prefix. Listing them explicitly keeps the guard sharp for its real
+ * purpose (catching a key that SHOULD migrate and does not) while letting the
+ * settings surface grow.
+ *
+ * Add a key here only when it is genuinely new. A key that existed under
+ * `githubUsage.*` belongs in `MIGRATED_CONFIG_KEYS` instead.
+ */
+export const SETTINGS_ADDED_AFTER_MIGRATION: readonly string[] = [
+  // v3.16.3 Phase 5. Never existed under the old prefix.
+  "statusBarMetric"
 ];
 
 /** SecretStorage. Losing this forces a full re-authentication, so it is handled most carefully. */

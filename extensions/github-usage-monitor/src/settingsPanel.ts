@@ -20,8 +20,10 @@ import {
  * inventing a second one, and it keeps the two monitors recognizably the same
  * product to a user who runs both.
  *
- * The section is read-only in this phase. Phase 5 makes the fields editable in
- * place; this phase moves them into the dashboard and gets the shell right first.
+ * Phase 5 made the alert, status-bar, and refresh fields editable in place. They
+ * write straight back through `postMessage`; `extension.ts` re-validates every
+ * message before touching configuration, because a webview is a browser context
+ * and cannot be trusted to gate its own writes.
  */
 
 /**
@@ -46,6 +48,7 @@ export interface SettingsValues {
   actionsStorageAllowance: number | null;
   refreshInterval: number;
   compactStatusBar: boolean;
+  statusBarMetric: string;
   alertMetric: string;
   moderate: number;
   high: number;
@@ -61,7 +64,7 @@ export function readSettings(): SettingsValues {
   return {
     billingScope: config.get("billingScope", "user"), billingOwner: config.get("billingOwner", ""), copilotMetric: config.get("copilotMetric", "ai-credits"),
     copilotAllowance: optionalNumber(config.get("allowances.copilot", null)), actionsMinutesAllowance: optionalNumber(config.get("allowances.actionsMinutes", null)), actionsStorageAllowance: optionalNumber(config.get("allowances.actionsStorage", null)),
-    refreshInterval: config.get("refreshInterval", 10), compactStatusBar: config.get("compactStatusBar", false), alertMetric: config.get("alertMetric", "highest"),
+    refreshInterval: config.get("refreshInterval", 10), compactStatusBar: config.get("compactStatusBar", false), statusBarMetric: config.get("statusBarMetric", "actions-minutes"), alertMetric: config.get("alertMetric", "highest"),
     moderate: config.get("thresholds.moderate", 50), high: config.get("thresholds.high", 75), critical: config.get("thresholds.critical", 95), notificationTimeoutSeconds: config.get("notificationTimeoutSeconds", 12),
     moderateColor: config.get("colors.moderate", "#cca700"), highColor: config.get("colors.high", "#f0643c"), criticalColor: config.get("colors.critical", "#e05555")
   };
@@ -115,21 +118,79 @@ export function settingsStylesCss(): string {
     `#settings-section .note{color:var(--vscode-descriptionForeground);margin:6px 0}` +
     `#settings-section .group-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}` +
     `#settings-section .danger{border-color:var(--vscode-notificationsErrorIcon-foreground)}` +
+    `#settings-section input[type=number],#settings-section select{padding:4px 6px;font:inherit;color:var(--vscode-input-foreground);background:var(--vscode-input-background);border:1px solid var(--vscode-input-border,var(--vscode-widget-border));border-radius:3px}` +
+    `#settings-section input[type=number]{width:90px}` +
+    `#settings-section input[type=color]{width:44px;height:26px;padding:0;border:1px solid var(--vscode-widget-border);background:none;cursor:pointer}` +
+    `#settings-section input:focus-visible,#settings-section select:focus-visible{outline:2px solid var(--vscode-focusBorder);outline-offset:1px}` +
+    `#settings-section input.invalid{border-color:var(--vscode-notificationsErrorIcon-foreground)}` +
+    `#settings-section .invalid-note{color:var(--vscode-notificationsErrorIcon-foreground);font-size:12px;margin-left:8px}` +
     `@media(max-width:560px){#settings-section .field{grid-template-columns:1fr}}`;
+}
+
+/**
+ * Editable configuration keys, and the type each one round-trips as.
+ *
+ * The handler in `extension.ts` validates against this map rather than trusting the
+ * key a webview message carries. A webview is a browser context: a message arriving
+ * with an arbitrary key would otherwise let it write ANY VS Code setting, which is a
+ * wider capability than this panel needs.
+ */
+export const EDITABLE_SETTINGS: Readonly<Record<string, "number" | "string" | "boolean">> = {
+  "thresholds.moderate": "number",
+  "thresholds.high": "number",
+  "thresholds.critical": "number",
+  "colors.moderate": "string",
+  "colors.high": "string",
+  "colors.critical": "string",
+  alertMetric: "string",
+  statusBarMetric: "string",
+  compactStatusBar: "boolean",
+  refreshInterval: "number",
+  notificationTimeoutSeconds: "number"
+};
+
+/** Whether a key/value pair may be written, checked before any configuration update. */
+export function isEditableSetting(key: unknown, value: unknown): key is string {
+  if (typeof key !== "string") return false;
+  const expected = EDITABLE_SETTINGS[key];
+  if (expected === undefined) return false;
+  if (expected === "number") return typeof value === "number" && Number.isFinite(value);
+  return typeof value === expected;
 }
 
 /**
  * The inline settings section markup, hidden by default and toggled by the gear.
  *
- * Every command dropped from the action row lives here, grouped. Nothing was
- * removed: the action row was shortened, not the capability, and each command also
- * stays registered so the Command Palette continues to reach it.
+ * Editable in place as of Phase 5: thresholds, colors, the alert metric, the
+ * status-bar metric, and the compact toggle all write straight back through
+ * `postMessage`. The "Edit in VS Code settings" button is kept as a secondary escape
+ * hatch - some users prefer it and it costs one button.
+ *
+ * Every command dropped from the action row also lives here, grouped. Nothing was
+ * removed: the action row was shortened, not the capability, and each command stays
+ * registered so the Command Palette continues to reach it.
  */
 export function settingsSectionHtml(values: SettingsValues, auth?: AuthDisplay): string {
   const field = (label: string, value: string | number | null): string =>
     `<div class="field"><span>${escapeHtml(label)}</span><span class="field-value">${escapeHtml(value === null || value === "" ? "not set" : String(value))}</span></div>`;
   const button = (command: string, label: string, extraClass = "secondary"): string =>
     `<button class="${extraClass}" data-command="${command}">${escapeHtml(label)}</button>`;
+  const numberField = (key: string, label: string, value: number, min: number, max: number): string =>
+    `<div class="field"><label for="set-${key}">${escapeHtml(label)}</label>` +
+    `<span><input id="set-${key}" type="number" min="${min}" max="${max}" value="${value}" data-setting="${key}" data-kind="number">` +
+    `<span class="invalid-note" id="err-${key}" role="alert"></span></span></div>`;
+  const colorField = (key: string, label: string, value: string): string =>
+    `<div class="field"><label for="set-${key}">${escapeHtml(label)}</label>` +
+    `<span><input id="set-${key}" type="color" value="${escapeHtml(value)}" data-setting="${key}" data-kind="string"></span></div>`;
+  const selectField = (key: string, label: string, value: string, options: ReadonlyArray<readonly [string, string]>): string =>
+    `<div class="field"><label for="set-${key}">${escapeHtml(label)}</label>` +
+    `<span><select id="set-${key}" data-setting="${key}" data-kind="string">` +
+    options.map(([option, text]) => `<option value="${escapeHtml(option)}"${option === value ? " selected" : ""}>${escapeHtml(text)}</option>`).join("") +
+    `</select></span></div>`;
+  const toggleField = (key: string, label: string, value: boolean, hint: string): string =>
+    `<div class="field"><label for="set-${key}">${escapeHtml(label)}</label>` +
+    `<span><input id="set-${key}" type="checkbox"${value ? " checked" : ""} data-setting="${key}" data-kind="boolean"> ` +
+    `<span class="field-value">${escapeHtml(hint)}</span></span></div>`;
 
   return `<section id="settings-section" hidden aria-label="Settings">
     <h2>Settings</h2>
@@ -148,11 +209,34 @@ export function settingsSectionHtml(values: SettingsValues, auth?: AuthDisplay):
       <p class="note">Allowances are derived from your plan automatically. Override one only if your account includes a different amount than the published figure.</p>
       <div class="group-actions">${button("manualEntry", "Override allowances")}${button("openNativeSettings", "Edit in VS Code settings")}</div>
     </fieldset>
-    <fieldset><legend>Refresh and alerts</legend>
-      ${field("Refresh interval (minutes)", values.refreshInterval)}${field("Compact status bar", String(values.compactStatusBar))}${field("Alert metric", values.alertMetric)}
-      ${field("Moderate threshold", values.moderate)}${field("High threshold", values.high)}${field("Critical threshold", values.critical)}
-      ${field("Notification timeout", values.notificationTimeoutSeconds)}
-      ${field("Moderate color", values.moderateColor)}${field("High color", values.highColor)}${field("Critical color", values.criticalColor)}
+    <fieldset><legend>Status bar</legend>
+      ${selectField("statusBarMetric", "Show in status bar", values.statusBarMetric, [
+        ["actions-minutes", "Actions minutes (default)"],
+        ["actions-storage", "Actions storage"],
+        ["copilot", "Copilot"],
+        ["highest", "Highest known percentage"]
+      ])}
+      <p class="note">Actions minutes is the default because it is the metric with a real published entitlement for most accounts, and therefore the one most likely to show a meaningful percentage.</p>
+      ${toggleField("compactStatusBar", "Compact", values.compactStatusBar, "Hide the \"GitHub Usage: \" label")}
+    </fieldset>
+    <fieldset><legend>Alerts</legend>
+      ${selectField("alertMetric", "Alert on", values.alertMetric, [
+        ["highest", "Highest known percentage"],
+        ["actions-minutes", "Actions minutes"],
+        ["actions-storage", "Actions storage"],
+        ["copilot-ai-credits", "Copilot AI credits"],
+        ["copilot-premium-requests", "Copilot premium requests"]
+      ])}
+      ${numberField("thresholds.moderate", "Moderate threshold (%)", values.moderate, 1, 100)}
+      ${numberField("thresholds.high", "High threshold (%)", values.high, 1, 100)}
+      ${numberField("thresholds.critical", "Critical threshold (%)", values.critical, 1, 100)}
+      ${colorField("colors.moderate", "Moderate color", values.moderateColor)}
+      ${colorField("colors.high", "High color", values.highColor)}
+      ${colorField("colors.critical", "Critical color", values.criticalColor)}
+      ${numberField("notificationTimeoutSeconds", "Notification timeout (s)", values.notificationTimeoutSeconds, 3, 60)}
+    </fieldset>
+    <fieldset><legend>Refresh</legend>
+      ${numberField("refreshInterval", "Interval (minutes)", values.refreshInterval, 1, 120)}
     </fieldset>
     <fieldset class="danger"><legend>Danger zone</legend>
       <p class="note">Removes the cached snapshot and alert state from this machine. Your GitHub account and stored token are untouched.</p>
@@ -160,6 +244,48 @@ export function settingsSectionHtml(values: SettingsValues, auth?: AuthDisplay):
     </fieldset>
   </section>`;
 }
+
+
+/**
+ * Client-side write-back and inline validation.
+ *
+ * Threshold ordering is checked in the webview so the message is shown beside the
+ * offending field rather than as a notification, and an invalid draft is never sent
+ * - `extension.ts` re-validates anyway, because a webview cannot be trusted to
+ * gate its own writes.
+ */
+const SETTINGS_WRITE_BACK_JS = `
+  function settingsValue(el){
+    if(el.dataset.kind==='number')return Number(el.value);
+    if(el.dataset.kind==='boolean')return el.checked;
+    return el.value;
+  }
+  function thresholdOrderError(){
+    const read=(k)=>Number((document.querySelector('[data-setting="'+k+'"]')||{}).value);
+    const m=read('thresholds.moderate'),h=read('thresholds.high'),c=read('thresholds.critical');
+    if(![m,h,c].every((v)=>Number.isFinite(v)&&v>=1&&v<=100))return 'Thresholds must be numbers from 1 to 100.';
+    return (m<h&&h<c)?null:'Thresholds must increase from moderate to high to critical.';
+  }
+  function showFieldError(key,message){
+    const input=document.querySelector('[data-setting="'+key+'"]');
+    const note=document.getElementById('err-'+key);
+    if(input)input.classList.toggle('invalid',Boolean(message));
+    if(note)note.textContent=message||'';
+  }
+  function onSettingChange(el){
+    const key=el.dataset.setting;
+    if(key&&key.indexOf('thresholds.')===0){
+      const error=thresholdOrderError();
+      showFieldError(key,error);
+      if(error)return;
+      for(const other of ['thresholds.moderate','thresholds.high','thresholds.critical'])showFieldError(other,null);
+    }
+    vscode.postMessage({command:'updateSetting',key:key,value:settingsValue(el)});
+  }
+  document.querySelectorAll('[data-setting]').forEach(function(el){
+    el.addEventListener('change',function(){onSettingChange(el);});
+  });
+`;
 
 /**
  * The settings form's client JS, concatenated into the dashboard's single nonced
@@ -171,7 +297,8 @@ export function settingsSectionHtml(values: SettingsValues, auth?: AuthDisplay):
  * shape unchanged.
  */
 export function settingsScriptJs(): string {
-  return `function toggleSettings(){` +
+  return SETTINGS_WRITE_BACK_JS +
+    `function toggleSettings(){` +
     `const s=document.getElementById('settings-section');const g=document.getElementById('settings-toggle');if(!s)return;` +
     `const willOpen=s.hasAttribute('hidden');` +
     `if(willOpen){s.removeAttribute('hidden');s.scrollIntoView({behavior:'smooth',block:'start'});}else{s.setAttribute('hidden','');}` +

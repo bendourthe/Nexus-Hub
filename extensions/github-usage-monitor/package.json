@@ -193,6 +193,17 @@
           "default": false,
           "description": "Show only the GitHub icon and concise usage value"
         },
+        "githubUsageMonitor.statusBarMetric": {
+          "type": "string",
+          "default": "actions-minutes",
+          "enum": [
+            "actions-minutes",
+            "actions-storage",
+            "copilot",
+            "highest"
+          ],
+          "description": "Which metric the status bar shows. Defaults to Actions minutes because it is the metric with a real published entitlement for most accounts, and therefore the one most likely to show a meaningful percentage. 'highest' shows whichever metric currently has the largest known percentage."
+        },
         "githubUsageMonitor.alertMetric": {
           "type": "string",
           "default": "highest",

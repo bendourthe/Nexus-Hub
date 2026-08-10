@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (all 5 phases complete; reconciled and release-ready, unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
-**Last updated**: 2026-08-09 (v3.16.3 Phase 4 append; NI-5 resolved, NI-6 opened, 0 release blockers; the second webview is gone and the action row is three controls)
+**Last updated**: 2026-08-09 (v3.16.3 Phase 5 append; NI-6 and BG-3 resolved, NI-7 opened, 0 release blockers; settings are editable in place and the status bar takes a metric selection)
 
 > **File-lifecycle note**: this ledger was created ahead of any v3.16 implementation, by a comparison that deliberately claimed no release slot, so it began with only the `## Comparison-Sourced Deferrals` section. Each v3.16 version-implementation phase **appends** its own `## v3.16.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` numbering, which is namespaced separately from the `CD-#` and `TR-#` ids used above.
 
@@ -772,6 +772,31 @@ One resolved, one new open item, **zero release blockers**. NI-5 closed where Ph
 
 The phase's own residual risk is that the settings section now shares one webview document with the dashboard, so a rendering error in either takes both down - where previously a broken settings panel left the dashboard usable. Three controls: the section renders on every state including unconnected and no-data, so the gear is never a control that does nothing; a test asserts exactly one `<script>` element and exactly one `acquireVsCodeApi()` call, since a second would throw and blank the whole panel; and `retainContextWhenHidden` was already set, so the merge did not change the panel's lifecycle.
 
+### NI-6 - RESOLVED in Phase 5: the settings section is editable in place
+
+- **Raised**: v3.16.3 Phase 4, recording the deliberate Phase 4/5 boundary - the section rendered every value but the fields were static text.
+- **How it was closed**: thresholds, colors, the alert metric, the new status-bar metric, the compact toggle, the notification timeout, and the refresh interval all write back through `postMessage`. Threshold ordering is validated in the webview so the message lands beside the offending field, and `extension.ts` re-validates every message before touching configuration. The "Edit in VS Code settings" escape hatch was kept as a secondary control.
+
+### BG-3 - RESOLVED in Phase 5: a snapshot missing a metric crashed the hover
+
+- **Target file**: `extensions/github-usage-monitor/src/statusBarManager.ts`
+- **What was wrong**: `selectStatusMetric` and `metricSection` both assumed all three metrics are always present. A snapshot cached by v0.1.0 can be missing one, and `undefined` reaching `formatAmount` threw, taking the entire tooltip down rather than degrading.
+- **How it was found**: a Phase 5 test fixture that deliberately omitted a metric to exercise the unavailable-selection path. It surfaced two crashes neither the fixture nor the phase was aiming at.
+- **Class**: the same one Phase 2 hit with a `NaN` drawdown. **Cached state outlives the version that wrote it**, so every access to a field added after 0.1.0 must tolerate absence. Worth checking the remaining surfaces in Phase 6.
+
+### NI-7 - OPEN (small): the webview write-back has no dirty/save affordance
+
+- **Target file**: `extensions/github-usage-monitor/src/settingsPanel.ts`
+- **What is different from the sibling**: the Claude monitor's inline settings collect a draft and expose Save / Reset buttons; this one writes each field on `change`. Immediate write is simpler and matches the plan's wording ("each writing back through `postMessage`"), but it means there is no undo and no visible confirmation that a change landed.
+- **Mitigation already in place**: both surfaces re-render immediately after a successful write, so the effect is visible at once. A setting that appears to do nothing for ten minutes is the failure this avoids.
+- **Suggested next step**: only if a user reports wanting it. Adding Save / Reset would also mean adding a dirty-state model, which is real complexity for a form of eleven fields.
+
+### Phase 5 disposition
+
+Two resolved, one new open item, **zero release blockers**. NI-6 closed as planned. BG-3 was a genuine pre-existing crash found by a fixture aimed elsewhere. NI-7 is a deliberate divergence from the sibling pattern, recorded so it is not mistaken for an omission.
+
+The phase's own residual risk is that a webview can now write configuration. Three controls: `EDITABLE_SETTINGS` gates both the key AND the value type, so a crafted message cannot reach an arbitrary VS Code setting; threshold ordering is re-validated in `extension.ts` because the panel's inline check is a convenience for the user and never a guarantee for the extension; and a test asserts that keys outside the set - including `billingOwner`, the allowance keys, and an unrelated `http.proxy` - are all rejected.
+
 ## v3.16 Summary
 
 | Category | Open | Resolved |
@@ -781,6 +806,6 @@ The phase's own residual risk is that the settings section now shares one webvie
 | v3.16.0 version-implementation gaps | 3 carried forward (NI-1, NI-6, BG-1) | 13 closed (DF-1, DF-2, DF-3, DF-4, NI-2, NI-3, NI-4, NI-5, QG-1, QG-2, QG-3, BG-2, BG-3, WN-1) |
 | v3.16.1 version-implementation gaps (all 8 phases + release) | 3 carried forward (WN-1, BG-1 environmental; NI-6 bounded and documented) | 21 closed (DF-1..DF-5, NI-1..NI-5, BG-2..BG-8, QG-1, QG-2, WN-2, PX-1) |
 | v3.16.2 version-implementation gaps (all 6 phases, reconciled) | 5 carried (MT-1 schema assertions; NI-2 size overage; NI-3 deliberate `--repair` bound; BG-2 pre-existing fail-open; WN-1 / BG-1 environmental) | 6 closed (QG-1, QG-2, BG-3, NI-1, DF-1, WN-2) |
-| v3.16.3 version-implementation gaps (Phases 1-4 of 6, in flight) | 8 open (DF-1 deferred key deletion; MT-2 unvalidated runner rules; NI-2 unverifiable weights; NI-3 SKU vocabularies; NI-4 cross-monitor policy; NI-6 read-only settings section; WN-1 / BG-1 / BG-2 environmental) | 4 closed (NI-1, QG-2, MT-1, NI-5) |
+| v3.16.3 version-implementation gaps (Phases 1-5 of 6, in flight) | 8 open (DF-1 deferred key deletion; MT-2 unvalidated runner rules; NI-2 unverifiable weights; NI-3 SKU vocabularies; NI-4 cross-monitor policy; NI-7 no dirty/save affordance; WN-1 / BG-1 / BG-2 environmental) | 6 closed (NI-1, QG-2, MT-1, NI-5, NI-6, BG-3) |
 
 The three comparison-sourced items remain non-blocking prose folds with named target files. Of the v3.16.0 items, BG-1 is pre-existing and reproduces without this plan's changes, WN-1 is environmental, DF-1 is a reasoned non-implementation, NI-1 is a deliberate scope boundary the plan requires, and NI-2 / NI-3 / NI-4 are Phase 2 findings that Phase 3 and Phase 5 are already scheduled to dispose of. Phase 5 dispositioned every open item: 13 closed, 3 carried forward. **None gates the v3.16.0 release.** NI-1 and NI-6 are scope decisions for cycles already touching the relevant surfaces, and BG-1 is pre-existing, reproduced on a clean `develop` worktree, and confined to a Windows host whose PATH resolves `tar` to the Git Bash binary. Of the 13 closed, three (BG-2, BG-3, and QG-3) were caught by the test suite rather than by review, which is this cycle's strongest argument for running the full suite before declaring a phase done.

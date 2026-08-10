@@ -23,8 +23,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `scripts/reconcile-drawdown.js`, a development diagnostic that measures candidate reconstructions against a real account. Excluded from the packaged extension.
 - **The GitHub monitor connects itself on first run** (v3.16.3 Phase 3). If the editor already holds a GitHub session it binds silently with no prompt at all; otherwise it opens the sign-in flow **exactly once**. Dismissing it records a durable decline, and the flow never opens automatically again - an explicit Connect still works and clears the decline.
 - **One panel, three buttons** (v3.16.3 Phase 4). The action row is now Refresh Now, Open GitHub Billing Page, and a gear. The settings form renders inline under the gear instead of opening a second webview; every command dropped from the row moved into that section, grouped, with a separated Danger zone, and all of them remain reachable from the Command Palette.
+- **Settings are editable in the panel** (v3.16.3 Phase 5). Thresholds, alert colors, the alert metric, the compact status-bar toggle, the notification timeout, and the refresh interval all change in place, with threshold ordering validated inline beside the offending field. The escape hatch to native VS Code settings is kept.
+- **`githubUsageMonitor.statusBarMetric`** chooses what the status bar shows: `actions-minutes` (the default, because it is the metric with a real published entitlement for most accounts), `actions-storage`, `copilot`, or `highest`. Selecting a metric this owner does not report shows an honest indicator and explains it in the hover, rather than silently substituting a different number.
 - **Meters restyled to match the Claude, Codex, and Cursor monitors**: an 8px neutral track with a rounded `#008080` fill and the percentage beside the bar, with the width transition disabled under `prefers-reduced-motion`.
 - **An honest unconnected state.** The status bar reads "Not connected" rather than `--`, and the panel shows a purposeful empty state with one Connect button plus an explicit statement of what is read (billing usage for one configured owner, and whether each repository is public or private) and what is not (your code, commits, or repository contents). A decline is a valid state and is not styled as an error.
+
+### Fixed
+
+- A usage snapshot cached by extension 0.1.0 could be missing a metric entirely, which crashed the status-bar hover outright rather than degrading (`undefined` reaching the amount formatter). Both the metric selector and the hover now render an honest "not reported" instead.
 
 ### Notes for future maintainers
 
