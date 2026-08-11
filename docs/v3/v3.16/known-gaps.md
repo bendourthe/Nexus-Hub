@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v3.16.3 `github-usage-monitor-ux` is RELEASED (all six phases; 8 closed, 8 carried, 0 release blockers). v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (all 5 phases complete; reconciled and release-ready, unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
-**Last updated**: 2026-08-11 (v3.16.5 Phase 4 append: intake redesign - four-option additional imagery + two-round content-derived color schemes; 8 open, 5 closed, 2 accepted-and-documented, 0 release blockers)
+**Last updated**: 2026-08-11 (v3.16.5 Phase 5 append: imagery placement intelligence, closing v3.15 MT-2; 10 open, 6 closed, 2 accepted-and-documented, 0 release blockers)
 
 > **File-lifecycle note**: this ledger was created ahead of any v3.16 implementation, by a comparison that deliberately claimed no release slot, so it began with only the `## Comparison-Sourced Deferrals` section. Each v3.16 version-implementation phase **appends** its own `## v3.16.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` numbering, which is namespaced separately from the `CD-#` and `TR-#` ids used above.
 
@@ -954,13 +954,30 @@ It is deliberately **not** decided here. It affects four extensions, it is a que
 - **Why it is accepted rather than avoided**: the alternative is a fifth option (`bare`) that exists only to preserve a mode the plan deliberately removed - R8 makes procedural the baseline precisely because a page with no visuals at all is not an outcome worth offering. The change is disclosed in both surfaces with the words "no longer exists", and a test asserts that disclosure so it cannot be quietly dropped later.
 - **Residual risk**: a saved command line still runs and still produces a good page; it just produces a slightly richer one than before. No error, no silent data loss.
 
-### v3.16.5 Phase 1-4 summary
+### NI-5 - OPEN by design: placement RELEVANCE is a screenshot judgment
+
+- **Target file**: `catalog/skills/specialized-domains/document-to-interactive-html/references/visual-qa-rubric.md` (criterion 4, the AGENT-VISION half)
+- **Source phase**: v3.16.5 Phase 5, sub-tasks 5.1 and 5.2
+- **Reason it is open**: whether an image actually depicts a section's subject is not decidable from markup. A `data:` URI is opaque bytes; the check can confirm an asset exists, that the record accounts for it, and that the record does not contradict the page, but not that the picture is of the right thing. That judgment stays with the agent looking at the rendered page, which is where the plan put it.
+- **What IS deterministic, and why it is enough to close v3.15 MT-2**: the placement RECORD. A consented run must write an `IMAGERY PLACEMENTS` block with one decision per section, and the checker fails a run that embedded assets but left no decision trail, a record claiming more embedded assets than the page contains, or a decline with no reason. That converts "the agent should integrate or explain" from an instruction into a checkable artifact - the thing MT-2 was actually missing. A skip is now distinguishable from a miss.
+- **Suggested next step**: none. Do not attempt image-content analysis; it would need a vision model inside a stdlib-only offline scorer, and the render loop already has vision available at exactly the moment the judgment is needed.
+
+### WN-4 - OPEN: a background scrim below ~75% opacity defeats the static contrast check
+
+- **Target file**: `catalog/skills/specialized-domains/document-to-interactive-html/references/interactive-features.md` (the background overlay recipe)
+- **Source phase**: v3.16.5 Phase 5, sub-task 5.1
+- **Reason it is open**: the `contrast` check certifies text against a DECLARED background color. A background-role image with a scrim over it composites to a per-pixel background, so the check's premise only holds while the scrim is opaque enough to dominate. The recipe mandates ~82%, at which the composited result is within a couple of percent of `--base` and the existing check stays valid. Below roughly 75% it no longer is, and no static check can certify the text.
+- **Why it is a warning rather than a check**: the scorer cannot tell which `--base`-ish color a given band composites to without rendering, and the threshold is a judgment about how much image show-through is acceptable rather than a boundary with a right answer. The contract states the number and the reason, the rubric assigns the composited-contrast judgment to the AGENT-VISION half, and a rationalization row rebuts "it looks readable to me".
+- **Suggested next step**: if a future page needs a lighter scrim, the contract's answer is to move the text off the image rather than to lower the threshold. A rendered check is possible in principle (sample the composited pixels behind the text box) and would belong in the Phase 3 loop, not the static scorer - only worth building if a real page pushes on it.
+
+### v3.16.5 Phase 1-5 summary
 
 | Category | Open | Resolved |
 |---|---|---|
 | v3.16.5 Phase 1 gaps | 3 (MT-1 fixture unhomed and unguarded; NI-2 typography rules 2-3 by design; WN-1 status-color exclusion) | 1 accepted-and-documented (DF-1 parser scope) |
 | v3.16.5 Phase 2 gaps | 2 (WN-2 runtime-injected palette invisible to the scorer; NI-3 SVG rules 2-3 by design) | 1 closed (BG-1 sub-AA runtime accents) |
 | v3.16.5 errata pass (E1-E10) | 0 | 1 closed (BG-E1: all ten items executed; 14 sub-floor classes, the gutter, the `code` em-size and an unwired marker fixed in the fixture; the viewport-fit check widened where the fixture was right; nothing deferred) |
+| v3.16.5 Phase 5 gaps | 2 (NI-5 placement relevance is a screenshot judgment, by design; WN-4 the scrim-opacity floor below which no static contrast check holds) | 1 closed (**v3.15 MT-2**: the placement record makes a skip distinguishable from a miss) |
 | v3.16.5 Phase 4 gaps | 2 (NI-4 intake questions are agent behavior, by design; DF-2 the `none` semantic change, accepted and disclosed) | 0 |
 | v3.16.5 Phase 3 gaps | 1 (WN-3 `em`-relative sizes render-verified only) | 3 closed (BG-2 three rendered floor violations + the mobile overflow regression; **v3.15 MT-1** headless render in CI; **v3.15 MT-2** superseded by the placement pass Phase 5 owns) |
 

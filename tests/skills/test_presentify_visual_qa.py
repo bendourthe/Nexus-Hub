@@ -66,6 +66,11 @@ _CLEAN = (
     '<img src="data:image/png;base64,AAAA">'
     '<div class="fig-overlay"><div class="fig-region">North</div></div></div>'
     '<label class="fig-view-original">View original</label></figure>'
+    # Scored with expect_images=1 below, i.e. as a CONSENTED run - so it carries
+    # the placement record such a run is required to write (v3.16.5 Phase 5).
+    "<!--\nIMAGERY PLACEMENTS\n"
+    "  placement: figure | contextual | embedded | the annotated source figure\n"
+    "-->"
     "</html>"
 )
 
@@ -1016,3 +1021,121 @@ def test_rubric_reference_lists_all_criteria_and_pass_bar():
         assert criterion in text, f"rubric missing criterion: {criterion}"
     assert "page-level pass bar" in text.lower()
     assert "structural" in text.lower() and "agent-vision" in text.lower()
+
+
+# --- 1h. v3.16.5 Phase 5: the imagery placement record -----------------------
+#
+# The placement pass is agent behavior, but its RECORD is an artifact, and the
+# record is what makes a deliberate skip distinguishable from a forgotten section.
+# That distinction is the whole of v3.15 MT-2, so it is checked deterministically.
+
+_WITH_IMAGE = (
+    '<html data-aspect="standard"><style>'
+    "figure img{max-height: 80vh; object-fit: contain;}</style>"
+    '<figure><img src="data:image/png;base64,AA"></figure>'
+)
+_RECORD = (
+    "<!--\nIMAGERY PLACEMENTS\n"
+    "  placement: intro | hero | embedded | the section opens on the coastline\n"
+    "  placement: summary | none: no concrete visual subject to depict\n-->"
+)
+
+
+def _imagery(html: str, expect: int = 1) -> dict:
+    return next(
+        f for f in scorer.score_html(html, expect_images=expect)["findings"]
+        if f["criterion"] == "imagery-integration"
+    )
+
+
+def test_placement_record_matching_the_page_passes():
+    finding = _imagery(_WITH_IMAGE + _RECORD + "</html>")
+    assert finding["status"] == "pass"
+    assert "1 embedded" in finding["evidence"]
+    assert "1 declined with a reason" in finding["evidence"]
+
+
+def test_assets_with_no_placement_record_is_a_missing_decision_trail():
+    # The MT-2 defect in its purest form: images appeared, and nobody can tell
+    # which sections were skipped on purpose.
+    finding = _imagery(_WITH_IMAGE + "</html>")
+    assert finding["status"] == "fail"
+    assert finding["severity"] == "high"
+    assert "NO `IMAGERY PLACEMENTS`" in finding["evidence"]
+
+
+def test_a_record_claiming_more_assets_than_the_page_has_is_flagged():
+    over = _WITH_IMAGE + _RECORD.replace(
+        "placement: summary | none: no concrete visual subject to depict",
+        "placement: summary | background | embedded | a laboratory backdrop",
+    ) + "</html>"
+    finding = _imagery(over)
+    assert finding["status"] == "fail"
+    assert finding["severity"] == "high"
+    assert "does not match the page" in finding["evidence"]
+
+
+def test_an_unexplained_decline_is_medium_not_high():
+    # A decline is valid and common; an unexplained one is sloppy but does not
+    # break the page, so it must not block it.
+    vague = _WITH_IMAGE + (
+        "<!--\nIMAGERY PLACEMENTS\n"
+        "  placement: intro | hero | embedded | opens on the coastline\n"
+        "  placement: summary | none:\n-->"
+    ) + "</html>"
+    finding = _imagery(vague)
+    assert finding["status"] == "fail"
+    assert finding["severity"] == "medium"
+    result = scorer.score_html(vague, expect_images=1)
+    assert result["page_pass"] is True
+
+
+def test_the_none_path_expects_no_placement_pass_at_all():
+    """A `none` / non-consented / non-interactive run stays on the procedural
+    baseline by design. With no `--expect-images` expectation the criterion is
+    n/a, so the absence of a placement block is not a defect - the procedural
+    baseline is the whole design there, not a shortfall."""
+    procedural = _WITH_IMAGE + "</html>"
+    finding = next(
+        f for f in scorer.score_html(procedural)["findings"]
+        if f["criterion"] == "imagery-integration"
+    )
+    assert finding["status"] == "n/a"
+    assert scorer.score_html(procedural)["page_pass"] is True
+
+
+def test_placement_decisions_parses_roles_statuses_and_reasons():
+    decisions = scorer.placement_decisions(_RECORD)
+    assert [d["section"] for d in decisions] == ["intro", "summary"]
+    assert decisions[0]["role"] == "hero"
+    assert decisions[0]["status"] == "embedded"
+    assert decisions[1]["status"] == "none"
+    assert decisions[1]["reason"] == "no concrete visual subject to depict"
+
+
+def test_placement_decisions_reads_inside_the_design_record_comment():
+    # The record lives in an HTML comment on purpose - it is not user-visible - so
+    # a parser that stripped comments first would find nothing.
+    block = "<!--\nIMAGERY PLACEMENTS\n  placement: a | hero | embedded | x\n-->"
+    assert len(scorer.placement_decisions(block)) == 1
+    assert scorer.placement_decisions("no placements here") == []
+
+
+def test_placement_decisions_requires_the_line_start_form():
+    """The `placement:` anchor is line-start on purpose: prose that happens to
+    contain the word must not be parsed as a decision, or the record's integrity
+    check starts counting sentences."""
+    assert scorer.placement_decisions(
+        "<!-- we reconsidered the placement: hero was wrong here -->"
+    ) == []
+    # Indentation inside the block is fine; a mid-sentence mention is not.
+    assert len(scorer.placement_decisions("\n      placement: a | hero | embedded | x")) == 1
+
+
+def test_the_placement_taxonomy_and_scrim_recipe_are_documented():
+    text = (_BUNDLE / "references" / "interactive-features.md").read_text(encoding="utf-8")
+    for role in ("hero / header", "background", "contextual illustration", "gallery"):
+        assert role in text, f"placement taxonomy missing the {role} role"
+    # The scrim is mandatory and numeric, not "use a dark overlay".
+    assert "82%" in text and "scrim" in text
+    assert "IMAGERY PLACEMENTS" in text, "the record format must be specified"

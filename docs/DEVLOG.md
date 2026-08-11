@@ -1,5 +1,34 @@
 # Development Log
 
+## [2026-08-11] - v3.16.5 Phase 5: imagery placement intelligence
+
+### What Changed
+
+Imagery placement gained a four-role taxonomy (hero / background / contextual / gallery) with a mandatory scrim recipe for the background role, the placement pass was wired into the Phase 3 render loop's first iteration, and `visual_qa_score.py` now verifies the placement RECORD against the page. Closes v3.15 known-gap MT-2.
+
+### Why It Changed
+
+MT-2 deferred end-to-end grading of consented per-section integration to "the Phase 5 visual-QA loop". That loop now exists, but simply running the placement decision inside it would not have closed the gap - the original problem was that nobody could tell, after the fact, whether a section had no image because it did not need one or because the pass forgot it. An instruction cannot fix that; an artifact can.
+
+### Decisions Made
+
+- **The record is what closes MT-2, not the instruction.** A consented run must write an `IMAGERY PLACEMENTS` block with one decision per section, and the checker verifies that record AGAINST the page. Three states fail: assets present with no block (the pass left no decision trail), a record claiming more embedded assets than the page contains (the record is fabricated), and a decline with no reason. That turns "integrate or explain" from a hope into a checkable artifact, and makes a skip distinguishable from a miss.
+- **The embedded count is compared against the page's TOTAL `data:` count, deliberately.** A page's images include source figures extracted from the document, so a placement count BELOW the total is normal and a count ABOVE it is provably wrong. Comparing for equality would have false-positived on every page carrying a source image - the kind of check people switch off.
+- **An unexplained decline is MEDIUM, not HIGH.** A decline is a valid, frequent, and often correct outcome; an unexplained one is sloppy but does not break the page, so it must not block it. Making everything HIGH would have made the gate less useful, not stricter.
+- **The background scrim is a number, not an adjective.** "Use a dark overlay" is unverifiable. The recipe mandates ~82%, at which the composited background is within a couple of percent of `--base` and the EXISTING contrast check stays valid without knowing anything about the image. The reason the number matters is stated too: below roughly 75% the image shows through enough to move the effective background per-pixel, and no static check can certify the text - at which point the answer is to move the text off the image, not to lower the threshold (WN-4).
+- **The pass runs inside the loop's first iteration, not before it.** A section that looked starved in the content model may already read as full once rendered, and a band that looked fine may be visibly empty. Deciding placements from the model rather than the render was the earlier design and it was guessing.
+- **Relevance stays a screenshot judgment** (NI-5). A `data:` URI is opaque bytes; no stdlib parser can tell whether the picture is of the right thing. The render loop already has vision available at exactly the moment that judgment is needed, so pushing it there costs nothing and inventing image analysis inside an offline scorer would cost a lot.
+
+### Verification
+
+79 tests in `test_presentify_visual_qa.py` (from 70); 617 passed / 0 skipped across `tests/skills/`. `ruff check --ignore RUF100` clean. All ten `make validate` guards pass. The canonical fixture still scores PASS across all criteria. All four placement-record states verified (matching record passes; no record fails HIGH; overclaiming record fails HIGH; unexplained decline fails MEDIUM without blocking), plus the `none`-path case confirming a non-consented run expects no placement pass at all.
+
+### Known Issues
+
+Two new open, one closed. **v3.15 MT-2 CLOSED** by the record check. **NI-5**: placement relevance is a screenshot judgment by design - do not build image analysis into the offline scorer. **WN-4**: a scrim below ~75% defeats the static contrast check; the contract states the number and the reason, and the rubric assigns the composited-contrast judgment to the agent-vision half. Zero release blockers.
+
+Two test-mechanics notes. The pre-existing `_CLEAN` fixture needed the placement record once it was scored as a consented run - the fixture predates the convention and the check is right. And a bash heredoc again collapsed escaped newlines inside a Python string literal, producing an unterminated-literal syntax error; the fix was written from a file, as with the backspace-in-a-regex incident earlier in this plan. Third occurrence of the same tooling trap.
+
 ## [2026-08-11] - v3.16.5 Phase 4: intake redesign
 
 ### What Changed

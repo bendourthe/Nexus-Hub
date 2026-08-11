@@ -260,6 +260,55 @@ When the user picks the `stock` imagery tier AND consents to the build-time netw
 - **Fetch one relevant asset per starved section.** Run `scripts/fetch_stock_media.py --consent` per starved section (Openverse-first, then Wikimedia; Pexels when a key is configured), take ONE highly-relevant, license-verified asset, and place it per the Phase 2 prominence + sizing rules (it is an accent, not a hero, unless the section genuinely centers on it). Prefer CC0 / public-domain. Record provenance + credits per "Visual provenance and credits".
 - **Relevance and restraint.** Integrate an asset ONLY when it is genuinely relevant and helpful; a loosely-related or purely decorative stock photo is worse than none because it reads as filler. Skipping a section for lack of a relevant, license-clean asset is a valid outcome; record the per-section reason (see the gate below).
 
+### Placement roles (what an image is FOR, v3.16.5 Phase 5)
+
+Detecting that a section is starved says an image would help; it does not say what the image is DOING there. Every placement carries one of four roles, and the role determines the sizing, the treatment, and what "correct" looks like:
+
+| Role | What it is | Treatment |
+|---|---|---|
+| **hero / header** | A section-opening full-bleed or wide visual that sets the section's subject | Full-bleed band or wide column; respects the Phase 2 prominence rules (a hero is a hero because the CONTENT centers on it, not because a hero looks impressive) |
+| **background** | A low-contrast treated backdrop behind a band, with text over it | MUST carry the ink-contrast overlay recipe below; the text's AA contrast is measured against the composited result, not against the overlay color |
+| **contextual illustration** | A figure beside prose it concretely depicts | Sized as an accent next to its prose, never competing with a real source figure in the same section |
+| **gallery** | Genuinely-secondary visuals grouped for legibility | The existing secondary-grouping rule; a gallery is where non-dominant visuals go, and it is never a place to hide a dominant one |
+
+**The background overlay recipe (mandatory for the background role).** Text over an image is the easiest way to ship unreadable type, and it fails differently in every image, so the overlay is not optional and not eyeballed. Composite a solid scrim between the image and the text, then verify the text's contrast against the SCRIM color rather than against the image:
+
+```css
+.band-bg{ position: relative; isolation: isolate; }
+.band-bg > img{
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; z-index: -2;
+}
+.band-bg::before{                     /* the scrim - an opaque-enough known color */
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background: color-mix(in srgb, var(--base) 82%, transparent);
+}
+```
+
+At 82% the composited background is within a couple of percent of `--base`, so the existing `contrast` check on `--ink` against `--base` remains valid. Drop below roughly 75% and it no longer is: the image starts showing through enough to move the effective background per-pixel, and no static check can certify the text any more. If a design genuinely needs a lighter scrim, the text must move off the image instead.
+
+**Deciding placements (inside the render loop, not before it).** The placement pass runs during the Phase 3 loop's FIRST iteration, because that is the first point at which the page can be seen: a section that looked starved in the model may already read as full, and a band that looked fine may be visibly empty. For EVERY section, produce one of two outcomes - never silence:
+
+- **A placement**: its role, and one line on why THIS content benefits from an image in THAT role.
+- **An explicit decline**: `no image: <reason>`. "The section has no concrete visual subject" and "no license-clean asset depicted the subject" are both complete reasons. A decline is a valid, common, and often correct outcome.
+
+**Check relevance BEFORE embedding.** For each candidate, ask whether the image actually depicts the section's subject. A generic techy stock photo next to a section about test coverage does not depict test coverage; it depicts a stock photo. Reject it. Re-query ONCE with tightened keywords, then drop the placement with its reason rather than embedding filler - a loosely-related image is worse than none, because it reads as padding and teaches the reader to skip images.
+
+**Record every decision in the design record**, in a parseable block so the deterministic checker can verify the record against the page rather than trusting it:
+
+```
+IMAGERY PLACEMENTS
+  placement: intro | hero | embedded | the section opens on the coastline the report surveys
+  placement: method | background | embedded | a laboratory backdrop; scrim at 82% keeps body text AA
+  placement: results | contextual | embedded | the apparatus the paragraph describes
+  placement: summary | none: no concrete visual subject - it summarises the three sections above
+  placement: appendix | none: no license-clean asset depicted the subject after one re-query
+```
+
+One `placement:` line per section, `|`-separated, with `embedded` or `none: <reason>` in the status field. `scripts/visual_qa_score.py` reads this block: a consented run with NO block at all means the pass never ran, and a block claiming more embedded assets than the page actually contains means the record is fabricated. Both are HIGH-severity findings.
+
+All existing invariants apply unchanged: consent still gates every fetch, the commercial-use allow-list still fails safe, every asset is still base64-embedded, and every non-original visual still appears in the visible "Image credits" section with its license and attribution.
+
 **Integration gate (a consented run must not silently add nothing).** A consented `stock` / `mix` / `ai` run MUST, for EACH image-starved section, either integrate at least one relevant, license-verified asset OR record a per-section reason (no relevant license-clean asset found, or the section did not warrant an image). A consented stock / mix run that produced ZERO integrated assets across all starved sections with NO recorded reason FAILS verification: that silent zero-integration is the exact defect this tier exists to prevent (the fetch helper always records a degrade reason, so a "no reason" state is itself the bug). The offline and license-safety gates are unchanged: every asset stays base64-embedded, the commercial-use allow-list still fails safe, and a non-commercial asset is never embedded. `mix` = a procedural base plus real stock accents FIRST, and local AI (Tier 3) only where stock cannot serve a placement (the unchanged priority).
 
 The consent gate is the load-bearing invariant. `fetch_stock_media.py` performs NO network call unless `--consent` is passed; without it, it prints a notice, writes an empty degraded manifest, and exits with the degrade code (3), and the authoring stage stays on Tier 1. The helper also degrades (never raises) on a missing library, a missing API key, a network error, or zero results.

@@ -196,3 +196,12 @@ Audit only; no file was moved, renamed, or removed.
 - **No scratch docs committed.** The per-sub-task patch scripts ran from the session scratchpad.
 - **No new bundled resource**, so the orphan-bundle audit is unaffected (it passes with 0 warnings). `design_seed.py` gained a flag rather than a sibling file.
 - **The calibration fixture was not touched by this phase** and remains Phase 7's to home (MT-1).
+
+## v3.16.5 Phase 5 - imagery placement intelligence (audit mode, 2026-08-11)
+
+Audit only; no file was moved, renamed, or removed.
+
+- **No new artifacts.** The phase extended three existing files (`references/interactive-features.md`, `references/visual-qa-rubric.md`, `scripts/visual_qa_score.py`), wired the pass into `SKILL.md` Step 9, and added tests to the existing visual-QA suite. The orphan-bundle audit is unaffected and passes with 0 warnings.
+- **One pre-existing test fixture was updated rather than worked around**: `_CLEAN` in `test_presentify_visual_qa.py` is scored with `expect_images=1`, i.e. as a consented run, so under the new check it needed the placement record such a run is required to write. The fixture predates the convention; the check is right.
+- **No scratch docs committed.** The per-sub-task patch scripts ran from the session scratchpad.
+- **A closure note was appended to `docs/v3/v3.15/known-gaps.md`** for MT-2, not a rewrite - the original record and its Phase 3 status note both stand as written, with the closure added beneath them.

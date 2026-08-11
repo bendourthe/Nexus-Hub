@@ -109,6 +109,10 @@ _PATH_CMD_RE = re.compile(r"([MmLlHhVvCcSsQqTtAaZz])([^MmLlHhVvCcSsQqTtAaZz]*)")
 _NUMBER_RE = re.compile(r"-?\d*\.?\d+(?:[eE][-+]?\d+)?")
 _URL_REF_RE = re.compile(r"url\(\s*#([^)\s]+)\s*\)", re.IGNORECASE)
 _SELECTOR_TOKEN_RE = re.compile(r"[.#]([A-Za-z][\w-]*)")
+# --- Phase 5 imagery placement -----------------------------------------------
+_PLACEMENT_RE = re.compile(r"^\s*placement:\s*(.+)$", re.IGNORECASE | re.MULTILINE)
+_PLACEMENT_ROLES = frozenset({"hero", "header", "hero/header", "background",
+                             "contextual", "contextual illustration", "gallery"})
 _IN_PAGE_ANCHOR_RE = re.compile(r'''<a\b[^>]*href\s*=\s*["']#[^"']+["']''', re.IGNORECASE)
 _INLINE_STYLE_RE = re.compile(r'''\bstyle\s*=\s*["']([^"']*)["']''', re.IGNORECASE)
 
@@ -744,6 +748,44 @@ def _css_marker_attachments(
     return classes, ids
 
 
+def placement_decisions(html: str) -> list[dict[str, str]]:
+    """Parse the design record's `IMAGERY PLACEMENTS` block.
+
+    One `placement:` line per section, `|`-separated:
+        placement: <section> | <role> | embedded | <why>
+        placement: <section> | none: <reason>
+
+    Read from the RAW html because the block lives inside an HTML comment - the
+    design record is deliberately not user-visible.
+    """
+    decisions: list[dict[str, str]] = []
+    for line in _PLACEMENT_RE.findall(html):
+        fields = [part.strip() for part in line.split("|")]
+        section = fields[0] if fields else ""
+        rest = fields[1:]
+        status = "unknown"
+        role = ""
+        reason = ""
+        for field in rest:
+            lowered = field.lower()
+            if lowered.startswith("none"):
+                status = "none"
+                reason = field.partition(":")[2].strip()
+            elif lowered == "embedded":
+                status = "embedded"
+            elif lowered in _PLACEMENT_ROLES:
+                role = lowered
+        if section.lower().startswith("none"):
+            # `placement: none: <reason>` with no section field.
+            status = "none"
+            reason = section.partition(":")[2].strip()
+            section = ""
+        decisions.append(
+            {"section": section, "role": role, "status": status, "reason": reason}
+        )
+    return decisions
+
+
 def check_svg_arrowheads(
     html: str, rules: list[tuple[str, dict[str, str]]] | None = None
 ) -> dict[str, Any]:
@@ -1125,19 +1167,62 @@ def score_html(
                      "no annotated figures")
         )
 
-    # 4. Imagery integration (Phase 4), only when an expectation is supplied.
+    # 4. Imagery integration (Phase 4) + the placement record (Phase 5), only
+    #    when an expectation is supplied - i.e. on a consented stock / ai / both run.
     if expect_images is not None:
         count = len(re.findall(r"data:image/", html))
+        decisions = placement_decisions(html)
+        embedded = [d for d in decisions if d["status"] == "embedded"]
+        declined_without_reason = [
+            d for d in decisions if d["status"] == "none" and not d["reason"]
+        ]
         if count < expect_images:
             findings.append(
                 _finding("imagery-integration", "fail", "structural",
                          f"{count} embedded image(s), expected >= {expect_images}",
                          "high")
             )
+        elif not decisions:
+            # The page has assets but no placement record, so the placement pass
+            # either never ran or was not written down. Both mean nobody can tell
+            # whether a section was skipped deliberately or forgotten - which is
+            # the whole defect the record exists to close.
+            findings.append(
+                _finding("imagery-integration", "fail", "structural",
+                         f"{count} embedded image(s) but NO `IMAGERY PLACEMENTS` "
+                         "block in the design record: the placement pass left no "
+                         "decision trail", "high")
+            )
+        elif len(embedded) > count:
+            # Comparing against the total is deliberate: a page's `data:` images
+            # include source figures, so an embedded-placement count ABOVE the
+            # total is provably wrong while one below it is normal.
+            findings.append(
+                _finding("imagery-integration", "fail", "structural",
+                         f"the placement record claims {len(embedded)} embedded "
+                         f"asset(s) but the page contains only {count} `data:` "
+                         "image(s) in total - the record does not match the page",
+                         "high")
+            )
+        elif declined_without_reason:
+            findings.append(
+                _finding("imagery-integration", "fail", "structural",
+                         f"{len(declined_without_reason)} placement(s) declined with "
+                         "no reason: "
+                         + ", ".join(
+                             d["section"] or "(unnamed)"
+                             for d in declined_without_reason[:4]
+                         )
+                         + " - a decline is valid, an unexplained one is not",
+                         "medium")
+            )
         else:
             findings.append(
                 _finding("imagery-integration", "pass", "structural",
-                         f"{count} embedded image(s) (>= {expect_images})")
+                         f"{count} embedded image(s) (>= {expect_images}); "
+                         f"{len(decisions)} placement decision(s) recorded "
+                         f"({len(embedded)} embedded, "
+                         f"{len(decisions) - len(embedded)} declined with a reason)")
             )
     else:
         findings.append(
