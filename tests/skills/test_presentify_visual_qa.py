@@ -588,15 +588,15 @@ def test_svg_diagram_quality_reference_states_all_five_rules():
 _ENSURE_RENDER = _BUNDLE / "scripts" / "ensure_render_env.py"
 ensure_env = _load(_ENSURE_RENDER, "ensure_render_env")
 
-# Phase 3 tracks the calibration fixture as a STANDING gate rather than a
-# one-time manual check. Located by name so Phase 7 can move it (MT-1) without
-# breaking this test; skipped rather than failed when it is absent.
-_CALIBRATION = next(
-    (p for p in (_ROOT / "nexus-hub-unit-test-workflow.html",
-                 _ROOT / "tests" / "fixtures" / "presentify" / "nexus-hub-unit-test-workflow.html")
-     if p.is_file()),
-    None,
+# The calibration fixture is a STANDING gate rather than a one-time manual check.
+# Homed here by v3.16.5 Phase 7 (closing MT-1); the dual-candidate lookup that
+# carried it through the move is gone, since keeping it would leave a second
+# accepted location nobody maintains. Skipped rather than failed when absent, so a
+# checkout without it degrades instead of erroring.
+_CALIBRATION_PATH = (
+    _ROOT / "tests" / "fixtures" / "presentify" / "nexus-hub-unit-test-workflow.html"
 )
+_CALIBRATION = _CALIBRATION_PATH if _CALIBRATION_PATH.is_file() else None
 
 
 @pytest.mark.skipif(_CALIBRATION is None, reason="calibration fixture not present")

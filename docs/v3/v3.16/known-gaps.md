@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v3.16.3 `github-usage-monitor-ux` is RELEASED (all six phases; 8 closed, 8 carried, 0 release blockers). v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (all 5 phases complete; reconciled and release-ready, unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
-**Last updated**: 2026-08-11 (v3.16.5 Phase 6 append: cinematic scroll-scrub - protocol, offline engine, intake wiring, matrix closure; 12 open, 7 closed, 4 accepted-or-deferred, 0 release blockers)
+**Last updated**: 2026-08-11 (v3.16.5 Phase 7 TERMINAL reconciliation: MT-1 closed, all 16 items dispositioned, 0 release blockers - v3.16.5 is release-ready pending `/update release`)
 
 > **File-lifecycle note**: this ledger was created ahead of any v3.16 implementation, by a comparison that deliberately claimed no release slot, so it began with only the `## Comparison-Sourced Deferrals` section. Each v3.16 version-implementation phase **appends** its own `## v3.16.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` numbering, which is namespaced separately from the `CD-#` and `TR-#` ids used above.
 
@@ -846,14 +846,18 @@ It is deliberately **not** decided here. It affects four extensions, it is a que
 
 **Source plan**: [docs/v3/v3.16/plans/v3.16.5-presentify-visual-overhaul.md](plans/v3.16.5-presentify-visual-overhaul.md). Appended at Phase 1 (fluid layout + readability contract). Ids are namespaced to this version, per the file-lifecycle note at the top.
 
-### MT-1 - OPEN: the calibration fixture has no final home and no test guarding it
+### MT-1 - CLOSED in Phase 7: the calibration fixture is homed and guarded
 
 - **Target file**: `nexus-hub-unit-test-workflow.html` (repo root; tracked as of Phase 1)
 - **Source phase**: v3.16.5 Phase 1, sub-task 1.3
 - **Plan reference**: sub-task 1.3 explicitly defers the fixture's final location ("coordinate with the maintainer on its final location - Phase 7 may move it under a fixtures dir")
 - **Reason it is open**: Phase 1 brought the fixture to a clean scorer pass (0 high-severity findings across all nine criteria) and committed it at the repo root, so the fixes are no longer at risk of being lost. Two halves of the gap remain: the root is a holding position rather than its final location, and no test asserts that it still passes the scorer, so a future regression in either the fixture or the checker would go unnoticed.
 - **Suggested next step**: Phase 7 sub-task 7.1 homes the fixture with reference repair (a `tests/fixtures/presentify/` dir is the natural target, and `tests/skills/**` is already a CI path filter); at that point add a one-line regression test asserting `score_html(fixture)["page_pass"] is True`, which converts the calibration fixture from a manual artifact into a standing gate.
-- **One migration hazard to expect**: the fixture also exists as an untracked working-tree file in the primary checkout, where it was authored. When this branch merges to `develop`, that checkout will refuse to update the path until the local untracked copy is moved or removed. Expect the message, do not treat it as a merge conflict.
+- **One migration hazard to expect**: the fixture also exists as an untracked working-tree file at the ROOT of the primary checkout, where it was authored. When this branch merges to `develop`, git will place the tracked copy at `tests/fixtures/presentify/` and the stray root copy will simply remain untracked - delete it after the merge. It is not a conflict, and nothing reads it any more.
+- **CLOSED 2026-08-11 by v3.16.5 Phase 7** (sub-task 7.1, home decided with the maintainer). The fixture now lives at `tests/fixtures/presentify/nexus-hub-unit-test-workflow.html`, moved with `git mv` so history follows it, and both halves of the gap are shut:
+    - **Location**: inside a tree CI already path-filters, rather than an 84 KB HTML file at the repository root that read like stray build output. The two live references were repaired (the CI scoring step) or simplified (the dual-candidate lookup in the test, which existed only to survive this move and would otherwise have left a second accepted location nobody maintains).
+    - **Guarding**: three standing tests plus a CI step. `test_calibration_fixture_passes_every_structural_criterion` fails on any high-severity regression, `test_calibration_fixture_has_no_stale_palette_literals` pins the superseded pre-v3.16.5 palette out of live markup, `test_calibration_fixture_holds_the_e5_rules` covers the render-surfaced defect classes, and the seven-case mutation suite proves the checks still detect what they claim. The `render` job also scores it directly.
+    - **One gap the move itself introduced, and closed**: the workflow path-filtered `tests/skills/**` but not `tests/fixtures/**`, so a fixture-only edit would no longer have triggered the job that scores it - the standing gate would have silently stopped gating the exact file it guards. `tests/fixtures/presentify/**` was added to both filter lists.
 
 ### NI-2 - OPEN by design: contract rules 2 and 3 have no deterministic check
 
@@ -991,13 +995,45 @@ It is deliberately **not** decided here. It affects four extensions, it is a que
 - **What was wrong**: the check treated `"data:image" in html` as evidence of a figure, so it demanded the Phase 2 caps (`max-height: 80vh`, `object-fit: contain`) on any page containing an embedded image anywhere - including inside an inline `<script>` config. A cinematic page keeps its stills in that config and builds its layers at runtime, so the static file has no `<img>` at all and there is no figure box to cap. Every cinematic build failed for a missing cap on a figure it did not have.
 - **Resolution**: the caps now require a real figure box - a `<figure>`, or an `<img>` with a `data:` URI that is not a cinematic stage layer. A page with embedded image data but no figure box is graded n/a with that reason stated. A stage layer is separately exempt on its merits: it is a decorative `aria-hidden` full-bleed backdrop, and `object-fit: cover` is CORRECT for it, since `contain` would letterbox the stage and defeat the level.
 
-### v3.16.5 Phase 1-6 summary
+### v3.16.5 Phase 7 - TERMINAL reconciliation (2026-08-11)
+
+Every v3.16.5 item, with a verdict. Nothing is left implicit, and nothing gates the release.
+
+**Closed this phase (1)**
+
+- **MT-1** - the calibration fixture is homed at `tests/fixtures/presentify/` and guarded by three standing tests plus a CI scoring step. See above.
+
+**Closed in earlier phases (7)** - recorded here so a reader does not have to reconstruct the set: DF-1 (parser media-scope, accepted and documented), BG-1 (five sub-AA runtime accents), BG-2 (three rendered font-floor violations plus the mobile overflow regression), BG-E1 (the ten render-session errata, nothing deferred), BG-3 (`image-sizing` firing on any embedded data URI, which would have failed every cinematic build), DF-4 (the plan's own naming contradiction, resolved in favour of the Attribution Rule), and - in `docs/v3/v3.15/known-gaps.md` - **v3.15 MT-1** (the headless render now runs in CI) and **v3.15 MT-2** (the placement record makes a skip distinguishable from a miss). Both v3.15 closure notes were verified present and appended rather than rewritten.
+
+**Carried, by design, with a stated reason and next step (7)**
+
+| Item | Why it stays open | Where it is actually answered |
+|---|---|---|
+| **NI-2** | Typography rule 2 (prose stranded beside dead space) is a rendered-geometry judgment: it depends on resolved track widths and the real `ch` width of the chosen font. Rule 3's half was superseded by errata E1 and is now partially enforced (a malformed step token IS caught, since the scorer resolves `var()`). | The Phase 3 render loop grades rule 2 from screenshots. Do not build a geometry parser. |
+| **NI-3** | SVG rules 2 (dash/label collision) and 3 (connectors on node edges) need glyph metrics and a declared join intent the markup does not carry. Verified numerically per-diagram instead. | Phase 3's screenshots catch a label sitting on a line immediately; rule 3 stays an authoring discipline enforced by the rule-5 self-check. |
+| **NI-4** | The intake questions are agent behavior. No test can assert a proposed colour scheme is *relevant* to a document, only that the instruction to make it relevant exists. | The deterministic half IS tested (option agreement across both surfaces, aliases, pipeline order, skips, the diagram, and `--scheme-hint` behavior); the visual half is graded by the render loop. |
+| **NI-5** | Placement relevance is a screenshot judgment - a `data:` URI is opaque bytes. | The render loop has vision at exactly the moment the judgment is needed. Do NOT build image analysis into a stdlib-only offline scorer. |
+| **WN-1** | A semantic status colour's applicable WCAG floor depends on its rendered size (3:1 for large or bordered badge text, 4.5:1 for body), which a parser cannot know. Grading them all at 4.5:1 would produce false failures that teach authors to bypass the gate. | Rubric criterion 7's agent-vision half, where rendered size is observable. |
+| **WN-3** | A fractional `em` resolves against the inherited size and cannot be computed from declarations alone. | Closed in practice by the contract's `max(<relative>, <floor>)` recommendation - a construction the checker CAN verify now that `min()`/`max()` resolution exists - plus the render loop. |
+| **WN-4** | The `contrast` check certifies text against a DECLARED background; a background-role image with a scrim composites per-pixel, so the check's premise holds only while the scrim dominates (~82%). The threshold is a judgment about acceptable show-through, not a boundary with a right answer. | Rubric criterion 4's agent-vision half. If a page ever needs a lighter scrim, the contract's answer is to move the text off the image, not to lower the threshold. |
+
+**Accepted or deferred with a decision (2)**
+
+- **DF-2** - `--images none` changed meaning (it used to mean "no visuals at all"). Accepted: the alternative was a fifth `bare` option preserving a mode R8 deliberately removed. Disclosed in both surfaces with the words "no longer exists", and a test asserts that disclosure so a later edit cannot quietly drop it.
+- **DF-3** - the local knockout helper is NOT adopted, because no call site exists. The AGENTS.md scope-fit gate declines a module justified only by a hypothetical extension; Pillow already being available was never the obstacle. Adopt it the cycle a cinematic scene genuinely needs floating subjects, which is when a test can assert something real.
+
+**Pattern worth carrying forward.** Six of the seven carried items are the same shape: a static parser reaching the edge of what markup can tell it, with the answer sitting in the render loop rather than in more parsing. That is not a backlog - it is the correct division of labour, and the phase that made it correct was Phase 3. The one lesson to keep is the asymmetry BG-2 exposed: a false PASS is far more expensive than a false FAIL. Sixteen false failures were loud and fixed within the hour; one false pass (a band fraction inflated across its own threshold) sat inside a green run for two phases and would have shipped.
+
+**Release-blocker check: NONE.** No open item blocks v3.16.5.
+
+### v3.16.5 Phase 1-7 summary
 
 | Category | Open | Resolved |
 |---|---|---|
 | v3.16.5 Phase 1 gaps | 3 (MT-1 fixture unhomed and unguarded; NI-2 typography rules 2-3 by design; WN-1 status-color exclusion) | 1 accepted-and-documented (DF-1 parser scope) |
 | v3.16.5 Phase 2 gaps | 2 (WN-2 runtime-injected palette invisible to the scorer; NI-3 SVG rules 2-3 by design) | 1 closed (BG-1 sub-AA runtime accents) |
 | v3.16.5 errata pass (E1-E10) | 0 | 1 closed (BG-E1: all ten items executed; 14 sub-floor classes, the gutter, the `code` em-size and an unwired marker fixed in the fixture; the viewport-fit check widened where the fixture was right; nothing deferred) |
+| v3.16.5 Phase 7 gaps (TERMINAL reconciliation) | 0 new; 7 carried by design with a stated reason and next step (NI-2, NI-3, NI-4, NI-5, WN-1, WN-3, WN-4) and 2 accepted-or-deferred with a decision (DF-2, DF-3) | 1 closed (MT-1: fixture homed at `tests/fixtures/presentify/` and guarded by 3 tests + a CI step) |
 | v3.16.5 Phase 6 gaps | 2 (DF-3 knockout helper deferred, no call site; DF-4 the plan's own naming contradiction, corrected) | 1 closed (BG-3 `image-sizing` fired on any embedded data URI, breaking every cinematic build) |
 | v3.16.5 Phase 5 gaps | 2 (NI-5 placement relevance is a screenshot judgment, by design; WN-4 the scrim-opacity floor below which no static contrast check holds) | 1 closed (**v3.15 MT-2**: the placement record makes a skip distinguishable from a miss) |
 | v3.16.5 Phase 4 gaps | 2 (NI-4 intake questions are agent behavior, by design; DF-2 the `none` semantic change, accepted and disclosed) | 0 |

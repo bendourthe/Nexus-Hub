@@ -15,6 +15,7 @@ on:
     paths:
       - 'catalog/skills/specialized-domains/document-to-interactive-html/**'
       - 'tests/skills/**'
+      - 'tests/fixtures/presentify/**'
       - 'docs/v3/v3.12/development/fixtures/gen_fixtures.py'
       - 'docs/v3/v3.12/development/fixtures/verify_phase1.py'
       - 'docs/v3/v3.12/development/fixtures/enrich_models.py'
@@ -31,6 +32,7 @@ on:
     paths:
       - 'catalog/skills/specialized-domains/document-to-interactive-html/**'
       - 'tests/skills/**'
+      - 'tests/fixtures/presentify/**'
       - 'docs/v3/v3.12/development/fixtures/gen_fixtures.py'
       - 'docs/v3/v3.12/development/fixtures/verify_phase1.py'
       - 'docs/v3/v3.12/development/fixtures/enrich_models.py'
@@ -166,4 +168,4 @@ jobs:
       - name: Score the calibration fixture (all structural criteria)
         # The full-width band, image caps, overlay integrity, the four typography
         # checks, and the three SVG checks, against the standing fixture.
-        run: python catalog/skills/specialized-domains/document-to-interactive-html/scripts/visual_qa_score.py nexus-hub-unit-test-workflow.html
+        run: python catalog/skills/specialized-domains/document-to-interactive-html/scripts/visual_qa_score.py tests/fixtures/presentify/nexus-hub-unit-test-workflow.html

@@ -1,5 +1,36 @@
 # Development Log
 
+## [2026-08-11] - v3.16.5 Phase 7: terminal refactor, reconciliation, and CI/CD
+
+### What Changed
+
+The plan's terminal gate. The calibration fixture is homed at `tests/fixtures/presentify/`, closing MT-1 - the one item every phase since Phase 1 deferred. All sixteen v3.16.5 gap items are dispositioned, the R12 platform-distribution requirement is verified, and CI/CD is confirmed complete and optimized. **No tag, no push, no version bump**: those belong to `/update release`.
+
+### Why It Changed
+
+A terminal phase exists so the next plan starts from a true picture rather than an assumed one. Six phases plus an errata pass had accumulated a fixture with no home, sixteen gap items in various states, and a set of CI changes that needed checking as a whole rather than one phase at a time.
+
+### Decisions Made
+
+- **The fixture went to `tests/fixtures/presentify/`** (maintainer decision). The test already accepted that path - pre-wired in Phase 3 precisely so this move would not need a test change - it sits in a tree CI path-filters, and it stops an 84 KB HTML file sitting at the repository root reading like stray build output. Moved with `git mv` so history follows.
+- **The dual-candidate lookup was REMOVED, not kept.** It existed only to survive the move. Keeping it would leave a second accepted location that nobody maintains and that would silently mask a future misplacement.
+- **The move introduced a CI gap, and the same pass closed it.** The workflow path-filtered `tests/skills/**` but not `tests/fixtures/**`, so a fixture-only edit would no longer trigger the job that scores it - the standing gate would have stopped gating the exact file it guards, silently. Worth recording because the move looked complete after the two obvious reference repairs; the third reference was a trigger condition, not a path.
+- **Seven items are carried by design, and that is the correct outcome rather than a backlog.** Six of the seven are the same shape: a static parser at the edge of what markup can tell it, with the answer sitting in the render loop. Building parsers for them would add complexity to buy nothing, and the phase that made that division of labour correct was Phase 3.
+- **MT-1 closes on both halves or not at all.** Location was the visible half; the guarding half is what makes it a gate - three standing tests plus a CI scoring step, so the fixture now fails a regression in either direction (the page OR the checker).
+- **The advisory model-prompting staleness check reported UNKNOWN** (no live roster passed) and was left at that. The 9.0 gate specifies it as advisory-only: it never blocks a phase and never re-stamps a freshness marker. The recorded roster was last verified 2026-07-27, fifteen days old, which is not a release concern.
+
+### Verification
+
+634 passed / 0 skipped in `tests/skills/`; 33 passed in the installer smoke suite. `ruff check --ignore RUF100` clean. Fifteen `make validate` guards pass individually, including `sync_platform_defaults --check`, the base-template parity guard, and the trigger-eval gate. R12 confirmed: all 13 distributed artifacts sit in auto-copied trees and **zero** repo-level `scripts/` files were added, so no installer edit is owed. CI/CD audited as complete and optimized: path filters on both trigger lists, `concurrency` with cancel-in-progress, pip caching in both jobs, a browser-download cache keyed on the resolved Playwright version, per-job timeouts, least-privilege `permissions`, the render job gated to merges plus a weekly cron, and the fast job opting out of the cron so it is not double-billed.
+
+### Known Issues
+
+Zero release blockers. MT-1 closed here; eight items closed across earlier phases (including v3.15's MT-1 and MT-2, both closed by appended notes rather than rewrites). Seven carried by design with a stated reason and a named place where each is actually answered (NI-2, NI-3, NI-4, NI-5, WN-1, WN-3, WN-4); two accepted-or-deferred with a decision (DF-2 the `none` semantic change, DF-3 the knockout helper with no call site).
+
+The one lesson worth carrying out of this cycle is the asymmetry BG-2 exposed: **a false PASS costs far more than a false FAIL.** Sixteen false failures were loud and fixed within the hour; one false pass - a band fraction the checker inflated across its own 0.95 threshold - sat inside a green run for two phases and would have shipped.
+
+**v3.16.5 is release-ready.** The version bump, changelog finalization, tag, merge, and push are handed to `/update release`; this phase performed none of them.
+
 ## [2026-08-11] - v3.16.5 Phase 6: cinematic scroll-scrub
 
 ### What Changed
