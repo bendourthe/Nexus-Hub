@@ -21,6 +21,7 @@ import {
 } from "./providers/liveAccess";
 import { CursorLiveUsageTransport } from "./providers/liveTransport";
 import { CursorSessionAdapter } from "./providers/session";
+import { registerUpdateWatcher } from "./updateWatcher";
 
 export {
   COMMAND_IDS,
@@ -38,6 +39,9 @@ let activeRuntime: CursorUsageRuntime | undefined;
  * default reads nothing without an explicit answer from the user.
  */
 export function activate(context: vscode.ExtensionContext): void {
+  // Registered first: an install that lands underneath this window leaves THIS code
+  // stale, so it is the only code able to say so.
+  registerUpdateWatcher(context, "Cursor Usage Monitor");
   activeRuntime?.dispose();
 
   const secrets = new CursorCredentialStore(context.secrets);

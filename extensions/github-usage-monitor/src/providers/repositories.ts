@@ -67,9 +67,19 @@ export class RepositoryVisibilityCache {
       const slug = name.includes("/") ? name : `${options.owner}/${name}`;
       const result = await this.fetchJson(`/repos/${slug}`, options.token, options.signal);
       if (!result.ok) {
-        // Not cached: a 404 here is often a transient permission condition (a token
-        // without repository read access), and caching it would make one bad refresh
-        // permanent for the session.
+        // A 404 identifies a PRIVATE repository, and this is the whole reason the
+        // extension needs no `repo` scope. This endpoint answers for any public
+        // repository without special permission; it returns 404 - not 403 - for a
+        // private one the credential cannot see. Every repository appearing in this
+        // owner's billing belongs to this owner, so "billed to me but invisible to
+        // an unprivileged read" means private.
+        //
+        // A deleted or renamed repository also 404s and would be counted as private,
+        // which slightly OVERSTATES the drawdown. That is the safe direction for a
+        // usage monitor: warning early beats missing a limit. Any other status is
+        // left unresolved rather than guessed, and an unresolved repository still
+        // withholds the percentage entirely.
+        if (result.status === 404) this.cache.set(name, "private");
         continue;
       }
       const record = result.value as { private?: unknown } | null;
@@ -96,6 +106,89 @@ export async function fetchAccountPlanName(
   if (!result.ok) return null;
   const record = result.value as { plan?: { name?: unknown } } | null;
   return typeof record?.plan?.name === "string" ? record.plan.name : null;
+}
+
+/**
+ * The endpoint whose `plan.name` describes the OWNER being billed.
+ *
+ * `GET /user` describes the signed-in person, which is the wrong subject whenever
+ * the billing owner is an organization. Observed 2026-08-11 against SupiraMedical:
+ * the panel reported the organization's usage while the denominator was being
+ * sought from a personal GitHub Free plan. It failed visibly rather than silently
+ * only by accident - `GET /user` omits the `plan` object entirely unless the token
+ * carries the `user` scope, and binding for organization billing swaps `user` for
+ * `repo`. So the plan vanished, every denominator went unknown, and the panel said
+ * "No allowance is known" for two metrics whose figures the plan table already had.
+ *
+ * Both failures have the same fix: ask about the owner, not about the reader.
+ */
+export function planPathFor(owner: { scope: string; name: string }): string | null {
+  if (owner.scope === "user") return "/user";
+  if (owner.scope === "organization") return `/orgs/${encodeURIComponent(owner.name)}`;
+  // No enterprise endpoint serves a plan name. Null rather than a guess: an
+  // unrecognized plan yields no denominator, which is the honest outcome.
+  return null;
+}
+
+/**
+ * `plan.name` for the owner actually being billed.
+ *
+ * `GET /orgs/{org}` returns its `plan` object only to an organization owner, and
+ * returns the organization's own plan (`team`, `enterprise`, `free`) rather than the
+ * caller's. A member who cannot see it gets null, which reads through to "no
+ * allowance established" - correct, because that member genuinely cannot verify one.
+ */
+export async function fetchOwnerPlanName(
+  fetchJson: JsonFetch,
+  token: string,
+  owner: { scope: string; name: string },
+  signal?: AbortSignal
+): Promise<string | null> {
+  const path = planPathFor(owner);
+  if (path === null) return null;
+  const result = await fetchJson(path, token, signal);
+  if (!result.ok) return null;
+  const record = result.value as { plan?: { name?: unknown } } | null;
+  return typeof record?.plan?.name === "string" ? record.plan.name : null;
+}
+
+/** What the organization's Copilot subscription says about seats and plan. */
+export interface CopilotSubscription {
+  planType: "business" | "enterprise";
+  /** Assigned Copilot licenses, which is what the credit pool is multiplied by. */
+  seats: number;
+}
+
+/**
+ * Reads the organization's Copilot subscription from `GET /orgs/{org}/copilot/billing`.
+ *
+ * `seat_breakdown.total` is the assigned-licence count, which is the multiplier
+ * GitHub bills against. Deliberately NOT the Team subscription's seat count: the
+ * organization measured on 2026-08-11 had 9 Team licences but 7 billable Copilot
+ * licences, and only 7 reproduces the 21,000 credits its own billing page shows.
+ *
+ * Null on every failure - no Copilot subscription (404), a caller who is not an
+ * organization owner (403), an unrecognized plan type, or a missing seat count.
+ * A composed denominator with a guessed term is worse than no denominator.
+ */
+export async function fetchCopilotSubscription(
+  fetchJson: JsonFetch,
+  token: string,
+  owner: { scope: string; name: string },
+  signal?: AbortSignal
+): Promise<CopilotSubscription | null> {
+  if (owner.scope !== "organization") return null;
+  const result = await fetchJson(`/orgs/${encodeURIComponent(owner.name)}/copilot/billing`, token, signal);
+  if (!result.ok) return null;
+  const record = (typeof result.value === "object" && result.value !== null ? result.value : {}) as {
+    plan_type?: unknown;
+    seat_breakdown?: { total?: unknown } | null;
+  };
+  const planType = typeof record.plan_type === "string" ? record.plan_type.trim().toLowerCase() : "";
+  if (planType !== "business" && planType !== "enterprise") return null;
+  const seats = record.seat_breakdown?.total;
+  if (typeof seats !== "number" || !Number.isInteger(seats) || seats <= 0) return null;
+  return { planType, seats };
 }
 
 /**

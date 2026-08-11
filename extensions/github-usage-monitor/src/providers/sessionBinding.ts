@@ -23,6 +23,14 @@ export interface GetSessionOptions {
   createIfNone?: boolean;
   silent?: boolean;
   clearSessionPreference?: boolean;
+  /**
+   * The account to get a session FOR.
+   *
+   * Without it a scope list is all that identifies the request, and a scope list is a
+   * permission grant rather than an identity - so an editor with two GitHub accounts
+   * signed in answers with either one. See the pinning comment in `extension.ts`.
+   */
+  account?: { readonly id: string; readonly label: string };
 }
 
 /**

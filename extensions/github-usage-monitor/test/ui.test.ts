@@ -18,15 +18,18 @@ function snapshot(): UsageSnapshot {
 
 describe("status bar and hover", () => {
   it("uses the generated glyph, stable ordering, compact mode, and stale signal", () => {
-    expect(buildStatusText(snapshot(), false, false)).toBe("$(github-icon)\u2002GitHub Usage: 80%");
-    expect(buildStatusText(snapshot(), true, true)).toBe("$(github-icon)\u200280% $(warning)");
+    expect(buildStatusText(snapshot(), false, false)).toBe("$(github-icon)\u2002GitHub Usage: 80% (actions minutes)");
+    // Compact drops the "GitHub Usage: " label but keeps the metric name: the point
+    // of compact is to save width, not to make the number ambiguous between three
+    // metrics that can each occupy this slot.
+    expect(buildStatusText(snapshot(), true, true)).toBe("$(github-icon)\u200280% (actions minutes) $(warning)");
     expect(buildStatusText(undefined, false, false)).toContain("--");
   });
   it("renders all sections, purple bars, costs, owner, source, freshness, and absolute unknown limits", () => {
     const hover = buildHoverMarkdown({ state: "fresh", data: snapshot() }, now).value;
     expect(hover).toContain("Copilot"); expect(hover).toContain("Actions minutes"); expect(hover).toContain("Actions storage");
-    expect(hover).toContain(GITHUB_BAR_FILL); expect(hover).toContain("Allowance not established"); expect(hover).not.toContain("gigabyte-hours (%)");
-    expect(hover).toContain("fixture-&lt;org&gt;"); expect(hover).toContain("Source: api - Fresh"); expect(hover).toContain("net $3.00");
+    expect(decodeURIComponent(hover)).toContain(GITHUB_BAR_FILL); expect(hover).toContain("Allowance not established"); expect(hover).not.toContain("gigabyte-hours (%)");
+    expect(hover).toContain("fixture-&lt;org&gt;"); expect(hover).toContain("Source: api - Fresh"); 
   });
   it("renders empty and stale-error states honestly", () => {
     expect(buildHoverMarkdown({ state: "empty", error: { code: "missing-token", message: "Set <token>" } }).value).toContain("Set &lt;token&gt;");
@@ -45,7 +48,7 @@ describe("dashboard and settings", () => {
   it("uses semantic meters, theme tokens, escaped detail, and the absolute treatment", () => {
     const html = renderDashboard({ state: "fresh", data: snapshot() }, now);
     expect(html).toContain('role="meter"'); expect(html).toContain(GITHUB_BAR_FILL); expect(html).toContain("var(--vscode-editor-background)");
-    expect(html).toContain("Actions &lt;runner&gt;"); expect(html).not.toContain("fixture-<org>"); expect(html).toContain("Absolute usage; no percentage available");
+    expect(html).toContain("linux &amp; standard"); expect(html).not.toContain("fixture-<org>"); expect(html).toContain("Absolute usage; no percentage available");
     expect(html).toContain("default-src 'none'"); expect(html).toContain("focus-visible"); expect(html).toContain("prefers-reduced-motion");
   });
 
@@ -67,15 +70,19 @@ describe("dashboard and settings", () => {
     expect(html).toContain("Open GitHub Billing Page");
   });
 
-  it("embeds the settings section hidden, with every relocated command inside it", () => {
+  it("embeds the settings section hidden, with the controls the panel still offers", () => {
     const html = renderDashboard({ state: "fresh", data: snapshot() }, now);
     expect(html).toContain('<section id="settings-section" hidden');
-    // Nothing was removed from the row - it was relocated. Each of these was a
-    // button in the six-control row this phase replaced.
-    for (const command of ["logIn", "logOut", "setToken", "rotateToken", "validateToken", "clearToken", "diagnoseAuth", "manualEntry", "openNativeSettings", "clearData"]) {
+    // v3.16.4 cut the Account group down to a name plus Connect and Log out, and
+    // removed the allowance override (allowances are derived now). The token,
+    // diagnose, and native-settings commands stay REGISTERED and reachable from the
+    // Command Palette; they simply no longer occupy space in the panel.
+    for (const command of ["logIn", "logOut"]) {
       expect(html).toContain(`data-command="${command}"`);
     }
-    expect(html).toContain("Danger zone");
+    // Refresh, Allowance, and Danger zone were removed from the panel in v3.16.4.
+    // Their settings keep working and Clear Data stays in the Command Palette.
+    expect(html).not.toContain("Danger zone");
   });
 
   it("runs the settings script under the dashboard's single nonce, not a second block", () => {
@@ -93,9 +100,9 @@ describe("dashboard and settings", () => {
     const html = renderDashboard({ state: "fresh", data: snapshot() }, now);
     expect(html).toContain("rgba(128,128,128,0.2)");
     expect(html).toContain(`background:${GITHUB_BAR_FILL};border-radius:4px`);
-    expect(html).toContain('<span class="meter-label">80%</span>');
+    expect(html).toContain('<span class="bar-pct">80%</span>');
     // The width transition must not animate for a user who asked for reduced motion.
-    expect(html).toContain("prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}.meter span{transition:none}");
+    expect(html).toContain("prefers-reduced-motion:reduce){.bar-fill{transition:none}}");
   });
 
   it("keeps the accessible meter attributes through the restyle", () => {
@@ -113,7 +120,7 @@ describe("dashboard and settings", () => {
   });
   it("renders actionable empty and stale states", () => {
     expect(renderDashboard({ state: "empty", error: { code: "invalid-token", message: "invalid" } })).toContain("No billing data available");
-    expect(renderDashboard({ state: "stale", data: snapshot(), error: { code: "network-error", message: "offline" } })).toContain("Last-known-good data");
+    expect(renderDashboard({ state: "stale", data: snapshot(), error: { code: "network-error", message: "offline" } })).toContain("Showing last-known-good data");
   });
   it("validates ordered thresholds and never renders a token field", () => {
     expect(validateThresholds({ moderate: 50, high: 75, critical: 95 })).toBeNull();
@@ -121,9 +128,66 @@ describe("dashboard and settings", () => {
     expect(validateThresholds({ moderate: 0, high: 75, critical: 95 })).toContain("1 to 100");
     const values: SettingsValues = { billingScope: "organization", billingOwner: "fixture-<org>", copilotMetric: "ai-credits", copilotAllowance: null, actionsMinutesAllowance: 1000, actionsStorageAllowance: null, refreshInterval: 10, compactStatusBar: false, alertMetric: "highest", moderate: 50, high: 75, critical: 95, notificationTimeoutSeconds: 12, moderateColor: "#cca700", highColor: "#f0643c", criticalColor: "#e05555" };
     const html = settingsSectionHtml(values);
-    expect(html).toContain("SecretStorage"); expect(html).toContain("fixture-&lt;org&gt;"); expect(html).not.toContain('type="password"');
-    expect(html).toContain("Set token"); expect(html).toContain("Edit in VS Code settings");
+    // The owner name no longer appears here: the Account group moved out of Settings
+    // to the panel header on 2026-08-11, so that "who am I" and "change who I am"
+    // are one control rather than two places. Escaping is still asserted, on the
+    // header that now renders it.
+    expect(html).not.toContain("fixture-&lt;org&gt;"); expect(html).not.toContain('type="password"');
+    expect(renderDashboard({ state: "fresh", data: snapshot() }, now, { binding: { accountLabel: "octo<cat>", scopes: [], fingerprint: "f" }, capability: { status: "unknown" }, hasStoredToken: false })).toContain("octo&lt;cat&gt;");
+    // The token and native-settings buttons were removed from the panel in v3.16.4;
+    // their commands remain registered and reachable from the Command Palette.
+    expect(html).not.toContain("Set token");
   });
+  it("puts every account control in the header, and none in Settings", () => {
+    // Moved 2026-08-11. "Who am I" and "change who I am" answer the same question,
+    // and splitting them across a header and a collapsed pane meant the control was
+    // hidden behind a gear while the answer was not.
+    const auth = { binding: { accountLabel: "benjamin-dourthe", scopes: [], fingerprint: "f" }, capability: { status: "unknown" as const }, hasStoredToken: false };
+    const html = renderDashboard({ state: "fresh", data: snapshot() }, now, auth);
+
+    // Both identities named, each with its own label - not "name (scope)".
+    expect(html).toContain("benjamin-dourthe");
+    expect(html).toContain("Organization");
+    expect(html).toContain("fixture-&lt;org&gt;");
+    // Switch and Log out live in the header.
+    expect(html).toContain('class="acct-btn" data-command="logIn"');
+    expect(html).toContain('class="acct-btn" data-command="logOut"');
+    // And the word the REST API uses is gone from the panel chrome.
+    expect(html).not.toContain("Owner:");
+  });
+
+  it("offers Log in, not Switch, when nothing is bound", () => {
+    const html = renderDashboard({ state: "empty" }, now);
+
+    expect(html).toContain('data-command="logIn"');
+    expect(html).not.toContain('data-command="logOut"');
+  });
+
+  it("names the user and the organization separately in the hover", () => {
+    // "Owner: SupiraMedical (organization)" reads as "the person who owns this",
+    // which is the wrong idea when the signed-in user and the billed organization
+    // are different identities - the normal case for a work account.
+    const hover = buildHoverMarkdown({ state: "fresh", data: snapshot() }, now, "benjamin-dourthe").value;
+
+    expect(hover).toContain("User: benjamin-dourthe");
+    expect(hover).toContain("Organization: fixture-&lt;org&gt;");
+    expect(hover).not.toContain("Owner:");
+  });
+
+  it("omits the user line when no account label is known", () => {
+    const hover = buildHoverMarkdown({ state: "fresh", data: snapshot() }, now).value;
+
+    expect(hover).not.toContain("User:");
+    expect(hover).toContain("Organization: fixture-&lt;org&gt;");
+  });
+
+  it("calls a personal billing owner personal, not 'user'", () => {
+    const personal: UsageSnapshot = { ...snapshot(), owner: { scope: "user", name: "benjamin-dourthe" } };
+    const hover = buildHoverMarkdown({ state: "fresh", data: personal }, now, "benjamin-dourthe").value;
+
+    expect(hover).toContain("Personal account: benjamin-dourthe");
+  });
+
   it("creates exactly ONE webview and reuses it", () => {
     // The second panel is gone. v3.16.3 Phase 4 folded settings into this document,
     // so any additional createWebviewPanel call is a regression.

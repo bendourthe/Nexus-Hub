@@ -144,7 +144,7 @@ function Get-SanitizedBranchName {
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:NexusHubVersion = "3.16.3"
+$script:NexusHubVersion = "3.16.4"
 
 $Host.UI.RawUI.WindowTitle = "Nexus-Hub Installer"
 $script:InstallerTitle = "Nexus-Hub Installer"
@@ -2419,8 +2419,13 @@ function Install-VSCodeExtensions {
     # second extension and leave the previously installed one orphaned, with both
     # writing a status-bar item. The directory path also stays
     # extensions\github-usage-monitor.
+    # Dual-host, unlike the Claude and Codex monitors. GitHub billing is not tied to
+    # the editor a developer happens to use, and a Cursor user has the same Actions
+    # minutes and Copilot credits to watch. Requested 2026-08-11; this deliberately
+    # reverses the v3.15.9 Phase 6 blanket rule FOR THIS MONITOR ONLY. The Cursor
+    # argument is $null when Cursor is not installed, so nothing happens.
     Write-Header -Provider "GITHUB"
-    Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\github-usage-monitor") -ExtensionId "nexus-hub.github-usage-monitor" -DisplayName "GitHub Usage Monitor" -StatusHint "GitHub Usage: --" -CodeCli $vscodeCli -CodeLabel $vscodeLabel
+    Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\github-usage-monitor") -ExtensionId "nexus-hub.github-usage-monitor" -DisplayName "GitHub Usage Monitor" -StatusHint "GitHub Usage: --" -CodeCli $vscodeCli -CodeLabel $vscodeLabel -AlsoCodeCli $cursorCli -AlsoCodeLabel $cursorLabel
 
     Write-Header -Provider "ANYSPHERE"
     Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\cursor-usage-monitor") -ExtensionId "nexus-hub.cursor-usage-monitor" -DisplayName "Cursor Usage Monitor" -StatusHint "Cursor: --%" -CodeCli $cursorCli -CodeLabel $cursorLabel
@@ -2432,7 +2437,10 @@ function Install-VSCodeExtensions {
 # Build, package, and install one VS Code usage-monitor extension. Shared by
 # Install-VSCodeExtensions so every monitor installs identically.
 function Build-And-Install-One-Extension {
-    param ($ExtensionDir, $ExtensionId, $DisplayName, $StatusHint, $CodeCli, $CodeLabel)
+    # $AlsoCodeCli is an optional SECOND host. One VSIX, installed into two editors:
+    # Cursor is a separate application with its own extension directory, so an
+    # extension installed into VS Code is simply absent there.
+    param ($ExtensionDir, $ExtensionId, $DisplayName, $StatusHint, $CodeCli, $CodeLabel, $AlsoCodeCli, $AlsoCodeLabel)
 
     Write-Host ""
     Write-Host "  > $DisplayName" -ForegroundColor DarkYellow
@@ -2531,6 +2539,23 @@ function Build-And-Install-One-Extension {
         Write-Item -Message "$CodeLabel CLI not found in PATH or standard install locations." -Color "Yellow"
         Write-Item -Message "VSIX saved at: $($vsixFile.FullName)" -Color "White"
         Write-Item -Message "Install manually via ${CodeLabel}: Extensions > ... > Install from VSIX" -Color "Gray"
+    }
+
+    # The second host, when one was requested AND detected. Silent when Cursor is
+    # not installed: a missing optional editor is not a failure to report.
+    if ($AlsoCodeCli) {
+        & $AlsoCodeCli --uninstall-extension $ExtensionId 2>$null | Out-Null
+        Restore-Title
+        & $AlsoCodeCli --install-extension $vsixFile.FullName --force 2>$null | Out-Null
+        Restore-Title
+        if ($LASTEXITCODE -eq 0) {
+            Write-Item -Message "OK: $DisplayName extension installed in $AlsoCodeLabel!" -Color "DarkGreen"
+            Write-Item -Message "  Restart $AlsoCodeLabel to activate. Look for '$StatusHint' in the status bar." -Color "White"
+        }
+        else {
+            Write-Item -Message "$AlsoCodeLabel install failed. You can install manually:" -Color "Yellow"
+            Write-Item -Message "  `"$AlsoCodeCli`" --install-extension `"$($vsixFile.FullName)`"" -Color "White"
+        }
     }
 }
 

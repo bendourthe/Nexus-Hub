@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.16.3 -->
+<!-- nexus-hub-version: 3.16.4 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 271 skills, 17 commands, 31 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -36,6 +36,20 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v3.16.4
+
+**The GitHub Usage Monitor was reporting the wrong account's billing, and sometimes none at all.** The cause was one line: `getSession("github", ["user"], ...)`. A scope list identifies a *permission grant*, not an *identity*, so an editor with two GitHub accounts signed in answered with either one, and not stably. The panel alternated between a correct reading and a 404 for the *same* configured owner, because `/users/<login>/settings/billing/...` succeeds with that user's token and 404s with another's. Every session request is now **pinned to the account you chose** - except when you are explicitly switching, which is the one call that must not be pinned.
+
+**That single non-determinism was the source of a lot of weather.** A reconciler that rewrote the billing owner toward whichever account answered; a notification loop; the wrong account after a reload; an "insufficient-role" warning that came and went. Five fixes went in downstream of it and none could hold, because the input was the cause rather than a trigger. Three structural changes now make the class impossible rather than unlikely: owner corrections are classified by whether their result can re-trigger another rule (the one that can is **offered**, never applied unattended), reconciliation moved out of the refresh loop to activation and sign-in, and the two settings that form the owner pair are written behind a guard so no observer can judge a half-written pair.
+
+**A sixth participant was in another window.** VS Code loads extension code at activation and never swaps it, so installing a build and reloading one window leaves every other window running its old code - and because global configuration writes reach *every* window while `globalState` does not, a stale window keeps writing while a fresh one reacts. All four usage monitors now **prompt for a restart** when a build lands underneath them, and the GitHub monitor **defers** - stops writing, keeps displaying - when it detects it is the stale one.
+
+**Copilot AI credits finally have a denominator.** No GitHub endpoint serves an entitlement, but the pooled figure is composable: assigned Copilot seats times GitHub's published per-seat allowance, resolved against the billing period so the promotional rate ending **2026-09-01** (Business 3,000 -> 1,900) needs no code change. Verified against a live organization - 7 seats x 3,000 = the 21,000 its own billing page shows. Reading it needs `read:org`, the narrower of the two scopes GitHub documents for that endpoint; `admin:org` stays behind an explicit escalation.
+
+**Smaller things that were quietly wrong.** The plan denominator asked `GET /user` regardless of who was being billed, so an organization's usage was measured against your personal plan. A Copilot allowance you typed into Settings was discarded while the panel told you to set one. A month with no Actions runs showed "could not be reconstructed" instead of 0%. Log out did not stick, because the editor's GitHub session is shared with Copilot and deliberately cannot be ended - so "signed out" is now recorded rather than inferred. Account identity moved out of Settings into the panel header, where it belongs: it is the caption for every number on the panel. And the monitor now installs into **Cursor** as well as VS Code, because GitHub billing is not tied to the editor you happen to use.
+
+Catalog counts are unchanged at **271 skills**, **17 commands**, **31 hooks**, and **23 agents** - this release touches one VS Code extension, the two installers, and no catalog content.
 
 ## What's New in v3.16.3
 

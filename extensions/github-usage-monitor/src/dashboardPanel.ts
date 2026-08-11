@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
-import type { UsageMetric, UsageState } from "./types";
-import { escapeHtml, formatAmount, isNotConnected, GITHUB_BAR_FILL } from "./statusBarManager";
-import { formatResetCountdown } from "./usageStore";
+import type { BillingOwner, UsageMetric, UsageState } from "./types";
+import { displayUnit, escapeHtml, formatAmount, isNotConnected, GITHUB_BAR_FILL } from "./statusBarManager";
+import { formatResetCountdown, formatResetDateTime } from "./usageStore";
 import { explainMissingPercentage } from "./providers/allowances";
 import {
   readSettings,
@@ -30,6 +30,19 @@ export class DashboardPanel {
    * the settings form into this document, so `retainContextWhenHidden` also
    * preserves the settings section's open/closed state across a hide.
    */
+  /**
+   * Re-renders the panel ONLY if it is already open.
+   *
+   * `show()` reveals the panel, which is wrong for a background refresh - a timer
+   * firing must not throw an editor tab in the user's face. Without this, the panel
+   * kept whatever HTML it was last given: on an account switch the status bar cleared
+   * its warning while the panel went on displaying the previous account's error.
+   */
+  public update(state: UsageState, auth?: AuthDisplay): void {
+    if (this.panel === undefined) return;
+    this.panel.webview.html = renderDashboard(state, undefined, auth);
+  }
+
   public show(state: UsageState, auth?: AuthDisplay): void {
     if (this.panel === undefined) {
       this.panel = vscode.window.createWebviewPanel("githubUsageMonitorDashboard", "GitHub Usage Monitor", vscode.ViewColumn.One, { enableScripts: true, retainContextWhenHidden: true });
@@ -50,14 +63,20 @@ export class DashboardPanel {
 export function renderDashboard(state: UsageState, now = Date.now(), auth?: AuthDisplay): string {
   const nonce = "githubUsageMonitorDashboard";
   const body = state.data === undefined
-    ? (isNotConnected(state) ? renderNotConnected() : renderNoData(state))
-    : renderSnapshot(state, now);
+    ? (isNotConnected(state) ? renderNotConnected() : renderNoData(state, auth))
+    : renderSnapshot(state, now, auth);
   // The settings section renders even on the unconnected and no-data states, so the
   // gear is never a control that does nothing. Its script runs under the SAME nonce
   // as the dashboard's, rather than adding a second inline block, which is what
   // keeps the Content-Security-Policy shape unchanged.
   const settings = settingsSectionHtml(readSettings(), auth);
-  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'nonce-${nonce}';"><style>${styles()}${settingsStylesCss()}</style></head><body>${body}${settings}<script nonce="${nonce}">const vscode=acquireVsCodeApi();document.querySelectorAll('[data-command]').forEach((button)=>button.addEventListener('click',()=>vscode.postMessage({command:button.dataset.command})));${settingsScriptJs()}</script></body></html>`;
+  // Splice into the placeholder so the section sits INSIDE <main> and inherits its
+  // 500px column. Appending after </main> left it spanning the full window width,
+  // which is what made the expanded form look nothing like its sibling.
+  const withSettings = body.includes("<!--SETTINGS-->")
+    ? body.replace("<!--SETTINGS-->", settings)
+    : `${body}${settings}`;
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'nonce-${nonce}';"><style>${styles()}${settingsStylesCss()}</style></head><body>${withSettings}<script nonce="${nonce}">const vscode=acquireVsCodeApi();document.querySelectorAll('[data-command]').forEach((button)=>button.addEventListener('click',()=>vscode.postMessage({command:button.dataset.command})));const gear=document.getElementById('settings-toggle');if(gear)gear.addEventListener('click',()=>toggleSettings());${settingsScriptJs()}</script></body></html>`;
 }
 
 /**
@@ -81,15 +100,104 @@ function renderNotConnected(): string {
 }
 
 /** A connected monitor that still has no data - a real failure, styled as one. */
-function renderNoData(state: UsageState): string {
-  return `<main><h1>GitHub Usage Monitor</h1><p class="eyebrow">Actions minutes and storage, plus Copilot billing, for one billing owner you configure</p><section class="notice error" role="status"><strong>No billing data available.</strong><p>${escapeHtml(state.error?.message ?? "Set a token and refresh.")}</p></section>${actions()}</main>`;
+function renderNoData(state: UsageState, auth?: AuthDisplay): string {
+  // Carries the same account header as the populated panel. A failing state is
+  // exactly when the user needs to see which identity was tried and to switch it,
+  // and this state previously offered no account control at all.
+  return `<main>${accountHeader(auth, null)}<p class="eyebrow">Actions minutes and storage, plus Copilot billing, for one billing owner you configure</p><section class="notice error" role="status"><strong>No billing data available.</strong><p>${escapeHtml(state.error?.message ?? "Set a token and refresh.")}</p></section><!--SETTINGS-->${actions()}</main>`;
 }
 
-function renderSnapshot(state: UsageState, now: number): string {
+/**
+ * The panel body, laid out like its Claude and Codex siblings.
+ *
+ * v3.16.3 rendered a marketing-style header, a tagline, an in-page nav, definition
+ * lists per metric, and an always-open billing table. That is a document; a usage
+ * monitor is a glance. This is the sibling shape: a quiet title, one section per
+ * metric with a bar and a one-line subtitle, the action row, and everything else
+ * folded away behind a disclosure.
+ */
+function renderSnapshot(state: UsageState, now: number, auth?: AuthDisplay): string {
   const snapshot = state.data!;
   const warning = state.state === "stale" || state.error
-    ? `<section class="notice warning" role="status"><strong>Last-known-good data.</strong><p>${escapeHtml(state.error?.message ?? "This snapshot is stale.")}</p></section>` : "";
-  return `<main><header><div><p class="eyebrow">Actions minutes and storage, plus Copilot billing, for one billing owner</p><h1>GitHub Usage Monitor</h1><p>Billing owner: ${escapeHtml(snapshot.owner.name)} - ${snapshot.owner.scope} scope</p></div><div class="freshness"><strong>${snapshot.stale ? "Stale" : "Fresh"}</strong><span>${escapeHtml(new Date(snapshot.fetchedAt).toLocaleString())}</span></div></header>${warning}<nav aria-label="Usage sections"><a href="#copilot">Copilot</a><a href="#actions">Actions</a><a href="#details">Billing detail</a></nav><section id="copilot"><h2>Copilot</h2>${metricCard(snapshot.copilot, now)}</section><section id="actions"><h2>Actions</h2><div class="metrics">${metricCard(snapshot.actionsMinutes, now)}${metricCard(snapshot.actionsStorage, now)}</div></section><section id="details"><h2>Billing detail</h2>${breakdowns(snapshot.copilot)}${breakdowns(snapshot.actionsMinutes)}${breakdowns(snapshot.actionsStorage)}</section>${actions()}</main>`;
+    ? `<div class="notice">&#9888; Showing last-known-good data${state.error ? `: ${escapeHtml(state.error.message)}` : "."}</div>`
+    : "";
+  const detail = `${breakdowns(snapshot.copilot)}${breakdowns(snapshot.actionsMinutes)}${breakdowns(snapshot.actionsStorage)}`;
+  // Collapsed by default: it is reference material, not something to read on every
+  // glance, and open-by-default was pushing the meters off the top of the panel.
+  const details = detail === "" ? "" : `<details class="detail"><summary>Billing detail</summary>${detail}</details>`;
+  return `<main>` +
+    accountHeader(auth, snapshot.owner) +
+    warning +
+    metricCard(snapshot.copilot, now) +
+    metricCard(snapshot.actionsMinutes, now) +
+    metricCard(snapshot.actionsStorage, now) +
+    `<div class="divider"></div>` +
+    details +
+    // The settings section renders ABOVE the action row, matching the Claude
+    // monitor: the gear expands a panel in place and the buttons stay beneath it,
+    // rather than the buttons jumping to the top of a long expanded form.
+    `<!--SETTINGS-->` +
+    actions() +
+    // Freshness only. The identity moved to the header on 2026-08-11, and repeating
+    // it here said the same thing twice in two different vocabularies.
+    `<p class="last-updated">${snapshot.stale ? "Stale" : "Updated"} ${escapeHtml(formatResetCountdown(now + (now - snapshot.fetchedAt), now))} ago</p>` +
+    `</main>`;
+}
+
+/**
+ * The title, with the bound identity beside it.
+ *
+ * Promoted out of the Settings section 2026-08-11. WHICH account and WHICH billing
+ * owner the figures describe is not a setting - it is the caption for every number
+ * on the panel, and folding it behind a gear meant the one fact that makes the
+ * figures interpretable was the one fact that was hidden. Both are named, because
+ * they differ routinely: a personal login reading an organization's billing is the
+ * normal case, not the exception.
+ */
+function accountHeader(auth: AuthDisplay | undefined, owner: BillingOwner | null): string {
+  const user = auth?.binding?.accountLabel ?? null;
+  const connected = user !== null || owner !== null;
+  // Labelled rows rather than a bare name plus a parenthetical. "SupiraMedical
+  // (organization)" made the reader work out which of the two identities they were
+  // looking at; naming both fields removes the question.
+  const rows = connected
+    ? `${user === null ? "" : row("User", user)}${owner === null ? "" : row(ownerFieldLabel(owner), owner.name)}`
+    : `<div class="acct-line acct-muted">Not connected</div>`;
+  // Every account action lives here, and ONLY here. Splitting "who am I" from
+  // "change who I am" across a header and a collapsed settings pane meant the answer
+  // and the control for the same question sat in two places.
+  const controls = connected
+    ? `<button class="acct-btn" data-command="logIn">Switch</button>` +
+      `<button class="acct-btn" data-command="logOut">Log out</button>`
+    : `<button class="acct-btn acct-btn-primary" data-command="logIn">Log in</button>`;
+  return `<header class="panel-head">` +
+    `<h2>GitHub Usage Monitor</h2>` +
+    `<div class="acct" aria-label="Connected account and billing owner">${rows}` +
+    `<div class="acct-actions">${controls}</div></div>` +
+    `</header>`;
+}
+
+/** One labelled identity row. */
+function row(label: string, value: string): string {
+  return `<div class="acct-line"><span class="acct-key">${escapeHtml(label)}</span> <span class="acct-val">${escapeHtml(value)}</span></div>`;
+}
+
+/**
+ * What to call the billing owner, in the reader's terms rather than the API's.
+ *
+ * "Owner" is the REST vocabulary and means nothing to someone looking at a usage
+ * panel - and it reads as "the person who owns this", which is exactly the confusion
+ * to avoid when the user and the organization are different identities.
+ */
+export function ownerFieldLabel(owner: BillingOwner): string {
+  switch (owner.scope) {
+    case "user":
+      return "Personal";
+    case "organization":
+      return "Organization";
+    case "enterprise":
+      return "Enterprise";
+  }
 }
 
 /**
@@ -114,36 +222,44 @@ function renderSnapshot(state: UsageState, now: number): string {
  */
 function metricCard(metric: UsageMetric, now: number): string {
   const pct = metric.percentage === null ? null : Math.max(0, metric.percentage);
-  // Provenance is shown beside the value, never just the value. "2,000 min" alone
-  // invites the reading that GitHub said so; naming where it came from does not, and
-  // it is what makes the override worth reaching for when the figure is wrong for an
-  // account (data packs, Education benefits, and negotiated terms are invisible to
-  // the API, so a published per-plan figure cannot detect its own disagreement).
-  const provenance =
-    metric.allowanceSource === "manual"
-      ? "set by you"
-      : metric.allowanceSource === "plan-table"
-        ? "published figure for your plan, not read from your account"
-        : String(metric.allowanceSource);
-  const limit =
-    metric.allowanceState === "none"
-      ? "None included with your plan"
-      : metric.allowance === null
-        ? "Not established"
-        : `${metric.allowance} ${escapeHtml(metric.unit)} <span class="explain">(${escapeHtml(provenance)})</span>`;
-  const reset = metric.reset === null ? "Not reported" : `${formatResetCountdown(metric.reset.at, now)} - ${escapeHtml(metric.reset.label)}`;
-  // `typeof`, not `!== null`: a snapshot cached by an older version carries no
-  // `drawdown` field at all, and `undefined` would render as NaN. Cached snapshots
-  // outlive the upgrade that adds a field, so every new field must tolerate absence.
-  const counted =
-    typeof metric.drawdown !== "number" || !Number.isFinite(metric.drawdown)
+  const reset =
+    metric.reset === null
       ? ""
-      : `<div><dt>Counted</dt><dd>${formatNumber(metric.drawdown)} ${escapeHtml(metric.unit)}${metric.drawdownBasis === "reconstructed" ? " (reconstructed)" : ""}</dd></div>`;
-  const body =
-    pct === null
-      ? `<div class="absolute" aria-label="Absolute usage; no percentage available">${formatAmount(metric)}</div><p class="explain">${escapeHtml(explainMissingPercentage(metric))}</p>`
-      : `<div class="meter-row"><div class="meter" role="meter" aria-label="${label(metric)} usage" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(pct)}"><span style="width:${Math.min(100, pct)}%"></span></div><span class="meter-label">${Math.round(pct)}%</span></div>${metric.drawdownBasis === "reconstructed" ? `<p class="explain">Reconstructed from private-repository usage. GitHub does not publish this figure, so it is an estimate rather than its own number.</p>` : ""}`;
-  return `<article class="metric"><div class="metric-head"><h3>${label(metric)}</h3><strong>${pct === null ? formatAmount(metric) : `${Math.round(pct)}%`}</strong></div>${body}<dl><div><dt>Used</dt><dd>${formatAmount(metric)}</dd></div>${counted}<div><dt>Allowance</dt><dd>${limit}</dd></div><div><dt>Net cost</dt><dd>${metric.netAmount === null ? "Not reported" : `$${metric.netAmount.toFixed(2)}`}</dd></div><div><dt>Reset</dt><dd>${reset}</dd></div></dl></article>`;
+      : `<div class="sub">Resets ${escapeHtml(formatResetDateTime(metric.reset.at))}</div>`;
+  const unit = displayUnit(metric.unit);
+
+  const counted =
+    typeof metric.drawdown === "number" && Number.isFinite(metric.drawdown)
+      ? metric.drawdown
+      : null;
+
+  // No allowance exists for this product on this plan. Draw a FULL bar, greyed and
+  // dimmed, rather than an empty one or no bar at all: an empty bar implies unused
+  // headroom that does not exist, and no bar at all makes the card look broken
+  // beside its neighbours. The grey and the transparency together say "this is not
+  // a measurement against a limit".
+  if (metric.allowanceState === "none") {
+    return `<section class="section"><h3>${label(metric)}</h3>` +
+      `<div class="bar-row"><div class="bar" role="meter" aria-label="${label(metric)}: no allowance included with your plan" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">` +
+      `<div class="bar-fill none" style="width:100%"></div></div>` +
+      `<span class="bar-pct none">n/a</span></div>` +
+      `<div class="sub">${formatNumber(metric.used)} ${escapeHtml(unit)} used - your plan includes no allowance for this product</div>${reset}</section>`;
+  }
+
+  if (pct === null) {
+    return `<section class="section"><h3>${label(metric)}</h3>` +
+      `<div class="absolute" aria-label="Absolute usage; no percentage available">${formatNumber(metric.used)} ${escapeHtml(unit)}</div>` +
+      `<div class="sub">${escapeHtml(explainMissingPercentage(metric))}</div>${reset}</section>`;
+  }
+
+  const shown = counted === null ? `${formatNumber(metric.used)} ${escapeHtml(unit)}` : `${formatNumber(counted)} ${escapeHtml(unit)}`;
+  const estimate = metric.drawdownBasis === "reconstructed" ? ` <span class="est" title="GitHub does not publish this figure; it is reconstructed from private-repository usage.">est.</span>` : "";
+  return `<section class="section"><h3>${label(metric)}</h3>` +
+    `<div class="bar-row">` +
+    `<div class="bar" role="meter" aria-label="${label(metric)} usage" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(pct)}">` +
+    `<div class="bar-fill" style="width:${Math.min(100, pct)}%"></div></div>` +
+    `<span class="bar-pct">${Math.round(pct)}%</span></div>` +
+    `<div class="sub">${shown} of ${formatNumber(metric.allowance ?? 0)} ${escapeHtml(unit)}${estimate}</div>${reset}</section>`;
 }
 
 function formatNumber(value: number): string {
@@ -152,8 +268,8 @@ function formatNumber(value: number): string {
 
 function breakdowns(metric: UsageMetric): string {
   if (metric.breakdowns.length === 0) return "";
-  const rows = metric.breakdowns.map((row) => `<tr><td>${escapeHtml(row.product)}</td><td>${escapeHtml(row.sku)}</td><td>${row.grossQuantity} ${escapeHtml(row.unit)}</td><td>${row.discountQuantity ?? "-"}</td><td>${row.netAmount === null ? "-" : `$${row.netAmount.toFixed(2)}`}</td></tr>`).join("");
-  return `<h3>${label(metric)}</h3><div class="table-scroll"><table><thead><tr><th>Product</th><th>SKU</th><th>Gross usage</th><th>Discount</th><th>Net cost</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  const rows = metric.breakdowns.map((row) => `<tr><td>${escapeHtml(row.sku)}</td><td>${row.grossQuantity} ${escapeHtml(row.unit)}</td><td>${row.netAmount === null ? "-" : `$${row.netAmount.toFixed(2)}`}</td></tr>`).join("");
+  return `<h4>${label(metric)}</h4><div class="table-scroll"><table><thead><tr><th>SKU</th><th>Usage</th><th>Net</th></tr></thead><tbody>${rows}</tbody></table></div>`;
 }
 
 /**
@@ -172,10 +288,68 @@ function actions(): string {
   return `<div class="actions">` +
     `<button data-command="refresh">Refresh Now</button>` +
     `<button class="secondary" data-command="openBillingPage">Open GitHub Billing Page</button>` +
-    `<button id="settings-toggle" class="icon-btn" onclick="toggleSettings()" title="Settings" aria-label="Settings" aria-expanded="false">` +
+    `<button id="settings-toggle" class="icon-btn" title="Settings" aria-label="Settings" aria-expanded="false">` +
     `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true">` +
     `<path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.687.706-1.99 1.99l.169.31a1.464 1.464 0 0 1-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.697 1.283.707 2.687 1.99 1.99l.311-.17a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.687-.706 1.99-1.99l-.169-.31a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.697-1.283-.707-2.687-1.99-1.99l-.311.17a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/>` +
     `</svg></button></div>`;
 }
 function label(metric: UsageMetric): string { return ({"copilot-ai-credits":"Copilot AI credits","copilot-premium-requests":"Copilot premium requests","actions-minutes":"Actions minutes","actions-storage":"Actions storage"} as const)[metric.kind]; }
-function styles(): string { return `:root{color-scheme:light dark}*{box-sizing:border-box}body{margin:0;background:var(--vscode-editor-background);color:var(--vscode-editor-foreground);font:13px/1.5 var(--vscode-font-family)}main{max-width:1040px;margin:0 auto;padding:28px}header{display:grid;grid-template-columns:2fr 1fr;gap:24px;align-items:end;border-bottom:1px solid var(--vscode-widget-border);padding-bottom:20px}.eyebrow{text-transform:uppercase;letter-spacing:.08em;color:var(--vscode-descriptionForeground)}h1{font-size:32px;margin:4px 0}h2{font-size:20px;margin-top:32px}.freshness{display:flex;flex-direction:column;text-align:right}nav{display:flex;gap:18px;padding:14px 0}a{color:var(--vscode-textLink-foreground)}.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}.metric{border-left:3px solid ${GITHUB_BAR_FILL};padding:14px 16px;background:var(--vscode-editorWidget-background)}.metric-head{display:flex;justify-content:space-between;gap:16px;align-items:baseline}.metric h3{margin:0}.meter-row{display:flex;align-items:center;gap:10px;margin:14px 0}.meter{flex:1;height:8px;background:rgba(128,128,128,0.2);border-radius:4px;overflow:hidden}.meter span{display:block;height:100%;background:${GITHUB_BAR_FILL};border-radius:4px;transition:width 0.3s ease}.meter-label{font-size:14px;font-weight:700;min-width:40px;text-align:right}.absolute{border:1px dashed var(--vscode-widget-border);padding:10px;margin:14px 0;font-weight:600}.explain{color:var(--vscode-descriptionForeground);margin:6px 0 0;font-size:12px}dl{margin:0}dl div{display:grid;grid-template-columns:92px 1fr;gap:8px}dt{color:var(--vscode-descriptionForeground)}dd{margin:0}.notice{padding:12px 14px;margin:18px 0;border-left:4px solid}.notice.warning{border-color:var(--vscode-notificationsWarningIcon-foreground)}.notice.error{border-color:var(--vscode-notificationsErrorIcon-foreground)}.notice p{margin:4px 0 0}.table-scroll{overflow:auto}table{width:100%;border-collapse:collapse}th,td{text-align:left;padding:8px;border-bottom:1px solid var(--vscode-widget-border)}.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:28px;align-items:center}button{border:none;border-radius:4px;padding:6px 14px;cursor:pointer;font:inherit;font-size:12px;color:var(--vscode-button-foreground);background:var(--vscode-button-background)}button:hover{background:var(--vscode-button-hoverBackground)}button:focus-visible{outline:2px solid var(--vscode-focusBorder);outline-offset:2px}button.secondary{color:var(--vscode-button-secondaryForeground);background:var(--vscode-button-secondaryBackground)}button.secondary:hover{background:var(--vscode-button-secondaryHoverBackground)}button.icon-btn{display:inline-flex;align-items:center;justify-content:center;padding:6px;width:28px;height:28px;color:var(--vscode-button-secondaryForeground);background:var(--vscode-button-secondaryBackground)}button.icon-btn:hover{background:var(--vscode-button-secondaryHoverBackground)}button.icon-btn svg{display:block}@media(max-width:600px){main{padding:18px}header{grid-template-columns:1fr}.freshness{text-align:left}}@media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}.meter span{transition:none}}`; }
+/**
+ * Panel styles, matched to the Claude and Codex monitors so a user running more
+ * than one sees the same product rather than three different ones: a 500px centred
+ * column, 13px uppercase section labels, an 8px rounded track with the brand fill,
+ * and the percentage right-aligned beside the bar.
+ */
+function styles(): string {
+  return `:root{color-scheme:light dark}*{box-sizing:border-box}` +
+    `body{font-family:var(--vscode-font-family);color:var(--vscode-foreground);background:var(--vscode-editor-background);font-size:13px;line-height:1.5;margin:0}` +
+    `main{max-width:500px;margin:0 auto;padding:20px}` +
+    `h2{margin:0 0 16px;font-size:16px;color:var(--vscode-editor-foreground)}` +
+    // Title left, identity right. `flex-start` on the wrap keeps the identity block
+    // aligned to the title's cap height rather than floating against a taller row,
+    // and `min-width:0` lets a long organization name ellipsize instead of pushing
+    // the layout wider than the panel.
+    `.panel-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:16px}` +
+    `.panel-head h2{margin:0}` +
+    `.acct{display:flex;flex-direction:column;align-items:flex-end;gap:2px;min-width:0}` +
+    `.acct-line{font-size:11px;line-height:1.35;max-width:230px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}` +
+    `.acct-key{opacity:0.6}` +
+    `.acct-val{font-weight:600;opacity:0.95}` +
+    `.acct-muted{opacity:0.6;font-style:italic}` +
+    `.acct-actions{display:flex;gap:6px;margin-top:5px}` +
+    `.acct-btn{background:none;border:1px solid var(--vscode-panel-border,rgba(128,128,128,0.4));color:var(--vscode-textLink-foreground);border-radius:4px;padding:2px 8px;font-size:11px;cursor:pointer}` +
+    `.acct-btn:hover{background:var(--vscode-toolbar-hoverBackground,rgba(128,128,128,0.15))}` +
+    `.acct-btn-primary{background:var(--vscode-button-background);color:var(--vscode-button-foreground);border-color:transparent}` +
+    `h3{margin:0 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:0.5px;opacity:0.8}` +
+    `h4{margin:14px 0 6px;font-size:12px;opacity:0.8}` +
+    `.section{margin-bottom:16px}` +
+    `.divider{border-top:1px solid var(--vscode-widget-border,rgba(128,128,128,0.35));margin:16px 0}` +
+    `.bar-row{display:flex;align-items:center;gap:10px}` +
+    `.bar{flex:1;height:8px;background:rgba(128,128,128,0.2);border-radius:4px;overflow:hidden}` +
+    `.bar-fill{height:100%;background:${GITHUB_BAR_FILL};border-radius:4px;transition:width 0.3s ease}` +
+    `.bar-pct{font-size:14px;font-weight:700;min-width:40px;text-align:right}` +
+    `.bar-fill.none{background:var(--vscode-descriptionForeground,#888);opacity:0.35}` +
+    `.bar-pct.none{opacity:0.5;font-weight:600}` +
+    `.absolute{font-size:14px;font-weight:700}` +
+    `.sub{font-size:11px;opacity:0.7;margin-top:4px}` +
+    `.est{opacity:0.65;font-style:italic}` +
+    `.notice{padding:8px 12px;margin-bottom:16px;border-radius:4px;font-size:12px;background:var(--vscode-inputValidation-warningBackground,rgba(255,204,0,0.1));border:1px solid var(--vscode-inputValidation-warningBorder,#cca700)}` +
+    `.detail{margin-bottom:16px}` +
+    `.detail summary{cursor:pointer;font-size:12px;opacity:0.8;user-select:none}` +
+    `.detail summary:focus-visible{outline:2px solid var(--vscode-focusBorder);outline-offset:2px}` +
+    `.table-scroll{overflow-x:auto}` +
+    `table{width:100%;border-collapse:collapse;font-size:11px}` +
+    `th,td{text-align:left;padding:4px 8px 4px 0;border-bottom:1px solid var(--vscode-widget-border,rgba(128,128,128,0.25))}` +
+    `th{opacity:0.7;font-weight:600}` +
+    `.actions{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:4px}` +
+    `button{border:none;border-radius:4px;padding:6px 14px;cursor:pointer;font-family:var(--vscode-font-family);font-size:12px;color:var(--vscode-button-foreground);background:var(--vscode-button-background)}` +
+    `button:hover{background:var(--vscode-button-hoverBackground)}` +
+    `button:focus-visible{outline:2px solid var(--vscode-focusBorder);outline-offset:2px}` +
+    `button.secondary{color:var(--vscode-button-secondaryForeground);background:var(--vscode-button-secondaryBackground)}` +
+    `button.secondary:hover{background:var(--vscode-button-secondaryHoverBackground)}` +
+    `button.icon-btn{display:inline-flex;align-items:center;justify-content:center;padding:6px;width:28px;height:28px;color:var(--vscode-button-secondaryForeground);background:var(--vscode-button-secondaryBackground)}` +
+    `button.icon-btn:hover{background:var(--vscode-button-secondaryHoverBackground)}` +
+    `button.icon-btn svg{display:block}` +
+    `.last-updated{font-size:11px;opacity:0.6;margin-top:12px}` +
+    `@media(prefers-reduced-motion:reduce){.bar-fill{transition:none}}`;
+}

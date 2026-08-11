@@ -12,6 +12,7 @@ import {
   billingEndpoint,
   copilotEndpointSuffix,
   permissionError,
+  requiredPermission,
   type CopilotEndpoint
 } from "./scope";
 
@@ -250,6 +251,83 @@ function classifyHttpError(
     statusCode: response.status,
     message: `GitHub billing returned ${response.status}${statusSuffix}.`
   };
+}
+
+/** What `GET /user/memberships/orgs/{org}` returned, or the status that replaced it. */
+export type MembershipLookup =
+  | { ok: true; value: unknown }
+  | { ok: false; status: number };
+
+/** The path whose answer separates the two causes of an organization billing 404. */
+export function membershipPath(owner: BillingOwner): string {
+  return `/user/memberships/orgs/${encodeURIComponent(owner.name)}`;
+}
+
+/**
+ * Separates the two very different failures GitHub reports identically.
+ *
+ * `GET /organizations/{org}/settings/billing/...` returns 404 both when the caller
+ * lacks the owner or billing-manager role AND when the organization is not on the
+ * enhanced billing platform - and the scope headers cannot tell them apart, because
+ * in the observed case (2026-08-10, SupiraMedical) the credential already carried an
+ * accepted scope. The resulting "could not find the owner or endpoint. Verify the
+ * scope" told the user to check the one thing that was already correct.
+ *
+ * Membership role is the discriminator: GitHub reports `admin` for an organization
+ * owner, `billing_manager` for a billing manager, and `member` for everyone else. A
+ * role that CAN read billing means the 404 is about the platform; a role that cannot
+ * means the 404 is about permission. Pure so both branches are unit-testable without
+ * a network.
+ */
+export function explainOrganizationNotFound(
+  owner: BillingOwner,
+  lookup: MembershipLookup,
+  fallback: ProviderError
+): ProviderError {
+  if (!lookup.ok) {
+    // 403 here is GitHub refusing to describe the membership at all, which is what
+    // an OAuth-app restriction or an unauthorized SAML session looks like.
+    if (lookup.status === 403) {
+      return {
+        ...fallback,
+        message: `'${owner.name}' did not let this credential read your membership, which usually means the organization restricts OAuth apps or requires SAML single sign-on authorization. Approve the editor's GitHub app for '${owner.name}', or authorize the session for its SSO, then refresh.`
+      };
+    }
+    return fallback;
+  }
+
+  // `typeof null === "object"`, so the null guard is explicit rather than implied.
+  const record =
+    typeof lookup.value === "object" && lookup.value !== null
+      ? (lookup.value as { role?: unknown; state?: unknown })
+      : {};
+  const role = typeof record.role === "string" ? record.role.toLowerCase() : "";
+  const state = typeof record.state === "string" ? record.state.toLowerCase() : "";
+
+  if (state === "pending") {
+    return {
+      ...fallback,
+      message: `Your membership of '${owner.name}' is still a pending invitation, so its billing is not readable yet. Accept the invitation, then refresh.`
+    };
+  }
+  if (role === "admin" || role === "billing_manager") {
+    return {
+      ...fallback,
+      code: "enhanced-billing-unavailable",
+      message: `You hold the ${role === "admin" ? "organization owner" : "billing manager"} role on '${owner.name}', so this is not a permission problem: GitHub returned no billing endpoint for it. That organization is not on GitHub's enhanced billing platform, which is the only platform exposing per-product usage through the API. Check its billing page for the authoritative figures.`
+    };
+  }
+  if (role === "member") {
+    return {
+      ...fallback,
+      // The existing code for exactly this state, already produced by `permissionError`
+      // on the 403 path. Reused rather than adding a synonym to the error union.
+      code: "missing-organization-administration-read",
+      requiredPermission: requiredPermission(owner),
+      message: `You are a member of '${owner.name}' but not an organization owner or billing manager, and only those roles can read organization billing. Ask an owner for the billing manager role, or point this monitor at an owner you can bill for.`
+    };
+  }
+  return fallback;
 }
 
 /**

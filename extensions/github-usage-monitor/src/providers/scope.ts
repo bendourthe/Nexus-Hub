@@ -123,6 +123,33 @@ export function permissionError(owner: BillingOwner): ProviderError {
   }
 }
 
+/**
+ * Whether reconnecting could plausibly fix this failure.
+ *
+ * A window reload binds whichever GitHub session VS Code considers default, which
+ * need not be the account the configured owner requires. Observed 2026-08-11: a
+ * reload bound the personal account while the owner was an organization, the fetch
+ * 404'd, and the panel quietly served last-known-good data behind a small warning -
+ * so the monitor looked alive while reporting a previous account's figures.
+ *
+ * Stale data plus a passive warning is the wrong response to a fixable auth problem.
+ * But only SOME failures are fixable that way, and offering "Reconnect" for a network
+ * blip or a rate limit teaches the user to ignore the offer. Enhanced-billing
+ * absence is excluded for the same reason: no credential resolves it.
+ */
+export function isReconnectableError(code: string): boolean {
+  return (
+    code === "not-connected" ||
+    code === "missing-token" ||
+    code === "invalid-token" ||
+    code === "invalid-scope" ||
+    code === "not-found" ||
+    code === "missing-plan-read" ||
+    code === "missing-organization-administration-read" ||
+    code === "missing-enterprise-billing-permission"
+  );
+}
+
 export function managedCopilotScopeError(): ProviderError {
   return {
     code: "managed-copilot-personal-scope",

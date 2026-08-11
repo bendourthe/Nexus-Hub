@@ -1,3 +1,5 @@
+export const configListeners: Array<(event: { affectsConfiguration: (key: string) => boolean }) => void> = [];
+
 type Command = (...args: unknown[]) => unknown;
 const commandMap = new Map<string, Command>();
 const configuration = new Map<string, unknown>();
@@ -51,6 +53,11 @@ const failingUpdates = new Set<string>();
 export const configurationLog: Array<{ op: "get" | "update"; id: string }> = [];
 
 export const workspace = {
+  /** Configuration-change events. Tests drive it via `fireConfigChange`. */
+  onDidChangeConfiguration: (listener: (event: { affectsConfiguration: (key: string) => boolean }) => void) => {
+    configListeners.push(listener);
+    return { dispose: () => { configListeners.length = 0; } };
+  },
   getConfiguration(section?: string): {
     get<T>(key: string, defaultValue?: T): T;
     inspect<T>(key: string): { globalValue?: T; workspaceValue?: T } | undefined;
@@ -100,10 +107,16 @@ export const sessionResponses: Array<StubSession | undefined> = [];
 /** Every getSession call, so a test can assert the options actually passed. */
 export const sessionRequests: Array<{ providerId: string; scopes: string[]; options: unknown }> = [];
 
+/** Accounts the provider knows about, for the account-pinned session request. */
+export const authenticationAccounts: Array<{ id: string; label: string }> = [];
+
 export const authentication = {
   async getSession(providerId: string, scopes: string[], options: unknown): Promise<StubSession | undefined> {
     sessionRequests.push({ providerId, scopes: [...scopes], options });
     return sessionResponses.shift();
+  },
+  async getAccounts(_providerId: string): Promise<ReadonlyArray<{ id: string; label: string }>> {
+    return [...authenticationAccounts];
   }
 };
 
@@ -114,6 +127,7 @@ function webview() {
 function panel() { return { webview: webview(), revealed: false, reveal() { this.revealed = true; }, onDidDispose: () => ({ dispose() {} }) }; }
 
 export const window = {
+  activeColorTheme: { kind: 2 },
   createStatusBarItem(): { text: string; tooltip: unknown; command?: string; name?: string; backgroundColor?: unknown; show(): void; hide(): void; dispose(): void } {
     const item = { text: "", tooltip: undefined as unknown, command: undefined as string | undefined, name: undefined as string | undefined, shown: false, show() { this.shown = true; }, hide() { this.shown = false; }, dispose() { this.shown = false; } };
     statusItems.push(item); return item;
@@ -133,7 +147,49 @@ export const window = {
 /** Everything written to the diagnostics output channel, for leak assertions. */
 export const outputLines: string[] = [];
 
+/**
+ * The installed-extension registry, so the update watcher can be exercised.
+ *
+ * Mirrors `vscode.extensions`: `getExtension` returns undefined for an extension
+ * that is not installed, which is the state the watcher reads as "uninstall in
+ * progress" during the installers' uninstall-then-reinstall sequence.
+ */
+export const extensionRegistry = new Map<string, { id: string; packageJSON: { version: string } }>();
+const extensionChangeListeners: Array<() => void> = [];
+
+export const extensions = {
+  getExtension(id: string): { id: string; packageJSON: { version: string } } | undefined {
+    return extensionRegistry.get(id);
+  },
+  onDidChange(listener: () => void): { dispose(): void } {
+    extensionChangeListeners.push(listener);
+    return { dispose() { /* no-op */ } };
+  }
+};
+
+/** Installs (or, with an undefined version, uninstalls) an extension and notifies. */
+export function setInstalledExtension(id: string, version: string | undefined): void {
+  if (version === undefined) extensionRegistry.delete(id);
+  else extensionRegistry.set(id, { id, packageJSON: { version } });
+  for (const listener of [...extensionChangeListeners]) listener();
+}
+
+/** The `context.extension` every activation needs. Version is the RUNNING one. */
+export function stubExtension(id = "nexus-hub.github-usage-monitor", version = "0.0.0-test"): { id: string; packageJSON: { version: string } } {
+  return { id, packageJSON: { version } };
+}
+
 export function setConfiguration(key: string, value: unknown): void { configuration.set(key, value); }
 export function queueInput(value: string | undefined): void { inputs.push(value); }
 export async function runCommand(name: string): Promise<unknown> { const command = commandMap.get(name); if (!command) throw new Error(`Command not registered: ${name}`); return command(); }
-export function resetVscodeStub(): void { commandMap.clear(); configuration.clear(); globalOverrides.clear(); workspaceOverrides.clear(); failingUpdates.clear(); configurationLog.length = 0; inputs.length = 0; messages.information.length = 0; messages.warnings.length = 0; messages.errors.length = 0; statusItems.length = 0; webviewPanels.length = 0; webviewProviders.length = 0; sessionResponses.length = 0; sessionRequests.length = 0; outputLines.length = 0; }
+export function resetVscodeStub(): void { commandMap.clear(); configuration.clear(); globalOverrides.clear(); workspaceOverrides.clear(); failingUpdates.clear(); configurationLog.length = 0; inputs.length = 0; messages.information.length = 0; messages.warnings.length = 0; messages.errors.length = 0; statusItems.length = 0; webviewPanels.length = 0; webviewProviders.length = 0; sessionResponses.length = 0; sessionRequests.length = 0; outputLines.length = 0; extensionRegistry.clear(); extensionChangeListeners.length = 0; authenticationAccounts.length = 0; }
+
+/** Mirrors VS Code's enum: Light=1, Dark=2, HighContrast=3, HighContrastLight=4. */
+export const ColorThemeKind = { Light: 1, Dark: 2, HighContrast: 3, HighContrastLight: 4 } as const;
+
+/** Fires a configuration-change event at every registered listener. */
+export function fireConfigChange(changedKeys: readonly string[]): void {
+  for (const listener of configListeners) {
+    listener({ affectsConfiguration: (key: string) => changedKeys.includes(key) });
+  }
+}

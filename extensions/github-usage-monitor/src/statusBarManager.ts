@@ -1,6 +1,6 @@
 import * as vscode from "vscode";
 import type { ProviderError, UsageMetric, UsageSnapshot, UsageState } from "./types";
-import { formatResetCountdown } from "./usageStore";
+import { formatResetCountdown, formatResetDateTime } from "./usageStore";
 
 export const GITHUB_BAR_FILL = "#008080";
 const GITHUB_ICON = "$(github-icon)";
@@ -15,9 +15,9 @@ export class StatusBarManager {
     this.item.name = "GitHub Usage Monitor";
   }
 
-  public show(state: UsageState): void {
+  public show(state: UsageState, accountLabel?: string | null): void {
     this.item.text = buildStatusText(state.data, state.state === "stale", undefined, isNotConnected(state));
-    this.item.tooltip = buildHoverMarkdown(state);
+    this.item.tooltip = buildHoverMarkdown(state, undefined, accountLabel);
     this.item.show();
   }
 
@@ -52,6 +52,24 @@ export type StatusBarMetric = "actions-minutes" | "actions-storage" | "copilot" 
  * the formatter renders as a crash or a bare "undefined" rather than the honest
  * unavailable indicator.
  */
+/** Short name for the status bar, so the percentage says what it measures. */
+/**
+ * Display unit. The API's `ai-credits` is an identifier, not a word a user would
+ * write, and it reads as machine output beside "minutes" and "gigabytes".
+ */
+export function displayUnit(unit: string): string {
+  return unit === "ai-credits" ? "credits" : unit;
+}
+
+export function statusMetricName(metric: UsageMetric): string {
+  return ({
+    "copilot-ai-credits": "AI credits",
+    "copilot-premium-requests": "premium requests",
+    "actions-minutes": "actions minutes",
+    "actions-storage": "actions storage"
+  } as const)[metric.kind];
+}
+
 export function selectStatusMetric(snapshot: UsageSnapshot, choice: StatusBarMetric): UsageMetric | null {
   if (choice === "highest") {
     const ranked = [snapshot.copilot, snapshot.actionsMinutes, snapshot.actionsStorage]
@@ -92,13 +110,35 @@ export function buildStatusText(
   // Never a fabricated percentage - that is the data contract's rule, and it is why
   // the Copilot option usually shows an amount rather than a share.
   const summary = metric.percentage === null ? formatAmount(metric) : `${Math.round(metric.percentage)}%`;
-  return `${GITHUB_ICON}${ICON_GAP}${label}${summary}${stale ? " $(warning)" : ""}`;
+  // Name the metric alongside the number. Three metrics can occupy this slot, and a
+  // bare "7%" does not say which one the user chose to watch.
+  return `${GITHUB_ICON}${ICON_GAP}${label}${summary} (${statusMetricName(metric)})${stale ? " $(warning)" : ""}`;
 }
 
-export function buildHoverMarkdown(state: UsageState, now = Date.now()): vscode.MarkdownString {
+/**
+ * Who the figures belong to, in the reader's terms.
+ *
+ * "Owner: SupiraMedical (organization)" was the REST vocabulary leaking into the UI.
+ * It reads as "the person who owns this", which is precisely the wrong idea when the
+ * signed-in user and the billed organization are different identities - the normal
+ * case for a work account. Both are named on their own line instead.
+ */
+export function identityLines(owner: UsageSnapshot["owner"], accountLabel?: string | null): string {
+  const user = accountLabel === undefined || accountLabel === null || accountLabel === ""
+    ? ""
+    : `User: ${escapeHtml(accountLabel)}<br>`;
+  const label =
+    owner.scope === "user" ? "Personal account" : owner.scope === "organization" ? "Organization" : "Enterprise";
+  return `${user}${label}: ${escapeHtml(owner.name)}<br>`;
+}
+
+export function buildHoverMarkdown(state: UsageState, now = Date.now(), accountLabel?: string | null): vscode.MarkdownString {
   const md = new vscode.MarkdownString("", true);
   md.supportThemeIcons = true;
   md.supportHtml = true;
+  // Required for the data-URI <img> bars: an untrusted MarkdownString strips them,
+  // which would leave the hover with three captions and no bars at all.
+  md.isTrusted = true;
   if (state.data === undefined) {
     if (isNotConnected(state)) {
       md.appendMarkdown(
@@ -113,9 +153,9 @@ export function buildHoverMarkdown(state: UsageState, now = Date.now()): vscode.
   }
   const snapshot = state.data;
   const sections = [
-    metricSection("Copilot", snapshot.copilot, now),
-    metricSection("Actions minutes", snapshot.actionsMinutes, now),
-    metricSection("Actions storage", snapshot.actionsStorage, now)
+    metricSection("Copilot AI credits", snapshot.copilot, now, isDarkTheme()),
+    metricSection("Actions minutes", snapshot.actionsMinutes, now, isDarkTheme()),
+    metricSection("Actions storage", snapshot.actionsStorage, now, isDarkTheme())
   ].join("");
   const config = vscode.workspace.getConfiguration("githubUsageMonitor");
   const choice = config.get<StatusBarMetric>("statusBarMetric", "actions-minutes");
@@ -128,7 +168,7 @@ export function buildHoverMarkdown(state: UsageState, now = Date.now()): vscode.
   const freshness = snapshot.stale || state.state === "stale" ? "Stale cache" : "Fresh";
   md.appendMarkdown(
     `**GitHub Usage Monitor**<br><br>${unavailable}${sections}` +
-    `Owner: ${escapeHtml(snapshot.owner.name)} (${snapshot.owner.scope})<br>` +
+    identityLines(snapshot.owner, accountLabel) +
     `Source: ${snapshot.source} - ${freshness}<br>` +
     `Updated: ${escapeHtml(relativeTime(snapshot.fetchedAt, now))}` +
     (state.error ? `<br><br>$(warning) ${escapeHtml(state.error.message)}` : "")
@@ -136,34 +176,67 @@ export function buildHoverMarkdown(state: UsageState, now = Date.now()): vscode.
   return md;
 }
 
-function metricSection(label: string, metric: UsageMetric | undefined, now: number): string {
+/**
+ * Width of the hover's progress bar, in CSS pixels. Matches the sibling monitors.
+ */
+const HOVER_BAR_WIDTH = 280;
+
+/** Label colors have to follow the theme; the SVG cannot inherit CSS variables. */
+function isDarkTheme(): boolean {
+  const kind = vscode.window.activeColorTheme.kind;
+  return kind === vscode.ColorThemeKind.Dark || kind === vscode.ColorThemeKind.HighContrast;
+}
+
+/**
+ * One SVG progress bar for the hover, as a data URI.
+ *
+ * Ported from the Claude and Codex monitors. v3.16.3 drew a run of Unicode full
+ * blocks instead, which cannot render a rounded track, cannot show a partial fill,
+ * and quantized the value to the nearest 10% - so it looked nothing like the
+ * siblings sitting next to it in the same status bar.
+ */
+function hoverBar(label: string, percent: number, dark: boolean, noAllowance = false): string {
+  const width = HOVER_BAR_WIDTH;
+  const barHeight = 6;
+  const fontSize = 12;
+  const textY = fontSize;
+  const barY = textY + 6;
+  const height = barY + barHeight;
+  const labelColor = dark ? "rgba(255,255,255,0.92)" : "rgba(0,0,0,0.92)";
+  const dimColor = dark ? "rgba(255,255,255,0.55)" : "rgba(0,0,0,0.55)";
+  const fill = Math.round((width * Math.min(100, Math.max(0, percent))) / 100);
+  const svg =
+    `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}">` +
+    `<text x="0" y="${textY}" fill="${labelColor}" font-weight="bold" font-family="system-ui,sans-serif" font-size="${fontSize}">${label}</text>` +
+    `<text x="${width}" y="${textY}" fill="${dimColor}" font-family="system-ui,sans-serif" font-size="${fontSize}" text-anchor="end">${noAllowance ? "n/a" : `${Math.round(percent)}%`}</text>` +
+    `<rect y="${barY}" width="${width}" height="${barHeight}" rx="3" fill="${noAllowance ? "rgba(128,128,128,0.18)" : "rgba(0,128,128,0.2)"}"/>` +
+    `<rect y="${barY}" width="${fill}" height="${barHeight}" rx="3" fill="${noAllowance ? "rgba(128,128,128,0.45)" : GITHUB_BAR_FILL}"/>` +
+    `</svg>`;
+  return `<img alt="${label}" src="data:image/svg+xml,${encodeURIComponent(svg)}" width="${width}" height="${height}">`;
+}
+
+function metricSection(label: string, metric: UsageMetric | undefined, now: number, dark = true): string {
   // A snapshot cached by an older version can be missing a metric entirely. Rendering
   // it as an omission is honest; letting `undefined` reach the formatter throws and
   // takes the whole tooltip down.
-  if (metric === undefined) return `**${label}** - not reported<br><br>`;
-  const amount = formatAmount(metric);
-  const costs = formatCosts(metric);
-  const reset = metric.reset === null ? "Reset: not reported" : `Reset: ${formatResetCountdown(metric.reset.at, now)} (${escapeHtml(metric.reset.label)})`;
-  if (metric.percentage === null || metric.allowance === null) {
-    // The hover mirrors the panel's three states rather than collapsing them into
-    // one "unknown". A Copilot metric with no plan allowance is a different fact
-    // from an Actions metric whose drawdown could not be reconstructed, and a user
-    // reading the tooltip deserves to know which they are looking at.
-    const reason =
-      metric.allowanceState === "none"
-        ? "No allowance included with your plan"
-        : "Allowance not established";
-    return `**${label}** - ${amount}<br>${reason}<br>${costs}${reset}<br><br>`;
-  }
-  const percent = Math.max(0, metric.percentage);
-  const width = Math.min(100, Math.round(percent));
-  const bar = `<span style="color:${GITHUB_BAR_FILL}">${"&#9608;".repeat(Math.max(1, Math.ceil(width / 10)))}</span>`;
-  return `**${label}** - ${amount} of ${formatNumber(metric.allowance)} ${escapeHtml(metric.unit)} (${Math.round(percent)}%)<br>${bar}<br>Allowance: ${metric.allowanceSource}<br>${costs}${reset}<br><br>`;
-}
+  if (metric === undefined) return `<span style="font-weight:bold">${label}</span><br><em>Not reported</em><br><br>`;
+  const reset =
+    metric.reset === null ? "" : `<em>Resets ${escapeHtml(formatResetDateTime(metric.reset.at))}</em><br>`;
 
-function formatCosts(metric: UsageMetric): string {
-  if (metric.grossAmount === null && metric.netAmount === null) return "Cost: not reported<br>";
-  return `Cost: gross ${money(metric.grossAmount)}, discount ${money(metric.discountAmount)}, net ${money(metric.netAmount)}<br>`;
+  if (metric.allowanceState === "none") {
+    return `${hoverBar(label, 100, dark, true)}<br>` +
+      `<em>${formatNumber(metric.used)} ${escapeHtml(displayUnit(metric.unit))} used - no allowance included with your plan</em><br>${reset}<br>`;
+  }
+  if (metric.percentage === null || metric.allowance === null) {
+    return `<span style="font-weight:bold">${label}</span> ${formatAmount(metric)}<br><em>Allowance not established</em><br>${reset}<br>`;
+  }
+
+  const counted =
+    typeof metric.drawdown === "number" && Number.isFinite(metric.drawdown)
+      ? `${formatNumber(metric.drawdown)} ${escapeHtml(metric.unit)}`
+      : formatAmount(metric);
+  return `${hoverBar(label, Math.max(0, metric.percentage), dark)}<br>` +
+    `<em>${counted} of ${formatNumber(metric.allowance)} ${escapeHtml(metric.unit)}</em><br>${reset}<br>`;
 }
 
 export function formatAmount(metric: UsageMetric): string { return `${formatNumber(metric.used)} ${escapeHtml(metric.unit)}`; }

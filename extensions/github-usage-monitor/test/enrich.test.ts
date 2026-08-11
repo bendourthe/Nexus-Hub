@@ -14,7 +14,7 @@ import {
   resolvePlan
 } from "../src/providers/planEntitlements";
 import { enrichSnapshot, storageGigabyteMonths, describeAllowanceProvenance } from "../src/providers/enrich";
-import { RepositoryVisibilityCache, fetchAccountPlanName, repositoryNamesIn } from "../src/providers/repositories";
+import { RepositoryVisibilityCache, fetchAccountPlanName, fetchOwnerPlanName, planPathFor, repositoryNamesIn } from "../src/providers/repositories";
 import type { UsageMetric, UsageSnapshot } from "../src/types";
 
 /**
@@ -43,27 +43,32 @@ function line(overrides: Partial<UsageLineItem> = {}): UsageLineItem {
 const VISIBILITY: VisibilityMap = { "Nexus-AI": "private", "Nexus-Hub": "public" };
 
 describe("drawdown weighting", () => {
-  it("weights Windows and macOS above Linux", () => {
-    expect(OS_DRAWDOWN_WEIGHTS).toEqual({ linux: 1, windows: 2, macos: 10 });
+  it("counts every runner OS at face value", () => {
+    // v3.16.4 reverted the Windows 2x / macOS 10x weights. They rested on ONE month
+    // (July 2026) whose displayed value was saturated at the 2,000 cap, and whose
+    // private/public split was resolved retroactively with TODAY's visibility - so a
+    // repository that was private then and public now was miscounted as public,
+    // understating the period and manufacturing the gap the multipliers "explained".
+    expect(OS_DRAWDOWN_WEIGHTS).toEqual({ linux: 1, windows: 1, macos: 1 });
   });
 
-  it("reproduces the July 2026 measurement that falsified unweighted drawdown", () => {
-    // July private usage: 1352.666666667 Linux + 195.6 Windows + 36 macOS. Unweighted
-    // that is 1584.27, and GitHub's panel showed 2,000 of 2,000 consumed - saturated,
-    // so the true drawdown was at least 2,000. A model predicting 1,584 cannot produce
-    // a number that is at least 2,000, which is what killed the unweighted candidate.
-    const july = [
-      line({ sku: "Actions Linux", quantity: 1352.666666667 }),
-      line({ sku: "Actions Windows", quantity: 195.6 }),
-      line({ sku: "Actions macOS 3-core", quantity: 36 }),
-      line({ sku: "Actions Linux", quantity: 92, repositoryName: "Nexus-Hub" })
+  it("matches the two months whose displayed value was not censored by saturation", () => {
+    // These are the only directly checkable observations: an unsaturated bar reports
+    // its own number, while a saturated one reports only "at least 2,000".
+    //   2026-08-09: 120 Linux + 4 Windows private = 124 raw, displayed 120.7
+    //   2026-08-10: Nexus-AI at $0.80 is roughly 128 raw, displayed 126.7
+    // Both sit within ~3% of raw minutes, with the API running slightly ahead of the
+    // billing page as usage accrues - the expected direction for a reporting lag.
+    const august = [
+      line({ sku: "Actions Linux", quantity: 120 }),
+      line({ sku: "Actions Windows", quantity: 4 }),
+      line({ sku: "Actions Linux", quantity: 1163, repositoryName: "Nexus-Hub" })
     ];
-    const result = computeDrawdownMinutes(july, VISIBILITY);
-    const unweighted = 1352.666666667 + 195.6 + 36;
-    expect(unweighted).toBeLessThan(2000);
-    expect(result.minutes).toBeCloseTo(2103.866666667, 6);
-    expect(result.minutes).toBeGreaterThan(2000);
-    expect(result.usedWeighting).toBe(true);
+    const result = computeDrawdownMinutes(august, VISIBILITY);
+    expect(result.minutes).toBe(124);
+    expect(result.usedWeighting).toBe(false);
+    // Within 3% of what GitHub displayed for the same period.
+    expect(Math.abs(124 - 120.7) / 120.7).toBeLessThan(0.03);
   });
 
   it("excludes public-repository usage, which is free and never draws down", () => {
@@ -88,8 +93,11 @@ describe("drawdown weighting", () => {
 
   it("treats an unclassifiable runner as unresolved rather than weighting it as Linux", () => {
     // Weighting an unknown SKU as Linux would understate a macOS runner tenfold.
+    // v3.16.4: an unresolved item now makes the whole figure unknown rather than
+    // yielding a partial sum. The previous assertion expected 0, which is exactly
+    // the value that shipped as a confident "0%" against a 2,000-minute allowance.
     const result = computeDrawdownMinutes([line({ sku: "Actions Future Runner", quantity: 60 })], VISIBILITY);
-    expect(result.minutes).toBe(0);
+    expect(result.minutes).toBeNull();
     expect(result.unresolvedRepositories).toContain("Actions Future Runner");
   });
 
@@ -99,13 +107,35 @@ describe("drawdown weighting", () => {
     expect(result.unresolvedRepositories).toEqual(["Nexus-AI"]);
   });
 
-  it("excludes an individually unresolved repository, understating rather than overstating", () => {
+  it("reports UNKNOWN when any repository is unresolved, rather than a partial sum", () => {
+    // The v3.16.3 defect, pinned. This previously asserted 100 on the reasoning that
+    // understating is the safe direction. It is not: on a real account whose usage
+    // was mostly in a public repository, the private repository failed to resolve
+    // (no `repo` scope), every private minute was excluded, and the partial sum was
+    // ZERO - rendered as a confident 0% beside 1,362 minutes of reported usage.
+    // A number that omits the repositories which actually consume the quota is not a
+    // conservative estimate; it is a wrong answer wearing a percentage.
     const result = computeDrawdownMinutes(
       [line({ quantity: 100 }), line({ quantity: 900, repositoryName: "Mystery" })],
       VISIBILITY
     );
-    expect(result.minutes).toBe(100);
+    expect(result.minutes).toBeNull();
     expect(result.unresolvedRepositories).toEqual(["Mystery"]);
+  });
+
+  it("reproduces the shipped 0% defect and proves it is now unknown", () => {
+    // The exact shape of the account that broke: one public repository resolving
+    // fine, one private repository unresolvable without `repo` scope.
+    const result = computeDrawdownMinutes(
+      [
+        line({ quantity: 1238, repositoryName: "Nexus-Hub" }),
+        line({ quantity: 124, repositoryName: "Nexus-AI" })
+      ],
+      { "Nexus-Hub": "public" }
+    );
+    expect(result.minutes).not.toBe(0);
+    expect(result.minutes).toBeNull();
+    expect(result.unresolvedRepositories).toEqual(["Nexus-AI"]);
   });
 });
 
@@ -190,8 +220,8 @@ describe("snapshot enrichment", () => {
     const { snapshot } = enrichSnapshot(snapshotFixture(), { visibility: VISIBILITY, planName: "free" });
     // Gross is 1,287 of 2,000 = 64%. The drawdown is 120 Linux + 4 Windows x2 = 128.
     expect(snapshot.actionsMinutes.used).toBe(1287);
-    expect(snapshot.actionsMinutes.drawdown).toBe(128);
-    expect(snapshot.actionsMinutes.percentage).toBeCloseTo(6.4, 5);
+    expect(snapshot.actionsMinutes.drawdown).toBe(124);
+    expect(snapshot.actionsMinutes.percentage).toBeCloseTo(6.2, 5);
     expect(snapshot.actionsMinutes.allowanceState).toBe("verified");
     expect(snapshot.actionsMinutes.allowanceSource).toBe("plan-table");
   });
@@ -265,16 +295,18 @@ describe("repository lookups", () => {
     expect(Object.keys(visibility)).toHaveLength(3);
   });
 
-  it("does not cache a failed lookup, so one bad refresh is not permanent", async () => {
-    let attempt = 0;
-    const cache = new RepositoryVisibilityCache(() => {
-      attempt += 1;
-      return attempt === 1 ? Promise.resolve({ ok: false as const, status: 404 }) : ok({ private: true });
-    });
-    await cache.resolve(["Nexus-AI"], { token: "t", owner: "bendourthe" });
-    expect(cache.get("Nexus-AI")).toBeUndefined();
-    await cache.resolve(["Nexus-AI"], { token: "t", owner: "bendourthe" });
-    expect(cache.get("Nexus-AI")).toBe("private");
+  it("caches a 404 as private, but never caches any other failure", async () => {
+    // v3.16.4: a 404 is now MEANINGFUL - it identifies a private repository, which is
+    // what lets the extension work without the sweeping `repo` scope. Every other
+    // failure still says nothing about visibility and must not be cached, so one bad
+    // refresh does not become permanent for the session.
+    const notFound = new RepositoryVisibilityCache(async () => ({ ok: false as const, status: 404 }));
+    const priv = await notFound.resolve(["repo-a"], { token: "t", owner: "o" });
+    expect(priv["repo-a"]).toBe("private");
+
+    const serverError = new RepositoryVisibilityCache(async () => ({ ok: false as const, status: 500 }));
+    const unknown = await serverError.resolve(["repo-b"], { token: "t", owner: "o" });
+    expect(unknown["repo-b"]).toBeUndefined();
   });
 
   it("reads only the plan name from the user endpoint", async () => {
@@ -282,6 +314,46 @@ describe("repository lookups", () => {
     expect(plan).toBe("free");
     expect(await fetchAccountPlanName(() => Promise.resolve({ ok: false as const, status: 403 }), "t")).toBeNull();
     expect(await fetchAccountPlanName(() => ok({}), "t")).toBeNull();
+  });
+
+  it("asks about the OWNER being billed, not the account reading", async () => {
+    // Observed 2026-08-11 (SupiraMedical): the panel reported an organization's
+    // usage while sourcing its denominator from a personal GitHub Free plan.
+    const paths: string[] = [];
+    const record = (path: string) => { paths.push(path); return ok({ plan: { name: "team" } }); };
+
+    expect(await fetchOwnerPlanName(record, "t", { scope: "organization", name: "SupiraMedical" })).toBe("team");
+    expect(paths).toEqual(["/orgs/SupiraMedical"]);
+
+    paths.length = 0;
+    expect(await fetchOwnerPlanName(record, "t", { scope: "user", name: "benjamin-dourthe" })).toBe("team");
+    expect(paths).toEqual(["/user"]);
+  });
+
+  it("maps the owner to its plan endpoint, and enterprise to none", () => {
+    expect(planPathFor({ scope: "user", name: "someone" })).toBe("/user");
+    expect(planPathFor({ scope: "organization", name: "Supira Medical" })).toBe("/orgs/Supira%20Medical");
+    // No endpoint serves an enterprise plan name, so no denominator is claimed.
+    expect(planPathFor({ scope: "enterprise", name: "acme" })).toBeNull();
+  });
+
+  it("yields no plan for an enterprise owner without making a request", async () => {
+    let called = false;
+    const plan = await fetchOwnerPlanName(() => { called = true; return ok({ plan: { name: "enterprise" } }); }, "t", { scope: "enterprise", name: "acme" });
+
+    expect(plan).toBeNull();
+    expect(called).toBe(false);
+  });
+
+  it("returns null when an organization plan is not visible to this member", async () => {
+    // `GET /orgs/{org}` omits `plan` for a non-owner, and 403s in some configurations.
+    expect(await fetchOwnerPlanName(() => ok({ login: "SupiraMedical" }), "t", { scope: "organization", name: "SupiraMedical" })).toBeNull();
+    expect(await fetchOwnerPlanName(() => Promise.resolve({ ok: false as const, status: 403 }), "t", { scope: "organization", name: "SupiraMedical" })).toBeNull();
+  });
+
+  it("carries the organization plan through to the published Team figures", () => {
+    // The figures SupiraMedical's own billing page shows: 3,000 minutes and 2 GB.
+    expect(entitlementFor("team")).toEqual({ actionsMinutes: 3_000, actionsStorageGb: 2 });
   });
 
   it("collects distinct repository names, skipping nulls", () => {

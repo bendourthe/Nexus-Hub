@@ -362,8 +362,44 @@ export function createExtensionContext(): {
       }
     },
     extensionUri: Uri.file("extension"),
-    subscriptions: []
+    subscriptions: [],
+    // The identity the update watcher reads. Present because activation registers
+    // that watcher first, so a context without it is not a usable stub.
+    extension: { id: "nexus-hub.cursor-usage-monitor", packageJSON: { version: "0.0.0-test" } }
   };
+}
+
+/**
+ * The installed-extension registry, mirroring `vscode.extensions`.
+ *
+ * `getExtension` returning undefined is the state the update watcher reads as an
+ * uninstall in progress, which is what the Nexus-Hub installers produce when they
+ * uninstall before reinstalling.
+ */
+export const extensionRegistry = new Map<string, { id: string; packageJSON: { version: string } }>();
+const extensionChangeListeners: Array<() => void> = [];
+
+export const extensions = {
+  getExtension(id: string): { id: string; packageJSON: { version: string } } | undefined {
+    return extensionRegistry.get(id);
+  },
+  onDidChange(listener: () => void): { dispose(): void } {
+    extensionChangeListeners.push(listener);
+    return { dispose() { /* no-op */ } };
+  }
+};
+
+/** Installs (or, with an undefined version, uninstalls) an extension and notifies. */
+export function setInstalledExtension(id: string, version: string | undefined): void {
+  if (version === undefined) extensionRegistry.delete(id);
+  else extensionRegistry.set(id, { id, packageJSON: { version } });
+  for (const listener of [...extensionChangeListeners]) listener();
+}
+
+/** Clears the registry and its listeners between tests. */
+export function resetExtensionRegistry(): void {
+  extensionRegistry.clear();
+  extensionChangeListeners.length = 0;
 }
 
 export function createWebviewView(): {

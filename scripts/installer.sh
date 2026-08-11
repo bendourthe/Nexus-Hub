@@ -7,7 +7,7 @@ set -e
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-NEXUS_HUB_VERSION="3.16.3"
+NEXUS_HUB_VERSION="3.16.4"
 
 # --- Window Title ---
 printf '\033]0;Nexus-Hub Installer\007'
@@ -2060,7 +2060,12 @@ install_vscode_extensions() {
     # writing a status-bar item. The directory path also stays
     # extensions/github-usage-monitor.
     write_header "GITHUB"
-    build_and_install_one_extension "$repo_root/extensions/github-usage-monitor" "nexus-hub.github-usage-monitor" "GitHub Usage Monitor" "GitHub Usage: --" "$vscode_cli" "$vscode_label"
+    # Dual-host, unlike the Claude and Codex monitors. GitHub billing is not tied
+    # to the editor a developer happens to use, and a Cursor user has the same
+    # Actions minutes and Copilot credits to watch. Requested 2026-08-11; this
+    # deliberately reverses the v3.15.9 Phase 6 blanket rule FOR THIS MONITOR ONLY.
+    # The Cursor argument is empty when Cursor is not installed, so nothing happens.
+    build_and_install_one_extension "$repo_root/extensions/github-usage-monitor" "nexus-hub.github-usage-monitor" "GitHub Usage Monitor" "GitHub Usage: --" "$vscode_cli" "$vscode_label" "$cursor_cli" "$cursor_label"
 
     write_header "ANYSPHERE"
     build_and_install_one_extension "$repo_root/extensions/cursor-usage-monitor" "nexus-hub.cursor-usage-monitor" "Cursor Usage Monitor" "Cursor: --%" "$cursor_cli" "$cursor_label"
@@ -2077,6 +2082,11 @@ build_and_install_one_extension() {
     local status_hint="$4"
     local code_cli="$5"
     local code_label="$6"
+    # Optional SECOND host. One VSIX, installed into two editors: Cursor is a
+    # separate application with its own extension directory, so an extension
+    # installed into VS Code is simply absent there.
+    local also_cli="${7:-}"
+    local also_label="${8:-}"
 
     echo ""
     echo -e "  ${DARK_YELLOW}> ${display_name}${RESET}"
@@ -2160,6 +2170,19 @@ build_and_install_one_extension() {
         write_item "$code_label CLI not found in PATH or standard install locations." "$YELLOW"
         write_item "VSIX saved at: $vsix_file" "$RESET"
         write_item "Install manually via $code_label: Extensions > ... > Install from VSIX" "$GRAY"
+    fi
+
+    # The second host, when one was requested AND detected. Silent when Cursor is
+    # not installed: a missing optional editor is not a failure to report.
+    if [ -n "$also_cli" ]; then
+        "$also_cli" --uninstall-extension "$extension_id" 2>/dev/null || true
+        if "$also_cli" --install-extension "$vsix_file" --force 2>/dev/null; then
+            write_item "[OK] ${display_name} extension installed in $also_label!" "$GREEN"
+            write_item "  Restart $also_label to activate. Look for '${status_hint}' in the status bar." "$RESET"
+        else
+            write_item "$also_label install failed. Install manually:" "$YELLOW"
+            write_item "  \"$also_cli\" --install-extension \"$vsix_file\"" "$RESET"
+        fi
     fi
 }
 

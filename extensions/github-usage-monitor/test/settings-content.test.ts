@@ -133,9 +133,19 @@ describe("editable settings section", () => {
     expect(html).toContain('type="checkbox"');
   });
 
-  it("keeps the escape hatch to native VS Code settings", () => {
-    // Some users prefer it and it costs one button.
-    expect(settingsSectionHtml(readSettings())).toContain('data-command="openNativeSettings"');
+  it("drops the panel buttons the maintainer asked to remove, without unregistering them", () => {
+    // v3.16.4 simplified the Account group to a name plus Connect and Log out, and
+    // removed the allowance override entirely (allowances are derived now). The
+    // commands remain registered in package.json and extension.ts, so the Command
+    // Palette still reaches them - the panel got shorter, the capability did not.
+    const html = settingsSectionHtml(readSettings());
+    for (const removed of ["openNativeSettings", "manualEntry", "setToken", "rotateToken", "validateToken", "clearToken", "diagnoseAuth"]) {
+      expect(html).not.toContain(`data-command="${removed}"`);
+    }
+    // logIn / logOut are no longer here either. As of 2026-08-11 every account
+    // control lives in the panel header, so this section is settings only.
+    expect(html).not.toContain('data-command="logIn"');
+    expect(html).not.toContain('data-command="logOut"');
   });
 
   it("validates thresholds inline, beside the field rather than as a notification", () => {
