@@ -34,6 +34,8 @@ from __future__ import annotations
 import importlib.util
 from pathlib import Path
 
+import pytest
+
 _ROOT = Path(__file__).resolve().parents[2]
 _BUNDLE = (
     _ROOT / "catalog" / "skills" / "specialized-domains" / "document-to-interactive-html"
@@ -569,6 +571,268 @@ def test_svg_diagram_quality_reference_states_all_five_rules():
         assert anchor in text, f"contract missing rule: {anchor}"
     # The marker attributes that make a head behave are named, not implied.
     assert 'orient="auto"' in text and 'markerUnits="strokeWidth"' in text
+
+
+# --- 1d. v3.16.5 Phase 3: the render environment + the calibration fixture ---
+
+_ENSURE_RENDER = _BUNDLE / "scripts" / "ensure_render_env.py"
+ensure_env = _load(_ENSURE_RENDER, "ensure_render_env")
+
+# Phase 3 tracks the calibration fixture as a STANDING gate rather than a
+# one-time manual check. Located by name so Phase 7 can move it (MT-1) without
+# breaking this test; skipped rather than failed when it is absent.
+_CALIBRATION = next(
+    (p for p in (_ROOT / "nexus-hub-unit-test-workflow.html",
+                 _ROOT / "tests" / "fixtures" / "presentify" / "nexus-hub-unit-test-workflow.html")
+     if p.is_file()),
+    None,
+)
+
+
+@pytest.mark.skipif(_CALIBRATION is None, reason="calibration fixture not present")
+def test_calibration_fixture_passes_every_structural_criterion():
+    """The standing regression gate for the whole contract set.
+
+    This is what turns the fixture from an artifact someone once fixed into a
+    check that fails when either the fixture OR the scorer regresses. Both
+    directions matter: a scorer change that stops detecting a defect is as bad as
+    a fixture change that reintroduces one.
+    """
+    result = scorer.score_file(_CALIBRATION)
+    failures = [
+        f"{f['criterion']}: {f['evidence']}"
+        for f in result["findings"]
+        if f["status"] == "fail" and f.get("severity") == "high"
+    ]
+    assert not failures, "calibration fixture regressed:\n  " + "\n  ".join(failures)
+    assert result["page_pass"] is True
+
+
+@pytest.mark.skipif(_CALIBRATION is None, reason="calibration fixture not present")
+def test_calibration_fixture_has_no_stale_palette_literals():
+    """The superseded pre-v3.16.5 palette values must not reappear.
+
+    A hex literal in a presentation attribute, a `data-*` attribute, or a canvas
+    call is invisible to the CSS contrast check, so it can silently keep a value
+    the palette abandoned. Five per-section accents did exactly that (BG-1); this
+    pins the fix so it cannot quietly revert.
+    """
+    # Comments are stripped first, because the contract DOCUMENTS the superseded
+    # values (both the design-record header and the CSS note explaining why they
+    # were replaced). A live value can only be in markup, CSS, or script, never
+    # inside a comment - so stripping comments is what separates a reintroduced
+    # defect from a record of the fix. Both comment syntaxes matter: the note
+    # sits in a CSS /* */ block, the header in an HTML <!-- --> one.
+    text = _CALIBRATION.read_text(encoding="utf-8")
+    live = scorer._CSS_COMMENT_RE.sub("", scorer._COMMENT_RE.sub("", text))
+    # The needles are split so this test does not itself trip a grep for them.
+    stale = {
+        "#" + "c26565": "superseded --accent (4.36:1, below AA)",
+        "#" + "4f6d8a": "superseded --accent-2 (3.17:1, below AA)",
+        "#" + "9c7f7d": "superseded --ink-faint (failed AA on both surfaces)",
+    }
+    for literal, why in stale.items():
+        occurrences = [line for line in live.splitlines() if literal in line]
+        assert not occurrences, (
+            f"stale palette literal {literal} ({why}) reappeared in live markup:\n  "
+            + "\n  ".join(occurrences[:3])
+        )
+
+
+def test_ensure_render_env_probe_reports_a_state_and_never_installs():
+    """The probe is read-only and always classifies the host."""
+    state = ensure_env.probe()
+    assert state["state"] in {
+        "READY_PLAYWRIGHT", "READY_LOCAL_BROWSER",
+        "NEED_BROWSER", "NEED_PLAYWRIGHT", "NEED_ALL",
+    }
+    assert state["ready"] is (state["exit_code"] in (0, 10))
+    # A non-ready state must always hand the user something runnable.
+    if not state["ready"]:
+        assert state["remedy"], "a non-ready state must name its remedy commands"
+
+
+def test_ensure_render_env_exit_codes_are_distinct_per_state(monkeypatch):
+    """A caller must be able to branch on the exit code without parsing text."""
+    cases = {
+        (True, True, None): 0,        # READY_PLAYWRIGHT
+        (True, False, "chrome"): 10,  # READY_LOCAL_BROWSER
+        (True, False, None): 20,      # NEED_BROWSER
+        (False, False, "chrome"): 21, # NEED_PLAYWRIGHT
+        (False, False, None): 22,     # NEED_ALL
+    }
+    for (has_pw, has_chromium, browser), expected in cases.items():
+        monkeypatch.setattr(ensure_env, "playwright_available", lambda v=has_pw: v)
+        monkeypatch.setattr(
+            ensure_env, "bundled_chromium_available", lambda v=has_chromium: v
+        )
+        monkeypatch.setattr(
+            ensure_env, "find_local_browser",
+            lambda v=browser: __import__("pathlib").Path(v) if v else None,
+        )
+        assert ensure_env.probe()["exit_code"] == expected, (
+            f"playwright={has_pw} chromium={has_chromium} browser={browser}"
+        )
+        assert ensure_env.main(["--json"]) == expected
+
+
+def test_ensure_render_env_degrades_on_a_host_with_nothing(monkeypatch, capsys):
+    """The no-browser, no-pip host: report and exit, never crash, and name the
+    remedy so the agent can offer it once rather than degrade silently."""
+    monkeypatch.setattr(ensure_env, "playwright_available", lambda: False)
+    monkeypatch.setattr(ensure_env, "bundled_chromium_available", lambda: False)
+    monkeypatch.setattr(ensure_env, "find_local_browser", lambda: None)
+    code = ensure_env.main([])
+    assert code == 22
+    text = capsys.readouterr().err
+    assert "NEED_ALL" in text
+    assert "pip install playwright" in text
+    assert "DISCLOSE" in text  # the degradation must be disclosed, not silent
+
+
+def test_ensure_render_env_install_is_never_implicit(monkeypatch):
+    """No code path may install without --install; --dry-run proves the commands
+    without running them."""
+    calls: list = []
+    monkeypatch.setattr(ensure_env.subprocess, "run", lambda *a, **k: calls.append(a))
+    monkeypatch.setattr(ensure_env, "playwright_available", lambda: False)
+    monkeypatch.setattr(ensure_env, "bundled_chromium_available", lambda: False)
+    monkeypatch.setattr(ensure_env, "find_local_browser", lambda: None)
+
+    ensure_env.main([])                      # a bare probe
+    ensure_env.main(["--json"])              # a JSON probe
+    ensure_env.main(["--install", "--dry-run"])
+    assert calls == [], "no subprocess may run without an explicit --install"
+
+    assert ensure_env.main(["--dry-run"]) == 2  # --dry-run alone is a usage error
+
+
+def test_render_gate_fails_instead_of_skipping_when_a_browser_was_promised():
+    """The MT-1 lesson: a job that installed a browser and then skipped the
+    browser-dependent checks anyway told nobody. NEXUS_REQUIRE_RENDER=1 converts
+    that silence into a failure, while local behavior stays skip-with-note."""
+    conftest_text = (_ROOT / "tests" / "conftest.py").read_text(encoding="utf-8")
+    assert "def render_gate()" in conftest_text
+    assert "NEXUS_REQUIRE_RENDER" in conftest_text
+    assert "pytest.fail" in conftest_text and "pytest.skip" in conftest_text
+    # Every browser-dependent skip site routes through the gate.
+    for name in ("test_presentify_layout.py", "test_presentify_annotations.py"):
+        text = (_ROOT / "tests" / "skills" / name).read_text(encoding="utf-8")
+        assert "render_gate(" in text, f"{name} does not use the gate"
+        assert "pytest.skip(\"no headless browser" not in text, (
+            f"{name} still has a raw browser skip that CI cannot enforce"
+        )
+
+
+# --- 1e. v3.16.5 Phase 3: mutation-test the whole contract set ----------------
+#
+# The plan's acceptance bar for the render loop: "if the loop cannot catch a
+# seeded regression (temporarily re-break the loop-back arrow and confirm
+# detection), the loop is not done." Generalized from that one case to every
+# contract family, because a gate that catches one seeded defect and misses the
+# others is not proven. Each mutation is applied to an in-memory copy; the fixture
+# on disk is never touched.
+_SEEDED_DEFECTS = [
+    pytest.param(
+        ('<path class="loopback" d="M270 368 C 298 368, 298 122, 270 122"\n'
+         '              marker-end="url(#arrow-loop)"/>'),
+        ('<path class="loopback" d="M270 368 C 298 368, 298 122, 270 122"/>\n'
+         '        <path d="M270 122 l 8 -4 l 0 8 z" fill="var(--accent-2)"/>'),
+        "svg-arrowhead",
+        id="detached-loopback-arrowhead",
+    ),
+    pytest.param(
+        "  max-height:calc(100vh - 7rem);\n", "",
+        "svg-viewport-fit", id="uncapped-pinned-graphic",
+    ),
+    pytest.param(
+        "url(#arrow-loop)", "url(#arrow-gone)",
+        "svg-marker-integrity", id="dangling-marker-reference",
+    ),
+    pytest.param(
+        "--step--2:clamp(0.8125rem, 0.78rem + 0.16vw, 0.9375rem);",
+        "--step--2:clamp(0.6875rem, 0.66rem + 0.14vw, 0.8125rem);",
+        "font-floor", id="secondary-step-below-13px",
+    ),
+    pytest.param(
+        'font-size:var(--step--2);color:var(--ink-faint)"',
+        'font-size:.72rem;color:var(--ink-faint)"',
+        "font-floor", id="inline-style-below-13px",
+    ),
+    pytest.param(
+        "--accent:#dc8383;", "--accent:#c26565;",
+        "contrast", id="accent-reverted-below-AA",
+    ),
+    pytest.param(
+        "code{font-family:var(--f-mono);font-size:max(.92em, 0.8125rem);color:var(--accent)}",
+        "code{font-family:var(--f-mono);font-size:max(.92em, 0.8125rem)}",
+        "emphasis-token", id="token-colour-stripped",
+    ),
+]
+
+
+@pytest.mark.skipif(_CALIBRATION is None, reason="calibration fixture not present")
+@pytest.mark.parametrize("old,new,criterion", _SEEDED_DEFECTS)
+def test_seeded_defect_is_detected_and_blocks_the_page(old, new, criterion):
+    clean = _CALIBRATION.read_text(encoding="utf-8")
+    assert scorer.score_html(clean)["page_pass"], "fixture must be clean before seeding"
+    seeded = clean.replace(old, new, 1)
+    assert seeded != clean, "the mutation did not apply - anchor drifted"
+    result = scorer.score_html(seeded)
+    finding = next(f for f in result["findings"] if f["criterion"] == criterion)
+    assert finding["status"] == "fail", (
+        f"seeded {criterion} defect went undetected: {finding['evidence']}"
+    )
+    assert finding.get("severity") == "high"
+    assert result["page_pass"] is False, "a high-severity finding must block the page"
+
+
+# --- 1f. v3.16.5 Phase 3: the checker bugs a real render exposed --------------
+
+
+def test_len_px_resolves_min_and_max():
+    # max() is the idiomatic way to FLOOR a relative size, so a checker that
+    # cannot read it would fail the construction the contract asks authors to use.
+    assert scorer._len_px("max(.92em, 0.8125rem)", 1920) == 14.72  # .92 * 16
+    assert scorer._len_px("max(.5em, 0.8125rem)", 1920) == 13.0
+    assert scorer._len_px("min(2rem, 24px)", 1920) == 24.0
+
+
+def test_font_role_reads_the_last_compound_and_distinguishes_class_from_element():
+    # Both directions of the bug a 1920px render exposed: `#nav .brand` styles a
+    # non-interactive brand label but contains `nav`, and `.cmd-bar .label` styles
+    # a static caption whose CLASS is literally `label`. Grading either against
+    # the 12px interactive floor let sub-13px text ship.
+    assert scorer._font_role("#nav .brand") == "secondary"
+    assert scorer._font_role(".cmd-bar .label") == "secondary"
+    # Genuine controls still classify as interactive.
+    assert scorer._font_role(".nav a") == "interactive"
+    assert scorer._font_role(".cmd-bar button") == "interactive"
+    assert scorer._font_role(".ctl label") == "interactive"
+    assert scorer._font_role(".btn") == "interactive"
+    assert scorer._font_role("a:hover") == "interactive"
+    # Body prose and plain secondary text are unaffected.
+    assert scorer._font_role("body") == "body"
+    assert scorer._font_role("p") == "body"
+    assert scorer._font_role("footer b") == "secondary"
+
+
+def test_inline_style_declarations_are_graded_as_secondary_text():
+    # An inline style has no selector to classify, so it takes the SECONDARY floor:
+    # the strictest that is not body prose. Guessing `body` would over-fail;
+    # guessing `interactive` would under-check, which is what a render caught.
+    rules = scorer.inline_style_rules('<span style="font-size:.72rem">x</span>')
+    assert rules == [("[style] #1", {"font-size": ".72rem"})]
+    assert scorer._font_role("[style] #1") == "secondary"
+    page = (
+        '<html data-aspect="standard"><style>body{font-size:1rem}</style>'
+        '<span style="font-size:.72rem">tiny</span></html>'
+    )
+    finding = next(
+        f for f in scorer.score_html(page)["findings"] if f["criterion"] == "font-floor"
+    )
+    assert finding["status"] == "fail"
+    assert "[style] #1" in finding["evidence"]
 
 
 # --- 2. workflow template + rubric carry the required content ----------------

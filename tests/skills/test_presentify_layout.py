@@ -245,12 +245,12 @@ def test_heuristic_band_fraction_meets_contract(tmp_path):
     assert portrait < standard, "portrait should be narrower than standard"
 
 
-def test_rendered_band_width(tmp_path):
+def test_rendered_band_width(tmp_path, render_gate):
     """True rendered width when a headless browser is present; skip-with-note
     otherwise (never a hard fail on a missing browser)."""
     full_frac, mode = measure_widest_band(_build_path(tmp_path, "full"))
     if mode != "rendered":
-        pytest.skip("no headless browser available; rendered-width check skipped")
+        render_gate("no headless browser available; rendered-width check skipped")
     std_frac, _ = measure_widest_band(_build_path(tmp_path, "standard"))
     assert full_frac >= 0.95, f"full-width rendered at {full_frac:.3f} of viewport"
     assert std_frac < 0.95, f"standard rendered too wide ({std_frac:.3f})"
@@ -320,7 +320,7 @@ def _image_model_json(data_uri: str) -> str:
     )
 
 
-def test_rendered_image_box_respects_caps(tmp_path):
+def test_rendered_image_box_respects_caps(tmp_path, render_gate):
     """Headless-optional (the 1.4 pattern): a tall image renders within the 80vh
     cap with object-fit: contain. Skip-with-note when no headless browser (or no
     Pillow to build the fixture) is present."""
@@ -332,7 +332,7 @@ def test_rendered_image_box_respects_caps(tmp_path):
     try:
         from playwright.sync_api import sync_playwright  # type: ignore
     except Exception:
-        pytest.skip("no headless browser available; rendered image-box check skipped")
+        render_gate("no headless browser available; rendered image-box check skipped")
     try:
         with sync_playwright() as p:
             browser = p.chromium.launch()
@@ -346,7 +346,7 @@ def test_rendered_image_box_respects_caps(tmp_path):
             )
             browser.close()
     except Exception:
-        pytest.skip("headless browser present but render failed; check skipped")
+        render_gate("headless browser present but render failed; check skipped")
     assert box is not None, "no figure img rendered"
     assert box["fit"] == "contain", f"object-fit was {box['fit']!r}, expected contain"
     assert box["h"] <= 0.8 * 1000 + 1, f"image height {box['h']}px exceeds the 80vh cap"

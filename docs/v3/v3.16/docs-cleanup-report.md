@@ -168,3 +168,12 @@ Audit only; no file was moved, renamed, or removed.
 - **The cross-reference debt Phase 1 deliberately took on is now repaid.** Phase 1 wrote and then removed two forward references to this file so it could pass its own gate without a dangling link; Phase 2 restored both, so the two contracts now point at each other and neither claims a file that does not exist.
 - **No scratch docs created.** Nothing to propose for cleanup.
 - **The one known misplacement is unchanged**: the calibration fixture still sits at the repository root, tracked but not homed, deferred to Phase 7 (MT-1).
+
+## v3.16.5 Phase 3 - real render loop (audit mode, 2026-08-11)
+
+Audit only; no file was moved, renamed, or removed.
+
+- **One new artifact, correctly placed**: `catalog/skills/specialized-domains/document-to-interactive-html/scripts/ensure_render_env.py`, referenced from `SKILL.md` (the Step 9 provisioning bullet and the Bundled Resources list) and from `references/visual-qa-rubric.md`. It is a per-skill bundled script, so it reaches every platform through the existing recursive skill-tree copy with NO installer edit and no `DEV_ONLY_SCRIPTS` entry - it is a distributed artifact, not a repo-internal guard.
+- **No `.ps1` sibling is owed**: the parity rule in AGENTS.md applies to `catalog/hooks/<name>.sh` and to `.sh` scripts under a skill's `scripts/`. This is a `.py`, cross-platform by construction, and its Windows browser-detection paths are the primary tested case.
+- **No scratch docs committed.** The dogfood render harness and the seeded-regression prover ran from the session scratchpad; the durable half of the latter was promoted into `tests/skills/test_presentify_visual_qa.py` as a parametrized mutation test rather than left as a loose script.
+- **The one known misplacement is unchanged**: the calibration fixture still sits at the repository root, tracked, deferred to Phase 7 (MT-1). Phase 3 narrowed MT-1 by half - it is now guarded by two standing tests plus a CI scoring step, so only its LOCATION remains open.

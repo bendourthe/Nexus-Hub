@@ -69,10 +69,15 @@ _BAND_SELECTOR_RE = re.compile(
     r"^section|\bmain\b|gutter",
     re.IGNORECASE,
 )
-_INTERACTIVE_SELECTOR_RE = re.compile(
-    r"\b(?:a|button|input|select|textarea|summary|label)\b|:hover|:focus|"
-    r"btn|chip|tab|ctl|nav|link|toggle|control",
-    re.IGNORECASE,
+# An interactive ELEMENT being styled directly (the compound starts with a name).
+_INTERACTIVE_ELEMENT_RE = re.compile(
+    r"^(?:a|button|input|select|textarea|summary|label)\b", re.IGNORECASE
+)
+# A class/id naming an interactive COMPONENT. Deliberately excludes bare `label`
+# and `nav`: `.label` is usually a static caption, and `#nav .brand` is a label
+# inside a nav rather than a control.
+_INTERACTIVE_CLASS_RE = re.compile(
+    r"btn|chip|\btab\b|ctl|toggle|control|nav-link|menu-item", re.IGNORECASE
 )
 _VAR_RE = re.compile(r"var\(\s*(--[a-z0-9_-]+)\s*(?:,([^()]*))?\)", re.IGNORECASE)
 _TOKEN_MARKUP_RE = re.compile(r"<(?:code|kbd|samp)\b", re.IGNORECASE)
@@ -96,6 +101,7 @@ _PATH_CMD_RE = re.compile(r"([MmLlHhVvCcSsQqTtAaZz])([^MmLlHhVvCcSsQqTtAaZz]*)")
 _NUMBER_RE = re.compile(r"-?\d*\.?\d+(?:[eE][-+]?\d+)?")
 _URL_REF_RE = re.compile(r"url\(\s*#([^)\s]+)\s*\)", re.IGNORECASE)
 _SELECTOR_TOKEN_RE = re.compile(r"[.#]([A-Za-z][\w-]*)")
+_INLINE_STYLE_RE = re.compile(r'''\bstyle\s*=\s*["']([^"']*)["']''', re.IGNORECASE)
 
 _COMMENT_RE = re.compile(r"<!--.*?-->", re.DOTALL)
 _PAGE_MAX_RE = re.compile(r"--page-max:\s*([^;]+);")
@@ -128,6 +134,15 @@ def _len_px(token: str, viewport: int, root_font: int = 16) -> float:
             for part in _split_top_level(token[len("clamp(") : -1], ",")
         )
         return max(low, min(pref, high))
+    # min() / max() over comma-separated lengths. `max(.92em, 0.8125rem)` is the
+    # idiomatic way to floor a relative size, so a checker that cannot read it
+    # would fail the very construction the contract asks authors to use.
+    for name, reducer in (("min(", min), ("max(", max)):
+        if token.startswith(name) and token.endswith(")"):
+            return reducer(
+                _len_px(part, viewport, root_font)
+                for part in _split_top_level(token[len(name) : -1], ",")
+            )
     # An additive preferred term such as `0.94rem + 0.3vw`; CSS allows the bare
     # sum inside clamp()/min()/max() without a calc() wrapper.
     parts = _split_top_level(token, "+")
@@ -218,6 +233,29 @@ def _finding(
     if severity:
         entry["severity"] = severity
     return entry
+
+
+def inline_style_rules(html: str) -> list[tuple[str, dict[str, str]]]:
+    """Declarations from `style="..."` attributes, as pseudo-rules.
+
+    A CSS-rule parser cannot see an inline style, so a size declared there is
+    graded by nothing. That is not hypothetical: an inline
+    `style="font-size:.72rem"` rendered at 11.52px on every viewport of this
+    repo's own calibration fixture while the font-floor check reported all 40
+    declared sizes clean, and only a real render caught it. The selector is
+    synthesized as `[style] #N` so findings still name a locatable element.
+    """
+    rules: list[tuple[str, dict[str, str]]] = []
+    for index, body in enumerate(_INLINE_STYLE_RE.findall(html)):
+        decls: dict[str, str] = {}
+        for decl in body.split(";"):
+            if ":" not in decl:
+                continue
+            prop, _, value = decl.partition(":")
+            decls[prop.strip().lower()] = value.strip()
+        if decls:
+            rules.append((f"[style] #{index + 1}", decls))
+    return rules
 
 
 def css_rules(html: str) -> list[tuple[str, dict[str, str]]]:
@@ -345,24 +383,45 @@ def resolve_var(value: str, props: dict[str, str], depth: int = 4) -> str:
 
 
 def _font_role(selector: str) -> str:
-    """Classify a font-size rule's text role: body prose, interactive, or secondary."""
+    """Classify a font-size rule's text role: body prose, interactive, or secondary.
+
+    The interactive test reads only the LAST compound of each selector - the thing
+    actually being styled - and distinguishes an ELEMENT name from a CLASS name.
+    Matching any token anywhere was wrong in both directions: `#nav .brand` styles
+    a non-interactive brand label but contains `nav`, and `.cmd-bar .label` styles
+    a static caption whose class is literally `label`. Both were graded against the
+    12px interactive floor instead of the 13px secondary floor, and both shipped
+    below 13px until a real render measured them.
+    """
+    if selector.startswith("[style]"):
+        return "secondary"
     parts = [part.strip().lower() for part in selector.split(",")]
     if any(part in ("body", "html", "p") for part in parts):
         return "body"
-    if any(_INTERACTIVE_SELECTOR_RE.search(part) for part in parts):
-        return "interactive"
+    for part in parts:
+        compound = re.split(r"[\s>+~]+", part)[-1]
+        compound = re.sub(r"::?[a-z-]+(\([^)]*\))?", "", compound)
+        if compound.startswith((".", "#")):
+            if _INTERACTIVE_CLASS_RE.search(compound):
+                return "interactive"
+        elif _INTERACTIVE_ELEMENT_RE.match(compound):
+            return "interactive"
     return "secondary"
 
 
 def check_font_floor(
-    rules: list[tuple[str, dict[str, str]]], viewport: int = 1920
+    rules: list[tuple[str, dict[str, str]]],
+    viewport: int = 1920,
+    inline: list[tuple[str, dict[str, str]]] | None = None,
 ) -> dict[str, Any]:
     """Rule 4: every font-size clears its role floor at BOTH the clamp minimum and
-    the resolved value at `viewport`."""
+    the resolved value at `viewport`, including sizes declared in inline
+    `style="..."` attributes (which no CSS-rule parser can see)."""
+    inline = inline or []
     props = custom_properties(rules)
     offenders: list[str] = []
     checked = 0
-    for selector, decls in rules:
+    for selector, decls in rules + inline:
         declared = decls.get("font-size")
         if declared is None:
             continue
@@ -951,7 +1010,7 @@ def score_html(
     # 6-9. Fluid layout and readability (references/responsive-typography.md).
     rules = css_rules(html)
     findings.append(check_fluid_spacing(rules))
-    findings.append(check_font_floor(rules, viewport))
+    findings.append(check_font_floor(rules, viewport, inline_style_rules(stripped)))
     findings.append(check_emphasis_token(stripped, rules))
     findings.append(check_contrast(rules))
 

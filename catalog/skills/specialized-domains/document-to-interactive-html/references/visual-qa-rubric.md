@@ -51,9 +51,14 @@ The page PASSES when there is NO open finding with `severity: high`. A `medium` 
 
 ## The degradation contract (structural vs agent-vision)
 
-- **Headless browser AND agent vision**: grade both kinds. Measure bands and boxes, AND compare each segment's screenshot to its SOURCE figure / section.
-- **Headless browser, no vision step**: grade the STRUCTURAL kind from the rendered DOM and computed CSS (`scripts/visual_qa_score.py --render`).
-- **No headless browser**: degrade to the STRUCTURAL kind via the markup / computed-CSS heuristic (`scripts/visual_qa_score.py`, structural mode) and note the degradation in one line. NEVER hard-fail on a missing browser.
+The rendered path is the DEFAULT (v3.16.5). Degradation is a disclosed exception, reached only after the provisioning offer, never a silent fallback.
+
+- **Step 0 - probe, then offer.** Run `scripts/ensure_render_env.py` BEFORE grading. It exits with a distinct code per state and prints the exact one-time provisioning commands. If the state is not ready, offer the install ONCE, up front. A browser is usually one consented command away, and skipping straight to the structural subset is how this repo shipped a stranded paragraph, an 11px footer, and a diagram in pieces from runs that believed they had passed.
+- **Headless browser AND agent vision** (the default): grade both kinds. Capture 1920x1080, 1366x768, and 390x844 plus the interaction states, measure bands and boxes, AND compare each segment's screenshot to its SOURCE figure / section.
+- **Headless browser, no vision step**: grade the STRUCTURAL kind from the rendered DOM and computed CSS.
+- **No headless browser** (only after the offer was declined or failed): degrade to the STRUCTURAL kind via the markup / computed-CSS heuristic (`scripts/visual_qa_score.py`, structural mode) and state the degradation in one line in the final report. NEVER hard-fail on a missing browser.
+
+Why the 1366x768 capture is not optional: a `clamp()` is usually still pinned at its MINIMUM at that width, so the readability floors bite there and not at 1920px. Grading only the wide viewport passes type that resolves correctly on a monitor and is unreadable on the laptop most readers use.
 
 When only the structural subset ran, label the page-level verdict "structural-only" so the reader knows the AGENT-VISION criteria (crop of meaningful content, dead space, annotation placement vs source, imagery relevance, contrast and legibility) were not graded. A structural-only pass is a weaker but valid gate, recorded as such.
 
@@ -63,5 +68,6 @@ When only the structural subset ran, label the page-level verdict "structural-on
 - `references/svg-diagram-quality.md` - the authored-SVG integrity contract criterion 8 grades: marker-based arrowheads, dash patterns clear of labels, connectors on node edges, viewport-fit for pinned graphics, and the numeric geometry self-check.
 - `references/responsive-typography.md` - the fluid-layout and readability contract criteria 6-7 grade: macro-spacing fluidity, viewport-serving wrapping, the tokenized type scale, the rendered-size floors, the two-axis emphasis-token rule, and the validated contrast floors.
 - `references/figure-reconstruction.md` - the Phase 3 annotated-figure overlay-recreation pattern and its confidence gate.
+- `scripts/ensure_render_env.py` - the render-environment probe the loop runs FIRST, so a degraded environment is explicit and remediable rather than a silent fallback.
 - `scripts/visual_qa_score.py` - the deterministic structural scorer that checks the STRUCTURAL subset headless-optional.
 - `assets/visual-qa-workflow.js` - the Dynamic-Workflow template that fans the per-segment grading out (Dynamic Workflows when available, degrading to subagents then a single sequential pass).

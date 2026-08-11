@@ -22,6 +22,10 @@ on:
       - 'docs/v3/v3.13/development/fixtures/verify_universal_ingestion.py'
       - 'docs/v3/v3.13/development/fixtures/verify_imagery.py'
       - '.github/workflows/presentify-extractor.yml'
+  # The render job below is gated to merges + this schedule; the fast verify
+  # job opts OUT of the schedule so a cron run does not double-bill it.
+  schedule:
+    - cron: '17 4 * * 1'
   pull_request:
     branches: [main, develop]
     paths:
@@ -47,6 +51,8 @@ concurrency:
 
 jobs:
   verify:
+    # Browser-free. Skipped on the cron run, which exists for the render job.
+    if: github.event_name != 'schedule'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -70,11 +76,14 @@ jobs:
         # Full-width canvas + image-sizing contract (layout suite) and the
         # extractor prominence signals (page_fraction + native width/height for
         # PPTX and PDF). This runner installs the heavy extractor libs, so the
-        # prominence tests run here (they importorskip elsewhere). The two
-        # headless-render checks skip-with-note (no browser on this runner); the
-        # injected-var, offline, head-integrity, CSS-heuristic band, image-cap,
-        # and extractor-signal assertions all run browser-free. A gated headless
-        # render job is deferred to a later phase per the plan.
+        # prominence tests run here (they importorskip elsewhere). This job
+        # installs NO browser, so the three browser-dependent checks
+        # skip-with-note here by design; the `render` job below is the one that
+        # installs chromium and enforces them via NEXUS_REQUIRE_RENDER=1
+        # (v3.16.5 Phase 3, closing v3.15 MT-1). Everything else - injected-var,
+        # offline, head-integrity, CSS-heuristic band, image-cap, the four
+        # typography checks, the three SVG checks, and the extractor signals -
+        # runs browser-free.
         run: python -m pytest tests/skills/ -v
 
       - name: Generate fixtures
@@ -94,3 +103,67 @@ jobs:
 
       - name: Run the v3.13 imagery Tier 2/3 suite (offline, no network / GPU)
         run: python docs/v3/v3.13/development/fixtures/verify_imagery.py
+
+  render:
+    # The TRUE rendered checks (v3.16.5 Phase 3, closes v3.15 known-gap MT-1,
+    # whose suggested next step was exactly "gate a headless-render job to
+    # merges/schedule so the true rendered-width check runs in CI").
+    #
+    # Gated to merges and the weekly cron, NOT to pull requests: a browser
+    # download plus a real render is the expensive part of this workflow, and PR
+    # feedback is already covered by the browser-free `verify` job. The point of
+    # the gate is that the rendered checks run REGULARLY and before anything
+    # lands on a protected branch - not on every push to a topic branch.
+    if: github.event_name == 'schedule' || (github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: '.github/workflows/presentify-extractor.yml'
+
+      - name: Install the render + extractor dependencies
+        run: >
+          pip install playwright python-pptx python-docx openpyxl pdfplumber
+          pypdf pypdfium2 Pillow reportlab pytest
+
+      # The browser download is ~130MB and changes only when Playwright's pinned
+      # revision does, so it is keyed on the resolved playwright version rather
+      # than on the workflow file.
+      - name: Resolve the Playwright version for the cache key
+        id: pw
+        run: echo "version=$(python -c 'import importlib.metadata as m; print(m.version("playwright"))')" >> "$GITHUB_OUTPUT"
+
+      - name: Cache the Playwright browser download
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ms-playwright-chromium-${{ runner.os }}-${{ steps.pw.outputs.version }}
+
+      - name: Install chromium
+        run: python -m playwright install --with-deps chromium
+
+      - name: Probe the render environment (must report READY)
+        run: |
+          python catalog/skills/specialized-domains/document-to-interactive-html/scripts/ensure_render_env.py --json
+          # Exit 0 = READY_PLAYWRIGHT. Anything else means the install above did
+          # not produce a launchable browser, and the rendered checks below would
+          # silently degrade - which is the whole defect this job exists to end.
+
+      - name: Run the presentify suite with the rendered checks ENFORCED
+        # NEXUS_REQUIRE_RENDER=1 turns the browser-dependent skips into failures.
+        # Without it a broken browser install would present as three quiet skips
+        # inside a green run, which is exactly how MT-1 went unnoticed for four
+        # minor versions.
+        env:
+          NEXUS_REQUIRE_RENDER: '1'
+        run: python -m pytest tests/skills/ -v
+
+      - name: Score the calibration fixture (all structural criteria)
+        # The full-width band, image caps, overlay integrity, the four typography
+        # checks, and the three SVG checks, against the standing fixture.
+        run: python catalog/skills/specialized-domains/document-to-interactive-html/scripts/visual_qa_score.py nexus-hub-unit-test-workflow.html

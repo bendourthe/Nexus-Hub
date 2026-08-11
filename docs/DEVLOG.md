@@ -1,5 +1,34 @@
 # Development Log
 
+## [2026-08-11] - v3.16.5 Phase 3: the real render loop
+
+### What Changed
+
+The enforcement keystone. A new `scripts/ensure_render_env.py` probes the local headless-render environment and exits with a distinct code per state; SKILL.md Step 9 now makes the RENDERED path the default and the degradation an explicitly disclosed exception; a `render` job gated to merges plus a weekly cron installs Playwright chromium and runs the suite with `NEXUS_REQUIRE_RENDER=1`, which converts the browser-dependent skips into failures; and the calibration fixture was re-verified by actually rendering it at 1920x1080, 1366x768, and 390x844. Closes v3.15 known-gap MT-1.
+
+### Why It Changed
+
+Phases 1 and 2 wrote two contracts and eleven deterministic checks, and both phases ended by routing their hardest items to this one with the same reason: a static parser had reached the limit of what markup can tell it. Meanwhile the loop itself degraded silently whenever no browser was importable, so a run could report a clean visual pass having never seen a pixel.
+
+### Decisions Made
+
+- **The environment was capable the whole time, and nothing said otherwise.** Playwright and a cached chromium were already installed on this host, yet the three browser-dependent checks skipped across every Phase 1 and Phase 2 run and then passed consistently after one warm-up launch. That is the entire argument for an explicit probe: the silent fallback was not protecting anyone from a missing dependency, it was hiding a working one.
+- **A skip is only honest when nobody promised a browser.** `NEXUS_REQUIRE_RENDER=1` turns the runtime skip into a failure, because a CI job that deliberately installs chromium and then skips the checks anyway tells nobody. Local behavior is unchanged: skip-with-note, never a hard fail on a missing browser. Verified in all three directions - browser + flag passes, no browser + flag fails loudly, no browser without the flag still skips.
+- **Launching is the only honest capability test.** The probe launches chromium rather than checking for a cache directory, because a cache can exist while the build inside it is unusable - and that failure would otherwise surface inside the QA loop, which is precisely where it degrades quietly.
+- **`--qa-depth` bounds cost, not honesty.** Even `light` performs one real render when a browser is available. Only a browserless host runs structural-only.
+- **The render found four defects that had passed a green structural gate**, and two were bugs in the checker rather than in the page. A 12.48px brand label was misclassified as interactive because `_font_role` matched `nav` anywhere in the selector; 12.2px emphasis tokens use a fractional `em` the checker explicitly declines to resolve; an 11.52px inline `style` attribute was invisible to a CSS-rule parser; and a 390px horizontal overflow had been introduced by Phase 2's own viewport-fit fix.
+- **The overflow's root cause was not the graphic.** At 390px the document scrolled to 512px, and the pinned SVG looked like the culprit at 492px wide. It was a symptom: the mobile media queries override `grid-template-columns` to `1fr`, dropping the `minmax(0, ...)` the desktop rules use, and `1fr` means `minmax(auto, 1fr)` whose `auto` minimum is the content's min-content - so a wide `<pre>` stretched the track and the SVG merely filled it. Fixed in all five single-column overrides rather than by capping the SVG's width.
+- **The seeded-regression bar was raised from one case to eight.** The plan asked for the loop-back arrow to be re-broken and detection confirmed. A gate that catches one seeded defect and misses the others is not proven, so every contract family is seeded and asserted, and the check is now a parametrized mutation test rather than a one-off.
+- **`defusedxml` stays out and a fabricated SHA stayed out.** The XML hardening from Phase 2 held. Separately, the browser-download cache needed `actions/cache`, which this repo pins nowhere else; the SHA was resolved through the GitHub API rather than written from memory, after an invented one had already been typed into the file.
+
+### Verification
+
+59 tests in `tests/skills/test_presentify_visual_qa.py` (from 42), 561 passed / 0 skipped across `tests/skills/` - the three long-standing browser skips now RUN. Coverage: `visual_qa_score.py` 93% at 531 statements, `ensure_render_env.py` 83%. `ruff check --ignore RUF100` clean on the bundled scripts (CI's exact lint target). All ten `make validate` guards pass individually, including `validate_workflow_security.py` on the modified workflow. The scorer reports PASS on the fixture across all twelve criteria; a real render confirms no horizontal overflow at any of the three viewports, secondary text at or above 13px and interactive text at or above 12px everywhere, and the pinned graphic fitting its slot at every width. All eight seeded defects are detected and each blocks the page.
+
+### Known Issues
+
+One new open (WN-3: `em`-relative sizes are render-verified only, correctly closed by the loop this phase shipped rather than by more parsing). Three closed: BG-2 (the three rendered floor violations plus the overflow regression), v3.15 MT-1 (the headless render now runs in CI), and Phase 1's NI-2 / WN-1 plus Phase 2's WN-2 / NI-3 are all now answered by the render rather than carried. v3.15 MT-2 remains open by design and got a status note so no reader assumes Phase 3 closed it - its remaining half is Phase 5's placement pass. MT-1 (the fixture's location) is narrowed to location only: it is now guarded by two standing tests plus a CI scoring step. Zero release blockers.
+
 ## [2026-08-11] - v3.16.5 Phase 2: SVG diagram-quality contract
 
 ### What Changed
