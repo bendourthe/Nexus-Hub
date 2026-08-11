@@ -1,5 +1,35 @@
 # Development Log
 
+## [2026-08-11] - v3.16.5 Phase 6: cinematic scroll-scrub
+
+### What Changed
+
+The last feature phase. A new opt-in `cinematic` interactivity level ships with its protocol (`references/scroll-scrub.md`), a zero-dependency engine (`assets/scroll-scrub-engine.js`), wiring into both intake surfaces, and the reverse-engineering matrix row that confines attribution to policy documentation. The former v3.20.1 scroll-scrub plan is fully absorbed.
+
+### Why It Changed
+
+R11 asked for the scroll-world-style continuous fly-through to be reachable through the interactivity question, with agent discretion under the high interaction level. The capability is genuinely valuable for a document with a linear narrative; the upstream project it derives from is also intrinsically dependent on paid hosted generation, so the whole exercise was extracting the mechanics and the presentation grammar while dropping the pipeline.
+
+### Decisions Made
+
+- **Stills-only is the BASE mode; video is the enhancement.** The engine is built so that under `prefers-reduced-motion: reduce` no video element is created at all - not created-and-paused, not created-muted: not created. A paused video still downloads and still decodes its first frame, so only absence is a guarantee. Building it in this direction matters: a reduced-motion path bolted on afterwards is the one that regresses, and this one is verified in a real browser rather than by reading the code.
+- **The size / cost gate is stated in numbers before anything is built.** Base64 inflates binary by about a third, so a 2 MB clip lands as ~2.7 MB of markup, and past roughly 15-20 MB the single-file guarantee stops being a feature and becomes a delivery problem. Clip count, projected size, key requirements, and QA-depth cost are stated and confirmed first. Preferring stills-only when the estimate is large is a legitimate outcome, not a degradation.
+- **Under `rich` it is proposed, priced, and confirmed - never silently selected.** A reader who asked for `rich` did not agree to a 15 MB file. The three surfacing paths are the explicit flag, the menu's fourth option, and a confirmed rich-level proposal; a headless run never selects it.
+- **The whole upstream pipeline was dropped, not adapted.** Hosted image / video generation is the generation-as-service Hard-No, and it applies to a vendor CLI exactly as to an API - so a cinematic build never calls one and never prints one for the user to run either. Also not adopted: the competing slash command (cinematic is a level of `/presentify`, not a fork), the multi-file sibling `.mp4` layout (breaks the offline single-file contract), the blank brand-industry interview (presentify presents existing documents; inventing a narrative would make it a different product), and the paid portrait chain.
+- **The plan contradicted itself, and the mechanical gate is what caught it** (DF-4). Sub-task 6.3 says to state explicitly that there is no separate `/scroll-world` command; sub-task 6.4 requires zero occurrences of `scroll-world` in `catalog/`. Following 6.3 literally makes 6.4 fail by naming the upstream repository in a distributed artifact. The Attribution Rule is the binding authority, so 6.4 wins and 6.3's intent was satisfied without the name. The first draft did name it; only the grep caught it, and a parametrized test now guards the five most likely files.
+- **The knockout helper is DEFERRED with a reason** (DF-3), which sub-task 6.3 explicitly asks for as one of its two options. There is no call site: nothing in the engine, the protocol, or the intake asks for a background-knocked-out still, and the AGENTS.md scope-fit gate declines a module whose only justification is a hypothetical future extension. Pillow being already available is not the obstacle - the missing call site is.
+- **`image-sizing` was firing on any embedded data URI** (BG-3), including one inside an inline `<script>` config, which made every cinematic build fail for a missing cap on a figure it does not have. Found by doing what sub-task 6.4 asks - running one cinematic build through the loop - and fixed by requiring a real figure box. A stage layer is separately exempt on its merits: it is a decorative `aria-hidden` backdrop for which `object-fit: cover` is correct, since `contain` would letterbox the stage and defeat the level.
+
+### Verification
+
+17 tests in the new `tests/skills/test_presentify_cinematic.py`; 634 passed / 0 skipped across `tests/skills/`. `ruff check --ignore RUF100` clean. All ten `make validate` guards pass. The vendor-name gate returns 0 across `catalog/` and `templates/`, with attribution present only in the matrix. One cinematic stills-only build was scored (PASS, 0 high-severity across all 13 criteria) and rendered at 2560x1300 under BOTH motion preferences: 0 video elements, 3 stills, no horizontal overflow, `aria-hidden` stage, and zero off-host requests. The canonical calibration fixture is unaffected.
+
+### Known Issues
+
+Two deferred-or-corrected, one closed. DF-3 (knockout helper, no call site) and DF-4 (the plan's naming contradiction, resolved in favour of the Attribution Rule) are recorded rather than silently handled. BG-3 closed. Zero release blockers.
+
+One incidental finding worth keeping: the verification build overflowed horizontally at 2560px because it set `width:100%` AND `padding-inline` without `box-sizing: border-box` - the default `content-box` adds padding on top of the 100%. That was my page's bug, not the engine's, but it produces a scrollbar rather than an obviously broken layout, so rule 1 of the typography contract now names the footgun in one line.
+
 ## [2026-08-11] - v3.16.5 Phase 5: imagery placement intelligence
 
 ### What Changed

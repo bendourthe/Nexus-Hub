@@ -23,6 +23,8 @@ Every MACRO-layout dimension - band padding, grid gaps, column widths, gutters, 
 footer .cols{ display: grid; gap: 2rem; }
 ```
 
+One footgun worth naming, because it produces a horizontal scrollbar rather than an obviously wrong layout: a band with BOTH `width: 100%` and `padding-inline` overflows its parent unless `box-sizing: border-box` is in effect, since the default `content-box` adds the padding on top of the 100%. Set `*{ box-sizing: border-box }` once (every well-formed page here does) or drop the redundant `width: 100%` - a block-level band already fills its container.
+
 Observable criterion: no top-level band, grid, or column container declares a fixed `padding` / `gap` at or above 24px (1.5rem at the 16px root). At or above that size the dimension is macro spacing and must be fluid. The scorer flags each occurrence and escalates to HIGH severity past two, because one stray fixed gap is a slip while three is a layout authored without the contract.
 
 ## 2. Wrapping serves the viewport, not a fixed column

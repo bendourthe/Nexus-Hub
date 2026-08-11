@@ -205,3 +205,14 @@ Audit only; no file was moved, renamed, or removed.
 - **One pre-existing test fixture was updated rather than worked around**: `_CLEAN` in `test_presentify_visual_qa.py` is scored with `expect_images=1`, i.e. as a consented run, so under the new check it needed the placement record such a run is required to write. The fixture predates the convention; the check is right.
 - **No scratch docs committed.** The per-sub-task patch scripts ran from the session scratchpad.
 - **A closure note was appended to `docs/v3/v3.15/known-gaps.md`** for MT-2, not a rewrite - the original record and its Phase 3 status note both stand as written, with the closure added beneath them.
+
+## v3.16.5 Phase 6 - cinematic scroll-scrub (audit mode, 2026-08-11)
+
+Audit only; no file was moved, renamed, or removed.
+
+- **Three new artifacts, all correctly placed and all referenced**: `references/scroll-scrub.md` (protocol), `assets/scroll-scrub-engine.js` (the engine - the bundle's first `assets/` JavaScript beyond the Dynamic-Workflow template), and `tests/skills/test_presentify_cinematic.py`. Both bundle files are referenced from `SKILL.md` (Step 6 plus Bundled Resources), so the orphan-bundle audit passes with 0 warnings.
+- **No installer edit needed.** Both new bundle files sit under the skill's own `references/` and `assets/`, which both installers copy recursively. The engine is a `.js` asset, not a repo-level `scripts/` entry, so it needs no explicit-name copy step and no `DEV_ONLY_SCRIPTS` entry.
+- **No `.ps1` sibling is owed**: the parity rule applies to `.sh` scripts. The engine is browser JavaScript.
+- **Attribution is confined to `docs/policy/mcp-reverse-engineering-matrix.md`**, which is the one place the rule permits it. Verified mechanically: 0 occurrences of the upstream project, vendor, or author name across `catalog/` and `templates/`, and a parametrized test now guards the five most likely files.
+- **The matrix section preamble was widened rather than contradicted.** It said the skill-native rows are "pure Markdown skills with zero code"; this adoption also ships a zero-dependency browser asset, so the sentence now describes that accurately and classifies the engine half as `re-full`.
+- **No scratch docs committed.** The cinematic verification build wrote a temporary page, scored it, rendered it at two motion preferences, and deleted it.

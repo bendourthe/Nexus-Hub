@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v3.16.3 `github-usage-monitor-ux` is RELEASED (all six phases; 8 closed, 8 carried, 0 release blockers). v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (all 5 phases complete; reconciled and release-ready, unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
-**Last updated**: 2026-08-11 (v3.16.5 Phase 5 append: imagery placement intelligence, closing v3.15 MT-2; 10 open, 6 closed, 2 accepted-and-documented, 0 release blockers)
+**Last updated**: 2026-08-11 (v3.16.5 Phase 6 append: cinematic scroll-scrub - protocol, offline engine, intake wiring, matrix closure; 12 open, 7 closed, 4 accepted-or-deferred, 0 release blockers)
 
 > **File-lifecycle note**: this ledger was created ahead of any v3.16 implementation, by a comparison that deliberately claimed no release slot, so it began with only the `## Comparison-Sourced Deferrals` section. Each v3.16 version-implementation phase **appends** its own `## v3.16.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` numbering, which is namespaced separately from the `CD-#` and `TR-#` ids used above.
 
@@ -970,13 +970,35 @@ It is deliberately **not** decided here. It affects four extensions, it is a que
 - **Why it is a warning rather than a check**: the scorer cannot tell which `--base`-ish color a given band composites to without rendering, and the threshold is a judgment about how much image show-through is acceptable rather than a boundary with a right answer. The contract states the number and the reason, the rubric assigns the composited-contrast judgment to the AGENT-VISION half, and a rationalization row rebuts "it looks readable to me".
 - **Suggested next step**: if a future page needs a lighter scrim, the contract's answer is to move the text off the image rather than to lower the threshold. A rendered check is possible in principle (sample the composited pixels behind the text box) and would belong in the Phase 3 loop, not the static scorer - only worth building if a real page pushes on it.
 
-### v3.16.5 Phase 1-5 summary
+### DF-3 - DEFERRED with a reason: the local knockout helper is NOT adopted
+
+- **Decision required by**: v3.16.5 Phase 6 sub-task 6.3, which explicitly says to decide the optional local knockout helper and, if out of scope, "record an explicit DEFER - no half-wired orphan".
+- **What it would have been**: `scripts/knockout_background.py`, a local PIL flood-fill that makes a still's border-connected background transparent, for diorama-style floating subjects in a cinematic scene. The upstream pack ships an equivalent; it is genuinely local, needs no network, and Pillow is already a lazy-imported dependency elsewhere in this bundle, so the dependency is not the obstacle.
+- **Why DEFERRED**: there is no call site. The cinematic path this phase built consumes clips and stills the user supplies or that the existing Tier 1 / 2 / 3 imagery paths produce; nothing in the engine, the protocol, or the intake asks for a background-knocked-out still. Adding the script now would ship a module that no shipped behavior invokes, which is exactly what the AGENTS.md scope-fit gate declines: "if the only justification is an uncommitted future runner, a design note, or a hypothetical extension with no validation contract, keep the design in docs or todo state until the real call site appears." A diorama look is a design possibility, not a committed feature.
+- **Suggested next step**: adopt it the same cycle a cinematic scene composition genuinely needs floating subjects - that is when the call site exists and a test can assert something real about it. Roughly 40 lines plus a lazy Pillow import and a fixture. Until then the absence is the correct state, and this entry is the record so a later reader does not mistake it for an oversight.
+
+### DF-4 - CORRECTED: the plan contradicted itself about naming the upstream project
+
+- **Source phase**: v3.16.5 Phase 6, sub-tasks 6.3 and 6.4
+- **The contradiction**: 6.3 instructs "State explicitly there is no separate `/scroll-world` command", while 6.4 requires a grep of `catalog/` for `Monid|Higgsfield|Seedance|scroll-world` to return ZERO. Following 6.3 literally makes 6.4 fail, in a distributed artifact, by naming the upstream repository.
+- **How it was resolved**: the AGENTS.md Reverse-Engineering Attribution Rule is the binding authority - the upstream repo, product, or author must not appear in a user-facing artifact - so 6.4's gate wins and 6.3's INTENT was satisfied without the name. `references/scroll-scrub.md` now reads "There is no separate cinematic command and no separate cinematic skill - no rival slash command exists or should be created for this." The point 6.3 wanted made (no competing command, cinematic is a level of `/presentify`) is made in full; only the vendor name is gone.
+- **Why it is recorded**: the first draft DID name it, and only the mechanical grep caught it. A parametrized test (`test_no_vendor_name_reaches_a_distributed_artifact`) now checks the engine, the protocol, `interactive-features.md`, `SKILL.md`, and the command file, so the next helpful sentence cannot reintroduce it. Attribution lives in `docs/policy/mcp-reverse-engineering-matrix.md` only.
+
+### BG-3 - CLOSED in Phase 6: `image-sizing` fired on a data URI anywhere in the file
+
+- **Target file**: `catalog/skills/specialized-domains/document-to-interactive-html/scripts/visual_qa_score.py`
+- **Source phase**: v3.16.5 Phase 6, sub-task 6.4 (found by running one cinematic build through the loop, which is what that sub-task exists for)
+- **What was wrong**: the check treated `"data:image" in html` as evidence of a figure, so it demanded the Phase 2 caps (`max-height: 80vh`, `object-fit: contain`) on any page containing an embedded image anywhere - including inside an inline `<script>` config. A cinematic page keeps its stills in that config and builds its layers at runtime, so the static file has no `<img>` at all and there is no figure box to cap. Every cinematic build failed for a missing cap on a figure it did not have.
+- **Resolution**: the caps now require a real figure box - a `<figure>`, or an `<img>` with a `data:` URI that is not a cinematic stage layer. A page with embedded image data but no figure box is graded n/a with that reason stated. A stage layer is separately exempt on its merits: it is a decorative `aria-hidden` full-bleed backdrop, and `object-fit: cover` is CORRECT for it, since `contain` would letterbox the stage and defeat the level.
+
+### v3.16.5 Phase 1-6 summary
 
 | Category | Open | Resolved |
 |---|---|---|
 | v3.16.5 Phase 1 gaps | 3 (MT-1 fixture unhomed and unguarded; NI-2 typography rules 2-3 by design; WN-1 status-color exclusion) | 1 accepted-and-documented (DF-1 parser scope) |
 | v3.16.5 Phase 2 gaps | 2 (WN-2 runtime-injected palette invisible to the scorer; NI-3 SVG rules 2-3 by design) | 1 closed (BG-1 sub-AA runtime accents) |
 | v3.16.5 errata pass (E1-E10) | 0 | 1 closed (BG-E1: all ten items executed; 14 sub-floor classes, the gutter, the `code` em-size and an unwired marker fixed in the fixture; the viewport-fit check widened where the fixture was right; nothing deferred) |
+| v3.16.5 Phase 6 gaps | 2 (DF-3 knockout helper deferred, no call site; DF-4 the plan's own naming contradiction, corrected) | 1 closed (BG-3 `image-sizing` fired on any embedded data URI, breaking every cinematic build) |
 | v3.16.5 Phase 5 gaps | 2 (NI-5 placement relevance is a screenshot judgment, by design; WN-4 the scrim-opacity floor below which no static contrast check holds) | 1 closed (**v3.15 MT-2**: the placement record makes a skip distinguishable from a miss) |
 | v3.16.5 Phase 4 gaps | 2 (NI-4 intake questions are agent behavior, by design; DF-2 the `none` semantic change, accepted and disclosed) | 0 |
 | v3.16.5 Phase 3 gaps | 1 (WN-3 `em`-relative sizes render-verified only) | 3 closed (BG-2 three rendered floor violations + the mobile overflow regression; **v3.15 MT-1** headless render in CI; **v3.15 MT-2** superseded by the placement pass Phase 5 owns) |

@@ -109,6 +109,13 @@ _PATH_CMD_RE = re.compile(r"([MmLlHhVvCcSsQqTtAaZz])([^MmLlHhVvCcSsQqTtAaZz]*)")
 _NUMBER_RE = re.compile(r"-?\d*\.?\d+(?:[eE][-+]?\d+)?")
 _URL_REF_RE = re.compile(r"url\(\s*#([^)\s]+)\s*\)", re.IGNORECASE)
 _SELECTOR_TOKEN_RE = re.compile(r"[.#]([A-Za-z][\w-]*)")
+# --- Phase 6 cinematic stage --------------------------------------------------
+# An <img> carrying a data: URI that is NOT a cinematic stage layer, i.e. a real
+# figure the Phase 2 caps apply to. A stage layer is decorative and uses
+# object-fit: cover by design, so the figure caps do not apply to it.
+_NON_STAGE_IMG_RE = re.compile(
+    r'''<img(?![^>]*\bss-layer\b)[^>]*src\s*=\s*["']data:image''', re.IGNORECASE
+)
 # --- Phase 5 imagery placement -----------------------------------------------
 _PLACEMENT_RE = re.compile(r"^\s*placement:\s*(.+)$", re.IGNORECASE | re.MULTILINE)
 _PLACEMENT_ROLES = frozenset({"hero", "header", "hero/header", "background",
@@ -1120,9 +1127,29 @@ def score_html(
                      f"aspect={resolved_aspect or 'unknown'} (not full-width)")
         )
 
-    # 2. Image sizing caps (Phase 2), meaningful only when images are present.
-    has_figures = "<figure" in html or "data:image" in html
-    if has_figures:
+    # 2. Image sizing caps (Phase 2), meaningful only when a FIGURE is present.
+    #
+    # A cinematic stage layer (`references/scroll-scrub.md`) is not a figure: it is
+    # a decorative, aria-hidden full-bleed backdrop, and `object-fit: cover` is the
+    # correct treatment for it - `contain` would letterbox the stage and defeat the
+    # effect the level exists for. So a page whose only `data:` images are stage
+    # layers is n/a here rather than failing for missing figure caps.
+    # The caps apply to a rendered FIGURE BOX, so require one: a <figure>, or an
+    # <img> carrying a data: URI that is not a cinematic stage layer. A bare
+    # `data:image` substring is not enough - on a cinematic page the stills live
+    # inside an inline <script> config and the layers are created at runtime, so
+    # the static file has no <img> at all and there is no box to cap. Matching the
+    # substring made every cinematic build fail for a missing cap on a figure it
+    # does not have.
+    has_figures = "<figure" in html or bool(_NON_STAGE_IMG_RE.search(html))
+    if not has_figures and "data:image" in html:
+        findings.append(
+            _finding("image-sizing", "n/a", "structural",
+                     "embedded image data but no figure box to cap (a cinematic "
+                     "stage builds its decorative layers at runtime, and "
+                     "object-fit: cover is correct for them)")
+        )
+    elif has_figures:
         missing = [cap for cap in (HERO_CAP, OBJECT_FIT) if cap not in html]
         if missing:
             findings.append(
