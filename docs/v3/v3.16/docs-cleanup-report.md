@@ -186,3 +186,13 @@ Audit only; no file was moved, renamed, or removed.
 - **The calibration fixture was REPLACED, not edited.** The repo-root copy - verified across four render rounds at 2560x1300 and 1920x1080 - was adopted wholesale as the reference implementation per errata E10, and the Phase 1-3 worktree lineage (diverged by ~3291 lines) was discarded. Recorded here because a 3291-line change to a tracked file with no corresponding feature is otherwise unexplainable to a later reader.
 - **No scratch docs committed.** The ground-truth render harness, the E3 recalibration script, and the per-item patch scripts all ran from the session scratchpad. The durable half of the render verification lives in the test suite; the numbers it produced live in the known-gaps BG-E1 entry and the DEVLOG.
 - **The fixture's location is still Phase 7's (MT-1).** It remains at the repository root, tracked, now guarded by three standing tests plus a CI scoring step - only its location is open.
+
+## v3.16.5 Phase 4 - intake redesign (audit mode, 2026-08-11)
+
+Audit only; no file was moved, renamed, or removed.
+
+- **One new artifact, correctly placed**: `tests/skills/test_presentify_intake.py`. It sits in the existing pytest root that CI already runs and path-filters, so no workflow edit was needed.
+- **Two registry files hand-edited, deliberately**: `data/skills.json` and `data/SKILL_INDEX.md`, because the frontmatter `description`, `summary_l0`, and `overview_l1` changed meaning when procedural visuals became the always-on baseline. The diff is 4 lines. `build_skills_catalog.py` was NOT run: it rewrites the whole tree and would have produced a ~6000-line diff for a three-field change, burying the actual edit.
+- **No scratch docs committed.** The per-sub-task patch scripts ran from the session scratchpad.
+- **No new bundled resource**, so the orphan-bundle audit is unaffected (it passes with 0 warnings). `design_seed.py` gained a flag rather than a sibling file.
+- **The calibration fixture was not touched by this phase** and remains Phase 7's to home (MT-1).

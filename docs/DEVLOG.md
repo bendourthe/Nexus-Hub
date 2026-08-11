@@ -1,5 +1,34 @@
 # Development Log
 
+## [2026-08-11] - v3.16.5 Phase 4: intake redesign
+
+### What Changed
+
+The imagery question was restructured to four options over an always-on procedural baseline (R8), and a second intake round now offers three content-derived color schemes plus Other (R10). `design_seed.py` gained `--scheme-hint`, which pins the chosen palette while leaving every other design axis to the sampler.
+
+### Why It Changed
+
+Both changes come from the same observation: the questions did not match the choices users actually wanted to make. "Which imagery tier" presupposed that procedural visuals were optional when in practice every good page gets them, and the intake never asked about color at all - the single most visible design decision - because at the point the questions were asked there was no content to derive a scheme from.
+
+### Decisions Made
+
+- **Procedural stopped being a choice, which is what makes the question honest.** Once the baseline is always on, "additional imagery?" has four clean answers instead of five overlapping tiers. The `None` option is explicitly described as "the built-in visuals only, NOT a bare page", because a menu option called None reads as nothing at all.
+- **The `none` semantic change is disclosed rather than smoothed over** (DF-2). The old `none` meant no visuals whatsoever; that mode is gone. The alternative was a fifth `bare` option existing only to preserve a mode R8 deliberately removed. Both surfaces say "no longer exists" and a test asserts that disclosure, so it cannot be quietly dropped later.
+- **Round 2 runs after extraction because that is the ONLY point it can.** A content-derived scheme needs content. The requirement that each proposal cite its content signal is what separates this from three random palettes with nice names, and it is stated as a gate: a scheme with no citable signal is not content-derived and should not be offered.
+- **The scheme is a CONSTRAINT on the roll, not a replacement for it.** `--scheme-hint` pins the palette and nothing else; type voice, layout, motion, signature move, and spacing still roll, and `hue_family` - one of the three anti-convergence rejection axes - is deliberately left as ROLLED even when the palette is pinned. Rewriting it would have made the history comparison start measuring the user's color choice instead of the sampler's variety. A `palette_source` field records where the colors came from so the design record can be honest about it.
+- **A malformed hint exits 2 rather than degrading.** Every other degradation in this skill falls back to something safe; this one cannot, because silently rolling an unpinned palette ships colors the user did not choose. A usage error is the honest outcome.
+- **The registries were hand-edited.** Three frontmatter fields changed meaning, so `data/skills.json` and `data/SKILL_INDEX.md` needed to match. `build_skills_catalog.py` would have produced a ~6000-line diff for a 4-line change and buried the actual edit.
+
+### Verification
+
+36 tests in the new `tests/skills/test_presentify_intake.py`; 608 passed / 0 skipped across `tests/skills/`. `ruff check --ignore RUF100` clean on the bundled scripts. All ten `make validate` guards pass, including the trigger-eval gate after the frontmatter change. `--scheme-hint` verified end-to-end through the real script (palette pinned, other axes still rolled at the same seed, `hue_family` unchanged, five malformed-input cases each exiting 2 with no brief written) plus in-process unit tests for the two new helpers.
+
+### Known Issues
+
+Two new, neither a blocker. NI-4: the questions themselves are agent behavior - no test can assert that a proposed scheme is relevant to a document, only that the instruction to make it so exists; the deterministic half (option agreement across surfaces, alias documentation, pipeline order, skips, diagram, and the scheme-hint behavior) IS tested, and the visual half is already graded by the Phase 3 render loop. DF-2: the `none` semantic change, accepted and disclosed.
+
+One test-quality defect was found and fixed while measuring coverage: two "bad input" cases were passing through the wrong code path. A `--scheme-hint` value that does not start with `{` is treated as a FILE PATH, so `'["a"]'` failed on "not a readable file" and never reached the JSON-object guard - the case passed for the wrong reason and left that guard unreachable by any test. It now has a real test that writes a file containing a JSON array.
+
 ## [2026-08-11] - v3.16.5 errata pass: render-session lessons E1-E10
 
 ### What Changed

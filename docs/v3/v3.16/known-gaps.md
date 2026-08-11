@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v3.16.3 `github-usage-monitor-ux` is RELEASED (all six phases; 8 closed, 8 carried, 0 release blockers). v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (all 5 phases complete; reconciled and release-ready, unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
-**Last updated**: 2026-08-11 (v3.16.5 errata pass E1-E10 applied on top of Phase 3; 6 open, 5 closed, 1 accepted-and-documented, 0 release blockers)
+**Last updated**: 2026-08-11 (v3.16.5 Phase 4 append: intake redesign - four-option additional imagery + two-round content-derived color schemes; 8 open, 5 closed, 2 accepted-and-documented, 0 release blockers)
 
 > **File-lifecycle note**: this ledger was created ahead of any v3.16 implementation, by a comparison that deliberately claimed no release slot, so it began with only the `## Comparison-Sourced Deferrals` section. Each v3.16 version-implementation phase **appends** its own `## v3.16.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` numbering, which is namespaced separately from the `CD-#` and `TR-#` ids used above.
 
@@ -939,13 +939,29 @@ It is deliberately **not** decided here. It affects four extensions, it is a que
 
 **Nothing deferred.** The E7 2560x1300 capture surfaced no new defects on the canonical fixture: no horizontal overflow, two sticky layers at distinct offsets, every anchor target carrying `scroll-margin-top`, and 0 of 5 `pre` blocks clipping.
 
-### v3.16.5 Phase 1-3 summary
+### NI-4 - OPEN by design: the intake questions themselves are agent behavior
+
+- **Target files**: `catalog/skills/specialized-domains/document-to-interactive-html/SKILL.md` (Steps 2 and 5), `catalog/commands/presentify.md`
+- **Source phase**: v3.16.5 Phase 4, sub-tasks 4.1 and 4.2
+- **Reason it is open**: asking a four-option question, and proposing three color schemes that are genuinely derived from the extracted content with a citable signal for each, are LLM-native behaviors. No unit test can assert that a proposed scheme is relevant to a document, only that the instruction to make it relevant exists. What IS deterministic is now tested: both surfaces agree on the four option values, the legacy aliases are documented on both, the `none` semantic change is disclosed, Round 2 sits between figure classification and authoring in pipeline order, the skips are documented, the diagram shows both rounds, and `design_seed.py --scheme-hint` provably pins the palette while the sampler keeps rolling.
+- **Suggested next step**: none in the scorer. The visual half is already graded by the Phase 3 render loop (a scheme that clashes shows up in a screenshot), and the design record captures the offered schemes, the cited signals, and the choice, so a reviewer can audit the reasoning after the fact. Do not build a relevance parser; there is no defect to point at.
+
+### DF-2 - ACCEPTED: `--images none` changed meaning, deliberately and visibly
+
+- **Target files**: both intake surfaces
+- **Source phase**: v3.16.5 Phase 4, sub-task 4.1
+- **What changed**: pre-v3.16.5, `--images none` meant "typography / layout / color only, no visuals at all". Procedural visuals are now the always-on baseline, so that mode no longer exists and `none` means "nothing ADDED on top of the procedural layer". A user who passes `none` expecting a bare page now gets the procedural visual layer.
+- **Why it is accepted rather than avoided**: the alternative is a fifth option (`bare`) that exists only to preserve a mode the plan deliberately removed - R8 makes procedural the baseline precisely because a page with no visuals at all is not an outcome worth offering. The change is disclosed in both surfaces with the words "no longer exists", and a test asserts that disclosure so it cannot be quietly dropped later.
+- **Residual risk**: a saved command line still runs and still produces a good page; it just produces a slightly richer one than before. No error, no silent data loss.
+
+### v3.16.5 Phase 1-4 summary
 
 | Category | Open | Resolved |
 |---|---|---|
 | v3.16.5 Phase 1 gaps | 3 (MT-1 fixture unhomed and unguarded; NI-2 typography rules 2-3 by design; WN-1 status-color exclusion) | 1 accepted-and-documented (DF-1 parser scope) |
 | v3.16.5 Phase 2 gaps | 2 (WN-2 runtime-injected palette invisible to the scorer; NI-3 SVG rules 2-3 by design) | 1 closed (BG-1 sub-AA runtime accents) |
 | v3.16.5 errata pass (E1-E10) | 0 | 1 closed (BG-E1: all ten items executed; 14 sub-floor classes, the gutter, the `code` em-size and an unwired marker fixed in the fixture; the viewport-fit check widened where the fixture was right; nothing deferred) |
+| v3.16.5 Phase 4 gaps | 2 (NI-4 intake questions are agent behavior, by design; DF-2 the `none` semantic change, accepted and disclosed) | 0 |
 | v3.16.5 Phase 3 gaps | 1 (WN-3 `em`-relative sizes render-verified only) | 3 closed (BG-2 three rendered floor violations + the mobile overflow regression; **v3.15 MT-1** headless render in CI; **v3.15 MT-2** superseded by the placement pass Phase 5 owns) |
 
 None is a release blocker, and two of the three (NI-2, WN-1) are deliberately routed to Phase 3, which is the phase that acquires the rendered screenshots those judgments require. MT-1 is routed to Phase 7, which already owns the fixture's final location; Phase 1 committed the fixture at the repo root so its fixes are not at risk while that decision waits. Phase 3 settles the argument the first two phases kept making. Every one of Phase 1's and Phase 2's routed items was the same shape - a static parser at the limit of what markup can tell it - and a single render pass closed or superseded four of them while finding four defects that had passed a green structural gate: a 12.48px brand label misclassified as interactive, 12.2px emphasis tokens the checker explicitly declined to judge, an 11.52px inline style it could not see, and a 390px horizontal overflow that Phase 2's own viewport-fit fix had introduced. Two of those four were bugs in the checker rather than in the page. The lesson is not that the scorer is bad - it is that a parser and a renderer answer different questions, and shipping only the parser means shipping the difference.
