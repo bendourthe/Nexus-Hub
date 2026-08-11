@@ -10,7 +10,15 @@ deterministic halves of the `references/responsive-typography.md` contract -
 fluid macro spacing, rendered font-size floors, emphasis-token distinctness, and
 WCAG contrast - plus the three deterministic rules of the
 `references/svg-diagram-quality.md` contract: no hand-placed triangle
-arrowheads, height-constrained pinned graphics, and marker integrity.
+arrowheads, height-constrained pinned graphics, and marker integrity - and the
+three render-surfaced defect classes the v3.16.5 errata added (stacked sticky
+layers, anchor targets that land under a sticky nav, clipping command blocks).
+
+All rem- and ch-derived values resolve against the page's ACTUAL root font size,
+parsed from its `html` rule. A page that scales its root (the v3.16.5 errata E1
+pattern) renders every rem dimension larger than a 16px assumption predicts, so
+assuming 16px both under-reports font sizes and under-reports the gutter - which
+once turned a real 0.947 band fraction into a passing 0.954.
 It is the headless-optional structural-review path the Step 9 loop
 degrades to when no browser (or no agent vision) is available, and the target the
 Phase 5 tests seed defects against.
@@ -101,6 +109,7 @@ _PATH_CMD_RE = re.compile(r"([MmLlHhVvCcSsQqTtAaZz])([^MmLlHhVvCcSsQqTtAaZz]*)")
 _NUMBER_RE = re.compile(r"-?\d*\.?\d+(?:[eE][-+]?\d+)?")
 _URL_REF_RE = re.compile(r"url\(\s*#([^)\s]+)\s*\)", re.IGNORECASE)
 _SELECTOR_TOKEN_RE = re.compile(r"[.#]([A-Za-z][\w-]*)")
+_IN_PAGE_ANCHOR_RE = re.compile(r'''<a\b[^>]*href\s*=\s*["']#[^"']+["']''', re.IGNORECASE)
 _INLINE_STYLE_RE = re.compile(r'''\bstyle\s*=\s*["']([^"']*)["']''', re.IGNORECASE)
 
 _COMMENT_RE = re.compile(r"<!--.*?-->", re.DOTALL)
@@ -122,7 +131,7 @@ _FETCH_RE = [
 ]
 
 
-def _len_px(token: str, viewport: int, root_font: int = 16) -> float:
+def _len_px(token: str, viewport: int, root_font: float = 16.0) -> float:
     """Resolve a simple CSS length (px / rem / em / vw / vh / %), an additive sum
     (`0.94rem + 0.3vw`, as used inside a clamp preferred term), or a clamp() to
     pixels. `em` is resolved against `root_font` (callers that care about the true
@@ -150,8 +159,8 @@ def _len_px(token: str, viewport: int, root_font: int = 16) -> float:
         return sum(_len_px(part, viewport, root_font) for part in parts)
     for suffix, factor in (
         ("px", 1.0),
-        ("rem", float(root_font)),
-        ("em", float(root_font)),
+        ("rem", root_font),
+        ("em", root_font),
         ("vw", viewport / 100.0),
         ("vh", viewport / 100.0),
         ("%", viewport / 100.0),
@@ -186,7 +195,7 @@ def _split_top_level(text: str, sep: str) -> list[str]:
     return [part.strip() for part in parts if part.strip()]
 
 
-def _clamp_min_px(token: str, root_font: int = 16) -> float:
+def _clamp_min_px(token: str, root_font: float = 16.0) -> float:
     """The LOWER bound of a clamp(), or the plain resolved length. On a common
     laptop width the clamp is usually still pinned at its minimum, so the minimum
     is the size most readers actually get - which is why the font floors are
@@ -201,12 +210,18 @@ def _clamp_min_px(token: str, root_font: int = 16) -> float:
 
 def band_fraction(html: str, viewport: int = 1920) -> float | None:
     """Heuristic widest-content-band fraction from the injected `--page-max` /
-    `--gutter` canvas vars, or None when they are absent."""
+    `--gutter` canvas vars, or None when they are absent.
+
+    The gutter is resolved against the SCALED root (E3). With E1 root scaling the
+    real gutter at 1920px is ~51px rather than 44px, so assuming 16px inflated
+    the content band and reported a marginal failure as a pass.
+    """
     page_max_match = _PAGE_MAX_RE.search(html)
     gutter_match = _GUTTER_RE.search(html)
     if not page_max_match or not gutter_match:
         return None
-    gutter = _len_px(gutter_match.group(1), viewport)
+    root_at_viewport, _, _ = root_font_px(css_rules(html), viewport)
+    gutter = _len_px(gutter_match.group(1), viewport, root_at_viewport)
     available = viewport - 2 * gutter
     page_max = page_max_match.group(1).strip()
     if page_max == "100%":
@@ -325,7 +340,15 @@ def contrast_ratio(fg: str, bg: str) -> float | None:
 
 
 def check_fluid_spacing(rules: list[tuple[str, dict[str, str]]]) -> dict[str, Any]:
-    """Rule 1: macro spacing on a band / grid container must be viewport-fluid."""
+    """Rule 1: macro spacing on a band / grid container must be viewport-fluid.
+
+    When the ROOT font-size is itself fluid (E1), a rem-based macro dimension
+    scales with the window and therefore SATISFIES this rule - `2.5rem` of band
+    padding is 40px at a 16px root and 64px at a 25.6px one. Flagging it would
+    penalise the very technique E1 prescribes, so rem counts as fluid exactly
+    when the root is.
+    """
+    _, _, root_is_fluid = root_font_px(rules)
     offenders: list[str] = []
     for selector, decls in rules:
         if not _BAND_SELECTOR_RE.search(selector):
@@ -334,6 +357,8 @@ def check_fluid_spacing(rules: list[tuple[str, dict[str, str]]]) -> dict[str, An
             if prop not in _MACRO_SPACING_PROPS:
                 continue
             if _FLUID_RE.search(value):
+                continue
+            if root_is_fluid and "rem" in value:
                 continue
             sizes = [_len_px(token, 1920) for token in value.split()]
             if sizes and max(sizes) >= MACRO_SPACING_PX:
@@ -350,6 +375,35 @@ def check_fluid_spacing(rules: list[tuple[str, dict[str, str]]]) -> dict[str, An
         f"(>= {MACRO_SPACING_PX:.0f}px, no clamp/vw/vh): " + "; ".join(offenders[:5]),
         severity,
     )
+
+
+def root_font_px(
+    rules: list[tuple[str, dict[str, str]]], viewport: int = 1920
+) -> tuple[float, float, bool]:
+    """The root font-size as `(at_viewport, at_its_clamp_minimum, is_fluid)`.
+
+    E1 puts the viewport-proportional scaling on the ROOT
+    (`html{font-size:clamp(1rem, 0.5vw + 0.55rem, 1.6rem)}`), so every rem- and
+    ch-derived dimension on the page scales with the window. A checker that
+    assumes 16px therefore misreads the whole page: it under-reports rendered
+    font sizes and under-reports the gutter, which is how a 0.947 band fraction
+    presented as a passing 0.954.
+
+    The clamp MINIMUM is returned alongside because root scaling does nothing
+    below it - at 1366px this fixture's root is pinned at 16px, so that is where
+    the readability floors actually bite.
+    """
+    declared: str | None = None
+    for selector, decls in rules:
+        parts = [part.strip().lower() for part in selector.split(",")]
+        if any(part in ("html", ":root") for part in parts) and "font-size" in decls:
+            declared = decls["font-size"]
+    if declared is None:
+        return 16.0, 16.0, False
+    at_viewport = _len_px(declared, viewport, 16)
+    at_minimum = _clamp_min_px(declared, 16)
+    is_fluid = bool(_FLUID_RE.search(declared))
+    return (at_viewport or 16.0), (at_minimum or 16.0), is_fluid
 
 
 def custom_properties(rules: list[tuple[str, dict[str, str]]]) -> dict[str, str]:
@@ -419,6 +473,7 @@ def check_font_floor(
     `style="..."` attributes (which no CSS-rule parser can see)."""
     inline = inline or []
     props = custom_properties(rules)
+    root_at_viewport, root_at_minimum, _ = root_font_px(rules, viewport)
     offenders: list[str] = []
     checked = 0
     for selector, decls in rules + inline:
@@ -439,8 +494,11 @@ def check_font_floor(
         role = _font_role(selector)
         floor = _FONT_FLOORS[role]
         checked += 1
-        at_min = _clamp_min_px(value)
-        at_viewport = _len_px(value, viewport)
+        # Evaluated at BOTH ends of the root's own scaling range: at the root
+        # clamp minimum (a 1366px laptop, where root scaling has bottomed out and
+        # the floors actually bite) and at `viewport` with the scaled root.
+        at_min = _clamp_min_px(value, root_at_minimum)
+        at_viewport = _len_px(value, viewport, root_at_viewport)
         worst = min(at_min, at_viewport)
         if worst + 0.01 < floor:
             offenders.append(
@@ -778,6 +836,22 @@ def _element_inner_html(html: str, attr_index: int) -> str:
     return html[open_end + 1 : position]
 
 
+def _is_height_constrained(decls: dict[str, str]) -> bool:
+    """Whether a rule pins an element's height to something bounded.
+
+    `max-height` is the obvious form, but a viewport-relative `height` (a `vh`
+    value, or a `calc()` over one) constrains just as firmly - and paired with
+    `width: auto; max-width: 100%` it is the better construction, because the
+    graphic derives its width from the capped height instead of letterboxing.
+    The canonical fixture uses exactly that, so demanding the `max-height`
+    spelling would fail a page that satisfies the rule more completely.
+    """
+    if "max-height" in decls:
+        return True
+    height = decls.get("height", "").strip().lower()
+    return bool(height) and height != "auto" and ("vh" in height or "vmin" in height)
+
+
 def check_svg_viewport_fit(
     html: str, rules: list[tuple[str, dict[str, str]]]
 ) -> dict[str, Any]:
@@ -809,7 +883,7 @@ def check_svg_viewport_fit(
         constrained = any(
             "svg" in selector
             and token in selector
-            and "max-height" in decls
+            and _is_height_constrained(decls)
             for selector, decls in rules
         )
         if not constrained:
@@ -874,6 +948,88 @@ def check_svg_marker_integrity(
     return _finding(
         "svg-marker-integrity", "pass", "structural",
         f"{len(defined)} marker(s) defined, all referenced, no dangling reference",
+    )
+
+
+def check_render_only_defects(
+    html: str, rules: list[tuple[str, dict[str, str]]]
+) -> dict[str, Any]:
+    """The three `references/responsive-typography.md` rule 7 defects.
+
+    All three are invisible in markup read as prose and obvious in a rendered
+    screenshot, which is why they shipped: a sticky table header pinning under a
+    sticky nav, anchor jumps landing section titles beneath that nav, and long
+    command lines clipped at a container edge. Each is nevertheless decidable from
+    the CSS, so they are checked here rather than left to the eye.
+    """
+    findings: list[str] = []
+
+    # (a) At most one sticky layer per scroll context. Two layers that pin to the
+    #     same offset stack, and the lower one covers what it labels.
+    pinned: dict[str, list[str]] = {}
+    for selector, decls in rules:
+        if decls.get("position", "").strip().lower() != "sticky":
+            continue
+        top = decls.get("top", "auto").strip().lower()
+        pinned.setdefault(top, []).append(selector)
+    for top, selectors in pinned.items():
+        if top in ("auto", "") or len(selectors) < 2:
+            continue
+        findings.append(
+            f"{len(selectors)} sticky layers pin to the same offset (top: {top}): "
+            + ", ".join(selectors[:4])
+            + " - the lower layer covers the content it labels"
+        )
+
+    # (b) An in-page anchor under a sticky nav needs scroll-margin-top on the
+    #     target, or the heading lands underneath the nav.
+    has_anchors = bool(_IN_PAGE_ANCHOR_RE.search(html))
+    has_sticky = bool(pinned)
+    declares_scroll_margin = any(
+        "scroll-margin-top" in decls or "scroll-margin" in decls
+        for _selector, decls in rules
+    )
+    if has_anchors and has_sticky and not declares_scroll_margin:
+        findings.append(
+            "in-page anchors under a sticky layer with no scroll-margin-top on any "
+            "target - every jump lands the heading beneath the sticky element"
+        )
+
+    # (c) A command block must wrap or scroll; clipping loses the tail of a line
+    #     silently, which is worse than an obviously broken command.
+    if "<pre" in html.lower():
+        pre_rules = [
+            decls for selector, decls in rules
+            if re.search(r"(^|[\s,>+~])pre\b", selector, re.IGNORECASE)
+        ]
+        wraps = any(
+            "pre-wrap" in decls.get("white-space", "")
+            or "pre-line" in decls.get("white-space", "")
+            or decls.get("overflow-wrap", "").strip().lower() in ("anywhere", "break-word")
+            for decls in pre_rules
+        )
+        scrolls = any(
+            decls.get("overflow-x", decls.get("overflow", "")).strip().lower()
+            in ("auto", "scroll")
+            for decls in pre_rules
+        )
+        if not wraps and not scrolls:
+            findings.append(
+                "a <pre> block neither wraps (white-space: pre-wrap) nor scrolls "
+                "(overflow-x: auto), so a long command line is clipped and its tail "
+                "is lost silently"
+            )
+
+    if not findings:
+        return _finding(
+            "render-only-defects", "pass", "structural",
+            "one sticky layer per offset, anchor targets clear the sticky nav, "
+            "command blocks wrap or scroll",
+        )
+    return _finding(
+        "render-only-defects", "fail", "structural",
+        f"{len(findings)} render-surfaced defect(s): " + "; ".join(findings),
+        "high",
     )
 
 
@@ -1019,9 +1175,16 @@ def score_html(
     findings.append(check_svg_viewport_fit(stripped, rules))
     findings.append(check_svg_marker_integrity(stripped, rules))
 
+    # 13. The three defect classes only a render surfaces (rule 7).
+    findings.append(check_render_only_defects(stripped, rules))
+
+    root_at_viewport, root_at_minimum, root_is_fluid = root_font_px(rules, viewport)
     high = sum(1 for finding in findings if finding.get("severity") == "high")
     return {
         "mode": "structural",
+        "root_font_px": round(root_at_viewport, 2),
+        "root_font_px_at_clamp_min": round(root_at_minimum, 2),
+        "root_font_is_fluid": root_is_fluid,
         "findings": findings,
         "high_severity": high,
         "page_pass": high == 0,

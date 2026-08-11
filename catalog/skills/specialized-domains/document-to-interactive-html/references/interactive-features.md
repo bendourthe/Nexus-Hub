@@ -432,6 +432,24 @@ The same pipeline serves three intents; the mode is auto-detected from the input
 - **Single report (one `.docx` / `.pdf` / `.xlsx`) -> present the report.** A flat document becomes a paced presentation OF that report: a title, a synthesized agenda, one section per heading, and data surfaced as inline charts. This is where narrative restructuring (move 1) does the most work.
 - **Multiple / mixed files -> compile the sources.** Each source contributes a labeled run of sections, introduced by a section-break carrying the source title, optionally preceded by a synthesized overview that names all sources. Preserve per-source attribution; do not blend two sources into an indistinguishable middle.
 
+## Two authoring rules from maintainer review (v3.16.5 errata E9)
+
+**Key-value cells render as bullet lists, never comma-run sentences.** A cell describing what a step reads, writes, and outputs is a LIST of facts, and a reader scans it to find one of them. Written as a comma-run sentence it has to be read start to finish to answer any question about it. Give each key its own bullet, and give every one a CONCRETE example value rather than a category name - `docs/v3/v3.16/plans/v3.16.5-presentify-visual-overhaul.md` teaches what "a plan file path" does not.
+
+```html
+<!-- CORRECT - scannable, with real values -->
+<ul>
+  <li><b>Reads</b> <code>docs/v3/v3.16/plans/v3.16.5-presentify-visual-overhaul.md</code></li>
+  <li><b>Writes</b> <code>tests/skills/test_presentify_visual_qa.py</code></li>
+  <li><b>Outputs</b> coverage 93% against an 80% threshold</li>
+</ul>
+
+<!-- WRONG - a comma-run that must be parsed linearly to answer anything -->
+<p>Reads the plan file, writes the test file, and outputs a coverage number.</p>
+```
+
+**Interactive-control colors stay NEUTRAL and visually distinct from chart data-series colors.** A slider, input, or toggle painted in a series color reads as part of the data: the reader cannot tell whether an accent-colored handle is a control or a value. Reserve the data-series colors for data, give controls a neutral ink or surface treatment, and use the accent only for focus and active states.
+
 ## Attribution
 
 All naming in the template, the builder, and this document is generic and descriptive (per the Reverse-Engineering Attribution Rule): no upstream product, repository, or library brand appears in any distributed artifact. The interactive patterns here are an original, self-contained implementation.

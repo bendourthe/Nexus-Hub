@@ -177,3 +177,12 @@ Audit only; no file was moved, renamed, or removed.
 - **No `.ps1` sibling is owed**: the parity rule in AGENTS.md applies to `catalog/hooks/<name>.sh` and to `.sh` scripts under a skill's `scripts/`. This is a `.py`, cross-platform by construction, and its Windows browser-detection paths are the primary tested case.
 - **No scratch docs committed.** The dogfood render harness and the seeded-regression prover ran from the session scratchpad; the durable half of the latter was promoted into `tests/skills/test_presentify_visual_qa.py` as a parametrized mutation test rather than left as a loose script.
 - **The one known misplacement is unchanged**: the calibration fixture still sits at the repository root, tracked, deferred to Phase 7 (MT-1). Phase 3 narrowed MT-1 by half - it is now guarded by two standing tests plus a CI scoring step, so only its LOCATION remains open.
+
+## v3.16.5 errata pass E1-E10 (audit mode, 2026-08-11)
+
+Audit only; no file was moved, renamed, or removed.
+
+- **No new artifacts.** The pass corrected existing contracts, the scorer, the rubric, the command doc, and the calibration fixture. The orphan-bundle audit passes with 0 warnings.
+- **The calibration fixture was REPLACED, not edited.** The repo-root copy - verified across four render rounds at 2560x1300 and 1920x1080 - was adopted wholesale as the reference implementation per errata E10, and the Phase 1-3 worktree lineage (diverged by ~3291 lines) was discarded. Recorded here because a 3291-line change to a tracked file with no corresponding feature is otherwise unexplainable to a later reader.
+- **No scratch docs committed.** The ground-truth render harness, the E3 recalibration script, and the per-item patch scripts all ran from the session scratchpad. The durable half of the render verification lives in the test suite; the numbers it produced live in the known-gaps BG-E1 entry and the DEVLOG.
+- **The fixture's location is still Phase 7's (MT-1).** It remains at the repository root, tracked, now guarded by three standing tests plus a CI scoring step - only its location is open.

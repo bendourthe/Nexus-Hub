@@ -13,9 +13,9 @@ The loop runs BOTH kinds when a headless browser and the agent's vision are avai
 
 A "segment" is one top-level content band or section: a slide section, a hero, a figure with its overlay, an image band, or a data section. Grade each segment independently against the applicable criteria, then roll the findings up to the page-level pass bar. Per-segment grading is deliberate: a single whole-page pass misses per-segment defects (a ballooned image in one section, a dropped overlay in another), which is exactly how the four observed defects reached production.
 
-## The eight criteria
+## The nine criteria
 
-Each criterion lists what it checks, the observable metric, the check kind, and the severity of a failure. Criteria 1-5 came from v3.15.4 Phases 1-4; criteria 6-7 grade the `references/responsive-typography.md` contract and criterion 8 the `references/svg-diagram-quality.md` contract, both added in v3.16.5.
+Each criterion lists what it checks, the observable metric, the check kind, and the severity of a failure. Criteria 1-5 came from v3.15.4 Phases 1-4; criteria 6-7 grade the `references/responsive-typography.md` contract and criterion 8 the `references/svg-diagram-quality.md` contract, both added in v3.16.5; criterion 9 was added by the v3.16.5 errata after a real render session found three defect classes no contract covered.
 
 1. **Full-width compliance** (Phase 1). When the resolved aspect is full-width, the widest top-level content band's rendered width is at least ~95% of a 1920px viewport (after the defined gutters), and NO global zoom, `transform: scale()`, or `zoom` is used to simulate width. Metric: band width / viewport at or above 0.95. Kind: STRUCTURAL. Severity: HIGH (a full-width run that renders a narrow centered column is the Phase 1 defect). N/A when the resolved aspect is not full-width.
 2. **Image sizing** (Phase 2). No image breaks its prominence box: a hero's rendered height stays at or below ~80vh; a low-`page_fraction` secondary renders no wider than its section's hero (no balloon); no meaningful content is cropped (rendered aspect ratio matches the native ratio within ~2%); no image band carries dead space beyond ~30% of the band. Metrics: rendered box vs viewport, aspect-distortion ratio, whitespace fraction. Kind: STRUCTURAL for the caps (the `max-height` and `object-fit: contain` rules are present, the rendered box is within the cap); AGENT-VISION for "meaningful content cropped" and "dead space". Severity: HIGH for a hero filling the whole viewport or a cropped chart axis / labeled region / face; MEDIUM for dead space.
@@ -28,6 +28,8 @@ Each criterion lists what it checks, the observable metric, the check kind, and 
 
 8. **Diagram integrity** (`references/svg-diagram-quality.md`). An authored inline SVG reads as intended artwork rather than as fragments. Metrics: no hand-placed triangle arrowhead path exists outside a `<marker>` and arrowheads are applied consistently across a diagram's connectors (STRUCTURAL, `svg-arrowhead`); every `<svg>` in a `position: sticky` / `fixed` container carries a `max-height` (STRUCTURAL, `svg-viewport-fit`); every marker reference resolves and every defined marker is used (STRUCTURAL, `svg-marker-integrity`). The AGENT-VISION half is what a parser cannot judge: **every arrow reads as ONE object** (line and head visibly attached, pointing along the line's tangent), **the whole diagram is visible in one sticky viewport** with no node below the fold, and **no label collides with a line** (a dashed path crossing text fragments both). Kind: STRUCTURAL for the three checks; AGENT-VISION for the three glance judgments plus SVG label legibility, whose effective size is `declared_size * (rendered_width / viewBox_width)` and is held to the same 13px secondary floor. Severity: HIGH for a detached arrowhead, an unconstrained pinned graphic, or a dangling marker reference (no head renders at all); MEDIUM for inconsistently applied heads or a defined-but-unused marker. N/A when the page carries no inline SVG.
 
+9. **Render-surfaced defects** (`references/responsive-typography.md` rule 7). Three classes that are invisible in markup read as prose and obvious within a second of a rendered screenshot, each nevertheless decidable from the CSS. Metrics: at most ONE sticky layer pins per offset (a sticky table header beneath a sticky nav stacks two bars and the lower covers what it labels); every in-page anchor target declares a `scroll-margin-top` clearing the sticky layer (otherwise a jump lands the heading underneath the nav, so navigation appears to mis-target every section); and a command block wraps or scrolls rather than clipping (a clipped line loses its tail silently, which is worse than an obviously broken command). Kind: STRUCTURAL (`render-only-defects`). Severity: HIGH for each - all three break something the reader cannot work around. N/A when the page has no sticky layer, no in-page anchors, and no `pre` block.
+
 ## Per-segment score schema
 
 Each segment yields one entry per applicable criterion:
@@ -35,7 +37,7 @@ Each segment yields one entry per applicable criterion:
 ```json
 {
   "segment": "<id or heading>",
-  "criterion": "full-width | image-sizing | annotation-fidelity | imagery-integration | readability-layout | fluid-spacing | font-floor | emphasis-token | contrast | svg-arrowhead | svg-viewport-fit | svg-marker-integrity",
+  "criterion": "full-width | image-sizing | annotation-fidelity | imagery-integration | readability-layout | fluid-spacing | font-floor | emphasis-token | contrast | svg-arrowhead | svg-viewport-fit | svg-marker-integrity | render-only-defects",
   "status": "pass | fail | n/a",
   "severity": "high | medium | low",
   "kind": "structural | agent-vision",
@@ -54,11 +56,15 @@ The page PASSES when there is NO open finding with `severity: high`. A `medium` 
 The rendered path is the DEFAULT (v3.16.5). Degradation is a disclosed exception, reached only after the provisioning offer, never a silent fallback.
 
 - **Step 0 - probe, then offer.** Run `scripts/ensure_render_env.py` BEFORE grading. It exits with a distinct code per state and prints the exact one-time provisioning commands. If the state is not ready, offer the install ONCE, up front. A browser is usually one consented command away, and skipping straight to the structural subset is how this repo shipped a stranded paragraph, an 11px footer, and a diagram in pieces from runs that believed they had passed.
-- **Headless browser AND agent vision** (the default): grade both kinds. Capture 1920x1080, 1366x768, and 390x844 plus the interaction states, measure bands and boxes, AND compare each segment's screenshot to its SOURCE figure / section.
+- **Headless browser AND agent vision** (the default): grade both kinds. Capture **2560x1300**, 1920x1080, 1366x768, and 390x844 plus the interaction states, measure bands and boxes, AND compare each segment's screenshot to its SOURCE figure / section. Scroll with `behavior: 'instant'` and let the position settle first, or a mid-animation frame grades as a defect that is not there.
 - **Headless browser, no vision step**: grade the STRUCTURAL kind from the rendered DOM and computed CSS.
 - **No headless browser** (only after the offer was declined or failed): degrade to the STRUCTURAL kind via the markup / computed-CSS heuristic (`scripts/visual_qa_score.py`, structural mode) and state the degradation in one line in the final report. NEVER hard-fail on a missing browser.
 
-Why the 1366x768 capture is not optional: a `clamp()` is usually still pinned at its MINIMUM at that width, so the readability floors bite there and not at 1920px. Grading only the wide viewport passes type that resolves correctly on a monitor and is unreadable on the laptop most readers use.
+Why 1366x768 is not optional: the ROOT clamp is usually still pinned at its MINIMUM at that width, so the readability floors bite there and not at 1920px. Grading only wide viewports passes type that resolves correctly on a monitor and is unreadable on the laptop most readers use - one page carried 14 distinct sub-floor element classes at 1366px while passing cleanly at 2560 and 1920.
+
+Why 2560x1300 is not optional either, for the opposite reason: root scaling is fully engaged only at that class of width, and size / spacing defects a 1920 render understates are plainly visible there. The two ends of the range catch different defects, so both are required.
+
+Every capture carries computed-metric probes (resolved root font size, smallest rendered size per role, band content fraction, `scrollWidth` vs viewport, key bounding boxes). They cost one `page.evaluate()` and settle deterministically what a screenshot only raises.
 
 When only the structural subset ran, label the page-level verdict "structural-only" so the reader knows the AGENT-VISION criteria (crop of meaningful content, dead space, annotation placement vs source, imagery relevance, contrast and legibility) were not graded. A structural-only pass is a weaker but valid gate, recorded as such.
 

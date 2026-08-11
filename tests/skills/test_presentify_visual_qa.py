@@ -32,6 +32,7 @@ scorer is loaded by path via importlib, matching test_media_key_setup.py.
 from __future__ import annotations
 
 import importlib.util
+import re
 from pathlib import Path
 
 import pytest
@@ -388,7 +389,7 @@ def test_responsive_typography_reference_states_the_floors_and_rules():
     for anchor in (
         "Fluid space, never fixed space",
         "Wrapping serves the viewport",
-        "Fluid type scale defined once",
+        "Scale the ROOT, not the elements",
         "Minimum rendered sizes",
         "Emphasis tokens must be visually distinct",
         "Contrast floors",
@@ -396,6 +397,10 @@ def test_responsive_typography_reference_states_the_floors_and_rules():
         assert anchor in text, f"contract missing rule: {anchor}"
     # The floors are stated as numbers, not as "small but readable".
     assert "16px" in text and "13px" in text and "12px" in text
+    # E1's corollary: root scaling does nothing below the root clamp's minimum,
+    # which is where a page verified only at wide viewports carries its defects.
+    assert "clamp's minimum" in text or "clamp minimum" in text
+    assert "1366" in text, "the contract must name the width where the root pins"
 
 
 # --- 1c. v3.16.5 Phase 2: the svg-diagram-quality contract -------------------
@@ -732,59 +737,99 @@ def test_render_gate_fails_instead_of_skipping_when_a_browser_was_promised():
 # contract family, because a gate that catches one seeded defect and misses the
 # others is not proven. Each mutation is applied to an in-memory copy; the fixture
 # on disk is never touched.
-_SEEDED_DEFECTS = [
+def _mutate_declaration(html: str, selector: str, prop: str, value: str) -> str:
+    """Replace one declaration inside the rule whose selector matches exactly.
+
+    Anchoring a mutation on a selector rather than on a substring is what lets
+    this suite survive the page being re-authored - which it was, wholesale,
+    between v3.16.5 Phase 3 and the errata pass.
+    """
+    for match in re.finditer(r"([^{}]+)\{([^{}]*)\}", html):
+        # `[^{}]+` reaches back to the previous `}`, so it swallows any CSS
+        # comment sitting above the rule. Strip comments before comparing, the
+        # same way css_rules() does, or a documented rule never matches.
+        candidate = re.sub(r"/\*.*?\*/", " ", match.group(1), flags=re.S)
+        # For the FIRST rule in a stylesheet, `[^{}]+` also reaches back through
+        # the `<style>` tag, so drop anything up to it. Done by prefix rather than
+        # by splitting on `>`, which would mangle a child combinator like
+        # `.rail-steps>article`.
+        candidate = re.sub(r"^[\s\S]*<style[^>]*>", "", candidate)
+        if " ".join(candidate.split()) != selector:
+            continue
+        decl = re.search(rf"({re.escape(prop)}\s*:\s*)([^;}}]+)", match.group(2))
+        if decl is None:
+            continue
+        start = match.start(2) + decl.start(2)
+        return html[:start] + value + html[start + len(decl.group(2)):]
+    raise AssertionError(f"no rule `{selector}` declaring `{prop}`")
+
+
+# One seeded defect per contract family. The plan asked only for the loop-back
+# arrow to be re-broken; a gate that catches one seeded defect and misses the
+# others is not proven, so every family is covered.
+_SEEDED_DECLARATIONS = [
+    pytest.param(".rail-sticky svg", "height", "auto", "svg-viewport-fit", "high",
+                 id="uncapped-pinned-graphic"),
+    pytest.param("footer b", "font-size", ".6875rem", "font-floor", "high",
+                 id="secondary-size-below-13px"),
+    pytest.param(":root", "--accent", "#2f6f68", "contrast", "high",
+                 id="accent-below-AA"),
+    pytest.param("code", "color", "var(--ink)", "emphasis-token", "high",
+                 id="token-colour-matches-body-ink"),
+    pytest.param(".band", "padding-inline", "40px", "fluid-spacing", "medium",
+                 id="fixed-px-band-padding"),
+]
+
+# Two defects are structural rather than declarative, so they stay literal.
+_SEEDED_MARKUP = [
     pytest.param(
-        ('<path class="loopback" d="M270 368 C 298 368, 298 122, 270 122"\n'
-         '              marker-end="url(#arrow-loop)"/>'),
-        ('<path class="loopback" d="M270 368 C 298 368, 298 122, 270 122"/>\n'
-         '        <path d="M270 122 l 8 -4 l 0 8 z" fill="var(--accent-2)"/>'),
-        "svg-arrowhead",
-        id="detached-loopback-arrowhead",
+        '<path class="loopback" d="M270 368 C 322 368, 322 122, 270 122" marker-end="url(#mLoop)"/>',
+        '<path class="loopback" d="M270 368 C 322 368, 322 122, 270 122"/>'
+        '<path d="M270 122 l 8 -4 l 0 8 z" fill="var(--accent-2)"/>',
+        "svg-arrowhead", id="detached-loopback-arrowhead",
     ),
-    pytest.param(
-        "  max-height:calc(100vh - 7rem);\n", "",
-        "svg-viewport-fit", id="uncapped-pinned-graphic",
-    ),
-    pytest.param(
-        "url(#arrow-loop)", "url(#arrow-gone)",
-        "svg-marker-integrity", id="dangling-marker-reference",
-    ),
-    pytest.param(
-        "--step--2:clamp(0.8125rem, 0.78rem + 0.16vw, 0.9375rem);",
-        "--step--2:clamp(0.6875rem, 0.66rem + 0.14vw, 0.8125rem);",
-        "font-floor", id="secondary-step-below-13px",
-    ),
-    pytest.param(
-        'font-size:var(--step--2);color:var(--ink-faint)"',
-        'font-size:.72rem;color:var(--ink-faint)"',
-        "font-floor", id="inline-style-below-13px",
-    ),
-    pytest.param(
-        "--accent:#dc8383;", "--accent:#c26565;",
-        "contrast", id="accent-reverted-below-AA",
-    ),
-    pytest.param(
-        "code{font-family:var(--f-mono);font-size:max(.92em, 0.8125rem);color:var(--accent)}",
-        "code{font-family:var(--f-mono);font-size:max(.92em, 0.8125rem)}",
-        "emphasis-token", id="token-colour-stripped",
-    ),
+    pytest.param('marker-end="url(#mLoop)"', 'marker-end="url(#gone)"',
+                 "svg-marker-integrity", id="dangling-marker-reference"),
+    pytest.param('style="font-family:var(--f-head);font-size:.8125rem',
+                 'style="font-family:var(--f-head);font-size:.72rem',
+                 "font-floor", id="inline-style-below-13px"),
 ]
 
 
-@pytest.mark.skipif(_CALIBRATION is None, reason="calibration fixture not present")
-@pytest.mark.parametrize("old,new,criterion", _SEEDED_DEFECTS)
-def test_seeded_defect_is_detected_and_blocks_the_page(old, new, criterion):
-    clean = _CALIBRATION.read_text(encoding="utf-8")
-    assert scorer.score_html(clean)["page_pass"], "fixture must be clean before seeding"
-    seeded = clean.replace(old, new, 1)
+def _assert_seeded_defect_caught(
+    clean: str, seeded: str, criterion: str, severity: str = "high"
+) -> None:
     assert seeded != clean, "the mutation did not apply - anchor drifted"
     result = scorer.score_html(seeded)
     finding = next(f for f in result["findings"] if f["criterion"] == criterion)
     assert finding["status"] == "fail", (
         f"seeded {criterion} defect went undetected: {finding['evidence']}"
     )
-    assert finding.get("severity") == "high"
-    assert result["page_pass"] is False, "a high-severity finding must block the page"
+    assert finding.get("severity") == severity
+    # Only HIGH blocks; a MEDIUM finding is surfaced for the fix pass but does not
+    # by itself fail the page. Asserting otherwise would force the severity policy
+    # to change to suit the test.
+    assert result["page_pass"] is (severity != "high")
+
+
+@pytest.mark.skipif(_CALIBRATION is None, reason="calibration fixture not present")
+@pytest.mark.parametrize("selector,prop,value,criterion,severity", _SEEDED_DECLARATIONS)
+def test_seeded_declaration_defect_is_detected(
+    selector, prop, value, criterion, severity
+):
+    clean = _CALIBRATION.read_text(encoding="utf-8")
+    assert scorer.score_html(clean)["page_pass"], "fixture must be clean before seeding"
+    _assert_seeded_defect_caught(
+        clean, _mutate_declaration(clean, selector, prop, value), criterion, severity
+    )
+
+
+@pytest.mark.skipif(_CALIBRATION is None, reason="calibration fixture not present")
+@pytest.mark.parametrize("old,new,criterion", _SEEDED_MARKUP)
+def test_seeded_markup_defect_is_detected(old, new, criterion):
+    clean = _CALIBRATION.read_text(encoding="utf-8")
+    assert scorer.score_html(clean)["page_pass"], "fixture must be clean before seeding"
+    _assert_seeded_defect_caught(clean, clean.replace(old, new, 1), criterion)
 
 
 # --- 1f. v3.16.5 Phase 3: the checker bugs a real render exposed --------------
@@ -834,6 +879,106 @@ def test_inline_style_declarations_are_graded_as_secondary_text():
     assert finding["status"] == "fail"
     assert "[style] #1" in finding["evidence"]
 
+
+
+# --- 1g. v3.16.5 errata E5: the three defects only a render surfaces ---------
+
+_E5_OK = (
+    '<html data-aspect="standard"><style>'
+    ":root{--nav-h:3.25rem}"
+    "#nav{position:sticky;top:0;height:var(--nav-h)}"
+    "thead th{position:sticky;top:var(--nav-h)}"
+    "section[id]{scroll-margin-top:calc(var(--nav-h) + 1rem)}"
+    "pre{white-space:pre-wrap;overflow-wrap:anywhere}"
+    "</style>"
+    '<nav id="nav"><a href="#a">A</a></nav>'
+    '<section id="a"><pre>a very long command line</pre>'
+    "<table><thead><tr><th>H</th></tr></thead></table></section></html>"
+)
+
+
+def _e5(html: str) -> dict:
+    return next(
+        f for f in scorer.score_html(html)["findings"]
+        if f["criterion"] == "render-only-defects"
+    )
+
+
+def test_e5_clean_page_passes():
+    assert _e5(_E5_OK)["status"] == "pass"
+
+
+def test_e5_flags_two_sticky_layers_pinning_to_the_same_offset():
+    # A sticky table header beneath a sticky nav stacks two bars, and the lower
+    # one covers the content it labels. Invisible in markup, obvious on screen.
+    stacked = _E5_OK.replace("thead th{position:sticky;top:var(--nav-h)}",
+                             "thead th{position:sticky;top:0}")
+    finding = _e5(stacked)
+    assert finding["status"] == "fail"
+    assert finding["severity"] == "high"
+    assert "same offset" in finding["evidence"]
+
+
+def test_e5_offsetting_the_lower_sticky_layer_is_accepted():
+    # The rule is one layer per OFFSET, not one sticky element per page - a second
+    # layer that clears the first is a legitimate construction.
+    assert _e5(_E5_OK)["status"] == "pass"
+    assert "top:var(--nav-h)" in _E5_OK
+
+
+def test_e5_flags_anchor_targets_without_scroll_margin():
+    # Anchor links that scroll are not the same as anchor links that work: under a
+    # sticky nav the heading lands underneath it.
+    no_margin = _E5_OK.replace(
+        "section[id]{scroll-margin-top:calc(var(--nav-h) + 1rem)}", "")
+    finding = _e5(no_margin)
+    assert finding["status"] == "fail"
+    assert "scroll-margin-top" in finding["evidence"]
+
+
+def test_e5_anchor_check_is_quiet_without_a_sticky_layer():
+    # With nothing pinned, an anchor jump lands correctly and the rule does not apply.
+    no_sticky = _E5_OK.replace("#nav{position:sticky;top:0;height:var(--nav-h)}", "").replace(
+        "thead th{position:sticky;top:var(--nav-h)}", "").replace(
+        "section[id]{scroll-margin-top:calc(var(--nav-h) + 1rem)}", "")
+    assert _e5(no_sticky)["status"] == "pass"
+
+
+def test_e5_flags_a_pre_block_that_neither_wraps_nor_scrolls():
+    clipping = _E5_OK.replace("pre{white-space:pre-wrap;overflow-wrap:anywhere}",
+                              "pre{white-space:pre}")
+    finding = _e5(clipping)
+    assert finding["status"] == "fail"
+    assert "clipped" in finding["evidence"]
+
+
+def test_e5_accepts_a_scrolling_pre_block():
+    # A scroll container does not LOSE the tail of a line, so it is not the defect
+    # even though wrapping is preferred.
+    scrolling = _E5_OK.replace("pre{white-space:pre-wrap;overflow-wrap:anywhere}",
+                               "pre{white-space:pre;overflow-x:auto}")
+    assert _e5(scrolling)["status"] == "pass"
+
+
+@pytest.mark.skipif(_CALIBRATION is None, reason="calibration fixture not present")
+def test_calibration_fixture_holds_the_e5_rules():
+    assert _e5(_CALIBRATION.read_text(encoding="utf-8"))["status"] == "pass"
+
+
+def test_svg_contract_forbids_rotated_labels():
+    # E4: rotation is a defect, not a technique. The contract must say so and must
+    # show the horizontal + tspan replacement, or the next author repeats it.
+    text = (_BUNDLE / "references" / "svg-diagram-quality.md").read_text(encoding="utf-8")
+    assert "Do not rotate label text" in text
+    assert "tspan" in text
+    assert "readability defect" in text
+
+
+def test_typography_contract_documents_the_render_only_defects():
+    text = (_BUNDLE / "references" / "responsive-typography.md").read_text(encoding="utf-8")
+    assert "Three defects only a render surfaces" in text
+    for anchor in ("scroll-margin-top", "pre-wrap", "sticky"):
+        assert anchor in text, f"rule 7 missing {anchor}"
 
 # --- 2. workflow template + rubric carry the required content ----------------
 

@@ -31,51 +31,65 @@ The 45-85 character reading measure is a PER-ELEMENT cap on long-form prose. It 
 
 The failure this rule kills, observed 2026-08-10: a paragraph hard-capped at 68ch (about 590px) inside a 1fr track 1277px wide, stranding roughly 690px of dead space beside every line of body copy. The paragraph obeyed the measure and the band still read as broken.
 
+In a MULTI-COLUMN zone, fluid `fr` shares beat `ch` caps outright, and the measure does not belong there at all. A `ch`-capped column inside a wide grid produces one of two rejected looks: a dead middle band with the aside stranded at the far edge, or prose compacted to the left of its own track. Give the columns fractional shares and put the margin notes ADJACENT to the prose they annotate.
+
 ```css
-/* CORRECT - the side rail absorbs surplus width, and prose widens toward its max */
-:root{ --measure: min(85ch, 100%); }
+/* CORRECT - fractional shares, notes adjacent, no measure inside the zone */
 .editorial{
   display: grid;
   gap: var(--grid-gap);
-  grid-template-columns: minmax(0, 1fr) minmax(0, clamp(17rem, 24vw, 30rem));
+  grid-template-columns: minmax(0, 2fr) minmax(16rem, 1fr);
 }
-p.measure{ max-width: var(--measure); }
 
-/* WRONG - a fixed rail plus a narrow measure leaves a dead corridor at 1920px */
+/* WRONG - a ch cap inside a multi-column zone; the surplus becomes dead space */
 .editorial{ grid-template-columns: minmax(0, 1fr) minmax(0, 19rem); }
 p.measure{ max-width: 68ch; }
 ```
+
+State the precedence explicitly, because it is the opposite of the usual advice: **on wide screens, filling the window wins over line-length caps.** The 45-85ch measure applies to SINGLE-COLUMN long-form prose only. It is not a page width, and inside a multi-column zone it is a defect.
+
+One caveat on the mobile collapse: when such a grid drops to a single column, keep `minmax(0, 1fr)` rather than a bare `1fr`. `1fr` means `minmax(auto, 1fr)`, and that `auto` minimum is the content's min-content, so one unshrinkable child (a long `<pre>` line) stretches the track past the viewport and the page scrolls sideways. The alternative fix is to make the child itself shrinkable, which is what rule 5 of the diagram contract and the `pre-wrap` rule below do.
 
 Add `text-wrap: balance` to headings (it evens ragged multi-line titles) and `text-wrap: pretty` to prose as a progressive enhancement - both degrade silently in browsers that lack them.
 
 Observable criterion (AGENT-VISION): in the 1920px screenshot, no text block sits beside empty space wider than roughly one third of its own band without either widening toward its maximum measure or the band reflowing to multi-column.
 
-## 3. Fluid type scale defined once, as custom properties
+## 3. Scale the ROOT, not the elements
 
-All font sizes derive from a single `clamp()`-based modular scale declared once as custom properties on `:root`. Sizes are then referenced by step token, never re-derived per selector.
-
-This is not a style preference. It is the guard against a specific and easy mistake: putting the fluid `clamp()` on `body` and then sizing children in `rem`. Because `rem` resolves against the ROOT element and not `body`, every child silently falls back to the 16px browser default and the whole scale stops being fluid. That is precisely how the 2026-08-10 run shipped an 11.2px footer heading while its `body` rule looked correctly fluid.
+Viewport-proportional scaling belongs on the **root element**, in one declaration. Every `rem`- and `ch`-derived dimension on the page then scales with the window for free: type, spacing, gutters, and grid tracks alike.
 
 ```css
-/* CORRECT - one scale, tokenized, floors baked into the clamp minimums */
-:root{
-  --step--2: clamp(0.8125rem, 0.78rem + 0.16vw, 0.9375rem);  /* 13 -> 15px  */
-  --step--1: clamp(0.875rem,  0.83rem + 0.22vw, 1rem);       /* 14 -> 16px  */
-  --step-0:  clamp(1rem,      0.94rem + 0.30vw, 1.1875rem);  /* 16 -> 19px  */
-  --step-1:  clamp(1.125rem,  1.02rem + 0.50vw, 1.4375rem);
-  --step-2:  clamp(1.3125rem, 1.10rem + 1.00vw, 1.9375rem);
-}
-body{ font-size: var(--step-0); }
-footer b{ font-size: var(--step--2); }
-
-/* WRONG - the clamp sits on body, so this child is a flat 11.2px forever */
-body{ font-size: clamp(1rem, .55rem + .45vw, 1.125rem); }
-footer b{ font-size: .7rem; }
+/* CORRECT - one declaration scales the entire page */
+html{ font-size: clamp(1rem, 0.5vw + 0.55rem, 1.6rem); }   /* 16 -> 25.6px */
+body{ font-size: 1rem; }
+footer b{ font-size: 0.8125rem; }   /* 13px at the clamp floor, 20.8px at the cap */
 ```
+
+Two failure modes this replaces, both observed:
+
+1. **The clamp on `body`, children in `rem`.** `rem` resolves against the ROOT, not `body`, so every child silently falls back to the 16px default and the scale is fluid in exactly one rule. That is how a run shipped an 11.2px footer heading under a correct-looking `body` declaration.
+2. **Per-element `clamp()` sizes.** They cap out independently, so a large display renders laptop-sized text no matter how many individual sizes you bump. Three rounds of per-element increases failed to fix perceived smallness on a 2560px display before the root-scaling change fixed it in one line.
+
+A modular scale is still useful, and still declared once as `:root` custom properties - but it now RIDES the scaling root rather than trying to reproduce it per step. Keep the step values as plain `rem` multiples; the root supplies the fluidity.
+
+```css
+:root{
+  --step--2: 0.8125rem;   /* 13px at the root floor */
+  --step-0:  1rem;
+  --step-2:  1.5rem;
+}
+```
+
+Two consequences worth stating, because both are easy to get wrong:
+
+- **`rem` macro spacing is now fluid**, so rule 1's preference for `clamp()` is satisfied by a `rem` value under a scaling root: `2.5rem` of band padding is 40px at a 16px root and 64px at a 25.6px one. `scripts/visual_qa_score.py` treats `rem` as fluid exactly when the root is.
+- **Everything derived from `rem` must be re-checked at the scaled root**, including the gutter and therefore the full-width band fraction. A `2.75rem` gutter is 44px at a 16px root and 50.6px at 18.4px, which moved one calibration page's band from a passing 0.954 to a failing 0.947. Compute at the real root, not at 16px.
 
 ## 4. Minimum rendered sizes (hard floors)
 
 Three floors, checked at BOTH the `clamp()` minimum and the value resolved at a 1920px viewport. Checking only the resolved 1920px value is the trap: on a 1366px laptop the clamp is usually still pinned at its minimum, so the minimum IS the size most readers get.
+
+Under root scaling (rule 3) this becomes the contract's sharpest edge, and it is the one a render session is most likely to miss. **Root scaling does nothing below the root clamp's minimum.** With `clamp(1rem, 0.5vw + 0.55rem, 1.6rem)` the root is pinned at 16px for every viewport at or below 1366px, so every `rem`-based size bottoms out exactly where it did before scaling was added. A page verified only at 2560px and 1920px - where scaling is active and everything looks generous - can carry a full set of sub-floor sizes at 1366px. One did: 14 distinct element classes, none visible at the widths that were checked. Evaluate every floor at the ROOT's clamp minimum, not just at the element's own.
 
 | Text role | Floor | Applies to |
 |---|---|---|
@@ -118,14 +132,47 @@ The scorer computes the true WCAG relative-luminance ratio for each declared for
 
 Semantic status colors (names matching `ok`, `warn`, `stop`, `error`, `success`, `info`) are excluded from the automated foreground set, because they typically appear as large or bordered badge text whose applicable floor is 3:1 rather than 4.5:1 and whose rendered size the scorer cannot know. Grade those from the screenshot instead.
 
+## 7. Three defects only a render surfaces
+
+None of these is a typography rule, and none is findable in markup alone. All three were shipped by pages that passed every static check, and all three are obvious within a second of looking at a rendered screenshot.
+
+**Sticky under sticky.** At most ONE sticky layer per scroll context. A `position: sticky` table header pinning beneath an already-sticky page nav produces two stacked bars, and the lower one often covers the content it was meant to label. If a second layer is genuinely needed, offset it by the upper layer's height (`top: calc(var(--nav-h) + 0px)`) and verify by scrolling, not by reading the CSS.
+
+```css
+/* WRONG - both pin to the top of the viewport and overlap */
+#nav{ position: sticky; top: 0; }
+thead th{ position: sticky; top: 0; }
+
+/* CORRECT - the lower layer clears the upper one */
+:root{ --nav-h: 3.25rem; }
+#nav{ position: sticky; top: 0; height: var(--nav-h); }
+thead th{ position: sticky; top: var(--nav-h); }
+```
+
+**Anchor targets need `scroll-margin-top`.** With a sticky nav, an in-page anchor jump lands the section's heading UNDER the nav, so the reader arrives at a section whose title they cannot see. The fix is one declaration on the scroll target, and it must account for the nav's real height.
+
+```css
+section[id]{ scroll-margin-top: calc(var(--nav-h) + 1rem); }
+```
+
+**Command blocks must not clip.** A long command or prompt line inside a `pre` block is silently cut off at the container edge - the reader sees a plausible-looking command that is missing its tail, which is worse than an obviously broken one. Wrap rather than clip.
+
+```css
+pre{ white-space: pre-wrap; overflow-wrap: anywhere; }
+```
+
 ## Verification
 
 - [ ] No top-level band or grid container declares a fixed macro `padding` / `gap` at or above 24px.
-- [ ] The type scale is declared once as `:root` custom properties, and `body` references a step token rather than carrying a bare `clamp()` that children cannot inherit.
+- [ ] Viewport-proportional scaling is on the ROOT in ONE declaration (`html{font-size:clamp(...)}`), not reproduced per element, and any modular scale rides that root as plain `rem` multiples.
+- [ ] Every floor was evaluated at the ROOT clamp's minimum as well as at 1920px - root scaling does nothing below it, so a page verified only at wide viewports can carry a full set of sub-floor sizes.
 - [ ] Every font size clears its role floor (16 / 13 / 12px) at BOTH the clamp minimum and at 1920px.
 - [ ] Inline emphasis tokens declare both a color and a family or weight change, and the color clears AA.
 - [ ] Every ink and accent custom property clears AA against the backgrounds it is used on; no foreground fails against all of them.
-- [ ] `python scripts/visual_qa_score.py <out.html>` reports no HIGH-severity `fluid-spacing`, `font-floor`, `emphasis-token`, or `contrast` finding.
+- [ ] At most one sticky layer pins per scroll context, and any second layer is offset by the first's height.
+- [ ] Every in-page anchor target declares a `scroll-margin-top` that clears the sticky nav.
+- [ ] Command / prompt blocks wrap (`white-space: pre-wrap; overflow-wrap: anywhere`) rather than clipping.
+- [ ] `python scripts/visual_qa_score.py <out.html>` reports no HIGH-severity `fluid-spacing`, `font-floor`, `emphasis-token`, `contrast`, or `render-only-defects` finding.
 
 ## Related
 

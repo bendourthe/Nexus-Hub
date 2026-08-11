@@ -1,5 +1,34 @@
 # Development Log
 
+## [2026-08-11] - v3.16.5 errata pass: render-session lessons E1-E10
+
+### What Changed
+
+The maintainer's four-round render session at 2560x1300 and 1920x1080 produced ten errata items binding on the plan, five of which correct artifacts Phases 1 and 2 had already committed. All ten are now executed. The repo-root fixture was adopted as the canonical reference implementation; the Phase 1-3 worktree lineage (diverged by ~3291 lines) was discarded.
+
+### Why It Changed
+
+Phase 3 built a render loop and immediately proved its own premise twice over: first by finding five defects that eleven deterministic checks had passed, then by demonstrating that the scorer misgraded the maintainer's reference implementation in sixteen places. The errata is the same lesson arriving from the other direction - a human looking at a real render at a real size, concluding that two of the contracts' central prescriptions were wrong.
+
+### Decisions Made
+
+- **Root scaling replaces per-element clamps (E1), and the corollary is the sharper half.** Scaling belongs on `html` in one declaration; per-element `clamp()` sizes cap out independently, which is why three rounds of bumping individual sizes failed to fix perceived smallness on a 2560px display. But root scaling does NOTHING below the root clamp's minimum: with `clamp(1rem, 0.5vw + 0.55rem, 1.6rem)` the root pins at 16px for every viewport at or below 1366px. The canonical fixture, verified at 2560 and 1920, carried **14 distinct sub-floor element classes at 1366px**. The contract now states that corollary, because it is exactly what a render session checking only wide viewports cannot see.
+- **The scorer's numbers are now verified against the browser, not asserted (E3).** `root_font_px()` parses the `html` rule and every rem/ch value resolves against it. That retired 16 false positives and made the full-width math honest - the real gutter at 1920px is 50.6px, not 44px, so the band is 0.947 rather than the 0.954 the old math reported. The scorer and a live render now agree to four decimal places at 2560 / 1920 / 1366, which is the standard this kind of check should have been held to from the start.
+- **A false PASS is worse than a false FAIL, and E3 produced one of each.** Sixteen false failures were loud and got fixed in an hour. The single false pass - a band fraction the check inflated past its own threshold - had been sitting quietly in a green run since Phase 1.
+- **`rem` macro spacing became fluid, so rule 1 had to stop flagging it.** Under a fluid root, `2.5rem` of band padding is 40px at a 16px root and 64px at 25.6px. Continuing to flag it would have penalised the technique E1 prescribes.
+- **Where the fixture and the check disagreed, the check lost - once.** `svg-viewport-fit` demanded a literal `max-height`; the fixture uses `height: calc(100vh - 7.5rem); width: auto; max-width: 100%`, which pins the graphic to its slot AND prevents the horizontal overflow that deriving width from a capped height can cause. That is the better construction, so the check accepts either and rule 4 now documents the preferred one. Everything else the scorer flagged was a real defect and was fixed in the page.
+- **Rotation is a defect, not a technique (E4).** Phase 2 taught rotation as the fix for a label/path collision and shipped a `rotate(90)` label. The contract now says a reader should never have to tilt their head, and shows the widen-viewBox + `tspan` replacement.
+- **The mutation test was re-anchored on selectors rather than strings.** The fixture swap drifted all seven string anchors at once. The drift assertion caught it - which is why it exists - but a test that must be re-anchored whenever the page is re-authored is testing the wrong layer. Mutations now target `(selector, property)`, with only the two genuinely structural cases (an SVG path, an inline style attribute) staying literal.
+- **Expected severity became per-case.** A single fixed macro dimension is MEDIUM by policy, and the seeded-defect test had asserted HIGH for everything. Loosening the policy to satisfy the test would have inverted the relationship between them.
+
+### Verification
+
+70 tests in `test_presentify_visual_qa.py` (from 59), 572 passed / 0 skipped across `tests/skills/`. `ruff check --ignore RUF100` clean on the bundled scripts. All ten `make validate` guards pass. The canonical fixture scores PASS on all thirteen structural criteria. Rendered verification at 2560x1300 / 1920x1080 / 1366x768 / 390x844: no horizontal overflow at any width, secondary text at or above 13px and interactive at or above 12px at every width, two sticky layers at distinct offsets, every anchor target carrying `scroll-margin-top`, and 0 of 5 `pre` blocks clipping. Scorer band fractions match the render exactly (0.9536 / 0.9473 / 0.9356).
+
+### Known Issues
+
+BG-E1 closed with nothing deferred; the required 2560x1300 capture surfaced no new defects on the canonical fixture. WN-3 (`em`-relative sizes are render-verified only) remains open and is now doubly evidenced - the `code` element's `.9em` rendered at 12.53px and no parser could resolve it. The fixture now floors it with `max(.9em, 0.8125rem)`, a construction the checker CAN verify since `min()`/`max()` resolution was added.
+
 ## [2026-08-11] - v3.16.5 Phase 3: the real render loop
 
 ### What Changed

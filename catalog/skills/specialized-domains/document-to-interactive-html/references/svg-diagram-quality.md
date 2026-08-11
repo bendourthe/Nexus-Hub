@@ -39,18 +39,24 @@ No `stroke-dasharray` segment may pass within a label's bounding box. A dashed l
 Fix it by moving the label clear of the path, or by carving the path around the label - never by hoping the two miss each other.
 
 ```xml
-<!-- WRONG - computed, not eyeballed: the curve's midpoint is (286.5, 245)
-     and the rotated label is centred at (288, 248). They occupy the same
-     2 user units. -->
+<!-- WRONG on two counts: the label sits ON the path (the curve's midpoint is
+     (286.5, 245) and the label is centred at (288, 248) - the same 2 user
+     units), AND it is rotated, which is a readability defect in itself. -->
 <path class="loopback" d="M270 368 C 292 368, 292 122, 270 122"/>
 <text x="288" y="248" transform="rotate(90 288 248)" text-anchor="middle">re-plan</text>
 
-<!-- CORRECT - the curve is pushed inboard and the label sits outside its extent -->
-<path class="loopback" d="M272 368 C 296 368, 296 122, 272 122" marker-end="url(#arrow)"/>
-<text x="312" y="245" transform="rotate(90 312 245)" text-anchor="middle">re-plan</text>
+<!-- CORRECT - widen the viewBox, keep the label HORIZONTAL and clear of the
+     path, wrapping onto a second line with tspan when the space is narrow -->
+<path class="loopback" d="M272 368 C 320 368, 320 122, 272 122" marker-end="url(#arrow)"/>
+<text x="336" y="238" text-anchor="middle">
+  <tspan x="336" dy="0">target not met?</tspan>
+  <tspan x="336" dy="1.2em">re-plan</tspan>
+</text>
 ```
 
 Verify by evaluating the curve, not by looking at it. For a cubic Bezier the midpoint is `(P0 + 3*P1 + 3*P2 + P3) / 8`; compare it against the label's box. Two numbers settle what a glance cannot.
+
+**Do not rotate label text.** Rotation is not a space-saving technique to apply carefully - it is a readability defect, and a reviewer reads it as one immediately. A reader should never have to tilt their head to follow a diagram. When a label does not fit horizontally, widen the `viewBox` and wrap onto a second line with `tspan`; both are cheap, and the viewBox costs nothing at render time because the SVG scales to its container either way. Reserve `rotate()` for the genuinely unavoidable case - a dense axis of many long category labels - and never for a single annotation.
 
 ## 3. Connectors terminate on node edges
 
@@ -72,21 +78,28 @@ A pinned scrollytelling graphic must fit ENTIRELY inside its sticky viewport slo
 Constrain the height explicitly against the sticky offset, and choose a viewBox aspect that shows every node at once on a 1080p display. Remember that the usable height is the viewport minus the sticky offset minus browser chrome, which on a 1080p laptop at 125% scaling is closer to 700px than to 1080px.
 
 ```css
-/* CORRECT - cannot exceed the slot; preserveAspectRatio letterboxes rather than crops */
+/* BEST - pin the height to the slot and derive the width from it, so the graphic
+   fills the slot exactly instead of letterboxing inside a too-tall box */
 .rail-sticky{ position: sticky; top: 5.5rem; }
 .rail-sticky svg{
-  width: 100%;
-  height: auto;
-  max-height: calc(100vh - 7rem);   /* sticky offset + breathing room */
   display: block;
+  height: calc(100vh - 7.5rem);   /* the sticky offset plus breathing room */
+  width: auto;                    /* derived from the capped height */
+  max-width: 100%;                /* and never wider than its track */
+  margin-inline: auto;
 }
+
+/* ALSO CORRECT - a max-height cap; preserveAspectRatio letterboxes rather than crops */
+.rail-sticky svg{ width: 100%; height: auto; max-height: calc(100vh - 7rem); }
 
 /* WRONG - a 300x470 viewBox at width:100% in a 500px track renders 783px tall,
    so the bottom two stages fall outside a 700px slot and cannot be scrolled to */
 .rail-sticky svg{ width: 100%; height: auto; }
 ```
 
-Observable criterion: every `<svg>` inside a `position: sticky` / `position: fixed` container has a `max-height` constraining it. Severity HIGH - content that cannot be reached by any user action is not a styling preference.
+The first form is preferred: `height` + `width: auto` + `max-width: 100%` makes the graphic exactly fill its slot, whereas a `max-height` cap on a `width: 100%` element letterboxes inside a box that is still full-width. Note the `max-width: 100%` - without it, deriving width from a capped height can push the graphic WIDER than its track and scroll the page sideways.
+
+Observable criterion: every `<svg>` inside a `position: sticky` / `position: fixed` container is height-constrained, by either a `max-height` or a viewport-relative `height`. Severity HIGH - content that cannot be reached by any user action is not a styling preference.
 
 ## 5. Geometry self-check before shipping
 
@@ -105,6 +118,7 @@ Note that SVG text is exempt from the pixel font floors in `references/responsiv
 - [ ] No hand-placed triangle arrowhead paths remain; every directional connector uses `marker-end` with `orient="auto"` and `markerUnits="strokeWidth"`.
 - [ ] Arrowheads are applied consistently - no diagram where some connectors have heads and others do not.
 - [ ] No `stroke-dasharray` path passes within a label's bounding box, verified by computing the curve.
+- [ ] No label text is rotated. Where a label did not fit horizontally, the viewBox was widened or the label wrapped with `tspan` instead.
 - [ ] Connector endpoints are derived from the joined shapes' edge geometry.
 - [ ] Every `<svg>` in a sticky or fixed container carries a `max-height`, and all nodes are visible at once on a 1080p display.
 - [ ] Every marker reference resolves; every defined marker is used; all coordinates lie inside the viewBox.

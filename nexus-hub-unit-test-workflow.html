@@ -1,6 +1,29 @@
 <!--
   DESIGN RECORD
   ----------------------------------------------------------------------------
+  REVISION (2026-08-11, maintainer review): re-themed to a dark TEAL palette
+  (maintainer request, equivalent to a pinned --theme; replaces the rolled
+  rose-blush hues below while keeping the seed's layout, type, and motion
+  axes) and fixed the reported defects: fluid viewport-ratio band spacing,
+  widened prose measure (78ch) with a reflowing editorial grid, raised
+  secondary-text floors (notes, footer, captions >= ~13px rendered),
+  accent-colored emphasis tokens, marker-based SVG arrowheads, the pipeline
+  graphic constrained to fit one sticky viewport, and the loop-back label
+  moved clear of the dashed path. Hex values in the token table below have
+  been updated in place to the teal palette.
+  REVISION 2 (2026-08-11): true viewport-proportional scaling - the ROOT
+  font-size now scales with the window (clamp(1rem, 0.36vw + 0.675rem,
+  1.44rem)), so every rem/ch-derived dimension (type, measures, grids,
+  gutters, notes, tables) grows on large displays; the pinned pipeline SVG
+  fills the sticky viewport height with no pixel cap; canvas-chart fonts,
+  padding, and point radii derive from the live root size. Verified from
+  REAL Playwright renders at 2560x1300 and 1920x1080 (root 21.6px, body
+  23px, notes/footer 20.5px, pipeline 852x1138 in a 1300px viewport).
+  Follow-ups from that render pass: margin notes sit ADJACENT to the prose
+  column (no dead middle band), the table header is no longer sticky (it
+  pinned under the sticky nav), anchor jumps carry scroll-margin-top, and
+  the pull-quote rules align to the prose measure.
+  ----------------------------------------------------------------------------
   Four design choices (resolved up front, batched, before extraction):
     1. Style / direction .... Technical & Precise            (user-chosen)
     2. Output aspect ........ Full-width                     (user-chosen)
@@ -14,9 +37,9 @@
                        move: section-color-morph
 
   Committed tokens
-    base ............. #2a1616      surface .......... #3a1f1f
-    ink .............. #f6e9e8      accent ........... #dc8383
-    accent-2 ......... #7aa0c4      (accent morphs per section: rose -> clay
+    base ............. #0d1b1a      surface .......... #132724
+    ink .............. #e8f3f1      accent ........... #2fbfae
+    accent-2 ......... #6ba3d6      (accent morphs per section: rose -> clay
                                      -> ochre -> sage -> slate)
     heading .......... Consolas / Cascadia Code / SF Mono / Menlo, monospace
     body ............. Segoe UI / -apple-system / Arial, sans-serif
@@ -52,52 +75,27 @@
    TOKENS
    ======================================================================== */
 :root{
-  --base:#2a1616;
-  --surface:#3a1f1f;
-  --surface-2:#472727;
-  --ink:#f6e9e8;
-  --ink-dim:#cbb0ae;
-  /* Inks and accents are AA-validated (>= 4.5:1) against ALL THREE surfaces
-     below, not eyeballed. The pre-v3.16.5 values (--ink-faint #9c7f7d,
-     --accent #c26565, --accent-2 #4f6d8a) failed AA on the lighter surfaces and
-     the accents failed on every surface, so no token colored with them could be
-     read at a glance. See references/responsive-typography.md rule 6. */
-  --ink-faint:#b59a97;
-  --accent:#dc8383;
-  --accent-2:#7aa0c4;
-  --rule:#5a3434;
-  --ok:#7fa06a;
-  --warn:#c9a227;
-  --stop:#c25050;
+  --base:#0d1b1a;
+  --surface:#132724;
+  --surface-2:#193230;
+  --ink:#e8f3f1;
+  --ink-dim:#b8d0cc;
+  --ink-faint:#89a8a3;
+  --accent:#2fbfae;
+  --accent-2:#6ba3d6;
+  --rule:#24413d;
+  --ok:#7fbf8a;
+  --warn:#d4b04a;
+  --stop:#d16969;
 
   /* full-width canvas: gutters, NOT a centred max-width column.
      Capped at 2.75rem so the widest top-level band reaches ~95.4% of a
      1920px viewport (1920 - 2*44 = 1832). */
   --page-max:100%;
-  --gutter:clamp(1.25rem, 4vw, 2.75rem);
-  --band-y:clamp(3.5rem, 7vh, 7rem);
-  --band-y-tight:clamp(2.5rem, 4.5vh, 4.5rem);
-  /* min(), so prose widens toward its 85ch maximum when the band has free width
-     instead of stranding a dead corridor beside every line. */
-  --measure:min(85ch, 100%);
-
-  /* FLUID TYPE SCALE - declared ONCE, referenced by step token everywhere.
-     Every clamp MINIMUM sits at or above its role floor (body 16px, secondary
-     13px, interactive 12px), because on a 1366px laptop the clamp is still
-     pinned at its minimum, so the minimum is the size most readers get.
-     Do NOT size text in bare rem: rem resolves against the ROOT element, so a
-     fluid clamp on `body` never reaches a rem-sized child - which is exactly how
-     this page shipped an 11.2px footer heading under a correct-looking body
-     rule. See references/responsive-typography.md rules 3 and 4. */
-  --step--3:clamp(0.75rem, 0.72rem + 0.14vw, 0.875rem);    /* 12 -> 14px  interactive */
-  --step--2:clamp(0.8125rem, 0.78rem + 0.16vw, 0.9375rem); /* 13 -> 15px  secondary */
-  --step--1:clamp(0.875rem, 0.83rem + 0.22vw, 1rem);       /* 14 -> 16px  */
-  --step-0:clamp(1rem, 0.94rem + 0.30vw, 1.1875rem);       /* 16 -> 19px  body */
-  --step-1:clamp(1.125rem, 1.02rem + 0.50vw, 1.4375rem);   /* 18 -> 23px  */
-  --step-2:clamp(1.3125rem, 1.10rem + 1.00vw, 1.9375rem);  /* 21 -> 31px  */
-  --step-3:clamp(1.5rem, 1.15rem + 1.60vw, 2.5rem);        /* 24 -> 40px  */
-  --step-4:clamp(1.75rem, 1.15rem + 2.60vw, 3rem);         /* 28 -> 48px  */
-  --step-5:clamp(2.25rem, 1.20rem + 4.20vw, 4.6rem);       /* 36 -> 74px  */
+  --gutter:clamp(1.25rem, 4vw, 2.6rem);
+  --band-y:clamp(3.25rem, 9vh, 7.5rem);
+  --band-y-tight:clamp(2.5rem, 6vh, 5rem);
+  --measure:78ch;
 
   --f-head:Consolas,'Cascadia Code','SF Mono',Menlo,monospace;
   --f-body:'Segoe UI',-apple-system,BlinkMacSystemFont,Arial,sans-serif;
@@ -108,13 +106,13 @@
 }
 
 *{box-sizing:border-box}
-html{scroll-behavior:smooth}
+html{scroll-behavior:smooth;font-size:clamp(1rem, 0.5vw + 0.55rem, 1.6rem)}
 body{
   margin:0;
   background:var(--base);
   color:var(--ink);
   font-family:var(--f-body);
-  font-size:var(--step-0);
+  font-size:1.0625rem;
   line-height:1.65;
   -webkit-font-smoothing:antialiased;
   overflow-x:hidden;
@@ -134,21 +132,20 @@ body{
 .bleed{width:100%;padding-inline:var(--gutter)}
 p.measure,ul.measure,ol.measure{max-width:var(--measure)}
 
-h1,h2,h3,h4{font-family:var(--f-head);font-weight:600;letter-spacing:-.02em;margin:0;text-wrap:balance}
-h2{font-size:var(--step-4);line-height:1.08}
-h3{font-size:var(--step-2);line-height:1.2}
-h4{font-size:var(--step-0);letter-spacing:.02em}
+h1,h2,h3,h4{font-family:var(--f-head);font-weight:600;letter-spacing:-.02em;margin:0}
+section[id],header[id]{scroll-margin-top:4.5rem}
+h1,h2,h3{text-wrap:balance}
 p{text-wrap:pretty}
+h2{font-size:clamp(1.65rem,1rem + 2vw,3rem);line-height:1.08}
+h3{font-size:clamp(1.15rem,.9rem + .7vw,1.6rem);line-height:1.2}
+h4{font-size:1rem;letter-spacing:.02em}
 a{color:var(--accent);text-decoration-thickness:1px;text-underline-offset:3px}
 a:hover{color:var(--ink)}
-/* Emphasis tokens are distinct on BOTH axes - mono family AND an AA-checked
-   accent color. Family alone left `/review` reading as plain prose inside a
-   margin note (references/responsive-typography.md rule 5). */
 /* max() floors the optical em-matching at the 13px secondary floor. A bare
-   .92em renders at 12.2px inside a --step--1 parent, which is how the
-   emphasis tokens shipped under the floor - and a fractional em is exactly
-   what the deterministic check cannot resolve, so only a render caught it. */
-code{font-family:var(--f-mono);font-size:max(.92em, 0.8125rem);color:var(--accent)}
+   .9em renders at 12.53px inside a smaller-than-body parent once the root
+   clamp bottoms out at 1366px, and a fractional em is precisely what a
+   deterministic check cannot resolve - only a render catches it (WN-3). */
+code{font-family:var(--f-mono);font-size:max(.9em, 0.8125rem);color:var(--accent)}
 
 /* ===========================================================================
    PROGRESS + NAV
@@ -164,7 +161,7 @@ code{font-family:var(--f-mono);font-size:max(.92em, 0.8125rem);color:var(--accen
 }
 nav#toc{
   position:sticky;top:0;z-index:50;
-  background:#2a1616;
+  background:#0d1b1a;
   background:color-mix(in srgb, var(--base) 88%, transparent);
   backdrop-filter:blur(10px);
   border-bottom:1px solid var(--rule);
@@ -175,7 +172,7 @@ nav#toc .row{
   width:100%;
 }
 nav#toc .brand{
-  font-family:var(--f-head);font-size:var(--step--2);letter-spacing:.06em;
+  font-family:var(--f-head);font-size:.8125rem;letter-spacing:.06em;
   color:var(--ink-faint);white-space:nowrap;
 }
 nav#toc .brand b{color:var(--accent);font-weight:600}
@@ -208,15 +205,15 @@ nav#toc a[aria-current="true"]{
   grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);
   align-items:center;width:100%;
 }
-@media (max-width:1000px){#hero .grid{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:1000px){#hero .grid{grid-template-columns:1fr}}
 #hero h1{
   font-size:clamp(2rem,1rem + 3.6vw,4.6rem);
   line-height:1.02;letter-spacing:-.035em;margin-bottom:1.1rem;
 }
 #hero h1 em{font-style:normal;color:var(--accent);}
-#hero .lede{font-size:clamp(1.05rem,.8rem + .6vw,1.35rem);color:var(--ink-dim);max-width:56ch}
+#hero .lede{font-size:clamp(1.05rem,.8rem + .6vw,1.35rem);color:var(--ink-dim)}
 #hero .kicker{
-  font-family:var(--f-head);font-size:var(--step--2);letter-spacing:.14em;
+  font-family:var(--f-head);font-size:.8125rem;letter-spacing:.14em;
   color:var(--accent-2);text-transform:uppercase;margin-bottom:1.4rem;
   display:flex;align-items:center;gap:.6rem;
 }
@@ -228,8 +225,8 @@ nav#toc a[aria-current="true"]{
 #hero::before{
   content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
   background:
-    radial-gradient(900px 420px at 12% -10%, rgba(194,101,101,.20), transparent 65%),
-    radial-gradient(700px 380px at 92% 8%, rgba(79,109,138,.17), transparent 65%);
+    radial-gradient(900px 420px at 12% -10%, rgba(47,191,174,.16), transparent 65%),
+    radial-gradient(700px 380px at 92% 8%, rgba(107,163,214,.14), transparent 65%);
 }
 #hero::after{
   content:"";position:absolute;inset:0;pointer-events:none;opacity:.35;
@@ -249,7 +246,7 @@ nav#toc a[aria-current="true"]{
   display:block;font-family:var(--f-head);font-size:clamp(1.5rem,1rem + 1.4vw,2.4rem);
   color:var(--accent);line-height:1;letter-spacing:-.03em;
 }
-.stat span{display:block;font-size:var(--step--2);color:var(--ink-faint);margin-top:.45rem;letter-spacing:.03em}
+.stat span{display:block;font-size:.85rem;color:var(--ink-faint);margin-top:.45rem;letter-spacing:.03em}
 
 /* ===========================================================================
    SECTION SHELL + accent morph target
@@ -260,38 +257,36 @@ section[data-accent]{transition:none}
   grid-template-columns:minmax(0,7.5rem) minmax(0,1fr);
   align-items:start;margin-bottom:clamp(2rem,4vh,3.5rem);
 }
-@media (max-width:760px){.sec-head{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:760px){.sec-head{grid-template-columns:1fr}}
 .sec-num{
-  font-family:var(--f-head);font-size:var(--step--2);letter-spacing:.1em;
+  font-family:var(--f-head);font-size:.8125rem;letter-spacing:.1em;
   color:var(--accent);padding-top:.6rem;border-top:2px solid var(--accent);
 }
-.sec-head p{color:var(--ink-dim);max-width:var(--measure);margin:.9rem 0 0}
+.sec-head p{color:var(--ink-dim);margin:.9rem 0 0}
 
 /* editorial grid: prose + margin notes breaking the measure */
-/* The note rail GROWS with the viewport so the prose track never opens a dead
-   corridor. With a fixed 19rem rail, a 68ch paragraph sat in a 1277px track at
-   1920px, stranding ~690px of empty space down one side of every line - the
-   paragraph obeyed its measure and the band still read as broken.
-   See references/responsive-typography.md rule 2. */
 .editorial{
-  display:grid;gap:clamp(1.25rem,3vw,3.5rem);
-  grid-template-columns:minmax(0,1fr) minmax(0,clamp(17rem,26vw,32rem));
+  display:grid;gap:clamp(2.5rem,5vw,7rem);
+  grid-template-columns:minmax(0,2fr) minmax(16rem,1fr);
   align-items:start;
 }
-@media (max-width:960px){.editorial{grid-template-columns:minmax(0,1fr)}}
+.editorial p.measure{max-width:none}
+.editorial .pull{max-width:none}
+@media (max-width:960px){.editorial{grid-template-columns:1fr}}
 .note{
   border-left:2px solid var(--accent-2);padding:.15rem 0 .15rem 1rem;
-  font-size:var(--step--1);color:var(--ink-dim);
+  font-size:.95rem;color:var(--ink-dim);
 }
-.note b{display:block;font-family:var(--f-head);font-size:var(--step--2);letter-spacing:.09em;
+.note b{display:block;font-family:var(--f-head);font-size:.8125rem;letter-spacing:.09em;
   text-transform:uppercase;color:var(--accent-2);margin-bottom:.35rem}
+.note code{color:var(--accent);font-weight:600}
 .note + .note{margin-top:1.5rem}
 
 .pull{
   font-family:var(--f-head);font-size:clamp(1.05rem,.85rem + .7vw,1.5rem);
   line-height:1.35;color:var(--ink);
   border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);
-  padding:1.4rem 0;margin:2.5rem 0;max-width:44ch;
+  padding:1.4rem 0;margin:2.5rem 0;max-width:var(--measure);
 }
 .pull span{color:var(--accent)}
 
@@ -308,21 +303,21 @@ section[data-accent]{transition:none}
   background:var(--surface-2);
 }
 .cmd-bar .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);flex:none}
-.cmd-bar .label{/* a static caption, not a control: secondary floor */
-  
-  font-family:var(--f-head);font-size:var(--step--2);letter-spacing:.09em;
+.cmd-bar .label{
+  font-family:var(--f-head);font-size:.8125rem;letter-spacing:.09em;
   text-transform:uppercase;color:var(--ink-faint);
 }
 .cmd-bar button{
   margin-left:auto;background:transparent;border:1px solid var(--rule);
-  color:var(--ink-dim);font-family:var(--f-head);font-size:var(--step--3);
+  color:var(--ink-dim);font-family:var(--f-head);font-size:.75rem;
   letter-spacing:.06em;padding:.22rem .5rem;border-radius:3px;cursor:pointer;
   transition:color .2s,border-color .2s,transform .2s var(--spring);
 }
 .cmd-bar button:hover,.cmd-bar button:focus-visible{color:var(--ink);border-color:var(--accent);transform:translateY(-1px)}
 .cmd pre{
   margin:0;padding:1rem .95rem;overflow-x:auto;
-  font-family:var(--f-mono);font-size:.87rem;line-height:1.75;color:var(--ink);
+  white-space:pre-wrap;overflow-wrap:anywhere;
+  font-family:var(--f-mono);font-size:.95rem;line-height:1.75;color:var(--ink);
 }
 .cmd pre .c{color:var(--ink-faint)}
 .cmd pre .s{color:var(--accent)}
@@ -338,40 +333,34 @@ section[data-accent]{transition:none}
   align-items:start;width:100%;
 }
 .rail-sticky{
-  position:sticky;top:5.5rem;align-self:start;
-  padding:1rem 0;
+  position:sticky;top:4.75rem;align-self:start;
+  padding:.75rem 0;
 }
-/* A pinned graphic MUST fit its sticky slot: the container does not scroll, so
-   anything past the bottom edge is unreachable by any user action. Before this
-   cap, the 330x470 viewBox at width:100% in a ~500px track rendered ~712px tall
-   and lost its bottom two stages inside a 1080p laptop's ~700px slot.
-   preserveAspectRatio letterboxes rather than cropping, so all five stages stay
-   visible. See references/svg-diagram-quality.md rule 4. */
-.rail-sticky svg{
-  width:100%;height:auto;display:block;
-  max-height:calc(100vh - 7rem);
-}
+.rail-sticky svg{display:block;height:calc(100vh - 7.5rem);width:auto;max-width:100%;margin-inline:auto}
 .rail-steps>article{
-  padding-block:clamp(3rem,14vh,9rem);
+  padding-block:clamp(2rem,7vh,4.5rem);
   border-bottom:1px solid var(--rule);
 }
 .rail-steps>article:last-child{border-bottom:none}
 .rail-steps h3{margin-bottom:.5rem}
 .rail-steps .tag{
-  font-family:var(--f-head);font-size:var(--step--2);letter-spacing:.11em;
+  font-family:var(--f-head);font-size:.8125rem;letter-spacing:.11em;
   text-transform:uppercase;color:var(--accent);display:block;margin-bottom:.7rem;
 }
-.rail-steps p{color:var(--ink-dim);max-width:56ch}
+.rail-steps p{color:var(--ink-dim)}
 .io{
   display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
   gap:1px;background:var(--rule);border:1px solid var(--rule);margin-top:1.4rem;
 }
 .io div{background:var(--base);padding:.7rem .8rem}
 .io b{
-  display:block;font-family:var(--f-head);font-size:var(--step--2);letter-spacing:.1em;
-  text-transform:uppercase;color:var(--ink-faint);margin-bottom:.3rem;
+  display:block;font-family:var(--f-head);font-size:.8125rem;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-faint);margin-bottom:.45rem;
 }
-.io span{font-size:.83rem;color:var(--ink)}
+.io ul{list-style:none;margin:0;padding:0}
+.io li{font-size:.9rem;color:var(--ink);position:relative;padding-left:1rem;margin-bottom:.3rem}
+.io li::before{content:"";position:absolute;left:0;top:.6em;width:.4em;height:2px;background:var(--accent)}
+.io li em{font-style:normal;color:var(--ink-faint)}
 
 /* pinned node states */
 .node{cursor:pointer}
@@ -379,23 +368,19 @@ section[data-accent]{transition:none}
 .node .ntext{fill:var(--ink-faint);font-family:Consolas,monospace;font-size:11px;letter-spacing:.06em;transition:fill .45s var(--ease)}
 .node .nsub{fill:var(--ink-faint);opacity:.6;font-family:Consolas,monospace;font-size:8.5px}
 .node.on .nbox{fill:var(--accent);stroke:var(--accent)}
-.node.on .ntext{fill:#2a1616}
-.node.on .nsub{fill:#2a1616;opacity:.75}
+.node.on .ntext{fill:#0d1b1a}
+.node.on .nsub{fill:#0d1b1a;opacity:.75}
 .node:hover .nbox{stroke:var(--accent)}
-/* Arrowheads are markers, attached from CSS rather than by attribute, because a
-   marker does NOT inherit from the element referencing it - so the highlighted
-   state needs its own marker swapped in, or the head would stay dark while the
-   line turns accent. See references/svg-diagram-quality.md rule 1. */
-.flow{stroke:var(--rule);stroke-width:1.5;fill:none;transition:stroke .45s var(--ease);
-  marker-end:url(#arrow-flow)}
-.flow.on{stroke:var(--accent);marker-end:url(#arrow-flow-on)}
+.flow{stroke:var(--rule);stroke-width:1.5;fill:none;transition:stroke .45s var(--ease)}
+.flow.on{stroke:var(--accent);marker-end:url(#mOn)}
 .loopback{stroke:var(--accent-2);stroke-width:1.5;fill:none;stroke-dasharray:4 4}
 .looplabel{fill:var(--accent-2);font-family:Consolas,monospace;font-size:9px;letter-spacing:.05em}
 
 @media (max-width:960px){
-  .rail{grid-template-columns:minmax(0,1fr)}
+  .rail{grid-template-columns:1fr}
   .rail-sticky{position:static;order:-1}
-  .rail-steps>article{padding-block:clamp(1.75rem,4vh,2.5rem)}
+  .rail-sticky svg{height:auto;width:100%;max-width:420px}
+  .rail-steps>article{padding-block:2.5rem}
 }
 @media (prefers-reduced-motion: reduce){
   .rail-sticky{position:static}
@@ -409,7 +394,7 @@ section[data-accent]{transition:none}
 .gate{background:var(--base);padding:1.3rem 1.25rem;transition:background .3s}
 .gate:hover{background:var(--surface)}
 .gate .g{
-  font-family:var(--f-head);font-size:var(--step--2);letter-spacing:.1em;text-transform:uppercase;
+  font-family:var(--f-head);font-size:.8125rem;letter-spacing:.1em;text-transform:uppercase;
   display:inline-block;padding:.15rem .45rem;border:1px solid currentColor;border-radius:2px;
   margin-bottom:.7rem;
 }
@@ -424,9 +409,9 @@ section[data-accent]{transition:none}
    ======================================================================== */
 .chart-wrap{
   border:1px solid var(--rule);background:var(--surface);
-  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,17rem);
+  display:grid;grid-template-columns:minmax(0,1fr) clamp(15rem, 20vw, 21rem);
 }
-@media (max-width:900px){.chart-wrap{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:900px){.chart-wrap{grid-template-columns:1fr}}
 .chart-main{padding:1rem;min-width:0}
 .chart-main canvas{width:100%;height:auto;display:block;cursor:grab;touch-action:none}
 .chart-main canvas:active{cursor:grabbing}
@@ -435,16 +420,16 @@ section[data-accent]{transition:none}
 .ctl{margin-bottom:1.1rem}
 .ctl label{
   display:flex;justify-content:space-between;align-items:baseline;
-  font-family:var(--f-head);font-size:var(--step--3);letter-spacing:.07em;
+  font-family:var(--f-head);font-size:.75rem;letter-spacing:.07em;
   text-transform:uppercase;color:var(--ink-faint);margin-bottom:.4rem;
 }
-.ctl label b{color:var(--accent);font-size:.9rem}
-.ctl input[type=range]{width:100%;accent-color:var(--accent);background:transparent}
+.ctl label b{color:var(--ink);font-size:.9rem}
+.ctl input[type=range]{width:100%;accent-color:var(--ink-faint);background:transparent}
 .legend{list-style:none;margin:0 0 1.1rem;padding:0;display:grid;gap:.3rem}
 .legend button{
   display:flex;align-items:center;gap:.55rem;width:100%;text-align:left;
   background:transparent;border:1px solid transparent;color:var(--ink);
-  font-family:var(--f-body);font-size:.82rem;padding:.32rem .4rem;border-radius:3px;
+  font-family:var(--f-body);font-size:.88rem;padding:.32rem .4rem;border-radius:3px;
   cursor:pointer;transition:background .2s,border-color .2s;
 }
 .legend button:hover,.legend button:focus-visible{background:var(--surface);border-color:var(--rule)}
@@ -455,21 +440,21 @@ section[data-accent]{transition:none}
   width:100%;background:var(--base);border:1px solid var(--rule);color:var(--ink);
   font-family:var(--f-mono);font-size:.8rem;padding:.35rem .45rem;border-radius:3px;
 }
-.axis-row span{font-family:var(--f-head);font-size:var(--step--2);color:var(--ink-faint);letter-spacing:.07em}
+.axis-row span{font-family:var(--f-head);font-size:.8125rem;color:var(--ink-faint);letter-spacing:.07em}
 .btn{
   background:transparent;border:1px solid var(--rule);color:var(--ink-dim);
-  font-family:var(--f-head);font-size:var(--step--3);letter-spacing:.07em;text-transform:uppercase;
+  font-family:var(--f-head);font-size:.75rem;letter-spacing:.07em;text-transform:uppercase;
   padding:.4rem .7rem;border-radius:3px;cursor:pointer;
   transition:color .2s,border-color .2s,transform .2s var(--spring);
 }
 .btn:hover,.btn:focus-visible{color:var(--ink);border-color:var(--accent);transform:translateY(-1px)}
 .readout{
-  font-family:var(--f-mono);font-size:var(--step--2);color:var(--ink-dim);
+  font-family:var(--f-mono);font-size:.85rem;color:var(--ink-dim);
   border-top:1px solid var(--rule);padding-top:.75rem;margin-top:.25rem;
 }
 .readout b{color:var(--accent)}
 .honest{
-  font-size:var(--step--2);color:var(--ink-faint);border-left:2px solid var(--warn);
+  font-size:.875rem;color:var(--ink-faint);border-left:2px solid var(--warn);
   padding-left:.8rem;margin-top:1.25rem;max-width:70ch;
 }
 
@@ -483,10 +468,10 @@ section[data-accent]{transition:none}
 }
 .tbl-tools input[type=search]:focus-visible{border-color:var(--accent);outline:none}
 .tbl-scroll{overflow-x:auto;border:1px solid var(--rule)}
-table{border-collapse:collapse;width:100%;min-width:60rem;font-size:.87rem}
+table{border-collapse:collapse;width:100%;min-width:60rem;font-size:.92rem}
 thead th{
-  position:sticky;top:0;background:var(--surface-2);text-align:left;
-  font-family:var(--f-head);font-size:var(--step--2);letter-spacing:.09em;text-transform:uppercase;
+  background:var(--surface-2);text-align:left;
+  font-family:var(--f-head);font-size:.8125rem;letter-spacing:.09em;text-transform:uppercase;
   color:var(--ink-dim);padding:.65rem .8rem;border-bottom:1px solid var(--rule);
   cursor:pointer;user-select:none;white-space:nowrap;
 }
@@ -519,7 +504,7 @@ tbody tr:focus-within{background:var(--surface)}
 }
 .acc details[open] summary::before{transform:rotate(45deg)}
 .acc .body{padding:0 1rem 1.1rem 2.5rem}
-.acc .body p{margin:0;color:var(--ink-dim);font-size:.9rem;max-width:74ch}
+.acc .body p{margin:0;color:var(--ink-dim);font-size:.95rem;max-width:78ch}
 .acc .body p + p{margin-top:.7rem}
 .acc .body em{color:var(--ink);font-style:normal;border-bottom:1px solid var(--accent)}
 
@@ -533,11 +518,11 @@ tbody tr:focus-within{background:var(--surface)}
 .zoomable{cursor:zoom-in}
 #overlay{
   position:fixed;inset:0;z-index:100;display:none;
-  background:rgba(20,10,10,.94);padding:clamp(1rem,4vw,3rem);
+  background:rgba(6,15,14,.94);padding:clamp(1rem,4vw,3rem);
 }
 #overlay.on{display:grid;grid-template-rows:auto 1fr}
 #overlay .obar{display:flex;gap:.5rem;align-items:center;margin-bottom:.8rem}
-#overlay .obar p{margin:0;font-family:var(--f-head);font-size:var(--step--2);color:var(--ink-dim);letter-spacing:.06em}
+#overlay .obar p{margin:0;font-family:var(--f-head);font-size:.8125rem;color:var(--ink-dim);letter-spacing:.06em}
 #overlay .ostage{
   overflow:hidden;border:1px solid var(--rule);background:var(--base);
   display:grid;place-items:center;cursor:grab;touch-action:none;
@@ -545,15 +530,16 @@ tbody tr:focus-within{background:var(--surface)}
 #overlay .ostage:active{cursor:grabbing}
 #overlay .ostage>*{transform-origin:center center}
 
-footer{border-top:1px solid var(--rule);color:var(--ink-faint);font-size:var(--step--1)}
-footer .cols{display:grid;gap:clamp(1.5rem,3vw,2.75rem);grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
-footer b{display:block;font-family:var(--f-head);font-size:var(--step--2);letter-spacing:.1em;
+footer{border-top:1px solid var(--rule);color:var(--ink-dim);font-size:.95rem}
+footer .cols{display:grid;gap:2rem;grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+footer b{display:block;font-family:var(--f-head);font-size:.8125rem;letter-spacing:.1em;
   text-transform:uppercase;color:var(--ink-dim);margin-bottom:.5rem}
 footer ul{list-style:none;margin:0;padding:0}
 footer li{margin-bottom:.3rem}
 footer code{color:var(--accent)}
+small.fn{font-size:.875rem;color:var(--ink-dim)}
 .skip{position:absolute;left:-9999px}
-.skip:focus{left:var(--gutter);top:.5rem;z-index:200;background:var(--accent);color:#2a1616;padding:.5rem .8rem}
+.skip:focus{left:var(--gutter);top:.5rem;z-index:200;background:var(--accent);color:#0d1b1a;padding:.5rem .8rem}
 </style>
 </head>
 <body>
@@ -591,24 +577,19 @@ footer code{color:var(--accent)}
       <svg viewBox="0 0 520 340" role="img" aria-label="Diagram: coverage climbing across phases toward a threshold line, with a gap remaining that is carried forward.">
         <defs>
           <linearGradient id="gcov" x1="0" y1="1" x2="0" y2="0">
-            <stop offset="0" stop-color="var(--accent)" stop-opacity=".25"/>
-            <stop offset="1" stop-color="var(--accent)" stop-opacity=".9"/>
+            <stop offset="0" stop-color="#2fbfae" stop-opacity=".25"/>
+            <stop offset="1" stop-color="#2fbfae" stop-opacity=".9"/>
           </linearGradient>
-          <!-- refX=9 puts the marker TIP on the path endpoint rather than
-               overshooting past it; markerUnits=strokeWidth scales the head with
-               the line; orient=auto rotates it to the tangent. -->
-          <marker id="arrow-carry" viewBox="0 0 10 10" refX="9" refY="5"
-                  markerWidth="6" markerHeight="6"
-                  orient="auto" markerUnits="strokeWidth">
-            <path d="M0 0 L10 5 L0 10 z" fill="var(--accent-2)"/>
+          <marker id="mHero" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" markerUnits="strokeWidth" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 z" fill="#6ba3d6"/>
           </marker>
         </defs>
         <!-- frame -->
-        <line x1="44" y1="24" x2="44" y2="286" stroke="var(--rule)" stroke-width="1"/>
-        <line x1="44" y1="286" x2="500" y2="286" stroke="var(--rule)" stroke-width="1"/>
+        <line x1="44" y1="24" x2="44" y2="286" stroke="#24413d" stroke-width="1"/>
+        <line x1="44" y1="286" x2="500" y2="286" stroke="#24413d" stroke-width="1"/>
         <!-- threshold -->
-        <line x1="44" y1="74" x2="500" y2="74" stroke="var(--accent-2)" stroke-width="1.5" stroke-dasharray="5 4"/>
-        <text x="500" y="66" text-anchor="end" fill="var(--accent-2)" font-family="Consolas,monospace" font-size="10">threshold 80%</text>
+        <line x1="44" y1="74" x2="500" y2="74" stroke="#6ba3d6" stroke-width="1.5" stroke-dasharray="5 4"/>
+        <text x="500" y="66" text-anchor="end" fill="#6ba3d6" font-family="Consolas,monospace" font-size="10">threshold 80%</text>
         <!-- bars -->
         <g>
           <rect x="70"  y="250" width="52" height="36"  fill="url(#gcov)"/>
@@ -618,26 +599,21 @@ footer code{color:var(--accent)}
           <rect x="398" y="86"  width="52" height="200" fill="url(#gcov)"/>
         </g>
         <!-- the residual gap: the point of the whole page -->
-        <rect x="398" y="74" width="52" height="12" fill="none" stroke="var(--warn)" stroke-width="1.5"/>
-        <text x="424" y="60" text-anchor="middle" fill="var(--warn)" font-family="Consolas,monospace" font-size="9">gap</text>
+        <rect x="398" y="74" width="52" height="12" fill="none" stroke="#d4b04a" stroke-width="1.5"/>
+        <text x="424" y="60" text-anchor="middle" fill="#d4b04a" font-family="Consolas,monospace" font-size="9">gap</text>
         <!-- phase labels -->
-        <g fill="var(--ink-faint)" font-family="Consolas,monospace" font-size="9" text-anchor="middle">
+        <g fill="#89a8a3" font-family="Consolas,monospace" font-size="9" text-anchor="middle">
           <text x="96"  y="302">P1</text>
           <text x="178" y="302">P2</text>
           <text x="260" y="302">P3</text>
           <text x="342" y="302">P4</text>
           <text x="424" y="302">P5</text>
         </g>
-        <!-- carry-forward arc: ONE object (line + attached marker head), and the
-             label sits clear of the dashed path. Computed, not eyeballed: the
-             cubic midpoint is (P0 + 3*P1 + 3*P2 + P3)/8 = (269, 27.25), and the
-             label's box tops out near y=12, so there is ~15 user units of
-             clearance. See references/svg-diagram-quality.md rules 1 and 2. -->
-        <path d="M424 46 C 424 22, 120 22, 96 40" fill="none" stroke="var(--accent-2)"
-              stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#arrow-carry)"/>
-        <text x="260" y="12" text-anchor="middle" fill="var(--accent-2)" font-family="Consolas,monospace" font-size="9">gap recorded, next plan ingests it</text>
+        <!-- carry-forward arc -->
+        <path d="M424 46 C 424 18, 120 18, 96 40" fill="none" stroke="#6ba3d6" stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#mHero)"/>
+        <text x="260" y="14" text-anchor="middle" fill="#6ba3d6" font-family="Consolas,monospace" font-size="9">gap recorded, next plan ingests it</text>
         <!-- y ticks -->
-        <g fill="var(--ink-faint)" font-family="Consolas,monospace" font-size="9" text-anchor="end">
+        <g fill="#89a8a3" font-family="Consolas,monospace" font-size="9" text-anchor="end">
           <text x="38" y="290">0</text>
           <text x="38" y="78">80</text>
           <text x="38" y="28">100</text>
@@ -657,7 +633,7 @@ footer code{color:var(--accent)}
 <!-- ======================================================================
      WHY THIS SHAPE
      =================================================================== -->
-<section id="why" class="band band-y" data-accent="#dc8383">
+<section id="why" class="band band-y" data-accent="#2fbfae">
   <div class="sec-head reveal">
     <p class="sec-num">SHAPE</p>
     <div>
@@ -695,7 +671,7 @@ footer code{color:var(--accent)}
 <!-- ======================================================================
      FIVE STAGES (scrollytelling, pinned graphic)
      =================================================================== -->
-<section id="stages" class="band band-y" data-accent="#dc8383">
+<section id="stages" class="band band-y" data-accent="#2fbfae">
   <div class="sec-head reveal">
     <p class="sec-num">WALKTHROUGH</p>
     <div>
@@ -707,29 +683,17 @@ footer code{color:var(--accent)}
   <div class="rail">
     <div class="rail-sticky">
       <!-- Tier 1 procedural visual: original generated inline SVG pipeline. -->
-      <!-- viewBox widened from 300 to 330 so the loop-back label clears its own
-           dashed curve: the curve's cubic midpoint is x=291, the rotated label
-           sits at x=314, leaving ~16 user units. Computed per
-           references/svg-diagram-quality.md rule 2, not eyeballed. -->
-      <svg id="pipe" viewBox="0 0 330 470" class="zoomable" role="img"
+      <svg id="pipe" viewBox="0 0 412 470" class="zoomable" role="img"
            aria-label="Pipeline diagram: measure, plan, implement, drive, verify, with a dashed loop back from verify to plan.">
         <defs>
-          <!-- One head per stroke color, because a marker does NOT inherit from
-               the path referencing it. refX=9 puts the tip on the endpoint. -->
-          <marker id="arrow-flow" viewBox="0 0 10 10" refX="9" refY="5"
-                  markerWidth="5" markerHeight="5"
-                  orient="auto" markerUnits="strokeWidth">
-            <path d="M0 0 L10 5 L0 10 z" fill="var(--rule)"/>
+          <marker id="mOff" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" markerUnits="strokeWidth" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 z" fill="#24413d"/>
           </marker>
-          <marker id="arrow-flow-on" viewBox="0 0 10 10" refX="9" refY="5"
-                  markerWidth="5" markerHeight="5"
-                  orient="auto" markerUnits="strokeWidth">
-            <path d="M0 0 L10 5 L0 10 z" fill="var(--accent)"/>
+          <marker id="mOn" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" markerUnits="strokeWidth" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 z" fill="#2fbfae"/>
           </marker>
-          <marker id="arrow-loop" viewBox="0 0 10 10" refX="9" refY="5"
-                  markerWidth="5" markerHeight="5"
-                  orient="auto" markerUnits="strokeWidth">
-            <path d="M0 0 L10 5 L0 10 z" fill="var(--accent-2)"/>
+          <marker id="mLoop" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" markerUnits="strokeWidth" orient="auto-start-reverse">
+            <path d="M0 0 L10 5 L0 10 z" fill="#6ba3d6"/>
           </marker>
         </defs>
         <g class="node" data-step="0" tabindex="0" role="button" aria-label="Stage 1, measure">
@@ -737,28 +701,28 @@ footer code{color:var(--accent)}
           <text class="ntext" x="46" y="38">1  MEASURE</text>
           <text class="nsub"  x="46" y="54">/review coverage</text>
         </g>
-        <path class="flow" data-flow="0" d="M150 66 L150 96"/>
+        <path class="flow" data-flow="0" d="M150 66 L150 92" marker-end="url(#mOff)"/>
 
         <g class="node" data-step="1" tabindex="0" role="button" aria-label="Stage 2, plan">
           <rect class="nbox" x="30" y="96" width="240" height="52" rx="2"/>
           <text class="ntext" x="46" y="120">2  PLAN</text>
           <text class="nsub"  x="46" y="136">/plan feature</text>
         </g>
-        <path class="flow" data-flow="1" d="M150 148 L150 178"/>
+        <path class="flow" data-flow="1" d="M150 148 L150 174" marker-end="url(#mOff)"/>
 
         <g class="node" data-step="2" tabindex="0" role="button" aria-label="Stage 3, implement">
           <rect class="nbox" x="30" y="178" width="240" height="52" rx="2"/>
           <text class="ntext" x="46" y="202">3  IMPLEMENT</text>
           <text class="nsub"  x="46" y="218">/implement &lt;slug&gt; next</text>
         </g>
-        <path class="flow" data-flow="2" d="M150 230 L150 260"/>
+        <path class="flow" data-flow="2" d="M150 230 L150 256" marker-end="url(#mOff)"/>
 
         <g class="node" data-step="3" tabindex="0" role="button" aria-label="Stage 4, drive">
           <rect class="nbox" x="30" y="260" width="240" height="52" rx="2"/>
           <text class="ntext" x="46" y="284">4  DRIVE</text>
-          <text class="nsub"  x="46" y="300">/test unit --threshold 80</text>
+          <text class="nsub"  x="46" y="300">/test unit --threshold 90</text>
         </g>
-        <path class="flow" data-flow="3" d="M150 312 L150 342"/>
+        <path class="flow" data-flow="3" d="M150 312 L150 338" marker-end="url(#mOff)"/>
 
         <g class="node" data-step="4" tabindex="0" role="button" aria-label="Stage 5, verify">
           <rect class="nbox" x="30" y="342" width="240" height="52" rx="2"/>
@@ -766,10 +730,9 @@ footer code{color:var(--accent)}
           <text class="nsub"  x="46" y="382">/review coverage (again)</text>
         </g>
 
-        <!-- loop back to PLAN -->
-        <path class="loopback" d="M270 368 C 298 368, 298 122, 270 122"
-              marker-end="url(#arrow-loop)"/>
-        <text class="looplabel" x="314" y="245" transform="rotate(90 314 245)" text-anchor="middle">target not met? re-plan</text>
+        <!-- loop back to PLAN: one path, marker arrowhead, label clear of the dashes -->
+        <path class="loopback" d="M270 368 C 322 368, 322 122, 270 122" marker-end="url(#mLoop)"/>
+        <text class="looplabel" x="322" y="238" text-anchor="start">target not met?<tspan x="322" dy="14">re-plan</tspan></text>
       </svg>
     </div>
 
@@ -788,35 +751,35 @@ footer code{color:var(--accent)}
 <span class="s">/review</span> <span class="f">full</span></pre>
         </div>
         <div class="io">
-          <div><b>Reads</b><span>Source tree, existing suite, coverage output</span></div>
-          <div><b>Writes</b><span>Nothing. Read-only by contract.</span></div>
-          <div><b>You get</b><span>Coverage now, pass/fail counts, named gaps</span></div>
+          <div><b>Reads</b><ul><li>Source tree</li><li>Existing suite</li><li>Coverage output</li></ul></div>
+          <div><b>Writes</b><ul><li>Nothing. Read-only by contract.</li></ul></div>
+          <div><b>You get</b><ul><li>Current coverage <em>(e.g. 12% lines)</em></li><li>Pass / fail counts <em>(e.g. 214 pass, 3 fail)</em></li><li>Named gaps <em>(e.g. payments/refunds.ts uncovered)</em></li></ul></div>
         </div>
-        <p style="margin-top:1.2rem"><small style="color:var(--ink-faint)"><code>/review full</code> also emits a project-health block (git, version, branch model, baseline docs, per-version docs tree). On a codebase nobody has governed yet, expect MISSING rows and a pointer to <code>/setup project</code>.</small></p>
+        <p style="margin-top:1.2rem"><small class="fn"><code>/review full</code> also emits a project-health block (git, version, branch model, baseline docs, per-version docs tree). On a codebase nobody has governed yet, expect MISSING rows and a pointer to <code>/setup project</code>.</small></p>
       </article>
 
       <article data-step="1">
         <span class="tag">Stage 2 / commit to a number</span>
         <h3>Turn the gap into a phased plan</h3>
-        <p>Every planning scope runs a <b>goals-first step</b> before decomposition: fix the target, the persona, and an observable definition of done. This is the step people skip, and skipping it is why "add more tests" campaigns drift. "80% line coverage on the payments module, 100% pass rate, enforced in CI" is a definition of done. "Better coverage" is not.</p>
+        <p>Every planning scope runs a <b>goals-first step</b> before decomposition: fix the target, the persona, and an observable definition of done. This is the step people skip, and skipping it is why "add more tests" campaigns drift. "Raise unit-test line coverage from 12% to 90%, 100% pass rate, enforced in CI" is a definition of done. "Better coverage" is not.</p>
         <div class="cmd">
           <div class="cmd-bar"><i class="dot"></i><span class="label">Stage 2</span><button type="button" data-copy>Copy</button></div>
-<pre><span class="c"># goal + definition-of-done only, no full plan yet</span>
-<span class="s">/plan</span> <span class="f">goals</span> reach 80% line coverage on the payments module
+<pre><span class="c"># seed the goal from stage 1's numbers (the review read 12%)</span>
+<span class="s">/plan</span> <span class="f">goals</span> raise unit-test line coverage from 12% to 90%, 100% pass rate, enforced in CI
 
-<span class="c"># the phased plan itself</span>
-<span class="s">/plan</span> <span class="f">feature</span>
+<span class="c"># the phased plan itself: cite the review, bind the target to the plan's end</span>
+<span class="s">/plan</span> <span class="f">feature</span> based on the /review coverage results (12% baseline, uncovered paths listed there), create a plan whose final phase leaves this codebase at or above 90% line coverage with a fully green suite
 
 <span class="c"># optional: living progress tracker, and GitHub issues</span>
 <span class="s">/plan</span> <span class="f">todos</span>
 <span class="s">/plan</span> <span class="f">issues</span></pre>
         </div>
         <div class="io">
-          <div><b>Reads</b><span>Codebase, strategy anchor, prior known-gaps</span></div>
-          <div><b>Writes</b><span><code>docs/v&lt;M&gt;/v&lt;M&gt;.&lt;m&gt;/plans/vX.Y.Z-&lt;slug&gt;.md</code></span></div>
-          <div><b>You get</b><span>Phases, per-phase tasks, per-phase model tier</span></div>
+          <div><b>Reads</b><ul><li>Codebase</li><li>Strategy anchor</li><li>Prior <code>known-gaps.md</code></li></ul></div>
+          <div><b>Writes</b><ul><li><code>docs/v&lt;M&gt;/v&lt;M&gt;.&lt;m&gt;/plans/vX.Y.Z-&lt;slug&gt;.md</code></li></ul></div>
+          <div><b>You get</b><ul><li>Phased plan <em>(e.g. 5 phases, tasks per phase)</em></li><li>Per-phase model tier + effort</li><li>Definition of done <em>(e.g. coverage &gt;= 90%, CI-enforced)</em></li></ul></div>
         </div>
-        <p style="margin-top:1.2rem"><small style="color:var(--ink-faint)">Two things the plan contract guarantees. Each phase's testing sub-task also creates or updates CI/CD for that phase's changes, so coverage enforcement lands incrementally rather than as an afterthought. And every plan ends with a mandatory final phase: architecture refactor, known-gaps reconciliation, and CI/CD.</small></p>
+        <p style="margin-top:1.2rem"><small class="fn">Two things the plan contract guarantees. Each phase's testing sub-task also creates or updates CI/CD for that phase's changes, so coverage enforcement lands incrementally rather than as an afterthought. And every plan ends with a mandatory final phase: architecture refactor, known-gaps reconciliation, and CI/CD.</small></p>
       </article>
 
       <article data-step="2">
@@ -832,11 +795,11 @@ footer code{color:var(--accent)}
 <span class="s">/implement</span> payments-coverage <span class="f">phase-2</span></pre>
         </div>
         <div class="io">
-          <div><b>Reads</b><span>The plan phase, the codebase, the suite</span></div>
-          <div><b>Writes</b><span>Source, tests, CI config, docs, devlog, commit</span></div>
-          <div><b>You get</b><span>A green phase plus a known-gaps entry</span></div>
+          <div><b>Reads</b><ul><li>The plan phase</li><li>The codebase</li><li>The suite</li></ul></div>
+          <div><b>Writes</b><ul><li>Source + tests</li><li>CI config</li><li>Docs, devlog, commit</li></ul></div>
+          <div><b>You get</b><ul><li>A green phase <em>(e.g. coverage 12% -&gt; 34%)</em></li><li><code>known-gaps.md</code> entry for any shortfall</li><li>A commit ready to push</li></ul></div>
         </div>
-        <p style="margin-top:1.2rem"><small style="color:var(--ink-faint)">The post-phase sequence is the part that keeps the loop honest: gitignore check, test review, CI/CD check, <b>known-gaps update</b>, docs cleanup audit, devlog, documentation, session history, commit message, then a commit-and-push prompt. Nothing is tagged or pushed automatically.</small></p>
+        <p style="margin-top:1.2rem"><small class="fn">The post-phase sequence is the part that keeps the loop honest: gitignore check, test review, CI/CD check, <b>known-gaps update</b>, docs cleanup audit, devlog, documentation, session history, commit message, then a commit-and-push prompt. Nothing is tagged or pushed automatically.</small></p>
       </article>
 
       <article data-step="3">
@@ -846,20 +809,20 @@ footer code{color:var(--accent)}
         <div class="cmd">
           <div class="cmd-bar"><i class="dot"></i><span class="label">Stage 4</span><button type="button" data-copy>Copy</button></div>
 <pre><span class="c"># unit tier only, explicit threshold</span>
-<span class="s">/test</span> <span class="f">unit --threshold 80</span>
+<span class="s">/test</span> <span class="f">unit --threshold 90</span>
 
 <span class="c"># every tier in order: unit, integration, e2e, then ci</span>
-<span class="s">/test</span> <span class="f">all --threshold 85 --pass-rate 100</span>
+<span class="s">/test</span> <span class="f">all --threshold 90 --pass-rate 100</span>
 
 <span class="c"># red-green-refactor on one specific bug or feature</span>
 <span class="s">/test</span> <span class="f">tdd</span></pre>
         </div>
         <div class="io">
-          <div><b>Reads</b><span>Coverage report, uncovered paths in scope</span></div>
-          <div><b>Writes</b><span>Test files, fixtures, CI wiring</span></div>
-          <div><b>You get</b><span>Per-tier summary: coverage before/after, tests added</span></div>
+          <div><b>Reads</b><ul><li>Coverage report</li><li>Uncovered paths in scope</li></ul></div>
+          <div><b>Writes</b><ul><li>Test files</li><li>Fixtures</li><li>CI wiring</li></ul></div>
+          <div><b>You get</b><ul><li>Per-tier summary <em>(e.g. unit 34% -&gt; 78%)</em></li><li>Tests added <em>(e.g. +112 cases, all green)</em></li><li>Both gates checked <em>(threshold AND 100% pass)</em></li></ul></div>
         </div>
-        <p style="margin-top:1.2rem"><small style="color:var(--ink-faint)">Threshold precedence is worth knowing: when your project config (<code>pyproject.toml</code>, a vitest config, a CI gate) already declares a stricter threshold than the one you passed, the stricter value wins and the command says so. You cannot accidentally lower your own bar from the command line.</small></p>
+        <p style="margin-top:1.2rem"><small class="fn">Threshold precedence is worth knowing: when your project config (<code>pyproject.toml</code>, a vitest config, a CI gate) already declares a stricter threshold than the one you passed, the stricter value wins and the command says so. You cannot accidentally lower your own bar from the command line.</small></p>
       </article>
 
       <article data-step="4">
@@ -874,15 +837,15 @@ footer code{color:var(--accent)}
 <span class="c"># multi-agent persona review of the test code you just added</span>
 <span class="s">/review</span> <span class="f">changes</span>
 
-<span class="c"># short of target? a new plan ingests the open gaps</span>
-<span class="s">/plan</span> <span class="f">feature</span></pre>
+<span class="c"># short of target? re-plan with the SAME target, seeded by the new review</span>
+<span class="s">/plan</span> <span class="f">feature</span> still targeting 90% line coverage: re-plan from the latest /review coverage results and the open MT gaps in known-gaps.md</pre>
         </div>
         <div class="io">
-          <div><b>Reads</b><span>Suite, coverage, <code>known-gaps.md</code>, the diff</span></div>
-          <div><b>Writes</b><span>Nothing on <code>review</code>; a new plan on <code>plan</code></span></div>
-          <div><b>You get</b><span>An independent number and a carry-forward list</span></div>
+          <div><b>Reads</b><ul><li>Suite + coverage</li><li><code>known-gaps.md</code></li><li>The pending diff</li></ul></div>
+          <div><b>Writes</b><ul><li>Nothing on <code>/review</code></li><li>A new plan on <code>/plan</code></li></ul></div>
+          <div><b>You get</b><ul><li>An independent number <em>(e.g. 71% vs the 90% target)</em></li><li>Carry-forward list <em>(open MT gaps)</em></li><li>Ship, or re-plan the remainder</li></ul></div>
         </div>
-        <p style="margin-top:1.2rem"><small style="color:var(--ink-faint)">This is the mechanism that makes the second iteration cheap. <code>/plan</code> reads the immediately prior version's <code>known-gaps.md</code> plus any older still-in-progress files, and offers to ingest the open items into the new plan. You do not re-derive what was left over.</small></p>
+        <p style="margin-top:1.2rem"><small class="fn">This is the mechanism that makes the second iteration cheap. <code>/plan</code> reads the immediately prior version's <code>known-gaps.md</code> plus any older still-in-progress files, and offers to ingest the open items into the new plan. You do not re-derive what was left over.</small></p>
       </article>
     </div>
   </div>
@@ -891,7 +854,7 @@ footer code{color:var(--accent)}
 <!-- ======================================================================
      THE LOOP / GATES
      =================================================================== -->
-<section id="loop" class="band band-y-tight" data-accent="#c68657">
+<section id="loop" class="band band-y-tight" data-accent="#3ab5c4">
   <div class="sec-head reveal">
     <p class="sec-num">GATES</p>
     <div>
@@ -938,38 +901,38 @@ footer code{color:var(--accent)}
 <!-- ======================================================================
      TRAJECTORY MODEL (interactive chart)
      =================================================================== -->
-<section id="model" class="band band-y" data-accent="#a89344">
+<section id="model" class="band band-y" data-accent="#4fc48a">
   <div class="sec-head reveal">
     <p class="sec-num">TRAJECTORY</p>
     <div>
-      <h2>Why one plan usually is not enough</h2>
-      <p>Set your own inputs below. The point is not the exact curve, it is the shape: a plan that closes a fixed fraction of the remaining gap per phase approaches the target asymptotically, which is exactly the situation the known-gaps carry-forward exists to handle.</p>
+      <h2>Why the first plan never gets you there</h2>
+      <p>Each teal ramp is what a plan CLAIMS: target coverage by its own final phase. The blue curve is what actually happens: an agent closes only a fraction of the remaining gap per phase, so plan 1 may take you from 10% to roughly 35%, not to 90%. At every dashed boundary you re-run the coverage review, feed the results into the next plan with the SAME target, and go again - the loop repeats until the real curve crosses the target. Set your own inputs below.</p>
     </div>
   </div>
 
   <div class="chart-wrap reveal">
     <div class="chart-main">
       <canvas id="chart" width="960" height="460" role="img"
-              aria-label="Interactive line chart comparing a planned coverage ramp against a realistic gap-closure curve and the threshold."></canvas>
+              aria-label="Interactive model: successive plans each claim the target by their final phase, while actual coverage closes only a fraction of the gap per phase; re-planning repeats until the target is truly reached."></canvas>
     </div>
     <div class="chart-side">
       <ul class="legend" id="legend"></ul>
 
       <div class="ctl">
-        <label for="cStart">Starting coverage <b id="vStart">12%</b></label>
-        <input type="range" id="cStart" min="0" max="60" value="12" step="1">
+        <label for="cStart">Starting coverage <b id="vStart">10%</b></label>
+        <input type="range" id="cStart" min="0" max="60" value="10" step="1">
       </div>
       <div class="ctl">
-        <label for="cTarget">Target threshold <b id="vTarget">80%</b></label>
-        <input type="range" id="cTarget" min="50" max="95" value="80" step="1">
+        <label for="cTarget">Target coverage <b id="vTarget">90%</b></label>
+        <input type="range" id="cTarget" min="50" max="95" value="90" step="1">
       </div>
       <div class="ctl">
-        <label for="cPhases">Phases in the plan <b id="vPhases">5</b></label>
-        <input type="range" id="cPhases" min="2" max="9" value="5" step="1">
+        <label for="cPhases">Phases per plan <b id="vPhases">4</b></label>
+        <input type="range" id="cPhases" min="2" max="9" value="4" step="1">
       </div>
       <div class="ctl">
-        <label for="cClose">Gap closed per phase <b id="vClose">55%</b></label>
-        <input type="range" id="cClose" min="25" max="90" value="55" step="1">
+        <label for="cClose">Actual gap closed per phase <b id="vClose">20%</b></label>
+        <input type="range" id="cClose" min="5" max="60" value="20" step="1">
       </div>
 
       <div class="axis-row">
@@ -989,7 +952,7 @@ footer code{color:var(--accent)}
 <!-- ======================================================================
      REFERENCE TABLE
      =================================================================== -->
-<section id="ref" class="band band-y-tight" data-accent="#7da57d">
+<section id="ref" class="band band-y-tight" data-accent="#35ad9e">
   <div class="sec-head reveal">
     <p class="sec-num">REFERENCE</p>
     <div>
@@ -1001,7 +964,7 @@ footer code{color:var(--accent)}
   <div class="tbl-tools reveal">
     <input type="search" id="filter" placeholder="Filter: try coverage, read-only, or docs/" aria-label="Filter the command reference table">
     <button class="btn" type="button" id="clearFilter">Clear</button>
-    <span style="font-family:var(--f-head);font-size:var(--step--2);color:var(--ink-faint)" id="rowCount"></span>
+    <span style="font-family:var(--f-head);font-size:.8125rem;color:var(--ink-faint)" id="rowCount"></span>
   </div>
 
   <div class="tbl-scroll reveal">
@@ -1039,7 +1002,7 @@ footer code{color:var(--accent)}
 <!-- ======================================================================
      TRAPS
      =================================================================== -->
-<section id="traps" class="band band-y" data-accent="#7aa0c4">
+<section id="traps" class="band band-y" data-accent="#6ba3d6">
   <div class="sec-head reveal">
     <p class="sec-num">TRAPS</p>
     <div>
@@ -1098,7 +1061,7 @@ footer code{color:var(--accent)}
         <li>1. <code>/review coverage</code></li>
         <li>2. <code>/plan goals</code> then <code>/plan feature</code></li>
         <li>3. <code>/implement next</code>, once per phase</li>
-        <li>4. <code>/test unit --threshold 80</code></li>
+        <li>4. <code>/test unit --threshold 90</code></li>
         <li>5. <code>/review coverage</code>, then re-plan if short</li>
       </ul>
     </div>
@@ -1220,7 +1183,9 @@ function setStage(i){
     n.classList.toggle('on', parseInt(n.getAttribute('data-step'),10) === i);
   });
   flowEls.forEach(function(f){
-    f.classList.toggle('on', parseInt(f.getAttribute('data-flow'),10) < i);
+    var on = parseInt(f.getAttribute('data-flow'),10) < i;
+    f.classList.toggle('on', on);
+    f.setAttribute('marker-end', on ? 'url(#mOn)' : 'url(#mOff)');
   });
 }
 if ('IntersectionObserver' in window){
@@ -1275,27 +1240,46 @@ function fallback(text, done){
 var cv = document.getElementById('chart');
 var ctx = cv.getContext('2d');
 var SERIES = [
-  {key:'plan',  name:'Planned ramp (linear to target)', color:'#dc8383', on:true},
-  {key:'real',  name:'Fixed-fraction gap closure',      color:'#7aa0c4', on:true},
-  {key:'thr',   name:'Threshold',                       color:'#c9a227', on:true}
+  {key:'claim', name:'What each plan claims', color:'#2fbfae', on:true},
+  {key:'real',  name:'What actually happens', color:'#6ba3d6', on:true},
+  {key:'thr',   name:'Target',                color:'#d4b04a', on:true}
 ];
-var P = {start:12, target:80, phases:5, close:55};
-var view = {yMin:0, yMax:100, xMin:0, xMax:5};
+var P = {start:10, target:90, phases:4, close:20};
+var view = {yMin:0, yMax:100, xMin:0, xMax:4};
 
+/* Successive plans: each claims the target by its own final phase (teal ramp,
+   reset at every re-plan boundary); reality closes only a fraction of the
+   remaining gap per phase (blue). The loop repeats until the target holds. */
 function build(){
-  var n = P.phases;
-  view.xMax = n;
-  var plan = [], real = [], cov = P.start;
-  for (var i = 0; i <= n; i++){
-    plan.push({x:i, y: P.start + (P.target - P.start) * (i / n)});
-    real.push({x:i, y: cov});
-    cov = cov + (P.target - cov) * (P.close / 100);
+  var f = P.close / 100, n = P.phases;
+  var claim = [], real = [], bounds = [];
+  var cov = P.start, x = 0, plans = 0;
+  real.push({x:0, y:cov});
+  while (cov < P.target - 1 && plans < 8){
+    plans++;
+    var pStart = cov;
+    claim.push({x:x, y:cov});
+    for (var i = 1; i <= n; i++){
+      x++;
+      claim.push({x:x, y: pStart + (P.target - pStart) * (i / n)});
+      cov = cov + (P.target - cov) * f;
+      real.push({x:x, y:cov});
+    }
+    claim.push(null);
+    bounds.push({x:x, plan:plans, end:cov});
   }
-  return {plan:plan, real:real, thr:[{x:0,y:P.target},{x:n,y:P.target}], finalReal:real[n].y};
+  var xMax = Math.max(x, 1);
+  view.xMin = 0; view.xMax = xMax;
+  return {claim:claim, real:real, thr:[{x:0,y:P.target},{x:xMax,y:P.target}],
+          bounds:bounds, plans:plans, finalReal:cov, capped: cov < P.target - 1};
 }
 
 function dpr(){ return window.devicePixelRatio || 1; }
+function rootPx(){ return parseFloat(getComputedStyle(document.documentElement).fontSize) || 16; }
+var PAD = {l:52, r:22, t:22, b:44};
+function updPad(){ var b = rootPx(); PAD = {l:b*3.1, r:b*1.3, t:b*1.3, b:b*3.1}; }
 function resize(){
+  updPad();
   var r = cv.getBoundingClientRect();
   var w = Math.max(320, r.width), h = Math.max(260, Math.round(w * 0.48));
   cv.width = Math.round(w * dpr()); cv.height = Math.round(h * dpr());
@@ -1303,7 +1287,6 @@ function resize(){
   draw();
 }
 
-var PAD = {l:52, r:22, t:22, b:44};
 function draw(){
   var d = build();
   var s = dpr();
@@ -1314,10 +1297,11 @@ function draw(){
   var pw = W - PAD.l - PAD.r, ph = H - PAD.t - PAD.b;
   function X(v){ return PAD.l + ((v - view.xMin) / (view.xMax - view.xMin)) * pw; }
   function Y(v){ return PAD.t + ph - ((v - view.yMin) / (view.yMax - view.yMin)) * ph; }
+  var fpx = Math.round(rootPx() * 0.72);
+  ctx.font = fpx + 'px Consolas, monospace';
+  ctx.lineWidth = 1;
 
-  /* grid */
-  ctx.strokeStyle = '#5a3434'; ctx.fillStyle = '#b59a97';
-  ctx.font = '11px Consolas, monospace'; ctx.lineWidth = 1;
+  ctx.strokeStyle = '#24413d'; ctx.fillStyle = '#89a8a3';
   var yStep = (view.yMax - view.yMin) > 40 ? 20 : 10;
   var y0 = Math.ceil(view.yMin / yStep) * yStep;
   for (var gy = y0; gy <= view.yMax; gy += yStep){
@@ -1328,14 +1312,27 @@ function draw(){
     ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
     ctx.fillText(gy + '%', PAD.l - 8, py);
   }
-  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
-  for (var gx = Math.ceil(view.xMin); gx <= view.xMax; gx++){
-    ctx.fillText(gx === 0 ? 'start' : 'P' + gx, X(gx), H - PAD.b + 10);
-  }
-  ctx.fillStyle = '#b59a97'; ctx.textAlign = 'center';
-  ctx.fillText('plan phase', PAD.l + pw/2, H - PAD.b + 28);
 
-  /* clip plot area */
+  /* re-plan boundaries + per-plan segment labels */
+  ctx.textBaseline = 'top';
+  var segStart = 0;
+  d.bounds.forEach(function(b, i){
+    if (i < d.bounds.length - 1){
+      ctx.strokeStyle = '#89a8a3'; ctx.globalAlpha = .5; ctx.setLineDash([2,4]);
+      ctx.beginPath(); ctx.moveTo(X(b.x), PAD.t); ctx.lineTo(X(b.x), PAD.t + ph); ctx.stroke();
+      ctx.setLineDash([]); ctx.globalAlpha = 1;
+    }
+    ctx.fillStyle = '#89a8a3'; ctx.textAlign = 'center';
+    ctx.fillText('plan ' + b.plan, X((segStart + b.x) / 2), H - PAD.b + 10);
+    segStart = b.x;
+  });
+  if (d.bounds.length > 1){
+    ctx.fillStyle = '#89a8a3'; ctx.textAlign = 'left';
+    ctx.fillText('re-plan from /review coverage', X(d.bounds[0].x) + 6, PAD.t + 4);
+  }
+  ctx.fillStyle = '#89a8a3'; ctx.textAlign = 'center';
+  ctx.fillText('plan phases, across successive plans', PAD.l + pw/2, H - PAD.b + 10 + Math.round(fpx * 1.6));
+
   ctx.save();
   ctx.beginPath(); ctx.rect(PAD.l, PAD.t, pw, ph); ctx.clip();
 
@@ -1346,39 +1343,55 @@ function draw(){
     ctx.lineWidth = sr.key === 'thr' ? 1.5 : 2.5;
     ctx.setLineDash(sr.key === 'thr' ? [6,5] : []);
     ctx.beginPath();
-    pts.forEach(function(p,i){ i ? ctx.lineTo(X(p.x), Y(p.y)) : ctx.moveTo(X(p.x), Y(p.y)); });
+    var pen = false;
+    pts.forEach(function(p){
+      if (p === null){ pen = false; return; }
+      if (pen) ctx.lineTo(X(p.x), Y(p.y)); else { ctx.moveTo(X(p.x), Y(p.y)); pen = true; }
+    });
     ctx.stroke();
     ctx.setLineDash([]);
-    if (sr.key !== 'thr'){
+    if (sr.key === 'real'){
       ctx.fillStyle = sr.color;
       pts.forEach(function(p){
-        ctx.beginPath(); ctx.arc(X(p.x), Y(p.y), 3.2, 0, Math.PI*2); ctx.fill();
+        if (!p) return;
+        ctx.beginPath(); ctx.arc(X(p.x), Y(p.y), rootPx()*0.16, 0, Math.PI*2); ctx.fill();
       });
     }
   });
 
-  /* the residual gap, the teaching point */
-  if (SERIES[1].on && SERIES[2].on && d.finalReal < P.target - 0.4){
-    var xr = X(P.phases), ya = Y(d.finalReal), yb = Y(P.target);
-    ctx.strokeStyle = '#c9a227'; ctx.lineWidth = 1; ctx.setLineDash([3,3]);
-    ctx.beginPath(); ctx.moveTo(xr - 26, ya); ctx.lineTo(xr - 26, yb); ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.fillStyle = '#c9a227'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
-    ctx.fillText('gap ' + (P.target - d.finalReal).toFixed(1) + 'pt', xr - 32, (ya + yb) / 2);
+  /* plan-1 shortfall: what it claimed vs where it landed */
+  if (SERIES[0].on && SERIES[1].on && d.bounds.length){
+    var b0 = d.bounds[0];
+    if (b0.end < P.target - 0.4){
+      var xr = X(b0.x), ya = Y(b0.end), yb = Y(P.target);
+      ctx.strokeStyle = '#d4b04a'; ctx.lineWidth = 1.5; ctx.setLineDash([3,3]);
+      ctx.beginPath(); ctx.moveTo(xr, ya); ctx.lineTo(xr, yb); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#d4b04a'; ctx.textBaseline = 'middle';
+      ctx.textAlign = (d.bounds.length > 1) ? 'left' : 'right';
+      var lx = (d.bounds.length > 1) ? xr + Math.max(12, fpx * 0.9) : xr - Math.max(12, fpx * 0.9);
+      ctx.fillText('claimed ' + P.target + '%', lx, yb + fpx);
+      ctx.fillText('landed ' + b0.end.toFixed(0) + '%', lx, ya - fpx);
+    }
   }
   ctx.restore();
 
-  /* frame */
-  ctx.strokeStyle = '#5a3434'; ctx.lineWidth = 1;
+  ctx.strokeStyle = '#24413d'; ctx.lineWidth = 1;
   ctx.strokeRect(PAD.l, PAD.t, pw, ph);
 
-  var short = P.target - d.finalReal;
-  document.getElementById('readout').innerHTML =
-    'After <b>' + P.phases + '</b> phases the modelled curve reaches <b>' +
-    d.finalReal.toFixed(1) + '%</b> against a <b>' + P.target + '%</b> target' +
-    (short > 0.4
-      ? ', leaving <b>' + short.toFixed(1) + ' points</b> to carry forward as an MT gap.'
-      : '. Target met inside the plan.');
+  var ro;
+  if (!d.bounds.length){
+    ro = 'Starting coverage already meets the target - nothing to plan.';
+  } else {
+    ro = 'Plan 1 claimed <b>' + P.target + '%</b> by its final phase; it actually ended at <b>' +
+         d.bounds[0].end.toFixed(1) + '%</b>. ';
+    ro += d.capped
+      ? 'After <b>' + d.plans + ' plans</b> (' + (d.plans * P.phases) + ' phases) the model sits at <b>' +
+        d.finalReal.toFixed(1) + '%</b> - keep iterating: review, re-plan, implement, again.'
+      : 'Actually reaching it took <b>' + d.plans + ' plans</b> (' + (d.plans * P.phases) +
+        ' phases) of review, plan, implement, re-review.';
+  }
+  document.getElementById('readout').innerHTML = ro;
 }
 
 /* legend */
