@@ -1,5 +1,32 @@
 # Development Log
 
+## [2026-08-11] - v3.16.5 Phase 2: SVG diagram-quality contract
+
+### What Changed
+
+A second bundled reference, `references/svg-diagram-quality.md`, codifies five rules for authored inline SVG: arrowheads are `<marker>` elements, dash patterns stay clear of labels, connectors terminate on node edges, pinned graphics fit their sticky slot, and geometry is verified numerically before shipping. Three are now checked deterministically (`svg-arrowhead`, `svg-viewport-fit`, `svg-marker-integrity`), the rubric grew to eight criteria, and the calibration fixture's two diagrams were rebuilt - taking the page from 2 high-severity findings to 0 across all twelve criteria.
+
+### Why It Changed
+
+The 2026-08-10 run shipped a loop-back arrow whose head floated disconnected from its line, a pipeline where only the first of four connectors had an arrowhead at all, a label sitting directly on the dashed curve it annotated, and a pinned graphic taller than its sticky slot so its bottom two stages were unreachable. Every one passed the static checks, because an authored SVG's coordinates are code that nothing was checking.
+
+### Decisions Made
+
+- **The defect class is the hand-placed triangle, not the dashed line.** The plan framed the check as "a dashed path with no marker-end followed by a small filled triangle". The pipeline's broken arrowhead sat on a SOLID line, so keying on the dash would have missed half the instances. The check detects the triangle itself - a closed three-vertex path with a small bounding box and a real fill - which catches both and is independent of the connector's style. Paths inside a `<marker>` are excluded, since a marker's own arrowhead is exactly such a triangle by design.
+- **Arrowhead consistency is graded, not just presence.** A pipeline with a head on its first connector and none on the remaining three reads as an unfinished drawing. The check compares connectors sharing a class and reports the uneven case at MEDIUM.
+- **Markers had to be attachable from CSS, which forced both checks to read CSS.** A marker does NOT inherit from the element that references it, so the fixture's `.flow.on` state - which recolors the line to the accent - needs a second marker swapped in by a CSS rule rather than one marker inheriting a color. Reading only `marker-*` attributes would have reported that correct construction as headless and its two markers as unused.
+- **Containment needed real depth tracking, not a lookahead window.** The viewport-fit check first looked a bounded distance past a sticky container for an `<svg>`. Its own test caught the consequence immediately: a sticky page nav with a diagram anywhere later on the page reported a false HIGH. It now walks tag depth to the matching close tag and inspects actual inner HTML. A check that cries wolf on an ordinary sticky nav is a check people switch off.
+- **XML parsing is hardened without taking a dependency.** A security hook flagged stdlib `ElementTree`. `defusedxml` is the standard answer but this script ships to users through the skill bundle and is stdlib-only by contract. `ElementTree` does not resolve external entities or fetch DTDs, so XXE does not apply; the entity-expansion DoS class needs an inline `<!ENTITY`, so any block carrying a DOCTYPE or ENTITY declaration is now refused unparsed. That removes the attack surface the library would have guarded.
+- **Rules 2 and 3 are deliberately not automated** (NI-3). A label's real bounding box needs glyph metrics, letter-spacing, and the rotation transform; connector-to-edge checking needs a declared intent about which shapes a connector joins that the markup does not state. Both were verified numerically by hand for this phase's diagrams instead, and rule 2's practical half falls out of Phase 3's screenshots for free.
+
+### Verification
+
+42 tests in `tests/skills/test_presentify_visual_qa.py` (from 29), and 541 passed / 3 skipped across `tests/skills/`. Coverage of `visual_qa_score.py` holds at 92% while the module grew from 328 to 505 statements. `ruff check` clean. All ten `make validate` guards pass individually (`make` absent on this host, WN-1). The scorer reports PASS on the fixture with 0 high-severity findings across twelve criteria and 4 markers all referenced. The rule-5 geometry self-check confirms every coordinate inside both viewBoxes, with 15.25 and 23.0 user units of label-to-curve clearance.
+
+### Known Issues
+
+Two new open, one closed, zero blockers. **BG-1 closed**: five of six per-section accent colors measured 3.20-4.36:1 against the base and were injected into `--accent` at runtime, so Phase 1's token correction was reverted on every section; all six were replaced with hue-preserving AA-clearing values. The checker gap behind it is **WN-2** (the scorer grades declared CSS properties and cannot see what a script assigns), and **NI-3** covers the two un-automated SVG rules. Both route to Phase 3, where a rendered screenshot answers directly what no amount of extra parsing would - which is an argument for building Phase 3 rather than for deepening the scorer. MT-1 (fixture unhomed) and the Phase 1 items are unchanged.
+
 ## [2026-08-11] - v3.16.5 Phase 1: fluid layout and readability contract
 
 ### What Changed

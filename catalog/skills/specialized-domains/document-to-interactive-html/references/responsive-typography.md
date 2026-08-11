@@ -85,7 +85,7 @@ Three floors, checked at BOTH the `clamp()` minimum and the value resolved at a 
 
 Nothing renders below 12px. The 2026-08-10 defects (unreadable margin notes at 11.5px and a 11.2px footer) sat just under the secondary floor, which is why the floor is stated as a number rather than "small but readable".
 
-SVG text inside a scaled `viewBox` is exempt from these floors, because its declared `font-size` is in user units and the rendered size depends on the SVG's scale factor. The scorer identifies such rules by the presence of a `fill:` declaration in the same block (SVG text is colored with `fill`, HTML text with `color`) and skips them. Diagram label legibility is governed by the diagram-quality contract instead, not by this file.
+SVG text inside a scaled `viewBox` is exempt from these floors, because its declared `font-size` is in user units and the rendered size depends on the SVG's scale factor. The scorer identifies such rules by the presence of a `fill:` declaration in the same block (SVG text is colored with `fill`, HTML text with `color`) and skips them. Diagram label legibility is governed by `references/svg-diagram-quality.md` rule 5 instead, which holds SVG labels to the same 13px secondary floor after scaling the declared size by the render factor.
 
 ## 5. Emphasis tokens must be visually distinct
 
@@ -131,4 +131,5 @@ Semantic status colors (names matching `ok`, `warn`, `stop`, `error`, `success`,
 
 - `references/visual-qa-rubric.md` - the per-segment grading rubric; its `fluid-layout` and `readability-floors` criteria grade this contract from screenshots.
 - `references/interactive-features.md` - the full-width canvas contract this composes with; that file governs how wide a band is, this file governs what happens to type and space inside it.
+- `references/svg-diagram-quality.md` - the authored-SVG integrity contract, which owns diagram label legibility (exempted from rule 4 here) and the marker / geometry rules.
 - `scripts/visual_qa_score.py` - the deterministic scorer implementing rules 1, 4, 5, and 6.

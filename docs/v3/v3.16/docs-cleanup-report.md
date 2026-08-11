@@ -159,3 +159,12 @@ Audit only; no file was moved, renamed, or removed.
 - **No scratch docs created.** The phase produced no working notes, comparison scratch, or intermediate report, so there is nothing to propose for cleanup.
 - **One known misplacement, deliberately left alone**: the calibration fixture `nexus-hub-unit-test-workflow.html` sits untracked at the repository root. Sub-task 1.3 explicitly defers its final location to Phase 7, and moving it here would pre-empt a maintainer decision the plan reserves. Tracked as v3.16.5 MT-1.
 - **Cross-surface check**: `README.md` does not enumerate the presentify skill's bundled references, so the new file needs no README change. `AGENTS.md` describes the bundled-resource convention generically and needs no per-file entry.
+
+## v3.16.5 Phase 2 - SVG diagram-quality contract (audit mode, 2026-08-11)
+
+Audit only; no file was moved, renamed, or removed.
+
+- **One new artifact, permanent and correctly placed**: `catalog/skills/specialized-domains/document-to-interactive-html/references/svg-diagram-quality.md`, referenced twice from its parent `SKILL.md` (a Step 6 bullet and the Bundled Resources list) plus reciprocally from `responsive-typography.md` and `visual-qa-rubric.md`. The orphan-bundle audit passes with 0 warnings.
+- **The cross-reference debt Phase 1 deliberately took on is now repaid.** Phase 1 wrote and then removed two forward references to this file so it could pass its own gate without a dangling link; Phase 2 restored both, so the two contracts now point at each other and neither claims a file that does not exist.
+- **No scratch docs created.** Nothing to propose for cleanup.
+- **The one known misplacement is unchanged**: the calibration fixture still sits at the repository root, tracked but not homed, deferred to Phase 7 (MT-1).

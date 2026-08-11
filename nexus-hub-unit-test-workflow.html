@@ -15,8 +15,8 @@
 
   Committed tokens
     base ............. #2a1616      surface .......... #3a1f1f
-    ink .............. #f6e9e8      accent ........... #c26565
-    accent-2 ......... #4f6d8a      (accent morphs per section: rose -> clay
+    ink .............. #f6e9e8      accent ........... #dc8383
+    accent-2 ......... #7aa0c4      (accent morphs per section: rose -> clay
                                      -> ochre -> sage -> slate)
     heading .......... Consolas / Cascadia Code / SF Mono / Menlo, monospace
     body ............. Segoe UI / -apple-system / Arial, sans-serif
@@ -336,7 +336,16 @@ section[data-accent]{transition:none}
   position:sticky;top:5.5rem;align-self:start;
   padding:1rem 0;
 }
-.rail-sticky svg{width:100%;height:auto;display:block}
+/* A pinned graphic MUST fit its sticky slot: the container does not scroll, so
+   anything past the bottom edge is unreachable by any user action. Before this
+   cap, the 330x470 viewBox at width:100% in a ~500px track rendered ~712px tall
+   and lost its bottom two stages inside a 1080p laptop's ~700px slot.
+   preserveAspectRatio letterboxes rather than cropping, so all five stages stay
+   visible. See references/svg-diagram-quality.md rule 4. */
+.rail-sticky svg{
+  width:100%;height:auto;display:block;
+  max-height:calc(100vh - 7rem);
+}
 .rail-steps>article{
   padding-block:clamp(3rem,14vh,9rem);
   border-bottom:1px solid var(--rule);
@@ -368,8 +377,13 @@ section[data-accent]{transition:none}
 .node.on .ntext{fill:#2a1616}
 .node.on .nsub{fill:#2a1616;opacity:.75}
 .node:hover .nbox{stroke:var(--accent)}
-.flow{stroke:var(--rule);stroke-width:1.5;fill:none;transition:stroke .45s var(--ease)}
-.flow.on{stroke:var(--accent)}
+/* Arrowheads are markers, attached from CSS rather than by attribute, because a
+   marker does NOT inherit from the element referencing it - so the highlighted
+   state needs its own marker swapped in, or the head would stay dark while the
+   line turns accent. See references/svg-diagram-quality.md rule 1. */
+.flow{stroke:var(--rule);stroke-width:1.5;fill:none;transition:stroke .45s var(--ease);
+  marker-end:url(#arrow-flow)}
+.flow.on{stroke:var(--accent);marker-end:url(#arrow-flow-on)}
 .loopback{stroke:var(--accent-2);stroke-width:1.5;fill:none;stroke-dasharray:4 4}
 .looplabel{fill:var(--accent-2);font-family:Consolas,monospace;font-size:9px;letter-spacing:.05em}
 
@@ -572,16 +586,24 @@ footer code{color:var(--accent)}
       <svg viewBox="0 0 520 340" role="img" aria-label="Diagram: coverage climbing across phases toward a threshold line, with a gap remaining that is carried forward.">
         <defs>
           <linearGradient id="gcov" x1="0" y1="1" x2="0" y2="0">
-            <stop offset="0" stop-color="#c26565" stop-opacity=".25"/>
-            <stop offset="1" stop-color="#c26565" stop-opacity=".9"/>
+            <stop offset="0" stop-color="var(--accent)" stop-opacity=".25"/>
+            <stop offset="1" stop-color="var(--accent)" stop-opacity=".9"/>
           </linearGradient>
+          <!-- refX=9 puts the marker TIP on the path endpoint rather than
+               overshooting past it; markerUnits=strokeWidth scales the head with
+               the line; orient=auto rotates it to the tangent. -->
+          <marker id="arrow-carry" viewBox="0 0 10 10" refX="9" refY="5"
+                  markerWidth="6" markerHeight="6"
+                  orient="auto" markerUnits="strokeWidth">
+            <path d="M0 0 L10 5 L0 10 z" fill="var(--accent-2)"/>
+          </marker>
         </defs>
         <!-- frame -->
-        <line x1="44" y1="24" x2="44" y2="286" stroke="#5a3434" stroke-width="1"/>
-        <line x1="44" y1="286" x2="500" y2="286" stroke="#5a3434" stroke-width="1"/>
+        <line x1="44" y1="24" x2="44" y2="286" stroke="var(--rule)" stroke-width="1"/>
+        <line x1="44" y1="286" x2="500" y2="286" stroke="var(--rule)" stroke-width="1"/>
         <!-- threshold -->
-        <line x1="44" y1="74" x2="500" y2="74" stroke="#4f6d8a" stroke-width="1.5" stroke-dasharray="5 4"/>
-        <text x="500" y="66" text-anchor="end" fill="#4f6d8a" font-family="Consolas,monospace" font-size="10">threshold 80%</text>
+        <line x1="44" y1="74" x2="500" y2="74" stroke="var(--accent-2)" stroke-width="1.5" stroke-dasharray="5 4"/>
+        <text x="500" y="66" text-anchor="end" fill="var(--accent-2)" font-family="Consolas,monospace" font-size="10">threshold 80%</text>
         <!-- bars -->
         <g>
           <rect x="70"  y="250" width="52" height="36"  fill="url(#gcov)"/>
@@ -591,22 +613,26 @@ footer code{color:var(--accent)}
           <rect x="398" y="86"  width="52" height="200" fill="url(#gcov)"/>
         </g>
         <!-- the residual gap: the point of the whole page -->
-        <rect x="398" y="74" width="52" height="12" fill="none" stroke="#c9a227" stroke-width="1.5"/>
-        <text x="424" y="60" text-anchor="middle" fill="#c9a227" font-family="Consolas,monospace" font-size="9">gap</text>
+        <rect x="398" y="74" width="52" height="12" fill="none" stroke="var(--warn)" stroke-width="1.5"/>
+        <text x="424" y="60" text-anchor="middle" fill="var(--warn)" font-family="Consolas,monospace" font-size="9">gap</text>
         <!-- phase labels -->
-        <g fill="#9c7f7d" font-family="Consolas,monospace" font-size="9" text-anchor="middle">
+        <g fill="var(--ink-faint)" font-family="Consolas,monospace" font-size="9" text-anchor="middle">
           <text x="96"  y="302">P1</text>
           <text x="178" y="302">P2</text>
           <text x="260" y="302">P3</text>
           <text x="342" y="302">P4</text>
           <text x="424" y="302">P5</text>
         </g>
-        <!-- carry-forward arc -->
-        <path d="M424 46 C 424 18, 120 18, 96 40" fill="none" stroke="#4f6d8a" stroke-width="1.5" stroke-dasharray="4 4"/>
-        <path d="M96 40 l -5 -8 l 10 0 z" fill="#4f6d8a"/>
-        <text x="260" y="14" text-anchor="middle" fill="#4f6d8a" font-family="Consolas,monospace" font-size="9">gap recorded, next plan ingests it</text>
+        <!-- carry-forward arc: ONE object (line + attached marker head), and the
+             label sits clear of the dashed path. Computed, not eyeballed: the
+             cubic midpoint is (P0 + 3*P1 + 3*P2 + P3)/8 = (269, 27.25), and the
+             label's box tops out near y=12, so there is ~15 user units of
+             clearance. See references/svg-diagram-quality.md rules 1 and 2. -->
+        <path d="M424 46 C 424 22, 120 22, 96 40" fill="none" stroke="var(--accent-2)"
+              stroke-width="1.5" stroke-dasharray="4 4" marker-end="url(#arrow-carry)"/>
+        <text x="260" y="12" text-anchor="middle" fill="var(--accent-2)" font-family="Consolas,monospace" font-size="9">gap recorded, next plan ingests it</text>
         <!-- y ticks -->
-        <g fill="#9c7f7d" font-family="Consolas,monospace" font-size="9" text-anchor="end">
+        <g fill="var(--ink-faint)" font-family="Consolas,monospace" font-size="9" text-anchor="end">
           <text x="38" y="290">0</text>
           <text x="38" y="78">80</text>
           <text x="38" y="28">100</text>
@@ -626,7 +652,7 @@ footer code{color:var(--accent)}
 <!-- ======================================================================
      WHY THIS SHAPE
      =================================================================== -->
-<section id="why" class="band band-y" data-accent="#c26565">
+<section id="why" class="band band-y" data-accent="#dc8383">
   <div class="sec-head reveal">
     <p class="sec-num">SHAPE</p>
     <div>
@@ -664,7 +690,7 @@ footer code{color:var(--accent)}
 <!-- ======================================================================
      FIVE STAGES (scrollytelling, pinned graphic)
      =================================================================== -->
-<section id="stages" class="band band-y" data-accent="#c26565">
+<section id="stages" class="band band-y" data-accent="#dc8383">
   <div class="sec-head reveal">
     <p class="sec-num">WALKTHROUGH</p>
     <div>
@@ -676,15 +702,37 @@ footer code{color:var(--accent)}
   <div class="rail">
     <div class="rail-sticky">
       <!-- Tier 1 procedural visual: original generated inline SVG pipeline. -->
-      <svg id="pipe" viewBox="0 0 300 470" class="zoomable" role="img"
+      <!-- viewBox widened from 300 to 330 so the loop-back label clears its own
+           dashed curve: the curve's cubic midpoint is x=291, the rotated label
+           sits at x=314, leaving ~16 user units. Computed per
+           references/svg-diagram-quality.md rule 2, not eyeballed. -->
+      <svg id="pipe" viewBox="0 0 330 470" class="zoomable" role="img"
            aria-label="Pipeline diagram: measure, plan, implement, drive, verify, with a dashed loop back from verify to plan.">
+        <defs>
+          <!-- One head per stroke color, because a marker does NOT inherit from
+               the path referencing it. refX=9 puts the tip on the endpoint. -->
+          <marker id="arrow-flow" viewBox="0 0 10 10" refX="9" refY="5"
+                  markerWidth="5" markerHeight="5"
+                  orient="auto" markerUnits="strokeWidth">
+            <path d="M0 0 L10 5 L0 10 z" fill="var(--rule)"/>
+          </marker>
+          <marker id="arrow-flow-on" viewBox="0 0 10 10" refX="9" refY="5"
+                  markerWidth="5" markerHeight="5"
+                  orient="auto" markerUnits="strokeWidth">
+            <path d="M0 0 L10 5 L0 10 z" fill="var(--accent)"/>
+          </marker>
+          <marker id="arrow-loop" viewBox="0 0 10 10" refX="9" refY="5"
+                  markerWidth="5" markerHeight="5"
+                  orient="auto" markerUnits="strokeWidth">
+            <path d="M0 0 L10 5 L0 10 z" fill="var(--accent-2)"/>
+          </marker>
+        </defs>
         <g class="node" data-step="0" tabindex="0" role="button" aria-label="Stage 1, measure">
           <rect class="nbox" x="30" y="14" width="240" height="52" rx="2"/>
           <text class="ntext" x="46" y="38">1  MEASURE</text>
           <text class="nsub"  x="46" y="54">/review coverage</text>
         </g>
         <path class="flow" data-flow="0" d="M150 66 L150 96"/>
-        <path class="flow" data-flow="0" d="M150 96 l -4 -8 l 8 0 z" fill="#5a3434" stroke="none"/>
 
         <g class="node" data-step="1" tabindex="0" role="button" aria-label="Stage 2, plan">
           <rect class="nbox" x="30" y="96" width="240" height="52" rx="2"/>
@@ -714,9 +762,9 @@ footer code{color:var(--accent)}
         </g>
 
         <!-- loop back to PLAN -->
-        <path class="loopback" d="M270 368 C 292 368, 292 122, 270 122"/>
-        <path d="M270 122 l 8 -4 l 0 8 z" fill="#4f6d8a"/>
-        <text class="looplabel" x="288" y="248" transform="rotate(90 288 248)" text-anchor="middle">target not met? re-plan</text>
+        <path class="loopback" d="M270 368 C 298 368, 298 122, 270 122"
+              marker-end="url(#arrow-loop)"/>
+        <text class="looplabel" x="314" y="245" transform="rotate(90 314 245)" text-anchor="middle">target not met? re-plan</text>
       </svg>
     </div>
 
@@ -838,7 +886,7 @@ footer code{color:var(--accent)}
 <!-- ======================================================================
      THE LOOP / GATES
      =================================================================== -->
-<section id="loop" class="band band-y-tight" data-accent="#b3703f">
+<section id="loop" class="band band-y-tight" data-accent="#c68657">
   <div class="sec-head reveal">
     <p class="sec-num">GATES</p>
     <div>
@@ -885,7 +933,7 @@ footer code{color:var(--accent)}
 <!-- ======================================================================
      TRAJECTORY MODEL (interactive chart)
      =================================================================== -->
-<section id="model" class="band band-y" data-accent="#8a7a3a">
+<section id="model" class="band band-y" data-accent="#a89344">
   <div class="sec-head reveal">
     <p class="sec-num">TRAJECTORY</p>
     <div>
@@ -936,7 +984,7 @@ footer code{color:var(--accent)}
 <!-- ======================================================================
      REFERENCE TABLE
      =================================================================== -->
-<section id="ref" class="band band-y-tight" data-accent="#5b7f5b">
+<section id="ref" class="band band-y-tight" data-accent="#7da57d">
   <div class="sec-head reveal">
     <p class="sec-num">REFERENCE</p>
     <div>
@@ -986,7 +1034,7 @@ footer code{color:var(--accent)}
 <!-- ======================================================================
      TRAPS
      =================================================================== -->
-<section id="traps" class="band band-y" data-accent="#4f6d8a">
+<section id="traps" class="band band-y" data-accent="#7aa0c4">
   <div class="sec-head reveal">
     <p class="sec-num">TRAPS</p>
     <div>
@@ -1222,8 +1270,8 @@ function fallback(text, done){
 var cv = document.getElementById('chart');
 var ctx = cv.getContext('2d');
 var SERIES = [
-  {key:'plan',  name:'Planned ramp (linear to target)', color:'#c26565', on:true},
-  {key:'real',  name:'Fixed-fraction gap closure',      color:'#4f6d8a', on:true},
+  {key:'plan',  name:'Planned ramp (linear to target)', color:'#dc8383', on:true},
+  {key:'real',  name:'Fixed-fraction gap closure',      color:'#7aa0c4', on:true},
   {key:'thr',   name:'Threshold',                       color:'#c9a227', on:true}
 ];
 var P = {start:12, target:80, phases:5, close:55};
@@ -1263,7 +1311,7 @@ function draw(){
   function Y(v){ return PAD.t + ph - ((v - view.yMin) / (view.yMax - view.yMin)) * ph; }
 
   /* grid */
-  ctx.strokeStyle = '#5a3434'; ctx.fillStyle = '#9c7f7d';
+  ctx.strokeStyle = '#5a3434'; ctx.fillStyle = '#b59a97';
   ctx.font = '11px Consolas, monospace'; ctx.lineWidth = 1;
   var yStep = (view.yMax - view.yMin) > 40 ? 20 : 10;
   var y0 = Math.ceil(view.yMin / yStep) * yStep;
@@ -1279,7 +1327,7 @@ function draw(){
   for (var gx = Math.ceil(view.xMin); gx <= view.xMax; gx++){
     ctx.fillText(gx === 0 ? 'start' : 'P' + gx, X(gx), H - PAD.b + 10);
   }
-  ctx.fillStyle = '#9c7f7d'; ctx.textAlign = 'center';
+  ctx.fillStyle = '#b59a97'; ctx.textAlign = 'center';
   ctx.fillText('plan phase', PAD.l + pw/2, H - PAD.b + 28);
 
   /* clip plot area */

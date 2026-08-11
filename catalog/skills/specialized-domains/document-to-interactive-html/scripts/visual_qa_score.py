@@ -8,7 +8,10 @@ band width, the image-sizing caps, annotated-overlay well-formedness, imagery
 integration count, layout / offline integrity, and (v3.16.5) the four
 deterministic halves of the `references/responsive-typography.md` contract -
 fluid macro spacing, rendered font-size floors, emphasis-token distinctness, and
-WCAG contrast. It is the headless-optional structural-review path the Step 9 loop
+WCAG contrast - plus the three deterministic rules of the
+`references/svg-diagram-quality.md` contract: no hand-placed triangle
+arrowheads, height-constrained pinned graphics, and marker integrity.
+It is the headless-optional structural-review path the Step 9 loop
 degrades to when no browser (or no agent vision) is available, and the target the
 Phase 5 tests seed defects against.
 
@@ -84,6 +87,15 @@ _NON_TEXT_NAME_RE = re.compile(
 _STATUS_NAME_RE = re.compile(
     r"\b(?:ok|warn|stop|err|error|success|info|danger|caution)\b", re.IGNORECASE
 )
+
+# --- references/svg-diagram-quality.md ----------------------------------------
+_SVG_BLOCK_RE = re.compile(r"<svg\b.*?</svg>", re.DOTALL | re.IGNORECASE)
+# Entity / DOCTYPE declarations are refused before parsing; see _parse_svg.
+_XML_DECL_GUARD_RE = re.compile(r"<!(?:DOCTYPE|ENTITY)\b", re.IGNORECASE)
+_PATH_CMD_RE = re.compile(r"([MmLlHhVvCcSsQqTtAaZz])([^MmLlHhVvCcSsQqTtAaZz]*)")
+_NUMBER_RE = re.compile(r"-?\d*\.?\d+(?:[eE][-+]?\d+)?")
+_URL_REF_RE = re.compile(r"url\(\s*#([^)\s]+)\s*\)", re.IGNORECASE)
+_SELECTOR_TOKEN_RE = re.compile(r"[.#]([A-Za-z][\w-]*)")
 
 _COMMENT_RE = re.compile(r"<!--.*?-->", re.DOTALL)
 _PAGE_MAX_RE = re.compile(r"--page-max:\s*([^;]+);")
@@ -505,6 +517,307 @@ def check_contrast(rules: list[tuple[str, dict[str, str]]]) -> dict[str, Any]:
     )
 
 
+def _svg_blocks(html: str) -> list[str]:
+    """Every inline `<svg>...</svg>` source block, outermost only."""
+    return _SVG_BLOCK_RE.findall(html)
+
+
+def _parse_svg(block: str) -> Any | None:
+    """Parse one SVG block with stdlib XML, or None when it is not well-formed.
+
+    An SVG embedded in HTML can carry markup this parser rejects, so an
+    unparsable block is SKIPPED rather than reported as a defect: the scorer's
+    job here is to find broken diagrams, not to be an XML validator.
+
+    XML-hardening without a dependency: `xml.etree.ElementTree` does not resolve
+    external entities or retrieve DTDs, so the XXE class does not apply. The
+    entity-expansion DoS class (billion laughs, quadratic blowup) DOES, and it
+    requires an inline `<!ENTITY` declaration, so any block carrying a DOCTYPE or
+    ENTITY declaration is refused unparsed. `defusedxml` would be the standard
+    answer, but this script is stdlib-only by contract - it ships to users through
+    the skill bundle and must not add an install requirement - and refusing the
+    declaration removes the attack surface the library would have guarded.
+    """
+    from xml.etree import ElementTree
+
+    if _XML_DECL_GUARD_RE.search(block):
+        return None
+    try:
+        return ElementTree.fromstring(block)
+    except ElementTree.ParseError:
+        return None
+
+
+def _path_points(d: str) -> tuple[list[str], list[tuple[float, float]]]:
+    """Command letters (uppercased) and the absolute points a path `d` visits.
+
+    Only M/L/H/V/Z are tracked exactly; a curve's control points are treated as
+    waypoints, which is enough for the extent test that identifies a triangle.
+    """
+    commands: list[str] = []
+    points: list[tuple[float, float]] = []
+    x = y = 0.0
+    for letter, raw in _PATH_CMD_RE.findall(d):
+        commands.append(letter.upper())
+        relative = letter.islower()
+        nums = [float(n) for n in _NUMBER_RE.findall(raw)]
+        if letter.upper() == "Z":
+            continue
+        if letter.upper() == "H":
+            for n in nums:
+                x = x + n if relative else n
+                points.append((x, y))
+            continue
+        if letter.upper() == "V":
+            for n in nums:
+                y = y + n if relative else n
+                points.append((x, y))
+            continue
+        for index in range(0, len(nums) - 1, 2):
+            dx, dy = nums[index], nums[index + 1]
+            x, y = (x + dx, y + dy) if relative else (dx, dy)
+            points.append((x, y))
+    return commands, points
+
+
+def _is_small_triangle(d: str, max_extent: float = 24.0) -> bool:
+    """A closed 3-vertex path whose bounding box is small: a hand-placed arrowhead."""
+    commands, points = _path_points(d)
+    if not commands or commands[0] != "M" or commands[-1] != "Z":
+        return False
+    if [command for command in commands if command in ("L", "H", "V")] != ["L", "L"]:
+        return False
+    if any(command in ("C", "S", "Q", "T", "A") for command in commands):
+        return False
+    if len(points) != 3:
+        return False
+    width = max(p[0] for p in points) - min(p[0] for p in points)
+    height = max(p[1] for p in points) - min(p[1] for p in points)
+    return width <= max_extent and height <= max_extent
+
+
+def _local(tag: str) -> str:
+    return tag.rsplit("}", 1)[-1]
+
+
+def _css_marker_attachments(
+    rules: list[tuple[str, dict[str, str]]],
+) -> tuple[set[str], set[str]]:
+    """Class tokens CSS attaches a marker to, and the marker ids CSS references.
+
+    Attaching a marker from CSS is legitimate and sometimes necessary: a marker
+    does NOT inherit from the element that references it, so a connector whose
+    stroke changes with state needs a second marker swapped in by a CSS rule.
+    Both SVG checks must therefore read CSS as well as attributes, or they would
+    report a correctly-authored page as missing its arrowheads.
+    """
+    classes: set[str] = set()
+    ids: set[str] = set()
+    for selector, decls in rules:
+        marker_values = [
+            value for prop, value in decls.items() if prop.startswith("marker-")
+        ]
+        if not marker_values:
+            continue
+        classes.update(_SELECTOR_TOKEN_RE.findall(selector))
+        for value in marker_values:
+            match = _URL_REF_RE.search(value)
+            if match:
+                ids.add(match.group(1))
+    return classes, ids
+
+
+def check_svg_arrowheads(
+    html: str, rules: list[tuple[str, dict[str, str]]] | None = None
+) -> dict[str, Any]:
+    """Rule 1: arrowheads are markers, applied consistently - never hand-placed
+    triangles that detach from their line when geometry moves."""
+    css_classes, _ = _css_marker_attachments(rules or [])
+    blocks = _svg_blocks(html)
+    if not blocks:
+        return _finding("svg-arrowhead", "n/a", "structural", "no inline SVG")
+    triangles: list[str] = []
+    inconsistent: list[str] = []
+    for index, block in enumerate(blocks):
+        root = _parse_svg(block)
+        if root is None:
+            continue
+        # A marker's OWN arrowhead path is a small triangle by design, so skip
+        # anything inside a <marker> before looking for stray ones.
+        in_marker: set[int] = set()
+        for marker in root.iter():
+            if _local(marker.tag) == "marker":
+                for child in marker.iter():
+                    in_marker.add(id(child))
+        connectors: dict[str, list[bool]] = {}
+        for element in root.iter():
+            if _local(element.tag) != "path" or id(element) in in_marker:
+                continue
+            d = element.get("d", "")
+            fill = (element.get("fill") or "").strip().lower()
+            if _is_small_triangle(d) and fill not in ("", "none"):
+                triangles.append(f"svg[{index}] path d=\"{d[:40]}\" fill={fill}")
+                continue
+            key = element.get("class") or "(unclassed)"
+            has_marker = any(
+                element.get(f"marker-{position}")
+                for position in ("end", "start", "mid")
+            ) or bool(set(key.split()) & css_classes)
+            connectors.setdefault(key, []).append(has_marker)
+        for key, flags in connectors.items():
+            if any(flags) and not all(flags):
+                missing = len([flag for flag in flags if not flag])
+                inconsistent.append(
+                    f"svg[{index}] class={key}: {missing}/{len(flags)} connector(s) "
+                    "carry no marker while siblings do"
+                )
+    if triangles:
+        return _finding(
+            "svg-arrowhead", "fail", "structural",
+            f"{len(triangles)} hand-placed triangle arrowhead(s) outside a <marker> "
+            "(detaches when geometry moves): " + "; ".join(triangles[:4]),
+            "high",
+        )
+    if inconsistent:
+        return _finding(
+            "svg-arrowhead", "fail", "structural",
+            "arrowheads applied inconsistently: " + "; ".join(inconsistent[:4]),
+            "medium",
+        )
+    return _finding(
+        "svg-arrowhead", "pass", "structural",
+        f"{len(blocks)} inline SVG(s): no stray triangle arrowheads, markers "
+        "applied consistently",
+    )
+
+
+def _element_inner_html(html: str, attr_index: int) -> str:
+    """The inner HTML of the element whose opening tag contains `attr_index`.
+
+    Real containment, by walking the tag depth to the matching close. A bounded
+    lookahead window was tried first and is wrong: it reports any `<svg>` that
+    merely FOLLOWS the container, so a sticky page nav with a diagram later on
+    the page reads as a pinned graphic. A check that cries wolf on an ordinary
+    sticky nav is a check people switch off.
+    """
+    open_lt = html.rfind("<", 0, attr_index)
+    if open_lt < 0:
+        return ""
+    name = re.match(r"<([A-Za-z][\w-]*)", html[open_lt:])
+    open_end = html.find(">", open_lt)
+    if name is None or open_end < 0 or html[open_end - 1] == "/":
+        return ""
+    tag = name.group(1)
+    boundary = re.compile(rf"</?{re.escape(tag)}\b", re.IGNORECASE)
+    depth, position = 1, open_end + 1
+    while depth and position < len(html):
+        match = boundary.search(html, position)
+        if match is None:
+            break
+        depth += -1 if match.group(0).startswith("</") else 1
+        position = match.end()
+    return html[open_end + 1 : position]
+
+
+def check_svg_viewport_fit(
+    html: str, rules: list[tuple[str, dict[str, str]]]
+) -> dict[str, Any]:
+    """Rule 4: an SVG pinned in a sticky container must be height-constrained, or
+    its overflow is unreachable by any scroll."""
+    pinned: list[str] = []
+    for selector, decls in rules:
+        if decls.get("position", "").strip().lower() not in ("sticky", "fixed"):
+            continue
+        token = _SELECTOR_TOKEN_RE.findall(selector)
+        if token:
+            pinned.append(token[-1])
+    if not pinned:
+        return _finding(
+            "svg-viewport-fit", "n/a", "structural", "no sticky / fixed container"
+        )
+    offenders: list[str] = []
+    for token in dict.fromkeys(pinned):
+        # Containment without a DOM: locate the element carrying the token and
+        # inspect its actual inner HTML, not a lookahead window.
+        holds_svg = any(
+            "<svg" in _element_inner_html(html, match.start())
+            for match in re.finditer(
+                rf"""(?:class|id)\s*=\s*["'][^"']*\b{re.escape(token)}\b""", html
+            )
+        )
+        if not holds_svg:
+            continue
+        constrained = any(
+            "svg" in selector
+            and token in selector
+            and "max-height" in decls
+            for selector, decls in rules
+        )
+        if not constrained:
+            offenders.append(token)
+    if offenders:
+        return _finding(
+            "svg-viewport-fit", "fail", "structural",
+            "SVG pinned in a sticky container with no max-height (overflow is "
+            "unreachable): " + ", ".join(f".{token}" for token in offenders),
+            "high",
+        )
+    return _finding(
+        "svg-viewport-fit", "pass", "structural",
+        "every SVG in a sticky / fixed container is height-constrained",
+    )
+
+
+def check_svg_marker_integrity(
+    html: str, rules: list[tuple[str, dict[str, str]]] | None = None
+) -> dict[str, Any]:
+    """Rule 5: every marker reference resolves and every defined marker is used."""
+    blocks = _svg_blocks(html)
+    if not blocks:
+        return _finding("svg-marker-integrity", "n/a", "structural", "no inline SVG")
+    defined: set[str] = set()
+    _, referenced = _css_marker_attachments(rules or [])
+    referenced = set(referenced)
+    for block in blocks:
+        root = _parse_svg(block)
+        if root is None:
+            continue
+        for element in root.iter():
+            if _local(element.tag) == "marker" and element.get("id"):
+                defined.add(element.get("id", ""))
+            for position in ("end", "start", "mid"):
+                value = element.get(f"marker-{position}")
+                if value:
+                    match = _URL_REF_RE.search(value)
+                    if match:
+                        referenced.add(match.group(1))
+    dangling = sorted(referenced - defined)
+    unused = sorted(defined - referenced)
+    if dangling:
+        return _finding(
+            "svg-marker-integrity", "fail", "structural",
+            "marker reference(s) resolve to nothing, so NO arrowhead renders: "
+            + ", ".join(f"#{name}" for name in dangling),
+            "high",
+        )
+    if unused:
+        return _finding(
+            "svg-marker-integrity", "fail", "structural",
+            "marker(s) defined but never referenced: "
+            + ", ".join(f"#{name}" for name in unused),
+            "medium",
+        )
+    if not defined:
+        return _finding(
+            "svg-marker-integrity", "n/a", "structural",
+            "no markers defined or referenced",
+        )
+    return _finding(
+        "svg-marker-integrity", "pass", "structural",
+        f"{len(defined)} marker(s) defined, all referenced, no dangling reference",
+    )
+
+
 def score_html(
     html: str,
     *,
@@ -641,6 +954,11 @@ def score_html(
     findings.append(check_font_floor(rules, viewport))
     findings.append(check_emphasis_token(stripped, rules))
     findings.append(check_contrast(rules))
+
+    # 10-12. Authored-SVG integrity (references/svg-diagram-quality.md).
+    findings.append(check_svg_arrowheads(stripped, rules))
+    findings.append(check_svg_viewport_fit(stripped, rules))
+    findings.append(check_svg_marker_integrity(stripped, rules))
 
     high = sum(1 for finding in findings if finding.get("severity") == "high")
     return {

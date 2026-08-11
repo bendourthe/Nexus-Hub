@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v3.16.3 `github-usage-monitor-ux` is RELEASED (all six phases; 8 closed, 8 carried, 0 release blockers). v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (all 5 phases complete; reconciled and release-ready, unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
-**Last updated**: 2026-08-11 (v3.16.5 Phase 1 append: fluid layout + readability contract; 3 open, 1 accepted-and-documented, 0 release blockers)
+**Last updated**: 2026-08-11 (v3.16.5 Phase 2 append: SVG diagram-quality contract; 5 open, 1 closed, 1 accepted-and-documented, 0 release blockers)
 
 > **File-lifecycle note**: this ledger was created ahead of any v3.16 implementation, by a comparison that deliberately claimed no release slot, so it began with only the `## Comparison-Sourced Deferrals` section. Each v3.16 version-implementation phase **appends** its own `## v3.16.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` numbering, which is namespaced separately from the `CD-#` and `TR-#` ids used above.
 
@@ -875,13 +875,38 @@ It is deliberately **not** decided here. It affects four extensions, it is a que
 - **Source phase**: v3.16.5 Phase 1, sub-task 1.2
 - **Status**: accepted and documented in the function's own docstring rather than carried as a defect. The leaf-rule regex skips an at-rule prelude and returns the rules nested inside it, so a `font-size` declared only under a narrow breakpoint is graded as if it always applied. This errs toward REPORTING, which is the safe direction: a small font declared at a breakpoint is still a small font at that breakpoint. Resolving cascade plus breakpoints statically is the job of the real render (Phase 3), not of a markup heuristic.
 
-### v3.16.5 Phase 1 summary
+### BG-1 - CLOSED in Phase 2: five of six per-section accent colors were sub-AA, injected at runtime
+
+- **Target file**: `nexus-hub-unit-test-workflow.html` (the `data-accent` attributes and the canvas `fillStyle` / series literals)
+- **Source phase**: v3.16.5 Phase 2, found while retargeting the diagrams' hardcoded hexes
+- **What was wrong**: the page morphs its accent per section by reading `data-accent` off the active `<section>` and assigning it to `--accent` at runtime. All six declared values measured **3.20:1 to 4.36:1** against `--base`, so Phase 1's AA correction of the `--accent` token was reverted on every section as soon as the script ran. The canvas chart's axis-label and series colors carried the same superseded literals.
+- **Why Phase 1 could not have caught it**: the values live in HTML attributes and JavaScript string literals, not in CSS declarations, so the `contrast` check never saw them. Phase 1's gate passed truthfully on what it could observe.
+- **Resolution**: all six accents were replaced with hue-preserving values clearing AA (rose 4.36 -> 6.22, steel 3.20 -> 6.25, green 3.79 -> 6.17, olive 4.03 -> 5.65, terracotta 4.33 -> 5.67), and the canvas label color moved to the corrected `--ink-faint` value. The residual CHECKER gap is tracked separately as WN-2.
+
+### WN-2 - OPEN: the scorer cannot see runtime-injected palette values
+
+- **Target file**: `catalog/skills/specialized-domains/document-to-interactive-html/scripts/visual_qa_score.py` (`check_contrast`)
+- **Source phase**: v3.16.5 Phase 2 (the checker gap behind BG-1)
+- **Reason it is open**: `check_contrast` grades declared CSS custom properties. A page that assigns `--accent` from a `data-*` attribute in script, or paints canvas text with a literal, can pass the check and still render sub-AA text - which is exactly what BG-1 was. Statically resolving what a script assigns at runtime is not a job for a markup heuristic.
+- **Suggested next step**: Phase 3 closes this by construction rather than by more parsing. A real screenshot shows the rendered color, so the AGENT-VISION half of rubric criterion 7 grades what the page actually paints. Do NOT attempt to interpret the script statically. A cheap partial guard is possible if it proves useful: collect hex literals from `data-accent`-style attributes and grade them alongside the declared tokens.
+
+### NI-3 - OPEN by design: SVG contract rules 2 and 3 have no deterministic check
+
+- **Target file**: `catalog/skills/specialized-domains/document-to-interactive-html/references/svg-diagram-quality.md` (rules 2 and 3)
+- **Source phase**: v3.16.5 Phase 2, sub-tasks 2.1 and 2.2
+- **Reason it is open**: rule 2 (no dashed path passes within a label's bounding box) needs a text-metrics engine to know a label's real box - glyph advance widths, letter-spacing, and the rotation transform all matter, and none is available to a markup parser. Rule 3 (connectors terminate on node edges) is checkable in principle but only against a declared intent about which shapes a connector joins, which the markup does not state. Both were verified NUMERICALLY by hand for this phase's two diagrams instead: the cubic midpoints are (269, 27.25) and (291, 245), giving 15.25 and 23.0 user units of label clearance, and every coordinate lies inside its viewBox.
+- **Suggested next step**: Phase 3's render loop closes rule 2's practical half, since a screenshot shows a label sitting on a line immediately. Rule 3 stays an authoring discipline enforced by the rule-5 self-check; adding a parser for it would need an annotation convention that does not exist yet, so do not build one without a defect to point at.
+
+### v3.16.5 Phase 1-2 summary
 
 | Category | Open | Resolved |
 |---|---|---|
-| v3.16.5 Phase 1 gaps | 3 (MT-1 fixture unhomed and unguarded; NI-2 rules 2-3 by design; WN-1 status-color exclusion) | 1 accepted-and-documented (DF-1 parser scope) |
+| v3.16.5 Phase 1 gaps | 3 (MT-1 fixture unhomed and unguarded; NI-2 typography rules 2-3 by design; WN-1 status-color exclusion) | 1 accepted-and-documented (DF-1 parser scope) |
+| v3.16.5 Phase 2 gaps | 2 (WN-2 runtime-injected palette invisible to the scorer; NI-3 SVG rules 2-3 by design) | 1 closed (BG-1 sub-AA runtime accents) |
 
-None is a release blocker, and two of the three (NI-2, WN-1) are deliberately routed to Phase 3, which is the phase that acquires the rendered screenshots those judgments require. MT-1 is routed to Phase 7, which already owns the fixture's final location; Phase 1 committed the fixture at the repo root so its fixes are not at risk while that decision waits. Worth noting for the next phase: the most valuable defect this phase found was not in the fixture but in the checker - the `font-floor` check initially skipped every `var()` value, so tokenizing the fixture DROPPED its checked font count from 40 to 17. A linter that verifies the non-compliant form more thoroughly than the compliant one rewards the wrong behavior, and nothing in the plan would have surfaced it; only running the checker before and after the fix did.
+None is a release blocker, and two of the three (NI-2, WN-1) are deliberately routed to Phase 3, which is the phase that acquires the rendered screenshots those judgments require. MT-1 is routed to Phase 7, which already owns the fixture's final location; Phase 1 committed the fixture at the repo root so its fixes are not at risk while that decision waits. Phase 2 repeats the pattern and sharpens it. Its most valuable finding was again invisible to the phase that should have owned it: BG-1's five sub-AA accents are injected by script, so Phase 1's contrast check could not observe them and passed truthfully on an incomplete view. Two of Phase 2's three new items (WN-2, NI-3) are the same shape - a static parser reaching the edge of what markup can tell it - and both route to Phase 3, where a rendered screenshot answers directly what no amount of extra parsing would. That is an argument for building Phase 3 rather than for deepening the scorer.
+
+Worth noting from Phase 1: the most valuable defect that phase found was not in the fixture but in the checker - the `font-floor` check initially skipped every `var()` value, so tokenizing the fixture DROPPED its checked font count from 40 to 17. A linter that verifies the non-compliant form more thoroughly than the compliant one rewards the wrong behavior, and nothing in the plan would have surfaced it; only running the checker before and after the fix did.
 
 ## v3.16 Summary
 

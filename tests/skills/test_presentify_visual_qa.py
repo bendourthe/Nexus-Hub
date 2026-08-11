@@ -396,6 +396,181 @@ def test_responsive_typography_reference_states_the_floors_and_rules():
     assert "16px" in text and "13px" in text and "12px" in text
 
 
+# --- 1c. v3.16.5 Phase 2: the svg-diagram-quality contract -------------------
+#
+# A clean diagram: one marker definition, attached with marker-end, a connector
+# terminating on the box edges, and a height-constrained sticky container.
+_MARKER = (
+    '<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5"'
+    ' markerWidth="6" markerHeight="6" orient="auto" markerUnits="strokeWidth">'
+    '<path d="M0 0 L10 5 L0 10 z" fill="currentColor"/></marker></defs>'
+)
+_SVG_OK = (
+    '<html data-aspect="standard"><style>'
+    ".rail-sticky{position:sticky;top:5.5rem}"
+    ".rail-sticky svg{width:100%;height:auto;max-height:calc(100vh - 7rem)}"
+    "</style>"
+    '<div class="rail-sticky"><svg viewBox="0 0 300 200">' + _MARKER +
+    '<rect x="30" y="14" width="240" height="52"/>'
+    '<path class="flow" d="M150 66 L150 96" marker-end="url(#arrow)"/>'
+    '<rect x="30" y="96" width="240" height="52"/>'
+    "</svg></div></html>"
+)
+
+
+def _svg_finding(html: str, criterion: str) -> dict:
+    return next(
+        f for f in scorer.score_html(html)["findings"] if f["criterion"] == criterion
+    )
+
+
+def test_scorer_clean_diagram_passes_all_svg_checks():
+    result = scorer.score_html(_SVG_OK)
+    statuses = {f["criterion"]: f["status"] for f in result["findings"]}
+    assert statuses["svg-arrowhead"] == "pass"
+    assert statuses["svg-viewport-fit"] == "pass"
+    assert statuses["svg-marker-integrity"] == "pass"
+    assert result["page_pass"] is True
+
+
+def test_scorer_flags_a_hand_placed_triangle_arrowhead():
+    # The 2026-08-10 defect: a filled triangle sitting near a line end, which
+    # detaches from it the moment the geometry moves.
+    detached = _SVG_OK.replace(
+        '<path class="flow" d="M150 66 L150 96" marker-end="url(#arrow)"/>',
+        '<path class="flow" d="M150 66 L150 96"/>'
+        '<path d="M150 96 l -4 -8 l 8 0 z" fill="#5a3434"/>',
+    )
+    finding = _svg_finding(detached, "svg-arrowhead")
+    assert finding["status"] == "fail"
+    assert finding["severity"] == "high"
+    assert "detaches" in finding["evidence"]
+
+
+def test_scorer_does_not_flag_the_triangle_inside_a_marker_definition():
+    # A marker's own arrowhead IS a small filled triangle by design. Flagging it
+    # would make the correct construction unusable.
+    assert _svg_finding(_SVG_OK, "svg-arrowhead")["status"] == "pass"
+    assert "M0 0 L10 5 L0 10 z" in _SVG_OK  # the marker triangle is really there
+
+
+def test_scorer_flags_inconsistently_applied_arrowheads():
+    # A pipeline whose first connector has a head and whose rest do not reads as
+    # an unfinished drawing. Medium: the arrows exist, they are just uneven.
+    uneven = _SVG_OK.replace(
+        '<rect x="30" y="96" width="240" height="52"/>',
+        '<rect x="30" y="96" width="240" height="52"/>'
+        '<path class="flow" d="M150 148 L150 178"/>',
+    )
+    finding = _svg_finding(uneven, "svg-arrowhead")
+    assert finding["status"] == "fail"
+    assert finding["severity"] == "medium"
+    assert "inconsistently" in finding["evidence"]
+
+
+def test_scorer_accepts_a_marker_attached_from_css():
+    # A marker does NOT inherit from the element referencing it, so a connector
+    # whose stroke changes with state needs a second marker swapped in by CSS.
+    # Reading attributes only would report this correct page as headless.
+    css_attached = _SVG_OK.replace(
+        ".rail-sticky{position:sticky;top:5.5rem}",
+        ".rail-sticky{position:sticky;top:5.5rem} .flow{marker-end:url(#arrow)}",
+    ).replace(' marker-end="url(#arrow)"', "")
+    assert _svg_finding(css_attached, "svg-arrowhead")["status"] == "pass"
+    assert _svg_finding(css_attached, "svg-marker-integrity")["status"] == "pass"
+
+
+def test_scorer_flags_an_unconstrained_svg_in_a_sticky_container():
+    unpinned = _SVG_OK.replace(
+        ".rail-sticky svg{width:100%;height:auto;max-height:calc(100vh - 7rem)}",
+        ".rail-sticky svg{width:100%;height:auto}",
+    )
+    result = scorer.score_html(unpinned)
+    finding = next(
+        f for f in result["findings"] if f["criterion"] == "svg-viewport-fit"
+    )
+    assert finding["status"] == "fail"
+    assert finding["severity"] == "high"
+    assert "unreachable" in finding["evidence"]
+    assert result["page_pass"] is False
+
+
+def test_scorer_ignores_a_sticky_container_that_holds_no_svg():
+    # A sticky page nav or table header is not a pinned graphic.
+    nav = (
+        '<html data-aspect="standard"><style>#nav{position:sticky;top:0}</style>'
+        '<nav id="nav"><a href="#a">A</a></nav>'
+        '<svg viewBox="0 0 10 10"><rect x="1" y="1" width="2" height="2"/></svg>'
+        "</html>"
+    )
+    assert _svg_finding(nav, "svg-viewport-fit")["status"] == "pass"
+
+
+def test_scorer_flags_a_dangling_marker_reference_as_high():
+    # A reference to a marker that does not exist renders NO arrowhead, silently.
+    dangling = _SVG_OK.replace('marker-end="url(#arrow)"', 'marker-end="url(#nope)"')
+    finding = _svg_finding(dangling, "svg-marker-integrity")
+    assert finding["status"] == "fail"
+    assert finding["severity"] == "high"
+    assert "#nope" in finding["evidence"]
+
+
+def test_scorer_flags_an_unreferenced_marker_as_medium():
+    unused = _SVG_OK.replace(' marker-end="url(#arrow)"', "")
+    result = scorer.score_html(unused)
+    finding = next(
+        f for f in result["findings"] if f["criterion"] == "svg-marker-integrity"
+    )
+    assert finding["status"] == "fail"
+    assert finding["severity"] == "medium"
+    assert result["page_pass"] is True  # dead definition, not a broken render
+
+
+def test_parse_svg_refuses_entity_declarations():
+    # Hardening without a dependency: the entity-expansion DoS class needs an
+    # inline <!ENTITY, so a block carrying one is refused unparsed. stdlib
+    # ElementTree does not resolve external entities, so XXE does not apply.
+    bomb = (
+        '<svg viewBox="0 0 10 10"><!DOCTYPE svg [<!ENTITY a "aaaa">]>'
+        "<rect/></svg>"
+    )
+    assert scorer._parse_svg(bomb) is None
+    assert scorer._parse_svg('<svg viewBox="0 0 10 10"><rect/></svg>') is not None
+
+
+def test_is_small_triangle_discriminates_arrowheads_from_real_shapes():
+    assert scorer._is_small_triangle("M96 40 l -5 -8 l 10 0 z") is True
+    assert scorer._is_small_triangle("M0 0 L10 5 L0 10 z") is True
+    # A large closed triangle is a real shape, not an arrowhead.
+    assert scorer._is_small_triangle("M0 0 L200 100 L0 200 z") is False
+    # A connector is not closed.
+    assert scorer._is_small_triangle("M150 66 L150 96") is False
+    # A curve is not a triangle even when small and closed.
+    assert scorer._is_small_triangle("M0 0 C 5 5, 8 8, 0 10 z") is False
+
+
+def test_path_points_tracks_relative_and_absolute_commands():
+    commands, points = scorer._path_points("M10 10 l 5 0 L 30 10 v 5 z")
+    assert commands == ["M", "L", "L", "V", "Z"]
+    assert points == [(10.0, 10.0), (15.0, 10.0), (30.0, 10.0), (30.0, 15.0)]
+
+
+def test_svg_diagram_quality_reference_states_all_five_rules():
+    text = (_BUNDLE / "references" / "svg-diagram-quality.md").read_text(
+        encoding="utf-8"
+    )
+    for anchor in (
+        "Arrowheads are `<marker>` elements",
+        "Dash patterns must not collide",
+        "Connectors terminate on node edges",
+        "Viewport fit for pinned and sticky graphics",
+        "Geometry self-check before shipping",
+    ):
+        assert anchor in text, f"contract missing rule: {anchor}"
+    # The marker attributes that make a head behave are named, not implied.
+    assert 'orient="auto"' in text and 'markerUnits="strokeWidth"' in text
+
+
 # --- 2. workflow template + rubric carry the required content ----------------
 
 
