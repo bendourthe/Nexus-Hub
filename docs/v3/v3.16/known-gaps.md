@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v3.16.3 `github-usage-monitor-ux` is RELEASED (all six phases; 8 closed, 8 carried, 0 release blockers). v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (all 5 phases complete; reconciled and release-ready, unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
-**Last updated**: 2026-08-09 (v3.16.3 Phase 6 terminal reconciliation; 6 closed, 8 carried, 0 release blockers; NI-4 routed to its own cycle as a cross-monitor policy question)
+**Last updated**: 2026-08-11 (v3.16.5 Phase 1 append: fluid layout + readability contract; 3 open, 1 accepted-and-documented, 0 release blockers)
 
 > **File-lifecycle note**: this ledger was created ahead of any v3.16 implementation, by a comparison that deliberately claimed no release slot, so it began with only the `## Comparison-Sourced Deferrals` section. Each v3.16 version-implementation phase **appends** its own `## v3.16.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` numbering, which is namespaced separately from the `CD-#` and `TR-#` ids used above.
 
@@ -841,6 +841,47 @@ The Claude, Codex, and Cursor monitors each read a vendor endpoint that returns 
 That asymmetry is the direct cause of this plan's hardest work: the entire drawdown reconstruction, its unverifiable weights (NI-2), its provisional SKU rules (MT-2), and the "reconstructed" caveat on every bar exist because of a rule written for one extension. Resolving it either way would retire three carried items at once.
 
 It is deliberately **not** decided here. It affects four extensions, it is a question about what the monitors may read rather than about how they compute, and settling it inside a phase scoped to allowance derivation would be the wrong venue. It belongs in its own cycle, with the four monitors considered together.
+
+## v3.16.5 - presentify-visual-overhaul
+
+**Source plan**: [docs/v3/v3.16/plans/v3.16.5-presentify-visual-overhaul.md](plans/v3.16.5-presentify-visual-overhaul.md). Appended at Phase 1 (fluid layout + readability contract). Ids are namespaced to this version, per the file-lifecycle note at the top.
+
+### MT-1 - OPEN: the calibration fixture has no final home and no test guarding it
+
+- **Target file**: `nexus-hub-unit-test-workflow.html` (repo root; tracked as of Phase 1)
+- **Source phase**: v3.16.5 Phase 1, sub-task 1.3
+- **Plan reference**: sub-task 1.3 explicitly defers the fixture's final location ("coordinate with the maintainer on its final location - Phase 7 may move it under a fixtures dir")
+- **Reason it is open**: Phase 1 brought the fixture to a clean scorer pass (0 high-severity findings across all nine criteria) and committed it at the repo root, so the fixes are no longer at risk of being lost. Two halves of the gap remain: the root is a holding position rather than its final location, and no test asserts that it still passes the scorer, so a future regression in either the fixture or the checker would go unnoticed.
+- **Suggested next step**: Phase 7 sub-task 7.1 homes the fixture with reference repair (a `tests/fixtures/presentify/` dir is the natural target, and `tests/skills/**` is already a CI path filter); at that point add a one-line regression test asserting `score_html(fixture)["page_pass"] is True`, which converts the calibration fixture from a manual artifact into a standing gate.
+- **One migration hazard to expect**: the fixture also exists as an untracked working-tree file in the primary checkout, where it was authored. When this branch merges to `develop`, that checkout will refuse to update the path until the local untracked copy is moved or removed. Expect the message, do not treat it as a merge conflict.
+
+### NI-2 - OPEN by design: contract rules 2 and 3 have no deterministic check
+
+- **Target file**: `catalog/skills/specialized-domains/document-to-interactive-html/scripts/visual_qa_score.py`
+- **Source phase**: v3.16.5 Phase 1, sub-tasks 1.1 and 1.2
+- **Reason it is open**: rule 2 ("wrapping serves the viewport") is a rendered-geometry judgment - whether a paragraph sits beside dead space depends on the resolved track width, the actual `ch` width of the chosen font, and the reflow breakpoint, none of which are knowable from the markup. It is specified as an AGENT-VISION criterion in `references/visual-qa-rubric.md` criterion 6 and graded from a screenshot. Rule 3 ("scale declared once as custom properties") is partially enforced: the scorer now resolves `var()` against declared properties, so a malformed step token IS caught, but nothing asserts that the scale is declared once on `:root` rather than scattered.
+- **Suggested next step**: Phase 3's real render loop closes the rule-2 half by measuring band and text-block boxes from an actual screenshot (this is the same measurement `measure_widest_band` already performs for full-width). The rule-3 half needs no code: a page whose tokens are wrong now fails `font-floor`, so the remaining gap is stylistic rather than a readability defect. Do not add a "declared once" parser check without a defect to point at.
+
+### WN-1 - OPEN: semantic status colors are excluded from the automated contrast set
+
+- **Target file**: `catalog/skills/specialized-domains/document-to-interactive-html/scripts/visual_qa_score.py` (`_STATUS_NAME_RE`)
+- **Source phase**: v3.16.5 Phase 1, sub-task 1.2
+- **Reason it is open**: a badge color's applicable WCAG floor is 3:1 when it renders as large or bordered text and 4.5:1 when it renders as body copy, and the scorer cannot know which. Grading every status color against 4.5:1 would produce false failures that teach authors to bypass the gate. The calibration fixture's `--stop: #c25050` measures 3.72:1 against `--base`, which passes the large-text floor and fails the body floor, and is therefore left ungraded rather than force-resolved.
+- **Suggested next step**: Phase 3 grades status-badge contrast from a real screenshot, where the rendered size is observable and the correct floor is therefore decidable. `references/visual-qa-rubric.md` criterion 7 already assigns this to the AGENT-VISION half.
+
+### DF-1 - CLOSED as accepted: the CSS rule parser treats media-scoped rules as unconditional
+
+- **Target file**: `catalog/skills/specialized-domains/document-to-interactive-html/scripts/visual_qa_score.py` (`css_rules`)
+- **Source phase**: v3.16.5 Phase 1, sub-task 1.2
+- **Status**: accepted and documented in the function's own docstring rather than carried as a defect. The leaf-rule regex skips an at-rule prelude and returns the rules nested inside it, so a `font-size` declared only under a narrow breakpoint is graded as if it always applied. This errs toward REPORTING, which is the safe direction: a small font declared at a breakpoint is still a small font at that breakpoint. Resolving cascade plus breakpoints statically is the job of the real render (Phase 3), not of a markup heuristic.
+
+### v3.16.5 Phase 1 summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| v3.16.5 Phase 1 gaps | 3 (MT-1 fixture unhomed and unguarded; NI-2 rules 2-3 by design; WN-1 status-color exclusion) | 1 accepted-and-documented (DF-1 parser scope) |
+
+None is a release blocker, and two of the three (NI-2, WN-1) are deliberately routed to Phase 3, which is the phase that acquires the rendered screenshots those judgments require. MT-1 is routed to Phase 7, which already owns the fixture's final location; Phase 1 committed the fixture at the repo root so its fixes are not at risk while that decision waits. Worth noting for the next phase: the most valuable defect this phase found was not in the fixture but in the checker - the `font-floor` check initially skipped every `var()` value, so tokenizing the fixture DROPPED its checked font count from 40 to 17. A linter that verifies the non-compliant form more thoroughly than the compliant one rewards the wrong behavior, and nothing in the plan would have surfaced it; only running the checker before and after the fix did.
 
 ## v3.16 Summary
 

@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Added
+
+- **A fluid-layout and readability contract for `/presentify` output** (v3.16.5 Phase 1), at `catalog/skills/specialized-domains/document-to-interactive-html/references/responsive-typography.md`. Six rules with correct/incorrect CSS pairs and observable pass criteria: macro spacing is a `clamp()` of viewport-relative units rather than a fixed constant; grid tracks widen or reflow so a measure-capped paragraph never sits beside a dead corridor; the type scale is declared once as `:root` custom properties; rendered sizes clear hard floors (body prose 16px, secondary text 13px, anything interactive 12px) checked at BOTH the clamp minimum and 1920px; inline emphasis tokens are distinct on a color axis AND a family/weight axis; and contrast is computed rather than eyeballed. The reference is a bundled Tier-3 artifact, so it reaches every SKILL.md-standard platform through the existing recursive skill-tree copy with no installer edit.
+- **Four deterministic checks in `scripts/visual_qa_score.py`** implementing the checkable half of that contract: `fluid-spacing`, `font-floor`, `emphasis-token`, and `contrast`. Still stdlib-only and offline. The scorer now parses leaf CSS rules, resolves `var()` against declared custom properties (so a tokenized page is checked as thoroughly as one hardcoding sizes), resolves additive `clamp()` preferred terms such as `0.94rem + 0.30vw`, and computes true WCAG relative-luminance ratios.
+- **Two criteria in `references/visual-qa-rubric.md`**, taking it from five to seven: `fluid layout` and `readability floors`. Each pairs its structural checks with the agent-vision judgments no parser can make - whether prose is stranded beside dead space, whether secondary text is readable at 100% zoom on a 27-inch display, and whether emphasis tokens are discernible at a glance.
+
+### Changed
+
+- **Contrast findings are graded by how badly a color fails**, so the HIGH-severity bar stays meaningful: the primary body pair, or a foreground that fails against every declared background, is HIGH; a single failing surface while other combinations pass is MEDIUM. Semantic status colors (`--ok`, `--warn`, `--stop`) are excluded from the automated set because a badge's applicable WCAG floor depends on its rendered size, and are graded from a screenshot instead.
+- **SVG text is exempt from the pixel font floors**, since its declared size is in viewBox user units. The scorer discriminates it by the presence of a `fill:` declaration in the same block (SVG text paints with `fill`, HTML text with `color`), which needs no naming convention.
+- **The calibration fixture (`nexus-hub-unit-test-workflow.html`) was brought to a clean scorer pass** - from 2 high-severity findings to 0 across all nine criteria. It gained a nine-step fluid type scale, AA-validated inks and accents (the previous `--accent` and `--accent-2` failed AA against every surface, so no token colored with them could be read), viewport-proportional band and footer spacing, an emphasis-token treatment on the page-wide `code` rule, and a note rail that grows with the viewport so the editorial band no longer strands prose beside ~690px of dead space at 1920px.
+- **Three rationalization rows and one Verification item added to the presentify SKILL.md**, rebutting "the clamp() minimum only hits on tiny screens", "the type scale is fluid, I put the clamp() on `body`", and "the `<code>` tokens use the mono family, so they already stand out".
+
 ## [3.16.3] - 2026-08-10
 
 ### Opt-in capability changes (release capability usage gate)

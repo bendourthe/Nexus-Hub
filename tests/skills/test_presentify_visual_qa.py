@@ -9,6 +9,15 @@ Two testable surfaces:
    degrades cleanly (structural mode, no browser needed) and drives the CLI exit
    codes.
 
+1b. (v3.16.5) The four `references/responsive-typography.md` checks: fluid macro
+   spacing, the rendered font-size floors (checked at BOTH the clamp minimum and
+   1920px), emphasis-token distinctness, and WCAG contrast. Each is exercised on a
+   clean fluid fixture plus one fixture per seeded defect class, including the
+   near-miss cases that make the checks trustworthy rather than noisy: micro
+   spacing is not flagged, SVG user-unit text is exempt from the px floors, a
+   region-scoped `footer code` rule does not stand in for the page-wide one, and
+   semantic status colors stay out of the contrast set.
+
 2. The Dynamic-Workflow template (`assets/visual-qa-workflow.js`) and the rubric
    reference carry the required content: the three mandatory workflow rules
    (graceful degradation, scope-first token caution, skill-native) and the five
@@ -141,6 +150,250 @@ def test_scorer_cli_exit_codes(tmp_path):
     assert scorer.main([str(defect)]) == 1
 
     assert scorer.main([str(tmp_path / "missing.html")]) == 2
+
+
+# --- 1b. v3.16.5: the responsive-typography contract checks ------------------
+#
+# A clean fluid/readable page: a tokenized type scale whose clamp MINIMUMS sit at
+# the role floors, fluid macro spacing, an AA-clearing palette, and an
+# unqualified `code` rule distinct on both the color and the family axis.
+_FLUID = (
+    '<html data-aspect="standard"><style>'
+    ":root{"
+    "--base:#12141a; --surface:#1d212b; --ink:#f2f4f8; --ink-dim:#c3c9d6;"
+    "--accent:#8fb6e8;"
+    "--step--2: clamp(0.8125rem, 0.78rem + 0.16vw, 0.9375rem);"
+    "--step-0: clamp(1rem, 0.94rem + 0.30vw, 1.1875rem);"
+    "--gutter: clamp(1.25rem, 4vw, 2.5rem);"
+    "}"
+    "body{font-size:var(--step-0); color:var(--ink); background:var(--base)}"
+    ".band{padding-inline:var(--gutter); padding-block:clamp(3.5rem,7vh,7rem)}"
+    ".editorial{display:grid; gap:clamp(1.25rem,3vw,3.5rem)}"
+    "footer b{font-size:var(--step--2)}"
+    "code{font-family:Consolas,monospace; color:var(--accent)}"
+    "</style><p>Prose with a <code>/review</code> token.</p></html>"
+)
+
+
+def test_scorer_clean_fluid_page_passes_all_typography_checks():
+    result = scorer.score_html(_FLUID)
+    statuses = {f["criterion"]: f["status"] for f in result["findings"]}
+    assert statuses["fluid-spacing"] == "pass"
+    assert statuses["font-floor"] == "pass"
+    assert statuses["emphasis-token"] == "pass"
+    assert statuses["contrast"] == "pass"
+    assert result["page_pass"] is True
+
+
+def test_scorer_flags_fixed_macro_spacing_on_a_band():
+    fixed = _FLUID.replace(
+        ".editorial{display:grid; gap:clamp(1.25rem,3vw,3.5rem)}",
+        ".editorial{display:grid; gap:2rem}",
+    )
+    result = scorer.score_html(fixed)
+    finding = next(f for f in result["findings"] if f["criterion"] == "fluid-spacing")
+    assert finding["status"] == "fail"
+    # One occurrence is a slip (MEDIUM), not a page-blocking layout failure.
+    assert finding["severity"] == "medium"
+
+
+def test_scorer_escalates_three_fixed_macro_dimensions_to_high():
+    fixed = (
+        _FLUID.replace(
+            ".editorial{display:grid; gap:clamp(1.25rem,3vw,3.5rem)}",
+            ".editorial{display:grid; gap:2rem}",
+        )
+        .replace("padding-inline:var(--gutter)", "padding-inline:40px")
+        .replace("padding-block:clamp(3.5rem,7vh,7rem)", "padding-block:3rem")
+    )
+    result = scorer.score_html(fixed)
+    finding = next(f for f in result["findings"] if f["criterion"] == "fluid-spacing")
+    assert finding["severity"] == "high"
+    assert result["page_pass"] is False
+
+
+def test_scorer_ignores_component_internal_micro_spacing():
+    # A chip's own padding is component-internal and may stay rem-based.
+    micro = _FLUID.replace(
+        "footer b{font-size:var(--step--2)}",
+        "footer b{font-size:var(--step--2)} .chip{padding:.35rem .6rem}",
+    )
+    finding = next(
+        f for f in scorer.score_html(micro)["findings"]
+        if f["criterion"] == "fluid-spacing"
+    )
+    assert finding["status"] == "pass"
+
+
+def test_scorer_flags_secondary_text_below_the_13px_floor():
+    # The v3.16.5 root-cause defect: the fluid clamp sits on body while a child
+    # is sized in rem, so it resolves against the 16px ROOT and never scales.
+    small = _FLUID.replace("footer b{font-size:var(--step--2)}", "footer b{font-size:.7rem}")
+    result = scorer.score_html(small)
+    finding = next(f for f in result["findings"] if f["criterion"] == "font-floor")
+    assert finding["status"] == "fail"
+    assert finding["severity"] == "high"
+    assert "11.2px" in finding["evidence"]
+    assert result["page_pass"] is False
+
+
+def test_scorer_checks_the_clamp_minimum_not_only_the_1920px_value():
+    # Resolves to 16px at 1920px but bottoms out at 11px on a laptop width, which
+    # is the size most readers get. Checking only the wide viewport misses it.
+    sneaky = _FLUID.replace(
+        "footer b{font-size:var(--step--2)}",
+        "footer b{font-size:clamp(0.6875rem, 0.5rem + 0.6vw, 1rem)}",
+    )
+    finding = next(
+        f for f in scorer.score_html(sneaky)["findings"]
+        if f["criterion"] == "font-floor"
+    )
+    assert finding["status"] == "fail"
+    assert "11.0px" in finding["evidence"]
+
+
+def test_scorer_exempts_svg_user_unit_text_from_the_font_floors():
+    # SVG text declares its size in viewBox user units, so a px floor is
+    # meaningless; the `fill:` declaration is the discriminator.
+    svg_text = _FLUID.replace(
+        "code{font-family:Consolas,monospace; color:var(--accent)}",
+        "code{font-family:Consolas,monospace; color:var(--accent)}"
+        " .nlabel{fill:var(--ink-dim); font-size:9px}",
+    )
+    finding = next(
+        f for f in scorer.score_html(svg_text)["findings"]
+        if f["criterion"] == "font-floor"
+    )
+    assert finding["status"] == "pass"
+
+
+def test_scorer_resolves_step_tokens_instead_of_treating_var_as_opaque():
+    # Regression guard against an inverted incentive: if `var(...)` read as
+    # opaque, a page that correctly moved its type onto a tokenized scale would
+    # be checked LESS than one hardcoding sizes, and a malformed step token would
+    # ship silently.
+    broken_token = _FLUID.replace(
+        "--step--2: clamp(0.8125rem, 0.78rem + 0.16vw, 0.9375rem);",
+        "--step--2: 0.6rem;",
+    )
+    result = scorer.score_html(broken_token)
+    finding = next(f for f in result["findings"] if f["criterion"] == "font-floor")
+    assert finding["status"] == "fail"
+    # The message names the DECLARED token, not just the resolved pixels, so the
+    # reader knows which scale step to fix.
+    assert "var(--step--2)" in finding["evidence"]
+    assert "9.6px" in finding["evidence"]
+
+
+def test_resolve_var_follows_indirection_and_honors_a_fallback():
+    props = {"--a": "var(--b)", "--b": "0.9rem"}
+    assert scorer.resolve_var("var(--a)", props) == "0.9rem"
+    assert scorer.resolve_var("var(--missing, 1.25rem)", props) == "1.25rem"
+    # Undeclared with no fallback stays unresolved rather than silently becoming 0.
+    assert scorer.resolve_var("var(--nope)", props) == "var(--nope)"
+
+
+def test_scorer_flags_indistinguishable_emphasis_tokens():
+    muted = _FLUID.replace(
+        "code{font-family:Consolas,monospace; color:var(--accent)}",
+        "code{font-family:Consolas,monospace}",
+    )
+    result = scorer.score_html(muted)
+    finding = next(f for f in result["findings"] if f["criterion"] == "emphasis-token")
+    assert finding["status"] == "fail"
+    assert "no color" in finding["evidence"]
+    assert result["page_pass"] is False
+
+
+def test_scorer_does_not_accept_a_region_scoped_token_rule_as_page_wide_proof():
+    # `footer code` styles ONE region. Accepting it would pass a page whose
+    # page-wide tokens are still invisible - the observed shipping defect.
+    scoped = _FLUID.replace(
+        "code{font-family:Consolas,monospace; color:var(--accent)}",
+        "code{font-family:Consolas,monospace} footer code{color:var(--accent)}",
+    )
+    finding = next(
+        f for f in scorer.score_html(scoped)["findings"]
+        if f["criterion"] == "emphasis-token"
+    )
+    assert finding["status"] == "fail"
+    assert "base" in finding["evidence"]
+
+
+def test_scorer_emphasis_token_is_na_without_token_markup():
+    no_tokens = _FLUID.replace("<code>/review</code>", "/review")
+    finding = next(
+        f for f in scorer.score_html(no_tokens)["findings"]
+        if f["criterion"] == "emphasis-token"
+    )
+    assert finding["status"] == "n/a"
+
+
+def test_contrast_ratio_matches_the_wcag_reference_values():
+    assert scorer.contrast_ratio("#ffffff", "#000000") == 21.0
+    assert round(scorer.contrast_ratio("#777777", "#ffffff"), 2) == 4.48
+    assert scorer.contrast_ratio("not-a-color", "#000000") is None
+
+
+def test_scorer_flags_a_foreground_unusable_on_every_background_as_high():
+    unusable = _FLUID.replace("--accent:#8fb6e8;", "--accent:#3d4d66;")
+    result = scorer.score_html(unusable)
+    finding = next(f for f in result["findings"] if f["criterion"] == "contrast")
+    assert finding["status"] == "fail"
+    assert finding["severity"] == "high"
+    assert result["page_pass"] is False
+
+
+def test_scorer_grades_a_single_failing_surface_as_medium():
+    # --ink-dim clears AA on --base but not on the lighter --surface: the color is
+    # usable, just not on that one surface.
+    partial = _FLUID.replace("--surface:#1d212b;", "--surface:#8d93a3;")
+    result = scorer.score_html(partial)
+    finding = next(f for f in result["findings"] if f["criterion"] == "contrast")
+    assert finding["status"] == "fail"
+    assert finding["severity"] == "medium"
+    assert result["page_pass"] is True  # MEDIUM alone does not block
+
+
+def test_scorer_excludes_semantic_status_colors_from_the_contrast_set():
+    # A badge color whose applicable floor is 3:1 (large / bordered text) must not
+    # be graded against the 4.5:1 body floor, since its rendered size is unknown.
+    status = _FLUID.replace("--accent:#8fb6e8;", "--accent:#8fb6e8; --stop:#c25050;")
+    finding = next(
+        f for f in scorer.score_html(status)["findings"]
+        if f["criterion"] == "contrast"
+    )
+    assert finding["status"] == "pass"
+
+
+def test_len_px_resolves_additive_clamp_preferred_terms():
+    # `0.94rem + 0.30vw` at 1920px = 15.04 + 5.76 = 20.8, clamped to the 19px max.
+    assert round(scorer._len_px("clamp(1rem, 0.94rem + 0.30vw, 1.1875rem)", 1920), 2) == 19.0
+    assert round(scorer._clamp_min_px("clamp(1rem, 0.94rem + 0.30vw, 1.1875rem)"), 2) == 16.0
+
+
+def test_css_rules_extracts_media_nested_rules_and_skips_the_prelude():
+    rules = scorer.css_rules(
+        "<style>@media (max-width:600px){.band{gap:1rem}}</style>"
+    )
+    assert rules == [(".band", {"gap": "1rem"})]
+
+
+def test_responsive_typography_reference_states_the_floors_and_rules():
+    text = (_BUNDLE / "references" / "responsive-typography.md").read_text(
+        encoding="utf-8"
+    )
+    for anchor in (
+        "Fluid space, never fixed space",
+        "Wrapping serves the viewport",
+        "Fluid type scale defined once",
+        "Minimum rendered sizes",
+        "Emphasis tokens must be visually distinct",
+        "Contrast floors",
+    ):
+        assert anchor in text, f"contract missing rule: {anchor}"
+    # The floors are stated as numbers, not as "small but readable".
+    assert "16px" in text and "13px" in text and "12px" in text
 
 
 # --- 2. workflow template + rubric carry the required content ----------------

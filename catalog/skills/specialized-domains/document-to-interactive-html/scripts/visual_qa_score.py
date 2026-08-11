@@ -5,9 +5,12 @@ visual-QA gate (Phase 5).
 Scores a generated presentify `.html` against the STRUCTURAL subset of
 `references/visual-qa-rubric.md` - the checks that need no human eye: full-width
 band width, the image-sizing caps, annotated-overlay well-formedness, imagery
-integration count, and layout / offline integrity. It is the headless-optional
-structural-review path the Step 9 loop degrades to when no browser (or no agent
-vision) is available, and the target the Phase 5 tests seed defects against.
+integration count, layout / offline integrity, and (v3.16.5) the four
+deterministic halves of the `references/responsive-typography.md` contract -
+fluid macro spacing, rendered font-size floors, emphasis-token distinctness, and
+WCAG contrast. It is the headless-optional structural-review path the Step 9 loop
+degrades to when no browser (or no agent vision) is available, and the target the
+Phase 5 tests seed defects against.
 
 The AGENT-VISION criteria (crop of meaningful content, dead space, annotation
 placement vs the source, imagery relevance, contrast / legibility) are NOT
@@ -41,6 +44,47 @@ FULL_WIDTH_MIN = 0.95
 HERO_CAP = "max-height: 80vh"
 OBJECT_FIT = "object-fit: contain"
 
+# --- references/responsive-typography.md thresholds ---------------------------
+# At or above this size a padding / gap is MACRO spacing and must be fluid;
+# below it the dimension is component-internal and may stay rem-based (rule 1).
+MACRO_SPACING_PX = 24.0
+# Hard rendered-size floors per text role (rule 4).
+_FONT_FLOORS = {"body": 16.0, "secondary": 13.0, "interactive": 12.0}
+AA_RATIO = 4.5  # WCAG AA for body and secondary text (rule 6).
+
+_STYLE_RE = re.compile(r"<style[^>]*>(.*?)</style>", re.DOTALL | re.IGNORECASE)
+_CSS_COMMENT_RE = re.compile(r"/\*.*?\*/", re.DOTALL)
+# Leaf declaration blocks only: `[^{}]` cannot span a nested brace, so an at-rule
+# prelude is skipped while the rules nested inside it still match.
+_RULE_RE = re.compile(r"([^{}]+)\{([^{}]*)\}")
+_MACRO_SPACING_PROPS = frozenset(
+    {"gap", "column-gap", "row-gap", "padding", "padding-block", "padding-inline"}
+)
+_FLUID_RE = re.compile(r"clamp\(|min\(|max\(|\bv[wh]\b|\d+%|var\(", re.IGNORECASE)
+_BAND_SELECTOR_RE = re.compile(
+    r"band|bleed|\bcols?\b|grid|editorial|rail|shell|container|layout|wrap|"
+    r"^section|\bmain\b|gutter",
+    re.IGNORECASE,
+)
+_INTERACTIVE_SELECTOR_RE = re.compile(
+    r"\b(?:a|button|input|select|textarea|summary|label)\b|:hover|:focus|"
+    r"btn|chip|tab|ctl|nav|link|toggle|control",
+    re.IGNORECASE,
+)
+_VAR_RE = re.compile(r"var\(\s*(--[a-z0-9_-]+)\s*(?:,([^()]*))?\)", re.IGNORECASE)
+_TOKEN_MARKUP_RE = re.compile(r"<(?:code|kbd|samp)\b", re.IGNORECASE)
+_TOKEN_SELECTOR_RE = re.compile(r"\b(?:code|kbd|samp)\b|\.token", re.IGNORECASE)
+# A token color that merely restates the body ink is not a distinguishing step.
+_BODY_INK_RE = re.compile(r"--ink\)|--text\)|--fg\)|\bcurrentcolor\b", re.IGNORECASE)
+_FG_NAME_RE = re.compile(r"ink|text|fg|accent|foreground", re.IGNORECASE)
+_BG_NAME_RE = re.compile(r"base|^bg|background|surface|paper|canvas", re.IGNORECASE)
+_NON_TEXT_NAME_RE = re.compile(
+    r"rule|border|line|shadow|divider|outline|ring", re.IGNORECASE
+)
+_STATUS_NAME_RE = re.compile(
+    r"\b(?:ok|warn|stop|err|error|success|info|danger|caution)\b", re.IGNORECASE
+)
+
 _COMMENT_RE = re.compile(r"<!--.*?-->", re.DOTALL)
 _PAGE_MAX_RE = re.compile(r"--page-max:\s*([^;]+);")
 _GUTTER_RE = re.compile(r"--gutter:\s*([^;]+);")
@@ -61,26 +105,71 @@ _FETCH_RE = [
 
 
 def _len_px(token: str, viewport: int, root_font: int = 16) -> float:
-    """Resolve a simple CSS length (px / rem / vw / %) or a clamp() to pixels."""
+    """Resolve a simple CSS length (px / rem / em / vw / vh / %), an additive sum
+    (`0.94rem + 0.3vw`, as used inside a clamp preferred term), or a clamp() to
+    pixels. `em` is resolved against `root_font` (callers that care about the true
+    inherited size must reject `em` before calling)."""
     token = token.strip()
     if token.startswith("clamp(") and token.endswith(")"):
         low, pref, high = (
             _len_px(part, viewport, root_font)
-            for part in token[len("clamp(") : -1].split(",")
+            for part in _split_top_level(token[len("clamp(") : -1], ",")
         )
         return max(low, min(pref, high))
-    if token.endswith("px"):
-        return float(token[:-2])
-    if token.endswith("rem"):
-        return float(token[:-3]) * root_font
-    if token.endswith("vw"):
-        return float(token[:-2]) / 100.0 * viewport
-    if token.endswith("%"):
-        return float(token[:-1]) / 100.0 * viewport
+    # An additive preferred term such as `0.94rem + 0.3vw`; CSS allows the bare
+    # sum inside clamp()/min()/max() without a calc() wrapper.
+    parts = _split_top_level(token, "+")
+    if len(parts) > 1:
+        return sum(_len_px(part, viewport, root_font) for part in parts)
+    for suffix, factor in (
+        ("px", 1.0),
+        ("rem", float(root_font)),
+        ("em", float(root_font)),
+        ("vw", viewport / 100.0),
+        ("vh", viewport / 100.0),
+        ("%", viewport / 100.0),
+    ):
+        if token.endswith(suffix):
+            try:
+                return float(token[: -len(suffix)]) * factor
+            except ValueError:
+                return 0.0
     try:
         return float(token)
     except ValueError:
         return 0.0
+
+
+def _split_top_level(text: str, sep: str) -> list[str]:
+    """Split on `sep` at paren depth 0, so nested clamp()/min()/var() survive."""
+    parts: list[str] = []
+    depth = 0
+    current = ""
+    for char in text:
+        if char == "(":
+            depth += 1
+        elif char == ")":
+            depth -= 1
+        if char == sep and depth == 0:
+            parts.append(current)
+            current = ""
+        else:
+            current += char
+    parts.append(current)
+    return [part.strip() for part in parts if part.strip()]
+
+
+def _clamp_min_px(token: str, root_font: int = 16) -> float:
+    """The LOWER bound of a clamp(), or the plain resolved length. On a common
+    laptop width the clamp is usually still pinned at its minimum, so the minimum
+    is the size most readers actually get - which is why the font floors are
+    checked here as well as at 1920px."""
+    token = token.strip()
+    if token.startswith("clamp(") and token.endswith(")"):
+        parts = _split_top_level(token[len("clamp(") : -1], ",")
+        if parts:
+            return _len_px(parts[0], 1920, root_font)
+    return _len_px(token, 1920, root_font)
 
 
 def band_fraction(html: str, viewport: int = 1920) -> float | None:
@@ -117,6 +206,303 @@ def _finding(
     if severity:
         entry["severity"] = severity
     return entry
+
+
+def css_rules(html: str) -> list[tuple[str, dict[str, str]]]:
+    """Extract `(selector, {property: value})` for every LEAF CSS rule in the
+    document's `<style>` blocks.
+
+    The regex matches only declaration blocks that contain no nested brace, so an
+    at-rule prelude (`@media (...)`) is skipped while the rules inside it are
+    still returned. Consequence, and a deliberate limitation: a media-scoped rule
+    is graded as if unconditional. That errs toward reporting - a small font
+    declared only under a narrow breakpoint is still a small font - and is noted
+    rather than corrected, because resolving cascade + breakpoints statically is
+    the job of the real render (Step 9), not of this heuristic.
+    """
+    rules: list[tuple[str, dict[str, str]]] = []
+    for style in _STYLE_RE.findall(html):
+        css = _CSS_COMMENT_RE.sub("", style)
+        for selector, body in _RULE_RE.findall(css):
+            selector = " ".join(selector.split())
+            if not selector or selector.startswith("@"):
+                continue
+            decls: dict[str, str] = {}
+            for decl in body.split(";"):
+                if ":" not in decl:
+                    continue
+                prop, _, value = decl.partition(":")
+                decls[prop.strip().lower()] = value.strip()
+            if decls:
+                rules.append((selector, decls))
+    return rules
+
+
+def _hex_to_rgb(value: str) -> tuple[int, int, int] | None:
+    digits = value.lstrip("#")
+    if len(digits) == 3:
+        digits = "".join(char * 2 for char in digits)
+    if len(digits) == 8:  # #rrggbbaa - alpha ignored (the pair is graded opaque)
+        digits = digits[:6]
+    if len(digits) != 6:
+        return None
+    try:
+        return tuple(int(digits[i : i + 2], 16) for i in (0, 2, 4))  # type: ignore[return-value]
+    except ValueError:
+        return None
+
+
+def _relative_luminance(rgb: tuple[int, int, int]) -> float:
+    """WCAG 2.x relative luminance."""
+    channels = []
+    for raw in rgb:
+        srgb = raw / 255.0
+        channels.append(
+            srgb / 12.92 if srgb <= 0.04045 else ((srgb + 0.055) / 1.055) ** 2.4
+        )
+    return 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2]
+
+
+def contrast_ratio(fg: str, bg: str) -> float | None:
+    """WCAG contrast ratio between two hex colors, or None if either is unparsable."""
+    fg_rgb, bg_rgb = _hex_to_rgb(fg), _hex_to_rgb(bg)
+    if fg_rgb is None or bg_rgb is None:
+        return None
+    lighter, darker = sorted(
+        (_relative_luminance(fg_rgb), _relative_luminance(bg_rgb)), reverse=True
+    )
+    return (lighter + 0.05) / (darker + 0.05)
+
+
+def check_fluid_spacing(rules: list[tuple[str, dict[str, str]]]) -> dict[str, Any]:
+    """Rule 1: macro spacing on a band / grid container must be viewport-fluid."""
+    offenders: list[str] = []
+    for selector, decls in rules:
+        if not _BAND_SELECTOR_RE.search(selector):
+            continue
+        for prop, value in decls.items():
+            if prop not in _MACRO_SPACING_PROPS:
+                continue
+            if _FLUID_RE.search(value):
+                continue
+            sizes = [_len_px(token, 1920) for token in value.split()]
+            if sizes and max(sizes) >= MACRO_SPACING_PX:
+                offenders.append(f"{selector} {{{prop}: {value}}}")
+    if not offenders:
+        return _finding(
+            "fluid-spacing", "pass", "structural",
+            "no fixed macro spacing on a band / grid container",
+        )
+    severity = "high" if len(offenders) > 2 else "medium"
+    return _finding(
+        "fluid-spacing", "fail", "structural",
+        f"{len(offenders)} fixed macro spacing declaration(s) "
+        f"(>= {MACRO_SPACING_PX:.0f}px, no clamp/vw/vh): " + "; ".join(offenders[:5]),
+        severity,
+    )
+
+
+def custom_properties(rules: list[tuple[str, dict[str, str]]]) -> dict[str, str]:
+    """Every declared `--name: value` custom property, first declaration winning."""
+    props: dict[str, str] = {}
+    for _selector, decls in rules:
+        for prop, value in decls.items():
+            if prop.startswith("--"):
+                props.setdefault(prop, value)
+    return props
+
+
+def resolve_var(value: str, props: dict[str, str], depth: int = 4) -> str:
+    """Substitute `var(--name[, fallback])` from the declared custom properties.
+
+    Without this, a page that correctly moves its type onto a tokenized scale
+    would be checked LESS than one hardcoding sizes, because every `var(...)`
+    would read as opaque - so a malformed `--step--2: 0.6rem` would pass silently.
+    """
+    for _ in range(depth):
+        match = _VAR_RE.search(value)
+        if match is None:
+            return value
+        name = match.group(1).strip()
+        fallback = (match.group(2) or "").strip()
+        replacement = props.get(name, fallback)
+        if not replacement:
+            return value  # undeclared and no fallback: leave it unresolvable
+        value = value[: match.start()] + replacement + value[match.end() :]
+    return value
+
+
+def _font_role(selector: str) -> str:
+    """Classify a font-size rule's text role: body prose, interactive, or secondary."""
+    parts = [part.strip().lower() for part in selector.split(",")]
+    if any(part in ("body", "html", "p") for part in parts):
+        return "body"
+    if any(_INTERACTIVE_SELECTOR_RE.search(part) for part in parts):
+        return "interactive"
+    return "secondary"
+
+
+def check_font_floor(
+    rules: list[tuple[str, dict[str, str]]], viewport: int = 1920
+) -> dict[str, Any]:
+    """Rule 4: every font-size clears its role floor at BOTH the clamp minimum and
+    the resolved value at `viewport`."""
+    props = custom_properties(rules)
+    offenders: list[str] = []
+    checked = 0
+    for selector, decls in rules:
+        declared = decls.get("font-size")
+        if declared is None:
+            continue
+        value = resolve_var(declared, props)
+        if _VAR_RE.search(value) or "%" in value:
+            continue  # still unresolvable, or a percentage of the inherited size
+        # SVG text inside a scaled viewBox declares its size in USER UNITS, so a
+        # px floor is meaningless. Such rules paint with `fill`, HTML text with
+        # `color` - that is the discriminator, and it needs no naming convention.
+        if "fill" in decls:
+            continue
+        # `em` is relative to the inherited size, which is not resolvable here.
+        if re.search(r"[\d.]em\b", value):
+            continue
+        role = _font_role(selector)
+        floor = _FONT_FLOORS[role]
+        checked += 1
+        at_min = _clamp_min_px(value)
+        at_viewport = _len_px(value, viewport)
+        worst = min(at_min, at_viewport)
+        if worst + 0.01 < floor:
+            offenders.append(
+                f"{selector} {{font-size: {declared}}} -> {worst:.1f}px "
+                f"({role} floor {floor:.0f}px)"
+            )
+    if not checked:
+        return _finding(
+            "font-floor", "n/a", "structural", "no resolvable font-size declarations"
+        )
+    if offenders:
+        return _finding(
+            "font-floor", "fail", "structural",
+            f"{len(offenders)}/{checked} font-size(s) below the rendered floor: "
+            + "; ".join(offenders[:6]),
+            "high",
+        )
+    return _finding(
+        "font-floor", "pass", "structural",
+        f"{checked} font-size(s) clear the 16 / 13 / 12px floors at the clamp "
+        f"minimum and at {viewport}px",
+    )
+
+
+def check_emphasis_token(
+    html: str, rules: list[tuple[str, dict[str, str]]]
+) -> dict[str, Any]:
+    """Rule 5: inline meaning-carrying tokens differ from prose on BOTH a color
+    axis and a family / weight axis."""
+    if not _TOKEN_MARKUP_RE.search(html):
+        return _finding(
+            "emphasis-token", "n/a", "structural", "no inline token markup on the page"
+        )
+    # Grade the UNQUALIFIED base rule (`code`, `kbd`, `samp`) when one exists,
+    # falling back to the aggregate of scoped rules otherwise. A scoped rule such
+    # as `footer code` styles tokens in ONE region, so accepting it as proof would
+    # pass a page whose page-wide tokens are still invisible - which is precisely
+    # how a command name shipped indistinguishable inside a margin note.
+    base: list[dict[str, str]] = []
+    scoped: list[dict[str, str]] = []
+    for selector, decls in rules:
+        if not _TOKEN_SELECTOR_RE.search(selector):
+            continue
+        parts = [part.strip().lower() for part in selector.split(",")]
+        if parts and all(part in ("code", "kbd", "samp") for part in parts):
+            base.append(decls)
+        else:
+            scoped.append(decls)
+    graded = base or scoped
+    scope = "base" if base else "scoped-only"
+    has_color = any(
+        "color" in decls and not _BODY_INK_RE.search(decls["color"]) for decls in graded
+    )
+    has_face = any(
+        "font-family" in decls or "font-weight" in decls for decls in graded
+    )
+    if has_color and has_face:
+        return _finding(
+            "emphasis-token", "pass", "structural",
+            f"inline tokens ({scope} rule) declare both a distinct color and a "
+            "family / weight change",
+        )
+    missing = []
+    if not has_color:
+        missing.append("no color distinct from the body ink")
+    if not has_face:
+        missing.append("no font-family / font-weight change")
+    return _finding(
+        "emphasis-token", "fail", "structural",
+        f"inline tokens ({scope} rule) are not distinct on both axes: "
+        + "; ".join(missing),
+        "high",
+    )
+
+
+def check_contrast(rules: list[tuple[str, dict[str, str]]]) -> dict[str, Any]:
+    """Rule 6: declared foreground / background custom-property pairs clear AA.
+
+    Severity is graded by how badly a color fails, so the HIGH bar stays
+    meaningful: the primary body pair, or a foreground unusable on ANY declared
+    background, is HIGH; a single failing combination while others pass is MEDIUM.
+    Semantic status colors are excluded - they render as large or bordered badge
+    text whose applicable floor is 3:1 and whose size is not knowable here.
+    """
+    declared = custom_properties(rules)
+    props = {
+        name[2:]: resolved
+        for name, value in declared.items()
+        if (resolved := resolve_var(value, declared)).startswith("#")
+    }
+    foregrounds = [
+        name for name in props
+        if _FG_NAME_RE.search(name)
+        and not _NON_TEXT_NAME_RE.search(name)
+        and not _STATUS_NAME_RE.search(name)
+    ]
+    backgrounds = [name for name in props if _BG_NAME_RE.search(name)]
+    if not foregrounds or not backgrounds:
+        return _finding(
+            "contrast", "n/a", "structural",
+            "no declared ink / background custom-property pair to grade",
+        )
+    primary_fg = next(
+        (name for name in foregrounds if re.search(r"ink|text|fg", name)), None
+    )
+    primary_bg = next(
+        (name for name in backgrounds if re.search(r"base|canvas|paper|^bg", name)),
+        backgrounds[0],
+    )
+    failures: list[str] = []
+    severity = None
+    for fg in foregrounds:
+        ratios = {bg: contrast_ratio(props[fg], props[bg]) for bg in backgrounds}
+        usable = [bg for bg, ratio in ratios.items() if ratio and ratio >= AA_RATIO]
+        for bg, ratio in ratios.items():
+            if ratio is None or ratio >= AA_RATIO:
+                continue
+            failures.append(f"--{fg} on --{bg} = {ratio:.2f}:1")
+            if not usable or (fg == primary_fg and bg == primary_bg):
+                severity = "high"
+            elif severity is None:
+                severity = "medium"
+    if not failures:
+        return _finding(
+            "contrast", "pass", "structural",
+            f"{len(foregrounds)} foreground(s) clear AA {AA_RATIO}:1 on "
+            f"{len(backgrounds)} background(s)",
+        )
+    return _finding(
+        "contrast", "fail", "structural",
+        f"{len(failures)} pair(s) below AA {AA_RATIO}:1: " + "; ".join(failures[:6]),
+        severity or "medium",
+    )
 
 
 def score_html(
@@ -248,6 +634,13 @@ def score_html(
             _finding("readability-layout", "pass", "structural",
                      "offline and well-formed")
         )
+
+    # 6-9. Fluid layout and readability (references/responsive-typography.md).
+    rules = css_rules(html)
+    findings.append(check_fluid_spacing(rules))
+    findings.append(check_font_floor(rules, viewport))
+    findings.append(check_emphasis_token(stripped, rules))
+    findings.append(check_contrast(rules))
 
     high = sum(1 for finding in findings if finding.get("severity") == "high")
     return {

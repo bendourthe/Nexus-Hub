@@ -1,0 +1,1588 @@
+<!--
+  DESIGN RECORD
+  ----------------------------------------------------------------------------
+  Four design choices (resolved up front, batched, before extraction):
+    1. Style / direction .... Technical & Precise            (user-chosen)
+    2. Output aspect ........ Full-width                     (user-chosen)
+    3. Interactivity level .. Rich (scrollytelling)          (user-chosen)
+    4. Imagery tier ......... Procedural / Tier 1, offline   (user-chosen)
+
+  Entropy roll: scripts/design_seed.py --preset technical
+    seed ............. 6475785005261695188
+    brief ............ dark rose-blush / muted-earthy / mono-technical /
+                       editorial-grid-pull-elements / springy /
+                       move: section-color-morph
+
+  Committed tokens
+    base ............. #2a1616      surface .......... #3a1f1f
+    ink .............. #f6e9e8      accent ........... #c26565
+    accent-2 ......... #4f6d8a      (accent morphs per section: rose -> clay
+                                     -> ochre -> sage -> slate)
+    heading .......... Consolas / Cascadia Code / SF Mono / Menlo, monospace
+    body ............. Segoe UI / -apple-system / Arial, sans-serif
+    rhythm ........... rhythmic-alternating band padding (7rem / 4.5rem)
+    layout move ...... editorial column grid, figures and pull-notes breaking
+                       the prose measure into the margin
+    motion ........... springy cubic-bezier(.34,1.56,.64,1), reduced-motion
+                       guarded throughout
+
+  Divergence from the default attractor: no amber/orange accent, no
+  "01 / FOUNDATIONS" mono eyebrow labels, no evenly-spaced rows of identical
+  cards, no centered narrow hero. Rose-blush hue family, asymmetric editorial
+  grid, margin notes, and a pinned scrollytelling stage rail instead.
+
+  Source: Nexus-Hub catalog command definitions, read directly from the repo
+    catalog/commands/review.md      catalog/commands/plan.md
+    catalog/commands/implement.md   catalog/commands/test.md
+    catalog/skills/workflow/known-gaps-tracker/SKILL.md
+  Mode: compile (multiple local sources, each attributed inline).
+
+  Visual provenance: ALL visuals are Tier 1 procedural, original (generated)
+  inline SVG and CSS. No stock asset, no AI-generated asset, no raster image,
+  no external request. Nothing was fetched at build time.
+-->
+<!doctype html>
+<html lang="en" data-aspect="full">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Building Unit Tests on a New Codebase with Nexus-Hub</title>
+<style>
+/* ===========================================================================
+   TOKENS
+   ======================================================================== */
+:root{
+  --base:#2a1616;
+  --surface:#3a1f1f;
+  --surface-2:#472727;
+  --ink:#f6e9e8;
+  --ink-dim:#cbb0ae;
+  /* Inks and accents are AA-validated (>= 4.5:1) against ALL THREE surfaces
+     below, not eyeballed. The pre-v3.16.5 values (--ink-faint #9c7f7d,
+     --accent #c26565, --accent-2 #4f6d8a) failed AA on the lighter surfaces and
+     the accents failed on every surface, so no token colored with them could be
+     read at a glance. See references/responsive-typography.md rule 6. */
+  --ink-faint:#b59a97;
+  --accent:#dc8383;
+  --accent-2:#7aa0c4;
+  --rule:#5a3434;
+  --ok:#7fa06a;
+  --warn:#c9a227;
+  --stop:#c25050;
+
+  /* full-width canvas: gutters, NOT a centred max-width column.
+     Capped at 2.75rem so the widest top-level band reaches ~95.4% of a
+     1920px viewport (1920 - 2*44 = 1832). */
+  --page-max:100%;
+  --gutter:clamp(1.25rem, 4vw, 2.75rem);
+  --band-y:clamp(3.5rem, 7vh, 7rem);
+  --band-y-tight:clamp(2.5rem, 4.5vh, 4.5rem);
+  /* min(), so prose widens toward its 85ch maximum when the band has free width
+     instead of stranding a dead corridor beside every line. */
+  --measure:min(85ch, 100%);
+
+  /* FLUID TYPE SCALE - declared ONCE, referenced by step token everywhere.
+     Every clamp MINIMUM sits at or above its role floor (body 16px, secondary
+     13px, interactive 12px), because on a 1366px laptop the clamp is still
+     pinned at its minimum, so the minimum is the size most readers get.
+     Do NOT size text in bare rem: rem resolves against the ROOT element, so a
+     fluid clamp on `body` never reaches a rem-sized child - which is exactly how
+     this page shipped an 11.2px footer heading under a correct-looking body
+     rule. See references/responsive-typography.md rules 3 and 4. */
+  --step--3:clamp(0.75rem, 0.72rem + 0.14vw, 0.875rem);    /* 12 -> 14px  interactive */
+  --step--2:clamp(0.8125rem, 0.78rem + 0.16vw, 0.9375rem); /* 13 -> 15px  secondary */
+  --step--1:clamp(0.875rem, 0.83rem + 0.22vw, 1rem);       /* 14 -> 16px  */
+  --step-0:clamp(1rem, 0.94rem + 0.30vw, 1.1875rem);       /* 16 -> 19px  body */
+  --step-1:clamp(1.125rem, 1.02rem + 0.50vw, 1.4375rem);   /* 18 -> 23px  */
+  --step-2:clamp(1.3125rem, 1.10rem + 1.00vw, 1.9375rem);  /* 21 -> 31px  */
+  --step-3:clamp(1.5rem, 1.15rem + 1.60vw, 2.5rem);        /* 24 -> 40px  */
+  --step-4:clamp(1.75rem, 1.15rem + 2.60vw, 3rem);         /* 28 -> 48px  */
+  --step-5:clamp(2.25rem, 1.20rem + 4.20vw, 4.6rem);       /* 36 -> 74px  */
+
+  --f-head:Consolas,'Cascadia Code','SF Mono',Menlo,monospace;
+  --f-body:'Segoe UI',-apple-system,BlinkMacSystemFont,Arial,sans-serif;
+  --f-mono:Consolas,'Cascadia Code',Menlo,monospace;
+
+  --spring:cubic-bezier(.34,1.56,.64,1);
+  --ease:cubic-bezier(.2,.6,.2,1);
+}
+
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  background:var(--base);
+  color:var(--ink);
+  font-family:var(--f-body);
+  font-size:var(--step-0);
+  line-height:1.65;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+@media (prefers-reduced-motion: reduce){
+  html{scroll-behavior:auto}
+  *,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important}
+}
+
+/* FULL-WIDTH CANVAS CONTRACT ------------------------------------------------
+   The shell spans the viewport via side gutters. There is deliberately NO
+   global centred max-width column. The reading measure is applied per prose
+   element only, never to the page.                                        */
+.band{padding-inline:var(--gutter);width:100%}
+.band-y{padding-block:var(--band-y)}
+.band-y-tight{padding-block:var(--band-y-tight)}
+.bleed{width:100%;padding-inline:var(--gutter)}
+p.measure,ul.measure,ol.measure{max-width:var(--measure)}
+
+h1,h2,h3,h4{font-family:var(--f-head);font-weight:600;letter-spacing:-.02em;margin:0;text-wrap:balance}
+h2{font-size:var(--step-4);line-height:1.08}
+h3{font-size:var(--step-2);line-height:1.2}
+h4{font-size:var(--step-0);letter-spacing:.02em}
+p{text-wrap:pretty}
+a{color:var(--accent);text-decoration-thickness:1px;text-underline-offset:3px}
+a:hover{color:var(--ink)}
+/* Emphasis tokens are distinct on BOTH axes - mono family AND an AA-checked
+   accent color. Family alone left `/review` reading as plain prose inside a
+   margin note (references/responsive-typography.md rule 5). */
+code{font-family:var(--f-mono);font-size:.92em;color:var(--accent)}
+
+/* ===========================================================================
+   PROGRESS + NAV
+   ======================================================================== */
+#progress{
+  position:fixed;top:0;left:0;height:2px;width:100%;z-index:60;
+  background:transparent;
+}
+#progress span{
+  display:block;height:100%;width:0%;
+  background:linear-gradient(90deg,var(--accent),var(--accent-2));
+  transition:width .1s linear;
+}
+nav#toc{
+  position:sticky;top:0;z-index:50;
+  background:#2a1616;
+  background:color-mix(in srgb, var(--base) 88%, transparent);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--rule);
+}
+nav#toc .row{
+  display:flex;align-items:center;gap:clamp(.5rem,1.5vw,2rem);
+  padding:.7rem var(--gutter);
+  width:100%;
+}
+nav#toc .brand{
+  font-family:var(--f-head);font-size:.78rem;letter-spacing:.06em;
+  color:var(--ink-faint);white-space:nowrap;
+}
+nav#toc .brand b{color:var(--accent);font-weight:600}
+nav#toc ul{
+  display:flex;gap:.15rem;list-style:none;margin:0;padding:0;
+  margin-left:auto;overflow-x:auto;scrollbar-width:none;
+}
+nav#toc ul::-webkit-scrollbar{display:none}
+nav#toc a{
+  display:block;padding:.35rem .6rem;border-radius:3px;
+  font-family:var(--f-head);font-size:.76rem;letter-spacing:.02em;
+  color:var(--ink-dim);text-decoration:none;white-space:nowrap;
+  border:1px solid transparent;transition:color .2s,border-color .2s,background .2s;
+}
+nav#toc a:hover,nav#toc a:focus-visible{color:var(--ink);background:var(--surface)}
+nav#toc a[aria-current="true"]{
+  color:var(--accent);border-color:var(--rule);background:var(--surface);
+}
+
+/* ===========================================================================
+   HERO
+   ======================================================================== */
+#hero{
+  position:relative;overflow:hidden;
+  padding-block:clamp(4rem,10vh,8rem) clamp(3rem,7vh,6rem);
+  border-bottom:1px solid var(--rule);
+}
+#hero .grid{
+  display:grid;gap:clamp(2rem,4vw,4rem);
+  grid-template-columns:minmax(0,1.05fr) minmax(0,.95fr);
+  align-items:center;width:100%;
+}
+@media (max-width:1000px){#hero .grid{grid-template-columns:1fr}}
+#hero h1{
+  font-size:clamp(2rem,1rem + 3.6vw,4.6rem);
+  line-height:1.02;letter-spacing:-.035em;margin-bottom:1.1rem;
+}
+#hero h1 em{font-style:normal;color:var(--accent);}
+#hero .lede{font-size:clamp(1.05rem,.8rem + .6vw,1.35rem);color:var(--ink-dim);max-width:56ch}
+#hero .kicker{
+  font-family:var(--f-head);font-size:var(--step--2);letter-spacing:.14em;
+  color:var(--accent-2);text-transform:uppercase;margin-bottom:1.4rem;
+  display:flex;align-items:center;gap:.6rem;
+}
+#hero .kicker::after{content:"";flex:1;height:1px;background:var(--rule);max-width:9rem}
+.hero-figure{position:relative}
+.hero-figure svg{width:100%;height:auto;display:block}
+
+/* procedural texture, Tier 1, pure CSS */
+#hero::before{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;
+  background:
+    radial-gradient(900px 420px at 12% -10%, rgba(194,101,101,.20), transparent 65%),
+    radial-gradient(700px 380px at 92% 8%, rgba(79,109,138,.17), transparent 65%);
+}
+#hero::after{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:.35;
+  background-image:linear-gradient(var(--rule) 1px, transparent 1px);
+  background-size:100% 3.25rem;
+  mask-image:linear-gradient(to bottom, transparent, #000 40%, transparent);
+}
+#hero .grid,#hero .stats{position:relative;z-index:1}
+
+.stats{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:1px;background:var(--rule);border:1px solid var(--rule);
+  margin-top:clamp(2.5rem,5vh,4rem);
+}
+.stat{background:var(--base);padding:1.1rem 1.2rem}
+.stat b{
+  display:block;font-family:var(--f-head);font-size:clamp(1.5rem,1rem + 1.4vw,2.4rem);
+  color:var(--accent);line-height:1;letter-spacing:-.03em;
+}
+.stat span{display:block;font-size:var(--step--2);color:var(--ink-faint);margin-top:.45rem;letter-spacing:.03em}
+
+/* ===========================================================================
+   SECTION SHELL + accent morph target
+   ======================================================================== */
+section[data-accent]{transition:none}
+.sec-head{
+  display:grid;gap:clamp(1rem,2.5vw,3rem);
+  grid-template-columns:minmax(0,7.5rem) minmax(0,1fr);
+  align-items:start;margin-bottom:clamp(2rem,4vh,3.5rem);
+}
+@media (max-width:760px){.sec-head{grid-template-columns:1fr}}
+.sec-num{
+  font-family:var(--f-head);font-size:var(--step--2);letter-spacing:.1em;
+  color:var(--accent);padding-top:.6rem;border-top:2px solid var(--accent);
+}
+.sec-head p{color:var(--ink-dim);max-width:var(--measure);margin:.9rem 0 0}
+
+/* editorial grid: prose + margin notes breaking the measure */
+/* The note rail GROWS with the viewport so the prose track never opens a dead
+   corridor. With a fixed 19rem rail, a 68ch paragraph sat in a 1277px track at
+   1920px, stranding ~690px of empty space down one side of every line - the
+   paragraph obeyed its measure and the band still read as broken.
+   See references/responsive-typography.md rule 2. */
+.editorial{
+  display:grid;gap:clamp(1.25rem,3vw,3.5rem);
+  grid-template-columns:minmax(0,1fr) minmax(0,clamp(17rem,26vw,32rem));
+  align-items:start;
+}
+@media (max-width:960px){.editorial{grid-template-columns:1fr}}
+.note{
+  border-left:2px solid var(--accent-2);padding:.15rem 0 .15rem 1rem;
+  font-size:var(--step--1);color:var(--ink-dim);
+}
+.note b{display:block;font-family:var(--f-head);font-size:var(--step--2);letter-spacing:.09em;
+  text-transform:uppercase;color:var(--accent-2);margin-bottom:.35rem}
+.note + .note{margin-top:1.5rem}
+
+.pull{
+  font-family:var(--f-head);font-size:clamp(1.05rem,.85rem + .7vw,1.5rem);
+  line-height:1.35;color:var(--ink);
+  border-top:1px solid var(--rule);border-bottom:1px solid var(--rule);
+  padding:1.4rem 0;margin:2.5rem 0;max-width:44ch;
+}
+.pull span{color:var(--accent)}
+
+/* ===========================================================================
+   COMMAND BLOCK
+   ======================================================================== */
+.cmd{
+  border:1px solid var(--rule);background:var(--surface);
+  margin:1.5rem 0;position:relative;
+}
+.cmd-bar{
+  display:flex;align-items:center;gap:.6rem;
+  padding:.5rem .75rem;border-bottom:1px solid var(--rule);
+  background:var(--surface-2);
+}
+.cmd-bar .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);flex:none}
+.cmd-bar .label{
+  font-family:var(--f-head);font-size:var(--step--3);letter-spacing:.09em;
+  text-transform:uppercase;color:var(--ink-faint);
+}
+.cmd-bar button{
+  margin-left:auto;background:transparent;border:1px solid var(--rule);
+  color:var(--ink-dim);font-family:var(--f-head);font-size:var(--step--3);
+  letter-spacing:.06em;padding:.22rem .5rem;border-radius:3px;cursor:pointer;
+  transition:color .2s,border-color .2s,transform .2s var(--spring);
+}
+.cmd-bar button:hover,.cmd-bar button:focus-visible{color:var(--ink);border-color:var(--accent);transform:translateY(-1px)}
+.cmd pre{
+  margin:0;padding:1rem .95rem;overflow-x:auto;
+  font-family:var(--f-mono);font-size:.87rem;line-height:1.75;color:var(--ink);
+}
+.cmd pre .c{color:var(--ink-faint)}
+.cmd pre .s{color:var(--accent)}
+.cmd pre .f{color:var(--accent-2)}
+
+/* ===========================================================================
+   STAGE RAIL (scrollytelling, pinned graphic)
+   ======================================================================== */
+#stages{border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.rail{
+  display:grid;gap:clamp(1.5rem,4vw,4.5rem);
+  grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);
+  align-items:start;width:100%;
+}
+.rail-sticky{
+  position:sticky;top:5.5rem;align-self:start;
+  padding:1rem 0;
+}
+.rail-sticky svg{width:100%;height:auto;display:block}
+.rail-steps>article{
+  padding-block:clamp(3rem,14vh,9rem);
+  border-bottom:1px solid var(--rule);
+}
+.rail-steps>article:last-child{border-bottom:none}
+.rail-steps h3{margin-bottom:.5rem}
+.rail-steps .tag{
+  font-family:var(--f-head);font-size:var(--step--2);letter-spacing:.11em;
+  text-transform:uppercase;color:var(--accent);display:block;margin-bottom:.7rem;
+}
+.rail-steps p{color:var(--ink-dim);max-width:56ch}
+.io{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  gap:1px;background:var(--rule);border:1px solid var(--rule);margin-top:1.4rem;
+}
+.io div{background:var(--base);padding:.7rem .8rem}
+.io b{
+  display:block;font-family:var(--f-head);font-size:var(--step--2);letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-faint);margin-bottom:.3rem;
+}
+.io span{font-size:.83rem;color:var(--ink)}
+
+/* pinned node states */
+.node{cursor:pointer}
+.node .nbox{fill:var(--surface);stroke:var(--rule);stroke-width:1.5;transition:fill .45s var(--ease),stroke .45s var(--ease)}
+.node .ntext{fill:var(--ink-faint);font-family:Consolas,monospace;font-size:11px;letter-spacing:.06em;transition:fill .45s var(--ease)}
+.node .nsub{fill:var(--ink-faint);opacity:.6;font-family:Consolas,monospace;font-size:8.5px}
+.node.on .nbox{fill:var(--accent);stroke:var(--accent)}
+.node.on .ntext{fill:#2a1616}
+.node.on .nsub{fill:#2a1616;opacity:.75}
+.node:hover .nbox{stroke:var(--accent)}
+.flow{stroke:var(--rule);stroke-width:1.5;fill:none;transition:stroke .45s var(--ease)}
+.flow.on{stroke:var(--accent)}
+.loopback{stroke:var(--accent-2);stroke-width:1.5;fill:none;stroke-dasharray:4 4}
+.looplabel{fill:var(--accent-2);font-family:Consolas,monospace;font-size:9px;letter-spacing:.05em}
+
+@media (max-width:960px){
+  .rail{grid-template-columns:1fr}
+  .rail-sticky{position:static;order:-1}
+  .rail-steps>article{padding-block:clamp(1.75rem,4vh,2.5rem)}
+}
+@media (prefers-reduced-motion: reduce){
+  .rail-sticky{position:static}
+}
+
+/* ===========================================================================
+   GATE CARDS (deliberately non-uniform: asymmetric spans)
+   ======================================================================== */
+.gates{display:grid;gap:1px;background:var(--rule);border:1px solid var(--rule);
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
+.gate{background:var(--base);padding:1.3rem 1.25rem;transition:background .3s}
+.gate:hover{background:var(--surface)}
+.gate .g{
+  font-family:var(--f-head);font-size:var(--step--2);letter-spacing:.1em;text-transform:uppercase;
+  display:inline-block;padding:.15rem .45rem;border:1px solid currentColor;border-radius:2px;
+  margin-bottom:.7rem;
+}
+.gate.pass .g{color:var(--ok)}
+.gate.cond .g{color:var(--warn)}
+.gate.fail .g{color:var(--stop)}
+.gate h4{margin-bottom:.4rem}
+.gate p{margin:0;font-size:.87rem;color:var(--ink-dim)}
+
+/* ===========================================================================
+   CHART
+   ======================================================================== */
+.chart-wrap{
+  border:1px solid var(--rule);background:var(--surface);
+  display:grid;grid-template-columns:minmax(0,1fr) minmax(0,17rem);
+}
+@media (max-width:900px){.chart-wrap{grid-template-columns:1fr}}
+.chart-main{padding:1rem;min-width:0}
+.chart-main canvas{width:100%;height:auto;display:block;cursor:grab;touch-action:none}
+.chart-main canvas:active{cursor:grabbing}
+.chart-side{border-left:1px solid var(--rule);padding:1rem;background:var(--surface-2)}
+@media (max-width:900px){.chart-side{border-left:none;border-top:1px solid var(--rule)}}
+.ctl{margin-bottom:1.1rem}
+.ctl label{
+  display:flex;justify-content:space-between;align-items:baseline;
+  font-family:var(--f-head);font-size:var(--step--3);letter-spacing:.07em;
+  text-transform:uppercase;color:var(--ink-faint);margin-bottom:.4rem;
+}
+.ctl label b{color:var(--accent);font-size:.9rem}
+.ctl input[type=range]{width:100%;accent-color:var(--accent);background:transparent}
+.legend{list-style:none;margin:0 0 1.1rem;padding:0;display:grid;gap:.3rem}
+.legend button{
+  display:flex;align-items:center;gap:.55rem;width:100%;text-align:left;
+  background:transparent;border:1px solid transparent;color:var(--ink);
+  font-family:var(--f-body);font-size:.82rem;padding:.32rem .4rem;border-radius:3px;
+  cursor:pointer;transition:background .2s,border-color .2s;
+}
+.legend button:hover,.legend button:focus-visible{background:var(--surface);border-color:var(--rule)}
+.legend button[aria-pressed=false]{opacity:.38;text-decoration:line-through}
+.legend i{width:14px;height:3px;flex:none;border-radius:2px}
+.axis-row{display:flex;gap:.5rem;align-items:center;margin-bottom:1rem}
+.axis-row input[type=number]{
+  width:100%;background:var(--base);border:1px solid var(--rule);color:var(--ink);
+  font-family:var(--f-mono);font-size:.8rem;padding:.35rem .45rem;border-radius:3px;
+}
+.axis-row span{font-family:var(--f-head);font-size:var(--step--2);color:var(--ink-faint);letter-spacing:.07em}
+.btn{
+  background:transparent;border:1px solid var(--rule);color:var(--ink-dim);
+  font-family:var(--f-head);font-size:var(--step--3);letter-spacing:.07em;text-transform:uppercase;
+  padding:.4rem .7rem;border-radius:3px;cursor:pointer;
+  transition:color .2s,border-color .2s,transform .2s var(--spring);
+}
+.btn:hover,.btn:focus-visible{color:var(--ink);border-color:var(--accent);transform:translateY(-1px)}
+.readout{
+  font-family:var(--f-mono);font-size:var(--step--2);color:var(--ink-dim);
+  border-top:1px solid var(--rule);padding-top:.75rem;margin-top:.25rem;
+}
+.readout b{color:var(--accent)}
+.honest{
+  font-size:var(--step--2);color:var(--ink-faint);border-left:2px solid var(--warn);
+  padding-left:.8rem;margin-top:1.25rem;max-width:70ch;
+}
+
+/* ===========================================================================
+   TABLE
+   ======================================================================== */
+.tbl-tools{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin-bottom:1rem}
+.tbl-tools input[type=search]{
+  flex:1 1 16rem;background:var(--surface);border:1px solid var(--rule);color:var(--ink);
+  font-family:var(--f-mono);font-size:.85rem;padding:.5rem .7rem;border-radius:3px;
+}
+.tbl-tools input[type=search]:focus-visible{border-color:var(--accent);outline:none}
+.tbl-scroll{overflow-x:auto;border:1px solid var(--rule)}
+table{border-collapse:collapse;width:100%;min-width:60rem;font-size:.87rem}
+thead th{
+  position:sticky;top:0;background:var(--surface-2);text-align:left;
+  font-family:var(--f-head);font-size:var(--step--2);letter-spacing:.09em;text-transform:uppercase;
+  color:var(--ink-dim);padding:.65rem .8rem;border-bottom:1px solid var(--rule);
+  cursor:pointer;user-select:none;white-space:nowrap;
+}
+thead th:hover{color:var(--accent)}
+thead th[aria-sort] .arrow{color:var(--accent)}
+tbody td{padding:.65rem .8rem;border-bottom:1px solid var(--rule);vertical-align:top;color:var(--ink-dim)}
+tbody td:first-child{font-family:var(--f-mono);color:var(--accent);white-space:nowrap}
+tbody tr{transition:background .18s}
+tbody tr:hover{background:var(--surface)}
+tbody tr:focus-within{background:var(--surface)}
+.empty{padding:1.5rem .8rem;color:var(--ink-faint);font-size:.85rem}
+
+/* ===========================================================================
+   PITFALLS (accordion, user-initiated)
+   ======================================================================== */
+.acc{border:1px solid var(--rule);background:var(--surface)}
+.acc details{border-bottom:1px solid var(--rule)}
+.acc details:last-child{border-bottom:none}
+.acc summary{
+  cursor:pointer;padding:.95rem 1rem;list-style:none;
+  display:flex;gap:.8rem;align-items:baseline;
+  font-family:var(--f-head);font-size:.95rem;color:var(--ink);
+  transition:background .2s,color .2s;
+}
+.acc summary::-webkit-details-marker{display:none}
+.acc summary:hover,.acc summary:focus-visible{background:var(--surface-2);color:var(--accent)}
+.acc summary::before{
+  content:"+";font-family:var(--f-mono);color:var(--accent);flex:none;
+  transition:transform .3s var(--spring);display:inline-block;
+}
+.acc details[open] summary::before{transform:rotate(45deg)}
+.acc .body{padding:0 1rem 1.1rem 2.5rem}
+.acc .body p{margin:0;color:var(--ink-dim);font-size:.9rem;max-width:74ch}
+.acc .body p + p{margin-top:.7rem}
+.acc .body em{color:var(--ink);font-style:normal;border-bottom:1px solid var(--accent)}
+
+/* ===========================================================================
+   REVEAL + ZOOM OVERLAY + FOOTER
+   ======================================================================== */
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .7s var(--ease),transform .7s var(--spring)}
+.reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion: reduce){.reveal{opacity:1;transform:none}}
+
+.zoomable{cursor:zoom-in}
+#overlay{
+  position:fixed;inset:0;z-index:100;display:none;
+  background:rgba(20,10,10,.94);padding:clamp(1rem,4vw,3rem);
+}
+#overlay.on{display:grid;grid-template-rows:auto 1fr}
+#overlay .obar{display:flex;gap:.5rem;align-items:center;margin-bottom:.8rem}
+#overlay .obar p{margin:0;font-family:var(--f-head);font-size:var(--step--2);color:var(--ink-dim);letter-spacing:.06em}
+#overlay .ostage{
+  overflow:hidden;border:1px solid var(--rule);background:var(--base);
+  display:grid;place-items:center;cursor:grab;touch-action:none;
+}
+#overlay .ostage:active{cursor:grabbing}
+#overlay .ostage>*{transform-origin:center center}
+
+footer{border-top:1px solid var(--rule);color:var(--ink-faint);font-size:var(--step--1)}
+footer .cols{display:grid;gap:clamp(1.5rem,3vw,2.75rem);grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+footer b{display:block;font-family:var(--f-head);font-size:var(--step--2);letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-dim);margin-bottom:.5rem}
+footer ul{list-style:none;margin:0;padding:0}
+footer li{margin-bottom:.3rem}
+footer code{color:var(--accent)}
+.skip{position:absolute;left:-9999px}
+.skip:focus{left:var(--gutter);top:.5rem;z-index:200;background:var(--accent);color:#2a1616;padding:.5rem .8rem}
+</style>
+</head>
+<body>
+
+<div id="progress"><span></span></div>
+<a class="skip" href="#stages">Skip to the workflow</a>
+
+<nav id="toc" aria-label="Sections">
+  <div class="row">
+    <p class="brand"><b>NEXUS-HUB</b> / unit-test workflow</p>
+    <ul>
+      <li><a href="#why">Shape</a></li>
+      <li><a href="#stages">Five stages</a></li>
+      <li><a href="#loop">The loop</a></li>
+      <li><a href="#model">Trajectory</a></li>
+      <li><a href="#ref">Reference</a></li>
+      <li><a href="#traps">Traps</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ======================================================================
+     HERO
+     =================================================================== -->
+<header id="hero" class="band">
+  <div class="grid">
+    <div>
+      <p class="kicker">Internal walkthrough</p>
+      <h1>Take an untested codebase to a <em>coverage target</em> you can defend.</h1>
+      <p class="lede">Four Nexus-Hub commands, run in a fixed order, with the measurement step deliberately separated from the step that writes the tests. This page shows what each command reads, what it writes, and which gate has to go green before you move on.</p>
+    </div>
+    <div class="hero-figure">
+      <!-- Tier 1 procedural visual: original generated inline SVG.
+           A coverage bar climbing across five phases against a threshold rule. -->
+      <svg viewBox="0 0 520 340" role="img" aria-label="Diagram: coverage climbing across phases toward a threshold line, with a gap remaining that is carried forward.">
+        <defs>
+          <linearGradient id="gcov" x1="0" y1="1" x2="0" y2="0">
+            <stop offset="0" stop-color="#c26565" stop-opacity=".25"/>
+            <stop offset="1" stop-color="#c26565" stop-opacity=".9"/>
+          </linearGradient>
+        </defs>
+        <!-- frame -->
+        <line x1="44" y1="24" x2="44" y2="286" stroke="#5a3434" stroke-width="1"/>
+        <line x1="44" y1="286" x2="500" y2="286" stroke="#5a3434" stroke-width="1"/>
+        <!-- threshold -->
+        <line x1="44" y1="74" x2="500" y2="74" stroke="#4f6d8a" stroke-width="1.5" stroke-dasharray="5 4"/>
+        <text x="500" y="66" text-anchor="end" fill="#4f6d8a" font-family="Consolas,monospace" font-size="10">threshold 80%</text>
+        <!-- bars -->
+        <g>
+          <rect x="70"  y="250" width="52" height="36"  fill="url(#gcov)"/>
+          <rect x="152" y="196" width="52" height="90"  fill="url(#gcov)"/>
+          <rect x="234" y="152" width="52" height="134" fill="url(#gcov)"/>
+          <rect x="316" y="112" width="52" height="174" fill="url(#gcov)"/>
+          <rect x="398" y="86"  width="52" height="200" fill="url(#gcov)"/>
+        </g>
+        <!-- the residual gap: the point of the whole page -->
+        <rect x="398" y="74" width="52" height="12" fill="none" stroke="#c9a227" stroke-width="1.5"/>
+        <text x="424" y="60" text-anchor="middle" fill="#c9a227" font-family="Consolas,monospace" font-size="9">gap</text>
+        <!-- phase labels -->
+        <g fill="#9c7f7d" font-family="Consolas,monospace" font-size="9" text-anchor="middle">
+          <text x="96"  y="302">P1</text>
+          <text x="178" y="302">P2</text>
+          <text x="260" y="302">P3</text>
+          <text x="342" y="302">P4</text>
+          <text x="424" y="302">P5</text>
+        </g>
+        <!-- carry-forward arc -->
+        <path d="M424 46 C 424 18, 120 18, 96 40" fill="none" stroke="#4f6d8a" stroke-width="1.5" stroke-dasharray="4 4"/>
+        <path d="M96 40 l -5 -8 l 10 0 z" fill="#4f6d8a"/>
+        <text x="260" y="14" text-anchor="middle" fill="#4f6d8a" font-family="Consolas,monospace" font-size="9">gap recorded, next plan ingests it</text>
+        <!-- y ticks -->
+        <g fill="#9c7f7d" font-family="Consolas,monospace" font-size="9" text-anchor="end">
+          <text x="38" y="290">0</text>
+          <text x="38" y="78">80</text>
+          <text x="38" y="28">100</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <div class="stats" role="list">
+    <div class="stat" role="listitem"><b data-count="4">0</b><span>commands in the core loop</span></div>
+    <div class="stat" role="listitem"><b data-count="2">0</b><span>gates per tier, not one</span></div>
+    <div class="stat" role="listitem"><b data-count="80" data-suffix="%">0</b><span>default line-coverage threshold</span></div>
+    <div class="stat" role="listitem"><b data-count="100" data-suffix="%">0</b><span>pass-rate required to advance</span></div>
+  </div>
+</header>
+
+<!-- ======================================================================
+     WHY THIS SHAPE
+     =================================================================== -->
+<section id="why" class="band band-y" data-accent="#c26565">
+  <div class="sec-head reveal">
+    <p class="sec-num">SHAPE</p>
+    <div>
+      <h2>Why the order matters more than the commands</h2>
+      <p>Anyone can run a coverage tool. The reason this sequence holds up under review is that the command which <b>measures</b> coverage is contractually forbidden from <b>changing</b> code, so your final number is produced by a different tool than the one that wrote the tests.</p>
+    </div>
+  </div>
+
+  <div class="editorial">
+    <div>
+      <p class="measure reveal"><code>/review</code> is read-only by contract. Its own definition states that every scope "analyzes and reports; remediation goes into a plan, not into the working tree". It cannot quietly add a test to make its own report look better.</p>
+      <p class="measure reveal"><code>/test</code> and <code>/implement</code> are the mutating commands. They generate test files, run suites, fix failures, and commit. They are the only two that touch your working tree in this workflow.</p>
+
+      <blockquote class="pull reveal">Measure with the tool that <span>cannot write</span>. Write with the tool that <span>cannot grade</span>.</blockquote>
+
+      <p class="measure reveal">That separation is what makes step 4 (the iteration) meaningful. When you re-run <code>/review coverage</code> after a phase, you are getting an independent read, not a restatement of what the generator believed it accomplished.</p>
+    </div>
+    <aside>
+      <div class="note reveal">
+        <b>Read-only lenses</b>
+        <code>/review</code> at every scope: structure, quality, coverage, security, pentest, changes, deps, sbom, skill-scan.
+      </div>
+      <div class="note reveal">
+        <b>Mutating commands</b>
+        <code>/test</code> writes and runs tests. <code>/implement</code> writes code, lints, tests, then runs the post-phase docs and commit sequence.
+      </div>
+      <div class="note reveal">
+        <b>Planning only</b>
+        <code>/plan</code> writes a plan document under <code>docs/</code>. It does not touch source.
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- ======================================================================
+     FIVE STAGES (scrollytelling, pinned graphic)
+     =================================================================== -->
+<section id="stages" class="band band-y" data-accent="#c26565">
+  <div class="sec-head reveal">
+    <p class="sec-num">WALKTHROUGH</p>
+    <div>
+      <h2>Five stages, in order</h2>
+      <p>Scroll the right column. The pipeline on the left tracks where you are, and you can click any node to jump to it.</p>
+    </div>
+  </div>
+
+  <div class="rail">
+    <div class="rail-sticky">
+      <!-- Tier 1 procedural visual: original generated inline SVG pipeline. -->
+      <svg id="pipe" viewBox="0 0 300 470" class="zoomable" role="img"
+           aria-label="Pipeline diagram: measure, plan, implement, drive, verify, with a dashed loop back from verify to plan.">
+        <g class="node" data-step="0" tabindex="0" role="button" aria-label="Stage 1, measure">
+          <rect class="nbox" x="30" y="14" width="240" height="52" rx="2"/>
+          <text class="ntext" x="46" y="38">1  MEASURE</text>
+          <text class="nsub"  x="46" y="54">/review coverage</text>
+        </g>
+        <path class="flow" data-flow="0" d="M150 66 L150 96"/>
+        <path class="flow" data-flow="0" d="M150 96 l -4 -8 l 8 0 z" fill="#5a3434" stroke="none"/>
+
+        <g class="node" data-step="1" tabindex="0" role="button" aria-label="Stage 2, plan">
+          <rect class="nbox" x="30" y="96" width="240" height="52" rx="2"/>
+          <text class="ntext" x="46" y="120">2  PLAN</text>
+          <text class="nsub"  x="46" y="136">/plan feature</text>
+        </g>
+        <path class="flow" data-flow="1" d="M150 148 L150 178"/>
+
+        <g class="node" data-step="2" tabindex="0" role="button" aria-label="Stage 3, implement">
+          <rect class="nbox" x="30" y="178" width="240" height="52" rx="2"/>
+          <text class="ntext" x="46" y="202">3  IMPLEMENT</text>
+          <text class="nsub"  x="46" y="218">/implement &lt;slug&gt; next</text>
+        </g>
+        <path class="flow" data-flow="2" d="M150 230 L150 260"/>
+
+        <g class="node" data-step="3" tabindex="0" role="button" aria-label="Stage 4, drive">
+          <rect class="nbox" x="30" y="260" width="240" height="52" rx="2"/>
+          <text class="ntext" x="46" y="284">4  DRIVE</text>
+          <text class="nsub"  x="46" y="300">/test unit --threshold 80</text>
+        </g>
+        <path class="flow" data-flow="3" d="M150 312 L150 342"/>
+
+        <g class="node" data-step="4" tabindex="0" role="button" aria-label="Stage 5, verify">
+          <rect class="nbox" x="30" y="342" width="240" height="52" rx="2"/>
+          <text class="ntext" x="46" y="366">5  VERIFY</text>
+          <text class="nsub"  x="46" y="382">/review coverage (again)</text>
+        </g>
+
+        <!-- loop back to PLAN -->
+        <path class="loopback" d="M270 368 C 292 368, 292 122, 270 122"/>
+        <path d="M270 122 l 8 -4 l 0 8 z" fill="#4f6d8a"/>
+        <text class="looplabel" x="288" y="248" transform="rotate(90 288 248)" text-anchor="middle">target not met? re-plan</text>
+      </svg>
+    </div>
+
+    <div class="rail-steps">
+      <article data-step="0">
+        <span class="tag">Stage 1 / establish the baseline</span>
+        <h3>Find out where you actually are</h3>
+        <p>Before any target is chosen, get an honest read of current coverage, the pass and fail counts, and specifically <b>which paths are uncovered</b>. The <code>coverage</code> scope delegates to the codebase-review lens and does gap identification, not just a percentage.</p>
+        <div class="cmd">
+          <div class="cmd-bar"><i class="dot"></i><span class="label">Stage 1</span><button type="button" data-copy>Copy</button></div>
+<pre><span class="c"># read-only: reports coverage and names the uncovered paths</span>
+<span class="s">/review</span> <span class="f">coverage</span>
+
+<span class="c"># wider read before a big push: adds structure, quality,</span>
+<span class="c"># security, and the pending-diff lens, then one verdict</span>
+<span class="s">/review</span> <span class="f">full</span></pre>
+        </div>
+        <div class="io">
+          <div><b>Reads</b><span>Source tree, existing suite, coverage output</span></div>
+          <div><b>Writes</b><span>Nothing. Read-only by contract.</span></div>
+          <div><b>You get</b><span>Coverage now, pass/fail counts, named gaps</span></div>
+        </div>
+        <p style="margin-top:1.2rem"><small style="color:var(--ink-faint)"><code>/review full</code> also emits a project-health block (git, version, branch model, baseline docs, per-version docs tree). On a codebase nobody has governed yet, expect MISSING rows and a pointer to <code>/setup project</code>.</small></p>
+      </article>
+
+      <article data-step="1">
+        <span class="tag">Stage 2 / commit to a number</span>
+        <h3>Turn the gap into a phased plan</h3>
+        <p>Every planning scope runs a <b>goals-first step</b> before decomposition: fix the target, the persona, and an observable definition of done. This is the step people skip, and skipping it is why "add more tests" campaigns drift. "80% line coverage on the payments module, 100% pass rate, enforced in CI" is a definition of done. "Better coverage" is not.</p>
+        <div class="cmd">
+          <div class="cmd-bar"><i class="dot"></i><span class="label">Stage 2</span><button type="button" data-copy>Copy</button></div>
+<pre><span class="c"># goal + definition-of-done only, no full plan yet</span>
+<span class="s">/plan</span> <span class="f">goals</span> reach 80% line coverage on the payments module
+
+<span class="c"># the phased plan itself</span>
+<span class="s">/plan</span> <span class="f">feature</span>
+
+<span class="c"># optional: living progress tracker, and GitHub issues</span>
+<span class="s">/plan</span> <span class="f">todos</span>
+<span class="s">/plan</span> <span class="f">issues</span></pre>
+        </div>
+        <div class="io">
+          <div><b>Reads</b><span>Codebase, strategy anchor, prior known-gaps</span></div>
+          <div><b>Writes</b><span><code>docs/v&lt;M&gt;/v&lt;M&gt;.&lt;m&gt;/plans/vX.Y.Z-&lt;slug&gt;.md</code></span></div>
+          <div><b>You get</b><span>Phases, per-phase tasks, per-phase model tier</span></div>
+        </div>
+        <p style="margin-top:1.2rem"><small style="color:var(--ink-faint)">Two things the plan contract guarantees. Each phase's testing sub-task also creates or updates CI/CD for that phase's changes, so coverage enforcement lands incrementally rather than as an afterthought. And every plan ends with a mandatory final phase: architecture refactor, known-gaps reconciliation, and CI/CD.</small></p>
+      </article>
+
+      <article data-step="2">
+        <span class="tag">Stage 3 / build one phase at a time</span>
+        <h3>Implement, with the gate at the end</h3>
+        <p>One command per phase. It resolves the plan and phase, reviews the phase against the codebase, works subtask by subtask, lints, runs the suite with coverage, augments missing tests, then enters a troubleshooting loop until a <b>GO / NO-GO gate</b> passes. Only then does it run the post-phase sequence.</p>
+        <div class="cmd">
+          <div class="cmd-bar"><i class="dot"></i><span class="label">Stage 3</span><button type="button" data-copy>Copy</button></div>
+<pre><span class="c"># first incomplete phase of the discovered plan</span>
+<span class="s">/implement</span> <span class="f">next</span>
+
+<span class="c"># or name the plan slug and the phase explicitly</span>
+<span class="s">/implement</span> payments-coverage <span class="f">phase-2</span></pre>
+        </div>
+        <div class="io">
+          <div><b>Reads</b><span>The plan phase, the codebase, the suite</span></div>
+          <div><b>Writes</b><span>Source, tests, CI config, docs, devlog, commit</span></div>
+          <div><b>You get</b><span>A green phase plus a known-gaps entry</span></div>
+        </div>
+        <p style="margin-top:1.2rem"><small style="color:var(--ink-faint)">The post-phase sequence is the part that keeps the loop honest: gitignore check, test review, CI/CD check, <b>known-gaps update</b>, docs cleanup audit, devlog, documentation, session history, commit message, then a commit-and-push prompt. Nothing is tagged or pushed automatically.</small></p>
+      </article>
+
+      <article data-step="3">
+        <span class="tag">Stage 4 / the workhorse</span>
+        <h3>Drive the number with two gates</h3>
+        <p>This is the command that actually generates tests, and it runs a loop per tier: <b>analyze</b> uncovered paths, <b>generate</b> tests for them, <b>run</b> the suite, <b>check both gates</b>, repeat or advance. Both gates, not one: coverage at or above threshold <em>and</em> a 100% pass rate on generated tests.</p>
+        <div class="cmd">
+          <div class="cmd-bar"><i class="dot"></i><span class="label">Stage 4</span><button type="button" data-copy>Copy</button></div>
+<pre><span class="c"># unit tier only, explicit threshold</span>
+<span class="s">/test</span> <span class="f">unit --threshold 80</span>
+
+<span class="c"># every tier in order: unit, integration, e2e, then ci</span>
+<span class="s">/test</span> <span class="f">all --threshold 85 --pass-rate 100</span>
+
+<span class="c"># red-green-refactor on one specific bug or feature</span>
+<span class="s">/test</span> <span class="f">tdd</span></pre>
+        </div>
+        <div class="io">
+          <div><b>Reads</b><span>Coverage report, uncovered paths in scope</span></div>
+          <div><b>Writes</b><span>Test files, fixtures, CI wiring</span></div>
+          <div><b>You get</b><span>Per-tier summary: coverage before/after, tests added</span></div>
+        </div>
+        <p style="margin-top:1.2rem"><small style="color:var(--ink-faint)">Threshold precedence is worth knowing: when your project config (<code>pyproject.toml</code>, a vitest config, a CI gate) already declares a stricter threshold than the one you passed, the stricter value wins and the command says so. You cannot accidentally lower your own bar from the command line.</small></p>
+      </article>
+
+      <article data-step="4">
+        <span class="tag">Stage 5 / close the loop</span>
+        <h3>Verify independently, then re-plan the remainder</h3>
+        <p>Re-run the read-only lens. If the target is met, review the diff and ship. If it is not met, the shortfall is already written down: each phase appended its gaps to <code>known-gaps.md</code>, and the categories include <b>MT (missing tests / coverage gaps)</b> and <b>QG (quality-gate gaps)</b>.</p>
+        <div class="cmd">
+          <div class="cmd-bar"><i class="dot"></i><span class="label">Stage 5</span><button type="button" data-copy>Copy</button></div>
+<pre><span class="c"># independent re-measure with the read-only lens</span>
+<span class="s">/review</span> <span class="f">coverage</span>
+
+<span class="c"># multi-agent persona review of the test code you just added</span>
+<span class="s">/review</span> <span class="f">changes</span>
+
+<span class="c"># short of target? a new plan ingests the open gaps</span>
+<span class="s">/plan</span> <span class="f">feature</span></pre>
+        </div>
+        <div class="io">
+          <div><b>Reads</b><span>Suite, coverage, <code>known-gaps.md</code>, the diff</span></div>
+          <div><b>Writes</b><span>Nothing on <code>review</code>; a new plan on <code>plan</code></span></div>
+          <div><b>You get</b><span>An independent number and a carry-forward list</span></div>
+        </div>
+        <p style="margin-top:1.2rem"><small style="color:var(--ink-faint)">This is the mechanism that makes the second iteration cheap. <code>/plan</code> reads the immediately prior version's <code>known-gaps.md</code> plus any older still-in-progress files, and offers to ingest the open items into the new plan. You do not re-derive what was left over.</small></p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ======================================================================
+     THE LOOP / GATES
+     =================================================================== -->
+<section id="loop" class="band band-y-tight" data-accent="#b3703f">
+  <div class="sec-head reveal">
+    <p class="sec-num">GATES</p>
+    <div>
+      <h2>What "done" is allowed to mean</h2>
+      <p>Three verdicts exist, and only one of them is a clean pass. The value of naming the middle one is that it stops a conditional pass from being quietly recorded as a full one.</p>
+    </div>
+  </div>
+
+  <div class="gates reveal">
+    <div class="gate pass">
+      <span class="g">GO</span>
+      <h4>Both tier gates green</h4>
+      <p>Coverage at or above the threshold, and a 100% pass rate on generated tests. The tier advances, or the phase completes.</p>
+    </div>
+    <div class="gate cond">
+      <span class="g">GO WITH CONDITIONS</span>
+      <h4>Shippable, with the shortfall written down</h4>
+      <p>The remainder is recorded in <code>known-gaps.md</code> under <b>MT</b> or <b>QG</b>, with a source phase, a plan reference, a reason, and a suggested next step.</p>
+    </div>
+    <div class="gate fail">
+      <span class="g">NO-GO</span>
+      <h4>The troubleshooting loop owns it</h4>
+      <p>Failing tests get fixed before re-checking. Correct the test when the test is wrong. Correct the code only when it is genuinely buggy and in scope.</p>
+    </div>
+  </div>
+
+  <div class="editorial" style="margin-top:clamp(2rem,4vh,3.5rem)">
+    <div>
+      <p class="measure reveal">The last distinction is the one to hold onto during a coverage push. A generated test that fails is not automatically a bug you found. Most of the time it is a test that encoded a wrong assumption about the code, and rewriting the source to satisfy it turns a coverage exercise into an unplanned refactor. The rule is explicit: fix the test when the test is wrong, and only touch the code when it is genuinely buggy <em>and</em> in scope for the phase you are in.</p>
+    </div>
+    <aside>
+      <div class="note reveal">
+        <b>Gap categories</b>
+        NI not implemented, DF deferred, BG bugs, WN warnings, <b style="display:inline;color:var(--accent)">MT missing tests</b>, QG quality-gate gaps.
+      </div>
+      <div class="note reveal">
+        <b>Where it lives</b>
+        <code>docs/v&lt;M&gt;/v&lt;M&gt;.&lt;m&gt;/known-gaps.md</code>, one file per minor version, appended per patch.
+      </div>
+    </aside>
+  </div>
+</section>
+
+<!-- ======================================================================
+     TRAJECTORY MODEL (interactive chart)
+     =================================================================== -->
+<section id="model" class="band band-y" data-accent="#8a7a3a">
+  <div class="sec-head reveal">
+    <p class="sec-num">TRAJECTORY</p>
+    <div>
+      <h2>Why one plan usually is not enough</h2>
+      <p>Set your own inputs below. The point is not the exact curve, it is the shape: a plan that closes a fixed fraction of the remaining gap per phase approaches the target asymptotically, which is exactly the situation the known-gaps carry-forward exists to handle.</p>
+    </div>
+  </div>
+
+  <div class="chart-wrap reveal">
+    <div class="chart-main">
+      <canvas id="chart" width="960" height="460" role="img"
+              aria-label="Interactive line chart comparing a planned coverage ramp against a realistic gap-closure curve and the threshold."></canvas>
+    </div>
+    <div class="chart-side">
+      <ul class="legend" id="legend"></ul>
+
+      <div class="ctl">
+        <label for="cStart">Starting coverage <b id="vStart">12%</b></label>
+        <input type="range" id="cStart" min="0" max="60" value="12" step="1">
+      </div>
+      <div class="ctl">
+        <label for="cTarget">Target threshold <b id="vTarget">80%</b></label>
+        <input type="range" id="cTarget" min="50" max="95" value="80" step="1">
+      </div>
+      <div class="ctl">
+        <label for="cPhases">Phases in the plan <b id="vPhases">5</b></label>
+        <input type="range" id="cPhases" min="2" max="9" value="5" step="1">
+      </div>
+      <div class="ctl">
+        <label for="cClose">Gap closed per phase <b id="vClose">55%</b></label>
+        <input type="range" id="cClose" min="25" max="90" value="55" step="1">
+      </div>
+
+      <div class="axis-row">
+        <span>Y</span>
+        <input type="number" id="yMin" value="0" min="0" max="99" aria-label="Y axis minimum">
+        <input type="number" id="yMax" value="100" min="1" max="100" aria-label="Y axis maximum">
+      </div>
+      <div style="display:flex;gap:.5rem;flex-wrap:wrap">
+        <button class="btn" type="button" id="reset">Reset view</button>
+      </div>
+      <p class="readout" id="readout"></p>
+    </div>
+  </div>
+  <p class="honest reveal"><b>This chart is a model, not a measurement.</b> It plots the inputs you set through a fixed gap-closure formula. It is not data from your codebase and it is not a prediction. Wheel to zoom, drag to pan, click a legend entry to toggle a series.</p>
+</section>
+
+<!-- ======================================================================
+     REFERENCE TABLE
+     =================================================================== -->
+<section id="ref" class="band band-y-tight" data-accent="#5b7f5b">
+  <div class="sec-head reveal">
+    <p class="sec-num">REFERENCE</p>
+    <div>
+      <h2>Command reference</h2>
+      <p>Filter by anything (a command, a file path, the word "read-only"). Click a column header to sort.</p>
+    </div>
+  </div>
+
+  <div class="tbl-tools reveal">
+    <input type="search" id="filter" placeholder="Filter: try coverage, read-only, or docs/" aria-label="Filter the command reference table">
+    <button class="btn" type="button" id="clearFilter">Clear</button>
+    <span style="font-family:var(--f-head);font-size:.72rem;color:var(--ink-faint)" id="rowCount"></span>
+  </div>
+
+  <div class="tbl-scroll reveal">
+    <table id="reftable">
+      <thead>
+        <tr>
+          <th data-sort="0">Command <span class="arrow"></span></th>
+          <th data-sort="1">Stage <span class="arrow"></span></th>
+          <th data-sort="2">What it does <span class="arrow"></span></th>
+          <th data-sort="3">Writes <span class="arrow"></span></th>
+          <th data-sort="4">Gate <span class="arrow"></span></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td>/review coverage</td><td>1, 5</td><td>Test-coverage analysis and gap identification. Names uncovered paths.</td><td>Nothing. Read-only.</td><td>None. It reports.</td></tr>
+        <tr><td>/review full</td><td>1, 5</td><td>Structure, quality, coverage, security, then the pending diff, synthesized into one report.</td><td>Nothing. Read-only.</td><td>GO / GO-WITH-CONDITIONS / NO-GO</td></tr>
+        <tr><td>/review changes</td><td>5</td><td>Multi-agent persona review of the pending diff, including the tests you just added.</td><td>Nothing. Read-only.</td><td>Findings by severity</td></tr>
+        <tr><td>/plan goals</td><td>2</td><td>Fixes the target, persona, and observable definition of done. No full plan.</td><td>Nothing, or a strategy note.</td><td>None</td></tr>
+        <tr><td>/plan feature</td><td>2</td><td>Goals-first step, then a phased plan with per-phase tasks and model tier. Ingests prior known-gaps.</td><td>docs/v&lt;M&gt;/v&lt;M&gt;.&lt;m&gt;/plans/vX.Y.Z-&lt;slug&gt;.md</td><td>Constitution check, complexity tracking</td></tr>
+        <tr><td>/plan todos</td><td>2</td><td>Bootstraps docs/todos.md as a living progress tracker.</td><td>docs/todos.md</td><td>None</td></tr>
+        <tr><td>/plan issues</td><td>2</td><td>Fans the plan's T### task lines out to GitHub issues via the gh CLI.</td><td>GitHub issues</td><td>Dry-run first</td></tr>
+        <tr><td>/implement next</td><td>3</td><td>One phase end to end: review, code, lint, test, troubleshoot, then docs and commit.</td><td>Source, tests, CI, docs, devlog, known-gaps</td><td>GO / NO-GO before the post-phase sequence</td></tr>
+        <tr><td>/test unit</td><td>4</td><td>Iterative loop: analyze, generate, run, check both gates, repeat.</td><td>Test files, fixtures</td><td>Coverage threshold AND 100% pass rate</td></tr>
+        <tr><td>/test all</td><td>4</td><td>Runs unit, then integration, then e2e, then ci, each to threshold before advancing.</td><td>Test files, fixtures, CI config</td><td>Both gates, per tier</td></tr>
+        <tr><td>/test tdd</td><td>4</td><td>Red-green-refactor cycle for one specific feature or bug.</td><td>Test then source, in that order</td><td>80% coverage gate</td></tr>
+        <tr><td>/describe</td><td>0</td><td>Structured description of an unfamiliar codebase. Useful before stage 1.</td><td>Nothing. Read-only.</td><td>None</td></tr>
+        <tr><td>/setup project</td><td>0</td><td>Bootstraps git, version, branch model, docs tree, README/CHANGELOG/DEVLOG. Idempotent.</td><td>Governance surfaces only</td><td>None</td></tr>
+        <tr><td>/update release</td><td>after final phase</td><td>Docs, devlog, version bump, changelog, refactor, commit, tag, push.</td><td>Version-carrying files, tag, remote</td><td>Its own confirmation gates</td></tr>
+      </tbody>
+    </table>
+    <p class="empty" id="noRows" hidden>No command matches that filter.</p>
+  </div>
+</section>
+
+<!-- ======================================================================
+     TRAPS
+     =================================================================== -->
+<section id="traps" class="band band-y" data-accent="#4f6d8a">
+  <div class="sec-head reveal">
+    <p class="sec-num">TRAPS</p>
+    <div>
+      <h2>Five ways this goes wrong</h2>
+      <p>Each of these is a real failure mode with a specific mechanism, not a general caution.</p>
+    </div>
+  </div>
+
+  <div class="acc reveal">
+    <details>
+      <summary>Treating the coverage percentage as the goal</summary>
+      <div class="body">
+        <p>Coverage measures which lines executed, not whether anything was asserted. A suite can execute 85% of your lines and verify almost nothing, and it will pass the threshold gate cleanly.</p>
+        <p>This is why the second gate exists, and why <code>/review coverage</code> does <em>gap identification</em> rather than just reporting a number. When the percentage matters commercially, add mutation testing to prove the tests actually detect changed behavior.</p>
+      </div>
+    </details>
+    <details>
+      <summary>Skipping the goals-first step because the goal "is obvious"</summary>
+      <div class="body">
+        <p>"Add unit tests to the codebase" is not a definition of done, so the plan that follows it has no stopping condition and no way to fail. Every phase looks like progress and no phase is ever the last one.</p>
+        <p>The goals step costs one exchange and produces the thing you will be judged against: a target, a scope, and an observable condition. <code>/plan goals</code> runs only that step and stops.</p>
+      </div>
+    </details>
+    <details>
+      <summary>Rewriting source code to satisfy a generated test</summary>
+      <div class="body">
+        <p>A generated test that fails is usually a wrong assumption about the code, not a discovered bug. Changing the implementation to make it pass converts a coverage task into an unplanned behavior change, and it does so inside a commit whose message says "tests".</p>
+        <p>The stated rule: correct the test when the test is wrong, and correct the code only when it is genuinely buggy <em>and</em> in scope for the current phase. Anything else becomes a known-gaps entry for a later phase.</p>
+      </div>
+    </details>
+    <details>
+      <summary>Fanning out across the whole codebase on the first run</summary>
+      <div class="body">
+        <p>Both <code>/test</code> and <code>/review</code> can fan work out in parallel across a large surface. That path carries roughly a five to fifteen times token multiplier, so pointing it at an entire unfamiliar repository as the first action is expensive and hard to steer.</p>
+        <p>Calibrate on one module first, confirm the generated tests look the way you want, then scale. The scope-first caution is part of the command definition, not an optional nicety.</p>
+      </div>
+    </details>
+    <details>
+      <summary>Letting the shortfall live in your head instead of known-gaps.md</summary>
+      <div class="body">
+        <p>If phase 3 ends at 71% against an 80% target and that fact only exists in the session transcript, the next plan starts from nothing and someone re-derives the same list a week later.</p>
+        <p>The post-phase sequence appends it for you, and the next <code>/plan</code> ingests open items automatically. The failure mode is bypassing the post-phase sequence, usually by stopping right after the tests go green.</p>
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- ======================================================================
+     FOOTER
+     =================================================================== -->
+<footer class="band band-y-tight">
+  <div class="cols">
+    <div>
+      <b>The short version</b>
+      <ul>
+        <li>1. <code>/review coverage</code></li>
+        <li>2. <code>/plan goals</code> then <code>/plan feature</code></li>
+        <li>3. <code>/implement next</code>, once per phase</li>
+        <li>4. <code>/test unit --threshold 80</code></li>
+        <li>5. <code>/review coverage</code>, then re-plan if short</li>
+      </ul>
+    </div>
+    <div>
+      <b>Sources</b>
+      <ul>
+        <li><code>catalog/commands/review.md</code></li>
+        <li><code>catalog/commands/plan.md</code></li>
+        <li><code>catalog/commands/implement.md</code></li>
+        <li><code>catalog/commands/test.md</code></li>
+        <li><code>catalog/skills/workflow/known-gaps-tracker/SKILL.md</code></li>
+      </ul>
+    </div>
+    <div>
+      <b>Visual provenance</b>
+      <ul>
+        <li>All visuals: original (generated) inline SVG and CSS.</li>
+        <li>Tier 1 procedural. No stock, no AI-generated asset.</li>
+        <li>Zero external requests. Opens offline from this file.</li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<div id="overlay" role="dialog" aria-modal="true" aria-label="Zoomed diagram">
+  <div class="obar">
+    <button class="btn" type="button" data-zoom="in">Zoom +</button>
+    <button class="btn" type="button" data-zoom="out">Zoom -</button>
+    <button class="btn" type="button" data-zoom="fit">Fit</button>
+    <p>Drag to pan. Escape to close.</p>
+    <button class="btn" type="button" id="oclose" style="margin-left:auto">Close</button>
+  </div>
+  <div class="ostage" id="ostage"></div>
+</div>
+
+<script>
+(function(){
+"use strict";
+var RM = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* ---------------------------------------------------------------- progress */
+var pbar = document.querySelector('#progress span');
+function onScroll(){
+  var h = document.documentElement.scrollHeight - window.innerHeight;
+  pbar.style.width = (h > 0 ? (window.scrollY / h) * 100 : 0) + '%';
+}
+window.addEventListener('scroll', onScroll, {passive:true});
+onScroll();
+
+/* ------------------------------------------------------- reveal on scroll */
+var reveals = document.querySelectorAll('.reveal');
+if (RM || !('IntersectionObserver' in window)) {
+  reveals.forEach(function(el){ el.classList.add('in'); });
+} else {
+  var ro = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if (e.isIntersecting){ e.target.classList.add('in'); ro.unobserve(e.target); }
+    });
+  }, {rootMargin:'0px 0px -8% 0px', threshold:0.08});
+  reveals.forEach(function(el){ ro.observe(el); });
+}
+
+/* ------------------------------------------- nav active state + accent morph */
+var sections = [].slice.call(document.querySelectorAll('section[id], header[id]'));
+var navLinks = [].slice.call(document.querySelectorAll('nav#toc a'));
+var root = document.documentElement;
+
+function updateActive(){
+  var probe = window.scrollY + window.innerHeight * 0.35;
+  var cur = null;
+  sections.forEach(function(s){
+    if (s.offsetTop <= probe) cur = s;
+  });
+  navLinks.forEach(function(a){
+    a.setAttribute('aria-current', cur && a.getAttribute('href') === '#' + cur.id ? 'true' : 'false');
+  });
+  /* signature move: section-color-morph */
+  if (cur){
+    var acc = cur.getAttribute('data-accent');
+    if (acc) root.style.setProperty('--accent', acc);
+  }
+}
+window.addEventListener('scroll', updateActive, {passive:true});
+window.addEventListener('resize', updateActive);
+updateActive();
+
+/* -------------------------------------------------------- animated counters */
+var counters = [].slice.call(document.querySelectorAll('[data-count]'));
+function runCounters(){
+  counters.forEach(function(el){
+    var to = parseFloat(el.getAttribute('data-count'));
+    var sfx = el.getAttribute('data-suffix') || '';
+    if (RM){ el.textContent = to + sfx; return; }
+    var t0 = null, dur = 1100;
+    function step(ts){
+      if (t0 === null) t0 = ts;
+      var p = Math.min((ts - t0) / dur, 1);
+      var eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = Math.round(to * eased) + sfx;
+      if (p < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  });
+}
+if ('IntersectionObserver' in window && !RM){
+  var co = new IntersectionObserver(function(en){
+    if (en[0].isIntersecting){ runCounters(); co.disconnect(); }
+  }, {threshold:0.3});
+  if (counters.length) co.observe(counters[0].closest('.stats'));
+} else { runCounters(); }
+
+/* --------------------------------------------- scrollytelling: stage rail */
+var stepEls = [].slice.call(document.querySelectorAll('.rail-steps > article'));
+var nodeEls = [].slice.call(document.querySelectorAll('#pipe .node'));
+var flowEls = [].slice.call(document.querySelectorAll('#pipe .flow'));
+
+function setStage(i){
+  nodeEls.forEach(function(n){
+    n.classList.toggle('on', parseInt(n.getAttribute('data-step'),10) === i);
+  });
+  flowEls.forEach(function(f){
+    f.classList.toggle('on', parseInt(f.getAttribute('data-flow'),10) < i);
+  });
+}
+if ('IntersectionObserver' in window){
+  var so = new IntersectionObserver(function(entries){
+    entries.forEach(function(e){
+      if (e.isIntersecting) setStage(parseInt(e.target.getAttribute('data-step'),10));
+    });
+  }, {rootMargin:'-40% 0px -40% 0px', threshold:0});
+  stepEls.forEach(function(el){ so.observe(el); });
+}
+setStage(0);
+
+nodeEls.forEach(function(n){
+  function jump(){
+    var i = n.getAttribute('data-step');
+    var target = document.querySelector('.rail-steps > article[data-step="' + i + '"]');
+    if (target) target.scrollIntoView({behavior: RM ? 'auto' : 'smooth', block:'center'});
+  }
+  n.addEventListener('click', jump);
+  n.addEventListener('keydown', function(e){
+    if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); jump(); }
+  });
+});
+
+/* ------------------------------------------------------------ copy buttons */
+document.querySelectorAll('[data-copy]').forEach(function(btn){
+  btn.addEventListener('click', function(){
+    var pre = btn.closest('.cmd').querySelector('pre');
+    var text = pre.innerText.split('\n').filter(function(l){
+      return l.trim() && l.trim().charAt(0) !== '#';
+    }).join('\n');
+    var done = function(){
+      var old = btn.textContent;
+      btn.textContent = 'Copied';
+      setTimeout(function(){ btn.textContent = old; }, 1400);
+    };
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(done, function(){ fallback(text, done); });
+    } else { fallback(text, done); }
+  });
+});
+function fallback(text, done){
+  var ta = document.createElement('textarea');
+  ta.value = text; ta.setAttribute('readonly','');
+  ta.style.position = 'fixed'; ta.style.left = '-9999px';
+  document.body.appendChild(ta); ta.select();
+  try { document.execCommand('copy'); done(); } catch(e){}
+  document.body.removeChild(ta);
+}
+
+/* ================================================================= CHART */
+var cv = document.getElementById('chart');
+var ctx = cv.getContext('2d');
+var SERIES = [
+  {key:'plan',  name:'Planned ramp (linear to target)', color:'#c26565', on:true},
+  {key:'real',  name:'Fixed-fraction gap closure',      color:'#4f6d8a', on:true},
+  {key:'thr',   name:'Threshold',                       color:'#c9a227', on:true}
+];
+var P = {start:12, target:80, phases:5, close:55};
+var view = {yMin:0, yMax:100, xMin:0, xMax:5};
+
+function build(){
+  var n = P.phases;
+  view.xMax = n;
+  var plan = [], real = [], cov = P.start;
+  for (var i = 0; i <= n; i++){
+    plan.push({x:i, y: P.start + (P.target - P.start) * (i / n)});
+    real.push({x:i, y: cov});
+    cov = cov + (P.target - cov) * (P.close / 100);
+  }
+  return {plan:plan, real:real, thr:[{x:0,y:P.target},{x:n,y:P.target}], finalReal:real[n].y};
+}
+
+function dpr(){ return window.devicePixelRatio || 1; }
+function resize(){
+  var r = cv.getBoundingClientRect();
+  var w = Math.max(320, r.width), h = Math.max(260, Math.round(w * 0.48));
+  cv.width = Math.round(w * dpr()); cv.height = Math.round(h * dpr());
+  cv.style.height = h + 'px';
+  draw();
+}
+
+var PAD = {l:52, r:22, t:22, b:44};
+function draw(){
+  var d = build();
+  var s = dpr();
+  ctx.setTransform(s,0,0,s,0,0);
+  var W = cv.width / s, H = cv.height / s;
+  ctx.clearRect(0,0,W,H);
+
+  var pw = W - PAD.l - PAD.r, ph = H - PAD.t - PAD.b;
+  function X(v){ return PAD.l + ((v - view.xMin) / (view.xMax - view.xMin)) * pw; }
+  function Y(v){ return PAD.t + ph - ((v - view.yMin) / (view.yMax - view.yMin)) * ph; }
+
+  /* grid */
+  ctx.strokeStyle = '#5a3434'; ctx.fillStyle = '#9c7f7d';
+  ctx.font = '11px Consolas, monospace'; ctx.lineWidth = 1;
+  var yStep = (view.yMax - view.yMin) > 40 ? 20 : 10;
+  var y0 = Math.ceil(view.yMin / yStep) * yStep;
+  for (var gy = y0; gy <= view.yMax; gy += yStep){
+    var py = Y(gy);
+    ctx.globalAlpha = .45; ctx.beginPath();
+    ctx.moveTo(PAD.l, py); ctx.lineTo(W - PAD.r, py); ctx.stroke();
+    ctx.globalAlpha = 1;
+    ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    ctx.fillText(gy + '%', PAD.l - 8, py);
+  }
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  for (var gx = Math.ceil(view.xMin); gx <= view.xMax; gx++){
+    ctx.fillText(gx === 0 ? 'start' : 'P' + gx, X(gx), H - PAD.b + 10);
+  }
+  ctx.fillStyle = '#9c7f7d'; ctx.textAlign = 'center';
+  ctx.fillText('plan phase', PAD.l + pw/2, H - PAD.b + 28);
+
+  /* clip plot area */
+  ctx.save();
+  ctx.beginPath(); ctx.rect(PAD.l, PAD.t, pw, ph); ctx.clip();
+
+  SERIES.forEach(function(sr){
+    if (!sr.on) return;
+    var pts = d[sr.key];
+    ctx.strokeStyle = sr.color;
+    ctx.lineWidth = sr.key === 'thr' ? 1.5 : 2.5;
+    ctx.setLineDash(sr.key === 'thr' ? [6,5] : []);
+    ctx.beginPath();
+    pts.forEach(function(p,i){ i ? ctx.lineTo(X(p.x), Y(p.y)) : ctx.moveTo(X(p.x), Y(p.y)); });
+    ctx.stroke();
+    ctx.setLineDash([]);
+    if (sr.key !== 'thr'){
+      ctx.fillStyle = sr.color;
+      pts.forEach(function(p){
+        ctx.beginPath(); ctx.arc(X(p.x), Y(p.y), 3.2, 0, Math.PI*2); ctx.fill();
+      });
+    }
+  });
+
+  /* the residual gap, the teaching point */
+  if (SERIES[1].on && SERIES[2].on && d.finalReal < P.target - 0.4){
+    var xr = X(P.phases), ya = Y(d.finalReal), yb = Y(P.target);
+    ctx.strokeStyle = '#c9a227'; ctx.lineWidth = 1; ctx.setLineDash([3,3]);
+    ctx.beginPath(); ctx.moveTo(xr - 26, ya); ctx.lineTo(xr - 26, yb); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = '#c9a227'; ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    ctx.fillText('gap ' + (P.target - d.finalReal).toFixed(1) + 'pt', xr - 32, (ya + yb) / 2);
+  }
+  ctx.restore();
+
+  /* frame */
+  ctx.strokeStyle = '#5a3434'; ctx.lineWidth = 1;
+  ctx.strokeRect(PAD.l, PAD.t, pw, ph);
+
+  var short = P.target - d.finalReal;
+  document.getElementById('readout').innerHTML =
+    'After <b>' + P.phases + '</b> phases the modelled curve reaches <b>' +
+    d.finalReal.toFixed(1) + '%</b> against a <b>' + P.target + '%</b> target' +
+    (short > 0.4
+      ? ', leaving <b>' + short.toFixed(1) + ' points</b> to carry forward as an MT gap.'
+      : '. Target met inside the plan.');
+}
+
+/* legend */
+var legend = document.getElementById('legend');
+SERIES.forEach(function(sr, i){
+  var li = document.createElement('li');
+  var b = document.createElement('button');
+  b.type = 'button';
+  b.setAttribute('aria-pressed', String(sr.on));
+  b.innerHTML = '<i style="background:' + sr.color + '"></i><span>' + sr.name + '</span>';
+  b.addEventListener('click', function(){
+    sr.on = !sr.on;
+    b.setAttribute('aria-pressed', String(sr.on));
+    draw();
+  });
+  li.appendChild(b); legend.appendChild(li);
+});
+
+/* controls */
+function bind(id, key, out, sfx){
+  var el = document.getElementById(id), lbl = document.getElementById(out);
+  el.addEventListener('input', function(){
+    P[key] = parseInt(el.value, 10);
+    if (key === 'start' && P.start >= P.target){ P.start = P.target - 5; el.value = P.start; }
+    if (key === 'target' && P.target <= P.start){ P.target = P.start + 5; el.value = P.target; }
+    lbl.textContent = P[key] + (sfx || '');
+    document.getElementById('vStart').textContent = P.start + '%';
+    document.getElementById('vTarget').textContent = P.target + '%';
+    resize();
+  });
+}
+bind('cStart','start','vStart','%');
+bind('cTarget','target','vTarget','%');
+bind('cPhases','phases','vPhases','');
+bind('cClose','close','vClose','%');
+
+['yMin','yMax'].forEach(function(id){
+  document.getElementById(id).addEventListener('change', function(){
+    var lo = parseFloat(document.getElementById('yMin').value);
+    var hi = parseFloat(document.getElementById('yMax').value);
+    if (isFinite(lo) && isFinite(hi) && hi - lo >= 5){ view.yMin = lo; view.yMax = hi; draw(); }
+  });
+});
+document.getElementById('reset').addEventListener('click', function(){
+  view.yMin = 0; view.yMax = 100; view.xMin = 0; view.xMax = P.phases;
+  document.getElementById('yMin').value = 0;
+  document.getElementById('yMax').value = 100;
+  draw();
+});
+
+/* zoom + pan */
+cv.addEventListener('wheel', function(e){
+  e.preventDefault();
+  var r = cv.getBoundingClientRect();
+  var fy = 1 - (e.clientY - r.top - PAD.t) / (r.height - PAD.t - PAD.b);
+  var k = e.deltaY > 0 ? 1.12 : 1/1.12;
+  var cy = view.yMin + fy * (view.yMax - view.yMin);
+  var ny = (view.yMax - view.yMin) * k;
+  if (ny < 6 || ny > 400) return;
+  view.yMin = cy - fy * ny; view.yMax = view.yMin + ny;
+  document.getElementById('yMin').value = Math.round(view.yMin);
+  document.getElementById('yMax').value = Math.round(view.yMax);
+  draw();
+}, {passive:false});
+
+var drag = null;
+cv.addEventListener('pointerdown', function(e){
+  drag = {y:e.clientY, yMin:view.yMin, yMax:view.yMax};
+  cv.setPointerCapture(e.pointerId);
+});
+cv.addEventListener('pointermove', function(e){
+  if (!drag) return;
+  var r = cv.getBoundingClientRect();
+  var span = drag.yMax - drag.yMin;
+  var dy = ((e.clientY - drag.y) / (r.height - PAD.t - PAD.b)) * span;
+  view.yMin = drag.yMin + dy; view.yMax = drag.yMax + dy;
+  document.getElementById('yMin').value = Math.round(view.yMin);
+  document.getElementById('yMax').value = Math.round(view.yMax);
+  draw();
+});
+['pointerup','pointercancel'].forEach(function(ev){
+  cv.addEventListener(ev, function(){ drag = null; });
+});
+
+window.addEventListener('resize', resize);
+resize();
+
+/* ================================================== TABLE sort + filter */
+var table = document.getElementById('reftable');
+var tbody = table.tBodies[0];
+var rows = [].slice.call(tbody.rows);
+var noRows = document.getElementById('noRows');
+var rowCount = document.getElementById('rowCount');
+var sortState = {col:-1, dir:1};
+
+function refresh(){
+  var q = document.getElementById('filter').value.toLowerCase().trim();
+  var shown = 0;
+  rows.forEach(function(r){
+    var hit = !q || r.textContent.toLowerCase().indexOf(q) !== -1;
+    r.hidden = !hit;
+    if (hit) shown++;
+  });
+  noRows.hidden = shown !== 0;
+  rowCount.textContent = shown + ' of ' + rows.length + ' commands';
+}
+document.getElementById('filter').addEventListener('input', refresh);
+document.getElementById('clearFilter').addEventListener('click', function(){
+  document.getElementById('filter').value = ''; refresh();
+});
+
+[].slice.call(table.tHead.rows[0].cells).forEach(function(th, i){
+  th.setAttribute('tabindex','0');
+  function sort(){
+    sortState.dir = (sortState.col === i) ? -sortState.dir : 1;
+    sortState.col = i;
+    [].slice.call(table.tHead.rows[0].cells).forEach(function(h){
+      h.removeAttribute('aria-sort');
+      h.querySelector('.arrow').textContent = '';
+    });
+    th.setAttribute('aria-sort', sortState.dir === 1 ? 'ascending' : 'descending');
+    th.querySelector('.arrow').textContent = sortState.dir === 1 ? '^' : 'v';
+    rows.sort(function(a,b){
+      var av = a.cells[i].textContent.trim().toLowerCase();
+      var bv = b.cells[i].textContent.trim().toLowerCase();
+      return av < bv ? -sortState.dir : av > bv ? sortState.dir : 0;
+    });
+    rows.forEach(function(r){ tbody.appendChild(r); });
+  }
+  th.addEventListener('click', sort);
+  th.addEventListener('keydown', function(e){
+    if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); sort(); }
+  });
+});
+refresh();
+
+/* ============================================ zoom overlay for diagrams */
+var overlay = document.getElementById('overlay');
+var ostage  = document.getElementById('ostage');
+var lastFocus = null;
+var zs = {k:1, x:0, y:0};
+
+function applyZ(){
+  var el = ostage.firstElementChild;
+  if (el) el.style.transform = 'translate(' + zs.x + 'px,' + zs.y + 'px) scale(' + zs.k + ')';
+}
+function openZoom(svg){
+  lastFocus = document.activeElement;
+  ostage.innerHTML = '';
+  var clone = svg.cloneNode(true);
+  clone.removeAttribute('class');
+  clone.style.width = 'min(90vw, 900px)';
+  clone.style.height = 'auto';
+  ostage.appendChild(clone);
+  zs = {k:1, x:0, y:0}; applyZ();
+  overlay.classList.add('on');
+  document.getElementById('oclose').focus();
+}
+function closeZoom(){
+  overlay.classList.remove('on');
+  ostage.innerHTML = '';
+  if (lastFocus) lastFocus.focus();
+}
+document.querySelectorAll('svg.zoomable').forEach(function(svg){
+  svg.setAttribute('tabindex','0');
+  svg.addEventListener('click', function(e){
+    if (e.target.closest('.node')) return;   /* node clicks navigate instead */
+    openZoom(svg);
+  });
+  svg.addEventListener('keydown', function(e){
+    if (e.key === 'Enter'){ e.preventDefault(); openZoom(svg); }
+  });
+});
+document.getElementById('oclose').addEventListener('click', closeZoom);
+overlay.addEventListener('click', function(e){ if (e.target === overlay) closeZoom(); });
+document.addEventListener('keydown', function(e){
+  if (e.key === 'Escape' && overlay.classList.contains('on')) closeZoom();
+});
+document.querySelectorAll('[data-zoom]').forEach(function(b){
+  b.addEventListener('click', function(){
+    var m = b.getAttribute('data-zoom');
+    if (m === 'in')  zs.k = Math.min(zs.k * 1.25, 6);
+    if (m === 'out') zs.k = Math.max(zs.k / 1.25, 0.4);
+    if (m === 'fit') zs = {k:1, x:0, y:0};
+    applyZ();
+  });
+});
+ostage.addEventListener('wheel', function(e){
+  if (!overlay.classList.contains('on')) return;
+  e.preventDefault();
+  zs.k = Math.min(6, Math.max(0.4, zs.k * (e.deltaY > 0 ? 0.9 : 1.1)));
+  applyZ();
+}, {passive:false});
+var odrag = null;
+ostage.addEventListener('pointerdown', function(e){
+  odrag = {x:e.clientX, y:e.clientY, ox:zs.x, oy:zs.y};
+  ostage.setPointerCapture(e.pointerId);
+});
+ostage.addEventListener('pointermove', function(e){
+  if (!odrag) return;
+  zs.x = odrag.ox + (e.clientX - odrag.x);
+  zs.y = odrag.oy + (e.clientY - odrag.y);
+  applyZ();
+});
+['pointerup','pointercancel'].forEach(function(ev){
+  ostage.addEventListener(ev, function(){ odrag = null; });
+});
+})();
+</script>
+
+<!--
+  COVERAGE RECONCILIATION
+  ----------------------------------------------------------------------------
+  Source inputs are local Markdown command definitions (no image blocks, so the
+  figure-classification pass has nothing to classify and no OCR path applies).
+  Every source section is accounted for:
+
+    catalog/commands/review.md
+      - scope list + read-only contract ......... rendered (Shape, Stage 1/5, table)
+      - coverage scope delegation ............... rendered (Stage 1)
+      - full-scope verdict grammar .............. rendered (Gates section)
+      - project-health block .................... rendered (Stage 1 footnote)
+      - fan-out scope-first caution ............. rendered (Traps, item 4)
+    catalog/commands/plan.md
+      - scope list .............................. rendered (Stage 2, table)
+      - goals-first step ........................ rendered (Stage 2, Traps item 2)
+      - mandatory final phase ................... rendered (Stage 2 footnote)
+      - CI/CD per phase ......................... rendered (Stage 2 footnote)
+      - model tier / effort per phase ........... rendered (Stage 2 io block)
+      - dynamic-workflow robustness ............. skipped: orthogonal to the
+                                                  unit-test workflow being taught
+    catalog/commands/implement.md
+      - argument resolution ..................... rendered (Stage 3)
+      - post-phase sequence (9 steps) ........... rendered (Stage 3 footnote)
+      - GO / NO-GO gate ......................... rendered (Gates section)
+      - final-phase release routing ............. rendered (table, /update release)
+      - model-routing pre-flight ................ skipped: orthogonal, named only
+    catalog/commands/test.md
+      - standardized thresholds + override ...... rendered (Stage 4 footnote)
+      - stricter-config precedence .............. rendered (Stage 4 footnote)
+      - scope list / tier order ................. rendered (Stage 4, table)
+      - the iterative coverage loop (5 steps) ... rendered (Stage 4)
+      - both-gates rule ......................... rendered (Stage 4, Gates)
+      - test-vs-code fix rule ................... rendered (Gates, Traps item 3)
+    catalog/skills/workflow/known-gaps-tracker/SKILL.md
+      - file path + per-minor scheme ............ rendered (Gates margin note)
+      - six gap categories (NI/DF/BG/WN/MT/QG) .. rendered (Gates margin note)
+      - open-item field shape ................... rendered (Gates, GO-WITH-CONDITIONS)
+      - /plan Step 0.6 ingest ................... rendered (Stage 5, Hero arc)
+
+  Verdict: ACCOUNTED. 0 unaccounted. 3 skipped, each with a stated reason.
+
+  DATA FIDELITY
+  The single chart is NOT derived from source data and makes no such claim. It is
+  a parameterised model driven entirely by the four reader-set inputs, labelled
+  in visible copy as "a model, not a measurement". No source figure exists to
+  reconstruct, so no worksheet applies and no figure was fabricated.
+-->
+</body>
+</html>

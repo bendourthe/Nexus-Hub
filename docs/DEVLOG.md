@@ -1,5 +1,33 @@
 # Development Log
 
+## [2026-08-11] - v3.16.5 Phase 1: fluid layout and readability contract
+
+### What Changed
+
+The first of seven phases in the presentify visual overhaul. A new bundled reference, `references/responsive-typography.md`, codifies six rules for fluid space, viewport-serving wrapping, a tokenized type scale, hard rendered-size floors, two-axis emphasis tokens, and validated contrast. Four of the six are now checked deterministically by `scripts/visual_qa_score.py` (`fluid-spacing`, `font-floor`, `emphasis-token`, `contrast`), the visual-QA rubric grew from five criteria to seven so the agent-vision halves are graded too, and the calibration fixture was brought from 2 high-severity findings to a clean pass across all nine criteria.
+
+### Why It Changed
+
+A real run on 2026-08-10 shipped prose stranded beside dead space, margin notes and a footer too small to read, and command names indistinguishable from the prose around them. All three passed every structural check that existed, because none of those checks looked at type size, spacing fluidity, or contrast. The phase closes that gap for the class rather than for the three instances.
+
+### Decisions Made
+
+- **The readability defect had one mechanical cause, not three.** The fluid type scale was declared on `body`, but every child size was expressed in `rem`, which resolves against the ROOT element. `html` kept the 16px browser default, so the scale never propagated and `footer b{font-size:.7rem}` was a flat 11.2px at every viewport. The contract therefore mandates declaring the scale once as `:root` custom properties, and the SKILL.md rationalization table now rebuts "the type scale is fluid, I put the clamp() on `body`" explicitly.
+- **Font floors are checked at the clamp minimum as well as at 1920px.** On a 1366px laptop a `clamp()` is usually still pinned at its minimum, so the minimum is the size most readers actually get. Checking only the wide viewport would have passed a size that resolves to 16px at 1920px and 11px on a laptop.
+- **Contrast severity is graded by how badly a color fails.** Custom properties declare which colors exist, not which pairs co-occur, so the full cross-product produces failures for pairs never rendered together. HIGH is reserved for the primary body pair and for a foreground that fails against every declared background (unusable as text anywhere); a single failing surface while others pass is MEDIUM. Semantic status colors are excluded entirely, since a badge's applicable floor depends on its rendered size. Grading everything HIGH would have produced a gate people bypass.
+- **SVG text is exempt from the pixel floors, discriminated by `fill:` rather than by naming convention.** SVG text declares its size in viewBox user units, so a px floor is meaningless. SVG text is painted with `fill` and HTML text with `color`, which separates the two without depending on any class-name pattern the fixture happens to use.
+- **The scorer resolves `var()` instead of treating it as opaque.** This was the phase's most valuable find, and it was in the checker rather than in the fixture: the first implementation skipped any `font-size` starting with `var(`, so tokenizing the fixture dropped its checked font count from 40 to 17. A linter that verifies the non-compliant form more thoroughly than the compliant one rewards the wrong behavior, and a malformed `--step--2: 0.6rem` would have shipped silently.
+- **The emphasis-token check grades the unqualified base rule.** The first implementation passed the fixture because `footer code` declared a color while the page-wide `code` rule did not - which is exactly the shipped defect it was written to catch. A region-scoped rule no longer stands in for the page-wide one.
+- **The editorial reflow widens the note rail rather than multi-columning the prose.** Sub-task 1.3 asked for the prose to widen toward 85ch and the grid to reflow. A fluid `clamp(17rem, 26vw, 32rem)` rail plus a `min(85ch, 100%)` measure cuts the dead corridor from roughly 690px to 470px at 1920px, inside the rubric's stated one-third-of-band criterion. CSS multi-column would close it further but is a larger design change than the plan scopes, and Phase 3 re-verifies this band from real screenshots.
+
+### Verification
+
+29 tests in `tests/skills/test_presentify_visual_qa.py` (up from 12), and 528 passed / 3 skipped across `tests/skills/`. Coverage of `visual_qa_score.py` is 92%, above the 80% gate. `ruff check` clean on both changed Python files. All ten `make validate` guards pass individually (`make` is absent on this host, the long-standing WN-1). The scorer reports PASS on the calibration fixture with 0 high-severity findings and 40 font sizes checked. The three skipped tests are pre-existing, including the headless-render skip that Phase 3 closes.
+
+### Known Issues
+
+Three open, none a release blocker, recorded as v3.16.5 MT-1 / NI-2 / WN-1 in `docs/v3/v3.16/known-gaps.md`. The calibration fixture is committed at the repository root, which is a holding position rather than its final location, and no test yet asserts it still passes the scorer (MT-1, routed to Phase 7, which owns both halves). Contract rules 2 and 3 have no deterministic check because rule 2 is a rendered-geometry judgment (NI-2, routed to Phase 3). Semantic status colors stay outside the automated contrast set (WN-1, routed to Phase 3, where rendered size is observable). DF-1 - the CSS parser grading media-scoped rules as unconditional - is accepted and documented in the function's docstring rather than carried, because it errs toward reporting.
+
 ## [2026-08-09] - v3.16.3 Phase 6: refactor, reconciliation, and CI/CD [terminal phase]
 
 ### What Changed

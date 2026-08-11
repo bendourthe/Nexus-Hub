@@ -148,3 +148,14 @@ Phase 2's step 8.3 found that `ci.yml`'s `paths-ignore: ['docs/**']` prevented a
 
 - `README.md` makes no reference to `configs/`, so the new source needs no README change. Documenting the surface in `AGENTS.md` is explicitly Phase 4.2's sub-task and was deliberately NOT done here, to avoid doing a later phase's work.
 - `configs/README.md` did not exist before this phase; it now documents both the pre-existing `permissions/` templates and the new defaults source, so `configs/` is no longer an undocumented directory.
+
+---
+
+## v3.16.5 Phase 1 - fluid layout and readability contract (audit mode, 2026-08-11)
+
+Audit only; no file was moved, renamed, or removed.
+
+- **New artifacts, both permanent and correctly placed**: `catalog/skills/specialized-domains/document-to-interactive-html/references/responsive-typography.md` (a bundled Tier-3 reference, referenced twice from its parent `SKILL.md`, so the orphan-bundle audit is satisfied) and the appended `## v3.16.5 - presentify-visual-overhaul` section of `docs/v3/v3.16/known-gaps.md`. Neither is scratch output.
+- **No scratch docs created.** The phase produced no working notes, comparison scratch, or intermediate report, so there is nothing to propose for cleanup.
+- **One known misplacement, deliberately left alone**: the calibration fixture `nexus-hub-unit-test-workflow.html` sits untracked at the repository root. Sub-task 1.3 explicitly defers its final location to Phase 7, and moving it here would pre-empt a maintainer decision the plan reserves. Tracked as v3.16.5 MT-1.
+- **Cross-surface check**: `README.md` does not enumerate the presentify skill's bundled references, so the new file needs no README change. `AGENTS.md` describes the bundled-resource convention generically and needs no per-file entry.
