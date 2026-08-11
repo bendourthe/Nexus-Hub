@@ -59,7 +59,7 @@ describe("diagnoseTarget", () => {
 
     const options = dependencies.getSession.mock.calls[0]?.[2];
     expect(options?.createIfNone).toBe(true);
-    expect(dependencies.getSession.mock.calls[0]?.[1]).toEqual(["repo"]);
+    expect(dependencies.getSession.mock.calls[0]?.[1]).toEqual(["repo", "read:org"]);
   });
 
   it("requests the level's candidate scope, not a broad one", async () => {

@@ -24,7 +24,8 @@ import {
   sessionRequests,
   sessionResponses,
   setConfiguration,
-  Uri
+  Uri,
+  stubExtension
 } from "./vscode-stub";
 
 const ORG: BillingOwner = { scope: "organization", name: "acme" };
@@ -79,9 +80,10 @@ describe("peekBinding", () => {
   it("asks for the narrowest candidate scope for the level", async () => {
     const getSession = vi.fn<GetSessionLike>(async () => session());
     await peekBinding(getSession, ORG);
-    // repo was empirically sufficient for organizations; admin:org is not
-    // requested speculatively.
-    expect(getSession.mock.calls[0]?.[1]).toEqual(["repo"]);
+    // repo reads billing usage; read:org is what `GET /orgs/{org}/copilot/billing`
+    // accepts, and without it the AI-credit allowance cannot be composed. admin:org
+    // is still not requested speculatively.
+    expect(getSession.mock.calls[0]?.[1]).toEqual(["repo", "read:org"]);
 
     getSession.mockClear();
     await peekBinding(getSession, USER);
@@ -223,6 +225,7 @@ describe("registered log in / log out commands are not inert", () => {
     const global = new Map<string, unknown>();
     return {
       subscriptions: [],
+      extension: stubExtension(),
       extensionUri: Uri.file("ext"),
       secrets: {
         get: async (key: string) => secrets.get(key),
@@ -262,7 +265,7 @@ describe("registered log in / log out commands are not inert", () => {
     );
     expect(interactive).toBeDefined();
     expect(interactive?.providerId).toBe("github");
-    expect(interactive?.scopes).toEqual(["repo"]);
+    expect(interactive?.scopes).toEqual(["repo", "read:org"]);
     expect(
       (interactive?.options as { clearSessionPreference?: boolean }).clearSessionPreference
     ).toBe(true);
@@ -371,6 +374,6 @@ describe("settings panel auth section", () => {
     // Authorization block is skipped rather than rendered empty.
     const html = settingsSectionHtml(readSettings());
     expect(html).not.toContain("Authorization</legend>");
-    expect(html).toContain("Danger zone");
+    expect(html).toContain("Account");
   });
 });

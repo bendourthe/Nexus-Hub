@@ -1,4 +1,5 @@
 import type {
+  BillingOwner,
   AlertCycleState,
   ProviderError,
   ProviderResult,
@@ -47,16 +48,34 @@ export class UsageStore {
     await this.state.update(ALERT_CYCLE_KEY, undefined);
   }
 
+  /**
+   * Turns a fetch outcome into display state, falling back to cache on failure.
+   *
+   * `requestedOwner` is what makes the fallback safe. Without it, a failed fetch for
+   * one owner served the cached snapshot of a DIFFERENT one: switching from a
+   * personal account to an organization whose billing could not be read re-displayed
+   * the personal account's minutes and storage under the new owner's name, labelled
+   * only as "last-known-good data". That is not staleness, it is the wrong account's
+   * numbers - a correctness problem, and arguably a privacy one on a shared machine.
+   *
+   * A cached snapshot is now served ONLY when it belongs to the owner just requested.
+   */
   public async resolveFetch(
     result: ProviderResult<UsageSnapshot>,
-    now = Date.now()
+    now = Date.now(),
+    requestedOwner?: BillingOwner
   ): Promise<UsageState> {
     if (result.ok) {
       await this.saveSuccess(result.value);
       return { state: "fresh", data: result.value };
     }
     const cached = this.get(now);
-    if (cached !== undefined) {
+    const sameOwner =
+      cached !== undefined &&
+      (requestedOwner === undefined ||
+        (cached.owner.scope === requestedOwner.scope &&
+          cached.owner.name.toLowerCase() === requestedOwner.name.toLowerCase()));
+    if (cached !== undefined && sameOwner) {
       return {
         state: "stale",
         data: { ...cached, source: "cache", stale: true },
@@ -113,6 +132,22 @@ export function refreshSnapshot(
     ...snapshot,
     stale: now - snapshot.fetchedAt >= staleAfterMs
   };
+}
+
+/**
+ * Absolute reset date and time, matching the sibling monitors.
+ *
+ * v3.16.3 showed only a countdown ("511h 41m"), which is unreadable at this
+ * magnitude - a monthly billing period is three weeks out, and nobody converts 511
+ * hours into a date in their head. The siblings show when the period actually ends,
+ * so this does too. The countdown remains available for short horizons.
+ */
+export function formatResetDateTime(resetAt: number, locale?: string): string {
+  const date = new Date(resetAt);
+  if (!Number.isFinite(resetAt) || Number.isNaN(date.getTime())) return "not reported";
+  return new Intl.DateTimeFormat(locale ?? "en-US", {
+    month: "short", day: "numeric", hour: "numeric", minute: "2-digit"
+  }).format(date);
 }
 
 export function formatResetCountdown(resetAt: number, now = Date.now()): string {

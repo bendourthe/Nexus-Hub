@@ -59,7 +59,21 @@ describe("scope candidates encode the T022c evidence", () => {
     // requests repo routinely. admin:org is held back for explicit escalation.
     expect(SCOPE_CANDIDATES.organization[0]).toBe("repo");
     expect(SCOPE_CANDIDATES.organization).toContain("admin:org");
-    expect(firstScopeCandidate(ORG)).toEqual(["repo"]);
+  });
+
+  it("also requests read:org, which the Copilot subscription endpoint requires", () => {
+    // Added 2026-08-11. `repo` reads billing usage and the organization plan, and
+    // reads NOTHING from `GET /orgs/{org}/copilot/billing`, which documents exactly
+    // two acceptable scopes: `manage_billing:copilot` or `read:org`. Without this the
+    // AI-credit allowance could never be composed, and the panel said "no allowance
+    // is known" for an organization that plainly has one.
+    expect(firstScopeCandidate(ORG)).toEqual(["repo", "read:org"]);
+
+    // The narrower of the two acceptable scopes, and read-only. `manage_billing:*`
+    // carries write semantics this monitor has no business holding, and `admin:org`
+    // stays behind an explicit escalation.
+    expect(firstScopeCandidate(ORG)).not.toContain("manage_billing:copilot");
+    expect(firstScopeCandidate(ORG)).not.toContain("admin:org");
   });
 
   it("uses the scope GitHub named for user scope", () => {

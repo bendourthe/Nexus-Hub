@@ -259,6 +259,9 @@ USAGE_MONITORS = (
 
 VS_CODE_USAGE_MONITORS = USAGE_MONITORS[:3]
 CURSOR_USAGE_MONITOR = USAGE_MONITORS[3]
+#: Installs into VS Code AND Cursor. The only monitor whose subject (GitHub billing)
+#: is independent of which editor the developer happens to be using.
+DUAL_HOST_MONITOR_ID = "nexus-hub.github-usage-monitor"
 
 
 def test_installers_build_every_usage_monitor_extension():
@@ -343,9 +346,25 @@ def test_installers_isolate_vscode_and_cursor_hosts():
             assert "vscode_cli" in window or "vscodeCli" in window, (
                 f"{path.name} must pass the VS Code CLI into {extension_id} install"
             )
+            if extension_id == DUAL_HOST_MONITOR_ID:
+                # Deliberate exception, 2026-08-11. GitHub billing is not tied to the
+                # editor a developer uses: a Cursor user has the same Actions minutes
+                # and Copilot credits to watch, so this monitor installs into BOTH.
+                # The Claude and Codex monitors stay VS Code-only because each reports
+                # usage for a tool that is itself a VS Code extension.
+                continue
             assert "cursor_cli" not in window and "cursorCli" not in window, (
                 f"{path.name} must not pass the Cursor CLI into {extension_id} install"
             )
+
+        # The dual-host monitor must reach BOTH editors. Asserted positively: the
+        # exemption above only stops the old rule failing, and an exemption alone
+        # would pass just as happily if the Cursor argument were dropped entirely.
+        dual_idx = body.index(DUAL_HOST_MONITOR_ID)
+        dual_window = body[dual_idx : dual_idx + 280]
+        assert "cursor_cli" in dual_window or "cursorCli" in dual_window, (
+            f"{path.name} must also pass the Cursor CLI into {DUAL_HOST_MONITOR_ID} install"
+        )
 
         _, cursor_id, _ = CURSOR_USAGE_MONITOR
         cursor_window = body[body.index(cursor_id) : body.index(cursor_id) + 280]

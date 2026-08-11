@@ -58,7 +58,7 @@ export type BillingAuthCapability =
 export const SCOPE_CANDIDATES: Readonly<
   Record<BillingOwner["scope"], readonly string[]>
 > = {
-  user: ["user"],
+user: ["user"],
   organization: ["repo", "admin:org"],
   enterprise: ["manage_billing:enterprise", "admin:enterprise"]
 };
@@ -69,10 +69,61 @@ export function capabilityKey(owner: BillingOwner): string {
   return `${owner.scope}:${owner.name.toLowerCase()}`;
 }
 
+/**
+ * Scopes every session request must carry for this owner.
+ *
+ * NOT `[candidates[0]]`. v3.16.4 added `repo` to the user-scope list to make private
+ * repositories resolvable, and it had no effect whatsoever because this function
+ * returned only the first element - so the session kept asking for `user` alone, the
+ * private repository kept 404ing, and the drawdown stayed unresolvable. The
+ * escalation list is about which scope to ESCALATE to on a 403; it was never the
+ * right thing to truncate a base request to.
+ */
+/**
+ * Scopes every session request must carry for this owner.
+ *
+ * Deliberately NARROW. v3.16.4 briefly requested `repo` alongside `user` so private
+ * repositories could be identified - and that was both excessive and harmful:
+ * `repo` grants full read/write over every private repository, and widening the
+ * request invalidated the existing session, forcing a fresh OAuth round-trip that
+ * failed on the URL handler and left the extension unable to sign in at all.
+ *
+ * It was never needed. `GET /repos/{owner}/{repo}` succeeds without `repo` scope for
+ * a PUBLIC repository and returns 404 for a private one, and every repository in an
+ * owner's billing belongs to that owner - so the 404 itself identifies the private
+ * repositories. See `RepositoryVisibilityCache`.
+ */
+/**
+ * The scopes a session must carry to read everything this monitor reports for a
+ * level - distinct from `SCOPE_CANDIDATES`, which is the ESCALATION ladder.
+ *
+ * Conflating the two is a mistake this file has made in both directions. v3.16.4
+ * added a scope to the candidate list expecting the base request to widen, and
+ * nothing changed because only the first element was ever requested; the correction
+ * then narrowed the base request to a single scope, which silently capped what the
+ * monitor could read.
+ *
+ * `read:org` is here because `GET /orgs/{org}/copilot/billing` documents exactly two
+ * acceptable scopes - `manage_billing:copilot` or `read:org` - and `repo` is neither.
+ * Verified 2026-08-11: an organization session holding `repo` alone read billing
+ * usage and the organization plan perfectly well, and returned nothing for the
+ * Copilot subscription, so the AI-credit allowance could never be composed.
+ *
+ * `read:org` is the narrower of the two acceptable scopes: it reads organization
+ * membership and metadata and grants no write of any kind. `manage_billing:copilot`
+ * carries "manage" semantics this monitor has no business holding, and `admin:org`
+ * stays where it belongs - behind an explicit escalation.
+ */
+export const BASE_SCOPES: Readonly<
+  Record<BillingOwner["scope"], readonly string[]>
+> = {
+  user: ["user"],
+  organization: ["repo", "read:org"],
+  enterprise: ["manage_billing:enterprise"]
+};
+
 export function firstScopeCandidate(owner: BillingOwner): readonly string[] {
-  const candidates = SCOPE_CANDIDATES[owner.scope];
-  const first = candidates[0];
-  return first === undefined ? [] : [first];
+  return BASE_SCOPES[owner.scope];
 }
 
 /**
@@ -178,8 +229,12 @@ export function capabilityFromProbe(record: ProbeRecord): BillingAuthCapability 
 const BLOCKED_GUIDANCE: Readonly<Record<BlockedReason, string>> = {
   "insufficient-scope":
     "The credential is missing a scope this billing endpoint requires.",
+  // The commonest cause is NOT a missing permission that can be granted. An
+  // enterprise-managed or corporate account usually cannot read its own USER-scope
+  // billing at all, because the enterprise owns that billing relationship - so the
+  // useful advice is to change the scope, not to hunt for a broader credential.
   "insufficient-role":
-    "The account is authenticated but lacks the billing role for this owner.",
+    "The account is signed in but cannot read billing for this owner. If this is a work or enterprise-managed account, its billing usually belongs to the organization or enterprise rather than to the user - set githubUsageMonitor.billingScope to 'organization' or 'enterprise' and githubUsageMonitor.billingOwner to that slug. If it is a personal account, you need the billing manager role on this owner.",
   "enhanced-billing-unavailable":
     "Enhanced billing is not enabled for this owner, or the owner name is wrong.",
   "oauth-app-approval-required":

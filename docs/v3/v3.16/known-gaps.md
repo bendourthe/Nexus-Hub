@@ -854,3 +854,18 @@ It is deliberately **not** decided here. It affects four extensions, it is a que
 | v3.16.3 version-implementation gaps (all 6 phases, reconciled) | 8 carried (DF-1 deferred key deletion; NI-2 unverifiable weights; MT-2 provisional runner rules; NI-4 cross-monitor policy, routed out; NI-7 deliberate divergence; WN-1 / BG-1 / BG-2 environmental) | 8 closed (NI-1, QG-2, MT-1, NI-5, NI-6, BG-3, NI-3, BG-4) |
 
 The three comparison-sourced items remain non-blocking prose folds with named target files. Of the v3.16.0 items, BG-1 is pre-existing and reproduces without this plan's changes, WN-1 is environmental, DF-1 is a reasoned non-implementation, NI-1 is a deliberate scope boundary the plan requires, and NI-2 / NI-3 / NI-4 are Phase 2 findings that Phase 3 and Phase 5 are already scheduled to dispose of. Phase 5 dispositioned every open item: 13 closed, 3 carried forward. **None gates the v3.16.0 release.** NI-1 and NI-6 are scope decisions for cycles already touching the relevant surfaces, and BG-1 is pre-existing, reproduced on a clean `develop` worktree, and confined to a Windows host whose PATH resolves `tar` to the Git Bash binary. Of the 13 closed, three (BG-2, BG-3, and QG-3) were caught by the test suite rather than by review, which is this cycle's strongest argument for running the full suite before declaring a phase done.
+
+## v3.16.5 - presentify-visual-overhaul (in progress)
+
+**Status**: in-progress (Phase 3 underway). Plan: [plans/v3.16.5-presentify-visual-overhaul.md](plans/v3.16.5-presentify-visual-overhaul.md).
+
+### Open Items
+
+#### Bugs / Regressions
+
+##### BG-E1 - Phase 1-2 contracts shipped with prescriptions the 2026-08-11 render session overturned
+
+- **Source phase**: Phases 1-2 (committed on `feat/v3.16.5-presentify-visual-overhaul` before the maintainer's live render-review of the calibration fixture).
+- **Plan reference**: the plan's "Errata: render-session lessons (2026-08-11)" section, items E1-E5.
+- **Reason**: `references/responsive-typography.md` canonizes a capped per-element body `clamp()` (E1) and ch-capped measures with a far-edge aside example (E2) - both demonstrated to fail on large displays; `references/svg-diagram-quality.md` presents a rotated label as the correct pattern (E4); `visual_qa_score.py` resolves px floors against a fixed 16px root (E3); sticky-collision / scroll-margin / pre-wrap defect classes are absent (E5).
+- **Suggested next step**: execute the errata inside Phase 3 (3.2 rubric rewrite absorbs E1/E2/E4/E5 contract corrections + E9; 3.3 absorbs the E3 scorer fix); verify against the repo-root calibration fixture, which already embodies all items.

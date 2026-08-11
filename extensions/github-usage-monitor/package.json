@@ -2,7 +2,7 @@
   "name": "github-usage-monitor",
   "displayName": "GitHub Usage Monitor",
   "description": "Monitor current-month GitHub usage - Actions minutes and storage, plus Copilot billing - for one billing owner you configure, without storing credentials in settings",
-  "version": "0.2.0",
+  "version": "0.3.2",
   "publisher": "nexus-hub",
   "icon": "icon.png",
   "repository": {
@@ -206,7 +206,7 @@
         },
         "githubUsageMonitor.alertMetric": {
           "type": "string",
-          "default": "highest",
+          "default": "actions-minutes",
           "enum": [
             "highest",
             "copilot-ai-credits",

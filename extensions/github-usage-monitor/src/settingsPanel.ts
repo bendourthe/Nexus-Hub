@@ -64,7 +64,7 @@ export function readSettings(): SettingsValues {
   return {
     billingScope: config.get("billingScope", "user"), billingOwner: config.get("billingOwner", ""), copilotMetric: config.get("copilotMetric", "ai-credits"),
     copilotAllowance: optionalNumber(config.get("allowances.copilot", null)), actionsMinutesAllowance: optionalNumber(config.get("allowances.actionsMinutes", null)), actionsStorageAllowance: optionalNumber(config.get("allowances.actionsStorage", null)),
-    refreshInterval: config.get("refreshInterval", 10), compactStatusBar: config.get("compactStatusBar", false), statusBarMetric: config.get("statusBarMetric", "actions-minutes"), alertMetric: config.get("alertMetric", "highest"),
+    refreshInterval: config.get("refreshInterval", 10), compactStatusBar: config.get("compactStatusBar", false), statusBarMetric: config.get("statusBarMetric", "actions-minutes"), alertMetric: config.get("alertMetric", "actions-minutes"),
     moderate: config.get("thresholds.moderate", 50), high: config.get("thresholds.high", 75), critical: config.get("thresholds.critical", 95), notificationTimeoutSeconds: config.get("notificationTimeoutSeconds", 12),
     moderateColor: config.get("colors.moderate", "#cca700"), highColor: config.get("colors.high", "#f0643c"), criticalColor: config.get("colors.critical", "#e05555")
   };
@@ -109,22 +109,62 @@ export function renderAuthSection(auth: AuthDisplay): string {
  * composes with the dashboard's own styles rather than clobbering them; every
  * selector here is a settings-specific class or id.
  */
+/**
+ * Component CSS for the inline settings form, matched to the Claude monitor's
+ * controls: bordered cards, a pill toggle, accent-coloured sliders with a live
+ * value, and a colour swatch beside a hex field.
+ *
+ * Deliberately omits base `body` / `*` rules so it composes with the dashboard's own
+ * styles rather than clobbering them; every selector is settings-specific.
+ */
 export function settingsStylesCss(): string {
-  return `#settings-section{margin-top:8px}` +
-    `#settings-section fieldset{border:1px solid var(--vscode-widget-border);margin:14px 0;padding:14px;border-radius:6px}` +
-    `#settings-section legend{font-weight:700;padding:0 6px}` +
-    `#settings-section .field{display:grid;grid-template-columns:210px 1fr;gap:12px;margin:8px 0;align-items:center}` +
+  return `#settings-section{margin-top:4px}` +
+    `.settings-subtitle{font-size:12px;color:var(--vscode-descriptionForeground);margin:2px 0 16px}` +
+    `.set-group{margin:18px 0 8px;font-size:13px;text-transform:uppercase;letter-spacing:0.5px;opacity:0.8}` +
+    `.set-card{border:1px solid var(--vscode-panel-border,var(--vscode-widget-border));border-radius:6px;padding:14px 16px;margin-bottom:12px}` +
+    `.set-row{display:flex;align-items:center;gap:12px}` +
+    `.set-label{font-size:12px;white-space:nowrap}` +
+    `.set-hint{font-size:12px;color:var(--vscode-descriptionForeground)}` +
+    `.set-line{display:flex;justify-content:space-between;gap:12px;font-size:12px;margin:4px 0}` +
+    `.set-account .account-name{font-size:14px;font-weight:600;margin-bottom:10px}` +
+    `.set-select{flex:1;background:var(--vscode-dropdown-background);color:var(--vscode-dropdown-foreground);` +
+    `border:1px solid var(--vscode-dropdown-border);border-radius:3px;padding:4px 8px;font-family:var(--vscode-font-family);font-size:12px;cursor:pointer}` +
+    `#settings-section input[type=number]{width:90px;padding:4px 6px;font:inherit;color:var(--vscode-input-foreground);` +
+    `background:var(--vscode-input-background);border:1px solid var(--vscode-input-border,var(--vscode-widget-border));border-radius:3px}` +
+    `.switch{position:relative;display:inline-block;width:34px;height:18px;flex-shrink:0}` +
+    `.switch input{opacity:0;width:0;height:0}` +
+    `.switch .track{position:absolute;inset:0;cursor:pointer;background:var(--vscode-input-background,#3c3c3c);` +
+    `border:1px solid var(--vscode-panel-border,var(--vscode-widget-border));border-radius:9px;transition:background 0.15s}` +
+    `.switch .track::before{content:"";position:absolute;height:12px;width:12px;left:2px;top:2px;` +
+    `background:var(--vscode-foreground);border-radius:50%;transition:transform 0.15s}` +
+    `.switch input:checked + .track{background:var(--vscode-button-background);border-color:var(--vscode-button-background)}` +
+    `.switch input:checked + .track::before{transform:translateX(16px);background:var(--vscode-button-foreground)}` +
+    `.level-header{display:flex;align-items:center;gap:10px;margin-bottom:16px}` +
+    `.level-badge{font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:2px 8px;border-radius:3px}` +
+    `.level-moderate{background:rgba(204,167,0,0.18);color:#cca700}` +
+    `.level-high{background:rgba(240,100,60,0.18);color:#f0643c}` +
+    `.level-critical{background:rgba(220,50,50,0.22);color:#e05555}` +
+    `.level-desc{font-size:12px;color:var(--vscode-descriptionForeground)}` +
+    `.field-row{display:flex;align-items:center;gap:12px;margin-bottom:12px}` +
+    `.field-row:last-child{margin-bottom:0}` +
+    `.field-label{font-size:12px;min-width:120px;flex-shrink:0}` +
+    `.slider-group{display:flex;align-items:center;gap:10px;flex:1}` +
+    `.slider{flex:1;accent-color:var(--vscode-button-background);cursor:pointer}` +
+    `.slider-value{font-size:13px;font-weight:600;min-width:38px}` +
+    `.color-group{display:flex;align-items:center;gap:8px}` +
+    `.picker-wrapper{width:34px;height:22px;border-radius:3px;overflow:hidden;` +
+    `border:1px solid var(--vscode-panel-border,var(--vscode-widget-border));flex-shrink:0;display:inline-block}` +
+    `.color-input{width:46px;height:30px;border:none;padding:0;cursor:pointer;background:none;margin:-4px 0 0 -6px}` +
+    `.hex-input{font-family:var(--vscode-editor-font-family,monospace);font-size:12px;width:72px;padding:3px 6px;` +
+    `background:var(--vscode-input-background);color:var(--vscode-input-foreground);` +
+    `border:1px solid var(--vscode-input-border,var(--vscode-panel-border));border-radius:3px}` +
+    `.hex-input.invalid{border-color:#e05555}` +
+    `#settings-section .note{color:var(--vscode-descriptionForeground);margin:8px 0 0;font-size:11px}` +
     `#settings-section .field-value{color:var(--vscode-descriptionForeground)}` +
-    `#settings-section .note{color:var(--vscode-descriptionForeground);margin:6px 0}` +
-    `#settings-section .group-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}` +
+    `#settings-section .group-actions{display:flex;flex-wrap:wrap;gap:8px}` +
     `#settings-section .danger{border-color:var(--vscode-notificationsErrorIcon-foreground)}` +
-    `#settings-section input[type=number],#settings-section select{padding:4px 6px;font:inherit;color:var(--vscode-input-foreground);background:var(--vscode-input-background);border:1px solid var(--vscode-input-border,var(--vscode-widget-border));border-radius:3px}` +
-    `#settings-section input[type=number]{width:90px}` +
-    `#settings-section input[type=color]{width:44px;height:26px;padding:0;border:1px solid var(--vscode-widget-border);background:none;cursor:pointer}` +
-    `#settings-section input:focus-visible,#settings-section select:focus-visible{outline:2px solid var(--vscode-focusBorder);outline-offset:1px}` +
-    `#settings-section input.invalid{border-color:var(--vscode-notificationsErrorIcon-foreground)}` +
-    `#settings-section .invalid-note{color:var(--vscode-notificationsErrorIcon-foreground);font-size:12px;margin-left:8px}` +
-    `@media(max-width:560px){#settings-section .field{grid-template-columns:1fr}}`;
+    `#settings-section .invalid-note{color:var(--vscode-notificationsErrorIcon-foreground);font-size:12px}` +
+    `#settings-section input:focus-visible,#settings-section select:focus-visible{outline:2px solid var(--vscode-focusBorder);outline-offset:1px}`;
 }
 
 /**
@@ -145,7 +185,6 @@ export const EDITABLE_SETTINGS: Readonly<Record<string, "number" | "string" | "b
   alertMetric: "string",
   statusBarMetric: "string",
   compactStatusBar: "boolean",
-  refreshInterval: "number",
   notificationTimeoutSeconds: "number"
 };
 
@@ -171,80 +210,62 @@ export function isEditableSetting(key: unknown, value: unknown): key is string {
  * registered so the Command Palette continues to reach it.
  */
 export function settingsSectionHtml(values: SettingsValues, auth?: AuthDisplay): string {
-  const field = (label: string, value: string | number | null): string =>
-    `<div class="field"><span>${escapeHtml(label)}</span><span class="field-value">${escapeHtml(value === null || value === "" ? "not set" : String(value))}</span></div>`;
   const button = (command: string, label: string, extraClass = "secondary"): string =>
     `<button class="${extraClass}" data-command="${command}">${escapeHtml(label)}</button>`;
-  const numberField = (key: string, label: string, value: number, min: number, max: number): string =>
-    `<div class="field"><label for="set-${key}">${escapeHtml(label)}</label>` +
-    `<span><input id="set-${key}" type="number" min="${min}" max="${max}" value="${value}" data-setting="${key}" data-kind="number">` +
-    `<span class="invalid-note" id="err-${key}" role="alert"></span></span></div>`;
-  const colorField = (key: string, label: string, value: string): string =>
-    `<div class="field"><label for="set-${key}">${escapeHtml(label)}</label>` +
-    `<span><input id="set-${key}" type="color" value="${escapeHtml(value)}" data-setting="${key}" data-kind="string"></span></div>`;
-  const selectField = (key: string, label: string, value: string, options: ReadonlyArray<readonly [string, string]>): string =>
-    `<div class="field"><label for="set-${key}">${escapeHtml(label)}</label>` +
-    `<span><select id="set-${key}" data-setting="${key}" data-kind="string">` +
+  const selectRow = (key: string, label: string, value: string, options: ReadonlyArray<readonly [string, string]>): string =>
+    `<div class="set-card set-row"><label class="set-label" for="set-${key}">${escapeHtml(label)}</label>` +
+    `<select id="set-${key}" class="set-select" data-setting="${key}" data-kind="string">` +
     options.map(([option, text]) => `<option value="${escapeHtml(option)}"${option === value ? " selected" : ""}>${escapeHtml(text)}</option>`).join("") +
-    `</select></span></div>`;
-  const toggleField = (key: string, label: string, value: boolean, hint: string): string =>
-    `<div class="field"><label for="set-${key}">${escapeHtml(label)}</label>` +
-    `<span><input id="set-${key}" type="checkbox"${value ? " checked" : ""} data-setting="${key}" data-kind="boolean"> ` +
-    `<span class="field-value">${escapeHtml(hint)}</span></span></div>`;
+    `</select></div>`;
+  const toggleRow = (key: string, label: string, value: boolean, hint: string): string =>
+    `<div class="set-card set-row"><span class="set-label">${escapeHtml(label)}</span>` +
+    `<label class="switch"><input type="checkbox" id="set-${key}"${value ? " checked" : ""} data-setting="${key}" data-kind="boolean">` +
+    `<span class="track"></span></label><span class="set-hint">${escapeHtml(hint)}</span></div>`;
+  const sliderRow = (key: string, value: number, min: number, max: number, suffix: string): string =>
+    `<div class="field-row"><label class="field-label" for="set-${key}">Threshold</label>` +
+    `<div class="slider-group"><input type="range" class="slider" id="set-${key}" min="${min}" max="${max}" value="${value}" data-setting="${key}" data-kind="number">` +
+    `<span class="slider-value" id="val-${key}">${value}${suffix}</span></div>` +
+    `<span class="invalid-note" id="err-${key}" role="alert"></span></div>`;
+  const colorRow = (key: string, value: string): string =>
+    `<div class="field-row"><label class="field-label" for="set-${key}">Status bar color</label>` +
+    `<div class="color-group"><span class="picker-wrapper"><input type="color" class="color-input" id="set-${key}" value="${escapeHtml(value)}" data-setting="${key}" data-kind="string"></span>` +
+    `<input type="text" class="hex-input" value="${escapeHtml(value)}" data-hex-for="${key}" maxlength="7"></div></div>`;
+  const level = (name: string, badge: string, description: string, thresholdKey: string, threshold: number, colorKey: string, color: string): string =>
+    `<div class="set-card level"><div class="level-header"><span class="level-badge level-${name}">${escapeHtml(badge)}</span>` +
+    `<span class="level-desc">${escapeHtml(description)}</span></div>` +
+    sliderRow(thresholdKey, threshold, 1, 100, "%") + colorRow(colorKey, color) + `</div>`;
 
   return `<section id="settings-section" hidden aria-label="Settings">
+    <div class="divider"></div>
     <h2>Settings</h2>
-    <p class="note">This monitor reports Actions minutes and storage, plus Copilot billing, for the one billing owner configured below. Tokens are stored only in VS Code SecretStorage and are never displayed here.</p>
-    ${auth === undefined ? "" : renderAuthSection(auth)}
-    <fieldset><legend>Account</legend>
-      ${field("Scope", values.billingScope)}${field("Owner", values.billingOwner)}${field("Copilot metric", values.copilotMetric)}
-      <div class="group-actions">
-        ${button("logIn", "Connect / switch account")}${button("logOut", "Log out of this monitor")}
-        ${button("setToken", "Set token")}${button("rotateToken", "Rotate token")}${button("validateToken", "Validate token")}${button("clearToken", "Clear token")}
-        ${button("diagnoseAuth", "Diagnose authorization")}
-      </div>
-    </fieldset>
-    <fieldset><legend>Allowances</legend>
-      ${field("Copilot", values.copilotAllowance)}${field("Actions minutes", values.actionsMinutesAllowance)}${field("Actions storage (GB)", values.actionsStorageAllowance)}
-      <p class="note">Allowances are derived from your plan automatically. Override one only if your account includes a different amount than the published figure.</p>
-      <div class="group-actions">${button("manualEntry", "Override allowances")}${button("openNativeSettings", "Edit in VS Code settings")}</div>
-    </fieldset>
-    <fieldset><legend>Status bar</legend>
-      ${selectField("statusBarMetric", "Show in status bar", values.statusBarMetric, [
-        ["actions-minutes", "Actions minutes (default)"],
-        ["actions-storage", "Actions storage"],
-        ["copilot", "Copilot"],
-        ["highest", "Highest known percentage"]
-      ])}
-      <p class="note">Actions minutes is the default because it is the metric with a real published entitlement for most accounts, and therefore the one most likely to show a meaningful percentage.</p>
-      ${toggleField("compactStatusBar", "Compact", values.compactStatusBar, "Hide the \"GitHub Usage: \" label")}
-    </fieldset>
-    <fieldset><legend>Alerts</legend>
-      ${selectField("alertMetric", "Alert on", values.alertMetric, [
-        ["highest", "Highest known percentage"],
-        ["actions-minutes", "Actions minutes"],
-        ["actions-storage", "Actions storage"],
-        ["copilot-ai-credits", "Copilot AI credits"],
-        ["copilot-premium-requests", "Copilot premium requests"]
-      ])}
-      ${numberField("thresholds.moderate", "Moderate threshold (%)", values.moderate, 1, 100)}
-      ${numberField("thresholds.high", "High threshold (%)", values.high, 1, 100)}
-      ${numberField("thresholds.critical", "Critical threshold (%)", values.critical, 1, 100)}
-      ${colorField("colors.moderate", "Moderate color", values.moderateColor)}
-      ${colorField("colors.high", "High color", values.highColor)}
-      ${colorField("colors.critical", "Critical color", values.criticalColor)}
-      ${numberField("notificationTimeoutSeconds", "Notification timeout (s)", values.notificationTimeoutSeconds, 3, 60)}
-    </fieldset>
-    <fieldset><legend>Refresh</legend>
-      ${numberField("refreshInterval", "Interval (minutes)", values.refreshInterval, 1, 120)}
-    </fieldset>
-    <fieldset class="danger"><legend>Danger zone</legend>
-      <p class="note">Removes the cached snapshot and alert state from this machine. Your GitHub account and stored token are untouched.</p>
-      <div class="group-actions">${button("clearData", "Clear cached data")}</div>
-    </fieldset>
+    <p class="settings-subtitle">Adjust the status bar, alerts, and refresh interval. Changes apply immediately. Account controls live at the top of the panel, beside the title.</p>
+
+    <h3 class="set-group">Status bar</h3>
+    ${selectRow("statusBarMetric", "Show in status bar", values.statusBarMetric, [
+      ["actions-minutes", "Actions minutes (default)"],
+      ["actions-storage", "Actions storage"],
+      ["copilot", "Copilot AI credits"],
+      ["highest", "Highest known percentage"]
+    ])}
+    ${toggleRow("compactStatusBar", "Compact status bar", values.compactStatusBar, "Hide the \"GitHub Usage: \" label")}
+
+    <h3 class="set-group">Alerts</h3>
+    ${selectRow("alertMetric", "Apply thresholds to", values.alertMetric, [
+      ["actions-minutes", "Actions minutes (default)"],
+      ["highest", "Highest known percentage"],
+      ["actions-storage", "Actions storage"],
+      ["copilot-ai-credits", "Copilot AI credits"],
+      ["copilot-premium-requests", "Copilot premium requests"]
+    ])}
+    ${level("moderate", "Moderate", "First alert level", "thresholds.moderate", values.moderate, "colors.moderate", values.moderateColor)}
+    ${level("high", "High", "Elevated alert level", "thresholds.high", values.high, "colors.high", values.highColor)}
+    ${level("critical", "Critical", "Maximum alert level", "thresholds.critical", values.critical, "colors.critical", values.criticalColor)}
+    <div class="set-card set-row"><label class="set-label" for="set-notificationTimeoutSeconds">Notification timeout (s)</label>
+      <input type="number" id="set-notificationTimeoutSeconds" min="3" max="60" value="${values.notificationTimeoutSeconds}" data-setting="notificationTimeoutSeconds" data-kind="number">
+      <span class="invalid-note" id="err-notificationTimeoutSeconds" role="alert"></span></div>
+
   </section>`;
 }
-
 
 /**
  * Client-side write-back and inline validation.
@@ -255,6 +276,7 @@ export function settingsSectionHtml(values: SettingsValues, auth?: AuthDisplay):
  * gate its own writes.
  */
 const SETTINGS_WRITE_BACK_JS = `
+  const HEX_RE = /^#[0-9a-fA-F]{6}$/;
   function settingsValue(el){
     if(el.dataset.kind==='number')return Number(el.value);
     if(el.dataset.kind==='boolean')return el.checked;
@@ -267,9 +289,7 @@ const SETTINGS_WRITE_BACK_JS = `
     return (m<h&&h<c)?null:'Thresholds must increase from moderate to high to critical.';
   }
   function showFieldError(key,message){
-    const input=document.querySelector('[data-setting="'+key+'"]');
     const note=document.getElementById('err-'+key);
-    if(input)input.classList.toggle('invalid',Boolean(message));
     if(note)note.textContent=message||'';
   }
   function onSettingChange(el){
@@ -284,6 +304,29 @@ const SETTINGS_WRITE_BACK_JS = `
   }
   document.querySelectorAll('[data-setting]').forEach(function(el){
     el.addEventListener('change',function(){onSettingChange(el);});
+    if(el.classList.contains('slider')){
+      el.addEventListener('input',function(){
+        const out=document.getElementById('val-'+el.dataset.setting);
+        if(out)out.textContent=el.value+'%';
+      });
+    }
+    if(el.type==='color'){
+      el.addEventListener('input',function(){
+        const hex=document.querySelector('[data-hex-for="'+el.dataset.setting+'"]');
+        if(hex){hex.value=el.value;hex.classList.remove('invalid');}
+      });
+    }
+  });
+  document.querySelectorAll('[data-hex-for]').forEach(function(hex){
+    hex.addEventListener('input',function(){
+      const raw=hex.value.trim();
+      const value=raw.charAt(0)==='#'?raw:'#'+raw;
+      if(!HEX_RE.test(value)){hex.classList.add('invalid');return;}
+      hex.classList.remove('invalid');
+      const picker=document.getElementById('set-'+hex.dataset.hexFor);
+      if(picker)picker.value=value;
+      vscode.postMessage({command:'updateSetting',key:hex.dataset.hexFor,value:value});
+    });
   });
 `;
 
