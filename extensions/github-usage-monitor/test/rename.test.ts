@@ -56,7 +56,12 @@ describe("v3.16.3 rename completeness", () => {
 
   it("titles every user-visible surface with the reverted name", () => {
     expect(manifest.displayName).toBe("GitHub Usage Monitor");
-    expect(manifest.version).toBe("0.2.0");
+    // Shape, not a literal. Pinning the exact version made every release fail a
+    // test about NAMING, which teaches nothing when it breaks and has to be edited
+    // each time - the "asserts history rather than behavior" pattern AGENTS.md's
+    // retention policy excludes. What matters here is that a version exists and is
+    // well-formed, because the update watcher compares it against the installed one.
+    expect(manifest.version).toMatch(/^\d+\.\d+\.\d+$/u);
     expect(manifest.contributes.configuration.title).toBe("GitHub Usage Monitor");
     for (const command of manifest.contributes.commands) {
       expect(command.category).toBe("GitHub Usage Monitor");

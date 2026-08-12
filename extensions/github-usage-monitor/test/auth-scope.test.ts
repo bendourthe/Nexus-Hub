@@ -11,7 +11,8 @@ import {
   managedCopilotScopeError,
   permissionError,
   requiredPermission,
-  resolveBillingOwner
+  resolveBillingOwner,
+  isReconnectableError
 } from "../src/providers/scope";
 import type { ProviderResult } from "../src/types";
 
@@ -103,6 +104,42 @@ describe("token and session policy", () => {
 
   it("keeps VS Code GitHub sessions disabled until billing acceptance is proven", () => {
     expect(vscodeGitHubSessionProbe()).toEqual(expect.objectContaining({ supported: false }));
+  });
+});
+
+describe("reconnectable failures", () => {
+  it("offers reconnection for failures a credential can actually fix", () => {
+    // The 2026-08-11 reload case: a window reload bound the personal account while
+    // the owner was an organization, producing a 404 served as last-known-good data.
+    for (const code of [
+      "not-connected",
+      "missing-token",
+      "invalid-token",
+      "invalid-scope",
+      "not-found",
+      "missing-plan-read",
+      "missing-organization-administration-read",
+      "missing-enterprise-billing-permission"
+    ]) {
+      expect(isReconnectableError(code)).toBe(true);
+    }
+  });
+
+  it("stays silent for failures no credential resolves", () => {
+    // Offering "Reconnect" for a rate limit or an offline machine teaches the user
+    // to ignore the offer, which costs it the one case where it matters.
+    for (const code of [
+      "rate-limited",
+      "timeout",
+      "cancelled",
+      "network-error",
+      "service-error",
+      "schema-mismatch",
+      "enhanced-billing-unavailable",
+      "managed-copilot-personal-scope"
+    ]) {
+      expect(isReconnectableError(code)).toBe(false);
+    }
   });
 });
 

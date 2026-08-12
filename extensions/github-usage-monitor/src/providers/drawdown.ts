@@ -379,10 +379,33 @@ export function breakdownByRepository(
  * RECONSTRUCTION and must be labelled as such. It is not GitHub's own figure, and
  * GitHub no longer publishes what it would take to make it one.
  */
+/**
+ * Per-OS drawdown weights. All 1: minutes count against the allowance at face value.
+ *
+ * v3.16.3 shipped Windows 2x / macOS 10x on a single observation - July 2026, whose
+ * private-repository raw total (1,584) sat below a SATURATED 2,000-minute bar, which
+ * seemed to require a multiplier to explain.
+ *
+ * That inference was contaminated. Repository visibility was resolved at analysis
+ * time and applied retroactively to July's line items. A repository that was private
+ * in July and public afterwards is counted as public for July, understating the
+ * period. Nexus-Hub alone accounts for 588 of July's minutes: had it been private
+ * then, July's private total is 2,172 and the saturated bar needs no multiplier.
+ *
+ * Against that, two months whose displayed value was NOT censored by saturation both
+ * match raw minutes: 2026-08-09 gave 124 raw against a displayed 120.7, and
+ * 2026-08-10 gave roughly 128 raw against a displayed 126.7. A saturated bar reports
+ * only "at least 2,000" and is the weakest evidence available; an unsaturated one
+ * reports the number itself.
+ *
+ * The weights are kept as a named constant rather than deleted so that reinstating
+ * them is a one-line change with this reasoning attached, should an uncensored month
+ * ever contradict 1:1.
+ */
 export const OS_DRAWDOWN_WEIGHTS: Readonly<Record<Exclude<RunnerOs, "unknown">, number>> = {
   linux: 1,
-  windows: 2,
-  macos: 10
+  windows: 1,
+  macos: 1
 };
 
 export interface DrawdownResult {
@@ -451,10 +474,29 @@ export function computeDrawdownMinutes(
     itemCount += 1;
   }
 
+  const unresolvedRepositories = [...unresolved];
+
+  // A partial resolution is UNKNOWN, not a smaller number.
+  //
+  // v3.16.3 returned the partial sum whenever ANY repository resolved. Public
+  // repositories resolve without extra permission while private ones 404 without
+  // `repo` scope, so an account whose usage was mostly public produced
+  // resolvedAny=true with a sum of 0 - rendered as a confident 0% against a
+  // 2,000-minute allowance. Understating is only "the safe direction" when the
+  // result is still recognizably a usage figure; zero is not, and neither is any
+  // total that silently omits the repositories that actually consume the quota.
+  // No line items at all is a different fact from a partial resolution: GitHub
+  // reported no Actions usage for the period, so the drawdown is genuinely zero and
+  // a 0% meter is the truth rather than a guess. The guard above exists for items
+  // that FAILED to resolve; an empty set has nothing to fail. Without this, a month
+  // with no Actions runs rendered "could not be reconstructed" against a perfectly
+  // good allowance - observed 2026-08-11 on an organization at 0 minutes.
+  const noUsageReported = actionsMinutes.length === 0;
+  const complete = noUsageReported || (unresolvedRepositories.length === 0 && resolvedAny);
   return {
-    minutes: resolvedAny ? minutes : null,
+    minutes: complete ? minutes : null,
     itemCount,
-    unresolvedRepositories: [...unresolved],
+    unresolvedRepositories,
     usedWeighting
   };
 }

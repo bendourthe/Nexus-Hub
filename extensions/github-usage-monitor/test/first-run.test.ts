@@ -7,7 +7,7 @@ import {
 import { isNotConnected, buildHoverMarkdown, buildStatusText } from "../src/statusBarManager";
 import { renderDashboard } from "../src/dashboardPanel";
 import { activate } from "../src/extension";
-import { Uri, configurationLog, readUserConfiguration, resetVscodeStub, setUserConfiguration } from "./vscode-stub";
+import { Uri, configurationLog, readUserConfiguration, resetVscodeStub, setUserConfiguration, stubExtension } from "./vscode-stub";
 import type { BillingScope, UsageState } from "../src/types";
 
 const SCOPE: BillingScope = "user";
@@ -211,6 +211,7 @@ describe("activation ordering (closes v3.16.3 Phase 1 MT-1)", () => {
         delete: async () => undefined
       },
       subscriptions: [],
+      extension: stubExtension(),
       extensionUri: Uri.file("fixture-extension"),
       globalState: {
         get: <T,>(key: string): T | undefined => state.get(key) as T | undefined,

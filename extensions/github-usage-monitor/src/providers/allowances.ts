@@ -89,7 +89,13 @@ export function applyMetricAllowance(
   const drawdown = drawdownInput?.drawdown ?? null;
   const drawdownBasis = drawdownInput?.drawdownBasis ?? "unavailable";
 
-  const allowanceState: AllowanceState = PRODUCTS_WITHOUT_ALLOWANCE.has(metric.kind)
+  // The no-allowance list applies only when NO allowance was resolved. It used to
+  // apply unconditionally, which made every Copilot denominator unreachable: a
+  // derived organization figure was discarded, and so was a value the user had typed
+  // in Settings - while the panel still told them to "set one in Settings to see a
+  // percentage". Membership of that list means "we know of no allowance", not "an
+  // allowance may not exist", so a resolved one overrides it.
+  const allowanceState: AllowanceState = allowance === null && PRODUCTS_WITHOUT_ALLOWANCE.has(metric.kind)
     ? "none"
     : allowance !== null && drawdown !== null
       ? "verified"

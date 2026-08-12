@@ -6,7 +6,8 @@ import {
   resetVscodeStub,
   runCommand,
   setConfiguration,
-  Uri
+  Uri,
+  stubExtension
 } from "./vscode-stub";
 
 class FakeSecrets {
@@ -76,6 +77,7 @@ describe("extension authentication commands", () => {
     return {
       secrets: secretStorage,
       subscriptions: [],
+      extension: stubExtension(),
       extensionUri: Uri.file("fixture-extension"),
       globalState: {
         get<T>(key: string): T | undefined { return values.get(key) as T | undefined; },

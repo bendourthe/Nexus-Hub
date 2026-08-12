@@ -111,12 +111,41 @@ describe("allowances", () => {
     // there is nothing to draw against - distinct from a missing measurement.
     const result = applyMetricAllowance(
       metric("copilot-ai-credits", "ai-credits", 125),
-      { manual: { "copilot-ai-credits": { value: 250, unit: "ai-credits" } } },
+      {},
       { drawdown: 125, drawdownBasis: "reported" }
     );
     expect(result.allowanceState).toBe("none");
     expect(result.allowance).toBeNull();
     expect(result.percentage).toBeNull();
+  });
+
+  it("honors a Copilot allowance once one is actually established", () => {
+    // CONTRACT CHANGE, 2026-08-11. This previously asserted that a Copilot allowance
+    // was discarded "regardless of any value set" - while `explainMissingPercentage`
+    // told the user "Set one in Settings to see a percentage". The UI instructed an
+    // action the code threw away, so one of the two was wrong; the discard was.
+    //
+    // Membership of PRODUCTS_WITHOUT_ALLOWANCE means "no allowance is KNOWN", which a
+    // resolved value answers. It never meant "an allowance may not exist" - an
+    // organization Copilot subscription demonstrably has one.
+    const manual = applyMetricAllowance(
+      metric("copilot-ai-credits", "ai-credits", 125),
+      { manual: { "copilot-ai-credits": { value: 250, unit: "ai-credits" } } },
+      { drawdown: 125, drawdownBasis: "reported" }
+    );
+    expect(manual.allowanceState).toBe("verified");
+    expect(manual.allowanceSource).toBe("manual");
+    expect(manual.percentage).toBe(50);
+
+    // The live organization measured 2026-08-11: 225.77 credits of a 21,000 pool.
+    const derived = applyMetricAllowance(
+      metric("copilot-ai-credits", "ai-credits", 225.77),
+      { planTable: { "copilot-ai-credits": { value: 21_000, unit: "ai-credits" } } },
+      { drawdown: 225.77, drawdownBasis: "reported" }
+    );
+    expect(derived.allowanceState).toBe("verified");
+    expect(derived.allowanceSource).toBe("plan-table");
+    expect(derived.percentage).toBeCloseTo(1.075, 3);
   });
 
   it("never renders 0% or 100% for a null allowance", () => {
@@ -161,8 +190,10 @@ describe("allowances", () => {
       },
       { "actions-minutes": { drawdown: 500, drawdownBasis: "reconstructed" } }
     );
-    // Copilot has no plan allowance at all, so it is none regardless of any value set.
-    expect(result.copilot.allowanceState).toBe("none");
+    // Copilot got a manual value but no drawdown input, so it is unknown - the
+    // denominator is established and the numerator is not. Not `none`: see the
+    // contract change above.
+    expect(result.copilot.allowanceState).toBe("unknown");
     expect(result.copilot.percentage).toBeNull();
     expect(result.actionsMinutes.percentage).toBe(50);
     // Storage got no drawdown input, so it stays unknown rather than guessing.

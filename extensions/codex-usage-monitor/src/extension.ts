@@ -11,6 +11,7 @@ import { DashboardPanel } from "./dashboardPanel";
 import { WarningViewProvider, WARNING_VIEW_ID, WARNING_ACTIVE_CONTEXT } from "./warningView";
 import { getRecommendation, getActiveUrgency, pickTriggerMetric, buildUsageSuggestion, classifyUrgency } from "./recommendations";
 import { UrgencyLevel, UsageData, getThresholdConfig, getNotificationTimeoutMs, syncColorsToWorkbench, getColorConfig } from "./types";
+import { registerUpdateWatcher } from "./updateWatcher";
 
 type NotificationSeverity = "info" | "warning";
 
@@ -68,6 +69,9 @@ let warningView: WarningViewProvider | undefined;
 const notifiedThresholds = new Set<number>();
 
 export function activate(context: vscode.ExtensionContext): void {
+  // Registered first: an install that lands underneath this window leaves THIS code
+  // stale, so it is the only code able to say so.
+  registerUpdateWatcher(context, "Codex Usage Monitor");
   // The warning sidebar starts hidden; it is revealed only when a threshold fires.
   void vscode.commands.executeCommand("setContext", WARNING_ACTIVE_CONTEXT, false);
   warningView = new WarningViewProvider();
