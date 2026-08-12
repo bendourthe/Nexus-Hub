@@ -16,7 +16,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 **1. The `cinematic` interactivity level.**
 
 - **Activation**: `--interactivity cinematic`, the fourth option in the up-front interactivity menu, or a CONFIRMED proposal under `rich`. There is no fourth path: it is never silently auto-selected, and never proposed in a non-interactive run.
-- **Validation**: `python -m pytest tests/skills/test_presentify_cinematic.py -v` (17 assertions covering the level's reachability, the protocol, and the engine's forbidden constructs).
+- **Validation**: `python -m pytest tests/skills/test_presentify_cinematic.py -v` (17 collected tests covering the level's reachability, the protocol, and the engine's forbidden constructs).
 - **Disable / rollback**: choose any other level (`restrained`, `balanced`, `rich`). Nothing persists between runs, so there is no state to undo; a run that was never given the flag or the confirmation never enters the mode.
 - **Authority this does NOT grant**: no network access of any kind. Hosted image or video generation remains the generation-as-service Hard-No, and that applies to a vendor CLI exactly as to an API. Runtime hotlinks are forbidden, every asset is embedded as a `data:` URI, and the output remains a single offline file making zero off-host requests. Choosing cinematic does not widen the imagery consent you gave in round 1.
 - **Documentation**: `catalog/skills/specialized-domains/document-to-interactive-html/references/scroll-scrub.md`.
