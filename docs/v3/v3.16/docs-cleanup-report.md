@@ -148,3 +148,82 @@ Phase 2's step 8.3 found that `ci.yml`'s `paths-ignore: ['docs/**']` prevented a
 
 - `README.md` makes no reference to `configs/`, so the new source needs no README change. Documenting the surface in `AGENTS.md` is explicitly Phase 4.2's sub-task and was deliberately NOT done here, to avoid doing a later phase's work.
 - `configs/README.md` did not exist before this phase; it now documents both the pre-existing `permissions/` templates and the new defaults source, so `configs/` is no longer an undocumented directory.
+
+---
+
+## v3.16.5 Phase 1 - fluid layout and readability contract (audit mode, 2026-08-11)
+
+Audit only; no file was moved, renamed, or removed.
+
+- **New artifacts, both permanent and correctly placed**: `catalog/skills/specialized-domains/document-to-interactive-html/references/responsive-typography.md` (a bundled Tier-3 reference, referenced twice from its parent `SKILL.md`, so the orphan-bundle audit is satisfied) and the appended `## v3.16.5 - presentify-visual-overhaul` section of `docs/v3/v3.16/known-gaps.md`. Neither is scratch output.
+- **No scratch docs created.** The phase produced no working notes, comparison scratch, or intermediate report, so there is nothing to propose for cleanup.
+- **One known misplacement, deliberately left alone**: the calibration fixture `nexus-hub-unit-test-workflow.html` sits untracked at the repository root. Sub-task 1.3 explicitly defers its final location to Phase 7, and moving it here would pre-empt a maintainer decision the plan reserves. Tracked as v3.16.5 MT-1.
+- **Cross-surface check**: `README.md` does not enumerate the presentify skill's bundled references, so the new file needs no README change. `AGENTS.md` describes the bundled-resource convention generically and needs no per-file entry.
+
+## v3.16.5 Phase 2 - SVG diagram-quality contract (audit mode, 2026-08-11)
+
+Audit only; no file was moved, renamed, or removed.
+
+- **One new artifact, permanent and correctly placed**: `catalog/skills/specialized-domains/document-to-interactive-html/references/svg-diagram-quality.md`, referenced twice from its parent `SKILL.md` (a Step 6 bullet and the Bundled Resources list) plus reciprocally from `responsive-typography.md` and `visual-qa-rubric.md`. The orphan-bundle audit passes with 0 warnings.
+- **The cross-reference debt Phase 1 deliberately took on is now repaid.** Phase 1 wrote and then removed two forward references to this file so it could pass its own gate without a dangling link; Phase 2 restored both, so the two contracts now point at each other and neither claims a file that does not exist.
+- **No scratch docs created.** Nothing to propose for cleanup.
+- **The one known misplacement is unchanged**: the calibration fixture still sits at the repository root, tracked but not homed, deferred to Phase 7 (MT-1).
+
+## v3.16.5 Phase 3 - real render loop (audit mode, 2026-08-11)
+
+Audit only; no file was moved, renamed, or removed.
+
+- **One new artifact, correctly placed**: `catalog/skills/specialized-domains/document-to-interactive-html/scripts/ensure_render_env.py`, referenced from `SKILL.md` (the Step 9 provisioning bullet and the Bundled Resources list) and from `references/visual-qa-rubric.md`. It is a per-skill bundled script, so it reaches every platform through the existing recursive skill-tree copy with NO installer edit and no `DEV_ONLY_SCRIPTS` entry - it is a distributed artifact, not a repo-internal guard.
+- **No `.ps1` sibling is owed**: the parity rule in AGENTS.md applies to `catalog/hooks/<name>.sh` and to `.sh` scripts under a skill's `scripts/`. This is a `.py`, cross-platform by construction, and its Windows browser-detection paths are the primary tested case.
+- **No scratch docs committed.** The dogfood render harness and the seeded-regression prover ran from the session scratchpad; the durable half of the latter was promoted into `tests/skills/test_presentify_visual_qa.py` as a parametrized mutation test rather than left as a loose script.
+- **The one known misplacement is unchanged**: the calibration fixture still sits at the repository root, tracked, deferred to Phase 7 (MT-1). Phase 3 narrowed MT-1 by half - it is now guarded by two standing tests plus a CI scoring step, so only its LOCATION remains open.
+
+## v3.16.5 errata pass E1-E10 (audit mode, 2026-08-11)
+
+Audit only; no file was moved, renamed, or removed.
+
+- **No new artifacts.** The pass corrected existing contracts, the scorer, the rubric, the command doc, and the calibration fixture. The orphan-bundle audit passes with 0 warnings.
+- **The calibration fixture was REPLACED, not edited.** The repo-root copy - verified across four render rounds at 2560x1300 and 1920x1080 - was adopted wholesale as the reference implementation per errata E10, and the Phase 1-3 worktree lineage (diverged by ~3291 lines) was discarded. Recorded here because a 3291-line change to a tracked file with no corresponding feature is otherwise unexplainable to a later reader.
+- **No scratch docs committed.** The ground-truth render harness, the E3 recalibration script, and the per-item patch scripts all ran from the session scratchpad. The durable half of the render verification lives in the test suite; the numbers it produced live in the known-gaps BG-E1 entry and the DEVLOG.
+- **The fixture's location is still Phase 7's (MT-1).** It remains at the repository root, tracked, now guarded by three standing tests plus a CI scoring step - only its location is open.
+
+## v3.16.5 Phase 4 - intake redesign (audit mode, 2026-08-11)
+
+Audit only; no file was moved, renamed, or removed.
+
+- **One new artifact, correctly placed**: `tests/skills/test_presentify_intake.py`. It sits in the existing pytest root that CI already runs and path-filters, so no workflow edit was needed.
+- **Two registry files hand-edited, deliberately**: `data/skills.json` and `data/SKILL_INDEX.md`, because the frontmatter `description`, `summary_l0`, and `overview_l1` changed meaning when procedural visuals became the always-on baseline. The diff is 4 lines. `build_skills_catalog.py` was NOT run: it rewrites the whole tree and would have produced a ~6000-line diff for a three-field change, burying the actual edit.
+- **No scratch docs committed.** The per-sub-task patch scripts ran from the session scratchpad.
+- **No new bundled resource**, so the orphan-bundle audit is unaffected (it passes with 0 warnings). `design_seed.py` gained a flag rather than a sibling file.
+- **The calibration fixture was not touched by this phase** and remains Phase 7's to home (MT-1).
+
+## v3.16.5 Phase 5 - imagery placement intelligence (audit mode, 2026-08-11)
+
+Audit only; no file was moved, renamed, or removed.
+
+- **No new artifacts.** The phase extended three existing files (`references/interactive-features.md`, `references/visual-qa-rubric.md`, `scripts/visual_qa_score.py`), wired the pass into `SKILL.md` Step 9, and added tests to the existing visual-QA suite. The orphan-bundle audit is unaffected and passes with 0 warnings.
+- **One pre-existing test fixture was updated rather than worked around**: `_CLEAN` in `test_presentify_visual_qa.py` is scored with `expect_images=1`, i.e. as a consented run, so under the new check it needed the placement record such a run is required to write. The fixture predates the convention; the check is right.
+- **No scratch docs committed.** The per-sub-task patch scripts ran from the session scratchpad.
+- **A closure note was appended to `docs/v3/v3.15/known-gaps.md`** for MT-2, not a rewrite - the original record and its Phase 3 status note both stand as written, with the closure added beneath them.
+
+## v3.16.5 Phase 6 - cinematic scroll-scrub (audit mode, 2026-08-11)
+
+Audit only; no file was moved, renamed, or removed.
+
+- **Three new artifacts, all correctly placed and all referenced**: `references/scroll-scrub.md` (protocol), `assets/scroll-scrub-engine.js` (the engine - the bundle's first `assets/` JavaScript beyond the Dynamic-Workflow template), and `tests/skills/test_presentify_cinematic.py`. Both bundle files are referenced from `SKILL.md` (Step 6 plus Bundled Resources), so the orphan-bundle audit passes with 0 warnings.
+- **No installer edit needed.** Both new bundle files sit under the skill's own `references/` and `assets/`, which both installers copy recursively. The engine is a `.js` asset, not a repo-level `scripts/` entry, so it needs no explicit-name copy step and no `DEV_ONLY_SCRIPTS` entry.
+- **No `.ps1` sibling is owed**: the parity rule applies to `.sh` scripts. The engine is browser JavaScript.
+- **Attribution is confined to `docs/policy/mcp-reverse-engineering-matrix.md`**, which is the one place the rule permits it. Verified mechanically: 0 occurrences of the upstream project, vendor, or author name across `catalog/` and `templates/`, and a parametrized test now guards the five most likely files.
+- **The matrix section preamble was widened rather than contradicted.** It said the skill-native rows are "pure Markdown skills with zero code"; this adoption also ships a zero-dependency browser asset, so the sentence now describes that accurately and classifies the engine half as `re-full`.
+- **No scratch docs committed.** The cinematic verification build wrote a temporary page, scored it, rendered it at two motion preferences, and deleted it.
+
+## v3.16.5 Phase 7 - terminal refactor and reconciliation (2026-08-11)
+
+The plan's terminal gate. Unlike the prior six entries this one APPLIED a change rather than only auditing, because sub-task 7.1 owns the one file every earlier phase deferred.
+
+- **The calibration fixture is homed**: `nexus-hub-unit-test-workflow.html` moved from the repository root to `tests/fixtures/presentify/`, by maintainer decision, with `git mv` so history follows it. Both live references were handled: the CI scoring step's path was repaired, and the dual-candidate lookup in `test_presentify_visual_qa.py` was simplified to the single home - it existed only to survive this move, and leaving it would have left a second accepted location nobody maintains. Historical session-history entries were NOT rewritten; they record where the file was at the time, which is correct.
+- **One gap the move itself introduced, found and closed in the same pass**: `presentify-extractor.yml` path-filtered `tests/skills/**` but not `tests/fixtures/**`, so a fixture-only edit would no longer have triggered the job that scores it. The standing gate would have silently stopped gating the exact file it guards. `tests/fixtures/presentify/**` was added to both filter lists.
+- **Bundle layout: clean, no action.** Seven `references/`, four `assets/`, seven `scripts/`, every one referenced from `SKILL.md` (orphan audit 0 warnings). No empty directories, no duplicates, no stray files. `__pycache__` is gitignored. `SKILL.md` is 292 lines against a 500-line target and an 800-line cap.
+- **Docs layout: clean, no action.** `docs/v3/v3.16/` holds `plans/` (5), `comparisons/` (4), `development/` (6 + `history/` 32), and exactly the two conventional root files (`known-gaps.md`, `docs-cleanup-report.md`). Matches the established per-version scheme; nothing to move.
+- **No scratch docs committed** across any of the seven phases. Every per-sub-task patch script, the ground-truth render harness, the seeded-regression prover, and the cinematic verification build ran from the session scratchpad; the durable half of each was promoted into the test suite.
+- **Prior cleanup entries stand unmodified.** This file is append-only per its own v3.16.3 precedent.

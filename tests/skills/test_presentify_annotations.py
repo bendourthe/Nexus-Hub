@@ -134,7 +134,7 @@ def test_pptx_overlay_shapes_become_annotations(tmp_path):
 # --- 2. end-to-end: annotated PPTX -> builder -> registered overlay ----------
 
 
-def test_end_to_end_annotated_map_overlay(tmp_path):
+def test_end_to_end_annotated_map_overlay(tmp_path, render_gate):
     pytest.importorskip("PIL", reason="Pillow needed to build the fixture")
     pytest.importorskip("pptx", reason="python-pptx needed to build the fixture")
     extract = _load(_EXTRACT_PATH, "extract_content_ann2")
@@ -260,7 +260,7 @@ def test_rendered_overlay_toggle(tmp_path):
     try:
         from playwright.sync_api import sync_playwright  # type: ignore
     except Exception:
-        pytest.skip("no headless browser available; overlay render check skipped")
+        render_gate("no headless browser available; overlay render check skipped")
     try:
         with sync_playwright() as p:
             browser = p.chromium.launch()
@@ -275,6 +275,6 @@ def test_rendered_overlay_toggle(tmp_path):
             )
             browser.close()
     except Exception:
-        pytest.skip("headless browser present but render failed; check skipped")
+        render_gate("headless browser present but render failed; check skipped")
     assert visible_before is True, "overlay should be visible before toggling"
     assert visible_after == "none", "view-original toggle should hide the overlay"

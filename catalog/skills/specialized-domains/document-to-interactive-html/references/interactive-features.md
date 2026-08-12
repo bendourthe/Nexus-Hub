@@ -116,7 +116,13 @@ The interactivity level is one of the four high-level design choices resolved TO
 - **BALANCED** - the current minimum interaction budget, unchanged. Adds pattern 1 (scroll-triggered reveals), pattern 2 (active-section nav tracking, optional reading-progress bar), pattern 4 (animated counters), pattern 5 (lightbox), and pattern 7 (micro-transitions). Observable criterion: sections reveal on scroll, the nav tracks the active section, and at least one signature move is present. This is the default for a deck or a data story.
 - **RICH** - scrollytelling. Everything BALANCED ships, plus at least one pattern from the scrollytelling catalog below (a pinned / sticky graphic sequence, a full-bleed image-to-text transition, parallax layers, a progress-driven timeline, or a before / after slider). Observable criterion: at least one pinned / sticky-graphic sequence OR a progress-driven scroll narrative is present on top of the balanced layer. RICH still honors the offline / no-CDN / reduced-motion guarantees: under `prefers-reduced-motion: reduce`, every scrollytelling effect degrades to a static, linearly-readable form (below), so a rich page and a restrained page are nearly indistinguishable for a reduced-motion user - by design.
 
-Mapping summary: RESTRAINED = user-initiated patterns (3, 6, lightbox, anchor nav) with no scroll motion; BALANCED = RESTRAINED plus scroll-triggered patterns (1, 2, 4, 7); RICH = BALANCED plus one or more scrollytelling patterns. The non-interactive fallback picks the level from the content (a deck or data story -> BALANCED; a report -> RESTRAINED) and records it in the design-record comment.
+- **CINEMATIC** (v3.16.5, opt-in) - a scroll-scrubbed stage. Everything RICH ships, plus scroll drives a continuous camera movement through the document's own sections rather than triggering discrete reveals: page scroll maps to a clip's `currentTime`, sections chain with frame-accurate seams, and each section can hold a `linger` so its copy is readable instead of sliding past. It is a SPECIALIZATION of RICH, not a replacement - interactive charts stay interactive and the five-point minimum interaction budget still applies in full, so a cinematic page that shipped a static chart has failed the budget rather than transcended it.
+
+    Two surfacing paths and no others: an explicit choice (`--interactivity cinematic`, or the fourth option in the up-front interactivity menu), or a CONFIRMED proposal under `rich` - after extraction, when the content genuinely suits a continuous fly-through (a strong linear narrative, a journey / place / product structure), the agent may propose scroll-scrub as the run's signature scrollytelling pattern, present the size / cost estimate, and get a yes or no. Never silently auto-picked, and never selected in a headless or non-interactive run.
+
+    Cinematic carries a size / cost gate the other levels do not, because its assets are the largest thing this skill embeds and the output must stay one offline file. State clip count, projected base64 size impact, key requirements, and QA-depth cost, then get a go / no-go BEFORE generating or embedding anything. The full protocol - the asset boundary (no hosted generation, ever), the seam rule, the pacing knobs, the stills-only fallback, and the accessibility floor - is `references/scroll-scrub.md`; the engine implementing it is `assets/scroll-scrub-engine.js`.
+
+Mapping summary: RESTRAINED = user-initiated patterns (3, 6, lightbox, anchor nav) with no scroll motion; BALANCED = RESTRAINED plus scroll-triggered patterns (1, 2, 4, 7); RICH = BALANCED plus one or more scrollytelling patterns; CINEMATIC = RICH plus the scroll-scrubbed stage, opt-in and size-gated. The non-interactive fallback picks the level from the content (a deck or data story -> BALANCED; a report -> RESTRAINED) and records it in the design-record comment.
 
 ### Scrollytelling pattern catalog (RICH level)
 
@@ -217,6 +223,18 @@ If the committed direction matches that description, it is almost certainly the 
 
 **Keep fonts self-contained.** Whatever the direction, keep all fonts as system stacks or base64 `@font-face`; never fetch a web font (it would break the offline guarantee). A named style or theme is resolved up front per "Resolve the direction in order" above and binds the look; the brainstorm only fills the axes it leaves open.
 
+### Scrollytelling pattern: the scroll-scrubbed stage (CINEMATIC only)
+
+A sticky viewport behind the section copy, in which scroll position drives a clip's playhead rather than a CSS transition. The reader scrolls and the camera moves continuously; the copy sits above the stage and remains linearly readable.
+
+- **Offline and single-file, or not at all.** Clips load from `data:` URIs or Blob object URLs so the authored `.html` stays ONE file. HTTP byte-range serving of sibling `.mp4` files is explicitly not the primary path - a page that needs `clip-01.mp4` beside it is not a self-contained output, and the offline guarantee is the whole point of this skill's output contract.
+- **Stills-only is the BASE mode; video is the enhancement.** Under `prefers-reduced-motion: reduce` the engine creates no video element at all - not created-and-paused, not created-muted: not created - and scroll drives a still cross-dissolve plus a gentle scale. Built in that direction because a reduced-motion path added afterwards is the one that regresses.
+- **Accessibility floor**: the stage is `aria-hidden` decorative, the section copy lives outside it and reads in order, anchor jumps land correctly with `scroll-margin-top` applying as everywhere else, and no control is scroll-only.
+- **Pacing**: per-section `scroll` (how much page distance the section consumes) and `linger` (a mid-scene hold where progress advances but the clip barely moves, so the copy can be read).
+- **Mobile**: scroll events are coalesced onto one animation frame and superseded seeks are dropped rather than queued, because a touch device fires scroll far faster than a video can seek; clips are primed once on first touch, since iOS refuses a programmatic seek before user interaction.
+
+Cost caution: this is the most expensive pattern in the catalog in bytes and in reader tolerance. It is reachable only through the CINEMATIC level's opt-in and its size / cost gate.
+
 ## Imagery tiers (procedural / stock / AI)
 
 Imagery is what turns a well-typeset reflow into a designed, journalistic web story - but MOST of the professional look needs no external image at all. It is typography, layout, color, restraint, and original inline SVG / CSS. That is why Tier 1 is both the always-on default and a large share of the value. The three tiers are resolved by the imagery question (`--images`, or the menu):
@@ -259,6 +277,55 @@ When the user picks the `stock` imagery tier AND consents to the build-time netw
 - **Derive per-section keywords.** For each starved section, derive SHORT relevance keywords from the section's TOPIC (its heading and gist), never from the raw source document text: two to four words that name the subject (for example "coastal wind turbines", "microscope laboratory"). Routing only short content-derived keywords, never the document, is what keeps the compiling-content trap (below) closed.
 - **Fetch one relevant asset per starved section.** Run `scripts/fetch_stock_media.py --consent` per starved section (Openverse-first, then Wikimedia; Pexels when a key is configured), take ONE highly-relevant, license-verified asset, and place it per the Phase 2 prominence + sizing rules (it is an accent, not a hero, unless the section genuinely centers on it). Prefer CC0 / public-domain. Record provenance + credits per "Visual provenance and credits".
 - **Relevance and restraint.** Integrate an asset ONLY when it is genuinely relevant and helpful; a loosely-related or purely decorative stock photo is worse than none because it reads as filler. Skipping a section for lack of a relevant, license-clean asset is a valid outcome; record the per-section reason (see the gate below).
+
+### Placement roles (what an image is FOR, v3.16.5 Phase 5)
+
+Detecting that a section is starved says an image would help; it does not say what the image is DOING there. Every placement carries one of four roles, and the role determines the sizing, the treatment, and what "correct" looks like:
+
+| Role | What it is | Treatment |
+|---|---|---|
+| **hero / header** | A section-opening full-bleed or wide visual that sets the section's subject | Full-bleed band or wide column; respects the Phase 2 prominence rules (a hero is a hero because the CONTENT centers on it, not because a hero looks impressive) |
+| **background** | A low-contrast treated backdrop behind a band, with text over it | MUST carry the ink-contrast overlay recipe below; the text's AA contrast is measured against the composited result, not against the overlay color |
+| **contextual illustration** | A figure beside prose it concretely depicts | Sized as an accent next to its prose, never competing with a real source figure in the same section |
+| **gallery** | Genuinely-secondary visuals grouped for legibility | The existing secondary-grouping rule; a gallery is where non-dominant visuals go, and it is never a place to hide a dominant one |
+
+**The background overlay recipe (mandatory for the background role).** Text over an image is the easiest way to ship unreadable type, and it fails differently in every image, so the overlay is not optional and not eyeballed. Composite a solid scrim between the image and the text, then verify the text's contrast against the SCRIM color rather than against the image:
+
+```css
+.band-bg{ position: relative; isolation: isolate; }
+.band-bg > img{
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; z-index: -2;
+}
+.band-bg::before{                     /* the scrim - an opaque-enough known color */
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background: color-mix(in srgb, var(--base) 82%, transparent);
+}
+```
+
+At 82% the composited background is within a couple of percent of `--base`, so the existing `contrast` check on `--ink` against `--base` remains valid. Drop below roughly 75% and it no longer is: the image starts showing through enough to move the effective background per-pixel, and no static check can certify the text any more. If a design genuinely needs a lighter scrim, the text must move off the image instead.
+
+**Deciding placements (inside the render loop, not before it).** The placement pass runs during the Phase 3 loop's FIRST iteration, because that is the first point at which the page can be seen: a section that looked starved in the model may already read as full, and a band that looked fine may be visibly empty. For EVERY section, produce one of two outcomes - never silence:
+
+- **A placement**: its role, and one line on why THIS content benefits from an image in THAT role.
+- **An explicit decline**: `no image: <reason>`. "The section has no concrete visual subject" and "no license-clean asset depicted the subject" are both complete reasons. A decline is a valid, common, and often correct outcome.
+
+**Check relevance BEFORE embedding.** For each candidate, ask whether the image actually depicts the section's subject. A generic techy stock photo next to a section about test coverage does not depict test coverage; it depicts a stock photo. Reject it. Re-query ONCE with tightened keywords, then drop the placement with its reason rather than embedding filler - a loosely-related image is worse than none, because it reads as padding and teaches the reader to skip images.
+
+**Record every decision in the design record**, in a parseable block so the deterministic checker can verify the record against the page rather than trusting it:
+
+```
+IMAGERY PLACEMENTS
+  placement: intro | hero | embedded | the section opens on the coastline the report surveys
+  placement: method | background | embedded | a laboratory backdrop; scrim at 82% keeps body text AA
+  placement: results | contextual | embedded | the apparatus the paragraph describes
+  placement: summary | none: no concrete visual subject - it summarises the three sections above
+  placement: appendix | none: no license-clean asset depicted the subject after one re-query
+```
+
+One `placement:` line per section, `|`-separated, with `embedded` or `none: <reason>` in the status field. `scripts/visual_qa_score.py` reads this block: a consented run with NO block at all means the pass never ran, and a block claiming more embedded assets than the page actually contains means the record is fabricated. Both are HIGH-severity findings.
+
+All existing invariants apply unchanged: consent still gates every fetch, the commercial-use allow-list still fails safe, every asset is still base64-embedded, and every non-original visual still appears in the visible "Image credits" section with its license and attribution.
 
 **Integration gate (a consented run must not silently add nothing).** A consented `stock` / `mix` / `ai` run MUST, for EACH image-starved section, either integrate at least one relevant, license-verified asset OR record a per-section reason (no relevant license-clean asset found, or the section did not warrant an image). A consented stock / mix run that produced ZERO integrated assets across all starved sections with NO recorded reason FAILS verification: that silent zero-integration is the exact defect this tier exists to prevent (the fetch helper always records a degrade reason, so a "no reason" state is itself the bug). The offline and license-safety gates are unchanged: every asset stays base64-embedded, the commercial-use allow-list still fails safe, and a non-commercial asset is never embedded. `mix` = a procedural base plus real stock accents FIRST, and local AI (Tier 3) only where stock cannot serve a placement (the unchanged priority).
 
@@ -431,6 +498,24 @@ The same pipeline serves three intents; the mode is auto-detected from the input
 - **Single deck (one `.pptx`) -> preserve the flow.** One slide maps to one section in slide order. Keep that order; the deck should follow the same flow as the source, only more interactive and more visually considered. Do not re-sequence a slide deck the author already structured.
 - **Single report (one `.docx` / `.pdf` / `.xlsx`) -> present the report.** A flat document becomes a paced presentation OF that report: a title, a synthesized agenda, one section per heading, and data surfaced as inline charts. This is where narrative restructuring (move 1) does the most work.
 - **Multiple / mixed files -> compile the sources.** Each source contributes a labeled run of sections, introduced by a section-break carrying the source title, optionally preceded by a synthesized overview that names all sources. Preserve per-source attribution; do not blend two sources into an indistinguishable middle.
+
+## Two authoring rules from maintainer review (v3.16.5 errata E9)
+
+**Key-value cells render as bullet lists, never comma-run sentences.** A cell describing what a step reads, writes, and outputs is a LIST of facts, and a reader scans it to find one of them. Written as a comma-run sentence it has to be read start to finish to answer any question about it. Give each key its own bullet, and give every one a CONCRETE example value rather than a category name - `docs/v3/v3.16/plans/v3.16.5-presentify-visual-overhaul.md` teaches what "a plan file path" does not.
+
+```html
+<!-- CORRECT - scannable, with real values -->
+<ul>
+  <li><b>Reads</b> <code>docs/v3/v3.16/plans/v3.16.5-presentify-visual-overhaul.md</code></li>
+  <li><b>Writes</b> <code>tests/skills/test_presentify_visual_qa.py</code></li>
+  <li><b>Outputs</b> coverage 93% against an 80% threshold</li>
+</ul>
+
+<!-- WRONG - a comma-run that must be parsed linearly to answer anything -->
+<p>Reads the plan file, writes the test file, and outputs a coverage number.</p>
+```
+
+**Interactive-control colors stay NEUTRAL and visually distinct from chart data-series colors.** A slider, input, or toggle painted in a series color reads as part of the data: the reader cannot tell whether an accent-colored handle is a control or a value. Reserve the data-series colors for data, give controls a neutral ink or surface treatment, and use the accent only for focus and active states.
 
 ## Attribution
 
