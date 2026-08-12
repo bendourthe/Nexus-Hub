@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.16.5 -->
+<!-- nexus-hub-version: 3.16.6 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 271 skills, 17 commands, 31 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -36,6 +36,16 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v3.16.6
+
+**`/presentify` now asks how much of your source material should survive onto the page.** Style, aspect, interactivity, and imagery never answered that question, so the agent decided content depth silently - pages either reproduced everything or over-summarized with no user say. The intake's second round (the post-extraction round that already derives color schemes from the content) now also asks the coverage depth: **Distilled** (one narrative arc, key findings only), **Balanced** (every major topic, details summarized), or **Comprehensive** (full section-by-section coverage including appendix-grade material) - and because it is asked after extraction, each option carries an approximate section count for *your* source set rather than a meaningless low/medium/high.
+
+**A `--verbosity <distilled|balanced|comprehensive>` flag presets the answer** for scripted runs (natural-language forms bind too: "just the highlights" is `distilled`). It is deliberately distinct from `--qa-depth`, which bounds how thoroughly the visual-QA loop inspects whatever was built; `--verbosity` decides how much content the page carries. A malformed value degrades with a usage note instead of blocking, and non-interactive runs resolve to `balanced`, so unattended behavior does not change character.
+
+**The answer is enforced, not decorative.** The resolved level, its provenance (flag-preset / asked / defaulted), and a derived section-count target are written into the page's design record; the authoring step carries three per-level depth rules (with per-source attribution winning over distillation in compile mode); and the visual-QA rubric gained criterion 10, which grades the built page's section structure against the declared level - by agent vision at page level, deliberately with no word-count heuristic, because a long section is a style property, not a depth violation.
+
+Catalog counts are unchanged at **271 skills**, **17 commands**, **31 hooks**, and **23 agents**. This release deepens one existing skill (`document-to-interactive-html`) and its command surface, and adds no new catalog content or opt-in capability.
 
 ## What's New in v3.16.5
 

@@ -7,7 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [3.16.6] - 2026-08-12
+
+### Opt-in capability changes (release capability usage gate)
+
+**No change.** This release introduces no new opt-in capability, installer flag, managed skill, or host surface, and materially changes none. The new `--verbosity` flag is an ordinary command option on the existing `/presentify` surface: it requires no consent, makes no network call, stores no credential, and grants no authority - it only presets a question the interactive intake would otherwise ask. The gate is satisfied by this explicit no-change declaration.
 
 ### Added
 
@@ -20,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - **Stale rubric-criteria counts in the presentify SKILL.md.** Step 9 still said "all eight criteria" although the rubric had grown to nine in the v3.16.5 errata; both mentions now say ten and the enumeration lists all ten criteria.
+- **The shipped v3.16.5 `MANIFEST.sha256` hashed CRLF bytes on ~520 entries**, because it was generated in a Windows worktree where those files materialized with CRLF endings - so `nexus-hub verify` against a GitHub-tarball install (LF bytes) would have reported them as mismatches. The v3.16.6 manifest is regenerated over LF bytes matching the committed blobs (verified: the new entry for a spot-checked file equals the blob's sha256, and the old entry equals its CRLF conversion). Durable fix (deferred, tracked in known-gaps): make `scripts/generate_manifest.py` newline-normalize or hash the committed blob bytes so the manifest is generation-environment-independent.
 - **`presentify-extractor.yml` path filters missed `catalog/commands/presentify.md`** although `tests/skills/test_presentify_intake.py` has asserted on the command text since v3.16.5 Phase 4 - a command-only edit would have merged without running the suite that guards it. Both `push` and `pull_request` filters now include the file.
 
 ## [3.16.5] - 2026-08-11

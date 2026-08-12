@@ -1,5 +1,29 @@
 # Development Log
 
+## [2026-08-12] - v3.16.6 release: presentify verbosity intake [release]
+
+### What Changed
+
+Shipped the two-phase coverage-depth (verbosity) intake axis for `/presentify`: the round-2 content-derived question (Distilled / Balanced / Comprehensive with per-source-set section counts), the `--verbosity` flag with natural-language binding and a `balanced` non-interactive fallback, design-record provenance fields, per-level authoring depth rules, and rubric criterion 10 (page-level, agent-vision only). Version bumped 3.16.5 -> 3.16.6 across every version-carrying surface. Catalog counts unchanged at 271 skills / 17 commands / 31 hooks / 23 agents; no new opt-in capability surface (the release capability gate is satisfied by the explicit no-change declaration).
+
+### Why It Changed
+
+The intake resolved style, aspect, interactivity, imagery, and (since v3.16.5) color scheme - but never how much of the source survives onto the page, so the agent decided depth silently. The axis was raised during v3.16.5 Phase 7, deliberately deferred rather than reopening a finalized phase's gate inside the no-behavior-change terminal phase, and shipped here as its own patch.
+
+### Decisions Made
+
+- **Round 2, not round 1**: a depth choice is only answerable once the agent can state what the sources contain; the content-dependence line that placed the color-scheme question post-extraction places this one there too.
+- **Record + rubric enforcement, no deterministic scorer check**: word / section-count bands are crude and false-positive; the no-check decision is recorded inside criterion 10 itself so it is not "helpfully" reverted later.
+- **`--verbosity`, not `--depth`/`--coverage`**: avoids collision with `--qa-depth`, and the command draws the content-axis vs QA-thoroughness distinction explicitly.
+
+### Verification
+
+Full `tests/` suite green twice (Phase 1 and on the reconciled Phase 2 tree): 2351 passed, 17 skipped, including 16 new prose-contract tests. Full validator battery PASS, `check_version_sync.py` clean after the bump, platform read-contract re-verified and re-stamped for 3.16.6, `MANIFEST.sha256` regenerated over the bumped tree.
+
+### Known Issues
+
+Zero release blockers. Two items carried: NI-1 (the verbosity contract is agent behavior with no deterministic check, by design) and WN-1 (`generate_manifest.py` hashes working-tree bytes, so it is generation-environment-dependent; routed to the next `scripts/`-touching cycle). DF-1, QG-1, and BG-1 closed during the cycle - BG-1 being the release flow's own find: the shipped v3.16.5 manifest hashed CRLF bytes on ~520 entries and would have failed `nexus-hub verify` against a tarball install; the v3.16.6 regeneration over LF bytes fixes it.
+
 ## [2026-08-12] - v3.16.6 Phase 2: terminal refactor, reconciliation, and CI/CD
 
 ### What Changed

@@ -173,5 +173,6 @@ Lever re-verification rides along with the existing `platform-contract-verificat
 | Date | Version | Scope | Outcome |
 |---|---|---|---|
 | 2026-08-08 | v3.16.0 | All sixteen registered integrations, first pass | 12 VERIFIED, 4 UNVERIFIED. Two doc-host redirects discovered and followed (Claude 301 to `code.claude.com`; OpenAI Codex 308 chain to `learn.chatgpt.com`). One rebrand confirmed first-hand (`docs.windsurf.com` 307 to `docs.devin.ai`). |
+| 2026-08-12 | v3.16.6 | Targeted ride-along on the read-contract pass (claude, codex only) | No drift signal observed on either vendor's docs during the read-contract fetches: no key rename, no config-path move, no new redirect. The other fourteen integrations were not re-fetched (targeted patch pass); the full lever re-verification rides with the full read-contract pass owed at v3.17.0. |
 
 When re-verifying, check three things per platform: that the documented key names are unchanged, that the config file path is unchanged, and that the source URL still resolves without a redirect to a new host. A redirect is not cosmetic; it is the earliest signal that a vendor has reorganized or renamed a product.
