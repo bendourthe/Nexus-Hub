@@ -6,6 +6,7 @@ const configuration = new Map<string, unknown>();
 const inputs: Array<string | undefined> = [];
 
 export const messages = { information: [] as string[], warnings: [] as string[], errors: [] as string[] };
+export const openedExternals: string[] = [];
 export const statusItems: Array<{ text: string; tooltip: unknown; command?: string; name?: string; shown: boolean }> = [];
 export const webviewPanels: Array<ReturnType<typeof panel>> = [];
 export const webviewProviders: unknown[] = [];
@@ -23,6 +24,7 @@ export class MarkdownString {
 export class Uri {
   public constructor(private readonly value: string) {}
   public static file(value: string): Uri { return new Uri(value); }
+  public static parse(value: string): Uri { return new Uri(value); }
   public static joinPath(base: Uri, ...parts: string[]): Uri { return new Uri([base.toString(), ...parts].join("/")); }
   public toString(): string { return this.value; }
 }
@@ -126,6 +128,13 @@ function webview() {
 }
 function panel() { return { webview: webview(), revealed: false, reveal() { this.revealed = true; }, onDidDispose: () => ({ dispose() {} }) }; }
 
+export const env = {
+  async openExternal(uri: Uri): Promise<boolean> {
+    openedExternals.push(uri.toString());
+    return true;
+  }
+};
+
 export const window = {
   activeColorTheme: { kind: 2 },
   createStatusBarItem(): { text: string; tooltip: unknown; command?: string; name?: string; backgroundColor?: unknown; show(): void; hide(): void; dispose(): void } {
@@ -182,7 +191,7 @@ export function stubExtension(id = "nexus-hub.github-usage-monitor", version = "
 export function setConfiguration(key: string, value: unknown): void { configuration.set(key, value); }
 export function queueInput(value: string | undefined): void { inputs.push(value); }
 export async function runCommand(name: string): Promise<unknown> { const command = commandMap.get(name); if (!command) throw new Error(`Command not registered: ${name}`); return command(); }
-export function resetVscodeStub(): void { commandMap.clear(); configuration.clear(); globalOverrides.clear(); workspaceOverrides.clear(); failingUpdates.clear(); configurationLog.length = 0; inputs.length = 0; messages.information.length = 0; messages.warnings.length = 0; messages.errors.length = 0; statusItems.length = 0; webviewPanels.length = 0; webviewProviders.length = 0; sessionResponses.length = 0; sessionRequests.length = 0; outputLines.length = 0; extensionRegistry.clear(); extensionChangeListeners.length = 0; authenticationAccounts.length = 0; }
+export function resetVscodeStub(): void { commandMap.clear(); configuration.clear(); globalOverrides.clear(); workspaceOverrides.clear(); failingUpdates.clear(); configurationLog.length = 0; inputs.length = 0; messages.information.length = 0; messages.warnings.length = 0; messages.errors.length = 0; statusItems.length = 0; webviewPanels.length = 0; webviewProviders.length = 0; sessionResponses.length = 0; sessionRequests.length = 0; outputLines.length = 0; openedExternals.length = 0; extensionRegistry.clear(); extensionChangeListeners.length = 0; authenticationAccounts.length = 0; configListeners.length = 0; }
 
 /** Mirrors VS Code's enum: Light=1, Dark=2, HighContrast=3, HighContrastLight=4. */
 export const ColorThemeKind = { Light: 1, Dark: 2, HighContrast: 3, HighContrastLight: 4 } as const;

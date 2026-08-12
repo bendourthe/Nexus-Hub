@@ -1,0 +1,5 @@
+# Keep this extension's text files as LF in the blob, even when authored on
+# Windows with core.autocrlf=true. A CRLF blob fails the repo-wide
+# mixed-line-ending pre-commit hook (CI validate) and is invisible to git status
+# on a Windows worktree because the working copy already matches the blob.
+* text=auto eol=lf

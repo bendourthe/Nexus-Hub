@@ -31,8 +31,10 @@ scorer is loaded by path via importlib, matching test_media_key_setup.py.
 
 from __future__ import annotations
 
+import ast
 import importlib.util
 import re
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -649,6 +651,27 @@ def test_calibration_fixture_has_no_stale_palette_literals():
         )
 
 
+def test_bundled_scripts_are_marked_executable():
+    """ruff EXE001 fails the presentify-extractor verify job when a shebang
+    script is git mode 100644. Every sibling in this folder is 100755; a new
+    script that ships without the bit (ensure_render_env.py on the v3.16.6
+    release) turns a green local run into a red Linux CI job."""
+    listed = subprocess.check_output(
+        ["git", "ls-files", "-s", "--", "catalog/skills/specialized-domains/document-to-interactive-html/scripts"],
+        cwd=_ROOT,
+        text=True,
+    )
+    py_scripts = []
+    for line in listed.splitlines():
+        mode, _object, _stage, path = line.split(maxsplit=3)
+        if path.endswith(".py"):
+            py_scripts.append(path)
+            assert mode == "100755", (
+                f"{path} is git mode {mode}; ruff EXE001 will fail CI on Linux"
+            )
+    assert py_scripts, "expected bundled Python scripts under scripts/"
+
+
 def test_ensure_render_env_probe_reports_a_state_and_never_installs():
     """The probe is read-only and always classifies the host."""
     state = ensure_env.probe()
@@ -725,13 +748,36 @@ def test_render_gate_fails_instead_of_skipping_when_a_browser_was_promised():
     assert "def render_gate()" in conftest_text
     assert "NEXUS_REQUIRE_RENDER" in conftest_text
     assert "pytest.fail" in conftest_text and "pytest.skip" in conftest_text
-    # Every browser-dependent skip site routes through the gate.
-    for name in ("test_presentify_layout.py", "test_presentify_annotations.py"):
-        text = (_ROOT / "tests" / "skills" / name).read_text(encoding="utf-8")
+    # Every browser-dependent skip site routes through the gate, AND takes the
+    # fixture as a parameter. v3.16.6 CI failed because test_rendered_overlay_toggle
+    # called render_gate(...) as a bare name; without the fixture that is a
+    # NameError, which is neither a skip nor an enforced fail.
+    for name in (
+        "test_presentify_layout.py",
+        "test_presentify_annotations.py",
+        "test_presentify_cinematic.py",
+    ):
+        path = _ROOT / "tests" / "skills" / name
+        text = path.read_text(encoding="utf-8")
         assert "render_gate(" in text, f"{name} does not use the gate"
         assert "pytest.skip(\"no headless browser" not in text, (
             f"{name} still has a raw browser skip that CI cannot enforce"
         )
+        tree = ast.parse(text)
+        for node in ast.walk(tree):
+            if not isinstance(node, ast.FunctionDef):
+                continue
+            calls_gate = any(
+                isinstance(child, ast.Call)
+                and isinstance(child.func, ast.Name)
+                and child.func.id == "render_gate"
+                for child in ast.walk(node)
+            )
+            if calls_gate:
+                args = [arg.arg for arg in node.args.args]
+                assert "render_gate" in args, (
+                    f"{name}::{node.name} calls render_gate but does not take the fixture"
+                )
 
 
 # --- 1e. v3.16.5 Phase 3: mutation-test the whole contract set ----------------

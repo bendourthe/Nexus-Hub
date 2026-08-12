@@ -29,7 +29,7 @@ describe("status bar and hover", () => {
     const hover = buildHoverMarkdown({ state: "fresh", data: snapshot() }, now).value;
     expect(hover).toContain("Copilot"); expect(hover).toContain("Actions minutes"); expect(hover).toContain("Actions storage");
     expect(decodeURIComponent(hover)).toContain(GITHUB_BAR_FILL); expect(hover).toContain("Allowance not established"); expect(hover).not.toContain("gigabyte-hours (%)");
-    expect(hover).toContain("fixture-&lt;org&gt;"); expect(hover).toContain("Source: api - Fresh"); 
+    expect(hover).toContain("fixture-&lt;org&gt;"); expect(hover).toContain("Source: api - Fresh");
   });
   it("renders empty and stale-error states honestly", () => {
     expect(buildHoverMarkdown({ state: "empty", error: { code: "missing-token", message: "Set <token>" } }).value).toContain("Set &lt;token&gt;");

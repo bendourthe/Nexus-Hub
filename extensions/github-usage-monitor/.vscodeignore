@@ -10,6 +10,7 @@ fonts/*.ttf
 fonts/*.svg
 tsconfig.json
 vitest.config.mts
+.gitattributes
 .gitignore
 **/*.vsix
 **/*.map

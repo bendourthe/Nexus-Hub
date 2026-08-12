@@ -249,7 +249,7 @@ def test_builder_no_fabricated_regions_without_annotations(tmp_path):
 # --- 4. headless-optional: the view-original toggle hides the overlay --------
 
 
-def test_rendered_overlay_toggle(tmp_path):
+def test_rendered_overlay_toggle(tmp_path, render_gate):
     annotations = [
         {"shape_type": "RECTANGLE", "bbox": [0.1, 0.2, 0.25, 0.2], "text": "North", "fill": "#E04040"},
     ]
