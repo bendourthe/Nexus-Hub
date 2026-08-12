@@ -1,5 +1,73 @@
 # Development Log
 
+## [2026-08-12] - v3.16.6 release: presentify verbosity intake [release]
+
+### What Changed
+
+Shipped the two-phase coverage-depth (verbosity) intake axis for `/presentify`: the round-2 content-derived question (Distilled / Balanced / Comprehensive with per-source-set section counts), the `--verbosity` flag with natural-language binding and a `balanced` non-interactive fallback, design-record provenance fields, per-level authoring depth rules, and rubric criterion 10 (page-level, agent-vision only). Version bumped 3.16.5 -> 3.16.6 across every version-carrying surface. Catalog counts unchanged at 271 skills / 17 commands / 31 hooks / 23 agents; no new opt-in capability surface (the release capability gate is satisfied by the explicit no-change declaration).
+
+### Why It Changed
+
+The intake resolved style, aspect, interactivity, imagery, and (since v3.16.5) color scheme - but never how much of the source survives onto the page, so the agent decided depth silently. The axis was raised during v3.16.5 Phase 7, deliberately deferred rather than reopening a finalized phase's gate inside the no-behavior-change terminal phase, and shipped here as its own patch.
+
+### Decisions Made
+
+- **Round 2, not round 1**: a depth choice is only answerable once the agent can state what the sources contain; the content-dependence line that placed the color-scheme question post-extraction places this one there too.
+- **Record + rubric enforcement, no deterministic scorer check**: word / section-count bands are crude and false-positive; the no-check decision is recorded inside criterion 10 itself so it is not "helpfully" reverted later.
+- **`--verbosity`, not `--depth`/`--coverage`**: avoids collision with `--qa-depth`, and the command draws the content-axis vs QA-thoroughness distinction explicitly.
+
+### Verification
+
+Full `tests/` suite green twice (Phase 1 and on the reconciled Phase 2 tree): 2351 passed, 17 skipped, including 16 new prose-contract tests. Full validator battery PASS, `check_version_sync.py` clean after the bump, platform read-contract re-verified and re-stamped for 3.16.6, `MANIFEST.sha256` regenerated over the bumped tree.
+
+### Known Issues
+
+Zero release blockers. Two items carried: NI-1 (the verbosity contract is agent behavior with no deterministic check, by design) and WN-1 (`generate_manifest.py` hashes working-tree bytes, so it is generation-environment-dependent; routed to the next `scripts/`-touching cycle). DF-1, QG-1, and BG-1 closed during the cycle - BG-1 being the release flow's own find: the shipped v3.16.5 manifest hashed CRLF bytes on ~520 entries and would have failed `nexus-hub verify` against a tarball install; the v3.16.6 regeneration over LF bytes fixes it.
+
+## [2026-08-12] - v3.16.6 Phase 2: terminal refactor, reconciliation, and CI/CD
+
+### What Changed
+
+The plan's terminal gate, and for a two-file-surface patch it was the light pass the plan predicted: the refactor detectors (stray root files, empty dirs, duplicates, layout drift) found nothing to move, so no file moved. The v3.16.6 known-gaps subsection is reconciled - DF-1 closed (the unbookkept v3.16.5 deferral, fulfilled by Phase 1 shipping the axis and recorded in place rather than retroactively edited into a finalized section), NI-1 carried by design with a concrete revisit trigger, QG-1 already closed in Phase 1 - and the summary row finalized. CI/CD verified complete: `ci.yml` catches every non-docs change, `doc-colocation.yml` the docs tree, and `presentify-extractor.yml` (with Phase 1's filter fix) the whole presentify surface including the command file. The advisory model-prompting freshness check reports IN SYNC against the live 4-model roster. **No tag, no push, no version bump**: handed off to `/update release`.
+
+### Why It Changed
+
+The terminal phase exists so the next plan starts from a true picture. Here the picture was already mostly true - Phase 1 did its own bookkeeping - so the phase's value was confirmation plus the one open bookkeeping thread (DF-1) that only a reconciliation pass may close.
+
+### Verification
+
+Full `tests/` suite green on the reconciled tree: 2351 passed, 17 skipped. Validator battery all PASS: bundle audit, trigger-and-routing gate, version sync (in sync at 3.16.5; the bump belongs to `/update release`), base-template parity, platform-defaults sync, platform read-contracts (10 platforms). Marker sweep over the version's full diff: no TODO / FIXME / HACK / `# DEVIATION:` introduced.
+
+### Known Issues
+
+One carried item: NI-1 (the verbosity contract is agent behavior with no deterministic check, by design; revisit only on a concrete missed-defect). Zero release blockers - v3.16.6 is release-ready pending `/update release`.
+
+## [2026-08-12] - v3.16.6 Phase 1: presentify coverage-depth (verbosity) intake axis
+
+### What Changed
+
+The presentify intake gained a coverage-depth axis: a content-derived round-2 question (Distilled / Balanced / Comprehensive, each option carrying an approximate section count for THIS source set), a `--verbosity <distilled|balanced|comprehensive>` flag that presets and skips it, a `balanced` non-interactive fallback, three design-record fields (level, provenance, section-count target), per-level authoring rules in Step 6, and rubric criterion 10 (coverage-depth match, page-level, AGENT-VISION only). Three surfaces changed - `catalog/commands/presentify.md`, the skill's SKILL.md, and `references/visual-qa-rubric.md` - plus 16 new prose-contract tests and a 2-line CI path-filter fix. No new script, no frontmatter change, no registry update.
+
+### Why It Changed
+
+Style, aspect, interactivity, and imagery never answered "how much of my source material survives onto the page", so the agent decided depth silently - pages either dumped everything or over-summarized with no user say. The question lands in round 2 (post-extraction) rather than round 1 because a depth choice is only answerable once the agent can state what the sources actually contain; that is the same content-dependence line that put the color-scheme question there in v3.16.5.
+
+### Decisions Made
+
+- **Depth only, one axis.** Technicality stays with the style question; bundling both into one question conflates two independent choices (maintainer decision 2026-08-11, reconfirmed at plan approval).
+- **`--verbosity`, not `--depth` or `--coverage`.** `--qa-depth` already exists; the command draws the content-axis vs QA-thoroughness line explicitly so the two are not conflated.
+- **Enforcement is record + rubric, deliberately with NO deterministic scorer check.** Word / section-count bands are crude and false-positive; the rubric criterion grades rendered section structure against the recorded target, never word counts. Recorded in the criterion text itself so a future implementer does not "helpfully" add the check.
+- **The flag always wins over the question; a missing record grades as `balanced`; compile-mode attribution wins over distillation.** The three failure-mode contracts from the plan, written into the instruction text because in an LLM-native skill an unstated fallback does not exist.
+- **Stale criteria counts fixed in passing.** SKILL.md still said "all eight criteria" while the rubric had grown to nine (v3.16.5 errata); adding criterion 10 made the number wrong everywhere, so both mentions now say ten and the enumeration lists all ten.
+
+### Verification
+
+Full `tests/` suite green: 2351 passed, 17 skipped (including 16 new verbosity contract tests in `tests/skills/test_presentify_intake.py`). `validate_skills.py --bundles-only` PASS, `run_trigger_evals.py --gate` PASS (0 routing failures), quality heuristics / unicode-safety / version-sync all pass. Ruff findings in the intake test file are pre-existing v3.16.5 style (the repo lints `scripts/` only) and were left untouched.
+
+### Known Issues
+
+Three items recorded in `docs/v3/v3.16/known-gaps.md` under v3.16.6: NI-1 (the verbosity contract is agent behavior with no deterministic check - by design), DF-1 (the v3.16.5 deferral was never bookkept in known-gaps; Phase 2 closes by reference to the new note), QG-1 (closed: the CI path filter missed `catalog/commands/presentify.md`, which the intake tests have asserted against since v3.16.5 Phase 4).
+
 ## [2026-08-11] - v3.16.5 release: presentify visual overhaul [release]
 
 ### What Changed

@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [3.16.6] - 2026-08-12
+
+### Opt-in capability changes (release capability usage gate)
+
+**No change.** This release introduces no new opt-in capability, installer flag, managed skill, or host surface, and materially changes none. The new `--verbosity` flag is an ordinary command option on the existing `/presentify` surface: it requires no consent, makes no network call, stores no credential, and grants no authority - it only presets a question the interactive intake would otherwise ask. The gate is satisfied by this explicit no-change declaration.
+
+### Added
+
+- **v3.16.6 Phase 1 - presentify coverage-depth (verbosity) intake axis.** The two-round design intake gained the second content-dependent question: coverage depth. Round 2 now asks Distilled / Balanced / Comprehensive with a content-derived stem and an approximate section count per option for THIS source set, alongside the color-scheme question. A new `--verbosity <distilled|balanced|comprehensive>` flag presets and skips the question (natural-language forms bind too, e.g. "just the highlights"); an unrecognized value degrades with a usage note instead of blocking; non-interactive runs resolve to `balanced`. The resolved level, its provenance (`flag-preset` / `asked` / `defaulted`), and the derived section-count target are recorded in the design-record HTML comment; SKILL.md Step 6 defines the three per-level authoring depth rules (compile-mode per-source attribution wins over distillation; a missing record grades as `balanced`); and the visual-QA rubric gained criterion 10, coverage-depth match - page-level, AGENT-VISION only, deliberately with no deterministic scorer check. Slash surface: all platforms that carry `/presentify` (command + skill bundle auto-copy; no installer edit). 16 new prose-contract tests; no registry change (frontmatter untouched).
+
+### Changed
+
+- **v3.16.6 Phase 2 - terminal reconciliation.** Light terminal pass: refactor detectors found nothing to move; the v3.16.6 known-gaps subsection is reconciled (DF-1 and QG-1 closed, NI-1 carried by design); CI coverage and the model-prompting freshness advisory verified; full suite green on the reconciled tree. No behavior change.
+
+### Fixed
+
+- **Stale rubric-criteria counts in the presentify SKILL.md.** Step 9 still said "all eight criteria" although the rubric had grown to nine in the v3.16.5 errata; both mentions now say ten and the enumeration lists all ten criteria.
+- **The shipped v3.16.5 `MANIFEST.sha256` hashed CRLF bytes on ~520 entries**, because it was generated in a Windows worktree where those files materialized with CRLF endings - so `nexus-hub verify` against a GitHub-tarball install (LF bytes) would have reported them as mismatches. The v3.16.6 manifest is regenerated over LF bytes matching the committed blobs (verified: the new entry for a spot-checked file equals the blob's sha256, and the old entry equals its CRLF conversion). Durable fix (deferred, tracked in known-gaps): make `scripts/generate_manifest.py` newline-normalize or hash the committed blob bytes so the manifest is generation-environment-independent.
+- **`presentify-extractor.yml` path filters missed `catalog/commands/presentify.md`** although `tests/skills/test_presentify_intake.py` has asserted on the command text since v3.16.5 Phase 4 - a command-only edit would have merged without running the suite that guards it. Both `push` and `pull_request` filters now include the file.
+
 ## [3.16.5] - 2026-08-11
 
 ### Opt-in capability changes (release capability usage gate)
