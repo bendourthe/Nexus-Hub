@@ -1,5 +1,32 @@
 # Development Log
 
+## [2026-08-11] - v3.16.5 release: presentify visual overhaul [release]
+
+### What Changed
+
+Shipped the seven-phase presentify visual overhaul: a responsive-typography contract that scales the root rather than `body`, an SVG diagram-quality contract, a real headless-render loop enforced in CI, an intake redesign, imagery placement roles, and an opt-in `cinematic` scroll-scrub level. Version bumped 3.16.4 -> 3.16.5 across every version-carrying surface. Catalog counts unchanged at 271 skills / 17 commands / 31 hooks / 23 agents: this release deepens one existing skill and adds no new catalog content.
+
+### Why It Changed
+
+`/presentify` output was passing every deterministic check and still reading badly on a large display. The cause was mechanical and singular: the generated CSS scaled `body` with `clamp()` while children sized in `rem`, which resolves against the root, so the scaling was inert for every nested element. Fixing that exposed the deeper problem, which is that a parser and a renderer answer different questions, and only the parser was running.
+
+### Decisions Made
+
+- **The release branch integrated `develop` before shipping, not after.** v3.16.4 shipped from a parallel session while v3.16.5 was built in an isolated worktree, so the branch was eight commits behind a released `main`. Merging first means the release was validated on the code it actually ships as. Three files overlapped and all three resolutions were additive or reconciling, never truncating.
+- **A superseded known-gaps stub was dropped rather than merged.** `develop` carried an "(in progress)" v3.16.5 section from the errata plan commit whose only item is recorded CLOSED in the completed section. Two records of one version, one of them stale, is worse than either alone.
+- **The v3.16.4 known-gaps absence is recorded as an absence.** That cycle added no section to `docs/v3/v3.16/known-gaps.md`. The summary row says exactly that, and deliberately does not claim the cycle had no gaps, because nothing available here establishes it. Writing the stronger claim would have been fabrication dressed as bookkeeping.
+- **The rendered CI job is gated, not universal.** Merges plus a weekly cron, with the fast browser-free job opting out of the cron. A pull request never pays for a 130 MB browser download, and the rendered checks still run before anything reaches a protected branch.
+
+### Verification
+
+`tests/` full suite green on the integrated tree. Hooks suite 993 passed / 36 skipped. Installer smoke 33 passed. `ruff check --ignore RUF100` clean. Every `make validate` guard passes individually, including `check_version_sync.py` reporting an in-sync tree after the bump. `MANIFEST.sha256` regenerated after the bump so it hashes the released bytes.
+
+### Known Issues
+
+Zero release blockers. Nine v3.16.5 items carried with a stated reason: seven are the same shape (a static parser at the edge of what markup can tell it, answered by the render loop rather than by more parsing), one is an accepted semantic change to `--images none`, and one is a helper declined for want of a call site under the AGENTS.md scope-fit gate.
+
+The cycle's transferable lesson is an asymmetry: **a false PASS costs far more than a false FAIL**. Sixteen false failures were loud and fixed within the hour; one false pass, a band fraction inflated across its own threshold, survived two phases inside a green run.
+
 ## [2026-08-11] - v3.16.5 Phase 7: terminal refactor, reconciliation, and CI/CD
 
 ### What Changed
