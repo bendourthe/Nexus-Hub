@@ -346,3 +346,117 @@ def test_build_brief_records_where_the_palette_came_from():
     assert pinned["palette"]["accent"] == "#2fbfae"
     # The rejection axis is untouched, so the history keeps measuring variety.
     assert pinned["hue_family"] == rolled["hue_family"]
+
+
+# --- 4. coverage depth (verbosity) - v3.16.6 Phase 1 --------------------------
+# Same drift-between-surfaces failure mode as the sections above: the question,
+# the flag, the fallback, the authoring rules, and the rubric criterion are
+# authored in three different files and must keep agreeing.
+
+_RUBRIC = _BUNDLE / "references" / "visual-qa-rubric.md"
+RUBRIC_TEXT = _RUBRIC.read_text(encoding="utf-8")
+
+
+def test_the_usage_line_lists_the_verbosity_flag():
+    assert "[--verbosity <distilled|balanced|comprehensive>]" in COMMAND_TEXT
+
+
+def test_both_surfaces_offer_the_three_verbosity_levels():
+    for name, text in (("SKILL.md", SKILL_TEXT), ("presentify.md", COMMAND_TEXT)):
+        for level in ("distilled", "balanced", "comprehensive"):
+            assert level in text.lower(), f"{name} does not name the {level} level"
+
+
+def test_verbosity_is_distinguished_from_qa_depth():
+    # The two axes are easy to conflate from the flag names alone; the command
+    # must draw the line explicitly (content carried vs QA thoroughness).
+    assert "--qa-depth" in COMMAND_TEXT
+    assert "CONTENT axis" in COMMAND_TEXT or "content axis" in COMMAND_TEXT
+
+
+def test_the_verbosity_question_is_part_of_round_two():
+    # It must be content-derived, which is only possible after extraction.
+    skill_round_two = SKILL_TEXT.index("Design intake ROUND 2")
+    author = SKILL_TEXT.index("Author the interactive website")
+    verbosity_q = SKILL_TEXT.index("Ask the coverage depth (verbosity) in the same round")
+    assert skill_round_two < verbosity_q < author, "verbosity question out of pipeline order"
+    assert "coverage depth" in COMMAND_TEXT.lower()
+
+
+def test_the_question_stem_is_content_derived():
+    # A generic low/medium/high asked blind is the design this axis rejects:
+    # the options carry an approximate section count for THIS source set.
+    assert "section count" in SKILL_TEXT
+    assert "content-derived size hint" in COMMAND_TEXT or "size hint" in COMMAND_TEXT
+
+
+def test_the_flag_is_a_preset_that_skips_the_question():
+    assert "PRESET" in SKILL_TEXT, "SKILL.md must state the flag wins over the question"
+    assert "skips the round-2 coverage-depth question" in COMMAND_TEXT
+
+
+def test_the_fallback_is_balanced_on_both_surfaces():
+    for name, text in (("SKILL.md", SKILL_TEXT), ("presentify.md", COMMAND_TEXT)):
+        assert "`balanced`" in text, f"{name} does not name the balanced fallback"
+    assert "verbosity -> balanced" in COMMAND_TEXT, "the auto-pick list must include verbosity"
+
+
+def test_a_malformed_flag_value_degrades_instead_of_blocking():
+    for name, text in (("SKILL.md", SKILL_TEXT), ("presentify.md", COMMAND_TEXT)):
+        assert "usage note" in text, f"{name} does not document the malformed-value path"
+        assert "never blocks" in text, f"{name} must state the run never blocks on it"
+
+
+def test_the_design_record_carries_level_provenance_and_target():
+    assert "`flag-preset` / `asked` / `defaulted`" in SKILL_TEXT
+    assert "section-count target" in SKILL_TEXT
+
+
+def test_the_authoring_step_defines_all_three_depth_rules():
+    # The choice must change the outline, not just decorate the record.
+    coverage = SKILL_TEXT.index("Coverage depth (apply the resolved verbosity level")
+    author = SKILL_TEXT.index("Author the interactive website")
+    assert coverage > author, "the depth rules belong to the authoring step"
+    for marker in ("**Distilled**", "**Balanced**", "**Comprehensive**"):
+        assert marker in SKILL_TEXT, f"authoring rules missing {marker}"
+
+
+def test_attribution_wins_over_distillation_in_compile_mode():
+    assert "WINS over distillation" in SKILL_TEXT or "WINS over" in SKILL_TEXT
+
+
+def test_a_missing_record_grades_as_balanced_not_a_failure():
+    assert "treat the run as `balanced`" in SKILL_TEXT
+    assert "grade the page as `balanced`" in RUBRIC_TEXT
+
+
+def test_the_rubric_has_the_coverage_depth_criterion():
+    assert "## The ten criteria" in RUBRIC_TEXT
+    assert "**Coverage-depth match**" in RUBRIC_TEXT
+    assert "coverage-depth" in RUBRIC_TEXT  # the schema enum value
+    # Page-level, agent-vision only: the maintainer explicitly rejected a
+    # deterministic scorer check (word/section-count bands false-positive).
+    assert "AGENT-VISION only" in RUBRIC_TEXT
+    assert "NEVER raw word counts" in RUBRIC_TEXT
+
+
+def test_no_stale_criteria_count_survives():
+    # The rubric grew to ten; a surface still claiming eight or nine criteria
+    # would tell the grader to skip the new criterion.
+    for name, text in (("SKILL.md", SKILL_TEXT), ("visual-qa-rubric.md", RUBRIC_TEXT)):
+        assert "eight criteria" not in text.lower(), f"{name} still says eight criteria"
+        assert "nine criteria" not in text.lower(), f"{name} still says nine criteria"
+    assert "all ten criteria" in SKILL_TEXT
+
+
+def test_depth_never_excuses_readability_floors():
+    # A comprehensive run earns more sections, not smaller text; both the
+    # authoring rules and the rubric must carry the boundary.
+    assert "Depth never excuses" in SKILL_TEXT
+    assert "Depth never excuses" in RUBRIC_TEXT
+
+
+def test_the_rationalization_row_guards_both_directions():
+    row = "The user picked comprehensive, but the page flows better short"
+    assert row in SKILL_TEXT
+    assert "padding a distilled page" in SKILL_TEXT

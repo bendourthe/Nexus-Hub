@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Added
+
+- **v3.16.6 Phase 1 - presentify coverage-depth (verbosity) intake axis.** The two-round design intake gained the second content-dependent question: coverage depth. Round 2 now asks Distilled / Balanced / Comprehensive with a content-derived stem and an approximate section count per option for THIS source set, alongside the color-scheme question. A new `--verbosity <distilled|balanced|comprehensive>` flag presets and skips the question (natural-language forms bind too, e.g. "just the highlights"); an unrecognized value degrades with a usage note instead of blocking; non-interactive runs resolve to `balanced`. The resolved level, its provenance (`flag-preset` / `asked` / `defaulted`), and the derived section-count target are recorded in the design-record HTML comment; SKILL.md Step 6 defines the three per-level authoring depth rules (compile-mode per-source attribution wins over distillation; a missing record grades as `balanced`); and the visual-QA rubric gained criterion 10, coverage-depth match - page-level, AGENT-VISION only, deliberately with no deterministic scorer check. Slash surface: all platforms that carry `/presentify` (command + skill bundle auto-copy; no installer edit). 16 new prose-contract tests; no registry change (frontmatter untouched).
+
+### Fixed
+
+- **Stale rubric-criteria counts in the presentify SKILL.md.** Step 9 still said "all eight criteria" although the rubric had grown to nine in the v3.16.5 errata; both mentions now say ten and the enumeration lists all ten criteria.
+- **`presentify-extractor.yml` path filters missed `catalog/commands/presentify.md`** although `tests/skills/test_presentify_intake.py` has asserted on the command text since v3.16.5 Phase 4 - a command-only edit would have merged without running the suite that guards it. Both `push` and `pull_request` filters now include the file.
+
 ## [3.16.5] - 2026-08-11
 
 ### Opt-in capability changes (release capability usage gate)

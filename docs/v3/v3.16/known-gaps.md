@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v3.16.3 `github-usage-monitor-ux` is RELEASED (all six phases; 8 closed, 8 carried, 0 release blockers). v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (all 5 phases complete; reconciled and release-ready, unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
-**Last updated**: 2026-08-11 (v3.16.5 Phase 7 TERMINAL reconciliation: MT-1 closed, all 16 items dispositioned, 0 release blockers - v3.16.5 is release-ready pending `/update release`)
+**Last updated**: 2026-08-12 (v3.16.6 Phase 1 append: coverage-depth axis shipped; NI-1 by design, DF-1 documented for Phase 2, QG-1 closed. v3.16.5 has since been RELEASED and merged to `develop`.)
 
 > **File-lifecycle note**: this ledger was created ahead of any v3.16 implementation, by a comparison that deliberately claimed no release slot, so it began with only the `## Comparison-Sourced Deferrals` section. Each v3.16 version-implementation phase **appends** its own `## v3.16.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` numbering, which is namespaced separately from the `CD-#` and `TR-#` ids used above.
 
@@ -1045,6 +1045,32 @@ Phase 2 repeats the pattern and sharpens it. Its most valuable finding was again
 
 Worth noting from Phase 1: the most valuable defect that phase found was not in the fixture but in the checker - the `font-floor` check initially skipped every `var()` value, so tokenizing the fixture DROPPED its checked font count from 40 to 17. A linter that verifies the non-compliant form more thoroughly than the compliant one rewards the wrong behavior, and nothing in the plan would have surfaced it; only running the checker before and after the fix did.
 
+## v3.16.6 - presentify-verbosity-intake
+
+**Status**: Phase 1 of 2 complete on `feat/v3.16.6-presentify-verbosity-intake` (the coverage-depth axis: round-2 question, `--verbosity` flag, `balanced` fallback, design-record fields, per-level authoring rules, rubric criterion 10). Plan: [plans/v3.16.6-presentify-verbosity-intake.md](plans/v3.16.6-presentify-verbosity-intake.md). Phase 2 (terminal refactor + reconciliation) outstanding.
+
+### NI-1 - OPEN by design: the verbosity contract is agent behavior with no deterministic check
+
+- **Target file**: `catalog/skills/specialized-domains/document-to-interactive-html/SKILL.md` (Step 5 round-2 question, Step 6 depth rules) and `references/visual-qa-rubric.md` (criterion 10)
+- **Source phase**: v3.16.6 Phase 1, sub-tasks 1.1-1.3
+- **Plan reference**: sub-task 1.3 forbids deterministic scorer checks outright ("maintainer decision 2026-08-11: word / section-count bands are crude and false-positive; enforcement is record + rubric only")
+- **Reason it is open**: whether a page's depth matches its declared level is a structure-vs-content judgment (which topics count as "major", whether a section is appendix-grade), not a countable property. Criterion 10 is AGENT-VISION only and page-level, graded against the design record's recorded level and section-count target. This mirrors v3.16.5's NI-4 (intake questions are agent behavior) and is the same shape as its NI-2/NI-3 family: a judgment the render loop answers and a parser cannot.
+- **Suggested next step**: none scheduled - by design. Revisit ONLY if a shipped page plainly contradicts its recorded level AND the rubric criterion missed it; that concrete defect would justify the cheap partial guard (comparing the rendered top-level section count against the recorded target band), which was considered and rejected absent a defect to point at.
+
+### DF-1 - DOCUMENTED: the v3.16.5 deferral was never recorded in this file
+
+- **Target file**: this file (the v3.16.5 subsection above)
+- **Source phase**: v3.16.6 Phase 1 (discovered during the Phase 8 known-gaps append)
+- **Reason**: the v3.16.6 plan's Origin note says the verbosity axis was "deferred from v3.16.5 by maintainer decision 2026-08-11" and its sub-task 2.2 expects to close "the v3.16.5-deferred entry" - but the v3.16.5 Phase 7 reconciliation (same date) never wrote that entry, so there is no entry to close. The deferral decision is real (it is recorded in the v3.16.6 plan header and in the maintainer conversation); only its known-gaps bookkeeping was skipped.
+- **Suggested next step**: Phase 2 sub-task 2.2 closes the deferral by reference to THIS note instead of a v3.16.5 entry; no retroactive edit to the finalized v3.16.5 subsection.
+
+### QG-1 - CLOSED in Phase 1: the CI path filter missed the command file the tests assert against
+
+- **Target file**: `.github/workflows/presentify-extractor.yml` (both `paths:` lists)
+- **Source phase**: v3.16.6 Phase 1, Phase 8 CI readiness check (pre-existing since v3.16.5 Phase 4)
+- **What was wrong**: `tests/skills/test_presentify_intake.py` has asserted on `catalog/commands/presentify.md` since v3.16.5 Phase 4, and this phase added more such assertions - but the workflow's path filters did not include the command file, so a command-only edit would merge without running the suite that guards it (the same silent-ungating shape as v3.16.5 MT-1's fixture-move hazard).
+- **Resolution**: `catalog/commands/presentify.md` added to both the `push` and `pull_request` path filters (2 lines).
+
 ## v3.16 Summary
 
 | Category | Open | Resolved |
@@ -1057,5 +1083,6 @@ Worth noting from Phase 1: the most valuable defect that phase found was not in 
 | v3.16.3 version-implementation gaps (all 6 phases, reconciled) | 8 carried (DF-1 deferred key deletion; NI-2 unverifiable weights; MT-2 provisional runner rules; NI-4 cross-monitor policy, routed out; NI-7 deliberate divergence; WN-1 / BG-1 / BG-2 environmental) | 8 closed (NI-1, QG-2, MT-1, NI-5, NI-6, BG-3, NI-3, BG-4) |
 | v3.16.4 version-implementation gaps | not recorded - the v3.16.4 cycle (GitHub Usage Monitor account-pinned sessions, shipped 2026-08-11 from a parallel session) added no section to this file. Stated as an observed absence, not as a claim that the cycle had none. | n/a |
 | v3.16.5 version-implementation gaps (all 7 phases, reconciled) | 9 carried (NI-2, NI-3, NI-4, NI-5, WN-1, WN-3, WN-4 by design, each with a named place where the render loop answers it; DF-2 accepted, DF-3 declined for want of a call site) | 9 closed (MT-1, DF-1, DF-4, BG-1, BG-2, BG-3, BG-E1, plus v3.15's MT-1 and MT-2) |
+| v3.16.6 version-implementation gaps (Phase 1 of 2) | 2 (NI-1 verbosity contract is agent behavior, by design; DF-1 the v3.16.5 deferral bookkeeping was never written, documented for Phase 2 to close by reference) | 1 closed (QG-1: the CI path filter missed the command file the intake tests assert against) |
 
 The three comparison-sourced items remain non-blocking prose folds with named target files. Of the v3.16.0 items, BG-1 is pre-existing and reproduces without this plan's changes, WN-1 is environmental, DF-1 is a reasoned non-implementation, NI-1 is a deliberate scope boundary the plan requires, and NI-2 / NI-3 / NI-4 are Phase 2 findings that Phase 3 and Phase 5 are already scheduled to dispose of. Phase 5 dispositioned every open item: 13 closed, 3 carried forward. **None gates the v3.16.0 release.** NI-1 and NI-6 are scope decisions for cycles already touching the relevant surfaces, and BG-1 is pre-existing, reproduced on a clean `develop` worktree, and confined to a Windows host whose PATH resolves `tar` to the Git Bash binary. Of the 13 closed, three (BG-2, BG-3, and QG-3) were caught by the test suite rather than by review, which is this cycle's strongest argument for running the full suite before declaring a phase done.

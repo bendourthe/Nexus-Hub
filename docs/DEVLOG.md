@@ -1,5 +1,31 @@
 # Development Log
 
+## [2026-08-12] - v3.16.6 Phase 1: presentify coverage-depth (verbosity) intake axis
+
+### What Changed
+
+The presentify intake gained a coverage-depth axis: a content-derived round-2 question (Distilled / Balanced / Comprehensive, each option carrying an approximate section count for THIS source set), a `--verbosity <distilled|balanced|comprehensive>` flag that presets and skips it, a `balanced` non-interactive fallback, three design-record fields (level, provenance, section-count target), per-level authoring rules in Step 6, and rubric criterion 10 (coverage-depth match, page-level, AGENT-VISION only). Three surfaces changed - `catalog/commands/presentify.md`, the skill's SKILL.md, and `references/visual-qa-rubric.md` - plus 16 new prose-contract tests and a 2-line CI path-filter fix. No new script, no frontmatter change, no registry update.
+
+### Why It Changed
+
+Style, aspect, interactivity, and imagery never answered "how much of my source material survives onto the page", so the agent decided depth silently - pages either dumped everything or over-summarized with no user say. The question lands in round 2 (post-extraction) rather than round 1 because a depth choice is only answerable once the agent can state what the sources actually contain; that is the same content-dependence line that put the color-scheme question there in v3.16.5.
+
+### Decisions Made
+
+- **Depth only, one axis.** Technicality stays with the style question; bundling both into one question conflates two independent choices (maintainer decision 2026-08-11, reconfirmed at plan approval).
+- **`--verbosity`, not `--depth` or `--coverage`.** `--qa-depth` already exists; the command draws the content-axis vs QA-thoroughness line explicitly so the two are not conflated.
+- **Enforcement is record + rubric, deliberately with NO deterministic scorer check.** Word / section-count bands are crude and false-positive; the rubric criterion grades rendered section structure against the recorded target, never word counts. Recorded in the criterion text itself so a future implementer does not "helpfully" add the check.
+- **The flag always wins over the question; a missing record grades as `balanced`; compile-mode attribution wins over distillation.** The three failure-mode contracts from the plan, written into the instruction text because in an LLM-native skill an unstated fallback does not exist.
+- **Stale criteria counts fixed in passing.** SKILL.md still said "all eight criteria" while the rubric had grown to nine (v3.16.5 errata); adding criterion 10 made the number wrong everywhere, so both mentions now say ten and the enumeration lists all ten.
+
+### Verification
+
+Full `tests/` suite green: 2351 passed, 17 skipped (including 16 new verbosity contract tests in `tests/skills/test_presentify_intake.py`). `validate_skills.py --bundles-only` PASS, `run_trigger_evals.py --gate` PASS (0 routing failures), quality heuristics / unicode-safety / version-sync all pass. Ruff findings in the intake test file are pre-existing v3.16.5 style (the repo lints `scripts/` only) and were left untouched.
+
+### Known Issues
+
+Three items recorded in `docs/v3/v3.16/known-gaps.md` under v3.16.6: NI-1 (the verbosity contract is agent behavior with no deterministic check - by design), DF-1 (the v3.16.5 deferral was never bookkept in known-gaps; Phase 2 closes by reference to the new note), QG-1 (closed: the CI path filter missed `catalog/commands/presentify.md`, which the intake tests have asserted against since v3.16.5 Phase 4).
+
 ## [2026-08-11] - v3.16.5 release: presentify visual overhaul [release]
 
 ### What Changed
