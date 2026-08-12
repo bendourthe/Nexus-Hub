@@ -2,7 +2,24 @@
 
 This is the durable, sourced source of truth for where every supported platform READS each surface (instruction file, slash commands, skills, agents, rules, hooks) and where the Nexus-Hub installer WRITES it. It supersedes the point-in-time snapshot at `docs/v3/v3.11/platform-read-contracts.md` (which resolved the v3.11.0 Phase 7 audit but left the Codex and Antigravity contracts flagged as unverified).
 
-**Last verified**: 2026-08-09 for v3.16.2.
+**Last verified**: 2026-08-11 for v3.16.5.
+
+**v3.16.5 pass (targeted).** Two platforms were re-fetched from live first-party documentation; the remaining eight carry forward from the 2026-08-08 full pass. v3.16.5 changes no platform discovery surface: the changed set is confined to one skill bundle, its command file, the two `data/` registries, `tests/`, one workflow file, and `docs/` (no read path, no adapter, no installer, no `base-*.md`).
+
+| Platform | Verdict | Evidence |
+|---|---|---|
+| Claude Code | **MATCH** | Personal `~/.claude/skills/<skill-name>/SKILL.md` and project `.claude/skills/<skill-name>/SKILL.md` confirmed verbatim. The page still states custom commands are merged into skills and that existing `.claude/commands/` files keep working, so the commands write remains supported. [Source](https://code.claude.com/docs/en/skills) |
+| Codex / ChatGPT | **DRIFT (low), fourth consecutive cycle** | Discovery lists `$CWD/.agents/skills`, `$CWD/../.agents/skills`, `$REPO_ROOT/.agents/skills`, `$HOME/.agents/skills`, and `/etc/codex/skills`. `~/.codex/skills` is still absent. [Source](https://learn.chatgpt.com/docs/build-skills.md) |
+
+**Codex finding, handling.** Unchanged and still non-breaking: Nexus-Hub writes both `~/.codex/skills` and `~/.agents/skills`, and the latter is explicitly documented, so delivery reaches Codex. The retained write stays on the recorded reasoning (writing an ignored directory is harmless; removing a read one would silently drop coverage). Four cycles of a stable omission is now strong enough evidence that a deliberate removal should be **proposed** at the next minor rather than deferred again. It is not done here because v3.16.5 touches no installer, and changing a write path inside a release that otherwise touches no delivery code would be the wrong place for it.
+
+**One bookkeeping finding, recorded rather than quietly fixed.** The stamp this pass replaced read v3.16.3, so **v3.16.4 shipped without re-stamping the contract** and its freshness gate went unanswered. Nothing broke (v3.16.4 touched no read path either), but the gate exists to be answered once per release, and skipping it silently is precisely the failure mode it guards against. Separately, this `.md` had fallen a further step behind the JSON: the v3.16.3 pass updated only the machine-readable file. The two are back in step here.
+
+**A full pass is owed.** Three consecutive targeted passes have deferred it; the next minor release should re-fetch all ten platforms.
+
+---
+
+**Prior entry, retained for the record** -- Last verified 2026-08-09 for v3.16.2.
 
 **v3.16.2 pass.** Official vendor documentation was fetched for five platforms; the remaining entries carry forward from the same-day v3.16.1 pass, and this release changed no integration adapter, no contract file, and no instruction template (34 files, all docs, tests, and the new installer subcommand).
 

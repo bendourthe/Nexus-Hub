@@ -1,5 +1,264 @@
 # Development Log
 
+## [2026-08-11] - v3.16.5 release: presentify visual overhaul [release]
+
+### What Changed
+
+Shipped the seven-phase presentify visual overhaul: a responsive-typography contract that scales the root rather than `body`, an SVG diagram-quality contract, a real headless-render loop enforced in CI, an intake redesign, imagery placement roles, and an opt-in `cinematic` scroll-scrub level. Version bumped 3.16.4 -> 3.16.5 across every version-carrying surface. Catalog counts unchanged at 271 skills / 17 commands / 31 hooks / 23 agents: this release deepens one existing skill and adds no new catalog content.
+
+### Why It Changed
+
+`/presentify` output was passing every deterministic check and still reading badly on a large display. The cause was mechanical and singular: the generated CSS scaled `body` with `clamp()` while children sized in `rem`, which resolves against the root, so the scaling was inert for every nested element. Fixing that exposed the deeper problem, which is that a parser and a renderer answer different questions, and only the parser was running.
+
+### Decisions Made
+
+- **The release branch integrated `develop` before shipping, not after.** v3.16.4 shipped from a parallel session while v3.16.5 was built in an isolated worktree, so the branch was eight commits behind a released `main`. Merging first means the release was validated on the code it actually ships as. Three files overlapped and all three resolutions were additive or reconciling, never truncating.
+- **A superseded known-gaps stub was dropped rather than merged.** `develop` carried an "(in progress)" v3.16.5 section from the errata plan commit whose only item is recorded CLOSED in the completed section. Two records of one version, one of them stale, is worse than either alone.
+- **The v3.16.4 known-gaps absence is recorded as an absence.** That cycle added no section to `docs/v3/v3.16/known-gaps.md`. The summary row says exactly that, and deliberately does not claim the cycle had no gaps, because nothing available here establishes it. Writing the stronger claim would have been fabrication dressed as bookkeeping.
+- **The rendered CI job is gated, not universal.** Merges plus a weekly cron, with the fast browser-free job opting out of the cron. A pull request never pays for a 130 MB browser download, and the rendered checks still run before anything reaches a protected branch.
+
+### Verification
+
+`tests/` full suite green on the integrated tree. Hooks suite 993 passed / 36 skipped. Installer smoke 33 passed. `ruff check --ignore RUF100` clean. Every `make validate` guard passes individually, including `check_version_sync.py` reporting an in-sync tree after the bump. `MANIFEST.sha256` regenerated after the bump so it hashes the released bytes.
+
+### Known Issues
+
+Zero release blockers. Nine v3.16.5 items carried with a stated reason: seven are the same shape (a static parser at the edge of what markup can tell it, answered by the render loop rather than by more parsing), one is an accepted semantic change to `--images none`, and one is a helper declined for want of a call site under the AGENTS.md scope-fit gate.
+
+The cycle's transferable lesson is an asymmetry: **a false PASS costs far more than a false FAIL**. Sixteen false failures were loud and fixed within the hour; one false pass, a band fraction inflated across its own threshold, survived two phases inside a green run.
+
+## [2026-08-11] - v3.16.5 Phase 7: terminal refactor, reconciliation, and CI/CD
+
+### What Changed
+
+The plan's terminal gate. The calibration fixture is homed at `tests/fixtures/presentify/`, closing MT-1 - the one item every phase since Phase 1 deferred. All sixteen v3.16.5 gap items are dispositioned, the R12 platform-distribution requirement is verified, and CI/CD is confirmed complete and optimized. **No tag, no push, no version bump**: those belong to `/update release`.
+
+### Why It Changed
+
+A terminal phase exists so the next plan starts from a true picture rather than an assumed one. Six phases plus an errata pass had accumulated a fixture with no home, sixteen gap items in various states, and a set of CI changes that needed checking as a whole rather than one phase at a time.
+
+### Decisions Made
+
+- **The fixture went to `tests/fixtures/presentify/`** (maintainer decision). The test already accepted that path - pre-wired in Phase 3 precisely so this move would not need a test change - it sits in a tree CI path-filters, and it stops an 84 KB HTML file sitting at the repository root reading like stray build output. Moved with `git mv` so history follows.
+- **The dual-candidate lookup was REMOVED, not kept.** It existed only to survive the move. Keeping it would leave a second accepted location that nobody maintains and that would silently mask a future misplacement.
+- **The move introduced a CI gap, and the same pass closed it.** The workflow path-filtered `tests/skills/**` but not `tests/fixtures/**`, so a fixture-only edit would no longer trigger the job that scores it - the standing gate would have stopped gating the exact file it guards, silently. Worth recording because the move looked complete after the two obvious reference repairs; the third reference was a trigger condition, not a path.
+- **Seven items are carried by design, and that is the correct outcome rather than a backlog.** Six of the seven are the same shape: a static parser at the edge of what markup can tell it, with the answer sitting in the render loop. Building parsers for them would add complexity to buy nothing, and the phase that made that division of labour correct was Phase 3.
+- **MT-1 closes on both halves or not at all.** Location was the visible half; the guarding half is what makes it a gate - three standing tests plus a CI scoring step, so the fixture now fails a regression in either direction (the page OR the checker).
+- **The advisory model-prompting staleness check reported UNKNOWN** (no live roster passed) and was left at that. The 9.0 gate specifies it as advisory-only: it never blocks a phase and never re-stamps a freshness marker. The recorded roster was last verified 2026-07-27, fifteen days old, which is not a release concern.
+
+### Verification
+
+634 passed / 0 skipped in `tests/skills/`; 33 passed in the installer smoke suite. `ruff check --ignore RUF100` clean. Fifteen `make validate` guards pass individually, including `sync_platform_defaults --check`, the base-template parity guard, and the trigger-eval gate. R12 confirmed: all 13 distributed artifacts sit in auto-copied trees and **zero** repo-level `scripts/` files were added, so no installer edit is owed. CI/CD audited as complete and optimized: path filters on both trigger lists, `concurrency` with cancel-in-progress, pip caching in both jobs, a browser-download cache keyed on the resolved Playwright version, per-job timeouts, least-privilege `permissions`, the render job gated to merges plus a weekly cron, and the fast job opting out of the cron so it is not double-billed.
+
+### Known Issues
+
+Zero release blockers. MT-1 closed here; eight items closed across earlier phases (including v3.15's MT-1 and MT-2, both closed by appended notes rather than rewrites). Seven carried by design with a stated reason and a named place where each is actually answered (NI-2, NI-3, NI-4, NI-5, WN-1, WN-3, WN-4); two accepted-or-deferred with a decision (DF-2 the `none` semantic change, DF-3 the knockout helper with no call site).
+
+The one lesson worth carrying out of this cycle is the asymmetry BG-2 exposed: **a false PASS costs far more than a false FAIL.** Sixteen false failures were loud and fixed within the hour; one false pass - a band fraction the checker inflated across its own 0.95 threshold - sat inside a green run for two phases and would have shipped.
+
+**v3.16.5 is release-ready.** The version bump, changelog finalization, tag, merge, and push are handed to `/update release`; this phase performed none of them.
+
+## [2026-08-11] - v3.16.5 Phase 6: cinematic scroll-scrub
+
+### What Changed
+
+The last feature phase. A new opt-in `cinematic` interactivity level ships with its protocol (`references/scroll-scrub.md`), a zero-dependency engine (`assets/scroll-scrub-engine.js`), wiring into both intake surfaces, and the reverse-engineering matrix row that confines attribution to policy documentation. The former v3.20.1 scroll-scrub plan is fully absorbed.
+
+### Why It Changed
+
+R11 asked for the scroll-world-style continuous fly-through to be reachable through the interactivity question, with agent discretion under the high interaction level. The capability is genuinely valuable for a document with a linear narrative; the upstream project it derives from is also intrinsically dependent on paid hosted generation, so the whole exercise was extracting the mechanics and the presentation grammar while dropping the pipeline.
+
+### Decisions Made
+
+- **Stills-only is the BASE mode; video is the enhancement.** The engine is built so that under `prefers-reduced-motion: reduce` no video element is created at all - not created-and-paused, not created-muted: not created. A paused video still downloads and still decodes its first frame, so only absence is a guarantee. Building it in this direction matters: a reduced-motion path bolted on afterwards is the one that regresses, and this one is verified in a real browser rather than by reading the code.
+- **The size / cost gate is stated in numbers before anything is built.** Base64 inflates binary by about a third, so a 2 MB clip lands as ~2.7 MB of markup, and past roughly 15-20 MB the single-file guarantee stops being a feature and becomes a delivery problem. Clip count, projected size, key requirements, and QA-depth cost are stated and confirmed first. Preferring stills-only when the estimate is large is a legitimate outcome, not a degradation.
+- **Under `rich` it is proposed, priced, and confirmed - never silently selected.** A reader who asked for `rich` did not agree to a 15 MB file. The three surfacing paths are the explicit flag, the menu's fourth option, and a confirmed rich-level proposal; a headless run never selects it.
+- **The whole upstream pipeline was dropped, not adapted.** Hosted image / video generation is the generation-as-service Hard-No, and it applies to a vendor CLI exactly as to an API - so a cinematic build never calls one and never prints one for the user to run either. Also not adopted: the competing slash command (cinematic is a level of `/presentify`, not a fork), the multi-file sibling `.mp4` layout (breaks the offline single-file contract), the blank brand-industry interview (presentify presents existing documents; inventing a narrative would make it a different product), and the paid portrait chain.
+- **The plan contradicted itself, and the mechanical gate is what caught it** (DF-4). Sub-task 6.3 says to state explicitly that there is no separate `/scroll-world` command; sub-task 6.4 requires zero occurrences of `scroll-world` in `catalog/`. Following 6.3 literally makes 6.4 fail by naming the upstream repository in a distributed artifact. The Attribution Rule is the binding authority, so 6.4 wins and 6.3's intent was satisfied without the name. The first draft did name it; only the grep caught it, and a parametrized test now guards the five most likely files.
+- **The knockout helper is DEFERRED with a reason** (DF-3), which sub-task 6.3 explicitly asks for as one of its two options. There is no call site: nothing in the engine, the protocol, or the intake asks for a background-knocked-out still, and the AGENTS.md scope-fit gate declines a module whose only justification is a hypothetical future extension. Pillow being already available is not the obstacle - the missing call site is.
+- **`image-sizing` was firing on any embedded data URI** (BG-3), including one inside an inline `<script>` config, which made every cinematic build fail for a missing cap on a figure it does not have. Found by doing what sub-task 6.4 asks - running one cinematic build through the loop - and fixed by requiring a real figure box. A stage layer is separately exempt on its merits: it is a decorative `aria-hidden` backdrop for which `object-fit: cover` is correct, since `contain` would letterbox the stage and defeat the level.
+
+### Verification
+
+17 tests in the new `tests/skills/test_presentify_cinematic.py`; 634 passed / 0 skipped across `tests/skills/`. `ruff check --ignore RUF100` clean. All ten `make validate` guards pass. The vendor-name gate returns 0 across `catalog/` and `templates/`, with attribution present only in the matrix. One cinematic stills-only build was scored (PASS, 0 high-severity across all 13 criteria) and rendered at 2560x1300 under BOTH motion preferences: 0 video elements, 3 stills, no horizontal overflow, `aria-hidden` stage, and zero off-host requests. The canonical calibration fixture is unaffected.
+
+### Known Issues
+
+Two deferred-or-corrected, one closed. DF-3 (knockout helper, no call site) and DF-4 (the plan's naming contradiction, resolved in favour of the Attribution Rule) are recorded rather than silently handled. BG-3 closed. Zero release blockers.
+
+One incidental finding worth keeping: the verification build overflowed horizontally at 2560px because it set `width:100%` AND `padding-inline` without `box-sizing: border-box` - the default `content-box` adds padding on top of the 100%. That was my page's bug, not the engine's, but it produces a scrollbar rather than an obviously broken layout, so rule 1 of the typography contract now names the footgun in one line.
+
+## [2026-08-11] - v3.16.5 Phase 5: imagery placement intelligence
+
+### What Changed
+
+Imagery placement gained a four-role taxonomy (hero / background / contextual / gallery) with a mandatory scrim recipe for the background role, the placement pass was wired into the Phase 3 render loop's first iteration, and `visual_qa_score.py` now verifies the placement RECORD against the page. Closes v3.15 known-gap MT-2.
+
+### Why It Changed
+
+MT-2 deferred end-to-end grading of consented per-section integration to "the Phase 5 visual-QA loop". That loop now exists, but simply running the placement decision inside it would not have closed the gap - the original problem was that nobody could tell, after the fact, whether a section had no image because it did not need one or because the pass forgot it. An instruction cannot fix that; an artifact can.
+
+### Decisions Made
+
+- **The record is what closes MT-2, not the instruction.** A consented run must write an `IMAGERY PLACEMENTS` block with one decision per section, and the checker verifies that record AGAINST the page. Three states fail: assets present with no block (the pass left no decision trail), a record claiming more embedded assets than the page contains (the record is fabricated), and a decline with no reason. That turns "integrate or explain" from a hope into a checkable artifact, and makes a skip distinguishable from a miss.
+- **The embedded count is compared against the page's TOTAL `data:` count, deliberately.** A page's images include source figures extracted from the document, so a placement count BELOW the total is normal and a count ABOVE it is provably wrong. Comparing for equality would have false-positived on every page carrying a source image - the kind of check people switch off.
+- **An unexplained decline is MEDIUM, not HIGH.** A decline is a valid, frequent, and often correct outcome; an unexplained one is sloppy but does not break the page, so it must not block it. Making everything HIGH would have made the gate less useful, not stricter.
+- **The background scrim is a number, not an adjective.** "Use a dark overlay" is unverifiable. The recipe mandates ~82%, at which the composited background is within a couple of percent of `--base` and the EXISTING contrast check stays valid without knowing anything about the image. The reason the number matters is stated too: below roughly 75% the image shows through enough to move the effective background per-pixel, and no static check can certify the text - at which point the answer is to move the text off the image, not to lower the threshold (WN-4).
+- **The pass runs inside the loop's first iteration, not before it.** A section that looked starved in the content model may already read as full once rendered, and a band that looked fine may be visibly empty. Deciding placements from the model rather than the render was the earlier design and it was guessing.
+- **Relevance stays a screenshot judgment** (NI-5). A `data:` URI is opaque bytes; no stdlib parser can tell whether the picture is of the right thing. The render loop already has vision available at exactly the moment that judgment is needed, so pushing it there costs nothing and inventing image analysis inside an offline scorer would cost a lot.
+
+### Verification
+
+79 tests in `test_presentify_visual_qa.py` (from 70); 617 passed / 0 skipped across `tests/skills/`. `ruff check --ignore RUF100` clean. All ten `make validate` guards pass. The canonical fixture still scores PASS across all criteria. All four placement-record states verified (matching record passes; no record fails HIGH; overclaiming record fails HIGH; unexplained decline fails MEDIUM without blocking), plus the `none`-path case confirming a non-consented run expects no placement pass at all.
+
+### Known Issues
+
+Two new open, one closed. **v3.15 MT-2 CLOSED** by the record check. **NI-5**: placement relevance is a screenshot judgment by design - do not build image analysis into the offline scorer. **WN-4**: a scrim below ~75% defeats the static contrast check; the contract states the number and the reason, and the rubric assigns the composited-contrast judgment to the agent-vision half. Zero release blockers.
+
+Two test-mechanics notes. The pre-existing `_CLEAN` fixture needed the placement record once it was scored as a consented run - the fixture predates the convention and the check is right. And a bash heredoc again collapsed escaped newlines inside a Python string literal, producing an unterminated-literal syntax error; the fix was written from a file, as with the backspace-in-a-regex incident earlier in this plan. Third occurrence of the same tooling trap.
+
+## [2026-08-11] - v3.16.5 Phase 4: intake redesign
+
+### What Changed
+
+The imagery question was restructured to four options over an always-on procedural baseline (R8), and a second intake round now offers three content-derived color schemes plus Other (R10). `design_seed.py` gained `--scheme-hint`, which pins the chosen palette while leaving every other design axis to the sampler.
+
+### Why It Changed
+
+Both changes come from the same observation: the questions did not match the choices users actually wanted to make. "Which imagery tier" presupposed that procedural visuals were optional when in practice every good page gets them, and the intake never asked about color at all - the single most visible design decision - because at the point the questions were asked there was no content to derive a scheme from.
+
+### Decisions Made
+
+- **Procedural stopped being a choice, which is what makes the question honest.** Once the baseline is always on, "additional imagery?" has four clean answers instead of five overlapping tiers. The `None` option is explicitly described as "the built-in visuals only, NOT a bare page", because a menu option called None reads as nothing at all.
+- **The `none` semantic change is disclosed rather than smoothed over** (DF-2). The old `none` meant no visuals whatsoever; that mode is gone. The alternative was a fifth `bare` option existing only to preserve a mode R8 deliberately removed. Both surfaces say "no longer exists" and a test asserts that disclosure, so it cannot be quietly dropped later.
+- **Round 2 runs after extraction because that is the ONLY point it can.** A content-derived scheme needs content. The requirement that each proposal cite its content signal is what separates this from three random palettes with nice names, and it is stated as a gate: a scheme with no citable signal is not content-derived and should not be offered.
+- **The scheme is a CONSTRAINT on the roll, not a replacement for it.** `--scheme-hint` pins the palette and nothing else; type voice, layout, motion, signature move, and spacing still roll, and `hue_family` - one of the three anti-convergence rejection axes - is deliberately left as ROLLED even when the palette is pinned. Rewriting it would have made the history comparison start measuring the user's color choice instead of the sampler's variety. A `palette_source` field records where the colors came from so the design record can be honest about it.
+- **A malformed hint exits 2 rather than degrading.** Every other degradation in this skill falls back to something safe; this one cannot, because silently rolling an unpinned palette ships colors the user did not choose. A usage error is the honest outcome.
+- **The registries were hand-edited.** Three frontmatter fields changed meaning, so `data/skills.json` and `data/SKILL_INDEX.md` needed to match. `build_skills_catalog.py` would have produced a ~6000-line diff for a 4-line change and buried the actual edit.
+
+### Verification
+
+36 tests in the new `tests/skills/test_presentify_intake.py`; 608 passed / 0 skipped across `tests/skills/`. `ruff check --ignore RUF100` clean on the bundled scripts. All ten `make validate` guards pass, including the trigger-eval gate after the frontmatter change. `--scheme-hint` verified end-to-end through the real script (palette pinned, other axes still rolled at the same seed, `hue_family` unchanged, five malformed-input cases each exiting 2 with no brief written) plus in-process unit tests for the two new helpers.
+
+### Known Issues
+
+Two new, neither a blocker. NI-4: the questions themselves are agent behavior - no test can assert that a proposed scheme is relevant to a document, only that the instruction to make it so exists; the deterministic half (option agreement across surfaces, alias documentation, pipeline order, skips, diagram, and the scheme-hint behavior) IS tested, and the visual half is already graded by the Phase 3 render loop. DF-2: the `none` semantic change, accepted and disclosed.
+
+One test-quality defect was found and fixed while measuring coverage: two "bad input" cases were passing through the wrong code path. A `--scheme-hint` value that does not start with `{` is treated as a FILE PATH, so `'["a"]'` failed on "not a readable file" and never reached the JSON-object guard - the case passed for the wrong reason and left that guard unreachable by any test. It now has a real test that writes a file containing a JSON array.
+
+## [2026-08-11] - v3.16.5 errata pass: render-session lessons E1-E10
+
+### What Changed
+
+The maintainer's four-round render session at 2560x1300 and 1920x1080 produced ten errata items binding on the plan, five of which correct artifacts Phases 1 and 2 had already committed. All ten are now executed. The repo-root fixture was adopted as the canonical reference implementation; the Phase 1-3 worktree lineage (diverged by ~3291 lines) was discarded.
+
+### Why It Changed
+
+Phase 3 built a render loop and immediately proved its own premise twice over: first by finding five defects that eleven deterministic checks had passed, then by demonstrating that the scorer misgraded the maintainer's reference implementation in sixteen places. The errata is the same lesson arriving from the other direction - a human looking at a real render at a real size, concluding that two of the contracts' central prescriptions were wrong.
+
+### Decisions Made
+
+- **Root scaling replaces per-element clamps (E1), and the corollary is the sharper half.** Scaling belongs on `html` in one declaration; per-element `clamp()` sizes cap out independently, which is why three rounds of bumping individual sizes failed to fix perceived smallness on a 2560px display. But root scaling does NOTHING below the root clamp's minimum: with `clamp(1rem, 0.5vw + 0.55rem, 1.6rem)` the root pins at 16px for every viewport at or below 1366px. The canonical fixture, verified at 2560 and 1920, carried **14 distinct sub-floor element classes at 1366px**. The contract now states that corollary, because it is exactly what a render session checking only wide viewports cannot see.
+- **The scorer's numbers are now verified against the browser, not asserted (E3).** `root_font_px()` parses the `html` rule and every rem/ch value resolves against it. That retired 16 false positives and made the full-width math honest - the real gutter at 1920px is 50.6px, not 44px, so the band is 0.947 rather than the 0.954 the old math reported. The scorer and a live render now agree to four decimal places at 2560 / 1920 / 1366, which is the standard this kind of check should have been held to from the start.
+- **A false PASS is worse than a false FAIL, and E3 produced one of each.** Sixteen false failures were loud and got fixed in an hour. The single false pass - a band fraction the check inflated past its own threshold - had been sitting quietly in a green run since Phase 1.
+- **`rem` macro spacing became fluid, so rule 1 had to stop flagging it.** Under a fluid root, `2.5rem` of band padding is 40px at a 16px root and 64px at 25.6px. Continuing to flag it would have penalised the technique E1 prescribes.
+- **Where the fixture and the check disagreed, the check lost - once.** `svg-viewport-fit` demanded a literal `max-height`; the fixture uses `height: calc(100vh - 7.5rem); width: auto; max-width: 100%`, which pins the graphic to its slot AND prevents the horizontal overflow that deriving width from a capped height can cause. That is the better construction, so the check accepts either and rule 4 now documents the preferred one. Everything else the scorer flagged was a real defect and was fixed in the page.
+- **Rotation is a defect, not a technique (E4).** Phase 2 taught rotation as the fix for a label/path collision and shipped a `rotate(90)` label. The contract now says a reader should never have to tilt their head, and shows the widen-viewBox + `tspan` replacement.
+- **The mutation test was re-anchored on selectors rather than strings.** The fixture swap drifted all seven string anchors at once. The drift assertion caught it - which is why it exists - but a test that must be re-anchored whenever the page is re-authored is testing the wrong layer. Mutations now target `(selector, property)`, with only the two genuinely structural cases (an SVG path, an inline style attribute) staying literal.
+- **Expected severity became per-case.** A single fixed macro dimension is MEDIUM by policy, and the seeded-defect test had asserted HIGH for everything. Loosening the policy to satisfy the test would have inverted the relationship between them.
+
+### Verification
+
+70 tests in `test_presentify_visual_qa.py` (from 59), 572 passed / 0 skipped across `tests/skills/`. `ruff check --ignore RUF100` clean on the bundled scripts. All ten `make validate` guards pass. The canonical fixture scores PASS on all thirteen structural criteria. Rendered verification at 2560x1300 / 1920x1080 / 1366x768 / 390x844: no horizontal overflow at any width, secondary text at or above 13px and interactive at or above 12px at every width, two sticky layers at distinct offsets, every anchor target carrying `scroll-margin-top`, and 0 of 5 `pre` blocks clipping. Scorer band fractions match the render exactly (0.9536 / 0.9473 / 0.9356).
+
+### Known Issues
+
+BG-E1 closed with nothing deferred; the required 2560x1300 capture surfaced no new defects on the canonical fixture. WN-3 (`em`-relative sizes are render-verified only) remains open and is now doubly evidenced - the `code` element's `.9em` rendered at 12.53px and no parser could resolve it. The fixture now floors it with `max(.9em, 0.8125rem)`, a construction the checker CAN verify since `min()`/`max()` resolution was added.
+
+## [2026-08-11] - v3.16.5 Phase 3: the real render loop
+
+### What Changed
+
+The enforcement keystone. A new `scripts/ensure_render_env.py` probes the local headless-render environment and exits with a distinct code per state; SKILL.md Step 9 now makes the RENDERED path the default and the degradation an explicitly disclosed exception; a `render` job gated to merges plus a weekly cron installs Playwright chromium and runs the suite with `NEXUS_REQUIRE_RENDER=1`, which converts the browser-dependent skips into failures; and the calibration fixture was re-verified by actually rendering it at 1920x1080, 1366x768, and 390x844. Closes v3.15 known-gap MT-1.
+
+### Why It Changed
+
+Phases 1 and 2 wrote two contracts and eleven deterministic checks, and both phases ended by routing their hardest items to this one with the same reason: a static parser had reached the limit of what markup can tell it. Meanwhile the loop itself degraded silently whenever no browser was importable, so a run could report a clean visual pass having never seen a pixel.
+
+### Decisions Made
+
+- **The environment was capable the whole time, and nothing said otherwise.** Playwright and a cached chromium were already installed on this host, yet the three browser-dependent checks skipped across every Phase 1 and Phase 2 run and then passed consistently after one warm-up launch. That is the entire argument for an explicit probe: the silent fallback was not protecting anyone from a missing dependency, it was hiding a working one.
+- **A skip is only honest when nobody promised a browser.** `NEXUS_REQUIRE_RENDER=1` turns the runtime skip into a failure, because a CI job that deliberately installs chromium and then skips the checks anyway tells nobody. Local behavior is unchanged: skip-with-note, never a hard fail on a missing browser. Verified in all three directions - browser + flag passes, no browser + flag fails loudly, no browser without the flag still skips.
+- **Launching is the only honest capability test.** The probe launches chromium rather than checking for a cache directory, because a cache can exist while the build inside it is unusable - and that failure would otherwise surface inside the QA loop, which is precisely where it degrades quietly.
+- **`--qa-depth` bounds cost, not honesty.** Even `light` performs one real render when a browser is available. Only a browserless host runs structural-only.
+- **The render found four defects that had passed a green structural gate**, and two were bugs in the checker rather than in the page. A 12.48px brand label was misclassified as interactive because `_font_role` matched `nav` anywhere in the selector; 12.2px emphasis tokens use a fractional `em` the checker explicitly declines to resolve; an 11.52px inline `style` attribute was invisible to a CSS-rule parser; and a 390px horizontal overflow had been introduced by Phase 2's own viewport-fit fix.
+- **The overflow's root cause was not the graphic.** At 390px the document scrolled to 512px, and the pinned SVG looked like the culprit at 492px wide. It was a symptom: the mobile media queries override `grid-template-columns` to `1fr`, dropping the `minmax(0, ...)` the desktop rules use, and `1fr` means `minmax(auto, 1fr)` whose `auto` minimum is the content's min-content - so a wide `<pre>` stretched the track and the SVG merely filled it. Fixed in all five single-column overrides rather than by capping the SVG's width.
+- **The seeded-regression bar was raised from one case to eight.** The plan asked for the loop-back arrow to be re-broken and detection confirmed. A gate that catches one seeded defect and misses the others is not proven, so every contract family is seeded and asserted, and the check is now a parametrized mutation test rather than a one-off.
+- **`defusedxml` stays out and a fabricated SHA stayed out.** The XML hardening from Phase 2 held. Separately, the browser-download cache needed `actions/cache`, which this repo pins nowhere else; the SHA was resolved through the GitHub API rather than written from memory, after an invented one had already been typed into the file.
+
+### Verification
+
+59 tests in `tests/skills/test_presentify_visual_qa.py` (from 42), 561 passed / 0 skipped across `tests/skills/` - the three long-standing browser skips now RUN. Coverage: `visual_qa_score.py` 93% at 531 statements, `ensure_render_env.py` 83%. `ruff check --ignore RUF100` clean on the bundled scripts (CI's exact lint target). All ten `make validate` guards pass individually, including `validate_workflow_security.py` on the modified workflow. The scorer reports PASS on the fixture across all twelve criteria; a real render confirms no horizontal overflow at any of the three viewports, secondary text at or above 13px and interactive text at or above 12px everywhere, and the pinned graphic fitting its slot at every width. All eight seeded defects are detected and each blocks the page.
+
+### Known Issues
+
+One new open (WN-3: `em`-relative sizes are render-verified only, correctly closed by the loop this phase shipped rather than by more parsing). Three closed: BG-2 (the three rendered floor violations plus the overflow regression), v3.15 MT-1 (the headless render now runs in CI), and Phase 1's NI-2 / WN-1 plus Phase 2's WN-2 / NI-3 are all now answered by the render rather than carried. v3.15 MT-2 remains open by design and got a status note so no reader assumes Phase 3 closed it - its remaining half is Phase 5's placement pass. MT-1 (the fixture's location) is narrowed to location only: it is now guarded by two standing tests plus a CI scoring step. Zero release blockers.
+
+## [2026-08-11] - v3.16.5 Phase 2: SVG diagram-quality contract
+
+### What Changed
+
+A second bundled reference, `references/svg-diagram-quality.md`, codifies five rules for authored inline SVG: arrowheads are `<marker>` elements, dash patterns stay clear of labels, connectors terminate on node edges, pinned graphics fit their sticky slot, and geometry is verified numerically before shipping. Three are now checked deterministically (`svg-arrowhead`, `svg-viewport-fit`, `svg-marker-integrity`), the rubric grew to eight criteria, and the calibration fixture's two diagrams were rebuilt - taking the page from 2 high-severity findings to 0 across all twelve criteria.
+
+### Why It Changed
+
+The 2026-08-10 run shipped a loop-back arrow whose head floated disconnected from its line, a pipeline where only the first of four connectors had an arrowhead at all, a label sitting directly on the dashed curve it annotated, and a pinned graphic taller than its sticky slot so its bottom two stages were unreachable. Every one passed the static checks, because an authored SVG's coordinates are code that nothing was checking.
+
+### Decisions Made
+
+- **The defect class is the hand-placed triangle, not the dashed line.** The plan framed the check as "a dashed path with no marker-end followed by a small filled triangle". The pipeline's broken arrowhead sat on a SOLID line, so keying on the dash would have missed half the instances. The check detects the triangle itself - a closed three-vertex path with a small bounding box and a real fill - which catches both and is independent of the connector's style. Paths inside a `<marker>` are excluded, since a marker's own arrowhead is exactly such a triangle by design.
+- **Arrowhead consistency is graded, not just presence.** A pipeline with a head on its first connector and none on the remaining three reads as an unfinished drawing. The check compares connectors sharing a class and reports the uneven case at MEDIUM.
+- **Markers had to be attachable from CSS, which forced both checks to read CSS.** A marker does NOT inherit from the element that references it, so the fixture's `.flow.on` state - which recolors the line to the accent - needs a second marker swapped in by a CSS rule rather than one marker inheriting a color. Reading only `marker-*` attributes would have reported that correct construction as headless and its two markers as unused.
+- **Containment needed real depth tracking, not a lookahead window.** The viewport-fit check first looked a bounded distance past a sticky container for an `<svg>`. Its own test caught the consequence immediately: a sticky page nav with a diagram anywhere later on the page reported a false HIGH. It now walks tag depth to the matching close tag and inspects actual inner HTML. A check that cries wolf on an ordinary sticky nav is a check people switch off.
+- **XML parsing is hardened without taking a dependency.** A security hook flagged stdlib `ElementTree`. `defusedxml` is the standard answer but this script ships to users through the skill bundle and is stdlib-only by contract. `ElementTree` does not resolve external entities or fetch DTDs, so XXE does not apply; the entity-expansion DoS class needs an inline `<!ENTITY`, so any block carrying a DOCTYPE or ENTITY declaration is now refused unparsed. That removes the attack surface the library would have guarded.
+- **Rules 2 and 3 are deliberately not automated** (NI-3). A label's real bounding box needs glyph metrics, letter-spacing, and the rotation transform; connector-to-edge checking needs a declared intent about which shapes a connector joins that the markup does not state. Both were verified numerically by hand for this phase's diagrams instead, and rule 2's practical half falls out of Phase 3's screenshots for free.
+
+### Verification
+
+42 tests in `tests/skills/test_presentify_visual_qa.py` (from 29), and 541 passed / 3 skipped across `tests/skills/`. Coverage of `visual_qa_score.py` holds at 92% while the module grew from 328 to 505 statements. `ruff check` clean. All ten `make validate` guards pass individually (`make` absent on this host, WN-1). The scorer reports PASS on the fixture with 0 high-severity findings across twelve criteria and 4 markers all referenced. The rule-5 geometry self-check confirms every coordinate inside both viewBoxes, with 15.25 and 23.0 user units of label-to-curve clearance.
+
+### Known Issues
+
+Two new open, one closed, zero blockers. **BG-1 closed**: five of six per-section accent colors measured 3.20-4.36:1 against the base and were injected into `--accent` at runtime, so Phase 1's token correction was reverted on every section; all six were replaced with hue-preserving AA-clearing values. The checker gap behind it is **WN-2** (the scorer grades declared CSS properties and cannot see what a script assigns), and **NI-3** covers the two un-automated SVG rules. Both route to Phase 3, where a rendered screenshot answers directly what no amount of extra parsing would - which is an argument for building Phase 3 rather than for deepening the scorer. MT-1 (fixture unhomed) and the Phase 1 items are unchanged.
+
+## [2026-08-11] - v3.16.5 Phase 1: fluid layout and readability contract
+
+### What Changed
+
+The first of seven phases in the presentify visual overhaul. A new bundled reference, `references/responsive-typography.md`, codifies six rules for fluid space, viewport-serving wrapping, a tokenized type scale, hard rendered-size floors, two-axis emphasis tokens, and validated contrast. Four of the six are now checked deterministically by `scripts/visual_qa_score.py` (`fluid-spacing`, `font-floor`, `emphasis-token`, `contrast`), the visual-QA rubric grew from five criteria to seven so the agent-vision halves are graded too, and the calibration fixture was brought from 2 high-severity findings to a clean pass across all nine criteria.
+
+### Why It Changed
+
+A real run on 2026-08-10 shipped prose stranded beside dead space, margin notes and a footer too small to read, and command names indistinguishable from the prose around them. All three passed every structural check that existed, because none of those checks looked at type size, spacing fluidity, or contrast. The phase closes that gap for the class rather than for the three instances.
+
+### Decisions Made
+
+- **The readability defect had one mechanical cause, not three.** The fluid type scale was declared on `body`, but every child size was expressed in `rem`, which resolves against the ROOT element. `html` kept the 16px browser default, so the scale never propagated and `footer b{font-size:.7rem}` was a flat 11.2px at every viewport. The contract therefore mandates declaring the scale once as `:root` custom properties, and the SKILL.md rationalization table now rebuts "the type scale is fluid, I put the clamp() on `body`" explicitly.
+- **Font floors are checked at the clamp minimum as well as at 1920px.** On a 1366px laptop a `clamp()` is usually still pinned at its minimum, so the minimum is the size most readers actually get. Checking only the wide viewport would have passed a size that resolves to 16px at 1920px and 11px on a laptop.
+- **Contrast severity is graded by how badly a color fails.** Custom properties declare which colors exist, not which pairs co-occur, so the full cross-product produces failures for pairs never rendered together. HIGH is reserved for the primary body pair and for a foreground that fails against every declared background (unusable as text anywhere); a single failing surface while others pass is MEDIUM. Semantic status colors are excluded entirely, since a badge's applicable floor depends on its rendered size. Grading everything HIGH would have produced a gate people bypass.
+- **SVG text is exempt from the pixel floors, discriminated by `fill:` rather than by naming convention.** SVG text declares its size in viewBox user units, so a px floor is meaningless. SVG text is painted with `fill` and HTML text with `color`, which separates the two without depending on any class-name pattern the fixture happens to use.
+- **The scorer resolves `var()` instead of treating it as opaque.** This was the phase's most valuable find, and it was in the checker rather than in the fixture: the first implementation skipped any `font-size` starting with `var(`, so tokenizing the fixture dropped its checked font count from 40 to 17. A linter that verifies the non-compliant form more thoroughly than the compliant one rewards the wrong behavior, and a malformed `--step--2: 0.6rem` would have shipped silently.
+- **The emphasis-token check grades the unqualified base rule.** The first implementation passed the fixture because `footer code` declared a color while the page-wide `code` rule did not - which is exactly the shipped defect it was written to catch. A region-scoped rule no longer stands in for the page-wide one.
+- **The editorial reflow widens the note rail rather than multi-columning the prose.** Sub-task 1.3 asked for the prose to widen toward 85ch and the grid to reflow. A fluid `clamp(17rem, 26vw, 32rem)` rail plus a `min(85ch, 100%)` measure cuts the dead corridor from roughly 690px to 470px at 1920px, inside the rubric's stated one-third-of-band criterion. CSS multi-column would close it further but is a larger design change than the plan scopes, and Phase 3 re-verifies this band from real screenshots.
+
+### Verification
+
+29 tests in `tests/skills/test_presentify_visual_qa.py` (up from 12), and 528 passed / 3 skipped across `tests/skills/`. Coverage of `visual_qa_score.py` is 92%, above the 80% gate. `ruff check` clean on both changed Python files. All ten `make validate` guards pass individually (`make` is absent on this host, the long-standing WN-1). The scorer reports PASS on the calibration fixture with 0 high-severity findings and 40 font sizes checked. The three skipped tests are pre-existing, including the headless-render skip that Phase 3 closes.
+
+### Known Issues
+
+Three open, none a release blocker, recorded as v3.16.5 MT-1 / NI-2 / WN-1 in `docs/v3/v3.16/known-gaps.md`. The calibration fixture is committed at the repository root, which is a holding position rather than its final location, and no test yet asserts it still passes the scorer (MT-1, routed to Phase 7, which owns both halves). Contract rules 2 and 3 have no deterministic check because rule 2 is a rendered-geometry judgment (NI-2, routed to Phase 3). Semantic status colors stay outside the automated contrast set (WN-1, routed to Phase 3, where rendered size is observable). DF-1 - the CSS parser grading media-scoped rules as unconditional - is accepted and documented in the function's docstring rather than carried, because it errs toward reporting.
+
 ## [2026-08-09] - v3.16.3 Phase 6: refactor, reconciliation, and CI/CD [terminal phase]
 
 ### What Changed

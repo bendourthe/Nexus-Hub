@@ -29,6 +29,8 @@ import shutil
 import subprocess
 from pathlib import Path
 
+import pytest
+
 REPO_ROOT = Path(__file__).resolve().parent.parent
 
 # Any hook that exits 0 on empty stdin works as an interpreter probe.
@@ -76,6 +78,34 @@ def _repair_bash_on_path() -> str | None:
 
 # Executed at collection time, before any test module is imported.
 BASH_PATH_REPAIRED_WITH = _repair_bash_on_path()
+
+
+@pytest.fixture
+def render_gate():
+    """Turn a browser-dependent test's runtime skip into a FAILURE when the
+    environment promised a browser (v3.16.5 Phase 3).
+
+    The problem this solves: three browser-dependent checks in `tests/skills/`
+    skipped silently for four minor versions (v3.15 known-gap MT-1), because a
+    skip on a missing browser is correct locally and indistinguishable from a
+    pass in aggregate output. A job that deliberately INSTALLED a browser and
+    then skipped the checks anyway told nobody.
+
+    Local behavior is unchanged - skip-with-note, never a hard fail on a missing
+    browser. A caller that guarantees a browser sets `NEXUS_REQUIRE_RENDER=1`
+    (the CI render job does), and then the same condition fails loudly instead.
+
+    Usage: take `render_gate` as a parameter and call it in place of
+    `pytest.skip(reason)`.
+    """
+    def gate(reason: str):
+        if os.environ.get("NEXUS_REQUIRE_RENDER") == "1":
+            pytest.fail(
+                f"NEXUS_REQUIRE_RENDER=1 promised a headless browser, but {reason}"
+            )
+        pytest.skip(reason)
+
+    return gate
 
 
 def pytest_configure(config):

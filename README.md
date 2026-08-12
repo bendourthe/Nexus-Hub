@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.16.4 -->
+<!-- nexus-hub-version: 3.16.5 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 271 skills, 17 commands, 31 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -36,6 +36,20 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v3.16.5
+
+**`/presentify` was producing pages that passed every check and still read badly on a large display.** One mechanical cause explains almost all of it: the generated CSS scaled `body` with `clamp()` while child elements sized themselves in `rem`, and `rem` resolves against the **root**, not against `body`. Every nested element therefore ignored the scaling entirely. The contract now scales `html`, which is a one-line change that fixes the whole cascade, and a deterministic checker enforces it along with twelve other structural criteria (fluid spacing, per-role font floors, WCAG contrast, full-width band fraction, image caps, SVG marker integrity, viewport fit).
+
+**The release's centerpiece is that the page is now actually looked at.** Prior cycles graded output by parsing markup, which answers a different question than rendering it does. A gated CI job installs a real browser, renders the calibration fixture, and enforces the rendered checks with `NEXUS_REQUIRE_RENDER=1`, which converts a browser-dependent skip into a **failure**. That distinction matters: a broken browser install previously presented as three quiet skips inside a green run, which is exactly how the gap went unnoticed for four minor versions. The job is gated to merges plus a weekly cron so a pull request never pays for a 130 MB browser download.
+
+**Rendering immediately found five defects that eleven deterministic checks had passed, and two of the five were bugs in the checker rather than in the page.** A 12.48px brand label misclassified as interactive, 12.2px emphasis tokens the checker declined to judge, an 11.52px inline style it could not see, and a horizontal overflow introduced by an earlier fix of our own. The most instructive single finding was that the font-floor check silently skipped every `var()` value, so *tokenizing* a stylesheet dropped its verified font count from 40 to 17. A linter that inspects the non-compliant form more thoroughly than the compliant one rewards the wrong behavior, and only running it before and after the fix surfaced that.
+
+**Diagrams, intake, and one new opt-in level.** SVG diagrams get an explicit quality contract: arrowheads that actually land on their endpoint (`refX` with `markerUnits="strokeWidth"`), labels kept horizontal rather than rotated, and a viewport that fits its content. The design intake asks about imagery up front and derives color schemes from the document's own content instead of rolling them blindly, while keeping the anti-convergence rejection axis that stops every deck looking alike. A new opt-in `cinematic` interactivity level ships a dependency-free scroll-scrub engine that creates no video element at all under `prefers-reduced-motion: reduce`.
+
+**The lesson worth carrying out of this cycle is an asymmetry.** A false PASS costs far more than a false FAIL. Sixteen false failures appeared in one afternoon, were obviously wrong, and were fixed within the hour. One false pass, a band fraction the checker inflated from 0.947 to 0.954 across its own 0.95 threshold, sat inside a green run for two phases and would have shipped. Gates are worth building in the direction that fails loudly.
+
+Catalog counts are unchanged at **271 skills**, **17 commands**, **31 hooks**, and **23 agents**. This release deepens one existing skill (`document-to-interactive-html`) and adds no new catalog content.
 
 ## What's New in v3.16.4
 

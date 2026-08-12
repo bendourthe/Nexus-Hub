@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v3.16.3 `github-usage-monitor-ux` is RELEASED (all six phases; 8 closed, 8 carried, 0 release blockers). v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (all 5 phases complete; reconciled and release-ready, unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
-**Last updated**: 2026-08-09 (v3.16.3 Phase 6 terminal reconciliation; 6 closed, 8 carried, 0 release blockers; NI-4 routed to its own cycle as a cross-monitor policy question)
+**Last updated**: 2026-08-11 (v3.16.5 Phase 7 TERMINAL reconciliation: MT-1 closed, all 16 items dispositioned, 0 release blockers - v3.16.5 is release-ready pending `/update release`)
 
 > **File-lifecycle note**: this ledger was created ahead of any v3.16 implementation, by a comparison that deliberately claimed no release slot, so it began with only the `## Comparison-Sourced Deferrals` section. Each v3.16 version-implementation phase **appends** its own `## v3.16.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` numbering, which is namespaced separately from the `CD-#` and `TR-#` ids used above.
 
@@ -842,6 +842,209 @@ That asymmetry is the direct cause of this plan's hardest work: the entire drawd
 
 It is deliberately **not** decided here. It affects four extensions, it is a question about what the monitors may read rather than about how they compute, and settling it inside a phase scoped to allowance derivation would be the wrong venue. It belongs in its own cycle, with the four monitors considered together.
 
+## v3.16.5 - presentify-visual-overhaul
+
+**Source plan**: [docs/v3/v3.16/plans/v3.16.5-presentify-visual-overhaul.md](plans/v3.16.5-presentify-visual-overhaul.md). Appended at Phase 1 (fluid layout + readability contract). Ids are namespaced to this version, per the file-lifecycle note at the top.
+
+### MT-1 - CLOSED in Phase 7: the calibration fixture is homed and guarded
+
+- **Target file**: `tests/fixtures/presentify/nexus-hub-unit-test-workflow.html` (moved there in Phase 7 with `git mv`; tracked at the repo root from Phase 1 until then)
+- **Source phase**: v3.16.5 Phase 1, sub-task 1.3
+- **Plan reference**: sub-task 1.3 explicitly defers the fixture's final location ("coordinate with the maintainer on its final location - Phase 7 may move it under a fixtures dir")
+- **Reason it is open**: Phase 1 brought the fixture to a clean scorer pass (0 high-severity findings across all nine criteria) and committed it at the repo root, so the fixes are no longer at risk of being lost. Two halves of the gap remain: the root is a holding position rather than its final location, and no test asserts that it still passes the scorer, so a future regression in either the fixture or the checker would go unnoticed.
+- **Suggested next step**: Phase 7 sub-task 7.1 homes the fixture with reference repair (a `tests/fixtures/presentify/` dir is the natural target, and `tests/skills/**` is already a CI path filter); at that point add a one-line regression test asserting `score_html(fixture)["page_pass"] is True`, which converts the calibration fixture from a manual artifact into a standing gate.
+- **One migration hazard to expect**: the fixture also exists as an untracked working-tree file at the ROOT of the primary checkout, where it was authored. When this branch merges to `develop`, git will place the tracked copy at `tests/fixtures/presentify/` and the stray root copy will simply remain untracked - delete it after the merge. It is not a conflict, and nothing reads it any more.
+- **CLOSED 2026-08-11 by v3.16.5 Phase 7** (sub-task 7.1, home decided with the maintainer). The fixture now lives at `tests/fixtures/presentify/nexus-hub-unit-test-workflow.html`, moved with `git mv` so history follows it, and both halves of the gap are shut:
+    - **Location**: inside a tree CI already path-filters, rather than an 84 KB HTML file at the repository root that read like stray build output. The two live references were repaired (the CI scoring step) or simplified (the dual-candidate lookup in the test, which existed only to survive this move and would otherwise have left a second accepted location nobody maintains).
+    - **Guarding**: three standing tests plus a CI step. `test_calibration_fixture_passes_every_structural_criterion` fails on any high-severity regression, `test_calibration_fixture_has_no_stale_palette_literals` pins the superseded pre-v3.16.5 palette out of live markup, `test_calibration_fixture_holds_the_e5_rules` covers the render-surfaced defect classes, and the seven-case mutation suite proves the checks still detect what they claim. The `render` job also scores it directly.
+    - **One gap the move itself introduced, and closed**: the workflow path-filtered `tests/skills/**` but not `tests/fixtures/**`, so a fixture-only edit would no longer have triggered the job that scores it - the standing gate would have silently stopped gating the exact file it guards. `tests/fixtures/presentify/**` was added to both filter lists.
+
+### NI-2 - OPEN by design: contract rules 2 and 3 have no deterministic check
+
+- **Target file**: `catalog/skills/specialized-domains/document-to-interactive-html/scripts/visual_qa_score.py`
+- **Source phase**: v3.16.5 Phase 1, sub-tasks 1.1 and 1.2
+- **Reason it is open**: rule 2 ("wrapping serves the viewport") is a rendered-geometry judgment - whether a paragraph sits beside dead space depends on the resolved track width, the actual `ch` width of the chosen font, and the reflow breakpoint, none of which are knowable from the markup. It is specified as an AGENT-VISION criterion in `references/visual-qa-rubric.md` criterion 6 and graded from a screenshot. Rule 3 ("scale declared once as custom properties") is partially enforced: the scorer now resolves `var()` against declared properties, so a malformed step token IS caught, but nothing asserts that the scale is declared once on `:root` rather than scattered.
+- **Suggested next step**: Phase 3's real render loop closes the rule-2 half by measuring band and text-block boxes from an actual screenshot (this is the same measurement `measure_widest_band` already performs for full-width). The rule-3 half needs no code: a page whose tokens are wrong now fails `font-floor`, so the remaining gap is stylistic rather than a readability defect. Do not add a "declared once" parser check without a defect to point at.
+
+### WN-1 - OPEN: semantic status colors are excluded from the automated contrast set
+
+- **Target file**: `catalog/skills/specialized-domains/document-to-interactive-html/scripts/visual_qa_score.py` (`_STATUS_NAME_RE`)
+- **Source phase**: v3.16.5 Phase 1, sub-task 1.2
+- **Reason it is open**: a badge color's applicable WCAG floor is 3:1 when it renders as large or bordered text and 4.5:1 when it renders as body copy, and the scorer cannot know which. Grading every status color against 4.5:1 would produce false failures that teach authors to bypass the gate. The calibration fixture's `--stop: #c25050` measures 3.72:1 against `--base`, which passes the large-text floor and fails the body floor, and is therefore left ungraded rather than force-resolved.
+- **Suggested next step**: Phase 3 grades status-badge contrast from a real screenshot, where the rendered size is observable and the correct floor is therefore decidable. `references/visual-qa-rubric.md` criterion 7 already assigns this to the AGENT-VISION half.
+
+### DF-1 - CLOSED as accepted: the CSS rule parser treats media-scoped rules as unconditional
+
+- **Target file**: `catalog/skills/specialized-domains/document-to-interactive-html/scripts/visual_qa_score.py` (`css_rules`)
+- **Source phase**: v3.16.5 Phase 1, sub-task 1.2
+- **Status**: accepted and documented in the function's own docstring rather than carried as a defect. The leaf-rule regex skips an at-rule prelude and returns the rules nested inside it, so a `font-size` declared only under a narrow breakpoint is graded as if it always applied. This errs toward REPORTING, which is the safe direction: a small font declared at a breakpoint is still a small font at that breakpoint. Resolving cascade plus breakpoints statically is the job of the real render (Phase 3), not of a markup heuristic.
+
+### BG-1 - CLOSED in Phase 2: five of six per-section accent colors were sub-AA, injected at runtime
+
+- **Target file**: `nexus-hub-unit-test-workflow.html` (the `data-accent` attributes and the canvas `fillStyle` / series literals)
+- **Source phase**: v3.16.5 Phase 2, found while retargeting the diagrams' hardcoded hexes
+- **What was wrong**: the page morphs its accent per section by reading `data-accent` off the active `<section>` and assigning it to `--accent` at runtime. All six declared values measured **3.20:1 to 4.36:1** against `--base`, so Phase 1's AA correction of the `--accent` token was reverted on every section as soon as the script ran. The canvas chart's axis-label and series colors carried the same superseded literals.
+- **Why Phase 1 could not have caught it**: the values live in HTML attributes and JavaScript string literals, not in CSS declarations, so the `contrast` check never saw them. Phase 1's gate passed truthfully on what it could observe.
+- **Resolution**: all six accents were replaced with hue-preserving values clearing AA (rose 4.36 -> 6.22, steel 3.20 -> 6.25, green 3.79 -> 6.17, olive 4.03 -> 5.65, terracotta 4.33 -> 5.67), and the canvas label color moved to the corrected `--ink-faint` value. The residual CHECKER gap is tracked separately as WN-2.
+
+### WN-2 - OPEN: the scorer cannot see runtime-injected palette values
+
+- **Target file**: `catalog/skills/specialized-domains/document-to-interactive-html/scripts/visual_qa_score.py` (`check_contrast`)
+- **Source phase**: v3.16.5 Phase 2 (the checker gap behind BG-1)
+- **Reason it is open**: `check_contrast` grades declared CSS custom properties. A page that assigns `--accent` from a `data-*` attribute in script, or paints canvas text with a literal, can pass the check and still render sub-AA text - which is exactly what BG-1 was. Statically resolving what a script assigns at runtime is not a job for a markup heuristic.
+- **Suggested next step**: Phase 3 closes this by construction rather than by more parsing. A real screenshot shows the rendered color, so the AGENT-VISION half of rubric criterion 7 grades what the page actually paints. Do NOT attempt to interpret the script statically. A cheap partial guard is possible if it proves useful: collect hex literals from `data-accent`-style attributes and grade them alongside the declared tokens.
+
+### NI-3 - OPEN by design: SVG contract rules 2 and 3 have no deterministic check
+
+- **Target file**: `catalog/skills/specialized-domains/document-to-interactive-html/references/svg-diagram-quality.md` (rules 2 and 3)
+- **Source phase**: v3.16.5 Phase 2, sub-tasks 2.1 and 2.2
+- **Reason it is open**: rule 2 (no dashed path passes within a label's bounding box) needs a text-metrics engine to know a label's real box - glyph advance widths, letter-spacing, and the rotation transform all matter, and none is available to a markup parser. Rule 3 (connectors terminate on node edges) is checkable in principle but only against a declared intent about which shapes a connector joins, which the markup does not state. Both were verified NUMERICALLY by hand for this phase's two diagrams instead: the cubic midpoints are (269, 27.25) and (291, 245), giving 15.25 and 23.0 user units of label clearance, and every coordinate lies inside its viewBox.
+- **Suggested next step**: Phase 3's render loop closes rule 2's practical half, since a screenshot shows a label sitting on a line immediately. Rule 3 stays an authoring discipline enforced by the rule-5 self-check; adding a parser for it would need an annotation convention that does not exist yet, so do not build one without a defect to point at.
+
+### BG-2 - CLOSED in Phase 3: three rendered font-floor violations the static check passed
+
+- **Target file**: `nexus-hub-unit-test-workflow.html`, plus two heuristics in `scripts/visual_qa_score.py`
+- **Source phase**: v3.16.5 Phase 3, sub-task 3.4 (the first time in this plan that anything rendered the page)
+- **What was wrong**: rendering at 1920 / 1366 / 390 measured three non-interactive text elements below the 13px secondary floor while `font-floor` reported all sizes clean. Two were CHECKER bugs and one was a Phase 1 mapping error:
+    1. `.brand` at **12.48px**. `_font_role` matched `nav` anywhere in the selector, so `#nav .brand` - a static brand label inside a nav - was graded against the 12px interactive floor. Fixed by reading only the LAST compound of a selector and splitting the interactive pattern into an ELEMENT form and a CLASS form; `.label` and bare `nav` no longer imply interactivity.
+    2. `code` at **12.22-12.81px**. `font-size:.92em` is relative to the inherited size, which the checker explicitly skips because it cannot resolve it. Fixed in the fixture with `max(.92em, 0.8125rem)`, which floors the optical em-matching at 13px, and in the checker by teaching `_len_px` to resolve `min()` / `max()` so the flooring construction the contract now recommends is itself verifiable.
+    3. `.cmd-bar .label` at **12.07px**. Phase 1 mapped this static caption onto `--step--3`, the INTERACTIVE step, because its class is named `label`. Re-mapped to `--step--2`.
+- **Also fixed in the same pass**: an inline `style="font-size:.72rem"` rendering at 11.52px on every viewport, invisible to a CSS-rule parser. The checker now grades `style="..."` attributes as pseudo-rules with the secondary floor, taking the checked-size count from 40 to 41.
+- **And a horizontal-overflow regression introduced by Phase 2**: at 390px the document scrolled to 512px. Root cause was not the pinned graphic itself but the mobile media queries overriding `grid-template-columns` to `1fr`, dropping the `minmax(0, ...)` the desktop rules use - and `1fr` means `minmax(auto, 1fr)`, whose `auto` minimum is the content's min-content, so a wide `<pre>` stretched the track past the viewport. All five single-column overrides now keep `minmax(0, 1fr)`.
+- **Why this matters more than the individual fixes**: every one of these passed a green structural gate. This is the concrete evidence for the phase's premise, and it is now pinned by a parametrized mutation test that seeds each defect class back into the fixture and asserts detection.
+
+### WN-3 - OPEN: `em`-relative font sizes are render-verified only
+
+- **Target file**: `catalog/skills/specialized-domains/document-to-interactive-html/scripts/visual_qa_score.py` (`check_font_floor`)
+- **Source phase**: v3.16.5 Phase 3, sub-task 3.4
+- **Reason it is open**: a fractional `em` resolves against the inherited size, which depends on the cascade and cannot be computed from declarations alone. The check skips such values rather than guessing, so `code{font-size:.92em}` was ungraded until a render measured it at 12.2px. Resolving the cascade statically is a browser's job.
+- **Suggested next step**: none in the scorer. This is correctly closed by the render loop the same phase shipped, and the contract now recommends `max(<relative>, <floor>)` for meaning-carrying inline tokens - a construction the checker CAN verify since `min()`/`max()` resolution was added. If a cheap partial guard is ever wanted, resolving `em` against the nearest ancestor rule that declares an absolute size would cover the common case.
+
+### BG-E1 - CLOSED: the render-session errata (E1-E10)
+
+- **Source**: the `## Errata: render-session lessons (2026-08-11)` section of the plan, added by the maintainer after four real render-grade-fix rounds at 2560x1300 and 1920x1080. Binding on the remaining phases; E1-E5 correct already-committed Phase 1-2 artifacts and were executed in an errata pass immediately after Phase 3.
+- **Canonical fixture**: the repo-root `nexus-hub-unit-test-workflow.html` was adopted wholesale as the reference implementation (E10). The Phase 1-3 worktree lineage had diverged by ~3291 lines and was discarded; where the scorer and the fixture disagreed, the fixture won.
+
+**What each item required, and what it cost:**
+
+- **E1 (root scaling)** - `references/responsive-typography.md` rule 3 was rewritten from "a per-element clamp scale declared as custom properties" to "scale the ROOT in one declaration". Both failure modes it replaces are recorded: a `clamp()` on `body` never reaches a `rem`-sized child, and per-element clamps cap out independently so a large display renders laptop-sized text no matter how many sizes are bumped.
+- **E1's missing corollary, found while executing it** - root scaling does NOTHING below the root clamp's minimum. With `clamp(1rem, 0.5vw + 0.55rem, 1.6rem)` the root pins at 16px for every viewport at or below 1366px, so the canonical fixture carried **14 distinct sub-floor element classes at 1366px** while passing cleanly at the two widths the render session verified. All 14 were fixed (secondary to `.8125rem`, interactive to `.75rem`), and the contract now states the corollary explicitly.
+- **E2 (fractional columns)** - rule 2's example became `minmax(0, 2fr) minmax(16rem, 1fr)` with notes adjacent to prose, and the precedence is stated: on wide screens filling the window beats line-length caps, and the 45-85ch measure is for single-column prose only.
+- **E3 (the scorer's root assumption)** - `root_font_px()` parses the `html` font-size and every rem/ch value resolves against it. This retired **16 false font-floor positives** on the reference fixture and turned the full-width band math honest: the real gutter at 1920px is 50.6px, not 44px, so the band is 0.947 and not the 0.954 the old math reported. The scorer's numbers were then verified against a live render at 2560 / 1920 / 1366 and agree to four decimal places. A consequence handled at the same time: `rem` macro spacing IS fluid under a fluid root, so flagging it would penalise the technique E1 prescribes.
+- **E4 (no rotated labels)** - rotation is now stated as a readability defect with the horizontal + `tspan` replacement, plus a Verification item and a rationalization row. Phase 2 had taught rotation as the fix for a label/path collision.
+- **E5 (three render-only defects)** - documented as rule 7 and given a deterministic check (`render-only-defects`): at most one sticky layer per offset, `scroll-margin-top` on anchor targets under a sticky layer, and command blocks that wrap or scroll. Each direction is tested, including the near-misses (an offset second layer is accepted; a scrolling `pre` is accepted; the anchor rule is quiet with nothing pinned).
+- **E6-E8 (capture protocol)** - instant scroll with a settle wait (a mid-animation frame nearly shipped a wrong diagnosis), a REQUIRED 2560x1300 capture, and computed-metric probes per iteration. The rubric now explains why BOTH ends of the viewport range are mandatory: the widest is where root scaling is fully engaged, the 1366 leg is where the root clamp pins and the floors bite.
+- **E9 (two authoring rules)** - key-value cells as bullet lists with concrete example values, and neutral interactive-control colors distinct from chart data series.
+- **E10** - noted: Playwright and chromium were already present, so the fixture work became verification rather than fixing.
+
+**Fixed in the canonical fixture during this pass** (per maintainer note 3 - fix the page, never relax the check): the 14 sub-floor classes; the `code` element's `.9em` floored with `max(.9em, 0.8125rem)`, which a render caught at 12.53px and no parser can resolve (WN-3); the gutter cap tightened `2.75rem -> 2.6rem` so the full-width contract holds at the scaled root (0.947 -> 0.950); and `#mOn`, a marker defined for the highlighted flow state but never referenced, wired via `.flow.on{marker-end:url(#mOn)}` - without it the accent-stroked connector kept the dim arrowhead, which is the same non-inheritance trap Phase 2 documented.
+
+**Fixed in the CHECK, because the fixture was right** (maintainer note 1): `svg-viewport-fit` demanded a literal `max-height`, but the fixture uses `height: calc(100vh - 7.5rem); width: auto; max-width: 100%` - which pins the graphic to its slot AND prevents the horizontal overflow that deriving width from a capped height can cause. It is the better construction, so the check now accepts either form and rule 4 documents the preferred one.
+
+**Nothing deferred.** The E7 2560x1300 capture surfaced no new defects on the canonical fixture: no horizontal overflow, two sticky layers at distinct offsets, every anchor target carrying `scroll-margin-top`, and 0 of 5 `pre` blocks clipping.
+
+### NI-4 - OPEN by design: the intake questions themselves are agent behavior
+
+- **Target files**: `catalog/skills/specialized-domains/document-to-interactive-html/SKILL.md` (Steps 2 and 5), `catalog/commands/presentify.md`
+- **Source phase**: v3.16.5 Phase 4, sub-tasks 4.1 and 4.2
+- **Reason it is open**: asking a four-option question, and proposing three color schemes that are genuinely derived from the extracted content with a citable signal for each, are LLM-native behaviors. No unit test can assert that a proposed scheme is relevant to a document, only that the instruction to make it relevant exists. What IS deterministic is now tested: both surfaces agree on the four option values, the legacy aliases are documented on both, the `none` semantic change is disclosed, Round 2 sits between figure classification and authoring in pipeline order, the skips are documented, the diagram shows both rounds, and `design_seed.py --scheme-hint` provably pins the palette while the sampler keeps rolling.
+- **Suggested next step**: none in the scorer. The visual half is already graded by the Phase 3 render loop (a scheme that clashes shows up in a screenshot), and the design record captures the offered schemes, the cited signals, and the choice, so a reviewer can audit the reasoning after the fact. Do not build a relevance parser; there is no defect to point at.
+
+### DF-2 - ACCEPTED: `--images none` changed meaning, deliberately and visibly
+
+- **Target files**: both intake surfaces
+- **Source phase**: v3.16.5 Phase 4, sub-task 4.1
+- **What changed**: pre-v3.16.5, `--images none` meant "typography / layout / color only, no visuals at all". Procedural visuals are now the always-on baseline, so that mode no longer exists and `none` means "nothing ADDED on top of the procedural layer". A user who passes `none` expecting a bare page now gets the procedural visual layer.
+- **Why it is accepted rather than avoided**: the alternative is a fifth option (`bare`) that exists only to preserve a mode the plan deliberately removed - R8 makes procedural the baseline precisely because a page with no visuals at all is not an outcome worth offering. The change is disclosed in both surfaces with the words "no longer exists", and a test asserts that disclosure so it cannot be quietly dropped later.
+- **Residual risk**: a saved command line still runs and still produces a good page; it just produces a slightly richer one than before. No error, no silent data loss.
+
+### NI-5 - OPEN by design: placement RELEVANCE is a screenshot judgment
+
+- **Target file**: `catalog/skills/specialized-domains/document-to-interactive-html/references/visual-qa-rubric.md` (criterion 4, the AGENT-VISION half)
+- **Source phase**: v3.16.5 Phase 5, sub-tasks 5.1 and 5.2
+- **Reason it is open**: whether an image actually depicts a section's subject is not decidable from markup. A `data:` URI is opaque bytes; the check can confirm an asset exists, that the record accounts for it, and that the record does not contradict the page, but not that the picture is of the right thing. That judgment stays with the agent looking at the rendered page, which is where the plan put it.
+- **What IS deterministic, and why it is enough to close v3.15 MT-2**: the placement RECORD. A consented run must write an `IMAGERY PLACEMENTS` block with one decision per section, and the checker fails a run that embedded assets but left no decision trail, a record claiming more embedded assets than the page contains, or a decline with no reason. That converts "the agent should integrate or explain" from an instruction into a checkable artifact - the thing MT-2 was actually missing. A skip is now distinguishable from a miss.
+- **Suggested next step**: none. Do not attempt image-content analysis; it would need a vision model inside a stdlib-only offline scorer, and the render loop already has vision available at exactly the moment the judgment is needed.
+
+### WN-4 - OPEN: a background scrim below ~75% opacity defeats the static contrast check
+
+- **Target file**: `catalog/skills/specialized-domains/document-to-interactive-html/references/interactive-features.md` (the background overlay recipe)
+- **Source phase**: v3.16.5 Phase 5, sub-task 5.1
+- **Reason it is open**: the `contrast` check certifies text against a DECLARED background color. A background-role image with a scrim over it composites to a per-pixel background, so the check's premise only holds while the scrim is opaque enough to dominate. The recipe mandates ~82%, at which the composited result is within a couple of percent of `--base` and the existing check stays valid. Below roughly 75% it no longer is, and no static check can certify the text.
+- **Why it is a warning rather than a check**: the scorer cannot tell which `--base`-ish color a given band composites to without rendering, and the threshold is a judgment about how much image show-through is acceptable rather than a boundary with a right answer. The contract states the number and the reason, the rubric assigns the composited-contrast judgment to the AGENT-VISION half, and a rationalization row rebuts "it looks readable to me".
+- **Suggested next step**: if a future page needs a lighter scrim, the contract's answer is to move the text off the image rather than to lower the threshold. A rendered check is possible in principle (sample the composited pixels behind the text box) and would belong in the Phase 3 loop, not the static scorer - only worth building if a real page pushes on it.
+
+### DF-3 - DEFERRED with a reason: the local knockout helper is NOT adopted
+
+- **Decision required by**: v3.16.5 Phase 6 sub-task 6.3, which explicitly says to decide the optional local knockout helper and, if out of scope, "record an explicit DEFER - no half-wired orphan".
+- **What it would have been**: `scripts/knockout_background.py`, a local PIL flood-fill that makes a still's border-connected background transparent, for diorama-style floating subjects in a cinematic scene. The upstream pack ships an equivalent; it is genuinely local, needs no network, and Pillow is already a lazy-imported dependency elsewhere in this bundle, so the dependency is not the obstacle.
+- **Why DEFERRED**: there is no call site. The cinematic path this phase built consumes clips and stills the user supplies or that the existing Tier 1 / 2 / 3 imagery paths produce; nothing in the engine, the protocol, or the intake asks for a background-knocked-out still. Adding the script now would ship a module that no shipped behavior invokes, which is exactly what the AGENTS.md scope-fit gate declines: "if the only justification is an uncommitted future runner, a design note, or a hypothetical extension with no validation contract, keep the design in docs or todo state until the real call site appears." A diorama look is a design possibility, not a committed feature.
+- **Suggested next step**: adopt it the same cycle a cinematic scene composition genuinely needs floating subjects - that is when the call site exists and a test can assert something real about it. Roughly 40 lines plus a lazy Pillow import and a fixture. Until then the absence is the correct state, and this entry is the record so a later reader does not mistake it for an oversight.
+
+### DF-4 - CORRECTED: the plan contradicted itself about naming the upstream project
+
+- **Source phase**: v3.16.5 Phase 6, sub-tasks 6.3 and 6.4
+- **The contradiction**: 6.3 instructs "State explicitly there is no separate `/scroll-world` command", while 6.4 requires a grep of `catalog/` for `Monid|Higgsfield|Seedance|scroll-world` to return ZERO. Following 6.3 literally makes 6.4 fail, in a distributed artifact, by naming the upstream repository.
+- **How it was resolved**: the AGENTS.md Reverse-Engineering Attribution Rule is the binding authority - the upstream repo, product, or author must not appear in a user-facing artifact - so 6.4's gate wins and 6.3's INTENT was satisfied without the name. `references/scroll-scrub.md` now reads "There is no separate cinematic command and no separate cinematic skill - no rival slash command exists or should be created for this." The point 6.3 wanted made (no competing command, cinematic is a level of `/presentify`) is made in full; only the vendor name is gone.
+- **Why it is recorded**: the first draft DID name it, and only the mechanical grep caught it. A parametrized test (`test_no_vendor_name_reaches_a_distributed_artifact`) now checks the engine, the protocol, `interactive-features.md`, `SKILL.md`, and the command file, so the next helpful sentence cannot reintroduce it. Attribution lives in `docs/policy/mcp-reverse-engineering-matrix.md` only.
+
+### BG-3 - CLOSED in Phase 6: `image-sizing` fired on a data URI anywhere in the file
+
+- **Target file**: `catalog/skills/specialized-domains/document-to-interactive-html/scripts/visual_qa_score.py`
+- **Source phase**: v3.16.5 Phase 6, sub-task 6.4 (found by running one cinematic build through the loop, which is what that sub-task exists for)
+- **What was wrong**: the check treated `"data:image" in html` as evidence of a figure, so it demanded the Phase 2 caps (`max-height: 80vh`, `object-fit: contain`) on any page containing an embedded image anywhere - including inside an inline `<script>` config. A cinematic page keeps its stills in that config and builds its layers at runtime, so the static file has no `<img>` at all and there is no figure box to cap. Every cinematic build failed for a missing cap on a figure it did not have.
+- **Resolution**: the caps now require a real figure box - a `<figure>`, or an `<img>` with a `data:` URI that is not a cinematic stage layer. A page with embedded image data but no figure box is graded n/a with that reason stated. A stage layer is separately exempt on its merits: it is a decorative `aria-hidden` full-bleed backdrop, and `object-fit: cover` is CORRECT for it, since `contain` would letterbox the stage and defeat the level.
+
+### v3.16.5 Phase 7 - TERMINAL reconciliation (2026-08-11)
+
+Every v3.16.5 item, with a verdict. Nothing is left implicit, and nothing gates the release.
+
+**Closed this phase (1)**
+
+- **MT-1** - the calibration fixture is homed at `tests/fixtures/presentify/` and guarded by three standing tests plus a CI scoring step. See above.
+
+**Closed in earlier phases (7)** - recorded here so a reader does not have to reconstruct the set: DF-1 (parser media-scope, accepted and documented), BG-1 (five sub-AA runtime accents), BG-2 (three rendered font-floor violations plus the mobile overflow regression), BG-E1 (the ten render-session errata, nothing deferred), BG-3 (`image-sizing` firing on any embedded data URI, which would have failed every cinematic build), DF-4 (the plan's own naming contradiction, resolved in favour of the Attribution Rule), and - in `docs/v3/v3.15/known-gaps.md` - **v3.15 MT-1** (the headless render now runs in CI) and **v3.15 MT-2** (the placement record makes a skip distinguishable from a miss). Both v3.15 closure notes were verified present and appended rather than rewritten.
+
+**Carried, by design, with a stated reason and next step (7)**
+
+| Item | Why it stays open | Where it is actually answered |
+|---|---|---|
+| **NI-2** | Typography rule 2 (prose stranded beside dead space) is a rendered-geometry judgment: it depends on resolved track widths and the real `ch` width of the chosen font. Rule 3's half was superseded by errata E1 and is now partially enforced (a malformed step token IS caught, since the scorer resolves `var()`). | The Phase 3 render loop grades rule 2 from screenshots. Do not build a geometry parser. |
+| **NI-3** | SVG rules 2 (dash/label collision) and 3 (connectors on node edges) need glyph metrics and a declared join intent the markup does not carry. Verified numerically per-diagram instead. | Phase 3's screenshots catch a label sitting on a line immediately; rule 3 stays an authoring discipline enforced by the rule-5 self-check. |
+| **NI-4** | The intake questions are agent behavior. No test can assert a proposed colour scheme is *relevant* to a document, only that the instruction to make it relevant exists. | The deterministic half IS tested (option agreement across both surfaces, aliases, pipeline order, skips, the diagram, and `--scheme-hint` behavior); the visual half is graded by the render loop. |
+| **NI-5** | Placement relevance is a screenshot judgment - a `data:` URI is opaque bytes. | The render loop has vision at exactly the moment the judgment is needed. Do NOT build image analysis into a stdlib-only offline scorer. |
+| **WN-1** | A semantic status colour's applicable WCAG floor depends on its rendered size (3:1 for large or bordered badge text, 4.5:1 for body), which a parser cannot know. Grading them all at 4.5:1 would produce false failures that teach authors to bypass the gate. | Rubric criterion 7's agent-vision half, where rendered size is observable. |
+| **WN-3** | A fractional `em` resolves against the inherited size and cannot be computed from declarations alone. | Closed in practice by the contract's `max(<relative>, <floor>)` recommendation - a construction the checker CAN verify now that `min()`/`max()` resolution exists - plus the render loop. |
+| **WN-4** | The `contrast` check certifies text against a DECLARED background; a background-role image with a scrim composites per-pixel, so the check's premise holds only while the scrim dominates (~82%). The threshold is a judgment about acceptable show-through, not a boundary with a right answer. | Rubric criterion 4's agent-vision half. If a page ever needs a lighter scrim, the contract's answer is to move the text off the image, not to lower the threshold. |
+
+**Accepted or deferred with a decision (2)**
+
+- **DF-2** - `--images none` changed meaning (it used to mean "no visuals at all"). Accepted: the alternative was a fifth `bare` option preserving a mode R8 deliberately removed. Disclosed in both surfaces with the words "no longer exists", and a test asserts that disclosure so a later edit cannot quietly drop it.
+- **DF-3** - the local knockout helper is NOT adopted, because no call site exists. The AGENTS.md scope-fit gate declines a module justified only by a hypothetical extension; Pillow already being available was never the obstacle. Adopt it the cycle a cinematic scene genuinely needs floating subjects, which is when a test can assert something real.
+
+**Pattern worth carrying forward.** Six of the seven carried items are the same shape: a static parser reaching the edge of what markup can tell it, with the answer sitting in the render loop rather than in more parsing. That is not a backlog - it is the correct division of labour, and the phase that made it correct was Phase 3. The one lesson to keep is the asymmetry BG-2 exposed: a false PASS is far more expensive than a false FAIL. Sixteen false failures were loud and fixed within the hour; one false pass (a band fraction inflated across its own threshold) sat inside a green run for two phases and would have shipped.
+
+**Release-blocker check: NONE.** No open item blocks v3.16.5.
+
+### v3.16.5 Phase 1-7 summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| v3.16.5 Phase 1 gaps | 3 (MT-1 fixture unhomed and unguarded; NI-2 typography rules 2-3 by design; WN-1 status-color exclusion) | 1 accepted-and-documented (DF-1 parser scope) |
+| v3.16.5 Phase 2 gaps | 2 (WN-2 runtime-injected palette invisible to the scorer; NI-3 SVG rules 2-3 by design) | 1 closed (BG-1 sub-AA runtime accents) |
+| v3.16.5 errata pass (E1-E10) | 0 | 1 closed (BG-E1: all ten items executed; 14 sub-floor classes, the gutter, the `code` em-size and an unwired marker fixed in the fixture; the viewport-fit check widened where the fixture was right; nothing deferred) |
+| v3.16.5 Phase 7 gaps (TERMINAL reconciliation) | 0 new; 7 carried by design with a stated reason and next step (NI-2, NI-3, NI-4, NI-5, WN-1, WN-3, WN-4) and 2 accepted-or-deferred with a decision (DF-2, DF-3) | 1 closed (MT-1: fixture homed at `tests/fixtures/presentify/` and guarded by 3 tests + a CI step) |
+| v3.16.5 Phase 6 gaps | 2 (DF-3 knockout helper deferred, no call site; DF-4 the plan's own naming contradiction, corrected) | 1 closed (BG-3 `image-sizing` fired on any embedded data URI, breaking every cinematic build) |
+| v3.16.5 Phase 5 gaps | 2 (NI-5 placement relevance is a screenshot judgment, by design; WN-4 the scrim-opacity floor below which no static contrast check holds) | 1 closed (**v3.15 MT-2**: the placement record makes a skip distinguishable from a miss) |
+| v3.16.5 Phase 4 gaps | 2 (NI-4 intake questions are agent behavior, by design; DF-2 the `none` semantic change, accepted and disclosed) | 0 |
+| v3.16.5 Phase 3 gaps | 1 (WN-3 `em`-relative sizes render-verified only) | 3 closed (BG-2 three rendered floor violations + the mobile overflow regression; **v3.15 MT-1** headless render in CI; **v3.15 MT-2** superseded by the placement pass Phase 5 owns) |
+
+None is a release blocker, and two of the three (NI-2, WN-1) are deliberately routed to Phase 3, which is the phase that acquires the rendered screenshots those judgments require. MT-1 is routed to Phase 7, which already owns the fixture's final location; Phase 1 committed the fixture at the repo root so its fixes are not at risk while that decision waits. Phase 3 settles the argument the first two phases kept making. Every one of Phase 1's and Phase 2's routed items was the same shape - a static parser at the limit of what markup can tell it - and a single render pass closed or superseded four of them while finding four defects that had passed a green structural gate: a 12.48px brand label misclassified as interactive, 12.2px emphasis tokens the checker explicitly declined to judge, an 11.52px inline style it could not see, and a 390px horizontal overflow that Phase 2's own viewport-fit fix had introduced. Two of those four were bugs in the checker rather than in the page. The lesson is not that the scorer is bad - it is that a parser and a renderer answer different questions, and shipping only the parser means shipping the difference.
+
+Phase 2 repeats the pattern and sharpens it. Its most valuable finding was again invisible to the phase that should have owned it: BG-1's five sub-AA accents are injected by script, so Phase 1's contrast check could not observe them and passed truthfully on an incomplete view. Two of Phase 2's three new items (WN-2, NI-3) are the same shape - a static parser reaching the edge of what markup can tell it - and both route to Phase 3, where a rendered screenshot answers directly what no amount of extra parsing would. That is an argument for building Phase 3 rather than for deepening the scorer.
+
+Worth noting from Phase 1: the most valuable defect that phase found was not in the fixture but in the checker - the `font-floor` check initially skipped every `var()` value, so tokenizing the fixture DROPPED its checked font count from 40 to 17. A linter that verifies the non-compliant form more thoroughly than the compliant one rewards the wrong behavior, and nothing in the plan would have surfaced it; only running the checker before and after the fix did.
+
 ## v3.16 Summary
 
 | Category | Open | Resolved |
@@ -852,20 +1055,7 @@ It is deliberately **not** decided here. It affects four extensions, it is a que
 | v3.16.1 version-implementation gaps (all 8 phases + release) | 3 carried forward (WN-1, BG-1 environmental; NI-6 bounded and documented) | 21 closed (DF-1..DF-5, NI-1..NI-5, BG-2..BG-8, QG-1, QG-2, WN-2, PX-1) |
 | v3.16.2 version-implementation gaps (all 6 phases, reconciled) | 5 carried (MT-1 schema assertions; NI-2 size overage; NI-3 deliberate `--repair` bound; BG-2 pre-existing fail-open; WN-1 / BG-1 environmental) | 6 closed (QG-1, QG-2, BG-3, NI-1, DF-1, WN-2) |
 | v3.16.3 version-implementation gaps (all 6 phases, reconciled) | 8 carried (DF-1 deferred key deletion; NI-2 unverifiable weights; MT-2 provisional runner rules; NI-4 cross-monitor policy, routed out; NI-7 deliberate divergence; WN-1 / BG-1 / BG-2 environmental) | 8 closed (NI-1, QG-2, MT-1, NI-5, NI-6, BG-3, NI-3, BG-4) |
+| v3.16.4 version-implementation gaps | not recorded - the v3.16.4 cycle (GitHub Usage Monitor account-pinned sessions, shipped 2026-08-11 from a parallel session) added no section to this file. Stated as an observed absence, not as a claim that the cycle had none. | n/a |
+| v3.16.5 version-implementation gaps (all 7 phases, reconciled) | 9 carried (NI-2, NI-3, NI-4, NI-5, WN-1, WN-3, WN-4 by design, each with a named place where the render loop answers it; DF-2 accepted, DF-3 declined for want of a call site) | 9 closed (MT-1, DF-1, DF-4, BG-1, BG-2, BG-3, BG-E1, plus v3.15's MT-1 and MT-2) |
 
 The three comparison-sourced items remain non-blocking prose folds with named target files. Of the v3.16.0 items, BG-1 is pre-existing and reproduces without this plan's changes, WN-1 is environmental, DF-1 is a reasoned non-implementation, NI-1 is a deliberate scope boundary the plan requires, and NI-2 / NI-3 / NI-4 are Phase 2 findings that Phase 3 and Phase 5 are already scheduled to dispose of. Phase 5 dispositioned every open item: 13 closed, 3 carried forward. **None gates the v3.16.0 release.** NI-1 and NI-6 are scope decisions for cycles already touching the relevant surfaces, and BG-1 is pre-existing, reproduced on a clean `develop` worktree, and confined to a Windows host whose PATH resolves `tar` to the Git Bash binary. Of the 13 closed, three (BG-2, BG-3, and QG-3) were caught by the test suite rather than by review, which is this cycle's strongest argument for running the full suite before declaring a phase done.
-
-## v3.16.5 - presentify-visual-overhaul (in progress)
-
-**Status**: in-progress (Phase 3 underway). Plan: [plans/v3.16.5-presentify-visual-overhaul.md](plans/v3.16.5-presentify-visual-overhaul.md).
-
-### Open Items
-
-#### Bugs / Regressions
-
-##### BG-E1 - Phase 1-2 contracts shipped with prescriptions the 2026-08-11 render session overturned
-
-- **Source phase**: Phases 1-2 (committed on `feat/v3.16.5-presentify-visual-overhaul` before the maintainer's live render-review of the calibration fixture).
-- **Plan reference**: the plan's "Errata: render-session lessons (2026-08-11)" section, items E1-E5.
-- **Reason**: `references/responsive-typography.md` canonizes a capped per-element body `clamp()` (E1) and ch-capped measures with a far-edge aside example (E2) - both demonstrated to fail on large displays; `references/svg-diagram-quality.md` presents a rotated label as the correct pattern (E4); `visual_qa_score.py` resolves px floors against a fixed 16px root (E3); sticky-collision / scroll-margin / pre-wrap defect classes are absent (E5).
-- **Suggested next step**: execute the errata inside Phase 3 (3.2 rubric rewrite absorbs E1/E2/E4/E5 contract corrections + E9; 3.3 absorbs the E3 scorer fix); verify against the repo-root calibration fixture, which already embodies all items.
