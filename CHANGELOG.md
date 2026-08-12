@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fixed
 
 - **v3.16.6 release CI.** Three jobs failed on the release merge: CI `validate` (pre-commit trailing whitespace in `extensions/github-usage-monitor/test/ui.test.ts` and CRLF in `src/providers/drawdown.ts`), CI `tests` (`test_rendered_overlay_toggle` called `render_gate` without taking the fixture, so a missing Playwright install raised `NameError` instead of skip-with-note), and Presentify extractor `verify` (`ensure_render_env.py` shipped with a shebang but mode `100644`, which ruff EXE001 rejects). The GitHub Usage Monitor coverage gate, last red on v3.16.4 at 77.93% statements, is restored above 80% by exercising the remaining activation commands.
+- **Dependabot `@types/vscode` bumps (PR #34, earlier PR #24).** `vsce package` rejects types newer than `engines.vscode` (`^1.85.0` on all four usage monitors). Dependabot now ignores `@types/vscode` in those npm ecosystems so the bump is not reopened; types move only in the same commit that moves `engines`.
 
 ## [3.16.6] - 2026-08-12
 

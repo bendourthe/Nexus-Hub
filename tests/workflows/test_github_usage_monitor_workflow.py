@@ -215,3 +215,11 @@ def test_dependabot_tracks_the_new_extension() -> None:
     assert f"/{EXTENSION_DIR}" in directories, (
         f"add a monthly npm entry for /{EXTENSION_DIR} to .github/dependabot.yml"
     )
+    npm_entry = next(
+        entry for entry in config["updates"]
+        if entry.get("directory") == f"/{EXTENSION_DIR}"
+    )
+    ignored = {item["dependency-name"] for item in npm_entry.get("ignore", [])}
+    assert "@types/vscode" in ignored, (
+        "@types/vscode must stay pinned to engines.vscode; vsce rejects a types bump that exceeds engines (PR #34)"
+    )

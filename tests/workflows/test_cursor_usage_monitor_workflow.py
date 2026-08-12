@@ -191,3 +191,18 @@ def test_dependabot_tracks_the_new_extension() -> None:
     config = load(REPO_ROOT / ".github" / "dependabot.yml")
     directories = {entry["directory"] for entry in config["updates"]}
     assert f"/{EXTENSION_DIR}" in directories
+    npm_monitors = [
+        entry
+        for entry in config["updates"]
+        if entry.get("package-ecosystem") == "npm"
+        and str(entry.get("directory", "")).endswith("-usage-monitor")
+    ]
+    assert len(npm_monitors) == 4, (
+        "expected npm Dependabot entries for all four usage monitors"
+    )
+    for entry in npm_monitors:
+        ignored = {item["dependency-name"] for item in entry.get("ignore", [])}
+        assert "@types/vscode" in ignored, (
+            f"{entry['directory']}: @types/vscode must stay pinned to engines.vscode; "
+            "vsce rejects a types bump that exceeds engines (PR #34)"
+        )
