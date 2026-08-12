@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **v3.16.6 Phase 1 - presentify coverage-depth (verbosity) intake axis.** The two-round design intake gained the second content-dependent question: coverage depth. Round 2 now asks Distilled / Balanced / Comprehensive with a content-derived stem and an approximate section count per option for THIS source set, alongside the color-scheme question. A new `--verbosity <distilled|balanced|comprehensive>` flag presets and skips the question (natural-language forms bind too, e.g. "just the highlights"); an unrecognized value degrades with a usage note instead of blocking; non-interactive runs resolve to `balanced`. The resolved level, its provenance (`flag-preset` / `asked` / `defaulted`), and the derived section-count target are recorded in the design-record HTML comment; SKILL.md Step 6 defines the three per-level authoring depth rules (compile-mode per-source attribution wins over distillation; a missing record grades as `balanced`); and the visual-QA rubric gained criterion 10, coverage-depth match - page-level, AGENT-VISION only, deliberately with no deterministic scorer check. Slash surface: all platforms that carry `/presentify` (command + skill bundle auto-copy; no installer edit). 16 new prose-contract tests; no registry change (frontmatter untouched).
 
+### Changed
+
+- **v3.16.6 Phase 2 - terminal reconciliation.** Light terminal pass: refactor detectors found nothing to move; the v3.16.6 known-gaps subsection is reconciled (DF-1 and QG-1 closed, NI-1 carried by design); CI coverage and the model-prompting freshness advisory verified; full suite green on the reconciled tree. No behavior change.
+
 ### Fixed
 
 - **Stale rubric-criteria counts in the presentify SKILL.md.** Step 9 still said "all eight criteria" although the rubric had grown to nine in the v3.16.5 errata; both mentions now say ten and the enumeration lists all ten criteria.

@@ -1047,7 +1047,7 @@ Worth noting from Phase 1: the most valuable defect that phase found was not in 
 
 ## v3.16.6 - presentify-verbosity-intake
 
-**Status**: Phase 1 of 2 complete on `feat/v3.16.6-presentify-verbosity-intake` (the coverage-depth axis: round-2 question, `--verbosity` flag, `balanced` fallback, design-record fields, per-level authoring rules, rubric criterion 10). Plan: [plans/v3.16.6-presentify-verbosity-intake.md](plans/v3.16.6-presentify-verbosity-intake.md). Phase 2 (terminal refactor + reconciliation) outstanding.
+**Status**: COMPLETE and reconciled (Phase 2 TERMINAL, 2026-08-12). Both phases done on `feat/v3.16.6-presentify-verbosity-intake`; 1 carried by design (NI-1), 2 closed (DF-1, QG-1), 0 release blockers - release-ready pending `/update release`. Plan: [plans/v3.16.6-presentify-verbosity-intake.md](plans/v3.16.6-presentify-verbosity-intake.md).
 
 ### NI-1 - OPEN by design: the verbosity contract is agent behavior with no deterministic check
 
@@ -1057,12 +1057,13 @@ Worth noting from Phase 1: the most valuable defect that phase found was not in 
 - **Reason it is open**: whether a page's depth matches its declared level is a structure-vs-content judgment (which topics count as "major", whether a section is appendix-grade), not a countable property. Criterion 10 is AGENT-VISION only and page-level, graded against the design record's recorded level and section-count target. This mirrors v3.16.5's NI-4 (intake questions are agent behavior) and is the same shape as its NI-2/NI-3 family: a judgment the render loop answers and a parser cannot.
 - **Suggested next step**: none scheduled - by design. Revisit ONLY if a shipped page plainly contradicts its recorded level AND the rubric criterion missed it; that concrete defect would justify the cheap partial guard (comparing the rendered top-level section count against the recorded target band), which was considered and rejected absent a defect to point at.
 
-### DF-1 - DOCUMENTED: the v3.16.5 deferral was never recorded in this file
+### DF-1 - CLOSED in Phase 2: the v3.16.5 deferral was never recorded in this file
 
 - **Target file**: this file (the v3.16.5 subsection above)
 - **Source phase**: v3.16.6 Phase 1 (discovered during the Phase 8 known-gaps append)
 - **Reason**: the v3.16.6 plan's Origin note says the verbosity axis was "deferred from v3.16.5 by maintainer decision 2026-08-11" and its sub-task 2.2 expects to close "the v3.16.5-deferred entry" - but the v3.16.5 Phase 7 reconciliation (same date) never wrote that entry, so there is no entry to close. The deferral decision is real (it is recorded in the v3.16.6 plan header and in the maintainer conversation); only its known-gaps bookkeeping was skipped.
 - **Suggested next step**: Phase 2 sub-task 2.2 closes the deferral by reference to THIS note instead of a v3.16.5 entry; no retroactive edit to the finalized v3.16.5 subsection.
+- **CLOSED 2026-08-12 by v3.16.6 Phase 2** (the reconciliation this entry asked for): the deferred work itself shipped in Phase 1 (the coverage-depth axis is live on all three surfaces), so the deferral is fulfilled, and this note IS its bookkeeping record - the missing v3.16.5 entry is documented here rather than written retroactively into a finalized section. Nothing remains to transfer.
 
 ### QG-1 - CLOSED in Phase 1: the CI path filter missed the command file the tests assert against
 
@@ -1083,6 +1084,6 @@ Worth noting from Phase 1: the most valuable defect that phase found was not in 
 | v3.16.3 version-implementation gaps (all 6 phases, reconciled) | 8 carried (DF-1 deferred key deletion; NI-2 unverifiable weights; MT-2 provisional runner rules; NI-4 cross-monitor policy, routed out; NI-7 deliberate divergence; WN-1 / BG-1 / BG-2 environmental) | 8 closed (NI-1, QG-2, MT-1, NI-5, NI-6, BG-3, NI-3, BG-4) |
 | v3.16.4 version-implementation gaps | not recorded - the v3.16.4 cycle (GitHub Usage Monitor account-pinned sessions, shipped 2026-08-11 from a parallel session) added no section to this file. Stated as an observed absence, not as a claim that the cycle had none. | n/a |
 | v3.16.5 version-implementation gaps (all 7 phases, reconciled) | 9 carried (NI-2, NI-3, NI-4, NI-5, WN-1, WN-3, WN-4 by design, each with a named place where the render loop answers it; DF-2 accepted, DF-3 declined for want of a call site) | 9 closed (MT-1, DF-1, DF-4, BG-1, BG-2, BG-3, BG-E1, plus v3.15's MT-1 and MT-2) |
-| v3.16.6 version-implementation gaps (Phase 1 of 2) | 2 (NI-1 verbosity contract is agent behavior, by design; DF-1 the v3.16.5 deferral bookkeeping was never written, documented for Phase 2 to close by reference) | 1 closed (QG-1: the CI path filter missed the command file the intake tests assert against) |
+| v3.16.6 version-implementation gaps (both phases, reconciled) | 1 carried by design (NI-1 verbosity contract is agent behavior; revisit only on a concrete missed-defect) | 2 closed (DF-1 the unbookkept v3.16.5 deferral, fulfilled by Phase 1 and recorded in place; QG-1 the CI path filter missing the command file the intake tests assert against) |
 
 The three comparison-sourced items remain non-blocking prose folds with named target files. Of the v3.16.0 items, BG-1 is pre-existing and reproduces without this plan's changes, WN-1 is environmental, DF-1 is a reasoned non-implementation, NI-1 is a deliberate scope boundary the plan requires, and NI-2 / NI-3 / NI-4 are Phase 2 findings that Phase 3 and Phase 5 are already scheduled to dispose of. Phase 5 dispositioned every open item: 13 closed, 3 carried forward. **None gates the v3.16.0 release.** NI-1 and NI-6 are scope decisions for cycles already touching the relevant surfaces, and BG-1 is pre-existing, reproduced on a clean `develop` worktree, and confined to a Windows host whose PATH resolves `tar` to the Git Bash binary. Of the 13 closed, three (BG-2, BG-3, and QG-3) were caught by the test suite rather than by review, which is this cycle's strongest argument for running the full suite before declaring a phase done.

@@ -1,5 +1,23 @@
 # Development Log
 
+## [2026-08-12] - v3.16.6 Phase 2: terminal refactor, reconciliation, and CI/CD
+
+### What Changed
+
+The plan's terminal gate, and for a two-file-surface patch it was the light pass the plan predicted: the refactor detectors (stray root files, empty dirs, duplicates, layout drift) found nothing to move, so no file moved. The v3.16.6 known-gaps subsection is reconciled - DF-1 closed (the unbookkept v3.16.5 deferral, fulfilled by Phase 1 shipping the axis and recorded in place rather than retroactively edited into a finalized section), NI-1 carried by design with a concrete revisit trigger, QG-1 already closed in Phase 1 - and the summary row finalized. CI/CD verified complete: `ci.yml` catches every non-docs change, `doc-colocation.yml` the docs tree, and `presentify-extractor.yml` (with Phase 1's filter fix) the whole presentify surface including the command file. The advisory model-prompting freshness check reports IN SYNC against the live 4-model roster. **No tag, no push, no version bump**: handed off to `/update release`.
+
+### Why It Changed
+
+The terminal phase exists so the next plan starts from a true picture. Here the picture was already mostly true - Phase 1 did its own bookkeeping - so the phase's value was confirmation plus the one open bookkeeping thread (DF-1) that only a reconciliation pass may close.
+
+### Verification
+
+Full `tests/` suite green on the reconciled tree: 2351 passed, 17 skipped. Validator battery all PASS: bundle audit, trigger-and-routing gate, version sync (in sync at 3.16.5; the bump belongs to `/update release`), base-template parity, platform-defaults sync, platform read-contracts (10 platforms). Marker sweep over the version's full diff: no TODO / FIXME / HACK / `# DEVIATION:` introduced.
+
+### Known Issues
+
+One carried item: NI-1 (the verbosity contract is agent behavior with no deterministic check, by design; revisit only on a concrete missed-defect). Zero release blockers - v3.16.6 is release-ready pending `/update release`.
+
 ## [2026-08-12] - v3.16.6 Phase 1: presentify coverage-depth (verbosity) intake axis
 
 ### What Changed
