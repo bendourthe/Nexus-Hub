@@ -139,6 +139,17 @@ jobs:
         # scripts/** are outside docs/).
         run: python scripts/run_trigger_evals.py --gate
 
+      - name: Validate permission baseline is read-only (v3.17.0 Phase 1)
+        # Deterministic, stdlib-only HARD GATE over configs/permissions/. Fails CI on
+        # any auto-approve entry that is mutation-capable at the SIDE-EFFECT level
+        # rather than the command-name level, which is the I6 class that let
+        # Bash(gh api *), Bash(find *) and Bash(git branch *) ship as "read-only".
+        # Rides this existing validate job rather than adding one: it is a sub-second
+        # stdlib step, matching the v3.15.2 Phase 6.3 decision not to pay a fresh
+        # checkout and setup for that. Reaches this job via the workflow's
+        # paths-ignore: docs/** trigger, since configs/** is outside docs/.
+        run: python scripts/validate_permission_baseline.py
+
       - name: Validate no personal paths (v2.3.0 Phase 2)
         # v3.14.5 Phase 7: split out of the bundle-audit step above, which had a
         # duplicate `run:` key - YAML keeps only the last, so the bundle-orphan
