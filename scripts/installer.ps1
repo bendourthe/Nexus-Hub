@@ -2635,19 +2635,6 @@ function Install-Templates {
     if (Test-Path $triggerEvalsSource) {
         Safe-Copy -Source $triggerEvalsSource -Destination (Join-Path $scriptsDest "run_trigger_evals.py") -Confirm:$true -CustomMessage "✓ Trigger-and-routing eval installed at: $scriptsDest\run_trigger_evals.py"
     }
-    # v3.17.0 Phase 1: permission-baseline tooling. Registered in lockstep with
-    # scripts/installer.sh -- merge_permissions.py is the single merge implementation
-    # BOTH installers call, so a divergence here reintroduces the exact drift that
-    # phase repaired. validate_permission_baseline.py guards the read-only baseline.
-    $mergePermissionsSource = Join-Path $RepoRoot "scripts\merge_permissions.py"
-    if (Test-Path $mergePermissionsSource) {
-        Safe-Copy -Source $mergePermissionsSource -Destination (Join-Path $scriptsDest "merge_permissions.py") -Confirm:$true -CustomMessage "✓ Permission merge helper installed at: $scriptsDest\merge_permissions.py"
-    }
-    $validateBaselineSource = Join-Path $RepoRoot "scripts\validate_permission_baseline.py"
-    if (Test-Path $validateBaselineSource) {
-        Safe-Copy -Source $validateBaselineSource -Destination (Join-Path $scriptsDest "validate_permission_baseline.py") -Confirm:$true -CustomMessage "✓ Permission-baseline validator installed at: $scriptsDest\validate_permission_baseline.py"
-    }
-
     $triggerEvalsAllowlistSource = Join-Path $RepoRoot "scripts\run_trigger_evals.allowlist.json"
     if (Test-Path $triggerEvalsAllowlistSource) {
         Safe-Copy -Source $triggerEvalsAllowlistSource -Destination (Join-Path $scriptsDest "run_trigger_evals.allowlist.json") -Confirm:$true -CustomMessage "✓ Trigger-eval allowlist installed at: $scriptsDest\run_trigger_evals.allowlist.json"
