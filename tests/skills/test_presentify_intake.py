@@ -1,4 +1,4 @@
-﻿"""v3.16.5 Phase 4: the two-round design intake.
+"""v3.16.5 Phase 4: the two-round design intake.
 
 Two surfaces have to agree, and they are authored in different files by different
 edits, so drift between them is the failure mode worth guarding:

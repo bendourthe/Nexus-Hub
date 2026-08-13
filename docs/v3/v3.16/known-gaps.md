@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v3.16.3 `github-usage-monitor-ux` is RELEASED (all six phases; 8 closed, 8 carried, 0 release blockers). v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (all 5 phases complete; reconciled and release-ready, unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
-**Last updated**: 2026-08-12 (v3.16.6 Phase 1 append: coverage-depth axis shipped; NI-1 by design, DF-1 documented for Phase 2, QG-1 closed. v3.16.5 has since been RELEASED and merged to `develop`.)
+**Last updated**: 2026-08-13 (v3.16.7 section opened: Phase 1 shipped in `0dbc170f`, plan reverse-engineered and held OPEN at Phase 3 for incoming live-session lessons; BG-1 the frontmatter-breaking BOM, DF-1 the missing plan artifact and DF-2 the cross-session changelog contamination all closed.)
 
 > **File-lifecycle note**: this ledger was created ahead of any v3.16 implementation, by a comparison that deliberately claimed no release slot, so it began with only the `## Comparison-Sourced Deferrals` section. Each v3.16 version-implementation phase **appends** its own `## v3.16.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` numbering, which is namespaced separately from the `CD-#` and `TR-#` ids used above.
 
@@ -1080,6 +1080,47 @@ Worth noting from Phase 1: the most valuable defect that phase found was not in 
 - **What was wrong**: `tests/skills/test_presentify_intake.py` has asserted on `catalog/commands/presentify.md` since v3.16.5 Phase 4, and this phase added more such assertions - but the workflow's path filters did not include the command file, so a command-only edit would merge without running the suite that guards it (the same silent-ungating shape as v3.16.5 MT-1's fixture-move hazard).
 - **Resolution**: `catalog/commands/presentify.md` added to both the `push` and `pull_request` path filters (2 lines).
 
+## v3.16.7 - presentify-first-shot-hardening
+
+**Status**: IN FLIGHT, plan deliberately OPEN. Phase 1 shipped in `0dbc170f`; Phase 3 is an open intake for lessons from a live presentify session, and the release is blocked on it closing. 2 open (NI-1, WN-1 carried), 3 closed (BG-1, DF-1, DF-2). Plan: [plans/v3.16.7-presentify-first-shot-hardening.md](plans/v3.16.7-presentify-first-shot-hardening.md).
+
+### BG-1 - CLOSED: `0dbc170f` shipped a UTF-8 BOM that broke the skill's YAML frontmatter
+
+- **Target file**: `catalog/skills/specialized-domains/document-to-interactive-html/SKILL.md`, `tests/skills/test_presentify_intake.py`
+- **Source phase**: v3.16.7 Phase 1 (introduced), found by the Phase 2 reverse-engineering audit
+- **What was wrong**: both files gained a leading `EF BB BF`. Verified empirically rather than inferred: read with `encoding="utf-8"` (what `validate_skills.py` line 258 uses, NOT `utf-8-sig`), `content.startswith("---")` is False and the frontmatter regex does not match, so the validator's own `parse_frontmatter()` returned `None` and reported "no valid YAML frontmatter (must start with ---)". `scripts/validate_unicode_safety.py` also failed with exit 1, its SINGLE error being that BOM - and that validator runs in `make validate` and in the CI `validate` job, so **CI was red on this branch**. `AGENTS.md` records that the MCP skill server depends on parseable frontmatter, so discovery for the catalog's largest skill was at risk too.
+- **Resolution**: both BOMs stripped, files rewritten as UTF-8 without a BOM. `validate_unicode_safety.py` now exits 0 and the frontmatter error is gone. (`validate_skills.py` in FULL mode still reports a 1769-character description for this skill, but that is a pre-existing condition shared by 168 skills and is not run by `make validate`, which invokes `--bundles-only`; it is not this release's regression.)
+- **Why it is recorded rather than quietly fixed**: this is the THIRD time the repository has met this trap. `AGENTS.md` documents it twice (the v3.11.0 `session-summary.ps1` parse failure and the v3.15.6 provenance-ledger BOM), and the fix each time was prose. The durable guard already exists - `validate_unicode_safety.py` catches a BOM in any non-`.ps1` text file - so what failed here was running it, not having it. That points at the pre-commit / phase-gate habit rather than at another rule.
+
+### DF-1 - CLOSED: the v3.16.7 slot had no plan artifact
+
+- **Target file**: `docs/v3/v3.16/plans/v3.16.7-presentify-first-shot-hardening.md`
+- **Source phase**: v3.16.7 Phase 1 (the work landed before any plan existed)
+- **Reason**: Phase 1 was built and committed straight from live-session lessons, so the version had no plan document while every other v3.16.x version has one, and there was no artifact against which "is this version complete" could be answered.
+- **Resolution**: the plan was reverse-engineered from `0dbc170f` on 2026-08-13 and carries an explicit provenance note saying so, rather than presenting itself as having preceded the work. It is deliberately left OPEN at Phase 3 so further live-session lessons land inside this release.
+
+### DF-2 - CLOSED: v3.17.0 changelog text landed in this branch's `[Unreleased]`
+
+- **Target file**: `CHANGELOG.md`
+- **Source phase**: v3.16.7 Phase 1
+- **What was wrong**: `0dbc170f` staged `CHANGELOG.md` while a concurrent session had uncommitted v3.17.0 permission-hardening changelog text in the shared working tree. `[Unreleased]` therefore described permission work whose code is NOT on this branch, and carried a duplicated `### Added` heading. Releasing as-is would have announced unshipped work.
+- **Resolution**: the v3.17.0 entries were removed here and preserved on `feat/v3.17.0-agent-autonomy-toggle`, where that code lives; the duplicate heading was merged. Two `v3.17.0` mentions remain in already-released sections as legitimate historical cross-references and were left alone.
+- **Lesson**: two agents sharing one working tree is the hazard, not the changelog. A `git add <file>` picks up whatever is in the tree, including another session's work in progress.
+
+### NI-1 - OPEN by design: Phase 3 is an open intake, so this release is not closable yet
+
+- **Target**: the plan's Phase 3
+- **Source phase**: maintainer directive, 2026-08-13
+- **Reason it is open**: the maintainer is running `/presentify` on another project and expects further first-shot lessons. The plan holds Phase 3 open so the whole batch ships in v3.16.7 rather than half of it, and the plan's intake protocol requires each lesson to name an OBSERVED defect - a guard with no observed defect behind it is declined by the `AGENTS.md` scope-fit rule.
+- **Suggested next step**: none until lessons arrive. Do NOT run `/update release` while Phase 3 is open.
+
+### WN-1 - OPEN (carried from v3.16.6): `generate_manifest.py` hashes working-tree bytes
+
+- **Target file**: `scripts/generate_manifest.py`
+- **Source phase**: carried in, because this release touches `scripts/` (`fit_map_projection.py`, `extract_content.py`)
+- **Reason it is carried**: the v3.16.6 release shipped a manifest hashed over CRLF bytes from a Windows tree, so `nexus-hub verify` would have reported ~520 spurious mismatches against a tarball install. The data was fixed; the generator was not.
+- **Suggested next step**: newline-normalize text files (or hash committed blob bytes via `git cat-file`) plus a one-entry self-check, and regenerate the manifest at release time from a tree with LF endings. This release's Phase 4.2 must address or explicitly re-carry it.
+
 ## v3.16 Summary
 
 | Category | Open | Resolved |
@@ -1093,5 +1134,6 @@ Worth noting from Phase 1: the most valuable defect that phase found was not in 
 | v3.16.4 version-implementation gaps | not recorded - the v3.16.4 cycle (GitHub Usage Monitor account-pinned sessions, shipped 2026-08-11 from a parallel session) added no section to this file. Stated as an observed absence, not as a claim that the cycle had none. | n/a |
 | v3.16.5 version-implementation gaps (all 7 phases, reconciled) | 9 carried (NI-2, NI-3, NI-4, NI-5, WN-1, WN-3, WN-4 by design, each with a named place where the render loop answers it; DF-2 accepted, DF-3 declined for want of a call site) | 9 closed (MT-1, DF-1, DF-4, BG-1, BG-2, BG-3, BG-E1, plus v3.15's MT-1 and MT-2) |
 | v3.16.6 version-implementation gaps (both phases + release, reconciled) | 2 carried (NI-1 verbosity contract is agent behavior, by design; WN-1 `generate_manifest.py` is generation-environment-dependent, routed to the next `scripts/`-touching cycle) | 3 closed (DF-1 the unbookkept v3.16.5 deferral; QG-1 the CI path filter missing the command file; BG-1 the shipped v3.16.5 CRLF manifest, fixed by the v3.16.6 regeneration) |
+| v3.16.7 version-implementation gaps (Phase 1 shipped; plan OPEN at Phase 3) | 2 (NI-1 the open intake, by directive; WN-1 the carried manifest-generator item) | 3 closed (BG-1 the frontmatter-breaking BOM; DF-1 the missing plan artifact; DF-2 the cross-session changelog contamination) |
 
 The three comparison-sourced items remain non-blocking prose folds with named target files. Of the v3.16.0 items, BG-1 is pre-existing and reproduces without this plan's changes, WN-1 is environmental, DF-1 is a reasoned non-implementation, NI-1 is a deliberate scope boundary the plan requires, and NI-2 / NI-3 / NI-4 are Phase 2 findings that Phase 3 and Phase 5 are already scheduled to dispose of. Phase 5 dispositioned every open item: 13 closed, 3 carried forward. **None gates the v3.16.0 release.** NI-1 and NI-6 are scope decisions for cycles already touching the relevant surfaces, and BG-1 is pre-existing, reproduced on a clean `develop` worktree, and confined to a Windows host whose PATH resolves `tar` to the Git Bash binary. Of the 13 closed, three (BG-2, BG-3, and QG-3) were caught by the test suite rather than by review, which is this cycle's strongest argument for running the full suite before declaring a phase done.
