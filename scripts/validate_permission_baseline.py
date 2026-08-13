@@ -20,6 +20,11 @@ Detected shapes:
 2. A literal mutating flag or subcommand for a known dual-mode tool.
 3. A bare trailing wildcard directly after a dual-mode tool name, which admits any
    flag that tool accepts (the ``Bash(git *)`` versus ``Bash(git log *)`` distinction).
+3b. The same one level deeper: a wildcard after a dual-mode *subcommand*, where pinning
+   the first argument rescues nothing (``Bash(gh repo *)`` admits ``gh repo delete``),
+   plus subcommands no amount of pinning rescues (``gh api`` takes ``--method`` at any
+   depth). Rule 3 alone let ``Bash(gh api *)`` -- this validator's own motivating
+   example -- pass; the Phase 1.4 tests caught that.
 4. A PowerShell cmdlet that mutates outright, resolved through its aliases.
 5. A PowerShell dual-mode cmdlet carrying an unpinned wildcard, which admits
    ``-CimSession`` or ``-ComputerName`` and converts a local read into a remote one.
@@ -92,6 +97,32 @@ DUAL_MODE_TOOLS: frozenset[str] = frozenset({
 # `Bash(python --version)` correctly allowed.
 ALWAYS_UNSAFE_TOOLS: frozenset[str] = frozenset({
     "awk", "gawk", "mawk",  # BEGIN{print > "/path"} writes; the program IS the argument
+})
+
+# Tool+subcommand pairs where NO wildcard form is safe, because the mutating switch is
+# a flag that can appear at any depth rather than a subcommand that pinning excludes.
+# `gh api --method DELETE repos/o/r` is the canonical case and is why v3.17.0 Phase 1.1
+# deleted the `gh api` entries outright instead of rescoping them: pinning the endpoint
+# (`gh api repos/o/r *`) leaves `--method` just as reachable.
+UNSAFE_SUBCOMMANDS: frozenset[str] = frozenset({
+    "gh api",
+})
+
+# Dual-mode SUBCOMMANDS: pinning the first argument normally rescues a dual-mode tool
+# (`Bash(git log *)` is safe), but these subcommands are themselves dual-mode, so
+# pinning only to them rescues nothing -- `gh repo *` admits `gh repo delete` and
+# `git branch *` admits `git branch -D`. One more level of pinning is required, which
+# every entry in the shipped baseline already has (`gh pr view *`, `git branch --list *`).
+# Criterion for adding a pair: the subcommand has its own mutating verb or flag.
+DUAL_MODE_SUBCOMMANDS: frozenset[str] = frozenset({
+    "gh auth", "gh cache", "gh config", "gh gist", "gh issue", "gh label", "gh pr",
+    "gh release", "gh repo", "gh run", "gh secret", "gh ssh-key", "gh variable",
+    "gh workflow",
+    "git branch", "git config", "git notes", "git remote", "git stash",
+    "git submodule", "git tag", "git worktree",
+    "docker builder", "docker compose", "docker container", "docker image",
+    "docker network", "docker system", "docker volume",
+    "kubectl config",
 })
 
 # Literal mutating tokens, checked per tool. A token here appearing anywhere in the
@@ -312,6 +343,33 @@ def _check_posix_entry(source: str, entry: str, body: str, match_mode: str) -> l
                     f"first argument to a literal subcommand, so the wildcard admits "
                     f"any flag `{tool}` accepts. Pin it (e.g. `{tool} <subcommand> *`).",
                 ))
+
+    # Rule 3b: the same reasoning one level deeper. Pinning the first argument is not
+    # sufficient when the pinned subcommand is itself dual-mode. Without this, the very
+    # entry that motivated this validator -- `Bash(gh api *)`, which admits
+    # `--method DELETE` -- passes, because `api` satisfies rule 3.
+    if args:
+        pair = f"{tool} {args[0].lower()}"
+        # In prefix mode every entry is a prefix, so a pattern with no wildcard behaves
+        # exactly like one with a trailing wildcard.
+        wildcard_reachable = match_mode == "prefix" or "*" in body
+        next_token = args[1] if len(args) > 1 else None
+        unpinned_next = next_token is None or next_token.startswith("*")
+
+        if pair in UNSAFE_SUBCOMMANDS and wildcard_reachable:
+            found.append(Violation(
+                source, entry, "unsafe-subcommand",
+                f"`{pair}` takes its mutating switch as a flag that can appear at any "
+                f"depth, so no wildcard form is safe however far the pattern is pinned. "
+                f"Drop it or replace it with a fully-literal read-only invocation.",
+            ))
+        elif pair in DUAL_MODE_SUBCOMMANDS and unpinned_next and wildcard_reachable:
+            found.append(Violation(
+                source, entry, "unpinned-dual-mode-subcommand",
+                f"`{pair}` is itself dual-mode, so pinning only to `{args[0]}` leaves "
+                f"the wildcard admitting its mutating verbs and flags. Pin one level "
+                f"deeper (e.g. `{pair} <read-only-verb> *`).",
+            ))
 
     return found
 

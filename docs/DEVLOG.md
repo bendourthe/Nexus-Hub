@@ -1,5 +1,30 @@
 # Development Log
 
+## [2026-08-13] - v3.17.0 Phase 1: permission-baseline hardening and cross-platform merge parity
+
+### What Changed
+
+The shipped read-only auto-approve baseline is now read-only at the side-effect level (25 mutation-capable entries removed with per-entry rationale), and permission installation behaves identically on all three operating systems and at both install scopes. `scripts/merge_permissions.py` is the single merge implementation both installers call: `installer.ps1`'s native union merge was ported to it this session, closing the parity debt the checkpoint commit left. New `scripts/validate_permission_baseline.py` classifies entries by invocation shape rather than command name and gates `make validate` and CI. Workspace scope became load-bearing (Claude Code writes `.claude/settings.local.json`; the other three skip with a stated reason). 59 new tests across three files, riding existing CI jobs.
+
+### Why It Changed
+
+Two independent auto-approve paths consume these files, and only one carries Nexus-Hub's hook-side syntax guards; the other is the platform's own matcher with no Nexus-Hub logic at all. Hardening for the unguarded path is the point. The installer half matters just as much: a hardening that reaches only fresh installs on one operating system does not reach the population it was written to protect - a stock Mac was installing NO baseline (no `jq`), Windows Git-Bash was skipping Copilot entirely, and `--workspace` installed nothing anywhere.
+
+### Decisions Made
+
+- **The `jq` fast path was dropped rather than forked** (a deviation from sub-task 1.2). With removal propagation living in the Python helper, keeping `jq` would mean a host with it silently keeps retired dangerous entries while a host without it has them removed - the same divergence, relocated inside one installer.
+- **Removal propagation is manifest-sourced, never inferred.** An entry is retired only when a recorded manifest proves Nexus-Hub shipped it and the current template does not, so a user's own entry can never be mistaken for a stale one. No manifest means no removals, not guessed ones.
+- **Workspace target is `.claude/settings.local.json`, and the other three platforms skip with a note.** A guessed project path is worse than none because it reads as configured, and Copilot's only surface is commit-visible.
+- **The helper reports on stdout, not stderr.** Windows PowerShell 5.1 turns a redirected native stderr into `ErrorRecord`s and a false `$?`, so a stderr protocol cannot be shared by both installers.
+
+### Verification
+
+Full `tests/validators` + `tests/installer`: 978 passed, 17 skipped, 1 failed - the pre-existing v3.15.0 WN-1 environmental `tar` failure in `test_bootstrap.py`, which this phase's changes cannot reach. New suites 74 passed / 1 skipped (the real-`jq` leg; absent on this host, so byte parity is asserted against constructed output and runs against real `jq` in CI). Permission-baseline validator PASS on both shipped configs. `bash -n` and `shellcheck --severity=warning` clean; `installer.ps1` AST parse clean. `make` is unavailable on this host, so its targets were run as their underlying commands.
+
+### Known Issues
+
+Zero release blockers; this is Phase 1 of 6, not a release. Six items open in the new [v3.17 known-gaps ledger](v3/v3.17/known-gaps.md): NI-1 (output redirection under explicit allow rules is UNVERIFIED - load-bearing, and scheduled to ride Phase 4.1's live-build session), NI-2 (whether Gemini's matcher splits compound commands), DF-1 (Gemini ships no PowerShell or `cmd.exe` set), DF-2 (three platforms have no project-scoped permission target), DF-3 (the PowerShell-only permissions helper still has no cross-platform equivalent; Phase 5's CLI is its intended home), WN-1 (the carried bootstrap test). Two closed: BG-1 (the Windows removal-propagation gap) and BG-2 (the validator passing `Bash(gh api *)`, its own motivating example - found by the Phase 1.4 tests, fixed with a data-driven rule 3b).
+
 ## [2026-08-12] - v3.16.6 release: presentify verbosity intake [release]
 
 ### What Changed
