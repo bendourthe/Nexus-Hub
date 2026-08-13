@@ -1,7 +1,7 @@
 # Known Gaps - v3.17
 
 **Project**: Nexus-Hub
-**Status**: v3.17.0 `agent-autonomy-toggle` is IN FLIGHT on `develop`. Phase 1 (permission-baseline hardening and cross-platform merge parity) is COMPLETE; Phases 2-6 are not started.
+**Status**: v3.17.0 `agent-autonomy-toggle` is IN FLIGHT on `feat/v3.17.0-agent-autonomy-toggle` (separated from `develop`, which reverted this phase's checkpoint in `9d9e9a07` - see BG-4). Phase 1 (permission-baseline hardening and cross-platform merge parity) is COMPLETE; Phases 2-6 are not started.
 **Last updated**: 2026-08-13 (v3.17.0 Phase 1 append)
 
 > **File-lifecycle note**: this ledger is opened by the v3.17.0 Phase 1 append. Each subsequent v3.17.N version-implementation phase **appends** its own `## v3.17.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `MT-#` / `QG-#` numbering. Note that the v3.17.0 plan itself lives in this directory while its *predecessor* ledger entries sit in [../v3.16/known-gaps.md](../v3.16/known-gaps.md), an artifact of the v3.16-line re-stamp the plan's version-numbering note records.
@@ -10,7 +10,7 @@
 
 ## v3.17.0 - agent-autonomy-toggle
 
-**Status**: Phase 1 COMPLETE (2026-08-13). 6 open (NI-1, NI-2, DF-1, DF-2, DF-3, WN-1), 3 closed (BG-1, BG-2, BG-3), 0 release blockers. Plan: [plans/v3.17.0-agent-autonomy-toggle.md](plans/v3.17.0-agent-autonomy-toggle.md).
+**Status**: Phase 1 COMPLETE (2026-08-13). 6 open (NI-1, NI-2, DF-1, DF-2, DF-3, WN-1), 1 open (BG-4, latent and procedural) and 3 closed (BG-1, BG-2, BG-3), 0 release blockers. Plan: [plans/v3.17.0-agent-autonomy-toggle.md](plans/v3.17.0-agent-autonomy-toggle.md).
 
 ### NI-1 - OPEN: output redirection under an explicit allow rule is UNVERIFIED
 
@@ -82,13 +82,21 @@
 - **Resolution**: split by what each test is actually about. Seven exercise the PARSER's structural handling (if / elif / else, `select`, for-loop bodies, prefix variable assignments) and merely used `echo` as filler; they now measure against a module-level `STRUCTURAL_PATTERNS` list, so catalog policy and parser behavior can no longer break each other. The other seven were genuine policy assertions and are inverted, each with the I6 reasoning recorded inline and a note that little real capability is lost because Claude Code's built-in read-only set already covers `find` / `cat` / `echo` with real redirect analysis (matcher findings 3 and 5). One test was added asserting the rest of the pipeline vocabulary survived, so a future over-broad removal is caught.
 - **Lesson worth keeping**: a config change is a code change when a test suite reads that config. The coupling was invisible from the diff of the permission file, and only a full-suite run surfaced it - which is the argument for running the whole suite at the phase gate rather than only the suites a phase's own files live in.
 
+### BG-4 - OPEN (latent, procedural): develop reverted this phase's checkpoint, so a naive merge will drop the hardening
+
+- **Target**: the eventual `feat/v3.17.0-agent-autonomy-toggle` -> `develop` merge (Phase 6)
+- **Source phase**: v3.17.0 Phase 1, closing decision (maintainer directive, 2026-08-13)
+- **What happened**: Phase 1 began directly on `develop` and its checkpoint `9023e6c9` was pushed there, so the pending v3.16.7 presentify release inherited a permission-posture change it does not document, and inherited the 14-test hook regression BG-3 records. All v3.17.0 work was therefore separated onto this branch, and `develop` reverted the checkpoint in `9d9e9a07`. `develop` and the v3.16.7 branch are both green as a result.
+- **Why it is a latent defect and not just bookkeeping**: this is the classic revert-then-merge trap. This branch still CONTAINS `9023e6c9`, while `develop` now contains a commit that deliberately removed those changes. A plain `git merge` can therefore resolve in favour of the removal and silently drop the hardening, the validator, both installers' merge wiring, the Makefile and CI steps, and the matcher-findings document - with no conflict to warn anyone.
+- **Suggested next step (do this at the Phase 6 merge, not before)**: either revert `9d9e9a07` on this branch first, restoring the content, and then merge; or merge `develop` into this branch and resolve every conflicting path in favour of THIS branch. Either way, verify explicitly afterwards rather than trusting the merge: `configs/permissions/claude-permissions.json` still carries its `_hardening` block, `scripts/validate_permission_baseline.py` and `scripts/merge_permissions.py` exist, `make validate` still runs the baseline validator, and `tests/validators/test_validate_permission_baseline.py` plus `tests/installer/test_permission_scope_parity.py` still pass. A green suite is the check that matters, because the failure mode here is silent deletion rather than a broken build.
+
 ## v3.17 Summary
 
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented by design / unverified (`NI-#`) | 2 (NI-1, NI-2) | 0 |
 | Deferred (`DF-#`) | 3 (DF-1, DF-2, DF-3) | 0 |
-| Bugs (`BG-#`) | 0 | 3 (BG-1, BG-2, BG-3) |
+| Bugs (`BG-#`) | 1 (BG-4, latent: the revert-then-merge hazard) | 3 (BG-1, BG-2, BG-3) |
 | Warnings (`WN-#`) | 1 (WN-1, environmental, carried from v3.15.0) | 0 |
 | Missing tests (`MT-#`) | 0 | 0 |
 | Quality-gate bypasses (`QG-#`) | 0 | 0 |
