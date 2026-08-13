@@ -30,6 +30,7 @@
 | v3.15.8 Phase 2 tasks complete | 9 | 9 | 0 |
 | v3.15.8 Phase 3 tasks complete | 9 | 9 | 0 |
 | v3.15.8 Phase 4 tasks complete | 7 | 7 | 0 |
+| v3.17.1 plan phases complete | 0 | 6 | 6 |
 
 ## Parallel Plan - v3.15.8 Platform Parity and GitHub Usage Monitor [IN PROGRESS]
 
@@ -102,6 +103,17 @@
 - [x] Resolve WN-3 and reconcile the durable-store and declined-candidate gaps
 - [x] Audit all CI workflows for coverage and action-minute optimization
 - [x] Run validation, coverage, full tests, hook tests, and release-readiness checks
+
+## Parallel Plan - v3.17.1 Org Knowledge Layer [PLANNED]
+
+- [x] Deep research completed: `docs/v3/v3.17/development/org-knowledge-layer-research.md`
+- [x] Plan generated and design decisions confirmed: `docs/v3/v3.17/plans/v3.17.1-org-knowledge-layer.md`
+- [ ] Complete Phase 1: Org Bundle Contract
+- [ ] Complete Phase 2: Connect CLI
+- [ ] Complete Phase 3: Cross-Platform Materialization
+- [ ] Complete Phase 4: Guided Authoring Surface
+- [ ] Complete Phase 5: Lifecycle Integration and Docs
+- [ ] Complete Phase 6: Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
 
 ## Parallel Plan - v3.19.0 Cost-Effective CI/CD
 
