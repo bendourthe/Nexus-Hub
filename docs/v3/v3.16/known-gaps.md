@@ -1082,7 +1082,7 @@ Worth noting from Phase 1: the most valuable defect that phase found was not in 
 
 ## v3.16.7 - presentify-first-shot-hardening
 
-**Status**: IN FLIGHT, plan deliberately OPEN. Phase 1 shipped in `0dbc170f`; Phase 3 is an open intake for lessons from a live presentify session, and the release is blocked on it closing. 2 open (NI-1, WN-1 carried), 3 closed (BG-1, DF-1, DF-2). Plan: [plans/v3.16.7-presentify-first-shot-hardening.md](plans/v3.16.7-presentify-first-shot-hardening.md).
+**Status**: IN FLIGHT. Phases 1, 2, and 3 shipped (`0dbc170f`, `1b97cdf9`, and the Phase 3 commit); Phase 4 (terminal refactor, known-gaps reconciliation, CI/CD, release readiness) remains. The Phase 3 intake CLOSED on 2026-08-13 when the VectorCAST-session lessons arrived. 4 open (NI-2, NI-3, WN-2, WN-1 carried), 4 closed (BG-1, DF-1, DF-2, NI-1). Plan: [plans/v3.16.7-presentify-first-shot-hardening.md](plans/v3.16.7-presentify-first-shot-hardening.md).
 
 ### BG-1 - CLOSED: `0dbc170f` shipped a UTF-8 BOM that broke the skill's YAML frontmatter
 
@@ -1107,12 +1107,33 @@ Worth noting from Phase 1: the most valuable defect that phase found was not in 
 - **Resolution**: the v3.17.0 entries were removed here and preserved on `feat/v3.17.0-agent-autonomy-toggle`, where that code lives; the duplicate heading was merged. Two `v3.17.0` mentions remain in already-released sections as legitimate historical cross-references and were left alone.
 - **Lesson**: two agents sharing one working tree is the hazard, not the changelog. A `git add <file>` picks up whatever is in the tree, including another session's work in progress.
 
-### NI-1 - OPEN by design: Phase 3 is an open intake, so this release is not closable yet
+### NI-1 - CLOSED: the Phase 3 intake received its lessons and is built
 
 - **Target**: the plan's Phase 3
 - **Source phase**: maintainer directive, 2026-08-13
-- **Reason it is open**: the maintainer is running `/presentify` on another project and expects further first-shot lessons. The plan holds Phase 3 open so the whole batch ships in v3.16.7 rather than half of it, and the plan's intake protocol requires each lesson to name an OBSERVED defect - a guard with no observed defect behind it is declined by the `AGENTS.md` scope-fit rule.
-- **Suggested next step**: none until lessons arrive. Do NOT run `/update release` while Phase 3 is open.
+- **Why it was open**: the maintainer was running `/presentify` on another project and expected further first-shot lessons. The plan held Phase 3 open so the whole batch shipped in v3.16.7 rather than half of it, and the intake protocol required each lesson to name an OBSERVED defect, since a guard with no observed defect behind it is declined by the `AGENTS.md` scope-fit rule.
+- **Resolution**: the VectorCAST decision-brief session supplied 26 backlog items (`PRES-01` through `PRES-26`) plus five proposed gates on 2026-08-13. The intake closed, six sub-tasks were specified, and all six were built the same day. Every one traces to a defect observed in that session, so the scope-fit bar held without exception.
+
+### NI-2 - OPEN: Gates A, B, and E are agent behavior with no deterministic checker
+
+- **Target file**: `catalog/skills/specialized-domains/document-to-interactive-html/references/visual-qa-rubric.md`, `references/content-intent.md`
+- **Source phase**: v3.16.7 Phase 3 (sub-tasks 3.1, 3.3, 3.6)
+- **Reason it is open**: `scripts/visual_qa_score.py` can check a `content_intent` block's PRESENCE and shape, but not whether a `scope_class` is the right one, whether an assumption was genuinely accepted, or whether a visual explains its section. Those are judgments, and the same reasoning the maintainer applied to rubric criterion 10 in v3.16.5 applies here: a crude deterministic proxy produces false positives and trains the agent to satisfy the proxy. Enforcement is therefore record plus rubric, exactly as criterion 10 is.
+- **Suggested next step**: consider a NARROW structural check for the mechanically-decidable half only, namely the `content_intent` block's presence and field completeness, and the `standalone` banned-phrase scan (a literal string search over visible text, which is decidable). Leave the judgments to the rubric. Do not attempt to score decision coverage.
+
+### NI-3 - OPEN: the composition probes are specified but not implemented in a helper
+
+- **Target file**: `catalog/skills/specialized-domains/document-to-interactive-html/SKILL.md` Step 9
+- **Source phase**: v3.16.7 Phase 3 (sub-task 3.5)
+- **Reason it is open**: line count, width utilization, one-word orphan detection, rectangle intersection, and per-section density deltas are specified as `page.evaluate()` probes the grading agent writes inline, matching how the existing probes (root size, per-role smallest size, band fraction, `scrollWidth`, painted-canvas) are already specified. No bundled script computes them. That is consistent rather than a shortfall, and the `AGENTS.md` scope-fit gate declines a helper with no call site, but it does mean the probes are as reliable as the agent that writes them each run.
+- **Suggested next step**: if a future session finds the probes being skipped or written inconsistently, extract all of them (existing and new) into one bundled `scripts/render_probes.js` the loop injects verbatim. Do that as ONE extraction covering the whole probe set, not a second partial layer.
+
+### WN-2 - OPEN (pre-existing, unchanged): two ruff findings in the Phase 1 test module
+
+- **Target file**: `tests/skills/test_presentify_first_shot_hardening.py`
+- **Source phase**: v3.16.7 Phase 1 (introduced), observed at the Phase 3 gate
+- **Reason it is carried**: `ruff check` reports two findings (`subprocess.run` without an explicit `check=`) on the two `fit_map_projection.py` invocation tests. Verified pre-existing by stashing the Phase 3 changes and re-running: the identical two findings appear on the Phase 1 baseline. The `AGENTS.md` scope rule ("every changed line must trace directly to the request") declines fixing adjacent code inside this phase.
+- **Suggested next step**: add `check=False` to both calls in the Phase 4 terminal refactor, where a cleanliness pass is in scope by definition.
 
 ### WN-1 - OPEN (carried from v3.16.6): `generate_manifest.py` hashes working-tree bytes
 
@@ -1134,6 +1155,6 @@ Worth noting from Phase 1: the most valuable defect that phase found was not in 
 | v3.16.4 version-implementation gaps | not recorded - the v3.16.4 cycle (GitHub Usage Monitor account-pinned sessions, shipped 2026-08-11 from a parallel session) added no section to this file. Stated as an observed absence, not as a claim that the cycle had none. | n/a |
 | v3.16.5 version-implementation gaps (all 7 phases, reconciled) | 9 carried (NI-2, NI-3, NI-4, NI-5, WN-1, WN-3, WN-4 by design, each with a named place where the render loop answers it; DF-2 accepted, DF-3 declined for want of a call site) | 9 closed (MT-1, DF-1, DF-4, BG-1, BG-2, BG-3, BG-E1, plus v3.15's MT-1 and MT-2) |
 | v3.16.6 version-implementation gaps (both phases + release, reconciled) | 2 carried (NI-1 verbosity contract is agent behavior, by design; WN-1 `generate_manifest.py` is generation-environment-dependent, routed to the next `scripts/`-touching cycle) | 3 closed (DF-1 the unbookkept v3.16.5 deferral; QG-1 the CI path filter missing the command file; BG-1 the shipped v3.16.5 CRLF manifest, fixed by the v3.16.6 regeneration) |
-| v3.16.7 version-implementation gaps (Phase 1 shipped; plan OPEN at Phase 3) | 2 (NI-1 the open intake, by directive; WN-1 the carried manifest-generator item) | 3 closed (BG-1 the frontmatter-breaking BOM; DF-1 the missing plan artifact; DF-2 the cross-session changelog contamination) |
+| v3.16.7 version-implementation gaps (Phases 1-3 shipped; Phase 4 terminal remains) | 4 (NI-2 Gates A/B/E are agent behavior by the same reasoning as criterion 10; NI-3 composition probes specified inline, no bundled helper yet; WN-2 two pre-existing ruff findings, routed to Phase 4; WN-1 the carried manifest-generator item) | 4 closed (BG-1 the frontmatter-breaking BOM; DF-1 the missing plan artifact; DF-2 the cross-session changelog contamination; NI-1 the open intake, closed by the VectorCAST lessons) |
 
 The three comparison-sourced items remain non-blocking prose folds with named target files. Of the v3.16.0 items, BG-1 is pre-existing and reproduces without this plan's changes, WN-1 is environmental, DF-1 is a reasoned non-implementation, NI-1 is a deliberate scope boundary the plan requires, and NI-2 / NI-3 / NI-4 are Phase 2 findings that Phase 3 and Phase 5 are already scheduled to dispose of. Phase 5 dispositioned every open item: 13 closed, 3 carried forward. **None gates the v3.16.0 release.** NI-1 and NI-6 are scope decisions for cycles already touching the relevant surfaces, and BG-1 is pre-existing, reproduced on a clean `develop` worktree, and confined to a Windows host whose PATH resolves `tar` to the Git Bash binary. Of the 13 closed, three (BG-2, BG-3, and QG-3) were caught by the test suite rather than by review, which is this cycle's strongest argument for running the full suite before declaring a phase done.
