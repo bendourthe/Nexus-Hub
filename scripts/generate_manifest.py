@@ -32,8 +32,33 @@ Manifest scope (documented and stable):
 This tool is strictly local: stdlib ``hashlib`` only (reused from
 ``scripts/lib/integrations/manifest.py``), no network access, no credential, and
 no third-party dependency. Output ordering is sorted by path so the manifest is
-byte-stable across runs on the same tree (cross-OS byte-equality is not
-guaranteed because git autocrlf can change line endings on checkout).
+byte-stable across runs on the same tree.
+
+Hashing source (v3.16.7, closes the v3.16.5 / v3.16.6 CRLF defect). For a
+TRACKED file inside a git work tree, the hash is taken over the file's **git
+blob bytes** (read from the index via ``git cat-file``), not over the bytes
+sitting in the working tree. That distinction is the whole fix. With
+``core.autocrlf=true`` and ``* text=auto``, a Windows checkout materializes
+every text file with CRLF, so hashing working-tree bytes produced a manifest
+that disagreed with the published artifact on essentially every text file --
+v3.16.5 shipped exactly that, and ``nexus-hub verify`` would have reported ~520
+spurious mismatches against a tarball install. Git stores the normalized (LF)
+form, and the release tarball is built from those same blobs, so hashing the
+blob makes the manifest describe what is actually distributed, from any OS with
+any line-ending configuration.
+
+Two consequences worth stating rather than discovering:
+
+* The manifest reflects the INDEX, which is the content that will be committed.
+  A tracked file with unstaged edits is therefore hashed as its staged form, and
+  the tool prints a warning naming the dirty covered paths so a stale manifest
+  cannot be generated silently. Stage first, then generate.
+* Untracked-but-covered files, and any run outside a git work tree (an installed
+  tree, an exported tarball), fall back to hashing file bytes exactly as before.
+  ``verify_install.py`` needs no matching change: it runs against an extracted
+  tarball, whose on-disk bytes ARE the blob bytes. A user who instead installs
+  from a Windows git clone with autocrlf enabled would still see line-ending
+  mismatches; that is a documented boundary, not a regression.
 
 Usage:
     python scripts/generate_manifest.py            # write <repo>/MANIFEST.sha256
@@ -48,7 +73,9 @@ Exit codes:
 from __future__ import annotations
 
 import argparse
+import hashlib
 import os
+import subprocess
 import sys
 from pathlib import Path
 from typing import Dict, Iterator, List, Tuple
@@ -139,18 +166,138 @@ def _relpath_posix(path: Path, root: Path) -> str:
     return path.relative_to(root).as_posix()
 
 
+def _git(root: Path, *args: str, binary: bool = False):
+    """Run a git command in ``root``; return the CompletedProcess, or None.
+
+    Returns None for every "git is not usable here" case (git missing, not a work
+    tree, non-zero exit), so callers degrade to file-byte hashing rather than
+    failing. Never raises.
+    """
+    try:
+        # Fixed argv, no shell: nothing here is user-controlled.
+        return subprocess.run(
+            ["git", "-C", str(root), *args],
+            capture_output=True,
+            check=False,
+            text=not binary,
+        )
+    except (OSError, ValueError):  # pragma: no cover - git absent
+        return None
+
+
+def _git_blob_sha256(root: Path) -> Dict[str, str]:
+    """Map ``relative-posix-path -> sha256`` of each tracked file's GIT BLOB bytes.
+
+    Returns an empty mapping when git is unusable, which makes every caller fall
+    back to working-tree bytes. Reads the index (``git ls-files -s``) because the
+    index holds the normalized content that will be committed and tarballed; see
+    the module docstring for why the working tree is the wrong source.
+    """
+    listing = _git(root, "ls-files", "-s", "-z", "--", *COVERED_ROOTS)
+    if listing is None or listing.returncode != 0 or not listing.stdout:
+        return {}
+
+    oids: List[str] = []
+    paths: List[str] = []
+    for record in listing.stdout.split("\0"):
+        if not record or "\t" not in record:
+            continue
+        meta, _, rel = record.partition("\t")
+        fields = meta.split()
+        if len(fields) < 2:
+            continue
+        mode, oid = fields[0], fields[1]
+        if mode == "160000":  # a submodule gitlink has no blob to hash
+            continue
+        if _is_excluded_file(Path(rel).name):
+            continue
+        if any(_is_excluded_dir(part) for part in Path(rel).parts[:-1]):
+            continue
+        oids.append(oid)
+        paths.append(rel)
+
+    if not oids:
+        return {}
+
+    # One `cat-file --batch` for the whole set: a process per file would be
+    # thousands of spawns on this catalog.
+    try:
+        # Fixed argv, no shell; oids come from git's own index listing.
+        proc = subprocess.run(
+            ["git", "-C", str(root), "cat-file", "--batch"],
+            input="\n".join(oids).encode("ascii") + b"\n",
+            capture_output=True,
+            check=False,
+        )
+    except (OSError, ValueError):  # pragma: no cover - git absent
+        return {}
+    if proc.returncode != 0:
+        return {}
+
+    return _parse_cat_file_batch(proc.stdout, paths)
+
+
+def _parse_cat_file_batch(payload: bytes, paths: List[str]) -> Dict[str, str]:
+    """Parse ``git cat-file --batch`` output into ``{path: sha256}``.
+
+    The wire format per record is ``<oid> SP <type> SP <size> LF <contents> LF``.
+    Sizes are read from the header rather than scanning for a delimiter, because
+    blob contents are arbitrary bytes and may contain anything at all.
+    """
+    result: Dict[str, str] = {}
+    offset = 0
+    for rel in paths:
+        newline = payload.find(b"\n", offset)
+        if newline == -1:
+            break
+        header = payload[offset:newline].split()
+        if len(header) < 3:  # "<oid> missing" - skip this record
+            offset = newline + 1
+            continue
+        try:
+            size = int(header[2])
+        except ValueError:
+            break
+        start = newline + 1
+        result[rel] = hashlib.sha256(payload[start : start + size]).hexdigest()
+        offset = start + size + 1  # trailing LF after the contents
+    return result
+
+
+def _dirty_covered_paths(root: Path) -> List[str]:
+    """Return covered paths with unstaged changes, so a stale manifest is loud."""
+    status = _git(root, "status", "--porcelain", "--", *COVERED_ROOTS)
+    if status is None or status.returncode != 0:
+        return []
+    dirty: List[str] = []
+    for line in status.stdout.splitlines():
+        if len(line) < 4:
+            continue
+        worktree_flag = line[1]
+        if worktree_flag not in (" ", "?"):  # modified/deleted relative to the index
+            dirty.append(line[3:].strip())
+    return dirty
+
+
 def compute_manifest(root: Path) -> List[Tuple[str, str]]:
     """Return a sorted list of ``(relative-posix-path, sha256-hex)`` entries.
 
-    Files that cannot be hashed (unreadable, vanished mid-walk) are skipped.
-    The list is sorted by path so the serialized manifest is byte-stable.
+    Tracked files are hashed over their git blob bytes so the manifest matches the
+    distributed artifact regardless of the generating host's line-ending settings;
+    untracked files (and any non-git tree) fall back to file bytes. Files that
+    cannot be hashed (unreadable, vanished mid-walk) are skipped. The list is
+    sorted by path so the serialized manifest is byte-stable.
     """
+    blob_hashes = _git_blob_sha256(root)
     entries: List[Tuple[str, str]] = []
     for file_path in iter_catalog_files(root):
-        digest = _hash_path(file_path)
+        rel = _relpath_posix(file_path, root)
+        digest = blob_hashes.get(rel)
+        if digest is None:
+            digest = _hash_path(file_path)
         if digest is None:
             continue
-        entries.append((_relpath_posix(file_path, root), digest))
+        entries.append((rel, digest))
     entries.sort(key=lambda entry: entry[0])
     return entries
 
@@ -234,6 +381,17 @@ def main(argv: List[str] | None = None) -> int:
     if not root.is_dir():
         _eprint(f"generate_manifest: root directory not found: {root}")
         return 2
+
+    # Tracked files are hashed from the INDEX, so unstaged edits would be recorded
+    # in their staged form. Name them rather than let a stale manifest ship quietly.
+    dirty = _dirty_covered_paths(root)
+    if dirty:
+        shown = ", ".join(dirty[:5]) + (f" (+{len(dirty) - 5} more)" if len(dirty) > 5 else "")
+        _eprint(
+            "generate_manifest: WARNING - unstaged changes under the covered roots "
+            f"are hashed as their STAGED content: {shown}"
+        )
+        _eprint("generate_manifest: stage those changes first if they belong in this release.")
 
     if args.to_stdout:
         entries = compute_manifest(root)

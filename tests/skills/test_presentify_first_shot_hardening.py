@@ -169,6 +169,7 @@ def test_fit_map_projection_fits_and_emits_js(tmp_path):
         capture_output=True,
         text=True,
         timeout=60,
+        check=False,
     )
     assert result.returncode == 0, result.stderr
     assert "function projPct(lat,lon)" in result.stdout
@@ -186,6 +187,7 @@ def test_fit_map_projection_rejects_thin_anchor_sets(tmp_path):
         capture_output=True,
         text=True,
         timeout=60,
+        check=False,
     )
     assert result.returncode == 2
     assert "too few" in result.stderr
