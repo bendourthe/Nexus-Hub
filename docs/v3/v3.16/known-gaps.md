@@ -1082,7 +1082,9 @@ Worth noting from Phase 1: the most valuable defect that phase found was not in 
 
 ## v3.16.7 - presentify-first-shot-hardening
 
-**Status**: RECONCILED, awaiting `/update release`. All four phases shipped (`0dbc170f`, `1b97cdf9`, the Phase 3 commit, and the Phase 4 commit). The Phase 3 intake CLOSED on 2026-08-13 when the VectorCAST-session lessons arrived, and Phase 4 closed the long-carried manifest defect at its root. 3 open (NI-2 and NI-3 by design, WN-3 accepted style consistency), 6 closed (BG-1, DF-1, DF-2, NI-1, WN-1, WN-2). No release blocker remains. Plan: [plans/v3.16.7-presentify-first-shot-hardening.md](plans/v3.16.7-presentify-first-shot-hardening.md).
+**Status**: RELEASED 2026-08-13 (tag `v3.16.7`, `main` at `254d124e`, GitHub Release published). One post-release finding is open: `BG-2`, an `eol=crlf` residual in the WN-1 manifest fix, found by verifying the published tarball. 4 open (NI-2, NI-3, WN-3, BG-2), 6 closed.
+
+**Prior status line**: RECONCILED, awaiting `/update release`. All four phases shipped (`0dbc170f`, `1b97cdf9`, the Phase 3 commit, and the Phase 4 commit). The Phase 3 intake CLOSED on 2026-08-13 when the VectorCAST-session lessons arrived, and Phase 4 closed the long-carried manifest defect at its root. 3 open (NI-2 and NI-3 by design, WN-3 accepted style consistency), 6 closed (BG-1, DF-1, DF-2, NI-1, WN-1, WN-2). No release blocker remains. Plan: [plans/v3.16.7-presentify-first-shot-hardening.md](plans/v3.16.7-presentify-first-shot-hardening.md).
 
 ### BG-1 - CLOSED: `0dbc170f` shipped a UTF-8 BOM that broke the skill's YAML frontmatter
 
@@ -1142,6 +1144,17 @@ Worth noting from Phase 1: the most valuable defect that phase found was not in 
 - **Reason it is open**: the WN-1 fix added code using `Dict` / `List` / `Tuple` from `typing`, matching the module's existing convention (it already imports and uses them throughout, which is where the 10 baseline findings came from). `ruff` default rules flag these as `UP006` / `UP035` in favor of PEP 585 lowercase generics. Ruff is NOT a CI gate in this repo and no `[tool.ruff]` config exists, so these are advisory findings from an ad-hoc invocation, not a failing check.
 - **Why it was not fixed here**: modernizing only the new functions would leave one module written two ways, and modernizing the whole module is an out-of-scope style refactor of release-critical tooling during a release phase. The project rule to write code that reads like the surrounding code points the same way.
 - **Suggested next step**: if the repo ever adopts a `[tool.ruff]` config with `UP` enabled, modernize this module in ONE pass rather than incrementally.
+
+### BG-2 - OPEN, found POST-RELEASE by verifying the published v3.16.7 tarball: `eol=crlf` files still mismatch
+
+- **Target file**: `scripts/generate_manifest.py`
+- **Source phase**: v3.16.7 Phase 4.2 (the WN-1 fix), discovered immediately after publishing by downloading the real release artifact and running `verify_install.py` against it
+- **What is wrong**: the WN-1 fix hashes a tracked file's GIT BLOB bytes, which is right for every file whose distributed form is the blob. It is WRONG for a file carrying an explicit `eol=crlf` attribute, because `git archive` (and therefore the GitHub tarball) applies that conversion, so the distributed bytes are CRLF while the blob is LF. `.gitattributes` declares `scripts/nexus-hub.cmd text eol=crlf` (deliberately, so the Windows launcher ships with CRLF), and it is the ONLY such file in the covered roots (`git check-attr eol` over `catalog templates scripts data` returns exactly one `eol: crlf`).
+- **Measured impact**: verifying the published `Nexus-Hub-3.16.7.tar.gz` reports `OK 1230 file(s) match` and `MODIFIED scripts/nexus-hub.cmd`, verdict `FAIL (1 modified, 0 missing, 0 extra)`. Confirmed by hash: the blob has 0 CRLF and hashes `ae471239...`, the tarball copy hashes `e314f2c6...`.
+- **Honest framing**: this is a large net improvement, not a regression. Before the fix the same check would have reported roughly 678 mismatches (every text file); it now reports one. But `nexus-hub verify` returns FAIL on any modification, so a user running it against a clean v3.16.7 install still sees FAIL, and that is a real user-facing defect rather than a cosmetic one.
+- **Why it was not caught earlier**: the Phase 4 verification hashed against the INDEX and sampled 8 entries, all of which happened to be ordinary text files. The defect only appears when the check is run against the actual distributed artifact, which is why downloading the published tarball was worth doing and should become the standard last step of a release.
+- **Suggested fix**: in `_git_blob_sha256`, batch `git check-attr eol` over the same path list and, for any path resolving to `eol: crlf`, convert LF to CRLF before hashing. An `eol: lf` path needs nothing (the blob is already LF). The more thorough alternative is to hash `git archive` output directly, which is by definition the distributed artifact; prefer that only if more attribute classes appear, since it is more machinery for one file today.
+- **Suggested process fix**: add the tarball round-trip (download the published archive, run `verify_install.py`, expect `PASS`) to the release flow as the final gate, so a manifest defect is caught by the release rather than by a user.
 
 ### Phase 4.1 audit record (verified, not assumed)
 
