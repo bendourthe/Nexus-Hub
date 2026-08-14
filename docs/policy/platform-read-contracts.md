@@ -2,18 +2,18 @@
 
 This is the durable, sourced source of truth for where every supported platform READS each surface (instruction file, slash commands, skills, agents, rules, hooks) and where the Nexus-Hub installer WRITES it. It supersedes the point-in-time snapshot at `docs/v3/v3.11/platform-read-contracts.md` (which resolved the v3.11.0 Phase 7 audit but left the Codex and Antigravity contracts flagged as unverified).
 
-**Last verified**: 2026-08-12 for v3.16.6.
+**Last verified**: 2026-08-13 for v3.16.7.
 
-**v3.16.6 pass (targeted, fourth consecutive).** Two platforms were re-fetched from live first-party documentation; the remaining eight carry forward from the 2026-08-08 full pass. v3.16.6 changes no platform discovery surface: the changed set is confined to one skill bundle, its command file, `tests/`, one workflow path filter, and `docs/` (no read path, no adapter, no installer, no `base-*.md`, no `data/` registry).
+**v3.16.7 pass (targeted, fifth consecutive).** Two platforms were re-fetched from live first-party documentation; the remaining eight carry forward from the 2026-08-08 full pass. v3.16.7 changes no platform discovery surface, and that was verified by diff rather than asserted: filtering `git diff --name-only develop..HEAD` for installer / integrations / `base-*.md` / `platform-read-contracts` returns zero matches. The changed set is one skill bundle (plus its new `references/content-intent.md`), its command file, `scripts/generate_manifest.py` (release tooling, no read path), `tests/`, and `docs/`, plus the version constants in both installers.
 
 | Platform | Verdict | Evidence |
 |---|---|---|
-| Claude Code | **MATCH** | Personal `~/.claude/skills/<skill-name>/SKILL.md` and project `.claude/skills/<skill-name>/SKILL.md` confirmed, with enterprise > personal > project precedence on name collisions. The commands surface remains supported. [Source](https://code.claude.com/docs/en/skills) |
-| Codex / ChatGPT | **DRIFT (low), fifth consecutive cycle** | Discovery still documents the `.agents/skills` ladder (scanned `$CWD` up to the repo root, plus user / admin / system locations); `~/.codex/skills` is still absent. NEW SIGNAL, recorded not actioned: a Skills-and-Plugins surface with a universal plugin directory shared by ChatGPT and Codex now exists - a distribution channel, not a read-path change; evaluate at the next full pass. [Source](https://learn.chatgpt.com/docs/build-skills) |
+| Claude Code | **MATCH** | Personal `~/.claude/skills/<skill-name>/SKILL.md` and project `.claude/skills/<skill-name>/SKILL.md` confirmed, with enterprise > personal > project precedence on name collisions. Custom commands remain merged into skills, existing `.claude/commands/` files keep working, and a skill takes precedence over a same-named command - so the commands write stays valid. [Source](https://code.claude.com/docs/en/skills) |
+| Codex / ChatGPT | **DRIFT (low), sixth consecutive cycle** | Discovery documents the ladder `$CWD/.agents/skills`, `$CWD/../.agents/skills`, `$REPO_ROOT/.agents/skills`, `$HOME/.agents/skills`, `/etc/codex/skills`, plus bundled system skills; `~/.codex/skills` is still absent. The page also states that `~/.codex/config.toml` is separate from discovery and governs only enable/disable, which does not change the read-path picture. [Source](https://learn.chatgpt.com/docs/build-skills) |
 
-**Codex finding, handling.** Unchanged and still non-breaking; the retained `~/.codex/skills` write stays on the recorded reasoning. The deliberate-removal proposal recorded at v3.16.5 stands, to be executed at the next minor alongside the owed full pass.
+**Codex finding, handling.** Unchanged and still non-breaking; `$HOME/.agents/skills` is explicitly confirmed and Nexus-Hub writes it, so delivery reaches Codex regardless. The retained `~/.codex/skills` write stays on the recorded reasoning (writing a directory a platform ignores is harmless; removing one it does read would silently drop coverage). Six stable cycles is conclusive rather than suggestive, so the deliberate-removal proposal is now **owed** at v3.17.0 and should not be deferred a seventh time.
 
-**A full pass is owed at v3.17.0.** Four consecutive targeted passes have now deferred it.
+**A full pass is owed at v3.17.0.** Five consecutive targeted passes have now deferred it.
 
 ---
 

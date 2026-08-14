@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.16.6 -->
+<!-- nexus-hub-version: 3.16.7 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 271 skills, 17 commands, 31 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -36,6 +36,20 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v3.16.7
+
+**`/presentify` now asks what the page is FOR, before it authors anything.** A real session produced a page that was offline, responsive, browser-verified, and structurally clean, and was still the wrong artifact: it critiqued a draft the audience had never seen, estimated a reusable commercial platform when a bounded pilot was requested, argued against an assumption the reader had already granted, and led with a visual that explained nothing. Every existing gate passed, because every existing gate asks whether the page *works*. A new content brief closes that gap: a **source relationship** (defaulting to `standalone`, which forbids referring to the source at all), the **decision the reader must be able to make**, an **assumption ledger** whose accepted premises no heading may argue with, and a **scope class** so a bounded pilot never inherits a platform-scale timeline.
+
+**Visuals must now state their job before they are built.** Each major visual records a contract (question, message, encoding, states, trigger, fallback, evidence) and faces a subtractive test: remove it, and if the section loses no explanatory value, redesign it or *omit* it. Omission is explicitly allowed, because a gate that can only demand more visual work is a cost generator. Scrollytelling sections additionally declare a state table, so scroll motion has to match the narrative's own transitions rather than merely accompany them.
+
+**Layout composition became measurable.** The typography contract gained the inverse of its old failure: text that is correctly sized and correctly measured while using half its track, and sections that are viewport-tall for no reason. Wrap plans for display text, measure assigned by text *role* (long-form prose is the only default recipient of the reading measure), a 70%-of-track utilization floor, and binary earned section height - that last one needed its own rule because a universal `min-height: 82svh` is viewport-relative, so it passed the fluid-spacing check while being exactly the defect. The render loop gained matching probes (line counts, width utilization, one-word orphans, text-graphic collision, per-section density deltas) inside the `page.evaluate()` it already ran.
+
+**QA has four named layers now, and three of them can fail a page a green build cannot.** Content, semantic-visual, structural, and behavioral - with Gate A running before authoring (so a mismatch costs an outline revision, not a rebuild), Gate B before detailed styling (and it may *remove* a visual), and an optional reader-level decision-readiness check at the end. A document cannot receive a final pass on the structural and behavioral layers alone.
+
+**Supply-chain fix: `MANIFEST.sha256` now describes what is distributed.** The generator hashed working-tree bytes, so a manifest built on Windows (where autocrlf materializes every text file as CRLF) disagreed with the released tarball on essentially every text file - v3.16.5 shipped exactly that, and `nexus-hub verify` would have reported roughly 520 spurious mismatches. Tracked files are now hashed over their git blob bytes, which *are* the tarball's bytes, making the manifest correct by construction from any OS with any line-ending configuration.
+
+Catalog counts are unchanged at **271 skills**, **17 commands**, **31 hooks**, and **23 agents**. This release deepens one existing skill (`document-to-interactive-html`) and its command surface, fixes release tooling, and adds no new catalog content or opt-in capability.
 
 ## What's New in v3.16.6
 
