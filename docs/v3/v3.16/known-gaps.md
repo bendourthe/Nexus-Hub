@@ -1082,7 +1082,7 @@ Worth noting from Phase 1: the most valuable defect that phase found was not in 
 
 ## v3.16.7 - presentify-first-shot-hardening
 
-**Status**: RELEASED 2026-08-13 (tag `v3.16.7`, `main` at `254d124e`, GitHub Release published). Two post-release findings are open: `BG-2`, an `eol=crlf` residual in the WN-1 manifest fix found by verifying the published tarball (both halves now ingested into the v3.16.8 plan as sub-tasks 1.3 and 2.3), and `NI-4`, the process gap that let the model map go 11 days stale because the advisory freshness step was allowed to answer UNKNOWN. 5 open (NI-2, NI-3, NI-4, WN-3, BG-2), 6 closed.
+**Status**: RELEASED 2026-08-13 (tag `v3.16.7`, `main` at `254d124e`, GitHub Release published). Three post-release findings, all from checks that should have run during the release: `BG-2`, an `eol=crlf` residual in the WN-1 manifest fix found by verifying the published tarball (both halves ingested into the v3.16.8 plan as sub-tasks 1.3 and 2.3); `NI-4`, the process gap that let the model map go 11 days stale because the advisory freshness step was allowed to answer UNKNOWN; and `QG-1` (closed), a capability-gate declaration that read correctly to a human and matched none of the checker's patterns. A full governance audit of all six release steps is recorded at the end of this section. 5 open (NI-2, NI-3, NI-4, WN-3, BG-2), 7 closed (QG-1 added and closed by the governance audit).
 
 **Prior status line**: RECONCILED, awaiting `/update release`. All four phases shipped (`0dbc170f`, `1b97cdf9`, the Phase 3 commit, and the Phase 4 commit). The Phase 3 intake CLOSED on 2026-08-13 when the VectorCAST-session lessons arrived, and Phase 4 closed the long-carried manifest defect at its root. 3 open (NI-2 and NI-3 by design, WN-3 accepted style consistency), 6 closed (BG-1, DF-1, DF-2, NI-1, WN-1, WN-2). No release blocker remains. Plan: [plans/v3.16.7-presentify-first-shot-hardening.md](plans/v3.16.7-presentify-first-shot-hardening.md).
 
@@ -1166,7 +1166,46 @@ Worth noting from Phase 1: the most valuable defect that phase found was not in 
 - **Why it stays open**: the DATA is fixed; the PROCESS that let it rot is not. An advisory step that can answer UNKNOWN and be treated as satisfied will produce the same outcome next release.
 - **Suggested next step**: make the release-scope step enumerate the roster (or refresh the map file) before it is allowed to report, so its only outcomes are FRESH or DRIFT, never UNKNOWN. Keep it non-blocking on the release itself, per the deliberate decoupling of prompting freshness from the release clock recorded in `/update release` governance step 5, but require it to produce a verdict. Deliberately NOT folded into the v3.16.8 plan: that plan is watermark hygiene and has already absorbed one ingested item (`BG-2`), and adding a third unrelated concern would turn it into a junk drawer. Needs a home chosen by the maintainer.
 
+### QG-1 - CLOSED: the capability-gate no-change declaration was mechanically invisible
+
+- **Target file**: `CHANGELOG.md` (the `[3.16.7]` section), and the published GitHub Release body
+- **Source phase**: `/update release` governance step 6, found by the post-release governance audit (2026-08-14)
+- **What was wrong**: the declaration read "This release introduces no NEW opt-in capability, installer flag, env-var-gated surface, or managed skill." Semantically exact, and invisible to `scripts/check_release_capability_docs.py`, whose `NO_CHANGE_PATTERNS` match `no opt-in (capability|surface)` or `changes? no opt-in`. The single word "new" sits between `no` and `opt-in` and breaks every pattern, so the checker reported `FAIL: no explicit no-change declaration found`, which is its way of saying "this release looks unchecked".
+- **Why it matters more than a wording nit**: the gate exists precisely to distinguish "checked and none applied" from "never checked", and the script's own comment says a false CLEAR is the failure it is built to prevent. A declaration that satisfies a human reader and fails the machine leaves the release in the same evidentiary state as one where the gate was skipped.
+- **Root cause of the miss**: the mechanical companion was never run. Governance step 6 offers `check_release_capability_docs.py` as advisory support, and I wrote the declaration by hand and did not invoke it. Advisory tooling that is not run provides no signal.
+- **Resolution**: reworded to "This release changes no opt-in capability, ..." which matches pattern 2. Verified with `--strict` (the promoted hard-gate mode), not just the default advisory mode: `OK ... explicit no-change declaration present`, exit 0. The published GitHub Release body was updated in place with `gh release edit` so the shipped artifact carries the same corrected text.
+- **Suggested durable fix**: run `check_release_capability_docs.py` as part of governance step 6 rather than treating it as optional, and consider promoting it to `--strict` now that it has caught a real omission, which is the exact promotion condition the command file already states.
+
 ### Phase 4.1 audit record (verified, not assumed)
+
+### Post-release governance audit (2026-08-14, maintainer-requested)
+
+Every `/update release` requirement re-checked against what was actually executed. Recorded because two gaps were found by asking rather than by the flow.
+
+| Requirement | Verdict |
+|---|---|
+| docs: headline counts | PASS. 271 skills / 17 commands (+3 aliases) / 31 hooks (33 files less two shared `_` libraries) / 23 agents, all verified against the registries, no drift. |
+| docs: internal MCP server list | PASS. 4 `nexus-*` servers, count and names verified. |
+| docs: "What's New" narrative | PASS. v3.16.7 section added. |
+| docs: removed / renamed surfaces | PASS (verified late). `git diff --diff-filter=DR` over `catalog/` and `scripts/` across the release range returns nothing, so no doc can be presenting a removed surface as current. |
+| docs: per-version tree | PASS. `docs/v3/v3.16/` with `plans/` and `comparisons/`. |
+| devlog | PASS (no-op). No `DEVLOG.md` in this repo. |
+| gitignore: patterns + tracked index | PASS. 0 patterns needed, no tracked `__pycache__`. |
+| gitignore: LFS recommendation | PASS (verified late). No tracked file exceeds 5 MB, so there is no LFS candidate. |
+| version: atomic bump | PASS. All 7 surfaces, guard clean before and after. |
+| changelog | PASS. `[Unreleased]` finalized to `[3.16.7]`. |
+| refactor: whole-docs-tree canonicalization | PASS (verified late). `docs/` already holds only `docs/v3/v3.<minor>/`, and the archive is already `docs/archive/v<major>/v<major>.<minor>/`. No migration was needed, which is why not running `--canonicalize-layout` explicitly cost nothing here. |
+| refactor: project cleanliness detectors | PASS. Run in Phase 4.1. |
+| Step 1: known-gaps reconciliation | PASS. |
+| Step 2: full architecture refactor | PASS. |
+| Step 3: CI/CD covers + optimized | PASS. All 16 changed files covered; optimizations already present. |
+| Step 4: platform read-contract (HARD gate) | PASS. Re-verified and re-stamped for v3.16.7; both `check_platform_contract_freshness.py` and `verify_platform_contracts.py` green. |
+| Step 5: prompting-profile staleness (advisory) | **INITIALLY MISSED, now PASS.** Accepted `UNKNOWN` during the release; re-run with the roster enumerated returns `IN SYNC: 4 model(s) match the live roster`. Tracked as `NI-4` for the process half. Note the distinction that caused the confusion: this step grades `profiles-index.json`, which is a DIFFERENT artifact from `last-known-model-map.json`. The map was genuinely stale; the profile layer was not. |
+| Step 6: capability usage gate | **INITIALLY FAILED mechanically, now PASS.** See `QG-1`; the declaration was correct prose that matched no pattern, and the advisory checker was never run. |
+| Supply-chain manifest | PARTIAL. Regenerated after the bump and before the commit as required, and 8/8 sampled entries matched their blobs, but the artifact itself was wrong for one file: see `BG-2`. |
+| GitHub Release publishing | PASS. Published from the changelog section, marked Latest, backfill checked (releases tracked tags through v3.16.6), body later updated for `QG-1`. |
+
+**The pattern across all three misses is the same**: every one was a step with a runnable mechanical companion that was not run (`check_model_prompting_freshness.py` with a roster, `check_release_capability_docs.py`, and verification against the real tarball). None was a missing requirement in the command file. The requirements were adequate; execution substituted judgment for the available check.
 
 The plan required these be recorded rather than presumed:
 

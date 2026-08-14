@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Opt-in capability changes (release capability usage gate)
 
-- **None.** This release introduces no new opt-in capability, installer flag, env-var-gated surface, or managed skill. The content-intent layer, the composition rules, and the four QA gates are authoring doctrine inside an existing skill, reached through the existing `/presentify` command with no new activation mechanism, no new authority or privacy boundary, and nothing to disable. The `scripts/generate_manifest.py` change alters no interface: same CLI, same `sha256sum -c` output format, same `nexus-hub verify` contract.
+- **None.** This release changes no opt-in capability, installer flag, env-var-gated surface, or managed skill. The content-intent layer, the composition rules, and the four QA gates are authoring doctrine inside an existing skill, reached through the existing `/presentify` command with no new activation mechanism, no new authority or privacy boundary, and nothing to disable. The `scripts/generate_manifest.py` change alters no interface: same CLI, same `sha256sum -c` output format, same `nexus-hub verify` contract.
 
 ### Added
 
