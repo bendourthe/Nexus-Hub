@@ -34,29 +34,45 @@ This tool is strictly local: stdlib ``hashlib`` only (reused from
 no third-party dependency. Output ordering is sorted by path so the manifest is
 byte-stable across runs on the same tree.
 
-Hashing source (v3.16.7, closes the v3.16.5 / v3.16.6 CRLF defect). For a
-TRACKED file inside a git work tree, the hash is taken over the file's **git
-blob bytes** (read from the index via ``git cat-file``), not over the bytes
-sitting in the working tree. That distinction is the whole fix. With
-``core.autocrlf=true`` and ``* text=auto``, a Windows checkout materializes
-every text file with CRLF, so hashing working-tree bytes produced a manifest
-that disagreed with the published artifact on essentially every text file --
-v3.16.5 shipped exactly that, and ``nexus-hub verify`` would have reported ~520
-spurious mismatches against a tarball install. Git stores the normalized (LF)
-form, and the release tarball is built from those same blobs, so hashing the
-blob makes the manifest describe what is actually distributed, from any OS with
-any line-ending configuration.
+Hashing source (v3.16.7, refined in v3.16.8). For a TRACKED file inside a git
+work tree, the hash is taken over the bytes the file is **distributed** as: its
+git blob (read from the index via ``git cat-file``) passed through the path's
+``eol`` attribute, rather than the bytes sitting in the working tree.
 
-Two consequences worth stating rather than discovering:
+Both halves of that are load-bearing, and each was learned from a shipped defect:
+
+* **Blob, not working tree** (v3.16.7, the ``WN-1`` fix). With
+  ``core.autocrlf=true`` and ``* text=auto``, a Windows checkout materializes
+  every text file with CRLF, so hashing working-tree bytes produced a manifest
+  that disagreed with the published artifact on essentially every text file --
+  v3.16.5 shipped exactly that, and ``nexus-hub verify`` would have reported ~520
+  spurious mismatches against a tarball install. Git stores the normalized (LF)
+  form, so hashing the blob removes the generating host's line-ending settings
+  from the result entirely.
+* **Then the ``eol`` attribute** (v3.16.8, the ``BG-2`` fix). The blob alone is
+  still not the distributed form, because ``git archive`` APPLIES
+  ``.gitattributes``. This repo declares ``scripts/nexus-hub.cmd text eol=crlf``
+  deliberately, so the Windows launcher ships with CRLF while its blob is LF.
+  v3.16.7 shipped the blob-only version and the published tarball verified
+  ``1230 OK, 1 MODIFIED`` -- a huge improvement on ~520, and still a FAIL verdict,
+  because ``verify`` fails on any single mismatch. ``_git_eol_attrs`` therefore
+  batches one ``git check-attr --stdin -z eol`` over the same path list and
+  ``_apply_eol`` converts only the paths that resolve to ``crlf``.
+
+Three consequences worth stating rather than discovering:
 
 * The manifest reflects the INDEX, which is the content that will be committed.
   A tracked file with unstaged edits is therefore hashed as its staged form, and
   the tool prints a warning naming the dirty covered paths so a stale manifest
   cannot be generated silently. Stage first, then generate.
+* An ``eol`` attribute added or changed in ``.gitattributes`` changes the manifest
+  for every path it covers. That is correct rather than surprising -- it changes
+  the distributed bytes -- but it means a ``.gitattributes`` edit is a
+  manifest-affecting change and should be followed by a regeneration.
 * Untracked-but-covered files, and any run outside a git work tree (an installed
   tree, an exported tarball), fall back to hashing file bytes exactly as before.
   ``verify_install.py`` needs no matching change: it runs against an extracted
-  tarball, whose on-disk bytes ARE the blob bytes. A user who instead installs
+  tarball, whose on-disk bytes are what this generator now models. A user who instead installs
   from a Windows git clone with autocrlf enabled would still see line-ending
   mismatches; that is a documented boundary, not a regression.
 
@@ -185,13 +201,66 @@ def _git(root: Path, *args: str, binary: bool = False):
         return None
 
 
+def _git_eol_attrs(root: Path, paths: List[str]) -> Dict[str, str]:
+    """Map ``relative-posix-path -> resolved ``eol`` attribute`` for ``paths``.
+
+    Only paths whose attribute resolves to a concrete value are returned;
+    ``unspecified`` / ``unset`` are omitted, so a caller can treat a missing key
+    as "no conversion". One batched ``git check-attr --stdin`` for the whole set,
+    matching the single-batch discipline of the ``cat-file`` call below.
+
+    This exists because ``git archive`` -- and therefore the release tarball --
+    APPLIES the ``eol`` attribute, while the blob stores the normalized form. For
+    a path declared ``text eol=crlf`` the distributed bytes are CRLF and the blob
+    is LF, so hashing the blob alone reports a false MODIFIED for that file. See
+    the module docstring; this is the v3.16.7 ``BG-2`` defect.
+    """
+    if not paths:
+        return {}
+    try:
+        # Fixed argv, no shell; paths come from git's own index listing.
+        proc = subprocess.run(
+            ["git", "-C", str(root), "check-attr", "--stdin", "-z", "eol"],
+            input="\0".join(paths).encode("utf-8") + b"\0",
+            capture_output=True,
+            check=False,
+        )
+    except (OSError, ValueError):  # pragma: no cover - git absent
+        return {}
+    if proc.returncode != 0:
+        return {}
+
+    # `-z` output is a flat NUL-separated stream of (path, attr, value) triples.
+    fields = proc.stdout.decode("utf-8", "replace").split("\0")
+    resolved: Dict[str, str] = {}
+    for index in range(0, len(fields) - 2, 3):
+        rel, _attr, value = fields[index], fields[index + 1], fields[index + 2]
+        if rel and value in ("crlf", "lf"):
+            resolved[rel] = value
+    return resolved
+
+
+def _apply_eol(payload: bytes, eol: str) -> bytes:
+    """Return ``payload`` with the line endings ``git archive`` would produce.
+
+    The blob is already LF-normalized, so ``lf`` is a no-op and only ``crlf``
+    converts. Normalizing CRLF to LF first makes the conversion idempotent rather
+    than doubling any CR that somehow survived into the blob.
+    """
+    if eol != "crlf":
+        return payload
+    return payload.replace(b"\r\n", b"\n").replace(b"\n", b"\r\n")
+
+
 def _git_blob_sha256(root: Path) -> Dict[str, str]:
-    """Map ``relative-posix-path -> sha256`` of each tracked file's GIT BLOB bytes.
+    """Map ``relative-posix-path -> sha256`` of each tracked file's DISTRIBUTED bytes.
 
     Returns an empty mapping when git is unusable, which makes every caller fall
     back to working-tree bytes. Reads the index (``git ls-files -s``) because the
     index holds the normalized content that will be committed and tarballed; see
-    the module docstring for why the working tree is the wrong source.
+    the module docstring for why the working tree is the wrong source. The blob is
+    then passed through the path's ``eol`` attribute so the hash matches what
+    ``git archive`` emits, not merely what the object store holds.
     """
     listing = _git(root, "ls-files", "-s", "-z", "--", *COVERED_ROOTS)
     if listing is None or listing.returncode != 0 or not listing.stdout:
@@ -234,16 +303,23 @@ def _git_blob_sha256(root: Path) -> Dict[str, str]:
     if proc.returncode != 0:
         return {}
 
-    return _parse_cat_file_batch(proc.stdout, paths)
+    return _parse_cat_file_batch(proc.stdout, paths, _git_eol_attrs(root, paths))
 
 
-def _parse_cat_file_batch(payload: bytes, paths: List[str]) -> Dict[str, str]:
+def _parse_cat_file_batch(
+    payload: bytes, paths: List[str], eol_attrs: Dict[str, str] | None = None
+) -> Dict[str, str]:
     """Parse ``git cat-file --batch`` output into ``{path: sha256}``.
 
     The wire format per record is ``<oid> SP <type> SP <size> LF <contents> LF``.
     Sizes are read from the header rather than scanning for a delimiter, because
     blob contents are arbitrary bytes and may contain anything at all.
+
+    ``eol_attrs`` maps a path to its resolved ``eol`` attribute; a path present
+    there is converted to the line endings ``git archive`` would emit before it is
+    hashed. Omitting the argument preserves pure blob hashing.
     """
+    attrs = eol_attrs or {}
     result: Dict[str, str] = {}
     offset = 0
     for rel in paths:
@@ -259,7 +335,10 @@ def _parse_cat_file_batch(payload: bytes, paths: List[str]) -> Dict[str, str]:
         except ValueError:
             break
         start = newline + 1
-        result[rel] = hashlib.sha256(payload[start : start + size]).hexdigest()
+        contents = payload[start : start + size]
+        if rel in attrs:
+            contents = _apply_eol(contents, attrs[rel])
+        result[rel] = hashlib.sha256(contents).hexdigest()
         offset = start + size + 1  # trailing LF after the contents
     return result
 
