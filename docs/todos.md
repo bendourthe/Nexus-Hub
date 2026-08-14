@@ -31,6 +31,7 @@
 | v3.15.8 Phase 3 tasks complete | 9 | 9 | 0 |
 | v3.15.8 Phase 4 tasks complete | 7 | 7 | 0 |
 | v3.17.1 plan phases complete | 0 | 6 | 6 |
+| v3.17.2 plan phases complete | 0 | 7 | 7 |
 
 ## Parallel Plan - v3.15.8 Platform Parity and GitHub Usage Monitor [IN PROGRESS]
 
@@ -114,6 +115,18 @@
 - [ ] Complete Phase 4: Guided Authoring Surface
 - [ ] Complete Phase 5: Lifecycle Integration and Docs
 - [ ] Complete Phase 6: Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
+
+## Parallel Plan - v3.17.2 DeepSeek Harness Adoption [PLANNED]
+
+- [x] Comparison report written: `docs/v3/v3.17/comparisons/v3.17.2-comparison-deepseek-harness.md`
+- [x] Plan generated and phase breakdown confirmed: `docs/v3/v3.17/plans/v3.17.2-adoption-deepseek-harness.md`
+- [ ] Complete Phase 1: Doc Word Budgets (B1)
+- [ ] Complete Phase 2: deepseek-harness Skill (A1)
+- [ ] Complete Phase 3: Skill Extensions (A2 + A3 + A4)
+- [ ] Complete Phase 4: Decision-Record Lifecycle (B2)
+- [ ] Complete Phase 5: Registry Entry Drift-Check (B4)
+- [ ] Complete Phase 6: Invocation-Policy Frontmatter (B3)
+- [ ] Complete Phase 7: Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
 
 ## Parallel Plan - v3.19.0 Cost-Effective CI/CD
 

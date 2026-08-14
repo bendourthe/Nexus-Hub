@@ -58,6 +58,10 @@ Web search uses public documentation and adds no new credential or dependency. T
 
 Every plan `generate-plan` / `implementation-plan` produces now ends with a mandatory final phase - "Architecture Refactor, Known-Gaps Reconciliation, and CI/CD" - and each phase's testing sub-task also creates/updates and optimizes CI/CD for that phase's changes. This is part of the plan contract, not a dispatcher responsibility: the template and the design rules live in the `[[implementation-plan]]` skill (its "Mandatory Final Phase" block and the "Terminal refactor phase" / "CI/CD per phase" design guidelines). This dispatcher only surfaces the guarantee; it does not duplicate the template.
 
+## Unicode hygiene of the written plan (guarantee)
+
+Every plan file this command writes is sanitized before it is presented: the retained skill's Step 4 closing pass runs `python scripts/validate_unicode_safety.py --strict --fix --root . --path <plan-file>` on the just-written file (and again on the final file when Step 5 rewrites it), so invisible characters and non-ASCII punctuation never reach a plan the user reads. The pass is scoped to that one file, never the repository, and a non-zero exit after the fix blocks presenting the plan. This dispatcher only surfaces the guarantee; the rules live in the `[[implementation-plan]]` skill.
+
 ## Delegation
 
 Dispatch the resolved scope to the retained skill(s):

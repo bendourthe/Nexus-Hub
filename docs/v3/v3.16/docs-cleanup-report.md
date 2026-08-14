@@ -227,3 +227,16 @@ The plan's terminal gate. Unlike the prior six entries this one APPLIED a change
 - **Docs layout: clean, no action.** `docs/v3/v3.16/` holds `plans/` (5), `comparisons/` (4), `development/` (6 + `history/` 32), and exactly the two conventional root files (`known-gaps.md`, `docs-cleanup-report.md`). Matches the established per-version scheme; nothing to move.
 - **No scratch docs committed** across any of the seven phases. Every per-sub-task patch script, the ground-truth render harness, the seeded-regression prover, and the cinematic verification build ran from the session scratchpad; the durable half of each was promoted into the test suite.
 - **Prior cleanup entries stand unmodified.** This file is append-only per its own v3.16.3 precedent.
+
+## v3.16.8 Phase 3 - terminal refactor and reconciliation (audit mode, 2026-08-14)
+
+The `adoption-watermark-hygiene` plan's terminal gate. Audit only: no file was moved, renamed, or deleted.
+
+- **Docs layout: clean, no action.** `docs/v3/v3.16/` holds `comparisons/`, `development/` (with `history/`), `plans/`, and exactly the two conventional root files (`known-gaps.md`, `docs-cleanup-report.md`). The v3.16.8 plan and its seeding comparison are co-located, satisfying the co-location rule.
+- **Four empty directories, all deliberately left.** `.antigravitycli` and `.claude/worktrees` are gitignored local runtime dirs. `docs/v3/v3.17/development/history` and `docs/v3/v3.20/comparisons` are other versions' scaffolding, and v3.17 has ACTIVE work from a parallel session in this same tree, so cleaning it would be both out of scope and disruptive to another session.
+- **One stray root artifact, left rather than deleted.** `pytest-out.log` is gitignored (`*.log`), untracked, dated 2026-05-22, and absent from `MANIFEST.sha256`, so it never ships. It is a local scratch file in the user's working tree, not a repository artifact.
+- **No tracked caches**: zero `__pycache__` or `.pyc` under version control.
+- **No deferred-work markers**: zero `TODO` / `FIXME` / `XXX` / `HACK` / `# DEVIATION:` across every code and instruction file this version changed.
+- **No new artifact needs an installer edit.** This version changed one existing repo-level script (`scripts/validate_unicode_safety.py`, already registered by explicit name in both installers), two `catalog/commands/` files, and one `catalog/skills/` SKILL.md. The two catalog trees are copied recursively, so no installer edit and no registry update is owed. No `.ps1` sibling is owed either: the parity rule covers `catalog/hooks/*.sh`, and nothing here is a hook.
+- **No scratch docs committed.** Every smoke test, path probe, and character-histogram script ran from the session scratchpad.
+- **Prior cleanup entries stand unmodified**, per this file's append-only v3.16.3 precedent.

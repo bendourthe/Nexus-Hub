@@ -2,7 +2,18 @@
 
 This is the durable, sourced source of truth for where every supported platform READS each surface (instruction file, slash commands, skills, agents, rules, hooks) and where the Nexus-Hub installer WRITES it. It supersedes the point-in-time snapshot at `docs/v3/v3.11/platform-read-contracts.md` (which resolved the v3.11.0 Phase 7 audit but left the Codex and Antigravity contracts flagged as unverified).
 
-**Last verified**: 2026-08-13 for v3.16.7.
+**Last verified**: 2026-08-14 for v3.16.8.
+
+**v3.16.8 pass (targeted, sixth consecutive).** Two platforms were re-fetched from live first-party documentation; the remaining eight carry forward from the 2026-08-08 full pass and are explicitly **not re-verified this cycle** rather than assumed to match. v3.16.8 changes no platform discovery surface, verified by diff rather than asserted: filtering `git diff --name-only origin/main..HEAD` for installer / integrations / `base-*.md` / `platform-read-contracts` / `platform-defaults` returns zero matches. The changed set is one repo-level script (`scripts/validate_unicode_safety.py`, which carries no read path), two `catalog/commands/` files, one `catalog/skills/` SKILL.md, `tests/`, and `docs/`, plus the version constants in both installers.
+
+| Platform | Verdict | Evidence |
+|---|---|---|
+| Claude Code | **MATCH** | Personal `~/.claude/skills/<skill-name>/SKILL.md` and project `.claude/skills/<skill-name>/SKILL.md` confirmed verbatim, with enterprise > personal > project precedence on collisions, `.claude/commands/` files still working, and a skill taking precedence over a same-named command. Two ADDITIONS observed, neither affecting what Nexus-Hub writes: skills now also load from nested `.claude/skills/` directories below the working directory (a monorepo affordance, additive to discovery), and the folder name `synced` is now RESERVED in all three locations for claude.ai-synced skills. Nexus-Hub ships no skill named `synced` (checked against all 271), so the reservation is a non-issue. [Source](https://code.claude.com/docs/en/skills) |
+| Codex / ChatGPT | **DRIFT (low), seventh consecutive cycle** | The documented ladder is `$CWD/.agents/skills`, `$CWD/../.agents/skills`, `$REPO_ROOT/.agents/skills`, `$HOME/.agents/skills`, `/etc/codex/skills`, plus bundled skills; `~/.codex/skills` is still absent. Folder-per-skill `SKILL.md` with optional `scripts/` / `references/` / `assets/` confirmed, and CLI invocation is `$skill`. [Source](https://learn.chatgpt.com/docs/build-skills) |
+
+**Codex finding, handling.** Unchanged and still non-breaking: `$HOME/.agents/skills` is explicitly confirmed and Nexus-Hub writes it, so delivery reaches Codex regardless. This is the SEVENTH stable cycle, one past the point the v3.16.7 pass called conclusive and declared the deliberate-removal proposal **owed** at v3.17.0. It should not be deferred an eighth time.
+
+**Redirect check (the rebrand tripwire).** Both fetched source URLs resolved directly, with no cross-host redirect, so no vendor reorganization or rename signal this cycle.
 
 **v3.16.7 pass (targeted, fifth consecutive).** Two platforms were re-fetched from live first-party documentation; the remaining eight carry forward from the 2026-08-08 full pass. v3.16.7 changes no platform discovery surface, and that was verified by diff rather than asserted: filtering `git diff --name-only develop..HEAD` for installer / integrations / `base-*.md` / `platform-read-contracts` returns zero matches. The changed set is one skill bundle (plus its new `references/content-intent.md`), its command file, `scripts/generate_manifest.py` (release tooling, no read path), `tests/`, and `docs/`, plus the version constants in both installers.
 
