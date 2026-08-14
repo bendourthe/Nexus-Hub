@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v3.16.3 `github-usage-monitor-ux` is RELEASED (all six phases; 8 closed, 8 carried, 0 release blockers). v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (all 5 phases complete; reconciled and release-ready, unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
-**Last updated**: 2026-08-14 (v3.16.8 section opened for `adoption-watermark-hygiene` Phases 1-2: NI-1 the deliberate VS16 exemption, WN-1 the accepted CJK limitation, MT-1 the Windows-skipped mode test, BG-1 and BG-2 both pre-existing suite failures observed but not introduced, QG-1 the combined two-phase commit. Phase 3 reconciles.) Previously 2026-08-13 (v3.16.7 section opened: Phase 1 shipped in `0dbc170f`, plan reverse-engineered and held OPEN at Phase 3 for incoming live-session lessons; BG-1 the frontmatter-breaking BOM, DF-1 the missing plan artifact and DF-2 the cross-session changelog contamination all closed.)
+**Last updated**: 2026-08-14 (v3.16.8 `adoption-watermark-hygiene` reconciled at its terminal Phase 3: 4 closed, 2 carried, 0 release blockers. The carried pair are WN-1, an accepted CJK ideographic-variation limitation with a named revisit trigger, and BG-1, pre-existing and environmental.) Previously 2026-08-13 (v3.16.7 section opened: Phase 1 shipped in `0dbc170f`, plan reverse-engineered and held OPEN at Phase 3 for incoming live-session lessons; BG-1 the frontmatter-breaking BOM, DF-1 the missing plan artifact and DF-2 the cross-session changelog contamination all closed.)
 
 > **File-lifecycle note**: this ledger was created ahead of any v3.16 implementation, by a comparison that deliberately claimed no release slot, so it began with only the `## Comparison-Sourced Deferrals` section. Each v3.16 version-implementation phase **appends** its own `## v3.16.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` numbering, which is namespaced separately from the `CD-#` and `TR-#` ids used above.
 
@@ -1237,7 +1237,7 @@ The plan required these be recorded rather than presumed:
 
 Opened at Phase 1 (validator coverage + fix mode) and extended at Phase 2 (`/plan` and `/update` wiring). Sub-tasks 1.3 and 2.3, the ingested v3.16.7 `BG-2` halves, were already complete on entry and are not re-litigated here.
 
-### NI-1 - OPEN by design: the VS16 rule deviates from the plan's literal prescription
+### NI-1 - CLOSED (by design, reconciled Phase 3): the VS16 rule deviates from the plan's literal prescription
 
 - **Source phase**: Phase 1, sub-task 1.1.
 - **Plan reference**: sub-task 1.1 prescribes `U+FE0F variation selector-16 (delete)` with no exemption.
@@ -1252,12 +1252,12 @@ Opened at Phase 1 (validator coverage + fix mode) and extended at Phase 2 (`/pla
 - **Why accepted**: zero instances exist in the tree, the finding is a warning unless `--strict` is passed, and the alternative is an ideograph-range table maintained for a case with no observed occurrence, which the `AGENTS.md` scope-fit gate declines. The limitation is stated in the `variation_selector_is_legitimate` docstring and the module docstring rather than left for discovery.
 - **Suggested next step**: extend the exemption to `Lo`-category bases if a real CJK document ever enters the scanned set.
 
-### MT-1 - OPEN: the file-mode preservation test cannot run on Windows
+### MT-1 - CLOSED (reconciled Phase 3): the file-mode preservation test cannot run on Windows
 
 - **Source phase**: Phase 1, sub-task 1.2.
 - **Symptom**: `test_fix_preserves_executable_bit` is `skipif sys.platform == "win32"`, so the local development host never exercises it. `atomic_write` uses `shutil.copymode` before `os.replace` specifically so a repaired `.sh` does not lose its executable bit, and that guarantee is unverified locally.
 - **Mitigating coverage**: CI runs `python -m pytest tests/validators -v` on its Linux runner, where the test executes.
-- **Suggested next step**: none beyond confirming the CI leg stays green; the skip is correct rather than a gap in intent.
+- **Reconciliation verdict (Phase 3)**: CLOSED. The CI leg was verified rather than assumed: `.github/workflows/ci.yml` line 497 runs `python -m pytest tests/validators -v` on the Linux runner, and line 576 runs `tests/installer tests/validators -q` on the Windows one, so the suite executes on both platforms and the mode assertion executes where file modes exist. The local skip is correct behavior, not a coverage gap.
 
 ### BG-1 - OPEN (pre-existing, not introduced here): PowerShell bootstrap tarball test
 
@@ -1274,7 +1274,7 @@ Opened at Phase 1 (validator coverage + fix mode) and extended at Phase 2 (`/pla
 - **Fix applied**: the assertion now reads `verified_as_of` from the snapshot and interpolates it, so it enforces the CONTRACT (the fallback renders the snapshot's own date in that exact sentence) rather than a frozen calendar date. The one-line expectation bump was rejected in favour of this because it would have re-armed the same time bomb for the next map refresh, and this cycle is the second time the map has been refreshed. `tests/plans` 91 passed.
 - **Why it was fixed here despite being out of scope**: it is a one-line test-only change on the same branch, for the same version, broken by a sibling commit of this very plan (`b29a0ffa`), and leaving it red would have meant handing Phase 3 a suite that cannot go green.
 
-### QG-1 - OPEN (process): Phase 1's commit gate did not run before Phase 2 began
+### QG-1 - CLOSED (reconciled Phase 3, no corrective action): Phase 1's commit gate did not run before Phase 2 began
 
 - **Source phase**: Phase 1, step 8.10.
 - **Symptom**: Phase 1 reached its quality gate with two unresolved (pre-existing) suite failures and was awaiting a gate decision when Phase 2 was requested, so Phase 1's post-phase sequence never ran independently and the two phases share one commit rather than one each.
@@ -1285,6 +1285,20 @@ Opened at Phase 1 (validator coverage + fix mode) and extended at Phase 2 (`/pla
 
 - **The one-time `CHANGELOG.md` normalization was a design consequence, not an incident.** A changelog is a single file holding the new entry and all history, so the release gate's file-level scoping cannot spare its old sections. Seven characters in sections released between v0.8.2 and v1.2.1 were rewritten once (6 em dashes to `--`, 1 en dash to `-`), deliberately and with the diff verified character by character. The repo-wide warning count moved 1049 to 1042 accordingly. Every later run is a no-op on history.
 - **Two silent-failure defects were found by testing the wiring rather than the code.** A `--path` target that did not resolve under `--root` exited 0 reporting a clean scan, and an absolute path outside root raised a bare `ValueError`. Both were found only by running the exact command Phase 2 was about to document, from a foreign project root. Neither was reachable from the phase's own unit tests, because those always pass a root that contains the target.
+
+### Phase 3 reconciliation (terminal phase)
+
+**Architecture refactor**: a genuine no-op, executed rather than skipped. No tracked `__pycache__` or `.pyc`. The `docs/v3/v3.16/` tree is canonical (`comparisons/`, `development/`, `plans/`, plus the two governance files), and the v3.16.8 plan is co-located with its seeding comparison per the co-location rule. Four empty directories exist and all four were deliberately left: `.antigravitycli` and `.claude/worktrees` are gitignored local runtime dirs, and `docs/v3/v3.17/development/history` + `docs/v3/v3.20/comparisons` are other versions' scaffolding (v3.17 has active work from a parallel session, so touching it would be both out of scope and disruptive). One stray root artifact, `pytest-out.log`, is gitignored, untracked, dated 2026-05-22, and absent from the manifest, so it never ships; it is a local scratch file and was left rather than deleted from the user's working tree.
+
+**Deferred-work markers**: none. A scan of every code and instruction file this version changed found zero `TODO` / `FIXME` / `XXX` / `HACK` / `# DEVIATION:` markers.
+
+**CI/CD**: verified, no change required. `concurrency` with `cancel-in-progress` (line 81), pip caching on both Python jobs (97, 475), and a `paths` filter of `**` minus `docs/**` with validator-input re-inclusions were all already present. Every surface this plan touched is covered: `tests/validators` runs on the Linux (497) and Windows (576) legs, `tests/skills` (500) covers the edited command and skill prose, and `tests/plans` (507) covers the model-map fix. The repo-wide detect step calls the validator with no arguments and is untouched by any change here. Deliberately NOT added: a repo-wide `--strict` CI gate, which would fail on the 1042 grandfathered warnings; strictness belongs to the pre-commit release gate over release-cycle artifacts, which is exactly how Phase 2 wired it.
+
+**Model-prompting-profile staleness (advisory, 9.0 step 4)**: verdict **DRIFTED**, which is an acceptable terminal outcome; UNKNOWN would not have been. The roster was enumerated FIRST, from `last-known-model-map.json` as refreshed from live first-party documentation on 2026-08-14 (commit `b29a0ffa`, sources cited in the plan), and passed as 15 explicit ids rather than letting the check answer UNKNOWN about a roster it was never given. Result: the profile layer was last verified 2026-07-27 against a roster that no longer matches, with 12 live-but-unprofiled ids and 1 recorded-but-not-live.
+
+The single "removed" entry deserves a caveat rather than action: `claude-haiku-4-5-20251001` and the map's `claude-haiku-4-5` are the SAME model, the dated id versus its alias. So that removal is a naming artifact of comparing two artifacts that spell the id differently, and it will recur on every run until one side adopts the other's form. The 12 additions are real. Per the step's contract this is ADVISORY: it does not block the release, the freshness marker was NOT re-stamped (only a real research run may write it), and the follow-up is `/tune-prompting` on its own schedule.
+
+**Verdict**: 4 closed (NI-1 by design, MT-1 by verified CI coverage, BG-2 by the derived-date fix, QG-1 as a recorded historical fact), 2 carried (WN-1 the accepted CJK limitation with a named revisit trigger; BG-1 pre-existing, environmental, and already tracked as v3.16.0 `BG-1`). **No release blockers.**
 
 ## v3.16 Summary
 
@@ -1299,7 +1313,7 @@ Opened at Phase 1 (validator coverage + fix mode) and extended at Phase 2 (`/pla
 | v3.16.4 version-implementation gaps | not recorded - the v3.16.4 cycle (GitHub Usage Monitor account-pinned sessions, shipped 2026-08-11 from a parallel session) added no section to this file. Stated as an observed absence, not as a claim that the cycle had none. | n/a |
 | v3.16.5 version-implementation gaps (all 7 phases, reconciled) | 9 carried (NI-2, NI-3, NI-4, NI-5, WN-1, WN-3, WN-4 by design, each with a named place where the render loop answers it; DF-2 accepted, DF-3 declined for want of a call site) | 9 closed (MT-1, DF-1, DF-4, BG-1, BG-2, BG-3, BG-E1, plus v3.15's MT-1 and MT-2) |
 | v3.16.6 version-implementation gaps (both phases + release, reconciled) | 2 carried (NI-1 verbosity contract is agent behavior, by design; WN-1 `generate_manifest.py` is generation-environment-dependent, routed to the next `scripts/`-touching cycle) | 3 closed (DF-1 the unbookkept v3.16.5 deferral; QG-1 the CI path filter missing the command file; BG-1 the shipped v3.16.5 CRLF manifest, fixed by the v3.16.6 regeneration) |
-| v3.16.8 version-implementation gaps (Phases 1-2, Phase 3 pending) | 5 open (NI-1 deliberate VS16 deviation; WN-1 accepted CJK limitation; MT-1 Windows-skipped mode test covered on the CI Linux leg; BG-1 pre-existing and environmental; QG-1 the combined Phase 1 + 2 commit) | 1 closed (BG-2, the stale model-map date assertion, fixed by deriving the date from the snapshot rather than bumping it) |
+| v3.16.8 version-implementation gaps (all 3 phases, reconciled) | 2 carried (WN-1 the accepted CJK ideographic-variation limitation, with a named revisit trigger; BG-1 pre-existing and environmental, already tracked as v3.16.0 `BG-1`) | 4 closed (NI-1 the VS16 deviation, deliberate and measured; MT-1 by verified CI coverage on both legs; BG-2 the stale model-map date assertion, fixed by deriving the date from the snapshot rather than bumping it; QG-1 the combined Phase 1 + 2 commit, recorded rather than corrected) |
 | v3.16.7 version-implementation gaps (all 4 phases, reconciled) | 3 (NI-2 Gates A/B/E are agent behavior by the same reasoning as criterion 10; NI-3 composition probes specified inline like the existing probes, no bundled helper yet; WN-3 legacy `typing` generics kept for module consistency, advisory only since ruff is not a CI gate) | 6 closed (BG-1 the frontmatter-breaking BOM; DF-1 the missing plan artifact; DF-2 the cross-session changelog contamination; NI-1 the open intake, closed by the VectorCAST lessons; **WN-1 the manifest generator, carried since v3.16.5 and root-caused here by hashing git blob bytes**; WN-2 the two ruff findings) |
 
 The three comparison-sourced items remain non-blocking prose folds with named target files. Of the v3.16.0 items, BG-1 is pre-existing and reproduces without this plan's changes, WN-1 is environmental, DF-1 is a reasoned non-implementation, NI-1 is a deliberate scope boundary the plan requires, and NI-2 / NI-3 / NI-4 are Phase 2 findings that Phase 3 and Phase 5 are already scheduled to dispose of. Phase 5 dispositioned every open item: 13 closed, 3 carried forward. **None gates the v3.16.0 release.** NI-1 and NI-6 are scope decisions for cycles already touching the relevant surfaces, and BG-1 is pre-existing, reproduced on a clean `develop` worktree, and confined to a Windows host whose PATH resolves `tar` to the Git Bash binary. Of the 13 closed, three (BG-2, BG-3, and QG-3) were caught by the test suite rather than by review, which is this cycle's strongest argument for running the full suite before declaring a phase done.

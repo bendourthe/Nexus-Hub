@@ -1,5 +1,30 @@
 # Development Log
 
+## [2026-08-14] - v3.16.8 Phase 3: terminal refactor and reconciliation [phase]
+
+### What Changed
+
+No behavior change. The terminal phase ran its three detectors, reconciled the version's known gaps, and verified CI/CD. The only file edits were documentation: the known-gaps reconciliation, this entry, and the phase session history.
+
+### Why It Changed
+
+The terminal phase exists so a version does not ship with its layout, gaps, and pipeline in an unexamined state. Its value here was confirming that the answer is "nothing to do" by running the checks, rather than assuming it because the plan was small.
+
+### Decisions Made
+
+- **Four empty directories left in place.** Two are gitignored local runtime dirs; two are v3.17 / v3.20 scaffolding, and v3.17 has active work from a parallel session in this tree, so cleaning it would be both out of scope and disruptive.
+- **`pytest-out.log` left rather than deleted.** Gitignored, untracked, absent from the manifest, dated 2026-05-22. It is a local scratch file in the working tree, not a repository artifact.
+- **No repo-wide `--strict` CI gate added.** It would fail on the 1042 grandfathered warnings; strictness belongs to the pre-commit release gate over release-cycle artifacts, where Phase 2 put it. Recorded as a deliberate non-addition so a later reader does not "complete" it.
+- **The advisory prompting-freshness marker was NOT re-stamped.** The check returned DRIFTED, which is a real verdict rather than the UNKNOWN a bare invocation produces; only a genuine research run may write the marker.
+
+### Verification
+
+Validate battery green (14 gates); repo-wide unicode 0 errors / 1042 warnings; release hygiene gate exit 0; compression accuracy gate PASSED (CCR 100.0%, reduction 45.8%); `tests/integrations` + `tests/installer` 947 passed / 17 skipped / 1 failed (`BG-1`), which closes the evidence gap Phase 2 left open; `tests/plans` + `tests/validators` 698 passed.
+
+### Known Issues
+
+Six v3.16.8 items reconciled: 4 closed, 2 carried, **0 release blockers**. Carried are `WN-1` (accepted CJK ideographic-variation limitation with a named revisit trigger) and `BG-1` (pre-existing, environmental, already tracked as v3.16.0 `BG-1`). Separately, the prompting-profile layer is DRIFTED against the live roster, advisory only, with `/tune-prompting` as the follow-up on its own schedule. One caveat recorded there: a "removed" model is really `claude-haiku-4-5-20251001` versus its alias `claude-haiku-4-5`, so that entry is a naming artifact and will recur until one artifact adopts the other's form.
+
 ## [2026-08-14] - v3.16.8 Phases 1-2: Unicode watermark hygiene [phase]
 
 ### What Changed
