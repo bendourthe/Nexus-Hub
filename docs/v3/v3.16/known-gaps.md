@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v3.16.3 `github-usage-monitor-ux` is RELEASED (all six phases; 8 closed, 8 carried, 0 release blockers). v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (all 5 phases complete; reconciled and release-ready, unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
-**Last updated**: 2026-08-12 (v3.16.6 Phase 1 append: coverage-depth axis shipped; NI-1 by design, DF-1 documented for Phase 2, QG-1 closed. v3.16.5 has since been RELEASED and merged to `develop`.)
+**Last updated**: 2026-08-13 (v3.16.7 section opened: Phase 1 shipped in `0dbc170f`, plan reverse-engineered and held OPEN at Phase 3 for incoming live-session lessons; BG-1 the frontmatter-breaking BOM, DF-1 the missing plan artifact and DF-2 the cross-session changelog contamination all closed.)
 
 > **File-lifecycle note**: this ledger was created ahead of any v3.16 implementation, by a comparison that deliberately claimed no release slot, so it began with only the `## Comparison-Sourced Deferrals` section. Each v3.16 version-implementation phase **appends** its own `## v3.16.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` numbering, which is namespaced separately from the `CD-#` and `TR-#` ids used above.
 
@@ -1080,6 +1080,90 @@ Worth noting from Phase 1: the most valuable defect that phase found was not in 
 - **What was wrong**: `tests/skills/test_presentify_intake.py` has asserted on `catalog/commands/presentify.md` since v3.16.5 Phase 4, and this phase added more such assertions - but the workflow's path filters did not include the command file, so a command-only edit would merge without running the suite that guards it (the same silent-ungating shape as v3.16.5 MT-1's fixture-move hazard).
 - **Resolution**: `catalog/commands/presentify.md` added to both the `push` and `pull_request` path filters (2 lines).
 
+## v3.16.7 - presentify-first-shot-hardening
+
+**Status**: RECONCILED, awaiting `/update release`. All four phases shipped (`0dbc170f`, `1b97cdf9`, the Phase 3 commit, and the Phase 4 commit). The Phase 3 intake CLOSED on 2026-08-13 when the VectorCAST-session lessons arrived, and Phase 4 closed the long-carried manifest defect at its root. 3 open (NI-2 and NI-3 by design, WN-3 accepted style consistency), 6 closed (BG-1, DF-1, DF-2, NI-1, WN-1, WN-2). No release blocker remains. Plan: [plans/v3.16.7-presentify-first-shot-hardening.md](plans/v3.16.7-presentify-first-shot-hardening.md).
+
+### BG-1 - CLOSED: `0dbc170f` shipped a UTF-8 BOM that broke the skill's YAML frontmatter
+
+- **Target file**: `catalog/skills/specialized-domains/document-to-interactive-html/SKILL.md`, `tests/skills/test_presentify_intake.py`
+- **Source phase**: v3.16.7 Phase 1 (introduced), found by the Phase 2 reverse-engineering audit
+- **What was wrong**: both files gained a leading `EF BB BF`. Verified empirically rather than inferred: read with `encoding="utf-8"` (what `validate_skills.py` line 258 uses, NOT `utf-8-sig`), `content.startswith("---")` is False and the frontmatter regex does not match, so the validator's own `parse_frontmatter()` returned `None` and reported "no valid YAML frontmatter (must start with ---)". `scripts/validate_unicode_safety.py` also failed with exit 1, its SINGLE error being that BOM - and that validator runs in `make validate` and in the CI `validate` job, so **CI was red on this branch**. `AGENTS.md` records that the MCP skill server depends on parseable frontmatter, so discovery for the catalog's largest skill was at risk too.
+- **Resolution**: both BOMs stripped, files rewritten as UTF-8 without a BOM. `validate_unicode_safety.py` now exits 0 and the frontmatter error is gone. (`validate_skills.py` in FULL mode still reports a 1769-character description for this skill, but that is a pre-existing condition shared by 168 skills and is not run by `make validate`, which invokes `--bundles-only`; it is not this release's regression.)
+- **Why it is recorded rather than quietly fixed**: this is the THIRD time the repository has met this trap. `AGENTS.md` documents it twice (the v3.11.0 `session-summary.ps1` parse failure and the v3.15.6 provenance-ledger BOM), and the fix each time was prose. The durable guard already exists - `validate_unicode_safety.py` catches a BOM in any non-`.ps1` text file - so what failed here was running it, not having it. That points at the pre-commit / phase-gate habit rather than at another rule.
+
+### DF-1 - CLOSED: the v3.16.7 slot had no plan artifact
+
+- **Target file**: `docs/v3/v3.16/plans/v3.16.7-presentify-first-shot-hardening.md`
+- **Source phase**: v3.16.7 Phase 1 (the work landed before any plan existed)
+- **Reason**: Phase 1 was built and committed straight from live-session lessons, so the version had no plan document while every other v3.16.x version has one, and there was no artifact against which "is this version complete" could be answered.
+- **Resolution**: the plan was reverse-engineered from `0dbc170f` on 2026-08-13 and carries an explicit provenance note saying so, rather than presenting itself as having preceded the work. It is deliberately left OPEN at Phase 3 so further live-session lessons land inside this release.
+
+### DF-2 - CLOSED: v3.17.0 changelog text landed in this branch's `[Unreleased]`
+
+- **Target file**: `CHANGELOG.md`
+- **Source phase**: v3.16.7 Phase 1
+- **What was wrong**: `0dbc170f` staged `CHANGELOG.md` while a concurrent session had uncommitted v3.17.0 permission-hardening changelog text in the shared working tree. `[Unreleased]` therefore described permission work whose code is NOT on this branch, and carried a duplicated `### Added` heading. Releasing as-is would have announced unshipped work.
+- **Resolution**: the v3.17.0 entries were removed here and preserved on `feat/v3.17.0-agent-autonomy-toggle`, where that code lives; the duplicate heading was merged. Two `v3.17.0` mentions remain in already-released sections as legitimate historical cross-references and were left alone.
+- **Lesson**: two agents sharing one working tree is the hazard, not the changelog. A `git add <file>` picks up whatever is in the tree, including another session's work in progress.
+
+### NI-1 - CLOSED: the Phase 3 intake received its lessons and is built
+
+- **Target**: the plan's Phase 3
+- **Source phase**: maintainer directive, 2026-08-13
+- **Why it was open**: the maintainer was running `/presentify` on another project and expected further first-shot lessons. The plan held Phase 3 open so the whole batch shipped in v3.16.7 rather than half of it, and the intake protocol required each lesson to name an OBSERVED defect, since a guard with no observed defect behind it is declined by the `AGENTS.md` scope-fit rule.
+- **Resolution**: the VectorCAST decision-brief session supplied 26 backlog items (`PRES-01` through `PRES-26`) plus five proposed gates on 2026-08-13. The intake closed, six sub-tasks were specified, and all six were built the same day. Every one traces to a defect observed in that session, so the scope-fit bar held without exception.
+
+### NI-2 - OPEN: Gates A, B, and E are agent behavior with no deterministic checker
+
+- **Target file**: `catalog/skills/specialized-domains/document-to-interactive-html/references/visual-qa-rubric.md`, `references/content-intent.md`
+- **Source phase**: v3.16.7 Phase 3 (sub-tasks 3.1, 3.3, 3.6)
+- **Reason it is open**: `scripts/visual_qa_score.py` can check a `content_intent` block's PRESENCE and shape, but not whether a `scope_class` is the right one, whether an assumption was genuinely accepted, or whether a visual explains its section. Those are judgments, and the same reasoning the maintainer applied to rubric criterion 10 in v3.16.5 applies here: a crude deterministic proxy produces false positives and trains the agent to satisfy the proxy. Enforcement is therefore record plus rubric, exactly as criterion 10 is.
+- **Suggested next step**: consider a NARROW structural check for the mechanically-decidable half only, namely the `content_intent` block's presence and field completeness, and the `standalone` banned-phrase scan (a literal string search over visible text, which is decidable). Leave the judgments to the rubric. Do not attempt to score decision coverage.
+
+### NI-3 - OPEN: the composition probes are specified but not implemented in a helper
+
+- **Target file**: `catalog/skills/specialized-domains/document-to-interactive-html/SKILL.md` Step 9
+- **Source phase**: v3.16.7 Phase 3 (sub-task 3.5)
+- **Reason it is open**: line count, width utilization, one-word orphan detection, rectangle intersection, and per-section density deltas are specified as `page.evaluate()` probes the grading agent writes inline, matching how the existing probes (root size, per-role smallest size, band fraction, `scrollWidth`, painted-canvas) are already specified. No bundled script computes them. That is consistent rather than a shortfall, and the `AGENTS.md` scope-fit gate declines a helper with no call site, but it does mean the probes are as reliable as the agent that writes them each run.
+- **Suggested next step**: if a future session finds the probes being skipped or written inconsistently, extract all of them (existing and new) into one bundled `scripts/render_probes.js` the loop injects verbatim. Do that as ONE extraction covering the whole probe set, not a second partial layer.
+
+### WN-2 - CLOSED: two ruff findings in the Phase 1 test module
+
+- **Target file**: `tests/skills/test_presentify_first_shot_hardening.py`
+- **Source phase**: v3.16.7 Phase 1 (introduced), observed at the Phase 3 gate, fixed in Phase 4.1
+- **What was wrong**: `ruff check` reported two `PLW1510` findings (`subprocess.run` without an explicit `check=`) on the two `fit_map_projection.py` invocation tests. Verified pre-existing at the Phase 3 gate by stashing and re-running against the Phase 1 baseline, then deliberately left alone: the `AGENTS.md` scope rule declines adjacent cleanup inside a feature phase.
+- **Resolution**: `check=False` added to both calls in Phase 4, where a cleanliness pass is in scope by definition. The module now reports 0 ruff findings, down from 2.
+
+### WN-3 - OPEN (accepted, style-consistency): `generate_manifest.py` uses legacy `typing` generics
+
+- **Target file**: `scripts/generate_manifest.py`, `tests/validators/test_verify_install.py`
+- **Source phase**: v3.16.7 Phase 4.2
+- **Reason it is open**: the WN-1 fix added code using `Dict` / `List` / `Tuple` from `typing`, matching the module's existing convention (it already imports and uses them throughout, which is where the 10 baseline findings came from). `ruff` default rules flag these as `UP006` / `UP035` in favor of PEP 585 lowercase generics. Ruff is NOT a CI gate in this repo and no `[tool.ruff]` config exists, so these are advisory findings from an ad-hoc invocation, not a failing check.
+- **Why it was not fixed here**: modernizing only the new functions would leave one module written two ways, and modernizing the whole module is an out-of-scope style refactor of release-critical tooling during a release phase. The project rule to write code that reads like the surrounding code points the same way.
+- **Suggested next step**: if the repo ever adopts a `[tool.ruff]` config with `UP` enabled, modernize this module in ONE pass rather than incrementally.
+
+### Phase 4.1 audit record (verified, not assumed)
+
+The plan required these be recorded rather than presumed:
+
+- **Orphan-bundle rule**: all 21 files under the presentify skill's `scripts/` / `references/` / `assets/` are referenced from `SKILL.md`, including the new `content-intent.md`. `validate_skills.py --bundles-only` PASS across 271 skills, 0 warnings.
+- **Installer registration is NOT required for the new reference**: verified by reading the code path rather than trusting the rule. Neither installer names any per-skill bundled file (`grep` for `fit_map_projection` / `content-intent` / `visual_qa_score` returns 0 hits in `installer.sh` and `installer.ps1`). Distribution runs through `scripts/lib/integrations/base.py`, whose `_copy_tree` calls `shutil.copytree(src, dst, dirs_exist_ok=True)` over `catalog/skills` (line 804), so the whole tree ships. Only repo-level `scripts/<name>.py` needs the explicit-name copy step. `test_installer_smoke.py`: 33 passed.
+- **Refactor detectors**: no tracked `__pycache__`; root files are all legitimate governance artifacts plus the documented `install.sh` bootstrap. Four empty directories exist (`.antigravitycli`, `.claude/worktrees`, `docs/v3/v3.17/development/history`, `docs/v3/v3.20/comparisons`); the two under `docs/` are scaffolding for OTHER versions' cycles and are left alone as out of this release's scope.
+- **CI/CD**: every one of the 16 files changed across `develop..HEAD` is covered. `catalog/**`, `tests/skills/**`, and `CHANGELOG.md` reach `ci.yml` (whose `paths` is `**` minus `docs/**`) and the presentify surfaces additionally reach `presentify-extractor.yml`; `docs/**` reaches `doc-colocation.yml`. The session-history file is deliberately outside `ci.yml`'s re-included docs patterns, which is the documented intent (frozen records no test reads). No workflow edit was needed, and the presentify workflow already carries path filters, concurrency cancel-in-progress, pip caching, and a merge-gated render job.
+- **Prompting-profile staleness (advisory, 9.0 step 4)**: `check_model_prompting_freshness.py --advisory` returns UNKNOWN because no live roster was enumerated in this session. That is its documented degradation and it never blocks. Recorded roster last verified 2026-07-27.
+- **Platform read-contract**: `check_platform_contract_freshness.py` OK for v3.16.6. It hard-gates on the version being cut, so `/update release` must re-verify and re-stamp it for v3.16.7.
+
+### WN-1 - CLOSED (carried from v3.16.6, root-caused here): `generate_manifest.py` hashed working-tree bytes
+
+- **Target file**: `scripts/generate_manifest.py`
+- **Source phase**: carried into v3.16.7 because this release touches `scripts/`; fixed in Phase 4.2
+- **What was wrong**: the generator hashed the bytes sitting in the working tree. Confirmed empirically at the Phase 4 gate rather than inferred: this repo sets `core.autocrlf=true` and `.gitattributes` sets `* text=auto` plus `*.md text=auto`, so a probe of `references/visual-qa-rubric.md` showed 141 CRLF and 0 bare LF on disk. The release tarball carries the LF blobs, so `nexus-hub verify` would have reported a mismatch on essentially every text file. v3.16.5 shipped exactly that (~520 spurious mismatches); v3.16.6 regenerated the DATA from a clean tree but left the generator, so the defect was one Windows release away from returning.
+- **Resolution** (maintainer decision, 2026-08-13, chosen from three options): hash the GIT BLOB bytes for tracked files. `compute_manifest()` now reads the index via `git ls-files -s -z` plus a single batched `git cat-file --batch`, and sha256s the blob payload; untracked covered files and any non-git tree (an installed tree, an exported tarball) fall back to file bytes exactly as before. The manifest therefore describes what is DISTRIBUTED rather than what one host happens to have checked out, from any OS with any line-ending configuration.
+- **Why the blob and not newline normalization**: the tarball IS the committed blobs, so hashing them makes the manifest correct by construction instead of correct by a text-detection heuristic, and it leaves `sha256sum -c` semantics and `verify_install.py` untouched. Verification needs no matching change: it runs against an extracted tarball whose on-disk bytes are the blob bytes.
+- **Residual boundary, stated rather than discovered**: because the index is the source, a tracked file with UNSTAGED edits is hashed as its staged form. `main()` now prints a warning naming the dirty covered paths so a stale manifest cannot be produced silently. Separately, a user installing from a Windows git clone with autocrlf enabled would still see line-ending mismatches; the supported install path is the tarball.
+- **Tests**: 4 regression tests in `tests/validators/test_verify_install.py` build a real git repo with `core.autocrlf=true`, commit LF content, rewrite the working tree as CRLF, and assert the manifest matches the LF blob and NOT the CRLF disk bytes; plus untracked fallback, non-git-tree fallback, and the dirty-path warning.
+
 ## v3.16 Summary
 
 | Category | Open | Resolved |
@@ -1093,5 +1177,6 @@ Worth noting from Phase 1: the most valuable defect that phase found was not in 
 | v3.16.4 version-implementation gaps | not recorded - the v3.16.4 cycle (GitHub Usage Monitor account-pinned sessions, shipped 2026-08-11 from a parallel session) added no section to this file. Stated as an observed absence, not as a claim that the cycle had none. | n/a |
 | v3.16.5 version-implementation gaps (all 7 phases, reconciled) | 9 carried (NI-2, NI-3, NI-4, NI-5, WN-1, WN-3, WN-4 by design, each with a named place where the render loop answers it; DF-2 accepted, DF-3 declined for want of a call site) | 9 closed (MT-1, DF-1, DF-4, BG-1, BG-2, BG-3, BG-E1, plus v3.15's MT-1 and MT-2) |
 | v3.16.6 version-implementation gaps (both phases + release, reconciled) | 2 carried (NI-1 verbosity contract is agent behavior, by design; WN-1 `generate_manifest.py` is generation-environment-dependent, routed to the next `scripts/`-touching cycle) | 3 closed (DF-1 the unbookkept v3.16.5 deferral; QG-1 the CI path filter missing the command file; BG-1 the shipped v3.16.5 CRLF manifest, fixed by the v3.16.6 regeneration) |
+| v3.16.7 version-implementation gaps (all 4 phases, reconciled) | 3 (NI-2 Gates A/B/E are agent behavior by the same reasoning as criterion 10; NI-3 composition probes specified inline like the existing probes, no bundled helper yet; WN-3 legacy `typing` generics kept for module consistency, advisory only since ruff is not a CI gate) | 6 closed (BG-1 the frontmatter-breaking BOM; DF-1 the missing plan artifact; DF-2 the cross-session changelog contamination; NI-1 the open intake, closed by the VectorCAST lessons; **WN-1 the manifest generator, carried since v3.16.5 and root-caused here by hashing git blob bytes**; WN-2 the two ruff findings) |
 
 The three comparison-sourced items remain non-blocking prose folds with named target files. Of the v3.16.0 items, BG-1 is pre-existing and reproduces without this plan's changes, WN-1 is environmental, DF-1 is a reasoned non-implementation, NI-1 is a deliberate scope boundary the plan requires, and NI-2 / NI-3 / NI-4 are Phase 2 findings that Phase 3 and Phase 5 are already scheduled to dispose of. Phase 5 dispositioned every open item: 13 closed, 3 carried forward. **None gates the v3.16.0 release.** NI-1 and NI-6 are scope decisions for cycles already touching the relevant surfaces, and BG-1 is pre-existing, reproduced on a clean `develop` worktree, and confined to a Windows host whose PATH resolves `tar` to the Git Bash binary. Of the 13 closed, three (BG-2, BG-3, and QG-3) were caught by the test suite rather than by review, which is this cycle's strongest argument for running the full suite before declaring a phase done.

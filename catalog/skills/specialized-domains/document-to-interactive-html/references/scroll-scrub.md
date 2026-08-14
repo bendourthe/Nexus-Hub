@@ -75,6 +75,7 @@ Observable criterion: scrolling never produces vestibular video scrub for a redu
 - **Route and nav jumps work.** An anchor jump to a section lands correctly with the stage in the right state, and `scroll-margin-top` applies as it does everywhere else.
 - **Keyboard reaches everything.** No control is scroll-only.
 - **The reduced-motion path is documented and tested**, per section 6.
+- **First paint is fully legible.** A scrub ramp evaluated at scroll progress zero must yield full visibility: the hero title, date, and stage render at full opacity and position before the reader has scrolled at all. Effects may fade or drift content OUT as the reader leaves a section - never IN from a dimmed or displaced start state (a hero that loads at 25% opacity is a broken landing, not anticipation). Verify on the load-time screenshot, not the formula.
 
 ## Verification
 

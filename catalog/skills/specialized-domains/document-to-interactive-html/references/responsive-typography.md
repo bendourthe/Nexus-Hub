@@ -2,7 +2,9 @@
 
 The canonical fluid-layout and readability contract every presentify output is authored to and graded against. It exists because a page can pass every structural check in `references/visual-qa-rubric.md` and still be obviously wrong to a human in one glance: prose trapped in a narrow column while half the viewport sits empty, margin notes and footers rendered too small to read, and inline command names indistinguishable from the prose around them. Those three defect classes were observed together in a real run (2026-08-10) and are what this contract makes checkable.
 
-Six rules, each with the CSS pattern that satisfies it and the observable criterion the scorer or the grading agent applies. `scripts/visual_qa_score.py` enforces rules 1, 4, 5, and 6 deterministically; rules 2 and 3 are graded from screenshots against the criteria stated here.
+Eleven rules, each with the CSS pattern that satisfies it and the observable criterion the scorer or the grading agent applies. `scripts/visual_qa_score.py` enforces rules 1, 4, 5, 6, and 7 deterministically; rules 2 and 3 are graded from screenshots against the criteria stated here, and rules 8 through 11 (added v3.16.7) are graded from the rendered line-count, width-utilization, and section-height probes in Step 9.
+
+Rules 1 through 7 catch text that is too small, too fixed, or stranded. Rules 8 through 11 catch the inverse family, observed 2026-08-13: text that is correctly sized and correctly measured while using half its track, and sections that are viewport-tall for no reason. Both families read as broken to a human, and neither is visible to a font-floor check.
 
 ## 1. Fluid space, never fixed space
 
@@ -163,8 +165,91 @@ section[id]{ scroll-margin-top: calc(var(--nav-h) + 1rem); }
 pre{ white-space: pre-wrap; overflow-wrap: anywhere; }
 ```
 
+## 8. Display text needs a wrap plan, not a wrap accident
+
+Rules 1 through 7 catch text that is too small, too fixed, or stranded beside dead space. They say nothing about text that is correctly sized, correctly measured, and ARTIFICIALLY NARROW inside its own track, which is the opposite failure and just as visible.
+
+Observed 2026-08-13: a hero title used 58% to 70% of its desktop column because a `10.5ch` maximum forced it into three lines. Several section headings took three lines beside an unused track. And after a deliberate two-line desktop title was introduced with semantic spans, the mobile layout stranded "vs" alone on a fourth line, because one wrapping strategy was applied to every viewport.
+
+Record a wrap plan for every hero title and major section heading:
+
+- Target line count at large desktop (2560).
+- Target line count at standard desktop (1920).
+- Acceptable line count at laptop width (1366).
+- Mobile fallback behavior, reviewed rather than inferred from the desktop markup.
+- Words or phrases that must not become isolated lines.
+
+```css
+/* CORRECT - balance as enhancement, breakpoint rules for intentional phrasing */
+h1{ text-wrap: balance; }
+@media (max-width: 40rem){ h1 .brk{ display: contents; } }  /* mobile wraps naturally */
+```
+
+`text-wrap: balance` is a progressive ENHANCEMENT, not the plan: it evens a ragged rag, and it cannot express intentional phrasing or protect a specific word from isolation. Use semantic spans or breakpoint-specific display rules when a title needs deliberate phrasing, and define the mobile behavior separately whenever you do.
+
+Observable criterion: no display heading has an avoidable one-word orphan; a desktop hero normally resolves to one or two lines; the mobile form was reviewed at 390px rather than assumed from the desktop markup.
+
+## 9. Measure belongs to the text ROLE, not to the page
+
+Rule 2 establishes that the 45 to 85 character measure is per-element and is a defect inside a multi-column zone. Rule 9 completes it: classify text by ROLE before assigning any width, because a single global character cap applied across roles produces arbitrary wrapping and dead space wherever the role does not want it.
+
+Observed 2026-08-13: display answers in a Highlights section used about 54% to 60% of their column because a `32ch` cap intended to control READING length was applied to large DISPLAY text.
+
+| Role | Width treatment |
+|---|---|
+| Long-form prose | The 45 to 85 character cap. **The only default recipient.** |
+| Display answer / callout | Use the available track; control readability through type size and hierarchy. |
+| Heading | Optimize phrase grouping and target line count (rule 8), not character count. |
+| Multi-column text | Fractional tracks, no inner `ch` cap (rule 2). |
+| Table or diagram label | Size to the component, not to the article measure. |
+
+Observable criterion: on wide screens a display-text block uses at least 70% of its available track, unless the remaining area has a stated visual purpose (a deliberate asymmetry, a graphic, a pull quote). Long-form prose remains the only role that receives the character measure by default.
+
+## 10. Section height is earned by content or interaction (BINARY)
+
+A universal viewport-height minimum turns a navigable website back into a slide deck. Observed 2026-08-13: every standard section carried `min-height: 82svh`, so short sections kept large empty regions below their content, and scrollytelling steps used `58svh` each for state changes that needed far less scroll distance.
+
+This one slips past rule 1 for a specific and instructive reason: `82svh` IS a viewport-relative value, so the fluid-spacing check reads it as correctly fluid. It is fluid and wrong. Fluidity was never the property that mattered here.
+
+Classify every section:
+
+| Class | Height source |
+|---|---|
+| `content-height` | Its content. **The default.** No viewport-height minimum. |
+| `viewport-stage` | A deliberate opening or transition. |
+| `scrollytelling-track` | Calculated from the number of MEANINGFUL states. |
+| `pinned-comparison` | Enough to complete the state sequence, and no more. |
+
+Observable criterion: a standard section declares no viewport-height minimum. A tall section names the interaction or content volume requiring the height, and removing its height rule demonstrably breaks the intended experience. If removing it changes nothing but the whitespace, it was never earned.
+
+## 11. Density is a system, so revise it as one
+
+When a page reads as too sparse or too dense, the cause is almost never one variable. The 2026-08-13 session's excess height came from heading width, heading scale, label-column width, section padding, grid gaps, line height, card minimum heights, and viewport-height rules acting together. Reducing one font size would have moved the empty space rather than removing it.
+
+Revise these together, and report which ones changed:
+
+1. Root type scale.
+2. Display type scale and target line count (rule 8).
+3. Text-role measure (rule 9).
+4. Grid-track proportions.
+5. Section and component gaps.
+6. Line height.
+7. Explicit or minimum heights (rule 10).
+8. The relationship to adjacent graphics.
+
+The coordinated pass on that page cut the 12-section body by 22.6% at 1920x1080 (18,015px to 13,936px), 25.3% at 2560x1300, 21.8% at 1366x768, and 7.6% at 390x844, with no content removed. The smaller mobile figure is correct rather than a shortfall: a narrow viewport genuinely needs more lines.
+
+The pass NEVER resolves density by shrinking body text below its floor, so it composes with rule 4 rather than competing with it. Report explicitly that body prose stays at or above 16px, secondary at or above 13px, and interactive at or above 12px, at BOTH the clamp floor and 1920px.
+
+Observable criterion: a density revision names the variables it changed together, and confirms the rule-4 floors still hold at both measurement points.
+
 ## Verification
 
+- [ ] Every hero title and major section heading has a recorded wrap plan, and no display heading carries an avoidable one-word orphan.
+- [ ] Display text, headings, and component labels are sized by ROLE; the character measure is applied only to long-form prose.
+- [ ] On wide screens, no display-text block uses under 70% of its available track without a stated purpose for the remainder.
+- [ ] Every section is classified, and no `content-height` section declares a viewport-height minimum.
+- [ ] Any density revision names the variables changed together and confirms the role floors still hold.
 - [ ] No top-level band or grid container declares a fixed macro `padding` / `gap` at or above 24px.
 - [ ] Viewport-proportional scaling is on the ROOT in ONE declaration (`html{font-size:clamp(...)}`), not reproduced per element, and any modular scale rides that root as plain `rem` multiples.
 - [ ] Every floor was evaluated at the ROOT clamp's minimum as well as at 1920px - root scaling does nothing below it, so a page verified only at wide viewports can carry a full set of sub-floor sizes.
