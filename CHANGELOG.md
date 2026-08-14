@@ -9,6 +9,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.16.8] - 2026-08-14
+
+### Opt-in capability changes (release capability usage gate)
+
+**One opt-in surface**: the `--fix` flag on `scripts/validate_unicode_safety.py`. It is treated as a capability rather than an ordinary option because, unlike the v3.16.6 `--verbosity` precedent (which only preset a question), this one WRITES to the user's files. That is authority, and a surface with authority gets all five elements.
+
+- **Activation**: `python scripts/validate_unicode_safety.py --fix [--strict] --root . --path <file-or-dir>`. `--fix` alone repairs only hard errors (zero-width, bidi controls, tag characters); adding `--strict` also applies the ASCII punctuation replacements. Without `--fix` nothing is ever written.
+- **Validation**: re-run the same command without `--fix` and confirm it exits 0: `python scripts/validate_unicode_safety.py --strict --root . --path <file>`. The fix pass itself also re-scans each file it wrote and exits 1 if any finding survived, so a silent partial repair is not possible.
+- **Rollback**: there is no persistent state to disable; omitting `--fix` restores detect-only behavior immediately. To revert what a run changed, use `git checkout -- <path>` (or `git restore <path>`) since every write lands in the working tree, never in the index or a commit. The tool writes no config, cache, or marker file of its own.
+- **Authority**: activation grants ONLY in-place rewriting of files under the paths you name. It does NOT grant network access (the script makes no outbound call), does NOT read or write anything outside `--root`/`--path`, does NOT stage or commit anything, does NOT touch a `.ps1` file's leading BOM, and does NOT rewrite punctuation in non-Markdown files (the existing Markdown-only exemption gates the repair path as well as the detection path). It cannot fix what it cannot decode: a non-UTF-8 file is reported and skipped, never written back.
+- **Docs**: [`scripts/validate_unicode_safety.py`](scripts/validate_unicode_safety.py) module docstring and `--help`, plus the wiring contracts in [`catalog/commands/update.md`](catalog/commands/update.md) (governance step 7) and [`catalog/skills/workflow/implementation-plan/SKILL.md`](catalog/skills/workflow/implementation-plan/SKILL.md) (Step 4).
+
+The `/plan` and `/update` wiring introduces no separate opt-in surface: those are mandatory steps inside existing commands with no activation mechanism of their own.
+
 ### Added
 
 - **v3.16.8 Phase 1: extended Unicode-safety coverage.** `scripts/validate_unicode_safety.py` now detects three character families it previously missed. Unicode tag characters (U+E0001 plus the U+E0020 to U+E007F block) join the hard-error set: they mirror printable ASCII, render as nothing, and exist as a hidden-text smuggling channel, so they are never legitimate in this repository's content. The exotic space homoglyphs (U+2000 to U+200A, U+1680, U+202F, U+205F, U+3000), soft hyphen, and the variation selectors (U+FE00 to U+FE0F plus the 240-value U+E0100 to U+E01EF supplement, which encodes one byte per selector) join the strict-mode set instead, so they warn by default, error under `--strict`, and inherit the existing Markdown-only exemption that keeps non-English content out of the strict pass. The report for a tag character carries the ASCII character it mirrors, so smuggled text can be read straight off the findings.
