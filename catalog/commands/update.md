@@ -58,6 +58,18 @@ The `docs` scope MUST refresh documentation CONTENT to the repo's current state,
 
 When the scope is `release`, run this reconciliation as the FIRST step, before the version bump. A release whose only documentation change is the version/count bump has not run `docs`.
 
+## docs and changelog scopes: Unicode hygiene (detect-first)
+
+After writing or editing Markdown in the `docs` or `changelog` scope, check each touched file:
+
+```bash
+python scripts/validate_unicode_safety.py --strict --root . --path <file>
+```
+
+Detect here rather than fix, because these scopes routinely touch hand-edited prose whose punctuation may be deliberate, and an automatic rewrite would silently overrule the author. Resolve what the report names before finishing the scope: re-run with `--fix` on that file once the findings are confirmed unintentional, or edit by hand when a character is there on purpose (rewording an em-dash clause usually reads better than substituting `--`). The `release` scope is the one place this becomes an automatic fix-and-block gate, because a release artifact has no author left to consult.
+
+Note that a `--path` which does not resolve under `--root` exits 2 rather than reporting a clean scan, so a mistyped path fails loudly instead of passing while checking nothing.
+
 ## version scope (atomic, drift-guarded)
 
 The `version` scope MUST use `scripts/check_version_sync.py` so every version-carrying surface is bumped as one atomic set: `.claude-plugin/plugin.json` (canonical), `scripts/installer.sh` (`NEXUS_HUB_VERSION`), `scripts/installer.ps1` (`$script:NexusHubVersion`), `data/marketplace.json`, the latest `CHANGELOG.md` heading, and the README / AGENTS.md catalog-version prose. Run the guard before and after the bump: it must report a clean in-sync tree afterward. This closes the v2.4.0 drift class (installers stuck at one version while `plugin.json` moved to the next) systemically - a mismatch fails the build rather than shipping.
@@ -161,6 +173,20 @@ Beyond running the `refactor` scope, a `release` performs these governance steps
     The promotion condition this command file already stated has been met, so it is recorded rather than left implicit. In v3.16.7 the gate was satisfied by a hand-written declaration reading "introduces no NEW opt-in capability, ..." -- semantically exact, and matching none of the checker's patterns, because the word "new" sits between `no` and `opt-in`. The checker was never run, so nothing caught it, and the release shipped in the same evidentiary state as one where the gate had been skipped. That is precisely the false CLEAR the gate exists to prevent, and it is why the checker is no longer optional: a declaration a human accepts and a machine cannot see provides no evidence.
 
     Wording that satisfies the no-change form: `changes no opt-in capability`, `no opt-in capability`, `no opt-in surface`, `no applicable opt-in`, or `no optional capability changes`. Detection is marker-based rather than prose-inferring: each surface declares its five elements as labelled lines (`Activation:`, `Validation:`, `Rollback:`, `Authority:`, `Docs:`) or as a Markdown table row, because a checker that guessed at free text would produce confident false passes.
+
+7. **Unicode-hygiene gate on release artifacts (BLOCKING)**: sanitize what this release actually ships, before it is committed.
+
+    ```bash
+    python scripts/validate_unicode_safety.py --strict --fix --root . --path CHANGELOG.md --path README.md --path docs/v<MAJOR>/v<MAJOR>.<MINOR>/
+    ```
+
+    Add one `--path <file>` for any `RELEASE_NOTES` file the repo keeps. Five rules govern it:
+
+    - **A residual non-zero exit AFTER the fix BLOCKS the release commit.** Exit 1 means a finding survived automatic repair (a character with no mechanical ASCII replacement); exit 2 means a target was missing, unreadable, or not valid UTF-8. Neither is a warning to note and move past.
+    - **Scope it to release-cycle artifacts, never the whole repository.** Archived documentation carries over a thousand grandfathered warnings (the `WN-v23-3` lineage) that a repo-wide `--fix` would mass-rewrite, burying the release's real content in an enormous unrelated diff. The gate covers what this release ships, not what it inherited.
+    - **Run it BEFORE the supply-chain manifest regeneration**, so the manifest always hashes post-sanitize bytes. Today's artifact list sits outside the manifest's roots (`catalog/`, `templates/`, `scripts/`, `data/`), which makes the ordering harmless right now; fixing the order anyway makes correctness a property of the flow rather than a coincidence that a future scope change would quietly break.
+    - **It composes with CI rather than duplicating it.** CI keeps its repo-wide DETECT pass (warnings allowed, errors fail). This gate is earlier (pre-commit, so nothing ships and gets caught afterwards) and stricter (it promotes punctuation to errors and repairs it) over the narrow set a release publishes.
+    - **The one-time historical normalization is already done (v3.16.8).** A changelog is a single file holding both the new entry and all past ones, so file-level scoping cannot spare its history: the gate's first run rewrote 7 non-ASCII dashes in already-released `CHANGELOG.md` sections. That was performed deliberately and once, in the release that introduced this gate, and is recorded in its changelog entry. Every subsequent run is a no-op on history, so a future release seeing a large `CHANGELOG.md` diff from this gate should stop and investigate rather than accept it.
 
 This mirrors the `implement-phase` final-phase gate - `/implement` hands off to `/update release` on a plan's last phase - so the same refactor + known-gaps + CI/CD + platform-contract + prompting-staleness + capability-usage work runs whether the release is reached through `/implement` or invoked directly.
 

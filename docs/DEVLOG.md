@@ -1,5 +1,30 @@
 # Development Log
 
+## [2026-08-14] - v3.16.8 Phases 1-2: Unicode watermark hygiene [phase]
+
+### What Changed
+
+`scripts/validate_unicode_safety.py` gained coverage of three missing character families (Unicode tag characters as hard errors; space homoglyphs, soft hyphen, and the full variation-selector range as strict-class findings) and an opt-in `--fix` mode with atomic writes. The workflow surfaces were then wired to it: `/plan` sanitizes every plan file it writes, `/update docs` and `/update changelog` detect on touched Markdown, and `/update release` carries a blocking fix-and-block gate over release-cycle artifacts as governance step 7. Sub-tasks 1.3 and 2.3, the ingested v3.16.7 `BG-2` halves, were already complete on entry.
+
+### Why It Changed
+
+Nexus-Hub already detected zero-width characters and Trojan-Source bidi controls but had no way to clean them, no coverage of several smuggling channels, and no workflow that ran the check automatically. A detector nobody invokes at the moment content is written is a detector that finds things after they ship.
+
+### Decisions Made
+
+- **VS16 is exempt when it follows an emoji base**, deviating from the plan's blanket rule. Measured first: all 90 occurrences in the tree are legitimate emoji presentation and the ranges actually used for steganography (VS1-VS15, the 240-value supplement) occur zero times. The literal rule would have flagged 90 good characters, caught nothing, and let the new release gate rewrite emoji in `CHANGELOG.md`. The maintainer chose the exemption from the measurement.
+- **Detection and repair share one policy function**, so the fixer cannot skip a rule the scanner reports or rewrite one it does not. A round-trip test enforces it.
+- **Detect-first in `docs` / `changelog`, fix-and-block only in `release`.** Hand-edited prose has an author who may have meant that character; a release artifact does not.
+- **The one-time `CHANGELOG.md` normalization was performed deliberately** (7 characters in sections released between v0.8.2 and v1.2.1), because a changelog holds its history in the same file the gate must cover, and the alternative was shipping a blocking gate that fails on first use.
+
+### Verification
+
+Phase 1's stability gate was a pre/post baseline diff, and detect-mode output came through byte-identical (0 errors, 1049 warnings, exit 0); the count later moved to 1042 solely from the 7 normalized dashes. Full validate battery green (12 gates). `tests/` 2417 passed / 18 skipped / 2 failed, `catalog/hooks/tests/` 993 passed, extension suites 670 passed, `tests/skills/` 685 passed. 28 new validator tests. Both wirings smoke-tested end to end, the plan one deliberately from a foreign project root.
+
+### Known Issues
+
+Six items under `## v3.16.8` in the v3.16 known-gaps file, none introduced by the code here. The two suite failures are both pre-existing: `BG-1` the MSYS-`tar` bootstrap test (already root-caused as v3.16.0 `BG-1`), and `BG-2` a model-map fallback test asserting a date that commit `b29a0ffa` moved when it refreshed the snapshot. `NI-1` records the VS16 deviation, `WN-1` the accepted CJK limitation, `MT-1` the Windows-skipped file-mode test (covered on the CI Linux leg), and `QG-1` the fact that Phases 1 and 2 share one commit. Phase 3 reconciles.
+
 ## [2026-08-12] - v3.16.6 release: presentify verbosity intake [release]
 
 ### What Changed
