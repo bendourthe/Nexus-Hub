@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v3.16.3 `github-usage-monitor-ux` is RELEASED (all six phases; 8 closed, 8 carried, 0 release blockers). v3.16.0 `platform-defaults-config` is in flight on `feat/platform-defaults-config` (all 5 phases complete; reconciled and release-ready, unreleased). The v3.16 line holds seven committed plans: v3.17.0 agent-autonomy-toggle, v3.18.2 adoption-rtk-and-meterless, v3.18.1 adoption-optmem, v3.18.0 adoption-jcodemunch, v3.16.0 platform-defaults-config, v3.19.1 adoption-interface-craft-skills, and v3.15.14 adoption-spec-driven-development.
-**Last updated**: 2026-08-13 (v3.16.7 section opened: Phase 1 shipped in `0dbc170f`, plan reverse-engineered and held OPEN at Phase 3 for incoming live-session lessons; BG-1 the frontmatter-breaking BOM, DF-1 the missing plan artifact and DF-2 the cross-session changelog contamination all closed.)
+**Last updated**: 2026-08-14 (v3.16.8 `adoption-watermark-hygiene` reconciled at its terminal Phase 3: 4 closed, 2 carried, 0 release blockers. The carried pair are WN-1, an accepted CJK ideographic-variation limitation with a named revisit trigger, and BG-1, pre-existing and environmental.) Previously 2026-08-13 (v3.16.7 section opened: Phase 1 shipped in `0dbc170f`, plan reverse-engineered and held OPEN at Phase 3 for incoming live-session lessons; BG-1 the frontmatter-breaking BOM, DF-1 the missing plan artifact and DF-2 the cross-session changelog contamination all closed.)
 
 > **File-lifecycle note**: this ledger was created ahead of any v3.16 implementation, by a comparison that deliberately claimed no release slot, so it began with only the `## Comparison-Sourced Deferrals` section. Each v3.16 version-implementation phase **appends** its own `## v3.16.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `QG-#` numbering, which is namespaced separately from the `CD-#` and `TR-#` ids used above.
 
@@ -1082,7 +1082,7 @@ Worth noting from Phase 1: the most valuable defect that phase found was not in 
 
 ## v3.16.7 - presentify-first-shot-hardening
 
-**Status**: RELEASED 2026-08-13 (tag `v3.16.7`, `main` at `254d124e`, GitHub Release published). Three post-release findings, all from checks that should have run during the release: `BG-2`, an `eol=crlf` residual in the WN-1 manifest fix found by verifying the published tarball (both halves ingested into the v3.16.8 plan as sub-tasks 1.3 and 2.3); `NI-4`, the process gap that let the model map go 11 days stale because the advisory freshness step was allowed to answer UNKNOWN; and `QG-1` (closed), a capability-gate declaration that read correctly to a human and matched none of the checker's patterns. A full governance audit of all six release steps is recorded at the end of this section. 5 open (NI-2, NI-3, NI-4, WN-3, BG-2), 7 closed (QG-1 added and closed by the governance audit).
+**Status**: RELEASED 2026-08-13 (tag `v3.16.7`, `main` at `254d124e`, GitHub Release published). Three post-release findings, all from checks that should have run during the release, ALL NOW FIXED in v3.16.8 (branch `feat/v3.16.8-adoption-watermark-hygiene`): `BG-2`, an `eol=crlf` residual in the WN-1 manifest fix found by verifying the published tarball (both halves ingested into the v3.16.8 plan as sub-tasks 1.3 and 2.3); `NI-4`, the process gap that let the model map go 11 days stale because the advisory freshness step was allowed to answer UNKNOWN; and `QG-1` (closed), a capability-gate declaration that read correctly to a human and matched none of the checker's patterns. A full governance audit of all six release steps is recorded at the end of this section. 3 open (NI-2 and NI-3 by design, WN-3 accepted style consistency), 10 closed (BG-1, DF-1, DF-2, NI-1, WN-1, WN-2, QG-1, plus BG-2, NI-4 and the --strict promotion fixed in v3.16.8).
 
 **Prior status line**: RECONCILED, awaiting `/update release`. All four phases shipped (`0dbc170f`, `1b97cdf9`, the Phase 3 commit, and the Phase 4 commit). The Phase 3 intake CLOSED on 2026-08-13 when the VectorCAST-session lessons arrived, and Phase 4 closed the long-carried manifest defect at its root. 3 open (NI-2 and NI-3 by design, WN-3 accepted style consistency), 6 closed (BG-1, DF-1, DF-2, NI-1, WN-1, WN-2). No release blocker remains. Plan: [plans/v3.16.7-presentify-first-shot-hardening.md](plans/v3.16.7-presentify-first-shot-hardening.md).
 
@@ -1145,7 +1145,14 @@ Worth noting from Phase 1: the most valuable defect that phase found was not in 
 - **Why it was not fixed here**: modernizing only the new functions would leave one module written two ways, and modernizing the whole module is an out-of-scope style refactor of release-critical tooling during a release phase. The project rule to write code that reads like the surrounding code points the same way.
 - **Suggested next step**: if the repo ever adopts a `[tool.ruff]` config with `UP` enabled, modernize this module in ONE pass rather than incrementally.
 
-### BG-2 - OPEN, found POST-RELEASE by verifying the published v3.16.7 tarball: `eol=crlf` files still mismatch
+### BG-2 - CLOSED in v3.16.8: `eol=crlf` files now hash their distributed form
+
+- **Resolution (2026-08-14)**: `_git_eol_attrs()` batches one `git check-attr --stdin -z eol` over the same path list the `ls-files` pass already built, and `_apply_eol()` converts only paths resolving to `crlf`. Proven end to end: an archive of the index verifies `OK 1231 file(s) match`, `verify: PASS`, up from `1230 OK / 1 MODIFIED / FAIL`. The entry for `scripts/nexus-hub.cmd` now equals `e314f2c6...`, which is the hash measured from the DOWNLOADED v3.16.7 tarball, so the generator models the real artifact rather than the object store.
+- **Four regression tests** in `tests/validators/test_verify_install.py`: an `eol=crlf` path hashes the CRLF form while a `text=auto` sibling in the same repo still hashes LF (the mirror guard against a blanket conversion), an explicit `eol=lf` path is untouched, `_apply_eol` is idempotent so converting twice cannot double a CR, and an unspecified path is OMITTED from the attribute map rather than defaulted.
+- **A subtlety found while building the proof, now encoded in the release flow**: a LOCAL `git archive` is not a valid stand-in for the published tarball unless it pins `-c core.autocrlf=false -c core.eol=lf`. Without those a Windows host applies CRLF to every `text=auto` file and the check reports ~1180 of 1231 as modified, which looks catastrophic and means nothing. GitHub builds its tarballs on Linux. A path with an EXPLICIT `eol` attribute is host-independent, which is exactly why the generator models the attribute and not the host.
+- **Original diagnosis, retained**: see below.
+
+### BG-2 original diagnosis, found POST-RELEASE by verifying the published v3.16.7 tarball
 
 - **Target file**: `scripts/generate_manifest.py`
 - **Source phase**: v3.16.7 Phase 4.2 (the WN-1 fix), discovered immediately after publishing by downloading the real release artifact and running `verify_install.py` against it
@@ -1156,17 +1163,17 @@ Worth noting from Phase 1: the most valuable defect that phase found was not in 
 - **Suggested fix**: in `_git_blob_sha256`, batch `git check-attr eol` over the same path list and, for any path resolving to `eol: crlf`, convert LF to CRLF before hashing. An `eol: lf` path needs nothing (the blob is already LF). The more thorough alternative is to hash `git archive` output directly, which is by definition the distributed artifact; prefer that only if more attribute classes appear, since it is more machinery for one file today.
 - **Suggested process fix**: add the tarball round-trip (download the published archive, run `verify_install.py`, expect `PASS`) to the release flow as the final gate, so a manifest defect is caught by the release rather than by a user.
 
-### NI-4 - OPEN, process gap: the release flow let the model map go 11 days stale by accepting UNKNOWN
+### NI-4 - CLOSED in v3.16.8: the release flow let the model map go 11 days stale by accepting UNKNOWN
 
 - **Target files**: `catalog/commands/update.md` (release governance step 5), `catalog/skills/ai-development/model-routing/references/last-known-model-map.json`
 - **Source phase**: v3.16.7 Phase 4 / `/update release`, raised by the maintainer immediately after the release
 - **What went wrong**: governance step 5 runs `check_model_prompting_freshness.py --advisory`, which is correctly non-blocking. During this release it returned `UNKNOWN: no live roster supplied, so drift cannot be determined`, and that was recorded as a documented degradation and passed over. Accepting UNKNOWN is not the same as checking. The step is designed to take an enumerated roster; nothing enumerated one, so nothing was actually verified, and `last-known-model-map.json` sat at `2026-08-03` across two releases (v3.16.6 and v3.16.7) while the release notes were being written.
 - **What the deferred check would have caught, confirmed by doing it 2026-08-14**: `gemini-3.7-flash` shipped 2026-08-13 with substantial agentic and coding improvements and was absent from the map; Cursor now offers Grok 4.6 while the map named 4.5; the map's OpenAI `standard` value `gpt-5.5` is not in the current API model list. Separately, the v3.16.8 plan's own inline map (written 2026-08-13 and labeled "fresh") carried `gemini-2.5-flash` at `standard`, two generations behind, and disagreed with the reference JSON on two tiers. Anthropic was the only provider with no drift.
 - **Resolution so far**: both artifacts refreshed from live first-party documentation on 2026-08-14 and reconciled with each other; `test_model_routing_map.py` green; the helper's own validator reports `{"valid": true, "verified_as_of": "2026-08-14"}`. The judgment calls (Gemini Flash overtaking a Pro-preview id at `frontier`, no observed `grok-4.6-high`, `terra` covering two OpenAI tiers) are recorded inline in both files rather than presented as fact.
-- **Why it stays open**: the DATA is fixed; the PROCESS that let it rot is not. An advisory step that can answer UNKNOWN and be treated as satisfied will produce the same outcome next release.
-- **Suggested next step**: make the release-scope step enumerate the roster (or refresh the map file) before it is allowed to report, so its only outcomes are FRESH or DRIFT, never UNKNOWN. Keep it non-blocking on the release itself, per the deliberate decoupling of prompting freshness from the release clock recorded in `/update release` governance step 5, but require it to produce a verdict. Deliberately NOT folded into the v3.16.8 plan: that plan is watermark hygiene and has already absorbed one ingested item (`BG-2`), and adding a third unrelated concern would turn it into a junk drawer. Needs a home chosen by the maintainer.
+- **CLOSED in v3.16.8 (2026-08-14)**: governance step 5 in `catalog/commands/update.md` now states that non-blocking is not the same as skippable. It requires the roster to be ENUMERATED and passed to the checker before the step may report, declares IN SYNC and DRIFTED the only acceptable terminal verdicts (UNKNOWN only when web access genuinely failed, and then recorded WITH that reason), and names the model map as a SEPARATE artifact that nothing else in the release flow refreshes, with the v3.16.7 evidence that the profile layer was IN SYNC while the map sat 11 days stale. Both remain non-blocking on the release; what changed is that the step must now produce a verdict rather than a shrug.
+- **Verified**: run with the roster enumerated, the check reports `IN SYNC: 4 model(s) match the live roster`. The 41 tests asserting on the release-flow contract text (`test_release_staleness_step.py`, `test_check_release_capability_docs.py`) still pass, so the hardening did not break the advisory-by-design contract those tests protect.
 
-### QG-1 - CLOSED: the capability-gate no-change declaration was mechanically invisible
+### QG-1 - CLOSED: the capability-gate no-change declaration was mechanically invisible (checker promoted to --strict in v3.16.8)
 
 - **Target file**: `CHANGELOG.md` (the `[3.16.7]` section), and the published GitHub Release body
 - **Source phase**: `/update release` governance step 6, found by the post-release governance audit (2026-08-14)
@@ -1174,7 +1181,7 @@ Worth noting from Phase 1: the most valuable defect that phase found was not in 
 - **Why it matters more than a wording nit**: the gate exists precisely to distinguish "checked and none applied" from "never checked", and the script's own comment says a false CLEAR is the failure it is built to prevent. A declaration that satisfies a human reader and fails the machine leaves the release in the same evidentiary state as one where the gate was skipped.
 - **Root cause of the miss**: the mechanical companion was never run. Governance step 6 offers `check_release_capability_docs.py` as advisory support, and I wrote the declaration by hand and did not invoke it. Advisory tooling that is not run provides no signal.
 - **Resolution**: reworded to "This release changes no opt-in capability, ..." which matches pattern 2. Verified with `--strict` (the promoted hard-gate mode), not just the default advisory mode: `OK ... explicit no-change declaration present`, exit 0. The published GitHub Release body was updated in place with `gh release edit` so the shipped artifact carries the same corrected text.
-- **Suggested durable fix**: run `check_release_capability_docs.py` as part of governance step 6 rather than treating it as optional, and consider promoting it to `--strict` now that it has caught a real omission, which is the exact promotion condition the command file already states.
+- **DONE in v3.16.8**: the checker is now MANDATORY and runs with `--strict` in governance step 6, which is the promotion condition the command file already stated and which this omission met. The step also now names the accepted no-change wordings verbatim, so an author does not have to reverse-engineer the patterns from the script, and says to extract the notes from the finalized CHANGELOG section so the check grades what actually ships.
 
 ### Phase 4.1 audit record (verified, not assumed)
 
@@ -1226,6 +1233,73 @@ The plan required these be recorded rather than presumed:
 - **Residual boundary, stated rather than discovered**: because the index is the source, a tracked file with UNSTAGED edits is hashed as its staged form. `main()` now prints a warning naming the dirty covered paths so a stale manifest cannot be produced silently. Separately, a user installing from a Windows git clone with autocrlf enabled would still see line-ending mismatches; the supported install path is the tarball.
 - **Tests**: 4 regression tests in `tests/validators/test_verify_install.py` build a real git repo with `core.autocrlf=true`, commit LF content, rewrite the working tree as CRLF, and assert the manifest matches the LF blob and NOT the CRLF disk bytes; plus untracked fallback, non-git-tree fallback, and the dirty-path warning.
 
+## v3.16.8 - adoption-watermark-hygiene
+
+Opened at Phase 1 (validator coverage + fix mode) and extended at Phase 2 (`/plan` and `/update` wiring). Sub-tasks 1.3 and 2.3, the ingested v3.16.7 `BG-2` halves, were already complete on entry and are not re-litigated here.
+
+### NI-1 - CLOSED (by design, reconciled Phase 3): the VS16 rule deviates from the plan's literal prescription
+
+- **Source phase**: Phase 1, sub-task 1.1.
+- **Plan reference**: sub-task 1.1 prescribes `U+FE0F variation selector-16 (delete)` with no exemption.
+- **What shipped instead**: VS16 immediately following a symbol (Unicode category `So` / `Sk`) or a keycap base is treated as legitimate emoji presentation and is neither reported nor rewritten. VS1 to VS15 and the `U+E0100`-`U+E01EF` supplement are covered with no exemption.
+- **Reason**: measured before deciding. VS16 occurs 90 times in the scanned tree and every occurrence follows an emoji base (`U+26A0` warning sign 76, `U+1F5FA` world map 7, `U+2764` heart 7, plus `U+2328` and `U+2139`); VS1-VS15 and the supplement occur zero times. The literal rule would therefore have flagged 90 legitimate characters, caught nothing, broken the phase's own byte-identical-baseline stability gate, and (once Phase 2's release gate landed) silently rewritten emoji in `CHANGELOG.md` and the active docs tree. The user was shown the measurement and chose the exemption.
+- **Suggested next step**: none required. Recorded so a future reader comparing plan text to shipped behavior finds the reason rather than an unexplained gap.
+
+### WN-1 - OPEN (accepted): a CJK ideographic variation sequence would be reported
+
+- **Source phase**: Phase 1, sub-task 1.1.
+- **Symptom**: the emoji-base exemption covers VS16 only, so VS1-VS3 following a CJK ideograph (a legitimate ideographic variation sequence) would be reported.
+- **Why accepted**: zero instances exist in the tree, the finding is a warning unless `--strict` is passed, and the alternative is an ideograph-range table maintained for a case with no observed occurrence, which the `AGENTS.md` scope-fit gate declines. The limitation is stated in the `variation_selector_is_legitimate` docstring and the module docstring rather than left for discovery.
+- **Suggested next step**: extend the exemption to `Lo`-category bases if a real CJK document ever enters the scanned set.
+
+### MT-1 - CLOSED (reconciled Phase 3): the file-mode preservation test cannot run on Windows
+
+- **Source phase**: Phase 1, sub-task 1.2.
+- **Symptom**: `test_fix_preserves_executable_bit` is `skipif sys.platform == "win32"`, so the local development host never exercises it. `atomic_write` uses `shutil.copymode` before `os.replace` specifically so a repaired `.sh` does not lose its executable bit, and that guarantee is unverified locally.
+- **Mitigating coverage**: CI runs `python -m pytest tests/validators -v` on its Linux runner, where the test executes.
+- **Reconciliation verdict (Phase 3)**: CLOSED. The CI leg was verified rather than assumed: `.github/workflows/ci.yml` line 497 runs `python -m pytest tests/validators -v` on the Linux runner, and line 576 runs `tests/installer tests/validators -q` on the Windows one, so the suite executes on both platforms and the mode assertion executes where file modes exist. The local skip is correct behavior, not a coverage gap.
+
+### BG-1 - OPEN (pre-existing, not introduced here): PowerShell bootstrap tarball test
+
+- **Source phase**: observed during Phase 1 sub-task 1.4's full-suite run, not caused by it.
+- **Symptom**: `tests/installer/test_bootstrap.py::test_ps_standalone_extracts_and_hands_off` fails with `/usr/bin/tar: Unexpected end of file` / `Child returned status 128`.
+- **Status**: the same failure already recorded and root-caused as v3.16.0 `BG-1` above (Git Bash's MSYS `tar` resolving ahead of the system binary on this Windows host). Reproduced again this cycle; no new information. Cross-referenced rather than re-filed.
+
+### BG-2 - CLOSED (pre-existing, not introduced here): the model-map fallback test asserted a stale date
+
+- **Source phase**: observed during Phase 1 sub-task 1.4's full-suite run.
+- **Symptom**: `tests/plans/test_v3_15_9_model_routing_helpers.py::test_bundled_snapshot_parses_and_renders_dated_fallback` asserts the rendered string `offline fallback; stale as of 2026-08-03.` while the renderer emits `2026-08-14`.
+- **Root cause**: commit `b29a0ffa` ("docs(v3.16.8): ingest BG-2 into the plan and refresh the stale model map") refreshed `catalog/skills/ai-development/model-routing/references/last-known-model-map.json` to `verified_as_of: 2026-08-14` without updating the test's expected date. Confirmed by running `model-map.py fallback` directly.
+- **Evidence it is not this phase's**: neither failing test reads any of the four files this cycle modified, and the snapshot commit predates the session.
+- **Fix applied**: the assertion now reads `verified_as_of` from the snapshot and interpolates it, so it enforces the CONTRACT (the fallback renders the snapshot's own date in that exact sentence) rather than a frozen calendar date. The one-line expectation bump was rejected in favour of this because it would have re-armed the same time bomb for the next map refresh, and this cycle is the second time the map has been refreshed. `tests/plans` 91 passed.
+- **Why it was fixed here despite being out of scope**: it is a one-line test-only change on the same branch, for the same version, broken by a sibling commit of this very plan (`b29a0ffa`), and leaving it red would have meant handing Phase 3 a suite that cannot go green.
+
+### QG-1 - CLOSED (reconciled Phase 3, no corrective action): Phase 1's commit gate did not run before Phase 2 began
+
+- **Source phase**: Phase 1, step 8.10.
+- **Symptom**: Phase 1 reached its quality gate with two unresolved (pre-existing) suite failures and was awaiting a gate decision when Phase 2 was requested, so Phase 1's post-phase sequence never ran independently and the two phases share one commit rather than one each.
+- **Consequence**: the per-phase commit granularity the runbook aims for is lost for this pair; the changelog, known-gaps, and session-history content for both phases is present, but a bisect cannot separate them.
+- **Suggested next step**: none corrective. Recorded so the combined commit is legible as a deliberate consequence rather than an oversight.
+
+### Observations (no action)
+
+- **The one-time `CHANGELOG.md` normalization was a design consequence, not an incident.** A changelog is a single file holding the new entry and all history, so the release gate's file-level scoping cannot spare its old sections. Seven characters in sections released between v0.8.2 and v1.2.1 were rewritten once (6 em dashes to `--`, 1 en dash to `-`), deliberately and with the diff verified character by character. The repo-wide warning count moved 1049 to 1042 accordingly. Every later run is a no-op on history.
+- **Two silent-failure defects were found by testing the wiring rather than the code.** A `--path` target that did not resolve under `--root` exited 0 reporting a clean scan, and an absolute path outside root raised a bare `ValueError`. Both were found only by running the exact command Phase 2 was about to document, from a foreign project root. Neither was reachable from the phase's own unit tests, because those always pass a root that contains the target.
+
+### Phase 3 reconciliation (terminal phase)
+
+**Architecture refactor**: a genuine no-op, executed rather than skipped. No tracked `__pycache__` or `.pyc`. The `docs/v3/v3.16/` tree is canonical (`comparisons/`, `development/`, `plans/`, plus the two governance files), and the v3.16.8 plan is co-located with its seeding comparison per the co-location rule. Four empty directories exist and all four were deliberately left: `.antigravitycli` and `.claude/worktrees` are gitignored local runtime dirs, and `docs/v3/v3.17/development/history` + `docs/v3/v3.20/comparisons` are other versions' scaffolding (v3.17 has active work from a parallel session, so touching it would be both out of scope and disruptive). One stray root artifact, `pytest-out.log`, is gitignored, untracked, dated 2026-05-22, and absent from the manifest, so it never ships; it is a local scratch file and was left rather than deleted from the user's working tree.
+
+**Deferred-work markers**: none. A scan of every code and instruction file this version changed found zero `TODO` / `FIXME` / `XXX` / `HACK` / `# DEVIATION:` markers.
+
+**CI/CD**: verified, no change required. `concurrency` with `cancel-in-progress` (line 81), pip caching on both Python jobs (97, 475), and a `paths` filter of `**` minus `docs/**` with validator-input re-inclusions were all already present. Every surface this plan touched is covered: `tests/validators` runs on the Linux (497) and Windows (576) legs, `tests/skills` (500) covers the edited command and skill prose, and `tests/plans` (507) covers the model-map fix. The repo-wide detect step calls the validator with no arguments and is untouched by any change here. Deliberately NOT added: a repo-wide `--strict` CI gate, which would fail on the 1042 grandfathered warnings; strictness belongs to the pre-commit release gate over release-cycle artifacts, which is exactly how Phase 2 wired it.
+
+**Model-prompting-profile staleness (advisory, 9.0 step 4)**: verdict **DRIFTED**, which is an acceptable terminal outcome; UNKNOWN would not have been. The roster was enumerated FIRST, from `last-known-model-map.json` as refreshed from live first-party documentation on 2026-08-14 (commit `b29a0ffa`, sources cited in the plan), and passed as 15 explicit ids rather than letting the check answer UNKNOWN about a roster it was never given. Result: the profile layer was last verified 2026-07-27 against a roster that no longer matches, with 12 live-but-unprofiled ids and 1 recorded-but-not-live.
+
+The single "removed" entry deserves a caveat rather than action: `claude-haiku-4-5-20251001` and the map's `claude-haiku-4-5` are the SAME model, the dated id versus its alias. So that removal is a naming artifact of comparing two artifacts that spell the id differently, and it will recur on every run until one side adopts the other's form. The 12 additions are real. Per the step's contract this is ADVISORY: it does not block the release, the freshness marker was NOT re-stamped (only a real research run may write it), and the follow-up is `/tune-prompting` on its own schedule.
+
+**Verdict**: 4 closed (NI-1 by design, MT-1 by verified CI coverage, BG-2 by the derived-date fix, QG-1 as a recorded historical fact), 2 carried (WN-1 the accepted CJK limitation with a named revisit trigger; BG-1 pre-existing, environmental, and already tracked as v3.16.0 `BG-1`). **No release blockers.**
+
 ## v3.16 Summary
 
 | Category | Open | Resolved |
@@ -1239,6 +1313,7 @@ The plan required these be recorded rather than presumed:
 | v3.16.4 version-implementation gaps | not recorded - the v3.16.4 cycle (GitHub Usage Monitor account-pinned sessions, shipped 2026-08-11 from a parallel session) added no section to this file. Stated as an observed absence, not as a claim that the cycle had none. | n/a |
 | v3.16.5 version-implementation gaps (all 7 phases, reconciled) | 9 carried (NI-2, NI-3, NI-4, NI-5, WN-1, WN-3, WN-4 by design, each with a named place where the render loop answers it; DF-2 accepted, DF-3 declined for want of a call site) | 9 closed (MT-1, DF-1, DF-4, BG-1, BG-2, BG-3, BG-E1, plus v3.15's MT-1 and MT-2) |
 | v3.16.6 version-implementation gaps (both phases + release, reconciled) | 2 carried (NI-1 verbosity contract is agent behavior, by design; WN-1 `generate_manifest.py` is generation-environment-dependent, routed to the next `scripts/`-touching cycle) | 3 closed (DF-1 the unbookkept v3.16.5 deferral; QG-1 the CI path filter missing the command file; BG-1 the shipped v3.16.5 CRLF manifest, fixed by the v3.16.6 regeneration) |
+| v3.16.8 version-implementation gaps (all 3 phases, reconciled) | 2 carried (WN-1 the accepted CJK ideographic-variation limitation, with a named revisit trigger; BG-1 pre-existing and environmental, already tracked as v3.16.0 `BG-1`) | 4 closed (NI-1 the VS16 deviation, deliberate and measured; MT-1 by verified CI coverage on both legs; BG-2 the stale model-map date assertion, fixed by deriving the date from the snapshot rather than bumping it; QG-1 the combined Phase 1 + 2 commit, recorded rather than corrected) |
 | v3.16.7 version-implementation gaps (all 4 phases, reconciled) | 3 (NI-2 Gates A/B/E are agent behavior by the same reasoning as criterion 10; NI-3 composition probes specified inline like the existing probes, no bundled helper yet; WN-3 legacy `typing` generics kept for module consistency, advisory only since ruff is not a CI gate) | 6 closed (BG-1 the frontmatter-breaking BOM; DF-1 the missing plan artifact; DF-2 the cross-session changelog contamination; NI-1 the open intake, closed by the VectorCAST lessons; **WN-1 the manifest generator, carried since v3.16.5 and root-caused here by hashing git blob bytes**; WN-2 the two ruff findings) |
 
 The three comparison-sourced items remain non-blocking prose folds with named target files. Of the v3.16.0 items, BG-1 is pre-existing and reproduces without this plan's changes, WN-1 is environmental, DF-1 is a reasoned non-implementation, NI-1 is a deliberate scope boundary the plan requires, and NI-2 / NI-3 / NI-4 are Phase 2 findings that Phase 3 and Phase 5 are already scheduled to dispose of. Phase 5 dispositioned every open item: 13 closed, 3 carried forward. **None gates the v3.16.0 release.** NI-1 and NI-6 are scope decisions for cycles already touching the relevant surfaces, and BG-1 is pre-existing, reproduced on a clean `develop` worktree, and confined to a Windows host whose PATH resolves `tar` to the Git Bash binary. Of the 13 closed, three (BG-2, BG-3, and QG-3) were caught by the test suite rather than by review, which is this cycle's strongest argument for running the full suite before declaring a phase done.

@@ -410,13 +410,28 @@ The build-class convention is adopted on its own merits rather than on precedent
 
 Create `<version_dir>/plans/` if it does not exist (where `<version_dir>` is the path resolved earlier - canonically `docs/v<MAJOR>/v<MAJOR>.<MINOR>/`, with legacy `docs/<vSEMVER>/` or `docs/versions/<vMAJOR>/<vSEMVER>/` honored when already present), then write the release-prefixed `v<MAJOR>.<MINOR>.<PATCH>-<slug>.md` inside it following the structure above. If the target file already exists, ask the user whether to **Regenerate** (overwrite), **Append** (add phases), or **Rename** (pick a new slug).
 
+#### Closing sanitize pass (mandatory)
+
+Immediately after the plan file is written, sanitize it. A generated plan can pick up invisible characters and non-ASCII punctuation from quoted source material, from a comparison report, or from the model's own output, and none of that is visible on review:
+
+```bash
+python scripts/validate_unicode_safety.py --strict --fix --root . --path <plan-file>
+```
+
+Report what was cleaned in one line. The command prints `FIXED <path>: N unsafe character(s) removed, M punctuation replacement(s).` per repaired file, or `repaired 0 file(s).` when nothing needed changing. Four rules govern the pass:
+
+- Scope it to the just-written plan file only, never the whole repository. Archived documents carry grandfathered warnings that must not be mass-rewritten by a planning step.
+- Pass `--root .` explicitly and give `<plan-file>` relative to it. A `--path` that does not resolve under `--root` exits 2 rather than reporting a clean scan, so a mistargeted gate fails loudly instead of silently passing. In a project that consumes Nexus-Hub rather than this repository, the installed copy is at `~/.nexus-hub/scripts/validate_unicode_safety.py`, and `--root .` is what keeps the scan pointed at the project.
+- Treat a non-zero exit AFTER the fix pass as a blocker to resolve before presenting the plan. Exit 1 means a finding survived automatic repair (a character with no mechanical ASCII replacement); exit 2 means the file could not be found, read, or decoded.
+- Run the pass again on the final file whenever Step 5 rewrites the plan. The guarantee is about the file the user receives, not about the first draft.
+
 ### Step 5: Review and Confirm
 
 Show the user the phases-at-a-glance table and ask:
 - "Does this phase breakdown look right?"
 - "Are there any features missing or phases you would reorder?"
 
-Incorporate feedback, then write the final file.
+Incorporate feedback, then write the final file and re-run the Step 4 closing sanitize pass on it.
 
 ---
 
@@ -451,6 +466,7 @@ Incorporate feedback, then write the final file.
 - [ ] File written to the resolved `<version_dir>/plans/v<MAJOR>.<MINOR>.<PATCH>-<slug>.md` (canonical `docs/v<MAJOR>/v<MAJOR>.<MINOR>/plans/v<MAJOR>.<MINOR>.<PATCH>-<slug>.md` or legacy `docs/<vSEMVER>/plans/<slug>.md`)
 - [ ] For From-comparison mode: the plan's target version, `<version_dir>`, `**Version**`, `**Filename**`, and `**Seeded from**` all derive from the comparison's `Adoption target:` field so the plan is co-located with its comparison; for a legacy comparison lacking the field, the fallback resolution ran and the one-line note was emitted
 - [ ] User confirmed the phase breakdown before final generation
+- [ ] The closing sanitize pass ran on the FINAL plan file (`--strict --fix --root . --path <plan-file>`) and exited 0, with what it cleaned reported in one line
 
 ## Related Skills
 

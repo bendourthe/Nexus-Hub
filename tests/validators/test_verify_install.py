@@ -408,3 +408,92 @@ def test_unstaged_covered_changes_are_reported(tmp_path: Path) -> None:
     (target / "SKILL.md").write_bytes(b"two\n")
     dirty = gm._dirty_covered_paths(root)
     assert any("SKILL.md" in path for path in dirty), dirty
+
+
+# --------------------------------------------------------------------------
+# v3.16.8 (BG-2): the eol attribute is applied on top of the blob
+#
+# v3.16.7 hashed blob bytes, which removed the generating host's line endings
+# from the result but still was not the DISTRIBUTED form: `git archive` applies
+# .gitattributes, so a path declared `text eol=crlf` ships CRLF while its blob is
+# LF. The published v3.16.7 tarball verified 1230 OK / 1 MODIFIED / FAIL for
+# exactly that one file (scripts/nexus-hub.cmd).
+# --------------------------------------------------------------------------
+
+
+def test_eol_crlf_path_hashes_its_distributed_crlf_form(tmp_path: Path) -> None:
+    import hashlib
+
+    root = tmp_path / "repo"
+    root.mkdir()
+    if not _git_repo(root):
+        pytest.skip("git unavailable")
+
+    target = root / "scripts"
+    target.mkdir(parents=True)
+    # One path forced to CRLF, one left as ordinary text, in the same repo.
+    (root / ".gitattributes").write_text(
+        "* text=auto\nscripts/launcher.cmd text eol=crlf\n", encoding="utf-8"
+    )
+    (target / "launcher.cmd").write_bytes(b"echo one\necho two\n")
+    (target / "plain.sh").write_bytes(b"echo one\necho two\n")
+
+    subprocess.run(["git", "-C", str(root), "add", "-A"], **_RUN_KW)
+    subprocess.run(["git", "-C", str(root), "commit", "-qm", "x"], **_RUN_KW)
+
+    entries = dict(gm.compute_manifest(root))
+    lf = b"echo one\necho two\n"
+    crlf = b"echo one\r\necho two\r\n"
+
+    assert entries["scripts/launcher.cmd"] == hashlib.sha256(crlf).hexdigest(), (
+        "an eol=crlf path must hash the CRLF form git archive emits"
+    )
+    assert entries["scripts/plain.sh"] == hashlib.sha256(lf).hexdigest(), (
+        "a text=auto path must still hash the LF blob; the fix must not convert everything"
+    )
+
+
+def test_eol_lf_attribute_is_not_converted(tmp_path: Path) -> None:
+    """The explicit-lf case is the mirror guard against a blanket conversion."""
+    import hashlib
+
+    root = tmp_path / "repo"
+    root.mkdir()
+    if not _git_repo(root):
+        pytest.skip("git unavailable")
+
+    (root / "scripts").mkdir(parents=True)
+    (root / ".gitattributes").write_text("scripts/posix text eol=lf\n", encoding="utf-8")
+    (root / "scripts" / "posix").write_bytes(b"#!/bin/sh\nexit 0\n")
+    subprocess.run(["git", "-C", str(root), "add", "-A"], **_RUN_KW)
+    subprocess.run(["git", "-C", str(root), "commit", "-qm", "x"], **_RUN_KW)
+
+    entries = dict(gm.compute_manifest(root))
+    assert entries["scripts/posix"] == hashlib.sha256(b"#!/bin/sh\nexit 0\n").hexdigest()
+
+
+def test_apply_eol_is_idempotent_and_lf_is_a_noop() -> None:
+    """Converting twice must not double the CR, and lf must never rewrite."""
+    assert gm._apply_eol(b"a\nb\n", "crlf") == b"a\r\nb\r\n"
+    assert gm._apply_eol(b"a\r\nb\r\n", "crlf") == b"a\r\nb\r\n"
+    assert gm._apply_eol(b"a\nb\n", "lf") == b"a\nb\n"
+    assert gm._apply_eol(b"a\r\nb\r\n", "lf") == b"a\r\nb\r\n"
+
+
+def test_eol_attrs_omits_unspecified_paths(tmp_path: Path) -> None:
+    """A path with no eol attribute must be absent, so callers skip conversion."""
+    root = tmp_path / "repo"
+    root.mkdir()
+    if not _git_repo(root):
+        pytest.skip("git unavailable")
+
+    (root / "catalog").mkdir(parents=True)
+    (root / ".gitattributes").write_text("catalog/win.cmd text eol=crlf\n", encoding="utf-8")
+    (root / "catalog" / "win.cmd").write_bytes(b"x\n")
+    (root / "catalog" / "other.md").write_bytes(b"y\n")
+    subprocess.run(["git", "-C", str(root), "add", "-A"], **_RUN_KW)
+    subprocess.run(["git", "-C", str(root), "commit", "-qm", "x"], **_RUN_KW)
+
+    attrs = gm._git_eol_attrs(root, ["catalog/win.cmd", "catalog/other.md"])
+    assert attrs.get("catalog/win.cmd") == "crlf"
+    assert "catalog/other.md" not in attrs, "unspecified must be omitted, not defaulted"

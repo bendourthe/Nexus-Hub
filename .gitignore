@@ -114,3 +114,10 @@ media.env
 
 # Antigravity CLI local runtime dir (created on use; never committed)
 .antigravitycli/
+
+# Atomic-write scratch files from `validate_unicode_safety.py --fix` (v3.16.8
+# Phase 1). The fixer writes `.<filename>.<random>.tmp` beside its target and
+# renames over it, unlinking the temp file on any error, so one survives only an
+# abnormal termination (SIGKILL, power loss). Ignored so a stray leftover can
+# never be swept into a commit by `git add -A`.
+.*.tmp
