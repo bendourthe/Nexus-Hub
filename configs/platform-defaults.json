@@ -149,7 +149,7 @@
     },
     "hermes": {
       "display_name": "Hermes",
-      "source_url": "https://hermes-agent.nousresearch.com/docs/user-guide/configuration",
+      "source_url": "https://hermes-agent.nousresearch.com/docs/user-guide/configuration/",
       "verified": "2026-08-15",
       "doc_statement": "config.yaml documents agent.reasoning_effort (none | minimal | low | medium | high | xhigh | max | ultra) and the approval gates skills.write_approval, skills.guard_agent_created, and memory.write_approval. Resolution order is CLI arguments, config.yaml, .env, built-in defaults.",
       "settings": {
@@ -204,7 +204,7 @@
     },
     "gemini-cli": {
       "display_name": "Gemini CLI (Google)",
-      "source_url": "https://github.com/google-gemini/gemini-cli/blob/main/docs/reference/configuration.md",
+      "source_url": "https://geminicli.com/docs/cli/settings/",
       "verified": "2026-08-15",
       "doc_statement": "settings.json documents general.defaultApprovalMode (enum 'default' | 'auto_edit' | 'plan', default 'default'; the docs note YOLO mode is command-line only) and model.name (default undefined). A thinking budget exists only nested per model alias.",
       "settings": {
@@ -231,7 +231,7 @@
     },
     "gemini": {
       "display_name": "Gemini Code Assist",
-      "source_url": "https://developers.google.com/gemini-code-assist/docs/use-agentic-chat-pair-programmer",
+      "source_url": "https://docs.cloud.google.com/gemini/docs/codeassist/use-agentic-chat-pair-programmer",
       "verified": "2026-08-15",
       "doc_statement": "Gemini Code Assist documents geminicodeassist.agentYoloMode in the VS Code user settings JSON. The setting enables full automatic approval in trusted workspaces but is not documented for project .vscode/settings.json or ~/.gemini/settings.json.",
       "settings": {},

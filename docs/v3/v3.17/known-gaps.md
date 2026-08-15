@@ -147,15 +147,39 @@
 - **Resolution**: merged current `origin/develop` into the feature branch with `--no-ff --no-commit`, retained v3.16.8 release work, and restored the feature side for every path owned by revert `9d9e9a07`. The first focused run proved why this was necessary: Git had silently reintroduced the stale Bash Gemini sentinel and `jq` path and removed the PowerShell helper-distribution block outside visible conflict markers. Both installers were reconstructed from the feature tip with only the audited `3.16.8` version bumps reapplied.
 - **Verification**: both `_hardening` blocks remain, both helper scripts and the matcher-findings document exist, Makefile and CI retain the permission and installer-parity hard gates, the 80-test baseline/scope-parity suite passes, installer parity passes, all 10 platform contracts match, and every underlying `make validate` command passes on Windows.
 
+### BG-5 - CLOSED after integration: the PowerShell autonomy guard discarded hosted-runner stdin
+
+- **Target files**: `catalog/hooks/autonomy-guard.ps1`, `catalog/hooks/tests/test_autonomy_guard.py`
+- **Source phase**: v3.17.0 Phase 6 protected-branch CI
+- **What was wrong**: the PowerShell adapter read the hook payload only when `[Console]::IsInputRedirected` returned true. The Windows service runner reported false for the JSON pipe, so the adapter sent an empty payload to the Python guard and every protected-path case incorrectly returned success.
+- **Resolution**: read the single hook payload from standard input unconditionally, matching the Bash adapter and the hook invocation contract. A structural regression test prevents the unreliable redirection probe from returning.
+- **Verification**: the autonomy-guard suite passes 39 tests with Windows PowerShell selected, and the full hook suite passes 1,057 tests with 39 expected skips.
+
+### BG-6 - CLOSED after integration: platform-default provenance URLs drifted from the verified contract
+
+- **Target file**: `configs/platform-defaults.json`
+- **Source phase**: v3.17.0 Phase 6 protected-branch CI
+- **What was wrong**: Hermes differed only by a trailing slash, while Gemini CLI and Gemini Code Assist cited older official documentation locations than the contract table. The lever data remained unchanged, but provenance could not be traced consistently from both artifacts.
+- **Resolution**: align all three JSON source URLs to the official sources already recorded in `docs/policy/platform-defaults-levers.md`.
+- **Verification**: all 23 platform-default lever contract tests pass, the 13-platform derived-artifact sync check passes, and the complete validator suite passes 695 tests with two expected skips.
+
+### BG-7 - CLOSED after integration: the Claude Usage Monitor lockfile omitted optional WASI dependencies
+
+- **Target file**: `extensions/claude-usage-monitor/package-lock.json`
+- **Source phase**: v3.17.0 Phase 6 protected-branch CI
+- **What was wrong**: npm 11 tolerated references from `@rolldown/binding-wasm32-wasi` to `@emnapi/core` and `@emnapi/runtime` without package records, while the Node 22 runner's npm 10 clean install rejected the incomplete lock graph.
+- **Resolution**: regenerate the lockfile with npm 10.9.4, adding the two exact optional package records and their integrity metadata.
+- **Verification**: npm 10.9.4 completes a clean install, TypeScript compilation, 11 tests with 92 percent statement coverage, and VSIX packaging.
+
 ## v3.17 Summary
 
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented by design / unverified (`NI-#`) | 3 (NI-1, NI-2, NI-3) | 0 |
 | Deferred (`DF-#`) | 5 (DF-1, DF-2, DF-3, DF-4, DF-5) | 0 |
-| Bugs (`BG-#`) | 0 | 4 (BG-1, BG-2, BG-3, BG-4) |
+| Bugs (`BG-#`) | 0 | 7 (BG-1, BG-2, BG-3, BG-4, BG-5, BG-6, BG-7) |
 | Warnings (`WN-#`) | 3 (WN-1, environmental, carried from v3.15.0; WN-2, pre-existing Ruff baseline; WN-4, version-specific hook proof) | 1 (WN-3, Vitest config loader) |
 | Missing tests (`MT-#`) | 1 (MT-1, Claude monitor extension-wide coverage) | 0 |
 | Quality-gate bypasses (`QG-#`) | 0 | 0 |
 
-**Release blockers**: 0. NI-1 and NI-2 require live matcher probes before their respective permission baselines can be broadened, but the shipped validators and hook guards conservatively avoid relying on either unverified behavior. BG-4 is closed; protected-branch CI remains the authoritative integration gate before `/update release`.
+**Release blockers**: 0. NI-1 and NI-2 require live matcher probes before their respective permission baselines can be broadened, but the shipped validators and hook guards conservatively avoid relying on either unverified behavior. BG-4 is closed; the first protected-branch run surfaced and locally closed BG-5 through BG-7, and the follow-up run remains the authoritative integration gate before `/update release`.

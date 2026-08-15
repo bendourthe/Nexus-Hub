@@ -245,3 +245,11 @@ def test_guard_cli_reads_the_original_hook_payload(repo: Path) -> None:
 
     assert proc.returncode == 2
     assert ".claude/settings.local.json" in proc.stderr
+
+
+def test_powershell_guard_reads_hook_stdin_unconditionally() -> None:
+    """Windows service runners may misreport a redirected standard-input pipe."""
+    script = (_HOOKS_DIR / "autonomy-guard.ps1").read_text(encoding="utf-8")
+
+    assert "$raw = [Console]::In.ReadToEnd()" in script
+    assert "[Console]::IsInputRedirected" not in script
