@@ -90,6 +90,23 @@ The skill runs its workflow: detect inputs and mode -> resolve the design intake
 
 Heavy logic stays in the `document-to-interactive-html` skill; this file only resolves inputs and options and delegates. Do not duplicate the extraction or build method here.
 
+### Runtime helper manifest
+
+Every runtime helper lives in the DELEGATED skill's bundle, not in this command's package. A session that assumes otherwise guesses a filesystem path for a required QA step, which is exactly what happened once and is why this manifest exists. All paths are relative to `catalog/skills/specialized-domains/document-to-interactive-html/` (or to the installed skill directory on a user's machine):
+
+| Helper | Path | Used by |
+|---|---|---|
+| Content extractor | `scripts/extract_content.py` | Step 3 |
+| Design-entropy sampler | `scripts/design_seed.py` | Step 5 |
+| Stock-media fetcher (consent-gated) | `scripts/fetch_stock_media.py` | Step 6, Tier 2 |
+| Local AI image generator | `scripts/generate_local_image.py` | Step 6, Tier 3 |
+| Map projection fitter | `scripts/fit_map_projection.py` | figure reconstruction, path 2b |
+| Render-environment probe | `scripts/ensure_render_env.py` | Step 9, before the loop |
+| Structural visual-QA scorer | `scripts/visual_qa_score.py` | Step 9, every iteration |
+| Deterministic baseline builder (optional) | `scripts/build_presentation.py` | Step 7 |
+
+Resolve the skill directory once at the start of a run and derive every helper path from it. Do not search for a helper by name, and do not assume a helper sits beside this command file.
+
 ## Output
 
 A single `.html` at `--out` (or alongside the inputs) - a navigable interactive website, not a slide deck. It is fully self-contained: all CSS and JS inline, images as base64, the source's real figures as interactive (zoom / pan / filter) charts built from inlined JS, and no external network requests. Confirm the output location with the user when it is ambiguous (for example, multiple input folders).

@@ -40,7 +40,7 @@ Context: Phases 1 through 5 had delivered the permission baseline, autonomy desc
 
 **Plan specification**: Resolve, defer, or transfer every open v3.17.0 item, including autonomy non-delivery, permission coverage, Hermes installer wiring, matcher uncertainty, and Windows warnings.
 
-**What happened**: The ledger now records 13 open, 4 closed, and 0 release blockers. It explicitly names the eight descriptor-free integrations, twelve integrations without a read-only baseline, Hermes installer non-delivery, the standalone permissions-helper asymmetry, both matcher probes, the Windows Gemini baseline gap, and the Phase 4 Claude-only hook evidence boundary. The Claude and Codex usage-monitor Vitest configs were renamed from `.ts` to `.mts`, closing WN-3 without changing test behavior.
+**What happened**: The ledger now records 12 open, 5 closed, and 0 release blockers. It explicitly names the eight descriptor-free integrations, twelve integrations without a read-only baseline, Hermes installer non-delivery, the standalone permissions-helper asymmetry, both matcher probes, the Windows Gemini baseline gap, and the Phase 4 Claude-only hook evidence boundary. The Claude and Codex usage-monitor Vitest configs were renamed from `.ts` to `.mts`, closing WN-3 without changing test behavior. BG-4 was closed during integration by reconciling the feature branch with current `origin/develop`, restoring every revert-owned artifact, and verifying the silent-deletion paths.
 
 **Key files changed**: `docs/v3/v3.17/known-gaps.md`, `extensions/claude-usage-monitor/vitest.config.mts`, `extensions/codex-usage-monitor/vitest.config.mts`
 
@@ -131,18 +131,18 @@ Every workflow has concurrency cancellation and explicit timeouts; dependency-he
 
 | Issue | Severity | Decision |
 |---|---|---|
-| BG-4: `develop` reverted the Phase 1 checkpoint while this branch remains based on v3.16.6 | P1 integration hazard | Must resolve explicitly before merge; never perform a blind merge that silently retains the revert |
+| BG-4: `develop` reverted the Phase 1 checkpoint while this branch was based on v3.16.6 | Resolved | Merged current `origin/develop` into the feature branch first, restored every revert-owned artifact, then passed the exact 80-test regression suite and hard validators |
 | Local full-suite duration exceeds the bounded Windows verification budget | P2 | Rely on focused local evidence plus the remote protected-branch CI matrix before release |
 | Temporary smoke directory remains outside the repository because cleanup was blocked by the execution policy | Cosmetic | Reported; no repository artifact is affected |
-| 13 open known gaps | P2 or lower | Carried with explicit dispositions; zero are release blockers |
+| 12 open known gaps | P2 or lower | Carried with explicit dispositions; zero are release blockers |
 
 ---
 
 ## 5. Plan Discrepancies
 
 - The Phase 6 model recommendation was upshifted from the legacy strong/high entry to frontier/max because the phase combines repository-wide architecture, security-sensitive installer parity, and live vendor-contract decisions.
-- The machine freshness stamp remains at the branch's canonical 3.16.6 version. The full evidence pass is prepared for v3.17.0, but `/update release` owns the version bump and must advance the stamp with the canonical version files.
-- The full local Python suite could not be claimed green because it exceeded the bounded 15-minute Windows run. Focused suites, hard validators, and real Windows installer smoke are green; remote CI is still required.
+- The machine freshness stamp now matches the reconciled tree's canonical 3.16.8 version. The full evidence pass is prepared for v3.17.0, but `/update release` owns the version bump and must advance the stamp with the canonical version files.
+- The full local Python suite could not be claimed green because it exceeded the bounded 15-minute Windows run. Focused suites, hard validators, and real Windows installer smoke are green; protected-branch remote CI is the authoritative full-suite integration gate.
 
 ---
 
@@ -174,7 +174,7 @@ Every workflow has concurrency cancellation and explicit timeouts; dependency-he
 ### Manual Testing Still Needed
 
 - [ ] Run the protected-branch GitHub Actions checks, including hosted macOS and Linux real-installer legs.
-- [ ] Resolve BG-4 explicitly when integrating the feature branch into the current `develop` tip.
+- [x] Resolve BG-4 explicitly when integrating the feature branch into the current `develop` tip.
 - [ ] Run `/update release` only after green integration to bump versions, advance the contract stamp, generate release notes, tag, and publish.
 
 ---
@@ -205,10 +205,9 @@ Every workflow has concurrency cancellation and explicit timeouts; dependency-he
 
 ## 9. Summary and Next Steps
 
-Phase 6 is implementation-complete and release-ready subject to the explicit branch-integration hazard and remote CI. Installer parity is now a generic standing hard gate, every pipeline has an explicit optimize-or-retain decision, the platform contracts have fresh evidence, and the known-gaps ledger is reconciled.
+Phase 6 is implementation-complete and BG-4 is resolved. Installer parity is now a generic standing hard gate, every pipeline has an explicit optimize-or-retain decision, the platform contracts have fresh evidence, and the known-gaps ledger is reconciled. Protected-branch remote CI remains the authoritative integration gate before release work begins.
 
 **Next session should**:
 
-1. Apply the user's selected local commit or publication action.
-2. Reconcile this v3.16.6-based branch with the current v3.16.8 `develop` history while explicitly handling BG-4.
-3. Run remote CI and then invoke `/update release` for v3.17.0 only after integration is green.
+1. Run protected-branch remote CI for the reconciled `develop` integration.
+2. Invoke `/update release` for v3.17.0 only after integration is green.

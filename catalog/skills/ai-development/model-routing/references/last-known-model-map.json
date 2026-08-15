@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "verified_as_of": "2026-08-03",
+  "verified_as_of": "2026-08-14",
   "tiers": {
     "frontier": {
       "Anthropic": "claude-fable-5",
       "OpenAI": "gpt-5.6-sol",
-      "Google": "gemini-3.1-pro-preview",
-      "Cursor": "cursor-grok-4.5-high"
+      "Google": "gemini-3.7-flash",
+      "Cursor": "cursor-grok-4.6"
     },
     "strong": {
       "Anthropic": "claude-opus-5",
@@ -16,7 +16,7 @@
     },
     "standard": {
       "Anthropic": "claude-sonnet-5",
-      "OpenAI": "gpt-5.5",
+      "OpenAI": "gpt-5.6-terra",
       "Google": "gemini-3.5-flash",
       "Cursor": "composer-2.5"
     },
@@ -27,20 +27,20 @@
       "Cursor": "composer-2.5-fast"
     }
   },
+  "notes": {
+    "refresh_2026_08_14": "Refreshed from live first-party documentation. Anthropic: no drift. Google: gemini-3.7-flash shipped 2026-08-13 and takes frontier, displacing gemini-3.1-pro-preview; that placement is a judgment, since Google's changelog describes the Flash line from 3.5 onward as its most intelligent tier for sustained agentic and coding work, so a Pro-preview id no longer plausibly leads. Cursor: Grok 4.6 is now offered, so cursor-grok-4.6 takes frontier and 4.5 moves to strong; the docs list a Fast variant but NO -high variant for 4.6, so the prior cursor-grok-4.5-high id is dropped rather than renamed to a 4.6-high that was not observed. OpenAI: the API model list documents only the 5.6 family (sol, terra, luna, plus the specialized cyber); the previous gpt-5.5 standard value is NOT in it, so terra covers strong and standard rather than inventing an id, and luna takes fast.",
+    "deliberately_unmapped": "claude-mythos-5 shares claude-fable-5's specs and pricing but is invitation-only under Project Glasswing, so it is not mapped: a tier value must name a model the user's account can actually reach. Same rule excludes gpt-5.6-cyber, which is a specialized cybersecurity model rather than a general tier.",
+    "staleness_lesson": "This file went 11 days stale (2026-08-03 to 2026-08-14) across two releases without being refreshed, because the release flow's prompting-freshness step is ADVISORY and degrades to UNKNOWN when no live roster is enumerated. Accepting UNKNOWN is not the same as checking. Enumerate the roster and pass it, or refresh this file, rather than recording the degradation and moving on."
+  },
   "sources": {
     "Anthropic": [
-      "https://www.anthropic.com/news/claude-fable-5-mythos-5",
-      "https://www.anthropic.com/news/claude-opus-5",
-      "https://www.anthropic.com/news/claude-sonnet-5",
-      "https://www.anthropic.com/news/claude-haiku-4-5"
+      "https://platform.claude.com/docs/en/about-claude/models/overview"
     ],
     "OpenAI": [
-      "https://openai.com/index/gpt-5-6/",
       "https://developers.openai.com/api/docs/models"
     ],
     "Google": [
-      "https://ai.google.dev/gemini-api/docs/changelog",
-      "https://ai.google.dev/gemini-api/docs/deprecations"
+      "https://ai.google.dev/gemini-api/docs/changelog"
     ],
     "Cursor": [
       "https://cursor.com/docs/models-and-pricing",

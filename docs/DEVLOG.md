@@ -6,15 +6,15 @@
 
 Phase 6 finalized the agent-autonomy-toggle implementation. A generic manifest-driven installer parity checker now guards artifact registration, platform rosters, function counterparts, intentional exceptions, and external dependency fallbacks. The Makefile, CI, `/update release`, `implementation-plan`, and `implement-phase` all carry the new hard gate. CI also executes real installers with one shared postcondition checker: Ubuntu on every branch push, and Ubuntu, macOS, and Windows for pull requests, tags, and manual dispatch. The autonomy-security workflow retains its unconditional three-OS matrix because it gates a dangerous state.
 
-The architecture audit retained the single execution-trigger definition, intentional platform counterparts, and the approved v3.18.2 plan location. The v3.17 known-gaps ledger is finalized at 13 open, 4 closed, and 0 release blockers. Both usage-monitor Vitest configs moved from `.ts` to `.mts`, closing their native-loader warning. A full live platform-contract pass kept read paths at eight MATCH, one non-breaking Codex DRIFT, and one UNVERIFIED Nexus-AI contract; it corrected Hermes to `agent.reasoning_effort` and recorded Gemini Code Assist's new `geminicodeassist.agentYoloMode` lever as verified but not writable by the current integration.
+The architecture audit retained the single execution-trigger definition, intentional platform counterparts, and the approved v3.18.2 plan location. The v3.17 known-gaps ledger is finalized at 12 open, 5 closed, and 0 release blockers after the explicit BG-4 integration reconciliation. Both usage-monitor Vitest configs moved from `.ts` to `.mts`, closing their native-loader warning. A full live platform-contract pass kept read paths at eight MATCH, one non-breaking Codex DRIFT, and one UNVERIFIED Nexus-AI contract; it corrected Hermes to `agent.reasoning_effort` and recorded Gemini Code Assist's new `geminicodeassist.agentYoloMode` lever as verified but not writable by the current integration.
 
 ### Verification
 
-All hard validation commands pass, including the 271-skill bundle audit, trigger-routing gate, permission validator, installer parity, workflow security, version sync, five-template parity, ten-platform contract check, thirteen-platform defaults sync, and compression accuracy gate. Focused suites passed 70 Phase 6 parity/lifecycle tests and 95 contract/autonomy/defaults tests; Claude and Codex usage monitors passed 11 and 81 tests respectively; the real Windows installer smoke passed. The complete 2,550-test local repository suite exceeded its bounded 15-minute Windows run without an early failure result, so remote protected-branch CI remains mandatory and no full-suite green claim is made.
+All hard validation commands pass, including the 271-skill bundle audit, trigger-routing gate, permission validator, installer parity, workflow security, version sync, five-template parity, ten-platform contract check, thirteen-platform defaults sync, and compression accuracy gate. Focused suites passed 70 Phase 6 parity/lifecycle tests and 95 contract/autonomy/defaults tests; Claude and Codex usage monitors passed 11 and 81 tests respectively; the real Windows installer smoke passed. BG-4 reconciliation additionally passed all 80 permission-baseline and scope-parity tests after catching and repairing silent installer deletions in the first merge attempt. The complete 2,550-test local repository suite exceeded its bounded 15-minute Windows run without an early failure result, so protected-branch remote CI is the authoritative full-suite integration gate and no unsupported local full-suite claim is made.
 
 ### Release Handoff
 
-No commit, push, merge, tag, version bump, or release was performed. The feature branch still carries the v3.16.6 version while v3.16.8 exists on the integration line, so known gap BG-4 must be handled explicitly during integration or the prior revert can silently drop Phase 1 work. After green integration, `/update release` owns the v3.17.0 version bump, contract-stamp advance, release notes, tag, and publication.
+BG-4 was handled by merging current `origin/develop` into the feature branch first, preserving both the v3.16.8 release line and the v3.17.0 hardening, then verifying the exact silent-deletion paths. The integrated tree remains at canonical version 3.16.8; `/update release` still owns the v3.17.0 version bump, contract-stamp advance, release notes, tag, and publication after protected-branch CI is green.
 
 ## [2026-08-13] - v3.17.0 Phase 1: permission-baseline hardening and cross-platform merge parity
 
@@ -40,6 +40,55 @@ Full `tests/validators` + `tests/installer`: 978 passed, 17 skipped, 1 failed - 
 ### Known Issues
 
 Zero release blockers; this is Phase 1 of 6, not a release. Six items open in the new [v3.17 known-gaps ledger](v3/v3.17/known-gaps.md): NI-1 (output redirection under explicit allow rules is UNVERIFIED - load-bearing, and scheduled to ride Phase 4.1's live-build session), NI-2 (whether Gemini's matcher splits compound commands), DF-1 (Gemini ships no PowerShell or `cmd.exe` set), DF-2 (three platforms have no project-scoped permission target), DF-3 (the PowerShell-only permissions helper still has no cross-platform equivalent; Phase 5's CLI is its intended home), WN-1 (the carried bootstrap test). Two closed: BG-1 (the Windows removal-propagation gap) and BG-2 (the validator passing `Bash(gh api *)`, its own motivating example - found by the Phase 1.4 tests, fixed with a data-driven rule 3b).
+## [2026-08-14] - v3.16.8 Phase 3: terminal refactor and reconciliation [phase]
+
+### What Changed
+
+No behavior change. The terminal phase ran its three detectors, reconciled the version's known gaps, and verified CI/CD. The only file edits were documentation: the known-gaps reconciliation, this entry, and the phase session history.
+
+### Why It Changed
+
+The terminal phase exists so a version does not ship with its layout, gaps, and pipeline in an unexamined state. Its value here was confirming that the answer is "nothing to do" by running the checks, rather than assuming it because the plan was small.
+
+### Decisions Made
+
+- **Four empty directories left in place.** Two are gitignored local runtime dirs; two are v3.17 / v3.20 scaffolding, and v3.17 has active work from a parallel session in this tree, so cleaning it would be both out of scope and disruptive.
+- **`pytest-out.log` left rather than deleted.** Gitignored, untracked, absent from the manifest, dated 2026-05-22. It is a local scratch file in the working tree, not a repository artifact.
+- **No repo-wide `--strict` CI gate added.** It would fail on the 1042 grandfathered warnings; strictness belongs to the pre-commit release gate over release-cycle artifacts, where Phase 2 put it. Recorded as a deliberate non-addition so a later reader does not "complete" it.
+- **The advisory prompting-freshness marker was NOT re-stamped.** The check returned DRIFTED, which is a real verdict rather than the UNKNOWN a bare invocation produces; only a genuine research run may write the marker.
+
+### Verification
+
+Validate battery green (14 gates); repo-wide unicode 0 errors / 1042 warnings; release hygiene gate exit 0; compression accuracy gate PASSED (CCR 100.0%, reduction 45.8%); `tests/integrations` + `tests/installer` 947 passed / 17 skipped / 1 failed (`BG-1`), which closes the evidence gap Phase 2 left open; `tests/plans` + `tests/validators` 698 passed.
+
+### Known Issues
+
+Six v3.16.8 items reconciled: 4 closed, 2 carried, **0 release blockers**. Carried are `WN-1` (accepted CJK ideographic-variation limitation with a named revisit trigger) and `BG-1` (pre-existing, environmental, already tracked as v3.16.0 `BG-1`). Separately, the prompting-profile layer is DRIFTED against the live roster, advisory only, with `/tune-prompting` as the follow-up on its own schedule. One caveat recorded there: a "removed" model is really `claude-haiku-4-5-20251001` versus its alias `claude-haiku-4-5`, so that entry is a naming artifact and will recur until one artifact adopts the other's form.
+
+## [2026-08-14] - v3.16.8 Phases 1-2: Unicode watermark hygiene [phase]
+
+### What Changed
+
+`scripts/validate_unicode_safety.py` gained coverage of three missing character families (Unicode tag characters as hard errors; space homoglyphs, soft hyphen, and the full variation-selector range as strict-class findings) and an opt-in `--fix` mode with atomic writes. The workflow surfaces were then wired to it: `/plan` sanitizes every plan file it writes, `/update docs` and `/update changelog` detect on touched Markdown, and `/update release` carries a blocking fix-and-block gate over release-cycle artifacts as governance step 7. Sub-tasks 1.3 and 2.3, the ingested v3.16.7 `BG-2` halves, were already complete on entry.
+
+### Why It Changed
+
+Nexus-Hub already detected zero-width characters and Trojan-Source bidi controls but had no way to clean them, no coverage of several smuggling channels, and no workflow that ran the check automatically. A detector nobody invokes at the moment content is written is a detector that finds things after they ship.
+
+### Decisions Made
+
+- **VS16 is exempt when it follows an emoji base**, deviating from the plan's blanket rule. Measured first: all 90 occurrences in the tree are legitimate emoji presentation and the ranges actually used for steganography (VS1-VS15, the 240-value supplement) occur zero times. The literal rule would have flagged 90 good characters, caught nothing, and let the new release gate rewrite emoji in `CHANGELOG.md`. The maintainer chose the exemption from the measurement.
+- **Detection and repair share one policy function**, so the fixer cannot skip a rule the scanner reports or rewrite one it does not. A round-trip test enforces it.
+- **Detect-first in `docs` / `changelog`, fix-and-block only in `release`.** Hand-edited prose has an author who may have meant that character; a release artifact does not.
+- **The one-time `CHANGELOG.md` normalization was performed deliberately** (7 characters in sections released between v0.8.2 and v1.2.1), because a changelog holds its history in the same file the gate must cover, and the alternative was shipping a blocking gate that fails on first use.
+
+### Verification
+
+Phase 1's stability gate was a pre/post baseline diff, and detect-mode output came through byte-identical (0 errors, 1049 warnings, exit 0); the count later moved to 1042 solely from the 7 normalized dashes. Full validate battery green (12 gates). `tests/` 2417 passed / 18 skipped / 2 failed, `catalog/hooks/tests/` 993 passed, extension suites 670 passed, `tests/skills/` 685 passed. 28 new validator tests. Both wirings smoke-tested end to end, the plan one deliberately from a foreign project root.
+
+### Known Issues
+
+Six items under `## v3.16.8` in the v3.16 known-gaps file, none introduced by the code here. The two suite failures are both pre-existing: `BG-1` the MSYS-`tar` bootstrap test (already root-caused as v3.16.0 `BG-1`), and `BG-2` a model-map fallback test asserting a date that commit `b29a0ffa` moved when it refreshed the snapshot. `NI-1` records the VS16 deviation, `WN-1` the accepted CJK limitation, `MT-1` the Windows-skipped file-mode test (covered on the CI Linux leg), and `QG-1` the fact that Phases 1 and 2 share one commit. Phase 3 reconciles.
 
 ## [2026-08-12] - v3.16.6 release: presentify verbosity intake [release]
 

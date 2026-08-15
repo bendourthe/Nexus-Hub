@@ -58,6 +58,18 @@ The `docs` scope MUST refresh documentation CONTENT to the repo's current state,
 
 When the scope is `release`, run this reconciliation as the FIRST step, before the version bump. A release whose only documentation change is the version/count bump has not run `docs`.
 
+## docs and changelog scopes: Unicode hygiene (detect-first)
+
+After writing or editing Markdown in the `docs` or `changelog` scope, check each touched file:
+
+```bash
+python scripts/validate_unicode_safety.py --strict --root . --path <file>
+```
+
+Detect here rather than fix, because these scopes routinely touch hand-edited prose whose punctuation may be deliberate, and an automatic rewrite would silently overrule the author. Resolve what the report names before finishing the scope: re-run with `--fix` on that file once the findings are confirmed unintentional, or edit by hand when a character is there on purpose (rewording an em-dash clause usually reads better than substituting `--`). The `release` scope is the one place this becomes an automatic fix-and-block gate, because a release artifact has no author left to consult.
+
+Note that a `--path` which does not resolve under `--root` exits 2 rather than reporting a clean scan, so a mistyped path fails loudly instead of passing while checking nothing.
+
 ## version scope (atomic, drift-guarded)
 
 The `version` scope MUST use `scripts/check_version_sync.py` so every version-carrying surface is bumped as one atomic set: `.claude-plugin/plugin.json` (canonical), `scripts/installer.sh` (`NEXUS_HUB_VERSION`), `scripts/installer.ps1` (`$script:NexusHubVersion`), `data/marketplace.json`, the latest `CHANGELOG.md` heading, and the README / AGENTS.md catalog-version prose. Run the guard before and after the bump: it must report a clean in-sync tree afterward. This closes the v2.4.0 drift class (installers stuck at one version while `plugin.json` moved to the next) systemically - a mismatch fails the build rather than shipping.
@@ -65,6 +77,8 @@ The `version` scope MUST use `scripts/check_version_sync.py` so every version-ca
 ## release scope: supply-chain manifest (regenerate before the commit)
 
 After every version-carrying surface is bumped (`version`) and the docs / changelog / refactor scopes have run, regenerate the supply-chain manifest so it reflects the exact bytes being released, then stage it into the release commit (before the tag is cut). Run `python scripts/generate_manifest.py`, which writes `MANIFEST.sha256` at the repo root over the distributed catalog tree (`catalog/`, `templates/`, `scripts/`, `data/`) in `sha256sum -c` text format. This MUST run after the version bump so the manifest hashes the bumped files, and before the commit so the manifest ships inside the release tag (and therefore inside the `~/.nexus-hub/src` tree the install bootstrap materializes). The manifest is what `nexus-hub verify` later diffs the installed catalog against; a release whose manifest is stale or missing leaves `verify` unable to confirm an install. The generator is strictly local (stdlib `hashlib`, no outbound call) and deterministic (sorted by path), so re-running it on an unchanged tree is a no-op diff.
+
+Two properties of the generator worth knowing at release time, both learned from shipped defects. It hashes a tracked file's GIT BLOB bytes passed through the path's `eol` attribute, which is the DISTRIBUTED form, so the manifest no longer depends on the generating host's `core.autocrlf` (v3.16.7 `WN-1`) and correctly covers a path declared `text eol=crlf` (v3.16.8 `BG-2`). Two consequences: **stage before generating**, because tracked-but-unstaged edits are hashed as their staged form (the tool warns and names the dirty covered paths); and **a `.gitattributes` edit is a manifest-affecting change**, since altering an `eol` attribute alters the distributed bytes for every path it covers, so regenerate after one. The artifact round-trip gate below is what proves the result against the real download.
 
 ## release scope: GitHub Release publishing (final step, after push)
 
@@ -75,6 +89,23 @@ After the tag is pushed, `release` publishes a GitHub Release for the new `vX.Y.
 - **Idempotent.** If a Release for `vX.Y.Z` already exists, update it in place (`gh release edit "vX.Y.Z" --title ... --notes-file ...`) instead of erroring.
 - **Confirmation gate.** Publishing is outward-facing, so follow the active instruction template's `Consequential Decisions` rule before confirming creation or editing of the Release -- the same gate the tag and push already carry. Never publish without explicit user confirmation.
 - **Backfill.** When the Releases page is behind the tags (a tag exists with no matching Release), the same step publishes the missing Release(s) from each tag's CHANGELOG section -- run it per missing `vX.Y.Z`.
+- **Path trap on a Bash-style shell.** `gh` is a native Windows binary and cannot read a Git-Bash `/tmp/...` path, so `--notes-file` (and `--dir`) need a native Windows path when the release is driven from Bash. A `/tmp` path fails with "The system cannot find the file specified."
+
+## release scope: artifact round-trip (the FINAL gate, after publish)
+
+Verify the release against the artifact a user actually downloads. This is the last gate in the flow and it exists because v3.16.7 passed every other check and still shipped a manifest that made `nexus-hub verify` report FAIL: every earlier check ran against a LOCAL reconstruction of the artifact (the index, the working tree), and each of those shares its assumptions with the generator it was checking. Only the published artifact is independent of them.
+
+```bash
+gh release download "vX.Y.Z" --archive=tar.gz --dir <native-path>
+tar -xzf <native-path>/<repo>-X.Y.Z.tar.gz -C <native-path>
+python scripts/verify_install.py --root <native-path>/<repo>-X.Y.Z
+```
+
+Expect `verify: PASS` with 0 modified, 0 missing, 0 extra.
+
+- **It never fails the release.** By this point the tag is pushed and the Release is published, so an unavailable `gh`, no network, or a slow download means printing the commands for the user to run later -- the same degradation posture the publish step already carries.
+- **A FAIL here is a known-gaps entry plus a follow-up patch, NEVER a history rewrite.** The release is already public. Record the finding with its measured evidence (which files, which hashes) and fix it in the next patch. Do not retag, force-push, or delete a published Release to hide it.
+- **A pre-release local check is possible, but it MUST pin the line-ending config.** To check before publishing, archive the index (`git write-tree` then `git archive <tree>`) rather than trusting the working tree -- but pass `git -c core.autocrlf=false -c core.eol=lf archive ...`. Without those, a Windows host applies CRLF to every `text=auto` file and the check reports mass false mismatches (about 1180 of 1231 on this catalog) that look catastrophic and mean nothing. GitHub generates its tarballs on Linux, so those two settings are what make a local archive comparable to the published one. A path with an EXPLICIT `eol=crlf` attribute is host-independent and converts either way, which is exactly why the manifest generator models the attribute rather than the host.
 
 ## config scope (platform-config drift repair)
 
@@ -109,9 +140,17 @@ Before stopping for any governance confirmation below, follow the active instruc
     - **never blocks the release.** `--advisory` exits 0 on every path, including DRIFTED, a missing bundle, a corrupt index, and no live roster.
     - **never re-stamps a freshness marker to force a pass.** Only a real research run may write `meta.last_verified`; re-stamping it here would fake currency and is the one action that would make the check worthless.
     - **is never wired into `make validate` or CI.** `check_model_prompting_freshness.py` is deliberately absent from both, unlike its structural sibling `verify_model_prompting_profiles.py`, which IS a hard gate on the layer's shape.
-    - **degrades to a logged no-op offline.** No web tool or no enumerable roster means print the reason and continue; the verdict is UNKNOWN, not a failure.
+    - **degrades to a logged no-op offline.** No web tool means print the reason and continue; the verdict is UNKNOWN, not a failure.
 
     A future editor who "fixes" this into a blocking gate will couple the release clock to the model-release clock, which is the exact failure this design avoids.
+
+    **Non-blocking is not the same as skippable: ENUMERATE THE ROSTER FIRST.** `check_model_prompting_freshness.py` takes model ids as arguments and reports `UNKNOWN: no live roster supplied, so drift cannot be determined` when it gets none. Run with no arguments it therefore always "passes" while verifying nothing, and recording that UNKNOWN as a satisfied step is indistinguishable from never running it. So:
+
+    - Enumerate the roster BEFORE invoking the check (the `model-routing` `enumerate-models` helper, or the vendor docs directly), and pass the ids: `python scripts/check_model_prompting_freshness.py --advisory <id> <id> ...`.
+    - The step's acceptable terminal outcomes are **IN SYNC** or **DRIFTED**. UNKNOWN is acceptable only when web access genuinely failed, and then it must be recorded WITH that reason, not as a clean pass.
+    - **Also refresh the model map, which is a DIFFERENT artifact.** This step grades the prompting-profile layer (`profiles-index.json`). The tier-to-id map lives in `catalog/skills/ai-development/model-routing/references/last-known-model-map.json` and is what a future `/plan` reads as its offline fallback. Nothing else in the release flow refreshes it. In v3.16.7 the profile layer was IN SYNC while the map sat 11 days stale across two releases, missing a Gemini release and a Cursor model, so checking one and assuming the other is the observed failure. Refresh both, validate the map with `model-map.py validate <path>`, and record any tier-placement judgment as a judgment.
+
+    Both artifacts stay non-blocking on the release itself; what changed is that the step must now produce a verdict rather than a shrug.
 
 7. **Capability usage gate**: when the release introduces or materially changes an OPT-IN capability, workflow, managed skill, or host surface, the release notes MUST carry five elements for each affected surface. Shipping a switch without teaching the user how to operate it is how an opt-in surface becomes either unused or over-trusted.
 
@@ -133,7 +172,25 @@ Before stopping for any governance confirmation below, follow the active instruc
 
     **Scope it tightly.** The gate applies ONLY to opt-in surfaces, never to every changed line, and it is not a checklist to run against the diff. A release that changes no opt-in surface satisfies the gate with one explicit declaration in the release notes ("This release changes no opt-in capability, installer flag, or host surface"), which is deliberately one line of work: an already-long release flow earns no ceremony, and an explicit no-change statement is what distinguishes "checked and none applied" from "never checked".
 
-    Mechanical support: `python scripts/check_release_capability_docs.py <notes-file> --surface <name>` (repeat `--surface` per changed opt-in surface), or `--expect-no-optional-capability-changes` for a release with none. It runs ADVISORY - it reports and exits 0, so a maintainer decides - and is promoted to a hard gate by adding `--strict` only after it has caught a real omission. Detection is marker-based rather than prose-inferring: each surface declares its five elements as labelled lines (`Activation:`, `Validation:`, `Rollback:`, `Authority:`, `Docs:`), because a checker that guessed at free text would produce confident false passes, and a false CLEAR is the exact failure this gate exists to prevent.
+    **Mechanical support is MANDATORY and runs with `--strict` (promoted v3.16.8).** Run `python scripts/check_release_capability_docs.py <notes-file> --strict --surface <name>` (repeat `--surface` per changed opt-in surface), or `python scripts/check_release_capability_docs.py <notes-file> --strict --expect-no-optional-capability-changes` for a release with none. Extract `<notes-file>` from the finalized `## [X.Y.Z]` CHANGELOG section, which is the same text the GitHub Release body uses, so the check grades what actually ships.
+
+    The promotion condition this command file already stated has been met, so it is recorded rather than left implicit. In v3.16.7 the gate was satisfied by a hand-written declaration reading "introduces no NEW opt-in capability, ..." -- semantically exact, and matching none of the checker's patterns, because the word "new" sits between `no` and `opt-in`. The checker was never run, so nothing caught it, and the release shipped in the same evidentiary state as one where the gate had been skipped. That is precisely the false CLEAR the gate exists to prevent, and it is why the checker is no longer optional: a declaration a human accepts and a machine cannot see provides no evidence.
+
+    Wording that satisfies the no-change form: `changes no opt-in capability`, `no opt-in capability`, `no opt-in surface`, `no applicable opt-in`, or `no optional capability changes`. Detection is marker-based rather than prose-inferring: each surface declares its five elements as labelled lines (`Activation:`, `Validation:`, `Rollback:`, `Authority:`, `Docs:`) or as a Markdown table row, because a checker that guessed at free text would produce confident false passes.
+
+7. **Unicode-hygiene gate on release artifacts (BLOCKING)**: sanitize what this release actually ships, before it is committed.
+
+    ```bash
+    python scripts/validate_unicode_safety.py --strict --fix --root . --path CHANGELOG.md --path README.md --path docs/v<MAJOR>/v<MAJOR>.<MINOR>/
+    ```
+
+    Add one `--path <file>` for any `RELEASE_NOTES` file the repo keeps. Five rules govern it:
+
+    - **A residual non-zero exit AFTER the fix BLOCKS the release commit.** Exit 1 means a finding survived automatic repair (a character with no mechanical ASCII replacement); exit 2 means a target was missing, unreadable, or not valid UTF-8. Neither is a warning to note and move past.
+    - **Scope it to release-cycle artifacts, never the whole repository.** Archived documentation carries over a thousand grandfathered warnings (the `WN-v23-3` lineage) that a repo-wide `--fix` would mass-rewrite, burying the release's real content in an enormous unrelated diff. The gate covers what this release ships, not what it inherited.
+    - **Run it BEFORE the supply-chain manifest regeneration**, so the manifest always hashes post-sanitize bytes. Today's artifact list sits outside the manifest's roots (`catalog/`, `templates/`, `scripts/`, `data/`), which makes the ordering harmless right now; fixing the order anyway makes correctness a property of the flow rather than a coincidence that a future scope change would quietly break.
+    - **It composes with CI rather than duplicating it.** CI keeps its repo-wide DETECT pass (warnings allowed, errors fail). This gate is earlier (pre-commit, so nothing ships and gets caught afterwards) and stricter (it promotes punctuation to errors and repairs it) over the narrow set a release publishes.
+    - **The one-time historical normalization is already done (v3.16.8).** A changelog is a single file holding both the new entry and all past ones, so file-level scoping cannot spare its history: the gate's first run rewrote 7 non-ASCII dashes in already-released `CHANGELOG.md` sections. That was performed deliberately and once, in the release that introduced this gate, and is recorded in its changelog entry. Every subsequent run is a no-op on history, so a future release seeing a large `CHANGELOG.md` diff from this gate should stop and investigate rather than accept it.
 
 This mirrors the `implement-phase` final-phase gate - `/implement` hands off to `/update release` on a plan's last phase - so the same refactor + known-gaps + CI/CD + platform-contract + installer-parity + prompting-staleness + capability-usage work runs whether the release is reached through `/implement` or invoked directly.
 
