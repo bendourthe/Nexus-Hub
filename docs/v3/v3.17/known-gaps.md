@@ -147,13 +147,13 @@
 - **Resolution**: merged current `origin/develop` into the feature branch with `--no-ff --no-commit`, retained v3.16.8 release work, and restored the feature side for every path owned by revert `9d9e9a07`. The first focused run proved why this was necessary: Git had silently reintroduced the stale Bash Gemini sentinel and `jq` path and removed the PowerShell helper-distribution block outside visible conflict markers. Both installers were reconstructed from the feature tip with only the audited `3.16.8` version bumps reapplied.
 - **Verification**: both `_hardening` blocks remain, both helper scripts and the matcher-findings document exist, Makefile and CI retain the permission and installer-parity hard gates, the 80-test baseline/scope-parity suite passes, installer parity passes, all 10 platform contracts match, and every underlying `make validate` command passes on Windows.
 
-### BG-5 - CLOSED after integration: the PowerShell autonomy guard discarded hosted-runner stdin
+### BG-5 - OPEN after integration: the PowerShell autonomy guard discards hosted-runner stdin
 
 - **Target files**: `catalog/hooks/autonomy-guard.ps1`, `catalog/hooks/tests/test_autonomy_guard.py`
 - **Source phase**: v3.17.0 Phase 6 protected-branch CI
-- **What was wrong**: the PowerShell adapter read the hook payload only when `[Console]::IsInputRedirected` returned true. The Windows service runner reported false for the JSON pipe, so the adapter sent an empty payload to the Python guard and every protected-path case incorrectly returned success.
-- **Resolution**: read the single hook payload from standard input unconditionally, matching the Bash adapter and the hook invocation contract. A structural regression test prevents the unreliable redirection probe from returning.
-- **Verification**: the autonomy-guard suite passes 39 tests with Windows PowerShell selected, and the full hook suite passes 1,057 tests with 39 expected skips.
+- **What was wrong**: the PowerShell adapter first gated the hook payload on `[Console]::IsInputRedirected`, which the Windows service runner reported false for the JSON pipe. Reading `[Console]::In` unconditionally passed locally but the first follow-up hosted run proved that the text-reader abstraction itself detaches from the PowerShell 7-hosted Windows PowerShell 5.1 service-process pipe.
+- **Remediation in progress**: read the UTF-8 payload through a `StreamReader` over `[Console]::OpenStandardInput()`, bypassing both unreliable `Console` text-reader paths. A structural regression test forbids their return.
+- **Verification state**: the raw-handle variant passes all 39 focused guard tests with Windows PowerShell selected and parses under Windows PowerShell 5.1. A follow-up hosted Windows run is required because the parent PowerShell 7 service topology is unavailable locally.
 
 ### BG-6 - CLOSED after integration: platform-default provenance URLs drifted from the verified contract
 
@@ -177,9 +177,9 @@
 |---|---|---|
 | Not implemented by design / unverified (`NI-#`) | 3 (NI-1, NI-2, NI-3) | 0 |
 | Deferred (`DF-#`) | 5 (DF-1, DF-2, DF-3, DF-4, DF-5) | 0 |
-| Bugs (`BG-#`) | 0 | 7 (BG-1, BG-2, BG-3, BG-4, BG-5, BG-6, BG-7) |
+| Bugs (`BG-#`) | 1 (BG-5, hosted Windows stdin) | 6 (BG-1, BG-2, BG-3, BG-4, BG-6, BG-7) |
 | Warnings (`WN-#`) | 3 (WN-1, environmental, carried from v3.15.0; WN-2, pre-existing Ruff baseline; WN-4, version-specific hook proof) | 1 (WN-3, Vitest config loader) |
 | Missing tests (`MT-#`) | 1 (MT-1, Claude monitor extension-wide coverage) | 0 |
 | Quality-gate bypasses (`QG-#`) | 0 | 0 |
 
-**Release blockers**: 0. NI-1 and NI-2 require live matcher probes before their respective permission baselines can be broadened, but the shipped validators and hook guards conservatively avoid relying on either unverified behavior. BG-4 is closed; the first protected-branch run surfaced and locally closed BG-5 through BG-7, and the follow-up run remains the authoritative integration gate before `/update release`.
+**Release blockers**: 1 (BG-5). NI-1 and NI-2 require live matcher probes before their respective permission baselines can be broadened, but the shipped validators and hook guards conservatively avoid relying on either unverified behavior. BG-4, BG-6, and BG-7 are closed; BG-5 requires a green follow-up hosted Windows run before `/update release`.
