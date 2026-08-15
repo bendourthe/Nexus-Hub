@@ -151,9 +151,9 @@
 
 - **Target files**: `catalog/hooks/autonomy-guard.ps1`, `catalog/hooks/tests/test_autonomy_guard.py`
 - **Source phase**: v3.17.0 Phase 6 protected-branch CI
-- **What was wrong**: the PowerShell adapter first gated the hook payload on `[Console]::IsInputRedirected`, which the Windows service runner reported false for the JSON pipe. Reading `[Console]::In` unconditionally and then reading the raw handle both passed locally but failed remotely, proving the Windows PowerShell engine had already consumed hosted `-File` input before either `Console` path saw it.
-- **Remediation in progress**: consume PowerShell's automatic `$input` enumerator first, then fall back to a UTF-8 `StreamReader` over `[Console]::OpenStandardInput()` for ordinary redirected pipes. A structural regression test requires both paths and forbids the unreliable `Console` text readers.
-- **Verification state**: the combined input strategy passes all 39 focused guard tests, the Windows PowerShell 5.1 parse gate, and the full local hook matrix with 1,057 passing tests and 39 expected skips. The hosted Windows PowerShell 5.1 job remains required because its PowerShell 7 parent service topology is unavailable locally.
+- **What was wrong**: the PowerShell adapter first gated the hook payload on `[Console]::IsInputRedirected`, which the Windows service runner reported false for the JSON pipe. Hosted diagnostics then proved that PowerShell had the correct payload, project root, state, engine, and Python executable, but piping the payload string into the native Python child produced empty stdin and a false allow.
+- **Remediation in progress**: consume PowerShell's automatic `$input` enumerator first with a raw-handle fallback, parse the JSON in the adapter, and pass the extracted file path through the engine's existing `--path` option. This removes the failing native-command pipeline without duplicating the engine's path policy.
+- **Verification state**: the explicit-path bridge passes 54 focused guard/engine tests, the Windows PowerShell 5.1 parse gate, workflow security validation, and the full local hook matrix with 1,057 passing tests and 39 expected skips. The hosted Windows PowerShell 5.1 job remains required. Temporary CI tracing was removed after it isolated the failing boundary.
 
 ### BG-6 - CLOSED after integration: platform-default provenance URLs drifted from the verified contract
 

@@ -588,15 +588,7 @@ jobs:
         env:
           # Pin the edition under test; see the job comment above.
           NEXUS_TEST_POWERSHELL: powershell
-          NEXUS_AUTONOMY_DEBUG_FILE: ${{ runner.temp }}\autonomy-guard-debug.log
-        run: |
-          python -m pytest catalog/hooks/tests -q
-          $testExit = $LASTEXITCODE
-          if ($testExit -ne 0 -and (Test-Path -LiteralPath $env:NEXUS_AUTONOMY_DEBUG_FILE)) {
-            Write-Output "autonomy-guard diagnostic trace:"
-            Get-Content -LiteralPath $env:NEXUS_AUTONOMY_DEBUG_FILE
-          }
-          exit $testExit
+        run: python -m pytest catalog/hooks/tests -q
 
       - name: Installer + validator suites on Windows
         env:
