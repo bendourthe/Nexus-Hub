@@ -247,13 +247,17 @@ def test_guard_cli_reads_the_original_hook_payload(repo: Path) -> None:
     assert ".claude/settings.local.json" in proc.stderr
 
 
-def test_powershell_guard_reads_hook_stdin_unconditionally() -> None:
-    """Windows service runners may misreport a redirected standard-input pipe."""
+def test_powershell_guard_forwards_an_explicit_path_to_the_engine() -> None:
+    """Windows service runners can drop native-command pipeline input."""
     script = (_HOOKS_DIR / "autonomy-guard.ps1").read_text(encoding="utf-8")
 
     assert "$pipelineInput = @($input)" in script
     assert "$raw = $pipelineInput -join [Environment]::NewLine" in script
     assert "$stdin = [Console]::OpenStandardInput()" in script
     assert "$raw = $reader.ReadToEnd()" in script
+    assert "$payload.tool_input.file_path" in script
+    assert "$payload.tool_input.path" in script
+    assert "guard --project $projectRoot --path $targetPath" in script
+    assert "$raw | & $python.Source" not in script
     assert "[Console]::IsInputRedirected" not in script
     assert "[Console]::In" not in script

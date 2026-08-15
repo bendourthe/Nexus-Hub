@@ -132,7 +132,7 @@ Every workflow has concurrency cancellation and explicit timeouts; dependency-he
 | Issue | Severity | Decision |
 |---|---|---|
 | BG-4: `develop` reverted the Phase 1 checkpoint while this branch was based on v3.16.6 | Resolved | Merged current `origin/develop` into the feature branch first, restored every revert-owned artifact, then passed the exact 80-test regression suite and hard validators |
-| BG-5: Windows PowerShell discards the autonomy hook payload on the hosted runner | Open, release-blocking | Both `Console.In` and the raw handle failed remotely; consume PowerShell's `$input` enumerator first, retain the raw-handle fallback, and require hosted confirmation |
+| BG-5: Windows PowerShell discards the autonomy hook payload on the hosted runner | Open, release-blocking | Hosted tracing isolated the native PowerShell-to-Python pipeline; parse JSON in the adapter, forward `--path` explicitly, and require hosted confirmation |
 | BG-6: defaults provenance URLs disagreed with the verified contract | Resolved | Aligned Hermes, Gemini CLI, and Gemini Code Assist URLs and passed all 23 contract tests plus 695 validators |
 | BG-7: npm 10 rejected the Claude monitor lock graph | Resolved | Regenerated the lock with npm 10.9.4 and passed clean install, compile, 11 tests with coverage, and packaging |
 | Local full-suite duration exceeds the bounded Windows verification budget | P2 | Rely on focused local evidence plus the remote protected-branch CI matrix before release |
