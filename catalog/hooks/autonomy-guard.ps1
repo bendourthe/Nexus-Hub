@@ -52,6 +52,10 @@ if (-not $python) {
     exit 2
 }
 
-$raw = if ([Console]::IsInputRedirected) { [Console]::In.ReadToEnd() } else { "" }
+# Hook invocations always provide one JSON payload on standard input. Windows
+# PowerShell 5.1 can report that pipe as not redirected under service runners,
+# which previously discarded the payload and turned every guarded write into an
+# allow. Read to EOF unconditionally, matching the Bash sibling and hook contract.
+$raw = [Console]::In.ReadToEnd()
 $raw | & $python.Source $engine guard --project $projectRoot
 exit $LASTEXITCODE
