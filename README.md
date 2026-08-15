@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.16.8 -->
+<!-- nexus-hub-version: 3.17.0 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 271 skills, 17 commands, 31 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -36,6 +36,18 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v3.17.0
+
+**Time-bounded workspace autonomy is now a public, guarded capability.** Run `nexus-hub autonomy enable --platform <key> --tier edits --ttl 60` from a clean feature branch to preview the exact configuration diff and opt in. The default tier permits edits only. `--tier full` requires an interactive terminal and typed project-directory confirmation, and every activation expires after 1 to 480 minutes. `nexus-hub autonomy status` reports the tier and remaining TTL for every registered platform; `nexus-hub autonomy disable --platform <key>` or `nexus-hub autonomy revert --platform <key>` restores the recorded backup and clears the state.
+
+**The authority boundary is enforced in code.** Enablement requires a Git repository, clean worktree, non-protected branch, verified project-scoped platform lever, and explicit confirmation. It does not grant global authority, make unsupported platforms writable, bypass protected-branch rules, or permit writes to configuration that a trusted host component may later execute. Configuration writes are previewed, backed up, atomic, project-scoped, and recorded in a locked append-only audit log; expiry hooks revert stale state, and a missing backup fails safe.
+
+**The same state is visible in the tools developers already use.** Claude Usage Monitor 0.9.7 and Codex Usage Monitor 0.2.8 show a persistent autonomy tier and remaining TTL, refresh on focus and timer expiry, call the shared CLI for every mutation, and surface an explicit unavailable state when the CLI is missing. Consequential security, destructive, distributed-behavior, and scope-expansion choices now also require a short plain-language walkthrough across all twelve platform instruction templates.
+
+**Permission and installer parity are materially stronger.** Twenty-five mutation-capable entries were removed from the read-only auto-approve baseline, retired Nexus-Hub entries now propagate safely to existing installs, both installers use the same jq-free merge path, and Claude workspace installs target `.claude/settings.local.json`. Dedicated autonomy security CI remains unconditional on Linux, macOS, and Windows, while a manifest-driven parity gate and real-install smoke tests protect both installer entry points.
+
+Catalog counts are unchanged at **271 skills**, **17 commands**, **31 hooks**, and **23 agents**. The release adds no outbound service, API key, telemetry, or third-party data processor.
 
 ## What's New in v3.16.8
 

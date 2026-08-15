@@ -1,5 +1,19 @@
 # Development Log
 
+## [2026-08-15] - v3.17.0 release preparation
+
+### What Changed
+
+Finalized the approved v3.17.0 release notes, documented the `nexus-hub autonomy` activation, validation, rollback, authority boundary, and canonical references, added concise README onboarding, and advanced all canonical version surfaces from 3.16.8 to 3.17.0. The release pass also corrected two stale 270-skill marketplace descriptions to the verified 271-skill catalog count, advanced the platform-contract stamp after the completed live verification, refreshed the model-map verification date with no tier changes, and updated the v3.17 documentation audit to include the Phase 6 history.
+
+### Release State
+
+The integrated code tip was already green before release preparation: CI run `31904566621`, autonomy-security run `31904566683`, and Doc Co-location run `31904566521` passed at `a14c9812`; the final documentation-only integration run `31905227457` also passed at `09e27264`. The known-gaps ledger remains finalized with 12 open items, 8 closed items, and zero release blockers.
+
+### Local Release Verification
+
+The finalized release tree passed every direct `make validate` prerequisite, ShellCheck, PowerShell AST parsing, the strict five-element capability documentation gate, release-scoped Unicode fix-and-rescan with zero repairs, prompting-profile freshness, model-map validation, compression accuracy, and the catalog security scan with zero high or critical findings. Test execution produced 4,421 passed and 59 expected platform or environment skips across the five internal extensions, repository suites, 645 integration tests, 1,057 hook tests, and both usage-monitor compile, coverage, and VSIX packaging chains. A line-ending-pinned archive of the staged index then passed `nexus-hub verify` with all 1,243 manifest entries matching.
+
 ## [2026-08-15] - v3.17.0 Phase 6: architecture, known gaps, and installer parity
 
 ### What Changed
