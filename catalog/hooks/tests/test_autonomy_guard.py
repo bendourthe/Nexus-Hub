@@ -251,5 +251,7 @@ def test_powershell_guard_reads_hook_stdin_unconditionally() -> None:
     """Windows service runners may misreport a redirected standard-input pipe."""
     script = (_HOOKS_DIR / "autonomy-guard.ps1").read_text(encoding="utf-8")
 
-    assert "$raw = [Console]::In.ReadToEnd()" in script
+    assert "$stdin = [Console]::OpenStandardInput()" in script
+    assert "$raw = $reader.ReadToEnd()" in script
     assert "[Console]::IsInputRedirected" not in script
+    assert "[Console]::In" not in script

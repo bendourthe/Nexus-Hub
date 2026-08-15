@@ -52,10 +52,15 @@ if (-not $python) {
     exit 2
 }
 
-# Hook invocations always provide one JSON payload on standard input. Windows
-# PowerShell 5.1 can report that pipe as not redirected under service runners,
-# which previously discarded the payload and turned every guarded write into an
-# allow. Read to EOF unconditionally, matching the Bash sibling and hook contract.
-$raw = [Console]::In.ReadToEnd()
+# Hook invocations always provide one UTF-8 JSON payload on standard input.
+# Read the raw handle because Windows PowerShell 5.1's Console text-reader
+# abstraction can detach from a PowerShell 7-hosted service-process pipe.
+$stdin = [Console]::OpenStandardInput()
+$reader = [System.IO.StreamReader]::new($stdin, [System.Text.Encoding]::UTF8, $true)
+try {
+    $raw = $reader.ReadToEnd()
+} finally {
+    $reader.Dispose()
+}
 $raw | & $python.Source $engine guard --project $projectRoot
 exit $LASTEXITCODE
