@@ -53,14 +53,19 @@ if (-not $python) {
 }
 
 # Hook invocations always provide one UTF-8 JSON payload on standard input.
-# Read the raw handle because Windows PowerShell 5.1's Console text-reader
-# abstraction can detach from a PowerShell 7-hosted service-process pipe.
-$stdin = [Console]::OpenStandardInput()
-$reader = [System.IO.StreamReader]::new($stdin, [System.Text.Encoding]::UTF8, $true)
-try {
-    $raw = $reader.ReadToEnd()
-} finally {
-    $reader.Dispose()
+# Windows PowerShell can consume redirected -File input into its automatic
+# pipeline enumerator before Console APIs see it, especially under hosted pwsh.
+$pipelineInput = @($input)
+if ($pipelineInput.Count -gt 0) {
+    $raw = $pipelineInput -join [Environment]::NewLine
+} else {
+    $stdin = [Console]::OpenStandardInput()
+    $reader = [System.IO.StreamReader]::new($stdin, [System.Text.Encoding]::UTF8, $true)
+    try {
+        $raw = $reader.ReadToEnd()
+    } finally {
+        $reader.Dispose()
+    }
 }
 $raw | & $python.Source $engine guard --project $projectRoot
 exit $LASTEXITCODE

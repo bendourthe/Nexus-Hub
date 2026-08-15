@@ -151,9 +151,9 @@
 
 - **Target files**: `catalog/hooks/autonomy-guard.ps1`, `catalog/hooks/tests/test_autonomy_guard.py`
 - **Source phase**: v3.17.0 Phase 6 protected-branch CI
-- **What was wrong**: the PowerShell adapter first gated the hook payload on `[Console]::IsInputRedirected`, which the Windows service runner reported false for the JSON pipe. Reading `[Console]::In` unconditionally passed locally but the first follow-up hosted run proved that the text-reader abstraction itself detaches from the PowerShell 7-hosted Windows PowerShell 5.1 service-process pipe.
-- **Remediation in progress**: read the UTF-8 payload through a `StreamReader` over `[Console]::OpenStandardInput()`, bypassing both unreliable `Console` text-reader paths. A structural regression test forbids their return.
-- **Verification state**: the raw-handle variant passes all 39 focused guard tests with Windows PowerShell selected and parses under Windows PowerShell 5.1. A follow-up hosted Windows run is required because the parent PowerShell 7 service topology is unavailable locally.
+- **What was wrong**: the PowerShell adapter first gated the hook payload on `[Console]::IsInputRedirected`, which the Windows service runner reported false for the JSON pipe. Reading `[Console]::In` unconditionally and then reading the raw handle both passed locally but failed remotely, proving the Windows PowerShell engine had already consumed hosted `-File` input before either `Console` path saw it.
+- **Remediation in progress**: consume PowerShell's automatic `$input` enumerator first, then fall back to a UTF-8 `StreamReader` over `[Console]::OpenStandardInput()` for ordinary redirected pipes. A structural regression test requires both paths and forbids the unreliable `Console` text readers.
+- **Verification state**: the combined input strategy passes all 39 focused guard tests, the Windows PowerShell 5.1 parse gate, and the full local hook matrix with 1,057 passing tests and 39 expected skips. The hosted Windows PowerShell 5.1 job remains required because its PowerShell 7 parent service topology is unavailable locally.
 
 ### BG-6 - CLOSED after integration: platform-default provenance URLs drifted from the verified contract
 
