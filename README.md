@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.17.0 -->
+<!-- nexus-hub-version: 3.17.1 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 271 skills, 17 commands, 31 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -36,6 +36,12 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v3.17.1
+
+**The release-only Windows installer smoke now reaches the installer.** The v3.17.0 tag workflow assigned `$home` inside Windows PowerShell 5.1; variable names are case-insensitive there, so the assignment collided with the read-only `$HOME` variable and exited before the installer ran. The workflow now uses `$smokeHome`, and a regression test rejects any future case-insensitive `$home` assignment in CI.
+
+The v3.17.0 Windows bootstrap and ordinary install-smoke jobs were already green, so this patch changes only the release-tag CI harness. It adds no skill, command, hook, opt-in capability, outbound service, API key, telemetry, or third-party data processor.
 
 ## What's New in v3.17.0
 

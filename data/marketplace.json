@@ -1,7 +1,7 @@
 {
   "plugin": {
     "name": "nexus-hub",
-    "version": "3.17.0",
+    "version": "3.17.1",
     "description": "Enterprise-grade skill library for AI coding assistants with 271 curated skills, 17 commands, 31 hooks, and cross-platform support",
     "author": "Benjamin Dourthe",
     "license": "MIT",

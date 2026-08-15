@@ -9,6 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.17.1] - 2026-08-15
+
+The release-only Windows installer smoke harness now reaches the real installer on version tags. This release changes no opt-in capability, installer flag, or host surface.
+
+### Fixed
+
+- **The v3.17.0 tag-only Windows `installer-smoke` job exited before invoking the installer.** Its PowerShell step assigned `$home`, but PowerShell variable names are case-insensitive and `$HOME` is read-only. The local variable is now `$smokeHome`, and a lifecycle regression test rejects future case-insensitive assignments to the reserved name. The ordinary Windows bootstrap and install-smoke coverage was already green; this patch repairs the release-tag harness that expands the smoke matrix to all three operating systems.
+
 ## [3.17.0] - 2026-08-15
 
 Consent-gated, time-bounded workspace autonomy is now available through one shared engine, public CLI, and the Claude and Codex Usage Monitor extensions. The release also hardens permission baselines, propagates retired entries to existing installations, and makes installer parity a blocking local and CI contract. No breaking changes are introduced.
@@ -5102,7 +5110,8 @@ repository_root/
 
 ---
 
-[Unreleased]: https://github.com/bendourthe/Nexus-Hub/compare/v3.17.0...HEAD
+[Unreleased]: https://github.com/bendourthe/Nexus-Hub/compare/v3.17.1...HEAD
+[3.17.1]: https://github.com/bendourthe/Nexus-Hub/compare/v3.17.0...v3.17.1
 [3.17.0]: https://github.com/bendourthe/Nexus-Hub/compare/v3.16.8...v3.17.0
 [3.16.8]: https://github.com/bendourthe/Nexus-Hub/compare/v3.16.7...v3.16.8
 [1.3.0]: https://github.com/bendourthe/DevAI-Hub/compare/v1.2.1...v1.3.0

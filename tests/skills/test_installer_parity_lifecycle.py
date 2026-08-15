@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -50,3 +51,9 @@ def test_ci_uses_one_shared_smoke_assertion_script() -> None:
     assert "installer-smoke:" in ci
     assert ci.count("python scripts/check_installer_smoke.py") == 1
     assert ci.count("python scripts\\check_installer_smoke.py") == 1
+
+
+def test_windows_installer_smoke_does_not_assign_reserved_home_variable() -> None:
+    ci = _read(CI)
+    assert re.search(r"(?im)^\s*\$home\s*=", ci) is None
+    assert "$smokeHome = Join-Path $smokeRoot 'home'" in ci
