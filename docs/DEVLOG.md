@@ -1,5 +1,19 @@
 # Development Log
 
+## [2026-08-15] - v3.17.1 Windows tag installer-smoke repair
+
+### What Changed
+
+The v3.17.0 tag-only Windows `installer-smoke` job failed before invoking the installer because its PowerShell 5.1 step assigned `$home`, which conflicts case-insensitively with the read-only `$HOME` variable. v3.17.1 renames that local value and all uses to `$smokeHome` and adds a lifecycle regression that rejects any future case-insensitive assignment to the reserved name. The patch changes no installer behavior, platform surface, opt-in capability, catalog count, or dependency.
+
+### Release State
+
+The immutable v3.17.0 tag remains at `31a3c21a5229578a53344ee29f8a426850e167e0`. Its GitHub Release is public, and the downloaded release archive passed manifest verification with all 1,243 entries matching. Tag CI run `31910449264` passed every job except the release-only Windows installer-smoke leg; the regular Windows bootstrap and install-smoke jobs passed, isolating BG-8 to the tag harness. The v3.17.1 patch records BG-8 as closed and advances the canonical version and platform-contract stamp without changing any read path or lever.
+
+### Verification
+
+The new regression first failed on the exact `$home =` line from v3.17.0 and then passed after the rename. All 18 direct `make validate` prerequisites pass when invoked individually on Windows, the compression evaluator reports 100 percent reversible round-trip and signature preservation, the explicit no-opt-in-capability-change gate passes, the four-provider model-map snapshot validates with a 2026-08-15 evidence date, and strict release-scoped Unicode validation is clean. The bounded installer, validator, and lifecycle suites pass 1,030 tests with 18 expected skips; a final lifecycle rerun passes 6 tests. The workflow YAML and `installer.ps1` parse cleanly, diff hygiene is clean, and the catalog security gate reports 0 critical, 0 high, 31 medium, and 4 low findings. A line-ending-pinned archive of the staged index passes `verify_install.py` with all 1,243 manifest entries matching. The monolithic `python -m pytest -q tests` invocation reached this host's 20-minute command bound without a terminal summary, so it is not counted as passing evidence; protected-branch and tag CI remain the full-matrix release gates.
+
 ## [2026-08-15] - v3.17.0 release preparation
 
 ### What Changed

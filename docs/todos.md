@@ -23,7 +23,7 @@
 | Release metadata and docs | 1 | 1 | 0 |
 | Platform contract audit | 1 | 1 | 0 |
 | Local release gates | 1 | 1 | 0 |
-| Remote publication gates | 0 | 1 | 1 |
+| Remote publication gates | 1 | 1 | 0 |
 | Open phase blockers | 0 | 0 | 0 |
 | v3.15.8 plan phases complete | 4 | 9 | 5 |
 | v3.15.8 Phase 1 tasks complete | 7 | 7 | 0 |

@@ -749,14 +749,14 @@ jobs:
         shell: powershell
         run: |
           $smokeRoot = Join-Path $env:RUNNER_TEMP 'nexus-installer-smoke'
-          $home = Join-Path $smokeRoot 'home'
+          $smokeHome = Join-Path $smokeRoot 'home'
           $workspace = Join-Path $smokeRoot 'workspace'
-          New-Item -ItemType Directory -Force -Path $home, $workspace | Out-Null
-          $env:USERPROFILE = $home
-          $env:HOME = $home
+          New-Item -ItemType Directory -Force -Path $smokeHome, $workspace | Out-Null
+          $env:USERPROFILE = $smokeHome
+          $env:HOME = $smokeHome
           $env:NEXUS_HUB_NO_AUTOSEED = '1'
           & powershell -NoProfile -ExecutionPolicy Bypass -File scripts\installer.ps1 -Workspace $workspace -Platforms claude -Yes
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          $env:NEXUS_HUB_HOME = Join-Path $home '.nexus-hub'
-          & python scripts\check_installer_smoke.py --home $home --workspace $workspace
+          $env:NEXUS_HUB_HOME = Join-Path $smokeHome '.nexus-hub'
+          & python scripts\check_installer_smoke.py --home $smokeHome --workspace $workspace
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
