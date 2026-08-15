@@ -88,11 +88,11 @@ def test_every_declared_platform_is_a_registered_integration():
 
 
 def test_gemini_never_declares_a_write_target():
-    """NI-3: gemini and gemini-cli share ~/.gemini, so exactly one may own it."""
-    assert "gemini" not in PLATFORMS, (
-        "gemini is UNVERIFIED and must not be declared; ~/.gemini/settings.json "
-        "is owned solely by gemini-cli"
-    )
+    """Gemini's VS Code lever is verified, but gemini-cli owns ~/.gemini settings."""
+    gemini = PLATFORMS["gemini"]
+    assert gemini["settings"] == {}
+    assert gemini["install_target"]["mode"] == "not-writable"
+    assert PLATFORMS["gemini-cli"]["install_target"]["path"] == "~/.gemini/settings.json"
     owners = [
         name
         for name, entry in WRITE_TARGETS.items()
@@ -261,6 +261,20 @@ def test_yaml_target_is_created_when_absent(tmp_path: Path):
 
     assert [a.action for a in actions] == ["created"]
     assert yaml.safe_load(target.read_text(encoding="utf-8"))["reasoning-effort"] == "medium"
+
+
+def test_hermes_reasoning_effort_uses_current_agent_namespace(tmp_path: Path):
+    target = tmp_path / "config.yaml"
+    src = _source_with(
+        "hermes", target, "yaml", {"agent": {"reasoning_effort": "medium"}}
+    )
+
+    actions = pd.seed_platform_defaults("hermes", Ctx(), src)
+
+    loaded = yaml.safe_load(target.read_text(encoding="utf-8"))
+    assert loaded["agent"]["reasoning_effort"] == "medium"
+    assert "reasoning_effort" not in loaded
+    assert [a.action for a in actions] == ["created"]
 
 
 def test_yaml_append_preserves_comments_and_existing_content(tmp_path: Path):

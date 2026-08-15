@@ -30,6 +30,12 @@
 | v3.15.8 Phase 2 tasks complete | 9 | 9 | 0 |
 | v3.15.8 Phase 3 tasks complete | 9 | 9 | 0 |
 | v3.15.8 Phase 4 tasks complete | 7 | 7 | 0 |
+| v3.17.0 plan phases complete | 6 | 6 | 0 |
+| v3.17.0 Phase 1 tasks complete | 4 | 4 | 0 |
+| v3.17.0 Phase 2 tasks complete | 4 | 4 | 0 |
+| v3.17.0 Phase 3 tasks complete | 4 | 4 | 0 |
+| v3.17.0 Phase 4 tasks complete | 3 | 3 | 0 |
+| v3.17.0 Phase 5 tasks complete | 5 | 5 | 0 |
 | v3.17.1 plan phases complete | 0 | 6 | 6 |
 | v3.17.2 plan phases complete | 0 | 7 | 7 |
 
@@ -104,6 +110,15 @@
 - [x] Resolve WN-3 and reconcile the durable-store and declined-candidate gaps
 - [x] Audit all CI workflows for coverage and action-minute optimization
 - [x] Run validation, coverage, full tests, hook tests, and release-readiness checks
+
+## Parallel Plan - v3.17.0 Agent Autonomy Toggle [IN PROGRESS]
+
+- [x] Complete Phase 1: Permission-baseline hardening and cross-platform merge parity
+- [x] Complete Phase 2: Autonomy capability model and per-platform lever verification
+- [x] Complete Phase 3: Autonomy core engine, consent gate, TTL, and audit
+- [x] Complete Phase 4: Deny layer integration and hook-independence verification
+- [x] Complete Phase 5: Surfaces, CLI, installer registration, and usage-monitor toggles
+- [x] Complete Phase 6: Architecture refactor, known-gaps reconciliation, and CI/CD
 
 ## Parallel Plan - v3.17.1 Org Knowledge Layer [PLANNED]
 

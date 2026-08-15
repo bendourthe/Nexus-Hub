@@ -1,5 +1,45 @@
 # Development Log
 
+## [2026-08-15] - v3.17.0 Phase 6: architecture, known gaps, and installer parity
+
+### What Changed
+
+Phase 6 finalized the agent-autonomy-toggle implementation. A generic manifest-driven installer parity checker now guards artifact registration, platform rosters, function counterparts, intentional exceptions, and external dependency fallbacks. The Makefile, CI, `/update release`, `implementation-plan`, and `implement-phase` all carry the new hard gate. CI also executes real installers with one shared postcondition checker: Ubuntu on every branch push, and Ubuntu, macOS, and Windows for pull requests, tags, and manual dispatch. The autonomy-security workflow retains its unconditional three-OS matrix because it gates a dangerous state.
+
+The architecture audit retained the single execution-trigger definition, intentional platform counterparts, and the approved v3.18.2 plan location. The v3.17 known-gaps ledger is finalized at 12 open, 5 closed, and 0 release blockers after the explicit BG-4 integration reconciliation. Both usage-monitor Vitest configs moved from `.ts` to `.mts`, closing their native-loader warning. A full live platform-contract pass kept read paths at eight MATCH, one non-breaking Codex DRIFT, and one UNVERIFIED Nexus-AI contract; it corrected Hermes to `agent.reasoning_effort` and recorded Gemini Code Assist's new `geminicodeassist.agentYoloMode` lever as verified but not writable by the current integration.
+
+### Verification
+
+All hard validation commands pass, including the 271-skill bundle audit, trigger-routing gate, permission validator, installer parity, workflow security, version sync, five-template parity, ten-platform contract check, thirteen-platform defaults sync, and compression accuracy gate. Focused suites passed 70 Phase 6 parity/lifecycle tests and 95 contract/autonomy/defaults tests; Claude and Codex usage monitors passed 11 and 81 tests respectively; the real Windows installer smoke passed. BG-4 reconciliation additionally passed all 80 permission-baseline and scope-parity tests after catching and repairing silent installer deletions in the first merge attempt. The complete 2,550-test local repository suite exceeded its bounded 15-minute Windows run without an early failure result, so protected-branch remote CI is the authoritative full-suite integration gate and no unsupported local full-suite claim is made.
+
+### Release Handoff
+
+BG-4 was handled by merging current `origin/develop` into the feature branch first, preserving both the v3.16.8 release line and the v3.17.0 hardening, then verifying the exact silent-deletion paths. The integrated tree remains at canonical version 3.16.8; `/update release` still owns the v3.17.0 version bump, contract-stamp advance, release notes, tag, and publication after protected-branch CI is green.
+
+## [2026-08-13] - v3.17.0 Phase 1: permission-baseline hardening and cross-platform merge parity
+
+### What Changed
+
+The shipped read-only auto-approve baseline is now read-only at the side-effect level (25 mutation-capable entries removed with per-entry rationale), and permission installation behaves identically on all three operating systems and at both install scopes. `scripts/merge_permissions.py` is the single merge implementation both installers call: `installer.ps1`'s native union merge was ported to it this session, closing the parity debt the checkpoint commit left. New `scripts/validate_permission_baseline.py` classifies entries by invocation shape rather than command name and gates `make validate` and CI. Workspace scope became load-bearing (Claude Code writes `.claude/settings.local.json`; the other three skip with a stated reason). 59 new tests across three files, riding existing CI jobs.
+
+### Why It Changed
+
+Two independent auto-approve paths consume these files, and only one carries Nexus-Hub's hook-side syntax guards; the other is the platform's own matcher with no Nexus-Hub logic at all. Hardening for the unguarded path is the point. The installer half matters just as much: a hardening that reaches only fresh installs on one operating system does not reach the population it was written to protect - a stock Mac was installing NO baseline (no `jq`), Windows Git-Bash was skipping Copilot entirely, and `--workspace` installed nothing anywhere.
+
+### Decisions Made
+
+- **The `jq` fast path was dropped rather than forked** (a deviation from sub-task 1.2). With removal propagation living in the Python helper, keeping `jq` would mean a host with it silently keeps retired dangerous entries while a host without it has them removed - the same divergence, relocated inside one installer.
+- **Removal propagation is manifest-sourced, never inferred.** An entry is retired only when a recorded manifest proves Nexus-Hub shipped it and the current template does not, so a user's own entry can never be mistaken for a stale one. No manifest means no removals, not guessed ones.
+- **Workspace target is `.claude/settings.local.json`, and the other three platforms skip with a note.** A guessed project path is worse than none because it reads as configured, and Copilot's only surface is commit-visible.
+- **The helper reports on stdout, not stderr.** Windows PowerShell 5.1 turns a redirected native stderr into `ErrorRecord`s and a false `$?`, so a stderr protocol cannot be shared by both installers.
+
+### Verification
+
+Full `tests/validators` + `tests/installer`: 978 passed, 17 skipped, 1 failed - the pre-existing v3.15.0 WN-1 environmental `tar` failure in `test_bootstrap.py`, which this phase's changes cannot reach. New suites 74 passed / 1 skipped (the real-`jq` leg; absent on this host, so byte parity is asserted against constructed output and runs against real `jq` in CI). Permission-baseline validator PASS on both shipped configs. `bash -n` and `shellcheck --severity=warning` clean; `installer.ps1` AST parse clean. `make` is unavailable on this host, so its targets were run as their underlying commands.
+
+### Known Issues
+
+Zero release blockers; this is Phase 1 of 6, not a release. Six items open in the new [v3.17 known-gaps ledger](v3/v3.17/known-gaps.md): NI-1 (output redirection under explicit allow rules is UNVERIFIED - load-bearing, and scheduled to ride Phase 4.1's live-build session), NI-2 (whether Gemini's matcher splits compound commands), DF-1 (Gemini ships no PowerShell or `cmd.exe` set), DF-2 (three platforms have no project-scoped permission target), DF-3 (the PowerShell-only permissions helper still has no cross-platform equivalent; Phase 5's CLI is its intended home), WN-1 (the carried bootstrap test). Two closed: BG-1 (the Windows removal-propagation gap) and BG-2 (the validator passing `Bash(gh api *)`, its own motivating example - found by the Phase 1.4 tests, fixed with a data-driven rule 3b).
 ## [2026-08-14] - v3.16.8 Phase 3: terminal refactor and reconciliation [phase]
 
 ### What Changed

@@ -14,6 +14,10 @@ validate: ## Validate all JSON catalog files and skill bundles
 	@python scripts/validate_skills.py --quality
 	@echo "Running trigger-and-routing eval (description near-collision + routing hard gate)..."
 	@python scripts/run_trigger_evals.py --gate
+	@echo "Checking the shipped permission baseline is read-only at the side-effect level..."
+	@python scripts/validate_permission_baseline.py
+	@echo "Checking cross-installer capability and fallback parity..."
+	@python scripts/check_installer_parity.py
 	@echo "Running v2.3.0 CI validators (no-personal-paths, unicode-safety, supply-chain-iocs, workflow-security)..."
 	@python scripts/validate_no_personal_paths.py
 	@python scripts/validate_unicode_safety.py

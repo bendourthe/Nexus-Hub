@@ -221,9 +221,17 @@ def test_every_handler_carries_a_windows_command(codex, install_ctx, codex_root)
 def test_shell_hooks_point_at_their_powershell_sibling(codex, install_ctx, codex_root):
     _install_native(codex, install_ctx, codex_root)
     data = _hooks(codex_root)
-    for handler in _handlers(data, "SessionStart"):
-        assert handler["command"].endswith("session-start.sh")
-        assert handler["commandWindows"].endswith("session-start.ps1")
+    handlers = _handlers(data, "SessionStart")
+    assert {Path(handler["command"].split()[-1]).stem for handler in handlers} >= {
+        "session-start",
+        "autonomy-expiry",
+    }
+    for handler in handlers:
+        shell_stem = Path(handler["command"].split()[-1]).stem
+        windows_stem = Path(handler["commandWindows"].split()[-1]).stem
+        assert handler["command"].endswith(f"{shell_stem}.sh")
+        assert handler["commandWindows"].endswith(f"{shell_stem}.ps1")
+        assert windows_stem == shell_stem
         assert "powershell" in handler["commandWindows"]
 
 
@@ -232,6 +240,10 @@ def test_both_script_siblings_are_installed(codex, install_ctx, codex_root):
     installed = {p.name for p in (codex_root / "hooks").iterdir()}
     assert "git-guardrails.sh" in installed
     assert "git-guardrails.ps1" in installed
+    assert "autonomy-expiry.sh" in installed
+    assert "autonomy-expiry.ps1" in installed
+    assert "autonomy-guard.sh" in installed
+    assert "autonomy-guard.ps1" in installed
 
 
 # ----- hooks: structured merge ---------------------------------------------

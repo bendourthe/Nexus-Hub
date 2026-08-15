@@ -309,7 +309,7 @@ The report is always written, regardless of mode. It is the deliverable in propo
 
 In propose-only mode, stop here and tell the user where the report lives.
 
-In apply mode, present the plan:
+In apply mode, follow the active instruction template's `Consequential Decisions` rule, then present the plan:
 
 ```
 Docs cleanup plan:

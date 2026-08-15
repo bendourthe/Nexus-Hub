@@ -106,6 +106,7 @@ REQUIRED_HEADINGS = [
     "Branching",
     "Output Minimization",
     "End-of-Task Summary",
+    "Consequential Decisions",
     "MCP Registry Policy",
     "Skill Discovery",
 ]
@@ -147,6 +148,7 @@ INVARIANT_SECTIONS = [
     # belongs in BOTH lists: every lockstep file must carry the heading, and the
     # body must stay byte-identical so the rule cannot drift on one platform.
     "End-of-Task Summary",
+    "Consequential Decisions",
     "MCP Registry Policy",
 ]
 

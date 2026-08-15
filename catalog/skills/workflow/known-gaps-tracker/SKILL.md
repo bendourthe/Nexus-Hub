@@ -130,7 +130,7 @@ ID prefixes are stable: `NI-`, `DF-`, `BG-`, `WN-`, `MT-`, `QG-`. Numbers are mo
     - The prior version's `docs/v<MAJOR>/v<MAJOR>.<MINOR>/known-gaps.md` (resolve its minor dir per the Version-directory resolution) - always include if it exists.
     - Any older in-progress known-gaps file, matching both the two-level `docs/v*/v*/known-gaps.md` and the legacy flat `docs/v*/known-gaps.md` globs, whose `Status:` is still `in-progress` (gaps that lingered across more than one version).
 3. Parse all candidate files. Merge their `## Open Items` into a single in-memory list, tagged with the originating version.
-4. If the merged list is non-empty, show the user a compact summary and ask how to handle them:
+4. If the merged list is non-empty, follow the active instruction template's `Consequential Decisions` rule, then show the user a compact summary and ask how to handle them:
 
     ```
     Found N open items from prior versions:

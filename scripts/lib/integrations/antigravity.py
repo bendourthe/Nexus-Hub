@@ -79,6 +79,7 @@ class Antigravity10Integration(MarkdownIntegration, SkillsIntegration):
         "skills_subdir": "skills",
         "commands_subdir": "global_workflows",
         "rules_subdir": "rules_library",
+        # No autonomy descriptor: Antigravity 1.0 documents UI controls but no seedable config file; see the platform read-contract autonomy section.
         "hooks_supported": False,
     }
 
@@ -125,6 +126,18 @@ class Antigravity20Integration(MarkdownIntegration, SkillsIntegration):
         "rules_subdir": "rules",
         "hooks_subdir": "hooks",
         "hooks_supported": True,
+        "autonomy": {
+            "config_file": "~/.gemini/antigravity-cli/settings.json",
+            "scope": "global",
+            "key_paths": ["toolPermission"],
+            "tiers": {
+                "edits_only": None,
+                "full": {"toolPermission": "always-proceed"},
+            },
+            "intermediate_supported": False,
+            "verified": True,
+            "format": "json",
+        },
     }
 
     # Curated, platform-agnostic hooks ported to Antigravity. Excludes the

@@ -29,6 +29,7 @@ class AiderIntegration(MarkdownIntegration):
         "instruction_workspace_dir": "",
         "instruction_file": "CONVENTIONS.md",
         "instruction_template": "templates/ai-instructions/base-aider.md",
+        # No autonomy descriptor: Aider's YAML yes-always lever has no edits-only tier; see the platform read-contract autonomy section.
         "hooks_supported": False,
     }
 

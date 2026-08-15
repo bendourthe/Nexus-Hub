@@ -802,12 +802,149 @@ merge_strict_permissions() {
     fi
 }
 
+# v3.17.0 Phase 1.2 -- the single permission-merge path for BOTH installers.
+#
+# Delegates to scripts/merge_permissions.py, which installer.ps1 calls identically.
+# One implementation, two thin callers.
+#
+# DEVIATION from the v3.17.0 plan, sub-task 1.2: the plan asked to keep `jq` as a
+# fast path when present and add a Python fallback only for hosts without it. That
+# was correct for an add-only merge, but amendment A3 added removal propagation,
+# which lives in the Python helper. Retaining a `jq` path would mean a host WITH jq
+# silently keeps retired mutation-capable entries while a host WITHOUT jq has them
+# removed -- reintroducing, inside a single installer, exactly the divergence this
+# phase exists to eliminate. Python is already a documented dependency and both
+# installers already check for it, so the `jq` path is dropped rather than forked.
+#
+# Resolve the helper script and a Python interpreter into PERM_HELPER_SCRIPT and
+# PERM_HELPER_PY. Two globals rather than one word-split string on purpose: an
+# unquoted expansion here would trip shellcheck at the severity `make lint` uses.
+PERM_HELPER_PY=""
+PERM_HELPER_SCRIPT=""
+resolve_permissions_helper() {
+    local repo_root="$1"
+    PERM_HELPER_SCRIPT="$repo_root/scripts/merge_permissions.py"
+    if [ ! -f "$PERM_HELPER_SCRIPT" ]; then
+        write_item "Warning: merge helper not found at $PERM_HELPER_SCRIPT" "$YELLOW"
+        return 1
+    fi
+    if ! PERM_HELPER_PY=$(resolve_python_executable); then
+        write_item "Warning: Python not found, cannot sync permissions automatically" "$YELLOW"
+        return 1
+    fi
+    return 0
+}
+
+# Surface the helper's stdout protocol (added: / removed: / set:) to the user. Each
+# retired entry is reported rather than removed silently, because the target file is
+# one the user may have hand-edited.
+report_permissions_helper_output() {
+    local output="$1"
+    [ -n "$output" ] || return 0
+    while IFS= read -r line; do
+        case "$line" in
+            removed:*|set:*) write_item "  $line" "$GRAY" ;;
+        esac
+    done <<< "$output"
+}
+
+# Returns 0 on success, 1 when the merge failed.
+merge_permissions_via_helper() {
+    local repo_root="$1"
+    local template_file="$2"
+    local settings_file="$3"
+    local key="$4"          # permissions.allow | tools.allowed | allowedDomains
+    local platform="$5"     # manifest key: CLAUDE, GEMINI, ...
+
+    if ! resolve_permissions_helper "$repo_root"; then
+        write_item "  Copy permissions manually from: $template_file" "$YELLOW"
+        return 1
+    fi
+
+    local manifest="$HOME/.nexus-hub/permissions-manifest.json"
+    local output
+    if ! output=$("$PERM_HELPER_PY" "$PERM_HELPER_SCRIPT" \
+            --template "$template_file" \
+            --settings "$settings_file" \
+            --key "$key" \
+            --manifest "$manifest" \
+            --platform "$platform"); then
+        write_item "Warning: could not merge permissions into $settings_file" "$YELLOW"
+        return 1
+    fi
+
+    report_permissions_helper_output "$output"
+    return 0
+}
+
+# Set one LITERAL boolean key to true through the same helper. Copilot's permission
+# surface is a single VS Code settings key rather than an array, and this branch
+# previously used `jq` and skipped without it -- which made the Git-Bash path below
+# unreachable in practice, since Git-Bash ships no `jq`.
+set_permission_flag_via_helper() {
+    local repo_root="$1"
+    local settings_file="$2"
+    local literal_key="$3"
+
+    if ! resolve_permissions_helper "$repo_root"; then
+        write_item "  Set \"$literal_key\": true manually in: $settings_file" "$YELLOW"
+        return 1
+    fi
+
+    local output
+    if ! output=$("$PERM_HELPER_PY" "$PERM_HELPER_SCRIPT" \
+            --settings "$settings_file" \
+            --set-true "$literal_key"); then
+        write_item "Warning: could not update $settings_file" "$YELLOW"
+        return 1
+    fi
+
+    report_permissions_helper_output "$output"
+    return 0
+}
+
+# v3.17.0 Phase 1.2: the `scope` parameter is now load-bearing. It was documented as
+# "Global" or "Workspace" since v0.9.x, but every call site passed "Global" and
+# install_workspace never called this function at all, so a --workspace install
+# received no permission baseline on any operating system.
+#
+# Only CLAUDE is wired at workspace scope. The other three skip WITH A NOTE rather
+# than guessing:
+#   * GEMINI / CODEX -- no project-scoped permission path is documented well enough
+#     to write. A guessed path is worse than none: it looks configured and is not.
+#   * COPILOT -- its surface is .vscode/settings.json, which is COMMIT-VISIBLE. The
+#     plan forbids pushing a permission grant into a user's repository history
+#     without an explicit maintainer decision (same reasoning that made the v3.11.0
+#     Copilot .github/skills/ surface opt-in).
 install_permissions() {
     local repo_root="$1"
     local platform="$2"    # "CLAUDE", "GEMINI", "CODEX", "COPILOT"
     local scope="$3"       # "Global" or "Workspace"
+    local target_path="${4:-}"  # project root; required when scope is "Workspace"
     local user_home="$HOME"
     local perm_dir="$repo_root/configs/permissions"
+
+    if [ "$scope" = "Workspace" ]; then
+        if [ -z "$target_path" ] || [ ! -d "$target_path" ]; then
+            write_item "Skip: workspace permissions need a valid target path" "$GRAY"
+            return
+        fi
+        case "$platform" in
+            GEMINI)
+                write_item "Skip: Gemini has no documented project-scoped permission path (global scope only)" "$GRAY"
+                return
+                ;;
+            CODEX)
+                write_item "Skip: Codex has no documented project-scoped permission path (global scope only)" "$GRAY"
+                return
+                ;;
+            COPILOT)
+                write_item "Skip: Copilot's only permission surface is .vscode/settings.json, which is commit-visible" "$GRAY"
+                write_item "  A workspace grant there would enter your repository history; use a global install instead." "$GRAY"
+                return
+                ;;
+        esac
+    fi
 
     case "$platform" in
         CLAUDE)
@@ -815,72 +952,49 @@ install_permissions() {
             local settings_file="$config_dir/settings.json"
             local template_file="$perm_dir/claude-permissions.json"
 
+            if [ "$scope" = "Workspace" ]; then
+                # settings.local.json, NEVER settings.json: the latter is
+                # commit-visible and would push a permission grant into the
+                # user's repository history. Confirmed target (maintainer
+                # decision, v3.17.0 Phase 1.2).
+                config_dir="$target_path/.claude"
+                settings_file="$config_dir/settings.local.json"
+            fi
+
             if [ ! -f "$template_file" ]; then
                 write_item "Skip: Claude permissions template not found" "$GRAY"
                 return
             fi
 
-            if [ -f "$settings_file" ]; then
-                if ! command -v jq >/dev/null 2>&1; then
-                    write_item "Warning: jq not found, cannot merge permissions automatically" "$YELLOW"
-                    write_item "  Copy permissions manually from: $template_file" "$YELLOW"
-                    return
-                fi
-
-                # Compute how many template entries are not already present.
-                # Counting BEFORE merging avoids the stale-sentinel bug where a
-                # single fixed marker (e.g. 'Bash(gh pr list)') made the
-                # installer think permissions were "already installed" and skip
-                # merging new entries shipped in later versions.
-                local new_count
-                new_count=$(jq -sr '
-                    .[0] as $existing | .[1] as $template |
-                    ($existing.permissions.allow // []) as $ea |
-                    ($template.permissions.allow // []) as $ta |
-                    (($ea + $ta | unique) | length) - ($ea | length)
-                ' "$settings_file" "$template_file" 2>/dev/null)
-
-                if [ "$new_count" = "0" ]; then
-                    write_item "[OK] Auto-approve permissions up to date in settings.json (0 new entries)" "$GREEN"
-                    return
-                fi
-
-                # Backup before modifying
-                local backup_path
-                backup_path="$settings_file.bak.$(date +%Y%m%d-%H%M%S)"
-                cp "$settings_file" "$backup_path"
-                write_item "  Backup created: $backup_path" "$GRAY"
-
-                local merged
-                merged=$(jq -s '
-                    .[0] as $existing | .[1] as $template |
-                    ($existing.permissions.allow // []) as $ea |
-                    ($template.permissions.allow // []) as $ta |
-                    $existing | .permissions.allow = ($ea + $ta | unique)
-                ' "$settings_file" "$template_file" 2>/dev/null)
-
-                if [ -n "$merged" ]; then
-                    echo "$merged" > "$settings_file"
-                    write_item "[OK] $scope auto-approve permissions added to settings.json (${new_count} new entries)" "$GREEN"
-                else
-                    write_item "Warning: Could not merge permissions into settings.json" "$YELLOW"
-                    return
-                fi
+            # v3.17.0: one path for create AND merge. The helper creates the file
+            # when absent, unions new entries, retires entries a prior Nexus-Hub
+            # version shipped and this one no longer does (never a user's own
+            # entry), backs up before any change, and strips the template's
+            # `_`-prefixed documentation keys so they never reach a live config.
+            # The old creation path used `cp` when jq was missing, which DID copy
+            # them.
+            mkdir -p "$config_dir"
+            if merge_permissions_via_helper "$repo_root" "$template_file" \
+                    "$settings_file" "permissions.allow" "CLAUDE"; then
+                write_item "[OK] $scope auto-approve permissions synced in settings.json" "$GREEN"
             else
-                mkdir -p "$config_dir"
-                # Create settings.json with just the permissions key
-                if command -v jq >/dev/null 2>&1; then
-                    jq '{permissions: .permissions}' "$template_file" > "$settings_file"
-                else
-                    cp "$template_file" "$settings_file"
-                fi
-                write_item "[OK] $scope settings.json created with auto-approve permissions" "$GREEN"
+                return
             fi
 
             write_item "  Auto-approved: file reads, search (Glob/Grep), web search, git read-only commands" "$GRAY"
             write_item "  WebFetch: scoped to trusted domains (see $settings_file to customize)" "$GRAY"
             write_item "  NOT auto-approved: file writes, destructive commands, git mutations, package installs" "$GRAY"
             write_item "  Config: $settings_file" "$GRAY"
+
+            # A workspace grant is only private if the file is actually ignored.
+            # settings.local.json is Claude Code's local-only convention, but nothing
+            # guarantees THIS repository ignores it, so check rather than assume.
+            if [ "$scope" = "Workspace" ] && command -v git >/dev/null 2>&1; then
+                if ! git -C "$target_path" check-ignore -q "$settings_file" 2>/dev/null; then
+                    write_item "  Note: $settings_file is NOT git-ignored in this project." "$DARK_YELLOW"
+                    write_item "  Add '.claude/settings.local.json' to .gitignore so the grant stays local." "$DARK_YELLOW"
+                fi
+            fi
             ;;
 
         GEMINI)
@@ -893,50 +1007,25 @@ install_permissions() {
                 return
             fi
 
-            if [ -f "$settings_file" ]; then
-                # Sentinel: docker ps was added in v0.10+ with the expanded command set
-                if grep -q 'run_shell_command(docker ps)' "$settings_file" 2>/dev/null; then
-                    write_item "[OK] Auto-approve permissions already configured in settings.json" "$GREEN"
-                    return
-                fi
-
-                local backup_path
-                backup_path="$settings_file.bak.$(date +%Y%m%d-%H%M%S)"
-                cp "$settings_file" "$backup_path"
-                write_item "  Backup created: $backup_path" "$GRAY"
-
-                if command -v jq >/dev/null 2>&1; then
-                    local merged
-                    merged=$(jq -s '
-                        .[0] as $existing | .[1] as $template |
-                        ($existing.tools.allowed // []) as $et |
-                        ($template.tools.allowed // []) as $tt |
-                        ($existing.allowedDomains // []) as $ed |
-                        ($template.allowedDomains // []) as $td |
-                        $existing
-                        | .tools.allowed = ($et + $tt | unique)
-                        | .allowedDomains = ($ed + $td | unique)
-                    ' "$settings_file" "$template_file" 2>/dev/null)
-
-                    if [ -n "$merged" ]; then
-                        echo "$merged" > "$settings_file"
-                        write_item "[OK] $scope auto-approve permissions added to settings.json" "$GREEN"
-                    else
-                        write_item "Warning: Could not merge permissions into Gemini settings.json" "$YELLOW"
-                        return
-                    fi
-                else
-                    write_item "Warning: jq not found, cannot merge permissions automatically" "$YELLOW"
-                    return
-                fi
+            # v3.17.0 amendment A3, bug 1: this branch previously gated on a fixed
+            # sentinel (`grep -q 'run_shell_command(docker ps)'`) to decide whether
+            # permissions were already configured. That is the identical stale-marker
+            # defect the CLAUDE branch was fixed for: because the sentinel entry is
+            # present in every existing user's settings.json, the branch returned
+            # early forever and those users never received newly-shipped entries --
+            # including, critically, the v3.17.0 Phase 1.1 hardening. The sentinel is
+            # replaced by the same count-and-sync path the CLAUDE branch uses, which
+            # is idempotent by construction and needs no marker.
+            mkdir -p "$config_dir"
+            local gemini_ok=0
+            merge_permissions_via_helper "$repo_root" "$template_file" \
+                "$settings_file" "tools.allowed" "GEMINI" || gemini_ok=1
+            merge_permissions_via_helper "$repo_root" "$template_file" \
+                "$settings_file" "allowedDomains" "GEMINI_DOMAINS" || gemini_ok=1
+            if [ "$gemini_ok" -eq 0 ]; then
+                write_item "[OK] $scope auto-approve permissions synced in settings.json" "$GREEN"
             else
-                mkdir -p "$config_dir"
-                if command -v jq >/dev/null 2>&1; then
-                    jq '{tools: .tools, allowedDomains: .allowedDomains}' "$template_file" > "$settings_file"
-                else
-                    cp "$template_file" "$settings_file"
-                fi
-                write_item "[OK] $scope settings.json created with auto-approve permissions" "$GREEN"
+                return
             fi
 
             write_item "  Auto-approved: file reads, search, web search, git read-only shell commands" "$GRAY"
@@ -1028,6 +1117,25 @@ install_permissions() {
             case "$(uname -s)" in
                 Darwin*) vscode_settings="$user_home/Library/Application Support/Code/User/settings.json" ;;
                 Linux*)  vscode_settings="$user_home/.config/Code/User/settings.json" ;;
+                # v3.17.0 Phase 1.2: Windows Git-Bash previously fell through to the
+                # skip below, so a bash invocation on Windows configured Copilot not
+                # at all. Mirrors installer.ps1 exactly:
+                #   Join-Path $env:APPDATA "Code\User\settings.json"
+                MINGW*|MSYS*|CYGWIN*)
+                    local appdata="${APPDATA:-}"
+                    if [ -z "$appdata" ]; then
+                        write_item "Skip: APPDATA is not set, cannot locate VS Code settings from Git-Bash" "$GRAY"
+                        return
+                    fi
+                    # APPDATA arrives as a Windows path (C:\Users\...\Roaming); bash
+                    # file tests need a POSIX one.
+                    if command -v cygpath >/dev/null 2>&1; then
+                        appdata=$(cygpath -u "$appdata")
+                    else
+                        appdata=$(printf '%s' "$appdata" | tr '\\' '/')
+                    fi
+                    vscode_settings="$appdata/Code/User/settings.json"
+                    ;;
                 *)       write_item "Skip: Copilot permission config not supported on this OS via bash" "$GRAY"; return ;;
             esac
 
@@ -1042,23 +1150,15 @@ install_permissions() {
                 return
             fi
 
-            local backup_path
-            backup_path="$vscode_settings.bak.$(date +%Y%m%d-%H%M%S)"
-            cp "$vscode_settings" "$backup_path"
-            write_item "  Backup created: $backup_path" "$GRAY"
-
-            if command -v jq >/dev/null 2>&1; then
-                local merged
-                merged=$(jq '. + {"github.copilot.chat.codeGeneration.useInstructionFiles": true}' "$vscode_settings" 2>/dev/null)
-                if [ -n "$merged" ]; then
-                    echo "$merged" > "$vscode_settings"
-                    write_item "[OK] $scope VS Code settings updated with Copilot instruction file support" "$GREEN"
-                else
-                    write_item "Warning: Could not merge Copilot settings into VS Code settings.json" "$YELLOW"
-                    return
-                fi
+            # The helper takes its own timestamped backup and writes atomically, so
+            # this branch no longer backs up or merges by hand. It also drops the `jq`
+            # requirement, which is what made the Git-Bash arm above reachable: Git-Bash
+            # ships no `jq`, so mapping the path without this change would have moved
+            # the silent skip rather than closing it.
+            if set_permission_flag_via_helper "$repo_root" "$vscode_settings" \
+                    "github.copilot.chat.codeGeneration.useInstructionFiles"; then
+                write_item "[OK] $scope VS Code settings updated with Copilot instruction file support" "$GREEN"
             else
-                write_item "Warning: jq not found, cannot merge Copilot settings automatically" "$YELLOW"
                 return
             fi
 
@@ -1695,6 +1795,35 @@ install_workspace() {
         invoke_registry_platform "$repo_root" "workspace" "$target_path" "nexus-ai" "Nexus-AI (Local Desktop Studio)"
         fi
 
+        # --- Auto-Approve Permissions sub-section --------------------------
+        # v3.17.0 Phase 1.2: previously absent entirely, so a --workspace install
+        # received no permission baseline on any operating system while the `scope`
+        # parameter of install_permissions sat decorative. Only CLAUDE has a
+        # confirmed project-scoped target (.claude/settings.local.json); the other
+        # three skip with a note stating why. Gated on the same --platforms subset
+        # as the global block.
+        write_section_banner "AUTO-APPROVE PERMISSIONS"
+
+        if should_install claude; then
+        write_header "ANTHROPIC"
+        install_permissions "$repo_root" "CLAUDE" "Workspace" "$target_path"
+        fi
+
+        if should_install codex; then
+        write_header "OPENAI"
+        install_permissions "$repo_root" "CODEX" "Workspace" "$target_path"
+        fi
+
+        if should_install gemini; then
+        write_header "GOOGLE"
+        install_permissions "$repo_root" "GEMINI" "Workspace" "$target_path"
+        fi
+
+        if should_install copilot; then
+        write_header "MICROSOFT"
+        install_permissions "$repo_root" "COPILOT" "Workspace" "$target_path"
+        fi
+
         echo ""
 }
 
@@ -2264,6 +2393,19 @@ install_templates() {
     if [ -f "$trigger_evals_source" ]; then
         safe_copy "$trigger_evals_source" "$scripts_dest/run_trigger_evals.py" true "[OK] Trigger-and-routing eval installed at: $scripts_dest/run_trigger_evals.py"
     fi
+    # v3.17.0 Phase 1: permission-baseline tooling. merge_permissions.py is the
+    # single merge implementation BOTH installers call (see
+    # merge_permissions_via_helper above); validate_permission_baseline.py is the
+    # guard that keeps mutation-capable entries out of the read-only baseline.
+    local merge_permissions_source="$repo_root/scripts/merge_permissions.py"
+    if [ -f "$merge_permissions_source" ]; then
+        safe_copy "$merge_permissions_source" "$scripts_dest/merge_permissions.py" true "[OK] Permission merge helper installed at: $scripts_dest/merge_permissions.py"
+    fi
+    local validate_baseline_source="$repo_root/scripts/validate_permission_baseline.py"
+    if [ -f "$validate_baseline_source" ]; then
+        safe_copy "$validate_baseline_source" "$scripts_dest/validate_permission_baseline.py" true "[OK] Permission-baseline validator installed at: $scripts_dest/validate_permission_baseline.py"
+    fi
+
     local trigger_evals_allowlist_source="$repo_root/scripts/run_trigger_evals.allowlist.json"
     if [ -f "$trigger_evals_allowlist_source" ]; then
         safe_copy "$trigger_evals_allowlist_source" "$scripts_dest/run_trigger_evals.allowlist.json" true "[OK] Trigger-eval allowlist installed at: $scripts_dest/run_trigger_evals.allowlist.json"

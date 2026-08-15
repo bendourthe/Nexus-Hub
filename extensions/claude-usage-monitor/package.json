@@ -2,7 +2,7 @@
   "name": "claude-usage-monitor",
   "displayName": "Claude Usage Monitor",
   "description": "Monitor your Claude Code usage limits in the status bar with smart model and effort recommendations",
-  "version": "0.9.6",
+  "version": "0.9.7",
   "publisher": "nexus-hub",
   "icon": "icon.png",
   "repository": {
@@ -51,6 +51,11 @@
       {
         "command": "claude-usage.settings",
         "title": "Claude Usage: Settings",
+        "category": "Claude Usage"
+      },
+      {
+        "command": "claude-usage.autonomy",
+        "title": "Claude Usage: Project Autonomy",
         "category": "Claude Usage"
       }
     ],
@@ -106,6 +111,20 @@
           "type": "boolean",
           "default": false,
           "description": "Use a compact status-bar label: '<icon> X% (current) Y% (week)' instead of '<icon> Claude Usage: X% (current) Y% (week)'."
+        },
+        "claudeUsage.autonomyRefreshSeconds": {
+          "type": "number",
+          "default": 30,
+          "minimum": 10,
+          "maximum": 300,
+          "description": "How often the project autonomy status and TTL countdown refresh"
+        },
+        "claudeUsage.autonomyTtlMinutes": {
+          "type": "number",
+          "default": 60,
+          "minimum": 1,
+          "maximum": 480,
+          "description": "TTL passed to the Nexus-Hub autonomy CLI when enabling from the status bar"
         },
         "claudeUsage.thresholds.moderate": {
           "type": "number",
@@ -173,12 +192,14 @@
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "package": "vsce package --no-dependencies"
   },
   "devDependencies": {
     "@types/node": "^20.19.41",
     "@types/vscode": "^1.85.0",
     "@vscode/vsce": "^3.0.0",
+    "@vitest/coverage-v8": "^4.1.10",
     "fantasticon": "^4.1.0",
     "svg2ttf": "^6.1.0",
     "svgpath": "^2.6.0",

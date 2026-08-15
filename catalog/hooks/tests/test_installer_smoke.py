@@ -593,6 +593,12 @@ DEV_ONLY_SCRIPTS = {
     # it has caught a real omission. An end user has no release notes to check,
     # so like the guards above it is deliberately not installer-copied.
     "check_release_capability_docs.py",
+    # Repo-internal hard gate over configs/installer-parity.json. It checks the
+    # source installers against each other and has no end-user runtime role.
+    "check_installer_parity.py",
+    # CI-only shared postcondition checker for throwaway real-installer runs.
+    # Installed users do not need a harness that validates CI's temporary HOME.
+    "check_installer_smoke.py",
 }
 
 

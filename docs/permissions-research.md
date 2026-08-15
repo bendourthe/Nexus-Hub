@@ -1,185 +1,104 @@
-# Auto-Approve Permissions: Platform Research
+# Agent Permissions and Autonomy: Platform Research
 
-_Last updated: 2026-03-26_
+_Last updated: 2026-08-14_
 
-This document summarizes how four major AI coding platforms handle permission configuration, auto-approve rules, and tool allowlisting. The goal is to identify the granularity each platform offers and where parity gaps exist.
+This document separates two permission surfaces that solve different problems. The read-only baseline auto-approves a curated set of low-risk operations on four integrations. The time-bounded autonomy capability temporarily raises one supported project's authority through a verified platform-native mode. An autonomy descriptor does not imply read-only-baseline coverage, and baseline coverage does not imply that a full autonomy mode exists.
 
----
+The machine-readable source for autonomy verdicts is [`docs/policy/platform-read-contracts.json`](policy/platform-read-contracts.json). Its human-readable table and evidence links are in [`docs/policy/platform-read-contracts.md`](policy/platform-read-contracts.md). The v3.17.0 implementation accepts only JSON, JSONC, or TOML descriptors backed by current first-party documentation.
 
-## 1. Claude Code
+## Shipped Read-Only Baseline
 
-- **Config path**: `~/.claude/settings.json` (user), `.claude/settings.json` (project), `.claude/settings.local.json` (local, gitignored)
-- **Format**: JSON
-- **Permission model**: Three-tier rule evaluation: deny > ask > allow (first match wins; deny always takes precedence)
-- **Rule types**: `allow`, `ask`, `deny` arrays under the `permissions` key
+The baseline remains a four-platform artifact in v3.17.0. Phase 1 hardened its contents to the side-effect level, removed the `jq`-only merge path, made Bash and PowerShell installers use the same merge helper, propagated retired Nexus-Hub rules without deleting user-authored entries, and wired permission installation at both global and workspace scope.
 
-### Supported rule patterns
+Before that hardening, some entries labelled read-only could mutate local state, remote state, or configuration. Examples included broad dual-mode command globs, mutation-capable `find`, `sed`, `ip`, and `sysctl` shapes, and PowerShell object-returning cmdlets whose methods can mutate. The new validator treats invocation shape and admitted side effects, not a command's name, as the safety boundary.
 
-| Scope | Example | Notes |
-|-------|---------|-------|
-| Tool-level | `"Read"`, `"Glob"`, `"Grep"`, `"WebSearch"` | Matches all uses of that tool |
-| Command-level | `"Bash(git log *)"`, `"Bash(npm run *)"` | Glob patterns with `*` wildcard |
-| Path-level | `"Edit(/src/**/*.ts)"`, `"Read(~/.env)"` | Gitignore-style path patterns |
-| Domain-level | `"WebFetch(domain:github.com)"` | Per-domain fetch allowlisting |
-| MCP tools | `"mcp__server__tool_name"` | Scoped to a specific MCP server and tool |
+| Platform | Shipped baseline | Enforcement shape | Important limit |
+|---|---|---|---|
+| Claude Code | Yes | `allow`, `ask`, and `deny` rules with separate `Bash(...)` and `PowerShell(...)` prefixes | Explicit wildcard redirect behavior remains unverified; built-in read-only commands do receive semantic redirect analysis. |
+| OpenAI Codex | Yes | TOML sandbox, filesystem, network, and approval-policy scopes | No equivalent per-command Bash allowlist; containment is sandbox-oriented. |
+| Gemini / Antigravity 1.0 | Yes | `run_shell_command(...)` and tool patterns | The shipped set is POSIX-shaped and contains no PowerShell or `cmd.exe` baseline beyond a bare `dir` case. |
+| GitHub Copilot | Yes | Instruction-file loading and host settings | The shipped baseline does not provide Claude-style per-command patterns. |
+| Other registered integrations | No | None from the baseline | Autonomy coverage was widened separately; read-only-baseline coverage was not. |
 
-### Permission modes
+## Time-Bounded Autonomy Roster
 
-`default`, `acceptEdits`, `plan` (read-only), `auto` (AI-powered safety), `dontAsk`, `bypassPermissions`.
+Only a `MATCH` verdict receives an autonomy descriptor. `DRIFT` means a real lever exists but cannot be represented safely by the current one-file descriptor contract. `UNVERIFIED` means current first-party evidence did not establish a general seedable mode.
 
-### Assessment
+| Platform (registry id) | Verdict | Supported tier or tiers | Config scope | Reason |
+|---|---|---|---|---|
+| Aider (`aider`) | DRIFT | None | Project or global YAML | `yes-always` is YAML-only and has no edits-only tier. |
+| Antigravity 1.0 (`antigravity`) | UNVERIFIED | None | UI only | No seedable file path and key were verified. |
+| Antigravity 2.0 + CLI (`antigravity2`) | MATCH | Full | Global JSON | `toolPermission: "always-proceed"`; the intermediate mode is broader than edits-only. |
+| Claude Code (`claude`) | MATCH | Edits, full | Project-local JSON | `acceptEdits` and `bypassPermissions` are documented modes. |
+| OpenAI Codex (`codex`) | MATCH | Edits, full | Trusted-project TOML | Edits retains on-request approval in a workspace-write sandbox; full removes prompts and sandboxing. |
+| GitHub Copilot / VS Code (`copilot`) | MATCH | Full | Project VS Code JSON | `chat.permissions.default: "autopilot"`; no edits-only mode value is documented. |
+| Cursor (`cursor`) | MATCH | Full | Global JSON | `approvalMode: "unrestricted"`; the documented project file is permissions-only. |
+| Gemini Code Assist (`gemini`) | UNVERIFIED | None | Global tool lists | Narrow tool lists exist, but no persistent general autonomy mode was verified. |
+| Gemini CLI (`gemini-cli`) | DRIFT | None | Project JSON plus CLI flag | File-backed `auto_edit` exists, but full YOLO is CLI-only, so one descriptor cannot express both tiers. |
+| Hermes (`hermes`) | UNVERIFIED | None | Global YAML | Documented gates cover narrow skill and memory writes, not general autonomy. |
+| Kimi Code CLI (`kimi`) | MATCH | Full | Global TOML | `default_permission_mode = "auto"`; no project-scoped edits-only value is documented. |
+| Nexus-AI (`nexus-ai`) | UNVERIFIED | None | No public contract | No publicly auditable user-facing autonomy setting is available. |
+| OpenClaw (`openclaw`) | DRIFT | None | Global JSON5 plus host-local state | Full execution depends on two independent files, so a one-file descriptor would misreport authority. |
+| OpenCode (`opencode`) | MATCH | Edits, full | Project-root JSON or JSONC | Per-tool `edit: "allow"` supports edits-only; `permission: "allow"` supports full. |
+| Qwen Code (`qwen`) | MATCH | Edits, full | Project JSON | `auto-edit` and `yolo` are documented approval modes. |
+| Windsurf (`windsurf`) | UNVERIFIED | None | No confirmed mode file | Current first-party documentation exposes no seedable general permission-mode key. |
 
-- **Granularity**: Excellent. Supports per-tool, per-command, per-path, and per-domain allowlists.
-- **Session persistence**: "Yes, don't ask again" saves rules to `settings.json` permanently.
+**Current count:** 8 MATCH, 3 DRIFT, 5 UNVERIFIED, 16 registered integrations.
 
-### Sources
+Some verified levers are global because that is the only platform-native surface the vendor documents. Nexus-Hub still treats the operation as project-bound: the core requires a project context, a clean non-protected branch, a bounded TTL, a diff and explicit consent, backup and audit records, and exact restoration. A descriptor that declares global scope is rejected by the core rather than silently widening authority.
 
-- <https://docs.claude.com/en/docs/permissions>
-- <https://docs.claude.com/en/docs/settings>
+## PowerShell Findings
 
----
+Nexus-Hub has shipped a PowerShell allowlist since v1.1.0. That release established four behaviors that remain part of the security model:
 
-## 2. OpenAI Codex CLI
+- Claude Code exposes PowerShell as a distinct tool and matches it with a separate `PowerShell(...)` rule prefix.
 
-- **Config path**: `~/.codex/config.toml` (user), `.codex/config.toml` (project, loaded only when trusted)
-- **Format**: TOML
-- **Permission model**: Named permission profiles with filesystem and network scopes
+- A `PreToolUse:PowerShell` hook that returns `updatedInput` without an explicit `permissionDecision` is treated as approval and can execute silently. The analogous Bash path falls through to the default ask behavior. Nexus-Hub therefore returns an explicit decision rather than relying on input rewriting alone.
 
-### Filesystem access
+- The PowerShell approval dialog places `updatedInput` behind a collapsed details surface. Nexus-Hub also writes the explanation to `permissionDecisionReason` so the safety-relevant description remains visible.
 
-Configured by path with read/write/none levels. Special tokens include `:project_roots` and `:minimal`.
+- `ForEach-Object` is deliberately absent from auto-approve because property-access and method-invocation forms cannot be separated reliably from syntax alone.
 
-### Network access
+Phase 1 added two matcher conclusions. Claude Code independently evaluates compound commands separated by `;` for both Bash and PowerShell, so every subcommand needs permission. Output redirection is semantically handled for Claude's built-in read-only set, but the documentation does not establish the same behavior for explicit wildcard allow rules; that case remains UNVERIFIED and is tracked as NI-1. Nexus-Hub's own Bash and PowerShell hook paths reject redirects before returning an allow decision.
 
-Controlled via `enabled`, `mode` ("limited" or "full"), `allowed_domains`, and `denied_domains`.
+The Windows-shell coverage gap is platform-specific. Claude receives a dedicated PowerShell ruleset. Gemini's shipped baseline has no PowerShell or `cmd.exe` set, so a Windows Gemini user receives a POSIX-shaped allowlist plus a limited `dir` entry. Adding a Windows-native Gemini baseline is deferred because expanding coverage requires a separate risk decision from hardening existing rules.
 
-### Approval policies
+## Matcher and Hook Boundaries
 
-Options: `"on-request"` (prompts the user), `"untrusted"` (minimal auto-approval), `"never"` (full auto), or a granular object with per-category toggles (`sandbox_approval`, `rules`, `mcp_elicitations`, `request_permissions`, `skill_approval`).
+Two independent paths can approve an operation:
 
-### Limitations
+1. The platform's native matcher reads the merged configuration. Nexus-Hub cannot add semantic checks to this path, so every distributed rule must be safe on its own.
 
-No per-command Bash allowlisting at the config level. Codex relies on filesystem and network scoping as an alternative to command-level patterns.
+2. Nexus-Hub `PreToolUse` hooks may return an allow decision after additional syntax checks. These hooks reject command separators, redirects, substitutions, multiline forms, and other execution shapes according to their shell-specific contracts.
 
-### Assessment
+The native path is why broad patterns such as `Bash(find *)`, `Bash(echo *)`, and wildcarded dual-mode PowerShell cmdlets were removed even when a hook could have rejected a dangerous concrete invocation. The hook is defense in depth, not justification for an unsafe native rule. Phase 4 also verified that Claude Code continues to run blocking `PreToolUse` hooks under its no-prompt modes for both Bash and Write tool calls.
 
-- **Granularity**: Good. Filesystem and network concerns are cleanly separated, but there is no command-level pattern matching.
+## Remaining Coverage Gaps
 
-### Sources
+- The read-only baseline covers four integrations; the other twelve registered integrations receive no Nexus-Hub baseline posture.
 
-- <https://developers.openai.com/codex/config-reference>
-- <https://developers.openai.com/codex/agent-approvals-security>
+- Gemini's baseline has no PowerShell or general `cmd.exe` coverage.
 
----
+- Claude explicit wildcard-rule behavior for output redirection is still unverified even though the built-in command set handles redirects semantically.
 
-## 3. Google Gemini CLI
+- Aider, Gemini CLI, and OpenClaw have real permission controls that do not fit the one-file descriptor contract. Nexus-Hub skips them instead of approximating their behavior.
 
-- **Config path**: `~/.gemini/settings.json` (user), `.gemini/settings.json` (project), enterprise at `/etc/gemini-cli/settings.json` (Linux) or `C:\ProgramData\gemini-cli\settings.json` (Windows)
-- **Format**: JSON
-- **Permission model**: Tool allowlists for built-in tools and MCP servers
+- Antigravity 1.0, Gemini Code Assist, Hermes, Nexus-AI, and Windsurf have no currently verified seedable general autonomy mode.
 
-### Supported rule patterns
+- Cursor and Kimi expose only global full-autonomy levers in current documentation. The v3.17.0 core rejects global-scope descriptors, so descriptor presence does not override the workspace-only product rule.
 
-| Scope | Example | Notes |
-|-------|---------|-------|
-| Shell command | `"run_shell_command(git status)"` | Pattern-matched command strings |
-| Built-in tool | `"ReadFileTool"`, `"code_search"`, `"web_search"` | Full tool name |
-| MCP scoping | `includeTools` / `excludeTools` per MCP server | Positive and negative lists |
-| Domain | `allowedDomains` array | For browser agent only |
+## Primary Evidence
 
-### Enterprise policy
+- [Platform read-contract and autonomy-verification log](policy/platform-read-contracts.md)
 
-TOML-based policy files in `~/.gemini/policies/` allow organization-wide enforcement.
+- [Phase 1 matcher findings](v3/v3.17/development/permission-matcher-findings.md)
 
-### Known limitation
+- [Claude Code permissions](https://code.claude.com/docs/en/permissions)
 
-Allowlists do not apply to piped commands (tracked in GitHub issue #11510).
+- [OpenAI Codex configuration reference](https://developers.openai.com/codex/config-reference/)
 
-### Assessment
+- [VS Code agent approvals](https://code.visualstudio.com/docs/agents/approvals)
 
-- **Granularity**: Moderate. Supports per-tool and command patterns, but shell command patterns are simpler than Claude Code's glob-style matching.
+- [OpenCode permissions](https://opencode.ai/docs/permissions)
 
-### Sources
-
-- <https://geminicli.com/docs/reference/configuration/>
-- <https://google-gemini.github.io/gemini-cli/docs/cli/enterprise.html>
-
----
-
-## 4. GitHub Copilot (VS Code / CLI)
-
-- **Config paths**:
-  - CLI: `~/.copilot/config.json`
-  - MCP: `~/.copilot/mcp-config.json`
-  - VS Code: `settings.json`
-  - Repo (shared): `.github/copilot/settings.json`
-  - Repo (local, gitignored): `.github/copilot/settings.local.json`
-- **Format**: JSON
-- **Permission model**: Runtime CLI flags and VS Code settings toggles
-
-### VS Code settings
-
-| Setting | Purpose |
-|---------|---------|
-| `chat.tools.terminal.autoApprove` | Auto-approve terminal commands |
-| `chat.tools.edits.autoApprove` | Auto-approve file edits |
-| `chat.autopilot.enabled` | Enable full autopilot mode |
-| `github.copilot.chat.codeGeneration.useInstructionFiles` | Load repo instruction files |
-
-### CLI flags
-
-| Flag | Purpose |
-|------|---------|
-| `--allow-all-tools` | Approve all tool calls |
-| `--allow-tool "git"` | Allow a specific tool |
-| `--deny-tool "rm"` | Deny a specific tool |
-| `--allow-url "github.com"` | Allow fetch to a domain |
-
-### Autopilot mode
-
-Auto-approves all tool calls, auto-retries errors, and auto-responds to questions (no manual prompts required).
-
-### Limitations
-
-- No persistent per-command config file; relies on VS Code settings and runtime flags.
-- No domain allowlisting in persistent config.
-
-### Assessment
-
-- **Granularity**: Limited. Primarily binary auto-approve toggles per tool category with no allowlist-style patterns.
-
-### Sources
-
-- <https://docs.github.com/en/copilot/how-tos/copilot-cli>
-- <https://code.visualstudio.com/docs/copilot/agents/agent-tools>
-
----
-
-## Comparative Summary
-
-| Platform | Config Format | User Config Path | Per-Command Allow | Per-Path Allow | Per-Domain Allow | Read vs Write Distinction | Granularity Rating |
-|----------|--------------|------------------|-------------------|----------------|------------------|---------------------------|-------------------|
-| Claude Code | JSON | `~/.claude/settings.json` | Yes (glob patterns) | Yes (gitignore-style) | Yes (`WebFetch(domain:...)`) | Yes (separate tool rules) | Excellent |
-| Codex CLI | TOML | `~/.codex/config.toml` | No | Yes (filesystem scoping) | Yes (`allowed_domains`) | Yes (read/write/none) | Good |
-| Gemini CLI | JSON | `~/.gemini/settings.json` | Partial (simple patterns) | No | Yes (`allowedDomains`) | No | Moderate |
-| Copilot | JSON | `~/.copilot/config.json` | No | No | CLI flags only (not persistent) | No | Limited |
-
----
-
-## Parity Gaps
-
-### Claude Code
-
-No significant gaps. The three-tier deny/ask/allow model with glob patterns, path scoping, and domain allowlisting provides full parity across all permission dimensions.
-
-### Codex CLI
-
-No per-command Bash allowlisting. Users cannot write a rule like "allow `git log` but deny `git push`" at the config level. The workaround is filesystem and network scoping, which controls what the agent can access rather than which commands it can run. This is a deliberate design choice that trades command-level precision for sandbox-style containment.
-
-### Gemini CLI
-
-No read-vs-write distinction at the config level. A tool is either allowed or not; there is no way to permit reading a file while blocking edits to it. Additionally, piped commands bypass allowlists entirely (GitHub issue #11510), meaning a rule like `run_shell_command(git status)` does not cover `git status | head -5`.
-
-### Copilot
-
-The most limited of the four platforms. There is no per-command, per-path, or per-domain allowlisting in persistent configuration. The agent cannot distinguish read-only operations from write operations. CLI flags like `--allow-tool` and `--deny-tool` exist but are session-scoped and not saved to config. Instruction files (`.github/copilot-instructions.md`) are the closest safe equivalent for guiding agent behavior, but they are advisory rather than enforced.
+- [Qwen Code settings](https://qwenlm.github.io/qwen-code-docs/en/users/configuration/settings/)
