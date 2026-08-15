@@ -11,10 +11,10 @@
 | Cat 1 (delete) | 0 |
 | Cat 2 (archive) | 0 |
 | Cat 3 (stale-flag) | 0 |
-| Cat 4 (active) | 8 |
-| **Total** | **8** |
+| Cat 4 (active) | 9 |
+| **Total** | **9** |
 
-The scoped inventory and reference graph completed successfully. All six pre-existing files are current v3.17 planning, research, evidence, or history artifacts. This report and the Phase 2 session history bring the final scoped total to eight active artifacts. No file move, deletion, or archive action is proposed.
+The scoped inventory and reference graph completed successfully. All v3.17 planning, research, evidence, and history artifacts remain current. The Phase 3 session history brings the scoped total to nine active artifacts. No file move, deletion, or archive action is proposed.
 
 ## Dispositions
 
@@ -27,6 +27,7 @@ The scoped inventory and reference graph completed successfully. All six pre-exi
 | `docs/v3/v3.17/development/permission-matcher-findings.md` | Cat 4 | Active version, externally referenced | Keep | Phase 1 evidence |
 | `docs/v3/v3.17/development/history/2026-08-13_agent-autonomy-toggle-phase-1-permission-baseline-and-merge-parity.md` | Cat 4 | Active version | Keep | Phase 1 history |
 | `docs/v3/v3.17/development/history/2026-08-14_agent-autonomy-toggle-phase-2-capability-model-and-lever-verification.md` | Cat 4 | Active version | Keep | Phase 2 history |
+| `docs/v3/v3.17/development/history/2026-08-14_agent-autonomy-toggle-phase-3-core-consent-ttl-and-audit.md` | Cat 4 | Active version | Keep | Phase 3 history |
 | `docs/v3/v3.17/docs-cleanup-report.md` | Cat 4 | Active audit artifact | Keep | This report |
 
 ## Cat 3 Refresh Queue
@@ -44,7 +45,8 @@ docs/v3/v3.17/
 |   |-- permission-matcher-findings.md
 |   `-- history/
 |       |-- 2026-08-13_agent-autonomy-toggle-phase-1-permission-baseline-and-merge-parity.md
-|       `-- 2026-08-14_agent-autonomy-toggle-phase-2-capability-model-and-lever-verification.md
+|       |-- 2026-08-14_agent-autonomy-toggle-phase-2-capability-model-and-lever-verification.md
+|       `-- 2026-08-14_agent-autonomy-toggle-phase-3-core-consent-ttl-and-audit.md
 `-- plans/
     |-- v3.17.0-agent-autonomy-toggle.md
     `-- v3.17.1-org-knowledge-layer.md

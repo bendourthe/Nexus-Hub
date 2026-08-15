@@ -1,0 +1,67 @@
+name: autonomy-security
+
+# Security-critical, path-scoped proof for the project-local autonomy engine.
+# Unlike the repository's expensive-OS smoke jobs, this matrix deliberately
+# runs on pull requests as well as protected-branch pushes: a missed refusal,
+# backup, audit, or expiry regression can leave an agent running unprompted, so
+# Windows and macOS coverage is not merge-gated. Narrow paths and concurrency
+# cancellation contain the action-minute cost without weakening that exception.
+on:
+  push:
+    branches: [main, develop]
+    paths:
+      - 'scripts/lib/autonomy.py'
+      - 'scripts/lib/integrations/**'
+      - 'catalog/hooks/autonomy-expiry.sh'
+      - 'catalog/hooks/autonomy-expiry.ps1'
+      - 'catalog/hooks/settings.json'
+      - 'catalog/hooks/tests/test_autonomy_expiry.py'
+      - 'catalog/hooks/tests/test_hook_sibling_parity.py'
+      - 'tests/test_autonomy.py'
+      - '.github/workflows/autonomy-security.yml'
+  pull_request:
+    branches: [main, develop]
+    paths:
+      - 'scripts/lib/autonomy.py'
+      - 'scripts/lib/integrations/**'
+      - 'catalog/hooks/autonomy-expiry.sh'
+      - 'catalog/hooks/autonomy-expiry.ps1'
+      - 'catalog/hooks/settings.json'
+      - 'catalog/hooks/tests/test_autonomy_expiry.py'
+      - 'catalog/hooks/tests/test_hook_sibling_parity.py'
+      - 'tests/test_autonomy.py'
+      - '.github/workflows/autonomy-security.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  autonomy:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.11'
+
+      - name: Install focused test dependencies
+        run: python -m pip install pytest pytest-cov
+
+      - name: Autonomy engine safety suite with coverage floor
+        run: python -m pytest tests/test_autonomy.py -q --cov=scripts.lib.autonomy --cov-report=term-missing:skip-covered --cov-fail-under=80
+
+      - name: Native-shell TTL expiry tests
+        run: python -m pytest catalog/hooks/tests/test_autonomy_expiry.py -q
+
+      - name: Hook inventory, parsing, and autonomy sibling parity
+        run: python -m pytest catalog/hooks/tests/test_hook_sibling_parity.py -q -k "hooks_exist_at_all or every_sh_hook_has or every_ps1_hook_has or (autonomy and expiry and (parses or agrees))"
