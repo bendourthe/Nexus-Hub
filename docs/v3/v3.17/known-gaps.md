@@ -1,8 +1,8 @@
 # Known Gaps - v3.17
 
 **Project**: Nexus-Hub
-**Status**: v3.17.0 `agent-autonomy-toggle` is implementation-complete, reconciled with the v3.16.8 integration line, and green in protected-branch remote CI. Phase 6 closed BG-4 by merging current `origin/develop` into the feature branch and explicitly restoring every revert-owned hardening artifact before the feature-to-`develop` merge.
-**Last updated**: 2026-08-15 (v3.17.0 Phase 6 integration closure)
+**Status**: v3.17.0 `agent-autonomy-toggle` is released. The v3.17.1 patch closes the release-tag Windows installer-smoke harness defect discovered after the immutable v3.17.0 tag was pushed.
+**Last updated**: 2026-08-15 (v3.17.1 Windows tag installer-smoke repair)
 
 > **File-lifecycle note**: this ledger was opened by the v3.17.0 Phase 1 append. Each subsequent v3.17.N implementation appends its own `## v3.17.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `MT-#` / `QG-#` numbering.
 
@@ -171,15 +171,40 @@
 - **Resolution**: regenerate the lockfile with npm 10.9.4, adding the two exact optional package records and their integrity metadata.
 - **Verification**: npm 10.9.4 completes a clean install, TypeScript compilation, 11 tests with 92 percent statement coverage, and VSIX packaging.
 
+## v3.17.1 - Windows tag installer-smoke repair
+
+**Status**: Finalized on 2026-08-15 with 0 open items, 1 closed item (BG-8), and 0 release blockers.
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented by design / unverified (`NI-#`) | 0 | 0 |
+| Deferred (`DF-#`) | 0 | 0 |
+| Bugs (`BG-#`) | 0 | 1 (BG-8) |
+| Warnings (`WN-#`) | 0 | 0 |
+| Missing tests (`MT-#`) | 0 | 0 |
+| Quality-gate bypasses (`QG-#`) | 0 | 0 |
+
+> Finalized on 2026-08-15 at the v3.17.1 bump. This patch leaves no open item for the next-plan ingest.
+
+### BG-8 - CLOSED in v3.17.1: the tag-only Windows installer smoke assigned reserved `$HOME`
+
+- **Target files**: `.github/workflows/ci.yml`, `tests/skills/test_installer_parity_lifecycle.py`
+- **Source phase**: v3.17.0 release publication, tag CI run `31910449264`
+- **What was wrong**: the release-only Windows PowerShell 5.1 step assigned `$home`. PowerShell variable names are case-insensitive, so this attempted to overwrite the read-only `$HOME` variable and exited before invoking `installer.ps1`. The regular Windows bootstrap and install-smoke jobs passed, isolating the defect to the tag-expanded harness rather than the installer.
+- **Resolution**: rename the local variable and all of its uses to `$smokeHome`; add a lifecycle regression that rejects a case-insensitive `$home` assignment anywhere in the CI workflow.
+- **Verification**: the regression test failed against the v3.17.0 workflow on the exact assignment, then passed after the rename. The v3.17.1 tag workflow is the release-level proof that the repaired all-OS installer-smoke matrix runs end to end.
+
 ## v3.17 Summary
 
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented by design / unverified (`NI-#`) | 3 (NI-1, NI-2, NI-3) | 0 |
 | Deferred (`DF-#`) | 5 (DF-1, DF-2, DF-3, DF-4, DF-5) | 0 |
-| Bugs (`BG-#`) | 0 | 7 (BG-1, BG-2, BG-3, BG-4, BG-5, BG-6, BG-7) |
+| Bugs (`BG-#`) | 0 | 8 (BG-1, BG-2, BG-3, BG-4, BG-5, BG-6, BG-7, BG-8) |
 | Warnings (`WN-#`) | 3 (WN-1, environmental, carried from v3.15.0; WN-2, pre-existing Ruff baseline; WN-4, version-specific hook proof) | 1 (WN-3, Vitest config loader) |
 | Missing tests (`MT-#`) | 1 (MT-1, Claude monitor extension-wide coverage) | 0 |
 | Quality-gate bypasses (`QG-#`) | 0 | 0 |
 
-**Release blockers**: 0. NI-1 and NI-2 require live matcher probes before their respective permission baselines can be broadened, but the shipped validators and hook guards conservatively avoid relying on either unverified behavior. BG-4 through BG-7 are closed, and the integrated `develop` tree is green in protected-branch CI.
+**Release blockers**: 0. NI-1 and NI-2 require live matcher probes before their respective permission baselines can be broadened, but the shipped validators and hook guards conservatively avoid relying on either unverified behavior. BG-4 through BG-8 are closed; BG-8 is the v3.17.1 repair for the tag-only Windows harness failure.
