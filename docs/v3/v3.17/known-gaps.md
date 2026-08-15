@@ -1,8 +1,8 @@
 # Known Gaps - v3.17
 
 **Project**: Nexus-Hub
-**Status**: v3.17.0 `agent-autonomy-toggle` is IN FLIGHT on `feat/v3.17.0-agent-autonomy-toggle` (separated from `develop`, which reverted this phase's checkpoint in `9d9e9a07` - see BG-4). Phases 1 through 4 are COMPLETE; Phases 5-6 are not started.
-**Last updated**: 2026-08-14 (v3.17.0 Phase 4 append)
+**Status**: v3.17.0 `agent-autonomy-toggle` is IN FLIGHT on `feat/v3.17.0-agent-autonomy-toggle` (separated from `develop`, which reverted this phase's checkpoint in `9d9e9a07` - see BG-4). Phases 1 through 5 are COMPLETE; Phase 6 is not started.
+**Last updated**: 2026-08-15 (v3.17.0 Phase 5 completion)
 
 > **File-lifecycle note**: this ledger is opened by the v3.17.0 Phase 1 append. Each subsequent v3.17.N version-implementation phase **appends** its own `## v3.17.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `MT-#` / `QG-#` numbering. Note that the v3.17.0 plan itself lives in this directory while its *predecessor* ledger entries sit in [../v3.16/known-gaps.md](../v3.16/known-gaps.md), an artifact of the v3.16-line re-stamp the plan's version-numbering note records.
 
@@ -10,7 +10,7 @@
 
 ## v3.17.0 - agent-autonomy-toggle
 
-**Status**: Phases 1 through 4 COMPLETE (2026-08-14). 7 open (NI-1, NI-2, DF-1, DF-2, DF-3, WN-1, WN-2), 1 open (BG-4, latent and procedural) and 3 closed (BG-1, BG-2, BG-3), 0 release blockers. Plan: [plans/v3.17.0-agent-autonomy-toggle.md](plans/v3.17.0-agent-autonomy-toggle.md).
+**Status**: Phases 1 through 5 COMPLETE (2026-08-15). 10 open (NI-1, NI-2, DF-1, DF-2, DF-3, BG-4, WN-1, WN-2, WN-3, MT-1) and 3 closed (BG-1, BG-2, BG-3), 0 release blockers. Plan: [plans/v3.17.0-agent-autonomy-toggle.md](plans/v3.17.0-agent-autonomy-toggle.md).
 
 ### NI-1 - OPEN: output redirection under an explicit allow rule is UNVERIFIED
 
@@ -65,6 +65,22 @@
 - **Reason it is open**: an exploratory `python -m ruff check scripts/lib/integrations tests/integrations/test_autonomy_descriptors.py` reported 180 existing modernization, import-order, mutable-class-config, and unused-code findings across the integration framework. The Phase 2 test file passes focused Ruff validation, and Phase 2 did not suppress or introduce a new lint rule; cleaning the framework would be an unrelated broad refactor.
 - **Suggested next step**: establish a deliberate Ruff baseline or scoped rule set during Phase 6 architecture work, then reduce the existing findings in reviewable batches rather than mixing them into capability phases.
 
+### WN-3 - OPEN (pre-existing tooling debt): usage-monitor Vitest configs warn about the future native loader
+
+- **Target file**: `extensions/claude-usage-monitor/vitest.config.ts`, `extensions/codex-usage-monitor/vitest.config.ts`
+- **Source phase**: v3.17.0 Phase 5, sub-task 5.4 (test verification)
+- **Plan reference**: 5.4 requires both extension suites and coverage gates to run cleanly.
+- **Reason it is open**: Vitest 4.1.10 passes every test and coverage threshold but warns that each TypeScript config uses ESM syntax while being loaded as CommonJS, which will be unsupported if Vite's native config loader becomes the default. The warning predates the autonomy state modules and is identical in both monitors; changing module mode or renaming configs is broader than this phase.
+- **Suggested next step**: during Phase 6 CI reconciliation, choose one tested convention for all usage monitors (`type: module`, an `.mts` config, or an explicit non-native loader), apply it consistently, and rerun compile, ordinary tests, and coverage.
+
+### MT-1 - OPEN (pre-existing coverage debt): Claude Usage Monitor lacks an extension-wide coverage baseline
+
+- **Target file**: `extensions/claude-usage-monitor/src/`, `extensions/claude-usage-monitor/vitest.config.ts`
+- **Source phase**: v3.17.0 Phase 5, sub-tasks 5.2 and 5.4
+- **Plan reference**: 5.4 requires extension coverage of at least 80 percent.
+- **Reason it is open**: the new autonomy state machine reaches 91.66 percent line coverage and is enforced at that explicit feature boundary, but enabling coverage over every imported Claude monitor module measured only 14.07 percent lines because the pre-existing provider, store, recommendation, type, and status-bar modules have little or no test coverage. Expanding those legacy tests is unrelated to the autonomy surface and would materially widen Phase 5.
+- **Suggested next step**: add tests for the legacy Claude monitor modules in risk order, then remove the `coverage.include` feature boundary once the whole extension clears the same 80 percent line and statement floor that the Codex monitor already meets.
+
 ### BG-1 - CLOSED in Phase 1: `installer.ps1` kept mutation-capable entries on upgrade
 
 - **Target file**: `scripts/installer.ps1` (`Install-Permissions`), `scripts/merge_permissions.py`
@@ -104,8 +120,8 @@
 | Not implemented by design / unverified (`NI-#`) | 2 (NI-1, NI-2) | 0 |
 | Deferred (`DF-#`) | 3 (DF-1, DF-2, DF-3) | 0 |
 | Bugs (`BG-#`) | 1 (BG-4, latent: the revert-then-merge hazard) | 3 (BG-1, BG-2, BG-3) |
-| Warnings (`WN-#`) | 2 (WN-1, environmental, carried from v3.15.0; WN-2, pre-existing Ruff baseline) | 0 |
-| Missing tests (`MT-#`) | 0 | 0 |
+| Warnings (`WN-#`) | 3 (WN-1, environmental, carried from v3.15.0; WN-2, pre-existing Ruff baseline; WN-3, future Vite loader) | 0 |
+| Missing tests (`MT-#`) | 1 (MT-1, Claude monitor extension-wide coverage) | 0 |
 | Quality-gate bypasses (`QG-#`) | 0 | 0 |
 
 **Release blockers**: 0. NI-1 is the only item that could change a design decision, and it is scheduled to ride Phase 4.1's live-build session.

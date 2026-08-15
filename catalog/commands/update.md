@@ -73,7 +73,7 @@ After the tag is pushed, `release` publishes a GitHub Release for the new `vX.Y.
 - **Body = the finalized CHANGELOG section.** Use the `## [X.Y.Z]` block just written to `CHANGELOG.md` as the release notes, and reuse the tag annotation's one-line summary for the title (`vX.Y.Z - <summary>`).
 - **Prefer `gh`, degrade gracefully (never fail the release).** If the GitHub CLI is present and authenticated (`gh auth status` succeeds), run `gh release create "vX.Y.Z" --title "vX.Y.Z - <summary>" --notes-file <file-holding-the-changelog-section>`. If `gh` is absent or unauthenticated, do NOT fail or roll back -- the tag and push already succeeded, so the Release can be published at any later time. Print the exact commands for the user to run: the `gh release create ...` form, plus a no-`gh` fallback (`curl -X POST -H "Authorization: Bearer <token>" https://api.github.com/repos/<owner>/<repo>/releases -d '{"tag_name":"vX.Y.Z","name":"vX.Y.Z - <summary>","body":"<notes>"}'`).
 - **Idempotent.** If a Release for `vX.Y.Z` already exists, update it in place (`gh release edit "vX.Y.Z" --title ... --notes-file ...`) instead of erroring.
-- **Confirmation gate.** Publishing is outward-facing, so confirm before creating/editing the Release -- the same gate the tag and push already carry. Never publish without explicit user confirmation.
+- **Confirmation gate.** Publishing is outward-facing, so follow the active instruction template's `Consequential Decisions` rule before confirming creation or editing of the Release -- the same gate the tag and push already carry. Never publish without explicit user confirmation.
 - **Backfill.** When the Releases page is behind the tags (a tag exists with no matching Release), the same step publishes the missing Release(s) from each tag's CHANGELOG section -- run it per missing `vX.Y.Z`.
 
 ## config scope (platform-config drift repair)
@@ -92,6 +92,8 @@ Both delegate skills stay propose-then-apply; this scope surfaces the checks and
 ## release scope: known-gaps, architecture refactor, and CI/CD (before the commit)
 
 Beyond running the `refactor` scope, a `release` performs these governance steps before the release commit, each keeping its confirmation gate:
+
+Before stopping for any governance confirmation below, follow the active instruction template's `Consequential Decisions` rule and explain what the proposed action changes, the alternatives including doing nothing, and the recommendation.
 
 1. **Known-gaps reconciliation** via `[[known-gaps-tracker]]`: resolve, defer, or transfer each open item for the version and finalize the per-minor `known-gaps.md`.
 2. **Full architecture refactor** via `[[project-refactor]]` (the empty-dir / duplicate / orphan / structure-complexity detectors) plus `[[docs-layout-refactor]]`, leaving a clean, intuitive layout.

@@ -11,6 +11,8 @@ on:
     branches: [main, develop]
     paths:
       - 'scripts/lib/autonomy.py'
+      - 'scripts/lib/autonomy_cli.py'
+      - 'scripts/nexus_hub_cli.py'
       - 'scripts/lib/integrations/**'
       - 'catalog/hooks/autonomy-guard.sh'
       - 'catalog/hooks/autonomy-guard.ps1'
@@ -21,11 +23,14 @@ on:
       - 'catalog/hooks/tests/test_autonomy_expiry.py'
       - 'catalog/hooks/tests/test_hook_sibling_parity.py'
       - 'tests/test_autonomy.py'
+      - 'tests/test_autonomy_cli.py'
       - '.github/workflows/autonomy-security.yml'
   pull_request:
     branches: [main, develop]
     paths:
       - 'scripts/lib/autonomy.py'
+      - 'scripts/lib/autonomy_cli.py'
+      - 'scripts/nexus_hub_cli.py'
       - 'scripts/lib/integrations/**'
       - 'catalog/hooks/autonomy-guard.sh'
       - 'catalog/hooks/autonomy-guard.ps1'
@@ -36,6 +41,7 @@ on:
       - 'catalog/hooks/tests/test_autonomy_expiry.py'
       - 'catalog/hooks/tests/test_hook_sibling_parity.py'
       - 'tests/test_autonomy.py'
+      - 'tests/test_autonomy_cli.py'
       - '.github/workflows/autonomy-security.yml'
 
 permissions:
@@ -64,7 +70,7 @@ jobs:
         run: python -m pip install pytest pytest-cov
 
       - name: Autonomy engine and guard safety suite with coverage floor
-        run: python -m pytest tests/test_autonomy.py catalog/hooks/tests/test_autonomy_guard.py -q --cov=scripts.lib.autonomy --cov-report=term-missing:skip-covered --cov-fail-under=80
+        run: python -m pytest tests/test_autonomy.py tests/test_autonomy_cli.py catalog/hooks/tests/test_autonomy_guard.py -q --cov=scripts.lib.autonomy --cov=scripts.lib.autonomy_cli --cov-report=term-missing:skip-covered --cov-fail-under=80
 
       - name: Native-shell TTL expiry tests
         run: python -m pytest catalog/hooks/tests/test_autonomy_expiry.py -q

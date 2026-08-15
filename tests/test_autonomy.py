@@ -14,6 +14,7 @@ from pathlib import Path
 import pytest
 
 from scripts.lib import autonomy
+from scripts.lib.integrations import list_keys as list_integration_keys
 
 NOW = datetime(2026, 8, 14, 12, 0, tzinfo=timezone.utc)
 
@@ -115,6 +116,53 @@ def test_enable_creates_backup_before_config_write_and_round_trips_state(
     assert state["platforms"][0]["status"] == "active"
     assert state["platforms"][0]["user"] == "test-user"
     assert state["platforms"][0]["process"] == "pytest:1"
+    assert state["platforms"][0]["remaining_seconds"] == 3600
+    assert {item["platform"] for item in state["platforms"]} == set(
+        list_integration_keys()
+    )
+
+
+def test_enable_preview_returns_diff_without_writing_or_auditing(repo: Path) -> None:
+    config = repo / ".claude" / "settings.local.json"
+
+    result = autonomy.enable(
+        "claude",
+        "full",
+        30,
+        project_dir=repo,
+        now=NOW,
+        preview_only=True,
+    )
+
+    assert result.outcome == "preview"
+    assert result.changed is False
+    assert result.diff.startswith("--- ")
+    assert result.expiry == "2026-08-14T12:30:00Z"
+    assert not config.exists()
+    assert not Path(result.backup_path).exists()
+    assert not (repo / autonomy.STATE_RELATIVE_PATH).exists()
+    assert not (repo / autonomy.AUDIT_RELATIVE_PATH).exists()
+
+
+def test_status_lists_supported_and_descriptorless_platforms_when_off(
+    repo: Path,
+) -> None:
+    state = autonomy.status(project_dir=repo, now=NOW)
+
+    assert [item["platform"] for item in state["platforms"]] == list_integration_keys()
+    claude = next(item for item in state["platforms"] if item["platform"] == "claude")
+    gemini = next(item for item in state["platforms"] if item["platform"] == "gemini")
+    assert claude == {
+        "platform": "claude",
+        "supported": True,
+        "status": "off",
+        "tier": "off",
+        "expiry": None,
+        "remaining_seconds": 0,
+        "available_tiers": ["edits_only", "full"],
+    }
+    assert gemini["supported"] is False
+    assert gemini["available_tiers"] == []
 
 
 def test_disable_restores_original_and_clears_state_and_backup(repo: Path) -> None:

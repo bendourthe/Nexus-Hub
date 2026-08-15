@@ -42,6 +42,14 @@
 
 - Follow the project's declared branching strategy. Do not commit feature or version work directly to the protected (release) branch -- branch off the integration branch and integrate through it. If the strategy is unstated, infer it (a `develop` branch implies a develop+main model; otherwise assume GitHub Flow) and confirm before branching. See the `git-branching-workflow` skill for the per-model discipline.
 
+## Consequential Decisions
+
+Before asking the user to approve or choose anything consequential, give a short plain-language walkthrough. This rule applies when the choice changes security posture, deletes or overwrites data, changes distributed or user-facing behavior, or expands the agreed scope. It does not apply to routine clarification, formatting preferences, or a choice with an obvious default.
+
+The walkthrough must explain what the current work is doing without assuming codebase knowledge, name the relevant moving parts and why they matter, describe what each option (including doing nothing) changes for the user or project, and give a clear recommendation with reasons. Define any necessary jargon in place and keep the explanation to a few short paragraphs.
+
+This is context guidance, not a mechanically enforced tool gate. A parity check can verify that the rule ships consistently, but it cannot guarantee that an agent follows it on every turn.
+
 ## Output Minimization
 - Suppress verbose progress bars, banners, and informational logs from commands unless they indicate an error
 - Prefer `--quiet`, `--silent`, or `-q` flags when running package managers, build tools, and test runners

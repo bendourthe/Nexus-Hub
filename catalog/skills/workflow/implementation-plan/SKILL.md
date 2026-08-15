@@ -408,9 +408,11 @@ The build-class convention is adopted on its own merits rather than on precedent
 
 ### Step 4: Write the Plan
 
-Create `<version_dir>/plans/` if it does not exist (where `<version_dir>` is the path resolved earlier - canonically `docs/v<MAJOR>/v<MAJOR>.<MINOR>/`, with legacy `docs/<vSEMVER>/` or `docs/versions/<vMAJOR>/<vSEMVER>/` honored when already present), then write the release-prefixed `v<MAJOR>.<MINOR>.<PATCH>-<slug>.md` inside it following the structure above. If the target file already exists, ask the user whether to **Regenerate** (overwrite), **Append** (add phases), or **Rename** (pick a new slug).
+Create `<version_dir>/plans/` if it does not exist (where `<version_dir>` is the path resolved earlier - canonically `docs/v<MAJOR>/v<MAJOR>.<MINOR>/`, with legacy `docs/<vSEMVER>/` or `docs/versions/<vMAJOR>/<vSEMVER>/` honored when already present), then write the release-prefixed `v<MAJOR>.<MINOR>.<PATCH>-<slug>.md` inside it following the structure above. If the target file already exists, follow the active instruction template's `Consequential Decisions` rule before asking the user whether to **Regenerate** (overwrite), **Append** (add phases), or **Rename** (pick a new slug).
 
 ### Step 5: Review and Confirm
+
+Follow the active instruction template's `Consequential Decisions` rule before asking for approval of the phase breakdown.
 
 Show the user the phases-at-a-glance table and ask:
 - "Does this phase breakdown look right?"

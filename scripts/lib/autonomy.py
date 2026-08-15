@@ -36,6 +36,7 @@ if str(_PACKAGE_ROOT) not in sys.path:
     sys.path.insert(0, str(_PACKAGE_ROOT))
 
 from scripts.lib.integrations import get as get_integration
+from scripts.lib.integrations import list_keys as list_integration_keys
 
 STATE_VERSION = 1
 STATE_RELATIVE_PATH = Path(".nexus-hub") / "autonomy-state.json"
@@ -567,6 +568,7 @@ def enable(
     ttl: int | None,
     *,
     confirmation: str | None = None,
+    preview_only: bool = False,
     project_dir: str | os.PathLike[str] | None = None,
     now: datetime | None = None,
     user: str | None = None,
@@ -652,7 +654,7 @@ def enable(
             config_path=config_path,
             now=timestamp,
         )
-    if tier == "full" and confirmation != root.name:
+    if tier == "full" and not preview_only and confirmation != root.name:
         return _reject(
             root,
             platform,
@@ -758,6 +760,18 @@ def enable(
         "git_branch": branch,
         "git_head": head,
     }
+
+    if preview_only:
+        return OperationResult(
+            operation="enable",
+            platform=platform,
+            outcome="preview",
+            message=f"Previewed {tier} autonomy for {platform}; no files were changed.",
+            config_path=str(config_path),
+            backup_path=str(backup_path),
+            expiry=expiry_text,
+            diff=preview,
+        )
 
     try:
         _write_backup(config_path, backup_path, original_bytes)
@@ -1002,21 +1016,48 @@ def status(
             "platforms": [],
             "note": f"autonomy state is unreadable: {exc}",
         }
-    entries: list[dict[str, Any]] = []
+    active_entries: list[dict[str, Any]] = []
     for platform, entry in sorted(state["platforms"].items()):
         item = dict(entry)
         item["platform"] = platform
+        item["supported"] = _descriptor(platform) is not None
         try:
-            item["status"] = (
-                "expired" if _parse_iso(str(entry["expiry"])) <= timestamp else "active"
+            expiry = _parse_iso(str(entry["expiry"]))
+            item["status"] = "expired" if expiry <= timestamp else "active"
+            item["remaining_seconds"] = max(
+                0, int((expiry - timestamp).total_seconds())
             )
         except (KeyError, TypeError, ValueError):
             item["status"] = "invalid"
-        entries.append(item)
+            item["remaining_seconds"] = None
+        active_entries.append(item)
+
+    active_keys = {entry["platform"] for entry in active_entries}
+    inactive_entries: list[dict[str, Any]] = []
+    for platform in list_integration_keys():
+        if platform in active_keys:
+            continue
+        descriptor = _descriptor(platform)
+        tiers = descriptor.get("tiers", {}) if descriptor else {}
+        inactive_entries.append(
+            {
+                "platform": platform,
+                "supported": descriptor is not None,
+                "status": "off",
+                "tier": "off",
+                "expiry": None,
+                "remaining_seconds": 0,
+                "available_tiers": [
+                    tier
+                    for tier, updates in tiers.items()
+                    if isinstance(updates, dict) and updates
+                ],
+            }
+        )
     return {
         "project": str(root),
         "state_path": str(_state_path(root)),
-        "platforms": entries,
+        "platforms": active_entries + inactive_entries,
     }
 
 
