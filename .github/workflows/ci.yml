@@ -1,8 +1,10 @@
 name: CI
 
 on:
+  workflow_dispatch:
   push:
     branches: [main, develop]
+    tags: ['v*']
     # v3.11.0 Phase 8.4: most docs-only pushes never affect validators, tests, or
     # the installer, so skip the full job set (incl. the 10x macOS / 2x Windows
     # legs) when a change touches nothing outside docs/. Skill/template/README/
@@ -149,6 +151,13 @@ jobs:
         # checkout and setup for that. Reaches this job via the workflow's
         # paths-ignore: docs/** trigger, since configs/** is outside docs/.
         run: python scripts/validate_permission_baseline.py
+
+      - name: Validate cross-installer parity (v3.17.0 Phase 6)
+        # Stdlib-only HARD GATE over the declarative installer parity manifest.
+        # A missing artifact, platform, function counterpart, or external-tool
+        # fallback breaks an operating system's install path, so this cannot be
+        # advisory or postponed to release notes.
+        run: python scripts/check_installer_parity.py
 
       - name: Validate no personal paths (v2.3.0 Phase 2)
         # v3.14.5 Phase 7: split out of the bundle-audit step above, which had a
@@ -695,3 +704,59 @@ jobs:
             if ($out -notmatch [regex]::Escape($expect)) { Write-Host "FAIL: read-path not populated: $expect"; exit 1 }
           }
           Write-Host "OK: global platform read-paths populated (Windows)"
+
+  installer-smoke:
+    # Run the REAL platform-native installers into redirected HOME/workspace
+    # roots, then use one shared Python checker for identical postconditions on
+    # every OS. GitHub-hosted runners are deliberate: contributors install no
+    # hypervisor, and containers cannot provide a real macOS or Windows kernel.
+    #
+    # Cost policy differs deliberately from autonomy-security.yml. The dangerous
+    # autonomy engine runs all three OS legs on every matching change because a
+    # missed refusal can leave an agent unprompted. Installer smoke runs Ubuntu
+    # on protected-branch pushes and expands to macOS/Windows before merge, on
+    # release tags, or on manual dispatch. That catches installer failures before
+    # users receive them without making macOS the largest per-push minute cost.
+    strategy:
+      fail-fast: false
+      matrix:
+        os: ${{ fromJSON((github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')) && '["ubuntu-latest","macos-latest","windows-latest"]' || '["ubuntu-latest"]') }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.11'
+
+      - name: Real workspace install and shared assertions (POSIX)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          set -euo pipefail
+          smoke_root="$RUNNER_TEMP/nexus-installer-smoke"
+          home="$smoke_root/home"
+          workspace="$smoke_root/workspace"
+          mkdir -p "$home" "$workspace"
+          HOME="$home" USERPROFILE="$home" NEXUS_HUB_NO_AUTOSEED=1 \
+            bash scripts/installer.sh --workspace "$workspace" --platforms claude --yes
+          HOME="$home" USERPROFILE="$home" NEXUS_HUB_HOME="$home/.nexus-hub" \
+            python scripts/check_installer_smoke.py --home "$home" --workspace "$workspace"
+
+      - name: Real workspace install and shared assertions (Windows PowerShell 5.1)
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          $smokeRoot = Join-Path $env:RUNNER_TEMP 'nexus-installer-smoke'
+          $home = Join-Path $smokeRoot 'home'
+          $workspace = Join-Path $smokeRoot 'workspace'
+          New-Item -ItemType Directory -Force -Path $home, $workspace | Out-Null
+          $env:USERPROFILE = $home
+          $env:HOME = $home
+          $env:NEXUS_HUB_NO_AUTOSEED = '1'
+          & powershell -NoProfile -ExecutionPolicy Bypass -File scripts\installer.ps1 -Workspace $workspace -Platforms claude -Yes
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $env:NEXUS_HUB_HOME = Join-Path $home '.nexus-hub'
+          & python scripts\check_installer_smoke.py --home $home --workspace $workspace
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

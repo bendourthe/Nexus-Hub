@@ -1,5 +1,21 @@
 # Development Log
 
+## [2026-08-15] - v3.17.0 Phase 6: architecture, known gaps, and installer parity
+
+### What Changed
+
+Phase 6 finalized the agent-autonomy-toggle implementation. A generic manifest-driven installer parity checker now guards artifact registration, platform rosters, function counterparts, intentional exceptions, and external dependency fallbacks. The Makefile, CI, `/update release`, `implementation-plan`, and `implement-phase` all carry the new hard gate. CI also executes real installers with one shared postcondition checker: Ubuntu on every branch push, and Ubuntu, macOS, and Windows for pull requests, tags, and manual dispatch. The autonomy-security workflow retains its unconditional three-OS matrix because it gates a dangerous state.
+
+The architecture audit retained the single execution-trigger definition, intentional platform counterparts, and the approved v3.18.2 plan location. The v3.17 known-gaps ledger is finalized at 13 open, 4 closed, and 0 release blockers. Both usage-monitor Vitest configs moved from `.ts` to `.mts`, closing their native-loader warning. A full live platform-contract pass kept read paths at eight MATCH, one non-breaking Codex DRIFT, and one UNVERIFIED Nexus-AI contract; it corrected Hermes to `agent.reasoning_effort` and recorded Gemini Code Assist's new `geminicodeassist.agentYoloMode` lever as verified but not writable by the current integration.
+
+### Verification
+
+All hard validation commands pass, including the 271-skill bundle audit, trigger-routing gate, permission validator, installer parity, workflow security, version sync, five-template parity, ten-platform contract check, thirteen-platform defaults sync, and compression accuracy gate. Focused suites passed 70 Phase 6 parity/lifecycle tests and 95 contract/autonomy/defaults tests; Claude and Codex usage monitors passed 11 and 81 tests respectively; the real Windows installer smoke passed. The complete 2,550-test local repository suite exceeded its bounded 15-minute Windows run without an early failure result, so remote protected-branch CI remains mandatory and no full-suite green claim is made.
+
+### Release Handoff
+
+No commit, push, merge, tag, version bump, or release was performed. The feature branch still carries the v3.16.6 version while v3.16.8 exists on the integration line, so known gap BG-4 must be handled explicitly during integration or the prior revert can silently drop Phase 1 work. After green integration, `/update release` owns the v3.17.0 version bump, contract-stamp advance, release notes, tag, and publication.
+
 ## [2026-08-13] - v3.17.0 Phase 1: permission-baseline hardening and cross-platform merge parity
 
 ### What Changed

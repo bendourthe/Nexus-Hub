@@ -332,7 +332,12 @@ Every generated plan MUST end with a final phase dedicated to architecture refac
 **Prompt**:
 > Create or update the CI/CD pipeline so it covers every change in this plan, then optimize it to reduce action minutes (path filters, concurrency cancel-in-progress, dependency caching, gating expensive-OS or matrix jobs to merges/schedule) while keeping comprehensive testing. Keep it platform-agnostic; GitHub Actions is the primary example.
 
-#### N.4 - Testing and Stabilization
+#### N.4 - Cross-installer parity
+**Objective**: Prevent operating-system installer drift when the repository ships multiple installers.
+**Prompt**:
+> If this repository ships more than one installer, run or add a declarative cross-installer parity gate covering distributed artifacts, supported platforms, named capability counterparts, and external-tool fallbacks, then execute the real installers on their target operating systems with identical postconditions. Cross-link [[platform-contract-verification]] so discovery and delivery are checked in the same pass. If the repository ships zero or one installer, record a silent no-op and continue.
+
+#### N.5 - Testing and Stabilization
 **Objective**: Prove the refactor preserved behavior and CI/CD is green.
 **Prompt**:
 > Run the full validation/test suite, confirm the refactor changed no behavior, confirm CI/CD passes and the action-minute reduction is real, and iterate until clean. Generate a session-history entry for this phase.
@@ -352,7 +357,7 @@ Apply these rules when deciding how many phases to create and how to split them:
 | Integration phase | If external APIs or local models are involved, create a dedicated integration phase with clear mocking/stubbing strategies for early phases |
 | Testing continuous | Every phase ends with a testing sub-task — not a single final QA phase |
 | Phase count | Target 4–8 phases for most plans; very small scopes may have 2–3; major refactors up to 10 |
-| Terminal refactor phase | Every plan ends with a mandatory final phase that reviews architecture and refactors toward a clean, intuitive layout, reconciles the version's known gaps, and creates/updates/optimizes CI/CD - even small plans (a light near-no-op pass, but never omitted). Distinct from per-phase testing, which still applies to every phase. |
+| Terminal refactor phase | Every plan ends with a mandatory final phase that reviews architecture and refactors toward a clean, intuitive layout, reconciles the version's known gaps, creates/updates/optimizes CI/CD, and self-gates cross-installer parity when multiple installers exist - even small plans (a light near-no-op pass, but never omitted). Distinct from per-phase testing, which still applies to every phase. |
 | CI/CD per phase | Every phase's testing sub-task also creates or updates the CI/CD pipeline for that phase's changes and optimizes it (path filters, concurrency cancellation, caching, gating expensive jobs) to keep action minutes low while coverage stays comprehensive |
 
 ---
@@ -441,7 +446,7 @@ Incorporate feedback, then write the final file.
 - [ ] Phase 1 establishes the foundation needed for subsequent phases (toolchain + runnable build for initial implementations; test harness or scaffolding for enhancements/refactors)
 - [ ] For initial implementations: installation/packaging step appears before the halfway point
 - [ ] Every phase ends with a testing and stabilization sub-task (which also creates/updates and optimizes CI/CD for that phase's changes)
-- [ ] The plan's last phase is the mandatory "Architecture Refactor, Known-Gaps Reconciliation, and CI/CD" phase (sub-tasks: N.1 architecture refactor, N.2 known-gaps reconciliation, N.3 CI/CD create/update/optimize, N.4 testing and stabilization)
+- [ ] The plan's last phase is the mandatory "Architecture Refactor, Known-Gaps Reconciliation, and CI/CD" phase (sub-tasks: N.1 architecture refactor, N.2 known-gaps reconciliation, N.3 CI/CD create/update/optimize, N.4 cross-installer parity with a multi-installer self-gate, N.5 testing and stabilization)
 - [ ] Every sub-task has a complete, self-contained executable prompt
 - [ ] Every sub-task that introduces or changes a component states its failure modes across all three situations (malformed or absent input, unreachable or slow dependency, conflicting operations), and no error-handling, data-model, interface, or schema detail was pushed back into the spec to achieve it
 - [ ] Sub-tasks producing provisional work carry a one-line `scaffolding` build class naming what replaces it and when; `load-bearing` is stated wherever a reader could not otherwise tell

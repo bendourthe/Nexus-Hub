@@ -2,18 +2,24 @@
 
 This is the durable, sourced source of truth for where every supported platform READS each surface (instruction file, slash commands, skills, agents, rules, hooks) and where the Nexus-Hub installer WRITES it. It supersedes the point-in-time snapshot at `docs/v3/v3.11/platform-read-contracts.md` (which resolved the v3.11.0 Phase 7 audit but left the Codex and Antigravity contracts flagged as unverified).
 
-**Last verified**: 2026-08-12 for v3.16.6.
+**Last verified**: 2026-08-15 for v3.17.0.
 
-**v3.16.6 pass (targeted, fourth consecutive).** Two platforms were re-fetched from live first-party documentation; the remaining eight carry forward from the 2026-08-08 full pass. v3.16.6 changes no platform discovery surface: the changed set is confined to one skill bundle, its command file, `tests/`, one workflow path filter, and `docs/` (no read path, no adapter, no installer, no `base-*.md`, no `data/` registry).
+**v3.17.0 pass (full).** All ten contract platforms were re-fetched from live first-party documentation. The read-path contract remains functional: eight MATCH, one non-breaking Codex DRIFT, and one UNVERIFIED Nexus-AI surface. This release also adds a manifest-driven installer parity guard and real-install CI across Linux, macOS, and Windows.
 
 | Platform | Verdict | Evidence |
 |---|---|---|
 | Claude Code | **MATCH** | Personal `~/.claude/skills/<skill-name>/SKILL.md` and project `.claude/skills/<skill-name>/SKILL.md` confirmed, with enterprise > personal > project precedence on name collisions. The commands surface remains supported. [Source](https://code.claude.com/docs/en/skills) |
-| Codex / ChatGPT | **DRIFT (low), fifth consecutive cycle** | Discovery still documents the `.agents/skills` ladder (scanned `$CWD` up to the repo root, plus user / admin / system locations); `~/.codex/skills` is still absent. NEW SIGNAL, recorded not actioned: a Skills-and-Plugins surface with a universal plugin directory shared by ChatGPT and Codex now exists - a distribution channel, not a read-path change; evaluate at the next full pass. [Source](https://learn.chatgpt.com/docs/build-skills) |
+| Codex / ChatGPT | **DRIFT (low), sixth consecutive cycle** | Discovery still documents the `.agents/skills` ladder and still omits `~/.codex/skills`. Nexus-Hub writes both paths, so delivery remains functional through the confirmed user-level `.agents/skills` path. The redundant write is retained until first-party removal evidence replaces repeated omission. [Source](https://learn.chatgpt.com/docs/build-skills) |
+| Antigravity 2.0 + CLI | **MATCH** | Global `~/.gemini/config/skills/<name>/SKILL.md` and project `.agents/skills/<name>/SKILL.md` remain documented. [Source](https://codelabs.developers.google.com/getting-started-with-antigravity-skills) |
+| Cursor | **MATCH** | Recursive discovery still covers `.cursor/skills` and `.agents/skills` at project and user scope. [Source](https://cursor.com/docs/skills) |
+| Gemini Code Assist | **MATCH** | The IDE still consumes `~/.gemini/GEMINI.md`; its shared skills surface remains aligned with the Gemini family contract. [Source](https://docs.cloud.google.com/gemini/docs/codeassist/use-agentic-chat-pair-programmer) |
+| Gemini CLI | **MATCH** | User `~/.gemini/skills` and workspace `.gemini/skills` remain documented, with `.agents/skills` also supported. [Source](https://geminicli.com/docs/cli/using-agent-skills/) |
+| Kimi Code CLI | **MATCH** | User `~/.kimi-code/skills` and project `.kimi-code/skills` remain documented. [Source](https://www.kimi.com/code/docs/en/kimi-code-cli/customization/skills.html) |
+| Nexus-AI | **UNVERIFIED** | The private repository still exposes no publicly auditable read-path contract. The existing local contract remains guarded without being promoted to MATCH. |
+| OpenCode | **MATCH** | Global `~/.config/opencode/skills` and project `.opencode/skills` remain documented alongside compatible `.agents/skills` and `.claude/skills` paths. [Source](https://opencode.ai/docs/skills/) |
+| Qwen Code | **MATCH** | User `~/.qwen/skills` and project `.qwen/skills` remain documented. [Source](https://qwenlm.github.io/qwen-code-docs/en/users/features/skills/) |
 
-**Codex finding, handling.** Unchanged and still non-breaking; the retained `~/.codex/skills` write stays on the recorded reasoning. The deliberate-removal proposal recorded at v3.16.5 stands, to be executed at the next minor alongside the owed full pass.
-
-**A full pass is owed at v3.17.0.** Four consecutive targeted passes have now deferred it.
+**Codex finding, handling.** Unchanged and still non-breaking. The full pass evaluated removal and retained `~/.codex/skills`: repeated omission is weaker evidence than an explicit deprecation, while the confirmed `~/.agents/skills` write guarantees delivery.
 
 ## Autonomy lever verification (v3.17.0 Phase 2)
 
@@ -28,7 +34,7 @@ Verified 2026-08-14 against current first-party documentation. This section answ
 | Codex (`codex`) | **MATCH** | Yes | Trusted project `.codex/config.toml` | Edits-only uses `approval_policy = "on-request"` plus `sandbox_mode = "workspace-write"`; full uses `never` plus `danger-full-access`. The full tier removes a sandbox, not only a prompt, so it is a higher risk class than Claude Code. [Source](https://developers.openai.com/codex/config-reference/) |
 | GitHub Copilot / VS Code (`copilot`) | **MATCH** | Yes | Project `.vscode/settings.json` | Against VS Code 1.131, the current mode key is `chat.permissions.default`; `autopilot` is the full tier. The plan's `chat.autopilot.enabled` starting point drifted, and no edits-only mode value exists. [Source](https://code.visualstudio.com/docs/agents/approvals) |
 | Cursor (`cursor`) | **MATCH** | Yes | Global `~/.cursor/cli-config.json` | `approvalMode: "unrestricted"` is the full mode. Project `.cursor/cli.json` is permissions-only, so the descriptor is global and has no edits-only tier. [Source](https://docs.cursor.com/cli/reference/permissions) |
-| Gemini Code Assist (`gemini`) | **UNVERIFIED** | No | `~/.gemini/settings.json` tool lists only | The legacy IDE surface documents `coreTools`, `excludeTools`, and per-prompt approvals, but no persistent general autonomy mode. [Source](https://developers.google.com/gemini-code-assist/docs/use-agentic-chat-pair-programmer) |
+| Gemini Code Assist (`gemini`) | **DRIFT** | No | VS Code user settings JSON | `geminicodeassist.agentYoloMode` is now documented, but Nexus-Hub's autonomy engine accepts only project-scoped descriptors and the vendor does not document this key in project `.vscode/settings.json`. [Source](https://developers.google.com/gemini-code-assist/docs/use-agentic-chat-pair-programmer) |
 | Gemini CLI (`gemini-cli`) | **DRIFT** | No | Project `.gemini/settings.json` plus CLI-only full mode | `general.defaultApprovalMode` persists `default`, `auto_edit`, and `plan`; full YOLO is explicitly CLI-only, so one file descriptor cannot express both required tiers. The integration remains enterprise-only. [Source](https://geminicli.com/docs/cli/settings/) |
 | Hermes (`hermes`) | **UNVERIFIED** | No | Global `~/.hermes/config.yaml` | Hermes documents narrow YAML gates for skill and memory writes, not a general file-edit plus shell autonomy mode in a supported format. [Source](https://github.com/NousResearch/hermes-agent/blob/main/website/docs/user-guide/configuration.md) |
 | Kimi Code CLI (`kimi`) | **MATCH** | Yes | Global `~/.kimi-code/config.toml` | `default_permission_mode = "auto"` is the full unattended tier. Project `.kimi-code/local.toml` is documented only for workspace settings, so the descriptor is global and has no edits-only tier. [Source](https://www.kimi.com/code/docs/en/kimi-code-cli/configuration/config-files) |
@@ -149,6 +155,10 @@ The machine-readable source of truth is the sibling `docs/policy/platform-read-c
 The catalog itself is never reorganized per platform. Each integration is an adapter that materializes the canonical catalog into the shape below via the shared helpers in `scripts/lib/integrations/_catalog_adapters.py` (`flatten_skills`, `commands_to_skills`, `commands_to_slash`).
 
 ## Re-verification log
+
+### 2026-08-15 (v3.17.0 release - full re-verification)
+
+All ten machine-checked platform contracts and all sixteen defaults-lever platforms were re-fetched from current first-party documentation. Read-path outcomes are eight MATCH, one non-breaking Codex DRIFT, and one UNVERIFIED Nexus-AI contract. The pass corrected two defaults-lever records: Hermes moved its global reasoning key to `agent.reasoning_effort`, and Gemini Code Assist now documents `geminicodeassist.agentYoloMode` in VS Code user settings, making the lever VERIFIED but not writable by the current integration and DRIFT for the project-only autonomy descriptor contract. No installer read path was removed.
 
 ### 2026-08-02 (v3.15.7 release - full re-verification)
 

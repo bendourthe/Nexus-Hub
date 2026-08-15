@@ -1,16 +1,18 @@
 # Known Gaps - v3.17
 
 **Project**: Nexus-Hub
-**Status**: v3.17.0 `agent-autonomy-toggle` is IN FLIGHT on `feat/v3.17.0-agent-autonomy-toggle` (separated from `develop`, which reverted this phase's checkpoint in `9d9e9a07` - see BG-4). Phases 1 through 5 are COMPLETE; Phase 6 is not started.
-**Last updated**: 2026-08-15 (v3.17.0 Phase 5 completion)
+**Status**: v3.17.0 `agent-autonomy-toggle` is IN FLIGHT on `feat/v3.17.0-agent-autonomy-toggle` (separated from `develop`, which reverted this phase's checkpoint in `9d9e9a07` - see BG-4). Phases 1 through 5 are COMPLETE; Phase 6 reconciliation is complete and final verification is in progress.
+**Last updated**: 2026-08-15 (v3.17.0 Phase 6 reconciliation)
 
-> **File-lifecycle note**: this ledger is opened by the v3.17.0 Phase 1 append. Each subsequent v3.17.N version-implementation phase **appends** its own `## v3.17.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `MT-#` / `QG-#` numbering. Note that the v3.17.0 plan itself lives in this directory while its *predecessor* ledger entries sit in [../v3.16/known-gaps.md](../v3.16/known-gaps.md), an artifact of the v3.16-line re-stamp the plan's version-numbering note records.
+> **File-lifecycle note**: this ledger was opened by the v3.17.0 Phase 1 append. Each subsequent v3.17.N implementation appends its own `## v3.17.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `MT-#` / `QG-#` numbering.
+
+> **Prior-version ingest**: checked `docs/v3/v3.15/known-gaps.md`. v3.15.2 DF-2 (Hermes registered but not installer-wired) carries forward as DF-4 because it remains a delivery limitation. v3.15.0 WN-1 (the Windows Git-Bash bootstrap `tar` failure) recurred and carries forward as WN-1. The v3.15.1 lint warnings involved files outside this plan and do not carry in. The v3.18.2 RTK and Meterless artifacts keep their established stamp under `docs/v3/v3.18/`; their stale pre-move references were corrected during Phase 6 rather than transferred as gaps.
 
 ---
 
 ## v3.17.0 - agent-autonomy-toggle
 
-**Status**: Phases 1 through 5 COMPLETE (2026-08-15). 10 open (NI-1, NI-2, DF-1, DF-2, DF-3, BG-4, WN-1, WN-2, WN-3, MT-1) and 3 closed (BG-1, BG-2, BG-3), 0 release blockers. Plan: [plans/v3.17.0-agent-autonomy-toggle.md](plans/v3.17.0-agent-autonomy-toggle.md).
+**Status**: Phase 6 finalized (2026-08-15). 13 open (NI-1, NI-2, NI-3, DF-1, DF-2, DF-3, DF-4, DF-5, BG-4, WN-1, WN-2, WN-4, MT-1) and 4 closed (BG-1, BG-2, BG-3, WN-3), 0 release blockers. The full local repository suite exceeded the bounded 15-minute Windows run; focused suites and hard validators are green, and remote CI remains required before release. Plan: [plans/v3.17.0-agent-autonomy-toggle.md](plans/v3.17.0-agent-autonomy-toggle.md).
 
 ### NI-1 - OPEN: output redirection under an explicit allow rule is UNVERIFIED
 
@@ -19,7 +21,7 @@
 - **Plan reference**: 1.1 required determining empirically "whether Claude Code's matcher treats a redirected command as matching the bare pattern"
 - **Reason it is open**: the official permissions documentation demonstrably models redirects, but states it only for the BUILT-IN read-only command set, never for explicit `allow` rules. Redirection operators are also absent from the enumerated command-separator list, so a redirected command is one subcommand rather than two, and a wildcard "matches any sequence of characters including spaces". Per this plan's evidence discipline, absence of a statement is recorded as UNVERIFIED rather than as absence of the behavior.
 - **Why it is load-bearing**: `> file` truncates its target regardless of what the command emits (`Write-Host x > f` writes nothing to the file and still truncates it). If the native matcher admits redirects under allow rules, then EVERY baseline pattern carrying a trailing wildcard is a file-destruction primitive, and no per-entry rescoping repairs that. This is a global property of the matcher, not a defect of any individual entry, which is why Phase 1.1 did not attempt to fix it per-entry.
-- **Suggested next step**: the empirical probe named in Finding 2 -- add a single `Bash(echo *)` allow rule to a throwaway project config against a real Claude Code build and observe whether `echo x > /tmp/probe` prompts. Cheap, decisive, and needs a live build rather than documentation. Phase 4.1 already schedules hands-on verification against a real build for the hook-independence question, so this probe should ride that session.
+- **Suggested next step**: run the empirical probe named in Finding 2 against a throwaway project and a current Claude Code build: add one `Bash(echo *)` allow rule and observe whether `echo x > /tmp/probe` prompts. Phase 4 verified hook independence but did not execute this separate native-matcher probe, so the evidence remains UNVERIFIED.
 
 ### NI-2 - OPEN: whether Gemini's matcher splits compound commands at all
 
@@ -27,7 +29,15 @@
 - **Source phase**: v3.17.0 Phase 1, sub-task 1.1
 - **Reason it is open**: Finding 1 VERIFIED compound-command splitting for Claude Code, quoted from its documentation, for both the Bash and the PowerShell matcher. No equivalent statement was located for Gemini's `run_shell_command`, and the file's own shipped comment records the opposite direction ("piped commands bypass allowlists (upstream issue)"). Gemini entries are therefore treated as PREFIX matches with no separator awareness, which is the conservative reading and is what `validate_permission_baseline.py` implements via its `prefix` match mode.
 - **Why it matters**: under prefix semantics with no splitting, `run_shell_command(git status)` would admit `git status; rm -rf .`. The validator's conservative mode does not make that safe; it only stops Nexus-Hub from shipping patterns that depend on splitting.
-- **Suggested next step**: verify against current Gemini CLI documentation during Phase 2.2, which already runs a documentation sweep across the roster, and record a MATCH / DRIFT / UNVERIFIED verdict in the read-contract alongside the autonomy-lever verdicts. If splitting is confirmed absent, the Gemini baseline needs a separate hardening pass under prefix-without-splitting assumptions -- a Phase 5.3 or later item, not a Phase 1 rescope.
+- **Suggested next step**: run a dedicated Gemini CLI matcher probe and record a MATCH, DRIFT, or UNVERIFIED verdict beside the permission findings. Phase 2 verified autonomy levers, not compound-command matcher semantics. If splitting is absent, harden the Gemini baseline under prefix-without-splitting assumptions before expanding its Windows-shell coverage.
+
+### NI-3 - OPEN by design: eight integrations have no autonomy descriptor
+
+- **Target files**: `docs/policy/platform-read-contracts.json`, `docs/policy/platform-read-contracts.md`, `scripts/lib/integrations/`
+- **Source phase**: v3.17.0 Phase 2, sub-tasks 2.2 and 2.4
+- **Disposition**: deliberate non-delivery. Aider, Gemini Code Assist, Gemini CLI, and OpenClaw are DRIFT because their real controls cannot be represented safely by the one-file, project-scoped descriptor contract. Antigravity 1.0, Hermes, Nexus-AI, and Windsurf are UNVERIFIED because current first-party evidence does not establish a seedable general autonomy mode.
+- **Why it remains open**: absence is the safe behavior. The descriptor accessor returns none and the UI or CLI reports the unsupported platform rather than approximating a broader or incomplete authority state.
+- **Suggested next step**: re-run `platform-contract-verification` when a vendor publishes a new persistent autonomy contract. Add a descriptor only after its verdict becomes MATCH and its scope fits the workspace-bound product rule.
 
 ### DF-1 - OPEN: `gemini-permissions.json` ships no PowerShell or `cmd.exe` read-only set
 
@@ -35,21 +45,36 @@
 - **Source phase**: v3.17.0 Phase 1, sub-task 1.1 (observation only, by instruction)
 - **Plan reference**: 1.1 explicitly forbids adding one ("this sub-task rescopes existing entries and deliberately does not expand coverage") and hands the observation to sub-task 5.3
 - **Reason it is open**: a Windows Gemini user receives a POSIX-shaped allowlist plus a bare `run_shell_command(dir)`, so their real shell is effectively uncovered. Expanding coverage is a different risk decision from rescoping and belongs with the platform-coverage work.
-- **Suggested next step**: sub-task 5.3 documents the gap in `docs/permissions-research.md`. Actually shipping a PowerShell / `cmd.exe` set for Gemini requires NI-2 resolved first, since the safe pattern shape depends on whether the matcher splits.
+- **Suggested next step**: `docs/permissions-research.md` now documents the gap. Resolve NI-2 before designing a PowerShell or general `cmd.exe` baseline, because the safe pattern shape depends on whether the matcher splits compound commands.
 
 ### DF-2 - OPEN: three of four platforms have no project-scoped permission target
 
 - **Target file**: `scripts/installer.sh` and `scripts/installer.ps1` (`install_permissions` / `Install-Permissions`, workspace branch)
 - **Source phase**: v3.17.0 Phase 1, sub-task 1.2
 - **Reason it is open**: workspace scope is now wired and load-bearing, but only Claude Code has a confirmed target (`.claude/settings.local.json`). The other three skip WITH A NOTE, each for a stated reason: **Gemini** and **Codex** have no project-scoped permission path documented well enough to write, and a guessed path is worse than none because it reads as configured; **Copilot**'s only surface is `.vscode/settings.json`, which is commit-visible and therefore forbidden here without an explicit maintainer decision (the same reasoning that made the v3.11.0 Copilot `.github/skills/` surface opt-in).
-- **Suggested next step**: Phase 2.2's documentation sweep should record, per platform, whether a project-scoped permission path exists at all. A documented "no project path" verdict closes the Gemini and Codex halves permanently. The Copilot half needs a maintainer decision about writing to a commit-visible file, not more research.
+- **Suggested next step**: run a permission-path-specific contract sweep for Gemini and Codex; the Phase 2 autonomy sweep answered a different question. The Copilot half needs a maintainer decision about writing to a commit-visible file, not more research.
 
 ### DF-3 - OPEN: `Install-Nexus-Hub-Permissions.ps1` still has no cross-platform equivalent
 
 - **Target file**: `scripts/Install-Nexus-Hub-Permissions.ps1`, `scripts/nexus_hub_cli.py`
 - **Source phase**: v3.17.0 Phase 1, sub-task 1.2 (deferred by that sub-task's own instruction)
 - **Reason it is open**: that helper provides install, uninstall, and backup-repair paths for all four platforms and has no bash sibling, so POSIX users have no equivalent repair route. Sub-task 1.2 forbids porting it to bash, and correctly: a second shell script would recreate exactly the dual-implementation drift this phase removed.
-- **Suggested next step**: expose install / uninstall / repair through the cross-platform `nexus-hub` CLI, whose `scripts/nexus_hub_cli.py` Phase 5 already extends with an `autonomy` subcommand. One implementation, three operating systems. If Phase 5 ships without it, carry this entry forward rather than closing it.
+- **Suggested next step**: expose install / uninstall / repair through the cross-platform `nexus-hub` CLI, whose `scripts/nexus_hub_cli.py` now includes the Phase 5 `autonomy` subcommand. One implementation, three operating systems. Phase 5 shipped autonomy only, so this separate lifecycle gap carries forward.
+
+### DF-4 - OPEN (carried from v3.15.2): Hermes is registered but not installer-wired
+
+- **Target files**: `scripts/lib/integrations/hermes.py`, `scripts/installer.sh`, `scripts/installer.ps1`
+- **Source phase**: v3.15.2 DF-2, rechecked in v3.17.0 Phases 2 and 6
+- **Reason it is open**: Hermes exists in the 16-platform integration registry but is absent from both installers' 14-platform delivery roster. Hermes is currently UNVERIFIED for autonomy, so the omission does not suppress a descriptor in this release; it would become user-visible immediately if its contract later verifies.
+- **Suggested next step**: add Hermes to both installer manifests and real-installer smoke coverage in the same change that makes any Hermes integration artifact user-facing. Do not add one installer arm without the other.
+
+### DF-5 - OPEN by design: the read-only baseline covers only four of 16 integrations
+
+- **Target files**: `configs/permissions/`, `scripts/installer.sh`, `scripts/installer.ps1`, `docs/permissions-research.md`
+- **Source phase**: v3.17.0 Phase 6 reconciliation of the Phase 1 and Phase 2 coverage boundaries
+- **Disposition**: deliberate non-delivery. Claude Code, Codex, Gemini, and Copilot receive the existing baseline. Aider, Antigravity 1.0, Antigravity 2.0, Cursor, Gemini CLI, Hermes, Kimi, Nexus-AI, OpenClaw, OpenCode, Qwen, and Windsurf receive no Nexus-Hub read-only baseline.
+- **Why it remains open**: autonomy coverage and read-only allowlist coverage are independent. This release widened the former and deliberately did not invent permission matchers for platforms whose safe read-only contracts were not researched.
+- **Suggested next step**: handle one platform at a time through a permission-contract research and validator cycle. Do not infer baseline safety from the existence of an autonomy descriptor.
 
 ### WN-1 - OPEN (carried, environmental): `test_bootstrap.py` PowerShell hand-off failure
 
@@ -63,15 +88,22 @@
 - **Target file**: `scripts/lib/integrations/`
 - **Source phase**: v3.17.0 Phase 2, sub-task 2.4 (lint verification)
 - **Reason it is open**: an exploratory `python -m ruff check scripts/lib/integrations tests/integrations/test_autonomy_descriptors.py` reported 180 existing modernization, import-order, mutable-class-config, and unused-code findings across the integration framework. The Phase 2 test file passes focused Ruff validation, and Phase 2 did not suppress or introduce a new lint rule; cleaning the framework would be an unrelated broad refactor.
-- **Suggested next step**: establish a deliberate Ruff baseline or scoped rule set during Phase 6 architecture work, then reduce the existing findings in reviewable batches rather than mixing them into capability phases.
+- **Suggested next step**: establish a deliberate Ruff baseline or scoped rule set in a dedicated lint-maintenance cycle, then reduce the existing findings in reviewable batches rather than mixing them into a release architecture phase.
 
-### WN-3 - OPEN (pre-existing tooling debt): usage-monitor Vitest configs warn about the future native loader
+### WN-3 - CLOSED in Phase 6: usage-monitor Vitest configs warned about the future native loader
 
-- **Target file**: `extensions/claude-usage-monitor/vitest.config.ts`, `extensions/codex-usage-monitor/vitest.config.ts`
+- **Target files**: `extensions/claude-usage-monitor/vitest.config.mts`, `extensions/codex-usage-monitor/vitest.config.mts`
 - **Source phase**: v3.17.0 Phase 5, sub-task 5.4 (test verification)
 - **Plan reference**: 5.4 requires both extension suites and coverage gates to run cleanly.
-- **Reason it is open**: Vitest 4.1.10 passes every test and coverage threshold but warns that each TypeScript config uses ESM syntax while being loaded as CommonJS, which will be unsupported if Vite's native config loader becomes the default. The warning predates the autonomy state modules and is identical in both monitors; changing module mode or renaming configs is broader than this phase.
-- **Suggested next step**: during Phase 6 CI reconciliation, choose one tested convention for all usage monitors (`type: module`, an `.mts` config, or an explicit non-native loader), apply it consistently, and rerun compile, ordinary tests, and coverage.
+- **Resolution**: both configs were renamed from `.ts` to `.mts`, matching the warning-free convention already used by the GitHub and Cursor monitors. Claude passed 11 tests and Codex passed 81 tests under Vitest 4.1.10 with no native-loader warning.
+
+### WN-4 - OPEN (bounded verification): hook independence is verified only for Claude Code 2.1.156
+
+- **Target files**: `docs/policy/platform-read-contracts.md`, `docs/v3/v3.17/development/history/2026-08-14_agent-autonomy-toggle-phase-4-deny-layer-and-hook-independence.md`
+- **Source phase**: v3.17.0 Phase 4, sub-task 4.1
+- **Evidence**: all six combinations of `acceptEdits`, `bypassPermissions`, and `--dangerously-skip-permissions` with Bash and Write reached the blocking project `PreToolUse` hook and created no marker file on Claude Code 2.1.156.
+- **Why it remains open**: the result is a versioned empirical contract, not a vendor guarantee that all future permission or hook architectures preserve the same ordering.
+- **Suggested next step**: repeat the six-case probe during `platform-contract-verification` after a material Claude permission or hook architecture change. Do not generalize this evidence to other platforms.
 
 ### MT-1 - OPEN (pre-existing coverage debt): Claude Usage Monitor lacks an extension-wide coverage baseline
 
@@ -117,11 +149,11 @@
 
 | Category | Open | Resolved |
 |---|---|---|
-| Not implemented by design / unverified (`NI-#`) | 2 (NI-1, NI-2) | 0 |
-| Deferred (`DF-#`) | 3 (DF-1, DF-2, DF-3) | 0 |
+| Not implemented by design / unverified (`NI-#`) | 3 (NI-1, NI-2, NI-3) | 0 |
+| Deferred (`DF-#`) | 5 (DF-1, DF-2, DF-3, DF-4, DF-5) | 0 |
 | Bugs (`BG-#`) | 1 (BG-4, latent: the revert-then-merge hazard) | 3 (BG-1, BG-2, BG-3) |
-| Warnings (`WN-#`) | 3 (WN-1, environmental, carried from v3.15.0; WN-2, pre-existing Ruff baseline; WN-3, future Vite loader) | 0 |
+| Warnings (`WN-#`) | 3 (WN-1, environmental, carried from v3.15.0; WN-2, pre-existing Ruff baseline; WN-4, version-specific hook proof) | 1 (WN-3, Vitest config loader) |
 | Missing tests (`MT-#`) | 1 (MT-1, Claude monitor extension-wide coverage) | 0 |
 | Quality-gate bypasses (`QG-#`) | 0 | 0 |
 
-**Release blockers**: 0. NI-1 is the only item that could change a design decision, and it is scheduled to ride Phase 4.1's live-build session.
+**Release blockers**: 0. NI-1 and NI-2 require live matcher probes before their respective permission baselines can be broadened, but the shipped validators and hook guards conservatively avoid relying on either unverified behavior. BG-4 remains an integration-time procedural hazard and must be resolved explicitly before merging this branch into `develop`.
