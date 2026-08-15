@@ -12,9 +12,12 @@ on:
     paths:
       - 'scripts/lib/autonomy.py'
       - 'scripts/lib/integrations/**'
+      - 'catalog/hooks/autonomy-guard.sh'
+      - 'catalog/hooks/autonomy-guard.ps1'
       - 'catalog/hooks/autonomy-expiry.sh'
       - 'catalog/hooks/autonomy-expiry.ps1'
       - 'catalog/hooks/settings.json'
+      - 'catalog/hooks/tests/test_autonomy_guard.py'
       - 'catalog/hooks/tests/test_autonomy_expiry.py'
       - 'catalog/hooks/tests/test_hook_sibling_parity.py'
       - 'tests/test_autonomy.py'
@@ -24,9 +27,12 @@ on:
     paths:
       - 'scripts/lib/autonomy.py'
       - 'scripts/lib/integrations/**'
+      - 'catalog/hooks/autonomy-guard.sh'
+      - 'catalog/hooks/autonomy-guard.ps1'
       - 'catalog/hooks/autonomy-expiry.sh'
       - 'catalog/hooks/autonomy-expiry.ps1'
       - 'catalog/hooks/settings.json'
+      - 'catalog/hooks/tests/test_autonomy_guard.py'
       - 'catalog/hooks/tests/test_autonomy_expiry.py'
       - 'catalog/hooks/tests/test_hook_sibling_parity.py'
       - 'tests/test_autonomy.py'
@@ -57,11 +63,11 @@ jobs:
       - name: Install focused test dependencies
         run: python -m pip install pytest pytest-cov
 
-      - name: Autonomy engine safety suite with coverage floor
-        run: python -m pytest tests/test_autonomy.py -q --cov=scripts.lib.autonomy --cov-report=term-missing:skip-covered --cov-fail-under=80
+      - name: Autonomy engine and guard safety suite with coverage floor
+        run: python -m pytest tests/test_autonomy.py catalog/hooks/tests/test_autonomy_guard.py -q --cov=scripts.lib.autonomy --cov-report=term-missing:skip-covered --cov-fail-under=80
 
       - name: Native-shell TTL expiry tests
         run: python -m pytest catalog/hooks/tests/test_autonomy_expiry.py -q
 
       - name: Hook inventory, parsing, and autonomy sibling parity
-        run: python -m pytest catalog/hooks/tests/test_hook_sibling_parity.py -q -k "hooks_exist_at_all or every_sh_hook_has or every_ps1_hook_has or (autonomy and expiry and (parses or agrees))"
+        run: python -m pytest catalog/hooks/tests/test_hook_sibling_parity.py -q -k "hooks_exist_at_all or every_sh_hook_has or every_ps1_hook_has or (autonomy and (guard or expiry) and (parses or agrees))"

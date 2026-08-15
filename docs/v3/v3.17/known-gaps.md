@@ -1,8 +1,8 @@
 # Known Gaps - v3.17
 
 **Project**: Nexus-Hub
-**Status**: v3.17.0 `agent-autonomy-toggle` is IN FLIGHT on `feat/v3.17.0-agent-autonomy-toggle` (separated from `develop`, which reverted this phase's checkpoint in `9d9e9a07` - see BG-4). Phases 1 through 3 are COMPLETE; Phases 4-6 are not started.
-**Last updated**: 2026-08-14 (v3.17.0 Phase 3 append)
+**Status**: v3.17.0 `agent-autonomy-toggle` is IN FLIGHT on `feat/v3.17.0-agent-autonomy-toggle` (separated from `develop`, which reverted this phase's checkpoint in `9d9e9a07` - see BG-4). Phases 1 through 4 are COMPLETE; Phases 5-6 are not started.
+**Last updated**: 2026-08-14 (v3.17.0 Phase 4 append)
 
 > **File-lifecycle note**: this ledger is opened by the v3.17.0 Phase 1 append. Each subsequent v3.17.N version-implementation phase **appends** its own `## v3.17.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `MT-#` / `QG-#` numbering. Note that the v3.17.0 plan itself lives in this directory while its *predecessor* ledger entries sit in [../v3.16/known-gaps.md](../v3.16/known-gaps.md), an artifact of the v3.16-line re-stamp the plan's version-numbering note records.
 
@@ -10,7 +10,7 @@
 
 ## v3.17.0 - agent-autonomy-toggle
 
-**Status**: Phases 1 through 3 COMPLETE (2026-08-14). 7 open (NI-1, NI-2, DF-1, DF-2, DF-3, WN-1, WN-2), 1 open (BG-4, latent and procedural) and 3 closed (BG-1, BG-2, BG-3), 0 release blockers. Plan: [plans/v3.17.0-agent-autonomy-toggle.md](plans/v3.17.0-agent-autonomy-toggle.md).
+**Status**: Phases 1 through 4 COMPLETE (2026-08-14). 7 open (NI-1, NI-2, DF-1, DF-2, DF-3, WN-1, WN-2), 1 open (BG-4, latent and procedural) and 3 closed (BG-1, BG-2, BG-3), 0 release blockers. Plan: [plans/v3.17.0-agent-autonomy-toggle.md](plans/v3.17.0-agent-autonomy-toggle.md).
 
 ### NI-1 - OPEN: output redirection under an explicit allow rule is UNVERIFIED
 

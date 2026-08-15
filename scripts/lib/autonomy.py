@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import argparse
 import difflib
+import fnmatch
 import getpass
 import json
 import os
@@ -43,6 +44,26 @@ DEFAULT_TTL_MINUTES = 60
 MAX_TTL_MINUTES = 8 * 60
 BASE_PROTECTED_BRANCHES = frozenset({"main", "master"})
 
+# Canonical execution-trigger file paths owned by v3.15.6's
+# agentic-endpoint-hardening skill. Group B's core.hooksPath/core.fsmonitor
+# command forms remain owned by git-guardrails because Write/Edit payloads carry
+# paths, not shell commands. Keep this tuple as the only Phase 4 code definition;
+# the wrappers delegate here rather than duplicating policy in shell.
+EXECUTION_TRIGGER_PATHS = (
+    ".claude/settings*.json",
+    ".claude/hooks/*",
+    ".vscode/tasks.json",
+    ".vscode/launch.json",
+    ".git/hooks/*",
+    ".git/config",
+    ".cursor/*",
+    ".venv/bin/*",
+    ".venv/Scripts/*",
+    "venv/bin/*",
+    "venv/Scripts/*",
+    "pyvenv.cfg",
+)
+
 
 @dataclass(frozen=True)
 class OperationResult:
@@ -58,6 +79,19 @@ class OperationResult:
     backup_path: str | None = None
     expiry: str | None = None
     diff: str = ""
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass(frozen=True)
+class GuardDecision:
+    """Decision returned to the autonomy Write/Edit guard hook."""
+
+    blocked: bool
+    path: str | None = None
+    matched_pattern: str | None = None
+    message: str = ""
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -986,6 +1020,81 @@ def status(
     }
 
 
+def _guard_relative_paths(root: Path, target_path: str | os.PathLike[str]) -> set[str]:
+    """Return lexical and symlink-resolved project-relative spellings."""
+    raw = Path(target_path).expanduser()
+    candidate = raw if raw.is_absolute() else root / raw
+    candidates = {
+        Path(os.path.abspath(candidate)),
+        candidate.resolve(strict=False),
+    }
+    relative_paths: set[str] = set()
+    for item in candidates:
+        try:
+            relative_paths.add(item.relative_to(root).as_posix())
+        except ValueError:
+            continue
+    return relative_paths
+
+
+def _execution_trigger_match(
+    root: Path, target_path: str | os.PathLike[str]
+) -> tuple[str, str] | None:
+    """Return the normalized path and canonical pattern when either spelling matches."""
+    for relative in sorted(_guard_relative_paths(root, target_path)):
+        subject = relative.casefold() if os.name == "nt" else relative
+        for pattern in EXECUTION_TRIGGER_PATHS:
+            expected = pattern.casefold() if os.name == "nt" else pattern
+            if fnmatch.fnmatchcase(subject, expected) or fnmatch.fnmatchcase(
+                subject, f"*/{expected}"
+            ):
+                return relative, pattern
+    return None
+
+
+def guard_path(
+    target_path: str | os.PathLike[str] | None,
+    *,
+    project_dir: str | os.PathLike[str] | None = None,
+) -> GuardDecision:
+    """Block execution-trigger writes while any project autonomy state is present."""
+    if not target_path:
+        return GuardDecision(False)
+    root = _git_root(project_dir)
+    if root is None or not _state_path(root).exists():
+        return GuardDecision(False)
+
+    matched = _execution_trigger_match(root, target_path)
+    if matched is None:
+        return GuardDecision(False)
+    normalized_path, pattern = matched
+
+    try:
+        state = _load_state(root)
+    except (OSError, TypeError, ValueError, json.JSONDecodeError) as exc:
+        return GuardDecision(
+            True,
+            path=normalized_path,
+            matched_pattern=pattern,
+            message=(
+                f"AUTONOMY BLOCKED: '{normalized_path}' is an execution-trigger path "
+                f"and autonomy state is unreadable ({exc}). State was preserved."
+            ),
+        )
+    if not state["platforms"]:
+        return GuardDecision(False)
+
+    return GuardDecision(
+        True,
+        path=normalized_path,
+        matched_pattern=pattern,
+        message=(
+            f"AUTONOMY BLOCKED: '{normalized_path}' matches execution-trigger pattern "
+            f"'{pattern}'. Disable or revert project autonomy before modifying this path."
+        ),
+    )
+
+
 def _build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         description="Nexus-Hub project-local autonomy engine"
@@ -997,6 +1106,11 @@ def _build_parser() -> argparse.ArgumentParser:
     expire_parser.add_argument("--project", type=Path, default=Path.cwd())
     status_parser = subparsers.add_parser("status", help="Print project autonomy state")
     status_parser.add_argument("--project", type=Path, default=Path.cwd())
+    guard_parser = subparsers.add_parser(
+        "guard", help="Deny execution-trigger writes while project autonomy is active"
+    )
+    guard_parser.add_argument("--project", type=Path, default=Path.cwd())
+    guard_parser.add_argument("--path")
     return parser
 
 
@@ -1004,6 +1118,20 @@ def main(argv: list[str] | None = None) -> int:
     args = _build_parser().parse_args(argv)
     if args.command == "status":
         print(json.dumps(status(project_dir=args.project), indent=2, sort_keys=True))
+        return 0
+    if args.command == "guard":
+        target_path = args.path
+        if target_path is None and not sys.stdin.isatty():
+            try:
+                payload = json.load(sys.stdin)
+                tool_input = payload.get("tool_input", {})
+                target_path = tool_input.get("file_path") or tool_input.get("path")
+            except (AttributeError, json.JSONDecodeError):
+                target_path = None
+        decision = guard_path(target_path, project_dir=args.project)
+        if decision.blocked:
+            print(decision.message, file=sys.stderr)
+            return 2
         return 0
     results = expire(project_dir=args.project)
     for result in results:

@@ -40,6 +40,18 @@ Verified 2026-08-14 against current first-party documentation. This section answ
 
 **Counts**: 8 MATCH with descriptors, 3 DRIFT without descriptors, 5 UNVERIFIED without descriptors, 16 total. The JSON sibling's `autonomy_levers.platforms` block is authoritative for tests; this table mirrors it.
 
+### Claude Code hook independence under autonomy (v3.17.0 Phase 4)
+
+**Verdict: MATCH.** Verified 2026-08-14 on Claude Code 2.1.156 against a throwaway git repository with a registered `PreToolUse` hook that recorded the attempted tool name and target, printed a fixed marker, and exited 2. The hook remained enforcing for both tool-routing classes tested (`Bash` and `Write`) under all three no-prompt surfaces. In every case the hook recorded the attempted call and the requested marker file remained absent.
+
+| Autonomy surface | Bash matcher | Write matcher | Result |
+|---|---|---|---|
+| `permissions.defaultMode: "acceptEdits"` / `--permission-mode acceptEdits` | Hook fired; exit 2 blocked | Hook fired; exit 2 blocked | **MATCH** |
+| `permissions.defaultMode: "bypassPermissions"` / `--permission-mode bypassPermissions` | Hook fired; exit 2 blocked | Hook fired; exit 2 blocked | **MATCH** |
+| `--dangerously-skip-permissions` | Hook fired; exit 2 blocked | Hook fired; exit 2 blocked | **MATCH** |
+
+The test used the installed CLI's project settings loader and real tool-routing path rather than calling the hook script directly. The permission and hook layers are therefore empirically independent for this build: prompt bypass did not suppress the blocking hook. This finding supports the Phase 4 design but remains version-specific; re-run it when Claude Code changes its hook or permission architecture. First-party contracts: [hooks](https://code.claude.com/docs/en/hooks), [permission modes](https://code.claude.com/docs/en/permissions).
+
 ---
 
 **Prior entry, retained for the record** -- Last verified 2026-08-11 for v3.16.5.

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import io
 import json
 import os
 import shutil
@@ -474,3 +475,109 @@ def test_concurrent_process_audit_appends_never_interleave(repo: Path) -> None:
     assert len(lines) == 60
     records = [json.loads(line) for line in lines]
     assert {record["worker"] for record in records} == {0, 1, 2, 3}
+
+
+def _write_guard_state(repo: Path, platforms: dict | None = None) -> None:
+    state_path = repo / autonomy.STATE_RELATIVE_PATH
+    state_path.parent.mkdir(exist_ok=True)
+    state_path.write_text(
+        json.dumps(
+            {
+                "version": autonomy.STATE_VERSION,
+                "platforms": platforms
+                if platforms is not None
+                else {
+                    "claude": {
+                        "tier": "edits",
+                        "expiry": "2099-01-01T00:00:00Z",
+                    }
+                },
+            }
+        ),
+        encoding="utf-8",
+    )
+
+
+@pytest.mark.parametrize(
+    ("target", "pattern"),
+    [
+        (".claude/settings.local.json", ".claude/settings*.json"),
+        (".claude/hooks/pre.sh", ".claude/hooks/*"),
+        (".vscode/tasks.json", ".vscode/tasks.json"),
+        (".vscode/launch.json", ".vscode/launch.json"),
+        (".git/hooks/post-merge", ".git/hooks/*"),
+        (".git/config", ".git/config"),
+        (".cursor/rules.md", ".cursor/*"),
+        (".venv/bin/python", ".venv/bin/*"),
+        (".venv/Scripts/python.exe", ".venv/Scripts/*"),
+        ("venv/bin/python", "venv/bin/*"),
+        ("venv/Scripts/python.exe", "venv/Scripts/*"),
+        ("pyvenv.cfg", "pyvenv.cfg"),
+    ],
+)
+def test_guard_blocks_every_canonical_pattern_directly(
+    repo: Path, target: str, pattern: str
+) -> None:
+    _write_guard_state(repo)
+
+    decision = autonomy.guard_path(target, project_dir=repo)
+
+    assert decision.blocked is True
+    assert decision.matched_pattern == pattern
+    assert target in decision.message
+    assert decision.to_dict()["path"] == target
+
+
+def test_guard_allows_missing_target_state_and_benign_paths(repo: Path) -> None:
+    assert autonomy.guard_path(None, project_dir=repo).blocked is False
+    assert (
+        autonomy.guard_path(".claude/settings.json", project_dir=repo).blocked is False
+    )
+
+    _write_guard_state(repo, {})
+    assert (
+        autonomy.guard_path(".claude/settings.json", project_dir=repo).blocked is False
+    )
+    assert autonomy.guard_path("src/feature.py", project_dir=repo).blocked is False
+    assert (
+        autonomy.guard_path(repo.parent / "outside.py", project_dir=repo).blocked
+        is False
+    )
+
+
+def test_guard_normalizes_traversal_and_fails_closed_on_invalid_state(
+    repo: Path,
+) -> None:
+    state_path = repo / autonomy.STATE_RELATIVE_PATH
+    state_path.parent.mkdir(exist_ok=True)
+    state_path.write_text("not json", encoding="utf-8")
+
+    decision = autonomy.guard_path("src/../.vscode/tasks.json", project_dir=repo)
+
+    assert decision.blocked is True
+    assert decision.path == ".vscode/tasks.json"
+    assert "state is unreadable" in decision.message
+    assert state_path.read_text(encoding="utf-8") == "not json"
+
+
+def test_guard_cli_supports_explicit_path_and_stdin_payload(
+    repo: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    _write_guard_state(repo)
+
+    assert (
+        autonomy.main(["guard", "--project", str(repo), "--path", ".git/config"]) == 2
+    )
+    assert ".git/config" in capsys.readouterr().err
+
+    monkeypatch.setattr(
+        sys,
+        "stdin",
+        io.StringIO(json.dumps({"tool_input": {"path": "src/feature.py"}})),
+    )
+    assert autonomy.main(["guard", "--project", str(repo)]) == 0
+
+    monkeypatch.setattr(sys, "stdin", io.StringIO("not json"))
+    assert autonomy.main(["guard", "--project", str(repo)]) == 0
