@@ -62,4 +62,16 @@ class OpenCodeIntegration(MarkdownIntegration, SkillsIntegration):
         # not a shell/py hook model, so catalog/hooks/*.{sh,py} cannot run there
         # (known-gap DF-4; the base _mirror_catalog gates the hook copy on this flag).
         "hooks_supported": False,
+        "autonomy": {
+            "config_file": "opencode.json",
+            "scope": "project",
+            "key_paths": ["permission"],
+            "tiers": {
+                "edits_only": {"permission": {"*": "ask", "edit": "allow"}},
+                "full": {"permission": "allow"},
+            },
+            "intermediate_supported": True,
+            "verified": True,
+            "format": "json",
+        },
     }

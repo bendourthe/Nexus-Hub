@@ -54,6 +54,7 @@ class GeminiCliIntegration(
         "rules_subdir": "rules",
         # Hooks land in settings.json via the mixin rather than as a tree copy,
         # so hooks_subdir is not set on the base class.
+        # No autonomy descriptor: full YOLO is CLI-only and cannot be persisted in settings.json; see the platform read-contract autonomy section.
         "hooks_supported": True,
     }
 

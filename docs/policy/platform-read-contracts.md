@@ -15,6 +15,31 @@ This is the durable, sourced source of truth for where every supported platform 
 
 **A full pass is owed at v3.17.0.** Four consecutive targeted passes have now deferred it.
 
+## Autonomy lever verification (v3.17.0 Phase 2)
+
+Verified 2026-08-14 against current first-party documentation. This section answers a narrower question than the read-path log above: whether each registered integration has a declarative JSON, JSONC, or TOML permission-mode lever that Nexus-Hub can describe without inventing a key. `MATCH` is the only verdict that permits an integration `autonomy` descriptor. `DRIFT` means a real lever exists but is structurally incompatible with the descriptor contract; `UNVERIFIED` means no seedable general autonomy lever was confirmed. Negative-only evidence never becomes a descriptor.
+
+| Platform (registry id) | Verdict | Descriptor | Scope and config | Evidence |
+|---|---|---|---|---|
+| Aider (`aider`) | **DRIFT** | No | Project or global `.aider.conf.yml` | `yes-always` is real, but the YAML-only all-confirmations switch has no edits-only tier and is outside the supported formats. [Source](https://aider.chat/docs/config/aider_conf.html) |
+| Antigravity 1.0 (`antigravity`) | **UNVERIFIED** | No | UI only | The deprecated IDE documents security controls but no seedable file path and key. [Source](https://www.antigravity.google/docs/settings) |
+| Antigravity 2.0 + CLI (`antigravity2`) | **MATCH** | Yes | Global `~/.gemini/antigravity-cli/settings.json` | `toolPermission: "always-proceed"` is the full tier. `proceed-in-sandbox` is broader than edits-only, so no intermediate tier is declared. [Source](https://www.antigravity.google/docs/cli-reference) |
+| Claude Code (`claude`) | **MATCH** | Yes | Project `.claude/settings.local.json` | `permissions.defaultMode` supports `acceptEdits` and `bypassPermissions`; both shared and local project settings participate in precedence. [Source](https://code.claude.com/docs/en/permissions) |
+| Codex (`codex`) | **MATCH** | Yes | Trusted project `.codex/config.toml` | Edits-only uses `approval_policy = "on-request"` plus `sandbox_mode = "workspace-write"`; full uses `never` plus `danger-full-access`. The full tier removes a sandbox, not only a prompt, so it is a higher risk class than Claude Code. [Source](https://developers.openai.com/codex/config-reference/) |
+| GitHub Copilot / VS Code (`copilot`) | **MATCH** | Yes | Project `.vscode/settings.json` | Against VS Code 1.131, the current mode key is `chat.permissions.default`; `autopilot` is the full tier. The plan's `chat.autopilot.enabled` starting point drifted, and no edits-only mode value exists. [Source](https://code.visualstudio.com/docs/agents/approvals) |
+| Cursor (`cursor`) | **MATCH** | Yes | Global `~/.cursor/cli-config.json` | `approvalMode: "unrestricted"` is the full mode. Project `.cursor/cli.json` is permissions-only, so the descriptor is global and has no edits-only tier. [Source](https://docs.cursor.com/cli/reference/permissions) |
+| Gemini Code Assist (`gemini`) | **UNVERIFIED** | No | `~/.gemini/settings.json` tool lists only | The legacy IDE surface documents `coreTools`, `excludeTools`, and per-prompt approvals, but no persistent general autonomy mode. [Source](https://developers.google.com/gemini-code-assist/docs/use-agentic-chat-pair-programmer) |
+| Gemini CLI (`gemini-cli`) | **DRIFT** | No | Project `.gemini/settings.json` plus CLI-only full mode | `general.defaultApprovalMode` persists `default`, `auto_edit`, and `plan`; full YOLO is explicitly CLI-only, so one file descriptor cannot express both required tiers. The integration remains enterprise-only. [Source](https://geminicli.com/docs/cli/settings/) |
+| Hermes (`hermes`) | **UNVERIFIED** | No | Global `~/.hermes/config.yaml` | Hermes documents narrow YAML gates for skill and memory writes, not a general file-edit plus shell autonomy mode in a supported format. [Source](https://github.com/NousResearch/hermes-agent/blob/main/website/docs/user-guide/configuration.md) |
+| Kimi Code CLI (`kimi`) | **MATCH** | Yes | Global `~/.kimi-code/config.toml` | `default_permission_mode = "auto"` is the full unattended tier. Project `.kimi-code/local.toml` is documented only for workspace settings, so the descriptor is global and has no edits-only tier. [Source](https://www.kimi.com/code/docs/en/kimi-code-cli/configuration/config-files) |
+| Nexus-AI (`nexus-ai`) | **UNVERIFIED** | No | No public contract | The private repository exposes no publicly auditable user-facing autonomy setting; negative-only evidence is not promoted. [Source](https://github.com/bendourthe/Nexus-AI) |
+| OpenClaw (`openclaw`) | **DRIFT** | No | Global JSON5 plus host-local approvals state | Full no-prompt host execution requires both `tools.exec` configuration and a separate host-local approvals document. A one-file descriptor would falsely report autonomy while the stricter second layer could still prompt. [Source](https://docs.openclaw.ai/tools/permission-modes) |
+| OpenCode (`opencode`) | **MATCH** | Yes | Project-root `opencode.json` | `permission: {"*": "ask", "edit": "allow"}` is edits-only; `permission: "allow"` is full. JSON and JSONC project files share the same schema. [Source](https://opencode.ai/docs/permissions) |
+| Qwen Code (`qwen`) | **MATCH** | Yes | Project `.qwen/settings.json` | `tools.approvalMode` supports `auto-edit` for edits-only and `yolo` for full no-prompt operation. [Source](https://qwenlm.github.io/qwen-code-docs/en/users/configuration/settings/) |
+| Windsurf (`windsurf`) | **UNVERIFIED** | No | No seedable mode file confirmed | Current first-party Devin/Windsurf documentation confirms the retained product surface but exposes no permission-mode file or key. [Source](https://docs.devin.ai/product-guides/skills) |
+
+**Counts**: 8 MATCH with descriptors, 3 DRIFT without descriptors, 5 UNVERIFIED without descriptors, 16 total. The JSON sibling's `autonomy_levers.platforms` block is authoritative for tests; this table mirrors it.
+
 ---
 
 **Prior entry, retained for the record** -- Last verified 2026-08-11 for v3.16.5.

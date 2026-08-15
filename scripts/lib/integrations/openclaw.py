@@ -56,6 +56,7 @@ class OpenClawIntegration(MarkdownIntegration):
         "instruction_workspace_dir": ".openclaw",
         "instruction_file": "AGENTS.md",
         "instruction_template": "templates/ai-instructions/base-openclaw.md",
+        # No autonomy descriptor: no-prompt exec requires config plus host-local approval state; see the platform read-contract autonomy section.
         "hooks_supported": False,
     }
 

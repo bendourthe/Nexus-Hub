@@ -1,8 +1,8 @@
 # Known Gaps - v3.17
 
 **Project**: Nexus-Hub
-**Status**: v3.17.0 `agent-autonomy-toggle` is IN FLIGHT on `feat/v3.17.0-agent-autonomy-toggle` (separated from `develop`, which reverted this phase's checkpoint in `9d9e9a07` - see BG-4). Phase 1 (permission-baseline hardening and cross-platform merge parity) is COMPLETE; Phases 2-6 are not started.
-**Last updated**: 2026-08-13 (v3.17.0 Phase 1 append)
+**Status**: v3.17.0 `agent-autonomy-toggle` is IN FLIGHT on `feat/v3.17.0-agent-autonomy-toggle` (separated from `develop`, which reverted this phase's checkpoint in `9d9e9a07` - see BG-4). Phases 1 and 2 are COMPLETE; Phases 3-6 are not started.
+**Last updated**: 2026-08-14 (v3.17.0 Phase 2 append)
 
 > **File-lifecycle note**: this ledger is opened by the v3.17.0 Phase 1 append. Each subsequent v3.17.N version-implementation phase **appends** its own `## v3.17.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `MT-#` / `QG-#` numbering. Note that the v3.17.0 plan itself lives in this directory while its *predecessor* ledger entries sit in [../v3.16/known-gaps.md](../v3.16/known-gaps.md), an artifact of the v3.16-line re-stamp the plan's version-numbering note records.
 
@@ -10,7 +10,7 @@
 
 ## v3.17.0 - agent-autonomy-toggle
 
-**Status**: Phase 1 COMPLETE (2026-08-13). 6 open (NI-1, NI-2, DF-1, DF-2, DF-3, WN-1), 1 open (BG-4, latent and procedural) and 3 closed (BG-1, BG-2, BG-3), 0 release blockers. Plan: [plans/v3.17.0-agent-autonomy-toggle.md](plans/v3.17.0-agent-autonomy-toggle.md).
+**Status**: Phases 1 and 2 COMPLETE (2026-08-14). 7 open (NI-1, NI-2, DF-1, DF-2, DF-3, WN-1, WN-2), 1 open (BG-4, latent and procedural) and 3 closed (BG-1, BG-2, BG-3), 0 release blockers. Plan: [plans/v3.17.0-agent-autonomy-toggle.md](plans/v3.17.0-agent-autonomy-toggle.md).
 
 ### NI-1 - OPEN: output redirection under an explicit allow rule is UNVERIFIED
 
@@ -58,6 +58,13 @@
 - **Reason it is open**: this fails in the Windows Git-Bash development environment on an environmental `tar` quirk. It is the v3.15.0 WN-1 item, which the v3.17.0 plan's dependency section predicted would recur during installer work. CI is authoritative for this test and passes.
 - **Suggested next step**: none in this cycle. Do not treat a local failure of this one test as a regression from Phase 1; the phase touched neither the bootstrap scripts nor the tarball path.
 
+### WN-2 - OPEN (pre-existing tooling debt): integration framework has no clean repository-wide Ruff baseline
+
+- **Target file**: `scripts/lib/integrations/`
+- **Source phase**: v3.17.0 Phase 2, sub-task 2.4 (lint verification)
+- **Reason it is open**: an exploratory `python -m ruff check scripts/lib/integrations tests/integrations/test_autonomy_descriptors.py` reported 180 existing modernization, import-order, mutable-class-config, and unused-code findings across the integration framework. The Phase 2 test file passes focused Ruff validation, and Phase 2 did not suppress or introduce a new lint rule; cleaning the framework would be an unrelated broad refactor.
+- **Suggested next step**: establish a deliberate Ruff baseline or scoped rule set during Phase 6 architecture work, then reduce the existing findings in reviewable batches rather than mixing them into capability phases.
+
 ### BG-1 - CLOSED in Phase 1: `installer.ps1` kept mutation-capable entries on upgrade
 
 - **Target file**: `scripts/installer.ps1` (`Install-Permissions`), `scripts/merge_permissions.py`
@@ -97,7 +104,7 @@
 | Not implemented by design / unverified (`NI-#`) | 2 (NI-1, NI-2) | 0 |
 | Deferred (`DF-#`) | 3 (DF-1, DF-2, DF-3) | 0 |
 | Bugs (`BG-#`) | 1 (BG-4, latent: the revert-then-merge hazard) | 3 (BG-1, BG-2, BG-3) |
-| Warnings (`WN-#`) | 1 (WN-1, environmental, carried from v3.15.0) | 0 |
+| Warnings (`WN-#`) | 2 (WN-1, environmental, carried from v3.15.0; WN-2, pre-existing Ruff baseline) | 0 |
 | Missing tests (`MT-#`) | 0 | 0 |
 | Quality-gate bypasses (`QG-#`) | 0 | 0 |
 

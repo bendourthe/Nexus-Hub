@@ -47,6 +47,7 @@ class WindsurfIntegration(MarkdownIntegration):
         "instruction_workspace_dir": "",
         "instruction_file": ".windsurfrules",
         "instruction_template": "templates/ai-instructions/base-windsurf.md",
+        # No autonomy descriptor: current first-party docs expose no seedable permission-mode file; see the platform read-contract autonomy section.
         "hooks_supported": False,
     }
 
