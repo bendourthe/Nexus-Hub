@@ -111,7 +111,7 @@
 - [x] Audit all CI workflows for coverage and action-minute optimization
 - [x] Run validation, coverage, full tests, hook tests, and release-readiness checks
 
-## Parallel Plan - v3.17.0 Agent Autonomy Toggle [IN PROGRESS]
+## Parallel Plan - v3.17.0 Agent Autonomy Toggle [DONE]
 
 - [x] Complete Phase 1: Permission-baseline hardening and cross-platform merge parity
 - [x] Complete Phase 2: Autonomy capability model and per-platform lever verification

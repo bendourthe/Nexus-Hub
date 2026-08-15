@@ -1,8 +1,8 @@
 # Known Gaps - v3.17
 
 **Project**: Nexus-Hub
-**Status**: v3.17.0 `agent-autonomy-toggle` is implementation-complete and reconciled with the v3.16.8 integration line. Phase 6 closed BG-4 by merging current `origin/develop` into the feature branch and explicitly restoring every revert-owned hardening artifact before the feature-to-`develop` merge.
-**Last updated**: 2026-08-15 (v3.17.0 Phase 6 reconciliation)
+**Status**: v3.17.0 `agent-autonomy-toggle` is implementation-complete, reconciled with the v3.16.8 integration line, and green in protected-branch remote CI. Phase 6 closed BG-4 by merging current `origin/develop` into the feature branch and explicitly restoring every revert-owned hardening artifact before the feature-to-`develop` merge.
+**Last updated**: 2026-08-15 (v3.17.0 Phase 6 integration closure)
 
 > **File-lifecycle note**: this ledger was opened by the v3.17.0 Phase 1 append. Each subsequent v3.17.N implementation appends its own `## v3.17.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `MT-#` / `QG-#` numbering.
 
@@ -12,7 +12,7 @@
 
 ## v3.17.0 - agent-autonomy-toggle
 
-**Status**: Phase 6 finalized (2026-08-15). 12 open (NI-1, NI-2, NI-3, DF-1, DF-2, DF-3, DF-4, DF-5, WN-1, WN-2, WN-4, MT-1) and 5 closed (BG-1, BG-2, BG-3, BG-4, WN-3), 0 release blockers. The full local repository suite exceeded the bounded 15-minute Windows run; focused suites and hard validators are green, and protected-branch remote CI is the authoritative pre-release full-suite gate. Plan: [plans/v3.17.0-agent-autonomy-toggle.md](plans/v3.17.0-agent-autonomy-toggle.md).
+**Status**: Phase 6 finalized (2026-08-15). 12 open (NI-1, NI-2, NI-3, DF-1, DF-2, DF-3, DF-4, DF-5, WN-1, WN-2, WN-4, MT-1) and 8 closed (BG-1, BG-2, BG-3, BG-4, BG-5, BG-6, BG-7, WN-3), 0 release blockers. The full local repository suite exceeded the bounded 15-minute Windows run; focused suites and hard validators are green, and protected-branch remote CI passed on the integrated `develop` tree. Plan: [plans/v3.17.0-agent-autonomy-toggle.md](plans/v3.17.0-agent-autonomy-toggle.md).
 
 ### NI-1 - OPEN: output redirection under an explicit allow rule is UNVERIFIED
 
@@ -147,13 +147,13 @@
 - **Resolution**: merged current `origin/develop` into the feature branch with `--no-ff --no-commit`, retained v3.16.8 release work, and restored the feature side for every path owned by revert `9d9e9a07`. The first focused run proved why this was necessary: Git had silently reintroduced the stale Bash Gemini sentinel and `jq` path and removed the PowerShell helper-distribution block outside visible conflict markers. Both installers were reconstructed from the feature tip with only the audited `3.16.8` version bumps reapplied.
 - **Verification**: both `_hardening` blocks remain, both helper scripts and the matcher-findings document exist, Makefile and CI retain the permission and installer-parity hard gates, the 80-test baseline/scope-parity suite passes, installer parity passes, all 10 platform contracts match, and every underlying `make validate` command passes on Windows.
 
-### BG-5 - OPEN after integration: the PowerShell autonomy guard discards hosted-runner stdin
+### BG-5 - CLOSED after integration: the PowerShell autonomy guard discarded hosted-runner stdin
 
 - **Target files**: `catalog/hooks/autonomy-guard.ps1`, `catalog/hooks/tests/test_autonomy_guard.py`
 - **Source phase**: v3.17.0 Phase 6 protected-branch CI
 - **What was wrong**: the PowerShell adapter first gated the hook payload on `[Console]::IsInputRedirected`, which the Windows service runner reported false for the JSON pipe. Hosted diagnostics then proved that PowerShell had the correct payload, project root, state, engine, and Python executable, but piping the payload string into the native Python child produced empty stdin and a false allow.
-- **Remediation in progress**: consume PowerShell's automatic `$input` enumerator first with a raw-handle fallback, parse the JSON in the adapter, and pass the extracted file path through the engine's existing `--path` option. This removes the failing native-command pipeline without duplicating the engine's path policy.
-- **Verification state**: the explicit-path bridge passes 54 focused guard/engine tests, the Windows PowerShell 5.1 parse gate, workflow security validation, and the full local hook matrix with 1,057 passing tests and 39 expected skips. The hosted Windows PowerShell 5.1 job remains required. Temporary CI tracing was removed after it isolated the failing boundary.
+- **Resolution**: consume PowerShell's automatic `$input` enumerator first with a raw-handle fallback, parse the JSON in the adapter, and pass the extracted file path through the engine's existing `--path` option. This removes the failing native-command pipeline without duplicating the engine's path policy.
+- **Verification**: the explicit-path bridge passes 54 focused guard/engine tests, the Windows PowerShell 5.1 parse gate, workflow security validation, and the full local hook matrix with 1,057 passing tests and 39 expected skips. Protected-branch CI run `31904566621`, including Windows job `95060274953`, passed the hook suite and every downstream installer and validator step. Temporary CI tracing was removed after it isolated the failing boundary.
 
 ### BG-6 - CLOSED after integration: platform-default provenance URLs drifted from the verified contract
 
@@ -177,9 +177,9 @@
 |---|---|---|
 | Not implemented by design / unverified (`NI-#`) | 3 (NI-1, NI-2, NI-3) | 0 |
 | Deferred (`DF-#`) | 5 (DF-1, DF-2, DF-3, DF-4, DF-5) | 0 |
-| Bugs (`BG-#`) | 1 (BG-5, hosted Windows stdin) | 6 (BG-1, BG-2, BG-3, BG-4, BG-6, BG-7) |
+| Bugs (`BG-#`) | 0 | 7 (BG-1, BG-2, BG-3, BG-4, BG-5, BG-6, BG-7) |
 | Warnings (`WN-#`) | 3 (WN-1, environmental, carried from v3.15.0; WN-2, pre-existing Ruff baseline; WN-4, version-specific hook proof) | 1 (WN-3, Vitest config loader) |
 | Missing tests (`MT-#`) | 1 (MT-1, Claude monitor extension-wide coverage) | 0 |
 | Quality-gate bypasses (`QG-#`) | 0 | 0 |
 
-**Release blockers**: 1 (BG-5). NI-1 and NI-2 require live matcher probes before their respective permission baselines can be broadened, but the shipped validators and hook guards conservatively avoid relying on either unverified behavior. BG-4, BG-6, and BG-7 are closed; BG-5 requires a green follow-up hosted Windows run before `/update release`.
+**Release blockers**: 0. NI-1 and NI-2 require live matcher probes before their respective permission baselines can be broadened, but the shipped validators and hook guards conservatively avoid relying on either unverified behavior. BG-4 through BG-7 are closed, and the integrated `develop` tree is green in protected-branch CI.
