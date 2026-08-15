@@ -47,5 +47,5 @@ jobs:
       - name: Compile (tsc)
         run: npm run compile
 
-      - name: Provider unit tests (Vitest)
-        run: npm test
+      - name: Unit tests with coverage (Vitest)
+        run: npm run test:coverage

@@ -19,7 +19,7 @@ The complete, ordered procedure for the `implement-phase` skill. `SKILL.md` link
     - **Plan metadata**: honor an explicit `Final-Phase: N` marker.
     - **Adjacent plans**: the plan is the only one under the active version dir.
     On conflict (numerically last but prior phases unchecked), set `is_final_phase = false` and say so.
-7. **Pre-flight summary** - show plan, phase, status, prior-phases-complete, and final-phase (with a note that the release-readiness workflow runs after Phase 8 when final). Wait for confirmation before any code change.
+7. **Pre-flight summary** - show plan, phase, status, prior-phases-complete, and final-phase (with a note that the release-readiness workflow runs after Phase 8 when final). Before requesting confirmation, follow the active instruction template's `Consequential Decisions` rule. Wait for confirmation before any code change.
 
 ## Phase 1: Pre-implementation review
 
@@ -54,11 +54,11 @@ Generate tests (via `/test`, i.e. the `unit-tests` and `test-cases` skills) for 
 
 ## Phase 6: Troubleshooting loop (max 3 iterations)
 
-Read every failure (name, message, stack). Classify each `IMPL` / `TEST` / `ENV`. Apply targeted fixes (fix impl for IMPL; fix the test and document why for TEST; resolve and log for ENV). Re-run and check the failure count dropped. Stop early when green. After 3 iterations with failures remaining, stop and present the unresolved list with options: A. Skip failing tests and continue; B. Abort for manual investigation; C. Extend the loop N more iterations. Wait for the answer.
+Read every failure (name, message, stack). Classify each `IMPL` / `TEST` / `ENV`. Apply targeted fixes (fix impl for IMPL; fix the test and document why for TEST; resolve and log for ENV). Re-run and check the failure count dropped. Stop early when green. After 3 iterations with failures remaining, stop and present the unresolved list with options: A. Skip failing tests and continue; B. Abort for manual investigation; C. Extend the loop N more iterations. Follow the active instruction template's `Consequential Decisions` rule before asking. Wait for the answer.
 
 ## Phase 7: Quality gate (GO / NO-GO)
 
-Evaluate four gates: all tests passing (0 failures), line coverage >= 80%, 0 lint errors, build/compile succeeds. All pass -> run the post-phase sequence. Any fail after retries -> ask the user: A. Proceed anyway (document the gap); B. Stop for manual resolution.
+Evaluate four gates: all tests passing (0 failures), line coverage >= 80%, 0 lint errors, build/compile succeeds. All pass -> run the post-phase sequence. Any fail after retries -> follow the active instruction template's `Consequential Decisions` rule, then ask the user: A. Proceed anyway (document the gap); B. Stop for manual resolution.
 
 ## Phase 8: Post-phase completion sequence (every phase)
 
@@ -73,7 +73,7 @@ Run every step in strict order at the end of EVERY phase (validation first, then
 - **8.7 `/update docs`** - sync README, API docs, architecture docs, inline guides. No-op when nothing changed.
 - **8.8 `/session history`** - standalone session-history file in `<version_dir>/development/history/` (plan reference, subtasks, test results, CI/CD edits, deviations, next steps).
 - **8.9 `/commit` (generate the message)** - structured, sectioned-bullet message scoped to the phase, including the known-gaps file, docs-cleanup report, session history, and every touched file. Sectioned bullets grouped by component; dedicated Tests / CI/CD / Known gaps sections; no hard-wrapping; single blank line between sections. Produces the message; does not auto-commit.
-- **8.10 Commit-and-push prompt (REQUIRED, every phase)** - always ask: 1. Commit only; 2. Commit and push; 3. Amend (loop to 8.9); 4. Stop. Never proceed past 8.10 without a definite answer. On commit, use a heredoc, report the SHA (and push result for option 2).
+- **8.10 Commit-and-push prompt (REQUIRED, every phase)** - follow the active instruction template's `Consequential Decisions` rule, then always ask: 1. Commit only; 2. Commit and push; 3. Amend (loop to 8.9); 4. Stop. Never proceed past 8.10 without a definite answer. On commit, use a heredoc, report the SHA (and push result for option 2).
 
 ## Phase 9: Final-phase completion workflow (release-readiness)
 
@@ -86,13 +86,14 @@ Before the release-readiness sub-phases, run the Phase 3 terminal-phase gate on 
 1. Run `[[project-refactor]]` (with the v3.11.0 detectors: empty dirs, duplicates, non-version orphans, structure complexity) and `[[docs-layout-refactor]]` to clean the layout - propose-then-apply, with confirmation; repair references for anything that moves.
 2. Reconcile the version's known gaps via `[[known-gaps-tracker]]` (this feeds 9A).
 3. Create or update the CI/CD pipeline so it covers every change in the plan, and optimize it to reduce action minutes (path filters, concurrency cancel-in-progress, caching, gating expensive-OS/matrix jobs) while keeping comprehensive testing.
-4. Run the ADVISORY model-prompting-profile staleness check via `[[model-prompting-research]]`, the same step `/update release` performs as governance step 5. Do NOT duplicate its logic here: invoke the skill. It self-gates (real work only in a repo shipping the profile layer plus `[[model-routing]]`, a silent no-op elsewhere), enumerates the live roster, runs `check_model_prompting_freshness.py --advisory`, and on drift prints a one-line note plus an offer to run `/tune-prompting`. It NEVER blocks the phase, never re-stamps a freshness marker, and degrades to a logged no-op offline. This is the deliberate opposite of the platform read-contract check, which DOES hard-gate a release; see `/update release` governance step 5 for why prompting freshness must stay decoupled from the release clock.
+4. If the repository ships more than one installer, run or add its declarative cross-installer parity checker as a HARD gate, covering distributed artifacts, supported platforms, named capability counterparts, and external-tool fallbacks; verify real target-OS installer smoke uses one identical postcondition set. Run this in the same pass as `[[platform-contract-verification]]`: that skill verifies host discovery, while installer parity verifies delivery. Repositories with zero or one installer silently no-op.
+5. Run the ADVISORY model-prompting-profile staleness check via `[[model-prompting-research]]`, the same step `/update release` performs as governance step 6. Do NOT duplicate its logic here: invoke the skill. It self-gates (real work only in a repo shipping the profile layer plus `[[model-routing]]`, a silent no-op elsewhere), enumerates the live roster, runs `check_model_prompting_freshness.py --advisory`, and on drift prints a one-line note plus an offer to run `/tune-prompting`. It NEVER blocks the phase, never re-stamps a freshness marker, and degrades to a logged no-op offline. This is the deliberate opposite of the platform read-contract and installer-parity checks, which DO hard-gate a release; see `/update release` governance step 6 for why prompting freshness must stay decoupled from the release clock.
 
 Keep every confirmation gate; never tag or push automatically.
 
 ### 9A. Resolve known gaps and deferred work
 
-Re-read `<version_dir>/known-gaps.md` `## Open Items`. Grep the codebase for `TODO`/`FIXME`/`XXX`/`HACK`/`# DEVIATION:` introduced this version; add unrecorded ones via `[[known-gaps-tracker]]`. Per-item triage: obsolete -> Resolved (superseded); small and in-scope -> fix inline under the Phase 3-7 gates, then Resolved; out of scope but real -> keep, with accurate Reason + Suggested next step for the next `/plan` ingest. Remove stale TODOs whose context is gone. If a release-blocker remains, ask: A. Resolve before continuing; B. Downgrade and continue; C. Cancel the workflow.
+Re-read `<version_dir>/known-gaps.md` `## Open Items`. Grep the codebase for `TODO`/`FIXME`/`XXX`/`HACK`/`# DEVIATION:` introduced this version; add unrecorded ones via `[[known-gaps-tracker]]`. Per-item triage: obsolete -> Resolved (superseded); small and in-scope -> fix inline under the Phase 3-7 gates, then Resolved; out of scope but real -> keep, with accurate Reason + Suggested next step for the next `/plan` ingest. Remove stale TODOs whose context is gone. If a release-blocker remains, follow the active instruction template's `Consequential Decisions` rule, then ask: A. Resolve before continuing; B. Downgrade and continue; C. Cancel the workflow.
 
 ### 9B. Verify tests and CI/CD readiness
 

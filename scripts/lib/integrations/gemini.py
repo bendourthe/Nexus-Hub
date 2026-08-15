@@ -34,5 +34,6 @@ class GeminiIntegration(MarkdownIntegration, SkillsIntegration):
         "commands_subdir": "workflows",
         "agents_subdir": "agents",
         "rules_subdir": "rules",
+        # No autonomy descriptor: Gemini Code Assist documents tool lists but no persistent mode lever; see the platform read-contract autonomy section.
         "hooks_supported": False,
     }

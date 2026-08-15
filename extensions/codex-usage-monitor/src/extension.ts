@@ -12,6 +12,7 @@ import { WarningViewProvider, WARNING_VIEW_ID, WARNING_ACTIVE_CONTEXT } from "./
 import { getRecommendation, getActiveUrgency, pickTriggerMetric, buildUsageSuggestion, classifyUrgency } from "./recommendations";
 import { UrgencyLevel, UsageData, getThresholdConfig, getNotificationTimeoutMs, syncColorsToWorkbench, getColorConfig } from "./types";
 import { registerUpdateWatcher } from "./updateWatcher";
+import { AutonomyStatusBar } from "./autonomyStatusBar";
 
 type NotificationSeverity = "info" | "warning";
 
@@ -51,6 +52,7 @@ const RESET_COMMAND = "codex-usage.reset";
 const DASHBOARD_COMMAND = "codex-usage.dashboard";
 const REFRESH_COMMAND = "codex-usage.refresh";
 const SETTINGS_COMMAND = "codex-usage.settings";
+const AUTONOMY_COMMAND = "codex-usage.autonomy";
 
 // The ChatGPT usage/limits page (opened from the dashboard as a manual cross-check).
 const CODEX_USAGE_PAGE_URL = "https://chatgpt.com/codex/settings/usage";
@@ -84,6 +86,13 @@ export function activate(context: vscode.ExtensionContext): void {
   const store = new UsageStore(context.globalState);
   const provider = new CodexUsageProvider();
   const statusBar = new StatusBarManager(store, DASHBOARD_COMMAND);
+  const autonomyStatusBar = new AutonomyStatusBar({
+    platform: "codex",
+    command: AUTONOMY_COMMAND,
+    priority: 102,
+    configSection: "codexUsage",
+  });
+  autonomyStatusBar.start();
 
   const config = vscode.workspace.getConfiguration("codexUsage");
   if (config.get<boolean>("showInStatusBar", true)) {
@@ -203,6 +212,16 @@ export function activate(context: vscode.ExtensionContext): void {
     DashboardPanel.revealSettings();
   });
 
+  const autonomyCommand = vscode.commands.registerCommand(AUTONOMY_COMMAND, async () => {
+    await autonomyStatusBar.toggle();
+  });
+
+  const autonomyFocusWatcher = vscode.window.onDidChangeWindowState((state) => {
+    if (state.focused) {
+      void autonomyStatusBar.refresh();
+    }
+  });
+
   // Command: Clear stored data
   const resetCommand = vscode.commands.registerCommand(RESET_COMMAND, async () => {
     const confirm = await vscode.window.showWarningMessage(
@@ -261,8 +280,11 @@ export function activate(context: vscode.ExtensionContext): void {
     recommendCommand,
     resetCommand,
     settingsCommand,
+    autonomyCommand,
+    autonomyFocusWatcher,
     configWatcher,
-    { dispose: () => statusBar.dispose() }
+    { dispose: () => statusBar.dispose() },
+    autonomyStatusBar,
   );
 }
 

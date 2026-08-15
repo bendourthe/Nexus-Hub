@@ -144,7 +144,7 @@ function Get-SanitizedBranchName {
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:NexusHubVersion = "3.16.8"
+$script:NexusHubVersion = "3.17.0"
 
 $Host.UI.RawUI.WindowTitle = "Nexus-Hub Installer"
 $script:InstallerTitle = "Nexus-Hub Installer"
@@ -1190,12 +1190,121 @@ function Merge-StrictPermissions {
     }
 }
 
+# v3.17.0 Phase 1.2 -- the single permission-merge path for BOTH installers.
+#
+# Delegates to scripts/merge_permissions.py, which installer.sh calls identically.
+# One implementation, two thin callers.
+#
+# PARITY DEBT PAID: this installer previously performed its own native JSON merge.
+# That merge was a pure union, so an entry DELETED from a shipped template was never
+# removed from an existing user's config -- meaning the Phase 1.1 hardening reached
+# macOS and Linux users on upgrade and Windows users never. Porting rather than
+# re-implementing is the only correct fix: removal safety depends on the shipped-entry
+# manifest at ~/.nexus-hub/permissions-manifest.json, and a second implementation of
+# that bookkeeping is precisely the drift this phase exists to eliminate.
+#
+# Returns $true on success, $false when the sync failed.
+function Merge-PermissionsViaHelper {
+    param(
+        [string]$RepoRoot,
+        [string]$TemplateFile,
+        [string]$SettingsFile,
+        [string]$Key,               # permissions.allow | tools.allowed | allowedDomains
+        [string]$Platform,          # manifest key: CLAUDE, GEMINI, ...
+        [string]$SetTrueKey         # set ONE literal boolean key instead (Copilot)
+    )
+
+    $helper = Join-Path $RepoRoot "scripts\merge_permissions.py"
+    if (-not (Test-Path $helper)) {
+        Write-Item -Message "Warning: merge helper not found at $helper" -Color "Yellow"
+        return $false
+    }
+
+    $py = Resolve-PythonExecutable
+    if (-not $py) {
+        Write-Item -Message "Warning: Python not found, cannot sync permissions automatically" -Color "Yellow"
+        return $false
+    }
+
+    $settingsDir = Split-Path -Parent $SettingsFile
+    if ($settingsDir -and -not (Test-Path $settingsDir)) {
+        New-Item -ItemType Directory -Force -Path $settingsDir | Out-Null
+    }
+
+    $helperArgs = @($helper, "--settings", $SettingsFile)
+    if ($SetTrueKey) {
+        $helperArgs += @("--set-true", $SetTrueKey)
+    }
+    else {
+        $manifest = Join-Path (Join-Path $env:USERPROFILE ".nexus-hub") "permissions-manifest.json"
+        $helperArgs += @("--template", $TemplateFile, "--key", $Key,
+                         "--manifest", $manifest, "--platform", $Platform)
+    }
+
+    # Deliberately NO `2>&1` here. In Windows PowerShell 5.1 redirecting a native
+    # command's stderr wraps each line in an ErrorRecord (NativeCommandError) and
+    # sets $? to $false even on a clean exit, which turns a good run into a visible
+    # error. The helper reports BOTH its count and its removals on stdout for exactly
+    # this reason, so there is nothing to redirect; real errors reach the console
+    # on their own.
+    $output = & $py @helperArgs
+    if ($LASTEXITCODE -ne 0) {
+        Write-Item -Message "Warning: could not sync permissions into $SettingsFile" -Color "Yellow"
+        return $false
+    }
+
+    # Report each retired entry rather than removing anything silently from a file
+    # the user may have hand-edited.
+    foreach ($line in $output) {
+        if ($line -like "removed: *" -or $line -like "set: *") {
+            Write-Item -Message "  $line" -Color "DarkGray"
+        }
+    }
+    return $true
+}
+
+# v3.17.0 Phase 1.2: the $Scope parameter is now load-bearing. It was documented as
+# "Global" or "Workspace" since v0.9.x, but every call site passed "Global" and
+# Install-Workspace never called this function at all, so a -Workspace install
+# received no permission baseline on any operating system.
+#
+# Only CLAUDE is wired at workspace scope. The other three skip WITH A NOTE rather
+# than guessing:
+#   * GEMINI / CODEX -- no project-scoped permission path is documented well enough
+#     to write. A guessed path is worse than none: it looks configured and is not.
+#   * COPILOT -- its surface is .vscode\settings.json, which is COMMIT-VISIBLE. The
+#     plan forbids pushing a permission grant into a user's repository history
+#     without an explicit maintainer decision (same reasoning that made the v3.11.0
+#     Copilot .github\skills\ surface opt-in).
 function Install-Permissions {
     param(
         [string]$RepoRoot,
         [string]$Platform,          # "CLAUDE", "GEMINI", "CODEX", "COPILOT"
-        [string]$Scope              # "Global" or "Workspace"
+        [string]$Scope,             # "Global" or "Workspace"
+        [string]$TargetPath         # project root; required when Scope is "Workspace"
     )
+
+    if ($Scope -eq "Workspace") {
+        if (-not $TargetPath -or -not (Test-Path $TargetPath)) {
+            Write-Item -Message "Skip: workspace permissions need a valid target path" -Color "DarkGray"
+            return
+        }
+        switch ($Platform) {
+            "GEMINI" {
+                Write-Item -Message "Skip: Gemini has no documented project-scoped permission path (global scope only)" -Color "DarkGray"
+                return
+            }
+            "CODEX" {
+                Write-Item -Message "Skip: Codex has no documented project-scoped permission path (global scope only)" -Color "DarkGray"
+                return
+            }
+            "COPILOT" {
+                Write-Item -Message "Skip: Copilot's only permission surface is .vscode\settings.json, which is commit-visible" -Color "DarkGray"
+                Write-Item -Message "  A workspace grant there would enter your repository history; use a global install instead." -Color "Gray"
+                return
+            }
+        }
+    }
 
     $permDir = Join-Path $RepoRoot "configs\permissions"
 
@@ -1210,62 +1319,43 @@ function Install-Permissions {
                 return
             }
 
-            $templateJson = Get-Content $templateFile -Raw | ConvertFrom-Json
-            $newEntries = @($templateJson.permissions.allow)
+            if ($Scope -eq "Workspace") {
+                # settings.local.json, NEVER settings.json: the latter is
+                # commit-visible and would push a permission grant into the user's
+                # repository history. Confirmed target (maintainer decision,
+                # v3.17.0 Phase 1.2).
+                $configDir = Join-Path $TargetPath ".claude"
+                $settingsFile = Join-Path $configDir "settings.local.json"
+            }
 
-            if (Test-Path $settingsFile) {
-                # Counting new entries BEFORE merging avoids the stale-sentinel
-                # bug where a single fixed marker (e.g. WebFetch api.github.com)
-                # made the installer think permissions were "already installed"
-                # and skip merging new entries shipped in later versions.
-                try {
-                    $existingJson = Get-Content $settingsFile -Raw | ConvertFrom-Json
-
-                    # Ensure permissions.allow exists
-                    if (-not $existingJson.permissions) {
-                        $existingJson | Add-Member -NotePropertyName "permissions" -NotePropertyValue ([PSCustomObject]@{ allow = @() })
-                    }
-                    elseif (-not $existingJson.permissions.allow) {
-                        $existingJson.permissions | Add-Member -NotePropertyName "allow" -NotePropertyValue @()
-                    }
-
-                    # Union merge (deduplicate). Only write the file (and create
-                    # a backup) if the merge actually adds something new.
-                    $existing = @($existingJson.permissions.allow)
-                    $merged = @($existing + $newEntries | Select-Object -Unique)
-                    $addedCount = $merged.Count - $existing.Count
-
-                    if ($addedCount -eq 0) {
-                        Write-Item -Message "✓ Auto-approve permissions up to date in settings.json (0 new entries)" -Color "DarkGreen"
-                        return
-                    }
-
-                    # Backup before modifying
-                    $backupPath = "$settingsFile.bak.$(Get-Date -Format 'yyyyMMdd-HHmmss')"
-                    Copy-Item -Path $settingsFile -Destination $backupPath -Force
-                    Write-Item -Message "  Backup created: $backupPath" -Color "DarkGray"
-
-                    $existingJson.permissions.allow = $merged
-                    Write-JsonFile -Path $settingsFile -Object $existingJson
-                    Write-Item -Message "✓ $Scope auto-approve permissions added to settings.json ($addedCount new entries)" -Color "DarkGreen"
-                }
-                catch {
-                    Write-Item -Message "Warning: Could not merge permissions into settings.json ($($_.Exception.Message))" -Color "Yellow"
-                    return
-                }
+            # v3.17.0: one path for create AND merge, shared with installer.sh. The
+            # helper creates the file when absent, unions new entries, retires entries
+            # a prior Nexus-Hub version shipped and this one no longer does (never a
+            # user's own entry), backs up before any change, writes atomically, and
+            # strips the template's `_`-prefixed documentation keys.
+            if (Merge-PermissionsViaHelper -RepoRoot $RepoRoot -TemplateFile $templateFile `
+                    -SettingsFile $settingsFile -Key "permissions.allow" -Platform "CLAUDE") {
+                Write-Item -Message "[OK] $Scope auto-approve permissions synced in settings.json" -Color "DarkGreen"
             }
             else {
-                # No existing settings.json; create with permissions only
-                $newJson = [PSCustomObject]@{ permissions = [PSCustomObject]@{ allow = $newEntries } }
-                if (-not (Test-Path $configDir)) { New-Item -ItemType Directory -Force -Path $configDir | Out-Null }
-                Write-JsonFile -Path $settingsFile -Object $newJson
-                Write-Item -Message "✓ $Scope settings.json created with auto-approve permissions" -Color "DarkGreen"
+                return
             }
 
             Write-Item -Message "  Auto-approved: file reads, search (Glob/Grep), web search, git read-only commands" -Color "Gray"
             Write-Item -Message "  WebFetch: scoped to trusted domains (see $settingsFile to customize)" -Color "Gray"
             Write-Item -Message "  NOT auto-approved: file writes, destructive commands, git mutations, package installs" -Color "Gray"
             Write-Item -Message "  Config: $settingsFile" -Color "Gray"
+
+            # A workspace grant is only private if the file is actually ignored.
+            # settings.local.json is Claude Code's local-only convention, but nothing
+            # guarantees THIS repository ignores it, so check rather than assume.
+            if ($Scope -eq "Workspace" -and (Get-Command git -ErrorAction SilentlyContinue)) {
+                & git -C $TargetPath check-ignore -q $settingsFile
+                if ($LASTEXITCODE -ne 0) {
+                    Write-Item -Message "  Note: $settingsFile is NOT git-ignored in this project." -Color "DarkYellow"
+                    Write-Item -Message "  Add '.claude/settings.local.json' to .gitignore so the grant stays local." -Color "DarkYellow"
+                }
+            }
         }
 
         "GEMINI" {
@@ -1278,57 +1368,30 @@ function Install-Permissions {
                 return
             }
 
-            $templateJson = Get-Content $templateFile -Raw | ConvertFrom-Json
-            $newTools = @($templateJson.tools.allowed)
-            $newDomains = @($templateJson.allowedDomains)
-
-            if (Test-Path $settingsFile) {
-                $content = Get-Content $settingsFile -Raw
-                if ($content -match '"ReadFileTool"' -and $content -match '"allowedDomains"') {
-                    Write-Item -Message "✓ Auto-approve permissions already configured in settings.json" -Color "DarkGreen"
-                    return
-                }
-
-                try {
-                    $existingJson = $content | ConvertFrom-Json
-
-                    $backupPath = "$settingsFile.bak.$(Get-Date -Format 'yyyyMMdd-HHmmss')"
-                    Copy-Item -Path $settingsFile -Destination $backupPath -Force
-                    Write-Item -Message "  Backup created: $backupPath" -Color "DarkGray"
-
-                    # Merge tools.allowed
-                    if (-not $existingJson.tools) {
-                        $existingJson | Add-Member -NotePropertyName "tools" -NotePropertyValue ([PSCustomObject]@{ allowed = @() })
-                    }
-                    elseif (-not $existingJson.tools.allowed) {
-                        $existingJson.tools | Add-Member -NotePropertyName "allowed" -NotePropertyValue @()
-                    }
-                    $existingTools = @($existingJson.tools.allowed)
-                    $existingJson.tools.allowed = @($existingTools + $newTools | Select-Object -Unique)
-
-                    # Merge allowedDomains
-                    if (-not $existingJson.allowedDomains) {
-                        $existingJson | Add-Member -NotePropertyName "allowedDomains" -NotePropertyValue @()
-                    }
-                    $existingDomains = @($existingJson.allowedDomains)
-                    $existingJson.allowedDomains = @($existingDomains + $newDomains | Select-Object -Unique)
-
-                    Write-JsonFile -Path $settingsFile -Object $existingJson
-                    Write-Item -Message "✓ $Scope auto-approve permissions added to settings.json" -Color "DarkGreen"
-                }
-                catch {
-                    Write-Item -Message "Warning: Could not merge permissions into Gemini settings.json ($($_.Exception.Message))" -Color "Yellow"
-                    return
-                }
+            # v3.17.0 amendment A3, bug 1: this branch previously gated on fixed
+            # sentinels ('"ReadFileTool"' and '"allowedDomains"') to decide whether
+            # permissions were already configured. That is the identical stale-marker
+            # defect the CLAUDE branch was fixed for, and the bash sibling's
+            # `grep -q 'run_shell_command(docker ps)'` twin: because the sentinel
+            # entries are present in every existing user's settings.json, the branch
+            # returned early forever and those users never received newly-shipped
+            # entries -- including, critically, the v3.17.0 Phase 1.1 hardening. The
+            # sentinel is replaced by the same count-and-sync helper the CLAUDE branch
+            # uses, which is idempotent by construction and needs no marker.
+            $geminiOk = $true
+            if (-not (Merge-PermissionsViaHelper -RepoRoot $RepoRoot -TemplateFile $templateFile `
+                    -SettingsFile $settingsFile -Key "tools.allowed" -Platform "GEMINI")) {
+                $geminiOk = $false
+            }
+            if (-not (Merge-PermissionsViaHelper -RepoRoot $RepoRoot -TemplateFile $templateFile `
+                    -SettingsFile $settingsFile -Key "allowedDomains" -Platform "GEMINI_DOMAINS")) {
+                $geminiOk = $false
+            }
+            if ($geminiOk) {
+                Write-Item -Message "[OK] $Scope auto-approve permissions synced in settings.json" -Color "DarkGreen"
             }
             else {
-                if (-not (Test-Path $configDir)) { New-Item -ItemType Directory -Force -Path $configDir | Out-Null }
-                $newJson = [PSCustomObject]@{
-                    tools = [PSCustomObject]@{ allowed = $newTools }
-                    allowedDomains = $newDomains
-                }
-                Write-JsonFile -Path $settingsFile -Object $newJson
-                Write-Item -Message "✓ $Scope settings.json created with auto-approve permissions" -Color "DarkGreen"
+                return
             }
 
             Write-Item -Message "  Auto-approved: file reads, search, web search, git read-only shell commands" -Color "Gray"
@@ -1439,32 +1502,16 @@ function Install-Permissions {
                 return
             }
 
-            try {
-                $content = Get-Content $vscodeSettingsFile -Raw
-                if ($content -match 'useInstructionFiles.*true') {
-                    Write-Item -Message "✓ Copilot useInstructionFiles already enabled in VS Code settings" -Color "DarkGreen"
-                    return
-                }
-
-                $existingJson = $content | ConvertFrom-Json
-
-                $backupPath = "$vscodeSettingsFile.bak.$(Get-Date -Format 'yyyyMMdd-HHmmss')"
-                Copy-Item -Path $vscodeSettingsFile -Destination $backupPath -Force
-                Write-Item -Message "  Backup created: $backupPath" -Color "DarkGray"
-
-                $key = "github.copilot.chat.codeGeneration.useInstructionFiles"
-                if (-not ($existingJson.PSObject.Properties.Name -contains $key)) {
-                    $existingJson | Add-Member -NotePropertyName $key -NotePropertyValue $true
-                }
-                else {
-                    $existingJson.$key = $true
-                }
-
-                Write-JsonFile -Path $vscodeSettingsFile -Object $existingJson
-                Write-Item -Message "✓ $Scope VS Code settings updated with Copilot instruction file support" -Color "DarkGreen"
+            # v3.17.0: routed through the shared helper so both installers write this
+            # key with one implementation (it takes its own timestamped backup, writes
+            # atomically, and no-ops when the key is already true). The bash sibling
+            # previously required `jq` here and skipped without it, which is what made
+            # its Git-Bash path unreachable.
+            if (Merge-PermissionsViaHelper -RepoRoot $RepoRoot -SettingsFile $vscodeSettingsFile `
+                    -SetTrueKey "github.copilot.chat.codeGeneration.useInstructionFiles") {
+                Write-Item -Message "[OK] $Scope VS Code settings updated with Copilot instruction file support" -Color "DarkGreen"
             }
-            catch {
-                Write-Item -Message "Warning: Could not merge Copilot settings into VS Code settings.json ($($_.Exception.Message))" -Color "Yellow"
+            else {
                 return
             }
 
@@ -2045,6 +2092,32 @@ function Install-Workspace {
         if ($workspacePlatforms -contains "NEXUS_AI") {
             Write-Header -Provider "NEXUS"
             Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "nexus-ai" -DisplayName "Nexus-AI (Local Desktop Studio)"
+        }
+
+        # --- Auto-Approve Permissions sub-section ---
+        # v3.17.0 Phase 1.2: previously absent entirely, so a -Workspace install
+        # received no permission baseline on any operating system while the $Scope
+        # parameter of Install-Permissions sat decorative. Only CLAUDE has a
+        # confirmed project-scoped target (.claude\settings.local.json); the other
+        # three skip with a note stating why. Gated on the same -Platforms subset
+        # as the global block.
+        Write-CenteredBanner -Text "AUTO-APPROVE PERMISSIONS"
+
+        if ($workspacePlatforms -contains "CLAUDE") {
+            Write-Header -Provider "ANTHROPIC"
+            Install-Permissions -RepoRoot $RepoRoot -Platform "CLAUDE" -Scope "Workspace" -TargetPath $targetPath
+        }
+        if ($workspacePlatforms -contains "CODEX") {
+            Write-Header -Provider "OPENAI"
+            Install-Permissions -RepoRoot $RepoRoot -Platform "CODEX" -Scope "Workspace" -TargetPath $targetPath
+        }
+        if ($workspacePlatforms -contains "GEMINI") {
+            Write-Header -Provider "GOOGLE"
+            Install-Permissions -RepoRoot $RepoRoot -Platform "GEMINI" -Scope "Workspace" -TargetPath $targetPath
+        }
+        if ($workspacePlatforms -contains "COPILOT") {
+            Write-Header -Provider "MICROSOFT"
+            Install-Permissions -RepoRoot $RepoRoot -Platform "COPILOT" -Scope "Workspace" -TargetPath $targetPath
         }
 
         Write-Host ""
@@ -2635,6 +2708,19 @@ function Install-Templates {
     if (Test-Path $triggerEvalsSource) {
         Safe-Copy -Source $triggerEvalsSource -Destination (Join-Path $scriptsDest "run_trigger_evals.py") -Confirm:$true -CustomMessage "✓ Trigger-and-routing eval installed at: $scriptsDest\run_trigger_evals.py"
     }
+    # v3.17.0 Phase 1: permission-baseline tooling. Registered in lockstep with
+    # scripts/installer.sh -- merge_permissions.py is the single merge implementation
+    # BOTH installers call, so a divergence here reintroduces the exact drift that
+    # phase repaired. validate_permission_baseline.py guards the read-only baseline.
+    $mergePermissionsSource = Join-Path $RepoRoot "scripts\merge_permissions.py"
+    if (Test-Path $mergePermissionsSource) {
+        Safe-Copy -Source $mergePermissionsSource -Destination (Join-Path $scriptsDest "merge_permissions.py") -Confirm:$true -CustomMessage "✓ Permission merge helper installed at: $scriptsDest\merge_permissions.py"
+    }
+    $validateBaselineSource = Join-Path $RepoRoot "scripts\validate_permission_baseline.py"
+    if (Test-Path $validateBaselineSource) {
+        Safe-Copy -Source $validateBaselineSource -Destination (Join-Path $scriptsDest "validate_permission_baseline.py") -Confirm:$true -CustomMessage "✓ Permission-baseline validator installed at: $scriptsDest\validate_permission_baseline.py"
+    }
+
     $triggerEvalsAllowlistSource = Join-Path $RepoRoot "scripts\run_trigger_evals.allowlist.json"
     if (Test-Path $triggerEvalsAllowlistSource) {
         Safe-Copy -Source $triggerEvalsAllowlistSource -Destination (Join-Path $scriptsDest "run_trigger_evals.allowlist.json") -Confirm:$true -CustomMessage "✓ Trigger-eval allowlist installed at: $scriptsDest\run_trigger_evals.allowlist.json"

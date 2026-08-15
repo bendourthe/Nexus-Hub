@@ -27,24 +27,24 @@ Classification is about whether a documented lever EXISTS. Whether Nexus-Hub can
 
 | Platform (registry id) | Class | Lever keys | Config file | Surface alignment | Source | Verified |
 |---|---|---|---|---|---|---|
-| `aider` | VERIFIED | `model`, `reasoning-effort`, `thinking-tokens`, `yes-always`, `auto-commits` | `.aider.conf.yml` | Partial | [aider.chat](https://aider.chat/docs/config/aider_conf.html) | 2026-08-08 |
-| `antigravity` | UNVERIFIED | - | - | - | [antigravity.google](https://antigravity.google/docs/ide/settings) | 2026-08-08 |
-| `antigravity2` | VERIFIED | `toolPermission`, `artifactReviewPolicy`, `enableTerminalSandbox`, `allowNonWorkspaceAccess` | `~/.gemini/antigravity-cli/settings.json` | Near | [antigravity.google](https://antigravity.google/docs/cli/settings) | 2026-08-08 |
-| `claude` | VERIFIED | `effortLevel`, `model`, `env.CLAUDE_CODE_EFFORT_LEVEL` | `~/.claude/settings.json`, `.claude/settings.json` | Exact | [code.claude.com](https://code.claude.com/docs/en/settings) | 2026-08-08 |
-| `codex` | VERIFIED | `model`, `model_reasoning_effort`, `approval_policy`, `sandbox_mode` | `~/.codex/config.toml` | Exact | [learn.chatgpt.com](https://learn.chatgpt.com/docs/config-file/config-reference) | 2026-08-08 |
-| `copilot` | VERIFIED | `model`, `permissions.disableBypassPermissionsMode`, `sandbox.enabled`, `sandbox.allowBypass` | `~/.copilot/settings.json` | **Mismatch** | [docs.github.com](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-config-dir-reference) | 2026-08-08 |
-| `cursor` | VERIFIED | `approvalMode`, `sandbox.mode`, `sandbox.networkAccess` | `~/.cursor/cli-config.json` | Near | [cursor.com](https://cursor.com/docs/cli/reference/configuration) | 2026-08-08 |
-| `gemini` | UNVERIFIED | - | - | - | see detail | 2026-08-08 |
-| `gemini-cli` | VERIFIED | `model.name`, `general.defaultApprovalMode` | `~/.gemini/settings.json`, `.gemini/settings.json` | Exact | [github.com/google-gemini](https://github.com/google-gemini/gemini-cli/blob/main/docs/reference/configuration.md) | 2026-08-08 |
-| `hermes` | VERIFIED | `model.default`, `model.provider`, `reasoning_effort`, `skills.write_approval`, `memory.write_approval` | `~/.hermes/config.yaml` | Exact | [hermes-agent.nousresearch.com](https://hermes-agent.nousresearch.com/docs/user-guide/configuration) | 2026-08-08 |
-| `kimi` | VERIFIED | `default_model`, `thinking.effort`, `default_permission_mode`, `permission.rules` | `~/.kimi-code/config.toml` | Exact | [kimi.com](https://www.kimi.com/code/docs/en/kimi-code-cli/configuration/config-files.html) | 2026-08-08 |
-| `nexus-ai` | UNVERIFIED | - | - | - | see detail | 2026-08-08 |
-| `openclaw` | VERIFIED | `agents.defaults.model.primary`, `agents.defaults.model.fallbacks` | `~/.openclaw/openclaw.json` | Near | [docs.openclaw.ai](https://docs.openclaw.ai/gateway/configuration) | 2026-08-08 |
-| `opencode` | VERIFIED | `model`, `small_model`, `permission`, `default_agent` | `~/.config/opencode/opencode.json`, `opencode.json` | Exact | [opencode.ai](https://opencode.ai/docs/config/) | 2026-08-08 |
-| `qwen` | VERIFIED | `model.name`, `model.reasoningEffort`, `tools.approvalMode` | `~/.qwen/settings.json`, `.qwen/settings.json` | Exact | [qwenlm.github.io](https://qwenlm.github.io/qwen-code-docs/en/users/configuration/settings/) | 2026-08-08 |
-| `windsurf` | UNVERIFIED | - | - | - | [docs.devin.ai](https://docs.devin.ai/desktop/cascade/modes) | 2026-08-08 |
+| `aider` | VERIFIED | `model`, `reasoning-effort`, `thinking-tokens`, `yes-always`, `auto-commits` | `.aider.conf.yml` | Partial | [aider.chat](https://aider.chat/docs/config/aider_conf.html) | 2026-08-15 |
+| `antigravity` | UNVERIFIED | - | - | - | [antigravity.google](https://antigravity.google/docs/ide/settings) | 2026-08-15 |
+| `antigravity2` | VERIFIED | `toolPermission`, `artifactReviewPolicy`, `enableTerminalSandbox`, `allowNonWorkspaceAccess` | `~/.gemini/antigravity-cli/settings.json` | Near | [antigravity.google](https://antigravity.google/docs/cli/settings) | 2026-08-15 |
+| `claude` | VERIFIED | `effortLevel`, `model`, `env.CLAUDE_CODE_EFFORT_LEVEL` | `~/.claude/settings.json`, `.claude/settings.json` | Exact | [code.claude.com](https://code.claude.com/docs/en/settings) | 2026-08-15 |
+| `codex` | VERIFIED | `model`, `model_reasoning_effort`, `approval_policy`, `sandbox_mode` | `~/.codex/config.toml` | Exact | [learn.chatgpt.com](https://learn.chatgpt.com/docs/config-file/config-reference) | 2026-08-15 |
+| `copilot` | VERIFIED | `model`, `permissions.disableBypassPermissionsMode`, `sandbox.enabled`, `sandbox.allowBypass` | `~/.copilot/settings.json` | **Mismatch** | [docs.github.com](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-config-dir-reference) | 2026-08-15 |
+| `cursor` | VERIFIED | `approvalMode`, `sandbox.mode`, `sandbox.networkAccess` | `~/.cursor/cli-config.json` | Near | [cursor.com](https://cursor.com/docs/cli/reference/configuration) | 2026-08-15 |
+| `gemini` | VERIFIED | `geminicodeassist.agentYoloMode` | VS Code user settings JSON | **Mismatch** | [docs.cloud.google.com](https://docs.cloud.google.com/gemini/docs/codeassist/use-agentic-chat-pair-programmer) | 2026-08-15 |
+| `gemini-cli` | VERIFIED | `model.name`, `general.defaultApprovalMode` | `~/.gemini/settings.json`, `.gemini/settings.json` | Exact | [geminicli.com](https://geminicli.com/docs/cli/settings/) | 2026-08-15 |
+| `hermes` | VERIFIED | `model.default`, `model.provider`, `agent.reasoning_effort`, `skills.write_approval`, `memory.write_approval` | `~/.hermes/config.yaml` | Exact | [hermes-agent.nousresearch.com](https://hermes-agent.nousresearch.com/docs/user-guide/configuration/) | 2026-08-15 |
+| `kimi` | VERIFIED | `default_model`, `thinking.effort`, `default_permission_mode`, `permission.rules` | `~/.kimi-code/config.toml` | Exact | [kimi.com](https://www.kimi.com/code/docs/en/kimi-code-cli/configuration/config-files.html) | 2026-08-15 |
+| `nexus-ai` | UNVERIFIED | - | - | - | see detail | 2026-08-15 |
+| `openclaw` | VERIFIED | `agents.defaults.model.primary`, `agents.defaults.model.fallbacks` | `~/.openclaw/openclaw.json` | Near | [docs.openclaw.ai](https://docs.openclaw.ai/gateway/configuration) | 2026-08-15 |
+| `opencode` | VERIFIED | `model`, `small_model`, `permission`, `default_agent` | `~/.config/opencode/opencode.json`, `opencode.json` | Exact | [opencode.ai](https://opencode.ai/docs/config/) | 2026-08-15 |
+| `qwen` | VERIFIED | `model.name`, `model.reasoningEffort`, `tools.approvalMode` | `~/.qwen/settings.json`, `.qwen/settings.json` | Exact | [qwenlm.github.io](https://qwenlm.github.io/qwen-code-docs/en/users/configuration/settings/) | 2026-08-15 |
+| `windsurf` | UNVERIFIED | - | - | - | [docs.devin.ai](https://docs.devin.ai/desktop/cascade/modes) | 2026-08-15 |
 
-**Counts**: 12 VERIFIED, 4 UNVERIFIED, 16 total (matching the registry exactly).
+**Counts**: 13 VERIFIED, 3 UNVERIFIED, 16 total (matching the registry exactly).
 
 **Surface alignment** answers "does the documented config file sit where Nexus-Hub already installs for this platform?"
 
@@ -100,11 +100,11 @@ The Cursor CLI configuration reference documents a JSON schema whose keys includ
 
 **Two limitations recorded deliberately.** First, the documentation states there is **no default-model mechanism in the config file**; a `model` field exists as "Selected model configuration" but model selection happens through the `/model` slash command at runtime. Do not seed a Cursor default model on the strength of that field name alone. Second, only permissions are configurable at project level, so any behavioral default Nexus-Hub seeds for Cursor must go to the global file.
 
-### gemini - UNVERIFIED
+### gemini - VERIFIED (with a surface mismatch)
 
-Nexus-Hub registers `gemini` and `gemini-cli` as **two different integrations** that happen to share the `~/.gemini` home. `gemini-cli` has a verified settings contract (below). For `gemini` - the legacy Google surface that Nexus-Hub addresses with `GEMINI.md` - no official document was found that names a behavioral-default lever **for that specific surface**.
+Gemini Code Assist now documents `geminicodeassist.agentYoloMode` in the VS Code user settings JSON. Setting it to `true` enables automatic approval for agent actions in trusted workspaces. This is a real persistent lever for the legacy IDE surface and replaces the prior UNVERIFIED finding.
 
-**Reason UNVERIFIED**: transferring the `gemini-cli` lever to `gemini` would be reasoning by analogy across two products the registry deliberately keeps separate, which is precisely what the do-not-invent rule forbids. The read contract reinforces this: it records `~/.gemini/settings.json` under `gemini-cli` only, while `gemini`'s entry lists just `~/.gemini/skills`.
+**Surface alignment is Mismatch.** The key belongs to VS Code's OS-specific user-settings file, not `~/.gemini/settings.json` and not a documented project `.vscode/settings.json` contract. Nexus-Hub's `gemini` integration owns the shared `~/.gemini` content surface, not the editor's user profile. `configs/platform-defaults.json` therefore records the lever as verified but `not-writable`, and the project-only autonomy engine continues to expose no Gemini descriptor.
 
 **Collision warning for Phase 3**: because both integrations resolve to the same `~/.gemini` home, a `~/.gemini/settings.json` default written on behalf of `gemini-cli` **will also be read by anything else using that home**. Phase 3 must treat the `~/.gemini/settings.json` write as belonging to exactly one platform id to avoid two integrations racing to own one file.
 
@@ -116,7 +116,9 @@ Note that this platform is **enterprise-only** in Nexus-Hub post-2026-06-18 and 
 
 ### hermes - VERIFIED
 
-`~/.hermes/config.yaml` is documented as the primary config file, with resolution order CLI arguments, then `config.yaml`, then `.env`, then built-in defaults. Documented keys include `model.default`, `model.provider`, `reasoning_effort` (`none | minimal | low | medium | high | xhigh | max | ultra`), and the approval gates `skills.write_approval`, `skills.guard_agent_created`, and `memory.write_approval`.
+`~/.hermes/config.yaml` is documented as the primary config file, with resolution order CLI arguments, then `config.yaml`, then `.env`, then built-in defaults. Documented keys include `model.default`, `model.provider`, `agent.reasoning_effort` (`none | minimal | low | medium | high | xhigh | max | ultra`), and the approval gates `skills.write_approval`, `skills.guard_agent_created`, and `memory.write_approval`.
+
+**Drift corrected in v3.17.0.** The 2026-08-08 record and seeded default used top-level `reasoning_effort`. The current first-party page nests the global default under `agent.reasoning_effort` and states that `/reasoning <level> --global` persists to that path. The source manifest and regression test now enforce the nested shape.
 
 Surface alignment is **Exact**: `~/.hermes` is precisely the home Nexus-Hub already detection-gates this integration on.
 
@@ -172,6 +174,7 @@ Lever re-verification rides along with the existing `platform-contract-verificat
 
 | Date | Version | Scope | Outcome |
 |---|---|---|---|
+| 2026-08-15 | v3.17.0 | All sixteen registered integrations, full pass | 13 VERIFIED, 3 UNVERIFIED. Gemini Code Assist moved from UNVERIFIED to VERIFIED with a surface mismatch after its docs added `geminicodeassist.agentYoloMode`. Hermes remained VERIFIED but its reasoning key drifted from top-level `reasoning_effort` to `agent.reasoning_effort`; the source manifest and test were corrected. All other key names, paths, and source hosts remained aligned. |
 | 2026-08-08 | v3.16.0 | All sixteen registered integrations, first pass | 12 VERIFIED, 4 UNVERIFIED. Two doc-host redirects discovered and followed (Claude 301 to `code.claude.com`; OpenAI Codex 308 chain to `learn.chatgpt.com`). One rebrand confirmed first-hand (`docs.windsurf.com` 307 to `docs.devin.ai`). |
 | 2026-08-12 | v3.16.6 | Targeted ride-along on the read-contract pass (claude, codex only) | No drift signal observed on either vendor's docs during the read-contract fetches: no key rename, no config-path move, no new redirect. The other fourteen integrations were not re-fetched (targeted patch pass); the full lever re-verification rides with the full read-contract pass owed at v3.17.0. |
 

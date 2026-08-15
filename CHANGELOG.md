@@ -9,6 +9,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.17.0] - 2026-08-15
+
+Consent-gated, time-bounded workspace autonomy is now available through one shared engine, public CLI, and the Claude and Codex Usage Monitor extensions. The release also hardens permission baselines, propagates retired entries to existing installations, and makes installer parity a blocking local and CI contract. No breaking changes are introduced.
+
+### `nexus-hub autonomy` - Opt-in capability usage gate
+
+- **Activation:** from a clean feature branch, run `nexus-hub autonomy enable --platform <key> --tier edits --ttl 60`. The command previews the exact configuration diff and requires interactive confirmation. Use `--tier full` only when full autonomy is required; it additionally requires typing the project directory name. The allowed TTL is 1 through 480 minutes.
+- **Validation:** run `nexus-hub autonomy status` to read back every platform's support state, active tier, and remaining TTL. Use `nexus-hub autonomy status --json` for local integrations.
+- **Rollback:** run `nexus-hub autonomy disable --platform <key>` or `nexus-hub autonomy revert --platform <key>`. Either operation restores the recorded configuration backup and clears that platform's autonomy state; expiry performs the same restoration automatically.
+- **Authority:** activation grants only the selected verified project-scoped platform lever for the requested tier and TTL. It does **not** grant global authority, make an unsupported or global-only platform writable, bypass protected-branch or dirty-worktree refusal, bypass the execution-trigger guard, stage or commit changes, or remove the user's ability to revert. Enablement requires a real Git repository, clean worktree, non-protected branch, interactive terminal, and explicit confirmation.
+- **Docs:** see [What's New in v3.17.0](README.md#whats-new-in-v3170), `nexus-hub autonomy --help`, the [v3.17.0 implementation plan](docs/v3/v3.17/plans/v3.17.0-agent-autonomy-toggle.md), and the [phase histories](docs/v3/v3.17/development/history/).
+
+### Security
+
+- **Autonomy cannot write configuration that a trusted host component later executes** (v3.17.0 Phase 4). A paired `PreToolUse` guard blocks the canonical agent-hook, editor-task, Git-hook, Cursor, and virtual-environment trigger paths whenever project autonomy state exists, including traversal and symlink aliases. Claude Code 2.1.156 was verified empirically: exit-2 hooks still blocked both Bash and Write calls under `acceptEdits`, `bypassPermissions`, and `--dangerously-skip-permissions`.
+- **Workspace autonomy is now guarded by enforced consent, repository, branch, and expiry gates** (v3.17.0 Phase 3). The stdlib-only core refuses global descriptors, dirty worktrees, protected branches, invalid TTLs, and unconfirmed full autonomy; writes are previewed, backed up, atomic, project-scoped, and recorded in a locked append-only audit log. Expired state reverts through paired Bash and PowerShell SessionStart hooks, and a missing backup fails safe without erasing the visible stale state.
+- **The read-only auto-approve baseline is now read-only at the side-effect level** (v3.17.0 Phase 1.1). 25 entries that were classified read-only by command NAME rather than by what they can do were removed from `configs/permissions/claude-permissions.json` and `configs/permissions/gemini-permissions.json`, each with a one-line rationale in a new `_hardening` block. Notable: `Bash(gh api *)` admits `--method DELETE`; `Bash(find *)` admits `-fprintf`; `Bash(git branch|tag|remote *)` admit `-D`, `-d`, and `set-url`; `Bash(xcrun *)` executes an arbitrary named tool; `Bash(sort *)` admits `-o FILE`. Pinned read-only replacements keep coverage loss minimal, and `echo` / `cat` / `printf` / `find` globs were dropped because Claude Code's built-in read-only set already covers them with real redirect analysis, so a glob could only widen the grant past that analysis. PowerShell `Test-Connection`, `Test-NetConnection`, and `Resolve-DnsName` were removed as arbitrary outbound reach from an auto-approved pattern, recorded as a decision rather than an oversight.
+- **Retired entries now reach existing installs, not only fresh ones.** The merge was a pure union, so an entry deleted from a shipped template stayed auto-approved forever on every already-installed host - meaning the hardening above would have protected nobody who already had Nexus-Hub. Removal propagation retires an entry only when a recorded manifest proves a prior Nexus-Hub version shipped it and the current template does not, so an entry the user added by hand can never be mistaken for a stale one. A timestamped backup is taken first and every removal is reported.
+
+### Added
+
+- **Public time-bounded autonomy controls** (v3.17.0 Phase 5). `nexus-hub autonomy` now exposes status, enable, disable, and revert through one cross-platform CLI, defaults to the edits tier, prints the core's exact diff before confirmation, refuses full autonomy without an interactive terminal, and reports unsupported platforms without guessing a lever. The Claude and Codex Usage Monitor extensions add persistent tier/TTL indicators and CLI-backed toggles, including visible full-tier confirmation and an explicit unavailable state when the CLI is missing; versions are now 0.9.7 and 0.2.8 respectively.
+- **Consequential decision walkthroughs on every substantive instruction surface** (v3.17.0 Phase 5 amendment). All twelve platform templates now require a short plain-language explanation of the current work, relevant moving parts, options including doing nothing, and a reasoned recommendation before security, destructive, distributed-behavior, or scope-expansion decisions. The canonical block is an invariant in the template-parity validator, and the planning, implementation, refactor, known-gap, and release gates point back to it at decision time.
+- **Dedicated autonomy security CI** (v3.17.0 Phase 3). A path-filtered, cancel-in-progress workflow runs the security-critical core and hook checks on Linux, macOS, and Windows for pull requests and protected-branch pushes; the fixed three-OS exception is documented so later cost optimization cannot silently weaken it.
+- **`scripts/validate_permission_baseline.py`** (v3.17.0 Phase 1.3): a stdlib-only validator that classifies allowlist entries by invocation SHAPE rather than command name, covering `Bash(...)`, `PowerShell(...)`, and `run_shell_command(...)` prefixes, canonicalizing PowerShell aliases before matching, and modeling glob versus prefix matcher semantics. Wired into `make validate` and the CI `validate` job as a hard gate.
+- **Workspace-scope permission installs.** `install_permissions` took a `scope` parameter that every call site passed as `"Global"`, and the workspace installer never called it at all, so `--workspace` installed no baseline on any operating system. Claude Code is now wired to the project's `.claude/settings.local.json` (never the commit-visible `settings.json`), with an advisory note when the project does not actually git-ignore it. Gemini, Codex, and Copilot skip with a stated reason rather than a guessed path.
+
+### Fixed
+
+- **Autonomy status now reports the full registered platform roster.** Active entries retain their exact tier and remaining TTL, supported inactive integrations report `off`, and descriptorless integrations report unavailable; preview mode produces the same diff as enablement without writing config, state, backup, or audit files.
+- **Permission installs no longer require `jq`** (v3.17.0 Phase 1.2). macOS ships no `jq`, so a stock Mac printed a warning and installed NO auto-approve baseline while Windows installed one. Both installers now call one shared `scripts/merge_permissions.py`.
+- **Windows kept mutation-capable entries that macOS and Linux retired.** `installer.ps1` performed its own native union merge, so removal propagation worked on two operating systems and silently did nothing on the third. It now calls the same shared helper; the two installers are asserted byte-identical for the same input by test.
+- **Copilot configuration no longer skips silently on Windows Git-Bash.** The bash OS switch handled only `Darwin*` and `Linux*`, so `MINGW64_NT*` / `MSYS_NT*` / `CYGWIN*` fell through to a skip. Those now map to the same `%APPDATA%\Code\User\settings.json` path `installer.ps1` uses, and the branch no longer needs `jq` - which Git-Bash does not ship, and without which the new path would have resolved and then done nothing.
+- **The Gemini branch's stale sentinel no longer blocks upgrades**, in both installers. It gated on a fixed marker (`run_shell_command(docker ps)` in bash, `"ReadFileTool"` in PowerShell) that is present in every existing user's config, so the branch returned early forever and those users never received newly-shipped entries. Replaced by the same count-and-sync path the Claude branch uses, which is idempotent by construction.
+- **Template documentation keys no longer leak into live configs.** The old no-`jq` creation path used a plain `cp` and copied `_description` and `_hardening` into the user's settings file.
+- **The bash description hook's tests no longer break when the baseline is hardened.** `catalog/hooks/tests/test_format_bash_description.py` builds its pattern list from the live `claude-permissions.json`, so removing `awk`, `find`, `cat`, and `echo` broke 14 tests in it. Seven exercise the PARSER (if/elif/else, `select`, for-loop bodies, prefix variable assignments) and merely used `echo` as filler; those now measure against a fixed pattern list, so catalog policy and parser behavior cannot break each other again. The other seven were about policy and are inverted with the reasoning recorded inline, plus a new guard asserting the rest of the pipeline vocabulary survived the removals.
+- **Windows autonomy hooks no longer depend on native-pipeline stdin behavior.** Integration CI proved that Windows PowerShell could resolve every dependency but dropped the JSON string while piping it to the native Python child. The adapter now parses the payload in PowerShell and passes the engine's existing explicit `--path` option, retaining one shared path-policy implementation.
+- **Integration CI is compatible with the current dependency and evidence contracts.** Defaults provenance URLs were corrected, both usage-monitor Vitest configs use the native-loader-safe `.mts` extension, and the Codex Usage Monitor lockfile was repaired for npm 10 clean installs.
+
 ## [3.16.8] - 2026-08-14
 
 ### Opt-in capability changes (release capability usage gate)
@@ -5063,7 +5102,9 @@ repository_root/
 
 ---
 
-[Unreleased]: https://github.com/bendourthe/DevAI-Hub/compare/v1.3.0...HEAD
+[Unreleased]: https://github.com/bendourthe/Nexus-Hub/compare/v3.17.0...HEAD
+[3.17.0]: https://github.com/bendourthe/Nexus-Hub/compare/v3.16.8...v3.17.0
+[3.16.8]: https://github.com/bendourthe/Nexus-Hub/compare/v3.16.7...v3.16.8
 [1.3.0]: https://github.com/bendourthe/DevAI-Hub/compare/v1.2.1...v1.3.0
 [1.2.1]: https://github.com/bendourthe/DevAI-Hub/compare/v1.2.0...v1.2.1
 [1.1.5]: https://github.com/bendourthe/DevAI-Hub/compare/v1.1.4...v1.1.5

@@ -68,7 +68,7 @@ This skill operates on:
 2. **Active-version Detection** — resolves the active version from `--active-version`, `CHANGELOG.md`, latest git tag, or the `docs/v*/` version tree. The active major is the cut-off for prior-version archival.
 3. **Inventory and Classification** — every in-scope file and directory is classified Stay / Move / Archive / Prune / Consolidate / Ambiguous against the loaded rules, the prior-version heuristics, and the cleanliness detectors: empty directories, redundant/duplicate files and dirs, non-version orphans (zero inbound references), and overcomplicated structure (deep nesting, single-child chains, over-fragmentation). See "Detecting Empty and Redundant Artifacts" and "Structure-Complexity Heuristics" below.
 4. **Impact Analysis** — finds every reference to each file that will move or be archived, across all file types, before touching anything. CI/CD references are flagged HIGH risk.
-5. **Confirmation Gate** — propose-only by default; never moves a file without explicit user approval at the gate.
+5. **Confirmation Gate** — propose-only by default; follow the active instruction template's `Consequential Decisions` rule before requesting approval, and never move a file without explicit user approval at the gate.
 6. **Safe Move Protocol** — copy + verify + delete (never deletes without confirming the copy succeeded; verifies size + sha256 prefix for files > 1 KB).
 7. **Reference Repair** — updates all auto-fixable path references in `.md`, `.py`, `.sh`, `.ps1`, `.bat`, `.json`, `.yaml`, `.toml`, and source files.
 8. **Verification** — re-scans for stale references, runs a CI/CD sanity pass, and confirms structural compliance after the refactor.

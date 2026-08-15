@@ -79,7 +79,7 @@ def test_freshness_checker_is_not_wired_into_any_gate(label: str, path: Path) ->
     """
     assert FRESHNESS_SCRIPT not in _executable_lines(path), (
         f"{label} invokes {FRESHNESS_SCRIPT}.py, making profile freshness a blocking "
-        f"gate. It is ADVISORY by design; see /update release governance step 5."
+        f"gate. It is ADVISORY by design; see /update release governance step 6."
     )
 
 
@@ -187,7 +187,7 @@ def test_the_final_phase_gate_defers_instead_of_duplicating(runbook: str) -> Non
     gate = runbook[runbook.index("### 9.0"):runbook.index("### 9A")]
 
     assert "Do NOT duplicate its logic" in gate
-    assert "governance step 5" in gate, "the gate should point at the canonical description"
+    assert "governance step 6" in gate, "the gate should point at the canonical description"
 
 
 def test_the_final_phase_gate_states_it_never_blocks(runbook: str) -> None:
