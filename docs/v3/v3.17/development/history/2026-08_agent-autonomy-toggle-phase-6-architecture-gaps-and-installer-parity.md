@@ -4,7 +4,7 @@
 **Operator**: Benjamin Dourthe
 **Assisted by**: OpenAI Codex
 **Objective**: Complete the terminal architecture, known-gaps, CI/CD, installer-parity, platform-contract, and release-readiness phase for the agent autonomy toggle.
-**Outcome**: Phase 6 implementation and focused verification are complete on `feat/v3.17.0-agent-autonomy-toggle`. No commit, push, tag, merge, or release was performed; publication remains subject to the final user choice and `/update release`.
+**Outcome**: Phase 6 implementation, BG-4 reconciliation, `develop` integration, and protected-branch CI are complete. No version bump, tag, or release was performed; publication remains owned by `/update release`.
 
 ---
 
@@ -40,7 +40,7 @@ Context: Phases 1 through 5 had delivered the permission baseline, autonomy desc
 
 **Plan specification**: Resolve, defer, or transfer every open v3.17.0 item, including autonomy non-delivery, permission coverage, Hermes installer wiring, matcher uncertainty, and Windows warnings.
 
-**What happened**: After the first two protected-branch runs, the ledger records 13 open, 7 closed, and one release blocker. It explicitly names the eight descriptor-free integrations, twelve integrations without a read-only baseline, Hermes installer non-delivery, the standalone permissions-helper asymmetry, both matcher probes, the Windows Gemini baseline gap, and the Phase 4 Claude-only hook evidence boundary. The Claude and Codex usage-monitor Vitest configs were renamed from `.ts` to `.mts`, closing WN-3 without changing test behavior. BG-4 was closed during integration by reconciling the feature branch with current `origin/develop`, restoring every revert-owned artifact, and verifying the silent-deletion paths. The first protected-branch run then exposed BG-5 through BG-7. BG-6 and BG-7 are remotely green; BG-5's first repair failed under the hosted parent-shell topology, and its raw-handle follow-up awaits the authoritative Windows rerun.
+**What happened**: After protected-branch integration and repair, the ledger records 12 open, 8 closed, and zero release blockers. It explicitly names the eight descriptor-free integrations, twelve integrations without a read-only baseline, Hermes installer non-delivery, the standalone permissions-helper asymmetry, both matcher probes, the Windows Gemini baseline gap, and the Phase 4 Claude-only hook evidence boundary. The Claude and Codex usage-monitor Vitest configs were renamed from `.ts` to `.mts`, closing WN-3 without changing test behavior. BG-4 was closed during integration by reconciling the feature branch with current `origin/develop`, restoring every revert-owned artifact, and verifying the silent-deletion paths. Protected-branch CI then exposed BG-5 through BG-7. BG-6 and BG-7 passed after the defaults provenance and npm 10 lockfile repairs. Hosted tracing isolated BG-5 to the native PowerShell-to-Python stdin pipeline; the final adapter parses the payload and forwards `--path` explicitly, and the authoritative Windows rerun passed.
 
 **Key files changed**: `docs/v3/v3.17/known-gaps.md`, `extensions/claude-usage-monitor/vitest.config.mts`, `extensions/codex-usage-monitor/vitest.config.mts`
 
@@ -132,10 +132,10 @@ Every workflow has concurrency cancellation and explicit timeouts; dependency-he
 | Issue | Severity | Decision |
 |---|---|---|
 | BG-4: `develop` reverted the Phase 1 checkpoint while this branch was based on v3.16.6 | Resolved | Merged current `origin/develop` into the feature branch first, restored every revert-owned artifact, then passed the exact 80-test regression suite and hard validators |
-| BG-5: Windows PowerShell discards the autonomy hook payload on the hosted runner | Open, release-blocking | Hosted tracing isolated the native PowerShell-to-Python pipeline; parse JSON in the adapter, forward `--path` explicitly, and require hosted confirmation |
+| BG-5: Windows PowerShell discarded the autonomy hook payload on the hosted runner | Resolved | Hosted tracing isolated the native PowerShell-to-Python pipeline; the adapter now parses JSON, forwards `--path` explicitly, and passed Windows job `95060274953` |
 | BG-6: defaults provenance URLs disagreed with the verified contract | Resolved | Aligned Hermes, Gemini CLI, and Gemini Code Assist URLs and passed all 23 contract tests plus 695 validators |
 | BG-7: npm 10 rejected the Claude monitor lock graph | Resolved | Regenerated the lock with npm 10.9.4 and passed clean install, compile, 11 tests with coverage, and packaging |
-| Local full-suite duration exceeds the bounded Windows verification budget | P2 | Rely on focused local evidence plus the remote protected-branch CI matrix before release |
+| Local full-suite duration exceeds the bounded Windows verification budget | P2 | Focused local evidence plus the green protected-branch CI matrix provides the release gate |
 | Temporary smoke directory remains outside the repository because cleanup was blocked by the execution policy | Cosmetic | Reported; no repository artifact is affected |
 | 12 open known gaps | P2 or lower | Carried with explicit dispositions; zero are release blockers |
 
@@ -145,7 +145,7 @@ Every workflow has concurrency cancellation and explicit timeouts; dependency-he
 
 - The Phase 6 model recommendation was upshifted from the legacy strong/high entry to frontier/max because the phase combines repository-wide architecture, security-sensitive installer parity, and live vendor-contract decisions.
 - The machine freshness stamp now matches the reconciled tree's canonical 3.16.8 version. The full evidence pass is prepared for v3.17.0, but `/update release` owns the version bump and must advance the stamp with the canonical version files.
-- The full local Python suite could not be claimed green because it exceeded the bounded 15-minute Windows run. Focused suites, hard validators, and real Windows installer smoke are green; protected-branch remote CI is the authoritative full-suite integration gate.
+- The full local Python suite could not be claimed green because it exceeded the bounded 15-minute Windows run. Focused suites, hard validators, real Windows installer smoke, and protected-branch remote CI are green; the remote matrix is the authoritative full-suite integration evidence.
 
 ---
 
@@ -176,7 +176,7 @@ Every workflow has concurrency cancellation and explicit timeouts; dependency-he
 
 ### Manual Testing Still Needed
 
-- [ ] Run the protected-branch GitHub Actions checks, including hosted macOS and Linux real-installer legs.
+- [x] Run the protected-branch GitHub Actions checks, including hosted macOS and Linux real-installer legs. CI run `31904566621`, autonomy-security run `31904566683`, and Doc Co-location run `31904566521` passed on integrated code commit `a14c9812`.
 - [x] Resolve BG-4 explicitly when integrating the feature branch into the current `develop` tip.
 - [ ] Run `/update release` only after green integration to bump versions, advance the contract stamp, generate release notes, tag, and publish.
 
@@ -194,13 +194,13 @@ Every workflow has concurrency cancellation and explicit timeouts; dependency-he
 
 ### Remaining (Not Started or Partially Done)
 
-- [ ] User selects commit only, commit and push, amend, or stop without commit.
-- [ ] Protected-branch CI runs after publication or integration.
+- [x] User approved commit and integration publication.
+- [x] Protected-branch CI passed after integration.
 - [ ] `/update release` performs the versioned v3.17.0 release workflow.
 
 ### Out of Scope (Deferred)
 
-- [ ] The 13 non-blocking items in `docs/v3/v3.17/known-gaps.md`.
+- [ ] The 12 non-blocking items in `docs/v3/v3.17/known-gaps.md`.
 - [ ] Broad Ruff cleanup of the integration framework.
 - [ ] Expanding read-only permission baselines to the other twelve integrations.
 
@@ -208,9 +208,8 @@ Every workflow has concurrency cancellation and explicit timeouts; dependency-he
 
 ## 9. Summary and Next Steps
 
-Phase 6 is implementation-complete and BG-4 is resolved. Installer parity is now a generic standing hard gate, every pipeline has an explicit optimize-or-retain decision, the platform contracts have fresh evidence, and the known-gaps ledger is reconciled. Protected-branch remote CI remains the authoritative integration gate before release work begins.
+Phase 6, BG-4 integration handling, and protected-branch remote CI are complete. Installer parity is now a generic standing hard gate, every pipeline has an explicit optimize-or-retain decision, the platform contracts have fresh evidence, and the known-gaps ledger is reconciled with zero release blockers.
 
 **Next session should**:
 
-1. Run protected-branch remote CI for the reconciled `develop` integration.
-2. Invoke `/update release` for v3.17.0 only after integration is green.
+1. Invoke `/update release` for v3.17.0.
