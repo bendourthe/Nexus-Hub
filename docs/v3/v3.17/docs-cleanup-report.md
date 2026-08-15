@@ -11,10 +11,10 @@
 | Cat 1 (delete) | 0 |
 | Cat 2 (archive) | 0 |
 | Cat 3 (stale-flag) | 0 |
-| Cat 4 (active) | 11 |
-| **Total** | **11** |
+| Cat 4 (active) | 12 |
+| **Total** | **12** |
 
-The scoped inventory and reference graph completed successfully. All v3.17 planning, research, evidence, and history artifacts remain current. The Phase 5 session history brings the scoped total to eleven active artifacts. No file move, deletion, or archive action is proposed.
+The scoped inventory and reference graph completed successfully. All v3.17 planning, research, evidence, and history artifacts remain current. The Phase 6 session history brings the scoped total to twelve active artifacts. No file move, deletion, or archive action is proposed.
 
 ## Dispositions
 
@@ -30,6 +30,7 @@ The scoped inventory and reference graph completed successfully. All v3.17 plann
 | `docs/v3/v3.17/development/history/2026-08-14_agent-autonomy-toggle-phase-3-core-consent-ttl-and-audit.md` | Cat 4 | Active version | Keep | Phase 3 history |
 | `docs/v3/v3.17/development/history/2026-08-14_agent-autonomy-toggle-phase-4-deny-layer-and-hook-independence.md` | Cat 4 | Active version | Keep | Phase 4 history |
 | `docs/v3/v3.17/development/history/2026-08-15_agent-autonomy-toggle-phase-5-cli-monitors-and-decision-walkthrough.md` | Cat 4 | Active version | Keep | Phase 5 history |
+| `docs/v3/v3.17/development/history/2026-08_agent-autonomy-toggle-phase-6-architecture-gaps-and-installer-parity.md` | Cat 4 | Active version | Keep | Phase 6 history |
 | `docs/v3/v3.17/docs-cleanup-report.md` | Cat 4 | Active audit artifact | Keep | This report |
 
 ## Cat 3 Refresh Queue
@@ -50,7 +51,8 @@ docs/v3/v3.17/
 |       |-- 2026-08-14_agent-autonomy-toggle-phase-2-capability-model-and-lever-verification.md
 |       |-- 2026-08-14_agent-autonomy-toggle-phase-3-core-consent-ttl-and-audit.md
 |       |-- 2026-08-14_agent-autonomy-toggle-phase-4-deny-layer-and-hook-independence.md
-|       `-- 2026-08-15_agent-autonomy-toggle-phase-5-cli-monitors-and-decision-walkthrough.md
+|       |-- 2026-08-15_agent-autonomy-toggle-phase-5-cli-monitors-and-decision-walkthrough.md
+|       `-- 2026-08_agent-autonomy-toggle-phase-6-architecture-gaps-and-installer-parity.md
 `-- plans/
     |-- v3.17.0-agent-autonomy-toggle.md
     `-- v3.17.1-org-knowledge-layer.md

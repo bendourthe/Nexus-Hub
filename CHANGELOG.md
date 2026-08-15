@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.17.0] - 2026-08-15
+
+Consent-gated, time-bounded workspace autonomy is now available through one shared engine, public CLI, and the Claude and Codex Usage Monitor extensions. The release also hardens permission baselines, propagates retired entries to existing installations, and makes installer parity a blocking local and CI contract. No breaking changes are introduced.
+
+### `nexus-hub autonomy` - Opt-in capability usage gate
+
+- **Activation:** from a clean feature branch, run `nexus-hub autonomy enable --platform <key> --tier edits --ttl 60`. The command previews the exact configuration diff and requires interactive confirmation. Use `--tier full` only when full autonomy is required; it additionally requires typing the project directory name. The allowed TTL is 1 through 480 minutes.
+- **Validation:** run `nexus-hub autonomy status` to read back every platform's support state, active tier, and remaining TTL. Use `nexus-hub autonomy status --json` for local integrations.
+- **Rollback:** run `nexus-hub autonomy disable --platform <key>` or `nexus-hub autonomy revert --platform <key>`. Either operation restores the recorded configuration backup and clears that platform's autonomy state; expiry performs the same restoration automatically.
+- **Authority:** activation grants only the selected verified project-scoped platform lever for the requested tier and TTL. It does **not** grant global authority, make an unsupported or global-only platform writable, bypass protected-branch or dirty-worktree refusal, bypass the execution-trigger guard, stage or commit changes, or remove the user's ability to revert. Enablement requires a real Git repository, clean worktree, non-protected branch, interactive terminal, and explicit confirmation.
+- **Docs:** see [What's New in v3.17.0](README.md#whats-new-in-v3170), `nexus-hub autonomy --help`, the [v3.17.0 implementation plan](docs/v3/v3.17/plans/v3.17.0-agent-autonomy-toggle.md), and the [phase histories](docs/v3/v3.17/development/history/).
+
 ### Security
 
 - **Autonomy cannot write configuration that a trusted host component later executes** (v3.17.0 Phase 4). A paired `PreToolUse` guard blocks the canonical agent-hook, editor-task, Git-hook, Cursor, and virtual-environment trigger paths whenever project autonomy state exists, including traversal and symlink aliases. Claude Code 2.1.156 was verified empirically: exit-2 hooks still blocked both Bash and Write calls under `acceptEdits`, `bypassPermissions`, and `--dangerously-skip-permissions`.
@@ -33,6 +45,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **The Gemini branch's stale sentinel no longer blocks upgrades**, in both installers. It gated on a fixed marker (`run_shell_command(docker ps)` in bash, `"ReadFileTool"` in PowerShell) that is present in every existing user's config, so the branch returned early forever and those users never received newly-shipped entries. Replaced by the same count-and-sync path the Claude branch uses, which is idempotent by construction.
 - **Template documentation keys no longer leak into live configs.** The old no-`jq` creation path used a plain `cp` and copied `_description` and `_hardening` into the user's settings file.
 - **The bash description hook's tests no longer break when the baseline is hardened.** `catalog/hooks/tests/test_format_bash_description.py` builds its pattern list from the live `claude-permissions.json`, so removing `awk`, `find`, `cat`, and `echo` broke 14 tests in it. Seven exercise the PARSER (if/elif/else, `select`, for-loop bodies, prefix variable assignments) and merely used `echo` as filler; those now measure against a fixed pattern list, so catalog policy and parser behavior cannot break each other again. The other seven were about policy and are inverted with the reasoning recorded inline, plus a new guard asserting the rest of the pipeline vocabulary survived the removals.
+- **Windows autonomy hooks no longer depend on native-pipeline stdin behavior.** Integration CI proved that Windows PowerShell could resolve every dependency but dropped the JSON string while piping it to the native Python child. The adapter now parses the payload in PowerShell and passes the engine's existing explicit `--path` option, retaining one shared path-policy implementation.
+- **Integration CI is compatible with the current dependency and evidence contracts.** Defaults provenance URLs were corrected, both usage-monitor Vitest configs use the native-loader-safe `.mts` extension, and the Codex Usage Monitor lockfile was repaired for npm 10 clean installs.
 
 ## [3.16.8] - 2026-08-14
 
@@ -5088,7 +5102,9 @@ repository_root/
 
 ---
 
-[Unreleased]: https://github.com/bendourthe/DevAI-Hub/compare/v1.3.0...HEAD
+[Unreleased]: https://github.com/bendourthe/Nexus-Hub/compare/v3.17.0...HEAD
+[3.17.0]: https://github.com/bendourthe/Nexus-Hub/compare/v3.16.8...v3.17.0
+[3.16.8]: https://github.com/bendourthe/Nexus-Hub/compare/v3.16.7...v3.16.8
 [1.3.0]: https://github.com/bendourthe/DevAI-Hub/compare/v1.2.1...v1.3.0
 [1.2.1]: https://github.com/bendourthe/DevAI-Hub/compare/v1.2.0...v1.2.1
 [1.1.5]: https://github.com/bendourthe/DevAI-Hub/compare/v1.1.4...v1.1.5

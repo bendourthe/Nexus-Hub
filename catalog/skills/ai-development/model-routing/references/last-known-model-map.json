@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "verified_as_of": "2026-08-14",
+  "verified_as_of": "2026-08-15",
   "tiers": {
     "frontier": {
       "Anthropic": "claude-fable-5",
@@ -28,6 +28,7 @@
     }
   },
   "notes": {
+    "refresh_2026_08_15": "Re-verified against live first-party documentation during v3.17.0 release preparation. No tier value changed from the 2026-08-14 refresh: Anthropic continues to list Fable 5, Opus 5, Sonnet 5, and Haiku 4.5; OpenAI continues to list the general 5.6 sol, terra, and luna family; Google's changelog continues to list gemini-3.7-flash; and Cursor continues to list Grok 4.6, Grok 4.5, Composer 2.5, and the fast Composer variant.",
     "refresh_2026_08_14": "Refreshed from live first-party documentation. Anthropic: no drift. Google: gemini-3.7-flash shipped 2026-08-13 and takes frontier, displacing gemini-3.1-pro-preview; that placement is a judgment, since Google's changelog describes the Flash line from 3.5 onward as its most intelligent tier for sustained agentic and coding work, so a Pro-preview id no longer plausibly leads. Cursor: Grok 4.6 is now offered, so cursor-grok-4.6 takes frontier and 4.5 moves to strong; the docs list a Fast variant but NO -high variant for 4.6, so the prior cursor-grok-4.5-high id is dropped rather than renamed to a 4.6-high that was not observed. OpenAI: the API model list documents only the 5.6 family (sol, terra, luna, plus the specialized cyber); the previous gpt-5.5 standard value is NOT in it, so terra covers strong and standard rather than inventing an id, and luna takes fast.",
     "deliberately_unmapped": "claude-mythos-5 shares claude-fable-5's specs and pricing but is invitation-only under Project Glasswing, so it is not mapped: a tier value must name a model the user's account can actually reach. Same rule excludes gpt-5.6-cyber, which is a specialized cybersecurity model rather than a general tier.",
     "staleness_lesson": "This file went 11 days stale (2026-08-03 to 2026-08-14) across two releases without being refreshed, because the release flow's prompting-freshness step is ADVISORY and degrades to UNKNOWN when no live roster is enumerated. Accepting UNKNOWN is not the same as checking. Enumerate the roster and pass it, or refresh this file, rather than recording the degradation and moving on."
