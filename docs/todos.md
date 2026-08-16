@@ -38,6 +38,7 @@
 | Cursor hook portability tasks complete | 4 | 4 | 0 |
 | Usage monitor color-race tasks complete | 2 | 2 | 0 |
 | Codex Extra Credits payload tasks complete | 2 | 2 | 0 |
+| Codex credit display tasks complete | 3 | 3 | 0 |
 
 ## Corrective Patch - Cursor Hook Portability [DONE]
 
@@ -55,6 +56,12 @@
 
 - [x] Map the live `spend_control.individual_limit` response into detailed Extra Credits usage
 - [x] Add a live-shaped 225-of-5,000 regression fixture and pass the full Codex extension gate
+
+## Corrective Patch - Codex Extra Credits Display [DONE]
+
+- [x] Round used and limit credit counts to whole numbers in every display surface
+- [x] Render paired live USD amounts without a hard-coded credit conversion and omit incomplete monetary data
+- [x] Align the dashboard and hover layouts, then pass the focused and full Codex extension gates
 
 ## Release Candidate - v3.17.3 Cursor Hook Portability and Usage Monitor Reliability [DONE]
 

@@ -48,6 +48,10 @@ export interface CreditUsageInfo {
   percent: number;
   resetsIn: string;
   resetsAt: number | null;
+  /** Exact USD amount returned by the account endpoint for the used credits. */
+  usedAmountUsd?: number;
+  /** Exact USD amount returned by the account endpoint for the credit limit. */
+  limitAmountUsd?: number;
 }
 
 export type DataSource = "api" | "manual";
