@@ -1,6 +1,7 @@
 import * as vscode from "vscode";
 import {
   UsageData,
+  CreditUsageInfo,
   UsageMetric,
   UrgencyLevel,
   SuggestionState,
@@ -180,7 +181,30 @@ export function nextMonthlyResetAt(nowMs = Date.now()): number {
 
 /** Format a credit count for compact user-facing amount lines. */
 export function formatCreditCount(value: number): string {
-  return new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }).format(value);
+  return new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(value);
+}
+
+/** Format the shared Extra Credits usage line without deriving a currency conversion. */
+export function formatCreditUsageLine(credits: CreditUsageInfo): string {
+  const creditText = `${formatCreditCount(credits.usedCredits)} out of ${formatCreditCount(credits.monthlyLimit)} credits used`;
+  if (
+    credits.usedAmountUsd == null ||
+    credits.limitAmountUsd == null ||
+    !Number.isFinite(credits.usedAmountUsd) ||
+    !Number.isFinite(credits.limitAmountUsd) ||
+    credits.usedAmountUsd < 0 ||
+    credits.limitAmountUsd < 0
+  ) {
+    return creditText;
+  }
+
+  const usd = new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+  return `${creditText} (${usd.format(credits.usedAmountUsd)} / ${usd.format(credits.limitAmountUsd)})`;
 }
 
 /** 1 → "1st", 2 → "2nd", 7 → "7th", 11 → "11th", 22 → "22nd". */
