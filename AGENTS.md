@@ -1,6 +1,6 @@
 # AGENTS.md
 
-<!-- nexus-hub-version: 3.17.1 -->
+<!-- nexus-hub-version: 3.17.2 -->
 
 This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, Gemini CLI, etc.) when working with code in this repository.
 
@@ -8,7 +8,7 @@ This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, G
 
 Nexus-Hub is a production-grade skill harness for AI coding assistants. It is the **upstream catalog** consumed by Nexus (the local-first desktop AI Studio, see `https://github.com/bendourthe/Nexus-AI`) and by every other major agent platform: Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, and GitHub CLI. Skills, commands, hooks, agents, and rules are distributed via installer scripts into users' `~/.nexus-hub/` directory and into their AI assistant's per-platform config locations.
 
-Current catalog: **271 skills** across 21 categories, 17 commands (plus 3 permanent aliases), 31 hooks, 23 agents. The 40 v3.x deprecation shims were removed in v3.2.0.
+Current catalog: **271 skills** across 21 categories, 17 commands (plus 3 permanent aliases), 32 hooks, 23 agents. The 40 v3.x deprecation shims were removed in v3.2.0.
 
 ## Project Structure
 

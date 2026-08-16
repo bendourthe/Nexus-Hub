@@ -56,6 +56,7 @@
     {"posix": ["install_usage_display"], "windows": ["Install-UsageDisplay"], "reason": "Usage-display hook installation."},
     {"posix": ["install_require_description"], "windows": ["Install-RequireDescription"], "reason": "Description-hook installation."},
     {"posix": ["install_core_settings"], "windows": ["Install-CoreSettings"], "reason": "Core settings merge."},
+    {"posix": ["install_retired_override_cleanup"], "windows": ["Install-RetiredOverrideCleanup"], "reason": "Legacy provider-override restoration and stale-hook retirement."},
     {"posix": ["install_git_commit_msg_hook"], "windows": ["Install-GitCommitMsgHook"], "reason": "Git commit-message hook installation."},
     {"posix": ["ensure_codex_cli"], "windows": ["Ensure-CodexCli"], "reason": "Optional Codex CLI discovery and installation."},
     {"posix": ["merge_strict_permissions"], "windows": ["Merge-StrictPermissions"], "reason": "Strict permission overlay merge."},

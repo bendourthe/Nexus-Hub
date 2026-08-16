@@ -226,6 +226,12 @@ def test_shell_hooks_point_at_their_powershell_sibling(codex, install_ctx, codex
         "session-start",
     }
     for handler in handlers:
+        script = Path(handler["command"].split()[-1])
+        if script.suffix == ".py":
+            assert handler["command"].startswith("python3 ")
+            assert handler["commandWindows"].startswith("python ")
+            assert Path(handler["commandWindows"].split()[-1]).name == script.name
+            continue
         shell_stem = Path(handler["command"].split()[-1]).stem
         windows_stem = Path(handler["commandWindows"].split()[-1]).stem
         assert handler["command"].endswith(f"{shell_stem}.sh")

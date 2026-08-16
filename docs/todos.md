@@ -1,6 +1,6 @@
 # Nexus-Hub Progress Dashboard
 
-**Branch:** `develop`
+**Branch:** `release/v3.17.2`
 
 ---
 
@@ -31,6 +31,7 @@
 | v3.15.8 Phase 3 tasks complete | 9 | 9 | 0 |
 | v3.15.8 Phase 4 tasks complete | 7 | 7 | 0 |
 | v3.17.2 autonomy retirement tasks complete | 6 | 6 | 0 |
+| v3.17.2 release tasks complete | 5 | 7 | 2 |
 | v3.17.3 plan phases complete | 0 | 6 | 6 |
 | v3.17.4 plan phases complete | 0 | 7 | 7 |
 
@@ -114,6 +115,16 @@
 - [x] Remove active controller contracts and user-facing instructions
 - [x] Reserve v3.17.2 for the correction and shift planned work to v3.17.3 and v3.17.4
 - [x] Pass focused extension, integration, manifest, and repository validation
+
+## Release - v3.17.2 Autonomy Controller Retirement [IN PROGRESS]
+
+- [x] Reconcile the v3.17.1 release ancestry into `release/v3.17.2`
+- [x] Add and focus-test the fail-safe legacy-state restoration migration
+- [x] Complete the full platform read-contract and defaults-lever re-verification
+- [x] Finalize release metadata, documentation, known gaps, and the supply-chain manifest
+- [x] Pass the complete local release gates and artifact round-trip
+- [ ] Integrate and push `develop`, then pass remote CI
+- [ ] Promote `main`, tag v3.17.2, publish the GitHub Release, and verify the downloaded artifact
 
 ## Parallel Plan - v3.17.3 Org Knowledge Layer [PLANNED]
 

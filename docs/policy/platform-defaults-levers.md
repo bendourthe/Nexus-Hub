@@ -2,7 +2,7 @@
 
 This is the durable, sourced record of whether each supported platform documents a settable install-time **behavioral default** that Nexus-Hub could legitimately seed, and the evidence for that answer. It is the companion to `configs/platform-defaults.json`: a platform may appear in that file ONLY if it carries a VERIFIED row here.
 
-**Last verified**: 2026-08-08 for v3.16.0 (Phase 2). All sixteen registered integrations were checked in this pass; none is carried forward from an earlier one, because this is the first pass.
+**Last verified**: 2026-08-15 for v3.17.2. All sixteen registered integrations were checked in this full release pass.
 
 ## Scope boundary
 
@@ -174,6 +174,7 @@ Lever re-verification rides along with the existing `platform-contract-verificat
 
 | Date | Version | Scope | Outcome |
 |---|---|---|---|
+| 2026-08-15 | v3.17.2 | All sixteen registered integrations, full pass | 13 VERIFIED, 3 UNVERIFIED. Existing seeded keys and write paths remain valid. Additive documentation drift clarifies Codex granular approvals, Cursor `approvalMode`, Antigravity CLI `toolPermission` and `artifactReviewPolicy`, Hermes `approvals.mode`, and Copilot's separate editable-settings and saved-approvals files. No installer default changed, and the retired autonomy controller is not replaced. |
 | 2026-08-15 | v3.17.0 | All sixteen registered integrations, full pass | 13 VERIFIED, 3 UNVERIFIED. Gemini Code Assist moved from UNVERIFIED to VERIFIED with a surface mismatch after its docs added `geminicodeassist.agentYoloMode`. Hermes remained VERIFIED but its reasoning key drifted from top-level `reasoning_effort` to `agent.reasoning_effort`; the source manifest and test were corrected. All other key names, paths, and source hosts remained aligned. |
 | 2026-08-08 | v3.16.0 | All sixteen registered integrations, first pass | 12 VERIFIED, 4 UNVERIFIED. Two doc-host redirects discovered and followed (Claude 301 to `code.claude.com`; OpenAI Codex 308 chain to `learn.chatgpt.com`). One rebrand confirmed first-hand (`docs.windsurf.com` 307 to `docs.devin.ai`). |
 | 2026-08-12 | v3.16.6 | Targeted ride-along on the read-contract pass (claude, codex only) | No drift signal observed on either vendor's docs during the read-contract fetches: no key rename, no config-path move, no new redirect. The other fourteen integrations were not re-fetched (targeted patch pass); the full lever re-verification rides with the full read-contract pass owed at v3.17.0. |

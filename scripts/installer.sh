@@ -7,7 +7,7 @@ set -e
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-NEXUS_HUB_VERSION="3.17.1"
+NEXUS_HUB_VERSION="3.17.2"
 
 # --- Window Title ---
 printf '\033]0;Nexus-Hub Installer\007'
@@ -458,6 +458,40 @@ resolve_conflicts() {
 }
 
 # --- Hook Installation ---
+
+install_retired_override_cleanup() {
+    local repo_root="$1"
+    local target_claude_dir="$2"
+    local scope="$3"  # "Global" or "Workspace"
+    local project_path="$4"
+    local hooks_dir="$target_claude_dir/hooks"
+    local helper="$repo_root/catalog/hooks/retire-provider-override.py"
+    local settings_file="$target_claude_dir/settings.json"
+
+    mkdir -p "$hooks_dir"
+    safe_copy "$helper" "$hooks_dir/retire-provider-override.py" true "[OK] $scope retired provider-override cleanup installed at: $hooks_dir"
+
+    local python_bin
+    if ! python_bin=$(resolve_python_executable); then
+        write_item "ERROR: Python is required to retire legacy provider overrides safely" "$RED" >&2
+        return 1
+    fi
+
+    local hook_path=".claude/hooks/retire-provider-override.py"
+    if [ "$scope" = "Global" ]; then
+        # Persist the tilde for expansion when Claude executes the stored hook command.
+        # shellcheck disable=SC2088
+        hook_path="~/.claude/hooks/retire-provider-override.py"
+    fi
+
+    if ! "$python_bin" "$helper" \
+            --project "$project_path" \
+            --settings "$settings_file" \
+            --hook-command "python3 $hook_path"; then
+        write_item "ERROR: Retired provider override cleanup requires manual recovery before upgrade" "$RED" >&2
+        return 1
+    fi
+}
 
 install_git_guardrails() {
     local repo_root="$1"
@@ -1263,6 +1297,7 @@ install_global() {
     install_usage_display     "$repo_root" "$global_claude" "Global" >/dev/null
     install_require_description "$repo_root" "$global_claude" "Global" >/dev/null
     install_core_settings     "$repo_root" "$global_claude" "Global" >/dev/null
+    install_retired_override_cleanup "$repo_root" "$global_claude" "Global" "$(pwd)" >/dev/null
 
     # Unified checklist, built from the resulting on-disk state.
     write_item "Claude Code" "$GRAY"
@@ -1682,6 +1717,7 @@ install_workspace() {
         install_git_guardrails    "$repo_root" "$claude_dir" "Workspace"
         install_usage_display     "$repo_root" "$claude_dir" "Workspace"
         install_require_description "$repo_root" "$claude_dir" "Workspace"
+        install_retired_override_cleanup "$repo_root" "$claude_dir" "Workspace" "$target_path"
         fi
 
         # --- OpenAI -- Codex ----------------------------------------

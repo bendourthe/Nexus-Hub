@@ -7,7 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [3.17.2] - 2026-08-15
+
+The unsupported autonomy controller is retired, and upgrades fail safely back to the provider configurations recorded before it was enabled.
+
+### `nexus-hub autonomy` - Retired opt-in capability
+
+- **Activation:** there is no activation path in v3.17.2. Use each provider's own approval-mode selector if you want to change that provider's behavior.
+- **Validation:** run `nexus-hub --help` and confirm `autonomy` is absent, then reload VS Code and confirm the Claude and Codex usage monitors show usage without an autonomy indicator.
+- **Rollback:** reinstall v3.17.2. The installer runs a one-cycle migration that restores each recorded original provider config byte-for-byte, deletes configs the controller created from nothing, removes stale autonomy hook registrations, and keeps unresolved state visible when a required backup is missing or unsafe. Downgrading to v3.17.0 or v3.17.1 reintroduces the unsupported surface and is not recommended.
+- **Authority:** the migration can only restore state recorded by the retired controller and remove its stale hook registrations. It cannot enable a provider mode, approve a tool call, bypass provider safety classification, or change an unrecorded user setting.
+- **Docs:** see [What's New in v3.17.2](README.md#whats-new-in-v3172), the retirement amendment in the [historical v3.17.0 plan](docs/v3/v3.17/plans/v3.17.0-agent-autonomy-toggle.md), and the [v3.17 known-gaps ledger](docs/v3/v3.17/known-gaps.md#v3172---remove-autonomy-controller).
 
 ### Removed
 
@@ -16,6 +26,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **The Claude and Codex usage monitors return to usage-only status surfaces.** Their feature-specific versions advance to 0.9.8 and 0.2.9, and no longer show duplicate `Autonomy: Unavailable` indicators when Nexus-Hub's CLI wrapper is absent.
+- **Existing installations recover their pre-controller provider configuration during upgrade.** A temporary, idempotent SessionStart migration restores recorded backups within the project boundary, removes stale `autonomy-expiry` and `autonomy-guard` registrations without touching unrelated user hooks, and fails safe by preserving state when a backup is missing, malformed, or outside the repository. Both installers run the same migration and stop the affected upgrade if recovery cannot complete safely.
 - **The independent v3.17.0 hardening remains.** Read-only permission-baseline corrections, shared cross-platform permission merging, generic installer parity, real-install smoke coverage, and consequential-decision guidance are retained.
 
 ## [3.17.1] - 2026-08-15
@@ -5119,7 +5130,8 @@ repository_root/
 
 ---
 
-[Unreleased]: https://github.com/bendourthe/Nexus-Hub/compare/v3.17.1...HEAD
+[Unreleased]: https://github.com/bendourthe/Nexus-Hub/compare/v3.17.2...HEAD
+[3.17.2]: https://github.com/bendourthe/Nexus-Hub/compare/v3.17.1...v3.17.2
 [3.17.1]: https://github.com/bendourthe/Nexus-Hub/compare/v3.17.0...v3.17.1
 [3.17.0]: https://github.com/bendourthe/Nexus-Hub/compare/v3.16.8...v3.17.0
 [3.16.8]: https://github.com/bendourthe/Nexus-Hub/compare/v3.16.7...v3.16.8
