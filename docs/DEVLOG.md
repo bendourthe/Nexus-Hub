@@ -1,5 +1,19 @@
 # Development Log
 
+## [2026-08-15] - v3.17.2 autonomy retirement release preparation
+
+### What Changed
+
+Prepared the corrective v3.17.2 release that removes the unsupported autonomy controller and adds a one-release, fail-safe migration for existing installations. The migration restores only recorded provider configuration within the repository boundary, preserves unresolved state for retry, removes stale autonomy hook registrations without touching unrelated hooks, and is invoked identically by both installers. Canonical version, release notes, platform-contract records, tracker, known gaps, hook count, and installer parity declarations now match the release tree.
+
+### Why It Changed
+
+Removing the controller code stopped future use but did not restore provider configuration already modified by v3.17.0 or v3.17.1. Because VS Code has no supported API for one extension to override another provider extension's approval decisions, the product surface could not meet its provider-independent approval-bypass acceptance criterion; safe retirement, including state restoration, is the correct release behavior.
+
+### Verification
+
+All hard repository validators pass, including 271-skill bundle and routing gates, permission safety, installer parity, version sync, five-template parity, ten-platform contracts, thirteen-platform defaults, compression accuracy, ShellCheck, PowerShell AST parsing, and the security gate with zero critical or high findings. Fresh suites pass 1,001 hook tests with 36 skips, 1,568 validator/skill/plan/workflow tests with 2 skips, 670 internal-extension tests with 1 skip, and 102 changed-path migration/parity/Codex regressions. Claude and Codex usage monitors compile, pass 5 and 75 tests respectively, and package as VSIX versions 0.9.8 and 0.2.9. A line-ending-pinned archive of the staged index passes `verify_install.py` with all 1,237 manifest entries matching. Broad installer/integration sweeps exceeded the local Windows bounds without a failure summary, so hosted CI remains the authoritative full-matrix release gate.
+
 ## [2026-08-15] - v3.17.1 Windows tag installer-smoke repair
 
 ### What Changed

@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v3.17.2 corrective work retires the v3.17.0 autonomy controller after installation proved that it could not provide the provider-independent approval bypass its product surface implied.
-**Last updated**: 2026-08-15 (v3.17.2 autonomy controller retirement)
+**Last updated**: 2026-08-15 (v3.17.2 release preparation and legacy-state migration)
 
 > **File-lifecycle note**: this ledger was opened by the v3.17.0 Phase 1 append. Each subsequent v3.17.N implementation appends its own `## v3.17.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `MT-#` / `QG-#` numbering.
 
@@ -12,7 +12,7 @@
 
 ## v3.17.2 - remove-autonomy-controller
 
-**Status**: Implemented in `cced5285`, integrated into `develop` by merge commit `3004fb19`, and pushed to `origin/develop` on 2026-08-15. Version bump, release promotion, tag, and GitHub Release remain pending.
+**Status**: Controller removal was implemented in `cced5285`, integrated into `develop` by merge commit `3004fb19`, and pushed to `origin/develop` on 2026-08-15. Release preparation adds a fail-safe legacy-state migration on `release/v3.17.2`; final gates, promotion, tag, and GitHub Release remain pending.
 
 ### BG-1 - CLOSED in implementation: the controller could not guarantee universal approval
 
@@ -27,6 +27,39 @@
 - **NI-3** (descriptor coverage) is no longer actionable because descriptors are removed from the product contract.
 - **WN-4** (hook independence under provider no-prompt modes) remains historical evidence only; Nexus-Hub no longer claims or tests that product boundary.
 - **MT-1** remains only as general Claude Usage Monitor coverage debt. The feature-specific `coverage.include` boundary and its deleted module are removed.
+
+### BG-9 - CLOSED in release preparation: controller removal could leave elevated provider state behind
+
+- **Target files**: `catalog/hooks/retire-provider-override.py`, `catalog/hooks/settings.json`, both installers, and their migration tests
+- **What was wrong**: deleting the engine, CLI, and expiry hook stopped future controller use but did not restore a provider config already changed by v3.17.0 or v3.17.1. A stale `autonomy-expiry` or `autonomy-guard` registration could also remain in Claude settings after its script was removed.
+- **Resolution**: both installers now deploy and invoke one idempotent retirement helper. It restores only version-1 state entries whose config and backup paths remain inside the repository, preserves unresolved entries on every unsafe or missing-backup path, removes stale controller hook registrations while retaining unrelated user hooks, and installs a temporary SessionStart retry for projects that were not open during upgrade.
+- **Verification**: focused migration, installer, removed-surface, and Codex integration suites pass 58 tests; syntax and PowerShell AST checks pass.
+
+### DF-6 - OPEN by design: remove the temporary retirement migration after one compatibility release
+
+- **Target files**: `catalog/hooks/retire-provider-override.py`, `catalog/hooks/settings.json`, both installers, and their migration tests
+- **Reason it is open**: users can upgrade directly from v3.17.0 or v3.17.1 after v3.17.2 ships. Removing the helper in the same release would leave those delayed upgrades unable to restore recorded state.
+- **Suggested next step**: in v3.17.3, confirm the compatibility window is complete, remove the helper and SessionStart registration, delete its installer wiring and tests, decrement the hook count, and retain this ledger entry as the migration record.
+
+### WN-5 - OPEN advisory: per-model prompting profiles lag the current model roster
+
+- **Target files**: `catalog/skills/ai-development/model-prompting-research/` and its recorded profile roster
+- **Source phase**: v3.17.2 release preparation model-prompting freshness advisory
+- **Reason it is open**: the required release advisory returned `DRIFTED`. The routing map itself is valid and was re-verified on 2026-08-15, but the separate prompting-profile layer still records its 2026-07-27 roster and lacks profiles for the newly mapped Anthropic, OpenAI, Google, and Cursor model IDs. This is intentionally advisory and is unrelated to the provider-state restoration defect fixed by v3.17.2.
+- **Suggested next step**: run `/tune-prompting` in a dedicated model-prompting refresh cycle, update the recorded roster and affected profiles from current first-party guidance, then rerun `python scripts/check_model_prompting_freshness.py --advisory <live-model-ids>` until it reports `IN SYNC`.
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented by design / unverified (`NI-#`) | 0 | 0 |
+| Deferred (`DF-#`) | 1 (DF-6) | 0 |
+| Bugs (`BG-#`) | 0 | 2 (BG-1, BG-9) |
+| Warnings (`WN-#`) | 1 (WN-5) | 0 |
+| Missing tests (`MT-#`) | 0 | 0 |
+| Quality-gate bypasses (`QG-#`) | 0 | 0 |
+
+**Release blockers**: 0. DF-6 is a deliberate one-release compatibility window and does not block v3.17.2.
 
 ## v3.17.0 - agent-autonomy-toggle
 
@@ -219,10 +252,10 @@
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented by design / unverified (`NI-#`) | 3 (NI-1, NI-2, NI-3) | 0 |
-| Deferred (`DF-#`) | 5 (DF-1, DF-2, DF-3, DF-4, DF-5) | 0 |
-| Bugs (`BG-#`) | 0 | 8 (BG-1, BG-2, BG-3, BG-4, BG-5, BG-6, BG-7, BG-8) |
-| Warnings (`WN-#`) | 3 (WN-1, environmental, carried from v3.15.0; WN-2, pre-existing Ruff baseline; WN-4, version-specific hook proof) | 1 (WN-3, Vitest config loader) |
+| Deferred (`DF-#`) | 6 (DF-1, DF-2, DF-3, DF-4, DF-5, DF-6) | 0 |
+| Bugs (`BG-#`) | 0 | 9 (BG-1, BG-2, BG-3, BG-4, BG-5, BG-6, BG-7, BG-8, BG-9) |
+| Warnings (`WN-#`) | 4 (WN-1, environmental, carried from v3.15.0; WN-2, pre-existing Ruff baseline; WN-4, version-specific hook proof; WN-5, prompting-profile roster drift) | 1 (WN-3, Vitest config loader) |
 | Missing tests (`MT-#`) | 1 (MT-1, Claude monitor extension-wide coverage) | 0 |
 | Quality-gate bypasses (`QG-#`) | 0 | 0 |
 
-**Release blockers**: 0. NI-1 and NI-2 require live matcher probes before their respective permission baselines can be broadened, but the shipped validators and hook guards conservatively avoid relying on either unverified behavior. BG-4 through BG-8 are closed; BG-8 is the v3.17.1 repair for the tag-only Windows harness failure.
+**Release blockers**: 0. NI-1 and NI-2 require live matcher probes before their respective permission baselines can be broadened, but the shipped validators and hook guards conservatively avoid relying on either unverified behavior. BG-4 through BG-9 are closed; BG-8 is the v3.17.1 tag-only Windows harness repair and BG-9 is the v3.17.2 fail-safe state-restoration migration. DF-6 keeps that migration for one compatibility release. WN-5 records the release workflow's non-blocking prompting-profile freshness advisory.

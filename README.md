@@ -4,9 +4,9 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.17.1 -->
+<!-- nexus-hub-version: 3.17.2 -->
 
-Nexus-Hub is the upstream skill catalog for AI coding assistants: 271 skills, 17 commands, 31 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
+Nexus-Hub is the upstream skill catalog for AI coding assistants: 271 skills, 17 commands, 32 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
 ## Interactive Guide -- start here
 
@@ -30,12 +30,20 @@ Nexus-Hub is the upstream skill catalog for AI coding assistants: 271 skills, 17
 
 Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of the same idea, split along a deliberate seam.
 
-- **Nexus-Hub (this repo)** is the catalog: 271 curated skills, 17 commands, 31 hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`). It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
+- **Nexus-Hub (this repo)** is the catalog: 271 curated skills, 17 commands, 32 hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`). It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
 - **Nexus** is a local-first desktop AI Studio that consumes Nexus-Hub as its skill feed. Nexus's `AGENTS.md` names this repo as "the only external project we deliberately link to" -- the upstream feed for its skill harness.
 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v3.17.2
+
+**The Nexus-Hub autonomy controller has been retired.** A VS Code extension cannot use a supported public API to override another provider extension's safety decisions, so the controller could only mirror each provider's existing approval mode. Nexus-Hub now leaves approval-mode selection to Claude Code, Codex, and other provider-owned surfaces instead of presenting a universal bypass it cannot guarantee.
+
+The shared CLI command, provider descriptors, status-bar controls, expiry and guard hooks, and feature-specific CI have been removed. The Claude and Codex usage monitors continue to report usage without an autonomy indicator. During upgrade, a temporary SessionStart migration restores each recorded pre-controller provider configuration byte-for-byte, removes stale controller hook registrations, and preserves unresolved state when a required backup is missing or unsafe. It never enables a provider mode or broadens authority.
+
+To verify retirement after reinstalling, run `nexus-hub --help` and confirm there is no `autonomy` command, then reload VS Code and confirm the usage monitors show usage only. Provider approval modes remain controlled in each provider's own extension or CLI. Catalog counts are **271 skills**, **17 commands**, **32 hooks**, and **23 agents**; the added hook is the temporary retirement migration.
 
 ## What's New in v3.17.1
 
@@ -43,15 +51,9 @@ The two projects are designed to be useful independently: you can install Nexus-
 
 The v3.17.0 Windows bootstrap and ordinary install-smoke jobs were already green, so this patch changes only the release-tag CI harness. It adds no skill, command, hook, opt-in capability, outbound service, API key, telemetry, or third-party data processor.
 
-## Unreleased
-
-**The Nexus-Hub autonomy controller has been retired.** A VS Code extension cannot use a supported public API to override another provider extension's safety decisions, so the controller could only mirror each provider's existing approval mode. Nexus-Hub now leaves approval-mode selection to Claude Code, Codex, and other provider-owned surfaces instead of presenting a universal bypass it cannot guarantee.
-
-The shared CLI command, provider descriptors, status-bar controls, expiry and guard hooks, and feature-specific CI have been removed. The Claude and Codex usage monitors continue to report usage without an autonomy indicator. The independent read-only permission baseline, generic installer-parity checks, real-install smoke tests, and consequential-decision guidance remain.
-
 ## What's New in v3.17.0 (historical)
 
-v3.17.0 originally introduced a time-bounded workspace autonomy controller. That capability is retired by the Unreleased corrective change above; its original release record remains in the [changelog](CHANGELOG.md#3170---2026-08-15).
+v3.17.0 originally introduced a time-bounded workspace autonomy controller. That capability is retired in v3.17.2; its original release record remains in the [changelog](CHANGELOG.md#3170---2026-08-15).
 
 **Permission and installer parity remain materially stronger.** Twenty-five mutation-capable entries were removed from the read-only auto-approve baseline, retired Nexus-Hub entries propagate safely to existing installs, both installers use the same jq-free merge path, and Claude workspace installs target `.claude/settings.local.json`. A manifest-driven parity gate and real-install smoke tests protect both installer entry points.
 
