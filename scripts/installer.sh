@@ -7,7 +7,7 @@ set -e
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-NEXUS_HUB_VERSION="3.17.2"
+NEXUS_HUB_VERSION="3.17.3"
 
 # --- Window Title ---
 printf '\033]0;Nexus-Hub Installer\007'
@@ -459,6 +459,41 @@ resolve_conflicts() {
 
 # --- Hook Installation ---
 
+install_claude_hook_files() {
+    local repo_root="$1"
+    local target_claude_dir="$2"
+    local scope="$3"
+    local hooks_dir="$target_claude_dir/hooks"
+    local source
+
+    mkdir -p "$hooks_dir"
+    for source in "$repo_root"/catalog/hooks/*.sh "$repo_root"/catalog/hooks/*.py; do
+        [ -f "$source" ] || continue
+        safe_copy "$source" "$hooks_dir/$(basename "$source")" true "[OK] $scope hook installed: $(basename "$source")"
+        if [[ "$source" == *.sh ]]; then
+            chmod +x "$hooks_dir/$(basename "$source")" 2>/dev/null || true
+        fi
+    done
+}
+
+convert_claude_hook_commands_for_posix() {
+    local repo_root="$1"
+    local settings_file="$2"
+    local scope="$3"
+    local python_bin
+
+    [ -f "$settings_file" ] || return 0
+    if ! python_bin=$(resolve_python_executable); then
+        write_item "ERROR: Python is required to migrate Claude hook commands for Cursor compatibility" "$RED" >&2
+        return 1
+    fi
+    "$python_bin" "$repo_root/catalog/hooks/cursor-hook-compat.py" \
+        --rewrite-settings "$settings_file" \
+        --catalog-hooks-dir "$repo_root/catalog/hooks" \
+        --host posix \
+        --scope "$(printf '%s' "$scope" | tr '[:upper:]' '[:lower:]')"
+}
+
 install_retired_override_cleanup() {
     local repo_root="$1"
     local target_claude_dir="$2"
@@ -498,7 +533,11 @@ install_git_guardrails() {
     local target_claude_dir="$2"
     local scope="$3"  # "Global" or "Workspace"
 
-    # Copy hook script
+    # Materialize every shell/Python hook referenced by the full settings template.
+    install_claude_hook_files "$repo_root" "$target_claude_dir" "$scope"
+
+    # Preserve the legacy explicit copies for compatibility with narrowly staged
+    # source bundles while the full catalog copy above owns normal installations.
     local hooks_dir="$target_claude_dir/hooks"
     mkdir -p "$hooks_dir"
     safe_copy "$repo_root/catalog/hooks/git-guardrails.sh" "$hooks_dir/git-guardrails.sh" true "[OK] $scope git guardrails hook installed at: $hooks_dir"
@@ -523,6 +562,7 @@ install_git_guardrails() {
     if [ -f "$settings_file" ]; then
         # Check if guardrails already installed
         if grep -q "git-guardrails" "$settings_file" 2>/dev/null; then
+            convert_claude_hook_commands_for_posix "$repo_root" "$settings_file" "$scope"
             write_item "[OK] Git guardrails hook already configured in settings.json" "$GREEN"
             return
         fi
@@ -545,6 +585,7 @@ install_git_guardrails() {
 
             if [ -n "$merged" ]; then
                 echo "$merged" > "$settings_file"
+                convert_claude_hook_commands_for_posix "$repo_root" "$settings_file" "$scope"
                 write_item "[OK] $scope settings.json updated with git guardrails hook" "$GREEN"
             else
                 write_item "Warning: Could not merge into existing settings.json" "$YELLOW"
@@ -557,6 +598,7 @@ install_git_guardrails() {
     else
         # No existing settings.json, copy template
         cp "$template_file" "$settings_file"
+        convert_claude_hook_commands_for_posix "$repo_root" "$settings_file" "$scope"
         write_item "[OK] $scope settings.json created with git guardrails hook" "$GREEN"
     fi
 }
@@ -606,6 +648,7 @@ install_usage_display() {
 
             if [ -n "$merged" ]; then
                 echo "$merged" > "$settings_file"
+                convert_claude_hook_commands_for_posix "$repo_root" "$settings_file" "$scope"
                 write_item "[OK] $scope settings.json updated with usage display hook" "$GREEN"
             else
                 write_item "Warning: Could not merge usage display hook into settings.json" "$YELLOW"
@@ -682,6 +725,8 @@ install_require_description() {
             write_item "  You may need to manually add the PowerShell PreToolUse hooks" "$YELLOW"
         fi
     fi
+
+    convert_claude_hook_commands_for_posix "$repo_root" "$settings_file" "$scope"
 }
 
 install_core_settings() {

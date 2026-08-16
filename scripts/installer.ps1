@@ -144,7 +144,7 @@ function Get-SanitizedBranchName {
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:NexusHubVersion = "3.17.2"
+$script:NexusHubVersion = "3.17.3"
 
 $Host.UI.RawUI.WindowTitle = "Nexus-Hub Installer"
 $script:InstallerTitle = "Nexus-Hub Installer"
@@ -710,6 +710,39 @@ function Flatten-SkillsInto {
 
 # --- Hook Installation ---
 
+function Convert-ClaudeHookCommandsForWindows {
+    param(
+        [string]$SettingsFile,
+        [string]$RepoRoot,
+        [string]$Scope
+    )
+
+    if (-not (Test-Path $SettingsFile)) { return }
+    $python = Resolve-PythonExecutable
+    if (-not $python) { throw "Python is required to migrate Claude hook commands for Cursor compatibility" }
+    $compat = Join-Path $RepoRoot "catalog\hooks\cursor-hook-compat.py"
+    & $python $compat --rewrite-settings $SettingsFile --catalog-hooks-dir (Join-Path $RepoRoot "catalog\hooks") --host windows --scope $Scope.ToLowerInvariant()
+    if ($LASTEXITCODE -ne 0) { throw "Could not migrate Claude hook commands for Windows" }
+}
+
+function Install-ClaudeHookFiles {
+    param(
+        [string]$RepoRoot,
+        [string]$TargetClaudeDir,
+        [string]$Scope
+    )
+
+    $sourceDir = Join-Path $RepoRoot "catalog\hooks"
+    $hooksDir = Join-Path $TargetClaudeDir "hooks"
+    if (-not (Test-Path $hooksDir)) { New-Item -ItemType Directory -Force -Path $hooksDir | Out-Null }
+
+    foreach ($pattern in @("*.ps1", "*.py")) {
+        foreach ($source in @(Get-ChildItem -LiteralPath $sourceDir -Filter $pattern -File)) {
+            Safe-Copy -Source $source.FullName -Destination (Join-Path $hooksDir $source.Name) -Confirm:$true -CustomMessage "✓ $Scope hook installed: $($source.Name)"
+        }
+    }
+}
+
 function Install-RetiredOverrideCleanup {
     param(
         [string]$RepoRoot,
@@ -746,7 +779,12 @@ function Install-GitGuardrails {
         [string]$Scope  # "Global" or "Workspace"
     )
 
-    # Copy hook script
+    # Copy every PowerShell/Python hook referenced by the full settings template,
+    # including private helper modules sourced by registered hooks.
+    Install-ClaudeHookFiles -RepoRoot $RepoRoot -TargetClaudeDir $TargetClaudeDir -Scope $Scope
+
+    # Preserve the legacy explicit copies for compatibility with narrowly staged
+    # source bundles while the full catalog copy above owns normal installations.
     $hooksDir = Join-Path $TargetClaudeDir "hooks"
     if (-not (Test-Path $hooksDir)) { New-Item -ItemType Directory -Force -Path $hooksDir | Out-Null }
     Safe-Copy -Source "$RepoRoot\catalog\hooks\git-guardrails.sh" -Destination (Join-Path $hooksDir "git-guardrails.sh") -Confirm:$true -CustomMessage "✓ $Scope git guardrails hook installed at: $hooksDir"
@@ -768,8 +806,8 @@ function Install-GitGuardrails {
 
     $templateRaw = Get-Content $templateFile -Raw
 
-    # Windows uses "python" not "python3"; global scope uses ~/.claude/ paths
-    $templateRaw = $templateRaw -replace 'python3 ', 'python '
+    # Global scope uses ~/.claude/ paths. The parsed template is then converted to
+    # PowerShell commands so Cursor and Claude never need Bash on Windows.
     if ($Scope -eq "Global") {
         $templateRaw = $templateRaw -replace '(?<![~/.])\.claude/hooks/', '~/.claude/hooks/'
     }
@@ -794,6 +832,7 @@ function Install-GitGuardrails {
             }
 
             if ($alreadyInstalled) {
+                Convert-ClaudeHookCommandsForWindows -SettingsFile $settingsFile -RepoRoot $RepoRoot -Scope $Scope
                 Write-Item -Message "✓ Git guardrails hook already configured in settings.json" -Color "DarkGreen"
             }
             else {
@@ -814,6 +853,7 @@ function Install-GitGuardrails {
                 }
 
                 Write-JsonFile -Path $settingsFile -Object $existingJson
+                Convert-ClaudeHookCommandsForWindows -SettingsFile $settingsFile -RepoRoot $RepoRoot -Scope $Scope
                 Write-Item -Message "✓ $Scope settings.json updated with git guardrails hook" -Color "DarkGreen"
             }
         }
@@ -823,8 +863,10 @@ function Install-GitGuardrails {
         }
     }
     else {
-        # No existing settings.json, copy template
-        Copy-Item -Path $templateFile -Destination $settingsFile -Force
+        # No existing settings.json: write the host-converted template rather than
+        # copying its POSIX commands verbatim.
+        Write-JsonFile -Path $settingsFile -Object $templateJson
+        Convert-ClaudeHookCommandsForWindows -SettingsFile $settingsFile -RepoRoot $RepoRoot -Scope $Scope
         Write-Item -Message "✓ $Scope settings.json created with git guardrails hook" -Color "DarkGreen"
     }
 }
@@ -858,8 +900,7 @@ function Install-UsageDisplay {
 
     $templateRaw = Get-Content $templateFile -Raw
 
-    # Windows uses "python" not "python3"; global scope uses ~/.claude/ paths
-    $templateRaw = $templateRaw -replace 'python3 ', 'python '
+    # Global scope uses ~/.claude/ paths; convert the parsed hook commands below.
     if ($Scope -eq "Global") {
         $templateRaw = $templateRaw -replace '(?<![~/.])\.claude/hooks/', '~/.claude/hooks/'
     }
@@ -903,6 +944,7 @@ function Install-UsageDisplay {
             }
 
             Write-JsonFile -Path $settingsFile -Object $existingJson
+            Convert-ClaudeHookCommandsForWindows -SettingsFile $settingsFile -RepoRoot $RepoRoot -Scope $Scope
             Write-Item -Message "✓ $Scope settings.json updated with usage display hook" -Color "DarkGreen"
         }
     }
@@ -969,7 +1011,7 @@ function Install-RequireDescription {
                 hooks   = @(
                     [PSCustomObject]@{
                         type    = "command"
-                        command = "bash $hookPath/require-description.sh"
+                        command = "powershell -NoProfile -ExecutionPolicy Bypass -File `"$hookPath/require-description.ps1`""
                     }
                 )
             }
@@ -984,7 +1026,7 @@ function Install-RequireDescription {
                 hooks   = @(
                     [PSCustomObject]@{
                         type    = "command"
-                        command = "python3 $hookPath/format-powershell-description.py"
+                        command = "python $hookPath/format-powershell-description.py"
                     }
                 )
             }
@@ -993,7 +1035,7 @@ function Install-RequireDescription {
                 hooks   = @(
                     [PSCustomObject]@{
                         type    = "command"
-                        command = "bash $hookPath/require-powershell-description.sh"
+                        command = "powershell -NoProfile -ExecutionPolicy Bypass -File `"$hookPath/require-powershell-description.ps1`""
                     }
                 )
             }
@@ -1018,6 +1060,7 @@ function Install-RequireDescription {
             $added = ($entriesToAdd | ForEach-Object { $_.matcher }) -join ", "
             Write-Item -Message "✓ $Scope settings.json updated with description hooks ($added)" -Color "DarkGreen"
         }
+        Convert-ClaudeHookCommandsForWindows -SettingsFile $settingsFile -RepoRoot $RepoRoot -Scope $Scope
     }
     catch {
         Write-Item -Message "Warning: Could not merge description hooks into settings.json ($($_.Exception.Message))" -Color "Yellow"

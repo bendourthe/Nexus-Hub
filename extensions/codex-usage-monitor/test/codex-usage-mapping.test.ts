@@ -92,6 +92,40 @@ describe("mapCodexUsageResponse", () => {
     });
   });
 
+  it("maps the live spend-control individual limit as Extra Credits usage", () => {
+    const model = mapCodexUsageResponse({
+      plan_type: "team",
+      rate_limit: {
+        primary_window: {
+          used_percent: 100,
+          limit_window_seconds: 604800,
+          reset_at: Math.floor((NOW + THREE_DAYS) / 1000),
+        },
+      },
+      credits: { has_credits: true, unlimited: false, balance: null },
+      spend_control: {
+        reached: false,
+        individual_limit: {
+          source: "account_user_spend_controls",
+          limit: 5_000,
+          used: 225,
+          remaining: 4_775,
+          used_percent: 5,
+          remaining_percent: 95,
+          reset_at: Math.floor((NOW + THREE_DAYS) / 1000),
+        },
+      },
+    });
+
+    expect(model!.creditsSummary).toBe("Credits: available");
+    expect(model!.extraCredits).toMatchObject({
+      usedCredits: 225,
+      monthlyLimit: 5_000,
+      percent: 5,
+      resetsAt: NOW + THREE_DAYS,
+    });
+  });
+
   it("maps a top-level numeric workspace credit limit and credit-specific reset alias", () => {
     const model = mapCodexUsageResponse({
       weekly_limit: { used_percent: 25, reset_after_seconds: THREE_DAYS / 1000 },

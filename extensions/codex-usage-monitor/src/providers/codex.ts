@@ -342,7 +342,10 @@ function formatCreditsSummary(raw: unknown): string | undefined {
 /** Parse a detailed monthly workspace credit limit from supported payload aliases. */
 function readExtraCredits(payload: Record<string, unknown>, nowMs: number): CreditUsageInfo | undefined {
   const credits = asRecord(payload.credits ?? payload.credit_balance);
+  const spendControl = asRecord(payload.spend_control ?? payload.spendControl);
   const candidates: unknown[] = [
+    spendControl?.individual_limit,
+    spendControl?.individualLimit,
     payload.workspace_monthly_credit_limit,
     payload.workspaceMonthlyCreditLimit,
     payload.monthly_credit_limit,

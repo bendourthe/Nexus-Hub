@@ -2,9 +2,9 @@
 
 This is the durable, sourced source of truth for where every supported platform READS each surface (instruction file, slash commands, skills, agents, rules, hooks) and where the Nexus-Hub installer WRITES it. It supersedes the point-in-time snapshot at `docs/v3/v3.11/platform-read-contracts.md` (which resolved the v3.11.0 Phase 7 audit but left the Codex and Antigravity contracts flagged as unverified).
 
-**Last verified**: 2026-08-15 for v3.17.2.
+**Last verified**: 2026-08-16 for v3.17.3.
 
-**v3.17.2 pass (full).** All ten contract platforms and all sixteen defaults-lever platforms were re-fetched from live first-party documentation. The read-path contract remains functional: eight MATCH, one non-breaking Codex DRIFT, and one UNVERIFIED Nexus-AI surface. Newly documented approval controls are additive and do not require an installer path change; Nexus-Hub no longer seeds a cross-provider autonomy override.
+**v3.17.3 pass (full).** All ten contract platforms and all sixteen defaults-lever platforms were re-fetched from live first-party documentation. The read-path contract remains functional: eight MATCH, one non-breaking Codex DRIFT, and one UNVERIFIED Nexus-AI surface. Cursor still discovers user and project skills and hooks through its documented paths, but Cursor requires one structured permission JSON object where Claude Code permits silent exit-0 success. The v3.17.3 adapter bridges that protocol difference while the Windows installer selects PowerShell siblings and macOS/Linux keep Bash.
 
 | Platform | Verdict | Evidence |
 |---|---|---|
@@ -143,6 +143,12 @@ The catalog itself is never reorganized per platform. Each integration is an ada
 
 ## Re-verification log
 
+### 2026-08-16 (v3.17.3 release - full re-verification)
+
+All ten machine-checked platform contracts and all sixteen defaults-lever platforms were re-fetched from current first-party documentation. Read-path outcomes remain eight MATCH, one non-breaking Codex DRIFT, and one UNVERIFIED Nexus-AI contract; defaults remain 13 VERIFIED and 3 UNVERIFIED.
+
+The release-specific finding is protocol compatibility rather than path drift. Cursor still documents `~/.cursor/hooks.json` and project `.cursor/hooks.json`, with hook responses expressed as one JSON object containing a permission decision. Claude Code still treats exit 0 with no stdout as success and reserves structured JSON for advanced control. Nexus-Hub therefore keeps the native hook implementations unchanged and installs a Cursor-only compatibility adapter; Windows invokes PowerShell siblings, while macOS and Linux retain Bash.
+
 ### 2026-08-15 (v3.17.2 release - full re-verification)
 
 All ten machine-checked platform contracts and all sixteen defaults-lever platforms were re-fetched from current first-party documentation. Read-path outcomes remain eight MATCH, one non-breaking Codex DRIFT, and one UNVERIFIED Nexus-AI contract. Qwen continues to document its native `.qwen/skills` paths, while the shared `.agents/skills` alias is no longer documented there; Nexus-Hub already delivers to Qwen's native path, so no delivery change is required.
@@ -185,7 +191,7 @@ Source docs read: [Agents | OpenCode Docs](https://opencode.ai/docs/agents/), [P
 
 Targeted re-read of Cursor's official docs to close the two Cursor items Phase 1.2 left UNVERIFIED (known-gap DF-1) before finalizing the Cursor integration:
 
-- **`hooks.json` schema - RESOLVED (no code change).** [cursor.com/docs/hooks](https://cursor.com/docs/hooks) confirms the top-level shape `{"version": 1, "hooks": {<event>: [{...}]}}`; each entry's fields `type` / `timeout` / `loop_limit` / `failClosed` / `matcher` are all OPTIONAL (defaults `type="command"`, `failClosed=false`, `loop_limit=5`), so the entry may be the minimal `{"command": "..."}`. `beforeShellExecution` is a documented event; exit code `2` (or `{"permission":"deny"}`) blocks, other non-zero codes fail-open. Cursor reads both `~/.cursor/hooks.json` (user) and `<project>/.cursor/hooks.json` (project). The integration's minimal git-guardrails writer is therefore schema-valid as-is; DF-1(b) resolved.
+- **`hooks.json` schema - RESOLVED.** [cursor.com/docs/hooks](https://cursor.com/docs/hooks) confirms the top-level shape `{"version": 1, "hooks": {<event>: [{...}]}}`; each entry's fields `type` / `timeout` / `loop_limit` / `failClosed` / `matcher` are optional. `beforeShellExecution` is a documented event; exit code `2` (or `{"permission":"deny"}`) blocks. Cursor reads both `~/.cursor/hooks.json` (user) and `<project>/.cursor/hooks.json` (project). Nexus-Hub registers Git guardrails with `failClosed: true`, routes the hook through `cursor-hook-compat.py` so successful stdout is exactly one JSON object, and invokes `.ps1` through PowerShell on Windows or `.sh` through Bash on macOS and Linux. Cursor also imports Claude-compatible hooks from `.claude/settings.json`; both installers route Nexus-Hub-owned entries through the same launcher while preserving Claude Code's silent-success behavior.
 - **Global `~/.cursor/commands/` path - still UNVERIFIED (kept, tracked).** Project `.cursor/commands/<name>.md` is officially documented (custom slash commands, Cursor 1.6+) and confirmed. The user-global `~/.cursor/commands/` dir has NO reachable official doc (the dedicated commands page 404s / redirects to Skills); [forum.cursor.com](https://forum.cursor.com/t/personal-custom-slash-commands/133386) reports it as an open feature-request, not a built-in. Per plan sub-task 2.3 ("keep the global mirror unchanged") and the contract's negative-only-evidence caution, the global write is RETAINED (harmless if unread; removing a possibly-live path on negative evidence could break delivery) and recorded as the DF-1 residual for a future direct-confirmation cycle. Cursor read-paths that ARE confirmed this cycle: skills (recursive `SKILL.md`), subagents (plain `.md`), rules (`.mdc`), project commands, and the `hooks.json` schema.
 
 Source docs read: [Hooks | Cursor Docs](https://cursor.com/docs/hooks), [Slash commands | Cursor Docs](https://cursor.com/docs/cli/reference/slash-commands), [Rules | Cursor Docs](https://cursor.com/docs/rules), [Cursor community: personal custom slash commands](https://forum.cursor.com/t/personal-custom-slash-commands/133386).

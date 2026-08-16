@@ -1,5 +1,21 @@
 # Development Log
 
+## [2026-08-16] - v3.17.3 Cursor hook portability and usage-monitor reliability release preparation
+
+### What Changed
+
+Prepared the corrective v3.17.3 candidate so Cursor hook installation is native on every supported operating system. Windows now installs and invokes PowerShell hook siblings, while macOS and Linux retain Bash. A Cursor-only compatibility adapter converts Claude Code's silent-success and exit-2 conventions into Cursor's required permission JSON without changing the underlying hook behavior or weakening deny decisions. Upgrade installation repairs stale Windows Bash registrations and incomplete hook copies.
+
+The same candidate includes the completed usage-monitor corrections: Codex maps the live `spend_control.individual_limit` payload into Extra Credits, and both Codex and Claude prevent lower-severity refresh ticks from overwriting an active high-severity warning color. The temporary v3.17.2 provider-state migration remains for delayed upgrades and is scheduled for removal in v3.17.4. Org Knowledge moves to v3.17.4 and DeepSeek Harness Adoption moves to v3.17.5; unfinished Org Knowledge implementation is excluded.
+
+### Verification
+
+All declared validation constituents pass, including 271-skill bundle and routing gates, permission safety, installer parity, version sync, five-template parity, the v3.17.3 platform-contract freshness gate, thirteen-platform defaults synchronization, and 100 percent compression round-trip. ShellCheck is clean, 28 PowerShell files parse, and the security gate reports 0 critical, 0 high, 31 medium, and 4 low findings. Fresh tests pass 66 focused Cursor/installer regressions, 1,020 hook tests with 36 expected skips, and 670 internal-extension tests with 1 skip. Claude and Codex usage monitors compile, pass 6 and 77 tests respectively, and package as VSIX versions 0.9.9 and 0.2.10. A line-ending-pinned archive of the staged index passes `verify_install.py` with all 1,239 manifest entries matching. The monolithic repository suite reached the local Windows 20-minute bound without a terminal summary, and validator/integration/installer partitions reached a 15-minute bound without summaries, so neither run is counted as passing evidence; hosted CI remains the authoritative full repository and cross-OS gate.
+
+### Release Boundary
+
+This entry describes an uncommitted release candidate. No commit, push, protected-branch promotion, tag, or GitHub Release was created during preparation.
+
 ## [2026-08-15] - v3.17.2 autonomy retirement release preparation
 
 ### What Changed
