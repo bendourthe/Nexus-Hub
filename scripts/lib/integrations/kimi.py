@@ -90,18 +90,6 @@ class KimiIntegration(MarkdownIntegration, SkillsIntegration):
         # rather than a tree copy, so hooks_subdir is not set either. Global scope
         # only -- Kimi documents no project-scoped hook path.
         "hooks_supported": True,
-        "autonomy": {
-            "config_file": "~/.kimi-code/config.toml",
-            "scope": "global",
-            "key_paths": ["default_permission_mode"],
-            "tiers": {
-                "edits_only": None,
-                "full": {"default_permission_mode": "auto"},
-            },
-            "intermediate_supported": False,
-            "verified": True,
-            "format": "toml",
-        },
     }
 
     def install_workspace(self, ctx: InstallContext) -> WriteResult:

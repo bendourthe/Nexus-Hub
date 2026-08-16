@@ -122,18 +122,6 @@ class ClaudeIntegration(MarkdownIntegration, SkillsIntegration):
         "rules_subdir": "rules",
         "hooks_subdir": "hooks",
         "hooks_supported": True,
-        "autonomy": {
-            "config_file": ".claude/settings.local.json",
-            "scope": "project",
-            "key_paths": ["permissions.defaultMode"],
-            "tiers": {
-                "edits_only": {"permissions.defaultMode": "acceptEdits"},
-                "full": {"permissions.defaultMode": "bypassPermissions"},
-            },
-            "intermediate_supported": True,
-            "verified": True,
-            "format": "json",
-        },
     }
 
     def wire_project_surfaces(self, ctx: InstallContext) -> WriteResult:

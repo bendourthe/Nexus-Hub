@@ -28,8 +28,6 @@ Subcommands:
                                ~/.nexus-hub/config/media.env at mode 0600. Strictly
                                local, no outbound call (see
                                scripts/setup_media_keys.py).
-    nexus-hub autonomy         Report or change time-bounded project autonomy
-                               through the shared consent and audit core.
     nexus-hub --help           Usage.
 
 THE ONLY OUTBOUND CALL this CLI makes is `upgrade`'s version check, and it goes
@@ -503,22 +501,6 @@ def cmd_map(argv: list[str]) -> int:
     return map_main(argv)
 
 
-def cmd_autonomy(argv: list[str]) -> int:
-    """Dispatch the autonomy subcommand through its recursively installed module."""
-    cli_dir = Path(__file__).resolve().parent
-    if str(cli_dir) not in sys.path:
-        sys.path.insert(0, str(cli_dir))
-    try:
-        from lib.autonomy_cli import main as autonomy_main
-    except ImportError as exc:  # pragma: no cover - missing install artifact
-        _eprint(
-            "nexus-hub autonomy: scripts/lib/autonomy_cli.py not found "
-            f"({exc}). Re-run the installer."
-        )
-        return 2
-    return autonomy_main(argv)
-
-
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="nexus-hub",
@@ -557,11 +539,6 @@ def build_parser() -> argparse.ArgumentParser:
         add_help=False,
         help="Compile a committed .nexus/CONTEXT-MAP.md from the local code graph.",
     )
-    sub.add_parser(
-        "autonomy",
-        add_help=False,
-        help="Manage project-scoped autonomy with mandatory TTL and safety gates.",
-    )
     return parser
 
 
@@ -583,11 +560,6 @@ def main(argv: list[str] | None = None) -> int:
     # extension's context-map CLI verbatim, so intercept before argparse.
     if raw and raw[0] == "map":
         return cmd_map(raw[1:])
-
-    # `autonomy` owns a nested verb parser in scripts/lib/autonomy_cli.py, which
-    # forwards every operation to the sibling autonomy.py policy engine.
-    if raw and raw[0] == "autonomy":
-        return cmd_autonomy(raw[1:])
 
     parser = build_parser()
     args = parser.parse_args(raw)

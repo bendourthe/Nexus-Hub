@@ -2,7 +2,7 @@
   "name": "claude-usage-monitor",
   "displayName": "Claude Usage Monitor",
   "description": "Monitor your Claude Code usage limits in the status bar with smart model and effort recommendations",
-  "version": "0.9.7",
+  "version": "0.9.8",
   "publisher": "nexus-hub",
   "icon": "icon.png",
   "repository": {
@@ -51,11 +51,6 @@
       {
         "command": "claude-usage.settings",
         "title": "Claude Usage: Settings",
-        "category": "Claude Usage"
-      },
-      {
-        "command": "claude-usage.autonomy",
-        "title": "Claude Usage: Project Autonomy",
         "category": "Claude Usage"
       }
     ],
@@ -111,20 +106,6 @@
           "type": "boolean",
           "default": false,
           "description": "Use a compact status-bar label: '<icon> X% (current) Y% (week)' instead of '<icon> Claude Usage: X% (current) Y% (week)'."
-        },
-        "claudeUsage.autonomyRefreshSeconds": {
-          "type": "number",
-          "default": 30,
-          "minimum": 10,
-          "maximum": 300,
-          "description": "How often the project autonomy status and TTL countdown refresh"
-        },
-        "claudeUsage.autonomyTtlMinutes": {
-          "type": "number",
-          "default": 60,
-          "minimum": 1,
-          "maximum": 480,
-          "description": "TTL passed to the Nexus-Hub autonomy CLI when enabling from the status bar"
         },
         "claudeUsage.thresholds.moderate": {
           "type": "number",

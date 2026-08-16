@@ -99,7 +99,7 @@ Two further gates apply, both learned the hard way during Phase 3:
 Seed conservatively, and record why in the entry's `rationale`:
 
 - **Effort scalars** are seeded to `medium`, matching the deliberate v3.15.5 cost choice.
-- **Autonomy keys** are seeded toward the approval-required direction, or to the vendor's own documented default where one exists.
+- **Approval-policy keys** are seeded toward the approval-required direction, or to the vendor's own documented default where one exists.
 - **Model pins** are seeded ONLY where the vendor documents a safe self-selecting value (currently just Copilot's `model: "auto"`). A provider-scoped model id the user's account cannot reach would break their tool, so where no safe value is documented the key goes under `omitted` with the reason instead. Inventing one is the exact failure this file exists to prevent.
 
 ### Adding a platform

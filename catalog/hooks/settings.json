@@ -15,7 +15,7 @@
           },
           {
             "type": "command",
-            "command": "bash .claude/hooks/autonomy-expiry.sh"
+            "command": "python3 .claude/hooks/retire-provider-override.py"
           }
         ]
       }
@@ -110,15 +110,6 @@
           {
             "type": "command",
             "command": "bash .claude/hooks/old-version-docs-guard.sh"
-          }
-        ]
-      },
-      {
-        "matcher": "Write|Edit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "bash .claude/hooks/autonomy-guard.sh"
           }
         ]
       },

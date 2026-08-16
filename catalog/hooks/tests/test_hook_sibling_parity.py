@@ -308,7 +308,6 @@ def test_secret_scan_ps1_does_not_echo_the_secret(
 _CONTROLLED = sorted(
     (SH_STEMS & PS1_STEMS)
     - {"secret-scan", "require-description", "require-powershell-description",
-       "autonomy-expiry",
        "compress-output", "claude-diff-review", "gemini-diff-review",
        "codex-diff-review", "opencode-diff-review", "antigravity-cli-diff-review"}
 )

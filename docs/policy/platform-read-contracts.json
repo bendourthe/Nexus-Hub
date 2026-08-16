@@ -1,114 +1,11 @@
 {
   "meta": {
     "last_verified": "2026-08-15",
-    "verified_for_version": "3.17.1",
-    "verified_for_version_note": "The full v3.17.0 verification from 2026-08-15 carries forward to v3.17.1. This patch only renames a local PowerShell variable in the release-tag installer-smoke harness and adds its regression test; it changes no platform read path, defaults lever, installer destination, autonomy descriptor, or instruction surface. SCOPE: all ten contract platforms and all sixteen defaults-lever platforms. Read paths remain eight MATCH, one non-breaking Codex DRIFT, and one UNVERIFIED Nexus-AI contract. Defaults levers remain verified on thirteen platforms and unverified on three.",
+    "verified_for_version": "3.17.2",
+    "verified_for_version_note": "Full v3.17.2 release pass on 2026-08-15. SCOPE: all ten contract platforms and all sixteen defaults-lever platforms. Read paths remain eight MATCH, one non-breaking Codex DRIFT, and one UNVERIFIED Nexus-AI contract. Defaults levers remain verified on thirteen platforms and unverified on three. Additive defaults drift was documented for Codex granular approvals, Cursor approvalMode, Antigravity CLI toolPermission and artifactReviewPolicy, Hermes approvals.mode, and Copilot's split settings and saved-approvals files; no installer destination changed.",
     "description": "Machine-readable single source for the platform read-contract guards. The human-readable surface table, formats, and source URLs live alongside in platform-read-contracts.md. Consumed by: scripts/verify_platform_contracts.py (contract_checks, code-vs-contract), scripts/lib/integrations/runner.py _verify_checks (install_verify, install-vs-reality), and scripts/check_platform_contract_freshness.py (meta, the release freshness gate). Re-verified against each platform's current docs and re-stamped (last_verified + verified_for_version) at every /update release by the platform-contract-verification skill.",
     "path_tokens": "In install_verify paths, '~/' resolves to the user home and '{project}/' resolves to the workspace/target root.",
-    "verification_method": "v3.17.0 pass: full. Live first-party documentation was re-fetched for all ten contract platforms and all sixteen defaults-lever platforms. Read paths: eight MATCH, Codex DRIFT remains non-breaking through the confirmed ~/.agents/skills write, and Nexus-AI remains UNVERIFIED because its private repository has no public contract. Lever drift corrected in configs/platform-defaults.json: Hermes uses agent.reasoning_effort, and Gemini Code Assist is documented but deliberately not writable because its setting belongs to the OS-specific VS Code user-settings surface."
-  },
-  "autonomy_levers": {
-    "_comment": "v3.17.0 Phase 2 autonomy-lever verification. MATCH means the current official documentation names a declarative JSON, JSONC, or TOML lever that the integration may describe. DRIFT means a lever exists but cannot satisfy this descriptor contract without a CLI-only flag, unsupported format, or second state store. UNVERIFIED means no seedable general autonomy lever was confirmed. This block is evidence and code-contract data; it does not alter the release freshness stamp.",
-    "verified": "2026-08-15",
-    "platforms": {
-      "aider": {
-        "verdict": "DRIFT",
-        "verified_on": "2026-08-14",
-        "source_url": "https://aider.chat/docs/config/aider_conf.html",
-        "note": "Aider documents yes-always in .aider.conf.yml, but the YAML-only all-confirmations switch has no edits-only tier and is outside the descriptor's JSON, JSONC, and TOML formats."
-      },
-      "antigravity": {
-        "verdict": "UNVERIFIED",
-        "verified_on": "2026-08-14",
-        "source_url": "https://www.antigravity.google/docs/settings",
-        "note": "Antigravity 1.0 documents in-app security controls but no file path and key that Nexus-Hub can seed; the deprecated integration remains descriptor-free."
-      },
-      "antigravity2": {
-        "verdict": "MATCH",
-        "verified_on": "2026-08-14",
-        "source_url": "https://www.antigravity.google/docs/cli-reference",
-        "note": "The global CLI JSON setting toolPermission accepts request-review, proceed-in-sandbox, always-proceed, and strict. Only always-proceed maps to this contract's full tier; no true edits-only value is documented."
-      },
-      "claude": {
-        "verdict": "MATCH",
-        "verified_on": "2026-08-14",
-        "source_url": "https://code.claude.com/docs/en/permissions",
-        "note": "Project settings and settings.local.json honor permissions.defaultMode; acceptEdits is the intermediate tier and bypassPermissions is the full tier."
-      },
-      "codex": {
-        "verdict": "MATCH",
-        "verified_on": "2026-08-14",
-        "source_url": "https://developers.openai.com/codex/config-reference/",
-        "note": "Trusted project .codex/config.toml files may set approval_policy and sandbox_mode. The full tier requires never plus danger-full-access and therefore removes both prompts and the sandbox, a higher risk class than prompt-only bypass."
-      },
-      "copilot": {
-        "verdict": "MATCH",
-        "verified_on": "2026-08-14",
-        "source_url": "https://code.visualstudio.com/docs/agents/approvals",
-        "vendor_version": "Visual Studio Code 1.131",
-        "note": "The current VS Code 1.131 contract uses chat.permissions.default with default, autoApprove, or autopilot. The plan's chat.autopilot.enabled starting point drifted; autopilot is the corrected full-tier value and no edits-only mode value exists."
-      },
-      "cursor": {
-        "verdict": "MATCH",
-        "verified_on": "2026-08-14",
-        "source_url": "https://docs.cursor.com/cli/reference/permissions",
-        "note": "Cursor CLI documents approvalMode in global ~/.cursor/cli-config.json with unrestricted as the full mode. Project .cursor/cli.json is permissions-only, so this descriptor is deliberately global and has no edits-only tier."
-      },
-      "gemini": {
-        "verdict": "DRIFT",
-        "verified_on": "2026-08-15",
-        "source_url": "https://developers.google.com/gemini-code-assist/docs/use-agentic-chat-pair-programmer",
-        "note": "Gemini Code Assist now documents geminicodeassist.agentYoloMode in the VS Code user settings JSON. The lever is persistent, but Nexus-Hub's autonomy engine accepts only project-scoped descriptors and the vendor does not document this key in project .vscode/settings.json, so no safe descriptor is declared."
-      },
-      "gemini-cli": {
-        "verdict": "DRIFT",
-        "verified_on": "2026-08-14",
-        "source_url": "https://geminicli.com/docs/cli/settings/",
-        "note": "Project settings persist general.defaultApprovalMode values default, auto_edit, and plan, but full yolo is explicitly CLI-only. A file descriptor cannot express both required tiers; enterprise gating does not repair that mismatch."
-      },
-      "hermes": {
-        "verdict": "UNVERIFIED",
-        "verified_on": "2026-08-14",
-        "source_url": "https://github.com/NousResearch/hermes-agent/blob/main/website/docs/user-guide/configuration.md",
-        "note": "Hermes documents narrow YAML gates for skill and memory writes, not a general file-edit plus shell autonomy mode in a supported descriptor format."
-      },
-      "kimi": {
-        "verdict": "MATCH",
-        "verified_on": "2026-08-14",
-        "source_url": "https://www.kimi.com/code/docs/en/kimi-code-cli/configuration/config-files",
-        "note": "Global ~/.kimi-code/config.toml accepts default_permission_mode manual, yolo, or auto. Auto is the full unattended tier; the project local.toml schema is workspace-only, so the descriptor is global and has no edits-only tier."
-      },
-      "nexus-ai": {
-        "verdict": "UNVERIFIED",
-        "verified_on": "2026-08-14",
-        "source_url": "https://github.com/bendourthe/Nexus-AI",
-        "note": "The private Nexus-AI repository exposes no publicly auditable user-facing autonomy setting, so negative-only evidence is not promoted into a descriptor."
-      },
-      "openclaw": {
-        "verdict": "DRIFT",
-        "verified_on": "2026-08-14",
-        "source_url": "https://docs.openclaw.ai/tools/permission-modes",
-        "note": "Full no-prompt host execution requires both tools.exec configuration and a separate host-local approvals document. One config-file descriptor would falsely report autonomy while the stricter second layer still prompts."
-      },
-      "opencode": {
-        "verdict": "MATCH",
-        "verified_on": "2026-08-14",
-        "source_url": "https://opencode.ai/docs/permissions",
-        "note": "Project-root opencode.json accepts permission objects. Asking by default while allowing edit is the edits-only tier; permission = allow is the full tier."
-      },
-      "qwen": {
-        "verdict": "MATCH",
-        "verified_on": "2026-08-14",
-        "source_url": "https://qwenlm.github.io/qwen-code-docs/en/users/configuration/settings/",
-        "note": "Project .qwen/settings.json accepts tools.approvalMode auto-edit for edits-only and yolo for full no-prompt operation."
-      },
-      "windsurf": {
-        "verdict": "UNVERIFIED",
-        "verified_on": "2026-08-14",
-        "source_url": "https://docs.devin.ai/product-guides/skills",
-        "note": "Current first-party Devin/Windsurf documentation confirms the retained skill surface but exposes no seedable permission-mode file or key; the deprecated integration remains descriptor-free."
-      }
-    }
+    "verification_method": "v3.17.2 pass: full. Live first-party documentation was re-fetched for all ten contract platforms and all sixteen defaults-lever platforms. Read paths: eight MATCH, Codex DRIFT remains non-breaking through the confirmed ~/.agents/skills write, and Nexus-AI remains UNVERIFIED because its private repository has no public contract. Existing defaults keys and write paths remain valid; newly documented approval controls are additive and are not written by the retired autonomy surface."
   },
   "parity_verification_v3_15_0": {
     "_comment": "Phase 1.2 of the v3.15.0 platform-parity release. Web re-verified (2026-07-20) the additive surfaces the 2026-07-19 (v3.14.5) re-verification log deferred to v3.15.0. This block is a findings record only; it is NOT consumed by any guard. contract_checks / install_verify rows and the verified_for_version re-stamp to 3.15.0 are added per phase AS the integration code that satisfies them lands (adding a contract_checks row before its integration writes the surface would fail verify_platform_contracts.py). The gemini_cli_class + decision fields for qwen and kimi are the Phase 4 reclassification go/no-go gate (sub-task 1.3).",
@@ -499,6 +396,41 @@
         ]
       }
     }
+  },
+  "release_verification_v3_17_2": {
+    "_comment": "Release-time findings only. This block is NOT consumed by any guard. contract_checks and install_verify continue to describe delivered behavior and must change only when matching adapter and test changes land.",
+    "verified": "2026-08-15",
+    "decision": "RELEASE_WITH_DOCUMENTED_NON_BREAKING_DRIFT",
+    "read_paths": {
+      "match": [
+        "claude",
+        "antigravity2",
+        "cursor",
+        "gemini",
+        "gemini-cli",
+        "kimi",
+        "opencode",
+        "qwen"
+      ],
+      "drift_non_breaking": {
+        "codex": "Current documentation confirms the .agents/skills discovery ladder and omits ~/.codex/skills. Nexus-Hub writes the confirmed ~/.agents/skills path, so delivery remains functional."
+      },
+      "unverified": {
+        "nexus-ai": "The private repository exposes no publicly auditable read-path contract."
+      }
+    },
+    "defaults_levers": {
+      "verified": 13,
+      "unverified": 3,
+      "additive_drift": [
+        "Codex documents granular approval-policy subkeys in addition to the existing approval_policy values.",
+        "Cursor documents approvalMode values allowlist, auto-review, and unrestricted in ~/.cursor/cli-config.json.",
+        "Antigravity CLI documents toolPermission and artifactReviewPolicy in ~/.gemini/antigravity-cli/settings.json.",
+        "Hermes documents approvals.mode values smart, manual, and off while retaining HERMES_YOLO_MODE=true as an equivalent.",
+        "Copilot CLI separates editable ~/.copilot/settings.json from saved per-project approvals in ~/.copilot/permissions-config.json."
+      ]
+    },
+    "delivery_decision": "No adapter or installer path changes. The release removes Nexus-Hub's provider-override controller and restores recorded legacy state without seeding any provider's approval mode."
   },
   "contract_checks": {
     "codex": {

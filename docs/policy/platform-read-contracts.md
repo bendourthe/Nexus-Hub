@@ -2,9 +2,9 @@
 
 This is the durable, sourced source of truth for where every supported platform READS each surface (instruction file, slash commands, skills, agents, rules, hooks) and where the Nexus-Hub installer WRITES it. It supersedes the point-in-time snapshot at `docs/v3/v3.11/platform-read-contracts.md` (which resolved the v3.11.0 Phase 7 audit but left the Codex and Antigravity contracts flagged as unverified).
 
-**Last verified**: 2026-08-15 for v3.17.0.
+**Last verified**: 2026-08-15 for v3.17.2.
 
-**v3.17.0 pass (full).** All ten contract platforms were re-fetched from live first-party documentation. The read-path contract remains functional: eight MATCH, one non-breaking Codex DRIFT, and one UNVERIFIED Nexus-AI surface. This release also adds a manifest-driven installer parity guard and real-install CI across Linux, macOS, and Windows.
+**v3.17.2 pass (full).** All ten contract platforms and all sixteen defaults-lever platforms were re-fetched from live first-party documentation. The read-path contract remains functional: eight MATCH, one non-breaking Codex DRIFT, and one UNVERIFIED Nexus-AI surface. Newly documented approval controls are additive and do not require an installer path change; Nexus-Hub no longer seeds a cross-provider autonomy override.
 
 | Platform | Verdict | Evidence |
 |---|---|---|
@@ -21,42 +21,6 @@ This is the durable, sourced source of truth for where every supported platform 
 
 **Codex finding, handling.** Unchanged and still non-breaking. The full pass evaluated removal and retained `~/.codex/skills`: repeated omission is weaker evidence than an explicit deprecation, while the confirmed `~/.agents/skills` write guarantees delivery.
 
-## Autonomy lever verification (v3.17.0 Phase 2)
-
-Verified 2026-08-14 against current first-party documentation. This section answers a narrower question than the read-path log above: whether each registered integration has a declarative JSON, JSONC, or TOML permission-mode lever that Nexus-Hub can describe without inventing a key. `MATCH` is the only verdict that permits an integration `autonomy` descriptor. `DRIFT` means a real lever exists but is structurally incompatible with the descriptor contract; `UNVERIFIED` means no seedable general autonomy lever was confirmed. Negative-only evidence never becomes a descriptor.
-
-| Platform (registry id) | Verdict | Descriptor | Scope and config | Evidence |
-|---|---|---|---|---|
-| Aider (`aider`) | **DRIFT** | No | Project or global `.aider.conf.yml` | `yes-always` is real, but the YAML-only all-confirmations switch has no edits-only tier and is outside the supported formats. [Source](https://aider.chat/docs/config/aider_conf.html) |
-| Antigravity 1.0 (`antigravity`) | **UNVERIFIED** | No | UI only | The deprecated IDE documents security controls but no seedable file path and key. [Source](https://www.antigravity.google/docs/settings) |
-| Antigravity 2.0 + CLI (`antigravity2`) | **MATCH** | Yes | Global `~/.gemini/antigravity-cli/settings.json` | `toolPermission: "always-proceed"` is the full tier. `proceed-in-sandbox` is broader than edits-only, so no intermediate tier is declared. [Source](https://www.antigravity.google/docs/cli-reference) |
-| Claude Code (`claude`) | **MATCH** | Yes | Project `.claude/settings.local.json` | `permissions.defaultMode` supports `acceptEdits` and `bypassPermissions`; both shared and local project settings participate in precedence. [Source](https://code.claude.com/docs/en/permissions) |
-| Codex (`codex`) | **MATCH** | Yes | Trusted project `.codex/config.toml` | Edits-only uses `approval_policy = "on-request"` plus `sandbox_mode = "workspace-write"`; full uses `never` plus `danger-full-access`. The full tier removes a sandbox, not only a prompt, so it is a higher risk class than Claude Code. [Source](https://developers.openai.com/codex/config-reference/) |
-| GitHub Copilot / VS Code (`copilot`) | **MATCH** | Yes | Project `.vscode/settings.json` | Against VS Code 1.131, the current mode key is `chat.permissions.default`; `autopilot` is the full tier. The plan's `chat.autopilot.enabled` starting point drifted, and no edits-only mode value exists. [Source](https://code.visualstudio.com/docs/agents/approvals) |
-| Cursor (`cursor`) | **MATCH** | Yes | Global `~/.cursor/cli-config.json` | `approvalMode: "unrestricted"` is the full mode. Project `.cursor/cli.json` is permissions-only, so the descriptor is global and has no edits-only tier. [Source](https://docs.cursor.com/cli/reference/permissions) |
-| Gemini Code Assist (`gemini`) | **DRIFT** | No | VS Code user settings JSON | `geminicodeassist.agentYoloMode` is now documented, but Nexus-Hub's autonomy engine accepts only project-scoped descriptors and the vendor does not document this key in project `.vscode/settings.json`. [Source](https://developers.google.com/gemini-code-assist/docs/use-agentic-chat-pair-programmer) |
-| Gemini CLI (`gemini-cli`) | **DRIFT** | No | Project `.gemini/settings.json` plus CLI-only full mode | `general.defaultApprovalMode` persists `default`, `auto_edit`, and `plan`; full YOLO is explicitly CLI-only, so one file descriptor cannot express both required tiers. The integration remains enterprise-only. [Source](https://geminicli.com/docs/cli/settings/) |
-| Hermes (`hermes`) | **UNVERIFIED** | No | Global `~/.hermes/config.yaml` | Hermes documents narrow YAML gates for skill and memory writes, not a general file-edit plus shell autonomy mode in a supported format. [Source](https://github.com/NousResearch/hermes-agent/blob/main/website/docs/user-guide/configuration.md) |
-| Kimi Code CLI (`kimi`) | **MATCH** | Yes | Global `~/.kimi-code/config.toml` | `default_permission_mode = "auto"` is the full unattended tier. Project `.kimi-code/local.toml` is documented only for workspace settings, so the descriptor is global and has no edits-only tier. [Source](https://www.kimi.com/code/docs/en/kimi-code-cli/configuration/config-files) |
-| Nexus-AI (`nexus-ai`) | **UNVERIFIED** | No | No public contract | The private repository exposes no publicly auditable user-facing autonomy setting; negative-only evidence is not promoted. [Source](https://github.com/bendourthe/Nexus-AI) |
-| OpenClaw (`openclaw`) | **DRIFT** | No | Global JSON5 plus host-local approvals state | Full no-prompt host execution requires both `tools.exec` configuration and a separate host-local approvals document. A one-file descriptor would falsely report autonomy while the stricter second layer could still prompt. [Source](https://docs.openclaw.ai/tools/permission-modes) |
-| OpenCode (`opencode`) | **MATCH** | Yes | Project-root `opencode.json` | `permission: {"*": "ask", "edit": "allow"}` is edits-only; `permission: "allow"` is full. JSON and JSONC project files share the same schema. [Source](https://opencode.ai/docs/permissions) |
-| Qwen Code (`qwen`) | **MATCH** | Yes | Project `.qwen/settings.json` | `tools.approvalMode` supports `auto-edit` for edits-only and `yolo` for full no-prompt operation. [Source](https://qwenlm.github.io/qwen-code-docs/en/users/configuration/settings/) |
-| Windsurf (`windsurf`) | **UNVERIFIED** | No | No seedable mode file confirmed | Current first-party Devin/Windsurf documentation confirms the retained product surface but exposes no permission-mode file or key. [Source](https://docs.devin.ai/product-guides/skills) |
-
-**Counts**: 8 MATCH with descriptors, 3 DRIFT without descriptors, 5 UNVERIFIED without descriptors, 16 total. The JSON sibling's `autonomy_levers.platforms` block is authoritative for tests; this table mirrors it.
-
-### Claude Code hook independence under autonomy (v3.17.0 Phase 4)
-
-**Verdict: MATCH.** Verified 2026-08-14 on Claude Code 2.1.156 against a throwaway git repository with a registered `PreToolUse` hook that recorded the attempted tool name and target, printed a fixed marker, and exited 2. The hook remained enforcing for both tool-routing classes tested (`Bash` and `Write`) under all three no-prompt surfaces. In every case the hook recorded the attempted call and the requested marker file remained absent.
-
-| Autonomy surface | Bash matcher | Write matcher | Result |
-|---|---|---|---|
-| `permissions.defaultMode: "acceptEdits"` / `--permission-mode acceptEdits` | Hook fired; exit 2 blocked | Hook fired; exit 2 blocked | **MATCH** |
-| `permissions.defaultMode: "bypassPermissions"` / `--permission-mode bypassPermissions` | Hook fired; exit 2 blocked | Hook fired; exit 2 blocked | **MATCH** |
-| `--dangerously-skip-permissions` | Hook fired; exit 2 blocked | Hook fired; exit 2 blocked | **MATCH** |
-
-The test used the installed CLI's project settings loader and real tool-routing path rather than calling the hook script directly. The permission and hook layers are therefore empirically independent for this build: prompt bypass did not suppress the blocking hook. This finding supports the Phase 4 design but remains version-specific; re-run it when Claude Code changes its hook or permission architecture. First-party contracts: [hooks](https://code.claude.com/docs/en/hooks), [permission modes](https://code.claude.com/docs/en/permissions).
 **Last verified**: 2026-08-14 for v3.16.8.
 
 **v3.16.8 pass (targeted, sixth consecutive).** Two platforms were re-fetched from live first-party documentation; the remaining eight carry forward from the 2026-08-08 full pass and are explicitly **not re-verified this cycle** rather than assumed to match. v3.16.8 changes no platform discovery surface, verified by diff rather than asserted: filtering `git diff --name-only origin/main..HEAD` for installer / integrations / `base-*.md` / `platform-read-contracts` / `platform-defaults` returns zero matches. The changed set is one repo-level script (`scripts/validate_unicode_safety.py`, which carries no read path), two `catalog/commands/` files, one `catalog/skills/` SKILL.md, `tests/`, and `docs/`, plus the version constants in both installers.
@@ -179,9 +143,15 @@ The catalog itself is never reorganized per platform. Each integration is an ada
 
 ## Re-verification log
 
+### 2026-08-15 (v3.17.2 release - full re-verification)
+
+All ten machine-checked platform contracts and all sixteen defaults-lever platforms were re-fetched from current first-party documentation. Read-path outcomes remain eight MATCH, one non-breaking Codex DRIFT, and one UNVERIFIED Nexus-AI contract. Qwen continues to document its native `.qwen/skills` paths, while the shared `.agents/skills` alias is no longer documented there; Nexus-Hub already delivers to Qwen's native path, so no delivery change is required.
+
+Defaults remain 13 VERIFIED and 3 UNVERIFIED. Current docs add or clarify granular approval controls for Codex, Cursor, Antigravity CLI, Hermes, and Copilot CLI, but every existing seeded key and path remains valid. These findings do not justify a replacement autonomy controller: v3.17.2 removes that unsupported surface and limits migration behavior to restoring recorded pre-controller state.
+
 ### 2026-08-15 (v3.17.0 release - full re-verification)
 
-All ten machine-checked platform contracts and all sixteen defaults-lever platforms were re-fetched from current first-party documentation. Read-path outcomes are eight MATCH, one non-breaking Codex DRIFT, and one UNVERIFIED Nexus-AI contract. The pass corrected two defaults-lever records: Hermes moved its global reasoning key to `agent.reasoning_effort`, and Gemini Code Assist now documents `geminicodeassist.agentYoloMode` in VS Code user settings, making the lever VERIFIED but not writable by the current integration and DRIFT for the project-only autonomy descriptor contract. No installer read path was removed.
+All ten machine-checked platform contracts and all sixteen defaults-lever platforms were re-fetched from current first-party documentation. Read-path outcomes are eight MATCH, one non-breaking Codex DRIFT, and one UNVERIFIED Nexus-AI contract. The pass corrected two defaults-lever records: Hermes moved its global reasoning key to `agent.reasoning_effort`, and Gemini Code Assist documented `geminicodeassist.agentYoloMode` in VS Code user settings. No installer read path was removed.
 
 ### 2026-08-02 (v3.15.7 release - full re-verification)
 

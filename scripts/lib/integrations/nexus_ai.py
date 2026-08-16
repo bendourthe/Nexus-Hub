@@ -77,7 +77,6 @@ class NexusAiIntegration(MarkdownIntegration, SkillsIntegration):
         "agents_subdir": "agents",
         "rules_subdir": "rules",
         "hooks_subdir": "hooks",
-        # No autonomy descriptor: Nexus-AI has no publicly verifiable user-facing lever; see the platform read-contract autonomy section.
         "hooks_supported": True,
     }
 

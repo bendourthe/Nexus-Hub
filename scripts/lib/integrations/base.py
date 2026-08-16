@@ -139,14 +139,6 @@ class InstallContext:
 class IntegrationBase:
     """Abstract integration. Subclasses MUST set `key` and `config` and SHOULD
     override `install_global` / `install_workspace` / `teardown` as needed.
-
-    The optional ``config["autonomy"]`` capability is declarative data only.
-    It contains ``config_file``, ``scope`` (``project`` or ``global``),
-    ``key_paths``, ``tiers`` (``edits_only`` and ``full`` mappings),
-    ``intermediate_supported``, ``verified``, and ``format`` (``json``,
-    ``jsonc``, or ``toml``). Consumers MUST use ``autonomy_descriptor`` rather
-    than reading the config key directly so absent and unverified declarations
-    both degrade to unsupported.
     """
 
     key: str = ""
@@ -158,14 +150,6 @@ class IntegrationBase:
             raise NotImplementedError(f"{type(self).__name__} must set .key")
         if not self.display_name:
             self.display_name = self.key.capitalize()
-
-    @property
-    def autonomy_descriptor(self) -> dict[str, Any] | None:
-        """Return the verified autonomy capability, or ``None`` when unsupported."""
-        descriptor = self.config.get("autonomy")
-        if not isinstance(descriptor, dict) or descriptor.get("verified") is not True:
-            return None
-        return descriptor
 
     def install(self, ctx: InstallContext) -> WriteResult:
         """Dispatch to install_global or install_workspace based on ctx.scope.
