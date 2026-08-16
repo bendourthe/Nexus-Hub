@@ -21,6 +21,12 @@ interface StubConfiguration {
 // writes here; `get` reads here first, else returns the caller's default - so
 // existing provider tests (which never set anything) still get the default.
 export const stubConfig: Record<string, Record<string, unknown>> = {};
+export const configurationUpdates: Array<{
+  section: string | undefined;
+  key: string;
+  value: unknown;
+  target: unknown;
+}> = [];
 export function __setStubConfig(section: string, key: string, value: unknown): void {
   (stubConfig[section] ??= {})[key] = value;
 }
@@ -30,6 +36,7 @@ export function __setStubConfig(section: string, key: string, value: unknown): v
 export const createdStatusBarItems: Array<Record<string, unknown>> = [];
 export function __resetStubState(): void {
   createdStatusBarItems.length = 0;
+  configurationUpdates.length = 0;
   for (const k of Object.keys(stubConfig)) {
     delete stubConfig[k];
   }
@@ -45,8 +52,15 @@ export const workspace = {
         }
         return defaultValue;
       },
-      async update(): Promise<void> {
-        /* no-op in tests */
+      async update(key: string, value: unknown, target: unknown): Promise<void> {
+        configurationUpdates.push({ section, key, value, target });
+        const sectionKey = section ?? "";
+        const sectionMap = (stubConfig[sectionKey] ??= {});
+        if (value === undefined) {
+          delete sectionMap[key];
+        } else {
+          sectionMap[key] = value;
+        }
       },
     };
   },

@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.17.2 -->
+<!-- nexus-hub-version: 3.17.3 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 271 skills, 17 commands, 32 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -36,6 +36,16 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v3.17.3
+
+**Cursor hooks now install and run natively on every supported operating system.** Windows installations register the PowerShell hook siblings already shipped by Nexus-Hub, while macOS and Linux retain native Bash hooks. A compatibility launcher converts Claude-imported hook results into Cursor's required JSON response without weakening deny decisions, and upgrades repair stale Windows Bash registrations and incomplete hook copies automatically.
+
+**The Codex and Claude usage monitors are more reliable.** Codex now maps the live `spend_control.individual_limit` payload into detailed Extra Credits usage, and low or critical refresh ticks in either monitor no longer overwrite an active High warning color. The packaged extension versions advance to Codex Usage Monitor 0.2.10 and Claude Usage Monitor 0.9.9.
+
+To verify the Cursor repair on Windows, start a new Cursor agent chat after reinstalling and run a write-producing command such as `/implement`; the Hooks output should contain one valid allow-or-deny JSON object and no Bash lookup error. On macOS or Linux, confirm the generated hook commands still invoke Bash. No opt-in capability is introduced or materially changed by this release.
+
+The temporary v3.17.2 provider-state restoration migration remains for this expedited patch so delayed upgrades from v3.17.0 or v3.17.1 remain recoverable. Its removal is deferred to v3.17.4. Catalog counts remain **271 skills**, **17 commands**, **32 hooks**, and **23 agents**.
 
 ## What's New in v3.17.2
 

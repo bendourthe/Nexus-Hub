@@ -1,6 +1,6 @@
 # Nexus-Hub Progress Dashboard
 
-**Branch:** `release/v3.17.2`
+**Branch:** `fix/v3.17.3-corrective`
 
 ---
 
@@ -32,8 +32,39 @@
 | v3.15.8 Phase 4 tasks complete | 7 | 7 | 0 |
 | v3.17.2 autonomy retirement tasks complete | 6 | 6 | 0 |
 | v3.17.2 release tasks complete | 5 | 7 | 2 |
-| v3.17.3 plan phases complete | 0 | 6 | 6 |
-| v3.17.4 plan phases complete | 0 | 7 | 7 |
+| v3.17.3 release-candidate tasks complete | 7 | 7 | 0 |
+| v3.17.4 plan phases complete | 0 | 6 | 6 |
+| v3.17.5 plan phases complete | 0 | 7 | 7 |
+| Cursor hook portability tasks complete | 4 | 4 | 0 |
+| Usage monitor color-race tasks complete | 2 | 2 | 0 |
+| Codex Extra Credits payload tasks complete | 2 | 2 | 0 |
+
+## Corrective Patch - Cursor Hook Portability [DONE]
+
+- [x] Install and register PowerShell hook siblings on Windows without a Bash dependency
+- [x] Preserve Bash hook registration and install every referenced hook on macOS and Linux
+- [x] Normalize Claude-imported hook output to Cursor JSON while preserving Claude Code behavior and hook deny decisions
+- [x] Add Windows, POSIX, fresh-settings, upgrade-repair, full-template, and dangerous-command regression coverage
+
+## Corrective Patch - v3.17.3 Usage Monitor Warning Color Race [DONE]
+
+- [x] Prevent low and critical Codex display ticks from replacing an active High orange warning color with Moderate yellow
+- [x] Apply the same shared-token guard and regression coverage to the Claude usage monitor
+
+## Corrective Patch - v3.17.3 Codex Extra Credits Live Payload [DONE]
+
+- [x] Map the live `spend_control.individual_limit` response into detailed Extra Credits usage
+- [x] Add a live-shaped 225-of-5,000 regression fixture and pass the full Codex extension gate
+
+## Release Candidate - v3.17.3 Cursor Hook Portability and Usage Monitor Reliability [IN PROGRESS]
+
+- [x] Isolate the corrective diff on `fix/v3.17.3-corrective` from the committed Org Knowledge Phase 1 work
+- [x] Obtain approval for the diff-derived release notes and the provider-state migration deferral
+- [x] Keep the corrective fixes in scope and exclude unfinished Org Knowledge implementation
+- [x] Renumber Org Knowledge to v3.17.4 and DeepSeek Harness Adoption to v3.17.5
+- [x] Complete canonical version, extension package, release-documentation, and staged manifest updates
+- [x] Re-verify platform read contracts and behavioral-default levers for v3.17.3
+- [x] Pass the complete bounded local release gates and present the candidate before commit, push, tag, or publication
 
 ## Parallel Plan - v3.15.8 Platform Parity and GitHub Usage Monitor [IN PROGRESS]
 
@@ -126,10 +157,10 @@
 - [ ] Integrate and push `develop`, then pass remote CI
 - [ ] Promote `main`, tag v3.17.2, publish the GitHub Release, and verify the downloaded artifact
 
-## Parallel Plan - v3.17.3 Org Knowledge Layer [PLANNED]
+## Parallel Plan - v3.17.4 Org Knowledge Layer [PLANNED]
 
 - [x] Deep research completed: `docs/v3/v3.17/development/org-knowledge-layer-research.md`
-- [x] Plan generated and design decisions confirmed: `docs/v3/v3.17/plans/v3.17.3-org-knowledge-layer.md`
+- [x] Plan generated and design decisions confirmed: `docs/v3/v3.17/plans/v3.17.4-org-knowledge-layer.md`
 - [ ] Complete Phase 1: Org Bundle Contract
 - [ ] Complete Phase 2: Connect CLI
 - [ ] Complete Phase 3: Cross-Platform Materialization
@@ -137,10 +168,10 @@
 - [ ] Complete Phase 5: Lifecycle Integration and Docs
 - [ ] Complete Phase 6: Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
 
-## Parallel Plan - v3.17.4 DeepSeek Harness Adoption [PLANNED]
+## Parallel Plan - v3.17.5 DeepSeek Harness Adoption [PLANNED]
 
-- [x] Comparison report written: `docs/v3/v3.17/comparisons/v3.17.4-comparison-deepseek-harness.md`
-- [x] Plan generated and phase breakdown confirmed: `docs/v3/v3.17/plans/v3.17.4-adoption-deepseek-harness.md`
+- [x] Comparison report written: `docs/v3/v3.17/comparisons/v3.17.5-comparison-deepseek-harness.md`
+- [x] Plan generated and phase breakdown confirmed: `docs/v3/v3.17/plans/v3.17.5-adoption-deepseek-harness.md`
 - [ ] Complete Phase 1: Doc Word Budgets (B1)
 - [ ] Complete Phase 2: deepseek-harness Skill (A1)
 - [ ] Complete Phase 3: Skill Extensions (A2 + A3 + A4)

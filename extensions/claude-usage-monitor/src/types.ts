@@ -249,11 +249,16 @@ export async function syncColorsToWorkbench(colors: ColorConfig): Promise<void> 
 
 /**
  * Called on every status bar update to ensure the warningBackground hex reflects the
- * current urgency level.  Moderate and high both use statusBarItem.warningBackground,
- * so we swap the hex value whenever urgency toggles between those two levels.
- * Critical always uses statusBarItem.errorBackground (set by syncColorsToWorkbench).
+ * current urgency level. Moderate and high both use statusBarItem.warningBackground,
+ * so we swap the hex value whenever urgency toggles between those two levels. Low and
+ * critical do not use warningBackground and must not overwrite a color another usage
+ * monitor is actively displaying. Critical uses statusBarItem.errorBackground instead.
  */
 export async function syncActiveColorToWorkbench(urgency: UrgencyLevel, colors: ColorConfig): Promise<void> {
+  if (urgency !== "moderate" && urgency !== "high") {
+    return;
+  }
+
   const hexRegex = /^#[0-9a-fA-F]{6}$/i;
   const wbConfig = vscode.workspace.getConfiguration("workbench");
   const existing: Record<string, string> = {
@@ -262,24 +267,12 @@ export async function syncActiveColorToWorkbench(urgency: UrgencyLevel, colors: 
 
   const warnKey = "statusBarItem.warningBackground";
   let changed = false;
-
-  if (urgency === "high") {
-    const hex = colors.high;
-    if (hex === "none") {
-      if (warnKey in existing) { delete existing[warnKey]; changed = true; }
-    } else if (hexRegex.test(hex) && existing[warnKey] !== hex) {
-      existing[warnKey] = hex;
-      changed = true;
-    }
-  } else {
-    // moderate, low, or critical: restore warningBackground to moderate's hex
-    const hex = colors.moderate;
-    if (hex === "none") {
-      if (warnKey in existing) { delete existing[warnKey]; changed = true; }
-    } else if (hexRegex.test(hex) && existing[warnKey] !== hex) {
-      existing[warnKey] = hex;
-      changed = true;
-    }
+  const hex = colors[urgency];
+  if (hex === "none") {
+    if (warnKey in existing) { delete existing[warnKey]; changed = true; }
+  } else if (hexRegex.test(hex) && existing[warnKey] !== hex) {
+    existing[warnKey] = hex;
+    changed = true;
   }
 
   if (changed) {

@@ -1,14 +1,49 @@
 # Known Gaps - v3.17
 
 **Project**: Nexus-Hub
-**Status**: v3.17.2 corrective work retires the v3.17.0 autonomy controller after installation proved that it could not provide the provider-independent approval bypass its product surface implied.
-**Last updated**: 2026-08-15 (v3.17.2 release preparation and legacy-state migration)
+**Status**: v3.17.3 corrective release preparation repairs Cursor hook portability and two usage-monitor reliability defects without including unfinished v3.17.4 Org Knowledge work.
+**Last updated**: 2026-08-16 (v3.17.3 corrective release preparation)
 
 > **File-lifecycle note**: this ledger was opened by the v3.17.0 Phase 1 append. Each subsequent v3.17.N implementation appends its own `## v3.17.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `MT-#` / `QG-#` numbering.
 
 > **Prior-version ingest**: checked `docs/v3/v3.15/known-gaps.md`. v3.15.2 DF-2 (Hermes registered but not installer-wired) carries forward as DF-4 because it remains a delivery limitation. v3.15.0 WN-1 (the Windows Git-Bash bootstrap `tar` failure) recurred and carries forward as WN-1. The v3.15.1 lint warnings involved files outside this plan and do not carry in. The v3.18.2 RTK and Meterless artifacts keep their established stamp under `docs/v3/v3.18/`; their stale pre-move references were corrected during Phase 6 rather than transferred as gaps.
 
 ---
+
+## v3.17.3 - cursor-hook-portability-and-usage-monitor-reliability
+
+**Status**: Corrective release candidate preparation is in progress on `fix/v3.17.3-corrective`. The scope is limited to Cursor hook portability, Codex Extra Credits live-payload mapping, shared warning-color stability, release metadata, and the renumbering of unreleased plans.
+
+### BG-1 - CLOSED in implementation: Windows Cursor inherited Bash hook commands
+
+- **Target files**: both installers, `scripts/lib/integrations/cursor.py`, `catalog/hooks/cursor-hook-compat.py`, and Cursor installer/integration tests
+- **What was wrong**: Cursor imported Claude Code hooks whose commands invoked `bash C:/...` even on Windows. A missing or mismatched Bash runtime produced empty or non-JSON stdout, and Cursor failed closed before write-producing commands such as `/implement` could run.
+- **Resolution**: Windows now installs and registers the existing PowerShell hook siblings, macOS and Linux retain Bash, and a shared compatibility launcher emits one Cursor allow-or-deny JSON response while keeping diagnostics on stderr and preserving deny decisions.
+
+### BG-2 - CLOSED in implementation: usage-monitor refreshes raced over one shared warning color
+
+- **Target files**: both usage monitors' `src/types.ts` files and their regression tests
+- **What was wrong**: low and critical refresh ticks reset `statusBarItem.warningBackground` to the Moderate color even though those urgency levels do not use that token, overwriting another monitor's active High color.
+- **Resolution**: only Moderate and High urgency updates may write the shared warning token; low and critical ticks leave it untouched.
+
+### BG-3 - CLOSED in implementation: Codex Extra Credits ignored the live spend-control shape
+
+- **Target files**: `extensions/codex-usage-monitor/src/providers/codex.ts` and `test/codex-usage-mapping.test.ts`
+- **What was wrong**: the live response exposes detailed Extra Credits usage under `spend_control.individual_limit`, which the mapper did not inspect.
+- **Resolution**: the mapper accepts snake-case and camel-case spend-control aliases and exposes the detailed used amount, monthly limit, percentage, and reset date.
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---:|---:|
+| Not implemented by design / unverified (`NI-#`) | 0 | 0 |
+| Deferred (`DF-#`) | 0 | 0 |
+| Bugs (`BG-#`) | 0 | 3 |
+| Warnings (`WN-#`) | 0 | 0 |
+| Missing tests (`MT-#`) | 0 | 0 |
+| Quality-gate bypasses (`QG-#`) | 0 | 0 |
+
+**Release blockers**: 0 identified before final verification. The v3.17.2 DF-6 migration remains installed through this expedited release and is retargeted to v3.17.4 so delayed v3.17.0 and v3.17.1 upgrades retain their recovery path.
 
 ## v3.17.2 - remove-autonomy-controller
 
@@ -39,7 +74,7 @@
 
 - **Target files**: `catalog/hooks/retire-provider-override.py`, `catalog/hooks/settings.json`, both installers, and their migration tests
 - **Reason it is open**: users can upgrade directly from v3.17.0 or v3.17.1 after v3.17.2 ships. Removing the helper in the same release would leave those delayed upgrades unable to restore recorded state.
-- **Suggested next step**: in v3.17.3, confirm the compatibility window is complete, remove the helper and SessionStart registration, delete its installer wiring and tests, decrement the hook count, and retain this ledger entry as the migration record.
+- **Suggested next step**: retain the migration through the expedited v3.17.3 corrective release so delayed v3.17.0 and v3.17.1 upgrades remain recoverable; in v3.17.4, confirm the compatibility window is complete, remove the helper and SessionStart registration, delete its installer wiring and tests, decrement the hook count, and retain this ledger entry as the migration record.
 
 ### WN-5 - OPEN advisory: per-model prompting profiles lag the current model roster
 
