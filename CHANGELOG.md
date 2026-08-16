@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+## [3.17.3] - 2026-08-16
+
+Cursor hooks now use each host operating system's native shell and always return Cursor's required JSON contract. The Codex and Claude usage monitors also receive two bounded reliability corrections.
+
+### Fixed
+
+- **Cursor hooks now work natively on every supported operating system.** Windows installations register PowerShell hook siblings without requiring Bash. macOS and Linux retain native Bash hooks.
+- **Claude-imported hooks now satisfy Cursor's JSON contract.** Hook results are normalized to one valid allow-or-deny JSON response while preserving security blocks and Claude Code behavior.
+- **Existing Cursor installations are repaired during upgrade.** Stale Windows Bash registrations and incomplete hook copies are replaced automatically.
+- **Usage-monitor alert colors remain stable across refresh ticks.** Low and critical Codex or Claude display updates no longer replace an active High orange status-bar warning with the Moderate yellow color.
+- **Codex Extra Credits follows the live usage payload.** The Codex monitor now maps `spend_control.individual_limit` into the detailed used amount, monthly limit, percentage, and reset date instead of falling back to `Credits: available`.
+
+### Changed
+
+- **The temporary provider-state restoration migration remains available.** Its removal moves to v3.17.4 so users upgrading directly from v3.17.0 or v3.17.1 through this expedited patch retain the fail-safe recovery path.
+
 ## [3.17.2] - 2026-08-15
 
 The unsupported autonomy controller is retired, and upgrades fail safely back to the provider configurations recorded before it was enabled.
@@ -5130,7 +5148,8 @@ repository_root/
 
 ---
 
-[Unreleased]: https://github.com/bendourthe/Nexus-Hub/compare/v3.17.2...HEAD
+[Unreleased]: https://github.com/bendourthe/Nexus-Hub/compare/v3.17.3...HEAD
+[3.17.3]: https://github.com/bendourthe/Nexus-Hub/compare/v3.17.2...v3.17.3
 [3.17.2]: https://github.com/bendourthe/Nexus-Hub/compare/v3.17.1...v3.17.2
 [3.17.1]: https://github.com/bendourthe/Nexus-Hub/compare/v3.17.0...v3.17.1
 [3.17.0]: https://github.com/bendourthe/Nexus-Hub/compare/v3.16.8...v3.17.0

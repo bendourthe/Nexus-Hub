@@ -30,13 +30,11 @@ block in the sibling .json):
     (project), in Cursor's own schema (``{"version": 1, "hooks": {...}}``), with the
     hook scripts under ``.cursor/hooks/``. Gated on ``hooks_supported``.
 
-Cursor's hook event model differs from Claude's: it has no before-file-write
-blocking event (only ``afterFileEdit``), and hooks receive a Cursor-shaped stdin
-JSON rather than Claude's. Only ``git-guardrails`` maps onto a clean, blocking
-event (``beforeShellExecution``; exit code 2 blocks). The curated script is
-shipped there; because it currently parses Claude's stdin shape it degrades to a
-fail-open no-op on Cursor (never a wrong block) until a follow-up adapts its stdin
-parsing -- tracked in the version's known-gaps.
+Cursor's hook event model differs from Claude's and hooks receive a Cursor-shaped
+stdin JSON. ``git-guardrails`` maps onto the dedicated blocking
+``beforeShellExecution`` event, while completion notification maps to ``stop``.
+The installer copies both shell siblings and registers the one native to the
+installing host, so Windows never depends on Bash or WSL path translation.
 """
 
 from __future__ import annotations
@@ -50,6 +48,12 @@ from ._catalog_adapters import (
     flatten_skills,
 )
 from ._command_surface import mirror_command_surface
+from ._hooks_common import (
+    command_for as host_command_for,
+    is_windows_host,
+    script_for_host,
+    sibling_scripts,
+)
 from .base import InstallContext, MarkdownIntegration, SkillsIntegration, YamlIntegration
 from .result import FileAction, WriteResult
 from scripts.lib.installer.instruction_merge import merge_marker_section
@@ -78,15 +82,14 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
         "hooks_supported": True,
     }
 
-    # Only git-guardrails maps onto a clean, blocking Cursor event
-    # (beforeShellExecution -> exit 2 blocks a destructive git command). The other
-    # Nexus-Hub guardrails (secret-scan, large-file-guard) guard file WRITES, for
-    # which Cursor exposes no before-write blocking event, so they are intentionally
-    # not shipped here (post-hoc afterFileEdit cannot prevent the write).
+    # The native Cursor surface uses its dedicated shell and completion events.
+    # Cursor separately imports the broader Claude-compatible hook set from
+    # settings.json; the compatibility launcher normalizes those event responses.
     # `_notify_common.sh` is a MODULE, not a registered hook: notify-on-complete.sh
     # sources it from its own directory for label resolution and suppression, so
     # shipping the hook without it makes the hook exit silently on every run.
     _CURATED_HOOK_SCRIPTS = (
+        "cursor-hook-compat.py",
         "git-guardrails.sh",
         "_notify_common.sh",
         "notify-on-complete.sh",
@@ -119,7 +122,10 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
             "version": 1,
             "hooks": {
                 "beforeShellExecution": [
-                    {"command": command_for("git-guardrails.sh")},
+                    {
+                        "command": command_for("git-guardrails.sh"),
+                        "failClosed": True,
+                    },
                 ],
                 "stop": [
                     {"command": command_for("notify-on-complete.sh")},
@@ -261,9 +267,13 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
         self._ensure_dir(hooks_dst, ctx)
         actions: list[FileAction] = []
         for script in self._CURATED_HOOK_SCRIPTS:
-            actions.append(
-                self._copy_file(src_hooks / script, hooks_dst / script, ctx, self.key)
-            )
+            variants = (script,) if script.endswith(".py") else sibling_scripts(script)
+            for sibling in variants:
+                actions.append(
+                    self._copy_file(
+                        src_hooks / sibling, hooks_dst / sibling, ctx, self.key
+                    )
+                )
         actions.append(self._write_hooks_json(cursor_root, hooks_dst, ctx, scope))
         return actions
 
@@ -274,18 +284,23 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
 
         Workspace hooks reference scripts by a project-relative path
         (``.cursor/hooks/<script>``); global hooks reference the resolved absolute
-        path. ``.sh`` scripts run under ``bash`` (git-bash on Windows, exactly as
-        the Claude hooks document). An existing user-edited hooks.json is preserved
-        unless ``--overwrite`` is set.
+        path. The host-native sibling runs under PowerShell on Windows and Bash
+        elsewhere. An existing user-edited hooks.json is preserved unless
+        ``--overwrite`` is set.
         """
         if scope == "workspace":
             base = f"{self.config['workspace_dir']}/{self.config['hooks_subdir']}"
         else:
             base = hooks_dst.as_posix()
 
+        windows = is_windows_host()
+
         def command_for(script: str) -> str:
-            runner = "python3" if script.endswith(".py") else "bash"
-            return f"{runner} {base}/{script}"
+            host_script = script_for_host(script, windows)
+            hook_command = host_command_for(host_script, base, windows)
+            python_runner = "python" if windows else "python3"
+            compat_path = f'{base}/cursor-hook-compat.py'
+            return f'{python_runner} "{compat_path}" {hook_command}'
 
         content = json.dumps(self._hook_registration(command_for), indent=2) + "\n"
         content_bytes = content.encode("utf-8")
