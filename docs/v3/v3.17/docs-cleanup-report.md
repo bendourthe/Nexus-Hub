@@ -1,6 +1,6 @@
 # Docs Cleanup Report - Nexus-Hub - 2026-08-16
 
-**Active version:** v3.17.3
+**Active version:** v3.17.4
 **Mode:** audit
 **Scope:** `docs/v3/v3.17/`
 
@@ -11,10 +11,10 @@
 | Cat 1 (delete) | 0 |
 | Cat 2 (archive) | 0 |
 | Cat 3 (stale-flag) | 0 |
-| Cat 4 (active) | 16 |
-| **Total** | **16** |
+| Cat 4 (active) | 17 |
+| **Total** | **17** |
 
-The scoped inventory and reference graph completed successfully. All v3.17 planning, comparison, research, evidence, and history artifacts remain current. The v3.17.4 org plan, v3.17.5 DeepSeek plan and comparison, plus the v3.17.2 and v3.17.3 release-preparation histories bring the scoped total to sixteen active artifacts. No archive or deletion action is proposed; the active plan and comparison files were renumbered to preserve the v3.17.3 corrective release slot.
+The scoped inventory and reference graph completed successfully. All v3.17 planning, comparison, research, evidence, and history artifacts remain current. The v3.17.4 Org Knowledge Phase 1 history, v3.17.5 DeepSeek plan and comparison, plus the v3.17.2 and v3.17.3 release-preparation histories bring the scoped total to seventeen active artifacts. No archive or deletion action is proposed; the active plan and comparison files retain the numbering established around the v3.17.3 corrective release slot.
 
 ## Dispositions
 
@@ -35,6 +35,7 @@ The scoped inventory and reference graph completed successfully. All v3.17 plann
 | `docs/v3/v3.17/development/history/2026-08_agent-autonomy-toggle-phase-6-architecture-gaps-and-installer-parity.md` | Cat 4 | Active version | Keep | Phase 6 history |
 | `docs/v3/v3.17/development/history/2026-08_v3.17.2-autonomy-retirement-release-preparation.md` | Cat 4 | Active version | Keep | Corrective release preparation history |
 | `docs/v3/v3.17/development/history/2026-08-16_v3.17.3-cursor-hook-portability-release-preparation.md` | Cat 4 | Active version | Keep | Corrective release candidate history |
+| `docs/v3/v3.17/development/history/2026-08-16_org-knowledge-layer-phase-1-org-bundle-contract.md` | Cat 4 | Active version | Keep | v3.17.4 Phase 1 history |
 | `docs/v3/v3.17/docs-cleanup-report.md` | Cat 4 | Active audit artifact | Keep | This report |
 
 ## Cat 3 Refresh Queue
@@ -57,6 +58,7 @@ docs/v3/v3.17/
 |       |-- 2026-08-14_agent-autonomy-toggle-phase-4-deny-layer-and-hook-independence.md
 |       |-- 2026-08-15_agent-autonomy-toggle-phase-5-cli-monitors-and-decision-walkthrough.md
 |       |-- 2026-08-16_v3.17.3-cursor-hook-portability-release-preparation.md
+|       |-- 2026-08-16_org-knowledge-layer-phase-1-org-bundle-contract.md
 |       |-- 2026-08_agent-autonomy-toggle-phase-6-architecture-gaps-and-installer-parity.md
 |       `-- 2026-08_v3.17.2-autonomy-retirement-release-preparation.md
 |-- comparisons/

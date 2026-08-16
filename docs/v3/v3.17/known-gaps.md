@@ -1,8 +1,8 @@
 # Known Gaps - v3.17
 
 **Project**: Nexus-Hub
-**Status**: v3.17.3 corrective release preparation repairs Cursor hook portability and two usage-monitor reliability defects without including unfinished v3.17.4 Org Knowledge work.
-**Last updated**: 2026-08-16 (v3.17.3 corrective release preparation)
+**Status**: v3.17.3 is released, and v3.17.4 Org Knowledge Layer implementation is in progress with Phase 1 completed and no open Phase 1 items. Prior v3.17.0 through v3.17.3 records remain below.
+**Last updated**: 2026-08-16 (v3.17.4 Phase 1 org bundle contract)
 
 > **File-lifecycle note**: this ledger was opened by the v3.17.0 Phase 1 append. Each subsequent v3.17.N implementation appends its own `## v3.17.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `MT-#` / `QG-#` numbering.
 
@@ -281,6 +281,29 @@
 - **What was wrong**: the release-only Windows PowerShell 5.1 step assigned `$home`. PowerShell variable names are case-insensitive, so this attempted to overwrite the read-only `$HOME` variable and exited before invoking `installer.ps1`. The regular Windows bootstrap and install-smoke jobs passed, isolating the defect to the tag-expanded harness rather than the installer.
 - **Resolution**: rename the local variable and all of its uses to `$smokeHome`; add a lifecycle regression that rejects a case-insensitive `$home` assignment anywhere in the CI workflow.
 - **Verification**: the regression test failed against the v3.17.0 workflow on the exact assignment, then passed after the rename. The v3.17.1 tag workflow is the release-level proof that the repaired all-OS installer-smoke matrix runs end to end.
+
+## v3.17.4 - org-knowledge-layer
+
+**Status**: Phase 1 completed on 2026-08-16 with 0 open items, 0 resolved items, and 0 release blockers. Plan: [plans/v3.17.4-org-knowledge-layer.md](plans/v3.17.4-org-knowledge-layer.md).
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented by design / unverified (`NI-#`) | 0 | 0 |
+| Deferred (`DF-#`) | 0 | 0 |
+| Bugs (`BG-#`) | 0 | 0 |
+| Warnings (`WN-#`) | 0 | 0 |
+| Missing tests (`MT-#`) | 0 | 0 |
+| Quality-gate bypasses (`QG-#`) | 0 | 0 |
+
+### Open Items
+
+None identified in Phase 1.
+
+### Resolved
+
+None. The Windows integration idempotency test that failed once during an eight-way parallel diagnostic passed on two fresh reruns, so it is recorded as transient filesystem contention rather than a product gap.
 
 ## v3.17 Summary
 

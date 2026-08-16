@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Organization knowledge bundle contract (v3.17.4 Phase 1).** Added the dependency-free `org.json` schema contract, a layered example bundle, and repository documentation for an always-on core, per-language rules, on-demand references, and forward-compatible validation. Organization content remains external to the company-neutral catalog.
+
 ## [3.17.3] - 2026-08-16
 
 Cursor hooks now use each host operating system's native shell and always return Cursor's required JSON contract. The Codex and Claude usage monitors also receive two bounded reliability corrections.

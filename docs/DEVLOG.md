@@ -15,6 +15,26 @@ All declared validation constituents pass, including 271-skill bundle and routin
 ### Release Boundary
 
 This entry describes an uncommitted release candidate. No commit, push, protected-branch promotion, tag, or GitHub Release was created during preparation.
+## [2026-08-16] - v3.17.4 Phase 1: organization bundle contract
+
+### What Changed
+
+Phase 1 defines the dependency-free contract for organization knowledge bundles. A Draft 2020-12 JSON Schema, a minimal layered example, and `configs/README.md` now document the required `org.json` manifest, the under-200-line always-on core budget, per-language rules, on-demand references, forward-compatible unknown-key behavior, and the boundary that real organization content stays outside the company-neutral catalog. The new read-only `scripts/lib/integrations/org_knowledge.py` validator returns a typed report for malformed manifests, missing or mistyped keys, escaping paths, missing references, unreadable UTF-8 content, and core-budget warnings without adding a runtime dependency or mutating the bundle.
+
+### Why It Changed
+
+Later v3.17.4 phases need one stable bundle shape before they can add connection state, cross-platform materialization, guided authoring, and lifecycle operations. Keeping schema semantics in a standard-library validator lets the bootstrap and installed source tree use the same contract without relying on a package that may be absent during installation.
+
+### Decisions Made
+
+- **Unknown manifest keys warn rather than fail**: Older Nexus-Hub versions can inspect newer bundles without silently ignoring the compatibility signal.
+- **All referenced paths must stay inside the bundle root**: Absolute paths, traversal, drive-qualified paths, and symlink escapes are rejected before later phases consume organization-controlled content.
+- **The 200-line core limit is advisory**: Oversized content remains intact and produces a warning because truncating binding organization policy would be unsafe.
+- **No installer or CI workflow edit was needed**: Both installers already distribute `scripts/lib/` recursively, and existing Linux and Windows pytest jobs already cover `tests/installer/` while the workflow path filter includes the repository.
+
+### Verification
+
+The focused validator suite passes 39 tests with one expected Windows symlink-permission skip and measures 90 percent coverage for the new module. The bounded repository matrix passes 2,588 tests with 20 expected skips; the five internal extensions add 670 passes and one expected skip. The complete validation and lint recipes pass when invoked directly because GNU Make is unavailable on this Windows host. The example bundle validates with zero errors and warnings, the JSON Schema passes Draft 2020-12 structural validation, Python compilation succeeds, and the v3.17 documentation inventory remains canonical with seventeen active artifacts.
 
 ## [2026-08-15] - v3.17.2 autonomy retirement release preparation
 
