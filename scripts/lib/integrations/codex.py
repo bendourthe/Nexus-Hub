@@ -76,24 +76,6 @@ class CodexIntegration(MarkdownIntegration, SkillsIntegration):
         "agents_subdir": "agents",
         "hooks_subdir": "hooks",
         "hooks_supported": True,
-        "autonomy": {
-            "config_file": ".codex/config.toml",
-            "scope": "project",
-            "key_paths": ["approval_policy", "sandbox_mode"],
-            "tiers": {
-                "edits_only": {
-                    "approval_policy": "on-request",
-                    "sandbox_mode": "workspace-write",
-                },
-                "full": {
-                    "approval_policy": "never",
-                    "sandbox_mode": "danger-full-access",
-                },
-            },
-            "intermediate_supported": True,
-            "verified": True,
-            "format": "toml",
-        },
     }
 
     # ----- install entry points -------------------------------------------

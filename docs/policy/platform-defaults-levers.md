@@ -104,7 +104,7 @@ The Cursor CLI configuration reference documents a JSON schema whose keys includ
 
 Gemini Code Assist now documents `geminicodeassist.agentYoloMode` in the VS Code user settings JSON. Setting it to `true` enables automatic approval for agent actions in trusted workspaces. This is a real persistent lever for the legacy IDE surface and replaces the prior UNVERIFIED finding.
 
-**Surface alignment is Mismatch.** The key belongs to VS Code's OS-specific user-settings file, not `~/.gemini/settings.json` and not a documented project `.vscode/settings.json` contract. Nexus-Hub's `gemini` integration owns the shared `~/.gemini` content surface, not the editor's user profile. `configs/platform-defaults.json` therefore records the lever as verified but `not-writable`, and the project-only autonomy engine continues to expose no Gemini descriptor.
+**Surface alignment is Mismatch.** The key belongs to VS Code's OS-specific user-settings file, not `~/.gemini/settings.json` and not a documented project `.vscode/settings.json` contract. Nexus-Hub's `gemini` integration owns the shared `~/.gemini` content surface, not the editor's user profile. `configs/platform-defaults.json` therefore records the lever as verified but `not-writable`.
 
 **Collision warning for Phase 3**: because both integrations resolve to the same `~/.gemini` home, a `~/.gemini/settings.json` default written on behalf of `gemini-cli` **will also be read by anything else using that home**. Phase 3 must treat the `~/.gemini/settings.json` write as belonging to exactly one platform id to avoid two integrations racing to own one file.
 

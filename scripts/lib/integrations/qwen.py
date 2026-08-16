@@ -67,18 +67,6 @@ class QwenIntegration(MarkdownIntegration, SkillsIntegration, SettingsHooksMixin
         # Hooks land in settings.json via the mixin rather than as a tree copy,
         # so hooks_subdir is not set on the base class.
         "hooks_supported": True,
-        "autonomy": {
-            "config_file": ".qwen/settings.json",
-            "scope": "project",
-            "key_paths": ["tools.approvalMode"],
-            "tiers": {
-                "edits_only": {"tools.approvalMode": "auto-edit"},
-                "full": {"tools.approvalMode": "yolo"},
-            },
-            "intermediate_supported": True,
-            "verified": True,
-            "format": "json",
-        },
     }
 
     def install_workspace(self, ctx: InstallContext) -> WriteResult:

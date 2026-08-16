@@ -50,7 +50,6 @@ class HermesIntegration(SkillsIntegration):
         # matching the SKILL.md open standard Hermes reads.
         "skills_subdir": "skills",
         "flatten_skills_layout": True,
-        # No autonomy descriptor: Hermes documents narrow YAML write gates, not a general autonomy mode; see the platform read-contract autonomy section.
         "hooks_supported": False,
     }
 

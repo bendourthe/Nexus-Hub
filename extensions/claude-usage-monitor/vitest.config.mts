@@ -13,21 +13,6 @@ export default defineConfig({
   test: {
     environment: "node",
     include: ["test/**/*.test.ts"],
-    coverage: {
-      provider: "v8",
-      reporter: ["text", "html", "json", "clover"],
-      // Phase 5 adds coverage enforcement for the autonomy state machine. The
-      // extension's pre-existing modules did not have a coverage contract and
-      // are tracked separately rather than weakening this feature's floor.
-      include: ["src/autonomyStatus.ts"],
-      exclude: ["test/**"],
-      thresholds: {
-        statements: 80,
-        branches: 75,
-        functions: 75,
-        lines: 80,
-      },
-    },
   },
   resolve: {
     alias: {

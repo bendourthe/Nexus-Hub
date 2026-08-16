@@ -224,7 +224,6 @@ def test_shell_hooks_point_at_their_powershell_sibling(codex, install_ctx, codex
     handlers = _handlers(data, "SessionStart")
     assert {Path(handler["command"].split()[-1]).stem for handler in handlers} >= {
         "session-start",
-        "autonomy-expiry",
     }
     for handler in handlers:
         shell_stem = Path(handler["command"].split()[-1]).stem
@@ -240,10 +239,6 @@ def test_both_script_siblings_are_installed(codex, install_ctx, codex_root):
     installed = {p.name for p in (codex_root / "hooks").iterdir()}
     assert "git-guardrails.sh" in installed
     assert "git-guardrails.ps1" in installed
-    assert "autonomy-expiry.sh" in installed
-    assert "autonomy-expiry.ps1" in installed
-    assert "autonomy-guard.sh" in installed
-    assert "autonomy-guard.ps1" in installed
 
 
 # ----- hooks: structured merge ---------------------------------------------

@@ -1,6 +1,6 @@
 # Nexus-Hub Progress Dashboard
 
-**Branch:** `develop`
+**Branch:** `fix/v3.17.2-remove-autonomy`
 
 ---
 
@@ -30,14 +30,9 @@
 | v3.15.8 Phase 2 tasks complete | 9 | 9 | 0 |
 | v3.15.8 Phase 3 tasks complete | 9 | 9 | 0 |
 | v3.15.8 Phase 4 tasks complete | 7 | 7 | 0 |
-| v3.17.0 plan phases complete | 6 | 6 | 0 |
-| v3.17.0 Phase 1 tasks complete | 4 | 4 | 0 |
-| v3.17.0 Phase 2 tasks complete | 4 | 4 | 0 |
-| v3.17.0 Phase 3 tasks complete | 4 | 4 | 0 |
-| v3.17.0 Phase 4 tasks complete | 3 | 3 | 0 |
-| v3.17.0 Phase 5 tasks complete | 5 | 5 | 0 |
-| v3.17.2 plan phases complete | 0 | 6 | 6 |
-| v3.17.3 plan phases complete | 0 | 7 | 7 |
+| v3.17.2 autonomy retirement tasks complete | 6 | 6 | 0 |
+| v3.17.3 plan phases complete | 0 | 6 | 6 |
+| v3.17.4 plan phases complete | 0 | 7 | 7 |
 
 ## Parallel Plan - v3.15.8 Platform Parity and GitHub Usage Monitor [IN PROGRESS]
 
@@ -111,19 +106,19 @@
 - [x] Audit all CI workflows for coverage and action-minute optimization
 - [x] Run validation, coverage, full tests, hook tests, and release-readiness checks
 
-## Parallel Plan - v3.17.0 Agent Autonomy Toggle [DONE]
+## Corrective Patch - v3.17.2 Autonomy Controller Retirement [DONE]
 
-- [x] Complete Phase 1: Permission-baseline hardening and cross-platform merge parity
-- [x] Complete Phase 2: Autonomy capability model and per-platform lever verification
-- [x] Complete Phase 3: Autonomy core engine, consent gate, TTL, and audit
-- [x] Complete Phase 4: Deny layer integration and hook-independence verification
-- [x] Complete Phase 5: Surfaces, CLI, installer registration, and usage-monitor toggles
-- [x] Complete Phase 6: Architecture refactor, known-gaps reconciliation, and CI/CD
+- [x] Remove the shared autonomy engine, CLI, and platform descriptors
+- [x] Remove Claude and Codex usage-monitor autonomy indicators and toggles
+- [x] Remove expiry and guard hooks plus feature-specific CI
+- [x] Remove active controller contracts and user-facing instructions
+- [x] Reserve v3.17.2 for the correction and shift planned work to v3.17.3 and v3.17.4
+- [x] Pass focused extension, integration, manifest, and repository validation
 
-## Parallel Plan - v3.17.2 Org Knowledge Layer [PLANNED]
+## Parallel Plan - v3.17.3 Org Knowledge Layer [PLANNED]
 
 - [x] Deep research completed: `docs/v3/v3.17/development/org-knowledge-layer-research.md`
-- [x] Plan generated and design decisions confirmed: `docs/v3/v3.17/plans/v3.17.2-org-knowledge-layer.md`
+- [x] Plan generated and design decisions confirmed: `docs/v3/v3.17/plans/v3.17.3-org-knowledge-layer.md`
 - [ ] Complete Phase 1: Org Bundle Contract
 - [ ] Complete Phase 2: Connect CLI
 - [ ] Complete Phase 3: Cross-Platform Materialization
@@ -131,10 +126,10 @@
 - [ ] Complete Phase 5: Lifecycle Integration and Docs
 - [ ] Complete Phase 6: Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
 
-## Parallel Plan - v3.17.3 DeepSeek Harness Adoption [PLANNED]
+## Parallel Plan - v3.17.4 DeepSeek Harness Adoption [PLANNED]
 
-- [x] Comparison report written: `docs/v3/v3.17/comparisons/v3.17.3-comparison-deepseek-harness.md`
-- [x] Plan generated and phase breakdown confirmed: `docs/v3/v3.17/plans/v3.17.3-adoption-deepseek-harness.md`
+- [x] Comparison report written: `docs/v3/v3.17/comparisons/v3.17.4-comparison-deepseek-harness.md`
+- [x] Plan generated and phase breakdown confirmed: `docs/v3/v3.17/plans/v3.17.4-adoption-deepseek-harness.md`
 - [ ] Complete Phase 1: Doc Word Budgets (B1)
 - [ ] Complete Phase 2: deepseek-harness Skill (A1)
 - [ ] Complete Phase 3: Skill Extensions (A2 + A3 + A4)
