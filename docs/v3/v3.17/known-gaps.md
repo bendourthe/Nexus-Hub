@@ -12,7 +12,7 @@
 
 ## v3.17.2 - remove-autonomy-controller
 
-**Status**: Local implementation and verification complete on `fix/v3.17.2-remove-autonomy`; commit, integration, publication, and release remain subject to explicit approval.
+**Status**: Implemented in `cced5285`, integrated into `develop` by merge commit `3004fb19`, and pushed to `origin/develop` on 2026-08-15. Version bump, release promotion, tag, and GitHub Release remain pending.
 
 ### BG-1 - CLOSED in implementation: the controller could not guarantee universal approval
 
