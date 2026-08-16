@@ -22,8 +22,8 @@ The scoped inventory and reference graph completed successfully. All v3.17 plann
 |---|---|---|---|---|
 | `docs/v3/v3.17/known-gaps.md` | Cat 4 | Active version, externally referenced | Keep | Living v3.17 gap ledger |
 | `docs/v3/v3.17/plans/v3.17.0-agent-autonomy-toggle.md` | Cat 4 | Active version | Keep | Current implementation plan |
-| `docs/v3/v3.17/plans/v3.17.1-org-knowledge-layer.md` | Cat 4 | Active version | Keep | Planned parallel version |
-| `docs/v3/v3.17/development/org-knowledge-layer-research.md` | Cat 4 | Active version | Keep | Research source for v3.17.1 |
+| `docs/v3/v3.17/plans/v3.17.2-org-knowledge-layer.md` | Cat 4 | Active version | Keep | Planned parallel version |
+| `docs/v3/v3.17/development/org-knowledge-layer-research.md` | Cat 4 | Active version | Keep | Research source for v3.17.2 |
 | `docs/v3/v3.17/development/permission-matcher-findings.md` | Cat 4 | Active version, externally referenced | Keep | Phase 1 evidence |
 | `docs/v3/v3.17/development/history/2026-08-13_agent-autonomy-toggle-phase-1-permission-baseline-and-merge-parity.md` | Cat 4 | Active version | Keep | Phase 1 history |
 | `docs/v3/v3.17/development/history/2026-08-14_agent-autonomy-toggle-phase-2-capability-model-and-lever-verification.md` | Cat 4 | Active version | Keep | Phase 2 history |
@@ -55,7 +55,7 @@ docs/v3/v3.17/
 |       `-- 2026-08_agent-autonomy-toggle-phase-6-architecture-gaps-and-installer-parity.md
 `-- plans/
     |-- v3.17.0-agent-autonomy-toggle.md
-    `-- v3.17.1-org-knowledge-layer.md
+    `-- v3.17.2-org-knowledge-layer.md
 ```
 
 ## Layout Inconsistencies
