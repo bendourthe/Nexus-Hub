@@ -161,18 +161,6 @@ class CopilotIntegration(MarkdownIntegration):
         "instruction_file": "copilot-instructions.md",
         "instruction_template": "templates/ai-instructions/base-codex.md",
         "hooks_supported": False,
-        "autonomy": {
-            "config_file": ".vscode/settings.json",
-            "scope": "project",
-            "key_paths": ["chat.permissions.default"],
-            "tiers": {
-                "edits_only": None,
-                "full": {"chat.permissions.default": "autopilot"},
-            },
-            "intermediate_supported": False,
-            "verified": True,
-            "format": "jsonc",
-        },
     }
 
     def install_global(self, ctx: InstallContext) -> WriteResult:

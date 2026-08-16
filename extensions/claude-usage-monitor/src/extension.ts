@@ -12,7 +12,6 @@ import { WarningViewProvider, WARNING_VIEW_ID, WARNING_ACTIVE_CONTEXT } from "./
 import { getRecommendation, getActiveUrgency, pickTriggerMetric, buildUsageSuggestion, classifyUrgency } from "./recommendations";
 import { UrgencyLevel, UsageData, formatModelName, getThresholdConfig, getNotificationTimeoutMs, syncColorsToWorkbench, getColorConfig } from "./types";
 import { registerUpdateWatcher } from "./updateWatcher";
-import { AutonomyStatusBar } from "./autonomyStatusBar";
 
 type NotificationSeverity = "info" | "warning";
 
@@ -52,7 +51,6 @@ const RESET_COMMAND = "claude-usage.reset";
 const DASHBOARD_COMMAND = "claude-usage.dashboard";
 const REFRESH_COMMAND = "claude-usage.refresh";
 const SETTINGS_COMMAND = "claude-usage.settings";
-const AUTONOMY_COMMAND = "claude-usage.autonomy";
 
 let consecutiveFailures = 0;
 let lastFetchError: ProviderFetchError | undefined;
@@ -83,14 +81,6 @@ export function activate(context: vscode.ExtensionContext): void {
   const store = new UsageStore(context.globalState);
   const provider = new ClaudeUsageProvider();
   const statusBar = new StatusBarManager(store, DASHBOARD_COMMAND);
-  const autonomyStatusBar = new AutonomyStatusBar({
-    platform: "claude",
-    command: AUTONOMY_COMMAND,
-    priority: 104,
-    configSection: "claudeUsage",
-  });
-  autonomyStatusBar.start();
-
   const config = vscode.workspace.getConfiguration("claudeUsage");
   if (config.get<boolean>("showInStatusBar", true)) {
     statusBar.show();
@@ -217,16 +207,6 @@ export function activate(context: vscode.ExtensionContext): void {
     DashboardPanel.revealSettings();
   });
 
-  const autonomyCommand = vscode.commands.registerCommand(AUTONOMY_COMMAND, async () => {
-    await autonomyStatusBar.toggle();
-  });
-
-  const autonomyFocusWatcher = vscode.window.onDidChangeWindowState((state) => {
-    if (state.focused) {
-      void autonomyStatusBar.refresh();
-    }
-  });
-
   // Command: Clear stored data
   const resetCommand = vscode.commands.registerCommand(RESET_COMMAND, async () => {
     const confirm = await vscode.window.showWarningMessage(
@@ -295,11 +275,8 @@ export function activate(context: vscode.ExtensionContext): void {
     recommendCommand,
     resetCommand,
     settingsCommand,
-    autonomyCommand,
-    autonomyFocusWatcher,
     configWatcher,
     { dispose: () => statusBar.dispose() },
-    autonomyStatusBar,
   );
 }
 

@@ -711,11 +711,8 @@ jobs:
     # every OS. GitHub-hosted runners are deliberate: contributors install no
     # hypervisor, and containers cannot provide a real macOS or Windows kernel.
     #
-    # Cost policy differs deliberately from autonomy-security.yml. The dangerous
-    # autonomy engine runs all three OS legs on every matching change because a
-    # missed refusal can leave an agent unprompted. Installer smoke runs Ubuntu
-    # on protected-branch pushes and expands to macOS/Windows before merge, on
-    # release tags, or on manual dispatch. That catches installer failures before
+    # Installer smoke runs Ubuntu on protected-branch pushes and expands to
+    # macOS/Windows before merge, on release tags, or on manual dispatch. That catches installer failures before
     # users receive them without making macOS the largest per-push minute cost.
     strategy:
       fail-fast: false

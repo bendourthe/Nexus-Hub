@@ -1,4 +1,4 @@
-# Org Knowledge Layer - Deep Research (supporting v3.17.2)
+# Org Knowledge Layer - Deep Research (supporting v3.17.3)
 
 **Date**: 2026-08-13
 **Question**: How should a Nexus-Hub user connect the generic catalog (skills, commands, rules, hooks, instruction templates) to their organization's internal practices, conventions, standards, and style, so that org-specific guidance layers over the generic defaults on every supported platform?
@@ -57,7 +57,7 @@ The v3.16.0 `platform_defaults.py` precedent: a step added to the install dispat
 
 ### Versioning
 
-v3.17.0 is released, and v3.17.1 is released as the Windows installer-smoke repair, so **v3.17.2 is the next free slot**. v3.17.0 Amendment A1 touched the `base-*.md` set; v3.17.2 must sequence on top of the released v3.17.0 and v3.17.1 state. Plan format follows AGENTS.md's current model-routing contract (separate tier and effort columns plus a `## Current model map`), not v3.17.0's older single-column shape.
+v3.17.2 is reserved for the corrective removal of the retired autonomy controller, so **v3.17.3 is the next free slot**. v3.17.0 Amendment A1 touched the `base-*.md` set; v3.17.3 must sequence on top of the released v3.17.0 and v3.17.1 state plus the corrective v3.17.2 patch. Plan format follows AGENTS.md's current model-routing contract (separate tier and effort columns plus a `## Current model map`), not v3.17.0's older single-column shape.
 
 ## 3. Design options
 
@@ -84,7 +84,7 @@ Ask during `installer.sh` / `installer.ps1` runs whether to connect an org direc
 
 ### Recommendation
 
-**A**, with B's authoring guidance folded in as one phase (the guided "how to collect and organize your documents" experience the user asked about), and C reduced to a non-interactive pointer: the installer end-of-run summary mentions `nexus-hub org connect` when no org is connected. Enforcement-grade org policy (hooks, permissions, managed settings) is documented as the platform-native escalation path, not implemented in v3.17.2.
+**A**, with B's authoring guidance folded in as one phase (the guided "how to collect and organize your documents" experience the user asked about), and C reduced to a non-interactive pointer: the installer end-of-run summary mentions `nexus-hub org connect` when no org is connected. Enforcement-grade org policy (hooks, permissions, managed settings) is documented as the platform-native escalation path, not implemented in v3.17.3.
 
 ## 4. Sources
 

@@ -2,7 +2,7 @@
   "name": "codex-usage-monitor",
   "displayName": "Codex Usage Monitor",
   "description": "Monitor your Codex (ChatGPT) usage limits in the status bar with smart throttle and pacing recommendations",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "publisher": "nexus-hub",
   "icon": "icon.png",
   "repository": {
@@ -51,11 +51,6 @@
       {
         "command": "codex-usage.settings",
         "title": "Codex Usage: Settings",
-        "category": "Codex Usage"
-      },
-      {
-        "command": "codex-usage.autonomy",
-        "title": "Codex Usage: Project Autonomy",
         "category": "Codex Usage"
       }
     ],
@@ -116,20 +111,6 @@
           "type": "boolean",
           "default": false,
           "description": "Use a compact status-bar label: '<icon> X% (current) Y% (week)' instead of '<icon> Codex Usage: X% (current) Y% (week)'."
-        },
-        "codexUsage.autonomyRefreshSeconds": {
-          "type": "number",
-          "default": 30,
-          "minimum": 10,
-          "maximum": 300,
-          "description": "How often the project autonomy status and TTL countdown refresh"
-        },
-        "codexUsage.autonomyTtlMinutes": {
-          "type": "number",
-          "default": 60,
-          "minimum": 1,
-          "maximum": 480,
-          "description": "TTL passed to the Nexus-Hub autonomy CLI when enabling from the status bar"
         },
         "codexUsage.thresholds.moderate": {
           "type": "number",

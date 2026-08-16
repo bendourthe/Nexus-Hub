@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed
+
+- **Retired the Nexus-Hub autonomy controller.** VS Code exposes no supported public API that lets one extension override another provider extension's approval decisions, so the controller could only duplicate provider-owned modes without guaranteeing approval of every action. The `nexus-hub autonomy` command, platform descriptors, Claude and Codex usage-monitor indicators and toggles, expiry and execution-trigger guard hooks, feature-specific tests, and dedicated autonomy CI workflow have been removed. Provider-native approval controls remain available in their own extensions and CLIs.
+
+### Changed
+
+- **The Claude and Codex usage monitors return to usage-only status surfaces.** Their feature-specific versions advance to 0.9.8 and 0.2.9, and no longer show duplicate `Autonomy: Unavailable` indicators when Nexus-Hub's CLI wrapper is absent.
+- **The independent v3.17.0 hardening remains.** Read-only permission-baseline corrections, shared cross-platform permission merging, generic installer parity, real-install smoke coverage, and consequential-decision guidance are retained.
+
 ## [3.17.1] - 2026-08-15
 
 The release-only Windows installer smoke harness now reaches the real installer on version tags. This release changes no opt-in capability, installer flag, or host surface.

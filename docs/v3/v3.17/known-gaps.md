@@ -1,14 +1,32 @@
 # Known Gaps - v3.17
 
 **Project**: Nexus-Hub
-**Status**: v3.17.0 `agent-autonomy-toggle` is released. The v3.17.1 patch closes the release-tag Windows installer-smoke harness defect discovered after the immutable v3.17.0 tag was pushed.
-**Last updated**: 2026-08-15 (v3.17.1 Windows tag installer-smoke repair)
+**Status**: v3.17.2 corrective work retires the v3.17.0 autonomy controller after installation proved that it could not provide the provider-independent approval bypass its product surface implied.
+**Last updated**: 2026-08-15 (v3.17.2 autonomy controller retirement)
 
 > **File-lifecycle note**: this ledger was opened by the v3.17.0 Phase 1 append. Each subsequent v3.17.N implementation appends its own `## v3.17.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `MT-#` / `QG-#` numbering.
 
 > **Prior-version ingest**: checked `docs/v3/v3.15/known-gaps.md`. v3.15.2 DF-2 (Hermes registered but not installer-wired) carries forward as DF-4 because it remains a delivery limitation. v3.15.0 WN-1 (the Windows Git-Bash bootstrap `tar` failure) recurred and carries forward as WN-1. The v3.15.1 lint warnings involved files outside this plan and do not carry in. The v3.18.2 RTK and Meterless artifacts keep their established stamp under `docs/v3/v3.18/`; their stale pre-move references were corrected during Phase 6 rather than transferred as gaps.
 
 ---
+
+## v3.17.2 - remove-autonomy-controller
+
+**Status**: Local implementation and verification complete on `fix/v3.17.2-remove-autonomy`; commit, integration, publication, and release remain subject to explicit approval.
+
+### BG-1 - CLOSED in implementation: the controller could not guarantee universal approval
+
+- **Target files**: `scripts/lib/autonomy.py`, `scripts/lib/autonomy_cli.py`, `scripts/nexus_hub_cli.py`, both usage-monitor extensions, the autonomy hooks, and feature-specific CI
+- **What was wrong**: VS Code exposes no supported public API that lets one extension override another provider extension's approval decisions. The controller could write documented provider settings, but that only duplicated the providers' existing mode selectors and could not force actions that Claude Code, Codex, or another provider still classified as requiring confirmation.
+- **Why removal is the fix**: the intended product was a provider-independent approval bypass. Keeping a wrapper around provider-native modes would preserve the implementation cost and security surface while failing that acceptance criterion.
+- **Resolution**: remove the shared engine and CLI, integration descriptors, usage-monitor indicators and toggles, expiry and guard hooks, feature-specific tests and CI, and active product documentation. Provider-native approval controls remain owned by each provider.
+- **Retained v3.17.0 work**: read-only permission-baseline hardening, shared permission merging, generic installer parity, real-install smoke coverage, and consequential-decision guidance remain independent and supported.
+
+### Retired feature-specific v3.17.0 gaps
+
+- **NI-3** (descriptor coverage) is no longer actionable because descriptors are removed from the product contract.
+- **WN-4** (hook independence under provider no-prompt modes) remains historical evidence only; Nexus-Hub no longer claims or tests that product boundary.
+- **MT-1** remains only as general Claude Usage Monitor coverage debt. The feature-specific `coverage.include` boundary and its deleted module are removed.
 
 ## v3.17.0 - agent-autonomy-toggle
 

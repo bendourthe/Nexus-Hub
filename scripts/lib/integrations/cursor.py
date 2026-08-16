@@ -76,18 +76,6 @@ class CursorIntegration(MarkdownIntegration, YamlIntegration, SkillsIntegration)
         # hooks.json + hooks/ script dir; gated on hooks_supported (v3.15.0).
         "hooks_subdir": "hooks",
         "hooks_supported": True,
-        "autonomy": {
-            "config_file": "~/.cursor/cli-config.json",
-            "scope": "global",
-            "key_paths": ["approvalMode"],
-            "tiers": {
-                "edits_only": None,
-                "full": {"approvalMode": "unrestricted"},
-            },
-            "intermediate_supported": False,
-            "verified": True,
-            "format": "json",
-        },
     }
 
     # Only git-guardrails maps onto a clean, blocking Cursor event

@@ -43,17 +43,19 @@ The two projects are designed to be useful independently: you can install Nexus-
 
 The v3.17.0 Windows bootstrap and ordinary install-smoke jobs were already green, so this patch changes only the release-tag CI harness. It adds no skill, command, hook, opt-in capability, outbound service, API key, telemetry, or third-party data processor.
 
-## What's New in v3.17.0
+## Unreleased
 
-**Time-bounded workspace autonomy is now a public, guarded capability.** Run `nexus-hub autonomy enable --platform <key> --tier edits --ttl 60` from a clean feature branch to preview the exact configuration diff and opt in. The default tier permits edits only. `--tier full` requires an interactive terminal and typed project-directory confirmation, and every activation expires after 1 to 480 minutes. `nexus-hub autonomy status` reports the tier and remaining TTL for every registered platform; `nexus-hub autonomy disable --platform <key>` or `nexus-hub autonomy revert --platform <key>` restores the recorded backup and clears the state.
+**The Nexus-Hub autonomy controller has been retired.** A VS Code extension cannot use a supported public API to override another provider extension's safety decisions, so the controller could only mirror each provider's existing approval mode. Nexus-Hub now leaves approval-mode selection to Claude Code, Codex, and other provider-owned surfaces instead of presenting a universal bypass it cannot guarantee.
 
-**The authority boundary is enforced in code.** Enablement requires a Git repository, clean worktree, non-protected branch, verified project-scoped platform lever, and explicit confirmation. It does not grant global authority, make unsupported platforms writable, bypass protected-branch rules, or permit writes to configuration that a trusted host component may later execute. Configuration writes are previewed, backed up, atomic, project-scoped, and recorded in a locked append-only audit log; expiry hooks revert stale state, and a missing backup fails safe.
+The shared CLI command, provider descriptors, status-bar controls, expiry and guard hooks, and feature-specific CI have been removed. The Claude and Codex usage monitors continue to report usage without an autonomy indicator. The independent read-only permission baseline, generic installer-parity checks, real-install smoke tests, and consequential-decision guidance remain.
 
-**The same state is visible in the tools developers already use.** Claude Usage Monitor 0.9.7 and Codex Usage Monitor 0.2.8 show a persistent autonomy tier and remaining TTL, refresh on focus and timer expiry, call the shared CLI for every mutation, and surface an explicit unavailable state when the CLI is missing. Consequential security, destructive, distributed-behavior, and scope-expansion choices now also require a short plain-language walkthrough across all twelve platform instruction templates.
+## What's New in v3.17.0 (historical)
 
-**Permission and installer parity are materially stronger.** Twenty-five mutation-capable entries were removed from the read-only auto-approve baseline, retired Nexus-Hub entries now propagate safely to existing installs, both installers use the same jq-free merge path, and Claude workspace installs target `.claude/settings.local.json`. Dedicated autonomy security CI remains unconditional on Linux, macOS, and Windows, while a manifest-driven parity gate and real-install smoke tests protect both installer entry points.
+v3.17.0 originally introduced a time-bounded workspace autonomy controller. That capability is retired by the Unreleased corrective change above; its original release record remains in the [changelog](CHANGELOG.md#3170---2026-08-15).
 
-Catalog counts are unchanged at **271 skills**, **17 commands**, **31 hooks**, and **23 agents**. The release adds no outbound service, API key, telemetry, or third-party data processor.
+**Permission and installer parity remain materially stronger.** Twenty-five mutation-capable entries were removed from the read-only auto-approve baseline, retired Nexus-Hub entries propagate safely to existing installs, both installers use the same jq-free merge path, and Claude workspace installs target `.claude/settings.local.json`. A manifest-driven parity gate and real-install smoke tests protect both installer entry points.
+
+Catalog counts were unchanged at **271 skills**, **17 commands**, **31 hooks**, and **23 agents**. The release added no outbound service, API key, telemetry, or third-party data processor.
 
 ## What's New in v3.16.8
 
