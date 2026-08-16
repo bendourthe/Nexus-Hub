@@ -1,6 +1,6 @@
 # Nexus-Hub Progress Dashboard
 
-**Branch:** `fix/v3.17.3-corrective`
+**Branch:** `develop`
 
 ---
 
@@ -32,7 +32,7 @@
 | v3.15.8 Phase 4 tasks complete | 7 | 7 | 0 |
 | v3.17.2 autonomy retirement tasks complete | 6 | 6 | 0 |
 | v3.17.2 release tasks complete | 5 | 7 | 2 |
-| v3.17.3 release-candidate tasks complete | 7 | 7 | 0 |
+| v3.17.3 release-candidate tasks complete | 9 | 9 | 0 |
 | v3.17.4 plan phases complete | 0 | 6 | 6 |
 | v3.17.5 plan phases complete | 0 | 7 | 7 |
 | Cursor hook portability tasks complete | 4 | 4 | 0 |
@@ -56,7 +56,7 @@
 - [x] Map the live `spend_control.individual_limit` response into detailed Extra Credits usage
 - [x] Add a live-shaped 225-of-5,000 regression fixture and pass the full Codex extension gate
 
-## Release Candidate - v3.17.3 Cursor Hook Portability and Usage Monitor Reliability [IN PROGRESS]
+## Release Candidate - v3.17.3 Cursor Hook Portability and Usage Monitor Reliability [DONE]
 
 - [x] Isolate the corrective diff on `fix/v3.17.3-corrective` from the committed Org Knowledge Phase 1 work
 - [x] Obtain approval for the diff-derived release notes and the provider-state migration deferral
@@ -65,6 +65,8 @@
 - [x] Complete canonical version, extension package, release-documentation, and staged manifest updates
 - [x] Re-verify platform read contracts and behavioral-default levers for v3.17.3
 - [x] Pass the complete bounded local release gates and present the candidate before commit, push, tag, or publication
+- [x] Merge the release PR into `main` and pass post-merge and tag CI
+- [x] Publish v3.17.3 and verify the downloaded source archive against all 1,239 manifest entries
 
 ## Parallel Plan - v3.15.8 Platform Parity and GitHub Usage Monitor [IN PROGRESS]
 
