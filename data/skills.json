@@ -6,7 +6,7 @@
     "description": "Comprehensive catalog of Nexus-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-    "total_skills": 271,
+    "total_skills": 272,
     "categories": {
       "ai-development": 13,
       "architecture": 7,
@@ -27,16 +27,16 @@
       "specialized-domains": 14,
       "testing": 3,
       "tests-generation": 18,
-      "workflow": 43,
+      "workflow": 44,
       "security-operations": 16
     },
     "priorities": {
-      "MEDIUM": 267,
+      "MEDIUM": 268,
       "HIGH": 4
     },
-    "total_lines": 130166,
-    "total_tokens_estimate": 672031,
-    "average_lines_per_skill": 480,
+    "total_lines": 130300,
+    "total_tokens_estimate": 674131,
+    "average_lines_per_skill": 479,
     "languages_supported": [
       "Python",
       "JavaScript",
@@ -47,7 +47,7 @@
       "C++"
     ],
     "repository": "https://github.com/bendourthe/Nexus-Hub",
-    "last_updated": "2026-06-10"
+    "last_updated": "2026-08-16"
   },
   "skills": [
     {
@@ -7511,6 +7511,51 @@
         "lines": 257,
         "characters": 16501,
         "tokens_estimate": 4125
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "org-standards-authoring",
+      "title": "org-standards-authoring",
+      "description": "Guide an organization through collecting, budgeting, structuring, validating, and distributing a Nexus-Hub organization knowledge bundle. Use whenever the user says 'connect our company standards', 'organization coding standards', 'internal conventions', 'company style guide', 'org knowledge', or 'team standards for the AI'. SKIP: single-project constitution authoring (use project-constitution), platform permission policy (use agent-access-policy), or writing the standards content itself from scratch (use writing-editing or technical-writer).",
+      "long_description": "Guides an organization from an inventory of existing coding, safety, CI/CD, testing, naming, documentation, and branching standards to a validated Nexus-Hub organization knowledge bundle. Classifies content into an always-on core under 200 lines, per-language or path-scoped rules, and on-demand references; authors org.json against configs/org-bundle.schema.json; reuses project-constitution vocabulary for binding scope, Applies to statements, and conflict resolution; validates and connects the bundle through nexus-hub org connect; and recommends a version-controlled git repository or governed shared directory for distribution. Includes descriptive escalation guidance for managed CLAUDE.md, Cursor Team Rules, and GitHub Copilot organization instructions without claiming Nexus-Hub enforcement.",
+      "summary_l0": "\"Guide organizations from existing standards to a validated, distributable knowledge bundle\"",
+      "overview_l1": "\"Guides an organization through inventorying existing standards, placing a concise always-on core under 200 lines, separating per-language rules from on-demand references, authoring org.json, validating the bundle, and distributing it from a git repository or shared directory. It reuses project-constitution vocabulary for binding scope, Applies to statements, and conflict resolution, while keeping organization content outside the company-neutral Nexus-Hub catalog. It also explains when to escalate advisory projections to documented platform-native controls without claiming cross-platform enforcement.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "workflow",
+      "language": "Multi-language",
+      "tags": [
+        "organization-standards",
+        "org-knowledge",
+        "company-policy",
+        "bundle-authoring",
+        "cross-platform",
+        "context-budget",
+        "governance",
+        "distribution"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Write",
+        "Edit",
+        "Glob",
+        "Bash"
+      ],
+      "path": "catalog/skills/workflow/org-standards-authoring/",
+      "file": "catalog/skills/workflow/org-standards-authoring/SKILL.md",
+      "size": {
+        "lines": 134,
+        "tokens_estimate": 2100
       },
       "downloads": 0,
       "status": "production",

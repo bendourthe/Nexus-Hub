@@ -449,6 +449,7 @@
         "incremental-implementation",
         "known-gaps-tracker",
         "loop-engineering",
+        "org-standards-authoring",
         "plan-before-code",
         "platform-contract-verification",
         "pr-description-writer",

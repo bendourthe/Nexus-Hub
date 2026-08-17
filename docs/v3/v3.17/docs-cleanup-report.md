@@ -11,10 +11,10 @@
 | Cat 1 (delete) | 0 |
 | Cat 2 (archive) | 0 |
 | Cat 3 (stale-flag) | 0 |
-| Cat 4 (active) | 19 |
-| **Total** | **19** |
+| Cat 4 (active) | 20 |
+| **Total** | **20** |
 
-The scoped inventory and reference graph completed successfully. All v3.17 planning, comparison, research, evidence, and history artifacts remain current. The v3.17.4 Org Knowledge Phase 1 through Phase 3 histories, v3.17.5 DeepSeek plan and comparison, plus the v3.17.2 and v3.17.3 release-preparation histories bring the scoped total to nineteen active artifacts. No archive or deletion action is proposed; the active plan and comparison files retain the numbering established around the v3.17.3 corrective release slot.
+The scoped inventory and reference graph completed successfully. All v3.17 planning, comparison, research, evidence, and history artifacts remain current. The v3.17.4 Org Knowledge Phase 1 through Phase 4 histories, v3.17.5 DeepSeek plan and comparison, plus the v3.17.2 and v3.17.3 release-preparation histories bring the scoped total to twenty active artifacts. No archive or deletion action is proposed; the active plan and comparison files retain the numbering established around the v3.17.3 corrective release slot.
 
 ## Dispositions
 
@@ -38,6 +38,7 @@ The scoped inventory and reference graph completed successfully. All v3.17 plann
 | `docs/v3/v3.17/development/history/2026-08-16_org-knowledge-layer-phase-1-org-bundle-contract.md` | Cat 4 | Active version | Keep | v3.17.4 Phase 1 history |
 | `docs/v3/v3.17/development/history/2026-08-16_org-knowledge-layer-phase-2-connect-cli.md` | Cat 4 | Active version | Keep | v3.17.4 Phase 2 history |
 | `docs/v3/v3.17/development/history/2026-08-16_org-knowledge-layer-phase-3-cross-platform-materialization.md` | Cat 4 | Active version | Keep | v3.17.4 Phase 3 history |
+| `docs/v3/v3.17/development/history/2026-08-16_org-knowledge-layer-phase-4-guided-authoring-surface.md` | Cat 4 | Active version | Keep | v3.17.4 Phase 4 history |
 | `docs/v3/v3.17/docs-cleanup-report.md` | Cat 4 | Active audit artifact | Keep | This report |
 
 ## Cat 3 Refresh Queue
@@ -63,6 +64,7 @@ docs/v3/v3.17/
 |       |-- 2026-08-16_org-knowledge-layer-phase-1-org-bundle-contract.md
 |       |-- 2026-08-16_org-knowledge-layer-phase-2-connect-cli.md
 |       |-- 2026-08-16_org-knowledge-layer-phase-3-cross-platform-materialization.md
+|       |-- 2026-08-16_org-knowledge-layer-phase-4-guided-authoring-surface.md
 |       |-- 2026-08_agent-autonomy-toggle-phase-6-architecture-gaps-and-installer-parity.md
 |       `-- 2026-08_v3.17.2-autonomy-retirement-release-preparation.md
 |-- comparisons/
