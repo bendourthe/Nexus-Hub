@@ -33,7 +33,7 @@
 | v3.17.2 autonomy retirement tasks complete | 6 | 6 | 0 |
 | v3.17.2 release tasks complete | 5 | 7 | 2 |
 | v3.17.3 release-candidate tasks complete | 9 | 9 | 0 |
-| v3.17.4 plan phases complete | 5 | 6 | 1 |
+| v3.17.4 plan phases complete | 6 | 6 | 0 |
 | v3.17.5 plan phases complete | 0 | 7 | 7 |
 | Cursor hook portability tasks complete | 4 | 4 | 0 |
 | Usage monitor color-race tasks complete | 2 | 2 | 0 |
@@ -166,7 +166,7 @@
 - [ ] Integrate and push `develop`, then pass remote CI
 - [ ] Promote `main`, tag v3.17.2, publish the GitHub Release, and verify the downloaded artifact
 
-## Parallel Plan - v3.17.4 Org Knowledge Layer [IN PROGRESS]
+## Parallel Plan - v3.17.4 Org Knowledge Layer [DONE]
 
 - [x] Deep research completed: `docs/v3/v3.17/development/org-knowledge-layer-research.md`
 - [x] Plan generated and design decisions confirmed: `docs/v3/v3.17/plans/v3.17.4-org-knowledge-layer.md`
@@ -175,7 +175,7 @@
 - [x] Complete Phase 3: Cross-Platform Materialization
 - [x] Complete Phase 4: Guided Authoring Surface
 - [x] Complete Phase 5: Lifecycle Integration and Docs
-- [ ] Complete Phase 6: Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
+- [x] Complete Phase 6: Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
 
 ## Parallel Plan - v3.17.5 DeepSeek Harness Adoption [PLANNED]
 

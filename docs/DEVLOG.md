@@ -1,5 +1,32 @@
 # Development Log
 
+## [2026-08-17] - v3.17.4 Phase 6: architecture, gaps, and installer CI
+
+### What Changed
+
+Completed the Org Knowledge Layer closure pass without moving or deleting project artifacts. The repository and v3.17 documentation audits found no structural change worth applying: exact duplicates are intentional shared assets or platform-parity templates, and the only empty directories are untracked local placeholders. The v3.17 known-gaps ledger now records catalog suppression and platform-native enforcement generation as explicit deferrals, keeps Copilot precedence advisory, and resolves the missing real-installer organization postcondition evidence.
+
+The existing POSIX and Windows installer-smoke steps now connect the same example organization bundle before invoking their native installer entry points. A shared checker requires exactly one Nexus-Hub end marker followed by exactly one organization block and verifies the projected Python organization rule. This strengthens cross-installer parity without adding a workflow, runner, dependency, or action-minute-heavy matrix leg.
+
+### Why It Changed
+
+Unit and integration tests proved the organization materializer, but the release workflow did not previously demonstrate that both real installer entry points seed organization content after refreshing Nexus-Hub. Phase 6 closes that evidence gap at the existing installer-smoke boundary and makes the expected ordering a shared, executable postcondition.
+
+### Decisions Made
+
+- **Keep the current layout**: Eight exact-content duplicate groups are intentional platform parity or shared extension assets. Moving or deduplicating them would weaken distribution clarity without reducing maintenance risk.
+- **Keep product limits explicit**: Organization bundles remain additive. They do not suppress catalog content, write vendor-admin enforcement settings, or claim non-overridable Copilot precedence.
+- **Reuse one checker and existing jobs**: POSIX and Windows installers execute their native entry points, while postconditions live in one Python checker to prevent assertion drift.
+- **Preserve the release boundary**: Phase 6 hands readiness to `/update release`; it does not bump versions, merge protected branches, tag, publish, or restamp the v3.17.4 platform contract early.
+
+### Verification
+
+The focused CI, installer, materialization, lifecycle, workflow-policy, and validator set passes 106 tests. The complete Org Knowledge coverage set passes 108 tests with one expected skip and 88 percent aggregate coverage; the shared installer checker reaches 94 percent and the organization module reaches 87 percent. A real isolated Windows PowerShell installer run connects the example bundle and passes the shared marker-order and rule-projection checker. Installer parity, all ten platform contracts, contract freshness for the current v3.17.3 tree, workflow security, and Ruff pass. The final repository-wide validation and test results are recorded in the Phase 6 session history.
+
+### Release Boundary
+
+This entry documents the local final-phase candidate. No commit, push, protected-branch promotion, version bump, tag, or GitHub Release was created during implementation.
+
 ## [2026-08-16] - v3.17.4 Phase 2: organization knowledge connection CLI
 
 ### What Changed

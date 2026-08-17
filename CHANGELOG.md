@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Organization knowledge connection CLI (v3.17.4 Phase 2).** Added `nexus-hub org connect`, `sync`, `status`, and `disconnect` for validated local-directory and shallow-cloned Git bundles. Connection state is written atomically under `~/.nexus-hub/org/`, user-controlled Git input is passed only through subprocess argument lists, and both installed launchers reach the same cross-platform command surface.
 - **Organization knowledge bundle contract (v3.17.4 Phase 1).** Added the dependency-free `org.json` schema contract, a layered example bundle, and repository documentation for an always-on core, per-language rules, on-demand references, and forward-compatible validation. Organization content remains external to the company-neutral catalog.
 
+### Changed
+
+- **Real installer smoke coverage now proves organization seeding parity (v3.17.4 Phase 6).** The existing POSIX and Windows installer-smoke steps connect the same example bundle before invoking their native installer entry points, then use one shared postcondition checker to require the organization marker block after the Nexus-Hub block and confirm organization rules were projected. The workflow reuses its existing jobs, path filters, dependency caches, concurrency cancellation, and protected-branch operating-system gates, so the stronger cross-installer evidence adds no runner, action, dependency, or always-on matrix cost.
+
 ## [3.17.3] - 2026-08-16
 
 Cursor hooks now use each host operating system's native shell and always return Cursor's required JSON contract. The Codex and Claude usage monitors also receive two bounded reliability corrections.
