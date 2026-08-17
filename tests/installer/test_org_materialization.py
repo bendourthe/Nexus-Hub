@@ -65,8 +65,9 @@ def _remove_tree(path: Path) -> None:
     """Remove a copied tree after clearing Windows read-only attributes."""
 
     for descendant in sorted(path.rglob("*"), key=lambda item: len(item.parts), reverse=True):
-        descendant.chmod(stat.S_IWRITE | stat.S_IREAD)
-    path.chmod(stat.S_IWRITE | stat.S_IREAD)
+        mode = stat.S_IRWXU if descendant.is_dir() else stat.S_IWRITE | stat.S_IREAD
+        descendant.chmod(mode)
+    path.chmod(stat.S_IRWXU)
     shutil.rmtree(path)
 
 
