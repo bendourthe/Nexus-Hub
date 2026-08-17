@@ -34,7 +34,7 @@
 | v3.17.2 release tasks complete | 5 | 7 | 2 |
 | v3.17.3 release-candidate tasks complete | 9 | 9 | 0 |
 | v3.17.4 plan phases complete | 6 | 6 | 0 |
-| v3.17.4 release-candidate tasks complete | 6 | 8 | 2 |
+| v3.17.4 release-candidate tasks complete | 8 | 10 | 2 |
 | v3.17.5 plan phases complete | 0 | 7 | 7 |
 | Cursor hook portability tasks complete | 4 | 4 | 0 |
 | Usage monitor color-race tasks complete | 2 | 2 | 0 |
@@ -188,6 +188,8 @@
 - [x] Refresh platform contracts, defaults levers, and the current model map from first-party sources
 - [x] Pass the complete local release validation and staged artifact round-trip
 - [x] Obtain explicit approval for release notes derived from the complete final diff
+- [x] Repair the absent path-filtered `verify` context without weakening protected-branch requirements or running heavy Presentify suites on unrelated changes
+- [x] Obtain explicit approval for the amended complete-diff release notes before the follow-up commit and push
 - [ ] Publish the release branch and obtain protected release-candidate CI results
 - [ ] Promote to `main`, tag v3.17.4, publish the GitHub Release, and verify downloaded artifacts
 

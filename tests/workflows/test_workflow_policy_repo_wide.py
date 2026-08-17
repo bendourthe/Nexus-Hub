@@ -17,9 +17,11 @@ Two documented exceptions are encoded rather than hidden:
   uploading analysis results requires it, and it has no top-level block. Adding
   one would not help (a job-level block replaces the default outright) and
   narrowing it would break the security scan.
-- ``ci.yml`` uses ``paths-ignore`` rather than ``paths``, because it is the
-  catch-all gate that must run for any non-docs change. Requiring ``paths`` of it
-  would invert its purpose.
+- ``ci.yml`` uses a catch-all path filter because it must run for any non-docs
+  change. Requiring a focused allowlist of it would invert its purpose.
+- ``presentify-extractor.yml`` starts on every protected PR so its required
+  ``verify`` context always exists, then applies its path filter inside the
+  workflow to avoid installing heavy dependencies for unrelated changes.
 """
 
 from __future__ import annotations
@@ -42,6 +44,11 @@ PERMISSION_EXCEPTIONS = {"codeql.yml"}
 
 # ci.yml is the catch-all gate, so it filters by exclusion instead.
 PATHS_FILTER_EXCEPTIONS = {"ci.yml"}
+
+# Required checks cannot use event-level path filtering: GitHub leaves the
+# absent required context pending on unrelated PRs. These workflows must prove
+# their in-workflow path classification in a dedicated regression test.
+IN_WORKFLOW_PATH_FILTER_EXCEPTIONS = {"presentify-extractor.yml"}
 
 # Generous ceilings applied in Phase 9.3: far below the 6-hour default, high
 # enough that a legitimately long suite is not failed. The repository Python
@@ -134,6 +141,8 @@ def test_no_ordinary_feature_branch_push_expansion(path: Path) -> None:
 @pytest.mark.parametrize("path", ALL)
 def test_focused_workflows_filter_by_path(path: Path) -> None:
     """Everything except the catch-all gate should scope itself to its own tree."""
+    if path.name in IN_WORKFLOW_PATH_FILTER_EXCEPTIONS:
+        return
     if path.name in PATHS_FILTER_EXCEPTIONS:
         # The catch-all gate must not narrow itself to an allowlist. Two shapes
         # satisfy that, and the invariant is "runs by default, with exclusions",

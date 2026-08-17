@@ -39,6 +39,7 @@ Organization Knowledge adds a local, opt-in standards layer across all 16 platfo
 ### Fixed
 
 - **GitHub Usage Monitor now tolerates short GitHub billing service outages.** Transient 500, 502, 503, and 504 responses receive at most three attempts with jitter inside the existing request timeout, overlapping refresh triggers share one in-flight request, and automatic refreshes honor GitHub's reported retry deadline. Authentication and rate-limit failures remain single-attempt, cancellation stops backoff immediately, and exhausted retries continue to show the existing last-known-good snapshot instead of replacing it with zero usage.
+- **Protected pull requests no longer deadlock when no Presentify files change.** The required `verify` context now appears on every pull request targeting `main` or `develop`, while an in-workflow detector skips the heavy extractor dependencies and suites for unrelated changes. Presentify changes still run the full browser-free verification, and scheduled or changed protected-branch pushes retain the rendered-browser gate.
 
 ### Removed
 
