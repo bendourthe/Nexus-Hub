@@ -26,6 +26,8 @@ The module is stdlib-only on purpose: this helper runs under the same Python
 
 from __future__ import annotations
 
+import os
+import tempfile
 from pathlib import Path
 from typing import TYPE_CHECKING, Optional
 
@@ -50,6 +52,27 @@ def _build_block(body: str, start_marker: str, end_marker: str) -> str:
     canonical (one newline between marker and body on each side).
     """
     return f"{start_marker}\n{body.strip()}\n{end_marker}\n"
+
+
+def _atomic_replace_bytes(file_path: Path, content: bytes) -> None:
+    """Replace one existing file atomically with bytes staged beside it."""
+
+    mode = file_path.stat().st_mode
+    temporary: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="wb", dir=file_path.parent, prefix=f".{file_path.name}.", delete=False
+        ) as handle:
+            handle.write(content)
+            handle.flush()
+            os.fsync(handle.fileno())
+            temporary = Path(handle.name)
+        os.chmod(temporary, mode)
+        os.replace(temporary, file_path)
+        temporary = None
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
 
 
 def merge_marker_section(
@@ -150,7 +173,7 @@ def remove_marker_section(
             file_path.unlink(missing_ok=True)
         return _file_action(file_path, "removed")
     if not dry_run:
-        file_path.write_bytes(new_bytes)
+        _atomic_replace_bytes(file_path, new_bytes)
     return _file_action(file_path, "removed")
 
 

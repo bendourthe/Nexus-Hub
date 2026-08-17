@@ -900,6 +900,43 @@ def _status_org() -> int:
     return returncode
 
 
+def _cleanup_installed_org_artifacts() -> int:
+    """Remove organization artifacts owned by the installed global manifest."""
+
+    manifest_path = install_home() / "install-manifest.json"
+    if not manifest_path.exists():
+        return 0
+    package_root = str(Path(__file__).resolve().parent.parent)
+    if package_root not in sys.path:
+        sys.path.insert(0, package_root)
+    try:
+        from scripts.lib.integrations.base import InstallContext
+        from scripts.lib.integrations.manifest import InstallManifest
+        from scripts.lib.integrations.org_knowledge import remove_org_knowledge
+    except ImportError as exc:  # pragma: no cover - incomplete installed tree
+        raise OrgCliError(
+            "organization lifecycle helpers not found; re-run the Nexus-Hub installer"
+        ) from exc
+
+    manifest = InstallManifest.load(manifest_path)
+    context = InstallContext(
+        repo_root=install_home() / "src",
+        target_root=Path.home(),
+        scope="global",
+        overwrite=True,
+        dry_run=False,
+        manifest=manifest,
+    )
+    removed = 0
+    for key in manifest.all_org_keys():
+        removed += sum(
+            action.action == "removed"
+            for action in remove_org_knowledge(key, context)
+        )
+    manifest.save(manifest_path)
+    return removed
+
+
 def _disconnect_org(assume_yes: bool) -> int:
     connection = _org_connection_path()
     repository = _org_repo_path()
@@ -913,14 +950,17 @@ def _disconnect_org(assume_yes: bool) -> int:
     ):
         return 2
     try:
+        removed = _cleanup_installed_org_artifacts()
         if connection.exists() or connection.is_symlink():
             connection.unlink()
         _remove_owned_path(repository)
-    except OSError as exc:
+    except (OSError, OrgCliError, ValueError) as exc:
         _eprint(f"nexus-hub org disconnect: {exc}")
         return 2
     print("Organization knowledge disconnected.")
-    print("Materialized organization blocks are removed on the next install or repair.")
+    if removed:
+        print(f"Removed {removed} organization artifact(s) from the global install.")
+    print("Workspace organization artifacts are removed on the next install or repair.")
     return 0
 
 

@@ -407,6 +407,12 @@ python scripts/sync_platform_defaults.py --apply    # regenerate derived artifac
 
 **Scope boundary.** `docs/policy/platform-defaults-levers.md` owns behavioral defaults; `docs/policy/platform-read-contracts.md` owns file-discovery paths and capabilities. Neither should grow into the other. Both are re-verified in one pass by `[[platform-contract-verification]]`, but only the read-contract **hard-gates** a release; the lever contract rides along advisorily.
 
+## Organization Knowledge Layer (v3.17.4)
+
+Organization content remains outside the Nexus-Hub catalog and connects through `nexus-hub org connect <path-or-url>`. `scripts/lib/integrations/org_knowledge.py` validates the bundle and projects it from the common `IntegrationBase.install()` dispatcher into instruction files and existing rules surfaces. The organization marker block is independent of the Nexus-Hub marker block, and organization rule files are tracked through additive `org_tracked` / `org_shared` manifest ownership lists so doctor, repair, disconnect, teardown, and uninstall can reconcile only organization-owned content.
+
+Do not add organization content to `templates/ai-instructions/`, invent a platform priority setting, or infer ownership from an `org/` path. Preserve the explicit precedence statement, use the manifest as the cleanup source of truth, and keep failures fail-soft during install. Connecting a bundle supplies guidance only: it grants no enforcement authority and transmits no content to Nexus-Hub. The canonical operating and rollback reference is [`guides/ORG_KNOWLEDGE_LAYER.md`](guides/ORG_KNOWLEDGE_LAYER.md).
+
 The `Consequential Decisions` section in every substantive instruction template is behavioral context guidance. Before requesting a choice that changes security posture, deletes or overwrites data, changes distributed or user-facing behavior, or expands scope, the agent must explain the current work, the moving parts, each option including doing nothing, and its recommendation in plain language. Template parity proves that the rule is distributed consistently; it cannot prove runtime adherence. Aider has no global instruction surface, while Windsurf and OpenClaw are detection-gated or project-oriented, so these platforms receive the rule only on the instruction surfaces their integration actually installs. A consuming project's own `CLAUDE.md`, `AGENTS.md`, or equivalent local rules can still override installed guidance.
 
 ## Installer-Aware Changes (Cross-Platform)

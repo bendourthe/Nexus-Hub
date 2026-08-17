@@ -27,6 +27,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import shutil
 import stat
 import sys
 from dataclasses import dataclass, field
@@ -86,6 +87,16 @@ class BundleReport:
             f"{status}: {self.bundle_path} "
             f"({len(self.errors)} errors, {len(self.warnings)} warnings)"
         )
+
+
+@dataclass(frozen=True)
+class OrgHealthFinding:
+    """One organization lifecycle finding consumed by doctor and repair."""
+
+    integration_key: str
+    path: str
+    diagnostic: str
+    detail: str
 
 
 @dataclass(frozen=True)
@@ -457,6 +468,225 @@ def _track_safely(ctx: Any, method: str, integration_key: str, path: Path) -> No
         return
 
 
+def _tree_matches(source: Path, destination: Path) -> bool:
+    """Return whether two organization rule trees contain identical files."""
+
+    if not source.is_dir() or not destination.is_dir():
+        return False
+    source_files = {
+        path.relative_to(source): path
+        for path in source.rglob("*")
+        if path.is_file()
+    }
+    destination_files = {
+        path.relative_to(destination): path
+        for path in destination.rglob("*")
+        if path.is_file()
+    }
+    if set(source_files) != set(destination_files):
+        return False
+    try:
+        return all(
+            source_files[relative].read_bytes()
+            == destination_files[relative].read_bytes()
+            for relative in source_files
+        )
+    except OSError:
+        return False
+
+
+def _marker_body(path: Path) -> str | None:
+    """Return the current organization marker body, or None when incomplete."""
+
+    try:
+        text = path.read_text(encoding="utf-8")
+    except (OSError, UnicodeError):
+        return None
+    if ORG_START_MARKER not in text or ORG_END_MARKER not in text:
+        return None
+    start = text.index(ORG_START_MARKER) + len(ORG_START_MARKER)
+    end = text.index(ORG_END_MARKER, start)
+    return text[start:end].strip()
+
+
+def _remove_owned_tree(path: Path) -> None:
+    """Remove a Nexus-Hub-owned tree, including read-only Windows copies."""
+
+    def clear_read_only(function: Any, target: str, _: Any) -> None:
+        os.chmod(target, stat.S_IWRITE | stat.S_IREAD)
+        function(target)
+
+    shutil.rmtree(path, onerror=clear_read_only)
+
+
+def diagnose_org_knowledge(
+    manifest: Any, requested: Optional[List[str]] = None
+) -> list[OrgHealthFinding]:
+    """Diagnose connection, source, and materialized organization artifacts."""
+
+    connection = _install_home() / "org" / "connection.json"
+    org_keys = manifest.all_org_keys()
+    if requested:
+        org_keys = [key for key in org_keys if key in requested]
+    if not connection.exists():
+        findings: list[OrgHealthFinding] = []
+        for key in org_keys:
+            for path in manifest.org_shared_for(key) + manifest.org_files_for(key):
+                findings.append(
+                    OrgHealthFinding(
+                        key,
+                        path,
+                        "drifted" if Path(path).exists() else "missing",
+                        "organization connection removed; artifact requires cleanup",
+                    )
+                )
+        return findings
+
+    bundle_path, connection_error = _connected_bundle()
+    if connection_error is not None:
+        return [
+            OrgHealthFinding(
+                "org-knowledge",
+                str(connection),
+                "drifted",
+                connection_error,
+            )
+        ]
+    if bundle_path is None or not bundle_path.exists():
+        return [
+            OrgHealthFinding(
+                "org-knowledge",
+                str(bundle_path or connection),
+                "missing",
+                "connected organization source is unreachable",
+            )
+        ]
+
+    report = validate_bundle(bundle_path)
+    if not report.valid:
+        detail = report.errors[0] if report.errors else "bundle validation failed"
+        return [
+            OrgHealthFinding(
+                "org-knowledge",
+                str(bundle_path),
+                "drifted",
+                detail,
+            )
+        ]
+
+    findings = [
+        OrgHealthFinding(
+            "org-knowledge",
+            str(bundle_path),
+            "ok",
+            "connection readable, source reachable, and bundle valid",
+        )
+    ]
+    expected_body = render_org_block(report).strip()
+    rules_source = report.bundle_path / str(report.manifest["rules_dir"])
+    candidate_keys = manifest.all_action_keys()
+    if requested:
+        candidate_keys = [key for key in candidate_keys if key in requested]
+    for key in candidate_keys:
+        recorded_actions = manifest.actions_for(key)
+        wrote_surface = any(
+            str(action.get("action")) in {"created", "updated", "unchanged"}
+            for action in recorded_actions
+        )
+        shared_paths = manifest.org_shared_for(key)
+        owned_paths = manifest.org_files_for(key)
+        if wrote_surface and not shared_paths and not owned_paths:
+            findings.append(
+                OrgHealthFinding(
+                    key,
+                    f"org://{key}",
+                    "missing",
+                    "connected bundle has not been materialized for this integration",
+                )
+            )
+            continue
+        for path_str in shared_paths:
+            path = Path(path_str)
+            current_body = _marker_body(path)
+            if not path.exists():
+                diagnostic = "missing"
+                detail = "organization instruction destination is missing"
+            elif current_body != expected_body:
+                diagnostic = "drifted"
+                detail = "organization marker block differs from the connected bundle"
+            else:
+                diagnostic = "ok"
+                detail = "organization marker block matches the connected bundle"
+            findings.append(OrgHealthFinding(key, path_str, diagnostic, detail))
+        for path_str in owned_paths:
+            path = Path(path_str)
+            if not path.exists():
+                findings.append(
+                    OrgHealthFinding(
+                        key,
+                        path_str,
+                        "missing",
+                        "organization rule artifact is missing",
+                    )
+                )
+            elif path.is_dir() and path.name == "org":
+                matches = _tree_matches(rules_source, path)
+                findings.append(
+                    OrgHealthFinding(
+                        key,
+                        path_str,
+                        "ok" if matches else "drifted",
+                        "organization rule tree matches the connected bundle"
+                        if matches
+                        else "organization rule tree differs from the connected bundle",
+                    )
+                )
+    return findings
+
+
+def remove_org_knowledge(integration_key: str, ctx: Any) -> list[FileAction]:
+    """Remove only manifest-owned organization blocks and rule artifacts."""
+
+    from scripts.lib.installer.instruction_merge import remove_marker_section
+
+    from .result import FileAction
+
+    manifest = getattr(ctx, "manifest", None)
+    if manifest is None:
+        return []
+    dry_run = bool(getattr(ctx, "dry_run", False))
+    actions: list[FileAction] = []
+    for path_str in list(manifest.org_shared_for(integration_key)):
+        actions.append(
+            remove_marker_section(
+                Path(path_str),
+                start_marker=ORG_START_MARKER,
+                end_marker=ORG_END_MARKER,
+                dry_run=dry_run,
+            )
+        )
+        manifest.untrack_org_shared(integration_key, path_str)
+    owned = sorted(
+        {Path(path) for path in manifest.org_files_for(integration_key)},
+        key=lambda path: len(path.parts),
+        reverse=True,
+    )
+    for path in owned:
+        if path.is_symlink() or path.is_file():
+            if not dry_run:
+                path.unlink(missing_ok=True)
+            action = "removed"
+        elif path.is_dir():
+            if not dry_run:
+                _remove_owned_tree(path)
+            action = "removed"
+        else:
+            action = "not-found"
+        actions.append(FileAction(path=str(path), action=action))
+        manifest.untrack_org(integration_key, str(path))
+    return actions
+
+
 def _instruction_paths(integration: Any, ctx: Any) -> list[Path]:
     """Read actual instruction destinations registered by the current install."""
 
@@ -559,15 +789,19 @@ def seed_org_knowledge(integration_key: str, ctx: Any) -> list[FileAction]:
     """
 
     from . import get
+    from .result import FileAction
 
     bundle_path, connection_error = _connected_bundle()
     if bundle_path is None and connection_error is None:
         manifest = getattr(ctx, "manifest", None)
+        actions = remove_org_knowledge(integration_key, ctx)
         if manifest is not None:
-            manifest.log(integration_key, "org-knowledge: no connection; skipped")
+            message = "org-knowledge: no connection; cleaned" if actions else "org-knowledge: no connection; skipped"
+            manifest.log(integration_key, message)
         if getattr(ctx, "verbose", False):
-            _note(f"{integration_key}: no connection; skipped")
-        return []
+            state = "cleaned stale artifacts" if actions else "skipped"
+            _note(f"{integration_key}: no connection; {state}")
+        return actions
     if connection_error is not None:
         _note(f"{integration_key}: {connection_error}; skipped")
         return []
@@ -588,21 +822,36 @@ def seed_org_knowledge(integration_key: str, ctx: Any) -> list[FileAction]:
         actions: list[FileAction] = []
         for instruction_path in _instruction_paths(integration, ctx):
             actions.append(_merge_org_after_nexus(instruction_path, body, ctx))
-            _track_safely(ctx, "track_shared", integration_key, instruction_path)
+            _track_safely(ctx, "track_org_shared", integration_key, instruction_path)
 
         rules_source = report.bundle_path / str(report.manifest["rules_dir"])
         for rules_root in _rules_roots(integration, ctx):
             org_destination = rules_root / "org"
-            actions.append(
-                integration._copy_tree(
+            manifest = getattr(ctx, "manifest", None)
+            previously_owned = bool(
+                manifest is not None
+                and str(org_destination) in manifest.org_files_for(integration_key)
+            )
+            if org_destination.exists() and not previously_owned:
+                tree_action = FileAction(path=str(org_destination), action="kept")
+                if manifest is not None:
+                    manifest.log(
+                        integration_key,
+                        f"org-knowledge: preserve-unowned-rules: {org_destination}",
+                    )
+            else:
+                tree_action = integration._copy_tree(
                     rules_source, org_destination, ctx, integration_key
                 )
-            )
+            actions.append(tree_action)
+            if tree_action.action in {"kept", "not-found"}:
+                continue
+            _track_safely(ctx, "track_org", integration_key, org_destination)
             for source_file in sorted(
                 (path for path in rules_source.rglob("*") if path.is_file()), key=str
             ):
                 target_file = org_destination / source_file.relative_to(rules_source)
-                _track_safely(ctx, "track", integration_key, target_file)
+                _track_safely(ctx, "track_org", integration_key, target_file)
         return actions
     except Exception as exc:  # noqa: BLE001 - org projection must degrade, never fail install
         _note(f"{integration_key}: could not materialize organization knowledge ({exc}); skipped")
@@ -620,10 +869,13 @@ __all__ = [
     "PLATFORM_POSTURES",
     "SCHEMA_VERSION",
     "BundleReport",
+    "OrgHealthFinding",
+    "diagnose_org_knowledge",
     "PlatformPosture",
     "platform_posture",
     "platform_posture_rows",
     "render_org_block",
+    "remove_org_knowledge",
     "seed_org_knowledge",
     "validate_bundle",
 ]

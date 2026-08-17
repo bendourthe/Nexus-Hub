@@ -234,7 +234,9 @@ class IntegrationBase:
         """Remove every file/directory previously logged in the manifest for
         this integration. Safe to call multiple times.
         """
-        result = WriteResult()
+        from .org_knowledge import remove_org_knowledge
+
+        result = WriteResult(files=remove_org_knowledge(self.key, ctx))
         for path_str in list(ctx.manifest.files_for(self.key)):
             path = Path(path_str)
             if path.is_file():

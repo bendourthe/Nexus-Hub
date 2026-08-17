@@ -611,6 +611,7 @@ def _render_doctor_report(report: DoctorReport, json_mode: bool, quiet: bool) ->
                     "diagnostic": f.diagnostic,
                     "recorded_sha256": f.recorded_sha256,
                     "current_sha256": f.current_sha256,
+                    "detail": f.detail,
                 }
                 for f in report.findings
             ],
@@ -626,7 +627,8 @@ def _render_doctor_report(report: DoctorReport, json_mode: bool, quiet: bool) ->
         if f.diagnostic == DIAGNOSTIC_OK:
             continue
         prefix = _DIAGNOSTIC_PREFIX.get(f.diagnostic, "[?]")
-        print(f"  {prefix}{f.integration_key:<14} {f.path}")
+        detail = f" - {f.detail}" if f.detail else ""
+        print(f"  {prefix}{f.integration_key:<14} {f.path}{detail}")
     if report.integrations_unknown:
         print(
             "[doctor] requested but unknown to manifest: "
