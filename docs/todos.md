@@ -1,6 +1,6 @@
 # Nexus-Hub Progress Dashboard
 
-**Branch:** `feat/v3.17.4-org-knowledge-layer`
+**Branch:** `release/v3.17.4`
 
 ---
 
@@ -34,9 +34,11 @@
 | v3.17.2 release tasks complete | 5 | 7 | 2 |
 | v3.17.3 release-candidate tasks complete | 9 | 9 | 0 |
 | v3.17.4 plan phases complete | 6 | 6 | 0 |
+| v3.17.4 release-candidate tasks complete | 6 | 8 | 2 |
 | v3.17.5 plan phases complete | 0 | 7 | 7 |
 | Cursor hook portability tasks complete | 4 | 4 | 0 |
 | Usage monitor color-race tasks complete | 2 | 2 | 0 |
+| GitHub usage monitor resilience safeguards complete | 3 | 3 | 0 |
 | Codex Extra Credits payload tasks complete | 2 | 2 | 0 |
 | Codex credit display tasks complete | 3 | 3 | 0 |
 
@@ -86,6 +88,7 @@
 - [ ] Phase 7 - Kimi and Copilot capability parity
 - [ ] Phase 8 - Cross-platform lifecycle and contract verification
 - [ ] Phase 9 - Architecture refactor, known-gaps reconciliation, and CI/CD
+- [x] Add bounded transient retries, single-flight refresh coalescing, and retry-aware automatic scheduling to the v3.17.4 release scope
 
 ## Release Preparation - v3.15.7 [IN PROGRESS]
 
@@ -176,6 +179,17 @@
 - [x] Complete Phase 4: Guided Authoring Surface
 - [x] Complete Phase 5: Lifecycle Integration and Docs
 - [x] Complete Phase 6: Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
+
+## Release Candidate - v3.17.4 Org Knowledge and Usage Monitor Resilience [IN PROGRESS]
+
+- [x] Publish and integrate the Org Knowledge feature through protected CI
+- [x] Preserve and integrate the GitHub Usage Monitor resilience amendment
+- [x] Remove the completed provider-state migration and synchronize current version/count surfaces
+- [x] Refresh platform contracts, defaults levers, and the current model map from first-party sources
+- [x] Pass the complete local release validation and staged artifact round-trip
+- [x] Obtain explicit approval for release notes derived from the complete final diff
+- [ ] Publish the release branch and obtain protected release-candidate CI results
+- [ ] Promote to `main`, tag v3.17.4, publish the GitHub Release, and verify downloaded artifacts
 
 ## Parallel Plan - v3.17.5 DeepSeek Harness Adoption [PLANNED]
 

@@ -144,7 +144,7 @@ function Get-SanitizedBranchName {
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:NexusHubVersion = "3.17.3"
+$script:NexusHubVersion = "3.17.4"
 
 $Host.UI.RawUI.WindowTitle = "Nexus-Hub Installer"
 $script:InstallerTitle = "Nexus-Hub Installer"
@@ -740,35 +740,6 @@ function Install-ClaudeHookFiles {
         foreach ($source in @(Get-ChildItem -LiteralPath $sourceDir -Filter $pattern -File)) {
             Safe-Copy -Source $source.FullName -Destination (Join-Path $hooksDir $source.Name) -Confirm:$true -CustomMessage "✓ $Scope hook installed: $($source.Name)"
         }
-    }
-}
-
-function Install-RetiredOverrideCleanup {
-    param(
-        [string]$RepoRoot,
-        [string]$TargetClaudeDir,
-        [string]$Scope,
-        [string]$ProjectPath
-    )
-
-    $hooksDir = Join-Path $TargetClaudeDir "hooks"
-    if (-not (Test-Path $hooksDir)) { New-Item -ItemType Directory -Force -Path $hooksDir | Out-Null }
-    $helper = Join-Path $RepoRoot "catalog\hooks\retire-provider-override.py"
-    Safe-Copy -Source $helper -Destination (Join-Path $hooksDir "retire-provider-override.py") -Confirm:$true -CustomMessage "✓ $Scope retired provider-override cleanup installed at: $hooksDir"
-
-    $python = Resolve-PythonExecutable
-    if (-not $python) {
-        throw "Python is required to retire legacy provider overrides safely"
-    }
-
-    $hookPath = if ($Scope -eq "Global") {
-        "~/.claude/hooks/retire-provider-override.py"
-    } else {
-        ".claude/hooks/retire-provider-override.py"
-    }
-    & $python $helper --project $ProjectPath --settings (Join-Path $TargetClaudeDir "settings.json") --hook-command "python $hookPath"
-    if ($LASTEXITCODE -ne 0) {
-        throw "Retired provider override cleanup requires manual recovery before upgrade"
     }
 }
 
@@ -1663,7 +1634,6 @@ function Install-Global {
         Install-UsageDisplay       -RepoRoot $RepoRoot -TargetClaudeDir $globalClaude -Scope "Global" 6>$null
         Install-RequireDescription -RepoRoot $RepoRoot -TargetClaudeDir $globalClaude -Scope "Global" 6>$null
         Install-CoreSettings       -RepoRoot $RepoRoot -TargetClaudeDir $globalClaude -Scope "Global" 6>$null
-        Install-RetiredOverrideCleanup -RepoRoot $RepoRoot -TargetClaudeDir $globalClaude -Scope "Global" -ProjectPath $PWD.Path 6>$null
 
         # Unified checklist, built from the resulting on-disk state.
         Write-Item -Message "Claude Code" -Color "Gray"
@@ -2052,7 +2022,6 @@ function Install-Workspace {
             Install-GitGuardrails    -RepoRoot $RepoRoot -TargetClaudeDir $claudeDir -Scope "Workspace"
             Install-UsageDisplay     -RepoRoot $RepoRoot -TargetClaudeDir $claudeDir -Scope "Workspace"
             Install-RequireDescription -RepoRoot $RepoRoot -TargetClaudeDir $claudeDir -Scope "Workspace"
-            Install-RetiredOverrideCleanup -RepoRoot $RepoRoot -TargetClaudeDir $claudeDir -Scope "Workspace" -ProjectPath $targetPath
         }
 
         # --- OpenAI -- Codex ---------------------------------------------

@@ -2,7 +2,7 @@
 
 This is the durable, sourced record of whether each supported platform documents a settable install-time **behavioral default** that Nexus-Hub could legitimately seed, and the evidence for that answer. It is the companion to `configs/platform-defaults.json`: a platform may appear in that file ONLY if it carries a VERIFIED row here.
 
-**Last verified**: 2026-08-16 for v3.17.3. All sixteen registered integrations were checked in this full release pass.
+**Last verified**: 2026-08-17 for v3.17.4. All sixteen registered integrations were checked in this full release pass.
 
 ## Scope boundary
 
@@ -174,6 +174,7 @@ Lever re-verification rides along with the existing `platform-contract-verificat
 
 | Date | Version | Scope | Outcome |
 |---|---|---|---|
+| 2026-08-17 | v3.17.4 | All sixteen registered integrations, full pass | 13 VERIFIED, 3 UNVERIFIED. Every public first-party source returned HTTP 200 and retained the expected key or documented UI-only posture. OpenClaw still documents `agents.defaults`, model fallbacks, and `openclaw.json`; Nexus-AI remains privately auditable only. No installer default changed. |
 | 2026-08-16 | v3.17.3 | All sixteen registered integrations, full pass | 13 VERIFIED, 3 UNVERIFIED. All documented keys and config paths remain valid. Cursor still documents `approvalMode` and sandbox controls separately from hook responses; Antigravity IDE and Windsurf still expose UI behavior without a seedable config file, and Nexus-AI remains privately auditable only. No installer default changed. |
 | 2026-08-15 | v3.17.2 | All sixteen registered integrations, full pass | 13 VERIFIED, 3 UNVERIFIED. Existing seeded keys and write paths remain valid. Additive documentation drift clarifies Codex granular approvals, Cursor `approvalMode`, Antigravity CLI `toolPermission` and `artifactReviewPolicy`, Hermes `approvals.mode`, and Copilot's separate editable-settings and saved-approvals files. No installer default changed, and the retired autonomy controller is not replaced. |
 | 2026-08-15 | v3.17.0 | All sixteen registered integrations, full pass | 13 VERIFIED, 3 UNVERIFIED. Gemini Code Assist moved from UNVERIFIED to VERIFIED with a surface mismatch after its docs added `geminicodeassist.agentYoloMode`. Hermes remained VERIFIED but its reasoning key drifted from top-level `reasoning_effort` to `agent.reasoning_effort`; the source manifest and test were corrected. All other key names, paths, and source hosts remained aligned. |

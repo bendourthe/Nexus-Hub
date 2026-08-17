@@ -104,6 +104,81 @@ describe("GitHubBillingClient", () => {
     const request = vi.fn<FetchLike>().mockResolvedValue(response(status, fixture(fixtureName), headers));
     const result = await new GitHubBillingClient(request).fetchUsage({ owner, token, copilotEndpoint: "ai-credits", now });
     expect(!result.ok && result.error.code).toBe(code);
+    expect(request).toHaveBeenCalledTimes(status === 500 ? 3 : 1);
+  });
+
+  it("retries a transient 503 and succeeds when GitHub recovers", async () => {
+    vi.useFakeTimers();
+    try {
+      const request = vi
+        .fn<FetchLike>()
+        .mockResolvedValueOnce(response(503, fixture("error-404.json")))
+        .mockResolvedValueOnce(response(200, fixture("current-ai-credits.json")))
+        .mockResolvedValueOnce(response(200, fixture("actions-minutes-storage.json")));
+
+      const pending = new GitHubBillingClient(request).fetchUsage({ owner, token, copilotEndpoint: "ai-credits", now });
+      await vi.runAllTimersAsync();
+      const result = await pending;
+
+      expect(result.ok).toBe(true);
+      expect(request).toHaveBeenCalledTimes(3);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("stops retrying a persistent 503 after three attempts", async () => {
+    vi.useFakeTimers();
+    try {
+      const request = vi.fn<FetchLike>().mockResolvedValue(response(503, fixture("error-404.json")));
+
+      const pending = new GitHubBillingClient(request).fetchUsage({ owner, token, copilotEndpoint: "ai-credits", now });
+      await vi.runAllTimersAsync();
+      const result = await pending;
+
+      expect(!result.ok && result.error.code).toBe("service-error");
+      expect(request).toHaveBeenCalledTimes(3);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("preserves a 503 Retry-After deadline that exceeds the request timeout", async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(now);
+    try {
+      const request = vi.fn<FetchLike>().mockResolvedValue(response(503, fixture("error-404.json"), { "retry-after": "60" }));
+      const result = await new GitHubBillingClient(request).fetchUsage({ owner, token, copilotEndpoint: "ai-credits", now });
+
+      expect(request).toHaveBeenCalledOnce();
+      expect(!result.ok && result.error).toMatchObject({ code: "service-error", retryAt: now + 60_000 });
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
+  it("cancels during 503 backoff without making another request", async () => {
+    const random = vi.spyOn(Math, "random").mockReturnValue(0.5);
+    try {
+      const request = vi.fn<FetchLike>().mockResolvedValue(response(503, fixture("error-404.json")));
+      const controller = new AbortController();
+      const pending = new GitHubBillingClient(request).fetchUsage({
+        owner,
+        token,
+        copilotEndpoint: "ai-credits",
+        now,
+        signal: controller.signal
+      });
+
+      await Promise.resolve();
+      controller.abort();
+      const result = await pending;
+
+      expect(!result.ok && result.error.code).toBe("cancelled");
+      expect(request).toHaveBeenCalledOnce();
+    } finally {
+      random.mockRestore();
+    }
   });
 
   it("distinguishes an unavailable detailed usage endpoint from an unknown Copilot owner", async () => {

@@ -189,7 +189,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
    */
   const showDashboard = (auth?: AuthDisplay): void => dashboard.show(currentState, auth);
   const showDashboardWithAuth = async (): Promise<void> => showDashboard(await authDisplay());
-  const refresh = async (): Promise<void> => {
+  const refresh = createSingleFlightRefresh(async () => {
     // A signed-out monitor stays signed out. The editor's GitHub session is still
     // there and would otherwise be picked up on the very next tick.
     if (context.globalState.get<boolean>(SIGNED_OUT_KEY, false)) {
@@ -222,8 +222,8 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
     dashboard.update(currentState, display);
     if (currentState.data) await maybeShowAlert(currentState.data, store, warning, showDashboard);
     await maybeOfferReconnect(currentState);
-    scheduleRefresh(refresh);
-  };
+    scheduleRefresh(refresh, currentState.error?.retryAt);
+  });
 
   /**
    * Turns a fixable authorization failure into an action instead of a quiet warning.
@@ -557,11 +557,28 @@ export function scheduleWarningDismissal(timeoutMs: number, onTimeout: () => voi
   return setTimeout(onTimeout, timeoutMs);
 }
 
-function scheduleRefresh(refresh: () => Promise<void>): void {
+function scheduleRefresh(refresh: () => Promise<void>, retryAt?: number): void {
   if (refreshTimer) clearTimeout(refreshTimer);
   const config = vscode.workspace.getConfiguration("githubUsageMonitor");
   if (!config.get<boolean>("autoFetch", true)) return;
-  refreshTimer = setTimeout(() => { void refresh(); }, config.get<number>("refreshInterval", 10) * 60_000);
+  const intervalMs = config.get<number>("refreshInterval", 10) * 60_000;
+  refreshTimer = setTimeout(() => { void refresh(); }, nextRefreshDelayMs(intervalMs, retryAt));
+}
+
+export function nextRefreshDelayMs(intervalMs: number, retryAt?: number, now = Date.now()): number {
+  return Math.max(intervalMs, retryAt === undefined ? 0 : retryAt - now);
+}
+
+export function createSingleFlightRefresh(refresh: () => Promise<void>): () => Promise<void> {
+  let inFlight: Promise<void> | undefined;
+  return (): Promise<void> => {
+    if (inFlight !== undefined) return inFlight;
+    const pending = refresh();
+    inFlight = pending.finally(() => {
+      inFlight = undefined;
+    });
+    return inFlight;
+  };
 }
 
 /**

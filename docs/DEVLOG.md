@@ -1,5 +1,23 @@
 # Development Log
 
+## [2026-08-17] - v3.17.4 release candidate reconciliation
+
+### What Changed
+
+Prepared the uncommitted v3.17.4 release candidate from the already-integrated Org Knowledge feature and preserved the approved GitHub Usage Monitor resilience amendment exactly. The release advances the GitHub monitor to 0.3.3, advances the Codex monitor to 0.2.11 for the two-line whole-credit and API-provided USD display, removes the completed one-cycle provider-state restoration migration, and synchronizes the canonical project version and current catalog counts.
+
+### Release Governance
+
+All ten public platform discovery sources and all publicly verifiable defaults-lever sources were re-fetched from first-party documentation. The existing verdicts remain eight MATCH, one non-breaking Codex DRIFT, and one UNVERIFIED Nexus-AI read contract; defaults remain 13 VERIFIED and 3 UNVERIFIED. The four routing-provider pages retain every mapped model identifier, so no routing tier changed. Protected feature and post-merge `develop` CI already passed on merge `9cfbf36d8c5efa8fd37d4c7c66070a3bb18c3d7a`, resolving the local integration-runtime warning.
+
+### Verification
+
+GitHub Usage Monitor compilation and coverage pass 26 test files and 428 tests with 81.52 percent statement coverage and 84.66 percent line coverage; its 0.3.3 VSIX passes the 63-file content verifier. Codex Usage Monitor compilation and coverage pass 8 test files and 77 tests with 80.73 percent statement coverage and 81.25 percent line coverage; its 0.2.11 VSIX packages 39 files. Hook sibling parity passes 262 tests, focused installer and migration-removal checks pass 19 tests, validators/plans/workflows/root pass 882 tests with 2 skips, installers pass 433 with 17 skips, skills pass 696, and all five internal Python extension suites pass. The local `tests/integrations` shard reaches the 15-minute Windows bound without an assertion failure; protected PR and post-merge CI remain the authoritative full integration evidence. Every declared `make validate` constituent, ShellCheck, PowerShell parsing, strict added-line Unicode safety, and the security gate pass with 0 critical and 0 high findings. The staged manifest contains 1,242 files, and a line-ending-pinned archive of the staged tree passes `verify_install.py` with all 1,242 entries matching.
+
+### Release Boundary
+
+The complete final diff and derived release notes received explicit approval on 2026-08-17. Release-branch commit, publication, and protected integration CI may proceed; `main` promotion, the v3.17.4 tag, and GitHub Release remain separate final gates.
+
 ## [2026-08-17] - v3.17.4 Phase 6: architecture, gaps, and installer CI
 
 ### What Changed

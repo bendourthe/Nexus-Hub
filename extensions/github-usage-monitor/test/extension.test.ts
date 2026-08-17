@@ -1,5 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { activate, deactivate, fetchConfiguredUsage, setDeferToNewerWindow } from "../src/extension";
+import {
+  activate,
+  createSingleFlightRefresh,
+  deactivate,
+  fetchConfiguredUsage,
+  nextRefreshDelayMs,
+  setDeferToNewerWindow
+} from "../src/extension";
 import { GitHubTokenStore } from "../src/providers/auth";
 import { UsageStore } from "../src/usageStore";
 import {
@@ -171,5 +178,32 @@ describe("activation command surface", () => {
   it("setDeferToNewerWindow is a no-throw toggle", () => {
     setDeferToNewerWindow(true);
     setDeferToNewerWindow(false);
+  });
+});
+
+describe("refresh safeguards", () => {
+  it("coalesces overlapping refresh triggers and allows the next completed cycle", async () => {
+    let complete: (() => void) | undefined;
+    const task = vi.fn(() => new Promise<void>((resolve) => { complete = resolve; }));
+    const refresh = createSingleFlightRefresh(task);
+
+    const first = refresh();
+    const second = refresh();
+    expect(second).toBe(first);
+    expect(task).toHaveBeenCalledOnce();
+
+    complete?.();
+    await first;
+    const third = refresh();
+    expect(task).toHaveBeenCalledTimes(2);
+    complete?.();
+    await third;
+  });
+
+  it("does not auto-refresh before GitHub's retry time", () => {
+    const now = Date.UTC(2026, 7, 17, 12);
+    expect(nextRefreshDelayMs(60_000, now + 5 * 60_000, now)).toBe(5 * 60_000);
+    expect(nextRefreshDelayMs(10 * 60_000, now + 5 * 60_000, now)).toBe(10 * 60_000);
+    expect(nextRefreshDelayMs(60_000, undefined, now)).toBe(60_000);
   });
 });
