@@ -44,18 +44,22 @@ describe("DashboardPanel", () => {
   it("renders Extra Credits as a second progress bar after Weekly", () => {
     const html = renderDashboard(usageData({
       extraCredits: {
-        usedCredits: 750,
+        usedCredits: 836.88,
         monthlyLimit: 5_000,
-        percent: 15,
+        percent: 17,
         resetsIn: "August 31, 2026 5:00 PM",
         resetsAt: Date.UTC(2026, 8, 1),
+        usedAmountUsd: 33.4752,
+        limitAmountUsd: 200,
       },
     }));
 
     expect(html).toContain("<h3>Weekly</h3>");
     expect(html).toContain("<h3>Extra Credits</h3>");
-    expect(html).toContain('style="width: 15%;"');
-    expect(html).toContain("750 of 5,000 credits used");
+    expect(html).toContain('style="width: 17%;"');
+    expect(html).toContain("837 out of 5,000 credits used ($33.48 / $200.00)");
+    expect(html.indexOf("837 out of 5,000 credits used")).toBeLessThan(html.indexOf("Resets on August 31, 2026 5:00 PM"));
+    expect(html).not.toContain("credits used &middot;");
     expect(html.indexOf("<h3>Weekly</h3>")).toBeLessThan(html.indexOf("<h3>Extra Credits</h3>"));
   });
 

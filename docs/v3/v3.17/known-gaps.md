@@ -1,8 +1,8 @@
 # Known Gaps - v3.17
 
 **Project**: Nexus-Hub
-**Status**: v3.17.3 corrective release preparation repairs Cursor hook portability and two usage-monitor reliability defects without including unfinished v3.17.4 Org Knowledge work.
-**Last updated**: 2026-08-16 (v3.17.3 corrective release preparation)
+**Status**: v3.17.3 is released, and the v3.17.4 release candidate includes the completed Org Knowledge Layer, two usage-monitor improvements, and the scheduled retirement-migration removal. Protected CI resolves the local integration-runtime warning; three intentional Org Knowledge product limits and the prompting-profile advisory remain open, with no release blocker. Prior v3.17.0 through v3.17.3 records remain below.
+**Last updated**: 2026-08-17 (v3.17.4 release reconciliation)
 
 > **File-lifecycle note**: this ledger was opened by the v3.17.0 Phase 1 append. Each subsequent v3.17.N implementation appends its own `## v3.17.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `MT-#` / `QG-#` numbering.
 
@@ -12,7 +12,7 @@
 
 ## v3.17.3 - cursor-hook-portability-and-usage-monitor-reliability
 
-**Status**: Corrective release candidate preparation is in progress on `fix/v3.17.3-corrective`. The scope is limited to Cursor hook portability, Codex Extra Credits live-payload mapping, shared warning-color stability, release metadata, and the renumbering of unreleased plans.
+**Status**: Released on 2026-08-16. The scope was limited to Cursor hook portability, Codex Extra Credits live-payload mapping, shared warning-color stability, release metadata, and the renumbering of unreleased plans.
 
 ### BG-1 - CLOSED in implementation: Windows Cursor inherited Bash hook commands
 
@@ -70,11 +70,11 @@
 - **Resolution**: both installers now deploy and invoke one idempotent retirement helper. It restores only version-1 state entries whose config and backup paths remain inside the repository, preserves unresolved entries on every unsafe or missing-backup path, removes stale controller hook registrations while retaining unrelated user hooks, and installs a temporary SessionStart retry for projects that were not open during upgrade.
 - **Verification**: focused migration, installer, removed-surface, and Codex integration suites pass 58 tests; syntax and PowerShell AST checks pass.
 
-### DF-6 - OPEN by design: remove the temporary retirement migration after one compatibility release
+### DF-6 - RESOLVED in v3.17.4: temporary retirement migration removed after one compatibility release
 
 - **Target files**: `catalog/hooks/retire-provider-override.py`, `catalog/hooks/settings.json`, both installers, and their migration tests
-- **Reason it is open**: users can upgrade directly from v3.17.0 or v3.17.1 after v3.17.2 ships. Removing the helper in the same release would leave those delayed upgrades unable to restore recorded state.
-- **Suggested next step**: retain the migration through the expedited v3.17.3 corrective release so delayed v3.17.0 and v3.17.1 upgrades remain recoverable; in v3.17.4, confirm the compatibility window is complete, remove the helper and SessionStart registration, delete its installer wiring and tests, decrement the hook count, and retain this ledger entry as the migration record.
+- **Compatibility window**: the helper remained available through v3.17.3 so delayed upgrades from v3.17.0 and v3.17.1 retained their recovery path.
+- **Resolution**: v3.17.4 removes the helper, SessionStart registration, installer wiring, and migration-specific tests. The hook count returns from 32 to 31, while the v3.17.2 record remains the historical description of the completed migration.
 
 ### WN-5 - OPEN advisory: per-model prompting profiles lag the current model roster
 
@@ -82,19 +82,20 @@
 - **Source phase**: v3.17.2 release preparation model-prompting freshness advisory
 - **Reason it is open**: the required release advisory returned `DRIFTED`. The routing map itself is valid and was re-verified on 2026-08-15, but the separate prompting-profile layer still records its 2026-07-27 roster and lacks profiles for the newly mapped Anthropic, OpenAI, Google, and Cursor model IDs. This is intentionally advisory and is unrelated to the provider-state restoration defect fixed by v3.17.2.
 - **Suggested next step**: run `/tune-prompting` in a dedicated model-prompting refresh cycle, update the recorded roster and affected profiles from current first-party guidance, then rerun `python scripts/check_model_prompting_freshness.py --advisory <live-model-ids>` until it reports `IN SYNC`.
+- **Phase 6 recheck**: The live Codex roster contains `gpt-5.5`, `gpt-5.4`, `gpt-5.4-mini`, `gpt-5.3-codex`, `gpt-5.2`, and `codex-auto-review`, while the profile layer still records the 2026-07-27 Anthropic roster. The advisory returned `DRIFTED` without blocking Phase 6; the dedicated `/tune-prompting` follow-up remains unchanged.
 
 ### Summary
 
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented by design / unverified (`NI-#`) | 0 | 0 |
-| Deferred (`DF-#`) | 1 (DF-6) | 0 |
+| Deferred (`DF-#`) | 0 | 1 (DF-6) |
 | Bugs (`BG-#`) | 0 | 2 (BG-1, BG-9) |
 | Warnings (`WN-#`) | 1 (WN-5) | 0 |
 | Missing tests (`MT-#`) | 0 | 0 |
 | Quality-gate bypasses (`QG-#`) | 0 | 0 |
 
-**Release blockers**: 0. DF-6 is a deliberate one-release compatibility window and does not block v3.17.2.
+**Release blockers**: 0. DF-6 remained a deliberate one-release compatibility window for v3.17.2 and is resolved by its scheduled v3.17.4 removal.
 
 ## v3.17.0 - agent-autonomy-toggle
 
@@ -282,15 +283,60 @@
 - **Resolution**: rename the local variable and all of its uses to `$smokeHome`; add a lifecycle regression that rejects a case-insensitive `$home` assignment anywhere in the CI workflow.
 - **Verification**: the regression test failed against the v3.17.0 workflow on the exact assignment, then passed after the rename. The v3.17.1 tag workflow is the release-level proof that the repaired all-OS installer-smoke matrix runs end to end.
 
+## v3.17.4 - org-knowledge-layer
+
+**Status**: All six phases completed on 2026-08-17 with 3 open non-blocking items, 2 resolved items, and 0 release blockers. Protected CI passed on the integrated feature result before release preparation. Plan: [plans/v3.17.4-org-knowledge-layer.md](plans/v3.17.4-org-knowledge-layer.md).
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented by design / unverified (`NI-#`) | 1 (NI-4) | 0 |
+| Deferred (`DF-#`) | 2 (DF-7, DF-8) | 0 |
+| Bugs (`BG-#`) | 0 | 0 |
+| Warnings (`WN-#`) | 0 | 1 (WN-6) |
+| Missing tests (`MT-#`) | 0 | 1 (MT-2) |
+| Quality-gate bypasses (`QG-#`) | 0 | 0 |
+
+### Open Items
+
+### NI-4 - Copilot organization precedence remains advisory
+
+- **Source phase**: v3.17.4 Phase 6, sub-task 6.2
+- **Plan reference**: `docs/v3/v3.17/plans/v3.17.4-org-knowledge-layer.md` (sub-task 6.2)
+- **Reason**: GitHub documents personal and repository custom instructions as higher-priority context than organization instructions. Nexus-Hub can project portable guidance into Copilot's local instruction surface, but it cannot make that local block non-overridable or describe it as vendor-enforced policy.
+- **Suggested next step**: Keep `nexus-hub org status` advisory for Copilot. Organizations needing stronger control should configure GitHub's documented Business or Enterprise administrative surface and reinforce blocking requirements through permissions, hooks, or CI.
+
+### DF-7 - Catalog-content suppression is outside the organization-layer contract
+
+- **Source phase**: v3.17.4 Phase 6, sub-task 6.2
+- **Plan reference**: `docs/v3/v3.17/plans/v3.17.4-org-knowledge-layer.md` (sub-task 6.2)
+- **Reason**: The confirmed design makes organization guidance additive and higher-priority; it does not let a bundle remove or suppress generic Nexus-Hub catalog content. Adding negative-selection semantics would change bundle validation, materialization, conflict handling, and cross-platform guarantees beyond this release's approved scope.
+- **Suggested next step**: If a real organization requires suppression, define a separate opt-in filtering contract with explicit ownership, conflict, audit, and uninstall semantics before adding it to a future plan.
+
+### DF-8 - Platform-native enforcement generation remains administrator-owned
+
+- **Source phase**: v3.17.4 Phase 6, sub-task 6.2
+- **Plan reference**: `docs/v3/v3.17/plans/v3.17.4-org-knowledge-layer.md` (sub-task 6.2)
+- **Reason**: Nexus-Hub intentionally generates portable local instructions and rules, not Claude managed policy, Cursor Team Rules, GitHub organization instructions, or other administrator-controlled vendor settings. Phase 4 documents verified escalation paths without inventing credentials or authority.
+- **Suggested next step**: Keep enforcement configuration outside the installer. Re-evaluate only through a separately approved, vendor-specific administrative integration with explicit authentication, authorization, and rollback requirements.
+
+### Resolved
+
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+| MT-2 | Real installer entry points lacked organization seeding postconditions | Phase 6 | The existing POSIX and Windows installer-smoke steps now connect the same example bundle and invoke one shared checker for marker ordering and rule projection; 106 focused policy and parity tests plus the isolated Windows installer smoke passed. |
+| WN-6 | Local Windows integrations suite exceeded the bounded phase runtime | Protected feature integration | The protected PR and post-merge `develop` workflows passed their full integration and Windows jobs on merge `9cfbf36d8c5efa8fd37d4c7c66070a3bb18c3d7a`, providing the authoritative hosted evidence the local warning awaited. |
+
 ## v3.17 Summary
 
 | Category | Open | Resolved |
 |---|---|---|
-| Not implemented by design / unverified (`NI-#`) | 3 (NI-1, NI-2, NI-3) | 0 |
-| Deferred (`DF-#`) | 6 (DF-1, DF-2, DF-3, DF-4, DF-5, DF-6) | 0 |
+| Not implemented by design / unverified (`NI-#`) | 4 (NI-1, NI-2, NI-3, NI-4) | 0 |
+| Deferred (`DF-#`) | 7 (DF-1, DF-2, DF-3, DF-4, DF-5, DF-7, DF-8) | 1 (DF-6) |
 | Bugs (`BG-#`) | 0 | 9 (BG-1, BG-2, BG-3, BG-4, BG-5, BG-6, BG-7, BG-8, BG-9) |
-| Warnings (`WN-#`) | 4 (WN-1, environmental, carried from v3.15.0; WN-2, pre-existing Ruff baseline; WN-4, version-specific hook proof; WN-5, prompting-profile roster drift) | 1 (WN-3, Vitest config loader) |
-| Missing tests (`MT-#`) | 1 (MT-1, Claude monitor extension-wide coverage) | 0 |
+| Warnings (`WN-#`) | 4 (WN-1, environmental, carried from v3.15.0; WN-2, pre-existing Ruff baseline; WN-4, version-specific hook proof; WN-5, prompting-profile roster drift) | 2 (WN-3, Vitest config loader; WN-6, hosted integration evidence) |
+| Missing tests (`MT-#`) | 1 (MT-1, Claude monitor extension-wide coverage) | 1 (MT-2, real installer organization postconditions) |
 | Quality-gate bypasses (`QG-#`) | 0 | 0 |
 
-**Release blockers**: 0. NI-1 and NI-2 require live matcher probes before their respective permission baselines can be broadened, but the shipped validators and hook guards conservatively avoid relying on either unverified behavior. BG-4 through BG-9 are closed; BG-8 is the v3.17.1 tag-only Windows harness repair and BG-9 is the v3.17.2 fail-safe state-restoration migration. DF-6 keeps that migration for one compatibility release. WN-5 records the release workflow's non-blocking prompting-profile freshness advisory.
+**Release blockers**: 0. NI-1 and NI-2 require live matcher probes before their respective permission baselines can be broadened, but the shipped validators and hook guards conservatively avoid relying on either unverified behavior. BG-4 through BG-9 are closed; BG-8 is the v3.17.1 tag-only Windows harness repair and BG-9 is the v3.17.2 fail-safe state-restoration migration. DF-6 is resolved by the scheduled v3.17.4 removal, WN-6 is resolved by protected CI, and WN-5 remains the release workflow's non-blocking prompting-profile freshness advisory.

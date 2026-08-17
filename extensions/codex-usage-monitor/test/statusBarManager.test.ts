@@ -74,11 +74,13 @@ describe("StatusBarManager (Codex)", () => {
     __resetStubState();
     const mgr = new StatusBarManager(
       dataStore(UNTRACKED_PERCENT, 10, {
-        usedCredits: 750,
+        usedCredits: 836.88,
         monthlyLimit: 5_000,
-        percent: 15,
+        percent: 17,
         resetsIn: "August 31, 2026 5:00 PM",
         resetsAt: Date.UTC(2026, 8, 1),
+        usedAmountUsd: 33.4752,
+        limitAmountUsd: 200,
       }),
       "codex-usage.dashboard",
     );
@@ -87,7 +89,9 @@ describe("StatusBarManager (Codex)", () => {
     const tooltip = createdStatusBarItems[0].tooltip as { value: string };
     expect(tooltip.value).toContain("Weekly");
     expect(tooltip.value).toContain("Extra%20Credits");
-    expect(tooltip.value).toContain("750 of 5,000 credits used");
+    expect(tooltip.value).toContain('<span style="display:inline-block;width:280px">837 out of 5,000 credits used ($33.48 / $200.00)</span><br>');
+    expect(tooltip.value).toContain("Resets on August 31, 2026 5:00 PM");
+    expect(tooltip.value).not.toContain("credits used &middot;");
     expect(tooltip.value.indexOf("Weekly")).toBeLessThan(tooltip.value.indexOf("Extra%20Credits"));
   });
 

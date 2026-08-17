@@ -1,6 +1,6 @@
 # AGENTS.md
 
-<!-- nexus-hub-version: 3.17.3 -->
+<!-- nexus-hub-version: 3.17.4 -->
 
 This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, Gemini CLI, etc.) when working with code in this repository.
 
@@ -8,7 +8,7 @@ This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, G
 
 Nexus-Hub is a production-grade skill harness for AI coding assistants. It is the **upstream catalog** consumed by Nexus (the local-first desktop AI Studio, see `https://github.com/bendourthe/Nexus-AI`) and by every other major agent platform: Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, and GitHub CLI. Skills, commands, hooks, agents, and rules are distributed via installer scripts into users' `~/.nexus-hub/` directory and into their AI assistant's per-platform config locations.
 
-Current catalog: **271 skills** across 21 categories, 17 commands (plus 3 permanent aliases), 32 hooks, 23 agents. The 40 v3.x deprecation shims were removed in v3.2.0.
+Current catalog: **272 skills** across 21 categories, 18 commands (plus 3 permanent aliases), 31 hooks, 23 agents. The 40 v3.x deprecation shims were removed in v3.2.0.
 
 ## Project Structure
 
@@ -24,7 +24,7 @@ Nexus-Hub/
 │   ├── mcp-configs/          # MCP server registry
 │   ├── memory/               # Memory template files
 │   ├── rules/                # Code style/security rules (4 languages)
-│   └── skills/               # 271 skills across 21 categories
+|   `-- skills/               # 272 skills across 21 categories
 │       └── <category>/
 │           └── <skill-name>/
 │               └── SKILL.md
@@ -406,6 +406,12 @@ python scripts/sync_platform_defaults.py --apply    # regenerate derived artifac
 **Install-time seeding.** `scripts/lib/integrations/platform_defaults.py`, hooked into `IntegrationBase.install()` (the dispatcher, not `install_global`, so a subclass that forgets `super()` cannot skip it), seeds each declared default into that platform's own config. It is **seed-if-absent** (never overwrites a value the user set), preserves what it did not write (`tomlkit` for TOML; append-only for existing YAML, since a PyYAML round-trip strips comments), degrades rather than failing, and is gated on `result.detected is not False` so a platform the user does not have installed receives nothing. `tomlkit` and `PyYAML` are optional lazily-imported dependencies checked by both installers.
 
 **Scope boundary.** `docs/policy/platform-defaults-levers.md` owns behavioral defaults; `docs/policy/platform-read-contracts.md` owns file-discovery paths and capabilities. Neither should grow into the other. Both are re-verified in one pass by `[[platform-contract-verification]]`, but only the read-contract **hard-gates** a release; the lever contract rides along advisorily.
+
+## Organization Knowledge Layer (v3.17.4)
+
+Organization content remains outside the Nexus-Hub catalog and connects through `nexus-hub org connect <path-or-url>`. `scripts/lib/integrations/org_knowledge.py` validates the bundle and projects it from the common `IntegrationBase.install()` dispatcher into instruction files and existing rules surfaces. The organization marker block is independent of the Nexus-Hub marker block, and organization rule files are tracked through additive `org_tracked` / `org_shared` manifest ownership lists so doctor, repair, disconnect, teardown, and uninstall can reconcile only organization-owned content.
+
+Do not add organization content to `templates/ai-instructions/`, invent a platform priority setting, or infer ownership from an `org/` path. Preserve the explicit precedence statement, use the manifest as the cleanup source of truth, and keep failures fail-soft during install. Connecting a bundle supplies guidance only: it grants no enforcement authority and transmits no content to Nexus-Hub. The canonical operating and rollback reference is [`guides/ORG_KNOWLEDGE_LAYER.md`](guides/ORG_KNOWLEDGE_LAYER.md).
 
 The `Consequential Decisions` section in every substantive instruction template is behavioral context guidance. Before requesting a choice that changes security posture, deletes or overwrites data, changes distributed or user-facing behavior, or expands scope, the agent must explain the current work, the moving parts, each option including doing nothing, and its recommendation in plain language. Template parity proves that the rule is distributed consistently; it cannot prove runtime adherence. Aider has no global instruction surface, while Windsurf and OpenClaw are detection-gated or project-oriented, so these platforms receive the rule only on the instruction surfaces their integration actually installs. A consuming project's own `CLAUDE.md`, `AGENTS.md`, or equivalent local rules can still override installed guidance.
 

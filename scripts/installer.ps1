@@ -144,7 +144,7 @@ function Get-SanitizedBranchName {
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:NexusHubVersion = "3.17.3"
+$script:NexusHubVersion = "3.17.4"
 
 $Host.UI.RawUI.WindowTitle = "Nexus-Hub Installer"
 $script:InstallerTitle = "Nexus-Hub Installer"
@@ -740,35 +740,6 @@ function Install-ClaudeHookFiles {
         foreach ($source in @(Get-ChildItem -LiteralPath $sourceDir -Filter $pattern -File)) {
             Safe-Copy -Source $source.FullName -Destination (Join-Path $hooksDir $source.Name) -Confirm:$true -CustomMessage "✓ $Scope hook installed: $($source.Name)"
         }
-    }
-}
-
-function Install-RetiredOverrideCleanup {
-    param(
-        [string]$RepoRoot,
-        [string]$TargetClaudeDir,
-        [string]$Scope,
-        [string]$ProjectPath
-    )
-
-    $hooksDir = Join-Path $TargetClaudeDir "hooks"
-    if (-not (Test-Path $hooksDir)) { New-Item -ItemType Directory -Force -Path $hooksDir | Out-Null }
-    $helper = Join-Path $RepoRoot "catalog\hooks\retire-provider-override.py"
-    Safe-Copy -Source $helper -Destination (Join-Path $hooksDir "retire-provider-override.py") -Confirm:$true -CustomMessage "✓ $Scope retired provider-override cleanup installed at: $hooksDir"
-
-    $python = Resolve-PythonExecutable
-    if (-not $python) {
-        throw "Python is required to retire legacy provider overrides safely"
-    }
-
-    $hookPath = if ($Scope -eq "Global") {
-        "~/.claude/hooks/retire-provider-override.py"
-    } else {
-        ".claude/hooks/retire-provider-override.py"
-    }
-    & $python $helper --project $ProjectPath --settings (Join-Path $TargetClaudeDir "settings.json") --hook-command "python $hookPath"
-    if ($LASTEXITCODE -ne 0) {
-        throw "Retired provider override cleanup requires manual recovery before upgrade"
     }
 }
 
@@ -1645,7 +1616,6 @@ function Install-Global {
         # per-step notices) and render ONE unified checklist afterward so Claude
         # reads identically to the registry platforms. DF-001: the registry
         # runner renders CLAUDE.md; the Safe-Folder-Copy block does the mirror.
-        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "claude" -DisplayName "CLAUDE.md (instruction file)" -InstructionOnly 6>$null
         # v3.16.1: Get-CatalogSource returns the filtered stage when a selection
         # is active and the real catalog otherwise, so the no-selector path is
         # unchanged.
@@ -1653,6 +1623,8 @@ function Install-Global {
         Safe-Folder-Copy -Source (Get-CatalogSource -RepoRoot $RepoRoot -Surface "commands") -Destination (Join-Path $globalClaude "commands") 6>$null
         Safe-Folder-Copy -Source (Get-CatalogSource -RepoRoot $RepoRoot -Surface "agents")   -Destination (Join-Path $globalClaude "agents")   6>$null
         Safe-Folder-Copy -Source "$RepoRoot\catalog\rules"    -Destination (Join-Path $globalClaude "rules")    6>$null
+        # Org rules are seeded by the registry after refresh-mode catalog pruning.
+        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "claude" -DisplayName "CLAUDE.md (instruction file)" -InstructionOnly 6>$null
 
         $mcpConfigDest = Join-Path $globalClaude "mcp-configs"
         if (-not (Test-Path $mcpConfigDest)) { New-Item -ItemType Directory -Force -Path $mcpConfigDest | Out-Null }
@@ -1662,7 +1634,6 @@ function Install-Global {
         Install-UsageDisplay       -RepoRoot $RepoRoot -TargetClaudeDir $globalClaude -Scope "Global" 6>$null
         Install-RequireDescription -RepoRoot $RepoRoot -TargetClaudeDir $globalClaude -Scope "Global" 6>$null
         Install-CoreSettings       -RepoRoot $RepoRoot -TargetClaudeDir $globalClaude -Scope "Global" 6>$null
-        Install-RetiredOverrideCleanup -RepoRoot $RepoRoot -TargetClaudeDir $globalClaude -Scope "Global" -ProjectPath $PWD.Path 6>$null
 
         # Unified checklist, built from the resulting on-disk state.
         Write-Item -Message "Claude Code" -Color "Gray"
@@ -2034,12 +2005,12 @@ function Install-Workspace {
             Write-Item -Message "Claude Code" -Color "Gray"
             $claudeDir = Join-Path $targetPath ".claude"
 
-            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "claude" -DisplayName "CLAUDE.md (instruction file)" -Languages ($languages -join ',') -InstructionOnly
-
             Flatten-SkillsInto -Source (Get-CatalogSource -RepoRoot $RepoRoot -Surface "skills")   -Destination (Join-Path $claudeDir "skills")   -CustomMessage "✓ Skills catalog installed (flattened) at: $(Join-Path $claudeDir "skills")"
             Safe-Folder-Copy -Source (Get-CatalogSource -RepoRoot $RepoRoot -Surface "commands") -Destination (Join-Path $claudeDir "commands") -CustomMessage "✓ Commands installed at: $(Join-Path $claudeDir "commands")"
             Safe-Folder-Copy -Source (Get-CatalogSource -RepoRoot $RepoRoot -Surface "agents")   -Destination (Join-Path $claudeDir "agents")   -CustomMessage "✓ Agents installed at: $(Join-Path $claudeDir "agents")"
             Safe-Folder-Copy -Source "$RepoRoot\catalog\rules"    -Destination (Join-Path $claudeDir "rules")    -CustomMessage "✓ Rules installed at: $(Join-Path $claudeDir "rules")"
+            # Org rules are seeded by the registry after refresh-mode catalog pruning.
+            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "claude" -DisplayName "CLAUDE.md (instruction file)" -Languages ($languages -join ',') -InstructionOnly
 
             $mcpConfigDestWs = Join-Path $claudeDir "mcp-configs"
             if (-not (Test-Path $mcpConfigDestWs)) { New-Item -ItemType Directory -Force -Path $mcpConfigDestWs | Out-Null }
@@ -2051,7 +2022,6 @@ function Install-Workspace {
             Install-GitGuardrails    -RepoRoot $RepoRoot -TargetClaudeDir $claudeDir -Scope "Workspace"
             Install-UsageDisplay     -RepoRoot $RepoRoot -TargetClaudeDir $claudeDir -Scope "Workspace"
             Install-RequireDescription -RepoRoot $RepoRoot -TargetClaudeDir $claudeDir -Scope "Workspace"
-            Install-RetiredOverrideCleanup -RepoRoot $RepoRoot -TargetClaudeDir $claudeDir -Scope "Workspace" -ProjectPath $targetPath
         }
 
         # --- OpenAI -- Codex ---------------------------------------------

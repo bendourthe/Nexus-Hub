@@ -112,6 +112,8 @@ describe("mapCodexUsageResponse", () => {
           remaining: 4_775,
           used_percent: 5,
           remaining_percent: 95,
+          used_usd: 9,
+          limit_usd: 200,
           reset_at: Math.floor((NOW + THREE_DAYS) / 1000),
         },
       },
@@ -123,6 +125,8 @@ describe("mapCodexUsageResponse", () => {
       monthlyLimit: 5_000,
       percent: 5,
       resetsAt: NOW + THREE_DAYS,
+      usedAmountUsd: 9,
+      limitAmountUsd: 200,
     });
   });
 

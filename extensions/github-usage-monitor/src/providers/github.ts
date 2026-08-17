@@ -18,8 +18,11 @@ import {
 
 export const GITHUB_API_VERSION = "2026-03-10";
 export const GITHUB_ACCEPT = "application/vnd.github+json";
-export const GITHUB_USER_AGENT = "nexus-hub-github-usage-monitor/0.1.0";
+export const GITHUB_USER_AGENT = "nexus-hub-github-usage-monitor/0.3.3";
 export const DEFAULT_TIMEOUT_MS = 10_000;
+const MAX_TRANSIENT_ATTEMPTS = 3;
+const RETRY_BASE_DELAY_MS = 250;
+const RETRY_MAX_DELAY_MS = 2_000;
 
 interface HeadersLike {
   get(name: string): string | null;
@@ -157,33 +160,45 @@ export class GitHubBillingClient {
         year === undefined || month === undefined
           ? ""
           : `?${new URLSearchParams({ year: String(year), month: String(month) }).toString()}`;
-      const response = await this.request(`${this.baseUrl}${path}${query}`, {
-        headers: {
-          Accept: GITHUB_ACCEPT,
-          Authorization: `Bearer ${token}`,
-          "X-GitHub-Api-Version": GITHUB_API_VERSION,
-          "User-Agent": GITHUB_USER_AGENT
-        },
-        signal: controller.signal
-      });
-      const rate = readRateMetadata(response.headers);
-      if (!response.ok) {
-        return failure(
-          withAuthorizationDiagnosis(
-            classifyHttpError(response, path, rate),
-            response.headers
-          ),
-          rate
-        );
+      const startedAt = Date.now();
+      for (let attempt = 1; attempt <= MAX_TRANSIENT_ATTEMPTS; attempt += 1) {
+        const response = await this.request(`${this.baseUrl}${path}${query}`, {
+          headers: {
+            Accept: GITHUB_ACCEPT,
+            Authorization: `Bearer ${token}`,
+            "X-GitHub-Api-Version": GITHUB_API_VERSION,
+            "User-Agent": GITHUB_USER_AGENT
+          },
+          signal: controller.signal
+        });
+        const rate = readRateMetadata(response.headers);
+        if (!response.ok) {
+          if (isTransientServerError(response.status) && attempt < MAX_TRANSIENT_ATTEMPTS) {
+            const delayMs = transientRetryDelayMs(attempt, rate);
+            const remainingMs = this.timeoutMs - (Date.now() - startedAt);
+            if (delayMs < remainingMs) {
+              await waitForRetry(delayMs, controller.signal);
+              continue;
+            }
+          }
+          return failure(
+            withAuthorizationDiagnosis(
+              classifyHttpError(response, path, rate),
+              response.headers
+            ),
+            rate
+          );
+        }
+        try {
+          return { ok: true, value: await response.json(), rate };
+        } catch {
+          return failure(
+            { code: "schema-mismatch", message: "GitHub returned a non-JSON billing response." },
+            rate
+          );
+        }
       }
-      try {
-        return { ok: true, value: await response.json(), rate };
-      } catch {
-        return failure(
-          { code: "schema-mismatch", message: "GitHub returned a non-JSON billing response." },
-          rate
-        );
-      }
+      throw new Error("GitHub billing retry loop ended unexpectedly.");
     } catch (error: unknown) {
       if (controller.signal.aborted) {
         return failure(
@@ -205,6 +220,34 @@ export class GitHubBillingClient {
       externalSignal?.removeEventListener("abort", abortFromCaller);
     }
   }
+}
+
+function isTransientServerError(status: number): boolean {
+  return status === 500 || status === 502 || status === 503 || status === 504;
+}
+
+function transientRetryDelayMs(attempt: number, rate: RateMetadata): number {
+  if (rate.retryAfterMs !== null) return rate.retryAfterMs;
+  const ceiling = Math.min(RETRY_MAX_DELAY_MS, RETRY_BASE_DELAY_MS * (2 ** (attempt - 1)));
+  return Math.max(1, Math.floor(Math.random() * ceiling));
+}
+
+function waitForRetry(delayMs: number, signal: AbortSignal): Promise<void> {
+  return new Promise((resolve, reject) => {
+    if (signal.aborted) {
+      reject(new Error("aborted"));
+      return;
+    }
+    const onAbort = (): void => {
+      clearTimeout(timer);
+      reject(new Error("aborted"));
+    };
+    const timer = setTimeout(() => {
+      signal.removeEventListener("abort", onAbort);
+      resolve();
+    }, delayMs);
+    signal.addEventListener("abort", onAbort, { once: true });
+  });
 }
 
 function classifyHttpError(
@@ -246,9 +289,11 @@ function classifyHttpError(
   if (response.status === 429) {
     return rateLimitError(response.status, rate);
   }
+  const retryAt = isTransientServerError(response.status) ? retryAtFromRate(rate) : undefined;
   return {
     code: "service-error",
     statusCode: response.status,
+    ...(retryAt === undefined ? {} : { retryAt }),
     message: `GitHub billing returned ${response.status}${statusSuffix}.`
   };
 }
@@ -408,16 +453,19 @@ function readRateMetadata(headers: HeadersLike): RateMetadata {
 }
 
 function rateLimitError(statusCode: number, rate: RateMetadata): ProviderError {
-  const now = Date.now();
-  const retryAt = rate.retryAfterMs !== null
-    ? now + rate.retryAfterMs
-    : rate.resetAt ?? undefined;
+  const retryAt = retryAtFromRate(rate);
   return {
     code: "rate-limited",
     statusCode,
     ...(retryAt === undefined ? {} : { retryAt }),
     message: "GitHub billing is rate limited. Refresh after the reported retry time."
   };
+}
+
+function retryAtFromRate(rate: RateMetadata): number | undefined {
+  return rate.retryAfterMs !== null
+    ? Date.now() + rate.retryAfterMs
+    : rate.resetAt ?? undefined;
 }
 
 function ownerFromPath(path: string): BillingOwner | null {

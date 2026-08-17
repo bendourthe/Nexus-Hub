@@ -1,0 +1,69 @@
+{
+  "skill": "org-standards-authoring",
+  "purpose": "Route organization standards bundle authoring requests to the guided workflow without capturing project-only governance or writing tasks.",
+  "cases": [
+    {
+      "id": "pos-connect-company-standards",
+      "prompt": "Help us connect our company standards and company style guide to Nexus-Hub.",
+      "should_trigger": true,
+      "assert": "routes to org-standards-authoring first",
+      "lexical": true
+    },
+    {
+      "id": "pos-organization-coding-standards",
+      "prompt": "Organize our organization coding standards and internal conventions for every AI assistant.",
+      "should_trigger": true,
+      "assert": "routes to org-standards-authoring first",
+      "lexical": true
+    },
+    {
+      "id": "pos-internal-conventions",
+      "prompt": "Package our internal conventions and company style guide into a shared Nexus-Hub bundle.",
+      "should_trigger": true,
+      "assert": "routes to org-standards-authoring first",
+      "lexical": true
+    },
+    {
+      "id": "pos-company-style-guide",
+      "prompt": "How should we structure our company style guide and org knowledge so agents load only relevant parts?",
+      "should_trigger": true,
+      "assert": "routes to org-standards-authoring first",
+      "lexical": true
+    },
+    {
+      "id": "pos-org-knowledge",
+      "prompt": "Create an org knowledge bundle containing our team standards for the AI.",
+      "should_trigger": true,
+      "assert": "routes to org-standards-authoring first",
+      "lexical": true
+    },
+    {
+      "id": "pos-team-standards-ai",
+      "prompt": "Connect our company standards as an org knowledge bundle containing team standards for the AI.",
+      "should_trigger": true,
+      "assert": "routes to org-standards-authoring first",
+      "lexical": true
+    },
+    {
+      "id": "neg-project-constitution",
+      "prompt": "Draft a constitution with non-negotiable principles for this one repository.",
+      "should_trigger": false,
+      "assert": "routes to project-constitution, not org-standards-authoring",
+      "lexical": true
+    },
+    {
+      "id": "neg-platform-permissions",
+      "prompt": "Define which directories and commands our coding agent may access.",
+      "should_trigger": false,
+      "assert": "routes to agent-access-policy, not org-standards-authoring",
+      "lexical": true
+    },
+    {
+      "id": "neg-write-policy-content",
+      "prompt": "Write our secure coding standard from scratch for the engineering handbook.",
+      "should_trigger": false,
+      "assert": "routes to writing-editing or technical-writer, not org-standards-authoring",
+      "lexical": true
+    }
+  ]
+}

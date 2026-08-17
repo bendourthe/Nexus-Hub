@@ -60,7 +60,7 @@ def test_posix_installer_materializes_and_migrates_all_hook_files() -> None:
 
     migrate_body = source[
         source.index("convert_claude_hook_commands_for_posix()") : source.index(
-            "install_retired_override_cleanup()"
+            "install_git_guardrails()"
         )
     ]
     assert "cursor-hook-compat.py" in migrate_body

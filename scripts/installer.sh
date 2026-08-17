@@ -7,7 +7,7 @@ set -e
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-NEXUS_HUB_VERSION="3.17.3"
+NEXUS_HUB_VERSION="3.17.4"
 
 # --- Window Title ---
 printf '\033]0;Nexus-Hub Installer\007'
@@ -492,40 +492,6 @@ convert_claude_hook_commands_for_posix() {
         --catalog-hooks-dir "$repo_root/catalog/hooks" \
         --host posix \
         --scope "$(printf '%s' "$scope" | tr '[:upper:]' '[:lower:]')"
-}
-
-install_retired_override_cleanup() {
-    local repo_root="$1"
-    local target_claude_dir="$2"
-    local scope="$3"  # "Global" or "Workspace"
-    local project_path="$4"
-    local hooks_dir="$target_claude_dir/hooks"
-    local helper="$repo_root/catalog/hooks/retire-provider-override.py"
-    local settings_file="$target_claude_dir/settings.json"
-
-    mkdir -p "$hooks_dir"
-    safe_copy "$helper" "$hooks_dir/retire-provider-override.py" true "[OK] $scope retired provider-override cleanup installed at: $hooks_dir"
-
-    local python_bin
-    if ! python_bin=$(resolve_python_executable); then
-        write_item "ERROR: Python is required to retire legacy provider overrides safely" "$RED" >&2
-        return 1
-    fi
-
-    local hook_path=".claude/hooks/retire-provider-override.py"
-    if [ "$scope" = "Global" ]; then
-        # Persist the tilde for expansion when Claude executes the stored hook command.
-        # shellcheck disable=SC2088
-        hook_path="~/.claude/hooks/retire-provider-override.py"
-    fi
-
-    if ! "$python_bin" "$helper" \
-            --project "$project_path" \
-            --settings "$settings_file" \
-            --hook-command "python3 $hook_path"; then
-        write_item "ERROR: Retired provider override cleanup requires manual recovery before upgrade" "$RED" >&2
-        return 1
-    fi
 }
 
 install_git_guardrails() {
@@ -1327,13 +1293,14 @@ install_global() {
     # render ONE unified checklist afterward so Claude reads identically to the
     # registry platforms. DF-001: the registry runner renders CLAUDE.md;
     # safe_folder_copy does the catalog mirror.
-    invoke_registry_platform "$repo_root" "global" "" "claude" "CLAUDE.md (instruction file)" "" "true" >/dev/null
     # v3.16.1: catalog_src returns the filtered stage when a selection is active
     # and the real catalog otherwise, so the no-selector path is unchanged.
     flatten_skills_into "$(catalog_src "$repo_root" skills)"   "$global_claude/skills"   >/dev/null
     safe_folder_copy "$(catalog_src "$repo_root" commands)" "$global_claude/commands" >/dev/null
     safe_folder_copy "$(catalog_src "$repo_root" agents)"   "$global_claude/agents"   >/dev/null
     safe_folder_copy "$repo_root/catalog/rules"    "$global_claude/rules"    >/dev/null
+    # Org rules are seeded by the registry after refresh-mode catalog pruning.
+    invoke_registry_platform "$repo_root" "global" "" "claude" "CLAUDE.md (instruction file)" "" "true" >/dev/null
 
     mkdir -p "$global_claude/mcp-configs"
     safe_copy "$repo_root/catalog/mcp-configs/mcp-servers.json" "$global_claude/mcp-configs/mcp-servers.json" false >/dev/null
@@ -1342,7 +1309,6 @@ install_global() {
     install_usage_display     "$repo_root" "$global_claude" "Global" >/dev/null
     install_require_description "$repo_root" "$global_claude" "Global" >/dev/null
     install_core_settings     "$repo_root" "$global_claude" "Global" >/dev/null
-    install_retired_override_cleanup "$repo_root" "$global_claude" "Global" "$(pwd)" >/dev/null
 
     # Unified checklist, built from the resulting on-disk state.
     write_item "Claude Code" "$GRAY"
@@ -1746,12 +1712,12 @@ install_workspace() {
         local claude_dir="$target_path/.claude"
         mkdir -p "$claude_dir"
 
-        invoke_registry_platform "$repo_root" "workspace" "$target_path" "claude" "CLAUDE.md (instruction file)" "$languages" "true"
-
         flatten_skills_into "$(catalog_src "$repo_root" skills)"   "$claude_dir/skills"   "[OK] Skills catalog installed (flattened) at: $claude_dir/skills"
         safe_folder_copy "$(catalog_src "$repo_root" commands)" "$claude_dir/commands" "[OK] Commands installed at: $claude_dir/commands"
         safe_folder_copy "$(catalog_src "$repo_root" agents)"   "$claude_dir/agents"   "[OK] Agents installed at: $claude_dir/agents"
         safe_folder_copy "$repo_root/catalog/rules"    "$claude_dir/rules"    "[OK] Rules installed at: $claude_dir/rules"
+        # Org rules are seeded by the registry after refresh-mode catalog pruning.
+        invoke_registry_platform "$repo_root" "workspace" "$target_path" "claude" "CLAUDE.md (instruction file)" "$languages" "true"
 
         mkdir -p "$claude_dir/mcp-configs"
         safe_copy "$repo_root/catalog/mcp-configs/mcp-servers.json" "$claude_dir/mcp-configs/mcp-servers.json" false "[OK] MCP server config installed at: $claude_dir/mcp-configs"
@@ -1762,7 +1728,6 @@ install_workspace() {
         install_git_guardrails    "$repo_root" "$claude_dir" "Workspace"
         install_usage_display     "$repo_root" "$claude_dir" "Workspace"
         install_require_description "$repo_root" "$claude_dir" "Workspace"
-        install_retired_override_cleanup "$repo_root" "$claude_dir" "Workspace" "$target_path"
         fi
 
         # --- OpenAI -- Codex ----------------------------------------

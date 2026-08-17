@@ -5,7 +5,42 @@ Repo-internal configuration sources. Nothing in this directory is copied to an e
 | File | Role |
 |------|------|
 | `platform-defaults.json` | **Source of truth** for per-platform install-time behavioral defaults. Derived artifacts are generated or read from it. |
+| `org-bundle.schema.json` | JSON Schema for an organization-maintained knowledge bundle's `org.json` manifest. |
+| `examples/org-bundle-example/` | Minimal organization bundle that validates against the schema and demonstrates core, rule, and reference layers. |
 | `permissions/*.json`, `permissions/*.toml` | Per-provider permission templates a user copies into their own settings. Not generated. |
+
+---
+
+## Organization knowledge bundles
+
+An organization knowledge bundle is an external directory or git repository containing the organization's coding standards, safety rules, CI/CD framework, naming conventions, documentation style, branching strategy, and testing requirements. Nexus-Hub ships the contract, validator, and a deliberately generic example; an organization's actual content remains outside this repository and is never added to the company-neutral catalog.
+
+The bundle root contains an `org.json` manifest with this shape:
+
+| Key | Type | Required | Default | Meaning |
+|-----|------|----------|---------|---------|
+| `schema_version` | integer | yes | - | Contract version. Phase 1 supports only `1`. |
+| `org_name` | string | yes | - | Human-readable organization name rendered with the standards. |
+| `core` | relative path | yes | `core.md` | Always-on Markdown loaded into each supported instruction surface. The field remains required so the selected document is explicit. |
+| `rules_dir` | relative path | no | `rules/` | Per-language or path-scoped Markdown rules, mirroring `catalog/rules/<language>/<topic>.md`. |
+| `references_dir` | relative path | no | `references/` | Detailed standards loaded on demand rather than placed in every prompt. |
+| `precedence_statement` | string | no | Nexus-Hub default at render time | Organization-specific conflict-resolution wording. |
+
+Unknown manifest keys produce a validator warning rather than an error so a newer bundle can be inspected by an older Nexus-Hub release. Required keys, declared types, relative-path containment, referenced paths, and UTF-8 readability are enforced without a third-party JSON Schema dependency.
+
+### Content budget and layout
+
+Keep `core.md` below 200 lines. [Anthropic recommends keeping CLAUDE.md files concise and under 200 lines](https://code.claude.com/docs/en/memory); always-loaded instructions consume context on every request and become less reliable as unrelated detail accumulates. The validator reports a warning when the core exceeds this budget but never truncates organization content.
+
+Use three layers:
+
+1. Put universal, binding requirements in the always-on `core.md`.
+2. Put language-specific or path-scoped standards under `rules/<language>/`.
+3. Put detailed procedures, examples, and frameworks under `references/` for on-demand loading.
+
+Start from [`examples/org-bundle-example/`](examples/org-bundle-example/). Validate it or another bundle through `scripts.lib.integrations.org_knowledge.validate_bundle`; the `nexus-hub org connect` CLI will expose that validator in Phase 2 of v3.17.4.
+
+Everything under `configs/` remains repo-internal. The schema and example are not copied as an organization's live policy, and connecting an organization bundle never modifies the source bundle.
 
 ---
 

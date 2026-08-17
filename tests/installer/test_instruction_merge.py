@@ -8,6 +8,7 @@ from pathlib import Path
 
 import pytest
 
+from scripts.lib.installer import instruction_merge
 from scripts.lib.installer.instruction_merge import (
     DEFAULT_END_MARKER,
     DEFAULT_START_MARKER,
@@ -117,12 +118,20 @@ def test_user_content_outside_markers_preserved(doc_path: Path) -> None:
 
 
 def test_remove_marker_section_strips_block_and_keeps_user_content(
-    doc_path: Path,
+    doc_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     doc_path.write_text(
         f"User preamble.\n\n{START}\nNexus content.\n{END}\n\nUser appendix.\n",
         encoding="utf-8",
     )
+    replacements: list[tuple[Path, Path]] = []
+    real_replace = instruction_merge.os.replace
+
+    def recording_replace(source: str | Path, destination: str | Path) -> None:
+        replacements.append((Path(source), Path(destination)))
+        real_replace(source, destination)
+
+    monkeypatch.setattr(instruction_merge.os, "replace", recording_replace)
     action = remove_marker_section(doc_path)
     assert action.action == "removed"
     text = doc_path.read_text(encoding="utf-8")
@@ -130,6 +139,8 @@ def test_remove_marker_section_strips_block_and_keeps_user_content(
     assert END not in text
     assert "User preamble." in text
     assert "User appendix." in text
+    assert replacements and replacements[0][1] == doc_path
+    assert replacements[0][0].parent == doc_path.parent
 
 
 def test_remove_marker_section_deletes_file_when_block_was_only_content(

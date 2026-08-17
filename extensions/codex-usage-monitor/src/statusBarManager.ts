@@ -1,7 +1,7 @@
 import * as vscode from "vscode";
 import { UsageData, UrgencyLevel, ColorConfig, getColorConfig, getThresholdConfig, WORKBENCH_COLOR_KEYS, syncActiveColorToWorkbench, isTracked } from "./types";
 import { getActiveUrgency, pickTriggerMetric } from "./recommendations";
-import { UsageStore, formatCreditCount, formatResetLabel } from "./usageStore";
+import { UsageStore, formatCreditUsageLine, formatResetLabel } from "./usageStore";
 
 /** The Codex logo glyph, contributed as an icon font in package.json. */
 const CODEX_ICON = "$(codex-icon)";
@@ -204,7 +204,8 @@ export class StatusBarManager {
 
     const credits = data.extraCredits
       ? `<img src="${sectionImg("Extra Credits", data.extraCredits.percent)}" width="${W}" height="${svgH}"><br>` +
-        `<em>${formatCreditCount(data.extraCredits.usedCredits)} of ${formatCreditCount(data.extraCredits.monthlyLimit)} credits used &middot; ${formatResetLabel(data.extraCredits.resetsIn)}</em><br><br>`
+        `<span style="display:inline-block;width:${W}px">${formatCreditUsageLine(data.extraCredits)}</span><br>` +
+        `<em>${formatResetLabel(data.extraCredits.resetsIn)}</em><br><br>`
       : data.creditsSummary
         ? `<span style="color:${labelColor}">${data.creditsSummary}</span><br><br>`
         : "";

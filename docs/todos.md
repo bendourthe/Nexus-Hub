@@ -1,6 +1,6 @@
 # Nexus-Hub Progress Dashboard
 
-**Branch:** `fix/v3.17.3-corrective`
+**Branch:** `release/v3.17.4`
 
 ---
 
@@ -32,12 +32,15 @@
 | v3.15.8 Phase 4 tasks complete | 7 | 7 | 0 |
 | v3.17.2 autonomy retirement tasks complete | 6 | 6 | 0 |
 | v3.17.2 release tasks complete | 5 | 7 | 2 |
-| v3.17.3 release-candidate tasks complete | 7 | 7 | 0 |
-| v3.17.4 plan phases complete | 0 | 6 | 6 |
+| v3.17.3 release-candidate tasks complete | 9 | 9 | 0 |
+| v3.17.4 plan phases complete | 6 | 6 | 0 |
+| v3.17.4 release-candidate tasks complete | 8 | 10 | 2 |
 | v3.17.5 plan phases complete | 0 | 7 | 7 |
 | Cursor hook portability tasks complete | 4 | 4 | 0 |
 | Usage monitor color-race tasks complete | 2 | 2 | 0 |
+| GitHub usage monitor resilience safeguards complete | 3 | 3 | 0 |
 | Codex Extra Credits payload tasks complete | 2 | 2 | 0 |
+| Codex credit display tasks complete | 3 | 3 | 0 |
 
 ## Corrective Patch - Cursor Hook Portability [DONE]
 
@@ -56,7 +59,13 @@
 - [x] Map the live `spend_control.individual_limit` response into detailed Extra Credits usage
 - [x] Add a live-shaped 225-of-5,000 regression fixture and pass the full Codex extension gate
 
-## Release Candidate - v3.17.3 Cursor Hook Portability and Usage Monitor Reliability [IN PROGRESS]
+## Corrective Patch - Codex Extra Credits Display [DONE]
+
+- [x] Round used and limit credit counts to whole numbers in every display surface
+- [x] Render paired live USD amounts without a hard-coded credit conversion and omit incomplete monetary data
+- [x] Align the dashboard and hover layouts, then pass the focused and full Codex extension gates
+
+## Release Candidate - v3.17.3 Cursor Hook Portability and Usage Monitor Reliability [DONE]
 
 - [x] Isolate the corrective diff on `fix/v3.17.3-corrective` from the committed Org Knowledge Phase 1 work
 - [x] Obtain approval for the diff-derived release notes and the provider-state migration deferral
@@ -65,6 +74,8 @@
 - [x] Complete canonical version, extension package, release-documentation, and staged manifest updates
 - [x] Re-verify platform read contracts and behavioral-default levers for v3.17.3
 - [x] Pass the complete bounded local release gates and present the candidate before commit, push, tag, or publication
+- [x] Merge the release PR into `main` and pass post-merge and tag CI
+- [x] Publish v3.17.3 and verify the downloaded source archive against all 1,239 manifest entries
 
 ## Parallel Plan - v3.15.8 Platform Parity and GitHub Usage Monitor [IN PROGRESS]
 
@@ -77,6 +88,7 @@
 - [ ] Phase 7 - Kimi and Copilot capability parity
 - [ ] Phase 8 - Cross-platform lifecycle and contract verification
 - [ ] Phase 9 - Architecture refactor, known-gaps reconciliation, and CI/CD
+- [x] Add bounded transient retries, single-flight refresh coalescing, and retry-aware automatic scheduling to the v3.17.4 release scope
 
 ## Release Preparation - v3.15.7 [IN PROGRESS]
 
@@ -157,16 +169,29 @@
 - [ ] Integrate and push `develop`, then pass remote CI
 - [ ] Promote `main`, tag v3.17.2, publish the GitHub Release, and verify the downloaded artifact
 
-## Parallel Plan - v3.17.4 Org Knowledge Layer [PLANNED]
+## Parallel Plan - v3.17.4 Org Knowledge Layer [DONE]
 
 - [x] Deep research completed: `docs/v3/v3.17/development/org-knowledge-layer-research.md`
 - [x] Plan generated and design decisions confirmed: `docs/v3/v3.17/plans/v3.17.4-org-knowledge-layer.md`
-- [ ] Complete Phase 1: Org Bundle Contract
-- [ ] Complete Phase 2: Connect CLI
-- [ ] Complete Phase 3: Cross-Platform Materialization
-- [ ] Complete Phase 4: Guided Authoring Surface
-- [ ] Complete Phase 5: Lifecycle Integration and Docs
-- [ ] Complete Phase 6: Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
+- [x] Complete Phase 1: Org Bundle Contract
+- [x] Complete Phase 2: Connect CLI
+- [x] Complete Phase 3: Cross-Platform Materialization
+- [x] Complete Phase 4: Guided Authoring Surface
+- [x] Complete Phase 5: Lifecycle Integration and Docs
+- [x] Complete Phase 6: Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
+
+## Release Candidate - v3.17.4 Org Knowledge and Usage Monitor Resilience [IN PROGRESS]
+
+- [x] Publish and integrate the Org Knowledge feature through protected CI
+- [x] Preserve and integrate the GitHub Usage Monitor resilience amendment
+- [x] Remove the completed provider-state migration and synchronize current version/count surfaces
+- [x] Refresh platform contracts, defaults levers, and the current model map from first-party sources
+- [x] Pass the complete local release validation and staged artifact round-trip
+- [x] Obtain explicit approval for release notes derived from the complete final diff
+- [x] Repair the absent path-filtered `verify` context without weakening protected-branch requirements or running heavy Presentify suites on unrelated changes
+- [x] Obtain explicit approval for the amended complete-diff release notes before the follow-up commit and push
+- [ ] Publish the release branch and obtain protected release-candidate CI results
+- [ ] Promote to `main`, tag v3.17.4, publish the GitHub Release, and verify downloaded artifacts
 
 ## Parallel Plan - v3.17.5 DeepSeek Harness Adoption [PLANNED]
 

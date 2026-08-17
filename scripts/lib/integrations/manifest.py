@@ -55,6 +55,8 @@ class InstallManifest:
     def __init__(self) -> None:
         self._tracked: Dict[str, List[str]] = {}
         self._shared: Dict[str, List[str]] = {}
+        self._org_tracked: Dict[str, List[str]] = {}
+        self._org_shared: Dict[str, List[str]] = {}
         self._logs: List[str] = []
         # v2.3.0 additive: per-integration list of recorded action dicts
         # `{path, action, sha256, mtime}`. Populated by `record_actions()` from
@@ -104,6 +106,48 @@ class InstallManifest:
 
     def shared_for(self, integration_key: str) -> List[str]:
         return list(self._shared.get(integration_key, []))
+
+    def track_org(self, integration_key: str, path: str) -> None:
+        """Track an organization-owned file or directory for selective cleanup."""
+
+        self.track(integration_key, path)
+        bucket = self._org_tracked.setdefault(integration_key, [])
+        if path not in bucket:
+            bucket.append(path)
+        self._logs.append(f"[{integration_key}] track-org: {path}")
+
+    def untrack_org(self, integration_key: str, path: str) -> None:
+        bucket = self._org_tracked.get(integration_key, [])
+        if path in bucket:
+            bucket.remove(path)
+        self.untrack(integration_key, path)
+        self._logs.append(f"[{integration_key}] untrack-org: {path}")
+
+    def org_files_for(self, integration_key: str) -> List[str]:
+        return list(self._org_tracked.get(integration_key, []))
+
+    def track_org_shared(self, integration_key: str, path: str) -> None:
+        """Track a shared instruction file containing an organization marker block."""
+
+        bucket = self._org_shared.setdefault(integration_key, [])
+        if path not in bucket:
+            bucket.append(path)
+        self._logs.append(f"[{integration_key}] track-org-shared: {path}")
+
+    def untrack_org_shared(self, integration_key: str, path: str) -> None:
+        bucket = self._org_shared.get(integration_key, [])
+        if path in bucket:
+            bucket.remove(path)
+        self._logs.append(f"[{integration_key}] untrack-org-shared: {path}")
+
+    def org_shared_for(self, integration_key: str) -> List[str]:
+        return list(self._org_shared.get(integration_key, []))
+
+    def all_org_keys(self) -> List[str]:
+        return sorted(
+            {key for key, paths in self._org_tracked.items() if paths}
+            | {key for key, paths in self._org_shared.items() if paths}
+        )
 
     def log(self, integration_key: str, message: str) -> None:
         self._logs.append(f"[{integration_key}] {message}")
@@ -181,6 +225,10 @@ class InstallManifest:
             "logs": self._logs,
             "actions": self._actions,
         }
+        if any(self._org_tracked.values()):
+            data["org_tracked"] = self._org_tracked
+        if any(self._org_shared.values()):
+            data["org_shared"] = self._org_shared
         # Emitted only when a selection exists, so a full install writes exactly
         # the same manifest bytes it wrote before v3.16.1. The contract's
         # byte-equivalence requirement covers the installed tree; keeping the
@@ -195,6 +243,8 @@ class InstallManifest:
         m = cls()
         m._tracked = dict(data.get("tracked", {}))
         m._shared = dict(data.get("shared", {}))
+        m._org_tracked = dict(data.get("org_tracked", {}))
+        m._org_shared = dict(data.get("org_shared", {}))
         m._logs = list(data.get("logs", []))
         m._actions = dict(data.get("actions", {}))
         selection = data.get("selection")

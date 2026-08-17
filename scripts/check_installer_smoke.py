@@ -17,6 +17,10 @@ EXPECTED_SCRIPTS = (
     "run_trigger_evals.py",
     "validate_permission_baseline.py",
 )
+NEXUS_END_MARKER = "<!-- NEXUS_HUB_END -->"
+ORG_START_MARKER = "<!-- NEXUS_HUB_ORG_START -->"
+ORG_END_MARKER = "<!-- NEXUS_HUB_ORG_END -->"
+ORG_RULE_PATH = Path(".claude") / "rules" / "org" / "python" / "code-style.md"
 
 
 def _metadata_paths(value: Any, prefix: str = "$") -> list[str]:
@@ -30,6 +34,41 @@ def _metadata_paths(value: Any, prefix: str = "$") -> list[str]:
     elif isinstance(value, list):
         for index, child in enumerate(value):
             findings.extend(_metadata_paths(child, f"{prefix}[{index}]") )
+    return findings
+
+
+def _org_findings(workspace: Path) -> list[str]:
+    findings: list[str] = []
+    instruction_path = workspace / "CLAUDE.md"
+    try:
+        instruction = instruction_path.read_text(encoding="utf-8")
+    except (OSError, UnicodeError) as exc:
+        return [
+            f"organization instruction surface is missing or unreadable at {instruction_path}: {exc}"
+        ]
+
+    marker_counts = {
+        NEXUS_END_MARKER: instruction.count(NEXUS_END_MARKER),
+        ORG_START_MARKER: instruction.count(ORG_START_MARKER),
+        ORG_END_MARKER: instruction.count(ORG_END_MARKER),
+    }
+    for marker, count in marker_counts.items():
+        if count != 1:
+            findings.append(
+                f"organization instruction surface expected one {marker} marker, found {count}"
+            )
+    if all(count == 1 for count in marker_counts.values()):
+        nexus_end = instruction.index(NEXUS_END_MARKER)
+        org_start = instruction.index(ORG_START_MARKER)
+        org_end = instruction.index(ORG_END_MARKER)
+        if not nexus_end < org_start < org_end:
+            findings.append(
+                "organization block must follow the Nexus-Hub block in CLAUDE.md"
+            )
+
+    org_rule = workspace / ORG_RULE_PATH
+    if not org_rule.is_file():
+        findings.append(f"organization rule is missing: {org_rule}")
     return findings
 
 
@@ -48,6 +87,7 @@ def collect_findings(home: Path, workspace: Path) -> list[str]:
     metadata = _metadata_paths(settings)
     if metadata:
         findings.append(f"merged config leaked template metadata: {', '.join(metadata)}")
+    findings.extend(_org_findings(workspace))
 
     for name in EXPECTED_SCRIPTS:
         if not (install_root / "scripts" / name).is_file():

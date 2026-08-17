@@ -9,6 +9,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.17.4] - 2026-08-17
+
+Organization Knowledge adds a local, opt-in standards layer across all 16 platform integrations without forking the generic catalog. This release also hardens GitHub billing refreshes, improves Codex Extra Credits presentation, and removes the completed one-cycle provider-state migration.
+
+### `nexus-hub org` - Opt-in capability usage gate
+
+- **Activation:** run `nexus-hub org connect <path-or-url>` with a validated local directory or Git bundle, then run the installer or `nexus-hub org sync` to project the connected standards.
+- **Validation:** run `nexus-hub org status` to inspect the active connection, source health, materialization state, drift, and each platform's default or advisory posture.
+- **Rollback:** run `nexus-hub org disconnect`, then `nexus-hub repair` to remove only manifest-owned organization blocks and rule files while preserving Nexus-Hub content and user-authored text.
+- **Authority:** connecting a bundle writes local instruction and rule files only. It grants no vendor enforcement authority, transmits no organization content, cannot suppress generic catalog content, and cannot make advisory precedence non-overridable.
+- **Docs:** see the [Organization Knowledge Layer guide](guides/ORG_KNOWLEDGE_LAYER.md), the [v3.17.4 plan](docs/v3/v3.17/plans/v3.17.4-org-knowledge-layer.md), and the [v3.17 known-gaps ledger](docs/v3/v3.17/known-gaps.md#v3174---org-knowledge-layer).
+
+### Added
+
+- **Organization lifecycle integration and operating guide (v3.17.4 Phase 5).** Doctor now reports unreadable connections, unreachable or invalid sources, unmaterialized platforms, drifted organization blocks, and rule-tree differences. Repair restores connected content while preserving text outside owned markers, and disconnect, teardown, and uninstall remove only manifest-owned organization blocks and rule files. Added the canonical connect, sync, status, authoring, precedence, enforcement-escalation, and rollback guide with the five-part opt-in capability usage block.
+- **Guided organization standards authoring surface (v3.17.4 Phase 4).** Added the `org-standards-authoring` workflow skill with a sub-200-line core budget, per-language and on-demand tiering, `org.json` guidance, strict trigger evals, and a cited platform-native enforcement escalation reference. The new `/org` command dispatches `connect`, `sync`, `status`, and `author` scopes across every command-capable platform, and the catalog now registers 272 skills and 18 commands.
+- **Cross-platform organization knowledge materialization (v3.17.4 Phase 3).** Connected organization bundles now append an independently managed precedence block after Nexus-Hub instructions and mirror organization rules into each platform's existing rules surface. Projection is idempotent, manifest-tracked, fail-soft, preserved after catalog refreshes, and reported through a 16-platform default/advisory posture table without claiming policy enforcement.
+- **Organization knowledge connection CLI (v3.17.4 Phase 2).** Added `nexus-hub org connect`, `sync`, `status`, and `disconnect` for validated local-directory and shallow-cloned Git bundles. Connection state is written atomically under `~/.nexus-hub/org/`, user-controlled Git input is passed only through subprocess argument lists, and both installed launchers reach the same cross-platform command surface.
+- **Organization knowledge bundle contract (v3.17.4 Phase 1).** Added the dependency-free `org.json` schema contract, a layered example bundle, and repository documentation for an always-on core, per-language rules, on-demand references, and forward-compatible validation. Organization content remains external to the company-neutral catalog.
+
+### Changed
+
+- **Real installer smoke coverage now proves organization seeding parity (v3.17.4 Phase 6).** The existing POSIX and Windows installer-smoke steps connect the same example bundle before invoking their native installer entry points, then use one shared postcondition checker to require the organization marker block after the Nexus-Hub block and confirm organization rules were projected. The workflow reuses its existing jobs, path filters, dependency caches, concurrency cancellation, and protected-branch operating-system gates, so the stronger cross-installer evidence adds no runner, action, dependency, or always-on matrix cost.
+- **Codex Extra Credits now uses a consistent two-line layout and exact live monetary data.** Codex Usage Monitor 0.2.11 renders whole-number credit usage as `X out of Y credits used ($A / $B)` only when both API-provided USD values are available, places reset information on its own line, and gives the dashboard and hover progress bars the full available width. No credit-to-dollar conversion is hard-coded.
+- **Usage-monitor package versions advance with their shipped behavior.** GitHub Usage Monitor advances to 0.3.3 and Codex Usage Monitor advances to 0.2.11, with package-lock roots and the GitHub client user agent synchronized to those versions.
+- **Platform and model evidence is refreshed for v3.17.4.** All ten public platform discovery sources and all publicly verifiable behavioral-default sources remain aligned with the installed paths and keys. The routing providers still list every mapped model identifier; the prompting-profile roster remains an explicit non-blocking advisory.
+
+### Fixed
+
+- **GitHub Usage Monitor now tolerates short GitHub billing service outages.** Transient 500, 502, 503, and 504 responses receive at most three attempts with jitter inside the existing request timeout, overlapping refresh triggers share one in-flight request, and automatic refreshes honor GitHub's reported retry deadline. Authentication and rate-limit failures remain single-attempt, cancellation stops backoff immediately, and exhausted retries continue to show the existing last-known-good snapshot instead of replacing it with zero usage.
+- **Protected pull requests no longer deadlock when no Presentify files change.** The required `verify` context now appears on every pull request targeting `main` or `develop`, while an in-workflow detector skips the heavy extractor dependencies and suites for unrelated changes. Presentify changes still run the full browser-free verification, and scheduled or changed protected-branch pushes retain the rendered-browser gate.
+
+### Removed
+
+- **The temporary provider-state restoration migration has completed its compatibility window.** The `retire-provider-override` helper, SessionStart registration, installer wiring, and migration-specific tests are removed after remaining available through v3.17.3 for delayed upgrades from v3.17.0 and v3.17.1. The supported provider-native approval controls and the v3.17.2 retirement record remain unchanged. Catalog counts are now **272 skills**, **18 commands**, **31 hooks**, and **23 agents**.
+
 ## [3.17.3] - 2026-08-16
 
 Cursor hooks now use each host operating system's native shell and always return Cursor's required JSON contract. The Codex and Claude usage monitors also receive two bounded reliability corrections.
@@ -5148,7 +5184,8 @@ repository_root/
 
 ---
 
-[Unreleased]: https://github.com/bendourthe/Nexus-Hub/compare/v3.17.3...HEAD
+[Unreleased]: https://github.com/bendourthe/Nexus-Hub/compare/v3.17.4...HEAD
+[3.17.4]: https://github.com/bendourthe/Nexus-Hub/compare/v3.17.3...v3.17.4
 [3.17.3]: https://github.com/bendourthe/Nexus-Hub/compare/v3.17.2...v3.17.3
 [3.17.2]: https://github.com/bendourthe/Nexus-Hub/compare/v3.17.1...v3.17.2
 [3.17.1]: https://github.com/bendourthe/Nexus-Hub/compare/v3.17.0...v3.17.1
