@@ -1,6 +1,6 @@
 # Nexus-Hub Progress Dashboard
 
-**Branch:** `develop`
+**Branch:** `feat/v3.17.4-org-knowledge-layer`
 
 ---
 
@@ -33,11 +33,12 @@
 | v3.17.2 autonomy retirement tasks complete | 6 | 6 | 0 |
 | v3.17.2 release tasks complete | 5 | 7 | 2 |
 | v3.17.3 release-candidate tasks complete | 9 | 9 | 0 |
-| v3.17.4 plan phases complete | 0 | 6 | 6 |
+| v3.17.4 plan phases complete | 6 | 6 | 0 |
 | v3.17.5 plan phases complete | 0 | 7 | 7 |
 | Cursor hook portability tasks complete | 4 | 4 | 0 |
 | Usage monitor color-race tasks complete | 2 | 2 | 0 |
 | Codex Extra Credits payload tasks complete | 2 | 2 | 0 |
+| Codex credit display tasks complete | 3 | 3 | 0 |
 
 ## Corrective Patch - Cursor Hook Portability [DONE]
 
@@ -55,6 +56,12 @@
 
 - [x] Map the live `spend_control.individual_limit` response into detailed Extra Credits usage
 - [x] Add a live-shaped 225-of-5,000 regression fixture and pass the full Codex extension gate
+
+## Corrective Patch - Codex Extra Credits Display [DONE]
+
+- [x] Round used and limit credit counts to whole numbers in every display surface
+- [x] Render paired live USD amounts without a hard-coded credit conversion and omit incomplete monetary data
+- [x] Align the dashboard and hover layouts, then pass the focused and full Codex extension gates
 
 ## Release Candidate - v3.17.3 Cursor Hook Portability and Usage Monitor Reliability [DONE]
 
@@ -159,16 +166,16 @@
 - [ ] Integrate and push `develop`, then pass remote CI
 - [ ] Promote `main`, tag v3.17.2, publish the GitHub Release, and verify the downloaded artifact
 
-## Parallel Plan - v3.17.4 Org Knowledge Layer [PLANNED]
+## Parallel Plan - v3.17.4 Org Knowledge Layer [DONE]
 
 - [x] Deep research completed: `docs/v3/v3.17/development/org-knowledge-layer-research.md`
 - [x] Plan generated and design decisions confirmed: `docs/v3/v3.17/plans/v3.17.4-org-knowledge-layer.md`
-- [ ] Complete Phase 1: Org Bundle Contract
-- [ ] Complete Phase 2: Connect CLI
-- [ ] Complete Phase 3: Cross-Platform Materialization
-- [ ] Complete Phase 4: Guided Authoring Surface
-- [ ] Complete Phase 5: Lifecycle Integration and Docs
-- [ ] Complete Phase 6: Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
+- [x] Complete Phase 1: Org Bundle Contract
+- [x] Complete Phase 2: Connect CLI
+- [x] Complete Phase 3: Cross-Platform Materialization
+- [x] Complete Phase 4: Guided Authoring Surface
+- [x] Complete Phase 5: Lifecycle Integration and Docs
+- [x] Complete Phase 6: Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
 
 ## Parallel Plan - v3.17.5 DeepSeek Harness Adoption [PLANNED]
 

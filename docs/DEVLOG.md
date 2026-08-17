@@ -1,5 +1,69 @@
 # Development Log
 
+## [2026-08-17] - v3.17.4 Phase 6: architecture, gaps, and installer CI
+
+### What Changed
+
+Completed the Org Knowledge Layer closure pass without moving or deleting project artifacts. The repository and v3.17 documentation audits found no structural change worth applying: exact duplicates are intentional shared assets or platform-parity templates, and the only empty directories are untracked local placeholders. The v3.17 known-gaps ledger now records catalog suppression and platform-native enforcement generation as explicit deferrals, keeps Copilot precedence advisory, and resolves the missing real-installer organization postcondition evidence.
+
+The existing POSIX and Windows installer-smoke steps now connect the same example organization bundle before invoking their native installer entry points. A shared checker requires exactly one Nexus-Hub end marker followed by exactly one organization block and verifies the projected Python organization rule. This strengthens cross-installer parity without adding a workflow, runner, dependency, or action-minute-heavy matrix leg.
+
+### Why It Changed
+
+Unit and integration tests proved the organization materializer, but the release workflow did not previously demonstrate that both real installer entry points seed organization content after refreshing Nexus-Hub. Phase 6 closes that evidence gap at the existing installer-smoke boundary and makes the expected ordering a shared, executable postcondition.
+
+### Decisions Made
+
+- **Keep the current layout**: Eight exact-content duplicate groups are intentional platform parity or shared extension assets. Moving or deduplicating them would weaken distribution clarity without reducing maintenance risk.
+- **Keep product limits explicit**: Organization bundles remain additive. They do not suppress catalog content, write vendor-admin enforcement settings, or claim non-overridable Copilot precedence.
+- **Reuse one checker and existing jobs**: POSIX and Windows installers execute their native entry points, while postconditions live in one Python checker to prevent assertion drift.
+- **Preserve the release boundary**: Phase 6 hands readiness to `/update release`; it does not bump versions, merge protected branches, tag, publish, or restamp the v3.17.4 platform contract early.
+
+### Verification
+
+The focused CI, installer, materialization, lifecycle, workflow-policy, and validator set passes 106 tests. The complete Org Knowledge coverage set passes 108 tests with one expected skip and 88 percent aggregate coverage; the shared installer checker reaches 94 percent and the organization module reaches 87 percent. A real isolated Windows PowerShell installer run connects the example bundle and passes the shared marker-order and rule-projection checker. Installer parity, all ten platform contracts, contract freshness for the current v3.17.3 tree, workflow security, and Ruff pass. The final repository-wide validation and test results are recorded in the Phase 6 session history.
+
+### Release Boundary
+
+This entry documents the local final-phase candidate. No commit, push, protected-branch promotion, version bump, tag, or GitHub Release was created during implementation.
+
+## [2026-08-16] - v3.17.4 Phase 2: organization knowledge connection CLI
+
+### What Changed
+
+Added the installed `nexus-hub org` command group with `connect`, `sync`, `status`, and `disconnect` verbs. Local paths are resolved defensively and validated through the Phase 1 bundle validator. Explicit Git URLs are shallow-cloned through subprocess argument lists into a Nexus-Hub-owned cache, optionally at a requested branch. Successful connections write a schema-versioned `connection.json` atomically; replacement and removal require confirmation unless `--force` or `--yes` is supplied. Both POSIX and Windows launchers already delegate to the same installer-copied Python CLI, so no installer or CI workflow edit was required.
+
+### Why It Changed
+
+Phase 3 needs one durable, validated source of organization standards before it can materialize those standards across AI platforms. Keeping the lifecycle in the existing installed CLI avoids a second executable and preserves one cross-platform command contract.
+
+### Decisions Made
+
+- **Load the validator only when an org command runs**: The installed CLI adds its adjacent `scripts/lib/integrations` directory to `sys.path` and imports the standalone validator, avoiding a source-tree working-directory assumption and avoiding the broader integration registry.
+- **Treat cached Git content as Nexus-Hub-owned and local directory content as user-owned**: `disconnect` removes only the connection record and cached clone; it never deletes a connected local bundle.
+- **Use atomic last-writer-wins state**: Temporary files are flushed and replaced in the state directory, with a bounded Windows retry for transient sharing violations.
+- **Keep CI topology unchanged**: Existing Linux and Windows jobs already include `tests/installer/`, and repository path filters already cover `scripts/nexus_hub_cli.py`.
+
+### Troubleshooting Trail
+
+<details>
+<summary>Expand troubleshooting details</summary>
+
+- **Installed import context**: Initial command tests failed because the installed CLI cannot assume the repository package root. The loader now imports the standalone `org_knowledge` module from the exact adjacent integrations directory.
+- **Windows Git cache cleanup**: Failed-clone cleanup initially hit read-only Git pack files. The owned-path remover now retries after applying the writable bit.
+- **Concurrent atomic writes**: One concurrent-write test produced `PermissionError` during `os.replace` on Windows. A bounded retry preserves the same atomic last-writer-wins operation without weakening state integrity.
+- **Repository test runtime**: `python -m pytest -q tests` timed out after 20 minutes while responsive, and `tests/integrations` timed out after 10 minutes while responsive. The complete installer, validator, skill, plan, workflow, root, and extension suites were then run separately; all bounded groups passed.
+
+</details>
+
+### Verification
+
+The focused Phase 1 and Phase 2 suite passes 65 tests with one expected Windows symlink skip. The validator measures 90 percent coverage, and changed executable lines in `scripts/nexus_hub_cli.py` measure 82.1 percent coverage. The complete installer directory passes 400 tests with 17 expected skips, including a real Windows `.cmd` launcher proof and a real local bare-Git repository flow. Validators pass 695 tests with 2 skips, skills pass 691, plans and workflows pass 182, and the root regression passes 5. The five internal extensions pass 670 tests with one expected skip; one transient Windows `os.replace` failure in `nexus-code-search` passed both its isolated retry and a clean 294-test suite rerun. All 18 `make validate` constituents, four JSON catalog parses, and ShellCheck pass. The new test file is Ruff-clean; `scripts/nexus_hub_cli.py` retains only its five pre-existing Ruff findings and adds none.
+
+### Release Boundary
+
+This entry documents the local Phase 2 checkpoint. No push, protected-branch integration, tag, or GitHub Release was created.
+
 ## [2026-08-16] - v3.17.3 Cursor hook portability and usage-monitor reliability release preparation
 
 ### What Changed
@@ -15,6 +79,26 @@ All declared validation constituents pass, including 271-skill bundle and routin
 ### Release Boundary
 
 This entry describes an uncommitted release candidate. No commit, push, protected-branch promotion, tag, or GitHub Release was created during preparation.
+## [2026-08-16] - v3.17.4 Phase 1: organization bundle contract
+
+### What Changed
+
+Phase 1 defines the dependency-free contract for organization knowledge bundles. A Draft 2020-12 JSON Schema, a minimal layered example, and `configs/README.md` now document the required `org.json` manifest, the under-200-line always-on core budget, per-language rules, on-demand references, forward-compatible unknown-key behavior, and the boundary that real organization content stays outside the company-neutral catalog. The new read-only `scripts/lib/integrations/org_knowledge.py` validator returns a typed report for malformed manifests, missing or mistyped keys, escaping paths, missing references, unreadable UTF-8 content, and core-budget warnings without adding a runtime dependency or mutating the bundle.
+
+### Why It Changed
+
+Later v3.17.4 phases need one stable bundle shape before they can add connection state, cross-platform materialization, guided authoring, and lifecycle operations. Keeping schema semantics in a standard-library validator lets the bootstrap and installed source tree use the same contract without relying on a package that may be absent during installation.
+
+### Decisions Made
+
+- **Unknown manifest keys warn rather than fail**: Older Nexus-Hub versions can inspect newer bundles without silently ignoring the compatibility signal.
+- **All referenced paths must stay inside the bundle root**: Absolute paths, traversal, drive-qualified paths, and symlink escapes are rejected before later phases consume organization-controlled content.
+- **The 200-line core limit is advisory**: Oversized content remains intact and produces a warning because truncating binding organization policy would be unsafe.
+- **No installer or CI workflow edit was needed**: Both installers already distribute `scripts/lib/` recursively, and existing Linux and Windows pytest jobs already cover `tests/installer/` while the workflow path filter includes the repository.
+
+### Verification
+
+The focused validator suite passes 39 tests with one expected Windows symlink-permission skip and measures 90 percent coverage for the new module. The bounded repository matrix passes 2,588 tests with 20 expected skips; the five internal extensions add 670 passes and one expected skip. The complete validation and lint recipes pass when invoked directly because GNU Make is unavailable on this Windows host. The example bundle validates with zero errors and warnings, the JSON Schema passes Draft 2020-12 structural validation, Python compilation succeeds, and the v3.17 documentation inventory remains canonical with seventeen active artifacts.
 
 ## [2026-08-15] - v3.17.2 autonomy retirement release preparation
 

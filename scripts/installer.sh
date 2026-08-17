@@ -1327,13 +1327,14 @@ install_global() {
     # render ONE unified checklist afterward so Claude reads identically to the
     # registry platforms. DF-001: the registry runner renders CLAUDE.md;
     # safe_folder_copy does the catalog mirror.
-    invoke_registry_platform "$repo_root" "global" "" "claude" "CLAUDE.md (instruction file)" "" "true" >/dev/null
     # v3.16.1: catalog_src returns the filtered stage when a selection is active
     # and the real catalog otherwise, so the no-selector path is unchanged.
     flatten_skills_into "$(catalog_src "$repo_root" skills)"   "$global_claude/skills"   >/dev/null
     safe_folder_copy "$(catalog_src "$repo_root" commands)" "$global_claude/commands" >/dev/null
     safe_folder_copy "$(catalog_src "$repo_root" agents)"   "$global_claude/agents"   >/dev/null
     safe_folder_copy "$repo_root/catalog/rules"    "$global_claude/rules"    >/dev/null
+    # Org rules are seeded by the registry after refresh-mode catalog pruning.
+    invoke_registry_platform "$repo_root" "global" "" "claude" "CLAUDE.md (instruction file)" "" "true" >/dev/null
 
     mkdir -p "$global_claude/mcp-configs"
     safe_copy "$repo_root/catalog/mcp-configs/mcp-servers.json" "$global_claude/mcp-configs/mcp-servers.json" false >/dev/null
@@ -1746,12 +1747,12 @@ install_workspace() {
         local claude_dir="$target_path/.claude"
         mkdir -p "$claude_dir"
 
-        invoke_registry_platform "$repo_root" "workspace" "$target_path" "claude" "CLAUDE.md (instruction file)" "$languages" "true"
-
         flatten_skills_into "$(catalog_src "$repo_root" skills)"   "$claude_dir/skills"   "[OK] Skills catalog installed (flattened) at: $claude_dir/skills"
         safe_folder_copy "$(catalog_src "$repo_root" commands)" "$claude_dir/commands" "[OK] Commands installed at: $claude_dir/commands"
         safe_folder_copy "$(catalog_src "$repo_root" agents)"   "$claude_dir/agents"   "[OK] Agents installed at: $claude_dir/agents"
         safe_folder_copy "$repo_root/catalog/rules"    "$claude_dir/rules"    "[OK] Rules installed at: $claude_dir/rules"
+        # Org rules are seeded by the registry after refresh-mode catalog pruning.
+        invoke_registry_platform "$repo_root" "workspace" "$target_path" "claude" "CLAUDE.md (instruction file)" "$languages" "true"
 
         mkdir -p "$claude_dir/mcp-configs"
         safe_copy "$repo_root/catalog/mcp-configs/mcp-servers.json" "$claude_dir/mcp-configs/mcp-servers.json" false "[OK] MCP server config installed at: $claude_dir/mcp-configs"

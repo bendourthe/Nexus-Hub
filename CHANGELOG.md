@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Organization lifecycle integration and operating guide (v3.17.4 Phase 5).** Doctor now reports unreadable connections, unreachable or invalid sources, unmaterialized platforms, drifted organization blocks, and rule-tree differences. Repair restores connected content while preserving text outside owned markers, and disconnect, teardown, and uninstall remove only manifest-owned organization blocks and rule files. Added the canonical connect, sync, status, authoring, precedence, enforcement-escalation, and rollback guide with the five-part opt-in capability usage block.
+- **Guided organization standards authoring surface (v3.17.4 Phase 4).** Added the `org-standards-authoring` workflow skill with a sub-200-line core budget, per-language and on-demand tiering, `org.json` guidance, strict trigger evals, and a cited platform-native enforcement escalation reference. The new `/org` command dispatches `connect`, `sync`, `status`, and `author` scopes across every command-capable platform, and the catalog now registers 272 skills and 18 commands.
+- **Cross-platform organization knowledge materialization (v3.17.4 Phase 3).** Connected organization bundles now append an independently managed precedence block after Nexus-Hub instructions and mirror organization rules into each platform's existing rules surface. Projection is idempotent, manifest-tracked, fail-soft, preserved after catalog refreshes, and reported through a 16-platform default/advisory posture table without claiming policy enforcement.
+- **Organization knowledge connection CLI (v3.17.4 Phase 2).** Added `nexus-hub org connect`, `sync`, `status`, and `disconnect` for validated local-directory and shallow-cloned Git bundles. Connection state is written atomically under `~/.nexus-hub/org/`, user-controlled Git input is passed only through subprocess argument lists, and both installed launchers reach the same cross-platform command surface.
+- **Organization knowledge bundle contract (v3.17.4 Phase 1).** Added the dependency-free `org.json` schema contract, a layered example bundle, and repository documentation for an always-on core, per-language rules, on-demand references, and forward-compatible validation. Organization content remains external to the company-neutral catalog.
+
+### Changed
+
+- **Real installer smoke coverage now proves organization seeding parity (v3.17.4 Phase 6).** The existing POSIX and Windows installer-smoke steps connect the same example bundle before invoking their native installer entry points, then use one shared postcondition checker to require the organization marker block after the Nexus-Hub block and confirm organization rules were projected. The workflow reuses its existing jobs, path filters, dependency caches, concurrency cancellation, and protected-branch operating-system gates, so the stronger cross-installer evidence adds no runner, action, dependency, or always-on matrix cost.
+
 ## [3.17.3] - 2026-08-16
 
 Cursor hooks now use each host operating system's native shell and always return Cursor's required JSON contract. The Codex and Claude usage monitors also receive two bounded reliability corrections.

@@ -1,8 +1,8 @@
 # Known Gaps - v3.17
 
 **Project**: Nexus-Hub
-**Status**: v3.17.3 corrective release preparation repairs Cursor hook portability and two usage-monitor reliability defects without including unfinished v3.17.4 Org Knowledge work.
-**Last updated**: 2026-08-16 (v3.17.3 corrective release preparation)
+**Status**: v3.17.3 is released, and v3.17.4 Org Knowledge Layer implementation has completed all six phases. Phase 6 reconciles three intentional product limits, retains the local Windows integration-suite runtime warning, closes the real-installer parity evidence gap, and leaves no release blocker. Prior v3.17.0 through v3.17.3 records remain below.
+**Last updated**: 2026-08-17 (v3.17.4 Phase 6 Architecture Refactor, Known-Gaps Reconciliation, and CI/CD)
 
 > **File-lifecycle note**: this ledger was opened by the v3.17.0 Phase 1 append. Each subsequent v3.17.N implementation appends its own `## v3.17.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `MT-#` / `QG-#` numbering.
 
@@ -82,6 +82,7 @@
 - **Source phase**: v3.17.2 release preparation model-prompting freshness advisory
 - **Reason it is open**: the required release advisory returned `DRIFTED`. The routing map itself is valid and was re-verified on 2026-08-15, but the separate prompting-profile layer still records its 2026-07-27 roster and lacks profiles for the newly mapped Anthropic, OpenAI, Google, and Cursor model IDs. This is intentionally advisory and is unrelated to the provider-state restoration defect fixed by v3.17.2.
 - **Suggested next step**: run `/tune-prompting` in a dedicated model-prompting refresh cycle, update the recorded roster and affected profiles from current first-party guidance, then rerun `python scripts/check_model_prompting_freshness.py --advisory <live-model-ids>` until it reports `IN SYNC`.
+- **Phase 6 recheck**: The live Codex roster contains `gpt-5.5`, `gpt-5.4`, `gpt-5.4-mini`, `gpt-5.3-codex`, `gpt-5.2`, and `codex-auto-review`, while the profile layer still records the 2026-07-27 Anthropic roster. The advisory returned `DRIFTED` without blocking Phase 6; the dedicated `/tune-prompting` follow-up remains unchanged.
 
 ### Summary
 
@@ -282,15 +283,69 @@
 - **Resolution**: rename the local variable and all of its uses to `$smokeHome`; add a lifecycle regression that rejects a case-insensitive `$home` assignment anywhere in the CI workflow.
 - **Verification**: the regression test failed against the v3.17.0 workflow on the exact assignment, then passed after the rename. The v3.17.1 tag workflow is the release-level proof that the repaired all-OS installer-smoke matrix runs end to end.
 
+## v3.17.4 - org-knowledge-layer
+
+**Status**: All six phases completed on 2026-08-17 with 4 open non-blocking items, 1 resolved item, and 0 release blockers. Plan: [plans/v3.17.4-org-knowledge-layer.md](plans/v3.17.4-org-knowledge-layer.md).
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented by design / unverified (`NI-#`) | 1 (NI-4) | 0 |
+| Deferred (`DF-#`) | 2 (DF-7, DF-8) | 0 |
+| Bugs (`BG-#`) | 0 | 0 |
+| Warnings (`WN-#`) | 1 (WN-6) | 0 |
+| Missing tests (`MT-#`) | 0 | 1 (MT-2) |
+| Quality-gate bypasses (`QG-#`) | 0 | 0 |
+
+### Open Items
+
+### NI-4 - Copilot organization precedence remains advisory
+
+- **Source phase**: v3.17.4 Phase 6, sub-task 6.2
+- **Plan reference**: `docs/v3/v3.17/plans/v3.17.4-org-knowledge-layer.md` (sub-task 6.2)
+- **Reason**: GitHub documents personal and repository custom instructions as higher-priority context than organization instructions. Nexus-Hub can project portable guidance into Copilot's local instruction surface, but it cannot make that local block non-overridable or describe it as vendor-enforced policy.
+- **Suggested next step**: Keep `nexus-hub org status` advisory for Copilot. Organizations needing stronger control should configure GitHub's documented Business or Enterprise administrative surface and reinforce blocking requirements through permissions, hooks, or CI.
+
+### DF-7 - Catalog-content suppression is outside the organization-layer contract
+
+- **Source phase**: v3.17.4 Phase 6, sub-task 6.2
+- **Plan reference**: `docs/v3/v3.17/plans/v3.17.4-org-knowledge-layer.md` (sub-task 6.2)
+- **Reason**: The confirmed design makes organization guidance additive and higher-priority; it does not let a bundle remove or suppress generic Nexus-Hub catalog content. Adding negative-selection semantics would change bundle validation, materialization, conflict handling, and cross-platform guarantees beyond this release's approved scope.
+- **Suggested next step**: If a real organization requires suppression, define a separate opt-in filtering contract with explicit ownership, conflict, audit, and uninstall semantics before adding it to a future plan.
+
+### DF-8 - Platform-native enforcement generation remains administrator-owned
+
+- **Source phase**: v3.17.4 Phase 6, sub-task 6.2
+- **Plan reference**: `docs/v3/v3.17/plans/v3.17.4-org-knowledge-layer.md` (sub-task 6.2)
+- **Reason**: Nexus-Hub intentionally generates portable local instructions and rules, not Claude managed policy, Cursor Team Rules, GitHub organization instructions, or other administrator-controlled vendor settings. Phase 4 documents verified escalation paths without inventing credentials or authority.
+- **Suggested next step**: Keep enforcement configuration outside the installer. Re-evaluate only through a separately approved, vendor-specific administrative integration with explicit authentication, authorization, and rollback requirements.
+
+### WN-6 - Local Windows integrations suite exceeds the bounded phase runtime
+
+- **Source phase**: v3.17.4 Phase 2, sub-task 2.2
+- **Plan reference**: `docs/v3/v3.17/plans/v3.17.4-org-knowledge-layer.md` (sub-task 2.2)
+- **Reason**: The complete `tests/integrations` directory remained responsive and emitted no failure before reaching the local Windows 10-minute bound; the monolithic repository suite likewise reached 20 minutes. The affected `tests/installer` directory passed 400 tests with 17 expected skips, the Phase 1 and Phase 2 focused suite passed 65 tests with one expected skip, and all other bounded CI groups passed. This is an environment/runtime limitation rather than evidence of a Phase 2 regression.
+- **Suggested next step**: Let the existing protected-branch CI integration job provide the authoritative unbounded result. If its duration becomes a recurring bottleneck, profile and split the integration suite without adding a new CI job.
+- **Phase 3 recheck**: The isolated non-contract integration suite passed 564 tests in 9 minutes 29 seconds. All-platform idempotence, uninstall reversal, and sibling preservation passed, and the six Phase 3 representative platforms passed partial-recovery and dry-run parity. The monolithic local suite still exceeded the bounded Windows runtime, so the warning remains open without a new gap or release blocker.
+- **Phase 4 recheck**: Catalog, command-surface, installer, skill, validator, workflow, extension, and bounded integration shards passed. All-platform uninstall reversal, sibling preservation, and dry-run parity passed; Claude, Cursor, Codex, Copilot, Gemini, and Antigravity passed idempotence and partial recovery. The monolithic repository and integrations commands plus the all-platform idempotence and partial-recovery aggregates again exceeded bounded local Windows runtimes without reporting an assertion failure. Protected Linux CI remains the authoritative unbounded matrix, so WN-6 remains open and non-blocking.
+- **Phase 6 recheck**: The complete Org Knowledge coverage suite passed 108 tests with one expected skip and 88 percent aggregate coverage; the shared installer checker reached 94 percent and the Org Knowledge module reached 87 percent. A real isolated Windows PowerShell installer run connected the example bundle and passed the shared marker-order and rule-projection checker. The monolithic repository suite remains delegated to protected Linux CI, so the runtime warning stays open and non-blocking.
+
+### Resolved
+
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+| MT-2 | Real installer entry points lacked organization seeding postconditions | Phase 6 | The existing POSIX and Windows installer-smoke steps now connect the same example bundle and invoke one shared checker for marker ordering and rule projection; 106 focused policy and parity tests plus the isolated Windows installer smoke passed. |
+
 ## v3.17 Summary
 
 | Category | Open | Resolved |
 |---|---|---|
-| Not implemented by design / unverified (`NI-#`) | 3 (NI-1, NI-2, NI-3) | 0 |
-| Deferred (`DF-#`) | 6 (DF-1, DF-2, DF-3, DF-4, DF-5, DF-6) | 0 |
+| Not implemented by design / unverified (`NI-#`) | 4 (NI-1, NI-2, NI-3, NI-4) | 0 |
+| Deferred (`DF-#`) | 8 (DF-1, DF-2, DF-3, DF-4, DF-5, DF-6, DF-7, DF-8) | 0 |
 | Bugs (`BG-#`) | 0 | 9 (BG-1, BG-2, BG-3, BG-4, BG-5, BG-6, BG-7, BG-8, BG-9) |
-| Warnings (`WN-#`) | 4 (WN-1, environmental, carried from v3.15.0; WN-2, pre-existing Ruff baseline; WN-4, version-specific hook proof; WN-5, prompting-profile roster drift) | 1 (WN-3, Vitest config loader) |
-| Missing tests (`MT-#`) | 1 (MT-1, Claude monitor extension-wide coverage) | 0 |
+| Warnings (`WN-#`) | 5 (WN-1, environmental, carried from v3.15.0; WN-2, pre-existing Ruff baseline; WN-4, version-specific hook proof; WN-5, prompting-profile roster drift; WN-6, local integration-suite runtime) | 1 (WN-3, Vitest config loader) |
+| Missing tests (`MT-#`) | 1 (MT-1, Claude monitor extension-wide coverage) | 1 (MT-2, real installer organization postconditions) |
 | Quality-gate bypasses (`QG-#`) | 0 | 0 |
 
 **Release blockers**: 0. NI-1 and NI-2 require live matcher probes before their respective permission baselines can be broadened, but the shipped validators and hook guards conservatively avoid relying on either unverified behavior. BG-4 through BG-9 are closed; BG-8 is the v3.17.1 tag-only Windows harness repair and BG-9 is the v3.17.2 fail-safe state-restoration migration. DF-6 keeps that migration for one compatibility release. WN-5 records the release workflow's non-blocking prompting-profile freshness advisory.
