@@ -374,6 +374,7 @@ def cmd_install(args: argparse.Namespace) -> int:
         template_vars=_template_vars_from_args(args),
         languages=_languages_from_args(args),
         instruction_only=args.instruction_only,
+        verbose=not args.quiet,
         selection=selection,
     )
     # Recorded before the copy loop so a run that fails partway still leaves the
@@ -765,6 +766,7 @@ def cmd_repair(args: argparse.Namespace) -> int:
         dry_run=args.dry_run,
         manifest=manifest,
         template_vars={"PROJECT_NAME": args.project_name or target_root.name},
+        verbose=not args.quiet,
         selection=selection,
     )
     if not args.dry_run and _selection_payload(selection) != manifest.selection():

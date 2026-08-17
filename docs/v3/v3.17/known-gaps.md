@@ -1,8 +1,8 @@
 # Known Gaps - v3.17
 
 **Project**: Nexus-Hub
-**Status**: v3.17.3 is released, and v3.17.4 Org Knowledge Layer implementation is in progress with Phases 1 and 2 completed. Phase 2 has one non-blocking local-environment warning and no release blocker. Prior v3.17.0 through v3.17.3 records remain below.
-**Last updated**: 2026-08-16 (v3.17.4 Phase 2 Connect CLI)
+**Status**: v3.17.3 is released, and v3.17.4 Org Knowledge Layer implementation is in progress with Phases 1 through 3 completed. Phase 3 adds no new open gap; the existing local Windows integration-suite runtime warning remains non-blocking, and there is no release blocker. Prior v3.17.0 through v3.17.3 records remain below.
+**Last updated**: 2026-08-16 (v3.17.4 Phase 3 Cross-Platform Materialization)
 
 > **File-lifecycle note**: this ledger was opened by the v3.17.0 Phase 1 append. Each subsequent v3.17.N implementation appends its own `## v3.17.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `MT-#` / `QG-#` numbering.
 
@@ -284,7 +284,7 @@
 
 ## v3.17.4 - org-knowledge-layer
 
-**Status**: Phases 1 and 2 completed on 2026-08-16 with 1 open non-blocking warning, 0 resolved items, and 0 release blockers. Plan: [plans/v3.17.4-org-knowledge-layer.md](plans/v3.17.4-org-knowledge-layer.md).
+**Status**: Phases 1 through 3 completed on 2026-08-16 with 1 open non-blocking warning, 0 resolved items, and 0 release blockers. Plan: [plans/v3.17.4-org-knowledge-layer.md](plans/v3.17.4-org-knowledge-layer.md).
 
 ### Summary
 
@@ -305,6 +305,7 @@
 - **Plan reference**: `docs/v3/v3.17/plans/v3.17.4-org-knowledge-layer.md` (sub-task 2.2)
 - **Reason**: The complete `tests/integrations` directory remained responsive and emitted no failure before reaching the local Windows 10-minute bound; the monolithic repository suite likewise reached 20 minutes. The affected `tests/installer` directory passed 400 tests with 17 expected skips, the Phase 1 and Phase 2 focused suite passed 65 tests with one expected skip, and all other bounded CI groups passed. This is an environment/runtime limitation rather than evidence of a Phase 2 regression.
 - **Suggested next step**: Let the existing protected-branch CI integration job provide the authoritative unbounded result. If its duration becomes a recurring bottleneck, profile and split the integration suite without adding a new CI job.
+- **Phase 3 recheck**: The isolated non-contract integration suite passed 564 tests in 9 minutes 29 seconds. All-platform idempotence, uninstall reversal, and sibling preservation passed, and the six Phase 3 representative platforms passed partial-recovery and dry-run parity. The monolithic local suite still exceeded the bounded Windows runtime, so the warning remains open without a new gap or release blocker.
 
 ### Resolved
 

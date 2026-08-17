@@ -856,33 +856,48 @@ def _sync_org() -> int:
 
 
 def _status_org() -> int:
+    returncode = 0
     try:
+        org = _load_org_knowledge()
         state = _read_org_connection()
         if state is None:
             print(
                 "Organization knowledge is not connected. Run `nexus-hub org connect <path-or-url>`."
             )
-            return 1
-        bundle_path = (
-            _org_repo_path()
-            if state["source_type"] == "git"
-            else _resolve_org_path(str(state["source"]))
-        )
-        report = _validate_org_bundle(bundle_path)
+            returncode = 1
+            report = None
+        else:
+            bundle_path = (
+                _org_repo_path()
+                if state["source_type"] == "git"
+                else _resolve_org_path(str(state["source"]))
+            )
+            report = _validate_org_bundle(bundle_path)
     except (OrgCliError, OSError, ValueError) as exc:
         _eprint(f"nexus-hub org status: {exc}")
         return 2
 
-    print("Organization knowledge connection")
-    print(f"Source type: {state['source_type']}")
-    print(f"Source: {state['source']}")
-    print(f"Branch: {state['branch'] or '(default)'}")
-    print(f"Connected at: {state['connected_at']}")
-    print(f"Last sync: {state['last_sync']}")
-    print(report.summary())
-    _print_org_report(report)
-    print("Platform posture: available after Phase 3 materialization.")
-    return 0 if report.valid else 2
+    if state is not None and report is not None:
+        print("Organization knowledge connection")
+        print(f"Source type: {state['source_type']}")
+        print(f"Source: {state['source']}")
+        print(f"Branch: {state['branch'] or '(default)'}")
+        print(f"Connected at: {state['connected_at']}")
+        print(f"Last sync: {state['last_sync']}")
+        print(report.summary())
+        _print_org_report(report)
+        if not report.valid:
+            returncode = 2
+
+    print("Platform posture (all registered platforms; installation not required)")
+    print(f"{'Platform':<18} {'Posture':<26} Justification")
+    for key, classification, justification in org.platform_posture_rows():
+        print(f"{key:<18} {classification:<26} {justification}")
+    print(
+        "These projections are instructions, not enforcement. Use the "
+        "org-standards-authoring escalation guidance for platform-native managed policy."
+    )
+    return returncode
 
 
 def _disconnect_org(assume_yes: bool) -> int:

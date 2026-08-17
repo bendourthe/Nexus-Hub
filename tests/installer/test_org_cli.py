@@ -222,7 +222,10 @@ def test_status_reports_connection_and_validation_summary(
     assert "Source type: dir" in captured.out
     assert str(bundle.resolve()) in captured.out
     assert "valid:" in captured.out
-    assert "Platform posture: available after Phase 3" in captured.out
+    assert "Platform posture (all registered platforms" in captured.out
+    assert "copilot" in captured.out
+    assert "personal-over-org documented inversion" in captured.out
+    assert "instructions, not enforcement" in captured.out
 
 
 def test_status_without_connection_is_actionable(
@@ -232,6 +235,7 @@ def test_status_without_connection_is_actionable(
     assert returncode == 1
     assert "not connected" in captured.out.lower()
     assert "org connect" in captured.out
+    assert "Platform posture (all registered platforms" in captured.out
 
 
 def test_sync_directory_revalidates_and_updates_timestamp(

@@ -1645,7 +1645,6 @@ function Install-Global {
         # per-step notices) and render ONE unified checklist afterward so Claude
         # reads identically to the registry platforms. DF-001: the registry
         # runner renders CLAUDE.md; the Safe-Folder-Copy block does the mirror.
-        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "claude" -DisplayName "CLAUDE.md (instruction file)" -InstructionOnly 6>$null
         # v3.16.1: Get-CatalogSource returns the filtered stage when a selection
         # is active and the real catalog otherwise, so the no-selector path is
         # unchanged.
@@ -1653,6 +1652,8 @@ function Install-Global {
         Safe-Folder-Copy -Source (Get-CatalogSource -RepoRoot $RepoRoot -Surface "commands") -Destination (Join-Path $globalClaude "commands") 6>$null
         Safe-Folder-Copy -Source (Get-CatalogSource -RepoRoot $RepoRoot -Surface "agents")   -Destination (Join-Path $globalClaude "agents")   6>$null
         Safe-Folder-Copy -Source "$RepoRoot\catalog\rules"    -Destination (Join-Path $globalClaude "rules")    6>$null
+        # Org rules are seeded by the registry after refresh-mode catalog pruning.
+        Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "global" -IntegrationKey "claude" -DisplayName "CLAUDE.md (instruction file)" -InstructionOnly 6>$null
 
         $mcpConfigDest = Join-Path $globalClaude "mcp-configs"
         if (-not (Test-Path $mcpConfigDest)) { New-Item -ItemType Directory -Force -Path $mcpConfigDest | Out-Null }
@@ -2034,12 +2035,12 @@ function Install-Workspace {
             Write-Item -Message "Claude Code" -Color "Gray"
             $claudeDir = Join-Path $targetPath ".claude"
 
-            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "claude" -DisplayName "CLAUDE.md (instruction file)" -Languages ($languages -join ',') -InstructionOnly
-
             Flatten-SkillsInto -Source (Get-CatalogSource -RepoRoot $RepoRoot -Surface "skills")   -Destination (Join-Path $claudeDir "skills")   -CustomMessage "✓ Skills catalog installed (flattened) at: $(Join-Path $claudeDir "skills")"
             Safe-Folder-Copy -Source (Get-CatalogSource -RepoRoot $RepoRoot -Surface "commands") -Destination (Join-Path $claudeDir "commands") -CustomMessage "✓ Commands installed at: $(Join-Path $claudeDir "commands")"
             Safe-Folder-Copy -Source (Get-CatalogSource -RepoRoot $RepoRoot -Surface "agents")   -Destination (Join-Path $claudeDir "agents")   -CustomMessage "✓ Agents installed at: $(Join-Path $claudeDir "agents")"
             Safe-Folder-Copy -Source "$RepoRoot\catalog\rules"    -Destination (Join-Path $claudeDir "rules")    -CustomMessage "✓ Rules installed at: $(Join-Path $claudeDir "rules")"
+            # Org rules are seeded by the registry after refresh-mode catalog pruning.
+            Invoke-RegistryPlatform -RepoRoot $RepoRoot -Scope "workspace" -TargetPath $targetPath -IntegrationKey "claude" -DisplayName "CLAUDE.md (instruction file)" -Languages ($languages -join ',') -InstructionOnly
 
             $mcpConfigDestWs = Join-Path $claudeDir "mcp-configs"
             if (-not (Test-Path $mcpConfigDestWs)) { New-Item -ItemType Directory -Force -Path $mcpConfigDestWs | Out-Null }

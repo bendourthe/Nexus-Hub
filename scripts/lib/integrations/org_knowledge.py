@@ -25,18 +25,29 @@ explicit installer filename entry.
 from __future__ import annotations
 
 import json
+import os
 import re
 import stat
 import sys
 from dataclasses import dataclass, field
 from pathlib import Path, PurePosixPath
-from typing import Any, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
+
+if TYPE_CHECKING:
+    from .result import FileAction
 
 SCHEMA_VERSION = 1
 CORE_LINE_BUDGET = 200
 DEFAULT_CORE = "core.md"
 DEFAULT_RULES_DIR = "rules/"
 DEFAULT_REFERENCES_DIR = "references/"
+DEFAULT_PRECEDENCE_STATEMENT = (
+    "The organization standards in this section take precedence over any "
+    "conflicting generic guidance elsewhere in this file."
+)
+ORG_START_MARKER = "<!-- NEXUS_HUB_ORG_START -->"
+ORG_END_MARKER = "<!-- NEXUS_HUB_ORG_END -->"
+NEXUS_END_MARKER = "<!-- NEXUS_HUB_END -->"
 
 _KNOWN_KEYS = frozenset(
     {
@@ -75,6 +86,78 @@ class BundleReport:
             f"{status}: {self.bundle_path} "
             f"({len(self.errors)} errors, {len(self.warnings)} warnings)"
         )
+
+
+@dataclass(frozen=True)
+class PlatformPosture:
+    """One static classification for an organization projection surface."""
+
+    classification: str
+    justification: str
+
+
+_UNCLASSIFIED_POSTURE = PlatformPosture(
+    "advisory (unclassified)",
+    "No verified platform precedence mechanism is recorded; treat the projection as guidance only.",
+)
+
+PLATFORM_POSTURES: dict[str, PlatformPosture] = {
+    "aider": _UNCLASSIFIED_POSTURE,
+    "antigravity": PlatformPosture(
+        "default", "General-to-specific instruction loading applies to the projected rules file."
+    ),
+    "antigravity2": PlatformPosture(
+        "default", "General-to-specific instruction loading applies to the projected AGENTS.md surface."
+    ),
+    "claude": PlatformPosture(
+        "default", "The projected local instruction layer is loaded, but it is not a managed policy layer."
+    ),
+    "codex": PlatformPosture(
+        "default", "AGENTS.md participates in Codex's root-to-leaf instruction hierarchy."
+    ),
+    "copilot": PlatformPosture(
+        "advisory",
+        "Personal > Repository > Organization; this personal-over-org documented inversion is soft priority only.",
+    ),
+    "cursor": PlatformPosture(
+        "default", "The projected project instruction layer sits below Team Rules and above user rules."
+    ),
+    "gemini": PlatformPosture(
+        "default", "General-to-specific instruction loading applies to the projected GEMINI.md surface."
+    ),
+    "gemini-cli": PlatformPosture(
+        "default", "General-to-specific instruction loading applies to the projected GEMINI.md surface."
+    ),
+    "hermes": _UNCLASSIFIED_POSTURE,
+    "kimi": _UNCLASSIFIED_POSTURE,
+    "nexus-ai": _UNCLASSIFIED_POSTURE,
+    "openclaw": _UNCLASSIFIED_POSTURE,
+    "opencode": _UNCLASSIFIED_POSTURE,
+    "qwen": _UNCLASSIFIED_POSTURE,
+    "windsurf": _UNCLASSIFIED_POSTURE,
+}
+
+
+def platform_posture(key: str) -> PlatformPosture:
+    """Return a posture without raising when a new integration is unclassified."""
+
+    return PLATFORM_POSTURES.get(key, _UNCLASSIFIED_POSTURE)
+
+
+def platform_posture_rows(
+    platform_keys: list[str] | None = None,
+) -> list[tuple[str, str, str]]:
+    """Return stable posture rows for the registry or an explicit key list."""
+
+    if platform_keys is None:
+        # The installed CLI loads this file as a standalone module to avoid
+        # importing the full integration registry. Tests assert this static
+        # roster remains identical to the registry's registered keys.
+        platform_keys = list(PLATFORM_POSTURES)
+    return [
+        (key, platform_posture(key).classification, platform_posture(key).justification)
+        for key in sorted(platform_keys)
+    ]
 
 
 def _note(message: str) -> None:
@@ -314,12 +397,233 @@ def validate_bundle(path: str | Path) -> BundleReport:
     return report
 
 
+def render_org_block(report: BundleReport) -> str:
+    """Render the deterministic body placed between organization markers."""
+
+    if not report.valid:
+        raise ValueError("cannot render an invalid organization bundle")
+    manifest = report.manifest
+    core_path = report.bundle_path / str(manifest.get("core", DEFAULT_CORE))
+    references_path = report.bundle_path / str(
+        manifest.get("references_dir", DEFAULT_REFERENCES_DIR)
+    )
+    core = core_path.read_text(encoding="utf-8").strip()
+    org_name = str(manifest["org_name"]).strip()
+    precedence = str(
+        manifest.get("precedence_statement", DEFAULT_PRECEDENCE_STATEMENT)
+    ).strip()
+    return (
+        f"## Organization Standards ({org_name})\n\n"
+        f"{precedence}\n\n"
+        f"{core}\n\n"
+        f"On-demand organization references: `{references_path}`."
+    )
+
+
+def _install_home() -> Path:
+    override = os.environ.get("NEXUS_HUB_HOME")
+    return Path(override).expanduser() if override else Path.home() / ".nexus-hub"
+
+
+def _connected_bundle() -> tuple[Path | None, str | None]:
+    """Resolve the connected bundle, distinguishing no connection from damage."""
+
+    connection = _install_home() / "org" / "connection.json"
+    if not connection.exists():
+        return None, None
+    try:
+        state = json.loads(connection.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        return None, f"connection state is unreadable ({exc})"
+    if not isinstance(state, dict):
+        return None, "connection state must be a JSON object"
+    source_type = state.get("source_type")
+    if source_type == "git":
+        return _install_home() / "org" / "repo", None
+    if source_type == "dir" and isinstance(state.get("source"), str):
+        return _expand(state["source"]), None
+    return None, "connection state declares an unsupported source"
+
+
+def _track_safely(ctx: Any, method: str, integration_key: str, path: Path) -> None:
+    """Keep bookkeeping failures from breaking an otherwise valid install."""
+
+    manifest = getattr(ctx, "manifest", None)
+    if manifest is None:
+        return
+    try:
+        getattr(manifest, method)(integration_key, str(path))
+    except Exception:  # noqa: BLE001 - bookkeeping must never fail installation
+        return
+
+
+def _instruction_paths(integration: Any, ctx: Any) -> list[Path]:
+    """Read actual instruction destinations registered by the current install."""
+
+    manifest = getattr(ctx, "manifest", None)
+    if manifest is None:
+        return []
+    candidates = [Path(path) for path in manifest.shared_for(integration.key)]
+    if getattr(integration, "instruction_mode", "shared") == "dedicated":
+        filename = integration.config.get("instruction_file")
+        if filename:
+            candidates.extend(
+                Path(path)
+                for path in manifest.files_for(integration.key)
+                if Path(path).name == filename
+            )
+    return sorted({path for path in candidates if path.is_file()}, key=str)
+
+
+def _declared_rules_root(integration: Any, ctx: Any) -> Path | None:
+    """Resolve the existing rules root declared for the current install scope."""
+
+    subdir = integration.config.get("rules_subdir")
+    if not subdir:
+        return None
+    if getattr(ctx, "scope", None) == "global":
+        parent = integration.config.get("global_dir")
+        if parent is None:
+            return None
+        return _expand(parent) / subdir
+    parent = integration.config.get("workspace_dir")
+    if parent is None:
+        return None
+    return (Path(ctx.target_root) / parent).resolve() / subdir
+
+
+def _rules_roots(integration: Any, ctx: Any) -> list[Path]:
+    """Discover real rules roots, including custom multi-surface integrations."""
+
+    subdir = integration.config.get("rules_subdir")
+    if not subdir:
+        return []
+    roots = set()
+    declared = _declared_rules_root(integration, ctx)
+    if declared is not None and declared.is_dir():
+        roots.add(declared)
+    manifest = getattr(ctx, "manifest", None)
+    if manifest is not None:
+        for tracked in manifest.files_for(integration.key):
+            path = Path(tracked)
+            indices = [index for index, part in enumerate(path.parts) if part == subdir]
+            if indices:
+                root = Path(*path.parts[: indices[0] + 1])
+                if root.is_dir() or getattr(ctx, "dry_run", False):
+                    roots.add(root)
+    return sorted(roots, key=str)
+
+
+def _merge_org_after_nexus(path: Path, body: str, ctx: Any) -> FileAction:
+    """Merge the org block and repair any legacy placement before Nexus-Hub."""
+
+    from scripts.lib.installer.instruction_merge import (
+        merge_marker_section,
+        remove_marker_section,
+    )
+
+    from .result import FileAction
+
+    text = path.read_text(encoding="utf-8")
+    misplaced = (
+        ORG_START_MARKER in text
+        and ORG_END_MARKER in text
+        and NEXUS_END_MARKER in text
+        and text.index(ORG_START_MARKER) < text.index(NEXUS_END_MARKER)
+    )
+    if misplaced:
+        if getattr(ctx, "dry_run", False):
+            return FileAction(path=str(path), action="updated")
+        remove_marker_section(
+            path,
+            start_marker=ORG_START_MARKER,
+            end_marker=ORG_END_MARKER,
+        )
+    return merge_marker_section(
+        path,
+        body,
+        start_marker=ORG_START_MARKER,
+        end_marker=ORG_END_MARKER,
+        dry_run=bool(getattr(ctx, "dry_run", False)),
+    )
+
+
+def seed_org_knowledge(integration_key: str, ctx: Any) -> list[FileAction]:
+    """Project a connected organization bundle into one installed platform.
+
+    The current install's manifest supplies the real instruction and rules
+    destinations. This matters for custom writers such as Cursor and
+    Antigravity, and it avoids inventing a platform config key or read path.
+    Expected connection, validation, file, and bookkeeping failures degrade to
+    one warning and an empty action list; they never fail the platform install.
+    """
+
+    from . import get
+
+    bundle_path, connection_error = _connected_bundle()
+    if bundle_path is None and connection_error is None:
+        manifest = getattr(ctx, "manifest", None)
+        if manifest is not None:
+            manifest.log(integration_key, "org-knowledge: no connection; skipped")
+        if getattr(ctx, "verbose", False):
+            _note(f"{integration_key}: no connection; skipped")
+        return []
+    if connection_error is not None:
+        _note(f"{integration_key}: {connection_error}; skipped")
+        return []
+
+    try:
+        report = validate_bundle(bundle_path)
+        if not report.valid:
+            detail = report.errors[0] if report.errors else "validation failed"
+            _note(f"{integration_key}: invalid bundle ({detail}); skipped")
+            return []
+        body = render_org_block(report)
+        if len(body.splitlines()) > CORE_LINE_BUDGET:
+            _note(
+                f"{integration_key}: rendered organization block exceeds the "
+                f"{CORE_LINE_BUDGET}-line always-on budget; content was not truncated"
+            )
+        integration = get(integration_key)
+        actions: list[FileAction] = []
+        for instruction_path in _instruction_paths(integration, ctx):
+            actions.append(_merge_org_after_nexus(instruction_path, body, ctx))
+            _track_safely(ctx, "track_shared", integration_key, instruction_path)
+
+        rules_source = report.bundle_path / str(report.manifest["rules_dir"])
+        for rules_root in _rules_roots(integration, ctx):
+            org_destination = rules_root / "org"
+            actions.append(
+                integration._copy_tree(
+                    rules_source, org_destination, ctx, integration_key
+                )
+            )
+            for source_file in sorted(
+                (path for path in rules_source.rglob("*") if path.is_file()), key=str
+            ):
+                target_file = org_destination / source_file.relative_to(rules_source)
+                _track_safely(ctx, "track", integration_key, target_file)
+        return actions
+    except Exception as exc:  # noqa: BLE001 - org projection must degrade, never fail install
+        _note(f"{integration_key}: could not materialize organization knowledge ({exc}); skipped")
+        return []
+
+
 __all__ = [
-    "BundleReport",
     "CORE_LINE_BUDGET",
     "DEFAULT_CORE",
+    "DEFAULT_PRECEDENCE_STATEMENT",
     "DEFAULT_REFERENCES_DIR",
     "DEFAULT_RULES_DIR",
+    "ORG_END_MARKER",
+    "ORG_START_MARKER",
+    "PLATFORM_POSTURES",
     "SCHEMA_VERSION",
+    "BundleReport",
+    "PlatformPosture",
+    "platform_posture",
+    "platform_posture_rows",
+    "render_org_block",
+    "seed_org_knowledge",
     "validate_bundle",
 ]
