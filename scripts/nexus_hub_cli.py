@@ -28,14 +28,18 @@ Subcommands:
                                ~/.nexus-hub/config/media.env at mode 0600. Strictly
                                local, no outbound call (see
                                scripts/setup_media_keys.py).
+    nexus-hub org              Connect, synchronize, inspect, or disconnect an
+                               organization knowledge bundle from a local directory
+                               or user-selected Git remote.
     nexus-hub --help           Usage.
 
-THE ONLY OUTBOUND CALL this CLI makes is `upgrade`'s version check, and it goes
-to the project's OWN GitHub (raw.githubusercontent.com / github.com) -- the same
-posture the installer already has. No third-party data processor, credential, or
-new dependency is introduced. The fetch prefers `curl`, falls back to `wget`,
-and finally to the Python stdlib `urllib` so it works on a bare machine; a
-`file://` source (used by the tests) is read directly without any network tool.
+The `upgrade` command calls only the project's own GitHub. The opt-in `org
+connect` and `org sync` commands may call the Git remote the user explicitly
+selects, using the user's installed Git client and existing credential helper.
+No third-party data processor, new credential, or new dependency is introduced.
+The upgrade fetch prefers `curl`, falls back to `wget`, and finally to the Python
+stdlib `urllib` so it works on a bare machine; a `file://` source (used by the
+tests) is read directly without any network tool.
 
 Internal testing affordances (environment variables):
 
@@ -51,13 +55,21 @@ Internal testing affordances (environment variables):
 from __future__ import annotations
 
 import argparse
+import importlib
 import json
 import os
 import re
+import shutil
+import stat
 import subprocess
 import sys
+import tempfile
+import time
 import urllib.request
+import uuid
+from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any
 
 DEFAULT_REPO = "bendourthe/Nexus-Hub"
 DEFAULT_REF = "main"
@@ -66,6 +78,9 @@ DEFAULT_REF = "main"
 # reads exactly the surfaces that guard writes.
 _SEMVER_RE = re.compile(r"(\d+)\.(\d+)\.(\d+)")
 _PLUGIN_VERSION_RE = re.compile(r'"version"\s*:\s*"([^"]+)"')
+_GIT_URL_RE = re.compile(r"^[A-Za-z][A-Za-z0-9+.-]*://")
+_GIT_SCP_RE = re.compile(r"^[^@\s]+@[^:\s]+:.+")
+ORG_CONNECTION_SCHEMA_VERSION = 1
 
 
 def _eprint(message: str) -> None:
@@ -501,6 +516,444 @@ def cmd_map(argv: list[str]) -> int:
     return map_main(argv)
 
 
+# --- Organization knowledge connection -------------------------------------
+
+
+class OrgCliError(Exception):
+    """An expected organization CLI failure with a user-actionable message."""
+
+
+def _org_root() -> Path:
+    """Return the Nexus-Hub-owned organization state directory."""
+
+    return install_home() / "org"
+
+
+def _org_connection_path() -> Path:
+    return _org_root() / "connection.json"
+
+
+def _org_repo_path() -> Path:
+    return _org_root() / "repo"
+
+
+def _utc_now() -> str:
+    """Return a stable UTC timestamp for the connection record."""
+
+    return datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")
+
+
+def _looks_like_git_url(value: str) -> bool:
+    """Distinguish explicit Git remotes from local filesystem paths."""
+
+    return bool(_GIT_URL_RE.match(value) or _GIT_SCP_RE.match(value))
+
+
+def sanitize_branch_name(raw: str) -> str:
+    """Map a branch name to the installer's filesystem-safe cache token."""
+
+    sanitized = re.sub(r"[^A-Za-z0-9._-]", "-", raw)
+    sanitized = sanitized.replace("..", "-")
+    sanitized = re.sub(r"^[-.]", "", sanitized, count=1)
+    return sanitized or "branch"
+
+
+def _resolve_org_path(value: str) -> Path:
+    """Resolve an existing local bundle directory without accepting null bytes."""
+
+    if "\x00" in value:
+        raise ValueError(f"Null byte in path: {value!r}")
+    try:
+        path = Path(value).expanduser().resolve(strict=True)
+    except (OSError, RuntimeError, ValueError) as exc:
+        raise ValueError(f"Organization bundle path does not exist: {value}") from exc
+    if not path.is_dir():
+        raise ValueError(f"Organization bundle path is not a directory: {path}")
+    return path
+
+
+def _load_org_knowledge():
+    """Load the validator from the installed ``scripts/lib`` tree on demand.
+
+    Both launchers execute this file from ``~/.nexus-hub/scripts`` and both
+    installers recursively copy ``scripts/lib`` beside it. Adding the exact
+    integrations directory to ``sys.path`` loads only the standalone validator,
+    avoiding the broad ``lib.integrations`` registry import and any dependency
+    on the caller's current working directory.
+    """
+
+    integrations_dir = str(Path(__file__).resolve().parent / "lib" / "integrations")
+    if integrations_dir not in sys.path:
+        sys.path.insert(0, integrations_dir)
+    try:
+        org_knowledge = importlib.import_module("org_knowledge")
+    except ImportError as exc:  # pragma: no cover - missing install artifact
+        raise OrgCliError(
+            "organization validator not found; re-run the Nexus-Hub installer"
+        ) from exc
+    return org_knowledge
+
+
+def _write_org_connection(state: dict[str, Any]) -> None:
+    """Atomically replace ``connection.json`` with one complete JSON object."""
+
+    root = _org_root()
+    root.mkdir(parents=True, exist_ok=True)
+    temporary: Path | None = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            newline="\n",
+            prefix=".connection.",
+            suffix=".tmp",
+            dir=root,
+            delete=False,
+        ) as handle:
+            temporary = Path(handle.name)
+            json.dump(state, handle, indent=2, sort_keys=True)
+            handle.write("\n")
+            handle.flush()
+            os.fsync(handle.fileno())
+        destination = _org_connection_path()
+        for attempt in range(5):
+            try:
+                os.replace(temporary, destination)
+                break
+            except PermissionError:
+                if attempt == 4:
+                    raise
+                # Concurrent Windows replacements can briefly hold the target.
+                # Retrying the same atomic operation preserves last-writer-wins.
+                time.sleep(0.01 * (attempt + 1))
+    finally:
+        if temporary is not None and temporary.exists():
+            temporary.unlink()
+
+
+def _read_org_connection() -> dict[str, Any] | None:
+    """Read and minimally validate the connection record."""
+
+    path = _org_connection_path()
+    if not path.exists():
+        return None
+    try:
+        state = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        raise OrgCliError(
+            f"cannot read organization connection at {path}: {exc}"
+        ) from exc
+    if not isinstance(state, dict):
+        raise OrgCliError(f"organization connection at {path} is not a JSON object")
+    required = {
+        "schema_version",
+        "source_type",
+        "source",
+        "branch",
+        "connected_at",
+        "last_sync",
+    }
+    missing = sorted(required - set(state))
+    if missing:
+        raise OrgCliError(
+            "organization connection is missing required fields: " + ", ".join(missing)
+        )
+    if state["schema_version"] != ORG_CONNECTION_SCHEMA_VERSION:
+        raise OrgCliError(
+            f"unsupported organization connection schema: {state['schema_version']!r}"
+        )
+    if state["source_type"] not in {"dir", "git"}:
+        raise OrgCliError(
+            f"unsupported organization source type: {state['source_type']!r}"
+        )
+    return state
+
+
+def _diagnostic_tail(proc: subprocess.CompletedProcess[str]) -> str:
+    """Return one useful line from a failed Git subprocess."""
+
+    lines = [
+        line.strip()
+        for line in f"{proc.stderr}\n{proc.stdout}".splitlines()
+        if line.strip()
+    ]
+    return lines[-1] if lines else f"git exited with status {proc.returncode}"
+
+
+def _run_git(arguments: list[str], action: str) -> None:
+    """Run Git through an argument list, never a shell-interpolated command."""
+
+    try:
+        proc = subprocess.run(
+            ["git", *arguments],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            check=False,
+        )
+    except OSError as exc:
+        raise OrgCliError(f"{action} failed: git is unavailable ({exc})") from exc
+    if proc.returncode != 0:
+        raise OrgCliError(f"{action} failed: {_diagnostic_tail(proc)}")
+
+
+def _remove_owned_path(path: Path) -> None:
+    """Remove one exact Nexus-Hub-owned cache path."""
+
+    if not path.exists() and not path.is_symlink():
+        return
+    if path.is_dir() and not path.is_symlink():
+
+        def make_writable_and_retry(function, blocked_path, _exc_info):
+            os.chmod(blocked_path, stat.S_IWRITE)
+            function(blocked_path)
+
+        shutil.rmtree(path, onerror=make_writable_and_retry)
+    else:
+        path.unlink()
+
+
+def _replace_org_repo(candidate: Path) -> None:
+    """Replace the cached clone while restoring the old cache on rename failure."""
+
+    destination = _org_repo_path()
+    backup = _org_root() / f".repo-backup-{uuid.uuid4().hex}"
+    had_destination = destination.exists() or destination.is_symlink()
+    if had_destination:
+        os.replace(destination, backup)
+    try:
+        os.replace(candidate, destination)
+    except BaseException:
+        if had_destination and backup.exists():
+            os.replace(backup, destination)
+        raise
+    if backup.exists() or backup.is_symlink():
+        _remove_owned_path(backup)
+
+
+def _validate_org_bundle(path: Path):
+    validator = _load_org_knowledge()
+    return validator.validate_bundle(path)
+
+
+def _print_org_report(report) -> None:
+    for warning in report.warnings:
+        _eprint(f"warning: {warning}")
+    for error in report.errors:
+        _eprint(f"error: {error}")
+
+
+def _confirm_org_action(prompt: str, override: bool, flag: str) -> bool:
+    """Confirm a destructive replacement/removal, failing closed off-terminal."""
+
+    if override:
+        return True
+    if not sys.stdin.isatty():
+        _eprint(f"nexus-hub org: confirmation required; re-run with {flag}")
+        return False
+    try:
+        answer = input(f"{prompt} [y/N] ").strip().lower()
+    except (EOFError, KeyboardInterrupt):
+        return False
+    return answer in {"y", "yes"}
+
+
+def _connect_org(source: str, branch: str | None, force: bool) -> int:
+    connection_path = _org_connection_path()
+    if connection_path.exists() and not _confirm_org_action(
+        "Replace the existing organization connection?", force, "--force"
+    ):
+        return 2
+
+    source_type = "git" if _looks_like_git_url(source) else "dir"
+    bundle_path: Path
+    candidate: Path | None = None
+    try:
+        if source_type == "git":
+            root = _org_root()
+            root.mkdir(parents=True, exist_ok=True)
+            token = sanitize_branch_name(branch or "default")
+            candidate = Path(tempfile.mkdtemp(prefix=f".repo-{token}-", dir=root))
+            clone_args = ["clone", "--depth", "1"]
+            if branch:
+                clone_args.extend(["--branch", branch])
+            clone_args.extend(["--", source, str(candidate)])
+            _run_git(clone_args, "git clone")
+            bundle_path = candidate
+        else:
+            if branch:
+                raise OrgCliError("--branch is valid only for Git organization sources")
+            try:
+                bundle_path = _resolve_org_path(source)
+            except ValueError as exc:
+                raise OrgCliError(str(exc)) from exc
+
+        report = _validate_org_bundle(bundle_path)
+        _print_org_report(report)
+        if not report.valid:
+            return 2
+        if source_type == "git" and candidate is not None:
+            _replace_org_repo(candidate)
+            candidate = None
+
+        timestamp = _utc_now()
+        _write_org_connection(
+            {
+                "schema_version": ORG_CONNECTION_SCHEMA_VERSION,
+                "source_type": source_type,
+                "source": source if source_type == "git" else str(bundle_path),
+                "branch": branch,
+                "connected_at": timestamp,
+                "last_sync": timestamp,
+            }
+        )
+    except (OrgCliError, OSError) as exc:
+        _eprint(f"nexus-hub org connect: {exc}")
+        return 2
+    finally:
+        if candidate is not None and (candidate.exists() or candidate.is_symlink()):
+            _remove_owned_path(candidate)
+
+    print(f"Connected organization bundle: {source}")
+    print(report.summary())
+    return 0
+
+
+def _sync_org() -> int:
+    try:
+        state = _read_org_connection()
+        if state is None:
+            raise OrgCliError(
+                "no organization bundle is connected; run `nexus-hub org connect <path-or-url>`"
+            )
+        if state["source_type"] == "git":
+            bundle_path = _org_repo_path()
+            if not bundle_path.is_dir():
+                raise OrgCliError(
+                    f"cached organization repository is missing: {bundle_path}"
+                )
+            _run_git(["-C", str(bundle_path), "pull", "--ff-only"], "git pull")
+        else:
+            try:
+                bundle_path = _resolve_org_path(str(state["source"]))
+            except ValueError as exc:
+                raise OrgCliError(str(exc)) from exc
+
+        report = _validate_org_bundle(bundle_path)
+        _print_org_report(report)
+        if not report.valid:
+            return 2
+        state["last_sync"] = _utc_now()
+        _write_org_connection(state)
+    except (OrgCliError, OSError) as exc:
+        _eprint(f"nexus-hub org sync: {exc}")
+        return 2
+
+    print("Organization bundle synchronized.")
+    print(report.summary())
+    return 0
+
+
+def _status_org() -> int:
+    try:
+        state = _read_org_connection()
+        if state is None:
+            print(
+                "Organization knowledge is not connected. Run `nexus-hub org connect <path-or-url>`."
+            )
+            return 1
+        bundle_path = (
+            _org_repo_path()
+            if state["source_type"] == "git"
+            else _resolve_org_path(str(state["source"]))
+        )
+        report = _validate_org_bundle(bundle_path)
+    except (OrgCliError, OSError, ValueError) as exc:
+        _eprint(f"nexus-hub org status: {exc}")
+        return 2
+
+    print("Organization knowledge connection")
+    print(f"Source type: {state['source_type']}")
+    print(f"Source: {state['source']}")
+    print(f"Branch: {state['branch'] or '(default)'}")
+    print(f"Connected at: {state['connected_at']}")
+    print(f"Last sync: {state['last_sync']}")
+    print(report.summary())
+    _print_org_report(report)
+    print("Platform posture: available after Phase 3 materialization.")
+    return 0 if report.valid else 2
+
+
+def _disconnect_org(assume_yes: bool) -> int:
+    connection = _org_connection_path()
+    repository = _org_repo_path()
+    if not connection.exists() and not repository.exists():
+        print("Organization knowledge is already disconnected.")
+        return 0
+    if not _confirm_org_action(
+        "Disconnect organization knowledge and remove its cached clone?",
+        assume_yes,
+        "--yes",
+    ):
+        return 2
+    try:
+        if connection.exists() or connection.is_symlink():
+            connection.unlink()
+        _remove_owned_path(repository)
+    except OSError as exc:
+        _eprint(f"nexus-hub org disconnect: {exc}")
+        return 2
+    print("Organization knowledge disconnected.")
+    print("Materialized organization blocks are removed on the next install or repair.")
+    return 0
+
+
+def _org_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(
+        prog="nexus-hub org",
+        description="Manage an organization knowledge bundle connection.",
+    )
+    actions = parser.add_subparsers(dest="org_command")
+    connect = actions.add_parser(
+        "connect", help="Connect a local directory or Git remote."
+    )
+    connect.add_argument("source", help="Bundle directory or Git URL.")
+    connect.add_argument("--branch", help="Git branch to clone.")
+    connect.add_argument(
+        "--force", action="store_true", help="Replace an existing connection."
+    )
+    actions.add_parser("sync", help="Refresh and revalidate the connected bundle.")
+    actions.add_parser("status", help="Show connection and validation status.")
+    disconnect = actions.add_parser(
+        "disconnect", help="Remove the connection and cached clone."
+    )
+    disconnect.add_argument(
+        "--yes", action="store_true", help="Disconnect without prompting."
+    )
+    return parser
+
+
+def cmd_org(argv: list[str]) -> int:
+    """Dispatch ``nexus-hub org`` without letting the top-level parser alter args."""
+
+    parser = _org_parser()
+    if not argv:
+        parser.print_help()
+        return 0
+    args = parser.parse_args(argv)
+    if args.org_command == "connect":
+        return _connect_org(args.source, args.branch, args.force)
+    if args.org_command == "sync":
+        return _sync_org()
+    if args.org_command == "status":
+        return _status_org()
+    if args.org_command == "disconnect":
+        return _disconnect_org(args.yes)
+    parser.print_help()
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="nexus-hub",
@@ -539,6 +992,13 @@ def build_parser() -> argparse.ArgumentParser:
         add_help=False,
         help="Compile a committed .nexus/CONTEXT-MAP.md from the local code graph.",
     )
+    # `org` owns a nested parser and accepts paths/URLs that must be forwarded
+    # byte-for-byte, so main() intercepts it before the top-level parser.
+    sub.add_parser(
+        "org",
+        add_help=False,
+        help="Connect, sync, inspect, or disconnect organization knowledge.",
+    )
     return parser
 
 
@@ -560,6 +1020,11 @@ def main(argv: list[str] | None = None) -> int:
     # extension's context-map CLI verbatim, so intercept before argparse.
     if raw and raw[0] == "map":
         return cmd_map(raw[1:])
+
+    # `org` accepts a path-or-URL plus its own flags; preserve them verbatim and
+    # let the dedicated parser enforce the connection lifecycle contract.
+    if raw and raw[0] == "org":
+        return cmd_org(raw[1:])
 
     parser = build_parser()
     args = parser.parse_args(raw)

@@ -1,6 +1,6 @@
 # Nexus-Hub Progress Dashboard
 
-**Branch:** `develop`
+**Branch:** `feat/v3.17.4-org-knowledge-layer`
 
 ---
 
@@ -33,7 +33,7 @@
 | v3.17.2 autonomy retirement tasks complete | 6 | 6 | 0 |
 | v3.17.2 release tasks complete | 5 | 7 | 2 |
 | v3.17.3 release-candidate tasks complete | 9 | 9 | 0 |
-| v3.17.4 plan phases complete | 1 | 6 | 5 |
+| v3.17.4 plan phases complete | 2 | 6 | 4 |
 | v3.17.5 plan phases complete | 0 | 7 | 7 |
 | Cursor hook portability tasks complete | 4 | 4 | 0 |
 | Usage monitor color-race tasks complete | 2 | 2 | 0 |
@@ -171,7 +171,7 @@
 - [x] Deep research completed: `docs/v3/v3.17/development/org-knowledge-layer-research.md`
 - [x] Plan generated and design decisions confirmed: `docs/v3/v3.17/plans/v3.17.4-org-knowledge-layer.md`
 - [x] Complete Phase 1: Org Bundle Contract
-- [ ] Complete Phase 2: Connect CLI
+- [x] Complete Phase 2: Connect CLI
 - [ ] Complete Phase 3: Cross-Platform Materialization
 - [ ] Complete Phase 4: Guided Authoring Surface
 - [ ] Complete Phase 5: Lifecycle Integration and Docs

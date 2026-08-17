@@ -1,8 +1,8 @@
 # Known Gaps - v3.17
 
 **Project**: Nexus-Hub
-**Status**: v3.17.3 is released, and v3.17.4 Org Knowledge Layer implementation is in progress with Phase 1 completed and no open Phase 1 items. Prior v3.17.0 through v3.17.3 records remain below.
-**Last updated**: 2026-08-16 (v3.17.4 Phase 1 org bundle contract)
+**Status**: v3.17.3 is released, and v3.17.4 Org Knowledge Layer implementation is in progress with Phases 1 and 2 completed. Phase 2 has one non-blocking local-environment warning and no release blocker. Prior v3.17.0 through v3.17.3 records remain below.
+**Last updated**: 2026-08-16 (v3.17.4 Phase 2 Connect CLI)
 
 > **File-lifecycle note**: this ledger was opened by the v3.17.0 Phase 1 append. Each subsequent v3.17.N implementation appends its own `## v3.17.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `MT-#` / `QG-#` numbering.
 
@@ -284,7 +284,7 @@
 
 ## v3.17.4 - org-knowledge-layer
 
-**Status**: Phase 1 completed on 2026-08-16 with 0 open items, 0 resolved items, and 0 release blockers. Plan: [plans/v3.17.4-org-knowledge-layer.md](plans/v3.17.4-org-knowledge-layer.md).
+**Status**: Phases 1 and 2 completed on 2026-08-16 with 1 open non-blocking warning, 0 resolved items, and 0 release blockers. Plan: [plans/v3.17.4-org-knowledge-layer.md](plans/v3.17.4-org-knowledge-layer.md).
 
 ### Summary
 
@@ -293,13 +293,18 @@
 | Not implemented by design / unverified (`NI-#`) | 0 | 0 |
 | Deferred (`DF-#`) | 0 | 0 |
 | Bugs (`BG-#`) | 0 | 0 |
-| Warnings (`WN-#`) | 0 | 0 |
+| Warnings (`WN-#`) | 1 (WN-6) | 0 |
 | Missing tests (`MT-#`) | 0 | 0 |
 | Quality-gate bypasses (`QG-#`) | 0 | 0 |
 
 ### Open Items
 
-None identified in Phase 1.
+### WN-6 - Local Windows integrations suite exceeds the bounded phase runtime
+
+- **Source phase**: v3.17.4 Phase 2, sub-task 2.2
+- **Plan reference**: `docs/v3/v3.17/plans/v3.17.4-org-knowledge-layer.md` (sub-task 2.2)
+- **Reason**: The complete `tests/integrations` directory remained responsive and emitted no failure before reaching the local Windows 10-minute bound; the monolithic repository suite likewise reached 20 minutes. The affected `tests/installer` directory passed 400 tests with 17 expected skips, the Phase 1 and Phase 2 focused suite passed 65 tests with one expected skip, and all other bounded CI groups passed. This is an environment/runtime limitation rather than evidence of a Phase 2 regression.
+- **Suggested next step**: Let the existing protected-branch CI integration job provide the authoritative unbounded result. If its duration becomes a recurring bottleneck, profile and split the integration suite without adding a new CI job.
 
 ### Resolved
 
@@ -312,7 +317,7 @@ None. The Windows integration idempotency test that failed once during an eight-
 | Not implemented by design / unverified (`NI-#`) | 3 (NI-1, NI-2, NI-3) | 0 |
 | Deferred (`DF-#`) | 6 (DF-1, DF-2, DF-3, DF-4, DF-5, DF-6) | 0 |
 | Bugs (`BG-#`) | 0 | 9 (BG-1, BG-2, BG-3, BG-4, BG-5, BG-6, BG-7, BG-8, BG-9) |
-| Warnings (`WN-#`) | 4 (WN-1, environmental, carried from v3.15.0; WN-2, pre-existing Ruff baseline; WN-4, version-specific hook proof; WN-5, prompting-profile roster drift) | 1 (WN-3, Vitest config loader) |
+| Warnings (`WN-#`) | 5 (WN-1, environmental, carried from v3.15.0; WN-2, pre-existing Ruff baseline; WN-4, version-specific hook proof; WN-5, prompting-profile roster drift; WN-6, local integration-suite runtime) | 1 (WN-3, Vitest config loader) |
 | Missing tests (`MT-#`) | 1 (MT-1, Claude monitor extension-wide coverage) | 0 |
 | Quality-gate bypasses (`QG-#`) | 0 | 0 |
 

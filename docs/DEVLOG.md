@@ -1,5 +1,42 @@
 # Development Log
 
+## [2026-08-16] - v3.17.4 Phase 2: organization knowledge connection CLI
+
+### What Changed
+
+Added the installed `nexus-hub org` command group with `connect`, `sync`, `status`, and `disconnect` verbs. Local paths are resolved defensively and validated through the Phase 1 bundle validator. Explicit Git URLs are shallow-cloned through subprocess argument lists into a Nexus-Hub-owned cache, optionally at a requested branch. Successful connections write a schema-versioned `connection.json` atomically; replacement and removal require confirmation unless `--force` or `--yes` is supplied. Both POSIX and Windows launchers already delegate to the same installer-copied Python CLI, so no installer or CI workflow edit was required.
+
+### Why It Changed
+
+Phase 3 needs one durable, validated source of organization standards before it can materialize those standards across AI platforms. Keeping the lifecycle in the existing installed CLI avoids a second executable and preserves one cross-platform command contract.
+
+### Decisions Made
+
+- **Load the validator only when an org command runs**: The installed CLI adds its adjacent `scripts/lib/integrations` directory to `sys.path` and imports the standalone validator, avoiding a source-tree working-directory assumption and avoiding the broader integration registry.
+- **Treat cached Git content as Nexus-Hub-owned and local directory content as user-owned**: `disconnect` removes only the connection record and cached clone; it never deletes a connected local bundle.
+- **Use atomic last-writer-wins state**: Temporary files are flushed and replaced in the state directory, with a bounded Windows retry for transient sharing violations.
+- **Keep CI topology unchanged**: Existing Linux and Windows jobs already include `tests/installer/`, and repository path filters already cover `scripts/nexus_hub_cli.py`.
+
+### Troubleshooting Trail
+
+<details>
+<summary>Expand troubleshooting details</summary>
+
+- **Installed import context**: Initial command tests failed because the installed CLI cannot assume the repository package root. The loader now imports the standalone `org_knowledge` module from the exact adjacent integrations directory.
+- **Windows Git cache cleanup**: Failed-clone cleanup initially hit read-only Git pack files. The owned-path remover now retries after applying the writable bit.
+- **Concurrent atomic writes**: One concurrent-write test produced `PermissionError` during `os.replace` on Windows. A bounded retry preserves the same atomic last-writer-wins operation without weakening state integrity.
+- **Repository test runtime**: `python -m pytest -q tests` timed out after 20 minutes while responsive, and `tests/integrations` timed out after 10 minutes while responsive. The complete installer, validator, skill, plan, workflow, root, and extension suites were then run separately; all bounded groups passed.
+
+</details>
+
+### Verification
+
+The focused Phase 1 and Phase 2 suite passes 65 tests with one expected Windows symlink skip. The validator measures 90 percent coverage, and changed executable lines in `scripts/nexus_hub_cli.py` measure 82.1 percent coverage. The complete installer directory passes 400 tests with 17 expected skips, including a real Windows `.cmd` launcher proof and a real local bare-Git repository flow. Validators pass 695 tests with 2 skips, skills pass 691, plans and workflows pass 182, and the root regression passes 5. The five internal extensions pass 670 tests with one expected skip; one transient Windows `os.replace` failure in `nexus-code-search` passed both its isolated retry and a clean 294-test suite rerun. All 18 `make validate` constituents, four JSON catalog parses, and ShellCheck pass. The new test file is Ruff-clean; `scripts/nexus_hub_cli.py` retains only its five pre-existing Ruff findings and adds none.
+
+### Release Boundary
+
+This entry documents the local Phase 2 checkpoint. No push, protected-branch integration, tag, or GitHub Release was created.
+
 ## [2026-08-16] - v3.17.3 Cursor hook portability and usage-monitor reliability release preparation
 
 ### What Changed
