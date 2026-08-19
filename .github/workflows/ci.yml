@@ -44,6 +44,13 @@ on:
       # and the development contract docs above. Re-included for that reason
       # and no other: a docs path earns a trigger only when a guard reads it.
       - 'docs/incidents/**'
+      # v3.17.5 Phase 4: docs/decisions/** is validator INPUT, not prose.
+      # validate_decision_records.py asserts every record sits at
+      # lifecycle/class/file, carries the 3-line header matching its folder,
+      # and states its alternatives. Under the blanket docs exclusion, a push
+      # adding a malformed record would skip CI entirely -- the identical
+      # defect already fixed for docs/policy/** and docs/incidents/** above.
+      - 'docs/decisions/**'
   pull_request:
     branches: [main, develop]
     paths:
@@ -71,6 +78,13 @@ on:
       # and the development contract docs above. Re-included for that reason
       # and no other: a docs path earns a trigger only when a guard reads it.
       - 'docs/incidents/**'
+      # v3.17.5 Phase 4: docs/decisions/** is validator INPUT, not prose.
+      # validate_decision_records.py asserts every record sits at
+      # lifecycle/class/file, carries the 3-line header matching its folder,
+      # and states its alternatives. Under the blanket docs exclusion, a push
+      # adding a malformed record would skip CI entirely -- the identical
+      # defect already fixed for docs/policy/** and docs/incidents/** above.
+      - 'docs/decisions/**'
 
 # v3.11.0 Phase 7.5 / 8.4 CI optimization: cancel superseded runs of the same ref
 # (the single largest action-minute saver) so only the latest push/PR commit runs.
@@ -186,6 +200,34 @@ jobs:
         # "fix" is a paragraph fails here instead of being merged. No-op when
         # the directory is absent, which keeps it safe for any fork.
         run: python scripts/check_incident_notes.py
+
+      - name: Validate doc word budgets (v3.17.5 Phase 1)
+        # Always-loaded instruction docs (AGENTS.md, CLAUDE.md, the lockstep
+        # base-*.md templates, the Markdown style guide) cost tokens in every
+        # session on every platform. This asserts each stays under its declared
+        # ceiling in docs/policy/doc-budgets.json. Ceilings ratchet DOWN;
+        # raising one requires justification in the PR that raises it.
+        run: python scripts/validate_doc_budgets.py
+
+      - name: Validate decision records (v3.17.5 Phase 4)
+        # A decision recorded without what it beat invites re-litigation, so
+        # `## Alternatives considered` is mandatory in every lifecycle. Also
+        # enforces the lifecycle/class/file layout that makes `rejected/`
+        # greppable before someone re-proposes a declined design. No-op when
+        # docs/decisions/ is absent, which keeps it safe for any fork.
+        run: python scripts/validate_decision_records.py
+
+      - name: Check registry entries against the catalog (v3.17.5 Phase 5)
+        # The data/ registries are hand-edited on purpose, so drift is the
+        # expected failure and it is quiet: an entry that is present and
+        # counted still passes every membership check while misdescribing the
+        # skill. Structure, editorial field types, and capability-module
+        # reachability are hard failures. Text drift became a hard failure too
+        # in v3.17.5 Phase 7, once the 156-field pre-existing backlog (MT-5)
+        # was repaired; the registries are now byte-synced with their SKILL.md
+        # sources, so any new divergence is a fresh regression rather than
+        # inherited debt.
+        run: python scripts/check_registry_entries.py --check --strict
 
       - name: Validate base-*.md lockstep parity (v3.6.0 Phase 2)
         # Structural parity guard over the five platform-agnostic instruction

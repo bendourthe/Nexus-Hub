@@ -64,7 +64,7 @@ Choose an existing category from `AGENTS.md` (do not invent a new one without si
 
 Write a draft that follows every Nexus-Hub convention:
 
-- **Frontmatter**: `name` (matching the directory), a pushy `description` (verbatim trigger phrases the user is likely to say, plus a `SKIP:` clause), quoted `summary_l0` (<= 15 words), quoted `overview_l1` (<= 150 words).
+- **Frontmatter**: `name` (matching the directory), a pushy `description` (verbatim trigger phrases the user is likely to say, plus a `SKIP:` clause), quoted `summary_l0` (<= 15 words), quoted `overview_l1` (<= 150 words). Optional fields exist and are omitted by default: the invocation-policy booleans `disable-model-invocation` / `user-invocable`, and the security framework-mapping lists. Add an invocation-policy field only when the skill genuinely should not be model-invoked (a destructive or side-effecting workflow) or should not appear in the slash menu (pure background knowledge).
 - **Body, in order**: title, When to Use This Skill (with "When NOT to use"), Instructions (the step-by-step distilled from the actual commits - this is where the git evidence pays off), Common Rationalizations (each row citing a concrete failure mode seen in the history, not a platitude), binary Verification (observable artifacts/commands), Related Skills (`[[ ]]` cross-links).
 - Keep the body within the size norm (target <= 500 lines).
 

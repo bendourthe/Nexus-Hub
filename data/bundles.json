@@ -127,6 +127,7 @@
         "claude-agent-sdk",
         "code-semantic-search",
         "context-engineering",
+        "deepseek-harness",
         "eval-pipeline-audit",
         "google-antigravity-sdk",
         "mcp-builder",

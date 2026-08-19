@@ -1,5 +1,256 @@
 # Development Log
 
+## [2026-08-18] - v3.17.5 released
+
+### What Shipped
+
+The DeepSeek Harness adoption plan, all nine items, across seven phases. Every item is a local guard, a convention, or a skill: no outbound call, no credential, no dependency beyond the Python standard library.
+
+- **B1** doc word budgets with a ratchet policy
+- **A1** the `deepseek-harness` skill (catalog 272 -> 273)
+- **A2/A3/A4** chain-of-thought-leakage patterns, smallest-sufficient-evidence-set selection, postmortem admission criteria
+- **B2** the gated decision-record lifecycle with six seeded records
+- **B4** the registry entry drift-check
+- **B3** invocation-policy frontmatter plus the Codex sidecar mapping
+- **B5** deferred by design, with its reference shape recorded
+
+### What The New Guards Found On Their First Runs
+
+This is the part worth remembering. Nearly every real defect was invisible to the checks that already existed, because those check presence and counts, and each of these entries was present and correctly counted.
+
+- A `skills.json` `size` schema violation introduced in Phase 2 that no test asserted the shape of.
+- A skill unreachable from every capability module, previously provable only by a 30-minute suite.
+- 156 drifted registry text fields across 107 skills, six of them live encoding corruption shipping to users.
+- An index category typo inflating the catalog to 22 apparent categories.
+- Two web-search summaries asserting vendor fields that do not exist.
+- `BG-1`, a hardcoded catalog total frozen inside an unrelated test suite.
+
+Three plan errors were also caught and recorded rather than executed: a stale catalog count, an understated registration surface, and a migration step targeting a file that does not exist in this repository.
+
+### Release Preparation
+
+Docs reconciliation caught one error made during Phase 2: the count sweep had bumped a figure inside the **v3.17.4** "What's New" section, which is a frozen historical release note. Restored to 272, which is what that release actually shipped. That is the exact failure mode `MT-2` warns about, committed while citing it.
+
+Version bumped atomically across all seven surfaces, guard clean before and after.
+
+---
+
+
+## [2026-08-18] - v3.17.5 Phase 7: refactor, gaps reconciliation, CI/CD
+
+### What Changed
+
+Final phase of the DeepSeek Harness adoption plan.
+
+- **MT-5 repaired in full** (maintainer chose the widest option): 156 registry text fields synced from `SKILL.md`, including six encoding-corrupted entries. `check_registry_entries.py` is now `--strict` in `make validate` and CI, so drift cannot silently return. The Phase 5 test asserting drift stayed visible was replaced by one asserting it is zero, exactly as that test's own message instructed.
+- **Known gaps reconciled**: 3 closed, 1 resolved, 2 bugs closed, 4 open observations, 2 deliberate deferrals, 1 not-implemented-by-design, 1 carried environmental. No release blockers.
+- **B5 recorded as deferred-by-design** with the reference shape, and `docs/solutions/` absence recorded so the three-surface split reads as a known future consolidation rather than an inconsistency.
+
+### Two Honest Findings
+
+**The refactor found nothing to refactor.** No obsolete files, no tracked empty directories, everything this plan added went to an established home. Reporting that beats inventing work.
+
+**CI was already optimized along every axis the plan named** - path filters, concurrency cancel, pip caching, expensive-OS legs gated to non-PR events - all in place before this work. This plan's net CI cost is three sub-second steps in an existing job.
+
+### A Correction
+
+Phase 5 recorded that repairing MT-5 would rewrite 74 routing descriptions and needed a full eval re-run. That was overstated for this direction: the eval scores descriptions read from `catalog/skills/`, not from `skills.json`, so syncing the registry FROM the source cannot move a routing score. The gate was re-run anyway and passed. The caution stands for the opposite direction, which is why MT-7 (nine non-ASCII descriptions) was recorded rather than fixed on release eve.
+
+---
+
+
+## [2026-08-18] - v3.17.5 Phase 6: invocation-policy frontmatter
+
+### What Changed
+
+Two optional strict-boolean SKILL.md fields (`disable-model-invocation`, `user-invocable`), validated in the mode CI runs; a per-platform survey recorded in a new `docs/policy/skill-invocation-policy-levers.md`; and the one installer mapping the survey showed was actually needed.
+
+### The Do-Not-Invent Rule Earned Its Keep Twice
+
+Both times a web-search summary asserted a field the vendor's own page does not document: Cursor `user-invocable` (traced to a forum thread; the docs page lists five fields and not that one) and Antigravity `disable-slash-command` (the docs page documents only `name` and `description`). Taking either at face value would have shipped a mapping for a nonexistent field, which is exactly the fabricated-`.kimi/agent.yaml` shape frozen in `docs/decisions/rejected/`.
+
+### Survey Result
+
+Because installers copy `SKILL.md` verbatim, `claude`, `copilot`, and `cursor` need **no installer change** - the fields ride inside the file already being copied. Only `codex` differs, using `policy.allow_implicit_invocation` in an `agents/openai.yaml` sidecar with **inverted polarity**. The maintainer approved building that mapping (installer surface is ask-first). It inverts rather than copies, emits nothing unless a skill declares the field, and never overwrites an authored sidecar.
+
+Five smaller platforms are recorded as NOT SURVEYED, kept deliberately distinct from "none documented".
+
+### Verification
+
+273 skills pass untouched; 12 validator tests and 18 mapping tests, both directions; platform-contract, freshness, and installer-parity gates green after the installer change. AGENTS.md now sits at 9454/10060 words (6% headroom), so the Phase 1 budget gate is actively constraining rather than theoretical.
+
+---
+
+
+## [2026-08-18] - v3.17.5 Phase 5: registry entry drift-check
+
+### What Changed
+
+`scripts/check_registry_entries.py` renders each skill's expected registry entries from its own frontmatter and diffs against the committed bytes. Existing tests cover membership and counts; nothing covered whether a present, counted entry still says the right thing. Scope was widened past the plan's three files to include `bundles.json` module reachability, which is the Phase 2 blind spot (`QG-1`) and was previously only provable by a 30-minute suite.
+
+### What It Found On First Run
+
+- A `size` schema violation I introduced in Phase 2: an integer where all 272 other entries use a dict. Fixed, with a regression test.
+- Pre-existing index category drift: `loop-engineering` read `Workflow` against `workflow` everywhere else. Fixed.
+- **171 drifted text fields across 107 of 273 skills** (74 description, 51 overview_l1, 16 summary_l0 in JSON, 15 summary_l0 in the index). Mixed causes: genuine staleness where SKILL.md was edited without its entry, and at least six cases of real encoding corruption where `skills.json` holds the cp1252 rendering of a UTF-8 em-dash.
+
+### Why The Backlog Is Tracked, Not Bundled
+
+Repairing it means rewriting 74 descriptions, which are the routing surface that `run_trigger_evals.py` scores. Phase 2 showed how a single description edit moves neighbouring skills' scores. That change belongs in its own commit, not inside a phase about building a checker.
+
+So the gate has two channels: structural is hard and clean today; text drift is always reported and fatal only under `--strict`. Recorded as `MT-5`, with a test asserting the drift keeps being reported so it cannot quietly disappear.
+
+### Verification
+
+Structure clean at exit 0 over 273 skills; `--strict` exits 1, confirming the second channel is real; 22 new tests covering every failure direction on a synthetic catalog; 797 passed / 2 skipped across validators plus installer smoke.
+
+---
+
+
+## [2026-08-18] - v3.17.5 Phase 4: decision-record lifecycle
+
+### What Changed
+
+Added `docs/decisions/` with a gated lifecycle, a stdlib-only format validator, 24 tests, four seeded records, and an AGENTS.md governance rule. `docs/decisions/**` was re-included in both CI path filters, since it is validator input and the blanket `docs/**` exclusion would otherwise let a malformed record skip CI entirely (the same fix already applied to `docs/policy/**` and `docs/incidents/**`).
+
+### One Plan Step Withdrawn
+
+Sub-task 4.1 asked to migrate `.claude/memory/decisions.md` and leave a pointer. **That file does not exist here.** The only `decisions.md` is `catalog/memory/decisions.md`, a blank ADR template the installer ships to every end user. Executing the instruction literally would have edited a distributed artifact, changing what users receive, under the guise of consolidating repo memory.
+
+The user was asked and chose to skip it. The template is untouched. The validator now guards the confusion in both directions: a memory file containing `# Decision:` fails with a relocation hint, one containing only the ADR template passes. Both are tested. Recorded as `MT-4`.
+
+### Seeded From Documented History
+
+Two rejected records (the fabricated `.kimi/agent.yaml` lever; the declined Spec Kit hook registry) and two implemented (the develop+main branching model; the MCP reverse-engineering-first policy). Every fact came from AGENTS.md or the CHANGELOG, with documented adoption dates. The two implemented records go beyond the plan because, with the migration withdrawn, that lifecycle would otherwise have shipped with nothing exercising its stricter rules.
+
+### Verification
+
+4 records OK on the shipped tree; proven to fail as well as pass; 24 new tests; 775 passed / 2 skipped across validators plus installer smoke; AGENTS.md still 831 words under its ceiling after the new rule; all five new Markdown files ASCII-clean with 0 style issues.
+
+---
+
+
+## [2026-08-18] - v3.17.5 Phase 3: skill extensions
+
+### What Changed
+
+Three shipped skills gained dsh-derived disciplines, all additive, no frontmatter touched (+109 / -1 across three SKILL.md files plus one new reference).
+
+- `anti-slop-editing`: a Chain-of-Thought Leakage family (four patterns at the level of authoring vantage rather than sentence style) plus `references/cot-leakage.md`.
+- `verification-before-completion`: a Smallest Sufficient Evidence Set section with a change-surface-to-evidence table.
+- `incident-postmortem`: admission criteria, a four-element executive-summary requirement, and Step 8c guardrail linking.
+
+### Two Judgment Calls
+
+**A3 was strengthened against this session's own evidence.** The plan said "never default to the full suite locally". Phase 2's real bug was caught only by a 30-minute suite, so the rule is written as "narrowest that COVERS, not narrowest available", with an explicit clause that a slow check IS the narrowest sufficient set when nothing else covers the change. The change-surface table gained a row the plan did not request, "new file in a registered tree", which is Phase 2's bug generalized.
+
+**A4's executive-summary block was adapted, not added.** The skill already required a `Summary` section above the timeline. Adding a second top-of-document summary would have made the template worse, so the existing spec was rewritten to be the 30-second executive summary and to require the two elements it was missing: why the process let the failure escape, and the durable lesson. Recorded as `MT-3`.
+
+### Verification
+
+Evidence set selected per the discipline A3 adds. Trigger evals PASS with 0 routing failures; bundle audit clean over 273 skills (also proving the new reference is not an orphan); 99 targeted validator tests pass; all four files ASCII-clean with 0 markdown style issues; all added wikilinks resolve. The 30-minute installer and integration suites are not in the covering set for a prose-only diff with no registry change.
+
+---
+
+
+## [2026-08-18] - v3.17.5 Phase 2: deepseek-harness skill
+
+### What Changed
+
+Added the `deepseek-harness` skill (A1 from the DeepSeek Harness comparison), a peer of `claude-agent-sdk` and `google-antigravity-sdk`. Catalog: 272 -> 273 skills.
+
+- `catalog/skills/ai-development/deepseek-harness/SKILL.md` - 265 lines covering entry modes, profile/bundle composition, the step/turn loop, capability seams, fail-closed sandbox modes, the MCP bridge, the Python SDK, and skills discovery.
+- `.../evals/trigger-cases.json` - 5 positive cases, 5 near-miss negatives.
+- Registration across five surfaces (not the three the plan named): the `SKILL_INDEX.md` row and its total line, the `skills.json` entry and its `statistics` block, and the `marketplace.json` category count and plugin description.
+
+### Written From Source, Not From Memory
+
+The comparison's shallow clone was still in the scratchpad at commit `47f9438`, so every technical claim was read from the dsh repo (`docs/architecture.md`, `docs/subsystems/*`, the package READMEs) rather than extrapolated from the plan's ~20 enumerated facts. Its prompt-shaped content was treated as data, never as instructions.
+
+### Two Plan Corrections
+
+The plan's catalog count was stale (it said 271 -> 272; actual is 272 -> 273), verified against four independent sources before editing. And the plan named three registry files where `test_registry_consistency.py` proved there are five places to update; the tests caught all four omissions.
+
+### Routing Lesson
+
+The first eval run failed because the description claimed the generic quartet build/agent/tool/sdk and named "Claude Agent SDK" verbatim in its SKIP clause, so a Claude-SDK prompt scored 0.83 against this skill. The scorer is containment overlap, so a description is scored on what fraction of the *user's* words it claims. Naming a competitor product verbatim in a SKIP clause imports that competitor's trigger vocabulary, defeating the clause's purpose. Fixed by naming routing targets by capability and adding specific trigger surface (`ctx.tools`, `dump-config`, "patch layer").
+
+### Verification
+
+Trigger evals PASS with 0 routing failures and 0 un-allowlisted collisions; bundle audit clean over 273 skills; skill-security scan 0 findings; `tests/validators/` 718 passed / 2 skipped. Registry diff surgical at 44 insertions / 2 deletions.
+
+---
+
+
+## [2026-08-18] - v3.17.5 Phase 1: doc word budgets
+
+### What Changed
+
+Shipped the B1 adoption item from the DeepSeek Harness comparison: a stdlib-only word-budget gate over always-loaded instruction docs.
+
+- `scripts/validate_doc_budgets.py` - reads `docs/policy/doc-budgets.json`, counts whitespace-delimited words, reports `BAD` / `DUPE` / `MISS` / `OVER` with all failures collected before a single exit. `--list` prints a usage table with headroom and flags budgets under 5% headroom.
+- `docs/policy/doc-budgets.json` - eight budgeted docs, ceilings seeded at current size plus 10% headroom.
+- `docs/policy/doc-budgets.md` - the ratchet contract: lowering a ceiling is free, raising one requires PR justification.
+- `tests/validators/test_validate_doc_budgets.py` - 23 tests asserting failure in both directions, not only the happy path.
+- Wired into the `make validate` target, the existing CI `validate` job (no new job), and `DEV_ONLY_SCRIPTS`.
+
+### Why It Matters
+
+Always-loaded docs cost tokens in every session, on every platform, forever. Every individual addition to `AGENTS.md` is locally justified and nobody was measuring the total. The gate supplies the measurement.
+
+### Findings
+
+`AGENTS.md` is 9138 words, 74% of the entire budgeted corpus (the other seven total 6633). Recorded as `MT-1` in `docs/v3/v3.17/known-gaps.md`: the gate measures that cost but does not reduce it, and a ratchet-down pass is a Phase 7 or follow-on candidate.
+
+### Verification
+
+23 new tests pass; `tests/validators/` full suite green at 718 passed / 2 skipped; installer smoke 33 passed. The gate was proven to fail as well as pass - forcing the `AGENTS.md` ceiling to 100 produces the labeled `OVER` failure and exit 1.
+
+---
+
+
+## [2026-08-18 09:10] - Session auto-summary [auto]
+
+### What Changed
+
+- 52512a12 Merge pull request #44 from bendourthe/docs/v3.17.6-agent-security-layers-plan
+- 3618513e docs(security): add v3.17.6 agent-security-layers comparison and adoption plan
+- 12da1a08 Merge pull request #42 from bendourthe/release/v3.17.4
+- 7a9025a2 fix: keep required verify check present
+- daa1d6e6 release: prepare v3.17.4
+- 9cfbf36d feat(org): add organization knowledge layer
+- 1152bef9 test(org): preserve directory traversal during cleanup
+- 58400762 ci(org): verify installer knowledge seeding
+
+### Files Modified
+
+- `.claude-plugin/plugin.json`
+- `.github/workflows/ci.yml`
+- `.github/workflows/presentify-extractor.yml`
+- `AGENTS.md`
+- `CHANGELOG.md`
+- `MANIFEST.sha256`
+- `README.md`
+- `catalog/hooks/retire-provider-override.py`
+- `catalog/hooks/settings.json`
+- `catalog/hooks/tests/test_retire_provider_override.py`
+- `catalog/skills/ai-development/model-routing/references/last-known-model-map.json`
+- `configs/installer-parity.json`
+- `data/marketplace.json`
+- `docs/DEVLOG.md`
+- `docs/policy/platform-defaults-levers.md`
+- `docs/policy/platform-read-contracts.json`
+- `docs/policy/platform-read-contracts.md`
+- `docs/todos.md`
+- `docs/v3/v3.17/comparisons/v3.17.6-comparison-agent-security-layers.md`
+- `docs/v3/v3.17/development/history/2026-08-17_org-knowledge-layer-phase-6-architecture-gaps-and-ci.md`
+
+### Current Status
+
+Auto-captured at session end on branch `develop`. Review and annotate as needed.
+
+---
+
 ## [2026-08-17] - v3.17.4 release candidate reconciliation
 
 ### What Changed
