@@ -199,6 +199,66 @@ def load_allowlist(path: Path = ALLOWLIST_PATH) -> set[str]:
     return {str(entry) for entry in allow}
 
 
+# ---------------------------------------------------------------------------
+# Invocation policy (v3.17.5 Phase 6)
+# ---------------------------------------------------------------------------
+
+# Both OPTIONAL, both strict booleans. Absence means today's behavior: a skill
+# is invocable by both the model and the user. This follows the
+# security-framework-mapping precedent -- absence is never an error, and a
+# skill that omits them pays no Tier-1 token cost.
+INVOCATION_POLICY_FIELDS = ("user-invocable", "disable-model-invocation")
+
+
+def validate_invocation_policy(skill_file: Path, block: str | None) -> list[str]:
+    """Validate the optional invocation-policy booleans.
+
+    Reads the raw frontmatter block rather than the tolerant line-split dict,
+    because that dict stringifies values and would let `user-invocable: "true"`
+    pass as the boolean it is not.
+    """
+    if block is None:
+        return []
+
+    try:
+        import yaml  # noqa: PLC0415 -- lazily imported like the strict gate above
+        data = yaml.safe_load(block)
+    except Exception:
+        # An unparseable block is already a hard error from the strict-YAML
+        # gate; do not double-report it here.
+        return []
+
+    if not isinstance(data, dict):
+        return []
+
+    errors: list[str] = []
+    values: dict[str, bool] = {}
+
+    for field in INVOCATION_POLICY_FIELDS:
+        if field not in data:
+            continue
+        value = data[field]
+        if not isinstance(value, bool):
+            errors.append(
+                f"{skill_file}: frontmatter '{field}' must be a boolean "
+                f"(true/false), got {type(value).__name__} {value!r}. Quote-free "
+                f"true/false only; \"true\" is a string."
+            )
+            continue
+        values[field] = value
+
+    # A skill the model may not invoke AND the user may not invoke is
+    # unreachable by anyone. Manual-only is a valid policy; invisible is not.
+    if values.get("disable-model-invocation") is True and values.get("user-invocable") is False:
+        errors.append(
+            f"{skill_file}: 'disable-model-invocation: true' with "
+            f"'user-invocable: false' leaves the skill invocable by nobody. "
+            f"A manual-only skill must remain user-invocable."
+        )
+
+    return errors
+
+
 def validate_frontmatter_format(
     skill_file: Path, skill_dir: Path, fm: dict[str, str]
 ) -> list[str]:
@@ -748,6 +808,9 @@ def main() -> int:
                 total_errors.extend(validate_frontmatter_strict_yaml(skill_file, content))
                 total_errors.extend(
                     validate_placeholders(skill_file, content, parse_frontmatter(content) or {})
+                )
+                total_errors.extend(
+                    validate_invocation_policy(skill_file, _frontmatter_block(content))
                 )
                 total_warnings.extend(validate_skill_bundles(skill_dir, content))
             if args.quality:

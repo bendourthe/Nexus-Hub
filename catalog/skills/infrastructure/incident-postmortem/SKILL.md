@@ -38,11 +38,23 @@ Fixing the immediate symptom and moving on is what turns a one-time surprise int
 - **Sprint retrospectives or project retrospectives** -- those are team-cadence reviews, not incident artifacts. Use a retro template instead.
 - **One-line incident notes** -- if the incident is genuinely trivial (<10 minutes, single-service, no customer impact, no novel failure mode), a paragraph in the operations log is more proportional than a full postmortem.
 
+### Admission criteria: three tests, all three required
+
+The size threshold above ("under 10 minutes, no customer impact") is necessary but not sufficient. A standalone postmortem is warranted only when the incident is simultaneously:
+
+1. **Subtle** -- the cause is not obvious from reading the diff. If a reviewer looking at the change would immediately see the bug, the fix and a changelog line carry the whole lesson.
+2. **Systemic** -- the process let it through, not just one person. Ask what SHOULD have caught it: a test, a gate, a review step, a schema. If the honest answer is "nothing was supposed to; someone slipped", that is a mistake, not a system failure.
+3. **Costly to rediscover** -- someone hitting this again would burn real time re-deriving the cause. A failure that announces itself with a clear error message is cheap to rediscover and does not need a document.
+
+Fail any one of the three and the proportionate artifact is smaller: a CHANGELOG entry, a known-gaps line, or a comment at the site of the fix. Write that instead and move on.
+
+This gate exists because an archive nobody reads is worse than no archive. Every low-value entry raises the cost of finding the high-value ones, so admitting a marginal incident is not a neutral act of thoroughness. It taxes every future reader.
+
 ## What This Skill Does
 
 Produces a postmortem document with eight required sections:
 
-1. **Summary** -- 3-5 sentences: what happened, impact, mitigation, root cause in one line.
+1. **Summary** -- the 30-second executive summary, and the only section most readers will finish. In 3-5 sentences it must answer four questions explicitly: what broke, what the root cause was, **why the process let it escape**, and **the durable lesson**. The last two are the ones that get dropped, and they are the reason the document exists; a summary that stops at what-and-why is an outage report, not a postmortem.
 2. **Impact** -- quantified customer impact, affected services, duration, severity, on-call response time.
 3. **Timeline** -- chronological events with timestamps (UTC), built from logs, paging events, deploy events, chat transcripts.
 4. **Root Cause Analysis** -- the single most-causal system or process failure, derived via Five-Whys.
@@ -196,6 +208,20 @@ The common error runs the other way too. Rewriting a whole process because one p
 
 Record the classification in the postmortem, next to the root cause. Two incidents that share a layer usually share a fix.
 
+### Step 8c: Link the Guardrails the Incident Motivated
+
+Action items are promises; guardrails are the things that actually make recurrence impossible. Before publishing, name and link every guardrail this incident produced, by class:
+
+- **Tests** -- a regression test that fails without the fix, or a new case in an existing suite.
+- **Validator or gate rules** -- a new check in a validator, a CI step, a hook, or a schema constraint.
+- **Instruction rules** -- a line added to `AGENTS.md`, a project constitution, a runbook, or a skill body, when the failure was an authoring or process gap that no code check can catch.
+
+Each entry names the guardrail AND links it. A guardrail described but not linked is indistinguishable from one that was never built.
+
+If the incident produced no guardrail, say so explicitly and give the reason: the cost is disproportionate, the failure is not mechanically detectable, or the fix is inherently one-off. An unexplained absence reads as an oversight; a stated one is a decision a future reader can revisit. What is not acceptable is silence, because silence lets a document that changed nothing look like a document that changed something.
+
+This step extends the Durable fix requirement rather than replacing it: Durable fix answers "what closed this incident", and this step answers "what makes it unable to recur".
+
 ### Step 9: Apply the Blameless Framing Pass
 
 Before publishing, re-read the entire document and apply the blameless framing pass. Replace every instance of an individual's name in a root cause or contributing factor with the system or process that allowed the action to happen.
@@ -253,6 +279,9 @@ Before publishing the postmortem, walk this binary checklist. Every item must be
 - [ ] The What Went Well / What Went Poorly sections are factual observations, not praise or criticism.
 - [ ] The document has been read end-to-end with the blameless framing pass applied; no replacement was needed on the final pass.
 - [ ] The root cause carries a responsible-layer classification (agent behavior / projection or payload / authoring gap / docs or process), and the action items repair at the lowest durable layer.
+- [ ] The incident passes all three admission criteria (subtle AND systemic AND costly to rediscover); if any one fails, a CHANGELOG entry or known-gaps line was written instead of this document.
+- [ ] The Summary answers all four questions explicitly, including why the process let the failure escape and the durable lesson.
+- [ ] Every guardrail the incident motivated is named AND linked by class (test, validator or gate rule, instruction rule), or the document states explicitly that none were added and why.
 - [ ] A **Public-Safe Shape** section is present and contains no local absolute path, raw log output, private link, or credential.
 - [ ] A **Durable fix** section is present and every fix it names is also linked, and the link resolves to something that exists.
 - [ ] If no durable fix exists yet, the note links the tracked gap-log item instead of standing alone as though the writeup were the resolution.

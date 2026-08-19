@@ -1,0 +1,16 @@
+{
+  "skill": "deepseek-harness",
+  "purpose": "Route DeepSeek Harness (dsh) runtime work here, while keeping the four near-neighbours routing to themselves: multi-provider-ai (calling the DeepSeek API with no harness), claude-agent-sdk and google-antigravity-sdk (the peer vendor-SDK skills), ai-agent-development (runtime-agnostic agent architecture), and mcp-builder (building the MCP server rather than consuming one).",
+  "cases": [
+    {"id": "pos-build-agent", "prompt": "help me build a coding agent with deepseek harness", "should_trigger": true, "assert": "routes to deepseek-harness first", "lexical": true},
+    {"id": "pos-headless-profile", "prompt": "set up a dsh headless profile for one-shot runs", "should_trigger": true, "assert": "routes to deepseek-harness first", "lexical": true},
+    {"id": "pos-mcp-wiring", "prompt": "wire an MCP server into deepseek harness so the model sees its tools", "should_trigger": true, "assert": "routes to deepseek-harness first", "lexical": true},
+    {"id": "pos-add-tool", "prompt": "how do I register a new tool on ctx.tools in dsh", "should_trigger": true, "assert": "routes to deepseek-harness first", "lexical": true},
+    {"id": "pos-dump-config", "prompt": "my dsh bundle patch is not taking effect, how do I inspect the plugin tree", "should_trigger": true, "assert": "routes to deepseek-harness first", "lexical": true},
+    {"id": "neg-direct-api", "prompt": "call the DeepSeek chat completions API directly from python", "should_trigger": false, "assert": "routes to multi-provider-ai, not here", "lexical": true},
+    {"id": "neg-claude-sdk", "prompt": "build an agent with the Claude Agent SDK and a tool loop", "should_trigger": false, "assert": "routes to claude-agent-sdk, not here", "lexical": true},
+    {"id": "neg-antigravity", "prompt": "build an autonomous agent on the Google Antigravity SDK", "should_trigger": false, "assert": "routes to google-antigravity-sdk, not here", "lexical": true},
+    {"id": "neg-generic-agent", "prompt": "what memory architecture should my planning agent use", "should_trigger": false, "assert": "routes to ai-agent-development, not here", "lexical": true},
+    {"id": "neg-build-mcp", "prompt": "build a local MCP server with FastMCP that exposes three tools", "should_trigger": false, "assert": "routes to mcp-builder, not here", "lexical": true}
+  ]
+}

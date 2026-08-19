@@ -116,11 +116,20 @@ def test_org_authoring_registration_is_consistent_and_selectable() -> None:
         "semantic": 95,
         "validated": True,
     }
-    assert skills["statistics"]["total_skills"] == 272
-    assert skills["statistics"]["categories"]["workflow"] == 44
-    assert "**Total: 272 skills across 21 categories**" in index
+    # The catalog TOTAL is derived, never frozen here. This test owns one
+    # skill's registration; hardcoding the whole-catalog count made every
+    # future skill addition break it (v3.17.5 Phase 2 took the catalog to 273
+    # and broke exactly this line). The count invariant itself is owned by
+    # tests/validators/test_registry_consistency.py, which derives it from
+    # disk in both directions.
+    total = len(skills["skills"])
+    assert skills["statistics"]["total_skills"] == total
+    assert skills["statistics"]["categories"]["workflow"] == sum(
+        1 for entry in skills["skills"] if entry["category"] == "workflow"
+    )
+    assert f"**Total: {total} skills across 21 categories**" in index
     assert "| org-standards-authoring | workflow |" in index
-    assert "272 curated skills, 18 commands" in marketplace["plugin"]["description"]
+    assert f"{total} curated skills, 18 commands" in marketplace["plugin"]["description"]
 
     workflow = next(
         module for module in bundles["modules"] if module["id"] == "workflow"

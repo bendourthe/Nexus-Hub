@@ -4,9 +4,9 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.17.4 -->
+<!-- nexus-hub-version: 3.17.5 -->
 
-Nexus-Hub is the upstream skill catalog for AI coding assistants: 272 skills, 18 commands, 31 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
+Nexus-Hub is the upstream skill catalog for AI coding assistants: 273 skills, 18 commands, 31 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
 ## Interactive Guide -- start here
 
@@ -30,12 +30,28 @@ Nexus-Hub is the upstream skill catalog for AI coding assistants: 272 skills, 18
 
 Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of the same idea, split along a deliberate seam.
 
-- **Nexus-Hub (this repo)** is the catalog: 272 curated skills, 18 commands, 31 hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`). It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
+- **Nexus-Hub (this repo)** is the catalog: 273 curated skills, 18 commands, 31 hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`). It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
 - **Nexus** is a local-first desktop AI Studio that consumes Nexus-Hub as its skill feed. Nexus's `AGENTS.md` names this repo as "the only external project we deliberately link to" -- the upstream feed for its skill harness.
 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v3.17.5
+
+**Nexus-Hub now measures the things it previously only asserted.** This release adopts nine items from a comparison against DeepSeek Harness, and every one of them is a local guard, a convention, or a skill. No outbound call, no credential, and no dependency beyond the Python standard library was added.
+
+**Always-loaded instruction docs have a word budget.** `AGENTS.md`, `CLAUDE.md`, the five lockstep platform templates, and the Markdown style guide now carry declared ceilings in `docs/policy/doc-budgets.json`, enforced by `make validate` and CI. The policy is a ratchet: lowering a ceiling is free, raising one requires justification in the pull request. Inspect usage with `python scripts/validate_doc_budgets.py --list`; the contract is in [`docs/policy/doc-budgets.md`](docs/policy/doc-budgets.md).
+
+**Decisions are recorded with what they beat.** `docs/decisions/` holds records under `proposed` / `implemented` / `rejected`, gated by `scripts/validate_decision_records.py`, with `## Alternatives considered` mandatory in every lifecycle. The `rejected/` folder is the point: it ships seeded with two real declined designs so a future proposer can check before re-proposing one. The three-surface split against known-gaps and solutions is defined in [`docs/decisions/README.md`](docs/decisions/README.md).
+
+**Registry entries are checked against their source, not just counted.** `scripts/check_registry_entries.py` renders each skill's expected `SKILL_INDEX.md` row and `skills.json` entry from its own frontmatter and diffs the committed bytes, and also verifies every skill is reachable from a capability module. On its first run it found a schema violation, an index category typo, and 156 drifted text fields including six carrying encoding corruption. All are repaired, and the gate now runs `--strict`. Use `--emit <skill>` for a paste-ready entry; it never writes.
+
+**Skills can declare who may invoke them.** Two optional frontmatter booleans, `disable-model-invocation` and `user-invocable`, are validated for type and for the combination that would leave a skill invocable by nobody. Which platforms document which lever, with source URLs and verified dates, is recorded in [`docs/policy/skill-invocation-policy-levers.md`](docs/policy/skill-invocation-policy-levers.md). Claude, Copilot, and Cursor read the fields straight from `SKILL.md`; Codex uses an `agents/openai.yaml` sidecar with inverted polarity, and the installer maps it correctly.
+
+**One new skill and three sharpened ones.** `deepseek-harness` joins `claude-agent-sdk` and `google-antigravity-sdk` as a vendor-SDK skill. `anti-slop-editing` gains a chain-of-thought-leakage pattern family, `verification-before-completion` gains smallest-sufficient-evidence-set selection, and `incident-postmortem` gains admission criteria and guardrail linking.
+
+Catalog counts are **273 skills**, **18 commands**, **31 hooks**, and **23 agents**. Every addition is opt-in or a repo-internal guard; nothing changes what an existing install does at runtime.
 
 ## What's New in v3.17.4
 
@@ -457,7 +473,7 @@ That is the whole setup -- no prompts. The installer prechecks its dependencies 
 
 After the installer completes:
 
-- **Globally**: your user profile has all 272 skills, 18 commands, 31 hooks, 23 agents, plus Gemini and Codex instructions.
+- **Globally**: your user profile has all 273 skills, 18 commands, 31 hooks, 23 agents, plus Gemini and Codex instructions.
 - **Locally**: your project has `copilot-instructions.md` and `AGENTS.md` tailored to your language.
 
 **Power-user flags**: `--workspace <path>` installs into a single repo instead of globally; `--platforms <comma-list>` limits the install to a subset of assistants; `--yes` runs fully unattended (refreshes managed files with no prompt -- ideal for CI). Prefer to clone first? `git clone` the repo and run `./install.sh` (macOS / Linux) or `install.bat` (Windows) -- the in-repo path still works exactly as before.

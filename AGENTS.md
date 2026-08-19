@@ -1,6 +1,6 @@
 # AGENTS.md
 
-<!-- nexus-hub-version: 3.17.4 -->
+<!-- nexus-hub-version: 3.17.5 -->
 
 This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, Gemini CLI, etc.) when working with code in this repository.
 
@@ -8,7 +8,7 @@ This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, G
 
 Nexus-Hub is a production-grade skill harness for AI coding assistants. It is the **upstream catalog** consumed by Nexus (the local-first desktop AI Studio, see `https://github.com/bendourthe/Nexus-AI`) and by every other major agent platform: Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, and GitHub CLI. Skills, commands, hooks, agents, and rules are distributed via installer scripts into users' `~/.nexus-hub/` directory and into their AI assistant's per-platform config locations.
 
-Current catalog: **272 skills** across 21 categories, 18 commands (plus 3 permanent aliases), 31 hooks, 23 agents. The 40 v3.x deprecation shims were removed in v3.2.0.
+Current catalog: **273 skills** across 21 categories, 18 commands (plus 3 permanent aliases), 31 hooks, 23 agents. The 40 v3.x deprecation shims were removed in v3.2.0.
 
 ## Project Structure
 
@@ -24,7 +24,7 @@ Nexus-Hub/
 │   ├── mcp-configs/          # MCP server registry
 │   ├── memory/               # Memory template files
 │   ├── rules/                # Code style/security rules (4 languages)
-|   `-- skills/               # 272 skills across 21 categories
+|   `-- skills/               # 273 skills across 21 categories
 │       └── <category>/
 │           └── <skill-name>/
 │               └── SKILL.md
@@ -104,6 +104,19 @@ Practical implications for SKILL.md authoring:
 - Keep Tier 1 fields tight (especially `description` and `summary_l0`); they cost tokens on every catalog read across every session. Tier 2 / Tier 3 budgets are per-trigger, not per-session.
 
 Cross-links: the body-size targets sit in the size-norm rule immediately below. The bundled-subdir convention is documented separately in the "Per-skill Bundled Resources" subsection further down.
+
+#### Optional Invocation-Policy Frontmatter
+
+A skill MAY declare two optional strict-boolean frontmatter fields controlling who can invoke it. Both follow the same optional-field contract as the framework-mapping fields below: absence is never an error and costs no Tier-1 tokens.
+
+| Field | Meaning | Default |
+|---|---|---|
+| `disable-model-invocation` | `true` stops the agent auto-loading the skill; it runs only when the user invokes it explicitly | `false` |
+| `user-invocable` | `false` hides the skill from the slash menu, leaving it available to the model as background knowledge | `true` |
+
+`scripts/validate_skills.py` enforces two rules in `--bundles-only`, the mode `make validate` and CI run. A non-boolean value is an error naming the skill and field (`user-invocable: "true"` is a string that reads as correct and behaves as unset). And `disable-model-invocation: true` together with `user-invocable: false` is an error, because it leaves a skill nobody can invoke; that combination is a Nexus-Hub rule, not a vendor one.
+
+Distribution is free for platforms that read these keys from `SKILL.md`, since the installers copy the file verbatim and a platform ignores frontmatter keys it does not recognise. Which platforms document which field, with source URLs and verified dates, is recorded in [`docs/policy/skill-invocation-policy-levers.md`](docs/policy/skill-invocation-policy-levers.md). Any claim that a platform supports a lever is subject to the do-not-invent rule: a fetched official vendor document, or the answer is "none documented".
 
 #### Optional Security and Compliance Framework Mapping
 
@@ -497,6 +510,12 @@ Nexus-Hub uses a lightweight **`develop` + `main`** model (adopted 2026-06-04). 
 Rationale: Nexus-Hub is a catalog consumed directly from the repo by an installer across every supported AI platform, so `main` is effectively a release artifact. Isolating in-progress, multi-phase versions on `develop` protects downstream installer users from half-applied phases.
 
 **Capability usage gate (release notes).** A release that introduces or materially changes an OPT-IN capability, installer flag, managed skill, or host surface must document five things per surface in its release notes: the exact activation mechanism, a runnable validation command, the exact disable / rollback path, the authority or privacy boundary that activation does NOT grant, and a canonical documentation link. Nexus-Hub ships an unusually high density of such surfaces (`NEXUS_HUB_COPILOT_SKILLS`, `--enterprise` / `-Enterprise`, `NEXUS_DISABLED_HOOKS`, `NEXUS_HOOK_PROFILE=minimal`), and the fourth element is both the most-skipped and the only one that fails silently rather than loudly. The gate applies ONLY to opt-in surfaces; a release with none satisfies it with a single explicit no-change declaration. Full definition and worked examples: governance step 6 in [`catalog/commands/update.md`](catalog/commands/update.md).
+
+## Decision Records
+
+Non-trivial changes MUST include or update a decision record in the same PR: a new policy, a new supported platform, a new validator or gate, a rename carrying migration cost, or a design that was proposed and declined. Mechanical, local, or single-file edits are exempt.
+
+Records live at `docs/decisions/<lifecycle>/<class>/YYYY-MM-DD-<slug>.md` and require `## Alternatives considered`, because a decision recorded without what it beat invites re-litigation. Check `rejected/` before proposing anything that touches an existing policy or platform surface. Format, lifecycle, and the three-surface split against known-gaps and solutions: [`docs/decisions/README.md`](docs/decisions/README.md).
 
 ## Critical Conventions
 

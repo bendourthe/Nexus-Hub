@@ -73,6 +73,37 @@ A review-state claim ("the review is clean", "CI is green", "this is mergeable")
 
 Verify the four current-head signals together: the status-check rollup is all green, `reviewDecision` is APPROVED (no outstanding CHANGES_REQUESTED), every review thread is resolved, and `mergeable` is true. Anything less is a blocker, not a pass. This is the same discipline the [[review-trapdoors]] pass applies to project-specific gotchas, and [[receiving-code-review]] governs acting on whatever the review returns.
 
+## Smallest Sufficient Evidence Set
+
+The claim-to-evidence table says what proves a claim. This section says which checks to run for the change actually in front of you. The two failure modes here are opposites, and both end in a false completion claim.
+
+**Under-covering** is running a check that does not touch the diff. Green output from an irrelevant suite is not evidence; it is costume rigor with a passing exit code.
+
+**Over-covering** is defaulting to the full suite for every change. This looks conservative and is not. It trains the habit of skipping verification whenever time is short, because the only option on offer is expensive. It also hides which check actually covers the change, so when something breaks later nobody knows which gate should have caught it. CI owns the exhaustive matrix; locally, select.
+
+The rule: **run the narrowest set of checks that covers the outgoing diff.** Narrowest that COVERS, not narrowest available. When the only check covering your change is slow, the slow check is the narrowest sufficient set and you run it.
+
+### Change surface to evidence
+
+| Change surface | Sufficient evidence |
+|---|---|
+| Catalog skill edit (prose, frontmatter) | The catalog validator plus that skill's trigger evals. A description edit also needs the whole-catalog routing gate, since routing is comparative. |
+| Registry or manifest edit | The specific validator for that registry, plus any consistency test that reads it. |
+| Hook script edit | That hook's pytest module plus the sibling-parity test, in both implementations. |
+| Validator or guard script | Its own test module, run in both directions: prove it passes clean input AND fails the defect it exists to catch. |
+| Docs-only edit | Link and style checks, plus any validator that reads the doc as input rather than as prose. |
+| New file in a registered tree | Whatever test asserts registration completeness for that tree. This is the surface most often missed, because the file works fine and only its discoverability is broken. |
+| A catalog-wide count or total changes | Every test that asserts that number, including ones in unrelated suites. A count is a global invariant, so a test about one item may still freeze it; grep the old value across the whole test tree rather than reasoning about which suite "should" own it. |
+| Installer or packaging edit | The installer smoke tests on every platform the change touches. |
+
+### Report only what ran
+
+State the commands you actually executed and their actual results. Never write a summary that implies a check ran when it did not, and never aggregate an unrun check into a general "all tests pass". If you chose to skip something a reader might reasonably expect, say which and why. An accurate narrow report beats an impressive broad one, because the reader acts on it.
+
+If a check fails to produce a summary line (truncated output, a killed process, a timeout), it produced no evidence. Re-run it rather than reasoning from the fragment.
+
+See [[pre-commit-checklist]] for wiring the narrow set into an automated pre-commit gate, so the selection happens once rather than being re-derived under time pressure.
+
 ## Anti-Costume-Rigor Audit
 
 A report can look rigorous while claiming work its evidence does not support. Search actively for the fraud classes below; this is an evidence audit, not a formatting check. For every applicable row, an auditor re-derives the stated comparison from artifacts, receipts, logs, exit codes, or set differences. A row whose tell depends on whether the claim "seems weak" is not mechanical and must be removed or rewritten.
@@ -103,6 +134,7 @@ Each row is an excuse that precedes a false completion claim, with the concrete 
 | "The tests passed earlier." | They passed against earlier code. You changed the code since then, so that output describes a state that no longer exists. Stale evidence is not evidence. Re-run in this turn. |
 | "I'll run the tests after I report." | Then you are reporting a result you do not have. If the post-report run fails, you have already told the user a falsehood. Run first, report second. |
 | "It's obviously correct, verification is overkill." | "Obviously correct" is the precise category of change that fails silently, because obviousness suppresses scrutiny. Even a one-character fix gets the proving command. |
+| "Running everything is safer than picking checks." | Full-suite-by-default is the habit that gets abandoned first when time is short, so it trains skipping verification entirely. It also hides which check covers the diff, so a later regression has no owning gate. Select the narrowest set that COVERS the change; if that set is slow, run it anyway. |
 | "The error is unrelated to my change." | You do not know that until you have read the full output and traced the error. Many "unrelated" failures are the direct downstream effect of the change. Investigate before dismissing. |
 | "Partial output looked fine." | A suite prints passes before it prints the failure. Reading the first screen and stopping is how a red suite gets reported as green. Read to the end and check the exit code. |
 | "Great, that's done!" / "Perfect!" | Expressions of satisfaction are completion claims in disguise and often arrive before any verification. Catch yourself: before the celebratory sentence, run the gate. |
@@ -124,6 +156,7 @@ The rule is "no completion claim without fresh proving evidence", not "run a com
 - [ ] The exact completion claim was named before any command was run.
 - [ ] The proving command for that claim was identified (or the claim was explicitly downgraded to "unverified" with a reason).
 - [ ] The proving command was run fresh in this turn, not reused from earlier output.
+- [ ] The chosen check set covers the outgoing diff (every changed surface maps to a check that reads it), and no check was included that does not touch the change.
 - [ ] The full output was read to the end and the exit code was checked.
 - [ ] The observed evidence matches the specific claim (passing summary line, zero exit, correct observed behavior).
 - [ ] The completion statement quotes the proving artifact so the user can see why it is true.
@@ -132,6 +165,7 @@ The rule is "no completion claim without fresh proving evidence", not "run a com
 
 ## Related Skills
 
+- [[pre-commit-checklist]] -- wires the smallest sufficient evidence set into an automated pre-commit gate, so the selection is made once rather than re-derived under time pressure.
 - [[quality-gate-definitions]] -- defines the GO/NO-GO thresholds (tests, coverage, lint, build) that this gate proves at each checkpoint.
 - [[adversarial-verifier]] -- goes beyond "does it pass" to stress-test the change against edge cases and attack inputs once the basic gate is green.
 - [[receiving-code-review]] -- applies the same verify-before-claiming discipline when acting on review feedback (verify the suggestion against the codebase before agreeing it is correct).

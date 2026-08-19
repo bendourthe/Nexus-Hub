@@ -185,6 +185,50 @@ This project sets a firm ceiling on this pattern, stronger than a generic "one o
 
 For the full banned-word, empty-adverb, and empty-phrase lists that back this catalog, see `references/slop-wordlist.md`.
 
+## Chain-of-Thought Leakage (Authoring-Session Vantage)
+
+The catalog above catches slop at the sentence level. This family catches it at the level of *vantage*: prose written from the position of the person who authored the change, published to readers who only ever see the result. The patterns below are not clumsy sentences. They are well-formed sentences that silently assume the reader watched the document get written.
+
+The acceptance test for the whole family:
+
+> Could a reader at HEAD, with no transcript, resolve every reference?
+
+Apply it to each referring expression. If resolving one requires the authoring conversation or the previous version of the file, it is leakage.
+
+### Dead decision citations
+
+Smell: a citation whose referent never shipped. "(decision 3)", "(see option B)", "per the earlier analysis" pointing at something that exists only in the authoring session.
+
+- Before: "We use the containment metric here (see option 3) rather than the alternative."
+- After: "We use containment overlap, `|A n B| / min(|A|, |B|)`, because the prompt is almost always the smaller set."
+
+### Temporal vantage
+
+Smell: "used to", "no longer", "previously", "now" describing a state transition no reader at HEAD can observe.
+
+- Before: "The validator no longer rejects bare integers."
+- After: "The validator accepts bare integers."
+
+Legitimate in changelogs, migration guides, deprecation notices, and incident timelines, whose reader IS comparing two states. The failure is temporal vantage in a reference document.
+
+### Stack vantage
+
+Smell: prose addressed to a reviewer of the change rather than a reader of the document. Reassurance about scope, backward compatibility, or test status.
+
+- Before: "Note that this does not change any existing behavior, and all existing tests still pass."
+- After: (cut it; that belongs in the pull request description.)
+
+### Justification residue
+
+Smell: a paragraph defending the choice against an objection nobody reading the final document raised. Often opens "Some might argue" or "One could object".
+
+- Before: "Some might argue that counting code blocks inflates the number unfairly. However, exempting them would create a loophole."
+- After: "Code fences and tables are counted, because exempting them would make 'move the prose into a code fence' the cheapest way to pass the gate."
+
+A Common Rationalizations table, a FAQ, or an alternatives-considered section is not residue: those documents exist to address objections, and the reader arrives expecting them.
+
+Fix dead citations first. They frequently mask the other three, because inlining what a citation actually said tends to make the surrounding justification visibly redundant. Longer worked examples, the ambiguous cases, and the false positives worth protecting are in `references/cot-leakage.md`.
+
 ## Voice-Preservation Discipline
 
 The catalog tells you what to cut. This section tells you what to protect. A de-slop pass that flattens the writer into generic "clean prose" has failed, even if every named pattern is gone.
@@ -214,6 +258,7 @@ These three quality surfaces are distinct and do not replace each other:
 | "I'll just tell them it reads about 70% AI." | Detect mode forbids authorship scores and guesses. A probability is unfalsifiable; a named pattern with a quoted line is checkable. Report the evidence, not a verdict. |
 | "A couple of em-dashes read naturally, the source guideline even allows one or two." | This project sets a firm ceiling: no em-dashes and no clause-joining spaced hyphens at all. Parentheses, commas, colons, or separate sentences carry the same break and stay ASCII-safe. |
 | "The banned-word list says cut 'robust', so I'll cut every instance." | The word lists are judgment guidance, not a lint. "Robust" in "robust error handling" describing real retry logic is fine; cut it only when it is empty praise. Flattening every listed word damages legitimate voice. |
+| "The phrase 'no longer validates X' is accurate, so it is not slop." | Accuracy is not the test; resolvability is. A reader at HEAD cannot see the state you are contrasting against, so the sentence spends words on a comparison they cannot make. Accurate in a changelog, leakage in a reference doc. |
 | "There's slop, so I should rewrite the whole thing cleanly." | The minimum effective edit is the rule. A wholesale rewrite that removes slop AND the writer's character has traded one failure for another. Change what is slop; leave what works. |
 
 ## Verification
@@ -223,6 +268,7 @@ These three quality surfaces are distinct and do not replace each other:
 - [ ] Every flagged item cites a named pattern from the catalog and quotes the offending line.
 - [ ] No em-dashes and no clause-joining spaced hyphens appear in the edited output; punctuation is ASCII-only.
 - [ ] The 3-5 identified voice signals are preserved in the edited draft (strong human sentences left intact).
+- [ ] Every referring expression resolves for a reader at HEAD with no transcript: no citation points at an unshipped option, and no temporal contrast appears outside a changelog, migration guide, deprecation notice, or incident timeline.
 - [ ] The output was graded against `references/self-check.md` and every check passes.
 
 ## Related Skills
