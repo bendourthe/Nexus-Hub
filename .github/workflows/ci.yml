@@ -190,6 +190,18 @@ jobs:
       - name: Validate GitHub Actions workflow security (v2.3.0 Phase 2)
         run: python scripts/validate_workflow_security.py
 
+      - name: Validate required-check coverage (v3.17.6 Phase 1)
+        # A required status check whose WORKFLOW is path- or branch-filtered stays
+        # Pending forever on an unrelated PR, so the protected branch becomes
+        # impossible to merge without an administrator bypass. The same filtering
+        # expressed as a job-level `if:` reports Success and merges. Shipping
+        # v3.17.5 took seven bypasses in one day, all from this one mechanism.
+        #
+        # Deliberately in the existing `validate` job rather than a new job: a
+        # new job would need its own required context, and the guard is a
+        # sub-second YAML parse with no extra dependency.
+        run: python scripts/check_required_check_coverage.py
+
       - name: Validate version sync across all surfaces (v3.0.0 Phase 1)
         run: python scripts/check_version_sync.py
 

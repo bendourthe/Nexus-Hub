@@ -1,13 +1,57 @@
 # Known Gaps - v3.17
 
 **Project**: Nexus-Hub
-**Status**: v3.17.3 is released, and the v3.17.4 release candidate includes the completed Org Knowledge Layer, two usage-monitor improvements, and the scheduled retirement-migration removal. Protected CI resolves the local integration-runtime warning; three intentional Org Knowledge product limits and the prompting-profile advisory remain open, with no release blocker. Prior v3.17.0 through v3.17.3 records remain below.
-**Last updated**: 2026-08-17 (v3.17.4 release reconciliation)
+**Status**: v3.17.5 is released. v3.17.6 (CI gate hygiene and branch hygiene) is in progress on `feat/ci-gate-and-branch-hygiene`, Phase 1 of 6 complete: the required-check coverage guard is in place and intentionally fails this tree until Phase 2 migrates the two path-filtered workflows. Prior v3.17.0 through v3.17.5 records remain below.
+**Last updated**: 2026-08-19 (v3.17.6 Phase 1 append)
 
 > **File-lifecycle note**: this ledger was opened by the v3.17.0 Phase 1 append. Each subsequent v3.17.N implementation appends its own `## v3.17.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `MT-#` / `QG-#` numbering.
 
 > **Prior-version ingest**: checked `docs/v3/v3.15/known-gaps.md`. v3.15.2 DF-2 (Hermes registered but not installer-wired) carries forward as DF-4 because it remains a delivery limitation. v3.15.0 WN-1 (the Windows Git-Bash bootstrap `tar` failure) recurred and carries forward as WN-1. The v3.15.1 lint warnings involved files outside this plan and do not carry in. The v3.18.2 RTK and Meterless artifacts keep their established stamp under `docs/v3/v3.18/`; their stale pre-move references were corrected during Phase 6 rather than transferred as gaps.
 
+---
+
+## v3.17.6 - ci-gate-and-branch-hygiene
+
+**Status**: Phase 1 of 6 complete (2026-08-19). The required-check coverage validator, its declared manifest, and its 30-test suite are in place and wired into `make validate` and CI's existing `validate` job. The guard intentionally exits 1 on this tree; clearing it is Phase 2's job. Work is isolated on `feat/ci-gate-and-branch-hygiene` so `develop` never carries a red required check. This section is appended to by each subsequent phase.
+
+### QG-1 - OPEN by design: the guard fails this repository until Phase 2 lands
+
+- **Target files**: `scripts/check_required_check_coverage.py`, `Makefile`, `.github/workflows/ci.yml`
+- **What it is**: the validator reports 18 `CONDITIONAL` contexts (9 per protected branch), spanning 7 distinct jobs: `validate`, `shellcheck`, `bootstrap`, `tests`, `install-smoke`, `installer-smoke` (in `ci.yml`), and `colocation` (in `doc-colocation.yml`). Because the guard runs inside the `validate` job, and `validate` is itself a required context, `make validate` and CI both fail on this branch.
+- **Why it is not a Phase 1 failure**: sub-task 1.1 specifies exactly this outcome ("exits 1 today (pre-migration) naming the seven offending checks, which is the evidence Phase 2 then clears"). A guard that passed here would be asserting nothing.
+- **Why the work is branch-isolated**: landing Phase 1 alone on `develop` would leave a required check red, so every unrelated merge in the gap would need an administrator bypass. That is precisely the habit this plan exists to end, so Phase 1 and Phase 2 must reach `develop` together.
+- **Suggested next step**: Phase 2 migrates both workflows to job-level `if:`, after which the guard must exit 0. Do not merge this branch before it does.
+
+### MT-1 - OPEN limitation: matrix legs are resolved by job id, not verified against real legs
+
+- **Target files**: `scripts/check_required_check_coverage.py`, `docs/policy/required-checks.json`
+- **What it is**: a context of the form `job (leg)` resolves to its job id, and the parenthesised leg is informational only. Every matrix in `ci.yml` defines its `os` list as a `${{ ... fromJSON(...) }}` expression evaluated per event, so the legs cannot be enumerated statically without an expression evaluator.
+- **What it means in practice**: a manifest entry naming a leg that no longer exists (say `installer-smoke (fedora-latest)`) resolves to the real `installer-smoke` job and PASSES. The guard catches a filtered workflow and a missing job; it does not catch a stale matrix leg.
+- **Why it was not fixed here**: evaluating GitHub expression syntax is a materially larger build than this phase, and the failure mode it would catch is narrower than the one being fixed. Recorded so the limit is a known boundary rather than an assumed capability.
+- **Suggested next step**: none required for v3.17.6. If leg drift ever bites, the cheap partial fix is to compare the leg set in `--sync` output against the manifest and warn on a difference, rather than to evaluate expressions.
+
+### MT-2 - OPEN observation: the repository has no coverage instrumentation, so the 80% gate is unmeasurable in-suite
+
+- **Target files**: `tests/validators/conftest.py`, `tests/validators/test_check_required_check_coverage.py`
+- **What it is**: every validator test invokes its script as a **subprocess**, deliberately, so the test exercises the CLI surface a maintainer actually runs (stated in the `conftest.py` docstring). `coverage` therefore records nothing for those runs without `--parallel-mode` plus a `COVERAGE_PROCESS_START` shim, and the repository defines no coverage threshold, `[tool.coverage]` section, or `--cov` flag anywhere.
+- **How the gate was satisfied**: line coverage of the new validator was measured at **90%** with a one-off out-of-tree in-process probe that replays the suite's own fixtures through `main()`. The probe is scratch tooling and is deliberately NOT committed, because committing it would create a second, divergent way to exercise the same code.
+- **Why it is not a Phase 1 failure**: adding subprocess-coverage plumbing to a suite of 1819 tests is a repository-wide change with no bearing on this plan's goal.
+- **Suggested next step**: if a future version wants an enforced coverage number, the change belongs in `conftest.py` and CI once, for all validators, not per phase.
+
+### WN-1 - OPEN environmental: `make` is unavailable on the development host
+
+- **Target files**: `Makefile`
+- **What it is**: the host running this phase has no `make`, so the `validate` target's new recipe line was verified by direct script invocation plus a tab-indentation check (`cat -A`) rather than by executing the target. Its first real execution will be in CI.
+- **Why it is low risk**: the recipe is a single `@python scripts/...` line adjacent to sixteen identical ones, and the CI `validate` job invokes the script directly rather than through `make`, so CI coverage of the guard does not depend on the Makefile edit being correct.
+- **Suggested next step**: confirm the target runs end-to-end on a host that has `make`, or in Phase 2's proof PRs.
+
+### BG-1 - CLOSED in implementation: a stripped-environment test wrote into the repository working tree
+
+- **Target files**: `tests/validators/test_check_required_check_coverage.py`
+- **What was wrong**: the first draft of the PyYAML-absence test ran its subprocess with `PATH=""` and no `APPDATA` / `LOCALAPPDATA`, and an earlier draft of the `--sync` test put a `gh.bat` stub on `PATH`. On Windows, Python resolves a bare `gh` to `gh.exe` only, so the stub was skipped and the **real** `gh` ran with no state directory. Between them the two tests created `.local/state/gh/` and a literal `%SystemDrive%/ProgramData/` directory inside the repository.
+- **How it surfaced**: `git status` during the post-phase sequence, not by any test failing. Both tests passed while polluting the tree.
+- **Resolution**: the `--sync` tests now monkeypatch `subprocess.run` in-process (portable, and a tighter assertion: they also verify only `gh api` is ever called, never a protection write). The PyYAML test inherits the real environment and runs with `cwd` set to its tmpdir. Both stray directories were removed and confirmed not to regenerate.
+- **Lesson worth keeping**: a test that strips the environment to simulate a missing dependency will make every tool it touches fall back to relative paths. Set `cwd` to a tmpdir whenever you do that.
 ---
 
 ## v3.17.5 - adoption-deepseek-harness
