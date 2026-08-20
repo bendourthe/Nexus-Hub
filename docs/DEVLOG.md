@@ -39,7 +39,7 @@ The Phase 1 validator runs as one step in the pre-existing `validate` job: no ne
 
 ### Refactor And Reconciliation
 
-Little to refactor, which is expected for a version that added guards rather than restructuring. One empty untracked directory removed. Terminal-gate checks all clean: installer parity, platform read contracts (10 platforms), platform defaults (13), base-template lockstep, prompting-profile structure, registry entries.
+Little to refactor, which is expected for a version that added guards rather than restructuring. One directory removed as an empty untracked leftover (`docs/v3/v3.20/comparisons`). **That characterisation was wrong**: it was being populated by a concurrent session through OneDrive sync and returned with a 27 KB comparison in it. Corrected as `QG-8` in the known gaps. Terminal-gate checks all clean: installer parity, platform read contracts (10 platforms), platform defaults (13), base-template lockstep, prompting-profile structure, registry entries.
 
 Gaps reconciled with the three items the plan named: the OneDrive hazard is **not fixable here** (only moving the checkout off the synced drive is, and that is the operator's), the minute delta is accepted, and the two clean CI skills are restated so a future reader knows they were checked.
 
