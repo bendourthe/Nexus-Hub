@@ -1,8 +1,8 @@
 # Known Gaps - v3.17
 
 **Project**: Nexus-Hub
-**Status**: v3.17.5 is released. v3.17.6 (CI gate hygiene and branch hygiene) is in progress: Phases 1 and 2 are merged to `develop` and PROVEN by two real PRs reaching CLEAN with zero administrator bypass; Phase 3 (release-flow hygiene) is complete locally. Branch protection now requires five contexts instead of ten. Phases 4-6 remain. Prior v3.17.0 through v3.17.5 records remain below.
-**Last updated**: 2026-08-20 (v3.17.6 Phase 3 completion)
+**Status**: v3.17.5 is released. v3.17.6 (CI gate hygiene and branch hygiene) is in progress: Phases 1-2 are merged to `develop` and PROVEN by two real PRs reaching CLEAN with zero administrator bypass; Phases 3-4 are complete locally. Branch protection now requires five contexts instead of ten. Phases 5-6 remain. Prior v3.17.0 through v3.17.5 records remain below.
+**Last updated**: 2026-08-20 (v3.17.6 Phase 4 completion)
 
 > **File-lifecycle note**: this ledger was opened by the v3.17.0 Phase 1 append. Each subsequent v3.17.N implementation appends its own `## v3.17.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `MT-#` / `QG-#` numbering.
 
@@ -138,6 +138,44 @@
 - **What it is**: 21 `.md` files exist under `catalog/commands/` while README and AGENTS declare 18 commands (plus 3 permanent aliases, which reconciles to 21). The hooks figure does not reconcile as cleanly: 34 `.sh`/`.py` files against a declared 31.
 - **Why it is only an observation**: the declared figures are the project's own statement of what it ships, and the file counts include artifacts that are not commands or hooks. Nothing here is provably wrong.
 - **Suggested next step**: if a future version wants these counts machine-checked the way skills already are, the fix is a declared count in `data/` rather than a smarter glob. Recorded so the discrepancy is known rather than rediscovered.
+
+### Phase 4 findings (CI skill audit)
+
+#### BG-7 - RESOLVED: `cicd-architect` taught both halves of the trap without connecting them
+
+- **Target files**: `catalog/skills/infrastructure/cicd-architect/SKILL.md`, `catalog/skills/infrastructure/cicd-architect/references/required-status-checks.md`
+- **What was wrong**: "Pattern 2: Path-Based Triggers" recommended workflow-level `paths:` / `paths-ignore:`, and the Verification checklist separately required "direct push to main is blocked and at least one status check is required". Neither instruction is wrong alone. Followed together they build an unmergeable branch, and nothing in the skill said so.
+- **Resolution**: Pattern 2 is now scoped ("Only safe when the workflow produces NO required status check"), states the Pending-versus-Success asymmetry with the vendor citation, shows the job-level `if:` form with both fail-closed halves, and flags the matrix trap. One Common Rationalizations row and one Verification item added. Full rationale in the new `references/required-status-checks.md`.
+- **Why the split**: the skill was 769 lines against the 800-line soft cap in `AGENTS.md`, whose prescribed remedy past 500 lines is a `references/` subdirectory. The rule itself stayed inline at the point of danger; only its long form moved. A correctness rule pushed entirely into a reference file is a rule the agent may never read.
+
+#### NI-3 - CHECKED, no antipattern found: `cd-pipeline-generator`
+
+- **Target files**: `catalog/skills/infrastructure/cd-pipeline-generator/SKILL.md`
+- **Finding**: no event-level path filtering anywhere (its `on:` block uses `branches:` and `workflow_dispatch` only) and no discussion of required status checks or branch protection. Nothing to correct.
+- **Why this is recorded**: the plan requires stating a null result explicitly, because a silent audit is indistinguishable from an audit never run. Recorded so a future reader knows this skill was examined rather than skipped.
+- **Not edited**: adding the rule here was considered and declined under the `AGENTS.md` scope-fit rule. The skill teaches nothing the rule corrects, so the addition would inflate Tier 2 with no defect to fix.
+
+#### NI-4 - CHECKED, no antipattern found: `cicd-integration`
+
+- **Target files**: `catalog/skills/tests-generation/cicd-integration/SKILL.md`
+- **Finding**: its only `paths:` match is a GitLab `cache:` key, not a trigger filter. Its GitHub Actions example uses `on: push` / `pull_request` with `branches: [main, develop]` and no path filter, and its Verification says "the pipeline triggers on both `push` and `pull_request` events for the protected branches" -- which is the correct advice.
+- **Precision note**: counting the `cache:` hit would have produced a false positive and an unnecessary edit. The same trap applies to `cicd-architect`, where three of five `paths:` matches are GitLab `cache:` / `artifacts:` keys.
+- **Not edited**: same reasoning as `NI-3`.
+
+#### MT-4 - OPEN: a new Unicode-punctuation warning is invisible in 1042 existing ones
+
+- **Target files**: `scripts/validate_unicode_safety.py`
+- **What it is**: a U+2026 ellipsis was introduced in the new reference file. `validate_unicode_safety.py` DOES detect it, as a warning promoted to an error only under `--strict`, and the repository currently carries **1042** such warnings (largely em-dashes and curly quotes in `templates/ai-instructions/legacy/`). A newly added violation is therefore indistinguishable from the existing backlog, and the exit code says nothing about whether a change introduced one.
+- **How it surfaced, and the process lesson**: the validator was run with its output redirected to `/dev/null` and only its exit code inspected, so the warning was never seen. The violation was caught instead by an ad-hoc style self-check written for this phase. Reading an exit code is not reading a validator's output when that validator warns rather than fails.
+- **Why it was not fixed here**: promoting the check to `--strict` requires clearing 1042 pre-existing warnings across files this plan does not touch, which is a version-scale cleanup rather than a phase task.
+- **Suggested next step**: either baseline the existing warnings and fail only on NEW ones (the shape that makes a warning actionable), or clear the legacy templates and switch the repo-wide invocation to `--strict`. Either is a candidate for a follow-on version.
+
+#### MT-5 - OPEN observation: `cicd-architect` is 9 lines from the soft cap
+
+- **Target files**: `catalog/skills/infrastructure/cicd-architect/SKILL.md`
+- **What it is**: the file is now 791 lines against the 800-line soft cap, beyond which `AGENTS.md` says a skill MUST be split or refactored before merge.
+- **Why it is not a violation now**: the file was already 769 lines and is grandfathered by the forward-looking norm; this phase added 22 lines and deliberately routed the bulk of the new content to `references/`.
+- **Suggested next step**: the next substantive addition to this skill triggers the split. The natural seam is the two large per-platform pipeline walkthroughs (Steps 2 and 3, roughly 300 lines each), which are reference material by nature.
 ---
 
 ## v3.17.5 - adoption-deepseek-harness

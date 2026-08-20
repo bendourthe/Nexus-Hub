@@ -704,7 +704,10 @@ jobs:
 
 ### Pattern 2: Path-Based Triggers
 
+**Only safe when the workflow produces NO required status check.** A required check whose workflow is path-filtered stays **Pending forever** on a change the filter excludes, so the pull request can never merge and the only way through is an administrator bypass. A job skipped by an `if:` reports **Success** and merges. Both save the same Actions minutes; only one lets the branch merge. Source: [GitHub Docs, Troubleshooting required status checks](https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/troubleshooting-required-status-checks) (fetched 2026-08-19).
+
 ```yaml
+# SAFE only if nothing here is a required status check.
 on:
   push:
     paths:
@@ -715,6 +718,23 @@ on:
       - '**.md'
       - 'docs/**'
 ```
+
+When the workflow does produce a required check, leave the trigger unfiltered and move the same scoping to a job-level `if:`:
+
+```yaml
+on:
+  pull_request:
+    branches: [main]          # no `paths:` here
+jobs:
+  expensive-job:
+    needs: changes            # a cheap detector job that always runs
+    # Fail closed: `!cancelled()` overrides GitHub's skip-on-failed-dependency
+    # rule, and `!= 'false'` treats a failed detector's empty output as "run".
+    # Without both, a broken detector silently reports Success.
+    if: ${{ !cancelled() && needs.changes.outputs.code != 'false' }}
+```
+
+A skipped **matrix** job is a further trap: the `if:` is evaluated before matrix expansion, so it publishes only its bare job name and never `job (leg)`. Require a single aggregate context instead. Full rationale, the fail-closed detector, and the aggregate-job pattern: [`references/required-status-checks.md`](references/required-status-checks.md).
 
 ### Pattern 3: Conditional Deployments
 
@@ -734,6 +754,7 @@ deploy:
 | "We'll add rollback capability later when we have an incident" | Rollback procedures that are not tested before an incident are unreliable during an incident; runbooks executed for the first time under pressure have a high failure rate due to untested assumptions and outdated steps. |
 | "Secrets in CI environment variables are secure enough without a vault" | CI environment variables are visible to any job in the same repository (including PRs from forks), are logged in misconfigured pipelines, and are included in debugging artifacts; a secrets manager with scoped access prevents all three failure modes. |
 | "We don't need branch protection because the team is disciplined" | Branch protection rules enforce the same guarantees automatically for all team members including temporary contractors, bots, and accounts with compromised credentials — discipline cannot substitute for policy enforcement. |
+| "Path filters save Actions minutes, so filter at the workflow level" | That makes every required status check the workflow produces unsatisfiable: GitHub leaves the check Pending forever on a change the filter excludes, so the only way to merge is an administrator bypass, and routine bypassing erodes the gate for the cases that actually matter. A job-level `if:` saves the same minutes AND reports, because a skipped job is recorded as Success. |
 | "Caching makes the pipeline too complex to maintain" | Uncached pipelines that reinstall all dependencies on every run have 3-10x longer cycle times; longer cycle times correlate directly with reduced commit frequency and larger, harder-to-review changesets. |
 | "Approval gates for production are just ceremony" | Automated deployment without a production approval gate has caused mass incidents (Knight Capital 2012, Facebook 2021) where a bad deploy propagated to all regions before any human could intervene. |
 
@@ -743,6 +764,7 @@ deploy:
 - [ ] Secrets are stored in a dedicated secrets manager (not in repository environment variables or source code)
 - [ ] Rollback mechanism is documented and has been tested by executing it in a staging environment
 - [ ] Branch protection rules are enabled: direct push to main is blocked and at least one status check is required
+- [ ] Every required status check is produced by a job whose workflow triggers unconditionally: open a pull request touching only paths the filters exclude and confirm each required context reports (a matrix job must be required by its aggregate context, never per-leg)
 - [ ] Dependency caching is configured and verified: consecutive runs with no dependency changes complete faster than the first run
 - [ ] Production deployment requires explicit approval from at least one team member before proceeding
 

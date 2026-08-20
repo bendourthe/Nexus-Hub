@@ -1,5 +1,39 @@
 # Development Log
 
+## [2026-08-20] - v3.17.6 Phase 4: CI skill audit
+
+### Audit Result, All Three Stated
+
+The plan required stating each finding explicitly, including the nulls, because a silent audit cannot be told apart from an audit never run.
+
+| Skill | Workflow-level `paths:`? | Required checks? | Both? |
+|---|---|---|---|
+| `cicd-architect` | Yes, "Pattern 2: Path-Based Triggers" | Yes, Verification requires a status check | **Antipattern present** |
+| `cd-pipeline-generator` | No | No | No antipattern found |
+| `cicd-integration` | No (its `paths:` is a GitLab `cache:` key) | Yes, and correctly | No antipattern found |
+
+`cicd-architect` was the only skill teaching both halves, and it never connected them. A reader follows Pattern 2 to add a path filter, follows Verification to require a status check, and has built an unmergeable branch. Neither instruction is wrong on its own, which is why nobody noticed.
+
+A grep alone would have given the wrong answer: three of `cicd-architect`'s five `paths:` matches are GitLab `cache:` / `artifacts:` keys, and `cicd-integration`'s single match is the same thing. Counting those would have produced a false positive and an edit to a skill that needed none.
+
+### What Changed
+
+Only `cicd-architect`. The two clean skills were deliberately left alone under the `AGENTS.md` scope-fit rule: neither teaches the pattern the rule corrects, so adding it would inflate always-loaded-on-trigger content with no defect to fix.
+
+The file was 769 lines against an 800-line soft cap, which shaped the split. The rule itself stayed inline at the point of danger (Pattern 2 relabelled, the Pending-versus-Success asymmetry stated with the vendor citation, the job-level `if:` form shown with both fail-closed halves), while the long form went to a new `references/required-status-checks.md`. That follows the `AGENTS.md` remedy for a body past 500 lines, without pushing a correctness rule somewhere the agent may never read.
+
+The most interesting edit is a Verification item, which the plan did not ask for. The skill already required "at least one status check is required" -- which is precisely the instruction that turns Pattern 2 into an unmergeable branch. The new item supplies the other half and is observable: open a PR touching only excluded paths and confirm each required context reports. That is exactly the check this version's own Phase 2 had to run on itself, where a green configuration review passed and the docs-only PR is what found the matrix defect.
+
+### A Correction Worth Recording
+
+A first pass through this phase claimed `validate_unicode_safety.py` does not catch a U+2026 ellipsis. It does, as a warning promoted to an error only under `--strict`. The claim was wrong because the validator had been run with its output redirected to `/dev/null` and only its exit code read.
+
+The real finding is worse than a missing rule: the repository carries **1042** such warnings, largely in `templates/ai-instructions/legacy/`. A newly introduced violation is invisible in that volume, and an exit code of 0 says nothing about whether a change added one. Reading an exit code is not reading a validator's output when the validator warns rather than fails. Tracked as `MT-4`, with the fix being either a baseline that fails only on NEW warnings or clearing the legacy templates and going `--strict`.
+
+### Gates
+
+Frontmatter unchanged in all three skills, so no trigger surface moved. Bundle audit PASS (0 errors, 0 warnings across 273 skills; the new reference file is linked, so no orphan). Routing gate PASS (0 collisions, 0 routing failures) -- and since the gate scores descriptions and those are byte-identical, no neighbouring score can have moved, which is a structural guarantee rather than a measurement. Registry check clean. Tests: **1709 passed, 36 skipped**.
+
 ## [2026-08-20] - v3.17.6 Phase 3: release-flow hygiene
 
 ### What Shipped
