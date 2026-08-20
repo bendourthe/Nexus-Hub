@@ -255,6 +255,28 @@
 
 - **Target files**: `catalog/skills/infrastructure/cd-pipeline-generator/SKILL.md`, `catalog/skills/tests-generation/cicd-integration/SKILL.md`
 - **Restated here because Phase 6.2 requires it**: both were audited in Phase 4 and found free of the antipattern. `cd-pipeline-generator` has no event-level path filtering and does not discuss required checks. `cicd-integration`'s only `paths:` match is a GitLab `cache:` key, and its trigger guidance is already correct. Neither was edited. Full findings at `NI-3` and `NI-4` above.
+
+### Parallel-session findings folded into this release (docs only)
+
+#### BG-9 - OPEN defect: version-directory enumeration sorts lexically, not numerically
+
+- **Target files**: `catalog/skills/workflow/cross-project-comparison/SKILL.md` (Step 6.5 walk-forward version resolution)
+- **What is wrong**: the walk-forward resolution enumerates plan directories to find "the first free slot", and the enumeration is ALPHABETICAL. Lexical ordering places `v3.10`, `v3.18`, and `v3.20` before `v3.5`, so the scan reaches a wrong conclusion about what is occupied.
+- **Live instance**: it resolved `v3.17.12` for the cybersecurity comparison while plans already existed through `v3.20.0`.
+- **Independent of the fixes already shipped**: this is not one of the A-C comparison-versioning fixes that landed in the predecessor work; it is a separate arithmetic-versus-string defect in the same step.
+- **The rule any fix must follow**: sort NUMERICALLY on the parsed minor, never lexically, and scan EVERY `docs/v3/v3.*/plans` directory rather than only the current minor's. Both halves are needed; numeric sorting over an incomplete scan still returns a wrong free slot.
+- **How it surfaced**: human review. No gate catches it, which is the part worth noting -- the repository has a validator for decision-record structure and one for required-check coverage, and nothing that asserts a version resolver's ordering.
+- **Suggested next step**: fix in the skill and add a test with a fixture tree containing `v3.5` alongside `v3.10` and `v3.20`, since that is the minimal shape that distinguishes lexical from numeric ordering. Not fixed here: this release is docs-only for the parallel session's scope, and editing the skill would put a behavior change into a release whose notes say otherwise.
+
+#### QG-8 - CLOSED, and it corrects a Phase 6 claim: the "empty directory" was mid-sync, not abandoned
+
+- **Target files**: `docs/v3/v3.20/comparisons/`
+- **What Phase 6 recorded**: `docs/v3/v3.20/comparisons` was removed as "an empty untracked directory, no `.gitkeep`, so a local leftover with no repo effect".
+- **What it actually was**: a directory being populated by a concurrent parallel session arriving through OneDrive sync. The 27 KB `comparison-cybersecurity-skills-library.md` landed in it at 15:16. The `rmdir` succeeded only because it caught a transient empty moment, and the directory returned with its content.
+- **Why it is worth recording rather than quietly correcting**: nothing was lost, but a few seconds' difference would have deleted a real document, and the reasoning that authorised the deletion ("untracked and empty, therefore abandoned") was wrong rather than merely unlucky. On a synced working copy, "untracked and empty" does not distinguish abandoned from in-flight.
+- **Relationship to `DF-3`**: the same OneDrive hazard in a form the earlier entry did not anticipate. `DF-3` describes the sync client holding directory handles, which aborts git operations. This is the sync client DELIVERING content mid-operation, which makes a point-in-time filesystem observation unreliable.
+- **What actually caught it**: `git status`, run once more before a release step, not any validator. Every other guard in the pipeline inspects committed content, so none of them can see a working tree diverging underneath the session.
+- **Rule worth keeping**: on a synced checkout, do not delete an untracked path on the evidence of a single observation. Re-check, or leave it.
 ---
 
 ## v3.17.5 - adoption-deepseek-harness
