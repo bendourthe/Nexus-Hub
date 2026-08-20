@@ -21,9 +21,15 @@ from __future__ import annotations
 import os
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
+
+# Explicit sys.path insert, matching the idiom already used in this directory:
+# a bare `from conftest import ...` would resolve to tests/conftest.py.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from bash_helper import BASH
 
 # Matches the idiom in tests/workflows/: a missing parser skips this file
 # rather than erroring at collection and taking the whole tree with it.
@@ -32,8 +38,11 @@ yaml = pytest.importorskip("yaml")
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CI_WORKFLOW = REPO_ROOT / ".github" / "workflows" / "ci.yml"
 
+# BASH is resolved empirically by conftest, NOT via shutil.which: on Windows the
+# System32 WSL launcher stub precedes Git Bash on PATH and exits 1, which failed
+# this suite on the GitHub Windows runner while it passed locally and on ubuntu.
 pytestmark = pytest.mark.skipif(
-    shutil.which("bash") is None or shutil.which("git") is None,
+    BASH is None or shutil.which("git") is None,
     reason="the classifier is a bash script diffing a git repo; both are required",
 )
 
@@ -110,7 +119,7 @@ def run_classifier(
         }
     )
     result = subprocess.run(
-        ["bash", str(script)],
+        [BASH, str(script)],
         cwd=repo,
         capture_output=True,
         text=True,
