@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Required-check coverage guard (v3.17.6 Phase 1)**: `scripts/check_required_check_coverage.py` asserts that every required status check declared in the new `docs/policy/required-checks.json` manifest is produced by a workflow that triggers unconditionally on a pull request into the protected branch. GitHub leaves a check from an untriggered workflow Pending forever while a skipped job reports Success, so workflow-level `paths:` filtering makes a required check unsatisfiable whereas a job-level `if:` does not. Reports `UNPRODUCED`, `CONDITIONAL`, and `BAD` separately because the remedies differ, and collects every failure before one exit. Runs in `make validate` and in CI's existing `validate` job (no new job, which would need its own required context). `--sync` prints live protection state via the user's own `gh` and never writes. Repo-internal guard: listed in `DEV_ONLY_SCRIPTS`, no installer copy step, no outbound call at validate time.
+
 ---
 
 ## [3.17.5] - 2026-08-18

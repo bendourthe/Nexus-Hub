@@ -1,0 +1,41 @@
+{
+  "_comment": "Declared required status-check contexts per protected branch. This file is the local, zero-outbound source of truth for scripts/check_required_check_coverage.py, which asserts that every context listed here is produced by a workflow that triggers UNCONDITIONALLY on a pull request into that branch. Refresh it by hand from `python scripts/check_required_check_coverage.py --sync`, which prints the live state via the user's own `gh` CLI and never writes. Rationale and the vendor citation live in the module docstring of that script.",
+  "meta": {
+    "repository": "bendourthe/Nexus-Hub",
+    "verified": "2026-08-19",
+    "verified_for_version": "v3.17.6",
+    "source": "gh api repos/bendourthe/Nexus-Hub/branches/<branch>/protection"
+  },
+  "branches": {
+    "main": {
+      "strict": true,
+      "contexts": [
+        "validate",
+        "shellcheck",
+        "bootstrap (ubuntu-latest)",
+        "tests",
+        "install-smoke (ubuntu-latest)",
+        "installer-smoke (ubuntu-latest)",
+        "installer-smoke (macos-latest)",
+        "installer-smoke (windows-latest)",
+        "colocation",
+        "verify"
+      ]
+    },
+    "develop": {
+      "strict": true,
+      "contexts": [
+        "validate",
+        "shellcheck",
+        "bootstrap (ubuntu-latest)",
+        "tests",
+        "install-smoke (ubuntu-latest)",
+        "installer-smoke (ubuntu-latest)",
+        "installer-smoke (macos-latest)",
+        "installer-smoke (windows-latest)",
+        "colocation",
+        "verify"
+      ]
+    }
+  }
+}

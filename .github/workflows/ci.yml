@@ -1,90 +1,27 @@
 name: CI
 
+# v3.17.6 Phase 2: these triggers are deliberately UNFILTERED.
+#
+# `validate`, `shellcheck`, `bootstrap`, `tests`, `install-smoke`, and
+# `installer-smoke` are all REQUIRED status checks on main and develop. GitHub
+# leaves a required check from an untriggered workflow Pending forever, so a
+# workflow-level `paths:` filter made the protected branches impossible to merge
+# from a docs-only PR without an administrator bypass -- which is what shipping
+# v3.17.5 took, seven times in one day. A job SKIPPED by an `if:` reports
+# Success, so the identical path scoping now lives in the `changes` job below and
+# is applied per job. See:
+# https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/troubleshooting-required-status-checks
+#
+# This follows the shape presentify-extractor.yml has used since v3.12.0
+# (unfiltered `on:`, cheap detector job, job-level `if:`) rather than inventing a
+# new one. scripts/check_required_check_coverage.py enforces it.
 on:
   workflow_dispatch:
   push:
     branches: [main, develop]
     tags: ['v*']
-    # v3.11.0 Phase 8.4: most docs-only pushes never affect validators, tests, or
-    # the installer, so skip the full job set (incl. the 10x macOS / 2x Windows
-    # legs) when a change touches nothing outside docs/. Skill/template/README/
-    # CHANGELOG changes live OUTSIDE docs/ and still trigger the full run.
-    #
-    # v3.16.0 Phase 2: docs/policy/ is the ONE exception and is re-included above.
-    # It is not prose -- it is validator INPUT. platform-read-contracts.json feeds
-    # verify_platform_contracts.py and check_platform_contract_freshness.py, and
-    # platform-defaults-levers.md feeds the lever-contract completeness tests. Under
-    # the old blanket `paths-ignore: docs/**`, a push editing ONLY one of those files
-    # skipped CI entirely, so the exact edit each guard exists to catch was the edit
-    # that never ran it. Expressed as `paths` with a negation because GitHub Actions
-    # supports `!` in `paths` only, never in `paths-ignore`, and the two filters
-    # cannot both be set for one event.
-    paths:
-      - '**'
-      - '!docs/**'
-      - 'docs/policy/**'
-      # v3.16.1 (QG-1): per-version development CONTRACT docs are asserted on by
-      # tests -- tests/skills/test_evaluation_methodology.py reads
-      # docs/v3/v3.16/development/evaluation-artifact-contract.md. Under the
-      # blanket docs exclusion, a push editing only that file skipped CI, so the
-      # exact edit the guard exists to catch was the edit that never ran it --
-      # the identical defect already fixed for docs/policy/** above.
-      #
-      # Scoped to `*.md` directly under a development/ directory ON PURPOSE: a
-      # `*` never crosses a `/`, so this matches the contract docs and NOT
-      # development/history/*.md. Session histories are frozen records that no
-      # test reads, and re-including them would run the full matrix on every
-      # phase write-up for no signal.
-      - 'docs/v*/*/development/*.md'
-      # v3.16.2 Phase 3: docs/incidents/** is validator INPUT, not prose.
-      # check_incident_notes.py asserts every note carries a Public-Safe Shape
-      # section and a Durable fix section with a link in it. Under the blanket
-      # docs exclusion, a push adding a note whose "fix" is a paragraph would
-      # skip CI entirely -- the same defect already fixed for docs/policy/**
-      # and the development contract docs above. Re-included for that reason
-      # and no other: a docs path earns a trigger only when a guard reads it.
-      - 'docs/incidents/**'
-      # v3.17.5 Phase 4: docs/decisions/** is validator INPUT, not prose.
-      # validate_decision_records.py asserts every record sits at
-      # lifecycle/class/file, carries the 3-line header matching its folder,
-      # and states its alternatives. Under the blanket docs exclusion, a push
-      # adding a malformed record would skip CI entirely -- the identical
-      # defect already fixed for docs/policy/** and docs/incidents/** above.
-      - 'docs/decisions/**'
   pull_request:
     branches: [main, develop]
-    paths:
-      - '**'
-      - '!docs/**'
-      - 'docs/policy/**'
-      # v3.16.1 (QG-1): per-version development CONTRACT docs are asserted on by
-      # tests -- tests/skills/test_evaluation_methodology.py reads
-      # docs/v3/v3.16/development/evaluation-artifact-contract.md. Under the
-      # blanket docs exclusion, a push editing only that file skipped CI, so the
-      # exact edit the guard exists to catch was the edit that never ran it --
-      # the identical defect already fixed for docs/policy/** above.
-      #
-      # Scoped to `*.md` directly under a development/ directory ON PURPOSE: a
-      # `*` never crosses a `/`, so this matches the contract docs and NOT
-      # development/history/*.md. Session histories are frozen records that no
-      # test reads, and re-including them would run the full matrix on every
-      # phase write-up for no signal.
-      - 'docs/v*/*/development/*.md'
-      # v3.16.2 Phase 3: docs/incidents/** is validator INPUT, not prose.
-      # check_incident_notes.py asserts every note carries a Public-Safe Shape
-      # section and a Durable fix section with a link in it. Under the blanket
-      # docs exclusion, a push adding a note whose "fix" is a paragraph would
-      # skip CI entirely -- the same defect already fixed for docs/policy/**
-      # and the development contract docs above. Re-included for that reason
-      # and no other: a docs path earns a trigger only when a guard reads it.
-      - 'docs/incidents/**'
-      # v3.17.5 Phase 4: docs/decisions/** is validator INPUT, not prose.
-      # validate_decision_records.py asserts every record sits at
-      # lifecycle/class/file, carries the 3-line header matching its folder,
-      # and states its alternatives. Under the blanket docs exclusion, a push
-      # adding a malformed record would skip CI entirely -- the identical
-      # defect already fixed for docs/policy/** and docs/incidents/** above.
-      - 'docs/decisions/**'
 
 # v3.11.0 Phase 7.5 / 8.4 CI optimization: cancel superseded runs of the same ref
 # (the single largest action-minute saver) so only the latest push/PR commit runs.
@@ -99,6 +36,108 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # v3.17.6 Phase 2: the path scoping that used to live on the triggers above.
+  #
+  # It answers ONE question -- does this change touch anything outside ignorable
+  # documentation prose? -- because that is exactly what the old `paths:` list
+  # expressed. The re-inclusions below are NOT prose exceptions; each one is a
+  # docs path that a guard or a test READS, so editing it must run the thing that
+  # reads it. Every entry keeps its original justification:
+  #
+  #   docs/policy/**  validator INPUT (v3.16.0 Phase 2).
+  #                   platform-read-contracts.json feeds
+  #                   verify_platform_contracts.py and
+  #                   check_platform_contract_freshness.py;
+  #                   platform-defaults-levers.md feeds the lever-contract
+  #                   completeness tests; and since v3.17.6,
+  #                   required-checks.json feeds
+  #                   check_required_check_coverage.py.
+  #   docs/v*/*/development/*.md
+  #                   per-version development CONTRACT docs (v3.16.1, QG-1).
+  #                   tests/skills/test_evaluation_methodology.py reads
+  #                   docs/v3/v3.16/development/evaluation-artifact-contract.md.
+  #                   Scoped to *.md DIRECTLY under a development/ dir on
+  #                   purpose: a `*` never crosses a `/`, so this matches the
+  #                   contract docs and NOT development/history/*.md. Session
+  #                   histories are frozen records no test reads, and including
+  #                   them would run the full matrix on every phase write-up for
+  #                   no signal.
+  #   docs/incidents/**
+  #                   validator INPUT (v3.16.2 Phase 3).
+  #                   check_incident_notes.py asserts every note carries a
+  #                   Public-Safe Shape section and a Durable fix section with a
+  #                   link in it.
+  #   docs/decisions/**
+  #                   validator INPUT (v3.17.5 Phase 4).
+  #                   validate_decision_records.py asserts every record sits at
+  #                   lifecycle/class/file, carries the 3-line header matching
+  #                   its folder, and states its alternatives.
+  #
+  # FAIL CLOSED is the whole contract of this job. Under the old trigger filter a
+  # detection mistake meant the workflow did not start, which was loud (Pending
+  # forever). Here a mistake would SKIP a job, and a skipped job reports Success
+  # -- silent. So: `relevant` is only ever set false by a complete, successful
+  # classification; the step cannot exit non-zero; and every consumer is written
+  # as `!cancelled() && ... != 'false'` so a crashed or missing output still RUNS
+  # the job. Both halves are load-bearing: `!cancelled()` overrides GitHub's
+  # skip-on-failed-dependency rule, and `!= 'false'` treats the empty output of a
+  # failed job as "run".
+  changes:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    outputs:
+      relevant: ${{ steps.classify.outputs.relevant }}
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+        with:
+          # Full history: the classification diffs against the PR base or the
+          # previously pushed commit, neither of which a shallow clone contains.
+          fetch-depth: 0
+
+      - name: Classify changed paths
+        id: classify
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          BEFORE_SHA: ${{ github.event.before }}
+        run: |
+          set -uo pipefail
+          # Deliberately NOT `set -e`: every failure path below must fall through
+          # to the fail-closed default rather than abort the step.
+          relevant=true
+          reason="default (fail closed)"
+          nul="0000000000000000000000000000000000000000"
+
+          case "${EVENT_NAME}" in
+            pull_request) base="${BASE_SHA}" ;;
+            push)         base="${BEFORE_SHA}" ;;
+            *)            base="" ;;
+          esac
+
+          # An all-zero sha is GitHub's "no previous commit" sentinel (new branch,
+          # new tag). Nothing to diff against, so run everything.
+          if [ -z "${base}" ] || [ "${base}" = "${nul}" ]; then
+            reason="no usable base sha for event ${EVENT_NAME}"
+          elif ! files=$(git diff --name-only "${base}" HEAD 2>/dev/null); then
+            reason="git diff ${base}..HEAD failed"
+          elif [ -z "${files}" ]; then
+            reason="empty diff against ${base}"
+          elif printf '%s\n' "${files}" | grep -qvE '^docs/'; then
+            reason="change touches a non-docs path"
+          elif printf '%s\n' "${files}" | grep -qE '^docs/(policy|incidents|decisions)/'; then
+            reason="change touches a validator-input docs path"
+          elif printf '%s\n' "${files}" | grep -qE '^docs/[^/]+/[^/]+/development/[^/]+\.md$'; then
+            reason="change touches a development contract doc"
+          else
+            relevant=false
+            reason="every changed path is ignorable documentation prose"
+          fi
+
+          echo "relevant=${relevant}" >> "${GITHUB_OUTPUT}"
+          echo "relevant=${relevant} -- ${reason}"
+          printf '%s\n' "${files:-}" | sed 's/^/  changed: /'
+          exit 0
+
   validate:
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -189,6 +228,18 @@ jobs:
 
       - name: Validate GitHub Actions workflow security (v2.3.0 Phase 2)
         run: python scripts/validate_workflow_security.py
+
+      - name: Validate required-check coverage (v3.17.6 Phase 1)
+        # A required status check whose WORKFLOW is path- or branch-filtered stays
+        # Pending forever on an unrelated PR, so the protected branch becomes
+        # impossible to merge without an administrator bypass. The same filtering
+        # expressed as a job-level `if:` reports Success and merges. Shipping
+        # v3.17.5 took seven bypasses in one day, all from this one mechanism.
+        #
+        # Deliberately in the existing `validate` job rather than a new job: a
+        # new job would need its own required context, and the guard is a
+        # sub-second YAML parse with no extra dependency.
+        run: python scripts/check_required_check_coverage.py
 
       - name: Validate version sync across all surfaces (v3.0.0 Phase 1)
         run: python scripts/check_version_sync.py
@@ -367,6 +418,11 @@ jobs:
     # the authoritative gate for the bash INSTALLER path, but for the ordinary
     # reason that it is the reference POSIX environment, not because Windows cannot
     # run bash.
+    needs: changes
+    # v3.17.6 Phase 2: the path scoping that used to sit on the workflow trigger.
+    # Fail-closed by construction -- `!cancelled()` overrides GitHub's skip-on-
+    # failed-dependency rule and `!= 'false'` treats a missing output as run.
+    if: ${{ !cancelled() && needs.changes.outputs.relevant != 'false' }}
     strategy:
       fail-fast: false
       matrix:
@@ -460,12 +516,15 @@ jobs:
     # Windows-native path that only a Windows runner exercises. It drives install.ps1 in forced-standalone mode
     # against a GitHub-shaped tarball of the checkout (zero network), then asserts a
     # populated ~/.nexus-hub and a working `nexus-hub --version`.
+    needs: changes
     runs-on: windows-latest
     timeout-minutes: 30
     # Cost control: Windows is a 2x-minute runner. Run the real end-to-end
     # bootstrap on pushes only, not on PRs (PRs still get the pwsh AST-parse in
     # the `bootstrap` job).
-    if: ${{ github.event_name != 'pull_request' }}
+    # v3.17.6 Phase 2: ANDed with path relevance. `!cancelled()` and the
+    # `!= 'false'` comparison keep this fail-closed; see the `changes` job.
+    if: ${{ !cancelled() && github.event_name != 'pull_request' && needs.changes.outputs.relevant != 'false' }}
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
@@ -523,6 +582,11 @@ jobs:
     # `catalog/hooks/tests/` with `extensions/nexus-skill-server/tests/`).
     # Invoke pytest as a module so the checkout root remains importable by
     # tests that exercise the repository's `scripts` package.
+    needs: changes
+    # v3.17.6 Phase 2: the path scoping that used to sit on the workflow trigger.
+    # Fail-closed by construction -- `!cancelled()` overrides GitHub's skip-on-
+    # failed-dependency rule and `!= 'false'` treats a missing output as run.
+    if: ${{ !cancelled() && needs.changes.outputs.relevant != 'false' }}
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
@@ -613,9 +677,12 @@ jobs:
     #
     # Cost control: windows-latest is a 2x-minute runner, so this runs on pushes
     # only, matching the bootstrap-windows and install-smoke gating.
+    needs: changes
     runs-on: windows-latest
     timeout-minutes: 60
-    if: ${{ github.event_name != 'pull_request' }}
+    # v3.17.6 Phase 2: ANDed with path relevance. `!cancelled()` and the
+    # `!= 'false'` comparison keep this fail-closed; see the `changes` job.
+    if: ${{ !cancelled() && github.event_name != 'pull_request' && needs.changes.outputs.relevant != 'false' }}
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
@@ -624,7 +691,11 @@ jobs:
           python-version: '3.11'
 
       - name: Install pytest
-        run: pip install pytest
+        # PyYAML matches the ubuntu `tests` job (v3.17.6 Phase 2). This job runs
+        # tests/validators, which parses .github/workflows/*.yml, so without it
+        # the whole tree errored at COLLECTION -- taking every other validator
+        # test on Windows down with it rather than skipping one file.
+        run: pip install pytest PyYAML
 
       - name: Hook suite on Windows PowerShell 5.1
         env:
@@ -679,6 +750,11 @@ jobs:
     # installer (a fast, deterministic file mirror - no MCP/venv) so it runs cheaply
     # on every OS. Cursor/Copilot GLOBAL slash surfaces are installer-block-owned and
     # exercised by the `bootstrap` job. Cost control: ubuntu on PRs; +macOS/Windows on pushes.
+    needs: changes
+    # v3.17.6 Phase 2: the path scoping that used to sit on the workflow trigger.
+    # Fail-closed by construction -- `!cancelled()` overrides GitHub's skip-on-
+    # failed-dependency rule and `!= 'false'` treats a missing output as run.
+    if: ${{ !cancelled() && needs.changes.outputs.relevant != 'false' }}
     strategy:
       fail-fast: false
       matrix:
@@ -756,6 +832,11 @@ jobs:
     # Installer smoke runs Ubuntu on protected-branch pushes and expands to
     # macOS/Windows before merge, on release tags, or on manual dispatch. That catches installer failures before
     # users receive them without making macOS the largest per-push minute cost.
+    needs: changes
+    # v3.17.6 Phase 2: the path scoping that used to sit on the workflow trigger.
+    # Fail-closed by construction -- `!cancelled()` overrides GitHub's skip-on-
+    # failed-dependency rule and `!= 'false'` treats a missing output as run.
+    if: ${{ !cancelled() && needs.changes.outputs.relevant != 'false' }}
     strategy:
       fail-fast: false
       matrix:

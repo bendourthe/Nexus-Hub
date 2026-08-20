@@ -1,5 +1,44 @@
 # Development Log
 
+## [2026-08-19] - v3.17.6 Phase 1: required-check coverage validator
+
+### What Was Built
+
+A guard asserting that every required status check is produced by a workflow that triggers unconditionally, plus its declared manifest and a 30-test suite. Wired into `make validate` and into CI's existing `validate` job. Repo-internal: no installer copy step, no new dependency, no outbound call at validate time.
+
+- `scripts/check_required_check_coverage.py` - parses every workflow, resolves each declared context to its job, fails on a path- or branch-filtered producer.
+- `docs/policy/required-checks.json` - the declared contexts per protected branch, seeded from live protection.
+- `tests/validators/test_check_required_check_coverage.py` - 30 tests.
+
+### Why It Exists
+
+Shipping v3.17.5 took seven administrator bypasses in one day, all from one mechanism. GitHub leaves a check from an **untriggered workflow** Pending forever, while a **skipped job** reports Success. Workflow-level `paths:` and a job-level `if:` therefore look like the same optimization and behave in opposite ways.
+
+### What It Found On Its First Run
+
+18 `CONDITIONAL` contexts (9 per protected branch) across 7 distinct jobs, zero `UNPRODUCED`, zero `BAD`. `verify` is the sole required check that passes, so the guard independently identified `presentify-extractor.yml` as the already-correct shape the plan had picked as the migration target.
+
+### Two Fail-Open Traps Worth Remembering
+
+Both would have produced a guard that passed while asserting nothing, which is worse than a crash.
+
+- **PyYAML resolves the key `on:` to boolean `True`** under YAML 1.1, and GitHub's schema uses that exact word for its trigger block. A guard reading `cfg["on"]` finds no triggers in *any* workflow and passes everything. Both spellings are accepted, with a comment saying why.
+- **A missing PyYAML must abort, not pass.** Tested by blocking the import via a `sitecustomize` meta-path hook, with a negative control proving the test fails for the right reason.
+
+### Decisions
+
+- **Branch-isolated on `feat/ci-gate-and-branch-hygiene`.** The guard is designed to fail this tree, and it runs inside the required `validate` job, so landing it alone on `develop` would demand a bypass for every unrelated merge until Phase 2. Shipping it advisory-only was rejected: fail-open is the named failure mode, and v3.17.5 already shipped one such validator and patched it same-day.
+- **No new CI job.** A new job would need its own required context, which is circular given what is being fixed.
+- **A job-level `if:` is never inspected.** Flagging it would push authors back toward the filter that causes the defect.
+
+### Tests And CI/CD
+
+30 new tests; full regression 1819 passed, 38 skipped. Lint clean, with three real ruff findings fixed rather than suppressed. Coverage on the new validator measured at 90%. CI gains one step in the existing `validate` job and no new job or matrix leg. The usual path-filter optimization advice was deliberately **not** applied, since those filters are what Phase 2 removes.
+
+### Known Issues
+
+Recorded under `## v3.17.6` in [docs/v3/v3.17/known-gaps.md](v3/v3.17/known-gaps.md): the guard fails by design until Phase 2 (`QG-1`), matrix legs resolve by job id so a stale leg would pass (`MT-1`), the repository has no coverage instrumentation (`MT-2`), the dev host has no `make` (`WN-1`), and one closed bug where a stripped-environment test wrote stray directories into the working tree, caught by `git status` rather than by any failing test (`BG-1`).
+
 ## [2026-08-18] - v3.17.5 released
 
 ### What Shipped

@@ -606,6 +606,13 @@ DEV_ONLY_SCRIPTS = {
     # reachability. Runs in `make validate` and CI. An end-user install has no
     # catalog source to derive from, so it is deliberately not installer-copied.
     "check_registry_entries.py",
+    # Repo-internal required-check coverage guard (v3.17.6): asserts every
+    # context in docs/policy/required-checks.json is produced by a workflow that
+    # triggers unconditionally, so a required check can never sit Pending
+    # forever. Runs in `make validate` and CI. An end-user install has no
+    # .github/workflows/ tree or branch protection to check, so like the guards
+    # above it is deliberately not installer-copied.
+    "check_required_check_coverage.py",
     # Repo-internal release-notes guard (v3.16.2): asserts every opt-in surface a
     # release ships documents its five capability-usage elements. Advisory until
     # it has caught a real omission. An end user has no release notes to check,

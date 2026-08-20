@@ -17,15 +17,20 @@ Two documented exceptions are encoded rather than hidden:
   uploading analysis results requires it, and it has no top-level block. Adding
   one would not help (a job-level block replaces the default outright) and
   narrowing it would break the security scan.
-- ``ci.yml`` uses a catch-all path filter because it must run for any non-docs
-  change. Requiring a focused allowlist of it would invert its purpose.
-- ``presentify-extractor.yml`` starts on every protected PR so its required
-  ``verify`` context always exists, then applies its path filter inside the
-  workflow to avoid installing heavy dependencies for unrelated changes.
+- Any workflow producing a REQUIRED status check must NOT event-filter at all.
+  GitHub leaves the absent context Pending forever on an unrelated PR, so such a
+  filter makes the protected branch unmergeable without an administrator bypass.
+  Those workflows classify paths INSIDE the workflow and gate their jobs with
+  ``if:``, because a skipped job reports Success. The set is DERIVED from
+  ``docs/policy/required-checks.json`` rather than hardcoded, so declaring a new
+  required check enforces the rule on its producing workflow automatically
+  (v3.17.6 Phase 2; ``presentify-extractor.yml`` has used this shape since
+  v3.12.0, and ``ci.yml`` plus ``doc-colocation.yml`` joined it in v3.17.6).
 """
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Any
 
@@ -42,13 +47,44 @@ ON_KEY = True
 # codeql needs write access to upload results; it scopes that at job level.
 PERMISSION_EXCEPTIONS = {"codeql.yml"}
 
-# ci.yml is the catch-all gate, so it filters by exclusion instead.
-PATHS_FILTER_EXCEPTIONS = {"ci.yml"}
+REQUIRED_CHECKS_MANIFEST = REPO_ROOT / "docs" / "policy" / "required-checks.json"
 
-# Required checks cannot use event-level path filtering: GitHub leaves the
-# absent required context pending on unrelated PRs. These workflows must prove
-# their in-workflow path classification in a dedicated regression test.
-IN_WORKFLOW_PATH_FILTER_EXCEPTIONS = {"presentify-extractor.yml"}
+
+def required_check_workflows() -> set[str]:
+    """Workflow filenames that produce at least one required status check.
+
+    Derived, not hardcoded (v3.17.6 Phase 2). A required check must be produced
+    by a workflow that triggers unconditionally, so declaring a new required
+    context in the manifest immediately holds its producing workflow to the
+    no-event-filter rule -- no second edit here, and no way to add a required
+    check while quietly leaving a filter on its workflow.
+
+    Falls back to the known set if the manifest is unreadable, because this test
+    must keep asserting something rather than silently exempt every workflow.
+    """
+    known = {"ci.yml", "doc-colocation.yml", "presentify-extractor.yml"}
+    try:
+        manifest = json.loads(REQUIRED_CHECKS_MANIFEST.read_text(encoding="utf-8"))
+        contexts = {
+            context
+            for branch in manifest["branches"].values()
+            for context in branch["contexts"]
+        }
+    except (OSError, KeyError, ValueError):
+        return known
+
+    # A matrix leg reports as `job (leg)`; resolve to the bare job id.
+    jobs = {c.split(" (", 1)[0] for c in contexts}
+    producing = set()
+    for path in workflow_files():
+        try:
+            declared = set(load(path)["jobs"])
+        except (KeyError, TypeError):
+            continue
+        if declared & jobs:
+            producing.add(path.name)
+    return producing or known
+
 
 # Generous ceilings applied in Phase 9.3: far below the 6-hour default, high
 # enough that a legitimately long suite is not failed. The repository Python
@@ -139,46 +175,49 @@ def test_no_ordinary_feature_branch_push_expansion(path: Path) -> None:
 
 
 @pytest.mark.parametrize("path", ALL)
+def test_required_check_workflows_do_not_event_filter(path: Path) -> None:
+    """A required check must never be gated by a workflow-level path filter.
+
+    GitHub leaves a check from an untriggered workflow Pending forever, while a
+    job skipped by an `if:` reports Success. So the same path scoping is safe per
+    job and fatal per workflow. Shipping v3.17.5 took seven administrator
+    bypasses in one day for exactly this reason.
+
+    The complementary guard, scripts/check_required_check_coverage.py, works from
+    the manifest inward (context -> producing job -> is its workflow filtered).
+    This test works from the workflow outward, so a filter added to a
+    required-check producer fails here even before the manifest is consulted.
+    """
+    if path.name not in required_check_workflows():
+        pytest.skip(f"{path.name} produces no required status check")
+    triggers = load(path)[ON_KEY]
+    for event, cfg in triggers.items():
+        if not isinstance(cfg, dict):
+            continue
+        for key in ("paths", "paths-ignore"):
+            assert key not in cfg, (
+                f"{path.name} produces a required status check but declares "
+                f"`{key}:` on its `{event}` trigger. The check would sit Pending "
+                "forever on a PR that touches nothing matching the filter. Move "
+                "the scoping to a job-level `if:` instead -- a skipped job "
+                "reports Success."
+            )
+
+
+@pytest.mark.parametrize("path", ALL)
 def test_focused_workflows_filter_by_path(path: Path) -> None:
-    """Everything except the catch-all gate should scope itself to its own tree."""
-    if path.name in IN_WORKFLOW_PATH_FILTER_EXCEPTIONS:
-        return
-    if path.name in PATHS_FILTER_EXCEPTIONS:
-        # The catch-all gate must not narrow itself to an allowlist. Two shapes
-        # satisfy that, and the invariant is "runs by default, with exclusions",
-        # not any particular key:
-        #   1. `paths-ignore: [...]`                      - a denylist, or
-        #   2. `paths: ['**', '!excluded/**', ...]`       - a catch-all followed
-        #      by negations, which is behaviourally the same thing.
-        #
-        # Form 2 became necessary in v3.16.0 Phase 2: `docs/policy/` is validator
-        # INPUT (it feeds verify_platform_contracts.py, the contract freshness
-        # gate, and the lever-contract completeness tests), so a push touching
-        # only that directory must still run CI. Re-including a subdirectory is
-        # impossible in `paths-ignore` because GitHub Actions supports the `!`
-        # negation character in `paths` ONLY, and the two filters cannot both be
-        # set for one event. This test previously asserted the KEY (`paths-ignore`)
-        # rather than the PROPERTY (does not narrow), so it failed a change that
-        # widened coverage. It now checks the property.
-        triggers = load(path)[ON_KEY]
-        for name, cfg in triggers.items():
-            if not isinstance(cfg, dict):
-                continue
-            if "paths-ignore" in cfg:
-                return
-            paths = cfg.get("paths")
-            if isinstance(paths, list) and paths and paths[0] == "**":
-                return
-        raise AssertionError(
-            f"{path.name} is the catch-all gate but narrows its trigger: it declares "
-            "neither `paths-ignore` nor a `paths` list beginning with '**'. The "
-            "repo-wide gate must run by default and subtract exclusions, never "
-            "opt in to an allowlist."
-        )
+    """A workflow with no required check should scope itself to its own tree.
+
+    This is the cost rule, and it applies only where it is safe. Its former
+    exception list is gone: the required-check producers are now identified by
+    the test above, which asserts the OPPOSITE property for them.
+    """
+    if path.name in required_check_workflows():
+        pytest.skip(f"{path.name} produces a required check; filtering it is unsafe")
     triggers = load(path)[ON_KEY]
     filtered = [
         name
         for name, cfg in triggers.items()
-        if isinstance(cfg, dict) and "paths" in cfg
+        if isinstance(cfg, dict) and ("paths" in cfg or "paths-ignore" in cfg)
     ]
     assert filtered, f"{path.name} declares no path filter on any trigger"
