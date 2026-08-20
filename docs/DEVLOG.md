@@ -1,5 +1,43 @@
 # Development Log
 
+## [2026-08-20] - v3.17.6 Phase 3: release-flow hygiene
+
+### What Shipped
+
+`scripts/check_release_preconditions.py`, wired into `/update release`, plus a post-release back-merge step. Distributed by both installers (approved, since `AGENTS.md` puts installer edits behind "Ask first"): `/update release` ships to users, so a command describing a safety check absent from their install is prose promising something that is not there.
+
+- **`--pre-tag`** (blocking). HEAD must be the expected release branch AND equal `origin/<branch>`. Configurable branch, because a gate that blocks a legitimate release gets bypassed.
+- **`--branches`** (advisory). Cleanup candidates, deleting nothing.
+- **`--repo-settings`** (advisory). `delete_branch_on_merge` plus repository-description drift.
+
+### The Design Question The Plan Left Open
+
+Sub-task 3.1 says extend `update.md` (prose); 3.3 says test the pre-tag assertion. Prose is not testable, and `AGENTS.md` explicitly rejects tests that assert document text. `update.md` already delegates to nine scripts, so the pattern was already there: prose plus a script carrying the logic.
+
+### Two Places The Plan Was Wrong, Found By Running It
+
+**The specified branch mechanism finds nothing here.** `git branch -r --merged` reported zero candidates while ten stale branches sat on the remote. `delete_branch_on_merge` is already enabled, so GitHub auto-deletes a branch the moment its PR merges, and "merged but undeleted" is structurally almost always empty. The plan's premise (39 accumulated branches) came from the v3.17.5 session when the setting was OFF; enabling it there invalidated the mechanism the plan then specified.
+
+What accumulates instead is branches whose PR was **closed unmerged** - GitHub does nothing for those, and `--merged` cannot see them by definition. Here: four `test/ci-proof-*` refs from Phase 2, three abandoned feature branches, three dependabot refs. The reporter now covers both categories.
+
+**A file glob is the wrong source for catalog counts.** Globbing gave 21 commands and 34 hooks against a declared 18 and 31, because it counts permanent aliases as commands and helpers as hooks. Not an off-by-three but a category error: a drift report tells someone what to write, and a confidently wrong number is the number they paste. Only skills has a machine-readable source (`data/skills.json`); commands and hooks now come from what `README.md` declares, so the comparison is between two hand-maintained surfaces, which is the real drift class. A separate check catches the declaration itself going stale.
+
+Corrected, the check reports exactly what the plan predicted: the description reads "256 curated skills, 15 commands, 22 hooks" against a declared 273 / 18 / 31.
+
+### Why The Pre-Tag Assertion Sits Where It Does
+
+In the v3.17.5 release a `git checkout main` failed on a OneDrive-locked directory, HEAD stayed elsewhere, and the tag was created there and published, shipping an unreleased plan file in the tarball. A check placed anywhere earlier cannot catch that: a checkout that failed silently is exactly the state being guarded. So it reads live git state immediately before `git tag` and caches nothing.
+
+### Tests
+
+27 tests over real git repositories with a real bare-repo remote, because the failure mode is a git state, not a function argument - faking `origin/<branch>` would have tested the mock. Both directions throughout: it must block a wrong HEAD, and it must pass a legitimate release including from a differently-named release branch.
+
+Full affected trees: **2407 passed, 64 skipped, 1 failed** - the failure being the pre-existing `WN-1` Git-Bash `tar` gap. Installer verification: parity passes, 33 installer-smoke tests pass (including the both-installers assertion), `installer.ps1` AST-parses, line endings unchanged.
+
+### Known Issues
+
+"Phase 3 findings" in [known-gaps.md](v3/v3.17/known-gaps.md). Open: `NI-2` (the description is still stale - the check reports it, but editing project metadata belongs to the operator), `DF-2` (`--pre-tag` has not yet guarded a real tag; the v3.17.6 release is its first), `QG-3` (the distributed surface grew), `MT-3` (hook file count does not reconcile with the declared figure).
+
 ## [2026-08-20] - v3.17.6 Phase 2: workflow migration, and the defect the proof PRs caught
 
 ### What Shipped

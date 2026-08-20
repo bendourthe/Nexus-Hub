@@ -1,8 +1,8 @@
 # Known Gaps - v3.17
 
 **Project**: Nexus-Hub
-**Status**: v3.17.5 is released. v3.17.6 (CI gate hygiene and branch hygiene) is in progress: Phases 1 and 2 are merged to `develop` and PROVEN by two real PRs reaching CLEAN with zero administrator bypass. Branch protection now requires five contexts instead of ten. Phases 3-6 remain. Prior v3.17.0 through v3.17.5 records remain below.
-**Last updated**: 2026-08-20 (v3.17.6 Phase 2 completion)
+**Status**: v3.17.5 is released. v3.17.6 (CI gate hygiene and branch hygiene) is in progress: Phases 1 and 2 are merged to `develop` and PROVEN by two real PRs reaching CLEAN with zero administrator bypass; Phase 3 (release-flow hygiene) is complete locally. Branch protection now requires five contexts instead of ten. Phases 4-6 remain. Prior v3.17.0 through v3.17.5 records remain below.
+**Last updated**: 2026-08-20 (v3.17.6 Phase 3 completion)
 
 > **File-lifecycle note**: this ledger was opened by the v3.17.0 Phase 1 append. Each subsequent v3.17.N implementation appends its own `## v3.17.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `MT-#` / `QG-#` numbering.
 
@@ -92,6 +92,52 @@
 - **What it is**: this phase created five branches: `feat/ci-gate-and-branch-hygiene` and `fix/ci-required-aggregate-gate` (both merged), plus `test/ci-proof-docs-only`, `test/ci-proof-code-only`, `test/ci-proof-docs-2`, and `test/ci-proof-code-2` (all throwaway, their PRs closed unmerged). None were deleted.
 - **Why they were not force-updated or deleted here**: the `git-guardrails` hook blocked a `--force-with-lease` push to the two first-round proof branches, which is the hook working as intended. The proof was re-run on fresh branches instead of rewriting history, which is why there are four throwaway refs rather than two.
 - **Suggested next step**: Phase 3 sub-task 3.2 adds exactly this reporting to `/update release` (merged-but-undeleted remotes, plus the `delete_branch_on_merge` setting). These six refs are a ready-made fixture for it. Note `delete_branch_on_merge` does not remove a branch whose PR was CLOSED rather than merged, so the four `test/` refs need manual cleanup regardless.
+
+### Phase 3 findings (release-flow hygiene)
+
+#### BG-5 - RESOLVED at design time: the plan's branch-hygiene mechanism finds nothing on this repo
+
+- **Target files**: `scripts/check_release_preconditions.py`, `catalog/commands/update.md`
+- **What was wrong**: sub-task 3.2 specifies listing branches "already merged into the integration branch" via `git branch -r --merged`. Implemented exactly as written, it reported **zero** candidates while **ten** stale branches sat on the remote.
+- **Why**: `delete_branch_on_merge` is already ENABLED on this repository, so GitHub auto-deletes a branch the moment its PR merges. "Merged but undeleted" is therefore structurally almost always empty here. The plan's premise came from the v3.17.5 session, when 39 branches had accumulated because the setting was OFF; enabling it during that session invalidated the mechanism the plan then specified.
+- **What actually accumulates**: branches whose PR was CLOSED unmerged. GitHub does nothing for those, and `--merged` cannot see them because they are, by definition, not merged. On this repo that is the four `test/ci-proof-*` refs from Phase 2 plus three abandoned feature branches and three dependabot refs.
+- **Resolution**: the reporter covers BOTH categories. The merged list is kept (still correct, and still the right check for a repository without the setting), and a second `closed_unmerged_pr_branches` category was added. This exceeds the sub-task's literal wording and serves its stated objective, "report stale branches and the settings that cause them", which the specified mechanism did not.
+
+#### BG-6 - RESOLVED at design time: a file glob is the wrong source for catalog counts
+
+- **Target files**: `scripts/check_release_preconditions.py`
+- **What was wrong**: the description-drift check first derived counts by globbing `catalog/commands/*.md` and `catalog/hooks/*.{sh,py}`, yielding 21 commands and 34 hooks. The project declares 18 and 31. The glob counts permanent aliases as commands and helper scripts as hooks.
+- **Why it mattered more than an off-by-three**: a drift report exists to tell someone what to write in the description. A confidently wrong number is the number they paste. That is worse than no check.
+- **Resolution**: only the skills count has a machine-readable source (`data/skills.json`, one entry per skill). Commands and hooks are read from the figures `README.md` DECLARES, so the comparison is between two hand-maintained surfaces, which is the actual drift class. A separate `declared_vs_actual` check catches the declaration itself going stale, and a test asserts it holds on the live repository.
+- **Confirmed finding**: the description reads "256 curated skills, 15 commands, 22 hooks" against a declared 273 / 18 / 31, exactly as the plan predicted.
+
+#### NI-2 - OPEN: the repository description is still stale
+
+- **Target files**: none (GitHub repository setting)
+- **What it is**: the check now reports the drift, and the description has not been changed. It is a GitHub setting, not a file, so no version-carrying surface covers it and `check_version_sync.py` cannot see it.
+- **Why it was not fixed here**: editing the repository description is an outward-facing change to project metadata, distinct from implementing the check that finds it. It belongs to the operator.
+- **Suggested next step**: `gh repo edit --description "..."` with the declared 273 / 18 / 31, or fold it into the next `/update release`, which now reports it.
+
+#### DF-2 - OPEN: `--pre-tag` has never run against a real release
+
+- **Target files**: `scripts/check_release_preconditions.py`
+- **What it is**: the assertion is covered by 9 tests against real git repositories with a real remote, including the legitimate-release case and a non-default release branch. It has not yet guarded an actual `git tag`.
+- **Why it is low risk in the failing direction**: the tests assert both directions, and the over-strict failure mode (blocking a legitimate release) is the one that would be noticed immediately rather than silently.
+- **Suggested next step**: the v3.17.6 release itself is the first real exercise. If it blocks incorrectly, the message names the branch it found and the one it expected.
+
+#### QG-3 - OPEN: the installer gained a copy step, so the distributed surface grew
+
+- **Target files**: `scripts/installer.sh`, `scripts/installer.ps1`
+- **What it is**: `check_release_preconditions.py` is now copied to `~/.nexus-hub/scripts/` by both installers, added with explicit approval (AGENTS.md lists installer modification under "Ask first"). It is distributed rather than repo-internal because `/update release` ships to users, and a command describing a check the user does not have is prose promising something absent.
+- **Verification performed**: `check_installer_parity.py` passes, `test_installer_smoke.py` passes (33 tests, including the assertion that every non-`DEV_ONLY_SCRIPTS` script appears in BOTH installers), `installer.ps1` AST-parses, and line endings were confirmed unchanged (`installer.sh` all LF, `installer.ps1` all CRLF, 13 lines added and none removed in each).
+- **Not verified**: a real end-to-end install placing the file. That runs in CI's `bootstrap` and `installer-smoke` jobs.
+
+#### MT-3 - OPEN observation: `catalog/commands/*.md` count disagrees with the declared command count
+
+- **Target files**: `README.md`, `AGENTS.md`, `catalog/commands/`
+- **What it is**: 21 `.md` files exist under `catalog/commands/` while README and AGENTS declare 18 commands (plus 3 permanent aliases, which reconciles to 21). The hooks figure does not reconcile as cleanly: 34 `.sh`/`.py` files against a declared 31.
+- **Why it is only an observation**: the declared figures are the project's own statement of what it ships, and the file counts include artifacts that are not commands or hooks. Nothing here is provably wrong.
+- **Suggested next step**: if a future version wants these counts machine-checked the way skills already are, the fix is a declared count in `data/` rather than a smarter glob. Recorded so the discrepancy is known rather than rediscovered.
 ---
 
 ## v3.17.5 - adoption-deepseek-harness
