@@ -7,7 +7,7 @@ set -e
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-NEXUS_HUB_VERSION="3.17.5"
+NEXUS_HUB_VERSION="3.17.6"
 
 # --- Window Title ---
 printf '\033]0;Nexus-Hub Installer\007'
@@ -2593,6 +2593,19 @@ install_templates() {
     local version_sync_source="$repo_root/scripts/check_version_sync.py"
     if [ -f "$version_sync_source" ]; then
         safe_copy "$version_sync_source" "$scripts_dest/check_version_sync.py" true "[OK] Version-sync guard installed at: $scripts_dest/check_version_sync.py"
+    fi
+    # check_release_preconditions.py (v3.17.6): release-flow guard. --pre-tag
+    # refuses to tag unless HEAD is the expected release branch AND matches its
+    # remote (the v3.17.5 mis-tag: a checkout failed on a locked directory and
+    # the tag was created on the wrong commit). --branches and --repo-settings
+    # report merged remote branches and delete_branch_on_merge, advisory only,
+    # deleting nothing. Stdlib-only, so it is a single cross-platform .py file
+    # with no .ps1 sibling (NI-v24-1 convention). Distributed because
+    # /update release ships to users and must not describe a check they lack.
+    # Lockstep with scripts/installer.ps1.
+    local release_precond_source="$repo_root/scripts/check_release_preconditions.py"
+    if [ -f "$release_precond_source" ]; then
+        safe_copy "$release_precond_source" "$scripts_dest/check_release_preconditions.py" true "[OK] Release-preconditions guard installed at: $scripts_dest/check_release_preconditions.py"
     fi
     # scan_skill_security.py (v3.0.0): thin CLI launcher for the
     # nexus-skill-scanner static skill-security engine (extensions/nexus-skill-scanner).

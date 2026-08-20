@@ -1,13 +1,282 @@
 # Known Gaps - v3.17
 
 **Project**: Nexus-Hub
-**Status**: v3.17.3 is released, and the v3.17.4 release candidate includes the completed Org Knowledge Layer, two usage-monitor improvements, and the scheduled retirement-migration removal. Protected CI resolves the local integration-runtime warning; three intentional Org Knowledge product limits and the prompting-profile advisory remain open, with no release blocker. Prior v3.17.0 through v3.17.3 records remain below.
-**Last updated**: 2026-08-17 (v3.17.4 release reconciliation)
+**Status**: v3.17.5 is released. v3.17.6 (CI gate hygiene and branch hygiene) is COMPLETE across all six phases. Phases 1-2 are merged to `develop` and proven by two real PRs reaching CLEAN with zero administrator bypass; Phases 3-6 followed. Branch protection now requires five contexts instead of ten. Ready for the `/update release` handoff, with the operator items listed under Phase 6 outstanding. Prior v3.17.0 through v3.17.5 records remain below.
+**Last updated**: 2026-08-20 (v3.17.6 Phase 6 reconciliation)
 
 > **File-lifecycle note**: this ledger was opened by the v3.17.0 Phase 1 append. Each subsequent v3.17.N implementation appends its own `## v3.17.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `MT-#` / `QG-#` numbering.
 
 > **Prior-version ingest**: checked `docs/v3/v3.15/known-gaps.md`. v3.15.2 DF-2 (Hermes registered but not installer-wired) carries forward as DF-4 because it remains a delivery limitation. v3.15.0 WN-1 (the Windows Git-Bash bootstrap `tar` failure) recurred and carries forward as WN-1. The v3.15.1 lint warnings involved files outside this plan and do not carry in. The v3.18.2 RTK and Meterless artifacts keep their established stamp under `docs/v3/v3.18/`; their stale pre-move references were corrected during Phase 6 rather than transferred as gaps.
 
+---
+
+## v3.17.6 - ci-gate-and-branch-hygiene
+
+**Status**: Phases 1 and 2 complete (2026-08-20), merged to `develop` as PR #56 (`6255ae03`) and PR #59 (`43f144ca`). The plan's Definition of Done item 2 is satisfied by measurement, not assertion: a docs-only PR (#60) and a code-only PR (#61) each reached `CLEAN` with **zero administrator bypass**. Branch protection on `main` and `develop` now requires five contexts instead of ten. Phases 3-6 remain. This section is appended to by each subsequent phase.
+
+### QG-1 - RESOLVED: the guard failed this repository by design until Phase 2
+
+- **Target files**: `scripts/check_required_check_coverage.py`, `.github/workflows/ci.yml`, `.github/workflows/doc-colocation.yml`
+- **What it was**: Phase 1 deliberately shipped a guard that exited 1, reporting 18 `CONDITIONAL` contexts across 7 jobs. That failing run was the evidence Phase 2 had to clear.
+- **Resolution**: the migration cleared it. The guard exits 0 on `develop`, and Phase 1 and Phase 2 reached `develop` together in a single PR so no required check was ever red on the integration branch and no bypass was ever needed.
+
+### BG-1 - RESOLVED: a skipped matrix job never publishes its per-leg contexts
+
+- **Target files**: `.github/workflows/ci.yml`, `docs/policy/required-checks.json`
+- **What was wrong**: this is the defect that made sub-task 2.2 worth doing. GitHub evaluates a job-level `if:` **before** matrix expansion, so a job skipped by an `if:` publishes exactly ONE check run named after the bare job. The raw check-run API on the first docs-only proof PR (#57) listed `installer-smoke`, never `installer-smoke (ubuntu-latest)` and its two siblings. Five of the ten required contexts (`bootstrap (ubuntu-latest)`, `install-smoke (ubuntu-latest)`, and three `installer-smoke` legs) therefore never came into existence and sat Pending forever. PR #57 reached `BLOCKED`, not `CLEAN`.
+- **Why Phase 1's guard could not catch it**: the guard resolves a `job (leg)` context to its bare job id and asks whether that job's WORKFLOW is filtered. It answered that question correctly. Nobody was asking whether the context NAME survives a skip. This is exactly the limitation recorded as Phase 1's `MT-1`, biting from the direction the note said would not matter.
+- **Why the diagnosis was unambiguous**: `tests` has no matrix, so its skip DID satisfy its required `tests` context. The contrast between `tests` (satisfied) and `installer-smoke` (never reported) isolates matrix expansion as the mechanism.
+- **Resolution**: a single `ci-required` aggregate job (`if: always()`, depending on all nine other jobs) replaced the nine per-job contexts. The required set is now `validate`, `shellcheck`, `ci-required`, `colocation`, `verify`. Matrix jobs may skip freely, and per-leg names stop being load-bearing.
+- **Rejected alternative**: un-gate the three matrix jobs so they always publish their leg names. Correct, but measured at roughly 6.3 billed min on every docs-only PR (the 10x macOS leg dominates) against 1.38 measured for the aggregate.
+
+### BG-2 - RESOLVED: a shipped test enforced the antipattern as policy
+
+- **Target files**: `tests/workflows/test_workflow_policy_repo_wide.py`
+- **What was wrong**: the test asserted that every workflow except `ci.yml` must declare an event-level `paths:` filter, and that `ci.yml` must be a `paths-ignore` / `**`-prefixed catch-all. A **cost** rule had silently grown into a **correctness prohibition**, so the migration could not pass a policy the repository still enforced. Both `tests` and `tests-windows` failed on the first rehearsal run.
+- **How it surfaced**: only in CI. The local run had covered `tests/validators` and `catalog/hooks/tests`; CI's `tests` job runs eight separate trees and `tests/workflows` was not among the two run locally.
+- **Resolution**: the required-check-producing workflow set is now DERIVED from `docs/policy/required-checks.json` rather than hardcoded, so declaring a new required context automatically forbids an event filter on its producing workflow with no second edit. The cost rule still applies to the six workflows that produce no required check.
+- **Worth keeping**: the two guards now approach from opposite ends (the validator manifest-to-workflow, the policy test workflow-to-manifest) and were negative-controlled together. Reintroducing a `paths:` filter on `ci.yml` fails both; both pass on restore.
+
+### BG-3 - RESOLVED: tests-windows lacked PyYAML, masking that new suites never ran there
+
+- **Target files**: `.github/workflows/ci.yml`, `tests/validators/test_ci_changes_classifier.py`
+- **What was wrong**: `tests-windows` installed only `pytest` while the ubuntu `tests` job installs `pytest tomlkit PyYAML`, and `tests-windows` runs `tests/validators`. Adding a PyYAML-importing test to that tree broke **collection**, which interrupted the whole session: every other validator test on Windows stopped running rather than one file skipping.
+- **Why it mattered more than it looked**: the collection error meant neither new v3.17.6 suite had ever executed on Windows, in either rehearsal run. The failure was masking its own scope.
+- **Resolution**: `tests-windows` installs PyYAML, and the test file uses `pytest.importorskip("yaml")` so a missing parser degrades to one skipped file. Verified by running the exact failing step on a real Windows host: 1260 passed, 19 skipped, 1 failed (the pre-existing `WN-1` Git-Bash `tar` gap).
+
+### BG-4 - RESOLVED: a stripped-environment test wrote into the repository working tree
+
+- **Target files**: `tests/validators/test_check_required_check_coverage.py`
+- **What was wrong**: the first draft of the PyYAML-absence test ran its subprocess with `PATH=""` and no `APPDATA`/`LOCALAPPDATA`, and an earlier draft of the `--sync` test put a `gh.bat` stub on `PATH`. On Windows, Python resolves a bare `gh` to `gh.exe` only, so the stub was skipped and the REAL `gh` ran with no state directory. Between them the tests created `.local/state/gh/` and a literal `%SystemDrive%/ProgramData/` directory inside the repository.
+- **How it surfaced**: `git status` during the post-phase sequence. Both tests passed while polluting the tree.
+- **Resolution**: the `--sync` tests monkeypatch `subprocess.run` in-process (portable, and a tighter assertion: they also verify only `gh api` is ever called, never a protection write). The PyYAML test inherits the real environment and sets `cwd` to its tmpdir.
+- **Lesson worth keeping**: stripping the environment to simulate a missing dependency makes every tool it touches fall back to relative paths. Set `cwd` to a tmpdir whenever doing that.
+
+### DF-1 - OPEN: the tests-windows fix has not yet run in CI
+
+- **Target files**: `.github/workflows/ci.yml`
+- **What it is**: `tests-windows` is gated to non-`pull_request`, so neither proof PR nor the merge PR exercised it. The PyYAML fix is verified only on the local Windows host.
+- **Why it is low risk**: it is a one-word dependency addition, and `tests-windows` is not a required status check, so a failure would show as a red push run without blocking any merge.
+- **Outcome**: it DID fail. The `develop` push run for `43f144ca` failed `tests-windows`, and `ci-required` failed with it. Root cause was not PyYAML but a bare `bash` resolving to the Windows System32 WSL launcher stub. Fixed in Phase 6; see the Phase 6 `DF-1` entry below.
+
+### NI-1 - OPEN by design: the aggregate is a single point of failure
+
+- **Target files**: `.github/workflows/ci.yml`, `tests/validators/test_ci_required_gate.py`
+- **What it is**: `ci-required` now stands between a broken build and a green merge for nine jobs. A bug in its verdict logic would report green over a real failure, which is strictly worse than the defect it replaced, because it would be silent.
+- **Mitigations actually in place**: the verdict is an ALLOWLIST (`success` or `skipped` pass, anything else fails) rather than a denylist on `failure`/`cancelled`, so a GitHub result value that does not exist yet fails closed; an empty result set fails rather than passing vacuously; `if: always()` prevents the job being skipped by a failed dependency; the logic is pure bash with no `jq` or `python3` so it is testable off-CI; and `validate` plus `shellcheck` remain separately required as defence in depth, since both always run and can never be skipped. 12 tests cover the three silent-failure modes, including that every job in `needs` has a matching env var (a job without one is invisible to the verdict loop).
+- **Suggested next step**: none. Recorded so the concentration of risk is a known, argued position rather than an accident.
+
+### MT-1 - OPEN limitation: matrix legs are still resolved by job id
+
+- **Target files**: `scripts/check_required_check_coverage.py`
+- **What it is**: the guard resolves a `job (leg)` context to its bare job id, because every matrix in `ci.yml` defines its `os` list as a `${{ fromJSON(...) }}` expression that cannot be enumerated statically.
+- **Why it now matters much less**: `docs/policy/required-checks.json` no longer contains any `job (leg)` context, and `tests/validators/test_ci_required_gate.py` fails if one is added back. The unresolvable case has been designed out of the required set rather than solved.
+- **Suggested next step**: none required.
+
+### MT-2 - OPEN observation: the repository has no coverage instrumentation
+
+- **Target files**: `tests/validators/conftest.py`
+- **What it is**: every validator test invokes its script as a subprocess, deliberately, so the test exercises the CLI a maintainer runs. `coverage` therefore records nothing without `--parallel-mode` plus a `COVERAGE_PROCESS_START` shim, and the repository defines no threshold, `[tool.coverage]` section, or `--cov` flag anywhere.
+- **How the gate was satisfied**: 90% on `check_required_check_coverage.py`, measured with a one-off out-of-tree in-process probe replaying the suite's own fixtures. The probe is scratch tooling and deliberately NOT committed, since committing it would create a second, divergent way to exercise the same code.
+- **Suggested next step**: if a future version wants an enforced number, the change belongs in `conftest.py` and CI once, for all validators, not per phase.
+
+### WN-1 - OPEN environmental: `make` is unavailable on the development host
+
+- **Target files**: `Makefile`
+- **What it is**: the host has no `make`, so the `validate` target's new recipe lines were verified by direct script invocation plus a tab-indentation check rather than by executing the target.
+- **Why it is low risk**: CI's `validate` job invokes each script directly rather than through `make`, so CI coverage of the new guard does not depend on the Makefile edit.
+
+### QG-2 - OPEN, and it is Phase 3's input: merged branches and throwaway refs need cleanup
+
+- **Target files**: none (repository state)
+- **What it is**: this phase created five branches: `feat/ci-gate-and-branch-hygiene` and `fix/ci-required-aggregate-gate` (both merged), plus `test/ci-proof-docs-only`, `test/ci-proof-code-only`, `test/ci-proof-docs-2`, and `test/ci-proof-code-2` (all throwaway, their PRs closed unmerged). None were deleted.
+- **Why they were not force-updated or deleted here**: the `git-guardrails` hook blocked a `--force-with-lease` push to the two first-round proof branches, which is the hook working as intended. The proof was re-run on fresh branches instead of rewriting history, which is why there are four throwaway refs rather than two.
+- **Suggested next step**: Phase 3 sub-task 3.2 adds exactly this reporting to `/update release` (merged-but-undeleted remotes, plus the `delete_branch_on_merge` setting). These six refs are a ready-made fixture for it. Note `delete_branch_on_merge` does not remove a branch whose PR was CLOSED rather than merged, so the four `test/` refs need manual cleanup regardless.
+
+### Phase 3 findings (release-flow hygiene)
+
+#### BG-5 - RESOLVED at design time: the plan's branch-hygiene mechanism finds nothing on this repo
+
+- **Target files**: `scripts/check_release_preconditions.py`, `catalog/commands/update.md`
+- **What was wrong**: sub-task 3.2 specifies listing branches "already merged into the integration branch" via `git branch -r --merged`. Implemented exactly as written, it reported **zero** candidates while **ten** stale branches sat on the remote.
+- **Why**: `delete_branch_on_merge` is already ENABLED on this repository, so GitHub auto-deletes a branch the moment its PR merges. "Merged but undeleted" is therefore structurally almost always empty here. The plan's premise came from the v3.17.5 session, when 39 branches had accumulated because the setting was OFF; enabling it during that session invalidated the mechanism the plan then specified.
+- **What actually accumulates**: branches whose PR was CLOSED unmerged. GitHub does nothing for those, and `--merged` cannot see them because they are, by definition, not merged. On this repo that is the four `test/ci-proof-*` refs from Phase 2 plus three abandoned feature branches and three dependabot refs.
+- **Resolution**: the reporter covers BOTH categories. The merged list is kept (still correct, and still the right check for a repository without the setting), and a second `closed_unmerged_pr_branches` category was added. This exceeds the sub-task's literal wording and serves its stated objective, "report stale branches and the settings that cause them", which the specified mechanism did not.
+
+#### BG-6 - RESOLVED at design time: a file glob is the wrong source for catalog counts
+
+- **Target files**: `scripts/check_release_preconditions.py`
+- **What was wrong**: the description-drift check first derived counts by globbing `catalog/commands/*.md` and `catalog/hooks/*.{sh,py}`, yielding 21 commands and 34 hooks. The project declares 18 and 31. The glob counts permanent aliases as commands and helper scripts as hooks.
+- **Why it mattered more than an off-by-three**: a drift report exists to tell someone what to write in the description. A confidently wrong number is the number they paste. That is worse than no check.
+- **Resolution**: only the skills count has a machine-readable source (`data/skills.json`, one entry per skill). Commands and hooks are read from the figures `README.md` DECLARES, so the comparison is between two hand-maintained surfaces, which is the actual drift class. A separate `declared_vs_actual` check catches the declaration itself going stale, and a test asserts it holds on the live repository.
+- **Confirmed finding**: the description reads "256 curated skills, 15 commands, 22 hooks" against a declared 273 / 18 / 31, exactly as the plan predicted.
+
+#### NI-2 - OPEN: the repository description is still stale
+
+- **Target files**: none (GitHub repository setting)
+- **What it is**: the check now reports the drift, and the description has not been changed. It is a GitHub setting, not a file, so no version-carrying surface covers it and `check_version_sync.py` cannot see it.
+- **Why it was not fixed here**: editing the repository description is an outward-facing change to project metadata, distinct from implementing the check that finds it. It belongs to the operator.
+- **Suggested next step**: `gh repo edit --description "..."` with the declared 273 / 18 / 31, or fold it into the next `/update release`, which now reports it.
+
+#### DF-2 - OPEN: `--pre-tag` has never run against a real release
+
+- **Target files**: `scripts/check_release_preconditions.py`
+- **What it is**: the assertion is covered by 9 tests against real git repositories with a real remote, including the legitimate-release case and a non-default release branch. It has not yet guarded an actual `git tag`.
+- **Why it is low risk in the failing direction**: the tests assert both directions, and the over-strict failure mode (blocking a legitimate release) is the one that would be noticed immediately rather than silently.
+- **Suggested next step**: the v3.17.6 release itself is the first real exercise. If it blocks incorrectly, the message names the branch it found and the one it expected.
+
+#### QG-3 - OPEN: the installer gained a copy step, so the distributed surface grew
+
+- **Target files**: `scripts/installer.sh`, `scripts/installer.ps1`
+- **What it is**: `check_release_preconditions.py` is now copied to `~/.nexus-hub/scripts/` by both installers, added with explicit approval (AGENTS.md lists installer modification under "Ask first"). It is distributed rather than repo-internal because `/update release` ships to users, and a command describing a check the user does not have is prose promising something absent.
+- **Verification performed**: `check_installer_parity.py` passes, `test_installer_smoke.py` passes (33 tests, including the assertion that every non-`DEV_ONLY_SCRIPTS` script appears in BOTH installers), `installer.ps1` AST-parses, and line endings were confirmed unchanged (`installer.sh` all LF, `installer.ps1` all CRLF, 13 lines added and none removed in each).
+- **Not verified**: a real end-to-end install placing the file. That runs in CI's `bootstrap` and `installer-smoke` jobs.
+
+#### MT-3 - OPEN observation: `catalog/commands/*.md` count disagrees with the declared command count
+
+- **Target files**: `README.md`, `AGENTS.md`, `catalog/commands/`
+- **What it is**: 21 `.md` files exist under `catalog/commands/` while README and AGENTS declare 18 commands (plus 3 permanent aliases, which reconciles to 21). The hooks figure does not reconcile as cleanly: 34 `.sh`/`.py` files against a declared 31.
+- **Why it is only an observation**: the declared figures are the project's own statement of what it ships, and the file counts include artifacts that are not commands or hooks. Nothing here is provably wrong.
+- **Suggested next step**: if a future version wants these counts machine-checked the way skills already are, the fix is a declared count in `data/` rather than a smarter glob. Recorded so the discrepancy is known rather than rediscovered.
+
+### Phase 4 findings (CI skill audit)
+
+#### BG-7 - RESOLVED: `cicd-architect` taught both halves of the trap without connecting them
+
+- **Target files**: `catalog/skills/infrastructure/cicd-architect/SKILL.md`, `catalog/skills/infrastructure/cicd-architect/references/required-status-checks.md`
+- **What was wrong**: "Pattern 2: Path-Based Triggers" recommended workflow-level `paths:` / `paths-ignore:`, and the Verification checklist separately required "direct push to main is blocked and at least one status check is required". Neither instruction is wrong alone. Followed together they build an unmergeable branch, and nothing in the skill said so.
+- **Resolution**: Pattern 2 is now scoped ("Only safe when the workflow produces NO required status check"), states the Pending-versus-Success asymmetry with the vendor citation, shows the job-level `if:` form with both fail-closed halves, and flags the matrix trap. One Common Rationalizations row and one Verification item added. Full rationale in the new `references/required-status-checks.md`.
+- **Why the split**: the skill was 769 lines against the 800-line soft cap in `AGENTS.md`, whose prescribed remedy past 500 lines is a `references/` subdirectory. The rule itself stayed inline at the point of danger; only its long form moved. A correctness rule pushed entirely into a reference file is a rule the agent may never read.
+
+#### NI-3 - CHECKED, no antipattern found: `cd-pipeline-generator`
+
+- **Target files**: `catalog/skills/infrastructure/cd-pipeline-generator/SKILL.md`
+- **Finding**: no event-level path filtering anywhere (its `on:` block uses `branches:` and `workflow_dispatch` only) and no discussion of required status checks or branch protection. Nothing to correct.
+- **Why this is recorded**: the plan requires stating a null result explicitly, because a silent audit is indistinguishable from an audit never run. Recorded so a future reader knows this skill was examined rather than skipped.
+- **Not edited**: adding the rule here was considered and declined under the `AGENTS.md` scope-fit rule. The skill teaches nothing the rule corrects, so the addition would inflate Tier 2 with no defect to fix.
+
+#### NI-4 - CHECKED, no antipattern found: `cicd-integration`
+
+- **Target files**: `catalog/skills/tests-generation/cicd-integration/SKILL.md`
+- **Finding**: its only `paths:` match is a GitLab `cache:` key, not a trigger filter. Its GitHub Actions example uses `on: push` / `pull_request` with `branches: [main, develop]` and no path filter, and its Verification says "the pipeline triggers on both `push` and `pull_request` events for the protected branches" -- which is the correct advice.
+- **Precision note**: counting the `cache:` hit would have produced a false positive and an unnecessary edit. The same trap applies to `cicd-architect`, where three of five `paths:` matches are GitLab `cache:` / `artifacts:` keys.
+- **Not edited**: same reasoning as `NI-3`.
+
+#### MT-4 - OPEN: a new Unicode-punctuation warning is invisible in 1042 existing ones
+
+- **Target files**: `scripts/validate_unicode_safety.py`
+- **What it is**: a U+2026 ellipsis was introduced in the new reference file. `validate_unicode_safety.py` DOES detect it, as a warning promoted to an error only under `--strict`, and the repository currently carries **1042** such warnings (largely em-dashes and curly quotes in `templates/ai-instructions/legacy/`). A newly added violation is therefore indistinguishable from the existing backlog, and the exit code says nothing about whether a change introduced one.
+- **How it surfaced, and the process lesson**: the validator was run with its output redirected to `/dev/null` and only its exit code inspected, so the warning was never seen. The violation was caught instead by an ad-hoc style self-check written for this phase. Reading an exit code is not reading a validator's output when that validator warns rather than fails.
+- **Why it was not fixed here**: promoting the check to `--strict` requires clearing 1042 pre-existing warnings across files this plan does not touch, which is a version-scale cleanup rather than a phase task.
+- **Suggested next step**: either baseline the existing warnings and fail only on NEW ones (the shape that makes a warning actionable), or clear the legacy templates and switch the repo-wide invocation to `--strict`. Either is a candidate for a follow-on version.
+
+#### MT-5 - OPEN observation: `cicd-architect` is 9 lines from the soft cap
+
+- **Target files**: `catalog/skills/infrastructure/cicd-architect/SKILL.md`
+- **What it is**: the file is now 791 lines against the 800-line soft cap, beyond which `AGENTS.md` says a skill MUST be split or refactored before merge.
+- **Why it is not a violation now**: the file was already 769 lines and is grandfathered by the forward-looking norm; this phase added 22 lines and deliberately routed the bulk of the new content to `references/`.
+- **Suggested next step**: the next substantive addition to this skill triggers the split. The natural seam is the two large per-platform pipeline walkthroughs (Steps 2 and 3, roughly 300 lines each), which are reference material by nature.
+
+### Phase 5 findings (decision records)
+
+#### BG-8 - RESOLVED by measurement: the bypass count was six, not seven
+
+- **Target files**: `docs/decisions/implemented/tooling/2026-08-19-required-checks-must-be-unconditionally-produced.md`
+- **What was wrong**: the v3.17.6 plan, this version's session notes, and the project memory all state **seven** administrator bypasses during the v3.17.5 release. The verified figure is **six**.
+- **How it was established**: every pull request merged into a protected branch on 2026-08-19 (`#47` through `#55`) was checked against the ten contexts required at the time, using the check-runs API on each head commit. Six had at least one required context that never came into existence: `#50` (9 missing), `#51` (8), `#52` (1), `#53` (8), `#54` (8), `#55` (9). `#47`, `#48`, and `#49` reported all ten. Widening the window to `#44`-`#56` added nothing.
+- **Where the seventh went**: not reconstructible. Most likely a second bypass action on one of the six (a re-run after a push), or a miscount in the moment. The record states six with the per-PR evidence and explains the discrepancy rather than repeating the remembered number.
+- **Two findings that only appeared once the data was assembled**: `#52` is the CODE-only direction, missing only `colocation`, which proves the required set was unsatisfiable in both directions rather than merely hostile to docs. And `#50` / `#55` are zero-file back-merges, where a path-filtered required check is unsatisfiable by construction; that case needs an administrator merge legitimately and no filter tuning fixes it. Conflating it with the other four is what made the original problem look larger and vaguer than it was.
+- **The plan was deliberately NOT rewritten**: it records what was believed at authoring time. The correction lives in the decision record, which is the durable surface for settled reasoning under the three-surface split.
+
+#### QG-4 - OPEN deviation from the phase gate: the record names six instances, not seven
+
+- **Target files**: `docs/v3/v3.17/plans/v3.17.6-ci-gate-and-branch-hygiene.md`
+- **What it is**: Phase 5's stability gate requires that "the record names the seven instances and cites the vendor doc". The vendor doc is cited with its URL and 2026-08-19 fetch date. The instance count is six, because six is what the evidence supports.
+- **Why this is the right failure**: a decision record exists to be trusted later. Padding it to seven to satisfy a gate would put an unverifiable number next to six verifiable ones and devalue all seven.
+- **Suggested next step**: none. Recorded so the gate deviation is visible rather than papered over.
+
+#### NI-5 - Recorded, not a gap: the rejected record freezes the design a future proposer will reach for first
+
+- **Target files**: `docs/decisions/rejected/tooling/2026-08-19-inverse-path-no-op-workflows.md`
+- **What it is**: the inverse-path no-op-workflow approach (keep every filter, add a companion workflow on the inverse paths emitting the same job names as no-ops) is written up as a frozen proposal with the verdict on its `Status:` line, per the `rejected` lifecycle contract.
+- **Why it matters more than the other alternatives**: it is the only rejected option that appears to cost nothing. It changes no existing filter, renames no job, needs no protection edit, and makes every required context report. Its fatal flaw is one step further on: the gate then reports green **without inspecting anything**, and the pull requests most likely to hit the no-op are exactly the ones carrying `docs/policy/**`, `docs/incidents/**`, and `docs/decisions/**`, which are validator INPUT that several guards read. It converts "unmergeable" into "merged unchecked", which is worse because it is silent.
+- **Secondary flaw worth keeping**: it requires two filter sets to remain exact complements forever. `ci.yml` had already accumulated four re-inclusions across four separate versions, each added because a guard read that path; any drift between the pair yields an invisible gap.
+
+### Phase 6 findings and reconciliation (final phase)
+
+#### DF-1 - RESOLVED, and it caught a real regression: tests-windows was still failing in CI
+
+- **Target files**: `tests/validators/bash_helper.py`, `tests/validators/test_ci_changes_classifier.py`, `tests/validators/test_ci_required_gate.py`
+- **What Phase 3 recorded**: the `tests-windows` PyYAML fix had not run in CI, because that job is gated off pull requests, so its first execution would be the post-merge push to `develop`.
+- **What that execution found**: `tests-windows` FAILED on the `develop` push for `43f144ca`, and `ci-required` failed with it. The PyYAML fix was correct and insufficient.
+- **Root cause**: `tests/validators/test_ci_changes_classifier.py` invoked bare `bash`, resolved through `shutil.which("bash")`. On a GitHub Windows runner that resolves to the **System32 WSL launcher stub**, which precedes Git Bash on PATH and, with no distribution installed, prints a UTF-16 "no installed distributions ... to install" message and exits 1. The suite therefore passed locally (where Git Bash won the PATH race) and on ubuntu, and failed only on the Windows runner.
+- **This hazard was already documented in this repository.** The `bootstrap` job comment in `ci.yml` records the identical PATH shadowing from v3.15.6 Phase 4, where it was misdiagnosed for four minor versions as "the dev host cannot run bash". Walking into it again in a new place is the finding worth keeping: the knowledge existed and was not reachable from where the new code was written.
+- **Resolution**: `tests/validators/bash_helper.py` resolves bash **empirically**, probing each candidate with `printf ok` rather than filtering by path, so a stub is rejected because it does not work rather than because its location was guessed. Both bash-driving suites use it. It lives outside `conftest.py` deliberately: `from conftest import ...` resolves to `tests/conftest.py`, which shadows this directory's own conftest.
+- **A fail-open guarded in turn**: a resolver returning `None` would make both suites SKIP, reporting green while asserting nothing. `tests/validators/test_bash_helper.py` (4 tests) asserts a working bash is found on this host, that it can execute a file rather than only `-c`, that a non-working stub is rejected, and that nothing usable yields `None` rather than a broken path.
+- **Incidental validation**: `ci-required` correctly failed because a needed job failed. The aggregate gate's whole purpose was exercised by a real failure rather than only by its 12 unit tests.
+
+#### QG-5 - CLOSED in implementation: a directory-wide lint autofix reformatted 32 unrelated files
+
+- **Target files**: `tests/validators/` (32 files, reverted)
+- **What happened**: `python -m ruff check --fix tests/validators/` plus `ruff format` on the directory rewrote 32 test files unrelated to this phase, alongside the three intended ones.
+- **Why it is a defect and not a tidy-up**: `AGENTS.md` states that every changed line must trace to the request and that adjacent style issues outside the stated scope are not to be cleaned up. A 32-file formatting diff inside a release commit also buries the reviewable change.
+- **Resolution**: all 32 reverted with `git checkout --`. Final Phase 6 scope is two modified files (+21/-5) and two new ones. 30 pre-existing lint findings in that directory remain untouched and are NOT this version's to fix.
+- **Lesson**: lint and format the FILES the phase touched, never the directory that contains them.
+
+#### DF-3 - RESOLVED: the OneDrive file-locking hazard is not fixable in this repository
+
+- **Target files**: none (operator environment)
+- **What it is**: the working copy lives on a OneDrive-synced path. OneDrive holds directory handles, which aborts `git` operations mid-flight. In the v3.17.5 release a `git checkout main` failed for this reason, HEAD stayed on an unrelated branch, and the tag was created there and published, shipping an unreleased plan file in the release tarball. The same locking produced the repeated `tar` failure recorded as `WN-1` across several versions.
+- **Why it cannot be fixed here**: nothing in the catalog can stop a sync client holding a handle on a directory. Moving the working copy off the synced drive is the only real remedy, and it is an operator action on a checkout, not a change to the repository.
+- **What this version did instead**: made the consequence detectable rather than the cause preventable. `check_release_preconditions.py --pre-tag` reads HEAD immediately before `git tag` and aborts unless it is on the expected release branch AND equal to its remote, so a checkout that failed silently can no longer produce a mis-tagged release.
+- **Suggested next step**: none for the catalog. Recorded so the hazard is a known, mitigated condition rather than a recurring surprise.
+
+#### QG-6 - ACCEPTED: the Phase 2 Actions-minute delta needs no follow-up
+
+- **Target files**: `.github/workflows/ci.yml`
+- **Measured, not estimated.** Billed minutes for the same PR shapes, before and after the migration, from the check-runs API:
+
+| PR shape | Before | After | Delta | Mergeable before? |
+|---|---|---|---|---|
+| docs-only | 0.30 (`#54`) | 1.38 (`#60`) | **+1.08** | No |
+| code-only | 15.47 (`#52`) | 16.15 (`#61`) | **+0.68** | No |
+
+- **Verdict: acceptable, no follow-up.** Roughly one extra billed minute on a docs-only pull request buys the removal of a defect that made six pull requests unmergeable in a single day. The two jobs added (`changes` 0.12, `ci-required` 0.05) cost 0.17 billed minutes together.
+- **A correction to an earlier figure in this version**: the docs-only case was described mid-plan as "previously ran no `ci.yml` jobs at all", which is true, and the delta was then quoted as +1.38. The honest delta is **+1.08**, because 0.30 billed minutes were already being spent by `doc-colocation.yml` and `presentify-extractor.yml`.
+- **Matrix legs unchanged**: `bootstrap`, `install-smoke`, and `installer-smoke` have the same matrix shape before and after, so no expensive leg was added.
+
+#### QG-7 - CONFIRMED: the Phase 1 validator added no job and no matrix leg
+
+- **Target files**: `.github/workflows/ci.yml`
+- **Requirement**: Phase 6.3 asks for confirmation that the Phase 1 validator runs in the same `validate` job with no new job or matrix leg.
+- **Confirmed**: `check_required_check_coverage.py` runs as one step inside the pre-existing `validate` job. `ci.yml` went from 8 jobs to 10, and both additions (`changes`, `ci-required`) belong to Phase 2, not to the validator. A new job for the validator would have needed its own required context, which is circular given what it checks.
+
+#### NI-6 - CHECKED, recorded for a future reader: the two clean CI skills
+
+- **Target files**: `catalog/skills/infrastructure/cd-pipeline-generator/SKILL.md`, `catalog/skills/tests-generation/cicd-integration/SKILL.md`
+- **Restated here because Phase 6.2 requires it**: both were audited in Phase 4 and found free of the antipattern. `cd-pipeline-generator` has no event-level path filtering and does not discuss required checks. `cicd-integration`'s only `paths:` match is a GitLab `cache:` key, and its trigger guidance is already correct. Neither was edited. Full findings at `NI-3` and `NI-4` above.
+
+### Parallel-session findings folded into this release (docs only)
+
+#### BG-9 - OPEN defect: version-directory enumeration sorts lexically, not numerically
+
+- **Target files**: `catalog/skills/workflow/cross-project-comparison/SKILL.md` (Step 6.5 walk-forward version resolution)
+- **What is wrong**: the walk-forward resolution enumerates plan directories to find "the first free slot", and the enumeration is ALPHABETICAL. Lexical ordering places `v3.10`, `v3.18`, and `v3.20` before `v3.5`, so the scan reaches a wrong conclusion about what is occupied.
+- **Live instance**: it resolved `v3.17.12` for the cybersecurity comparison while plans already existed through `v3.20.0`.
+- **Independent of the fixes already shipped**: this is not one of the A-C comparison-versioning fixes that landed in the predecessor work; it is a separate arithmetic-versus-string defect in the same step.
+- **The rule any fix must follow**: sort NUMERICALLY on the parsed minor, never lexically, and scan EVERY `docs/v3/v3.*/plans` directory rather than only the current minor's. Both halves are needed; numeric sorting over an incomplete scan still returns a wrong free slot.
+- **How it surfaced**: human review. No gate catches it, which is the part worth noting -- the repository has a validator for decision-record structure and one for required-check coverage, and nothing that asserts a version resolver's ordering.
+- **Suggested next step**: fix in the skill and add a test with a fixture tree containing `v3.5` alongside `v3.10` and `v3.20`, since that is the minimal shape that distinguishes lexical from numeric ordering. Not fixed here: this release is docs-only for the parallel session's scope, and editing the skill would put a behavior change into a release whose notes say otherwise.
+
+#### QG-8 - CLOSED, and it corrects a Phase 6 claim: the "empty directory" was mid-sync, not abandoned
+
+- **Target files**: `docs/v3/v3.20/comparisons/`
+- **What Phase 6 recorded**: `docs/v3/v3.20/comparisons` was removed as "an empty untracked directory, no `.gitkeep`, so a local leftover with no repo effect".
+- **What it actually was**: a directory being populated by a concurrent parallel session arriving through OneDrive sync. The 27 KB `comparison-cybersecurity-skills-library.md` landed in it at 15:16. The `rmdir` succeeded only because it caught a transient empty moment, and the directory returned with its content.
+- **Why it is worth recording rather than quietly correcting**: nothing was lost, but a few seconds' difference would have deleted a real document, and the reasoning that authorised the deletion ("untracked and empty, therefore abandoned") was wrong rather than merely unlucky. On a synced working copy, "untracked and empty" does not distinguish abandoned from in-flight.
+- **Relationship to `DF-3`**: the same OneDrive hazard in a form the earlier entry did not anticipate. `DF-3` describes the sync client holding directory handles, which aborts git operations. This is the sync client DELIVERING content mid-operation, which makes a point-in-time filesystem observation unreliable.
+- **What actually caught it**: `git status`, run once more before a release step, not any validator. Every other guard in the pipeline inspects committed content, so none of them can see a working tree diverging underneath the session.
+- **Rule worth keeping**: on a synced checkout, do not delete an untracked path on the evidence of a single observation. Re-check, or leave it.
 ---
 
 ## v3.17.5 - adoption-deepseek-harness

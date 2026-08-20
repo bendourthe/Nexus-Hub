@@ -1,6 +1,6 @@
 # AGENTS.md
 
-<!-- nexus-hub-version: 3.17.5 -->
+<!-- nexus-hub-version: 3.17.6 -->
 
 This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, Gemini CLI, etc.) when working with code in this repository.
 
@@ -451,6 +451,7 @@ Nexus-Hub is a **template repository**. Nothing you add is "live" until a user r
 | `scripts/<name>.py` or `scripts/<name>.js` | **Yes — MUST add a copy step** in BOTH `scripts/installer.sh` AND `scripts/installer.ps1`, modeled after the existing `generate_report.py` entry. The installer copies scripts by **explicit name**, never by folder. | All platforms (shared under `~/.nexus-hub/scripts/`) |
 | `configs/platform-defaults.json` (v3.16.0+) | No — **repo-internal source, NOT a distributed artifact**. It is the single place a per-platform install-time behavioral default is declared. Its effect reaches users two ways: the derived core keys of `catalog/hooks/settings.json` (which the installer already copies), and install-time seeding into each platform's own config by `scripts/lib/integrations/platform_defaults.py`. Never hand-edit a derived artifact. | All platforms with a VERIFIED lever (see below) |
 | `scripts/sync_platform_defaults.py` (v3.16.0+) | No — **repo-internal guard, needs NO installer copy step**. Listed in `DEV_ONLY_SCRIPTS` in `catalog/hooks/tests/test_installer_smoke.py` alongside the other three repo-only guards. `--check` runs in `make validate` and CI; `--apply` regenerates the derived artifacts. | None (maintainer tooling) |
+| `scripts/check_required_check_coverage.py` + `docs/policy/required-checks.json` (v3.17.6+) | No - **repo-internal guard plus its declared manifest, needs NO installer copy step**. Listed in `DEV_ONLY_SCRIPTS` in `catalog/hooks/tests/test_installer_smoke.py`. Runs in `make validate` and in CI's existing `validate` job (deliberately not a new job, which would need its own required context). Asserts every required status check is produced by a workflow that triggers unconditionally, so a required check can never sit Pending forever; `--sync` prints the live protection state via the user's own `gh` and never writes. | None (maintainer tooling) |
 | `data/SKILL_INDEX.md`, `data/skills.json`, `data/marketplace.json` | No — the installer reads these to fill `{{SKILL_INDEX}}` placeholders in every platform's instruction file. Updating them is mandatory when adding a skill. | All platforms whose instruction template embeds the index |
 | `scripts/lib/integrations/<platform>.py` (v2.1.0+) | No file-copy edit; **MUST** import + `_register()` the subclass in `scripts/lib/integrations/__init__.py::_register_builtins()`. The runner is invoked automatically by both installers for the extended-platform set. | The platform configured by the subclass (e.g., Antigravity 2.0, Gemini CLI, Nexus-AI for the v2.1.0 extended set; Claude / Codex / Cursor / Gemini / OpenCode / Copilot subclasses also exist for future v2.2.0 parity migration). |
 | Project-local surfaces (called from `nexus-hub init` -- v2.2.0+) | No file-copy edit; override `wire_project_surfaces(self, ctx) -> WriteResult \| None` on the integration subclass. The `nexus-hub init` subcommand (bash: `scripts/installer.sh init`; PowerShell: `scripts/installer.ps1 init`) walks every registered integration and invokes the hook. | Any platform whose subclass overrides the hook. Currently `cursor` (writes `.cursor/rules/nexus-hub.mdc`), `claude` (writes `.claude/settings.json` permissions stub when absent), `antigravity2` (writes `.agents/workflows/<name>.md` command files, since Antigravity reads slash commands only from the open project's `.agents/`), and `copilot` (v3.11.0, OPT-IN: writes thin `.github/skills/<name>/SKILL.md` wrapper files for the `core-developer` bundle when `NEXUS_HUB_COPILOT_SKILLS=1`, upgrading Copilot from behavioral-guardrails-only to a native project Agent Skills surface; off by default because `.github/skills/` is commit-visible, never overwrites an existing file). |
@@ -489,6 +490,18 @@ Each of these has a corresponding `IntegrationBase` subclass under `scripts/lib/
 If your change is a new slash command, call out in the CHANGELOG which platforms get a slash surface. Global slash surfaces: Claude (`commands/`), Gemini (`workflows/`), Codex (`prompts/`), Cursor (`~/.cursor/commands/`, read-path UNVERIFIED - see DF-1), Copilot (VS Code `prompts/*.prompt.md`). Project-only (seed via `nexus-hub init`): Antigravity 2.0 (`.agents/workflows/`) and Cursor (`.cursor/commands/`, added v3.15.0 Phase 2). Body-only via the instruction file: OpenCode.
 
 If broader per-file distribution to a new platform is needed, add a new subclass under `scripts/lib/integrations/` (not a new lock-step `base-*.md` template).
+
+## Required Status Checks (v3.17.6)
+
+**A required status check MUST be produced by a job whose workflow triggers unconditionally.** Filter at the JOB level with `if:`, never at the workflow level with `paths:`. GitHub leaves a check from an untriggered workflow **Pending forever**, while a job skipped by an `if:` reports **Success**, so the two look like the same Actions-minute optimization and behave in opposite ways. Shipping v3.17.5 took six administrator bypasses for this one reason.
+
+Two further traps, both fail-open:
+
+- A job-level `if:` is evaluated **before** matrix expansion, so a skipped matrix job publishes only its bare job name and never `job (leg)`. Require an aggregate context (`ci-required`), never a per-leg one; `docs/policy/required-checks.json` is the declared list and `tests/validators/test_ci_required_gate.py` rejects a leg context.
+- `needs:` alone fails open, because GitHub skips a job whose dependency failed and a skipped required check reports Success. Gate with `!cancelled() && ... != 'false'`; both halves are load-bearing.
+
+`scripts/check_required_check_coverage.py` enforces this from the manifest inward and `tests/workflows/test_workflow_policy_repo_wide.py` from the workflow outward. Reasoning and rejected alternatives: `docs/decisions/implemented/tooling/2026-08-19-required-checks-must-be-unconditionally-produced.md`.
+
 
 ## Running Validation
 

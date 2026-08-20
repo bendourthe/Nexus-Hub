@@ -80,6 +80,43 @@ After every version-carrying surface is bumped (`version`) and the docs / change
 
 Two properties of the generator worth knowing at release time, both learned from shipped defects. It hashes a tracked file's GIT BLOB bytes passed through the path's `eol` attribute, which is the DISTRIBUTED form, so the manifest no longer depends on the generating host's `core.autocrlf` (v3.16.7 `WN-1`) and correctly covers a path declared `text eol=crlf` (v3.16.8 `BG-2`). Two consequences: **stage before generating**, because tracked-but-unstaged edits are hashed as their staged form (the tool warns and names the dirty covered paths); and **a `.gitattributes` edit is a manifest-affecting change**, since altering an `eol` attribute alters the distributed bytes for every path it covers, so regenerate after one. The artifact round-trip gate below is what proves the result against the real download.
 
+## release scope: pre-tag branch assertion (the LAST check before `git tag`)
+
+Immediately before `git tag`, and after nothing else, run:
+
+```bash
+python scripts/check_release_preconditions.py --pre-tag [--release-branch main]
+```
+
+It exits 1 and prints `BLOCKED` unless HEAD is on the expected release branch AND equal to `origin/<release-branch>`. **Abort the release on a non-zero exit. Do not tag.**
+
+This exists because of a specific failure, and its placement is the whole point. In the v3.17.5 release a `git checkout main` failed on a OneDrive-locked directory, HEAD stayed on an unrelated branch, and the tag was created there and published, shipping an unreleased plan file inside the release tarball. A check placed anywhere earlier in the flow cannot catch that: a checkout that failed silently is exactly the state being guarded against, so the assertion has to read live git state at the last possible moment. Re-running it after any retry is cheap and correct.
+
+The expected branch is configurable rather than hardcoded to `main`, because a gate that blocks a legitimate release from a differently-named release branch is a gate people learn to bypass, which is how the whole v3.17.6 defect class started.
+
+## release scope: post-release back-merge (after the merge to the release branch)
+
+After the release merges into the release branch, merge it back into the integration branch:
+
+```bash
+git checkout develop && git merge --no-ff main && git push
+```
+
+A PR-based release leaves a merge commit on `main` that `develop` does not have. Under `strict` branch protection ("require branches to be up to date"), that missing commit blocks the NEXT release PR until someone back-merges by hand, which is a self-inflicted delay discovered at the worst moment. Keep the existing confirmation gate: this pushes to a protected branch.
+
+## release scope: branch hygiene and repository settings (advisory, before the commit)
+
+```bash
+python scripts/check_release_preconditions.py --branches --repo-settings
+```
+
+Advisory only, exit 0 regardless. Three reports:
+
+- **Merged remote branches.** Listed as cleanup candidates using local `git branch -r --merged` only, with no network call. It NEVER deletes anything, and never proposes a protected branch or one with an open PR: a merged branch is sometimes still wanted, and a release flow is the worst moment for a surprise deletion. Delete what you no longer need, by hand.
+- **Branches surviving a CLOSED, unmerged PR.** A separate category, and on a repository with `delete_branch_on_merge` enabled it is the only accumulation left. GitHub deletes a branch when its PR MERGES and does nothing when a PR is closed unmerged, so `git branch -r --merged` reports a clean tree while stale refs pile up. Nexus-Hub found this on itself: the merged list was empty while ten stale branches sat on the remote. Needs `gh`; silent without it.
+- **`delete_branch_on_merge`.** Reported when `gh` is available and authenticated, with the exact `gh repo edit --delete-branch-on-merge` command to enable it. **Nexus-Hub cannot set this on a user's repository at install time**: the installer holds no credentials, and acquiring any would breach the zero-outbound policy. Note also that the setting does NOT remove a branch whose PR was CLOSED unmerged, so throwaway branches still need manual cleanup.
+- **Repository description drift.** The GitHub repository DESCRIPTION is not a version-carrying surface, so `check_version_sync.py` cannot see it and it drifts silently across releases. Nexus-Hub's own read "256 curated skills, 15 commands, 22 hooks" against an actual catalog of 273 skills. Only the skills count is authoritative (`data/skills.json` has exactly one entry per skill); commands and hooks are reported as HEURISTIC file counts that include aliases and helpers, so **confirm the intended figure before editing the description and do not copy the heuristic number**. The check self-gates to a no-op on a repository with no catalog.
+
 ## release scope: GitHub Release publishing (final step, after push)
 
 After the tag is pushed, `release` publishes a GitHub Release for the new `vX.Y.Z` tag so the repo's Releases page (and the "latest release" badge / sidebar) tracks the tag. **Pushing a git tag does NOT create a GitHub Release** -- they are separate objects -- so omitting this step silently leaves the Releases page behind the tags (the exact drift that left the page at v3.5.0 while the v3.6.0 and v3.7.0 tags already existed). This step runs last because it requires the tag to be on the remote first.

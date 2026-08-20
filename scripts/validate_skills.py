@@ -210,6 +210,35 @@ def load_allowlist(path: Path = ALLOWLIST_PATH) -> set[str]:
 INVOCATION_POLICY_FIELDS = ("user-invocable", "disable-model-invocation")
 
 
+# The only two literals accepted. Deliberately NOT YAML-parsed: a YAML load
+# would need PyYAML, and the original implementation caught ImportError and
+# returned no errors, so on a machine without PyYAML the gate silently approved
+# every violation. A validator that fails OPEN when a dependency is missing is
+# worse than no validator, because it reports PASS and proves nothing. These
+# fields are flat one-line booleans, so a literal scan needs no dependency and
+# behaves identically everywhere. This mirrors `_declares_manual_only` in
+# scripts/lib/integrations/_catalog_adapters.py, which line-scans for the same
+# reason.
+_BOOL_LITERALS = {"true": True, "false": False}
+
+
+def _scan_invocation_fields(block: str) -> dict[str, str]:
+    """Return the raw right-hand side for each invocation-policy field present.
+
+    Top-level keys only: a line starting with whitespace is nested under some
+    other key and is not this field.
+    """
+    found: dict[str, str] = {}
+    for line in block.splitlines():
+        if not line or line[0].isspace() or ":" not in line:
+            continue
+        key, _, value = line.partition(":")
+        key = key.strip()
+        if key in INVOCATION_POLICY_FIELDS:
+            found[key] = value.strip()
+    return found
+
+
 def validate_invocation_policy(skill_file: Path, block: str | None) -> list[str]:
     """Validate the optional invocation-policy booleans.
 
@@ -220,32 +249,20 @@ def validate_invocation_policy(skill_file: Path, block: str | None) -> list[str]
     if block is None:
         return []
 
-    try:
-        import yaml  # noqa: PLC0415 -- lazily imported like the strict gate above
-        data = yaml.safe_load(block)
-    except Exception:
-        # An unparseable block is already a hard error from the strict-YAML
-        # gate; do not double-report it here.
-        return []
-
-    if not isinstance(data, dict):
-        return []
-
     errors: list[str] = []
     values: dict[str, bool] = {}
 
-    for field in INVOCATION_POLICY_FIELDS:
-        if field not in data:
+    for field, raw in _scan_invocation_fields(block).items():
+        # Strip a trailing comment, then require an exact bare true/false.
+        literal = raw.split("#", 1)[0].strip()
+        if literal.lower() in _BOOL_LITERALS and literal == literal.lower():
+            values[field] = _BOOL_LITERALS[literal]
             continue
-        value = data[field]
-        if not isinstance(value, bool):
-            errors.append(
-                f"{skill_file}: frontmatter '{field}' must be a boolean "
-                f"(true/false), got {type(value).__name__} {value!r}. Quote-free "
-                f"true/false only; \"true\" is a string."
-            )
-            continue
-        values[field] = value
+        errors.append(
+            f"{skill_file}: frontmatter '{field}' must be a boolean, bare "
+            f"true or false, got {raw!r}. A quoted \"true\" is a string that "
+            f"reads as correct and behaves as unset."
+        )
 
     # A skill the model may not invoke AND the user may not invoke is
     # unreachable by anyone. Manual-only is a valid policy; invisible is not.

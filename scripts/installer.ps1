@@ -144,7 +144,7 @@ function Get-SanitizedBranchName {
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:NexusHubVersion = "3.17.5"
+$script:NexusHubVersion = "3.17.6"
 
 $Host.UI.RawUI.WindowTitle = "Nexus-Hub Installer"
 $script:InstallerTitle = "Nexus-Hub Installer"
@@ -2898,6 +2898,19 @@ function Install-Templates {
     $versionSyncSource = Join-Path $RepoRoot "scripts\check_version_sync.py"
     if (Test-Path $versionSyncSource) {
         Safe-Copy -Source $versionSyncSource -Destination (Join-Path $scriptsDest "check_version_sync.py") -Confirm:$true -CustomMessage "✓ Version-sync guard installed at: $scriptsDest\check_version_sync.py"
+    }
+    # check_release_preconditions.py (v3.17.6): release-flow guard. --pre-tag
+    # refuses to tag unless HEAD is the expected release branch AND matches its
+    # remote (the v3.17.5 mis-tag: a checkout failed on a locked directory and
+    # the tag was created on the wrong commit). --branches and --repo-settings
+    # report merged remote branches and delete_branch_on_merge, advisory only,
+    # deleting nothing. Stdlib-only, so it is a single cross-platform .py file
+    # with no .ps1 sibling (NI-v24-1 convention). Distributed because
+    # /update release ships to users and must not describe a check they lack.
+    # Mirror of the bash block in scripts\installer.sh.
+    $releasePrecondSource = Join-Path $RepoRoot "scripts\check_release_preconditions.py"
+    if (Test-Path $releasePrecondSource) {
+        Safe-Copy -Source $releasePrecondSource -Destination (Join-Path $scriptsDest "check_release_preconditions.py") -Confirm:$true -CustomMessage "✓ Release-preconditions guard installed at: $scriptsDest\check_release_preconditions.py"
     }
     # scan_skill_security.py (v3.0.0): thin CLI launcher for the
     # nexus-skill-scanner static skill-security engine (extensions\nexus-skill-scanner).
