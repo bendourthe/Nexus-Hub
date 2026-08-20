@@ -227,10 +227,14 @@ def test_every_gated_job_is_fail_closed_in_both_halves() -> None:
     missing either half is a silent hole, so both are asserted textually.
     """
     workflow = yaml.safe_load(CI_WORKFLOW.read_text(encoding="utf-8"))
+    # `ci-required` also depends on `changes`, but it is the aggregate gate, not
+    # a path-gated job: it uses `if: always()`, which is STRICTER than
+    # `!cancelled()` because it reports even on cancellation. Its own invariants
+    # live in tests/validators/test_ci_required_gate.py.
     gated = {
         name: job
         for name, job in workflow["jobs"].items()
-        if "changes" in (job.get("needs") or [])
+        if "changes" in (job.get("needs") or []) and name != "ci-required"
     }
     assert gated, "no job depends on the changes job -- the migration is incomplete"
     for name, job in gated.items():

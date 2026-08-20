@@ -885,3 +885,103 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           & python scripts\check_installer_smoke.py --home $smokeHome --workspace $workspace
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+
+  # v3.17.6 Phase 2.2: ONE aggregate required context for the whole workflow.
+  #
+  # Sub-task 2.2's docs-only proof PR (#57) reached BLOCKED, not CLEAN, and
+  # exposed a platform behaviour the plan did not anticipate: GitHub evaluates a
+  # job-level `if:` BEFORE matrix expansion, so a SKIPPED matrix job publishes
+  # exactly one check run named after the bare job. On that PR the raw check-run
+  # API listed `installer-smoke`, never `installer-smoke (ubuntu-latest)` and its
+  # two siblings. Five of the ten required contexts therefore never came into
+  # existence and sat Pending forever -- the original defect in a new costume.
+  #
+  # `tests` skipped cleanly because it has no matrix: its check name IS its
+  # required context. That contrast is the whole diagnosis.
+  #
+  # Rather than un-gate the three matrix jobs (correct, but ~6.3 billed min on
+  # every docs-only PR, dominated by the 10x macOS leg), the required set
+  # collapses to this single context plus `colocation` and `verify`. Matrix jobs
+  # may now skip freely, and a renamed matrix leg can no longer silently drop a
+  # gate -- the per-leg names stop being load-bearing, which the plan's Phase 5
+  # consequences list flagged as the cost of the migration.
+  #
+  # SAFETY: this job is the only thing standing between a broken build and a
+  # green merge, so every ambiguous case fails.
+  #   - `if: always()` so it reports even when a needed job failed or the run was
+  #     cancelled. Without it a failed dependency would SKIP this job, and a
+  #     skipped required check reports Success -- the exact fail-open trap the
+  #     rest of this workflow is built to avoid.
+  #   - The verdict is an ALLOWLIST (`success` or `skipped` pass, everything else
+  #     fails), not a denylist on `failure`/`cancelled`. A result value GitHub
+  #     has not used before therefore fails closed instead of slipping through.
+  #   - Each result is passed as its own env var and checked in pure bash: no
+  #     `jq`, no `python3`, nothing that could be absent on a runner or make the
+  #     logic untestable off-CI. The canonical
+  #     `contains(needs.*.result, 'failure')` one-liner was rejected because it
+  #     can only express a denylist.
+  #   - `changes` is included on purpose: a broken detector still lets the gated
+  #     jobs run (that is what `!cancelled()` buys them), but it must be LOUD
+  #     rather than merely survivable.
+  #
+  # tests/validators/test_ci_required_gate.py asserts that `needs` covers every
+  # other job AND that every needed job has a matching env var, so adding a job
+  # without wiring it here fails rather than escaping the loop.
+  ci-required:
+    needs:
+      - changes
+      - validate
+      - shellcheck
+      - bootstrap
+      - bootstrap-windows
+      - tests
+      - tests-windows
+      - install-smoke
+      - installer-smoke
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Assert every needed job succeeded or was legitimately skipped
+        env:
+          R_changes: ${{ needs.changes.result }}
+          R_validate: ${{ needs.validate.result }}
+          R_shellcheck: ${{ needs.shellcheck.result }}
+          R_bootstrap: ${{ needs.bootstrap.result }}
+          R_bootstrap_windows: ${{ needs['bootstrap-windows'].result }}
+          R_tests: ${{ needs.tests.result }}
+          R_tests_windows: ${{ needs['tests-windows'].result }}
+          R_install_smoke: ${{ needs['install-smoke'].result }}
+          R_installer_smoke: ${{ needs['installer-smoke'].result }}
+        run: |
+          set -uo pipefail
+          failed=""
+          for var in $(env | sed -n 's/^\(R_[A-Za-z0-9_]*\)=.*/\1/p' | sort); do
+            eval "result=\${${var}-}"
+            # Report the REAL job name: env vars cannot contain a hyphen, so
+            # `installer-smoke` arrives as R_installer_smoke and would otherwise
+            # be printed as `installer_smoke` -- a name that matches no job and
+            # sends whoever reads the failed run looking for the wrong thing.
+            # `tr` rather than bash `${//}` so the script stays portable.
+            job=$(printf '%s' "${var#R_}" | tr '_' '-')
+            printf '  %-22s %s\n' "${job}" "${result:-<empty>}"
+            case "${result}" in
+              success|skipped) ;;
+              *) failed="${failed} ${job}=${result:-<empty>}" ;;
+            esac
+          done
+
+          # No R_* variables at all would mean the loop asserted nothing, so it
+          # is a failure rather than a vacuous pass.
+          if [ -z "$(env | sed -n 's/^R_[A-Za-z0-9_]*=.*/x/p')" ]; then
+            echo "FAIL: no job results were provided; refusing to pass vacuously"
+            exit 1
+          fi
+
+          if [ -n "${failed}" ]; then
+            echo "FAIL: a needed job did not succeed or skip --${failed}"
+            exit 1
+          fi
+
+          echo "OK: every needed job succeeded or was legitimately skipped"
