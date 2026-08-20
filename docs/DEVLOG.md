@@ -1,5 +1,52 @@
 # Development Log
 
+## [2026-08-20] - v3.17.6 Phase 6: the terminal gate found a real CI regression
+
+### What The Gate Caught
+
+Phase 3 had recorded that the `tests-windows` PyYAML fix never ran in CI, because that job is gated off pull requests, so its first execution would be the post-merge push to `develop`. Phase 6 checked that run.
+
+**It failed.** `tests-windows` failed on the `develop` push for `43f144ca`, and `ci-required` failed with it. The PyYAML fix was correct and insufficient.
+
+The cause was not PyYAML. `test_ci_changes_classifier.py` invoked bare `bash` via `shutil.which("bash")`, which on a GitHub Windows runner resolves to the **System32 WSL launcher stub** - it precedes Git Bash on PATH and, with no distribution installed, prints a UTF-16 "no installed distributions" message and exits 1. The suite passed locally (Git Bash won the PATH race) and on ubuntu, failing only on Windows. The UTF-16 stdout in the failure output is what identified it.
+
+**This repo already documented that hazard.** The `bootstrap` job comment in `ci.yml` records the identical PATH shadowing from v3.15.6 Phase 4, where it had been misdiagnosed for four minor versions as "the dev host cannot run bash". The knowledge existed, in that same file, and was not reachable from where the new code was written.
+
+Fix: `tests/validators/bash_helper.py` resolves bash **empirically**, probing each candidate with `printf ok` rather than filtering by path, so a stub is rejected because it does not work. It lives outside `conftest.py` because `from conftest import ...` resolves to `tests/conftest.py` and shadows this directory's own.
+
+That resolver is then load-bearing itself: returning `None` would make both bash-driving suites SKIP, green while asserting nothing. `test_bash_helper.py` closes that with four tests.
+
+One incidental validation worth noting: `ci-required` failed **because a needed job failed**. The aggregate gate's purpose was exercised by a real failure, not only by its unit tests.
+
+### A Defect I Introduced And Reverted
+
+`ruff --fix` plus `ruff format` on `tests/validators/` rewrote **32 unrelated test files**. `AGENTS.md` says every changed line must trace to the request, and a 32-file formatting diff also buries the reviewable change in a release commit. All reverted; final scope is two modified files (+21/-5) and two new. The lesson is narrow: lint the FILES a phase touched, never the directory containing them.
+
+### CI/CD, Measured
+
+Billed minutes for the same PR shapes, before and after, from the check-runs API:
+
+| PR shape | Before | After | Delta | Mergeable before? |
+|---|---|---|---|---|
+| docs-only | 0.30 (`#54`) | 1.38 (`#60`) | **+1.08** | No |
+| code-only | 15.47 (`#52`) | 16.15 (`#61`) | **+0.68** | No |
+
+Accepted with no follow-up: roughly one extra billed minute on a docs-only PR buys the removal of a defect that made six PRs unmergeable in a day.
+
+This corrects an earlier figure in the version. The docs-only delta was quoted as +1.38 on the basis that the shape "previously ran no `ci.yml` jobs at all" - true of `ci.yml`, but 0.30 billed minutes were already spent by the other two workflows, so the honest delta is **+1.08**.
+
+The Phase 1 validator runs as one step in the pre-existing `validate` job: no new job, no new matrix leg. `ci.yml` went 8 to 10 jobs, both additions from Phase 2 and together costing 0.17 billed min. Matrix shapes unchanged.
+
+### Refactor And Reconciliation
+
+Little to refactor, which is expected for a version that added guards rather than restructuring. One empty untracked directory removed. Terminal-gate checks all clean: installer parity, platform read contracts (10 platforms), platform defaults (13), base-template lockstep, prompting-profile structure, registry entries.
+
+Gaps reconciled with the three items the plan named: the OneDrive hazard is **not fixable here** (only moving the checkout off the synced drive is, and that is the operator's), the minute delta is accepted, and the two clean CI skills are restated so a future reader knows they were checked.
+
+### Tests
+
+Phase 6 suites 95 passed; `tests/validators` + `tests/workflows` 966 passed, 11 skipped.
+
 ## [2026-08-20] - v3.17.6 Phase 5: decision records, and a corrected count
 
 ### What Shipped

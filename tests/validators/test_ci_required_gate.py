@@ -27,11 +27,16 @@ from __future__ import annotations
 
 import json
 import os
-import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
+
+# Explicit sys.path insert, matching the idiom already used in this directory:
+# a bare `from conftest import ...` would resolve to tests/conftest.py.
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from bash_helper import BASH
 
 yaml = pytest.importorskip("yaml")
 
@@ -41,8 +46,10 @@ MANIFEST = REPO_ROOT / "docs" / "policy" / "required-checks.json"
 
 GATE_JOB = "ci-required"
 
+# BASH is resolved empirically by conftest rather than by shutil.which: the
+# Windows System32 WSL launcher stub precedes Git Bash on PATH and exits 1.
 needs_bash = pytest.mark.skipif(
-    shutil.which("bash") is None, reason="the aggregate gate is a bash script"
+    BASH is None, reason="the aggregate gate is a bash script"
 )
 
 
@@ -80,7 +87,7 @@ def run_gate(
     for job, result in (results or {}).items():
         env["R_" + job.replace("-", "_")] = result
     return subprocess.run(
-        ["bash", str(script)],
+        [BASH, str(script)],
         capture_output=True,
         text=True,
         check=False,

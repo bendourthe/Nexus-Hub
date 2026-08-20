@@ -1,8 +1,8 @@
 # Known Gaps - v3.17
 
 **Project**: Nexus-Hub
-**Status**: v3.17.5 is released. v3.17.6 (CI gate hygiene and branch hygiene) is in progress: Phases 1-2 are merged to `develop` and PROVEN by two real PRs reaching CLEAN with zero administrator bypass; Phases 3-5 are complete locally. Branch protection now requires five contexts instead of ten. Phase 6 remains. Prior v3.17.0 through v3.17.5 records remain below.
-**Last updated**: 2026-08-20 (v3.17.6 Phase 5 completion)
+**Status**: v3.17.5 is released. v3.17.6 (CI gate hygiene and branch hygiene) is COMPLETE across all six phases. Phases 1-2 are merged to `develop` and proven by two real PRs reaching CLEAN with zero administrator bypass; Phases 3-6 followed. Branch protection now requires five contexts instead of ten. Ready for the `/update release` handoff, with the operator items listed under Phase 6 outstanding. Prior v3.17.0 through v3.17.5 records remain below.
+**Last updated**: 2026-08-20 (v3.17.6 Phase 6 reconciliation)
 
 > **File-lifecycle note**: this ledger was opened by the v3.17.0 Phase 1 append. Each subsequent v3.17.N implementation appends its own `## v3.17.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `MT-#` / `QG-#` numbering.
 
@@ -57,7 +57,7 @@
 - **Target files**: `.github/workflows/ci.yml`
 - **What it is**: `tests-windows` is gated to non-`pull_request`, so neither proof PR nor the merge PR exercised it. The PyYAML fix is verified only on the local Windows host.
 - **Why it is low risk**: it is a one-word dependency addition, and `tests-windows` is not a required status check, so a failure would show as a red push run without blocking any merge.
-- **Suggested next step**: check the `develop` push run for `43f144ca`. If it failed, fix forward; the required-check set is unaffected either way.
+- **Outcome**: it DID fail. The `develop` push run for `43f144ca` failed `tests-windows`, and `ci-required` failed with it. Root cause was not PyYAML but a bare `bash` resolving to the Windows System32 WSL launcher stub. Fixed in Phase 6; see the Phase 6 `DF-1` entry below.
 
 ### NI-1 - OPEN by design: the aggregate is a single point of failure
 
@@ -201,6 +201,60 @@
 - **What it is**: the inverse-path no-op-workflow approach (keep every filter, add a companion workflow on the inverse paths emitting the same job names as no-ops) is written up as a frozen proposal with the verdict on its `Status:` line, per the `rejected` lifecycle contract.
 - **Why it matters more than the other alternatives**: it is the only rejected option that appears to cost nothing. It changes no existing filter, renames no job, needs no protection edit, and makes every required context report. Its fatal flaw is one step further on: the gate then reports green **without inspecting anything**, and the pull requests most likely to hit the no-op are exactly the ones carrying `docs/policy/**`, `docs/incidents/**`, and `docs/decisions/**`, which are validator INPUT that several guards read. It converts "unmergeable" into "merged unchecked", which is worse because it is silent.
 - **Secondary flaw worth keeping**: it requires two filter sets to remain exact complements forever. `ci.yml` had already accumulated four re-inclusions across four separate versions, each added because a guard read that path; any drift between the pair yields an invisible gap.
+
+### Phase 6 findings and reconciliation (final phase)
+
+#### DF-1 - RESOLVED, and it caught a real regression: tests-windows was still failing in CI
+
+- **Target files**: `tests/validators/bash_helper.py`, `tests/validators/test_ci_changes_classifier.py`, `tests/validators/test_ci_required_gate.py`
+- **What Phase 3 recorded**: the `tests-windows` PyYAML fix had not run in CI, because that job is gated off pull requests, so its first execution would be the post-merge push to `develop`.
+- **What that execution found**: `tests-windows` FAILED on the `develop` push for `43f144ca`, and `ci-required` failed with it. The PyYAML fix was correct and insufficient.
+- **Root cause**: `tests/validators/test_ci_changes_classifier.py` invoked bare `bash`, resolved through `shutil.which("bash")`. On a GitHub Windows runner that resolves to the **System32 WSL launcher stub**, which precedes Git Bash on PATH and, with no distribution installed, prints a UTF-16 "no installed distributions ... to install" message and exits 1. The suite therefore passed locally (where Git Bash won the PATH race) and on ubuntu, and failed only on the Windows runner.
+- **This hazard was already documented in this repository.** The `bootstrap` job comment in `ci.yml` records the identical PATH shadowing from v3.15.6 Phase 4, where it was misdiagnosed for four minor versions as "the dev host cannot run bash". Walking into it again in a new place is the finding worth keeping: the knowledge existed and was not reachable from where the new code was written.
+- **Resolution**: `tests/validators/bash_helper.py` resolves bash **empirically**, probing each candidate with `printf ok` rather than filtering by path, so a stub is rejected because it does not work rather than because its location was guessed. Both bash-driving suites use it. It lives outside `conftest.py` deliberately: `from conftest import ...` resolves to `tests/conftest.py`, which shadows this directory's own conftest.
+- **A fail-open guarded in turn**: a resolver returning `None` would make both suites SKIP, reporting green while asserting nothing. `tests/validators/test_bash_helper.py` (4 tests) asserts a working bash is found on this host, that it can execute a file rather than only `-c`, that a non-working stub is rejected, and that nothing usable yields `None` rather than a broken path.
+- **Incidental validation**: `ci-required` correctly failed because a needed job failed. The aggregate gate's whole purpose was exercised by a real failure rather than only by its 12 unit tests.
+
+#### QG-5 - CLOSED in implementation: a directory-wide lint autofix reformatted 32 unrelated files
+
+- **Target files**: `tests/validators/` (32 files, reverted)
+- **What happened**: `python -m ruff check --fix tests/validators/` plus `ruff format` on the directory rewrote 32 test files unrelated to this phase, alongside the three intended ones.
+- **Why it is a defect and not a tidy-up**: `AGENTS.md` states that every changed line must trace to the request and that adjacent style issues outside the stated scope are not to be cleaned up. A 32-file formatting diff inside a release commit also buries the reviewable change.
+- **Resolution**: all 32 reverted with `git checkout --`. Final Phase 6 scope is two modified files (+21/-5) and two new ones. 30 pre-existing lint findings in that directory remain untouched and are NOT this version's to fix.
+- **Lesson**: lint and format the FILES the phase touched, never the directory that contains them.
+
+#### DF-3 - RESOLVED: the OneDrive file-locking hazard is not fixable in this repository
+
+- **Target files**: none (operator environment)
+- **What it is**: the working copy lives on a OneDrive-synced path. OneDrive holds directory handles, which aborts `git` operations mid-flight. In the v3.17.5 release a `git checkout main` failed for this reason, HEAD stayed on an unrelated branch, and the tag was created there and published, shipping an unreleased plan file in the release tarball. The same locking produced the repeated `tar` failure recorded as `WN-1` across several versions.
+- **Why it cannot be fixed here**: nothing in the catalog can stop a sync client holding a handle on a directory. Moving the working copy off the synced drive is the only real remedy, and it is an operator action on a checkout, not a change to the repository.
+- **What this version did instead**: made the consequence detectable rather than the cause preventable. `check_release_preconditions.py --pre-tag` reads HEAD immediately before `git tag` and aborts unless it is on the expected release branch AND equal to its remote, so a checkout that failed silently can no longer produce a mis-tagged release.
+- **Suggested next step**: none for the catalog. Recorded so the hazard is a known, mitigated condition rather than a recurring surprise.
+
+#### QG-6 - ACCEPTED: the Phase 2 Actions-minute delta needs no follow-up
+
+- **Target files**: `.github/workflows/ci.yml`
+- **Measured, not estimated.** Billed minutes for the same PR shapes, before and after the migration, from the check-runs API:
+
+| PR shape | Before | After | Delta | Mergeable before? |
+|---|---|---|---|---|
+| docs-only | 0.30 (`#54`) | 1.38 (`#60`) | **+1.08** | No |
+| code-only | 15.47 (`#52`) | 16.15 (`#61`) | **+0.68** | No |
+
+- **Verdict: acceptable, no follow-up.** Roughly one extra billed minute on a docs-only pull request buys the removal of a defect that made six pull requests unmergeable in a single day. The two jobs added (`changes` 0.12, `ci-required` 0.05) cost 0.17 billed minutes together.
+- **A correction to an earlier figure in this version**: the docs-only case was described mid-plan as "previously ran no `ci.yml` jobs at all", which is true, and the delta was then quoted as +1.38. The honest delta is **+1.08**, because 0.30 billed minutes were already being spent by `doc-colocation.yml` and `presentify-extractor.yml`.
+- **Matrix legs unchanged**: `bootstrap`, `install-smoke`, and `installer-smoke` have the same matrix shape before and after, so no expensive leg was added.
+
+#### QG-7 - CONFIRMED: the Phase 1 validator added no job and no matrix leg
+
+- **Target files**: `.github/workflows/ci.yml`
+- **Requirement**: Phase 6.3 asks for confirmation that the Phase 1 validator runs in the same `validate` job with no new job or matrix leg.
+- **Confirmed**: `check_required_check_coverage.py` runs as one step inside the pre-existing `validate` job. `ci.yml` went from 8 jobs to 10, and both additions (`changes`, `ci-required`) belong to Phase 2, not to the validator. A new job for the validator would have needed its own required context, which is circular given what it checks.
+
+#### NI-6 - CHECKED, recorded for a future reader: the two clean CI skills
+
+- **Target files**: `catalog/skills/infrastructure/cd-pipeline-generator/SKILL.md`, `catalog/skills/tests-generation/cicd-integration/SKILL.md`
+- **Restated here because Phase 6.2 requires it**: both were audited in Phase 4 and found free of the antipattern. `cd-pipeline-generator` has no event-level path filtering and does not discuss required checks. `cicd-integration`'s only `paths:` match is a GitLab `cache:` key, and its trigger guidance is already correct. Neither was edited. Full findings at `NI-3` and `NI-4` above.
 ---
 
 ## v3.17.5 - adoption-deepseek-harness
