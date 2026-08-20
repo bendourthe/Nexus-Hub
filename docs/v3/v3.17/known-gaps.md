@@ -1,8 +1,8 @@
 # Known Gaps - v3.17
 
 **Project**: Nexus-Hub
-**Status**: v3.17.5 is released. v3.17.6 (CI gate hygiene and branch hygiene) is in progress: Phases 1-2 are merged to `develop` and PROVEN by two real PRs reaching CLEAN with zero administrator bypass; Phases 3-4 are complete locally. Branch protection now requires five contexts instead of ten. Phases 5-6 remain. Prior v3.17.0 through v3.17.5 records remain below.
-**Last updated**: 2026-08-20 (v3.17.6 Phase 4 completion)
+**Status**: v3.17.5 is released. v3.17.6 (CI gate hygiene and branch hygiene) is in progress: Phases 1-2 are merged to `develop` and PROVEN by two real PRs reaching CLEAN with zero administrator bypass; Phases 3-5 are complete locally. Branch protection now requires five contexts instead of ten. Phase 6 remains. Prior v3.17.0 through v3.17.5 records remain below.
+**Last updated**: 2026-08-20 (v3.17.6 Phase 5 completion)
 
 > **File-lifecycle note**: this ledger was opened by the v3.17.0 Phase 1 append. Each subsequent v3.17.N implementation appends its own `## v3.17.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `MT-#` / `QG-#` numbering.
 
@@ -176,6 +176,31 @@
 - **What it is**: the file is now 791 lines against the 800-line soft cap, beyond which `AGENTS.md` says a skill MUST be split or refactored before merge.
 - **Why it is not a violation now**: the file was already 769 lines and is grandfathered by the forward-looking norm; this phase added 22 lines and deliberately routed the bulk of the new content to `references/`.
 - **Suggested next step**: the next substantive addition to this skill triggers the split. The natural seam is the two large per-platform pipeline walkthroughs (Steps 2 and 3, roughly 300 lines each), which are reference material by nature.
+
+### Phase 5 findings (decision records)
+
+#### BG-8 - RESOLVED by measurement: the bypass count was six, not seven
+
+- **Target files**: `docs/decisions/implemented/tooling/2026-08-19-required-checks-must-be-unconditionally-produced.md`
+- **What was wrong**: the v3.17.6 plan, this version's session notes, and the project memory all state **seven** administrator bypasses during the v3.17.5 release. The verified figure is **six**.
+- **How it was established**: every pull request merged into a protected branch on 2026-08-19 (`#47` through `#55`) was checked against the ten contexts required at the time, using the check-runs API on each head commit. Six had at least one required context that never came into existence: `#50` (9 missing), `#51` (8), `#52` (1), `#53` (8), `#54` (8), `#55` (9). `#47`, `#48`, and `#49` reported all ten. Widening the window to `#44`-`#56` added nothing.
+- **Where the seventh went**: not reconstructible. Most likely a second bypass action on one of the six (a re-run after a push), or a miscount in the moment. The record states six with the per-PR evidence and explains the discrepancy rather than repeating the remembered number.
+- **Two findings that only appeared once the data was assembled**: `#52` is the CODE-only direction, missing only `colocation`, which proves the required set was unsatisfiable in both directions rather than merely hostile to docs. And `#50` / `#55` are zero-file back-merges, where a path-filtered required check is unsatisfiable by construction; that case needs an administrator merge legitimately and no filter tuning fixes it. Conflating it with the other four is what made the original problem look larger and vaguer than it was.
+- **The plan was deliberately NOT rewritten**: it records what was believed at authoring time. The correction lives in the decision record, which is the durable surface for settled reasoning under the three-surface split.
+
+#### QG-4 - OPEN deviation from the phase gate: the record names six instances, not seven
+
+- **Target files**: `docs/v3/v3.17/plans/v3.17.6-ci-gate-and-branch-hygiene.md`
+- **What it is**: Phase 5's stability gate requires that "the record names the seven instances and cites the vendor doc". The vendor doc is cited with its URL and 2026-08-19 fetch date. The instance count is six, because six is what the evidence supports.
+- **Why this is the right failure**: a decision record exists to be trusted later. Padding it to seven to satisfy a gate would put an unverifiable number next to six verifiable ones and devalue all seven.
+- **Suggested next step**: none. Recorded so the gate deviation is visible rather than papered over.
+
+#### NI-5 - Recorded, not a gap: the rejected record freezes the design a future proposer will reach for first
+
+- **Target files**: `docs/decisions/rejected/tooling/2026-08-19-inverse-path-no-op-workflows.md`
+- **What it is**: the inverse-path no-op-workflow approach (keep every filter, add a companion workflow on the inverse paths emitting the same job names as no-ops) is written up as a frozen proposal with the verdict on its `Status:` line, per the `rejected` lifecycle contract.
+- **Why it matters more than the other alternatives**: it is the only rejected option that appears to cost nothing. It changes no existing filter, renames no job, needs no protection edit, and makes every required context report. Its fatal flaw is one step further on: the gate then reports green **without inspecting anything**, and the pull requests most likely to hit the no-op are exactly the ones carrying `docs/policy/**`, `docs/incidents/**`, and `docs/decisions/**`, which are validator INPUT that several guards read. It converts "unmergeable" into "merged unchecked", which is worse because it is silent.
+- **Secondary flaw worth keeping**: it requires two filter sets to remain exact complements forever. `ci.yml` had already accumulated four re-inclusions across four separate versions, each added because a guard read that path; any drift between the pair yields an invisible gap.
 ---
 
 ## v3.17.5 - adoption-deepseek-harness

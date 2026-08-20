@@ -1,5 +1,38 @@
 # Development Log
 
+## [2026-08-20] - v3.17.6 Phase 5: decision records, and a corrected count
+
+### What Shipped
+
+Two records, taking `docs/decisions/` from 6 to 8:
+
+- `implemented/tooling/2026-08-19-required-checks-must-be-unconditionally-produced.md` - the rule, seven alternatives with why each lost, and six consequences.
+- `rejected/tooling/2026-08-19-inverse-path-no-op-workflows.md` - the frozen proposal for the design a future proposer reaches for first.
+
+### The Count Was Wrong: Six, Not Seven
+
+The plan, the session notes, and the project memory all said **seven** administrator bypasses during the v3.17.5 release. Writing the record required naming them, so they were reconstructed instead of restated: every PR merged into a protected branch on 2026-08-19, checked against the ten contexts required at the time via the check-runs API on each head commit.
+
+**Six** had a required context that never came into existence: `#50` (9 missing), `#51` (8), `#52` (1), `#53` (8), `#54` (8), `#55` (9). `#47`, `#48`, `#49` reported all ten; widening to `#44`-`#56` added nothing. The seventh is not reconstructible - most likely a second bypass action on one of the six, or a miscount in the moment.
+
+The record states six with per-PR evidence and explains the gap. Padding to seven would have put one unverifiable number beside six verifiable ones. That is a knowing deviation from the phase's stability gate, tracked as `QG-4`.
+
+### Two Things Only The Data Showed
+
+**`#52` is the code-only direction** - a two-file code change missing only `colocation`. The problem had been described throughout as "docs-only PRs cannot merge". It was symmetrical: the two workflows' filters pointed opposite ways, so each PR shape failed a different half of the required set.
+
+**`#50` and `#55` are zero-file back-merges**, where a path-filtered required check is unsatisfiable by construction - no changed files means no path matches, inverse filters included. That needs an administrator merge legitimately, and no filter tuning fixes it. Conflating it with the other four is part of why the original problem looked larger and vaguer than it was.
+
+### Why The Rejected Record Is The Valuable One
+
+The inverse-path no-op design **appears to cost nothing**: keep every filter, add a companion workflow on the inverse paths declaring the same job names as no-ops. Exactly one of each pair fires, so every required context reports. No filter change, no rename, no protection edit.
+
+The flaw is one step further on: the gate then reports green **without inspecting anything**, and the PRs most likely to land on the no-op are exactly the ones carrying `docs/policy/**`, `docs/incidents/**`, and `docs/decisions/**` - validator INPUT that several guards read. It converts "unmergeable" into "merged unchecked", which is worse because it is silent. Secondary flaw: two filter sets must stay exact complements forever, and `ci.yml` had already accumulated four re-inclusions across four versions.
+
+### Gates
+
+`validate_decision_records.py`: 8 records OK. Its test suite: 24 passed. Both new files ASCII-only. Required-check coverage, doc budgets, version sync, personal-paths: clean.
+
 ## [2026-08-20] - v3.17.6 Phase 4: CI skill audit
 
 ### Audit Result, All Three Stated
