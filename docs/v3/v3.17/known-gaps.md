@@ -1,8 +1,8 @@
 # Known Gaps - v3.17
 
 **Project**: Nexus-Hub
-**Status**: v3.17.5 is released. v3.17.6 (CI gate hygiene and branch hygiene) is in progress on `feat/ci-gate-and-branch-hygiene`, Phase 1 of 6 complete: the required-check coverage guard is in place and intentionally fails this tree until Phase 2 migrates the two path-filtered workflows. Prior v3.17.0 through v3.17.5 records remain below.
-**Last updated**: 2026-08-19 (v3.17.6 Phase 1 append)
+**Status**: v3.17.5 is released. v3.17.6 (CI gate hygiene and branch hygiene) is in progress: Phases 1 and 2 are merged to `develop` and PROVEN by two real PRs reaching CLEAN with zero administrator bypass. Branch protection now requires five contexts instead of ten. Phases 3-6 remain. Prior v3.17.0 through v3.17.5 records remain below.
+**Last updated**: 2026-08-20 (v3.17.6 Phase 2 completion)
 
 > **File-lifecycle note**: this ledger was opened by the v3.17.0 Phase 1 append. Each subsequent v3.17.N implementation appends its own `## v3.17.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `MT-#` / `QG-#` numbering.
 
@@ -12,46 +12,86 @@
 
 ## v3.17.6 - ci-gate-and-branch-hygiene
 
-**Status**: Phase 1 of 6 complete (2026-08-19). The required-check coverage validator, its declared manifest, and its 30-test suite are in place and wired into `make validate` and CI's existing `validate` job. The guard intentionally exits 1 on this tree; clearing it is Phase 2's job. Work is isolated on `feat/ci-gate-and-branch-hygiene` so `develop` never carries a red required check. This section is appended to by each subsequent phase.
+**Status**: Phases 1 and 2 complete (2026-08-20), merged to `develop` as PR #56 (`6255ae03`) and PR #59 (`43f144ca`). The plan's Definition of Done item 2 is satisfied by measurement, not assertion: a docs-only PR (#60) and a code-only PR (#61) each reached `CLEAN` with **zero administrator bypass**. Branch protection on `main` and `develop` now requires five contexts instead of ten. Phases 3-6 remain. This section is appended to by each subsequent phase.
 
-### QG-1 - OPEN by design: the guard fails this repository until Phase 2 lands
+### QG-1 - RESOLVED: the guard failed this repository by design until Phase 2
 
-- **Target files**: `scripts/check_required_check_coverage.py`, `Makefile`, `.github/workflows/ci.yml`
-- **What it is**: the validator reports 18 `CONDITIONAL` contexts (9 per protected branch), spanning 7 distinct jobs: `validate`, `shellcheck`, `bootstrap`, `tests`, `install-smoke`, `installer-smoke` (in `ci.yml`), and `colocation` (in `doc-colocation.yml`). Because the guard runs inside the `validate` job, and `validate` is itself a required context, `make validate` and CI both fail on this branch.
-- **Why it is not a Phase 1 failure**: sub-task 1.1 specifies exactly this outcome ("exits 1 today (pre-migration) naming the seven offending checks, which is the evidence Phase 2 then clears"). A guard that passed here would be asserting nothing.
-- **Why the work is branch-isolated**: landing Phase 1 alone on `develop` would leave a required check red, so every unrelated merge in the gap would need an administrator bypass. That is precisely the habit this plan exists to end, so Phase 1 and Phase 2 must reach `develop` together.
-- **Suggested next step**: Phase 2 migrates both workflows to job-level `if:`, after which the guard must exit 0. Do not merge this branch before it does.
+- **Target files**: `scripts/check_required_check_coverage.py`, `.github/workflows/ci.yml`, `.github/workflows/doc-colocation.yml`
+- **What it was**: Phase 1 deliberately shipped a guard that exited 1, reporting 18 `CONDITIONAL` contexts across 7 jobs. That failing run was the evidence Phase 2 had to clear.
+- **Resolution**: the migration cleared it. The guard exits 0 on `develop`, and Phase 1 and Phase 2 reached `develop` together in a single PR so no required check was ever red on the integration branch and no bypass was ever needed.
 
-### MT-1 - OPEN limitation: matrix legs are resolved by job id, not verified against real legs
+### BG-1 - RESOLVED: a skipped matrix job never publishes its per-leg contexts
 
-- **Target files**: `scripts/check_required_check_coverage.py`, `docs/policy/required-checks.json`
-- **What it is**: a context of the form `job (leg)` resolves to its job id, and the parenthesised leg is informational only. Every matrix in `ci.yml` defines its `os` list as a `${{ ... fromJSON(...) }}` expression evaluated per event, so the legs cannot be enumerated statically without an expression evaluator.
-- **What it means in practice**: a manifest entry naming a leg that no longer exists (say `installer-smoke (fedora-latest)`) resolves to the real `installer-smoke` job and PASSES. The guard catches a filtered workflow and a missing job; it does not catch a stale matrix leg.
-- **Why it was not fixed here**: evaluating GitHub expression syntax is a materially larger build than this phase, and the failure mode it would catch is narrower than the one being fixed. Recorded so the limit is a known boundary rather than an assumed capability.
-- **Suggested next step**: none required for v3.17.6. If leg drift ever bites, the cheap partial fix is to compare the leg set in `--sync` output against the manifest and warn on a difference, rather than to evaluate expressions.
+- **Target files**: `.github/workflows/ci.yml`, `docs/policy/required-checks.json`
+- **What was wrong**: this is the defect that made sub-task 2.2 worth doing. GitHub evaluates a job-level `if:` **before** matrix expansion, so a job skipped by an `if:` publishes exactly ONE check run named after the bare job. The raw check-run API on the first docs-only proof PR (#57) listed `installer-smoke`, never `installer-smoke (ubuntu-latest)` and its two siblings. Five of the ten required contexts (`bootstrap (ubuntu-latest)`, `install-smoke (ubuntu-latest)`, and three `installer-smoke` legs) therefore never came into existence and sat Pending forever. PR #57 reached `BLOCKED`, not `CLEAN`.
+- **Why Phase 1's guard could not catch it**: the guard resolves a `job (leg)` context to its bare job id and asks whether that job's WORKFLOW is filtered. It answered that question correctly. Nobody was asking whether the context NAME survives a skip. This is exactly the limitation recorded as Phase 1's `MT-1`, biting from the direction the note said would not matter.
+- **Why the diagnosis was unambiguous**: `tests` has no matrix, so its skip DID satisfy its required `tests` context. The contrast between `tests` (satisfied) and `installer-smoke` (never reported) isolates matrix expansion as the mechanism.
+- **Resolution**: a single `ci-required` aggregate job (`if: always()`, depending on all nine other jobs) replaced the nine per-job contexts. The required set is now `validate`, `shellcheck`, `ci-required`, `colocation`, `verify`. Matrix jobs may skip freely, and per-leg names stop being load-bearing.
+- **Rejected alternative**: un-gate the three matrix jobs so they always publish their leg names. Correct, but measured at roughly 6.3 billed min on every docs-only PR (the 10x macOS leg dominates) against 1.38 measured for the aggregate.
 
-### MT-2 - OPEN observation: the repository has no coverage instrumentation, so the 80% gate is unmeasurable in-suite
+### BG-2 - RESOLVED: a shipped test enforced the antipattern as policy
 
-- **Target files**: `tests/validators/conftest.py`, `tests/validators/test_check_required_check_coverage.py`
-- **What it is**: every validator test invokes its script as a **subprocess**, deliberately, so the test exercises the CLI surface a maintainer actually runs (stated in the `conftest.py` docstring). `coverage` therefore records nothing for those runs without `--parallel-mode` plus a `COVERAGE_PROCESS_START` shim, and the repository defines no coverage threshold, `[tool.coverage]` section, or `--cov` flag anywhere.
-- **How the gate was satisfied**: line coverage of the new validator was measured at **90%** with a one-off out-of-tree in-process probe that replays the suite's own fixtures through `main()`. The probe is scratch tooling and is deliberately NOT committed, because committing it would create a second, divergent way to exercise the same code.
-- **Why it is not a Phase 1 failure**: adding subprocess-coverage plumbing to a suite of 1819 tests is a repository-wide change with no bearing on this plan's goal.
-- **Suggested next step**: if a future version wants an enforced coverage number, the change belongs in `conftest.py` and CI once, for all validators, not per phase.
+- **Target files**: `tests/workflows/test_workflow_policy_repo_wide.py`
+- **What was wrong**: the test asserted that every workflow except `ci.yml` must declare an event-level `paths:` filter, and that `ci.yml` must be a `paths-ignore` / `**`-prefixed catch-all. A **cost** rule had silently grown into a **correctness prohibition**, so the migration could not pass a policy the repository still enforced. Both `tests` and `tests-windows` failed on the first rehearsal run.
+- **How it surfaced**: only in CI. The local run had covered `tests/validators` and `catalog/hooks/tests`; CI's `tests` job runs eight separate trees and `tests/workflows` was not among the two run locally.
+- **Resolution**: the required-check-producing workflow set is now DERIVED from `docs/policy/required-checks.json` rather than hardcoded, so declaring a new required context automatically forbids an event filter on its producing workflow with no second edit. The cost rule still applies to the six workflows that produce no required check.
+- **Worth keeping**: the two guards now approach from opposite ends (the validator manifest-to-workflow, the policy test workflow-to-manifest) and were negative-controlled together. Reintroducing a `paths:` filter on `ci.yml` fails both; both pass on restore.
+
+### BG-3 - RESOLVED: tests-windows lacked PyYAML, masking that new suites never ran there
+
+- **Target files**: `.github/workflows/ci.yml`, `tests/validators/test_ci_changes_classifier.py`
+- **What was wrong**: `tests-windows` installed only `pytest` while the ubuntu `tests` job installs `pytest tomlkit PyYAML`, and `tests-windows` runs `tests/validators`. Adding a PyYAML-importing test to that tree broke **collection**, which interrupted the whole session: every other validator test on Windows stopped running rather than one file skipping.
+- **Why it mattered more than it looked**: the collection error meant neither new v3.17.6 suite had ever executed on Windows, in either rehearsal run. The failure was masking its own scope.
+- **Resolution**: `tests-windows` installs PyYAML, and the test file uses `pytest.importorskip("yaml")` so a missing parser degrades to one skipped file. Verified by running the exact failing step on a real Windows host: 1260 passed, 19 skipped, 1 failed (the pre-existing `WN-1` Git-Bash `tar` gap).
+
+### BG-4 - RESOLVED: a stripped-environment test wrote into the repository working tree
+
+- **Target files**: `tests/validators/test_check_required_check_coverage.py`
+- **What was wrong**: the first draft of the PyYAML-absence test ran its subprocess with `PATH=""` and no `APPDATA`/`LOCALAPPDATA`, and an earlier draft of the `--sync` test put a `gh.bat` stub on `PATH`. On Windows, Python resolves a bare `gh` to `gh.exe` only, so the stub was skipped and the REAL `gh` ran with no state directory. Between them the tests created `.local/state/gh/` and a literal `%SystemDrive%/ProgramData/` directory inside the repository.
+- **How it surfaced**: `git status` during the post-phase sequence. Both tests passed while polluting the tree.
+- **Resolution**: the `--sync` tests monkeypatch `subprocess.run` in-process (portable, and a tighter assertion: they also verify only `gh api` is ever called, never a protection write). The PyYAML test inherits the real environment and sets `cwd` to its tmpdir.
+- **Lesson worth keeping**: stripping the environment to simulate a missing dependency makes every tool it touches fall back to relative paths. Set `cwd` to a tmpdir whenever doing that.
+
+### DF-1 - OPEN: the tests-windows fix has not yet run in CI
+
+- **Target files**: `.github/workflows/ci.yml`
+- **What it is**: `tests-windows` is gated to non-`pull_request`, so neither proof PR nor the merge PR exercised it. The PyYAML fix is verified only on the local Windows host.
+- **Why it is low risk**: it is a one-word dependency addition, and `tests-windows` is not a required status check, so a failure would show as a red push run without blocking any merge.
+- **Suggested next step**: check the `develop` push run for `43f144ca`. If it failed, fix forward; the required-check set is unaffected either way.
+
+### NI-1 - OPEN by design: the aggregate is a single point of failure
+
+- **Target files**: `.github/workflows/ci.yml`, `tests/validators/test_ci_required_gate.py`
+- **What it is**: `ci-required` now stands between a broken build and a green merge for nine jobs. A bug in its verdict logic would report green over a real failure, which is strictly worse than the defect it replaced, because it would be silent.
+- **Mitigations actually in place**: the verdict is an ALLOWLIST (`success` or `skipped` pass, anything else fails) rather than a denylist on `failure`/`cancelled`, so a GitHub result value that does not exist yet fails closed; an empty result set fails rather than passing vacuously; `if: always()` prevents the job being skipped by a failed dependency; the logic is pure bash with no `jq` or `python3` so it is testable off-CI; and `validate` plus `shellcheck` remain separately required as defence in depth, since both always run and can never be skipped. 12 tests cover the three silent-failure modes, including that every job in `needs` has a matching env var (a job without one is invisible to the verdict loop).
+- **Suggested next step**: none. Recorded so the concentration of risk is a known, argued position rather than an accident.
+
+### MT-1 - OPEN limitation: matrix legs are still resolved by job id
+
+- **Target files**: `scripts/check_required_check_coverage.py`
+- **What it is**: the guard resolves a `job (leg)` context to its bare job id, because every matrix in `ci.yml` defines its `os` list as a `${{ fromJSON(...) }}` expression that cannot be enumerated statically.
+- **Why it now matters much less**: `docs/policy/required-checks.json` no longer contains any `job (leg)` context, and `tests/validators/test_ci_required_gate.py` fails if one is added back. The unresolvable case has been designed out of the required set rather than solved.
+- **Suggested next step**: none required.
+
+### MT-2 - OPEN observation: the repository has no coverage instrumentation
+
+- **Target files**: `tests/validators/conftest.py`
+- **What it is**: every validator test invokes its script as a subprocess, deliberately, so the test exercises the CLI a maintainer runs. `coverage` therefore records nothing without `--parallel-mode` plus a `COVERAGE_PROCESS_START` shim, and the repository defines no threshold, `[tool.coverage]` section, or `--cov` flag anywhere.
+- **How the gate was satisfied**: 90% on `check_required_check_coverage.py`, measured with a one-off out-of-tree in-process probe replaying the suite's own fixtures. The probe is scratch tooling and deliberately NOT committed, since committing it would create a second, divergent way to exercise the same code.
+- **Suggested next step**: if a future version wants an enforced number, the change belongs in `conftest.py` and CI once, for all validators, not per phase.
 
 ### WN-1 - OPEN environmental: `make` is unavailable on the development host
 
 - **Target files**: `Makefile`
-- **What it is**: the host running this phase has no `make`, so the `validate` target's new recipe line was verified by direct script invocation plus a tab-indentation check (`cat -A`) rather than by executing the target. Its first real execution will be in CI.
-- **Why it is low risk**: the recipe is a single `@python scripts/...` line adjacent to sixteen identical ones, and the CI `validate` job invokes the script directly rather than through `make`, so CI coverage of the guard does not depend on the Makefile edit being correct.
-- **Suggested next step**: confirm the target runs end-to-end on a host that has `make`, or in Phase 2's proof PRs.
+- **What it is**: the host has no `make`, so the `validate` target's new recipe lines were verified by direct script invocation plus a tab-indentation check rather than by executing the target.
+- **Why it is low risk**: CI's `validate` job invokes each script directly rather than through `make`, so CI coverage of the new guard does not depend on the Makefile edit.
 
-### BG-1 - CLOSED in implementation: a stripped-environment test wrote into the repository working tree
+### QG-2 - OPEN, and it is Phase 3's input: merged branches and throwaway refs need cleanup
 
-- **Target files**: `tests/validators/test_check_required_check_coverage.py`
-- **What was wrong**: the first draft of the PyYAML-absence test ran its subprocess with `PATH=""` and no `APPDATA` / `LOCALAPPDATA`, and an earlier draft of the `--sync` test put a `gh.bat` stub on `PATH`. On Windows, Python resolves a bare `gh` to `gh.exe` only, so the stub was skipped and the **real** `gh` ran with no state directory. Between them the two tests created `.local/state/gh/` and a literal `%SystemDrive%/ProgramData/` directory inside the repository.
-- **How it surfaced**: `git status` during the post-phase sequence, not by any test failing. Both tests passed while polluting the tree.
-- **Resolution**: the `--sync` tests now monkeypatch `subprocess.run` in-process (portable, and a tighter assertion: they also verify only `gh api` is ever called, never a protection write). The PyYAML test inherits the real environment and runs with `cwd` set to its tmpdir. Both stray directories were removed and confirmed not to regenerate.
-- **Lesson worth keeping**: a test that strips the environment to simulate a missing dependency will make every tool it touches fall back to relative paths. Set `cwd` to a tmpdir whenever you do that.
+- **Target files**: none (repository state)
+- **What it is**: this phase created five branches: `feat/ci-gate-and-branch-hygiene` and `fix/ci-required-aggregate-gate` (both merged), plus `test/ci-proof-docs-only`, `test/ci-proof-code-only`, `test/ci-proof-docs-2`, and `test/ci-proof-code-2` (all throwaway, their PRs closed unmerged). None were deleted.
+- **Why they were not force-updated or deleted here**: the `git-guardrails` hook blocked a `--force-with-lease` push to the two first-round proof branches, which is the hook working as intended. The proof was re-run on fresh branches instead of rewriting history, which is why there are four throwaway refs rather than two.
+- **Suggested next step**: Phase 3 sub-task 3.2 adds exactly this reporting to `/update release` (merged-but-undeleted remotes, plus the `delete_branch_on_merge` setting). These six refs are a ready-made fixture for it. Note `delete_branch_on_merge` does not remove a branch whose PR was CLOSED rather than merged, so the four `test/` refs need manual cleanup regardless.
 ---
 
 ## v3.17.5 - adoption-deepseek-harness

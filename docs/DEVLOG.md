@@ -1,5 +1,57 @@
 # Development Log
 
+## [2026-08-20] - v3.17.6 Phase 2: workflow migration, and the defect the proof PRs caught
+
+### What Shipped
+
+`ci.yml` and `doc-colocation.yml` moved off trigger-level `paths:` filtering. Then a second PR replaced nine per-job required contexts with one `ci-required` aggregate, because the first fix was not sufficient.
+
+- PR #56 (`6255ae03`): the migration, plus Phase 1's guard.
+- PR #59 (`43f144ca`): the aggregate gate.
+- Branch protection on `main` and `develop`: ten required contexts down to five.
+
+### The Part Worth Remembering
+
+The plan insisted the proof PRs were "the acceptance test; nothing else settles it." A green validator was not enough, and this is why.
+
+The first docs-only proof PR reached **BLOCKED**. **GitHub evaluates a job-level `if:` before matrix expansion**, so a skipped matrix job publishes exactly one check run named after the bare job. `installer-smoke` appeared; `installer-smoke (ubuntu-latest)` and its two siblings never did. Five of ten required contexts could not come into existence, so they sat Pending forever. The original defect, in a new costume.
+
+`tests` skipped cleanly because it has no matrix: its check name IS its required context. That contrast isolated the mechanism with no guesswork.
+
+Phase 1's guard could not have caught it, and had even recorded the blind spot as `MT-1` while judging it narrow. It asks "is the workflow filtered?" and answered correctly. Nobody was asking "does the context name survive a skip?"
+
+### What The Rehearsal Found Before develop Was Touched
+
+Two dispatched runs on the feature branch surfaced two defects local testing had missed, both only reachable in CI:
+
+- `tests/workflows/test_workflow_policy_repo_wide.py` asserted the **antipattern as policy**: every workflow except `ci.yml` must declare a `paths:` filter. A cost rule had grown into a correctness prohibition. The producing-workflow set is now derived from the required-checks manifest, so declaring a new required check automatically forbids a filter on its workflow.
+- `tests-windows` installed only `pytest` while running `tests/validators`, so a PyYAML import broke **collection** and stopped every other validator test on Windows. That error had been masking the fact that neither new suite had ever run on Windows at all.
+
+The lesson is narrower than "run more tests": CI's `tests` job runs eight separate trees, and the two run locally did not include `tests/workflows`.
+
+### Measured Cost
+
+Real numbers, replacing an earlier estimate of +5 min that was wrong because `validate` takes 0.63 min, not 3-5.
+
+| PR shape | Billed min | Before |
+|---|---|---|
+| Docs-only | **1.38** | ran no `ci.yml` jobs, and could not merge |
+| Code-only | ~14.5 | ~14.2, and could not merge |
+
+`colocation` measures 0.1 billed min, which is why `doc-colocation.yml` got no detector job: a detector costs 0.2, twice the work it would skip.
+
+### Proof
+
+Both PR shapes reached **CLEAN** with zero administrator bypass, then were closed unmerged. On the docs-only PR all four expensive jobs skipped and `ci-required` aggregated them in five seconds.
+
+### Fail-Closed Notes
+
+Moving path logic off the trigger inverted the cost of a mistake: it used to leave a check Pending (loud), and now it skips a job (silent, because a skipped job reports Success). So the classifier defaults to `relevant=true` and cannot exit non-zero; every gate is `!cancelled() && ... != 'false'`, both halves load-bearing; and the aggregate uses an allowlist verdict so a GitHub result value that does not exist yet fails closed. `validate` and `shellcheck` stay separately required as defence in depth, since they always run and can never be skipped.
+
+### Known Issues
+
+`## v3.17.6` in [known-gaps.md](v3/v3.17/known-gaps.md). Resolved `QG-1`, `BG-1` through `BG-4`. Open: `DF-1` (the `tests-windows` fix has not run in CI, since that job is gated off PRs), `NI-1` (the aggregate is an argued single point of failure, with 12 tests and a redundant pair of required checks behind it), and `QG-2` (six undeleted branches, a ready-made fixture for Phase 3's branch-hygiene work).
+
 ## [2026-08-19] - v3.17.6 Phase 1: required-check coverage validator
 
 ### What Was Built
