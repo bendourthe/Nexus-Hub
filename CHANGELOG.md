@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.17.6] - 2026-08-20
+
 ### Changed
 
 - **Plan ordering now lives in one table instead of in filenames (2026-08-20)**: `docs/v3/roadmap-prioritization.md` is rewritten to rank all 14 unshipped plans, up from the 12 it covered on 2026-08-07, and is now the single authority on sequence. New plans are named by slug with a `**Target version**` field inside the document; existing plan filenames are frozen as historical identifiers and are deliberately not renumbered, so a re-prioritization is a one-line edit rather than a rename of two files plus every cross-reference. The 2026-08-07 pass had warned that filename-encoded priority would drift, and it did: six plans authored since were numbered by authoring order again, and the presentify plan moved ten places with no recorded reason (left as an open reconciliation at rank 11). The table's "Filename says" column intentionally contradicts its "Target version" column, so no automated version-string sweep may touch that file.
