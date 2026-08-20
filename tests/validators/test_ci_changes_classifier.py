@@ -24,7 +24,10 @@ import subprocess
 from pathlib import Path
 
 import pytest
-import yaml
+
+# Matches the idiom in tests/workflows/: a missing parser skips this file
+# rather than erroring at collection and taking the whole tree with it.
+yaml = pytest.importorskip("yaml")
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CI_WORKFLOW = REPO_ROOT / ".github" / "workflows" / "ci.yml"

@@ -691,7 +691,11 @@ jobs:
           python-version: '3.11'
 
       - name: Install pytest
-        run: pip install pytest
+        # PyYAML matches the ubuntu `tests` job (v3.17.6 Phase 2). This job runs
+        # tests/validators, which parses .github/workflows/*.yml, so without it
+        # the whole tree errored at COLLECTION -- taking every other validator
+        # test on Windows down with it rather than skipping one file.
+        run: pip install pytest PyYAML
 
       - name: Hook suite on Windows PowerShell 5.1
         env:
