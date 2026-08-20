@@ -1,5 +1,45 @@
 # Development Log
 
+## [2026-08-20] - v3.17.6 released
+
+### What Shipped
+
+CI gate hygiene and branch hygiene, across six phases. Every item is a local guard, a convention, or a documentation correction: no outbound call, no credential, no dependency beyond the Python standard library.
+
+- Phase 1: the required-check coverage validator and its declared manifest
+- Phase 2: the workflow migration, plus the `ci-required` aggregate the proof PRs forced
+- Phase 3: release-flow preconditions (`--pre-tag`, branch hygiene, repo-settings drift)
+- Phase 4: the CI skill audit; one skill corrected, two audited clean
+- Phase 5: the decision records, and a corrected bypass count
+- Phase 6: the terminal gate, which found a real CI regression
+
+### The Through-Line
+
+Every phase found something the phase before it had asserted rather than measured.
+
+Phase 1's guard reported 18 conditional contexts and Phase 2 cleared them, so a green validator looked like proof. Phase 2.2's docs-only PR then reached **BLOCKED**, because a job-level `if:` is evaluated before matrix expansion and a skipped matrix job never publishes its per-leg names. Phase 3 recorded that the `tests-windows` fix had not run in CI. Phase 6 checked, and it had **failed** - on a bare `bash` resolving to the Windows WSL stub, a hazard `ci.yml` had documented since v3.15.6.
+
+Phase 5 is the clearest case. Writing a record that named the bypasses required reconstructing them, and the count was **six**, not the seven stated in the plan, the session notes, and the project memory. `#52` turned out to be the **code-only** direction, so the defect was symmetrical rather than docs-only as it had been described throughout.
+
+### Proven, Not Asserted
+
+A docs-only PR and a code-only PR each reached `CLEAN` with zero administrator bypass. Then PR #63, an ordinary unplanned docs-only PR, merged normally seven minutes after it opened.
+
+| PR shape | Before | After | Delta | Mergeable before? |
+|---|---|---|---|---|
+| docs-only | 0.30 | 1.38 | +1.08 | No |
+| code-only | 15.47 | 16.15 | +0.68 | No |
+
+### Also In This Release
+
+Plan ordering moved out of filenames into `docs/v3/roadmap-prioritization.md`, and **v4.0.0 is reserved for the changed-install-behavior bundle** rather than backlog completion. A cybersecurity-skills comparison and adoption plan are recorded as planning artifacts targeting v3.20.1; nothing from them is implemented here.
+
+### Corrections Recorded
+
+Four claims made during this version were wrong and are corrected in place rather than quietly fixed: the bypass count (seven to six), the docs-only cost delta (+1.38 to +1.08), a Unicode validator described as not catching an ellipsis when it warns on one, and an "empty untracked directory" that was in fact mid-sync and returned with a 27 KB document in it.
+
+Catalog counts unchanged at **273 skills**, **18 commands**, **31 hooks**, **23 agents**.
+
 ## [2026-08-20] - v3.17.6 Phase 6: the terminal gate found a real CI regression
 
 ### What The Gate Caught

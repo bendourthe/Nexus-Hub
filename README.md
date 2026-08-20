@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.17.5 -->
+<!-- nexus-hub-version: 3.17.6 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 273 skills, 18 commands, 31 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -36,6 +36,24 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v3.17.6
+
+**Every required status check is now satisfiable from any pull request shape.** Shipping v3.17.5 took six administrator bypasses in one day, all from one mechanism: GitHub leaves a check from an *untriggered* workflow Pending forever, while a job *skipped* by an `if:` reports Success. Workflow-level `paths:` filtering and a job-level `if:` therefore look like the same Actions-minute optimization and behave in opposite ways. `ci.yml` excluded `docs/**` and `doc-colocation.yml` included only `docs/**`, so the required set was unsatisfiable in both directions and no pull request shape could clear all ten checks.
+
+**The rule is enforced, not just documented.** `scripts/check_required_check_coverage.py` reads the declared contexts in [`docs/policy/required-checks.json`](docs/policy/required-checks.json), resolves each to its producing job, and fails when that job's workflow is path- or branch-filtered. It reports `UNPRODUCED`, `CONDITIONAL`, and `BAD` separately because the remedies differ, and runs inside CI's existing `validate` job. `--sync` prints live protection state via your own `gh` and never writes.
+
+**The required-check set shrank from ten contexts to five.** A job-level `if:` is evaluated *before* matrix expansion, so a skipped matrix job publishes only its bare job name and never `installer-smoke (ubuntu-latest)`. Requiring per-leg contexts reproduced the original defect in a new form, and the docs-only proof pull request found it. One `ci-required` aggregate (`if: always()`, allowlist verdict) now stands in for `ci.yml`'s nine, so matrix jobs may skip freely and per-leg names stop being load-bearing.
+
+**Proven by measurement, not assertion.** A docs-only pull request and a code-only pull request each reached `CLEAN` with zero administrator bypass. Measured cost: a docs-only pull request went from 0.30 to 1.38 billed minutes (+1.08) and a code-only one from 15.47 to 16.15 (+0.68), and both were previously unmergeable.
+
+**Releases refuse to tag the wrong commit.** `scripts/check_release_preconditions.py --pre-tag` asserts HEAD is the expected release branch *and* equal to its remote, read immediately before `git tag` because a checkout that failed silently is exactly the state it guards. In the v3.17.5 release a `git checkout main` failed on a locked directory and the tag was created on the wrong commit, shipping an unreleased plan file. The same script reports merged branches, branches surviving a closed-unmerged pull request, `delete_branch_on_merge`, and repository-description drift; it deletes nothing.
+
+**The harness no longer teaches the antipattern.** `cicd-architect` recommended workflow-level `paths:` in one section and required a status check in another, without connecting them. Both are corrected, with the mechanism, the fail-closed detector, and the matrix caveat in that skill's `references/required-status-checks.md`. `cd-pipeline-generator` and `cicd-integration` were audited, found clean, and deliberately left unchanged.
+
+**Plan order moved out of filenames.** [`docs/v3/roadmap-prioritization.md`](docs/v3/roadmap-prioritization.md) now ranks all 14 unshipped plans and is the single authority on sequence; new plans are named by slug with a `Target version` field inside. **v4.0.0 is reserved for the changed-install-behavior bundle**, not for backlog completion, because installing from `main` makes the major bump your only advance warning.
+
+Catalog counts are unchanged at **273 skills**, **18 commands**, **31 hooks**, and **23 agents**. This release adds three repo-internal guards, one distributed release-preconditions script, and planning documents; it adds no outbound call, credential, dependency, or opt-in capability, and changes nothing about what an existing install does at runtime.
 
 ## What's New in v3.17.5
 

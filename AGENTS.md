@@ -1,6 +1,6 @@
 # AGENTS.md
 
-<!-- nexus-hub-version: 3.17.5 -->
+<!-- nexus-hub-version: 3.17.6 -->
 
 This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, Gemini CLI, etc.) when working with code in this repository.
 
@@ -490,6 +490,18 @@ Each of these has a corresponding `IntegrationBase` subclass under `scripts/lib/
 If your change is a new slash command, call out in the CHANGELOG which platforms get a slash surface. Global slash surfaces: Claude (`commands/`), Gemini (`workflows/`), Codex (`prompts/`), Cursor (`~/.cursor/commands/`, read-path UNVERIFIED - see DF-1), Copilot (VS Code `prompts/*.prompt.md`). Project-only (seed via `nexus-hub init`): Antigravity 2.0 (`.agents/workflows/`) and Cursor (`.cursor/commands/`, added v3.15.0 Phase 2). Body-only via the instruction file: OpenCode.
 
 If broader per-file distribution to a new platform is needed, add a new subclass under `scripts/lib/integrations/` (not a new lock-step `base-*.md` template).
+
+## Required Status Checks (v3.17.6)
+
+**A required status check MUST be produced by a job whose workflow triggers unconditionally.** Filter at the JOB level with `if:`, never at the workflow level with `paths:`. GitHub leaves a check from an untriggered workflow **Pending forever**, while a job skipped by an `if:` reports **Success**, so the two look like the same Actions-minute optimization and behave in opposite ways. Shipping v3.17.5 took six administrator bypasses for this one reason.
+
+Two further traps, both fail-open:
+
+- A job-level `if:` is evaluated **before** matrix expansion, so a skipped matrix job publishes only its bare job name and never `job (leg)`. Require an aggregate context (`ci-required`), never a per-leg one; `docs/policy/required-checks.json` is the declared list and `tests/validators/test_ci_required_gate.py` rejects a leg context.
+- `needs:` alone fails open, because GitHub skips a job whose dependency failed and a skipped required check reports Success. Gate with `!cancelled() && ... != 'false'`; both halves are load-bearing.
+
+`scripts/check_required_check_coverage.py` enforces this from the manifest inward and `tests/workflows/test_workflow_policy_repo_wide.py` from the workflow outward. Reasoning and rejected alternatives: `docs/decisions/implemented/tooling/2026-08-19-required-checks-must-be-unconditionally-produced.md`.
+
 
 ## Running Validation
 
