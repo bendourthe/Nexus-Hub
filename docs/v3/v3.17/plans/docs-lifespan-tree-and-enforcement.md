@@ -1,7 +1,7 @@
 # Plan - Docs Lifespan Tree and Enforcement
 
 **Project**: Nexus-Hub
-**Target version**: v4.0.0 (in the breaking bundle) - **NEEDS CONFIRMATION**, see [Version classification](#version-classification) below
+**Target version**: v4.0.0 (third member of the breaking bundle) - **CONFIRMED 2026-08-21**, see [Version classification](#version-classification) below
 **Slug**: docs-lifespan-tree-and-enforcement
 **Plan Type**: Refactor (breaking, distributed)
 **Created**: 2026-08-20
@@ -31,11 +31,13 @@ Success looks like: a consuming project can run one command to reshape its docs 
 
 The contrast with `docs-lifecycle-retention` (rank 2) is instructive and was checked: that plan was explicitly excluded from the bundle because its changes are repo-internal and not distributed. This plan is the opposite case - being distributed to every platform on install is its stated requirement.
 
-**Recommendation: ship in the v4.0.0 bundle**, as a third member alongside `cost-effective-ci-cd` and `agent-communication-overhaul`. All three change installed behavior, one migration note covers them, and the major bump is the only advance warning a `nexus-hub upgrade` user receives. Sequencing supports it: this plan wants rank 1's CI guard and rank 2's docs work already in place, and rank 2 touches the same `devlog-generation` and `docs/archive/` surfaces.
+**CONFIRMED 2026-08-21: ships in the v4.0.0 bundle** as a third member alongside `cost-effective-ci-cd` and `agent-communication-overhaul`. Both breaking claims were verified against the repository before confirming, rather than accepted from this plan. Claim 1: `catalog/commands/update.md` states that `/update refactor` "and, at release, `/update release`" canonicalizes *that repo's* whole docs tree via `docs-layout-refactor --canonicalize-layout`, and its release scope does run `refactor`, so an upgraded consuming project reshapes its own docs tree on its next release without asking. Claim 2: Phase 5 edits all 12 substantive `templates/ai-instructions/` files, which both installers copy recursively, so installed instruction content changes. The comparison with rank 2 (`docs-lifecycle-retention`, excluded as repo-internal) is what settles it: same subject matter, opposite answer, on a test that holds. The original recommendation follows unchanged.
+
+**Recommendation (as written): ship in the v4.0.0 bundle**, as a third member alongside `cost-effective-ci-cd` and `agent-communication-overhaul`. All three change installed behavior, one migration note covers them, and the major bump is the only advance warning a `nexus-hub upgrade` user receives. Sequencing supports it: this plan wants rank 1's CI guard and rank 2's docs work already in place, and rank 2 touches the same `devlog-generation` and `docs/archive/` surfaces.
 
 **The alternative, recorded and not chosen.** Making canonicalization strictly opt-in (removing it from the `/update release` path so it runs only on an explicit `--canonicalize-layout` invocation) would drop this plan out of the breaking bundle and allow a v3.20.x target. It is technically clean, but it weakens the goal: if the migration never runs unless a user seeks it out, most consuming repos never adopt the standard, and the plan's purpose is that the standard applies on install. Choose this alternative only if delaying to v4.0.0 is unacceptable.
 
-Whichever is chosen, `docs/v3/roadmap-prioritization.md` needs a new ranking row and, for the v4.0.0 option, a third row in its bundle table.
+**Done 2026-08-21**: `docs/v3/roadmap-prioritization.md` carries the rank 13b row and the third row in its v4.0.0 bundle table, both marked CONFIRMED, and the bundle's intro sentence now names three members rather than two.
 
 ## Constitution Check
 
