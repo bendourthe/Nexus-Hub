@@ -104,13 +104,13 @@ Apply these rules to **ALL** outputs, regardless of the domain:
 **Standard CMake Project Layout**:
 ```
 project-name/
-â”œâ”€â”€ src/                           # Source files (.cpp)
-â”‚   â””â”€â”€ main.cpp
-â”œâ”€â”€ include/                       # Header files (.h / .hpp)
-â”‚   â””â”€â”€ project/
-â”œâ”€â”€ tests/                         # Unit tests
-â”œâ”€â”€ CMakeLists.txt                 # Build configuration
-â””â”€â”€ README.md
+├── src/                           # Source files (.cpp)
+│   └── main.cpp
+├── include/                       # Header files (.h / .hpp)
+│   └── project/
+├── tests/                         # Unit tests
+├── CMakeLists.txt                 # Build configuration
+└── README.md
 ```
 
 **Tooling**:

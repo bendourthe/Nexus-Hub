@@ -73,11 +73,11 @@ overview_l1: "<paragraph in quotes>" # ≤150 words; loaded on L1 match
 ---
 ```
 
-**Description style: combat undertriggering.** The `description` field above is what the AI agent scans when deciding whether to trigger this skill. Claude has a measurable tendency to **under-trigger** when the description is narrow, clean, or implicit. The fix is not a longer description — it is a **pushy** description that lists trigger phrases AND skip phrases explicitly. Rules:
+**Description style: combat undertriggering.** The `description` field above is what the AI agent scans when deciding whether to trigger this skill. Claude has a measurable tendency to **under-trigger** when the description is narrow, clean, or implicit. The fix is not a longer description -- it is a **pushy** description that lists trigger phrases AND skip phrases explicitly. Rules:
 
 - **List trigger phrases verbatim.** If the user is likely to say "build me a dashboard", "show internal metrics", "visualize the data", put those exact phrases in the description.
 - **Add a SKIP clause.** Use `SKIP: ...` or `Do NOT use for: ...` to fence off look-alike requests the skill should not handle. This is what stops over-triggering after you make the description pushier.
-- **Cover synonyms and adjacent intents.** A description for a "dashboard" skill should also cover "internal metrics", "data visualization", "company data display" — not just the literal word "dashboard".
+- **Cover synonyms and adjacent intents.** A description for a "dashboard" skill should also cover "internal metrics", "data visualization", "company data display" -- not just the literal word "dashboard".
 - **Lead with the action, then the trigger surface.** First sentence states what the skill does; second sentence lists when to invoke it; third sentence (if needed) lists when to skip.
 
 Before / after example:
@@ -91,10 +91,10 @@ The "After" form trades 6 words for 60. Those 60 words pay for themselves the fi
 
 Every Nexus-Hub skill is consumed by the agent in three tiers of progressive disclosure. Authoring decisions (what goes in the frontmatter, what goes in the body, what gets bundled in subdirs) follow directly from this model, so internalize it before writing the body.
 
-1. **Tier 1 — always loaded** (~150-300 tokens total): `name`, `description`, `summary_l0`, `overview_l1`. Every active session has these in context for every catalog skill, all the time. They determine whether the skill triggers. Tier 1 is the only tier under direct token-budget pressure across the catalog.
-2. **Tier 2 — loaded on trigger**: the SKILL.md body. Loaded once the agent decides this skill is relevant to the current task. Target ≤500 lines; soft cap 800 lines (see the size-norm rule below). Tier 2 is the agent's working manual for the skill — instructions, rationalizations, verification, related-skills cross-links.
-3. **Tier 3 — loaded on demand**: bundled resources under per-skill `scripts/`, `references/`, `assets/` subdirectories (the convention introduced in Phase 3 of `docs/archive/v1/v1.1/plans/adoption-skills.md`, item A13). Two access patterns:
-    - **Reference files** (`references/<topic>.md`) load into context only when the agent reads them. The body should link to a reference file the way it would link to an external doc — "see `references/fastmcp-runbook.md` for the full setup steps" — so the agent only pays for it when needed.
+1. **Tier 1 -- always loaded** (~150-300 tokens total): `name`, `description`, `summary_l0`, `overview_l1`. Every active session has these in context for every catalog skill, all the time. They determine whether the skill triggers. Tier 1 is the only tier under direct token-budget pressure across the catalog.
+2. **Tier 2 -- loaded on trigger**: the SKILL.md body. Loaded once the agent decides this skill is relevant to the current task. Target ≤500 lines; soft cap 800 lines (see the size-norm rule below). Tier 2 is the agent's working manual for the skill -- instructions, rationalizations, verification, related-skills cross-links.
+3. **Tier 3 -- loaded on demand**: bundled resources under per-skill `scripts/`, `references/`, `assets/` subdirectories (the convention introduced in Phase 3 of `docs/archive/v1/v1.1/plans/adoption-skills.md`, item A13). Two access patterns:
+    - **Reference files** (`references/<topic>.md`) load into context only when the agent reads them. The body should link to a reference file the way it would link to an external doc -- "see `references/fastmcp-runbook.md` for the full setup steps" -- so the agent only pays for it when needed.
     - **Scripts** (`scripts/<name>.{py,sh,js}`) execute via the Bash / shell tool **without their source code being loaded** into the context window. This is the critical performance affordance: a skill can bundle a 2000-line generator script that runs deterministically on demand, and the agent never reads a single line of it. Scripts are how a skill ships heavy capability without inflating Tier 2.
 
 Practical implications for SKILL.md authoring:
@@ -148,7 +148,7 @@ nist_csf: [DE.CM, DE.AE]
 
 Companion file: when a skill declares any of these fields, it SHOULD ship a `references/standards.md` that documents the mapping (what each ID means, why it applies to this skill, and the public source URL for the framework definition). The orphan-bundle audit will warn if `references/standards.md` exists but is not referenced from `SKILL.md`; otherwise the file is purely additive.
 
-These fields exist so a downstream generator (e.g. `scripts/build_framework_coverage.py`) can emit a coverage matrix across Nexus-Hub's security skills. They are NOT a substitute for the skill body — the body must still teach the agent what to do, with binary Verification and Common Rationalizations.
+These fields exist so a downstream generator (e.g. `scripts/build_framework_coverage.py`) can emit a coverage matrix across Nexus-Hub's security skills. They are NOT a substitute for the skill body -- the body must still teach the agent what to do, with binary Verification and Common Rationalizations.
 
 Required body sections (in order):
 
@@ -167,7 +167,7 @@ Step-by-step process. Use numbered steps and code blocks.
 
 ## Common Rationalizations
 
-Table of excuses the agent might use to skip this skill — with rebuttals.
+Table of excuses the agent might use to skip this skill -- with rebuttals.
 
 | Rationalization | Reality |
 |---|---|
@@ -187,10 +187,10 @@ Binary checklist. Each item must describe an observable artifact or state.
 
 ## Related Skills
 
-- `<skill-name>` — one sentence on the relationship
+- `<skill-name>` -- one sentence on the relationship
 ```
 
-**SKILL.md size norm.** Target ≤500 lines for the SKILL.md body. Soft cap 800 lines. Beyond 500 lines, add a `references/` subdirectory with a table of contents and link to it from SKILL.md rather than expanding the body. Beyond 800 lines, the skill MUST be split or refactored before merge. Existing skills that exceed 500 lines are grandfathered — this norm is forward-looking and applies to new and substantially-rewritten skills only.
+**SKILL.md size norm.** Target ≤500 lines for the SKILL.md body. Soft cap 800 lines. Beyond 500 lines, add a `references/` subdirectory with a table of contents and link to it from SKILL.md rather than expanding the body. Beyond 800 lines, the skill MUST be split or refactored before merge. Existing skills that exceed 500 lines are grandfathered -- this norm is forward-looking and applies to new and substantially-rewritten skills only.
 
 #### Per-skill Bundled Resources
 
@@ -210,10 +210,10 @@ This convention is the operational expression of Tier 3 in the [Three-Tier Loadi
 **File naming**:
 
 - `scripts/<name>.{py,sh,js,ps1}` - kebab-case, descriptive (e.g., `init-mcp-fastmcp.sh`, `package_skill.py`). PowerShell siblings (`.ps1`) MUST accompany every `.sh` script that ships under `scripts/` so Windows users get the same capability.
-- `references/<topic>.md` - kebab-case, scoped by topic (e.g., `references/fastmcp-runbook.md`, `references/schemas.md`). Each reference file should be self-contained — the agent reads it cold without the rest of the skill bundle in context.
+- `references/<topic>.md` - kebab-case, scoped by topic (e.g., `references/fastmcp-runbook.md`, `references/schemas.md`). Each reference file should be self-contained -- the agent reads it cold without the rest of the skill bundle in context.
 - `assets/<descriptive-name>.<ext>` - any extension. Examples: `assets/flow-field.html`, `assets/themes/editorial-serif.json`, `assets/fonts/Inter.woff2`.
 
-**Reference rule**: every file under `scripts/`, `references/`, `assets/` MUST be referenced at least once from the parent SKILL.md (or from another file in the bundle that is itself referenced). The validator enforces this — see "Orphan-bundle detection" below. Empty subdirectories are tolerated only when they hold a single `.gitkeep` placeholder for a future expansion.
+**Reference rule**: every file under `scripts/`, `references/`, `assets/` MUST be referenced at least once from the parent SKILL.md (or from another file in the bundle that is itself referenced). The validator enforces this -- see "Orphan-bundle detection" below. Empty subdirectories are tolerated only when they hold a single `.gitkeep` placeholder for a future expansion.
 
 **Installer behavior**: both `scripts/installer.sh` and `scripts/installer.ps1` recursively copy the entire skill directory tree (`safe_folder_copy` / `Safe-Folder-Copy` use `rsync -a` / `cp -R` / `robocopy /MIR` respectively). Per-skill `scripts/`, `references/`, `assets/` subdirectories therefore land at the platform target alongside SKILL.md without any installer edit. This is the auto-distribution path called out in row 1 of the [Distribution channels the installer uses](#distribution-channels-the-installer-uses) table; it explicitly does NOT require the explicit-name copy step that repo-level `scripts/<name>.py` artifacts require.
 
@@ -256,14 +256,14 @@ Use `agent-orchestration-primitives` as the decision guide for whether a fan-out
 
 After creating SKILL.md, update these three files:
 
-**`data/SKILL_INDEX.md`** — add one row to the table:
+**`data/SKILL_INDEX.md`** -- add one row to the table:
 ```
 | <skill-name> | <Category> | "<summary_l0>" | catalog/skills/<category>/<skill-name>/SKILL.md |
 ```
 
-**`data/skills.json`** — add one entry to the `"skills"` array following the existing schema (name, title, description, long_description, summary_l0, overview_l1, version, author, category, language, tags, priority, based_on, tools_required, path, file, size, downloads, status, security).
+**`data/skills.json`** -- add one entry to the `"skills"` array following the existing schema (name, title, description, long_description, summary_l0, overview_l1, version, author, category, language, tags, priority, based_on, tools_required, path, file, size, downloads, status, security).
 
-**`data/marketplace.json`** — increment `skill_count` in the relevant category entry and update `"total_skills"` in `statistics`.
+**`data/marketplace.json`** -- increment `skill_count` in the relevant category entry and update `"total_skills"` in `statistics`.
 
 ### 5. Validate
 
@@ -281,7 +281,7 @@ Nexus-Hub ships `catalog/mcp-configs/mcp-servers.json` as a curated registry of 
 2. **LLM-native skill** (zero code, zero MCP): if the capability can be achieved by instructing the agent's own LLM (e.g. "generate a React component with these props", "explain this stack trace"), ship a skill in `catalog/skills/`, not an MCP. **Preferred over any external wrapper.**
 3. **Reverse-engineerable into a local internal MCP**: if the external project wraps logic that can run locally (HTTP fetch + HTML parsing, tree-sitter chunking, BM25 keyword search, local embeddings), **build the internal equivalent** under `extensions/`. Strip external-source attribution from the implementation and documentation; use generic descriptive names for the package, the registry key, and the tool names.
 4. **Trusted vendor wrapper (your-own-account)**: acceptable only when **all three** conditions hold:
-   1. The third party is the intrinsic data destination — you are already a customer of the vendor (GitHub, Supabase, Railway, Vercel, Cloudflare, your own Postgres).
+   1. The third party is the intrinsic data destination -- you are already a customer of the vendor (GitHub, Supabase, Railway, Vercel, Cloudflare, your own Postgres).
    2. The capability cannot be reverse-engineered locally (or reverse-engineering duplicates effort without reducing data-flow surface).
    3. The feature is extremely worth it.
    The `_comment` field on the registry entry must explicitly justify each of the three conditions.
@@ -404,8 +404,8 @@ To run automation at a `/plan`, `/implement`, or `/spec` **phase boundary**, do 
 
 **Do not hand-edit a derived artifact.** These are generated or read from the source, and `python scripts/sync_platform_defaults.py --check` fails `make validate` and CI when one drifts:
 
-- `catalog/hooks/settings.json` — its `effortLevel`, `model`, and `env.CLAUDE_CODE_EFFORT_LEVEL` core keys. The generator updates only those keys **in place**, because this file also carries the entire hook registration block; it is never re-serialized wholesale.
-- `scripts/lib/integrations/claude.py` — the `nexus-hub init` project stub reads the source at runtime and keeps only an offline fallback, which `--check` also verifies so it cannot rot.
+- `catalog/hooks/settings.json` -- its `effortLevel`, `model`, and `env.CLAUDE_CODE_EFFORT_LEVEL` core keys. The generator updates only those keys **in place**, because this file also carries the entire hook registration block; it is never re-serialized wholesale.
+- `scripts/lib/integrations/claude.py` -- the `nexus-hub init` project stub reads the source at runtime and keeps only an offline fallback, which `--check` also verifies so it cannot rot.
 
 ```bash
 python scripts/sync_platform_defaults.py --check    # fail on drift (make validate + CI)
@@ -434,25 +434,25 @@ Nexus-Hub is a **template repository**. Nothing you add is "live" until a user r
 
 **Entry points (v3.7.0 install-UX overhaul)**: a clean machine installs via the one-line bootstrap -- `curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash` (macOS/Linux; `wget -qO-` fallback) or `irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex` (Windows). The root `install.sh` / `install.ps1` are dual-mode: run standalone they precheck dependencies, download the `main` tarball into `~/.nexus-hub/src`, and hand off to `scripts/installer.{sh,ps1}`; run inside a checkout they delegate exactly as before. The core installers (`scripts/installer.{sh,ps1}`) are **unchanged** by the bootstrap and still do all of the distribution work documented below -- the bootstrap only materializes the tree they run from, so the distribution channels and copy rules in this section are unaffected. `nexus-hub upgrade` (the CLI installed to `~/.nexus-hub/bin/`) re-runs this same idempotent bootstrap. Installs are no-prompt: global scope across every detected platform by default, with `--workspace` / `--platforms` / `--yes` for power users and CI (absent platforms skip-with-note; conflict-only overwrite confirmation).
 
-**Golden rule**: every change you propose must be shaped so that after the next installer run, it reaches Claude Code, Cursor, Codex, Gemini/Antigravity, OpenCode, and Copilot — on Windows, macOS, and Linux — without any manual step on the user's part.
+**Golden rule**: every change you propose must be shaped so that after the next installer run, it reaches Claude Code, Cursor, Codex, Gemini/Antigravity, OpenCode, and Copilot -- on Windows, macOS, and Linux -- without any manual step on the user's part.
 
 ### Distribution channels the installer uses
 
 | Artifact you add/modify | Installer edit required? | Platforms reached |
 |---|---|---|
-| `catalog/skills/<cat>/<name>/SKILL.md` | No — folder auto-copied | As of v3.12.0 every SKILL.md-standard platform (Claude, Codex/ChatGPT, Antigravity, Gemini, Gemini CLI, OpenCode, Nexus-AI -- and, as of v3.15.0, **Cursor, Qwen Code, and Kimi Code CLI**) receives skills FLATTENED to `skills/<name>/` (one level, per the SKILL.md open standard) plus one skill per command (`$name`); Qwen/Kimi are detection-gated at global scope. Copilot gets the skill index via the `{{SKILL_INDEX}}` block in its instruction file plus an opt-in `.github/skills/` wrapper set (`NEXUS_HUB_COPILOT_SKILLS`, a bundle id or `all`, off by default). Exact per-platform read-paths: `docs/policy/platform-read-contracts.json` (the machine-readable source of truth; human-readable companion in the sibling `.md`), the living contract re-verified and freshness-gated (`check_platform_contract_freshness.py`, run by `make validate` + CI) at every `/update release` by the platform-contract-verification step. |
-| `catalog/commands/<name>.md` | No — folder auto-copied | Claude (`commands/`), Gemini (`workflows/`), Codex (`prompts/`). Cursor and GitHub Copilot get a **user-global** slash surface too (v3.3.4): a global install mirrors every command into `~/.cursor/commands/<name>.md` and into VS Code's user-profile `prompts/<name>.prompt.md`, so `/<name>` works in any repo with no local install. As of v3.12.0 Antigravity 2.0 gets a global slash surface at `~/.gemini/config/global_workflows/` AND the open project's `.agents/workflows/` (the latter seeded by `nexus-hub init`), and every command is also emitted as a skill. OpenCode has no slash surface — it sees the command body only via its instruction file (and its skills folder). **v3.15.0** added project-scoped command surfaces: Cursor also mirrors commands to the project `.cursor/commands/` (seeded by `nexus-hub init`, in addition to the user-global dir), and Qwen Code mirrors Markdown commands to `~/.qwen/commands/` + `.qwen/commands/` (TOML is deprecated in Qwen); Kimi Code CLI has no separate command format — each skill and command-skill surfaces as `/skill:<name>`. |
-| `catalog/style-guides/<name>.md` (companion reference for a command, NOT a slash command) | No — folder auto-copied to `~/.nexus-hub/style-guides/` by `install_templates` | All platforms (shared). Located outside `catalog/commands/` so the file does not surface in the slash menu. |
-| `catalog/agents/<name>.md` | No — folder auto-copied | Claude, Gemini, Codex |
+| `catalog/skills/<cat>/<name>/SKILL.md` | No -- folder auto-copied | As of v3.12.0 every SKILL.md-standard platform (Claude, Codex/ChatGPT, Antigravity, Gemini, Gemini CLI, OpenCode, Nexus-AI -- and, as of v3.15.0, **Cursor, Qwen Code, and Kimi Code CLI**) receives skills FLATTENED to `skills/<name>/` (one level, per the SKILL.md open standard) plus one skill per command (`$name`); Qwen/Kimi are detection-gated at global scope. Copilot gets the skill index via the `{{SKILL_INDEX}}` block in its instruction file plus an opt-in `.github/skills/` wrapper set (`NEXUS_HUB_COPILOT_SKILLS`, a bundle id or `all`, off by default). Exact per-platform read-paths: `docs/policy/platform-read-contracts.json` (the machine-readable source of truth; human-readable companion in the sibling `.md`), the living contract re-verified and freshness-gated (`check_platform_contract_freshness.py`, run by `make validate` + CI) at every `/update release` by the platform-contract-verification step. |
+| `catalog/commands/<name>.md` | No -- folder auto-copied | Claude (`commands/`), Gemini (`workflows/`), Codex (`prompts/`). Cursor and GitHub Copilot get a **user-global** slash surface too (v3.3.4): a global install mirrors every command into `~/.cursor/commands/<name>.md` and into VS Code's user-profile `prompts/<name>.prompt.md`, so `/<name>` works in any repo with no local install. As of v3.12.0 Antigravity 2.0 gets a global slash surface at `~/.gemini/config/global_workflows/` AND the open project's `.agents/workflows/` (the latter seeded by `nexus-hub init`), and every command is also emitted as a skill. OpenCode has no slash surface -- it sees the command body only via its instruction file (and its skills folder). **v3.15.0** added project-scoped command surfaces: Cursor also mirrors commands to the project `.cursor/commands/` (seeded by `nexus-hub init`, in addition to the user-global dir), and Qwen Code mirrors Markdown commands to `~/.qwen/commands/` + `.qwen/commands/` (TOML is deprecated in Qwen); Kimi Code CLI has no separate command format -- each skill and command-skill surfaces as `/skill:<name>`. |
+| `catalog/style-guides/<name>.md` (companion reference for a command, NOT a slash command) | No -- folder auto-copied to `~/.nexus-hub/style-guides/` by `install_templates` | All platforms (shared). Located outside `catalog/commands/` so the file does not surface in the slash menu. |
+| `catalog/agents/<name>.md` | No -- folder auto-copied | Claude, Gemini, Codex |
 | `catalog/hooks/<name>.{sh,py}` | No for the file; **you must register it** in `catalog/hooks/settings.json` | Platforms that honor Claude-style hooks |
-| `catalog/rules/<lang>/<name>.md` | No — folder auto-copied | Claude, Gemini, Codex |
-| `templates/documentation/<name>.{docx,pptx,xlsx,...}` | No — folder auto-copied to `~/.nexus-hub/templates/documentation/` | All platforms (shared) |
-| `templates/ai-instructions/base-*.md` | **Yes — edit all 5 lockstep files** (claude, codex, cursor, gemini, opencode). **But 5 is not the full set**: 16 template files exist and 12 are substantive. A behavioral rule meant for every agent must also reach `base-google-shared.md` (which covers Antigravity 1.0, Antigravity 2.0, and Gemini CLI by `@`-include, and Antigravity CLI transitively via `@base-antigravity-20.md`), the guardrails-only `base-{aider,kimi,openclaw,qwen,windsurf}.md`, and `generic-instructions.md`. Only the lockstep five are machine-guarded; the other seven are not, so they are the ones a change silently misses. | The respective platform |
-| `scripts/<name>.py` or `scripts/<name>.js` | **Yes — MUST add a copy step** in BOTH `scripts/installer.sh` AND `scripts/installer.ps1`, modeled after the existing `generate_report.py` entry. The installer copies scripts by **explicit name**, never by folder. | All platforms (shared under `~/.nexus-hub/scripts/`) |
-| `configs/platform-defaults.json` (v3.16.0+) | No — **repo-internal source, NOT a distributed artifact**. It is the single place a per-platform install-time behavioral default is declared. Its effect reaches users two ways: the derived core keys of `catalog/hooks/settings.json` (which the installer already copies), and install-time seeding into each platform's own config by `scripts/lib/integrations/platform_defaults.py`. Never hand-edit a derived artifact. | All platforms with a VERIFIED lever (see below) |
-| `scripts/sync_platform_defaults.py` (v3.16.0+) | No — **repo-internal guard, needs NO installer copy step**. Listed in `DEV_ONLY_SCRIPTS` in `catalog/hooks/tests/test_installer_smoke.py` alongside the other three repo-only guards. `--check` runs in `make validate` and CI; `--apply` regenerates the derived artifacts. | None (maintainer tooling) |
+| `catalog/rules/<lang>/<name>.md` | No -- folder auto-copied | Claude, Gemini, Codex |
+| `templates/documentation/<name>.{docx,pptx,xlsx,...}` | No -- folder auto-copied to `~/.nexus-hub/templates/documentation/` | All platforms (shared) |
+| `templates/ai-instructions/base-*.md` | **Yes -- edit all 5 lockstep files** (claude, codex, cursor, gemini, opencode). **But 5 is not the full set**: 16 template files exist and 12 are substantive. A behavioral rule meant for every agent must also reach `base-google-shared.md` (which covers Antigravity 1.0, Antigravity 2.0, and Gemini CLI by `@`-include, and Antigravity CLI transitively via `@base-antigravity-20.md`), the guardrails-only `base-{aider,kimi,openclaw,qwen,windsurf}.md`, and `generic-instructions.md`. Only the lockstep five are machine-guarded; the other seven are not, so they are the ones a change silently misses. | The respective platform |
+| `scripts/<name>.py` or `scripts/<name>.js` | **Yes -- MUST add a copy step** in BOTH `scripts/installer.sh` AND `scripts/installer.ps1`, modeled after the existing `generate_report.py` entry. The installer copies scripts by **explicit name**, never by folder. | All platforms (shared under `~/.nexus-hub/scripts/`) |
+| `configs/platform-defaults.json` (v3.16.0+) | No -- **repo-internal source, NOT a distributed artifact**. It is the single place a per-platform install-time behavioral default is declared. Its effect reaches users two ways: the derived core keys of `catalog/hooks/settings.json` (which the installer already copies), and install-time seeding into each platform's own config by `scripts/lib/integrations/platform_defaults.py`. Never hand-edit a derived artifact. | All platforms with a VERIFIED lever (see below) |
+| `scripts/sync_platform_defaults.py` (v3.16.0+) | No -- **repo-internal guard, needs NO installer copy step**. Listed in `DEV_ONLY_SCRIPTS` in `catalog/hooks/tests/test_installer_smoke.py` alongside the other three repo-only guards. `--check` runs in `make validate` and CI; `--apply` regenerates the derived artifacts. | None (maintainer tooling) |
 | `scripts/check_required_check_coverage.py` + `docs/policy/required-checks.json` (v3.17.6+) | No - **repo-internal guard plus its declared manifest, needs NO installer copy step**. Listed in `DEV_ONLY_SCRIPTS` in `catalog/hooks/tests/test_installer_smoke.py`. Runs in `make validate` and in CI's existing `validate` job (deliberately not a new job, which would need its own required context). Asserts every required status check is produced by a workflow that triggers unconditionally, so a required check can never sit Pending forever; `--sync` prints the live protection state via the user's own `gh` and never writes. | None (maintainer tooling) |
-| `data/SKILL_INDEX.md`, `data/skills.json`, `data/marketplace.json` | No — the installer reads these to fill `{{SKILL_INDEX}}` placeholders in every platform's instruction file. Updating them is mandatory when adding a skill. | All platforms whose instruction template embeds the index |
+| `data/SKILL_INDEX.md`, `data/skills.json`, `data/marketplace.json` | No -- the installer reads these to fill `{{SKILL_INDEX}}` placeholders in every platform's instruction file. Updating them is mandatory when adding a skill. | All platforms whose instruction template embeds the index |
 | `scripts/lib/integrations/<platform>.py` (v2.1.0+) | No file-copy edit; **MUST** import + `_register()` the subclass in `scripts/lib/integrations/__init__.py::_register_builtins()`. The runner is invoked automatically by both installers for the extended-platform set. | The platform configured by the subclass (e.g., Antigravity 2.0, Gemini CLI, Nexus-AI for the v2.1.0 extended set; Claude / Codex / Cursor / Gemini / OpenCode / Copilot subclasses also exist for future v2.2.0 parity migration). |
 | Project-local surfaces (called from `nexus-hub init` -- v2.2.0+) | No file-copy edit; override `wire_project_surfaces(self, ctx) -> WriteResult \| None` on the integration subclass. The `nexus-hub init` subcommand (bash: `scripts/installer.sh init`; PowerShell: `scripts/installer.ps1 init`) walks every registered integration and invokes the hook. | Any platform whose subclass overrides the hook. Currently `cursor` (writes `.cursor/rules/nexus-hub.mdc`), `claude` (writes `.claude/settings.json` permissions stub when absent), `antigravity2` (writes `.agents/workflows/<name>.md` command files, since Antigravity reads slash commands only from the open project's `.agents/`), and `copilot` (v3.11.0, OPT-IN: writes thin `.github/skills/<name>/SKILL.md` wrapper files for the `core-developer` bundle when `NEXUS_HUB_COPILOT_SKILLS=1`, upgrading Copilot from behavioral-guardrails-only to a native project Agent Skills surface; off by default because `.github/skills/` is commit-visible, never overwrites an existing file). |
 
@@ -532,7 +532,7 @@ Records live at `docs/decisions/<lifecycle>/<class>/YYYY-MM-DD-<slug>.md` and re
 
 ## Critical Conventions
 
-- **Never edit `data/` files manually** unless registering a new skill — they are generated. The source of truth is `catalog/skills/`.
+- **Never edit `data/` files manually** unless registering a new skill -- they are generated. The source of truth is `catalog/skills/`.
 - **Never commit secrets.** The `secret-scan.sh` hook checks Write/Edit operations.
 - **Destructive git commands require confirmation.** The `git-guardrails.sh` hook enforces this.
 - **SKILL.md summaries must be quoted strings.** The MCP server depends on YAML-parseable frontmatter.

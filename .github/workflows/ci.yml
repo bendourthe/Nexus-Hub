@@ -221,7 +221,7 @@ jobs:
 
       - name: Validate Unicode safety (v2.3.0 Phase 2)
         run: |
-          python scripts/validate_unicode_safety.py
+          python scripts/validate_unicode_safety.py --strict
 
       - name: Scan supply-chain IOCs (v2.3.0 Phase 2)
         run: python scripts/scan_supply_chain_iocs.py

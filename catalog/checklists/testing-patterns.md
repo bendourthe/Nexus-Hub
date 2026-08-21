@@ -20,7 +20,7 @@ Invert this pyramid = slow, brittle test suite. Flatten it = gaps in edge case c
 
 - [ ] Test one behavior per test function (single logical assertion)
 - [ ] Name: `test_<function>_<condition>_<expected>` (Python) or `it('should <X> when <Y>')` (JS)
-- [ ] Follow AAA: Arrange, Act, Assert — in that order, clearly separated
+- [ ] Follow AAA: Arrange, Act, Assert -- in that order, clearly separated
 - [ ] No shared mutable state between tests; each test initializes its own data
 - [ ] Use parameterize/table-driven patterns for multiple input/output combinations
 - [ ] Mock at the boundary (where code calls external systems), not at internal function calls
@@ -34,7 +34,7 @@ Invert this pyramid = slow, brittle test suite. Flatten it = gaps in edge case c
 
 - [ ] Uses real external dependencies (actual DB, real filesystem) not mocks
 - [ ] Each test cleans up its own state (transaction rollback, temp directory cleanup)
-- [ ] Isolated from other tests — no shared database rows or files
+- [ ] Isolated from other tests -- no shared database rows or files
 - [ ] Tagged separately from unit tests (`@pytest.mark.integration`, `//go:build integration`)
 - [ ] Uses `testcontainers` (or equivalent) for services that are impractical to run natively
 - [ ] Verifies the contract between components (input/output shape), not internal implementation
@@ -47,7 +47,7 @@ Invert this pyramid = slow, brittle test suite. Flatten it = gaps in edge case c
 - [ ] Uses page objects or screen objects to isolate selector fragility
 - [ ] Avoids `sleep`; uses explicit waits for async state changes
 - [ ] Runs against a staging environment, not production
-- [ ] Flakiness rate < 5% — any flakier test is quarantined and fixed
+- [ ] Flakiness rate < 5% -- any flakier test is quarantined and fixed
 - [ ] Covers critical paths: auth, primary CRUD, payment, error recovery
 
 ---
@@ -79,9 +79,9 @@ Invert this pyramid = slow, brittle test suite. Flatten it = gaps in edge case c
 
 ## Anti-Patterns to Avoid
 
-- **Ice cream cone**: More E2E than unit tests — slow feedback loop
+- **Ice cream cone**: More E2E than unit tests -- slow feedback loop
 - **Testing the framework**: Tests that only verify `React.render()` or `ORM.save()` work
-- **Assertion roulette**: Multiple asserts with no message — impossible to know which failed
+- **Assertion roulette**: Multiple asserts with no message -- impossible to know which failed
 - **Mystery guest**: Test data from a distant fixture file with no explanation
 - **Liar test**: Test name says "returns error on invalid input" but actually tests success case
 - **Flaky test left in CI**: A skipped flaky test is technical debt with interest

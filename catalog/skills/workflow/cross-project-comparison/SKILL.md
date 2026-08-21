@@ -181,6 +181,13 @@ A comparison is intrinsically forward-looking: it seeds a *future* adoption, and
 
 1. Resolve the in-flight version via the [[docs-layout-refactor]] Version-directory resolution (git tags / CHANGELOG). This is the CURRENT release, whose plan almost always already lives under `docs/v<MAJOR>/v<MAJOR>.<MINOR>/plans/` and is locked or in flight, so it is usually NOT free to absorb a brand-new comparison.
 2. Because that slot is taken, the default adoption target is the next FREE version slot after it: walk forward (the next patch `vX.Y.(Z+1)`, then the next minor `vX.(Y+1).0`, and so on) and skip any minor or patch whose `plans/` directory already holds a locked or in-flight plan. The first slot with no committed plan is the default target. This is exactly the reasoning the codesight comparison recorded ("v3.14.0 is taken by agentic-setup + codex-lb, so v3.15.0").
+
+    **Enumerate NUMERICALLY, and scan EVERY version directory.** Two failure modes, both of which have actually happened:
+
+    - **Sort on the parsed integers, never lexically.** A directory listing is alphabetical, which orders `v3.10`, `v3.18`, and `v3.20` BEFORE `v3.5`. Parse each directory name into `(major, minor)` and sort on those integers. A lexical walk concludes the wrong slot is free while later plans already exist.
+    - **Scan `docs/v*/v*/plans/` across the whole tree, not just the current minor.** Plans routinely exist several minors ahead of the in-flight version, and a scan scoped to the current minor cannot see them.
+
+    A live instance: a comparison resolved `v3.17.12` as free while plans already existed through `v3.20.0`. Both failures produce a confident wrong answer rather than an error, so confirm the resolved target against the highest plan actually on disk before presenting it.
 3. Only when the current in-flight plan is still open AND will genuinely absorb the comparison's highest-value items (rare) is the in-flight version itself the target. State that reason explicitly.
 
 **Always CONFIRM the resolved target with the user before writing the report.** Slotting is a judgment call: whether a gap lands in the next patch, the next minor, or a later release depends on roadmap intent the user owns. Present the resolved `vX.Y.Z` and a one-line reason, and adjust to the user's choice.

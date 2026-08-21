@@ -122,7 +122,7 @@ For each cluster, determine:
 For each cluster (newest first), produce an entry using this template:
 
 ```markdown
-## [YYYY-MM-DD HH:MM] — [Short Descriptive Title] [category-tag]
+## [YYYY-MM-DD HH:MM] -- [Short Descriptive Title] [category-tag]
 
 ### What Changed
 Concise summary of changes: features, fixes, refactors, dependency updates.

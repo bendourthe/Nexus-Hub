@@ -973,7 +973,7 @@ def execute_research_agent(question: str) -> str:
 
 | Rationalization | Reality |
 |---|---|
-| "We don't need turn limits — the agent will stop when it's done" | Agents in infinite loops or with misconfigured tools have run for hours and incurred thousands of dollars in API costs before operators noticed; hard turn and cost limits are non-negotiable safety mechanisms, not optional guardrails. |
+| "We don't need turn limits -- the agent will stop when it's done" | Agents in infinite loops or with misconfigured tools have run for hours and incurred thousands of dollars in API costs before operators noticed; hard turn and cost limits are non-negotiable safety mechanisms, not optional guardrails. |
 | "Guardrails slow down the agent and hurt task performance" | Guardrails that reject invalid tool calls prevent irreversible side effects (deleting production data, sending emails to real users) that no subsequent action can undo; the performance cost of validation is orders of magnitude cheaper than remediation. |
 | "We'll add observability after we validate the agent works" | Agent failures in production are non-deterministic and context-dependent; without structured logs and trace IDs from the first deployment, diagnosing why the agent chose an unexpected action path is practically impossible. |
 | "A single monolithic agent is simpler than multi-agent orchestration" | A single agent with 50+ tools saturates the context window with tool descriptions, degrading routing accuracy; multi-agent systems with 5-10 focused tools per agent consistently outperform monolithic agents on complex tasks. |
