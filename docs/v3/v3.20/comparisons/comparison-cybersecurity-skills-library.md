@@ -11,7 +11,7 @@
 **Date**: 2026-08-20
 **Scope**: `repo` - full 11-dimension comparison
 
-> **Slotting note (revised 2026-08-20).** The original target recorded here was v3.17.12, resolved on the false premise that v3.17.11 was the last planned version. Plans already existed through v3.20.0; the walk-forward resolution enumerated version directories in alphabetical order, which places `v3.18` before `v3.5`, and terminated early. Corrected target: **v3.20.1**, rank 8 of 14 in `docs/v3/roadmap-prioritization.md`. The confirmed content scope (a broad expansion from 40 to 80 security-domain skills) is feature-scale work, so it belongs in a minor rather than a patch, which is the second reason the original slot was wrong. The plan is at `../plans/adoption-cybersecurity-skills.md`, named slug-first with the target version as a field inside it.
+> **Slotting note (revised 2026-08-20).** The original target recorded here was v3.17.12, resolved on the false premise that v3.17.11 was the last planned version. Plans already existed through v3.20.0; the walk-forward resolution enumerated version directories in alphabetical order, which places `v3.18` before `v3.5`, and terminated early. Corrected target: **v3.20.1**, rank 9 of 15 in `docs/v3/roadmap-prioritization.md`. The confirmed content scope (a broad expansion from 40 to 80 security-domain skills) is feature-scale work, so it belongs in a minor rather than a patch, which is the second reason the original slot was wrong. The plan is at `../plans/adoption-cybersecurity-skills.md`, named slug-first with the target version as a field inside it.
 
 ## Executive Summary
 
