@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- **`docs/DEVLOG.md` is now a per-release index, not an append-only log (v3.18.0 Phase 1)**: the file carries a short header and one line per release (date, version, one-sentence summary, links to that release's plan, `development/history/` directory, and `known-gaps.md`), newest first. It went from 5,615 lines to 99, against a 150-line gate with roughly 50 releases of headroom. Releases from v3.0.0 onward each carry their own line; the 64 pre-v3 releases predate the per-version documentation layout and are grouped into 19 minor-version rows, which is what makes the bound hold rather than merely start out satisfied. The prior body is archived **verbatim and byte-identical** (verified by SHA-256 on both sides) at `docs/archive/DEVLOG-v0-v3.17.md` under a three-line provenance header; nothing was deleted. The index is a navigation surface only, and `CHANGELOG.md` remains the authoritative record of what changed. Recorded at `docs/decisions/implemented/policy/2026-08-18-devlog-index-conversion.md`, with the five rejected alternatives including a per-release line for all 134 releases, which lands at ~148 lines and leaves the very next release over the gate.
+- **References that described DEVLOG as a narrative log now describe the index**: `README.md` (both the documentation-surfaces pointer and the release-flow step), `guides/reference/TOKEN_OPTIMIZATION.md` (session context is restored from the version's `development/history/`, not from DEVLOG), and `catalog/skills/workflow/dev-progress-tracker/SKILL.md` (rationale belongs in a decision record or ADR). The tooling that *writes* DEVLOG -- the `devlog-generation` skill, `/update`, `setup-project`, and the opt-in `auto-devlog` hook -- is deliberately untouched here and is owned by v3.18.0 Phase 2, so between the two phases those writers still emit the narrative format.
+
 ## [3.17.6] - 2026-08-20
 
 ### Changed
