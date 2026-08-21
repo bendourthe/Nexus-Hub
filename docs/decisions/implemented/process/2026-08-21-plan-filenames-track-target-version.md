@@ -22,7 +22,7 @@ The `Filename` header field proved the same point independently. Both files that
 - The `Filename` field is removed from plan headers. A file's name is authoritative for itself; a field restating it can only drift, and did.
 - Every plan carries `Target version` and `Rank`, the latter linking to `docs/v3/roadmap-prioritization.md` so a reader arriving at a plan file first can still find the ordering authority.
 - The ranking table remains the single authority on sequence. Filenames now agree with it rather than contradicting it, which makes the table easier to trust, not redundant.
-- Files were **not** moved between version directories. Rank 14 (`docs-lifespan-tree-and-enforcement`) restructures the docs containers, so moving them now would collide with queued work.
+- **Every plan also moved into the directory matching its target version** (amended later the same day, see below). The six plans coupled to a comparison report moved as pairs, and those reports were renamed and retargeted to match.
 - Frozen historical records keep their original filenames in prose, per the existing precedent. Only live pointers were repaired.
 
 The recurring cost is accepted rather than denied: re-prioritizing means a rename plus two field edits per moved plan, and one edit to the table. That price was paid on 2026-08-21 and is expected to be paid again.
@@ -35,7 +35,7 @@ The recurring cost is accepted rather than denied: re-prioritizing means a renam
 
 **Add a target-version pointer to each plan and leave filenames alone.** Rejected. It is what the previous decision effectively did, and it does not address the failure mode: a reader who trusts the filename never reaches the pointer.
 
-**Move each plan into the directory matching its target version.** Rejected for this pass. It would drift on exactly the same schedule as the filenames, and it collides with rank 14's container restructuring. Deferred to that plan rather than pre-empted here.
+**Move each plan into the directory matching its target version.** Initially rejected for this pass, then **adopted the same day** after the maintainer pointed out the obvious: renaming files while leaving `docs/v3/v3.17/plans/` holding v3.18, v3.20, and v4.0 plans fixes the filename and moves the contradiction up one level. The original rejection reasoned that moving "collides with rank 14's container restructuring", which was wrong on inspection: rank 14 renames the top-level containers (`docs/releases/`, `docs/archives/`) and would move everything wholesale regardless, so per-version placement does not conflict with it. A flat `docs/plans/` queue remains deferred to rank 14, which does own that decision.
 
 **Rewrite every historical reference to the old filenames.** Rejected. It would revise the record of what was true at the time, and in two cases would leave the previous decision record arguing about a filename that no longer exists, erasing the reasoning this record supersedes.
 
@@ -46,3 +46,17 @@ The recurring cost is accepted rather than denied: re-prioritizing means a renam
 - Two renumbering rules now exist in the tree's history, in opposite directions, thirteen days apart. This record is the current one; the 2026-08-20 record retains its reasoning so the reversal is auditable rather than silent.
 - `docs/v3/roadmap-prioritization.md` still must never receive an automated version-string sweep. It names version numbers as data about other documents, and a sweep treating them as its own version corrupts the ranking. That hazard is unchanged by this decision.
 - The next reprioritization costs renames. That is now a known and accepted line item, not a surprise.
+
+## Amendment, 2026-08-21: placement followed, and it exposed three gate defects
+
+Renaming without relocating was incoherent, and the maintainer said so within the hour. Every unshipped plan now sits in the directory matching its target version.
+
+The move was not a file shuffle, for two reasons worth recording.
+
+**Comparison reports are coupled to their plans by a required check.** The `colocation` gate enforces two rules at once: a plan must share a version directory with the comparison it cites, and a comparison must sit in the directory its own `Adoption target` names. Moving a plan alone violates the first; moving the pair without updating the target violates the second. Six plans were coupled, so six comparisons moved, were renamed to their new target, and had their `Adoption target` field rewritten.
+
+**Creating `docs/v4/` broke the gate open.** The check computed one `CURRENT_MAJOR` with `sort -n | tail -1` and scanned only that tree, so the four plans retargeted to v4.0.0/v4.1.0 would have silently disabled co-location checking for all of `docs/v3/` while the required check kept reporting green. Investigating that found two more fail-opens in the same block: a `Seeded from` pointing at a nonexistent file passed (the version directory was parsed from the path string, never opened), and a relative `../comparisons/x.md` reference was skipped outright (the regex required a literal `docs/v` prefix). The third defect masked the second: two plans had been citing comparison files under pre-rename slugs, `jcodemunch` and `optmem`, that did not exist.
+
+The implementation moved from an inline `run:` block to `scripts/check_doc_colocation.py` so the fixes could be unit-tested, which the bash version could not be. It now also runs in `make validate`; previously co-location was enforced only in CI, so a local validation pass could not catch a violation. The `colocation` job name and its unfiltered triggers are unchanged, so the required status context still resolves and `check_required_check_coverage.py` still passes.
+
+Not moved: `docs/v3/roadmap-prioritization.md` stays put even though it now ranks v4 plans. Relocating it would pull CHANGELOG, README, and DEVLOG references along for a cosmetic gain, and the four `docs/v4/` plans link it correctly with one extra level.
