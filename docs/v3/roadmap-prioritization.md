@@ -2,6 +2,7 @@
 
 **Created**: 2026-08-07 (covering the 12 unimplemented plans in `docs/v3/v3.16/` and `docs/v3/v3.17/`)
 **Revised**: 2026-08-20 (covering all 14 unshipped plans, adopting slug-first plan naming, and designating v4.0.0)
+**Amended**: 2026-08-21 (confirming `docs-lifespan-tree-and-enforcement` as the third v4.0.0 bundle member, taking the ranked total to 15)
 **Purpose**: establish a priority order for unshipped work, classify each plan as patch, feature, or breaking, and make the ORDER readable from one place instead of from filenames.
 
 ---
@@ -45,11 +46,11 @@ The repository's own precedent set this meaning: v3.0.0 was the command migratio
 
 Three reasons the alternative ("ship v4.0.0 when the current list is done") was rejected:
 
-- It signals breakage that does not exist across twelve of the fourteen queued plans.
+- It signals breakage that does not exist across twelve of the fifteen queued plans.
 - The list is not a fixed target. It gained six plans in thirteen days while draining none, so a version pinned to backlog completion slips indefinitely, and the pressure to declare completion pulls scope into the release rather than letting it ship.
 - It redefines what v3.0.0 meant, retroactively.
 
-**Two plans qualify** on the changed-install-behavior test, and they share one coherent story, so they ship together:
+**Three plans qualify** on the changed-install-behavior test, and they share one coherent story, so they ship together. The third was confirmed on 2026-08-21, after the first two:
 
 | Plan | What changes for an existing install |
 |---|---|
