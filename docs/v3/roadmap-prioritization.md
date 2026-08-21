@@ -3,6 +3,7 @@
 **Created**: 2026-08-07 (covering the 12 unimplemented plans in `docs/v3/v3.16/` and `docs/v3/v3.17/`)
 **Revised**: 2026-08-20 (covering all 14 unshipped plans, adopting slug-first plan naming, and designating v4.0.0)
 **Amended**: 2026-08-21 (confirming `docs-lifespan-tree-and-enforcement` as the third v4.0.0 bundle member, taking the ranked total to 15)
+**Reordered**: 2026-08-21 (promoting `presentify-slide-navigation` from rank 11 to rank 4 by maintainer direction, and renaming all 14 unshipped plan files so every filename matches its target version)
 **Purpose**: establish a priority order for unshipped work, classify each plan as patch, feature, or breaking, and make the ORDER readable from one place instead of from filenames.
 
 ---
@@ -19,14 +20,19 @@ That warning came true within thirteen days. Three things happened:
 
 Each of these is the same root cause: **priority lives in filenames, and filenames are expensive to change, so they stop being changed and drift from the real order.**
 
-## The fix adopted (2026-08-20)
+## The naming rule (revised 2026-08-21)
 
-**The ranking table below is the single authority on sequence.** Filenames are no longer the ordering mechanism.
+**The ranking table below remains the single authority on sequence.** What changed on 2026-08-21 is the naming rule that sat alongside it.
 
-- **New plans are named by slug only**, with no version prefix: `adoption-cybersecurity-skills.md`, not `v3.20.1-adoption-cybersecurity-skills.md`. Each carries a `**Target version**` field inside the document.
-- **Existing plan filenames are frozen as historical identifiers.** They are not renumbered. Renaming thirteen files plus every cross-reference to them would be the third renumbering pass and would buy nothing that this table does not already provide. Where a filename's embedded version disagrees with its target version below, the table wins.
-- **Re-prioritizing is now a one-line edit** to this table, plus a one-line edit to the plan's `Target version` field.
-- Deferred, deliberately not done in this pass: migrating all plans to a flat `docs/plans/` directory. That would fully decouple location from version but costs a thirteen-file move and a cross-reference sweep. Revisit if this table proves insufficient.
+The 2026-08-20 pass froze existing filenames and named new plans by slug alone, on the estimate that renaming would cost "thirteen files plus every cross-reference to them". That estimate was wrong. The measured cost was **14 files and 22 references, of which only 6 needed repair**. The other 16 sit in frozen historical records that the repository's own precedent leaves untouched (stated at `docs/v3/v3.16/docs-cleanup-report.md` and `docs/v3/v3.16/known-gaps.md`: live references are repaired, a record of what was true at the time is not).
+
+The frozen-filename rule also failed its first contact with a reader. Within a day of being written it produced exactly the confusion it was meant to prevent, because a filename reading `v3.17.8` while the plan targets something else is not a neutral historical identifier; it is a wrong answer sitting in the most visible place.
+
+- **Every unshipped plan filename now matches its target version.** All 14 were renamed on 2026-08-21.
+- **The `**Filename**` field is removed from plan headers.** It rotted in 2 of the 2 files that carried it, both naming a file that did not exist. A file's name is authoritative for itself and needs no field restating it.
+- **Each plan carries `**Target version**` and `**Rank**`**, the latter linking back to this table so a reader who arrives at a plan file first can still find the authority.
+- **Re-prioritizing now costs a rename plus two field edits per moved plan, and one edit to this table.** That is the honest price. It was paid on 2026-08-21 and is expected to be paid again.
+- Deferred, deliberately not done in this pass: migrating all plans to a flat `docs/plans/` directory. Rank 14 (`docs-lifespan-tree-and-enforcement`) restructures the docs containers, so moving files now would collide with queued work.
 
 ## The classification used
 
@@ -70,32 +76,34 @@ v4.0.0 must carry a migration note covering both changes, per the capability-usa
 
 Ranked on **leverage** (does shipping this make later work cheaper or safer?), then **user-visible value**, then **containment** (can it ship without dragging other plans with it?).
 
-The `Filename says` column records the version embedded in the plan's current filename, which is frozen and may disagree with the target. It is written in backticks deliberately: an earlier automated sweep over version strings rewrote this kind of column into the new numbers and made the table contradict itself, which is the same class of error this document exists to prevent.
+Filenames now agree with targets, so the former `Filename says` column has been removed rather than left to drift. One caution survives it: this document must never receive an automated version-string sweep. It names version numbers as data about other documents, not as its own version, and a sweep that treats them as the latter corrupts the ranking.
 
-| Rank | Plan | Target version | Filename says | Class | Why here |
-|---|---|---|---|---|---|
-| 1 | ci-gate-and-branch-hygiene | v3.17.6 | `v3.17.6` | Feature | In flight. No PR can be blocked by a required check its workflow cannot produce. Pure leverage: it removes a failure mode that silently blocks every later plan's PRs, and it is nearly done. |
-| 2 | docs-lifecycle-retention | v3.18.0 | `v3.17.10` | Refactor | Highest leverage of the unstarted work. `AGENTS.md` is at its context-pressure point and every later plan edits it; a 208k-word DEVLOG is unreadable to an agent. Shipping this first makes all thirteen remaining plans cheaper to execute. Internal only, so it carries no install risk. |
-| 3 | github-usage-monitor-accuracy | v3.18.1 | `v3.17.11` | Bug-fix | An active defect in shipped behavior: the drawdown is computed from a hardcoded multiplier table that no longer matches GitHub's meter. Contained to one extension. Smallest change with the highest certainty. |
-| 4 | code-intelligence-hardening | v3.19.0 | `v3.18.0` | Feature | Direct, measurable cost reduction on `nexus-code-search`, with a deterministic local harness to prove it. Contained to one subsystem. |
-| 5 | agent-memory-substrate | v3.19.1 | `v3.18.1` | Feature | A genuinely new subsystem. Ranked above its overlapping sibling because it DEFINES the substrate; the sibling consumes it. |
-| 6 | rtk-and-meterless | v3.19.2 | `v3.18.2` | Feature | **Needs a rewrite before implementation, not just a retarget.** Its memory portion overlaps rank 5 and its eval portion overlaps work already shipped in v3.16.1. Must follow both and absorb what they shipped. |
-| 7 | adoption-agent-security-layers | v3.20.0 | `v3.17.7` | Feature | Catalog adoption, fully contained, all four items skill-native. Establishes the conditional `/review security` engagement pattern that rank 8 then reuses, so it precedes it. |
-| 8 | **adoption-cybersecurity-skills** | **v3.20.1** | *(slug-first, no version in filename)* | Feature | High user value: doubles security-domain coverage from 40 to 80 skills and closes domains with zero current coverage (threat intelligence, OT/ICS, cryptography, mobile, API security). Fully independent, so nothing is blocked on it, which is why it sits below the leverage items rather than above them. Depends on rank 7 only for the `/review security` pattern. |
-| 9 | interface-craft-skills | v3.20.2 | `v3.19.1` | Feature | Five new design skills plus a coordinating review skill. Pure catalog growth with no dependencies, which is exactly why it can wait: nothing else is blocked on it. |
-| 10 | skills-craft-and-prime-agent | v3.20.3 | `v3.19.2` | Feature | Skills-authoring craft plus invocation-policy metadata and a prepared marketplace listing. The marketplace listing is the highest-value part and is separable if this slips. |
-| 11 | presentify-slide-navigation | v3.20.4 | `v3.17.8` | Feature | **Open reconciliation.** Ranked here on the original leverage logic: an opt-in enhancement to one command, narrowest audience on the list. Its filename says `v3.17.8`, a ten-place promotion made without a recorded reason. Confirm before scheduling: if the promotion was deliberate, record why here and move this row up. |
-| 12 | cost-effective-ci-cd | **v4.0.0** | `v3.19.0` | **Breaking** | Changes the default CI lifecycle for every consuming project. Widest blast radius on the list, touching planning, implementation, commit, branch, and release guidance at once. Wants the guard from rank 1 and the docs work from rank 2 already in place. |
-| 13 | agent-communication-overhaul | **v4.0.0** | `v3.17.9` | **Breaking** | Changes how every installed agent communicates on every platform. Ships with rank 12 because both change installed behavior, and one migration note should cover both. |
-| 13b | **docs-lifespan-tree-and-enforcement** | **v4.0.0** | *(slug-first, no version in filename)* | **Breaking** | **Added 2026-08-20; target CONFIRMED 2026-08-21** after both breaking claims were verified against the repository rather than accepted from the plan: `catalog/commands/update.md` states that `/update refactor` "and, at release, `/update release`" canonicalizes *that repo's* whole docs tree, and the release scope does run `refactor`; and the plan's Phase 5 edits all 12 substantive templates, which the installers copy recursively. Requested as `v3.17.12` - the number the comparison skill's alphabetical-enumeration bug produced, and a slot that does not exist. Reclassified from Refactor to Breaking on the changed-install-behavior test: `/update release` canonicalizes a consuming repo's docs tree, and all 12 substantive instruction templates change. Ships with ranks 12 and 13 under one migration note. Wants rank 1's CI guard and rank 2's docs work in place first, and rank 2 touches the same `devlog-generation` and `docs/archive/` surfaces. |
-| 14 | interactive-guide-redesign | v4.1.0 | `v3.20.0` | Feature | **Last by explicit direction.** It describes the product rather than changing it, so it must run after everything else in order to capture all updates, including the v4.0.0 behavior changes. Placing it earlier guarantees it ships describing a product that no longer exists. |
+| Rank | Plan | Target version | Class | Why here |
+|---|---|---|---|---|
+| 1 | ci-gate-and-branch-hygiene | v3.17.6 | Feature | **SHIPPED 2026-08-21.** No PR can be blocked by a required check its workflow cannot produce. Pure leverage: it removed a failure mode that silently blocked every later plan. |
+| 2 | docs-lifecycle-retention | v3.18.0 | Refactor | Highest leverage of the unstarted work. `AGENTS.md` is at its context-pressure point and every later plan edits it; a 208k-word DEVLOG is unreadable to an agent. Doing this first makes each following plan cheaper. |
+| 3 | github-usage-monitor-accuracy | v3.18.1 | Bug-fix | An active defect in shipped behavior: the drawdown is computed from a hardcoded multiplier table that no longer matches GitHub's meter. Contained to one extension, and it is wrong right now. |
+| 4 | **presentify-slide-navigation** | **v3.18.2** | Feature | **Promoted from rank 11 on 2026-08-21 by maintainer direction, which closes the open reconciliation this document previously flagged.** The earlier ranking (last of twelve, on "narrowest audience") was a leverage judgment reasserted from the 2026-08-07 pass, never a decision; the promotion to `v3.17.8` was real intent the table had not recorded. Recorded here: it ships directly after the monitor fix. Prerequisites: none. |
+| 5 | code-intelligence-hardening | v3.19.0 | Feature | Direct, measurable cost reduction on `nexus-code-search`, with a deterministic local harness to prove it. Contained to one subsystem. |
+| 6 | agent-memory-substrate | v3.19.1 | Feature | A genuinely new subsystem. Ranked above its overlapping sibling because it DEFINES the substrate; the sibling consumes it. |
+| 7 | rtk-and-meterless | v3.19.2 | Feature | **Needs a rewrite before implementation, not just a retarget.** Its memory portion overlaps rank 6 and its eval portion overlaps work already shipped in v3.16.1. See the findings below. |
+| 8 | adoption-agent-security-layers | v3.20.0 | Feature | Catalog adoption, fully contained, all four items skill-native. Establishes the conditional `/review security` engagement pattern that rank 9 then reuses, so it must precede it. |
+| 9 | adoption-cybersecurity-skills | v3.20.1 | Feature | High user value: doubles security-domain coverage from 40 to 80 skills and closes domains with zero current coverage. Depends on rank 8's engagement pattern. |
+| 10 | interface-craft-skills | v3.20.2 | Feature | Five new design skills plus a coordinating review skill. Pure catalog growth with no dependencies, which is exactly why it can wait: nothing else is blocked on it. |
+| 11 | skills-craft-and-prime-agent | v3.20.3 | Feature | Skills-authoring craft plus invocation-policy metadata and a prepared marketplace listing. The marketplace listing is the highest-value part and is separable if this slips. |
+| 12 | cost-effective-ci-cd | **v4.0.0** | **Breaking** | Changes the default CI lifecycle for every consuming project. Widest blast radius on the list, touching planning, implementation, commit, branch, and release. |
+| 13 | agent-communication-overhaul | **v4.0.0** | **Breaking** | Changes how every installed agent communicates on every platform. Ships with rank 12 because both change installed behavior, and one migration note is cheaper for users than two. |
+| 14 | docs-lifespan-tree-and-enforcement | **v4.0.0** | **Breaking** | **Added 2026-08-20; target CONFIRMED 2026-08-21** after both breaking claims were verified against the repository rather than accepted from the plan. Renames the prescribed docs containers, and `/update release` canonicalizes the change for consuming projects. Sequenced after rank 2 so the lifecycle work it builds on is already in place. |
+| 15 | interactive-guide-redesign | v4.1.0 | Feature | **Last by explicit direction.** It describes the product rather than changing it, so it must run after everything else in order to capture all updates, including the v4.0.0 bundle. |
 
 ## Findings that are not about ordering
 
 **The RTK/Meterless plan should not be implemented as written.** Unchanged from the 2026-08-07 pass and now more true, since the evals work it overlaps has since shipped in v3.16.1. Retargeting it without rewriting it repeats the v3.15.12 failure, where a plan's stated premise had been overtaken by later work.
 
-**The presentify promotion is unexplained and should be resolved.** Rank 11 above is a judgment reasserted from the original pass, not a decision. Whoever moved it to `v3.17.8` had a reason or made a mistake, and this document cannot tell which. Resolve it by editing rank 11.
+**The presentify reconciliation is closed.** Resolved 2026-08-21: the maintainer directed the plan to rank 4, immediately after the monitor fix. The 2026-08-07 ranking (last of twelve) and the unexplained promotion to `v3.17.8` were in genuine conflict, and this document flagged it rather than guessing. The promotion was deliberate; the table now records it.
 
 **The comparison skill's version-resolution rule has a real bug, not just a stale input.** Its walk-forward step enumerates plan directories and stops at the first free slot. Directory enumeration is alphabetical by default, which orders `v3.10` and `v3.18` before `v3.5`, so the walk can terminate early and report a free slot that is not free. Any future automation over version directories must sort numerically on the parsed minor, never lexically. This produced a wrong adoption target on 2026-08-20 and was caught only by human review.
 
-**Filenames should stop being renumbered.** Three renumbering passes in a month is the signal. The table above is now the authority, and new plans are slug-named, so a fourth pass should not be necessary.
+**Twelve plans carry stale version citations in their body text, and each one is the implementer's job to fix.** The 2026-08-21 rename corrected filenames and header fields, not prose. Plan bodies still name known-gaps sections, self-referencing plan paths, and `/update release` steps by the old target, and several of those paths were already wrong before the rename (`v4.0.0-cost-effective-ci-cd` cites `docs/v3/v3.16/plans/` with a slug that never existed). Rewriting roughly 35 instruction lines across six plan documents was deliberately NOT done in a renaming pass: a mis-edited phase instruction misdirects an implementation, and the citations have to be right at implementation time regardless. Each retargeted plan therefore carries a `**Retargeted**` header line naming the old version and stating that the Target version governs. Reconcile the prose when the plan is picked up.
+
+**Filenames are renumbered when priority changes, and that is now the accepted cost.** The 2026-08-20 position was the opposite, on a cost estimate that measured 22 references where 6 needed repair. Three renumbering passes in a month argued for freezing names; the fourth pass argued the other way, because a filename that contradicts the plan inside it misleads every reader who trusts it. The table remains the authority, and each plan's `**Rank**` field points here.

@@ -1,6 +1,6 @@
 # Decision: Plan order lives in a table, and v4.0.0 is reserved for changed install behavior
 
-Status: implemented - new plans are named by slug with a Target version field inside, existing filenames are frozen as historical identifiers, and v4.0.0 will land only the queued plans that change what an installed Nexus-Hub does (three as of 2026-08-21)
+Status: implemented - new plans are named by slug with a Target version field inside, existing filenames are frozen as historical identifiers, and v4.0.0 will land only the queued plans that change what an installed Nexus-Hub does (three as of 2026-08-21) **Naming half SUPERSEDED 2026-08-21** by [2026-08-21-plan-filenames-track-target-version](2026-08-21-plan-filenames-track-target-version.md): filenames are no longer frozen and now track the target version. The v4.0.0 reservation below stands.
 
 ## Problem
 
