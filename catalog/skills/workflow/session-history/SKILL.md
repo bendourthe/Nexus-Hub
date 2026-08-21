@@ -213,20 +213,20 @@ These rules govern how information is extracted and assembled into the output fi
 
 ### Source Priority (Session Mode)
 
-1.  **Live conversation context** — primary source for troubleshooting, assumptions, decisions, and error messages
-2.  **Git commits and diffs** — authoritative for file changes, timestamps, and branch/PR state
-3.  **Implementation plan** — authoritative for subtask names, acceptance criteria, and TODO alignment
-4.  **DEVLOG.md / prior session files** — provide starting state context and continuity
-5.  **Code annotations** (TODO, FIXME, HACK) — signal incomplete work or workarounds introduced this session
+1.  **Live conversation context** -- primary source for troubleshooting, assumptions, decisions, and error messages
+2.  **Git commits and diffs** -- authoritative for file changes, timestamps, and branch/PR state
+3.  **Implementation plan** -- authoritative for subtask names, acceptance criteria, and TODO alignment
+4.  **DEVLOG.md / prior session files** -- provide starting state context and continuity
+5.  **Code annotations** (TODO, FIXME, HACK) -- signal incomplete work or workarounds introduced this session
 
 ### Source Priority (Retrospective Mode)
 
-1.  **Archived AI session files** — richest source when available (Claude Code JSONL, Codex logs, Gemini logs, Copilot chat history)
-2.  **Git history** — authoritative timeline; cross-reference with session timestamps
-3.  **DEVLOG.md / CHANGELOG.md** — version boundaries and troubleshooting context
-4.  **Implementation plan** — phase structure and subtask definitions
-5.  **ADR files and documentation** — decision rationale
-6.  **Code annotations** — dead-end signals and workaround markers
+1.  **Archived AI session files** -- richest source when available (Claude Code JSONL, Codex logs, Gemini logs, Copilot chat history)
+2.  **Git history** -- authoritative timeline; cross-reference with session timestamps
+3.  **DEVLOG.md / CHANGELOG.md** -- version boundaries and troubleshooting context
+4.  **Implementation plan** -- phase structure and subtask definitions
+5.  **ADR files and documentation** -- decision rationale
+6.  **Code annotations** -- dead-end signals and workaround markers
 
 ### Content Rules
 
@@ -256,7 +256,7 @@ Conversation context is available within the VS Code chat panel. Git operations 
 ## Handling Edge Cases
 
 ### No Implementation Plan Available
-Derive structure from conversation topics and git commits. Use "Ad-hoc Development Session" as the session title. The TODO Tracker section uses conversation-derived items instead of plan subtasks. Plan Discrepancies section shows "N/A — no plan file referenced".
+Derive structure from conversation topics and git commits. Use "Ad-hoc Development Session" as the session title. The TODO Tracker section uses conversation-derived items instead of plan subtasks. Plan Discrepancies section shows "N/A -- no plan file referenced".
 
 ### No Git Repository
 Document the session from conversation context only. Flag all sections that would normally use git data: "*(No git repository; based on conversation context only)*". Chronological Steps uses conversation flow instead of commit timestamps.
@@ -307,7 +307,7 @@ Before finalizing the output file, verify:
 -   [[code-commit-workflow]] -- commit conventions that feed into session history timestamps
 -   [[documentation-consistency]] -- verifying documentation stays in sync with code changes
 -   [[session-teach-back]] -- this skill writes the session record; session-teach-back quizzes you on what that session produced to confirm you understood it
--   See also: [SESSION_LIFECYCLE_DECISIONS](../../../../guides/reference/SESSION_LIFECYCLE_DECISIONS.md) — the "summarize from here" handoff pattern and when to pair session-history output with `/rewind` or `/clear`
+-   See also: [SESSION_LIFECYCLE_DECISIONS](../../../../guides/reference/SESSION_LIFECYCLE_DECISIONS.md) -- the "summarize from here" handoff pattern and when to pair session-history output with `/rewind` or `/clear`
 
 ---
 

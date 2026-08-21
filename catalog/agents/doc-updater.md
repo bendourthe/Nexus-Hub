@@ -18,12 +18,12 @@ git log --oneline -5
 ```
 
 Then identify which documentation may be affected:
-- `README.md` — if public interface, installation, or usage changed
-- `docs/DEVLOG.md` — always; add a new entry for this session
-- `catalog/context/architecture.md` — if module structure or data flow changed
-- `catalog/memory/decisions.md` — if a significant decision was made
-- Inline docstrings/comments — if function signatures or behavior changed
-- `CHANGELOG.md` — if this constitutes a releasable change
+- `README.md` -- if public interface, installation, or usage changed
+- `docs/DEVLOG.md` -- always; add a new entry for this session
+- `catalog/context/architecture.md` -- if module structure or data flow changed
+- `catalog/memory/decisions.md` -- if a significant decision was made
+- Inline docstrings/comments -- if function signatures or behavior changed
+- `CHANGELOG.md` -- if this constitutes a releasable change
 
 ## Update Process
 
@@ -40,7 +40,7 @@ Only update sections that reflect the actual change:
 Add a new entry following this format:
 
 ```markdown
-## YYYY-MM-DD — Session Title
+## YYYY-MM-DD -- Session Title
 
 **Goal**: [What was attempted]
 
@@ -60,7 +60,7 @@ Update comments when:
 - A previously documented edge case no longer applies
 - A new edge case was introduced
 
-Do not add comments that merely restate what the code does — only explain *why* when the reason is non-obvious.
+Do not add comments that merely restate what the code does -- only explain *why* when the reason is non-obvious.
 
 ### Architecture Docs
 
@@ -76,5 +76,5 @@ Update `catalog/context/architecture.md` only when module boundaries, data flow,
 ## Rules
 
 - Never delete documentation without confirming the feature it describes is actually removed
-- Do not fabricate descriptions — read the code before writing about it
+- Do not fabricate descriptions -- read the code before writing about it
 - Keep entries concise; DEVLOG entries should be under 200 words

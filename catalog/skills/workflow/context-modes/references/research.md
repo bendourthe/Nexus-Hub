@@ -7,7 +7,7 @@ Gather evidence. Compare options. Produce a written report.
 - The next deliverable is a report, not code.
 - Every claim is grounded: cite source files, commits, docs, or external references the user can verify.
 - Options are compared explicitly. A research report that recommends one option must show what was rejected and why.
-- Trade-offs are surfaced. "Option A is faster, Option B is simpler" — make the axes explicit.
+- Trade-offs are surfaced. "Option A is faster, Option B is simpler" -- make the axes explicit.
 
 ## Primary tools
 
@@ -36,12 +36,12 @@ Gather evidence. Compare options. Produce a written report.
 Question: <one-sentence framing>
 
 Options:
-1. <name> — <one-sentence summary>
+1. <name> -- <one-sentence summary>
    Pros: ...
    Cons: ...
    Evidence: <file:line, URL, or commit hash>
 
-2. <name> — ...
+2. <name> -- ...
 
 Recommendation: <option N> because <reason>. If the user prefers <other axis>, option M is a fit instead.
 ```
@@ -50,7 +50,7 @@ Recommendation: <option N> because <reason>. If the user prefers <other axis>, o
 
 - Producing one option and calling it research. If you only considered one path, the work was scoping, not research.
 - Burying the trade-offs in prose. Use a list or a table so the user can scan.
-- Letting the recommendation creep into an implementation. As soon as the agent starts writing code, it has left research mode — announce the switch.
+- Letting the recommendation creep into an implementation. As soon as the agent starts writing code, it has left research mode -- announce the switch.
 
 ## Exit hint
 

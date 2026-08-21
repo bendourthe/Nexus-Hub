@@ -1,8 +1,8 @@
 # Known Gaps - v3.17
 
 **Project**: Nexus-Hub
-**Status**: v3.17.6 RELEASED 2026-08-21 (tag `v3.17.6`, commit `1e154769`). All six phases shipped. A post-release reconciliation on 2026-08-21 walked every item: 11 closed, 5 accepted or deferred with an owner, and 2 carried into v3.17.7 (the Unicode-warning decision and the platform read-contract full pass). No item carries a stale OPEN marker. Prior v3.17.0 through v3.17.5 records remain below.
-**Last updated**: 2026-08-21 (post-release reconciliation)
+**Status**: v3.17.6 RELEASED 2026-08-21 (tag `v3.17.6`, commit `1e154769`). All six phases shipped. A post-release reconciliation on 2026-08-21 walked every item: 11 closed, 5 accepted or deferred with an owner, and 1 carried into v3.17.7 (the platform read-contract full pass). MT-4 was resolved on the same day, and doing so uncovered pre-existing encoding corruption in 14 distributed template files that the obvious fix would have made permanent. No item carries a stale OPEN marker. Prior v3.17.0 through v3.17.5 records remain below.
+**Last updated**: 2026-08-21 (post-release reconciliation + MT-4 resolution)
 
 > **File-lifecycle note**: this ledger was opened by the v3.17.0 Phase 1 append. Each subsequent v3.17.N implementation appends its own `## v3.17.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `MT-#` / `QG-#` numbering.
 
@@ -162,7 +162,7 @@
 - **Precision note**: counting the `cache:` hit would have produced a false positive and an unnecessary edit. The same trap applies to `cicd-architect`, where three of five `paths:` matches are GitLab `cache:` / `artifacts:` keys.
 - **Not edited**: same reasoning as `NI-3`.
 
-#### MT-4 - CARRIED to v3.17.7 for an operator decision: a new Unicode-punctuation warning is invisible in 1042 existing ones
+#### MT-4 - RESOLVED 2026-08-21 (see the MT-4 resolution section below): a new Unicode-punctuation warning was invisible in 1042 existing ones
 
 - **Target files**: `scripts/validate_unicode_safety.py`
 - **What it is**: a U+2026 ellipsis was introduced in the new reference file. `validate_unicode_safety.py` DOES detect it, as a warning promoted to an error only under `--strict`, and the repository currently carries **1042** such warnings (largely em-dashes and curly quotes in `templates/ai-instructions/legacy/`). A newly added violation is therefore indistinguishable from the existing backlog, and the exit code says nothing about whether a change introduced one.
@@ -306,11 +306,39 @@ v3.17.6 shipped on 2026-08-21 (tag `v3.17.6`, commit `1e154769`). This pass walk
 **Deferred with an explicit owner:**
 
 - **`MT-2`** the repository has no coverage instrumentation, so an 80% gate cannot be measured in-suite. Every validator test drives its script as a subprocess deliberately, which is the right test architecture and the reason `coverage` sees nothing. Adding subprocess-coverage plumbing is a repository-wide change across a 2766-test suite and belongs in its own version, not a cleanup pass. Deferred, not accepted: the gap is real, the fix is just larger than this pass.
-- **`MT-4`** `validate_unicode_safety.py` emits 1042 non-ASCII punctuation warnings, concentrated in `templates/ai-instructions/coding-instructions/` and its `legacy/` counterpart, so a newly introduced one is invisible. The validator has a `--fix` flag that would repair them mechanically, and `--strict` would then keep them out. Both touch distributed template content, so the decision is the operator's. Carried into v3.17.7 for that call.
+- **`MT-4`** RESOLVED on 2026-08-21, see the dedicated section below. Originally: `validate_unicode_safety.py` emits 1042 non-ASCII punctuation warnings, concentrated in `templates/ai-instructions/coding-instructions/` and its `legacy/` counterpart, so a newly introduced one is invisible. The validator has a `--fix` flag that would repair them mechanically, and `--strict` would then keep them out. Both touch distributed template content, so the decision is the operator's. Carried into v3.17.7 for that call.
 
 **Carried forward as a v3.17.7 obligation:**
 
 - The platform read-contract was stamped for 3.17.6 as an explicit **carry-forward**, not a fresh pass. The full ten-platform verification was 2026-08-18. The stamp's own note requires a full pass next release rather than a second carry-forward, and `check_platform_contract_freshness.py` will fail the 3.17.7 bump until one is run.
+
+### MT-4 resolution (2026-08-21): the 1042 warnings were two problems, and `--fix` would have destroyed one
+
+#### MT-4 - RESOLVED, and the count was hiding a second defect
+
+- **Target files**: 14 template files (encoding repair), 75 prose files (punctuation), `Makefile`, `.github/workflows/ci.yml`, `data/skills.json`
+- **What the single number hid**: "1042 non-ASCII punctuation warnings" was the sum of **two populations needing opposite treatments**, which is why it read as one chore with one fix and sat unaddressed.
+
+| Population | Files | Chars | Correct treatment | What `--fix` would have done |
+|---|---|---|---|---|
+| Real prose punctuation | 75 | 466 | `--strict --fix` substitution | Correct |
+| Pre-existing **encoding corruption** | 14 | 576 | Byte-level round-trip repair | **Destroyed recoverability** |
+
+- **The corruption, precisely**: `templates/ai-instructions/coding-instructions/*.md` and their `legacy/` counterparts contain ASCII-art directory trees whose box-drawing characters were **double-encoded**. The UTF-8 bytes for `├──` were decoded as cp1252 and re-saved as UTF-8, so the file literally holds the byte sequence `C3 A2 E2 80 9D C5 93 ...`, which decodes to `U+00E2 U+201D U+0153` where a single box-drawing glyph belongs. The validator sees the stray `U+201D` inside that mojibake and reports it as a curly quote, which is technically true and completely misleading.
+- **Why `--fix` was the wrong instrument**: it would have replaced that `U+201D` with `"`, replacing the U+201D inside each mojibake run with an ASCII quote and leaving the surrounding U+00E2 and U+0153 in place. The corruption would then be **unrepairable**, because the round-trip that recovers the original depends on those exact bytes surviving. The gap would have been reported closed while 576 characters across 8 distributed template files were permanently mangled.
+- **How close this came to happening**: the operator approved `--fix` against a description of "~14 files", a figure read off truncated validator output. The real scope was 89 files. The two populations were only separated because the character distribution looked wrong: 575 closing curly quotes against 1 opening one. Curly quotes come in pairs; that asymmetry is what prompted looking at the actual bytes.
+- **The repair**: a byte-level inverse of the historical mis-decode, verified **bijective** on all 14 files (re-corrupting the repair reproduces the original byte for byte, so the transform is exactly the inverse and nothing else changed). 1602 mojibake characters became 534 real box-drawing characters, and the directory trees render correctly again. Note cp1252 leaves five byte positions undefined (`0x81`, `0x8D`, `0x8F`, `0x90`, `0x9D`), which survived the original mis-decode as raw C1 controls; the two `python.md` files carry a literal `U+0090` from a `┐`, so the inverse map passes those through by code point rather than through the codec.
+- **Then the prose fix**: `--strict --fix` across the remaining 75 files, 583 substitutions, every change a pure character replacement with no line-count delta in any file.
+- **Then the gate**: `--strict` promoted in both `make validate` and CI's `validate` job, so a new violation cannot land. Negative-controlled in both directions: planting a real `U+2014` inside the repo makes the gate exit 1, removing it returns 0. An earlier control attempt was **invalid** (it wrote the probe to `/tmp`, which succeeded, so the in-repo fallback never ran and the gate was never actually exercised) and was redone.
+- **Consequence that needed a follow-on fix**: `--strict --fix` also normalised punctuation inside SKILL.md **frontmatter**, which is the trigger surface Phase 4 deliberately protected. 16 fields in `data/skills.json` then disagreed with their source, caught by `check_registry_entries.py` exactly as designed. Resolved by applying the same normalisation to the registry's own values rather than re-deriving from frontmatter, which is provably equivalent when punctuation is the only delta. The routing gate reports 0 collisions and 0 routing failures, so the trigger surface is materially unchanged.
+- **Two process notes worth keeping**: a naive frontmatter parser mis-read multi-line quoted `overview_l1` values and produced hundreds of false "not a punctuation delta" verdicts, so the authoritative drift list has to come from the guard itself; and the guard writes findings to **stderr**, so a subprocess reading only stdout sees an empty result and concludes there is no drift.
+
+#### QG-9 - CLOSED in implementation: `gh release create` fails silently on backslash paths from Bash
+
+- **Target files**: none (tooling behaviour)
+- **What happened**: backfilling 11 Releases in a loop reported 11 failures, then the identical command run by hand succeeded. The difference was the `--notes-file` path: a Windows-style `C:\...\file.md` written from Bash fails, while the forward-slash `C:/.../file.md` form works.
+- **Why it is worth a line**: `AGENTS.md` already records that `gh` is a native Windows binary and cannot read a Git-Bash `/tmp/...` path. This is the adjacent case, and the failure is silent enough that a loop suppressing output reports a clean sweep of failures with no reason given.
+- **Outcome**: all 11 published. The repository now has **91 tags and 91 Releases**, so the drift class that once left the Releases page at v3.5.0 while v3.6.0 and v3.7.0 tags existed is fully closed, historical entries included.
 ---
 
 ## v3.17.5 - adoption-deepseek-harness

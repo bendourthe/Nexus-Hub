@@ -20,7 +20,7 @@ validate: ## Validate all JSON catalog files and skill bundles
 	@python scripts/check_installer_parity.py
 	@echo "Running v2.3.0 CI validators (no-personal-paths, unicode-safety, supply-chain-iocs, workflow-security)..."
 	@python scripts/validate_no_personal_paths.py
-	@python scripts/validate_unicode_safety.py
+	@python scripts/validate_unicode_safety.py --strict
 	@python scripts/scan_supply_chain_iocs.py
 	@python scripts/validate_workflow_security.py
 	@echo "Checking every required status check is produced by an unconditionally-triggered workflow..."

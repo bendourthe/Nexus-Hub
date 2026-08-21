@@ -246,7 +246,7 @@ Build a target-tree preview as a Markdown tree block for the report.
 Write `docs/<next-version>/docs-cleanup-report.md` (or the path resolved in step 1). Required sections:
 
 ```markdown
-# Docs Cleanup Report — <project> — <YYYY-MM-DD>
+# Docs Cleanup Report -- <project> -- <YYYY-MM-DD>
 
 **Active version:** <vX.Y.Z>
 **Mode:** <propose-only | --apply | audit>
