@@ -25,6 +25,8 @@ validate: ## Validate all JSON catalog files and skill bundles
 	@python scripts/validate_workflow_security.py
 	@echo "Checking every required status check is produced by an unconditionally-triggered workflow..."
 	@python scripts/check_required_check_coverage.py
+	@echo "Checking comparison / adoption-plan co-location across every docs/v<MAJOR> tree..."
+	@python scripts/check_doc_colocation.py
 	@echo "Validating solution-doc frontmatter parser-safety (docs/solutions; no-op when absent)..."
 	@python scripts/validate_solution_frontmatter.py
 	@echo "Checking incident notes carry a Public-Safe Shape and a linked Durable fix (docs/incidents; no-op when absent)..."

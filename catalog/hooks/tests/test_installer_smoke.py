@@ -550,6 +550,12 @@ def test_installer_ps1_fallback_literal_matches_template():
 # so a future contributor can tell whether a new script belongs here or in the
 # installer copy blocks.
 DEV_ONLY_SCRIPTS = {
+    # Repo-internal co-location guard (v3.17.7): enforces that a /compare
+    # report and the plan it seeds share a version directory. Moved out of
+    # .github/workflows/doc-colocation.yml so its three fail-open defects
+    # could be unit-tested. Runs in CI and make validate; meaningless in an
+    # end-user ~/.nexus-hub/scripts/.
+    "check_doc_colocation.py",
     # Repo validator: walks catalog/ for frontmatter + secret scans. Runs in CI
     # and by maintainers; not useful in an end-user ~/.nexus-hub/scripts/.
     "validate_skills.py",
