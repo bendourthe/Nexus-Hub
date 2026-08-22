@@ -109,8 +109,9 @@ export interface UsageMetric extends MoneyBreakdown {
    * established. This is the numerator of any percentage - never `used`.
    *
    * For Actions minutes it is reconstructed: private-repository, GitHub-hosted,
-   * standard-runner minutes, weighted per runner OS. On the account this was
-   * measured against, `used` was 1,287 while the drawdown was about 121.
+   * standard-runner minutes, each weighted by its own list price relative to the
+   * standard Linux rate observed in the same payload. On the account this was
+   * measured against, `used` was 1,287 while the drawdown was about 127.
    */
   drawdown: number | null;
   drawdownBasis: DrawdownBasis;
