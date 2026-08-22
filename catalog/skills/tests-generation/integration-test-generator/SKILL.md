@@ -843,7 +843,7 @@ class TestOrderEventMessaging:
 
 | Rationalization | Reality |
 |---|---|
-| "Unit tests are enough — integration tests duplicate coverage" | Unit tests verify individual functions with mocked dependencies; integration tests verify that the wiring between those functions works correctly; the Therac-25 radiation overdose incidents involved components that each worked correctly in isolation but failed catastrophically when integrated. |
+| "Unit tests are enough -- integration tests duplicate coverage" | Unit tests verify individual functions with mocked dependencies; integration tests verify that the wiring between those functions works correctly; the Therac-25 radiation overdose incidents involved components that each worked correctly in isolation but failed catastrophically when integrated. |
 | "Integration tests are too slow to run in CI" | Testcontainers starts a real database in 2-5 seconds and tears it down after the suite; the total overhead for a 50-test integration suite using containers is typically under 60 seconds, well within CI time budgets. |
 | "We'll catch integration issues in the staging environment" | Staging environments are shared, have stale data, and are expensive to reproduce deterministically; an integration test suite that runs on every PR catches integration regressions at the point of introduction, not after merge. |
 | "Sharing a database across integration tests is fine if tests are careful" | Test isolation via shared state fails when tests run in parallel or when a failing test leaves the database in an unexpected state; each test must own its data setup and teardown to be deterministic. |

@@ -24,6 +24,7 @@
 | Platform contract audit | 1 | 1 | 0 |
 | Local release gates | 1 | 1 | 0 |
 | Remote publication gates | 1 | 1 | 0 |
+| v3.18.0 docs-lifecycle plan phases complete | 5 | 5 | 0 |
 | Open phase blockers | 0 | 0 | 0 |
 | v3.15.8 plan phases complete | 4 | 9 | 5 |
 | v3.15.8 Phase 1 tasks complete | 7 | 7 | 0 |
@@ -228,3 +229,21 @@
 - [x] Complete Phase 6: Cross-Platform Selective Installation
 - [x] Complete Phase 7: Distribution, Parity, and Documentation
 - [x] Complete Phase 8: Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
+
+## Plan - v3.18.0 Docs Lifecycle and Retention
+
+- [x] Complete Phase 1: DEVLOG conversion and archive
+- [x] Complete Phase 2: Tooling rewrite for the index format
+- [x] Complete Phase 3: AGENTS.md MT-1 ratchet-down (9,715 -> 7,742 words; MT-1 RESOLVED)
+- [x] Complete Phase 4: History retention policy (advisory checker reports 16 versions / 306 files outstanding)
+- [x] Complete Phase 5: Architecture Refactor, Known-Gaps Reconciliation, and CI/CD (archive pass executed: 216 files, 75 repaired)
+
+### Carried into Phase 5 known-gaps reconciliation
+
+- [ ] `tests/installer/test_bootstrap.py::test_ps_standalone_extracts_and_hands_off` fails locally: `install.ps1` resolves bare `tar` to Git Bash's `/usr/bin/tar`, which cannot decompress the stub tarball. Same PATH-shadowing class as the v3.15.6 and v3.17.6 `bash`/WSL-stub defects.
+- [ ] Stray empty `Microsoft/Windows/PowerShell` directory in the repo root, a PowerShell installer-test side effect; invisible to `git status` because git does not track empty directories.
+- [ ] SKIP clauses fight the routing gate: `scripts/run_trigger_evals.py` tokenizes the whole description with no notion of negation, so a SKIP clause naming what it fences off imports that vocabulary as positive trigger words. Re-examine the 40 allowlisted collisions under this lens.
+- [ ] Consider a `docs/DEVLOG.md` ceiling in `docs/policy/doc-budgets.json`, so the 150-line limit lives beside the other ratchets rather than only in a test constant.
+- [ ] Link checkers that treat `#` targets as same-page anchors cannot see an anchor orphaned by relocation; three such links broke silently in Phase 3.
+- [ ] The MCP decision tree was left in AGENTS.md because the five parity-guarded `base-*.md` blocks point at it; revisit if a future ratchet needs the 427 words.
+- [x] Run the first retention archive pass (executed in Phase 5: 216 files moved, 75 repaired; scope narrowed to `development/history/` because `development/` also holds live CI fixtures)

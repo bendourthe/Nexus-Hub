@@ -355,7 +355,7 @@ Any non-empty diff is a FAILURE, not advice. The report does not ship until ever
 | Rationalization | Reality |
 |---|---|
 | "We have no sensitive data, so security doesn't apply" | Injection flaws and SSRF can compromise the underlying server even when the application itself holds no sensitive data, giving attackers a foothold into the broader network. |
-| "The framework handles security for us" | Frameworks prevent common pitfalls but cannot prevent IDOR — a developer must still verify ownership before returning a record. Dozens of real-world breaches (e.g., Optus 2022) happened despite using secure frameworks. |
+| "The framework handles security for us" | Frameworks prevent common pitfalls but cannot prevent IDOR -- a developer must still verify ownership before returning a record. Dozens of real-world breaches (e.g., Optus 2022) happened despite using secure frameworks. |
 | "We'll add security later before launch" | Security findings discovered post-architecture (e.g., algorithm confusion in JWT, hardcoded secrets) require far more rework than findings caught during initial development. |
 | "Our internal API isn't internet-facing so OWASP doesn't apply" | Insider threats and supply chain compromises mean internal APIs are regularly attacked; the Capital One breach in 2019 originated from an internal SSRF call. |
 | "We passed a pentest last quarter, so we're fine" | A pentest is a point-in-time snapshot; new code paths, dependency CVEs, and configuration changes introduced after the test are not covered. |

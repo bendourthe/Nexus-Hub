@@ -29,7 +29,7 @@ priority: high
 
 ## React Component Testing
 
-- Use `@testing-library/react` — test behavior, not implementation.
+- Use `@testing-library/react` -- test behavior, not implementation.
 - Query elements by accessible roles, labels, and text; avoid `querySelector` and CSS class selectors.
 - Use `data-testid` only as a last resort when no accessible query is available.
 - Test user interactions with `userEvent` (async), not `fireEvent`.

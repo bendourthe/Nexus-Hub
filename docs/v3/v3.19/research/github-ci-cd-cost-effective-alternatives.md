@@ -30,7 +30,7 @@ runs-on: windows-latest
 runs-on: macos-latest
 ```
 
-GitHub’s billing documentation states that:
+GitHub's billing documentation states that:
 
 - Standard GitHub-hosted runners are free for public repositories.
 - Self-hosted runner execution does not consume GitHub-hosted runner minutes.
@@ -54,7 +54,7 @@ Relevant GitHub documentation:
 
 ---
 
-## 2. What It Means to Put CI/CD “Directly in the Codebase”
+## 2. What It Means to Put CI/CD "Directly in the Codebase"
 
 The workflow files under `.github/workflows/` are already stored in the codebase, but they are mainly **orchestration definitions**. They tell GitHub:
 

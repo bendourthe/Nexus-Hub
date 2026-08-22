@@ -46,6 +46,26 @@ function Test-CommandExists {
     return [bool](Get-Command $Name -ErrorAction SilentlyContinue)
 }
 
+# Resolve a tar that can actually read a Windows path. GNU tar -- the one Git
+# Bash / MSYS put on PATH -- parses a drive-letter path as a remote `host:path`
+# spec, so extracting from `a drive-letter path` makes it try to connect to a host
+# named "C" and die with "Cannot connect to C: resolve failed", followed by a
+# misleading "gzip: stdin: unexpected end of file" from the gzip child. That is
+# why the failure has read as a corrupt archive rather than a path-parsing bug.
+# Windows ships bsdtar at System32\tar.exe (Windows 10 1803+), which handles
+# drive letters correctly, so prefer it explicitly rather than trusting PATH
+# order. Same class of defect as the System32 WSL `bash` stub shadowing Git Bash
+# (v3.15.6 Phase 4, v3.17.6 Phase 6).
+function Resolve-TarExe {
+    if ($env:SystemRoot) {
+        $systemTar = Join-Path $env:SystemRoot "System32\tar.exe"
+        if (Test-Path -LiteralPath $systemTar) { return $systemTar }
+    }
+    $cmd = Get-Command "tar" -ErrorAction SilentlyContinue
+    if ($cmd -and $cmd.Source) { return $cmd.Source }
+    return $null
+}
+
 # Resolve the PowerShell executable to re-invoke the core installer with. This
 # must be the SAME host running this script, not a hardcoded "powershell":
 # Windows PowerShell 5.1 is "powershell.exe", but PowerShell 7 is "pwsh", and on
@@ -78,7 +98,7 @@ function Invoke-DependencyPrecheck {
         Write-BootstrapError "PowerShell 5.1 or newer is required (found $($PSVersionTable.PSVersion)). Update Windows PowerShell, or install PowerShell 7+ from https://aka.ms/powershell."
         exit 1
     }
-    $hasTar = Test-CommandExists "tar"
+    $hasTar = [bool](Resolve-TarExe)
     $hasExpand = Test-CommandExists "Expand-Archive"
     if (-not $hasTar -and -not $hasExpand) {
         Write-BootstrapError "no archive extractor found -- need 'tar' (built in on Windows 10+) or the Expand-Archive cmdlet (PowerShell 5+)."
@@ -130,7 +150,8 @@ function Invoke-Standalone {
     $exitCode = 1
     try {
         $tarball = $env:NEXUS_HUB_TARBALL
-        $useTar = Test-CommandExists "tar"
+        $tarExe = Resolve-TarExe
+        $useTar = [bool]$tarExe
         $archive = $null
 
         if ($tarball -and (Test-Path $tarball)) {
@@ -157,7 +178,7 @@ function Invoke-Standalone {
         if ($useTar) {
             # The GitHub tarball wraps everything in a single top dir
             # (Nexus-Hub-<ref>/); --strip-components=1 drops it.
-            & tar -xzf $archive --strip-components=1 -C $src
+            & $tarExe -xzf $archive --strip-components=1 -C $src
             if ($LASTEXITCODE -ne 0) {
                 Write-BootstrapError "failed to extract catalog from $archive (tar exit $LASTEXITCODE)"
                 exit 1

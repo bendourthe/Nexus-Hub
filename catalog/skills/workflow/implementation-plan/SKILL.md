@@ -13,8 +13,8 @@ description: >-
   or roadmap.
 summary_l0: "Generate a phased plan through guided discovery, saved to docs/v<MAJOR>/v<MAJOR>.<MINOR>/plans/v<MAJOR>.<MINOR>.<PATCH>-<slug>.md"
 overview_l1: >-
-  This skill conducts a structured discovery interview — asking one question at a
-  time — to collect everything needed to write a comprehensive phased plan. The first
+  This skill conducts a structured discovery interview -- asking one question at a
+  time -- to collect everything needed to write a comprehensive phased plan. The first
   step establishes plan type (initial implementation, feature/enhancement, refactor,
   other), target version, and an auto-suggested filename slug derived from a
   one-sentence scope statement. For initial implementation plans the interview covers
@@ -39,7 +39,7 @@ overview_l1: >-
 
 # Implementation Plan
 
-Guide the user through a structured discovery interview, then generate a comprehensive plan at `<version_dir>/plans/<slug>.md` broken into phased sub-tasks — each with an executable prompt — so the full effort can be completed session by session.
+Guide the user through a structured discovery interview, then generate a comprehensive plan at `<version_dir>/plans/<slug>.md` broken into phased sub-tasks -- each with an executable prompt -- so the full effort can be completed session by session.
 
 `<version_dir>` is resolved per the `[[docs-layout-refactor]]` skill's Version-directory resolution algorithm. The canonical layout is `docs/v<MAJOR>/v<MAJOR>.<MINOR>/` (e.g., `docs/v3/v3.11/`), with patch releases sharing their minor dir; legacy projects using the flat `docs/<vSEMVER>/` or the old three-level `docs/versions/<vMAJOR>/<vSEMVER>/` layout are auto-detected and respected to avoid mid-version path churn. Use `/update refactor` to migrate a legacy project to the canonical layout.
 
@@ -69,55 +69,55 @@ The question set below is the full **Initial Implementation** interview. For Fea
 
 Ask the questions below **one at a time**, waiting for each answer before continuing. Do not batch multiple questions into one message.
 
-#### Q1 — Core Purpose
+#### Q1 -- Core Purpose
 > "What is the core purpose of this application? What problem does it solve, and for whom?"
 
-#### Q2 — Key Features for this Release
-> "What are the 5–10 key features or capabilities you want in this release? (Bullet points are fine.)"
+#### Q2 -- Key Features for this Release
+> "What are the 5-10 key features or capabilities you want in this release? (Bullet points are fine.)"
 
-#### Q3 — Installation and Distribution
+#### Q3 -- Installation and Distribution
 > "How should users install or access the final product?
 > Examples: .exe / .dmg / .deb installer, pip / npm / cargo package, VS Code extension,
 > Docker container, web app (hosted), CLI downloaded from GitHub Releases, desktop app."
 
-#### Q4 — User Interface
+#### Q4 -- User Interface
 > "What kind of user interface does this need?
 > Examples: command-line (CLI), desktop GUI (Electron, Tkinter, WPF, SwiftUI),
 > web UI (React, Vue, Svelte), IDE extension (VS Code, JetBrains),
 > no UI (background service or API only), TUI (terminal UI)."
 
-#### Q5 — Platform Support
+#### Q5 -- Platform Support
 > "Which platforms need to be supported?
 > Examples: Windows only, macOS only, Linux only, cross-platform (all three),
 > web (any browser), mobile (iOS / Android)."
 
-#### Q6 — Runtime Behavior
+#### Q6 -- Runtime Behavior
 > "How should the app behave at runtime?
 > Examples: always-on background service / daemon, on-demand CLI invocation,
 > event-driven (reacts to file changes, webhooks, etc.), real-time streaming responses,
 > scheduled jobs, interactive REPL."
 
-#### Q7 — Integrations and External Dependencies
+#### Q7 -- Integrations and External Dependencies
 > "What external services, APIs, models, or tools does it need to integrate with?
 > Examples: specific LLM providers or local models, databases, cloud storage,
 > authentication providers, VS Code extension APIs, OS-level APIs."
 
-#### Q8 — Performance and Resource Constraints
+#### Q8 -- Performance and Resource Constraints
 > "Are there any performance, scale, or hardware constraints to keep in mind?
 > Examples: must run on low-end hardware (8 GB RAM), sub-200 ms response times,
 > handle N concurrent users, bundle size under X MB, offline-only."
 
-#### Q9 — Definition of Done
+#### Q9 -- Definition of Done
 > "What does successful delivery of this scope look like? What would you demo to a user or stakeholder
 > to show it works end-to-end?"
 
-#### Q10 — Testing and Quality Expectations
+#### Q10 -- Testing and Quality Expectations
 > "What level of testing and quality assurance do you want?
 > Examples: unit tests only, full CI/CD pipeline with integration and E2E tests,
 > performance benchmarks, manual QA checklist, security audit."
 
-#### Q11 — Additional Context (Optional)
-> "Anything else I should know — architectural preferences, constraints, prior art,
+#### Q11 -- Additional Context (Optional)
+> "Anything else I should know -- architectural preferences, constraints, prior art,
 > reference projects, or things to avoid? (Press Enter to skip.)"
 
 ---
@@ -159,7 +159,7 @@ Create `<version_dir>/plans/` if it does not exist and write to `<version_dir>/p
 #### File Header
 
 ```markdown
-# Plan — [Plan Title]
+# Plan -- [Plan Title]
 
 **Project**: [Project Name]
 **Version**: [version, e.g. v0.1.0]
@@ -170,7 +170,7 @@ Create `<version_dir>/plans/` if it does not exist and write to `<version_dir>/p
 
 ## Overview
 
-[2–3 paragraph summary covering: what is being built or changed, how it will be
+[2-3 paragraph summary covering: what is being built or changed, how it will be
 delivered, what the UI and runtime impact look like, and what success looks like
 for this scope.]
 
@@ -232,7 +232,7 @@ Each phase must follow this template exactly:
 
 ### Sub-tasks
 
-#### N.1 — [Sub-task Title]
+#### N.1 -- [Sub-task Title]
 
 **Objective**: [What this sub-task accomplishes.]
 
@@ -248,7 +248,7 @@ Each phase must follow this template exactly:
 
 ---
 
-#### N.2 — [Sub-task Title]
+#### N.2 -- [Sub-task Title]
 
 **Objective**: [What this sub-task accomplishes.]
 
@@ -261,7 +261,7 @@ Each phase must follow this template exactly:
 
 ---
 
-#### N.X — Testing and Stabilization
+#### N.X -- Testing and Stabilization
 
 **Objective**: Generate and run all tests for this phase. Iterate until the phase is
 stable before advancing to Phase N+1.
@@ -355,8 +355,8 @@ Apply these rules when deciding how many phases to create and how to split them:
 | Installation early | If the project has a non-trivial installer or packaging step, include a phase for it in the first third of the plan so packaging issues are caught early |
 | UI and backend separated | If there is a UI, give it its own phase rather than mixing it with business logic |
 | Integration phase | If external APIs or local models are involved, create a dedicated integration phase with clear mocking/stubbing strategies for early phases |
-| Testing continuous | Every phase ends with a testing sub-task — not a single final QA phase |
-| Phase count | Target 4–8 phases for most plans; very small scopes may have 2–3; major refactors up to 10 |
+| Testing continuous | Every phase ends with a testing sub-task -- not a single final QA phase |
+| Phase count | Target 4-8 phases for most plans; very small scopes may have 2-3; major refactors up to 10 |
 | Terminal refactor phase | Every plan ends with a mandatory final phase that reviews architecture and refactors toward a clean, intuitive layout, reconciles the version's known gaps, creates/updates/optimizes CI/CD, and self-gates cross-installer parity when multiple installers exist - even small plans (a light near-no-op pass, but never omitted). Distinct from per-phase testing, which still applies to every phase. |
 | CI/CD per phase | Every phase's testing sub-task also creates or updates the CI/CD pipeline for that phase's changes and optimizes it (path filters, concurrency cancellation, caching, gating expensive jobs) to keep action minutes low while coverage stays comprehensive |
 

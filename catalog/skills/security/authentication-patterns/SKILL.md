@@ -848,9 +848,9 @@ app.post('/api/orders', requireScope('orders:write'), createOrder);
 |---|---|
 | "We can skip PKCE because our client is confidential" | Authorization code interception attacks (via open redirects or referrer headers) are possible even with confidential clients; PKCE prevents code replay at zero implementation cost. |
 | "JWTs are stateless so we don't need refresh token rotation" | Without rotation, a stolen refresh token grants indefinite access until expiry; rotation with reuse detection (family-based revocation) limits the window to a single use, as demonstrated by the approach recommended after the Auth0 token reuse incidents. |
-| "bcrypt with cost 10 is fine for new projects" | Cost 10 was calibrated for ~2012 hardware; modern GPUs can test billions of candidates per second — cost 12 or Argon2id is the current OWASP minimum. |
+| "bcrypt with cost 10 is fine for new projects" | Cost 10 was calibrated for ~2012 hardware; modern GPUs can test billions of candidates per second -- cost 12 or Argon2id is the current OWASP minimum. |
 | "We store access tokens in localStorage because it's simpler" | XSS in any third-party script on the page (analytics, chat widgets) can exfiltrate localStorage tokens silently; HttpOnly cookies are immune to JavaScript access. |
-| "Session ID regeneration after login is optional" | Session fixation allows an attacker to pre-set a known session ID, then hijack it after the victim authenticates — a P0 vulnerability with trivial exploitation. |
+| "Session ID regeneration after login is optional" | Session fixation allows an attacker to pre-set a known session ID, then hijack it after the victim authenticates -- a P0 vulnerability with trivial exploitation. |
 | "We check authorization at the route level, which is sufficient" | Route-level checks prevent accessing the wrong endpoint; IDOR exploits occur at the data layer when a user passes a valid endpoint but with another user's resource ID, bypassing route guards entirely. |
 | "We verify the JWT signature, so the token is trustworthy" | A verifier that reads the algorithm from the token header accepts an `alg:none` token or an RS256->HS256 key-confusion forgery; the signature check is only sound when the algorithm and key are pinned server-side, not named by the token. |
 | "PKCE is enabled, so our authorization code is safe" | PKCE protects only when the authorization server enforces `code_challenge` and the token endpoint rejects an exchange missing `code_verifier`; an unenforced PKCE downgrades silently and a stolen code is replayable as if PKCE were absent. |
@@ -862,7 +862,7 @@ app.post('/api/orders', requireScope('orders:write'), createOrder);
 - [ ] Refresh token rotation is implemented and reuse detection revokes the token family on replay
 - [ ] Password hashing uses Argon2id or bcrypt with cost >= 12 (verified in source, not just docs)
 - [ ] All session cookies have `Secure`, `HttpOnly`, and `SameSite` attributes set in code
-- [ ] JWT validation explicitly checks `iss`, `aud`, `exp`, and `alg` — no `none` algorithm accepted
+- [ ] JWT validation explicitly checks `iss`, `aud`, `exp`, and `alg` -- no `none` algorithm accepted
 - [ ] Rate limiting is applied to the login endpoint (verified by attempting >10 requests/minute)
 
 When the attacker-perspective methodology is exercised (auditing or red-teaming the auth surface), also confirm:

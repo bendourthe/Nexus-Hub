@@ -20,15 +20,19 @@ validate: ## Validate all JSON catalog files and skill bundles
 	@python scripts/check_installer_parity.py
 	@echo "Running v2.3.0 CI validators (no-personal-paths, unicode-safety, supply-chain-iocs, workflow-security)..."
 	@python scripts/validate_no_personal_paths.py
-	@python scripts/validate_unicode_safety.py
+	@python scripts/validate_unicode_safety.py --strict
 	@python scripts/scan_supply_chain_iocs.py
 	@python scripts/validate_workflow_security.py
 	@echo "Checking every required status check is produced by an unconditionally-triggered workflow..."
 	@python scripts/check_required_check_coverage.py
+	@echo "Checking comparison / adoption-plan co-location across every docs/v<MAJOR> tree..."
+	@python scripts/check_doc_colocation.py
 	@echo "Validating solution-doc frontmatter parser-safety (docs/solutions; no-op when absent)..."
 	@python scripts/validate_solution_frontmatter.py
 	@echo "Checking incident notes carry a Public-Safe Shape and a linked Durable fix (docs/incidents; no-op when absent)..."
 	@python scripts/check_incident_notes.py
+	@echo "Reporting per-version docs due for archival (advisory; never fails)..."
+	@python scripts/check_docs_retention.py
 	@echo "Checking always-loaded instruction docs stay under their word ceilings..."
 	@python scripts/validate_doc_budgets.py
 	@echo "Checking decision records (structure, header, mandatory alternatives)..."

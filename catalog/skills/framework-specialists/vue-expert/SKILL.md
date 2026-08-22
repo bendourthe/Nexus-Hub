@@ -781,7 +781,7 @@ export function piniaPersist({ store }: PiniaPluginContext) {
   });
 }
 
-// main.ts — register plugins
+// main.ts -- register plugins
 import { createPinia } from "pinia";
 import { piniaLogger } from "./plugins/piniaLogger";
 import { piniaPersist } from "./plugins/piniaPersist";
@@ -1732,7 +1732,7 @@ export {};
 ```
 
 ```ts
-// plugins/globals.ts — registering the augmented properties
+// plugins/globals.ts -- registering the augmented properties
 import type { App } from "vue";
 import axios from "axios";
 

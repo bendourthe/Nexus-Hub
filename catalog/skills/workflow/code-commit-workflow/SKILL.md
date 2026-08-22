@@ -431,7 +431,7 @@ git commit -m "test: add auth integration tests"
 | Rationalization | Reality |
 |---|---|
 | "Commit messages don't matter for a solo project" | Solo project history becomes a multi-developer history the moment the project is open-sourced, onboarded a contractor, or diagnosed six months later by the original author; vague messages like "fix stuff" make git bisect useless. |
-| "Atomic commits slow down development" | Non-atomic commits that bundle unrelated changes make every future revert destructive — reverting a bug fix to unblock deployment also reverts an unrelated migration, causing data loss or schema mismatch. |
+| "Atomic commits slow down development" | Non-atomic commits that bundle unrelated changes make every future revert destructive -- reverting a bug fix to unblock deployment also reverts an unrelated migration, causing data loss or schema mismatch. |
 | "We'll check for secrets in the PR review" | PR review catches secrets intermittently; pre-commit hooks (`detect-secrets`, `gitleaks`) catch them deterministically before they enter git history, where they persist even after force-push removal and require history rewriting. |
 | "Conventional commit format is rigid and unnecessary" | Automated changelog generation, semantic versioning bumps, and release notes tools (`standard-version`, `semantic-release`) all depend on conventional commit format; without it, every release requires manual changelog curation. |
 | "Breaking changes don't need special marking if reviewers are careful" | API consumers depend on automated tooling that parses `BREAKING CHANGE:` footers to block auto-updates; unmarked breaking changes bypass these safeguards and silently break downstream consumers. |

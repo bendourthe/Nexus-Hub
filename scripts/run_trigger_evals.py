@@ -137,6 +137,26 @@ def _stem(token: str) -> str:
     return token
 
 
+# A description's SKIP clause states what the skill is NOT for. Tokenizing it
+# counts the fenced-off vocabulary as POSITIVE trigger evidence, which is exactly
+# backwards: authoring `devlog-generation`'s routing cases in v3.18.0 found
+# "generate the changelog entry for this release" scoring a perfect 1.00 against
+# it purely on SKIP-clause text, and "what work is still open or deferred" doing
+# the same. AGENTS.md tells every author to write a SKIP clause, so the scorer
+# must not penalise them for it. Everything from the first SKIP marker onward is
+# dropped before tokenizing; the clause is terminal by convention.
+_SKIP_MARKER = re.compile(
+    r"(?:SKIP\s*[:\-]|Do\s+NOT\s+use\s+for|Do\s+not\s+use\s+for)",
+    re.IGNORECASE,
+)
+
+
+def strip_skip_clause(description: str) -> str:
+    """Drop the trailing SKIP / do-not-use clause from a description."""
+    match = _SKIP_MARKER.search(description)
+    return description[: match.start()] if match else description
+
+
 def tokenize(description: str) -> set[str]:
     """Turn a description into its trigger-vocabulary token set.
 
@@ -241,7 +261,7 @@ def find_collisions(
     allowlisted (with its justification). Results are sorted by descending ratio
     then name so output is deterministic.
     """
-    tokens = {name: tokenize(desc) for name, desc in descriptions.items()}
+    tokens = {name: tokenize(strip_skip_clause(desc)) for name, desc in descriptions.items()}
     names = sorted(tokens)
     collisions: list[dict[str, object]] = []
     for i, name_a in enumerate(names):
@@ -488,7 +508,7 @@ def main() -> int:
 
     # Phase 3 routing assertions: score each skill's trigger-case prompts against
     # every skill's description tokens and assert the intended skill routes first.
-    tokens = {name: tokenize(desc) for name, desc in descriptions.items()}
+    tokens = {name: tokenize(strip_skip_clause(desc)) for name, desc in descriptions.items()}
     cases_by_skill = find_trigger_cases(args.path)
     routing_failures, routing_stats = assert_routing(tokens, cases_by_skill, args.margin)
     skills_total = len(descriptions)

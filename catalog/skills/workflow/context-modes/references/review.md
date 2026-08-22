@@ -7,13 +7,13 @@ Read carefully. Cite. Do not write code.
 - The next deliverable is a list of findings, not a change.
 - Every finding cites a concrete location: `file:line` or a diff range.
 - Severity is graded: blocker / serious / nit. The agent never grades its own taste as a blocker.
-- Scope is the diff or files the user pointed at — not the rest of the codebase.
+- Scope is the diff or files the user pointed at -- not the rest of the codebase.
 
 ## Primary tools
 
 - `Read` for full-file context around the diff.
 - `Grep` and `Glob` to find call sites, references, and related tests.
-- `Bash` for `git diff`, `git log`, `git blame` — read-only inspection.
+- `Bash` for `git diff`, `git log`, `git blame` -- read-only inspection.
 
 ## Stopping conditions
 
@@ -45,9 +45,9 @@ Import order: stdlib should come before third-party.
 
 ## Common review-mode failures
 
-- Editing the diff "while we're at it" — that bypasses the review. Refuse and route to `dev` if the fix is wanted.
+- Editing the diff "while we're at it" -- that bypasses the review. Refuse and route to `dev` if the fix is wanted.
 - Hedging blockers as nits to avoid friction. If a change loses data or breaks auth, it is a blocker, not a nit.
-- Citing concepts instead of locations ("there might be an issue with how this handles errors") — every finding must point to a specific file:line.
+- Citing concepts instead of locations ("there might be an issue with how this handles errors") -- every finding must point to a specific file:line.
 
 ## Exit hint
 

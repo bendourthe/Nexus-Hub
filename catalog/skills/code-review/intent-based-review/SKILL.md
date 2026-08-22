@@ -244,11 +244,11 @@ Switch to the traditional `full-code-review` workflow (or individual review skil
 
 | Rationalization | Reality |
 |---|---|
-| "Line-by-line review is more thorough than intent-based review" | Line-by-line review of AI-generated code is slower and still misses behavioral correctness — reviewers can read syntactically clean code and miss that it satisfies none of the acceptance criteria, as seen in many AI-assisted PR audits. |
+| "Line-by-line review is more thorough than intent-based review" | Line-by-line review of AI-generated code is slower and still misses behavioral correctness -- reviewers can read syntactically clean code and miss that it satisfies none of the acceptance criteria, as seen in many AI-assisted PR audits. |
 | "We don't write acceptance criteria because requirements are in the tickets" | Tickets describe what was requested, not what was accepted; without explicit acceptance criteria, any implementation can be argued to be correct, making review a matter of opinion rather than evidence. |
 | "If tests pass, there's nothing more to check" | Tests pass against themselves; if tests were written to match a wrong implementation rather than the original requirement, intent-based review is the only layer that catches the mismatch between requirement and test intent. |
 | "This skill only applies to AI-generated code" | Intent-based review applies whenever code is reviewed against requirements; it is most valuable for AI-generated code because AI output is fluent and syntactically clean, making line-by-line review less discriminating. |
-| "NO EVIDENCE status just means the test suite is incomplete" | NO EVIDENCE is a flag that triggers investigation, not an automatic failure; but consistently accepting NO EVIDENCE results normalizes shipping untested requirements — the gap accumulates until a critical acceptance criterion has no coverage. |
+| "NO EVIDENCE status just means the test suite is incomplete" | NO EVIDENCE is a flag that triggers investigation, not an automatic failure; but consistently accepting NO EVIDENCE results normalizes shipping untested requirements -- the gap accumulates until a critical acceptance criterion has no coverage. |
 
 ## Verification
 

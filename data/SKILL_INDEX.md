@@ -193,7 +193,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | conflict-analyzer | workflow | "Analyze and resolve merge conflicts with three-way analysis and resolution strategies" | catalog/skills/workflow/conflict-analyzer/SKILL.md |
 | create-custom-command | workflow | "Create custom slash commands for Claude Code to automate repetitive workflows" | catalog/skills/workflow/create-custom-command/SKILL.md |
 | debug-with-logs | workflow | "Add strategic logging and use log analysis to debug production issues" | catalog/skills/workflow/debug-with-logs/SKILL.md |
-| devlog-generation | workflow | "Generate development logs from git history, docs, and code artifacts" | catalog/skills/workflow/devlog-generation/SKILL.md |
+| devlog-generation | workflow | "Maintain DEVLOG.md as a bounded one-line-per-release index, not a narrative log" | catalog/skills/workflow/devlog-generation/SKILL.md |
 | documentation-consistency | workflow | "Verify documentation consistency with link checking, staleness detection, and sync audits" | catalog/skills/workflow/documentation-consistency/SKILL.md |
 | filesystem-context-patterns | workflow | "Use the filesystem for context management, scratch pads, and inter-agent communication" | catalog/skills/workflow/filesystem-context-patterns/SKILL.md |
 | git-bisect-assistant | workflow | "Find regression-introducing commits with git bisect and automated test scripts" | catalog/skills/workflow/git-bisect-assistant/SKILL.md |

@@ -22,16 +22,16 @@ Automatically apply this review when code:
 
 For each applicable category, assess the code:
 
-1. **Injection** — SQL, command, LDAP, XPath, template injection. Check for parameterized queries, input sanitization.
-2. **Broken Authentication** — password hashing algorithm, JWT validation (algorithm, expiry, audience), session fixation.
-3. **Sensitive Data Exposure** — PII/secrets in logs, responses, or error messages; encryption in transit and at rest.
-4. **XML External Entities (XXE)** — XML parser configuration; disable external entity resolution.
-5. **Broken Access Control** — authorization checks at the data layer, not just route level; IDOR risks.
-6. **Security Misconfiguration** — debug modes, default credentials, overly permissive CORS, missing security headers.
-7. **Cross-Site Scripting (XSS)** — unsanitized HTML output, `innerHTML` with user data, missing CSP.
-8. **Insecure Deserialization** — pickle/YAML load on untrusted data, object injection.
-9. **Known Vulnerable Components** — check direct dependencies against known CVE lists.
-10. **Insufficient Logging** — security events (login, permission denied, data access) must be logged with user ID and timestamp.
+1. **Injection** -- SQL, command, LDAP, XPath, template injection. Check for parameterized queries, input sanitization.
+2. **Broken Authentication** -- password hashing algorithm, JWT validation (algorithm, expiry, audience), session fixation.
+3. **Sensitive Data Exposure** -- PII/secrets in logs, responses, or error messages; encryption in transit and at rest.
+4. **XML External Entities (XXE)** -- XML parser configuration; disable external entity resolution.
+5. **Broken Access Control** -- authorization checks at the data layer, not just route level; IDOR risks.
+6. **Security Misconfiguration** -- debug modes, default credentials, overly permissive CORS, missing security headers.
+7. **Cross-Site Scripting (XSS)** -- unsanitized HTML output, `innerHTML` with user data, missing CSP.
+8. **Insecure Deserialization** -- pickle/YAML load on untrusted data, object injection.
+9. **Known Vulnerable Components** -- check direct dependencies against known CVE lists.
+10. **Insufficient Logging** -- security events (login, permission denied, data access) must be logged with user ID and timestamp.
 
 ## Additional Checks
 
@@ -47,9 +47,9 @@ For each applicable category, assess the code:
 **[CRITICAL/HIGH/MEDIUM/LOW] Short title**
 - Location: path/to/file.ext:line
 - Category: [OWASP category]
-- Exploitability: Low / Medium / High — [brief rationale]
+- Exploitability: Low / Medium / High -- [brief rationale]
 - Impact: [what an attacker can achieve]
 - Remediation: [specific, actionable fix]
 ```
 
-Critical findings are blockers. The review must state: "APPROVED — no critical/high findings" or "BLOCKED — N critical/high findings must be resolved before merge."
+Critical findings are blockers. The review must state: "APPROVED -- no critical/high findings" or "BLOCKED -- N critical/high findings must be resolved before merge."

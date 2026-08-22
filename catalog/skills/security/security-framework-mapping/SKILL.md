@@ -14,7 +14,7 @@ nist_ai_rmf: [MEASURE-2.6]
 
 Cross-map a security artifact to its identifiers across five public taxonomies so downstream consumers (auditors, coverage matrices, traceability tools) can locate the artifact by control ID instead of by free-text search.
 
-The frameworks this skill covers are all public domain or freely re-distributable from their authoring institutions (MITRE, NIST). This skill never copies framework text into the artifact — it cites the framework's canonical identifier and links to the public source.
+The frameworks this skill covers are all public domain or freely re-distributable from their authoring institutions (MITRE, NIST). This skill never copies framework text into the artifact -- it cites the framework's canonical identifier and links to the public source.
 
 ## When to Use This Skill
 
@@ -27,10 +27,10 @@ Use when:
 
 **When NOT to use:**
 
-- End-to-end threat modeling of a new system — use [[architecture-design]] plus a dedicated threat model.
-- Actually running a security audit — use `/review security` or `/review pentest`.
-- Generating evidence for a specific regulation (GDPR, SOC 2, ISO 27001) — those have dedicated skills: [[gdpr-compliance]], [[soc2-compliance]], [[iso27001-compliance]].
-- Picking between security skills for a task — that is skill routing, not mapping.
+- End-to-end threat modeling of a new system -- use [[architecture-design]] plus a dedicated threat model.
+- Actually running a security audit -- use `/review security` or `/review pentest`.
+- Generating evidence for a specific regulation (GDPR, SOC 2, ISO 27001) -- those have dedicated skills: [[gdpr-compliance]], [[soc2-compliance]], [[iso27001-compliance]].
+- Picking between security skills for a task -- that is skill routing, not mapping.
 
 ## The Five Frameworks
 
@@ -100,10 +100,10 @@ Skill: `analyzing-network-traffic-of-malware`
 
 | Field | Value | Why |
 |---|---|---|
-| `mitre_attack` | `[T1071]` | The skill analyzes network traffic that malware uses as a command-and-control channel — ATT&CK calls this "Application Layer Protocol". |
+| `mitre_attack` | `[T1071]` | The skill analyzes network traffic that malware uses as a command-and-control channel -- ATT&CK calls this "Application Layer Protocol". |
 | `atlas_techniques` | `[AML.T0047]` | When applied to ML-enabled detection products, the same traffic-analysis lens covers ATLAS "ML-Enabled Product or Service Reconnaissance". |
 | `d3fend_techniques` | `[D3-NTA]` | The defender activity the skill teaches is D3FEND "Network Traffic Analysis". |
-| `nist_csf` | `[DE.CM]` | The skill enables continuous monitoring for malicious activity — NIST CSF "Detect / Continuous Monitoring" category. |
+| `nist_csf` | `[DE.CM]` | The skill enables continuous monitoring for malicious activity -- NIST CSF "Detect / Continuous Monitoring" category. |
 | `nist_ai_rmf` | `[MEASURE-2.6]` | If the analysis is part of an AI system's safety evaluation, AI RMF measure 2.6 (regular safety evaluation) applies. |
 
 The `references/standards.md` companion would list each ID, the framework's own short title for it, the rationale ("this skill teaches X, which the framework defines as Y"), and a deep link.
@@ -120,24 +120,24 @@ Before finalizing, check three things:
 
 | Rationalization | Reality |
 |---|---|
-| "Tagging is busywork — the body of the skill already explains what it does" | Free-text descriptions cannot be queried by control ID. An auditor asking "which Nexus-Hub skills cover ATT&CK T1003?" cannot grep the body. The optional tags give that auditor a one-line answer and feed the coverage matrix generator. |
+| "Tagging is busywork -- the body of the skill already explains what it does" | Free-text descriptions cannot be queried by control ID. An auditor asking "which Nexus-Hub skills cover ATT&CK T1003?" cannot grep the body. The optional tags give that auditor a one-line answer and feed the coverage matrix generator. |
 | "I'll map it to one framework and skip the others to keep frontmatter small" | The Tier-1 cost of these optional fields is negligible (a few tokens per skill), and the frameworks cover different lenses. A skill that only carries an ATT&CK tag is invisible to a defender doing a D3FEND coverage review. Map the lenses that apply, not just the easiest one. |
 | "I'll pick a parent technique because the sub-technique might be wrong" | Picking the parent when the sub-technique is correct hides specificity. If the skill is specifically about LSASS dumping, `T1003.001` is right and `T1003` is too broad. If you genuinely cannot tell, ask the user; do not silently round up. |
-| "I'll copy the framework's description into the skill body so the user does not need to click out" | The frameworks are revised over time; copies go stale. Quote the ID, the short title, and the public URL — let the public source remain authoritative. (Reverse-Engineering Attribution Rule.) |
-| "ATLAS and AI RMF only apply to LLM apps — skip them for traditional ML" | ATLAS covers all ML systems including classical models. AI RMF covers any AI system including pre-LLM. The "AI" gate is broader than the agent's first instinct. |
+| "I'll copy the framework's description into the skill body so the user does not need to click out" | The frameworks are revised over time; copies go stale. Quote the ID, the short title, and the public URL -- let the public source remain authoritative. (Reverse-Engineering Attribution Rule.) |
+| "ATLAS and AI RMF only apply to LLM apps -- skip them for traditional ML" | ATLAS covers all ML systems including classical models. AI RMF covers any AI system including pre-LLM. The "AI" gate is broader than the agent's first instinct. |
 
 ## Verification
 
 - [ ] Every ID added to the skill's frontmatter exists on the framework's current public site (open the URL, see the ID).
 - [ ] The skill's `references/standards.md` exists and lists every ID with framework name, short title, rationale, and a deep URL.
-- [ ] No long passages of framework text are copied into the skill or its references — only IDs, short titles, and rationale in the agent's own words.
+- [ ] No long passages of framework text are copied into the skill or its references -- only IDs, short titles, and rationale in the agent's own words.
 - [ ] The skill body still teaches the agent what to do; the mapping fields do not replace `Common Rationalizations` or `Verification` sections.
 - [ ] When the skill is rerun through `scripts/validate_skills.py`, the optional fields produce no errors and no orphan-bundle warnings (`references/standards.md` is referenced from `SKILL.md`).
 
 ## Related Skills
 
-- [[nist-ai-rmf]] — implements the AI RMF directly; this skill is the cross-cutting mapper, not the implementer.
-- [[traceability-matrix-generator]] — requirement-to-code traceability; the framework tags extend that idea to security-control-to-skill traceability.
-- [[security-review]] — produces findings that can be tagged with this skill's framework IDs.
-- [[ai-agent-governance]] — uses AI RMF identifiers; mapping fields here feed its coverage view.
-- [[soc2-compliance]] / [[iso27001-compliance]] / [[gdpr-compliance]] / [[pci-dss-compliance]] — regulation-specific implementations; this skill helps them carry the right CSF / AI RMF tags.
+- [[nist-ai-rmf]] -- implements the AI RMF directly; this skill is the cross-cutting mapper, not the implementer.
+- [[traceability-matrix-generator]] -- requirement-to-code traceability; the framework tags extend that idea to security-control-to-skill traceability.
+- [[security-review]] -- produces findings that can be tagged with this skill's framework IDs.
+- [[ai-agent-governance]] -- uses AI RMF identifiers; mapping fields here feed its coverage view.
+- [[soc2-compliance]] / [[iso27001-compliance]] / [[gdpr-compliance]] / [[pci-dss-compliance]] -- regulation-specific implementations; this skill helps them carry the right CSF / AI RMF tags.

@@ -6,7 +6,7 @@ tools: Read, Glob, Grep, Bash
 
 # Harness Optimizer Agent
 
-You are a testing infrastructure specialist. You analyze the test suite to find structural problems that reduce its value — slowness, flakiness, missing coverage, poor isolation — and fix them.
+You are a testing infrastructure specialist. You analyze the test suite to find structural problems that reduce its value -- slowness, flakiness, missing coverage, poor isolation -- and fix them.
 
 ## Analysis Phases
 

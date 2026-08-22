@@ -1,6 +1,6 @@
 # Decision: Plan order lives in a table, and v4.0.0 is reserved for changed install behavior
 
-Status: implemented - new plans are named by slug with a Target version field inside, existing filenames are frozen as historical identifiers, and v4.0.0 will land only the two queued plans that change what an installed Nexus-Hub does
+Status: implemented - new plans are named by slug with a Target version field inside, existing filenames are frozen as historical identifiers, and v4.0.0 will land only the queued plans that change what an installed Nexus-Hub does (three as of 2026-08-21) **Naming half SUPERSEDED 2026-08-21** by [2026-08-21-plan-filenames-track-target-version](2026-08-21-plan-filenames-track-target-version.md): filenames are no longer frozen and now track the target version. The v4.0.0 reservation below stands.
 
 ## Problem
 
@@ -25,6 +25,16 @@ Two consequences are load-bearing and easy to undo by accident:
 
 **v4.0.0 is reserved for the changed-install-behavior bundle.** It will land `cost-effective-ci-cd` (changes the default CI lifecycle for consuming projects) and `agent-communication-overhaul` (changes installed agent behavior on every platform), under one migration note. It is not a backlog-completion milestone. `docs-lifecycle-retention` was considered for inclusion and excluded: it touches only Nexus-Hub's own `AGENTS.md` and `DEVLOG`, changing nothing about an install, so it moves up to rank 2 for its leverage instead.
 
+**Amendment, 2026-08-21: the bundle has a third member.** `docs-lifespan-tree-and-enforcement` was authored on 2026-08-20, classified Breaking by its author, and confirmed into the bundle on 2026-08-21 after both of its breaking claims were verified against the repository rather than accepted from the plan.
+
+The first claim is that an upgraded install reshapes the user's own documentation tree without being asked. `catalog/commands/update.md` states that `/update refactor` "and, at release, `/update release`" canonicalizes *that repo's* whole docs tree via the `docs-layout-refactor --canonicalize-layout` path, "so a project adopting Nexus-Hub gets the same migration with one command", and the `release` scope does run `refactor`. Verified.
+
+The second is that it changes installed instruction content: its Phase 5 edits all 12 substantive `templates/ai-instructions/` files, which both installers copy recursively. That is the same test that placed `agent-communication-overhaul` in the bundle. Verified.
+
+The comparison that settles it is with `docs-lifecycle-retention` above. Both are documentation plans; that one was excluded because its changes are repo-internal, and this one's stated purpose is to reach every install. Same subject matter, opposite answer, on a criterion that discriminates rather than a judgement call.
+
+Two consequences are worth stating because they were weighed and accepted. The bundle now couples three plans, so a stall in any one delays the others, and three slip more easily than two. And the plan itself recorded a clean alternative that was NOT taken: making the migration strictly opt-in would drop it to a v3.20.x target, at the cost of most consuming repositories never adopting the standard, which is the plan's whole purpose. Choosing the reservation over the escape hatch is the deliberate trade.
+
 ## Alternatives considered
 
 - **Ship v4.0.0 at the end of the current plan list, as a completion milestone.** Rejected on three independent grounds. It signals breakage that does not exist across twelve of the fourteen plans. The list gained six plans in thirteen days while draining none, so a target defined as "when the list is done" slips indefinitely and communicates nothing. And it retroactively redefines what v3.0.0 meant, since that major was cut for a migration users had to act on rather than for a volume of finished work.
@@ -37,5 +47,5 @@ Two consequences are load-bearing and easy to undo by accident:
 - **A plan's filename may disagree with its target version, and that is correct.** `v3.17.8-presentify-slide-navigation.md` may target something other than v3.17.8. A reader who trusts the filename over the table will be wrong, so the table has to be found first; it is linked from each new plan's `Rank` field for that reason.
 - **The presentify ten-place move is left as an open reconciliation at rank 11.** The decision records the discrepancy rather than resolving it, because neither the original ranking nor the re-slot left a reason on disk and inventing one now would be worse than naming the gap.
 - **Automated tooling over plan directories is now a hazard surface.** Anything enumerating `docs/v3/v3.*/plans` must sort NUMERICALLY on the parsed minor rather than lexically, or it orders v3.10, v3.18, and v3.20 before v3.5. A live instance of exactly that bug is recorded in the v3.17 known gaps.
-- **v4.0.0 cannot be cut until both reserved plans are ready**, which couples them. If one stalls, the other waits or the reservation is revisited by a new record rather than by quietly shipping it in a minor.
+- **v4.0.0 cannot be cut until every reserved plan is ready**, which couples them. If one stalls, the others wait, or the reservation is revisited by a new record rather than by quietly shipping one in a minor. The bundle held two plans when this was written and three from 2026-08-21, so the coupling cost grows with each addition and each addition should be argued on the changed-install-behavior test alone.
 - **Twelve queued plans can now ship as minors without a versioning debate each time**, which is the practical benefit: the question "does this deserve a major" has one answer, checkable against a two-item list.

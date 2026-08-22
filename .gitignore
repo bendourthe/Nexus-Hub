@@ -121,3 +121,12 @@ media.env
 # abnormal termination (SIGKILL, power loss). Ignored so a stray leftover can
 # never be swept into a commit by `git add -A`.
 .*.tmp
+
+# Windows PowerShell profile scaffolding created as a side effect of the
+# installer and hook test suites, which invoke powershell.exe with the repo as
+# CWD (v3.18.0 Phase 5). Git does not track empty directories, so this tree is
+# invisible to `git status` while still being real enough to abort a
+# `git stash -u` with "failed to remove ...: Permission denied" on a
+# OneDrive-synced checkout. Ignored so it can never be committed if a run does
+# leave a file in it.
+/Microsoft/
