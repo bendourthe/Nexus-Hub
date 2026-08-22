@@ -1,6 +1,8 @@
 # Decision: Derive Actions drawdown weights from each line item's price
 
-Status: implemented - the drawdown weight is computed per item as its own `pricePerUnit` divided by the standard Linux rate observed in the same payload, so no multiplier table exists to go stale.
+Status: implemented - shipped in extension 0.4.0, then SUPERSEDED the same day when the extension it governed was withdrawn.
+
+> **Superseded 2026-08-22** by [`2026-08-22-withdraw-the-github-usage-monitor.md`](2026-08-22-withdraw-the-github-usage-monitor.md). The mechanism below no longer ships. The record is retained rather than deleted because its analysis remains correct and is part of the evidence base for the withdrawal: the weighting was right, and GitHub's own 2026 pricing page has since confirmed it in writing ("consume available usage based on list price"). What defeated the extension was a different input entirely - the public/private split, which needs repository visibility *at the time of use*, and which no GitHub API reports.
 
 ## Problem
 

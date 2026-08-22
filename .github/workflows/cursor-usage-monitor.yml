@@ -1,7 +1,7 @@
 name: cursor-usage-monitor
 
 # Path-filtered: runs only when the cursor-usage-monitor extension changes, so it
-# costs action minutes only for that surface (mirrors github-usage-monitor.yml).
+# costs action minutes only for that surface.
 # The extension is a Node/TypeScript VSIX with a Vitest suite; the repo-wide
 # ci.yml covers Python only, so this workflow is the extension's gate.
 #
