@@ -77,6 +77,18 @@ Observable criterion: scrolling never produces vestibular video scrub for a redu
 - **The reduced-motion path is documented and tested**, per section 6.
 - **First paint is fully legible.** A scrub ramp evaluated at scroll progress zero must yield full visibility: the hero title, date, and stage render at full opacity and position before the reader has scrolled at all. Effects may fade or drift content OUT as the reader leaves a section - never IN from a dimmed or displaced start state (a hero that loads at 25% opacity is a broken landing, not anticipation). Verify on the load-time screenshot, not the formula.
 
+## 8. Cinematic without scroll: slide mode
+
+When the design record says `nav=slides` and the level is cinematic, there is no scroll position to scrub, so the stage is re-expressed as a **fragment-stepped camera**. Slide mode changes the TRIGGER - keys instead of scroll position - and changes NOTHING else: the size / cost gate (section 3), the asset-source hard boundary (section 4, no hosted generation, no sibling files), the seam and pacing protocol (section 5), the stills-only fallback (section 6), and the accessibility floor (section 7) apply unchanged and are not restated here.
+
+- **Each camera keyframe is one fragment.** A section's establishing view, a zoom, and a pan target each become one `data-fragment` step per the slide-navigation fragment contract. ArrowRight advances the camera to the next keyframe; the transition tween uses the same easing the scrub curve would have applied over that segment of scroll distance, so the camera language is identical in both modes.
+- **While a keyframe HOLDS, an ambient loop keeps the stage alive** - slow drift, subtle parallax of the stage layers - replacing the continuous scroll-position motion. The loop obeys the slide-mode amplitude discipline (`references/interactive-features.md`, "Slide-mode animation grammar"): background amplitude only, one ambient system per slide, paused when the slide is inactive, and DISABLED under reduced motion (where the hold state is simply a settled still - no drift).
+- **Interrupted transitions fast-forward.** A rapid back-forward key sequence mid-tween settles the camera at the target keyframe's end state - the same never-drop, never-double-apply rule as every slide-mode input. The tween retargets from wherever the camera visually is; the end state stays authoritative.
+- **Autoplay policy failures degrade to the poster, never to black.** A keyframe whose clip cannot autoplay on slide entry (browser policy, priming not yet done) falls back to the keyframe's poster still with its ambient drift. A black stage is a defect; the stills path is always ready because stills-only is the base mode.
+- **Reduced motion**: stills-only per section 6, and in slide mode additionally NO ambient drift - keyframe changes are instant cuts between settled stills.
+
+**Engine support.** `assets/scroll-scrub-engine.js` (a template to adapt, as ever) carries a driver abstraction: `driver: 'scroll'` (the default) reads page scroll exactly as before, and `driver: 'step'` attaches no scroll listener and instead exposes `goTo(sectionIndex, progress, opts)` for the deck runtime to call from its fragment handler - the fragment index and transition tween replace scroll progress as the input, and everything downstream of the driver (linger, seam crossfade, seek coalescing, the stills path) is shared. The deck maps its fragments onto `goTo` targets; the engine never listens for keys itself (input ownership stays with the slide runtime, so the disengage-inside-interactive-regions rule cannot be violated by the stage).
+
 ## Verification
 
 - [ ] Cinematic was reached only by an explicit choice or a CONFIRMED rich-level proposal, and the design record notes which - never a silent selection.
@@ -87,10 +99,11 @@ Observable criterion: scrolling never produces vestibular video scrub for a redu
 - [ ] Under `prefers-reduced-motion: reduce`, no video element is created - verified by emulating the preference and scrolling, not by reading the code.
 - [ ] The five-point interaction budget and chart interactivity still hold on top of the cinematic layer.
 - [ ] `assets/scroll-scrub-engine.js` was adapted rather than copied verbatim, and carries no vendor, product, or upstream repository name.
+- [ ] On a `nav=slides` cinematic build: the camera advances by fragment steps with the scrub curve's easing, holds carry at most one background-amplitude ambient drift (none under reduced motion), an interrupted tween settles at its target keyframe, and an autoplay refusal shows the poster still - never a black stage.
 
 ## Related
 
-- `assets/scroll-scrub-engine.js` - the zero-dependency engine implementing this protocol: data-URI / Blob clip loading, seam crossfade, per-section scroll + linger, mobile seek-coalescing, and the stills-only reduced-motion path.
+- `assets/scroll-scrub-engine.js` - the zero-dependency engine implementing this protocol: data-URI / Blob clip loading, seam crossfade, per-section scroll + linger, mobile seek-coalescing, the stills-only reduced-motion path, and the `driver: 'scroll' | 'step'` abstraction for slide mode.
 - `references/interactive-features.md` - the interactivity spectrum this level sits above, the scrollytelling catalog it joins, and the five-point interaction budget it must still satisfy.
 - `references/visual-qa-rubric.md` - the per-segment grading a cinematic build is verified against, including the reduced-motion check.
 - `[[ai-billing-safeguards]]` - the hard budget controls behind the size / cost gate.

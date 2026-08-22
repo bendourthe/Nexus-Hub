@@ -361,12 +361,13 @@ v3.17.6 shipped on 2026-08-21 (tag `v3.17.6`, commit `1e154769`). This pass walk
 - **How it surfaced**: `test_registry_consistency.py` caught the four `statistics` / total-line omissions immediately. The sixth surface was caught only by `tests/integrations/test_selective_install.py::test_every_catalog_skill_is_reachable_through_some_module`, which failed with "1 catalog skills are reachable only via `full`". That suite takes about 30 minutes locally, so the gap is invisible to a fast validator loop.
 - **Resolution**: all six updated; `deepseek-harness` added to the `ai-engineering` module. Folding the full list into the `AGENTS.md` "Register the skill" instructions is recommended follow-on work so the next author is not relying on a 30-minute suite to discover surface six.
 
-### MT-2 - OPEN observation: plan-time catalog counts go stale
+### MT-2 - RESOLVED 2026-08-22: plan-time catalog counts go stale
 
 - **Target files**: `docs/v3/v3.17/plans/v3.17.5-adoption-deepseek-harness.md`
 - **What it is**: the plan was authored 2026-08-14 against a 271-skill catalog and specified landing at 272. The catalog had reached 272 by implementation time, so Phase 2 landed at 273.
 - **Why it matters**: a plan that hardcodes an absolute target count invites a wrong edit whenever implementation lags authoring. Counts were verified against four independent sources before editing, per the v3.16.1 lesson.
 - **Suggested disposition**: plans should express catalog counts as a delta ("+1 skill") rather than an absolute target.
+- **RESOLVED 2026-08-22**: that disposition is now a rule in the plan template itself. `catalog/skills/workflow/implementation-plan/SKILL.md` carries a "express a moving count as a DELTA, never as an absolute target" paragraph beside the sub-task prompt guidance, with this incident as its worked example. Fixing the generator rather than the one stale plan is what stops the next one recurring.
 
 ### MT-3 - CLOSED by design decision: A4 executive-summary block adapted rather than added
 
@@ -393,13 +394,19 @@ v3.17.6 shipped on 2026-08-21 (tag `v3.17.6`, commit `1e154769`). This pass walk
 - **Resolution (Phase 7, maintainer chose the full repair)**: all 156 fields synced from SKILL.md, which is the source of truth because it is the file agents actually load. 141 fields in `skills.json` and 15 summaries in `SKILL_INDEX.md`. The six encoding-corrupted entries now carry the same `U+2014` their source does. `check_registry_entries.py --check --strict` is now the gate in both `make validate` and CI, so any reappearance is a fresh regression rather than inherited debt.
 - **Correction to the Phase 5 risk assessment**: Phase 5 recorded that repairing this would rewrite 74 routing descriptions and therefore needed a full eval re-run. That caution was overstated for this direction. `run_trigger_evals.py` scores descriptions read from `catalog/skills/`, not from `skills.json`, so syncing the registry FROM SKILL.md cannot move a routing score by construction. The eval gate was re-run anyway and passed with 0 failures. The caution remains correct for the opposite direction, editing SKILL.md itself.
 
-### DF-1 - OPEN (deferred): five platforms not yet surveyed for invocation-policy levers
+### DF-1 - RESOLVED 2026-08-22: the invocation-policy lever survey is complete
 
 - **Target files**: `docs/policy/skill-invocation-policy-levers.md`
 - **What it is**: the Phase 6 survey covered `claude`, `copilot`, `cursor`, `codex`, and `antigravity2` against fetched vendor documentation. The v3.17.5 release-pass contract re-verification added `qwen`, which turned out to document BOTH fields with matching semantics and is now recorded VERIFIED. `opencode`, `kimi`, `hermes`, and `nexus-ai` remain unsurveyed.
 - **Why it matters**: the table records them as NOT SURVEYED, deliberately distinct from "none documented". The first means nobody looked; the second means someone read the vendor page. Collapsing the two is how an unchecked assumption becomes a recorded fact, which is the failure mode the do-not-invent rule exists to prevent.
 - **Impact if left**: none functionally. Those platforms receive `SKILL.md` verbatim, so a declared field reaches them and is ignored if unrecognised. The gap is in the record, not the behavior.
 - **Suggested disposition**: complete the survey in the next release pass that already re-verifies platform contracts, since `[[platform-contract-verification]]` visits the same vendor documentation. That is exactly how `qwen` was closed here: the contract re-verification was reading the same vendor page, so checking the invocation fields cost nothing extra. Fold the remaining four into the same pass.
+- **RESOLVED 2026-08-22 (during the v3.18.3 release pass)**: all four remaining platforms surveyed against their own documentation, and `docs/policy/skill-invocation-policy-levers.md` now carries **no NOT SURVEYED rows**. Every one returned a finding rather than a non-answer:
+    - `opencode` - none documented. The docs enumerate the recognised fields exhaustively ("Only these fields are recognized"): `name`, `description`, `license`, `compatibility`, `metadata`. Its invocation controls exist, but in `opencode.json` and agent config rather than frontmatter.
+    - `kimi` - none documented. Documents `name`, `description`, `license`, `compatibility`, `metadata`, and `type`.
+    - `hermes` - none documented, with one nuance recorded so nobody maps it wrongly later: `platforms` hides a skill "from the system prompt, `skills_list()`, and slash commands on incompatible platforms". That is capability-gating (does this skill apply here), not an invocation-policy toggle (may the model load it / may the user type it).
+    - `nexus-ai` - none IMPLEMENTED, and surveyed differently on purpose. It is the first-party sibling, with an empty `sources` list in the read-contracts because there is no vendor page; the authoritative source is its own public repository, where a code search for both field names returns zero hits. Recorded as "none implemented" to keep it distinguishable from a third-party platform that might implement an undocumented lever.
+- **Impact confirmed unchanged**: every one of the four receives `SKILL.md` verbatim, so a declared field reaches them and is ignored. The gap was in the record, and the record is now complete.
 
 ### MT-6 - OPEN observation: the Codex invocation mapping is built but unexercised
 
@@ -407,6 +414,7 @@ v3.17.6 shipped on 2026-08-21 (tag `v3.17.6`, commit `1e154769`). This pass walk
 - **What it is**: no catalog skill declares `disable-model-invocation`, so `codex_invocation_policy` currently emits nothing on every install.
 - **Why it exists anyway**: the maintainer chose to build it while the survey evidence was fresh, accepting the scope-fit trade-off explicitly. The inverted polarity is exactly the detail that is expensive and error-prone to re-derive later.
 - **Containment**: `tests/integrations/test_codex_invocation_policy.py::test_the_shipped_catalog_declares_no_manual_only_skill` asserts today's state and fails when the first skill declares the field, which is the moment to re-check installer smoke expectations.
+- **Re-verified 2026-08-22 and deliberately left open**: still accurate - no catalog skill declares the field in frontmatter, and the containment test passes. One near-miss worth recording so the next reader does not repeat the check: `catalog/skills/workflow/skill-create/SKILL.md` MENTIONS both field names, but as prose documenting the optional fields a new skill may declare, not as a frontmatter declaration. A grep for the field name hits it; the test's structured check correctly does not. Nothing to fix here - the trade-off was taken deliberately and the guard works.
 
 ### DF-2 - DEFERRED by design: B5 gate-DAG runner for `make validate`
 
@@ -414,12 +422,13 @@ v3.17.6 shipped on 2026-08-21 (tag `v3.17.6`, commit `1e154769`). This pass walk
 - **Why deferred, not dropped**: the `Boundaries` scope-fit rule in `AGENTS.md` says not to add the structure before the pain. This plan added three validators, taking the chain to roughly thirty sequential steps that still complete in seconds. A DAG scheduler would be real machinery with no measured problem to solve.
 - **Reference shape for whoever picks it up**: the source project's `scripts/run-gates.ts` (890 lines, 14 aggregates), described in `docs/v3/v3.17/comparisons/v3.17.5-comparison-deepseek-harness.md` under B5. Reach for it when validator wall-clock, not validator count, becomes the complaint.
 
-### MT-7 - OPEN observation: nine skill descriptions contain non-ASCII punctuation
+### MT-7 - RESOLVED (verified 2026-08-22): skill descriptions are ASCII-clean
 
 - **Target files**: nine `SKILL.md` files, listed in the Phase 7 session history.
 - **What it is**: surfaced while repairing MT-5. Nine skills carry an em-dash (`U+2014`) in their `description` frontmatter, against the project's ASCII-only prose rule and the `anti-slop-editing` em-dash discipline.
 - **Why it was not fixed here**: `description` is the routing surface that `run_trigger_evals.py` scores. Editing nine of them is the direction where the Phase 5 caution genuinely applies, and it is unrelated to this plan's scope. `validate_unicode_safety.py` passes, so nothing is broken today.
 - **Suggested disposition**: fold into a prose pass that re-runs the trigger-eval gate, rather than a release-eve edit.
+- **RESOLVED, verified by measurement 2026-08-22**: a scan of every `SKILL.md` frontmatter field across the catalog finds **zero** em-dashes, and a scan of all of `catalog/` finds zero em-dashes, en-dashes, curly quotes, or ellipsis characters of any kind. A later unicode-safety pass closed this; the item simply outlived its cause. `validate_unicode_safety.py --strict` and the trigger-eval gate both pass, so no prose pass is owed.
 
 ### NI-1 - NOT IMPLEMENTED by design: `docs/solutions/` remains absent
 
@@ -782,3 +791,63 @@ v3.17.6 shipped on 2026-08-21 (tag `v3.17.6`, commit `1e154769`). This pass walk
 | Quality-gate bypasses (`QG-#`) | 0 | 0 |
 
 **Release blockers**: 0. NI-1 and NI-2 require live matcher probes before their respective permission baselines can be broadened, but the shipped validators and hook guards conservatively avoid relying on either unverified behavior. BG-4 through BG-9 are closed; BG-8 is the v3.17.1 tag-only Windows harness repair and BG-9 is the v3.17.2 fail-safe state-restoration migration. DF-6 is resolved by the scheduled v3.17.4 removal, WN-6 is resolved by protected CI, and WN-5 remains the release workflow's non-blocking prompting-profile freshness advisory.
+
+---
+
+## Reconciliation pass (2026-08-22, during the v3.18.3 release)
+
+The v3.18.3 release pass was asked to address this ledger's open items rather than leave them to their owners. **The ledger carries 18 open or deferred items, not the ten an initial truncated survey suggested** - that miscount is recorded here rather than quietly corrected, because a reconciliation that overstates its own coverage is worse than one that admits a boundary.
+
+Three are resolved, one is re-verified as correct-as-is, and fourteen are recorded open with a specific reason each.
+
+### Resolved in this pass
+
+| Item | Basis |
+|---|---|
+| DF-1 - four platforms unsurveyed for invocation-policy levers | All four surveyed against their own documentation; `skill-invocation-policy-levers.md` now has no NOT SURVEYED rows |
+| MT-7 - em-dashes in skill descriptions | Measured: zero non-ASCII punctuation anywhere under `catalog/`. A later unicode pass had already closed it; the item outlived its cause |
+| MT-2 - plan-time catalog counts go stale | The delta-not-absolute rule is now in the plan template itself, so the generator stops producing the defect |
+
+### Re-verified and correctly left open
+
+| Item | Finding |
+|---|---|
+| MT-6 - Codex invocation mapping unexercised | Still accurate; containment test passes. Near-miss recorded: `skill-create/SKILL.md` mentions both field names in prose, which a grep hits and the structured check correctly does not |
+
+### Open, with the reason each was not closed here
+
+Four need **evidence that does not exist yet** - a measurement, a vendor's current guidance, or a probe against another tool:
+
+| Item | Missing evidence |
+|---|---|
+| MT-2 - no coverage instrumentation | Repo-wide infra (parallel-mode coverage, a process-start shim, thresholds); deferred to its own version by its own entry |
+| WN-5 - prompting profiles lag the roster | Current first-party guidance for four vendors' live rosters, via a `/tune-prompting` cycle |
+| NI-1 - redirect under an explicit allow rule | An empirical probe of a live Claude Code build in a throwaway project. Cannot be self-probed reliably from inside a session whose own permission mode is a variable |
+| NI-2 - whether Gemini's matcher splits compound commands | A Gemini CLI matcher probe on an installed CLI |
+
+Four are **open by design** - each records a deliberate decision with a guard or a rule behind it, so "fixing" them would mean overriding a decision rather than closing a gap:
+
+| Item | Decision |
+|---|---|
+| DF-2 - gate-DAG runner for `make validate` | The `Boundaries` rule says not to add the structure before the pain; validator wall-clock is still seconds |
+| NI-1 - `docs/solutions/` remains absent | Deliberate non-delivery |
+| NI-3 - eight integrations have no autonomy descriptor | Absence is the safe behavior; a descriptor is added only after a vendor contract verifies MATCH |
+| DF-5 - read-only baseline covers four of 16 integrations | Deliberate non-delivery; permission matchers are not invented for unresearched platforms |
+
+Four are **substantial engineering work**, each its own change with its own blast radius, and each explicitly sequenced behind something:
+
+| Item | Blocked on |
+|---|---|
+| DF-1 - no PowerShell / `cmd.exe` read-only set for Gemini | NI-2 first: the safe pattern shape depends on whether the matcher splits compound commands |
+| DF-2 - three of four platforms have no project-scoped permission target | A permission-path contract sweep for Gemini and Codex, plus a maintainer decision on writing to commit-visible `.vscode/settings.json` for Copilot |
+| DF-3 - `Install-Nexus-Hub-Permissions.ps1` has no cross-platform equivalent | Exposing install / uninstall / repair through the `nexus-hub` CLI; a second shell script would recreate the dual-implementation drift that was just removed |
+| DF-4 - Hermes registered but not installer-wired | Its own entry gates it: wire both installer arms in the same change that makes a Hermes artifact user-facing, never one arm alone |
+
+Two are **environmental or pre-existing tooling debt**:
+
+| Item | Status |
+|---|---|
+| WN-1 (both entries) - `test_bootstrap.py` PowerShell hand-off | Same class as v3.18.2 BG-2. `tests/installer` ran clean this session (418 passed, 0 failed) - a data point, not a disproof of a non-deterministic flake |
+| WN-2 / WN-4 / MT-1 - Ruff baseline, bounded hook verification, monitor coverage baseline | Pre-existing debt predating this plan, each needing its own measurement cycle |
+
+**Why the fourteen were not closed with something.** Writing a plausible answer where evidence is missing is precisely the failure this repository has already paid for: the fabricated `.kimi/agent.yaml` shipped and had to be withdrawn in v3.15.0, and that incident is frozen as a rejected-decision record. A gap honestly marked open is a smaller cost than a gap closed with an invention.

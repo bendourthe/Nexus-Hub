@@ -36,12 +36,30 @@
  *       { id: 'method', still: 'data:image/webp;base64,...', scroll: 1.0 }
  *     ],
  *     seamFade: 0.2,        // seconds of cross-dissolve at each seam
- *     atmosphere: false     // optional particle layer; forced off under reduce/coarse
+ *     atmosphere: false,    // optional particle layer; forced off under reduce/coarse
+ *     driver: 'scroll'      // 'scroll' (default) or 'step' (slide mode)
  *   });
  *
  * `scroll` is how much viewport-height a section consumes; `linger` is the
  * fraction of that distance during which the clip barely advances, so the
  * reader can actually read the copy instead of watching it slide past.
+ *
+ * Drivers. Under `driver: 'scroll'` page scroll is the input, exactly as
+ * described above. Under `driver: 'step'` (a `nav=slides` deck) the engine
+ * attaches NO scroll listener and the caller drives the camera instead:
+ *
+ *   var stage = ScrollScrub.mount(el, { sections: [...], driver: 'step' });
+ *   // from the deck's fragment handler, one call per camera keyframe:
+ *   stage.goTo(sectionIndex, progress);                     // tweened
+ *   stage.goTo(sectionIndex, progress, { instant: true });  // settled cut
+ *
+ * Everything downstream of the driver - linger, seam crossfade, seek
+ * coalescing, the stills-only reduced-motion path - is shared. The engine
+ * never listens for keys itself: input ownership stays with the slide
+ * runtime, per `references/slide-navigation.md`. An interrupted tween
+ * retargets from the currently-shown state (fast-forward semantics - the
+ * end state is authoritative, inputs are never dropped or double-applied),
+ * and under reduced motion every goTo is an instant cut.
  */
 
 (function (global) {
@@ -121,12 +139,15 @@
     // Atmosphere is a nice-to-have that costs battery and vestibular comfort, so
     // it is off under reduced motion and on touch devices regardless of config.
     this.atmosphere = !!this.config.atmosphere && !this.reduced && !this.coarse;
+    this.driver = this.config.driver === 'step' ? 'step' : 'scroll';
     this.layers = [];
     this.active = -1;
     this.frame = null;
     this.primed = false;
     this._onScroll = null;
     this._onFirstTouch = null;
+    this._tweenFrame = null;
+    this._shown = { index: 0, progress: 0 };
   }
 
   ScrollScrub.prototype.mount = function () {
@@ -149,11 +170,17 @@
     }
     this.container.insertBefore(viewport, this.container.firstChild);
 
-    this._onScroll = this._schedule.bind(this);
-    this.view.addEventListener('scroll', this._onScroll, { passive: true });
-    this.view.addEventListener('resize', this._onScroll, { passive: true });
+    if (this.driver === 'scroll') {
+      this._onScroll = this._schedule.bind(this);
+      this.view.addEventListener('scroll', this._onScroll, { passive: true });
+      this.view.addEventListener('resize', this._onScroll, { passive: true });
+    }
     if (!this.reduced) this._armPriming();
-    this._update();
+    if (this.driver === 'scroll') {
+      this._update();
+    } else {
+      this.goTo(0, 0, { instant: true });
+    }
     return this;
   };
 
@@ -294,6 +321,75 @@
     }
   };
 
+  /**
+   * Step-driver API: move the camera to (sectionIndex, progress). The deck's
+   * fragment handler maps each camera keyframe onto one goTo target. Same
+   * downstream path as the scroll driver (_seek applies linger and the video
+   * path's own seek coalescing), so the camera language is identical in both
+   * modes. Callable under driver 'scroll' too (e.g. an anchor jump), where the
+   * next scroll event simply takes over again.
+   */
+  ScrollScrub.prototype.goTo = function (index, progress, opts) {
+    if (!this.layers.length) return this;
+    opts = opts || {};
+    index = Math.max(0, Math.min(this.layers.length - 1, index | 0));
+    progress = clamp01(typeof progress === 'number' ? progress : 0);
+
+    // Fast-forward semantics: an in-flight tween is cancelled and the new tween
+    // retargets from wherever the camera visually is. End state stays
+    // authoritative; no input is dropped or double-applied.
+    if (this._tweenFrame !== null) {
+      this.view.cancelAnimationFrame(this._tweenFrame);
+      this._tweenFrame = null;
+    }
+
+    var crossing = index !== this._shown.index;
+    if (crossing || this.active !== index) {
+      // The seam crossfade (the CSS opacity transition on the layer class)
+      // handles the visual handover, exactly as a scroll-driven change would.
+      // `this.active !== index` also covers the very first goTo after mount,
+      // where nothing is painted yet (active starts at -1) but _shown already
+      // points at section 0 - without it the initial layer never turns on.
+      for (var j = 0; j < this.layers.length; j++) {
+        this.layers[j].el.classList.toggle(PREFIX + 'on', j === index);
+      }
+      this.active = index;
+    }
+    var layer = this.layers[index];
+    // Entering a new section the camera starts from that section's near edge
+    // in the direction of travel; within a section, from the shown state.
+    var from = crossing ? (index > this._shown.index ? 0 : 1) : this._shown.progress;
+
+    if (opts.instant || this.reduced) {
+      this._shown = { index: index, progress: progress };
+      this._seek(layer, progress);
+      return this;
+    }
+
+    var duration = typeof opts.duration === 'number' ? opts.duration
+      : (typeof this.config.stepDuration === 'number' ? this.config.stepDuration : 600);
+    var start = null;
+    var self = this;
+    this._shown.index = index;
+    var tick = function (now) {
+      if (start === null) start = now;
+      var t = clamp01(duration <= 0 ? 1 : (now - start) / duration);
+      // Ease-in-out cubic: the temporal shape a scrub over the same segment
+      // would have had, so stepping and scrolling read as the same camera.
+      var eased = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      var value = from + (progress - from) * eased;
+      self._shown.progress = value;
+      self._seek(layer, value);
+      if (t < 1) {
+        self._tweenFrame = self.view.requestAnimationFrame(tick);
+      } else {
+        self._tweenFrame = null;
+      }
+    };
+    this._tweenFrame = this.view.requestAnimationFrame(tick);
+    return this;
+  };
+
   ScrollScrub.prototype.destroy = function () {
     if (this._onScroll) {
       this.view.removeEventListener('scroll', this._onScroll);
@@ -304,6 +400,7 @@
       this.view.removeEventListener('pointerdown', this._onFirstTouch);
     }
     if (this.frame !== null) this.view.cancelAnimationFrame(this.frame);
+    if (this._tweenFrame !== null) this.view.cancelAnimationFrame(this._tweenFrame);
     for (var i = 0; i < this.layers.length; i++) {
       var el = this.layers[i].el;
       if (el.parentNode) el.parentNode.removeChild(el);
