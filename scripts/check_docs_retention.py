@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 """Report per-version documentation that is due for archival. Advisory only.
 
-`docs/policy/docs-retention.md` says a minor version's `development/` subtree
-moves to `docs/archive/v<MAJOR>/v<MAJOR>.<MINOR>/development/` once that minor is
-two or more minors behind the current one. This reports drift against that rule
-and names the destination.
+`docs/policy/docs-retention.md` says a minor version's `development/history/`
+subtree moves to `docs/archive/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/`
+once that minor is two or more minors behind the current one. This reports drift
+against that rule and names the destination.
+
+Only `history/` ages out. See the AGING_SUBDIR comment below for why the rest of
+`development/` does not.
 
 It NEVER moves or deletes anything, and it ALWAYS exits 0. Archiving repairs
 references across the repo, so it belongs in a reviewed `docs-layout-refactor`
@@ -33,9 +36,14 @@ from pathlib import Path
 # docs/policy/docs-retention.md: two or more minors behind current.
 ARCHIVE_AFTER_MINORS = 2
 
-# Only `development/` ages out. plans/ and comparisons/ are linked from the
-# DEVLOG index and known-gaps.md is read forward by the next plan.
-AGING_SUBDIR = "development"
+# Only `development/history/` ages out, NOT `development/` wholesale. The v3.18.0
+# Phase 5 archive pass found that `development/` also holds live content: CI
+# fixtures under `fixtures/` and `worked-example/` that .github/workflows execute
+# directly, and contract documents under v3.15 that shipped hooks and tests cite
+# by path. Archiving those would break CI and orphan a shipped code citation.
+# plans/ and comparisons/ are linked from the DEVLOG index and known-gaps.md is
+# read forward by the next plan, so none of the three ages out.
+AGING_SUBDIR = "development/history"
 
 _VERSION_DIR = re.compile(r"^v(?P<major>\d+)\.(?P<minor>\d+)$")
 
@@ -100,7 +108,7 @@ def find_candidates(root: Path, current: tuple[int, int]) -> list[tuple[Path, st
             elif major > current_major:
                 continue  # a future version directory is planning, not history
 
-            source = minor_dir / AGING_SUBDIR
+            source = minor_dir / "development" / "history"
             if not source.is_dir():
                 continue
 

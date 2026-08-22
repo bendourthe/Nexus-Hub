@@ -65,12 +65,23 @@
 - **Why it is accepted**: a hard gate would block an unrelated release the moment a minor version aged out, which is a real cost preventing no harm, and archiving is a reference-repair operation that needs a confirmation gate. Recorded in the decision record's Consequences.
 - **Suggested disposition**: if the report turns out to be ignored in practice, the honest fix is a step in the release flow that requires an explicit decision, not a hard validator gate.
 
-### MT-1 - OPEN (carried): the first retention archive pass is outstanding
+### MT-1 - RESOLVED in Phase 5: the first retention archive pass is executed
 
-- **Target files**: `docs/v3/v3.0` through `docs/v3/v3.15` (`development/` subtrees only)
-- **What it is**: `scripts/check_docs_retention.py` reports **16 versions, 306 files** due for archival to `docs/archive/v3/v3.<MINOR>/development/`. This is the one-time backlog of having had no retention rule until now.
-- **Why it was not executed in Phase 5**: it moves 306 files and requires repairing inbound references from plans, the DEVLOG index, known-gaps files, and the CHANGELOG. The plan specifies propose-then-apply with confirmation, and this working copy sits on a OneDrive-synced drive where a partially-completed git operation has already corrupted a release tag once (v3.17.5) and aborted a `git stash -u` during this very plan's Phase 1. A 306-file move is exactly the operation that hazard punishes.
-- **Suggested disposition**: run it as its own change through `[[docs-layout-refactor]]`, on a checkout outside the synced tree if possible, with the link check re-run afterward. Nothing is broken while it waits.
+- **Target files**: `docs/v3/v3.0` through `docs/v3/v3.15` (`development/history/` only), `docs/archive/v3/`, 75 files of reference repair
+- **What it was**: `scripts/check_docs_retention.py` reported 16 versions due for archival, the one-time backlog of having had no retention rule.
+- **Resolution**: executed. 216 files moved from `docs/v3/v3.<MINOR>/development/history/` to `docs/archive/v3/v3.<MINOR>/development/history/`, one version at a time with a per-version file-count check. 75 files of inbound references repaired, including **54 rows of the DEVLOG index built in Phase 1** (its history links now point at the archive). Nine `development/` directories became empty and were removed. The checker now reports nothing due.
+- **What executing it changed about the policy**: see DF-4 below. The scope narrowed from `development/` to `development/history/`, and that narrowing is the most valuable thing the pass produced.
+
+### DF-4 - RESOLVED in Phase 5 (policy corrected): `development/` also holds live CI inputs and shipped-code citations
+
+- **Target files**: `docs/policy/docs-retention.md`, `scripts/check_docs_retention.py`, `tests/validators/test_check_docs_retention.py`, the decision record
+- **What was wrong**: the policy as authored in Phase 4 archived a version's whole `development/` subtree. Attempting that in Phase 5 found `development/` is not only working notes:
+  - `.github/workflows/presentify-extractor.yml` **executes** six Python scripts under `docs/v3/v3.12/development/fixtures/` and `docs/v3/v3.13/development/fixtures/`. Archiving them breaks CI outright.
+  - v3.15 holds eleven contract documents that shipped hooks (`_notify_common.sh` / `.ps1`, `notify-on-complete.*`, `notify-attention-required.*`) and tests cite by path in comments and skip messages.
+  - v3.9, v3.12, and v3.13 hold `worked-example/` trees with 68 non-Markdown files between them.
+- **How it surfaced**: building the inbound-reference index **before** moving anything, which the plan's propose-then-apply instruction requires. A grep for the moved paths returned 227 occurrences across 128 files, and reading them rather than counting them showed that some were CI `run:` steps and code comments rather than documentation links.
+- **Resolution**: the unit that ages out is now `development/history/`. The reason is stated in the policy (with a table naming each category and why it stays), in the checker's `AGING_SUBDIR` comment, in the decision record's Consequences, and in a dedicated test (`test_non_history_development_content_is_never_reported`), so it cannot be widened back by accident.
+- **Follow-on worth considering**: CI fixtures arguably do not belong in a version's docs directory at all. Relocating them to `tests/fixtures/` and the contract docs to `docs/policy/` is defensible, but it is a separate refactor with its own reference repair and its own risk of breaking CI, and a retention rule should not do it as a silent side effect.
 
 ### MT-2 - OPEN (suggestion): the DEVLOG line ceiling lives in a test constant, not in the budget policy
 
@@ -86,9 +97,9 @@
 | Category | Closed | Open |
 |---|---|---|
 | Bugs (`BG-#`) | 2 (BG-1, BG-2) | 0 |
-| Deferred / design (`DF-#`) | 0 | 3 (DF-1 accepted, DF-2 and DF-3 deferred with dispositions) |
+| Deferred / design (`DF-#`) | 1 (DF-4, policy corrected in Phase 5) | 3 (DF-1 accepted, DF-2 and DF-3 deferred with dispositions) |
 | Warnings (`WN-#`) | 0 | 2 (WN-1 pre-existing, WN-2 accepted by design) |
-| Maintenance (`MT-#`) | 0 | 2 (MT-1 archive pass carried, MT-2 suggestion) |
+| Maintenance (`MT-#`) | 1 (MT-1, archive pass executed) | 1 (MT-2 suggestion) |
 | Ingested from v3.17 | 1 (MT-1 AGENTS.md budget share, resolved in Phase 3) | 0 |
 
 **Release blockers: 0.** Every open item is either accepted by design with its reasoning recorded, pre-existing and out of this plan's scope, or a carried follow-on that breaks nothing while it waits.

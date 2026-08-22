@@ -18,17 +18,27 @@ Nothing is rewritten, merged, or summarized at this step. "Consolidate" means co
 
 ### 3. ARCHIVE at two minors behind
 
-When a minor version falls **two or more minors behind the current one**, its `development/` subtree moves to:
+When a minor version falls **two or more minors behind the current one**, its `development/history/` subtree moves to:
 
 ```text
-docs/archive/v<MAJOR>/v<MAJOR>.<MINOR>/development/
+docs/archive/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/
 ```
 
 This is the canonical archive layout that [`docs-layout-refactor`](../../catalog/skills/code-cleanup/docs-layout-refactor/SKILL.md) already owns and that `docs/archive/v0/`, `docs/archive/v1/`, and `docs/archive/v2/` already use. Files move, references are repaired, and **nothing is deleted**.
 
 Two minors is the threshold because it keeps the previous release's history reachable without a directory change while the current one is still stabilizing. At v3.17, that makes v3.15 and older archivable and leaves v3.16 and v3.17 in place.
 
-`plans/`, `comparisons/`, and `known-gaps.md` are **not** swept by this rule. A plan is the durable statement of intent for its release and is linked from the DEVLOG index; a known-gaps file is read by the next plan to decide what carries forward. Only `development/`, which holds per-phase working notes, ages out.
+**Only `history/` ages out, not `development/` wholesale.** The first archive pass (v3.18.0 Phase 5) discovered why this distinction is load-bearing: `development/` in this repository also holds live content.
+
+| Also under `development/` | Why it stays |
+|---|---|
+| `fixtures/`, `worked-example/` (v3.9, v3.12, v3.13) | `.github/workflows/presentify-extractor.yml` **executes** six of these Python scripts directly. Archiving them breaks CI. |
+| Contract documents (v3.15) | Shipped hooks (`_notify_common.sh` / `.ps1`, `notify-on-complete.*`) and tests cite them by path in comments and skip messages. |
+| One-off design notes (v3.4, v3.7, v3.11) | Small, still referenced, and not the growth problem this policy exists to solve. |
+
+A blanket `development/` rule would have archived live CI inputs and orphaned a shipped code citation. If that content should not live in a version's docs directory at all, that is a separate refactor with its own reference repair, not something a retention rule should do silently.
+
+`plans/`, `comparisons/`, and `known-gaps.md` are likewise **not** swept. A plan is the durable statement of intent for its release and is linked from the DEVLOG index; a known-gaps file is read by the next plan to decide what carries forward.
 
 ### 4. EXEMPT - the non-versioned subtrees
 

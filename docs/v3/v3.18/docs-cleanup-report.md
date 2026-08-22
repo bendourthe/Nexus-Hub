@@ -9,7 +9,7 @@
 | Category | Count |
 |---|---|
 | Cat 1 (delete) | 0 |
-| Cat 2 (archive) | 0 in scope; **306 files across 16 versions** flagged repo-wide, deferred |
+| Cat 2 (archive) | 0 in scope; **216 files across 16 versions** archived repo-wide (executed) |
 | Cat 3 (stale-flag) | 0 |
 | Cat 4 (active) | 9 |
 | **Total in scope** | **9** |
@@ -41,17 +41,35 @@ docs retention: 16 version(s) due for archival (current v3.17, threshold 2 minor
   v3.12 (53)  v3.13 (30)  v3.14 (29)  v3.15 (91)
 ```
 
-306 files, all `development/` subtrees, destined for `docs/archive/v3/v3.<MINOR>/development/`. `plans/`, `comparisons/`, and `known-gaps.md` are exempt and stay in the active tree.
+That first report counted 306 files across whole `development/` subtrees. The pass that followed moved **216** of them: only the `history/` subtrees, for the reason in the next paragraph. `plans/`, `comparisons/`, and `known-gaps.md` are exempt and stay in the active tree.
 
-**Deferred, not skipped.** Recorded as `MT-1` in `docs/v3/v3.18/known-gaps.md`. Three reasons:
+**Executed in Phase 5.** 216 files moved (the `history/` subtrees only, see below), one version at a time with a per-version file-count check, plus 75 files of inbound reference repair. The checker now reports nothing due.
 
-1. It is a 306-file move requiring reference repair across plans, the DEVLOG index, known-gaps files, and the CHANGELOG. The policy specifies propose-then-apply through `[[docs-layout-refactor]]`, which is a reviewed pass, not a step inside another phase.
-2. This working copy is on a OneDrive-synced drive where a partially-completed git operation has already corrupted a release tag (v3.17.5) and aborted a `git stash -u` during this plan's own Phase 1. A 306-file move is precisely the operation that hazard punishes.
-3. Nothing is broken while it waits. The retention rule is advisory by design, and the backlog is the one-time cost of having had no rule until now, not a regression introduced here.
+**The pass narrowed the rule.** The policy as authored in Phase 4 archived a version's whole `development/` subtree. Building the inbound-reference index before moving anything (227 occurrences across 128 files) showed that some references were CI `run:` steps and shipped-code comments rather than documentation links:
+
+| Content that stayed | Why |
+|---|---|
+| `docs/v3/v3.12/development/fixtures/`, `docs/v3/v3.13/development/fixtures/` | `.github/workflows/presentify-extractor.yml` **executes** six of these Python scripts |
+| `docs/v3/v3.15/development/*.md` (11 contract docs) | Shipped hooks and tests cite them by path |
+| `docs/v3/v3.9,v3.12,v3.13/development/worked-example/` | 68 non-Markdown files, referenced by the fixtures above |
+| One-off design notes in v3.4, v3.7, v3.11 | Small, still referenced, not the growth problem |
+
+Recorded as `DF-4` (resolved) in `docs/v3/v3.18/known-gaps.md`. A blanket rule would have broken CI and orphaned a shipped code citation.
+
+**Reference repair, by artifact:**
+
+| Repaired | Files |
+|---|---|
+| `docs/DEVLOG.md` (54 rows, the index built in Phase 1) | 1 |
+| Session histories inside the moved trees (self-references) | ~60 |
+| Plans, known-gaps, and the DEVLOG archive | ~14 |
+| **Total** | **75** |
+
+Nine `development/` directories became empty once their `history/` left and were removed. No empty directory remains in the tracked tree.
 
 ## Layout observations
 
-- **No empty directories remain in the tracked tree.** One was removed in Phase 5: `Microsoft/Windows/PowerShell`, created as a side effect of the installer and hook suites invoking `powershell.exe` with the repo as CWD. Git does not track empty directories, so it never appeared in `git status` while still being real enough to abort a `git stash -u`. It is now in `.gitignore` so a run that does leave a file there cannot commit it.
+- **No empty directories remain in the tracked tree.** Ten were removed in Phase 5: the nine `development/` directories emptied by the archive pass, plus `Microsoft/Windows/PowerShell`, created as a side effect of the installer and hook suites invoking `powershell.exe` with the repo as CWD. Git does not track empty directories, so that last one never appeared in `git status` while still being real enough to abort a `git stash -u`. It is now in `.gitignore` so a run that does leave a file there cannot commit it.
 - **No duplicate or orphan documentation** was found in scope. The two files created by this version's relocations (`guides/reference/SKILL_BUNDLED_RESOURCES.md`, `docs/policy/model-routing-in-plan-and-implement.md`) are each linked from `AGENTS.md`, and `docs/policy/docs-retention.md` is linked from `AGENTS.md` plus three skills.
 - **`docs/archive/DEVLOG-v0-v3.17.md`** is a new archive artifact at the `docs/archive/` root rather than under a version directory. That is deliberate: it spans v0.1.0 through v3.17.6 and belongs to no single version. It is linked from both `docs/DEVLOG.md` and `README.md`.
 - **The remaining non-versioned subtrees** (`docs/policy/`, `docs/decisions/`, `docs/solutions/`, `docs/incidents/`, `docs/specs/`, `docs/git/`, `docs/security/`) are explicitly exempt from version-based archival by the new policy, so their growth is governed by their own lifecycles rather than left undefined.

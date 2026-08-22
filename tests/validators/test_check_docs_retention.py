@@ -1,7 +1,9 @@
 """Tests for scripts/check_docs_retention.py (v3.18.0 Phase 4).
 
-The checker reports per-version `development/` subtrees that are two or more
-minors behind the current version and not yet archived.
+The checker reports per-version `development/history/` subtrees that are two or
+more minors behind the current version and not yet archived. Only `history/` ages
+out: the v3.18.0 Phase 5 archive pass found that `development/` also holds CI
+fixtures a workflow executes and contract documents shipped hooks cite by path.
 
 Two properties carry the weight here. It must **always exit 0**, on every path
 including an absent tree and an unreadable version directory, because it is wired
@@ -58,8 +60,8 @@ def test_old_version_is_reported(tmp_path: Path) -> None:
 
     assert proc.returncode == 0, proc.stderr
     assert "WARN" in proc.stdout, proc.stdout
-    assert "docs/v3/v3.15/development" in proc.stdout
-    assert "docs/archive/v3/v3.15/development/" in proc.stdout, (
+    assert "docs/v3/v3.15/development/history" in proc.stdout
+    assert "docs/archive/v3/v3.15/development/history/" in proc.stdout, (
         "the report must name the exact destination, or the reader has to derive it"
     )
 
@@ -81,14 +83,14 @@ def test_threshold_boundary_is_exactly_two_minors(tmp_path: Path) -> None:
 
     proc = _run(root)
 
-    assert "v3.15/development" in proc.stdout
-    assert "v3.16/development" not in proc.stdout
+    assert "v3.15/development/history" in proc.stdout
+    assert "v3.16/development/history" not in proc.stdout
 
 
 def test_already_archived_version_is_not_reported(tmp_path: Path) -> None:
     """The report is about work outstanding, not about history that exists."""
     root = _make_repo(tmp_path, "3.17.6", ["v3.15"])
-    (root / "docs" / "archive" / "v3" / "v3.15" / "development").mkdir(parents=True)
+    (root / "docs" / "archive" / "v3" / "v3.15" / "development" / "history").mkdir(parents=True)
 
     proc = _run(root)
 
@@ -102,8 +104,8 @@ def test_older_major_is_reported_entirely(tmp_path: Path) -> None:
 
     proc = _run(root)
 
-    assert "docs/v2/v2.4/development" in proc.stdout
-    assert "docs/archive/v2/v2.4/development/" in proc.stdout
+    assert "docs/v2/v2.4/development/history" in proc.stdout
+    assert "docs/archive/v2/v2.4/development/history/" in proc.stdout
 
 
 def test_future_version_directory_is_not_reported(tmp_path: Path) -> None:
@@ -194,4 +196,30 @@ def test_version_parsing_tolerates_suffixes(tmp_path: Path, version: str) -> Non
     proc = _run(root)
 
     assert proc.returncode == 0, proc.stderr
-    assert "v3.10/development" in proc.stdout
+    assert "v3.10/development/history" in proc.stdout
+
+
+def test_non_history_development_content_is_never_reported(tmp_path: Path) -> None:
+    """The distinction the first archive pass forced.
+
+    `development/` also holds CI fixtures a workflow executes and contract
+    documents shipped hooks cite by path. A blanket rule would archive live
+    inputs, so only `history/` ages out.
+    """
+    root = _make_repo(tmp_path, "3.17.6", [])
+    for sub in ("fixtures", "worked-example"):
+        d = root / "docs" / "v3" / "v3.12" / "development" / sub
+        d.mkdir(parents=True)
+        (d / "gen_fixtures.py").write_text("print('ci runs me')\n", encoding="utf-8")
+    (root / "docs" / "v3" / "v3.12" / "development" / "a-contract.md").write_text(
+        "# contract\n", encoding="utf-8"
+    )
+
+    proc = _run(root)
+
+    assert proc.returncode == 0, proc.stderr
+    assert "WARN" not in proc.stdout, (
+        "only development/history/ ages out; fixtures, worked examples, and "
+        "contract docs are live content"
+    )
+

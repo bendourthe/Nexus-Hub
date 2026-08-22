@@ -215,7 +215,7 @@ No constitution file found at `docs/v3/v3.4/constitution.md` - skipping check. R
 - [x] `.sh`/`.py` helpers all have `.ps1` siblings with identical behavior (verified across all four sources + topic/time-window filtering; PS `ConvertFrom-Json` single-element-array unrolling handled so ChatGPT `parts` parse matches Python)
 - [x] `make validate` / `make lint` / `make test` green via direct equivalents per WN-v33-1 (orphan-bundle PASS 0 errors; unicode/personal-paths/supply-chain/workflow-security clean; version-sync match; `bash -n` + PowerShell AST parse clean; repo suite 452 passed; hook suite 439 passed / 7 skipped; `test_session_query_extract.py` 26 passed; skill-security scan install-OK)
 - [x] SKILL.md + CHANGELOG updated (149-line SKILL.md, ASCII-only; `[Unreleased]` "Added" entry recording re-full / zero-outbound)
-- [x] No known regressions; session history generated (`docs/v3/v3.4/development/history/2026-06-15_adoption-nessie-and-agency-agents-phase-3-session-query-obsidian-chatgpt-gemini.md`)
+- [x] No known regressions; session history generated (`docs/archive/v3/v3.4/development/history/2026-06-15_adoption-nessie-and-agency-agents-phase-3-session-query-obsidian-chatgpt-gemini.md`)
 - [x] Ready to advance to Phase 4
 
 ---
@@ -327,7 +327,7 @@ No constitution file found at `docs/v3/v3.4/constitution.md` - skipping check. R
 - [x] "Success Metrics" / "Deliverable Template" sections added in the terse verification-first style; no persona/vibe content (all added lines are observable metrics or a literal report template; ASCII-only)
 - [x] `make validate` green (or direct equivalents per WN-v33-1: unicode-safety/no-personal-paths/workflow-security/supply-chain all exit 0; JSON integrity 256 skills / 15 bundles; orphan-bundle PASS; version-sync match 3.3.4; the three edited files ASCII-clean, all 14 `--strict` em-dash flags pre-existing)
 - [x] CHANGELOG updated (`[Unreleased]` "Changed" entry; skill-native, zero new outbound call / dependency / credential)
-- [x] No known regressions; session history generated (`docs/v3/v3.4/development/history/2026-06-15_adoption-nessie-and-agency-agents-phase-5-agent-body-enrichment.md`)
+- [x] No known regressions; session history generated (`docs/archive/v3/v3.4/development/history/2026-06-15_adoption-nessie-and-agency-agents-phase-5-agent-body-enrichment.md`)
 - [ ] Release readiness run via `/update release` (final phase)
 
 ---
