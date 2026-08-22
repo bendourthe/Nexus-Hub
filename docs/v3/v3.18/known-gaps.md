@@ -241,14 +241,15 @@ Every item raised during v3.18.0 is closed: five fixed in code, three closed by 
 
 ## v3.18.3 - presentify-slide-navigation
 
-**Status**: Phase 1 of 5 implemented on `feat/presentify-slide-navigation`. Every Phase 1 gate is green (full validate, trigger evals, 1043 targeted tests). **No release blockers from this phase.**
+**Status**: Phases 1-2 of 5 implemented on `feat/presentify-slide-navigation`. Every gate is green (full validate, trigger evals, 1043 targeted tests, and Phase 2's 42-check headless keyboard walkthrough). **No release blockers from these phases.**
 
-### DF-1 - DEFERRED to Phase 2 by plan instruction: the Step 6 slide-navigation pointer
+### DF-1 - RESOLVED in Phase 2: the Step 6 slide-navigation pointer
 
 - **Target files**: `catalog/skills/specialized-domains/document-to-interactive-html/SKILL.md` (Step 6), `catalog/skills/specialized-domains/document-to-interactive-html/references/slide-navigation.md` (Phase 2 creates it)
 - **What is deferred**: sub-task 1.2 item 4 asks Step 6 to point at `references/slide-navigation.md`. Phase 1 shipped alone, so the pointer was not written, per the plan's own instruction not to ship a dangling reference.
 - **Why it matters**: `make validate` runs an orphan-bundle audit over per-skill bundled resources. A pointer to a file that does not exist yet is the failure mode the deferral avoids, and the repo has already paid for one post-release dangling-reference sweep.
 - **Closes when**: Phase 2 creates the reference file and adds the pointer in the same commit.
+- **Resolution (2026-08-22)**: Phase 2 shipped `references/slide-navigation.md` (132 lines, all eight rule areas binary) and the Step 6 Navigation-mode bullet pointing at it in the same commit. The orphan-bundle audit passes (0 errors over 273 skills) and the prose mention in the command is now accurate.
 - **Note**: `catalog/commands/presentify.md` does carry a forward-looking PROSE mention ("following its own slide-navigation reference"), which sub-task 1.1 item 4 explicitly asked for. It names no path, so no audit or link checker can trip on it. It becomes accurate when Phase 2 lands.
 
 ### WN-1 - Registry text must be derived, not retyped
@@ -258,6 +259,11 @@ Every item raised during v3.18.0 is closed: five fixed in code, three closed by 
 - **Why it is recorded rather than dismissed**: the same hand-sync is required in Phase 3 and Phase 4 if either touches a description, and the failure is silent until the gate runs. The fix is to copy the frontmatter value programmatically rather than retype the sentence.
 - **Disposition**: not a defect and not a blocker. A process note for the remaining phases of this plan.
 
+### Phase 2 notes (2026-08-22)
+
+- The contract was proven implementable before shipping: a hand-authored five-slide sample passed a 42-check headless walkthrough (keyboard map, fragment order and idempotence, deep links with clamp/fallback branches, browser-back history, focus and live-region behavior, reduced-motion cuts, and the no-JS stacked fallback).
+- One capture-protocol fact for Phase 4: a screenshot taken mid-transition shows two slides painted together while the state is correct. The Phase 4 capture protocol must wait for transition settle (or force reduced motion) before grading, or every slide-mode run will file a phantom double-slide defect.
+
 ### Release blockers
 
-**None from Phase 1.** The phase changes only documentation surfaces the installers already copy recursively, adds no catalog artifact, and leaves `data/marketplace.json` counts and the 273-skill total unchanged.
+**None from Phases 1-2.** The phase changes only documentation surfaces the installers already copy recursively, adds no catalog artifact, and leaves `data/marketplace.json` counts and the 273-skill total unchanged.

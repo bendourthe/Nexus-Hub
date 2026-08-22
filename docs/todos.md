@@ -18,7 +18,7 @@
 | Phase 7 tasks complete | 4 | 4 | 0 |
 | v3.19.0 CI/CD plan phases complete | 0 | 8 | 8 |
 | v3.16.1 planning milestones complete | 2 | 2 | 0 |
-| v3.18.3 presentify slide-navigation phases complete | 1 | 5 | 4 |
+| v3.18.3 presentify slide-navigation phases complete | 2 | 5 | 3 |
 | v3.16.1 plan phases complete | 8 | 8 | 0 |
 | Local release integration | 1 | 1 | 0 |
 | Release metadata and docs | 1 | 1 | 0 |
@@ -252,7 +252,7 @@
 ## Plan - v3.18.3 Presentify Slide Navigation
 
 - [x] Complete Phase 1: Navigation-mode intake and contract wiring (`--nav <scroll|slides>`, merged canvas-and-navigation Round 1 question, registries in sync; all gates green)
-- [ ] Complete Phase 2: Slide-mode authoring contract (`references/slide-navigation.md`, plus the Step 6 pointer deferred from Phase 1)
+- [x] Complete Phase 2: Slide-mode authoring contract (`references/slide-navigation.md` at 132 lines, Step 6 Navigation-mode bullet, DF-1 closed; 42-check headless walkthrough green)
 - [ ] Complete Phase 3: Animation adaptation grammar (entry-triggered, fragment-stepped, permanent ambient; scroll-scrub mapped onto fragments)
 - [ ] Complete Phase 4: QA loop and structural scorer support (per-slide fit, fragment-state capture, no scroll-keyed listeners in slide mode)
 - [ ] Complete Phase 5: Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
