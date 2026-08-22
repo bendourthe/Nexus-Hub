@@ -38,10 +38,16 @@ const {
   breakdownByRepository,
   classifySku,
   computeCandidates,
+  computeDrawdownMinutes,
   inventorySkus,
   reconcile,
+  resolveLinuxReferenceRate,
   RECONCILIATION_TOLERANCE
 } = require("../out/providers/drawdown.js");
+const {
+  classifyObservation,
+  DISCRIMINATING_NON_LINUX_SHARE
+} = require("../out/providers/reconciliation.js");
 const { createHash } = require("node:crypto");
 
 const TOKEN_VAR = "GITHUB_BILLING_PROBE_TOKEN";
@@ -476,6 +482,8 @@ async function main() {
     );
   }
 
+  printLedgerRow(args, year, month, items, visibility);
+
   const winners = verdicts.filter((verdict) => verdict.reconciles && verdict.candidate !== "grossMinutes");
   console.log("");
   if (winners.length === 0) {
@@ -488,6 +496,86 @@ async function main() {
     console.log("numbers before promoting the candidate to product behavior.");
   }
   return 0;
+}
+
+/**
+ * Print the derived mechanism and one ledger row in the exact format of
+ * `docs/v3/v3.18/development/github-drawdown-ledger.md`.
+ *
+ * The mechanism is printed alongside the row on purpose. A ledger entry that shows
+ * only the verdict is an assertion; one that shows the reference rate it was
+ * expressed against and the per-item weights that produced it is checkable, which is
+ * the whole point of keeping a ledger rather than a commit message.
+ */
+function printLedgerRow(args, year, month, items, visibility) {
+  const label = args.revealRepos ? (name) => name : (name) => shortHash(name);
+  const reference = resolveLinuxReferenceRate(items);
+  const drawdown = computeDrawdownMinutes(items, visibility);
+
+  console.log("\n--- Derived weighting (the mechanism, not a table) ---");
+  console.log(
+    `  Standard Linux reference rate: $${reference.rate} per minute (${reference.source})`
+  );
+  if (reference.source === "published-fallback") {
+    console.log("  No standard Linux item was observed in this period, so the published rate");
+    console.log("  was used as the denominator. Weights below are correspondingly less certain.");
+  }
+  const seen = new Map();
+  const mix = { linux: 0, windows: 0, macos: 0 };
+  for (const item of items) {
+    if (!/actions/i.test(String(item.product ?? "")) || !/minute/i.test(String(item.unitType ?? ""))) continue;
+    const runner = classifySku(String(item.sku ?? ""));
+    if (runner.githubHosted !== true || runner.standard !== true || runner.os === "unknown") continue;
+    if (item.repositoryName === null || visibility[item.repositoryName] !== "private") continue;
+    const price = item.pricePerUnit;
+    if (typeof price !== "number" || !Number.isFinite(price) || price <= 0) continue;
+    const weight = price / reference.rate;
+    seen.set(item.sku, weight);
+    mix[runner.os] += item.quantity * weight;
+  }
+  for (const [sku, weight] of [...seen.entries()].sort((left, right) => left[1] - right[1])) {
+    console.log(`  ${String(sku).padEnd(32)} weight ${weight.toFixed(4)}`);
+  }
+  if (seen.size === 0) {
+    console.log("  No qualifying private-repository item carried a usable price.");
+  }
+
+  const allowance = args.displayedAllowance;
+  const displayed = args.displayedMinutes;
+  if (allowance === null || displayed === null || drawdown.minutes === null) {
+    console.log("\n  No ledger row: a row needs --displayed-minutes, --displayed-allowance, and a");
+    console.log("  complete reconstruction. Re-run with those to record this month as evidence.");
+    return;
+  }
+
+  const saturated = displayed >= allowance;
+  const classification = classifyObservation({
+    month: `${year}-${String(month).padStart(2, "0")}`,
+    displayedValue: displayed,
+    displayedIsSaturated: saturated,
+    allowance,
+    predicted: drawdown.minutes,
+    mixByOs: mix
+  });
+
+  console.log(`\n--- Ledger row (paste into docs/v3/v3.18/development/github-drawdown-ledger.md) ---`);
+  console.log(
+    `| ${year}-${String(month).padStart(2, "0")} ` +
+    `| ${drawdown.minutes.toFixed(0)} ` +
+    `| ${displayed.toFixed(0)} ` +
+    `| ${saturated ? "yes" : "no"} ` +
+    `| ${mix.linux.toFixed(0)} / ${mix.windows.toFixed(0)} / ${mix.macos.toFixed(0)} ` +
+    `| ${(classification.nonLinuxShare * 100).toFixed(1)}% ` +
+    `| ${classification.verdict} ` +
+    `| ${new Date().toISOString().slice(0, 10)}, reconcile-drawdown.js |`
+  );
+  console.log(`  ${classification.reason}`);
+  if (classification.verdict === "non-discriminating" && classification.nonLinuxShare < DISCRIMINATING_NON_LINUX_SHARE) {
+    console.log("  Do NOT record this month as agreement. It agrees with every candidate.");
+  }
+  if (!args.revealRepos) {
+    console.log(`  Repository names in this run were hashed (e.g. ${label("example")}); pass --reveal-repos to show them.`);
+  }
 }
 
 main()

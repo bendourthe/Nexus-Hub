@@ -80,6 +80,17 @@ export interface SkuUsageBreakdown extends MoneyBreakdown {
    * between 1,287 reported minutes and the ~121 GitHub actually counts.
    */
   repositoryName: string | null;
+  /**
+   * List price per unit for this line item, in USD.
+   *
+   * Present only on the plain `/settings/billing/usage` endpoint; `/usage/summary`
+   * omits it, and a snapshot cached by 0.3.x predates the field entirely. `null`
+   * therefore means UNKNOWN and never zero. The distinction is load-bearing: the
+   * drawdown derives each item's weight from this value relative to the standard
+   * Linux rate, so treating an absent price as 0 would silently drop the item from
+   * the drawdown instead of marking the reconstruction incomplete.
+   */
+  pricePerUnit: number | null;
 }
 
 export interface ResetInfo {
@@ -98,8 +109,9 @@ export interface UsageMetric extends MoneyBreakdown {
    * established. This is the numerator of any percentage - never `used`.
    *
    * For Actions minutes it is reconstructed: private-repository, GitHub-hosted,
-   * standard-runner minutes, weighted per runner OS. On the account this was
-   * measured against, `used` was 1,287 while the drawdown was about 121.
+   * standard-runner minutes, each weighted by its own list price relative to the
+   * standard Linux rate observed in the same payload. On the account this was
+   * measured against, `used` was 1,287 while the drawdown was about 127.
    */
   drawdown: number | null;
   drawdownBasis: DrawdownBasis;
@@ -112,6 +124,36 @@ export interface UsageMetric extends MoneyBreakdown {
   breakdowns: SkuUsageBreakdown[];
 }
 
+/**
+ * What the Actions drawdown was reconstructed FROM, so the panel can show its work.
+ *
+ * Optional on `UsageSnapshot`: a snapshot cached before 0.4.0 has none, and the
+ * panel must render without it rather than throwing on an upgrade.
+ */
+export interface ActionsDrawdownDetail {
+  /** Per-repository contributions, sorted by weighted minutes descending. */
+  repositories: Array<{
+    repositoryName: string;
+    visibility: "public" | "private" | "unknown";
+    rawMinutes: number;
+    weightedMinutes: number;
+  }>;
+  /** The standard-Linux denominator every weight was expressed against, in USD per minute. */
+  linuxReferenceRate: number;
+  /** Whether that rate was observed in this period or fell back to the published constant. */
+  linuxRateSource: "observed" | "published-fallback";
+  /** Repositories or SKUs excluded because they could not be classified or priced. */
+  unresolved: string[];
+  /**
+   * The DENOMINATOR's provenance sentence, resolved at enrichment time.
+   *
+   * Carried on the snapshot rather than recomputed in the panel because it depends
+   * on the account's plan name, which the panel does not have and should not need
+   * a second channel to obtain.
+   */
+  allowanceProvenance: string;
+}
+
 export interface UsageSnapshot {
   owner: BillingOwner;
   periodStart: number;
@@ -122,6 +164,8 @@ export interface UsageSnapshot {
   copilot: UsageMetric;
   actionsMinutes: UsageMetric;
   actionsStorage: UsageMetric;
+  /** Present from 0.4.0 onward; absent on a snapshot cached by an earlier version. */
+  actionsDrawdownDetail?: ActionsDrawdownDetail;
 }
 
 export type ProviderErrorCode =

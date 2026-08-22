@@ -541,20 +541,10 @@ async function maybeShowAlert(snapshot: UsageSnapshot, store: UsageStore, warnin
   const suggestion = buildUsageSuggestion(snapshot, config.get<AlertMetric>("alertMetric", "highest"), thresholds);
   if (!crossedUnnotifiedThreshold(suggestion, store.getAlertCycle()?.notifiedThresholds ?? []) || suggestion === null) return;
   await store.markThresholdNotified(suggestion.bucket);
-  let dismissed = false;
-  const dismiss = (): void => { dismissed = true; };
-  await warning.show(suggestion, { onOpenDashboard: showDashboard, onDismiss: dismiss });
-  const timeout = config.get<number>("notificationTimeoutSeconds", 12) * 1000;
-  const timeoutHandle = scheduleWarningDismissal(timeout, () => { if (!dismissed) void warning.dismiss(); });
-  void vscode.window.showWarningMessage(suggestion.message, "Open Dashboard", "Dismiss").then((action) => {
-    clearTimeout(timeoutHandle);
-    if (action === "Open Dashboard") showDashboard();
-    if (!dismissed) void warning.dismiss();
-  });
-}
-
-export function scheduleWarningDismissal(timeoutMs: number, onTimeout: () => void): ReturnType<typeof setTimeout> {
-  return setTimeout(onTimeout, timeoutMs);
+  // One surface only. A native toast alongside the styled webview competed with
+  // it and won, and the auto-dismiss timer that the toast's handler cleared took
+  // the panel down with it. The other three monitors reveal the webview alone.
+  await warning.show(suggestion, { onOpenDashboard: showDashboard, onDismiss: () => {} });
 }
 
 function scheduleRefresh(refresh: () => Promise<void>, retryAt?: number): void {

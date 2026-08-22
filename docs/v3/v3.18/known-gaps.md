@@ -1,8 +1,8 @@
 # Known Gaps - v3.18
 
 **Project**: Nexus-Hub
-**Status**: v3.18.0 (`docs-lifecycle-retention`) Phases 1-5 implemented on `feat/docs-lifecycle-retention` and pushed; release handed to `/update release`. Fully reconciled 2026-08-21: **every item closed, zero open, zero release blockers**.
-**Last updated**: 2026-08-21 (post-push gap closure: WN-1 and DF-2 fixed, DF-1 / DF-3 / WN-2 / MT-2 closed by recorded decision, BG-3 added and fixed)
+**Status**: v3.18.0 (`docs-lifecycle-retention`) released. v3.18.1 (`github-usage-monitor-accuracy`) Phases 1-6 implemented on `feat/v3.18.1-github-usage-monitor-accuracy`. **Zero release blockers across both.**
+**Last updated**: 2026-08-22 (v3.18.1 section appended: BG-1 and QG-1 closed in implementation; NI-1 / NI-2 open by design; DF-1 and MT-1 out of scope)
 
 > **File-lifecycle note**: this ledger is opened by the v3.18.0 Phase 5 reconciliation. Each subsequent v3.18.N implementation appends its own `## v3.18.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `MT-#` / `QG-#` numbering.
 
@@ -122,3 +122,67 @@
 Every item raised during v3.18.0 is closed: five fixed in code, three closed by an explicit recorded decision, and one policy corrected by attempting to execute it. Two of the fixes (`WN-1`, `BG-3`) are defects the plan never anticipated, and both were found by verifying a result rather than by reading code.
 
 **Release blockers: 0.** Every open item is either accepted by design with its reasoning recorded, pre-existing and out of this plan's scope, or a carried follow-on that breaks nothing while it waits.
+
+---
+
+## v3.18.1 - github-usage-monitor-accuracy
+
+**Status**: Phases 1-6 implemented on `feat/v3.18.1-github-usage-monitor-accuracy`. Extension at 0.4.0. Three reported defects fixed, the weight table removed as a behavioral input, and the residual uncertainty converted from an argument into a falsifier with a ledger behind it.
+
+**Prior-version ingest**: checked `docs/v3/v3.16/known-gaps.md` and `docs/v3/v3.17/known-gaps.md`. **v3.16 NI-2** (the drawdown weights cannot be verified) is **superseded here** and marked so in that ledger: the constants it described no longer exist, though the underlying uncertainty carries forward as NI-1 below. **v3.16 NI-4** (self-hosted and larger-runner exclusion rules are tested against invented SKU strings only) remains open and unchanged - this release did not acquire a real inventory for either, and it now matters slightly more, because an excluded runner that should have been included is a hole in a weighted figure rather than an unweighted one. No other prior item is in this plan's scope.
+
+### NI-1 - OPEN by design: price ratios and the legacy multipliers cannot be separated by any saturated month
+
+- **Target files**: `extensions/github-usage-monitor/src/providers/drawdown.ts`, `docs/v3/v3.18/development/github-drawdown-ledger.md`
+- **What is unresolved**: the shipped model weights by current price ratios (Windows 1.67x, macOS 10.33x). The legacy published multipliers (2x, 10x) fit the same data, differing by about 0.3% of the weighted total. Every month observed on the measured account is either **saturated** (so it reports only "at least the allowance" and cannot choose between two models that both predict above the cap) or **Linux-dominated** (so every candidate yields the same answer within tolerance). The data does not distinguish them.
+- **Decision**: ship the derived ratios, because the mechanism tracks GitHub's price changes and a hardcoded snapshot demonstrably does not - this number was revised three times for exactly that reason. This is a bet on the mechanism's stability, not a claim that the evidence separates the candidates, and the decision record says so in its Consequences.
+- **Disposition**: `docs/v3/v3.18/development/github-drawdown-ledger.md` states the falsifier - an unsaturated month whose non-Linux share exceeds 15% and whose displayed value matches unweighted raw minutes - and `src/providers/reconciliation.ts` refuses to classify a saturated or Linux-dominated month as support. A fourth revision has to produce a discriminating month rather than an argument.
+
+### NI-2 - OPEN by design: the included allowance is still plan-table-derived
+
+- **Target file**: `extensions/github-usage-monitor/src/providers/planEntitlements.ts`
+- **What is unresolved**: no billing endpoint returns the included allowance. The legacy product-specific endpoints that served `included_minutes` closed down in September 2025 and return 404/410; `/settings/billing/usage` returns consumption only. The denominator therefore comes from a published plan table (2,000 minutes, 0.5 GB on Free) that nothing on the account confirms.
+- **Decision**: keep the plan table with the existing manual override as the correction path, and label the denominator's provenance in the panel, which Phase 4 now does as a separate sentence from the numerator's.
+- **Why not scraped**: `github.com/settings/billing` requires a browser session cookie, and the extension holds an OAuth Bearer token, so the page is unreachable with the credential it has. It is also undocumented with no stability contract. Recorded as a rejected alternative in the decision record rather than left as an open idea.
+
+### DF-1 - DEFERRED: a repository whose visibility cannot be read is excluded, and the whole figure goes unknown
+
+- **Target files**: `extensions/github-usage-monitor/src/providers/repositories.ts`, `src/providers/drawdown.ts`
+- **What is deferred**: a token without the `repo` scope cannot see private repositories, which are exactly the ones that draw down. The existing behavior is to name the unresolved repositories and report the drawdown as unknown rather than returning a partial sum, and Phase 4 now renders that group in the panel with the explanation. What is **not** built is a prompt that offers to re-authorize with the missing scope at the moment the gap is detected.
+- **Why deferred**: it is an authorization-flow change, not an accuracy change, and this plan's scope boundary is the drawdown model plus two documents. Adding a scope-escalation prompt on the refresh path is the kind of adjacent work the Boundaries rule declines.
+- **Suggested next step**: surface it from the existing reconnect offer rather than adding a new prompt surface.
+
+### MT-1 - OPEN, pre-existing and out of scope: v3.16 development history is due for archival
+
+- **Target path**: `docs/v3/v3.16/development/history` (39 files)
+- **What is open**: `scripts/check_docs_retention.py` reports this directory as due for archival under the v3.18.0 retention policy (current minor v3.18, two-minor threshold). The check is advisory and always exits 0.
+- **Why not done here**: it is unrelated to this plan, and Phase 6.1 forbids refactoring outside plan scope. A 39-file move belongs in its own change with its own reference-repair pass, which is the lesson the v3.18.0 archive pass recorded when a comparable move turned up 227 inbound references including six that CI executes directly.
+- **Suggested next step**: run the archive pass through `/update refactor` or the `docs-layout-refactor` skill as its own change.
+
+### QG-1 - CLOSED in implementation: the cross-extension parity test was verified to fail, not just to pass
+
+- **Target file**: `extensions/github-usage-monitor/test/warning-parity.test.ts`
+- **What could have shipped**: a source-text parity test is trivially fail-open. If the pattern locating the alert path stops matching after a rename, the test passes while asserting nothing - which is the same class of defect as the fail-open validator shipped and patched in v3.17.5.
+- **Resolution**: the test asserts the alert-path call was **found** (`index > -1`) with a failure message naming what moved, and the defect was re-introduced and the suite re-run to confirm it fails on the intended assertion before being reverted. Both directions checked.
+
+### BG-1 - RESOLVED in implementation: a 0.3.x cached snapshot would have rendered a confident 0%
+
+- **Target files**: `extensions/github-usage-monitor/src/providers/enrich.ts`, `src/types.ts`
+- **What would have happened**: breakdowns persisted before 0.4.0 carry no `pricePerUnit`. Had `undefined` been allowed to reach the weight calculation as `0`, every item would have derived a zero weight and the meter would have read a confident **0%** against a 2,000-minute allowance - the exact failure mode v3.16.4 already shipped once from a different cause.
+- **Resolution**: `pricePerUnit` is documented as unknown-never-zero, `lineItemsOf` uses `?? null`, an item with a null or non-positive price joins the unresolved set rather than contributing, and `enrich.test.ts` pins the legacy-snapshot case: `drawdown: null`, `percentage: null`, `allowanceState: "unknown"`, self-healing on the next refresh.
+- **Transferable lesson**: this is the third time in this extension that cached state outliving the version that wrote it has produced a wrong number rather than an error. Every field added after 0.1.0 must tolerate absence, and the test for it belongs in the same commit as the field.
+
+---
+
+## Reconciliation summary (2026-08-22, v3.18.1 Phase 6)
+
+| Category | Closed | Open |
+|---|---|---|
+| Bugs (`BG-#`) | 1 (BG-1 resolved in implementation) | 0 |
+| Quality gates (`QG-#`) | 1 (QG-1 verified in both directions) | 0 |
+| Not-investigated (`NI-#`) | 0 | 2 (NI-1, NI-2 - both open **by design** with recorded decisions) |
+| Deferred (`DF-#`) | 0 | 1 (DF-1, out of scope by the Boundaries rule) |
+| Maintenance (`MT-#`) | 0 | 1 (MT-1, pre-existing and unrelated) |
+| Ingested from v3.16 | 1 (NI-2 superseded) | 1 (NI-4 unchanged, invented SKU fixtures) |
+
+**Release blockers: 0.** Both open `NI-#` items are open by design with their reasoning in a decision record and a falsifier in the ledger. `DF-1` is an authorization-flow change outside this plan's scope. `MT-1` is a pre-existing advisory that predates this plan and belongs in its own change.
