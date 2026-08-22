@@ -46,17 +46,6 @@ updates:
       # in the same commit that bumps engines, not via Dependabot.
       - dependency-name: "@types/vscode"
 
-    labels:
-      - dependencies
-      - npm
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
-      # vsce package fails when @types/vscode exceeds engines.vscode (^1.85.0).
-      # PR #34 (cursor) and PR #24 (claude) were that class. Bump types only
-      # in the same commit that bumps engines, not via Dependabot.
-      - dependency-name: "@types/vscode"
-
   - package-ecosystem: npm
     directory: /extensions/cursor-usage-monitor
     schedule:
