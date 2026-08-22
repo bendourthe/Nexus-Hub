@@ -38,6 +38,10 @@ Two minors is the threshold because it keeps the previous release's history reac
 
 A blanket `development/` rule would have archived live CI inputs and orphaned a shipped code citation. If that content should not live in a version's docs directory at all, that is a separate refactor with its own reference repair, not something a retention rule should do silently.
 
+**Re-point same-page anchors when content moves.** A link written `](#some-heading)` targets a heading in its own file. The moment that content is relocated, the anchor silently becomes a cross-file link to a heading that is no longer there. No link checker will catch it: the link is a syntactically valid same-page reference right up until it isn't, so a checker that resolves `#` targets as same-page by definition reports it clean.
+
+This is not hypothetical. The v3.18.0 Phase 3 ratchet-down moved a block containing three such anchors and the link check passed over all three; they were found by reading the file. Building a general anchor validator was considered and rejected, because the forge's heading-to-slug rule is subtle enough to produce false positives on legitimate content (a first implementation flagged a correct table of contents, having collapsed `Compliance & Governance` to one hyphen where the forge emits two), and a gate that cries wolf on valid documentation gets ignored. Grep the moved block for `](#` by hand instead.
+
 `plans/`, `comparisons/`, and `known-gaps.md` are likewise **not** swept. A plan is the durable statement of intent for its release and is linked from the DEVLOG index; a known-gaps file is read by the next plan to decide what carries forward.
 
 ### 4. EXEMPT - the non-versioned subtrees

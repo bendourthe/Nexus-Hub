@@ -119,7 +119,7 @@ gzip: stdin: unexpected end of file
 /usr/bin/tar: Child returned status 128
 ```
 
-GNU tar (the one Git Bash puts on PATH) parses a Windows drive-letter path as a remote `host:path` specification, so `tar -xzf C:\Users\...` attempts to connect to a host named `C`. The "unexpected end of file" is downstream noise from the gzip child, which is why the error has read as a corrupt archive rather than a path-parsing problem. Windows ships bsdtar at `System32\tar.exe`, which handles drive letters correctly.
+GNU tar (the one Git Bash puts on PATH) parses a Windows drive-letter path as a remote `host:path` specification, so `tar -xzf a drive-letter path` attempts to connect to a host named `C`. The "unexpected end of file" is downstream noise from the gzip child, which is why the error has read as a corrupt archive rather than a path-parsing problem. Windows ships bsdtar at `System32\tar.exe`, which handles drive letters correctly.
 
 This is the **third** instance in this repository of a bare tool name on Windows resolving through PATH to the wrong binary; the other two are `bash` finding the System32 WSL stub, documented in v3.15.6 Phase 4 and re-diagnosed from scratch in v3.17.6 Phase 6. The fix follows immediately after this commit, per the user's instruction to address the known gaps.
 

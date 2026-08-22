@@ -1,8 +1,8 @@
 # Known Gaps - v3.18
 
 **Project**: Nexus-Hub
-**Status**: v3.18.0 (`docs-lifecycle-retention`) Phases 1-5 implemented on `feat/docs-lifecycle-retention`, not yet released. Reconciled 2026-08-21 at the end of Phase 5.
-**Last updated**: 2026-08-21 (Phase 5 reconciliation)
+**Status**: v3.18.0 (`docs-lifecycle-retention`) Phases 1-5 implemented on `feat/docs-lifecycle-retention` and pushed; release handed to `/update release`. Fully reconciled 2026-08-21: **every item closed, zero open, zero release blockers**.
+**Last updated**: 2026-08-21 (post-push gap closure: WN-1 and DF-2 fixed, DF-1 / DF-3 / WN-2 / MT-2 closed by recorded decision, BG-3 added and fixed)
 
 > **File-lifecycle note**: this ledger is opened by the v3.18.0 Phase 5 reconciliation. Each subsequent v3.18.N implementation appends its own `## v3.18.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `MT-#` / `QG-#` numbering.
 
@@ -12,7 +12,7 @@
 
 ## v3.18.0 - docs-lifecycle-retention
 
-**Status**: Phases 1-5 implemented. DEVLOG is a 99-line index, every writer produces that format, AGENTS.md is down 2,578 relocated words with MT-1 closed, and the retention policy plus its advisory checker are in place. Release is handed to `/update release`.
+**Status**: Phases 1-5 implemented and every gap closed. DEVLOG is a 99-line index, every writer produces that format, AGENTS.md is down 2,578 relocated words with MT-1 closed, the retention policy and its advisory checker are in place, and the first archive pass moved 216 files. Release is handed to `/update release`.
 
 ### BG-1 - RESOLVED in Phase 2: `auto-devlog.ps1` shipped with no opt-in gate
 
@@ -28,42 +28,51 @@
 - **What it was**: both prepend a narrative entry above the first `## [` heading. The index format contains no such heading, so the entry would have landed inside the table, corrupting it silently.
 - **Resolution**: both detect the index table header, print where narrative belongs, and exit 0. The guard is deliberately narrow and the tests assert both directions, because a guard that fired on every DEVLOG would silently disable the hook for consuming projects that kept the narrative format, and that failure is indistinguishable from the hook working.
 
-### DF-1 - OPEN (accepted): the DEVLOG index format is held by prose plus one test, not by a writer-side gate
+### DF-1 - CLOSED as accepted 2026-08-21: the DEVLOG index format is enforced by a CI-gating test, not a writer-side hook
 
 - **Target files**: `catalog/skills/workflow/devlog-generation/SKILL.md`, `tests/validators/test_devlog_index_format.py`
-- **What it is**: Phase 2 aligned every writer's *instructions*, and `test_devlog_index_format.py` asserts the artifact's properties after the fact. Nothing stops an agent writing a paragraph into a table cell at the moment it writes it; the test catches it on the next run.
-- **Why it is accepted**: the conformance suite is the enforcement, and it is a hard gate (the 150-line ceiling fails the build). A writer-side gate would mean a pre-commit hook parsing partially-written Markdown, which is more machinery than the risk justifies.
-- **Owner**: none required. Revisit only if the conformance test starts catching real regressions rather than guarding against them.
+- **What it was**: Phase 2 aligned every writer's *instructions*; nothing stops an agent writing a paragraph into a table cell at the moment it writes it.
+- **Why the acceptance holds, now verified rather than asserted**: `tests/validators/test_devlog_index_format.py` is run by `python -m pytest tests/validators` in **both** the `tests` and `tests-windows` CI jobs, and `tests` feeds the `ci-required` aggregate. Its 150-line ceiling is a hard assertion, so a regression fails the build rather than warning. The check is one run late, not absent.
+- **Why not a writer-side gate**: a `PreToolUse` hook on writes to `docs/DEVLOG.md` would have to parse partially-written Markdown and decide whether a half-finished table is a violation. That is more machinery, and more false-positive surface, than a one-run-late hard gate justifies.
 
-### DF-2 - OPEN (deferred to a follow-on): SKIP clauses fight the trigger-routing scorer
+### DF-2 - RESOLVED 2026-08-21: SKIP clauses no longer feed the routing scorer positive vocabulary
 
-- **Target files**: `scripts/run_trigger_evals.py`, `scripts/validate_skills.allowlist.json`, `AGENTS.md`
-- **What it is**: `run_trigger_evals.py` tokenizes a skill's whole `description` with no notion of negation, so a `SKIP:` clause that names what it fences off imports that vocabulary as **positive** trigger words. Authoring `devlog-generation`'s routing cases hit this twice: "generate the changelog entry for this release" scored a perfect **1.00** against `devlog-generation` purely on SKIP-clause text, and after that was worded around, "what work is still open or deferred for this version" scored 1.00 for the same reason.
-- **Why it matters repo-wide**: `AGENTS.md` instructs every skill author to add a SKIP clause, and the routing gate penalises doing so. The 40 currently-allowlisted near-collisions were allowlisted without this lens and are worth re-examining under it.
-- **Local workaround applied**: every SKIP clause in `devlog-generation` now names its target skill without reusing the target's own vocabulary ("unfinished or carried-over items (use known-gaps-tracker)" rather than "open or deferred work").
-- **Suggested disposition**: either strip `SKIP:` / `Do NOT use for:` clauses from the text the scorer tokenizes, or score them negatively. Needs its own plan; changing scoring semantics affects all 273 skills and all 40 allowlist entries.
+- **Target files**: `scripts/run_trigger_evals.py`, `scripts/run_trigger_evals.allowlist.json`, `tests/validators/test_run_trigger_evals.py`
+- **What it was**: the scorer tokenized a skill's whole `description`, so a `SKIP:` clause naming what it fences off imported that vocabulary as **positive** trigger evidence. Two real cases: "generate the changelog entry for this release" scored a perfect **1.00** against `devlog-generation`, and so did "what work is still open or deferred for this version", both purely on SKIP-clause text. `AGENTS.md` tells every author to write a SKIP clause, so the gate was penalising authors for following the rule.
+- **Resolution**: `strip_skip_clause()` drops everything from the first SKIP marker (`SKIP:`, `SKIP -`, `Do NOT use for`) onward before tokenizing, applied at both description-tokenization sites and deliberately **not** to prompts. Six regression tests added.
+- **Measured blast radius**: allowlisted collisions went 40 to 37, un-allowlisted stayed at 0, routing failures stayed at 0. Four previously-colliding pairs fell below threshold, and **one new collision appeared** -- counterintuitive until you notice the overlap ratio divides by the smaller token set, so removing tokens shrinks the denominator too and a ratio can rise. `multi-agent-code-review` vs `pr-description-writer` landed at exactly 50%; both key on the same object (a pull request) with different verbs, so it is allowlisted with that reasoning rather than papered over by editing a description.
+- **Four now-unused allowlist entries were left in place.** They name pairs that are still *intentional* neighbours even though their measured overlap now sits below threshold, and there is no unused-entry enforcement. Pruning them would only re-open them the next time a description changes.
+- **Authoring hazard found on the way**: see BG-3.
 
-### DF-3 - OPEN (deferred): a link checker treating `#` as same-page cannot see an anchor orphaned by relocation
+### DF-3 - RESOLVED 2026-08-21 by decision: the anchor hazard is documented, and a general validator was rejected on evidence
 
-- **Target files**: any documentation link check, including `[[documentation-consistency]]`
-- **What it is**: Phase 3 relocated a block containing three anchor-only links (`#three-tier-loading-model` and siblings). They were same-page anchors in `AGENTS.md` and became dangling cross-file links the instant the content moved. The link check **skipped them**, because it treats `#`-prefixed targets as same-page by definition, which they had stopped being. They were found by reading the file.
-- **Why it matters**: this is a general property of relocation, not a one-off. Any future ratchet-down pass will hit it.
-- **Suggested disposition**: when a documentation link gate is built, resolve `#anchor` targets against the containing file's own headings rather than assuming validity.
+- **Target files**: `docs/policy/docs-retention.md`, `catalog/skills/code-cleanup/docs-layout-refactor/SKILL.md`
+- **What it was**: an in-document anchor link is a same-page reference until its content moves to another file, at which point it dangles and no link checker sees it, because a fragment-only target reads as same-page by definition. Phase 3 moved a block with three such anchors; the link check passed and they were found by reading the file.
+- **A general anchor validator was built as a measurement and then rejected.** Across the repo it found 19 "dangling" anchors out of 101, and every one was legitimate on inspection: illustrative anchors inside a skill that teaches document structure, README **template** placeholders whose target sections are created when the template is filled, and one outright false positive of its own making. That last one is decisive. The checker flagged a correct table of contents because the forge replaces each space with a hyphen while the implementation collapsed whitespace runs, so `Compliance & Governance` slugs to `compliance--governance` and not `compliance-governance`. A gate whose first real sample is a false positive on valid documentation gets ignored, and an ignored gate is worse than no gate.
+- **Resolution**: the rule is stated where relocation is governed (`docs-retention.md`) and where it is executed (`docs-layout-refactor`), both naming the Phase 3 incident and prescribing a manual grep for fragment links over any moved block. The three concrete instances were repaired in Phase 3.
 
-### WN-1 - OPEN (pre-existing, not caused here): `test_ps_standalone_extracts_and_hands_off` fails on a bare `tar`
+### WN-1 - RESOLVED 2026-08-21: `install.ps1` resolves `tar` explicitly instead of trusting PATH
 
-- **Target files**: `install.ps1`, `tests/installer/test_bootstrap.py`
-- **What it is**: `install.ps1` in standalone mode shells out to `tar`, which on a host that invokes PowerShell from a Git Bash session resolves to `/usr/bin/tar` and fails to decompress the test's stub tarball with "unexpected end of file / Child returned status 128".
-- **Why it is recorded here**: found during Phase 1 verification, and it is the **third** instance in this repository of a bare tool name on Windows resolving through PATH to the wrong binary. The other two are `bash` finding the System32 WSL stub, documented in v3.15.6 Phase 4 and re-diagnosed from scratch in v3.17.6 Phase 6.
-- **Not caused by this plan**: the failing path reads `install.ps1`, `scripts/installer.ps1`, and a temp-directory stub tarball. This plan's diff is documentation, hooks, and repo-internal tooling.
-- **Suggested disposition**: resolve `tar` empirically the way `tests/validators/bash_helper.py` resolves `bash`, rather than trusting PATH order. That helper already exists and is the obvious template.
+- **Target files**: `install.ps1`
+- **Root cause, proven by reproduction rather than inferred**: GNU tar (the one Git Bash / MSYS put on PATH) parses a drive-letter path as a remote `host:path` specification, so extracting from a `C:` path makes it try to connect to a host named `C`:
 
-### WN-2 - OPEN (accepted): the retention rule is advisory and can be ignored indefinitely
+  ```text
+  tar (child): Cannot connect to C: resolve failed
+  gzip: stdin: unexpected end of file
+  /usr/bin/tar: Child returned status 128
+  ```
+
+  The gzip line is downstream noise from a child that never received data, which is why this has read as a corrupt archive rather than a path-parsing bug.
+- **Resolution**: `Resolve-TarExe` prefers the Windows system tar under `System32` (bsdtar, shipped on Windows 10 1803+, which handles drive letters correctly) and falls back to PATH `tar` only when it is absent. Applied at all three sites: the dependency precheck, the extractor-availability decision, and the extraction call.
+- **Verification**: `tests/installer/test_bootstrap.py` goes from 4 passed / 1 failed to **5 passed**, with no test changes. The fix is in the product, not the assertion.
+- **The pattern this closes for the third time**: a bare tool name on Windows resolving through PATH to the wrong binary. The first two were `bash` finding the System32 WSL stub (v3.15.6 Phase 4, misdiagnosed for four minor versions; v3.17.6 Phase 6, rediscovered from scratch). `tests/validators/bash_helper.py` already solved it for `bash` by probing empirically; this solves it for `tar` by resolving the known-good binary explicitly.
+
+### WN-2 - CLOSED as accepted by design 2026-08-21: the retention rule is advisory
 
 - **Target files**: `docs/policy/docs-retention.md`, `scripts/check_docs_retention.py`
-- **What it is**: the checker always exits 0, so the policy's effect depends on someone reading its output. It is wired into `make validate` and the CI `validate` job as an informational step for that reason.
-- **Why it is accepted**: a hard gate would block an unrelated release the moment a minor version aged out, which is a real cost preventing no harm, and archiving is a reference-repair operation that needs a confirmation gate. Recorded in the decision record's Consequences.
-- **Suggested disposition**: if the report turns out to be ignored in practice, the honest fix is a step in the release flow that requires an explicit decision, not a hard validator gate.
+- **What it is**: the checker always exits 0, so the policy's effect depends on someone reading its output. It runs in `make validate` and in the CI `validate` job as an informational step.
+- **Why the acceptance holds**: a hard gate would block an unrelated release the moment a minor version aged out, which is a real cost preventing no harm, and archiving is a reference-repair operation that needs a confirmation gate rather than a validator. The Phase 5 pass is the existence proof that the advisory report does get acted on.
+- **If it is ever ignored in practice**, the fix is a step in the release flow that forces an explicit decision, not a hard validator gate.
 
 ### MT-1 - RESOLVED in Phase 5: the first retention archive pass is executed
 
@@ -83,12 +92,20 @@
 - **Resolution**: the unit that ages out is now `development/history/`. The reason is stated in the policy (with a table naming each category and why it stays), in the checker's `AGING_SUBDIR` comment, in the decision record's Consequences, and in a dedicated test (`test_non_history_development_content_is_never_reported`), so it cannot be widened back by accident.
 - **Follow-on worth considering**: CI fixtures arguably do not belong in a version's docs directory at all. Relocating them to `tests/fixtures/` and the contract docs to `docs/policy/` is defensible, but it is a separate refactor with its own reference repair and its own risk of breaking CI, and a retention rule should not do it as a silent side effect.
 
-### MT-2 - OPEN (suggestion): the DEVLOG line ceiling lives in a test constant, not in the budget policy
+### MT-2 - CLOSED by decision 2026-08-21: the DEVLOG line ceiling stays in the test constant
 
 - **Target files**: `tests/validators/test_devlog_index_format.py`, `docs/policy/doc-budgets.json`
-- **What it is**: the 150-line ceiling for `docs/DEVLOG.md` is a module constant in the conformance test. Every other always-loaded-document ceiling lives in `docs/policy/doc-budgets.json` with a documented ratchet rule.
-- **Why it is a suggestion, not a defect**: the budget file measures **words** in always-loaded docs, and DEVLOG is neither always-loaded nor word-bounded (its constraint is one line per release). Moving it would require the budget file to carry two units.
-- **Suggested disposition**: leave as-is unless a second line-bounded document appears, at which point the two justify a shared home.
+- **The question**: the 150-line ceiling for `docs/DEVLOG.md` is a module constant in the conformance test, while every other document ceiling lives in `docs/policy/doc-budgets.json` with a documented ratchet rule.
+- **Decision: leave it where it is.** `doc-budgets.json` maps a path to a **word** ceiling for **always-loaded** instruction documents, and `validate_doc_budgets.py` computes headroom as a fraction of that number. `docs/DEVLOG.md` is neither always-loaded nor word-bounded: its constraint is one line per release. Putting it there would require the schema to carry a unit per entry and the validator to branch on it, to express a single ceiling.
+- **Revisit when** a second line-bounded document appears. Two would justify a shared home; one does not justify a schema change.
+
+### BG-3 - RESOLVED 2026-08-21: escaped word boundaries reached a regex as literal control characters
+
+- **Target files**: `scripts/run_trigger_evals.py`, `tests/validators/test_run_trigger_evals.py`
+- **What happened**: the first cut of the DF-2 SKIP-marker pattern was authored with escaped word boundaries that arrived in the file as literal **backspace bytes** (`0x08`), six of them. The compiled regex therefore matched nothing, `strip_skip_clause()` was a silent no-op, and the fix appeared to be in place while changing nothing.
+- **Why it took a second look**: `grep` renders `0x08` as nothing, so the pattern line looked correct on inspection. It was caught only by printing `_SKIP_MARKER.pattern` with `repr()` after the behavioural check came back unchanged.
+- **Resolution**: control characters stripped, pattern rewritten, and `test_skip_marker_pattern_contains_no_control_characters` added so the same accident fails loudly instead of silently.
+- **Transferable lesson**: when a regex-based fix appears to do nothing, print the compiled pattern with `repr()` before re-reading the logic. A behavioural assertion that a helper actually transforms its input would also have caught it, which is why one now exists.
 
 ---
 
@@ -96,10 +113,12 @@
 
 | Category | Closed | Open |
 |---|---|---|
-| Bugs (`BG-#`) | 2 (BG-1, BG-2) | 0 |
-| Deferred / design (`DF-#`) | 1 (DF-4, policy corrected in Phase 5) | 3 (DF-1 accepted, DF-2 and DF-3 deferred with dispositions) |
-| Warnings (`WN-#`) | 0 | 2 (WN-1 pre-existing, WN-2 accepted by design) |
-| Maintenance (`MT-#`) | 1 (MT-1, archive pass executed) | 1 (MT-2 suggestion) |
+| Bugs (`BG-#`) | 3 (BG-1, BG-2, BG-3) | 0 |
+| Deferred / design (`DF-#`) | 4 (DF-1 accepted, DF-2 fixed, DF-3 decided, DF-4 policy corrected) | 0 |
+| Warnings (`WN-#`) | 2 (WN-1 fixed, WN-2 accepted by design) | 0 |
+| Maintenance (`MT-#`) | 2 (MT-1 archive pass executed, MT-2 decided) | 0 |
 | Ingested from v3.17 | 1 (MT-1 AGENTS.md budget share, resolved in Phase 3) | 0 |
+
+Every item raised during v3.18.0 is closed: five fixed in code, three closed by an explicit recorded decision, and one policy corrected by attempting to execute it. Two of the fixes (`WN-1`, `BG-3`) are defects the plan never anticipated, and both were found by verifying a result rather than by reading code.
 
 **Release blockers: 0.** Every open item is either accepted by design with its reasoning recorded, pre-existing and out of this plan's scope, or a carried follow-on that breaks nothing while it waits.
