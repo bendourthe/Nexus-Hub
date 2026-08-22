@@ -118,6 +118,27 @@ export function applyMetricAllowance(
 }
 
 /**
+ * Whether the drawdown has reached or passed the allowance.
+ *
+ * Expressed as a derived predicate rather than a fourth `AllowanceState`. The state
+ * union answers "is a percentage derivable at all", and every guard in the codebase
+ * reads it that way; exhaustion is a fact ABOUT a derivable percentage, not a
+ * competing kind of one. Adding a fourth member would have made every existing
+ * `allowanceState === "verified"` check silently wrong at exactly the moment the
+ * number matters most.
+ *
+ * The threshold is `>= 100`, not `> 100`: a meter at exactly the cap is spent.
+ */
+export function isAllowanceExhausted(metric: UsageMetric): boolean {
+  return (
+    metric.allowanceState === "verified" &&
+    metric.percentage !== null &&
+    Number.isFinite(metric.percentage) &&
+    metric.percentage >= 100
+  );
+}
+
+/**
  * A candidate allowance is usable only when its unit matches the metric's exactly.
  *
  * The check is doing its job and is deliberately kept. Storage was the case that

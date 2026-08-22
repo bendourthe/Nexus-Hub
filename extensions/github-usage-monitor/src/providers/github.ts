@@ -18,7 +18,7 @@ import {
 
 export const GITHUB_API_VERSION = "2026-03-10";
 export const GITHUB_ACCEPT = "application/vnd.github+json";
-export const GITHUB_USER_AGENT = "nexus-hub-github-usage-monitor/0.3.3";
+export const GITHUB_USER_AGENT = "nexus-hub-github-usage-monitor/0.4.0";
 export const DEFAULT_TIMEOUT_MS = 10_000;
 const MAX_TRANSIENT_ATTEMPTS = 3;
 const RETRY_BASE_DELAY_MS = 250;

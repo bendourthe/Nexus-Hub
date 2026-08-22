@@ -53,7 +53,6 @@ export interface SettingsValues {
   moderate: number;
   high: number;
   critical: number;
-  notificationTimeoutSeconds: number;
   moderateColor: string;
   highColor: string;
   criticalColor: string;
@@ -65,7 +64,7 @@ export function readSettings(): SettingsValues {
     billingScope: config.get("billingScope", "user"), billingOwner: config.get("billingOwner", ""), copilotMetric: config.get("copilotMetric", "ai-credits"),
     copilotAllowance: optionalNumber(config.get("allowances.copilot", null)), actionsMinutesAllowance: optionalNumber(config.get("allowances.actionsMinutes", null)), actionsStorageAllowance: optionalNumber(config.get("allowances.actionsStorage", null)),
     refreshInterval: config.get("refreshInterval", 10), compactStatusBar: config.get("compactStatusBar", false), statusBarMetric: config.get("statusBarMetric", "actions-minutes"), alertMetric: config.get("alertMetric", "actions-minutes"),
-    moderate: config.get("thresholds.moderate", 50), high: config.get("thresholds.high", 75), critical: config.get("thresholds.critical", 95), notificationTimeoutSeconds: config.get("notificationTimeoutSeconds", 12),
+    moderate: config.get("thresholds.moderate", 50), high: config.get("thresholds.high", 75), critical: config.get("thresholds.critical", 95),
     moderateColor: config.get("colors.moderate", "#cca700"), highColor: config.get("colors.high", "#f0643c"), criticalColor: config.get("colors.critical", "#e05555")
   };
 }
@@ -185,7 +184,6 @@ export const EDITABLE_SETTINGS: Readonly<Record<string, "number" | "string" | "b
   alertMetric: "string",
   statusBarMetric: "string",
   compactStatusBar: "boolean",
-  notificationTimeoutSeconds: "number"
 };
 
 /** Whether a key/value pair may be written, checked before any configuration update. */
@@ -260,9 +258,6 @@ export function settingsSectionHtml(values: SettingsValues, auth?: AuthDisplay):
     ${level("moderate", "Moderate", "First alert level", "thresholds.moderate", values.moderate, "colors.moderate", values.moderateColor)}
     ${level("high", "High", "Elevated alert level", "thresholds.high", values.high, "colors.high", values.highColor)}
     ${level("critical", "Critical", "Maximum alert level", "thresholds.critical", values.critical, "colors.critical", values.criticalColor)}
-    <div class="set-card set-row"><label class="set-label" for="set-notificationTimeoutSeconds">Notification timeout (s)</label>
-      <input type="number" id="set-notificationTimeoutSeconds" min="3" max="60" value="${values.notificationTimeoutSeconds}" data-setting="notificationTimeoutSeconds" data-kind="number">
-      <span class="invalid-note" id="err-notificationTimeoutSeconds" role="alert"></span></div>
 
   </section>`;
 }

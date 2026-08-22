@@ -695,7 +695,11 @@ Four open items, **zero release blockers, one caused by this phase** (DF-1, whic
 
 The phase's own residual risk is that the settings migration is untestable in the one situation that matters most: a real 0.1.0 install upgrading in place. Every migration assertion here runs against a fake `WorkspaceConfiguration`. The controls are that the migration refuses to record completion on any write failure (so a bad first pass retries rather than silently finishing), that it never deletes an old key, and that the token path writes before it deletes. Phase 6 should record whether an actual upgrade was exercised.
 
-### NI-2 - OPEN by design: the drawdown weights cannot be verified, and the UI says so
+### NI-2 - SUPERSEDED 2026-08-22 by v3.18.1: the weights are no longer constants to verify
+
+> **Superseded by v3.18.1 (`github-usage-monitor-accuracy`).** `OS_DRAWDOWN_WEIGHTS` no longer exists as a behavioral input. Each item's weight is derived from its own `pricePerUnit` relative to the standard Linux rate observed in the same payload, so there is no constant left to re-verify at each release and the "re-check the multiplier path" next step below is retired. The **underlying** uncertainty is not closed - price ratios and the legacy published values still cannot be separated by any saturated month - and is carried forward as `NI-1` in `docs/v3/v3.18/known-gaps.md` with a stated falsifier and a ledger to accumulate evidence. The decision that replaced this entry is `docs/decisions/implemented/architecture/2026-08-22-derive-actions-drawdown-weights-from-price.md`.
+>
+> Note also that the "ship the historical published values" decision recorded below was **reverted in v3.16.4** back to all-1 before v3.18.1 replaced the mechanism entirely; this entry describes the v3.16.3 state.
 
 - **Target file**: `extensions/github-usage-monitor/src/providers/drawdown.ts` (`OS_DRAWDOWN_WEIGHTS`)
 - **What is unresolved**: GitHub withdrew its minute-multiplier reference page; that path now serves runner pricing on every documentation variant checked. Measurement established that weighting **exists** (July's saturated bar falsified 1:1 outright), but not what the constants are. Two candidates fit every month available - the historical published values (Windows 2x, macOS 10x) and the current list-price ratios (1.67x, 10.33x). They predict 2,104 and 2,051 for July, both above a saturated 2,000, so that month cannot separate them; April, the only month low enough to try, predicts 1,473 versus 1,469.

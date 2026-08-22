@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.18.0 -->
+<!-- nexus-hub-version: 3.18.1 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 273 skills, 18 commands, 31 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -36,6 +36,29 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v3.18.1
+
+**The GitHub Usage Monitor's Actions percentage will read higher, and that is the fix.** It reported 58% while GitHub's own panel showed 2,000 of 2,000 minutes consumed. Refresh was working; the model behind the number was wrong. Measured against a private repository for August 2026 through the Actions jobs API (73 runs, 527 jobs): 1,457 Linux + 187 Windows + 80 macOS minutes. Unweighted that is 1,724 against a 2,000-minute allowance shown as fully consumed, and a model predicting 1,724 cannot produce a pinned meter. Price-weighted it predicts 2,595, which can. If you calibrated an expectation against extension 0.3.3, expect a jump on any account running Windows or macOS CI.
+
+**The weights are derived now, not tabulated.** This figure had been revised three times (1:1, then Windows 2x / macOS 10x, then 1:1 again), and each revision hardcoded a snapshot of a price list. The published 1x / 2x / 10x multipliers were never an independent taxonomy: they are exactly the pre-2026 per-minute price ratios ($0.008 / $0.016 / $0.080), and GitHub's 2026-01-01 price cut moved the same mechanism to 1x / 1.67x / 10.33x. Each item's weight is now its own `pricePerUnit` divided by the standard Linux rate observed in the same billing payload, a field GitHub already returned and the normalizer was discarding. There is no table left to go stale when prices move again, a runner type appears, or an ARM variant ships. Recorded at [`docs/decisions/implemented/architecture/2026-08-22-derive-actions-drawdown-weights-from-price.md`](docs/decisions/implemented/architecture/2026-08-22-derive-actions-drawdown-weights-from-price.md) with the four alternatives it beat.
+
+**A ledger now settles this number instead of the last editor.** Two prior revisions fell into the same trap from opposite directions: a saturated meter reports only "at least the allowance", so it can refute a model predicting below the cap and can never confirm one above it; and a Linux-dominated month agrees with every candidate, because weightings differ only on non-Linux items. Both were read as confirmation. [`src/providers/reconciliation.ts`](extensions/github-usage-monitor/src/providers/reconciliation.ts) classifies each observed month as `refutes` / `supports` / `non-discriminating`, and its test order closes the trap by construction: the Linux-dominance check runs *before* the tolerance comparison, precisely so a good numeric match cannot be mistaken for evidence. The ledger states the falsifier, and none of its three seeded months confirms the shipped model, which it says plainly.
+
+**The threshold warning arrives as the styled panel again.** The extension fired both a webview and a native toast, and the toast won: `show()` rewrote the HTML of an already-resolved view without revealing it, and because the view retains context when hidden, every alert after the first in a session rewrote an invisible panel. The alert path also scheduled an auto-dismiss whose only canceller was the toast's own handler, so removing the toast alone would have left the panel auto-hiding after 12 seconds. All four usage monitors now warn through one surface, guarded by a cross-extension parity test that was verified to fail when the toast is re-introduced -- a source-text parity test is otherwise trivially fail-open.
+
+**Exhaustion renders as exhaustion, and the panel shows its work.** A drawdown above the allowance now shows a full bar in the critical style with the true percentage (130%, not a clamped 100); only the width is clamped, because a clamped number tells the original lie inverted. A new per-repository section lists which minutes actually counted, with public repositories shown reading **zero** rather than filtered out, since filtering leaves "why did those 366 runs cost nothing" unanswered. [`docs/policy/github-actions-minute-consumption.md`](docs/policy/github-actions-minute-consumption.md) answers it in writing, marking every claim documented-with-source or inferred-with-evidence, and stating plainly that GitHub publishes no included-minute multiplier and that no billing endpoint returns the allowance.
+
+### Opt-in capability change: `githubUsageMonitor.notificationTimeoutSeconds` deprecated
+
+- **Activation**: none. The change is unconditional in extension 0.4.0.
+- **What changed**: the warning view no longer auto-dismisses, so the setting has nothing to govern. Its key is retained (with a `deprecationMessage`) so an existing user value does not surface as an unknown setting, and its migration entry is retained so a value set under the old extension id still migrates. Its editable control is removed from the settings panel, because an input that changes nothing is worse than either keeping or removing it.
+- **Validate**: cross a usage threshold twice in one session; the panel appears both times and stays until dismissed.
+- **Disable / rollback**: pin extension 0.3.3, which restores the toast and the auto-dismiss together. There is no per-setting opt-out, because the timer and the toast were coupled and re-enabling one alone reproduces a worse defect.
+- **What this does NOT grant**: no permission change, no new scope, and no additional GitHub data read.
+- **Reference**: [`extensions/github-usage-monitor/README.md`](extensions/github-usage-monitor/README.md).
+
+Catalog counts are unchanged at **273 skills**, **18 commands**, **31 hooks**, and **23 agents**. The change is confined to one VS Code extension (0.3.3 to 0.4.0), one policy document, one decision record, and one ledger; no distributed catalog artifact gains an outbound call, credential, or dependency.
 
 ## What's New in v3.18.0
 

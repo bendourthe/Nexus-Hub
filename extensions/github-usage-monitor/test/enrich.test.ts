@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
-  OS_DRAWDOWN_WEIGHTS,
+  PUBLISHED_LINUX_RATE_USD_PER_MINUTE,
   computeDrawdownMinutes,
+  resolveLinuxReferenceRate,
   gigabyteHoursToGigabyteMonths,
   hoursInUtcMonth,
   type UsageLineItem,
@@ -42,33 +43,101 @@ function line(overrides: Partial<UsageLineItem> = {}): UsageLineItem {
 
 const VISIBILITY: VisibilityMap = { "Nexus-AI": "private", "Nexus-Hub": "public" };
 
-describe("drawdown weighting", () => {
-  it("counts every runner OS at face value", () => {
-    // v3.16.4 reverted the Windows 2x / macOS 10x weights. They rested on ONE month
-    // (July 2026) whose displayed value was saturated at the 2,000 cap, and whose
-    // private/public split was resolved retroactively with TODAY's visibility - so a
-    // repository that was private then and public now was miscounted as public,
-    // understating the period and manufacturing the gap the multipliers "explained".
-    expect(OS_DRAWDOWN_WEIGHTS).toEqual({ linux: 1, windows: 1, macos: 1 });
-  });
+/**
+ * Published list prices per minute, verified 2026-08-19 against GitHub's Actions
+ * runner pricing table. Fixtures carry real rates rather than round numbers so a
+ * regression shows up against a documented price, not an invented one.
+ */
+const RATE = { linux: 0.006, windows: 0.010, macos: 0.062 } as const;
 
-  it("matches the two months whose displayed value was not censored by saturation", () => {
-    // These are the only directly checkable observations: an unsaturated bar reports
-    // its own number, while a saturated one reports only "at least 2,000".
-    //   2026-08-09: 120 Linux + 4 Windows private = 124 raw, displayed 120.7
-    //   2026-08-10: Nexus-AI at $0.80 is roughly 128 raw, displayed 126.7
-    // Both sit within ~3% of raw minutes, with the API running slightly ahead of the
-    // billing page as usage accrues - the expected direction for a reporting lag.
+describe("drawdown weighting", () => {
+  /**
+   * THE FALSIFICATION, recorded so the next revision has to argue with it.
+   *
+   * Measured 2026-08-19 against `Nexus-AI` (private) for August 2026 via the Actions
+   * jobs API - 73 runs, 527 jobs: 1,457 Linux + 187 Windows + 80 macOS minutes.
+   * Unweighted that is 1,724, and GitHub's own Included-usage panel showed 2,000 of
+   * 2,000 consumed. A model predicting 1,724 CANNOT produce a saturated 2,000-minute
+   * meter, so the unweighted model is refuted. Price-weighted it predicts 2,595,
+   * which is consistent with saturation.
+   *
+   * The 2026-08-09 and 2026-08-10 observations retained elsewhere in this file do
+   * NOT support either model. That window was 97% Linux, so every candidate
+   * weighting yields the same answer within tolerance; they must not be cited as
+   * evidence for either. Citing them as agreement is how the all-1 table was
+   * justified.
+   */
+  it("reproduces the measured August month, which the unweighted model cannot", () => {
     const august = [
-      line({ sku: "Actions Linux", quantity: 120 }),
-      line({ sku: "Actions Windows", quantity: 4 }),
-      line({ sku: "Actions Linux", quantity: 1163, repositoryName: "Nexus-Hub" })
+      line({ sku: "Actions Linux", quantity: 1457, pricePerUnit: RATE.linux }),
+      line({ sku: "Actions Windows", quantity: 187, pricePerUnit: RATE.windows }),
+      line({ sku: "Actions macOS 3-core", quantity: 80, pricePerUnit: RATE.macos }),
+      line({ sku: "Actions Linux", quantity: 4200, pricePerUnit: RATE.linux, repositoryName: "Nexus-Hub" })
     ];
     const result = computeDrawdownMinutes(august, VISIBILITY);
-    expect(result.minutes).toBe(124);
-    expect(result.usedWeighting).toBe(false);
-    // Within 3% of what GitHub displayed for the same period.
-    expect(Math.abs(124 - 120.7) / 120.7).toBeLessThan(0.03);
+    expect(result.minutes).toBeCloseTo(2595, 0);
+    // Above the 2,000-minute allowance, which is what saturation requires and what
+    // the unweighted 1,724 could not deliver.
+    expect(result.minutes ?? 0).toBeGreaterThan(2000);
+    expect(result.linuxReferenceRate).toEqual({ rate: RATE.linux, source: "observed" });
+    expect(result.appliedWeights.map((weight) => Number(weight.toFixed(2)))).toEqual([1, 1.67, 10.33]);
+  });
+
+  it("derives the reference rate from the payload, not from a constant, when Linux is present", () => {
+    const observed = resolveLinuxReferenceRate([line({ sku: "Actions Linux", pricePerUnit: 0.0075 })]);
+    expect(observed).toEqual({ rate: 0.0075, source: "observed" });
+  });
+
+  it("falls back to the published rate for a month with no Linux item, and says so", () => {
+    // An all-Windows month leaves no denominator to observe. Falling back to 1.0
+    // would silently treat Windows as the baseline and understate by 40%.
+    const result = computeDrawdownMinutes(
+      [line({ sku: "Actions Windows", quantity: 100, pricePerUnit: RATE.windows })],
+      VISIBILITY
+    );
+    expect(result.linuxReferenceRate).toEqual({
+      rate: PUBLISHED_LINUX_RATE_USD_PER_MINUTE,
+      source: "published-fallback"
+    });
+    expect(result.minutes ?? 0).toBeCloseTo(100 * (RATE.windows / PUBLISHED_LINUX_RATE_USD_PER_MINUTE), 6);
+  });
+
+  it("selects the standard rate deliberately when a period carries several Linux rates", () => {
+    // A sub-2-core variant priced below the standard runner must not become the
+    // denominator: picking the cheaper rate would inflate every other weight by the
+    // ratio between them. `min` is the wrong selector here, which is why it is not used.
+    const rate = resolveLinuxReferenceRate([
+      line({ sku: "Actions Linux 1-core", pricePerUnit: 0.002 }),
+      line({ sku: "Actions Linux 2-core", pricePerUnit: RATE.linux })
+    ]);
+    expect(rate).toEqual({ rate: RATE.linux, source: "observed" });
+  });
+
+  it("treats a qualifying item with no price as unresolved, never as a zero contribution", () => {
+    // Zero is the dangerous value: it would drop the item from the drawdown while
+    // the meter still read as a confident figure.
+    const result = computeDrawdownMinutes(
+      [
+        line({ sku: "Actions Linux", quantity: 100, pricePerUnit: RATE.linux }),
+        line({ sku: "Actions Windows", quantity: 50, pricePerUnit: null })
+      ],
+      VISIBILITY
+    );
+    expect(result.minutes).toBeNull();
+    expect(result.unresolvedRepositories).toContain("Actions Windows");
+  });
+
+  it("never weights an excluded runner, since included minutes cannot be spent on one", () => {
+    const result = computeDrawdownMinutes(
+      [
+        line({ sku: "Actions Linux", quantity: 100, pricePerUnit: RATE.linux }),
+        line({ sku: "Actions Linux 16-core", quantity: 40, pricePerUnit: 0.032 }),
+        line({ sku: "Actions Self Hosted", quantity: 500, pricePerUnit: 0 })
+      ],
+      VISIBILITY
+    );
+    expect(result.minutes).toBe(100);
+    expect(result.appliedWeights).toEqual([1]);
   });
 
   it("excludes public-repository usage, which is free and never draws down", () => {
@@ -207,9 +276,9 @@ function snapshotFixture(): UsageSnapshot {
     stale: false,
     copilot: metric("copilot-ai-credits", "ai-credits", 0),
     actionsMinutes: metric("actions-minutes", "minutes", 1287, [
-      { product: "Actions", sku: "Actions Linux", unit: "minutes", grossQuantity: 120, discountQuantity: null, netQuantity: null, grossAmount: null, discountAmount: null, netAmount: null, repositoryName: "Nexus-AI" },
-      { product: "Actions", sku: "Actions Windows", unit: "minutes", grossQuantity: 4, discountQuantity: null, netQuantity: null, grossAmount: null, discountAmount: null, netAmount: null, repositoryName: "Nexus-AI" },
-      { product: "Actions", sku: "Actions Linux", unit: "minutes", grossQuantity: 1163, discountQuantity: null, netQuantity: null, grossAmount: null, discountAmount: null, netAmount: null, repositoryName: "Nexus-Hub" }
+      { product: "Actions", sku: "Actions Linux", unit: "minutes", grossQuantity: 120, discountQuantity: null, netQuantity: null, grossAmount: null, discountAmount: null, netAmount: null, repositoryName: "Nexus-AI", pricePerUnit: 0.006 },
+      { product: "Actions", sku: "Actions Windows", unit: "minutes", grossQuantity: 4, discountQuantity: null, netQuantity: null, grossAmount: null, discountAmount: null, netAmount: null, repositoryName: "Nexus-AI", pricePerUnit: 0.010 },
+      { product: "Actions", sku: "Actions Linux", unit: "minutes", grossQuantity: 1163, discountQuantity: null, netQuantity: null, grossAmount: null, discountAmount: null, netAmount: null, repositoryName: "Nexus-Hub", pricePerUnit: 0.006 }
     ]),
     actionsStorage: metric("actions-storage", "gigabyte-hours", 64.567691147)
   };
@@ -218,12 +287,31 @@ function snapshotFixture(): UsageSnapshot {
 describe("snapshot enrichment", () => {
   it("produces a percentage from the drawdown, not from gross consumption", () => {
     const { snapshot } = enrichSnapshot(snapshotFixture(), { visibility: VISIBILITY, planName: "free" });
-    // Gross is 1,287 of 2,000 = 64%. The drawdown is 120 Linux + 4 Windows x2 = 128.
+    // Gross is 1,287 of 2,000 = 64%, nearly all of it free public-repository usage.
+    // The drawdown is 120 Linux at weight 1 plus 4 Windows at 0.010/0.006 = 1.67,
+    // so 126.67 - a period this Linux-heavy cannot distinguish weighting models,
+    // which is exactly why it is not cited as evidence for one.
     expect(snapshot.actionsMinutes.used).toBe(1287);
-    expect(snapshot.actionsMinutes.drawdown).toBe(124);
-    expect(snapshot.actionsMinutes.percentage).toBeCloseTo(6.2, 5);
+    expect(snapshot.actionsMinutes.drawdown).toBeCloseTo(126.67, 2);
+    expect(snapshot.actionsMinutes.percentage).toBeCloseTo(6.33, 2);
     expect(snapshot.actionsMinutes.allowanceState).toBe("verified");
     expect(snapshot.actionsMinutes.allowanceSource).toBe("plan-table");
+  });
+
+  it("reads a 0.3.x-era cached snapshot as unknown rather than as zero", () => {
+    // Breakdowns persisted before 0.4.0 carry no `pricePerUnit`. `undefined` must
+    // reach the drawdown as null, not as 0: a zero price would derive a zero weight
+    // and render a confident 0% against a 2,000-minute allowance. Unknown is the
+    // honest state, and it self-heals on the next refresh.
+    const legacy = snapshotFixture();
+    legacy.actionsMinutes.breakdowns = legacy.actionsMinutes.breakdowns.map((row) => {
+      const { pricePerUnit: _dropped, ...rest } = row;
+      return rest as typeof row;
+    });
+    const { snapshot } = enrichSnapshot(legacy, { visibility: VISIBILITY, planName: "free" });
+    expect(snapshot.actionsMinutes.drawdown).toBeNull();
+    expect(snapshot.actionsMinutes.percentage).toBeNull();
+    expect(snapshot.actionsMinutes.allowanceState).toBe("unknown");
   });
 
   it("converts storage into GB and compares it against the GB entitlement", () => {
