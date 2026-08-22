@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v3.18.0 (`docs-lifecycle-retention`) released. v3.18.1 (`github-usage-monitor-accuracy`) Phases 1-6 implemented on `feat/v3.18.1-github-usage-monitor-accuracy`. **Zero release blockers across both.**
-**Last updated**: 2026-08-22 (v3.18.1 section appended: BG-1 and QG-1 closed in implementation; NI-1 / NI-2 open by design; DF-1 and MT-1 out of scope)
+**Last updated**: 2026-08-22 (post-v3.18.2 housekeeping: v3.18.2 MT-1 closed by the v3.16 history archive pass; BG-2 recorded as an environment-only local-run flake)
 
 > **File-lifecycle note**: this ledger is opened by the v3.18.0 Phase 5 reconciliation. Each subsequent v3.18.N implementation appends its own `## v3.18.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `MT-#` / `QG-#` numbering.
 
@@ -131,33 +131,37 @@ Every item raised during v3.18.0 is closed: five fixed in code, three closed by 
 
 **Prior-version ingest**: checked `docs/v3/v3.16/known-gaps.md` and `docs/v3/v3.17/known-gaps.md`. **v3.16 NI-2** (the drawdown weights cannot be verified) is **superseded here** and marked so in that ledger: the constants it described no longer exist, though the underlying uncertainty carries forward as NI-1 below. **v3.16 NI-4** (self-hosted and larger-runner exclusion rules are tested against invented SKU strings only) remains open and unchanged - this release did not acquire a real inventory for either, and it now matters slightly more, because an excluded runner that should have been included is a hole in a weighted figure rather than an unweighted one. No other prior item is in this plan's scope.
 
-### NI-1 - OPEN by design: price ratios and the legacy multipliers cannot be separated by any saturated month
+### NI-1 - CLOSED as MOOT 2026-08-22: price ratios and the legacy multipliers cannot be separated by any saturated month
 
 - **Target files**: `extensions/github-usage-monitor/src/providers/drawdown.ts`, `docs/v3/v3.18/development/github-drawdown-ledger.md`
 - **What is unresolved**: the shipped model weights by current price ratios (Windows 1.67x, macOS 10.33x). The legacy published multipliers (2x, 10x) fit the same data, differing by about 0.3% of the weighted total. Every month observed on the measured account is either **saturated** (so it reports only "at least the allowance" and cannot choose between two models that both predict above the cap) or **Linux-dominated** (so every candidate yields the same answer within tolerance). The data does not distinguish them.
 - **Decision**: ship the derived ratios, because the mechanism tracks GitHub's price changes and a hardcoded snapshot demonstrably does not - this number was revised three times for exactly that reason. This is a bet on the mechanism's stability, not a claim that the evidence separates the candidates, and the decision record says so in its Consequences.
 - **Disposition**: `docs/v3/v3.18/development/github-drawdown-ledger.md` states the falsifier - an unsaturated month whose non-Linux share exceeds 15% and whose displayed value matches unweighted raw minutes - and `src/providers/reconciliation.ts` refuses to classify a saturated or Linux-dominated month as support. A fourth revision has to produce a discriminating month rather than an argument.
+- **Reconciled 2026-08-22 (v3.18.3 Phase 5): CLOSED as MOOT.** Every target file above lives under `extensions/github-usage-monitor/`, which **v3.18.2 withdrew and deleted**. The limitation is real and the analysis stands, but there is no longer any shipped code it constrains. Verified by absence: the directory does not exist and the extension roster is three usage monitors, not four. Re-open only if the monitor is ever rebuilt, and read the withdrawal decision record first - the reason it was withdrawn is that GitHub serves no included-usage figure at all.
 
-### NI-2 - OPEN by design: the included allowance is still plan-table-derived
+### NI-2 - CLOSED as MOOT 2026-08-22: the included allowance is still plan-table-derived
 
 - **Target file**: `extensions/github-usage-monitor/src/providers/planEntitlements.ts`
 - **What is unresolved**: no billing endpoint returns the included allowance. The legacy product-specific endpoints that served `included_minutes` closed down in September 2025 and return 404/410; `/settings/billing/usage` returns consumption only. The denominator therefore comes from a published plan table (2,000 minutes, 0.5 GB on Free) that nothing on the account confirms.
 - **Decision**: keep the plan table with the existing manual override as the correction path, and label the denominator's provenance in the panel, which Phase 4 now does as a separate sentence from the numerator's.
 - **Why not scraped**: `github.com/settings/billing` requires a browser session cookie, and the extension holds an OAuth Bearer token, so the page is unreachable with the credential it has. It is also undocumented with no stability contract. Recorded as a rejected alternative in the decision record rather than left as an open idea.
+- **Reconciled 2026-08-22 (v3.18.3 Phase 5): CLOSED as MOOT.** Every target file above lives under `extensions/github-usage-monitor/`, which **v3.18.2 withdrew and deleted**. The limitation is real and the analysis stands, but there is no longer any shipped code it constrains. Verified by absence: the directory does not exist and the extension roster is three usage monitors, not four. Re-open only if the monitor is ever rebuilt, and read the withdrawal decision record first - the reason it was withdrawn is that GitHub serves no included-usage figure at all.
 
-### DF-1 - DEFERRED: a repository whose visibility cannot be read is excluded, and the whole figure goes unknown
+### DF-1 - CLOSED as MOOT 2026-08-22: a repository whose visibility cannot be read is excluded, and the whole figure goes unknown
 
 - **Target files**: `extensions/github-usage-monitor/src/providers/repositories.ts`, `src/providers/drawdown.ts`
 - **What is deferred**: a token without the `repo` scope cannot see private repositories, which are exactly the ones that draw down. The existing behavior is to name the unresolved repositories and report the drawdown as unknown rather than returning a partial sum, and Phase 4 now renders that group in the panel with the explanation. What is **not** built is a prompt that offers to re-authorize with the missing scope at the moment the gap is detected.
 - **Why deferred**: it is an authorization-flow change, not an accuracy change, and this plan's scope boundary is the drawdown model plus two documents. Adding a scope-escalation prompt on the refresh path is the kind of adjacent work the Boundaries rule declines.
 - **Suggested next step**: surface it from the existing reconnect offer rather than adding a new prompt surface.
+- **Reconciled 2026-08-22 (v3.18.3 Phase 5): CLOSED as MOOT.** Every target file above lives under `extensions/github-usage-monitor/`, which **v3.18.2 withdrew and deleted**. The limitation is real and the analysis stands, but there is no longer any shipped code it constrains. Verified by absence: the directory does not exist and the extension roster is three usage monitors, not four. Re-open only if the monitor is ever rebuilt, and read the withdrawal decision record first - the reason it was withdrawn is that GitHub serves no included-usage figure at all.
 
-### MT-1 - OPEN, pre-existing and out of scope: v3.16 development history is due for archival
+### MT-1 - RESOLVED 2026-08-22: v3.16 development history is archived
 
-- **Target path**: `docs/v3/v3.16/development/history` (39 files)
+- **Target path**: `docs/archive/v3/v3.16/development/history` (39 files)
 - **What is open**: `scripts/check_docs_retention.py` reports this directory as due for archival under the v3.18.0 retention policy (current minor v3.18, two-minor threshold). The check is advisory and always exits 0.
 - **Why not done here**: it is unrelated to this plan, and Phase 6.1 forbids refactoring outside plan scope. A 39-file move belongs in its own change with its own reference-repair pass, which is the lesson the v3.18.0 archive pass recorded when a comparable move turned up 227 inbound references including six that CI executes directly.
 - **Suggested next step**: run the archive pass through `/update refactor` or the `docs-layout-refactor` skill as its own change.
+- **Resolved 2026-08-22 (confirmed in v3.18.3 Phase 5)**: the pass ran as its own change after the v3.18.2 release. `docs/archive/v3/v3.16/development/history/` now holds the 39 files, `scripts/check_docs_retention.py` reports *nothing due for archival*, and the five files left in `docs/v3/v3.16/development/` are the live CI inputs and shipped-code citations that the v3.18.0 DF-4 policy correction says must stay in the live tree. The v3.18.2 ledger records the same closure as its own MT-1; both now agree.
 
 ### QG-1 - CLOSED in implementation: the cross-extension parity test was verified to fail, not just to pass
 
@@ -207,9 +211,23 @@ Every item raised during v3.18.0 is closed: five fixed in code, three closed by 
 - **Why it was missed**: the claim was carried forward from earlier releases and re-asserted during a documentation phase without re-verification against live vendor documentation. The plan's do-not-invent rule covers inventing a claim; it did not catch *inheriting* a claim that had since expired.
 - **Disposition**: closed as moot (both artifacts deleted). Recorded because the *class* of error is not moot: any surviving document that asserts third-party billing behavior carries the same expiry risk. The general lesson belongs to whatever next re-asserts a vendor behavior.
 
-### MT-1 - OPEN: docs/v3/v3.16/development/history is due for archival
+### MT-1 - CLOSED 2026-08-22 (post-release): v3.16 development history archived
 
-- **Carried forward unchanged from v3.18.1 MT-1.** 39 files, two minors behind current, due under the retention policy. Untouched here because this release is a scoped withdrawal and `scripts/check_docs_retention.py` is advisory by design. The v3.18.0 pass showed a comparable move surfaces inbound references that CI executes directly, so it wants its own change with a reference-repair pass.
+- **Was**: 39 files under `docs/v3/v3.16/development/history`, two minors behind current, due under the retention policy and carried forward unchanged from v3.18.1 MT-1.
+- **Closed by**: the post-v3.18.2 archive pass on `chore/v3.16-history-archive-and-plan-reslot`. Moved to `docs/archive/v3/v3.16/development/history/` as 39 git renames, matching the existing `docs/archive/v3/v3.15/development/history/` precedent.
+- **Reference repair**: the inbound surface was **8 files / 21 references**, all documentation, with **no CI step, script, or hook** among them - unlike the v3.18.0 pass, which surfaced 227 references including six that CI executes directly. Repaired and verified to zero dangling references. Nine of the twenty-one were DEVLOG index rows, one per v3.16 patch release.
+- **Scope note**: only `development/history` moved. The four `development/` contract documents (`evaluation-artifact-contract.md`, `github-entitlement-probe.md`, `install-selection-contract.md`, `selective-install-baseline.md`), plus `plans/`, `comparisons/`, and `known-gaps.md`, stay in the active tree - the retention policy ages out session histories, not contracts.
+- **Also corrected**: `docs/archive/README.md` documented only whole-major archival, so the `docs/archive/v3/` subtree created by the v3.18.0 retention pass was undocumented. It now states both rules and carries a v3 index row.
+
+### BG-2 - OPEN, environment-only: two installer tests fail non-deterministically in long local runs on OneDrive
+
+- **Observed**: 2026-08-22, post-release, on this Windows working tree (an OneDrive-synced folder). Two separate long local runs each failed **one** test, and **a different one each time**: `tests/installer/test_org_cli.py::test_disconnect_requires_confirmation_and_yes_removes_state_and_cache` (1 failed / 3888 passed, full suite, 60 min) and `tests/installer/test_selection_parity.py::test_powershell_filtered_install_matches_bash` (1 failed / 417 passed, `tests/installer` only, 5 min).
+- **Both pass in isolation** (5.1s and 7.1s respectively) and **both pass in CI**: `tests (ubuntu-latest)`, `installer-smoke` on ubuntu / macos / **windows**, and `install-smoke` were all green on the v3.18.2 PRs.
+- **Assessment: environment, not product.** The failing assertion in the first is `org connect <git-uri>` returning exit 2 instead of 0 - a shell-out to `git` against a bare-repo fixture. This session independently hit `fatal: unable to write new index file` from `git checkout -b` in this same tree, which is the documented OneDrive file-locking hazard. A different test failing on each run is the signature of contention, not of a deterministic defect.
+- **Explicitly NOT evidence of a regression in the v3.18.2 withdrawal.** `test_selection_parity` compares the PowerShell and bash installers, which the withdrawal edited on both sides, so it was the first candidate checked. It passes in isolation and `installer-smoke (windows-latest)` passed in CI, which is the job that exercises the retirement guard on the affected platform.
+- **Disposition**: not a release blocker and not tracked as product flakiness. Recorded so the next person who sees a lone installer failure on a OneDrive tree does not spend the investigation again. **A local full-suite run on this tree is not a trustworthy signal**; CI on a clean checkout is. If either test ever fails **in CI**, treat it as a real defect and delete this entry.
+- **Related process failure**: the first of these was reported to the user as a passing suite, because the run was piped (`pytest ... | tail`) and the pipeline's exit code is `tail`'s, not `pytest`'s. Never read `$?` through a pipe to judge a test run; capture the exit code directly or use `PIPESTATUS`.
+- **New data point 2026-08-22 (v3.18.3 Phase 5), which does NOT close this item**: a full `tests/installer` run on this same OneDrive tree was clean (418 passed, 17 skipped, 0 failed), as was `tests/integrations` (661 passed, 1 skipped). A non-deterministic flake cannot be disproved by one green run, so the entry stays open on its stated terms. Recorded because the absence of a failure is still evidence about frequency, and because the next person needs to know a clean local run has happened rather than assuming the tests always fail here.
 
 ### QG-1 - Verification performed for this release
 
@@ -221,3 +239,75 @@ Every item raised during v3.18.0 is closed: five fixed in code, three closed by 
 ### Release blockers
 
 **None.** The withdrawal is self-contained: no catalog artifact, platform contract, installer copy step, or registry file changes shape, and no surviving extension is touched.
+
+`BG-2` is open but is not a blocker and was recorded after the release: it is an environment-only local-run artifact that passes in CI on every platform, including the Windows leg that exercises the affected installer guard.
+
+---
+
+## v3.18.3 - presentify-slide-navigation
+
+**Status**: Phases 1-4 of 5 implemented on `feat/presentify-slide-navigation`. Every gate is green (full validate, trigger evals, the repo pytest suites, Phase 2's 42-check keyboard walkthrough, Phase 3's 24-check grammar and step-driver harness, and Phase 4's 28 new scorer tests). **No release blockers from these phases.**
+
+### DF-1 - RESOLVED in Phase 2: the Step 6 slide-navigation pointer
+
+- **Target files**: `catalog/skills/specialized-domains/document-to-interactive-html/SKILL.md` (Step 6), `catalog/skills/specialized-domains/document-to-interactive-html/references/slide-navigation.md` (Phase 2 creates it)
+- **What is deferred**: sub-task 1.2 item 4 asks Step 6 to point at `references/slide-navigation.md`. Phase 1 shipped alone, so the pointer was not written, per the plan's own instruction not to ship a dangling reference.
+- **Why it matters**: `make validate` runs an orphan-bundle audit over per-skill bundled resources. A pointer to a file that does not exist yet is the failure mode the deferral avoids, and the repo has already paid for one post-release dangling-reference sweep.
+- **Closes when**: Phase 2 creates the reference file and adds the pointer in the same commit.
+- **Resolution (2026-08-22)**: Phase 2 shipped `references/slide-navigation.md` (132 lines, all eight rule areas binary) and the Step 6 Navigation-mode bullet pointing at it in the same commit. The orphan-bundle audit passes (0 errors over 273 skills) and the prose mention in the command is now accurate.
+- **Note**: `catalog/commands/presentify.md` does carry a forward-looking PROSE mention ("following its own slide-navigation reference"), which sub-task 1.1 item 4 explicitly asked for. It names no path, so no audit or link checker can trip on it. It becomes accurate when Phase 2 lands.
+
+### WN-1 - Registry text must be derived, not retyped
+
+- **Target files**: `data/skills.json`, and any future hand-edit of a registry entry
+- **What happened**: `check_registry_entries.py --check --strict` compares `SKILL.md` frontmatter against the `data/skills.json` mirror character for character. Writing the same sentence twice by hand produced a one-word divergence ("scrolling" versus "scroll") that failed the gate.
+- **Why it is recorded rather than dismissed**: the same hand-sync is required in Phase 3 and Phase 4 if either touches a description, and the failure is silent until the gate runs. The fix is to copy the frontmatter value programmatically rather than retype the sentence.
+- **Disposition**: not a defect and not a blocker. A process note for the remaining phases of this plan.
+- **CLOSED 2026-08-22 (Phase 5)**: the remaining phases are done and no further registry hand-edit was needed (Phases 2-4 changed no frontmatter). The guidance is retained here because the next description edit will face the same strict comparison, and `check_registry_entries.py --check --strict` is what will catch it.
+
+### Phase 2 notes (2026-08-22)
+
+- The contract was proven implementable before shipping: a hand-authored five-slide sample passed a 42-check headless walkthrough (keyboard map, fragment order and idempotence, deep links with clamp/fallback branches, browser-back history, focus and live-region behavior, reduced-motion cuts, and the no-JS stacked fallback).
+- One capture-protocol fact for Phase 4: a screenshot taken mid-transition shows two slides painted together while the state is correct. The Phase 4 capture protocol must wait for transition settle (or force reduced motion) before grading, or every slide-mode run will file a phantom double-slide defect.
+
+### Phase 3 notes (2026-08-22)
+
+- **BG-1 - RESOLVED in Phase 3, found and fixed in the same session**: the new engine step driver's initial `goTo` at mount never painted layer 0 (`_shown.index` starts at 0 so `crossing` was false while `active` was still -1). Caught by the render harness, not by `node --check`, which stayed green throughout - the case for the plan's render-verification step. Fixed by also gating the layer toggle on `this.active !== index`, with a comment naming the mount case.
+- Two more settle-then-assert facts for Phase 4's capture protocol, joining the Phase 2 note: a fixed sleep racing a timed animation reads mid-count values (poll for the settled state instead), and CSSOM re-serializes transform values (`scale(1.0000)` reads back as `scale(1)`), so assertions against style strings must use the serialized form.
+
+### Phase 4 notes (2026-08-22)
+
+- **The three settle-then-capture facts recorded in Phases 2-3 are now DISCHARGED**: the rubric's degradation contract and SKILL.md Step 9 both carry the settle-before-capture rule for slide transitions and timed builds, so the phantom double-slide and mid-count defects cannot be filed on a slide-mode run.
+- **The `data-nav` gate is deliberately not the only source of truth.** Six of the seven scorer checks are gated on the attribute, which makes the attribute a single point of failure: lose it and every check skips and the page scores a confident green (fail-OPEN, worse than no check). `slide-record` runs ungated and fails when the design record and the markup disagree, so the gate can only be wrong in the direction that gets caught. Any future slide-mode check must either be gated AND covered by this agreement check, or be ungated itself.
+- **An existing guard test fired correctly and was updated, not loosened.** `test_no_stale_criteria_count_survives` hardcodes the rubric's criteria count so no surface can claim a stale one; growing the rubric to twelve broke it by design. The denylist now loops over eight / nine / ten / eleven and additionally asserts criterion 12 by name. Loosening it to a regex was rejected: it would pass forever and catch nothing.
+
+### Release blockers
+
+**None from Phases 1-4.**
+
+---
+
+## Reconciliation summary (2026-08-22, v3.18.3 Phase 5)
+
+Every open item across the whole v3.18 ledger was walked, not only this plan's own section.
+
+| Item | Was | Now | Basis |
+|---|---|---|---|
+| v3.18.1 NI-1 | OPEN by design | **CLOSED as moot** | Target extension withdrawn and deleted in v3.18.2; verified by absence |
+| v3.18.1 NI-2 | OPEN by design | **CLOSED as moot** | Same |
+| v3.18.1 DF-1 | DEFERRED | **CLOSED as moot** | Same |
+| v3.18.1 MT-1 | OPEN, out of scope | **RESOLVED** | Archive pass executed post-v3.18.2; retention checker reports nothing due |
+| v3.18.2 BG-2 | OPEN, environment-only | **OPEN** (unchanged) | A clean local run cannot disprove a non-deterministic flake; new data point recorded |
+| v3.18.3 DF-1 | DEFERRED to Phase 2 | **RESOLVED** | `references/slide-navigation.md` and the Step 6 pointer shipped together in Phase 2 |
+| v3.18.3 WN-1 | Process note | **CLOSED** | No further registry hand-edit was needed; the guidance is retained for the next one |
+
+**The material finding is the moot cluster.** Three items sat marked OPEN or DEFERRED against `extensions/github-usage-monitor/`, an extension the very next patch release deleted. Nothing was wrong with the analysis; the ledger simply had no mechanism to notice that a later release removed the code an earlier release's gaps pointed at. Worth a habit rather than a tool: when a release withdraws a component, sweep the ledger for items whose **Target files** live under it, in the same change.
+
+**Prior-version ingest.** `docs/v3/v3.17/known-gaps.md` was checked and carries ten open or deferred items. None is in this plan's scope - they concern platform invocation-policy levers, coverage instrumentation, per-model prompting-profile freshness, Gemini matcher semantics, and output-redirection verification. They stay in the v3.17 ledger with their existing owners; a presentify navigation feature is not the change that should close them.
+
+**Stale carried-items list corrected.** `docs/todos.md` carried seven items forward from the v3.18.0 reconciliation, six of them unchecked. Cross-checking each against this ledger showed **five were already resolved** and only one is genuinely open (whether the MCP decision tree should leave AGENTS.md). The dashboard was overstating open work by 5x. Corrected in the same pass, each with the ledger item that closed it.
+
+### Release blockers
+
+**None.** The one item still open across all of v3.18 is BG-2, which is environment-only, passes in CI on every platform, and passed locally in this session too.
+ The phase changes only documentation surfaces the installers already copy recursively, adds no catalog artifact, and leaves `data/marketplace.json` counts and the 273-skill total unchanged.

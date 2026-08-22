@@ -38,9 +38,14 @@ Both are recorded below as what the vendor documents, not what the summary claim
 | `codex` | VERIFIED (different shape) | `policy.allow_implicit_invocation` (default `true`, inverted polarity) | none documented | `agents/openai.yaml` sidecar | [learn.chatgpt.com](https://learn.chatgpt.com/docs/build-skills) | 2026-08-18 |
 | `qwen` | VERIFIED | `disable-model-invocation` | `user-invocable` | `SKILL.md` frontmatter | [qwenlm.github.io](https://qwenlm.github.io/qwen-code-docs/en/users/features/skills/) | 2026-08-18 |
 | `antigravity2` | UNVERIFIED | none documented | none documented | n/a | [antigravity.google](https://antigravity.google/docs/skills) | 2026-08-18 |
-| `opencode`, `kimi`, `hermes`, `nexus-ai` | NOT SURVEYED | - | - | - | - | - |
+| `opencode` | VERIFIED (none documented) | none documented | none documented | `SKILL.md` frontmatter | [opencode.ai](https://opencode.ai/docs/skills/) | 2026-08-22 |
+| `kimi` | VERIFIED (none documented) | none documented | none documented | `SKILL.md` frontmatter | [moonshotai.github.io](https://moonshotai.github.io/kimi-cli/en/customization/skills.html) | 2026-08-22 |
+| `hermes` | VERIFIED (none documented) | none documented | none documented (see `platforms`) | `SKILL.md` frontmatter | [hermes-agent.nousresearch.com](https://hermes-agent.nousresearch.com/docs/user-guide/features/skills) | 2026-08-22 |
+| `nexus-ai` | VERIFIED (none implemented) | none implemented | none implemented | n/a (first-party sibling) | [github.com/bendourthe/Nexus-AI](https://github.com/bendourthe/Nexus-AI) | 2026-08-22 |
 
 "NOT SURVEYED" is deliberately distinct from "none documented". The first means nobody looked yet; the second means someone read the vendor's page and the field is not there. Collapsing the two is how an unchecked assumption becomes a recorded fact.
+
+As of 2026-08-22 the roster carries **no NOT SURVEYED rows**: the final four (`opencode`, `kimi`, `hermes`, `nexus-ai`) were surveyed against their own documentation, closing v3.17 DF-1. Every one returned "none documented", which is a finding rather than a non-answer - it means a declared field reaches those platforms and is ignored, and the distribution rule below therefore holds unchanged. `nexus-ai` is recorded as "none implemented" instead, because a first-party sibling is surveyed against its source rather than a vendor page.
 
 ## Per-platform detail
 
@@ -84,6 +89,29 @@ Like `claude`, `copilot`, and `cursor`, Qwen reads these from `SKILL.md`, so the
 ### antigravity2 - UNVERIFIED
 
 The skills page documents only `name` (defaults to the folder name) and `description`, and states the agent decides whether to use a skill based on context. No per-skill mechanism to disable that is documented. This is a valid, expected result, not a gap to fill.
+
+
+### opencode - VERIFIED (none documented)
+
+Surveyed 2026-08-22. The documentation enumerates the recognised frontmatter fields EXHAUSTIVELY ("Only these fields are recognized"): `name` (required), `description` (required), `license`, `compatibility`, and `metadata`. Neither invocation lever is among them.
+
+The distinction matters for this platform: opencode does have invocation controls, but they live in `opencode.json` permission rules and agent configuration rather than in `SKILL.md` frontmatter. So a declared `disable-model-invocation` reaches opencode and is ignored, exactly as the general rule below predicts. Source: <https://opencode.ai/docs/skills/>.
+
+### kimi - VERIFIED (none documented)
+
+Surveyed 2026-08-22. The Kimi Code CLI skills page documents `name`, `description`, `license`, `compatibility`, `metadata`, and `type` (for flow skills). Neither lever appears. The page describes the agent deciding on its own whether to read a `SKILL.md`, which is default behavior rather than a frontmatter-controlled policy. Source: <https://moonshotai.github.io/kimi-cli/en/customization/skills.html>.
+
+### hermes - VERIFIED (none documented), with one nuance worth recording
+
+Surveyed 2026-08-22. Hermes documents `name`, `description`, `version`, `platforms`, `required_environment_variables`, `author`, and a `metadata.hermes.*` block (`tags`, `category`, `config`, `requires_toolsets`, `fallback_for_toolsets`, `requires_tools`, `fallback_for_tools`). Neither Nexus-Hub lever is present.
+
+The nuance: `platforms` produces CONDITIONAL visibility - "When set, the skill is automatically hidden from the system prompt, `skills_list()`, and slash commands on incompatible platforms" - and the toolset fields hide skills conditionally too. That is capability-gating, not an invocation-policy toggle: it answers "does this skill apply here" rather than "may the model load it" or "may the user type it". It is recorded here so a future reader does not mistake it for a `user-invocable` counterpart and map the two together. Source: <https://hermes-agent.nousresearch.com/docs/user-guide/features/skills>.
+
+### nexus-ai - VERIFIED (none implemented)
+
+Surveyed 2026-08-22, and surveyed differently from the rest, because this is the first-party sibling product rather than a third-party vendor. There is no external vendor page to fetch; `docs/policy/platform-read-contracts.json` classifies it MATCH-LOCAL with an empty `sources` list for exactly that reason. The authoritative source for a first-party product is its own repository, which is public: a code search across `bendourthe/Nexus-AI` for `disable-model-invocation` and for `user-invocable` returns **zero hits** for both.
+
+Recorded as "none implemented" rather than "none documented" to keep the two situations distinguishable: a third-party platform might implement a lever it has not documented, whereas here the absence is in the code itself.
 
 ## Distribution consequence
 

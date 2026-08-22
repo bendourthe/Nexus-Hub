@@ -1,6 +1,6 @@
 # Nexus-Hub Progress Dashboard
 
-**Branch:** `release/v3.17.4`
+**Branch:** `feat/presentify-slide-navigation`
 
 ---
 
@@ -18,6 +18,7 @@
 | Phase 7 tasks complete | 4 | 4 | 0 |
 | v3.19.0 CI/CD plan phases complete | 0 | 8 | 8 |
 | v3.16.1 planning milestones complete | 2 | 2 | 0 |
+| v3.18.3 presentify slide-navigation phases complete | 5 | 5 | 0 |
 | v3.16.1 plan phases complete | 8 | 8 | 0 |
 | Local release integration | 1 | 1 | 0 |
 | Release metadata and docs | 1 | 1 | 0 |
@@ -240,10 +241,18 @@
 
 ### Carried into Phase 5 known-gaps reconciliation
 
-- [ ] `tests/installer/test_bootstrap.py::test_ps_standalone_extracts_and_hands_off` fails locally: `install.ps1` resolves bare `tar` to Git Bash's `/usr/bin/tar`, which cannot decompress the stub tarball. Same PATH-shadowing class as the v3.15.6 and v3.17.6 `bash`/WSL-stub defects.
-- [ ] Stray empty `Microsoft/Windows/PowerShell` directory in the repo root, a PowerShell installer-test side effect; invisible to `git status` because git does not track empty directories.
-- [ ] SKIP clauses fight the routing gate: `scripts/run_trigger_evals.py` tokenizes the whole description with no notion of negation, so a SKIP clause naming what it fences off imports that vocabulary as positive trigger words. Re-examine the 40 allowlisted collisions under this lens.
-- [ ] Consider a `docs/DEVLOG.md` ceiling in `docs/policy/doc-budgets.json`, so the 150-line limit lives beside the other ratchets rather than only in a test constant.
-- [ ] Link checkers that treat `#` targets as same-page anchors cannot see an anchor orphaned by relocation; three such links broke silently in Phase 3.
-- [ ] The MCP decision tree was left in AGENTS.md because the five parity-guarded `base-*.md` blocks point at it; revisit if a future ratchet needs the 427 words.
+- [x] `test_ps_standalone_extracts_and_hands_off` PATH-shadowed `tar` - RESOLVED by v3.18.0 WN-1 (`install.ps1` resolves `tar` explicitly instead of trusting PATH); re-confirmed 2026-08-22 by a clean `tests/installer` run (418 passed, 0 failed)
+- [x] Stray empty `Microsoft/Windows/PowerShell` directory - RESOLVED; verified absent 2026-08-22 in the v3.18.3 Phase 5 empty-directory sweep (the only empty dirs left are gitignored local scratch)
+- [x] SKIP clauses feeding the routing scorer positive vocabulary - RESOLVED by v3.18.0 DF-2
+- [x] `docs/DEVLOG.md` ceiling in `doc-budgets.json` - CLOSED by decision (v3.18.0 MT-2): the limit stays in the test constant
+- [x] Link checkers blind to anchors orphaned by relocation - CLOSED by decision (v3.18.0 DF-3): the hazard is documented and a general validator was rejected on evidence
+- [ ] The MCP decision tree was left in AGENTS.md because the five parity-guarded `base-*.md` blocks point at it; revisit if a future ratchet needs the 427 words. **(The only genuinely-open item in this carried list, re-verified 2026-08-22.)**
 - [x] Run the first retention archive pass (executed in Phase 5: 216 files moved, 75 repaired; scope narrowed to `development/history/` because `development/` also holds live CI fixtures)
+
+## Plan - v3.18.3 Presentify Slide Navigation
+
+- [x] Complete Phase 1: Navigation-mode intake and contract wiring (`--nav <scroll|slides>`, merged canvas-and-navigation Round 1 question, registries in sync; all gates green)
+- [x] Complete Phase 2: Slide-mode authoring contract (`references/slide-navigation.md` at 132 lines, Step 6 Navigation-mode bullet, DF-1 closed; 42-check headless walkthrough green)
+- [x] Complete Phase 3: Animation adaptation grammar (three classes + 14-row exhaustive mapping table; scroll-scrub fragment-stepped camera + engine `driver: 'step'`; 24-check render harness green)
+- [x] Complete Phase 4: QA loop and structural scorer support (rubric criterion 12, Step 9 per-slide capture protocol, 7 scorer checks + 28 tests; verified in both directions on the real Phase 2-3 pages)
+- [x] Complete Phase 5: Architecture Refactor, Known-Gaps Reconciliation, and CI/CD (layout clean; whole v3.18 ledger reconciled to ONE open item; CI verified; parity gate green)

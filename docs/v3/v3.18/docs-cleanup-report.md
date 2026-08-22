@@ -22,7 +22,7 @@ Every v3.18 artifact is active: the three plans (v3.18.0 docs-lifecycle-retentio
 |---|---|---|
 | `plans/v3.18.0-docs-lifecycle-retention.md` | 4 | The plan being implemented; linked from the roadmap and every session history |
 | `plans/v3.18.1-github-usage-monitor-accuracy.md` | 4 | Queued, unshipped; target version matches its directory |
-| `plans/v3.18.2-presentify-slide-navigation.md` | 4 | Queued, unshipped; target version matches its directory |
+| `plans/v3.18.3-presentify-slide-navigation.md` | 4 | Queued, unshipped; re-slotted from v3.18.2 on 2026-08-22 after that number was taken by the monitor withdrawal |
 | `development/history/2026-08-21_...-phase-1-devlog-conversion-and-archive.md` | 4 | Current version's history; the DEVLOG index will link this directory at release |
 | `development/history/2026-08-21_...-phase-2-tooling-rewrite.md` | 4 | As above |
 | `development/history/2026-08-21_...-phase-3-agents-md-ratchet-down.md` | 4 | As above |
