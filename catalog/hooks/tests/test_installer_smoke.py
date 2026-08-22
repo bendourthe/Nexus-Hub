@@ -242,26 +242,26 @@ def test_installers_use_claude_usage_monitor_banner():
 
 
 # Every usage monitor the installers must build, in the vendor order both shells
-# present them (Anthropic, OpenAI, GitHub for VS Code; Anysphere/Cursor last).
+# present them (Anthropic, OpenAI for VS Code; Anysphere/Cursor last).
 # Adding a monitor means adding a row here; the tests below then enforce presence
 # AND ordering in both shells, so a monitor cannot be wired into one installer
 # and forgotten in the other, and the two cannot drift out of order.
 USAGE_MONITORS = (
     ("claude-usage-monitor", "nexus-hub.claude-usage-monitor", "Claude Usage Monitor"),
     ("codex-usage-monitor", "nexus-hub.codex-usage-monitor", "Codex Usage Monitor"),
-    # v3.15.12 Phase 3 renamed the display surfaces to "GitHub Billing Usage";
-    # v3.16.3 Phase 1 reverted them to "GitHub Usage Monitor". The folder and the
-    # extension id deliberately did NOT change through either rename: an id is
-    # publisher.name, so renaming it would orphan an existing install.
-    ("github-usage-monitor", "nexus-hub.github-usage-monitor", "GitHub Usage Monitor"),
+    # The GitHub monitor was WITHDRAWN in v3.18.2; see RETIRED_EXTENSION_IDS below.
     ("cursor-usage-monitor", "nexus-hub.cursor-usage-monitor", "Cursor Usage Monitor"),
 )
 
-VS_CODE_USAGE_MONITORS = USAGE_MONITORS[:3]
-CURSOR_USAGE_MONITOR = USAGE_MONITORS[3]
-#: Installs into VS Code AND Cursor. The only monitor whose subject (GitHub billing)
-#: is independent of which editor the developer happens to be using.
-DUAL_HOST_MONITOR_ID = "nexus-hub.github-usage-monitor"
+VS_CODE_USAGE_MONITORS = USAGE_MONITORS[:2]
+CURSOR_USAGE_MONITOR = USAGE_MONITORS[2]
+
+#: Extensions a previous release installed that the installers must now UNINSTALL.
+#: Unshipping alone is not enough: an extension already on a user's machine keeps
+#: running. nexus-hub.github-usage-monitor reconstructed GitHub's included-usage
+#: meter from data GitHub does not publish and could report a confident 0% against
+#: an exhausted allowance, so it is actively removed from both hosts.
+RETIRED_EXTENSION_IDS = ("nexus-hub.github-usage-monitor",)
 
 
 def test_installers_build_every_usage_monitor_extension():
@@ -281,6 +281,47 @@ def test_installers_build_every_usage_monitor_extension():
             assert display_name.lower() in lower, (
                 f"{path.name} must reference the '{display_name}' display name"
             )
+
+
+def test_installers_uninstall_retired_extensions_from_both_hosts():
+    """A withdrawn extension must be UNINSTALLED, not merely unshipped.
+
+    Removing an extension from the build loop stops new installs but leaves every
+    existing one running. nexus-hub.github-usage-monitor is the case this guards:
+    it reported a confident 0% against an exhausted GitHub allowance, so a user who
+    upgrades and still sees it is strictly worse off than one who never had it.
+
+    Both hosts are asserted because that monitor was the one dual-host monitor,
+    installed into Cursor as well as VS Code. A VS Code-only sweep would leave the
+    Cursor copy on screen, which is the exact failure this test exists to catch.
+    """
+    for path in (INSTALLER_SH, INSTALLER_PS1):
+        body = path.read_text(encoding="utf-8")
+        for extension_id in RETIRED_EXTENSION_IDS:
+            # Assert on the retirement ARRAY, not merely on the id appearing
+            # somewhere in the file. The id is also named in a nearby comment, so a
+            # bare substring check passes even when the entry is deleted - the
+            # fail-open shape this test exists to prevent.
+            marker = "legacy_ids=(" if path is INSTALLER_SH else "$legacyIds = @("
+            start = body.index(marker)
+            array = body[start : body.index(")", start)]
+            assert extension_id in array, (
+                f"{path.name} must list {extension_id} in its retirement array so it "
+                f"is uninstalled from existing installs, not merely unshipped"
+            )
+            assert "--uninstall-extension" in body, (
+                f"{path.name} must uninstall retired extensions"
+            )
+            assert f"extensions/{extension_id.split('.', 1)[1]}" not in body, (
+                f"{path.name} must NOT build {extension_id}; it was withdrawn"
+            )
+            windows_path = "extensions" + chr(92) + extension_id.split(".", 1)[1]
+            assert windows_path not in body, (
+                f"{path.name} must NOT build {extension_id}; it was withdrawn"
+            )
+        assert '"code", "cursor"' in body or "for cli in code cursor" in body, (
+            f"{path.name} must sweep BOTH hosts for retired extensions"
+        )
 
 
 def test_installers_agree_on_usage_monitor_order():
@@ -346,25 +387,9 @@ def test_installers_isolate_vscode_and_cursor_hosts():
             assert "vscode_cli" in window or "vscodeCli" in window, (
                 f"{path.name} must pass the VS Code CLI into {extension_id} install"
             )
-            if extension_id == DUAL_HOST_MONITOR_ID:
-                # Deliberate exception, 2026-08-11. GitHub billing is not tied to the
-                # editor a developer uses: a Cursor user has the same Actions minutes
-                # and Copilot credits to watch, so this monitor installs into BOTH.
-                # The Claude and Codex monitors stay VS Code-only because each reports
-                # usage for a tool that is itself a VS Code extension.
-                continue
             assert "cursor_cli" not in window and "cursorCli" not in window, (
                 f"{path.name} must not pass the Cursor CLI into {extension_id} install"
             )
-
-        # The dual-host monitor must reach BOTH editors. Asserted positively: the
-        # exemption above only stops the old rule failing, and an exemption alone
-        # would pass just as happily if the Cursor argument were dropped entirely.
-        dual_idx = body.index(DUAL_HOST_MONITOR_ID)
-        dual_window = body[dual_idx : dual_idx + 280]
-        assert "cursor_cli" in dual_window or "cursorCli" in dual_window, (
-            f"{path.name} must also pass the Cursor CLI into {DUAL_HOST_MONITOR_ID} install"
-        )
 
         _, cursor_id, _ = CURSOR_USAGE_MONITOR
         cursor_window = body[body.index(cursor_id) : body.index(cursor_id) + 280]
@@ -378,29 +403,6 @@ def test_installers_isolate_vscode_and_cursor_hosts():
             'write_header "ANYSPHERE"' in body
             or 'Write-Header -Provider "ANYSPHERE"' in body
         ), f"{path.name} must present the Cursor monitor under an ANYSPHERE vendor header"
-
-
-def test_github_monitor_status_hint_promises_no_percentage():
-    """The GitHub monitor's installer status hint must not promise a percentage.
-
-    GitHub does not guarantee an included allowance for Copilot or Actions, so
-    the monitor shows absolute usage until a verified or manually configured
-    denominator exists. A 'GitHub: --%' hint would advertise the false-quota
-    claim the v3.15.8 data contract forbids.
-    """
-    for path in (INSTALLER_SH, INSTALLER_PS1):
-        body = path.read_text(encoding="utf-8")
-        # The prefix moved to "GitHub Billing" in v3.15.12 Phase 3 and back to
-        # "GitHub Usage" in v3.16.3 Phase 1, matching buildStatusText's own label.
-        # The point of this assertion is the absent "%", not the prefix.
-        assert "GitHub Usage: --" in body, (
-            f"{path.name} must use the absolute-usage 'GitHub Usage: --' status hint"
-        )
-        for promised in ("GitHub: --%", "GitHub Billing: --%", "GitHub Usage: --%"):
-            assert promised not in body, (
-                f"{path.name} must not promise a GitHub usage percentage before a "
-                "denominator is verified"
-            )
 
 
 def test_installer_ps1_surfaces_vsce_errors():

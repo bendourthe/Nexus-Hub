@@ -7,7 +7,7 @@ set -e
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-NEXUS_HUB_VERSION="3.18.1"
+NEXUS_HUB_VERSION="3.18.2"
 
 # --- Window Title ---
 printf '\033]0;Nexus-Hub Installer\007'
@@ -2213,34 +2213,13 @@ install_vscode_extensions() {
 
     # Build each extension under its own vendor header. VS Code monitors install
     # only via vscode_cli; the Cursor monitor installs only via cursor_cli. The
-    # vendor order (Anthropic, OpenAI, GitHub, Anysphere) is asserted by the
+    # vendor order (Anthropic, OpenAI, Anysphere) is asserted by the
     # installer smoke test and must match scripts/installer.ps1.
     write_header "ANTHROPIC"
     build_and_install_one_extension "$repo_root/extensions/claude-usage-monitor" "nexus-hub.claude-usage-monitor" "Claude Usage Monitor" "Claude: --%" "$vscode_cli" "$vscode_label"
 
     write_header "OPENAI"
     build_and_install_one_extension "$repo_root/extensions/codex-usage-monitor" "nexus-hub.codex-usage-monitor" "Codex Usage Monitor" "Codex: --%" "$vscode_cli" "$vscode_label"
-
-    # The GitHub monitor's status hint carries no "%" because GitHub does not
-    # guarantee an included allowance: until a verified denominator or a manual
-    # one is configured the bar shows absolute usage, so promising a percentage
-    # here would be the false-quota claim the v3.15.8 contract forbids. The
-    # install itself never authenticates to GitHub - the token is supplied later
-    # through the extension's SecretStorage command.
-    # v3.15.13 Phase 3 renamed the display surfaces to "GitHub Billing Usage";
-    # v3.16.3 Phase 1 reverted them to "GitHub Usage Monitor" for consistency with
-    # the Claude, Codex, and Cursor monitors. The extension id is deliberately
-    # unchanged through both: an id is publisher.name, so renaming it would mint a
-    # second extension and leave the previously installed one orphaned, with both
-    # writing a status-bar item. The directory path also stays
-    # extensions/github-usage-monitor.
-    write_header "GITHUB"
-    # Dual-host, unlike the Claude and Codex monitors. GitHub billing is not tied
-    # to the editor a developer happens to use, and a Cursor user has the same
-    # Actions minutes and Copilot credits to watch. Requested 2026-08-11; this
-    # deliberately reverses the v3.15.9 Phase 6 blanket rule FOR THIS MONITOR ONLY.
-    # The Cursor argument is empty when Cursor is not installed, so nothing happens.
-    build_and_install_one_extension "$repo_root/extensions/github-usage-monitor" "nexus-hub.github-usage-monitor" "GitHub Usage Monitor" "GitHub Usage: --" "$vscode_cli" "$vscode_label" "$cursor_cli" "$cursor_label"
 
     write_header "ANYSPHERE"
     build_and_install_one_extension "$repo_root/extensions/cursor-usage-monitor" "nexus-hub.cursor-usage-monitor" "Cursor Usage Monitor" "Cursor: --%" "$cursor_cli" "$cursor_label"
@@ -3128,23 +3107,35 @@ NEXUS_BANNER_EOF
 # (and necessary) to re-run on every install, including for users who
 # migrated ~/.devai-hub/ in an earlier installer run.
 remove_legacy_vscode_extensions() {
-    command -v code >/dev/null 2>&1 || return 0
-    local installed
-    installed=$(code --list-extensions 2>/dev/null) || return 0
+    # nexus-hub.github-usage-monitor was WITHDRAWN in v3.18.2. It reconstructed the
+    # included-usage meter from data GitHub does not publish, and could report a
+    # confident 0% against an exhausted allowance. Leaving it installed keeps that
+    # wrong number on a user's status bar forever, so it is actively uninstalled
+    # rather than merely unshipped.
+    local legacy_ids=("devai-hub.claude-usage-monitor" "nexus-hub.github-usage-monitor")
 
-    local legacy_ids=("devai-hub.claude-usage-monitor")
-    local id emitted=0
-    for id in "${legacy_ids[@]}"; do
-        if printf '%s\n' "$installed" | grep -qx "$id"; then
-            if [ "$emitted" -eq 0 ]; then echo ""; fi
-            echo -e "  ${YELLOW}Removing legacy VS Code extension: $id${RESET}"
-            if code --uninstall-extension "$id" >/dev/null 2>&1; then
-                echo -e "  ${GREEN}[OK] Removed $id${RESET}"
-            else
-                echo -e "  ${YELLOW}Could not auto-remove $id (uninstall it manually from VS Code)${RESET}"
+    # Both hosts, not just VS Code. The GitHub monitor was the one dual-host
+    # monitor, installed to Cursor as well, so a VS Code-only sweep would leave the
+    # Cursor copy running.
+    local cli emitted=0
+    for cli in code cursor; do
+        command -v "$cli" >/dev/null 2>&1 || continue
+        local installed
+        installed=$("$cli" --list-extensions 2>/dev/null) || continue
+        local id
+        for id in "${legacy_ids[@]}"; do
+            if printf '%s
+' "$installed" | grep -qx "$id"; then
+                if [ "$emitted" -eq 0 ]; then echo ""; fi
+                echo -e "  ${YELLOW}Removing retired extension from $cli: $id${RESET}"
+                if "$cli" --uninstall-extension "$id" >/dev/null 2>&1; then
+                    echo -e "  ${GREEN}[OK] Removed $id from $cli${RESET}"
+                else
+                    echo -e "  ${YELLOW}Could not auto-remove $id (uninstall it manually from $cli)${RESET}"
+                fi
+                emitted=1
             fi
-            emitted=1
-        fi
+        done
     done
     if [ "$emitted" -eq 1 ]; then echo ""; fi
 }

@@ -27,7 +27,6 @@ LIVE_SMOKE = (
 SIBLING_MONITOR_WORKFLOWS = (
     WORKFLOW_DIR / "claude-usage-monitor.yml",
     WORKFLOW_DIR / "codex-usage-monitor.yml",
-    WORKFLOW_DIR / "github-usage-monitor.yml",
 )
 
 ON_KEY = True
@@ -197,8 +196,9 @@ def test_dependabot_tracks_the_new_extension() -> None:
         if entry.get("package-ecosystem") == "npm"
         and str(entry.get("directory", "")).endswith("-usage-monitor")
     ]
-    assert len(npm_monitors) == 4, (
-        "expected npm Dependabot entries for all four usage monitors"
+    # Three, not four: the GitHub monitor was withdrawn in v3.18.2.
+    assert len(npm_monitors) == 3, (
+        "expected npm Dependabot entries for all three usage monitors"
     )
     for entry in npm_monitors:
         ignored = {item["dependency-name"] for item in entry.get("ignore", [])}

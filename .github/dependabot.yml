@@ -46,11 +46,6 @@ updates:
       # in the same commit that bumps engines, not via Dependabot.
       - dependency-name: "@types/vscode"
 
-  - package-ecosystem: npm
-    directory: /extensions/github-usage-monitor
-    schedule:
-      interval: monthly
-    open-pull-requests-limit: 2
     labels:
       - dependencies
       - npm

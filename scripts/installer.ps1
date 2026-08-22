@@ -144,7 +144,7 @@ function Get-SanitizedBranchName {
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:NexusHubVersion = "3.18.1"
+$script:NexusHubVersion = "3.18.2"
 
 $Host.UI.RawUI.WindowTitle = "Nexus-Hub Installer"
 $script:InstallerTitle = "Nexus-Hub Installer"
@@ -2515,34 +2515,13 @@ function Install-VSCodeExtensions {
 
     # Build each extension under its own vendor header. VS Code monitors install
     # only via $vscodeCli; the Cursor monitor installs only via $cursorCli. The
-    # vendor order (Anthropic, OpenAI, GitHub, Anysphere) is asserted by the
+    # vendor order (Anthropic, OpenAI, Anysphere) is asserted by the
     # installer smoke test and must match scripts/installer.sh.
     Write-Header -Provider "ANTHROPIC"
     Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\claude-usage-monitor") -ExtensionId "nexus-hub.claude-usage-monitor" -DisplayName "Claude Usage Monitor" -StatusHint "Claude: --%" -CodeCli $vscodeCli -CodeLabel $vscodeLabel
 
     Write-Header -Provider "OPENAI"
     Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\codex-usage-monitor") -ExtensionId "nexus-hub.codex-usage-monitor" -DisplayName "Codex Usage Monitor" -StatusHint "Codex: --%" -CodeCli $vscodeCli -CodeLabel $vscodeLabel
-
-    # The GitHub monitor's status hint carries no "%" because GitHub does not
-    # guarantee an included allowance: until a verified denominator or a manual
-    # one is configured the bar shows absolute usage, so promising a percentage
-    # here would be the false-quota claim the v3.15.8 contract forbids. The
-    # install itself never authenticates to GitHub - the token is supplied later
-    # through the extension's SecretStorage command.
-    # v3.15.13 Phase 3 renamed the display surfaces to "GitHub Billing Usage";
-    # v3.16.3 Phase 1 reverted them to "GitHub Usage Monitor" for consistency with
-    # the Claude, Codex, and Cursor monitors. The extension id is deliberately
-    # unchanged through both: an id is publisher.name, so renaming it would mint a
-    # second extension and leave the previously installed one orphaned, with both
-    # writing a status-bar item. The directory path also stays
-    # extensions\github-usage-monitor.
-    # Dual-host, unlike the Claude and Codex monitors. GitHub billing is not tied to
-    # the editor a developer happens to use, and a Cursor user has the same Actions
-    # minutes and Copilot credits to watch. Requested 2026-08-11; this deliberately
-    # reverses the v3.15.9 Phase 6 blanket rule FOR THIS MONITOR ONLY. The Cursor
-    # argument is $null when Cursor is not installed, so nothing happens.
-    Write-Header -Provider "GITHUB"
-    Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\github-usage-monitor") -ExtensionId "nexus-hub.github-usage-monitor" -DisplayName "GitHub Usage Monitor" -StatusHint "GitHub Usage: --" -CodeCli $vscodeCli -CodeLabel $vscodeLabel -AlsoCodeCli $cursorCli -AlsoCodeLabel $cursorLabel
 
     Write-Header -Provider "ANYSPHERE"
     Build-And-Install-One-Extension -ExtensionDir (Join-Path $RepoRoot "extensions\cursor-usage-monitor") -ExtensionId "nexus-hub.cursor-usage-monitor" -DisplayName "Cursor Usage Monitor" -StatusHint "Cursor: --%" -CodeCli $cursorCli -CodeLabel $cursorLabel
@@ -3464,24 +3443,34 @@ function Write-NexusBanner {
 # (and necessary) to re-run on every install, including for users who
 # migrated ~/.devai-hub/ in an earlier installer run.
 function Remove-LegacyVSCodeExtensions {
-    $codeCmd = Get-Command "code" -ErrorAction SilentlyContinue
-    if (-not $codeCmd) { return }
-    $installed = & code --list-extensions 2>$null
-    if ($LASTEXITCODE -ne 0 -or -not $installed) { return }
+    # nexus-hub.github-usage-monitor was WITHDRAWN in v3.18.2. It reconstructed the
+    # included-usage meter from data GitHub does not publish, and could report a
+    # confident 0% against an exhausted allowance. Leaving it installed keeps that
+    # wrong number on a user's status bar forever, so it is actively uninstalled
+    # rather than merely unshipped.
+    $legacyIds = @("devai-hub.claude-usage-monitor", "nexus-hub.github-usage-monitor")
 
-    $legacyIds = @("devai-hub.claude-usage-monitor")
+    # Both hosts, not just VS Code. The GitHub monitor was the one dual-host
+    # monitor, installed to Cursor as well, so a VS Code-only sweep would leave the
+    # Cursor copy running.
     $emitted = $false
-    foreach ($id in $legacyIds) {
-        if ($installed -contains $id) {
-            if (-not $emitted) { Write-Host "" }
-            Write-Host "  Removing legacy VS Code extension: $id" -ForegroundColor Yellow
-            & code --uninstall-extension $id 2>$null | Out-Null
-            if ($LASTEXITCODE -eq 0) {
-                Write-Host "  ✓ Removed $id" -ForegroundColor Green
-            } else {
-                Write-Host "  ⚠ Could not auto-remove $id (uninstall it manually from VS Code)" -ForegroundColor Yellow
+    foreach ($cli in @("code", "cursor")) {
+        $cliCmd = Get-Command $cli -ErrorAction SilentlyContinue
+        if (-not $cliCmd) { continue }
+        $installed = & $cli --list-extensions 2>$null
+        if ($LASTEXITCODE -ne 0 -or -not $installed) { continue }
+        foreach ($id in $legacyIds) {
+            if ($installed -contains $id) {
+                if (-not $emitted) { Write-Host "" }
+                Write-Host "  Removing retired extension from ${cli}: $id" -ForegroundColor Yellow
+                & $cli --uninstall-extension $id 2>$null | Out-Null
+                if ($LASTEXITCODE -eq 0) {
+                    Write-Host "  [OK] Removed $id from $cli" -ForegroundColor Green
+                } else {
+                    Write-Host "  [!] Could not auto-remove $id (uninstall it manually from $cli)" -ForegroundColor Yellow
+                }
+                $emitted = $true
             }
-            $emitted = $true
         }
     }
     if ($emitted) { Write-Host "" }
