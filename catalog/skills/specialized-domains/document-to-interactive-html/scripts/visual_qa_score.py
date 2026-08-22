@@ -1082,6 +1082,353 @@ def check_render_only_defects(
     )
 
 
+# --- Slide-mode structural checks (nav=slides, v3.18.3 Phase 4) ---------------
+#
+# Every check below is gated on `data-nav="slides"` on <body>: an absent
+# attribute means scroll mode and the whole family is SKIPPED, never failed.
+# The one exception is `check_slide_record_agreement`, which runs UNGATED
+# precisely because the gate itself can be wrong - a page whose design record
+# says slides but whose markup lost the attribute would otherwise skip every
+# slide check and score a clean pass, which is the fail-open shape this family
+# exists to prevent.
+
+_BODY_NAV_RE = re.compile(
+    r"""<body\b[^>]*?\bdata-nav\s*=\s*["']([^"']*)["']""", re.IGNORECASE
+)
+_RECORD_NAV_RE = re.compile(r"^\s*nav:\s*([A-Za-z]+)", re.IGNORECASE | re.MULTILINE)
+_SLIDE_STAGE_RE = re.compile(
+    r"""<[A-Za-z][\w-]*\b[^>]*\bclass\s*=\s*["'][^"']*\bslide-stage\b""", re.IGNORECASE
+)
+_DATA_FRAGMENT_RE = re.compile(
+    r"""\bdata-fragment\s*=\s*["']([^"']*)["']""", re.IGNORECASE
+)
+_REDUCED_MOTION_RE = re.compile(
+    r"@media[^{]*prefers-reduced-motion\s*:\s*reduce[^{]*\{", re.IGNORECASE
+)
+_GLOBAL_SCROLL_LISTENER_RE = re.compile(
+    r"""(?:(\w+)\s*\.\s*)?addEventListener\(\s*["']scroll["']""", re.IGNORECASE
+)
+_SCROLL_TIMELINE_RE = re.compile(r"animation-timeline\s*:\s*scroll\(", re.IGNORECASE)
+_SCRIPT_RE = re.compile(r"<script[^>]*>(.*?)</script>", re.DOTALL | re.IGNORECASE)
+_INFINITE_ANIM_RE = re.compile(r"\binfinite\b", re.IGNORECASE)
+
+# Structural wrappers this mode introduces. A bare generic class here collides
+# with another component the moment two features coexist - the collision that
+# once blanked a hero with zero console errors - so the contract requires the
+# `slide-` prefix on every one of them.
+_GENERIC_SLIDE_CLASSES = ("stage", "deck", "rail", "counter", "inner", "slide")
+
+# Global scroll receivers. An element-scoped listener on a declared scrollable
+# region is legitimate in slide mode (a long table scrolls); a listener on the
+# window or document is page-scroll-keyed animation, which slide mode removed.
+_GLOBAL_RECEIVERS = frozenset({"", "window", "document", "globalthis", "self"})
+
+# Navigation chrome the contract requires, by its documented class name.
+_CHROME_CLASSES = {
+    "progress rail": "slide-rail",
+    "slide counter": "slide-counter",
+    "previous hit zone": "slide-hit-prev",
+    "next hit zone": "slide-hit-next",
+}
+
+
+def nav_mode(html: str) -> str:
+    """The navigation mode the MARKUP declares: `slides` or `scroll`.
+
+    Absence of `data-nav` means `scroll`, per the backward-compatibility rule -
+    a page authored before the axis existed is a scrolling page, not an error.
+    """
+    match = _BODY_NAV_RE.search(html)
+    return "slides" if match and match.group(1).strip().lower() == "slides" else "scroll"
+
+
+def record_nav_mode(html: str) -> str | None:
+    """The navigation mode the DESIGN RECORD claims, or None when it says nothing.
+
+    Read from the raw HTML (comments included), because the design record IS an
+    HTML comment - the stripped text the other checks read has it removed.
+    """
+    for comment in _COMMENT_RE.findall(html):
+        match = _RECORD_NAV_RE.search(comment)
+        if match:
+            return match.group(1).strip().lower()
+    return None
+
+
+def slide_sections(html: str) -> list[str]:
+    """The inner HTML of every `.slide-stage` element, in document order."""
+    sections: list[str] = []
+    for match in _SLIDE_STAGE_RE.finditer(html):
+        sections.append(_element_inner_html(html, match.end() - 1))
+    return sections
+
+
+def check_slide_record_agreement(html: str) -> dict[str, Any]:
+    """The design record's `nav` field agrees with the markup (UNGATED).
+
+    Deliberately outside the `data-nav` gate. If the record says slides and the
+    attribute is missing, every other slide check silently skips and the page
+    scores clean - a fail-open outcome strictly worse than no check at all.
+    """
+    declared = nav_mode(html)
+    recorded = record_nav_mode(html)
+    if recorded is None:
+        if declared == "slides":
+            return _finding(
+                "slide-record", "fail", "structural",
+                "markup declares data-nav=\"slides\" but the design record names no "
+                "nav mode - the resolved mode and its provenance are unrecorded",
+                "high",
+            )
+        return _finding(
+            "slide-record", "n/a", "structural",
+            "no nav field in the design record; treated as scroll (backward compatible)",
+        )
+    if recorded not in ("slides", "scroll"):
+        return _finding(
+            "slide-record", "fail", "structural",
+            f"design record nav value {recorded!r} is neither slides nor scroll",
+            "high",
+        )
+    if recorded != declared:
+        return _finding(
+            "slide-record", "fail", "structural",
+            f"design record says nav={recorded} but the markup declares {declared} "
+            "- the mode gate and the record disagree, so the wrong contract is graded",
+            "high",
+        )
+    return _finding(
+        "slide-record", "pass", "structural",
+        f"design record and markup agree on nav={declared}",
+    )
+
+
+def check_slide_structure(
+    html: str, rules: list[tuple[str, dict[str, str]]]
+) -> dict[str, Any]:
+    """Slide containers exist and their classes carry the `slide-` prefix."""
+    sections = slide_sections(html)
+    if not sections:
+        return _finding(
+            "slide-structure", "fail", "structural",
+            "data-nav=\"slides\" but the page contains no .slide-stage section - "
+            "a deck with no slides",
+            "high",
+        )
+    bare: list[str] = []
+    for selector, _decls in rules:
+        for token in _SELECTOR_TOKEN_RE.findall(selector):
+            if token.lower() in _GENERIC_SLIDE_CLASSES:
+                bare.append(f".{token} (in {selector})")
+    if bare:
+        return _finding(
+            "slide-structure", "fail", "structural",
+            f"{len(sections)} slide(s), but {len(bare)} bare generic class "
+            "selector(s) can collide with another component: " + ", ".join(bare[:4]),
+            "high",
+        )
+    return _finding(
+        "slide-structure", "pass", "structural",
+        f"{len(sections)} slide stage(s), all mode classes component-prefixed",
+    )
+
+
+def check_slide_fit(rules: list[tuple[str, dict[str, str]]]) -> dict[str, Any]:
+    """Page scroll is disabled and each stage declares viewport-fitted sizing."""
+    issues: list[str] = []
+    no_scroll = any(
+        decls.get("overflow", decls.get("overflow-y", "")).strip().lower() == "hidden"
+        for selector, decls in rules
+        if re.search(r"\b(html|body)\b|slide-deck", selector, re.IGNORECASE)
+    )
+    if not no_scroll:
+        issues.append(
+            "no scroll container declares overflow: hidden (html, body, or "
+            ".slide-deck) - the page still scrolls behind the deck"
+        )
+    stage_rules = [
+        decls for selector, decls in rules
+        if re.search(r"\bslide-stage\b", selector, re.IGNORECASE)
+    ]
+    sized = any(
+        re.search(r"\d\s*(svh|dvh|lvh|vh)\b", decls.get("height", ""), re.IGNORECASE)
+        or re.search(r"\d\s*(svh|dvh|lvh|vh)\b", decls.get("min-height", ""), re.IGNORECASE)
+        or decls.get("inset", "").strip() == "0"
+        for decls in stage_rules
+    )
+    if stage_rules and not sized:
+        issues.append(
+            "no .slide-stage rule declares viewport-fitted height (svh / dvh / vh, "
+            "or inset: 0 on a viewport-sized deck) - stages are not stage-sized"
+        )
+    if issues:
+        return _finding(
+            "slide-fit", "fail", "structural",
+            f"{len(issues)} stage-sizing defect(s): " + "; ".join(issues),
+            "high",
+        )
+    return _finding(
+        "slide-fit", "pass", "structural",
+        "page scroll disabled and stages declare viewport-fitted sizing",
+    )
+
+
+def check_slide_fragments(html: str) -> dict[str, Any]:
+    """`data-fragment` values are positive, unique, and contiguous from 1.
+
+    Per slide, not per page: fragment order is a within-slide build sequence, so
+    two slides both numbering 1..3 is correct, while one slide numbering 1, 3 has
+    a gap the runtime's ordered reveal cannot express.
+    """
+    problems: list[str] = []
+    for index, inner in enumerate(slide_sections(html), start=1):
+        raw = _DATA_FRAGMENT_RE.findall(inner)
+        if not raw:
+            continue
+        values: list[int] = []
+        for token in raw:
+            text = token.strip()
+            if not text.lstrip("+-").isdigit():
+                problems.append(f"slide {index}: non-numeric data-fragment {token!r}")
+                continue
+            values.append(int(text))
+        if not values:
+            continue
+        if any(value < 1 for value in values):
+            problems.append(
+                f"slide {index}: non-positive fragment index "
+                f"{sorted(value for value in values if value < 1)}"
+            )
+        duplicates = sorted({value for value in values if values.count(value) > 1})
+        expected = list(range(1, len(set(values)) + 1))
+        if sorted(set(values)) != expected:
+            problems.append(
+                f"slide {index}: fragments {sorted(set(values))} are not contiguous "
+                f"from 1 (expected {expected})"
+            )
+        elif duplicates:
+            # Duplicates reveal together by design; report only as context when
+            # the sequence is otherwise well-formed.
+            continue
+    if problems:
+        return _finding(
+            "slide-fragments", "fail", "structural",
+            f"{len(problems)} fragment-indexing defect(s): " + "; ".join(problems[:4]),
+            "high",
+        )
+    return _finding(
+        "slide-fragments", "pass", "structural",
+        "every slide's data-fragment values are positive and contiguous from 1",
+    )
+
+
+def check_slide_scroll_keyed(html: str) -> dict[str, Any]:
+    """No scroll-keyed animation survives in a slide-mode page.
+
+    Slide mode has no page scroll, so a scroll-keyed effect is not merely
+    redundant - it never fires, leaving content that was supposed to reveal
+    permanently hidden. An element-scoped scroll listener is allowed: a declared
+    scrollable region (a long table) legitimately scrolls inside its stage.
+    """
+    issues: list[str] = []
+    for script in _SCRIPT_RE.findall(html):
+        for receiver in _GLOBAL_SCROLL_LISTENER_RE.findall(script):
+            if (receiver or "").strip().lower() in _GLOBAL_RECEIVERS:
+                issues.append(
+                    f"a global scroll listener ({receiver or 'bare'}.addEventListener"
+                    "('scroll', ...)) drives behavior from a page scroll that slide "
+                    "mode removed"
+                )
+                break
+        if "IntersectionObserver" in script and re.search(
+            r"classList\s*\.\s*(add|toggle)", script
+        ):
+            issues.append(
+                "an IntersectionObserver toggles classes (a scroll-triggered reveal); "
+                "in slide mode reveals are entry-triggered or fragment-stepped"
+            )
+    if _SCROLL_TIMELINE_RE.search(html):
+        issues.append("animation-timeline: scroll() is keyed to a scroll that never happens")
+    if issues:
+        return _finding(
+            "slide-scroll-keyed", "fail", "structural",
+            f"{len(issues)} scroll-keyed construct(s) in a slides page: "
+            + "; ".join(dict.fromkeys(issues)),
+            "high",
+        )
+    return _finding(
+        "slide-scroll-keyed", "pass", "structural",
+        "no scroll listener, scroll-driven reveal, or scroll timeline remains",
+    )
+
+
+def check_slide_ambient(html: str) -> dict[str, Any]:
+    """Every ambient (infinite) animation is guarded by a reduced-motion rule.
+
+    The grammar disables ambient loops entirely under reduced motion rather than
+    slowing them, so an infinite animation with no guard is a vestibular hazard
+    that ships to exactly the readers who asked not to receive it.
+    """
+    infinite: list[str] = []
+    for selector, decls in css_rules(html):
+        for prop in ("animation", "animation-iteration-count"):
+            if prop in decls and _INFINITE_ANIM_RE.search(decls[prop]):
+                infinite.append(selector)
+                break
+    if not infinite:
+        return _finding(
+            "slide-ambient", "n/a", "structural",
+            "no infinite (ambient) animation declared",
+        )
+    guarded = False
+    for style in _STYLE_RE.findall(html):
+        css = _CSS_COMMENT_RE.sub("", style)
+        for match in _REDUCED_MOTION_RE.finditer(css):
+            depth, position = 1, match.end()
+            while depth and position < len(css):
+                if css[position] == "{":
+                    depth += 1
+                elif css[position] == "}":
+                    depth -= 1
+                position += 1
+            if re.search(r"\banimation", css[match.end() : position], re.IGNORECASE):
+                guarded = True
+                break
+        if guarded:
+            break
+    if not guarded:
+        return _finding(
+            "slide-ambient", "fail", "structural",
+            f"{len(infinite)} infinite animation(s) ({', '.join(dict.fromkeys(infinite))[:120]}) "
+            "with no prefers-reduced-motion rule touching animation - an ambient loop "
+            "must be disabled entirely under reduced motion, not slowed",
+            "high",
+        )
+    return _finding(
+        "slide-ambient", "pass", "structural",
+        f"{len(infinite)} ambient animation(s), all under a reduced-motion guard",
+    )
+
+
+def check_slide_chrome(html: str) -> dict[str, Any]:
+    """The documented navigation chrome is present: rail, counter, hit zones."""
+    missing = [
+        label for label, klass in _CHROME_CLASSES.items()
+        if not re.search(rf"""class\s*=\s*["'][^"']*\b{klass}\b""", html, re.IGNORECASE)
+    ]
+    if missing:
+        return _finding(
+            "slide-chrome", "fail", "structural",
+            "navigation chrome missing: " + ", ".join(missing)
+            + " - a keyboard-only deck gives the reader no position or pointer path",
+            "high",
+        )
+    return _finding(
+        "slide-chrome", "pass", "structural",
+        "progress rail, slide counter, and both hit zones present",
+    )
+
+
 def score_html(
     html: str,
     *,
@@ -1290,10 +1637,29 @@ def score_html(
     # 13. The three defect classes only a render surfaces (rule 7).
     findings.append(check_render_only_defects(stripped, rules))
 
+    # 14. Slide-mode integrity (references/slide-navigation.md; rubric criterion 12).
+    #     The record check runs UNGATED - it is what catches a page whose record
+    #     says slides while the markup lost data-nav, which would otherwise skip
+    #     every check below and score clean.
+    findings.append(check_slide_record_agreement(html))
+    if nav_mode(html) == "slides":
+        findings.append(check_slide_structure(stripped, rules))
+        findings.append(check_slide_fit(rules))
+        findings.append(check_slide_fragments(stripped))
+        findings.append(check_slide_scroll_keyed(stripped))
+        findings.append(check_slide_ambient(html))
+        findings.append(check_slide_chrome(stripped))
+    else:
+        findings.append(
+            _finding("slide-mode", "n/a", "structural",
+                     "scroll mode (data-nav absent or scroll): slide-mode checks skipped")
+        )
+
     root_at_viewport, root_at_minimum, root_is_fluid = root_font_px(rules, viewport)
     high = sum(1 for finding in findings if finding.get("severity") == "high")
     return {
         "mode": "structural",
+        "nav": nav_mode(html),
         "root_font_px": round(root_at_viewport, 2),
         "root_font_px_at_clamp_min": round(root_at_minimum, 2),
         "root_font_is_fluid": root_is_fluid,

@@ -241,7 +241,7 @@ Every item raised during v3.18.0 is closed: five fixed in code, three closed by 
 
 ## v3.18.3 - presentify-slide-navigation
 
-**Status**: Phases 1-3 of 5 implemented on `feat/presentify-slide-navigation`. Every gate is green (full validate, trigger evals, 1043 targeted tests, Phase 2's 42-check keyboard walkthrough, and Phase 3's 24-check grammar and step-driver render harness). **No release blockers from these phases.**
+**Status**: Phases 1-4 of 5 implemented on `feat/presentify-slide-navigation`. Every gate is green (full validate, trigger evals, the repo pytest suites, Phase 2's 42-check keyboard walkthrough, Phase 3's 24-check grammar and step-driver harness, and Phase 4's 28 new scorer tests). **No release blockers from these phases.**
 
 ### DF-1 - RESOLVED in Phase 2: the Step 6 slide-navigation pointer
 
@@ -269,6 +269,12 @@ Every item raised during v3.18.0 is closed: five fixed in code, three closed by 
 - **BG-1 - RESOLVED in Phase 3, found and fixed in the same session**: the new engine step driver's initial `goTo` at mount never painted layer 0 (`_shown.index` starts at 0 so `crossing` was false while `active` was still -1). Caught by the render harness, not by `node --check`, which stayed green throughout - the case for the plan's render-verification step. Fixed by also gating the layer toggle on `this.active !== index`, with a comment naming the mount case.
 - Two more settle-then-assert facts for Phase 4's capture protocol, joining the Phase 2 note: a fixed sleep racing a timed animation reads mid-count values (poll for the settled state instead), and CSSOM re-serializes transform values (`scale(1.0000)` reads back as `scale(1)`), so assertions against style strings must use the serialized form.
 
+### Phase 4 notes (2026-08-22)
+
+- **The three settle-then-capture facts recorded in Phases 2-3 are now DISCHARGED**: the rubric's degradation contract and SKILL.md Step 9 both carry the settle-before-capture rule for slide transitions and timed builds, so the phantom double-slide and mid-count defects cannot be filed on a slide-mode run.
+- **The `data-nav` gate is deliberately not the only source of truth.** Six of the seven scorer checks are gated on the attribute, which makes the attribute a single point of failure: lose it and every check skips and the page scores a confident green (fail-OPEN, worse than no check). `slide-record` runs ungated and fails when the design record and the markup disagree, so the gate can only be wrong in the direction that gets caught. Any future slide-mode check must either be gated AND covered by this agreement check, or be ungated itself.
+- **An existing guard test fired correctly and was updated, not loosened.** `test_no_stale_criteria_count_survives` hardcodes the rubric's criteria count so no surface can claim a stale one; growing the rubric to twelve broke it by design. The denylist now loops over eight / nine / ten / eleven and additionally asserts criterion 12 by name. Loosening it to a regex was rejected: it would pass forever and catch nothing.
+
 ### Release blockers
 
-**None from Phases 1-3.** The phase changes only documentation surfaces the installers already copy recursively, adds no catalog artifact, and leaves `data/marketplace.json` counts and the 273-skill total unchanged.
+**None from Phases 1-4.** The phase changes only documentation surfaces the installers already copy recursively, adds no catalog artifact, and leaves `data/marketplace.json` counts and the 273-skill total unchanged.

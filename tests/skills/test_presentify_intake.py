@@ -431,7 +431,7 @@ def test_a_missing_record_grades_as_balanced_not_a_failure():
 
 
 def test_the_rubric_has_the_coverage_depth_criterion():
-    assert "## The eleven criteria" in RUBRIC_TEXT
+    assert "## The twelve criteria" in RUBRIC_TEXT
     assert "**Coverage-depth match**" in RUBRIC_TEXT
     assert "coverage-depth" in RUBRIC_TEXT  # the schema enum value
     # Page-level, agent-vision only: the maintainer explicitly rejected a
@@ -441,15 +441,15 @@ def test_the_rubric_has_the_coverage_depth_criterion():
 
 
 def test_no_stale_criteria_count_survives():
-    # The rubric grew to eleven (v3.16.7 painted-surface integrity); a surface
-    # still claiming an older count would tell the grader to skip new criteria.
+    # The rubric grew to twelve (v3.18.3 slide-mode integrity); a surface still
+    # claiming an older count would tell the grader to skip new criteria.
     for name, text in (("SKILL.md", SKILL_TEXT), ("visual-qa-rubric.md", RUBRIC_TEXT)):
-        assert "eight criteria" not in text.lower(), f"{name} still says eight criteria"
-        assert "nine criteria" not in text.lower(), f"{name} still says nine criteria"
-        assert "ten criteria" not in text.lower(), f"{name} still says ten criteria"
-    assert "all eleven criteria" in SKILL_TEXT
+        for stale in ("eight", "nine", "ten", "eleven"):
+            assert f"{stale} criteria" not in text.lower(),                 f"{name} still says {stale} criteria"
+    assert "all twelve criteria" in SKILL_TEXT
     assert "painted-canvas" in RUBRIC_TEXT  # the schema enum value
     assert "**Painted-surface integrity**" in RUBRIC_TEXT
+    assert "**Slide-mode integrity**" in RUBRIC_TEXT
 
 
 def test_depth_never_excuses_readability_floors():
