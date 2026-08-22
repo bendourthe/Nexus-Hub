@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.18.2 -->
+<!-- nexus-hub-version: 3.18.3 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 273 skills, 18 commands, 31 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -37,7 +37,29 @@ The two projects are designed to be useful independently: you can install Nexus-
 
 ---
 
-## What's New in v3.18.2
+## What's New in v3.18.3
+
+**`/presentify` can now produce a slide deck.** Pass `--nav slides` (or pick "Slide deck" in the canvas question) and the output becomes viewport-fitted slides advanced by keyboard arrows, rather than a page you scroll. Everything else about the output is unchanged: still one self-contained offline HTML file, still real interactive charts, still commercial-use-safe imagery.
+
+```bash
+/presentify report.pdf --nav slides --interactivity rich
+```
+
+Forward is ArrowRight / ArrowDown / PageDown / Space, back is ArrowLeft / ArrowUp / PageUp, Home and End jump to the first and last slide, touch swipes, and on-screen zones click. `scroll` remains the default and the non-interactive fallback, so nothing changes for anyone who does not ask for slides.
+
+**The intake stayed at four questions.** The interactive question surface caps at four per round, so navigation rides on the existing output-aspect question rather than adding a fifth. `--layout` binds the aspect half and `--nav` the navigation half: name both and the question disappears, name one and it narrows to what is still unresolved. The two compose rather than conflict, so `--layout portrait --nav slides` is portrait-ratio slides, and no pair of flags can deadlock the intake.
+
+**The interesting problem was animation, not navigation.** Slide mode has no scroll, so every scroll-triggered effect the balanced, rich, and cinematic levels ship had to be re-expressed or it would simply never fire, leaving content permanently hidden. There are now three slide-native trigger classes and a mapping table covering every pattern in the catalog: effects that run once when a slide activates, effects stepped by arrow key within a slide (PowerPoint-style builds), and permanent ambient loops for atmosphere. One rule is binary and load-bearing: **only non-data-bearing motion may loop.** A chart build or a numeric transition must be entry-triggered or stepped, because looping data motion fabricates the impression of live data.
+
+Cinematic survives too. The scroll-scrubbed camera becomes a fragment-stepped camera - one keyframe per arrow press, using the easing the scrub curve would have applied, with a subtle drift while a keyframe holds. Slide mode changes the trigger, never the asset policy: the size gate, the no-hosted-generation boundary, and the stills-only reduced-motion path all apply unchanged.
+
+**The QA loop grades slides as strictly as pages.** The visual-QA rubric gains a twelfth criterion covering per-slide fit at all four viewports, fragment integrity including deep-link state, ambient-loop discipline, and navigation chrome. The structural scorer gains seven deterministic checks that skip cleanly on a scrolling page, so every page authored before this release stays out of the failure set. One of the seven deliberately runs *outside* that skip: it fails when a page's design record says slides but the markup lost its `data-nav` attribute, which would otherwise skip all six other checks and score a confident green.
+
+Under `prefers-reduced-motion: reduce` a deck is a sequence of settled, fully-legible stages: transitions become instant cuts and ambient loops are removed entirely rather than slowed. Without JavaScript it degrades to ordinary stacked sections in source order, and it prints one slide per page.
+
+Catalog counts are unchanged at **273 skills**, **18 commands**, **31 hooks**, and **23 agents**: this release adds one reference file to an existing skill's bundle rather than a new skill.
+
+## Previously, in v3.18.2
 
 **The GitHub Usage Monitor has been withdrawn.** It is deleted from the catalog, and upgrading uninstalls it from both VS Code and Cursor. Unshipping alone would not have been enough: an extension already installed keeps running, and this one could report a confident **0% used against an allowance GitHub showed as fully exhausted**.
 

@@ -8,6 +8,7 @@ Releases from v3.0.0 onward each carry their own line. Earlier releases predate 
 
 | Date | Version | Summary | Plan | History | Gaps |
 |---|---|---|---|---|---|
+| 2026-08-22 | v3.18.3 | Presentify gains slide-deck navigation: `--nav slides` produces keyboard-advanced viewport-fitted slides, with a slide-native animation grammar and QA-loop verification | [presentify-slide-navigation](v3/v3.18/plans/v3.18.3-presentify-slide-navigation.md) | [history](v3/v3.18/development/history/) | [gaps](v3/v3.18/known-gaps.md) |
 | 2026-08-22 | v3.18.2 | GitHub Usage Monitor withdrawn: GitHub serves no included-usage figure and the reconstruction could not be made reliable; existing installs are uninstalled from both hosts | n/a (bug-driven withdrawal) | [history](v3/v3.18/development/history/) | [gaps](v3/v3.18/known-gaps.md) |
 | 2026-08-22 | v3.18.1 | GitHub Usage Monitor accuracy: drawdown weights derived from GitHub's own prices, one warning surface across all four monitors | [github-usage-monitor-accuracy](v3/v3.18/plans/v3.18.1-github-usage-monitor-accuracy.md) | [history](v3/v3.18/development/history/) | [gaps](v3/v3.18/known-gaps.md) |
 | 2026-08-21 | v3.18.0 | DEVLOG becomes a bounded per-release index, AGENTS.md sheds 2,578 relocated words, and per-version docs gain a retention lifecycle | [docs-lifecycle-retention](v3/v3.18/plans/v3.18.0-docs-lifecycle-retention.md) | [history](v3/v3.18/development/history/) | [gaps](v3/v3.18/known-gaps.md) |

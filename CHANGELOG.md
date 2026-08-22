@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.18.3] - 2026-08-22
+
 ### Added
 
 - **`/presentify` gains a navigation-mode axis: `--nav <scroll|slides>`.** `scroll` is the current scrolling website and remains the default and the non-interactive fallback; `slides` produces viewport-fitted slides advanced by keyboard (ArrowRight / ArrowDown / PageDown / Space forward, ArrowLeft / ArrowUp / PageUp back, Home / End to the first / last slide), by swipe on touch, and by a click on the on-screen next / previous zones. The natural forms "using slide navigation" and "as slides" bind the same way. Phase 1 of 5 wires the intake contract only; the slide authoring contract, the animation adaptation grammar, and the QA-loop support land in Phases 2 through 4.
@@ -22,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **The v3.17 known-gaps ledger is reconciled**, closing three items with evidence rather than with deferral notes. The skill-invocation-policy lever survey is complete: `opencode`, `kimi`, `hermes`, and `nexus-ai` were each surveyed against their own documentation, so `docs/policy/skill-invocation-policy-levers.md` carries no NOT SURVEYED rows for the first time. All four returned "none documented" (`nexus-ai` returns "none implemented", surveyed against its own public repository because a first-party sibling has no vendor page), which is a finding rather than a non-answer: a declared field reaches those platforms and is ignored. Separately, the em-dash observation was verified already-resolved by measurement (zero non-ASCII punctuation anywhere under `catalog/`), and the stale-plan-count observation was fixed in the generator - the implementation-plan template now requires a moving count to be written as a delta rather than an absolute target. Fourteen items remain open, each recorded with its specific reason: four need evidence that does not exist yet, four are open by design with a guard or rule behind them, four are substantial work sequenced behind something else, and two are environmental or pre-existing debt.
 - **Every `/presentify` intake invariant now covers the navigation axis**, stated word-for-word on both the command and the skill so a run entering through either surface behaves identically: the no-memory rule (a recalled preference never pre-answers navigation mode), the non-interactive fallback (`scroll`, unconditionally, for every content type - slide mode is never auto-picked), the design record (the resolved mode plus its `flag` / `asked` / `defaulted` provenance), and the one-mode rule (each output file is authored for exactly one mode; there is no runtime scroll / slides toggle). A design record carrying no `nav` field means `scroll`, so a page authored before this axis existed re-enters the visual-QA loop as a scrolling site rather than erroring.
 
 ## [3.18.2] - 2026-08-22
