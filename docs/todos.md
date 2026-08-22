@@ -24,7 +24,7 @@
 | Platform contract audit | 1 | 1 | 0 |
 | Local release gates | 1 | 1 | 0 |
 | Remote publication gates | 1 | 1 | 0 |
-| v3.18.0 docs-lifecycle plan phases complete | 2 | 5 | 3 |
+| v3.18.0 docs-lifecycle plan phases complete | 3 | 5 | 2 |
 | Open phase blockers | 0 | 0 | 0 |
 | v3.15.8 plan phases complete | 4 | 9 | 5 |
 | v3.15.8 Phase 1 tasks complete | 7 | 7 | 0 |
@@ -234,7 +234,7 @@
 
 - [x] Complete Phase 1: DEVLOG conversion and archive
 - [x] Complete Phase 2: Tooling rewrite for the index format
-- [ ] Complete Phase 3: AGENTS.md MT-1 ratchet-down
+- [x] Complete Phase 3: AGENTS.md MT-1 ratchet-down (9,715 -> 7,742 words; MT-1 RESOLVED)
 - [ ] Complete Phase 4: History retention policy
 - [ ] Complete Phase 5: Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
 
@@ -244,3 +244,5 @@
 - [ ] Stray empty `Microsoft/Windows/PowerShell` directory in the repo root, a PowerShell installer-test side effect; invisible to `git status` because git does not track empty directories.
 - [ ] SKIP clauses fight the routing gate: `scripts/run_trigger_evals.py` tokenizes the whole description with no notion of negation, so a SKIP clause naming what it fences off imports that vocabulary as positive trigger words. Re-examine the 40 allowlisted collisions under this lens.
 - [ ] Consider a `docs/DEVLOG.md` ceiling in `docs/policy/doc-budgets.json`, so the 150-line limit lives beside the other ratchets rather than only in a test constant.
+- [ ] Link checkers that treat `#` targets as same-page anchors cannot see an anchor orphaned by relocation; three such links broke silently in Phase 3.
+- [ ] The MCP decision tree was left in AGENTS.md because the five parity-guarded `base-*.md` blocks point at it; revisit if a future ratchet needs the 427 words.
