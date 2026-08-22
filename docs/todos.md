@@ -24,7 +24,7 @@
 | Platform contract audit | 1 | 1 | 0 |
 | Local release gates | 1 | 1 | 0 |
 | Remote publication gates | 1 | 1 | 0 |
-| v3.18.0 docs-lifecycle plan phases complete | 1 | 5 | 4 |
+| v3.18.0 docs-lifecycle plan phases complete | 2 | 5 | 3 |
 | Open phase blockers | 0 | 0 | 0 |
 | v3.15.8 plan phases complete | 4 | 9 | 5 |
 | v3.15.8 Phase 1 tasks complete | 7 | 7 | 0 |
@@ -233,7 +233,7 @@
 ## Plan - v3.18.0 Docs Lifecycle and Retention
 
 - [x] Complete Phase 1: DEVLOG conversion and archive
-- [ ] Complete Phase 2: Tooling rewrite for the index format (urgent - every DEVLOG writer still emits the narrative format)
+- [x] Complete Phase 2: Tooling rewrite for the index format
 - [ ] Complete Phase 3: AGENTS.md MT-1 ratchet-down
 - [ ] Complete Phase 4: History retention policy
 - [ ] Complete Phase 5: Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
@@ -242,3 +242,5 @@
 
 - [ ] `tests/installer/test_bootstrap.py::test_ps_standalone_extracts_and_hands_off` fails locally: `install.ps1` resolves bare `tar` to Git Bash's `/usr/bin/tar`, which cannot decompress the stub tarball. Same PATH-shadowing class as the v3.15.6 and v3.17.6 `bash`/WSL-stub defects.
 - [ ] Stray empty `Microsoft/Windows/PowerShell` directory in the repo root, a PowerShell installer-test side effect; invisible to `git status` because git does not track empty directories.
+- [ ] SKIP clauses fight the routing gate: `scripts/run_trigger_evals.py` tokenizes the whole description with no notion of negation, so a SKIP clause naming what it fences off imports that vocabulary as positive trigger words. Re-examine the 40 allowlisted collisions under this lens.
+- [ ] Consider a `docs/DEVLOG.md` ceiling in `docs/policy/doc-budgets.json`, so the 150-line limit lives beside the other ratchets rather than only in a test constant.
