@@ -8,6 +8,7 @@ Releases from v3.0.0 onward each carry their own line. Earlier releases predate 
 
 | Date | Version | Summary | Plan | History | Gaps |
 |---|---|---|---|---|---|
+| 2026-08-21 | v3.18.0 | DEVLOG becomes a bounded per-release index, AGENTS.md sheds 2,578 relocated words, and per-version docs gain a retention lifecycle | [docs-lifecycle-retention](v3/v3.18/plans/v3.18.0-docs-lifecycle-retention.md) | [history](v3/v3.18/development/history/) | [gaps](v3/v3.18/known-gaps.md) |
 | 2026-08-20 | v3.17.6 | CI gate hygiene: required checks made satisfiable from any PR shape, plus release-flow preconditions | [ci-gate-and-branch-hygiene](v3/v3.17/plans/v3.17.6-ci-gate-and-branch-hygiene.md) | [history](v3/v3.17/development/history/) | [gaps](v3/v3.17/known-gaps.md) |
 | 2026-08-18 | v3.17.5 | DeepSeek Harness adoption: optional skill invocation-policy frontmatter and the `deepseek-harness` skill | [adoption-deepseek-harness](v3/v3.17/plans/v3.17.5-adoption-deepseek-harness.md) | [history](v3/v3.17/development/history/) | [gaps](v3/v3.17/known-gaps.md) |
 | 2026-08-17 | v3.17.4 | Organization knowledge layer: `nexus-hub org connect` projects an external standards bundle into instruction surfaces | [org-knowledge-layer](v3/v3.17/plans/v3.17.4-org-knowledge-layer.md) | [history](v3/v3.17/development/history/) | [gaps](v3/v3.17/known-gaps.md) |

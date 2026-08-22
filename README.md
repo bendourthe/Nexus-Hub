@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.17.6 -->
+<!-- nexus-hub-version: 3.18.0 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 273 skills, 18 commands, 31 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -36,6 +36,31 @@ Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
+
+## What's New in v3.18.0
+
+**`docs/DEVLOG.md` went from 5,615 lines to 99.** It was an append-only narrative log of roughly 208,000 words: too large for any agent to load, and fully duplicated by the per-version `plans/`, `development/history/`, `known-gaps.md`, `docs/decisions/`, and `docs/solutions/` trees that did not exist when it was invented. It is now an **index**: one line per release with a date, version, one-sentence summary, and links to that release's plan, per-phase history, and known gaps. The prior body is archived **verbatim and byte-identical** (verified by hash against git's own object) at [`docs/archive/DEVLOG-v0-v3.17.md`](docs/archive/DEVLOG-v0-v3.17.md). Nothing was deleted, and `CHANGELOG.md` remains the authoritative record of what changed.
+
+**The bound holds by construction, not by good intentions.** Every release from v3.0.0 onward gets its own line; the 64 earlier releases predate the per-version docs layout and collapse into 19 fixed rows. A line per release for all 134 would have landed at ~148 lines against a 150-line ceiling, so the very next release would have breached it. `tests/validators/test_devlog_index_format.py` makes the ceiling a hard CI failure, alongside checks for narrative headings, duplicate version lines, unbounded summary cells, and unresolvable links.
+
+**AGENTS.md is 2,578 words lighter, closing a gap open since v3.17.5.** It is inlined into `CLAUDE.md` on every session and mirrored into every platform instruction surface, so it was the single largest recurring token cost in the catalog, and its budget had tightened to 3% headroom. Three per-topic reference blocks moved out verbatim: the platform coverage caveats merged into [`docs/policy/platform-read-contracts.md`](docs/policy/platform-read-contracts.md) (which already owned per-platform surfaces), the per-skill bundled-resources convention to [`guides/reference/SKILL_BUNDLED_RESOURCES.md`](guides/reference/SKILL_BUNDLED_RESOURCES.md), and the plan/implement model-routing detail to [`docs/policy/model-routing-in-plan-and-implement.md`](docs/policy/model-routing-in-plan-and-implement.md). The ceiling ratcheted 10,060 to 8,150. Each original heading was kept as its summary heading, which is load-bearing rather than cosmetic: six places in the codebase cite those headings by name.
+
+**Documentation now ages out on a stated rule.** [`docs/policy/docs-retention.md`](docs/policy/docs-retention.md) defines four states, and the first pass archived 216 files across 16 minor versions with 75 files of reference repair. Attempting it is what corrected it: `development/` turned out to hold live content, including six Python scripts a CI workflow *executes* and eleven contract documents shipped hooks cite by path. A blanket rule would have broken CI and orphaned a shipped code citation, so the unit that ages out is `development/history/`. `scripts/check_docs_retention.py` reports drift and always exits 0, because archiving repairs references across the repo and belongs in a reviewed pass rather than a per-commit gate.
+
+**Three defects surfaced that no plan predicted, each found by verifying a result rather than reading code.** `auto-devlog.ps1` shipped with **no opt-in gate at all** while its `.sh` sibling had always required one, so on PowerShell it wrote to DEVLOG at every session end for users who never asked; that is the most plausible explanation for DEVLOG growing 2,466 lines in three days. `install.ps1` passed a Windows drive-letter path to whichever `tar` PATH offered first, and GNU tar reads `C:` as a remote host, failing with a misleading "unexpected end of file" that made a path-parsing bug look like a corrupt archive. And the trigger-routing scorer counted `SKIP:` clause vocabulary as *positive* evidence, so a prompt matching only the fenced-off text scored a perfect 1.00 against a skill it should never trigger.
+
+**One validator was built and then rejected on its own evidence.** A general dangling-anchor checker flagged 19 of 101 in-document anchors, and every one was legitimate: illustrative anchors in a skill that teaches document structure, README template placeholders, and one false positive of its own making. A gate whose first real sample is a false positive on valid documentation gets ignored, so the hazard is documented where relocation is governed and executed instead.
+
+### Opt-in capability change: `AUTO_DEVLOG`
+
+- **Activation**: unchanged, `AUTO_DEVLOG=1` in your environment. Optional AI enrichment still requires `AUTO_DEVLOG_AI=1` and the `claude` CLI.
+- **What changed**: the PowerShell implementation now honours that gate, which it never did before; and both implementations now detect an index-format `docs/DEVLOG.md` and stand down rather than writing a narrative entry into the table.
+- **Validate**: `python -m pytest catalog/hooks/tests/test_auto_devlog_index_guard.py -v` (10 assertions across both implementations).
+- **Disable / rollback**: unset `AUTO_DEVLOG`, or set `NEXUS_DISABLED_HOOKS=auto-devlog`, or `NEXUS_HOOK_PROFILE=minimal`.
+- **What activation does NOT grant**: no outbound call, no credential, and no write outside `docs/DEVLOG.md` in the current git repository. It never runs without the explicit opt-in, on either shell.
+- **Reference**: [`catalog/skills/workflow/devlog-generation/SKILL.md`](catalog/skills/workflow/devlog-generation/SKILL.md).
+
+Catalog counts are unchanged at **273 skills**, **18 commands**, **31 hooks**, and **23 agents**. One repo-internal advisory script is added; no distributed artifact gains an outbound call, credential, or dependency, and no existing install changes behaviour at runtime beyond the two `auto-devlog` corrections above.
 
 ## What's New in v3.17.6
 
