@@ -9,6 +9,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **`/presentify` gains a navigation-mode axis: `--nav <scroll|slides>`.** `scroll` is the current scrolling website and remains the default and the non-interactive fallback; `slides` produces viewport-fitted slides advanced by keyboard (ArrowRight / ArrowDown / PageDown / Space forward, ArrowLeft / ArrowUp / PageUp back, Home / End to the first / last slide), by swipe on touch, and by a click on the on-screen next / previous zones. The natural forms "using slide navigation" and "as slides" bind the same way. Phase 1 of 5 wires the intake contract only; the slide authoring contract, the animation adaptation grammar, and the QA-loop support land in Phases 2 through 4.
+- **The Round 1 output-aspect question becomes a merged "Output aspect & navigation (the canvas)" question**, keeping the intake at exactly four batched questions rather than growing a fifth (the interactive question surface caps at four per round). Its five options are the three existing scrolling aspects, a new Slide deck option, and Other. `--layout` binds the aspect half and `--nav` binds the navigation half: naming both skips the question, and naming one narrows it to the unresolved half. The two compose rather than conflict, so `--layout portrait --nav slides` is portrait-ratio slides and no pair of flags can deadlock the intake.
+- **Slide-navigation trigger phrases** added to the `document-to-interactive-html` skill description and the `presentify` command description: "with slide-like navigation", "navigate like PowerPoint slides", "arrow-key slides", "presentation mode". The existing SKIP clauses are unchanged, and the catalog stays at 273 skills.
+
+### Changed
+
+- **Every `/presentify` intake invariant now covers the navigation axis**, stated word-for-word on both the command and the skill so a run entering through either surface behaves identically: the no-memory rule (a recalled preference never pre-answers navigation mode), the non-interactive fallback (`scroll`, unconditionally, for every content type - slide mode is never auto-picked), the design record (the resolved mode plus its `flag` / `asked` / `defaulted` provenance), and the one-mode rule (each output file is authored for exactly one mode; there is no runtime scroll / slides toggle). A design record carrying no `nav` field means `scroll`, so a page authored before this axis existed re-enters the visual-QA loop as a scrolling site rather than erroring.
+
 ## [3.18.2] - 2026-08-22
 
 ### Removed

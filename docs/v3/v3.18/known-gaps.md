@@ -236,3 +236,28 @@ Every item raised during v3.18.0 is closed: five fixed in code, three closed by 
 **None.** The withdrawal is self-contained: no catalog artifact, platform contract, installer copy step, or registry file changes shape, and no surviving extension is touched.
 
 `BG-2` is open but is not a blocker and was recorded after the release: it is an environment-only local-run artifact that passes in CI on every platform, including the Windows leg that exercises the affected installer guard.
+
+---
+
+## v3.18.3 - presentify-slide-navigation
+
+**Status**: Phase 1 of 5 implemented on `feat/presentify-slide-navigation`. Every Phase 1 gate is green (full validate, trigger evals, 1043 targeted tests). **No release blockers from this phase.**
+
+### DF-1 - DEFERRED to Phase 2 by plan instruction: the Step 6 slide-navigation pointer
+
+- **Target files**: `catalog/skills/specialized-domains/document-to-interactive-html/SKILL.md` (Step 6), `catalog/skills/specialized-domains/document-to-interactive-html/references/slide-navigation.md` (Phase 2 creates it)
+- **What is deferred**: sub-task 1.2 item 4 asks Step 6 to point at `references/slide-navigation.md`. Phase 1 shipped alone, so the pointer was not written, per the plan's own instruction not to ship a dangling reference.
+- **Why it matters**: `make validate` runs an orphan-bundle audit over per-skill bundled resources. A pointer to a file that does not exist yet is the failure mode the deferral avoids, and the repo has already paid for one post-release dangling-reference sweep.
+- **Closes when**: Phase 2 creates the reference file and adds the pointer in the same commit.
+- **Note**: `catalog/commands/presentify.md` does carry a forward-looking PROSE mention ("following its own slide-navigation reference"), which sub-task 1.1 item 4 explicitly asked for. It names no path, so no audit or link checker can trip on it. It becomes accurate when Phase 2 lands.
+
+### WN-1 - Registry text must be derived, not retyped
+
+- **Target files**: `data/skills.json`, and any future hand-edit of a registry entry
+- **What happened**: `check_registry_entries.py --check --strict` compares `SKILL.md` frontmatter against the `data/skills.json` mirror character for character. Writing the same sentence twice by hand produced a one-word divergence ("scrolling" versus "scroll") that failed the gate.
+- **Why it is recorded rather than dismissed**: the same hand-sync is required in Phase 3 and Phase 4 if either touches a description, and the failure is silent until the gate runs. The fix is to copy the frontmatter value programmatically rather than retype the sentence.
+- **Disposition**: not a defect and not a blocker. A process note for the remaining phases of this plan.
+
+### Release blockers
+
+**None from Phase 1.** The phase changes only documentation surfaces the installers already copy recursively, adds no catalog artifact, and leaves `data/marketplace.json` counts and the 273-skill total unchanged.
