@@ -294,9 +294,9 @@ After adding a command, update `data/marketplace.json` `"total_commands"` if tha
 
 ## Model Routing in the Plan/Implement Loop
 
-`/plan` performs a platform-agnostic model-routing assessment per phase (added v3.4.0; cross-provider contract revised in v3.15.9). After the phase breakdown is designed and before the plan file is written, it invokes the `model-routing` skill once per phase to score complexity and record generic `frontier` / `strong` / `standard` / `fast` intent plus `low` / `medium` / `high` / `max` effort, defaulting to `frontier` with high/max effort on any uncertainty or high-risk signal. The "Phases at a Glance" table uses separate `Recommended model tier` and `Recommended effort level` columns, and each phase repeats those fields plus a rationale. Concrete ids live only in a separate `## Current model map` with Anthropic, OpenAI, Google, and Cursor columns. `/plan` refreshes that map from public official documentation on every full invocation and cites its sources. If web access is unavailable, it emits a visibly dated offline snapshot or fills every cell with `assess at implementation time`; it never silently collapses the plan to the host provider. Web research adds no new credential or dependency. This is command + skill behavior, NOT a `base-*.md` lockstep change -- routing is opt-in via the plan/implement steps, not always-loaded instruction text.
+`/plan` scores a platform-agnostic tier (`frontier` / `strong` / `standard` / `fast`) and effort level per phase, defaulting to `frontier` at high or max effort on any uncertainty; `/implement` re-confirms that recommendation at the start of each phase against the live model set, defaults upward on disagreement, and may upshift (never silently downshift) when the troubleshooting loop stalls. Concrete model ids live only in the plan's own `## Current model map`, refreshed from official vendor documentation per invocation. This is command + skill behavior, not a `base-*.md` lockstep concern.
 
-`/implement` re-confirms that recommendation at the start of each phase, before the subtask-by-subtask build step (added v3.4.0 Phase 4). It reads the phase's generic tier, effort, and rationale, refreshes or revalidates the Current model map when web access is available, and checks the selected provider's mapped model against the provider's live platform surface. A plan built before a model release therefore picks up the newer equivalent without changing its generic intent. If the mapped model is unavailable or the phase scores higher than planned, `/implement` surfaces the delta and defaults to the same or stronger tier (the no-degradation guarantee). Historical plans with the legacy `**Recommended model**` / `Rec. model / effort` fields remain valid inputs. Separately, the troubleshooting loop may UPSHIFT to a stronger tier or higher effort when tests fail repeatedly -- upshift only, with confirmation, never an automatic mid-phase downshift. The standalone `/route` command remains host-native: it validates and switches only models exposed by the detected platform; the plan map does not grant cross-provider switching capability.
+**Full detail**: [`docs/policy/model-routing-in-plan-and-implement.md`](docs/policy/model-routing-in-plan-and-implement.md).
 
 ## Adding or Modifying a Hook
 
@@ -432,6 +432,10 @@ Two further traps, both fail-open:
 
 `scripts/check_required_check_coverage.py` enforces this from the manifest inward and `tests/workflows/test_workflow_policy_repo_wide.py` from the workflow outward. Reasoning and rejected alternatives: `docs/decisions/implemented/tooling/2026-08-19-required-checks-must-be-unconditionally-produced.md`.
 
+
+## Documentation Retention
+
+Per-version docs age out on a stated rule instead of accumulating: a minor two or more behind current has its `development/` subtree archived to `docs/archive/v<MAJOR>/v<MAJOR>.<MINOR>/development/`, while `plans/`, `comparisons/`, `known-gaps.md`, and the non-versioned subtrees never age out. `scripts/check_docs_retention.py` reports drift and always exits 0; `[[docs-layout-refactor]]` performs the move. Full policy: [`docs/policy/docs-retention.md`](docs/policy/docs-retention.md).
 
 ## Running Validation
 

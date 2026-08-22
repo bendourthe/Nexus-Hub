@@ -414,6 +414,7 @@ Run after step 9. Each check is binary; FAIL on any item loops back up to three 
 - [[project-refactor]] -- reorganize repo root files, scripts, configs, and CI/CD artifacts (not under `docs/`). Run this before `docs-layout-refactor` if root layout is also messy.
 - [[documentation-consistency]] -- link-integrity sweep. Run after this skill's apply phase to catch any references that survived `refgraph`.
 - [[known-gaps-tracker]] -- per-version unfinished work tracker. Invoke with `--migrate-known-gaps` to auto-promote Cat 3 findings.
+- `docs/policy/docs-retention.md` -- the retention rule this skill EXECUTES. `scripts/check_docs_retention.py` reports which `development/` subtrees are due (two or more minors behind current) and names the destination; this skill performs the move and the reference repair, propose-then-apply.
 - [[version-upgrade]] -- the parent release workflow. `/refactor-docs` is invoked as Step B4 of `/update-version`.
 - `/update-documentation` -- companion command that checks whether docs are factually accurate against the code; that command checks **content**, this skill checks **structure**.
 

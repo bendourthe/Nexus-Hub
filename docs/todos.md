@@ -24,7 +24,7 @@
 | Platform contract audit | 1 | 1 | 0 |
 | Local release gates | 1 | 1 | 0 |
 | Remote publication gates | 1 | 1 | 0 |
-| v3.18.0 docs-lifecycle plan phases complete | 3 | 5 | 2 |
+| v3.18.0 docs-lifecycle plan phases complete | 4 | 5 | 1 |
 | Open phase blockers | 0 | 0 | 0 |
 | v3.15.8 plan phases complete | 4 | 9 | 5 |
 | v3.15.8 Phase 1 tasks complete | 7 | 7 | 0 |
@@ -235,7 +235,7 @@
 - [x] Complete Phase 1: DEVLOG conversion and archive
 - [x] Complete Phase 2: Tooling rewrite for the index format
 - [x] Complete Phase 3: AGENTS.md MT-1 ratchet-down (9,715 -> 7,742 words; MT-1 RESOLVED)
-- [ ] Complete Phase 4: History retention policy
+- [x] Complete Phase 4: History retention policy (advisory checker reports 16 versions / 306 files outstanding)
 - [ ] Complete Phase 5: Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
 
 ### Carried into Phase 5 known-gaps reconciliation
@@ -246,3 +246,4 @@
 - [ ] Consider a `docs/DEVLOG.md` ceiling in `docs/policy/doc-budgets.json`, so the 150-line limit lives beside the other ratchets rather than only in a test constant.
 - [ ] Link checkers that treat `#` targets as same-page anchors cannot see an anchor orphaned by relocation; three such links broke silently in Phase 3.
 - [ ] The MCP decision tree was left in AGENTS.md because the five parity-guarded `base-*.md` blocks point at it; revisit if a future ratchet needs the 427 words.
+- [ ] Run the first retention archive pass: 16 version `development/` subtrees (306 files) are due per `docs/policy/docs-retention.md`. Propose-then-apply with reference repair; nothing deleted.

@@ -31,6 +31,8 @@ validate: ## Validate all JSON catalog files and skill bundles
 	@python scripts/validate_solution_frontmatter.py
 	@echo "Checking incident notes carry a Public-Safe Shape and a linked Durable fix (docs/incidents; no-op when absent)..."
 	@python scripts/check_incident_notes.py
+	@echo "Reporting per-version docs due for archival (advisory; never fails)..."
+	@python scripts/check_docs_retention.py
 	@echo "Checking always-loaded instruction docs stay under their word ceilings..."
 	@python scripts/validate_doc_budgets.py
 	@echo "Checking decision records (structure, header, mandatory alternatives)..."
