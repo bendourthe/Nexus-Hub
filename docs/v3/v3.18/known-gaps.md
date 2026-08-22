@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v3.18.0 (`docs-lifecycle-retention`) released. v3.18.1 (`github-usage-monitor-accuracy`) Phases 1-6 implemented on `feat/v3.18.1-github-usage-monitor-accuracy`. **Zero release blockers across both.**
-**Last updated**: 2026-08-22 (v3.18.1 section appended: BG-1 and QG-1 closed in implementation; NI-1 / NI-2 open by design; DF-1 and MT-1 out of scope)
+**Last updated**: 2026-08-22 (post-v3.18.2 housekeeping: v3.18.2 MT-1 closed by the v3.16 history archive pass; BG-2 recorded as an environment-only local-run flake)
 
 > **File-lifecycle note**: this ledger is opened by the v3.18.0 Phase 5 reconciliation. Each subsequent v3.18.N implementation appends its own `## v3.18.N - <slug>` section rather than replacing this file, keeping its own `DF-#` / `NI-#` / `BG-#` / `WN-#` / `MT-#` / `QG-#` numbering.
 
@@ -154,7 +154,7 @@ Every item raised during v3.18.0 is closed: five fixed in code, three closed by 
 
 ### MT-1 - OPEN, pre-existing and out of scope: v3.16 development history is due for archival
 
-- **Target path**: `docs/v3/v3.16/development/history` (39 files)
+- **Target path**: `docs/archive/v3/v3.16/development/history` (39 files)
 - **What is open**: `scripts/check_docs_retention.py` reports this directory as due for archival under the v3.18.0 retention policy (current minor v3.18, two-minor threshold). The check is advisory and always exits 0.
 - **Why not done here**: it is unrelated to this plan, and Phase 6.1 forbids refactoring outside plan scope. A 39-file move belongs in its own change with its own reference-repair pass, which is the lesson the v3.18.0 archive pass recorded when a comparable move turned up 227 inbound references including six that CI executes directly.
 - **Suggested next step**: run the archive pass through `/update refactor` or the `docs-layout-refactor` skill as its own change.
@@ -207,9 +207,22 @@ Every item raised during v3.18.0 is closed: five fixed in code, three closed by 
 - **Why it was missed**: the claim was carried forward from earlier releases and re-asserted during a documentation phase without re-verification against live vendor documentation. The plan's do-not-invent rule covers inventing a claim; it did not catch *inheriting* a claim that had since expired.
 - **Disposition**: closed as moot (both artifacts deleted). Recorded because the *class* of error is not moot: any surviving document that asserts third-party billing behavior carries the same expiry risk. The general lesson belongs to whatever next re-asserts a vendor behavior.
 
-### MT-1 - OPEN: docs/v3/v3.16/development/history is due for archival
+### MT-1 - CLOSED 2026-08-22 (post-release): v3.16 development history archived
 
-- **Carried forward unchanged from v3.18.1 MT-1.** 39 files, two minors behind current, due under the retention policy. Untouched here because this release is a scoped withdrawal and `scripts/check_docs_retention.py` is advisory by design. The v3.18.0 pass showed a comparable move surfaces inbound references that CI executes directly, so it wants its own change with a reference-repair pass.
+- **Was**: 39 files under `docs/v3/v3.16/development/history`, two minors behind current, due under the retention policy and carried forward unchanged from v3.18.1 MT-1.
+- **Closed by**: the post-v3.18.2 archive pass on `chore/v3.16-history-archive-and-plan-reslot`. Moved to `docs/archive/v3/v3.16/development/history/` as 39 git renames, matching the existing `docs/archive/v3/v3.15/development/history/` precedent.
+- **Reference repair**: the inbound surface was **8 files / 21 references**, all documentation, with **no CI step, script, or hook** among them - unlike the v3.18.0 pass, which surfaced 227 references including six that CI executes directly. Repaired and verified to zero dangling references. Nine of the twenty-one were DEVLOG index rows, one per v3.16 patch release.
+- **Scope note**: only `development/history` moved. The four `development/` contract documents (`evaluation-artifact-contract.md`, `github-entitlement-probe.md`, `install-selection-contract.md`, `selective-install-baseline.md`), plus `plans/`, `comparisons/`, and `known-gaps.md`, stay in the active tree - the retention policy ages out session histories, not contracts.
+- **Also corrected**: `docs/archive/README.md` documented only whole-major archival, so the `docs/archive/v3/` subtree created by the v3.18.0 retention pass was undocumented. It now states both rules and carries a v3 index row.
+
+### BG-2 - OPEN, environment-only: two installer tests fail non-deterministically in long local runs on OneDrive
+
+- **Observed**: 2026-08-22, post-release, on this Windows working tree (an OneDrive-synced folder). Two separate long local runs each failed **one** test, and **a different one each time**: `tests/installer/test_org_cli.py::test_disconnect_requires_confirmation_and_yes_removes_state_and_cache` (1 failed / 3888 passed, full suite, 60 min) and `tests/installer/test_selection_parity.py::test_powershell_filtered_install_matches_bash` (1 failed / 417 passed, `tests/installer` only, 5 min).
+- **Both pass in isolation** (5.1s and 7.1s respectively) and **both pass in CI**: `tests (ubuntu-latest)`, `installer-smoke` on ubuntu / macos / **windows**, and `install-smoke` were all green on the v3.18.2 PRs.
+- **Assessment: environment, not product.** The failing assertion in the first is `org connect <git-uri>` returning exit 2 instead of 0 - a shell-out to `git` against a bare-repo fixture. This session independently hit `fatal: unable to write new index file` from `git checkout -b` in this same tree, which is the documented OneDrive file-locking hazard. A different test failing on each run is the signature of contention, not of a deterministic defect.
+- **Explicitly NOT evidence of a regression in the v3.18.2 withdrawal.** `test_selection_parity` compares the PowerShell and bash installers, which the withdrawal edited on both sides, so it was the first candidate checked. It passes in isolation and `installer-smoke (windows-latest)` passed in CI, which is the job that exercises the retirement guard on the affected platform.
+- **Disposition**: not a release blocker and not tracked as product flakiness. Recorded so the next person who sees a lone installer failure on a OneDrive tree does not spend the investigation again. **A local full-suite run on this tree is not a trustworthy signal**; CI on a clean checkout is. If either test ever fails **in CI**, treat it as a real defect and delete this entry.
+- **Related process failure**: the first of these was reported to the user as a passing suite, because the run was piped (`pytest ... | tail`) and the pipeline's exit code is `tail`'s, not `pytest`'s. Never read `$?` through a pipe to judge a test run; capture the exit code directly or use `PIPESTATUS`.
 
 ### QG-1 - Verification performed for this release
 
@@ -221,3 +234,5 @@ Every item raised during v3.18.0 is closed: five fixed in code, three closed by 
 ### Release blockers
 
 **None.** The withdrawal is self-contained: no catalog artifact, platform contract, installer copy step, or registry file changes shape, and no surviving extension is touched.
+
+`BG-2` is open but is not a blocker and was recorded after the release: it is an environment-only local-run artifact that passes in CI on every platform, including the Windows leg that exercises the affected installer guard.

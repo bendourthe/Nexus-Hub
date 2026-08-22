@@ -59,7 +59,7 @@ The Consequences section states three things the decision does **not** grant: th
 | Relative-link resolution | 0 dangling across all four touched documents |
 | External claims | Every one carries a source URL and a 2026-08-19 verified date, or is explicitly marked inferred with its evidence |
 
-**One advisory, deliberately not acted on**: `check_docs_retention.py` reports `docs/v3/v3.16/development/history` (39 files) due for archival. That is a pre-existing condition unrelated to this plan, and Phase 6.1 forbids refactoring outside plan scope. It is recorded as a known gap in Phase 6.3 rather than swept into this release.
+**One advisory, deliberately not acted on**: `check_docs_retention.py` reports `docs/archive/v3/v3.16/development/history` (39 files) due for archival. That is a pre-existing condition unrelated to this plan, and Phase 6.1 forbids refactoring outside plan scope. It is recorded as a known gap in Phase 6.3 rather than swept into this release.
 
 ## 7. Next Step
 

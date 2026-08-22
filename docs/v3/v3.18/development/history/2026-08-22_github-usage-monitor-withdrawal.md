@@ -74,5 +74,5 @@ This is the second gate of this shape in two days; the v3.18.1 parity test had t
 
 ## 8. Deferred
 
-- **MT-1**: `docs/v3/v3.16/development/history` (39 files) remains due for archival. Out of scope for a withdrawal; wants its own reference-repair pass.
+- **MT-1**: `docs/archive/v3/v3.16/development/history` (39 files) remains due for archival. Out of scope for a withdrawal; wants its own reference-repair pass.
 - **User settings**: `githubUsageMonitor.*` keys are left in `settings.json`. Inert, and deleting keys a user wrote is not the installer's call.
