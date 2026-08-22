@@ -556,6 +556,11 @@ DEV_ONLY_SCRIPTS = {
     # could be unit-tested. Runs in CI and make validate; meaningless in an
     # end-user ~/.nexus-hub/scripts/.
     "check_doc_colocation.py",
+    # Repo-internal retention reporter (v3.18.0): reports per-version
+    # development/ subtrees due for archival per docs/policy/docs-retention.md.
+    # Advisory (always exit 0), runs in make validate; meaningless in an
+    # end-user ~/.nexus-hub/scripts/ with no docs/v* tree.
+    "check_docs_retention.py",
     # Repo validator: walks catalog/ for frontmatter + secret scans. Runs in CI
     # and by maintainers; not useful in an end-user ~/.nexus-hub/scripts/.
     "validate_skills.py",

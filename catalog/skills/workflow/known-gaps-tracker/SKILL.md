@@ -189,4 +189,5 @@ This phase adopts doctrine only. A separate durable cross-run scrutiny store is 
 - [[session-history]] -- retrospective per-session record; known-gaps is a structured punch-list aggregated across sessions of the same version.
 - [[version-upgrade]] -- the version-bump operation that triggers known-gaps finalization.
 - [[implementation-plan]] -- generates the plan that known-gaps eventually feeds into for the next version.
+- `docs/policy/docs-retention.md` -- the per-version documentation lifecycle. `known-gaps.md` is explicitly EXEMPT from archival: it is read forward by the next version's plan, so it stays in the active tree even after that version's `development/` subtree is archived.
 - [[solution-knowledge-base]] -- when a `BG` (bug) gap is resolved with a non-trivial root cause, or an item is closed with a hard-won insight, graduate it into a durable `docs/solutions/<category>/<slug>.md` entry so the fix becomes grounding for future planning and review. Moving the item to `## Resolved` records *that* it was fixed; the solution doc records *how*, retrievably.

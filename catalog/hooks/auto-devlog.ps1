@@ -36,6 +36,13 @@ $hookName = "auto-devlog"
 if ($env:NEXUS_DISABLED_HOOKS -and ($env:NEXUS_DISABLED_HOOKS.Split(',') -contains $hookName)) { exit 0 }
 if ($env:NEXUS_HOOK_PROFILE -eq "minimal") { exit 0 }
 
+# --- Opt-in gate (parity with auto-devlog.sh) ---
+# This gate was MISSING until v3.18.0, so this hook was effectively opt-OUT on
+# PowerShell while its .sh sibling was opt-in: it wrote to docs/DEVLOG.md at every
+# session end for users who never asked for it. Both implementations now require
+# the same explicit opt-in.
+if ($env:AUTO_DEVLOG -ne "1") { exit 0 }
+
 # --- Configuration ---
 $minCommits = if ($env:AUTO_DEVLOG_MIN_COMMITS) { [int]$env:AUTO_DEVLOG_MIN_COMMITS } else { 2 }
 $skipIfModifiedWithin = 300   # seconds; prevents a double run within 5 minutes
@@ -48,6 +55,19 @@ $gitRoot = (& git rev-parse --show-toplevel 2>$null | Out-String).Trim()
 if (-not $gitRoot) { exit 0 }
 $devlog = Join-Path $gitRoot "docs/DEVLOG.md"
 if (-not (Test-Path -LiteralPath $devlog -PathType Leaf)) { exit 0 }
+
+# --- Index-format guard: never prepend narrative into a per-release index ---
+# docs/DEVLOG.md may be a bounded per-release INDEX (a header plus one table row
+# per release) rather than an append-only narrative log. Prepending an entry into
+# that table corrupts it silently. Detect the index header and stand down;
+# session narrative belongs in the per-version development/history/ file.
+try {
+    $indexHeader = Select-String -LiteralPath $devlog -Pattern '^\s*\|\s*Date\s*\|\s*Version\s*\|' | Select-Object -First 1
+    if ($indexHeader) {
+        [Console]::Error.WriteLine("[auto-devlog] docs/DEVLOG.md is a per-release index; skipping. Session narrative belongs in docs/v*/*/development/history/.")
+        exit 0
+    }
+} catch { exit 0 }
 
 # --- Drain stdin (Stop hooks receive a JSON payload) ---
 if ([Console]::IsInputRedirected) { $null = [Console]::In.ReadToEnd() }

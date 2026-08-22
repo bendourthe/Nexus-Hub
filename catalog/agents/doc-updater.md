@@ -1,6 +1,6 @@
 ---
 name: doc-updater
-description: Synchronize documentation with code changes. Use after feature implementation or refactoring to update README, API docs, architecture docs, DEVLOG, and inline comments that describe changed behavior.
+description: Synchronize documentation with code changes. Use after feature implementation or refactoring to update README, API docs, architecture docs, the per-version session history, and inline comments that describe changed behavior.
 tools: Read, Glob, Grep, Bash
 ---
 
@@ -19,7 +19,8 @@ git log --oneline -5
 
 Then identify which documentation may be affected:
 - `README.md` -- if public interface, installation, or usage changed
-- `docs/DEVLOG.md` -- always; add a new entry for this session
+- `docs/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/` -- always; this is where the session narrative goes
+- `docs/DEVLOG.md` -- only when a release is being cut; it is a per-release index, not a session log
 - `catalog/context/architecture.md` -- if module structure or data flow changed
 - `catalog/memory/decisions.md` -- if a significant decision was made
 - Inline docstrings/comments -- if function signatures or behavior changed
@@ -35,12 +36,12 @@ Only update sections that reflect the actual change:
 - Configuration: if env vars or config keys changed
 - Do not rewrite sections unrelated to the change
 
-### DEVLOG
+### Session narrative
 
-Add a new entry following this format:
+The session's story goes in the per-version history file at `docs/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/<YYYY-MM-DD>_<slug>.md`, following this format:
 
 ```markdown
-## YYYY-MM-DD -- Session Title
+# Session History -- Title
 
 **Goal**: [What was attempted]
 
@@ -51,6 +52,12 @@ Add a new entry following this format:
 
 **Next Steps**: [What comes next, if anything]
 ```
+
+### DEVLOG
+
+`docs/DEVLOG.md` is a per-release **index**, not a session log: one line per release with a date, version, one-sentence summary, and links to that release's plan, history directory, and known-gaps file.
+
+Touch it only when a release is being cut, and then add or refresh exactly **one line** for that version. A session, a phase, or a commit adds nothing to it. Format contract and failure modes: the `devlog-generation` skill.
 
 ### Docstrings and Comments
 
@@ -69,7 +76,8 @@ Update `catalog/context/architecture.md` only when module boundaries, data flow,
 ## Success Metrics
 
 - Every doc section describing changed behavior is updated; no section describing unchanged behavior is touched.
-- DEVLOG has a new dated entry for this session, under 200 words.
+- The session narrative exists in the per-version `development/history/` file, under 200 words.
+- `docs/DEVLOG.md` is unchanged unless a release was cut, in which case it gained or refreshed exactly one line.
 - No description contradicts what the code actually does; every claim was read from the code, not inferred.
 - No documentation was deleted without confirming the feature it describes was actually removed.
 
@@ -77,4 +85,4 @@ Update `catalog/context/architecture.md` only when module boundaries, data flow,
 
 - Never delete documentation without confirming the feature it describes is actually removed
 - Do not fabricate descriptions -- read the code before writing about it
-- Keep entries concise; DEVLOG entries should be under 200 words
+- Keep entries concise; a session history entry should be under 200 words, and a DEVLOG index line is one sentence

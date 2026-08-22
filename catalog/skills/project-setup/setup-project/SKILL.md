@@ -57,7 +57,7 @@ Run the five checks in order. Each is stated as **detect, then act only if missi
 ### Step 5: README, CHANGELOG, DEVLOG
 
 1. **Detect** each of `README.md`, `CHANGELOG.md`, and `DEVLOG.md` (the latter conventionally at `docs/DEVLOG.md`).
-2. **Act if missing**: create each with **real content**, not just a heading: `README.md` (project name, one-line purpose, install/run, layout); `CHANGELOG.md` (Keep-a-Changelog header with an `## [Unreleased]` section and the resolved version heading); `DEVLOG.md` (a dated first entry recording the bootstrap). Do not overwrite an existing file - if it exists but is a bare placeholder, offer to enrich it rather than replacing it.
+2. **Act if missing**: create each with **real content**, not just a heading: `README.md` (project name, one-line purpose, install/run, layout); `CHANGELOG.md` (Keep-a-Changelog header with an `## [Unreleased]` section and the resolved version heading); `DEVLOG.md` (the **index-format header plus an empty table**, not a narrative entry - see `[[devlog-generation]]`; the index carries one line per release, so a project with no release yet legitimately has a header and no rows). Do not overwrite an existing file - if it exists but is a bare placeholder, offer to enrich it rather than replacing it. If an existing `DEVLOG.md` is a narrative log rather than an index, leave it alone here and offer the conversion procedure in `[[devlog-generation]]`, which archives the body first.
 
 ### Step 6: Report what was done
 

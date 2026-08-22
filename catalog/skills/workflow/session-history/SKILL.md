@@ -305,6 +305,7 @@ Before finalizing the output file, verify:
 -   [[plan-before-code]] -- creating the implementation plan that this skill cross-references
 -   [[research-plan-implement]] -- RPI workflow with artifact generation and quality gates
 -   [[code-commit-workflow]] -- commit conventions that feed into session history timestamps
+-   `docs/policy/docs-retention.md` -- the lifecycle of the files this skill writes: they stay in place at release with the DEVLOG index line as their entry point, and the `development/` subtree is archived once its minor version falls two or more behind current
 -   [[documentation-consistency]] -- verifying documentation stays in sync with code changes
 -   [[session-teach-back]] -- this skill writes the session record; session-teach-back quizzes you on what that session produced to confirm you understood it
 -   See also: [SESSION_LIFECYCLE_DECISIONS](../../../../guides/reference/SESSION_LIFECYCLE_DECISIONS.md) -- the "summarize from here" handoff pattern and when to pair session-history output with `/rewind` or `/clear`

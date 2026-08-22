@@ -126,7 +126,7 @@ When `docs/todos.md` does not exist:
 
 ### Keeping It Focused
 
-- Do not bloat the file with meeting notes, decisions, or rationale -- those belong in DEVLOG.md or ADRs.
+- Do not bloat the file with meeting notes, decisions, or rationale -- those belong in a decision record or ADR.
 - Do not move completed items to a "done" archive at the bottom -- just mark them `[x]` and leave them in place. The file stays readable.
 - Do not auto-update the file on every assistant turn -- only update when something actually changed.
 
@@ -150,7 +150,7 @@ When `docs/todos.md` does not exist:
 |---|---|
 | "I will remember what is left to do, a tracker is overhead" | Across multi-session work the next session starts cold with no memory; without `docs/todos.md` the agent re-discovers state from scratch and silently drops half-finished items. |
 | "I will update todos.md at the end once everything is done" | Batching updates to the end means a crashed or interrupted session loses the record of what was completed; check off tasks as they finish, not in one deferred sweep. |
-| "Putting the decision rationale here keeps everything in one place" | Mixing rationale and meeting notes into the tracker bloats it until it is unreadable; rationale belongs in DEVLOG.md or an ADR, the tracker stays a scannable checklist. |
+| "Putting the decision rationale here keeps everything in one place" | Mixing rationale and meeting notes into the tracker bloats it until it is unreadable; rationale belongs in a decision record or ADR, the tracker stays a scannable checklist. |
 
 ## Verification
 

@@ -232,7 +232,7 @@ The "Rec. model / effort" column is a best-effort planning-time assessment, reco
 - [x] `data/SKILL_INDEX.md`, `data/skills.json`, `data/marketplace.json` updated; counts incremented (skills 256 -> 257, specialized-domains 13 -> 14, commands 15 -> 16)
 - [x] AGENTS.md + README.md headline counts updated and consistent (the CLAUDE.md skill table is a user-global copy, not edited; the authoritative repo surfaces are AGENTS.md and data/SKILL_INDEX.md)
 - [x] Validators green: JSON integrity, orphan-bundle audit clean for this skill, dangling-wikilink resolve (all 8 Related Skills), quality pass 0/0; `make lint` no-op (no shell scripts added)
-- [x] Session history generated for Phase 3 (`docs/v3/v3.9/development/history/2026-06-25_presentify-interactive-html-phase-3-skill-command-and-registration.md`)
+- [x] Session history generated for Phase 3 (`docs/archive/v3/v3.9/development/history/2026-06-25_presentify-interactive-html-phase-3-skill-command-and-registration.md`)
 
 ### Phase 4 Exit Checklist
 

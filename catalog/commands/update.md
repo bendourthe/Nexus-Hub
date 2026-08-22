@@ -16,9 +16,9 @@ Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scop
 - Otherwise, present this menu and wait for a selection before doing any work:
 
       What scope?
-        1. release   (recommended) - the full ship flow: docs + devlog + gitignore + version + changelog + refactor, then commit, tag, push, publish GitHub Release
+        1. release   (recommended) - the full ship flow: docs + gitignore + version + changelog + devlog + refactor, then commit, tag, push, publish GitHub Release
         2. docs      - sync README, API docs, architecture docs, inline guides
-        3. devlog    - append a DEVLOG entry for recent changes
+        3. devlog    - refresh the DEVLOG index line for the current release
         4. gitignore - audit .gitignore, clean the index, recommend LFS
         5. version   - bump the version atomically across every surface (drift-guarded)
         6. changelog - regenerate / extend CHANGELOG.md from git history
@@ -28,21 +28,21 @@ Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scop
 
       Reply with a number or a scope name.
 
-- `release` runs the focused scopes in order - `docs`, then `devlog`, then `gitignore`, then `version`, then `changelog`, then `refactor` - then reconciles the version's known gaps and creates/updates/optimizes CI/CD, regenerates the supply-chain manifest, cleans up, commits, tags, pushes, and publishes the GitHub Release as one flow. It keeps every confirmation gate: never create a tag, push, or publish a release without explicit user confirmation.
+- `release` runs the focused scopes in order - `docs`, then `gitignore`, then `version`, then `changelog`, then `devlog`, then `refactor` - then reconciles the version's known gaps and creates/updates/optimizes CI/CD, regenerates the supply-chain manifest, cleans up, commits, tags, pushes, and publishes the GitHub Release as one flow. It keeps every confirmation gate: never create a tag, push, or publish a release without explicit user confirmation.
 
 ## Delegation
 
 Dispatch the resolved scope to the retained skill(s). These targets are skills under `catalog/skills/`, NOT the consolidated-away v3.x commands: the old command names (`/update-documentation`, `/generate-readme`, `/update-devlog`, `/generate-changelog`, ...) were removed in v3.2.0 and no longer resolve, so never delegate to them.
 
       docs      -> user-documentation (README + guides) + technical-documentation (architecture / ADRs) + documentation-consistency (link / staleness / sync audit); see the docs-sync checklist below
-      devlog    -> devlog-generation
+      devlog    -> devlog-generation (ONE index line per release, not a narrative entry; see the devlog scope below)
       gitignore -> built-in (audit .gitignore, clean the tracked index, recommend LFS for large binaries)
       version   -> version-upgrade, gated by scripts/check_version_sync.py (see below)
       changelog -> release-notes-writer (parse git history since the last tag into a CHANGELOG entry)
       refactor  -> docs-layout-refactor + project-refactor (per-version docs structure + archive normalization + empty-dir/duplicate/orphan/structure-complexity detectors; see the refactor scope below)
       config    -> update-config (built-in) + config-consistency-checker / nexus-hub doctor (see below)
       commit    -> code-commit-workflow
-      release   -> docs -> devlog -> gitignore -> version -> changelog -> refactor (docs structure + cleanliness) -> known-gaps reconciliation -> CI/CD create/update/optimize -> manifest, then clean up, commit, tag, push, publish GitHub Release (see below)
+      release   -> docs -> gitignore -> version -> changelog -> devlog -> refactor (docs structure + cleanliness) -> known-gaps reconciliation -> CI/CD create/update/optimize -> manifest, then clean up, commit, tag, push, publish GitHub Release (see below)
 
 Pass any remaining arguments through unchanged. Heavy logic stays in the retained skills; this file owns only scope resolution and the release sequencing.
 
@@ -69,6 +69,17 @@ python scripts/validate_unicode_safety.py --strict --root . --path <file>
 Detect here rather than fix, because these scopes routinely touch hand-edited prose whose punctuation may be deliberate, and an automatic rewrite would silently overrule the author. Resolve what the report names before finishing the scope: re-run with `--fix` on that file once the findings are confirmed unintentional, or edit by hand when a character is there on purpose (rewording an em-dash clause usually reads better than substituting `--`). The `release` scope is the one place this becomes an automatic fix-and-block gate, because a release artifact has no author left to consult.
 
 Note that a `--path` which does not resolve under `--root` exits 2 rather than reporting a clean scan, so a mistyped path fails loudly instead of passing while checking nothing.
+
+## devlog scope (one index line, never a narrative entry)
+
+`docs/DEVLOG.md` is a bounded per-release **index**, not an append-only log: a short header plus one line per release carrying the date, version, a one-sentence summary, and links to that release's plan, `development/history/` directory, and `known-gaps.md`. `[[devlog-generation]]` owns the format contract; this command only decides when it runs.
+
+Two consequences for the release flow:
+
+- **`devlog` runs after `version` and `changelog`, not before.** The index line is keyed by the released version and dated by its changelog heading, so running it earlier would mean guessing both. This is why the release order changed in v3.18.0; a narrative entry needed neither.
+- **An existing line for the version is updated in place.** Re-running the scope on the same release must be idempotent. Two lines for one version is a defect, because a reader cannot tell which is current.
+
+Narrative content never goes here. A phase's story, its troubleshooting trail, and its decisions belong in the per-version `development/history/` file via `[[session-history]]`, and what changed belongs in `CHANGELOG.md`, which stays the authoritative record.
 
 ## version scope (atomic, drift-guarded)
 
