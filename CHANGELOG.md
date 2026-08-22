@@ -9,6 +9,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.18.2] - 2026-08-22
+
+### Removed
+
+- **The GitHub Usage Monitor extension is withdrawn.** `extensions/github-usage-monitor/` is deleted along with its CI workflow, its Dependabot entry, its dedicated workflow and naming tests, the `docs/policy/github-actions-minute-consumption.md` policy document, and the drawdown reconciliation ledger. Nexus-Hub now ships **three** usage monitors instead of four. Reported 2026-08-22 against the v3.18.1 release: the monitor displayed **0% used** while `github.com/settings/billing` showed the Actions minutes allowance **fully exhausted (2,000 / 2,000)**.
+- **The extension is uninstalled, not merely unshipped.** Both installers now remove `nexus-hub.github-usage-monitor` from **VS Code and Cursor** on every run, via the existing retired-extension sweep. Unshipping alone leaves every existing install running and still reporting the wrong number. Both hosts are swept because this was the only dual-host monitor, and a VS Code-only sweep would leave the Cursor copy on screen. A new test (`test_installers_uninstall_retired_extensions_from_both_hosts`) asserts the entry is present in each installer's retirement array specifically, rather than merely somewhere in the file - the id also appears in an adjacent comment, so a substring check passes with the entry deleted, and that fail-open shape was verified and closed.
+- **Why it could not be repaired rather than removed.** The figure the extension existed to mirror is not served by any API. `GET /{scope}/settings/billing/actions`, which returned `included_minutes` and `total_minutes_used`, was closed down on 2025-09-26. Re-verified against live documentation on 2026-08-22: the Budgets API exposes only `budget_amount` and `consumed_amount`, `/usage` and `/usage/summary` carry no allowance field, and GraphQL has no billing surface. Reconstruction therefore required splitting each discount into "free because public" versus "consumed from allowance", and the line-item schema carries **no discount-reason field and no repository-visibility field**. The only discriminator is the repository, whose visibility GitHub reports as of *now* while billing items are *historical* - so a repository that was private when its minutes ran and is public today has its entire month retroactively reclassified as free. That is the precise mechanism by which a saturated allowance rendered as 0%, and it is a property of what the data omits.
+- **The underlying mechanism also moves.** Runner prices were cut on 2026-01-01, and from 2026-03-01 self-hosted runners began consuming the quota "based on list price". The latter silently falsified two things v3.18.1 shipped: the `classifySku` exclusion of self-hosted runners, and a policy document asserting they never draw down - both written five months after the behavior changed.
+
+### Changed
+
+- **`docs/decisions/implemented/architecture/2026-08-22-derive-actions-drawdown-weights-from-price.md` is marked superseded** rather than deleted. Its analysis stands and is the evidence base for the withdrawal: the price-derived weighting was correct, and GitHub's own 2026 pricing page has since confirmed the mechanism in writing. What defeated the extension was a different input entirely.
+- **README**: the "What's New" section, the extension catalog listing (four monitors to three), and the surrounding privacy paragraph now describe the served-figure distinction that separates the surviving monitors from the withdrawn one.
+
+### Unaffected
+
+- **The Claude, Codex, and Cursor usage monitors are untouched and stay.** They do not share the defect: each reads a *served* usage figure from its vendor's own first-party endpoint (for example `api.anthropic.com/api/oauth/usage`, reached with the credential the tool itself stored) and reconstructs nothing.
+- **User settings are preserved.** Keys under `githubUsageMonitor.*` are left in place in `settings.json`. They are inert, and deleting keys a user wrote is not the installer's call.
+- Catalog counts unchanged: **273 skills**, **18 commands**, **31 hooks**, **23 agents**.
+
 ## [3.18.1] - 2026-08-22
 
 ### Verified

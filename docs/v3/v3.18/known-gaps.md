@@ -186,3 +186,38 @@ Every item raised during v3.18.0 is closed: five fixed in code, three closed by 
 | Ingested from v3.16 | 1 (NI-2 superseded) | 1 (NI-4 unchanged, invented SKU fixtures) |
 
 **Release blockers: 0.** Both open `NI-#` items are open by design with their reasoning in a decision record and a falsifier in the ledger. `DF-1` is an authorization-flow change outside this plan's scope. `MT-1` is a pre-existing advisory that predates this plan and belongs in its own change.
+
+---
+
+## v3.18.2 - github-usage-monitor-withdrawal
+
+**Status**: Implemented on `chore/remove-github-usage-monitor`. The extension is deleted and actively uninstalled from both hosts. This section CLOSES the v3.18.1 section above rather than extending it: every gap that section tracked concerned a reconstruction that no longer ships.
+
+**Prior-version ingest**: **v3.18.1 NI-1** (price ratios versus legacy multipliers cannot be separated) is **CLOSED as moot** - the code that weighted anything is deleted, and the ledger that held the falsifier is deleted with it. **v3.16 NI-4** (self-hosted and larger-runner exclusion rules tested against invented SKU strings only) is **CLOSED as moot** for the same reason, and is additionally recorded below as having been *wrong*, not merely untested. **v3.16 NI-2** was already superseded in v3.18.1.
+
+### DF-1 - CLOSED: the monitor reported 0% against an exhausted allowance
+
+- **Reported**: 2026-08-22, against the v3.18.1 release, with the billing page screenshot showing `2,000 min used / 2,000 min included`.
+- **Root cause**: repository visibility is point-in-time. `GET /repos/{owner}/{repo}` answers for *now*; billing line items are historical. A repository that was private while its minutes ran and public at read time has its whole month reclassified as free, yielding a drawdown of exactly zero that is marked *complete* and renders as a confident 0%. Reproduced against the pipeline: correct inputs yield 2,595 minutes / 129.8%, all-public inputs yield 0 / 0%, and unresolved inputs correctly yield *unavailable*.
+- **Disposition**: closed by withdrawing the extension. Not fixable in place - see the decision record.
+
+### WN-1 - CLOSED as shipped-wrong: self-hosted runners were excluded after GitHub began counting them
+
+- **What was wrong**: `classifySku` excluded self-hosted runners from the drawdown, and `docs/policy/github-actions-minute-consumption.md` asserted in writing that they never draw down. GitHub's 2026 pricing page states that **from 2026-03-01 self-hosted runners consume the free quota "based on list price"**. Both statements were authored on 2026-08-22, five months after the behavior changed.
+- **Why it was missed**: the claim was carried forward from earlier releases and re-asserted during a documentation phase without re-verification against live vendor documentation. The plan's do-not-invent rule covers inventing a claim; it did not catch *inheriting* a claim that had since expired.
+- **Disposition**: closed as moot (both artifacts deleted). Recorded because the *class* of error is not moot: any surviving document that asserts third-party billing behavior carries the same expiry risk. The general lesson belongs to whatever next re-asserts a vendor behavior.
+
+### MT-1 - OPEN: docs/v3/v3.16/development/history is due for archival
+
+- **Carried forward unchanged from v3.18.1 MT-1.** 39 files, two minors behind current, due under the retention policy. Untouched here because this release is a scoped withdrawal and `scripts/check_docs_retention.py` is advisory by design. The v3.18.0 pass showed a comparable move surfaces inbound references that CI executes directly, so it wants its own change with a reference-repair pass.
+
+### QG-1 - Verification performed for this release
+
+- `python scripts/check_version_sync.py` - all six surfaces at 3.18.2.
+- `catalog/hooks/tests/test_installer_smoke.py` - 33 passed, including the new both-hosts retirement guard, which was verified to FAIL when the retirement entry is removed.
+- `tests/workflows/` - 73 passed, 8 skipped, after dropping the deleted workflow from the sibling roster and the Dependabot monitor count from four to three.
+- `bash -n scripts/installer.sh` and a PowerShell AST parse of `scripts/installer.ps1` - both clean after the block removal.
+
+### Release blockers
+
+**None.** The withdrawal is self-contained: no catalog artifact, platform contract, installer copy step, or registry file changes shape, and no surviving extension is touched.
