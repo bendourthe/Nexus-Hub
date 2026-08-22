@@ -421,6 +421,59 @@ export function resolveLinuxReferenceRate(items: readonly UsageLineItem[]): Linu
     : { rate: observed, source: "observed" };
 }
 
+/** One repository's contribution to the drawdown, as the panel shows it. */
+export interface RepositoryContribution {
+  repositoryName: string;
+  visibility: RepositoryVisibility;
+  /** Every Actions minute reported for this repository, free or not. */
+  rawMinutes: number;
+  /**
+   * Minutes actually counted against the allowance after exclusions and weighting.
+   * Zero for a public repository, which is the fact the panel exists to show.
+   */
+  weightedMinutes: number;
+}
+
+/**
+ * Per-repository contributions, sorted by what each actually costs the allowance.
+ *
+ * `breakdownByRepository` above answers "where did the minutes go"; this answers
+ * "which of them counted", which is a different question and the one a user asking
+ * why 366 public-repository runs cost nothing is actually asking.
+ */
+export function contributionsByRepository(
+  items: readonly UsageLineItem[],
+  visibility: VisibilityMap
+): RepositoryContribution[] {
+  const reference = resolveLinuxReferenceRate(items);
+  const byRepo = new Map<string, RepositoryContribution>();
+  for (const item of items.filter(isActionsMinutes)) {
+    const name = item.repositoryName ?? "(no repository reported)";
+    const entry = byRepo.get(name) ?? {
+      repositoryName: name,
+      visibility: visibility[name] ?? "unknown",
+      rawMinutes: 0,
+      weightedMinutes: 0
+    };
+    entry.rawMinutes += item.quantity;
+    const runner = classifySku(item.sku);
+    const price = item.pricePerUnit;
+    const counts =
+      entry.visibility === "private" &&
+      runner.githubHosted === true &&
+      runner.standard === true &&
+      runner.os !== "unknown" &&
+      price !== null &&
+      Number.isFinite(price) &&
+      price > 0;
+    if (counts) entry.weightedMinutes += item.quantity * ((price as number) / reference.rate);
+    byRepo.set(name, entry);
+  }
+  return [...byRepo.values()].sort(
+    (left, right) => right.weightedMinutes - left.weightedMinutes || right.rawMinutes - left.rawMinutes
+  );
+}
+
 export interface DrawdownResult {
   /** Minutes counted against the allowance, or null when it could not be established. */
   minutes: number | null;

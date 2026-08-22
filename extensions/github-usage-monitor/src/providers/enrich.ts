@@ -9,6 +9,7 @@
 
 import {
   computeDrawdownMinutes,
+  contributionsByRepository,
   gigabyteHoursToGigabyteMonths,
   hoursInUtcMonth,
   type LinuxReferenceRate,
@@ -28,7 +29,7 @@ function aiCreditAvailable(kind: MetricKind): kind is "copilot-ai-credits" {
   return kind === "copilot-ai-credits";
 }
 import { applyAllowances, type AllowanceInputs, type AllowanceMap, type MetricAllowanceInput } from "./allowances";
-import type { MetricKind, UsageMetric, UsageSnapshot } from "../types";
+import type { ActionsDrawdownDetail, MetricKind, UsageMetric, UsageSnapshot } from "../types";
 
 /** Storage consumption is reported in GigabyteHours; the entitlement is in GB. */
 const GIGABYTE_HOURS = /gigabyte[\s_-]?hours?/iu;
@@ -91,7 +92,9 @@ export function enrichSnapshot(snapshot: UsageSnapshot, inputs: EnrichmentInputs
   const plan = resolvePlan(inputs.planName);
   const entitlement = entitlementFor(inputs.planName);
 
-  const minutesResult = computeDrawdownMinutes(lineItemsOf(snapshot.actionsMinutes), inputs.visibility);
+  const actionsItems = lineItemsOf(snapshot.actionsMinutes);
+  const minutesResult = computeDrawdownMinutes(actionsItems, inputs.visibility);
+  const contributions = contributionsByRepository(actionsItems, inputs.visibility);
   const storageGb = storageGigabyteMonths(snapshot.actionsStorage, snapshot.periodStart);
 
   const drawdowns: Partial<Record<MetricKind, MetricAllowanceInput>> = {
@@ -167,12 +170,46 @@ export function enrichSnapshot(snapshot: UsageSnapshot, inputs: EnrichmentInputs
       ? { ...enriched.copilot, allowanceState: "unknown" }
       : enriched.copilot;
 
+  const actionsDrawdownDetail: ActionsDrawdownDetail = {
+    repositories: contributions.map((entry) => ({
+      repositoryName: entry.repositoryName,
+      visibility: entry.visibility,
+      rawMinutes: entry.rawMinutes,
+      weightedMinutes: entry.weightedMinutes
+    })),
+    linuxReferenceRate: minutesResult.linuxReferenceRate.rate,
+    linuxRateSource: minutesResult.linuxReferenceRate.source,
+    unresolved: minutesResult.unresolvedRepositories,
+    allowanceProvenance: describeAllowanceProvenance(enriched.actionsMinutes, inputs.planName)
+  };
+
   return {
-    snapshot: { ...enriched, copilot },
+    snapshot: { ...enriched, copilot, actionsDrawdownDetail },
     unresolved: minutesResult.unresolvedRepositories,
     appliedWeights: minutesResult.appliedWeights,
     linuxReferenceRate: minutesResult.linuxReferenceRate
   };
+}
+
+/**
+ * Provenance line for the Actions drawdown NUMERATOR.
+ *
+ * A deliberate sibling of `describeAllowanceProvenance` rather than an extension of
+ * it. That function answers where the DENOMINATOR came from (a plan table or a value
+ * the user typed). Since 0.4.0 the numerator has its own provenance - a
+ * reconstruction, weighted by a rate that was either observed in the period or fell
+ * back to a published constant - and folding two different questions into one
+ * sentence is how a provenance line stops being read.
+ */
+export function describeDrawdownProvenance(detail: ActionsDrawdownDetail | undefined): string {
+  if (detail === undefined) {
+    return "Reconstructed from private-repository, GitHub-hosted, standard-runner minutes. Refresh to see the rate it was weighted by.";
+  }
+  const rate = `$${detail.linuxReferenceRate} per Linux minute`;
+  const source = detail.linuxRateSource === "observed"
+    ? `observed in this period (${rate})`
+    : `the published standard rate (${rate}), because this period reported no Linux runner to observe one from`;
+  return `Reconstructed from private-repository, GitHub-hosted, standard-runner minutes, each weighted by its own list price relative to ${source}. Public-repository and self-hosted runs are free and never count.`;
 }
 
 /** Provenance line for a denominator, shown beside the value in the panel. */

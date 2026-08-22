@@ -1,8 +1,9 @@
 import * as vscode from "vscode";
-import type { BillingOwner, UsageMetric, UsageState } from "./types";
+import type { ActionsDrawdownDetail, BillingOwner, UsageMetric, UsageState } from "./types";
 import { displayUnit, escapeHtml, formatAmount, isNotConnected, GITHUB_BAR_FILL } from "./statusBarManager";
 import { formatResetCountdown, formatResetDateTime } from "./usageStore";
 import { explainMissingPercentage, isAllowanceExhausted } from "./providers/allowances";
+import { describeDrawdownProvenance } from "./providers/enrich";
 import {
   readSettings,
   settingsScriptJs,
@@ -122,6 +123,7 @@ function renderSnapshot(state: UsageState, now: number, auth?: AuthDisplay): str
     ? `<div class="notice">&#9888; Showing last-known-good data${state.error ? `: ${escapeHtml(state.error.message)}` : "."}</div>`
     : "";
   const detail = `${breakdowns(snapshot.copilot)}${breakdowns(snapshot.actionsMinutes)}${breakdowns(snapshot.actionsStorage)}`;
+  const actionsSplit = actionsBreakdown(snapshot.actionsDrawdownDetail);
   // Collapsed by default: it is reference material, not something to read on every
   // glance, and open-by-default was pushing the meters off the top of the panel.
   const details = detail === "" ? "" : `<details class="detail"><summary>Billing detail</summary>${detail}</details>`;
@@ -132,6 +134,7 @@ function renderSnapshot(state: UsageState, now: number, auth?: AuthDisplay): str
     metricCard(snapshot.actionsMinutes, now) +
     metricCard(snapshot.actionsStorage, now) +
     `<div class="divider"></div>` +
+    actionsSplit +
     details +
     // The settings section renders ABOVE the action row, matching the Claude
     // monitor: the gear expands a panel in place and the buttons stay beneath it,
@@ -273,6 +276,69 @@ function formatNumber(value: number): string {
   return new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }).format(value);
 }
 
+/**
+ * Rows beyond this are aggregated into a single "other" line.
+ *
+ * An account with a hundred repositories must not get a hundred rows in a sidebar
+ * panel. Twelve covers the repositories that plausibly matter on a real account
+ * while keeping the section scannable; the tail is summed rather than dropped, so
+ * the rows still add up to the total.
+ */
+const REPOSITORY_ROW_CAP = 12;
+
+/**
+ * Where the Actions minutes went, and which of them counted.
+ *
+ * This is the section that answers "why do 366 public-repository runs cost me
+ * nothing". Public rows visibly read as zero rather than being filtered out - a
+ * filtered row leaves the same question unanswered, just less visibly.
+ *
+ * Repository names render unhashed here. They are the user's own data in their own
+ * editor, unlike the probe's output, which is written to be pasted into an issue and
+ * therefore hashes by default. The two conventions differ on purpose.
+ */
+function actionsBreakdown(detail: ActionsDrawdownDetail | undefined): string {
+  if (detail === undefined || detail.repositories.length === 0) return "";
+
+  const counted = detail.repositories.filter((row) => row.visibility !== "unknown");
+  const unresolvedRows = detail.repositories.filter((row) => row.visibility === "unknown");
+  const shown = counted.slice(0, REPOSITORY_ROW_CAP);
+  const tail = counted.slice(REPOSITORY_ROW_CAP);
+
+  const row = (name: string, visibility: string, raw: number, weighted: number): string =>
+    `<tr><td>${escapeHtml(name)}</td>` +
+    `<td class="vis ${escapeHtml(visibility)}">${escapeHtml(visibility)}</td>` +
+    `<td class="num">${formatNumber(raw)}</td>` +
+    `<td class="num${weighted === 0 ? " zero" : ""}">${formatNumber(weighted)}</td></tr>`;
+
+  const tailRow = tail.length === 0
+    ? ""
+    : row(
+      `other (${tail.length} repositories)`,
+      "mixed",
+      tail.reduce((sum, entry) => sum + entry.rawMinutes, 0),
+      tail.reduce((sum, entry) => sum + entry.weightedMinutes, 0)
+    );
+
+  const unresolvedBlock = unresolvedRows.length === 0
+    ? ""
+    : `<p class="sub">Excluded because their visibility could not be read: ` +
+      `${unresolvedRows.map((entry) => escapeHtml(entry.repositoryName)).join(", ")}. ` +
+      `A private repository is invisible to a token without the <code>repo</code> scope, and those are exactly the ones that draw down.</p>`;
+
+  return `<details class="detail"><summary>Actions minutes by repository</summary>` +
+    // Two sentences, not one. The denominator (where the 2,000 comes from) and the
+    // numerator (how the counted minutes were reconstructed) are different claims
+    // with different reliability, and folding them together is how a provenance line
+    // stops being read.
+    `<p class="sub">${escapeHtml(detail.allowanceProvenance)}</p>` +
+    `<p class="sub">${escapeHtml(describeDrawdownProvenance(detail))}</p>` +
+    `<table class="repo-table"><thead><tr><th>Repository</th><th>Visibility</th><th class="num">Minutes</th><th class="num">Counted</th></tr></thead><tbody>` +
+    shown.map((entry) => row(entry.repositoryName, entry.visibility, entry.rawMinutes, entry.weightedMinutes)).join("") +
+    tailRow +
+    `</tbody></table>${unresolvedBlock}</details>`;
+}
+
 function breakdowns(metric: UsageMetric): string {
   if (metric.breakdowns.length === 0) return "";
   const rows = metric.breakdowns.map((row) => `<tr><td>${escapeHtml(row.sku)}</td><td>${row.grossQuantity} ${escapeHtml(row.unit)}</td><td>${row.netAmount === null ? "-" : `$${row.netAmount.toFixed(2)}`}</td></tr>`).join("");
@@ -337,6 +403,12 @@ function styles(): string {
     `.bar-pct{font-size:14px;font-weight:700;min-width:40px;text-align:right}` +
     `.bar-fill.none{background:var(--vscode-descriptionForeground,#888);opacity:0.35}` +
     `.bar-pct.none{opacity:0.5;font-weight:600}` +
+    `.repo-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}` +
+    `.repo-table th{text-align:left;font-weight:600;padding:3px 6px;border-bottom:1px solid var(--vscode-widget-border,#4444)}` +
+    `.repo-table td{padding:3px 6px}` +
+    `.repo-table .num{text-align:right;font-variant-numeric:tabular-nums}` +
+    `.repo-table .num.zero{opacity:0.5}` +
+    `.repo-table .vis.public{color:var(--vscode-descriptionForeground)}` +
     `.bar-fill.exhausted{background:var(--vscode-notificationsErrorIcon-foreground,#e05555)}` +
     `.bar-pct.exhausted{color:var(--vscode-notificationsErrorIcon-foreground,#e05555)}` +
     `.absolute{font-size:14px;font-weight:700}` +

@@ -123,6 +123,36 @@ export interface UsageMetric extends MoneyBreakdown {
   breakdowns: SkuUsageBreakdown[];
 }
 
+/**
+ * What the Actions drawdown was reconstructed FROM, so the panel can show its work.
+ *
+ * Optional on `UsageSnapshot`: a snapshot cached before 0.4.0 has none, and the
+ * panel must render without it rather than throwing on an upgrade.
+ */
+export interface ActionsDrawdownDetail {
+  /** Per-repository contributions, sorted by weighted minutes descending. */
+  repositories: Array<{
+    repositoryName: string;
+    visibility: "public" | "private" | "unknown";
+    rawMinutes: number;
+    weightedMinutes: number;
+  }>;
+  /** The standard-Linux denominator every weight was expressed against, in USD per minute. */
+  linuxReferenceRate: number;
+  /** Whether that rate was observed in this period or fell back to the published constant. */
+  linuxRateSource: "observed" | "published-fallback";
+  /** Repositories or SKUs excluded because they could not be classified or priced. */
+  unresolved: string[];
+  /**
+   * The DENOMINATOR's provenance sentence, resolved at enrichment time.
+   *
+   * Carried on the snapshot rather than recomputed in the panel because it depends
+   * on the account's plan name, which the panel does not have and should not need
+   * a second channel to obtain.
+   */
+  allowanceProvenance: string;
+}
+
 export interface UsageSnapshot {
   owner: BillingOwner;
   periodStart: number;
@@ -133,6 +163,8 @@ export interface UsageSnapshot {
   copilot: UsageMetric;
   actionsMinutes: UsageMetric;
   actionsStorage: UsageMetric;
+  /** Present from 0.4.0 onward; absent on a snapshot cached by an earlier version. */
+  actionsDrawdownDetail?: ActionsDrawdownDetail;
 }
 
 export type ProviderErrorCode =
