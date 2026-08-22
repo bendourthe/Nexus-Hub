@@ -241,7 +241,7 @@ Every item raised during v3.18.0 is closed: five fixed in code, three closed by 
 
 ## v3.18.3 - presentify-slide-navigation
 
-**Status**: Phases 1-2 of 5 implemented on `feat/presentify-slide-navigation`. Every gate is green (full validate, trigger evals, 1043 targeted tests, and Phase 2's 42-check headless keyboard walkthrough). **No release blockers from these phases.**
+**Status**: Phases 1-3 of 5 implemented on `feat/presentify-slide-navigation`. Every gate is green (full validate, trigger evals, 1043 targeted tests, Phase 2's 42-check keyboard walkthrough, and Phase 3's 24-check grammar and step-driver render harness). **No release blockers from these phases.**
 
 ### DF-1 - RESOLVED in Phase 2: the Step 6 slide-navigation pointer
 
@@ -264,6 +264,11 @@ Every item raised during v3.18.0 is closed: five fixed in code, three closed by 
 - The contract was proven implementable before shipping: a hand-authored five-slide sample passed a 42-check headless walkthrough (keyboard map, fragment order and idempotence, deep links with clamp/fallback branches, browser-back history, focus and live-region behavior, reduced-motion cuts, and the no-JS stacked fallback).
 - One capture-protocol fact for Phase 4: a screenshot taken mid-transition shows two slides painted together while the state is correct. The Phase 4 capture protocol must wait for transition settle (or force reduced motion) before grading, or every slide-mode run will file a phantom double-slide defect.
 
+### Phase 3 notes (2026-08-22)
+
+- **BG-1 - RESOLVED in Phase 3, found and fixed in the same session**: the new engine step driver's initial `goTo` at mount never painted layer 0 (`_shown.index` starts at 0 so `crossing` was false while `active` was still -1). Caught by the render harness, not by `node --check`, which stayed green throughout - the case for the plan's render-verification step. Fixed by also gating the layer toggle on `this.active !== index`, with a comment naming the mount case.
+- Two more settle-then-assert facts for Phase 4's capture protocol, joining the Phase 2 note: a fixed sleep racing a timed animation reads mid-count values (poll for the settled state instead), and CSSOM re-serializes transform values (`scale(1.0000)` reads back as `scale(1)`), so assertions against style strings must use the serialized form.
+
 ### Release blockers
 
-**None from Phases 1-2.** The phase changes only documentation surfaces the installers already copy recursively, adds no catalog artifact, and leaves `data/marketplace.json` counts and the 273-skill total unchanged.
+**None from Phases 1-3.** The phase changes only documentation surfaces the installers already copy recursively, adds no catalog artifact, and leaves `data/marketplace.json` counts and the 273-skill total unchanged.
