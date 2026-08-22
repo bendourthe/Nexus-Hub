@@ -246,6 +246,15 @@ Each phase must follow this template exactly:
 > create or modify, acceptance criteria, and any constraints. The prompt must be
 > actionable without needing the rest of this document.]
 
+**Express a moving count as a DELTA, never as an absolute target.** When an acceptance
+criterion involves a quantity the repository is still changing (a catalog skill count, a
+command count, a hook count), write `+1 skill` rather than `lands at 272 skills`. A plan is
+authored before it is implemented, and anything else may land in between: one plan specified
+an absolute 272 against a 271-skill catalog, the catalog reached 272 on its own, and the
+correct implementation landed at 273 - so the plan's own acceptance criterion read as a
+failure while the work was right. A delta stays true however long authoring leads
+implementation; an absolute invites a wrong edit to make the number match.
+
 ---
 
 #### N.2 -- [Sub-task Title]
