@@ -95,3 +95,46 @@ describe("warning reveal", () => {
     expect(shown).toHaveLength(1);
   });
 });
+
+describe("exhaustion rendering", () => {
+  it("renders past 100% as exhausted, showing the true figure with a clamped bar", async () => {
+    const { renderDashboard } = await import("../src/dashboardPanel");
+    const spent = snapshot();
+    // 2,600 weighted minutes against a 2,000-minute allowance: the measured August
+    // shape. The reported symptom was a meter stalling below 100 while GitHub showed
+    // saturation, so a fix that clamps the NUMBER reproduces the same lie inverted.
+    spent.actionsMinutes = {
+      ...spent.actionsMinutes,
+      used: 5000, allowance: 2000, drawdown: 2600, drawdownBasis: "reconstructed",
+      allowanceState: "verified", percentage: 130
+    };
+    const html = renderDashboard({ state: "fresh", data: spent }, now);
+    expect(html).toContain("130%");
+    expect(html).toContain("exhausted");
+    // The WIDTH is clamped; a 130% width is a layout bug, not honesty.
+    expect(html).not.toContain("width:130%");
+    expect(html).toContain('class="bar-fill exhausted"');
+  });
+
+  it("tells an exhausted account what actually stops, and what does not", async () => {
+    const { buildUsageSuggestion } = await import("../src/recommendations");
+    const spent = snapshot();
+    spent.actionsMinutes = { ...spent.actionsMinutes, allowance: 2000, drawdown: 2600, percentage: 130 };
+    const suggestion = buildUsageSuggestion(spent, "actions-minutes")!;
+    expect(suggestion.recommendation).toContain("Private-repository runs are blocked");
+    expect(suggestion.recommendation).toContain("public-repository runs continue free");
+  });
+
+  it("keeps the compact status bar readable at three digits", async () => {
+    const { buildStatusText } = await import("../src/statusBarManager");
+    const spent = snapshot();
+    spent.actionsMinutes = { ...spent.actionsMinutes, allowance: 2000, drawdown: 2600, percentage: 130 };
+    const compact = buildStatusText(spent, true, false);
+    expect(compact).toContain("130%");
+    // Measure the VISIBLE text: `$(github-icon)` is 14 characters of codicon markup
+    // that the status bar renders as a single glyph, so the raw length overstates
+    // the width by more than the third digit this test exists to check.
+    const visible = compact.replace(/\$\([^)]+\)/g, "*");
+    expect(visible.length).toBeLessThanOrEqual(40);
+  });
+});

@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import type { BillingOwner, UsageMetric, UsageState } from "./types";
 import { displayUnit, escapeHtml, formatAmount, isNotConnected, GITHUB_BAR_FILL } from "./statusBarManager";
 import { formatResetCountdown, formatResetDateTime } from "./usageStore";
-import { explainMissingPercentage } from "./providers/allowances";
+import { explainMissingPercentage, isAllowanceExhausted } from "./providers/allowances";
 import {
   readSettings,
   settingsScriptJs,
@@ -254,12 +254,19 @@ function metricCard(metric: UsageMetric, now: number): string {
 
   const shown = counted === null ? `${formatNumber(metric.used)} ${escapeHtml(unit)}` : `${formatNumber(counted)} ${escapeHtml(unit)}`;
   const estimate = metric.drawdownBasis === "reconstructed" ? ` <span class="est" title="GitHub does not publish this figure; it is reconstructed from private-repository usage.">est.</span>` : "";
+  // Exhaustion renders as a full bar in the critical style with the TRUE percentage
+  // beside it. The bar WIDTH is clamped because a 130% width is a layout bug, but
+  // the NUMBER is not: the reported symptom was a meter reading 58% while GitHub
+  // showed 2,000 of 2,000, and clamping the figure to 100 would tell the same kind
+  // of lie in the other direction.
+  const exhausted = isAllowanceExhausted(metric);
+  const exhaustedNote = exhausted ? " - allowance exhausted" : "";
   return `<section class="section"><h3>${label(metric)}</h3>` +
     `<div class="bar-row">` +
-    `<div class="bar" role="meter" aria-label="${label(metric)} usage" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.round(pct)}">` +
-    `<div class="bar-fill" style="width:${Math.min(100, pct)}%"></div></div>` +
-    `<span class="bar-pct">${Math.round(pct)}%</span></div>` +
-    `<div class="sub">${shown} of ${formatNumber(metric.allowance ?? 0)} ${escapeHtml(unit)}${estimate}</div>${reset}</section>`;
+    `<div class="bar" role="meter" aria-label="${label(metric)} usage${exhaustedNote}" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${Math.min(100, Math.round(pct))}" aria-valuetext="${Math.round(pct)}%${exhaustedNote}">` +
+    `<div class="bar-fill${exhausted ? " exhausted" : ""}" style="width:${Math.min(100, pct)}%"></div></div>` +
+    `<span class="bar-pct${exhausted ? " exhausted" : ""}">${Math.round(pct)}%</span></div>` +
+    `<div class="sub">${shown} of ${formatNumber(metric.allowance ?? 0)} ${escapeHtml(unit)}${estimate}${exhausted ? " - <strong>exhausted</strong>" : ""}</div>${reset}</section>`;
 }
 
 function formatNumber(value: number): string {
@@ -330,6 +337,8 @@ function styles(): string {
     `.bar-pct{font-size:14px;font-weight:700;min-width:40px;text-align:right}` +
     `.bar-fill.none{background:var(--vscode-descriptionForeground,#888);opacity:0.35}` +
     `.bar-pct.none{opacity:0.5;font-weight:600}` +
+    `.bar-fill.exhausted{background:var(--vscode-notificationsErrorIcon-foreground,#e05555)}` +
+    `.bar-pct.exhausted{color:var(--vscode-notificationsErrorIcon-foreground,#e05555)}` +
     `.absolute{font-size:14px;font-weight:700}` +
     `.sub{font-size:11px;opacity:0.7;margin-top:4px}` +
     `.est{opacity:0.65;font-style:italic}` +

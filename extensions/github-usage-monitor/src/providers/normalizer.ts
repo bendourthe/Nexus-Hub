@@ -195,6 +195,10 @@ function parseItems(
       // Retained rather than parsed away: this is the only field that separates free
       // public-repository usage from allowance-consuming private usage.
       repositoryName: typeof item.repositoryName === "string" ? item.repositoryName : null,
+      // Absent on `/usage/summary` and on any 0.3.x-era cached snapshot. `null`
+      // means unknown; `optionalNumber` must not be allowed to collapse that into 0,
+      // because a zero price would derive a zero drawdown weight.
+      pricePerUnit: optionalNumber(item.pricePerUnit),
       grossQuantity,
       grossAmount: optionalNumber(item.grossAmount),
       discountQuantity: optionalNumber(item.discountQuantity),

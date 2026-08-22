@@ -11,6 +11,7 @@ import {
   computeDrawdownMinutes,
   gigabyteHoursToGigabyteMonths,
   hoursInUtcMonth,
+  type LinuxReferenceRate,
   type UsageLineItem,
   type VisibilityMap
 } from "./drawdown";
@@ -46,8 +47,10 @@ export interface EnrichmentResult {
   snapshot: UsageSnapshot;
   /** Repositories or SKUs excluded because they could not be classified. */
   unresolved: string[];
-  /** True when the Actions drawdown needed a runner-OS weight other than 1. */
-  usedWeighting: boolean;
+  /** The distinct drawdown weights applied, ascending; `[1]` for a single-rate period. */
+  appliedWeights: number[];
+  /** The standard-Linux denominator those weights were expressed against, and its source. */
+  linuxReferenceRate: LinuxReferenceRate;
 }
 
 /** Rebuilds line items from a metric's retained breakdowns. */
@@ -58,7 +61,9 @@ function lineItemsOf(metric: UsageMetric): UsageLineItem[] {
     sku: row.sku,
     unitType: row.unit,
     quantity: row.grossQuantity,
-    pricePerUnit: null,
+    // `?? null`: a breakdown persisted by 0.3.x has no such field, and `undefined`
+    // is not caught by the `=== null` guard the drawdown uses.
+    pricePerUnit: row.pricePerUnit ?? null,
     grossAmount: row.grossAmount,
     discountAmount: row.discountAmount,
     netAmount: row.netAmount,
@@ -165,7 +170,8 @@ export function enrichSnapshot(snapshot: UsageSnapshot, inputs: EnrichmentInputs
   return {
     snapshot: { ...enriched, copilot },
     unresolved: minutesResult.unresolvedRepositories,
-    usedWeighting: minutesResult.usedWeighting
+    appliedWeights: minutesResult.appliedWeights,
+    linuxReferenceRate: minutesResult.linuxReferenceRate
   };
 }
 

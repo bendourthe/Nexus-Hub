@@ -80,6 +80,17 @@ export interface SkuUsageBreakdown extends MoneyBreakdown {
    * between 1,287 reported minutes and the ~121 GitHub actually counts.
    */
   repositoryName: string | null;
+  /**
+   * List price per unit for this line item, in USD.
+   *
+   * Present only on the plain `/settings/billing/usage` endpoint; `/usage/summary`
+   * omits it, and a snapshot cached by 0.3.x predates the field entirely. `null`
+   * therefore means UNKNOWN and never zero. The distinction is load-bearing: the
+   * drawdown derives each item's weight from this value relative to the standard
+   * Linux rate, so treating an absent price as 0 would silently drop the item from
+   * the drawdown instead of marking the reconstruction incomplete.
+   */
+  pricePerUnit: number | null;
 }
 
 export interface ResetInfo {
