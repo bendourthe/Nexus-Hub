@@ -242,7 +242,8 @@
           "default": 12,
           "minimum": 3,
           "maximum": 60,
-          "description": "Seconds before the warning view auto-dismisses"
+          "description": "Deprecated and no longer applied. The warning view stays open until it is dismissed, matching the Claude, Codex, and Cursor monitors. The key is retained so an existing user setting does not surface as unknown.",
+          "deprecationMessage": "No longer applied. The warning view no longer auto-dismisses."
         },
         "githubUsageMonitor.requestTimeoutMs": {
           "type": "number",

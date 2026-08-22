@@ -29,14 +29,33 @@ export class WarningViewProvider implements vscode.WebviewViewProvider {
     this.suggestion = suggestion;
     this.callbacks = callbacks;
     await vscode.commands.executeCommand("setContext", WARNING_ACTIVE_CONTEXT, true);
-    if (this.view) this.view.webview.html = this.render(this.view.webview);
-    else await vscode.commands.executeCommand(`${WARNING_VIEW_ID}.focus`);
+    if (this.view) {
+      this.view.webview.html = this.render(this.view.webview);
+      await this.reveal(this.view);
+    } else {
+      await vscode.commands.executeCommand(`${WARNING_VIEW_ID}.focus`);
+    }
   }
 
   public async dismiss(): Promise<void> {
     this.suggestion = undefined;
+    this.view = undefined;
     this.callbacks?.onDismiss();
     await vscode.commands.executeCommand("setContext", WARNING_ACTIVE_CONTEXT, false);
+  }
+
+  /**
+   * Bring an already-resolved view to the front. The view is registered with
+   * `retainContextWhenHidden`, so re-rendering its HTML alone leaves a hidden
+   * panel hidden - every alert after the first would be invisible. Hosts older
+   * than the `WebviewView.show` API fall back to focusing the view id.
+   */
+  private async reveal(view: vscode.WebviewView): Promise<void> {
+    if (typeof view.show === "function") {
+      view.show(true);
+      return;
+    }
+    await vscode.commands.executeCommand(`${WARNING_VIEW_ID}.focus`);
   }
 
   private render(webview: vscode.Webview): string {
