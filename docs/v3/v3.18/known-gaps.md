@@ -154,7 +154,7 @@ Every item raised during v3.18.0 is closed: five fixed in code, three closed by 
 
 ### MT-1 - OPEN, pre-existing and out of scope: v3.16 development history is due for archival
 
-- **Target path**: `docs/v3/v3.16/development/history` (39 files)
+- **Target path**: `docs/archive/v3/v3.16/development/history` (39 files)
 - **What is open**: `scripts/check_docs_retention.py` reports this directory as due for archival under the v3.18.0 retention policy (current minor v3.18, two-minor threshold). The check is advisory and always exits 0.
 - **Why not done here**: it is unrelated to this plan, and Phase 6.1 forbids refactoring outside plan scope. A 39-file move belongs in its own change with its own reference-repair pass, which is the lesson the v3.18.0 archive pass recorded when a comparable move turned up 227 inbound references including six that CI executes directly.
 - **Suggested next step**: run the archive pass through `/update refactor` or the `docs-layout-refactor` skill as its own change.
@@ -207,9 +207,13 @@ Every item raised during v3.18.0 is closed: five fixed in code, three closed by 
 - **Why it was missed**: the claim was carried forward from earlier releases and re-asserted during a documentation phase without re-verification against live vendor documentation. The plan's do-not-invent rule covers inventing a claim; it did not catch *inheriting* a claim that had since expired.
 - **Disposition**: closed as moot (both artifacts deleted). Recorded because the *class* of error is not moot: any surviving document that asserts third-party billing behavior carries the same expiry risk. The general lesson belongs to whatever next re-asserts a vendor behavior.
 
-### MT-1 - OPEN: docs/v3/v3.16/development/history is due for archival
+### MT-1 - CLOSED 2026-08-22 (post-release): v3.16 development history archived
 
-- **Carried forward unchanged from v3.18.1 MT-1.** 39 files, two minors behind current, due under the retention policy. Untouched here because this release is a scoped withdrawal and `scripts/check_docs_retention.py` is advisory by design. The v3.18.0 pass showed a comparable move surfaces inbound references that CI executes directly, so it wants its own change with a reference-repair pass.
+- **Was**: 39 files under `docs/v3/v3.16/development/history`, two minors behind current, due under the retention policy and carried forward unchanged from v3.18.1 MT-1.
+- **Closed by**: the post-v3.18.2 archive pass on `chore/v3.16-history-archive-and-plan-reslot`. Moved to `docs/archive/v3/v3.16/development/history/` as 39 git renames, matching the existing `docs/archive/v3/v3.15/development/history/` precedent.
+- **Reference repair**: the inbound surface was **8 files / 21 references**, all documentation, with **no CI step, script, or hook** among them - unlike the v3.18.0 pass, which surfaced 227 references including six that CI executes directly. Repaired and verified to zero dangling references. Nine of the twenty-one were DEVLOG index rows, one per v3.16 patch release.
+- **Scope note**: only `development/history` moved. The four `development/` contract documents (`evaluation-artifact-contract.md`, `github-entitlement-probe.md`, `install-selection-contract.md`, `selective-install-baseline.md`), plus `plans/`, `comparisons/`, and `known-gaps.md`, stay in the active tree - the retention policy ages out session histories, not contracts.
+- **Also corrected**: `docs/archive/README.md` documented only whole-major archival, so the `docs/archive/v3/` subtree created by the v3.18.0 retention pass was undocumented. It now states both rules and carries a v3 index row.
 
 ### QG-1 - Verification performed for this release
 

@@ -104,7 +104,7 @@ The version directory follows the canonical `docs/v<MAJOR>/v<MAJOR>.<MINOR>/` sc
 | `docs/v3/v3.16/plans/` (3 files) | Canonical. Keep. |
 | `docs/v3/v3.16/comparisons/` (3 files) | Canonical. Keep. |
 | `docs/v3/v3.16/known-gaps.md` | Canonical per-minor ledger. Keep. |
-| `docs/v3/v3.16/development/history/` | Created by this phase for the session-history artifact. Expected location. |
+| `docs/archive/v3/v3.16/development/history/` | Created by this phase for the session-history artifact. Expected location. |
 | `docs/v3/v3.16/docs-cleanup-report.md` | This file. Regenerated per phase; Phase 5 should reconcile or remove it. |
 
 ## Findings
