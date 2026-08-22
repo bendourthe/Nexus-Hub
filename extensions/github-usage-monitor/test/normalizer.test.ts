@@ -38,6 +38,32 @@ describe("normalizeUsageResponses", () => {
     }
   });
 
+  it("round-trips pricePerUnit, and reads its absence as unknown rather than zero", () => {
+    // `pricePerUnit` is returned on the plain `/settings/billing/usage` endpoint and
+    // was discarded until 0.4.0. It is now the numerator of every drawdown weight,
+    // so the difference between absent and zero is the difference between "this
+    // period could not be fully reconstructed" and a silently smaller drawdown.
+    const payload = {
+      usageItems: [
+        { product: "Actions", sku: "Actions Linux", unitType: "minutes", quantity: 100, pricePerUnit: 0.006 },
+        { product: "Actions", sku: "Actions Windows", unitType: "minutes", quantity: 20 }
+      ]
+    };
+    const result = normalizeUsageResponses(
+      { usageItems: [] },
+      payload,
+      { owner: user, copilotEndpoint: "ai-credits", requestedAt, year: 2026, month: 8 }
+    );
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      const priced = result.value.actionsMinutes.breakdowns.find((row) => row.sku === "Actions Linux");
+      const unpriced = result.value.actionsMinutes.breakdowns.find((row) => row.sku === "Actions Windows");
+      expect(priced?.pricePerUnit).toBe(0.006);
+      expect(unpriced?.pricePerUnit).toBeNull();
+      expect(unpriced?.pricePerUnit).not.toBe(0);
+    }
+  });
+
   it("keeps legacy premium requests distinct from AI credits", () => {
     const result = normalizeUsageResponses(
       fixture("legacy-premium-requests.json"),

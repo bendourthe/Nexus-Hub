@@ -2,7 +2,7 @@
   "name": "github-usage-monitor",
   "displayName": "GitHub Usage Monitor",
   "description": "Monitor current-month GitHub usage - Actions minutes and storage, plus Copilot billing - for one billing owner you configure, without storing credentials in settings",
-  "version": "0.3.3",
+  "version": "0.4.0",
   "publisher": "nexus-hub",
   "icon": "icon.png",
   "repository": {
@@ -242,7 +242,8 @@
           "default": 12,
           "minimum": 3,
           "maximum": 60,
-          "description": "Seconds before the warning view auto-dismisses"
+          "description": "Deprecated and no longer applied. The warning view stays open until it is dismissed, matching the Claude, Codex, and Cursor monitors. The key is retained so an existing user setting does not surface as unknown.",
+          "deprecationMessage": "No longer applied. The warning view no longer auto-dismisses."
         },
         "githubUsageMonitor.requestTimeoutMs": {
           "type": "number",

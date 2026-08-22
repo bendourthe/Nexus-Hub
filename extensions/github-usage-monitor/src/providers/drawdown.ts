@@ -349,64 +349,130 @@ export function breakdownByRepository(
 }
 
 /**
- * How fast each runner OS consumes included minutes, relative to Linux.
+ * The standard Linux runner's list price per minute, in USD.
  *
- * MEASURED, NOT ASSUMED - and the measurement reversed an earlier conclusion.
+ * Used ONLY as a denominator of last resort, when a period contains no standard
+ * GitHub-hosted Linux item to observe one from. Verified 2026-08-19 against
+ * GitHub's Actions runner pricing table.
  *
- * GitHub withdrew its minute-multiplier reference page; the path now serves runner
- * pricing with no multiplier table, on the dotcom, enterprise-cloud, and
- * enterprise-server variants alike. So these constants cannot be cited to a live
- * document. What settled it was a completed month on a real account:
- *
- *   July 2026, private repository: 1,352.67 Linux + 195.6 Windows + 36 macOS.
- *   Unweighted that is 1,584 minutes. GitHub's Included-usage panel showed
- *   2,000 of 2,000 minutes consumed - saturated, so the true drawdown was at
- *   least 2,000. A model predicting 1,584 cannot produce a number that is at
- *   least 2,000, so unweighted drawdown is FALSIFIED.
- *
- *   Weighted with these constants the same month predicts 2,104, which is
- *   consistent with saturation. May (5,534) and June (2,113) agree; August, the
- *   only month below the cap, predicts 128 against a displayed ~121.
- *
- * The values are GitHub's own historical published multipliers. An alternative
- * derivation from current list prices (Windows 1.67x, macOS 10.33x) fits the same
- * data: July would predict 2,051, also above the cap. The two differ by 0.3%, and
- * no month on that account sits low enough to separate them - April predicts 1,473
- * versus 1,469. The published historical values were chosen over the derived ones
- * because they were once stated by GitHub outright, where a price ratio never was.
- *
- * Consequence for the UI: a percentage derived through these constants is a
- * RECONSTRUCTION and must be labelled as such. It is not GitHub's own figure, and
- * GitHub no longer publishes what it would take to make it one.
+ * It is a fallback rather than the primary source on purpose. GitHub cut runner
+ * prices on 2026-01-01 (Linux $0.008 -> $0.006, Windows $0.016 -> $0.010, macOS
+ * $0.080 -> $0.062), which is precisely the event that made every hardcoded
+ * multiplier table in this file's history go stale. A constant that is only ever
+ * a denominator for a period with nothing to measure has a bounded blast radius;
+ * a constant that is the primary source does not.
  */
+export const PUBLISHED_LINUX_RATE_USD_PER_MINUTE = 0.006;
+
 /**
- * Per-OS drawdown weights. All 1: minutes count against the allowance at face value.
+ * Historical note ONLY. Not read by any code path.
  *
- * v3.16.3 shipped Windows 2x / macOS 10x on a single observation - July 2026, whose
- * private-repository raw total (1,584) sat below a SATURATED 2,000-minute bar, which
- * seemed to require a multiplier to explain.
+ * GitHub's published minute multipliers were Linux 1x, Windows 2x, macOS 10x.
+ * Those were never an independent taxonomy: they are exactly the pre-2026
+ * per-minute price ratios ($0.008, $0.016, $0.080). The 2026-01-01 price cut
+ * moved the same mechanism to 1x, 1.67x, and 10.33x, which is why this number was
+ * revised three times - each revision hardcoded a snapshot of a price list that
+ * had already moved or was about to.
  *
- * That inference was contaminated. Repository visibility was resolved at analysis
- * time and applied retroactively to July's line items. A repository that was private
- * in July and public afterwards is counted as public for July, understating the
- * period. Nexus-Hub alone accounts for 588 of July's minutes: had it been private
- * then, July's private total is 2,172 and the saturated bar needs no multiplier.
+ * The code now implements the MECHANISM (weight = this item's price / the standard
+ * Linux price observed in the same payload) rather than any snapshot of its output,
+ * so a future price change, a new runner type, or an ARM variant needs no edit here.
  *
- * Against that, two months whose displayed value was NOT censored by saturation both
- * match raw minutes: 2026-08-09 gave 124 raw against a displayed 120.7, and
- * 2026-08-10 gave roughly 128 raw against a displayed 126.7. A saturated bar reports
- * only "at least 2,000" and is the weakest evidence available; an unsaturated one
- * reports the number itself.
- *
- * The weights are kept as a named constant rather than deleted so that reinstating
- * them is a one-line change with this reasoning attached, should an uncensored month
- * ever contradict 1:1.
+ * Retained as a comment rather than a constant so that nothing can accidentally
+ * read it again. See `docs/policy/github-actions-minute-consumption.md`.
  */
-export const OS_DRAWDOWN_WEIGHTS: Readonly<Record<Exclude<RunnerOs, "unknown">, number>> = {
-  linux: 1,
-  windows: 1,
-  macos: 1
-};
+
+/** Which denominator `resolveLinuxReferenceRate` ended up using. */
+export type LinuxRateSource = "observed" | "published-fallback";
+
+export interface LinuxReferenceRate {
+  /** USD per minute for the standard Linux runner. */
+  rate: number;
+  /** Where that figure came from, so the panel can label the provenance. */
+  source: LinuxRateSource;
+}
+
+/**
+ * The denominator every drawdown weight is expressed against.
+ *
+ * Selection is deliberate, not `min`. A period may legitimately contain more than
+ * one Linux rate (a sub-2-core variant priced below the standard 2-core runner),
+ * and picking the cheapest would inflate every other item's weight by the ratio
+ * between them. Larger runners are already excluded by `classifySku`, so the
+ * standard set's CEILING is the 2-core baseline: taking the highest qualifying
+ * Linux rate selects it without needing to parse core counts a second time.
+ *
+ * A non-positive or absent price never qualifies. Zero is the dangerous value: as a
+ * denominator it produces infinities, and as a numerator it would silently drop an
+ * item from the drawdown rather than marking the reconstruction incomplete.
+ */
+export function resolveLinuxReferenceRate(items: readonly UsageLineItem[]): LinuxReferenceRate {
+  let observed: number | null = null;
+  for (const item of items) {
+    if (!isActionsMinutes(item)) continue;
+    const runner = classifySku(item.sku);
+    if (runner.os !== "linux" || runner.githubHosted !== true || runner.standard !== true) continue;
+    const price = item.pricePerUnit;
+    if (price === null || !Number.isFinite(price) || price <= 0) continue;
+    if (observed === null || price > observed) observed = price;
+  }
+  return observed === null
+    ? { rate: PUBLISHED_LINUX_RATE_USD_PER_MINUTE, source: "published-fallback" }
+    : { rate: observed, source: "observed" };
+}
+
+/** One repository's contribution to the drawdown, as the panel shows it. */
+export interface RepositoryContribution {
+  repositoryName: string;
+  visibility: RepositoryVisibility;
+  /** Every Actions minute reported for this repository, free or not. */
+  rawMinutes: number;
+  /**
+   * Minutes actually counted against the allowance after exclusions and weighting.
+   * Zero for a public repository, which is the fact the panel exists to show.
+   */
+  weightedMinutes: number;
+}
+
+/**
+ * Per-repository contributions, sorted by what each actually costs the allowance.
+ *
+ * `breakdownByRepository` above answers "where did the minutes go"; this answers
+ * "which of them counted", which is a different question and the one a user asking
+ * why 366 public-repository runs cost nothing is actually asking.
+ */
+export function contributionsByRepository(
+  items: readonly UsageLineItem[],
+  visibility: VisibilityMap
+): RepositoryContribution[] {
+  const reference = resolveLinuxReferenceRate(items);
+  const byRepo = new Map<string, RepositoryContribution>();
+  for (const item of items.filter(isActionsMinutes)) {
+    const name = item.repositoryName ?? "(no repository reported)";
+    const entry = byRepo.get(name) ?? {
+      repositoryName: name,
+      visibility: visibility[name] ?? "unknown",
+      rawMinutes: 0,
+      weightedMinutes: 0
+    };
+    entry.rawMinutes += item.quantity;
+    const runner = classifySku(item.sku);
+    const price = item.pricePerUnit;
+    const counts =
+      entry.visibility === "private" &&
+      runner.githubHosted === true &&
+      runner.standard === true &&
+      runner.os !== "unknown" &&
+      price !== null &&
+      Number.isFinite(price) &&
+      price > 0;
+    if (counts) entry.weightedMinutes += item.quantity * ((price as number) / reference.rate);
+    byRepo.set(name, entry);
+  }
+  return [...byRepo.values()].sort(
+    (left, right) => right.weightedMinutes - left.weightedMinutes || right.rawMinutes - left.rawMinutes
+  );
+}
 
 export interface DrawdownResult {
   /** Minutes counted against the allowance, or null when it could not be established. */
@@ -415,8 +481,17 @@ export interface DrawdownResult {
   itemCount: number;
   /** Repositories whose visibility could not be resolved, and were therefore excluded. */
   unresolvedRepositories: string[];
-  /** True when any contributing item needed a weight other than 1. */
-  usedWeighting: boolean;
+  /**
+   * The distinct weights actually applied, ascending.
+   *
+   * Replaces the former `usedWeighting` boolean, which asked whether any weight
+   * differed from a hardcoded 1 - a question that stops meaning anything once the
+   * weights are derived per item. The set of weights survives the change and says
+   * strictly more: `[1]` is a single-rate period, `[1, 1.67, 10.33]` names the mix.
+   */
+  appliedWeights: number[];
+  /** The denominator every weight above is expressed against. */
+  linuxReferenceRate: LinuxReferenceRate;
 }
 
 /**
@@ -443,9 +518,10 @@ export function computeDrawdownMinutes(
 ): DrawdownResult {
   const actionsMinutes = items.filter(isActionsMinutes);
   const unresolved = new Set<string>();
+  const linuxReferenceRate = resolveLinuxReferenceRate(items);
+  const weights = new Set<number>();
   let minutes = 0;
   let itemCount = 0;
-  let usedWeighting = false;
   let resolvedAny = false;
 
   for (const item of actionsMinutes) {
@@ -468,8 +544,22 @@ export function computeDrawdownMinutes(
       unresolved.add(item.sku);
       continue;
     }
-    const weight = OS_DRAWDOWN_WEIGHTS[runner.os];
-    if (weight !== 1) usedWeighting = true;
+    // The weight is this item's own list price relative to the standard Linux rate
+    // observed in the same payload. No table, so nothing to go stale when GitHub
+    // moves prices, adds a runner type, or ships an ARM variant.
+    //
+    // An item that PASSED every exclusion above but carries no usable price is a
+    // hole in the reconstruction, not a zero. Treating it as zero would quietly
+    // shrink the drawdown; reporting it alongside the unresolved repositories makes
+    // the same partial-data guard below fire, so the meter reads unknown instead of
+    // confidently low.
+    const price = item.pricePerUnit;
+    if (price === null || !Number.isFinite(price) || price <= 0) {
+      unresolved.add(item.sku);
+      continue;
+    }
+    const weight = price / linuxReferenceRate.rate;
+    weights.add(weight);
     minutes += item.quantity * weight;
     itemCount += 1;
   }
@@ -497,7 +587,8 @@ export function computeDrawdownMinutes(
     minutes: complete ? minutes : null,
     itemCount,
     unresolvedRepositories,
-    usedWeighting
+    appliedWeights: [...weights].sort((left, right) => left - right),
+    linuxReferenceRate
   };
 }
 

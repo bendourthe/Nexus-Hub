@@ -1,5 +1,4 @@
 import { describe, expect, it, vi } from "vitest";
-import { scheduleWarningDismissal } from "../src/extension";
 import { DashboardPanel, renderDashboard } from "../src/dashboardPanel";
 import { buildUsageSuggestion, classifyUrgency, crossedUnnotifiedThreshold, pickTriggerMetric } from "../src/recommendations";
 import { settingsSectionHtml, validateThresholds, type SettingsValues } from "../src/settingsPanel";
@@ -126,7 +125,7 @@ describe("dashboard and settings", () => {
     expect(validateThresholds({ moderate: 50, high: 75, critical: 95 })).toBeNull();
     expect(validateThresholds({ moderate: 75, high: 50, critical: 95 })).toContain("increase");
     expect(validateThresholds({ moderate: 0, high: 75, critical: 95 })).toContain("1 to 100");
-    const values: SettingsValues = { billingScope: "organization", billingOwner: "fixture-<org>", copilotMetric: "ai-credits", copilotAllowance: null, actionsMinutesAllowance: 1000, actionsStorageAllowance: null, refreshInterval: 10, compactStatusBar: false, alertMetric: "highest", moderate: 50, high: 75, critical: 95, notificationTimeoutSeconds: 12, moderateColor: "#cca700", highColor: "#f0643c", criticalColor: "#e05555" };
+    const values: SettingsValues = { billingScope: "organization", billingOwner: "fixture-<org>", copilotMetric: "ai-credits", copilotAllowance: null, actionsMinutesAllowance: 1000, actionsStorageAllowance: null, refreshInterval: 10, compactStatusBar: false, alertMetric: "highest", moderate: 50, high: 75, critical: 95, moderateColor: "#cca700", highColor: "#f0643c", criticalColor: "#e05555" };
     const html = settingsSectionHtml(values);
     // The owner name no longer appears here: the Account group moved out of Settings
     // to the panel header on 2026-08-11, so that "who am I" and "change who I am"
@@ -230,10 +229,5 @@ describe("recommendations and warning view", () => {
     await provider.show(buildUsageSuggestion(snapshot(), "highest")!, { onOpenDashboard() {}, onDismiss() { dismissed = true; } });
     expect(webviewPanels[0]?.webview.html).toContain("High usage");
     await provider.dismiss(); expect(dismissed).toBe(true);
-  });
-  it("auto-dismisses after the configured timeout", () => {
-    vi.useFakeTimers(); const dismiss = vi.fn(); scheduleWarningDismissal(3_000, dismiss);
-    vi.advanceTimersByTime(2_999); expect(dismiss).not.toHaveBeenCalled();
-    vi.advanceTimersByTime(1); expect(dismiss).toHaveBeenCalledOnce(); vi.useRealTimers();
   });
 });

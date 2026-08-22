@@ -46,6 +46,9 @@ export const MIGRATED_CONFIG_KEYS: readonly string[] = [
   "thresholds.moderate",
   "thresholds.high",
   "thresholds.critical",
+  // Deprecated in 0.4.0 and no longer applied, but retained here: a user who set it
+  // under the old extension id still gets their value carried across the rename, so
+  // it does not resurface later as an orphan under an unknown key.
   "notificationTimeoutSeconds",
   "requestTimeoutMs",
   "colors.moderate",

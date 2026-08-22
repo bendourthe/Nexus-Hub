@@ -59,11 +59,20 @@ export function buildUsageSuggestion(
   if (urgency === "low") return null;
   const bucket = thresholds[urgency];
   const rounded = Math.round(trigger.percent);
-  const recommendation = urgency === "critical"
-    ? "Pause non-essential runs and review the billing owner before the next reset."
-    : urgency === "high"
-      ? "Prioritize essential work and review the highest-cost SKUs."
-      : "Batch related work and watch this metric through the reset boundary.";
+  // An exhausted Actions allowance has a consequence, not just a severity. On an
+  // account with no payment method or spending budget, further PRIVATE-repository
+  // runs are blocked until the reset rather than billed - which is the actionable
+  // fact and the one a generic "pause non-essential runs" fails to convey. Public
+  // repositories keep running free either way, so saying so prevents the warning
+  // from reading as "all CI is down".
+  const exhausted = trigger.metric.kind === "actions-minutes" && trigger.percent >= 100;
+  const recommendation = exhausted
+    ? "Included Actions minutes are spent. Private-repository runs are blocked until the reset unless a payment method or spending budget is set; public-repository runs continue free."
+    : urgency === "critical"
+      ? "Pause non-essential runs and review the billing owner before the next reset."
+      : urgency === "high"
+        ? "Prioritize essential work and review the highest-cost SKUs."
+        : "Batch related work and watch this metric through the reset boundary.";
   return {
     ...trigger,
     bucket,
