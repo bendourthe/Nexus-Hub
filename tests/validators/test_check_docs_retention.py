@@ -222,4 +222,3 @@ def test_non_history_development_content_is_never_reported(tmp_path: Path) -> No
         "only development/history/ ages out; fixtures, worked examples, and "
         "contract docs are live content"
     )
-
