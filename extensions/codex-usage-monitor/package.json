@@ -191,6 +191,6 @@
     "svgpath": "^2.6.0",
     "ttf2woff2": "^8.0.0",
     "typescript": "^5.3.0",
-    "vitest": "^4.1.10"
+    "vitest": "^4.1.11"
   }
 }
