@@ -58,3 +58,21 @@ git diff evals/baseline.json
 ```
 
 Never lower a fidelity threshold below `1.0` to make a failing gate pass - a fidelity failure is a correctness bug in the engine, not a baseline that needs loosening.
+
+## Corpus versioning and per-slice floors
+
+`baseline.json` also carries:
+
+- `corpus_version` - integer identity of the fixture set. Bump it in the same change that rewrites or replaces fixtures. Examples are append-only within a version; deleting or silently rewriting a fixture to dodge a miss is a regression.
+- `per_slice` - a hard floor per fixture (`min_char_reduction`, `min_ccr_roundtrip`). A run that holds the aggregate mean but drops one fixture below its floor fails `--check`. That is deliberate: the mean is not a hiding place.
+
+Lowering a per-slice floor or the aggregate floor requires its own change whose message shows the historical series and names the behavior change that justifies the new number. Do not lower a floor in the same commit that would otherwise fail. `--update-baseline` is for raising floors after a real improvement, or for recording a new corpus version, not for painting a red gate green.
+
+## Corpus versioning and per-slice floors
+
+`baseline.json` also carries:
+
+- `corpus_version` - integer identity of the fixture set. Bump it in the same change that rewrites or replaces fixtures. Examples are append-only within a version; deleting or silently rewriting a fixture to dodge a miss is a regression.
+- `per_slice` - a hard floor per fixture (`min_char_reduction`, `min_ccr_roundtrip`). A run that holds the aggregate mean but drops one fixture below its floor fails `--check`. That is deliberate: the mean is not a hiding place.
+
+Lowering a per-slice floor or the aggregate floor requires its own change whose message shows the historical series and names the behavior change that justifies the new number. Do not lower a floor in the same commit that would otherwise fail. `--update-baseline` is for raising floors after a real improvement, or for recording a new corpus version, not for painting a red gate green.

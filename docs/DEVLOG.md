@@ -8,6 +8,7 @@ Releases from v3.0.0 onward each carry their own line. Earlier releases predate 
 
 | Date | Version | Summary | Plan | History | Gaps |
 |---|---|---|---|---|---|
+| 2026-08-23 | v3.19.2 | Verified bootstrap, triggering and eval discipline, memory provenance, and compressor rewrite / reformatters / trusted filters | [rtk-and-meterless](v3/v3.19/plans/v3.19.2-rtk-and-meterless.md) | [history](v3/v3.19/development/history/) | [gaps](v3/v3.19/known-gaps.md) |
 | 2026-08-23 | v3.19.1 | Persistent agent-memory substrate: local append-only store, age-decaying summaries, harness-aware output paging, in-repo refusal, and the `agent-memory` skill | [agent-memory-substrate](v3/v3.19/plans/v3.19.1-agent-memory-substrate.md) | [history](v3/v3.19/development/history/) | [gaps](v3/v3.19/known-gaps.md) |
 | 2026-08-22 | v3.19.0 | Offline code-intelligence hardening: smaller tool surfaces, local search routing, compact responses, mutation preflights, deterministic benchmarks, and optional local hybrid retrieval | [code-intelligence-hardening](v3/v3.19/plans/v3.19.0-code-intelligence-hardening.md) | [history](v3/v3.19/development/history/) | [gaps](v3/v3.19/known-gaps.md) |
 | 2026-08-22 | v3.18.3 | Presentify gains slide-deck navigation: `--nav slides` produces keyboard-advanced viewport-fitted slides, with a slide-native animation grammar and QA-loop verification | [presentify-slide-navigation](v3/v3.18/plans/v3.18.3-presentify-slide-navigation.md) | [history](v3/v3.18/development/history/) | [gaps](v3/v3.18/known-gaps.md) |

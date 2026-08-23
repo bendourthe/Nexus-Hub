@@ -9,6 +9,65 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.19.2] - 2026-08-23
+
+### Added
+
+- **Bootstrap archive integrity.** `install.sh` and `install.ps1` refuse tar/zip members with absolute or `..` paths (CWE-22) before extraction, and verify SHA-256 when an expected-digest pin or a checksums-file path is set. Installing from `main` without a published checksum prints an explicit warning. An explicit skip flag omits the hash check only; the path-traversal guard always runs. Checksums are hashed with `sha256sum`/`shasum`/Python on POSIX and .NET `SHA256` on Windows (not `Get-FileHash`). Tagged archive hashes land in `checksums.txt` after this GitHub Release exists (known-gaps **DF-1**).
+- **Compressor zero-outbound CI guard.** `scripts/check_no_outbound.py` AST-scans `extensions/nexus-context-compressor` for network imports and `curl`/`wget` subprocesses, and is wired into `make validate` and the CI `validate` job. It is maintainer-only (`DEV_ONLY_SCRIPTS`); it is not installer-copied.
+- **Docs convention CI guard.** `scripts/check_docs_conventions.py` fails `make validate` on missing or case-mismatched relative links, empty directories, and non-kebab-case directory names under the active minor (`docs/v3/v3.19/`; historical minors are grandfathered). Maintainer-only (`DEV_ONLY_SCRIPTS`).
+- **Memory provenance checker.** `scripts/check_memory_provenance.py` gates the memory templates in `make validate` and CI (maintainer-only).
+- **Command rewrite protocol and semantic reformatters.** `nexus-context-compressor rewrite` is the single 0/1/2/3 decision (allow / passthrough / deny / ask); the default for a proposed rewrite is ask, never auto-allow. Host deny beats ask beats allow, and a compound command is allowed only when every segment matches allow. Thin `catalog/hooks/rewrite-command.{sh,ps1}` delegates are registered in `settings.json`. Semantic reformatters cover git status, pytest/vitest/jest failures-only, and ruff/eslint/tsc grouped by file, each with a 60% token-reduction fixture. See known-gaps **DF-3**. Catalog hook count is now 33.
+- **Trusted BYO filters, recoverable truncation, and session mining.** Compressor filters load project then global then built-in, but only after a SHA-256 pin. Truncation tees the full blob and leaves a recovery pointer. `session-query` and `continuous-learning` mine the local passthrough log. Signed execution contracts stay a design study (`docs/v3/v3.19/design/signed-execution-contract-study.md`); recommendation: defer. See known-gaps **DF-4**.
+
+### Changed
+
+- **Platform read-contract restamped for v3.19.2.** Same-day re-fetch of public skill-discovery pages; eight MATCH, Codex retains low non-breaking drift, Nexus-AI UNVERIFIED. No adapter or installer write-target changed.
+- **Triggering confidence bands and a clarification ceiling.** `skill-description-authoring` now teaches High/Medium/Low/Reject match bands and treats a skill that always asks a clarifying question as a description failure, not as caution.
+- **Per-slice eval floors and locked regression sets.** `skill-eval-loop` requires an append-only versioned corpus, per-slice hard floors, and a no-lowering-thresholds rule. The context-compressor eval harness enforces per-fixture floors so a healthy aggregate cannot hide a collapsed slice.
+- **Memory provenance as an invariant.** `agent-memory` and `catalog/memory/` require a `source` on every record, keep an append-only changelog, supersede instead of deleting, and preview-then-backup before archival. `nexus-memory record` rejects a write with no source.
+- **Windows tests pip cache.** The Windows tests job caches pip downloads. Required status checks stay on unfiltered workflow triggers (job-level `changes` detector only).
+
+### Fixed
+
+- **Stale `MANIFEST.sha256` on the published v3.19.1 tarball (BG-1).** This release regenerates `MANIFEST.sha256` after the version bump. The v3.19.1 tag stays published; do not retag it.
+
+### Operational guidance
+
+This release introduces four opt-in surfaces. Each block below uses the capability-gate labels.
+
+#### NEXUS_HUB_SKIP_CHECKSUM
+
+- Activation: set `NEXUS_HUB_SKIP_CHECKSUM=1` before running `install.sh` or `install.ps1` so the bootstrap skips SHA-256 verification.
+- Validation: run the standalone installer with the variable set and confirm the log line `checksum verification skipped (NEXUS_HUB_SKIP_CHECKSUM=1)`.
+- Rollback: unset `NEXUS_HUB_SKIP_CHECKSUM`. The next install verifies again when a pin or checksums file is present.
+- Authority: skipping the hash does not disable the path-traversal guard, does not grant network access, and does not mark the tree trusted.
+- Docs: [install.sh](https://github.com/bendourthe/Nexus-Hub/blob/v3.19.2/install.sh)
+
+#### NEXUS_HUB_EXPECTED_SHA256
+
+- Activation: set `NEXUS_HUB_EXPECTED_SHA256` to the 64-hex digest of the GitHub source archive, or set `NEXUS_HUB_CHECKSUMS` to a GNU sha256sum file (or `checksums.txt` after this release publishes hashes).
+- Validation: run the standalone installer against a matching archive and confirm it proceeds; change one hex digit and confirm the installer aborts.
+- Rollback: unset both variables. Installing from `main` then warns that the tarball is unverified.
+- Authority: a pin authenticates the downloaded archive only. It does not sign hooks, does not attest compressor filters, and does not grant extra installer privileges.
+- Docs: [checksums.txt](https://github.com/bendourthe/Nexus-Hub/blob/v3.19.2/checksums.txt)
+
+#### compressor-filters trust
+
+- Activation: write `.nexus-hub/compressor-filters.json` (project) or `~/.nexus-hub/compressor-filters.json` (user), then run `python -m nexus_context_compressor trust <path>`.
+- Validation: `python -m nexus_context_compressor verify <path>` runs inline tests even before trust; after trust, `compress` applies matching rules. Edit the file and compress skips it until trusted again.
+- Rollback: `python -m nexus_context_compressor untrust <path>`. The JSON file is not deleted.
+- Authority: trust is consent plus tamper-evidence. It is not a sandbox, does not execute filter code, and does not grant network or filesystem rights beyond reading that JSON file.
+- Docs: [BYO filters](https://github.com/bendourthe/Nexus-Hub/blob/v3.19.2/extensions/nexus-context-compressor/README.md#bring-your-own-filters-sha-256-trust-store)
+
+#### compress --max-lines
+
+- Activation: `python -m nexus_context_compressor compress --max-lines N` and/or `--max-bytes N`.
+- Validation: compress a blob taller than `N` and confirm the output contains a `tail -n +LINE` recovery pointer whose file contains the dropped tail.
+- Rollback: omit both flags. Existing spool files are not deleted; they are temp artifacts.
+- Authority: truncation does not delete the original bytes when the spool write succeeds. If the spool cannot be written, the original text is returned unchanged. It does not send output off-machine.
+- Docs: [Recoverable truncation](https://github.com/bendourthe/Nexus-Hub/blob/v3.19.2/extensions/nexus-context-compressor/README.md#recoverable-truncation)
+
 ## [3.19.1] - 2026-08-23
 
 ### Added
@@ -5439,7 +5498,10 @@ repository_root/
 
 ---
 
-[Unreleased]: https://github.com/bendourthe/Nexus-Hub/compare/v3.17.4...HEAD
+[Unreleased]: https://github.com/bendourthe/Nexus-Hub/compare/v3.19.2...HEAD
+[3.19.2]: https://github.com/bendourthe/Nexus-Hub/compare/v3.19.1...v3.19.2
+[3.19.1]: https://github.com/bendourthe/Nexus-Hub/compare/v3.19.0...v3.19.1
+[3.19.0]: https://github.com/bendourthe/Nexus-Hub/compare/v3.18.3...v3.19.0
 [3.17.4]: https://github.com/bendourthe/Nexus-Hub/compare/v3.17.3...v3.17.4
 [3.17.3]: https://github.com/bendourthe/Nexus-Hub/compare/v3.17.2...v3.17.3
 [3.17.2]: https://github.com/bendourthe/Nexus-Hub/compare/v3.17.1...v3.17.2

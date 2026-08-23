@@ -13,6 +13,8 @@ This document tracks key architectural and technical decisions made during proje
 
 **Status**: [Proposed | Accepted | Deprecated | Superseded]
 
+**Source**: [conversation, file, ticket, or `legacy-import` if the origin is unknown]
+
 **Context**:
 [What is the issue or situation that motivates this decision?]
 
@@ -21,6 +23,8 @@ This document tracks key architectural and technical decisions made during proje
 
 **Consequences**:
 [What becomes easier or more difficult as a result of this decision?]
+
+When a later decision replaces this one, set **Status** to Superseded, point at the new ADR, and leave this record in place. Do not delete superseded decisions.
 
 ---
 
@@ -66,3 +70,11 @@ This document tracks key architectural and technical decisions made during proje
 
 ### Testing Strategy
 - [Document testing approach decisions]
+
+## Changelog
+
+Append one line per status change. Do not edit earlier lines. Supersede a decision by adding a new ADR and pointing this one at it; never delete the old record.
+
+```text
+YYYY-MM-DD	added	ADR-001	source=...
+```

@@ -244,6 +244,25 @@ jobs:
       - name: Validate version sync across all surfaces (v3.0.0 Phase 1)
         run: python scripts/check_version_sync.py
 
+      - name: Guard compressor against outbound calls (v3.19.2 Phase 1)
+        # Repo-internal AST scan over extensions/nexus-context-compressor.
+        # Fails if a network import or curl/wget subprocess appears. Rides the
+        # existing validate job (no new required context). The script is in
+        # DEV_ONLY_SCRIPTS and is not installer-copied.
+        run: python scripts/check_no_outbound.py
+
+      - name: Validate docs conventions (v3.19.2 Phase 2)
+        # Case-sensitive relative links, empty dirs, kebab-case directory
+        # names under docs/ (archive skipped). Rides the existing validate
+        # job (no new required context). Repo-internal; DEV_ONLY_SCRIPTS.
+        run: python scripts/check_docs_conventions.py
+
+      - name: Validate memory provenance (v3.19.2 Phase 3)
+        # Templates under catalog/memory/ must teach required source, an
+        # append-only changelog, and supersede-not-delete. Rides the existing
+        # validate job (no new required context). Repo-internal; DEV_ONLY_SCRIPTS.
+        run: python scripts/check_memory_provenance.py
+
       - name: Validate incident notes (v3.16.2 Phase 3)
         # An incident is closed by a change, not by an explanation. This asserts
         # every docs/incidents/ note carries a Public-Safe Shape section and a
@@ -713,6 +732,13 @@ jobs:
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.11'
+          # v3.19.2 Phase 6: this job pip-installs pytest + PyYAML on every
+          # Windows run; cache the download dir keyed on this workflow (no
+          # requirements.txt; the pin lives in the Install pytest step).
+          # Do not add a workflow-level `paths:` filter: required checks must
+          # still be produced on every run (job-level `changes` already gates).
+          cache: 'pip'
+          cache-dependency-path: '.github/workflows/ci.yml'
 
       - name: Install pytest
         # PyYAML matches the ubuntu `tests` job (v3.17.6 Phase 2). This job runs

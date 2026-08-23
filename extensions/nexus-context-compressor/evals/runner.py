@@ -373,6 +373,32 @@ def check_baseline(report: EvalReport, baseline: dict[str, Any]) -> list[str]:
             f"{report.mean_char_reduction:.4f} < floor {red_floor:.4f} "
             f"(the engine compressed less than the baseline allows)"
         )
+
+    # Per-slice floors: an aggregate that still clears the mean must not hide a
+    # fixture that stopped compressing (or stopped reversing). Missing fixtures
+    # are also a fail -- deleting a slice to dodge its floor is the same cheat.
+    by_name = {fx.name: fx for fx in report.fixtures}
+    for slice_name, floors in (baseline.get("per_slice") or {}).items():
+        fx = by_name.get(slice_name)
+        if fx is None:
+            failures.append(
+                f"per-slice floor '{slice_name}' has no matching fixture "
+                f"(removing a slice to dodge its floor is a regression)"
+            )
+            continue
+        min_red = floors.get("min_char_reduction")
+        if min_red is not None and fx.char_reduction < float(min_red):
+            failures.append(
+                f"per-slice {slice_name} char reduction "
+                f"{fx.char_reduction:.4f} < floor {float(min_red):.4f} "
+                f"(aggregate may still pass)"
+            )
+        min_ccr = floors.get("min_ccr_roundtrip")
+        if min_ccr is not None and fx.ccr_roundtrip < float(min_ccr):
+            failures.append(
+                f"per-slice {slice_name} CCR round-trip "
+                f"{fx.ccr_roundtrip:.4f} < floor {float(min_ccr):.4f}"
+            )
     return failures
 
 
@@ -396,6 +422,16 @@ def _measured_baseline(report: EvalReport) -> dict[str, Any]:
         },
         "effectiveness": {
             "min_aggregate_char_reduction": floor,
+        },
+        "corpus_version": 1,
+        "per_slice": {
+            fx.name: {
+                "min_char_reduction": max(
+                    0.0, round(fx.char_reduction - _EFFECTIVENESS_MARGIN, 2)
+                ),
+                "min_ccr_roundtrip": 1.0,
+            }
+            for fx in report.fixtures
         },
     }
 

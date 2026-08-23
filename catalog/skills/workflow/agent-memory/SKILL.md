@@ -1,8 +1,8 @@
 ---
 name: agent-memory
-description: "Read and record lasting facts in the local persistent agent-memory store (nexus-memory) so every session starts from a chronological substrate. Make sure to use this skill whenever the user says \"read persistent agent memory\", \"wake persistent memory\", \"record this lasting fact\", \"remember this decision in nexus-memory\", \"search the memory store\", \"merge the pending memory range\", or otherwise wants an always-on chronological store that is read at session start and written as work happens. SKIP, do NOT use for: searching past session logs or exported chats (use session-query); distilling digests into topic packs (use context-pack-builder); minting behavioral instincts (use continuous-learning); capturing one solved problem (use solution-knowledge-base); or designing an agent architecture's memory system (use ai-agent-development)."
+description: "Read and record lasting facts in the local persistent agent-memory store (nexus-memory) so every session starts from a chronological substrate. Make sure to use this skill whenever the user says \"read persistent agent memory\", \"wake persistent memory\", \"record this lasting fact\", \"remember this decision in nexus-memory\", \"search the memory store\", \"merge the pending memory range\", \"source provenance\", \"memory changelog\", \"supersede a memory\", or otherwise wants an always-on chronological store that is read at session start and written as work happens. SKIP, do NOT use for: searching past session logs or exported chats (use session-query); distilling digests into topic packs (use context-pack-builder); minting behavioral instincts (use continuous-learning); capturing one solved problem (use solution-knowledge-base); or designing an agent architecture's memory system (use ai-agent-development)."
 summary_l0: "Read and record lasting facts in the local persistent agent-memory store"
-overview_l1: "Teaches the agent to treat nexus-memory as the durable cross-platform substrate for lasting facts, decisions, and events. At session start the agent reads the store within the caller line budget. While working it records only what should survive the session. When the tool emits a merge request the agent summarizes the supplied content, invents nothing, and returns the result with the printed command. The store never calls a model, starts no background process, and lives under a user-scoped root. Spawned subagents are told not to write. Distinct from session-query, context-pack-builder, continuous-learning, and solution-knowledge-base, which stay on-demand and topic-scoped."
+overview_l1: "Teaches the agent to treat nexus-memory as the durable cross-platform substrate for lasting facts, decisions, and events. Every write must name a source; mutations append to a changelog; superseded rows are marked, never deleted. At session start the agent reads the store within the caller line budget. While working it records only what should survive the session. When the tool emits a merge request the agent summarizes the supplied content, invents nothing, and returns the result with the printed command. The store never calls a model, starts no background process, and lives under a user-scoped root. Spawned subagents are told not to write. Distinct from session-query, context-pack-builder, continuous-learning, and solution-knowledge-base, which stay on-demand and topic-scoped."
 ---
 
 # Agent Memory
@@ -47,12 +47,19 @@ The default root is `~/.nexus-hub/memory/` (user-scoped, never a project directo
 When a fact, decision, or event should survive the session:
 
 ```bash
-python -m nexus_memory record --text "the lasting item"
+python -m nexus_memory record --text "the lasting item" --source "conversation-or-file"
 ```
 
-Do not record chatter, transient todos, or anything a spawned subagent discovered in isolation.
+Every recorded item must name a `source`. A write with no source is rejected. When importing a pre-provenance file, use `--source legacy-import`. Do not record chatter, transient todos, or anything a spawned subagent discovered in isolation.
 
 If `record` prints a merge request, go to step 3. Otherwise continue working.
+
+### 2b. Provenance, tiers, and maintenance
+
+- Envelope fields: `source` (required), `tier` (`session` / `working` / `durable`), optional `derived_from`, optional `supersedes`.
+- Mutations append to `changelog.log`. Supersede a fact by recording a new row that points at the old index. Never delete or rewrite the old row.
+- Preview archival first: `python -m nexus_memory maintain`. Apply with `--apply`, which copies a backup and then appends `archived` changelog rows. Session-tier entries stay readable.
+- File-backed notes use `catalog/memory/record.md`. ADRs in `catalog/memory/decisions.md` require a **Source** field and the same append-only changelog rule.
 
 ### 3. Answer one merge at a time
 
@@ -92,7 +99,7 @@ Memory content must be redacted before it enters a shared artifact; see [[egress
 ## Verification
 
 - [ ] `python -m nexus_memory read` ran at session start and its output was used (or the store was empty).
-- [ ] Each lasting fact, decision, or event recorded this session was written with `python -m nexus_memory record --text`.
+- [ ] Each lasting fact, decision, or event recorded this session was written with `python -m nexus_memory record --text ... --source ...`.
 - [ ] Every merge request printed this session was answered with the exact return command from that request.
 - [ ] No background process was started to watch or compress the store.
 - [ ] Every spawned subagent prompt contains the exact write-exclusion line.
