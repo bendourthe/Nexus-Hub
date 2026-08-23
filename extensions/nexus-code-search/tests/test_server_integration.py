@@ -68,14 +68,16 @@ def test_get_indexing_status_reflects_state(
     assert status_after["last_updated"] is not None
 
 
-def test_search_rejects_hybrid_mode(
+def test_search_hybrid_mode_degrades_to_keyword_when_disabled(
     sample_tree: Path, default_config: CodeSearchConfig
 ) -> None:
-    import pytest
-
     _handle_index({"root": str(sample_tree)}, default_config)
-    with pytest.raises(NotImplementedError):
+    payload = _json(
         _handle_search(
             {"root": str(sample_tree), "query": "x", "mode": "hybrid"},
             default_config,
         )
+    )
+    assert payload["requested_mode"] == "hybrid"
+    assert payload["mode"] == "keyword"
+    assert payload["degraded"] is False

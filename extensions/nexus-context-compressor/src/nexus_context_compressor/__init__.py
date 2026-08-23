@@ -32,6 +32,8 @@ from .tokens import count_tokens
 from .transforms.content_router import RouteResult, RouterConfig, route
 from .types import CompressResult
 
+_NEXUS_COMPACT_WIRE_PREFIX = "NEXUS-CW/1\n"
+
 if TYPE_CHECKING:
     from .ccr.store import CCRWriter
 
@@ -127,6 +129,18 @@ def compress_output(
         text = ""
     elif not isinstance(text, str):
         text = str(text)
+
+    # Producer-side nexus-code-search responses are already schema-compacted.
+    # Preserve their versioned wire bytes so a consumer never double-compresses
+    # the payload or changes delimiter framing before the reference decoder runs.
+    if text.startswith(_NEXUS_COMPACT_WIRE_PREFIX):
+        tokens = count_tokens(text)
+        return RouteResult(
+            text=text,
+            segments=[],
+            tokens_before=tokens,
+            tokens_after=tokens,
+        )
 
     own_store = None
     if store is None and persist:

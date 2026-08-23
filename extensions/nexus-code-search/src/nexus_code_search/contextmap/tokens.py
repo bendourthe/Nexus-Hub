@@ -30,6 +30,11 @@ def count_tokens(text: str) -> int:
     return _heuristic_tokens(text)
 
 
+def estimate_tokens_offline(text: str) -> int:
+    """Return the stable stdlib estimate used for cross-environment baselines."""
+    return _heuristic_tokens(text)
+
+
 def _tiktoken_count(text: str) -> int | None:
     """Return the tiktoken count, or None if tiktoken is unavailable/offline."""
     try:

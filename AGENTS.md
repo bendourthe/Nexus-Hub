@@ -415,6 +415,10 @@ Walk this checklist before proposing a PR:
 5. **Validate**: run `make validate` (JSON integrity) and `make lint` (ShellCheck) after edits. For new hooks, run `make test`. For installer changes, do a dry-run install into a throwaway directory and confirm the new artifact lands at the expected path.
 6. **Document**: add an entry under `## [Unreleased]` in `CHANGELOG.md`.
 
+### Dependency ceiling rationale
+
+Every dependency upper bound MUST carry an adjacent comment that states the unacceptable or unknown newer-version behavior, why it matters, the last verification date, the evidence observed, the newer-version test result when one was run, and the exact condition for lifting the ceiling. When the original reason or newer-version behavior cannot be established, record that uncertainty explicitly instead of inventing a justification; for example, a runtime artifact download can violate the zero-outbound and zero-model-download guarantees even when the package API still appears compatible.
+
 ### Platform coverage caveats (current state)
 
 Not every platform receives the same amount of the catalog. Four tiers exist: full file-tree (skills + commands + agents + rules + hooks), skills-bearing, slash-command-only, and behavioral-guardrails-only. Which platform sits in which tier, the dated vendor-verification notes behind each claim, and the deprecation callouts (the Gemini CLI sunset, the Windsurf and Kimi roster changes) all live in one place, because they are the narrative companion to the read/write surface table in the same file.

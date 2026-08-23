@@ -14,6 +14,12 @@ Nexus-Hub today owns no compression engine, only methodology skills (`context-co
 - **Reversible compression (CCR).** When a strategy drops content, it leaves a `<<ccr:HASH N_rows>>` marker and persists the originals in a local content-hashed store, so a consumer can fetch the dropped data back on demand. Compression is therefore non-lossy.
 - **Content-routed strategies.** A router classifies each segment (JSON, code, log, text) and dispatches it to the optimal compressor.
 
+### Producer encoding versus consumer compression
+
+`nexus-code-search` may encode its own structured MCP responses with the schema-aware Nexus Compact Wire format before they reach this engine. That producer-side codec removes repeated table keys and uses the exact `NEXUS-CW/1` first-line marker. This package remains consumer-side and content-routed: it accepts arbitrary tool output, classifies it, and uses reversible CCR markers for any dropped content.
+
+The paths compose in that order: producer encoding first, consumer compression second. `compress_output(text)` recognizes the exact compact-wire marker and returns those bytes unchanged with identity metrics, preventing double compression or delimiter corruption. CCR marker strings inside a compact response remain ordinary typed values and round-trip through the producer decoder unchanged. The format and JSON retry contract are documented in the [`nexus-code-search` wire-format specification](../nexus-code-search/docs/wire-format.md).
+
 ## Architecture
 
 ### The pipeline

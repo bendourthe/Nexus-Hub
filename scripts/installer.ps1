@@ -3309,6 +3309,9 @@ function Install-SkillDiscovery {
     if (Test-Path $codeSearchSrc) {
         if (Test-Path $codeSearchDest) { Remove-Item -Path $codeSearchDest -Recurse -Force }
         Copy-Item -Path $codeSearchSrc -Destination $codeSearchDest -Recurse -Force
+        # Repository-only measurement evidence must not reach user machines.
+        $codeSearchBenchmarks = Join-Path $codeSearchDest "benchmarks"
+        if (Test-Path $codeSearchBenchmarks) { Remove-Item -Path $codeSearchBenchmarks -Recurse -Force }
         if ($hasUv) {
             & uv pip install --python "$venvPath\Scripts\python.exe" -e $codeSearchDest 2>$null | Out-Null
         } else {
