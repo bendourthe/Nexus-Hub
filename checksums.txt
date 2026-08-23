@@ -7,3 +7,6 @@
 # so a standalone install can pin what it downloaded.
 #
 # This file is empty of hashes until the first tag that publishes one.
+# v3.19.2 GitHub source archives (filled after the tag existed; do not retag).
+ded10becb96741e9538852707141cc8f7789c76a224bcd241949936e5b907540  Nexus-Hub-3.19.2.tar.gz
+a8b37da9ef5dc996ad1979bc982bfe29a747586be39cf9931fbed8c425c00d13  Nexus-Hub-3.19.2.zip
