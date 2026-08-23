@@ -95,6 +95,18 @@ This engine supersedes the external `rtk` Rust binary the project previously rec
 
 Command rewrite is a separate PreToolUse decision (`rewrite.py`, `catalog/hooks/rewrite-command.sh`): exit 0 allow / 1 passthrough / 2 deny / 3 ask. The default when a rewrite exists is 3 (ask), never 0 (auto-allow). Host deny beats ask beats allow. A compound command (`&&` `||` `;` `|`) is allowed only when every segment independently matches allow.
 
+### Bring-your-own filters (SHA-256 trust store)
+
+Project file `.nexus-hub/compressor-filters.json`, then `~/.nexus-hub/compressor-filters.json`, then built-in (none), then passthrough. An on-disk file is applied only after `python -m nexus_context_compressor trust <file>` records its SHA-256. Editing the file changes the hash, so compress skips it until trusted again. `untrust` removes the pin. `verify` runs inline `tests[]` (`name` / `input` / `expected`) even on an untrusted file. This is consent plus tamper-evidence, not a sandbox.
+
+### Recoverable truncation
+
+`compress --max-lines N` / `--max-bytes N` (and `compress_output(..., max_lines=, max_bytes=)`) tee the full blob to a spool file, keep a prefix, and print a recovery pointer (`tail -n +LINE FILE`). If the spool cannot be written, the original text is left intact. Nothing is silently unrecoverable.
+
+### Passthrough log (session mining)
+
+When compression does not shrink the blob, one JSON line is appended to `~/.nexus-hub/compressor-passthrough.jsonl` (or a sibling of `NEXUS_CCR_STORE_PATH`). `session-query` and `continuous-learning` mine that log for unrealized savings and repeated CLI mistakes. Local, append-only, no outbound I/O.
+
 ## Status
 
 Built incrementally across the v3.2.0 `adoption-headroom` plan:

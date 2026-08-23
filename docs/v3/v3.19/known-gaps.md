@@ -4,7 +4,7 @@
 **Status**: in-progress
 **Last updated**: 2026-08-23
 
-v3.19.0 is finalized. v3.19.1 shipped, then the artifact round-trip failed: `MANIFEST.sha256` was generated before the gap-closure commit, so `nexus-hub verify` against the published `v3.19.1` tarball reports FAIL. Do not retag. Fix in the next patch. v3.19.2 Phase 4 (compressor and hook depth) is complete; Phase 5 is next.
+v3.19.0 is finalized. v3.19.1 shipped, then the artifact round-trip failed: `MANIFEST.sha256` was generated before the gap-closure commit, so `nexus-hub verify` against the published `v3.19.1` tarball reports FAIL. Do not retag. Fix in the next patch. v3.19.2 Phase 5 (compressor polish and session mining) is complete; Phase 6 is next.
 
 ## v3.19.2
 
