@@ -37,24 +37,30 @@ jobs:
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
-      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
-        with:
-          python-version: '3.11'
-          # Cache pip downloads keyed on the extension manifest so the tree-sitter
-          # grammar wheels (the heaviest cold download) are not refetched.
-          cache: 'pip'
-          cache-dependency-path: 'extensions/nexus-code-search/pyproject.toml'
-
-      - name: Install code-search MCP server (with dev extras)
-        run: pip install -e "extensions/nexus-code-search/[dev]"
+      - name: Build the offline test image
+        run: |
+          docker build --tag nexus-code-search-offline --file - extensions/nexus-code-search <<'DOCKERFILE'
+          FROM python:3.11-slim
+          WORKDIR /workspace
+          RUN apt-get update \
+              && apt-get install --yes --no-install-recommends git \
+              && rm -rf /var/lib/apt/lists/*
+          COPY pyproject.toml README.md /package/
+          COPY src /package/src
+          COPY tests /package/tests
+          RUN python -m pip install --no-cache-dir --editable "/package[dev]"
+          DOCKERFILE
 
       - name: Full suite and benchmark with egress denied
         run: |
-          sudo unshare --net --mount-proc bash -c '
+          docker run --rm --network none \
+            --env NEXUS_CODE_SEARCH_BLOCK_NETWORK=1 \
+            --volume "${GITHUB_WORKSPACE}:/workspace:ro" \
+            nexus-code-search-offline bash -c '
             set -euo pipefail
-            ip link set lo up
-            test "$(ls /sys/class/net)" = "lo"
-            python -m pytest extensions/nexus-code-search/tests/ -q
+            test -d /sys/class/net/lo
+            ! find /sys/class/net -mindepth 1 -maxdepth 1 ! -name lo -print -quit | grep -q .
+            python -m pytest extensions/nexus-code-search/tests/ -q -p no:cacheprovider
             cd extensions/nexus-code-search
             python benchmarks/harness.py --check --work /tmp/nexus-code-search-benchmark --json-out /tmp/nexus-code-search-benchmark.json --markdown-out /tmp/nexus-code-search-benchmark.md
           '

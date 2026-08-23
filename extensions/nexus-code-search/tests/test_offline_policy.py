@@ -61,12 +61,14 @@ def test_documented_policy_and_registry_classification_remain_exact() -> None:
     assert "| `already-local` |" in row
 
 
-def test_ci_runs_full_suite_and_benchmark_in_network_namespace() -> None:
+def test_ci_runs_full_suite_and_benchmark_without_container_network() -> None:
     workflow_path = REPO_ROOT / ".github" / "workflows" / "code-search.yml"
     workflow = workflow_path.read_text(encoding="utf-8")
     assert "test-network-blocked:" in workflow
-    assert "sudo unshare --net --mount-proc" in workflow
-    assert "ip link set lo up" in workflow
+    assert "docker run --rm --network none" in workflow
+    assert "NEXUS_CODE_SEARCH_BLOCK_NETWORK=1" in workflow
+    assert "test -d /sys/class/net/lo" in workflow
+    assert "! find /sys/class/net" in workflow
     assert "pytest extensions/nexus-code-search/tests/" in workflow
     assert "benchmarks/harness.py --check" in workflow
 

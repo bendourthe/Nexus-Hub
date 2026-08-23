@@ -225,6 +225,14 @@ def _response_format_properties() -> dict[str, dict]:
     }
 
 
+def _tool_input_schema(tool: Tool) -> dict:
+    """Return the MCP tool schema across SDK 1.x and 2.x field names."""
+    schema = getattr(tool, "inputSchema", None)
+    if schema is not None:
+        return schema
+    return tool.input_schema
+
+
 def _safety_tool_definitions(symbol_arg: dict) -> list[Tool]:
     definitions = (
         (
@@ -556,7 +564,7 @@ def _all_tools() -> list[Tool]:
     ]
     tools.extend(_safety_tool_definitions(symbol_arg))
     for tool in tools:
-        tool.inputSchema["properties"].update(_response_format_properties())
+        _tool_input_schema(tool)["properties"].update(_response_format_properties())
     return tools
 
 

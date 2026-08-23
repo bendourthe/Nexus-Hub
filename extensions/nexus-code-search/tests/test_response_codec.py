@@ -405,7 +405,9 @@ def test_invalid_controls_fail_open_to_json(
 
 def test_every_tool_exposes_response_format_controls() -> None:
     for tool in server._all_tools():
-        properties = tool.inputSchema["properties"]
+        properties = tool.model_dump(mode="json", by_alias=True)["inputSchema"][
+            "properties"
+        ]
         assert properties["response_format"]["enum"] == ["json", "compact", "auto"]
         assert properties["response_format"]["default"] == "json"
         assert properties["compact_min_savings_pct"]["default"] == 15.0
