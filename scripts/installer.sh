@@ -3029,6 +3029,23 @@ install_skill_discovery() {
         write_item "  nexus-context-compressor installed at $context_compressor_dest" "$GREEN"
     fi
 
+    # Install nexus-memory into the same venv (v3.19.1+). Local persistent
+    # agent-memory CLI. Stdlib only, zero outbound, not an MCP server. Dest
+    # is $nexus_home/nexus-memory so it does not collide with the default
+    # store root $nexus_home/memory.
+    local memory_src="$repo_root/extensions/nexus-memory"
+    local memory_dest="$nexus_home/nexus-memory"
+    if [ -d "$memory_src" ]; then
+        rm -rf "$memory_dest"
+        cp -r "$memory_src" "$memory_dest"
+        if command -v uv >/dev/null 2>&1; then
+            uv pip install --python "$venv_path/bin/python" -e "$memory_dest" >/dev/null 2>&1
+        else
+            "$venv_path/bin/pip" install -q -e "$memory_dest" >/dev/null 2>&1
+        fi
+        write_item "  nexus-memory installed at $memory_dest" "$GREEN"
+    fi
+
     # Use python to safely merge MCP server config into settings.json (all three internal servers).
     "$python_cmd" -c "
 import json, sys

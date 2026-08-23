@@ -3353,6 +3353,23 @@ function Install-SkillDiscovery {
         }
         Write-Item -Message "  nexus-context-compressor installed at $contextCompressorDest" -Color "DarkGreen"
     }
+
+    # Install nexus-memory into the same venv (v3.19.1+). Local persistent
+    # agent-memory CLI. Stdlib only, zero outbound, not an MCP server. Dest
+    # is $nexusHome\nexus-memory so it does not collide with the default
+    # store root $nexusHome\memory.
+    $memorySrc = Join-Path $RepoRoot "extensions\nexus-memory"
+    $memoryDest = Join-Path $nexusHome "nexus-memory"
+    if (Test-Path $memorySrc) {
+        if (Test-Path $memoryDest) { Remove-Item -Path $memoryDest -Recurse -Force }
+        Copy-Item -Path $memorySrc -Destination $memoryDest -Recurse -Force
+        if ($hasUv) {
+            & uv pip install --python "$venvPath\Scripts\python.exe" -e "$memoryDest" 2>$null | Out-Null
+        } else {
+            & "$venvPath\Scripts\pip.exe" install -q -e "$memoryDest" 2>$null | Out-Null
+        }
+        Write-Item -Message "  nexus-memory installed at $memoryDest" -Color "DarkGreen"
+    }
     $ErrorActionPreference = "Stop"
 
     # Add or update mcpServers without touching other keys (e.g., hooks)
