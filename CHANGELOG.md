@@ -9,6 +9,60 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.19.0] - 2026-08-22
+
+### Added
+
+- **Tool profiles for `nexus-code-search`.** The new `minimal`, `standard`, and `full` selector exposes 7, 16, or 20 MCP tools and reduces the definition context sent before any tool runs. `full` remains the backward-compatible default, invalid values fail open to `full`, and the profile controls visibility and context cost rather than authorization.
+- **A cross-platform code-search routing hook.** `code-search-routing.sh` and `code-search-routing.ps1` recognize Grep, Glob, and equivalent shell searches at `PreToolUse`, then point the agent toward the local `nexus-code-search` index. The default `soft` mode is advisory; explicit block mode exits 2 only for matched searches, while unrelated commands and disabled/minimal hook profiles remain untouched.
+- **The versioned `NEXUS-CW/1` compact response format.** Every MCP tool accepts a JSON, compact, or automatic response selector plus a measured minimum-savings threshold. JSON remains the compatibility default, automatic mode compacts only when its UTF-8 savings meet the threshold, producer failures return JSON, and consumers can retry JSON after an unsupported or corrupt compact payload.
+- **Read-only mutation preflights.** `code_edit_safety`, `code_delete_safety`, and `code_rename_safety` return one ordered verdict with preservation requirements and the indexed callers, importers, and references behind it. `insufficient_data` is never collapsed into safe, `no_known_callers` is only a possible dead-code signal, and the result reports that one local graph cannot prove cross-repository safety.
+- **A deterministic code-intelligence benchmark.** The committed goldset measures retrieval quality, JSON and compact response bytes, estimated tokens, full and active profile definition cost, and wall-clock latency against unique temporary workspaces. The baseline is small-sample and repository-local rather than a claim about every language or codebase.
+- **Pluggable non-code context and optional offline dense retrieval.** The provider seam ships with a Markdown provider that contributes heading nodes and hierarchy edges. The optional `dense` extra combines local ONNX similarity with the keyword rank only after the user places `model.onnx` and `tokenizer.json`; it is off by default, imports nothing on the default path, never fetches weights, and degrades to keyword search with a precise hint.
+- **A network-blocked CI leg for the complete extension suite.** The workflow builds a focused image, installs the project and test fixtures before isolation, then runs all tests in a read-only repository mount with Docker `--network none`. Only loopback is available inside the test container.
+
+### Changed
+
+- **Profile policy is separated from MCP transport.** Tool/profile classification and deterministic definition-cost accounting live in their own module, while the server filters complete tool definitions at the exposure boundary.
+- **Producer and consumer compression now compose explicitly.** `nexus-context-compressor` recognizes the exact `NEXUS-CW/1` first line and preserves the compact bytes unchanged, preventing double compression without coupling the two formats.
+- **Benchmark workspaces are unique per run.** The harness no longer reuses a fixed temporary directory, preventing stale graph state from contaminating deterministic retrieval measurements.
+- **MCP SDK 1.x and 2.x are both supported.** Schema access accepts `Tool.inputSchema` and the 2.x `Tool.input_schema` attribute without weakening the public JSON schema or pinning away the newer SDK.
+- **The offline guarantee is unchanged.** Code search, context providers, benchmarks, and dense fallback retain zero outbound calls, zero API keys, and zero model downloads. Optional dense inference reads only user-supplied local weights.
+
+### Operational guidance
+
+#### NEXUS_CODE_SEARCH_TOOL_PROFILE
+
+- Activation: set `NEXUS_CODE_SEARCH_TOOL_PROFILE=minimal`, `standard`, or `full`, then restart the MCP server.
+- Validation: from `extensions/nexus-code-search`, run `python -c "from nexus_code_search.tool_profiles import TOOL_MINIMUM_PROFILE,TOOL_PROFILE_RANK; p='minimal'; print(sum(TOOL_PROFILE_RANK[v] <= TOOL_PROFILE_RANK[p] for v in TOOL_MINIMUM_PROFILE.values()))"`; use the selected profile and expect 7, 16, or 20.
+- Rollback: unset `NEXUS_CODE_SEARCH_TOOL_PROFILE` or set it to `full`, then restart the MCP server.
+- Authority: a profile does not grant file, tool, network, or execution permission; it only changes which existing definitions are visible to the model.
+- Docs: [Tool profiles](https://github.com/bendourthe/Nexus-Hub/blob/v3.19.0/extensions/nexus-code-search/README.md#tool-profiles).
+
+#### NEXUS_CODE_SEARCH_ROUTING
+
+- Activation: leave the default `soft` mode for hints, or set `NEXUS_CODE_SEARCH_ROUTING=block` to reject matched Grep, Glob, and equivalent shell searches.
+- Validation: in PowerShell, run `'{"tool_name":"Grep","tool_input":{"pattern":"needle"}}' | & catalog/hooks/code-search-routing.ps1`; soft mode emits a local-index hint, while block mode exits 2.
+- Rollback: unset `NEXUS_CODE_SEARCH_ROUTING`, set it to `soft`, add `code-search-routing` to `NEXUS_DISABLED_HOOKS`, or use `NEXUS_HOOK_PROFILE=minimal`.
+- Authority: routing does not expand the MCP server's permissions or block unrelated commands; hard blocking occurs only after the explicit environment opt-in and a matched search classification.
+- Docs: [Routing-hook behavior and tests](https://github.com/bendourthe/Nexus-Hub/blob/v3.19.0/docs/v3/v3.19/development/history/2026-08-22_code-intelligence-hardening-phase-2-search-routing-guard.md).
+
+#### response_format
+
+- Activation: pass `response_format="auto"` or `response_format="compact"` to any `nexus-code-search` MCP tool; optionally set `compact_min_savings_pct` from 0 through 100.
+- Validation: request `search_code` with `response_format="compact"` and verify the complete first line is `NEXUS-CW/1`; request it again with `response_format="json"` to confirm the compatibility fallback.
+- Rollback: pass `response_format="json"` or omit the argument; JSON is the default for every tool.
+- Authority: response encoding changes transport bytes only; it does not add tools, permissions, data sources, or outbound access.
+- Docs: [Nexus Compact Wire Format](https://github.com/bendourthe/Nexus-Hub/blob/v3.19.0/extensions/nexus-code-search/docs/wire-format.md).
+
+#### NEXUS_CODE_SEARCH_DENSE
+
+- Activation: from `extensions/nexus-code-search`, run `pip install -e '.[dense]'`, place `model.onnx` and `tokenizer.json` under `~/.nexus-hub/cache/models/code-search-encoder/` or `NEXUS_CODE_SEARCH_MODEL_DIR`, set `NEXUS_CODE_SEARCH_DENSE=1`, and call `search_code` with `mode="hybrid"`.
+- Validation: inspect the response's `requested_mode`, `mode`, `degraded`, and `hint` fields; a working encoder reports hybrid mode without degradation, while any missing component reports keyword fallback and the local remediation hint.
+- Rollback: unset `NEXUS_CODE_SEARCH_DENSE` or call `search_code` with `mode="keyword"`; uninstalling the optional extra is not required for the default path.
+- Authority: dense opt-in grants no network access and triggers no download; the extension reads only the two pre-placed local files and fails soft to keyword ranking.
+- Docs: [Optional offline dense retrieval](https://github.com/bendourthe/Nexus-Hub/blob/v3.19.0/extensions/nexus-code-search/README.md#optional-offline-dense-retrieval).
+
 ## [3.18.3] - 2026-08-22
 
 ### Added
@@ -276,7 +330,7 @@ Consent-gated, time-bounded workspace autonomy is now available through one shar
 - **Validation:** run `nexus-hub autonomy status` to read back every platform's support state, active tier, and remaining TTL. Use `nexus-hub autonomy status --json` for local integrations.
 - **Rollback:** run `nexus-hub autonomy disable --platform <key>` or `nexus-hub autonomy revert --platform <key>`. Either operation restores the recorded configuration backup and clears that platform's autonomy state; expiry performs the same restoration automatically.
 - **Authority:** activation grants only the selected verified project-scoped platform lever for the requested tier and TTL. It does **not** grant global authority, make an unsupported or global-only platform writable, bypass protected-branch or dirty-worktree refusal, bypass the execution-trigger guard, stage or commit changes, or remove the user's ability to revert. Enablement requires a real Git repository, clean worktree, non-protected branch, interactive terminal, and explicit confirmation.
-- **Docs:** see [What's New in v3.17.0](README.md#whats-new-in-v3170), `nexus-hub autonomy --help`, the [v3.17.0 implementation plan](docs/v3/v3.17/plans/v3.17.0-agent-autonomy-toggle.md), and the [phase histories](docs/v3/v3.17/development/history/).
+- **Docs:** see [What's New in v3.17.0](README.md#whats-new-in-v3170), `nexus-hub autonomy --help`, the [v3.17.0 implementation plan](docs/v3/v3.17/plans/v3.17.0-agent-autonomy-toggle.md), and the [phase histories](docs/archive/v3/v3.17/development/history/).
 
 ### Security
 

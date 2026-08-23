@@ -13,7 +13,7 @@
 - **Branch**: `feat/v3.17.4-org-knowledge-layer`, one Phase 1 commit ahead of `develop`
 - **Starting tag/commit**: `af46880a`
 - **Environment**: Windows PowerShell, Python 3.12.10, Git, Ruff, pytest, coverage.py, and ShellCheck; GNU Make unavailable
-- **Prior session reference**: `docs/v3/v3.17/development/history/2026-08-16_org-knowledge-layer-phase-1-org-bundle-contract.md`
+- **Prior session reference**: `docs/archive/v3/v3.17/development/history/2026-08-16_org-knowledge-layer-phase-1-org-bundle-contract.md`
 - **Plan reference**: `docs/v3/v3.17/plans/v3.17.4-org-knowledge-layer.md`
 
 Context: Phase 1 had established the dependency-free bundle validator and example organization bundle. Phase 2 needed to expose that contract through the already-installed CLI without introducing a second executable, installer copy rule, dependency, or network service.
