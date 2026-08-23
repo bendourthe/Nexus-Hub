@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.19.2 -->
+<!-- nexus-hub-version: 3.20.0 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 275 skills, 18 commands, 33 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -37,17 +37,15 @@ The two projects are designed to be useful independently: you can install Nexus-
 
 ---
 
-## What's New in v3.19.2
+## What's New in v3.20.0
 
-**A standalone install can now prove what it downloaded.** `install.sh` / `install.ps1` refuse archive members that escape the extract directory, and they verify SHA-256 when `NEXUS_HUB_EXPECTED_SHA256` or `NEXUS_HUB_CHECKSUMS` is set. Installing from `main` without a published checksum prints a warning. `NEXUS_HUB_SKIP_CHECKSUM=1` skips the hash only; the path-traversal guard always runs.
+**Agent execution now has an OS-level isolation skill.** `agent-execution-isolation` teaches Landlock, seccomp, network namespaces, per-session ephemeral containers, placeholder credentials, and an out-of-process egress proxy (static rules, optional LLM judge, SSRF/RFC-1918 blocks, human escalation). `/review security` engages it when the reviewed project spawns agents, holds agent credentials, or makes agent-driven egress calls.
 
-**The context compressor now rewrites, reformats, and truncates with recovery.** `rewrite` is a single allow / passthrough / deny / ask decision (default ask, never auto-allow). Semantic reformatters cover git status, pytest-family failures, and ruff/eslint/tsc grouped by file. Trusted BYO filters apply only after a SHA-256 pin. Truncation tees the full blob and prints a `tail` pointer. CI fails if the compressor grows a network import.
+**Existing skills now point at that model instead of duplicating it.** `agentic-endpoint-hardening` documents credential brokering (placeholders in the agent, real keys at a broker). `egress-redaction` states that typed BLOCK/REDACT/HASH/PASS is skippable content policy, not a network perimeter. `ai-agent-governance` records the three-question triage (sandbox, broker, egress) under Pillar 3.
 
-**Triggering and evals got a ceiling; memory got a source.** Skill descriptions use High/Medium/Low/Reject bands and must not hide behind a clarifying question. Eval corpora are versioned with per-slice floors. Every memory record requires a `source`; the store supersedes instead of deleting.
+Catalog counts are **275 skills**, **18 commands**, **33 hooks**, and **23 agents**. This release adds no installer flag, opt-in host surface, or outbound call.
 
-Catalog counts are **275 skills**, **18 commands**, **33 hooks**, and **23 agents**. The compressor and memory packages remain **zero outbound calls, zero API keys, zero model downloads**.
-
-## Previously, in v3.19.1
+## Previously, in v3.19.2
 
 **Agents now have a durable, cross-platform memory store.** `nexus-memory` is a local append-only log of lasting facts, decisions, and events. An agent reads it at session start within a fixed line budget, records as it works, and summarizes older ranges itself. The store never calls a model, never starts a background process, and never leaves the machine. Default root is `~/.nexus-hub/memory/`.
 
