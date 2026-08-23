@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **`agent-execution-isolation` skill** (`catalog/skills/security-operations/agent-execution-isolation/`): three-layer OS-level isolation for AI agents (Landlock/seccomp/netns plus per-session ephemeral containers, a minimal in-loop runtime, and an out-of-process egress boundary with static rules, an LLM judge, SSRF/RFC-1918 blocks, and human escalation). Placeholder credentials stay out of the agent container. `/review security` engages the skill when the target spawns agents, holds agent credentials, or makes agent-driven egress calls. Catalog count is 275.
 
+### Changed
+
+- **Credential brokering in `agentic-endpoint-hardening`**: agent environments hold placeholder keys only; a broker outside the trust seam (L7 proxy or host wrapper) attaches real keys to policy-approved egress. Limits (broker compromise, approved-destination misuse) are explicit. `authentication-patterns` points here for agent-credential isolation, not app OAuth/JWT.
+- **Content policy vs network boundary in `egress-redaction`**: agent-applied BLOCK/REDACT/HASH/PASS is a skippable content control; high-stakes flows need the out-of-process egress proxy in `agent-execution-isolation` (`references/egress-boundary.md`).
+- **Governance triage pointer in `ai-agent-governance`**: Pillar 3 records the three-question isolation triage (process sandbox, credential broker, egress boundary) without copying that checklist.
+
 ## [3.19.2] - 2026-08-23
 
 ### Added
