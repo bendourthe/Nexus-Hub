@@ -41,6 +41,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+dense = ["onnxruntime>=1.16", "numpy>=1.21", "tokenizers>=0.15"]
 dev = ["pytest>=7.0", "pytest-asyncio>=0.21"]
 
 [project.scripts]

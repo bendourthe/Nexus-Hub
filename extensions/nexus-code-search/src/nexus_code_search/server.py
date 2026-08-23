@@ -45,6 +45,7 @@ from nexus_code_search.response_codec import (
     RESPONSE_FORMATS,
     encode_response,
 )
+from nexus_code_search.search_dense import DenseSearchConfig, hybrid_search
 from nexus_code_search.search_keyword import KeywordIndex
 from nexus_code_search.store import clear_index as store_clear_index
 from nexus_code_search.store import index_lock, load_index
@@ -308,7 +309,10 @@ def _all_tools() -> list[Tool]:
         ),
         Tool(
             name="search_code",
-            description="Keyword search over the indexed chunk corpus.",
+            description=(
+                "Keyword search over the indexed chunk corpus, with an optional "
+                "offline hybrid mode that loads only pre-placed local weights."
+            ),
             inputSchema={
                 "type": "object",
                 "properties": {
@@ -316,7 +320,7 @@ def _all_tools() -> list[Tool]:
                     "query": {"type": "string"},
                     "mode": {
                         "type": "string",
-                        "enum": ["keyword"],
+                        "enum": ["keyword", "hybrid"],
                         "default": "keyword",
                     },
                     "limit": {
@@ -659,10 +663,10 @@ def _handle_search(arguments: dict, config: CodeSearchConfig) -> list[TextConten
     mode = arguments.get("mode", "keyword")
     limit = int(arguments.get("limit", 10))
 
-    if mode != "keyword":
+    if mode not in ("keyword", "hybrid"):
         raise NotImplementedError(
-            "search_code currently supports mode='keyword' only. Use code_search for "
-            "the v2.0 AST graph full-text surface."
+            "search_code supports mode='keyword' or mode='hybrid'. Use code_search "
+            "for the AST graph full-text surface."
         )
 
     index_dir = index_dir_for(root, config)
@@ -680,8 +684,26 @@ def _handle_search(arguments: dict, config: CodeSearchConfig) -> list[TextConten
             )
         ]
 
-    idx = KeywordIndex.build(chunks)
-    results = idx.search(query, limit=limit)
+    requested_mode = mode
+    degraded = False
+    hint = None
+    if mode == "hybrid":
+        outcome = hybrid_search(
+            chunks,
+            query,
+            limit=limit,
+            config=DenseSearchConfig(
+                enabled=config.dense_enabled,
+                model_dir=config.dense_model_dir,
+            ),
+        )
+        results = outcome.results
+        mode = outcome.mode
+        degraded = outcome.degraded
+        hint = outcome.hint
+    else:
+        idx = KeywordIndex.build(chunks)
+        results = idx.search(query, limit=limit)
     payload = {
         "root": str(root),
         "query": query,
@@ -699,6 +721,14 @@ def _handle_search(arguments: dict, config: CodeSearchConfig) -> list[TextConten
             for r in results
         ],
     }
+    if requested_mode == "hybrid":
+        payload.update(
+            {
+                "requested_mode": requested_mode,
+                "degraded": degraded,
+                "hint": hint,
+            }
+        )
     return [TextContent(type="text", text=json.dumps(payload))]
 
 

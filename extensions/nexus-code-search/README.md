@@ -9,7 +9,7 @@ Nexus-Hub local-only code search MCP server. Walks a repository, chunks source f
 ## Status
 
 - **v1.0 ships keyword-only search** via an inverted index + `rapidfuzz` fuzzy scoring.
-- **v2.0 (current) adds a tree-sitter AST graph** for Python, TypeScript, Go, Rust, Java, C#, Ruby, PHP, C, C++, Swift, and Kotlin: SQLite + FTS5 storage, NodeKind / EdgeKind taxonomy, call-graph traversal (callers / callees / impact radius / path finding), and a debounced filesystem watcher built on watchdog. Both surfaces are available simultaneously; callers pick the right tool for their query. Future versions may add dense / hybrid retrieval with local ONNX embeddings; nothing is reserved today.
+- **v2.0 (current) adds a tree-sitter AST graph** for Python, TypeScript, Go, Rust, Java, C#, Ruby, PHP, C, C++, Swift, and Kotlin: SQLite + FTS5 storage, NodeKind / EdgeKind taxonomy, call-graph traversal (callers / callees / impact radius / path finding), a Markdown context provider, optional offline hybrid retrieval, and a debounced filesystem watcher built on watchdog. Both surfaces are available simultaneously; callers pick the right tool for their query.
 
 ## Install
 
@@ -29,9 +29,9 @@ MCP tool definitions are sent to the model and consume context before any tool r
 
 | Profile | Tools | Offline token estimate | Recommended model tier | Included surface |
 |---|---:|---:|---|---|
-| `minimal` | 7 | 1,841 | `fast` | Keyword and graph indexing, search, status, cleanup, and direct symbol retrieval |
-| `standard` | 16 | 4,461 | `standard` / `strong` | Minimal plus callers, callees, impact, context, exploration, affected tests, and three mutation preflights |
-| `full` | 20 | 5,601 | `frontier` or workflows needing every capability | Standard plus context-map generation and health, knowledge-map generation, and file watching |
+| `minimal` | 7 | 1,860 | `fast` | Keyword and graph indexing, search, status, cleanup, and direct symbol retrieval |
+| `standard` | 16 | 4,480 | `standard` / `strong` | Minimal plus callers, callees, impact, context, exploration, affected tests, and three mutation preflights |
+| `full` | 20 | 5,620 | `frontier` or workflows needing every capability | Standard plus context-map generation and health, knowledge-map generation, and file watching |
 
 Counts are generated from the compact JSON serialization of each MCP definition with the extension's deterministic stdlib estimator, so the baseline stays comparable without a tokenizer package or network access. A provider tokenizer may report a different absolute number while preserving the relative savings: `minimal` is about 67% smaller and `standard` about 20% smaller than `full`. These counts include the response-format controls advertised by every tool.
 
@@ -73,7 +73,7 @@ The following measurements come from the Phase 3 test fixture, which supplies on
 | Tool | Purpose |
 |---|---|
 | `index_codebase(root, force=False)` | Walk `root`, chunk files, persist a content-hash JSON index under `<root>/.nexus/code-index/`. Respects `.gitignore` and an optional `.nexusignore`. Content-hash incremental: unchanged files are skipped. |
-| `search_code(query, mode="keyword", limit=10)` | Return up to `limit` matching chunks ranked by token overlap + `rapidfuzz` fuzzy ratio. |
+| `search_code(query, mode="keyword", limit=10)` | Return up to `limit` matching chunks. Keyword mode uses token overlap + `rapidfuzz`; opt-in hybrid mode combines that rank with a pre-placed local encoder and fails soft to keyword. |
 | `clear_index(root)` | Remove both the JSON index and the SQLite graph database for `<root>`. |
 | `get_indexing_status(root)` | Return index state (`idle` / `running` / `error`) plus counts and timestamps. |
 
@@ -116,6 +116,21 @@ The v2 graph stores 22 node kinds (`file`, `module`, `class`, `struct`, `interfa
 - **Kotlin** emits interfaces, classes (and `object` singletons), enum classes + entries, methods vs top-level functions, properties vs top-level constants, package namespaces, `import` declarations, `extends` / `implements` from delegation specifiers, and in-file `calls`.
 
 Three framework resolvers (Django for `urls.py` files, FastAPI / Flask for decorator-driven handlers, Express for `app.<method>` / `router.<method>` calls) run after AST extraction and emit `route` nodes plus `decorates` / `references` edges so URL handlers and middleware chains are searchable through the same `code_search` / `code_context` tools.
+
+The local [context-provider contract](docs/context-providers.md) extends that resolver seam to non-code files. The intentionally small shipped set contains one Markdown provider, which adds heading nodes and hierarchy edges without parsing links or opening connections.
+
+## Optional offline dense retrieval
+
+Dense retrieval is an opt-in extra and is off by default. Keyword search remains the fallback on every missing or failing component.
+
+```bash
+cd extensions/nexus-code-search
+pip install -e '.[dense]'
+```
+
+Place `model.onnx` and `tokenizer.json` in `~/.nexus-hub/cache/models/code-search-encoder/`, or set `NEXUS_CODE_SEARCH_MODEL_DIR` to another local directory. Obtain and place those weights yourself, then set `NEXUS_CODE_SEARCH_DENSE=1` and call `search_code` with `mode="hybrid"`.
+
+The extension only reads those exact pre-placed files. It has no download command, no implicit first-use fetch, and no URL-backed fallback; it never downloads weights. If the extra, files, or encoder are unavailable, the response uses keyword ranking and returns a precise local installation hint instead of failing.
 
 ## CLI dispatcher
 

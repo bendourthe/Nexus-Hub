@@ -21,6 +21,8 @@ CHUNK_TARGET_SIZE = 600
 CHUNK_OVERLAP = 80
 DEFAULT_TOOL_PROFILE = "full"
 TOOL_PROFILE_ENV = "NEXUS_CODE_SEARCH_TOOL_PROFILE"
+DENSE_ENABLE_ENV = "NEXUS_CODE_SEARCH_DENSE"
+DENSE_MODEL_DIR_ENV = "NEXUS_CODE_SEARCH_MODEL_DIR"
 VALID_TOOL_PROFILES = frozenset({"minimal", "standard", "full"})
 
 DEFAULT_EXCLUDE_DIRS = frozenset(
@@ -63,6 +65,8 @@ class CodeSearchConfig:
     chunk_target_size: int = CHUNK_TARGET_SIZE
     chunk_overlap: int = CHUNK_OVERLAP
     tool_profile: str = DEFAULT_TOOL_PROFILE
+    dense_enabled: bool = False
+    dense_model_dir: str | None = None
     exclude_dirs: frozenset[str] = field(default_factory=lambda: DEFAULT_EXCLUDE_DIRS)
     exclude_patterns: frozenset[str] = field(default_factory=lambda: DEFAULT_EXCLUDE_PATTERNS)
 
@@ -108,7 +112,19 @@ def resolve_config() -> CodeSearchConfig:
             DEFAULT_TOOL_PROFILE,
         )
         profile = DEFAULT_TOOL_PROFILE
-    return CodeSearchConfig(hub_root=_find_hub_root(), tool_profile=profile)
+    dense_enabled = os.environ.get(DENSE_ENABLE_ENV, "").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
+    dense_model_dir = os.environ.get(DENSE_MODEL_DIR_ENV) or None
+    return CodeSearchConfig(
+        hub_root=_find_hub_root(),
+        tool_profile=profile,
+        dense_enabled=dense_enabled,
+        dense_model_dir=dense_model_dir,
+    )
 
 
 def index_dir_for(root: Path, config: CodeSearchConfig) -> Path:

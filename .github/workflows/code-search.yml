@@ -49,3 +49,7 @@ jobs:
 
       - name: Code-search test suite
         run: pytest extensions/nexus-code-search/tests/ -v
+
+      - name: Offline cost and retrieval-quality benchmark
+        working-directory: extensions/nexus-code-search
+        run: python benchmarks/harness.py --check --work "$RUNNER_TEMP/nexus-code-search-benchmark" --json-out "$RUNNER_TEMP/nexus-code-search-benchmark.json" --markdown-out "$RUNNER_TEMP/nexus-code-search-benchmark.md"
