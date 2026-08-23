@@ -2,7 +2,7 @@
   "plugin": {
     "name": "nexus-hub",
     "version": "3.19.2",
-    "description": "Enterprise-grade skill library for AI coding assistants with 274 curated skills, 18 commands, 33 hooks, and cross-platform support",
+    "description": "Enterprise-grade skill library for AI coding assistants with 275 curated skills, 18 commands, 33 hooks, and cross-platform support",
     "author": "Benjamin Dourthe",
     "license": "MIT",
     "repository": "https://github.com/bendourthe/Nexus-Hub",
@@ -155,8 +155,8 @@
     {
       "id": "security-operations",
       "name": "Security Operations",
-      "description": "Defensive security operations: DFIR, threat hunting, detection engineering, incident response, agentic-endpoint hardening, and cloud/endpoint/identity/phishing detection",
-      "skill_count": 16
+      "description": "Defensive security operations: DFIR, threat hunting, detection engineering, incident response, agentic-endpoint hardening, agent execution isolation, and cloud/endpoint/identity/phishing detection",
+      "skill_count": 17
     },
     {
       "id": "specialized-domains",

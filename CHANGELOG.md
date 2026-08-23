@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **`agent-execution-isolation` skill** (`catalog/skills/security-operations/agent-execution-isolation/`): three-layer OS-level isolation for AI agents (Landlock/seccomp/netns plus per-session ephemeral containers, a minimal in-loop runtime, and an out-of-process egress boundary with static rules, an LLM judge, SSRF/RFC-1918 blocks, and human escalation). Placeholder credentials stay out of the agent container. `/review security` engages the skill when the target spawns agents, holds agent credentials, or makes agent-driven egress calls. Catalog count is 275.
+
 ## [3.19.2] - 2026-08-23
 
 ### Added

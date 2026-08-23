@@ -277,6 +277,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | document-to-interactive-html | specialized-domains | "Turn documents, code, data, or repositories into a unique interactive self-contained website with verified visuals" | catalog/skills/specialized-domains/document-to-interactive-html/SKILL.md |
 | egress-redaction | security | "Detect sensitive data and apply a typed block/redact/hash/pass policy before egress" | catalog/skills/security/egress-redaction/SKILL.md |
 | prompt-injection-defense | security | "Recognize and resist prompt injection and poisoned tool output with instruction-origin discipline" | catalog/skills/security/prompt-injection-defense/SKILL.md |
+| agent-execution-isolation | security-operations | "Run agents in OS-level isolation with ephemeral containers and an egress boundary" | catalog/skills/security-operations/agent-execution-isolation/SKILL.md |
 | agentic-endpoint-hardening | security-operations | "Harden the coding-agent endpoint against config-write-then-executed sandbox escapes at the trust seam" | catalog/skills/security-operations/agentic-endpoint-hardening/SKILL.md |
 
-**Total: 274 skills across 21 categories**
+**Total: 275 skills across 21 categories**

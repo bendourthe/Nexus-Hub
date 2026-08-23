@@ -6,7 +6,7 @@
 
 <!-- nexus-hub-version: 3.19.2 -->
 
-Nexus-Hub is the upstream skill catalog for AI coding assistants: 274 skills, 18 commands, 33 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
+Nexus-Hub is the upstream skill catalog for AI coding assistants: 275 skills, 18 commands, 33 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
 ## Interactive Guide -- start here
 
@@ -30,7 +30,7 @@ Nexus-Hub is the upstream skill catalog for AI coding assistants: 274 skills, 18
 
 Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of the same idea, split along a deliberate seam.
 
-- **Nexus-Hub (this repo)** is the catalog: 274 curated skills, 18 commands, 33 hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`) and the local `nexus-memory` CLI store. It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
+- **Nexus-Hub (this repo)** is the catalog: 275 curated skills, 18 commands, 33 hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`) and the local `nexus-memory` CLI store. It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
 - **Nexus** is a local-first desktop AI Studio that consumes Nexus-Hub as its skill feed. Nexus's `AGENTS.md` names this repo as "the only external project we deliberately link to" -- the upstream feed for its skill harness.
 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
@@ -45,7 +45,7 @@ The two projects are designed to be useful independently: you can install Nexus-
 
 **Triggering and evals got a ceiling; memory got a source.** Skill descriptions use High/Medium/Low/Reject bands and must not hide behind a clarifying question. Eval corpora are versioned with per-slice floors. Every memory record requires a `source`; the store supersedes instead of deleting.
 
-Catalog counts are **274 skills**, **18 commands**, **33 hooks**, and **23 agents**. The compressor and memory packages remain **zero outbound calls, zero API keys, zero model downloads**.
+Catalog counts are **275 skills**, **18 commands**, **33 hooks**, and **23 agents**. The compressor and memory packages remain **zero outbound calls, zero API keys, zero model downloads**.
 
 ## Previously, in v3.19.1
 
@@ -55,7 +55,7 @@ Catalog counts are **274 skills**, **18 commands**, **33 hooks**, and **23 agent
 
 **A relocated store is no longer documentation-only.** Creating or appending inside a git working tree is refused, POSIX permissions are owner-only, and the `memory-store-guard` hook blocks Write, Edit, and git staging of store artifacts unless `NEXUS_MEMORY_ALLOW_IN_REPO=1`.
 
-**The new `agent-memory` skill is the routing home for this store.** It is distinct from `session-query`, `context-pack-builder`, `continuous-learning`, and `solution-knowledge-base`, which stay on-demand and topic-scoped. Spawned subagents are told not to write. Catalog count is now **274 skills**, **18 commands**, **32 hooks**, and **23 agents**.
+**The new `agent-memory` skill is the routing home for this store.** It is distinct from `session-query`, `context-pack-builder`, `continuous-learning`, and `solution-knowledge-base`, which stay on-demand and topic-scoped. Spawned subagents are told not to write. Catalog count is now **275 skills**, **18 commands**, **32 hooks**, and **23 agents**.
 
 `nexus-memory` is a local CLI package, not a fifth MCP server. The four internal MCP servers are unchanged. The package is stdlib-only: **zero outbound calls, zero API keys, zero model downloads**.
 
@@ -166,7 +166,7 @@ That is the whole setup -- no prompts. The installer prechecks its dependencies 
 
 After the installer completes:
 
-- **Globally**: your user profile has all 274 skills, 18 commands, 32 hooks, 23 agents, plus Gemini and Codex instructions.
+- **Globally**: your user profile has all 275 skills, 18 commands, 32 hooks, 23 agents, plus Gemini and Codex instructions.
 - **Locally**: your project has `copilot-instructions.md` and `AGENTS.md` tailored to your language.
 
 **Power-user flags**: `--workspace <path>` installs into a single repo instead of globally; `--platforms <comma-list>` limits the install to a subset of assistants; `--yes` runs fully unattended (refreshes managed files with no prompt -- ideal for CI). Prefer to clone first? `git clone` the repo and run `./install.sh` (macOS / Linux) or `install.bat` (Windows) -- the in-repo path still works exactly as before.
