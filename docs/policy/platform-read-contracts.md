@@ -2,7 +2,7 @@
 
 This is the durable, sourced source of truth for where every supported platform READS each surface (instruction file, slash commands, skills, agents, rules, hooks) and where the Nexus-Hub installer WRITES it. It supersedes the point-in-time snapshot at `docs/v3/v3.11/platform-read-contracts.md` (which resolved the v3.11.0 Phase 7 audit but left the Codex and Antigravity contracts flagged as unverified).
 
-**Last verified**: 2026-08-23 for v3.19.1 (no discovery-path change this release; evidence remains the 2026-08-22 full pass: eight MATCH, Codex retains low non-breaking drift, Nexus-AI UNVERIFIED. No adapter or installer path changed.)
+**Last verified**: 2026-08-23 for v3.19.2 (no discovery-path change this release; same-day re-fetch of public skill-discovery pages confirms the 2026-08-22 full pass still holds: eight MATCH, Codex retains low non-breaking drift, Nexus-AI UNVERIFIED. No adapter or installer path changed.)
 
 **v3.17.4 pass (full).** All ten contract platforms and all sixteen defaults-lever platforms were re-fetched from live first-party documentation. Every public discovery page returned HTTP 200 and retained the path marker used by Nexus-Hub. The read-path contract remains functional: eight MATCH, one non-breaking Codex DRIFT, and one UNVERIFIED Nexus-AI surface. Cursor and Claude retain their distinct hook response protocols, and Org Knowledge writes only the existing instruction and rules destinations, so no adapter path changes in this release.
 
@@ -142,6 +142,22 @@ The machine-readable source of truth is the sibling `docs/policy/platform-read-c
 The catalog itself is never reorganized per platform. Each integration is an adapter that materializes the canonical catalog into the shape below via the shared helpers in `scripts/lib/integrations/_catalog_adapters.py` (`flatten_skills`, `commands_to_skills`, `commands_to_slash`).
 
 ## Re-verification log
+
+### 2026-08-23 (v3.19.2 release - same-day re-fetch)
+
+v3.19.2 changes no discovery path (installer diffs vs v3.19.1 are version constants only). Public skill-discovery pages were re-fetched anyway so the freshness stamp is evidence, not a carry-forward:
+
+- Claude MATCH: personal `~/.claude/skills/<name>/SKILL.md` and project `.claude/skills/<name>/SKILL.md` still documented. [Source](https://code.claude.com/docs/en/skills)
+- Cursor MATCH: `.cursor/skills/`, `.agents/skills/`, `~/.cursor/skills/`, `~/.agents/skills/`, recursive. [Source](https://cursor.com/docs/context/skills)
+- OpenCode MATCH: `~/.config/opencode/skills`, `.opencode/skills`, plus `.claude/skills` and `.agents/skills` aliases. [Source](https://opencode.ai/docs/skills)
+- Gemini CLI MATCH: `~/.gemini/skills/` and `.gemini/skills/`, with `.agents/skills` alias. [Source](https://geminicli.com/docs/cli/using-agent-skills/)
+- Qwen MATCH: `~/.qwen/skills/` and `.qwen/skills/`. [Source](https://qwenlm.github.io/qwen-code-docs/en/users/features/skills/)
+- Antigravity MATCH: global `~/.gemini/config/skills/` and project `.agents/skills/`. [Source](https://codelabs.developers.google.com/getting-started-with-antigravity-skills)
+- Codex DRIFT (low, unchanged): documents the `.agents/skills` ladder including `$HOME/.agents/skills`; still omits `~/.codex/skills`. Delivery remains functional through the confirmed user path. [Source](https://learn.chatgpt.com/docs/build-skills)
+- Kimi MATCH: user `~/.kimi-code/skills` and project `.kimi-code/skills` (plus `.agents/skills` aliases). Current page: [kimi-code-cli skills](https://www.kimi.com/coding/docs/en/kimi-code-cli/customization/skills.html)
+- Nexus-AI UNVERIFIED (private source)
+
+No adapter, installer path, `contract_checks` row, or `install_verify` row changed.
 
 ### 2026-08-22 (v3.19.0 release - full re-verification)
 

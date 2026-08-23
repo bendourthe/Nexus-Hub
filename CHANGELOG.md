@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Platform read-contract restamped for v3.19.2.** Same-day re-fetch of public skill-discovery pages; eight MATCH, Codex retains low non-breaking drift, Nexus-AI UNVERIFIED. No adapter or installer write-target changed.
 - **Triggering confidence bands and a clarification ceiling.** `skill-description-authoring` now teaches High/Medium/Low/Reject match bands and treats a skill that always asks a clarifying question as a description failure, not as caution.
 - **Per-slice eval floors and locked regression sets.** `skill-eval-loop` requires an append-only versioned corpus, per-slice hard floors, and a no-lowering-thresholds rule. The context-compressor eval harness enforces per-fixture floors so a healthy aggregate cannot hide a collapsed slice.
 - **Memory provenance as an invariant.** `agent-memory` and `catalog/memory/` require a `source` on every record, keep an append-only changelog, supersede instead of deleting, and preview-then-backup before archival. `nexus-memory record` rejects a write with no source.
