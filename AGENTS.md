@@ -131,6 +131,7 @@ Available optional fields:
 | `d3fend_techniques` | MITRE D3FEND defensive countermeasures | `[D3-NTA, D3-PA]` |
 | `nist_csf` | NIST Cybersecurity Framework categories | `[DE.CM, RS.AN]` |
 | `nist_ai_rmf` | NIST AI Risk Management Framework controls | `[MEASURE-2.6, GOVERN-1.1]` |
+| `mitre_f3` | MITRE Fight Fraud Framework (F3) | `[F1005.006, F1010]` |
 
 Example frontmatter for a defensive security skill:
 
@@ -149,6 +150,10 @@ nist_csf: [DE.CM, DE.AE]
 Companion file: when a skill declares any of these fields, it SHOULD ship a `references/standards.md` that documents the mapping (what each ID means, why it applies to this skill, and the public source URL for the framework definition). The orphan-bundle audit will warn if `references/standards.md` exists but is not referenced from `SKILL.md`; otherwise the file is purely additive.
 
 These fields exist so a downstream generator (e.g. `scripts/build_framework_coverage.py`) can emit a coverage matrix across Nexus-Hub's security skills. They are NOT a substitute for the skill body -- the body must still teach the agent what to do, with binary Verification and Common Rationalizations.
+
+#### agentskills.io conformance
+
+Nexus-Hub SKILL.md files target the [agentskills.io](https://agentskills.io) open standard: `name` and `description` are required and non-empty, `name` is 1-64 characters matching `^[a-z0-9]+(-[a-z0-9]+)*$`, and `description` is 1-1024 characters. `scripts/check_agentskills_conformance.py` proves that contract in `make validate` and CI; it is a repo-internal guard (listed in `DEV_ONLY_SCRIPTS`) and is not installer-copied. Extra top-level keys Nexus-Hub adds (`summary_l0`, `overview_l1`, framework-mapping fields, invocation-policy booleans) are permitted by the standard and reported as information, not failures. Thirteen pre-existing pushy descriptions exceed 1024 characters and are grandfathered by name; a new over-long description is a hard error. The guard does not re-check name-equals-directory (already a hard rule in `scripts/validate_skills.py`) and does not ban `<`/`>` in frontmatter (the v3.15.2 placeholder lint is the more precise check).
 
 Required body sections (in order):
 

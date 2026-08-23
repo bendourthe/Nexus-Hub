@@ -209,6 +209,19 @@ def load_allowlist(path: Path = ALLOWLIST_PATH) -> set[str]:
 # skill that omits them pays no Tier-1 token cost.
 INVOCATION_POLICY_FIELDS = ("user-invocable", "disable-model-invocation")
 
+# Optional framework-mapping lists. Absence is never an error; a present value
+# must be a YAML list (flow `[ID]` or a block sequence). A scalar where a list
+# is expected is a hard error naming the skill and the field. Checked in
+# `--bundles-only` (the make validate / CI mode) and in the full validator.
+FRAMEWORK_FIELDS = (
+    "mitre_attack",
+    "atlas_techniques",
+    "d3fend_techniques",
+    "nist_csf",
+    "nist_ai_rmf",
+    "mitre_f3",
+)
+
 
 # The only two literals accepted. Deliberately NOT YAML-parsed: a YAML load
 # would need PyYAML, and the original implementation caught ImportError and
@@ -273,6 +286,52 @@ def validate_invocation_policy(skill_file: Path, block: str | None) -> list[str]
             f"A manual-only skill must remain user-invocable."
         )
 
+    return errors
+
+
+def validate_framework_fields(skill_file: Path, block: str | None) -> list[str]:
+    """Validate optional framework-mapping fields for YAML list shape.
+
+    Absence is never an error. A present field must be a flow list (`[ID]`)
+    or a block sequence (`- ID` on the following indented lines). A scalar
+    such as `mitre_f3: F1005.006` is an error naming the skill file and field.
+    """
+    if block is None:
+        return []
+
+    errors: list[str] = []
+    lines = block.splitlines()
+    index = 0
+    while index < len(lines):
+        line = lines[index]
+        if not line or line[0].isspace() or ":" not in line:
+            index += 1
+            continue
+        key, _, value = line.partition(":")
+        key = key.strip()
+        if key not in FRAMEWORK_FIELDS:
+            index += 1
+            continue
+        raw = value.split("#", 1)[0].strip()
+        if raw.startswith("[") and raw.endswith("]"):
+            index += 1
+            continue
+        if not raw:
+            look_ahead = index + 1
+            saw_item = False
+            while look_ahead < len(lines) and lines[look_ahead][:1].isspace():
+                item = lines[look_ahead].strip()
+                if item.startswith("- "):
+                    saw_item = True
+                look_ahead += 1
+            if saw_item:
+                index = look_ahead
+                continue
+        errors.append(
+            f"{skill_file}: frontmatter '{key}' must be a YAML list "
+            f"(e.g. [ID1, ID2]), got {raw!r}"
+        )
+        index += 1
     return errors
 
 
@@ -370,6 +429,8 @@ def validate_skill_dir(
         warnings.extend(f"grandfathered single-line violation: {e}" for e in format_errors)
     else:
         errors.extend(format_errors)
+
+    errors.extend(validate_framework_fields(skill_file, _frontmatter_block(content)))
 
     # Soft rule: optional fields
     for field in OPTIONAL_FRONTMATTER_FIELDS:
@@ -828,6 +889,9 @@ def main() -> int:
                 )
                 total_errors.extend(
                     validate_invocation_policy(skill_file, _frontmatter_block(content))
+                )
+                total_errors.extend(
+                    validate_framework_fields(skill_file, _frontmatter_block(content))
                 )
                 total_warnings.extend(validate_skill_bundles(skill_dir, content))
             if args.quality:

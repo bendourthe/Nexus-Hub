@@ -181,6 +181,13 @@ jobs:
         # pre-existing drift unrelated to any given change.
         run: python scripts/validate_skills.py --bundles-only
 
+      - name: Validate agentskills.io conformance (v3.20.1 Phase 1)
+        # Stdlib-only HARD GATE over catalog/skills/*/*/SKILL.md. Proves the
+        # agentskills.io name/description contract instead of asserting it.
+        # Rides this existing validate job (no new required context). Repo-
+        # internal; listed in DEV_ONLY_SCRIPTS; not installer-copied.
+        run: python scripts/check_agentskills_conformance.py
+
       - name: Trigger-and-routing eval (description near-collision + routing gate) (v3.15.2)
         # Deterministic, model-free, stdlib-only HARD GATE: fails CI on any
         # un-allowlisted skill-description near-collision OR any per-skill

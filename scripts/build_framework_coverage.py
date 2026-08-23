@@ -7,21 +7,25 @@ Security and Compliance Framework Mapping") across `catalog/skills/`:
 
     mitre_attack       MITRE ATT&CK technique IDs        e.g. [T1003.001, T1071]
     atlas_techniques   MITRE ATLAS (adversarial ML) IDs  e.g. [AML.T0047]
+    mitre_f3           MITRE Fight Fraud Framework IDs   e.g. [F1005.006, F1010]
     d3fend_techniques  MITRE D3FEND countermeasure IDs   e.g. [D3-NTA, D3-PA]
     nist_csf           NIST CSF category IDs             e.g. [DE.CM, RS.AN]
     nist_ai_rmf        NIST AI RMF control IDs           e.g. [MEASURE-2.6]
 
 and emits a coverage matrix (Markdown by default, JSON with --format json)
-showing which Nexus-Hub skills cover which framework controls.
+showing which Nexus-Hub skills cover which framework controls. Pass
+`--navigator-layer <path>` to also write a MITRE ATT&CK Navigator layer JSON
+derived solely from `mitre_attack` values already on disk.
 
-The script is read-only, local, and makes zero outbound calls -- it only reads
-SKILL.md files on disk. Skills that declare none of the five fields are simply
-absent from the matrix; the tool never fails on an untagged catalog.
+The script is read-only of the catalog (it only reads SKILL.md files) and
+makes zero outbound calls. Skills that declare none of the six fields are
+simply absent from the matrix; the tool never fails on an untagged catalog.
 
 Usage:
     python scripts/build_framework_coverage.py
     python scripts/build_framework_coverage.py --format json
     python scripts/build_framework_coverage.py --out docs/framework-coverage.md
+    python scripts/build_framework_coverage.py --navigator-layer docs/attack-navigator-layer.json
     python scripts/build_framework_coverage.py --root catalog/skills/security
 
 Exit code is 0 on success and 1 only on an I/O / argument error (a catalog with
@@ -32,7 +36,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import re
 import sys
 from pathlib import Path
 
@@ -40,14 +43,24 @@ from pathlib import Path
 # Configuration
 # ---------------------------------------------------------------------------
 
-# Ordered so the Markdown report reads attack -> defense -> governance.
+# Ordered so the Markdown report reads attack -> fraud -> defense -> governance.
 FRAMEWORKS: list[tuple[str, str]] = [
     ("mitre_attack", "MITRE ATT&CK"),
     ("atlas_techniques", "MITRE ATLAS"),
+    ("mitre_f3", "MITRE F3"),
     ("d3fend_techniques", "MITRE D3FEND"),
     ("nist_csf", "NIST CSF"),
     ("nist_ai_rmf", "NIST AI RMF"),
 ]
+
+# ATT&CK Navigator layer format v4.5. `layer` and `navigator` are required by
+# the spec; `attack` is pinned to a dated major so the file diffs cleanly.
+# https://github.com/mitre-attack/attack-navigator/blob/master/layers/spec/v4.5/layerformat.md
+NAVIGATOR_LAYER_VERSIONS: dict[str, str] = {
+    "attack": "17",
+    "layer": "4.5",
+    "navigator": "5.1.0",
+}
 
 FRAMEWORK_FIELDS = {field for field, _ in FRAMEWORKS}
 
@@ -89,7 +102,7 @@ def parse_id_list(raw_value: str) -> list[str]:
 
 
 def parse_framework_tags(content: str) -> dict[str, list[str]]:
-    """Extract the five optional framework-mapping fields from a SKILL.md.
+    """Extract the optional framework-mapping fields from a SKILL.md.
 
     Returns a dict keyed by the field name (only fields actually present and
     non-empty are included).
@@ -222,6 +235,43 @@ def render_json(coverage: dict[str, dict[str, list[str]]], root: Path) -> str:
     return json.dumps(payload, indent=2, sort_keys=True) + "\n"
 
 
+def render_navigator_layer(coverage: dict[str, dict[str, list[str]]]) -> str:
+    """Render a MITRE ATT&CK Navigator layer JSON from `mitre_attack` tags.
+
+    Derived solely from parsed SKILL.md values. Score is the number of
+    skills covering the technique; comment lists those skill names. Output
+    is deterministic (sorted keys, sorted technique IDs, sorted names).
+    """
+    attack = coverage.get("mitre_attack", {})
+    techniques = [
+        {
+            "comment": ", ".join(names),
+            "score": len(names),
+            "techniqueID": technique_id,
+        }
+        for technique_id, names in sorted(attack.items())
+    ]
+    layer = {
+        "description": (
+            "Nexus-Hub catalog coverage of MITRE ATT&CK techniques, derived "
+            "from mitre_attack frontmatter on SKILL.md files. Score is the "
+            "number of skills that teach the technique."
+        ),
+        "domain": "enterprise-attack",
+        "name": "Nexus-Hub ATT&CK coverage",
+        "techniques": techniques,
+        "versions": NAVIGATOR_LAYER_VERSIONS,
+    }
+    return json.dumps(layer, indent=2, sort_keys=True) + "\n"
+
+
+def write_text(path: Path, text: str) -> None:
+    """Write UTF-8 text with LF newlines so re-runs are byte-identical."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w", encoding="utf-8", newline="\n") as handle:
+        handle.write(text)
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -250,6 +300,16 @@ def main() -> int:
         default=None,
         help="Write the matrix to this file instead of stdout",
     )
+    parser.add_argument(
+        "--navigator-layer",
+        type=Path,
+        default=None,
+        help=(
+            "Also write a MITRE ATT&CK Navigator layer JSON to this path, "
+            "derived from mitre_attack values already parsed from SKILL.md "
+            "files (alongside, not instead of, the coverage matrix)"
+        ),
+    )
     args = parser.parse_args()
 
     if not args.root.exists():
@@ -261,8 +321,7 @@ def main() -> int:
 
     if args.out is not None:
         try:
-            args.out.parent.mkdir(parents=True, exist_ok=True)
-            args.out.write_text(rendered, encoding="utf-8")
+            write_text(args.out, rendered)
         except OSError as exc:
             print(f"ERROR: cannot write {args.out}: {exc}", file=sys.stderr)
             return 1
@@ -270,6 +329,18 @@ def main() -> int:
         print(f"Wrote framework coverage matrix to {args.out} ({tagged} control rows).")
     else:
         sys.stdout.write(rendered)
+
+    if args.navigator_layer is not None:
+        try:
+            write_text(args.navigator_layer, render_navigator_layer(coverage))
+        except OSError as exc:
+            print(f"ERROR: cannot write {args.navigator_layer}: {exc}", file=sys.stderr)
+            return 1
+        technique_count = len(coverage.get("mitre_attack", {}))
+        print(
+            f"Wrote ATT&CK Navigator layer to {args.navigator_layer} "
+            f"({technique_count} techniques)."
+        )
 
     return 0
 

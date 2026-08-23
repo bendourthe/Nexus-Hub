@@ -232,7 +232,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | implementation-convergence | code-review | "Assess code against a plan post-implementation, classify gaps, and append remaining work as new tasks" | catalog/skills/code-review/implementation-convergence/SKILL.md |
 | tasks-to-issues | workflow | "Convert strict-format tasks.md / plan.md task lines into linked GitHub issues via gh CLI" | catalog/skills/workflow/tasks-to-issues/SKILL.md |
 | context-modes | workflow | "Switch the agent's working posture (dev, review, research) with explicit entry, exit, and reset rules" | catalog/skills/workflow/context-modes/SKILL.md |
-| security-framework-mapping | security | "Map security artifacts across MITRE ATT&CK, ATLAS, D3FEND, NIST CSF, and AI RMF" | catalog/skills/security/security-framework-mapping/SKILL.md |
+| security-framework-mapping | security | "Map security artifacts across ATT&CK, ATLAS, D3FEND, F3, CSF, and AI RMF" | catalog/skills/security/security-framework-mapping/SKILL.md |
 | continuous-learning | workflow | "Capture observations, mint local YAML instincts, evolve clusters into draft skills - zero outbound" | catalog/skills/workflow/continuous-learning/SKILL.md |
 | skill-stocktake | workflow | "Holistic skill-quality audit with a cached results file and quick-diff re-scoring over changed skills" | catalog/skills/workflow/skill-stocktake/SKILL.md |
 | skill-create | workflow | "Draft a conformant SKILL.md by mining local git history for a recurring, automatable pattern" | catalog/skills/workflow/skill-create/SKILL.md |

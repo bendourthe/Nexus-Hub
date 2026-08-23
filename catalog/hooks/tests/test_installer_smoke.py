@@ -566,6 +566,11 @@ DEV_ONLY_SCRIPTS = {
     # Repo validator: walks catalog/ for frontmatter + secret scans. Runs in CI
     # and by maintainers; not useful in an end-user ~/.nexus-hub/scripts/.
     "validate_skills.py",
+    # Repo-internal agentskills.io contract guard (v3.20.1): proves every
+    # SKILL.md satisfies the open-standard name/description rules. Runs in
+    # make validate and CI. An end-user install has no catalog source to
+    # check, so it is deliberately not installer-copied.
+    "check_agentskills_conformance.py",
     # One-shot cross-catalog maintenance utility that injects iterative-refinement
     # text into SKILL.md / command .md files. Maintainer tool only.
     "apply_iterative_workflow.py",
