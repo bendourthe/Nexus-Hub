@@ -28,6 +28,7 @@ import sys
 
 from . import __version__, compress_output
 from .ccr import NOT_FOUND, CCRStore, retrieve
+from .rewrite import decide, load_host_permissions
 from .tokens import count_tokens, using_accurate_counter
 from .transforms.content_router import RouteResult
 
@@ -51,6 +52,23 @@ def compress_output_safe(text: str, *, persist: bool = True) -> RouteResult:
 def run_compress(text: str, *, persist: bool = True) -> str:
     """Compress ``text`` and return the compressed string (original on failure)."""
     return compress_output_safe(text, persist=persist).text
+
+
+def run_rewrite(command: str, *, host_settings: str | None = None) -> tuple[int, str]:
+    """Decide a rewrite. Returns ``(exit_code, stdout)``."""
+    from pathlib import Path
+
+    perms = load_host_permissions(Path(host_settings) if host_settings else None)
+    return decide(command, perms)
+
+
+def _cmd_rewrite(args: argparse.Namespace) -> int:
+    code, stdout = run_rewrite(args.cmd, host_settings=args.host_settings)
+    if stdout:
+        sys.stdout.write(stdout)
+        if not stdout.endswith("\n"):
+            sys.stdout.write("\n")
+    return code
 
 
 def run_retrieve(marker: str) -> tuple[bool, str]:
@@ -139,6 +157,18 @@ def main(argv: list[str] | None = None) -> int:
 
     p_serve = sub.add_parser("serve", help="launch the internal MCP server (needs the 'mcp' extra)")
     p_serve.set_defaults(func=_cmd_serve)
+
+    p_rewrite = sub.add_parser(
+        "rewrite",
+        help="decide whether a command rewrite may auto-apply (exit 0/1/2/3)",
+    )
+    p_rewrite.add_argument("--cmd", required=True, help="the shell command under review")
+    p_rewrite.add_argument(
+        "--host-settings",
+        default=None,
+        help="optional JSON file with permissions.deny/ask/allow prefix lists",
+    )
+    p_rewrite.set_defaults(func=_cmd_rewrite)
 
     args = parser.parse_args(argv)
     if getattr(args, "func", None) is None:

@@ -89,6 +89,12 @@ Every default-path strategy is pure standard library. The only required dependen
 
 This engine supersedes the external `rtk` Rust binary the project previously recommended. Existing rtk users remove the rtk PreToolUse hook (or the Windows `CLAUDE.md` instruction block), optionally `cargo uninstall rtk`, and enable the internal hook with `export NEXUS_CONTEXT_COMPRESS=1`. Do not run both at once. The full migration steps, platform matrix, and trust rationale are in [`guides/reference/RTK_CONTEXT_COMPRESSION.md`](../../guides/reference/RTK_CONTEXT_COMPRESSION.md).
 
+### Semantic reformatters (named short list)
+
+`reformatters.py` parse-and-restructures a handful of high-frequency command outputs before the content router runs: `git status`, pytest/vitest/jest failures-only, and ruff/eslint/tsc diagnostics grouped by file. Each handler has a fixture test that requires at least 60% token reduction. This is not parity with a dedicated ~60-handler command-output compressor; uncovered commands still pass through the existing JSON/code router or leave the text unchanged. See known-gaps **DF-3**.
+
+Command rewrite is a separate PreToolUse decision (`rewrite.py`, `catalog/hooks/rewrite-command.sh`): exit 0 allow / 1 passthrough / 2 deny / 3 ask. The default when a rewrite exists is 3 (ask), never 0 (auto-allow). Host deny beats ask beats allow. A compound command (`&&` `||` `;` `|`) is allowed only when every segment independently matches allow.
+
 ## Status
 
 Built incrementally across the v3.2.0 `adoption-headroom` plan:

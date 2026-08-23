@@ -11,10 +11,10 @@
 | Cat 1 (delete) | 0 |
 | Cat 2 (archive) | 0 |
 | Cat 3 (stale-flag) | 0 |
-| Cat 4 (active) | 27 |
-| **Total in scope** | **27** |
+| Cat 4 (active) | 28 |
+| **Total in scope** | **28** |
 
-All v3.19 artifacts remain active. v3.19.2 Phase 3 is in progress. No file move, rename, archive, or deletion is proposed.
+All v3.19 artifacts remain active. v3.19.2 Phase 4 is in progress. No file move, rename, archive, or deletion is proposed.
 
 ## Dispositions
 
@@ -23,7 +23,7 @@ All v3.19 artifacts remain active. v3.19.2 Phase 3 is in progress. No file move,
 | `plans/` | 4 | 3 | Current v3.19 work; v3.19.0 and v3.19.1 shipped, v3.19.2 in progress |
 | `comparisons/` | 4 | 3 | Seed evidence for each queued plan |
 | `research/` | 4 | 1 | Active input to the separate CI/CD research note |
-| `development/history/` | 4 | 18 | Seven v3.19.0 histories, eight v3.19.1 write-ups, plus three v3.19.2 phase write-ups |
+| `development/history/` | 4 | 19 | Seven v3.19.0 histories, eight v3.19.1 write-ups, plus four v3.19.2 phase write-ups |
 | `known-gaps.md` | 4 | 1 | v3.19.2 subsection (DF-1, DF-2); v3.19.1 BG-1 remains until the next patch |
 | `docs-cleanup-report.md` | 4 | 1 | This audit artifact |
 

@@ -28,6 +28,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from .reformatters import try_reformat
 from .tokens import count_tokens
 from .transforms.content_router import RouteResult, RouterConfig, route
 from .types import CompressResult
@@ -141,6 +142,18 @@ def compress_output(
             tokens_before=tokens,
             tokens_after=tokens,
         )
+
+    reformatted = try_reformat(text)
+    if reformatted is not None:
+        before = count_tokens(text)
+        after = count_tokens(reformatted)
+        if after < before:
+            return RouteResult(
+                text=reformatted,
+                segments=[],
+                tokens_before=before,
+                tokens_after=after,
+            )
 
     own_store = None
     if store is None and persist:
