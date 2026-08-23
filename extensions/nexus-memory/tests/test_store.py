@@ -143,28 +143,67 @@ def test_multiprocess_concurrent_append(tmp_path: Path) -> None:
     assert store.log_path.stat().st_size == store.count() * store.width
 
 
+class _GitTrue:
+    returncode = 0
+    stdout = "true\n"
+
+
+class _GitFalse:
+    returncode = 128
+    stdout = "false\n"
+
+
 def test_creating_a_store_inside_a_git_repo_is_refused(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    repo = tmp_path / "repo"
-    repo.mkdir()
-    subprocess.run(["git", "init"], cwd=str(repo), check=True, capture_output=True)
     monkeypatch.delenv(ENV_ALLOW_IN_REPO, raising=False)
+    monkeypatch.setattr(
+        "nexus_memory.config.subprocess.run",
+        lambda *args, **kwargs: _GitTrue(),
+    )
     with pytest.raises(InRepoStoreError):
-        MemoryStore(repo / "memory")
+        MemoryStore(tmp_path / "memory")
 
 
 def test_allow_in_repo_override_creates_inside_git(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    repo = tmp_path / "repo"
-    repo.mkdir()
-    subprocess.run(["git", "init"], cwd=str(repo), check=True, capture_output=True)
     monkeypatch.setenv(ENV_ALLOW_IN_REPO, "1")
-    store = MemoryStore(repo / "memory")
+    monkeypatch.setattr(
+        "nexus_memory.config.subprocess.run",
+        lambda *args, **kwargs: _GitTrue(),
+    )
+    store = MemoryStore(tmp_path / "memory")
     store.append("accepted-in-repo")
-    assert (repo / "memory" / ".nexus-memory-store").is_file()
+    assert (tmp_path / "memory" / ".nexus-memory-store").is_file()
     assert store.get(0) == "accepted-in-repo"
+
+
+def test_missing_git_does_not_refuse_a_normal_root(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.delenv(ENV_ALLOW_IN_REPO, raising=False)
+
+    def _raise(*args, **kwargs):
+        raise FileNotFoundError("git")
+
+    monkeypatch.setattr("nexus_memory.config.subprocess.run", _raise)
+    store = MemoryStore(tmp_path)
+    store.append("no-git-binary")
+    assert store.get(0) == "no-git-binary"
+
+
+def test_git_reporting_not_a_worktree_allows_create(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.delenv(ENV_ALLOW_IN_REPO, raising=False)
+    monkeypatch.setattr(
+        "nexus_memory.config.subprocess.run",
+        lambda *args, **kwargs: _GitFalse(),
+    )
+    store = MemoryStore(tmp_path)
+    store.append("outside")
+    assert store.get(0) == "outside"
 
 
 @pytest.mark.skipif(os.name == "nt", reason="POSIX permission bits are not enforced on Windows")
