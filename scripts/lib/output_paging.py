@@ -7,9 +7,10 @@ catalog) may be. Per-surface evidence and the MATCH / DRIFT / UNVERIFIED
 classifications live in ``docs/policy/output-truncation-limits.md``.
 
 The defaults below are the minimum across every MATCH row in that file
-as of 2026-08-23: 20,000 bytes (Cursor's inline Shell cap, applied as
-UTF-8 bytes) and 256 lines (the tightest historical line fuse; no current
-MATCH row publishes a live line cap). Callers may override either value.
+as of 2026-08-23 (second pass): 16,000 bytes (OpenClaw's live tool-result
+default for models below a 100K-token window, applied as UTF-8 bytes)
+and 256 lines (the tightest historical line fuse). Callers may override
+either value.
 
 A payload that fits in one part is returned unchanged: no framing, no
 trailer. When more parts remain, exactly one trailing line names the
@@ -31,7 +32,7 @@ except ImportError:  # imported as scripts.lib.output_paging
 
 # Transport defaults. Keep in lockstep with the "Safe default" paragraph
 # of docs/policy/output-truncation-limits.md; a test asserts the pair.
-DEFAULT_MAX_BYTES = 20_000
+DEFAULT_MAX_BYTES = 16_000
 DEFAULT_MAX_LINES = 256
 
 NEXT_PREFIX = "# next: "

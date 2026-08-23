@@ -4,7 +4,7 @@
 **Status**: finalized
 **Last updated**: 2026-08-23
 
-v3.19.0 is finalized. v3.19.1 (agent-memory substrate) is reconciled for release: remaining items are deferred carry-forwards, not unfinished phase work.
+v3.19.0 is finalized. v3.19.1 (agent-memory substrate) is reconciled for release: the Phase 1 UNVERIFIED rows and the two comparison risks were closed in a follow-up pass before merge.
 
 ## v3.19.1
 
@@ -13,9 +13,9 @@ v3.19.0 is finalized. v3.19.1 (agent-memory substrate) is reconciled for release
 | Category | Open | Resolved |
 |---|---:|---:|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 4 | 0 |
+| Deferred (DF) | 0 | 4 |
 | Bugs / regressions (BG) | 0 | 0 |
-| Warnings (WN) | 1 | 0 |
+| Warnings (WN) | 0 | 1 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
@@ -27,33 +27,7 @@ None.
 
 #### Deferred
 
-##### DF-1 - OpenCode live tool-output truncation is UNVERIFIED
-
-- **Source phase**: Phase 1 - Output-safety foundation
-- **Plan reference**: `docs/v3/v3.19/plans/v3.19.1-agent-memory-substrate.md` (sub-task 1.1)
-- **Reason**: Official OpenCode pages document a model-response token cap and a 2,000-character bound during session compaction, not a live per-tool-call truncation limit. The plan forbids guessing. The safe default therefore excludes OpenCode.
-- **Suggested next step**: Re-fetch OpenCode docs (or measure locally) in a later pass; if a live cap is published and is tighter than 20,000 bytes / 256 lines, lower the helper defaults and re-stamp the policy file.
-
-##### DF-2 - Remaining install targets have no dated truncation evidence
-
-- **Source phase**: Phase 1 - Output-safety foundation
-- **Plan reference**: `docs/v3/v3.19/plans/v3.19.1-agent-memory-substrate.md` (sub-task 1.1)
-- **Reason**: GitHub Copilot, Qwen Code, Kimi Code CLI, Aider, Windsurf, OpenClaw, and Nexus-AI have no first-party tool-output truncation page in the 2026-08-23 pass. They inherit the safe default.
-- **Suggested next step**: Same as DF-1, per surface, when a first-party number appears.
-
-##### DF-3 - Accidental-commit guard for a relocated store is documentation-only
-
-- **Source phase**: Phase 6 - Known-gaps reconciliation (comparison risk R3)
-- **Plan reference**: `docs/v3/v3.19/plans/v3.19.1-agent-memory-substrate.md` (sub-task 3.4 / 6.3)
-- **Reason**: The default root is `~/.nexus-hub/memory/`, and `extensions/nexus-memory/gitignore.recommended` ships the ignore pattern. Sub-task 3.4 did not add a secret-scan hook matcher for a store that a user relocates into a repository.
-- **Suggested next step**: If relocated-root commits become a real incident, add a secret-scan / large-file-guard matcher for `entries.log` and `tree/level_*` rather than expanding the default root.
-
-##### DF-4 - Memory content remains plaintext at rest
-
-- **Source phase**: Phase 6 - Known-gaps reconciliation (comparison risk R2)
-- **Plan reference**: `docs/v3/v3.19/plans/v3.19.1-agent-memory-substrate.md` (sub-task 6.3)
-- **Reason**: Confidentiality at rest is addressed by a user-scoped default, a relocation warning, and [[egress-redaction]] before shared artifacts. The log is still plaintext. Encryption would add a key-management surface the plan did not take on.
-- **Suggested next step**: Reconsider only if a user-facing threat model requires at-rest encryption; do not add a key or a network KMS.
+None.
 
 #### Bugs / Regressions
 
@@ -61,12 +35,7 @@ None.
 
 #### Warnings
 
-##### WN-1 - Claude Code settings page is JS-rendered
-
-- **Source phase**: Phase 1 - Output-safety foundation
-- **Plan reference**: `docs/v3/v3.19/plans/v3.19.1-agent-memory-substrate.md` (sub-task 1.1)
-- **Reason**: The 2026-08-23 fetch of `https://code.claude.com/docs/en/settings` did not expose the environment-variable table as static Markdown. The MATCH classification for the 30,000-character middle-truncation default rests on the official docs issue that quotes that table.
-- **Suggested next step**: Re-fetch with a renderer that executes the page, or cite a newly static official table if Anthropic publishes one.
+None.
 
 #### Missing Tests / Coverage Gaps
 
@@ -81,23 +50,30 @@ None.
 | ID | Title | Resolved in | Notes |
 |---|---|---|---|
 | PA-1 | Whole-tree three-part policy audit | Phase 6 | Dated 2026-08-23. See Final Policy Audit below. |
+| DF-1 | OpenCode live tool-output truncation is UNVERIFIED | Gap-closure pass | First-party source on the official repository publishes live defaults of 50 KiB and 2,000 lines (`packages/opencode/src/tool/truncate.ts`). MATCH. Looser than the safe default. |
+| DF-2 | Remaining install targets have no dated truncation evidence | Gap-closure pass | Copilot (20,480 bytes), Qwen (25,000 / 1,000), Kimi MCP (100,000), OpenClaw (16,000), and Aider (no silent cap) are now MATCH. Windsurf and Nexus-AI remain table-UNVERIFIED after a dated search and inherit the default; that is a finished classification, not a deferred investigation. |
+| DF-3 | Accidental-commit guard for a relocated store is documentation-only | Gap-closure pass | `memory-store-guard.{sh,ps1}` blocks Write, Edit, and `git add` / `git commit` of store artifacts inside a git working tree. Tests cover both implementations. |
+| DF-4 | Memory content remains plaintext at rest | Gap-closure pass | POSIX owner-only permissions (`0700` / `0600`), in-repo create/append refusal, store marker, and the DF-3 hook. Encryption and a key or network KMS were declined. Residual: a reader who already has that user's filesystem access can still read the plaintext log, the same as other `~/.nexus-hub/` files. |
+| WN-1 | Claude Code settings page is JS-rendered | Gap-closure pass | Official static pages now document `BASH_MAX_OUTPUT_LENGTH` default 30000: [env-vars](https://code.claude.com/docs/en/env-vars) and [tools-reference](https://code.claude.com/docs/en/tools-reference). |
 
 ### Final Decisions
 
 | Candidate | Disposition | Reason |
 |---|---|---|
-| Encrypt the memory log at rest | Deferred as DF-4, not implemented | Adds key management without reducing the documented relocation and egress risks. |
-| Hook the secret-scan path for relocated stores | Deferred as DF-3, not implemented | Default root is already outside the repo; the ignore pattern covers the relocate case. |
+| Encrypt the memory log at rest | Declined, not deferred | Adds a key-management surface. Confidentiality is addressed by a user-scoped default, POSIX owner-only files, in-repo refusal, the accidental-commit hook, and [[egress-redaction]] before shared artifacts. |
+| Guess truncation numbers for Windsurf and Nexus-AI | Declined | No first-party live tool-output page after the 2026-08-23 second pass. UNVERIFIED rows do not move the default. |
+| Keep the 20,000-byte paging default after OpenClaw MATCH | Declined | The safe default is the minimum across MATCH rows. OpenClaw's documented live default is 16,000 characters for models below a 100K-token window. |
 
 ### Final Policy Audit - 2026-08-23
 
 - Audited every file this plan added or modified for HTTP clients (`httpx`, `requests`, `urllib`, `aiohttp`), URL constants, and secret-shaped environment reads (`API_KEY`, `TOKEN`, credential `getenv`).
-- `extensions/nexus-memory/src/` imports only stdlib and local modules. A source-scan test forbids network modules on every path, including error and recovery.
+- `extensions/nexus-memory/src/` imports only stdlib and local modules. A source-scan test forbids network modules on every path, including error and recovery. `subprocess` is used only to ask local `git` whether a path is inside a working tree.
 - Phase 1 helpers (`scripts/lib/output_paging.py`, `scripts/lib/self_naming.py`) and the budget guard import no network module. `tiktoken` is optional and local-only.
 - The extension README line `zero outbound calls, zero API keys, zero model downloads` is present and true.
 - The `already-local` row for `nexus-memory` in `docs/policy/mcp-reverse-engineering-matrix.md` is accurate.
 - Layout audit: `extensions/nexus-memory/` matches sibling extension layout. The Phase 1 paging helper lives once under `scripts/lib/` and is imported, not copied. No empty directories, duplicates, or docs-tree moves were required.
 - Network-blocked CI: `.github/workflows/nexus-memory.yml` `test-network-blocked` runs the full suite in Docker `--network none`. The multi-OS locking matrix remains merge-gated.
+- Gap-closure pass: output-truncation table restamped; helper default lowered 20,000 to 16,000; `memory-store-guard` registered on `Write|Edit|Bash`; store refuses in-repo roots unless `NEXUS_MEMORY_ALLOW_IN_REPO=1`.
 
 ## v3.19.0
 

@@ -15,7 +15,15 @@ from __future__ import annotations
 import struct
 from pathlib import Path
 
-from .config import StoreConfig, default_store_root, load_config, save_config
+from .config import (
+    StoreConfig,
+    assert_root_allowed,
+    default_store_root,
+    load_config,
+    restrict_private,
+    save_config,
+    write_marker,
+)
 from .lock import FileLock
 
 LOG_NAME = "entries.log"
@@ -48,11 +56,16 @@ class MemoryStore:
         config: StoreConfig | None = None,
     ) -> None:
         self.root = Path(root) if root is not None else default_store_root()
-        self.root.mkdir(parents=True, exist_ok=True)
         existing = self.root / "config.json"
+        creating = not existing.is_file()
+        if creating:
+            assert_root_allowed(self.root)
+        self.root.mkdir(parents=True, exist_ok=True)
+        restrict_private(self.root)
+        write_marker(self.root)
         self.config = config if config is not None else load_config(self.root)
         self.config.validate()
-        if not existing.is_file():
+        if creating:
             save_config(self.root, self.config)
         self.log_path = self.root / LOG_NAME
         self.lock_path = self.root / LOCK_NAME
@@ -77,12 +90,15 @@ class MemoryStore:
                 f"{self.config.max_entry_length}"
             )
         record = self._pack(payload)
+        assert_root_allowed(self.root)
         with FileLock(self.lock_path):
             self._assert_width_or_empty()
             with open(self.log_path, "ab") as fh:
                 fh.write(record)
                 fh.flush()
                 os_fsync(fh.fileno())
+            restrict_private(self.log_path)
+            restrict_private(self.lock_path)
             return self.count() - 1
 
     def get(self, index: int) -> str:

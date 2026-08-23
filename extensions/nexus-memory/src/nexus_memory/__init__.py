@@ -8,7 +8,13 @@ calls, zero API keys, zero model downloads.
 
 from __future__ import annotations
 
-from .config import StoreConfig, default_store_root, load_config, save_config
+from .config import (
+    InRepoStoreError,
+    StoreConfig,
+    default_store_root,
+    load_config,
+    save_config,
+)
 from .store import (
     BlankRecordError,
     CorruptTailError,
@@ -25,6 +31,7 @@ __all__ = [
     "BlankRecordError",
     "CorruptTailError",
     "EntryTooLongError",
+    "InRepoStoreError",
     "MemoryStore",
     "MissingChildError",
     "StoreConfig",

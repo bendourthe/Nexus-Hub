@@ -11,20 +11,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [3.19.1] - 2026-08-23
 
-This release changes no opt-in capability, installer flag, or host surface.
-
 ### Added
 
-- **Harness-aware output paging** (`scripts/lib/output_paging.py`, `docs/policy/output-truncation-limits.md`): any Nexus-Hub script that prints agent-consumed output can split that output into parts bounded by both a byte cap and a line cap, so a single tool call is not silently truncated by a target CLI. Defaults are the minimum across verified surfaces as of 2026-08-23 (20,000 bytes, 256 lines). A payload that fits in one part is unchanged; a part that has a successor ends with one line naming the resolved command that fetches the next page. A single line longer than the byte cap is reported rather than split. `check_docs_retention.py` is the first consumer. The helper lives under `scripts/lib/`, which both installers already copy wholesale, so no new named copy step is required.
+- **Harness-aware output paging** (`scripts/lib/output_paging.py`, `docs/policy/output-truncation-limits.md`): any Nexus-Hub script that prints agent-consumed output can split that output into parts bounded by both a byte cap and a line cap, so a single tool call is not silently truncated by a target CLI. Defaults are the minimum across verified surfaces as of 2026-08-23 (16,000 bytes, 256 lines). A payload that fits in one part is unchanged; a part that has a successor ends with one line naming the resolved command that fetches the next page. A single line longer than the byte cap is reported rather than split. `check_docs_retention.py` is the first consumer. The helper lives under `scripts/lib/`, which both installers already copy wholesale, so no new named copy step is required.
+- **`memory-store-guard` hook** (`catalog/hooks/memory-store-guard.{sh,ps1}`): blocks Write, Edit, and `git add` / `git commit` of a relocated `nexus-memory` store that sits inside a git working tree. Like `secret-scan`, it is a security gate and does not honor `NEXUS_HOOK_PROFILE=minimal`. Catalog count is now 32 hooks.
 
 ### Changed
 
 - **Self-naming command output** (`scripts/lib/self_naming.py`): a script that prints a command for the agent to run next now emits a home-folded, PATH-independent invocation of its own file rather than a bare name that only works when the script is on PATH.
 - **Memory substrate contract** (`docs/policy/memory-substrate-contract.md`): the new `nexus-memory` store is the durable cross-platform source of truth; a harness-native memory surface is an index that points into it. The contract also specifies the agent-performed compression protocol (the store never calls a model), the subagent write-exclusion line, and a 500-token budget for the always-loaded integration prose, enforced by `scripts/check_memory_integration_budget.py` in `make validate` and CI.
-- **`extensions/nexus-memory/` storage engine**: append-only fixed-width log with O(1) record access, POSIX/Windows write locking, crash-tail repair, and a relocatable root (`NEXUS_MEMORY_ROOT`). Runtime is the Python standard library only. The multi-OS locking matrix runs on merge, not every push.
+- **`extensions/nexus-memory/` storage engine**: append-only fixed-width log with O(1) record access, POSIX/Windows write locking, crash-tail repair, and a relocatable root (`NEXUS_MEMORY_ROOT`). A root inside a git working tree is refused unless an explicit in-repo override is set. POSIX permissions are owner-only (`0700` / `0600`). Runtime is the Python standard library only. The multi-OS locking matrix runs on merge, not every push.
 - **`extensions/nexus-memory/` compression tree**: age-decaying tiling keeps a read inside the caller-supplied line budget; the summary tree is a rebuildable cache; `read` / `record` / `merge` / `search` / `zoom` / `drop` are the agent-facing commands. The store still never calls a model. Always-loaded integration prose at `docs/policy/memory-integration-prose.md` is 218 tokens against the 500-token cap.
 - **`agent-memory` skill** (`catalog/skills/workflow/agent-memory/`): always-on chronological persistent memory, routed away from `session-query`, `context-pack-builder`, `continuous-learning`, and `solution-knowledge-base`. Both installers copy `extensions/nexus-memory/` to `~/.nexus-hub/nexus-memory` and editable-install it; it is not registered as an MCP server. Catalog count is 274.
 - **Network-blocked CI for `nexus-memory`**: the path-scoped workflow runs the full suite in Docker `--network none` so a future outbound import fails before it ships. The multi-OS locking matrix stays merge-gated.
+
+### Operational guidance
+
+#### NEXUS_MEMORY_ALLOW_IN_REPO
+
+- Activation: set `NEXUS_MEMORY_ALLOW_IN_REPO=1` (also accepts `true`, `yes`, or `on`) before creating or appending to a store whose root sits inside a git working tree.
+- Validation: from a git repository, run `python -c "from nexus_memory.store import MemoryStore; MemoryStore('memory').append('probe')"`; with the variable unset the call raises `InRepoStoreError`, and with it set the append succeeds and writes `memory/.nexus-memory-store`.
+- Rollback: unset `NEXUS_MEMORY_ALLOW_IN_REPO`. Existing files are not deleted. The next create or append in a git working tree is refused again, and `memory-store-guard` resumes blocking Write, Edit, and git staging of store artifacts.
+- Authority: this override does not encrypt the log, does not grant network or model access, and does not stop a later commit. It only lifts the in-repo refusal and the hook block.
+- Docs: [Store location](https://github.com/bendourthe/Nexus-Hub/blob/v3.19.1/extensions/nexus-memory/README.md#store-location).
 
 ## [3.19.0] - 2026-08-22
 

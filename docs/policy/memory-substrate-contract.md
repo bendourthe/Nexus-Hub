@@ -6,7 +6,7 @@ This file is the design the storage engine (Phase 3) and the compression tree (P
 
 ## What belongs where
 
-**Substrate** (chronological, append-only): facts, decisions, and events with lasting effect. Examples: a design choice and why the alternative lost; a broken assumption that later work must not repeat; a user preference that survives the session.
+**Substrate** (chronological, append-only): facts, decisions, and events with lasting effect. Examples: a design choice and why the alternative lost; a broken assumption that later work must not repeat; a user preference that survives the session. The default root is user-scoped. A root inside a git working tree is refused unless `NEXUS_MEMORY_ALLOW_IN_REPO=1`.
 
 **Harness-native index**: pointers into the substrate (paths, entry ids, "read this first" links) and preferences that only that harness reads (keybindings, hook toggles, model pins). Never a second copy of a substrate fact.
 

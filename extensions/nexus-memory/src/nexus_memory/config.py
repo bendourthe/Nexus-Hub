@@ -1,7 +1,8 @@
 """Relocatable store root and per-store tunables.
 
 The default root is a local, user-scoped path. ``NEXUS_MEMORY_ROOT``
-overrides it so the store can sit in a synced folder or a git repository.
+overrides it so the store can sit in a synced folder. A root inside a
+git working tree is refused unless ``NEXUS_MEMORY_ALLOW_IN_REPO`` is set.
 The read budget is a reading budget: changing it never recomputes stored
 data.
 """
@@ -10,16 +11,19 @@ from __future__ import annotations
 
 import json
 import os
+import subprocess
 from dataclasses import asdict, dataclass
 from pathlib import Path
 
 ENV_ROOT = "NEXUS_MEMORY_ROOT"
+ENV_ALLOW_IN_REPO = "NEXUS_MEMORY_ALLOW_IN_REPO"
 CONFIG_NAME = "config.json"
+MARKER_NAME = ".nexus-memory-store"
 
 # Transport paging defaults match docs/policy/output-truncation-limits.md
 # (Phase 1 safe default). Duplicated here so the extension does not import
 # repo-level scripts at runtime.
-DEFAULT_PAGE_MAX_BYTES = 20_000
+DEFAULT_PAGE_MAX_BYTES = 16_000
 DEFAULT_PAGE_MAX_LINES = 256
 
 DEFAULT_RECORD_WIDTH = 1024
@@ -51,6 +55,70 @@ class StoreConfig:
             raise ValueError("read_budget must be >= 1")
         if self.page_max_bytes < 1 or self.page_max_lines < 1:
             raise ValueError("paging limits must be >= 1")
+
+
+class InRepoStoreError(ValueError):
+    """The store root sits inside a git working tree and was refused."""
+
+
+def allow_in_repo() -> bool:
+    """Return True when the operator explicitly permits an in-repo root."""
+    return os.environ.get(ENV_ALLOW_IN_REPO, "").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+        "on",
+    }
+
+
+def is_inside_git_worktree(path: Path) -> bool:
+    """Return True when *path* (or its parent) is inside a git working tree."""
+    target = Path(path)
+    try:
+        target = target.resolve()
+    except OSError:
+        return False
+    probe = target if target.is_dir() else target.parent
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(probe), "rev-parse", "--is-inside-work-tree"],
+            capture_output=True,
+            text=True,
+            timeout=5,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return False
+    return result.returncode == 0 and result.stdout.strip() == "true"
+
+
+def assert_root_allowed(root: Path) -> None:
+    """Refuse a git-worktree root unless ``NEXUS_MEMORY_ALLOW_IN_REPO`` is set."""
+    if allow_in_repo():
+        return
+    if is_inside_git_worktree(root):
+        raise InRepoStoreError(
+            f"{root} is inside a git working tree. Relocate the store "
+            f"outside the repository, or set {ENV_ALLOW_IN_REPO}=1 if you "
+            "accept that this log can be committed."
+        )
+
+
+def restrict_private(path: Path) -> None:
+    """Best-effort owner-only permissions. POSIX 0700/0600; no-op on failure."""
+    try:
+        mode = 0o700 if path.is_dir() else 0o600
+        os.chmod(path, mode)
+    except OSError:
+        return
+
+
+def write_marker(root: Path) -> None:
+    """Write the store marker the accidental-commit hook recognizes."""
+    marker = Path(root) / MARKER_NAME
+    if not marker.is_file():
+        marker.write_text("nexus-memory-store\n", encoding="utf-8")
+    restrict_private(marker)
 
 
 def default_store_root() -> Path:
@@ -89,7 +157,13 @@ def save_config(root: Path, config: StoreConfig) -> None:
     """Write *config* to ``<root>/config.json`` as UTF-8 JSON."""
     config.validate()
     root = Path(root)
+    creating = not (root / CONFIG_NAME).is_file()
+    if creating:
+        assert_root_allowed(root)
     root.mkdir(parents=True, exist_ok=True)
+    restrict_private(root)
+    write_marker(root)
     path = root / CONFIG_NAME
     payload = json.dumps(asdict(config), indent=2, sort_keys=True) + "\n"
     path.write_text(payload, encoding="utf-8")
+    restrict_private(path)

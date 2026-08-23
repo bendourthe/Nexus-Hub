@@ -14,9 +14,11 @@ Every log record is padded to a constant byte width, so record *N* lives at offs
 
 ## Store location
 
-The default root is a **local, user-scoped** path (`~/.nexus-hub/memory/`), never a project directory. `NEXUS_MEMORY_ROOT` relocates it, for a synced folder or a git repository.
+The default root is a **local, user-scoped** path (`~/.nexus-hub/memory/`), never a project directory. `NEXUS_MEMORY_ROOT` relocates it, for a synced folder.
 
-Relocating the root inherits that destination's exposure. A store placed inside a repository can be committed. Use the recommended ignore pattern in `gitignore.recommended` if you relocate into a repo. Memory content must be redacted before inclusion in any shared artifact; see [[egress-redaction]].
+A root inside a git working tree is **refused** unless `NEXUS_MEMORY_ALLOW_IN_REPO=1`. That override does not encrypt the log and does not stop a later commit; it only lifts the refusal. The `memory-store-guard` hook blocks Write, Edit, and `git add` / `git commit` of store artifacts that sit inside a repository, unless the same override is set. Use the recommended ignore pattern in `gitignore.recommended` if you relocate into a repo anyway.
+
+On POSIX, the store directory is `0700` and store files are `0600`. Content remains plaintext at rest: anyone who can read the files as that user can read the memory. Redact before any shared artifact; see [[egress-redaction]].
 
 The read budget is a reading budget, not a storage budget. It can be changed in either direction at any time with nothing recomputed.
 
@@ -47,7 +49,7 @@ Per-store `config.json` (created on first write) overrides:
 | `record_width` | 1024 | Bytes per log record. Existing records are never rewritten; changing this on a non-empty store is rejected. |
 | `max_entry_length` | 512 | Maximum UTF-8 byte length of one entry. Longer entries are rejected, never truncated. |
 | `read_budget` | 200 | Maximum lines a read may return. Changeable at any time. |
-| `page_max_bytes` | 20000 | Transport paging byte cap (Phase 1). |
+| `page_max_bytes` | 16000 | Transport paging byte cap (Phase 1, OpenClaw-tightened). |
 | `page_max_lines` | 256 | Transport paging line cap (Phase 1). |
 
 ## Tests

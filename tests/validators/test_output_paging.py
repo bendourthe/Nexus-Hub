@@ -42,9 +42,9 @@ from self_naming import (  # noqa: E402
 def test_defaults_match_the_policy_safe_default() -> None:
     """A helper whose defaults drift from the policy silently truncates agents."""
     text = POLICY.read_text(encoding="utf-8")
-    assert "20,000 bytes" in text
+    assert "16,000 bytes" in text
     assert "256 lines" in text
-    assert DEFAULT_MAX_BYTES == 20_000
+    assert DEFAULT_MAX_BYTES == 16_000
     assert DEFAULT_MAX_LINES == 256
 
 

@@ -9,7 +9,12 @@ from pathlib import Path
 
 import pytest
 
-from nexus_memory.config import StoreConfig, default_store_root
+from nexus_memory.config import (
+    ENV_ALLOW_IN_REPO,
+    InRepoStoreError,
+    StoreConfig,
+    default_store_root,
+)
 from nexus_memory.store import (
     BlankRecordError,
     EntryTooLongError,
@@ -136,6 +141,49 @@ def test_multiprocess_concurrent_append(tmp_path: Path) -> None:
     seen = [store.get(i) for i in range(store.count())]
     assert len(seen) == len(set(seen))
     assert store.log_path.stat().st_size == store.count() * store.width
+
+
+def test_creating_a_store_inside_a_git_repo_is_refused(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    subprocess.run(["git", "init"], cwd=str(repo), check=True, capture_output=True)
+    monkeypatch.delenv(ENV_ALLOW_IN_REPO, raising=False)
+    with pytest.raises(InRepoStoreError):
+        MemoryStore(repo / "memory")
+
+
+def test_allow_in_repo_override_creates_inside_git(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    repo = tmp_path / "repo"
+    repo.mkdir()
+    subprocess.run(["git", "init"], cwd=str(repo), check=True, capture_output=True)
+    monkeypatch.setenv(ENV_ALLOW_IN_REPO, "1")
+    store = MemoryStore(repo / "memory")
+    store.append("accepted-in-repo")
+    assert (repo / "memory" / ".nexus-memory-store").is_file()
+    assert store.get(0) == "accepted-in-repo"
+
+
+@pytest.mark.skipif(os.name == "nt", reason="POSIX permission bits are not enforced on Windows")
+def test_store_files_are_owner_only(tmp_path: Path) -> None:
+    import stat
+
+    store = MemoryStore(tmp_path)
+    store.append("private")
+    assert stat.S_IMODE(store.root.stat().st_mode) == 0o700
+    assert stat.S_IMODE(store.log_path.stat().st_mode) == 0o600
+    marker = store.root / ".nexus-memory-store"
+    assert marker.is_file()
+    assert stat.S_IMODE(marker.stat().st_mode) == 0o600
+
+
+def test_marker_is_written_on_create(tmp_path: Path) -> None:
+    MemoryStore(tmp_path)
+    marker = tmp_path / ".nexus-memory-store"
+    assert marker.read_text(encoding="utf-8").startswith("nexus-memory-store")
 
 
 def test_readme_states_stdlib_and_zero_outbound() -> None:

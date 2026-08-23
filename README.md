@@ -6,7 +6,7 @@
 
 <!-- nexus-hub-version: 3.19.1 -->
 
-Nexus-Hub is the upstream skill catalog for AI coding assistants: 274 skills, 18 commands, 31 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
+Nexus-Hub is the upstream skill catalog for AI coding assistants: 274 skills, 18 commands, 32 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
 ## Interactive Guide -- start here
 
@@ -30,7 +30,7 @@ Nexus-Hub is the upstream skill catalog for AI coding assistants: 274 skills, 18
 
 Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of the same idea, split along a deliberate seam.
 
-- **Nexus-Hub (this repo)** is the catalog: 274 curated skills, 18 commands, 31 hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`) and the local `nexus-memory` CLI store. It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
+- **Nexus-Hub (this repo)** is the catalog: 274 curated skills, 18 commands, 32 hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`) and the local `nexus-memory` CLI store. It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
 - **Nexus** is a local-first desktop AI Studio that consumes Nexus-Hub as its skill feed. Nexus's `AGENTS.md` names this repo as "the only external project we deliberately link to" -- the upstream feed for its skill harness.
 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
@@ -41,13 +41,13 @@ The two projects are designed to be useful independently: you can install Nexus-
 
 **Agents now have a durable, cross-platform memory store.** `nexus-memory` is a local append-only log of lasting facts, decisions, and events. An agent reads it at session start within a fixed line budget, records as it works, and summarizes older ranges itself. The store never calls a model, never starts a background process, and never leaves the machine. Default root is `~/.nexus-hub/memory/`.
 
-**A read that the harness would silently truncate is no longer acceptable.** Shared output paging splits agent-consumed script output by both a byte cap and a line cap (defaults: 20,000 bytes and 256 lines, the minimum across surfaces verified on 2026-08-23). Printed next-step commands resolve to the script's own path, so they work when the script is not on PATH.
+**A read that the harness would silently truncate is no longer acceptable.** Shared output paging splits agent-consumed script output by both a byte cap and a line cap (defaults: 16,000 bytes and 256 lines, the minimum across surfaces verified on 2026-08-23). Printed next-step commands resolve to the script's own path, so they work when the script is not on PATH.
 
-**The new `agent-memory` skill is the routing home for this store.** It is distinct from `session-query`, `context-pack-builder`, `continuous-learning`, and `solution-knowledge-base`, which stay on-demand and topic-scoped. Spawned subagents are told not to write. Catalog count is now **274 skills**, **18 commands**, **31 hooks**, and **23 agents**.
+**A relocated store is no longer documentation-only.** Creating or appending inside a git working tree is refused, POSIX permissions are owner-only, and the `memory-store-guard` hook blocks Write, Edit, and git staging of store artifacts unless `NEXUS_MEMORY_ALLOW_IN_REPO=1`.
+
+**The new `agent-memory` skill is the routing home for this store.** It is distinct from `session-query`, `context-pack-builder`, `continuous-learning`, and `solution-knowledge-base`, which stay on-demand and topic-scoped. Spawned subagents are told not to write. Catalog count is now **274 skills**, **18 commands**, **32 hooks**, and **23 agents**.
 
 `nexus-memory` is a local CLI package, not a fifth MCP server. The four internal MCP servers are unchanged. The package is stdlib-only: **zero outbound calls, zero API keys, zero model downloads**.
-
-This release changes no opt-in capability, installer flag, or host surface.
 
 ## Previously, in v3.19.0
 
@@ -156,7 +156,7 @@ That is the whole setup -- no prompts. The installer prechecks its dependencies 
 
 After the installer completes:
 
-- **Globally**: your user profile has all 274 skills, 18 commands, 31 hooks, 23 agents, plus Gemini and Codex instructions.
+- **Globally**: your user profile has all 274 skills, 18 commands, 32 hooks, 23 agents, plus Gemini and Codex instructions.
 - **Locally**: your project has `copilot-instructions.md` and `AGENTS.md` tailored to your language.
 
 **Power-user flags**: `--workspace <path>` installs into a single repo instead of globally; `--platforms <comma-list>` limits the install to a subset of assistants; `--yes` runs fully unattended (refreshes managed files with no prompt -- ideal for CI). Prefer to clone first? `git clone` the repo and run `./install.sh` (macOS / Linux) or `install.bat` (Windows) -- the in-repo path still works exactly as before.

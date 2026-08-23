@@ -17,6 +17,7 @@ from __future__ import annotations
 import struct
 from pathlib import Path
 
+from .config import restrict_private
 from .lock import FileLock
 from .store import os_fsync
 
@@ -39,6 +40,7 @@ class TreeStore:
         self.width = record_width
         self.log_count = log_count
         self.tree_dir.mkdir(parents=True, exist_ok=True)
+        restrict_private(self.tree_dir)
         self._lock = FileLock(self.tree_dir / "tree.lock")
 
     def put(self, lo: int, hi: int, text: str) -> None:
@@ -68,6 +70,7 @@ class TreeStore:
                 fh.write(record)
                 fh.flush()
                 os_fsync(fh.fileno())
+            restrict_private(path)
 
     def get(self, lo: int, hi: int) -> str | None:
         """Return the summary for ``[lo, hi)``, or None if it is not built."""
