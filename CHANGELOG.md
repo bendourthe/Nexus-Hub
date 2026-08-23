@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.19.1] - 2026-08-23
+
+This release changes no opt-in capability, installer flag, or host surface.
+
 ### Added
 
 - **Harness-aware output paging** (`scripts/lib/output_paging.py`, `docs/policy/output-truncation-limits.md`): any Nexus-Hub script that prints agent-consumed output can split that output into parts bounded by both a byte cap and a line cap, so a single tool call is not silently truncated by a target CLI. Defaults are the minimum across verified surfaces as of 2026-08-23 (20,000 bytes, 256 lines). A payload that fits in one part is unchanged; a part that has a successor ends with one line naming the resolved command that fetches the next page. A single line longer than the byte cap is reported rather than split. `check_docs_retention.py` is the first consumer. The helper lives under `scripts/lib/`, which both installers already copy wholesale, so no new named copy step is required.

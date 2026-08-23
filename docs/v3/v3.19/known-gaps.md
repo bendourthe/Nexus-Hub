@@ -1,7 +1,7 @@
 # Known Gaps - v3.19
 
 **Project**: Nexus-Hub
-**Status**: in-progress
+**Status**: finalized
 **Last updated**: 2026-08-23
 
 v3.19.0 is finalized. v3.19.1 (agent-memory substrate) is reconciled for release: remaining items are deferred carry-forwards, not unfinished phase work.
