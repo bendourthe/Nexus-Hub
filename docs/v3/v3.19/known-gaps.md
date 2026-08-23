@@ -4,6 +4,8 @@
 **Status**: in-progress
 **Last updated**: 2026-08-22
 
+Phases 1 and 2 are complete with no open implementation, regression, warning, test, or quality-gate gap.
+
 ## v3.19.0
 
 ### Summary

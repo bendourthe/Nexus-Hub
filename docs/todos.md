@@ -17,7 +17,7 @@
 | Phase 6 tasks complete | 4 | 4 | 0 |
 | Phase 7 tasks complete | 4 | 4 | 0 |
 | v3.19.0 CI/CD plan phases complete | 0 | 8 | 8 |
-| v3.19.0 code-intelligence phases complete | 1 | 7 | 6 |
+| v3.19.0 code-intelligence phases complete | 2 | 7 | 5 |
 | v3.16.1 planning milestones complete | 2 | 2 | 0 |
 | v3.18.3 presentify slide-navigation phases complete | 5 | 5 | 0 |
 | v3.16.1 plan phases complete | 8 | 8 | 0 |
@@ -222,7 +222,7 @@
 ## Parallel Plan - v3.19.0 Code-Intelligence Hardening [IN PROGRESS]
 
 - [x] Complete Phase 1: Tool-profile gating and dependency-ceiling convention
-- [ ] Complete Phase 2: Search-routing guard
+- [x] Complete Phase 2: Search-routing guard
 - [ ] Complete Phase 3: Compact response encoding
 - [ ] Complete Phase 4: Edit-safety verdicts
 - [ ] Complete Phase 5: Deterministic measurement harness
