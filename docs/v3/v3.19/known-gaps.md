@@ -1,10 +1,72 @@
 # Known Gaps - v3.19
 
 **Project**: Nexus-Hub
-**Status**: finalized
-**Last updated**: 2026-08-22
+**Status**: in-progress
+**Last updated**: 2026-08-23
 
-Phases 1 through 7 are complete with no open implementation, regression, warning, test, or quality-gate gap.
+v3.19.0 is finalized. v3.19.1 (agent-memory substrate) is in progress; Phase 1 recorded the UNVERIFIED truncation surfaces so Phase 6 can carry them forward.
+
+## v3.19.1
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---:|---:|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 2 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 1 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+
+### Open Items
+
+#### Not Implemented
+
+None.
+
+#### Deferred
+
+##### DF-1 - OpenCode live tool-output truncation is UNVERIFIED
+
+- **Source phase**: Phase 1 - Output-safety foundation
+- **Plan reference**: `docs/v3/v3.19/plans/v3.19.1-agent-memory-substrate.md` (sub-task 1.1)
+- **Reason**: Official OpenCode pages document a model-response token cap and a 2,000-character bound during session compaction, not a live per-tool-call truncation limit. The plan forbids guessing. The safe default therefore excludes OpenCode.
+- **Suggested next step**: Re-fetch OpenCode docs (or measure locally) in a later pass; if a live cap is published and is tighter than 20,000 bytes / 256 lines, lower the helper defaults and re-stamp the policy file.
+
+##### DF-2 - Remaining install targets have no dated truncation evidence
+
+- **Source phase**: Phase 1 - Output-safety foundation
+- **Plan reference**: `docs/v3/v3.19/plans/v3.19.1-agent-memory-substrate.md` (sub-task 1.1)
+- **Reason**: GitHub Copilot, Qwen Code, Kimi Code CLI, Aider, Windsurf, OpenClaw, and Nexus-AI have no first-party tool-output truncation page in the 2026-08-23 pass. They inherit the safe default.
+- **Suggested next step**: Same as DF-1, per surface, when a first-party number appears.
+
+#### Bugs / Regressions
+
+None.
+
+#### Warnings
+
+##### WN-1 - Claude Code settings page is JS-rendered
+
+- **Source phase**: Phase 1 - Output-safety foundation
+- **Plan reference**: `docs/v3/v3.19/plans/v3.19.1-agent-memory-substrate.md` (sub-task 1.1)
+- **Reason**: The 2026-08-23 fetch of `https://code.claude.com/docs/en/settings` did not expose the environment-variable table as static Markdown. The MATCH classification for the 30,000-character middle-truncation default rests on the official docs issue that quotes that table.
+- **Suggested next step**: Re-fetch with a renderer that executes the page, or cite a newly static official table if Anthropic publishes one.
+
+#### Missing Tests / Coverage Gaps
+
+None.
+
+#### Quality-Gate Gaps
+
+None.
+
+### Resolved
+
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+| - | None | - | - |
 
 ## v3.19.0
 
