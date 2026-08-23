@@ -2,7 +2,7 @@
 
 This is the durable, sourced source of truth for where every supported platform READS each surface (instruction file, slash commands, skills, agents, rules, hooks) and where the Nexus-Hub installer WRITES it. It supersedes the point-in-time snapshot at `docs/v3/v3.11/platform-read-contracts.md` (which resolved the v3.11.0 Phase 7 audit but left the Codex and Antigravity contracts flagged as unverified).
 
-**Last verified**: 2026-08-22 for v3.19.0 (FULL pass: all nine public contract platforms re-fetched from first-party documentation; eight MATCH, Codex retains low non-breaking drift, and Nexus-AI remains UNVERIFIED because its sibling repository is private. Kimi's documented `.agents/skills` alias is additive; Nexus-Hub's native `.kimi-code/skills` delivery remains correct. No adapter or installer path changed.)
+**Last verified**: 2026-08-23 for v3.19.1 (no discovery-path change this release; evidence remains the 2026-08-22 full pass: eight MATCH, Codex retains low non-breaking drift, Nexus-AI UNVERIFIED. No adapter or installer path changed.)
 
 **v3.17.4 pass (full).** All ten contract platforms and all sixteen defaults-lever platforms were re-fetched from live first-party documentation. Every public discovery page returned HTTP 200 and retained the path marker used by Nexus-Hub. The read-path contract remains functional: eight MATCH, one non-breaking Codex DRIFT, and one UNVERIFIED Nexus-AI surface. Cursor and Claude retain their distinct hook response protocols, and Org Knowledge writes only the existing instruction and rules destinations, so no adapter path changes in this release.
 

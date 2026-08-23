@@ -127,6 +127,16 @@ Added by the v3.2.0 `adoption-headroom` plan (Phase 4). Registry entry lives in 
 
 ---
 
+### New in v3.19.1 (Local persistent agent-memory store)
+
+Added by the v3.19.1 agent-memory substrate plan (Phase 5). This is a local CLI package, not an MCP server. The row exists so the registry decision is recorded next to the other internal extensions.
+
+| MCP key | Current source | What it does | Outbound-call surface | Classification | Effort if RE'd | v3.19.1 action | Later action | Rationale / citation |
+|---|---|---|---|---|---|---|---|---|
+| `nexus-memory` | Nexus-Hub internal (new; `extensions/nexus-memory/`, Python 3.10+) | Append-only local store of lasting agent-memory entries with an age-decaying summary tree. CLI: `read`, `record`, `merge`, `search`, `zoom`, `drop`. Compression is performed by the calling agent; the package never calls a model. | None. Stdlib file I/O only. Default root is `~/.nexus-hub/memory/`. No network module is imported on any path. | `already-local` | n/a (this IS the reverse-engineering target) | Build and ship the local store plus the `agent-memory` skill. Do not register an MCP server. | None planned. | The capability was reverse-engineered into a local package rather than adopted as an external runtime. Shipped names are generic (`nexus-memory`, `agent-memory`). Upstream names appear only in this column if a future maintainer needs provenance; the distributed artifact names none. Zero outbound, zero API keys, zero model downloads. |
+
+---
+
 ### Reverted in v1.0.0
 
 | MCP key | Current source | What it does | Outbound-call surface | Classification | Effort if RE'd | v1.0.0 action | v1.1.0+ action | Rationale / citation |

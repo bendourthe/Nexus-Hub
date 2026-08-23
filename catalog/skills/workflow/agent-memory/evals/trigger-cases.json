@@ -1,0 +1,55 @@
+{
+  "skill": "agent-memory",
+  "purpose": "Route always-on persistent agent-memory requests here, and keep session-query, context-pack-builder, and continuous-learning on their own prompts.",
+  "cases": [
+    {
+      "id": "pos-read-persistent",
+      "prompt": "read persistent agent memory at the start of this session",
+      "should_trigger": true,
+      "assert": "routes to agent-memory first",
+      "lexical": true
+    },
+    {
+      "id": "pos-record-lasting",
+      "prompt": "record this lasting fact in nexus-memory",
+      "should_trigger": true,
+      "assert": "routes to agent-memory first",
+      "lexical": true
+    },
+    {
+      "id": "pos-wake-store",
+      "prompt": "wake persistent memory and remember this decision in the memory store",
+      "should_trigger": true,
+      "assert": "routes to agent-memory first",
+      "lexical": true
+    },
+    {
+      "id": "pos-merge-range",
+      "prompt": "merge the pending memory range in nexus-memory",
+      "should_trigger": true,
+      "assert": "routes to agent-memory first",
+      "lexical": true
+    },
+    {
+      "id": "neg-session-query",
+      "prompt": "search my past sessions for when we debugged the auth bug",
+      "should_trigger": false,
+      "assert": "routes to session-query, not agent-memory",
+      "lexical": true
+    },
+    {
+      "id": "neg-context-pack",
+      "prompt": "build a context pack from our session digests",
+      "should_trigger": false,
+      "assert": "routes to context-pack-builder, not agent-memory",
+      "lexical": true
+    },
+    {
+      "id": "neg-continuous-learning",
+      "prompt": "mint an instinct from these session corrections",
+      "should_trigger": false,
+      "assert": "routes to continuous-learning, not agent-memory",
+      "lexical": true
+    }
+  ]
+}

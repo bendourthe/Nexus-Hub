@@ -607,6 +607,12 @@ DEV_ONLY_SCRIPTS = {
     # sources to budget, so like the guards above it is deliberately not
     # installer-copied.
     "validate_doc_budgets.py",
+    # Repo-internal memory-integration token-budget guard (v3.19.1): asserts
+    # docs/policy/memory-integration-prose.md stays under the 500-token
+    # ceiling in the memory substrate contract. Runs in make validate and CI.
+    # An end-user install has no policy tree to measure, so it is deliberately
+    # not installer-copied.
+    "check_memory_integration_budget.py",
     # Repo-internal decision-record guard (v3.17.5): asserts every record under
     # docs/decisions/ sits at lifecycle/class/file, carries the 3-line header
     # matching its folder, and states its alternatives. Runs in `make validate`

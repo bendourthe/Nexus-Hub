@@ -35,6 +35,8 @@ validate: ## Validate all JSON catalog files and skill bundles
 	@python scripts/check_docs_retention.py
 	@echo "Checking always-loaded instruction docs stay under their word ceilings..."
 	@python scripts/validate_doc_budgets.py
+	@echo "Checking the memory integration prose stays under its token budget..."
+	@python scripts/check_memory_integration_budget.py
 	@echo "Checking decision records (structure, header, mandatory alternatives)..."
 	@python scripts/validate_decision_records.py
 	@echo "Checking per-skill registry entries against the catalog (structure and text, strict)..."
@@ -78,6 +80,7 @@ test: ## Run MCP skill server + repo-level pytest suites
 	@cd extensions/nexus-web-fetch && python -m pytest -q
 	@cd extensions/nexus-skill-scanner && python -m pytest -q
 	@cd extensions/nexus-context-compressor && python -m pytest -q
+	@cd extensions/nexus-memory && python -m pytest -q
 	@if [ -d tests ]; then python -m pytest -q tests; else echo "  (no tests/ directory -- skipping repo-level suite)"; fi
 	@echo "Tests complete."
 
