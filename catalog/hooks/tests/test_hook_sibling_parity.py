@@ -307,7 +307,8 @@ def test_secret_scan_ps1_does_not_echo_the_secret(
 # a security gate that any env var can switch off is not a gate.
 _CONTROLLED = sorted(
     (SH_STEMS & PS1_STEMS)
-    - {"secret-scan", "require-description", "require-powershell-description",
+    - {"secret-scan", "memory-store-guard", "require-description",
+       "require-powershell-description",
        "compress-output", "claude-diff-review", "gemini-diff-review",
        "codex-diff-review", "opencode-diff-review", "antigravity-cli-diff-review"}
 )

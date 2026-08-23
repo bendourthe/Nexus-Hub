@@ -165,6 +165,7 @@ Each subagent must have a clear role, a defined set of files it is allowed to mo
 2. **Read access is universal**: Any agent can read any file. Only writes are scoped.
 3. **Shared files require sequencing**: If two agents must modify the same file (e.g., `package.json`), they must run sequentially, not in parallel.
 4. **Scope declaration is mandatory**: Every agent prompt must explicitly list the files or directories the agent is allowed to modify.
+5. **Persistent-memory write exclusion**: Parallel top-level sessions on one machine are the same identity and may all write persistent agent memory. A spawned subagent must never write, because it cannot judge what is already known and its entries would arrive duplicated and out of context. A spawning agent MUST include this exact line in the subagent prompt: `Do not write to persistent agent memory. You are a spawned subagent; only the parent session may record memory.`
 
 **Peer claim and lease arbitration (shared queue only)**:
 

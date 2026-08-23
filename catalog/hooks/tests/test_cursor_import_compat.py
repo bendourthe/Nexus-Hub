@@ -24,6 +24,7 @@ _SHELL_HOOKS = (
     "escalation-trigger",
     "git-guardrails",
     "large-file-guard",
+    "memory-store-guard",
     "old-version-docs-guard",
     "require-description",
     "require-powershell-description",

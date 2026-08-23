@@ -428,6 +428,7 @@
       "capability": "workflow",
       "description": "Planning, implementation, review, release, and knowledge-capture workflows.",
       "skills": [
+        "agent-memory",
         "agent-presets",
         "code-commit-workflow",
         "conflict-analyzer",

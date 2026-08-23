@@ -265,6 +265,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | product-pulse | business-product | "Generate a time-windowed product-pulse report from local usage, performance, and error data" | catalog/skills/business-product/product-pulse/SKILL.md |
 | product-strategy | workflow | "Author and maintain a STRATEGY.md anchor (problem, approach, persona, metrics, tracks) for planning grounding" | catalog/skills/workflow/product-strategy/SKILL.md |
 | session-query | workflow | "Query local AI session logs, Obsidian notes, and exported chat history for prior context, zero-outbound" | catalog/skills/workflow/session-query/SKILL.md |
+| agent-memory | workflow | "Read and record lasting facts in the local persistent agent-memory store" | catalog/skills/workflow/agent-memory/SKILL.md |
 | demo-capture | workflow | "Capture local terminal/GIF/screenshot PR evidence into docs/demos, script-first and upload-free" | catalog/skills/workflow/demo-capture/SKILL.md |
 | agent-orchestration-primitives | orchestration | "Choose between single agent, subagents, agent teams, and Dynamic Workflows for a task" | catalog/skills/orchestration/agent-orchestration-primitives/SKILL.md |
 | label-gated-agent-pipelines | orchestration | "Design human-label-gated CI agent pipelines with safe-outputs contracts and untrusted-input discipline" | catalog/skills/orchestration/label-gated-agent-pipelines/SKILL.md |
@@ -278,4 +279,4 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | prompt-injection-defense | security | "Recognize and resist prompt injection and poisoned tool output with instruction-origin discipline" | catalog/skills/security/prompt-injection-defense/SKILL.md |
 | agentic-endpoint-hardening | security-operations | "Harden the coding-agent endpoint against config-write-then-executed sandbox escapes at the trust seam" | catalog/skills/security-operations/agentic-endpoint-hardening/SKILL.md |
 
-**Total: 273 skills across 21 categories**
+**Total: 274 skills across 21 categories**

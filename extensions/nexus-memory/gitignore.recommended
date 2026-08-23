@@ -1,0 +1,10 @@
+# Nexus-Hub persistent agent memory. Relocating the store into a
+# repository inherits that repository's exposure; this pattern keeps
+# the log, lock, marker, and summary tree out of commits.
+.nexus-memory/
+.nexus-memory-store
+memory/entries.log
+memory/entries.lock
+memory/config.json
+memory/.nexus-memory-store
+memory/tree/

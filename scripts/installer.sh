@@ -7,7 +7,7 @@ set -e
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-NEXUS_HUB_VERSION="3.19.0"
+NEXUS_HUB_VERSION="3.19.1"
 
 # --- Window Title ---
 printf '\033]0;Nexus-Hub Installer\007'
@@ -3027,6 +3027,23 @@ install_skill_discovery() {
             "$venv_path/bin/pip" install -q -e "${context_compressor_dest}[mcp]" >/dev/null 2>&1
         fi
         write_item "  nexus-context-compressor installed at $context_compressor_dest" "$GREEN"
+    fi
+
+    # Install nexus-memory into the same venv (v3.19.1+). Local persistent
+    # agent-memory CLI. Stdlib only, zero outbound, not an MCP server. Dest
+    # is $nexus_home/nexus-memory so it does not collide with the default
+    # store root $nexus_home/memory.
+    local memory_src="$repo_root/extensions/nexus-memory"
+    local memory_dest="$nexus_home/nexus-memory"
+    if [ -d "$memory_src" ]; then
+        rm -rf "$memory_dest"
+        cp -r "$memory_src" "$memory_dest"
+        if command -v uv >/dev/null 2>&1; then
+            uv pip install --python "$venv_path/bin/python" -e "$memory_dest" >/dev/null 2>&1
+        else
+            "$venv_path/bin/pip" install -q -e "$memory_dest" >/dev/null 2>&1
+        fi
+        write_item "  nexus-memory installed at $memory_dest" "$GREEN"
     fi
 
     # Use python to safely merge MCP server config into settings.json (all three internal servers).

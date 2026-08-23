@@ -31,7 +31,14 @@ import argparse
 import json
 import re
 import sys
+from io import StringIO
 from pathlib import Path
+
+_LIB = Path(__file__).resolve().parent / "lib"
+if str(_LIB) not in sys.path:
+    sys.path.insert(0, str(_LIB))
+
+from output_paging import OversizedLineError, emit_paged  # noqa: E402
 
 # docs/policy/docs-retention.md: two or more minors behind current.
 ARCHIVE_AFTER_MINORS = 2
@@ -121,46 +128,86 @@ def find_candidates(root: Path, current: tuple[int, int]) -> list[tuple[Path, st
     return out
 
 
-def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    parser.add_argument("--root", default=".", help="Repository root.")
-    parser.add_argument("--quiet", action="store_true", help="Print only violations.")
-    args = parser.parse_args(argv)
-
-    root = Path(args.root).resolve()
+def render_report(root: Path, quiet: bool) -> str:
+    """Build the advisory report as a single string (no I/O besides reads)."""
+    buf = StringIO()
 
     if not (root / "docs").is_dir():
         # Not an error: a consuming project may have no docs/ tree at all.
-        if not args.quiet:
-            print("  docs/ not present; retention check is a no-op")
-        return 0
+        if not quiet:
+            buf.write("  docs/ not present; retention check is a no-op\n")
+        return buf.getvalue()
 
     current = read_canonical_version(root)
     if current is None:
-        if not args.quiet:
-            print("  canonical version unreadable; retention check skipped (advisory)")
-        return 0
+        if not quiet:
+            buf.write("  canonical version unreadable; retention check skipped (advisory)\n")
+        return buf.getvalue()
 
     candidates = find_candidates(root, current)
 
     if not candidates:
-        if not args.quiet:
-            print(
+        if not quiet:
+            buf.write(
                 f"  docs retention: nothing due for archival "
-                f"(current v{current[0]}.{current[1]}, threshold {ARCHIVE_AFTER_MINORS} minors)"
+                f"(current v{current[0]}.{current[1]}, threshold {ARCHIVE_AFTER_MINORS} minors)\n"
             )
-        return 0
+        return buf.getvalue()
 
-    print(
+    buf.write(
         f"  docs retention: {len(candidates)} version(s) due for archival "
         f"(current v{current[0]}.{current[1]}, threshold {ARCHIVE_AFTER_MINORS} minors). "
-        f"Advisory only; see docs/policy/docs-retention.md"
+        f"Advisory only; see docs/policy/docs-retention.md\n"
     )
-    for source, label, destination in candidates:
+    for source, _label, destination in candidates:
         file_count = sum(1 for _ in source.rglob("*") if _.is_file())
         rel = source.relative_to(root).as_posix()
-        print(f"  WARN: {rel} ({file_count} file(s)) -> {destination}")
-    print("  Run the archive pass via /update refactor or the docs-layout-refactor skill.")
+        buf.write(f"  WARN: {rel} ({file_count} file(s)) -> {destination}\n")
+    buf.write("  Run the archive pass via /update refactor or the docs-layout-refactor skill.\n")
+    return buf.getvalue()
+
+
+def _replay_args(root_arg: str, quiet: bool) -> list[str]:
+    """Arguments needed to reproduce this invocation, excluding --part."""
+    extra: list[str] = []
+    if root_arg != ".":
+        extra.extend(["--root", root_arg])
+    if quiet:
+        extra.append("--quiet")
+    return extra
+
+
+def main(argv: list[str] | None = None) -> int:
+    parser = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    parser.add_argument("--root", default=".", help="Repository root.")
+    parser.add_argument("--quiet", action="store_true", help="Print only violations.")
+    parser.add_argument(
+        "--part",
+        type=int,
+        default=1,
+        help="1-based output page. Transport paging; see scripts/lib/output_paging.py.",
+    )
+    args = parser.parse_args(argv)
+
+    root = Path(args.root).resolve()
+    text = render_report(root, args.quiet)
+
+    extra = _replay_args(args.root, args.quiet)
+    try:
+        print(
+            emit_paged(
+                text,
+                part=args.part,
+                extra_args=extra,
+                script_path=Path(__file__),
+            ),
+            end="",
+        )
+    except (OversizedLineError, ValueError) as exc:
+        # Advisory tool: never fail the validate gate because a page is
+        # missing or a line is too long. Fall back to the unpaged report.
+        print(f"  WARN: output paging: {exc}", file=sys.stderr)
+        print(text, end="")
 
     return 0
 

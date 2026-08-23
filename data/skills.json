@@ -6,7 +6,7 @@
     "description": "Comprehensive catalog of Nexus-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-    "total_skills": 273,
+    "total_skills": 274,
     "categories": {
       "ai-development": 14,
       "architecture": 7,
@@ -27,11 +27,11 @@
       "specialized-domains": 14,
       "testing": 3,
       "tests-generation": 18,
-      "workflow": 44,
+      "workflow": 45,
       "security-operations": 16
     },
     "priorities": {
-      "MEDIUM": 268,
+      "MEDIUM": 269,
       "HIGH": 4
     },
     "total_lines": 130300,
@@ -9627,6 +9627,44 @@
         "integrity": 100,
         "semantic": 95,
         "validated": true
+      }
+    },
+    {
+      "name": "agent-memory",
+      "title": "agent-memory",
+      "description": "\"Read and record lasting facts in the local persistent agent-memory store (nexus-memory) so every session starts from a chronological substrate. Make sure to use this skill whenever the user says \\\"read persistent agent memory\\\", \\\"wake persistent memory\\\", \\\"record this lasting fact\\\", \\\"remember this decision in nexus-memory\\\", \\\"search the memory store\\\", \\\"merge the pending memory range\\\", or otherwise wants an always-on chronological store that is read at session start and written as work happens. SKIP, do NOT use for: searching past session logs or exported chats (use session-query); distilling digests into topic packs (use context-pack-builder); minting behavioral instincts (use continuous-learning); capturing one solved problem (use solution-knowledge-base); or designing an agent architecture's memory system (use ai-agent-development).\"",
+      "long_description": "Teaches the agent to treat nexus-memory as the durable cross-platform substrate for lasting facts, decisions, and events. At session start the agent reads the store. While working it records only what should survive. Merge requests are answered by the agent; the store never calls a model.",
+      "summary_l0": "\"Read and record lasting facts in the local persistent agent-memory store\"",
+      "overview_l1": "\"Teaches the agent to treat nexus-memory as the durable cross-platform substrate for lasting facts, decisions, and events. At session start the agent reads the store within the caller line budget. While working it records only what should survive the session. When the tool emits a merge request the agent summarizes the supplied content, invents nothing, and returns the result with the printed command. The store never calls a model, starts no background process, and lives under a user-scoped root. Spawned subagents are told not to write. Distinct from session-query, context-pack-builder, continuous-learning, and solution-knowledge-base, which stay on-demand and topic-scoped.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "workflow",
+      "language": "Multi-language",
+      "tags": [
+        "agent-memory",
+        "nexus-memory",
+        "persistent-memory",
+        "local-only"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Bash",
+        "Read"
+      ],
+      "path": "catalog/skills/workflow/agent-memory/",
+      "file": "catalog/skills/workflow/agent-memory/SKILL.md",
+      "size": {
+        "lines": 108,
+        "characters": 7479,
+        "tokens_estimate": 1869
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
       }
     }
   ]
