@@ -1,10 +1,10 @@
 # Known Gaps - v3.19
 
 **Project**: Nexus-Hub
-**Status**: finalized
+**Status**: in-progress
 **Last updated**: 2026-08-23
 
-v3.19.0 is finalized. v3.19.1 (agent-memory substrate) is reconciled for release: the Phase 1 UNVERIFIED rows and the two comparison risks were closed in a follow-up pass before merge.
+v3.19.0 is finalized. v3.19.1 shipped, then the artifact round-trip failed: `MANIFEST.sha256` was generated before the gap-closure commit, so `nexus-hub verify` against the published `v3.19.1` tarball reports FAIL. Do not retag. Fix in the next patch.
 
 ## v3.19.1
 
@@ -14,7 +14,7 @@ v3.19.0 is finalized. v3.19.1 (agent-memory substrate) is reconciled for release
 |---|---:|---:|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 4 |
-| Bugs / regressions (BG) | 0 | 0 |
+| Bugs / regressions (BG) | 1 | 0 |
 | Warnings (WN) | 0 | 1 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
@@ -31,7 +31,15 @@ None.
 
 #### Bugs / Regressions
 
-None.
+##### BG-1 - Published v3.19.1 tarball fails `nexus-hub verify`
+
+- **Source phase**: `/update release` artifact round-trip (after tag `v3.19.1` and GitHub Release publish)
+- **Plan reference**: `docs/v3/v3.19/plans/v3.19.1-agent-memory-substrate.md` (Phase 6 / release)
+- **Observed**: `python scripts/verify_install.py --root <extracted Nexus-Hub-3.19.1>` printed `verify: FAIL (6 modified, 0 missing, 3 extra)`
+- **Modified**: `catalog/hooks/settings.json`, `catalog/hooks/tests/test_cursor_import_compat.py`, `catalog/hooks/tests/test_hook_sibling_parity.py`, `catalog/skills/workflow/agent-memory/SKILL.md`, `data/marketplace.json`, `scripts/lib/output_paging.py`
+- **Extra**: `catalog/hooks/memory-store-guard.sh`, `catalog/hooks/memory-store-guard.ps1`, `catalog/hooks/tests/test_memory_store_guard.py`
+- **Cause**: `MANIFEST.sha256` was written in `b3c8dc40` (`chore(release): ship v3.19.1`) and not regenerated after `6cc713c4` (gap-closure) or `360e999a` (CI git-mock fix). The published tree contains those files; the manifest does not hash them.
+- **Suggested next step**: regenerate `MANIFEST.sha256` on develop (`python scripts/generate_manifest.py` after staging), ship as v3.19.2. Do not retag, force-push, or delete the published Release.
 
 #### Warnings
 

@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- **Stale `MANIFEST.sha256` on the published v3.19.1 tarball.** `nexus-hub verify` against the GitHub source archive reports 6 modified files and 3 extra (`memory-store-guard` plus related edits from the gap-closure commit). The tag stays published. The next patch regenerates the manifest. See known-gaps **BG-1**.
+
 ## [3.19.1] - 2026-08-23
 
 ### Added
