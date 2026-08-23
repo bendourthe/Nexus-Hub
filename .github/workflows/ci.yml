@@ -680,6 +680,12 @@ jobs:
       - name: Context-compressor tests
         run: python -m pytest extensions/nexus-context-compressor/tests/ -v
 
+      - name: Install nexus-memory store (v3.19.1)
+        run: pip install -e "extensions/nexus-memory/[dev]"
+
+      - name: Memory-store tests
+        run: python -m pytest extensions/nexus-memory/tests/ -v
+
   tests-windows:
     # v3.15.6 Phase 4: run the hook suite on a real Windows host so the catalog's
     # *.ps1 hooks are exercised on Windows PowerShell 5.1, not only on the ubuntu

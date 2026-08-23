@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Self-naming command output** (`scripts/lib/self_naming.py`): a script that prints a command for the agent to run next now emits a home-folded, PATH-independent invocation of its own file rather than a bare name that only works when the script is on PATH.
 - **Memory substrate contract** (`docs/policy/memory-substrate-contract.md`): the new `nexus-memory` store is the durable cross-platform source of truth; a harness-native memory surface is an index that points into it. The contract also specifies the agent-performed compression protocol (the store never calls a model), the subagent write-exclusion line, and a 500-token budget for the always-loaded integration prose, enforced by `scripts/check_memory_integration_budget.py` in `make validate` and CI.
+- **`extensions/nexus-memory/` storage engine**: append-only fixed-width log with O(1) record access, POSIX/Windows write locking, crash-tail repair, and a relocatable root (`NEXUS_MEMORY_ROOT`). Runtime is the Python standard library only. The multi-OS locking matrix runs on merge, not every push.
 
 ## [3.19.0] - 2026-08-22
 
