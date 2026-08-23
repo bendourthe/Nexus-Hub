@@ -732,6 +732,13 @@ jobs:
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.11'
+          # v3.19.2 Phase 6: this job pip-installs pytest + PyYAML on every
+          # Windows run; cache the download dir keyed on this workflow (no
+          # requirements.txt; the pin lives in the Install pytest step).
+          # Do not add a workflow-level `paths:` filter: required checks must
+          # still be produced on every run (job-level `changes` already gates).
+          cache: 'pip'
+          cache-dependency-path: '.github/workflows/ci.yml'
 
       - name: Install pytest
         # PyYAML matches the ubuntu `tests` job (v3.17.6 Phase 2). This job runs

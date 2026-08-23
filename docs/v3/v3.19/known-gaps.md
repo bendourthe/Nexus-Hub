@@ -4,7 +4,7 @@
 **Status**: in-progress
 **Last updated**: 2026-08-23
 
-v3.19.0 is finalized. v3.19.1 shipped, then the artifact round-trip failed: `MANIFEST.sha256` was generated before the gap-closure commit, so `nexus-hub verify` against the published `v3.19.1` tarball reports FAIL. Do not retag. Fix in the next patch. v3.19.2 Phase 5 (compressor polish and session mining) is complete; Phase 6 is next.
+v3.19.0 is finalized. v3.19.1 shipped, then the artifact round-trip failed: `MANIFEST.sha256` was generated before the gap-closure commit, so `nexus-hub verify` against the published `v3.19.1` tarball reports FAIL. Do not retag. Fix in the next patch. v3.19.2 Phase 6 (layout, known-gaps, CI) is complete; ready for `/update release`.
 
 ## v3.19.2
 
@@ -13,7 +13,7 @@ v3.19.0 is finalized. v3.19.1 shipped, then the artifact round-trip failed: `MAN
 | Category | Open | Resolved |
 |---|---:|---:|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 3 | 0 |
+| Deferred (DF) | 4 | 0 |
 | Bugs / regressions (BG) | 0 | 0 |
 | Warnings (WN) | 0 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
@@ -47,6 +47,13 @@ None.
 - **Plan reference**: `docs/v3/v3.19/plans/v3.19.2-rtk-and-meterless.md` (Phase 4 / semantic reformatters)
 - **Why deferred**: A dedicated command-output compressor in this class ships on the order of 60 handlers. Matching that set in one patch would dominate the release and still miss the long tail. This release ships git status, pytest/vitest/jest failures-only, and ruff/eslint/tsc grouped-by-file, each with a 60% token-reduction fixture, and documents the rest as a coverage gap.
 - **Suggested next step**: add handlers only for commands whose fixtures miss the 60% bar in real sessions; do not chase handler-count parity.
+
+##### DF-4 - Signed execution contracts stay a design study
+
+- **Source phase**: Phase 5 (compressor polish and session mining, task 5.4)
+- **Plan reference**: `docs/v3/v3.19/plans/v3.19.2-rtk-and-meterless.md` (Phase 5 / signed-execution-contract study)
+- **Why deferred**: A local single-user agent already has a 0/1/2/3 rewrite decision subordinated to host deny. Cryptographic signatures would add key material without blocking anything host settings cannot already refuse. Study: `docs/v3/v3.19/design/signed-execution-contract-study.md` (**# DEVIATION**: plan cited `docs/v3/v3.18/design/`). Recommendation: defer crypto; optionally adopt capability-id + TTL as an unsigned convention later.
+- **Suggested next step**: revisit only if Nexus-Hub grows a multi-executor or remote-runner surface.
 
 #### Bugs / Regressions
 
