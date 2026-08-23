@@ -78,4 +78,3 @@ Append one line per status change. Do not edit earlier lines. Supersede a decisi
 ```text
 YYYY-MM-DD	added	ADR-001	source=...
 ```
-

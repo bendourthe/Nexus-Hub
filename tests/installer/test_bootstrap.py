@@ -396,4 +396,3 @@ def test_ps_path_traversal_is_refused(tmp_path: Path) -> None:
     assert proc.returncode != 0
     combined = (proc.stdout + proc.stderr).lower()
     assert ".." in combined or "unsafe" in combined
-
