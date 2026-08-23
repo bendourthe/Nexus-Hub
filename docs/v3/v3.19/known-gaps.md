@@ -4,7 +4,7 @@
 **Status**: in-progress
 **Last updated**: 2026-08-23
 
-v3.19.0 is finalized. v3.19.1 (agent-memory substrate) is in progress. Phase 1 recorded the UNVERIFIED truncation surfaces so Phase 6 can carry them forward. Phase 2 added no new open items; the integration-prose file is a measured stub that Phase 4 replaces.
+v3.19.0 is finalized. v3.19.1 (agent-memory substrate) is in progress. Phase 1 recorded the UNVERIFIED truncation surfaces so Phase 6 can carry them forward. Phase 4 replaced the integration-prose stub with the always-loaded instructions (218 tokens / 500) and added no new open items.
 
 ## v3.19.1
 

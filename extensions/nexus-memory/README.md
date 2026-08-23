@@ -31,6 +31,11 @@ pip install -e "extensions/nexus-memory[dev]"
 ```bash
 python -m nexus_memory config show
 python -m nexus_memory config set read_budget 200
+python -m nexus_memory read
+python -m nexus_memory record --text "a lasting fact"
+python -m nexus_memory search --pattern REGEX
+python -m nexus_memory zoom --lo 0 --hi 4
+python -m nexus_memory drop --lo 0 --hi 2
 ```
 
 ## Tunables

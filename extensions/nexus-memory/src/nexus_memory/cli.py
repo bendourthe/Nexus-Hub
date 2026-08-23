@@ -1,6 +1,7 @@
-"""Command surface for the memory store (Phase 3: append/get/repair/config).
+"""Command surface for the memory store.
 
-Phase 4 adds read, merge, search, zoom, and forget. Printed recovery
+Phase 3: append, get, count, repair, config.
+Phase 4: read, record, merge, search, zoom, drop. Printed recovery
 commands use a resolved self-named path when the Phase 1 helper is
 importable, otherwise ``python -m nexus_memory``.
 """
@@ -13,6 +14,7 @@ import sys
 from dataclasses import asdict
 from pathlib import Path
 
+from .commands import cmd_drop, cmd_merge, cmd_read, cmd_record, cmd_search, cmd_zoom
 from .config import StoreConfig, default_store_root, load_config, save_config
 from .store import MemoryStore
 
@@ -54,6 +56,28 @@ def main(argv: list[str] | None = None) -> int:
     )
     p_set.add_argument("value", type=int)
 
+    p_read = sub.add_parser("read", help="Read the store within the line budget.")
+    p_read.add_argument("--part", type=int, default=1)
+
+    p_record = sub.add_parser("record", help="Append one lasting entry.")
+    p_record.add_argument("--text", required=True)
+
+    p_merge = sub.add_parser("merge", help="Return a summary for one due range.")
+    p_merge.add_argument("--lo", type=int, required=True)
+    p_merge.add_argument("--hi", type=int, required=True)
+    p_merge.add_argument("--text", required=True)
+
+    p_search = sub.add_parser("search", help="Search entries by regular expression.")
+    p_search.add_argument("--pattern", required=True)
+
+    p_zoom = sub.add_parser("zoom", help="Open a summarized range into its two halves.")
+    p_zoom.add_argument("--lo", type=int, required=True)
+    p_zoom.add_argument("--hi", type=int, required=True)
+
+    p_drop = sub.add_parser("drop", help="Discard a bad summary so it can be rebuilt.")
+    p_drop.add_argument("--lo", type=int, required=True)
+    p_drop.add_argument("--hi", type=int, required=True)
+
     args = parser.parse_args(argv)
     root = Path(args.root) if args.root else default_store_root()
 
@@ -78,6 +102,25 @@ def main(argv: list[str] | None = None) -> int:
             return 0
         if args.cmd == "config":
             return _config_cmd(root, args)
+        store = MemoryStore(root)
+        if args.cmd == "read":
+            print(cmd_read(store, part=args.part), end="")
+            return 0
+        if args.cmd == "record":
+            print(cmd_record(store, args.text), end="")
+            return 0
+        if args.cmd == "merge":
+            print(cmd_merge(store, args.lo, args.hi, args.text), end="")
+            return 0
+        if args.cmd == "search":
+            print(cmd_search(store, args.pattern), end="")
+            return 0
+        if args.cmd == "zoom":
+            print(cmd_zoom(store, args.lo, args.hi), end="")
+            return 0
+        if args.cmd == "drop":
+            print(cmd_drop(store, args.lo, args.hi), end="")
+            return 0
     except Exception as exc:
         print(str(exc), file=sys.stderr)
         return 1

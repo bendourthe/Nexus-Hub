@@ -16,6 +16,8 @@ from .store import (
     MemoryStore,
     WidthMismatchError,
 )
+from .tiling import tile
+from .tree import MissingChildError, TreeStore
 
 __version__ = "3.19.1"
 
@@ -24,9 +26,12 @@ __all__ = [
     "CorruptTailError",
     "EntryTooLongError",
     "MemoryStore",
+    "MissingChildError",
     "StoreConfig",
+    "TreeStore",
     "WidthMismatchError",
     "default_store_root",
     "load_config",
     "save_config",
+    "tile",
 ]

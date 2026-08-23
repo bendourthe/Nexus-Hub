@@ -55,4 +55,4 @@ jobs:
           cache: 'pip'
           cache-dependency-path: 'extensions/nexus-memory/pyproject.toml'
       - run: pip install -e "extensions/nexus-memory/[dev]"
-      - run: python -m pytest extensions/nexus-memory/tests/test_store.py -q
+      - run: python -m pytest extensions/nexus-memory/tests/ -q
