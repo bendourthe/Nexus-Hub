@@ -39,6 +39,33 @@ jobs:
       - run: pip install -e "extensions/nexus-memory/[dev]"
       - run: python -m pytest extensions/nexus-memory/tests/ -q
 
+  test-network-blocked:
+    name: Test with outbound network blocked
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+      - name: Build the offline test image
+        run: |
+          docker build --tag nexus-memory-offline --file - extensions/nexus-memory <<'DOCKERFILE'
+          FROM python:3.11-slim
+          WORKDIR /workspace
+          COPY pyproject.toml README.md /package/
+          COPY src /package/src
+          COPY tests /package/tests
+          RUN python -m pip install --no-cache-dir --editable "/package[dev]"
+          DOCKERFILE
+      - name: Full suite with egress denied
+        run: |
+          docker run --rm --network none \
+            --volume "${GITHUB_WORKSPACE}:/workspace:ro" \
+            nexus-memory-offline bash -c '
+            set -euo pipefail
+            test -d /sys/class/net/lo
+            ! find /sys/class/net -mindepth 1 -maxdepth 1 ! -name lo -print -quit | grep -q .
+            python -m pytest extensions/nexus-memory/tests/ -q -p no:cacheprovider
+          '
+
   test-locking-matrix:
     if: github.event_name == 'workflow_dispatch' || github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
     strategy:

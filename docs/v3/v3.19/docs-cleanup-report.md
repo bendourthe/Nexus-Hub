@@ -11,10 +11,10 @@
 | Cat 1 (delete) | 0 |
 | Cat 2 (archive) | 0 |
 | Cat 3 (stale-flag) | 0 |
-| Cat 4 (active) | 22 |
-| **Total in scope** | **22** |
+| Cat 4 (active) | 23 |
+| **Total in scope** | **23** |
 
-All v3.19 artifacts remain active. Phases 1 through 5 of the agent-memory substrate plan added session-history files and kept the known-gaps ledger open for v3.19.1. The inventory found no binary, duplicate, empty-directory, or older-version artifact in scope. No file move, rename, archive, or deletion is proposed.
+All v3.19 artifacts remain active. The agent-memory substrate plan is complete through Phase 6. No file move, rename, archive, or deletion is proposed.
 
 ## Dispositions
 
@@ -23,12 +23,11 @@ All v3.19 artifacts remain active. Phases 1 through 5 of the agent-memory substr
 | `plans/` | 4 | 3 | Current v3.19 work; v3.19.0 is shipped and the other two plans remain scheduled |
 | `comparisons/` | 4 | 3 | Seed evidence for each queued plan |
 | `research/` | 4 | 1 | Active input to the separate CI/CD research note |
-| `development/history/` | 4 | 12 | Seven v3.19.0 histories plus five v3.19.1 phase write-ups |
-| `known-gaps.md` | 4 | 1 | Reopened for v3.19.1; v3.19.0 subsection stays finalized |
+| `development/history/` | 4 | 13 | Seven v3.19.0 histories plus six v3.19.1 phase write-ups |
+| `known-gaps.md` | 4 | 1 | v3.19.1 subsection reconciled; v3.19.0 stays finalized |
 | `docs-cleanup-report.md` | 4 | 1 | This audit artifact |
 
 ## Layout Observations
 
 - The canonical `docs/v3/v3.19/` directory exists with `plans/` and `comparisons/`.
-- Living policy files, including the reverse-engineering matrix row for `nexus-memory`, sit under `docs/policy/` and are correctly outside this tree.
-- No cleanup action is required before Phase 6.
+- No docs-tree migration is required before `/update release`.

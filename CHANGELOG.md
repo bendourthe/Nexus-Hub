@@ -20,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`extensions/nexus-memory/` storage engine**: append-only fixed-width log with O(1) record access, POSIX/Windows write locking, crash-tail repair, and a relocatable root (`NEXUS_MEMORY_ROOT`). Runtime is the Python standard library only. The multi-OS locking matrix runs on merge, not every push.
 - **`extensions/nexus-memory/` compression tree**: age-decaying tiling keeps a read inside the caller-supplied line budget; the summary tree is a rebuildable cache; `read` / `record` / `merge` / `search` / `zoom` / `drop` are the agent-facing commands. The store still never calls a model. Always-loaded integration prose at `docs/policy/memory-integration-prose.md` is 218 tokens against the 500-token cap.
 - **`agent-memory` skill** (`catalog/skills/workflow/agent-memory/`): always-on chronological persistent memory, routed away from `session-query`, `context-pack-builder`, `continuous-learning`, and `solution-knowledge-base`. Both installers copy `extensions/nexus-memory/` to `~/.nexus-hub/nexus-memory` and editable-install it; it is not registered as an MCP server. Catalog count is 274.
+- **Network-blocked CI for `nexus-memory`**: the path-scoped workflow runs the full suite in Docker `--network none` so a future outbound import fails before it ships. The multi-OS locking matrix stays merge-gated.
 
 ## [3.19.0] - 2026-08-22
 

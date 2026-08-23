@@ -4,7 +4,7 @@
 **Status**: in-progress
 **Last updated**: 2026-08-23
 
-v3.19.0 is finalized. v3.19.1 (agent-memory substrate) is in progress. Phase 1 recorded the UNVERIFIED truncation surfaces so Phase 6 can carry them forward. Phase 5 added the `agent-memory` skill (catalog 274) and no new open items.
+v3.19.0 is finalized. v3.19.1 (agent-memory substrate) is reconciled for release: remaining items are deferred carry-forwards, not unfinished phase work.
 
 ## v3.19.1
 
@@ -13,7 +13,7 @@ v3.19.0 is finalized. v3.19.1 (agent-memory substrate) is in progress. Phase 1 r
 | Category | Open | Resolved |
 |---|---:|---:|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 2 | 0 |
+| Deferred (DF) | 4 | 0 |
 | Bugs / regressions (BG) | 0 | 0 |
 | Warnings (WN) | 1 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
@@ -41,6 +41,20 @@ None.
 - **Reason**: GitHub Copilot, Qwen Code, Kimi Code CLI, Aider, Windsurf, OpenClaw, and Nexus-AI have no first-party tool-output truncation page in the 2026-08-23 pass. They inherit the safe default.
 - **Suggested next step**: Same as DF-1, per surface, when a first-party number appears.
 
+##### DF-3 - Accidental-commit guard for a relocated store is documentation-only
+
+- **Source phase**: Phase 6 - Known-gaps reconciliation (comparison risk R3)
+- **Plan reference**: `docs/v3/v3.19/plans/v3.19.1-agent-memory-substrate.md` (sub-task 3.4 / 6.3)
+- **Reason**: The default root is `~/.nexus-hub/memory/`, and `extensions/nexus-memory/gitignore.recommended` ships the ignore pattern. Sub-task 3.4 did not add a secret-scan hook matcher for a store that a user relocates into a repository.
+- **Suggested next step**: If relocated-root commits become a real incident, add a secret-scan / large-file-guard matcher for `entries.log` and `tree/level_*` rather than expanding the default root.
+
+##### DF-4 - Memory content remains plaintext at rest
+
+- **Source phase**: Phase 6 - Known-gaps reconciliation (comparison risk R2)
+- **Plan reference**: `docs/v3/v3.19/plans/v3.19.1-agent-memory-substrate.md` (sub-task 6.3)
+- **Reason**: Confidentiality at rest is addressed by a user-scoped default, a relocation warning, and [[egress-redaction]] before shared artifacts. The log is still plaintext. Encryption would add a key-management surface the plan did not take on.
+- **Suggested next step**: Reconsider only if a user-facing threat model requires at-rest encryption; do not add a key or a network KMS.
+
 #### Bugs / Regressions
 
 None.
@@ -66,7 +80,24 @@ None.
 
 | ID | Title | Resolved in | Notes |
 |---|---|---|---|
-| - | None | - | - |
+| PA-1 | Whole-tree three-part policy audit | Phase 6 | Dated 2026-08-23. See Final Policy Audit below. |
+
+### Final Decisions
+
+| Candidate | Disposition | Reason |
+|---|---|---|
+| Encrypt the memory log at rest | Deferred as DF-4, not implemented | Adds key management without reducing the documented relocation and egress risks. |
+| Hook the secret-scan path for relocated stores | Deferred as DF-3, not implemented | Default root is already outside the repo; the ignore pattern covers the relocate case. |
+
+### Final Policy Audit - 2026-08-23
+
+- Audited every file this plan added or modified for HTTP clients (`httpx`, `requests`, `urllib`, `aiohttp`), URL constants, and secret-shaped environment reads (`API_KEY`, `TOKEN`, credential `getenv`).
+- `extensions/nexus-memory/src/` imports only stdlib and local modules. A source-scan test forbids network modules on every path, including error and recovery.
+- Phase 1 helpers (`scripts/lib/output_paging.py`, `scripts/lib/self_naming.py`) and the budget guard import no network module. `tiktoken` is optional and local-only.
+- The extension README line `zero outbound calls, zero API keys, zero model downloads` is present and true.
+- The `already-local` row for `nexus-memory` in `docs/policy/mcp-reverse-engineering-matrix.md` is accurate.
+- Layout audit: `extensions/nexus-memory/` matches sibling extension layout. The Phase 1 paging helper lives once under `scripts/lib/` and is imported, not copied. No empty directories, duplicates, or docs-tree moves were required.
+- Network-blocked CI: `.github/workflows/nexus-memory.yml` `test-network-blocked` runs the full suite in Docker `--network none`. The multi-OS locking matrix remains merge-gated.
 
 ## v3.19.0
 
