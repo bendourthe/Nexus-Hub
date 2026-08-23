@@ -63,6 +63,6 @@ None.
 
 - Audited every file added or modified by the code-intelligence plan for HTTP clients, URL constants, download helpers, and secret-shaped environment reads.
 - All matches are either test fixtures that prove the ban, loopback-only network guards, policy documentation, or pre-existing sanctioned installer and help URLs; no plan-owned runtime path can make an outbound call, read an API key, or download a model.
-- The full `nexus-code-search` suite passes under the process-level network guard: 368 passed, 1 skipped. The skip is the pre-existing optional parser case and is unrelated to network availability.
+- The full `nexus-code-search` suite passes under both supported MCP SDK lines: 368 passed and 1 optional-parser case skipped under the local MCP 1.27 environment; 369 passed under fresh MCP 2.0 in the Docker `--network none` CI-equivalent environment.
 - The exact README statement `zero outbound calls, zero API keys, zero model downloads` remains present and true.
 - The `already-local` classification in `docs/policy/mcp-reverse-engineering-matrix.md` remains accurate and requires no amendment.

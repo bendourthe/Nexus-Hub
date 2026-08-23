@@ -32,3 +32,7 @@ All v3.19 artifacts are active: three queued plans, three supporting comparisons
 - The canonical `docs/v3/v3.19/` directory exists with `plans/` and `comparisons/`.
 - Phases 1 through 7 add only the expected `development/history/`, `known-gaps.md`, and audit report artifacts.
 - No file move, rename, archive, or deletion is proposed.
+
+## Release Retention Pass
+
+The v3.19.0 version bump made `docs/v3/v3.17/development/history/` two minors behind the current release. The release pass copied all 27 files to `docs/archive/v3/v3.17/development/history/`, verified SHA-256 equality by filename, removed the original subtree only after the sets matched, and repaired live and intra-history references. No documentation was deleted.
