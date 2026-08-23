@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+- **Bootstrap archive integrity (v3.19.2 Phase 1).** `install.sh` and `install.ps1` refuse tar/zip members with absolute or `..` paths (CWE-22) before extraction, and verify SHA-256 when `NEXUS_HUB_EXPECTED_SHA256` or `NEXUS_HUB_CHECKSUMS` is set. Installing from `main` without a published checksum prints an explicit warning. `NEXUS_HUB_SKIP_CHECKSUM=1` skips the hash check only; the path-traversal guard always runs. Checksums are hashed with `sha256sum`/`shasum`/Python on POSIX and .NET `SHA256` on Windows (not `Get-FileHash`).
+- **Compressor zero-outbound CI guard.** `scripts/check_no_outbound.py` AST-scans `extensions/nexus-context-compressor` for network imports and `curl`/`wget` subprocesses, and is wired into `make validate` and the CI `validate` job. It is maintainer-only (`DEV_ONLY_SCRIPTS`); it is not installer-copied.
 - **Stale `MANIFEST.sha256` on the published v3.19.1 tarball.** `nexus-hub verify` against the GitHub source archive reports 6 modified files and 3 extra (`memory-store-guard` plus related edits from the gap-closure commit). The tag stays published. The next patch regenerates the manifest. See known-gaps **BG-1**.
 
 ## [3.19.1] - 2026-08-23

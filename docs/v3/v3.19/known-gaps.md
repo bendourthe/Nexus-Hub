@@ -4,7 +4,51 @@
 **Status**: in-progress
 **Last updated**: 2026-08-23
 
-v3.19.0 is finalized. v3.19.1 shipped, then the artifact round-trip failed: `MANIFEST.sha256` was generated before the gap-closure commit, so `nexus-hub verify` against the published `v3.19.1` tarball reports FAIL. Do not retag. Fix in the next patch.
+v3.19.0 is finalized. v3.19.1 shipped, then the artifact round-trip failed: `MANIFEST.sha256` was generated before the gap-closure commit, so `nexus-hub verify` against the published `v3.19.1` tarball reports FAIL. Do not retag. Fix in the next patch. v3.19.2 Phase 1 (bootstrap integrity + compressor zero-outbound guard) is in progress.
+
+## v3.19.2
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---:|---:|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 1 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+
+### Open Items
+
+#### Not Implemented
+
+None.
+
+#### Deferred
+
+##### DF-1 - Tagged `checksums.txt` hashes are unpublished until the first v3.19.2 GitHub Release
+
+- **Source phase**: Phase 1 (supply-chain hardening, task 1.1)
+- **Plan reference**: `docs/v3/v3.19/plans/v3.19.2-rtk-and-meterless.md` (Phase 1 / installer integrity)
+- **Why deferred**: GitHub source-archive SHA-256 is only known after the tag exists. `checksums.txt` is in the tree as a GNU sha256sum template; the bootstrap warns on `main` and verifies when `NEXUS_HUB_EXPECTED_SHA256` or `NEXUS_HUB_CHECKSUMS` is set. `/update release` should attach the hashed source archives as a Release asset.
+- **Suggested next step**: after tagging v3.19.2, hash the GitHub `tar.gz`/`zip`, append those lines to `checksums.txt`, and attach the file to the GitHub Release.
+
+#### Bugs / Regressions
+
+None.
+
+#### Warnings
+
+None.
+
+#### Missing Tests / Coverage Gaps
+
+None.
+
+#### Quality-Gate Gaps
+
+None.
 
 ## v3.19.1
 

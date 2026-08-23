@@ -244,6 +244,13 @@ jobs:
       - name: Validate version sync across all surfaces (v3.0.0 Phase 1)
         run: python scripts/check_version_sync.py
 
+      - name: Guard compressor against outbound calls (v3.19.2 Phase 1)
+        # Repo-internal AST scan over extensions/nexus-context-compressor.
+        # Fails if a network import or curl/wget subprocess appears. Rides the
+        # existing validate job (no new required context). The script is in
+        # DEV_ONLY_SCRIPTS and is not installer-copied.
+        run: python scripts/check_no_outbound.py
+
       - name: Validate incident notes (v3.16.2 Phase 3)
         # An incident is closed by a change, not by an explanation. This asserts
         # every docs/incidents/ note carries a Public-Safe Shape section and a
