@@ -29,13 +29,41 @@ MCP tool definitions are sent to the model and consume context before any tool r
 
 | Profile | Tools | Offline token estimate | Recommended model tier | Included surface |
 |---|---:|---:|---|---|
-| `minimal` | 7 | 952 | `fast` | Keyword and graph indexing, search, status, cleanup, and direct symbol retrieval |
-| `standard` | 13 | 1,962 | `standard` / `strong` | Minimal plus callers, callees, impact, context, exploration, and affected-test traversal |
-| `full` | 17 | 2,594 | `frontier` or workflows needing every capability | Standard plus context-map generation and health, knowledge-map generation, and file watching |
+| `minimal` | 7 | 1,841 | `fast` | Keyword and graph indexing, search, status, cleanup, and direct symbol retrieval |
+| `standard` | 13 | 3,613 | `standard` / `strong` | Minimal plus callers, callees, impact, context, exploration, and affected-test traversal |
+| `full` | 17 | 4,753 | `frontier` or workflows needing every capability | Standard plus context-map generation and health, knowledge-map generation, and file watching |
 
-Counts are generated from the compact JSON serialization of each MCP definition with the extension's deterministic stdlib estimator, so the baseline stays comparable without a tokenizer package or network access. A provider tokenizer may report a different absolute number while preserving the relative savings: `minimal` is about 63% smaller and `standard` about 24% smaller than `full`.
+Counts are generated from the compact JSON serialization of each MCP definition with the extension's deterministic stdlib estimator, so the baseline stays comparable without a tokenizer package or network access. A provider tokenizer may report a different absolute number while preserving the relative savings: `minimal` is about 61% smaller and `standard` about 24% smaller than `full`. These Phase 3 counts include the response-format controls advertised by every tool.
 
 The model-tier names come from [`model-routing`](../../catalog/skills/ai-development/model-routing/SKILL.md); use [`prompt-token-optimization`](../../catalog/skills/orchestration/prompt-token-optimization/SKILL.md) for the broader context-cost workflow.
+
+### Response encoding
+
+Every tool accepts `response_format=json|compact|auto` and `compact_min_savings_pct` from 0 through 100. The default is `json`, which preserves the existing response bytes. `compact` forces the Nexus-Hub-owned, standard-library wire format, while `auto` uses it only when the actual UTF-8 byte reduction meets the threshold, 15% by default. Any producer-side codec error returns valid JSON. Consumers identify compact output by the exact `NEXUS-CW/1` first line and can use the reference decoder in `nexus_code_search.response_codec` or implement the [wire-format specification](docs/wire-format.md).
+
+This codec is producer-side and schema-aware: it removes repeated keys from structured MCP response tables. [`nexus-context-compressor`](../nexus-context-compressor/README.md) is consumer-side and content-routed: it handles arbitrary tool output and uses reversible CCR markers when content is dropped. When producer encoding runs first, the consumer compressor recognizes `NEXUS-CW/1` and returns the payload unchanged, so the two paths compose without double compression.
+
+The following measurements come from the Phase 3 test fixture, which supplies one representative response shape for every live tool and asserts these README rows against `measure_savings()`. Sizes are UTF-8 bytes. A negative percentage means forced compact mode is larger; automatic mode correctly retains JSON.
+
+| Tool | JSON bytes | Compact bytes | Savings | Auto at 15% |
+|---|---:|---:|---:|---|
+| `index_codebase` | 156 | 156 | 0.0% | `json` |
+| `search_code` | 1,848 | 1,195 | 35.3% | `compact` |
+| `clear_index` | 34 | 44 | -29.4% | `json` |
+| `get_indexing_status` | 136 | 138 | -1.5% | `json` |
+| `index_graph` | 116 | 118 | -1.7% | `json` |
+| `generate_context_map` | 797 | 576 | 27.7% | `compact` |
+| `map_health` | 990 | 840 | 15.2% | `compact` |
+| `generate_knowledge_map` | 752 | 585 | 22.2% | `compact` |
+| `code_search` | 3,582 | 2,506 | 30.0% | `compact` |
+| `code_callers` | 6,761 | 6,210 | 8.1% | `json` |
+| `code_callees` | 6,761 | 6,210 | 8.1% | `json` |
+| `code_impact` | 9,009 | 8,421 | 6.5% | `json` |
+| `code_node` | 3,583 | 2,507 | 30.0% | `compact` |
+| `code_context` | 17,985 | 16,767 | 6.8% | `json` |
+| `code_explore` | 19,749 | 18,431 | 6.7% | `json` |
+| `code_affected_tests` | 428 | 421 | 1.6% | `json` |
+| `watch_for_changes` | 81 | 87 | -7.4% | `json` |
 
 ### v1 keyword surface
 

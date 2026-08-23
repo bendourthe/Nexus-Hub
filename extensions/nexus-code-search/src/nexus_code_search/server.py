@@ -39,6 +39,11 @@ from nexus_code_search.db.schema import open_database
 from nexus_code_search.extraction import ExtractionOrchestrator
 from nexus_code_search.graph import GraphQueryManager, affected_tests
 from nexus_code_search.indexer import index_codebase
+from nexus_code_search.response_codec import (
+    DEFAULT_MIN_SAVINGS_PCT,
+    RESPONSE_FORMATS,
+    encode_response,
+)
 from nexus_code_search.search_keyword import KeywordIndex
 from nexus_code_search.store import clear_index as store_clear_index
 from nexus_code_search.store import index_lock, load_index
@@ -131,41 +136,8 @@ async def run_server() -> None:
     @server.call_tool()
     async def call_tool(name: str, arguments: dict) -> list[TextContent]:
         try:
-            if name == "index_codebase":
-                return _handle_index(arguments, config)
-            if name == "search_code":
-                return _handle_search(arguments, config)
-            if name == "clear_index":
-                return _handle_clear(arguments, config)
-            if name == "get_indexing_status":
-                return _handle_status(arguments, config)
-            if name == "index_graph":
-                return _handle_index_graph(arguments, config)
-            if name == "generate_context_map":
-                return _handle_generate_context_map(arguments, config)
-            if name == "map_health":
-                return _handle_map_health(arguments, config)
-            if name == "generate_knowledge_map":
-                return _handle_generate_knowledge_map(arguments)
-            if name in (
-                "code_search",
-                "code_callers",
-                "code_callees",
-                "code_impact",
-                "code_node",
-                "code_context",
-                "code_explore",
-            ):
-                return _handle_graph_query(name, arguments, config)
-            if name == "watch_for_changes":
-                return _handle_watch(arguments, config)
-            if name == "code_affected_tests":
-                return _handle_affected_tests(arguments, config)
-            return [
-                TextContent(
-                    type="text", text=json.dumps({"error": f"Unknown tool: {name}"})
-                )
-            ]
+            result = _dispatch_tool(name, arguments, config)
+            return _format_tool_response(result, arguments)
         except Exception as exc:  # noqa: BLE001
             logger.exception("Tool %s failed", name)
             return [TextContent(type="text", text=json.dumps({"error": str(exc)}))]
@@ -176,6 +148,90 @@ async def run_server() -> None:
             update={"instructions": SERVER_INSTRUCTIONS}
         )
         await server.run(read_stream, write_stream, init_options)
+
+
+def _dispatch_tool(
+    name: str, arguments: dict, config: CodeSearchConfig
+) -> list[TextContent]:
+    if name == "index_codebase":
+        return _handle_index(arguments, config)
+    if name == "search_code":
+        return _handle_search(arguments, config)
+    if name == "clear_index":
+        return _handle_clear(arguments, config)
+    if name == "get_indexing_status":
+        return _handle_status(arguments, config)
+    if name == "index_graph":
+        return _handle_index_graph(arguments, config)
+    if name == "generate_context_map":
+        return _handle_generate_context_map(arguments, config)
+    if name == "map_health":
+        return _handle_map_health(arguments, config)
+    if name == "generate_knowledge_map":
+        return _handle_generate_knowledge_map(arguments)
+    if name in (
+        "code_search",
+        "code_callers",
+        "code_callees",
+        "code_impact",
+        "code_node",
+        "code_context",
+        "code_explore",
+    ):
+        return _handle_graph_query(name, arguments, config)
+    if name == "watch_for_changes":
+        return _handle_watch(arguments, config)
+    if name == "code_affected_tests":
+        return _handle_affected_tests(arguments, config)
+    return [
+        TextContent(type="text", text=json.dumps({"error": f"Unknown tool: {name}"}))
+    ]
+
+
+def _format_tool_response(
+    contents: list[TextContent], arguments: dict
+) -> list[TextContent]:
+    response_format = arguments.get("response_format", "json")
+    if response_format == "json":
+        return contents
+    threshold = arguments.get(
+        "compact_min_savings_pct", DEFAULT_MIN_SAVINGS_PCT
+    )
+    formatted: list[TextContent] = []
+    for content in contents:
+        try:
+            payload = json.loads(content.text)
+            text = encode_response(
+                payload,
+                response_format=response_format,
+                min_savings_pct=threshold,
+            )
+        except Exception:  # noqa: BLE001 - preserve the valid handler response
+            text = content.text
+        formatted.append(TextContent(type="text", text=text))
+    return formatted
+
+
+def _response_format_properties() -> dict[str, dict]:
+    return {
+        "response_format": {
+            "type": "string",
+            "enum": list(RESPONSE_FORMATS),
+            "default": "json",
+            "description": (
+                "Response encoding: json preserves compatibility, compact forces "
+                "Nexus Compact Wire, and auto uses it only when byte savings meet "
+                "compact_min_savings_pct."
+            ),
+        },
+        "compact_min_savings_pct": {
+            "type": "number",
+            "default": DEFAULT_MIN_SAVINGS_PCT,
+            "minimum": 0.0,
+            "maximum": 100.0,
+            "description": "Minimum UTF-8 byte savings required by auto mode.",
+        },
+    }
 
 
 def _all_tools() -> list[Tool]:
@@ -192,7 +248,7 @@ def _all_tools() -> list[Tool]:
             "description": "Symbol name or qualified_name (e.g. `helper` or `module.Class.method`).",
         },
     }
-    return [
+    tools = [
         Tool(
             name="index_codebase",
             description=(
@@ -475,6 +531,9 @@ def _all_tools() -> list[Tool]:
             },
         ),
     ]
+    for tool in tools:
+        tool.inputSchema["properties"].update(_response_format_properties())
+    return tools
 
 
 def _tools_for_profile(profile: str) -> list[Tool]:
