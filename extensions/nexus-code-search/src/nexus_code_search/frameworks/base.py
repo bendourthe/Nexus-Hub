@@ -1,8 +1,9 @@
-"""Abstract base for framework route resolvers."""
+"""Abstract bases for local graph-enrichment resolvers and providers."""
 
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from fnmatch import fnmatch
 from pathlib import Path
 
 from nexus_code_search.types import Edge, Node
@@ -30,6 +31,27 @@ class FrameworkResolver(ABC):
     def applies_to(self, file_path: Path) -> bool:
         """Return True when this resolver should be invoked for `file_path`."""
         raise NotImplementedError
+
+
+class ContextProvider(FrameworkResolver):
+    """Pattern-declared local parser for non-code context files.
+
+    Providers receive bytes already read by the orchestrator and may only return
+    native graph nodes and edges. They do not receive external-service clients or
+    a mutable database handle. Implementations must remain deterministic,
+    local-only parsers; provider failures are isolated by the orchestrator.
+    """
+
+    file_patterns: tuple[str, ...] = ()
+
+    def applies_to(self, file_path: Path) -> bool:
+        """Return whether ``file_path`` matches a declared provider pattern."""
+
+        path = file_path.as_posix()
+        return any(
+            fnmatch(path, pattern) or fnmatch(file_path.name, pattern)
+            for pattern in self.file_patterns
+        )
 
     @abstractmethod
     def resolve(

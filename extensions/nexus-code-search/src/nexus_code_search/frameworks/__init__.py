@@ -17,10 +17,11 @@ Public surface:
 
 from __future__ import annotations
 
-from nexus_code_search.frameworks.base import FrameworkResolver
+from nexus_code_search.frameworks.base import ContextProvider, FrameworkResolver
 from nexus_code_search.frameworks.django import DjangoFrameworkResolver
 from nexus_code_search.frameworks.express import ExpressFrameworkResolver
 from nexus_code_search.frameworks.fastapi import FastAPIFrameworkResolver
+from nexus_code_search.frameworks.markdown import MarkdownContextProvider
 
 FRAMEWORK_RESOLVERS: list[FrameworkResolver] = [
     DjangoFrameworkResolver(),
@@ -28,10 +29,15 @@ FRAMEWORK_RESOLVERS: list[FrameworkResolver] = [
     ExpressFrameworkResolver(),
 ]
 
+CONTEXT_PROVIDERS: list[ContextProvider] = [MarkdownContextProvider()]
+
 __all__ = [
+    "CONTEXT_PROVIDERS",
+    "FRAMEWORK_RESOLVERS",
+    "ContextProvider",
     "DjangoFrameworkResolver",
     "ExpressFrameworkResolver",
-    "FRAMEWORK_RESOLVERS",
     "FastAPIFrameworkResolver",
     "FrameworkResolver",
+    "MarkdownContextProvider",
 ]

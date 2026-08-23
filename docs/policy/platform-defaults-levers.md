@@ -2,7 +2,7 @@
 
 This is the durable, sourced record of whether each supported platform documents a settable install-time **behavioral default** that Nexus-Hub could legitimately seed, and the evidence for that answer. It is the companion to `configs/platform-defaults.json`: a platform may appear in that file ONLY if it carries a VERIFIED row here.
 
-**Last verified**: 2026-08-17 for v3.17.4. All sixteen registered integrations were checked in this full release pass.
+**Last verified**: 2026-08-22 for v3.19.0. All sixteen registered integrations were checked in this full release pass.
 
 ## Scope boundary
 
@@ -27,22 +27,22 @@ Classification is about whether a documented lever EXISTS. Whether Nexus-Hub can
 
 | Platform (registry id) | Class | Lever keys | Config file | Surface alignment | Source | Verified |
 |---|---|---|---|---|---|---|
-| `aider` | VERIFIED | `model`, `reasoning-effort`, `thinking-tokens`, `yes-always`, `auto-commits` | `.aider.conf.yml` | Partial | [aider.chat](https://aider.chat/docs/config/aider_conf.html) | 2026-08-16 |
-| `antigravity` | UNVERIFIED | - | - | - | [antigravity.google](https://antigravity.google/docs/ide/settings) | 2026-08-16 |
-| `antigravity2` | VERIFIED | `toolPermission`, `artifactReviewPolicy`, `enableTerminalSandbox`, `allowNonWorkspaceAccess` | `~/.gemini/antigravity-cli/settings.json` | Near | [antigravity.google](https://antigravity.google/docs/cli/settings) | 2026-08-16 |
-| `claude` | VERIFIED | `effortLevel`, `model`, `env.CLAUDE_CODE_EFFORT_LEVEL` | `~/.claude/settings.json`, `.claude/settings.json` | Exact | [code.claude.com](https://code.claude.com/docs/en/settings) | 2026-08-16 |
-| `codex` | VERIFIED | `model`, `model_reasoning_effort`, `approval_policy`, `sandbox_mode` | `~/.codex/config.toml` | Exact | [learn.chatgpt.com](https://learn.chatgpt.com/docs/config-file/config-reference) | 2026-08-16 |
-| `copilot` | VERIFIED | `model`, `permissions.disableBypassPermissionsMode`, `sandbox.enabled`, `sandbox.allowBypass` | `~/.copilot/settings.json` | **Mismatch** | [docs.github.com](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-config-dir-reference) | 2026-08-16 |
-| `cursor` | VERIFIED | `approvalMode`, `sandbox.mode`, `sandbox.networkAccess` | `~/.cursor/cli-config.json` | Near | [cursor.com](https://cursor.com/docs/cli/reference/configuration) | 2026-08-16 |
-| `gemini` | VERIFIED | `geminicodeassist.agentYoloMode` | VS Code user settings JSON | **Mismatch** | [docs.cloud.google.com](https://docs.cloud.google.com/gemini/docs/codeassist/use-agentic-chat-pair-programmer) | 2026-08-16 |
-| `gemini-cli` | VERIFIED | `model.name`, `general.defaultApprovalMode` | `~/.gemini/settings.json`, `.gemini/settings.json` | Exact | [geminicli.com](https://geminicli.com/docs/cli/settings/) | 2026-08-16 |
-| `hermes` | VERIFIED | `model.default`, `model.provider`, `agent.reasoning_effort`, `skills.write_approval`, `memory.write_approval` | `~/.hermes/config.yaml` | Exact | [hermes-agent.nousresearch.com](https://hermes-agent.nousresearch.com/docs/user-guide/configuration/) | 2026-08-16 |
-| `kimi` | VERIFIED | `default_model`, `thinking.effort`, `default_permission_mode`, `permission.rules` | `~/.kimi-code/config.toml` | Exact | [kimi.com](https://www.kimi.com/code/docs/en/kimi-code-cli/configuration/config-files.html) | 2026-08-16 |
-| `nexus-ai` | UNVERIFIED | - | - | - | see detail | 2026-08-16 |
-| `openclaw` | VERIFIED | `agents.defaults.model.primary`, `agents.defaults.model.fallbacks` | `~/.openclaw/openclaw.json` | Near | [docs.openclaw.ai](https://docs.openclaw.ai/gateway/configuration) | 2026-08-16 |
-| `opencode` | VERIFIED | `model`, `small_model`, `permission`, `default_agent` | `~/.config/opencode/opencode.json`, `opencode.json` | Exact | [opencode.ai](https://opencode.ai/docs/config/) | 2026-08-16 |
-| `qwen` | VERIFIED | `model.name`, `model.reasoningEffort`, `tools.approvalMode` | `~/.qwen/settings.json`, `.qwen/settings.json` | Exact | [qwenlm.github.io](https://qwenlm.github.io/qwen-code-docs/en/users/configuration/settings/) | 2026-08-16 |
-| `windsurf` | UNVERIFIED | - | - | - | [docs.devin.ai](https://docs.devin.ai/desktop/cascade/modes) | 2026-08-16 |
+| `aider` | VERIFIED | `model`, `reasoning-effort`, `thinking-tokens`, `yes-always`, `auto-commits` | `.aider.conf.yml` | Partial | [aider.chat](https://aider.chat/docs/config/aider_conf.html) | 2026-08-22 |
+| `antigravity` | UNVERIFIED | - | - | - | [antigravity.google](https://antigravity.google/docs/ide/settings) | 2026-08-22 |
+| `antigravity2` | VERIFIED | `toolPermission`, `artifactReviewPolicy`, `enableTerminalSandbox`, `allowNonWorkspaceAccess` | `~/.gemini/antigravity-cli/settings.json` | Near | [antigravity.google](https://antigravity.google/docs/cli/settings) | 2026-08-22 |
+| `claude` | VERIFIED | `effortLevel`, `model`, `env.CLAUDE_CODE_EFFORT_LEVEL` | `~/.claude/settings.json`, `.claude/settings.json` | Exact | [code.claude.com](https://code.claude.com/docs/en/settings) | 2026-08-22 |
+| `codex` | VERIFIED | `model`, `model_reasoning_effort`, `approval_policy`, `sandbox_mode` | `~/.codex/config.toml` | Exact | [learn.chatgpt.com](https://learn.chatgpt.com/docs/config-file/config-reference) | 2026-08-22 |
+| `copilot` | VERIFIED | `model`, `permissions.disableBypassPermissionsMode`, `sandbox.enabled`, `sandbox.allowBypass` | `~/.copilot/settings.json` | **Mismatch** | [docs.github.com](https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-config-dir-reference) | 2026-08-22 |
+| `cursor` | VERIFIED | `approvalMode`, `sandbox.mode`, `sandbox.networkAccess` | `~/.cursor/cli-config.json` | Near | [cursor.com](https://cursor.com/docs/cli/reference/configuration) | 2026-08-22 |
+| `gemini` | VERIFIED | `geminicodeassist.agentYoloMode` | VS Code user settings JSON | **Mismatch** | [docs.cloud.google.com](https://docs.cloud.google.com/gemini/docs/codeassist/use-agentic-chat-pair-programmer) | 2026-08-22 |
+| `gemini-cli` | VERIFIED | `model.name`, `general.defaultApprovalMode` | `~/.gemini/settings.json`, `.gemini/settings.json` | Exact | [geminicli.com](https://geminicli.com/docs/cli/settings/) | 2026-08-22 |
+| `hermes` | VERIFIED | `model.default`, `model.provider`, `agent.reasoning_effort`, `skills.write_approval`, `memory.write_approval` | `~/.hermes/config.yaml` | Exact | [hermes-agent.nousresearch.com](https://hermes-agent.nousresearch.com/docs/user-guide/configuration/) | 2026-08-22 |
+| `kimi` | VERIFIED | `default_model`, `thinking.effort`, `default_permission_mode`, `permission.rules` | `~/.kimi-code/config.toml` | Exact | [kimi.com](https://www.kimi.com/code/docs/en/kimi-code-cli/configuration/config-files.html) | 2026-08-22 |
+| `nexus-ai` | UNVERIFIED | - | - | - | see detail | 2026-08-22 |
+| `openclaw` | VERIFIED | `agents.defaults.model.primary`, `agents.defaults.model.fallbacks` | `~/.openclaw/openclaw.json` | Near | [docs.openclaw.ai](https://docs.openclaw.ai/gateway/configuration) | 2026-08-22 |
+| `opencode` | VERIFIED | `model`, `small_model`, `permission`, `default_agent` | `~/.config/opencode/opencode.json`, `opencode.json` | Exact | [opencode.ai](https://opencode.ai/docs/config/) | 2026-08-22 |
+| `qwen` | VERIFIED | `model.name`, `model.reasoningEffort`, `tools.approvalMode` | `~/.qwen/settings.json`, `.qwen/settings.json` | Exact | [qwenlm.github.io](https://qwenlm.github.io/qwen-code-docs/en/users/configuration/settings/) | 2026-08-22 |
+| `windsurf` | UNVERIFIED | - | - | - | [docs.devin.ai](https://docs.devin.ai/desktop/cascade/modes) | 2026-08-22 |
 
 **Counts**: 13 VERIFIED, 3 UNVERIFIED, 16 total (matching the registry exactly).
 
@@ -174,6 +174,7 @@ Lever re-verification rides along with the existing `platform-contract-verificat
 
 | Date | Version | Scope | Outcome |
 |---|---|---|---|
+| 2026-08-22 | v3.19.0 | All sixteen registered integrations, full pass | 13 VERIFIED, 3 UNVERIFIED. All public first-party sources retained their documented key names and config paths. Antigravity IDE and Windsurf/Devin still document only UI behavior without a seedable file; Nexus-AI remains privately auditable only. No installer default changed. |
 | 2026-08-17 | v3.17.4 | All sixteen registered integrations, full pass | 13 VERIFIED, 3 UNVERIFIED. Every public first-party source returned HTTP 200 and retained the expected key or documented UI-only posture. OpenClaw still documents `agents.defaults`, model fallbacks, and `openclaw.json`; Nexus-AI remains privately auditable only. No installer default changed. |
 | 2026-08-16 | v3.17.3 | All sixteen registered integrations, full pass | 13 VERIFIED, 3 UNVERIFIED. All documented keys and config paths remain valid. Cursor still documents `approvalMode` and sandbox controls separately from hook responses; Antigravity IDE and Windsurf still expose UI behavior without a seedable config file, and Nexus-AI remains privately auditable only. No installer default changed. |
 | 2026-08-15 | v3.17.2 | All sixteen registered integrations, full pass | 13 VERIFIED, 3 UNVERIFIED. Existing seeded keys and write paths remain valid. Additive documentation drift clarifies Codex granular approvals, Cursor `approvalMode`, Antigravity CLI `toolPermission` and `artifactReviewPolicy`, Hermes `approvals.mode`, and Copilot's separate editable-settings and saved-approvals files. No installer default changed, and the retired autonomy controller is not replaced. |

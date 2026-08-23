@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "corpus": "corpus",
+  "tasks": [
+    {
+      "id": "locate-helper",
+      "shape": "locate_symbol",
+      "tool": "code_search",
+      "profile": "minimal",
+      "arguments": {"query": "helper", "limit": 10},
+      "expected": ["helper"]
+    },
+    {
+      "id": "find-helper-callers",
+      "shape": "find_callers",
+      "tool": "code_callers",
+      "profile": "standard",
+      "arguments": {"symbol": "helper"},
+      "expected": ["run_task"]
+    },
+    {
+      "id": "identify-unused-symbol",
+      "shape": "identify_unused",
+      "tool": "code_delete_safety",
+      "profile": "standard",
+      "arguments": {"symbol": "orphan"},
+      "expected": ["no_known_callers"]
+    },
+    {
+      "id": "trace-helper-impact",
+      "shape": "trace_impact",
+      "tool": "code_impact",
+      "profile": "standard",
+      "arguments": {"symbol": "helper", "depth": 2},
+      "expected": ["run_task"]
+    }
+  ]
+}

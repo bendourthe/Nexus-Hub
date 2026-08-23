@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.18.3 -->
+<!-- nexus-hub-version: 3.19.0 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 273 skills, 18 commands, 31 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -37,7 +37,23 @@ The two projects are designed to be useful independently: you can install Nexus-
 
 ---
 
-## What's New in v3.18.3
+## What's New in v3.19.0
+
+**Code intelligence is now cheaper to expose, safer to act on, and still fully offline.** `nexus-code-search` adds `minimal`, `standard`, and `full` tool profiles so a session can expose 7, 16, or 20 tools instead of paying the full definition cost every time. Full remains the compatibility default, and profiles change visibility only - they grant no additional authority.
+
+**Repository searches can route through the local index.** A cross-platform `PreToolUse` hook recognizes Grep, Glob, and equivalent shell searches, then points the agent toward `nexus-code-search`. Its default `soft` mode is advisory; `NEXUS_CODE_SEARCH_ROUTING=block` makes matched searches fail with exit 2, while unrelated commands remain untouched.
+
+**Every MCP tool can return compact responses.** Set `response_format=auto` to use the versioned `NEXUS-CW/1` format only when it clears the measured savings threshold, or use `compact` to force it. JSON remains the default and the fail-open fallback, and `nexus-context-compressor` recognizes the marker so it does not compress the same payload twice.
+
+**Mutation planning gains evidence-backed preflights.** `code_edit_safety`, `code_delete_safety`, and `code_rename_safety` return ordered verdicts with the indexed callers, importers, and references behind them. `insufficient_data` stays distinct from safe, and each result states the graph's cross-repository visibility boundary.
+
+**The local index now understands more than code.** A provider seam ships with a Markdown provider for headings and hierarchy, plus optional hybrid retrieval through pre-placed ONNX weights. Dense retrieval is off by default, never downloads a model, and degrades to keyword search with a precise local hint when its extra, weights, or encoder are unavailable.
+
+The deterministic benchmark records retrieval quality, response bytes, estimated tokens, definition cost, and latency against unique temporary workspaces. CI runs the full extension suite in a container with `--network none`, and the server now supports both MCP SDK 1.x and 2.x schema attribute names. See the [code-search README](extensions/nexus-code-search/README.md) for activation and rollback guidance.
+
+Catalog counts are unchanged at **273 skills**, **18 commands**, **31 hooks**, and **23 agents**. The extension preserves its published guarantee: **zero outbound calls, zero API keys, zero model downloads**.
+
+## Previously, in v3.18.3
 
 **`/presentify` can now produce a slide deck.** Pass `--nav slides` (or pick "Slide deck" in the canvas question) and the output becomes viewport-fitted slides advanced by keyboard arrows, rather than a page you scroll. Everything else about the output is unchanged: still one self-contained offline HTML file, still real interactive charts, still commercial-use-safe imagery.
 

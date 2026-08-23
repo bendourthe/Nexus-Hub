@@ -17,6 +17,7 @@
 | Phase 6 tasks complete | 4 | 4 | 0 |
 | Phase 7 tasks complete | 4 | 4 | 0 |
 | v3.19.0 CI/CD plan phases complete | 0 | 8 | 8 |
+| v3.19.0 code-intelligence phases complete | 7 | 7 | 0 |
 | v3.16.1 planning milestones complete | 2 | 2 | 0 |
 | v3.18.3 presentify slide-navigation phases complete | 5 | 5 | 0 |
 | v3.16.1 plan phases complete | 8 | 8 | 0 |
@@ -217,6 +218,16 @@
 - [ ] Complete Phase 6: Nexus-Hub Repository-Native CI Engine
 - [ ] Complete Phase 7: Nexus-Hub Workflow Migration
 - [ ] Complete Phase 8: Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
+
+## Parallel Plan - v3.19.0 Code-Intelligence Hardening [DONE]
+
+- [x] Complete Phase 1: Tool-profile gating and dependency-ceiling convention
+- [x] Complete Phase 2: Search-routing guard
+- [x] Complete Phase 3: Compact response encoding
+- [x] Complete Phase 4: Edit-safety verdicts
+- [x] Complete Phase 5: Deterministic measurement harness
+- [x] Complete Phase 6: Context providers and offline dense retrieval
+- [x] Complete Phase 7: Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
 
 ## Parallel Plan - v3.16.1 Evaluation Methodology and Selective Installation
 

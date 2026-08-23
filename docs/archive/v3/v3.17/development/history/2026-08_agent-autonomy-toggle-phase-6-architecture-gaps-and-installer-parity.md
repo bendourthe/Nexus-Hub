@@ -13,7 +13,7 @@
 - **Branch**: `feat/v3.17.0-agent-autonomy-toggle`
 - **Starting tag/commit**: `04df15d33020df805cc88ac55bfa3fd9ec5f042c`
 - **Environment**: Windows PowerShell, Python 3.12, Node.js extension toolchains, no GNU Make, no pytest-xdist
-- **Prior session reference**: `docs/v3/v3.17/development/history/2026-08-15_agent-autonomy-toggle-phase-5-cli-monitors-and-decision-walkthrough.md`
+- **Prior session reference**: `docs/archive/v3/v3.17/development/history/2026-08-15_agent-autonomy-toggle-phase-5-cli-monitors-and-decision-walkthrough.md`
 - **Plan reference**: `docs/v3/v3.17/plans/v3.17.0-agent-autonomy-toggle.md`
 
 Context: Phases 1 through 5 had delivered the permission baseline, autonomy descriptors, core state engine, deny layer, CLI, and usage-monitor controls. Phase 6 had to reconcile architecture and known gaps, make installer parity a standing hard gate, audit every workflow, re-verify platform contracts, and hand the branch to the separate release workflow.

@@ -7,7 +7,7 @@ set -e
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-NEXUS_HUB_VERSION="3.18.3"
+NEXUS_HUB_VERSION="3.19.0"
 
 # --- Window Title ---
 printf '\033]0;Nexus-Hub Installer\007'
@@ -2985,6 +2985,8 @@ install_skill_discovery() {
     if [ -d "$code_search_src" ]; then
         rm -rf "$code_search_dest"
         cp -r "$code_search_src" "$code_search_dest"
+        # Repository-only measurement evidence must not reach user machines.
+        rm -rf "$code_search_dest/benchmarks"
         if command -v uv >/dev/null 2>&1; then
             uv pip install --python "$venv_path/bin/python" -e "$code_search_dest" >/dev/null 2>&1
         else

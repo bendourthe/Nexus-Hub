@@ -1,6 +1,6 @@
 # AGENTS.md
 
-<!-- nexus-hub-version: 3.18.3 -->
+<!-- nexus-hub-version: 3.19.0 -->
 
 This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, Gemini CLI, etc.) when working with code in this repository.
 
@@ -414,6 +414,10 @@ Walk this checklist before proposing a PR:
 4. **Does your change touch a platform-specific instruction template?** If you edit any of `templates/ai-instructions/base-*.md`, apply the same change to all five (claude/codex/cursor/gemini/opencode). This is the "platform-agnostic" constraint. It is machine-enforced: `scripts/check_base_template_parity.py` (run by `make validate` and in CI) fails when a shared section heading, a shared placeholder token, or an invariant block (Tech Stack, Key Commands, Branching, End-of-Task Summary, MCP Registry Policy) diverges across the five, while tolerating intentional per-platform lines (platform names, install paths). Note that `Output Minimization` is deliberately NOT an invariant block, because `base-claude.md` carries a legitimate extra bullet; `End-of-Task Summary` (added v3.15.10) IS one, because the rule is platform-agnostic by intent and has no valid per-platform variation. It is a repo-internal guard like `check_version_sync.py`, so it needs no `.ps1` sibling and no installer copy step.
 5. **Validate**: run `make validate` (JSON integrity) and `make lint` (ShellCheck) after edits. For new hooks, run `make test`. For installer changes, do a dry-run install into a throwaway directory and confirm the new artifact lands at the expected path.
 6. **Document**: add an entry under `## [Unreleased]` in `CHANGELOG.md`.
+
+### Dependency ceiling rationale
+
+Every dependency upper bound MUST carry an adjacent comment that states the unacceptable or unknown newer-version behavior, why it matters, the last verification date, the evidence observed, the newer-version test result when one was run, and the exact condition for lifting the ceiling. When the original reason or newer-version behavior cannot be established, record that uncertainty explicitly instead of inventing a justification; for example, a runtime artifact download can violate the zero-outbound and zero-model-download guarantees even when the package API still appears compatible.
 
 ### Platform coverage caveats (current state)
 

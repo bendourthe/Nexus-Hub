@@ -248,6 +248,30 @@ Because it is advisory only (exit 0, never blocks a phase), it is safe to leave 
 
 This adopts the *discipline* (phase-boundary automation on Nexus-Hub's own hook surface) without adopting Spec Kit's per-command hook *machinery*. See the "lifecycle-hook scope creep" risk note in the v3.6.0 Spec Kit comparison (Section 9) for why the line is drawn here.
 
+### Code-search routing guard
+
+`code-search-routing` is a `PreToolUse` advisory hook for `Grep`, `Glob`, and conservative Bash search patterns. It recommends the local `nexus-code-search` MCP tools before native repository discovery bypasses the index. The Bash matcher covers direct or piped `grep` / `rg`, plus non-destructive `find` commands with name or path predicates; `cat` is treated as search only when its pipeline contains `grep` or `rg`. It never intercepts `Read`, because a prior read is part of the edit-safety contract.
+
+The default is soft: the hook writes the indexed equivalent to stderr and exits 0. Set `NEXUS_CODE_SEARCH_ROUTING=block` to make a matched redirect exit 2, or `NEXUS_CODE_SEARCH_ROUTING_DEBUG=1` to log local matcher decisions. Disable only this hook with `NEXUS_DISABLED_HOOKS=code-search-routing`, or skip it with every advisory hook under `NEXUS_HOOK_PROFILE=minimal`. None of these controls grants access to an index or repository path; they change routing advice only, and native search remains necessary when no index exists or raw filesystem semantics matter.
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Grep|Glob|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/code-search-routing.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
 ---
 
 ## Sandbox Settings
