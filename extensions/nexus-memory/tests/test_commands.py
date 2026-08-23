@@ -56,7 +56,7 @@ def test_large_unread_store_stays_within_budget(tmp_path: Path) -> None:
 def test_merge_request_names_a_real_pending_range(tmp_path: Path) -> None:
     store = _store(tmp_path, budget=8)
     store.append("alpha")
-    request = cmd_record(store, "beta")
+    request = cmd_record(store, "beta", source="pytest")
     match = re.search(r"# merge \[(\d+), (\d+)\)", request)
     assert match is not None
     lo, hi = int(match.group(1)), int(match.group(2))
@@ -110,7 +110,7 @@ def test_answering_a_merge_changes_the_next_read(tmp_path: Path) -> None:
 def test_end_to_end_fill_merge_and_bounded_read(tmp_path: Path) -> None:
     store = _store(tmp_path, budget=8)
     for i in range(40):
-        request = cmd_record(store, f"entry-{i}")
+        request = cmd_record(store, f"entry-{i}", source="pytest")
         if request.startswith("# merge"):
             match = re.search(r"# merge \[(\d+), (\d+)\)", request)
             assert match is not None
@@ -156,8 +156,8 @@ def test_search_and_zoom_and_drop(tmp_path: Path) -> None:
 
 
 def test_cli_read_and_record(tmp_path: Path) -> None:
-    assert main(["--root", str(tmp_path), "record", "--text", "one"]) == 0
-    assert main(["--root", str(tmp_path), "record", "--text", "two"]) == 0
+    assert main(["--root", str(tmp_path), "record", "--text", "one", "--source", "pytest"]) == 0
+    assert main(["--root", str(tmp_path), "record", "--text", "two", "--source", "pytest"]) == 0
     assert main(["--root", str(tmp_path), "count"]) == 0
     assert main(["--root", str(tmp_path), "read"]) == 0
     paged = cmd_read(MemoryStore(tmp_path), part=1)

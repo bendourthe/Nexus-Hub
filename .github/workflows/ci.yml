@@ -257,6 +257,12 @@ jobs:
         # job (no new required context). Repo-internal; DEV_ONLY_SCRIPTS.
         run: python scripts/check_docs_conventions.py
 
+      - name: Validate memory provenance (v3.19.2 Phase 3)
+        # Templates under catalog/memory/ must teach required source, an
+        # append-only changelog, and supersede-not-delete. Rides the existing
+        # validate job (no new required context). Repo-internal; DEV_ONLY_SCRIPTS.
+        run: python scripts/check_memory_provenance.py
+
       - name: Validate incident notes (v3.16.2 Phase 3)
         # An incident is closed by a change, not by an explanation. This asserts
         # every docs/incidents/ note carries a Public-Safe Shape section and a

@@ -47,6 +47,12 @@ Each request contains:
 
 **Cache invariant.** The summary tree is a pure cache and must be fully rebuildable from the log alone. Deleting the tree loses no information.
 
+## Provenance invariant
+
+Every new `record` write must carry a `source`. The store rejects a write that cannot name one. Pre-provenance rows are readable as `source: legacy-import` and must not be rewritten. Mutations append to `changelog.log` (`added`, `superseded`, `archived`). A superseded or archived entry is marked, never deleted. Maintenance is preview-first (`maintain`, then `maintain --apply`) and copies a backup before appending archival rows.
+
+File-backed notes follow `catalog/memory/record.md`. ADRs in `catalog/memory/decisions.md` require a **Source** field and an append-only changelog. `scripts/check_memory_provenance.py` gates the templates in `make validate` and CI.
+
 ## Subagent write exclusion
 
 Parallel top-level sessions on one machine are the same identity and may all write the substrate. A spawned subagent must never write: it cannot judge what is already known, and its entries would arrive duplicated and out of context.

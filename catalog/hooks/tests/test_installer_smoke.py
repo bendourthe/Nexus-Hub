@@ -622,6 +622,11 @@ DEV_ONLY_SCRIPTS = {
     # Runs in make validate and CI. An end-user install has no docs/ tree
     # to audit, so it is deliberately not installer-copied.
     "check_docs_conventions.py",
+    # Repo-internal memory provenance guard (v3.19.2): asserts catalog/memory
+    # templates require a source, keep an append-only changelog, and supersede
+    # instead of deleting. Runs in make validate and CI. An end-user install
+    # has no catalog/memory templates to audit, so it is not installer-copied.
+    "check_memory_provenance.py",
     # Repo-internal decision-record guard (v3.17.5): asserts every record under
     # docs/decisions/ sits at lifecycle/class/file, carries the 3-line header
     # matching its folder, and states its alternatives. Runs in `make validate`
