@@ -30,7 +30,8 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  test:
+  test-network-blocked:
+    name: Test with outbound network blocked
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -47,9 +48,13 @@ jobs:
       - name: Install code-search MCP server (with dev extras)
         run: pip install -e "extensions/nexus-code-search/[dev]"
 
-      - name: Code-search test suite
-        run: pytest extensions/nexus-code-search/tests/ -v
-
-      - name: Offline cost and retrieval-quality benchmark
-        working-directory: extensions/nexus-code-search
-        run: python benchmarks/harness.py --check --work "$RUNNER_TEMP/nexus-code-search-benchmark" --json-out "$RUNNER_TEMP/nexus-code-search-benchmark.json" --markdown-out "$RUNNER_TEMP/nexus-code-search-benchmark.md"
+      - name: Full suite and benchmark with egress denied
+        run: |
+          sudo unshare --net --mount-proc bash -c '
+            set -euo pipefail
+            ip link set lo up
+            test "$(ls /sys/class/net)" = "lo"
+            python -m pytest extensions/nexus-code-search/tests/ -q
+            cd extensions/nexus-code-search
+            python benchmarks/harness.py --check --work /tmp/nexus-code-search-benchmark --json-out /tmp/nexus-code-search-benchmark.json --markdown-out /tmp/nexus-code-search-benchmark.md
+          '

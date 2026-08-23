@@ -8,15 +8,14 @@ from pathlib import Path
 from types import SimpleNamespace
 
 import pytest
-
 from nexus_code_search import server as server_module
 from nexus_code_search.config import resolve_config
 from nexus_code_search.server import (
-    TOOL_MINIMUM_PROFILE,
     _all_tools,
     _tools_for_profile,
     tool_definition_token_count,
 )
+from nexus_code_search.tool_profiles import TOOL_MINIMUM_PROFILE
 
 EXPECTED_TOOLS = {
     "minimal": {
@@ -60,6 +59,12 @@ def test_profile_exposes_exact_declared_tool_set(profile: str) -> None:
 def test_every_tool_has_one_lowest_profile_assignment() -> None:
     assert set(TOOL_MINIMUM_PROFILE) == EXPECTED_TOOLS["full"]
     assert len(TOOL_MINIMUM_PROFILE) == len(_all_tools())
+
+
+def test_profile_policy_is_not_owned_by_transport_server() -> None:
+    server = Path(server_module.__file__).read_text(encoding="utf-8")
+    assert "TOOL_MINIMUM_PROFILE =" not in server
+    assert "TOOL_PROFILE_RANK =" not in server
 
 
 def test_default_profile_preserves_full_surface(

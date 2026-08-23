@@ -5,12 +5,16 @@ from __future__ import annotations
 import builtins
 import json
 import socket
+import sys
 from pathlib import Path
+from types import SimpleNamespace
+from typing import ClassVar
 
 import pytest
 from nexus_code_search.config import CodeSearchConfig
 from nexus_code_search.search_dense import (
     DenseSearchConfig,
+    _onnx_backend_factory,
     build_local_encoder,
     hybrid_search,
 )
@@ -151,6 +155,83 @@ def test_preplaced_weights_with_missing_dependency_degrade_locally(
     assert hint and "optional dependency not installed" in hint
     assert str(model_dir) in hint
     assert "never downloads" in hint
+
+
+def test_local_onnx_adapter_uses_preplaced_files_and_cpu_only(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    model_path = tmp_path / "model.onnx"
+    tokenizer_path = tmp_path / "tokenizer.json"
+    model_path.write_bytes(b"local-model")
+    tokenizer_path.write_text("{}", encoding="utf-8")
+    captured: dict[str, object] = {}
+
+    class FakeArray:
+        def __init__(self, values: list) -> None:
+            self.values = values
+            self.ndim = 2 if values and isinstance(values[0], list) else 1
+
+        def tolist(self) -> list:
+            return self.values
+
+    class FakeSession:
+        output: ClassVar[list] = [[0.1, 0.2], [0.3, 0.4]]
+
+        def __init__(self, path: str, *, providers: list[str]) -> None:
+            captured["model_path"] = path
+            captured["providers"] = providers
+
+        def get_inputs(self) -> list[SimpleNamespace]:
+            return [SimpleNamespace(name="input_ids"), SimpleNamespace(name="attention_mask")]
+
+        def run(self, _outputs: object, feeds: dict[str, FakeArray]) -> list[list]:
+            captured["feeds"] = feeds
+            return [self.output]
+
+    class FakeTokenizer:
+        @classmethod
+        def from_file(cls, path: str) -> FakeTokenizer:
+            captured["tokenizer_path"] = path
+            return cls()
+
+        def encode_batch(self, texts: list[str]) -> list[SimpleNamespace]:
+            return [SimpleNamespace(ids=list(range(len(text.split())))) for text in texts]
+
+    fake_numpy = SimpleNamespace(asarray=lambda values, dtype: FakeArray(values))
+    fake_onnx = SimpleNamespace(InferenceSession=FakeSession)
+    fake_tokenizers = SimpleNamespace(Tokenizer=FakeTokenizer)
+    monkeypatch.setitem(sys.modules, "numpy", fake_numpy)
+    monkeypatch.setitem(sys.modules, "onnxruntime", fake_onnx)
+    monkeypatch.setitem(sys.modules, "tokenizers", fake_tokenizers)
+
+    encoder = _onnx_backend_factory(model_path, tokenizer_path)
+    assert encoder(["two tokens", "one"]) == [[0.1, 0.2], [0.3, 0.4]]
+    assert encoder([""]) == [[]]
+    assert captured["model_path"] == str(model_path)
+    assert captured["tokenizer_path"] == str(tokenizer_path)
+    assert captured["providers"] == ["CPUExecutionProvider"]
+    assert set(captured["feeds"]) == {"input_ids", "attention_mask"}
+
+    FakeSession.output = [1.0]
+    with pytest.raises(ValueError, match="rank 2 or 3"):
+        encoder(["invalid output"])
+
+
+def test_preplaced_weights_with_broken_backend_degrade_locally(tmp_path: Path) -> None:
+    model_dir = tmp_path / "weights"
+    model_dir.mkdir()
+    (model_dir / "model.onnx").write_bytes(b"local-model")
+    (model_dir / "tokenizer.json").write_text("{}", encoding="utf-8")
+
+    def broken_backend(_model: Path, _tokenizer: Path):
+        raise RuntimeError("invalid local model")
+
+    encoder, hint = build_local_encoder(
+        DenseSearchConfig(enabled=True, model_dir=str(model_dir)),
+        backend_factory=broken_backend,
+    )
+    assert encoder is None
+    assert hint and "failed to load local weights" in hint
 
 
 def test_hybrid_ranking_combines_keyword_and_injected_dense_scores() -> None:

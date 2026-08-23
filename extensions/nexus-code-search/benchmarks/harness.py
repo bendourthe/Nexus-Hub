@@ -6,6 +6,7 @@ import argparse
 import json
 import shutil
 import sys
+import tempfile
 import time
 from dataclasses import asdict, dataclass
 from pathlib import Path
@@ -235,36 +236,42 @@ def run_benchmark(goldset_path: Path, work_dir: Path) -> BenchmarkReport:
     """Run all gold tasks against a fresh local copy of the corpus."""
 
     goldset = load_goldset(goldset_path)
-    corpus = work_dir / "corpus"
-    if corpus.exists():
-        shutil.rmtree(corpus)
-    corpus.parent.mkdir(parents=True, exist_ok=True)
-    shutil.copytree(goldset.corpus, corpus)
-    config = CodeSearchConfig(hub_root=None)
-    _dispatch_tool("index_graph", {"root": str(corpus), "force": True}, config)
-    tasks = [_measure_task(task, corpus, config) for task in goldset.tasks]
-    count = len(tasks)
-    quality = QualitySummary(
-        precision=sum(task.precision for task in tasks) / count,
-        recall=sum(task.recall for task in tasks) / count,
-        mean_reciprocal_rank=sum(task.reciprocal_rank for task in tasks) / count,
-    )
-    json_bytes = sum(task.json_bytes for task in tasks)
-    compact_bytes = sum(task.compact_bytes for task in tasks)
-    byte_savings = json_bytes - compact_bytes
-    cost = CostSummary(
-        all_tools_json_bytes=json_bytes,
-        profiled_compact_bytes=compact_bytes,
-        byte_savings=byte_savings,
-        byte_savings_pct=(byte_savings / json_bytes * 100.0) if json_bytes else 0.0,
-        json_tokens=sum(task.json_tokens for task in tasks),
-        compact_tokens=sum(task.compact_tokens for task in tasks),
-        all_tools_definition_tokens=sum(
-            task.all_tools_definition_tokens for task in tasks
-        ),
-        profiled_definition_tokens=sum(task.profiled_definition_tokens for task in tasks),
-    )
-    return BenchmarkReport(1, goldset.version, tasks, quality, cost)
+    work_dir.mkdir(parents=True, exist_ok=True)
+    run_dir = Path(tempfile.mkdtemp(prefix="run-", dir=work_dir))
+    corpus = run_dir / "corpus"
+    try:
+        shutil.copytree(goldset.corpus, corpus)
+        config = CodeSearchConfig(hub_root=None)
+        _dispatch_tool("index_graph", {"root": str(corpus), "force": True}, config)
+        tasks = [_measure_task(task, corpus, config) for task in goldset.tasks]
+        count = len(tasks)
+        quality = QualitySummary(
+            precision=sum(task.precision for task in tasks) / count,
+            recall=sum(task.recall for task in tasks) / count,
+            mean_reciprocal_rank=sum(task.reciprocal_rank for task in tasks) / count,
+        )
+        json_bytes = sum(task.json_bytes for task in tasks)
+        compact_bytes = sum(task.compact_bytes for task in tasks)
+        byte_savings = json_bytes - compact_bytes
+        cost = CostSummary(
+            all_tools_json_bytes=json_bytes,
+            profiled_compact_bytes=compact_bytes,
+            byte_savings=byte_savings,
+            byte_savings_pct=(byte_savings / json_bytes * 100.0) if json_bytes else 0.0,
+            json_tokens=sum(task.json_tokens for task in tasks),
+            compact_tokens=sum(task.compact_tokens for task in tasks),
+            all_tools_definition_tokens=sum(
+                task.all_tools_definition_tokens for task in tasks
+            ),
+            profiled_definition_tokens=sum(
+                task.profiled_definition_tokens for task in tasks
+            ),
+        )
+        return BenchmarkReport(1, goldset.version, tasks, quality, cost)
+    finally:
+        # OneDrive and antivirus scanners can briefly retain SQLite handles on
+        # Windows. Unique runs avoid collisions when cleanup cannot remove one.
+        shutil.rmtree(run_dir, ignore_errors=True)
 
 
 def _quality_values(report: BenchmarkReport | dict[str, float]) -> dict[str, float]:

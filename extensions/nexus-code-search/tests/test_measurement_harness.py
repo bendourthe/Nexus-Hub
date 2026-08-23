@@ -120,6 +120,13 @@ def test_reports_are_human_and_machine_readable(tmp_path: Path) -> None:
     assert "| All tools + JSON |" in markdown
 
 
+def test_repeated_runs_share_a_work_root_without_corpus_collision(tmp_path: Path) -> None:
+    work = tmp_path / "work"
+    first = run_benchmark(GOLDSET, work)
+    second = run_benchmark(GOLDSET, work)
+    assert first.quality == second.quality
+
+
 def test_quality_regression_mode_honors_tolerance(tmp_path: Path) -> None:
     report = run_benchmark(GOLDSET, tmp_path / "work")
     baseline = {
