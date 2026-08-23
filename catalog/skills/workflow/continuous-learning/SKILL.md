@@ -59,6 +59,8 @@ When invoked, read `.nexus/observations.jsonl` (Read tool, or Bash `wc -l` + `ta
 
 Report the top 3-5 candidate patterns to the user in one short paragraph each, with the supporting observation timestamps.
 
+Also scan for **repeated CLI mistakes**: the same failing command, flag, or path appearing in several observations (wrong pytest selector, `git` flags that always get rewritten, a noisy command that never goes through the compressor). For each cluster, propose either a `catalog/hooks` rule or a BYO compressor filter (`pattern` + `drop-line` / `keep-line` / `replace`) saved under `.nexus-hub/compressor-filters.json`, then `python -m nexus_context_compressor verify` and `trust`. Cross-check `~/.nexus-hub/compressor-passthrough.jsonl` for output that entered context uncompressed -- those are filter candidates, not instincts.
+
 ### 3. Mint an instinct
 
 For each pattern the user confirms, create one atomic YAML file at `.nexus/instincts/<short-slug>.yaml`:
@@ -120,6 +122,7 @@ The user prunes manually. This skill offers to mark an instinct `archived: true`
 - [ ] No `.nexus/` file is written outside the project root.
 - [ ] When a draft skill is produced, it is shown to the maintainer for review, not committed automatically.
 - [ ] `.nexus/instincts/_index.md` matches the YAML files in the same directory (no drift).
+- [ ] Repeated CLI mistakes, when present, were proposed as a local filter or hook rule, not as an outbound observer.
 
 ## Related Skills
 

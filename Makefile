@@ -43,6 +43,12 @@ validate: ## Validate all JSON catalog files and skill bundles
 	@python scripts/check_registry_entries.py --check --strict
 	@echo "Checking version sync across all version-carrying surfaces..."
 	@python scripts/check_version_sync.py
+	@echo "Checking the context compressor makes no outbound calls..."
+	@python scripts/check_no_outbound.py
+	@echo "Checking docs conventions (relative-link integrity, kebab-case dirs)..."
+	@python scripts/check_docs_conventions.py
+	@echo "Checking memory provenance templates (source required, changelog, no-delete)..."
+	@python scripts/check_memory_provenance.py
 	@echo "Checking base-*.md lockstep parity (claude/codex/cursor/gemini/opencode)..."
 	@python scripts/check_base_template_parity.py
 	@echo "Checking per-model prompting profile layer (structural schema gate)..."

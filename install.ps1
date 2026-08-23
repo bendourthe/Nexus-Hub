@@ -22,6 +22,10 @@
 #   NEXUS_HUB_SRC                extraction target      (default: ~/.nexus-hub/src)
 #   NEXUS_HUB_FORCE_STANDALONE=1 force standalone mode even inside a checkout
 #   NEXUS_HUB_PRECHECK_ONLY=1    run the dependency precheck then exit (no fetch)
+#   NEXUS_HUB_EXPECTED_SHA256    pin the archive SHA-256 (64 hex chars)
+#   NEXUS_HUB_CHECKSUMS          path to a GNU sha256sum-format checksums.txt
+#   NEXUS_HUB_SKIP_CHECKSUM=1    skip SHA-256 verification (path-traversal
+#                                guard still runs). Mirrors RTK_SKIP_CHECKSUM.
 [CmdletBinding()]
 param(
     [Parameter(ValueFromRemainingArguments = $true)]
@@ -123,6 +127,122 @@ function Invoke-InRepo {
     exit $LASTEXITCODE
 }
 
+function Get-Sha256Hex {
+    param([string]$Path)
+    $sha = [System.Security.Cryptography.SHA256]::Create()
+    try {
+        $stream = [System.IO.File]::OpenRead($Path)
+        try {
+            $hash = $sha.ComputeHash($stream)
+            return ([System.BitConverter]::ToString($hash) -replace '-', '').ToLowerInvariant()
+        } finally {
+            $stream.Dispose()
+        }
+    } finally {
+        $sha.Dispose()
+    }
+}
+
+function Test-UnsafeArchiveEntry {
+    param([string]$Name)
+    if ([string]::IsNullOrEmpty($Name)) { return $false }
+    $normalized = $Name -replace '\\', '/'
+    if ($normalized.StartsWith('/') -or $normalized -match '^[A-Za-z]:') { return $true }
+    foreach ($part in $normalized.Split('/')) {
+        if ($part -eq '..') { return $true }
+    }
+    return $false
+}
+
+function Get-ArchiveMemberNames {
+    param([string]$ArchivePath, [bool]$UseTar, [string]$TarExe)
+    $names = New-Object System.Collections.Generic.List[string]
+    if ($UseTar -and $TarExe) {
+        $listed = & $TarExe -tzf $ArchivePath 2>&1
+        if ($LASTEXITCODE -ne 0) {
+            throw "tar -tzf failed for $ArchivePath : $listed"
+        }
+        foreach ($line in @($listed)) {
+            $n = [string]$line
+            if (-not [string]::IsNullOrWhiteSpace($n)) { $names.Add($n.Trim()) }
+        }
+        return $names
+    }
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    $zip = [System.IO.Compression.ZipFile]::OpenRead($ArchivePath)
+    try {
+        foreach ($entry in $zip.Entries) { $names.Add($entry.FullName) }
+    } finally {
+        $zip.Dispose()
+    }
+    return $names
+}
+
+function Assert-ArchiveSafe {
+    param([string]$ArchivePath, [bool]$UseTar, [string]$TarExe)
+    $members = Get-ArchiveMemberNames -ArchivePath $ArchivePath -UseTar $UseTar -TarExe $TarExe
+    foreach ($name in $members) {
+        if (Test-UnsafeArchiveEntry -Name $name) {
+            Write-BootstrapError "refusing to extract $ArchivePath : unsafe member '$name' (absolute or '..' path, CWE-22)"
+            exit 1
+        }
+    }
+}
+
+function Get-ChecksumFromFile {
+    param([string]$FilePath, [string]$ArchiveName)
+    if (-not (Test-Path -LiteralPath $FilePath)) { return $null }
+    foreach ($line in Get-Content -LiteralPath $FilePath) {
+        $trim = $line.Trim()
+        if (-not $trim -or $trim.StartsWith('#')) { continue }
+        $parts = $trim -split '\s+', 2
+        if ($parts.Count -lt 1) { continue }
+        $hash = $parts[0].ToLowerInvariant()
+        if ($parts.Count -eq 1) { return $hash }
+        $fname = $parts[1].Trim().TrimStart('*')
+        if ([System.IO.Path]::GetFileName($fname) -eq $ArchiveName) { return $hash }
+    }
+    return $null
+}
+
+function Assert-ArchiveChecksum {
+    param([string]$ArchivePath, [string]$Ref, [string]$Repo)
+    if ($env:NEXUS_HUB_SKIP_CHECKSUM -eq '1') {
+        Write-BootstrapInfo "checksum verification skipped (NEXUS_HUB_SKIP_CHECKSUM=1)"
+        return
+    }
+    $actual = Get-Sha256Hex -Path $ArchivePath
+    $expected = $env:NEXUS_HUB_EXPECTED_SHA256
+    if ($expected) { $expected = $expected.ToLowerInvariant() }
+    if (-not $expected -and $env:NEXUS_HUB_CHECKSUMS) {
+        $expected = Get-ChecksumFromFile -FilePath $env:NEXUS_HUB_CHECKSUMS -ArchiveName ([System.IO.Path]::GetFileName($ArchivePath))
+    }
+    if (-not $expected -and $Ref -match '^(v[0-9]|[0-9]+\.[0-9])') {
+        $tmpSum = Join-Path ([System.IO.Path]::GetTempPath()) ("nexus-hub-checksums-" + [System.Guid]::NewGuid().ToString("N") + ".txt")
+        $url = "https://raw.githubusercontent.com/$Repo/$Ref/checksums.txt"
+        try {
+            Invoke-WebRequest -Uri $url -OutFile $tmpSum -UseBasicParsing -TimeoutSec 30
+            $expected = Get-ChecksumFromFile -FilePath $tmpSum -ArchiveName ([System.IO.Path]::GetFileName($ArchivePath))
+            if (-not $expected) {
+                $expected = Get-ChecksumFromFile -FilePath $tmpSum -ArchiveName ("Nexus-Hub-$Ref.tar.gz")
+            }
+        } catch {
+            # Tagged checksums.txt is optional until the first release publishes one.
+        } finally {
+            if (Test-Path -LiteralPath $tmpSum) { Remove-Item -LiteralPath $tmpSum -Force -ErrorAction SilentlyContinue }
+        }
+    }
+    if ($expected) {
+        if ($actual -ne $expected) {
+            Write-BootstrapError "checksum mismatch for $ArchivePath : expected $expected, got $actual"
+            exit 1
+        }
+        Write-BootstrapInfo "checksum OK ($actual)"
+        return
+    }
+    Write-BootstrapInfo "warning: unverified '$Ref' tarball (no published checksum). Set NEXUS_HUB_EXPECTED_SHA256 or NEXUS_HUB_CHECKSUMS, or NEXUS_HUB_SKIP_CHECKSUM=1 to skip."
+}
+
 # Standalone bootstrap: precheck, fetch the catalog archive, extract it, and
 # hand off to the extracted core installer.
 function Invoke-Standalone {
@@ -170,6 +290,9 @@ function Invoke-Standalone {
                 exit 1
             }
         }
+
+        Assert-ArchiveSafe -ArchivePath $archive -UseTar $useTar -TarExe $tarExe
+        Assert-ArchiveChecksum -ArchivePath $archive -Ref $ref -Repo $repo
 
         Write-BootstrapInfo "Extracting catalog to $src ..."
         if (Test-Path $src) { Remove-Item -Recurse -Force $src }

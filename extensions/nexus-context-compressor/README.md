@@ -89,6 +89,24 @@ Every default-path strategy is pure standard library. The only required dependen
 
 This engine supersedes the external `rtk` Rust binary the project previously recommended. Existing rtk users remove the rtk PreToolUse hook (or the Windows `CLAUDE.md` instruction block), optionally `cargo uninstall rtk`, and enable the internal hook with `export NEXUS_CONTEXT_COMPRESS=1`. Do not run both at once. The full migration steps, platform matrix, and trust rationale are in [`guides/reference/RTK_CONTEXT_COMPRESSION.md`](../../guides/reference/RTK_CONTEXT_COMPRESSION.md).
 
+### Semantic reformatters (named short list)
+
+`reformatters.py` parse-and-restructures a handful of high-frequency command outputs before the content router runs: `git status`, pytest/vitest/jest failures-only, and ruff/eslint/tsc diagnostics grouped by file. Each handler has a fixture test that requires at least 60% token reduction. This is not parity with a dedicated ~60-handler command-output compressor; uncovered commands still pass through the existing JSON/code router or leave the text unchanged. See known-gaps **DF-3**.
+
+Command rewrite is a separate PreToolUse decision (`rewrite.py`, `catalog/hooks/rewrite-command.sh`): exit 0 allow / 1 passthrough / 2 deny / 3 ask. The default when a rewrite exists is 3 (ask), never 0 (auto-allow). Host deny beats ask beats allow. A compound command (`&&` `||` `;` `|`) is allowed only when every segment independently matches allow.
+
+### Bring-your-own filters (SHA-256 trust store)
+
+Project file `.nexus-hub/compressor-filters.json`, then `~/.nexus-hub/compressor-filters.json`, then built-in (none), then passthrough. An on-disk file is applied only after `python -m nexus_context_compressor trust <file>` records its SHA-256. Editing the file changes the hash, so compress skips it until trusted again. `untrust` removes the pin. `verify` runs inline `tests[]` (`name` / `input` / `expected`) even on an untrusted file. This is consent plus tamper-evidence, not a sandbox.
+
+### Recoverable truncation
+
+`compress --max-lines N` / `--max-bytes N` (and `compress_output(..., max_lines=, max_bytes=)`) tee the full blob to a spool file, keep a prefix, and print a recovery pointer (`tail -n +LINE FILE`). If the spool cannot be written, the original text is left intact. Nothing is silently unrecoverable.
+
+### Passthrough log (session mining)
+
+When compression does not shrink the blob, one JSON line is appended to `~/.nexus-hub/compressor-passthrough.jsonl` (or a sibling of `NEXUS_CCR_STORE_PATH`). `session-query` and `continuous-learning` mine that log for unrealized savings and repeated CLI mistakes. Local, append-only, no outbound I/O.
+
 ## Status
 
 Built incrementally across the v3.2.0 `adoption-headroom` plan:

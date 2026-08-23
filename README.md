@@ -4,9 +4,9 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.19.1 -->
+<!-- nexus-hub-version: 3.19.2 -->
 
-Nexus-Hub is the upstream skill catalog for AI coding assistants: 274 skills, 18 commands, 32 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
+Nexus-Hub is the upstream skill catalog for AI coding assistants: 274 skills, 18 commands, 33 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
 ## Interactive Guide -- start here
 
@@ -30,14 +30,24 @@ Nexus-Hub is the upstream skill catalog for AI coding assistants: 274 skills, 18
 
 Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of the same idea, split along a deliberate seam.
 
-- **Nexus-Hub (this repo)** is the catalog: 274 curated skills, 18 commands, 32 hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`) and the local `nexus-memory` CLI store. It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
+- **Nexus-Hub (this repo)** is the catalog: 274 curated skills, 18 commands, 33 hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`) and the local `nexus-memory` CLI store. It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
 - **Nexus** is a local-first desktop AI Studio that consumes Nexus-Hub as its skill feed. Nexus's `AGENTS.md` names this repo as "the only external project we deliberately link to" -- the upstream feed for its skill harness.
 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
 
-## What's New in v3.19.1
+## What's New in v3.19.2
+
+**A standalone install can now prove what it downloaded.** `install.sh` / `install.ps1` refuse archive members that escape the extract directory, and they verify SHA-256 when `NEXUS_HUB_EXPECTED_SHA256` or `NEXUS_HUB_CHECKSUMS` is set. Installing from `main` without a published checksum prints a warning. `NEXUS_HUB_SKIP_CHECKSUM=1` skips the hash only; the path-traversal guard always runs.
+
+**The context compressor now rewrites, reformats, and truncates with recovery.** `rewrite` is a single allow / passthrough / deny / ask decision (default ask, never auto-allow). Semantic reformatters cover git status, pytest-family failures, and ruff/eslint/tsc grouped by file. Trusted BYO filters apply only after a SHA-256 pin. Truncation tees the full blob and prints a `tail` pointer. CI fails if the compressor grows a network import.
+
+**Triggering and evals got a ceiling; memory got a source.** Skill descriptions use High/Medium/Low/Reject bands and must not hide behind a clarifying question. Eval corpora are versioned with per-slice floors. Every memory record requires a `source`; the store supersedes instead of deleting.
+
+Catalog counts are **274 skills**, **18 commands**, **33 hooks**, and **23 agents**. The compressor and memory packages remain **zero outbound calls, zero API keys, zero model downloads**.
+
+## Previously, in v3.19.1
 
 **Agents now have a durable, cross-platform memory store.** `nexus-memory` is a local append-only log of lasting facts, decisions, and events. An agent reads it at session start within a fixed line budget, records as it works, and summarizes older ranges itself. The store never calls a model, never starts a background process, and never leaves the machine. Default root is `~/.nexus-hub/memory/`.
 

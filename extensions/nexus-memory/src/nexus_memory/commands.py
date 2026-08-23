@@ -6,6 +6,8 @@ import re
 import sys
 from pathlib import Path
 
+from .changelog import append_event
+from .record import display_body, format_record, parse_record
 from .store import MemoryStore
 from .tiling import tile
 from .tree import MissingChildError, TreeStore
@@ -64,7 +66,7 @@ def render_read(store: MemoryStore) -> str:
     lines: list[str] = []
     for lo, hi in ranges:
         if hi - lo == 1:
-            lines.append(store.get(lo))
+            lines.append(display_body(store.get(lo)))
             continue
         summary = tree.get(lo, hi)
         if summary:
@@ -83,7 +85,7 @@ def _merge_request(store: MemoryStore, lo: int, hi: int) -> str:
     max_chars = store.config.max_entry_length
     size = hi - lo
     if size == 2:
-        content = store.get(lo) + "\n" + store.get(lo + 1)
+        content = display_body(store.get(lo)) + "\n" + display_body(store.get(lo + 1))
     else:
         try:
             left, right = tree.child_contents(lo, hi)
@@ -100,8 +102,39 @@ def _merge_request(store: MemoryStore, lo: int, hi: int) -> str:
     )
 
 
-def cmd_record(store: MemoryStore, text: str) -> str:
-    store.append(text)
+def cmd_record(
+    store: MemoryStore,
+    text: str,
+    *,
+    source: str | None = None,
+    tier: str = "working",
+    derived_from: tuple[str, ...] = (),
+    supersedes: int | None = None,
+) -> str:
+    """Append one lasting entry. Rejects a write with no source."""
+    if source is None:
+        parsed = parse_record(text, strict=True)
+        payload = text
+        origin = parsed.source
+    else:
+        payload = format_record(
+            text,
+            source=source,
+            tier=tier,
+            derived_from=derived_from,
+            supersedes=supersedes,
+        )
+        origin = source
+    index = store.append(payload)
+    append_event(store.root, "added", index, origin)
+    if supersedes is not None:
+        append_event(
+            store.root,
+            "superseded",
+            supersedes,
+            origin,
+            reason=f"replaced-by:{index}",
+        )
     tree = _tree(store)
     pending = tree.pending()
     if not pending:
@@ -139,7 +172,7 @@ def cmd_zoom(store: MemoryStore, lo: int, hi: int) -> str:
     lines: list[str] = []
     for a, b in ((lo, mid), (mid, hi)):
         if b - a == 1:
-            lines.append(store.get(a))
+            lines.append(display_body(store.get(a)))
         else:
             summary = tree.get(a, b)
             lines.append(summary if summary else f"[{a}:{b} pending merge]")

@@ -4,7 +4,72 @@
 **Status**: in-progress
 **Last updated**: 2026-08-23
 
-v3.19.0 is finalized. v3.19.1 shipped, then the artifact round-trip failed: `MANIFEST.sha256` was generated before the gap-closure commit, so `nexus-hub verify` against the published `v3.19.1` tarball reports FAIL. Do not retag. Fix in the next patch.
+v3.19.0 is finalized. v3.19.1 shipped, then the artifact round-trip failed: `MANIFEST.sha256` was generated before the gap-closure commit, so `nexus-hub verify` against the published `v3.19.1` tarball reports FAIL. Do not retag. v3.19.2 regenerates the manifest in this release (BG-1). DF-1 (`checksums.txt` hashes) stays open until the GitHub source archive exists.
+
+## v3.19.2
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---:|---:|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 4 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+
+### Open Items
+
+#### Not Implemented
+
+None.
+
+#### Deferred
+
+##### DF-1 - Tagged `checksums.txt` hashes are unpublished until the first v3.19.2 GitHub Release
+
+- **Source phase**: Phase 1 (supply-chain hardening, task 1.1)
+- **Plan reference**: `docs/v3/v3.19/plans/v3.19.2-rtk-and-meterless.md` (Phase 1 / installer integrity)
+- **Why deferred**: GitHub source-archive SHA-256 is only known after the tag exists. `checksums.txt` is in the tree as a GNU sha256sum template; the bootstrap warns on `main` and verifies when `NEXUS_HUB_EXPECTED_SHA256` or `NEXUS_HUB_CHECKSUMS` is set. `/update release` should attach the hashed source archives as a Release asset.
+- **Suggested next step**: after tagging v3.19.2, hash the GitHub `tar.gz`/`zip`, append those lines to `checksums.txt`, and attach the file to the GitHub Release.
+
+##### DF-2 - Docs convention checker covers only the active minor
+
+- **Source phase**: Phase 2 (triggering confidence and eval discipline, task 2.3)
+- **Plan reference**: `docs/v3/v3.19/plans/v3.19.2-rtk-and-meterless.md` (Phase 2 / link-integrity checker)
+- **Why deferred**: A first pass over the whole `docs/` tree reported 141 missing relative targets, almost all in historical minors and policy matrices. Gating them in this patch would bury the new checker under archaeology. The guard therefore scans `docs/v3/v3.19/` in a repo checkout (tests still scan a tmp `docs/` tree that has no `v3.19`).
+- **Suggested next step**: either repair historical links in a dedicated docs PR, or keep the active-minor scope and record older trees as grandfathered.
+
+##### DF-3 - Semantic reformatters cover a named short list, not ~60 command handlers
+
+- **Source phase**: Phase 4 (compressor and hook depth, task 4.3)
+- **Plan reference**: `docs/v3/v3.19/plans/v3.19.2-rtk-and-meterless.md` (Phase 4 / semantic reformatters)
+- **Why deferred**: A dedicated command-output compressor in this class ships on the order of 60 handlers. Matching that set in one patch would dominate the release and still miss the long tail. This release ships git status, pytest/vitest/jest failures-only, and ruff/eslint/tsc grouped-by-file, each with a 60% token-reduction fixture, and documents the rest as a coverage gap.
+- **Suggested next step**: add handlers only for commands whose fixtures miss the 60% bar in real sessions; do not chase handler-count parity.
+
+##### DF-4 - Signed execution contracts stay a design study
+
+- **Source phase**: Phase 5 (compressor polish and session mining, task 5.4)
+- **Plan reference**: `docs/v3/v3.19/plans/v3.19.2-rtk-and-meterless.md` (Phase 5 / signed-execution-contract study)
+- **Why deferred**: A local single-user agent already has a 0/1/2/3 rewrite decision subordinated to host deny. Cryptographic signatures would add key material without blocking anything host settings cannot already refuse. Study: `docs/v3/v3.19/design/signed-execution-contract-study.md` (**# DEVIATION**: plan cited `docs/v3/v3.18/design/`). Recommendation: defer crypto; optionally adopt capability-id + TTL as an unsigned convention later.
+- **Suggested next step**: revisit only if Nexus-Hub grows a multi-executor or remote-runner surface.
+
+#### Bugs / Regressions
+
+None.
+
+#### Warnings
+
+None.
+
+#### Missing Tests / Coverage Gaps
+
+None.
+
+#### Quality-Gate Gaps
+
+None.
 
 ## v3.19.1
 

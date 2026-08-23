@@ -61,6 +61,22 @@ def main(argv: list[str] | None = None) -> int:
 
     p_record = sub.add_parser("record", help="Append one lasting entry.")
     p_record.add_argument("--text", required=True)
+    p_record.add_argument(
+        "--source",
+        default=None,
+        help="Origin of the fact (conversation, file, decision). Required.",
+    )
+    p_record.add_argument(
+        "--tier",
+        default="working",
+        choices=["session", "working", "durable"],
+    )
+    p_record.add_argument(
+        "--derived-from",
+        default="",
+        help="Comma-separated lineage ids or indexes.",
+    )
+    p_record.add_argument("--supersedes", type=int, default=None)
 
     p_merge = sub.add_parser("merge", help="Return a summary for one due range.")
     p_merge.add_argument("--lo", type=int, required=True)
@@ -77,6 +93,16 @@ def main(argv: list[str] | None = None) -> int:
     p_drop = sub.add_parser("drop", help="Discard a bad summary so it can be rebuilt.")
     p_drop.add_argument("--lo", type=int, required=True)
     p_drop.add_argument("--hi", type=int, required=True)
+
+    p_maint = sub.add_parser(
+        "maintain",
+        help="Preview or apply session-tier archival (never deletes entries).",
+    )
+    p_maint.add_argument(
+        "--apply",
+        action="store_true",
+        help="Copy a backup and append changelog rows. Default is preview-only.",
+    )
 
     args = parser.parse_args(argv)
     root = Path(args.root) if args.root else default_store_root()
@@ -107,7 +133,32 @@ def main(argv: list[str] | None = None) -> int:
             print(cmd_read(store, part=args.part), end="")
             return 0
         if args.cmd == "record":
-            print(cmd_record(store, args.text), end="")
+            derived = tuple(
+                part.strip()
+                for part in (args.derived_from or "").split(",")
+                if part.strip()
+            )
+            print(
+                cmd_record(
+                    store,
+                    args.text,
+                    source=args.source,
+                    tier=args.tier,
+                    derived_from=derived,
+                    supersedes=args.supersedes,
+                ),
+                end="",
+            )
+            return 0
+        if args.cmd == "maintain":
+            from .lifecycle import apply_maintain, preview_maintain
+
+            out = (
+                apply_maintain(store)
+                if args.apply
+                else preview_maintain(store)
+            )
+            print(out, end="")
             return 0
         if args.cmd == "merge":
             print(cmd_merge(store, args.lo, args.hi, args.text), end="")
