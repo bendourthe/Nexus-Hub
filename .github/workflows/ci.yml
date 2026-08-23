@@ -260,6 +260,14 @@ jobs:
         # raising one requires justification in the PR that raises it.
         run: python scripts/validate_doc_budgets.py
 
+      - name: Validate memory integration token budget (v3.19.1 Phase 2)
+        # The always-loaded memory integration prose is paid on every session.
+        # This asserts docs/policy/memory-integration-prose.md stays under the
+        # 500-token ceiling in docs/policy/memory-substrate-contract.md.
+        # tiktoken is used when already present; otherwise a stdlib estimate.
+        # The guard never requires a network call.
+        run: python scripts/check_memory_integration_budget.py
+
       - name: Report docs due for archival (v3.18.0 Phase 4, advisory)
         # docs/policy/docs-retention.md: a minor version two or more behind the
         # current one has its development/ subtree archived. This REPORTS drift

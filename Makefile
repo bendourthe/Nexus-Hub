@@ -35,6 +35,8 @@ validate: ## Validate all JSON catalog files and skill bundles
 	@python scripts/check_docs_retention.py
 	@echo "Checking always-loaded instruction docs stay under their word ceilings..."
 	@python scripts/validate_doc_budgets.py
+	@echo "Checking the memory integration prose stays under its token budget..."
+	@python scripts/check_memory_integration_budget.py
 	@echo "Checking decision records (structure, header, mandatory alternatives)..."
 	@python scripts/validate_decision_records.py
 	@echo "Checking per-skill registry entries against the catalog (structure and text, strict)..."
