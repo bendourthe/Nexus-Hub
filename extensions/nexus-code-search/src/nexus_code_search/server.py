@@ -38,6 +38,7 @@ from nexus_code_search.contextmap.tokens import estimate_tokens_offline
 from nexus_code_search.db.schema import open_database
 from nexus_code_search.extraction import ExtractionOrchestrator
 from nexus_code_search.graph import GraphQueryManager, affected_tests
+from nexus_code_search.graph.safety import evaluate_safety
 from nexus_code_search.indexer import index_codebase
 from nexus_code_search.response_codec import (
     DEFAULT_MIN_SAVINGS_PCT,
@@ -70,6 +71,9 @@ TOOL_MINIMUM_PROFILE = {
     "code_context": "standard",
     "code_explore": "standard",
     "code_affected_tests": "standard",
+    "code_edit_safety": "standard",
+    "code_delete_safety": "standard",
+    "code_rename_safety": "standard",
     "generate_context_map": "full",
     "map_health": "full",
     "generate_knowledge_map": "full",
@@ -105,6 +109,12 @@ Tools (what / when):
   code_node             v2.0: resolve a symbol by name or qualified_name.
   code_context          v2.0: one-shot node + callers + callees + siblings.
   code_explore          v2.0: combined search + traversal in a single call.
+  code_edit_safety      Read-only mutation preflight: regression risk and the
+                        behavior or contract an edit must preserve.
+  code_delete_safety    Read-only mutation preflight: indexed dependents that
+                        must move before a symbol can be removed.
+  code_rename_safety    Read-only mutation preflight: indexed callers,
+                        importers, and references that must rename together.
   watch_for_changes     v2.0: start a debounced file watcher in a background
                         thread that re-indexes changed files.
   code_affected_tests   v2.0: given a list of changed files, return every
@@ -183,6 +193,8 @@ def _dispatch_tool(
         return _handle_watch(arguments, config)
     if name == "code_affected_tests":
         return _handle_affected_tests(arguments, config)
+    if name in ("code_edit_safety", "code_delete_safety", "code_rename_safety"):
+        return _handle_safety_check(name, arguments, config)
     return [
         TextContent(type="text", text=json.dumps({"error": f"Unknown tool: {name}"}))
     ]
@@ -232,6 +244,35 @@ def _response_format_properties() -> dict[str, dict]:
             "description": "Minimum UTF-8 byte savings required by auto mode.",
         },
     }
+
+
+def _safety_tool_definitions(symbol_arg: dict) -> list[Tool]:
+    definitions = (
+        (
+            "code_edit_safety",
+            "Return one read-only verdict for modifying a symbol, the contract to preserve, and concrete local graph evidence.",
+        ),
+        (
+            "code_delete_safety",
+            "Return one read-only verdict for deleting a symbol, who would break, and concrete local graph evidence.",
+        ),
+        (
+            "code_rename_safety",
+            "Return one read-only verdict for renaming a symbol, what must move together, and concrete local graph evidence.",
+        ),
+    )
+    return [
+        Tool(
+            name=name,
+            description=f"{description} Local-only; never mutates the index or tree.",
+            inputSchema={
+                "type": "object",
+                "properties": dict(symbol_arg),
+                "required": ["root", "symbol"],
+            },
+        )
+        for name, description in definitions
+    ]
 
 
 def _all_tools() -> list[Tool]:
@@ -531,6 +572,7 @@ def _all_tools() -> list[Tool]:
             },
         ),
     ]
+    tools.extend(_safety_tool_definitions(symbol_arg))
     for tool in tools:
         tool.inputSchema["properties"].update(_response_format_properties())
     return tools
@@ -829,6 +871,26 @@ def _handle_affected_tests(
         "test_glob": test_glob,
         "affected_tests": results,
     }
+    return [TextContent(type="text", text=json.dumps(payload))]
+
+
+def _handle_safety_check(
+    name: str, arguments: dict, config: CodeSearchConfig
+) -> list[TextContent]:
+    operations = {
+        "code_edit_safety": "edit",
+        "code_delete_safety": "delete",
+        "code_rename_safety": "rename",
+    }
+    operation = operations.get(name)
+    if operation is None:
+        raise ValueError(f"unknown safety tool: {name}")
+    root = _resolve_root(arguments)
+    symbol = arguments.get("symbol", "")
+    if not symbol:
+        raise ValueError("`symbol` argument is required")
+    db_path = index_dir_for(root, config) / "codegraph.db"
+    payload = evaluate_safety(db_path, symbol, operation)
     return [TextContent(type="text", text=json.dumps(payload))]
 
 

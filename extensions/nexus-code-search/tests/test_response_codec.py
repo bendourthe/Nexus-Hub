@@ -64,6 +64,49 @@ def _sample_node(index: int) -> dict[str, object]:
 
 
 _NODES = [_sample_node(index) for index in range(12)]
+
+
+def _sample_safety_response(operation: str) -> dict[str, object]:
+    dependencies = [
+        {
+            "edge_kind": "calls",
+            "call_site_line": 20 + index,
+            "target": _NODES[0],
+            "source": node,
+        }
+        for index, node in enumerate(_NODES[1:9])
+    ]
+    return {
+        "operation": operation,
+        "symbol": "package.module.symbol_0",
+        "verdict": {
+            "tier": "runtime_dependency",
+            "rank": 0,
+            "meaning": "A cross-file, non-test production path depends on this symbol.",
+        },
+        "recommended_action": "Preserve the indexed contract and migrate all dependents atomically.",
+        "evidence": {
+            "matches": [_NODES[0]],
+            "callers": dependencies,
+            "importers": [],
+            "references": [],
+            "production_dependents": dependencies,
+            "external_dependents": dependencies,
+            "internal_dependents": [],
+            "test_coverage": {"present": False, "files": []},
+            "complexity": [
+                {
+                    "qualified_name": "package.module.symbol_0",
+                    "span_lines": 5,
+                    "incoming_dependencies": len(dependencies),
+                }
+            ],
+            "cross_repo_visibility": "unavailable",
+            "index": {"present": True, "files": 24, "nodes": 144},
+        },
+    }
+
+
 REPRESENTATIVE_TOOL_PAYLOADS: dict[str, object] = {
     "index_codebase": {
         "root": "/repo",
@@ -208,6 +251,9 @@ REPRESENTATIVE_TOOL_PAYLOADS: dict[str, object] = {
         "test_glob": None,
         "affected_tests": [f"tests/test_module_{index}.py" for index in range(12)],
     },
+    "code_edit_safety": _sample_safety_response("edit"),
+    "code_delete_safety": _sample_safety_response("delete"),
+    "code_rename_safety": _sample_safety_response("rename"),
     "watch_for_changes": {
         "root": "/repo",
         "watcher_id": 12345,

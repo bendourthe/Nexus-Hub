@@ -42,6 +42,9 @@ EXPECTED_TOOLS = {
         "code_context",
         "code_explore",
         "code_affected_tests",
+        "code_edit_safety",
+        "code_delete_safety",
+        "code_rename_safety",
     },
 }
 EXPECTED_TOOLS["full"] = {tool.name for tool in _all_tools()}

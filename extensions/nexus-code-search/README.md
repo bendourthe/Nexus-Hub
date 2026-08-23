@@ -2,7 +2,7 @@
 
 > Part of [Nexus-Hub](../../README.md), the skill harness for AI coding assistants. See the parent README for installation and platform coverage.
 
-Nexus-Hub local-only code search MCP server. Walks a repository, chunks source files, builds a content-hash manifest for incremental re-indexing, and serves keyword + AST-graph search via 17 MCP tools.
+Nexus-Hub local-only code search MCP server. Walks a repository, chunks source files, builds a content-hash manifest for incremental re-indexing, and serves keyword, AST-graph search, and edit-safety preflights via 20 MCP tools.
 
 **Policy compliance**: zero outbound calls, zero API keys, zero model downloads. Governed by the [MCP Registry Policy](../../AGENTS.md) in the repo root; classified `already-local` in the [Reverse-Engineering Matrix](../../docs/policy/mcp-reverse-engineering-matrix.md).
 
@@ -30,10 +30,10 @@ MCP tool definitions are sent to the model and consume context before any tool r
 | Profile | Tools | Offline token estimate | Recommended model tier | Included surface |
 |---|---:|---:|---|---|
 | `minimal` | 7 | 1,841 | `fast` | Keyword and graph indexing, search, status, cleanup, and direct symbol retrieval |
-| `standard` | 13 | 3,613 | `standard` / `strong` | Minimal plus callers, callees, impact, context, exploration, and affected-test traversal |
-| `full` | 17 | 4,753 | `frontier` or workflows needing every capability | Standard plus context-map generation and health, knowledge-map generation, and file watching |
+| `standard` | 16 | 4,461 | `standard` / `strong` | Minimal plus callers, callees, impact, context, exploration, affected tests, and three mutation preflights |
+| `full` | 20 | 5,601 | `frontier` or workflows needing every capability | Standard plus context-map generation and health, knowledge-map generation, and file watching |
 
-Counts are generated from the compact JSON serialization of each MCP definition with the extension's deterministic stdlib estimator, so the baseline stays comparable without a tokenizer package or network access. A provider tokenizer may report a different absolute number while preserving the relative savings: `minimal` is about 61% smaller and `standard` about 24% smaller than `full`. These Phase 3 counts include the response-format controls advertised by every tool.
+Counts are generated from the compact JSON serialization of each MCP definition with the extension's deterministic stdlib estimator, so the baseline stays comparable without a tokenizer package or network access. A provider tokenizer may report a different absolute number while preserving the relative savings: `minimal` is about 67% smaller and `standard` about 20% smaller than `full`. These counts include the response-format controls advertised by every tool.
 
 The model-tier names come from [`model-routing`](../../catalog/skills/ai-development/model-routing/SKILL.md); use [`prompt-token-optimization`](../../catalog/skills/orchestration/prompt-token-optimization/SKILL.md) for the broader context-cost workflow.
 
@@ -63,6 +63,9 @@ The following measurements come from the Phase 3 test fixture, which supplies on
 | `code_context` | 17,985 | 16,767 | 6.8% | `json` |
 | `code_explore` | 19,749 | 18,431 | 6.7% | `json` |
 | `code_affected_tests` | 428 | 421 | 1.6% | `json` |
+| `code_edit_safety` | 16,627 | 15,044 | 9.5% | `json` |
+| `code_delete_safety` | 16,629 | 15,046 | 9.5% | `json` |
+| `code_rename_safety` | 16,629 | 15,046 | 9.5% | `json` |
 | `watch_for_changes` | 81 | 87 | -7.4% | `json` |
 
 ### v1 keyword surface
@@ -88,9 +91,14 @@ The following measurements come from the Phase 3 test fixture, which supplies on
 | `code_explore(symbol, depth=2)` | Combined search + traversal payload (matches + callers + callees + impact). |
 | `watch_for_changes(root, debounce_ms=2000)` | Start a debounced filesystem watcher that re-indexes the graph as files change. Returns immediately; the watcher runs in a background thread. |
 | `code_affected_tests(changed_files, depth=5, test_glob=None)` | Reverse-import BFS: given a list of changed files, return every test file in the index whose code transitively imports any of them. Conservative -- false positives favored over false negatives. Companion CLI: `nexus-hub affected` (see "CLI dispatcher" below). |
+| `code_edit_safety(symbol)` | Return one ranked, read-only verdict for modifying a symbol, what behavior or contract must be preserved, and the concrete indexed callers/importers/references behind it. |
+| `code_delete_safety(symbol)` | Return one ranked, read-only verdict for removing a symbol, who would break, and the concrete indexed evidence that must be migrated first. |
+| `code_rename_safety(symbol)` | Return one ranked, read-only verdict for renaming a symbol and the indexed callers/importers/references that must move atomically. |
 | `generate_context_map(root, force=False)` | Compile a committed `<root>/.nexus/CONTEXT-MAP.md` (plus a `<root>/.nexus/context/` article set) from the graph, so an AI reads the codebase map once at session start instead of re-exploring files. Includes framework-aware Routes (method / path / params / behavior tags), an Environment audit (required vs default), Middleware, ORM Data Models (fields / keys / relations), UI Components (props), background Events, and a Most-Imported Files ranking. Deterministic and local-only; writes only under `<root>/.nexus/`. Unchanged graph is a no-op unless `force=True`. Run `index_graph` first. Companion CLI: `nexus-hub map` (see "Context map" below). |
 | `map_health(root)` | Lint the compiled map: orphan articles, missing backlinks, and staleness (source changed since the map was generated). Deterministic and local-only; returns a health report. Companion CLI: `nexus-hub map --lint`. |
 | `generate_knowledge_map(root, notes_path=None)` | Compile a committed `<root>/.nexus/KNOWLEDGE.md` from the Markdown notes under `notes_path` (default: root): key decisions, open questions, and a categorized note index (decision / meeting / retro / spec / research). Deterministic, local-only, graph-independent. Companion CLI: `nexus-hub map --knowledge`. |
+
+The three safety tools share the ordered verdict and evidence contract in [Edit-Safety Verdict Contract](docs/edit-safety-verdicts.md). `insufficient_data` is never collapsed into a safe result, `no_known_callers` is only a possible dead-code signal, and cross-repository visibility is explicitly reported as unavailable because one local graph cannot prove it.
 
 ## NodeKind / EdgeKind taxonomy
 
