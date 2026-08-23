@@ -2,7 +2,7 @@
 
 > Part of [Nexus-Hub](../../README.md), the skill harness for AI coding assistants. See the parent README for installation and platform coverage.
 
-Nexus-Hub local-only code search MCP server. Walks a repository, chunks source files, builds a content-hash manifest for incremental re-indexing, and serves keyword + AST-graph search via twelve MCP tools.
+Nexus-Hub local-only code search MCP server. Walks a repository, chunks source files, builds a content-hash manifest for incremental re-indexing, and serves keyword + AST-graph search via 17 MCP tools.
 
 **Policy compliance**: zero outbound calls, zero API keys, zero model downloads. Governed by the [MCP Registry Policy](../../AGENTS.md) in the repo root; classified `already-local` in the [Reverse-Engineering Matrix](../../docs/policy/mcp-reverse-engineering-matrix.md).
 
@@ -22,6 +22,20 @@ pip install -e "extensions/nexus-code-search[dev]"
 The installer ships with the repo. Alternatively install via the Nexus-Hub installer script (`scripts/installer.sh` or `scripts/installer.ps1`) which wires up `nexus-code-search` alongside `nexus-skill-server`.
 
 ## MCP tools
+
+### Tool profiles
+
+MCP tool definitions are sent to the model and consume context before any tool runs, so exposing only the surface a model needs reduces the cost of every request. Set `NEXUS_CODE_SEARCH_TOOL_PROFILE` to `minimal`, `standard`, or `full`; the default is `full`, preserving the complete pre-profile surface. Invalid values fail open to `full` because profiles control token cost, not authorization.
+
+| Profile | Tools | Offline token estimate | Recommended model tier | Included surface |
+|---|---:|---:|---|---|
+| `minimal` | 7 | 952 | `fast` | Keyword and graph indexing, search, status, cleanup, and direct symbol retrieval |
+| `standard` | 13 | 1,962 | `standard` / `strong` | Minimal plus callers, callees, impact, context, exploration, and affected-test traversal |
+| `full` | 17 | 2,594 | `frontier` or workflows needing every capability | Standard plus context-map generation and health, knowledge-map generation, and file watching |
+
+Counts are generated from the compact JSON serialization of each MCP definition with the extension's deterministic stdlib estimator, so the baseline stays comparable without a tokenizer package or network access. A provider tokenizer may report a different absolute number while preserving the relative savings: `minimal` is about 63% smaller and `standard` about 24% smaller than `full`.
+
+The model-tier names come from [`model-routing`](../../catalog/skills/ai-development/model-routing/SKILL.md); use [`prompt-token-optimization`](../../catalog/skills/orchestration/prompt-token-optimization/SKILL.md) for the broader context-cost workflow.
 
 ### v1 keyword surface
 

@@ -34,6 +34,7 @@ from nexus_code_search.config import CodeSearchConfig, index_dir_for, resolve_co
 from nexus_code_search.contextmap import generate_context_map
 from nexus_code_search.contextmap.knowledge import generate_knowledge_map
 from nexus_code_search.contextmap.maphealth import lint_context_map
+from nexus_code_search.contextmap.tokens import estimate_tokens_offline
 from nexus_code_search.db.schema import open_database
 from nexus_code_search.extraction import ExtractionOrchestrator
 from nexus_code_search.graph import GraphQueryManager, affected_tests
@@ -44,6 +45,31 @@ from nexus_code_search.store import index_lock, load_index
 from nexus_code_search.types import IndexState, IndexStatus
 
 logger = logging.getLogger("nexus-code-search")
+
+TOOL_PROFILE_RANK = {"minimal": 0, "standard": 1, "full": 2}
+
+# Assign each tool to its lowest useful profile. _tools_for_profile verifies this
+# registry against _all_tools so adding or removing a definition cannot silently
+# leave the profile surface stale.
+TOOL_MINIMUM_PROFILE = {
+    "index_codebase": "minimal",
+    "search_code": "minimal",
+    "clear_index": "minimal",
+    "get_indexing_status": "minimal",
+    "index_graph": "minimal",
+    "code_search": "minimal",
+    "code_node": "minimal",
+    "code_callers": "standard",
+    "code_callees": "standard",
+    "code_impact": "standard",
+    "code_context": "standard",
+    "code_explore": "standard",
+    "code_affected_tests": "standard",
+    "generate_context_map": "full",
+    "map_health": "full",
+    "generate_knowledge_map": "full",
+    "watch_for_changes": "full",
+}
 
 SERVER_INSTRUCTIONS = """\
 nexus-code-search: AST-aware semantic search over a local codebase.
@@ -100,7 +126,7 @@ async def run_server() -> None:
 
     @server.list_tools()
     async def list_tools() -> list[Tool]:
-        return _all_tools()
+        return _tools_for_profile(config.tool_profile)
 
     @server.call_tool()
     async def call_tool(name: str, arguments: dict) -> list[TextContent]:
@@ -449,6 +475,41 @@ def _all_tools() -> list[Tool]:
             },
         ),
     ]
+
+
+def _tools_for_profile(profile: str) -> list[Tool]:
+    """Return the tool definitions exposed by ``profile``.
+
+    Unknown profiles fail open to the full surface. Profile selection is a
+    token-cost control, not an authorization boundary.
+    """
+    tools = _all_tools()
+    declared = {tool.name for tool in tools}
+    assigned = set(TOOL_MINIMUM_PROFILE)
+    if declared != assigned:
+        missing = sorted(declared - assigned)
+        stale = sorted(assigned - declared)
+        raise RuntimeError(
+            "Tool-profile registry drift: "
+            f"unassigned={missing or 'none'}, stale={stale or 'none'}"
+        )
+    selected = profile if profile in TOOL_PROFILE_RANK else "full"
+    ceiling = TOOL_PROFILE_RANK[selected]
+    return [
+        tool
+        for tool in tools
+        if TOOL_PROFILE_RANK[TOOL_MINIMUM_PROFILE[tool.name]] <= ceiling
+    ]
+
+
+def tool_definition_token_count(profile: str) -> int:
+    """Estimate tokens for the serialized MCP definitions in ``profile``."""
+    payload = [
+        tool.model_dump(mode="json", by_alias=True, exclude_none=True)
+        for tool in _tools_for_profile(profile)
+    ]
+    serialized = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+    return estimate_tokens_offline(serialized)
 
 
 def _resolve_root(arguments: dict) -> Path:
