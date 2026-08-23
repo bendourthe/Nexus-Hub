@@ -637,7 +637,7 @@ v3.17.6 shipped on 2026-08-21 (tag `v3.17.6`, commit `1e154769`). This pass walk
 
 ### WN-4 - OPEN (bounded verification): hook independence is verified only for Claude Code 2.1.156
 
-- **Target files**: `docs/policy/platform-read-contracts.md`, `docs/v3/v3.17/development/history/2026-08-14_agent-autonomy-toggle-phase-4-deny-layer-and-hook-independence.md`
+- **Target files**: `docs/policy/platform-read-contracts.md`, `docs/archive/v3/v3.17/development/history/2026-08-14_agent-autonomy-toggle-phase-4-deny-layer-and-hook-independence.md`
 - **Source phase**: v3.17.0 Phase 4, sub-task 4.1
 - **Evidence**: all six combinations of `acceptEdits`, `bypassPermissions`, and `--dangerously-skip-permissions` with Bash and Write reached the blocking project `PreToolUse` hook and created no marker file on Claude Code 2.1.156.
 - **Why it remains open**: the result is a versioned empirical contract, not a vendor guarantee that all future permission or hook architectures preserve the same ordering.

@@ -529,7 +529,7 @@ Always-loaded docs cost tokens in every session, on every platform, forever. Eve
 - `docs/policy/platform-read-contracts.md`
 - `docs/todos.md`
 - `docs/v3/v3.17/comparisons/v3.17.6-comparison-agent-security-layers.md`
-- `docs/v3/v3.17/development/history/2026-08-17_org-knowledge-layer-phase-6-architecture-gaps-and-ci.md`
+- `docs/archive/v3/v3.17/development/history/2026-08-17_org-knowledge-layer-phase-6-architecture-gaps-and-ci.md`
 
 ### Current Status
 

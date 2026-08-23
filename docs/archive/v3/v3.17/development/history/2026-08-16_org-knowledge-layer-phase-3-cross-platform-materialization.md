@@ -12,7 +12,7 @@
 - **Branch**: `feat/v3.17.4-org-knowledge-layer`, with Phases 1 and 2 committed locally
 - **Starting commit**: `9742b449`
 - **Environment**: Windows PowerShell, Python 3.12.10, pytest, coverage.py, and ShellCheck; GNU Make unavailable
-- **Prior session reference**: `docs/v3/v3.17/development/history/2026-08-16_org-knowledge-layer-phase-2-connect-cli.md`
+- **Prior session reference**: `docs/archive/v3/v3.17/development/history/2026-08-16_org-knowledge-layer-phase-2-connect-cli.md`
 - **Plan reference**: `docs/v3/v3.17/plans/v3.17.4-org-knowledge-layer.md`
 
 Phase 2 had established the durable connection record and bundle validation seam. Phase 3 needed to consume only that seam, project deterministic content into existing platform read paths, survive destructive catalog refreshes, and describe the resulting posture without claiming managed enforcement.

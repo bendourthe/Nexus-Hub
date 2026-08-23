@@ -2,7 +2,7 @@
 
 This is the durable, sourced source of truth for where every supported platform READS each surface (instruction file, slash commands, skills, agents, rules, hooks) and where the Nexus-Hub installer WRITES it. It supersedes the point-in-time snapshot at `docs/v3/v3.11/platform-read-contracts.md` (which resolved the v3.11.0 Phase 7 audit but left the Codex and Antigravity contracts flagged as unverified).
 
-**Last verified**: 2026-08-22 for v3.18.3 (DELTA pass: claude, opencode, and kimi re-fetched and MATCH; the other six public platforms carried forward from the same-day v3.18.1/v3.18.2 full pass, which re-fetched nine of ten; nexus-ai UNVERIFIED, private sibling. Justified by v3.18.3 changing no installer, adapter, or delivery path - the carry-forward is stated, not presented as fresh verification.)
+**Last verified**: 2026-08-22 for v3.19.0 (FULL pass: all nine public contract platforms re-fetched from first-party documentation; eight MATCH, Codex retains low non-breaking drift, and Nexus-AI remains UNVERIFIED because its sibling repository is private. Kimi's documented `.agents/skills` alias is additive; Nexus-Hub's native `.kimi-code/skills` delivery remains correct. No adapter or installer path changed.)
 
 **v3.17.4 pass (full).** All ten contract platforms and all sixteen defaults-lever platforms were re-fetched from live first-party documentation. Every public discovery page returned HTTP 200 and retained the path marker used by Nexus-Hub. The read-path contract remains functional: eight MATCH, one non-breaking Codex DRIFT, and one UNVERIFIED Nexus-AI surface. Cursor and Claude retain their distinct hook response protocols, and Org Knowledge writes only the existing instruction and rules destinations, so no adapter path changes in this release.
 
@@ -142,6 +142,12 @@ The machine-readable source of truth is the sibling `docs/policy/platform-read-c
 The catalog itself is never reorganized per platform. Each integration is an adapter that materializes the canonical catalog into the shape below via the shared helpers in `scripts/lib/integrations/_catalog_adapters.py` (`flatten_skills`, `commands_to_skills`, `commands_to_slash`).
 
 ## Re-verification log
+
+### 2026-08-22 (v3.19.0 release - full re-verification)
+
+All nine public contract platforms were re-fetched from current first-party documentation. Read-path outcomes remain eight MATCH, one non-breaking Codex DRIFT, and one UNVERIFIED Nexus-AI contract. Codex continues to document the shared `.agents/skills` ladder while omitting Nexus-Hub's redundant native write; Kimi now documents `.agents/skills` as an additive alias alongside its native `.kimi-code/skills` paths. Neither finding breaks delivery or requires an adapter change.
+
+The companion behavioral-defaults pass also re-fetched all sixteen registered integrations. It remains 13 VERIFIED and 3 UNVERIFIED: Antigravity IDE and Windsurf/Devin document UI controls without a writable defaults file, while Nexus-AI remains privately auditable only.
 
 ### 2026-08-16 (v3.17.3 release - full re-verification)
 
