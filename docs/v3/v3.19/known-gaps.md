@@ -4,7 +4,7 @@
 **Status**: in-progress
 **Last updated**: 2026-08-23
 
-v3.19.0 is finalized. v3.19.1 shipped, then the artifact round-trip failed: `MANIFEST.sha256` was generated before the gap-closure commit, so `nexus-hub verify` against the published `v3.19.1` tarball reports FAIL. Do not retag. Fix in the next patch. v3.19.2 Phase 1 (bootstrap integrity + compressor zero-outbound guard) is in progress.
+v3.19.0 is finalized. v3.19.1 shipped, then the artifact round-trip failed: `MANIFEST.sha256` was generated before the gap-closure commit, so `nexus-hub verify` against the published `v3.19.1` tarball reports FAIL. Do not retag. Fix in the next patch. v3.19.2 Phase 2 (triggering confidence + eval floors + docs conventions) is in progress.
 
 ## v3.19.2
 
@@ -13,7 +13,7 @@ v3.19.0 is finalized. v3.19.1 shipped, then the artifact round-trip failed: `MAN
 | Category | Open | Resolved |
 |---|---:|---:|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 1 | 0 |
+| Deferred (DF) | 2 | 0 |
 | Bugs / regressions (BG) | 0 | 0 |
 | Warnings (WN) | 0 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
@@ -33,6 +33,13 @@ None.
 - **Plan reference**: `docs/v3/v3.19/plans/v3.19.2-rtk-and-meterless.md` (Phase 1 / installer integrity)
 - **Why deferred**: GitHub source-archive SHA-256 is only known after the tag exists. `checksums.txt` is in the tree as a GNU sha256sum template; the bootstrap warns on `main` and verifies when `NEXUS_HUB_EXPECTED_SHA256` or `NEXUS_HUB_CHECKSUMS` is set. `/update release` should attach the hashed source archives as a Release asset.
 - **Suggested next step**: after tagging v3.19.2, hash the GitHub `tar.gz`/`zip`, append those lines to `checksums.txt`, and attach the file to the GitHub Release.
+
+##### DF-2 - Docs convention checker covers only the active minor
+
+- **Source phase**: Phase 2 (triggering confidence and eval discipline, task 2.3)
+- **Plan reference**: `docs/v3/v3.19/plans/v3.19.2-rtk-and-meterless.md` (Phase 2 / link-integrity checker)
+- **Why deferred**: A first pass over the whole `docs/` tree reported 141 missing relative targets, almost all in historical minors and policy matrices. Gating them in this patch would bury the new checker under archaeology. The guard therefore scans `docs/v3/v3.19/` in a repo checkout (tests still scan a tmp `docs/` tree that has no `v3.19`).
+- **Suggested next step**: either repair historical links in a dedicated docs PR, or keep the active-minor scope and record older trees as grandfathered.
 
 #### Bugs / Regressions
 

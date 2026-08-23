@@ -617,6 +617,11 @@ DEV_ONLY_SCRIPTS = {
     # Scans production sources for network imports and curl/wget subprocesses.
     # Runs in make validate and CI. Meaningless on an end-user install.
     "check_no_outbound.py",
+    # Repo-internal docs convention guard (v3.19.2): case-sensitive relative
+    # links, empty directories, kebab-case directory names under docs/.
+    # Runs in make validate and CI. An end-user install has no docs/ tree
+    # to audit, so it is deliberately not installer-copied.
+    "check_docs_conventions.py",
     # Repo-internal decision-record guard (v3.17.5): asserts every record under
     # docs/decisions/ sits at lifecycle/class/file, carries the 3-line header
     # matching its folder, and states its alternatives. Runs in `make validate`

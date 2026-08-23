@@ -251,6 +251,12 @@ jobs:
         # DEV_ONLY_SCRIPTS and is not installer-copied.
         run: python scripts/check_no_outbound.py
 
+      - name: Validate docs conventions (v3.19.2 Phase 2)
+        # Case-sensitive relative links, empty dirs, kebab-case directory
+        # names under docs/ (archive skipped). Rides the existing validate
+        # job (no new required context). Repo-internal; DEV_ONLY_SCRIPTS.
+        run: python scripts/check_docs_conventions.py
+
       - name: Validate incident notes (v3.16.2 Phase 3)
         # An incident is closed by a change, not by an explanation. This asserts
         # every docs/incidents/ note carries a Public-Safe Shape section and a

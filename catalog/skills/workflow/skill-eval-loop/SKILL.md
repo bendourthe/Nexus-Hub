@@ -1,6 +1,6 @@
 ---
 name: skill-eval-loop
-description: Drive a structured evaluation iteration loop for any Nexus-Hub skill - capture user intent, write test prompts, run the skill against a baseline (no-skill) control, grade outputs against assertions, aggregate to a benchmark, view in a browser, collect feedback, and improve the skill across iterations until pass-rate stabilizes. Use whenever the user wants to evaluate a skill, benchmark a skill, A/B test a skill, optimize a skill description, run an eval set, score a skill against test prompts, iterate on a skill, or "make this skill actually work" - even if they don't say the word "eval". Covers workspace layout, eval-prompt authoring, with-skill / without-skill paired runs, grading via assertions, browser-based human review, feedback capture, and the description-optimizer integration. SKIP one-off prompt tests with no comparison, ad-hoc skill drafting that does not need iteration, or simple unit-test runs against deterministic code.
+description: Drive a structured evaluation iteration loop for any Nexus-Hub skill - capture user intent, write test prompts, run the skill against a baseline (no-skill) control, grade outputs against assertions, aggregate to a benchmark, view in a browser, collect feedback, and improve the skill across iterations until pass-rate stabilizes. Use whenever the user wants to evaluate a skill, benchmark a skill, A/B test a skill, optimize a skill description, run an eval set, score a skill against test prompts, iterate on a skill, or "make this skill actually work" - even if they don't say the word "eval". Use when locking a regression set, setting per-slice eval floors, refusing to lower a threshold to hide a regression, or versioning an eval corpus. Covers workspace layout, eval-prompt authoring, with-skill / without-skill paired runs, grading via assertions, browser-based human review, feedback capture, and the description-optimizer integration. SKIP one-off prompt tests with no comparison, ad-hoc skill drafting that does not need iteration, or simple unit-test runs against deterministic code.
 summary_l0: "Iterate on any skill via paired with-skill/baseline runs, assertion-graded outputs, and a browser-reviewed benchmark loop"
 overview_l1: "This skill drives a closed-loop evaluation workflow for any Nexus-Hub skill. Each iteration writes 2-3 realistic test prompts to evals/evals.json, spawns paired runs (with-skill vs baseline), captures outputs + tokens + duration, grades each output against per-eval assertions, and aggregates a benchmark. A browser viewer presents the runs side-by-side and collects structured feedback. The next iteration consumes the feedback, applies improvement heuristics (pushy descriptions, explain-the-why, repeated-work elimination), and re-runs - producing a measurable pass-rate trajectory rather than a vibes-based revision history. The loop is CLI-agnostic by design: a single dispatcher routes to claude / gemini / codex / opencode with a parity invariant enforced by pytest. Trigger phrases: evaluate a skill, benchmark a skill, A/B test a skill, optimize a skill description, run eval set, score a skill, iterate on a skill, skill regression, prompt eval, with-skill vs without-skill, eval harness, eval workspace, paired runs, eval iteration."
 ---
@@ -240,6 +240,18 @@ The loop must work on whichever AI CLI the user has installed. The design follow
 
 This is option B from the design space (single dispatcher with `--cli` flag) over option A (four parallel scripts). Option B wins on code-duplication grounds; option A's redundancy was justified for shell hooks where the entire script is 80 lines but is overkill for ~300-line Python utilities. Full design rationale at `references/cli-adapter.md`.
 
+## Locked regression sets, per-slice floors, and threshold governance
+
+Eval numbers that can be quietly lowered are not a gate. Three rules, all load-bearing:
+
+1. **Locked, versioned regression set.** The eval corpus is append-only at the example level: you may add a prompt, you may not silently rewrite or delete one that already shipped. The corpus itself carries a version integer. "Did we regress vs corpus v1?" must be answerable from git history plus that version field. A wholesale rewrite of the set is a new corpus version, recorded in the same change that swaps the fixtures.
+
+2. **Per-slice hard floors.** An aggregate pass-rate that holds while one slice collapses is a hidden regression. Every named slice (a fixture, a tag, a skill, a language) has its own floor. A release that keeps the mean green but drops one slice below its floor fails the gate. Worked instance: `extensions/nexus-context-compressor/evals/` stores per-fixture `min_char_reduction` floors in `baseline.json` and `evals/runner.py` fails `--check` when any slice misses.
+
+3. **No lowering thresholds to hide a miss.** Lowering a floor requires its own PR (or a dedicated commit) whose body shows the historical series and names the behavior change that justifies the new number. You do not get to lower a threshold in the same change that would otherwise fail. `--update-baseline` is for raising floors after a real improvement, or for recording a new corpus version, not for making a red gate green.
+
+A compressor eval that only checks mean character reduction is the exact failure these rules exist to prevent: one fixture can stop compressing while the other three still carry the average.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |
@@ -253,6 +265,8 @@ This is option B from the design space (single dispatcher with `--cli` flag) ove
 | "The planted finding is the answer key, so extra findings should lose points" | Penalizing incidental valid findings teaches the executor to suppress discoveries that were not in the seed manifest. Score the planted discipline on its own axis and retain extra valid results as observations. |
 | "The four-CLI parity test is bureaucracy" | The test exists because the v1.1.3 four-hook precedent was reverse-engineered from a real bug (a hook fell through to a different CLI when its primary was missing, silently doing the wrong thing). The parity test is a regression guard for that bug class - it costs ~50 lines of pytest and prevents a class of failure that is invisible in production. |
 | "I'll run iterations until I feel good about the skill" | The stop condition is data-driven: pass-rate stable across two consecutive iterations on held-out test. "Feel good" is what produced the original draft you are now iterating on. |
+| "The aggregate still passes, so one weak slice is noise" | A slice floor exists so a release cannot hide a collapsed fixture behind a healthy mean. Fail the gate; do not average the miss away. |
+| "I'll lower the threshold in the same PR so CI goes green" | Lowering a floor to hide a regression is the regression. It needs its own change with a historical comparison. |
 
 ## Verification
 
@@ -274,6 +288,9 @@ Binary checklist - each item must describe an observable artifact or state.
 - [ ] Judge-only expected results were absent from the executor-visible fixture, and fixture names, layout, and planted-item paths vary across seeds.
 - [ ] Incidental valid findings are retained as observations rather than penalized for differing from the planted item.
 - [ ] `catalog/hooks/tests/test_eval_loop.py::TestEvalLoopCLIAdapter` passes (no cross-CLI bleed in any dispatcher script).
+- [ ] The eval corpus records a version, and new examples were appended rather than rewritten in place.
+- [ ] Every named slice has a floor, and a seeded one-slice miss fails the gate while the aggregate still looks healthy.
+- [ ] No threshold was lowered in the same change that would have failed the previous floor.
 
 "The skill seems better now" is not a valid verification criterion. Pass-rate must be measured numerically and compared across at least 2 consecutive iterations.
 

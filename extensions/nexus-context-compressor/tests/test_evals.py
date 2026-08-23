@@ -104,6 +104,71 @@ def test_gate_catches_a_below_floor_compressor():
     assert any("effectiveness" in f for f in failures)
 
 
+def test_per_slice_floor_fails_when_aggregate_still_passes():
+    # Four fixtures whose mean still clears the 0.36 aggregate floor, but one
+    # named slice sits under its per-slice floor. The gate must fail on the
+    # slice, not let the mean hide it.
+    healthy = FixtureScore(
+        name="json_logs",
+        kind="json_array",
+        original_units=10,
+        kept_units=2,
+        char_before=1000,
+        char_after=200,
+        ccr_checks_total=1,
+        ccr_checks_ok=1,
+    )
+    weak = FixtureScore(
+        name="typescript_module",
+        kind="code",
+        original_units=10,
+        kept_units=9,
+        char_before=1000,
+        char_after=950,
+        ccr_checks_total=1,
+        ccr_checks_ok=1,
+        signature_total=1,
+        signature_ok=1,
+    )
+    filler = FixtureScore(
+        name="search_hits",
+        kind="json_array",
+        original_units=10,
+        kept_units=2,
+        char_before=1000,
+        char_after=200,
+        ccr_checks_total=1,
+        ccr_checks_ok=1,
+    )
+    filler2 = FixtureScore(
+        name="python_module",
+        kind="code",
+        original_units=10,
+        kept_units=2,
+        char_before=1000,
+        char_after=200,
+        ccr_checks_total=1,
+        ccr_checks_ok=1,
+        signature_total=1,
+        signature_ok=1,
+    )
+    report = EvalReport(fixtures=[healthy, weak, filler, filler2])
+    assert report.mean_char_reduction > 0.36
+    failures = check_baseline(report, load_baseline())
+    assert any("per-slice typescript_module" in f for f in failures)
+    assert any("aggregate may still pass" in f for f in failures)
+
+
+def test_baseline_declares_per_slice_floors():
+    baseline = load_baseline()
+    assert baseline["corpus_version"] == 1
+    slices = baseline["per_slice"]
+    assert set(slices) == _FIXTURE_NAMES
+    for floors in slices.values():
+        assert 0.0 < floors["min_char_reduction"] <= 1.0
+        assert floors["min_ccr_roundtrip"] == 1.0
+
+
 def test_signature_failure_is_detected():
     # If a code fixture loses a structural line, signature preservation drops and
     # the gate flags it. Simulate the degraded score directly.
