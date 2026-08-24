@@ -52,7 +52,7 @@ Pass any remaining arguments (target path, `--scope` glob, depth flags) through 
 
 ## Security coverage contract
 
-For `security`, and for the security lens inside `full`, require the delegated `[[security-review]]` report to state its component denominator and the exact line `N of M components covered; O omitted; U UNCOVERED`, followed by the named omissions and uncovered components. Never present a partial assessment as complete. A depth flag may reduce how many components receive review actions, but it never reduces the denominator or the honesty of the coverage statement; unreviewed components remain UNCOVERED. All inventory, altitude, and sink-sweep mechanics stay in the owning skill.
+For `security`, and for the security lens inside `full`, require the delegated `[[security-review]]` report to state its component denominator and the exact line `N of M components covered; O omitted; U UNCOVERED`, followed by the named omissions and uncovered components. Never present a partial assessment as complete. A depth flag may reduce how many components receive review actions, but it never reduces the denominator or the honesty of the coverage statement; unreviewed components remain UNCOVERED. All inventory, altitude, and sink-sweep mechanics stay in the owning skill. When the reviewed project runs or embeds AI agents (it spawns agents, holds agent credentials, or makes agent-driven egress calls), also engage the `agent-execution-isolation` skill and its three-question triage (where does execution happen, what software runs inside the loop, what leaves the boundary).
 
 ## Project health (full and structure scopes)
 

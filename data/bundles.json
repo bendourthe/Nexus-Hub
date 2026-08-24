@@ -382,6 +382,7 @@
       "capability": "secops",
       "description": "DFIR, threat hunting, detection engineering, and incident response.",
       "skills": [
+        "agent-execution-isolation",
         "agentic-endpoint-hardening",
         "cloud-audit-log-detection",
         "cloud-security-posture-detection",
