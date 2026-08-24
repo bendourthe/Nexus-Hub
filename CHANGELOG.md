@@ -25,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Functions-over-data.** `prompt-token-optimization` names the principle (compute over large structured context instead of reading it token by token). `context-optimization` cross-links it in one line.
 - **Subagent topology and decision tickets.** `multi-agent-coordinator` restricts messaging to parent/sibling/child and keeps completed subagents addressable by id. `implementation-plan` and `tasks-to-issues` mark blocking questions with a `decision:` prefix and a `decision` label.
 - **Command-skill invocation policy.** Generated command-skills now carry `disable-model-invocation: true` so slash-command bodies are not model-auto-invoked on Claude, Cursor, Copilot, and Qwen. Codex maps the same intent to `allow_implicit_invocation: false` in `agents/openai.yaml` (run after synthesis). Platforms with no documented lever still receive the field and ignore it. `validate_skills.py` warns when a catalog skill description starts with `Run the /X command` without the flag. `tests-windows` now runs the tiny-fixture emission tests.
+- **v3.18 session-history archive.** `docs/v3/v3.18/development/history/` moved to `docs/archive/v3/v3.18/development/history/` (two minors behind v3.20). DEVLOG index links repaired. Plans, comparisons, and known-gaps stay in the live tree.
 
 ## [3.20.2] - 2026-08-24
 

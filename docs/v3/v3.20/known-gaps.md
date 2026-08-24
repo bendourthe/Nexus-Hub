@@ -60,7 +60,7 @@ None new. Phase 4 added emission assertions on the existing integration files pl
 
 #### Quality-Gate Gaps
 
-None. Existing `ci.yml` already treats `scripts/lib/integrations/**`, `tests/integrations/**`, and `docs/policy/**` as relevant (job-level classifier, no workflow-level `paths:` filter). Concurrency cancel-in-progress and pip cache are unchanged.
+None. Existing `ci.yml` already treats `scripts/lib/integrations/**`, `tests/integrations/**`, `tests/validators/**`, and `docs/policy/**` as relevant (job-level classifier, no workflow-level `paths:` filter). Concurrency cancel-in-progress and pip cache are unchanged. Phase 4 added a cheap `tests-windows` emission step. Phase 5 structural plugin tests ride the existing `tests/validators` jobs. `python scripts/check_installer_parity.py` PASS. No new required-check context.
 
 ### Resolved
 

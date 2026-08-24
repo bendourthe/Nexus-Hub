@@ -65,7 +65,7 @@ The walkthrough (`verify_slides.py`, kept in the session scratchpad as a test ar
 | `docs/v3/v3.18/known-gaps.md` | DF-1 marked resolved; Phase 2 status |
 | `CHANGELOG.md` | Unreleased entry for the authoring contract |
 | `docs/todos.md` | Phase 2 checked off; dashboard count |
-| `docs/v3/v3.18/development/history/...phase-2-slide-mode-authoring-contract.md` | This file |
+| `docs/archive/v3/v3.18/development/history/...phase-2-slide-mode-authoring-contract.md` | This file |
 
 No registry edit: the skill's frontmatter did not change in this phase, and bundled subdirectories need no installer edit (the whole skill tree is copied recursively).
 
