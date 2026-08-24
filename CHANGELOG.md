@@ -16,6 +16,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`design-interview` skill.** Relentless one-question-at-a-time interview engine plus a `CONTEXT.md` domain glossary. `idea-refine` and `implementation-plan` invoke it; they are not replaced. SKIP fences `ambiguity-detector` and `requirement-enhancer`.
 - **`setup-wizard-generator` skill.** Generates a resumable human-only setup wizard from bundled `wizard-template.sh` and `wizard-template.ps1` siblings. The agent adapts the templates and does not run privileged steps.
 - **`decision-questionnaire` skill.** Send-ready Markdown questionnaire for the one stakeholder who can unblock an in-session decision. Catalog count is 324.
+- **Recursive context-harness reference.** `ai-agent-development/references/recursive-context-harness.md` describes context-as-a-kernel-variable, tool use as code over that variable, and recursive delegation as async handles. Linked from the skill body; not a shipped kernel.
+
+### Changed
+
+- **Loop and learning disciplines.** `continuous-learning` now requires smallest-edit instincts, a plan/apply split, and rollback by stable id without editing base instructions. `loop-engineering` adds idempotent completion gates (fingerprint + cached verdict), simultaneous iteration/token/wall-clock caps, and the reward-hacking failure signature. `ai-agent-governance` names the same signature and does not fork the loop-gate rules.
+- **Functions-over-data.** `prompt-token-optimization` names the principle (compute over large structured context instead of reading it token by token). `context-optimization` cross-links it in one line.
+- **Subagent topology and decision tickets.** `multi-agent-coordinator` restricts messaging to parent/sibling/child and keeps completed subagents addressable by id. `implementation-plan` and `tasks-to-issues` mark blocking questions with a `decision:` prefix and a `decision` label.
 
 ## [3.20.2] - 2026-08-24
 

@@ -37,7 +37,7 @@ None new. Phase 1 reused the v3.20.2 scoped `--path` personal-paths scan (WN-3) 
 
 #### Missing Tests / Coverage Gaps
 
-None. Phase 2 added `evals/trigger-cases.json` for `design-interview`, `setup-wizard-generator`, and `decision-questionnaire`. `python scripts/run_trigger_evals.py --gate` is PASS (66 skills with cases, 0 routing failures).
+None new. Phase 3 was additive skill-body enrichments plus one linked reference file. Trigger evals remain PASS (66 skills with cases, 0 routing failures).
 
 #### Quality-Gate Gaps
 

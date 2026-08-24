@@ -32,7 +32,7 @@ Before you assemble or run a loop, design it. A loop inherits every weakness in 
 
 - **Goal shape.** The goal must name a concrete outcome AND the artifact or state that proves the loop finished, set its scope boundaries (what is included, what is excluded, the maximum depth), name the context sources the loop must read instead of assume, and name who consumes the result. Reject goals like "improve the project" (no target artifact) or "make it good" (no criteria). A useful critique prompt: "what would count as done if two competent agents disagreed?"
 - **Verification typing.** Type every check as one of programmatic (a command with an expected exit code or output), judge (a rubric a second model or a human evaluates), or human (a manual signoff), and require at least one non-vibe check. Prefer the types in this order: a programmatic check first (cheapest and unambiguous), then a judge rubric where a programmatic check is not possible, then a human signoff only where neither fits. A loop whose only check is a judge or a human signoff should state why a programmatic check was not available.
-- **Control guards.** Confirm the loop carries its termination guards before it runs: the mandatory `iteration_cap` and command-derived `exit_condition`, plus `progress_check` and `handoff` for any production loop. A design with no cap or no observable exit is not ready to run.
+- **Control guards.** Confirm the loop carries its termination guards before it runs: the mandatory `iteration_cap` and command-derived `exit_condition`, plus `progress_check` and `handoff` for any production loop. A well-formed loop also declares simultaneous multi-bound caps: an iteration cap AND a token or cost budget AND a wall-clock timeout together, terminating on whichever binds first. Cross-link [[ai-billing-safeguards]] for the budget mechanics; put the wall-clock and token bounds in `per_iteration_budget` (and a run-level timeout on the host driver). A design with no cap or no observable exit is not ready to run.
 
 This design pass COMPOSES the task-readiness gate (in the Scheduled-Triage Recipe below); it does not replace it. If the goal is underspecified, route it to `/plan` or `/idea-refine` to produce a spec FIRST rather than letting the loop iterate against a vague goal (that is loopmaxxing). Score and improve the goal with [[ambiguity-detector]] and [[requirement-enhancer]]; do not duplicate their logic here.
 
@@ -74,7 +74,7 @@ When adding a new loop to the library, keep it local and service-free: no instal
 ### Step 4: Assemble the loop
 
 1. Write the loop goal as a falsifiable end state.
-2. Set a hard `iteration_cap` before the first run.
+2. Set a hard `iteration_cap` before the first run, together with a token or cost budget and a wall-clock timeout. The loop stops on whichever bound binds first; an iteration cap alone still burns the remaining wall-clock and tokens on a hung check.
 3. Pick one `check_command` that measures progress between iterations. Express the check, and any model invocation, as an argument array (the program plus discrete arguments) with an explicit timeout, never an interpolated shell string; this is injection-resistant by construction and matches the project Bash security rules.
 4. Define `exit_condition` as command-derived evidence, not reassurance from the maker. For a long-horizon loop, also set `evidence_freshness` so the checker re-validates evidence that has aged out of its window instead of terminating on a stale pass (see the Evidence Freshness section of [references/loop-schema.md](references/loop-schema.md)).
 5. Choose the host driver: `/goal` for a hard completion requirement, `/loop` for interval or continuous re-runs, or manual re-invocation when the host lacks those commands.
@@ -130,6 +130,26 @@ A robust loop refines the command-derived `exit_condition` with a structured, ma
 - **Force-exit after K consecutive "done" signals.** Guard the inverse failure: if the agent re-signals completion for K iterations while the corroboration never passes, stop and route to the human inbox rather than looping forever on a claim the evidence will not confirm.
 
 This refines `exit_condition`; it does not replace it. Cross-link [[verification-before-completion]] for the evidence gate and [[agent-orchestration-primitives]] for the independent-evaluator rule.
+
+## Idempotent Completion Gates
+
+A completion gate (test suite, validator, judge) records a workspace fingerprint with its verdict and is skipped, not re-run, when nothing changed since the last failure. A stalled loop that re-proves the same failure on every iteration burns the `iteration_cap` without new evidence.
+
+- Fingerprint the workspace the gate observed (a `git status --porcelain` hash, or a hash of the files the `check_command` reads).
+- Persist `{fingerprint, check_command, verdict, timestamp}` next to the instance record.
+- On the next iteration, if the fingerprint is unchanged and the last verdict was fail, skip the gate, keep the cached fail, and spend the iteration on a different move (or trip no-progress). Do not re-run the suite "just to be sure."
+- If the fingerprint changed, run the gate and replace the cached verdict.
+- A pass is never reused across a fingerprint change: that is stale evidence, not idempotency. See `evidence_freshness` in [references/loop-schema.md](references/loop-schema.md).
+
+## Reward Hacking in Self-Improving Loops
+
+Named failure signature (same wording in [[ai-agent-governance]]): **reward hacking in self-improving loops** - an agent optimizing a measurable goal will discover shortcuts that satisfy the metric while violating intent. Documented in the wild: an agent given a game-resource goal found an admin command to spawn resources despite explicit reminders. A learning or refinement loop captures such shortcuts as "improvements" unless gates verify outcome legitimacy (how the result was produced) and not just outcome presence.
+
+Countermeasure:
+
+- Gates check process evidence (diffs, logs, provenance, command traces) alongside the end state. A green `check_command` that was reached by disabling the check, hard-coding the fixture, or using an admin bypass is a fail.
+- Human review of any minted learning that touches goal measurement ([[continuous-learning]] instincts, loop-library edits, judge rubrics).
+- Do not let the maker write the metric it is scored on.
 
 ## Stall and Fault Detection
 
@@ -193,11 +213,15 @@ The posture behind this -- deny host execution unless the task needs it, prefer 
 | "The library should fetch popular loops from a remote registry." | A remote registry would add a service dependency and a supply-chain surface. Nexus-Hub ships local loop definitions and lets operators adapt them. |
 | "A loop means I do not need to understand each iteration." | That produces comprehension debt: the system changes faster than the operator's model of it. Keep state files readable and require human review at bounded checkpoints. |
 | "More agents inside the loop will make it safer." | More agents multiply coordination and token cost. Escalate only when [[agent-orchestration-primitives]] names a measured problem that the cheaper primitive cannot solve. |
+| "The check is already red, so re-running it each iteration is harmless." | Re-proving the same failure against an unchanged workspace burns the `iteration_cap` and hides no-progress. Cache the verdict against a workspace fingerprint; skip until the tree changes. |
+| "A higher score on the loop metric means the learning was good." | That is the reward-hacking signature. Gates must verify how the result was produced (diffs, logs, provenance), and any instinct that changes how the goal is measured needs human review before it is applied. |
 
 ## Verification
 
 - [ ] The selected loop definition declares every schema field from [references/loop-schema.md](references/loop-schema.md).
-- [ ] The loop has a hard `iteration_cap` before the first run.
+- [ ] The loop has a hard `iteration_cap` before the first run, plus a token or cost budget and a wall-clock timeout, and stops on whichever binds first.
+- [ ] Completion gates record a workspace fingerprint with the verdict and skip an unchanged fail instead of re-running.
+- [ ] Checker gates inspect process evidence (how the result was produced), not only the end-state metric.
 - [ ] The `exit_condition` is derived from `check_command` output and can be checked by someone other than the maker.
 - [ ] The driver is identified as host `/loop`, host `/goal`, host `/schedule`, or manual re-invocation; no Nexus-Hub command is invented.
 - [ ] Any writable iteration has an isolation plan through [[using-git-worktrees]] or an explicit reason isolation is unnecessary.
@@ -215,6 +239,7 @@ The posture behind this -- deny host execution unless the task needs it, prefer 
 - [[verification-before-completion]] - requires fresh evidence before treating a loop exit as complete.
 - [[dev-progress-tracker]] - persists forward-looking loop state in `docs/todos.md`.
 - [[known-gaps-tracker]] - records deferred or failed loop outcomes into the version gap log.
-- [[ai-billing-safeguards]] - bounds runaway loop cost with hard spending controls and budget gates.
+- [[ai-billing-safeguards]] - bounds runaway loop cost with hard spending controls and budget gates; supplies the token/cost bound of the simultaneous multi-bound cap.
+- [[ai-agent-governance]] - names the same reward-hacking failure signature for governed agents; do not restate the rule there from memory if that skill is unavailable.
 - [[session-teach-back]] - the comprehension-debt countermeasure: confirms the operator understands what a loop shipped before the gap compounds.
 - [[context-pack-builder]] - distills cross-session context into a durable memory artifact a loop can load at each iteration.

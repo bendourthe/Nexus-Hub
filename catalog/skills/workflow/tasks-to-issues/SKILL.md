@@ -61,6 +61,16 @@ The five marker-order rules from Phase 6 apply verbatim: `[P]` precedes `[US#]`;
 
 When the source is `plan.md`, parse phase blocks in order to preserve the task sequence. When the source is `tasks.md`, the file is already flat -- parse line-by-line.
 
+## Decision tickets
+
+Some tasks hold a QUESTION whose resolution is a decision, not an implementation slice. [[implementation-plan]] marks those with a `decision:` prefix in the description.
+
+- Keep the strict `T###` line format. Example: `- [ ] T014 decision: Which auth provider? docs/decisions/`
+- Detect `decision:` at the start of the description (after markers). Add the `decision` label in addition to the usual labels.
+- Title stays `[T###] decision: <question> (<file-path>)`. Body adds a line: `Kind: decision (resolve before blocked implementation issues)`.
+- Do not skip these lines. They still file as one issue per task. Ordering in GitHub is not a scheduler: the plan's prerequisites remain the authority for "resolve before implementation."
+- A `decision:` task may use `docs/decisions/` (or another docs path) as the file-path token. Do not invent a second regex; if the line fails the strict format, abort as today and tell the user to regenerate.
+
 ## Issue Payload
 
 For each task, build:
@@ -79,7 +89,7 @@ For each task, build:
     ```
 
     When the task carries `[US<n>]` and the feature directory contains a `spec.md` with a matching `### User Story <n>` heading, render the user-story line as a relative Markdown link: `[US<n>](../spec.md#user-story-<n>-<slug>)`.
-3. **Labels**: comma-separated. Always include `nexus-hub` and `spec-driven-task`. Add `parallel` when `[P]` is present. Add `user-story-<n>` when `[US<n>]` is present.
+3. **Labels**: comma-separated. Always include `nexus-hub` and `spec-driven-task`. Add `parallel` when `[P]` is present. Add `user-story-<n>` when `[US<n>]` is present. Add `decision` when the description starts with `decision:`.
 
 The skill does NOT create labels that do not yet exist in the repo. If a label is missing, `gh issue create` emits a warning and the issue is created without the missing label. Document this in the final summary so the user can decide whether to pre-create labels via `gh label create <name>`.
 
@@ -116,6 +126,7 @@ The `[gh#<num>]` marker is the only idempotency primitive. The skill never queri
 | "I will create the labels later, after the issues are filed" | `gh issue create` warns when a label is missing; the issue is created without the missing label. After-the-fact label creation does NOT retroactively attach the label to existing issues. Pre-create labels via `gh label create` before running. |
 | "I will parallelize the gh invocations to make it faster" | GitHub's secondary rate limit on issue creation is strict. Sequential is the documented contract. Parallel runs trigger the rate limit and turn a 30-second job into a 10-minute job with retries. |
 | "If a gh invocation fails I will just skip and continue" | The skill stops on first failure by design. Skipping silently means already-filed issues become orphans referencing a partial plan. The contract is: stop, report, re-run after fixing the underlying cause. |
+| "A decision ticket is not a real task, I will omit it from the issue file" | Then the blocking question has no tracker row and implementation issues start without it. Keep the `T###` line, prefix the description `decision:`, add the `decision` label, and resolve it before the issues it unblocks. |
 
 ## Verification
 
@@ -126,6 +137,7 @@ The `[gh#<num>]` marker is the only idempotency primitive. The skill never queri
 - [ ] In execution mode, every newly-filed task line in the source file ends with `[gh#<num>]` after the run.
 - [ ] Re-running the skill on the same source file with all tasks already marked produces: `Newly created: 0, Skipped: N, Failed: 0` and zero `gh` invocations.
 - [ ] The final summary table has one row per task (newly created or skipped or failed); the row count matches the strict-regex match count.
+- [ ] Every source line whose description starts with `decision:` produced an issue (or dry-run invocation) that includes the `decision` label.
 
 ## Related Skills
 
