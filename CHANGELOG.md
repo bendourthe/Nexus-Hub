@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+This release changes no opt-in capability, installer flag, or host surface.
+
 ### Added
 
 - **MITRE F3 framework field.** `mitre_f3` is a sixth optional SKILL.md frontmatter mapping (MITRE Fight Fraud Framework). Absence is never an error; a scalar where a list is expected fails `validate_skills.py --bundles-only`. `build_framework_coverage.py` renders it beside the other five frameworks.

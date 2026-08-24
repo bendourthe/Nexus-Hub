@@ -137,6 +137,8 @@ When the attacker-perspective methodology is exercised (auditing or red-teaming 
 ## Related Skills
 
 - [[security-review]] -- application security assessment including auth review
+- [[jwt-header-and-key-confusion-attacks]] -- alg=none, key confusion, and kid injection against JWT verification (this skill covers issuance and session design)
+- [[digital-signatures-and-jwt-signing]] -- signing-key lifecycle and algorithm choice for tokens this skill's verifiers consume
 - [[advanced-attack-patterns]] -- the replay / token-binding and injection attack surface that pairs with this skill's JWT and OAuth methodology
 - [[pentest-reporting]] -- writes up confirmed auth weaknesses (CVSS, evidence, retest) using the standards map in the references file
 - [[security-patch-advisor]] -- patch generation for the auth weaknesses surfaced by the methodology section
