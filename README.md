@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.20.2 -->
+<!-- nexus-hub-version: 3.20.3 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 324 skills, 18 commands, 33 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -37,7 +37,13 @@ The two projects are designed to be useful independently: you can install Nexus-
 
 ---
 
-## What's New in v3.20.2
+## What's New in v3.20.3
+
+**Skills craft, invocation policy, and a Claude Code subscribe path.** Three new skills (`design-interview`, `setup-wizard-generator`, `decision-questionnaire`) take the catalog to **324**. Authoring skills teach agent-writing discipline. Generated command-skills carry `disable-model-invocation: true` so slash dispatchers are not model-auto-invoked. Claude Code can subscribe with `/plugin marketplace add bendourthe/Nexus-Hub` (hooks stay on the installer).
+
+This release documents one opt-in host surface: `claude-plugin-marketplace`. See the changelog for Activation, Validation, Rollback, Authority, and Docs.
+
+## Previously, in v3.20.2
 
 **Interface-craft is now a first-class cluster, not a hole in the catalog.** Six skills (net +6, polish merged into `hallmark-design` rather than a seventh skill) cover accessibility, layout, in-product copy, typography, color systems, and a coordinating `interface-review`. Overlapping rules have one owner; a missing delegate is named instead of reconstructed. Recipe-level elevation, radius, icon stroke, and motion values land in `hallmark-design` after its anti-slop gates. Catalog is **321 skills** across **23 categories**.
 

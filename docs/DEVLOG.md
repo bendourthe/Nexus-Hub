@@ -8,6 +8,7 @@ Releases from v3.0.0 onward each carry their own line. Earlier releases predate 
 
 | Date | Version | Summary | Plan | History | Gaps |
 |---|---|---|---|---|---|
+| 2026-08-24 | v3.20.3 | Skills craft, command-skill invocation policy, and a Claude Code plugin subscribe path | [skills-craft-and-prime-agent](v3/v3.20/plans/v3.20.3-skills-craft-and-prime-agent.md) | [history](v3/v3.20/development/history/) | [gaps](v3/v3.20/known-gaps.md) |
 | 2026-08-24 | v3.20.2 | Interface-craft cluster: accessibility, layout, copy, typography, color, and a coordinating review | [interface-craft-skills](v3/v3.20/plans/v3.20.2-interface-craft-skills.md) | [history](v3/v3.20/development/history/) | [gaps](v3/v3.20/known-gaps.md) |
 | 2026-08-23 | v3.20.1 | Forty independently authored cybersecurity skills, F3/Navigator/conformance tooling, and an 800-line SKILL.md cap | [adoption-cybersecurity-skills](v3/v3.20/plans/v3.20.1-adoption-cybersecurity-skills.md) | [history](v3/v3.20/development/history/) | [gaps](v3/v3.20/known-gaps.md) |
 | 2026-08-23 | v3.20.0 | Agent OS-isolation skill, credential brokering, and egress-boundary cross-links | [adoption-agent-security-layers](v3/v3.20/plans/v3.20.0-adoption-agent-security-layers.md) | [history](v3/v3.20/development/history/) | [gaps](v3/v3.20/known-gaps.md) |

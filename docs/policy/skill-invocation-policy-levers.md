@@ -2,7 +2,7 @@
 
 The durable, sourced record of whether each skills-bearing platform documents a **per-skill invocation-policy lever**: a way for one skill to declare that the model may not auto-invoke it, or that the user may not invoke it from a slash menu.
 
-**Last verified**: 2026-08-24 for v3.20.3 command-skill emission. Six platforms re-checked this cycle (claude, cursor, qwen fetched live; copilot and the none-documented set carried from 2026-08-18/22; Codex learn.chatgpt.com timed out and the 2026-08-18 survey is retained). See Scope below for what was not.
+**Last verified**: 2026-08-24 for v3.20.3 command-skill emission. Six platforms re-checked this cycle (claude, cursor, qwen fetched in Phase 4; Codex learn.chatgpt.com re-fetched at release; copilot and the none-documented set carried from 2026-08-18/22). See Scope below for what was not.
 
 ## Scope boundary
 
@@ -45,7 +45,7 @@ Both are recorded below as what the vendor documents, not what the summary claim
 | `claude` | VERIFIED | `disable-model-invocation` (default `false`) | `user-invocable` (default `true`) | `SKILL.md` frontmatter | [code.claude.com](https://code.claude.com/docs/en/skills) | 2026-08-18 |
 | `copilot` | VERIFIED | `disable-model-invocation` (default `false`) | `user-invocable` (default `true`) | `SKILL.md` frontmatter | [code.visualstudio.com](https://code.visualstudio.com/docs/agent-customization/agent-skills) | 2026-08-18 |
 | `cursor` | VERIFIED (partial) | `disable-model-invocation` | none documented | `SKILL.md` frontmatter | [cursor.com](https://cursor.com/docs/skills) | 2026-08-18 |
-| `codex` | VERIFIED (different shape) | `policy.allow_implicit_invocation` (default `true`, inverted polarity) | none documented | `agents/openai.yaml` sidecar | [learn.chatgpt.com](https://learn.chatgpt.com/docs/build-skills) | 2026-08-18 |
+| `codex` | VERIFIED (different shape) | `policy.allow_implicit_invocation` (default `true`, inverted polarity) | none documented | `agents/openai.yaml` sidecar | [learn.chatgpt.com](https://learn.chatgpt.com/docs/build-skills) | 2026-08-24 |
 | `qwen` | VERIFIED | `disable-model-invocation` | `user-invocable` | `SKILL.md` frontmatter | [qwenlm.github.io](https://qwenlm.github.io/qwen-code-docs/en/users/features/skills/) | 2026-08-18 |
 | `antigravity2` | UNVERIFIED | none documented | none documented | n/a | [antigravity.google](https://antigravity.google/docs/skills) | 2026-08-18 |
 | `opencode` | VERIFIED (none documented) | none documented | none documented | `SKILL.md` frontmatter | [opencode.ai](https://opencode.ai/docs/skills/) | 2026-08-22 |

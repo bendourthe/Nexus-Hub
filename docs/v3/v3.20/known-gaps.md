@@ -1,7 +1,7 @@
 # Known Gaps - v3.20
 
 **Project**: Nexus-Hub
-**Status**: in-progress
+**Status**: finalized
 **Last updated**: 2026-08-24
 
 ## v3.20.3
@@ -13,9 +13,11 @@
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 2 | 0 |
 | Bugs / regressions (BG) | 0 | 0 |
-| Warnings (WN) | 1 | 0 |
+| Warnings (WN) | 0 | 1 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
+
+> Finalized on 2026-08-24 at the 3.20.3 bump. Open items will be ingested by `/generate-plan` when the next version's plan is created.
 
 ### Open Items
 
@@ -45,12 +47,7 @@ None.
 
 #### Warnings
 
-##### WN-6 - Codex skills docs timed out during the Phase 4 lever re-check
-
-- **Source phase**: Phase 4 - Invocation-policy metadata
-- **Plan reference**: `docs/v3/v3.20/plans/v3.20.3-skills-craft-and-prime-agent.md` (sub-task 4.1)
-- **Reason**: `https://learn.chatgpt.com/docs/build-skills` timed out on 2026-08-24. The inverted `allow_implicit_invocation` mapping is retained from the 2026-08-18 survey in `docs/policy/skill-invocation-policy-levers.md`.
-- **Suggested next step**: Re-fetch at `/update release` during `[[platform-contract-verification]]`. Change the mapping only on first-party evidence.
+None open. WN-6 (Codex docs timeout) is resolved below.
 
 Phase 1 reused the v3.20.2 scoped `--path` personal-paths scan (WN-3). Inherited WN-4 and WN-5 are closed in the v3.20.2 Resolved table.
 
@@ -64,7 +61,9 @@ None. Existing `ci.yml` already treats `scripts/lib/integrations/**`, `tests/int
 
 ### Resolved
 
-None yet.
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+| WN-6 | Codex skills docs timed out during Phase 4 | `/update release` | Re-fetched `https://learn.chatgpt.com/docs/build-skills` on 2026-08-24. Mapping unchanged: `policy.allow_implicit_invocation: false` in `agents/openai.yaml`. Discovery still omits `~/.codex/skills` (low DRIFT, eighth cycle). |
 
 ## v3.20.2
 
