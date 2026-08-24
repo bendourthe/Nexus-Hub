@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.20.3] - 2026-08-24
+
 ### Added
 
 - **Agent-writing discipline in skill-authoring skills.** `skill-description-authoring` and `skill-create` now teach context pointers, the two loads, leading words, negation avoidance, sediment pruning, and the hard/soft setup-dependency split. Full treatment lives in `skill-description-authoring/references/agent-writing-theory.md`; `skill-create` links that file and does not fork it.
@@ -26,6 +28,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Subagent topology and decision tickets.** `multi-agent-coordinator` restricts messaging to parent/sibling/child and keeps completed subagents addressable by id. `implementation-plan` and `tasks-to-issues` mark blocking questions with a `decision:` prefix and a `decision` label.
 - **Command-skill invocation policy.** Generated command-skills now carry `disable-model-invocation: true` so slash-command bodies are not model-auto-invoked on Claude, Cursor, Copilot, and Qwen. Codex maps the same intent to `allow_implicit_invocation: false` in `agents/openai.yaml` (run after synthesis). Platforms with no documented lever still receive the field and ignore it. `validate_skills.py` warns when a catalog skill description starts with `Run the /X command` without the flag. `tests-windows` now runs the tiny-fixture emission tests.
 - **v3.18 session-history archive.** `docs/v3/v3.18/development/history/` moved to `docs/archive/v3/v3.18/development/history/` (two minors behind v3.20). DEVLOG index links repaired. Plans, comparisons, and known-gaps stay in the live tree.
+- **Platform read-contract restamped for v3.20.3.** Same-day re-fetch: Claude MATCH, Cursor MATCH, OpenCode MATCH, Gemini CLI MATCH (was a timeout last cycle). Codex retains low non-breaking drift after a successful re-fetch (`~/.codex/skills` still undocumented; `$HOME/.agents/skills` still delivers). No adapter or installer write-target changed.
 
 ### Fixed
 
@@ -34,6 +37,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Manifest generator skips gitignored files.** `generate_manifest.py` enumerates covered paths with `git ls-files -co --exclude-standard` when git is available, so gitignored stubs cannot enter `MANIFEST.sha256`.
 - **Codex dry-run counts invocation-policy sidecars.** `codex_invocation_policy` plans `agents/openai.yaml` from the source command list when dest SKILL.md files have not been written yet, so dry-run and install histograms match.
 - **Headline catalog count.** README and AGENTS.md now declare 324 skills, matching `data/skills.json`.
+
+### claude-plugin-marketplace
+
+Subscribe-style Claude Code install, not a replacement for the installer.
+
+- Activation: in Claude Code run `/plugin marketplace add bendourthe/Nexus-Hub` then `/plugin install nexus-hub@nexus-hub`
+- Validation: `/plugin` lists `nexus-hub` as installed
+- Rollback: `/plugin uninstall nexus-hub@nexus-hub`
+- Authority: does not install hooks, other platforms, or the `nexus-hub` CLI; does not grant Anthropic extra access; a marketplace listing pinned to a git SHA can lag tagged releases
+- Docs: [README Claude Code plugin](README.md) and [marketplace submission draft](docs/v3/v3.20/development/claude-marketplace-submission.md)
 
 ## [3.20.2] - 2026-08-24
 

@@ -2,7 +2,7 @@
 
 This is the durable, sourced source of truth for where every supported platform READS each surface (instruction file, slash commands, skills, agents, rules, hooks) and where the Nexus-Hub installer WRITES it. It supersedes the point-in-time snapshot at `docs/v3/v3.11/platform-read-contracts.md` (which resolved the v3.11.0 Phase 7 audit but left the Codex and Antigravity contracts flagged as unverified).
 
-**Last verified**: 2026-08-23 for v3.20.2 (catalog-only release; no discovery-path change; same-day re-fetch of Claude, Cursor, and OpenCode skill-discovery pages MATCH; Codex retains low non-breaking drift; Gemini CLI timed out and is carried forward).
+**Last verified**: 2026-08-24 for v3.20.3 (skills-craft release; no discovery-path change; same-day re-fetch of Claude, Cursor, OpenCode, and Gemini CLI MATCH; Codex retains low non-breaking drift after a successful re-fetch; Nexus-AI UNVERIFIED).
 
 ## Invocation-policy emission (v3.20.3)
 
@@ -14,10 +14,12 @@ This is not a discovery-path change. Command-skills synthesized at install time 
 | Cursor | `disable-model-invocation` in SKILL.md (no `user-invocable`) | Field on generated command-skills. Vendor documents it ([cursor.com/docs/skills](https://cursor.com/docs/skills), re-fetched 2026-08-24). |
 | Qwen Code | both fields in SKILL.md | Field on generated command-skills. Vendor documents it ([qwen-code-docs skills](https://qwenlm.github.io/qwen-code-docs/en/users/features/skills/), page last updated 2026-08-07, re-fetched 2026-08-24). |
 | GitHub Copilot | both fields in SKILL.md | Unchanged from the 2026-08-18 survey. Opt-in `.github/skills/` wrappers copy SKILL.md verbatim; command-skills are not that surface unless `NEXUS_HUB_COPILOT_SKILLS` is on. |
-| Codex / ChatGPT | `policy.allow_implicit_invocation` in `agents/openai.yaml` (inverted) | After command-skill write, `codex_invocation_policy` emits `allow_implicit_invocation: false`. learn.chatgpt.com timed out this cycle; 2026-08-18 survey retained. |
+| Codex / ChatGPT | `policy.allow_implicit_invocation` in `agents/openai.yaml` (inverted) | After command-skill write, `codex_invocation_policy` emits `allow_implicit_invocation: false`. Re-fetched 2026-08-24; mapping unchanged. |
 | Antigravity 2.0, OpenCode, Kimi, Hermes, Nexus-AI | none documented | The SKILL.md field is still emitted and ignored. Honest gap; no invented mapping. |
 
-The living per-skill lever survey remains [`skill-invocation-policy-levers.md`](skill-invocation-policy-levers.md). Re-stamping `meta.verified_for_version` waits for `/update release`.
+The living per-skill lever survey remains [`skill-invocation-policy-levers.md`](skill-invocation-policy-levers.md). `meta.verified_for_version` is 3.20.3.
+
+**v3.20.3 pass (targeted).** Skills-craft release; no discovery-path, adapter write-target, or `contract_checks` change. Same-day re-fetch: Claude MATCH ([code.claude.com/docs/en/skills](https://code.claude.com/docs/en/skills)), Cursor MATCH ([cursor.com/docs/skills](https://cursor.com/docs/skills)), OpenCode MATCH ([opencode.ai/docs/skills/](https://opencode.ai/docs/skills/)), Gemini CLI MATCH ([geminicli.com/docs/cli/using-agent-skills/](https://geminicli.com/docs/cli/using-agent-skills/)). Codex **DRIFT (low), eighth consecutive cycle**: documents the `.agents/skills` ladder including `$HOME/.agents/skills`; still omits `~/.codex/skills` ([learn.chatgpt.com/docs/build-skills](https://learn.chatgpt.com/docs/build-skills), re-fetched 2026-08-24). Nexus-AI remains UNVERIFIED. Antigravity, Gemini Code Assist, Kimi, and Qwen were not re-fetched this cycle and are carried forward from the prior MATCH, not assumed.
 
 **v3.17.4 pass (full).** All ten contract platforms and all sixteen defaults-lever platforms were re-fetched from live first-party documentation. Every public discovery page returned HTTP 200 and retained the path marker used by Nexus-Hub. The read-path contract remains functional: eight MATCH, one non-breaking Codex DRIFT, and one UNVERIFIED Nexus-AI surface. Cursor and Claude retain their distinct hook response protocols, and Org Knowledge writes only the existing instruction and rules destinations, so no adapter path changes in this release.
 
