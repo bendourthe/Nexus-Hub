@@ -280,4 +280,44 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | agent-execution-isolation | security-operations | "Run agents in OS-level isolation with ephemeral containers and an egress boundary" | catalog/skills/security-operations/agent-execution-isolation/SKILL.md |
 | agentic-endpoint-hardening | security-operations | "Harden the coding-agent endpoint against config-write-then-executed sandbox escapes at the trust seam" | catalog/skills/security-operations/agentic-endpoint-hardening/SKILL.md |
 
-**Total: 275 skills across 21 categories**
+| ioc-enrichment-and-reputation-triage | security-operations | "Enrich IOCs and assign a documented reputation verdict with sources" | catalog/skills/security-operations/ioc-enrichment-and-reputation-triage/SKILL.md |
+| threat-actor-ttp-profiling | security-operations | "Profile intrusion-set behaviors and map them to ATT&CK for defense" | catalog/skills/security-operations/threat-actor-ttp-profiling/SKILL.md |
+| threat-intel-feed-operations | security-operations | "Run intel-feed ingest, scoring, expiry, and detection-value measurement" | catalog/skills/security-operations/threat-intel-feed-operations/SKILL.md |
+| infrastructure-pivoting-and-attribution | security-operations | "Pivot authorized adversary infrastructure into a sourced attribution graph" | catalog/skills/security-operations/infrastructure-pivoting-and-attribution/SKILL.md |
+| ransomware-leak-site-monitoring | security-operations | "Watch leak blogs for victim-name early warning without spreading stolen data" | catalog/skills/security-operations/ransomware-leak-site-monitoring/SKILL.md |
+| cert-transparency-and-typosquat-monitoring | security-operations | "Watch CT logs and lookalike domains for brand-impersonation early warning" | catalog/skills/security-operations/cert-transparency-and-typosquat-monitoring/SKILL.md |
+| ics-protocol-anomaly-detection | ot-security | "Detect Modbus DNP3 and OPC-UA protocol abuse on OT networks" | catalog/skills/ot-security/ics-protocol-anomaly-detection/SKILL.md |
+| scada-historian-threat-detection | ot-security | "Detect SCADA server and historian tag tampering and covert channels" | catalog/skills/ot-security/scada-historian-threat-detection/SKILL.md |
+| ot-network-segmentation-and-zones | ot-security | "Design IEC 62443 zones and conduits including the IT/OT DMZ" | catalog/skills/ot-security/ot-network-segmentation-and-zones/SKILL.md |
+| ot-incident-response | ot-security | "Respond to OT cyber incidents without creating an unsafe process state" | catalog/skills/ot-security/ot-incident-response/SKILL.md |
+| ot-nerc-cip-compliance | ot-security | "Map NERC CIP evidence to living OT controls instead of screenshot binders" | catalog/skills/ot-security/ot-nerc-cip-compliance/SKILL.md |
+| api-object-level-authorization-flaws | security | "Test BOLA BFLA and BOPLA object-level authorization on authorized APIs" | catalog/skills/security/api-object-level-authorization-flaws/SKILL.md |
+| api-inventory-and-undocumented-endpoints | security | "Inventory shadow zombie and undocumented API endpoints under authorization" | catalog/skills/security/api-inventory-and-undocumented-endpoints/SKILL.md |
+| api-rate-limit-and-abuse-detection | security | "Design and test API rate limits and stuffing or scraping abuse controls" | catalog/skills/security/api-rate-limit-and-abuse-detection/SKILL.md |
+| api-schema-and-gateway-enforcement | security | "Enforce OpenAPI or protobuf contracts at the gateway including unknown fields" | catalog/skills/security/api-schema-and-gateway-enforcement/SKILL.md |
+| jwt-header-and-key-confusion-attacks | security | "Test JWT alg-none algorithm confusion kid injection and JWKS spoofing" | catalog/skills/security/jwt-header-and-key-confusion-attacks/SKILL.md |
+| encryption-at-rest-design | security | "Design envelope and field-level encryption at rest with a key hierarchy" | catalog/skills/security/encryption-at-rest-design/SKILL.md |
+| tls-certificate-lifecycle | security | "Issue rotate and monitor TLS certificates including mTLS identities" | catalog/skills/security/tls-certificate-lifecycle/SKILL.md |
+| key-management-and-hsm-integration | security | "Operate KMS and HSM keys with dual control and no raw export" | catalog/skills/security/key-management-and-hsm-integration/SKILL.md |
+| digital-signatures-and-jwt-signing | security | "Issue JWTs and digital signatures with pinned algorithms and controlled kids" | catalog/skills/security/digital-signatures-and-jwt-signing/SKILL.md |
+| post-quantum-cryptography-migration | security | "Plan hybrid post-quantum TLS and signature migration from a crypto inventory" | catalog/skills/security/post-quantum-cryptography-migration/SKILL.md |
+| cryptographic-control-audit | security | "Audit deployed crypto for broken algorithms nonce reuse and homemade constructions" | catalog/skills/security/cryptographic-control-audit/SKILL.md |
+| android-static-app-analysis | mobile-security | "Statically review Android APKs for exported components and leaked secrets" | catalog/skills/mobile-security/android-static-app-analysis/SKILL.md |
+| android-dynamic-app-analysis | mobile-security | "Dynamically test authorized Android apps for runtime storage and component abuse" | catalog/skills/mobile-security/android-dynamic-app-analysis/SKILL.md |
+| ios-app-security-review | mobile-security | "Review iOS apps for keychain ATS URL schemes and debug entitlements" | catalog/skills/mobile-security/ios-app-security-review/SKILL.md |
+| mobile-tls-pinning-bypass-assessment | mobile-security | "Assess and lab-bypass TLS pinning on authorized mobile apps" | catalog/skills/mobile-security/mobile-tls-pinning-bypass-assessment/SKILL.md |
+| mobile-malware-family-triage | mobile-security | "Triage mobile malware samples in a lab for family C2 and persistence" | catalog/skills/mobile-security/mobile-malware-family-triage/SKILL.md |
+| zero-trust-architecture-design | security | "Design zero-trust architecture across CISA identity device network app and data pillars" | catalog/skills/security/zero-trust-architecture-design/SKILL.md |
+| ztna-broker-deployment | security | "Deploy a per-app identity-aware broker instead of LAN-wide VPN" | catalog/skills/security/ztna-broker-deployment/SKILL.md |
+| network-microsegmentation-design | security | "Design east-west identity-aware microsegmentation for DC and cloud VPCs" | catalog/skills/security/network-microsegmentation-design/SKILL.md |
+| honeytoken-placement | security-operations | "Place canary credentials and decoy files that alert on first touch" | catalog/skills/security-operations/honeytoken-placement/SKILL.md |
+| adversary-engagement-deception | security-operations | "Design MITRE Engage-style deception campaigns with goals and safety rails" | catalog/skills/security-operations/adversary-engagement-deception/SKILL.md |
+| firmware-extraction-and-analysis | security-operations | "Extract and analyze authorized firmware images for secrets and unsigned updates" | catalog/skills/security-operations/firmware-extraction-and-analysis/SKILL.md |
+| uefi-secure-boot-integrity | security-operations | "Verify UEFI Secure Boot dbx and bootloader integrity on a fleet" | catalog/skills/security-operations/uefi-secure-boot-integrity/SKILL.md |
+| tpm-measured-boot-attestation | security-operations | "Attest hosts with TPM quotes and measured-boot PCR policies" | catalog/skills/security-operations/tpm-measured-boot-attestation/SKILL.md |
+| smart-contract-security-review | security | "Review authorized smart contracts for reentrancy auth gaps and oracle risk" | catalog/skills/security/smart-contract-security-review/SKILL.md |
+| bluetooth-and-wireless-assessment | security | "Assess authorized Bluetooth and Wi-Fi pairing exposure in an isolated lab" | catalog/skills/security/bluetooth-and-wireless-assessment/SKILL.md |
+| vulnerability-prioritization-with-ssvc | security | "Prioritize vulnerabilities with CISA SSVC trees instead of CVSS-only queues" | catalog/skills/security/vulnerability-prioritization-with-ssvc/SKILL.md |
+| slsa-provenance-and-sigstore-verification | security | "Verify SLSA provenance and Sigstore signatures before admitting artifacts" | catalog/skills/security/slsa-provenance-and-sigstore-verification/SKILL.md |
+| purple-team-exercise-design | security-operations | "Run scoped purple-team TTP emulation with detection owners and a scorecard" | catalog/skills/security-operations/purple-team-exercise-design/SKILL.md |
+**Total: 315 skills across 23 categories**

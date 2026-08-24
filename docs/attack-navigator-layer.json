@@ -4,8 +4,48 @@
   "name": "Nexus-Hub ATT&CK coverage",
   "techniques": [
     {
-      "comment": "hunting-credential-dumping",
+      "comment": "ics-protocol-anomaly-detection",
       "score": 1,
+      "techniqueID": "T0807"
+    },
+    {
+      "comment": "ot-incident-response",
+      "score": 1,
+      "techniqueID": "T0813"
+    },
+    {
+      "comment": "ot-incident-response",
+      "score": 1,
+      "techniqueID": "T0829"
+    },
+    {
+      "comment": "bluetooth-and-wireless-assessment",
+      "score": 1,
+      "techniqueID": "T0842"
+    },
+    {
+      "comment": "ics-protocol-anomaly-detection",
+      "score": 1,
+      "techniqueID": "T0855"
+    },
+    {
+      "comment": "scada-historian-threat-detection",
+      "score": 1,
+      "techniqueID": "T0878"
+    },
+    {
+      "comment": "ot-network-segmentation-and-zones",
+      "score": 1,
+      "techniqueID": "T0883"
+    },
+    {
+      "comment": "scada-historian-threat-detection",
+      "score": 1,
+      "techniqueID": "T0891"
+    },
+    {
+      "comment": "hunting-credential-dumping, purple-team-exercise-design",
+      "score": 2,
       "techniqueID": "T1003"
     },
     {
@@ -24,8 +64,13 @@
       "techniqueID": "T1003.003"
     },
     {
-      "comment": "lateral-movement-detection",
+      "comment": "bluetooth-and-wireless-assessment",
       "score": 1,
+      "techniqueID": "T1011"
+    },
+    {
+      "comment": "lateral-movement-detection, threat-actor-ttp-profiling",
+      "score": 2,
       "techniqueID": "T1021"
     },
     {
@@ -44,8 +89,8 @@
       "techniqueID": "T1027"
     },
     {
-      "comment": "skill-security-scan",
-      "score": 1,
+      "comment": "ioc-enrichment-and-reputation-triage, skill-security-scan",
+      "score": 2,
       "techniqueID": "T1041"
     },
     {
@@ -59,8 +104,8 @@
       "techniqueID": "T1055"
     },
     {
-      "comment": "agentic-endpoint-hardening, disk-artifact-forensics, endpoint-edr-detection, log-threat-hunting, malware-triage-analysis, siem-detection-engineering, skill-security-scan",
-      "score": 7,
+      "comment": "agentic-endpoint-hardening, disk-artifact-forensics, endpoint-edr-detection, log-threat-hunting, malware-triage-analysis, purple-team-exercise-design, siem-detection-engineering, skill-security-scan, threat-actor-ttp-profiling",
+      "score": 9,
       "techniqueID": "T1059"
     },
     {
@@ -69,13 +114,13 @@
       "techniqueID": "T1070"
     },
     {
-      "comment": "agent-execution-isolation, log-threat-hunting, security-framework-mapping, siem-detection-engineering",
-      "score": 4,
+      "comment": "agent-execution-isolation, ioc-enrichment-and-reputation-triage, log-threat-hunting, security-framework-mapping, siem-detection-engineering, threat-intel-feed-operations",
+      "score": 6,
       "techniqueID": "T1071"
     },
     {
-      "comment": "cloud-audit-log-detection, cloud-security-posture-detection, identity-threat-detection",
-      "score": 3,
+      "comment": "api-object-level-authorization-flaws, cloud-audit-log-detection, cloud-security-posture-detection, honeytoken-placement, identity-threat-detection, jwt-header-and-key-confusion-attacks",
+      "score": 6,
       "techniqueID": "T1078"
     },
     {
@@ -84,9 +129,14 @@
       "techniqueID": "T1098"
     },
     {
-      "comment": "identity-threat-detection",
-      "score": 1,
+      "comment": "api-rate-limit-and-abuse-detection, identity-threat-detection",
+      "score": 2,
       "techniqueID": "T1110"
+    },
+    {
+      "comment": "api-inventory-and-undocumented-endpoints, api-object-level-authorization-flaws, api-schema-and-gateway-enforcement",
+      "score": 3,
+      "techniqueID": "T1190"
     },
     {
       "comment": "skill-security-scan",
@@ -94,13 +144,28 @@
       "techniqueID": "T1195"
     },
     {
+      "comment": "adversary-engagement-deception",
+      "score": 1,
+      "techniqueID": "T1200"
+    },
+    {
       "comment": "endpoint-edr-detection",
       "score": 1,
       "techniqueID": "T1218"
     },
     {
-      "comment": "ransomware-incident-response",
+      "comment": "mobile-malware-family-triage",
       "score": 1,
+      "techniqueID": "T1417"
+    },
+    {
+      "comment": "mobile-malware-family-triage",
+      "score": 1,
+      "techniqueID": "T1476"
+    },
+    {
+      "comment": "ransomware-incident-response, ransomware-leak-site-monitoring",
+      "score": 2,
       "techniqueID": "T1486"
     },
     {
@@ -114,9 +179,24 @@
       "techniqueID": "T1490"
     },
     {
+      "comment": "api-rate-limit-and-abuse-detection",
+      "score": 1,
+      "techniqueID": "T1499"
+    },
+    {
+      "comment": "api-inventory-and-undocumented-endpoints",
+      "score": 1,
+      "techniqueID": "T1526"
+    },
+    {
       "comment": "cloud-audit-log-detection, cloud-security-posture-detection",
       "score": 2,
       "techniqueID": "T1530"
+    },
+    {
+      "comment": "firmware-extraction-and-analysis, uefi-secure-boot-integrity",
+      "score": 2,
+      "techniqueID": "T1542.001"
     },
     {
       "comment": "persistence-mechanism-hunting",
@@ -144,9 +224,19 @@
       "techniqueID": "T1550"
     },
     {
-      "comment": "agent-execution-isolation, skill-security-scan",
-      "score": 2,
+      "comment": "jwt-header-and-key-confusion-attacks",
+      "score": 1,
+      "techniqueID": "T1550.001"
+    },
+    {
+      "comment": "agent-execution-isolation, honeytoken-placement, skill-security-scan",
+      "score": 3,
       "techniqueID": "T1552"
+    },
+    {
+      "comment": "uefi-secure-boot-integrity",
+      "score": 1,
+      "techniqueID": "T1553.006"
     },
     {
       "comment": "identity-threat-detection",
@@ -154,8 +244,8 @@
       "techniqueID": "T1556"
     },
     {
-      "comment": "phishing-analysis-and-defense",
-      "score": 1,
+      "comment": "cert-transparency-and-typosquat-monitoring, phishing-analysis-and-defense",
+      "score": 2,
       "techniqueID": "T1566"
     },
     {
@@ -169,9 +259,34 @@
       "techniqueID": "T1566.002"
     },
     {
+      "comment": "infrastructure-pivoting-and-attribution",
+      "score": 1,
+      "techniqueID": "T1573"
+    },
+    {
       "comment": "cloud-security-posture-detection",
       "score": 1,
       "techniqueID": "T1578"
+    },
+    {
+      "comment": "threat-actor-ttp-profiling",
+      "score": 1,
+      "techniqueID": "T1583"
+    },
+    {
+      "comment": "cert-transparency-and-typosquat-monitoring, infrastructure-pivoting-and-attribution",
+      "score": 2,
+      "techniqueID": "T1583.001"
+    },
+    {
+      "comment": "adversary-engagement-deception",
+      "score": 1,
+      "techniqueID": "T1584"
+    },
+    {
+      "comment": "firmware-extraction-and-analysis",
+      "score": 1,
+      "techniqueID": "T1601"
     },
     {
       "comment": "container-runtime-detection",
@@ -192,6 +307,11 @@
       "comment": "memory-forensics",
       "score": 1,
       "techniqueID": "T1620"
+    },
+    {
+      "comment": "ransomware-leak-site-monitoring",
+      "score": 1,
+      "techniqueID": "T1657"
     }
   ],
   "versions": {

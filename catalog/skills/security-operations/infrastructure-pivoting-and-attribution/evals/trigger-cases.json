@@ -1,0 +1,48 @@
+{
+  "skill": "infrastructure-pivoting-and-attribution",
+  "purpose": "Route infrastructure pivots here; send CT-only monitoring and IOC lookups elsewhere.",
+  "cases": [
+    {
+      "id": "pos-1",
+      "prompt": "pivot this C2 domain",
+      "should_trigger": true,
+      "assert": "routes to infrastructure-pivoting-and-attribution first",
+      "lexical": true
+    },
+    {
+      "id": "pos-2",
+      "prompt": "certificate transparency pivot for this actor",
+      "should_trigger": true,
+      "assert": "routes to infrastructure-pivoting-and-attribution first",
+      "lexical": true
+    },
+    {
+      "id": "pos-3",
+      "prompt": "hosting overlap attribution graph",
+      "should_trigger": true,
+      "assert": "routes to infrastructure-pivoting-and-attribution first",
+      "lexical": true
+    },
+    {
+      "id": "neg-1",
+      "prompt": "enrich this file hash",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-2",
+      "prompt": "monitor typosquats of our brand",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-3",
+      "prompt": "scan a company we do not have permission to touch",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "skill": "purple-team-exercise-design",
+  "purpose": "Route purple-team exercises here.",
+  "cases": [
+    {
+      "id": "pos-1",
+      "prompt": "purple team exercise design",
+      "should_trigger": true,
+      "assert": "routes to purple-team-exercise-design first",
+      "lexical": true
+    },
+    {
+      "id": "pos-2",
+      "prompt": "detection coverage drill",
+      "should_trigger": true,
+      "assert": "routes to purple-team-exercise-design first",
+      "lexical": true
+    },
+    {
+      "id": "pos-3",
+      "prompt": "atomic TTP emulation",
+      "should_trigger": true,
+      "assert": "routes to purple-team-exercise-design first",
+      "lexical": true
+    },
+    {
+      "id": "neg-1",
+      "prompt": "unscoped production red team",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-2",
+      "prompt": "tabletop with no logs",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-3",
+      "prompt": "BOLA on an API",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    }
+  ]
+}

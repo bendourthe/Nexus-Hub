@@ -1,0 +1,48 @@
+{
+  "skill": "ios-app-security-review",
+  "purpose": "Route iOS app review here.",
+  "cases": [
+    {
+      "id": "pos-1",
+      "prompt": "iOS appsec review",
+      "should_trigger": true,
+      "assert": "routes to ios-app-security-review first",
+      "lexical": true
+    },
+    {
+      "id": "pos-2",
+      "prompt": "ATS exception audit",
+      "should_trigger": true,
+      "assert": "routes to ios-app-security-review first",
+      "lexical": true
+    },
+    {
+      "id": "pos-3",
+      "prompt": "keychain accessibility review",
+      "should_trigger": true,
+      "assert": "routes to ios-app-security-review first",
+      "lexical": true
+    },
+    {
+      "id": "neg-1",
+      "prompt": "APK exported activities",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-2",
+      "prompt": "jailbreak exploit kit",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-3",
+      "prompt": "Android Frida",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    }
+  ]
+}
