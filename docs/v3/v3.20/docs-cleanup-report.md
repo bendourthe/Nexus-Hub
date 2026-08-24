@@ -1,4 +1,4 @@
-# Docs Cleanup Audit - v3.20.2 Phase 5
+# Docs Cleanup Audit - v3.20.2 Phase 6
 
 **Date**: 2026-08-23
 **Mode**: audit only (no files moved)

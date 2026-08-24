@@ -325,4 +325,5 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | interface-copy | developer-experience | "Write in-product UI microcopy for actions, errors, and empty states" | catalog/skills/developer-experience/interface-copy/SKILL.md |
 | web-typography | developer-experience | "Load, scale, wrap, and truncate web type without restating heading semantics" | catalog/skills/developer-experience/web-typography/SKILL.md |
 | color-systems | developer-experience | "Construct OKLCH palettes and remediate measured contrast pairs" | catalog/skills/developer-experience/color-systems/SKILL.md |
-**Total: 320 skills across 23 categories**
+| interface-review | developer-experience | "Orchestrate a multi-domain UI review into one capped, honest verdict" | catalog/skills/developer-experience/interface-review/SKILL.md |
+**Total: 321 skills across 23 categories**

@@ -6,7 +6,7 @@
     "description": "Comprehensive catalog of Nexus-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-        "total_skills": 320,
+        "total_skills": 321,
     "categories": {
       "ai-development": 14,
       "architecture": 7,
@@ -15,7 +15,7 @@
       "code-cleanup": 10,
       "code-review": 15,
       "compliance": 9,
-      "developer-experience": 37,
+      "developer-experience": 38,
       "documentation": 6,
       "framework-specialists": 6,
       "infrastructure": 19,
@@ -11290,6 +11290,43 @@
         "lines": 96,
         "characters": 6864,
         "tokens_estimate": 686
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "interface-review",
+      "title": "interface-review",
+      "description": "\"Coordinate a multi-domain interface review and return one consolidated verdict. Use for holistic UI review or multi-domain UX pass. SKIP: one-domain requests and general code review (multi-agent-code-review, code-quality).\"",
+      "long_description": "Orchestrate interface-craft delegates into one capped review. Owns order and honesty, not domain rules.",
+      "summary_l0": "\"Orchestrate a multi-domain UI review into one capped, honest verdict\"",
+      "overview_l1": "\"This skill owns orchestration only: it loads the interface-craft delegates in a fixed order, applies each delegate's principles, ignores each delegate's standalone report shape, and emits one consolidated review. It never restates or overrides a delegate rule. The cluster rule-ownership table lives here. Quick mode covers the primary path, P0/P1 only, cap 5. Full mode covers the requested scope, cap 20. Missing delegates are named and marked not reviewed. Default is read-only. SKIP single-domain work and general code review.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "developer-experience",
+      "language": "Multi-language",
+      "tags": [
+        "ui-review",
+        "orchestration",
+        "accessibility",
+        "ux"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/developer-experience/interface-review/",
+      "file": "catalog/skills/developer-experience/interface-review/SKILL.md",
+      "size": {
+        "lines": 151,
+        "characters": 8790,
+        "tokens_estimate": 879
       },
       "downloads": 0,
       "status": "production",
