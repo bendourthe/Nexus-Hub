@@ -70,4 +70,3 @@ async def require_admin(user: CurrentUser) -> User:
 
 AdminUser = Annotated[User, Depends(require_admin)]
 ```
-

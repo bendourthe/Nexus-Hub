@@ -34,4 +34,3 @@ For a paragraph that had `[1,3]` in source A and source B's `[1]` maps to canoni
 Allow the user to challenge a specific collapse if they believe two cited works are actually distinct.
 
 ---
-

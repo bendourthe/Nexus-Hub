@@ -403,4 +403,3 @@ struct APIClientAsyncTests {
 - Mark tests that mutate `@MainActor`-isolated view models with `@MainActor` to satisfy Swift 6 concurrency requirements
 - Keep UI tests focused on critical user flows (three to five scenarios). UI tests are slow and brittle, so cover edge cases with unit tests instead
 - Use launch arguments (`--uitesting`) to configure the app for UI testing: stub network responses, seed test data, and disable animations
-

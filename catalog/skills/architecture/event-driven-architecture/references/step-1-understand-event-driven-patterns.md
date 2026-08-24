@@ -35,4 +35,3 @@ Q: Are reads and writes significantly different in shape or scale?
 ├── No  -> Single model is fine
 └── Yes -> CQRS (separate read/write models, eventually consistent)
 ```
-

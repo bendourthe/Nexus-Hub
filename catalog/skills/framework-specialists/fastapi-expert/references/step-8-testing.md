@@ -116,4 +116,3 @@ async def test_list_users_pagination(client: AsyncClient):
     assert data["total"] == 3
     assert data["has_next"] is True
 ```
-

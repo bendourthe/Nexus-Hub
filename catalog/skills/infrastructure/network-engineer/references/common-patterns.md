@@ -21,4 +21,3 @@ Route 53 (Latency) ──► US: CloudFront ──► ALB us-east-1
 ```
 Client ──► Verified Access (identity check) ──► Private ALB ──► App (mTLS mesh)
 ```
-

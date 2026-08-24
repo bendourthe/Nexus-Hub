@@ -133,4 +133,3 @@ if __name__ == "__main__":
     output_file = sys.argv[2] if len(sys.argv) > 2 else "categorized_prs.json"
     categorize_all(input_file, output_file)
 ```
-

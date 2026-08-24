@@ -208,4 +208,3 @@ function onScroll(event: UIEvent) {
   </div>
 </template>
 ```
-

@@ -132,4 +132,3 @@ class ExchangeRateService:
 - Store exchange rates with their effective date and source for audit purposes
 - Use the `allocate` pattern (not division) when splitting money to avoid rounding leakage
 - Store currency codes as ISO 4217 three-letter codes, not symbols or free-text
-

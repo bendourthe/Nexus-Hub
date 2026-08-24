@@ -101,4 +101,3 @@ echo "SUCCESS: All $READY_PODS/$DESIRED_PODS pods ready and healthy"
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_DEPLOY_WEBHOOK }}
 ```
-

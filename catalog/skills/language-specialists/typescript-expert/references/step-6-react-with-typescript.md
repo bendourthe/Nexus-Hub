@@ -236,4 +236,3 @@ function Text<E extends React.ElementType = "span">({
 <Text as="a" href="/about" size="sm">Link</Text>
 // <Text as="a" disabled>Error</Text>  // Error: 'disabled' does not exist on anchor
 ```
-

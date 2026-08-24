@@ -104,4 +104,3 @@ function evaluatePolicy(ctx: PolicyContext): boolean {
   return policies.some(policy => policy(ctx));
 }
 ```
-

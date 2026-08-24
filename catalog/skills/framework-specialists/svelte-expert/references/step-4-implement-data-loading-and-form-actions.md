@@ -233,4 +233,3 @@ export const load: PageServerLoad = async ({ locals }) => {
   <p class="error">Could not generate recommendations.</p>
 {/await}
 ```
-

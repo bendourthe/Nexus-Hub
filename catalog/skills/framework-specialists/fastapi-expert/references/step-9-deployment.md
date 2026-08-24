@@ -67,4 +67,3 @@ async def health_check(db: DbSession):
             media_type="application/json",
         )
 ```
-

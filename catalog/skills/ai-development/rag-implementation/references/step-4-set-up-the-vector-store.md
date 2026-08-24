@@ -140,4 +140,3 @@ def search_pgvector(
         for row in cur.fetchall()
     ]
 ```
-

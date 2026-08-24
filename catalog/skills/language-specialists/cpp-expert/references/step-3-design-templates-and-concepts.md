@@ -106,4 +106,3 @@ struct Serializer<std::string> {
     }
 };
 ```
-

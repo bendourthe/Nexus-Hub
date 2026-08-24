@@ -201,4 +201,3 @@ composable<Route.ArticleDetail>(
 - Hide the bottom navigation bar on detail screens by checking whether the current destination is a top-level route
 - Use `launchSingleTop = true` to prevent duplicate destinations on repeated taps
 - Configure deep links both in the `NavHost` and in `AndroidManifest.xml` with `android:autoVerify="true"` for App Links
-

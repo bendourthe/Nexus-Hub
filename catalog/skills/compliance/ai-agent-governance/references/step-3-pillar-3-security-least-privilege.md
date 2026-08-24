@@ -210,4 +210,3 @@ class AgentSecurityManager:
 
         return new_cred
 ```
-

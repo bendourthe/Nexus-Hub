@@ -231,4 +231,3 @@ def slice_sprite_sheet(
         frames.append(sheet.crop(box))
     return frames
 ```
-

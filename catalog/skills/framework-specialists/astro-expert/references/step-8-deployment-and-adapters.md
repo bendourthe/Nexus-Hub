@@ -244,4 +244,3 @@ export default defineConfig({
   },
 });
 ```
-

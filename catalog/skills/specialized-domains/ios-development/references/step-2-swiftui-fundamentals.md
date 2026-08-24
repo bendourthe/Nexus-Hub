@@ -209,4 +209,3 @@ extension Transaction {
 - Always provide accessibility labels for non-text elements and use `.accessibilityElement(children: .combine)` for composite rows
 - Use `@State` for view-local state, `@Binding` for child-to-parent communication, and `@Environment` for shared values
 - Prefer the `format:` parameter on `Text` for locale-aware formatting of numbers, dates, and currencies
-

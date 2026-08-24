@@ -233,4 +233,3 @@ class AgentObservability:
             "timestamp": datetime.utcnow().isoformat()
         })
 ```
-

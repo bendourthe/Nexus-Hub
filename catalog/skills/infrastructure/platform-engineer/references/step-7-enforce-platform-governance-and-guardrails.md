@@ -222,4 +222,3 @@ spec:
               emptyDir: {}
           restartPolicy: Never
 ```
-

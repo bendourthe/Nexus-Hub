@@ -60,4 +60,3 @@ app.post('/logout', (req, res) => {
 | sessionStorage | High (JS accessible) | None | Avoid for tokens |
 | HttpOnly cookie | None (not JS accessible) | Medium | Preferred with SameSite |
 | In-memory variable | Low (lost on refresh) | None | Good for access tokens |
-

@@ -167,4 +167,3 @@ ENABLE_TESTABILITY = NO
 - Use local Swift packages to extract shared logic into testable modules with explicit dependency boundaries
 - Keep the main app target thin: it should wire together feature modules but contain minimal logic itself
 - Configure separate xcconfig files for Debug and Release to avoid conditional compilation scattered through code
-

@@ -138,4 +138,3 @@ vec3 fluidEffect(vec2 uv, float time) {
     return color;
 }
 ```
-

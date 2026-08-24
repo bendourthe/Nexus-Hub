@@ -38,4 +38,3 @@ This `merged.md` is an intermediate. The final user-facing `.md` output (when th
 Target: 700-1300 lines.
 
 ---
-

@@ -174,4 +174,3 @@ const currentLocale = Astro.currentLocale; // "en", "fr", or "de"
 <h1>{greeting}</h1>
 <p>Current locale: {currentLocale}</p>
 ```
-

@@ -171,4 +171,3 @@ spec:
 ```
 
 Sealed secrets allow you to store encrypted secrets in Git alongside application manifests. The Sealed Secrets controller running in the cluster holds the private key and decrypts them at deploy time. This is ideal for GitOps workflows where all configuration (including secrets) should be version-controlled.
-

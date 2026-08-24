@@ -72,4 +72,3 @@ EOF
 # Make executable
 chmod +x pre-commit
 ```
-

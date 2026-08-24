@@ -63,4 +63,3 @@ async function apiClient<K extends keyof ApiRoutes>(
 const users = await apiClient("GET /users", { query: { page: 1 } });
 const user = await apiClient("POST /users", { body: { name: "Alice", email: "a@b.com" } });
 ```
-

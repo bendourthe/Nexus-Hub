@@ -163,4 +163,3 @@ const dbUrl = env.DATABASE_URL;
   <a href="/">Go home</a>
 </div>
 ```
-

@@ -104,4 +104,3 @@ def execute_tool(name: str, arguments: dict) -> str:
             "suggestion": "An unexpected error occurred. Try a different approach."
         })
 ```
-

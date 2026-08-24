@@ -42,4 +42,3 @@ function validatePasswordPolicy(password: string): string[] {
   return errors;
 }
 ```
-

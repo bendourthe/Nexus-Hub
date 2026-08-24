@@ -361,4 +361,3 @@ class ArticleRemoteMediator(
 - Implement optimistic updates for user actions (bookmarks, likes) by updating the local database first, then syncing to the server with rollback on failure
 - Use Paging 3 with `RemoteMediator` for large datasets that combine local caching with network pagination
 - Always define database migrations for schema changes; never use `fallbackToDestructiveMigration()` in production
-

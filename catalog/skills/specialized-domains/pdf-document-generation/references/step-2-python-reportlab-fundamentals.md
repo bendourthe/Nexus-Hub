@@ -211,4 +211,3 @@ registerFontFamily("Inter", normal="Inter", bold="Inter-Bold", italic="Inter-Ita
 # Use in ParagraphStyle
 style = ParagraphStyle("CustomBody", fontName="Inter", fontSize=10, leading=14)
 ```
-

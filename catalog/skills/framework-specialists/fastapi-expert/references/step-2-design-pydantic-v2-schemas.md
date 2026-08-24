@@ -85,4 +85,3 @@ class ActionNotification(BaseModel):
 # FastAPI automatically generates correct OpenAPI schema
 Notification = TextNotification | ImageNotification | ActionNotification
 ```
-

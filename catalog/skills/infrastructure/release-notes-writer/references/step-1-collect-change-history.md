@@ -55,4 +55,3 @@ gh pr list \
 PR_COUNT=$(jq length "$OUTPUT")
 echo "Collected $PR_COUNT merged PRs -> $OUTPUT"
 ```
-

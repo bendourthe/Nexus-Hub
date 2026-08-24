@@ -124,4 +124,3 @@ exclude_lines = [
     "if __name__",
 ]
 ```
-

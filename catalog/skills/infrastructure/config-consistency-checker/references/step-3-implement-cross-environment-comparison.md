@@ -185,4 +185,3 @@ if __name__ == "__main__":
         print("CRITICAL findings detected. Review config_findings.json for details.")
         sys.exit(1)
 ```
-

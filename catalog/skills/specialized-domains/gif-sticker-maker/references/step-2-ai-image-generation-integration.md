@@ -211,4 +211,3 @@ STYLE_PROMPT_MODIFIERS: dict[str, str] = {
 - Use "centered composition" to keep the subject within the sticker boundary
 - For animated sequences, prompt for consistent character design across frames by specifying "character sheet" or "expression sheet" styles
 - Include the target emotion or action clearly: "waving hello", "laughing", "thumbs up"
-

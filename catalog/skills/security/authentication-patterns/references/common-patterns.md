@@ -66,4 +66,3 @@ function requireScope(...requiredScopes: string[]) {
 app.get('/api/orders', requireScope('orders:read'), getOrders);
 app.post('/api/orders', requireScope('orders:write'), createOrder);
 ```
-

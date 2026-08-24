@@ -73,4 +73,3 @@ def enrich_chunk_metadata(chunk: Chunk) -> Chunk:
     chunk.metadata.update(enrichment)
     return chunk
 ```
-

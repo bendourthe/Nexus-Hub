@@ -112,4 +112,3 @@ message OrderStatusEvent {
   google.protobuf.Timestamp occurred_at = 4;
 }
 ```
-

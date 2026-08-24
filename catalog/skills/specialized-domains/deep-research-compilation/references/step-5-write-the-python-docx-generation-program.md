@@ -424,4 +424,3 @@ python "<cache_dir>/generate.py"
 If any import fails, the program prints a clear `pip install <pkg>` hint and exits. Dependencies beyond `python-docx` are lazy-imported inside the per-format parsers so the generator runs with just `python-docx` in the typical case.
 
 ---
-

@@ -96,4 +96,3 @@ public async Task ProcessWithTimeoutAsync(CancellationToken externalCt)
     await DoWorkAsync(cts.Token); // Cancelled by either timeout or external signal
 }
 ```
-

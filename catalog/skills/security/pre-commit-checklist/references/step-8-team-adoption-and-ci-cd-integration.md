@@ -84,4 +84,3 @@ jobs:
       - name: Run pre-commit on all files
         run: pre-commit run --all-files
 ```
-

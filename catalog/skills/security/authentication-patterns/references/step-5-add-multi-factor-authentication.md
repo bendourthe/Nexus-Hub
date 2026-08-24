@@ -108,4 +108,3 @@ async function finishPasskeyRegistration(userId: string, response: any) {
   return verification.verified;
 }
 ```
-

@@ -83,4 +83,3 @@ function useFormValidation<T extends Record<string, string>>(
   return { values, errors, touched, handleChange, handleBlur, handleSubmit };
 }
 ```
-

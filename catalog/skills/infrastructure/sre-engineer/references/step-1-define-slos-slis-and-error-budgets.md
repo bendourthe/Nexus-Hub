@@ -144,4 +144,3 @@ For 99.99% SLO: error budget = 0.01% = 4.32 minutes of total downtime
 Budget consumed = (actual_bad_minutes / allowed_bad_minutes) * 100
 Budget remaining = 100% - budget_consumed
 ```
-

@@ -124,4 +124,3 @@ def load_config(path: str, format: str) -> dict[str, Any]:
 
     return annotated
 ```
-

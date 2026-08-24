@@ -240,4 +240,3 @@ class AgentRiskControls:
 
         return {"allowed": True}
 ```
-

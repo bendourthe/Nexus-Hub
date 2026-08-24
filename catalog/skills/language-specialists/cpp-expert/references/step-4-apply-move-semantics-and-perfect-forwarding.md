@@ -99,4 +99,3 @@ void wrapper(T&& arg) {           // Forwarding reference (deduced context)
 
 void takes_rvalue(std::string&& s);  // Rvalue reference (concrete type)
 ```
-

@@ -156,4 +156,3 @@ def export_for_slack(
         _reduce_gif_size(gif_path, max_size_kb)
     return gif_path
 ```
-

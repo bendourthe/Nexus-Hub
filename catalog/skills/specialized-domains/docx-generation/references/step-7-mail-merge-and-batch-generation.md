@@ -235,4 +235,3 @@ def merge_documents(
 - For large batches (1000+ documents), generate sequentially rather than loading all templates into memory at once. Each `DocxTemplate` instance holds the full document in memory
 - Validate your data source before starting the batch. A missing required field in row 500 wastes the time spent on rows 1-499 if the process aborts
 - Log progress and errors to a file so that failed documents can be retried without re-generating successful ones
-

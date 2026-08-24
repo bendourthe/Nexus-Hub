@@ -27,4 +27,3 @@ gRPC:    Internal microservice communication, low-latency requirements,
          polyglot environments (code generation from proto files),
          bidirectional streaming (chat, live data feeds).
 ```
-

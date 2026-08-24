@@ -220,4 +220,3 @@ struct AlertItem: Identifiable {
 - Centralize routing logic in a `Router` object injected via `@Environment` so that any view can trigger navigation without passing closures through the hierarchy
 - Use `.presentationDetents` on sheets to control their height. Half-height sheets (`.medium`) work well for quick forms
 - Prefer `confirmationDialog` over `alert` for destructive actions because it presents as an action sheet on iPhone
-

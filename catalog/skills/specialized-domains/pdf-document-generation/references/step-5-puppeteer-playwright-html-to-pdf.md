@@ -193,4 +193,3 @@ async function generateBatchInvoices(invoices, templateFn) {
   }
 }
 ```
-

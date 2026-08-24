@@ -70,4 +70,3 @@ function App() {
    - Context value changing (split contexts or use selectors)
    - Parent re-rendering (wrap child in React.memo)
 5. Apply the narrowest fix: useMemo/useCallback for prop stability, React.memo for the component, or context splitting
-

@@ -122,4 +122,3 @@ class IdempotentConsumer:
         finally:
             self.consumer.close()
 ```
-

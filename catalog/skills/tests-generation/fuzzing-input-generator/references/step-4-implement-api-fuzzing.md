@@ -135,4 +135,3 @@ print(f"Found {len(fuzzer.findings)} issues")
 for f in fuzzer.findings:
     print(f"  [{f['type']}] {f.get('status', 'N/A')}: {json.dumps(f['body'])[:100]}")
 ```
-

@@ -72,4 +72,3 @@ def execute_research_agent(question: str) -> str:
         f"Research this thoroughly and provide a detailed answer: {question}",
     )
 ```
-

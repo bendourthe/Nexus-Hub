@@ -149,4 +149,3 @@ composer.register("rules_concise", (
     "- If you are uncertain about a claim, say so explicitly"
 ))
 ```
-

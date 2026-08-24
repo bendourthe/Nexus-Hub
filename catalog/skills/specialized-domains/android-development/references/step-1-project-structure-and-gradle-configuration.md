@@ -280,4 +280,3 @@ dependencies {
 - Set `minSdk = 26` (Android 8.0) as a practical baseline that covers over 95% of active devices
 - Use convention plugins in `build-logic/` to share common configuration across feature and core modules
 - Always set an `applicationIdSuffix` on debug builds to allow side-by-side installation with release builds
-

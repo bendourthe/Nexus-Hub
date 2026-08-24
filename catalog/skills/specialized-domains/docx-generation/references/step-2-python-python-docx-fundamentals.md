@@ -268,4 +268,3 @@ def add_image_with_caption(
 - Images are inline shapes attached to runs, not paragraphs. Create a run first, then call `run.add_picture()`
 - python-docx does not support generating a Table of Contents natively. You must insert the TOC field code and the TOC is populated when the document is opened in Word
 - Saving to the same file that is open in Word will raise a `PermissionError`. Always use a temporary file or ensure the document is closed
-

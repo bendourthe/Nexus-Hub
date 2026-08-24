@@ -110,4 +110,3 @@ async def compute_fraud_features(
 ```
 
 **False Positive Management**: Every fraud detection system produces false positives. Design your system with a review queue, customer friction budget (maximum number of challenges per time window), and feedback loops that retrain rules based on analyst decisions. Track precision, recall, and false positive rate as operational metrics.
-

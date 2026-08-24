@@ -120,4 +120,3 @@ function VideoPlayer({ src }: { src: string }) {
   );
 }
 ```
-

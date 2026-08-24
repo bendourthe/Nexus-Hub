@@ -26,4 +26,3 @@ The anti-patterns that will wreck the output:
 - Skipping the post-generation validation -- "Word found unreadable content" warnings and empty TOCs are caught here.
 
 ---
-

@@ -45,4 +45,3 @@ npm install puppeteer
 # Browser/Node.js: jsPDF
 npm install jspdf
 ```
-

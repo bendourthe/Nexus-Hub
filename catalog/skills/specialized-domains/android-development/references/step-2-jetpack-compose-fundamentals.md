@@ -275,4 +275,3 @@ private fun SearchScreenPreview() {
 - Always accept a `modifier: Modifier = Modifier` parameter as the last optional parameter on public composables
 - Use `derivedStateOf` when computing a value from other state objects to avoid redundant recompositions
 - Modifier order matters: size and padding modifiers wrap outer to inner, and clickable should come after clip for correct ripple bounds
-

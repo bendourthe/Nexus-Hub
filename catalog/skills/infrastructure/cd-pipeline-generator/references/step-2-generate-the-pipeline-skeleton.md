@@ -146,4 +146,3 @@ spec:
         maxDuration: 1m
   revisionHistoryLimit: 10
 ```
-

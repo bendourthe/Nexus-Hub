@@ -32,4 +32,3 @@
 - [ ] Grafana dashboards created
 - [ ] Alert rules configured
 - [ ] Data lineage tracked
-

@@ -125,4 +125,3 @@ def publish_event(channel, routing_key: str, event: dict):
         ),
     )
 ```
-

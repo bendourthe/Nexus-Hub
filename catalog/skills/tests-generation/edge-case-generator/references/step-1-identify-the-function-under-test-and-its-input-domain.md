@@ -33,4 +33,3 @@ def paginate_results(items: list, page: int, page_size: int) -> dict:
         "total_items": len(items),
     }
 ```
-

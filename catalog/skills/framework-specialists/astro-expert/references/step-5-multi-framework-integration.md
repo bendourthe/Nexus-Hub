@@ -217,4 +217,3 @@ function handleAdd() {
   <button @click="handleAdd">Add to Cart - ${{ price.toFixed(2) }}</button>
 </template>
 ```
-

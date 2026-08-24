@@ -46,4 +46,3 @@ class TestPaginateResultsCombinations:
         with pytest.raises(ValueError):
             paginate_results([1, 2, 3], page, page_size)
 ```
-

@@ -155,4 +155,3 @@ spec:
      │  payment-service.payments.svc.cluster.local                 │
      └─────────────────────────────────────────────────────────────┘
 ```
-

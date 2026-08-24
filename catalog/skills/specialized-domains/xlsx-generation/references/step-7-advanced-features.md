@@ -251,4 +251,3 @@ ws["A4"].style = "Hyperlink"
 
 wb.save("hyperlinks.xlsx")
 ```
-

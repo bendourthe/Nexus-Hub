@@ -130,4 +130,3 @@ spec:
 This injects a 3-second delay into 10% of requests and returns HTTP 503 for 5% of requests, allowing you to verify that upstream services handle degraded dependencies gracefully with timeouts, retries, and circuit breakers.
 
 **Observability with Distributed Tracing**: Deploy Jaeger or Zipkin alongside the service mesh. Envoy automatically generates trace spans for each request hop. Ensure your application code propagates trace headers (`x-request-id`, `x-b3-traceid`, `x-b3-spanid`, `traceparent`) so that spans are stitched into complete traces across services.
-

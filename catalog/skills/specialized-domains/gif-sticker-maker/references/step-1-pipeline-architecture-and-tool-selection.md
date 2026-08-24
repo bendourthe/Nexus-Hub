@@ -111,4 +111,3 @@ PLATFORM_PRESETS: dict[str, dict] = {
     },
 }
 ```
-

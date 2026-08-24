@@ -226,4 +226,3 @@ def html_to_pdf_with_styles(
     doc = weasyprint.HTML(string=html_content)
     doc.write_pdf(output_path, stylesheets=stylesheets)
 ```
-

@@ -62,4 +62,3 @@ def compute_change_frequency(repo_path: str, module_path: str,
     )
     return len(result.stdout.strip().splitlines())
 ```
-

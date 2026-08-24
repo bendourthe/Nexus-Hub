@@ -191,4 +191,3 @@ def add_closing_slide(
             p.alignment = PP_ALIGN.CENTER
             p.space_after = Pt(4)
 ```
-

@@ -193,4 +193,3 @@ def apply_global_palette(
         result.append(quantized)
     return result
 ```
-

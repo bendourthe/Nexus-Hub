@@ -131,4 +131,3 @@ const EventSchema = z.discriminatedUnion("type", [
 
 type AppEvent = z.infer<typeof EventSchema>;
 ```
-

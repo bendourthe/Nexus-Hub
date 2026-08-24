@@ -49,4 +49,3 @@ def delta_debug(changes: list, test_fn) -> list:
 
     return changes
 ```
-

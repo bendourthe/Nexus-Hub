@@ -53,4 +53,3 @@ public:
     bool operator<(const Temperature& other) const  { return celsius_ < other.celsius_; }
 };
 ```
-

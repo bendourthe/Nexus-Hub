@@ -63,4 +63,3 @@ async def rebuild_read_model(event_store, projector, aggregate_type: str):
             offset = event.id
     print(f"Rebuilt read model from {offset} events")
 ```
-

@@ -24,4 +24,3 @@ We are researching [MISSION] for [PROJECT]. [PROJECT] is [one-line plain-English
 ```
 
 Related techniques: [[trend-research]] (surfacing what is worth asking about before the brief is written) and [[deep-research-compilation]] (merging the returned findings into one cited document).
-

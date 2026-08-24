@@ -54,4 +54,3 @@ def safe_prompt(system: str, user_input: str) -> dict:
         }],
     }
 ```
-

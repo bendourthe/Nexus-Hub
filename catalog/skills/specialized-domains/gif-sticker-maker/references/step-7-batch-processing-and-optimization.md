@@ -307,4 +307,3 @@ def validate_output(
         warnings=warnings,
     )
 ```
-

@@ -235,4 +235,3 @@ spec:
                   numerator: 100
                   denominator: HUNDRED
 ```
-

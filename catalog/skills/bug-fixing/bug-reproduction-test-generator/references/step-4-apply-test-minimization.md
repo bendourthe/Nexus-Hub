@@ -65,4 +65,3 @@ def minimize_input_data(
     except Exception:
         return minimal
 ```
-

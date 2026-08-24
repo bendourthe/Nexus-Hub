@@ -142,4 +142,3 @@ float map(vec3 p) {
     return opUnion(ground, blob);
 }
 ```
-

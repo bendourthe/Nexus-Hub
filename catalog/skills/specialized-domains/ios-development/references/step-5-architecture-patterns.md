@@ -199,4 +199,3 @@ final class DependencyContainer: Sendable {
 - Use optimistic UI updates for delete and toggle operations, rolling back if the server call fails
 - Use the `.task` modifier to kick off async work when a view appears. SwiftUI cancels the task automatically when the view disappears
 - The Coordinator pattern is most valuable in UIKit-heavy apps. In pure SwiftUI apps, the Router pattern from Step 3 serves the same purpose with less boilerplate
-

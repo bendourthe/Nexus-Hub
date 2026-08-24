@@ -509,4 +509,3 @@ class ArticleRepositoryIntegrationTest {
 - Use `createComposeRule()` for Compose UI tests. Query elements by text, content description, or test tag rather than by implementation details
 - Test Room DAOs with in-memory databases and `allowMainThreadQueries()` for synchronous assertions
 - Use Robolectric to run Android-dependent tests on the JVM without an emulator, significantly speeding up the test suite
-

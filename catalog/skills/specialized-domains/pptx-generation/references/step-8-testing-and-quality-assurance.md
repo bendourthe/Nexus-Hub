@@ -347,4 +347,3 @@ def export_slides_as_images(
 - Validate that speaker notes are populated when expected
 - Check that hyperlinks resolve to valid URLs
 - Run generation tests with `tmp_path` fixtures to avoid polluting the working directory
-

@@ -512,4 +512,3 @@ def test_bundles_only_fails_when_body_exceeds_hard_cap(tmp_path: Path) -> None:
     )
     assert result.returncode == 1, result.stdout
     assert "hard cap 800" in result.stdout
-

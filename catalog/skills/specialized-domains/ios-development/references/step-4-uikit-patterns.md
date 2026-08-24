@@ -193,4 +193,3 @@ struct MapViewRepresentable: UIViewRepresentable {
 - Use `UICollectionViewDiffableDataSource` instead of the older `UITableViewDataSource` delegate pattern. Diffable data sources eliminate index-out-of-bounds crashes and provide smooth animations
 - Use compositional layout (`UICollectionViewCompositionalLayout`) for all new collection views. It handles complex grid, list, and waterfall layouts without custom `UICollectionViewFlowLayout` subclasses
 - Bridge UIKit views into SwiftUI with `UIViewRepresentable` and SwiftUI views into UIKit with `UIHostingController`. Always implement the coordinator pattern for delegate callbacks
-

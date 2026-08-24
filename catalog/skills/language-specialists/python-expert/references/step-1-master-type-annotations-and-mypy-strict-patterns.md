@@ -95,4 +95,3 @@ disallow_untyped_defs = true
 disallow_any_generics = true
 check_untyped_defs = true
 ```
-

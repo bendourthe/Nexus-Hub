@@ -197,4 +197,3 @@ const footerTemplate = `
 // <span class="pageNumber"></span>  - current page number
 // <span class="totalPages"></span>  - total page count
 ```
-

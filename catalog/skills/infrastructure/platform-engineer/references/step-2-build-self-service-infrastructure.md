@@ -177,4 +177,3 @@ Developer creates PR          Platform CI validates         Merge triggers provi
 ```
 
 A PR-based workflow lets developers request infrastructure by committing a YAML or HCL file to a designated repository. Automated checks run `terraform plan`, validate against policies, estimate costs, and require platform team approval only when thresholds are exceeded.
-

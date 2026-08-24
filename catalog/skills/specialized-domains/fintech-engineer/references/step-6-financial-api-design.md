@@ -160,4 +160,3 @@ class MarketDataFeed:
 ```
 
 **FIX Protocol Basics**: The Financial Information eXchange (FIX) protocol is the standard for electronic trading communication. FIX messages are tag-value pairs delimited by SOH (0x01). Key message types include NewOrderSingle (D), ExecutionReport (8), OrderCancelRequest (F), and MarketDataRequest (V). Modern implementations use QuickFIX libraries rather than hand-parsing FIX messages. When integrating with FIX counterparties, implement session-level heartbeats, sequence number tracking, and message gap fill to ensure reliable delivery.
-

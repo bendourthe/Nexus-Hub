@@ -48,4 +48,3 @@ Slug rules for TOC anchors: lowercase, non-word chars -> space, spaces -> `-`, c
 Citation rendering: replace every `[N]` in the body with `<sup>[[N]](#refN)</sup>`. Multi-citations `[N,M]` become `<sup>[[N](#refN),[M](#refM)]</sup>`.
 
 ---
-

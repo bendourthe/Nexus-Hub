@@ -127,4 +127,3 @@ CircuitBreaker circuitBreaker = CircuitBreaker.of("inventoryService", cbConfig);
 Supplier<Inventory> decorated = CircuitBreaker.decorateSupplier(circuitBreaker,
     () -> inventoryService.check(productId));
 ```
-

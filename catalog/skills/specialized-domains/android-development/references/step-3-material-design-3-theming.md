@@ -232,4 +232,3 @@ fun StatusBadge(
 - Reference `MaterialTheme.colorScheme`, `MaterialTheme.typography`, and `MaterialTheme.shapes` in composables instead of hardcoding values
 - Use semantic color roles (`primary`, `secondary`, `error`, `surface`, `surfaceVariant`) rather than raw color values to maintain consistency
 - Test your theme with both dynamic color enabled and disabled, and verify readability in both light and dark modes
-

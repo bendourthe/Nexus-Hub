@@ -53,4 +53,3 @@ dotnet add package DocumentFormat.OpenXml
 ```
 
 **Hybrid Approach**: For many production systems, the best strategy combines docxtpl for layout-heavy documents (where a designer creates the Word template) with python-docx for fully dynamic documents (where structure itself varies based on data). Use Pandoc as a preprocessing step when source content is in Markdown.
-

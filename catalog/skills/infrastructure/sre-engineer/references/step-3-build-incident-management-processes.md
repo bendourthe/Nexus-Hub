@@ -108,4 +108,3 @@ Mitigation: [what was done to fix it]
 Postmortem scheduled: [date/time]
 Action items: [count] items tracked in [link]
 ```
-

@@ -165,4 +165,3 @@ function handler(event) {
 **WebSocket Support**: ALB natively supports WebSocket connections (upgrade from HTTP). CloudFront supports WebSocket via the `wss://` protocol when the origin supports it. Set the origin protocol policy to `https-only` and ensure the cache behavior forwards the `Upgrade`, `Sec-WebSocket-Key`, `Sec-WebSocket-Version`, and `Sec-WebSocket-Protocol` headers.
 
 **HTTP/3 and QUIC**: Enable HTTP/3 on CloudFront distributions with `http_version = "http3"`. QUIC reduces connection establishment latency (0-RTT), handles packet loss better than TCP, and supports connection migration (seamless handoff when a mobile user switches from Wi-Fi to cellular). HTTP/3 is backward-compatible; clients that do not support QUIC fall back to HTTP/2 automatically.
-

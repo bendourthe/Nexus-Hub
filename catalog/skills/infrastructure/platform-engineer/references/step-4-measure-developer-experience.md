@@ -105,4 +105,3 @@ FROM repositories
 WHERE first_deploy_at IS NOT NULL
 GROUP BY scaffold_template;
 ```
-

@@ -68,4 +68,3 @@ class PaginatedResponse(BaseModel, Generic[T]):
             has_prev=page > 1,
         )
 ```
-

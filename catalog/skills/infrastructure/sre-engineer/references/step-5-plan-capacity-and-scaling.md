@@ -186,4 +186,3 @@ Cost projection (on-demand):
 Savings with reserved (1yr, no upfront):
   12 months: 18 x $0.11/hr = $1,426/month (35% savings)
 ```
-

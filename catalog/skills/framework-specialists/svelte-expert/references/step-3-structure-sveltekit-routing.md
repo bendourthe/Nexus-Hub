@@ -161,4 +161,3 @@ export const POST: RequestHandler = async ({ request }) => {
   return json(user, { status: 201 });
 };
 ```
-

@@ -73,4 +73,3 @@ After:
             break
         page += 1
 ```
-

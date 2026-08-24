@@ -99,4 +99,3 @@ class UsageTracker:
             f"Est. cost: ${self.estimated_cost:.4f}"
         )
 ```
-

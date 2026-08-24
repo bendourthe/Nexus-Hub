@@ -65,4 +65,3 @@ password.*["\'][^"\']{8,}["\']
 # Database URLs with credentials
 (postgres|mysql|mongodb):\/\/[^:]+:[^@]+@
 ```
-

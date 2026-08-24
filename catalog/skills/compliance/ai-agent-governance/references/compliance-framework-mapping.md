@@ -26,4 +26,3 @@
 | MAP | Pillar 2 (risk identification) |
 | MEASURE | Pillar 4 (monitoring) |
 | MANAGE | All 4 pillars |
-

@@ -313,4 +313,3 @@ struct MyAppShortcuts: AppShortcutsProvider {
 - Use StoreKit 2 (the async/await API) for all new in-app purchase implementations. StoreKit 2 handles receipt validation server-side via `VerificationResult`
 - App Intents enable Siri Shortcuts and Spotlight integration. Define intents for the three to five most common actions users perform in your app
 - Always listen for `Transaction.updates` on app launch to handle purchases that completed while the app was not running
-

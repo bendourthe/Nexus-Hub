@@ -139,4 +139,3 @@ def downgrade():
     op.drop_index("ix_user_preferences_user_id", table_name="user_preferences")
     op.drop_table("user_preferences")
 ```
-

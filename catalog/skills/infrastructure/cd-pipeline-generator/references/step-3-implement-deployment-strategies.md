@@ -222,4 +222,3 @@ spec:
               exec:
                 command: ["/bin/sh", "-c", "sleep 15"]
 ```
-

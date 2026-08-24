@@ -44,4 +44,3 @@
 - Include in README prominently
 - Add installation check to CI/CD
 - Use `husky` which auto-installs for JavaScript projects
-

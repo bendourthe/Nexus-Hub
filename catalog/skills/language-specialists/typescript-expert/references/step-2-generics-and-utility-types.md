@@ -158,4 +158,3 @@ type FullConfig = Required<Config>;     // all required (debug becomes required)
 type FrozenConfig = Readonly<Config>;
 // { readonly host: string; readonly port: number; readonly debug?: boolean }
 ```
-

@@ -151,4 +151,3 @@ CREATE TABLE audit_log_partitioned (
 - File Currency Transaction Reports (CTRs) for transactions exceeding $10,000 (US) or equivalent thresholds
 - File Suspicious Activity Reports (SARs) when monitoring rules trigger and compliance review confirms suspicion
 - Encrypt PII at rest and in transit; implement field-level encryption for sensitive KYC documents
-

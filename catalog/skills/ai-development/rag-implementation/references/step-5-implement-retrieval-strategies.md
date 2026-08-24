@@ -118,4 +118,3 @@ def rerank_results(
 
     return reranked
 ```
-

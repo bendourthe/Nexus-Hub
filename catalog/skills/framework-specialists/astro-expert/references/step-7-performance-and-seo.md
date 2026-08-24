@@ -234,4 +234,3 @@ const jsonLd = {
   <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
 </head>
 ```
-

@@ -41,4 +41,3 @@ def build_pdf(docx_path, pdf_path):
 If only `.pdf` was requested (not `.docx`), delete the intermediate `.docx` after successful conversion. Otherwise keep both.
 
 ---
-

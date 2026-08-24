@@ -111,4 +111,3 @@ var users = new ArrayList<User>();           // ArrayList<User>
 var counts = Map.of("a", 1, "b", 2);        // Map<String, Integer>
 var stream = users.stream().filter(u -> u.name().startsWith("A")); // Stream<User>
 ```
-

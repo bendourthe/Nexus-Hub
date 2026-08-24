@@ -170,4 +170,3 @@ class CounterActor(Actor):
         elif message["type"] == "get":
             message["reply"].set_result(self.count)
 ```
-

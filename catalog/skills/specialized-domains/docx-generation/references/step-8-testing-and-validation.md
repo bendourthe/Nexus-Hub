@@ -341,4 +341,3 @@ def compare_documents(doc_a_path: str | Path, doc_b_path: str | Path) -> Documen
 - Validate that images render at the correct size and do not overflow page margins
 - Test with the Word Online viewer for web-based access scenarios
 - Verify that documents pass the OOXML Validator if strict compliance is required
-

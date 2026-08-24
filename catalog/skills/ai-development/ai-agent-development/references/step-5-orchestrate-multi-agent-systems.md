@@ -87,4 +87,3 @@ class SupervisorOrchestrator:
         )
         return extract_text(response.content)
 ```
-

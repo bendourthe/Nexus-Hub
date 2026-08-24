@@ -36,4 +36,3 @@ function ActionButton(props: ButtonProps & { children: ReactNode }) {
   return <button onClick={props.onClick}>{props.children}</button>;
 }
 ```
-

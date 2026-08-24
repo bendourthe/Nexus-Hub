@@ -261,4 +261,3 @@ def add_scatter_chart_slide(
     chart.has_legend = True
     chart.legend.position = XL_LEGEND_POSITION.BOTTOM
 ```
-

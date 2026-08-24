@@ -349,4 +349,3 @@ def generate_regional_reports(
 - **Column limit**: XLSX supports up to 16,384 columns (XFD). Validate wide DataFrames before export
 - **File locking**: On Windows, Excel locks open files. Catch `PermissionError` and prompt users to close the file
 - **Encoding**: XLSX is UTF-8 internally. Special characters, CJK text, and emoji work without extra configuration
-

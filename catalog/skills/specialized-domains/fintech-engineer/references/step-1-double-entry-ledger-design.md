@@ -156,4 +156,3 @@ def post_journal_entry(
 - Store amounts as `NUMERIC(19, 4)` in PostgreSQL, never as `FLOAT` or `DOUBLE PRECISION`
 - Derive balances by aggregating journal lines, not by storing a mutable balance field
 - Include metadata (source system, external reference IDs) on every entry for auditability
-

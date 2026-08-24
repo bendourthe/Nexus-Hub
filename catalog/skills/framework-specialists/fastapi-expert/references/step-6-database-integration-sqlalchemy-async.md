@@ -125,4 +125,3 @@ class UserService:
         await self.db.delete(user)
         return True
 ```
-

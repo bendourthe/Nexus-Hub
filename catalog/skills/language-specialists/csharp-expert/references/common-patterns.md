@@ -92,4 +92,3 @@ public class ValidationBehavior<TRequest, TResponse> : IPipelineBehavior<TReques
 // Register the pipeline
 builder.Services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 ```
-

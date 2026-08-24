@@ -192,4 +192,3 @@ def reconcile_payments(
 ```
 
 **PCI-DSS Scope Minimization**: Never store raw card numbers in your systems. Use Stripe Elements, Adyen Drop-in, or similar client-side tokenization so that card data never touches your servers. This keeps your application out of PCI-DSS scope entirely (SAQ A or SAQ A-EP instead of SAQ D).
-

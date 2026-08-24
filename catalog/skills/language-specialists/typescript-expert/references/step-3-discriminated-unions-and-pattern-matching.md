@@ -142,4 +142,3 @@ function assertIsAdmin(user: User): asserts user is User & { role: "admin" } {
   }
 }
 ```
-

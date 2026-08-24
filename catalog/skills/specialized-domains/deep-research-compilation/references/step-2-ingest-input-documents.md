@@ -131,4 +131,3 @@ DOI_RE = re.compile(r"\b10\.\d{4,9}/[^\s\"',<>]+", re.IGNORECASE)
 ```
 
 ---
-

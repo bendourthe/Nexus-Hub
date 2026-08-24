@@ -81,4 +81,3 @@ for i in range(1, len(ordered) + 1):
     cov = prioritizer.coverage_at_position(ordered, i)
     print(f"  After {i} tests: {cov:.1f}% coverage")
 ```
-

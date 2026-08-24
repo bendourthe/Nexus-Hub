@@ -138,4 +138,3 @@ ffmpeg -framerate 10 -i frames/frame_%04d.png \
 ffmpeg -framerate 10 -i frames/frame_%04d.png -i palette.png \
     -lavfi "paletteuse" -y output.gif
 ```
-

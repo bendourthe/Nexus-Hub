@@ -152,4 +152,3 @@ Svelte 5 replaces stores and reactive declarations with runes, a set of compiler
 <TextInput bind:value={searchQuery} placeholder="Search..." />
 <p>Current query: {searchQuery}</p>
 ```
-

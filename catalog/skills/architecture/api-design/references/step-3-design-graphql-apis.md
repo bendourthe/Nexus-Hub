@@ -194,4 +194,3 @@ class ProductLoader(DataLoader):
 async def resolve_order_line_product(line, info):
     return await info.context["product_loader"].load(line.product_id)
 ```
-

@@ -125,4 +125,3 @@ float softShadow(vec3 ro, vec3 rd, float mint, float maxt, float k) {
     return clamp(res, 0.0, 1.0);
 }
 ```
-

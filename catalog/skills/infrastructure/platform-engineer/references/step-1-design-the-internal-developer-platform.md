@@ -165,4 +165,3 @@ spec:
 - Track Net Promoter Score (NPS) for the platform quarterly
 - Publish a platform changelog and announce new capabilities proactively
 - Treat breaking changes with the same rigor as public API changes (deprecation notices, migration guides, support windows)
-

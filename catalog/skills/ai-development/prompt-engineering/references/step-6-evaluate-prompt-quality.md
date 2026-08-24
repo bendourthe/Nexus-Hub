@@ -104,4 +104,3 @@ def evaluate_prompt_quality(
 - 1: Missing major aspects
 - 0: Barely addresses the request
 ```
-

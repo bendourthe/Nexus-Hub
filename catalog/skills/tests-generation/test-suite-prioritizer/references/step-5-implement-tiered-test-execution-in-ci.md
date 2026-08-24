@@ -119,4 +119,3 @@ module.exports = {
 // npx jest --selectProjects tier1-smoke
 // npx jest --selectProjects tier2-unit
 ```
-

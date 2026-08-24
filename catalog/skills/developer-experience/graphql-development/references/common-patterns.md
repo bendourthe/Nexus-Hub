@@ -59,4 +59,3 @@ type User {
   cart: Cart!
 }
 ```
-

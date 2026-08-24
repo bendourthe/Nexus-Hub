@@ -183,4 +183,3 @@ const visibleFeatures = showUnavailable
   <p>No features to display.</p>
 )}
 ```
-

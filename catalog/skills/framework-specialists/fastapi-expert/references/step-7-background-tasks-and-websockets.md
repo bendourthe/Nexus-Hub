@@ -61,4 +61,3 @@ async def websocket_chat(websocket: WebSocket):
         manager.disconnect(websocket)
         await manager.broadcast("A user left the chat")
 ```
-

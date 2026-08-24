@@ -307,4 +307,3 @@ class FileUploadService : Service() {
 - Use `repeatOnLifecycle(Lifecycle.State.STARTED)` when collecting events in `LaunchedEffect` to ensure proper lifecycle-aware collection
 - Prefer WorkManager over foreground services for deferrable background work. WorkManager handles constraints, retries, and backoff automatically
 - Declare foreground service types in `AndroidManifest.xml` (required on Android 14+) and request the `FOREGROUND_SERVICE_*` permissions
-

@@ -130,4 +130,3 @@ fi
 
 echo "PASS: No critical configuration drift"
 ```
-

@@ -136,4 +136,3 @@ vec3   rf  = refract(incident, normal, eta);
 float s = sin(x);   float c = cos(x);   float t = tan(x);
 float a = asin(x);  float a = acos(x);  float a = atan(y, x);
 ```
-

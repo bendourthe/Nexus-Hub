@@ -104,4 +104,3 @@ if (filter.MinPrice.HasValue)
 
 var results = await _dbContext.Products.Where(predicate).ToListAsync(ct);
 ```
-

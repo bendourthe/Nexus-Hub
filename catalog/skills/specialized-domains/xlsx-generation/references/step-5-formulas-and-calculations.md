@@ -217,4 +217,3 @@ def audit_formulas(filepath: str) -> list[dict]:
 # for f in results:
 #     print(f"{f['sheet']}!{f['cell']}: {f['formula']} -> refs: {f['references']}")
 ```
-

@@ -44,4 +44,3 @@ If any **fatal** issue is reported (broken citation anchors, missing heading sty
 Edit `<cache_dir>/generate.py` and re-run. Maximum 3 iterations; if still failing, stop and report the failure to the user with the raw issue list.
 
 ---
-

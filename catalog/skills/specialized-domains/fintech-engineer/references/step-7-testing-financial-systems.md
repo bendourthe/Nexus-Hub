@@ -173,4 +173,3 @@ class TestRegulatoryCompliance:
 ```
 
 **Load Testing for Trading Systems**: Use tools like Locust or k6 to simulate realistic trading workloads. Key metrics to measure include order submission latency (p50, p95, p99), order book update latency, market data feed throughput, and matching engine throughput (orders per second). Trading systems typically require sub-millisecond latency for the matching engine and sub-10ms latency for the full order lifecycle. Run load tests during simulated market open scenarios (high burst traffic) and measure behavior under backpressure.
-

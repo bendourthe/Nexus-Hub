@@ -55,4 +55,3 @@ MIGRATION strategy for breaking changes:
   3. Stop publishing the old version
   4. (Optional) Upcast old events on read
 ```
-

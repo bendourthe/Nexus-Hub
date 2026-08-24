@@ -66,4 +66,3 @@ def rag_query(
 
     return extract_text(response.content)
 ```
-

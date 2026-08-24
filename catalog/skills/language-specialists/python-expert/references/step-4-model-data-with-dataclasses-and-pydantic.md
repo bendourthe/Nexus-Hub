@@ -103,4 +103,3 @@ class AppSettings(BaseSettings):
 # Reads APP_DATABASE_URL, APP_REDIS_URL, etc. from environment
 settings = AppSettings()
 ```
-

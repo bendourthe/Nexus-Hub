@@ -286,4 +286,3 @@ wb_values = load_workbook("report_with_formulas.xlsx", data_only=True)
 
 wb.save("template_updated.xlsx")
 ```
-

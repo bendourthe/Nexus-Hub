@@ -52,4 +52,3 @@ echo ""
 echo "--- Preview ---"
 head -40 "release_notes_${VERSION}.md"
 ```
-

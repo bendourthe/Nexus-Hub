@@ -196,4 +196,3 @@ async function addImages() {
   await wb.xlsx.writeFile("with_images.xlsx");
 }
 ```
-

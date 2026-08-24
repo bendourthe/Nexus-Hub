@@ -24,4 +24,3 @@ OAuth attacks target the flow (the redirect, the binding state, the code exchang
 - **IdP mix-up / scope escalation** - a multi-IdP client mis-attributes the issuer, or the resource server trusts a self-asserted scope. Defense: pin and validate the issuer per request (RFC 9207); enforce scope-to-resource policy server-side.
 
 Hand every confirmed weakness to `security-review` / `security-patch-advisor` as a concrete control, and write it up via [[pentest-reporting]].
-

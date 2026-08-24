@@ -231,4 +231,3 @@ mediump vec3 color = texture(uTex, uv).rgb;
 6. **Shader compilation errors**: Compilation errors are only available via `gl.getShaderInfoLog()`. Always check after `compileShader()`.
 7. **Missing precision qualifier**: WebGL fragment shaders require an explicit `precision` declaration. Omitting it is a compile error on mobile.
 8. **Loop unrolling limits**: Some drivers refuse to compile loops with non-constant bounds. Use `#define MAX_STEPS 128` or `const int`.
-

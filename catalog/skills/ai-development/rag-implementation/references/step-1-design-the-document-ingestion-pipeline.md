@@ -146,4 +146,3 @@ class IngestionPipeline:
         text = text.strip()
         return text
 ```
-

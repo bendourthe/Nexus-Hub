@@ -75,4 +75,3 @@ class CohereEmbedding(EmbeddingModel):
         )
         return list(response.embeddings.float_[0])
 ```
-

@@ -70,6 +70,8 @@ Full walkthrough: [step-6-construct-prompts-with-retrieved-context.md](reference
 
 ### Step 7: Evaluate RAG Quality
 
+Measure retrieval before generation. Compute Recall@k / Precision@k / NDCG on the retrieved set first; only then interpret generation metrics such as faithfulness. A low faithfulness score is not a generation failure until retrieval has been shown to have returned the relevant passage.
+
 Full walkthrough: [step-7-evaluate-rag-quality.md](references/step-7-evaluate-rag-quality.md) (load this step when you reach it).
 
 ### Step 8: Optimize for Production

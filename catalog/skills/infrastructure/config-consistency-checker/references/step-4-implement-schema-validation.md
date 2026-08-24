@@ -234,4 +234,3 @@ if __name__ == "__main__":
     else:
         print("\nAll environments pass schema validation")
 ```
-

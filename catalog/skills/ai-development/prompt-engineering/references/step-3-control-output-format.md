@@ -102,4 +102,3 @@ def extract_between_tags(text: str, tag: str) -> str:
     match = re.search(rf"<{tag}>(.*?)</{tag}>", text, re.DOTALL)
     return match.group(1).strip() if match else ""
 ```
-

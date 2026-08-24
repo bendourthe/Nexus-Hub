@@ -135,4 +135,3 @@ resource "aws_service_discovery_service" "api" {
 ECS and Kubernetes services register automatically with Cloud Map, enabling DNS-based service discovery at `api.internal.local` without external service registries.
 
 **DNSSEC**: Enable DNSSEC signing on Route 53 public hosted zones to protect against DNS spoofing. Create a KMS key with the `SIGN_VERIFY` usage and `ECC_NIST_P256` spec, then enable DNSSEC signing on the zone. Establish a chain of trust by adding a DS record to the parent zone (your domain registrar).
-

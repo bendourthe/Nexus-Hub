@@ -134,4 +134,3 @@ class FeatureFlagManager:
             logger.exception("Failed to roll back flag %s", flag_name)
             raise
 ```
-

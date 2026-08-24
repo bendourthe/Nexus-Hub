@@ -52,4 +52,3 @@ Context pointers:  [File paths or links to the docs the model should read first]
 ```
 
 Filling all five lines in the first turn prevents the "one-question-per-turn" ping-pong that wastes context and dilutes reasoning (see the batched-clarifying-questions rule in the platform templates).
-

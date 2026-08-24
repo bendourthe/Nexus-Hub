@@ -38,4 +38,3 @@ class TestPaymentServiceContract:
             )
             assert result["transaction_id"] == "txn_123"
 ```
-

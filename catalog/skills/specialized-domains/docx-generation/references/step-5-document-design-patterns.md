@@ -279,4 +279,3 @@ def add_watermark(doc: Document, text: str = "DRAFT", color: str = "C0C0C0") -> 
 ```
 
 **Style Hierarchy**: Word documents have a three-level style hierarchy. Document defaults define the base font and paragraph formatting for the entire document. Named styles (Heading 1, Normal, etc.) inherit from document defaults and can override any property. Direct formatting (applied via runs and paragraph format objects) overrides named styles. Best practice is to define named styles for repeatable formatting and minimize direct formatting, which makes documents easier to maintain and restyle.
-

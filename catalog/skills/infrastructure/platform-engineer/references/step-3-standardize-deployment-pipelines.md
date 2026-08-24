@@ -166,4 +166,3 @@ jobs:
 | **Blue-Green** | Low | Seconds | Medium | Stateful services, zero-downtime |
 | **Canary** | Lowest | Seconds | High | High-traffic, user-facing services |
 | **Recreate** | High | Minutes | Lowest | Dev/test, batch workloads |
-

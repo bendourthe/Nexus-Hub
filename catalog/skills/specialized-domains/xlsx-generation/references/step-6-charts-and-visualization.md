@@ -309,4 +309,3 @@ def add_chart_from_data(
 # add_chart_from_data(wb, ws.title, "bar", "Revenue vs Cost", (2, 1, 3, 3), 1, "E2")
 # wb.save("dynamic_chart.xlsx")
 ```
-

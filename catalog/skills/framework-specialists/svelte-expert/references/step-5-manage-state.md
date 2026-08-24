@@ -204,4 +204,3 @@ function createFilterStore() {
 
 export const filterStore = createFilterStore();
 ```
-

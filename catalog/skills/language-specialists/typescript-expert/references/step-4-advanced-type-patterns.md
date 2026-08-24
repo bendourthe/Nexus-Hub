@@ -182,4 +182,3 @@ type RouteParams = ExtractParams<"/users/:userId/posts/:postId">;
 type ParamMap<T extends string> = Record<ExtractParams<T>, string>;
 // For the route above: { userId: string; postId: string }
 ```
-

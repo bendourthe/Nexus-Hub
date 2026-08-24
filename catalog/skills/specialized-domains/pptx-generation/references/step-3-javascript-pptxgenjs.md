@@ -296,4 +296,3 @@ async function toBase64(pptx: PptxGenJS): Promise<string> {
   return output as string;
 }
 ```
-

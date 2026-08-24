@@ -87,4 +87,3 @@ def print_eval_report(results: list[EvalResult]):
         if not r.passed:
             print(f"         Reason: {r.failure_reason}")
 ```
-

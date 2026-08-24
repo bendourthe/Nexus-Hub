@@ -62,4 +62,3 @@ function validateBoundToken(token: string, clientFingerprint: string): boolean {
   return decoded.fpt === expectedFpt;
 }
 ```
-

@@ -97,4 +97,3 @@ def dynamic_few_shot(
     scored.sort(key=lambda x: x[0], reverse=True)
     return [ex for _, ex in scored[:num_examples]]
 ```
-

@@ -46,4 +46,3 @@ def test_database_migration():
   }
 }
 ```
-

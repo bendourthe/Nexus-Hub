@@ -263,4 +263,3 @@ repos:
         language: system
         files: \.(c|cpp|cc|cxx)$
 ```
-

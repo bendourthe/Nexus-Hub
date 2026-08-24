@@ -285,4 +285,3 @@ fun ArticleListRoute(
 - Define repository interfaces in the domain layer and implementations in the data layer for testability and inversion of control
 - Use `collectAsStateWithLifecycle()` (not `collectAsState()`) to automatically stop collection when the lifecycle is below the minimum active state
 - ViewModels should never reference Android framework classes (Context, Activity) directly; use Hilt to inject dependencies instead
-

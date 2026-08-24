@@ -255,4 +255,3 @@ def encrypt_pdf(
             ),
         )
 ```
-

@@ -275,4 +275,3 @@ export function registerGlobals(app: App) {
   };
 }
 ```
-

@@ -101,9 +101,9 @@ def test_registered_in_three_catalogs() -> None:
     index_total = int(re.search(r"\*\*Total: (\d+) skills", index).group(1))
     marketplace_sum = sum(c["skill_count"] for c in marketplace["categories"])
     assert json_count == index_rows == index_total == marketplace_sum
-    assert json_count == 275
-    assert workflow["skill_count"] == 45
-    assert skills["statistics"]["total_skills"] == 275
+    workflow_expected = sum(1 for s in skills["skills"] if s["category"] == "workflow")
+    assert workflow["skill_count"] == workflow_expected
+    assert skills["statistics"]["total_skills"] == json_count
 
 
 def test_installers_copy_the_extension() -> None:

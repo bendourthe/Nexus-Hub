@@ -143,4 +143,3 @@ function detectOffByOne(code) {
   return issues;
 }
 ```
-

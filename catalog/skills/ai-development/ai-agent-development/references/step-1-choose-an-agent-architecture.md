@@ -160,4 +160,3 @@ def execute_plan(plan: Plan) -> str:
 
     return synthesize_results(plan)
 ```
-

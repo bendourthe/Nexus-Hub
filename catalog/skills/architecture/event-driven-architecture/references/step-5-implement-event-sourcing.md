@@ -174,4 +174,3 @@ class OrderAggregate:
             order.apply(event)
         return order
 ```
-

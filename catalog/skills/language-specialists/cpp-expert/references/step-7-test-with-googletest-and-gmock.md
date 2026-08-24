@@ -172,4 +172,3 @@ cmake -B build -DCMAKE_BUILD_TYPE=Sanitize
 cmake --build build
 ctest --test-dir build --output-on-failure
 ```
-

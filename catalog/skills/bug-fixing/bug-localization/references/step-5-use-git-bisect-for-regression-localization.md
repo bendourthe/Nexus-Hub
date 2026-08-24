@@ -53,4 +53,3 @@ def git_bisect_automated(
     run("git bisect reset")
     return "unknown"
 ```
-

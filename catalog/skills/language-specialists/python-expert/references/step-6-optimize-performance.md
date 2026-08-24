@@ -119,4 +119,3 @@ matrix = [[row[i] for row in data] for i in range(cols)]
 def transpose(data: list[list[int]]) -> list[list[int]]:
     return [list(col) for col in zip(*data)]
 ```
-

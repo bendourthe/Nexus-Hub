@@ -173,4 +173,3 @@ vec3 fxaa(sampler2D tex, vec2 uv, vec2 resolution) {
     return (lumB < lumMin || lumB > lumMax) ? rgbA : rgbB;
 }
 ```
-

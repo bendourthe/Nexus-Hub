@@ -81,4 +81,3 @@ Next steps: [RCA scheduled / fix in progress]
 | L2      | Team lead        | Rollback fails or impact unclear          |
 | L3      | VP Engineering   | Extended outage (>30 min) or data loss    |
 ```
-

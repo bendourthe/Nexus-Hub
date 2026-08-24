@@ -101,4 +101,3 @@ async def retry(
 # Usage
 result = await retry(fetch_url, session, url, max_attempts=5)
 ```
-

@@ -118,4 +118,3 @@ async function getServiceToken(clientId: string, clientSecret: string): Promise<
   return data.access_token;
 }
 ```
-

@@ -347,4 +347,3 @@ def validate_pdf_a_compliance(pdf_path: str | Path) -> dict:
 | Accessibility | PAC (PDF Accessibility Checker) | Screen reader compatibility, tag structure |
 | File size | pathlib stat | Output stays within budget (avoids image bloat) |
 | Cross-viewer | Manual spot-check matrix | Renders correctly in Acrobat, Chrome, Firefox, Preview |
-

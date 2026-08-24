@@ -47,4 +47,3 @@ class TestOrderEventMessaging:
         producer.close()
         consumer.close()
 ```
-

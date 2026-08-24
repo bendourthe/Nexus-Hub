@@ -67,4 +67,3 @@ print("Prioritized order:")
 for i, name in enumerate(ordered, 1):
     print(f"  {i}. {name}")
 ```
-

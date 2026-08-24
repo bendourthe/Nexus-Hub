@@ -62,4 +62,3 @@ def route_to_model(task_description: str, input_length: int) -> str:
     else:
         return "claude-haiku-4-20250514"    # Lower cost, faster
 ```
-

@@ -94,4 +94,3 @@ const faqItems = [
   <p slot="footer">Can't find your answer? <a href="/contact">Contact us</a>.</p>
 </Accordion>
 ```
-

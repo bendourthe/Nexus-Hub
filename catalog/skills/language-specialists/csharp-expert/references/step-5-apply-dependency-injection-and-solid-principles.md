@@ -115,4 +115,3 @@ builder.Services.AddScoped<IOrderRepository>(sp =>
         sp.GetRequiredService<SqlOrderRepository>(),
         sp.GetRequiredService<ICacheService>()));
 ```
-

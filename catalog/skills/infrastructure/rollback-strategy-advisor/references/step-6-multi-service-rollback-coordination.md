@@ -83,4 +83,3 @@ rollback_order:
     revision: 55
     health_endpoint: /health
 ```
-

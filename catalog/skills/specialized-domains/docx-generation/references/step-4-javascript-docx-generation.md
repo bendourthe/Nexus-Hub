@@ -281,4 +281,3 @@ app.post("/api/generate-report", async (req, res) => {
 - The `Packer.toBuffer()` method is async. Always `await` it
 - Table cells must contain at least one `Paragraph`. Empty cells cause invalid documents
 - Images require the file bytes passed as a `Buffer` to `ImageRun`, not a file path
-

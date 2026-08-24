@@ -89,4 +89,3 @@ def evaluate_rag_system(
 
     return results
 ```
-

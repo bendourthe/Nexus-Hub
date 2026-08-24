@@ -263,4 +263,3 @@ def save_presentation(prs: Presentation, output_path: str | Path) -> Path:
     prs.save(str(output))
     return output
 ```
-

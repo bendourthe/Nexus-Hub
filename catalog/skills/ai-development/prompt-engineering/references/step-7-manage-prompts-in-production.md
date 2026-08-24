@@ -92,4 +92,3 @@ registry.register(PromptVersion(
     notes="Added few-shot examples, improved category descriptions",
 ))
 ```
-

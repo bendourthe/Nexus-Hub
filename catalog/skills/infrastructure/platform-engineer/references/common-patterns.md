@@ -26,4 +26,3 @@ Push to main -> Build + test -> Deploy to staging (rolling)
     -> Monitor error rate + latency -> Auto-promote or rollback
     -> Full rollout -> Notify Slack
 ```
-

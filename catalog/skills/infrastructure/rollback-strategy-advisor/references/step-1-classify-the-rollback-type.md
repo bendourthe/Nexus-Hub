@@ -80,4 +80,3 @@ echo "RISK: LOW - Stateless change can be reverted directly"
 echo "APPROACH: kubectl rollout undo / redeploy previous version"
 echo "SEE: Step 2 (Immediate Rollback)"
 ```
-

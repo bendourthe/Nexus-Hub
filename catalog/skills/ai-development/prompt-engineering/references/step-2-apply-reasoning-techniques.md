@@ -143,4 +143,3 @@ def self_consistency(question: str, num_samples: int = 5) -> str:
     most_common = Counter(answers).most_common(1)[0]
     return most_common[0]
 ```
-

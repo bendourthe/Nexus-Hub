@@ -217,4 +217,3 @@ describe("ProductDetailPage", () => {
   });
 });
 ```
-

@@ -89,4 +89,3 @@ test("handles server error gracefully", async () => {
   });
 });
 ```
-

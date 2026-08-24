@@ -126,4 +126,3 @@ function getUser(id: UserId): void { /* ... */ }
 // getUser("abc");         // Error: string is not assignable to UserId
 // getUser(orderId("abc")); // Error: OrderId is not assignable to UserId
 ```
-

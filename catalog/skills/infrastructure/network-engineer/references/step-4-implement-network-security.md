@@ -208,4 +208,3 @@ resource "aws_wafv2_web_acl" "main" {
 - **Site-to-Site VPN**: Encrypted tunnel over the internet. Use for quick connectivity with up to 1.25 Gbps per tunnel. Deploy two tunnels per connection for redundancy. Combine with Transit Gateway for hub-and-spoke topology.
 - **Direct Connect**: Dedicated physical connection (1 Gbps or 10 Gbps). Use when you need consistent latency, high throughput, or reduced data transfer costs. Always pair with a VPN backup for failover.
 - **Zero-Trust Network Architecture**: Replace perimeter-based security with identity-verified, least-privilege access at every hop. Use AWS Verified Access or Google BeyondCorp for application-level access without VPN. Combine with mTLS between services and short-lived certificates from a private CA.
-

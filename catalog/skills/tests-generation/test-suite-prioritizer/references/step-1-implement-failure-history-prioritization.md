@@ -228,4 +228,3 @@ public class FailureHistoryOrderer implements MethodOrderer {
 // @TestMethodOrder(FailureHistoryOrderer.class)
 // class MyTest { ... }
 ```
-

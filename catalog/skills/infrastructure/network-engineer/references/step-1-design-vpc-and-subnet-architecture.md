@@ -126,4 +126,3 @@ Use Transit Gateway instead of VPC peering when you have more than two or three 
 - Use egress-only internet gateways for IPv6 outbound from private subnets (replaces NAT for IPv6)
 - Update security groups and NACLs to include IPv6 rules
 - Not all AWS services support IPv6; verify compatibility before enabling dual-stack on application subnets
-

@@ -73,4 +73,3 @@ fields @timestamp, srcAddr, dstPort, packets, bytes, action
 | TLS handshake failure | Certificate mismatch or expired cert | Verify SNI, check ACM certificate status |
 | DNS resolution failure | Wrong VPC DHCP options, missing private zone | Verify DHCP option set, check zone VPC association |
 | Path MTU black hole | Jumbo frames across VPN or internet | Set `DF` bit and reduce MSS; use `tracepath` to find the bottleneck |
-

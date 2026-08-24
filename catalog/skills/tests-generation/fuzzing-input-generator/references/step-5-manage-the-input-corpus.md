@@ -67,4 +67,3 @@ class CorpusManager:
 
         return len(kept)
 ```
-

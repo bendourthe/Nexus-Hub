@@ -255,4 +255,3 @@ components:
 security:
   - bearerAuth: []
 ```
-

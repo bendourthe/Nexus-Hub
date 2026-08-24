@@ -125,4 +125,3 @@ public abstract class TypeReference<T> {
 List<User> users = objectMapper.readValue(json,
     new TypeReference<List<User>>() {});
 ```
-

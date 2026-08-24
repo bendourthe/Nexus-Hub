@@ -63,4 +63,3 @@ deploy-production:
     - if: $CI_COMMIT_BRANCH == "main"
       when: manual
 ```
-

@@ -72,4 +72,3 @@ Need charts + conditional formatting + data validation?
   ├─ Yes → xlsxwriter (Python), POI (Java), ExcelJS (Node)
   └─ Basic formatting only → Any library
 ```
-

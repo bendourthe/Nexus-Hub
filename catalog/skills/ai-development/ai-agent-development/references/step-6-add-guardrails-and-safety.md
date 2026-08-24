@@ -73,4 +73,3 @@ class AgentGuardrails:
                 )
         return GuardrailResult(allowed=True)
 ```
-

@@ -45,4 +45,3 @@ deploy-production:
           echo "Commit: ${{ github.sha }}"
           echo "Triggered by: ${{ github.actor }}"
 ```
-

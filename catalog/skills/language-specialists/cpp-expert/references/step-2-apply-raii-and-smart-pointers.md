@@ -94,4 +94,3 @@ public:
 using UniqueFd = UniqueHandle<int, +[](int fd) { ::close(fd); }>;
 UniqueFd socket(::socket(AF_INET, SOCK_STREAM, 0));
 ```
-

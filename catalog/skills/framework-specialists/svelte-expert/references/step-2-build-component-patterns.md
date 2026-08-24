@@ -187,4 +187,3 @@
   <input type="color" bind:value={color} />
 </label>
 ```
-

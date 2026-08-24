@@ -70,4 +70,3 @@ response = client.messages.create(
 )
 # Response will continue the JSON object: "category": "account", "confidence": 0.95}
 ```
-

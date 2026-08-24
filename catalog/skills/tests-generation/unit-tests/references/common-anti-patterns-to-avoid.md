@@ -48,4 +48,3 @@ def test_without_delay(mocker):
     result = operation()
     assert result is not None
 ```
-

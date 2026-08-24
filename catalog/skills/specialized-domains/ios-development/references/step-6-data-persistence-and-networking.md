@@ -370,4 +370,3 @@ struct TransactionRepository: TransactionRepositoryProtocol {
 - Make the `APIClient` an actor to ensure thread-safe access to mutable state such as token refresh logic
 - Use the Repository pattern to abstract whether data comes from the network or local cache. Views and view models never call the API client directly
 - Configure `JSONDecoder` with `.convertFromSnakeCase` and `JSONEncoder` with `.convertToSnakeCase` once at the client level to avoid per-endpoint boilerplate
-

@@ -217,4 +217,3 @@ if __name__ == "__main__":
         f.write(kac)
     print(f"\nKeep a Changelog entry written to {kac_path}", file=sys.stderr)
 ```
-

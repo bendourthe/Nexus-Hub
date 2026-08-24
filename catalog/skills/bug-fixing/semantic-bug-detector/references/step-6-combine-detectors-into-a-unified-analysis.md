@@ -35,4 +35,3 @@ def run_full_semantic_analysis(source_code: str, filename: str) -> dict:
 
     return results
 ```
-

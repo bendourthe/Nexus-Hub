@@ -207,4 +207,3 @@ float mapTerrain(vec3 p) {
     return p.y - terrainHeight(p.xz);
 }
 ```
-

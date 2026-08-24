@@ -124,4 +124,3 @@ function MouseTracker({
 // Usage
 <MouseTracker render={({ x, y }) => <Cursor x={x} y={y} />} />;
 ```
-

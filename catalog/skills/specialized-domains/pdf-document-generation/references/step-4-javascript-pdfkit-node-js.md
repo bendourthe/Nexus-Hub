@@ -187,4 +187,3 @@ app.get("/api/invoices/:id/pdf", async (req, res) => {
   doc.end();
 });
 ```
-

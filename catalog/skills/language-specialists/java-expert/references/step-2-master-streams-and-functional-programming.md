@@ -103,4 +103,3 @@ long count = IntStream.range(0, 10_000_000)
 // - Operations have side effects or shared mutable state
 // - The source is not efficiently splittable (e.g., LinkedList, Stream.iterate)
 ```
-

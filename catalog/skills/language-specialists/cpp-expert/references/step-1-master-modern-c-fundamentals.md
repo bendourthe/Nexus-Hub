@@ -108,4 +108,3 @@ int main() {
     return add(2, multiply(3, 4));  // No header needed
 }
 ```
-

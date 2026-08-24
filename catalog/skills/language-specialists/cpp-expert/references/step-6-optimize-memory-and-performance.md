@@ -104,4 +104,3 @@ BENCHMARK(BM_StringConcat)->RangeMultiplier(4)->Range(64, 1 << 16);
 
 BENCHMARK_MAIN();
 ```
-

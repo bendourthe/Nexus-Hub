@@ -92,4 +92,3 @@ class IncrementalIndexer:
         self.state["indexed"][source] = os.path.getmtime(source)
         self._save_state()
 ```
-

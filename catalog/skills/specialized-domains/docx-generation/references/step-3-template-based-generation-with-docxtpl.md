@@ -224,4 +224,3 @@ render_composite_document(
 - Rich text variables must be declared as `RichText` objects in the context. Plain strings passed to a `{{ var | richtext }}` filter will fail
 - Test templates with edge cases: empty lists (loops produce no output), `None` values (use `{{ var | default("N/A") }}`), and very long strings (may overflow table cells)
 - Subdocuments inherit the master document's styles. If the subdocument template uses custom styles not present in the master, those styles will be lost
-

@@ -182,4 +182,3 @@ function addAnimatedSlide(pptx: PptxGenJS, title: string): void {
   // use a template-based approach (see Step 7).
 }
 ```
-

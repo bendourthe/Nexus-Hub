@@ -148,4 +148,3 @@ generate-release-notes:
   rules:
     - if: $CI_COMMIT_TAG
 ```
-

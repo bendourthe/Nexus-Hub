@@ -135,4 +135,3 @@ async def check_health() -> dict:
         "checks": checks,
     }
 ```
-

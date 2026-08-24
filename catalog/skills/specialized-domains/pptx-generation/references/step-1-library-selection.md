@@ -49,4 +49,3 @@ npm install pptxgenjs
 # apt install libreoffice-impress   # Debian/Ubuntu
 # brew install --cask libreoffice   # macOS
 ```
-

@@ -104,4 +104,3 @@ repos:
         types: [ts, tsx]
         pass_filenames: false
 ```
-

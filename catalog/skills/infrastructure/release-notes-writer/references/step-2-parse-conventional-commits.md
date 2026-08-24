@@ -142,4 +142,3 @@ if __name__ == "__main__":
     print(f"Categories: {', '.join(grouped.keys())}")
     print(f"Output: {output_file}")
 ```
-

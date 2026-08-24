@@ -139,4 +139,3 @@ vec3 skyColor(vec3 rd) {
     return mix(horizon, zenith, t);
 }
 ```
-
