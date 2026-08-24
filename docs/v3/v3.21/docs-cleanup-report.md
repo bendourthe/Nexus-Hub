@@ -1,4 +1,4 @@
-# Docs Cleanup Audit - v3.21.0 Phase 2
+# Docs Cleanup Audit - v3.21.0 Phase 3
 
 **Date**: 2026-08-24
 **Mode**: audit (no files moved)
@@ -6,20 +6,20 @@
 
 ## Layout check
 
-`docs/v3/v3.21/` still matches the canonical minor-grouped layout. No files moved.
+Canonical minor-grouped layout unchanged. New decision record is under `docs/decisions/implemented/architecture/` (Cat 4, stay; decisions are never release-scoped).
 
 ## Retention apply
 
 Not due.
 
-## Phase 2 scratch docs
+## Phase 3 scratch docs
 
-None. Phase 2 edited `catalog/commands/implement.md` and `implement-phase`, and added `tests/skills/test_implement_driver_modes.py`.
+None.
 
 ## Disposition
 
 | Path | Cat | Action |
 |---|---|---|
 | `plans/v3.21.0-plan-implement-lifecycle-and-docs-architecture.md` | 4 active | Stay. |
-| `known-gaps.md` | 4 active | Stay. |
-| `development/history/` | 4 active | Stay. Session histories for Phases 1-2. |
+| `docs/decisions/implemented/architecture/2026-08-24-living-docs-handbooks-and-decisions.md` | 4 active | Stay. |
+| `development/history/` | 4 active | Stay. |

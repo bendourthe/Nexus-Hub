@@ -56,7 +56,7 @@ Web search uses public documentation and adds no new credential or dependency. T
 
 ## Mandatory final phase (planning scopes)
 
-Every plan ends with a fail-closed last phase - "Architecture Refactor, Known-Gaps Reconciliation, and CI/CD" - that includes independent Goal-vs-codebase review and a last-phase evidence file. Automated tests still end every phase; human/manual testing suggestions wait until that last phase. This is part of the plan contract, not a dispatcher responsibility: the template and the eight duties live in the `[[implementation-plan]]` skill. This dispatcher only surfaces the guarantee; it does not duplicate the template.
+Every plan ends with a fail-closed last phase - "Architecture Refactor, Known-Gaps Reconciliation, and CI/CD" - that includes independent Goal-vs-codebase review, a last-phase evidence file, and the living handbook architecture check. Automated tests still end every phase; human/manual testing suggestions wait until that last phase. New plans are written to the current version dir. This is part of the plan contract, not a dispatcher responsibility: the template and the eight duties live in the `[[implementation-plan]]` skill. This dispatcher only surfaces the guarantee; it does not duplicate the template.
 
 ## Unicode hygiene of the written plan (guarantee)
 

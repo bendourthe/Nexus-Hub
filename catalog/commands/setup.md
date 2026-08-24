@@ -25,7 +25,7 @@ Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scop
 
 Dispatch the resolved scope to the retained skill:
 
-      project  -> setup-project (detection-first governance bootstrap: git init + initial commit, a vX.Y.Z version, a develop+main branch model, the per-version docs tree, and real README / CHANGELOG / DEVLOG - creating ONLY what is missing, so it is safe on an inherited repo)
+      project  -> setup-project (detection-first governance bootstrap: git init + initial commit, a vX.Y.Z version, a develop+main branch model, the per-version docs tree, living `docs/handbooks/` and `docs/decisions/`, and real README / CHANGELOG / DEVLOG - creating ONLY what is missing, so it is safe on an inherited repo)
       hooks    -> install-pre-commit-review-hook (auto-detects the available AI CLI: claude / gemini / codex / opencode)
 
 Pass any remaining arguments through unchanged. Heavy logic stays in the retained skills; this file only resolves scope and delegates.

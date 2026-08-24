@@ -37,7 +37,7 @@ None.
 
 #### Missing Tests / Coverage Gaps
 
-None. Phase 1 added `tests/skills/test_last_phase_fail_closed.py`. Phase 2 added `tests/skills/test_implement_driver_modes.py`. The ubuntu `tests` job already runs `tests/skills`.
+None. Phase 1 added `tests/skills/test_last_phase_fail_closed.py`. Phase 2 added `tests/skills/test_implement_driver_modes.py`. Phase 3 added `tests/skills/test_living_docs_architecture.py`. The ubuntu `tests` job already runs `tests/skills`.
 
 #### Quality-Gate Gaps
 
