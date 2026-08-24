@@ -1,6 +1,6 @@
 # AGENTS.md
 
-<!-- nexus-hub-version: 3.20.1 -->
+<!-- nexus-hub-version: 3.20.2 -->
 
 This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, Gemini CLI, etc.) when working with code in this repository.
 
@@ -8,7 +8,7 @@ This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, G
 
 Nexus-Hub is a production-grade skill harness for AI coding assistants. It is the **upstream catalog** consumed by Nexus (the local-first desktop AI Studio, see `https://github.com/bendourthe/Nexus-AI`) and by every other major agent platform: Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, and GitHub CLI. Skills, commands, hooks, agents, and rules are distributed via installer scripts into users' `~/.nexus-hub/` directory and into their AI assistant's per-platform config locations.
 
-Current catalog: **315 skills** across 23 categories, 18 commands (plus 3 permanent aliases), 33 hooks, 23 agents. The 40 v3.x deprecation shims were removed in v3.2.0.
+Current catalog: **321 skills** across 23 categories, 18 commands (plus 3 permanent aliases), 33 hooks, 23 agents. The 40 v3.x deprecation shims were removed in v3.2.0.
 
 ## Project Structure
 
@@ -24,7 +24,7 @@ Nexus-Hub/
 │   ├── mcp-configs/          # MCP server registry
 │   ├── memory/               # Memory template files
 │   ├── rules/                # Code style/security rules (4 languages)
-|   `-- skills/               # 315 skills across 23 categories
+|   `-- skills/               # 321 skills across 23 categories
 │       └── <category>/
 │           └── <skill-name>/
 │               └── SKILL.md
@@ -196,6 +196,18 @@ Binary checklist. Each item must describe an observable artifact or state.
 ```
 
 **SKILL.md size norm.** Target ≤500 lines for the SKILL.md body. Hard cap 800 lines, enforced by `scripts/validate_skills.py` in `--bundles-only` (so `make validate` and CI fail a body over 800). Beyond 500 lines, add a `references/` subdirectory with a table of contents and link to it from SKILL.md rather than expanding the body. Beyond 800 lines, the skill MUST be split or refactored before merge. Existing skills that exceed 500 lines are grandfathered at the warning tier only -- a new or grown body over 800 is a hard error.
+
+#### Rule ownership for overlapping skills
+
+When two or more skills cover adjacent or overlapping territory, the cluster MUST declare a rule-ownership table naming exactly one owning skill per concern. Non-owning skills reference the owner by name and describe only the handoff; they never restate the owned rule. Put the table in the coordinating skill, or in this file if the cluster has none. Tie-break: one skill decides WHEN a constraint applies and how severe a violation is; another owns MEASURING and remediating it. Two skills touching one concern is fine; two skills both stating the rule is not. Without this, a multi-skill review reports the same root cause twice and the user cannot tell whether that is two problems or one.
+
+#### Missing-delegate honesty
+
+When a skill delegates work to another skill and that delegate is unavailable, it MUST mark that portion as not covered, name the missing skill, and continue. It MUST NOT reconstruct the delegate's rules from memory, substitute a neighbour, or claim coverage it did not achieve. The gap MUST be visible in the output, not only in the instructions. An agent that improvises the missing rules produces a report that reads complete while that section is unreviewed. This is the delegation-specific case of `[[verification-before-completion]]`.
+
+#### Review-output restraint
+
+Every review skill inherits two conventions; the canonical contract is `catalog/skills/code-review/multi-agent-code-review/SKILL.md`. (1) **Considered but Rejected**: list real inspected candidates that were not reported, each with a reason; never invent filler; a thin scope says so. Without this, a thorough review that found little looks the same as a shallow one. (2) **Mode-based finding cap**: each depth mode binds a coverage scope AND an output cap (quick = higher severities, small cap; full = whole scope, larger cap). Never pad to the cap; a short or clean result is valid. Without a cap, cosmetic padding buries the finding that mattered.
 
 #### Per-skill Bundled Resources
 

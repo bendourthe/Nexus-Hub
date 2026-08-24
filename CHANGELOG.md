@@ -9,7 +9,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.20.2] - 2026-08-24
+
+This release changes no opt-in capability, installer flag, or host surface.
+
 ### Added
+
+- **Skill-cluster authoring rules.** `AGENTS.md` now requires a rule-ownership table for overlapping skills and a missing-delegate honesty path (name the unavailable skill, mark that portion uncovered, do not reconstruct its rules). Every review skill inherits a Considered-but-Rejected table and a mode-based finding cap; `multi-agent-code-review` is the canonical contract.
+- **`accessibility-engineering` skill.** First interface-craft cluster skill: semantic names, keyboard and focus, forms, hit areas, reduced motion, and zoom/reflow, with a `references/` bundle. Contrast measurement is handed to `color-systems`; heading visuals to `web-typography`. Original writing; no copied source prose.
+- **`layout-and-spacing` and `interface-copy` skills.** Spatial grouping, spacing scales, breakpoints, and RTL mirroring; in-product microcopy for actions, errors, empty states, and confirmations. Both written originally with SKIP clauses that fence `frontend-ui-engineering`, `accessibility-engineering`, `writing-editing`, `anti-slop-editing`, and `internal-comms`.
+- **`web-typography` and `color-systems` skills.** Font loading, type scales, wrapping, and truncation; OKLCH palettes, rendered-pair measurement, and gamut fallbacks. Contrast severity and heading ranks stay on `accessibility-engineering`. Original writing; no copied source prose.
+- **`hallmark-design` recipe layer.** Surfaces, radius, icon stroke, and motion values land in the existing skill (judgment gates stay; recipes apply after). No seventh cluster skill. Reduced-motion *requirements* stay on `accessibility-engineering`.
+- **`interface-review` skill.** Coordinating review: fixed domain order, canonical rule-ownership table, missing-delegate honesty, Considered-but-Rejected, and a quick/full finding cap. Read-only by default. Catalog count is 321.
+
+### Changed
+
+- **Platform read-contract restamped for v3.20.2.** Same-day re-fetch: Claude MATCH, Cursor MATCH, OpenCode MATCH; Codex retains low non-breaking drift (`~/.codex/skills` still undocumented; `$HOME/.agents/skills` still delivers). Gemini CLI was unreachable this cycle and is carried forward, not assumed. No adapter or installer write-target changed.
+
+### Fixed
+
+- **v3.20.0 README count.** The "Previously, in v3.20.0" paragraph restated the later 315-skill figure; it now matches that release's changelog (275).
+- **Typographic ellipsis in `interface-copy`.** Two loading-copy examples used U+2026; CI's Unicode safety gate requires ASCII `...`.
 
 ## [3.20.1] - 2026-08-23
 
@@ -5532,7 +5552,10 @@ repository_root/
 
 ---
 
-[Unreleased]: https://github.com/bendourthe/Nexus-Hub/compare/v3.19.2...HEAD
+[Unreleased]: https://github.com/bendourthe/Nexus-Hub/compare/v3.20.2...HEAD
+[3.20.2]: https://github.com/bendourthe/Nexus-Hub/compare/v3.20.1...v3.20.2
+[3.20.1]: https://github.com/bendourthe/Nexus-Hub/compare/v3.20.0...v3.20.1
+[3.20.0]: https://github.com/bendourthe/Nexus-Hub/compare/v3.19.2...v3.20.0
 [3.19.2]: https://github.com/bendourthe/Nexus-Hub/compare/v3.19.1...v3.19.2
 [3.19.1]: https://github.com/bendourthe/Nexus-Hub/compare/v3.19.0...v3.19.1
 [3.19.0]: https://github.com/bendourthe/Nexus-Hub/compare/v3.18.3...v3.19.0
