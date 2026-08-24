@@ -1,6 +1,6 @@
 # AGENTS.md
 
-<!-- nexus-hub-version: 3.20.2 -->
+<!-- nexus-hub-version: 3.20.3 -->
 
 This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, Gemini CLI, etc.) when working with code in this repository.
 
@@ -8,7 +8,7 @@ This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, G
 
 Nexus-Hub is a production-grade skill harness for AI coding assistants. It is the **upstream catalog** consumed by Nexus (the local-first desktop AI Studio, see `https://github.com/bendourthe/Nexus-AI`) and by every other major agent platform: Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, and GitHub CLI. Skills, commands, hooks, agents, and rules are distributed via installer scripts into users' `~/.nexus-hub/` directory and into their AI assistant's per-platform config locations.
 
-Current catalog: **321 skills** across 23 categories, 18 commands (plus 3 permanent aliases), 33 hooks, 23 agents. The 40 v3.x deprecation shims were removed in v3.2.0.
+Current catalog: **324 skills** across 23 categories, 18 commands (plus 3 permanent aliases), 33 hooks, 23 agents. The 40 v3.x deprecation shims were removed in v3.2.0.
 
 ## Project Structure
 
@@ -24,7 +24,7 @@ Nexus-Hub/
 │   ├── mcp-configs/          # MCP server registry
 │   ├── memory/               # Memory template files
 │   ├── rules/                # Code style/security rules (4 languages)
-|   `-- skills/               # 321 skills across 23 categories
+|   `-- skills/               # 324 skills across 23 categories
 │       └── <category>/
 │           └── <skill-name>/
 │               └── SKILL.md
@@ -49,7 +49,7 @@ Existing categories: `ai-development`, `architecture`, `bug-fixing`, `business-p
 
 The `security` category holds application-security skills (authentication, dependency/CVE analysis, exploitability, patch advice). The `security-operations` category (added v2.3.0) holds defensive operational skills: DFIR, threat hunting, detection engineering, incident response, and cloud / endpoint / identity / phishing detection. The `ot-security` category (added v3.20.1) holds industrial-control and operational-technology skills. The `mobile-security` category (added v3.20.1) holds Android/iOS application and mobile-malware skills. Place a new defensive-operations skill under `security-operations`; place an application-security or AppSec-review skill under `security`; place ICS/SCADA work under `ot-security`; place mobile-app or mobile-malware work under `mobile-security`.
 
-If none fit, discuss with maintainers before creating a new category.
+If none fit, discuss with maintainers before creating a new category. A new category also needs `./catalog/skills/<category>` in `.claude-plugin/plugin.json` `skills` (plugin scan is one level). `test_claude_plugin_manifests.py` guards drift.
 
 ### 2. Create the skill directory
 
@@ -114,15 +114,15 @@ A skill MAY declare two optional strict-boolean frontmatter fields controlling w
 | `disable-model-invocation` | `true` stops the agent auto-loading the skill; it runs only when the user invokes it explicitly | `false` |
 | `user-invocable` | `false` hides the skill from the slash menu, leaving it available to the model as background knowledge | `true` |
 
-`scripts/validate_skills.py` enforces two rules in `--bundles-only`, the mode `make validate` and CI run. A non-boolean value is an error naming the skill and field (`user-invocable: "true"` is a string that reads as correct and behaves as unset). And `disable-model-invocation: true` together with `user-invocable: false` is an error, because it leaves a skill nobody can invoke; that combination is a Nexus-Hub rule, not a vendor one.
+`validate_skills.py --bundles-only` (`make validate` / CI) errors on a non-boolean value and on `disable-model-invocation: true` with `user-invocable: false` (nobody can invoke it). A string `"true"` is unset, not true.
 
-Distribution is free for platforms that read these keys from `SKILL.md`, since the installers copy the file verbatim and a platform ignores frontmatter keys it does not recognise. Which platforms document which field, with source URLs and verified dates, is recorded in [`docs/policy/skill-invocation-policy-levers.md`](docs/policy/skill-invocation-policy-levers.md). Any claim that a platform supports a lever is subject to the do-not-invent rule: a fetched official vendor document, or the answer is "none documented".
+Command-derived skills the installer emits are user-invoked: `_synthesize_skill` sets `disable-model-invocation: true`. A user-invoked skill may delegate to model-invoked skills, never to another user-invoked one. `validate_skills.py` warns on a catalog description that starts with `Run the /X command` without the flag.
+
+Installers copy the keys verbatim; platforms that do not recognise them ignore them. Dated per-platform support lives in [`docs/policy/skill-invocation-policy-levers.md`](docs/policy/skill-invocation-policy-levers.md). A lever is VERIFIED only from a fetched official vendor document, or the answer is "none documented".
 
 #### Optional Security and Compliance Framework Mapping
 
-Security and compliance skills MAY declare an optional set of cross-framework mapping fields in their YAML frontmatter. These fields are **non-required**, do **not** count toward Tier-1 token budget pressure for skills that omit them, and are validated as **optional** by `scripts/validate_skills.py` (their absence is never an error; their presence is checked for list shape only).
-
-Available optional fields:
+Security and compliance skills MAY declare optional framework-mapping fields. Absence is never an error and costs no Tier-1 tokens; `validate_skills.py` checks list shape only when present.
 
 | Field | Framework | Example value |
 |---|---|---|

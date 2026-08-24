@@ -2,7 +2,7 @@
 
 The durable, sourced record of whether each skills-bearing platform documents a **per-skill invocation-policy lever**: a way for one skill to declare that the model may not auto-invoke it, or that the user may not invoke it from a slash menu.
 
-**Last verified**: 2026-08-18 for v3.17.5. Six platforms surveyed (five in Phase 6, `qwen` added during the release-pass contract re-verification); see Scope below for what was not.
+**Last verified**: 2026-08-24 for v3.20.3 command-skill emission. Six platforms re-checked this cycle (claude, cursor, qwen fetched in Phase 4; Codex learn.chatgpt.com re-fetched at release; copilot and the none-documented set carried from 2026-08-18/22). See Scope below for what was not.
 
 ## Scope boundary
 
@@ -14,6 +14,16 @@ Two sibling documents own adjacent questions, and none of the three should grow 
 - `docs/policy/platform-read-contracts.md` (and its `.json`) owns **file discovery**: where a platform reads skills, commands, rules, and hooks.
 
 An invocation-policy field is per-skill and travels inside `SKILL.md` (or a sidecar next to it), so it belongs to neither. It gets its own record.
+
+## Catalog convention (v3.20.3)
+
+Skills are model-invoked by default. A skill that must fire only when the human types it declares `disable-model-invocation: true` in its SKILL.md frontmatter.
+
+Command-derived skills are user-invoked. Every `catalog/commands/<name>.md` the installer materializes as a skill (the flatten path used by Claude, Codex, Cursor, Qwen, Kimi, Antigravity, OpenCode, Gemini, Gemini CLI, and Nexus-AI) is a slash dispatcher, not a model-auto-loaded catalog skill. `scripts/lib/integrations/_catalog_adapters.py` (`_synthesize_skill`) emits `disable-model-invocation: true` on that generated frontmatter. Do not hand-author a catalog skill whose description begins `Run the /X command` without the same flag; `validate_skills.py` warns (it does not fail the build).
+
+Routing invariant: a user-invoked skill or slash command may delegate to model-invoked skills. It must not delegate to another user-invoked skill or command. That is the existing thin-dispatcher contract: `/implement` dispatches to `implement-phase`; it does not call `/update`.
+
+Per-platform support is the summary table below. Do not invent a lever. Discovery paths are unchanged; see [`platform-read-contracts.md`](platform-read-contracts.md).
 
 ## The do-not-invent rule
 
@@ -35,7 +45,7 @@ Both are recorded below as what the vendor documents, not what the summary claim
 | `claude` | VERIFIED | `disable-model-invocation` (default `false`) | `user-invocable` (default `true`) | `SKILL.md` frontmatter | [code.claude.com](https://code.claude.com/docs/en/skills) | 2026-08-18 |
 | `copilot` | VERIFIED | `disable-model-invocation` (default `false`) | `user-invocable` (default `true`) | `SKILL.md` frontmatter | [code.visualstudio.com](https://code.visualstudio.com/docs/agent-customization/agent-skills) | 2026-08-18 |
 | `cursor` | VERIFIED (partial) | `disable-model-invocation` | none documented | `SKILL.md` frontmatter | [cursor.com](https://cursor.com/docs/skills) | 2026-08-18 |
-| `codex` | VERIFIED (different shape) | `policy.allow_implicit_invocation` (default `true`, inverted polarity) | none documented | `agents/openai.yaml` sidecar | [learn.chatgpt.com](https://learn.chatgpt.com/docs/build-skills) | 2026-08-18 |
+| `codex` | VERIFIED (different shape) | `policy.allow_implicit_invocation` (default `true`, inverted polarity) | none documented | `agents/openai.yaml` sidecar | [learn.chatgpt.com](https://learn.chatgpt.com/docs/build-skills) | 2026-08-24 |
 | `qwen` | VERIFIED | `disable-model-invocation` | `user-invocable` | `SKILL.md` frontmatter | [qwenlm.github.io](https://qwenlm.github.io/qwen-code-docs/en/users/features/skills/) | 2026-08-18 |
 | `antigravity2` | UNVERIFIED | none documented | none documented | n/a | [antigravity.google](https://antigravity.google/docs/skills) | 2026-08-18 |
 | `opencode` | VERIFIED (none documented) | none documented | none documented | `SKILL.md` frontmatter | [opencode.ai](https://opencode.ai/docs/skills/) | 2026-08-22 |
@@ -125,4 +135,4 @@ Three properties of that mapping are load-bearing and each has a test:
 2. **Nothing is emitted unless a skill declares the field.** Codex's default already matches Nexus-Hub's, so an unconditional sidecar would be noise on every skill.
 3. **An authored sidecar is never overwritten.** OpenAI's `agents/openai.yaml` also carries `interface` and `dependencies` metadata this mapping cannot reconstruct, so a skill shipping its own keeps it and the skip is logged.
 
-No catalog skill declares either field today, so the mapping currently emits nothing. A test asserts that state, and it fails loudly when the first skill starts declaring the field, which is the point at which the installer smoke expectations should be re-checked.
+No catalog skill declares either field today, so catalog copies still emit no Codex sidecar. **Command-derived skills do declare the field** (v3.20.3): `_synthesize_skill` writes `disable-model-invocation: true`, and `_mirror_codex` runs `codex_invocation_policy` *after* that write so each command-skill gets `allow_implicit_invocation: false`. A test still asserts the shipped catalog declares no manual-only skill; a separate install test asserts the generated command-skill plus sidecar.

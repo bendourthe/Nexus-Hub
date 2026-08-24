@@ -133,6 +133,27 @@ def test_a_directory_without_skill_md_is_skipped(tmp_path):
     assert codex_invocation_policy(_Ctx(), "codex", tmp_path) == []
 
 
+def test_dry_run_plans_command_sidecars_from_source_when_dest_is_empty(tmp_path):
+    """dry_run does not write SKILL.md, so dest scan alone would under-count."""
+    repo = tmp_path / "repo"
+    (repo / "catalog" / "commands").mkdir(parents=True)
+    (repo / "catalog" / "skills" / "demo").mkdir(parents=True)
+    (repo / "catalog" / "commands" / "implement.md").write_text(
+        "# implement\n\nDo the work.\n", encoding="utf-8"
+    )
+    (repo / "catalog" / "skills" / "demo" / "SKILL.md").write_text(
+        "---\nname: demo\ndescription: x\n---\n\n# demo\n", encoding="utf-8"
+    )
+    ctx = _Ctx(dry_run=True)
+    ctx.repo_root = repo
+    dest = tmp_path / "empty-skills"
+    actions = codex_invocation_policy(ctx, "codex", dest)
+    assert len(actions) == 1
+    assert actions[0].action == "created"
+    assert "implement" in actions[0].path
+    assert "openai.yaml" in actions[0].path.replace("\\", "/")
+
+
 @pytest.mark.parametrize(
     "line,expected",
     [

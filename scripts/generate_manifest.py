@@ -75,6 +75,11 @@ Three consequences worth stating rather than discovering:
   tarball, whose on-disk bytes are what this generator now models. A user who instead installs
   from a Windows git clone with autocrlf enabled would still see line-ending
   mismatches; that is a documented boundary, not a regression.
+* Gitignored files under the covered roots are not hashed when git is available
+  (v3.20.3, the ``WN-5`` fix). Enumeration is ``git ls-files -co --exclude-standard``
+  over ``COVERED_ROOTS``, so a looping generator that left gitignored stubs cannot
+  inflate ``MANIFEST.sha256``. ``verify_install.py`` still walks the extracted
+  tree; an install tarball does not carry gitignored junk.
 
 Usage:
     python scripts/generate_manifest.py            # write <repo>/MANIFEST.sha256
@@ -252,6 +257,40 @@ def _apply_eol(payload: bytes, eol: str) -> bytes:
     return payload.replace(b"\r\n", b"\n").replace(b"\n", b"\r\n")
 
 
+def _git_covered_relpaths(root: Path) -> List[str] | None:
+    """Tracked plus untracked-not-ignored paths under ``COVERED_ROOTS``.
+
+    Returns None when git is unusable so callers fall back to ``iter_catalog_files``
+    (installed trees, exported tarballs, tmp fixtures with no ``.git``). An empty
+    list means git worked and nothing is eligible -- including "everything on disk
+    is gitignored", which must NOT fall back to ``os.walk`` (that was WN-5).
+    """
+    listing = _git(
+        root,
+        "ls-files",
+        "-z",
+        "-c",
+        "-o",
+        "--exclude-standard",
+        "--",
+        *COVERED_ROOTS,
+    )
+    if listing is None or listing.returncode != 0:
+        return None
+    rels: List[str] = []
+    for rel in listing.stdout.split("\0"):
+        if not rel:
+            continue
+        posix = rel.replace("\\", "/")
+        name = Path(posix).name
+        if _is_excluded_file(name):
+            continue
+        if any(_is_excluded_dir(part) for part in Path(posix).parts[:-1]):
+            continue
+        rels.append(posix)
+    return rels
+
+
 def _git_blob_sha256(root: Path) -> Dict[str, str]:
     """Map ``relative-posix-path -> sha256`` of each tracked file's DISTRIBUTED bytes.
 
@@ -368,12 +407,16 @@ def compute_manifest(root: Path) -> List[Tuple[str, str]]:
     sorted by path so the serialized manifest is byte-stable.
     """
     blob_hashes = _git_blob_sha256(root)
+    listed = _git_covered_relpaths(root)
+    if listed is None:
+        rels = [_relpath_posix(file_path, root) for file_path in iter_catalog_files(root)]
+    else:
+        rels = listed
     entries: List[Tuple[str, str]] = []
-    for file_path in iter_catalog_files(root):
-        rel = _relpath_posix(file_path, root)
+    for rel in rels:
         digest = blob_hashes.get(rel)
         if digest is None:
-            digest = _hash_path(file_path)
+            digest = _hash_path(root / rel)
         if digest is None:
             continue
         entries.append((rel, digest))

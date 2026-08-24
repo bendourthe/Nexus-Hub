@@ -161,3 +161,4 @@ Related: [[ambiguity-detector]] is the structured, non-interactive way to detect
 - [[ambiguity-detector]] -- detects ambiguous, incomplete, or contradictory requirements in existing specs
 - [[requirement-enhancer]] -- improves an existing requirement's quality, testability, and completeness
 - [[plan-before-code]] -- planning phase after the spec is confirmed
+- [[design-interview]] -- interview engine for unresolved design branches and the CONTEXT.md glossary; invoke it after the problem is named, do not use it as a substitute for this skill

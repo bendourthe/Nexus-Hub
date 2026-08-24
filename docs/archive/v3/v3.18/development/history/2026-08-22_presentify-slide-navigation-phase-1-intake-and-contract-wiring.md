@@ -95,7 +95,7 @@ Stability gate, all three items:
 | `catalog/skills/specialized-domains/document-to-interactive-html/SKILL.md` | Step 2 merged question and binding rules, headless fallback, design-record and backward-compatibility rules, frontmatter and `overview_l1` |
 | `data/skills.json` | 3 lines: `description`, `long_description`, `overview_l1` for this one entry |
 | `docs/v3/v3.18/known-gaps.md` | Opened the `v3.18.3` section with the one forward dependency |
-| `docs/v3/v3.18/development/history/2026-08-22_presentify-slide-navigation-phase-1-intake-and-contract-wiring.md` | This file |
+| `docs/archive/v3/v3.18/development/history/2026-08-22_presentify-slide-navigation-phase-1-intake-and-contract-wiring.md` | This file |
 
 No file was added to or removed from the catalog, so no installer edit was required: both installers copy `catalog/commands/` and `catalog/skills/` recursively.
 

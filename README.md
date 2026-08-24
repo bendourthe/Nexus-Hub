@@ -4,9 +4,9 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.20.2 -->
+<!-- nexus-hub-version: 3.20.3 -->
 
-Nexus-Hub is the upstream skill catalog for AI coding assistants: 321 skills, 18 commands, 33 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
+Nexus-Hub is the upstream skill catalog for AI coding assistants: 324 skills, 18 commands, 33 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
 ## Interactive Guide -- start here
 
@@ -30,14 +30,20 @@ Nexus-Hub is the upstream skill catalog for AI coding assistants: 321 skills, 18
 
 Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of the same idea, split along a deliberate seam.
 
-- **Nexus-Hub (this repo)** is the catalog: 321 curated skills, 18 commands, 33 hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`) and the local `nexus-memory` CLI store. It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
+- **Nexus-Hub (this repo)** is the catalog: 324 curated skills, 18 commands, 33 hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`) and the local `nexus-memory` CLI store. It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
 - **Nexus** is a local-first desktop AI Studio that consumes Nexus-Hub as its skill feed. Nexus's `AGENTS.md` names this repo as "the only external project we deliberately link to" -- the upstream feed for its skill harness.
 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
 
-## What's New in v3.20.2
+## What's New in v3.20.3
+
+**Skills craft, invocation policy, and a Claude Code subscribe path.** Three new skills (`design-interview`, `setup-wizard-generator`, `decision-questionnaire`) take the catalog to **324**. Authoring skills teach agent-writing discipline. Generated command-skills carry `disable-model-invocation: true` so slash dispatchers are not model-auto-invoked. Claude Code can subscribe with `/plugin marketplace add bendourthe/Nexus-Hub` (hooks stay on the installer).
+
+This release documents one opt-in host surface: `claude-plugin-marketplace`. See the changelog for Activation, Validation, Rollback, Authority, and Docs.
+
+## Previously, in v3.20.2
 
 **Interface-craft is now a first-class cluster, not a hole in the catalog.** Six skills (net +6, polish merged into `hallmark-design` rather than a seventh skill) cover accessibility, layout, in-product copy, typography, color systems, and a coordinating `interface-review`. Overlapping rules have one owner; a missing delegate is named instead of reconstructed. Recipe-level elevation, radius, icon stroke, and motion values land in `hallmark-design` after its anti-slop gates. Catalog is **321 skills** across **23 categories**.
 
@@ -176,10 +182,23 @@ That is the whole setup -- no prompts. The installer prechecks its dependencies 
 
 After the installer completes:
 
-- **Globally**: your user profile has all 321 skills, 18 commands, 33 hooks, 23 agents, plus Gemini and Codex instructions.
+- **Globally**: your user profile has all 324 skills, 18 commands, 33 hooks, 23 agents, plus Gemini and Codex instructions.
 - **Locally**: your project has `copilot-instructions.md` and `AGENTS.md` tailored to your language.
 
 **Power-user flags**: `--workspace <path>` installs into a single repo instead of globally; `--platforms <comma-list>` limits the install to a subset of assistants; `--yes` runs fully unattended (refreshes managed files with no prompt -- ideal for CI). Prefer to clone first? `git clone` the repo and run `./install.sh` (macOS / Linux) or `install.bat` (Windows) -- the in-repo path still works exactly as before.
+
+### Claude Code plugin (subscribe-style alternative)
+
+The installer above is the primary path: every platform, hooks, and `nexus-hub upgrade`. Claude Code users who only want the catalog as a plugin can subscribe instead:
+
+```
+/plugin marketplace add bendourthe/Nexus-Hub
+/plugin install nexus-hub@nexus-hub
+```
+
+This is not a replacement for the installer. It does not install hooks, other platforms, or the `nexus-hub` CLI.
+
+If Anthropic later lists Nexus-Hub in `claude-plugins-official`, that listing is pinned to a git SHA that can lag tagged releases. Marketplace users may trail `main`. Prefer the installer, or this repo's marketplace added from a release tag, when you need the current release. The maintainer submission draft is [`docs/v3/v3.20/development/claude-marketplace-submission.md`](docs/v3/v3.20/development/claude-marketplace-submission.md).
 
 ### Installing a subset (selective installation)
 

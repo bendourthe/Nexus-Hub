@@ -138,13 +138,14 @@ class CodexIntegration(MarkdownIntegration, SkillsIntegration):
         # Flattened skills + commands-as-skills into BOTH skill roots.
         for skills_dst in (codex_root / "skills", agents_root / "skills"):
             actions.extend(flatten_skills(ctx, self.key, src_skills, skills_dst))
-            # Codex's invocation lever lives in a sidecar, not in SKILL.md, and
-            # its polarity is inverted. Emits nothing unless a skill declares
-            # `disable-model-invocation: true`.
-            actions.extend(codex_invocation_policy(ctx, self.key, skills_dst))
             actions.extend(
                 commands_to_skills(ctx, self.key, src_commands, skills_dst, existing)
             )
+            # Codex's invocation lever lives in a sidecar, not in SKILL.md, and
+            # its polarity is inverted. Must run AFTER command-skill synthesis
+            # so generated `disable-model-invocation: true` files get a sidecar.
+            # Catalog skills still emit nothing unless they declare the field.
+            actions.extend(codex_invocation_policy(ctx, self.key, skills_dst))
         # Legacy prompts (top-level .md) into ~/.codex/prompts for /prompts:name.
         actions.extend(
             commands_to_slash(

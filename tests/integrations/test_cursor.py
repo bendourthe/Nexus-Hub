@@ -59,6 +59,7 @@ def test_cursor_workspace_commands_as_skills_and_project_commands(install_ctx: I
     text = skill_md.read_text(encoding="utf-8")
     assert "name: presentify" in text
     assert "/presentify" in text, "command-skill description should carry the slash lead-in"
+    assert "disable-model-invocation: true" in text
 
     project_cmd = root / ".cursor" / "commands" / "presentify.md"
     assert project_cmd.exists(), "project-scoped .cursor/commands/ mirror missing"

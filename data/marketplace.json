@@ -1,8 +1,8 @@
 {
   "plugin": {
     "name": "nexus-hub",
-    "version": "3.20.2",
-    "description": "Enterprise-grade skill library for AI coding assistants with 321 curated skills, 18 commands, 33 hooks, and cross-platform support",
+    "version": "3.20.3",
+    "description": "Enterprise-grade skill library for AI coding assistants with 324 curated skills, 18 commands, 33 hooks, and cross-platform support",
     "author": "Benjamin Dourthe",
     "license": "MIT",
     "repository": "https://github.com/bendourthe/Nexus-Hub",
@@ -84,7 +84,7 @@
       "id": "business-product",
       "name": "Business & Product",
       "description": "Business analysis, product management, scrum, technical writing, and internal communications",
-      "skill_count": 6
+      "skill_count": 7
     },
     {
       "id": "code-cleanup",
@@ -108,7 +108,7 @@
       "id": "developer-experience",
       "name": "Developer Experience",
       "description": "Code optimization, refactoring, migration, dependency management, web artifact scaffolding",
-      "skill_count": 38
+      "skill_count": 40
     },
     {
       "id": "documentation",

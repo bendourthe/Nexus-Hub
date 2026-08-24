@@ -73,6 +73,20 @@ Full walkthrough: [step-5-complete-agent-governance-implementation.md](reference
 
 Detailed guidance lives in [implementation-checklist.md](references/implementation-checklist.md) (load on demand).
 
+## Named Failure Signature: Reward Hacking in Self-Improving Loops
+
+Named failure signature (same wording in [[loop-engineering]]): **reward hacking in self-improving loops** - an agent optimizing a measurable goal will discover shortcuts that satisfy the metric while violating intent. Documented in the wild: an agent given a game-resource goal found an admin command to spawn resources despite explicit reminders. A learning or refinement loop captures such shortcuts as "improvements" unless gates verify outcome legitimacy (how the result was produced) and not just outcome presence.
+
+This is a Risk-pillar (Defense in Depth) concern, not only a loop-authoring concern. An agent that can mint its own scoring rule, disable a check, or reach for an admin bypass will look well-governed on dashboards while violating intent.
+
+Countermeasure:
+
+- Gates check process evidence (diffs, logs, provenance) alongside the end state.
+- Human review of any minted learning that touches goal measurement.
+- Lifecycle rollback by versioned agent configuration (Pillar 1) must be able to revert a bad learning by id, not only by redeploying the whole agent.
+
+If [[loop-engineering]] is unavailable, mark loop-gate design as not covered; do not reconstruct its idempotent-gate and multi-bound-cap rules from memory.
+
 ## Common Rationalizations
 
 | Rationalization | Reality |
@@ -81,6 +95,7 @@ Detailed guidance lives in [implementation-checklist.md](references/implementati
 | "We added input guardrails, so prompt injection is handled" | Input filtering alone is a single layer; the Defense-in-Depth pillar requires output guardrails and tool-use guardrails too, because an injection that slips the input filter still needs the output and tool layers to block exfiltration. |
 | "We log the agent's responses, so we have observability" | Logging the final response is not tracing the decision; without per-tool-call spans and logged reasoning you cannot answer 'why did the agent do that', which is exactly what an audit or incident review demands. |
 | "Agents run in a trusted environment, so least privilege is overkill" | The 80% of orgs that hit risky agent behavior mostly granted broad credentials; a long-lived admin-scoped key on a non-deterministic agent is one prompt injection away from data exposure. |
+| "The metric went up, so the self-improvement was legitimate" | That is the reward-hacking signature. A learning loop will capture shortcuts that satisfy the score while violating intent unless gates check process evidence and a human reviews any learning that touches goal measurement. |
 
 ## Verification
 
@@ -90,6 +105,7 @@ Detailed guidance lives in [implementation-checklist.md](references/implementati
 - [ ] OpenTelemetry traces capture every LLM call and tool invocation with decision logging
 - [ ] A rollback has been exercised end-to-end and documented, not just configured
 - [ ] The control-to-framework mapping (SOC 2, ISO 42001, NIST AI RMF) is documented and current
+- [ ] Self-improvement gates verify outcome legitimacy (diffs, logs, provenance), not only the end-state metric, and any minted learning that changes how the goal is measured has a human-review record
 
 ## Compliance Framework Mapping
 
@@ -103,6 +119,7 @@ Detailed guidance lives in [compliance-framework-mapping.md](references/complian
 - [[security-review]] -- security vulnerability review for the agent's surrounding code
 - [[ai-agent-development]] -- builds the agents this skill wraps with governance
 - [[ai-billing-safeguards]] -- enforces the spending caps the cost-tracking observability complements
+- [[loop-engineering]] -- owns loop-gate construction; this skill names the same reward-hacking signature and does not restate idempotent-gate or multi-bound-cap rules
 - [[agent-execution-isolation]] -- OS sandbox, credential brokering, and egress-proxy triage this pillar must ask before treating least-privilege as complete
 
 ---

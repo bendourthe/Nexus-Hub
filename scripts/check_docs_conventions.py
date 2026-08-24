@@ -2,7 +2,9 @@
 """Fail the build on broken relative docs links and directory-name drift.
 
 Repo-internal guard (no installer copy, no .ps1 sibling). Scans Markdown
-under docs/ (skipping docs/archive/) for:
+under the canonical ``docs/v<MAJOR>/v<MAJOR>.<MINOR>/`` tree (plugin.json
+major.minor, skipping ``docs/archive/``, older minors, and future majors
+such as ``docs/v4/`` while the catalog is still 3.x) for:
 
 - relative links and image paths whose target is missing
 - relative links whose target exists only with a different case (breaks on
@@ -25,6 +27,7 @@ Exit codes:
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import sys
 from pathlib import Path
@@ -40,6 +43,7 @@ SKIP_DIR_NAMES = frozenset(
     }
 )
 DIR_NAME_RE = re.compile(r"^[a-z0-9]+(?:[.-][a-z0-9]+)*$")
+_VERSION_DIR = re.compile(r"^v(?P<major>\d+)\.(?P<minor>\d+)$")
 # Markdown inline link or image: ](dest) / ](<dest>). Skip autolinks.
 LINK_RE = re.compile(r"!?\[[^\]]*\]\(\s*<?([^)\s>]+)>?\s*\)")
 SKIP_SCHEMES = ("http://", "https://", "mailto:", "ftp://")
@@ -55,6 +59,93 @@ def rel(path: Path, root: Path) -> str:
 def docs_root(root: Path) -> Path:
     nested = root / "docs"
     return nested if nested.is_dir() else root
+
+
+def read_canonical_major_minor(root: Path) -> tuple[int, int] | None:
+    """Return (major, minor) from ``.claude-plugin/plugin.json``, or None."""
+    plugin = root / ".claude-plugin" / "plugin.json"
+    try:
+        raw = json.loads(plugin.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+    version = raw.get("version")
+    if not isinstance(version, str):
+        return None
+    match = re.match(r"^(\d+)\.(\d+)", version)
+    if not match:
+        return None
+    return int(match.group(1)), int(match.group(2))
+
+
+def _newest_minor_under(major_dir: Path, major: int) -> Path | None:
+    """Newest ``v<major>.<minor>`` child of ``major_dir``, numeric not lexical."""
+    best: tuple[int, Path] | None = None
+    try:
+        children = list(major_dir.iterdir())
+    except OSError:
+        return None
+    for minor_dir in children:
+        if not minor_dir.is_dir():
+            continue
+        match = _VERSION_DIR.match(minor_dir.name)
+        if not match or int(match.group("major")) != major:
+            continue
+        minor = int(match.group("minor"))
+        if best is None or minor > best[0]:
+            best = (minor, minor_dir)
+    return None if best is None else best[1]
+
+
+def find_active_minor(root: Path) -> Path | None:
+    """Return the docs tree this guard should scan, or None.
+
+    Prefer the canonical plugin version's ``docs/v<MAJOR>/v<MAJOR>.<MINOR>/``.
+    That is the live minor; a future major on disk (``docs/v4/`` while the
+    catalog is 3.20.x) is planning, not the scan target -- picking it would
+    repeat the colocation fail-open. Without plugin.json (tmp fixtures), pick
+    the newest version directory on disk. Historical minors stay unscanned:
+    they carry grandfathered broken links.
+    """
+    canonical = read_canonical_major_minor(root)
+    if canonical is not None:
+        major, minor = canonical
+        exact = root / "docs" / f"v{major}" / f"v{major}.{minor}"
+        if exact.is_dir():
+            return exact
+        major_dir = root / "docs" / f"v{major}"
+        if major_dir.is_dir():
+            return _newest_minor_under(major_dir, major)
+        return None
+    docs = root / "docs"
+    if not docs.is_dir():
+        return None
+    best: tuple[int, int, Path] | None = None
+    try:
+        major_dirs = list(docs.iterdir())
+    except OSError:
+        return None
+    for major_dir in major_dirs:
+        if not major_dir.is_dir() or not re.match(r"^v\d+$", major_dir.name):
+            continue
+        major = int(major_dir.name[1:])
+        newest = _newest_minor_under(major_dir, major)
+        if newest is None:
+            continue
+        match = _VERSION_DIR.match(newest.name)
+        if not match:
+            continue
+        minor = int(match.group("minor"))
+        if best is None or (major, minor) > (best[0], best[1]):
+            best = (major, minor, newest)
+    return None if best is None else best[2]
+
+
+def resolve_scan_tree(root: Path) -> Path | None:
+    active = find_active_minor(root)
+    if active is not None:
+        return active
+    tree = docs_root(root)
+    return tree if tree.is_dir() else None
 
 
 def iter_dirs(base: Path) -> list[Path]:
@@ -150,16 +241,8 @@ def check_dirs(tree: Path) -> list[str]:
 
 
 def scan(root: Path) -> list[str]:
-    # In this repo the active minor is docs/v3/v3.19/. Historical minor trees
-    # carry grandfathered broken links; gating them would turn a new checker
-    # into a 100+ finding archaeology project. Tests pass a tmp tree that has
-    # docs/ but no v3.19, so they still scan the whole docs/ folder.
-    active = root / "docs" / "v3" / "v3.19"
-    if active.is_dir():
-        tree = active
-    else:
-        tree = docs_root(root)
-    if not tree.is_dir():
+    tree = resolve_scan_tree(root)
+    if tree is None:
         return [f"MISS: docs tree not found under {root}"]
     findings: list[str] = []
     findings.extend(check_dirs(tree))
@@ -186,8 +269,7 @@ def main(argv: list[str] | None = None) -> int:
         for item in findings:
             print(f"  {item}", file=sys.stderr)
         return 1
-    active = root / "docs" / "v3" / "v3.19"
-    shown = active if active.is_dir() else docs_root(root)
+    shown = resolve_scan_tree(root) or docs_root(root)
     print(f"OK: docs conventions hold under {shown}")
     return 0
 

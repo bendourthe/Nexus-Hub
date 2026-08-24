@@ -1,51 +1,29 @@
 {
   "name": "nexus-hub",
-  "displayName": "Nexus Hub",
-  "tagline": "Production-Grade Brain Upgrades for Your AI Coding Assistant",
-  "description": "Enterprise-grade skill harness for AI coding assistants -- the upstream catalog for the Nexus desktop app and every major agent (Claude Code, OpenAI Codex, Gemini, GitHub Copilot, Cursor, GitHub CLI). 203+ curated skills, 33 commands, 14 hooks, cross-platform.",
-  "version": "2.0.0",
-  "author": "Benjamin Dourthe",
-  "license": "MIT",
-  "repository": "https://github.com/bendourthe/Nexus-Hub",
-  "homepage": "https://github.com/bendourthe/Nexus-Hub",
-  "keywords": [
-    "ai-skills",
-    "claude-code",
-    "cursor",
-    "gemini",
-    "copilot",
-    "developer-tools",
-    "code-review",
-    "testing",
-    "security",
-    "architecture",
-    "compliance",
-    "infrastructure",
-    "multi-agent"
-  ],
-  "stats": {
-    "skills": 197,
-    "commands": 34,
-    "hooks": 14,
-    "agents": 10,
-    "categories": 22
+  "description": "Nexus-Hub catalog as a Claude Code plugin marketplace. The installer remains the primary path for every platform, hooks, and nexus-hub upgrade.",
+  "owner": {
+    "name": "Benjamin Dourthe",
+    "url": "https://github.com/bendourthe"
   },
-  "platforms": [
-    "claude-code",
-    "cursor",
-    "gemini-cli",
-    "github-copilot",
-    "openai-codex"
-  ],
-  "install": {
-    "claude-code": {
-      "method": "installer",
-      "command": "bash <(curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh)",
-      "note": "Also supports: claude plugin install nexus-hub@bendourthe (requires claude plugin marketplace add)"
-    },
-    "windows": {
-      "method": "installer",
-      "command": "iex (iwr -UseBasicParsing https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.bat).Content"
+  "plugins": [
+    {
+      "name": "nexus-hub",
+      "source": "./",
+      "description": "Full Nexus-Hub catalog for Claude Code: skills, commands, and agents. Hooks, other platforms, and the nexus-hub CLI stay on the installer.",
+      "author": {
+        "name": "Benjamin Dourthe",
+        "url": "https://github.com/bendourthe"
+      },
+      "homepage": "https://github.com/bendourthe/Nexus-Hub",
+      "repository": "https://github.com/bendourthe/Nexus-Hub",
+      "license": "MIT",
+      "category": "development",
+      "tags": [
+        "skills",
+        "commands",
+        "agents",
+        "catalog"
+      ]
     }
-  }
+  ]
 }

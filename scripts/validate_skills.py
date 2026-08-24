@@ -329,6 +329,38 @@ def validate_invocation_policy(skill_file: Path, block: str | None) -> list[str]
     return errors
 
 
+_COMMAND_DISPATCHER_DESC = re.compile(
+    r"^Run the /[A-Za-z0-9][A-Za-z0-9_-]* command\b"
+)
+
+
+def warn_slash_dispatcher_without_policy(
+    skill_file: Path, content: str
+) -> list[str]:
+    """Warn when a catalog skill looks like a command wrapper without the flag.
+
+    Command-derived skills the installer emits already carry
+    ``disable-model-invocation: true``. A hand-authored catalog skill whose
+    description begins ``Run the /X command`` but omits the flag is the same
+    shape without the user-invoked contract. Warning, never error: a catalog
+    skill may legitimately mention a slash command in its description.
+    """
+    fm = parse_frontmatter(content) or {}
+    desc = (fm.get("description") or "").strip()
+    if not _COMMAND_DISPATCHER_DESC.match(desc):
+        return []
+    block = _frontmatter_block(content) or ""
+    scanned = _scan_invocation_fields(block)
+    raw = scanned.get("disable-model-invocation", "").split("#", 1)[0].strip()
+    if raw.lower() == "true":
+        return []
+    return [
+        f"{skill_file}: description starts with 'Run the /X command' but "
+        f"disable-model-invocation is not true. Command wrappers must be "
+        f"user-invoked only."
+    ]
+
+
 def validate_framework_fields(skill_file: Path, block: str | None) -> list[str]:
     """Validate optional framework-mapping fields for YAML list shape.
 
@@ -488,6 +520,8 @@ def validate_skill_dir(
     # Soft rule: per-skill bundled-resource orphan detection
     bundle_warnings = validate_skill_bundles(skill_dir, content)
     warnings.extend(bundle_warnings)
+
+    warnings.extend(warn_slash_dispatcher_without_policy(skill_file, content))
 
     return errors, warnings
 
@@ -943,6 +977,9 @@ def main() -> int:
                 )
                 total_errors.extend(
                     validate_invocation_policy(skill_file, _frontmatter_block(content))
+                )
+                total_warnings.extend(
+                    warn_slash_dispatcher_without_policy(skill_file, content)
                 )
                 total_errors.extend(
                     validate_framework_fields(skill_file, _frontmatter_block(content))

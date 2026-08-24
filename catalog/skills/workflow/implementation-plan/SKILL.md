@@ -236,6 +236,8 @@ Each phase must follow this template exactly:
 
 **Objective**: [What this sub-task accomplishes.]
 
+For a blocking question (not an implementation slice), title it `decision: [the question]` and write the prompt as a decision record: options, what evidence would settle it, and which later sub-tasks it unblocks. Do not start those later sub-tasks until this one is resolved.
+
 **Failure modes** *(required when this sub-task introduces or changes a component)*: [What the component does when its inputs are malformed or absent, when a dependency it calls is unreachable or slow, and when two of its operations conflict.]
 
 **Build class** *(state only where a reader could not otherwise tell)*: [load-bearing, or scaffolding naming what replaces it and when.]
@@ -390,6 +392,7 @@ Before writing the file, outline the phases mentally:
 - What is the minimal foundation that makes everything else possible? (Phase 1)
 - What can be built and tested independently? (each subsequent phase)
 - What is the natural order given dependencies between components?
+- Which work is a **decision ticket** rather than an implementation slice? For work too large for one session, some tickets hold a QUESTION whose resolution is a decision (vendor, architecture fork, policy). Mark those sub-tasks with a `decision:` prefix in the title and resolve them before the implementation tickets they block. Do not bury a blocking question inside an implementation prompt and hope the implementer guesses.
 - Does every feature from Q2 appear somewhere?
 - Where is the installation/packaging step?
 
@@ -460,6 +463,7 @@ Incorporate feedback, then write the final file and re-run the Step 4 closing sa
 | "A phase does not need its own testing sub-task if I test at the end" | Batching all testing into a final phase hides which phase introduced a defect; every phase must end with a testing and stabilization sub-task so failures are localized. |
 | "Error handling is an implementation detail, I will let the implementer decide" | Then nobody decided. "Handle errors" is satisfiable by any behavior including a silent swallow, and the spec deliberately holds only the user-visible edge case, not the handling. If the plan does not name what happens on malformed input, an unreachable dependency, and conflicting operations, that choice gets made mid-implementation by whoever hits it first, under time pressure, without review. |
 | "The stub is obviously temporary, labelling it is busywork" | It is obvious to you today and invisible in the diff tomorrow. An unlabelled hardcoded value reads identically whether it is a shortcut awaiting replacement or the intended implementation, so the reviewer has to guess, and the guess that ships is the one that treats scaffolding as finished. One word per sub-task removes the guess. |
+| "The implementer can pick the vendor while they code the slice" | That hides a blocking decision inside an implementation ticket. Mark it `decision:` and resolve it before the slices it unblocks, or two phases ship incompatible forks. |
 
 ## Verification
 
@@ -482,6 +486,7 @@ Incorporate feedback, then write the final file and re-run the Step 4 closing sa
 - [ ] File written to the resolved `<version_dir>/plans/v<MAJOR>.<MINOR>.<PATCH>-<slug>.md` (canonical `docs/v<MAJOR>/v<MAJOR>.<MINOR>/plans/v<MAJOR>.<MINOR>.<PATCH>-<slug>.md` or legacy `docs/<vSEMVER>/plans/<slug>.md`)
 - [ ] For From-comparison mode: the plan's target version, `<version_dir>`, `**Version**`, `**Filename**`, and `**Seeded from**` all derive from the comparison's `Adoption target:` field so the plan is co-located with its comparison; for a legacy comparison lacking the field, the fallback resolution ran and the one-line note was emitted
 - [ ] User confirmed the phase breakdown before final generation
+- [ ] Blocking questions are titled `decision:` and scheduled before the implementation sub-tasks they unblock
 - [ ] The closing sanitize pass ran on the FINAL plan file (`--strict --fix --root . --path <plan-file>`) and exited 0, with what it cleaned reported in one line
 
 ## Related Skills
@@ -490,6 +495,8 @@ Incorporate feedback, then write the final file and re-run the Step 4 closing sa
 - `[[solution-knowledge-base]]` - writes the `docs/solutions/` store that Phase B.5 grounding reads; closes the capture -> plan half of the compound loop
 - `[[product-strategy]]` - authors the `STRATEGY.md` anchor that Phase B.5 grounding checks the plan against (problem / persona / metrics)
 - `[[model-routing]]` - scores each phase to generic tier and effort, refreshes the four-provider Current model map for `/plan`, and preserves host-native enumeration for direct `/route` switching
+- `[[design-interview]]` - interview engine for unresolved discovery branches and the CONTEXT.md glossary; invoke it, do not restate its questioning rules
+- `[[tasks-to-issues]]` - files plan tasks as GitHub issues; `decision:` titles become `decision`-labeled issues that must be resolved before blocked implementation issues
 - `plan-before-code` - Lightweight planning for individual features within a phase
 - `research-plan-implement` - Structured RPI workflow for a single complex feature
 - `session-history` - Document each completed phase
