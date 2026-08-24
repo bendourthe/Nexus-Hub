@@ -56,7 +56,7 @@ Validation copy is written here; binding it with `aria-describedby` is `accessib
 |---|---|
 | First-use empty | Say what this place is for and the one next action ("Create your first invoice") |
 | Zero result after a search | Repeat the query in the message and offer a clear next step (clear filters, different terms) |
-| Loading | Name the wait if it can exceed a second ("Loading invoices…"); a spinner with no text is an accessible-name gap, not a copy gap -- still provide the string |
+| Loading | Name the wait if it can exceed a second ("Loading invoices..."); a spinner with no text is an accessible-name gap, not a copy gap -- still provide the string |
 | Error empty (couldn't load) | What failed + retry or another path |
 
 Do not use "Nothing to see here" or "Oops". Do not illustrate with lorem. See `references/empty-error-and-confirm.md`.

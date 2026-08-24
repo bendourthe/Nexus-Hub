@@ -24,7 +24,7 @@ Do not reuse one string. The user's next click is different in each case.
 - Body: a recoverable reason if you have one ("Check your connection")
 - Action: "Try again"
 
-Loading copy is present tense and specific ("Loading invoices…"). If the wait is under about one second, visible text is optional but the accessible name on the busy indicator is not (`accessibility-engineering`).
+Loading copy is present tense and specific ("Loading invoices..."). If the wait is under about one second, visible text is optional but the accessible name on the busy indicator is not (`accessibility-engineering`).
 
 ## Destructive confirmation
 
