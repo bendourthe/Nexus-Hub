@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.20.0 -->
+<!-- nexus-hub-version: 3.20.1 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 315 skills, 18 commands, 33 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -37,7 +37,13 @@ The two projects are designed to be useful independently: you can install Nexus-
 
 ---
 
-## What's New in v3.20.0
+## What's New in v3.20.1
+
+**Security coverage doubled, with the gates to keep it honest.** Forty independently authored cybersecurity skills (OT, mobile, API abuse, applied crypto, intel ops, zero trust, deception, firmware, smart contracts, wireless, SSVC/SLSA, purple team) plus two categories (`ot-security`, `mobile-security`). Dual-use skills open with an authorization gate. MITRE F3 mapping, an ATT&CK Navigator export, an agentskills.io conformance guard, a committed coverage map, and an 800-line SKILL.md body cap. Catalog is **315 skills** across **23 categories**.
+
+This release changes no opt-in capability, installer flag, or host surface.
+
+## Previously, in v3.20.0
 
 **Agent execution now has an OS-level isolation skill.** `agent-execution-isolation` teaches Landlock, seccomp, network namespaces, per-session ephemeral containers, placeholder credentials, and an out-of-process egress proxy (static rules, optional LLM judge, SSRF/RFC-1918 blocks, human escalation). `/review security` engages it when the reviewed project spawns agents, holds agent credentials, or makes agent-driven egress calls.
 

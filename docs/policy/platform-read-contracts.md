@@ -2,7 +2,7 @@
 
 This is the durable, sourced source of truth for where every supported platform READS each surface (instruction file, slash commands, skills, agents, rules, hooks) and where the Nexus-Hub installer WRITES it. It supersedes the point-in-time snapshot at `docs/v3/v3.11/platform-read-contracts.md` (which resolved the v3.11.0 Phase 7 audit but left the Codex and Antigravity contracts flagged as unverified).
 
-**Last verified**: 2026-08-23 for v3.20.0 (catalog-only release; no discovery-path change; same-day re-fetch of Claude and Cursor skill-discovery pages MATCH; remaining platforms unchanged from the v3.19.2 same-day pass).
+**Last verified**: 2026-08-23 for v3.20.1 (catalog-only release; no discovery-path change; same-day re-fetch of Claude and Cursor skill-discovery pages MATCH; remaining platforms unchanged from the v3.20.0 same-day pass).
 
 **v3.17.4 pass (full).** All ten contract platforms and all sixteen defaults-lever platforms were re-fetched from live first-party documentation. Every public discovery page returned HTTP 200 and retained the path marker used by Nexus-Hub. The read-path contract remains functional: eight MATCH, one non-breaking Codex DRIFT, and one UNVERIFIED Nexus-AI surface. Cursor and Claude retain their distinct hook response protocols, and Org Knowledge writes only the existing instruction and rules destinations, so no adapter path changes in this release.
 
@@ -142,6 +142,16 @@ The machine-readable source of truth is the sibling `docs/policy/platform-read-c
 The catalog itself is never reorganized per platform. Each integration is an adapter that materializes the canonical catalog into the shape below via the shared helpers in `scripts/lib/integrations/_catalog_adapters.py` (`flatten_skills`, `commands_to_skills`, `commands_to_slash`).
 
 ## Re-verification log
+
+### 2026-08-23 (v3.20.1 release - catalog-only, same-day re-fetch)
+
+v3.20.1 adds forty independently authored cybersecurity skills, F3/Navigator/conformance tooling, and an 800-line SKILL.md body cap. It changes no discovery path (installer diffs vs v3.20.0 are version constants only). Public skill-discovery pages for Claude and Cursor were re-fetched; remaining platforms are unchanged from the v3.20.0 same-day pass:
+
+- Claude MATCH: personal `~/.claude/skills/<name>/SKILL.md` and project `.claude/skills/<name>/SKILL.md`. [Source](https://code.claude.com/docs/en/skills)
+- Cursor MATCH: `.cursor/skills/`, `.agents/skills/`, `~/.cursor/skills/`, `~/.agents/skills/`, recursive. [Source](https://cursor.com/docs/skills)
+- Other platforms: unchanged from the v3.20.0 same-day pass below (OpenCode MATCH; Gemini CLI MATCH; Qwen MATCH; Antigravity MATCH; Codex DRIFT unchanged; Kimi MATCH; Nexus-AI UNVERIFIED).
+
+No adapter, installer path, `contract_checks` row, or `install_verify` row changed.
 
 ### 2026-08-23 (v3.20.0 release - catalog-only, same-day re-fetch)
 
