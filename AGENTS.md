@@ -149,7 +149,7 @@ nist_csf: [DE.CM, DE.AE]
 
 Companion file: when a skill declares any of these fields, it SHOULD ship a `references/standards.md` that documents the mapping (what each ID means, why it applies to this skill, and the public source URL for the framework definition). The orphan-bundle audit will warn if `references/standards.md` exists but is not referenced from `SKILL.md`; otherwise the file is purely additive.
 
-These fields exist so a downstream generator (e.g. `scripts/build_framework_coverage.py`) can emit a coverage matrix across Nexus-Hub's security skills. They are NOT a substitute for the skill body -- the body must still teach the agent what to do, with binary Verification and Common Rationalizations.
+These fields exist so a downstream generator (e.g. `scripts/build_framework_coverage.py`) can emit a coverage matrix across Nexus-Hub's security skills. The committed matrix is `docs/framework-coverage.md` (Navigator layer: `docs/attack-navigator-layer.json`); `build_framework_coverage.py --check` fails `make validate` when either file is stale. They are NOT a substitute for the skill body -- the body must still teach the agent what to do, with binary Verification and Common Rationalizations.
 
 #### agentskills.io conformance
 

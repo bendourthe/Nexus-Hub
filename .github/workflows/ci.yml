@@ -188,6 +188,14 @@ jobs:
         # internal; listed in DEV_ONLY_SCRIPTS; not installer-copied.
         run: python scripts/check_agentskills_conformance.py
 
+      - name: Validate framework-coverage map freshness (v3.20.1 Phase 2)
+        # Regenerates docs/framework-coverage.md and
+        # docs/attack-navigator-layer.json in memory and fails if the
+        # committed copies drifted. Same validate job; no new required context.
+        # build_framework_coverage.py is already installer-copied; --check is
+        # an additive flag.
+        run: python scripts/build_framework_coverage.py --check
+
       - name: Trigger-and-routing eval (description near-collision + routing gate) (v3.15.2)
         # Deterministic, model-free, stdlib-only HARD GATE: fails CI on any
         # un-allowlisted skill-description near-collision OR any per-skill

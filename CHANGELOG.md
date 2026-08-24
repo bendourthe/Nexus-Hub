@@ -14,6 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **MITRE F3 framework field.** `mitre_f3` is a sixth optional SKILL.md frontmatter mapping (MITRE Fight Fraud Framework). Absence is never an error; a scalar where a list is expected fails `validate_skills.py --bundles-only`. `build_framework_coverage.py` renders it beside the other five frameworks.
 - **ATT&CK Navigator layer export.** `build_framework_coverage.py --navigator-layer <path>` writes a deterministic Navigator layer JSON from `mitre_attack` values already on disk. Score is the number of skills covering each technique.
 - **agentskills.io conformance guard.** `scripts/check_agentskills_conformance.py` proves the open-standard `name` / `description` contract in `make validate` and CI. It is repo-internal (`DEV_ONLY_SCRIPTS`). Thirteen pre-existing over-1024-character descriptions are grandfathered; a new over-long description fails.
+- **Committed framework coverage map.** `docs/framework-coverage.md` and `docs/attack-navigator-layer.json` are generated artifacts. `build_framework_coverage.py --check` fails `make validate` and CI when either file is stale. CRLF vs LF is not treated as drift.
+- **Framework `references/standards.md` companion.** Every skill that declares a framework field now ships `references/standards.md` naming each declared ID, why it applies, and the official source URL. `skill-security-scan` was the one missing file (21 declaring skills in the live catalog, not the 19 the plan counted).
 
 ## [3.20.0] - 2026-08-23
 

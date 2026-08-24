@@ -154,3 +154,102 @@ def test_navigator_layer_techniques_match_distinct_mitre_attack(
     assert result.returncode == 0, result.stderr
     payload = json.loads(layer_path.read_text(encoding="utf-8"))
     assert len(payload["techniques"]) == 3
+
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+
+
+def _generate_pair(tmp_path: Path, runner, extra_skills: list[tuple] | None = None) -> tuple[Path, Path]:
+    """Write a tagged skill tree and generate both committed-style artifacts."""
+    write_skill(tmp_path, "tagged", mitre_attack="[T1055]")
+    if extra_skills:
+        for args in extra_skills:
+            write_skill(tmp_path, *args)
+    markdown_path = tmp_path / "framework-coverage.md"
+    layer_path = tmp_path / "attack-navigator-layer.json"
+    result = runner(
+        SCRIPT,
+        tmp_path,
+        ["--out", str(markdown_path), "--navigator-layer", str(layer_path)],
+    )
+    assert result.returncode == 0, result.stderr
+    return markdown_path, layer_path
+
+
+def test_markdown_carries_generated_header(tmp_path: Path, runner) -> None:
+    markdown_path, _ = _generate_pair(tmp_path, runner)
+    text = markdown_path.read_text(encoding="utf-8")
+    assert "GENERATED FILE" in text
+    assert "Do not edit by hand" in text
+    assert "python scripts/build_framework_coverage.py" in text
+
+
+def test_check_passes_when_artifacts_match(tmp_path: Path, runner) -> None:
+    markdown_path, layer_path = _generate_pair(tmp_path, runner)
+    result = runner(
+        SCRIPT,
+        tmp_path,
+        ["--check", "--out", str(markdown_path), "--navigator-layer", str(layer_path)],
+    )
+    assert result.returncode == 0, result.stderr
+    assert "in sync" in result.stdout
+
+
+def test_check_fails_when_markdown_drifts(tmp_path: Path, runner) -> None:
+    markdown_path, layer_path = _generate_pair(tmp_path, runner)
+    markdown_path.write_text(
+        markdown_path.read_text(encoding="utf-8") + "\n<!-- drift -->\n",
+        encoding="utf-8",
+    )
+    result = runner(
+        SCRIPT,
+        tmp_path,
+        ["--check", "--out", str(markdown_path), "--navigator-layer", str(layer_path)],
+    )
+    assert result.returncode == 1
+    assert "stale committed file" in result.stderr
+    assert "framework-coverage.md" in result.stderr.replace("\\", "/")
+
+
+def test_check_fails_when_artifact_missing(tmp_path: Path, runner) -> None:
+    write_skill(tmp_path, "tagged", mitre_attack="[T1055]")
+    missing_md = tmp_path / "missing-coverage.md"
+    missing_layer = tmp_path / "missing-layer.json"
+    result = runner(
+        SCRIPT,
+        tmp_path,
+        ["--check", "--out", str(missing_md), "--navigator-layer", str(missing_layer)],
+    )
+    assert result.returncode == 1
+    assert "missing committed file" in result.stderr
+
+
+def test_check_treats_crlf_as_equal_to_lf(tmp_path: Path, runner) -> None:
+    markdown_path, layer_path = _generate_pair(tmp_path, runner)
+    markdown_path.write_bytes(markdown_path.read_bytes().replace(b"\n", b"\r\n"))
+    layer_path.write_bytes(layer_path.read_bytes().replace(b"\n", b"\r\n"))
+    result = runner(
+        SCRIPT,
+        tmp_path,
+        ["--check", "--out", str(markdown_path), "--navigator-layer", str(layer_path)],
+    )
+    assert result.returncode == 0, result.stderr
+
+
+def test_check_passes_against_committed_catalog_artifacts(runner) -> None:
+    result = runner(
+        SCRIPT,
+        REPO_ROOT / "catalog" / "skills",
+        ["--check"],
+    )
+    assert result.returncode == 0, result.stderr
+
+
+def test_check_wired_into_makefile_and_ci() -> None:
+    makefile = (REPO_ROOT / "Makefile").read_text(encoding="utf-8")
+    workflow = (REPO_ROOT / ".github" / "workflows" / "ci.yml").read_text(
+        encoding="utf-8"
+    )
+    needle = "python scripts/build_framework_coverage.py --check"
+    assert needle in makefile
+    assert needle in workflow

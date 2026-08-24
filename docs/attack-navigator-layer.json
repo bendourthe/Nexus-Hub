@@ -1,0 +1,202 @@
+{
+  "description": "Nexus-Hub catalog coverage of MITRE ATT&CK techniques, derived from mitre_attack frontmatter on SKILL.md files. Score is the number of skills that teach the technique.",
+  "domain": "enterprise-attack",
+  "name": "Nexus-Hub ATT&CK coverage",
+  "techniques": [
+    {
+      "comment": "hunting-credential-dumping",
+      "score": 1,
+      "techniqueID": "T1003"
+    },
+    {
+      "comment": "hunting-credential-dumping, memory-forensics, security-framework-mapping",
+      "score": 3,
+      "techniqueID": "T1003.001"
+    },
+    {
+      "comment": "hunting-credential-dumping",
+      "score": 1,
+      "techniqueID": "T1003.002"
+    },
+    {
+      "comment": "hunting-credential-dumping",
+      "score": 1,
+      "techniqueID": "T1003.003"
+    },
+    {
+      "comment": "lateral-movement-detection",
+      "score": 1,
+      "techniqueID": "T1021"
+    },
+    {
+      "comment": "lateral-movement-detection",
+      "score": 1,
+      "techniqueID": "T1021.001"
+    },
+    {
+      "comment": "lateral-movement-detection",
+      "score": 1,
+      "techniqueID": "T1021.002"
+    },
+    {
+      "comment": "malware-triage-analysis",
+      "score": 1,
+      "techniqueID": "T1027"
+    },
+    {
+      "comment": "skill-security-scan",
+      "score": 1,
+      "techniqueID": "T1041"
+    },
+    {
+      "comment": "persistence-mechanism-hunting",
+      "score": 1,
+      "techniqueID": "T1053"
+    },
+    {
+      "comment": "endpoint-edr-detection, malware-triage-analysis, memory-forensics",
+      "score": 3,
+      "techniqueID": "T1055"
+    },
+    {
+      "comment": "agentic-endpoint-hardening, disk-artifact-forensics, endpoint-edr-detection, log-threat-hunting, malware-triage-analysis, siem-detection-engineering, skill-security-scan",
+      "score": 7,
+      "techniqueID": "T1059"
+    },
+    {
+      "comment": "disk-artifact-forensics",
+      "score": 1,
+      "techniqueID": "T1070"
+    },
+    {
+      "comment": "agent-execution-isolation, log-threat-hunting, security-framework-mapping, siem-detection-engineering",
+      "score": 4,
+      "techniqueID": "T1071"
+    },
+    {
+      "comment": "cloud-audit-log-detection, cloud-security-posture-detection, identity-threat-detection",
+      "score": 3,
+      "techniqueID": "T1078"
+    },
+    {
+      "comment": "cloud-audit-log-detection",
+      "score": 1,
+      "techniqueID": "T1098"
+    },
+    {
+      "comment": "identity-threat-detection",
+      "score": 1,
+      "techniqueID": "T1110"
+    },
+    {
+      "comment": "skill-security-scan",
+      "score": 1,
+      "techniqueID": "T1195"
+    },
+    {
+      "comment": "endpoint-edr-detection",
+      "score": 1,
+      "techniqueID": "T1218"
+    },
+    {
+      "comment": "ransomware-incident-response",
+      "score": 1,
+      "techniqueID": "T1486"
+    },
+    {
+      "comment": "ransomware-incident-response",
+      "score": 1,
+      "techniqueID": "T1489"
+    },
+    {
+      "comment": "ransomware-incident-response",
+      "score": 1,
+      "techniqueID": "T1490"
+    },
+    {
+      "comment": "cloud-audit-log-detection, cloud-security-posture-detection",
+      "score": 2,
+      "techniqueID": "T1530"
+    },
+    {
+      "comment": "persistence-mechanism-hunting",
+      "score": 1,
+      "techniqueID": "T1543"
+    },
+    {
+      "comment": "agentic-endpoint-hardening, persistence-mechanism-hunting",
+      "score": 2,
+      "techniqueID": "T1546"
+    },
+    {
+      "comment": "disk-artifact-forensics, persistence-mechanism-hunting",
+      "score": 2,
+      "techniqueID": "T1547"
+    },
+    {
+      "comment": "skill-security-scan",
+      "score": 1,
+      "techniqueID": "T1548"
+    },
+    {
+      "comment": "lateral-movement-detection",
+      "score": 1,
+      "techniqueID": "T1550"
+    },
+    {
+      "comment": "agent-execution-isolation, skill-security-scan",
+      "score": 2,
+      "techniqueID": "T1552"
+    },
+    {
+      "comment": "identity-threat-detection",
+      "score": 1,
+      "techniqueID": "T1556"
+    },
+    {
+      "comment": "phishing-analysis-and-defense",
+      "score": 1,
+      "techniqueID": "T1566"
+    },
+    {
+      "comment": "phishing-analysis-and-defense",
+      "score": 1,
+      "techniqueID": "T1566.001"
+    },
+    {
+      "comment": "phishing-analysis-and-defense",
+      "score": 1,
+      "techniqueID": "T1566.002"
+    },
+    {
+      "comment": "cloud-security-posture-detection",
+      "score": 1,
+      "techniqueID": "T1578"
+    },
+    {
+      "comment": "container-runtime-detection",
+      "score": 1,
+      "techniqueID": "T1610"
+    },
+    {
+      "comment": "agent-execution-isolation, agentic-endpoint-hardening, container-runtime-detection",
+      "score": 3,
+      "techniqueID": "T1611"
+    },
+    {
+      "comment": "container-runtime-detection",
+      "score": 1,
+      "techniqueID": "T1613"
+    },
+    {
+      "comment": "memory-forensics",
+      "score": 1,
+      "techniqueID": "T1620"
+    }
+  ],
+  "versions": {
+    "attack": "17",
+    "layer": "4.5",
+    "navigator": "5.1.0"
+  }
+}

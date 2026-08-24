@@ -26,10 +26,12 @@ Usage:
     python scripts/build_framework_coverage.py --format json
     python scripts/build_framework_coverage.py --out docs/framework-coverage.md
     python scripts/build_framework_coverage.py --navigator-layer docs/attack-navigator-layer.json
+    python scripts/build_framework_coverage.py --check
     python scripts/build_framework_coverage.py --root catalog/skills/security
 
-Exit code is 0 on success and 1 only on an I/O / argument error (a catalog with
-no tagged skills is a successful empty matrix, not a failure).
+Exit code is 0 on success. Exit 1 on an I/O / argument error, or when `--check`
+finds the committed coverage Markdown or Navigator layer out of date. A catalog
+with no tagged skills is a successful empty matrix, not a failure.
 """
 
 from __future__ import annotations
@@ -63,6 +65,14 @@ NAVIGATOR_LAYER_VERSIONS: dict[str, str] = {
 }
 
 FRAMEWORK_FIELDS = {field for field, _ in FRAMEWORKS}
+
+DEFAULT_COVERAGE_MD = Path("docs/framework-coverage.md")
+DEFAULT_NAVIGATOR_LAYER = Path("docs/attack-navigator-layer.json")
+REGENERATE_COMMAND = (
+    "python scripts/build_framework_coverage.py "
+    "--out docs/framework-coverage.md "
+    "--navigator-layer docs/attack-navigator-layer.json"
+)
 
 
 # ---------------------------------------------------------------------------
@@ -176,13 +186,30 @@ def build_coverage(root: Path) -> dict[str, dict[str, list[str]]]:
 # Rendering
 # ---------------------------------------------------------------------------
 
+def display_root(root: Path) -> str:
+    """Return a stable posix path so --check does not depend on how --root was spelled."""
+    try:
+        return root.resolve().relative_to(Path.cwd().resolve()).as_posix()
+    except ValueError:
+        return root.as_posix()
+
+
 def render_markdown(coverage: dict[str, dict[str, list[str]]], root: Path) -> str:
     """Render the coverage matrix as a Markdown document."""
     lines: list[str] = []
+    lines.append("<!-- GENERATED FILE. Do not edit by hand.")
+    lines.append(f"     Regenerate with: {REGENERATE_COMMAND}")
+    lines.append("-->")
+    lines.append("")
     lines.append("# Security Framework Coverage Matrix")
     lines.append("")
     lines.append(
-        f"Generated from optional framework-mapping frontmatter across `{root.as_posix()}`. "
+        "GENERATED from optional framework-mapping frontmatter. Never hand-edit this file; "
+        f"run `{REGENERATE_COMMAND}` instead."
+    )
+    lines.append("")
+    lines.append(
+        f"Scanned `{display_root(root)}`. "
         "Each row links a public framework control ID to the Nexus-Hub skills tagged with it. "
         "See `catalog/skills/security/security-framework-mapping/SKILL.md` for the tagging convention."
     )
@@ -265,6 +292,21 @@ def render_navigator_layer(coverage: dict[str, dict[str, list[str]]]) -> str:
     return json.dumps(layer, indent=2, sort_keys=True) + "\n"
 
 
+def normalize_newlines(text: str) -> str:
+    """Collapse CRLF to LF so --check is host-independent."""
+    return text.replace("\r\n", "\n")
+
+
+def files_match(path: Path, expected: str) -> str | None:
+    """Return an error message if path is missing or differs from expected."""
+    if not path.is_file():
+        return f"missing committed file {path.as_posix()}"
+    actual = normalize_newlines(path.read_text(encoding="utf-8"))
+    if actual != expected:
+        return f"stale committed file {path.as_posix()} (regenerate with: {REGENERATE_COMMAND})"
+    return None
+
+
 def write_text(path: Path, text: str) -> None:
     """Write UTF-8 text with LF newlines so re-runs are byte-identical."""
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -310,6 +352,15 @@ def main() -> int:
             "files (alongside, not instead of, the coverage matrix)"
         ),
     )
+    parser.add_argument(
+        "--check",
+        action="store_true",
+        help=(
+            "Regenerate the coverage Markdown and Navigator layer in memory "
+            "and exit 1 if the committed files differ. Defaults to "
+            f"{DEFAULT_COVERAGE_MD} and {DEFAULT_NAVIGATOR_LAYER}."
+        ),
+    )
     args = parser.parse_args()
 
     if not args.root.exists():
@@ -317,6 +368,34 @@ def main() -> int:
         return 1
 
     coverage = build_coverage(args.root)
+
+    if args.check:
+        markdown_path = args.out if args.out is not None else DEFAULT_COVERAGE_MD
+        layer_path = (
+            args.navigator_layer
+            if args.navigator_layer is not None
+            else DEFAULT_NAVIGATOR_LAYER
+        )
+        expected_markdown = render_markdown(coverage, args.root)
+        expected_layer = render_navigator_layer(coverage)
+        errors = [
+            message
+            for message in (
+                files_match(markdown_path, expected_markdown),
+                files_match(layer_path, expected_layer),
+            )
+            if message
+        ]
+        if errors:
+            for message in errors:
+                print(f"ERROR: {message}", file=sys.stderr)
+            return 1
+        print(
+            f"OK: framework coverage in sync "
+            f"({markdown_path.as_posix()}, {layer_path.as_posix()})"
+        )
+        return 0
+
     rendered = render_json(coverage, args.root) if args.format == "json" else render_markdown(coverage, args.root)
 
     if args.out is not None:

@@ -38,7 +38,7 @@ Use this skill when:
 
 ## The 16 Detection Classes
 
-The detector covers 16 vulnerability classes. Each class, its description, and its MITRE ATT&CK / D3FEND / NIST framework identifiers with public-source URLs are documented in [references/detection-classes.md](references/detection-classes.md). Read that file when you need the precise definition of a class or the framework identifier to tag a finding with. The headline classes you will adjudicate most often are prompt injection, data exfiltration, behavioral AST (exec/eval/subprocess), and MCP tool poisoning.
+The detector covers 16 vulnerability classes. Each class, its description, and its MITRE ATT&CK / D3FEND / NIST framework identifiers with public-source URLs are documented in [references/detection-classes.md](references/detection-classes.md). Read that file when you need the precise definition of a class or the framework identifier to tag a finding with. The skill-level identifiers declared in this file's frontmatter, and why each applies to this adjudication skill, are in [references/standards.md](references/standards.md). The headline classes you will adjudicate most often are prompt injection, data exfiltration, behavioral AST (exec/eval/subprocess), and MCP tool poisoning.
 
 ## Instructions
 
@@ -104,11 +104,12 @@ Emit a short adjudication record: the target, the verdict, the kept findings wit
 - [ ] For a CI catalog gate, the verdict reflects only adjudicated HIGH/CRITICAL findings (false positives were filtered before the gate decision).
 - [ ] An adjudication record was emitted (target, verdict, kept findings, filtered false positives).
 - [ ] No offensive, exploit, or evasion content was produced.
+- [ ] The declared framework identifiers in frontmatter are documented in references/standards.md (every ID named).
 
 ## Related Skills
 
 - [[security-review]] - OWASP-oriented review of application source code; this skill is narrower (skill artifacts) and adjudicates a deterministic scanner's output.
 - [[dependency-security-audit]] - CVE and supply-chain triage for dependencies; feeds the scanner's optional dependency-lookup findings into this adjudication.
-- [[security-framework-mapping]] - assign MITRE ATT&CK / D3FEND / NIST identifiers to a finding; this skill links to that mapping in references/detection-classes.md.
+- [[security-framework-mapping]] - assign MITRE ATT&CK / D3FEND / NIST identifiers to a finding; this skill's declared skill-level mapping lives in references/standards.md, and per-class identifiers live in references/detection-classes.md.
 - [[pre-commit-checklist]] - pre-commit security scanning that can invoke the scanner before a skill is committed or imported.
 - [[code-quality]] - general code-quality review, for findings that are quality issues rather than security risks.
