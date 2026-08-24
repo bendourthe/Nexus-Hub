@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`setup-wizard-generator` skill.** Generates a resumable human-only setup wizard from bundled `wizard-template.sh` and `wizard-template.ps1` siblings. The agent adapts the templates and does not run privileged steps.
 - **`decision-questionnaire` skill.** Send-ready Markdown questionnaire for the one stakeholder who can unblock an in-session decision. Catalog count is 324.
 - **Recursive context-harness reference.** `ai-agent-development/references/recursive-context-harness.md` describes context-as-a-kernel-variable, tool use as code over that variable, and recursive delegation as async handles. Linked from the skill body; not a shipped kernel.
+- **Claude Code plugin marketplace package.** `.claude-plugin/marketplace.json` now matches the current Claude Code marketplace schema (`owner` + `plugins`). `plugin.json` exposes the full catalog (every `catalog/skills/<category>` path, plus commands and agents). Hooks stay on the installer. README documents `/plugin marketplace add bendourthe/Nexus-Hub` as a subscribe-style alternative, including the trailing-pin caveat. Maintainer submission draft: `docs/v3/v3.20/development/claude-marketplace-submission.md`. The external form is not submitted from this change.
 
 ### Changed
 

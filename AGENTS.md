@@ -49,7 +49,7 @@ Existing categories: `ai-development`, `architecture`, `bug-fixing`, `business-p
 
 The `security` category holds application-security skills (authentication, dependency/CVE analysis, exploitability, patch advice). The `security-operations` category (added v2.3.0) holds defensive operational skills: DFIR, threat hunting, detection engineering, incident response, and cloud / endpoint / identity / phishing detection. The `ot-security` category (added v3.20.1) holds industrial-control and operational-technology skills. The `mobile-security` category (added v3.20.1) holds Android/iOS application and mobile-malware skills. Place a new defensive-operations skill under `security-operations`; place an application-security or AppSec-review skill under `security`; place ICS/SCADA work under `ot-security`; place mobile-app or mobile-malware work under `mobile-security`.
 
-If none fit, discuss with maintainers before creating a new category.
+If none fit, discuss with maintainers before creating a new category. When a new category directory is created, also add `./catalog/skills/<category>` to the `skills` array in `.claude-plugin/plugin.json`. Claude Code plugin discovery is one level per listed path and does not recurse through the category layer. `tests/validators/test_claude_plugin_manifests.py` fails if that array drifts from `catalog/skills/` on disk.
 
 ### 2. Create the skill directory
 

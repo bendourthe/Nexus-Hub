@@ -181,6 +181,19 @@ After the installer completes:
 
 **Power-user flags**: `--workspace <path>` installs into a single repo instead of globally; `--platforms <comma-list>` limits the install to a subset of assistants; `--yes` runs fully unattended (refreshes managed files with no prompt -- ideal for CI). Prefer to clone first? `git clone` the repo and run `./install.sh` (macOS / Linux) or `install.bat` (Windows) -- the in-repo path still works exactly as before.
 
+### Claude Code plugin (subscribe-style alternative)
+
+The installer above is the primary path: every platform, hooks, and `nexus-hub upgrade`. Claude Code users who only want the catalog as a plugin can subscribe instead:
+
+```
+/plugin marketplace add bendourthe/Nexus-Hub
+/plugin install nexus-hub@nexus-hub
+```
+
+This is not a replacement for the installer. It does not install hooks, other platforms, or the `nexus-hub` CLI.
+
+If Anthropic later lists Nexus-Hub in `claude-plugins-official`, that listing is pinned to a git SHA that can lag tagged releases. Marketplace users may trail `main`. Prefer the installer, or this repo's marketplace added from a release tag, when you need the current release. The maintainer submission draft is [`docs/v3/v3.20/development/claude-marketplace-submission.md`](docs/v3/v3.20/development/claude-marketplace-submission.md).
+
 ### Installing a subset (selective installation)
 
 By default you get the whole catalog. If you want a smaller install, pick a **profile**, one or more **capability modules**, or one or more **role bundles**. Selectors combine by union.
