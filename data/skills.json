@@ -6,7 +6,7 @@
     "description": "Comprehensive catalog of Nexus-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-        "total_skills": 316,
+        "total_skills": 318,
     "categories": {
       "ai-development": 14,
       "architecture": 7,
@@ -15,7 +15,7 @@
       "code-cleanup": 10,
       "code-review": 15,
       "compliance": 9,
-      "developer-experience": 33,
+      "developer-experience": 35,
       "documentation": 6,
       "framework-specialists": 6,
       "infrastructure": 19,
@@ -11138,6 +11138,82 @@
         "lines": 135,
         "characters": 10924,
         "tokens_estimate": 1092
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "layout-and-spacing",
+      "title": "layout-and-spacing",
+      "description": "\"Own grouping, spacing scales, breakpoints, and RTL mirroring. Use for layout, spacing, density, alignment, disclosure, or responsive structure. SKIP: focus order (accessibility-engineering) and component architecture (frontend-ui-engineering).\"",
+      "long_description": "Own spatial grouping, spacing scales, breakpoints, and RTL mirroring. Hand off focus order and component architecture.",
+      "summary_l0": "\"Structure UI spatially with grouping, spacing scales, and adaptive breakpoints\"",
+      "overview_l1": "\"This skill owns spatial structure: grouping and proximity, alignment and visual reading order, spacing scales and density, progressive disclosure, responsive breakpoints, and logical CSS properties for RTL mirroring. Focus order and heading semantics belong to accessibility-engineering. Truncation mechanics belong to web-typography; this skill decides whether the layout has room or needs an expansion affordance. Component architecture and state belong to frontend-ui-engineering. Match the project's existing styling system.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "developer-experience",
+      "language": "Multi-language",
+      "tags": [
+        "layout",
+        "spacing",
+        "responsive",
+        "rtl"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Edit"
+      ],
+      "path": "catalog/skills/developer-experience/layout-and-spacing/",
+      "file": "catalog/skills/developer-experience/layout-and-spacing/SKILL.md",
+      "size": {
+        "lines": 106,
+        "characters": 8290,
+        "tokens_estimate": 829
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "interface-copy",
+      "title": "interface-copy",
+      "description": "\"Write in-product UI microcopy: buttons, errors, empty states, settings, confirmations. Use for button labels, validation messages, or empty-state copy. SKIP: docs (writing-editing, technical-writer), anti-slop-editing, and internal-comms.\"",
+      "long_description": "Write in-product microcopy for actions, errors, empty states, and confirmations. Not docs, not memos.",
+      "summary_l0": "\"Write in-product UI microcopy for actions, errors, and empty states\"",
+      "overview_l1": "\"This skill owns text that ships inside the product UI: action labels, error and validation messages, empty loading and zero-result states, settings and permission wording, confirmation and destructive-action copy, and terminology consistency. Long-form docs belong to writing-editing or technical-writer. AI-slop removal from drafted prose belongs to anti-slop-editing. Internal memos belong to internal-comms. This skill owns the words; web-typography owns wrapping and measure; accessibility-engineering owns accessible names and error association.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "developer-experience",
+      "language": "Multi-language",
+      "tags": [
+        "microcopy",
+        "ux-writing",
+        "empty-state",
+        "errors"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Edit"
+      ],
+      "path": "catalog/skills/developer-experience/interface-copy/",
+      "file": "catalog/skills/developer-experience/interface-copy/SKILL.md",
+      "size": {
+        "lines": 117,
+        "characters": 7388,
+        "tokens_estimate": 738
       },
       "downloads": 0,
       "status": "production",

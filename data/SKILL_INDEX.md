@@ -321,4 +321,6 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | slsa-provenance-and-sigstore-verification | security | "Verify SLSA provenance and Sigstore signatures before admitting artifacts" | catalog/skills/security/slsa-provenance-and-sigstore-verification/SKILL.md |
 | purple-team-exercise-design | security-operations | "Run scoped purple-team TTP emulation with detection owners and a scorecard" | catalog/skills/security-operations/purple-team-exercise-design/SKILL.md |
 | accessibility-engineering | developer-experience | "Ship and audit accessible UI against keyboard, name, and WCAG rules" | catalog/skills/developer-experience/accessibility-engineering/SKILL.md |
-**Total: 316 skills across 23 categories**
+| layout-and-spacing | developer-experience | "Structure UI spatially with grouping, spacing scales, and adaptive breakpoints" | catalog/skills/developer-experience/layout-and-spacing/SKILL.md |
+| interface-copy | developer-experience | "Write in-product UI microcopy for actions, errors, and empty states" | catalog/skills/developer-experience/interface-copy/SKILL.md |
+**Total: 318 skills across 23 categories**
