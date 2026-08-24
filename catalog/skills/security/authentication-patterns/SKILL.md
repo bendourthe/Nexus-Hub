@@ -888,6 +888,7 @@ When the attacker-perspective methodology is exercised (auditing or red-teaming 
 - [[pre-commit-checklist]] -- security checks before committing auth code
 - [[dependency-security-audit]] -- auditing auth library vulnerabilities
 - [[cicd-architect]] -- securing CI/CD pipelines with service accounts and tokens
+- [[agentic-endpoint-hardening]] -- agent-credential isolation: placeholder keys in the agent environment, real keys injected by a broker outside the trust seam
 
 ---
 

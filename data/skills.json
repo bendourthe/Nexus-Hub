@@ -6,7 +6,7 @@
     "description": "Comprehensive catalog of Nexus-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-    "total_skills": 274,
+    "total_skills": 275,
     "categories": {
       "ai-development": 14,
       "architecture": 7,
@@ -28,11 +28,11 @@
       "testing": 3,
       "tests-generation": 18,
       "workflow": 45,
-      "security-operations": 16
+      "security-operations": 17
     },
     "priorities": {
       "MEDIUM": 269,
-      "HIGH": 4
+      "HIGH": 5
     },
     "total_lines": 130300,
     "total_tokens_estimate": 674131,
@@ -9588,6 +9588,45 @@
         "structural": 100,
         "integrity": 100,
         "semantic": 95
+      }
+    },
+    {
+      "name": "agent-execution-isolation",
+      "title": "agent-execution-isolation",
+      "description": "\"Confine an AI agent with OS-level execution isolation: Landlock filesystem confinement, seccomp syscall filtering, network namespaces, per-session ephemeral containers that mount only listed directories, an out-of-process egress proxy, and placeholder credentials so real API keys never sit inside the agent container. Use this skill whenever the user says \\\"sandbox my agent\\\", \\\"Landlock\\\", \\\"seccomp\\\", \\\"egress proxy for agents\\\", \\\"isolate the agent container\\\", \\\"agent credential isolation\\\", or wants the agent sandboxed so it cannot read SSH keys or exfiltrate data. SKIP: host config-write trust-seam escapes (use [[agentic-endpoint-hardening]]); agent-applied content redaction before send (use [[egress-redaction]]); generic application Dockerfiles with no agent runtime (use [[containerization]]).\"",
+      "long_description": "This skill teaches a three-layer model for running AI agents inside OS-level execution isolation. Layer one is infrastructure: a container sandbox hardened with Landlock filesystem confinement, seccomp syscall filtering, and network namespaces, plus per-session ephemeral containers that mount only explicitly listed directories. Layer two is runtime: keep the in-loop software small and auditable. Layer three is network: assume the container is compromised and put an out-of-process egress boundary in front of it, with static URL rules, an LLM judge for unmatched high-risk requests, SSRF and RFC-1918 blocking, audit logging, and human-in-the-loop escalation. The first-class checklist is where execution happens, what software runs inside the loop, and what leaves the boundary. The skill extends /review security when the reviewed project spawns agents, holds agent credentials, or makes agent-driven egress calls.",
+      "summary_l0": "\"Run agents in OS-level isolation with ephemeral containers and an egress boundary\"",
+      "overview_l1": "\"This skill teaches a three-layer model for running AI agents inside OS-level execution isolation. Layer one is infrastructure: a container sandbox hardened with Landlock filesystem confinement, seccomp syscall filtering, and network namespaces, plus per-session ephemeral containers that mount only explicitly listed directories. Layer two is runtime: keep the in-loop software small and auditable, stripping extra parsers and unpatched helpers. Layer three is network: assume the container is compromised and put an out-of-process egress boundary in front of it, with static URL rules for low-risk traffic, an LLM judge for unmatched high-risk requests, SSRF and RFC-1918 blocking, audit logging, and human-in-the-loop escalation. The first-class checklist is three questions: where does execution happen, what software runs inside the loop, and what leaves the boundary. This skill extends /review security when the reviewed project spawns agents, holds agent credentials, or makes agent-driven egress calls.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security-operations",
+      "language": "Multi-language",
+      "tags": [
+        "security",
+        "security-operations",
+        "execution-isolation",
+        "sandbox",
+        "egress-proxy",
+        "agent-security",
+        "mitre-attack"
+      ],
+      "priority": "HIGH",
+      "based_on": "generalized from public OS-sandbox, ephemeral-container, credential-broker, and egress-boundary patterns plus the MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/v3/v3.20/plans/v3.20.0-adoption-agent-security-layers.md Phase 1)",
+      "tools_required": [],
+      "path": "catalog/skills/security-operations/agent-execution-isolation/",
+      "file": "catalog/skills/security-operations/agent-execution-isolation/SKILL.md",
+      "size": {
+        "lines": 123,
+        "characters": 12592,
+        "tokens_estimate": 1679
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
       }
     },
     {

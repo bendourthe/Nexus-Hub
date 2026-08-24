@@ -31,7 +31,8 @@ The taxonomy and controls below are generalized from publicly disclosed advisori
 - Writing the access-control policy once you already know the seam: use [[agent-access-policy]], which owns the deny-by-default scoping, tool allowlists, and approval gates this threat model feeds.
 - Recognizing or resisting a hostile instruction as it arrives: use [[prompt-injection-defense]], which owns instruction-origin discipline. This skill assumes the agent may already be misdirected and bounds what that costs.
 - Adjudicating scanner findings on an imported skill bundle: use [[skill-security-scan]].
-- Deciding what may leave the machine: use [[egress-redaction]]. This skill covers a local handoff, not an outbound one.
+- Deciding what may leave the machine at the content layer: use [[egress-redaction]]. This skill covers a local handoff, not an outbound one.
+- Confining the agent process with OS-level sandboxing, ephemeral containers, or an out-of-process egress proxy: use [[agent-execution-isolation]]. This skill hardens the host trust seam around that sandbox; it does not replace it.
 
 ## The Config-Write-Then-Executed Pattern
 
@@ -243,6 +244,11 @@ State these plainly wherever the controls are documented, because a control mist
 - [ ] All nine control layers are marked enforced, advisory, or guidance-only for this project, with no layer left unclassified.
 - [ ] The denylist limitation is documented where the denylist lives, so no reader can mistake it for a boundary.
 - [ ] The residual boundary (uninstrumentable executors, allowed daemons, guidance-only layers) is written down as accepted risk rather than omitted.
+- [ ] Live production credentials are absent from the agent environment; substitution happens at a broker outside the trust seam ([references/credential-brokering.md](references/credential-brokering.md)).
+
+## Credential Brokering
+
+The agent process is assumed compromisable. Live API keys in its environment are therefore keys a hijacked session can steal. Hold placeholders only inside the agent; a broker outside the trust seam (an L7 proxy or a host wrapper) attaches real keys solely to egress requests that already passed policy. Wiring, placement options, the approval flow for new endpoints, and the limits of the pattern (it does not protect the broker, and it does not stop misuse of already-approved destinations) are in [references/credential-brokering.md](references/credential-brokering.md). Pair with [[agent-execution-isolation]] for the sandbox and egress architecture, and with [[authentication-patterns]] for application auth protocols.
 
 ## Related Skills
 
@@ -251,5 +257,7 @@ State these plainly wherever the controls are documented, because a control mist
 - [[skill-security-scan]]: adjudicates imported skill bundles, another agent-writable surface that a trusted component later executes.
 - [[egress-redaction]]: the redaction discipline any provenance or seam ledger must apply, namely paths and hashes only, never file bodies or secret material.
 - [[containerization]]: builds the isolated execution tier that is the correct answer when a seam cannot be closed.
+- [[agent-execution-isolation]]: OS-level sandbox, ephemeral per-session containers, and the out-of-process egress boundary this skill's credential-brokering pattern rides on.
+- [[authentication-patterns]]: application OAuth/JWT/MFA; this skill isolates agent-held credentials, it does not design those protocols.
 - [[ai-agent-governance]]: governs a deployed autonomous service agent's lifecycle, risk, security, and observability. Use it instead of this skill when the subject is a production service rather than a local endpoint.
 - [[security-framework-mapping]]: assigns and verifies the framework identifiers declared in this skill's frontmatter.

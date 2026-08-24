@@ -481,6 +481,8 @@ class AgentRiskControls:
 
 ### Step 3: Pillar 3 - Security (Least Privilege)
 
+Before writing RBAC or secret-store code, run the three-question triage in [[agent-execution-isolation]]: does this agent spawn a process that needs OS-level isolation, hold credentials that must stay out of its environment, or make tool-driven network calls that need an out-of-process egress boundary? That skill owns the sandbox, credential-broker, and proxy checklists; this pillar records that they were asked.
+
 ```python
 from functools import wraps
 from typing import Callable
@@ -1070,6 +1072,7 @@ class AIAgentGovernance:
 - [ ] Credential rotation automated
 - [ ] API rate limiting active
 - [ ] TLS for all communications
+- [ ] Three-question isolation triage recorded ([[agent-execution-isolation]]): process sandbox, credential broker, egress boundary
 
 ### Pillar 4: Observability
 - [ ] OpenTelemetry tracing instrumented
@@ -1134,6 +1137,7 @@ class AIAgentGovernance:
 - [[security-review]] -- security vulnerability review for the agent's surrounding code
 - [[ai-agent-development]] -- builds the agents this skill wraps with governance
 - [[ai-billing-safeguards]] -- enforces the spending caps the cost-tracking observability complements
+- [[agent-execution-isolation]] -- OS sandbox, credential brokering, and egress-proxy triage this pillar must ask before treating least-privilege as complete
 
 ---
 
