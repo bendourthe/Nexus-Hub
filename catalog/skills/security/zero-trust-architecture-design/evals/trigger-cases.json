@@ -1,0 +1,48 @@
+{
+  "skill": "zero-trust-architecture-design",
+  "purpose": "Route enterprise ZT architecture here.",
+  "cases": [
+    {
+      "id": "pos-1",
+      "prompt": "CISA zero trust maturity assessment",
+      "should_trigger": true,
+      "assert": "routes to zero-trust-architecture-design first",
+      "lexical": true
+    },
+    {
+      "id": "pos-2",
+      "prompt": "zero trust architecture design",
+      "should_trigger": true,
+      "assert": "routes to zero-trust-architecture-design first",
+      "lexical": true
+    },
+    {
+      "id": "pos-3",
+      "prompt": "beyondcorp style access",
+      "should_trigger": true,
+      "assert": "routes to zero-trust-architecture-design first",
+      "lexical": true
+    },
+    {
+      "id": "neg-1",
+      "prompt": "rack a ZTNA appliance only",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-2",
+      "prompt": "IEC 62443 plant zones",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-3",
+      "prompt": "Kubernetes NetworkPolicy",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    }
+  ]
+}

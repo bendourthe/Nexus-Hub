@@ -6,7 +6,7 @@
     "description": "Comprehensive catalog of Nexus-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-    "total_skills": 275,
+    "total_skills": 315,
     "categories": {
       "ai-development": 14,
       "architecture": 7,
@@ -23,12 +23,14 @@
       "orchestration": 16,
       "project-setup": 5,
       "research": 3,
-      "security": 15,
+      "security": 33,
       "specialized-domains": 14,
       "testing": 3,
       "tests-generation": 18,
       "workflow": 45,
-      "security-operations": 17
+      "security-operations": 29,
+      "ot-security": 5,
+      "mobile-security": 5
     },
     "priorities": {
       "MEDIUM": 269,
@@ -7867,10 +7869,10 @@
     {
       "name": "security-framework-mapping",
       "title": "security-framework-mapping",
-      "description": "Map a security skill, finding, detection, or control to its identifiers across MITRE ATT&CK, MITRE ATLAS, MITRE D3FEND, NIST CSF, and NIST AI RMF, then optionally tag the skill's frontmatter so a coverage matrix can be generated. Make sure to use this skill whenever the user asks \"what ATT&CK technique is this\", \"tag this skill with the framework\", \"which NIST control covers X\", \"map this finding to ATT&CK / D3FEND / ATLAS\", \"build a framework coverage matrix\", \"what AI RMF measure applies here\", or otherwise asks to align a security artifact with a published taxonomy, even when the framework name is implied (e.g., \"what's the technique ID for credential dumping\" implies ATT&CK). SKIP, do NOT use for, threat modeling a new system end-to-end (use architecture-design + a dedicated threat model), running an actual security audit (use run-security-audit), or generating compliance evidence for a specific regulation (use the per-regulation compliance skills like gdpr-compliance, soc2-compliance, iso27001-compliance).",
-      "long_description": "Teaches the agent how to cross-map a security artifact to identifiers from five public taxonomies (MITRE ATT&CK, MITRE ATLAS, MITRE D3FEND, NIST CSF, NIST AI RMF), record the mapping in optional frontmatter fields documented in AGENTS.md, and ship a references/standards.md companion that documents each ID with framework name, short title, rationale, and a deep link to the public source.",
-      "summary_l0": "\"Map security artifacts across MITRE ATT&CK, ATLAS, D3FEND, NIST CSF, and AI RMF\"",
-      "overview_l1": "\"This skill teaches the agent how to cross-map a security artifact (a skill, a finding, a detection, a control) to identifiers from five public taxonomies: MITRE ATT&CK (offensive technique catalog), MITRE ATLAS (adversarial machine learning), MITRE D3FEND (defensive countermeasures), NIST Cybersecurity Framework (Identify / Protect / Detect / Respond / Recover categories), and NIST AI Risk Management Framework (Govern / Map / Measure / Manage subcategories). It covers (a) which framework fits which kind of artifact, (b) how to find the right identifier in each taxonomy, (c) how to record the mapping in a Nexus-Hub skill's optional frontmatter fields (mitre_attack, atlas_techniques, d3fend_techniques, nist_csf, nist_ai_rmf) and a companion references/standards.md, and (d) how the optional tags enable the framework coverage-matrix generator. Trigger phrases: ATT&CK technique, D3FEND countermeasure, NIST CSF mapping, AI RMF measure, ATLAS technique, framework coverage matrix.\"",
+      "description": "Map a security skill, finding, detection, or control to identifiers across MITRE ATT&CK, ATLAS, D3FEND, F3 (Fight Fraud Framework), NIST CSF, and NIST AI RMF, then tag optional frontmatter so a coverage matrix can be generated. Use whenever the user asks \"what ATT&CK technique is this\", \"tag this skill with the framework\", \"which NIST control covers X\", \"map this finding to ATT&CK / D3FEND / ATLAS / F3\", \"build a framework coverage matrix\", \"what AI RMF measure applies here\", \"Fight Fraud Framework\", \"cyber-enabled financial fraud TTPs\", or wants to align a security artifact with a published taxonomy even if the framework name is implied. SKIP, do NOT use for, end-to-end threat modeling (use architecture-design), running a security audit (use run-security-audit), or regulation-specific compliance evidence (use gdpr-compliance, soc2-compliance, iso27001-compliance).",
+      "long_description": "Teaches the agent how to cross-map a security artifact to identifiers from six public taxonomies (MITRE ATT&CK, MITRE ATLAS, MITRE D3FEND, MITRE F3, NIST CSF, NIST AI RMF), record the mapping in optional frontmatter fields documented in AGENTS.md, and ship a references/standards.md companion that documents each ID with framework name, short title, rationale, and a deep link to the public source.",
+      "summary_l0": "\"Map security artifacts across ATT&CK, ATLAS, D3FEND, F3, CSF, and AI RMF\"",
+      "overview_l1": "\"Cross-maps a security artifact to identifiers from six public taxonomies: MITRE ATT&CK, ATLAS, D3FEND, F3 (Fight Fraud Framework v1.1, 2026-04-09, cyber-enabled financial fraud TTPs after initial compromise), NIST CSF, and NIST AI RMF. Covers which framework fits, how to find the identifier, how to record it in optional frontmatter (mitre_attack, atlas_techniques, d3fend_techniques, mitre_f3, nist_csf, nist_ai_rmf) plus references/standards.md, and how those tags feed the coverage-matrix generator. Trigger phrases: ATT&CK technique, D3FEND countermeasure, NIST CSF mapping, AI RMF measure, ATLAS technique, Fight Fraud Framework, F3, framework coverage matrix.\"",
       "version": "1.0.0",
       "author": "Benjamin Dourthe",
       "category": "security",
@@ -9697,6 +9699,1406 @@
         "lines": 108,
         "characters": 7479,
         "tokens_estimate": 1869
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "ioc-enrichment-and-reputation-triage",
+      "title": "ioc-enrichment-and-reputation-triage",
+      "description": "\"Enrich indicators of compromise and triage reputation across DNS, file hashes, URLs, and certificate fingerprints. Use this skill whenever the user says \\\"enrich this IOC\\\", \\\"hash reputation lookup\\\", \\\"URL triage\\\", \\\"passive DNS for this domain\\\", \\\"is this hash known malware\\\", or wants a first-pass verdict on a suspicious indicator. SKIP, do NOT use for, writing malware, scanning random third-party infrastructure, actor dossier writing (use threat-actor-ttp-profiling), or leak-site scraping (use ransomware-leak-site-monitoring).\"",
+      "long_description": "Turn a raw indicator into a sourced reputation verdict before anyone detonates a sample or blocks a domain. The deliverable is a written triage record, not a pile of uncited screenshots.",
+      "summary_l0": "\"Enrich IOCs and assign a documented reputation verdict with sources\"",
+      "overview_l1": "\"This skill turns a raw indicator into a sourced reputation verdict. It covers hash, domain, URL, IP, and certificate enrichment, local cache first, then documented external lookups the user already operates. The output is a triage record with confidence, related infrastructure, and a next action, not a dump of vendor UI. Trigger phrases: enrich this IOC, hash reputation, URL triage, passive DNS, known malware hash.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security-operations",
+      "language": "Multi-language",
+      "tags": [
+        "ioc",
+        "threat-intel"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/security-operations/ioc-enrichment-and-reputation-triage/",
+      "file": "catalog/skills/security-operations/ioc-enrichment-and-reputation-triage/SKILL.md",
+      "size": {
+        "lines": 78,
+        "characters": 4328,
+        "tokens_estimate": 1082
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "threat-actor-ttp-profiling",
+      "title": "threat-actor-ttp-profiling",
+      "description": "\"Build a threat-actor TTP profile from observed behaviors mapped to ATT&CK, not from brand folklore. Use this skill whenever the user says \\\"profile this threat actor\\\", \\\"TTP mapping\\\", \\\"intrusion set behaviors\\\", \\\"map this campaign to ATT&CK\\\", or wants a defender-usable actor dossier. SKIP, do NOT use for, IOC reputation triage (use ioc-enrichment-and-reputation-triage), leak-site watching, or writing intrusion malware.\"",
+      "long_description": "Replace actor folklore with a behavior profile a detection engineer can implement.",
+      "summary_l0": "\"Profile intrusion-set behaviors and map them to ATT&CK for defense\"",
+      "overview_l1": "\"This skill produces a defender-usable actor profile from observed techniques, not from marketing names. It maps behaviors to ATT&CK, records evidence, and lists detections that would catch the same behaviors. Trigger phrases: profile this threat actor, TTP mapping, intrusion set behaviors, map this campaign to ATT&CK.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security-operations",
+      "language": "Multi-language",
+      "tags": [
+        "ttp",
+        "att&ck"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/security-operations/threat-actor-ttp-profiling/",
+      "file": "catalog/skills/security-operations/threat-actor-ttp-profiling/SKILL.md",
+      "size": {
+        "lines": 71,
+        "characters": 3337,
+        "tokens_estimate": 834
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "threat-intel-feed-operations",
+      "title": "threat-intel-feed-operations",
+      "description": "\"Operate threat-intel feeds: ingest, deduplicate, score, expire, and measure downstream detection value. Use this skill whenever the user says \\\"intel feed pipeline\\\", \\\"STIX TAXII ingest\\\", \\\"IOC feed hygiene\\\", \\\"expire stale indicators\\\", or wants to stop a noisy blocklist from paging the SOC. SKIP, do NOT use for, one-off IOC lookups (use ioc-enrichment-and-reputation-triage), or building crawlers that hit third-party sites without authorization.\"",
+      "long_description": "Treat threat feeds as a production data pipeline with owners, SLOs, and expiry, not as a folder of forever-blocklists.",
+      "summary_l0": "\"Run intel-feed ingest, scoring, expiry, and detection-value measurement\"",
+      "overview_l1": "\"This skill runs the feed as a production pipeline: schema, dedup, scoring, expiry, and a feedback loop from detections. A feed that cannot expire is a false-positive engine. Trigger phrases: intel feed pipeline, STIX TAXII ingest, IOC feed hygiene, expire stale indicators.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security-operations",
+      "language": "Multi-language",
+      "tags": [
+        "threat-intel",
+        "feeds"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/security-operations/threat-intel-feed-operations/",
+      "file": "catalog/skills/security-operations/threat-intel-feed-operations/SKILL.md",
+      "size": {
+        "lines": 71,
+        "characters": 3221,
+        "tokens_estimate": 805
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "infrastructure-pivoting-and-attribution",
+      "title": "infrastructure-pivoting-and-attribution",
+      "description": "\"Pivot across adversary infrastructure (DNS, TLS, hosting, registrar) to support attribution hypotheses under authorization. Use this skill whenever the user says \\\"pivot this C2 domain\\\", \\\"certificate transparency pivot\\\", \\\"hosting overlap attribution\\\", or wants a documented infrastructure graph. SKIP, do NOT use for, unscoped scanning of third-party networks, typosquat registration, or IOC reputation-only triage.\"",
+      "long_description": "Infrastructure overlap is evidence, not a verdict. Graph it, source it, and keep attribution in the hypothesis column.",
+      "summary_l0": "\"Pivot authorized adversary infrastructure into a sourced attribution graph\"",
+      "overview_l1": "\"This skill builds an infrastructure graph from DNS, TLS certificates, hosting, and registrar artifacts the user is allowed to query. Attribution stays a hypothesis with confidence, never a headline. Trigger phrases: pivot this C2 domain, certificate transparency pivot, hosting overlap attribution.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security-operations",
+      "language": "Multi-language",
+      "tags": [
+        "attribution",
+        "dns"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/security-operations/infrastructure-pivoting-and-attribution/",
+      "file": "catalog/skills/security-operations/infrastructure-pivoting-and-attribution/SKILL.md",
+      "size": {
+        "lines": 82,
+        "characters": 3763,
+        "tokens_estimate": 940
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "ransomware-leak-site-monitoring",
+      "title": "ransomware-leak-site-monitoring",
+      "description": "\"Monitor ransomware leak sites and victim-name dumps for early warning without paying actors or spreading stolen data. Use this skill whenever the user says \\\"watch ransomware leak sites\\\", \\\"victim name monitoring\\\", \\\"is our company on a leak blog\\\", or wants a defensive leak-site watch process. SKIP, do NOT use for, negotiating with actors, downloading victim data, or celebrating criminal content.\"",
+      "long_description": "A leak blog is an extortion channel. Watch names for early warning; do not become a distribution node for stolen data.",
+      "summary_l0": "\"Watch leak blogs for victim-name early warning without spreading stolen data\"",
+      "overview_l1": "\"This skill sets up a defensive watch on ransomware name-and-shame blogs: collection, victim matching, and escalation. It forbids downloading stolen data and forbids paying or negotiating. Trigger phrases: watch ransomware leak sites, victim name monitoring, leak blog.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security-operations",
+      "language": "Multi-language",
+      "tags": [
+        "ransomware",
+        "extortion"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/security-operations/ransomware-leak-site-monitoring/",
+      "file": "catalog/skills/security-operations/ransomware-leak-site-monitoring/SKILL.md",
+      "size": {
+        "lines": 72,
+        "characters": 3080,
+        "tokens_estimate": 770
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "cert-transparency-and-typosquat-monitoring",
+      "title": "cert-transparency-and-typosquat-monitoring",
+      "description": "\"Monitor certificate-transparency logs and lookalike domains for phishing and brand-impersonation early warning. Use this skill whenever the user says \\\"certificate transparency monitoring\\\", \\\"typosquat watch\\\", \\\"lookalike domain alert\\\", \\\"CT log brand watch\\\", or wants alerts when someone mints a cert on a spoof of the company domain. SKIP, do NOT use for, registering spoof domains, attacking the lookalike, or generic IOC enrichment.\"",
+      "long_description": "Phishing infrastructure often appears in CT logs hours before the first lure. Watch the log; do not become the lookalike.",
+      "summary_l0": "\"Watch CT logs and lookalike domains for brand-impersonation early warning\"",
+      "overview_l1": "\"This skill watches certificate-transparency logs and DNS for lookalike hostnames that impersonate the organization. The output is an alert with the cert, registrar clues, and a takedown path, not an offensive operation against the spoof. Trigger phrases: certificate transparency monitoring, typosquat watch, lookalike domain alert, CT log brand watch.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security-operations",
+      "language": "Multi-language",
+      "tags": [
+        "ct",
+        "phishing"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/security-operations/cert-transparency-and-typosquat-monitoring/",
+      "file": "catalog/skills/security-operations/cert-transparency-and-typosquat-monitoring/SKILL.md",
+      "size": {
+        "lines": 72,
+        "characters": 3256,
+        "tokens_estimate": 814
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "ics-protocol-anomaly-detection",
+      "title": "ics-protocol-anomaly-detection",
+      "description": "\"Detect abnormal Modbus, DNP3, and OPC-UA behavior on operational-technology networks. Use this skill whenever the user says \\\"Modbus function-code anomaly\\\", \\\"DNP3 outstation scan\\\", \\\"OPC-UA unauthorized method\\\", \\\"ICS protocol IDS\\\", or wants detections for industrial protocol abuse. SKIP, do NOT use for, IT-only NetFlow hunts, or attacking a plant you do not operate.\"",
+      "long_description": "Industrial protocols were designed for availability, not for a hostile WAN. Detect the function codes and methods that never appear in the as-built.",
+      "summary_l0": "\"Detect Modbus DNP3 and OPC-UA protocol abuse on OT networks\"",
+      "overview_l1": "\"This skill writes detections for industrial protocol abuse: unexpected function codes, outstation polling, and unauthorized OPC-UA methods. It assumes a historian or span port the user already owns. Trigger phrases: Modbus function-code anomaly, DNP3 outstation scan, OPC-UA unauthorized method, ICS protocol IDS.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "ot-security",
+      "language": "Multi-language",
+      "tags": [
+        "ics",
+        "modbus"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/ot-security/ics-protocol-anomaly-detection/",
+      "file": "catalog/skills/ot-security/ics-protocol-anomaly-detection/SKILL.md",
+      "size": {
+        "lines": 71,
+        "characters": 3525,
+        "tokens_estimate": 881
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "scada-historian-threat-detection",
+      "title": "scada-historian-threat-detection",
+      "description": "\"Detect tampering and covert channels in SCADA servers and process historians. Use this skill whenever the user says \\\"historian tag tampering\\\", \\\"SCADA HMI persistence\\\", \\\"process-data integrity monitoring\\\", or wants detections on PI/IP.21-style historians. SKIP, do NOT use for, generic Windows EDR hunts with no process-data angle.\"",
+      "long_description": "If the historian lies, every dashboard after it lies. Treat process-data stores as integrity assets, not as IT file servers.",
+      "summary_l0": "\"Detect SCADA server and historian tag tampering and covert channels\"",
+      "overview_l1": "\"This skill looks at HMI servers and historians as high-value OT assets: tag integrity, engineering-account use, and outbound channels hiding in process data. Trigger phrases: historian tag tampering, SCADA HMI persistence, process-data integrity monitoring.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "ot-security",
+      "language": "Multi-language",
+      "tags": [
+        "scada",
+        "historian"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/ot-security/scada-historian-threat-detection/",
+      "file": "catalog/skills/ot-security/scada-historian-threat-detection/SKILL.md",
+      "size": {
+        "lines": 70,
+        "characters": 3031,
+        "tokens_estimate": 757
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "ot-network-segmentation-and-zones",
+      "title": "ot-network-segmentation-and-zones",
+      "description": "\"Design IEC 62443 zones and conduits for OT networks, including the IT/OT DMZ. Use this skill whenever the user says \\\"IEC 62443 zones\\\", \\\"Purdue model segmentation\\\", \\\"OT DMZ design\\\", \\\"conduits between cells\\\", or wants to separate a plant from the enterprise LAN. SKIP, do NOT use for, cloud microsegmentation of Kubernetes (use network-microsegmentation-design).\"",
+      "long_description": "A flat plant network turns every workstation into a blast radius. Zones are the control; firewalls are just how you enforce them.",
+      "summary_l0": "\"Design IEC 62443 zones and conduits including the IT/OT DMZ\"",
+      "overview_l1": "\"This skill draws zones, conduits, and a Purdue-style IT/OT DMZ that a plant can actually run. It is not a Kubernetes overlay. Trigger phrases: IEC 62443 zones, Purdue model segmentation, OT DMZ design, conduits between cells.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "ot-security",
+      "language": "Multi-language",
+      "tags": [
+        "iec62443",
+        "segmentation"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/ot-security/ot-network-segmentation-and-zones/",
+      "file": "catalog/skills/ot-security/ot-network-segmentation-and-zones/SKILL.md",
+      "size": {
+        "lines": 71,
+        "characters": 3001,
+        "tokens_estimate": 750
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "ot-incident-response",
+      "title": "ot-incident-response",
+      "description": "\"Run incident response on operational-technology systems without causing an unsafe process state. Use this skill whenever the user says \\\"OT incident response\\\", \\\"PLC ransomware\\\", \\\"plant cyber event\\\", \\\"do not trip the turbine\\\", or wants an IR plan that operations will actually follow. SKIP, do NOT use for, enterprise-only ransomware IR (use ransomware-incident-response).\"",
+      "long_description": "The first IR instinct on IT (isolate and reimage) can kill a process. OT response is coordinated with operations, or it is just another incident.",
+      "summary_l0": "\"Respond to OT cyber incidents without creating an unsafe process state\"",
+      "overview_l1": "\"This skill runs IR where availability and safety beat forensic purity: isolate conduits, preserve what you can, and never 'reboot the PLC to clean it' during a run. Trigger phrases: OT incident response, PLC ransomware, plant cyber event, do not trip the turbine.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "ot-security",
+      "language": "Multi-language",
+      "tags": [
+        "ot-ir",
+        "safety"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/ot-security/ot-incident-response/",
+      "file": "catalog/skills/ot-security/ot-incident-response/SKILL.md",
+      "size": {
+        "lines": 70,
+        "characters": 3142,
+        "tokens_estimate": 785
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "ot-nerc-cip-compliance",
+      "title": "ot-nerc-cip-compliance",
+      "description": "\"Map NERC CIP evidence to actual OT controls rather than to a folder of stale screenshots. Use this skill whenever the user says \\\"NERC CIP evidence\\\", \\\"CIP-007 ports and services\\\", \\\"BES cyber system inventory\\\", \\\"CIP-010 baseline\\\", or wants a CIP audit that matches the plant. SKIP, do NOT use for, ISO 27001 office ISMS work, or IEC 62443 zone drawings with no CIP overlay.\"",
+      "long_description": "A CIP binder that does not match the relay room is a finding waiting for an auditor. Evidence is a snapshot of a living control.",
+      "summary_l0": "\"Map NERC CIP evidence to living OT controls instead of screenshot binders\"",
+      "overview_l1": "\"This skill turns CIP-002 through CIP-013 obligations into inventories, baselines, and monitoring that match the yard. It is not a generic ISMS. Trigger phrases: NERC CIP evidence, CIP-007 ports and services, BES cyber system inventory, CIP-010 baseline.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "ot-security",
+      "language": "Multi-language",
+      "tags": [
+        "nerc-cip",
+        "compliance"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/ot-security/ot-nerc-cip-compliance/",
+      "file": "catalog/skills/ot-security/ot-nerc-cip-compliance/SKILL.md",
+      "size": {
+        "lines": 70,
+        "characters": 3179,
+        "tokens_estimate": 794
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "api-object-level-authorization-flaws",
+      "title": "api-object-level-authorization-flaws",
+      "description": "\"Find broken object-level and function-level authorization in HTTP APIs (BOLA, BFLA, BOPLA) during authorized tests. Use this skill whenever the user says \\\"BOLA test\\\", \\\"IDOR in this API\\\", \\\"BFLA admin function\\\", \\\"broken object property authorization\\\", or wants to test whether changing an ID returns another tenant's record. SKIP, do NOT use for, unscoped testing of third-party APIs, or JWT alg-none attacks (use jwt-header-and-key-confusion-attacks).\"",
+      "long_description": "If the server trusts an object ID from the client, every tenant is one increment away. Prove it only inside written scope.",
+      "summary_l0": "\"Test BOLA BFLA and BOPLA object-level authorization on authorized APIs\"",
+      "overview_l1": "\"This skill tests whether object IDs, function names, and property filters are authorization boundaries or decorations. It is dual-use and requires written scope. Trigger phrases: BOLA test, IDOR in this API, BFLA admin function, broken object property authorization.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security",
+      "language": "Multi-language",
+      "tags": [
+        "bola",
+        "api"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/security/api-object-level-authorization-flaws/",
+      "file": "catalog/skills/security/api-object-level-authorization-flaws/SKILL.md",
+      "size": {
+        "lines": 82,
+        "characters": 3740,
+        "tokens_estimate": 935
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "api-inventory-and-undocumented-endpoints",
+      "title": "api-inventory-and-undocumented-endpoints",
+      "description": "\"Build a living API inventory and find shadow, zombie, and undocumented endpoints during authorized reviews. Use this skill whenever the user says \\\"shadow API endpoint\\\", \\\"zombie swagger path\\\", \\\"undocumented admin route\\\", \\\"API attack surface inventory\\\", or wants to reconcile gateways with code. SKIP, do NOT use for, BOLA object-swap tests (use api-object-level-authorization-flaws), or scanning APIs you do not own.\"",
+      "long_description": "The endpoint you forgot is the one that still has debug auth. Inventory is how you find it before someone else does.",
+      "summary_l0": "\"Inventory shadow zombie and undocumented API endpoints under authorization\"",
+      "overview_l1": "\"This skill reconciles gateways, specs, and code to find routes that still work but are not in the official contract. Dual-use: written scope required. Trigger phrases: shadow API endpoint, zombie swagger path, undocumented admin route, API attack surface inventory.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security",
+      "language": "Multi-language",
+      "tags": [
+        "shadow-api",
+        "inventory"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/security/api-inventory-and-undocumented-endpoints/",
+      "file": "catalog/skills/security/api-inventory-and-undocumented-endpoints/SKILL.md",
+      "size": {
+        "lines": 82,
+        "characters": 3661,
+        "tokens_estimate": 915
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "api-rate-limit-and-abuse-detection",
+      "title": "api-rate-limit-and-abuse-detection",
+      "description": "\"Design and test API rate limits, burst controls, and credential-stuffing or scraping abuse detections under authorization. Use this skill whenever the user says \\\"API rate limit bypass\\\", \\\"credential stuffing on login API\\\", \\\"scraper throttling\\\", \\\"429 vs 401 masking\\\", or wants abuse controls that do not lock out real users. SKIP, do NOT use for, BOLA tests, or running stuffing against a site you do not own.\"",
+      "long_description": "A limit nobody can measure is not a limit. Abuse controls must name the dimension they meter and the user they must not strand.",
+      "summary_l0": "\"Design and test API rate limits and stuffing or scraping abuse controls\"",
+      "overview_l1": "\"This skill puts measurable limits on login, search, and expensive endpoints, then tests bypasses (header rotation, distributed sources) only in scope. Trigger phrases: API rate limit bypass, credential stuffing on login API, scraper throttling, 429 vs 401 masking.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security",
+      "language": "Multi-language",
+      "tags": [
+        "rate-limit",
+        "abuse"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/security/api-rate-limit-and-abuse-detection/",
+      "file": "catalog/skills/security/api-rate-limit-and-abuse-detection/SKILL.md",
+      "size": {
+        "lines": 82,
+        "characters": 3573,
+        "tokens_estimate": 893
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "api-schema-and-gateway-enforcement",
+      "title": "api-schema-and-gateway-enforcement",
+      "description": "\"Enforce API contracts at the gateway with schema validation, method allowlists, and reject-unknown-fields. Use this skill whenever the user says \\\"OpenAPI gateway validation\\\", \\\"reject additionalProperties\\\", \\\"protobuf allow-list methods\\\", \\\"API contract enforcement\\\", or wants the gateway to be the contract. SKIP, do NOT use for, object-level IDOR testing, or designing rate-limit keys.\"",
+      "long_description": "If the app parser is more generous than the spec, attackers speak a dialect your tests never used. Make the gateway as strict as the contract.",
+      "summary_l0": "\"Enforce OpenAPI or protobuf contracts at the gateway including unknown fields\"",
+      "overview_l1": "\"This skill makes the gateway the contract: methods, content types, and unknown fields die at the edge. Trigger phrases: OpenAPI gateway validation, reject additionalProperties, protobuf allow-list methods, API contract enforcement.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security",
+      "language": "Multi-language",
+      "tags": [
+        "openapi",
+        "gateway"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/security/api-schema-and-gateway-enforcement/",
+      "file": "catalog/skills/security/api-schema-and-gateway-enforcement/SKILL.md",
+      "size": {
+        "lines": 72,
+        "characters": 3007,
+        "tokens_estimate": 751
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "jwt-header-and-key-confusion-attacks",
+      "title": "jwt-header-and-key-confusion-attacks",
+      "description": "\"Test JSON Web Token verification for alg=none, algorithm confusion, kid injection, and JWKS spoofing under authorization. Use this skill whenever the user says \\\"JWT alg none\\\", \\\"RS256 to HS256 confusion\\\", \\\"kid path injection\\\", \\\"JWKS URL spoof\\\", or wants to verify a token library cannot be talked into skipping signatures. SKIP, do NOT use for, BOLA object-ID swaps, or attacking identity providers out of scope.\"",
+      "long_description": "A token is a bag of claims plus a signature you might not actually be checking. Prove the verifier, then stop.",
+      "summary_l0": "\"Test JWT alg-none algorithm confusion kid injection and JWKS spoofing\"",
+      "overview_l1": "\"This skill attacks the JWT verifier, not the business object: alg none, HMAC/RSA confusion, kid file paths, and JWKS substitution, only in scope. Trigger phrases: JWT alg none, RS256 to HS256 confusion, kid path injection, JWKS URL spoof.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security",
+      "language": "Multi-language",
+      "tags": [
+        "jwt",
+        "crypto"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/security/jwt-header-and-key-confusion-attacks/",
+      "file": "catalog/skills/security/jwt-header-and-key-confusion-attacks/SKILL.md",
+      "size": {
+        "lines": 82,
+        "characters": 3491,
+        "tokens_estimate": 872
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "encryption-at-rest-design",
+      "title": "encryption-at-rest-design",
+      "description": "\"Design application-level and volume-level encryption at rest with key hierarchy, envelope encryption, and recovery. Use this skill whenever the user says \\\"envelope encryption\\\", \\\"encrypt the database at rest\\\", \\\"customer-managed keys\\\", \\\"field-level encryption\\\", or wants more than a checkbox on a cloud disk. SKIP, do NOT use for, TLS handshake debugging (use tls-certificate-lifecycle), or JWT alg attacks.\"",
+      "long_description": "Disk encryption stops a stolen laptop. It does not stop a stolen database backup. Put keys where the backup is not.",
+      "summary_l0": "\"Design envelope and field-level encryption at rest with a key hierarchy\"",
+      "overview_l1": "\"This skill designs encryption at rest that would still hold if a disk image leaked: envelope keys, CMK/HSM roots, and recovery. Trigger phrases: envelope encryption, encrypt the database at rest, customer-managed keys, field-level encryption.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security",
+      "language": "Multi-language",
+      "tags": [
+        "encryption",
+        "kms"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/security/encryption-at-rest-design/",
+      "file": "catalog/skills/security/encryption-at-rest-design/SKILL.md",
+      "size": {
+        "lines": 71,
+        "characters": 3030,
+        "tokens_estimate": 757
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "tls-certificate-lifecycle",
+      "title": "tls-certificate-lifecycle",
+      "description": "\"Run TLS certificate issuance, rotation, pinning policy, and expiry monitoring without surprise outages. Use this skill whenever the user says \\\"certificate expiry monitoring\\\", \\\"rotate TLS certs\\\", \\\"ACME issuance\\\", \\\"mTLS service identity\\\", or wants to stop a 2 a.m. expiry outage. SKIP, do NOT use for, JWT key confusion, or CT typosquat hunting (use cert-transparency-and-typosquat-monitoring).\"",
+      "long_description": "Certificates expire on a calendar, not on a sprint. If nobody owns the inventory, the outage owns you.",
+      "summary_l0": "\"Issue rotate and monitor TLS certificates including mTLS identities\"",
+      "overview_l1": "\"This skill runs the certificate as a production object: issuance, inventory, rotation, and expiry pages, including mTLS. Trigger phrases: certificate expiry monitoring, rotate TLS certs, ACME issuance, mTLS service identity.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security",
+      "language": "Multi-language",
+      "tags": [
+        "tls",
+        "pki"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/security/tls-certificate-lifecycle/",
+      "file": "catalog/skills/security/tls-certificate-lifecycle/SKILL.md",
+      "size": {
+        "lines": 71,
+        "characters": 2940,
+        "tokens_estimate": 735
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "key-management-and-hsm-integration",
+      "title": "key-management-and-hsm-integration",
+      "description": "\"Operate keys in KMS or HSM with dual control, separation of roles, and no raw key export. Use this skill whenever the user says \\\"HSM integration\\\", \\\"KMS key policy\\\", \\\"no export of private keys\\\", \\\"dual control key ceremony\\\", or wants to stop keys living in env files. SKIP, do NOT use for, designing field-level encryption schemas, or TLS expiry monitors.\"",
+      "long_description": "If the application can print the private key, you do not have an HSM. You have a slow filesystem.",
+      "summary_l0": "\"Operate KMS and HSM keys with dual control and no raw export\"",
+      "overview_l1": "\"This skill puts cryptographic keys in KMS/HSM, writes key policies, and runs ceremonies that do not print PEMs into chat. Trigger phrases: HSM integration, KMS key policy, no export of private keys, dual control key ceremony.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security",
+      "language": "Multi-language",
+      "tags": [
+        "hsm",
+        "kms"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/security/key-management-and-hsm-integration/",
+      "file": "catalog/skills/security/key-management-and-hsm-integration/SKILL.md",
+      "size": {
+        "lines": 71,
+        "characters": 2785,
+        "tokens_estimate": 696
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "digital-signatures-and-jwt-signing",
+      "title": "digital-signatures-and-jwt-signing",
+      "description": "\"Issue and verify digital signatures and JWTs with pinned algorithms, key IDs you control, and replay limits. Use this skill whenever the user says \\\"sign this JWT correctly\\\", \\\"code signing key\\\", \\\"detached signature verify\\\", \\\"JWS issuance\\\", or wants issuance that a confused verifier cannot bypass. SKIP, do NOT use for, attacking verifiers (use jwt-header-and-key-confusion-attacks), or HSM racking.\"",
+      "long_description": "Issuing a token is an authorization decision you will live with until it expires. Sign narrowly and briefly.",
+      "summary_l0": "\"Issue JWTs and digital signatures with pinned algorithms and controlled kids\"",
+      "overview_l1": "\"This skill is the issuer side: JWS/JWT and document signatures with pinned algs, short TTL, and kids that map to your JWKS. Trigger phrases: sign this JWT correctly, code signing key, detached signature verify, JWS issuance.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security",
+      "language": "Multi-language",
+      "tags": [
+        "jws",
+        "signing"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/security/digital-signatures-and-jwt-signing/",
+      "file": "catalog/skills/security/digital-signatures-and-jwt-signing/SKILL.md",
+      "size": {
+        "lines": 71,
+        "characters": 2818,
+        "tokens_estimate": 704
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "post-quantum-cryptography-migration",
+      "title": "post-quantum-cryptography-migration",
+      "description": "\"Plan hybrid post-quantum migration for TLS, signatures, and stored ciphertext without breaking clients. Use this skill whenever the user says \\\"post-quantum migration\\\", \\\"hybrid Kyber TLS\\\", \\\"harvest now decrypt later\\\", \\\"PQC roadmap\\\", or wants a crypto inventory for quantum-safe algorithms. SKIP, do NOT use for, day-to-day cert expiry ops, or inventing new primitives.\"",
+      "long_description": "Adversaries record ciphertext today. Migration is a program, not a library bump the week a standard finalizes.",
+      "summary_l0": "\"Plan hybrid post-quantum TLS and signature migration from a crypto inventory\"",
+      "overview_l1": "\"This skill inventories cryptography, flags harvest-now-decrypt-later data, and plans hybrid TLS/signature migration. Trigger phrases: post-quantum migration, hybrid Kyber TLS, harvest now decrypt later, PQC roadmap.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security",
+      "language": "Multi-language",
+      "tags": [
+        "pqc",
+        "tls"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/security/post-quantum-cryptography-migration/",
+      "file": "catalog/skills/security/post-quantum-cryptography-migration/SKILL.md",
+      "size": {
+        "lines": 70,
+        "characters": 2836,
+        "tokens_estimate": 709
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "cryptographic-control-audit",
+      "title": "cryptographic-control-audit",
+      "description": "\"Audit deployed cryptography for broken algorithms, nonce reuse, homemade constructions, and key-handling failures. Use this skill whenever the user says \\\"crypto audit\\\", \\\"nonce reuse hunt\\\", \\\"find 3DES and RC4\\\", \\\"homemade CBC\\\", or wants a review of cryptographic controls in code and config. SKIP, do NOT use for, designing a new protocol, or PQC roadmaps (use post-quantum-cryptography-migration).\"",
+      "long_description": "Most 'crypto bugs' are protocol and key-handling bugs. Read the call sites, not the marketing of the library.",
+      "summary_l0": "\"Audit deployed crypto for broken algorithms nonce reuse and homemade constructions\"",
+      "overview_l1": "\"This skill reviews code and config for cryptographic malpractice: outdated ciphers, reused nonces, and invented protocols. Trigger phrases: crypto audit, nonce reuse hunt, find 3DES and RC4, homemade CBC.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security",
+      "language": "Multi-language",
+      "tags": [
+        "audit",
+        "crypto"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/security/cryptographic-control-audit/",
+      "file": "catalog/skills/security/cryptographic-control-audit/SKILL.md",
+      "size": {
+        "lines": 71,
+        "characters": 2782,
+        "tokens_estimate": 695
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "android-static-app-analysis",
+      "title": "android-static-app-analysis",
+      "description": "\"Statically review Android APKs and source for exported components, insecure storage, and secret leakage. Use this skill whenever the user says \\\"APK static analysis\\\", \\\"exported Activity review\\\", \\\"Android debuggable flag\\\", \\\"secrets in strings.xml\\\", or wants a MASVS-style static pass. SKIP, do NOT use for, runtime instrumentation (use android-dynamic-app-analysis), or iOS binaries.\"",
+      "long_description": "The manifest is the attack surface. If it is exported and unprotected, the rest of the code review is already late.",
+      "summary_l0": "\"Statically review Android APKs for exported components and leaked secrets\"",
+      "overview_l1": "\"This skill reads the APK and source: manifest exports, backup flags, storage, and embedded secrets, mapped to MASVS. Trigger phrases: APK static analysis, exported Activity review, Android debuggable flag, secrets in strings.xml.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "mobile-security",
+      "language": "Multi-language",
+      "tags": [
+        "android",
+        "masvs"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/mobile-security/android-static-app-analysis/",
+      "file": "catalog/skills/mobile-security/android-static-app-analysis/SKILL.md",
+      "size": {
+        "lines": 70,
+        "characters": 2668,
+        "tokens_estimate": 667
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "android-dynamic-app-analysis",
+      "title": "android-dynamic-app-analysis",
+      "description": "\"Dynamically test Android apps on an authorized device or emulator: traffic, storage at runtime, and component abuse. Use this skill whenever the user says \\\"Android runtime test\\\", \\\"Android runtime storage test\\\", \\\"exported provider fuzz\\\", or wants a dynamic MASVS pass on an app you are allowed to test. SKIP, do NOT use for, static-only APK reads, or pinning-bypass on apps you do not own (use mobile-tls-pinning-bypass-assessment).\"",
+      "long_description": "Static review guesses. Runtime on a device you own shows what the OS actually allows.",
+      "summary_l0": "\"Dynamically test authorized Android apps for runtime storage and component abuse\"",
+      "overview_l1": "\"This skill exercises a running Android app you are allowed to test: runtime storage, intent abuse, and traffic except dedicated pinning-bypass. Trigger phrases: Android runtime test, Android runtime storage test, exported provider fuzz.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "mobile-security",
+      "language": "Multi-language",
+      "tags": [
+        "android",
+        "dynamic"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/mobile-security/android-dynamic-app-analysis/",
+      "file": "catalog/skills/mobile-security/android-dynamic-app-analysis/SKILL.md",
+      "size": {
+        "lines": 81,
+        "characters": 3247,
+        "tokens_estimate": 811
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "ios-app-security-review",
+      "title": "ios-app-security-review",
+      "description": "\"Review iOS apps for keychain misuse, ATS exceptions, URL scheme hijack, and leftover debug entitlements. Use this skill whenever the user says \\\"iOS appsec review\\\", \\\"ATS exception audit\\\", \\\"keychain accessibility\\\", \\\"URL scheme hijack\\\", or wants a MASVS-style iOS pass. SKIP, do NOT use for, Android APK review, or jailbreak exploit development.\"",
+      "long_description": "iOS is not 'secure by default' once ATS is punched full of holes and the keychain is AfterFirstUnlock for a refresh token.",
+      "summary_l0": "\"Review iOS apps for keychain ATS URL schemes and debug entitlements\"",
+      "overview_l1": "\"This skill reviews iOS binaries and source you are allowed to inspect: ATS, keychain classes, custom URL schemes, and entitlements. Trigger phrases: iOS appsec review, ATS exception audit, keychain accessibility, URL scheme hijack.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "mobile-security",
+      "language": "Multi-language",
+      "tags": [
+        "ios",
+        "masvs"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/mobile-security/ios-app-security-review/",
+      "file": "catalog/skills/mobile-security/ios-app-security-review/SKILL.md",
+      "size": {
+        "lines": 70,
+        "characters": 2572,
+        "tokens_estimate": 643
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "mobile-tls-pinning-bypass-assessment",
+      "title": "mobile-tls-pinning-bypass-assessment",
+      "description": "\"Assess mobile TLS pinning and intercept traffic on apps you are authorized to test, including bypass of pinning in a lab. Use this skill whenever the user says \\\"bypass certificate pinning on our app\\\", \\\"Frida unpin\\\", \\\"mobile proxy intercept\\\", or wants to know whether pinning actually binds to your CA set. SKIP, do NOT use for, intercepting third-party apps without permission, or general Android static review.\"",
+      "long_description": "Pinning that never fails closed is decoration. Prove it on an app you are allowed to break, then fix the pin set.",
+      "summary_l0": "\"Assess and lab-bypass TLS pinning on authorized mobile apps\"",
+      "overview_l1": "\"This skill tests whether mobile pinning is real, then intercepts traffic in a lab you own. Dual-use with a hard authorization gate. Trigger phrases: bypass certificate pinning on our app, Frida unpin, mobile proxy intercept.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "mobile-security",
+      "language": "Multi-language",
+      "tags": [
+        "pinning",
+        "mobile"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/mobile-security/mobile-tls-pinning-bypass-assessment/",
+      "file": "catalog/skills/mobile-security/mobile-tls-pinning-bypass-assessment/SKILL.md",
+      "size": {
+        "lines": 81,
+        "characters": 3442,
+        "tokens_estimate": 860
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "mobile-malware-family-triage",
+      "title": "mobile-malware-family-triage",
+      "description": "\"Triage suspicious Android and iOS samples for family, C2, and persistence without detonating them on a personal phone. Use this skill whenever the user says \\\"Android malware triage\\\", \\\"sideloaded APK analysis\\\", \\\"mobile stalkerware check\\\", or wants a safe first pass on a mobile sample. SKIP, do NOT use for, writing mobile malware, or a full MASVS feature review of your own app.\"",
+      "long_description": "A sideloaded APK on a personal phone is not analysis. It is infection. Use a lab image and write down what the sample wants.",
+      "summary_l0": "\"Triage mobile malware samples in a lab for family C2 and persistence\"",
+      "overview_l1": "\"This skill triages mobile samples in an isolated lab: packing, permissions, C2 indicators, and family notes. Trigger phrases: Android malware triage, sideloaded APK analysis, mobile stalkerware check.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "mobile-security",
+      "language": "Multi-language",
+      "tags": [
+        "malware",
+        "mobile"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/mobile-security/mobile-malware-family-triage/",
+      "file": "catalog/skills/mobile-security/mobile-malware-family-triage/SKILL.md",
+      "size": {
+        "lines": 71,
+        "characters": 2646,
+        "tokens_estimate": 661
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "zero-trust-architecture-design",
+      "title": "zero-trust-architecture-design",
+      "description": "\"Design a zero-trust architecture using the CISA maturity model: identity, device, network, application, and data pillars. Use this skill whenever the user says \\\"CISA zero trust maturity\\\", \\\"zero trust architecture\\\", \\\"beyondcorp style access\\\", or wants a ZT roadmap that is not a VPN replacement slogan. SKIP, do NOT use for, picking a single ZTNA vendor appliance (use ztna-broker-deployment), or plant IEC 62443 zones.\"",
+      "long_description": "Zero trust is five pillars and a policy engine, not a new private-access logo on the same flat network.",
+      "summary_l0": "\"Design zero-trust architecture across CISA identity device network app and data pillars\"",
+      "overview_l1": "\"This skill drafts a CISA-aligned zero-trust program: pillars, maturity, and dependencies, without collapsing into a vendor SKU. Trigger phrases: CISA zero trust maturity, zero trust architecture, beyondcorp style access.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security",
+      "language": "Multi-language",
+      "tags": [
+        "zero-trust",
+        "cisa"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/security/zero-trust-architecture-design/",
+      "file": "catalog/skills/security/zero-trust-architecture-design/SKILL.md",
+      "size": {
+        "lines": 71,
+        "characters": 2889,
+        "tokens_estimate": 722
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "ztna-broker-deployment",
+      "title": "ztna-broker-deployment",
+      "description": "\"Deploy an identity-aware access broker for private applications without bridging users onto the whole LAN. Use this skill whenever the user says \\\"ZTNA broker\\\", \\\"identity-aware proxy for private apps\\\", \\\"replace VPN with per-app access\\\", or wants a broker that terminates to an app, not a subnet. SKIP, do NOT use for, CISA-wide architecture (use zero-trust-architecture-design), or OT jump hosts.\"",
+      "long_description": "If the broker's next hop is a subnet, you installed a VPN with extra SAML. Terminate to the app.",
+      "summary_l0": "\"Deploy a per-app identity-aware broker instead of LAN-wide VPN\"",
+      "overview_l1": "\"This skill deploys ZTNA so a user session reaches one application after identity and device checks, not a /16. Trigger phrases: ZTNA broker, identity-aware proxy for private apps, replace VPN with per-app access.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security",
+      "language": "Multi-language",
+      "tags": [
+        "ztna",
+        "broker"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/security/ztna-broker-deployment/",
+      "file": "catalog/skills/security/ztna-broker-deployment/SKILL.md",
+      "size": {
+        "lines": 70,
+        "characters": 2827,
+        "tokens_estimate": 706
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "network-microsegmentation-design",
+      "title": "network-microsegmentation-design",
+      "description": "\"Design identity-aware microsegmentation for data centers and cloud VPCs, not plant IEC 62443 cells. Use this skill whenever the user says \\\"microsegmentation policy\\\", \\\"east-west allowlist\\\", \\\"identity-based segment\\\", or wants to stop flat /16s between services. SKIP, do NOT use for, IEC 62443 plant zones (use ot-network-segmentation-and-zones), or ZTNA user-to-app brokers.\"",
+      "long_description": "North-south firewalls do not see service-to-service ransomware. East-west allowlists do, if they are based on identity.",
+      "summary_l0": "\"Design east-west identity-aware microsegmentation for DC and cloud VPCs\"",
+      "overview_l1": "\"This skill writes east-west allowlists based on workload identity, not on a forever VLAN spreadsheet. Trigger phrases: microsegmentation policy, east-west allowlist, identity-based segment.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security",
+      "language": "Multi-language",
+      "tags": [
+        "microseg",
+        "east-west"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/security/network-microsegmentation-design/",
+      "file": "catalog/skills/security/network-microsegmentation-design/SKILL.md",
+      "size": {
+        "lines": 71,
+        "characters": 2705,
+        "tokens_estimate": 676
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "honeytoken-placement",
+      "title": "honeytoken-placement",
+      "description": "\"Place honeytokens and canary credentials that alert on touch without poisoning production data flows. Use this skill whenever the user says \\\"honeytoken\\\", \\\"canary AWS key\\\", \\\"decoy document tripwire\\\", or wants credentials that should never be used except by an attacker. SKIP, do NOT use for, full adversary-engagement programs (use adversary-engagement-deception), or leaking real secrets.\"",
+      "long_description": "A token nobody is allowed to use is a tripwire. A token in the production path is an outage.",
+      "summary_l0": "\"Place canary credentials and decoy files that alert on first touch\"",
+      "overview_l1": "\"This skill plants tripwire secrets and files that page on use, with ownership and a never-use policy for humans. Trigger phrases: honeytoken, canary AWS key, decoy document tripwire.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security-operations",
+      "language": "Multi-language",
+      "tags": [
+        "canary",
+        "deception"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/security-operations/honeytoken-placement/",
+      "file": "catalog/skills/security-operations/honeytoken-placement/SKILL.md",
+      "size": {
+        "lines": 72,
+        "characters": 2682,
+        "tokens_estimate": 670
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "adversary-engagement-deception",
+      "title": "adversary-engagement-deception",
+      "description": "\"Design adversary-engagement and deception environments using MITRE Engage-style objectives, not random honeypots. Use this skill whenever the user says \\\"MITRE Engage deception\\\", \\\"adversary engagement\\\", \\\"high-interaction honeypot program\\\", or wants a deception campaign with goals and safety rails. SKIP, do NOT use for, planting a single canary key (use honeytoken-placement), or attacking back.\"",
+      "long_description": "A honeypot without an objective is a toy that might become an attack platform. Engagement is planned or it is negligence.",
+      "summary_l0": "\"Design MITRE Engage-style deception campaigns with goals and safety rails\"",
+      "overview_l1": "\"This skill plans deception as a campaign: Engage objectives, breadcrumbs, high-interaction traps, and legal/safety rails. Trigger phrases: MITRE Engage deception, adversary engagement, high-interaction honeypot program.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security-operations",
+      "language": "Multi-language",
+      "tags": [
+        "engage",
+        "deception"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/security-operations/adversary-engagement-deception/",
+      "file": "catalog/skills/security-operations/adversary-engagement-deception/SKILL.md",
+      "size": {
+        "lines": 71,
+        "characters": 2826,
+        "tokens_estimate": 706
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "firmware-extraction-and-analysis",
+      "title": "firmware-extraction-and-analysis",
+      "description": "\"Extract and analyze firmware images you are authorized to handle: file systems, secrets, and unsigned update paths. Use this skill whenever the user says \\\"extract this firmware\\\", \\\"binwalk the image\\\", \\\"unsigned firmware update\\\", or wants a firmware review of a device you own or have permission to test. SKIP, do NOT use for, dumping firmware from devices you do not own, or writing a UEFI bootkit.\"",
+      "long_description": "Firmware is a small Linux with worse patching. Unpack it only when the device is in scope, then look for keys and unsigned update paths.",
+      "summary_l0": "\"Extract and analyze authorized firmware images for secrets and unsigned updates\"",
+      "overview_l1": "\"This skill unpacks firmware you are allowed to analyze, hunts embedded keys, and checks whether updates are signed. Dual-use. Trigger phrases: extract this firmware, binwalk the image, unsigned firmware update.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security-operations",
+      "language": "Multi-language",
+      "tags": [
+        "firmware",
+        "iot"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/security-operations/firmware-extraction-and-analysis/",
+      "file": "catalog/skills/security-operations/firmware-extraction-and-analysis/SKILL.md",
+      "size": {
+        "lines": 82,
+        "characters": 3356,
+        "tokens_estimate": 839
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "uefi-secure-boot-integrity",
+      "title": "uefi-secure-boot-integrity",
+      "description": "\"Verify UEFI Secure Boot, measured boot, and bootloader integrity against unauthorized firmware implants. Use this skill whenever the user says \\\"Secure Boot verification\\\", \\\"UEFI integrity\\\", \\\"bootkit detection\\\", \\\"dbx revocation\\\", or wants to know if a fleet still trusts a broken bootloader. SKIP, do NOT use for, writing bootkits, or TPM attestation policy (use tpm-measured-boot-attestation).\"",
+      "long_description": "If Secure Boot is off, every kernel check is theater. If dbx is old, yesterday's trusted bootloader is today's implant path.",
+      "summary_l0": "\"Verify UEFI Secure Boot dbx and bootloader integrity on a fleet\"",
+      "overview_l1": "\"This skill checks that Secure Boot is on, that dbx is current, and that bootloaders match a known set. Trigger phrases: Secure Boot verification, UEFI integrity, bootkit detection, dbx revocation.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security-operations",
+      "language": "Multi-language",
+      "tags": [
+        "uefi",
+        "secure-boot"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/security-operations/uefi-secure-boot-integrity/",
+      "file": "catalog/skills/security-operations/uefi-secure-boot-integrity/SKILL.md",
+      "size": {
+        "lines": 71,
+        "characters": 2652,
+        "tokens_estimate": 663
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "tpm-measured-boot-attestation",
+      "title": "tpm-measured-boot-attestation",
+      "description": "\"Use TPM quotes and measured-boot event logs to attest that a host booted a known set of components. Use this skill whenever the user says \\\"TPM quote verification\\\", \\\"measured boot PCR\\\", \\\"remote attestation policy\\\", or wants to bind access to a PCR policy. SKIP, do NOT use for, Secure Boot dbx inventory (use uefi-secure-boot-integrity), or HSM application keys.\"",
+      "long_description": "Secure Boot is local opinion. Attestation is a verifier's opinion. If nobody verifies the quote, the TPM is a paperweight.",
+      "summary_l0": "\"Attest hosts with TPM quotes and measured-boot PCR policies\"",
+      "overview_l1": "\"This skill verifies TPM quotes against a PCR policy and event log so access can depend on a known boot. Trigger phrases: TPM quote verification, measured boot PCR, remote attestation policy.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security-operations",
+      "language": "Multi-language",
+      "tags": [
+        "tpm",
+        "attestation"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/security-operations/tpm-measured-boot-attestation/",
+      "file": "catalog/skills/security-operations/tpm-measured-boot-attestation/SKILL.md",
+      "size": {
+        "lines": 71,
+        "characters": 2635,
+        "tokens_estimate": 658
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "smart-contract-security-review",
+      "title": "smart-contract-security-review",
+      "description": "\"Review smart contracts you are authorized to assess for reentrancy, authorization gaps, oracle manipulation, and upgrade hazards. Use this skill whenever the user says \\\"Solidity security review\\\", \\\"reentrancy in our contract\\\", \\\"oracle manipulation check\\\", or wants an audit of a contract you have permission to test. SKIP, do NOT use for, draining third-party protocols, or generic API BOLA.\"",
+      "long_description": "The chain will faithfully run a bug at scale. Review the contract you are allowed to break, then fix it before mainnet.",
+      "summary_l0": "\"Review authorized smart contracts for reentrancy auth gaps and oracle risk\"",
+      "overview_l1": "\"This skill audits in-scope contracts: reentrancy, access control, oracle and upgrade risks. Dual-use. Trigger phrases: Solidity security review, reentrancy in our contract, oracle manipulation check.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security",
+      "language": "Multi-language",
+      "tags": [
+        "solidity",
+        "web3"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/security/smart-contract-security-review/",
+      "file": "catalog/skills/security/smart-contract-security-review/SKILL.md",
+      "size": {
+        "lines": 81,
+        "characters": 3266,
+        "tokens_estimate": 816
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "bluetooth-and-wireless-assessment",
+      "title": "bluetooth-and-wireless-assessment",
+      "description": "\"Assess Bluetooth, Wi-Fi, and related wireless controls on systems you are authorized to test, including pairing and RF exposure. Use this skill whenever the user says \\\"Bluetooth security test\\\", \\\"unauthorized pairing\\\", \\\"Wi-Fi evil twin lab\\\", or wants a wireless assessment inside a Faraday or isolated lab. SKIP, do NOT use for, attacking neighbor networks, or plant Modbus protocol IDS.\"",
+      "long_description": "RF does not honor your VLAN drawing. Test it in a lab that does not become your neighbor's incident.",
+      "summary_l0": "\"Assess authorized Bluetooth and Wi-Fi pairing exposure in an isolated lab\"",
+      "overview_l1": "\"This skill tests wireless attack surface on in-scope devices in an isolated lab: pairing, encryption modes, and evil-twin resilience. Dual-use. Trigger phrases: Bluetooth security test, unauthorized pairing, Wi-Fi evil twin lab.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security",
+      "language": "Multi-language",
+      "tags": [
+        "bluetooth",
+        "wifi"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/security/bluetooth-and-wireless-assessment/",
+      "file": "catalog/skills/security/bluetooth-and-wireless-assessment/SKILL.md",
+      "size": {
+        "lines": 82,
+        "characters": 3284,
+        "tokens_estimate": 821
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "vulnerability-prioritization-with-ssvc",
+      "title": "vulnerability-prioritization-with-ssvc",
+      "description": "\"Prioritize vulnerabilities with CISA SSVC decision trees instead of CVSS-only queues. Use this skill whenever the user says \\\"SSVC prioritization\\\", \\\"CISA SSVC tree\\\", \\\"exploitability over CVSS\\\", or wants to stop treating every 9.8 as equal. SKIP, do NOT use for, writing the exploit, or SLSA provenance (use slsa-provenance-and-sigstore-verification).\"",
+      "long_description": "A 9.8 on an isolated printer is not a 9.8 on the identity provider. SSVC is how you say that without a shrug.",
+      "summary_l0": "\"Prioritize vulnerabilities with CISA SSVC trees instead of CVSS-only queues\"",
+      "overview_l1": "\"This skill applies SSVC: exploitation status, technical impact, and mission context beat a naked CVSS queue. Trigger phrases: SSVC prioritization, CISA SSVC tree, exploitability over CVSS.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security",
+      "language": "Multi-language",
+      "tags": [
+        "ssvc",
+        "vuln"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/security/vulnerability-prioritization-with-ssvc/",
+      "file": "catalog/skills/security/vulnerability-prioritization-with-ssvc/SKILL.md",
+      "size": {
+        "lines": 70,
+        "characters": 2737,
+        "tokens_estimate": 684
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "slsa-provenance-and-sigstore-verification",
+      "title": "slsa-provenance-and-sigstore-verification",
+      "description": "\"Verify SLSA provenance and Sigstore signatures so deployed artifacts map to a known build, not to a USB stick. Use this skill whenever the user says \\\"verify SLSA provenance\\\", \\\"cosign verify\\\", \\\"Sigstore policy\\\", \\\"rebuild the artifact\\\", or wants admission control that checks provenance. SKIP, do NOT use for, SSVC ticket ordering, or designing envelope encryption.\"",
+      "long_description": "A scanned unsigned blob is still an untrusted blob. Provenance says who built it and from what. Check it before it runs.",
+      "summary_l0": "\"Verify SLSA provenance and Sigstore signatures before admitting artifacts\"",
+      "overview_l1": "\"This skill checks that images and binaries carry provenance and signatures you can verify at admit time. Trigger phrases: verify SLSA provenance, cosign verify, Sigstore policy, rebuild the artifact.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security",
+      "language": "Multi-language",
+      "tags": [
+        "slsa",
+        "sigstore"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/security/slsa-provenance-and-sigstore-verification/",
+      "file": "catalog/skills/security/slsa-provenance-and-sigstore-verification/SKILL.md",
+      "size": {
+        "lines": 71,
+        "characters": 2811,
+        "tokens_estimate": 702
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "purple-team-exercise-design",
+      "title": "purple-team-exercise-design",
+      "description": "\"Design and run purple-team exercises that pair authorized emulated TTPs with detection owners and a scorecard. Use this skill whenever the user says \\\"purple team exercise\\\", \\\"detection coverage drill\\\", \\\"atomic TTP emulation\\\", or wants red and blue in the same room with written scope. SKIP, do NOT use for, unscoped red-team against production, or a tabletop with no telemetry.\"",
+      "long_description": "If blue cannot see the TTP, red 'winning' is just a missed detection. Purple is the meeting where that becomes a ticket.",
+      "summary_l0": "\"Run scoped purple-team TTP emulation with detection owners and a scorecard\"",
+      "overview_l1": "\"This skill plans purple exercises: scoped TTP emulation, detection owners, and a scorecard, not a surprise attack. Dual-use. Trigger phrases: purple team exercise, detection coverage drill, atomic TTP emulation.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "security-operations",
+      "language": "Multi-language",
+      "tags": [
+        "purple-team",
+        "detection"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/security-operations/purple-team-exercise-design/",
+      "file": "catalog/skills/security-operations/purple-team-exercise-design/SKILL.md",
+      "size": {
+        "lines": 82,
+        "characters": 3259,
+        "tokens_estimate": 814
       },
       "downloads": 0,
       "status": "production",

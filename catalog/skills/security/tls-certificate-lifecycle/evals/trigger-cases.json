@@ -1,0 +1,48 @@
+{
+  "skill": "tls-certificate-lifecycle",
+  "purpose": "Route TLS cert operations here.",
+  "cases": [
+    {
+      "id": "pos-1",
+      "prompt": "certificate expiry monitoring",
+      "should_trigger": true,
+      "assert": "routes to tls-certificate-lifecycle first",
+      "lexical": true
+    },
+    {
+      "id": "pos-2",
+      "prompt": "rotate TLS certs",
+      "should_trigger": true,
+      "assert": "routes to tls-certificate-lifecycle first",
+      "lexical": true
+    },
+    {
+      "id": "pos-3",
+      "prompt": "mTLS service identity",
+      "should_trigger": true,
+      "assert": "routes to tls-certificate-lifecycle first",
+      "lexical": true
+    },
+    {
+      "id": "neg-1",
+      "prompt": "CT typosquat watch",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-2",
+      "prompt": "JWT kid injection",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    },
+    {
+      "id": "neg-3",
+      "prompt": "envelope encryption",
+      "should_trigger": false,
+      "assert": "routes elsewhere, not here",
+      "lexical": true
+    }
+  ]
+}

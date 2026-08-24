@@ -1,6 +1,6 @@
 # AGENTS.md
 
-<!-- nexus-hub-version: 3.20.0 -->
+<!-- nexus-hub-version: 3.20.1 -->
 
 This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, Gemini CLI, etc.) when working with code in this repository.
 
@@ -8,7 +8,7 @@ This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, G
 
 Nexus-Hub is a production-grade skill harness for AI coding assistants. It is the **upstream catalog** consumed by Nexus (the local-first desktop AI Studio, see `https://github.com/bendourthe/Nexus-AI`) and by every other major agent platform: Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, and GitHub CLI. Skills, commands, hooks, agents, and rules are distributed via installer scripts into users' `~/.nexus-hub/` directory and into their AI assistant's per-platform config locations.
 
-Current catalog: **275 skills** across 21 categories, 18 commands (plus 3 permanent aliases), 33 hooks, 23 agents. The 40 v3.x deprecation shims were removed in v3.2.0.
+Current catalog: **315 skills** across 23 categories, 18 commands (plus 3 permanent aliases), 33 hooks, 23 agents. The 40 v3.x deprecation shims were removed in v3.2.0.
 
 ## Project Structure
 
@@ -24,7 +24,7 @@ Nexus-Hub/
 │   ├── mcp-configs/          # MCP server registry
 │   ├── memory/               # Memory template files
 │   ├── rules/                # Code style/security rules (4 languages)
-|   `-- skills/               # 275 skills across 21 categories
+|   `-- skills/               # 315 skills across 23 categories
 │       └── <category>/
 │           └── <skill-name>/
 │               └── SKILL.md
@@ -45,9 +45,9 @@ Nexus-Hub/
 
 ### 1. Choose the right category
 
-Existing categories: `ai-development`, `architecture`, `bug-fixing`, `business-product`, `code-cleanup`, `code-review`, `compliance`, `developer-experience`, `documentation`, `framework-specialists`, `infrastructure`, `language-specialists`, `orchestration`, `project-setup`, `research`, `security`, `security-operations`, `specialized-domains`, `testing`, `tests-generation`, `workflow`.
+Existing categories: `ai-development`, `architecture`, `bug-fixing`, `business-product`, `code-cleanup`, `code-review`, `compliance`, `developer-experience`, `documentation`, `framework-specialists`, `infrastructure`, `language-specialists`, `orchestration`, `project-setup`, `research`, `security`, `security-operations`, `ot-security`, `mobile-security`, `specialized-domains`, `testing`, `tests-generation`, `workflow`.
 
-The `security` category holds application-security skills (authentication, dependency/CVE analysis, exploitability, patch advice). The `security-operations` category (added v2.3.0) holds defensive operational skills: DFIR, threat hunting, detection engineering, incident response, and cloud / endpoint / identity / phishing detection. Place a new defensive-operations skill under `security-operations`; place an application-security or AppSec-review skill under `security`.
+The `security` category holds application-security skills (authentication, dependency/CVE analysis, exploitability, patch advice). The `security-operations` category (added v2.3.0) holds defensive operational skills: DFIR, threat hunting, detection engineering, incident response, and cloud / endpoint / identity / phishing detection. The `ot-security` category (added v3.20.1) holds industrial-control and operational-technology skills. The `mobile-security` category (added v3.20.1) holds Android/iOS application and mobile-malware skills. Place a new defensive-operations skill under `security-operations`; place an application-security or AppSec-review skill under `security`; place ICS/SCADA work under `ot-security`; place mobile-app or mobile-malware work under `mobile-security`.
 
 If none fit, discuss with maintainers before creating a new category.
 
@@ -131,6 +131,7 @@ Available optional fields:
 | `d3fend_techniques` | MITRE D3FEND defensive countermeasures | `[D3-NTA, D3-PA]` |
 | `nist_csf` | NIST Cybersecurity Framework categories | `[DE.CM, RS.AN]` |
 | `nist_ai_rmf` | NIST AI Risk Management Framework controls | `[MEASURE-2.6, GOVERN-1.1]` |
+| `mitre_f3` | MITRE Fight Fraud Framework (F3) | `[F1005.006, F1010]` |
 
 Example frontmatter for a defensive security skill:
 
@@ -148,7 +149,11 @@ nist_csf: [DE.CM, DE.AE]
 
 Companion file: when a skill declares any of these fields, it SHOULD ship a `references/standards.md` that documents the mapping (what each ID means, why it applies to this skill, and the public source URL for the framework definition). The orphan-bundle audit will warn if `references/standards.md` exists but is not referenced from `SKILL.md`; otherwise the file is purely additive.
 
-These fields exist so a downstream generator (e.g. `scripts/build_framework_coverage.py`) can emit a coverage matrix across Nexus-Hub's security skills. They are NOT a substitute for the skill body -- the body must still teach the agent what to do, with binary Verification and Common Rationalizations.
+These fields exist so a downstream generator (e.g. `scripts/build_framework_coverage.py`) can emit a coverage matrix across Nexus-Hub's security skills. The committed matrix is `docs/framework-coverage.md` (Navigator layer: `docs/attack-navigator-layer.json`); `build_framework_coverage.py --check` fails `make validate` when either file is stale. They are NOT a substitute for the skill body -- the body must still teach the agent what to do, with binary Verification and Common Rationalizations.
+
+#### agentskills.io conformance
+
+Nexus-Hub SKILL.md files target the [agentskills.io](https://agentskills.io) open standard: `name` and `description` are required and non-empty, `name` is 1-64 characters matching `^[a-z0-9]+(-[a-z0-9]+)*$`, and `description` is 1-1024 characters. `scripts/check_agentskills_conformance.py` proves that contract in `make validate` and CI; it is a repo-internal guard (listed in `DEV_ONLY_SCRIPTS`) and is not installer-copied. Extra top-level keys Nexus-Hub adds (`summary_l0`, `overview_l1`, framework-mapping fields, invocation-policy booleans) are permitted by the standard and reported as information, not failures. Thirteen pre-existing pushy descriptions exceed 1024 characters and are grandfathered by name; a new over-long description is a hard error. The guard does not re-check name-equals-directory (already a hard rule in `scripts/validate_skills.py`) and does not ban `<`/`>` in frontmatter (the v3.15.2 placeholder lint is the more precise check).
 
 Required body sections (in order):
 
@@ -190,7 +195,7 @@ Binary checklist. Each item must describe an observable artifact or state.
 - `<skill-name>` -- one sentence on the relationship
 ```
 
-**SKILL.md size norm.** Target ≤500 lines for the SKILL.md body. Soft cap 800 lines. Beyond 500 lines, add a `references/` subdirectory with a table of contents and link to it from SKILL.md rather than expanding the body. Beyond 800 lines, the skill MUST be split or refactored before merge. Existing skills that exceed 500 lines are grandfathered -- this norm is forward-looking and applies to new and substantially-rewritten skills only.
+**SKILL.md size norm.** Target ≤500 lines for the SKILL.md body. Hard cap 800 lines, enforced by `scripts/validate_skills.py` in `--bundles-only` (so `make validate` and CI fail a body over 800). Beyond 500 lines, add a `references/` subdirectory with a table of contents and link to it from SKILL.md rather than expanding the body. Beyond 800 lines, the skill MUST be split or refactored before merge. Existing skills that exceed 500 lines are grandfathered at the warning tier only -- a new or grown body over 800 is a hard error.
 
 #### Per-skill Bundled Resources
 

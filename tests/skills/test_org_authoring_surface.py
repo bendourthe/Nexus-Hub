@@ -127,7 +127,8 @@ def test_org_authoring_registration_is_consistent_and_selectable() -> None:
     assert skills["statistics"]["categories"]["workflow"] == sum(
         1 for entry in skills["skills"] if entry["category"] == "workflow"
     )
-    assert f"**Total: {total} skills across 21 categories**" in index
+    n_categories = len(skills["statistics"]["categories"])
+    assert f"**Total: {total} skills across {n_categories} categories**" in index
     assert "| org-standards-authoring | workflow |" in index
     assert f"{total} curated skills, 18 commands" in marketplace["plugin"]["description"]
 

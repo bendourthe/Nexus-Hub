@@ -10,6 +10,10 @@ validate: ## Validate all JSON catalog files and skill bundles
 	@python -c "import json; d = json.load(open('data/templates.json', encoding='utf-8')); print(f'  templates.json OK')"
 	@echo "Auditing per-skill bundled resources (scripts/, references/, assets/) for orphans..."
 	@python scripts/validate_skills.py --bundles-only
+	@echo "Checking agentskills.io open-standard conformance..."
+	@python scripts/check_agentskills_conformance.py
+	@echo "Checking committed framework-coverage map is fresh..."
+	@python scripts/build_framework_coverage.py --check
 	@echo "Running non-blocking skill quality-heuristics pass (warnings only)..."
 	@python scripts/validate_skills.py --quality
 	@echo "Running trigger-and-routing eval (description near-collision + routing hard gate)..."
