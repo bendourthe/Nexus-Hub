@@ -1,8 +1,51 @@
 # Known Gaps - v3.20
 
 **Project**: Nexus-Hub
-**Status**: finalized
-**Last updated**: 2026-08-23
+**Status**: in-progress
+**Last updated**: 2026-08-24
+
+## v3.20.3
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+
+### Open Items
+
+#### Not Implemented
+
+None.
+
+#### Deferred
+
+None.
+
+#### Bugs / Regressions
+
+None.
+
+#### Warnings
+
+None new. Phase 1 reused the v3.20.2 scoped `--path` personal-paths scan (WN-3) and did not retarget `check_docs_conventions.py` off `docs/v3/v3.19/` (WN-4). Those remain open on the v3.20.2 subsection.
+
+#### Missing Tests / Coverage Gaps
+
+None. `skill-description-authoring` and `skill-create` now ship `evals/trigger-cases.json`; `python scripts/run_trigger_evals.py --gate` is PASS (63 skills with cases, 0 routing failures).
+
+#### Quality-Gate Gaps
+
+None. Existing `ci.yml` already treats `catalog/skills/**` and `docs/policy/**` as relevant (job-level classifier, no workflow-level `paths:` filter). Concurrency cancel-in-progress and pip cache are unchanged.
+
+### Resolved
+
+None yet.
 
 ## v3.20.2
 

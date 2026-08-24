@@ -1,8 +1,8 @@
 ---
 name: skill-description-authoring
-description: Author and rewrite SKILL.md frontmatter descriptions so they stay single-line, ASCII-sanitized, and preserve the four matching trigger nouns (product, tool, action, object). Use when writing a new skill description, compacting an over-long one, or fixing a description that no longer surfaces in search and trigger matching. Use when the user mentions confidence bands, match confidence, High/Medium/Low/Reject skill match, clarification ceiling, clarification-rate ceiling, under-triggering, over-triggering, or a skill that always asks clarifying questions. SKIP - writing the skill body, eval harness design, or unrelated copy-editing.
+description: Author and rewrite SKILL.md frontmatter descriptions so they stay single-line, ASCII-sanitized, and preserve the four matching trigger nouns (product, tool, action, object). Use when writing a new skill description, compacting an over-long one, or fixing a description that no longer surfaces in search and trigger matching. Use when the user mentions confidence bands, match confidence, High/Medium/Low/Reject skill match, clarification ceiling, clarification-rate ceiling, under-triggering, over-triggering, a skill that always asks clarifying questions, context pointers, leading words, two loads, negation avoidance, sediment pruning, or hard vs soft setup-dependency. SKIP - writing the skill body (use skill-create), eval harness design, or unrelated copy-editing.
 summary_l0: "Author single-line skill descriptions that preserve product, tool, action, and object trigger nouns"
-overview_l1: "This skill codifies how to write and rewrite the description field in a SKILL.md so it stays faithful to the matcher that loads skills into the agent prompt. Use it when authoring a new skill, compacting a description grown too long for the render budget, or repairing one that stopped surfacing for its tasks. Rules: descriptions are single-line and ASCII-sanitized; they preserve product, tool, action, and object trigger nouns; name defaults to the parent directory; match decisions use High/Medium/Low/Reject confidence bands; and a skill that always defers to clarification is failing, not being safe. Trigger phrases: skill description, description authoring, trigger nouns, compact description, SKILL.md frontmatter, rewrite description, confidence bands, clarification ceiling, under-triggering, over-triggering."
+overview_l1: "Write and rewrite the SKILL.md description so the matcher loads the skill. Use when authoring, compacting, or repairing a description that stopped surfacing. Rules: one physical ASCII line; preserve product, tool, action, and object trigger nouns; name defaults to the parent directory; High/Medium/Low/Reject confidence bands; a skill that always defers to clarification is failing. Apply context-pointer, two-loads, leading-word, negation-avoidance, sediment-pruning, and hard/soft setup-dependency discipline; see references/agent-writing-theory.md. Trigger phrases: skill description, description authoring, trigger nouns, compact description, SKILL.md frontmatter, rewrite description, confidence bands, clarification ceiling, context pointers, leading words."
 category: developer-experience
 ---
 
@@ -23,13 +23,14 @@ Use this skill for:
 
 ## What This Skill Does
 
-Provides three authoring rules and the worked examples that make them concrete:
+Provides the authoring rules and the worked examples that make them concrete:
 
 - **Single-line sanitation**: every description is one physical line, ASCII-only, no trailing whitespace
 - **Trigger-noun preservation**: every description keeps the four noun categories that drive matching
 - **Name defaulting**: the `name:` field falls back to the parent directory name when omitted
 - **Confidence bands**: a match decision is High, Medium, Low, or Reject, and the description is what lands the match in the right band
 - **Clarification ceiling**: a skill that always defers to a clarifying question is failing, not being safe
+- **Agent-writing discipline**: context pointers, the two loads, leading words, negation avoidance, sediment pruning, and the hard/soft setup-dependency split; full treatment in `references/agent-writing-theory.md`
 
 ## Instructions
 
@@ -98,6 +99,19 @@ description: Build an internal metrics dashboard with filters and drill-down. Us
 
 The after form is longer on purpose. Those extra words are the difference between a skill that fires and a skill that interviews the user until the session dies.
 
+### Rule 6: Apply agent-writing discipline to the description and its pointers
+
+The description is a context pointer: its wording, not the body sitting on disk, decides whether the agent ever loads this skill. The six concepts below apply here; the full treatment with worked examples is in `references/agent-writing-theory.md`.
+
+- **Context pointers**: sharpen the always-loaded wording before inlining more body. One trigger family per genuinely distinct branch. Name the file the agent should open (`references/agent-writing-theory.md`), not "see the bundled reference".
+- **Two loads**: the description spends context load (always-loaded tokens) on every session across the catalog. Keep it pushy and short. Cognitive load is what the author must remember; a strong pointer (path plus why) converts that into an on-demand read.
+- **Leading words**: prefer compact pretraining-anchored tokens (`SKIP`, `Verification`, `frontmatter`) over spelled-out triads. Collapse a triad into one catalog word. Delete an instruction the model already obeys (the no-op test); do not trim it.
+- **Negation avoidance**: state the positive target ("write one physical line") first. Reserve "do not" for hard guardrails and pair each with the allowed alternative.
+- **Sediment and relevance pruning**: every line must still change behavior. If removing a clause would not change the agent's action, it is sediment; cut it. Prune on every substantial edit, not only at the 500-line size-norm.
+- **Hard/soft setup-dependency**: this skill has no hard setup dependency. A skill that cannot function without prior setup carries an explicit run-this-first pointer; a skill that merely sharpens with setup mentions it in soft prose and does not block.
+
+When compacting a description, apply the no-op test and sediment prune before dropping a trigger noun. Trigger-noun preservation (Rule 2) still wins over compactness.
+
 ## Worked Examples
 
 ### Example 1: A good description
@@ -159,6 +173,9 @@ Now the description carries **product** (`dead code`), **tool** (`code`), **acti
 | "Curly quotes and em-dashes look more polished." | They violate the ASCII-only convention, corrupt on some Windows encodings, and will be rejected once validate_skills.py enforces the rule. Use straight quotes and hyphens. |
 | "I will ask a clarifying question every time so I do not guess wrong." | A skill that always defers is failing, not being safe. Name the default path and the SKIP fence; ask once only when a required input is actually absent. |
 | "High/Medium/Low/Reject is ceremony for a boolean match." | Under-triggering is the catalog's default failure mode. Bands force the description to list trigger phrases and SKIP cases so the matcher can Reject look-alikes instead of staying silent. |
+| "I will inline the whole writing theory so the agent cannot miss it." | The description is the pointer. Inlining spends context load on every session. Sharpen the pointer; keep the six concepts in `references/agent-writing-theory.md`. |
+| "A prohibition is clearer than a positive instruction." | Models overweight the forbidden object. State the target behavior. Reserve "do not" for hard guardrails and pair each with the allowed alternative. |
+| "This extra sentence does not hurt, and the model already knows it anyway." | If removing it would not change behavior, it is sediment or a no-op. Delete it. Restating a default dilutes the lines that actually change matching or rendering. |
 
 ## Verification
 
@@ -170,6 +187,9 @@ Now the description carries **product** (`dead code`), **tool** (`code`), **acti
 - [ ] The description does not instruct the agent to ask a clarifying question on every invocation.
 - [ ] If `name:` is present, it matches the parent directory name exactly; the directory name is kebab-case.
 - [ ] Running `python scripts/validate_skills.py --path catalog/skills/<category>/<skill>/` reports PASS with no errors.
+- [ ] The description and body (or `references/agent-writing-theory.md`) cover all six agent-writing concepts: context pointers, two loads, leading words, negation avoidance, sediment pruning, hard/soft setup-dependency.
+- [ ] `references/agent-writing-theory.md` is named from this SKILL.md (orphan-bundle audit clean).
+- [ ] Compaction applied the no-op test and sediment prune before dropping any trigger noun.
 
 ## Source
 
@@ -180,6 +200,8 @@ This skill adopts the description-authoring rule surfaced in the skill-cleaner s
 - [[tool-design]] - designing tool and skill descriptions for AI agent consumption
 - [[prompt-engineering]] - the broader discipline of writing text an LLM reads precisely
 - [[writing-editing]] - general clarity and concision principles that apply to the prose around the description
+- [[skill-create]] - drafts a full SKILL.md from git history; apply this skill's description rules and `references/agent-writing-theory.md` at its draft step
+- `references/agent-writing-theory.md` - the six agent-writing concepts (context pointers, two loads, leading words, negation avoidance, sediment pruning, hard/soft setup-dependency)
 
 ---
 

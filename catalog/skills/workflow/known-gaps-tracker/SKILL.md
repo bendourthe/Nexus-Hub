@@ -17,6 +17,12 @@ Maintain `docs/v<MAJOR>/v<MAJOR>.<MINOR>/known-gaps.md` as a per-minor-version, 
 
 **When NOT to use**: do not duplicate forward-looking sprint planning that belongs in `docs/todos.md` (managed by `dev-progress-tracker`). `known-gaps.md` records what slipped during the version that just shipped or is shipping; `docs/todos.md` describes the live forward roadmap. Also distinct from `docs/<next-version>/review/00-known-gaps.md` produced by `/run-deep-review`, which is a one-shot pre-release aggregation across many sources - this file is one of the sources that aggregation should read.
 
+**Out-of-scope is a different surface.** `docs/policy/out-of-scope/` records features we have decided to never do. Known-gaps records work intended for later (`DF` still means "maybe in a future plan"). When the user or the comparison says "we will never do this", "this is a declined feature", or "do not add X", write or update `docs/policy/out-of-scope/<topic-slug>.md` and add it to that directory's README index. Do not append a never-do item here; a `DF` row would invite `/generate-plan` to ingest it as scope.
+
+## Out-of-scope register (never-do, not do-later)
+
+Path: `docs/policy/out-of-scope/README.md`. Each entry is one kebab-case file with (1) a one-line declaration, (2) why it is out of scope, (3) prior requests. If an open known-gaps row is later recognized as never-do, move it to Resolved with `Resolved in: transferred to docs/policy/out-of-scope/<topic-slug>.md` so the two files cannot disagree.
+
 ## File Format
 
 Path: `docs/v<MAJOR>/v<MAJOR>.<MINOR>/known-gaps.md` - **one file per minor version** that has had at least one phase implemented. Patch releases share their minor directory, so the file carries a single file-level header (`Project`, `Status`, `Last updated`) followed by one `## v<MAJOR>.<MINOR>.<PATCH>` subsection per patch release; a new patch appends its subsection rather than overwriting the header or a prior patch's items.
@@ -171,6 +177,7 @@ This phase adopts doctrine only. A separate durable cross-run scrutiny store is 
 | "This warning isn't really a gap" | If a future version would benefit from fixing it, it is a gap. Record at the appropriate severity - `WN` is fine for low-impact items. Better to over-record and let `/generate-plan` Step 0.6's "pick a subset" option filter than to lose the signal entirely. |
 | "I already wrote this up in the session history" | Session-history files are per-session, not per-version. The known-gaps file aggregates across every phase of a single version and is the only artifact `/generate-plan` reads to pull work forward. |
 | "A prior cycle marked this safe, so the next review can skip it" | A prior result may be stale against the current revision or scope. Cross-cycle memory may raise priority and require a recheck, but it can never serve as current coverage or suppress examination. |
+| "We will never do this, so I will log it as DF in known-gaps" | Deferred still means later. Never-do belongs in `docs/policy/out-of-scope/<topic-slug>.md`. A DF row here would be ingested by `/generate-plan` as candidate scope. |
 
 ## Verification
 
@@ -182,6 +189,7 @@ This phase adopts doctrine only. A separate durable cross-run scrutiny store is 
 - [ ] Item IDs are not reused: a resolved `NI-3` does not become a new `NI-3` later.
 - [ ] Any cross-cycle record is used only to raise priority or require re-examination; no prior "safe", out-of-scope, or resolved state suppresses current coverage work.
 - [ ] The durable cross-run scrutiny store is recorded as deferred work and was not built or implied by this doctrine-only change.
+- [ ] Never-do items were routed to `docs/policy/out-of-scope/<topic-slug>.md`, not appended as known-gaps `DF` rows.
 
 ## Related Skills
 
@@ -191,3 +199,4 @@ This phase adopts doctrine only. A separate durable cross-run scrutiny store is 
 - [[implementation-plan]] -- generates the plan that known-gaps eventually feeds into for the next version.
 - `docs/policy/docs-retention.md` -- the per-version documentation lifecycle. `known-gaps.md` is explicitly EXEMPT from archival: it is read forward by the next version's plan, so it stays in the active tree even after that version's `development/` subtree is archived.
 - [[solution-knowledge-base]] -- when a `BG` (bug) gap is resolved with a non-trivial root cause, or an item is closed with a hard-won insight, graduate it into a durable `docs/solutions/<category>/<slug>.md` entry so the fix becomes grounding for future planning and review. Moving the item to `## Resolved` records *that* it was fixed; the solution doc records *how*, retrievably.
+- `docs/policy/out-of-scope/README.md` -- the never-do register. Route declined features there; this tracker stays the do-later log.

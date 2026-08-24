@@ -9,6 +9,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Agent-writing discipline in skill-authoring skills.** `skill-description-authoring` and `skill-create` now teach context pointers, the two loads, leading words, negation avoidance, sediment pruning, and the hard/soft setup-dependency split. Full treatment lives in `skill-description-authoring/references/agent-writing-theory.md`; `skill-create` links that file and does not fork it.
+- **Out-of-scope register.** `docs/policy/out-of-scope/` records deliberately-declined features (never-do), distinct from `known-gaps.md` (do-later). Seeded with search-as-service MCP registry entries and changesets release automation. `known-gaps-tracker` routes "we will never do this" items there.
+
 ## [3.20.2] - 2026-08-24
 
 This release changes no opt-in capability, installer flag, or host surface.
