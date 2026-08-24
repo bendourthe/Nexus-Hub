@@ -630,6 +630,7 @@ npm test
 - [[pre-commit-checklist]] -- pre-commit security checks
 - [[licensing-compliance]] -- license checking
 - [[cve-reachability-analyzer]] -- triages this skill's CVE findings to drop unreachable false positives
+- [[slsa-provenance-and-sigstore-verification]] -- build provenance and Sigstore verification for artifacts this audit already listed as dependencies
 - [[sbom-generation]] -- generates the SBOM artifacts this audit consumes and emits
 
 ## Additional Resources

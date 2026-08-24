@@ -1,8 +1,8 @@
 {
   "plugin": {
     "name": "nexus-hub",
-    "version": "3.20.0",
-    "description": "Enterprise-grade skill library for AI coding assistants with 275 curated skills, 18 commands, 33 hooks, and cross-platform support",
+    "version": "3.20.1",
+    "description": "Enterprise-grade skill library for AI coding assistants with 315 curated skills, 18 commands, 33 hooks, and cross-platform support",
     "author": "Benjamin Dourthe",
     "license": "MIT",
     "repository": "https://github.com/bendourthe/Nexus-Hub",
@@ -150,13 +150,13 @@
       "id": "security",
       "name": "Security",
       "description": "Authentication, AI attack patterns, CVE analysis, dependency audit, licensing, penetration testing and reporting, framework mapping",
-      "skill_count": 15
+      "skill_count": 33
     },
     {
       "id": "security-operations",
       "name": "Security Operations",
       "description": "Defensive security operations: DFIR, threat hunting, detection engineering, incident response, agentic-endpoint hardening, agent execution isolation, and cloud/endpoint/identity/phishing detection",
-      "skill_count": 17
+      "skill_count": 29
     },
     {
       "id": "specialized-domains",
@@ -187,6 +187,18 @@
       "name": "Research",
       "description": "Research recent trends and answer library/API questions from local sources",
       "skill_count": 3
+    },
+    {
+      "id": "ot-security",
+      "name": "OT Security",
+      "description": "Industrial control, SCADA, IEC 62443 zones, and NERC CIP operational-technology security",
+      "skill_count": 5
+    },
+    {
+      "id": "mobile-security",
+      "name": "Mobile Security",
+      "description": "Android and iOS application security, mobile traffic interception, and mobile malware triage",
+      "skill_count": 5
     }
   ],
   "discovery": {

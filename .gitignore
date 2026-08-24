@@ -130,3 +130,8 @@ media.env
 # OneDrive-synced checkout. Ignored so it can never be committed if a run does
 # leave a file in it.
 /Microsoft/
+
+# Looping SKILL.md relocator incident (2026-08-23). Numbered stubs under
+# ai-agent-development/references/ are never catalog content.
+catalog/skills/ai-development/ai-agent-development/references/references.md
+catalog/skills/ai-development/ai-agent-development/references/references-[0-9]*.md
