@@ -15,6 +15,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **`accessibility-engineering` skill.** First interface-craft cluster skill: semantic names, keyboard and focus, forms, hit areas, reduced motion, and zoom/reflow, with a `references/` bundle. Contrast measurement is handed to `color-systems`; heading visuals to `web-typography`. Original writing; no copied source prose.
 - **`layout-and-spacing` and `interface-copy` skills.** Spatial grouping, spacing scales, breakpoints, and RTL mirroring; in-product microcopy for actions, errors, empty states, and confirmations. Both written originally with SKIP clauses that fence `frontend-ui-engineering`, `accessibility-engineering`, `writing-editing`, `anti-slop-editing`, and `internal-comms`.
 - **`web-typography` and `color-systems` skills.** Font loading, type scales, wrapping, and truncation; OKLCH palettes, rendered-pair measurement, and gamut fallbacks. Contrast severity and heading ranks stay on `accessibility-engineering`. Original writing; no copied source prose.
+- **`hallmark-design` recipe layer.** Surfaces, radius, icon stroke, and motion values land in the existing skill (judgment gates stay; recipes apply after). No seventh cluster skill. Reduced-motion *requirements* stay on `accessibility-engineering`.
 
 ## [3.20.1] - 2026-08-23
 

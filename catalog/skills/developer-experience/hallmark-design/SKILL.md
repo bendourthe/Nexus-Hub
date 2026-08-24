@@ -33,6 +33,9 @@ Use this skill when:
 - For the component contract / prop-and-variant generation problem, use `ui-component-generation` first, then run this skill's `audit` verb over the result.
 - For multi-component architecture, routing, and page-level state, use `frontend-ui-engineering`.
 - For the decision of whether an artifact should be HTML at all (versus Markdown), use `html-output-conventions`.
+- For WCAG requirements (names, keyboard, focus visibility, reduced-motion *musts*, contrast *severity*): `accessibility-engineering`. This skill may still fail a build that looks generic.
+- For spatial structure: `layout-and-spacing`. For type loading and truncation: `web-typography`. For palette construction: `color-systems`. For in-product wording: `interface-copy`.
+- For a holistic review across those domains: `interface-review`.
 
 ## The Four Verbs
 
@@ -65,7 +68,7 @@ Every `build` output must pass these gates; `audit` reports each one it fails; `
 7. No unmotivated gradient (especially purple-to-blue / indigo-to-violet) on buttons, headings, or backgrounds.
 8. A constrained palette: one or two accent colors with a neutral base, not a rainbow of semantic colors.
 9. Accent color is used sparingly for emphasis, not painted across every interactive element.
-10. Sufficient contrast: body text meets WCAG AA (4.5:1); large text and UI components meet 3:1.
+10. Sufficient contrast: unreadable text is a slop fail *and* an accessibility fail. `accessibility-engineering` decides when contrast is required and how severe a miss is; `color-systems` measures the rendered pair. Do not keep a second severity table here.
 11. No pure-black (#000) text on pure-white (#fff) for long-form body copy; use a softened near-black on an off-white when the design calls for reduced glare.
 
 ### Typography
@@ -94,7 +97,7 @@ Every `build` output must pass these gates; `audit` reports each one it fails; `
 
 25. Motion is purposeful (state transitions, focus), not decorative entrance animations on every element.
 26. Hover and focus states exist and are distinct; focus is never removed without a visible replacement.
-27. Reduced-motion preference (`prefers-reduced-motion`) is honored.
+27. Reduced-motion preference (`prefers-reduced-motion`) is honored as a **requirement** owned by `accessibility-engineering`. Optional durations, easing, and transforms in the recipe layer apply only after that requirement is met.
 
 ### Content
 
@@ -103,6 +106,25 @@ Every `build` output must pass these gates; `audit` reports each one it fails; `
 30. No redundant restating of the same idea in headline, subhead, and body.
 
 (The catalog above is the working subset most relevant to Nexus's Coding-pillar surfaces; Hallmark's full upstream gate list runs to 65+ entries. Extend this catalog as new generic-looking patterns are observed in practice, recording each new gate with a one-line rationale.)
+
+## Recipe layer (values after judgment)
+
+The gates above are **judgment**: they decide whether an effect belongs. Once it does, use a recipe so the value is not the browser default or a one-off guess.
+
+| Topic | File |
+|---|---|
+| Surfaces, elevation, hairline borders | `references/surfaces-and-elevation.md` |
+| Radius scale, icon stroke, optical size | `references/radius-and-icons.md` |
+| Durations, easing, deliberate transforms | `references/motion-recipes.md` |
+
+Short defaults when the project has no tokens yet:
+
+- Elevation: page is flat; a justified card may use `0 1px 2px rgb(0 0 0 / 0.06), 0 8px 24px rgb(0 0 0 / 0.08)`; overlays add a `rgb(0 0 0 / 0.4)` scrim.
+- Radius: 6px controls, 10px cards, 16px sheets, pill only for chips and avatars. Nested inner radius = outer minus padding.
+- Icons: one stroke (1.5px or 2px at 24px optical size); 16px inline, 20-24px in buttons.
+- Motion: 150ms color/opacity, 200ms press, ~300ms overlay enter; `cubic-bezier(0.2, 0, 0, 1)` enter, faster exit. Press may `translateY(1px)` or `scale(0.98)`. No scroll-triggered bounce on every card.
+
+If the project already publishes `--shadow-*`, `--radius-*`, or motion tokens, use those names. The recipe is a fallback, not a second design system.
 
 ## Instructions
 
@@ -145,13 +167,15 @@ Every `build` output must pass these gates; `audit` reports each one it fails; `
 | "Three feature cards is just clean." | Three identical-width cards is the single most recognizable slop tell. If the content is genuinely three peers, vary their emphasis or use a different grouping. |
 | "Emoji bullets make it friendly." | In a developer tool they read as generated. Use real list markup with restrained styling. |
 | "We need all 22 themes for flexibility." | Nexus has one shell theme. Themes are upstream Hallmark scope that does not apply here; see Scope Excluded. |
+| "I already picked colors; motion can stay the CSS default." | Default `ease` over 400ms on every property is the generic look. If motion belongs (gate 25), use the recipe durations; if it does not, use none. |
 
 ## Verification
 
 - [ ] The chosen verb was applied (build / audit / redesign / study) and its output shape matches the table above.
 - [ ] For `build` and `redesign`: every gate in the catalog passes, or any deliberate exception is noted with a rationale.
 - [ ] For `audit`: the findings table is severity-ranked and ends with a verdict; the source was not mutated.
-- [ ] Accessibility gates (10, 11, 21, 26, 27) are satisfied, not traded away for aesthetics.
+- [ ] Accessibility gates (11, 21, 26) plus the handoffs on 10 and 27 are satisfied, not traded away for aesthetics. Contrast severity stays with `accessibility-engineering`; reduced-motion requirements stay there too.
+- [ ] Recipe-layer values (elevation, radius, icon stroke, motion) were taken from the project's tokens or from the defaults in `references/`, not invented per component.
 - [ ] No theme-catalog artifact was introduced (Scope Excluded honored).
 - [ ] Attribution to Hallmark + Together AI is preserved in this skill's front matter.
 
@@ -161,3 +185,9 @@ Every `build` output must pass these gates; `audit` reports each one it fails; `
 - [[ui-component-generation]] -- generate the component contract first, then audit the result here.
 - [[frontend-ui-engineering]] -- page-level architecture, state, and accessibility.
 - [[creative-generation]] -- design direction and ideation when the brief is open-ended.
+- `accessibility-engineering` -- reduced-motion *requirements*, names, keyboard, contrast *severity*
+- `layout-and-spacing` -- grouping and breakpoints; this skill owns whether the grouping looks generic
+- `web-typography` -- loading, measure, truncation
+- `color-systems` -- OKLCH palettes and measured pairs
+- `interface-copy` -- source strings
+- `interface-review` -- coordinating review that may load this skill as the polish delegate
