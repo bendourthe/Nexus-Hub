@@ -16,8 +16,9 @@ The complete, ordered procedure is in [`references/implement-phase-runbook.md`](
 - Implementing a specific phase of an existing plan ("implement phase 3", "build the next phase", "continue the plan").
 - Executing a plan produced by `/plan` under `docs/v<MAJOR>/v<MAJOR>.<MINOR>/plans/` (or a legacy layout).
 - Driving a phase all the way to a committed, documented, tested state - not just writing the code.
+- Driving every incomplete phase of a plan in one session (`/implement <slug> in-full` or `phase-by-phase`).
 
-**Trigger phrases**: "implement phase N", "build the next phase", "do phase 3 of the plan", "execute the plan", "continue implementing".
+**Trigger phrases**: "implement phase N", "build the next phase", "do phase 3 of the plan", "execute the plan", "continue implementing", "implement in-full", "phase-by-phase".
 
 ### When NOT to Use
 
@@ -34,8 +35,9 @@ The runbook defines ten stages; the load-bearing ones:
 - **Phase 0 - Resolve and detect.** Resolve the plan and phase; set `is_final_phase` from the five signals (phase ordering, title heuristics, prior-phase completion, plan metadata, adjacent plans). Show a pre-flight summary and wait for confirmation.
 - **Phases 1-2 - Review and implement.** Review the plan against the codebase, then implement subtask by subtask, in scope, logging `# DEVIATION:` markers.
 - **Phases 3-7 - Lint, test, gate.** Lint/format; run tests with coverage; augment missing tests; troubleshoot failures (max 3 iterations, classified IMPL/TEST/ENV); apply the four-part GO/NO-GO gate (0 failures, >= 80% coverage, 0 lint errors, build succeeds).
-- **Phase 8 - Post-phase sequence (every phase).** The ten steps 8.1-8.10 in strict order, ending in the REQUIRED commit-and-push prompt. Step 8.3 now includes a CI/CD optimization pass, not just a coverage/consistency check.
+- **Phase 8 - Post-phase sequence (every phase).** The ten steps 8.1-8.10 in strict order. One-phase invocations end in the REQUIRED commit-and-push prompt. Driver modes (`in-full`, `phase-by-phase`) replace 8.10 as documented in the runbook: `in-full` is commit-only on non-final phases (no push); `phase-by-phase` uses the five-option menu.
 - **Phase 9 - Final phase only.** Run the fail-closed last-phase duties (9.0), write `<version_dir>/development/last-phase-evidence.md`, resolve known gaps (9A), verify tests + CI/CD (9B), then hand 9C-9E off to `/update release` only when the evidence file is complete and Goal-vs-codebase review has no unresolved miss.
+- **Driver loop** - used only when mode is `in-full` (alias `full`) or `phase-by-phase`. Iterate incomplete phases with the existing Phase 0-8 sequence unchanged. A failed GO/NO-GO gate or context exhaustion stops the driver at that phase boundary. After a successful last phase, require the evidence file, then hand off to `/update release`. Never tag or push the release from the driver. See the runbook. Cross-link `[[code-commit-workflow]]` for phase-boundary commits.
 
 ## Mandatory final-phase gate (v3.11.0)
 
@@ -53,14 +55,16 @@ When `is_final_phase` is true, before the release-readiness sub-phases, run the 
 | "Tests passed so the Goal landed." | Green tests are not a Goal-vs-codebase review. Re-read the plan Goal and inspect the artifacts; a miss blocks `/update release` unless a known-gap records it. |
 | "Skip this last-phase duty; it will be a no-op." | There is no skip license on Phase 9. Omit a duty only by writing a `QG` or `DF` known-gap with Source phase, Plan reference, Reason, and Suggested next step, or refuse. |
 | "I'll create the release tag since everything passed." | The skill never tags or pushes automatically. The final phase hands off to `/update release`, which owns the version bump, changelog, tag, and push behind its own gates. |
+| "in-full should also push each phase so CI stays green." | Non-final `in-full` commits are commit-only. Push is a `phase-by-phase` menu choice or a later explicit push. The driver never tags or pushes a release. |
 
 ## Verification
 
 - [ ] Plan and phase resolved; `is_final_phase` set from the five signals and shown in the pre-flight summary.
 - [ ] Code implemented subtask by subtask, in scope, with deviations logged.
 - [ ] Lint clean; tests run with coverage; GO/NO-GO gate evaluated (0 failures, coverage threshold, 0 lint errors, build succeeds) or the user explicitly bypassed with the gap documented.
-- [ ] Phase 8 ran all ten steps in order, ending in the commit-and-push prompt; known-gaps appended to the correct `## v<MAJOR>.<MINOR>.<PATCH>` subsection; session history written to `<version_dir>/development/history/`.
+- [ ] Phase 8 ran all ten steps in order; one-phase invocations ended in the commit-and-push prompt; `in-full` non-final phases used commit-only with no push; `phase-by-phase` used the five-option menu; known-gaps appended to the correct `## v<MAJOR>.<MINOR>.<PATCH>` subsection; session history written to `<version_dir>/development/history/`.
 - [ ] On the final phase: `<version_dir>/development/last-phase-evidence.md` exists with one quoted section per duty, including Goal-vs-codebase review; a missing file or unresolved Goal miss without a recorded gap blocked `/update release`; no tag or push was created automatically.
+- [ ] Driver modes, when used, iterated incomplete phases without dropping gates; a failed quality gate stopped the loop; one-phase invocations were unchanged.
 
 ## Related Skills
 
