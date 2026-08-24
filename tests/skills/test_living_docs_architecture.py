@@ -84,3 +84,20 @@ def test_living_docs_decision_record_exists_with_required_sections() -> None:
     assert "## Consequences" in text
     assert "docs/validation/" in text
     assert "v4.0" in text
+
+
+def test_v4_lifespan_plan_consumes_handbooks_equivalent() -> None:
+    path = (
+        ROOT
+        / "docs"
+        / "v4"
+        / "v4.0"
+        / "plans"
+        / "v4.0.0-docs-lifespan-tree-and-enforcement.md"
+    )
+    text = _read(path)
+    assert "has no equivalent" not in text
+    assert "docs/v3/v3.21/plans/v3.21.0-plan-implement-lifecycle-and-docs-architecture.md" in text
+    assert "docs/archives/v<M>/v<M>.<m>/handbooks/" in text
+    assert "regenerate-and-fail-on-stale" in text
+    assert "docs/handbooks/" in text
