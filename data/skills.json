@@ -6,16 +6,16 @@
     "description": "Comprehensive catalog of Nexus-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-        "total_skills": 321,
+        "total_skills": 324,
     "categories": {
       "ai-development": 14,
       "architecture": 7,
       "bug-fixing": 5,
-      "business-product": 6,
+      "business-product": 7,
       "code-cleanup": 10,
       "code-review": 15,
       "compliance": 9,
-      "developer-experience": 38,
+      "developer-experience": 40,
       "documentation": 6,
       "framework-specialists": 6,
       "infrastructure": 19,
@@ -33,7 +33,7 @@
       "mobile-security": 5
     },
     "priorities": {
-      "MEDIUM": 269,
+      "MEDIUM": 272,
       "HIGH": 5
     },
     "total_lines": 130300,
@@ -11334,6 +11334,120 @@
         "structural": 100,
         "integrity": 100,
         "semantic": 95
+      }
+    },
+    {
+      "name": "design-interview",
+      "title": "design-interview",
+      "description": "Run a relentless one-question-at-a-time design interview until every branch of the design tree is resolved, and maintain a project domain glossary at CONTEXT.md. Use whenever the user says \"grill me\", \"interview me about this design\", \"ask me questions until this is fully specified\", \"build a domain glossary\", \"shared language\", \"ubiquitous language\", or wants an interview engine that idea-refine, ambiguity-detector, doc-coauthoring, or implementation-plan can invoke. SKIP - turning a vague idea into a problem statement (use idea-refine); reviewing an already-written spec for ambiguity (use ambiguity-detector); upgrading requirement quality and testability (use requirement-enhancer). CONTEXT.md is a sibling of .claude/context/architecture.md, never a replacement.",
+      "long_description": "Reusable interview engine: one question at a time, follow each answer's implications, no hard question cap. Second job: maintain CONTEXT.md at the repo root as a domain glossary (definition, avoid-list, relationships) whenever an interview surfaces new or ambiguous vocabulary. Other skills invoke this engine; they are not replaced. Soft-depends on an existing CONTEXT.md. Trigger phrases: grill me, interview me about this design, ask me questions until this is fully specified, build a domain glossary, shared language.",
+      "summary_l0": "\"Interview until the design tree is resolved and keep a CONTEXT.md glossary\"",
+      "overview_l1": "\"Reusable interview engine: one question at a time, follow each answer's implications, no hard question cap. Second job: maintain CONTEXT.md at the repo root as a domain glossary (definition, avoid-list, relationships) whenever an interview surfaces new or ambiguous vocabulary. Other skills invoke this engine; they are not replaced. Soft-depends on an existing CONTEXT.md. Trigger phrases: grill me, interview me about this design, ask me questions until this is fully specified, build a domain glossary, shared language.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "developer-experience",
+      "language": "Multi-language",
+      "tags": [
+        "interview",
+        "glossary",
+        "design"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Write"
+      ],
+      "path": "catalog/skills/developer-experience/design-interview/",
+      "file": "catalog/skills/developer-experience/design-interview/SKILL.md",
+      "size": {
+        "lines": 106,
+        "characters": 8351,
+        "tokens_estimate": 1043
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "setup-wizard-generator",
+      "title": "setup-wizard-generator",
+      "description": "Generate an interactive, resumable shell wizard for human-only sequences - provisioning infrastructure, entering credentials or CI secrets, walking a third-party dashboard, or executing a one-off migration or cutover. Use whenever the user says \"walk me through setting up\", \"guide me through the dashboard\", \"interactive setup script\", \"help me do the manual steps\", \"resumable wizard\", or needs a script that presents one human step at a time, waits for confirmation, and validates an observable outcome. SKIP - automated setup the agent can run itself (use setup-project or the init-* skills); grilling the user about a design (use design-interview); a stakeholder questionnaire (use decision-questionnaire). The agent adapts the bundled templates and does not run privileged or secret-bearing steps itself.",
+      "long_description": "Produces an interactive wizard for steps only a human can perform. One step at a time, explain what and why, wait for confirmation, validate an observable (file, command, env var), resume from a state file after interruption. Ship and adapt scripts/wizard-template.sh plus the mandatory scripts/wizard-template.ps1. The agent never runs privileged steps or echoes secrets. SKIP automated setup the agent can execute. Trigger phrases: walk me through setting up, guide me through the dashboard, interactive setup script, help me do the manual steps.",
+      "summary_l0": "\"Generate a resumable human-only setup wizard with bash and PowerShell templates\"",
+      "overview_l1": "\"Produces an interactive wizard for steps only a human can perform. One step at a time, explain what and why, wait for confirmation, validate an observable (file, command, env var), resume from a state file after interruption. Ship and adapt scripts/wizard-template.sh plus the mandatory scripts/wizard-template.ps1. The agent never runs privileged steps or echoes secrets. SKIP automated setup the agent can execute. Trigger phrases: walk me through setting up, guide me through the dashboard, interactive setup script, help me do the manual steps.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "developer-experience",
+      "language": "Multi-language",
+      "tags": [
+        "wizard",
+        "setup",
+        "human-only"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Write"
+      ],
+      "path": "catalog/skills/developer-experience/setup-wizard-generator/",
+      "file": "catalog/skills/developer-experience/setup-wizard-generator/SKILL.md",
+      "size": {
+        "lines": 99,
+        "characters": 7326,
+        "tokens_estimate": 915
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "decision-questionnaire",
+      "title": "decision-questionnaire",
+      "description": "Turn a decision the agent cannot resolve in-session into a self-contained Markdown questionnaire for the one person who can answer it - filled in async or walked through live. Use whenever the user says \"I need to ask my stakeholder\", \"make a questionnaire\", \"prepare questions for the client\", \"prepare questions for the PM\", \"prepare questions for the security team\", \"async decision\", or needs a send-ready question list with enumerated options. Interviews the requester about the send (who, what context they lack, what must come back, deadline), not about the design itself. SKIP - interviewing the current user about their own design (use design-interview); reviewing a written spec (use ambiguity-detector); writing internal comms with the six templates (use internal-comms).",
+      "long_description": "When a decision cannot be resolved in-session, interview the requester about the send and emit a questionnaire for the recipient. Lead with a short context block in the recipient's language, ask the minimum questions with enumerated options plus a free-text escape, and close with answers-needed-by and what happens next. Default output docs/questionnaires/<date>-<topic>.md. SKIP design interviews of the current user and spec review. Trigger phrases: I need to ask my stakeholder, make a questionnaire, prepare questions for the client, async decision.",
+      "summary_l0": "\"Write an async Markdown questionnaire for the one stakeholder who can unblock\"",
+      "overview_l1": "\"When a decision cannot be resolved in-session, interview the requester about the send and emit a questionnaire for the recipient. Lead with a short context block in the recipient's language, ask the minimum questions with enumerated options plus a free-text escape, and close with answers-needed-by and what happens next. Default output docs/questionnaires/<date>-<topic>.md. SKIP design interviews of the current user and spec review. Trigger phrases: I need to ask my stakeholder, make a questionnaire, prepare questions for the client, async decision.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "business-product",
+      "language": "Multi-language",
+      "tags": [
+        "questionnaire",
+        "stakeholder",
+        "async"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Write"
+      ],
+      "path": "catalog/skills/business-product/decision-questionnaire/",
+      "file": "catalog/skills/business-product/decision-questionnaire/SKILL.md",
+      "size": {
+        "lines": 85,
+        "characters": 6394,
+        "tokens_estimate": 799
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
       }
     }
   ]

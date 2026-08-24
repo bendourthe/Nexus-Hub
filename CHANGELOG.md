@@ -13,6 +13,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Agent-writing discipline in skill-authoring skills.** `skill-description-authoring` and `skill-create` now teach context pointers, the two loads, leading words, negation avoidance, sediment pruning, and the hard/soft setup-dependency split. Full treatment lives in `skill-description-authoring/references/agent-writing-theory.md`; `skill-create` links that file and does not fork it.
 - **Out-of-scope register.** `docs/policy/out-of-scope/` records deliberately-declined features (never-do), distinct from `known-gaps.md` (do-later). Seeded with search-as-service MCP registry entries and changesets release automation. `known-gaps-tracker` routes "we will never do this" items there.
+- **`design-interview` skill.** Relentless one-question-at-a-time interview engine plus a `CONTEXT.md` domain glossary. `idea-refine` and `implementation-plan` invoke it; they are not replaced. SKIP fences `ambiguity-detector` and `requirement-enhancer`.
+- **`setup-wizard-generator` skill.** Generates a resumable human-only setup wizard from bundled `wizard-template.sh` and `wizard-template.ps1` siblings. The agent adapts the templates and does not run privileged steps.
+- **`decision-questionnaire` skill.** Send-ready Markdown questionnaire for the one stakeholder who can unblock an in-session decision. Catalog count is 324.
 
 ## [3.20.2] - 2026-08-24
 

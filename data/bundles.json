@@ -232,6 +232,7 @@
       "description": "Business analysis, product management, agile facilitation, and technical writing.",
       "skills": [
         "business-analyst",
+        "decision-questionnaire",
         "internal-comms",
         "product-manager",
         "product-pulse",
@@ -295,6 +296,7 @@
         "dead-code-eliminator",
         "dependency-manager",
         "deprecated-api-updater",
+        "design-interview",
         "design-pattern-suggestor",
         "direct-corpus-interaction",
         "error-explanation-generator",
@@ -310,6 +312,7 @@
         "legacy-modernizer",
         "refactoring-expert",
         "requirement-enhancer",
+        "setup-wizard-generator",
         "skill-description-authoring",
         "spec-driven-development",
         "technical-debt-analyzer",
