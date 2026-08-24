@@ -35,11 +35,11 @@ The runbook defines ten stages; the load-bearing ones:
 - **Phases 1-2 - Review and implement.** Review the plan against the codebase, then implement subtask by subtask, in scope, logging `# DEVIATION:` markers.
 - **Phases 3-7 - Lint, test, gate.** Lint/format; run tests with coverage; augment missing tests; troubleshoot failures (max 3 iterations, classified IMPL/TEST/ENV); apply the four-part GO/NO-GO gate (0 failures, >= 80% coverage, 0 lint errors, build succeeds).
 - **Phase 8 - Post-phase sequence (every phase).** The ten steps 8.1-8.10 in strict order, ending in the REQUIRED commit-and-push prompt. Step 8.3 now includes a CI/CD optimization pass, not just a coverage/consistency check.
-- **Phase 9 - Final phase only.** Run the mandatory refactor + known-gaps + CI/CD gate (9.0), resolve known gaps (9A), verify tests + CI/CD (9B), then hand 9C-9E off to `/update release`.
+- **Phase 9 - Final phase only.** Run the fail-closed last-phase duties (9.0), write `<version_dir>/development/last-phase-evidence.md`, resolve known gaps (9A), verify tests + CI/CD (9B), then hand 9C-9E off to `/update release` only when the evidence file is complete and Goal-vs-codebase review has no unresolved miss.
 
 ## Mandatory final-phase gate (v3.11.0)
 
-When `is_final_phase` is true, before the release-readiness sub-phases, run the Phase 3 terminal-phase gate on the last phase - and run it **even if the plan predates v3.11.0** and has no explicit "Architecture Refactor, Known-Gaps Reconciliation, and CI/CD" phase (detect its absence and run the gate anyway): `[[project-refactor]]` (with the empty-dir / duplicate / orphan / structure-complexity detectors) plus `[[docs-layout-refactor]]` to clean the layout, `[[known-gaps-tracker]]` to reconcile gaps, a CI/CD create/update/optimize pass, and a cross-installer parity hard gate when the repository ships more than one installer. The installer gate self-gates to a silent no-op for zero- or one-installer repositories and runs in the same pass as `[[platform-contract-verification]]`, which verifies discovery while installer parity verifies delivery. Every confirmation gate stays; never tag or push automatically - that is `/update release`'s job.
+When `is_final_phase` is true, before the release-readiness sub-phases, run the fail-closed last-phase duties - even if the plan predates v3.11.0 and has no explicit "Architecture Refactor, Known-Gaps Reconciliation, and CI/CD" phase (detect its absence and run the gate anyway). Each duty writes a section of `<version_dir>/development/last-phase-evidence.md` quoting the proving command or scan: architecture refactor via `[[project-refactor]]` and `[[docs-layout-refactor]]`; known-gaps reconciliation for this version and every other still-open `docs/**/known-gaps.md`; living docs architecture; git-tree hygiene via `python scripts/check_release_preconditions.py --branches --repo-settings` (report only); CI/CD coverage plus installer parity; independent Goal-vs-codebase review; last-phase-only human testing suggestions; full-suite testing. A duty is omitted only by recording a known-gap (`QG` or `DF`) with Source phase, Plan reference, Reason, and Suggested next step. The `/update release` handoff is blocked while the evidence file is missing or a Goal-review finding is unresolved without a recorded gap. Keep the five-signal `is_final_phase` detection; never tag or push automatically.
 
 ## Common Rationalizations
 
@@ -48,7 +48,10 @@ When `is_final_phase` is true, before the release-readiness sub-phases, run the 
 | "The user said this is the last phase, so I'll run the release workflow." | Never trust the claim alone. `is_final_phase` comes from five signals; a numerically-last phase with unchecked prior phases is treated as non-final. Detect, then confirm. |
 | "Tests passed in Phase 4, I can skip the 8.2 re-run." | Phase 7's gate adjustments can drift the tree after Phase 4. The 8.2 re-run catches a green-then-red regression before the phase is declared done. |
 | "This phase changed no CI, so I'll skip 8.3." | 8.3 is a no-op-safe step that also checks whether the workflow is optimized (path filters, concurrency, caching, gated matrix jobs). Invoke it every phase so CI drift and minute-bloat surface early. |
-| "The plan has no final refactor phase, so there's nothing to clean up at the end." | Plans generated before v3.11.0 lack the mandatory final phase; the 9.0 gate runs the refactor + known-gaps + CI/CD + multi-installer parity work anyway on the last phase. Absence of the phase is not absence of the work. |
+| "The plan has no final refactor phase, so there's nothing to clean up at the end." | Plans generated before v3.11.0 lack the mandatory final phase; the 9.0 gate still writes `<version_dir>/development/last-phase-evidence.md`. Absence of the heading is not absence of the work. |
+| "The heading existed so the work was done." | A last-phase title without the evidence file is incomplete. Each duty must quote a proving command or scan. |
+| "Tests passed so the Goal landed." | Green tests are not a Goal-vs-codebase review. Re-read the plan Goal and inspect the artifacts; a miss blocks `/update release` unless a known-gap records it. |
+| "Skip this last-phase duty; it will be a no-op." | There is no skip license on Phase 9. Omit a duty only by writing a `QG` or `DF` known-gap with Source phase, Plan reference, Reason, and Suggested next step, or refuse. |
 | "I'll create the release tag since everything passed." | The skill never tags or pushes automatically. The final phase hands off to `/update release`, which owns the version bump, changelog, tag, and push behind its own gates. |
 
 ## Verification
@@ -57,7 +60,7 @@ When `is_final_phase` is true, before the release-readiness sub-phases, run the 
 - [ ] Code implemented subtask by subtask, in scope, with deviations logged.
 - [ ] Lint clean; tests run with coverage; GO/NO-GO gate evaluated (0 failures, coverage threshold, 0 lint errors, build succeeds) or the user explicitly bypassed with the gap documented.
 - [ ] Phase 8 ran all ten steps in order, ending in the commit-and-push prompt; known-gaps appended to the correct `## v<MAJOR>.<MINOR>.<PATCH>` subsection; session history written to `<version_dir>/development/history/`.
-- [ ] On the final phase: the mandatory refactor + known-gaps + CI/CD gate (9.0) ran (even for a pre-v3.11.0 plan), cross-installer parity ran or self-gated to a single-installer no-op, and the version bump / tag / push was handed to `/update release` - no tag or push created automatically.
+- [ ] On the final phase: `<version_dir>/development/last-phase-evidence.md` exists with one quoted section per duty, including Goal-vs-codebase review; a missing file or unresolved Goal miss without a recorded gap blocked `/update release`; no tag or push was created automatically.
 
 ## Related Skills
 

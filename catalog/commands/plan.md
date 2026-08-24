@@ -56,7 +56,7 @@ Web search uses public documentation and adds no new credential or dependency. T
 
 ## Mandatory final phase (planning scopes)
 
-Every plan `generate-plan` / `implementation-plan` produces now ends with a mandatory final phase - "Architecture Refactor, Known-Gaps Reconciliation, and CI/CD" - and each phase's testing sub-task also creates/updates and optimizes CI/CD for that phase's changes. This is part of the plan contract, not a dispatcher responsibility: the template and the design rules live in the `[[implementation-plan]]` skill (its "Mandatory Final Phase" block and the "Terminal refactor phase" / "CI/CD per phase" design guidelines). This dispatcher only surfaces the guarantee; it does not duplicate the template.
+Every plan ends with a fail-closed last phase - "Architecture Refactor, Known-Gaps Reconciliation, and CI/CD" - that includes independent Goal-vs-codebase review and a last-phase evidence file. Automated tests still end every phase; human/manual testing suggestions wait until that last phase. This is part of the plan contract, not a dispatcher responsibility: the template and the eight duties live in the `[[implementation-plan]]` skill. This dispatcher only surfaces the guarantee; it does not duplicate the template.
 
 ## Unicode hygiene of the written plan (guarantee)
 

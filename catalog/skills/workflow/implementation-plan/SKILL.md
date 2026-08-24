@@ -278,16 +278,18 @@ implementation; an absolute invites a wrong edit to make the number match.
 stable before advancing to Phase N+1.
 
 **Prompt**:
-> Generate comprehensive tests for everything built in Phase N. This should include:
-> [list the specific kinds of tests appropriate for this phase: unit tests, integration
+> Generate automated tests for everything built in Phase N. This should include:
+> [list the specific kinds of automated tests appropriate for this phase: unit tests, integration
 > tests, E2E tests, performance benchmarks, etc.]. Run the tests, fix any failures, and
-> iterate until all tests pass and the implementation is stable. Then create or update the
+> iterate until all automated tests pass and the implementation is stable. Then create or update the
 > CI/CD pipeline to cover this phase's changes and optimize it to reduce CI action minutes
 > (path filters, concurrency cancel-in-progress, dependency caching, gating expensive-OS or
 > matrix jobs to merges/schedule) while keeping comprehensive coverage - keep the language
 > platform-agnostic, with GitHub Actions as the primary example. Do not proceed to Phase
 > N+1 until this phase is fully tested and verified.
-> After all tests pass, run `/generate-session-history` to document Phase N.
+> Do not ask the user to manually exercise an incomplete feature, and do not emit human or
+> manual testing suggestions on a non-final phase. Those belong only in the last phase.
+> After all automated tests pass, run `/generate-session-history` to document Phase N.
 
 ---
 
@@ -314,44 +316,59 @@ The `## Complexity Tracking` block sits near the end of the file, between the la
 
 #### Mandatory Final Phase (every plan)
 
-Every generated plan MUST end with a final phase dedicated to architecture refactor, known-gaps reconciliation, and CI/CD - even a small plan (there it may be a light, near-no-op pass, but it is never omitted). This is a REFACTOR / known-gaps / CI phase, NOT a deferred-testing phase: per-phase testing still stands (see the "Testing continuous" guideline below and the testing rationalization). Emit it verbatim as the last `## Phase N`:
+Every generated plan MUST end with a fail-closed last phase dedicated to architecture refactor, known-gaps reconciliation, living-docs architecture, git-tree hygiene, CI/CD, independent Goal-vs-codebase review, last-phase-only human testing, and full-suite stabilization. The heading is never enough: each duty writes a named section in `<version_dir>/development/last-phase-evidence.md`. An empty finding is allowed only when the scan output is quoted. A duty is omitted only by recording a known-gap (`QG` or `DF`) with Source phase, Plan reference, Reason, and Suggested next step. Automated tests still end every earlier phase; human/manual testing suggestions are forbidden until this last phase. Emit the block verbatim as the last `## Phase N`:
 
 ```markdown
 ## Phase N: Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
 
-**Goal**: Leave the project well-organized, its known gaps reconciled, and its CI/CD complete and optimized.
+**Goal**: Leave the project well-organized, its known gaps reconciled, its living docs architecture current, and its CI/CD complete and optimized, with independent evidence that the plan Goal landed.
 **Prerequisites**: All prior phases.
-**Stability Gate**: The layout is clean (no deprecated/obsolete files, empty dirs, redundant files/dirs, or overcomplicated structure left un-triaged); the version's known gaps are reconciled; CI/CD covers every change and is optimized; project validation/tests pass.
+**Stability Gate**: `<version_dir>/development/last-phase-evidence.md` exists with one quoted section per duty below. A missing Goal, a Goal-review miss without a recorded known-gap, or a missing evidence section blocks `/update release`.
 **Recommended model tier**: frontier
 **Recommended effort level**: max
-**Rationale**: Repo-wide refactor, reference repair, known-gap reconciliation, and release gating carry high context volume and blast radius.
+**Rationale**: Repo-wide refactor, Goal-vs-codebase review, known-gap reconciliation, and release gating carry high context volume and blast radius.
 
 ### Sub-tasks
 
 #### N.1 - Architecture refactor
-**Objective**: Refactor toward a well-organized, intuitive layout.
+**Objective**: Refactor toward a well-organized, intuitive layout and quote the scan.
 **Prompt**:
-> Identify deprecated/obsolete files, empty directories, redundant files/dirs, and overcomplicated structure, then refactor toward a clean, intuitive layout via [[project-refactor]] and [[docs-layout-refactor]] (propose-then-apply, with confirmation; repair every reference for anything that moves).
+> Identify deprecated/obsolete files, empty directories, redundant files/dirs, and overcomplicated structure, then refactor toward a clean, intuitive layout via [[project-refactor]] and [[docs-layout-refactor]] (propose-then-apply, with confirmation; repair every reference for anything that moves). Write the detector output into `<version_dir>/development/last-phase-evidence.md` under `## Architecture refactor`. An empty finding is allowed only when the scan output is quoted.
 
 #### N.2 - Known-gaps reconciliation
-**Objective**: Reconcile the version's open gaps.
+**Objective**: Reconcile this version and every other still-open known-gaps file.
 **Prompt**:
-> Reconcile this version's known gaps via [[known-gaps-tracker]]: resolve, defer, or transfer each open item, and finalize the per-minor known-gaps file for the version.
+> Via [[known-gaps-tracker]], reconcile this version's known gaps AND every other `docs/**/known-gaps.md` whose Status is in-progress or whose Open Items remain. Glob both canonical (`docs/v<MAJOR>/v<MAJOR>.<MINOR>/known-gaps.md`) and legacy layouts. If a file is unreachable, record the glob result and continue with what was found. Write the disposition into the evidence file under `## Known-gaps reconciliation`.
 
-#### N.3 - CI/CD create/update/optimize
-**Objective**: CI/CD covers all changes and is optimized.
+#### N.3 - Living docs architecture
+**Objective**: Prove handbooks, decisions, and generated HTML match the required living tree.
 **Prompt**:
-> Create or update the CI/CD pipeline so it covers every change in this plan, then optimize it to reduce action minutes (path filters, concurrency cancel-in-progress, dependency caching, gating expensive-OS or matrix jobs to merges/schedule) while keeping comprehensive testing. Keep it platform-agnostic; GitHub Actions is the primary example.
+> Check `docs/handbooks/` (markdown source of truth, generated `html/`, one atlas walkthrough, technical companions for key components), `docs/decisions/`, and living `docs/README.md` / `docs/DEVLOG.md` / `docs/todos.md`. Self-gated: never invent `docs/testing/` or `docs/validation/`. Markdown wins if HTML disagrees; regenerate or fail the check. Quote the check in the evidence file under `## Living docs architecture`. Details live in [[docs-layout-refactor]].
 
-#### N.4 - Cross-installer parity
-**Objective**: Prevent operating-system installer drift when the repository ships multiple installers.
+#### N.4 - Git-tree hygiene
+**Objective**: Report branch and repository-settings hygiene without deleting anything.
 **Prompt**:
-> If this repository ships more than one installer, run or add a declarative cross-installer parity gate covering distributed artifacts, supported platforms, named capability counterparts, and external-tool fallbacks, then execute the real installers on their target operating systems with identical postconditions. Cross-link [[platform-contract-verification]] so discovery and delivery are checked in the same pass. If the repository ships zero or one installer, record a silent no-op and continue.
+> Run `python scripts/check_release_preconditions.py --branches --repo-settings`. Quote the output in the evidence file under `## Git-tree hygiene`. Report only; never delete branches.
 
-#### N.5 - Testing and Stabilization
+#### N.5 - CI/CD create/update/optimize
+**Objective**: CI/CD covers all changes in this plan and is optimized.
+**Prompt**:
+> Create or update the CI/CD pipeline so it covers every change in this plan, then optimize it to reduce action minutes (path filters, concurrency cancel-in-progress, dependency caching, gating expensive-OS or matrix jobs to merges/schedule) while keeping comprehensive testing. Keep it platform-agnostic; GitHub Actions is the primary example. If the repository ships more than one installer, run the declarative cross-installer parity gate in the same pass as [[platform-contract-verification]]; zero or one installer is a silent no-op. Quote coverage in the evidence file under `## CI/CD coverage`.
+
+#### N.6 - Independent Goal-vs-codebase review
+**Objective**: Prove the plan Goal landed in the codebase, not that checkboxes were ticked.
+**Prompt**:
+> Re-read the plan header Goal and the Goals First / Definition of Done. Inspect the codebase as if this agent had not implemented the phases. Write `## Goal-vs-codebase review` in `<version_dir>/development/last-phase-evidence.md` listing: the plan Goal restated; the code/docs artifacts that satisfy it; and any gap. A missing or malformed Goal is a fail-closed finding that names the missing Goal. Completing every prior-phase sub-task is not evidence the Goal landed. A miss is a blocking finding or a new known-gap, not a pass.
+
+#### N.7 - Human/manual testing suggestions (last phase only)
+**Objective**: Ask a human to exercise only what automated tests cannot cover, now that the feature is complete.
+**Prompt**:
+> Emit human/manual testing suggestions for user-facing workflows, external integrations, and environment-specific cases that automated tests cannot cover. Do not invent a fake walkthrough. This duty exists only on the last phase.
+
+#### N.8 - Testing and Stabilization
 **Objective**: Prove the refactor preserved behavior and CI/CD is green.
 **Prompt**:
-> Run the full validation/test suite, confirm the refactor changed no behavior, confirm CI/CD passes and the action-minute reduction is real, and iterate until clean. Generate a session-history entry for this phase.
+> Run the full validation/test suite, confirm the refactor changed no behavior, confirm CI/CD passes and the action-minute reduction is real, and iterate until clean. Quote the suite in the evidence file under `## Full-suite testing and stabilization`. Generate a session-history entry for this phase.
 ```
 
 #### Phase Design Guidelines
@@ -366,9 +383,9 @@ Apply these rules when deciding how many phases to create and how to split them:
 | Installation early | If the project has a non-trivial installer or packaging step, include a phase for it in the first third of the plan so packaging issues are caught early |
 | UI and backend separated | If there is a UI, give it its own phase rather than mixing it with business logic |
 | Integration phase | If external APIs or local models are involved, create a dedicated integration phase with clear mocking/stubbing strategies for early phases |
-| Testing continuous | Every phase ends with a testing sub-task -- not a single final QA phase |
+| Testing continuous | Every phase ends with an automated testing sub-task. Human/manual testing suggestions are forbidden until the last phase. Do not ask a human to exercise an incomplete feature mid-plan. |
 | Phase count | Target 4-8 phases for most plans; very small scopes may have 2-3; major refactors up to 10 |
-| Terminal refactor phase | Every plan ends with a mandatory final phase that reviews architecture and refactors toward a clean, intuitive layout, reconciles the version's known gaps, creates/updates/optimizes CI/CD, and self-gates cross-installer parity when multiple installers exist - even small plans (a light near-no-op pass, but never omitted). Distinct from per-phase testing, which still applies to every phase. |
+| Terminal refactor phase | Every plan ends with a fail-closed last phase. Each duty writes a section of `<version_dir>/development/last-phase-evidence.md`; an empty finding requires quoted scan output. Distinct from per-phase automated testing, which still applies to every phase. |
 | CI/CD per phase | Every phase's testing sub-task also creates or updates the CI/CD pipeline for that phase's changes and optimizes it (path filters, concurrency cancellation, caching, gating expensive jobs) to keep action minutes low while coverage stays comprehensive |
 
 ---
@@ -460,7 +477,9 @@ Incorporate feedback, then write the final file and re-run the Step 4 closing sa
 |---|---|
 | "The user already knows what they want, I can skip the discovery questions" | Skipping discovery produces a plan built on the agent's assumptions; the unasked question is exactly the requirement that gets missed and forces a rewrite mid-implementation. |
 | "I will add the install and packaging step at the end" | Deferring packaging to the end means the build is unrunnable for the whole middle of the plan; the install step must land before the halfway point so each phase produces something executable. |
-| "A phase does not need its own testing sub-task if I test at the end" | Batching all testing into a final phase hides which phase introduced a defect; every phase must end with a testing and stabilization sub-task so failures are localized. |
+| "A phase does not need its own testing sub-task if I test at the end" | Batching all automated testing into a final phase hides which phase introduced a defect; every phase must end with an automated testing and stabilization sub-task so failures are localized. Human/manual testing still waits until the last phase. |
+| "The heading existed so the work was done" | A last-phase title without `<version_dir>/development/last-phase-evidence.md` is an incomplete last phase. Each duty must quote a proving command or scan; an empty finding is not a pass unless the scan output is quoted. |
+| "Tests passed so the Goal landed" | Green tests prove the phase's automated checks. The Goal-vs-codebase review re-reads the plan Goal and inspects the codebase independently; ticked checkboxes are not that review. |
 | "Error handling is an implementation detail, I will let the implementer decide" | Then nobody decided. "Handle errors" is satisfiable by any behavior including a silent swallow, and the spec deliberately holds only the user-visible edge case, not the handling. If the plan does not name what happens on malformed input, an unreachable dependency, and conflicting operations, that choice gets made mid-implementation by whoever hits it first, under time pressure, without review. |
 | "The stub is obviously temporary, labelling it is busywork" | It is obvious to you today and invisible in the diff tomorrow. An unlabelled hardcoded value reads identically whether it is a shortcut awaiting replacement or the intended implementation, so the reviewer has to guess, and the guess that ships is the one that treats scaffolding as finished. One word per sub-task removes the guess. |
 | "The implementer can pick the vendor while they code the slice" | That hides a blocking decision inside an implementation ticket. Mark it `decision:` and resolve it before the slices it unblocks, or two phases ship incompatible forks. |
@@ -473,8 +492,8 @@ Incorporate feedback, then write the final file and re-run the Step 4 closing sa
 - [ ] Every feature or goal from the interview appears in at least one sub-task
 - [ ] Phase 1 establishes the foundation needed for subsequent phases (toolchain + runnable build for initial implementations; test harness or scaffolding for enhancements/refactors)
 - [ ] For initial implementations: installation/packaging step appears before the halfway point
-- [ ] Every phase ends with a testing and stabilization sub-task (which also creates/updates and optimizes CI/CD for that phase's changes)
-- [ ] The plan's last phase is the mandatory "Architecture Refactor, Known-Gaps Reconciliation, and CI/CD" phase (sub-tasks: N.1 architecture refactor, N.2 known-gaps reconciliation, N.3 CI/CD create/update/optimize, N.4 cross-installer parity with a multi-installer self-gate, N.5 testing and stabilization)
+- [ ] Every phase ends with an automated testing and stabilization sub-task (which also creates/updates and optimizes CI/CD for that phase's changes); human/manual testing suggestions appear only in the last phase
+- [ ] The plan's last phase is the fail-closed "Architecture Refactor, Known-Gaps Reconciliation, and CI/CD" phase (sub-tasks: N.1 architecture refactor, N.2 known-gaps across this version and other open files, N.3 living docs architecture, N.4 git-tree hygiene, N.5 CI/CD plus installer parity, N.6 Goal-vs-codebase review, N.7 last-phase-only human testing, N.8 full-suite testing) and requires `<version_dir>/development/last-phase-evidence.md`
 - [ ] Every sub-task has a complete, self-contained executable prompt
 - [ ] Every sub-task that introduces or changes a component states its failure modes across all three situations (malformed or absent input, unreachable or slow dependency, conflicting operations), and no error-handling, data-model, interface, or schema detail was pushed back into the spec to achieve it
 - [ ] Sub-tasks producing provisional work carry a one-line `scaffolding` build class naming what replaces it and when; `load-bearing` is stated wherever a reader could not otherwise tell

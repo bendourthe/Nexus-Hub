@@ -77,17 +77,37 @@ Run every step in strict order at the end of EVERY phase (validation first, then
 
 ## Phase 9: Final-phase completion workflow (release-readiness)
 
-Runs only when `is_final_phase = true` AND Phase 8 completed cleanly. Every step is idempotent and prompts before it commits/archives/tags. Announce the queued sub-phases and accept `skip <X>` directives.
+Runs only when `is_final_phase = true` AND Phase 8 completed cleanly. If `is_final_phase` is false because prior phases are unchecked, do not run Phase 9; say so and stop the release handoff.
 
-### 9.0 Mandatory refactor + known-gaps + CI/CD gate (v3.11.0)
+Every last-phase duty is fail-closed. Announce the queued sub-phases. A duty is omitted only by writing a known-gap (`QG` or `DF`) with Source phase, Plan reference, Reason, and Suggested next step. If the user asks to skip a duty without that recorded gap, refuse. Every step is idempotent and prompts before it commits, archives, or tags.
 
-Before the release-readiness sub-phases, run the Phase 3 terminal-phase gate on the plan's last phase - **even when the plan was generated before v3.11.0 and has no explicit "Architecture Refactor, Known-Gaps Reconciliation, and CI/CD" phase** (detect its absence and run the gate anyway):
+### Last-phase evidence file (blocking)
 
-1. Run `[[project-refactor]]` (with the v3.11.0 detectors: empty dirs, duplicates, non-version orphans, structure complexity) and `[[docs-layout-refactor]]` to clean the layout - propose-then-apply, with confirmation; repair references for anything that moves.
-2. Reconcile the version's known gaps via `[[known-gaps-tracker]]` (this feeds 9A).
-3. Create or update the CI/CD pipeline so it covers every change in the plan, and optimize it to reduce action minutes (path filters, concurrency cancel-in-progress, caching, gating expensive-OS/matrix jobs) while keeping comprehensive testing.
-4. If the repository ships more than one installer, run or add its declarative cross-installer parity checker as a HARD gate, covering distributed artifacts, supported platforms, named capability counterparts, and external-tool fallbacks; verify real target-OS installer smoke uses one identical postcondition set. Run this in the same pass as `[[platform-contract-verification]]`: that skill verifies host discovery, while installer parity verifies delivery. Repositories with zero or one installer silently no-op.
-5. Run the ADVISORY model-prompting-profile staleness check via `[[model-prompting-research]]`, the same step `/update release` performs as governance step 6. Do NOT duplicate its logic here: invoke the skill. It self-gates (real work only in a repo shipping the profile layer plus `[[model-routing]]`, a silent no-op elsewhere), enumerates the live roster, runs `check_model_prompting_freshness.py --advisory`, and on drift prints a one-line note plus an offer to run `/tune-prompting`. It NEVER blocks the phase, never re-stamps a freshness marker, and degrades to a logged no-op offline. This is the deliberate opposite of the platform read-contract and installer-parity checks, which DO hard-gate a release; see `/update release` governance step 6 for why prompting freshness must stay decoupled from the release clock.
+Write `<version_dir>/development/last-phase-evidence.md` with one section per duty below. Each section quotes the proving command or scan. An empty finding is allowed only when the scan output is quoted. A missing file, a missing section, or an unresolved Goal-vs-codebase review finding without a recorded known-gap BLOCKS the 9C-9E `/update release` handoff. Completing every prior-phase checkbox is not evidence the Goal landed.
+
+Required sections:
+
+1. Architecture refactor
+2. Known-gaps reconciliation
+3. Living docs architecture
+4. Git-tree hygiene
+5. CI/CD coverage
+6. Goal-vs-codebase review
+7. Human/manual testing suggestions
+8. Full-suite testing and stabilization
+
+### 9.0 Mandatory refactor + known-gaps + CI/CD gate (v3.11.0, fail-closed)
+
+Before the release-readiness sub-phases, run the last-phase duties on the plan's last phase - **even when the plan was generated before v3.11.0 and has no explicit "Architecture Refactor, Known-Gaps Reconciliation, and CI/CD" phase** (detect its absence and run the gate anyway):
+
+1. Run `[[project-refactor]]` (empty dirs, duplicates, non-version orphans, structure complexity) and `[[docs-layout-refactor]]` to clean the layout - propose-then-apply, with confirmation; repair references for anything that moves. Quote detector output under `## Architecture refactor`, including an empty finding.
+2. Reconcile known gaps via `[[known-gaps-tracker]]` for this version AND every other `docs/**/known-gaps.md` whose Status is in-progress or whose Open Items remain. Glob both canonical and legacy layouts. If a file is unreachable, record the glob result and continue with what was found. This feeds 9A. Quote the disposition under `## Known-gaps reconciliation`.
+3. Check living docs architecture (`docs/handbooks/` markdown + generated `html/` + atlas + technical companions, `docs/decisions/`, living `docs/README.md` / `DEVLOG.md` / `todos.md`). Self-gated: never invent `docs/testing/` or `docs/validation/`. Quote the check under `## Living docs architecture`.
+4. Run `python scripts/check_release_preconditions.py --branches --repo-settings` and quote it under `## Git-tree hygiene`. Report only; never delete branches.
+5. Create or update the CI/CD pipeline so it covers every change in the plan, and optimize it to reduce action minutes (path filters, concurrency cancel-in-progress, caching, gating expensive-OS/matrix jobs) while keeping comprehensive testing. If the repository ships more than one installer, run or add its declarative cross-installer parity checker as a HARD gate in the same pass as `[[platform-contract-verification]]`. Repositories with zero or one installer silently no-op. Quote coverage under `## CI/CD coverage`.
+6. Independent Goal-vs-codebase review: re-read the plan header Goal and Goals First / Definition of Done, then inspect the codebase as if this agent had not implemented the phases. The `## Goal-vs-codebase review` section MUST list the plan Goal restated (fail closed and name the missing Goal if the plan has none), the code/docs artifacts that satisfy it, and any gap. A miss is a blocking finding or a new known-gap, not a pass.
+7. Human/manual testing suggestions, last phase only. Quote them under `## Human/manual testing suggestions`.
+8. Run the ADVISORY model-prompting-profile staleness check via `[[model-prompting-research]]`, the same step `/update release` performs as governance step 6. Do NOT duplicate its logic here: invoke the skill. It NEVER blocks the phase, never re-stamps a freshness marker, and degrades to a logged no-op offline.
 
 Keep every confirmation gate; never tag or push automatically.
 
@@ -97,11 +117,13 @@ Re-read `<version_dir>/known-gaps.md` `## Open Items`. Grep the codebase for `TO
 
 ### 9B. Verify tests and CI/CD readiness
 
-Inspect the test surface (unit test per new/modified module; integration tests per new boundary; e2e per new user flow; declared test commands still run). Inspect the CI surface (build/test/lint jobs cover the new files; release/deploy still wired; new env vars/secrets declared without leaking values). Apply safe additions: generate missing tests via `/test` (stop after 3 passes, log remaining as MT); propose mechanical CI gaps for approval; never silently rewrite CI.
+Inspect the test surface (unit test per new/modified module; integration tests per new boundary; e2e per new user flow; declared test commands still run). Inspect the CI surface (build/test/lint jobs cover the new files; release/deploy still wired; new env vars/secrets declared without leaking values). Apply safe additions: generate missing tests via `/test` (stop after 3 passes, log remaining as MT); propose mechanical CI gaps for approval; never silently rewrite CI. Quote the suite under `## Full-suite testing and stabilization`.
 
 ### 9C-9E. Hand off to `/update release`
 
-The documentation cleanup, the standard update checks, and the version bump / changelog / tag / push are owned by `/update release` in v3.x (it runs docs -> devlog -> gitignore -> version via `scripts/check_version_sync.py` -> changelog -> refactor, then cleans up, commits, tags, and pushes as one atomic flow, keeping its own confirmation gates). Do NOT re-implement the old inline `/update-*` sequence here and NEVER create a tag or push automatically - hand off to `/update release` and let it drive its gates. Surface any hold condition (unresolved release-blocker, tests failing / coverage below threshold without bypass, version-sync inconsistency, unapproved next-version choice) and stop before the release step if one is active.
+The documentation cleanup, the standard update checks, and the version bump / changelog / tag / push are owned by `/update release` in v3.x (it runs docs -> gitignore -> version via `scripts/check_version_sync.py` -> changelog -> devlog -> refactor, then cleans up, commits, tags, and pushes as one atomic flow, keeping its own confirmation gates). Do NOT re-implement the old inline `/update-*` sequence here and NEVER create a tag or push automatically.
+
+**Hold the handoff** while `<version_dir>/development/last-phase-evidence.md` is missing, any required section is missing, or a Goal-vs-codebase review finding is unresolved without a recorded known-gap. Surface any other hold condition (unresolved release-blocker, tests failing / coverage below threshold without bypass, version-sync inconsistency, unapproved next-version choice) and stop before the release step if one is active.
 
 ## Completion report
 
