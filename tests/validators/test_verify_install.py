@@ -382,6 +382,32 @@ def test_untracked_covered_file_falls_back_to_file_bytes(tmp_path: Path) -> None
     assert entries[rel] == hashlib.sha256(b"untracked\n").hexdigest()
 
 
+def test_gitignored_covered_file_is_not_manifested(tmp_path: Path) -> None:
+    """Gitignored junk under a covered root must not inflate MANIFEST.sha256 (WN-5)."""
+    import hashlib
+
+    root = tmp_path / "repo"
+    root.mkdir()
+    if not _git_repo(root):
+        pytest.skip("git unavailable")
+
+    target = root / "catalog" / "skills" / "demo"
+    target.mkdir(parents=True)
+    (target / "SKILL.md").write_bytes(b"tracked\n")
+    (root / ".gitignore").write_text("*.ignored\n", encoding="utf-8")
+    subprocess.run(["git", "-C", str(root), "add", "-A"], **_RUN_KW)
+    subprocess.run(["git", "-C", str(root), "commit", "-qm", "x"], **_RUN_KW)
+
+    (target / "junk.ignored").write_bytes(b"noise\n")
+    (target / "EXTRA.md").write_bytes(b"untracked\n")
+
+    entries = dict(gm.compute_manifest(root))
+    assert "catalog/skills/demo/SKILL.md" in entries
+    assert "catalog/skills/demo/EXTRA.md" in entries
+    assert entries["catalog/skills/demo/EXTRA.md"] == hashlib.sha256(b"untracked\n").hexdigest()
+    assert "catalog/skills/demo/junk.ignored" not in entries
+
+
 def test_non_git_tree_still_produces_a_manifest(tmp_path: Path) -> None:
     """An installed tree or exported tarball has no .git and must still work."""
     root = tmp_path / "plain"

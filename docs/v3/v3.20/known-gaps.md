@@ -52,7 +52,7 @@ None.
 - **Reason**: `https://learn.chatgpt.com/docs/build-skills` timed out on 2026-08-24. The inverted `allow_implicit_invocation` mapping is retained from the 2026-08-18 survey in `docs/policy/skill-invocation-policy-levers.md`.
 - **Suggested next step**: Re-fetch at `/update release` during `[[platform-contract-verification]]`. Change the mapping only on first-party evidence.
 
-Phase 1 reused the v3.20.2 scoped `--path` personal-paths scan (WN-3) and did not retarget `check_docs_conventions.py` off `docs/v3/v3.19/` (WN-4). Those remain open on the v3.20.2 subsection.
+Phase 1 reused the v3.20.2 scoped `--path` personal-paths scan (WN-3). Inherited WN-4 and WN-5 are closed in the v3.20.2 Resolved table.
 
 #### Missing Tests / Coverage Gaps
 
@@ -75,7 +75,7 @@ None yet.
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 1 |
 | Bugs / regressions (BG) | 0 | 1 |
-| Warnings (WN) | 3 | 0 |
+| Warnings (WN) | 1 | 2 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
@@ -104,20 +104,6 @@ None open.
 - **Reason**: The default scan walks `catalog/`, `docs/`, and `templates/`. On this host the walk sat in `validate_no_personal_paths.py` for more than 12 minutes with no output. Phase 1 therefore ran `--path` against the files this phase touched (clean) and left the default walk to CI.
 - **Suggested next step**: Confirm CI's `validate` job still finishes the default walk on ubuntu-latest. If maintainers hit the same hang locally, add progress output or skip `docs/archive/`.
 
-##### WN-4 - `check_docs_conventions.py` still hardcodes `docs/v3/v3.19/` as the active minor
-
-- **Source phase**: `/update release`
-- **Plan reference**: `docs/v3/v3.20/plans/v3.20.2-interface-craft-skills.md` (Phase 7 CI/CD)
-- **Reason**: `scripts/check_docs_conventions.py` and `tests/validators/test_check_docs_conventions.py` pin the scanned tree to `docs/v3/v3.19/`. `make validate` and CI therefore do not see v3.20 docs (including this release). Historical trees stay grandfathered on purpose; the missing piece is resolving the current minor from the live docs tree instead of a frozen path.
-- **Suggested next step**: Resolve the newest `docs/v<MAJOR>/v<MAJOR>.<MINOR>/` directory dynamically, keep historical trees unscanned, and retarget the fixture in `test_historical_version_trees_are_not_scanned`.
-
-##### WN-5 - `generate_manifest.py` hashes gitignored files via `os.walk`
-
-- **Source phase**: `/update release`
-- **Plan reference**: `docs/v3/v3.20/plans/v3.20.2-interface-craft-skills.md` (release supply-chain manifest)
-- **Reason**: The generator walks `catalog/` on disk and falls back to file bytes for any path not in the git index. The looping `ai-agent-development` relocator left 87,449 gitignored `references-N.md` stubs; a release-time run wrote a 13 MB manifest (89,217 entries) before those files were deleted. Tracked references in that folder remain 12 files. The junk is gone from disk; the walk still does not honor `.gitignore`.
-- **Suggested next step**: Hash `git ls-files` plus `git ls-files -o --exclude-standard` under the covered roots, so gitignored paths cannot enter `MANIFEST.sha256`.
-
 #### Missing Tests / Coverage Gaps
 
 None. Cluster skills that shipped `evals/trigger-cases.json` pass `run_trigger_evals.py --gate`. Catalog-wide missing cases remain v3.20.1 MT-1.
@@ -132,6 +118,8 @@ None. Existing `ci.yml` already classifies non-docs paths as relevant (so `catal
 |---|---|---|---|
 | BG-2 | Comparison D1 truncated `agents/openai.yaml` sidecars | Phase 7 | Re-measured: 140 sidecars, 0 incomplete after YAML unfold. Comparison examples (`unit-tests` "improving test cove", `context-degradation` "mid-sessio") are folded-scalar line wraps of complete sentences. The six new cluster skills have no sidecar, so they did not inherit a generator defect. |
 | DF-6 | Catalog-count drift in prose surfaces (315 vs 321) | `/update release` | README, AGENTS.md, plugin.json, and marketplace plugin.description now read 321. |
+| WN-4 | `check_docs_conventions.py` pinned `docs/v3/v3.19/` | v3.20.3 | Resolves `docs/v<MAJOR>/v<MAJOR>.<MINOR>/` from plugin.json. Future majors such as `docs/v4/` stay unscanned. Live v3.20 tree scanned clean (32 markdown files, 0 findings). |
+| WN-5 | `generate_manifest.py` hashed gitignored files | v3.20.3 | Enumerates `git ls-files -co --exclude-standard` under covered roots when git is available; `os.walk` remains the non-git fallback used by `verify_install.py`. |
 
 ## v3.20.1
 

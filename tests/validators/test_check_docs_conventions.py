@@ -80,11 +80,58 @@ def test_historical_version_trees_are_not_scanned(tmp_path: Path) -> None:
     old = tmp_path / "docs" / "v3" / "v3.18"
     old.mkdir(parents=True)
     (old / "broken.md").write_text("[gone](no-such.md)\n", encoding="utf-8")
-    current = tmp_path / "docs" / "v3" / "v3.19"
+    current = tmp_path / "docs" / "v3" / "v3.20"
     current.mkdir(parents=True)
     (current / "ok.md").write_text("# ok\n", encoding="utf-8")
     proc = run(tmp_path)
     assert proc.returncode == 0, proc.stderr
+    assert "v3.20" in proc.stdout
+
+
+def test_newest_minor_is_scanned_not_a_pinned_path(tmp_path: Path) -> None:
+    older = tmp_path / "docs" / "v3" / "v3.19"
+    older.mkdir(parents=True)
+    (older / "ok.md").write_text("# ok\n", encoding="utf-8")
+    newest = tmp_path / "docs" / "v3" / "v3.20"
+    newest.mkdir(parents=True)
+    (newest / "broken.md").write_text("[gone](no-such.md)\n", encoding="utf-8")
+    proc = run(tmp_path)
+    assert proc.returncode == 1
+    assert "missing relative target" in proc.stderr
+
+
+def test_canonical_minor_beats_a_future_major(tmp_path: Path) -> None:
+    """docs/v4 must not steal the scan while plugin.json still says 3.20.x."""
+    plugin = tmp_path / ".claude-plugin"
+    plugin.mkdir()
+    (plugin / "plugin.json").write_text('{"version": "3.20.2"}\n', encoding="utf-8")
+    future = tmp_path / "docs" / "v4" / "v4.1"
+    future.mkdir(parents=True)
+    (future / "ok.md").write_text("# ok\n", encoding="utf-8")
+    current = tmp_path / "docs" / "v3" / "v3.20"
+    current.mkdir(parents=True)
+    (current / "broken.md").write_text("[gone](no-such.md)\n", encoding="utf-8")
+    proc = run(tmp_path)
+    assert proc.returncode == 1
+    assert "missing relative target" in proc.stderr
+
+
+def test_future_major_broken_links_do_not_fail_the_canonical_minor(tmp_path: Path) -> None:
+    plugin = tmp_path / ".claude-plugin"
+    plugin.mkdir()
+    (plugin / "plugin.json").write_text('{"version": "3.20.2"}\n', encoding="utf-8")
+    future = tmp_path / "docs" / "v4" / "v4.1"
+    future.mkdir(parents=True)
+    (future / "broken.md").write_text("[gone](no-such.md)\n", encoding="utf-8")
+    current = tmp_path / "docs" / "v3" / "v3.20"
+    current.mkdir(parents=True)
+    (current / "ok.md").write_text("# ok\n", encoding="utf-8")
+    proc = run(tmp_path)
+    assert proc.returncode == 0, proc.stderr
+    assert "v3.20" in proc.stdout
+
+
+def test_archive_trees_are_not_scanned(tmp_path: Path) -> None:
     archive = tmp_path / "docs" / "archive" / "old"
     archive.mkdir(parents=True)
     (archive / "broken.md").write_text("[gone](no-such.md)\n", encoding="utf-8")

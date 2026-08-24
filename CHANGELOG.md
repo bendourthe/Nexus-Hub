@@ -27,6 +27,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Command-skill invocation policy.** Generated command-skills now carry `disable-model-invocation: true` so slash-command bodies are not model-auto-invoked on Claude, Cursor, Copilot, and Qwen. Codex maps the same intent to `allow_implicit_invocation: false` in `agents/openai.yaml` (run after synthesis). Platforms with no documented lever still receive the field and ignore it. `validate_skills.py` warns when a catalog skill description starts with `Run the /X command` without the flag. `tests-windows` now runs the tiny-fixture emission tests.
 - **v3.18 session-history archive.** `docs/v3/v3.18/development/history/` moved to `docs/archive/v3/v3.18/development/history/` (two minors behind v3.20). DEVLOG index links repaired. Plans, comparisons, and known-gaps stay in the live tree.
 
+### Fixed
+
+- **AGENTS.md word budget.** The command-derived invocation-policy convention now lives in `docs/policy/skill-invocation-policy-levers.md`; AGENTS.md keeps a short pointer so it stays under the 8150-word ceiling.
+- **Docs-convention scanner tracks the live minor.** `check_docs_conventions.py` resolves `docs/v<MAJOR>/v<MAJOR>.<MINOR>/` from the canonical plugin version instead of pinning `docs/v3/v3.19/`. Future majors (the existing `docs/v4/` planning tree) stay unscanned.
+- **Manifest generator skips gitignored files.** `generate_manifest.py` enumerates covered paths with `git ls-files -co --exclude-standard` when git is available, so gitignored stubs cannot enter `MANIFEST.sha256`.
+
 ## [3.20.2] - 2026-08-24
 
 This release changes no opt-in capability, installer flag, or host surface.

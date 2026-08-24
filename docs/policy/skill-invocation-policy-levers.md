@@ -15,6 +15,16 @@ Two sibling documents own adjacent questions, and none of the three should grow 
 
 An invocation-policy field is per-skill and travels inside `SKILL.md` (or a sidecar next to it), so it belongs to neither. It gets its own record.
 
+## Catalog convention (v3.20.3)
+
+Skills are model-invoked by default. A skill that must fire only when the human types it declares `disable-model-invocation: true` in its SKILL.md frontmatter.
+
+Command-derived skills are user-invoked. Every `catalog/commands/<name>.md` the installer materializes as a skill (the flatten path used by Claude, Codex, Cursor, Qwen, Kimi, Antigravity, OpenCode, Gemini, Gemini CLI, and Nexus-AI) is a slash dispatcher, not a model-auto-loaded catalog skill. `scripts/lib/integrations/_catalog_adapters.py` (`_synthesize_skill`) emits `disable-model-invocation: true` on that generated frontmatter. Do not hand-author a catalog skill whose description begins `Run the /X command` without the same flag; `validate_skills.py` warns (it does not fail the build).
+
+Routing invariant: a user-invoked skill or slash command may delegate to model-invoked skills. It must not delegate to another user-invoked skill or command. That is the existing thin-dispatcher contract: `/implement` dispatches to `implement-phase`; it does not call `/update`.
+
+Per-platform support is the summary table below. Do not invent a lever. Discovery paths are unchanged; see [`platform-read-contracts.md`](platform-read-contracts.md).
+
 ## The do-not-invent rule
 
 A lever is VERIFIED only when a **specific official vendor document, fetched and read**, names the field. Never a blog post, a forum thread, an aggregator, an issue tracker, or an analogy to a platform that looks similar.
