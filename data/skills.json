@@ -6,7 +6,7 @@
     "description": "Comprehensive catalog of Nexus-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-    "total_skills": 315,
+        "total_skills": 321,
     "categories": {
       "ai-development": 14,
       "architecture": 7,
@@ -15,7 +15,7 @@
       "code-cleanup": 10,
       "code-review": 15,
       "compliance": 9,
-      "developer-experience": 32,
+      "developer-experience": 38,
       "documentation": 6,
       "framework-specialists": 6,
       "infrastructure": 19,
@@ -11099,6 +11099,234 @@
         "lines": 82,
         "characters": 3259,
         "tokens_estimate": 814
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "accessibility-engineering",
+      "title": "accessibility-engineering",
+      "description": "\"Ship accessible UI: names, keyboard, focus, forms, hit areas, motion, zoom. Use for accessibility, a11y, keyboard navigation, screen reader, ARIA, focus, or WCAG. SKIP: general frontend (frontend-ui-engineering) and visual polish (hallmark-design).\"",
+      "long_description": "Own accessible interaction: names, keyboard, focus, forms, hit areas, motion, and zoom. Decide contrast severity; leave measurement to color-systems.",
+      "summary_l0": "\"Ship and audit accessible UI against keyboard, name, and WCAG rules\"",
+      "overview_l1": "\"This skill owns accessible interaction: semantic structure and accessible names, keyboard operability and visible focus, focus order and overlay trapping, form labelling and error association, assistive-technology behavior, minimum hit areas, and reduced-motion plus zoom/reflow. It decides when contrast is required and how severe a failure is; color-systems measures and remediates the rendered pair. It owns heading semantics; web-typography owns how those headings look. Match the project's existing styling system. SKIP general frontend architecture and visual polish.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "developer-experience",
+      "language": "Multi-language",
+      "tags": [
+        "accessibility",
+        "a11y",
+        "wcag",
+        "keyboard",
+        "aria"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Edit"
+      ],
+      "path": "catalog/skills/developer-experience/accessibility-engineering/",
+      "file": "catalog/skills/developer-experience/accessibility-engineering/SKILL.md",
+      "size": {
+        "lines": 135,
+        "characters": 10924,
+        "tokens_estimate": 1092
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "layout-and-spacing",
+      "title": "layout-and-spacing",
+      "description": "\"Own grouping, spacing scales, breakpoints, and RTL mirroring. Use for layout, spacing, density, alignment, disclosure, or responsive structure. SKIP: focus order (accessibility-engineering) and component architecture (frontend-ui-engineering).\"",
+      "long_description": "Own spatial grouping, spacing scales, breakpoints, and RTL mirroring. Hand off focus order and component architecture.",
+      "summary_l0": "\"Structure UI spatially with grouping, spacing scales, and adaptive breakpoints\"",
+      "overview_l1": "\"This skill owns spatial structure: grouping and proximity, alignment and visual reading order, spacing scales and density, progressive disclosure, responsive breakpoints, and logical CSS properties for RTL mirroring. Focus order and heading semantics belong to accessibility-engineering. Truncation mechanics belong to web-typography; this skill decides whether the layout has room or needs an expansion affordance. Component architecture and state belong to frontend-ui-engineering. Match the project's existing styling system.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "developer-experience",
+      "language": "Multi-language",
+      "tags": [
+        "layout",
+        "spacing",
+        "responsive",
+        "rtl"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Edit"
+      ],
+      "path": "catalog/skills/developer-experience/layout-and-spacing/",
+      "file": "catalog/skills/developer-experience/layout-and-spacing/SKILL.md",
+      "size": {
+        "lines": 106,
+        "characters": 8290,
+        "tokens_estimate": 829
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "interface-copy",
+      "title": "interface-copy",
+      "description": "\"Write in-product UI microcopy: buttons, errors, empty states, settings, confirmations. Use for button labels, validation messages, or empty-state copy. SKIP: docs (writing-editing, technical-writer), anti-slop-editing, and internal-comms.\"",
+      "long_description": "Write in-product microcopy for actions, errors, empty states, and confirmations. Not docs, not memos.",
+      "summary_l0": "\"Write in-product UI microcopy for actions, errors, and empty states\"",
+      "overview_l1": "\"This skill owns text that ships inside the product UI: action labels, error and validation messages, empty loading and zero-result states, settings and permission wording, confirmation and destructive-action copy, and terminology consistency. Long-form docs belong to writing-editing or technical-writer. AI-slop removal from drafted prose belongs to anti-slop-editing. Internal memos belong to internal-comms. This skill owns the words; web-typography owns wrapping and measure; accessibility-engineering owns accessible names and error association.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "developer-experience",
+      "language": "Multi-language",
+      "tags": [
+        "microcopy",
+        "ux-writing",
+        "empty-state",
+        "errors"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Edit"
+      ],
+      "path": "catalog/skills/developer-experience/interface-copy/",
+      "file": "catalog/skills/developer-experience/interface-copy/SKILL.md",
+      "size": {
+        "lines": 117,
+        "characters": 7388,
+        "tokens_estimate": 738
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "web-typography",
+      "title": "web-typography",
+      "description": "\"Own web font loading, type scales, wrapping, and truncation. Use for typography, fonts, line-height, letter-spacing, measure, or variable fonts. SKIP: heading semantics (accessibility-engineering) and the words (interface-copy).\"",
+      "long_description": "Own web font loading, type scales, wrapping, and truncation. Hand off heading ranks and source wording.",
+      "summary_l0": "\"Load, scale, wrap, and truncate web type without restating heading semantics\"",
+      "overview_l1": "\"This skill owns how text renders: font formats and loading, variable-font axes and OpenType features via real CSS properties, named type scales, visual heading size, line-height and letter-spacing by role, measure, wrapping, widows, truncation, smart punctuation, and mixed-direction runs. accessibility-engineering owns heading ranks and when contrast is required. color-systems measures the pair. layout-and-spacing owns container room and spatial RTL. interface-copy owns the words. Match the project's existing styling system.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "developer-experience",
+      "language": "Multi-language",
+      "tags": [
+        "typography",
+        "fonts",
+        "type-scale",
+        "wrapping"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Edit"
+      ],
+      "path": "catalog/skills/developer-experience/web-typography/",
+      "file": "catalog/skills/developer-experience/web-typography/SKILL.md",
+      "size": {
+        "lines": 100,
+        "characters": 7391,
+        "tokens_estimate": 739
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "color-systems",
+      "title": "color-systems",
+      "description": "\"Build palettes in OKLCH, measure contrast pairs, and map gamut fallbacks. Use for color system, palette, contrast pair, or OKLCH. SKIP: applying supplied tokens (theme-tokens, brand-styling) and contrast severity (accessibility-engineering).\"",
+      "long_description": "Construct OKLCH palettes, measure rendered contrast pairs, and map gamut fallbacks.",
+      "summary_l0": "\"Construct OKLCH palettes and remediate measured contrast pairs\"",
+      "overview_l1": "\"This skill owns color construction and repair: OKLCH over HSL for even lightness steps, palette generation, measuring a rendered contrast pair, remediating a miss, gamut mapping and sRGB fallbacks, semantic roles and theming, and the restraint that coloring every action leaves nothing primary. accessibility-engineering decides when contrast is required and how severe a miss is. theme-tokens and brand-styling apply tokens the user already has. Match the project's styling system.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "developer-experience",
+      "language": "Multi-language",
+      "tags": [
+        "color",
+        "oklch",
+        "palette",
+        "contrast"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Edit"
+      ],
+      "path": "catalog/skills/developer-experience/color-systems/",
+      "file": "catalog/skills/developer-experience/color-systems/SKILL.md",
+      "size": {
+        "lines": 96,
+        "characters": 6864,
+        "tokens_estimate": 686
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "interface-review",
+      "title": "interface-review",
+      "description": "\"Coordinate a multi-domain interface review and return one consolidated verdict. Use for holistic UI review or multi-domain UX pass. SKIP: one-domain requests and general code review (multi-agent-code-review, code-quality).\"",
+      "long_description": "Orchestrate interface-craft delegates into one capped review. Owns order and honesty, not domain rules.",
+      "summary_l0": "\"Orchestrate a multi-domain UI review into one capped, honest verdict\"",
+      "overview_l1": "\"This skill owns orchestration only: it loads the interface-craft delegates in a fixed order, applies each delegate's principles, ignores each delegate's standalone report shape, and emits one consolidated review. It never restates or overrides a delegate rule. The cluster rule-ownership table lives here. Quick mode covers the primary path, P0/P1 only, cap 5. Full mode covers the requested scope, cap 20. Missing delegates are named and marked not reviewed. Default is read-only. SKIP single-domain work and general code review.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "developer-experience",
+      "language": "Multi-language",
+      "tags": [
+        "ui-review",
+        "orchestration",
+        "accessibility",
+        "ux"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/developer-experience/interface-review/",
+      "file": "catalog/skills/developer-experience/interface-review/SKILL.md",
+      "size": {
+        "lines": 151,
+        "characters": 8790,
+        "tokens_estimate": 879
       },
       "downloads": 0,
       "status": "production",

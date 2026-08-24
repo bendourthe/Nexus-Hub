@@ -2,14 +2,14 @@
 
 This is the durable, sourced source of truth for where every supported platform READS each surface (instruction file, slash commands, skills, agents, rules, hooks) and where the Nexus-Hub installer WRITES it. It supersedes the point-in-time snapshot at `docs/v3/v3.11/platform-read-contracts.md` (which resolved the v3.11.0 Phase 7 audit but left the Codex and Antigravity contracts flagged as unverified).
 
-**Last verified**: 2026-08-23 for v3.20.1 (catalog-only release; no discovery-path change; same-day re-fetch of Claude and Cursor skill-discovery pages MATCH; remaining platforms unchanged from the v3.20.0 same-day pass).
+**Last verified**: 2026-08-23 for v3.20.2 (catalog-only release; no discovery-path change; same-day re-fetch of Claude, Cursor, and OpenCode skill-discovery pages MATCH; Codex retains low non-breaking drift; Gemini CLI timed out and is carried forward).
 
 **v3.17.4 pass (full).** All ten contract platforms and all sixteen defaults-lever platforms were re-fetched from live first-party documentation. Every public discovery page returned HTTP 200 and retained the path marker used by Nexus-Hub. The read-path contract remains functional: eight MATCH, one non-breaking Codex DRIFT, and one UNVERIFIED Nexus-AI surface. Cursor and Claude retain their distinct hook response protocols, and Org Knowledge writes only the existing instruction and rules destinations, so no adapter path changes in this release.
 
 | Platform | Verdict | Evidence |
 |---|---|---|
 | Claude Code | **MATCH** | Personal `~/.claude/skills/<skill-name>/SKILL.md` and project `.claude/skills/<skill-name>/SKILL.md` confirmed, with enterprise > personal > project precedence on name collisions. The commands surface remains supported. [Source](https://code.claude.com/docs/en/skills) |
-| Codex / ChatGPT | **DRIFT (low), sixth consecutive cycle** | Discovery still documents the `.agents/skills` ladder and still omits `~/.codex/skills`. Nexus-Hub writes both paths, so delivery remains functional through the confirmed user-level `.agents/skills` path. The redundant write is retained until first-party removal evidence replaces repeated omission. [Source](https://learn.chatgpt.com/docs/build-skills) |
+| Codex / ChatGPT | **DRIFT (low), seventh consecutive cycle** | Discovery still documents the `.agents/skills` ladder and still omits `~/.codex/skills`. Nexus-Hub writes both paths, so delivery remains functional through the confirmed user-level `.agents/skills` path. The redundant write is retained until first-party removal evidence replaces repeated omission. [Source](https://learn.chatgpt.com/docs/build-skills) |
 | Antigravity 2.0 + CLI | **MATCH** | Global `~/.gemini/config/skills/<name>/SKILL.md` and project `.agents/skills/<name>/SKILL.md` remain documented. [Source](https://codelabs.developers.google.com/getting-started-with-antigravity-skills) |
 | Cursor | **MATCH** | Recursive discovery still covers `.cursor/skills` and `.agents/skills` at project and user scope. [Source](https://cursor.com/docs/skills) |
 | Gemini Code Assist | **MATCH** | The IDE still consumes `~/.gemini/GEMINI.md`; its shared skills surface remains aligned with the Gemini family contract. [Source](https://docs.cloud.google.com/gemini/docs/codeassist/use-agentic-chat-pair-programmer) |
