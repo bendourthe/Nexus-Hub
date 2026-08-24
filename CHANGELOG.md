@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- **Skill-cluster authoring rules.** `AGENTS.md` now requires a rule-ownership table for overlapping skills and a missing-delegate honesty path (name the unavailable skill, mark that portion uncovered, do not reconstruct its rules). Every review skill inherits a Considered-but-Rejected table and a mode-based finding cap; `multi-agent-code-review` is the canonical contract.
+
 ## [3.20.1] - 2026-08-23
 
 This release changes no opt-in capability, installer flag, or host surface.

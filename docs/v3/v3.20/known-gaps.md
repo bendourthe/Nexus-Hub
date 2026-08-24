@@ -4,7 +4,56 @@
 **Status**: in-progress
 **Last updated**: 2026-08-23
 
+## v3.20.2
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 1 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+
+### Open Items
+
+#### Not Implemented
+
+None.
+
+#### Deferred
+
+None.
+
+#### Bugs / Regressions
+
+None.
+
+#### Warnings
+
+##### WN-3 - Full-tree `validate_no_personal_paths.py` is too slow to finish in the implement loop on OneDrive
+
+- **Source phase**: Phase 1 - Authoring-standard foundation
+- **Plan reference**: `docs/v3/v3.20/plans/v3.20.2-interface-craft-skills.md` (sub-task 1.4)
+- **Reason**: The default scan walks `catalog/`, `docs/`, and `templates/`. On this host the walk sat in `validate_no_personal_paths.py` for more than 12 minutes with no output. Phase 1 therefore ran `--path` against the files this phase touched (clean) and left the default walk to CI.
+- **Suggested next step**: Confirm CI's `validate` job still finishes the default walk on ubuntu-latest. If maintainers hit the same hang locally, add progress output or skip `docs/archive/`.
+
+#### Missing Tests / Coverage Gaps
+
+None. Phase 1 added authoring prose, not executable modules. Existing `validate_doc_budgets.py`, `validate_skills.py --bundles-only`, and `test_agentskills_conformance.py` still pass.
+
+#### Quality-Gate Gaps
+
+None. Existing `ci.yml` already classifies `AGENTS.md` and `catalog/skills/**` as relevant, uses concurrency cancel-in-progress, and caches pip. No new workflow was added.
+
+### Resolved
+
+None yet.
+
 ## v3.20.1
+
 
 ### Summary
 

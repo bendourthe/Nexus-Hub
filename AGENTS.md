@@ -197,6 +197,18 @@ Binary checklist. Each item must describe an observable artifact or state.
 
 **SKILL.md size norm.** Target ≤500 lines for the SKILL.md body. Hard cap 800 lines, enforced by `scripts/validate_skills.py` in `--bundles-only` (so `make validate` and CI fail a body over 800). Beyond 500 lines, add a `references/` subdirectory with a table of contents and link to it from SKILL.md rather than expanding the body. Beyond 800 lines, the skill MUST be split or refactored before merge. Existing skills that exceed 500 lines are grandfathered at the warning tier only -- a new or grown body over 800 is a hard error.
 
+#### Rule ownership for overlapping skills
+
+When two or more skills cover adjacent or overlapping territory, the cluster MUST declare a rule-ownership table naming exactly one owning skill per concern. Non-owning skills reference the owner by name and describe only the handoff; they never restate the owned rule. Put the table in the coordinating skill, or in this file if the cluster has none. Tie-break: one skill decides WHEN a constraint applies and how severe a violation is; another owns MEASURING and remediating it. Two skills touching one concern is fine; two skills both stating the rule is not. Without this, a multi-skill review reports the same root cause twice and the user cannot tell whether that is two problems or one.
+
+#### Missing-delegate honesty
+
+When a skill delegates work to another skill and that delegate is unavailable, it MUST mark that portion as not covered, name the missing skill, and continue. It MUST NOT reconstruct the delegate's rules from memory, substitute a neighbour, or claim coverage it did not achieve. The gap MUST be visible in the output, not only in the instructions. An agent that improvises the missing rules produces a report that reads complete while that section is unreviewed. This is the delegation-specific case of `[[verification-before-completion]]`.
+
+#### Review-output restraint
+
+Every review skill inherits two conventions; the canonical contract is `catalog/skills/code-review/multi-agent-code-review/SKILL.md`. (1) **Considered but Rejected**: list real inspected candidates that were not reported, each with a reason; never invent filler; a thin scope says so. Without this, a thorough review that found little looks the same as a shallow one. (2) **Mode-based finding cap**: each depth mode binds a coverage scope AND an output cap (quick = higher severities, small cap; full = whole scope, larger cap). Never pad to the cap; a short or clean result is valid. Without a cap, cosmetic padding buries the finding that mattered.
+
 #### Per-skill Bundled Resources
 
 A skill folder MAY carry four optional subdirectories beside `SKILL.md`: `scripts/` (executed without their source entering context), `references/` (read on demand), `assets/`, and `evals/`. This is the operational form of Tier 3 above, and it is how a skill ships heavy capability without inflating Tier 1 or Tier 2.
