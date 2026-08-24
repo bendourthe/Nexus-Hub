@@ -32,6 +32,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **AGENTS.md word budget.** The command-derived invocation-policy convention now lives in `docs/policy/skill-invocation-policy-levers.md`; AGENTS.md keeps a short pointer so it stays under the 8150-word ceiling.
 - **Docs-convention scanner tracks the live minor.** `check_docs_conventions.py` resolves `docs/v<MAJOR>/v<MAJOR>.<MINOR>/` from the canonical plugin version instead of pinning `docs/v3/v3.19/`. Future majors (the existing `docs/v4/` planning tree) stay unscanned.
 - **Manifest generator skips gitignored files.** `generate_manifest.py` enumerates covered paths with `git ls-files -co --exclude-standard` when git is available, so gitignored stubs cannot enter `MANIFEST.sha256`.
+- **Codex dry-run counts invocation-policy sidecars.** `codex_invocation_policy` plans `agents/openai.yaml` from the source command list when dest SKILL.md files have not been written yet, so dry-run and install histograms match.
 
 ## [3.20.2] - 2026-08-24
 

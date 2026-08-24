@@ -145,6 +145,60 @@ def _declares_manual_only(skill_md: Path) -> bool:
     return False
 
 
+def _selected_skill(ctx, name: str) -> bool:
+    fn = getattr(ctx, "selects_skill", None)
+    return fn(name) if callable(fn) else True
+
+
+def _selected_command(ctx, name: str) -> bool:
+    fn = getattr(ctx, "selects_command", None)
+    return fn(name) if callable(fn) else True
+
+
+def _manual_only_skill_names(ctx, dst_skills_dir: Path) -> list[str]:
+    """Skill names that need a Codex sidecar, without requiring dest files.
+
+    Dest is empty during ``dry_run`` because ``_write_generated`` does not
+    materialize SKILL.md. Planning from the source catalog + command list is
+    what keeps ``test_dry_run_matches_install[codex]`` honest after command
+    skills started declaring ``disable-model-invocation: true``.
+    """
+    names: set[str] = set()
+    if dst_skills_dir.is_dir():
+        for skill_dir in dst_skills_dir.iterdir():
+            if not skill_dir.is_dir():
+                continue
+            skill_md = skill_dir / "SKILL.md"
+            if skill_md.is_file() and _declares_manual_only(skill_md):
+                names.add(skill_dir.name)
+
+    repo = getattr(ctx, "repo_root", None)
+    if repo is None:
+        return sorted(names)
+
+    src_skills = Path(repo) / "catalog" / "skills"
+    src_commands = Path(repo) / "catalog" / "commands"
+    if src_skills.is_dir():
+        for skill_md in src_skills.rglob("SKILL.md"):
+            if not skill_md.is_file():
+                continue
+            name = skill_md.parent.name
+            if not _selected_skill(ctx, name):
+                continue
+            if _declares_manual_only(skill_md):
+                names.add(name)
+    if src_commands.is_dir():
+        existing = catalog_skill_names(src_skills) if src_skills.is_dir() else set()
+        for md in src_commands.glob("*.md"):
+            name = md.stem
+            if name in existing:
+                continue
+            if not _selected_command(ctx, name):
+                continue
+            names.add(name)
+    return sorted(names)
+
+
 def codex_invocation_policy(ctx, key: str, dst_skills_dir: Path) -> list[FileAction]:
     """Emit Codex's ``agents/openai.yaml`` sidecar for manual-only skills.
 
@@ -160,20 +214,16 @@ def codex_invocation_policy(ctx, key: str, dst_skills_dir: Path) -> list[FileAct
     and dependency metadata this function cannot reconstruct, so overwriting it
     to set one policy key would destroy the rest.
 
-    Verified against OpenAI's own skill-authoring documentation on 2026-08-18;
-    see ``docs/policy/skill-invocation-policy-levers.md`` for the source and the
-    do-not-invent rule that governs this mapping.
+    Names come from dest SKILL.md files when those exist, and from the source
+    catalog plus command list otherwise, so a dry-run (which does not write
+    dest files) still reports the same sidecar FileActions as a real install.
+
+    Verified against OpenAI's own skill-authoring documentation on 2026-08-18
+    and re-fetched 2026-08-24; see ``docs/policy/skill-invocation-policy-levers.md``.
     """
     actions: list[FileAction] = []
-    if not dst_skills_dir.is_dir():
-        return actions
-
-    for skill_dir in sorted(p for p in dst_skills_dir.iterdir() if p.is_dir()):
-        skill_md = skill_dir / "SKILL.md"
-        if not skill_md.is_file() or not _declares_manual_only(skill_md):
-            continue
-
-        sidecar = skill_dir / "agents" / "openai.yaml"
+    for name in _manual_only_skill_names(ctx, dst_skills_dir):
+        sidecar = dst_skills_dir / name / "agents" / "openai.yaml"
         if sidecar.exists() and "allow_implicit_invocation" not in sidecar.read_text(
             encoding="utf-8", errors="replace"
         ):
