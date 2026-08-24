@@ -170,4 +170,6 @@ def test_antigravity_20_commands_are_also_skills(install_ctx: InstallContext):
     assert (agents / "workflows" / "presentify.md").exists(), "slash workflow missing"
     skill_md = agents / "skills" / "presentify" / "SKILL.md"
     assert skill_md.exists(), "command-skill missing"
-    assert "name: presentify" in skill_md.read_text(encoding="utf-8")
+    text = skill_md.read_text(encoding="utf-8")
+    assert "name: presentify" in text
+    assert "disable-model-invocation: true" in text

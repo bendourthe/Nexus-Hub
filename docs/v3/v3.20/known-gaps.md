@@ -11,9 +11,9 @@
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 0 | 0 |
+| Deferred (DF) | 1 | 0 |
 | Bugs / regressions (BG) | 0 | 0 |
-| Warnings (WN) | 0 | 0 |
+| Warnings (WN) | 1 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
@@ -25,7 +25,12 @@ None.
 
 #### Deferred
 
-None.
+##### DF-1 - No native invocation mapping for platforms with no vendor lever
+
+- **Source phase**: Phase 4 - Invocation-policy metadata
+- **Plan reference**: `docs/v3/v3.20/plans/v3.20.3-skills-craft-and-prime-agent.md` (sub-task 4.1)
+- **Reason**: Antigravity, OpenCode, Kimi, Hermes, and Nexus-AI document no per-skill invocation-policy field. Generated command-skills still carry `disable-model-invocation: true` in SKILL.md; those hosts ignore the unknown key. Inventing a sidecar would repeat the v3.15.0 fabricated-companion failure.
+- **Suggested next step**: Revisit when a first-party vendor document names a lever. Until then keep the honest gap note in `docs/policy/skill-invocation-policy-levers.md`.
 
 #### Bugs / Regressions
 
@@ -33,15 +38,22 @@ None.
 
 #### Warnings
 
-None new. Phase 1 reused the v3.20.2 scoped `--path` personal-paths scan (WN-3) and did not retarget `check_docs_conventions.py` off `docs/v3/v3.19/` (WN-4). Those remain open on the v3.20.2 subsection.
+##### WN-6 - Codex skills docs timed out during the Phase 4 lever re-check
+
+- **Source phase**: Phase 4 - Invocation-policy metadata
+- **Plan reference**: `docs/v3/v3.20/plans/v3.20.3-skills-craft-and-prime-agent.md` (sub-task 4.1)
+- **Reason**: `https://learn.chatgpt.com/docs/build-skills` timed out on 2026-08-24. The inverted `allow_implicit_invocation` mapping is retained from the 2026-08-18 survey in `docs/policy/skill-invocation-policy-levers.md`.
+- **Suggested next step**: Re-fetch at `/update release` during `[[platform-contract-verification]]`. Change the mapping only on first-party evidence.
+
+Phase 1 reused the v3.20.2 scoped `--path` personal-paths scan (WN-3) and did not retarget `check_docs_conventions.py` off `docs/v3/v3.19/` (WN-4). Those remain open on the v3.20.2 subsection.
 
 #### Missing Tests / Coverage Gaps
 
-None new. Phase 3 was additive skill-body enrichments plus one linked reference file. Trigger evals remain PASS (66 skills with cases, 0 routing failures).
+None new. Phase 4 added emission assertions on the existing integration files plus two validator warning tests. The ubuntu `tests` job already runs `tests/integrations` and `tests/validators`. `tests-windows` now also runs the tiny-fixture emission pair (`test_catalog_adapters.py`, `test_codex_invocation_policy.py`). Full 324-skill flatten stays on ubuntu.
 
 #### Quality-Gate Gaps
 
-None. Existing `ci.yml` already treats `catalog/skills/**` and `docs/policy/**` as relevant (job-level classifier, no workflow-level `paths:` filter). Concurrency cancel-in-progress and pip cache are unchanged.
+None. Existing `ci.yml` already treats `scripts/lib/integrations/**`, `tests/integrations/**`, and `docs/policy/**` as relevant (job-level classifier, no workflow-level `paths:` filter). Concurrency cancel-in-progress and pip cache are unchanged.
 
 ### Resolved
 

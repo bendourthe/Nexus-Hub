@@ -18,7 +18,7 @@ Nexus-Hub is a **template repository**. Nothing is "live" until a user runs `scr
 
 2. **New skill** (`catalog/skills/<cat>/<name>/SKILL.md`): update three registry files — `data/SKILL_INDEX.md`, `data/skills.json`, `data/marketplace.json`. The skill folder is auto-copied.
 
-3. **New command** (`catalog/commands/<name>.md`): no registry update; folder auto-copied. If the command needs a style-guide reference, place it at `catalog/style-guides/<name>.md` (NOT in `catalog/commands/`, otherwise it surfaces as a slash command).
+3. **New command** (`catalog/commands/<name>.md`): no registry update; folder auto-copied. If the command needs a style-guide reference, place it at `catalog/style-guides/<name>.md` (NOT in `catalog/commands/`, otherwise it surfaces as a slash command). Command-derived skills emit `disable-model-invocation: true` from `_synthesize_skill` (shared Python; no installer copy step). Do not invent a per-platform lever.
 
 4. **New hook** (`catalog/hooks/<name>.{sh,py}`): register in `catalog/hooks/settings.json`; add tests under `catalog/hooks/tests/`.
 

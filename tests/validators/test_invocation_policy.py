@@ -54,15 +54,18 @@ def write_skill(root: Path, name: str, policy_lines: str = "") -> Path:
     return d
 
 
-def run(root: Path) -> subprocess.CompletedProcess:
+def run(root: Path, *, verbose: bool = False) -> subprocess.CompletedProcess:
+    cmd = [
+        sys.executable,
+        str(SCRIPT),
+        "--bundles-only",
+        "--path",
+        str(root / "cat"),
+    ]
+    if verbose:
+        cmd.append("--verbose")
     return subprocess.run(
-        [
-            sys.executable,
-            str(SCRIPT),
-            "--bundles-only",
-            "--path",
-            str(root / "cat"),
-        ],
+        cmd,
         capture_output=True,
         text=True,
         cwd=REPO_ROOT,
@@ -179,3 +182,40 @@ def test_the_shipped_catalog_passes_untouched():
     )
     assert result.returncode == 0, result.stdout + result.stderr
     assert "RESULT: PASS" in result.stdout
+
+
+def test_slash_dispatcher_description_without_flag_is_a_warning(tmp_path):
+    """A hand-authored 'Run the /X command' skill without the flag is suspicious."""
+    d = tmp_path / "cat" / "plan-wrapper"
+    d.mkdir(parents=True)
+    (d / "SKILL.md").write_text(
+        "---\n"
+        "name: plan-wrapper\n"
+        "description: Run the /plan command. Thin dispatcher for the plan skill.\n"
+        'summary_l0: "Wraps the plan command"\n'
+        'overview_l1: "A longer paragraph about wrapping the plan command for tests."\n'
+        "---\n" + BODY.format(name="plan-wrapper"),
+        encoding="utf-8",
+    )
+    result = run(tmp_path, verbose=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "Run the /X command" in result.stdout
+    assert "user-invoked only" in result.stdout
+
+
+def test_slash_dispatcher_description_with_flag_is_silent(tmp_path):
+    d = tmp_path / "cat" / "plan-wrapper"
+    d.mkdir(parents=True)
+    (d / "SKILL.md").write_text(
+        "---\n"
+        "name: plan-wrapper\n"
+        "description: Run the /plan command. Thin dispatcher for the plan skill.\n"
+        "disable-model-invocation: true\n"
+        'summary_l0: "Wraps the plan command"\n'
+        'overview_l1: "A longer paragraph about wrapping the plan command for tests."\n'
+        "---\n" + BODY.format(name="plan-wrapper"),
+        encoding="utf-8",
+    )
+    result = run(tmp_path, verbose=True)
+    assert result.returncode == 0, result.stdout + result.stderr
+    assert "Run the /X command" not in result.stdout

@@ -309,6 +309,16 @@ After adding a command, update `data/marketplace.json` `"total_commands"` if tha
 
 **Do not maintain a static command list anywhere.** `/skills list` derives the command cheatsheet -- the active commands, what each does, the deprecated name each one replaces, and common multi-command workflows -- at runtime from the command files themselves (see `catalog/style-guides/commands-cheatsheet.md`). Adding, renaming, refactoring, or deprecating a command therefore updates the cheatsheet automatically on the next `/skills list`; there is no table to hand-edit. The only command artifacts to touch on a change are the command file(s) and (on a rename) the deprecation shim.
 
+## Command-derived skills and invocation policy
+
+Skills are model-invoked by default. A skill that must fire only when the human types it declares `disable-model-invocation: true` in its SKILL.md frontmatter.
+
+**Command-derived skills are user-invoked.** Every `catalog/commands/<name>.md` the installer materializes as a skill (the flatten path used by Claude, Codex, Cursor, Qwen, Kimi, Antigravity, OpenCode, Gemini, Gemini CLI, and Nexus-AI) is a slash dispatcher, not a model-auto-loaded catalog skill. `scripts/lib/integrations/_catalog_adapters.py` (`_synthesize_skill`) emits `disable-model-invocation: true` on that generated frontmatter. Do not hand-author a catalog skill whose description begins `Run the /X command` without the same flag; `validate_skills.py` warns (it does not fail the build).
+
+**Routing invariant.** A user-invoked skill or slash command may delegate to model-invoked skills. It must not delegate to another user-invoked skill or command. That is the existing thin-dispatcher contract: `/implement` dispatches to `implement-phase`; it does not call `/update`.
+
+**Per-platform support (do not invent a lever).** Platforms that document the field honor it from SKILL.md: Claude Code, GitHub Copilot, Cursor (`disable-model-invocation` only), and Qwen. Codex maps the same intent to `policy.allow_implicit_invocation: false` in an `agents/openai.yaml` sidecar (inverted polarity; see `codex_invocation_policy`). Antigravity, OpenCode, Kimi, Hermes, and Nexus-AI document no per-skill invocation lever; the field is still emitted and ignored. Dated sources live in [`docs/policy/skill-invocation-policy-levers.md`](docs/policy/skill-invocation-policy-levers.md). Discovery paths are unchanged; see [`docs/policy/platform-read-contracts.md`](docs/policy/platform-read-contracts.md).
+
 ## Model Routing in the Plan/Implement Loop
 
 `/plan` scores a platform-agnostic tier (`frontier` / `strong` / `standard` / `fast`) and effort level per phase, defaulting to `frontier` at high or max effort on any uncertainty; `/implement` re-confirms that recommendation at the start of each phase against the live model set, defaults upward on disagreement, and may upshift (never silently downshift) when the troubleshooting loop stalls. Concrete model ids live only in the plan's own `## Current model map`, refreshed from official vendor documentation per invocation. This is command + skill behavior, not a `base-*.md` lockstep concern.

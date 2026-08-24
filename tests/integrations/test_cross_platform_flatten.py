@@ -55,7 +55,11 @@ def test_platform_adds_command_skills(install_ctx: InstallContext, key: str, ski
     integ.install(install_ctx)
     skill_md = install_ctx.target_root / skills_rel / "presentify" / "SKILL.md"
     assert skill_md.exists(), f"{key}: command-skill missing at {skill_md}"
-    assert "name: presentify" in skill_md.read_text(encoding="utf-8")
+    text = skill_md.read_text(encoding="utf-8")
+    assert "name: presentify" in text
+    assert "disable-model-invocation: true" in text, (
+        f"{key}: command-skill must not be model-auto-invoked"
+    )
 
 
 def test_cursor_flattens_skills_and_keeps_rules(install_ctx: InstallContext):

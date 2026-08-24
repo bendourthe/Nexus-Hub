@@ -809,6 +809,14 @@ jobs:
           NEXUS_TEST_POWERSHELL: powershell
         run: python -m pytest tests/integrations/test_settings_hooks.py -q
 
+      - name: Command-skill invocation-policy emission on Windows (v3.20.3 Phase 4)
+        # Tiny fixture catalog plus sidecar mapping. Ubuntu `tests` already runs
+        # the full 324-skill flatten suite; repeating that here would add Windows
+        # runner minutes for coverage the ubuntu job already provides.
+        env:
+          NEXUS_TEST_POWERSHELL: powershell
+        run: python -m pytest tests/integrations/test_catalog_adapters.py tests/integrations/test_codex_invocation_policy.py -q
+
   install-smoke:
     # v3.11.0 Phase 7.5: prove the catalog lands at each platform's real read-path
     # and that the project auto-seed produces .agents/workflows. Uses the registry

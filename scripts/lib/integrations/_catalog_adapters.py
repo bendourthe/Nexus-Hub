@@ -15,11 +15,13 @@ The three adapters:
     layer MUST be dropped or nothing registers. Skill folder names are globally
     unique across categories (enforced by the catalog), so flattening never
     collides.
-  - ``commands_to_skills`` -- synthesize ``<dst>/<name>/SKILL.md`` from each
+    - ``commands_to_skills`` -- synthesize ``<dst>/<name>/SKILL.md`` from each
     ``catalog/commands/<name>.md`` so a command surfaces as a reusable skill
-    (``$name`` in Codex / the new ChatGPT desktop app). The synthesized frontmatter
-    carries only ``name`` + ``description`` -- exactly what Codex and Antigravity
-    require -- and the command body becomes the skill body.
+    (``$name`` in Codex / the new ChatGPT desktop app). The synthesized
+    frontmatter carries ``name``, ``description``, and
+    ``disable-model-invocation: true`` so slash-command bodies are not
+    model-auto-invoked on platforms that honor the field. The command body
+    becomes the skill body.
   - ``commands_to_slash`` -- emit slash-command files (verbatim ``.md`` for
     Claude / Antigravity workflows; top-level ``.md`` for the legacy Codex prompts
     surface).
@@ -281,11 +283,17 @@ def _yaml_double_quote(value: str) -> str:
 def _synthesize_skill(name: str, command_text: str) -> bytes:
     """Build a SKILL.md body from a command file's frontmatter + body.
 
-    Frontmatter carries only ``name`` + ``description`` (the required-and-
-    sufficient set for Codex and Antigravity). The description gets a
-    "Run the /<name> command." lead-in so the skill router understands the skill
-    maps to a slash command, followed by the command's own description. The
-    command body becomes the skill body verbatim.
+    Frontmatter carries ``name``, ``description``, and
+    ``disable-model-invocation: true``. Command-derived skills are user-invoked
+    slash dispatchers; leaving the flag off would let the model auto-load the
+    command body as if it were a catalog skill. Platforms that do not document
+    the field ignore it. Codex maps it through ``codex_invocation_policy``
+    (inverted sidecar) after this file is written.
+
+    The description gets a "Run the /<name> command." lead-in so the skill
+    router understands the skill maps to a slash command, followed by the
+    command's own description. The command body becomes the skill body
+    verbatim.
     """
     meta, body = _split_frontmatter(command_text)
     source_desc = meta.get("description", "").strip()
@@ -295,6 +303,7 @@ def _synthesize_skill(name: str, command_text: str) -> bytes:
         "---\n"
         f"name: {name}\n"
         f"description: {_yaml_double_quote(description)}\n"
+        "disable-model-invocation: true\n"
         "---\n\n"
     )
     return (front + body).encode("utf-8")

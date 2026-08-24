@@ -129,6 +129,9 @@ def test_qwen_workspace_writes_skills_agents_and_markdown_commands(fake_home: Pa
     cmds = qwen / "commands"
     assert (cmds / "presentify.md").exists(), "Markdown command mirror missing"
     assert not list(cmds.glob("*.toml")), "Qwen commands must be Markdown, not deprecated TOML"
+    qwen_cmd_skill = skills / "presentify" / "SKILL.md"
+    assert qwen_cmd_skill.is_file(), "Qwen command-skill missing"
+    assert "disable-model-invocation: true" in qwen_cmd_skill.read_text(encoding="utf-8")
 
 
 def test_qwen_global_writes_when_detected(fake_home: Path) -> None:
@@ -171,6 +174,8 @@ def test_kimi_workspace_writes_agents_md_and_skills(fake_home: Path, tmp_path: P
     assert not (skills / "workflow").is_dir(), "category layer must be flattened away"
     # command-skills reach Kimi as /skill:<name>
     assert (skills / "presentify" / "SKILL.md").exists(), "command-skill missing"
+    kimi_cmd = (skills / "presentify" / "SKILL.md").read_text(encoding="utf-8")
+    assert "disable-model-invocation: true" in kimi_cmd
 
     # The old product surfaces are gone, and .kimi-code/ never clobbers the
     # project-root AGENTS.md that codex/cursor/opencode manage.
