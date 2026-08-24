@@ -6,7 +6,7 @@
     "description": "Comprehensive catalog of Nexus-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-    "total_skills": 315,
+        "total_skills": 316,
     "categories": {
       "ai-development": 14,
       "architecture": 7,
@@ -15,7 +15,7 @@
       "code-cleanup": 10,
       "code-review": 15,
       "compliance": 9,
-      "developer-experience": 32,
+      "developer-experience": 33,
       "documentation": 6,
       "framework-specialists": 6,
       "infrastructure": 19,
@@ -11099,6 +11099,45 @@
         "lines": 82,
         "characters": 3259,
         "tokens_estimate": 814
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "accessibility-engineering",
+      "title": "accessibility-engineering",
+      "description": "\"Ship accessible UI: names, keyboard, focus, forms, hit areas, motion, zoom. Use for accessibility, a11y, keyboard navigation, screen reader, ARIA, focus, or WCAG. SKIP: general frontend (frontend-ui-engineering) and visual polish (hallmark-design).\"",
+      "long_description": "Own accessible interaction: names, keyboard, focus, forms, hit areas, motion, and zoom. Decide contrast severity; leave measurement to color-systems.",
+      "summary_l0": "\"Ship and audit accessible UI against keyboard, name, and WCAG rules\"",
+      "overview_l1": "\"This skill owns accessible interaction: semantic structure and accessible names, keyboard operability and visible focus, focus order and overlay trapping, form labelling and error association, assistive-technology behavior, minimum hit areas, and reduced-motion plus zoom/reflow. It decides when contrast is required and how severe a failure is; color-systems measures and remediates the rendered pair. It owns heading semantics; web-typography owns how those headings look. Match the project's existing styling system. SKIP general frontend architecture and visual polish.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "developer-experience",
+      "language": "Multi-language",
+      "tags": [
+        "accessibility",
+        "a11y",
+        "wcag",
+        "keyboard",
+        "aria"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Edit"
+      ],
+      "path": "catalog/skills/developer-experience/accessibility-engineering/",
+      "file": "catalog/skills/developer-experience/accessibility-engineering/SKILL.md",
+      "size": {
+        "lines": 135,
+        "characters": 10924,
+        "tokens_estimate": 1092
       },
       "downloads": 0,
       "status": "production",

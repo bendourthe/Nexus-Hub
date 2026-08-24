@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 
 - **Skill-cluster authoring rules.** `AGENTS.md` now requires a rule-ownership table for overlapping skills and a missing-delegate honesty path (name the unavailable skill, mark that portion uncovered, do not reconstruct its rules). Every review skill inherits a Considered-but-Rejected table and a mode-based finding cap; `multi-agent-code-review` is the canonical contract.
+- **`accessibility-engineering` skill.** First interface-craft cluster skill: semantic names, keyboard and focus, forms, hit areas, reduced motion, and zoom/reflow, with a `references/` bundle. Contrast measurement is handed to `color-systems`; heading visuals to `web-typography`. Original writing; no copied source prose.
 
 ## [3.20.1] - 2026-08-23
 

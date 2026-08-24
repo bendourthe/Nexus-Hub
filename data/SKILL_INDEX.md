@@ -320,4 +320,5 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | vulnerability-prioritization-with-ssvc | security | "Prioritize vulnerabilities with CISA SSVC trees instead of CVSS-only queues" | catalog/skills/security/vulnerability-prioritization-with-ssvc/SKILL.md |
 | slsa-provenance-and-sigstore-verification | security | "Verify SLSA provenance and Sigstore signatures before admitting artifacts" | catalog/skills/security/slsa-provenance-and-sigstore-verification/SKILL.md |
 | purple-team-exercise-design | security-operations | "Run scoped purple-team TTP emulation with detection owners and a scorecard" | catalog/skills/security-operations/purple-team-exercise-design/SKILL.md |
-**Total: 315 skills across 23 categories**
+| accessibility-engineering | developer-experience | "Ship and audit accessible UI against keyboard, name, and WCAG rules" | catalog/skills/developer-experience/accessibility-engineering/SKILL.md |
+**Total: 316 skills across 23 categories**
