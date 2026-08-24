@@ -66,6 +66,7 @@ Also scan for **repeated CLI mistakes**: the same failing command, flag, or path
 For each pattern the user confirms, create one atomic YAML file at `.nexus/instincts/<short-slug>.yaml`:
 
 ```yaml
+id: prefer-batched-test-runs   # stable; rollback and prune by this id, never by rewrite
 slug: prefer-batched-test-runs
 created: 2026-05-28
 confidence: 0.6     # 0.0 (single observation) -- 1.0 (consistent across many sessions)
@@ -83,9 +84,20 @@ notes: |
 Rules:
 
 - One finding per file. Compound instincts are split.
+- `id` is stable. It equals `slug` at mint time and never changes. Rollback, prune, and "drop that one" target this id. Do not mint a replacement file that silently supersedes another id.
 - `confidence` is the agent's honest estimate. Bump it on subsequent confirmations; do NOT silently inflate.
 - `domains` are tags from a shared, free-form vocabulary (testing, security, git, planning, ...). Use existing tags when they fit.
 - `evidence` cites concrete observations. No evidence -> the instinct is speculation, not an instinct.
+
+### 3.1 Smallest relevant edit, plan/apply split, immutable base
+
+Three refinement-loop disciplines wrap every mint, bump, and prune:
+
+1. **Smallest relevant edit.** When a session trajectory suggests an improvement, mint the smallest instinct (or the smallest patch to one existing instinct) that moves outcomes. Never rewrite a cluster, a skill draft, or the instinct file wholesale because the trajectory "looks like a theme." Large refinements are unauditable and unrevertable; chain small ids instead.
+2. **Plan/apply phase split.** Propose candidate instincts asynchronously during the session (the survey in step 2 is a proposal). Apply them only at a safe boundary: end of turn, or end of session after the user confirms. A half-applied improvement must never land while other work is still in flight.
+3. **Immutable base + rollback by id.** Never edit the project's base instructions (`AGENTS.md`, `CLAUDE.md`, installed `templates/ai-instructions/`) from this skill. The learned layer is `.nexus/instincts/` only. Every minted instinct has a stable `id` so a bad learning reverts by id (`archived: true` on that file, or delete that file) without touching anything else.
+
+Existing instincts minted before `id` existed treat `slug` as the id. When touching such a file, add `id: <slug>` as the smallest edit; do not rename the file unless the user asks.
 
 ### 4. Evolve into a draft skill or command
 
@@ -112,11 +124,13 @@ The user prunes manually. This skill offers to mark an instinct `archived: true`
 | "I should mint an instinct from a single correction" | Speculation, not an instinct. The skill requires `evidence: []` to be populated with concrete observations. A single correction can be recorded as confidence 0.3 if it is clearly intentional, but lower-confidence instincts are reviewed and re-confirmed before they shape behavior. |
 | "I can promote an instinct to a skill myself without showing the maintainer" | No. The skill's step 4 explicitly says surface the draft and ask. Skills are user-facing artifacts; an instinct that became a skill silently would bypass the curation bar that AGENTS.md defines. Drafts land in the working directory inline, never committed by the agent. |
 | "Observations and instincts should sync across projects so I learn faster" | Cross-project sync is exactly the egress trap. Each project's `.nexus/` is its own. If the maintainer wants to promote a pattern globally, they do it explicitly by editing a real Nexus-Hub skill. |
+| "This trajectory suggests a big rewrite would be better" | Large refinements are unauditable and unrevertable. Mint or patch the smallest id that moves the outcome; chain more ids later. A wholesale rewrite of instincts or of the base instructions hides which change caused the next failure, so rollback by id is impossible. |
 
 ## Verification
 
 - [ ] Reading `.nexus/observations.jsonl` shows one JSON-per-line records with the four required fields (`ts`, `event`, `tool`, `prompt_sample`).
-- [ ] Every minted instinct YAML has `slug`, `created`, `confidence`, `domains`, `trigger`, `behavior`, and `evidence` (with at least one entry).
+- [ ] Every minted instinct YAML has `id` (stable, equal to `slug` at mint), `slug`, `created`, `confidence`, `domains`, `trigger`, `behavior`, and `evidence` (with at least one entry).
+- [ ] Proposed instincts were applied only at a turn or session boundary, never mid-flight, and no base instruction file was edited.
 - [ ] `confidence` is a number in `[0.0, 1.0]`.
 - [ ] No background process, daemon, or network call is created or proposed at any step.
 - [ ] No `.nexus/` file is written outside the project root.

@@ -1,0 +1,13 @@
+{
+  "skill": "setup-wizard-generator",
+  "purpose": "Route human-only interactive setup wizards here, not agent-runnable project init or design interviews.",
+  "cases": [
+    {"id": "pos-walk-setup", "prompt": "walk me through setting up the vendor dashboard", "should_trigger": true, "assert": "routes to setup-wizard-generator first", "lexical": true},
+    {"id": "pos-interactive-script", "prompt": "write an interactive setup script I can resume after I drop", "should_trigger": true, "assert": "routes to setup-wizard-generator first", "lexical": true},
+    {"id": "pos-manual-steps", "prompt": "help me do the manual steps and enter the CI secrets myself", "should_trigger": true, "assert": "routes to setup-wizard-generator first", "lexical": true},
+    {"id": "pos-guide-dashboard", "prompt": "guide me through the dashboard with a resumable wizard", "should_trigger": true, "assert": "routes to setup-wizard-generator first", "lexical": true},
+    {"id": "neg-setup-project", "prompt": "bootstrap this repo with git, version, and a README", "should_trigger": false, "assert": "routes to setup-project, not setup-wizard-generator", "lexical": true},
+    {"id": "neg-grill", "prompt": "grill me about this design until every branch is specified", "should_trigger": false, "assert": "routes to design-interview, not setup-wizard-generator", "lexical": true},
+    {"id": "neg-questionnaire", "prompt": "make a questionnaire for my stakeholder about this async decision", "should_trigger": false, "assert": "routes to decision-questionnaire, not setup-wizard-generator", "lexical": true}
+  ]
+}

@@ -86,6 +86,8 @@ def test_hermes_workspace_writes_flattened_skills(fake_home: Path, tmp_path: Pat
     assert (skills / "react-expert" / "SKILL.md").exists(), "a known skill must be present"
     # Each catalog command surfaces as a skill too.
     assert (skills / "implement" / "SKILL.md").exists(), "command-skill missing"
+    implement_md = (skills / "implement" / "SKILL.md").read_text(encoding="utf-8")
+    assert "disable-model-invocation: true" in implement_md
 
 
 def test_hermes_does_not_write_shared_or_instruction_surfaces(fake_home: Path, tmp_path: Path) -> None:

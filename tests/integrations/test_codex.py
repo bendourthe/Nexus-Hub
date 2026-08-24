@@ -51,6 +51,19 @@ def test_codex_workspace_commands_as_skills_and_prompts(install_ctx: InstallCont
         text = skill_md.read_text(encoding="utf-8")
         assert "name: presentify" in text
         assert "/presentify" in text, "command-skill description should carry the slash lead-in"
+        assert "disable-model-invocation: true" in text, (
+            "command-skills must not be model-auto-invoked"
+        )
+        sidecar = skills_dir / "presentify" / "agents" / "openai.yaml"
+        assert sidecar.is_file(), f"Codex sidecar missing for command-skill at {sidecar}"
+        sidecar_text = sidecar.read_text(encoding="utf-8")
+        assert "allow_implicit_invocation: false" in sidecar_text
+        assert "allow_implicit_invocation: true" not in sidecar_text
+
+    # Catalog skills stay model-invoked: no sidecar unless they declare the field.
+    catalog_skill = root / ".codex" / "skills" / "loop-engineering"
+    if catalog_skill.is_dir():
+        assert not (catalog_skill / "agents" / "openai.yaml").exists()
 
     # And the legacy top-level prompt is present for /prompts:presentify.
     prompt = root / ".codex" / "prompts" / "presentify.md"

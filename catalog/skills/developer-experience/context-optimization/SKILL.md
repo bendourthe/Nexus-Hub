@@ -151,7 +151,7 @@ These instructions reduce the amount of command output the AI includes in its re
 
 - [[context-engineering]] -- shapes what belongs in context, complementing this skill's focus on shrinking what leaks in
 - [[context-compression]] -- the orchestration-level techniques for minimizing tokens per task
-- [[prompt-token-optimization]] -- reduces token consumption through programmatic tool calling and context hygiene
+- [[prompt-token-optimization]] -- reduces token consumption through programmatic tool calling, the functions-over-data principle (compute over large structured context instead of reading it token by token), and context hygiene
 - [[using-nexus-hub]] -- orients a new session, a good point to apply these output-minimization defaults
 - **`nexus-context-compressor` engine** (`extensions/nexus-context-compressor/`) -- the programmatic compressor this skill configures; the deterministic strategies and reversible CCR store the prose above describes. Full setup, platform matrix, and architecture: [`guides/reference/RTK_CONTEXT_COMPRESSION.md`](../../../../guides/reference/RTK_CONTEXT_COMPRESSION.md) and the [engine README](../../../../extensions/nexus-context-compressor/README.md).
 

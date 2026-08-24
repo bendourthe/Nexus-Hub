@@ -9,6 +9,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Agent-writing discipline in skill-authoring skills.** `skill-description-authoring` and `skill-create` now teach context pointers, the two loads, leading words, negation avoidance, sediment pruning, and the hard/soft setup-dependency split. Full treatment lives in `skill-description-authoring/references/agent-writing-theory.md`; `skill-create` links that file and does not fork it.
+- **Out-of-scope register.** `docs/policy/out-of-scope/` records deliberately-declined features (never-do), distinct from `known-gaps.md` (do-later). Seeded with search-as-service MCP registry entries and changesets release automation. `known-gaps-tracker` routes "we will never do this" items there.
+- **`design-interview` skill.** Relentless one-question-at-a-time interview engine plus a `CONTEXT.md` domain glossary. `idea-refine` and `implementation-plan` invoke it; they are not replaced. SKIP fences `ambiguity-detector` and `requirement-enhancer`.
+- **`setup-wizard-generator` skill.** Generates a resumable human-only setup wizard from bundled `wizard-template.sh` and `wizard-template.ps1` siblings. The agent adapts the templates and does not run privileged steps.
+- **`decision-questionnaire` skill.** Send-ready Markdown questionnaire for the one stakeholder who can unblock an in-session decision. Catalog count is 324.
+- **Recursive context-harness reference.** `ai-agent-development/references/recursive-context-harness.md` describes context-as-a-kernel-variable, tool use as code over that variable, and recursive delegation as async handles. Linked from the skill body; not a shipped kernel.
+- **Claude Code plugin marketplace package.** `.claude-plugin/marketplace.json` now matches the current Claude Code marketplace schema (`owner` + `plugins`). `plugin.json` exposes the full catalog (every `catalog/skills/<category>` path, plus commands and agents). Hooks stay on the installer. README documents `/plugin marketplace add bendourthe/Nexus-Hub` as a subscribe-style alternative, including the trailing-pin caveat. Maintainer submission draft: `docs/v3/v3.20/development/claude-marketplace-submission.md`. The external form is not submitted from this change.
+
+### Changed
+
+- **Loop and learning disciplines.** `continuous-learning` now requires smallest-edit instincts, a plan/apply split, and rollback by stable id without editing base instructions. `loop-engineering` adds idempotent completion gates (fingerprint + cached verdict), simultaneous iteration/token/wall-clock caps, and the reward-hacking failure signature. `ai-agent-governance` names the same signature and does not fork the loop-gate rules.
+- **Functions-over-data.** `prompt-token-optimization` names the principle (compute over large structured context instead of reading it token by token). `context-optimization` cross-links it in one line.
+- **Subagent topology and decision tickets.** `multi-agent-coordinator` restricts messaging to parent/sibling/child and keeps completed subagents addressable by id. `implementation-plan` and `tasks-to-issues` mark blocking questions with a `decision:` prefix and a `decision` label.
+- **Command-skill invocation policy.** Generated command-skills now carry `disable-model-invocation: true` so slash-command bodies are not model-auto-invoked on Claude, Cursor, Copilot, and Qwen. Codex maps the same intent to `allow_implicit_invocation: false` in `agents/openai.yaml` (run after synthesis). Platforms with no documented lever still receive the field and ignore it. `validate_skills.py` warns when a catalog skill description starts with `Run the /X command` without the flag. `tests-windows` now runs the tiny-fixture emission tests.
+- **v3.18 session-history archive.** `docs/v3/v3.18/development/history/` moved to `docs/archive/v3/v3.18/development/history/` (two minors behind v3.20). DEVLOG index links repaired. Plans, comparisons, and known-gaps stay in the live tree.
+
+### Fixed
+
+- **AGENTS.md word budget.** The command-derived invocation-policy convention now lives in `docs/policy/skill-invocation-policy-levers.md`; AGENTS.md keeps a short pointer so it stays under the 8150-word ceiling.
+- **Docs-convention scanner tracks the live minor.** `check_docs_conventions.py` resolves `docs/v<MAJOR>/v<MAJOR>.<MINOR>/` from the canonical plugin version instead of pinning `docs/v3/v3.19/`. Future majors (the existing `docs/v4/` planning tree) stay unscanned.
+- **Manifest generator skips gitignored files.** `generate_manifest.py` enumerates covered paths with `git ls-files -co --exclude-standard` when git is available, so gitignored stubs cannot enter `MANIFEST.sha256`.
+- **Codex dry-run counts invocation-policy sidecars.** `codex_invocation_policy` plans `agents/openai.yaml` from the source command list when dest SKILL.md files have not been written yet, so dry-run and install histograms match.
+- **Headline catalog count.** README and AGENTS.md now declare 324 skills, matching `data/skills.json`.
+
 ## [3.20.2] - 2026-08-24
 
 This release changes no opt-in capability, installer flag, or host surface.

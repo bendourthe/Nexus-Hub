@@ -34,6 +34,7 @@ Provides agent development expertise including:
 - **Tool Integration**: Function calling schemas, MCP servers, tool selection logic
 - **Memory Systems**: Working memory, long-term stores, episodic recall, semantic search
 - **Planning Loops**: Goal decomposition, step execution, replanning on failure
+- **Recursive context harness**: When the working set should live as a kernel variable rather than a reread transcript; see [references/recursive-context-harness.md](references/recursive-context-harness.md)
 - **Multi-Agent Orchestration**: Supervisor, peer-to-peer, and pipeline topologies
 - **Guardrails**: Input validation, output filtering, budget limits, human-in-the-loop
 - **Evaluation**: Task completion metrics, trajectory analysis, regression testing
@@ -129,6 +130,7 @@ Cross-links:
 - [references/lifecycle-hooks.md](references/lifecycle-hooks.md) - The agent-being-built lifecycle hook pattern (on_turn_start / on_turn_end / on_tool_call_pre / on_tool_call_post / on_error) for audit logging, retries, persona shifts, cost caps, and structured error recovery. Distinct from AI-assistant runtime hooks.
 - [references/multimodal-ingestion.md](references/multimodal-ingestion.md) - Agent multimodal input patterns: the two ingestion shapes (in-memory bytes vs. filesystem path), supported media families, and mixed prompt lists. Agent input, as distinct from output evaluation.
 - [references/sdk-structured-output.md](references/sdk-structured-output.md) - Constraining agent output to a Pydantic schema (the response-contract pattern), its failure modes, and the retry-then-fail-closed recovery. Output constraint, as distinct from output evaluation.
+- [references/recursive-context-harness.md](references/recursive-context-harness.md) - Recursive context-harness pattern: context as a program variable in a persistent kernel, tool use as code over that variable, recursive delegation as async calls returning handles. When to consider it versus a catalog skill or a one-shot host session. Load on demand; do not inline it into this body.
 
 ## Related Skills
 
