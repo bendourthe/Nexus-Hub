@@ -6,7 +6,7 @@
     "description": "Comprehensive catalog of Nexus-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-        "total_skills": 318,
+        "total_skills": 320,
     "categories": {
       "ai-development": 14,
       "architecture": 7,
@@ -15,7 +15,7 @@
       "code-cleanup": 10,
       "code-review": 15,
       "compliance": 9,
-      "developer-experience": 35,
+      "developer-experience": 37,
       "documentation": 6,
       "framework-specialists": 6,
       "infrastructure": 19,
@@ -11214,6 +11214,82 @@
         "lines": 117,
         "characters": 7388,
         "tokens_estimate": 738
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "web-typography",
+      "title": "web-typography",
+      "description": "\"Own web font loading, type scales, wrapping, and truncation. Use for typography, fonts, line-height, letter-spacing, measure, or variable fonts. SKIP: heading semantics (accessibility-engineering) and the words (interface-copy).\"",
+      "long_description": "Own web font loading, type scales, wrapping, and truncation. Hand off heading ranks and source wording.",
+      "summary_l0": "\"Load, scale, wrap, and truncate web type without restating heading semantics\"",
+      "overview_l1": "\"This skill owns how text renders: font formats and loading, variable-font axes and OpenType features via real CSS properties, named type scales, visual heading size, line-height and letter-spacing by role, measure, wrapping, widows, truncation, smart punctuation, and mixed-direction runs. accessibility-engineering owns heading ranks and when contrast is required. color-systems measures the pair. layout-and-spacing owns container room and spatial RTL. interface-copy owns the words. Match the project's existing styling system.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "developer-experience",
+      "language": "Multi-language",
+      "tags": [
+        "typography",
+        "fonts",
+        "type-scale",
+        "wrapping"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Edit"
+      ],
+      "path": "catalog/skills/developer-experience/web-typography/",
+      "file": "catalog/skills/developer-experience/web-typography/SKILL.md",
+      "size": {
+        "lines": 100,
+        "characters": 7391,
+        "tokens_estimate": 739
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95
+      }
+    },
+    {
+      "name": "color-systems",
+      "title": "color-systems",
+      "description": "\"Build palettes in OKLCH, measure contrast pairs, and map gamut fallbacks. Use for color system, palette, contrast pair, or OKLCH. SKIP: applying supplied tokens (theme-tokens, brand-styling) and contrast severity (accessibility-engineering).\"",
+      "long_description": "Construct OKLCH palettes, measure rendered contrast pairs, and map gamut fallbacks.",
+      "summary_l0": "\"Construct OKLCH palettes and remediate measured contrast pairs\"",
+      "overview_l1": "\"This skill owns color construction and repair: OKLCH over HSL for even lightness steps, palette generation, measuring a rendered contrast pair, remediating a miss, gamut mapping and sRGB fallbacks, semantic roles and theming, and the restraint that coloring every action leaves nothing primary. accessibility-engineering decides when contrast is required and how severe a miss is. theme-tokens and brand-styling apply tokens the user already has. Match the project's styling system.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "developer-experience",
+      "language": "Multi-language",
+      "tags": [
+        "color",
+        "oklch",
+        "palette",
+        "contrast"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Edit"
+      ],
+      "path": "catalog/skills/developer-experience/color-systems/",
+      "file": "catalog/skills/developer-experience/color-systems/SKILL.md",
+      "size": {
+        "lines": 96,
+        "characters": 6864,
+        "tokens_estimate": 686
       },
       "downloads": 0,
       "status": "production",

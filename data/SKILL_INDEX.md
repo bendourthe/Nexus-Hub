@@ -323,4 +323,6 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | accessibility-engineering | developer-experience | "Ship and audit accessible UI against keyboard, name, and WCAG rules" | catalog/skills/developer-experience/accessibility-engineering/SKILL.md |
 | layout-and-spacing | developer-experience | "Structure UI spatially with grouping, spacing scales, and adaptive breakpoints" | catalog/skills/developer-experience/layout-and-spacing/SKILL.md |
 | interface-copy | developer-experience | "Write in-product UI microcopy for actions, errors, and empty states" | catalog/skills/developer-experience/interface-copy/SKILL.md |
-**Total: 318 skills across 23 categories**
+| web-typography | developer-experience | "Load, scale, wrap, and truncate web type without restating heading semantics" | catalog/skills/developer-experience/web-typography/SKILL.md |
+| color-systems | developer-experience | "Construct OKLCH palettes and remediate measured contrast pairs" | catalog/skills/developer-experience/color-systems/SKILL.md |
+**Total: 320 skills across 23 categories**

@@ -289,6 +289,7 @@
         "async-patterns",
         "code-optimizer",
         "code-translation",
+        "color-systems",
         "context-optimization",
         "creative-generation",
         "dead-code-eliminator",
@@ -314,6 +315,7 @@
         "tool-design",
         "ui-component-generation",
         "web-artifacts-builder",
+        "web-typography",
         "writing-editing"
       ]
     },
