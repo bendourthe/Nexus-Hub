@@ -11,8 +11,8 @@
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 0 | 0 |
-| Bugs / regressions (BG) | 0 | 0 |
+| Deferred (DF) | 1 | 0 |
+| Bugs / regressions (BG) | 0 | 1 |
 | Warnings (WN) | 1 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
@@ -25,11 +25,16 @@ None.
 
 #### Deferred
 
-None.
+##### DF-6 - Catalog-count drift in prose surfaces (315 vs 321)
+
+- **Source phase**: Phase 7 - Architecture refactor, known-gaps, CI/CD
+- **Plan reference**: `docs/v3/v3.20/plans/v3.20.2-interface-craft-skills.md` (sub-task 7.2)
+- **Reason**: `data/skills.json` and `data/SKILL_INDEX.md` read 321. `data/marketplace.json` `plugin.description`, `README.md`, `AGENTS.md`, and `.claude-plugin/plugin.json` still say 315. The plan handed this drift to `/update release` rather than fixing it mid-cycle.
+- **Suggested next step**: `/update release` bumps those surfaces atomically via `scripts/check_version_sync.py` and the docs scope headline-count reconciliation.
 
 #### Bugs / Regressions
 
-None.
+None open.
 
 #### Warnings
 
@@ -42,15 +47,17 @@ None.
 
 #### Missing Tests / Coverage Gaps
 
-None. Phase 1 added authoring prose, not executable modules. Existing `validate_doc_budgets.py`, `validate_skills.py --bundles-only`, and `test_agentskills_conformance.py` still pass.
+None. Cluster skills that shipped `evals/trigger-cases.json` pass `run_trigger_evals.py --gate`. Catalog-wide missing cases remain v3.20.1 MT-1.
 
 #### Quality-Gate Gaps
 
-None. Existing `ci.yml` already classifies `AGENTS.md` and `catalog/skills/**` as relevant, uses concurrency cancel-in-progress, and caches pip. No new workflow was added.
+None. Existing `ci.yml` already classifies non-docs paths as relevant (so `catalog/skills/**`, `data/**`, and `AGENTS.md` run the full validate job), uses concurrency cancel-in-progress, and caches pip. `--bundles-only` is unchanged (v3.14.2 WN-1). No new workflow was added.
 
 ### Resolved
 
-None yet.
+| ID | Title | Resolved in | Notes |
+|---|---|---|---|
+| BG-2 | Comparison D1 truncated `agents/openai.yaml` sidecars | Phase 7 | Re-measured: 140 sidecars, 0 incomplete after YAML unfold. Comparison examples (`unit-tests` "improving test cove", `context-degradation` "mid-sessio") are folded-scalar line wraps of complete sentences. The six new cluster skills have no sidecar, so they did not inherit a generator defect. |
 
 ## v3.20.1
 
