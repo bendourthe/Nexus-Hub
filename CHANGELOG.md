@@ -16,6 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **agentskills.io conformance guard.** `scripts/check_agentskills_conformance.py` proves the open-standard `name` / `description` contract in `make validate` and CI. It is repo-internal (`DEV_ONLY_SCRIPTS`). Thirteen pre-existing over-1024-character descriptions are grandfathered; a new over-long description fails.
 - **Committed framework coverage map.** `docs/framework-coverage.md` and `docs/attack-navigator-layer.json` are generated artifacts. `build_framework_coverage.py --check` fails `make validate` and CI when either file is stale. CRLF vs LF is not treated as drift.
 - **Framework `references/standards.md` companion.** Every skill that declares a framework field now ships `references/standards.md` naming each declared ID, why it applies, and the official source URL. `skill-security-scan` was the one missing file (21 declaring skills in the live catalog, not the 19 the plan counted).
+- **SKILL.md body-size gate.** `validate_skills.py` (including `--bundles-only`) hard-errors a body over 800 lines and warns over 500. Frontmatter is excluded from the count. The 500-line warning tier is grandfathered; 800 is not.
+
+### Changed
+
+- **Over-cap skill bodies relocated.** All 47 SKILL.md files over 800 body lines had long-tail guidance moved into `references/` and linked from the body. Required sections stay in SKILL.md. Tier-1 frontmatter is unchanged.
 
 ## [3.20.0] - 2026-08-23
 

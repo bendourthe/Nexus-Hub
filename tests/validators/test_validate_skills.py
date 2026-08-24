@@ -436,3 +436,80 @@ def test_malformed_skill_dir_warns_but_does_not_fail_the_gate(tmp_path: Path):
     assert result.returncode == 0, result.stdout
     assert "abandoned-scaffold" in result.stdout
     assert "has no SKILL.md" in result.stdout
+
+
+def _padded_skill(name: str, body_lines: int) -> str:
+    """SKILL.md whose body (after frontmatter) is exactly `body_lines` lines."""
+    lines = [f"# {name}", "", "Body."]
+    while len(lines) < body_lines:
+        lines.append("padding")
+    lines = lines[:body_lines]
+    return (
+        "---\n"
+        f"name: {name}\n"
+        "description: A concise single-line description.\n"
+        'summary_l0: "short summary"\n'
+        'overview_l1: "short overview"\n'
+        "---\n"
+        + "\n".join(lines)
+        + "\n"
+    )
+
+
+def test_count_body_lines_excludes_frontmatter() -> None:
+    content = _padded_skill("size-skill", 10)
+    # Frontmatter is 6 lines plus fences; body must still report 10.
+    assert validate_skills.count_body_lines(content) == 10
+
+
+def test_body_at_hard_cap_is_ok(tmp_path: Path) -> None:
+    skill = tmp_path / "cap-skill"
+    skill.mkdir()
+    content = _padded_skill("cap-skill", 800)
+    (skill / "SKILL.md").write_text(content, encoding="utf-8")
+    errors, warnings = validate_skills.validate_body_size(skill / "SKILL.md", content)
+    assert errors == []
+    # 800 is still over the 500 warning tier; that is a grandfathered warning, not an error.
+    assert any("800 lines" in w for w in warnings)
+
+
+def test_body_over_soft_cap_warns(tmp_path: Path) -> None:
+    skill = tmp_path / "warn-skill"
+    skill.mkdir()
+    content = _padded_skill("warn-skill", 501)
+    (skill / "SKILL.md").write_text(content, encoding="utf-8")
+    errors, warnings = validate_skills.validate_body_size(skill / "SKILL.md", content)
+    assert errors == []
+    assert any("501 lines" in w and "soft cap 500" in w for w in warnings)
+
+
+def test_body_over_hard_cap_is_error(tmp_path: Path) -> None:
+    skill = tmp_path / "over-skill"
+    skill.mkdir()
+    content = _padded_skill("over-skill", 801)
+    (skill / "SKILL.md").write_text(content, encoding="utf-8")
+    errors, warnings = validate_skills.validate_body_size(skill / "SKILL.md", content)
+    assert any("801 lines" in e and "hard cap 800" in e for e in errors)
+
+
+def test_bundles_only_fails_when_body_exceeds_hard_cap(tmp_path: Path) -> None:
+    skills = tmp_path / "catalog"
+    skill = skills / "over-skill"
+    skill.mkdir(parents=True)
+    (skill / "SKILL.md").write_text(_padded_skill("over-skill", 801), encoding="utf-8")
+    result = subprocess.run(
+        [
+            sys.executable,
+            str(VALIDATOR),
+            "--bundles-only",
+            "--path",
+            str(skills),
+        ],
+        capture_output=True,
+        text=True,
+        check=False,
+        cwd=REPO_ROOT,
+    )
+    assert result.returncode == 1, result.stdout
+    assert "hard cap 800" in result.stdout
+

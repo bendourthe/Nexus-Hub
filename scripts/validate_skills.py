@@ -43,6 +43,12 @@ except ImportError:  # pragma: no cover - PyYAML is a catalog-tooling dependency
 REQUIRED_FRONTMATTER_FIELDS = {"name", "description", "summary_l0", "overview_l1"}
 OPTIONAL_FRONTMATTER_FIELDS = {"version", "author", "license", "category", "tags"}
 
+# SKILL.md body size (frontmatter excluded). 800 is a hard error in --bundles-only
+# and the full validator. 500 is a warning; skills already over 500 are
+# grandfathered at that warning tier only.
+BODY_LINE_HARD_CAP = 800
+BODY_LINE_SOFT_CAP = 500
+
 # Single-line frontmatter discipline (insight I-03 from the Nexus
 # adoption-skill-cleaner track; enforced upstream at PR time rather than at
 # runtime in the consumer). `name` must be single-line kebab-case; `description`
@@ -125,6 +131,40 @@ def _frontmatter_block(content: str) -> str | None:
     if end == -1:
         return None
     return content[3:end]
+
+
+def skill_body(content: str) -> str:
+    """Return SKILL.md text after the closing frontmatter fence."""
+    if not content.startswith("---"):
+        return content
+    end = content.find("---", 3)
+    if end == -1:
+        return content
+    rest = content[end + 3 :]
+    return rest[1:] if rest.startswith("\n") else rest
+
+
+def count_body_lines(content: str) -> int:
+    """Count body lines, excluding YAML frontmatter."""
+    return len(skill_body(content).splitlines())
+
+
+def validate_body_size(skill_file: Path, content: str) -> tuple[list[str], list[str]]:
+    """Hard-error over 800 body lines; warn over 500. Frontmatter is excluded."""
+    n_lines = count_body_lines(content)
+    errors: list[str] = []
+    warnings: list[str] = []
+    if n_lines > BODY_LINE_HARD_CAP:
+        errors.append(
+            f"{skill_file}: SKILL.md body is {n_lines} lines "
+            f"(hard cap {BODY_LINE_HARD_CAP}; move long-tail guidance to references/)"
+        )
+    elif n_lines > BODY_LINE_SOFT_CAP:
+        warnings.append(
+            f"{skill_file}: SKILL.md body is {n_lines} lines "
+            f"(soft cap {BODY_LINE_SOFT_CAP}; grandfathered warning)"
+        )
+    return errors, warnings
 
 
 def validate_frontmatter_strict_yaml(skill_file: Path, content: str) -> list[str]:
@@ -432,6 +472,10 @@ def validate_skill_dir(
 
     errors.extend(validate_framework_fields(skill_file, _frontmatter_block(content)))
 
+    size_errors, size_warnings = validate_body_size(skill_file, content)
+    errors.extend(size_errors)
+    warnings.extend(size_warnings)
+
     # Soft rule: optional fields
     for field in OPTIONAL_FRONTMATTER_FIELDS:
         if field not in fm:
@@ -459,9 +503,17 @@ BUILD_ARTIFACT_DIRS = frozenset({"__pycache__", ".pytest_cache", ".mypy_cache", 
 BUILD_ARTIFACT_SUFFIXES = frozenset({".pyc", ".pyo"})
 
 
+# Numbered relocator stubs (references-1.md, references-2.md, ...) are never
+# catalog content. A looping splitter once wrote thousands of them; skip so
+# the orphan audit stays fast and does not warn on incident leftovers.
+RELOCATOR_STUB_RE = re.compile(r"^references-\d+\.md$")
+
+
 def _is_build_artifact(entry: Path) -> bool:
     """True when a bundled path is a generated artifact rather than content."""
     if entry.suffix in BUILD_ARTIFACT_SUFFIXES:
+        return True
+    if RELOCATOR_STUB_RE.fullmatch(entry.name):
         return True
     return any(part in BUILD_ARTIFACT_DIRS for part in entry.parts)
 
@@ -488,6 +540,8 @@ def validate_skill_bundles(skill_dir: Path, skill_md_content: str) -> list[str]:
     references_dir = skill_dir / "references"
     if references_dir.is_dir():
         for ref_file in references_dir.rglob("*.md"):
+            if RELOCATOR_STUB_RE.fullmatch(ref_file.name):
+                continue
             try:
                 haystack += "\n" + ref_file.read_text(encoding="utf-8", errors="replace")
             except OSError:
@@ -893,6 +947,9 @@ def main() -> int:
                 total_errors.extend(
                     validate_framework_fields(skill_file, _frontmatter_block(content))
                 )
+                size_errors, size_warnings = validate_body_size(skill_file, content)
+                total_errors.extend(size_errors)
+                total_warnings.extend(size_warnings)
                 total_warnings.extend(validate_skill_bundles(skill_dir, content))
             if args.quality:
                 # --quality keeps its always-exit-0 contract, so the gate is not

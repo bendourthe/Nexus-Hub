@@ -195,7 +195,7 @@ Binary checklist. Each item must describe an observable artifact or state.
 - `<skill-name>` -- one sentence on the relationship
 ```
 
-**SKILL.md size norm.** Target ≤500 lines for the SKILL.md body. Soft cap 800 lines. Beyond 500 lines, add a `references/` subdirectory with a table of contents and link to it from SKILL.md rather than expanding the body. Beyond 800 lines, the skill MUST be split or refactored before merge. Existing skills that exceed 500 lines are grandfathered -- this norm is forward-looking and applies to new and substantially-rewritten skills only.
+**SKILL.md size norm.** Target ≤500 lines for the SKILL.md body. Hard cap 800 lines, enforced by `scripts/validate_skills.py` in `--bundles-only` (so `make validate` and CI fail a body over 800). Beyond 500 lines, add a `references/` subdirectory with a table of contents and link to it from SKILL.md rather than expanding the body. Beyond 800 lines, the skill MUST be split or refactored before merge. Existing skills that exceed 500 lines are grandfathered at the warning tier only -- a new or grown body over 800 is a hard error.
 
 #### Per-skill Bundled Resources
 
