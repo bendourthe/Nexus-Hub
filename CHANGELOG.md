@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [3.20.2] - 2026-08-23
+## [3.20.2] - 2026-08-24
 
 This release changes no opt-in capability, installer flag, or host surface.
 
@@ -29,6 +29,7 @@ This release changes no opt-in capability, installer flag, or host surface.
 ### Fixed
 
 - **v3.20.0 README count.** The "Previously, in v3.20.0" paragraph restated the later 315-skill figure; it now matches that release's changelog (275).
+- **Typographic ellipsis in `interface-copy`.** Two loading-copy examples used U+2026; CI's Unicode safety gate requires ASCII `...`.
 
 ## [3.20.1] - 2026-08-23
 
