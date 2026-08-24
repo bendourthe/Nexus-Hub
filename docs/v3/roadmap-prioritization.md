@@ -5,6 +5,8 @@
 **Amended**: 2026-08-21 (confirming `docs-lifespan-tree-and-enforcement` as the third v4.0.0 bundle member, taking the ranked total to 15)
 **Reordered**: 2026-08-21 (promoting `presentify-slide-navigation` from rank 11 to rank 4 by maintainer direction, and renaming all 14 unshipped plan files so every filename matches its target version)
 **Relocated**: 2026-08-21 (moving every unshipped plan into the directory matching its target version, moving the six coupled comparison reports with them, and fixing three fail-open defects in the co-location gate that the move exposed)
+**Amended**: 2026-08-24 (inserting `adoption-skill-trial-records-and-low-evidence-ts` at v4.1.0 as rank 15 by maintainer direction, and moving `interactive-guide-redesign` last to v4.2.0 as rank 16)
+**Amended**: 2026-08-24 (inserting `plan-implement-lifecycle-and-docs-architecture` at v3.21.0 as rank 12, bumping the v4.0.0 bundle to ranks 13-15, v4.1.0 to rank 16, and v4.2.0 to rank 17)
 **Purpose**: establish a priority order for unshipped work, classify each plan as patch, feature, or breaking, and make the ORDER readable from one place instead of from filenames.
 
 ---
@@ -36,7 +38,7 @@ The frozen-filename rule also failed its first contact with a reader. Within a d
 - **Every unshipped plan now lives in the directory matching its target version**, done 2026-08-21 after the rename pass left `docs/v3/v3.17/plans/` holding v3.18, v3.20, and v4.0 plans. A filename that agrees with its target while sitting in a directory that disagrees is the same defect one level up.
 - **The six coupled comparison reports moved with their plans**, were renamed to their new target, and had their `Adoption target` field updated. This is forced, not cosmetic: the co-location gate requires a plan and its seeding comparison to share a version directory, AND requires a comparison to sit in the directory its own `Adoption target` names. Moving a plan alone breaks the first rule; moving the pair without retargeting breaks the second.
 - **The four v4.x plans moved to a new `docs/v4/` tree**, which is what exposed the gate defects below.
-- Still deferred: a flat `docs/plans/` queue directory. Rank 14 (`docs-lifespan-tree-and-enforcement`) owns container layout, so that decision belongs to it.
+- Still deferred: a flat `docs/plans/` queue directory. Rank 15 (`docs-lifespan-tree-and-enforcement`) owns container layout, so that decision belongs to it.
 
 ## The classification used
 
@@ -95,10 +97,12 @@ Filenames now agree with targets, so the former `Filename says` column has been 
 | 9 | adoption-cybersecurity-skills | v3.20.1 | Feature | High user value: doubles security-domain coverage from 40 to 80 skills and closes domains with zero current coverage. Depends on rank 8's engagement pattern. |
 | 10 | interface-craft-skills | v3.20.2 | Feature | Five new design skills plus a coordinating review skill. Pure catalog growth with no dependencies, which is exactly why it can wait: nothing else is blocked on it. |
 | 11 | skills-craft-and-prime-agent | v3.20.3 | Feature | Skills-authoring craft plus invocation-policy metadata and a prepared marketplace listing. The marketplace listing is the highest-value part and is separable if this slips. |
-| 12 | cost-effective-ci-cd | **v4.0.0** | **Breaking** | Changes the default CI lifecycle for every consuming project. Widest blast radius on the list, touching planning, implementation, commit, branch, and release. |
-| 13 | agent-communication-overhaul | **v4.0.0** | **Breaking** | Changes how every installed agent communicates on every platform. Ships with rank 12 because both change installed behavior, and one migration note is cheaper for users than two. |
-| 14 | docs-lifespan-tree-and-enforcement | **v4.0.0** | **Breaking** | **Added 2026-08-20; target CONFIRMED 2026-08-21** after both breaking claims were verified against the repository rather than accepted from the plan. Renames the prescribed docs containers, and `/update release` canonicalizes the change for consuming projects. Sequenced after rank 2 so the lifecycle work it builds on is already in place. |
-| 15 | interactive-guide-redesign | v4.1.0 | Feature | **Last by explicit direction.** It describes the product rather than changing it, so it must run after everything else in order to capture all updates, including the v4.0.0 bundle. |
+| 12 | plan-implement-lifecycle-and-docs-architecture | **v3.21.0** | Feature | **Inserted 2026-08-24.** Fail-closed last phase, `/implement in-full` and `phase-by-phase`, and living `docs/handbooks/` on the current `docs/v*` scheme. Ships on 3.x so the v4.0.0 bundle inherits the equivalent instead of declining it. |
+| 13 | cost-effective-ci-cd | **v4.0.0** | **Breaking** | Changes the default CI lifecycle for every consuming project. Widest blast radius on the list, touching planning, implementation, commit, branch, and release. |
+| 14 | agent-communication-overhaul | **v4.0.0** | **Breaking** | Changes how every installed agent communicates on every platform. Ships with rank 13 because both change installed behavior, and one migration note is cheaper for users than two. |
+| 15 | docs-lifespan-tree-and-enforcement | **v4.0.0** | **Breaking** | **Added 2026-08-20; target CONFIRMED 2026-08-21** after both breaking claims were verified against the repository rather than accepted from this plan. Renames the prescribed docs containers, and `/update release` canonicalizes the change for consuming projects. Sequenced after rank 2 so the lifecycle work it builds on is already in place. **Amended 2026-08-24** to consume the v3.21.0 handbooks equivalent rather than declining it. |
+| 16 | adoption-skill-trial-records-and-low-evidence-ts | v4.1.0 | Feature | **Inserted 2026-08-24 by maintainer direction, taking the v4.1.0 slot.** Catalog authoring (procedural runbooks, outcome-labeled distillation, confusable-trigger fences) plus TypeScript typed-boundary hygiene. Ships before the guide so the last plan can describe it. |
+| 17 | interactive-guide-redesign | v4.2.0 | Feature | **Last by explicit direction.** It describes the product rather than changing it, so it must run after everything else in order to capture all updates, including the v4.0.0 bundle and the v4.1.0 catalog work. |
 
 ## Findings that are not about ordering
 
