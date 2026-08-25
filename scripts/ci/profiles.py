@@ -257,6 +257,27 @@ SHELL_LINT = Group(
     ),
 )
 
+#: The PowerShell AST-parse one-liner, assembled with an EXPLICIT join.
+#:
+#: Written as adjacent string literals this reads as implicit concatenation,
+#: which CodeQL flags as a possible missing comma in a list -- a fair warning,
+#: because in an argv list that mistake silently merges two arguments into one
+#: and the failure appears far from its cause. Joining explicitly says the
+#: concatenation is intended.
+_PS_AST_PARSE = " ".join(
+    [
+        "$f=$false;",
+        "@(Get-ChildItem catalog/hooks -Filter *.ps1 -File) +",
+        "@(Get-ChildItem scripts -Filter *.ps1 -File) +",
+        "@(Get-ChildItem . -Filter install.ps1 -File) | ForEach-Object {",
+        "$e=$null;",
+        "$null=[System.Management.Automation.Language.Parser]::ParseFile($_.FullName,[ref]$null,[ref]$e);",
+        'if ($e -and $e.Count -gt 0) { Write-Host "FAIL $($_.Name)"; $f=$true }',
+        'else { Write-Host "OK   $($_.Name)" } };',
+        "if ($f) { exit 1 }",
+    ]
+)
+
 POWERSHELL_PARSE = Group(
     name="powershell-parse",
     commands=(
@@ -265,16 +286,7 @@ POWERSHELL_PARSE = Group(
         # PowerShell. This is the unconditional syntax floor.
         Command(
             name="powershell AST parse",
-            argv=[
-                PWSH, "-NoProfile", "-NonInteractive", "-Command",
-                "$f=$false; @(Get-ChildItem catalog/hooks -Filter *.ps1 -File) + "
-                "@(Get-ChildItem scripts -Filter *.ps1 -File) + "
-                "@(Get-ChildItem . -Filter install.ps1 -File) | ForEach-Object { "
-                "$e=$null; $null=[System.Management.Automation.Language.Parser]::ParseFile("
-                "$_.FullName,[ref]$null,[ref]$e); "
-                "if ($e -and $e.Count -gt 0) { Write-Host \"FAIL $($_.Name)\"; $f=$true } "
-                "else { Write-Host \"OK   $($_.Name)\" } }; if ($f) { exit 1 }",
-            ],
+            argv=[PWSH, "-NoProfile", "-NonInteractive", "-Command", _PS_AST_PARSE],
             # Deliberately NOT scoped to windows. The v3.11.0 defect (a .ps1
             # sibling that would not parse, dead on Windows for four minor
             # versions) is catchable anywhere a PowerShell exists, and the
