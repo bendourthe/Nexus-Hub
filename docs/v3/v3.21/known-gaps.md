@@ -1,8 +1,8 @@
 # Known Gaps - v3.21
 
 **Project**: Nexus-Hub
-**Status**: in-progress
-**Last updated**: 2026-08-24
+**Status**: finalized
+**Last updated**: 2026-08-25
 
 ## v3.21.0
 

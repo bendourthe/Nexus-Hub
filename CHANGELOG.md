@@ -9,6 +9,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [3.21.0] - 2026-08-25
+
 ### Added
 
 - **Fail-closed last phase.** Generated plans and `/implement` last-phase runs must write `<version_dir>/development/last-phase-evidence.md` with quoted scan output per duty, including an independent Goal-vs-codebase review. A last-phase heading is not done work. `/update release` is blocked while the evidence file is missing or a Goal miss is unresolved without a recorded known-gap. Human/manual testing suggestions wait until the last phase; automated tests still end every earlier phase.
@@ -18,6 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 
 - **v4.0.0 docs-lifespan plan consumes handbooks.** That plan no longer treats Nexus-Hub as having no handbooks equivalent. The rename keeps living `docs/handbooks/` at the docs root and snapshots it into `docs/archives/`.
+- **Platform read-contract restamped for v3.21.0.** Claude MATCH and Cursor MATCH on 2026-08-25. Codex docs timed out this cycle; low non-breaking DRIFT is carried forward (ninth cycle; `~/.codex/skills` still undocumented). OpenCode, Gemini CLI, and other MATCH rows are carried from the 2026-08-24 pass, not assumed. No adapter or installer write-target changed.
+
+This release changes no opt-in capability, installer flag, or host surface.
 
 
 ## [3.20.3] - 2026-08-24
