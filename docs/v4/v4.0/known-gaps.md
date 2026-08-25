@@ -106,3 +106,28 @@ None.
 - **v3.21 DF-1** (product atlas HTML) remains open and stays in `docs/v3/v3.21/known-gaps.md`. It was reviewed this phase and deliberately not resolved: `docs/handbooks/markdown/` still holds only a `.gitkeep`, and generating an atlas from no authored content would produce a fake walkthrough. The honest disposition is unchanged from v3.21.
 - **v3.20 items** (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-paths scan) were reviewed and remain out of this plan's scope. They stay in `docs/v3/v3.20/known-gaps.md`.
 - Older `docs/v3/v3.*/known-gaps.md` files whose Status line is not `finalized` are historical records of their own cycle, not live work queues. They were not rewritten, because editing a closed version's record to look tidy destroys the account of what that release actually knew about itself.
+
+## v4.0.0 - cost-effective-ci-cd
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 1 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+
+### Open Items
+
+#### Missing Tests / Coverage Gaps
+
+##### MT-1 - Twenty-three lifecycle assertions are expected-red until their owning phase lands
+
+- **Source phase**: Phase 1 - Canonical lifecycle contract and baseline audit
+- **Plan reference**: `docs/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md` (T004)
+- **Reason**: `tests/skills/test_cicd_lifecycle_contract.py` encodes the contract's seven non-negotiable statements in full, but the surfaces that satisfy statements 4 and 6 do not exist until Phases 2 and 5. The plan asked for failing-first tests and explicitly forbade weakening them. Leaving them plainly red would make every intermediate phase commit ship a red suite, which trains the reader to ignore red.
+- **Mitigation in place**: each not-yet-true assertion carries `pytest.mark.xfail(strict=True)` naming its owning phase. Strict xfail is self-closing: when the owning phase lands, the test passes, pytest reports an unexpected pass, and the run FAILS until the marker is removed. The assertion is therefore neither weakened nor silently satisfied.
+- **Suggested next step**: none. This entry closes when the last xfail marker is removed in Phase 5; Phase 8 verifies that zero `xfail` markers remain in the file.
