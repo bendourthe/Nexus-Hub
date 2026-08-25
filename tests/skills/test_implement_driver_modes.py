@@ -1,8 +1,18 @@
 """Contract tests for /implement driver modes (v3.21.0 Phase 2).
 
-Locks argument tokens, commit-only non-final in-full behavior, and the
-phase-by-phase five-option menu. Also proves the old one-phase
-commit-and-push ask is no longer the only 8.10 path.
+Locks argument tokens and per-mode 8.10 behavior.
+
+v4.0.0 Phase 4 changed what this file protects. The push options it used to
+pin - the one-phase "2. Commit and push" and the phase-by-phase five-option
+menu - were REMOVED, because a non-final phase is now commit-only in every
+mode. The mode tokens, the aliases, the driver-loop structure, and the
+dispatcher-stays-thin budget are unchanged and still asserted here.
+
+The removed options are covered by NEGATIVE fixtures in
+`test_implement_lifecycle_contract.py`, which owns the lifecycle contract.
+This file keeps its original job: proving the three modes exist, are named
+consistently across the command, the skill, and the runbook, and each resolves
+to a defined 8.10 behavior.
 """
 
 from __future__ import annotations
@@ -34,11 +44,10 @@ def test_implement_command_names_driver_tokens_and_aliases() -> None:
     assert "full" in text
     assert "phase-by-phase" in text
     assert "commit-only on non-final phases" in text
+    # v4.0.0: the phase-by-phase menu lost its two push options.
     assert "(1) commit and continue" in text
-    assert "(2) commit, push, and continue" in text
-    assert "(3) commit and pause" in text
-    assert "(4) commit, push, and pause" in text
-    assert "(5) other" in text
+    assert "(2) commit and pause" in text
+    assert "(3) other" in text
 
 
 def test_implement_command_stays_thin_and_one_phase_by_default() -> None:
@@ -63,9 +72,10 @@ def test_runbook_documents_driver_loop_and_commit_only_non_final() -> None:
     assert "phase-by-phase" in text
     assert "commit-only" in text
     assert "Do not push" in text
-    assert "five-option menu" in text
+    # v4.0.0: three options, not five; the two push options were removed.
+    assert "three-option menu" in text
     assert "(1) commit and continue" in text
-    assert "(5) other" in text
+    assert "(3) other" in text
     assert "Never tag or push the release from the driver" in text
 
 
@@ -73,19 +83,22 @@ def test_one_phase_commit_prompt_is_not_the_only_810_path() -> None:
     """Negative fixture: the old always-ask-then-stop 8.10 is not exclusive."""
     runbook = _read(RUNBOOK)
     command = _read(IMPLEMENT_CMD)
-    # v4.0.0: assert the four options and their order, not the exact sentence.
-    # The Communication Contract requires each option to carry a plain-language
-    # consequence, so the wording grew; pinning the old one-line form made this
-    # a text-fossil test that failed on a deliberate improvement and taught
-    # nothing about the contract it was written to protect.
+    # v4.0.0 Phase 4: three options, not four. "Commit and push" was removed
+    # because a non-final phase is commit-only in every mode; its absence is a
+    # negative fixture in test_implement_lifecycle_contract.py.
+    #
+    # Asserting the options and their ORDER rather than the exact sentence: the
+    # Communication Contract requires each option to carry a plain-language
+    # consequence, so the wording grows over time, and pinning the one-line form
+    # made this a text-fossil test that failed on a deliberate improvement.
     assert "always ask" in runbook
-    options = ["1. Commit only", "2. Commit and push", "3. Amend", "4. Stop"]
+    options = ["1. Commit only", "2. Amend", "3. Stop"]
     positions = [runbook.find(opt) for opt in options]
     missing = [opt for opt, pos in zip(options, positions) if pos == -1]
     assert not missing, "missing 8.10 option(s): " + repr(missing)
     assert positions == sorted(positions), "8.10 options are out of order"
     assert "loop to 8.9" in runbook
-    assert "One-phase (default):" in runbook
+    assert "One-phase (default), non-final:" in runbook
     assert "**`in-full` non-final:** auto-select commit-only" in runbook
     assert "always ask" not in command
     assert "the only path" not in runbook.lower()
@@ -96,4 +109,5 @@ def test_skill_overview_mentions_driver_loop() -> None:
     assert "in-full" in text
     assert "phase-by-phase" in text
     assert "commit-only" in text
-    assert "five-option menu" in text
+    # v4.0.0: the skill states the per-mode 8.10 shapes rather than a menu size.
+    assert "COMMIT-ONLY on every non-final phase in every mode" in text

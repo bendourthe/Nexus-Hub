@@ -8,6 +8,14 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 UPDATE = ROOT / "catalog" / "commands" / "update.md"
 PLAN = ROOT / "catalog" / "skills" / "workflow" / "implementation-plan" / "SKILL.md"
+# v4.0.0 Phase 3: the mandatory-final-phase TEMPLATE moved out of SKILL.md into a
+# Tier 3 reference when the body crossed the 500-line soft cap. The parity language
+# rides that template, so the planning contract is now the two files together.
+# Reading only SKILL.md would report the gate as missing when it merely moved.
+PLAN_FINAL_PHASE = (
+    ROOT / "catalog" / "skills" / "workflow" / "implementation-plan"
+    / "references" / "mandatory-final-phase.md"
+)
 IMPLEMENT = ROOT / "catalog" / "skills" / "workflow" / "implement-phase" / "SKILL.md"
 RUNBOOK = ROOT / "catalog" / "skills" / "workflow" / "implement-phase" / "references" / "implement-phase-runbook.md"
 MAKEFILE = ROOT / "Makefile"
@@ -28,7 +36,7 @@ def test_release_entry_points_declare_a_hard_installer_parity_gate() -> None:
 
 
 def test_future_and_historical_plans_self_gate_on_multiple_installers() -> None:
-    plan = _read(PLAN)
+    plan = _read(PLAN) + _read(PLAN_FINAL_PHASE)
     implement = _read(IMPLEMENT)
     for label, body in (("implementation plan", plan), ("implement phase", implement)):
         assert "more than one installer" in body, label
@@ -36,7 +44,7 @@ def test_future_and_historical_plans_self_gate_on_multiple_installers() -> None:
 
 
 def test_planning_contract_requires_real_os_smoke_with_shared_postconditions() -> None:
-    plan = _read(PLAN)
+    plan = _read(PLAN) + _read(PLAN_FINAL_PHASE)
     assert "execute the real installers on their target operating systems" in plan
     assert "identical postconditions" in plan
 
