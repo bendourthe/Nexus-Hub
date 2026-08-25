@@ -12,9 +12,9 @@
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 1 | 1 |
-| Bugs / regressions (BG) | 0 | 2 |
+| Bugs / regressions (BG) | 0 | 3 |
 | Warnings (WN) | 0 | 0 |
-| Missing tests / coverage gaps (MT) | 1 | 1 |
+| Missing tests / coverage gaps (MT) | 2 | 1 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
 ### Open Items
@@ -49,6 +49,12 @@ None.
 - **Reason**: Prose tone is not machine-checkable at `PreToolUse` time. The tests in this version prove that the contract is PRESENT and IDENTICAL everywhere it should be; nothing proves that a given response OBEYED it. This was considered and rejected as a hook gate in `docs/decisions/implemented/policy/2026-08-18-agent-communication-contract.md`; the gap is recorded here so it is visible rather than implied.
 - **Suggested next step**: The mechanically checkable subset is narrow but real: a response containing a fenced command block with an unflagged `<...>`, `[...]`, or ALL-CAPS template token is detectable by pattern. If a future version wants partial enforcement, that single rule is the one worth automating; the rest stays advisory.
 
+##### MT-3 - Nothing locally enforces the CI Python floor
+
+- **Source phase**: Phase 5 - Architecture refactor, known-gaps reconciliation, and CI/CD
+- **Reason**: CI runs Python 3.11.16; this workstation runs 3.12.10. Syntax accepted by the newer interpreter and rejected by the older one passes every local gate and fails in CI at import time, taking out a whole job rather than one test. This is not hypothetical: it happened on this branch (BG-3 below). No local check, hook, or validator asserts that repository Python parses under the CI version.
+- **Suggested next step**: A cheap guard exists. `ast.parse(src, feature_version=(3, 11))` over the repository's `.py` files detects exactly this class in well under a second and needs no extra dependency, no second interpreter, and no outbound call. It would fit the `validate` chain beside the other repo-internal guards. Declaring the floor in one place (it is currently implicit in the CI `setup-python` version) is the prerequisite.
+
 #### Quality-Gate Gaps
 
 None.
@@ -76,6 +82,13 @@ None.
 - **What happened**: `data/marketplace.json`'s `plugin.description` and `.claude-plugin/plugin.json`'s `description` both state the catalog size in prose and both still read "324 curated skills" after the entry count moved to 325. The first was caught by `tests/skills/test_org_authoring_surface.py`; the second is asserted by no gate at all and was found only by grepping for the stale number once the first failure pointed at prose counts.
 - **Resolution**: Both bumped to 325 in the same pass.
 - **Residual risk**: `.claude-plugin/plugin.json`'s count has no gate. It will go stale on the next skill addition unless someone remembers it or a check is added. Recorded rather than fixed, because adding a seventh count assertion is a separate decision from this version's scope.
+
+##### BG-3 (resolved) - A Python 3.12-only f-string broke CI on 3.11
+
+- **Source phase**: Phase 5 - Architecture refactor, known-gaps reconciliation, and CI/CD
+- **What happened**: The replacement assertion written for the text-fossil test used a multi-line expression inside an f-string replacement field. PEP 701 allowed that in Python 3.12; on 3.11 it is a `SyntaxError`. The local suite (3.12.10) passed all 3059 tests. CI (3.11.16) failed at collection, and because the error is at import rather than assertion time, it took out the entire `verify` job, one of the five required checks, rather than a single test.
+- **Resolution**: Rewrote the assertion as a plain list comprehension plus a concatenated message, valid from 3.9 onward. Then parsed every Python file this branch touched with `ast.parse(..., feature_version=(3, 9))` to confirm no other file carried newer-only syntax; all five parse clean.
+- **Why it is worth recording**: a green local run proved nothing about the interpreter that actually gates the merge. The generalizable gap (nothing enforces the CI Python floor locally) is MT-3 above.
 
 ##### DF-2 (resolved) - `docs/todos.md` described an old feature branch
 

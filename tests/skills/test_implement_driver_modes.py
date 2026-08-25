@@ -81,9 +81,8 @@ def test_one_phase_commit_prompt_is_not_the_only_810_path() -> None:
     assert "always ask" in runbook
     options = ["1. Commit only", "2. Commit and push", "3. Amend", "4. Stop"]
     positions = [runbook.find(opt) for opt in options]
-    assert all(pos != -1 for pos in positions), f"missing 8.10 option(s): {
-        [opt for opt, pos in zip(options, positions) if pos == -1]
-    }"
+    missing = [opt for opt, pos in zip(options, positions) if pos == -1]
+    assert not missing, "missing 8.10 option(s): " + repr(missing)
     assert positions == sorted(positions), "8.10 options are out of order"
     assert "loop to 8.9" in runbook
     assert "One-phase (default):" in runbook
