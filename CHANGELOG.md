@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Agent communication contract.** `catalog/style-guides/agent-communication.md` is the canonical, installable contract for how an installed agent writes live chat responses (as distinct from generated files, which `markdown.md` still governs). Seven areas, every rule written as a checkable behavior: response structure, plain language, placeholder discipline in copy-paste command blocks, the guided-steps protocol (including re-issuing the full remaining sequence after a reported error), the Completed / Verified / Open / Next end-of-task report, the docs deep-link rule, and waiting-state interim updates. Installed to `~/.nexus-hub/style-guides/` by the existing recursive copy; no installer edit. Decision record: `docs/decisions/implemented/policy/2026-08-18-agent-communication-contract.md`.
+
 ## [3.21.0] - 2026-08-25
 
 ### Added
