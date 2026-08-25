@@ -42,6 +42,24 @@ This skill follows a structured methodology to produce deployment pipelines:
 
 7. **Output Generation**: Produces complete pipeline files with inline comments explaining each decision, plus a companion README section documenting how to operate the pipeline.
 
+## Lifecycle Conformance (mandatory)
+
+This skill generates deployment stages. It does NOT define the CI/CD lifecycle, the trigger topology, the runner policy, the required-check design, or the report schema. Those are owned once, by `[[cicd-architect]]`, and this skill invokes and conforms to that canonical policy rather than restating it.
+
+Invoke `[[cicd-architect]]` first whenever the surrounding pipeline does not yet exist or has not been reconciled against the canonical contract. Then generate deployment under these five constraints, none of which is negotiable:
+
+1. **Deploy only from a protected event or an approved dispatch.** Valid deployment triggers are a protected release-branch update, a release tag, or an explicit human-approved dispatch. An ordinary feature-branch push must never reach a deployment stage, and neither must an unmerged pull request.
+
+2. **Consume the `release` profile's artifact; never rebuild.** The artifact that reaches production is the exact digest the release profile produced and the integration gate validated. A per-environment rebuild produces a binary nobody tested and silently defeats the whole gate.
+
+3. **Never generate validation-on-every-push defaults.** Deployment pipelines inherit the event separation in `[[cicd-architect]]` Step 4. If the generated file needs a validation step at all, it calls a profile.
+
+4. **Reference every third-party action or plugin immutably.** Use a full commit SHA with a readable version comment, plus an explicit note on how and when to update it. A floating tag is an unreviewed code change running with deployment credentials, which is the highest-privilege context in the repository.
+
+5. **Concurrency protects deployments rather than cancelling them.** Superseded pull-request validation cancels; an in-flight deployment does not. Use a distinct concurrency group per environment with cancellation disabled, so two deployments to one environment serialize instead of racing.
+
+Approval, health check, rollback, promotion, and secret-injection mechanics remain this skill's own responsibility and are unchanged by the above.
+
 ## Instructions
 
 ### Step 1: Gather Deployment Requirements
@@ -49,6 +67,8 @@ This skill follows a structured methodology to produce deployment pipelines:
 Before generating any pipeline configuration, collect the following information:
 
 ```
+Canonical lifecycle:    [reconciled via cicd-architect | NOT YET -- run it first]
+Release artifact:       [digest produced by the `release` profile]
 Target Platform:        [GitHub Actions | GitLab CI | Jenkins | ArgoCD]
 Infrastructure Target:  [Kubernetes | AWS ECS | Azure App Service | GCP Cloud Run | VMs | Static]
 Deployment Strategy:    [Blue-Green | Canary | Rolling | Recreate]
@@ -147,7 +167,7 @@ Full walkthrough: [step-7-add-deployment-gates.md](references/step-7-add-deploym
 
 ## Related Skills
 
-- [[cicd-architect]] -- the broader CI/CD pipeline architecture this deployment stage plugs into
+- [[cicd-architect]] -- the canonical lifecycle, trigger topology, runner policy, required-check design, and report schema this skill conforms to; invoke it before generating deployment into an unreconciled pipeline
 - [[rollback-strategy-advisor]] -- designs the rollback procedure the pipeline's rollback job executes
 - [[kubernetes-expert]] -- the deployment target for blue-green, canary, and rolling strategies
 - [[runbook-writer]] -- documents the operational procedure for running and recovering the pipeline

@@ -124,10 +124,11 @@ None.
 
 #### Missing Tests / Coverage Gaps
 
-##### MT-1 - Twenty-three lifecycle assertions are expected-red until their owning phase lands
+##### MT-1 - Lifecycle assertions are expected-red until their owning phase lands
 
 - **Source phase**: Phase 1 - Canonical lifecycle contract and baseline audit
 - **Plan reference**: `docs/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md` (T004)
 - **Reason**: `tests/skills/test_cicd_lifecycle_contract.py` encodes the contract's seven non-negotiable statements in full, but the surfaces that satisfy statements 4 and 6 do not exist until Phases 2 and 5. The plan asked for failing-first tests and explicitly forbade weakening them. Leaving them plainly red would make every intermediate phase commit ship a red suite, which trains the reader to ignore red.
 - **Mitigation in place**: each not-yet-true assertion carries `pytest.mark.xfail(strict=True)` naming its owning phase. Strict xfail is self-closing: when the owning phase lands, the test passes, pytest reports an unexpected pass, and the run FAILS until the marker is removed. The assertion is therefore neither weakened nor silently satisfied.
+- **Marker count by phase**: 23 at the end of Phase 1. Phase 2 removed 9 (four marker lines covering nine parametrized cases), leaving 14, all owned by Phase 5.
 - **Suggested next step**: none. This entry closes when the last xfail marker is removed in Phase 5; Phase 8 verifies that zero `xfail` markers remain in the file.

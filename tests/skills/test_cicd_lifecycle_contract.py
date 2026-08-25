@@ -214,18 +214,16 @@ def test_every_action_reference_is_sha_pinned():
 
 # ---------------------------------------------------------------------------
 # Statement 4 -- terminal reconciliation is delegated to cicd-architect.
-# Owned by Phase 2 (the skill) and Phase 3/4 (the callers).
+# Landed in Phase 2; markers removed when these turned green.
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.xfail(strict=True, reason="Phase 2 rewrites cicd-architect around the profiles")
 @pytest.mark.parametrize("profile", PROFILES)
 def test_cicd_architect_defines_every_repository_native_profile(profile: str):
     text = _read(CICD_ARCHITECT)
     assert f"`{profile}`" in text
 
 
-@pytest.mark.xfail(strict=True, reason="Phase 2 adds existing-pipeline comparison mode")
 def test_cicd_architect_defines_existing_pipeline_comparison():
     text = _read(CICD_ARCHITECT).lower()
     assert "existing-pipeline comparison" in text
@@ -239,7 +237,6 @@ def test_related_cicd_skills_reference_the_canonical_owner(path: Path):
     assert "[[cicd-architect]]" in _read(path)
 
 
-@pytest.mark.xfail(strict=True, reason="Phase 2 makes cicd-architect the single owner")
 @pytest.mark.parametrize("path", [CD_GENERATOR, CICD_INTEGRATION])
 def test_related_cicd_skills_declare_conformance_not_just_a_footer_link(path: Path):
     """A Related Skills mention is a pointer; conformance is a rule.
@@ -254,7 +251,6 @@ def test_related_cicd_skills_declare_conformance_not_just_a_footer_link(path: Pa
     assert "conform" in body, "the skill must state that it conforms to the canonical lifecycle"
 
 
-@pytest.mark.xfail(strict=True, reason="Phase 2 removes the per-feature-push default")
 def test_cicd_integration_does_not_default_to_validating_every_push():
     text = _read(CICD_INTEGRATION)
     assert "ordinary feature-branch push" in text.lower()

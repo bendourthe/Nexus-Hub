@@ -104,7 +104,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | vue-expert | framework-specialists | "Build Vue 3 apps with Composition API, Pinia, Vue Router, and optimization" | catalog/skills/framework-specialists/vue-expert/SKILL.md |
 | azure-infra-engineer | infrastructure | "Design Azure infrastructure with Bicep, VNets, AKS, and Azure AD integration" | catalog/skills/infrastructure/azure-infra-engineer/SKILL.md |
 | cd-pipeline-generator | infrastructure | "Generate CD pipelines with deployment strategies, environment promotion, and rollback" | catalog/skills/infrastructure/cd-pipeline-generator/SKILL.md |
-| cicd-architect | infrastructure | "Design CI/CD pipelines with GitHub Actions, GitLab CI, and deployment strategies" | catalog/skills/infrastructure/cicd-architect/SKILL.md |
+| cicd-architect | infrastructure | "Own the canonical CI/CD lifecycle: repository-native profiles, event separation, and pipeline migration" | catalog/skills/infrastructure/cicd-architect/SKILL.md |
 | cloud-architect | infrastructure | "Design multi-cloud architectures with Well-Architected Framework and cost optimization" | catalog/skills/infrastructure/cloud-architect/SKILL.md |
 | config-consistency-checker | infrastructure | "Detect configuration drift across environments with schema validation and diff reporting" | catalog/skills/infrastructure/config-consistency-checker/SKILL.md |
 | containerization | infrastructure | "Containerize applications with optimized Dockerfiles, multi-stage builds, and security scanning" | catalog/skills/infrastructure/containerization/SKILL.md |
