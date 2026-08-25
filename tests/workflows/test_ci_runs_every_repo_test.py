@@ -17,6 +17,16 @@ and it deserves the same treatment: assert the property, do not trust the habit.
 
 This test asserts coverage of the tree, not the exact wording of a step, so
 reorganizing CI is allowed as long as every test still runs.
+
+v4.0.0 note. `ci.yml` no longer calls pytest directly for the repo suites; it
+calls `scripts/ci/run.py --profile full --only tests,extension-tests`, and the
+actual targets live in `scripts/ci/profiles.py`. The property is unchanged and
+so is this test's job, but the targets now have to be resolved THROUGH that
+indirection. Reading only the YAML would have reported the whole tree as
+uncovered the moment the workflow got thinner, which is a false alarm; worse,
+someone could have silenced it by re-adding a literal `pytest tests` line to the
+workflow and reintroducing exactly the duplicate-command-list defect the engine
+removed.
 """
 
 from __future__ import annotations
@@ -24,7 +34,12 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+import sys
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
 CI = REPO_ROOT / ".github" / "workflows" / "ci.yml"
 TESTS = REPO_ROOT / "tests"
 
@@ -32,9 +47,8 @@ TESTS = REPO_ROOT / "tests"
 NON_TEST_DIRS = {"__pycache__", "fixtures"}
 
 
-def _pytest_targets() -> set[str]:
-    """Every path argument passed to a `pytest` invocation anywhere in ci.yml."""
-    text = CI.read_text(encoding="utf-8")
+def _targets_from_text(text: str) -> set[str]:
+    """Path arguments of every `pytest` invocation in a block of text."""
     targets: set[str] = set()
     for line in text.splitlines():
         if "pytest" not in line:
@@ -45,11 +59,56 @@ def _pytest_targets() -> set[str]:
         for token in tail.split():
             if token.startswith("-"):
                 continue
+            if token in {"`", "\\"}:  # line continuations
+                continue
             if not re.fullmatch(r"[\w./*\[\]-]+", token):
                 continue
             if "/" in token or token == "tests":
                 targets.add(token.rstrip(","))
     return targets
+
+
+def _profile_groups_invoked_by_ci() -> set[str]:
+    """Group names ci.yml selects via `run.py --profile <p> --only <groups>`."""
+    text = CI.read_text(encoding="utf-8")
+    groups: set[str] = set()
+    for match in re.finditer(r"--only\s+([\w,-]+)", text):
+        groups.update(g for g in match.group(1).split(",") if g)
+    return groups
+
+
+def _targets_from_profiles() -> set[str]:
+    """Pytest targets reachable through the profile groups ci.yml selects.
+
+    Resolved from the live profile definitions rather than from a copy, so a
+    group that gains or loses a suite is reflected here automatically.
+    """
+    from scripts.ci.profiles import PROFILES  # noqa: PLC0415 - deliberate late import
+
+    selected = _profile_groups_invoked_by_ci()
+    targets: set[str] = set()
+    for groups in PROFILES.values():
+        for group in groups:
+            if group.name not in selected:
+                continue
+            for cmd in group.commands:
+                argv = list(cmd.argv)
+                if "pytest" not in argv:
+                    continue
+                base = cmd.cwd.strip("./")
+                for token in argv[argv.index("pytest") + 1:]:
+                    if token.startswith("-"):
+                        continue
+                    if token == "." and base:
+                        targets.add(base)
+                    elif "/" in token or token == "tests":
+                        targets.add(f"{base}/{token}" if base else token)
+    return targets
+
+
+def _pytest_targets() -> set[str]:
+    """Every pytest path CI reaches, whether inline or through a profile."""
+    return _targets_from_text(CI.read_text(encoding="utf-8")) | _targets_from_profiles()
 
 
 def _covers(target: str, path: Path) -> bool:
@@ -81,8 +140,9 @@ def test_every_repo_test_file_is_collected_by_ci() -> None:
     assert not uncovered, (
         "these repo tests exist but no ci.yml pytest step would collect them, so "
         "they pass locally and guard nothing in CI: "
-        f"{sorted(uncovered)}. Fix ci.yml (running `pytest tests` covers the "
-        "whole tree), not this test."
+        f"{sorted(uncovered)}. Fix the TESTS group in scripts/ci/profiles.py "
+        "(its `pytest tests` target covers the whole tree), not this test, and "
+        "do not re-add a literal pytest line to ci.yml."
     )
 
 

@@ -45,7 +45,14 @@ def test_detector_owns_the_presentify_path_filter() -> None:
 def test_verify_always_exists_but_heavy_steps_are_conditional() -> None:
     verify = load()["jobs"]["verify"]
     assert verify["needs"] == "detect"
-    assert verify["if"] == "github.event_name != 'schedule'"
+    # v4.0.0: `verify` is a REQUIRED check and belongs to the pull request only.
+    # The previous `!= 'schedule'` condition also matched every push to a
+    # protected branch, re-verifying the tree the pull request had just
+    # verified. `render` below keeps its push leg because it genuinely depends
+    # on the merged state, which is the distinction the two conditions encode.
+    assert verify["if"] == (
+        "github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'"
+    )
     assert verify["steps"]
     assert all(
         step.get("if") == "needs.detect.outputs.presentify == 'true'"

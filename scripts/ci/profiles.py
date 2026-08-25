@@ -19,6 +19,7 @@ Two rules govern what may appear here:
 
 from __future__ import annotations
 
+import shutil
 import sys
 from dataclasses import dataclass, field
 from typing import Mapping, Sequence
@@ -33,6 +34,13 @@ PLATFORMS = ("linux", "macos", "windows")
 #: Microsoft Store shim, and inside a virtualenv, where it can resolve outside
 #: the environment that has the test dependencies installed.
 PY = sys.executable
+
+#: PowerShell interpreter, preferring cross-platform pwsh 7 and falling back to
+#: Windows PowerShell 5.1. Resolving the INTERPRETER is not the same thing as
+#: skipping a check: when neither is present the name below stays unresolvable
+#: and the command reports MISSING, which is a visible failure rather than a
+#: silent pass. The platform profile genuinely requires a PowerShell.
+PWSH = "pwsh" if shutil.which("pwsh") else "powershell"
 
 
 @dataclass(frozen=True)
@@ -250,7 +258,7 @@ POWERSHELL_PARSE = Group(
         Command(
             name="powershell AST parse",
             argv=[
-                "powershell", "-NoProfile", "-NonInteractive", "-Command",
+                PWSH, "-NoProfile", "-NonInteractive", "-Command",
                 "$f=$false; @(Get-ChildItem catalog/hooks -Filter *.ps1 -File) + "
                 "@(Get-ChildItem scripts -Filter *.ps1 -File) + "
                 "@(Get-ChildItem . -Filter install.ps1 -File) | ForEach-Object { "
@@ -259,7 +267,12 @@ POWERSHELL_PARSE = Group(
                 "if ($e -and $e.Count -gt 0) { Write-Host \"FAIL $($_.Name)\"; $f=$true } "
                 "else { Write-Host \"OK   $($_.Name)\" } }; if ($f) { exit 1 }",
             ],
-            platforms=("windows",),
+            # Deliberately NOT scoped to windows. The v3.11.0 defect (a .ps1
+            # sibling that would not parse, dead on Windows for four minor
+            # versions) is catchable anywhere a PowerShell exists, and the
+            # ubuntu leg is where it is cheapest to catch. The Windows-only
+            # coverage that pwsh 7 CANNOT provide is the 5.1 BEHAVIOR leg
+            # below, which is a different claim.
             timeout=600,
         ),
     ),

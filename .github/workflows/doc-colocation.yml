@@ -23,11 +23,16 @@ name: Doc Co-location
 # save none. Running it unconditionally is both cheaper and strictly more signal.
 # scripts/check_required_check_coverage.py enforces the unfiltered trigger.
 
+# v4.0.0 event separation: the `push` leg was removed. `colocation` is a required
+# check, and a required check is evaluated on the PULL REQUEST; re-running the
+# same find over the same tree after the merge proves nothing and is billed
+# again. The triggers stay unfiltered, which is the property that keeps the
+# required context from stranding.
 on:
-  push:
-    branches: [main, develop]
   pull_request:
     branches: [main, develop]
+  merge_group:
+  workflow_dispatch:
 
 # v3.15.8 Phase 9.3: least privilege. This workflow builds and tests only --
 # no artifact upload, no gh CLI, no comments, no pushes -- so read-only

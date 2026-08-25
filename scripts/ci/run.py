@@ -186,12 +186,34 @@ def run_group(
     return result
 
 
+def select_groups(profile: str, only: list[str] | None) -> tuple[Group, ...]:
+    """Resolve `--only` against a profile, failing loudly on an unknown name.
+
+    A typo must be an ERROR, not an empty selection. Silently running nothing is
+    the worst outcome available: the job goes green having proved nothing, which
+    is the same fail-open shape the change classifier is built to avoid.
+    """
+    groups = groups_for(profile)
+    if not only:
+        return groups
+    available = {g.name for g in groups}
+    unknown = [name for name in only if name not in available]
+    if unknown:
+        raise KeyError(
+            f"unknown group(s) {unknown} for profile {profile!r}; "
+            f"available: {sorted(available)}"
+        )
+    wanted = set(only)
+    return tuple(g for g in groups if g.name in wanted)
+
+
 def run_profile(
     profile: str,
     platform: str | None = None,
     reports_dir: Path | None = None,
     base: str | None = None,
     quiet: bool = False,
+    only: list[str] | None = None,
     repo_root: Path = REPO_ROOT,
 ) -> RunResult:
     host = platform or detect_platform()
@@ -214,7 +236,7 @@ def run_profile(
     if decision.reason:
         print(f"scope:   {decision.reason}")
 
-    for group in groups_for(profile):
+    for group in select_groups(profile, only):
         group_result = run_group(group, host, decision, repo_root, secrets, quiet)
         result.groups.append(group_result)
         if group.blocking and group_result.status == "fail":
@@ -232,9 +254,13 @@ def run_profile(
     return result
 
 
-def _print_listing(profile: str, host: str) -> None:
+def _print_listing(profile: str, host: str, only: list[str] | None = None) -> None:
+    # Resolve BEFORE printing the header, so an unknown group name produces an
+    # error and nothing else. A header followed by an error reads as a partial
+    # listing rather than a rejected request.
+    selected = select_groups(profile, only)
     print(f"profile: {profile}   platform: {host}")
-    for group in groups_for(profile):
+    for group in selected:
         scope = group.scope_key or "always"
         flags = " (blocking)" if group.blocking else ""
         print(f"  {group.name}  [scope: {scope}]{flags}")
@@ -242,7 +268,7 @@ def _print_listing(profile: str, host: str) -> None:
             applies = "" if cmd.runs_on(host) else f"  -- skipped on {host}"
             advisory = " (advisory)" if cmd.advisory else ""
             print(f"    - {cmd.name}{advisory}{applies}")
-    if not groups_for(profile):
+    if not selected:
         print("  (aggregation only; runs no commands)")
 
 
@@ -256,24 +282,40 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--reports-dir", default=None, help="where to write reports (default: none)")
     parser.add_argument("--base", default=None, help="git revision to scope the run against")
     parser.add_argument("--quiet", action="store_true", help="suppress per-command output on success")
+    parser.add_argument(
+        "--only",
+        default=None,
+        help="comma-separated group names to run from the profile. An unknown "
+             "name is an error, never an empty selection.",
+    )
     parser.add_argument("--list", action="store_true", help="print the resolved commands and exit 0")
     parser.add_argument("--json", action="store_true", help="print the machine-readable summary")
     args = parser.parse_args(argv)
 
     host = args.platform or detect_platform()
+    only = [g.strip() for g in args.only.split(",") if g.strip()] if args.only else None
 
-    if args.list:
-        _print_listing(args.profile, host)
-        return 0
+    try:
+        if args.list:
+            _print_listing(args.profile, host, only)
+            return 0
+    except KeyError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
 
     reports_dir = Path(args.reports_dir).resolve() if args.reports_dir else None
-    result = run_profile(
-        profile=args.profile,
-        platform=args.platform,
-        reports_dir=reports_dir,
-        base=args.base,
-        quiet=args.quiet,
-    )
+    try:
+        result = run_profile(
+            profile=args.profile,
+            platform=args.platform,
+            reports_dir=reports_dir,
+            base=args.base,
+            quiet=args.quiet,
+            only=only,
+        )
+    except KeyError as exc:
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
 
     if args.json:
         import json
