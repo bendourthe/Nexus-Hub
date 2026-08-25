@@ -37,7 +37,7 @@ Use this skill when you need to:
 | Troubleshooting Documentation | Capture failed attempts, actual error messages, root causes, and resolutions |
 | Assumption Tracking | Record both explicit assumptions ("I'm assuming X") and implicit ones (library choices, skipped checks) |
 | Verification Gate | Structured pass/fail table for every check performed during the session |
-| Testing Summary | Aggregate automated test results and generate manual testing suggestions |
+| Testing Summary | Aggregate automated test results. Emit manual testing suggestions only when the session is the plan's last phase, or when there is no plan. Non-final phase histories record automated results only and may say "human QA is deferred to the last phase". |
 | TODO Tracking | Show done, remaining, and deferred items aligned with the implementation plan |
 | Next-Steps Generation | Prioritized list of what the next session should tackle first |
 
@@ -177,10 +177,10 @@ Context: [2-3 sentences on what motivated this session's work]
 - [Suite name]: X passed, Y failed, Z skipped
 
 ### Manual Testing Performed
-- [What was manually verified and result]
+- [Last phase or no plan: what was manually verified and result. Non-final phase: "None; human QA is deferred to the last phase."]
 
 ### Manual Testing Still Needed
-- [ ] [Scenario requiring manual verification]
+- [Last phase or no plan: checklist of scenarios requiring manual verification. Non-final phase: write "human QA is deferred to the last phase" and do not list scenarios.]
 
 ---
 
@@ -234,7 +234,7 @@ These rules govern how information is extracted and assembled into the output fi
 -   **Flag thin evidence**. When a section is populated from a single, low-detail source, add an inline note: *(Inferred from git commit messages only)* or *(No session data available for this step)*.
 -   **Include actual errors**. Troubleshooting entries must contain the real error message, stack trace fragment, or failing test output. "There was an error" is never sufficient.
 -   **Capture implicit assumptions**. These include: choosing a library version not specified in the plan, skipping a test because of an environment constraint, assuming a service is running, and treating a requirement as out of scope.
--   **Manual testing suggestions** should prioritize: user-facing workflows that automated tests cannot cover, external service integrations, edge cases requiring specific data or environment conditions, and scenarios where the fix might have introduced regressions.
+-   **Manual testing suggestions** are last-phase (or no-plan) only. When the session is a non-final plan phase, record automated test results only and write "human QA is deferred to the last phase". When the session is the plan's last phase, or there is no plan, prioritize user-facing workflows that automated tests cannot cover, external service integrations, edge cases requiring specific data or environment conditions, and scenarios where the fix might have introduced regressions.
 -   **TODO tracker alignment**. In session mode with a plan, every subtask in the plan's current phase should appear in the TODO Tracker as completed, remaining, or deferred. If no plan exists, derive TODOs from conversation topics and git commit subjects.
 -   **Cross-reference timestamps**. Every entry in Chronological Steps should correspond to at least one git commit. If a step produced no commits (e.g., research or manual testing), note "No commits; manual/exploratory work".
 -   **Source attribution** (retrospective mode). Each section should note its evidence source: *(from git)*, *(from Claude Code session)*, *(from DEVLOG)*, etc.
@@ -281,6 +281,7 @@ Document research, planning, or investigation sessions. Note "No code changes we
 | Rationalization | Reality |
 |---|---|
 | "I remember the session well enough to summarize it from memory" | Memory compresses away the failed attempts and exact error strings that make a handoff useful; the next session repeats the same dead ends because the trail was never recorded. |
+| "Ask the user to click through the feature after Phase 1" | The feature is incomplete. Non-final session histories record automated results only and say "human QA is deferred to the last phase"; manual testing suggestions wait until the last phase. |
 | "An empty section can just be dropped" | Dropping a section hides whether it was empty by design or forgotten; emit all 9 sections with "None" or "N/A" so a reader can trust the document is complete. |
 | "I can describe the error in my own words instead of pasting it" | Paraphrased errors are unsearchable and lossy; the actual error message is what the next developer greps for, so capture it verbatim. |
 
@@ -293,6 +294,7 @@ Before finalizing the output file, verify:
 - [ ] Assumptions section captures both explicit and implicit assumptions
 - [ ] TODO Tracker aligns with the plan's subtask list (if a plan exists)
 - [ ] Verification Gate has a result for every check that was performed
+- [ ] Testing Summary records automated results; manual testing suggestions appear only on the last phase of a plan (or when there is no plan); non-final phases say "human QA is deferred to the last phase"
 - [ ] No fabricated content; thin sections are explicitly flagged
 - [ ] The file is standalone -- readable without access to the conversation
 - [ ] All 9 sections are present (with "None" or "N/A" for empty sections)

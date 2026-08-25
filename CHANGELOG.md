@@ -9,6 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Fail-closed last phase.** Generated plans and `/implement` last-phase runs must write `<version_dir>/development/last-phase-evidence.md` with quoted scan output per duty, including an independent Goal-vs-codebase review. A last-phase heading is not done work. `/update release` is blocked while the evidence file is missing or a Goal miss is unresolved without a recorded known-gap. Human/manual testing suggestions wait until the last phase; automated tests still end every earlier phase.
+- **`/implement` driver modes.** `/implement <slug-or-path> in-full` (alias `full`) implements every incomplete phase in order, commit-only on non-final phases (no push), then hands off to `/update release`. `/implement <slug-or-path> phase-by-phase` is the same loop with a five-option continue/pause/push menu. Bare `/implement` stays one-phase. Slash-command argument changes reach Claude, Gemini, and Codex command surfaces and Cursor user-global commands; OpenCode sees them via skills and instruction files.
+- **Living handbooks architecture.** `docs-layout-refactor` requires `docs/handbooks/` (markdown source of truth, generated HTML, atlas, technical companions) and `docs/decisions/` alongside the versioned `docs/v*` tree. `docs/testing/` and `docs/validation/` are self-gated and never invented. `/setup project` scaffolds missing dirs detection-first. `/update docs` refreshes handbook markdown; `/update refactor` canonicalizes; `/update release` regenerates HTML and fails if stale, then snapshots to `docs/archive/v<MAJOR>/v<MAJOR>.<MINOR>/handbooks/`. Nexus-Hub's own tree now has `docs/README.md` plus a handbook scaffold; catalog atlas HTML is deferred rather than faked.
+
+### Changed
+
+- **v4.0.0 docs-lifespan plan consumes handbooks.** That plan no longer treats Nexus-Hub as having no handbooks equivalent. The rename keeps living `docs/handbooks/` at the docs root and snapshots it into `docs/archives/`.
+
+
 ## [3.20.3] - 2026-08-24
 
 ### Added

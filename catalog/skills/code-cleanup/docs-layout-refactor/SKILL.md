@@ -99,6 +99,31 @@ Use the kebab-safe form (dots and hyphens only, no parentheses or spaces) to pre
 - Never write the same artifact into two layouts. Resolution picks exactly one `<version_dir>`.
 - On a conflicting state (both legacy and canonical present), prefer the canonical path and report the inconsistency in the *Layout Inconsistencies* section of the report.
 
+## Required living docs architecture
+
+Versioned plans still resolve via the Version-directory algorithm above. Alongside that frozen-per-minor tree, every Nexus-Hub-driven project also keeps a **living** docs split that describes current `main`, never a past state. Do not perform the v4.0 container rename (`docs/releases/` + `docs/archives/`) here.
+
+**Required** (create if missing; never overwrite inherited files):
+
+- `docs/handbooks/` - README, `markdown/` source of truth, generated `html/`, one non-technical atlas `*.html` walkthrough, technical companion `*.html` files for key components
+- `docs/decisions/` - ADRs, never release-scoped
+- Living `docs/README.md`, `docs/DEVLOG.md`, `docs/todos.md`
+
+**Self-gated** (never invent):
+
+- `docs/testing/` only if the project already tracks tests that way
+- `docs/validation/` only if GxP or signed records exist
+
+Rules:
+
+- Handbooks are edited in place in `docs/handbooks/markdown/`. Generated `html/` is never hand-edited. If markdown and HTML disagree, markdown wins; regenerate HTML or fail `--check`.
+- Point HTML walkthroughs at `[[document-to-interactive-html]]` / `/presentify`.
+- A missing key-component companion lists the components the codebase has and requires a companion or a recorded known-gap.
+- At release close, snapshot `docs/handbooks/markdown/` (and authored HTML if present) to `docs/archive/v<MAJOR>/v<MAJOR>.<MINOR>/handbooks/` under the current archive spelling. v4.0 will rename the archive container later.
+- An inherited repo with a flat `docs/` is a proposed migration, not a destroy-and-replace.
+
+See [references/archive-layout.md](references/archive-layout.md) for the handbook snapshot path inside the archive tree.
+
 ## Cross-cutting documentation subtrees (non-versioned)
 
 Not every `docs/` subtree is a version-scoped artifact. Many projects keep long-lived, cross-cutting documentation at the `docs/` root that is deliberately *not* tied to a single release: architecture decision records, RFCs, specifications, governance policy, runbooks, a solutions knowledge base, and reference material. These subtrees are the companion to the version buckets above, and this skill treats them as a distinct disposition class so that a downstream `/plan` or `/implement` run has a canonical rule to follow instead of inventing one.
@@ -108,6 +133,7 @@ Not every `docs/` subtree is a version-scoped artifact. Many projects keep long-
 | Class | Directories | Behavior |
 |---|---|---|
 | **Append-only decision logs** | `adr/` (`adrs`, `decisions`, `architecture/decisions`), `rfc/` (`rfcs`), `proposals/` | Records are *superseded*, never deleted - a superseded ADR/RFC is still part of the history. |
+| **Living handbooks** | `handbooks/` | Required living tree (`markdown/` source of truth, generated `html/`). Never version-archive the live tree; snapshot at release close instead. |
 | **Architecture and design** | `architecture/`, `design/` | Long-lived system documentation. Leave in place. |
 | **Diataxis content** | `tutorials/`, `how-to/` (`howto`, `how-to-guides`), `reference/`, `explanation/` (`concepts`), `guides/` | Maintained against the current codebase, not a past release. |
 | **Operations** | `runbooks/` (`runbook`), `playbooks/`, `troubleshooting/`, `ops/` (`operations`) | Living operational docs. |
@@ -396,6 +422,7 @@ See [references/archive-layout.md](references/archive-layout.md) for the canonic
 | "DEVLOG.md is huge, let me archive it." | Edge case 1: `DEVLOG.md` at root is always Cat 3, never archived or deleted. Flag for "candidate split by version" instead. |
 | "The active version dir has some stale-looking files, let me clean them up." | The active version dir is by definition Cat 4. `--keep-current-version` is default ON. Run again after the next version bump promotes those files to Cat 2 candidates. |
 | "I'll just delete the Cat 1 files directly with rm; the script is overkill." | The script's deletion path runs the verification step (no broken inbound refs). Skipping it risks leaving dangling references in skills, commands, or `CHANGELOG.md`. |
+| "We can skip handbooks until the v4.0 rename." | Living docs do not need the container rename. Required `docs/handbooks/` and `docs/decisions/` sit on the current path scheme; v4.0 only snapshots and renames the archive later. |
 
 ## Verification
 

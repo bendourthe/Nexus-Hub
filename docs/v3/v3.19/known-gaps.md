@@ -1,10 +1,10 @@
 # Known Gaps - v3.19
 
 **Project**: Nexus-Hub
-**Status**: in-progress
-**Last updated**: 2026-08-23
+**Status**: finalized
+**Last updated**: 2026-08-24
 
-v3.19.0 is finalized. v3.19.1 shipped, then the artifact round-trip failed: `MANIFEST.sha256` was generated before the gap-closure commit, so `nexus-hub verify` against the published `v3.19.1` tarball reports FAIL. Do not retag. v3.19.2 regenerates the manifest; the published `v3.19.2` tarball verifies PASS (1274 files). DF-1 hashes are on the GitHub Release and in `checksums.txt` (post-tag follow-up; the v3.19.2 tag is not rewritten).
+v3.19.0 through v3.19.2 are released. v3.19.1 shipped, then the artifact round-trip failed: `MANIFEST.sha256` was generated before the gap-closure commit, so `nexus-hub verify` against the published `v3.19.1` tarball reports FAIL. Do not retag. v3.19.2 regenerated the manifest; the published `v3.19.2` tarball verifies PASS (1274 files). Remaining open items are v3.19.2 DF-2, DF-3, and DF-4 (docs-convention scope, semantic-reformatter coverage, signed-execution study). They stay here for the next `/plan` ingest.
 
 ## v3.19.2
 
@@ -80,7 +80,7 @@ None.
 |---|---:|---:|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 4 |
-| Bugs / regressions (BG) | 1 | 0 |
+| Bugs / regressions (BG) | 0 | 1 |
 | Warnings (WN) | 0 | 1 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
@@ -97,15 +97,7 @@ None.
 
 #### Bugs / Regressions
 
-##### BG-1 - Published v3.19.1 tarball fails `nexus-hub verify`
-
-- **Source phase**: `/update release` artifact round-trip (after tag `v3.19.1` and GitHub Release publish)
-- **Plan reference**: `docs/v3/v3.19/plans/v3.19.1-agent-memory-substrate.md` (Phase 6 / release)
-- **Observed**: `python scripts/verify_install.py --root <extracted Nexus-Hub-3.19.1>` printed `verify: FAIL (6 modified, 0 missing, 3 extra)`
-- **Modified**: `catalog/hooks/settings.json`, `catalog/hooks/tests/test_cursor_import_compat.py`, `catalog/hooks/tests/test_hook_sibling_parity.py`, `catalog/skills/workflow/agent-memory/SKILL.md`, `data/marketplace.json`, `scripts/lib/output_paging.py`
-- **Extra**: `catalog/hooks/memory-store-guard.sh`, `catalog/hooks/memory-store-guard.ps1`, `catalog/hooks/tests/test_memory_store_guard.py`
-- **Cause**: `MANIFEST.sha256` was written in `b3c8dc40` (`chore(release): ship v3.19.1`) and not regenerated after `6cc713c4` (gap-closure) or `360e999a` (CI git-mock fix). The published tree contains those files; the manifest does not hash them.
-- **Suggested next step**: regenerate `MANIFEST.sha256` on develop (`python scripts/generate_manifest.py` after staging), ship as v3.19.2. Do not retag, force-push, or delete the published Release.
+None. BG-1 (published v3.19.1 tarball failed `nexus-hub verify`) is resolved below: v3.19.2 regenerated the manifest and the published tarball verifies PASS.
 
 #### Warnings
 
@@ -129,6 +121,7 @@ None.
 | DF-3 | Accidental-commit guard for a relocated store is documentation-only | Gap-closure pass | `memory-store-guard.{sh,ps1}` blocks Write, Edit, and `git add` / `git commit` of store artifacts inside a git working tree. Tests cover both implementations. |
 | DF-4 | Memory content remains plaintext at rest | Gap-closure pass | POSIX owner-only permissions (`0700` / `0600`), in-repo create/append refusal, store marker, and the DF-3 hook. Encryption and a key or network KMS were declined. Residual: a reader who already has that user's filesystem access can still read the plaintext log, the same as other `~/.nexus-hub/` files. |
 | WN-1 | Claude Code settings page is JS-rendered | Gap-closure pass | Official static pages now document `BASH_MAX_OUTPUT_LENGTH` default 30000: [env-vars](https://code.claude.com/docs/en/env-vars) and [tools-reference](https://code.claude.com/docs/en/tools-reference). |
+| BG-1 | Published v3.19.1 tarball fails `nexus-hub verify` | v3.19.2 | Manifest regenerated; published `v3.19.2` tarball verifies PASS (1274 files). Do not retag `v3.19.1`. |
 
 ### Final Decisions
 
