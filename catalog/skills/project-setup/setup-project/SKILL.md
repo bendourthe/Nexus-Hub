@@ -54,6 +54,9 @@ Run the five checks in order. Each is stated as **detect, then act only if missi
 1. **Detect** whether a per-version docs directory exists for the resolved version under the canonical scheme.
 2. **Act if missing**: create `docs/v<MAJOR>/v<MAJOR>.<MINOR>/` (for the version resolved in Step 2) with `plans/` and `comparisons/` subdirectories, per the `[[docs-layout-refactor]]` Version-directory resolution algorithm. For `v0.1.0` that is `docs/v0/v0.1/{plans,comparisons}/`. Honor an existing legacy layout in place rather than migrating it (migration is `/update refactor`).
 
+3. **Detect** the required living tree: `docs/handbooks/{README.md,markdown/,html/}` and `docs/decisions/`. Also detect living `docs/README.md` and `docs/todos.md` (`docs/DEVLOG.md` is Step 5).
+4. **Act if missing**: scaffold only the missing pieces. Create `docs/handbooks/README.md`, empty `markdown/` and `html/` dirs (with `.gitkeep` if the VCS would drop empty dirs), and `docs/decisions/` (the ADR tree; do not invent records). Create `docs/README.md` and `docs/todos.md` with real content if absent. Never overwrite inherited files. Never invent `docs/testing/` or `docs/validation/`.
+
 ### Step 5: README, CHANGELOG, DEVLOG
 
 1. **Detect** each of `README.md`, `CHANGELOG.md`, and `DEVLOG.md` (the latter conventionally at `docs/DEVLOG.md`).
@@ -79,6 +82,7 @@ Summarize per surface: **detected (unchanged)** vs **created**, with the exact p
 - [ ] A version is resolvable from a tag, `CHANGELOG.md`, or a manifest, and equals `v0.1.0` for a freshly-bootstrapped project.
 - [ ] Unless the project declared trunk-based, a `develop` branch exists (`git branch --list develop` is non-empty) alongside the default branch.
 - [ ] `docs/v<MAJOR>/v<MAJOR>.<MINOR>/plans/` and `docs/v<MAJOR>/v<MAJOR>.<MINOR>/comparisons/` exist for the resolved version.
+- [ ] `docs/handbooks/{README.md,markdown/,html/}` and `docs/decisions/` exist; `docs/testing/` and `docs/validation/` were not invented.
 - [ ] `README.md`, `CHANGELOG.md`, and `DEVLOG.md` exist and contain real content (more than a bare heading).
 - [ ] The final report lists each surface as detected-or-created; re-running the skill reports every surface as detected with no new writes.
 

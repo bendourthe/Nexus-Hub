@@ -126,6 +126,16 @@ docs/archive/v0/v0.8/misc/notes.md                          # canonical, newer
 
 Never silently overwrite.
 
+## Handbook snapshot at release close
+
+Living `docs/handbooks/` stays at the docs root. At `/update release`, snapshot `docs/handbooks/markdown/` (and authored HTML if present) to:
+
+```
+docs/archive/v<MAJOR>/v<MAJOR>.<MINOR>/handbooks/
+```
+
+under the current archive spelling. Do not move the live tree. Generated `html/` is regenerated and stale-checked; it is not the snapshot source of truth. v4.0 will rename the archive container to `docs/archives/` later; this path is the current spelling.
+
 ## What does NOT go in `docs/archive/`
 
 - `docs/DEVLOG.md` at root - always Cat 3 (stale-flag), never archived.
