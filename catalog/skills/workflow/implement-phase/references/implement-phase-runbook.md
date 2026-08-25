@@ -74,7 +74,7 @@ Run every step in strict order at the end of EVERY phase (validation first, then
 - **8.8 `/session history`** - standalone session-history file in `<version_dir>/development/history/` (plan reference, subtasks, test results, CI/CD edits, deviations, next steps).
 - **8.9 `/commit` (generate the message)** - structured, sectioned-bullet message scoped to the phase, including the known-gaps file, docs-cleanup report, session history, and every touched file. Sectioned bullets grouped by component; dedicated Tests / CI/CD / Known gaps sections; no hard-wrapping; single blank line between sections. Produces the message; does not auto-commit.
 - **8.10 Commit-and-push prompt (REQUIRED, every phase)** - behavior depends on mode:
-    - **One-phase (default):** follow the active instruction template's `Consequential Decisions` rule, then always ask: 1. Commit only; 2. Commit and push; 3. Amend (loop to 8.9); 4. Stop. Never proceed past 8.10 without a definite answer. On commit, use a heredoc, report the SHA (and push result for option 2).
+    - **One-phase (default):** follow the active instruction template's `Consequential Decisions` rule, then always ask, as a numbered list with one plain-language consequence each: 1. Commit only (the work is saved locally; nothing leaves this machine); 2. Commit and push (the work is saved and published to the remote branch, where others can see it); 3. Amend (loop to 8.9 to reword the commit message before saving); 4. Stop (nothing is saved; the changes stay uncommitted in the working tree). Never proceed past 8.10 without a definite answer. On commit, use a heredoc, report the SHA (and push result for option 2).
     - **`in-full` non-final:** auto-select commit-only. Still generate the commit message (8.9); still use a heredoc; still report the SHA. Do not push. This is commit-only non-final behavior, not the one-phase ask.
     - **`in-full` last phase:** after the evidence file is complete, hand off to `/update release` (that command owns tag/push confirmation). Never tag or push the release from the driver.
     - **`phase-by-phase`:** replace the one-phase ask with this five-option menu and wait: (1) commit and continue; (2) commit, push, and continue; (3) commit and pause; (4) commit, push, and pause; (5) other. Cross-link `[[code-commit-workflow]]` for the commit itself.
@@ -127,7 +127,7 @@ Keep every confirmation gate; never tag or push automatically.
 
 ### 9A. Resolve known gaps and deferred work
 
-Re-read `<version_dir>/known-gaps.md` `## Open Items`. Grep the codebase for `TODO`/`FIXME`/`XXX`/`HACK`/`# DEVIATION:` introduced this version; add unrecorded ones via `[[known-gaps-tracker]]`. Per-item triage: obsolete -> Resolved (superseded); small and in-scope -> fix inline under the Phase 3-7 gates, then Resolved; out of scope but real -> keep, with accurate Reason + Suggested next step for the next `/plan` ingest. Remove stale TODOs whose context is gone. If a release-blocker remains, follow the active instruction template's `Consequential Decisions` rule, then ask: A. Resolve before continuing; B. Downgrade and continue; C. Cancel the workflow.
+Re-read `<version_dir>/known-gaps.md` `## Open Items`. Grep the codebase for `TODO`/`FIXME`/`XXX`/`HACK`/`# DEVIATION:` introduced this version; add unrecorded ones via `[[known-gaps-tracker]]`. Per-item triage: obsolete -> Resolved (superseded); small and in-scope -> fix inline under the Phase 3-7 gates, then Resolved; out of scope but real -> keep, with accurate Reason + Suggested next step for the next `/plan` ingest. Remove stale TODOs whose context is gone. If a release-blocker remains, follow the active instruction template's `Consequential Decisions` rule, then ask, as a numbered list with one plain-language consequence each: 1. Resolve before continuing (the release waits until the blocker is fixed); 2. Downgrade and continue (the release ships with the issue recorded as a known gap, so users meet it); 3. Cancel the workflow (nothing further runs; the phase work stays committed but unreleased).
 
 ### 9B. Verify tests and CI/CD readiness
 
@@ -141,7 +141,28 @@ The documentation cleanup, the standard update checks, and the version bump / ch
 
 ## Completion report
 
-Non-final phase: short form (plan, phase, subtasks done, tests, lint, deviations, known-gaps delta, files written, commit action, next phase). Final phase: extend with a "Release readiness" block summarizing 9.0 / 9A / 9B and the `/update release` handoff outcome, plus any active hold conditions.
+The report follows the Completed / Verified / Open / Next shape from `catalog/style-guides/agent-communication.md` (skill: `[[agent-communication]]`). The old field list maps into it; nothing is dropped, it is grouped so the reader can act on it.
+
+- **Completed**: the plan, the phase, the subtasks done, and the files written, in plain language.
+- **Verified**: the test results, the lint result, and coverage. On the final phase, the Release readiness block nests here, summarizing 9.0 / 9A / 9B and the `/update release` handoff outcome.
+- **Open**: deviations, the known-gaps delta, and any active hold condition. Write "nothing outstanding" when empty; never omit the part.
+- **Next**: the commit action taken and the next phase, or that the plan is complete.
+
+Add one plain-language line for a reader who does not know the codebase. Cap the report at about 15 lines, excluding the Open list, which is the only part allowed to grow.
+
+**Turns that end with work still running** (a suite executing, a background task pending) follow the contract's waiting-state rule instead: the first line is a status banner naming what is running, that no action is needed, and that results will follow; the rest is capped at about 8 lines; every finding is deferred to the completion report that follows.
+
+Worked example of a non-final phase report:
+
+> **Completed**: Phase 3 of `v4.0.0-agent-communication-overhaul` is done. All 12 instruction templates now carry the communication contract, and the parity checker treats it as a locked section.
+>
+> **Verified**: 21 new tests pass, the full suite is green, and every budgeted file is still under its word ceiling (tightest: base-codex at 13 words of headroom).
+>
+> **Open**: The parity checker covers 5 of the 12 templates by design, so drift in the other 7 is caught by the new aggregate test rather than by the release gate. Recorded as a known gap.
+>
+> **Next**: Committed as `494411c7`. Phase 4 upgrades the report templates in the workflow commands.
+>
+> In plain terms: every AI assistant this repo supports will now describe its work the same way, and a check stops that wording from drifting apart.
 
 ## Iterative refinement
 

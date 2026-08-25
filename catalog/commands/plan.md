@@ -62,6 +62,10 @@ Every plan ends with a fail-closed last phase - "Architecture Refactor, Known-Ga
 
 Every plan file this command writes is sanitized before it is presented: the retained skill's Step 4 closing pass runs `python scripts/validate_unicode_safety.py --strict --fix --root . --path <plan-file>` on the just-written file (and again on the final file when Step 5 rewrites it), so invisible characters and non-ASCII punctuation never reach a plan the user reads. The pass is scoped to that one file, never the repository, and a non-zero exit after the fix blocks presenting the plan. This dispatcher only surfaces the guarantee; the rules live in the `[[implementation-plan]]` skill.
 
+## Presenting the finished plan
+
+Present the plan the way `catalog/style-guides/agent-communication.md` requires: lead with a plain-language summary (what the plan builds, how many phases, and which single phase carries the most risk) BEFORE the phases-at-a-glance table, then link the plan file rather than restating its contents in chat. The detail already lives in the file; a chat message that repeats it makes the reader choose between two copies. Skill: `[[agent-communication]]`.
+
 ## Delegation
 
 Dispatch the resolved scope to the retained skill(s):

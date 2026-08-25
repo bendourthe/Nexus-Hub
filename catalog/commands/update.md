@@ -245,6 +245,10 @@ Before stopping for any governance confirmation below, follow the active instruc
 
 This mirrors the `implement-phase` final-phase gate - `/implement` hands off to `/update release` on a plan's last phase - so the same refactor + known-gaps + CI/CD + platform-contract + installer-parity + prompting-staleness + capability-usage work runs whether the release is reached through `/implement` or invoked directly.
 
+## Release closing output
+
+The message that closes a `release`-scope run uses the Completed / Verified / Open / Next shape from `catalog/style-guides/agent-communication.md`: **Completed** names the version shipped and the surfaces bumped; **Verified** carries the gate results (validate, tests, version-sync, capability-docs, contract freshness) and the published tag and Release URL; **Open** lists any hold condition, deferred gap, or advisory that did not block; **Next** states the follow-on action or that there is none. Link the finalized `## [X.Y.Z]` CHANGELOG section instead of inlining it, since that section is already the Release body. Skill: `[[agent-communication]]`.
+
 ## Notes
 
 - This command replaces `/update-documentation`, `/update-devlog`, `/generate-devlog`, `/generate-readme`, `/update-gitignore`, `/update-version`, `/generate-changelog`, `/generate-commit-message`, `/refactor-docs`, and `/refactor-project` (removed in v3.2.0).
