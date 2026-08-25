@@ -50,6 +50,17 @@ Two design choices worth knowing:
 - **`platform` is deliberately small.** A check that runs everywhere belongs in `full`, where it is paid for once. `platform` holds only what genuinely differs by host, so a three-OS matrix is not three copies of the same run.
 - **`release` is never a validation re-run.** By the time a release runs, the integration pull request has already validated the tree. Re-running the suite on the release event would bill twice for the same answer.
 
+## Dependencies
+
+The engine itself is standard library only. Two profile COMMANDS have a dependency, and both are hard rather than optional:
+
+| Dependency | Needed by | Why it is not optional |
+|---|---|---|
+| `PyYAML` | `fast`, `full` (the `workflows` group) | `check_required_check_coverage.py` parses every workflow file and REFUSES to pass without it. A silent pass there would re-permit the stranded-required-check defect the guard exists to catch. |
+| `shellcheck` | `platform` (the `shell-lint` group, POSIX only) | a missing linter is reported as MISSING, which fails the run. "The tool is absent" and "the tool passed" must not look the same. |
+
+A workflow job that calls a profile must install these. `ci.yml`'s `validate` job gets PyYAML transitively (it installs `pre-commit`), which is why the omission in `post-merge.yml` was invisible until that workflow ran the same profile on its own. An implicit dependency is one that only the first caller without it discovers.
+
 ## Options
 
 | Option | Effect |

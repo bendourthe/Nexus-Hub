@@ -55,6 +55,18 @@ jobs:
         with:
           python-version: '3.11'
 
+      - name: Install profile dependencies
+        # PyYAML is a HARD requirement of the fast profile, not an optional
+        # extra. check_required_check_coverage.py parses every workflow file and
+        # refuses to pass without PyYAML, deliberately: a silent pass there
+        # re-permits the stranded-required-check defect it exists to catch.
+        #
+        # ci.yml gets PyYAML transitively (its validate job installs pre-commit),
+        # which is exactly why this omission was invisible until post-merge.yml
+        # ran the same profile on its own. An implicit dependency is one that
+        # only the first caller without it discovers.
+        run: pip install PyYAML
+
       - name: Fast profile against the merged tree
         run: python scripts/ci/run.py --profile fast --reports-dir reports
 
