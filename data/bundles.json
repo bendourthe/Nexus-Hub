@@ -282,6 +282,7 @@
       "description": "Analysis, refactoring, optimization, translation, and authoring aids.",
       "skills": [
         "accessibility-engineering",
+        "agent-communication",
         "ai-output-evaluation",
         "ambiguity-detector",
         "analysis-logic",
