@@ -219,13 +219,21 @@ TESTS = Group(
 EXTENSION_TESTS = Group(
     name="extension-tests",
     scope_key="extensions",
+    # Target `tests` explicitly, never `.`.
+    #
+    # Every extension declares `testpaths = ["tests"]` in its pyproject.toml. A
+    # BARE `pytest` honors that; an explicit `pytest .` OVERRIDES it and walks
+    # the whole package, which pulls in benchmark fixture corpora that import
+    # modules deliberately absent from the environment. `make test` runs bare
+    # pytest and was fine; this profile passed `.` and was not, so the two
+    # looked equivalent and were not. Naming the configured path keeps them so.
     commands=(
-        _pytest("skill-server", ".", cwd="extensions/nexus-skill-server", timeout=900),
-        _pytest("code-search", ".", cwd="extensions/nexus-code-search", timeout=900),
-        _pytest("web-fetch", ".", cwd="extensions/nexus-web-fetch", timeout=900),
-        _pytest("skill-scanner", ".", cwd="extensions/nexus-skill-scanner", timeout=900),
-        _pytest("context-compressor", ".", cwd="extensions/nexus-context-compressor", timeout=900),
-        _pytest("memory", ".", cwd="extensions/nexus-memory", timeout=900),
+        _pytest("skill-server", "tests", cwd="extensions/nexus-skill-server", timeout=900),
+        _pytest("code-search", "tests", cwd="extensions/nexus-code-search", timeout=900),
+        _pytest("web-fetch", "tests", cwd="extensions/nexus-web-fetch", timeout=900),
+        _pytest("skill-scanner", "tests", cwd="extensions/nexus-skill-scanner", timeout=900),
+        _pytest("context-compressor", "tests", cwd="extensions/nexus-context-compressor", timeout=900),
+        _pytest("memory", "tests", cwd="extensions/nexus-memory", timeout=900),
         Command(
             name="compression-accuracy-gate",
             argv=[PY, "-m", "evals", "--check"],

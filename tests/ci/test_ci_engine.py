@@ -433,3 +433,27 @@ def test_the_engine_needs_no_ci_provider_environment():
         text = (REPO_ROOT / "scripts" / "ci" / name).read_text(encoding="utf-8")
         for forbidden in ("GITHUB_ACTIONS", "GITHUB_OUTPUT", "GITHUB_STEP_SUMMARY", "CI_PIPELINE"):
             assert forbidden not in text, f"{name} reads the CI provider variable {forbidden}"
+
+
+def test_extension_suites_target_their_configured_test_path_not_the_package_root():
+    """An explicit `.` overrides each package's own `testpaths = ["tests"]`.
+
+    A bare `pytest` honors the package configuration; `pytest .` does not, and
+    walks the whole tree instead -- pulling in benchmark fixture corpora that
+    import modules deliberately absent from the environment. `make test` runs
+    bare pytest and passed while this profile passed `.` and failed, so the two
+    looked equivalent and were not. Naming the configured path keeps them so.
+    """
+    for group in groups_for("full"):
+        if group.name != "extension-tests":
+            continue
+        for cmd in group.commands:
+            argv = list(cmd.argv)
+            if "pytest" not in argv:
+                continue
+            targets = [a for a in argv[argv.index("pytest") + 1:] if not a.startswith("-")]
+            assert targets, f"{cmd.name} passes pytest no target at all"
+            assert "." not in targets, (
+                f"{cmd.name} targets the package root, which overrides its "
+                "testpaths and collects non-test fixture code"
+            )
