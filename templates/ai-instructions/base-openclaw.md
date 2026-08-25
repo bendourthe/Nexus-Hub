@@ -38,6 +38,16 @@
 - Professional teaching tone
 - Never hard-wrap paragraph text at a fixed column width; write each paragraph or bullet point as a single continuous line and let the editor or terminal handle visual wrapping
 
+## Communication Contract
+
+- Outcome first, in language a non-engineer follows; define jargon in place; put detail beyond ~5 lines in a linked docs/ file.
+- Commands must run as pasted: fill derivable values, flag the rest with a REPLACE line and where to find it.
+- Number steps, prerequisites first, expected results. After an error, re-issue ALL remaining steps renumbered.
+- Close tasks with Completed / Verified / Open / Next.
+- Work still running at turn end: lead with a one-line status banner, cap the update at ~8 lines.
+
+Full contract: `~/.nexus-hub/style-guides/agent-communication.md`.
+
 ## Branching
 
 - Follow the project's declared branching strategy. Do not commit feature or version work directly to the protected (release) branch -- branch off the integration branch and integrate through it. If the strategy is unstated, infer it (a `develop` branch implies a develop+main model; otherwise assume GitHub Flow) and confirm before branching. See the `git-branching-workflow` skill for the per-model discipline.
@@ -58,9 +68,7 @@ This is context guidance, not a mechanically enforced tool gate. A parity check 
 
 ## End-of-Task Summary
 - End every completed task with a short closing summary, even when the change was small
-- **Completed**: what actually changed, in one or two lines (files, behavior, or decisions)
-- **Next**: the concrete next step, or state plainly that nothing is outstanding
-- State blocked, skipped, or deferred work explicitly rather than omitting it
+- Use the labeled parts **Completed** (what changed), **Verified** (the evidence), **Open** (blocked, skipped, or deferred work; "nothing outstanding" when empty), **Next** (the concrete next step)
 - Keep it scannable and factual: do not restate the conversation or add preamble
 - Output-minimization rules never apply to this summary: suppress verbose logs, never the closing summary
 

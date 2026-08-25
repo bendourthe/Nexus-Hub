@@ -73,10 +73,18 @@ def test_one_phase_commit_prompt_is_not_the_only_810_path() -> None:
     """Negative fixture: the old always-ask-then-stop 8.10 is not exclusive."""
     runbook = _read(RUNBOOK)
     command = _read(IMPLEMENT_CMD)
-    one_phase_ask = (
-        "always ask: 1. Commit only; 2. Commit and push; 3. Amend (loop to 8.9); 4. Stop."
-    )
-    assert one_phase_ask in runbook
+    # v4.0.0: assert the four options and their order, not the exact sentence.
+    # The Communication Contract requires each option to carry a plain-language
+    # consequence, so the wording grew; pinning the old one-line form made this
+    # a text-fossil test that failed on a deliberate improvement and taught
+    # nothing about the contract it was written to protect.
+    assert "always ask" in runbook
+    options = ["1. Commit only", "2. Commit and push", "3. Amend", "4. Stop"]
+    positions = [runbook.find(opt) for opt in options]
+    missing = [opt for opt, pos in zip(options, positions) if pos == -1]
+    assert not missing, "missing 8.10 option(s): " + repr(missing)
+    assert positions == sorted(positions), "8.10 options are out of order"
+    assert "loop to 8.9" in runbook
     assert "One-phase (default):" in runbook
     assert "**`in-full` non-final:** auto-select commit-only" in runbook
     assert "always ask" not in command

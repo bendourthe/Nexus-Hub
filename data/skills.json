@@ -6,7 +6,7 @@
     "description": "Comprehensive catalog of Nexus-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-        "total_skills": 324,
+    "total_skills": 325,
     "categories": {
       "ai-development": 14,
       "architecture": 7,
@@ -15,7 +15,7 @@
       "code-cleanup": 10,
       "code-review": 15,
       "compliance": 9,
-      "developer-experience": 40,
+      "developer-experience": 41,
       "documentation": 6,
       "framework-specialists": 6,
       "infrastructure": 19,
@@ -11402,6 +11402,47 @@
         "lines": 99,
         "characters": 7326,
         "tokens_estimate": 915
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "agent-communication",
+      "title": "agent-communication",
+      "description": "\"Write live chat responses to the Nexus-Hub communication contract: outcome first, plain language, copy-paste-safe commands, renumbered remaining steps after an error, and a Completed/Verified/Open/Next closing report. Use for 'summarize what you did', 'explain this to me simply', 'give me the steps', 'walk me through it', 'make this readable', 'report the results', and apply it automatically whenever composing an end-of-task report, a step-by-step instruction sequence, a command block the user will paste, or a response for a non-technical reader. SKIP: authoring standalone documents (use writing-editing), de-slopping a finished draft (use anti-slop-editing), Markdown mechanics for generated files (markdown.md governs those).\"",
+      "long_description": "Govern how an installed agent writes live chat responses: outcome-first structure, plain language for a non-engineer, command blocks that run exactly as pasted, a guided-steps protocol that re-issues the full remaining sequence after a reported error, the Completed/Verified/Open/Next closing report, a docs deep-link rule, and a status-banner contract for turns that end with work still running.",
+      "summary_l0": "\"Write live chat responses to a testable contract: outcome first, runnable commands, labeled closing report\"",
+      "overview_l1": "\"This skill governs how an agent writes the messages a person actually reads, as opposed to the files it writes to disk. It carries the seven-part live-response contract from catalog/style-guides/agent-communication.md: lead with the outcome and keep the language plain enough for a non-engineer; make every command block runnable exactly as pasted, filling derivable values and flagging genuinely unknowable ones with a REPLACE line; number steps with prerequisites first and expected results, and after any reported error re-issue the full remaining sequence renumbered rather than pointing back up the chat; close every task with the labeled parts Completed, Verified, Open, and Next; link detail beyond about five lines into a docs/ file instead of inlining it; and when a turn ends with work still running, open with a one-line status banner and cap the interim update at about eight lines. Worked examples live in references/response-contract.md.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "developer-experience",
+      "language": "Multi-language",
+      "tags": [
+        "communication",
+        "chat-response",
+        "plain-language",
+        "instructions",
+        "reporting",
+        "placeholders",
+        "ux"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read"
+      ],
+      "path": "catalog/skills/developer-experience/agent-communication/",
+      "file": "catalog/skills/developer-experience/agent-communication/SKILL.md",
+      "size": {
+        "lines": 125,
+        "characters": 10684,
+        "tokens_estimate": 1654
       },
       "downloads": 0,
       "status": "production",

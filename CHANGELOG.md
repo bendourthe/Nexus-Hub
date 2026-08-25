@@ -9,6 +9,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Agent communication contract.** `catalog/style-guides/agent-communication.md` is the canonical, installable contract for how an installed agent writes live chat responses (as distinct from generated files, which `markdown.md` still governs). Seven areas, every rule written as a checkable behavior: response structure, plain language, placeholder discipline in copy-paste command blocks, the guided-steps protocol (including re-issuing the full remaining sequence after a reported error), the Completed / Verified / Open / Next end-of-task report, the docs deep-link rule, and waiting-state interim updates. Installed to `~/.nexus-hub/style-guides/` by the existing recursive copy; no installer edit. Decision record: `docs/decisions/implemented/policy/2026-08-18-agent-communication-contract.md`.
+- **`agent-communication` skill.** The contract is now discoverable on every skills-native platform (`catalog/skills/developer-experience/agent-communication/`), with the worked examples in a Tier-3 `references/response-contract.md` so the detail costs nothing until the skill triggers. Ships `evals/trigger-cases.json` (5 positives, 5 negatives). Catalog: 324 to 325 skills.
+- **Communication contract in every instruction template.** All 12 substantive templates (the lockstep five, the guardrails five, `base-google-shared.md`, and `generic-instructions.md`) carry a byte-identical 93-word `## Communication Contract` section pointing at the installed style guide. `scripts/check_base_template_parity.py` now treats it as an invariant block, so a one-word drift across the lockstep five fails the gate, and `tests/validators/test_communication_contract_rollout.py` asserts body-identity across all 12 plus that the four surface-note stubs stay clean. No doc-budget ceiling was raised: the `End-of-Task Summary` block was amended subtractively, replacing three overlapping bullets with one naming all four labeled parts (Completed / Verified / Open / Next).
+- **Workflow reports follow the contract.** The `implement-phase` completion report is now a real report contract (Completed / Verified / Open / Next, with the existing fields mapped in, a plain-language line, a ~15-line cap, the final-phase Release readiness block nested under Verified, the waiting-state status-banner rule, and a worked example) instead of one parenthesized sentence. Its 8.10 commit prompt and 9A release-blocker prompt present their options as numbered lists with one plain-language consequence each. `/plan` leads its presentation with a plain-language summary and links the plan file; `/update release` closes with the same four labeled parts and links the CHANGELOG section rather than inlining it.
+
+### Fixed
+
+- **CI ran only part of the repo test suite.** `ci.yml` enumerated test directories by name across four steps, so any test outside those names existed, passed locally, and guarded nothing in CI. `tests/test_removed_autonomy_surface.py` sits at the root of `tests/` and was covered by no step at all; the workflow's own comment already recorded that `tests/plans/` had shipped in the same state in v3.15.8. Replaced with one `pytest tests` step, which also matches what `make test` runs locally. `tests/workflows/test_ci_runs_every_repo_test.py` now asserts the property (every test file and directory under `tests/` is reachable from some CI pytest target) rather than the wording of a step, so the enumeration cannot return by accident.
+- **`data/skills.json` statistics drifted on skill registration.** The `statistics.total_skills` and per-category counts are recomputed from the entries rather than incremented by hand, so the two representations can no longer disagree. Registering a skill touches five files, not the three the skill-authoring instructions name: the reachability gate also requires `data/bundles.json` membership.
+
+### Changed
+
+- **`docs/todos.md` refreshed to the active branch and plan.** The dashboard had accreted 269 lines of completed per-version sections and stale `[IN PROGRESS]` markers from already-released minors. It now describes only current work, with pointers to the per-version known-gaps files and the changelog for history, plus a stated replace-rather-than-append rule. Resolves v3.21 DF-2.
+
 ## [3.21.0] - 2026-08-25
 
 ### Added

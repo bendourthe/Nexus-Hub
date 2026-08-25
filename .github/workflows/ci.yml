@@ -668,21 +668,17 @@ jobs:
       - name: Full catalog/hooks test suite
         run: python -m pytest catalog/hooks/tests/ -v
 
-      - name: Repo-level integration-registry + installer tests (v2.2.0+)
-        run: python -m pytest tests/integrations tests/installer -v
-
-      - name: CI validator tests (v2.3.0 Phase 2)
-        run: python -m pytest tests/validators -v
-
-      - name: Skills-script tests (v3.14.3 media-key setup helper + docs-audit resolver; v3.15.14 spec-artifact agreement guard)
-        run: python -m pytest tests/skills -v
-
-      - name: Plan-contract + workflow-policy tests (v3.15.8 Phase 4.4)
-        # This job enumerates test directories by name rather than running
-        # `pytest tests`, so a new directory is invisible to CI until it is
-        # listed here. tests/plans (added in v3.15.8 Phase 1) was in exactly that
-        # state; tests/workflows (Phase 4.2) would have been too.
-        run: python -m pytest tests/plans tests/workflows -v
+      - name: Repo-level test suite (tests/)
+        # v4.0.0: run the WHOLE tests/ tree in one step instead of enumerating
+        # directories by name. The enumeration was a standing fail-open: a new
+        # directory (or a test file at the root of tests/) was invisible to CI
+        # until someone remembered to add a step. tests/plans shipped in exactly
+        # that state in v3.15.8, and tests/test_removed_autonomy_surface.py was
+        # never run by CI at all under the old shape. This also matches what
+        # `make test` runs locally, so a green local run means the same thing as
+        # a green CI run. tests/workflows/test_ci_runs_every_repo_test.py holds
+        # the property so the enumeration cannot come back by accident.
+        run: python -m pytest tests -v
 
       - name: Install skill-server (and transitive deps like pydantic via mcp)
         run: pip install -e "extensions/nexus-skill-server/[dev]"

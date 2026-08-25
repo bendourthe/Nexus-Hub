@@ -70,6 +70,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | pci-dss-compliance | compliance | "Implement PCI-DSS v4.0 controls for payment card data security and audit readiness" | catalog/skills/compliance/pci-dss-compliance/SKILL.md |
 | soc2-compliance | compliance | "Implement SOC 2 Type II controls across all five Trust Services Criteria" | catalog/skills/compliance/soc2-compliance/SKILL.md |
 | traceability-matrix-generator | compliance | "Generate requirement-to-code traceability matrices for audits and compliance reporting" | catalog/skills/compliance/traceability-matrix-generator/SKILL.md |
+| agent-communication | developer-experience | "Write live chat responses to a testable contract: outcome first, runnable commands, labeled closing report" | catalog/skills/developer-experience/agent-communication/SKILL.md |
 | ai-output-evaluation | developer-experience | "Evaluate AI-generated output quality with rubrics, LLM-as-judge, and bias mitigation" | catalog/skills/developer-experience/ai-output-evaluation/SKILL.md |
 | ambiguity-detector | developer-experience | "Detect ambiguous, incomplete, and contradictory requirements with clarification templates" | catalog/skills/developer-experience/ambiguity-detector/SKILL.md |
 | async-patterns | developer-experience | "Implement async and concurrency patterns with channels, actors, and structured concurrency" | catalog/skills/developer-experience/async-patterns/SKILL.md |
@@ -329,4 +330,4 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | design-interview | developer-experience | "Interview until the design tree is resolved and keep a CONTEXT.md glossary" | catalog/skills/developer-experience/design-interview/SKILL.md |
 | setup-wizard-generator | developer-experience | "Generate a resumable human-only setup wizard with bash and PowerShell templates" | catalog/skills/developer-experience/setup-wizard-generator/SKILL.md |
 | decision-questionnaire | business-product | "Write an async Markdown questionnaire for the one stakeholder who can unblock" | catalog/skills/business-product/decision-questionnaire/SKILL.md |
-**Total: 324 skills across 23 categories**
+**Total: 325 skills across 23 categories**

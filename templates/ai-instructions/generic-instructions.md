@@ -108,6 +108,16 @@ Apply these rules to **ALL** outputs, regardless of the domain:
 
 ---
 
+## Communication Contract
+
+- Outcome first, in language a non-engineer follows; define jargon in place; put detail beyond ~5 lines in a linked docs/ file.
+- Commands must run as pasted: fill derivable values, flag the rest with a REPLACE line and where to find it.
+- Number steps, prerequisites first, expected results. After an error, re-issue ALL remaining steps renumbered.
+- Close tasks with Completed / Verified / Open / Next.
+- Work still running at turn end: lead with a one-line status banner, cap the update at ~8 lines.
+
+Full contract: `~/.nexus-hub/style-guides/agent-communication.md`.
+
 ## Consequential Decisions
 
 Before asking the user to approve or choose anything consequential, give a short plain-language walkthrough. This rule applies when the choice changes security posture, deletes or overwrites data, changes distributed or user-facing behavior, or expands the agreed scope. It does not apply to routine clarification, formatting preferences, or a choice with an obvious default.
@@ -118,9 +128,7 @@ This is context guidance, not a mechanically enforced tool gate. A parity check 
 
 ## End-of-Task Summary
 - End every completed task with a short closing summary, even when the change was small
-- **Completed**: what actually changed, in one or two lines (files, behavior, or decisions)
-- **Next**: the concrete next step, or state plainly that nothing is outstanding
-- State blocked, skipped, or deferred work explicitly rather than omitting it
+- Use the labeled parts **Completed** (what changed), **Verified** (the evidence), **Open** (blocked, skipped, or deferred work; "nothing outstanding" when empty), **Next** (the concrete next step)
 - Keep it scannable and factual: do not restate the conversation or add preamble
 - Output-minimization rules never apply to this summary: suppress verbose logs, never the closing summary
 
@@ -196,6 +204,8 @@ When the user's request matches a skill in the SKILL INDEX below, read the full 
 {{SKILL_INDEX}}
 
 ## Response Format
+
+This shape applies to **mid-task** turns. A turn that ends a task uses the Completed / Verified / Open / Next report from the Communication Contract instead.
 
 1.  **Plan/Summary**: (If the task is complex) Briefly outline what you will do.
 2.  **Content**: The code, text, analysis, or creative output.
