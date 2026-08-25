@@ -6,6 +6,12 @@ import subprocess
 import sys
 from pathlib import Path
 
+# v4.0.0: `ci.yml` calls scripts/ci/run.py rather than naming each guard in its
+# own `run:` step, so CI reachability is resolved through the profile
+# definitions. See tests/validators/_ci_reachability.py for why greping the
+# YAML would be both wrong and dangerous to "fix".
+from tests.validators._ci_reachability import assert_wired_into_ci
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = REPO_ROOT / "scripts" / "check_memory_provenance.py"
 MAKEFILE = REPO_ROOT / "Makefile"
@@ -46,6 +52,5 @@ def test_fixture_with_source_passes(tmp_path: Path) -> None:
 
 def test_makefile_and_ci_invoke_the_guard() -> None:
     makefile = MAKEFILE.read_text(encoding="utf-8")
-    ci = CI.read_text(encoding="utf-8")
     assert "check_memory_provenance.py" in makefile
-    assert "check_memory_provenance.py" in ci
+    assert_wired_into_ci("check_memory_provenance.py")

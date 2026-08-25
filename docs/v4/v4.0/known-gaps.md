@@ -38,6 +38,15 @@ None open.
 
 #### Warnings
 
+##### WN-2 - A concurrent branch adds a thirteenth instruction template that will need the lifecycle block
+
+- **Source phase**: Phase 8 - Architecture refactor, known-gaps reconciliation, and CI/CD
+- **What was observed**: during Phase 8 the working tree acquired unrelated in-progress work from a concurrent session (a `pi` platform integration and a `grill` command), including an untracked `templates/ai-instructions/base-pi.md`. That file is NOT on `develop` and is not part of this plan; only files tracing to this plan were staged, and this plan's eight commits contain none of it.
+- **Why it is recorded here**: `tests/skills/test_cicd_lifecycle_contract.py::test_template_roster_matches_the_directory` failed against that dirty worktree, which is the guard working exactly as designed - a new template must be classified or it silently escapes the lifecycle rollout. The failure does not exist on `develop`, where the file is absent.
+- **What the other branch must do when it lands**: classify `base-pi.md` in the roster (substantive or surface-note stub) and, if substantive, add the `## Plan Lifecycle and CI/CD` block body-identical to the other twelve. The assertion message names both obligations.
+- **Suggested next step**: none for this plan. This is a note for whoever merges the `pi` integration, so the failure reads as an expected checklist item rather than a mystery.
+
+
 None.
 
 #### Missing Tests / Coverage Gaps
@@ -116,7 +125,7 @@ None.
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 2 | 0 |
 | Bugs / regressions (BG) | 0 | 1 |
-| Warnings (WN) | 1 | 0 |
+| Warnings (WN) | 2 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 1 |
 | Quality-gate gaps (QG) | 0 | 0 |
 

@@ -322,7 +322,12 @@ def test_template_roster_matches_the_directory():
         "templates/ai-instructions/ changed. Classify each new file as "
         "substantive (it carries behavioral rules) or a surface-note stub, then "
         f"update this roster. Unclassified: {sorted(on_disk - classified)}; "
-        f"listed but missing: {sorted(classified - on_disk)}"
+        f"listed but missing: {sorted(classified - on_disk)}. "
+        "A file classified SUBSTANTIVE must also carry the "
+        f"{LIFECYCLE_HEADING!r} block, body-identical to the other eleven -- "
+        "classifying it without adding the block turns this failure into a "
+        "different one, which is the point: a new template must not silently "
+        "escape the rollout."
     )
 
 
