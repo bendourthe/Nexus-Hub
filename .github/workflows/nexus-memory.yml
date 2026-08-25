@@ -7,11 +7,11 @@ name: nexus-memory
 # (and workflow_dispatch), not every push.
 on:
   workflow_dispatch:
-  push:
-    branches: [main, develop]
-    paths:
-      - 'extensions/nexus-memory/**'
-      - '.github/workflows/nexus-memory.yml'
+  # v4.0.0 event separation: the `push` leg to the same protected branches was
+  # removed. Under a pull-request-only merge policy that push IS the merge commit
+  # of the pull request that just ran, so the tree is identical and the second run
+  # cannot discover anything the first did not. See
+  # docs/v4/v4.0/development/ci-cd-lifecycle-contract.md section 4.
   pull_request:
     branches: [main, develop]
     paths:
@@ -67,7 +67,12 @@ jobs:
           '
 
   test-locking-matrix:
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+    # v4.0.0: was gated on `push` to a protected branch, which this workflow no
+    # longer receives. Left gated on a push condition it can never satisfy, the
+    # three-OS locking matrix would have silently stopped running -- a skip that
+    # reports Success and proves nothing. It now runs on the integration pull
+    # request, which is where cross-platform proof belongs.
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'pull_request'
     strategy:
       fail-fast: false
       matrix:

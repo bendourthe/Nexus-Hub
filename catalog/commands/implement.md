@@ -18,8 +18,8 @@ This is a thin dispatcher over the retained `implement-phase` skill. The full pe
 - `/implement <slug> phase-N` or `/implement <slug> "Phase Name"` - implement that specific phase.
 - `/implement <slug> next` - implement the first phase not yet marked complete.
 - A bare `vX.Y.Z` first argument selects the plan(s) under that version (legacy-compatible).
-- `/implement <slug-or-path> in-full` (alias `full`) - implement every incomplete phase in order. Commit at each successful boundary (commit-only on non-final phases; no push). Run the fail-closed last phase, then hand off to `/update release` with that command's confirmation gates.
-- `/implement <slug-or-path> phase-by-phase` - the same loop, but after each phase wait with: (1) commit and continue; (2) commit, push, and continue; (3) commit and pause; (4) commit, push, and pause; (5) other.
+- `/implement <slug-or-path> in-full` (alias `full`) - implement every incomplete phase in order. Commit at each successful boundary (commit-only on non-final phases; no push). Run the fail-closed last phase, which publishes and integrates, then hand off to `/update release` with that command's confirmation gates once integration is green.
+- `/implement <slug-or-path> phase-by-phase` - the same loop, but after each non-final phase wait with: (1) commit and continue; (2) commit and pause; (3) other. There is no push option: a non-final phase is commit-only.
 
 Driver modes are a later positional token, never the first argument. Match whole tokens `in-full`, `full`, and `phase-by-phase` only - a slug that contains "full" as a substring is not a driver mode. An unknown later token prints usage and does not start a phase. Bare `/implement` and the one-phase forms above stay one-phase. Preserve the per-phase model-routing pre-flight; Cursor, OpenCode, and Copilot have no scriptable model switch.
 
@@ -31,7 +31,7 @@ Dispatch to the retained skill:
 
       (any invocation) -> implement-phase
 
-The skill runs its full sequence: plan + phase resolution, pre-implementation review, subtask-by-subtask implementation, lint and format, test execution with coverage, test augmentation, the troubleshooting loop, the GO / NO-GO quality gate, and the post-phase completion sequence (gitignore, test review, CI/CD check, known-gaps update, docs cleanup audit, devlog, documentation, session history, commit message, and the commit-and-push prompt).
+The skill runs its full sequence: plan + phase resolution, pre-implementation review, subtask-by-subtask implementation, lint and format, test execution with coverage, test augmentation, the troubleshooting loop, the GO / NO-GO quality gate, and the post-phase completion sequence (gitignore, test review, CI-impact record, known-gaps update, docs cleanup audit, devlog, documentation, session history, commit message, and the commit prompt).
 
 ## Per-phase model-routing pre-flight (graceful degradation)
 
@@ -45,12 +45,23 @@ Before the subtask-by-subtask implementation step begins for a phase, `/implemen
 
 This pre-flight is platform-agnostic. Public web research may refresh the map, but it requires no new credential or dependency; deterministic score/map validation and host enumeration/switch mechanics stay in `[[model-routing]]`. The retained `implement-phase` runbook executes the same pre-flight before its implementation stage. A phase that hits repeated test failures during the troubleshooting loop may upshift to a stronger tier or higher effort (upshift only, with confirmation, never an automatic mid-phase downshift); see the mid-task escalation rule in `[[model-routing]]`.
 
+## Phase lifecycle (guarantee)
+
+`/implement` enforces the same lifecycle `/plan` generates. Three guarantees, worth stating because they change what the reader should expect at a phase boundary:
+
+- **A non-final phase finishes with a local commit and nothing else.** No push, no pull request, no remote CI, in every mode. Pushing per phase bills a full pipeline run to validate work the plan itself says is incomplete. A user who explicitly asks to push still gets it, after a one-line statement of the cost; what is removed is the default, not the authority.
+- **A non-final phase records CI impact; it does not author a pipeline.** Step 8.3 states what this phase added that CI would need to know about and whether the pipeline already covers it. Pipeline files change mid-plan only when CI/CD is that phase's explicit deliverable.
+- **The final phase owns everything remote.** It runs the terminal pipeline reconciliation via `[[cicd-architect]]`, completes the local gate, creates the final commit, obtains explicit approval, pushes ONCE, opens the integration pull request, waits for required checks against the merge result, reopens itself on red (reproducing locally before any re-push), and merges only on green.
+
+The procedure lives in `implement-phase` and its runbook; this dispatcher states the guarantee.
+
 ## Final-phase release routing (v3.0.0 change)
 
 The `implement-phase` skill auto-detects the final phase of a plan and runs a release-readiness workflow after the post-phase sequence. In v3.0.0 the consolidated release step is owned by `/update release`, so route the final-phase release work there instead of the old inline `update-*` sequence:
 
 - Resolve known gaps and deferred work (skill sub-phase 9A) and verify tests + CI/CD readiness (9B) as before.
 - For the documentation cleanup, standard update checks, and the version bump / changelog / tag / push (skill sub-phases 9C-9E), hand off to **`/update release`**, which runs docs + devlog + gitignore + version (via `scripts/check_version_sync.py`) + changelog + refactor, then cleans up, commits, tags, and pushes as one atomic flow.
+- Hand off only after the integration pull request is green and merged. A non-green integration holds the release.
 - Never create a tag or push automatically; `/update release` keeps its own confirmation gates.
 
 ## Optional fan-out

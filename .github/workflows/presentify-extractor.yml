@@ -74,7 +74,12 @@ jobs:
     # This job must exist on every protected PR because branch protection
     # requires its `verify` context. Its expensive steps remain path-scoped.
     needs: detect
-    if: github.event_name != 'schedule'
+    # v4.0.0: `verify` is a REQUIRED check and belongs to the pull request only.
+    # Under the previous `!= 'schedule'` condition it also ran on every push to a
+    # protected branch, re-verifying the tree the pull request had already
+    # verified. `render` below keeps its push leg because it genuinely depends on
+    # the merged state.
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:

@@ -180,11 +180,39 @@ def test_classification(
     )
 
 
-def test_push_event_uses_before_sha(tmp_path: Path) -> None:
-    """A push classifies against `github.event.before`, preserving the old behavior."""
+def test_a_push_event_now_falls_through_to_running_everything(tmp_path: Path) -> None:
+    """v4.0.0: ci.yml no longer HAS a push trigger, so the classifier drops that case.
+
+    The classifier used to accept `github.event.before` for a push, because
+    ci.yml ran on pushes to main and develop. It no longer does: post-merge work
+    moved to post-merge.yml, and re-validating the merge commit was a full
+    re-run of the tree the pull request had already proved.
+
+    The `push` branch of the case statement is therefore gone, and a push now
+    falls through to the fail-closed default. That is the correct direction for
+    a case the workflow cannot reach: if it ever did reach it, running
+    everything is the safe answer, because a wrong skip here reports Success.
+
+    The behavior this test used to protect is not lost, only relocated: the
+    pull-request path is covered by the parametrized cases below.
+    """
     repo, base_sha = make_repo(tmp_path, BASE, ["docs/v3/v3.17/plans/plan.md"])
-    relevant, _ = run_classifier(repo, tmp_path, event_name="push", before_sha=base_sha)
-    assert relevant == "false"
+    relevant, stdout = run_classifier(
+        repo, tmp_path, event_name="push", before_sha=base_sha
+    )
+    assert relevant == "true", stdout
+    assert "no usable base sha for event push" in stdout
+
+
+def test_ci_declares_no_push_trigger() -> None:
+    """The premise of the test above, asserted rather than assumed."""
+    ci = Path(__file__).resolve().parents[2] / ".github" / "workflows" / "ci.yml"
+    text = ci.read_text(encoding="utf-8")
+    nl = chr(10)
+    on_block = text.split(nl + "on:" + nl, 1)[1].split(nl + "permissions:", 1)[0]
+    assert "push:" not in on_block, (
+        "ci.yml regained a push trigger; the classifier case above must come back too"
+    )
 
 
 @pytest.mark.parametrize(

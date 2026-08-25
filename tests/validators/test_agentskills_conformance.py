@@ -11,6 +11,11 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+# v4.0.0: `ci.yml` calls scripts/ci/run.py rather than naming each guard in its
+# own `run:` step, so CI reachability is resolved through the profile
+# definitions. See tests/validators/_ci_reachability.py.
+from tests.validators._ci_reachability import assert_wired_into_ci
+
 REPO_ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = "check_agentskills_conformance.py"
 MAKEFILE = REPO_ROOT / "Makefile"
@@ -143,4 +148,4 @@ def test_makefile_and_ci_invoke_the_guard() -> None:
     makefile = MAKEFILE.read_text(encoding="utf-8")
     ci = CI.read_text(encoding="utf-8")
     assert "scripts/check_agentskills_conformance.py" in makefile
-    assert "scripts/check_agentskills_conformance.py" in ci
+    assert_wired_into_ci("check_agentskills_conformance.py")

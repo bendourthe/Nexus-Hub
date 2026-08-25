@@ -289,13 +289,17 @@ Open an AI chatbot (Claude.ai or ChatGPT) and brainstorm: problem, users, core f
 
 #### 3. Development (core loop)
 
-For each plan phase:
+Create ONE feature branch for the whole plan (`feat/<slug>`), then for each phase:
 
-1. Create a feature branch: `feature/phase-N-short-description`.
-2. Open a fresh Claude Code session.
-3. Run `/implement <slug> <phase>` -- walks every subtask, generates and runs tests, applies fixes, runs `/update gitignore` + `/update docs`, generates a session-history file, and produces a commit message.
-4. Commit and push the feature branch.
-5. Merge into `develop`. Repeat for the next phase.
+1. Open a fresh Claude Code session.
+2. Run `/implement <slug> <phase>` -- walks every subtask, generates and runs tests, applies fixes, runs `/update gitignore` + `/update docs`, generates a session-history file, and produces a commit message.
+3. Commit locally. Repeat for the next phase.
+
+**Non-final phases do not push** (v4.0.0). A remote pipeline run per phase bills to validate work the plan itself calls incomplete, and a red check on incomplete work teaches you to stop reading red checks. One branch, one commit per phase, all local.
+
+The final phase does the rest in order: it reconciles your pipeline against the canonical CI/CD contract via `[[cicd-architect]]`, completes the full local gate, then pushes ONCE with your explicit approval and opens the integration pull request. That pull request is the plan's first remote validation, and it tests the merge result rather than the branch tip. A red required check reopens the final phase and is reproduced locally before any re-push; release work starts only after the merge lands green.
+
+If you do want to push mid-plan (to share work in progress, say), just ask -- the rule removes the default, not your authority.
 
 Each `/implement` phase runs a best-effort model-routing pre-flight before building: it re-confirms the model and reasoning effort `/plan` recorded for the phase, re-assessing against the currently-available models so a plan built before a new release picks up the newer or cheaper option. It is platform-agnostic and never blocks (it degrades to the plan's recommendation when routing is unavailable). Run `/route` to route any task or phase on demand.
 
@@ -396,6 +400,20 @@ OpenCode IDE integration. OpenCode reads `AGENTS.md` per the open standard.
 For contributors working *on* Nexus-Hub (not consumers of the installer), the repo ships a [`.devcontainer/`](.devcontainer/) at the root. Open the repo in VS Code with the Dev Containers extension installed (or click "Reopen in Container" when prompted) and the post-create hook will install Python tooling (`pytest`, `ruff`), the GitHub CLI (`gh`), and the Claude Code CLI (`claude`). Authenticate `gh` and `claude` once the container is up, then run `make validate` to confirm the catalog is clean.
 
 The devcontainer is opt-in -- the standard Quick Start above does not require it. It exists for first-touch contributor onboarding and for reproducing the maintainer's environment across machines.
+
+### Running the checks locally
+
+Validation logic lives in the repository, not in the workflow files, so what CI runs is exactly what you can run:
+
+```bash
+make ci-fast       # seconds: parses, hygiene, workflow security, version sync
+make ci-full       # minutes: every validator, the whole test tree, extensions
+make ci-platform   # shell lint, PowerShell AST parse, Windows PowerShell 5.1 legs
+```
+
+Each target is a one-line delegation to `python scripts/ci/run.py --profile <name>`, which needs no CI provider and no network. Add `--list` to print what a profile would run without running it, or `--base origin/develop` to scope the run to what changed. Reports land in `reports/` (gitignored): a readable `summary.md`, plus JUnit, `summary.json`, and environment metadata.
+
+Full guide, including how to add a check: [`docs/v4/v4.0/development/ci-cd-profile-guide.md`](docs/v4/v4.0/development/ci-cd-profile-guide.md).
 
 ---
 

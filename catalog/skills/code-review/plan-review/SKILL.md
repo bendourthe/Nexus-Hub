@@ -45,6 +45,20 @@ Each lens maps to an agent. Reuse where one already exists; the rest are the ded
 
 Select the conditionals by document content: `design` when the plan proposes architecture / data models; `security` when it touches auth, user data, payments, or external trust; `adversarial` when it exposes a surface a hostile user reaches.
 
+### Lifecycle checks (always-on, feasibility lens)
+
+A multi-phase plan carries a lifecycle whose violations are cheap to spot and expensive to discover later, so the `feasibility` lens checks five of them on every plan. These are DETECTION rules. The policy itself is owned by `[[cicd-architect]]`; do not restate it here, and cite it in the suggested fix so the reader has one place to go.
+
+| Signal | Why it is a finding | Severity floor |
+|---|---|---|
+| a per-phase push (any non-final phase that pushes, opens a pull request, or starts remote CI) | bills a full pipeline run per phase to validate work the plan itself says is incomplete | P1 |
+| a missing local phase commit (a phase with no commit at its boundary) | leaves the plan unrevertible at phase granularity, so a bad phase can only be undone by hand | P2 |
+| remote CI before the terminal phase | same cost as a per-phase push, and it usually appears as a stray "verify in CI" step rather than an explicit push | P1 |
+| a missing terminal pipeline comparison (no final-phase reconciliation against the canonical contract) | the plan can complete while the pipeline it shipped has never been checked against anything | P1 |
+| release before green integration (a release step not gated on a merged, green integration result) | ships from an unvalidated tree | P0 |
+
+A plan that legitimately makes CI/CD a mid-plan deliverable is not a finding, provided it says so; check for the statement before reporting.
+
 ## Instructions
 
 ### 1. Resolve the document and intent
@@ -97,6 +111,7 @@ Follow it with a **coverage note**: which lenses ran, which were skipped and why
 
 ## Related Skills
 
+- [[cicd-architect]] - owns the plan-lifecycle and CI/CD policy this skill's lifecycle checks DETECT violations of; it states the rule, this skill finds the breach.
 - [[multi-agent-code-review]] - the same persona-fanout idea applied to a code diff after implementation.
 - [[cross-artifact-analyzer]] - single-agent cross-artifact consistency / coverage / constitution-alignment across a feature directory; use for "do these artifacts agree?".
 - `/spec analyze` - single-agent spec/plan/tasks consistency and ambiguity analysis; complements this skill's parallel critique.

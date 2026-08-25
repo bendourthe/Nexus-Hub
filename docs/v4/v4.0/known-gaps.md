@@ -38,6 +38,15 @@ None open.
 
 #### Warnings
 
+##### WN-2 - A concurrent branch adds a thirteenth instruction template that will need the lifecycle block
+
+- **Source phase**: Phase 8 - Architecture refactor, known-gaps reconciliation, and CI/CD
+- **What was observed**: during Phase 8 the working tree acquired unrelated in-progress work from a concurrent session (a `pi` platform integration and a `grill` command), including an untracked `templates/ai-instructions/base-pi.md`. That file is NOT on `develop` and is not part of this plan; only files tracing to this plan were staged, and this plan's eight commits contain none of it.
+- **Why it is recorded here**: `tests/skills/test_cicd_lifecycle_contract.py::test_template_roster_matches_the_directory` failed against that dirty worktree, which is the guard working exactly as designed - a new template must be classified or it silently escapes the lifecycle rollout. The failure does not exist on `develop`, where the file is absent.
+- **What the other branch must do when it lands**: classify `base-pi.md` in the roster (substantive or surface-note stub) and, if substantive, add the `## Plan Lifecycle and CI/CD` block body-identical to the other twelve. The assertion message names both obligations.
+- **Suggested next step**: none for this plan. This is a note for whoever merges the `pi` integration, so the failure reads as an expected checklist item rather than a mystery.
+
+
 None.
 
 #### Missing Tests / Coverage Gaps
@@ -106,3 +115,65 @@ None.
 - **v3.21 DF-1** (product atlas HTML) remains open and stays in `docs/v3/v3.21/known-gaps.md`. It was reviewed this phase and deliberately not resolved: `docs/handbooks/markdown/` still holds only a `.gitkeep`, and generating an atlas from no authored content would produce a fake walkthrough. The honest disposition is unchanged from v3.21.
 - **v3.20 items** (DF-1 invocation levers, DF-2 marketplace form, WN-3 personal-paths scan) were reviewed and remain out of this plan's scope. They stay in `docs/v3/v3.20/known-gaps.md`.
 - Older `docs/v3/v3.*/known-gaps.md` files whose Status line is not `finalized` are historical records of their own cycle, not live work queues. They were not rewritten, because editing a closed version's record to look tidy destroys the account of what that release actually knew about itself.
+
+## v4.0.0 - cost-effective-ci-cd
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 2 | 0 |
+| Bugs / regressions (BG) | 0 | 1 |
+| Warnings (WN) | 2 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 1 |
+| Quality-gate gaps (QG) | 0 | 0 |
+
+### Open Items
+
+#### Deferred
+
+##### DF-1 - Report artifacts are published to the run summary, not uploaded
+
+- **Source phase**: Phase 7 - Nexus-Hub workflow migration
+- **Plan reference**: `docs/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md` (T049)
+- **Reason**: The lifecycle contract section 6 asks for detailed reports uploaded with `if: always()` and a short explicit retention period. Uploading requires `actions/upload-artifact`, and every third-party action in this repository is pinned to a full 40-character commit SHA. That SHA has to be FETCHED from the vendor; it cannot be recalled or inferred. Nexus-Hub has made exactly this mistake before, in the opposite direction: the `.kimi/agent.yaml` companion shipped in v3.15.0 was fabricated rather than found, and had to be dropped. Writing a plausible-looking SHA would break every run at once, and writing a floating `@v4` tag would violate the pinning rule the same phase asserts.
+- **What ships instead**: every lifecycle workflow appends `reports/summary.md` to `$GITHUB_STEP_SUMMARY` with `if: always()`, using no action at all. That satisfies the human-readable half of section 6 on every result, including a failure. The machine-readable artifacts (JUnit, `summary.json`, `metadata/environment.json`) are still WRITTEN by every run; they are simply not uploaded, so they are available inside the job and not after it.
+- **Suggested next step**: fetch the current `actions/upload-artifact` release SHA from the vendor, add one upload step per lifecycle workflow with `if: always()` and `retention-days: 7`, and remove the exemption. `scripts/validate_workflow_security.py` already fails an `upload-artifact` step that omits `retention-days`, so the guard is in place before the feature is.
+
+##### DF-2 - The `full` profile has not been run end to end on this host
+
+- **Source phase**: Phase 6 and Phase 7
+- **Reason**: `python scripts/ci/run.py --profile full` was started and had not completed after roughly 50 minutes on this workstation. The profile runs the whole `catalog/hooks/tests` tree, the whole `tests/` tree, and six extension suites in sequence; `tests/skills` plus `tests/validators` alone take 9.5 minutes, and the extension suites require their packages to be pip-installed. The per-command timeouts (1800s for hooks, 3600s for the repo suite, 900s per extension) bound the worst case at roughly 2.5 hours, so it is slow rather than hung.
+- **What IS verified**: the `fast` profile (12 commands, 8.0s, PASS), the `release` profile (3 commands, 5.9s, PASS), and every constituent group of `full` run individually - `tests/skills` plus `tests/validators` (1825 passed), `tests/ci` (85 passed), `tests/workflows` (97 passed), and the whole validator chain via `make validate`. What is NOT verified is the single aggregated invocation and its exit status across all groups.
+- **Root cause, narrowed in Phase 8**: the suite is not hung, it is slow for a specific and fixable reason. `tests/skills/test_presentify_*` makes repeated `subprocess.run(..., timeout=60)` calls that reach their full 60-second timeout on this workstation while completing in milliseconds on the CI runner. Several of those in sequence dominate the wall-clock. Reproduced in a clean isolated `git worktree`, so it is an environment property rather than concurrent-session interference or a defect in this plan's changes: CI runs the same suite to completion in about 8 minutes.
+- **Consequence, stated plainly**: on this workstation the authoritative complete-suite run is CI, not the local gate. That is the honest reason the four wiring failures in PR #124 were found remotely rather than locally, and it cost three round trips.
+- **Suggested next step**: find why those subprocess calls saturate their timeout here (a missing interpreter-resolution, a Windows path issue, or a genuinely absent dependency) rather than raising the timeout, which would only make the suite slower. Then run `make ci-full` to completion on a machine where the six extension packages are installed and record the measured wall-clock in the profile guide, so the quick-reference durations stop being estimates. If the aggregate stays impractical locally, that is a finding about the profile's shape and argues for splitting `full` by group.
+
+#### Warnings
+
+##### WN-1 - The new event topology has not been exercised against real GitHub
+
+- **Source phase**: Phase 7 - Nexus-Hub workflow migration
+- **Reason**: Every assertion about the new topology is static: YAML parsing, trigger inspection, and contract tests. Nothing has yet observed GitHub actually running `ci.yml` on a pull request, `post-merge.yml` on a merge, and `release.yml` on a tag, or confirmed that the five required contexts still resolve. That evidence can only come from the plan's own publication in Phase 8, which is the first real-world test of the change.
+- **Suggested next step**: Phase 8 sub-task 8.6 monitors the integration pull request. The runbook's section 8 checklist is the wider verification, and three of its items (a docs-only PR resolving every context, `post-merge.yml` running while `ci.yml` does not, `release.yml` running on the tag while `ci.yml` does not) can only be ticked after the merge and the release.
+
+### Resolved Items
+
+##### BG-1 (resolved) - Redaction left the tail of a longer secret intact
+
+- **Source phase**: Phase 6 - Repository-native CI engine
+- **What happened**: `scripts/ci/reporting.py`'s `redact()` sorted its values longest-first only on the path where it computed them itself. A caller supplying an explicit list got them in the order given, so redacting a short value that is a PREFIX of a longer one first left the longer one's tail intact: a secret became `[REDACTED]-extended-tail`.
+- **Why it mattered**: that is worse than not redacting at all, because it READS as a successful redaction. A reviewer scanning a report for leaked values would see the marker and move on.
+- **Resolution**: sorting now happens inside `redact()` regardless of where the list came from, with the reasoning in a comment: a caller supplying its own list has no reason to know the ordering matters. Caught by `test_redaction_prefers_the_longest_value_first`, written before the fix.
+
+### Resolved Items
+
+##### MT-1 (resolved) - Twenty-three lifecycle assertions were expected-red until their owning phase landed
+
+- **Source phase**: Phase 1 - Canonical lifecycle contract and baseline audit
+- **Plan reference**: `docs/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md` (T004)
+- **What happened**: `tests/skills/test_cicd_lifecycle_contract.py` encoded the contract's seven non-negotiable statements in full at Phase 1, but the surfaces satisfying statements 4 and 6 did not exist until Phases 2 and 5. The plan asked for failing-first tests and forbade weakening them; leaving them plainly red would have made every intermediate phase commit ship a red suite, which trains a reader to ignore red.
+- **Mitigation used**: each not-yet-true assertion carried `pytest.mark.xfail(strict=True)` naming its owning phase. Strict xfail is self-closing: when the owning phase lands, the test passes, pytest reports an unexpected pass, and the run FAILS until the marker is removed.
+- **Resolution**: all 23 markers are gone - 9 removed in Phase 2, 14 in Phase 5. Not one assertion was edited to make it pass and none was weakened. The file now reports 54 passed, 0 xfailed.
+- **Worth keeping**: the mechanism earned its keep twice. In Phase 1 a strict xfail XPASSed and caught a WRONG audit row (both CI/CD skills already linked `cicd-architect`, in a Related Skills footer); the assertion was tightened to require a body-level conformance statement rather than deleted. In Phase 2 nine markers came off at once, which was the phase's own completion signal.

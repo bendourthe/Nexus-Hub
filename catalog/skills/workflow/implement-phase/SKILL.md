@@ -35,8 +35,8 @@ The runbook defines ten stages; the load-bearing ones:
 - **Phase 0 - Resolve and detect.** Resolve the plan and phase; set `is_final_phase` from the five signals (phase ordering, title heuristics, prior-phase completion, plan metadata, adjacent plans). Show a pre-flight summary and wait for confirmation.
 - **Phases 1-2 - Review and implement.** Review the plan against the codebase, then implement subtask by subtask, in scope, logging `# DEVIATION:` markers.
 - **Phases 3-7 - Lint, test, gate.** Lint/format; run tests with coverage; augment missing tests; troubleshoot failures (max 3 iterations, classified IMPL/TEST/ENV); apply the four-part GO/NO-GO gate (0 failures, >= 80% coverage, 0 lint errors, build succeeds).
-- **Phase 8 - Post-phase sequence (every phase).** The ten steps 8.1-8.10 in strict order. One-phase invocations end in the REQUIRED commit-and-push prompt. Driver modes (`in-full`, `phase-by-phase`) replace 8.10 as documented in the runbook: `in-full` is commit-only on non-final phases (no push); `phase-by-phase` uses the five-option menu.
-- **Phase 9 - Final phase only.** Run the fail-closed last-phase duties (9.0), write `<version_dir>/development/last-phase-evidence.md`, resolve known gaps (9A), verify tests + CI/CD (9B), then hand 9C-9E off to `/update release` only when the evidence file is complete and Goal-vs-codebase review has no unresolved miss.
+- **Phase 8 - Post-phase sequence (every phase).** The ten steps 8.1-8.10 in strict order. 8.3 RECORDS this phase's CI impact against `[[cicd-architect]]` and does NOT author or optimize a pipeline file, unless CI/CD is this phase's explicit deliverable. 8.10 is COMMIT-ONLY on every non-final phase in every mode: one-phase asks Commit / Amend / Stop, `in-full` auto-commits, `phase-by-phase` uses a three-option menu. Push, pull request, and remote CI belong to the final phase alone.
+- **Phase 9 - Final phase only.** Run the fail-closed last-phase duties (9.0, whose duty 5 is the terminal pipeline reconciliation via `[[cicd-architect]]`), write `<version_dir>/development/last-phase-evidence.md`, resolve known gaps (9A), complete the LOCAL gate (9B), then run 9F: the final commit, the explicit approval gate, the plan's single branch push, the integration pull request, the wait for required checks, and the merge. A red check REOPENS the phase and is reproduced locally before any re-push. Hand 9C-9E off to `/update release` only when the evidence file is complete, Goal-vs-codebase review has no unresolved miss, AND the integration result is green and merged.
 - **Driver loop** - used only when mode is `in-full` (alias `full`) or `phase-by-phase`. Iterate incomplete phases with the existing Phase 0-8 sequence unchanged. A failed GO/NO-GO gate or context exhaustion stops the driver at that phase boundary. After a successful last phase, require the evidence file, then hand off to `/update release`. Never tag or push the release from the driver. See the runbook. Cross-link `[[code-commit-workflow]]` for phase-boundary commits.
 
 ## Mandatory final-phase gate (v3.11.0)
@@ -55,15 +55,17 @@ When `is_final_phase` is true, before the release-readiness sub-phases, run the 
 | "Tests passed so the Goal landed." | Green tests are not a Goal-vs-codebase review. Re-read the plan Goal and inspect the artifacts; a miss blocks `/update release` unless a known-gap records it. |
 | "Skip this last-phase duty; it will be a no-op." | There is no skip license on Phase 9. Omit a duty only by writing a `QG` or `DF` known-gap with Source phase, Plan reference, Reason, and Suggested next step, or refuse. |
 | "I'll create the release tag since everything passed." | The skill never tags or pushes automatically. The final phase hands off to `/update release`, which owns the version bump, changelog, tag, and push behind its own gates. |
-| "in-full should also push each phase so CI stays green." | Non-final `in-full` commits are commit-only. Push is a `phase-by-phase` menu choice or a later explicit push. The driver never tags or pushes a release. |
+| "in-full should also push each phase so CI stays green." | Every non-final phase is commit-only in every mode, `in-full` included. Pushing per phase bills a full pipeline run to validate work the plan itself says is incomplete, and seven red checks on incomplete work teach the reader to ignore red checks. The driver never tags or pushes a release. |
+| "The user can just pick the push option if they want it." | There is no push option on a non-final phase; 8.10 offers Commit / Amend / Stop. A user who explicitly ASKS to push still gets it, after a one-line statement of the cost. The rule removes the default, not the user's authority. |
+| "I will update the CI workflow now while I am in this file anyway." | A phase changes pipeline files only when the pipeline is that phase's explicit deliverable. Per-phase pipeline authorship is what produces a different topology per phase and a pipeline nobody can run locally; 8.3 records the impact and 9.0 duty 5 reconciles it once. |
 
 ## Verification
 
 - [ ] Plan and phase resolved; `is_final_phase` set from the five signals and shown in the pre-flight summary.
 - [ ] Code implemented subtask by subtask, in scope, with deviations logged.
 - [ ] Lint clean; tests run with coverage; GO/NO-GO gate evaluated (0 failures, coverage threshold, 0 lint errors, build succeeds) or the user explicitly bypassed with the gap documented.
-- [ ] Phase 8 ran all ten steps in order; one-phase invocations ended in the commit-and-push prompt; `in-full` non-final phases used commit-only with no push; `phase-by-phase` used the five-option menu; known-gaps appended to the correct `## v<MAJOR>.<MINOR>.<PATCH>` subsection; session history written to `<version_dir>/development/history/`.
-- [ ] On the final phase: `<version_dir>/development/last-phase-evidence.md` exists with one quoted section per duty, including Goal-vs-codebase review; a missing file or unresolved Goal miss without a recorded gap blocked `/update release`; no tag or push was created automatically.
+- [ ] Phase 8 ran all ten steps in order; 8.3 recorded CI impact without changing a pipeline file; every non-final phase ended commit-only with no push in every mode; known-gaps appended to the correct `## v<MAJOR>.<MINOR>.<PATCH>` subsection; session history written to `<version_dir>/development/history/`.
+- [ ] On the final phase: `<version_dir>/development/last-phase-evidence.md` exists with one quoted section per duty, including Goal-vs-codebase review and Publication and integration; 9.0 duty 5 ran the terminal reconciliation and concluded PASS with observable evidence per field, or recorded the difference as a known gap; 9F pushed exactly once after explicit approval and merged only on green required checks; a missing file, an unresolved Goal miss without a recorded gap, or a non-green integration blocked `/update release`; no tag or push was created automatically.
 - [ ] Driver modes, when used, iterated incomplete phases without dropping gates; a failed quality gate stopped the loop; one-phase invocations were unchanged.
 
 ## Related Skills
@@ -73,7 +75,8 @@ When `is_final_phase` is true, before the release-readiness sub-phases, run the 
 - [[project-refactor]] -- the cleanliness engine (empty-dir/duplicate/orphan/structure) the final-phase gate invokes, alongside [[docs-layout-refactor]] for the docs tree.
 - [[platform-contract-verification]] -- verifies host discovery in the same final-phase pass where cross-installer parity verifies delivery.
 - [[session-history]] -- writes the per-phase session-history file (8.8).
-- [[code-commit-workflow]] -- the commit-message conventions the 8.9 step follows; `/update release` owns the final-phase commit/tag/push.
+- [[code-commit-workflow]] -- the commit-message conventions the 8.9 step follows, and the plan-context mode that makes a phase boundary the commit unit; `/update release` owns the release commit/tag/push.
+- [[cicd-architect]] -- the canonical lifecycle this skill executes; 8.3 records against it and 9.0 duty 5 runs its existing-pipeline comparison.
 
 ---
 

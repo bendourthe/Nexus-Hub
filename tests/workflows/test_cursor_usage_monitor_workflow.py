@@ -61,20 +61,35 @@ def step_named(steps: list[dict[str, Any]], name: str) -> dict[str, Any]:
 
 def test_triggers_are_path_filtered_to_the_extension(workflow: dict[str, Any]) -> None:
     triggers = workflow[ON_KEY]
-    assert set(triggers) == {"push", "pull_request"}
-    for event in ("push", "pull_request"):
-        paths = triggers[event]["paths"]
-        assert f"{EXTENSION_DIR}/**" in paths
-        assert ".github/workflows/cursor-usage-monitor.yml" in paths
-        assert not any(path.startswith("scripts/") for path in paths), (
-            "installers are covered by ci.yml's installer smoke test"
-        )
+    assert set(triggers) == {"pull_request"}
+    paths = triggers["pull_request"]["paths"]
+    assert f"{EXTENSION_DIR}/**" in paths
+    assert ".github/workflows/cursor-usage-monitor.yml" in paths
+    assert not any(path.startswith("scripts/") for path in paths), (
+        "installers are covered by ci.yml's installer smoke test"
+    )
 
 
-def test_push_trigger_is_limited_to_protected_branches(
+def test_the_workflow_does_not_rerun_itself_after_the_merge(
     workflow: dict[str, Any],
 ) -> None:
-    assert sorted(workflow[ON_KEY]["push"]["branches"]) == ["develop", "main"]
+    """v4.0.0 event separation.
+
+    The `push` leg to main and develop was removed. Under a pull-request-only
+    merge policy that push IS the merge commit of the pull request that just
+    ran, so the tree is identical and the second run cannot discover anything
+    the first did not. This workflow produces no required status check, so
+    dropping the trigger cannot strand a context.
+    """
+    assert "push" not in workflow[ON_KEY], (
+        "the duplicate post-merge run is back; see the lifecycle contract section 4"
+    )
+
+
+def test_the_pull_request_trigger_is_limited_to_protected_branches(
+    workflow: dict[str, Any],
+) -> None:
+    assert sorted(workflow[ON_KEY]["pull_request"]["branches"]) == ["develop", "main"]
 
 
 def test_permissions_are_read_only(workflow: dict[str, Any]) -> None:
