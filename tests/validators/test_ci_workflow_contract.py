@@ -342,3 +342,42 @@ def test_the_required_jobs_are_never_gated_by_the_classifier():
         assert "if" not in jobs[name], (
             f"{name} is a required context and must run unconditionally"
         )
+
+
+# ---------------------------------------------------------------------------
+# Repo-wide property: no guard that runs locally is missing from CI.
+#
+# This is the assertion that should have existed before the migration. Seven
+# separate per-guard tests each grepped ci.yml for their own script name, and
+# when the workflow started calling a profile they failed one at a time across
+# three rounds of pushes. One property over the whole set catches the class in
+# a single run, and it keeps catching it for guards added later.
+# ---------------------------------------------------------------------------
+
+
+def test_every_validator_make_validate_runs_is_reachable_from_ci():
+    """A guard that runs locally and not in CI reads as coverage and is not.
+
+    The reverse direction (a guard in CI but not in `make validate`) is
+    deliberately NOT asserted: CI legitimately runs platform-specific work a
+    developer machine cannot, and the profile engine is where that asymmetry is
+    expressed.
+    """
+    import sys
+
+    if str(REPO_ROOT) not in sys.path:
+        sys.path.insert(0, str(REPO_ROOT))
+    from tests.validators._ci_reachability import scripts_reachable_from_ci
+
+    makefile = (REPO_ROOT / "Makefile").read_text(encoding="utf-8")
+    validate_target = makefile.split("\nvalidate:", 1)[1].split("\nlint:", 1)[0]
+    local_guards = set(re.findall(r"python scripts/([\w-]+\.py)", validate_target))
+    assert local_guards, "could not parse any guard out of the validate target"
+
+    reachable = scripts_reachable_from_ci()
+    missing = sorted(local_guards - reachable)
+    assert not missing, (
+        f"these guards run in `make validate` but are unreachable from any CI "
+        f"job, so they guard nothing in CI: {missing}. Add each to the right "
+        "Group in scripts/ci/profiles.py."
+    )

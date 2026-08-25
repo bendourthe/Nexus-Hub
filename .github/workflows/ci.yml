@@ -162,6 +162,17 @@ jobs:
         # One call. The validator list lives in scripts/ci/profiles.py and is
         # the same list `make ci-full` runs. Adding a validator needs no edit
         # here.
+        #
+        # One deliberate omission, restated here because it is an ABSENCE and an
+        # unexplained absence reads as an oversight. The profile runs
+        # verify_model_prompting_profiles.py (the per-model prompting layer's
+        # STRUCTURE) but NOT check_model_prompting_freshness.py (its FRESHNESS).
+        # Freshness is advisory by design: models ship on the vendor's clock, and
+        # gating it would let a model released on a Tuesday wedge every release
+        # until someone ran a research swarm. It runs as an advisory step in
+        # `/update release` instead. Contrast the platform read-contract
+        # freshness gate, which DOES gate because it must be re-verified for the
+        # release being cut.
         run: |
           python scripts/ci/run.py --profile full \
             --only catalog-parse,hygiene,catalog,security,workflows,platform-contracts,docs,version \

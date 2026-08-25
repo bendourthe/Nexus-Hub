@@ -5,6 +5,12 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
+# v4.0.0: `ci.yml` calls scripts/ci/run.py rather than naming each guard in its
+# own `run:` step, so CI reachability is resolved through the profile
+# definitions. See tests/validators/_ci_reachability.py for why greping the
+# YAML would be both wrong and dangerous to "fix".
+from tests.validators._ci_reachability import assert_wired_into_ci
+
 ROOT = Path(__file__).resolve().parents[2]
 UPDATE = ROOT / "catalog" / "commands" / "update.md"
 PLAN = ROOT / "catalog" / "skills" / "workflow" / "implementation-plan" / "SKILL.md"
@@ -50,8 +56,8 @@ def test_planning_contract_requires_real_os_smoke_with_shared_postconditions() -
 
 
 def test_parity_checker_is_wired_into_local_and_remote_validation() -> None:
-    for label, path in (("Makefile", MAKEFILE), ("CI", CI)):
-        assert "python scripts/check_installer_parity.py" in _read(path), label
+    assert "python scripts/check_installer_parity.py" in _read(MAKEFILE), "Makefile"
+    assert_wired_into_ci("check_installer_parity.py")
 
 
 def test_ci_uses_one_shared_smoke_assertion_script() -> None:
