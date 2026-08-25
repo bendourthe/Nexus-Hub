@@ -28,7 +28,8 @@ Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scop
 
       Reply with a number or a scope name.
 
-- `release` runs the focused scopes in order - `docs`, then `gitignore`, then `version`, then `changelog`, then `devlog`, then `refactor` - then reconciles the version's known gaps and creates/updates/optimizes CI/CD, regenerates the supply-chain manifest, cleans up, commits, tags, pushes, and publishes the GitHub Release as one flow. It keeps every confirmation gate: never create a tag, push, or publish a release without explicit user confirmation.
+- `release` first verifies the integration gate (below), then runs the focused scopes in order - `docs`, then `gitignore`, then `version`, then `changelog`, then `devlog`, then `refactor` - then reconciles the version's known gaps, RE-CHECKS CI/CD conformance, regenerates the supply-chain manifest, cleans up, commits, tags, pushes, and publishes the GitHub Release as one flow. It keeps every confirmation gate: never create a tag, push, or publish a release without explicit user confirmation.
+    - The CI/CD step is a CONFORMANCE RE-CHECK, not an authoring pass. The plan's final phase already ran the terminal reconciliation via `[[cicd-architect]]` before it published; by release time the pipeline is reconciled and this step confirms it still is. If it finds unreconciled drift, that is a finding against the plan's final phase, and the fix belongs there rather than in a release-time rewrite of the pipeline.
 
 ## Delegation
 
@@ -42,7 +43,7 @@ Dispatch the resolved scope to the retained skill(s). These targets are skills u
       refactor  -> docs-layout-refactor + project-refactor (per-version docs structure + archive normalization + empty-dir/duplicate/orphan/structure-complexity detectors; see the refactor scope below)
       config    -> update-config (built-in) + config-consistency-checker / nexus-hub doctor (see below)
       commit    -> code-commit-workflow
-      release   -> docs -> gitignore -> version -> changelog -> devlog -> refactor (docs structure + cleanliness) -> known-gaps reconciliation -> CI/CD create/update/optimize -> manifest, then clean up, commit, tag, push, publish GitHub Release (see below)
+      release   -> integration gate (see below) -> docs -> gitignore -> version -> changelog -> devlog -> refactor (docs structure + cleanliness) -> known-gaps reconciliation -> CI/CD conformance re-check -> manifest, then clean up, commit, tag, push, publish GitHub Release (see below)
 
 Pass any remaining arguments through unchanged. Heavy logic stays in the retained skills; this file owns only scope resolution and the release sequencing.
 
@@ -91,6 +92,19 @@ The `version` scope MUST use `scripts/check_version_sync.py` so every version-ca
 After every version-carrying surface is bumped (`version`) and the docs / changelog / refactor scopes have run, regenerate the supply-chain manifest so it reflects the exact bytes being released, then stage it into the release commit (before the tag is cut). Run `python scripts/generate_manifest.py`, which writes `MANIFEST.sha256` at the repo root over the distributed catalog tree (`catalog/`, `templates/`, `scripts/`, `data/`) in `sha256sum -c` text format. This MUST run after the version bump so the manifest hashes the bumped files, and before the commit so the manifest ships inside the release tag (and therefore inside the `~/.nexus-hub/src` tree the install bootstrap materializes). The manifest is what `nexus-hub verify` later diffs the installed catalog against; a release whose manifest is stale or missing leaves `verify` unable to confirm an install. The generator is strictly local (stdlib `hashlib`, no outbound call) and deterministic (sorted by path), so re-running it on an unchanged tree is a no-op diff.
 
 Two properties of the generator worth knowing at release time, both learned from shipped defects. It hashes a tracked file's GIT BLOB bytes passed through the path's `eol` attribute, which is the DISTRIBUTED form, so the manifest no longer depends on the generating host's `core.autocrlf` (v3.16.7 `WN-1`) and correctly covers a path declared `text eol=crlf` (v3.16.8 `BG-2`). Two consequences: **stage before generating**, because tracked-but-unstaged edits are hashed as their staged form (the tool warns and names the dirty covered paths); and **a `.gitattributes` edit is a manifest-affecting change**, since altering an `eol` attribute alters the distributed bytes for every path it covers, so regenerate after one. The artifact round-trip gate below is what proves the result against the real download.
+
+## release scope: the integration gate (the FIRST check, before any version mutation)
+
+`release` starts only from a GREEN, MERGED integration result. Verify all four before touching a single version-carrying file:
+
+1. **The plan branch is integrated.** Its pull request merged into the integration branch. An unmerged branch means the release would ship a tree that was never reviewed as a whole.
+2. **Integration CI is green.** Every required check on that pull request reached success, and the post-merge work (if any) succeeded. A pending check is not a green check.
+3. **The working tree is clean** and the local integration branch matches its remote.
+4. **Release notes are approved from the ACTUAL diff.** Derive them from the real `<last-tag>..<integration-branch>` range and present them for approval before any mutation. Notes written from the plan rather than the diff describe what was intended, not what shipped.
+
+If any of the four fails, STOP and say which one. Do not bump a version to "get the release moving": a version bump is the point after which every subsequent step assumes the release is happening, and unwinding it is more work than waiting.
+
+This ordering is the release-side half of the plan lifecycle. The plan's final phase owns publication and integration; `/update release` owns everything after the merge lands green. Neither reaches into the other.
 
 ## release scope: pre-tag branch assertion (the LAST check before `git tag`)
 

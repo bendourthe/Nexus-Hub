@@ -117,18 +117,20 @@ None.
 | Deferred (DF) | 0 | 0 |
 | Bugs / regressions (BG) | 0 | 0 |
 | Warnings (WN) | 0 | 0 |
-| Missing tests / coverage gaps (MT) | 1 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 1 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
 ### Open Items
 
-#### Missing Tests / Coverage Gaps
+None as of Phase 5.
 
-##### MT-1 - Lifecycle assertions are expected-red until their owning phase lands
+### Resolved Items
+
+##### MT-1 (resolved) - Twenty-three lifecycle assertions were expected-red until their owning phase landed
 
 - **Source phase**: Phase 1 - Canonical lifecycle contract and baseline audit
 - **Plan reference**: `docs/v4/v4.0/plans/v4.0.0-cost-effective-ci-cd.md` (T004)
-- **Reason**: `tests/skills/test_cicd_lifecycle_contract.py` encodes the contract's seven non-negotiable statements in full, but the surfaces that satisfy statements 4 and 6 do not exist until Phases 2 and 5. The plan asked for failing-first tests and explicitly forbade weakening them. Leaving them plainly red would make every intermediate phase commit ship a red suite, which trains the reader to ignore red.
-- **Mitigation in place**: each not-yet-true assertion carries `pytest.mark.xfail(strict=True)` naming its owning phase. Strict xfail is self-closing: when the owning phase lands, the test passes, pytest reports an unexpected pass, and the run FAILS until the marker is removed. The assertion is therefore neither weakened nor silently satisfied.
-- **Marker count by phase**: 23 at the end of Phase 1. Phase 2 removed 9 (four marker lines covering nine parametrized cases), leaving 14, all owned by Phase 5.
-- **Suggested next step**: none. This entry closes when the last xfail marker is removed in Phase 5; Phase 8 verifies that zero `xfail` markers remain in the file.
+- **What happened**: `tests/skills/test_cicd_lifecycle_contract.py` encoded the contract's seven non-negotiable statements in full at Phase 1, but the surfaces satisfying statements 4 and 6 did not exist until Phases 2 and 5. The plan asked for failing-first tests and forbade weakening them; leaving them plainly red would have made every intermediate phase commit ship a red suite, which trains a reader to ignore red.
+- **Mitigation used**: each not-yet-true assertion carried `pytest.mark.xfail(strict=True)` naming its owning phase. Strict xfail is self-closing: when the owning phase lands, the test passes, pytest reports an unexpected pass, and the run FAILS until the marker is removed.
+- **Resolution**: all 23 markers are gone - 9 removed in Phase 2, 14 in Phase 5. Not one assertion was edited to make it pass and none was weakened. The file now reports 54 passed, 0 xfailed.
+- **Worth keeping**: the mechanism earned its keep twice. In Phase 1 a strict xfail XPASSed and caught a WRONG audit row (both CI/CD skills already linked `cicd-architect`, in a Related Skills footer); the assertion was tightened to require a body-level conformance statement rather than deleted. In Phase 2 nine markers came off at once, which was the phase's own completion signal.

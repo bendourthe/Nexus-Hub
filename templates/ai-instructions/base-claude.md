@@ -57,6 +57,16 @@ Full contract: `~/.nexus-hub/style-guides/agent-communication.md`.
 
 - Follow the project's declared branching strategy. Do not commit feature or version work directly to the protected (release) branch -- branch off the integration branch and integrate through it. If the strategy is unstated, infer it (a `develop` branch implies a develop+main model; otherwise assume GitHub Flow) and confirm before branching. See the `git-branching-workflow` skill for the per-model discipline.
 
+## Plan Lifecycle and CI/CD
+
+- Every plan phase verifies locally and ends with ONE local commit.
+- No non-final phase pushes or starts remote CI: a run per phase bills to validate work the plan itself calls incomplete.
+- A phase records its CI impact; it edits pipeline files only when CI/CD is that phase's stated deliverable.
+- The final phase reconciles the pipeline against the canonical contract, then publishes once. That pull request is the plan's first remote validation and tests the merge result.
+- Post-merge work stays minimal; release starts only after the integration result is green and merged.
+
+Skill: `cicd-architect`.
+
 ## Consequential Decisions
 
 Before asking the user to approve or choose anything consequential, give a short plain-language walkthrough. This rule applies when the choice changes security posture, deletes or overwrites data, changes distributed or user-facing behavior, or expands the agreed scope. It does not apply to routine clarification, formatting preferences, or a choice with an obvious default.

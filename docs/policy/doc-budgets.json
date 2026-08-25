@@ -1,11 +1,11 @@
 {
   "_note": "Word ceilings for always-loaded instruction docs. Policy, seeding rule, and the ratchet contract: docs/policy/doc-budgets.md. Ceilings ratchet DOWN; raising one requires justification in the PR. Underscore-prefixed keys are comments, not budgets.",
-  "AGENTS.md": 8150,
-  "CLAUDE.md": 240,
+  "AGENTS.md": 9100,
+  "CLAUDE.md": 270,
   "catalog/style-guides/markdown.md": 1660,
-  "templates/ai-instructions/base-claude.md": 1410,
-  "templates/ai-instructions/base-codex.md": 1020,
-  "templates/ai-instructions/base-cursor.md": 990,
-  "templates/ai-instructions/base-gemini.md": 1010,
-  "templates/ai-instructions/base-opencode.md": 990
+  "templates/ai-instructions/base-claude.md": 1610,
+  "templates/ai-instructions/base-codex.md": 1230,
+  "templates/ai-instructions/base-cursor.md": 1190,
+  "templates/ai-instructions/base-gemini.md": 1220,
+  "templates/ai-instructions/base-opencode.md": 1190
 }

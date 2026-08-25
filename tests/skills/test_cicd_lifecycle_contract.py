@@ -5,15 +5,17 @@ These assertions encode section 13 of
 FAILING-FIRST on purpose: Phase 1 delivers the contract and these tests, and
 Phases 2 through 7 turn each remaining assertion green.
 
-The not-yet-true assertions carry `pytest.mark.xfail(strict=True)` rather than
+The not-yet-true assertions carried `pytest.mark.xfail(strict=True)` rather than
 being weakened or omitted. Strict xfail is self-closing: the moment the phase
 that owns the surface lands, the test starts passing and pytest FAILS on the
 unexpected pass, forcing the marker off. That is the property a plain skip or a
 softened assertion would not give, and it is why the plan's "record the
-expected-red assertions rather than weakening them" instruction is satisfied
+expected-red assertions rather than weakening them" instruction was satisfied
 without leaving the suite red at a phase boundary.
 
-Each xfail names the owning phase in its reason string.
+All 23 markers are now gone: 9 came off in Phase 2 and 14 in Phase 5. Not one
+assertion was edited to make it pass, and none may be reintroduced -- an
+assertion here that cannot pass is a defect in the surface, not in the test.
 """
 
 from __future__ import annotations
@@ -60,6 +62,9 @@ PROFILES = ("fast", "full", "platform", "report", "release")
 
 #: The heading every instruction template carries once the lifecycle rule ships.
 LIFECYCLE_HEADING = "## Plan Lifecycle and CI/CD"
+
+#: Start of the next top-level section, used to bound a block when slicing.
+NEXT_SECTION = "\n## "
 
 
 def _read(path: Path) -> str:
@@ -258,11 +263,10 @@ def test_cicd_integration_does_not_default_to_validating_every_push():
 
 # ---------------------------------------------------------------------------
 # Statement 6 -- the canonical templates carry the shared lifecycle rule.
-# Owned by Phase 5.
+# Landed in Phase 5; markers removed when these turned green.
 # ---------------------------------------------------------------------------
 
 
-@pytest.mark.xfail(strict=True, reason="Phase 5 adds the lifecycle block to the templates")
 @pytest.mark.parametrize("name", LOCKSTEP_TEMPLATES + INHERITED_TEMPLATES)
 def test_every_substantive_template_carries_the_lifecycle_block_exactly_once(name: str):
     text = _read(TEMPLATES / name)
@@ -271,15 +275,110 @@ def test_every_substantive_template_carries_the_lifecycle_block_exactly_once(nam
     )
 
 
-@pytest.mark.xfail(strict=True, reason="Phase 5 aligns branch publication timing")
 def test_git_branching_workflow_defers_publication_to_the_final_phase():
     text = _read(GIT_BRANCHING).lower()
     assert "final phase" in text
     assert "keep phase commits local" in text
 
 
-@pytest.mark.xfail(strict=True, reason="Phase 5 gates /update release on green integration")
 def test_update_release_requires_green_integration_before_version_mutation():
     text = _read(UPDATE_CMD).lower()
     assert "integration" in text and "green" in text
     assert "before any version mutation" in text or "before version mutation" in text
+
+
+# ---------------------------------------------------------------------------
+# Template rollout aggregates (v4.0.0 Phase 5).
+#
+# The parity gate byte-locks only the lockstep five. The other seven
+# substantive templates are outside its roster BY DESIGN, because they
+# legitimately differ elsewhere -- which is exactly the gap recorded as known
+# gap DF-1 for the Communication Contract. The lifecycle block has no valid
+# per-platform variation either, so the same three aggregates apply.
+# ---------------------------------------------------------------------------
+
+SUBSTANTIVE = LOCKSTEP_TEMPLATES + INHERITED_TEMPLATES
+STUBS = (
+    "base-antigravity-10.md",
+    "base-antigravity-20.md",
+    "base-antigravity-cli.md",
+    "base-gemini-cli.md",
+)
+
+
+def _lifecycle_body(name: str) -> str:
+    text = _read(TEMPLATES / name)
+    start = text.index(LIFECYCLE_HEADING)
+    rest = text[start + len(LIFECYCLE_HEADING):]
+    end = rest.find(NEXT_SECTION)
+    return (rest if end == -1 else rest[:end]).strip()
+
+
+def test_template_roster_matches_the_directory():
+    """A new template must be classified, or it silently escapes the rollout."""
+    on_disk = {p.name for p in TEMPLATES.glob("*.md")}
+    classified = set(SUBSTANTIVE) | set(STUBS)
+    assert on_disk == classified, (
+        "templates/ai-instructions/ changed. Classify each new file as "
+        "substantive (it carries behavioral rules) or a surface-note stub, then "
+        f"update this roster. Unclassified: {sorted(on_disk - classified)}; "
+        f"listed but missing: {sorted(classified - on_disk)}"
+    )
+
+
+def test_all_twelve_substantive_templates_are_covered():
+    """Guard the count, so a roster edit cannot quietly shrink coverage."""
+    assert len(SUBSTANTIVE) == 12
+
+
+@pytest.mark.parametrize("name", STUBS)
+def test_surface_note_stubs_do_not_carry_the_lifecycle_block(name: str):
+    assert LIFECYCLE_HEADING not in _read(TEMPLATES / name), (
+        f"{name} is a surface-note stub and must not carry behavioral rules"
+    )
+
+
+def test_lifecycle_block_body_is_identical_across_all_twelve():
+    """Stronger than the parity gate, which reaches only the lockstep five.
+
+    The block has no valid per-platform variation, so any wording drift is a
+    defect rather than a localization.
+    """
+    bodies = {name: _lifecycle_body(name) for name in SUBSTANTIVE}
+    reference_name = SUBSTANTIVE[0]
+    reference = bodies[reference_name]
+    drifted = [n for n, b in bodies.items() if b != reference]
+    assert not drifted, (
+        f"lifecycle block drifted from {reference_name} in: {drifted}. "
+        "The section is identical by intent."
+    )
+
+
+def test_lifecycle_block_points_at_its_owning_skill():
+    """A rule with no pointer leaves the reader nowhere to go for the detail."""
+    for name in SUBSTANTIVE:
+        assert "cicd-architect" in _lifecycle_body(name), f"{name} lost the skill pointer"
+
+
+# ---------------------------------------------------------------------------
+# This repository follows the lifecycle it distributes.
+# ---------------------------------------------------------------------------
+
+
+def test_agents_md_states_the_lifecycle_for_this_repository():
+    text = _read(_ROOT / "AGENTS.md")
+    assert "**Plan lifecycle (v4.0.0).**" in text
+    for claim in (
+        "ONE local commit",
+        "No non-final phase pushes",
+        "pushes ONCE",
+        "reject direct pushes",
+        "ci-cd-lifecycle-contract.md",
+    ):
+        assert claim in text, f"AGENTS.md does not state: {claim!r}"
+
+
+def test_claude_md_quick_reference_surfaces_the_lifecycle():
+    text = _read(_ROOT / "CLAUDE.md")
+    assert "Plan lifecycle" in text
+    assert "one LOCAL commit" in text
