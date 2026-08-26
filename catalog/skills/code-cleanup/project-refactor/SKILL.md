@@ -231,6 +231,12 @@ Never move a file without following these steps in order. Skipping any step risk
    └─ Continue with next file (do not abort entire refactor)
 ```
 
+### .gitignore pre-flight
+
+Before the first move, inspect every destination with `git check-ignore -v <new-path>`. A bare directory pattern such as `test-results/` or `data/` matches that directory name at any depth. Existing files beneath the source stay tracked because git ignores only untracked files, but a rename makes the destination untracked: `git add -A` can then skip the new path while staging the old path as a deletion, producing a clean-looking change that silently drops content.
+
+After staging, pair every deletion with its expected addition or rename. For any staged deletion without a paired addition, run `git check-ignore -v` against the intended new path and stop if it matches. Fix the ignore rule by re-including the directory before its contents; git cannot re-include a file while its parent directory remains excluded.
+
 **Never use a rename/move operation as an atomic action** when operating across directories -- on networked drives or certain filesystems, a move can fail silently. Copy + verify + delete is always safe.
 
 ## Reference Fix Patterns
@@ -335,6 +341,7 @@ CI/CD substitutions ALWAYS require Manual review before applying.
 | "These prior-version release notes still get traffic, leave them" | Archive is reversible. Archived files keep their full content readable under `archive/versions/v<M>/`. Surfacing them in the active tree just adds noise. |
 | "I'll skip CI/CD reference repair, it's just YAML" | Workflow paths fail silently on the next CI run, which is the worst time to discover them. CI/CD refs are HIGH risk on purpose. |
 | "Let me just bulk-archive everything that mentions v0" | Filename match is necessary but not sufficient. Verify the body banner or path segment too -- otherwise you archive files that reference the prior version without being scoped to it. |
+| "The destination files will stay tracked because their sources are tracked" | A move makes each destination untracked before staging, so a bare directory ignore can omit the additions while staging only deletions. This fired three times in one release and would have deleted three validation records; run the `.gitignore` pre-flight and pair every deletion with an addition. |
 
 ## Verification
 
@@ -347,6 +354,7 @@ Run after Phase 7. Each check is binary; FAIL on any item loops back up to 3 tim
 - [ ] **`git status --porcelain` count matches the planned mutations** -- surprise mutations halt with a diff dump for user review.
 - [ ] **Active-version artifacts untouched** -- diff against pre-refactor state for the active version is empty (no incidental edits).
 - [ ] **Manual-review items documented** and handed off to the user.
+- [ ] **No move destination is ignored** -- `git check-ignore -v` is clean for every intended new path, and every staged deletion has a paired addition or an explicit approved deletion disposition.
 - [ ] **Empty directories detected and proposed for prune** (respecting `.gitkeep` / `.keep`); none auto-deleted without the second confirmation.
 - [ ] **Duplicate and redundant files flagged** (byte-identical duplicates plus name/purpose overlaps), callers surfaced; none auto-merged or auto-removed.
 - [ ] **Orphans (zero inbound references) flagged as Ambiguous**, allowlist honored (LICENSE / README / CHANGELOG / entry points never flagged); none auto-archived.

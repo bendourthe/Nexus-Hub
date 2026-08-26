@@ -56,7 +56,7 @@ Reference this skill by name in the prompt: "Using the docs-layout-refactor skil
 6. **Report generation** - write `docs/<next-version>/docs-cleanup-report.md` with the full disposition table.
 7. **Confirmation gate** (propose-only is default) - present the plan and wait for explicit user approval.
 8. **Execute** (only on approval) - create the archive, move Cat 2, delete Cat 1, leave Cat 3 in place with refresh flags.
-9. **Reference repair** - update inbound links so external referrers still resolve.
+9. **Reference repair** - apply the rename-map algorithm from [`references/link-integrity.md`](references/link-integrity.md), then gate the result with [`scripts/link-baseline.py`](scripts/link-baseline.py) or its native Windows sibling [`scripts/link-baseline.ps1`](scripts/link-baseline.ps1).
 10. **Verify** - run the seven binary checks listed below; loop back up to three times on residual breakage.
 
 ## Version-directory resolution
@@ -369,12 +369,9 @@ In this order:
 
 ### Step 9 - Reference repair
 
-Re-run `audit-docs.py refgraph` against the new tree. For each moved file, update inbound references:
+This step is REQUIRED when any file moves. Before the move, run `link-baseline.py baseline --root . --out <baseline>`; after the move and repair, capture `<current>` the same way and run `link-baseline.py diff --before <baseline> --after <current>`. Follow [`references/link-integrity.md`](references/link-integrity.md): derive file renames from `git diff --name-status -M`, resolve links from each source's pre-move location, map the resolved target, and re-express it from the post-move source. Apply a separate directory-prefix map because git detects file renames, not directory links.
 
-- Markdown links: `[label](docs/v0/v0.8/foo.md)` -> `[label](docs/archive/v0/v0.8/foo.md)`.
-- Raw paths in `.json`, `.yaml`, `.toml`, `.sh`, `.ps1`, `.py`: same substitution.
-
-For Cat 1 deletions, refgraph should report zero remaining inbound references. If any persist, surface them in the final report and revert the deletion - never leave dangling references.
+Re-run `audit-docs.py refgraph` against the new tree for non-Markdown inbound paths. For Cat 1 deletions, refgraph must report zero remaining inbound references. If any persist, surface them in the final report and revert the deletion - never leave dangling references.
 
 ### Step 10 - Verify
 
@@ -428,7 +425,7 @@ See [references/archive-layout.md](references/archive-layout.md) for the canonic
 
 Run after step 9. Each check is binary; FAIL on any item loops back up to three times.
 
-- [ ] **No broken internal markdown links** - rerun `refgraph` against the new tree; zero dangling `](docs/...)` targets.
+- [ ] **No newly broken internal Markdown links** - `link-baseline.py diff --before <baseline> --after <current>` reports zero `newly_broken` and exits 0.
 - [ ] **All originals accounted for** - set equality: every file in the pre-move inventory now exists at its destination, was deleted per Cat 1, or is unchanged (Cat 3 / Cat 4).
 - [ ] **`docs/archive/README.md` exists** and lists every archived path.
 - [ ] **No external references to deleted files** - refgraph confirms zero inbound refs from outside `docs/` to any Cat 1 path.
