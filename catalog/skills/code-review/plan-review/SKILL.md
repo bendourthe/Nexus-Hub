@@ -11,6 +11,8 @@ Review a plan, spec, or requirements document the way a strong design review wou
 
 This is the document-stage sibling of [[multi-agent-code-review]]. It is **read-only**: it produces findings about the plan and never modifies it.
 
+Read-only does not mean the findings stop here. `/plan` runs this skill automatically at its post-draft gate and hands the findings to [[design-interview]], which turns every finding needing a human choice into a seeded question. That pairing is why the read-only contract is safe to keep: this skill finds, the interview decides, and the planning step applies.
+
 ## When to Use This Skill
 
 Use when:
@@ -111,6 +113,7 @@ Follow it with a **coverage note**: which lenses ran, which were skipped and why
 
 ## Related Skills
 
+- [[design-interview]] - the interactive counterpart: this skill's findings seed its first round of questions at the `/plan` Step 4.5 gate, turning each finding that needs a human choice into a question with a recommended answer. This skill stays read-only; the interview is what acts on the findings.
 - [[cicd-architect]] - owns the plan-lifecycle and CI/CD policy this skill's lifecycle checks DETECT violations of; it states the rule, this skill finds the breach.
 - [[multi-agent-code-review]] - the same persona-fanout idea applied to a code diff after implementation.
 - [[cross-artifact-analyzer]] - single-agent cross-artifact consistency / coverage / constitution-alignment across a feature directory; use for "do these artifacts agree?".

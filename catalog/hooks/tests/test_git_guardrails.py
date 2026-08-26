@@ -249,3 +249,90 @@ def test_guard_accepts_comma_separated_list(run, repo: Path) -> None:
 def test_no_command_is_allowed(run, repo: Path, payload_cmd: str) -> None:
     """A payload without a usable command must not block non-Bash tools."""
     assert run(payload_cmd, repo).returncode == _ALLOW
+
+
+# ---------------------------------------------------------------------------
+# Written-content precision (heredoc bodies)
+#
+# A command that WRITES a file carries the file's text in the same raw string the
+# patterns match against, so documentation that merely NAMES a destructive
+# command used to read as an attempt to RUN one. That is not hypothetical: it
+# blocked an ordinary docs write, and a guard that blocks documentation is a
+# guard that gets switched off.
+#
+# The dangerous strings below are ASSEMBLED at runtime so this test file does not
+# itself trip a scanner that reads it as text.
+# ---------------------------------------------------------------------------
+
+_RESET = "git " + "reset " + "--hard"
+_CFG_WRITE = "git " + "config core." + "hooksPath=/tmp/x"
+_NL = chr(10)
+_TAB = chr(9)
+
+
+def test_destructive_command_still_blocks(run, repo):
+    """Regression floor: the real invocation must keep blocking."""
+    assert run(_RESET + " HEAD~1", repo).returncode == _BLOCK
+
+
+def test_pattern_inside_heredoc_body_is_allowed(run, repo):
+    """Prose naming a destructive command is a write, not an invocation."""
+    cmd = "cat > doc.md <<'EOF'" + _NL + "Never run " + _RESET + " here." + _NL + "EOF"
+    assert run(cmd, repo).returncode == _ALLOW
+
+
+def test_pattern_inside_heredoc_body_still_warns(run, repo):
+    """Allowing the write must not make the signal disappear.
+
+    This is what keeps the change in the safe direction: the blocking scan
+    matches less, but nothing is silently dropped.
+    """
+    cmd = "cat > doc.md <<'EOF'" + _NL + "Never run " + _RESET + " here." + _NL + "EOF"
+    proc = run(cmd, repo)
+    assert proc.returncode == _ALLOW
+    assert "written file content" in proc.stderr
+
+
+def test_real_command_after_a_heredoc_still_blocks(run, repo):
+    """Closing a heredoc must resume scanning, or the body becomes an evasion."""
+    cmd = "cat > d.md <<'EOF'" + _NL + "notes" + _NL + "EOF" + _NL + _RESET
+    assert run(cmd, repo).returncode == _BLOCK
+
+
+@pytest.mark.parametrize(
+    "opener,closer,indent",
+    [
+        ("<<'EOF'", "EOF", ""),
+        ('<<"END"', "END", ""),
+        ("<<-EOF", _TAB + "EOF", _TAB),
+        ("<<EOF", "EOF", ""),
+    ],
+    ids=["single-quoted", "double-quoted", "dash-indented", "bare"],
+)
+def test_heredoc_delimiter_forms(run, repo, opener, closer, indent):
+    """All four documented opener forms must strip their body."""
+    cmd = "cat > c.md " + opener + _NL + indent + _RESET + _NL + closer
+    assert run(cmd, repo).returncode == _ALLOW
+
+
+def test_config_write_inside_heredoc_is_allowed(run, repo):
+    """The execution-indirection guard reads the same stripped scan."""
+    cmd = "cat > n.md <<'EOF'" + _NL + _CFG_WRITE + _NL + "EOF"
+    assert run(cmd, repo).returncode == _ALLOW
+
+
+def test_config_write_as_a_command_still_blocks(run, repo):
+    assert run(_CFG_WRITE, repo).returncode == _BLOCK
+
+
+def test_multiline_payload_is_decoded_faithfully(run, repo):
+    """Guards the jq-absent fallback path in the .sh hook.
+
+    Without JSON un-escaping, a multi-line command arrives as ONE line carrying a
+    literal backslash-n, so every line-oriented check sees a single long line
+    rather than a script. The .ps1 sibling never had this bug because
+    ConvertFrom-Json decodes escapes, which is exactly why this assertion is
+    parametrized over both implementations: it must hold with and without jq.
+    """
+    cmd = "echo one" + _NL + "echo two" + _NL + _RESET
+    assert run(cmd, repo).returncode == _BLOCK
