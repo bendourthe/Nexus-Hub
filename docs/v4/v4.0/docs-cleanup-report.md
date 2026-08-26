@@ -35,3 +35,18 @@ No duplicate, orphaned, stale, or misplaced documentation was created. The bundl
 ### Result
 
 The admission test classifies an unrecognized living subtree without adding its name to policy. Signal 9's algorithm exists once in `references/link-integrity.md`; both consuming skills link to it. The `docs-layout-refactor` body is 474 lines, below the 500-line target and 800-line hard cap. No files moved and no new cleanup finding was created.
+
+## Phase 3 - Breaking rename of the prescription
+
+### Canonical and legacy layout artifacts
+
+| Path | Category | Disposition |
+|---|---|---|
+| `docs/decisions/proposed/tooling/2026-08-20-docs-tree-organised-by-lifespan.md` | Proposed cross-release decision record | Keep outside release-scoped documentation; the decision remains relevant after v4.0 closes. |
+| `catalog/skills/code-cleanup/docs-layout-refactor/scripts/audit-docs.py` | Canonicalization and inventory helper | Keep; it recognizes releases, v-bucket, flat, and versions layouts and emits the exact layout per record. |
+| `tests/skills/test_docs_lifespan_phase3.py` | Durable migration contract | Keep; it guards the decision, canonical paths, generated registry, and intentional-legacy labeling rule. |
+| `catalog/skills/*/*/evals/trigger-cases.json` for the 15 newly covered consumers | Generated routing fixture inputs | Keep with their owning skills; the whole-catalog runner consumes them directly. |
+
+### Result
+
+The canonical prescription is now `docs/releases/` plus `docs/archives/`, while every previous shape remains an explicit legacy input. The migration fixture moved `docs/v3/v3.17/` to `docs/releases/v3/v3.17/` and the Phase 1 link diff reported zero newly broken links. No repository documentation was physically moved in this phase; dogfood migration remains Phase 6. The task-converter shell helper named by the plan is absent from the live catalog, so there was no file to edit; its owning SKILL.md and registry surfaces were updated and tested.

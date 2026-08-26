@@ -1,13 +1,15 @@
 ---
 name: org-standards-authoring
-description: "Guide an organization through collecting, budgeting, structuring, validating, and distributing a Nexus-Hub organization knowledge bundle. Use whenever the user says \"connect our company standards\", \"organization coding standards\", \"internal conventions\", \"company style guide\", \"org knowledge\", or \"team standards for the AI\". SKIP: single-project constitution authoring (use project-constitution), platform permission policy (use agent-access-policy), or writing the standards content itself from scratch (use writing-editing or technical-writer)."
-summary_l0: "Guide organizations from existing standards to a validated, distributable knowledge bundle"
-overview_l1: "Guides an organization through inventorying existing standards, placing a concise always-on core under 200 lines, separating per-language rules from on-demand references, authoring org.json, validating the bundle, and distributing it from a git repository or shared directory. It reuses project-constitution vocabulary for binding scope, Applies to statements, and conflict resolution, while keeping organization content outside the company-neutral Nexus-Hub catalog. It also explains when to escalate advisory projections to documented platform-native controls without claiming cross-platform enforcement."
+description: "Guide an organization through collecting, budgeting, structuring, validating, and distributing a Nexus-Hub organization knowledge bundle. Use whenever the user says \"connect our company standards\", \"organization coding standards\", \"internal conventions\", \"company style guide\", \"org knowledge\", or \"team standards for the AI\". SKIP: single-project constitution authoring (use project-constitution), platform permission policy (use agent-access-policy), or writing the standards content itself from scratch (use writing-editing or technical-writer). Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/."
+summary_l0: "Build distributable organization standards with canonical release records"
+overview_l1: "Guides an organization through inventorying existing standards, placing a concise always-on core under 200 lines, separating per-language rules from on-demand references, authoring org.json, validating the bundle, and distributing it from a git repository or shared directory. It reuses project-constitution vocabulary for binding scope, Applies to statements, and conflict resolution, while keeping organization content outside the company-neutral Nexus-Hub catalog. It also explains when to escalate advisory projections to documented platform-native controls without claiming cross-platform enforcement. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/."
 ---
 
 # Organization Standards Authoring
 
 Turn an organization's existing coding, safety, delivery, testing, naming, documentation, and branching standards into a validated Nexus-Hub organization knowledge bundle. The workflow organizes content the organization already owns; it does not invent policy or treat ordinary agent instructions as enforcement.
+
+The bundle itself is living organization guidance and stays outside release buckets. Version-bound validation or distribution records use `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/`; closed snapshots use `docs/archives/`.
 
 ## When to Use This Skill
 

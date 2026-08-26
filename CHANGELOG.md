@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Breaking documentation-tree prescription.** Version-bound active documentation now lives under `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/`; frozen release snapshots live under the structurally identical `docs/archives/v<MAJOR>/v<MAJOR>.<MINOR>/` tree. Existing `docs/v<MAJOR>/`, `docs/archive/`, flat-semver, and `docs/versions/` layouts remain recognized as legacy inputs and can be migrated with `python catalog/skills/code-cleanup/docs-layout-refactor/scripts/audit-docs.py canonicalize-layout --root docs`; the Phase 1 link-baseline diff proves that the rename introduces no new broken relative links. The standard is distributed to all 16 registered installer targets: Aider, Antigravity 1.0, Antigravity 2.0, Claude Code, Codex, GitHub Copilot, Cursor, Gemini, Gemini CLI, Hermes, Kimi Code CLI, Nexus AI, OpenClaw, OpenCode, Qwen Code, and Windsurf.
 - **`docs/todos.md` refreshed to the active branch and plan.** The dashboard had accreted 269 lines of completed per-version sections and stale `[IN PROGRESS]` markers from already-released minors. It now describes only current work, with pointers to the per-version known-gaps files and the changelog for history, plus a stated replace-rather-than-append rule. Resolves v3.21 DF-2.
 
 ## [3.21.0] - 2026-08-25

@@ -36,9 +36,9 @@
       "MEDIUM": 272,
       "HIGH": 5
     },
-    "total_lines": 130300,
-    "total_tokens_estimate": 674131,
-    "average_lines_per_skill": 479,
+    "total_lines": 135856,
+    "total_tokens_estimate": 739006,
+    "average_lines_per_skill": 418,
     "languages_supported": [
       "Python",
       "JavaScript",
@@ -395,10 +395,10 @@
     {
       "name": "architecture-decision-record",
       "title": "architecture-decision-record",
-      "description": "\"Produce a single Architecture Decision Record (ADR) capturing one architecturally-significant decision, its context, the options considered, the chosen option, and the consequences. Make sure to use this skill whenever the user mentions ADR, architecture decision record, architecture decision, record this decision, document this decision, MADR, Nygard ADR, decision log, design decision writeup, or asks to capture the rationale behind a choice with long-term architectural impact. SKIP: full architecture design from scratch (use `architecture-design`), general technical documentation (use `technical-documentation`), API contract design narrower than architecture-level (use `api-design`), product or feature requirements (use `business-analyst` or `product-manager`).\"",
-      "long_description": "Specialized skill for producing one Architecture Decision Record per file. Documents context, decision drivers, at least two alternatives with rejection rationale, the chosen option, and two-sided consequences (positive AND negative). Supports both MADR and Nygard templates and enforces a status lifecycle (Proposed -> Accepted -> Deprecated -> Superseded) with reciprocal Supersedes links between replacement records.",
-      "summary_l0": "\"Author one architecturally-significant decision record with context, options, decision, status, and consequences\"",
-      "overview_l1": "\"This skill produces one Architecture Decision Record -- a short, durable document that captures a single architecturally-significant decision and its rationale. It supports both MADR (Markdown Any Decision Records) and Nygard templates, helps the user pick between them based on team conventions, and enforces a status lifecycle (Proposed -> Accepted -> Deprecated -> Superseded). The output documents the context that forced the decision, at least two alternatives with rejection rationale, the chosen option, the consequences (positive AND negative), the risks, and metadata (date, author, ID). It is for decisions you want a future engineer to be able to look up six months from now -- not for routine implementation choices. Trigger phrases: ADR, architecture decision record, architecture decision, MADR, Nygard ADR, decision log.\"",
+      "description": "\"Produce a single Architecture Decision Record (ADR) capturing one architecturally-significant decision, its context, the options considered, the chosen option, and the consequences. Make sure to use this skill whenever the user mentions ADR, architecture decision record, architecture decision, record this decision, document this decision, MADR, Nygard ADR, decision log, design decision writeup, or asks to capture the rationale behind a choice with long-term architectural impact. SKIP: full architecture design from scratch (use `architecture-design`), general technical documentation (use `technical-documentation`), API contract design narrower than architecture-level (use `api-design`), product or feature requirements (use `business-analyst` or `product-manager`). Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.\"",
+      "long_description": "Produce a single Architecture Decision Record (ADR) that captures one architecturally-significant decision. The ADR is a short, immutable-once-accepted document that future engineers can read to understand why a system looks the way it does.",
+      "summary_l0": "\"Author append-only decisions outside release-scoped documentation\"",
+      "overview_l1": "\"This skill produces one Architecture Decision Record -- a short, durable document that captures a single architecturally-significant decision and its rationale. It supports both MADR (Markdown Any Decision Records) and Nygard templates, helps the user pick between them based on team conventions, and enforces a status lifecycle (Proposed -> Accepted -> Deprecated -> Superseded). The output documents the context that forced the decision, at least two alternatives with rejection rationale, the chosen option, the consequences (positive AND negative), the risks, and metadata (date, author, ID). It is for decisions you want a future engineer to be able to look up six months from now -- not for routine implementation choices. Trigger phrases: ADR, architecture decision record, architecture decision, MADR, Nygard ADR, decision log. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.\"",
       "version": "1.0.0",
       "author": "Benjamin Dourthe",
       "category": "architecture",
@@ -412,9 +412,9 @@
       "path": "catalog/skills/architecture/architecture-decision-record/",
       "file": "catalog/skills/architecture/architecture-decision-record/SKILL.md",
       "size": {
-        "lines": 235,
-        "characters": 20980,
-        "tokens_estimate": 5245
+        "lines": 241,
+        "characters": 22093,
+        "tokens_estimate": 3374
       },
       "downloads": 0,
       "status": "production",
@@ -1087,11 +1087,11 @@
     {
       "name": "docs-layout-refactor",
       "title": "docs-layout-refactor",
-      "description": "Audit and reorganize a project's docs/ folder by applying a lifespan admission test, categorizing every file (Cat 1 delete / Cat 2 archive / Cat 3 stale-flag / Cat 4 active), proposing a version-first layout with a docs/v<MAJOR>/v<MAJOR>.<MINOR>/ active tree and docs/archive/v<MAJOR>/v<MAJOR>.<MINOR>/ archive subtree, and applying changes only after explicit user confirmation. Use whenever the user says \"clean up docs\", \"reorganize docs\", \"archive old docs\", \"docs folder is messy\", \"audit docs\", \"refactor docs structure\", \"the docs are cluttered\", \"review docs before release\", \"classify docs by lifespan\", \"archive prior major version\", or before a version bump. SKIP for content accuracy fixes (use update-documentation), repo-root / scripts / CI/CD reorganization (use project-refactor), or CHANGELOG generation (use generate-changelog).",
-      "long_description": "Walk the docs/ tree, answer one lifespan admission question per document, apply nine weighted heuristics, and classify each file as Cat 1 / Cat 2 / Cat 3 / Cat 4. The recognized subtree table is a lookup fast path, not policy; unknown names return to the admission test. Signal 9 reports frozen-bucket documents edited after release close without moving them automatically. Propose-only by default; applies changes only after explicit user confirmation. Ships an audit-docs.py helper for stdlib-only inventory, reference graphs, and lifespan-contradiction detection.",
+      "description": "Audit and reorganize a project's docs/ folder by applying a lifespan admission test, categorizing every file (Cat 1 delete / Cat 2 archive / Cat 3 stale-flag / Cat 4 active), proposing a version-first layout with a docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/ active tree and docs/archives/v<MAJOR>/v<MAJOR>.<MINOR>/ archive subtree, and applying changes only after explicit user confirmation. Use whenever the user says \"clean up docs\", \"reorganize docs\", \"archive old docs\", \"docs folder is messy\", \"audit docs\", \"refactor docs structure\", \"the docs are cluttered\", \"review docs before release\", \"classify docs by lifespan\", \"archive prior major version\", or before a version bump. SKIP for content accuracy fixes (use update-documentation), repo-root / scripts / CI/CD reorganization (use project-refactor), or CHANGELOG generation (use generate-changelog).",
+      "long_description": "Systematically audit a project's `docs/` folder, classify every file into one of four explicit dispositions, propose a version-first reorganization with a dedicated `docs/archives/` subtree, and apply changes only after the user confirms the full plan at a confirmation gate.",
       "summary_l0": "\"Audit, categorize, and reorganize docs/ folders with a propose-then-apply workflow and a versioned archive subtree\"",
-      "overview_l1": "\"Walk the docs/ tree, answer one lifespan admission question per document, then apply nine weighted heuristics to classify each file as Cat 1 (delete), Cat 2 (archive), Cat 3 (stale but load-bearing), or Cat 4 (active). Propose a version-first reorganization with topical subdirs mirroring the active layout, plus a docs/archive/v<MAJOR>/v<MAJOR>.<MINOR>/<topic>/ subtree for Cat 2 items. Default mode is propose-only: no files move until the user explicitly confirms at the gate. Ships an audit-docs.py helper for inventory, reference graphs, and lifespan-contradiction detection. Trigger phrases: clean up docs, reorganize docs, archive old docs, docs folder is messy, audit docs, refactor docs structure, classify docs by lifespan, docs cleanup, prune docs.\"",
-      "version": "1.4.0",
+      "overview_l1": "\"Walk the docs/ tree, answer one lifespan admission question per document, then apply nine weighted heuristics to classify each file as Cat 1 (delete), Cat 2 (archive), Cat 3 (stale but load-bearing), or Cat 4 (active). Propose a version-first reorganization with topical subdirs mirroring the active layout, plus a docs/archives/v<MAJOR>/v<MAJOR>.<MINOR>/<topic>/ subtree for Cat 2 items. Default mode is propose-only: no files move until the user explicitly confirms at the gate. Ships an audit-docs.py helper for inventory, reference graphs, and lifespan-contradiction detection. Trigger phrases: clean up docs, reorganize docs, archive old docs, docs folder is messy, audit docs, refactor docs structure, classify docs by lifespan, docs cleanup, prune docs.\"",
+      "version": "2.0.0",
       "author": "Benjamin Dourthe",
       "category": "code-cleanup",
       "language": "Multi-language",
@@ -1105,19 +1105,16 @@
       "priority": "MEDIUM",
       "based_on": "",
       "tools_required": [
-        "Bash",
         "Edit",
-        "Glob",
         "Grep",
-        "Read",
         "Write"
       ],
       "path": "catalog/skills/code-cleanup/docs-layout-refactor/",
       "file": "catalog/skills/code-cleanup/docs-layout-refactor/SKILL.md",
       "size": {
-        "lines": 474,
-        "characters": 38967,
-        "tokens_estimate": 9742
+        "lines": 481,
+        "characters": 38977,
+        "tokens_estimate": 5592
       },
       "downloads": 0,
       "status": "production",
@@ -1131,11 +1128,11 @@
     {
       "name": "project-refactor",
       "title": "project-refactor",
-      "description": "Audit and refactor a repository's project artifacts (root files, scripts, configs, CI/CD, source layout) to follow standard conventions. Moves misplaced files, fixes all references, archives outdated artifacts tied to prior major versions, and verifies nothing breaks. Use whenever the user says \"refactor project layout\", \"refactor repo layout\", \"clean up root directory\", \"too many files in root\", \"organize project structure\", \"apply layout rules\", \"move files to correct directories\", \"root is cluttered\", \"layout conventions\", \"project structure refactor\", \"archive prior version artifacts\", \"clean up scripts folder\", \"organize CI/CD configs\", \"find empty directories\", \"remove duplicate files\", \"find orphaned files\", \"flatten overcomplicated structure\", \"consolidate single-child directories\", or before a major release. SKIP for docs/ tree reorganization (use docs-layout-refactor), content accuracy fixes (use update-documentation), or CHANGELOG generation (use generate-changelog).",
-      "long_description": "Systematically reorganize a repository's project artifacts (everything outside the docs/ tree) to follow declared conventions, with full impact analysis and reference repair before any file is moved. Detects prior-major-version artifacts (release notes, deploy checklists, version-scoped CI workflows, snapshot bundles) and archives them under archive/versions/v<MAJOR>/v<SEMVER>/ when --archive-prior-versions is set.",
-      "summary_l0": "\"Refactor project artifacts and detect empty/duplicate/orphan/overcomplicated structure, archiving prior-version files with reference repair\"",
-      "overview_l1": "\"This skill systematically reorganizes a repository's project artifacts (everything outside the docs/ tree) to follow declared conventions, with impact analysis and reference repair before any file is moved. Scope includes root files, scripts, configs, CI/CD pipelines, and top-level source layout. It also detects prior-major-version artifacts (release notes, deploy checklists, generated reports, snapshot bundles, version-scoped CI workflows) and archives them under archive/versions/v<MAJOR>/v<SEMVER>/ when --archive-prior-versions is set. It also flags empty directories (respecting .gitkeep), duplicate/redundant files, unreferenced orphans, and overcomplicated structure for prune or consolidation, propose-only. Use it when cleaning up a cluttered project root, applying a standard layout ruleset to an existing project, migrating a repo after adopting new conventions, preparing a project for public release, archiving artifacts from a prior major version, or auditing whether a repo matches its declared layout rules. Default mode is propose-only: no files move until the user explicitly confirms at the gate. Trigger phrases: refactor project layout, clean up root directory, organize project structure, apply layout rules, archive prior version artifacts, organize CI/CD configs.\"",
-      "version": "2.0.0",
+      "description": "Audit and refactor repository project artifacts (root files, scripts, configs, CI/CD, and source layout) to follow declared conventions. Move misplaced files, repair references, archive outdated prior-version artifacts, and verify behavior. Use when the user says \"refactor project layout\", \"clean up root directory\", \"organize project structure\", \"apply layout rules\", \"archive prior version artifacts\", \"clean up scripts\", \"organize CI/CD configs\", \"find empty directories\", \"remove duplicate files\", \"find orphaned files\", or \"consolidate directories\". Version-bound project documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/ and closed snapshots use docs/archives/. SKIP for docs/ tree reorganization (use docs-layout-refactor), content accuracy fixes (use update-documentation), or CHANGELOG generation (use generate-changelog).",
+      "long_description": "Systematically reorganize a repository's project artifacts (everything outside the `docs/` tree) to follow declared conventions, with full impact analysis and reference repair before any file is moved. Also archives prior-major-version artifacts when invoked with `--archive-prior-versions`.",
+      "summary_l0": "\"Refactor project artifacts with detection, archive placement, and reference repair\"",
+      "overview_l1": "\"This skill systematically reorganizes a repository's project artifacts (everything outside the docs/ tree) to follow declared conventions, with impact analysis and reference repair before any file is moved. Scope includes root files, scripts, configs, CI/CD pipelines, and top-level source layout. It also detects prior-major-version artifacts (release notes, deploy checklists, generated reports, snapshot bundles, version-scoped CI workflows) and archives them under archive/versions/v<MAJOR>/v<SEMVER>/ when --archive-prior-versions is set. It also flags empty directories (respecting .gitkeep), duplicate/redundant files, unreferenced orphans, and overcomplicated structure for prune or consolidation, propose-only. Use it when cleaning up a cluttered project root, applying a standard layout ruleset to an existing project, migrating a repo after adopting new conventions, preparing a project for public release, archiving artifacts from a prior major version, or auditing whether a repo matches its declared layout rules. Default mode is propose-only: no files move until the user explicitly confirms at the gate. Trigger phrases: refactor project layout, clean up root directory, organize project structure, apply layout rules, archive prior version artifacts, organize CI/CD configs. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.\"",
+      "version": "1.0.0",
       "author": "Benjamin Dourthe",
       "category": "code-cleanup",
       "language": "Multi-language",
@@ -1159,9 +1156,9 @@
       "path": "catalog/skills/code-cleanup/project-refactor/",
       "file": "catalog/skills/code-cleanup/project-refactor/SKILL.md",
       "size": {
-        "lines": 320,
-        "characters": 18000,
-        "tokens_estimate": 4500
+        "lines": 382,
+        "characters": 23555,
+        "tokens_estimate": 3249
       },
       "downloads": 0,
       "status": "production",
@@ -4477,10 +4474,10 @@
     {
       "name": "setup-project",
       "title": "setup-project",
-      "description": "Bootstrap or repair a project's governance surfaces - git version control, a vX.Y.Z version, a develop+main branch model, the per-version docs tree, and real README / CHANGELOG / DEVLOG - detecting what already exists and creating ONLY what is missing (idempotent, safe on an inherited repo). This is the generic cross-language delegate behind /setup project. Use whenever the user says \"set up this project\", \"bootstrap the repo\", \"initialize the project\", \"scaffold this directory\", \"get this repo release-ready\", \"add version control\", \"create the develop branch\", \"set up the docs structure\", or when /describe or /review reports that setup is needed. SKIP - language-specific scaffolding with a package manifest and test runner (use the matching init-<language>-project skill), updating docs on an already-governed project (use /update docs), or describing a project without changing it (use /describe).",
-      "long_description": "Bring a new or inherited directory up to Nexus-Hub's governance baseline: version control, a version number, a branch model, a per-version docs tree, and the three baseline docs (README, CHANGELOG, DEVLOG). This is the generic, cross-language delegate behind /setup project.",
-      "summary_l0": "\"Detect and bootstrap a project's git, version, branch model, docs tree, and README/CHANGELOG/DEVLOG\"",
-      "overview_l1": "\"The generic, language-agnostic delegate behind /setup project. It brings any new or inherited directory up to Nexus-Hub's governance baseline by detecting each surface first and creating only what is missing, so it is safe to re-run: (a) git version control - init and make an initial commit if the directory is not a repo; (b) a vX.Y.Z version - detect from tags/CHANGELOG/manifest, else set v0.1.0 and record it on the canonical version surface; (c) a develop+main branch model - create a develop integration branch when only a default branch exists, delegating the discipline to git-branching-workflow; (d) the per-version docs tree docs/v<MAJOR>/v<MAJOR>.<MINOR>/ with plans/ and comparisons/ per the docs-layout-refactor scheme; (e) real README, CHANGELOG, and DEVLOG with actual content, not placeholders. Trigger phrases: set up this project, bootstrap the repo, initialize the project, scaffold this directory, create the develop branch, set up the docs structure.\"",
+      "description": "Bootstrap or repair a project's governance surfaces - git version control, a vX.Y.Z version, a develop+main branch model, the per-version docs tree, and real README / CHANGELOG / DEVLOG - detecting what already exists and creating ONLY what is missing (idempotent, safe on an inherited repo). This is the generic cross-language delegate behind /setup project. Use whenever the user says \"set up this project\", \"bootstrap the repo\", \"initialize the project\", \"scaffold this directory\", \"get this repo release-ready\", \"add version control\", \"create the develop branch\", \"set up the docs structure\", or when /describe or /review reports that setup is needed. SKIP - language-specific scaffolding with a package manifest and test runner (use the matching init-<language>-project skill), updating docs on an already-governed project (use /update docs), or describing a project without changing it (use /describe). Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.",
+      "long_description": "Bring a new or inherited directory up to Nexus-Hub's governance baseline: version control, a version number, a branch model, a per-version docs tree, and the three baseline docs (README, CHANGELOG, DEVLOG). This is the generic, cross-language delegate behind `/setup project`. Every step is detection...",
+      "summary_l0": "\"Bootstrap git, versioning, branches, release docs, and core project documentation\"",
+      "overview_l1": "\"The generic, language-agnostic delegate behind /setup project. It brings any new or inherited directory up to Nexus-Hub's governance baseline by detecting each surface first and creating only what is missing, so it is safe to re-run: (a) git version control - init and make an initial commit if the directory is not a repo; (b) a vX.Y.Z version - detect from tags/CHANGELOG/manifest, else set v0.1.0 and record it on the canonical version surface; (c) a develop+main branch model - create a develop integration branch when only a default branch exists, delegating the discipline to git-branching-workflow; (d) the per-version docs tree docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/ with plans/ and comparisons/ per the docs-layout-refactor scheme; (e) real README, CHANGELOG, and DEVLOG with actual content, not placeholders. Trigger phrases: set up this project, bootstrap the repo, initialize the project, scaffold this directory, create the develop branch, set up the docs structure. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.\"",
       "version": "1.0.0",
       "author": "Benjamin Dourthe",
       "category": "project-setup",
@@ -4488,13 +4485,15 @@
       "tags": [],
       "priority": "MEDIUM",
       "based_on": "",
-      "tools_required": [],
+      "tools_required": [
+        "Write"
+      ],
       "path": "catalog/skills/project-setup/setup-project/",
       "file": "catalog/skills/project-setup/setup-project/SKILL.md",
       "size": {
-        "lines": 96,
-        "characters": 10474,
-        "tokens_estimate": 1360
+        "lines": 101,
+        "characters": 11798,
+        "tokens_estimate": 1707
       },
       "downloads": 0,
       "status": "production",
@@ -4508,10 +4507,10 @@
     {
       "name": "analyze-codebase",
       "title": "analyze-codebase",
-      "description": "Produce a clear, structured description of any project directory (software or not) - project type, layout, key modules, dependencies, architecture with diagrams, entry points, testing, and a fast-start onboarding guide - plus a read-only \"Project health\" block that reports whether git, a version, a branch model, and the baseline docs are in place and offers a /setup handoff when they are not. This is the generic delegate behind /describe. Use whenever the user says \"describe this project\", \"analyze the codebase\", \"what is this repo\", \"map this codebase\", \"help me understand this directory\", \"give me an overview\", \"onboard me to this code\", or \"is this repo set up properly\". Read-only by default - it reports and offers, it never mutates. SKIP - explaining a single file or function (answer directly), generating a README (use /update docs), or actually performing the setup it recommends (use /setup).",
-      "long_description": "Produce a clear, well-structured description of a project directory so someone who did not write it can understand and be productive in it fast. Works on any directory - a codebase, a documents folder, mixed content - and adapts its sections to what it finds. This is the generic delegate behind /describe.",
-      "summary_l0": "\"Describe any project's structure, deps, architecture, and health with a /setup handoff offer\"",
-      "overview_l1": "\"The generic delegate behind /describe. It produces a structured, twelve-section description of any directory - software or not - covering project type and purpose, directory layout, key modules, dependencies and external services, architecture and data flow (with Mermaid diagrams), entry points and how to run, configuration, testing and quality, a fast-start onboarding guide, and open questions. Immediately after the Executive Summary it emits a read-only Project health block: a binary checklist of whether git is initialized, a version is set (and which), a develop+main branch model is present, and the baseline README/CHANGELOG/DEVLOG and per-version docs tree exist - and when any check fails it offers to hand off to /setup rather than fixing anything itself. The full scope writes docs/<version>/analysis.md; focused scopes (structure/deps/architecture/onboarding) emit just their section. Trigger phrases: describe this project, analyze the codebase, what is this repo, map this codebase, onboard me to this code, is this repo set up properly.\"",
+      "description": "Produce a clear, structured description of any project directory (software or not) - project type, layout, key modules, dependencies, architecture with diagrams, entry points, testing, and a fast-start onboarding guide - plus a read-only \"Project health\" block that reports whether git, a version, a branch model, and the baseline docs are in place and offers a /setup handoff when they are not. This is the generic delegate behind /describe. Use whenever the user says \"describe this project\", \"analyze the codebase\", \"what is this repo\", \"map this codebase\", \"help me understand this directory\", \"give me an overview\", \"onboard me to this code\", or \"is this repo set up properly\". Read-only by default - it reports and offers, it never mutates. SKIP - explaining a single file or function (answer directly), generating a README (use /update docs), or actually performing the setup it recommends (use /setup). Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.",
+      "long_description": "Produce a clear, well-structured description of a project directory so someone who did not write it can understand and be productive in it fast. Works on any directory - a codebase, a documents folder, mixed content - and adapts its sections to what it finds. This is the generic delegate behind `/de...",
+      "summary_l0": "\"Describe project architecture and report canonical release-docs health\"",
+      "overview_l1": "\"The generic delegate behind /describe. It produces a structured, twelve-section description of any directory - software or not - covering project type and purpose, directory layout, key modules, dependencies and external services, architecture and data flow (with Mermaid diagrams), entry points and how to run, configuration, testing and quality, a fast-start onboarding guide, and open questions. Immediately after the Executive Summary it emits a read-only Project health block: a binary checklist of whether git is initialized, a version is set (and which), a develop+main branch model is present, and the baseline README/CHANGELOG/DEVLOG and per-version docs tree exist - and when any check fails it offers to hand off to /setup rather than fixing anything itself. The full scope writes docs/<version>/analysis.md; focused scopes (structure/deps/architecture/onboarding) emit just their section. Trigger phrases: describe this project, analyze the codebase, what is this repo, map this codebase, onboard me to this code, is this repo set up properly. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.\"",
       "version": "1.0.0",
       "author": "Benjamin Dourthe",
       "category": "developer-experience",
@@ -4519,13 +4518,15 @@
       "tags": [],
       "priority": "MEDIUM",
       "based_on": "",
-      "tools_required": [],
+      "tools_required": [
+        "Read"
+      ],
       "path": "catalog/skills/developer-experience/analyze-codebase/",
       "file": "catalog/skills/developer-experience/analyze-codebase/SKILL.md",
       "size": {
-        "lines": 155,
-        "characters": 10323,
-        "tokens_estimate": 1340
+        "lines": 156,
+        "characters": 10544,
+        "tokens_estimate": 1617
       },
       "downloads": 0,
       "status": "production",
@@ -5837,10 +5838,10 @@
     {
       "name": "code-commit-workflow",
       "title": "code-commit-workflow",
-      "description": "Implement proper Git commit workflow with conventional commits, atomic changes, and meaningful messages. Use when committing changes, preparing pull requests, or establishing team commit standards.",
+      "description": "Implement proper Git commit workflow with conventional commits, atomic changes, and meaningful messages. Use when committing changes, preparing pull requests, or establishing team commit standards. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.",
       "long_description": "Implement a professional Git commit workflow with conventional commits, atomic changes, and meaningful commit messages that enhance project history and collaboration.",
-      "summary_l0": "\"Implement Git commit workflows with conventional commits and atomic changes\"",
-      "overview_l1": "\"This skill implements proper Git commit workflow with conventional commits, atomic changes, and meaningful messages. Use it when committing changes, preparing pull requests, or establishing team commit standards. Key capabilities include conventional commit message formatting, atomic change grouping, meaningful commit message writing, interactive staging guidance, commit history organization, pull request preparation, branch strategy implementation, and team commit standard enforcement. The expected output is well-structured Git commits with conventional format, atomic scope, and meaningful messages that enable clear project history. Trigger phrases: commit workflow, conventional commits, commit message, atomic commit, pull request, Git workflow, commit standards, meaningful commits.\"",
+      "summary_l0": "\"Create atomic conventional commits with canonical documentation paths\"",
+      "overview_l1": "\"This skill implements proper Git commit workflow with conventional commits, atomic changes, and meaningful messages. Use it when committing changes, preparing pull requests, or establishing team commit standards. Key capabilities include conventional commit message formatting, atomic change grouping, meaningful commit message writing, interactive staging guidance, commit history organization, pull request preparation, branch strategy implementation, and team commit standard enforcement. The expected output is well-structured Git commits with conventional format, atomic scope, and meaningful messages that enable clear project history. Trigger phrases: commit workflow, conventional commits, commit message, atomic commit, pull request, Git workflow, commit standards, meaningful commits. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.\"",
       "version": "1.0.0",
       "author": "Benjamin Dourthe",
       "category": "workflow",
@@ -5854,9 +5855,9 @@
       "path": "catalog/skills/workflow/code-commit-workflow/",
       "file": "catalog/skills/workflow/code-commit-workflow/SKILL.md",
       "size": {
-        "lines": 402,
-        "characters": 9777,
-        "tokens_estimate": 1495
+        "lines": 403,
+        "characters": 19106,
+        "tokens_estimate": 2964
       },
       "downloads": 0,
       "status": "production",
@@ -5967,10 +5968,10 @@
     {
       "name": "cross-project-comparison",
       "title": "cross-project-comparison",
-      "description": "Compare the current project with an external knowledge source (Git repo, web article, or local path) to produce a structured gap analysis and adoption plan",
+      "description": "Compare the current project with an external knowledge source (Git repo, web article, or local path) to produce a structured gap analysis and adoption plan Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.",
       "long_description": "Compare the current project with an external knowledge source to identify gaps, strengths, and adoption opportunities. The source can be a Git repository, a web article or blog post, or a local directory. Produces a prioritized plan for what to bring from the source into the current project.",
-      "summary_l0": "\"Compare projects with external sources to produce gap analysis and adoption plans\"",
-      "overview_l1": "\"This skill compares the current project with an external knowledge source (Git repo, web article, or local path) to produce a structured gap analysis and adoption plan. Use it when benchmarking your project against industry standards, evaluating open-source alternatives, identifying adoption opportunities from articles or repos, planning migrations based on external references, or producing structured comparison reports. Key capabilities include multi-source comparison (Git repos, web articles, local paths), structured gap analysis generation, adoption plan creation with prioritized recommendations, pattern and practice extraction from external sources, compatibility assessment, and migration effort estimation. The expected output is a structured gap analysis report with identified differences, adoption recommendations, and a prioritized implementation plan. Trigger phrases: compare projects, gap analysis, benchmarking, cross-project, adoption plan, compare with repo, compare with article, project comparison.\"",
+      "summary_l0": "\"Compare projects and place adoption reports under their target release\"",
+      "overview_l1": "\"This skill compares the current project with an external knowledge source (Git repo, web article, or local path) to produce a structured gap analysis and adoption plan. Use it when benchmarking your project against industry standards, evaluating open-source alternatives, identifying adoption opportunities from articles or repos, planning migrations based on external references, or producing structured comparison reports. Key capabilities include multi-source comparison (Git repos, web articles, local paths), structured gap analysis generation, adoption plan creation with prioritized recommendations, pattern and practice extraction from external sources, compatibility assessment, and migration effort estimation. The expected output is a structured gap analysis report with identified differences, adoption recommendations, and a prioritized implementation plan. Trigger phrases: compare projects, gap analysis, benchmarking, cross-project, adoption plan, compare with repo, compare with article, project comparison. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.\"",
       "version": "1.2.0",
       "author": "Benjamin Dourthe",
       "category": "workflow",
@@ -5998,9 +5999,9 @@
       "path": "catalog/skills/workflow/cross-project-comparison/",
       "file": "catalog/skills/workflow/cross-project-comparison/SKILL.md",
       "size": {
-        "lines": 171,
-        "characters": 11349,
-        "tokens_estimate": 1620
+        "lines": 254,
+        "characters": 21445,
+        "tokens_estimate": 3108
       },
       "downloads": 0,
       "status": "production",
@@ -6047,11 +6048,11 @@
     {
       "name": "devlog-generation",
       "title": "devlog-generation",
-      "description": "Maintain docs/DEVLOG.md as a bounded per-release INDEX - one line per release with a date, version, one-sentence summary, and links to that release's plan, development/history/ directory, and known-gaps file. Use this skill whenever the user says \"update the devlog\", \"sync the devlog\", \"add a release to the devlog\", \"regenerate the devlog\", \"regenerate the development log\", \"the devlog is out of date\", \"the devlog index is missing a version\", or when /update runs at devlog or release scope. It never writes narrative prose into DEVLOG; the rich per-phase story goes to the per-version development/history/ file instead. SKIP - a single working session's story (use session-history); the authoritative record of what changed in a release (use release-notes-writer); the reasoning behind a design choice (use architecture-decision-record); unfinished or carried-over items (use known-gaps-tracker).",
-      "long_description": "`docs/DEVLOG.md` is a navigation index, not a log: a short header plus one line per release, carrying the date, version, a one-sentence summary, and links to that release's plan, development/history/ directory, and known-gaps file. This skill maintains that index and routes any narrative it finds to the per-version history file instead.",
-      "summary_l0": "\"Maintain DEVLOG.md as a bounded one-line-per-release index, not a narrative log\"",
-      "overview_l1": "\"This skill owns docs/DEVLOG.md, which is an INDEX and not a log: a short header plus one line per release, newest first, carrying the release date, version, a one-sentence summary, and repo-relative links to that release's plan file, development/history/ directory, and known-gaps file. Use it when the user asks to update, sync, generate, or regenerate the devlog, and when /update runs at devlog or release scope. Its discovery logic is unchanged (git tags, CHANGELOG headings, the per-version docs tree) but its destination differs: the index gets one line, and any narrative found is routed to the per-version development/history/ file via session-history. It updates an existing version line in place rather than duplicating it, omits links whose targets do not exist, and never restates CHANGELOG. Trigger phrases: devlog, development log, DEVLOG, update the devlog, sync the devlog, devlog index, add a release to the devlog.\"",
-      "version": "2.0.0",
+      "description": "Maintain docs/DEVLOG.md as a bounded per-release INDEX - one line per release with a date, version, one-sentence summary, and links to that release's plan, development/history/ directory, and known-gaps file. Use this skill whenever the user says \"update the devlog\", \"sync the devlog\", \"add a release to the devlog\", \"regenerate the devlog\", \"regenerate the development log\", \"the devlog is out of date\", \"the devlog index is missing a version\", or when /update runs at devlog or release scope. It never writes narrative prose into DEVLOG; the rich per-phase story goes to the per-version development/history/ file instead. SKIP - a single working session's story (use session-history); the authoritative record of what changed in a release (use release-notes-writer); the reasoning behind a design choice (use architecture-decision-record); unfinished or carried-over items (use known-gaps-tracker). Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.",
+      "long_description": "`docs/DEVLOG.md` is a navigation index, not a log. It answers one question at a glance: what has this project released, and where is each release's detail? It never answers \"what changed\" (that is `CHANGELOG.md`) or \"how did this phase go\" (that is the per-version `development/history/` file).",
+      "summary_l0": "\"Maintain a release index without writing evidence into living subtrees\"",
+      "overview_l1": "\"This skill owns docs/DEVLOG.md, which is an INDEX and not a log: a short header plus one line per release, newest first, carrying the release date, version, a one-sentence summary, and repo-relative links to that release's plan file, development/history/ directory, and known-gaps file. Use it when the user asks to update, sync, generate, or regenerate the devlog, and when /update runs at devlog or release scope. Its discovery logic is unchanged (git tags, CHANGELOG headings, the per-version docs tree) but its destination differs: the index gets one line, and any narrative found is routed to the per-version development/history/ file via session-history. It updates an existing version line in place rather than duplicating it, omits links whose targets do not exist, and never restates CHANGELOG. Trigger phrases: devlog, development log, DEVLOG, update the devlog, sync the devlog, devlog index, add a release to the devlog. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.\"",
+      "version": "1.0.0",
       "author": "Benjamin Dourthe",
       "category": "workflow",
       "language": "Multi-language",
@@ -6059,14 +6060,16 @@
       "priority": "MEDIUM",
       "based_on": "",
       "tools_required": [
-        "Read"
+        "Grep",
+        "Read",
+        "Write"
       ],
       "path": "catalog/skills/workflow/devlog-generation/",
       "file": "catalog/skills/workflow/devlog-generation/SKILL.md",
       "size": {
-        "lines": 257,
-        "characters": 11430,
-        "tokens_estimate": 1572
+        "lines": 193,
+        "characters": 15872,
+        "tokens_estimate": 2468
       },
       "downloads": 0,
       "status": "production",
@@ -6080,10 +6083,10 @@
     {
       "name": "documentation-consistency",
       "title": "documentation-consistency",
-      "description": "Verify documentation is up-to-date and consistent across all files. Check for broken links, outdated references, deprecated content, and mismatched information. Use when auditing documentation, checking for stale content, verifying links, or ensuring docs match current codebase state.",
+      "description": "Verify documentation is up-to-date and consistent across all files. Check for broken links, outdated references, deprecated content, and mismatched information. Use when auditing documentation, checking for stale content, verifying links, ensuring docs match current codebase state, running a link audit, detecting cross-file mismatches, or reviewing deprecated documentation. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.",
       "long_description": "Systematically audit all documentation to ensure consistency, accuracy, and alignment with the current state of the codebase.",
-      "summary_l0": "\"Verify documentation consistency with link checking, staleness detection, and sync audits\"",
-      "overview_l1": "\"This skill verifies documentation is up-to-date and consistent across all files, checking for broken links, outdated references, deprecated content, and mismatched information. Use it when auditing documentation, checking for stale content, verifying links, or ensuring docs match current codebase state. Key capabilities include broken link detection (internal and external), outdated reference identification, deprecated content flagging, cross-file information consistency checking, code-to-documentation synchronization verification, version number consistency checking, and documentation freshness scoring. The expected output is a documentation consistency report with broken links, outdated references, mismatches, and recommended fixes. Trigger phrases: documentation audit, broken links, stale docs, outdated documentation, doc consistency, verify documentation, documentation sync, docs match code.\"",
+      "summary_l0": "\"Verify documentation links, lifespan placement, staleness, and cross-file consistency\"",
+      "overview_l1": "\"This skill verifies documentation is up-to-date and consistent across all files, checking for broken links, outdated references, deprecated content, and mismatched information. Use it when auditing documentation, checking for stale content, verifying links, or ensuring docs match current codebase state. Key capabilities include broken link detection (internal and external), outdated reference identification, deprecated content flagging, cross-file information consistency checking, code-to-documentation synchronization verification, version number consistency checking, and documentation freshness scoring. The expected output is a documentation consistency report with broken links, outdated references, mismatches, and recommended fixes. Trigger phrases: documentation audit, broken links, stale docs, outdated documentation, doc consistency, verify documentation, documentation sync, docs match code. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.\"",
       "version": "1.0.0",
       "author": "Benjamin Dourthe",
       "category": "workflow",
@@ -6095,9 +6098,9 @@
       "path": "catalog/skills/workflow/documentation-consistency/",
       "file": "catalog/skills/workflow/documentation-consistency/SKILL.md",
       "size": {
-        "lines": 358,
-        "characters": 11109,
-        "tokens_estimate": 1495
+        "lines": 429,
+        "characters": 17175,
+        "tokens_estimate": 2292
       },
       "downloads": 0,
       "status": "production",
@@ -6247,10 +6250,10 @@
     {
       "name": "session-history",
       "title": "session-history",
-      "description": "Generate a comprehensive, standalone session history document at the end of a development session capturing chronological steps, troubleshooting, assumptions, testing results, and next steps. Use when finishing a coding session, documenting a development phase, or creating handoff context for the next session.",
+      "description": "Generate a comprehensive, standalone session history document at the end of a development session capturing chronological steps, troubleshooting, assumptions, testing results, decisions, error timelines, command outcomes, verification evidence, unresolved blockers, and next steps. Use when finishing a coding session, documenting a development phase, creating handoff context for the next session, writing a troubleshooting narrative, or recording a chronological work log. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.",
       "long_description": "Generate a comprehensive, standalone session history document that captures everything accomplished in a development session: what was done, what was troubleshot, what assumptions were made, what was tested, and what remains.",
-      "summary_l0": "\"Generate standalone session history documents capturing steps, troubleshooting, and next steps\"",
-      "overview_l1": "\"This skill generates comprehensive session history documents at the end of a development session or retrospectively from archived sources. Use it when finishing a coding session, documenting a completed phase, creating handoff context for the next session, or reconstructing history from git and past session files. Key capabilities: conversation context mining, git delta analysis, plan cross-referencing with TODO tracking, troubleshooting trails with actual error messages, assumption tracking, verification gate tables, plan discrepancy detection, and next-steps generation. It operates in session mode (mines the live conversation) and retrospective mode (reconstructs from archived session files, git, DEVLOG, and plans). Output is a standalone Markdown file with 9 sections: Starting State, Chronological Steps, Verification Gate, Known Issues, Plan Discrepancies, Assumptions Made, Testing Summary, TODO Tracker, and Summary and Next Steps. Trigger phrases: session history, document session, session recap, end of session, session summary, session log, generate session history.\"",
+      "summary_l0": "\"Write standalone session histories only in release-scoped evidence trees\"",
+      "overview_l1": "\"This skill generates comprehensive session history documents at the end of a development session or retrospectively from archived sources. Use it when finishing a coding session, documenting a completed phase, creating handoff context for the next session, or reconstructing history from git and past session files. Key capabilities: conversation context mining, git delta analysis, plan cross-referencing with TODO tracking, troubleshooting trails with actual error messages, assumption tracking, verification gate tables, plan discrepancy detection, and next-steps generation. It operates in session mode (mines the live conversation) and retrospective mode (reconstructs from archived session files, git, DEVLOG, and plans). Output is a standalone Markdown file with 9 sections: Starting State, Chronological Steps, Verification Gate, Known Issues, Plan Discrepancies, Assumptions Made, Testing Summary, TODO Tracker, and Summary and Next Steps. Trigger phrases: session history, document session, session recap, end of session, session summary, session log, generate session history. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.\"",
       "version": "1.0.0",
       "author": "Benjamin Dourthe",
       "category": "workflow",
@@ -6260,14 +6263,15 @@
       "based_on": "",
       "tools_required": [
         "Bash",
-        "Task"
+        "Task",
+        "Write"
       ],
       "path": "catalog/skills/workflow/session-history/",
       "file": "catalog/skills/workflow/session-history/SKILL.md",
       "size": {
-        "lines": 280,
-        "characters": 15232,
-        "tokens_estimate": 2216
+        "lines": 330,
+        "characters": 20464,
+        "tokens_estimate": 2991
       },
       "downloads": 0,
       "status": "production",
@@ -6385,10 +6389,10 @@
     {
       "name": "spec-driven-development",
       "title": "spec-driven-development",
-      "description": "\"Writes a structured technical specification before any code is written. Use when starting a new project, feature, or significant change and no written specification exists -- especially when requirements are ambiguous, the change touches multiple files, or architectural decisions must be made. Trigger phrases: write a spec, create a specification, spec this out, define the requirements, spec-driven, write the spec before coding.\"",
-      "long_description": "Produces a written technical specification before implementation begins, following a four-phase gated workflow: Specify, Plan, Tasks, Implement. Covers assumption surfacing, success criteria formulation, project structure definition, and task breakdown.",
-      "summary_l0": "\"Write a structured specification before coding to prevent rework from misunderstood requirements\"",
-      "overview_l1": "\"This skill produces a written technical specification before implementation begins, following a four-phase gated workflow: Specify → Plan → Tasks → Implement. Use it when requirements are ambiguous, the change spans multiple files or modules, or you are making an architectural decision. Key capabilities include assumption surfacing, success criteria formulation, scope bounding through explicit non-goals, spec depth chosen by blast radius, and task breakdown with per-task acceptance criteria. The spec is committed to the repo as a living document -- updated as decisions change, referenced in PRs, and never discarded after implementation begins. Without this skill, implementation risks solving the wrong problem or building an architecture that does not match the team's intent. Trigger phrases: write a spec, spec this out, create a specification, define requirements, spec before coding, what should I build.\"",
+      "description": "\"Writes a structured technical specification before any code is written. Use when starting a new project, feature, or significant change and no written specification exists -- especially when requirements are ambiguous, the change touches multiple files, or architectural decisions must be made. Trigger phrases: write a spec, create a specification, spec this out, define the requirements, spec-driven, write the spec before coding. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.\"",
+      "long_description": "Write a structured specification before writing any code. The spec is the shared source of truth between you and the human engineer -- it defines what we're building, why, and how we'll know it's done. Code without a spec is guessing.",
+      "summary_l0": "\"Write specifications before code and place release-bound artifacts canonically\"",
+      "overview_l1": "\"This skill produces a written technical specification before implementation begins, following a four-phase gated workflow: Specify → Plan → Tasks → Implement. Use it when requirements are ambiguous, the change spans multiple files or modules, or you are making an architectural decision. Key capabilities include assumption surfacing, success criteria formulation, scope bounding through explicit non-goals, spec depth chosen by blast radius, and task breakdown with per-task acceptance criteria. The spec is committed to the repo as a living document -- updated as decisions change, referenced in PRs, and never discarded after implementation begins. Without this skill, implementation risks solving the wrong problem or building an architecture that does not match the team's intent. Trigger phrases: write a spec, spec this out, create a specification, define requirements, spec before coding, what should I build. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.\"",
       "version": "1.0.0",
       "author": "Benjamin Dourthe",
       "category": "developer-experience",
@@ -6402,14 +6406,15 @@
       "based_on": "addyosmani/agent-skills (MIT)",
       "tools_required": [
         "Read",
+        "Task",
         "Write"
       ],
       "path": "catalog/skills/developer-experience/spec-driven-development/",
       "file": "catalog/skills/developer-experience/spec-driven-development/SKILL.md",
       "size": {
-        "lines": 160,
-        "characters": 7100,
-        "tokens_estimate": 710
+        "lines": 333,
+        "characters": 33791,
+        "tokens_estimate": 5299
       },
       "downloads": 0,
       "status": "production",
@@ -6865,10 +6870,10 @@
     {
       "name": "known-gaps-tracker",
       "title": "known-gaps-tracker",
-      "description": "Maintain docs/v<MAJOR>/v<MAJOR>.<MINOR>/known-gaps.md - a per-minor-version log (patch releases append their own subsection) of items that were not implemented, deferred, buggy, suppressed, or left without coverage at the end of each phase. /implement-phase appends, /wrap-up-session sweeps and finalizes, /generate-plan ingests open items into the next plan.",
-      "long_description": "Per-version, append-only tracker that records gaps surfaced during /implement-phase (skipped subtasks, intentionally deferred work, bugs found but not fixed, suppressed warnings, coverage shortfalls, and quality gates the user opted to bypass). /wrap-up-session sweeps the live conversation for additional gaps and finalizes the file at version bump. /generate-plan reads the immediately prior version's known-gaps.md plus any older still-in-progress files and seeds the discovery interview so unfinished work is automatically pulled forward. Complements the dev-progress-tracker (forward-looking todos.md) and feeds into /run-deep-review's known-gaps aggregation.",
-      "summary_l0": "\"Track per-version unfinished work, deferred items, bugs, and coverage gaps for the next plan\"",
-      "overview_l1": "\"This skill maintains docs/v<MAJOR>/v<MAJOR>.<MINOR>/known-gaps.md as a per-minor-version, append-only log of items that did not reach a clean state by the end of a phase: subtasks not implemented, work intentionally deferred, bugs found but not fixed, warnings suppressed, missing tests or coverage gaps, and quality gates the user opted to bypass. Because patch releases share their minor directory, the file is multi-release aware - each patch appends its own subsection rather than overwriting a shared file. /implement-phase appends to it after each phase; /wrap-up-session sweeps the live conversation for any uncaptured gaps and finalizes the file when the version is bumped; /generate-plan reads the immediately prior version's known-gaps.md (and any older still-in-progress files) to seed the discovery interview for the next plan, so unfinished work is automatically pulled forward. Trigger phrases: known gaps, deferred work, carryover, unfinished items, what was left over, prior version gaps, docs/<version>/known-gaps.md.\"",
+      "description": "Maintain docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/known-gaps.md - a per-minor-version unfinished-work register (patch releases append their own subsection) for items that were not implemented, deferred, buggy, suppressed, or left without coverage at the end of each phase. Use for known gaps, deferred work, unresolved bugs, missing coverage, phase leftovers, and next-plan carry-forward. /implement-phase appends, /wrap-up-session sweeps and finalizes, /generate-plan ingests open items into the next plan. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.",
+      "long_description": "Maintain `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/known-gaps.md` as a per-minor-version, append-only record of work that did not reach a clean state by the end of each phase, and pull open items forward into the next version's plan. Patch releases share the minor directory, so the file is multi-rele...",
+      "summary_l0": "\"Track release-scoped unfinished work with derived counts for the next plan\"",
+      "overview_l1": "\"This skill maintains docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/known-gaps.md as a per-minor-version, append-only log of items that did not reach a clean state by the end of a phase: subtasks not implemented, work intentionally deferred, bugs found but not fixed, warnings suppressed, missing tests or coverage gaps, and quality gates the user opted to bypass. Because patch releases share their minor directory, the file is multi-release aware - each patch appends its own subsection rather than overwriting a shared file. /implement-phase appends to it after each phase; /wrap-up-session sweeps the live conversation for any uncaptured gaps and finalizes the file when the version is bumped; /generate-plan reads the immediately prior version's known-gaps.md (and any older still-in-progress files) to seed the discovery interview for the next plan, so unfinished work is automatically pulled forward. Trigger phrases: known gaps, deferred work, carryover, unfinished items, what was left over, prior version gaps, docs/<version>/known-gaps.md. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.\"",
       "version": "1.0.0",
       "author": "Benjamin Dourthe",
       "category": "workflow",
@@ -6885,16 +6890,14 @@
       "priority": "MEDIUM",
       "based_on": "",
       "tools_required": [
-        "Read",
-        "Write",
-        "Edit",
-        "Glob"
+        "Write"
       ],
       "path": "catalog/skills/workflow/known-gaps-tracker/",
       "file": "catalog/skills/workflow/known-gaps-tracker/SKILL.md",
       "size": {
-        "lines": 150,
-        "tokens_estimate": 1100
+        "lines": 204,
+        "characters": 18855,
+        "tokens_estimate": 2783
       },
       "downloads": 0,
       "status": "production",
@@ -7173,10 +7176,10 @@
     {
       "name": "skill-eval-loop",
       "title": "skill-eval-loop",
-      "description": "Drive a structured evaluation iteration loop for any Nexus-Hub skill - capture user intent, write test prompts, run the skill against a baseline (no-skill) control, grade outputs against assertions, aggregate to a benchmark, view in a browser, collect feedback, and improve the skill across iterations until pass-rate stabilizes. Use whenever the user wants to evaluate a skill, benchmark a skill, A/B test a skill, optimize a skill description, run an eval set, score a skill against test prompts, iterate on a skill, or \"make this skill actually work\" - even if they don't say the word \"eval\". Use when locking a regression set, setting per-slice eval floors, refusing to lower a threshold to hide a regression, or versioning an eval corpus. Covers workspace layout, eval-prompt authoring, with-skill / without-skill paired runs, grading via assertions, browser-based human review, feedback capture, and the description-optimizer integration. SKIP one-off prompt tests with no comparison, ad-hoc skill drafting that does not need iteration, or simple unit-test runs against deterministic code.",
-      "long_description": "Closed-loop workflow for evolving any Nexus-Hub skill from draft to data-confirmed: each iteration spawns paired with_skill / without_skill runs against an eval set, grades outputs via assertion checks, aggregates to a benchmark, presents the runs side-by-side in a browser viewer, collects feedback, and feeds the next iteration via five named improvement heuristics (pushy descriptions, explain-the-why, repeated-work elimination, negative-space coverage, assertion calibration). CLI-agnostic by design (claude / gemini / codex / opencode); the parity invariant is enforced by a parametrized pytest. Bundled with three repo-level scripts (aggregate_benchmark.py, skill_eval_viewer.py, optimize_skill_description.py) registered in both installers, plus three sub-agent prompts (grader, comparator, analyzer) under agents/.",
-      "summary_l0": "\"Iterate on any skill via paired with-skill/baseline runs, assertion-graded outputs, and a browser-reviewed benchmark loop\"",
-      "overview_l1": "\"This skill drives a closed-loop evaluation workflow for any Nexus-Hub skill. Each iteration writes 2-3 realistic test prompts to evals/evals.json, spawns paired runs (with-skill vs baseline), captures outputs + tokens + duration, grades each output against per-eval assertions, and aggregates a benchmark. A browser viewer presents the runs side-by-side and collects structured feedback. The next iteration consumes the feedback, applies improvement heuristics (pushy descriptions, explain-the-why, repeated-work elimination), and re-runs - producing a measurable pass-rate trajectory rather than a vibes-based revision history. The loop is CLI-agnostic by design: a single dispatcher routes to claude / gemini / codex / opencode with a parity invariant enforced by pytest. Trigger phrases: evaluate a skill, benchmark a skill, A/B test a skill, optimize a skill description, run eval set, score a skill, iterate on a skill, skill regression, prompt eval, with-skill vs without-skill, eval harness, eval workspace, paired runs, eval iteration.\"",
+      "description": "Drive a structured evaluation iteration loop for any Nexus-Hub skill - capture user intent, write test prompts, run the skill against a baseline (no-skill) control, grade outputs against assertions, aggregate to a benchmark, view in a browser, collect feedback, and improve the skill across iterations until pass-rate stabilizes. Use whenever the user wants to evaluate a skill, benchmark a skill, A/B test a skill, optimize a skill description, run an eval set, score a skill against test prompts, iterate on a skill, or \"make this skill actually work\" - even if they don't say the word \"eval\". Use when locking a regression set, setting per-slice eval floors, refusing to lower a threshold to hide a regression, or versioning an eval corpus. Covers workspace layout, eval-prompt authoring, with-skill / without-skill paired runs, grading via assertions, browser-based human review, feedback capture, and the description-optimizer integration. SKIP one-off prompt tests with no comparison, ad-hoc skill drafting that does not need iteration, or simple unit-test runs against deterministic code. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.",
+      "long_description": "A closed-loop workflow for evolving any Nexus-Hub skill from \"draft I think is good\" to \"skill that measurably outperforms baseline on a stable held-out test set\". Each iteration produces a workspace under `<skill-name>-workspace/iteration-N/` with paired runs, assertion-graded outputs, an aggregate...",
+      "summary_l0": "\"Iterate on skills and place promoted evaluation records canonically\"",
+      "overview_l1": "\"This skill drives a closed-loop evaluation workflow for any Nexus-Hub skill. Each iteration writes 2-3 realistic test prompts to evals/evals.json, spawns paired runs (with-skill vs baseline), captures outputs + tokens + duration, grades each output against per-eval assertions, and aggregates a benchmark. A browser viewer presents the runs side-by-side and collects structured feedback. The next iteration consumes the feedback, applies improvement heuristics (pushy descriptions, explain-the-why, repeated-work elimination), and re-runs - producing a measurable pass-rate trajectory rather than a vibes-based revision history. The loop is CLI-agnostic by design: a single dispatcher routes to claude / gemini / codex / opencode with a parity invariant enforced by pytest. Trigger phrases: evaluate a skill, benchmark a skill, A/B test a skill, optimize a skill description, run eval set, score a skill, iterate on a skill, skill regression, prompt eval, with-skill vs without-skill, eval harness, eval workspace, paired runs, eval iteration. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.\"",
       "version": "1.0.0",
       "author": "Benjamin Dourthe",
       "category": "workflow",
@@ -7196,15 +7199,14 @@
       "based_on": "",
       "tools_required": [
         "Read",
-        "Write",
-        "Edit",
-        "Bash"
+        "Write"
       ],
       "path": "catalog/skills/workflow/skill-eval-loop/",
       "file": "catalog/skills/workflow/skill-eval-loop/SKILL.md",
       "size": {
-        "lines": 197,
-        "tokens_estimate": 4400
+        "lines": 323,
+        "characters": 34299,
+        "tokens_estimate": 4972
       },
       "downloads": 0,
       "status": "production",
@@ -7571,10 +7573,10 @@
     {
       "name": "org-standards-authoring",
       "title": "org-standards-authoring",
-      "description": "\"Guide an organization through collecting, budgeting, structuring, validating, and distributing a Nexus-Hub organization knowledge bundle. Use whenever the user says \\\"connect our company standards\\\", \\\"organization coding standards\\\", \\\"internal conventions\\\", \\\"company style guide\\\", \\\"org knowledge\\\", or \\\"team standards for the AI\\\". SKIP: single-project constitution authoring (use project-constitution), platform permission policy (use agent-access-policy), or writing the standards content itself from scratch (use writing-editing or technical-writer).\"",
-      "long_description": "Guides an organization from an inventory of existing coding, safety, CI/CD, testing, naming, documentation, and branching standards to a validated Nexus-Hub organization knowledge bundle. Classifies content into an always-on core under 200 lines, per-language or path-scoped rules, and on-demand references; authors org.json against configs/org-bundle.schema.json; reuses project-constitution vocabulary for binding scope, Applies to statements, and conflict resolution; validates and connects the bundle through nexus-hub org connect; and recommends a version-controlled git repository or governed shared directory for distribution. Includes descriptive escalation guidance for managed CLAUDE.md, Cursor Team Rules, and GitHub Copilot organization instructions without claiming Nexus-Hub enforcement.",
-      "summary_l0": "\"Guide organizations from existing standards to a validated, distributable knowledge bundle\"",
-      "overview_l1": "\"Guides an organization through inventorying existing standards, placing a concise always-on core under 200 lines, separating per-language rules from on-demand references, authoring org.json, validating the bundle, and distributing it from a git repository or shared directory. It reuses project-constitution vocabulary for binding scope, Applies to statements, and conflict resolution, while keeping organization content outside the company-neutral Nexus-Hub catalog. It also explains when to escalate advisory projections to documented platform-native controls without claiming cross-platform enforcement.\"",
+      "description": "\"Guide an organization through collecting, budgeting, structuring, validating, and distributing a Nexus-Hub organization knowledge bundle. Use whenever the user says \\\"connect our company standards\\\", \\\"organization coding standards\\\", \\\"internal conventions\\\", \\\"company style guide\\\", \\\"org knowledge\\\", or \\\"team standards for the AI\\\". SKIP: single-project constitution authoring (use project-constitution), platform permission policy (use agent-access-policy), or writing the standards content itself from scratch (use writing-editing or technical-writer). Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.\"",
+      "long_description": "Turn an organization's existing coding, safety, delivery, testing, naming, documentation, and branching standards into a validated Nexus-Hub organization knowledge bundle. The workflow organizes content the organization already owns; it does not invent policy or treat ordinary agent instructions as ...",
+      "summary_l0": "\"Build distributable organization standards with canonical release records\"",
+      "overview_l1": "\"Guides an organization through inventorying existing standards, placing a concise always-on core under 200 lines, separating per-language rules from on-demand references, authoring org.json, validating the bundle, and distributing it from a git repository or shared directory. It reuses project-constitution vocabulary for binding scope, Applies to statements, and conflict resolution, while keeping organization content outside the company-neutral Nexus-Hub catalog. It also explains when to escalate advisory projections to documented platform-native controls without claiming cross-platform enforcement. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.\"",
       "version": "1.0.0",
       "author": "Benjamin Dourthe",
       "category": "workflow",
@@ -7592,17 +7594,14 @@
       "priority": "MEDIUM",
       "based_on": "",
       "tools_required": [
-        "Read",
-        "Write",
-        "Edit",
-        "Glob",
-        "Bash"
+        "Read"
       ],
       "path": "catalog/skills/workflow/org-standards-authoring/",
       "file": "catalog/skills/workflow/org-standards-authoring/SKILL.md",
       "size": {
-        "lines": 134,
-        "tokens_estimate": 2100
+        "lines": 137,
+        "characters": 11205,
+        "tokens_estimate": 1467
       },
       "downloads": 0,
       "status": "production",
@@ -7787,10 +7786,10 @@
     {
       "name": "tasks-to-issues",
       "title": "tasks-to-issues",
-      "description": "\"Convert the strict task checklist in a feature directory's tasks.md (or plan.md) into linked GitHub issues via the local gh CLI. Drives /tasks-to-issues end-to-end - parses every `- [ ] T### [P?] [US?] file_path` line, builds a per-task issue payload with labels (`nexus-hub`, `spec-driven-task`, `parallel`, `user-story-N`), and either dry-runs the gh invocations or executes them sequentially after user confirmation. Use whenever the user wants to convert tasks to issues, create GitHub issues from a plan, file issues from tasks.md, dry-run the conversion to preview gh invocations, fan a plan out to issue tracking, or drive sprint planning from a generated plan. Trigger phrases include 'tasks to issues', 'convert tasks to issues', 'create issues from plan', 'file issues from tasks.md', 'issue tracking from plan', 'gh issue create from tasks', 'fan out tasks to GitHub', 'sprint from plan'. Cross-links to `[[implementation-plan]]`, `[[cross-artifact-analyzer]]`, and `[[project-constitution]]`. SKIP: project boards (use gh directly), milestone management, label creation, free-form issue authoring, plans whose tasks do NOT match the strict `- [ ] T### [P?] [US?] file_path` format (re-run /generate-plan first), or any flow that needs more than one issue per task.\"",
-      "long_description": "Drives the /tasks-to-issues command end-to-end. Locates the active feature directory (positional argument, .specify/feature.json, or most recent plan under docs/<version>/plans/), parses every `- [ ] T### [P?] [US?] file_path` line against the strict regex from Phase 6 of docs/archive/v2/v2.1/plans/adoption-spec-kit.md, builds a per-task issue payload (title, body with file path + user-story link, labels `nexus-hub` + `spec-driven-task` + optional `parallel` + optional `user-story-N`), and either prints the resolved `gh issue create` invocations one per task (--dry-run) or invokes them sequentially after user confirmation. The skill enforces idempotency by rewriting each successfully-filed task line to append `[gh#<num>]`, so re-runs skip already-converted tasks. Pre-flight checks verify gh is installed and authenticated and that the working directory resolves to a GitHub repo. The mechanical parsing + gh invocation lives in the per-skill scripts/tasks-to-issues.sh (POSIX) and scripts/tasks-to-issues.ps1 (PowerShell) helpers; the references/gh-cli-auth-runbook.md provides a one-page runbook on gh auth setup-git and rate-limit handling. Read-only when --dry-run is set; otherwise the only side effects are issue creation in the user's GitHub repo and idempotency-marker rewrites in the local source file.",
-      "summary_l0": "\"Convert strict-format tasks.md / plan.md task lines into linked GitHub issues via gh CLI\"",
-      "overview_l1": "\"This skill drives the /tasks-to-issues command end-to-end. It locates the active feature directory, parses every `- [ ] T### [P?] [US?] file_path` line against the strict regex, builds a per-task issue payload (title, body with file path + user-story link, labels `nexus-hub` + `spec-driven-task` + optional `parallel` + `user-story-N`), and either prints the resolved `gh issue create` invocations (--dry-run) or invokes them sequentially after user confirmation. It enforces idempotency by appending `[gh#<num>]` to each filed task line so re-runs skip converted tasks. Pre-flight checks verify gh is installed and authenticated and the directory is a GitHub repo. The mechanical parsing lives in scripts/tasks-to-issues.sh and scripts/tasks-to-issues.ps1; references/gh-cli-auth-runbook.md covers gh auth and rate-limits. Trigger phrases: tasks to issues, convert tasks to issues, create issues from plan, file issues from tasks.md, issue tracking from plan, gh issue create from tasks, fan out tasks to GitHub, sprint from plan.\"",
+      "description": "\"Convert the strict task checklist in a feature directory's tasks.md (or plan.md) into linked GitHub issues via the local gh CLI. Drives /tasks-to-issues end-to-end - parses every `- [ ] T### [P?] [US?] file_path` line, builds a per-task issue payload with labels (`nexus-hub`, `spec-driven-task`, `parallel`, `user-story-N`), and either dry-runs the gh invocations or executes them sequentially after user confirmation. Use whenever the user wants to convert tasks to issues, create GitHub issues from a plan, file issues from tasks.md, dry-run the conversion to preview gh invocations, fan a plan out to issue tracking, or drive sprint planning from a generated plan. Trigger phrases include 'tasks to issues', 'convert tasks to issues', 'create issues from plan', 'file issues from tasks.md', 'issue tracking from plan', 'gh issue create from tasks', 'fan out tasks to GitHub', 'sprint from plan'. Cross-links to `[[implementation-plan]]`, `[[cross-artifact-analyzer]]`, and `[[project-constitution]]`. SKIP: project boards (use gh directly), milestone management, label creation, free-form issue authoring, plans whose tasks do NOT match the strict `- [ ] T### [P?] [US?] file_path` format (re-run /generate-plan first), or any flow that needs more than one issue per task. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.\"",
+      "long_description": "Convert the strict task checklist in a feature directory's `tasks.md` (or the in-plan task list inside `plan.md`) into linked GitHub issues via the user's local `gh` CLI. The skill parses every `- [ ] T### [P?] [US?] file_path` line, builds a per-task issue payload, and either dry-runs the `gh issue...",
+      "summary_l0": "\"Convert canonical release-plan tasks into linked GitHub issues\"",
+      "overview_l1": "\"This skill drives the /tasks-to-issues command end-to-end. It locates the active feature directory, parses every `- [ ] T### [P?] [US?] file_path` line against the strict regex, builds a per-task issue payload (title, body with file path + user-story link, labels `nexus-hub` + `spec-driven-task` + optional `parallel` + `user-story-N`), and either prints the resolved `gh issue create` invocations (--dry-run) or invokes them sequentially after user confirmation. It enforces idempotency by appending `[gh#<num>]` to each filed task line so re-runs skip converted tasks. Pre-flight checks verify gh is installed and authenticated and the directory is a GitHub repo. The mechanical parsing lives in scripts/tasks-to-issues.sh and scripts/tasks-to-issues.ps1; references/gh-cli-auth-runbook.md covers gh auth and rate-limits. Trigger phrases: tasks to issues, convert tasks to issues, create issues from plan, file issues from tasks.md, issue tracking from plan, gh issue create from tasks, fan out tasks to GitHub, sprint from plan. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.\"",
       "version": "1.0.0",
       "author": "Benjamin Dourthe",
       "category": "workflow",
@@ -7808,16 +7807,14 @@
       "priority": "MEDIUM",
       "based_on": "",
       "tools_required": [
-        "Read",
-        "Edit",
-        "Bash",
-        "Grep"
+        "Task"
       ],
       "path": "catalog/skills/workflow/tasks-to-issues/",
       "file": "catalog/skills/workflow/tasks-to-issues/SKILL.md",
       "size": {
-        "lines": 110,
-        "tokens_estimate": 2300
+        "lines": 149,
+        "characters": 14295,
+        "tokens_estimate": 2198
       },
       "downloads": 0,
       "status": "production",
@@ -7909,10 +7906,10 @@
     {
       "name": "continuous-learning",
       "title": "continuous-learning",
-      "description": "Capture in-session observations, mint confidence-scored \"instincts\" as local YAML files, and evolve clusters of instincts into draft skills or commands - all local, in-process, with no external observer model. Make sure to use this skill whenever the user says \"learn from this session\", \"what patterns are we seeing\", \"promote that to an instinct\", \"should this become a skill\", \"review our recent corrections\", \"what should we automate\", \"draft a skill from these observations\", or otherwise asks the agent to look across its own recent behavior for patterns worth promoting into reusable content. Also trigger when the user repeatedly corrects the agent in the same direction and the right response is \"let me record this so we stop making the same mistake\". SKIP, do NOT use for, single-session todo tracking (use dev-progress-tracker), one-off rule-saving requests that the agent's own memory system already handles, or any flow that proposes wiring an external observer model or sending observations off-device (that is explicitly out of scope per the MCP Registry Policy).",
-      "long_description": "Defines a local-only continuous-learning loop. The learning-capture hook records user prompts, tool calls, and corrections to a project-scoped .nexus/observations.jsonl while the session is running. This skill teaches the agent how, on demand, to read that observations file, cluster it into atomic candidate instincts (one finding each, with a confidence score and domain tags), persist each as a local .nexus/instincts/<slug>.yaml file, and - when a cluster of instincts becomes strong - draft a new SKILL.md or command for maintainer review. The hard constraint is that the only observer is the agent itself, in this session: no background model, no upload, no cross-project sharing.",
-      "summary_l0": "\"Capture observations, mint local YAML instincts, evolve clusters into draft skills - zero outbound\"",
-      "overview_l1": "\"Defines a local-only continuous-learning loop. The learning-capture hook (catalog/hooks/learning-capture.sh / .ps1) records user prompts, tool calls, and corrections to a project-scoped .nexus/observations.jsonl while the session is running. This skill teaches the agent how, on demand, to read that observations file, cluster it into atomic candidate instincts (one finding each, with a confidence score and domain tags), persist each as a local .nexus/instincts/<slug>.yaml file, and - when a cluster of instincts becomes strong - draft a new SKILL.md or command for maintainer review. The hard constraint is that the only observer is the agent itself, in this session: no background model, no upload, no cross-project sharing. Trigger phrases: learn from this session, mint an instinct, promote to skill, what patterns are we seeing, draft a skill from observations, continuous learning.\"",
+      "description": "Capture in-session observations, mint confidence-scored \"instincts\" as local YAML files, and evolve clusters of instincts into draft skills or commands - all local, in-process, with no external observer model. Make sure to use this skill whenever the user says \"learn from this session\", \"what patterns are we seeing\", \"promote that to an instinct\", \"should this become a skill\", \"review our recent corrections\", \"what should we automate\", \"draft a skill from these observations\", or otherwise asks the agent to look across its own recent behavior for patterns worth promoting into reusable content. Also trigger when the user repeatedly corrects the agent in the same direction and the right response is \"let me record this so we stop making the same mistake\". SKIP, do NOT use for, single-session todo tracking (use dev-progress-tracker), one-off rule-saving requests that the agent's own memory system already handles, or any flow that proposes wiring an external observer model or sending observations off-device (that is explicitly out of scope per the MCP Registry Policy). Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.",
+      "long_description": "Teach the agent to harvest its own session for patterns: capture observations to a local JSONL, mint atomic instincts as YAML, and evolve clusters of instincts into draft skills or commands - all in-session, on demand, with no background process and no outbound network calls.",
+      "summary_l0": "\"Capture local instincts with canonical release and archive provenance\"",
+      "overview_l1": "\"Defines a local-only continuous-learning loop. The learning-capture hook (catalog/hooks/learning-capture.sh / .ps1) records user prompts, tool calls, and corrections to a project-scoped .nexus/observations.jsonl while the session is running. This skill teaches the agent how, on demand, to read that observations file, cluster it into atomic candidate instincts (one finding each, with a confidence score and domain tags), persist each as a local .nexus/instincts/<slug>.yaml file, and - when a cluster of instincts becomes strong - draft a new SKILL.md or command for maintainer review. The hard constraint is that the only observer is the agent itself, in this session: no background model, no upload, no cross-project sharing. Trigger phrases: learn from this session, mint an instinct, promote to skill, what patterns are we seeing, draft a skill from observations, continuous learning. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.\"",
       "version": "1.0.0",
       "author": "Benjamin Dourthe",
       "category": "workflow",
@@ -7927,13 +7924,16 @@
       ],
       "priority": "MEDIUM",
       "based_on": "reverse-engineered local subset of ECC's continuous-learning-v2 pattern (see docs/archive/v2/v2.2/comparison-ECC.md Section 11 Bucket B (B4) and Section 13)",
-      "tools_required": [],
+      "tools_required": [
+        "Bash",
+        "Read"
+      ],
       "path": "catalog/skills/workflow/continuous-learning/",
       "file": "catalog/skills/workflow/continuous-learning/SKILL.md",
       "size": {
-        "lines": 130,
-        "characters": 10850,
-        "tokens_estimate": 1400
+        "lines": 150,
+        "characters": 14615,
+        "tokens_estimate": 2140
       },
       "downloads": 0,
       "status": "production",
@@ -9014,10 +9014,10 @@
     {
       "name": "implementation-plan",
       "title": "implementation-plan",
-      "description": ">-",
-      "long_description": "Guide the user through a structured discovery interview, then generate a comprehensive plan at `<version_dir>/plans/<slug>.md` broken into phased sub-tasks — each with an executable prompt — so the full effort can be completed session by session.",
-      "summary_l0": "\"Generate a phased plan through guided discovery, saved to docs/v<MAJOR>/v<MAJOR>.<MINOR>/plans/v<MAJOR>.<MINOR>.<PATCH>-<slug>.md\"",
-      "overview_l1": ">-",
+      "description": "Guide the user through a structured discovery interview to generate a comprehensive phased plan (docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/plans/v<MAJOR>.<MINOR>.<PATCH>-<slug>.md) for their project. Works for initial v0.1.0 builds, feature additions, UX enhancements, refactors, and bug-fix campaigns. Asks targeted questions appropriate to the plan type, then generates a phased plan where each phase contains sub-tasks with detailed executable prompts, ends with test generation and troubleshooting, and closes with a session-history entry. Invoked via /generate-plan. Use when starting a new project, when setup-project has just finished, when /compare-project hands off a comparison report to operationalize, or when a user asks to create an implementation plan, v0.1.0 plan, enhancement plan, refactor plan, or roadmap. Version-bound plans use docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.",
+      "long_description": "Guide the user through a structured discovery interview, then generate a comprehensive plan at `<version_dir>/plans/<slug>.md` broken into phased sub-tasks -- each with an executable prompt -- so the full effort can be completed session by session.",
+      "summary_l0": "\"Generate phased plans in the canonical release documentation tree\"",
+      "overview_l1": "This skill conducts a structured discovery interview -- asking one question at a time -- to collect everything needed to write a comprehensive phased plan. The first step establishes plan type (initial implementation, feature/enhancement, refactor, other), target version, and an auto-suggested filename slug derived from a one-sentence scope statement. For initial implementation plans the interview covers core purpose, key features, installation/distribution, UI type, platform targets, runtime behavior, integrations, performance, definition of done, and testing. For enhancements/refactors the interview uses a shorter scope-focused question set - goal, in/out scope, affected areas, constraints, definition of done, and testing. After the interview the skill writes the plan to docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/plans/v<MAJOR>.<MINOR>.<PATCH>-<slug>.md (the legacy flat layout docs/<vSEMVER>/plans/<slug>.md is honored when already present; see the docs-layout-refactor Version-directory resolution for the path-resolution algorithm) structured into numbered phases with numbered sub-tasks. Every sub-task includes a self-contained executable prompt that can be handed directly to Claude Code in a future session. Each phase ends with a dedicated testing and troubleshooting sub-task and a generate-session-history call. Phases do not advance until the current phase is stable. Use websearch when research on libraries, toolchains, or distribution packaging is needed. Trigger phrases - implementation plan, v0.1.0 plan, build plan, project roadmap, enhancement plan, refactor plan, what should I build first, create a plan, generate plan, generate implementation plan, how do I build this, phased development plan. Version-bound plans use docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.",
       "version": "1.0.0",
       "author": "Benjamin Dourthe",
       "category": "workflow",
@@ -9027,14 +9027,15 @@
       "based_on": "",
       "tools_required": [
         "Read",
+        "Task",
         "Write"
       ],
       "path": "catalog/skills/workflow/implementation-plan/",
       "file": "catalog/skills/workflow/implementation-plan/SKILL.md",
       "size": {
-        "lines": 338,
-        "characters": 18205,
-        "tokens_estimate": 2688
+        "lines": 474,
+        "characters": 42676,
+        "tokens_estimate": 6411
       },
       "downloads": 0,
       "status": "production",
@@ -9048,10 +9049,10 @@
     {
       "name": "implement-phase",
       "title": "implement-phase",
-      "description": "Implement one phase of a plan end-to-end - discover the plan and phase, review against the codebase, code subtask by subtask, lint, test with coverage, augment tests, run the troubleshooting loop and GO/NO-GO gate, then the full post-phase documentation and commit sequence. On a plan's final phase it also runs the mandatory architecture-refactor + known-gaps + CI/CD gate and the release-readiness workflow, handing off to /update release. This is the delegate behind /implement. Use whenever the user says \"implement phase N\", \"build the next phase\", \"do phase 3 of the plan\", \"execute the plan\", \"continue implementing\", or points at a plan file. SKIP - creating the plan itself (use /plan), or one-off edits with no plan to track.",
-      "long_description": "Implement one phase of a plan end-to-end: discover the right plan and phase, review it against the codebase, write the code subtask by subtask, lint, test with coverage, troubleshoot failures, augment missing tests, pass a quality gate, and run the full post-phase documentation and commit sequence. When the target phase is the plan's final phase, also run the mandatory architecture-refactor plus known-gaps plus CI/CD gate and the release-readiness workflow. This is the delegate behind /implement.",
-      "summary_l0": "\"Implement one plan phase end-to-end with tests, gates, post-phase docs, commit, and final-phase release-readiness\"",
-      "overview_l1": "\"The delegate behind /implement. It runs one plan phase end-to-end: Phase 0 resolves the plan and phase and detects the final phase from five signals; Phase 1 reviews the plan against the codebase; Phase 2 implements subtask by subtask in scope; Phases 3-7 lint, run tests with coverage, augment missing tests, loop on failures up to three times, and apply a four-part GO/NO-GO quality gate; Phase 8 runs the ten-step post-phase sequence (gitignore, test review, CI/CD readiness plus optimization, known-gaps append, docs-cleanup audit, devlog, docs, session history, commit message, and a required commit-and-push prompt). On the final phase it additionally runs the mandatory architecture-refactor plus known-gaps plus CI/CD-optimize gate and the release-readiness workflow, handing the version bump and tag off to /update release. The full ordered procedure lives in references/implement-phase-runbook.md. Trigger phrases: implement phase N, build the next phase, execute the plan, continue implementing.\"",
+      "description": "Implement one phase of a plan end-to-end - discover the plan and phase, review against the codebase, code subtask by subtask, lint, test with coverage, augment tests, run the troubleshooting loop and GO/NO-GO gate, then the full post-phase documentation and commit sequence. On a plan's final phase it also runs the mandatory architecture-refactor + known-gaps + CI/CD gate and the release-readiness workflow, handing off to /update release. This is the delegate behind /implement. Use whenever the user says \"implement phase N\", \"build the next phase\", \"do phase 3 of the plan\", \"execute the plan\", \"continue implementing\", or points at a plan file. SKIP - creating the plan itself (use /plan), or one-off edits with no plan to track. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.",
+      "long_description": "Implement one phase of a plan end-to-end: discover the right plan and phase, review it against the codebase, write the code subtask by subtask, lint, test with coverage, troubleshoot failures, augment missing tests, pass a quality gate, and run the full post-phase documentation and commit sequence. ...",
+      "summary_l0": "\"Implement one release-plan phase with tests, evidence, documentation, and commit gates\"",
+      "overview_l1": "\"The delegate behind /implement. It runs one plan phase end-to-end: Phase 0 resolves the plan and phase and detects the final phase from five signals; Phase 1 reviews the plan against the codebase; Phase 2 implements subtask by subtask in scope; Phases 3-7 lint, run tests with coverage, augment missing tests, loop on failures up to three times, and apply a four-part GO/NO-GO quality gate; Phase 8 runs the ten-step post-phase sequence (gitignore, test review, CI/CD readiness plus optimization, known-gaps append, docs-cleanup audit, devlog, docs, session history, commit message, and a required commit-and-push prompt). On the final phase it additionally runs the mandatory architecture-refactor plus known-gaps plus CI/CD-optimize gate and the release-readiness workflow, handing the version bump and tag off to /update release. The full ordered procedure lives in references/implement-phase-runbook.md. Trigger phrases: implement phase N, build the next phase, execute the plan, continue implementing. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.\"",
       "version": "1.0.0",
       "author": "Benjamin Dourthe",
       "category": "workflow",
@@ -9063,9 +9064,9 @@
       "path": "catalog/skills/workflow/implement-phase/",
       "file": "catalog/skills/workflow/implement-phase/SKILL.md",
       "size": {
-        "lines": 73,
-        "characters": 8173,
-        "tokens_estimate": 1170
+        "lines": 85,
+        "characters": 13016,
+        "tokens_estimate": 1947
       },
       "downloads": 0,
       "status": "production",

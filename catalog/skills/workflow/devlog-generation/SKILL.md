@@ -1,13 +1,15 @@
 ---
 name: devlog-generation
-description: Maintain docs/DEVLOG.md as a bounded per-release INDEX - one line per release with a date, version, one-sentence summary, and links to that release's plan, development/history/ directory, and known-gaps file. Use this skill whenever the user says "update the devlog", "sync the devlog", "add a release to the devlog", "regenerate the devlog", "regenerate the development log", "the devlog is out of date", "the devlog index is missing a version", or when /update runs at devlog or release scope. It never writes narrative prose into DEVLOG; the rich per-phase story goes to the per-version development/history/ file instead. SKIP - a single working session's story (use session-history); the authoritative record of what changed in a release (use release-notes-writer); the reasoning behind a design choice (use architecture-decision-record); unfinished or carried-over items (use known-gaps-tracker).
-summary_l0: "Maintain DEVLOG.md as a bounded one-line-per-release index, not a narrative log"
-overview_l1: "This skill owns docs/DEVLOG.md, which is an INDEX and not a log: a short header plus one line per release, newest first, carrying the release date, version, a one-sentence summary, and repo-relative links to that release's plan file, development/history/ directory, and known-gaps file. Use it when the user asks to update, sync, generate, or regenerate the devlog, and when /update runs at devlog or release scope. Its discovery logic is unchanged (git tags, CHANGELOG headings, the per-version docs tree) but its destination differs: the index gets one line, and any narrative found is routed to the per-version development/history/ file via session-history. It updates an existing version line in place rather than duplicating it, omits links whose targets do not exist, and never restates CHANGELOG. Trigger phrases: devlog, development log, DEVLOG, update the devlog, sync the devlog, devlog index, add a release to the devlog."
+description: Maintain docs/DEVLOG.md as a bounded per-release INDEX - one line per release with a date, version, one-sentence summary, and links to that release's plan, development/history/ directory, and known-gaps file. Use this skill whenever the user says "update the devlog", "sync the devlog", "add a release to the devlog", "regenerate the devlog", "regenerate the development log", "the devlog is out of date", "the devlog index is missing a version", or when /update runs at devlog or release scope. It never writes narrative prose into DEVLOG; the rich per-phase story goes to the per-version development/history/ file instead. SKIP - a single working session's story (use session-history); the authoritative record of what changed in a release (use release-notes-writer); the reasoning behind a design choice (use architecture-decision-record); unfinished or carried-over items (use known-gaps-tracker). Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.
+summary_l0: "Maintain a release index without writing evidence into living subtrees"
+overview_l1: "This skill owns docs/DEVLOG.md, which is an INDEX and not a log: a short header plus one line per release, newest first, carrying the release date, version, a one-sentence summary, and repo-relative links to that release's plan file, development/history/ directory, and known-gaps file. Use it when the user asks to update, sync, generate, or regenerate the devlog, and when /update runs at devlog or release scope. Its discovery logic is unchanged (git tags, CHANGELOG headings, the per-version docs tree) but its destination differs: the index gets one line, and any narrative found is routed to the per-version development/history/ file via session-history. It updates an existing version line in place rather than duplicating it, omits links whose targets do not exist, and never restates CHANGELOG. Trigger phrases: devlog, development log, DEVLOG, update the devlog, sync the devlog, devlog index, add a release to the devlog. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/."
 ---
 
 # DevLog Generation
 
 `docs/DEVLOG.md` is a **navigation index**, not a log. It answers one question at a glance: what has this project released, and where is each release's detail? It never answers "what changed" (that is `CHANGELOG.md`) or "how did this phase go" (that is the per-version `development/history/` file).
+
+The index never writes release evidence into a living subtree. Keep `docs/handbooks/` at the docs root, regenerate its generated output from source, and snapshot it at release close to `docs/archives/v<MAJOR>/v<MAJOR>.<MINOR>/handbooks/`, named for the version the copied content describes. Narrative remains in the release-bound `development/history/` tree owned by `[[session-history]]`.
 
 This skill maintains that index. Its discovery work is the same work a narrative devlog generator does; only the destination differs.
 
@@ -23,7 +25,7 @@ Use this skill when:
 
 **Do NOT use this skill for:**
 
-- **A session's narrative** (what was tried, what failed, what was decided). That is `[[session-history]]`, written to `docs/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/`.
+- **A session's narrative** (what was tried, what failed, what was decided). That is `[[session-history]]`, written to `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/`.
 - **The record of what changed in a release.** That is `CHANGELOG.md`, and it is authoritative. The index summary is a pointer, never a substitute, and must not restate the changelog.
 - **Design reasoning and rejected alternatives.** That is `[[architecture-decision-record]]`.
 - **Open, deferred, or broken work.** That is `[[known-gaps-tracker]]`.
@@ -60,9 +62,9 @@ When a prior narrative body was archived, the header also links the archive and 
 | Date | The release's `CHANGELOG.md` heading, or the tag date | `YYYY-MM-DD`, no time component |
 | Version | The release | `vX.Y.Z`, matching the tag |
 | Summary | Authored, from the plan slug plus the CHANGELOG lead | **One sentence.** No trailing period needed. Never a restatement of the changelog entry |
-| Plan | `docs/v<MAJOR>/v<MAJOR>.<MINOR>/plans/v<X.Y.Z>-<slug>.md` | Link the file, labelled by its slug |
-| History | `docs/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/` | Link the directory, labelled `history` |
-| Gaps | `docs/v<MAJOR>/v<MAJOR>.<MINOR>/known-gaps.md` | Link the file, labelled `gaps` |
+| Plan | `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/plans/v<X.Y.Z>-<slug>.md` | Link the file, labelled by its slug |
+| History | `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/` | Link the directory, labelled `history` |
+| Gaps | `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/known-gaps.md` | Link the file, labelled `gaps` |
 
 Links are **relative to `docs/DEVLOG.md`**, so they resolve both on the forge and in an editor. A root-relative `/docs/...` link does not resolve on GitHub and must not be used.
 
@@ -81,9 +83,9 @@ An index line is added for a **release**, not for a phase, a commit, or a sessio
 For version `X.Y.Z`, probe the filesystem:
 
 ```bash
-ls docs/v<MAJOR>/v<MAJOR>.<MINOR>/plans/v<X.Y.Z>-*.md      # plan file(s)
-ls -d docs/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/   # history dir
-ls docs/v<MAJOR>/v<MAJOR>.<MINOR>/known-gaps.md             # gaps file
+ls docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/plans/v<X.Y.Z>-*.md      # plan file(s)
+ls -d docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/   # history dir
+ls docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/known-gaps.md             # gaps file
 ```
 
 Emit a link only when its target exists. Three fallbacks, in order:
@@ -113,7 +115,7 @@ grep -n "| v<X.Y.Z> |" docs/DEVLOG.md
 
 ### Step 5: Route the narrative elsewhere
 
-Any rich material the discovery surfaced (decision trails, failed attempts, troubleshooting, impact analysis) does **not** go in the index. Hand it to `[[session-history]]`, which writes `docs/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/<date>_<slug>.md`.
+Any rich material the discovery surfaced (decision trails, failed attempts, troubleshooting, impact analysis) does **not** go in the index. Hand it to `[[session-history]]`, which writes `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/<date>_<slug>.md`.
 
 If that file already exists for the phase in question, the narrative belongs appended there, not duplicated into a new file.
 
@@ -131,7 +133,7 @@ This is a valid and common end state: the index is useful with the date, version
 
 The conversion is destructive to the file, so it is never done implicitly:
 
-1. **Archive first.** Move the entire current body to `docs/archive/DEVLOG-<range>.md` under a short provenance header naming the archive date and the authorizing decision record.
+1. **Archive first.** Move the entire current body to `docs/archives/DEVLOG-<range>.md` under a short provenance header naming the archive date and the authorizing decision record.
 2. **Prove content preservation.** Hash the original and the archived body and compare. Do not report the archive as verified on the strength of a successful copy; a copy can silently rewrite line endings.
 3. **Record the decision.** The conversion changes a documentation policy, so it needs a decision record with its rejected alternatives (see `[[architecture-decision-record]]`).
 4. **Rewrite** `docs/DEVLOG.md` per the contract, deriving lines from the archived body's entry headings and the release set.
@@ -158,7 +160,8 @@ The conversion is destructive to the file, so it is never done implicitly:
 - [ ] No cell in the table contains more than one sentence
 - [ ] The table is in descending version order, newest first
 - [ ] No narrative section, per-release heading, or `<details>` block exists anywhere in the file
-- [ ] The narrative that would have gone into a devlog entry exists in `docs/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/`
+- [ ] The narrative that would have gone into a devlog entry exists in `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/`
+- [ ] No devlog or release-evidence write targeted a living subtree; handbook snapshots, when present, use the described version under `docs/archives/`
 - [ ] The file grew by exactly the number of releases added
 - [ ] Markdown conventions hold per `catalog/style-guides/markdown.md` (blank line before and after the table, one H1, ASCII-only in English docs)
 

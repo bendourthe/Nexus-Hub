@@ -1,13 +1,15 @@
 ---
 name: code-commit-workflow
-description: Implement proper Git commit workflow with conventional commits, atomic changes, and meaningful messages. Use when committing changes, preparing pull requests, or establishing team commit standards.
-summary_l0: "Implement Git commit workflows with conventional commits and atomic changes"
-overview_l1: "This skill implements proper Git commit workflow with conventional commits, atomic changes, and meaningful messages. Use it when committing changes, preparing pull requests, or establishing team commit standards. Key capabilities include conventional commit message formatting, atomic change grouping, meaningful commit message writing, interactive staging guidance, commit history organization, pull request preparation, branch strategy implementation, and team commit standard enforcement. The expected output is well-structured Git commits with conventional format, atomic scope, and meaningful messages that enable clear project history. Trigger phrases: commit workflow, conventional commits, commit message, atomic commit, pull request, Git workflow, commit standards, meaningful commits."
+description: Implement proper Git commit workflow with conventional commits, atomic changes, and meaningful messages. Use when committing changes, preparing pull requests, or establishing team commit standards. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.
+summary_l0: "Create atomic conventional commits with canonical documentation paths"
+overview_l1: "This skill implements proper Git commit workflow with conventional commits, atomic changes, and meaningful messages. Use it when committing changes, preparing pull requests, or establishing team commit standards. Key capabilities include conventional commit message formatting, atomic change grouping, meaningful commit message writing, interactive staging guidance, commit history organization, pull request preparation, branch strategy implementation, and team commit standard enforcement. The expected output is well-structured Git commits with conventional format, atomic scope, and meaningful messages that enable clear project history. Trigger phrases: commit workflow, conventional commits, commit message, atomic commit, pull request, Git workflow, commit standards, meaningful commits. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/."
 ---
 
 # Code Commit Workflow
 
 Implement a professional Git commit workflow with conventional commits, atomic changes, and meaningful commit messages that enhance project history and collaboration.
+
+When a commit carries version-bound documentation, stage it from `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/`; closed snapshots belong under `docs/archives/`. Treat legacy path changes as migration work and keep them atomic with reference repair.
 
 ## When to Use This Skill
 

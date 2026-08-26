@@ -28,7 +28,7 @@ Every generated plan MUST end with a fail-closed last phase dedicated to archite
 #### N.2 - Known-gaps reconciliation
 **Objective**: Reconcile this version and every other still-open known-gaps file.
 **Prompt**:
-> Via [[known-gaps-tracker]], reconcile this version's known gaps AND every other `docs/**/known-gaps.md` whose Status is in-progress or whose Open Items remain. Glob both canonical (`docs/v<MAJOR>/v<MAJOR>.<MINOR>/known-gaps.md`) and legacy layouts. If a file is unreachable, record the glob result and continue with what was found. Write the disposition into the evidence file under `## Known-gaps reconciliation`.
+> Via [[known-gaps-tracker]], reconcile this version's known gaps AND every other `docs/**/known-gaps.md` whose Status is in-progress or whose Open Items remain. Glob both canonical (`docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/known-gaps.md`) and legacy layouts. If a file is unreachable, record the glob result and continue with what was found. Write the disposition into the evidence file under `## Known-gaps reconciliation`.
 
 #### N.3 - Living docs architecture
 **Objective**: Prove handbooks, decisions, and generated HTML match the required living tree.

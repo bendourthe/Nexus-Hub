@@ -43,7 +43,7 @@ def test_docs_layout_refactor_lists_required_vs_self_gated_paths() -> None:
     assert "never invent" in text.lower() or "Never invent" in text or "never invent" in text
     assert "Generated `html/` is never hand-edited" in text
     assert "document-to-interactive-html" in text
-    assert "docs/archive/v<MAJOR>/v<MAJOR>.<MINOR>/handbooks/" in text
+    assert "docs/archives/v<MAJOR>/v<MAJOR>.<MINOR>/handbooks/" in text
 
 
 def test_setup_project_scaffolds_handbooks_and_decisions() -> None:
@@ -62,9 +62,9 @@ def test_update_release_regenerates_html_and_snapshots_handbooks() -> None:
     assert "Handbook markdown against the code" in text
     assert "Living docs canonicalize" in text
     assert "regenerate-and-fail-on-stale" in text
-    assert "Fail the release if HTML is missing or stale" in text
-    assert "Snapshot living handbooks" in text
-    assert "docs/archive/v<MAJOR>/v<MAJOR>.<MINOR>/handbooks/" in text
+    assert "Fail the release when generated output is missing or stale" in text
+    assert "Living-reference snapshot" in text
+    assert "docs/archives/v<MAJOR>/v<MAJOR>.<MINOR>/handbooks/" in text
     assert "last-phase evidence" in text
 
 

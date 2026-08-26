@@ -193,8 +193,8 @@ None.
 
 ### Open Items
 
-None through Phase 2.
+None through Phase 3.
 
 ### Resolved Items
 
-None through Phase 2.
+None through Phase 3.

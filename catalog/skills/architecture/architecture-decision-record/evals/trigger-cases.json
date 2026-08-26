@@ -1,0 +1,8 @@
+{
+  "skill": "architecture-decision-record",
+  "purpose": "Route append-only architecture and policy decision records outside release-scoped documentation.",
+  "cases": [
+    {"id": "pos-decision", "prompt": "write an ADR architecture decision record with context options chosen decision consequences and long-term rationale", "should_trigger": true, "assert": "routes to architecture-decision-record first", "lexical": true},
+    {"id": "neg-weather", "prompt": "show the weather forecast for tomorrow", "should_trigger": false, "assert": "does not route to architecture-decision-record", "lexical": true}
+  ]
+}
