@@ -1,8 +1,9 @@
 ---
 name: docs-layout-refactor
-description: Audit and reorganize a project's docs/ folder by categorizing every file (Cat 1 delete / Cat 2 archive / Cat 3 stale-flag / Cat 4 active), proposing a version-first layout with a docs/v<MAJOR>/v<MAJOR>.<MINOR>/ active tree (plans/ + comparisons/ subdirs; patch releases share their minor dir) and a docs/archive/v<MAJOR>/v<MAJOR>.<MINOR>/ archive subtree, and applying changes only after explicit user confirmation. Use whenever the user says "clean up docs", "reorganize docs", "archive old docs", "docs folder is messy", "audit docs", "refactor docs structure", "the docs are cluttered", "review docs before release", "archive prior major version", or before a version bump. SKIP for content accuracy fixes (use update-documentation), repo-root / scripts / CI/CD reorganization (use refactor-project, formerly refactor-project-layout), or CHANGELOG generation (use generate-changelog).
+description: Audit and reorganize a project's docs/ folder by applying a lifespan admission test, categorizing every file (Cat 1 delete / Cat 2 archive / Cat 3 stale-flag / Cat 4 active), proposing a version-first layout with a docs/v<MAJOR>/v<MAJOR>.<MINOR>/ active tree and docs/archive/v<MAJOR>/v<MAJOR>.<MINOR>/ archive subtree, and applying changes only after explicit user confirmation. Use whenever the user says "clean up docs", "reorganize docs", "archive old docs", "docs folder is messy", "audit docs", "refactor docs structure", "the docs are cluttered", "review docs before release", "classify docs by lifespan", "archive prior major version", or before a version bump. SKIP for content accuracy fixes (use update-documentation), repo-root / scripts / CI/CD reorganization (use project-refactor), or CHANGELOG generation (use generate-changelog).
 summary_l0: "Audit, categorize, and reorganize docs/ folders with a propose-then-apply workflow and a versioned archive subtree"
-overview_l1: "Walk the docs/ tree, score every file with eight weighted heuristics (age, inbound refs, CHANGELOG citation, filename patterns, duplication, body keywords), classify each as Cat 1 (delete), Cat 2 (archive), Cat 3 (stale but load-bearing), or Cat 4 (active). Propose a version-first reorganization with topical subdirs mirroring the active layout, plus a docs/archive/v<MAJOR>/v<MAJOR>.<MINOR>/<topic>/ subtree for Cat 2 items. Default mode is propose-only: no files move until the user explicitly confirms at the gate. Ships an audit-docs.py helper that emits a JSON inventory and reference graph without being read into context. Trigger phrases: clean up docs, reorganize docs, archive old docs, docs folder is messy, audit docs, refactor docs structure, docs are cluttered, review docs before release, docs cleanup, prune docs."
+overview_l1: "Walk the docs/ tree, answer one lifespan admission question per document, then apply nine weighted heuristics to classify each file as Cat 1 (delete), Cat 2 (archive), Cat 3 (stale but load-bearing), or Cat 4 (active). Propose a version-first reorganization with topical subdirs mirroring the active layout, plus a docs/archive/v<MAJOR>/v<MAJOR>.<MINOR>/<topic>/ subtree for Cat 2 items. Default mode is propose-only: no files move until the user explicitly confirms at the gate. Ships an audit-docs.py helper for inventory, reference graphs, and lifespan-contradiction detection. Trigger phrases: clean up docs, reorganize docs, archive old docs, docs folder is messy, audit docs, refactor docs structure, classify docs by lifespan, docs cleanup, prune docs."
+version: 1.4.0
 ---
 
 # Docs Layout Refactor
@@ -119,16 +120,31 @@ Rules:
 - Handbooks are edited in place in `docs/handbooks/markdown/`. Generated `html/` is never hand-edited. If markdown and HTML disagree, markdown wins; regenerate HTML or fail `--check`.
 - Point HTML walkthroughs at `[[document-to-interactive-html]]` / `/presentify`.
 - A missing key-component companion lists the components the codebase has and requires a companion or a recorded known-gap.
-- At release close, snapshot `docs/handbooks/markdown/` (and authored HTML if present) to `docs/archive/v<MAJOR>/v<MAJOR>.<MINOR>/handbooks/` under the current archive spelling. v4.0 will rename the archive container later.
+- At release close, snapshot `docs/handbooks/markdown/` (and authored HTML if present) to `docs/archive/v<MAJOR>/v<MAJOR>.<MINOR>/handbooks/` under the current archive spelling. Name the snapshot for the version its content describes, not the release that prompted the copy; see [references/archive-layout.md](references/archive-layout.md).
 - An inherited repo with a flat `docs/` is a proposed migration, not a destroy-and-replace.
 
 See [references/archive-layout.md](references/archive-layout.md) for the handbook snapshot path inside the archive tree.
+
+## Lifespan admission test
+
+Ask one question for every document: **when does this document stop being true?** The question is enforceable because every document has exactly one true answer and a person who has never seen the repository can answer it from the document's role. The rejected subject-based alternative, "is this about development?", has no useful false answer: nearly every project document qualifies, the bucket absorbs anything, and it needs reorganizing again within a year.
+
+| Answer | Lifespan | Disposition |
+|---|---|---|
+| Never stops being true while maintained | **Living** | Edit in place; it must describe current truth and never a past state. |
+| Stops on supersession | **Append-only** | Keep the superseded record and add or link its successor. |
+| Stops at release close | **Frozen-at-close** | Move after close with its shape preserved. |
+| Never, because it is a signed or otherwise controlled record | **Controlled record** | Never edit after signing and never archive through this tooling. |
+| It was already frozen before this audit | **Already-frozen** | Preserve in place and do not reclassify it as living. |
+| It can be regenerated from an authoritative source | **Generated** | Bind it to a drift test; never archive it. |
+
+An indeterminate answer gets the Cat 3 leave-in-place floor for manual review. The bundled `audit-docs.py` exposes the same six dispositions through `classify_lifespan`; its recognized-name table is only a shortcut to this admission test.
 
 ## Cross-cutting documentation subtrees (non-versioned)
 
 Not every `docs/` subtree is a version-scoped artifact. Many projects keep long-lived, cross-cutting documentation at the `docs/` root that is deliberately *not* tied to a single release: architecture decision records, RFCs, specifications, governance policy, runbooks, a solutions knowledge base, and reference material. These subtrees are the companion to the version buckets above, and this skill treats them as a distinct disposition class so that a downstream `/plan` or `/implement` run has a canonical rule to follow instead of inventing one.
 
-**Recognized subtrees** (match on the directory name at the `docs/` root, case-insensitive; aliases in parentheses):
+**Lookup fast path** (match on the directory name at the `docs/` root, case-insensitive; aliases in parentheses): this table accelerates the admission test but does not replace it.
 
 | Class | Directories | Behavior |
 |---|---|---|
@@ -150,7 +166,7 @@ All directory names above are matched relative to the `docs/` root (e.g. `docs/t
 - **Never reclassified by semantic content.** The skill does not split, rename, merge, or re-bucket these subtrees by meaning (e.g. it never partitions ADRs into "design-spec" vs "governance-policy", because it has no reference layout to validate such a split against). Structural reorganization of a recognized subtree happens only when the user explicitly requests it AND supplies the target shape.
 - **Whole-subtree archival is opt-in only.** If a project genuinely retires one of these subtrees, archive it as a single unit through the Partial path at the Step 7 gate - never as an automated proposal.
 
-**Unrecognized but comparable subtrees**: a `docs/<name>/` directory that is clearly a living reference or governance collection (it holds maintained documentation, does not match the version-artifact filename patterns in signal 3, and is not itself a version bucket) defaults into this class. Bias to leave-in-place and flag as Cat 3 for manual review rather than auto-dispositioning it. When in doubt, treat a subtree as cross-cutting rather than version-scoped - a false "leave in place" is reversible, whereas a false archive or delete churns files and every cross-reference that points at them.
+**Unrecognized subtrees**: classify `docs/<name>/` by answering the lifespan admission test for its contents. A new name containing living documents is living even though the name is absent from the lookup table. Only when the answer is genuinely indeterminate does the Cat 3 leave-in-place floor apply. This preserves the signal 2 and signal 6 floors and avoids using a name list as policy.
 
 **Documentation tooling and generated output** are not content and follow a separate rule, since most `docs/` trees are built by a static-site generator (Sphinx, MkDocs, Jekyll, Hugo, Docusaurus, VuePress):
 
@@ -221,7 +237,7 @@ python catalog/skills/code-cleanup/docs-layout-refactor/scripts/audit-docs.py \
 
 The helper scans `.md`, `.json`, `.yaml`, `.yml`, `.toml`, `.sh`, `.ps1`, `.py` files outside `docs/` for inbound references to each `docs/` file (markdown links, raw paths, and `CHANGELOG.md` mentions). Output is a single JSON object: `{docs_path: [{referrer, line}, ...]}`.
 
-### Step 4 - Categorization (eight weighted heuristics)
+### Step 4 - Categorization (nine weighted heuristics)
 
 Signals 2 and 6 are **hard floors**: they can only raise a category, never lower it. Files under a recognized cross-cutting subtree carry an additional hard floor at Cat 3 - see [Cross-cutting documentation subtrees (non-versioned)](#cross-cutting-documentation-subtrees-non-versioned).
 
@@ -235,6 +251,7 @@ Signals 2 and 6 are **hard floors**: they can only raise a category, never lower
 | 6 | **CHANGELOG citation**: file or owning directory cited in `CHANGELOG.md`. | **Hard floor at Cat 2** (never Cat 1). |
 | 7 | **Body keywords**: `DRAFT` / `WIP` / `scratch` / `tmp` with `mtime_age_days > 30`. | Cat 1 candidate. `TODO` / `FIXME` in the active-version dir -> Cat 4. |
 | 8 | **Inbound link count from other docs**: 0 inbound from the active version dir. | +Cat 1/2 weight. >= 1 -> hold at current category. |
+| 9 | **Lifespan contradiction**: the canonical rule in [references/link-integrity.md](references/link-integrity.md) finds a frozen-at-close document changed after release close. | Finding only; never move automatically. Add it to the report with both dates. |
 
 Aggregate the weighted signals, then apply the hard floors. The four categories:
 
@@ -302,6 +319,12 @@ Write `docs/<next-version>/docs-cleanup-report.md` (or the path resolved in step
 | Path | Why stale | Suggested action |
 |---|---|---|
 | ... |
+
+## Lifespan contradictions
+
+| File | Bucket | Release close date | Offending commit date |
+|---|---|---|---|
+| ... | ... | ... | ... |
 
 ## Target tree preview
 
@@ -404,7 +427,7 @@ Run the seven binary checks (see Verification section below). On any FAIL, loop 
 | 8 | Symlinks under `docs/` | Skip with warning. Never move or delete. |
 | 9 | Empty version directory | Cat 1 candidate. Require explicit user confirmation; do not auto-delete in `--apply`. |
 | 10 | Archive-path collision | Suffix with `-<source-version>`. Never silently overwrite. |
-| 11 | Cross-cutting non-versioned subtree (`docs/adr/`, `docs/rfc/`, `docs/specs/`, `docs/policy/`, `docs/architecture/`, `docs/tutorials/`, `docs/runbooks/`, `docs/i18n/`, ...) | Hard floor at Cat 3. Never version-archived, never reclassified or split by semantic content. Whole-subtree archival only via explicit opt-in at the gate. See [Cross-cutting documentation subtrees (non-versioned)](#cross-cutting-documentation-subtrees-non-versioned). |
+| 11 | Cross-cutting non-versioned subtree, including a name absent from the lookup fast path | Answer the [lifespan admission test](#lifespan-admission-test). Apply the Cat 3 floor only if the answer is genuinely indeterminate; whole-subtree archival still requires explicit opt-in at the gate. |
 | 12 | Doc-generator output dir (`docs/_build/`, `_site/`, `site/`, `public/`, `.docusaurus/`, `dist/`) | Regenerable, not content. Never archived; recommend gitignoring; delete only with explicit Cat 1 confirmation. Generator scaffolding (`source/`, `_static/`, `_templates/`) gets the Cat 3 leave-in-place floor instead. |
 
 See [references/archive-layout.md](references/archive-layout.md) for the canonical archive tree shape and the `docs/archive/README.md` template that step 8 instantiates.
@@ -432,6 +455,8 @@ Run after step 9. Each check is binary; FAIL on any item loops back up to three 
 - [ ] **`git status --porcelain` count equals (moves + deletes + report write + archive README)** - surprise mutations halt with a diff dump for user review.
 - [ ] **Active-version dir untouched** - diff against pre-move state for `docs/<next-version>/` shows only the new `docs-cleanup-report.md`.
 - [ ] **Report self-classified as Cat 4** - sanity check that the report does not claim to be ready for archival immediately.
+- [ ] **No lifespan contradiction was auto-moved** - every Signal 9 result appears under *Lifespan contradictions* with the bucket, release close date, and offending commit date.
+- [ ] **Snapshot names assert their content version** - each frozen snapshot directory names the version described by the copied content.
 
 ## Related Skills
 

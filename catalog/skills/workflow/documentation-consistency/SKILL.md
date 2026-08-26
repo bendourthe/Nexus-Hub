@@ -228,6 +228,10 @@ echo "Co-location check complete (MISMATCH lines above, if any, must be reconcil
 
 Report every `MISMATCH` line in the consistency report with both paths and the expected location, and reconcile it by moving the misplaced file and repairing references via `[[docs-layout-refactor]]` (propose-then-apply, with confirmation). Treat each `NOTE (legacy)` as a low-priority recommendation, not a failure.
 
+### Step 7.6: Lifespan Contradictions
+
+Run the standalone frozen-bucket edit-history check defined once in [`docs-layout-refactor`'s link-integrity reference](../../code-cleanup/docs-layout-refactor/references/link-integrity.md). Invoke `audit-docs.py lifespan-contradictions --root ./docs --repo-root .`, copy every returned record into a `## Lifespan contradictions` report section, and fail the audit when the command exits 1 or 2. Findings require human intent review; this skill never moves the file automatically.
+
 ### Step 8: Generate Consistency Report
 
 Create a summary of all issues found:
@@ -392,6 +396,7 @@ Before completing documentation audit:
 - [ ] Deprecated content removed or marked
 - [ ] Documentation structure matches codebase
 - [ ] Every comparison and the adoption plan it seeds live in the same version dir (Step 7.5); mismatches for the current major reconciled, `docs/archive/**` and prior-major trees grandfathered
+- [ ] Frozen-bucket edit history checked through the shared lifespan-contradiction rule; every finding reports both dates and no file moved automatically
 - [ ] Dates updated where applicable
 - [ ] Consistency report generated
 
@@ -411,7 +416,7 @@ Before completing documentation audit:
 
 ---
 
-**Version**: 1.1.0
+**Version**: 1.2.0
 **Last Updated**: July 2026
 
 

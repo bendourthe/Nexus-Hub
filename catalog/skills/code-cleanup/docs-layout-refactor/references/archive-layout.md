@@ -136,6 +136,8 @@ docs/archive/v<MAJOR>/v<MAJOR>.<MINOR>/handbooks/
 
 under the current archive spelling. Do not move the live tree. Generated `html/` is regenerated and stale-checked; it is not the snapshot source of truth. v4.0 will rename the archive container to `docs/archives/` later; this path is the current spelling.
 
+Name a release snapshot for the version the copied content describes, not the release that prompted the snapshot. Take the snapshot before applying a release's documentation changes only when the destination bears the preceding version. Naming that folder after the new release would assert that old content describes the new version; an auditor can reasonably misread that claim, and an explanatory README does not repair the false directory name.
+
 ## What does NOT go in `docs/archive/`
 
 - `docs/DEVLOG.md` at root - always Cat 3 (stale-flag), never archived.

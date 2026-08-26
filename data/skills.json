@@ -1087,11 +1087,11 @@
     {
       "name": "docs-layout-refactor",
       "title": "docs-layout-refactor",
-      "description": "Audit and reorganize a project's docs/ folder by categorizing every file (Cat 1 delete / Cat 2 archive / Cat 3 stale-flag / Cat 4 active), proposing a version-first layout with a docs/v<MAJOR>/v<MAJOR>.<MINOR>/ active tree (plans/ + comparisons/ subdirs; patch releases share their minor dir) and a docs/archive/v<MAJOR>/v<MAJOR>.<MINOR>/ archive subtree, and applying changes only after explicit user confirmation. Use whenever the user says \"clean up docs\", \"reorganize docs\", \"archive old docs\", \"docs folder is messy\", \"audit docs\", \"refactor docs structure\", \"the docs are cluttered\", \"review docs before release\", \"archive prior major version\", or before a version bump. SKIP for content accuracy fixes (use update-documentation), repo-root / scripts / CI/CD reorganization (use refactor-project, formerly refactor-project-layout), or CHANGELOG generation (use generate-changelog).",
-      "long_description": "Walk the docs/ tree, score every file with eight weighted heuristics, classify each as Cat 1 / Cat 2 / Cat 3 / Cat 4, and propose a version-first reorganization with a dedicated docs/archive/versions/v<MAJOR>/v<SEMVER>/<topic>/ subtree. Supports --canonicalize-layout to migrate legacy docs/<vSEMVER>/ directories into the canonical docs/versions/v<MAJOR>/v<SEMVER>/ layout, and --auto-archive-older-versions to move whole prior-major buckets into the archive. Propose-only by default; applies changes only after explicit user confirmation at the gate. Ships an audit-docs.py helper for stdlib-only inventory and reference-graph extraction.",
+      "description": "Audit and reorganize a project's docs/ folder by applying a lifespan admission test, categorizing every file (Cat 1 delete / Cat 2 archive / Cat 3 stale-flag / Cat 4 active), proposing a version-first layout with a docs/v<MAJOR>/v<MAJOR>.<MINOR>/ active tree and docs/archive/v<MAJOR>/v<MAJOR>.<MINOR>/ archive subtree, and applying changes only after explicit user confirmation. Use whenever the user says \"clean up docs\", \"reorganize docs\", \"archive old docs\", \"docs folder is messy\", \"audit docs\", \"refactor docs structure\", \"the docs are cluttered\", \"review docs before release\", \"classify docs by lifespan\", \"archive prior major version\", or before a version bump. SKIP for content accuracy fixes (use update-documentation), repo-root / scripts / CI/CD reorganization (use project-refactor), or CHANGELOG generation (use generate-changelog).",
+      "long_description": "Walk the docs/ tree, answer one lifespan admission question per document, apply nine weighted heuristics, and classify each file as Cat 1 / Cat 2 / Cat 3 / Cat 4. The recognized subtree table is a lookup fast path, not policy; unknown names return to the admission test. Signal 9 reports frozen-bucket documents edited after release close without moving them automatically. Propose-only by default; applies changes only after explicit user confirmation. Ships an audit-docs.py helper for stdlib-only inventory, reference graphs, and lifespan-contradiction detection.",
       "summary_l0": "\"Audit, categorize, and reorganize docs/ folders with a propose-then-apply workflow and a versioned archive subtree\"",
-      "overview_l1": "\"Walk the docs/ tree, score every file with eight weighted heuristics (age, inbound refs, CHANGELOG citation, filename patterns, duplication, body keywords), classify each as Cat 1 (delete), Cat 2 (archive), Cat 3 (stale but load-bearing), or Cat 4 (active). Propose a version-first reorganization with topical subdirs mirroring the active layout, plus a docs/archive/v<MAJOR>/v<MAJOR>.<MINOR>/<topic>/ subtree for Cat 2 items. Default mode is propose-only: no files move until the user explicitly confirms at the gate. Ships an audit-docs.py helper that emits a JSON inventory and reference graph without being read into context. Trigger phrases: clean up docs, reorganize docs, archive old docs, docs folder is messy, audit docs, refactor docs structure, docs are cluttered, review docs before release, docs cleanup, prune docs.\"",
-      "version": "1.1.0",
+      "overview_l1": "\"Walk the docs/ tree, answer one lifespan admission question per document, then apply nine weighted heuristics to classify each file as Cat 1 (delete), Cat 2 (archive), Cat 3 (stale but load-bearing), or Cat 4 (active). Propose a version-first reorganization with topical subdirs mirroring the active layout, plus a docs/archive/v<MAJOR>/v<MAJOR>.<MINOR>/<topic>/ subtree for Cat 2 items. Default mode is propose-only: no files move until the user explicitly confirms at the gate. Ships an audit-docs.py helper for inventory, reference graphs, and lifespan-contradiction detection. Trigger phrases: clean up docs, reorganize docs, archive old docs, docs folder is messy, audit docs, refactor docs structure, classify docs by lifespan, docs cleanup, prune docs.\"",
+      "version": "1.4.0",
       "author": "Benjamin Dourthe",
       "category": "code-cleanup",
       "language": "Multi-language",
@@ -1115,9 +1115,9 @@
       "path": "catalog/skills/code-cleanup/docs-layout-refactor/",
       "file": "catalog/skills/code-cleanup/docs-layout-refactor/SKILL.md",
       "size": {
-        "lines": 280,
-        "characters": 17000,
-        "tokens_estimate": 4200
+        "lines": 474,
+        "characters": 38967,
+        "tokens_estimate": 9742
       },
       "downloads": 0,
       "status": "production",

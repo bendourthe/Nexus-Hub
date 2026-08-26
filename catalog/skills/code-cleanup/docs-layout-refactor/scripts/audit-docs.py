@@ -10,10 +10,13 @@ Windows.
 Subcommands:
     inventory   Walk a docs/ tree and emit one NDJSON record per file.
     refgraph    Scan the rest of the repo for inbound references to each docs file.
+    lifespan-contradictions
+                Report frozen-bucket files committed after release close.
 
 Usage:
     python audit-docs.py inventory --root ./docs
     python audit-docs.py refgraph  --root ./docs --repo-root .
+    python audit-docs.py lifespan-contradictions --root ./docs --repo-root .
 
 Output formats are documented in catalog/skills/code-cleanup/docs-layout-refactor/SKILL.md
 under "Step 2 - Tree fingerprinting" and "Step 3 - Reference graph".
@@ -25,6 +28,7 @@ import fnmatch
 import hashlib
 import json
 import re
+import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
@@ -57,6 +61,38 @@ DEFAULT_EXCLUDES = {
     "coverage", "htmlcov", ".tox",
 }
 MAX_FILE_BYTES_DEFAULT = 1_048_576  # 1 MB
+
+LIFESPAN_DISPOSITIONS = {
+    "never": "living",
+    "supersession": "append-only",
+    "release-close": "frozen-at-close",
+    "controlled-record": "controlled record",
+    "already-frozen": "already-frozen",
+    "generated": "generated",
+}
+
+LIFESPAN_FAST_PATH = {
+    "adr": "append-only",
+    "adrs": "append-only",
+    "decisions": "append-only",
+    "rfc": "append-only",
+    "rfcs": "append-only",
+    "handbooks": "living",
+    "architecture": "living",
+    "design": "living",
+    "tutorials": "living",
+    "how-to": "living",
+    "reference": "living",
+    "runbooks": "living",
+    "policy": "living",
+    "security": "living",
+    "compliance": "controlled record",
+    "validation": "controlled record",
+}
+
+FROZEN_BUCKET_RE = re.compile(
+    r"^docs/(?:releases/)?v(?P<major>\d+)/v(?P=major)\.(?P<minor>\d+)(?:/|$)"
+)
 
 
 # ── Helpers ────────────────────────────────────────────────────────────────
@@ -188,6 +224,104 @@ def _walk(root: Path, excludes: Iterable[str]) -> Iterator[Path]:
 
 def _match_any(name: str, globs: Iterable[str]) -> bool:
     return any(fnmatch.fnmatch(name, g) for g in globs)
+
+
+def classify_lifespan(answer: str) -> str:
+    """Return the disposition for one explicit admission-test answer."""
+    key = answer.strip().lower().replace("_", "-")
+    if key not in LIFESPAN_DISPOSITIONS:
+        raise ValueError(f"indeterminate lifespan answer: {answer}")
+    return LIFESPAN_DISPOSITIONS[key]
+
+
+def lifespan_fast_path(relative_path: str) -> Optional[str]:
+    """Return a recognized-root shortcut, or None so the admission test decides."""
+    parts = Path(relative_path.replace("\\", "/")).parts
+    if parts and parts[0].lower() == "docs":
+        parts = parts[1:]
+    if not parts:
+        return None
+    return LIFESPAN_FAST_PATH.get(parts[0].lower())
+
+
+def _git(repo_root: Path, *args: str) -> subprocess.CompletedProcess[str]:
+    """Run one fixed-argv git query without invoking a shell."""
+    return subprocess.run(
+        ["git", "-C", str(repo_root), *args],
+        check=False,
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+    )
+
+
+def _parse_iso(value: str) -> datetime:
+    return datetime.fromisoformat(value.strip().replace("Z", "+00:00"))
+
+
+def _release_close_dates(repo_root: Path) -> dict[tuple[int, int], tuple[str, str]]:
+    result = _git(
+        repo_root,
+        "for-each-ref",
+        "--format=%(refname:short)%09%(creatordate:iso-strict)",
+        "refs/tags",
+    )
+    if result.returncode != 0:
+        return {}
+    candidates: dict[tuple[int, int], list[tuple[datetime, str, str]]] = {}
+    for line in result.stdout.splitlines():
+        if "\t" not in line:
+            continue
+        tag, created = line.split("\t", 1)
+        match = re.fullmatch(r"v(\d+)\.(\d+)(?:\.(\d+))?", tag)
+        if not match:
+            continue
+        key = (int(match.group(1)), int(match.group(2)))
+        candidates.setdefault(key, []).append((_parse_iso(created), tag, created))
+    closes: dict[tuple[int, int], tuple[str, str]] = {}
+    for key, values in candidates.items():
+        _, tag, created = min(values, key=lambda item: item[0])
+        closes[key] = (tag, created)
+    return closes
+
+
+def find_lifespan_contradictions(repo_root: Path, docs_root: Path) -> list[dict[str, str]]:
+    """Find tracked frozen-bucket documents edited after their release closed."""
+    try:
+        docs_rel = _to_posix(docs_root.resolve().relative_to(repo_root.resolve()))
+    except ValueError:
+        return []
+    tracked = _git(repo_root, "ls-files", "-z", "--", docs_rel)
+    if tracked.returncode != 0:
+        return []
+    closes = _release_close_dates(repo_root)
+    findings: list[dict[str, str]] = []
+    for path in sorted(item for item in tracked.stdout.split("\0") if item):
+        match = FROZEN_BUCKET_RE.match(path)
+        if not match:
+            continue
+        key = (int(match.group("major")), int(match.group("minor")))
+        close = closes.get(key)
+        if close is None:
+            continue
+        newest = _git(repo_root, "log", "-1", "--format=%cI", "--", path)
+        commit_date = newest.stdout.strip()
+        if newest.returncode != 0 or not commit_date:
+            continue
+        release_tag, release_date = close
+        if _parse_iso(commit_date) <= _parse_iso(release_date):
+            continue
+        findings.append(
+            {
+                "file": path,
+                "bucket": f"v{key[0]}.{key[1]}",
+                "release_tag": release_tag,
+                "release_close_date": release_date,
+                "offending_commit_date": commit_date,
+            }
+        )
+    return findings
 
 
 # ── Subcommand: inventory ──────────────────────────────────────────────────
@@ -328,6 +462,18 @@ def cmd_refgraph(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_lifespan_contradictions(args: argparse.Namespace) -> int:
+    repo_root = Path(args.repo_root).resolve()
+    docs_root = Path(args.root).resolve()
+    if not repo_root.is_dir() or not docs_root.is_dir():
+        print(f"Error: paths missing. docs={docs_root} repo={repo_root}", file=sys.stderr)
+        return 2
+    findings = find_lifespan_contradictions(repo_root, docs_root)
+    json.dump(findings, sys.stdout, ensure_ascii=False, indent=2)
+    sys.stdout.write("\n")
+    return 1 if findings else 0
+
+
 # ── CLI ────────────────────────────────────────────────────────────────────
 
 
@@ -352,6 +498,14 @@ def build_parser() -> argparse.ArgumentParser:
     ref.add_argument("--repo-root", default=".", help="Repo root (defaults to current directory).")
     ref.add_argument("--include-archive", action="store_true", help="Include docs/archive/ in the scan targets.")
     ref.set_defaults(func=cmd_refgraph)
+
+    contradictions = sub.add_parser(
+        "lifespan-contradictions",
+        help="Report frozen-bucket documents committed after the matching release tag.",
+    )
+    contradictions.add_argument("--root", default="./docs", help="Path to the docs root.")
+    contradictions.add_argument("--repo-root", default=".", help="Repository root.")
+    contradictions.set_defaults(func=cmd_lifespan_contradictions)
 
     return parser
 

@@ -13,3 +13,9 @@ Capture a pre-move unresolved-link baseline with `link-baseline.py baseline` bef
 Git detects file renames only. A link that names a directory, such as `../development/`, therefore needs a separate directory-prefix map. Apply the longest matching old directory prefix to the resolved target before re-expressing the relative link.
 
 This algorithm replaces manual `../` depth counting. In the source refactor, hand-counting path depth produced 30 dead links even though the substitutions themselves completed successfully.
+
+## Lifespan contradiction rule
+
+A lifespan contradiction is a tracked document whose frozen-at-close location conflicts with its edit history. For each file under `releases/v<M>/v<M>.<m>/`, or under the pre-rename `docs/v<M>/v<M>.<m>/` form, compare the newest file commit from `git log -1 --format=%cI -- <path>` with the earliest matching release tag's creation date. When the newest commit post-dates release close, record the file, bucket, release close date, and offending commit date under `## Lifespan contradictions`.
+
+Run `audit-docs.py lifespan-contradictions --root ./docs --repo-root .` for the standalone check. Exit 0 means no contradictions; exit 1 means findings exist; exit 2 means the check could not run. A finding never authorizes an automatic move: inspect intent and either relocate the living document or revert the post-close edit.

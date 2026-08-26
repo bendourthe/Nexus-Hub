@@ -14,7 +14,7 @@ Refreshing this file to the active plan (rather than appending another version's
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
-| v4.0.0 docs-lifespan phases complete | 1 | 7 | 6 |
+| v4.0.0 docs-lifespan phases complete | 2 | 7 | 5 |
 | Open release blockers | 0 | 0 | 0 |
 | Catalog skills | 325 | 325 | 0 |
 | Substantive templates carrying the plan-lifecycle block | 12 | 12 | 0 |
@@ -27,7 +27,7 @@ Refreshing this file to the active plan (rather than appending another version's
 ## Plan - v4.0.0 Docs Lifespan Tree and Enforcement [IN PROGRESS]
 
 - [x] Phase 1 - Enforcement mechanisms
-- [ ] Phase 2 - Lifespan axis
+- [x] Phase 2 - Lifespan axis
 - [ ] Phase 3 - Breaking rename of the prescription
 - [ ] Phase 4 - Executable guards and anti-regression tests
 - [ ] Phase 5 - Distribution to every platform class
