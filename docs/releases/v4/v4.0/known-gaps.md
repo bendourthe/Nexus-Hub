@@ -125,7 +125,7 @@ None.
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 2 | 0 |
 | Bugs / regressions (BG) | 0 | 1 |
-| Warnings (WN) | 2 | 0 |
+| Warnings (WN) | 3 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 1 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
@@ -261,6 +261,14 @@ None.
 - **Blast radius**: none automated. The check is standalone - it is not in the `make validate` chain and no CI profile or workflow invokes it - so it gates nothing. It exits 1 when findings exist, which is its documented contract.
 - **Why it is not silently suppressed**: exempting the migration commit would require the detector to distinguish a link-target repair from a content edit, which it cannot do from commit dates alone, and adding a date-based amnesty would blunt the signal permanently for a one-time event.
 - **Suggested next step**: after v4.0.0 is tagged, re-run the detector and treat the post-tag result as the real baseline; a finding dated after that tag is a genuine contradiction. If the noise recurs on future migrations, the durable fix is an explicit re-baseline marker the detector reads, not a heuristic over diffs.
+
+##### WN-3 - CodeQL's PR check cannot evaluate a rename of this size
+
+- **Source phase**: Phase 7 follow-up - the integration pull request
+- **What was observed**: on PR #126 the `CodeQL` check reported failure in 3 seconds while both underlying `Analyze` jobs passed (`javascript-typescript` 1m26s, `python` 1m58s). The annotation is `Cannot retrieve the full diff because there are too many (300) changed files in the pull request`.
+- **Assessment**: a platform limit on GitHub's changed-files diff for code scanning, reached because this release renames 763 files in one commit. It is not a code finding, and the analysis itself completed. `CodeQL` is not in the declared required contexts for either protected branch (`validate`, `shellcheck`, `ci-required`, `colocation`, `verify`), so it does not gate the merge.
+- **Suggested next step**: none for this release. If a future change again renames at this scale, expect the same annotation and read the `Analyze` job results directly rather than the aggregate check.
+
 
 ### Resolved Items
 

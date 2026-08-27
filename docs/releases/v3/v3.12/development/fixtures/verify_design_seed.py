@@ -17,7 +17,19 @@ import tempfile
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
-REPO = HERE.parents[4]
+def _repo_root(start: Path) -> Path:
+    """Walk up to the repository root instead of hand-counting parent depth.
+
+    A fixed ``parents[N]`` silently breaks whenever the file moves a level, and
+    the v4.0.0 docs migration moved this tree one level deeper. Anchoring on a
+    marker that only the root carries makes the location irrelevant.
+    """
+    for candidate in [start, *start.parents]:
+        if (candidate / "AGENTS.md").is_file() and (candidate / "catalog").is_dir():
+            return candidate
+    raise RuntimeError(f"repository root not found above {start}")
+
+REPO = _repo_root(HERE)
 SCRIPT = (
     REPO
     / "catalog"
