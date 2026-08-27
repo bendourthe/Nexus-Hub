@@ -205,7 +205,7 @@ None.
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
-| Bugs / regressions (BG) | 1 | 4 |
+| Bugs / regressions (BG) | 0 | 5 |
 | Warnings (WN) | 2 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
@@ -214,12 +214,15 @@ None.
 
 #### Bugs / Regressions
 
-##### BG-1 - nexus-memory config initialization can expose an empty file to a concurrent reader
+##### BG-1 - RESOLVED - nexus-memory config initialization exposed an empty file to a concurrent reader
 
 - **Source phase**: Phase 4 - Executable guards and anti-regression tests
 - **What was observed**: the first full `make test` equivalent failed once in `extensions/nexus-memory/tests/test_store.py::test_multiprocess_concurrent_append`. One of four worker processes entered `load_config` while another process was writing the shared JSON config and received `JSONDecodeError: Expecting value: line 1 column 1 (char 0)`.
 - **Reproduction status**: the exact test passed twice immediately afterward, the complete `nexus-memory` suite then passed with 51 passes and 1 skip, and the final repository suite passed with 3,354 passes and 37 skips. The failure is intermittent but the traceback demonstrates a real unprotected read/write seam.
-- **Suggested next step**: in the post-Phase-7 known-gaps pass, make config creation atomic or retry a bounded transient empty read, add a deterministic concurrency regression test, and rerun the full extension suite.
+- **Root cause**: `save_config` published with `Path.write_text`, which truncates before it writes. A reader that opened `config.json` inside that window read an empty string and `json.loads` raised. Nothing was corrupt on disk; the file was momentarily empty.
+- **Resolution**: `save_config` now writes a sibling temp file and publishes with `os.replace`, so a reader sees either the whole old file or the whole new one. The temp file is a sibling to keep the replace on one filesystem, which is what makes it atomic, and it is removed in a `finally`. A short bounded retry covers the Windows case where `os.replace` raises `PermissionError` while another process holds the destination open.
+- **Deterministic regression test**: `test_save_config_never_exposes_a_truncated_file` spies on `os.replace` and asserts the destination still holds the complete previous content at the instant of the swap, so the property is asserted rather than raced for. Verified in both directions: it FAILS against the restored `write_text` implementation and passes against the fix. A second test asserts no temp file is left behind.
+- **Why it was fixed during the release**: this surfaced as a red `tests` required check on the release promotion PR (#128), one worker exiting 1 out of four. Re-running the job would have shipped a known race that intermittently breaks CI for every consumer.
 
 ##### BG-2 - global integration runner ignores the explicit target root for home-relative destinations
 
