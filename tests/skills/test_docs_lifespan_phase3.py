@@ -8,7 +8,14 @@ import re
 
 
 ROOT = Path(__file__).resolve().parents[2]
-DECISION = ROOT / "docs/decisions/proposed/tooling/2026-08-20-docs-tree-organised-by-lifespan.md"
+# Located by NAME, not by lifecycle stage. A decision record legitimately moves
+# proposed/ -> implemented/ at release, so pinning the stage guarantees this test
+# breaks on every promotion -- which is exactly what it did at the v4.0.0 release.
+_DECISION_NAME = "2026-08-20-docs-tree-organised-by-lifespan.md"
+_DECISION_MATCHES = sorted((ROOT / "docs/decisions").rglob(_DECISION_NAME))
+assert _DECISION_MATCHES, f"decision record {_DECISION_NAME} not found under docs/decisions/"
+assert len(_DECISION_MATCHES) == 1, f"decision record {_DECISION_NAME} exists in more than one lifecycle stage: {_DECISION_MATCHES}"
+DECISION = _DECISION_MATCHES[0]
 DOCS_LAYOUT = ROOT / "catalog/skills/code-cleanup/docs-layout-refactor/SKILL.md"
 
 

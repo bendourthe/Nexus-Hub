@@ -1,6 +1,6 @@
 # Decision: Move the roadmap ordering document to a living root
 
-Status: proposed - Relocate `roadmap-prioritization.md` out of the release tree, superseding the "Not moved" line in the 2026-08-21 plan-filename decision
+Status: implemented - Relocate `roadmap-prioritization.md` out of the release tree, superseding the "Not moved" line in the 2026-08-21 plan-filename decision
 
 ## Problem
 
@@ -12,9 +12,9 @@ The v4.0.0 lifespan migration invalidates the premise of that reasoning in two w
 
 The lifespan admission test the same release adopts asks: "will this document still change after this release closes?" For the roadmap document the answer is unambiguously yes.
 
-## Proposal
+## Decision
 
-Move the file to `docs/roadmap-prioritization.md`, a living root, and repair its inbound references through the migration's rename map.
+The file lives at `docs/roadmap-prioritization.md`, a living root, and its inbound references were repaired through the migration's rename map.
 
 This keeps the two properties the 2026-08-21 decision actually depended on. The document remains the single ordering authority reachable from `docs/todos.md`, `README.md`, `CHANGELOG.md`, and every plan's `Rank` field. And it remains excluded from automated version-string sweeps, which matters more after the move than before: the file names version numbers as *data about other documents*, and a sweep treating them as its own version corrupts the ranking. That hazard is unchanged.
 
@@ -32,7 +32,7 @@ Rejected. It honors the 2026-08-21 record literally and touches no references, b
 
 Rejected. The document's value is that order is readable from one place; the 2026-08-20 revision exists precisely because ordering had been scattered across filenames. Splitting it re-creates the problem it was written to solve, and neither half is independently useful.
 
-## Acceptance criteria
+## Verified by
 
 - `docs/roadmap-prioritization.md` exists and `docs/v3/` no longer exists.
 - Git records the relocation as a rename, not as a delete plus an unrelated add.

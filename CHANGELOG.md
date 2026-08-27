@@ -7,7 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [4.0.0] - 2026-08-27
+
+### Capability usage gate
+
+One opt-in capability changes in this release: the whole-tree documentation migration. All five elements are stated here because the fourth - the authority activation does NOT grant - is the one that fails silently when omitted.
+
+- **Activation**: `/update refactor --canonicalize-layout`, or the `refactor` step inside `/update release`. Directly: `python catalog/skills/code-cleanup/docs-layout-refactor/scripts/audit-docs.py canonicalize-layout --root docs`. Nothing moves until you approve the plan at the skill's confirmation gate; propose-only is the default, and the skill never renames a legacy directory during plan generation or a normal audit.
+- **Validation**: capture a baseline before the move and diff after it, supplying the rename map so the gate is move-aware:
+
+    ```bash
+    link-baseline.py baseline --root . --out before.ndjson
+    # ...migrate, then repair references...
+    git diff --cached --name-status -M > renames.tsv
+    link-baseline.py baseline --root . --out after.ndjson
+    link-baseline.py diff --before before.ndjson --after after.ndjson --rename-map renames.tsv
+    ```
+
+    Zero `newly_broken` is the gate; exit 0 confirms it.
+- **Rollback**: decline at the confirmation gate and nothing moves. The v3.11 shape (`docs/v<MAJOR>/v<MAJOR>.<MINOR>/` plus singular `docs/archive/`), flat `docs/<vSEMVER>/`, and three-level `docs/versions/â€¦` all remain **recognised legacy layouts honoured in place**, with a one-line notice rather than an error. After an approved migration, the move is a set of git renames in one commit and is revertable like any other commit.
+- **Authority this does NOT grant**: approving a migration does not let Nexus-Hub reshape any tree other than the one you ran it in, does not delete documents (every disposition is a move, and Cat 1 deletion is a separate explicit decision), and transmits nothing off the machine - the migration, the link baseline, and the reference repair are all local and stdlib-only. Upgrading Nexus-Hub on its own migrates nothing: no install step, hook, or background task reshapes a docs tree, and the legacy layout keeps working indefinitely if you never opt in.
+- **Docs**: [`catalog/skills/code-cleanup/docs-layout-refactor/SKILL.md`](catalog/skills/code-cleanup/docs-layout-refactor/SKILL.md) (`## Migration from 1.x`), with the proof mechanism in [`references/link-integrity.md`](catalog/skills/code-cleanup/docs-layout-refactor/references/link-integrity.md).
+
 
 ### Added
 
