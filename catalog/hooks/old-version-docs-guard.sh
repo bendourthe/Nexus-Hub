@@ -1,20 +1,21 @@
 #!/usr/bin/env bash
 # Old Version Docs Guard - PreToolUse Hook for Claude Code
-# Warns when Write or Edit targets a historical docs/v<old-version>/ path.
+# Warns when Write or Edit targets a historical version-bound docs path.
 # Part of Nexus-Hub
 #
 # How it works:
 #   Claude Code pipes JSON to stdin before each Write/Edit tool call.
 #   This script extracts the file path, detects whether it lives inside
-#   a docs/v<version>/ directory older than the active version, and
+#   a recognized release directory older than the active version, and
 #   emits an advisory warning to stderr if so.
 #
 #   Non-blocking by default (always exits 0). Set NEXUS_OLD_DOCS_GUARD=block
 #   to upgrade to a hard block (exit 1).
 #
 # Active-version detection:
-#   1. Latest docs/v*/ directory by semantic version order.
-#   2. If no docs/v*/ directories exist, the hook is a no-op.
+#   1. Latest canonical docs/releases/v*/v*/ directory by semantic version.
+#   2. Otherwise, the first populated legacy layout: v-bucket, flat, versions.
+#   3. If no recognized version directories exist, the hook is a no-op.
 #
 # Companion command: /refactor-docs proposes structured archival of historical
 # version dirs instead of ad-hoc edits.
@@ -55,14 +56,21 @@ fi
 # Normalize separators (Windows paths -> POSIX).
 NORM_PATH="${FILE_PATH//\\//}"
 
-# --- Check whether the path is inside docs/v<version>/ ---
-# Match docs/v<num>(.<num>)*/ at any depth (relative or absolute path).
-if [[ ! "$NORM_PATH" =~ (^|/)docs/v([0-9]+(\.[0-9]+){0,2})(/|$) ]]; then
+# --- Resolve the target version across canonical and legacy layouts ---
+TARGET_VERSION=""
+if [[ "$NORM_PATH" =~ (^|/)docs/(releases|archives)/v[0-9]+/v([0-9]+(\.[0-9]+){1,2})(/|$) ]]; then
+  TARGET_VERSION="${BASH_REMATCH[3]}"
+elif [[ "$NORM_PATH" =~ (^|/)docs/(archive/)?v[0-9]+/v([0-9]+(\.[0-9]+){1,2})(/|$) ]]; then
+  TARGET_VERSION="${BASH_REMATCH[3]}"
+elif [[ "$NORM_PATH" =~ (^|/)docs/(archive/)?versions/v[0-9]+/v([0-9]+(\.[0-9]+){1,2})(/|$) ]]; then
+  TARGET_VERSION="${BASH_REMATCH[3]}"
+elif [[ "$NORM_PATH" =~ (^|/)docs/(archive/)?v([0-9]+\.[0-9]+\.[0-9]+)(/|$) ]]; then
+  TARGET_VERSION="${BASH_REMATCH[3]}"
+else
   exit 0
 fi
-TARGET_VERSION="${BASH_REMATCH[2]}"
 
-# --- Detect the active version by scanning docs/v*/ directories ---
+# --- Detect the active version from the resolved active container ---
 # Walks upward from the current working directory to find the repo root that
 # contains docs/. Falls back to the current directory if docs/ is found there.
 find_docs_root() {
@@ -98,18 +106,34 @@ semver_gt() {
 }
 
 ACTIVE_VERSION=""
-for d in "$DOCS_ROOT"/v*; do
-  [ -d "$d" ] || continue
-  bn="$(basename "$d")"
-  if [[ "$bn" =~ ^v([0-9]+(\.[0-9]+){0,2})$ ]]; then
-    candidate="${BASH_REMATCH[1]}"
-    if [ -z "$ACTIVE_VERSION" ]; then
-      ACTIVE_VERSION="$candidate"
-    elif semver_gt "$candidate" "$ACTIVE_VERSION"; then
-      ACTIVE_VERSION="$candidate"
+scan_version_dirs() {
+  local required_pattern="$1"
+  shift
+  local d bn candidate
+  for d in "$@"; do
+    [ -d "$d" ] || continue
+    bn="$(basename "$d")"
+    if [[ "$bn" =~ $required_pattern ]]; then
+      candidate="${BASH_REMATCH[1]}"
+      if [ -z "$ACTIVE_VERSION" ] || semver_gt "$candidate" "$ACTIVE_VERSION"; then
+        ACTIVE_VERSION="$candidate"
+      fi
     fi
-  fi
-done
+  done
+}
+
+# Match the docs-layout-refactor resolution order. Once one layout yields an
+# active candidate, later legacy layouts cannot override it.
+scan_version_dirs '^v([0-9]+(\.[0-9]+){1,2})$' "$DOCS_ROOT"/releases/v*/v*
+if [ -z "$ACTIVE_VERSION" ]; then
+  scan_version_dirs '^v([0-9]+(\.[0-9]+){1,2})$' "$DOCS_ROOT"/v*/v*
+fi
+if [ -z "$ACTIVE_VERSION" ]; then
+  scan_version_dirs '^v([0-9]+\.[0-9]+\.[0-9]+)$' "$DOCS_ROOT"/v*
+fi
+if [ -z "$ACTIVE_VERSION" ]; then
+  scan_version_dirs '^v([0-9]+(\.[0-9]+){1,2})$' "$DOCS_ROOT"/versions/v*/v*
+fi
 
 [ -n "$ACTIVE_VERSION" ] || exit 0
 
@@ -119,7 +143,7 @@ if ! semver_gt "$ACTIVE_VERSION" "$TARGET_VERSION"; then
 fi
 
 # --- Emit warning ---
-MSG="[old-version-docs-guard] Writing to historical version dir docs/v${TARGET_VERSION}/ (active is v${ACTIVE_VERSION}). Consider /refactor-docs to archive instead."
+MSG="[old-version-docs-guard] Writing to historical version v${TARGET_VERSION} under ${NORM_PATH} (active is v${ACTIVE_VERSION}). Consider /update refactor to archive instead."
 
 if [ "$_BLOCKING" = "block" ]; then
   echo -e "${COLOR_RED}${MSG}${COLOR_RESET}" >&2

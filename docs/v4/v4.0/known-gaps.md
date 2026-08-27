@@ -186,15 +186,22 @@ None.
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
-| Bugs / regressions (BG) | 0 | 0 |
+| Bugs / regressions (BG) | 1 | 0 |
 | Warnings (WN) | 0 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
 ### Open Items
 
-None through Phase 3.
+#### Bugs / Regressions
+
+##### BG-1 - nexus-memory config initialization can expose an empty file to a concurrent reader
+
+- **Source phase**: Phase 4 - Executable guards and anti-regression tests
+- **What was observed**: the first full `make test` equivalent failed once in `extensions/nexus-memory/tests/test_store.py::test_multiprocess_concurrent_append`. One of four worker processes entered `load_config` while another process was writing the shared JSON config and received `JSONDecodeError: Expecting value: line 1 column 1 (char 0)`.
+- **Reproduction status**: the exact test passed twice immediately afterward, the complete `nexus-memory` suite then passed with 51 passes and 1 skip, and the final repository suite passed with 3,354 passes and 37 skips. The failure is intermittent but the traceback demonstrates a real unprotected read/write seam.
+- **Suggested next step**: in the post-Phase-7 known-gaps pass, make config creation atomic or retry a bounded transient empty read, add a deterministic concurrency regression test, and rerun the full extension suite.
 
 ### Resolved Items
 
-None through Phase 3.
+None through Phase 4.

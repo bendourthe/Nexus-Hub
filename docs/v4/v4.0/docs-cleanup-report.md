@@ -50,3 +50,18 @@ The admission test classifies an unrecognized living subtree without adding its 
 ### Result
 
 The canonical prescription is now `docs/releases/` plus `docs/archives/`, while every previous shape remains an explicit legacy input. The migration fixture moved `docs/v3/v3.17/` to `docs/releases/v3/v3.17/` and the Phase 1 link diff reported zero newly broken links. No repository documentation was physically moved in this phase; dogfood migration remains Phase 6. The task-converter shell helper named by the plan is absent from the live catalog, so there was no file to edit; its owning SKILL.md and registry surfaces were updated and tested.
+
+## Phase 4 - Executable guards and anti-regression tests
+
+### Guard and enforcement artifacts
+
+| Path | Category | Disposition |
+|---|---|---|
+| `catalog/hooks/old-version-docs-guard.sh` and `.ps1` | Cross-platform historical-doc guard | Keep as a shipped hook pair; both recognize the canonical tree and every supported legacy shape. |
+| `catalog/hooks/tests/test_old_version_docs_guard.py` | Durable cross-platform behavior contract | Keep; one parametrized runner applies every assertion to both siblings. |
+| `tests/validators/test_docs_layout_prescription.py` | Catalog-wide anti-regression contract | Keep; exact-content exemptions distinguish migration support from accidental old-shape prescriptions. |
+| `docs/v4/v4.0/development/history/2026-08-26_v4.0.0-docs-lifespan-phase-4-executable-guards.md` | Active phase evidence | Keep under the current version's development history. |
+
+### Result
+
+The old-version guard is live for `docs/releases/`, `docs/archives/`, and all supported legacy layouts. Session-summary and notification hooks have no runtime dependency on the documentation tree; their remaining legacy paths are provenance-only comments. The workflow notice is proven against `docs/releases/v9/v9.9/plans/`. No documentation was moved, no duplicate policy was introduced, and the new aggregate validator rejects a deliberately reintroduced old prescription.
