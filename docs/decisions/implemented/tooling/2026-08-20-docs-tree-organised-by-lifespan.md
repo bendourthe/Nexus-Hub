@@ -1,14 +1,14 @@
 # Decision: Organize the documentation tree by lifespan
 
-Status: proposed - Make lifespan the placement axis and name release containers explicitly
+Status: implemented - Make lifespan the placement axis and name release containers explicitly
 
 ## Problem
 
 The current `docs/v<M>/v<M>.<m>/` and `docs/archive/` names encode version and state unevenly, while root-level names mix subject, audience, and lifecycle. A person placing a new document must know repository history and memorize exceptions. Subject questions such as "is this about development?" do not constrain placement because almost every project document answers yes.
 
-## Proposal
+## Decision
 
-Use the single admission question, "when does this document stop being true?" Every document has one answer that a reader unfamiliar with the repository can determine: living, append-only, frozen-at-close, controlled record, already-frozen, or generated. Keep living and append-only material at stable root subtrees, place release-bound material under `docs/releases/v<M>/v<M>.<m>/`, and place closed release snapshots under `docs/archives/v<M>/v<M>.<m>/`.
+The single admission question is used: "when does this document stop being true?" Every document has one answer that a reader unfamiliar with the repository can determine: living, append-only, frozen-at-close, controlled record, already-frozen, or generated. Keep living and append-only material at stable root subtrees, place release-bound material under `docs/releases/v<M>/v<M>.<m>/`, and place closed release snapshots under `docs/archives/v<M>/v<M>.<m>/`.
 
 Patch releases continue to share their minor bucket and carry the full version in filenames. The shape below `releases/` and `archives/` is identical, so closing a release remains a directory move. The earlier tree already had the same plain `mv` property because the buckets below its active and archive containers were already identical; the rename improves admission and naming, not move mechanics.
 
@@ -38,7 +38,7 @@ Rejected by explicit project decision. Two default schemes would make placement 
 
 Rejected by explicit project decision. That improves plurality but leaves the active container as an opaque version prefix, so the paired states remain asymmetrical and the tree still does not say what the documents are.
 
-## Acceptance criteria
+## Consequences
 
 - New canonical release material resolves to `docs/releases/v<M>/v<M>.<m>/` and closed material resolves to the shape-identical `docs/archives/v<M>/v<M>.<m>/` tree.
 - Existing `docs/v<M>/v<M>.<m>/`, `docs/archive/`, flat version directories, and `docs/versions/` are detected as legacy and honored until an explicit canonicalization command runs.

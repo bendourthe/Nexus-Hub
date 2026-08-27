@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 3.21.0 -->
+<!-- nexus-hub-version: 4.0.0 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 325 skills, 18 commands, 33 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -30,14 +30,26 @@ Nexus-Hub is the upstream skill catalog for AI coding assistants: 325 skills, 18
 
 Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of the same idea, split along a deliberate seam.
 
-- **Nexus-Hub (this repo)** is the catalog: 324 curated skills, 18 commands, 33 hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`) and the local `nexus-memory` CLI store. It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
+- **Nexus-Hub (this repo)** is the catalog: 325 curated skills, 18 commands, 33 hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`) and the local `nexus-memory` CLI store. It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
 - **Nexus** is a local-first desktop AI Studio that consumes Nexus-Hub as its skill feed. Nexus's `AGENTS.md` names this repo as "the only external project we deliberately link to" -- the upstream feed for its skill harness.
 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
 
-## What's New in v3.21.0
+## What's New in v4.0.0
+
+**Documentation is placed by lifespan, and the migration proves itself.** One admission question decides where a document goes: *when does it stop being true?* Release-bound work lives under `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/`, frozen snapshots under the structurally identical `docs/archives/â€¦`, and living material stays at stable roots like `docs/handbooks/` and `docs/decisions/`. The standard reaches every platform class, including the five that receive no skills at all and would otherwise never see it.
+
+**Breaking, and honest about it.** The prescribed containers are renamed, so `docs-layout-refactor` goes to `2.0.0`. Your existing layout is not broken by upgrading: `docs/v<MAJOR>/â€¦`, singular `docs/archive/`, flat `docs/<vSEMVER>/`, and `docs/versions/â€¦` all remain recognised legacy layouts, honoured **in place** with a one-line notice. Migration is offered by `/update refactor` and during `/update release`, and it moves nothing until you approve the plan at the confirmation gate.
+
+**Also in this release**, from the two sibling plans in the same bundle: a distributed agent communication contract carried byte-identically across all 12 substantive instruction templates, and a repository-native CI engine with five profiles that run without any GitHub context, behind an aggregate required check that can never sit pending.
+
+Catalog counts are **325 skills**, **18 commands**, **33 hooks**, and **23 agents**.
+
+This release documents one opt-in capability, the docs-tree migration. See the changelog for Activation, Validation, Rollback, Authority, and Docs.
+
+## Previously, in v3.21.0
 
 **Fail-closed last phase, implement drivers, and living handbooks.** `/plan` and `/implement` last-phase runs must write `last-phase-evidence.md` with Goal-vs-codebase review; a heading is not done work. `/implement <slug> in-full` (alias `full`) and `phase-by-phase` encode the multi-phase loop; bare `/implement` stays one-phase. Living `docs/handbooks/` and `docs/decisions/` are required on the current path scheme; v4.0 will snapshot them, not decline them.
 

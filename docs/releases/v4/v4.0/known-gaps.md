@@ -1,8 +1,27 @@
 # Known Gaps - v4.0
 
 **Project**: Nexus-Hub
-**Status**: in-progress
-**Last updated**: 2026-08-26
+**Status**: finalized for the v4.0.0 release
+**Last updated**: 2026-08-27
+
+## Release finalization - v4.0.0
+
+**Status**: finalized 2026-08-27, at `/update release`.
+
+### Consuming-repo migration burden created by this release
+
+This is recorded explicitly because the plan requires it, and because it is the cost this release imposes on every downstream project rather than on Nexus-Hub.
+
+A repository that upgrades to v4.0.0 keeps working unchanged: its `docs/v<MAJOR>/â€¦`, singular `docs/archive/`, flat `docs/<vSEMVER>/`, and `docs/versions/â€¦` trees are all recognised legacy layouts honoured in place, with a one-line notice. Nothing migrates on upgrade, and no install step, hook, or background task reshapes a docs tree.
+
+The burden is therefore opt-in but real: a project that WANTS the new shape runs one command, must approve the plan at the confirmation gate, and should keep the migration in its own commit so it is revertable. Projects that adopted the v3.11 two-level shape face their second whole-tree migration in six minors. That was accepted by explicit maintainer decision and is recorded on the decision record's own consequences, not smoothed over here.
+
+### Finding - two sibling plans shipped with unticked checklists
+
+- **What was observed**: `v4.0.0-cost-effective-ci-cd.md` reads 0 of 159 checkboxes ticked and `v4.0.0-agent-communication-overhaul.md` 0 of 6, yet both plans' work is complete and merged (PRs #124 and #123), with 8 and 5 session histories respectively and reconciled known-gaps sections.
+- **Why it is recorded rather than fixed**: mass-ticking 165 boxes for phases this session did not implement would assert verification that was never performed here. The completion evidence is the merged commits, the session histories, and the gap sections - not the boxes.
+- **Consequence**: anyone reading either plan later sees a checklist implying the work never started. The plan files are the wrong place to learn what shipped; `CHANGELOG.md` and the session histories are authoritative.
+- **Suggested next step**: whoever owns those two plans should either tick their checklists against their own evidence or add a one-line note at the top pointing at the session histories. Prefer the note: a checklist ticked long after the fact is not evidence either.
 
 ## v4.0.0 - agent-communication-overhaul
 
