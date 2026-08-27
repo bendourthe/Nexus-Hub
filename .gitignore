@@ -135,3 +135,7 @@ media.env
 # ai-agent-development/references/ are never catalog content.
 catalog/skills/ai-development/ai-agent-development/references/references.md
 catalog/skills/ai-development/ai-agent-development/references/references-[0-9]*.md
+
+# Repository-native CI engine output (v4.0.0). scripts/ci/run.py writes here on
+# every local run; the artifacts are per-run evidence, never source.
+/reports/

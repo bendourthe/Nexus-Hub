@@ -56,11 +56,28 @@ Web search uses public documentation and adds no new credential or dependency. T
 
 ## Mandatory final phase (planning scopes)
 
-Every plan ends with a fail-closed last phase - "Architecture Refactor, Known-Gaps Reconciliation, and CI/CD" - that includes independent Goal-vs-codebase review, a last-phase evidence file, and the living handbook architecture check. Automated tests still end every phase; human/manual testing suggestions wait until that last phase. New plans are written to the current version dir. This is part of the plan contract, not a dispatcher responsibility: the template and the eight duties live in the `[[implementation-plan]]` skill. This dispatcher only surfaces the guarantee; it does not duplicate the template.
+Every plan ends with a fail-closed last phase - "Architecture Refactor, Known-Gaps Reconciliation, and CI/CD" - that includes independent Goal-vs-codebase review, a last-phase evidence file, and the living handbook architecture check. Automated tests still end every phase; human/manual testing suggestions wait until that last phase. New plans are written to the current version dir. This is part of the plan contract, not a dispatcher responsibility: the template and the duties live in the `[[implementation-plan]]` skill. This dispatcher only surfaces the guarantee; it does not duplicate the template.
+
+## Plan lifecycle (guarantee)
+
+Every generated plan carries the same lifecycle, and it is worth stating up front because it changes what the reader should expect while the plan runs:
+
+- **Every phase verifies locally and ends with one local commit.** Lint, tests, coverage, documentation, session history, then a single commit scoped to that phase.
+- **No non-final phase pushes.** A non-final phase does not push, does not open a pull request, and does not start remote CI. Running the pipeline once per phase bills for validating work the author already knows is incomplete, and a red check on incomplete work teaches the reader to ignore red checks.
+- **CI impact is recorded per phase; the pipeline is reconciled once.** Each phase names what it added that CI would need to know about (a command, a dependency, an environment variable, a test path, an artifact) and whether the pipeline already covers it. Pipeline files change mid-plan only when CI/CD is that phase's explicit deliverable.
+- **The final phase owns the terminal reconciliation.** It compares the repository's existing pipeline against the canonical contract via `[[cicd-architect]]`, proposes each difference with its cost, applies what the user approves, and records what the user declines as a known gap.
+- **The final phase owns publication.** One branch push, with explicit approval, then the integration pull request, which is the plan's first remote validation and runs against the merge result. A red required check reopens the final phase.
+- **Release work waits for green integration.** `/update release` starts only after the integration result is green and merged.
+
+The full templates, prompts, and exit checklists that enforce this live in `[[implementation-plan]]`; the pipeline half lives in `[[cicd-architect]]`. This dispatcher states the guarantee and stops there.
 
 ## Unicode hygiene of the written plan (guarantee)
 
 Every plan file this command writes is sanitized before it is presented: the retained skill's Step 4 closing pass runs `python scripts/validate_unicode_safety.py --strict --fix --root . --path <plan-file>` on the just-written file (and again on the final file when Step 5 rewrites it), so invisible characters and non-ASCII punctuation never reach a plan the user reads. The pass is scoped to that one file, never the repository, and a non-zero exit after the fix blocks presenting the plan. This dispatcher only surfaces the guarantee; the rules live in the `[[implementation-plan]]` skill.
+
+## Presenting the finished plan
+
+Present the plan the way `catalog/style-guides/agent-communication.md` requires: lead with a plain-language summary (what the plan builds, how many phases, and which single phase carries the most risk) BEFORE the phases-at-a-glance table, then link the plan file rather than restating its contents in chat. The detail already lives in the file; a chat message that repeats it makes the reader choose between two copies. Skill: `[[agent-communication]]`.
 
 ## Delegation
 

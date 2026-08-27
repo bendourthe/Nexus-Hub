@@ -1,87 +1,90 @@
 name: CI
 
-# v3.17.6 Phase 2: these triggers are deliberately UNFILTERED.
+# v4.0.0: the ONE comprehensive validation gate, and the only one.
 #
-# `validate`, `shellcheck`, `bootstrap`, `tests`, `install-smoke`, and
-# `installer-smoke` are all REQUIRED status checks on main and develop. GitHub
-# leaves a required check from an untriggered workflow Pending forever, so a
-# workflow-level `paths:` filter made the protected branches impossible to merge
-# from a docs-only PR without an administrator bypass -- which is what shipping
-# v3.17.5 took, seven times in one day. A job SKIPPED by an `if:` reports
-# Success, so the identical path scoping now lives in the `changes` job below and
-# is applied per job. See:
+# It runs on the integration pull request and (where a merge queue is enabled)
+# on the queued merge result. It deliberately does NOT run on `push` to a
+# protected branch any more.
+#
+# Why the push trigger is gone. Under a pull-request-only merge policy, a push
+# to `develop` IS the merge commit of the pull request that just ran, so the
+# tree is identical and the second run cannot discover anything the first did
+# not. Worse, the push leg was where the expensive matrix legs were enabled, so
+# the redundant run cost MORE than the useful one. Post-merge work now lives in
+# post-merge.yml and release work in release.yml, each doing only what depends
+# on the merged or tagged state.
+#
+# Why the expensive legs moved to the pull request. Windows PowerShell 5.1 and
+# macOS compatibility used to be proven only AFTER merge. That did not save the
+# minutes, it spent them at the moment they could no longer prevent a bad merge.
+# If a leg is worth running at all it runs before the merge; if it is not, it
+# should be deleted.
+#
+# Why the triggers are UNFILTERED. `validate`, `shellcheck`, and `ci-required`
+# are required status checks. GitHub leaves a required check from an untriggered
+# workflow Pending forever, so a workflow-level `paths:` filter makes a
+# docs-only PR unmergeable without an administrator bypass -- which is what
+# shipping v3.17.5 took, seven times in one day. A job SKIPPED by an `if:`
+# reports Success. The identical path scoping therefore lives in the `changes`
+# job below and is applied per job. See:
 # https://docs.github.com/en/repositories/configuring-branches-and-merges-in-your-repository/defining-the-mergeability-of-pull-requests/troubleshooting-required-status-checks
 #
-# This follows the shape presentify-extractor.yml has used since v3.12.0
-# (unfiltered `on:`, cheap detector job, job-level `if:`) rather than inventing a
-# new one. scripts/check_required_check_coverage.py enforces it.
+# Why the jobs call scripts/ci/run.py instead of listing validators. The
+# definitive command list lives in scripts/ci/profiles.py, so a developer
+# running `make ci-full` and this workflow execute the same thing. The previous
+# shape re-declared the Makefile's sequence as 31 separate steps, and the two
+# had already diverged in production: a duplicate YAML key silently dropped
+# validate_no_personal_paths.py from CI while the local list still ran it.
 on:
-  workflow_dispatch:
-  push:
-    branches: [main, develop]
-    tags: ['v*']
   pull_request:
     branches: [main, develop]
+  merge_group:
+  workflow_dispatch:
 
-# v3.11.0 Phase 7.5 / 8.4 CI optimization: cancel superseded runs of the same ref
-# (the single largest action-minute saver) so only the latest push/PR commit runs.
-# v3.15.8 Phase 9.3: least privilege. This workflow builds and tests only --
-# no artifact upload, no gh CLI, no comments, no pushes -- so read-only
-# contents is the complete requirement.
+# Least privilege. This workflow builds and tests only -- no artifact upload,
+# no gh CLI, no comments, no pushes -- so read-only contents is the complete
+# requirement.
 permissions:
   contents: read
 
+# Cancel superseded runs of the same ref (the single largest action-minute
+# saver) so only the latest commit on a pull request runs.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  # v3.17.6 Phase 2: the path scoping that used to live on the triggers above.
+  # The path scoping that must never sit on the triggers above.
   #
-  # It answers ONE question -- does this change touch anything outside ignorable
-  # documentation prose? -- because that is exactly what the old `paths:` list
-  # expressed. The re-inclusions below are NOT prose exceptions; each one is a
-  # docs path that a guard or a test READS, so editing it must run the thing that
-  # reads it. Every entry keeps its original justification:
+  # It answers ONE question: does this change touch anything outside ignorable
+  # documentation prose? The re-inclusions below are NOT prose exceptions; each
+  # is a docs path that a guard or a test READS, so editing it must run the
+  # thing that reads it:
   #
-  #   docs/policy/**  validator INPUT (v3.16.0 Phase 2).
-  #                   platform-read-contracts.json feeds
-  #                   verify_platform_contracts.py and
-  #                   check_platform_contract_freshness.py;
-  #                   platform-defaults-levers.md feeds the lever-contract
-  #                   completeness tests; and since v3.17.6,
-  #                   required-checks.json feeds
-  #                   check_required_check_coverage.py.
+  #   docs/policy/**   validator INPUT: platform-read-contracts.json feeds
+  #                    verify_platform_contracts.py and the freshness gate,
+  #                    platform-defaults-levers.md feeds the lever tests,
+  #                    required-checks.json feeds check_required_check_coverage.py,
+  #                    and doc-budgets.json feeds validate_doc_budgets.py.
   #   docs/v*/*/development/*.md
-  #                   per-version development CONTRACT docs (v3.16.1, QG-1).
-  #                   tests/skills/test_evaluation_methodology.py reads
-  #                   docs/v3/v3.16/development/evaluation-artifact-contract.md.
-  #                   Scoped to *.md DIRECTLY under a development/ dir on
-  #                   purpose: a `*` never crosses a `/`, so this matches the
-  #                   contract docs and NOT development/history/*.md. Session
-  #                   histories are frozen records no test reads, and including
-  #                   them would run the full matrix on every phase write-up for
-  #                   no signal.
-  #   docs/incidents/**
-  #                   validator INPUT (v3.16.2 Phase 3).
-  #                   check_incident_notes.py asserts every note carries a
-  #                   Public-Safe Shape section and a Durable fix section with a
-  #                   link in it.
-  #   docs/decisions/**
-  #                   validator INPUT (v3.17.5 Phase 4).
-  #                   validate_decision_records.py asserts every record sits at
-  #                   lifecycle/class/file, carries the 3-line header matching
-  #                   its folder, and states its alternatives.
+  #                    per-version development CONTRACT docs that tests read.
+  #                    Scoped to *.md DIRECTLY under a development/ dir on
+  #                    purpose: a `*` never crosses a `/`, so this matches the
+  #                    contract docs and NOT development/history/*.md. Session
+  #                    histories are frozen records no test reads.
+  #   docs/incidents/**, docs/decisions/**
+  #                    validator INPUT for check_incident_notes.py and
+  #                    validate_decision_records.py.
   #
-  # FAIL CLOSED is the whole contract of this job. Under the old trigger filter a
-  # detection mistake meant the workflow did not start, which was loud (Pending
-  # forever). Here a mistake would SKIP a job, and a skipped job reports Success
-  # -- silent. So: `relevant` is only ever set false by a complete, successful
-  # classification; the step cannot exit non-zero; and every consumer is written
-  # as `!cancelled() && ... != 'false'` so a crashed or missing output still RUNS
-  # the job. Both halves are load-bearing: `!cancelled()` overrides GitHub's
-  # skip-on-failed-dependency rule, and `!= 'false'` treats the empty output of a
-  # failed job as "run".
+  # FAIL CLOSED is the whole contract of this job. Under the old trigger filter
+  # a detection mistake meant the workflow did not start, which was loud
+  # (Pending forever). Here a mistake would SKIP a job, and a skipped job
+  # reports Success -- silent. So `relevant` is only ever set false by a
+  # complete, successful classification; the step cannot exit non-zero; and
+  # every consumer is written as `!cancelled() && ... != 'false'` so a crashed
+  # or missing output still RUNS the job. Both halves are load-bearing:
+  # `!cancelled()` overrides GitHub's skip-on-failed-dependency rule, and
+  # `!= 'false'` treats the empty output of a failed job as "run".
   changes:
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -90,8 +93,8 @@ jobs:
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
         with:
-          # Full history: the classification diffs against the PR base or the
-          # previously pushed commit, neither of which a shallow clone contains.
+          # Full history: the classification diffs against the PR base, which a
+          # shallow clone does not contain.
           fetch-depth: 0
 
       - name: Classify changed paths
@@ -99,23 +102,19 @@ jobs:
         env:
           EVENT_NAME: ${{ github.event_name }}
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
-          BEFORE_SHA: ${{ github.event.before }}
         run: |
           set -uo pipefail
-          # Deliberately NOT `set -e`: every failure path below must fall through
-          # to the fail-closed default rather than abort the step.
+          # Deliberately NOT `set -e`: every failure path below must fall
+          # through to the fail-closed default rather than abort the step.
           relevant=true
           reason="default (fail closed)"
           nul="0000000000000000000000000000000000000000"
 
           case "${EVENT_NAME}" in
             pull_request) base="${BASE_SHA}" ;;
-            push)         base="${BEFORE_SHA}" ;;
             *)            base="" ;;
           esac
 
-          # An all-zero sha is GitHub's "no previous commit" sentinel (new branch,
-          # new tag). Nothing to diff against, so run everything.
           if [ -z "${base}" ] || [ "${base}" = "${nul}" ]; then
             reason="no usable base sha for event ${EVENT_NAME}"
           elif ! files=$(git diff --name-only "${base}" HEAD 2>/dev/null); then
@@ -126,7 +125,7 @@ jobs:
             reason="change touches a non-docs path"
           elif printf '%s\n' "${files}" | grep -qE '^docs/(policy|incidents|decisions)/'; then
             reason="change touches a validator-input docs path"
-          elif printf '%s\n' "${files}" | grep -qE '^docs/[^/]+/[^/]+/development/[^/]+\.md$'; then
+          elif printf '%s\n' "${files}" | grep -qE '^docs/(releases/)?[^/]+/[^/]+/development/[^/]+\.md$'; then
             reason="change touches a development contract doc"
           else
             relevant=false
@@ -139,6 +138,7 @@ jobs:
           exit 0
 
   validate:
+    # Required status check. Runs unconditionally so it can never sit Pending.
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -147,8 +147,6 @@ jobs:
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: '3.11'
-          # v3.11.0 Phase 8.4: cache pip downloads keyed on the hook config so the
-          # pre-commit install is not fetched cold on every run.
           cache: 'pip'
           cache-dependency-path: '.pre-commit-config.yaml'
 
@@ -160,327 +158,189 @@ jobs:
         # lint-templates and build-catalogs are enforced on commit locally.
         run: SKIP=lint-templates,build-catalogs pre-commit run --all-files
 
-      - name: Validate skills.json
-        run: python -c "import json; d = json.load(open('data/skills.json')); print(f'skills.json OK — {len(d[\"skills\"])} skills')"
-
-      - name: Validate workflows.json
-        run: python -c "import json; d = json.load(open('data/workflows.json')); print(f'workflows.json OK — {len(d[\"workflows\"])} workflows')"
-
-      - name: Validate bundles.json
-        run: python -c "import json; d = json.load(open('data/bundles.json')); print(f'bundles.json OK — {len(d[\"bundles\"])} bundles')"
-
-      - name: Validate skill catalog (bundle orphan audit) (v3.14.2 Phase 1)
-        # Skill/command changes reach this job via the workflow's paths-ignore:
-        # docs/** trigger (catalog/** is outside docs/), and the workflow-level
-        # concurrency cancel-in-progress above supersedes stale runs. Uses
-        # --bundles-only to match `make validate`: the strict single-line
-        # frontmatter/description pass is transitional (grandfathered via
-        # scripts/validate_skills.allowlist.json; the residual over-long
-        # descriptions are tracked as a v3.14.2 known-gaps WN entry) and is not
-        # yet green catalog-wide, so wiring the strict gate here would fail CI on
-        # pre-existing drift unrelated to any given change.
-        run: python scripts/validate_skills.py --bundles-only
-
-      - name: Validate agentskills.io conformance (v3.20.1 Phase 1)
-        # Stdlib-only HARD GATE over catalog/skills/*/*/SKILL.md. Proves the
-        # agentskills.io name/description contract instead of asserting it.
-        # Rides this existing validate job (no new required context). Repo-
-        # internal; listed in DEV_ONLY_SCRIPTS; not installer-copied.
-        run: python scripts/check_agentskills_conformance.py
-
-      - name: Validate framework-coverage map freshness (v3.20.1 Phase 2)
-        # Regenerates docs/framework-coverage.md and
-        # docs/attack-navigator-layer.json in memory and fails if the
-        # committed copies drifted. Same validate job; no new required context.
-        # build_framework_coverage.py is already installer-copied; --check is
-        # an additive flag.
-        run: python scripts/build_framework_coverage.py --check
-
-      - name: Trigger-and-routing eval (description near-collision + routing gate) (v3.15.2)
-        # Deterministic, model-free, stdlib-only HARD GATE: fails CI on any
-        # un-allowlisted skill-description near-collision OR any per-skill
-        # trigger-cases.json routing failure (mis-route / near-miss margin). The
-        # intentional-neighbor allowlist (scripts/run_trigger_evals.allowlist.json)
-        # covers by-design category siblings; skills without trigger-cases stay on
-        # the WARN path and never fail the gate. Shipped WARNING-ONLY in v3.15.2
-        # Phase 1 and PROMOTED to `--gate` in Phase 6 now that the catalog is clean
-        # and allowlisted (0 un-allowlisted collisions, 0 routing failures). Reaches
-        # this job via the workflow's paths-ignore: docs/** trigger (catalog/** and
-        # scripts/** are outside docs/).
-        run: python scripts/run_trigger_evals.py --gate
-
-      - name: Validate permission baseline is read-only (v3.17.0 Phase 1)
-        # Deterministic, stdlib-only HARD GATE over configs/permissions/. Fails CI on
-        # any auto-approve entry that is mutation-capable at the SIDE-EFFECT level
-        # rather than the command-name level, which is the I6 class that let
-        # Bash(gh api *), Bash(find *) and Bash(git branch *) ship as "read-only".
-        # Rides this existing validate job rather than adding one: it is a sub-second
-        # stdlib step, matching the v3.15.2 Phase 6.3 decision not to pay a fresh
-        # checkout and setup for that. Reaches this job via the workflow's
-        # paths-ignore: docs/** trigger, since configs/** is outside docs/.
-        run: python scripts/validate_permission_baseline.py
-
-      - name: Validate cross-installer parity (v3.17.0 Phase 6)
-        # Stdlib-only HARD GATE over the declarative installer parity manifest.
-        # A missing artifact, platform, function counterpart, or external-tool
-        # fallback breaks an operating system's install path, so this cannot be
-        # advisory or postponed to release notes.
-        run: python scripts/check_installer_parity.py
-
-      - name: Validate no personal paths (v2.3.0 Phase 2)
-        # v3.14.5 Phase 7: split out of the bundle-audit step above, which had a
-        # duplicate `run:` key - YAML keeps only the last, so the bundle-orphan
-        # audit was silently dropped in CI (present on develop too; not caused by
-        # this release). Both now run as distinct steps, matching `make validate`.
-        run: python scripts/validate_no_personal_paths.py
-
-      - name: Validate Unicode safety (v2.3.0 Phase 2)
+      - name: Repository-native validation profile
+        # One call. The validator list lives in scripts/ci/profiles.py and is
+        # the same list `make ci-full` runs. Adding a validator needs no edit
+        # here.
+        #
+        # One deliberate omission, restated here because it is an ABSENCE and an
+        # unexplained absence reads as an oversight. The profile runs
+        # verify_model_prompting_profiles.py (the per-model prompting layer's
+        # STRUCTURE) but NOT check_model_prompting_freshness.py (its FRESHNESS).
+        # Freshness is advisory by design: models ship on the vendor's clock, and
+        # gating it would let a model released on a Tuesday wedge every release
+        # until someone ran a research swarm. It runs as an advisory step in
+        # `/update release` instead. Contrast the platform read-contract
+        # freshness gate, which DOES gate because it must be re-verified for the
+        # release being cut.
         run: |
-          python scripts/validate_unicode_safety.py --strict
+          python scripts/ci/run.py --profile full \
+            --only catalog-parse,hygiene,catalog,security,workflows,platform-contracts,docs,version \
+            --reports-dir reports
 
-      - name: Scan supply-chain IOCs (v2.3.0 Phase 2)
-        run: python scripts/scan_supply_chain_iocs.py
-
-      - name: Validate GitHub Actions workflow security (v2.3.0 Phase 2)
-        run: python scripts/validate_workflow_security.py
-
-      - name: Validate required-check coverage (v3.17.6 Phase 1)
-        # A required status check whose WORKFLOW is path- or branch-filtered stays
-        # Pending forever on an unrelated PR, so the protected branch becomes
-        # impossible to merge without an administrator bypass. The same filtering
-        # expressed as a job-level `if:` reports Success and merges. Shipping
-        # v3.17.5 took seven bypasses in one day, all from this one mechanism.
-        #
-        # Deliberately in the existing `validate` job rather than a new job: a
-        # new job would need its own required context, and the guard is a
-        # sub-second YAML parse with no extra dependency.
-        run: python scripts/check_required_check_coverage.py
-
-      - name: Validate version sync across all surfaces (v3.0.0 Phase 1)
-        run: python scripts/check_version_sync.py
-
-      - name: Guard compressor against outbound calls (v3.19.2 Phase 1)
-        # Repo-internal AST scan over extensions/nexus-context-compressor.
-        # Fails if a network import or curl/wget subprocess appears. Rides the
-        # existing validate job (no new required context). The script is in
-        # DEV_ONLY_SCRIPTS and is not installer-copied.
-        run: python scripts/check_no_outbound.py
-
-      - name: Validate docs conventions (v3.19.2 Phase 2)
-        # Case-sensitive relative links, empty dirs, kebab-case directory
-        # names under docs/ (archive skipped). Rides the existing validate
-        # job (no new required context). Repo-internal; DEV_ONLY_SCRIPTS.
-        run: python scripts/check_docs_conventions.py
-
-      - name: Validate memory provenance (v3.19.2 Phase 3)
-        # Templates under catalog/memory/ must teach required source, an
-        # append-only changelog, and supersede-not-delete. Rides the existing
-        # validate job (no new required context). Repo-internal; DEV_ONLY_SCRIPTS.
-        run: python scripts/check_memory_provenance.py
-
-      - name: Validate incident notes (v3.16.2 Phase 3)
-        # An incident is closed by a change, not by an explanation. This asserts
-        # every docs/incidents/ note carries a Public-Safe Shape section and a
-        # Durable fix section with at least one link in it, so an entry whose
-        # "fix" is a paragraph fails here instead of being merged. No-op when
-        # the directory is absent, which keeps it safe for any fork.
-        run: python scripts/check_incident_notes.py
-
-      - name: Validate doc word budgets (v3.17.5 Phase 1)
-        # Always-loaded instruction docs (AGENTS.md, CLAUDE.md, the lockstep
-        # base-*.md templates, the Markdown style guide) cost tokens in every
-        # session on every platform. This asserts each stays under its declared
-        # ceiling in docs/policy/doc-budgets.json. Ceilings ratchet DOWN;
-        # raising one requires justification in the PR that raises it.
-        run: python scripts/validate_doc_budgets.py
-
-      - name: Validate memory integration token budget (v3.19.1 Phase 2)
-        # The always-loaded memory integration prose is paid on every session.
-        # This asserts docs/policy/memory-integration-prose.md stays under the
-        # 500-token ceiling in docs/policy/memory-substrate-contract.md.
-        # tiktoken is used when already present; otherwise a stdlib estimate.
-        # The guard never requires a network call.
-        run: python scripts/check_memory_integration_budget.py
-
-      - name: Report docs due for archival (v3.18.0 Phase 4, advisory)
-        # docs/policy/docs-retention.md: a minor version two or more behind the
-        # current one has its development/ subtree archived. This REPORTS drift
-        # and always exits 0, so it can never block a release. Advisory on
-        # purpose: archiving repairs references across the repo, so it belongs in
-        # a reviewed docs-layout-refactor pass, and a hard gate here would stop
-        # an unrelated release the moment a minor aged out. Mirrors the
-        # `make validate` step of the same name so the two cannot drift.
-        run: python scripts/check_docs_retention.py
-
-      - name: Validate decision records (v3.17.5 Phase 4)
-        # A decision recorded without what it beat invites re-litigation, so
-        # `## Alternatives considered` is mandatory in every lifecycle. Also
-        # enforces the lifecycle/class/file layout that makes `rejected/`
-        # greppable before someone re-proposes a declined design. No-op when
-        # docs/decisions/ is absent, which keeps it safe for any fork.
-        run: python scripts/validate_decision_records.py
-
-      - name: Check registry entries against the catalog (v3.17.5 Phase 5)
-        # The data/ registries are hand-edited on purpose, so drift is the
-        # expected failure and it is quiet: an entry that is present and
-        # counted still passes every membership check while misdescribing the
-        # skill. Structure, editorial field types, and capability-module
-        # reachability are hard failures. Text drift became a hard failure too
-        # in v3.17.5 Phase 7, once the 156-field pre-existing backlog (MT-5)
-        # was repaired; the registries are now byte-synced with their SKILL.md
-        # sources, so any new divergence is a fresh regression rather than
-        # inherited debt.
-        run: python scripts/check_registry_entries.py --check --strict
-
-      - name: Validate base-*.md lockstep parity (v3.6.0 Phase 2)
-        # Structural parity guard over the five platform-agnostic instruction
-        # templates (base-claude/codex/cursor/gemini/opencode). Fails if a
-        # platform-agnostic edit (shared heading, placeholder, or invariant
-        # block like the MCP Registry Policy) lands in a subset of the five.
-        run: python scripts/check_base_template_parity.py
-
-      - name: Validate per-model prompting profile layer (v3.15.5 Phase 1)
-        # Structural gate on the model-prompting-research skill's profile layer:
-        # the index parses, meta is well-typed, meta.roster_hash matches
-        # meta.roster, every claim carries an allowed confidence/scope with no
-        # unknown keys, and index models match references/models/*.md in both
-        # directions. Mirrors the `make validate` step of the same name.
-        #
-        # Two deliberate omissions. (1) scripts/check_model_prompting_freshness.py
-        # is NOT run here: roster staleness is advisory by design, and gating it
-        # would let a vendor shipping a new model wedge every release. Contrast the
-        # platform read-contract freshness gate immediately below, which DOES gate
-        # because it must be re-verified for the release being cut. (2) No separate
-        # path-filtered job for these two scripts: this job already runs on any
-        # non-docs change (the workflow-level paths-ignore), so a dedicated job
-        # would add a cold runner instead of saving minutes. Their pytests ride the
-        # existing `tests/validators` step in the tests job.
-        run: python scripts/verify_model_prompting_profiles.py
-
-      - name: Validate platform read-contract freshness (v3.14.5 Phase 6)
-        # Mandatory per-release gate: docs/policy/platform-read-contracts.json's
-        # meta.verified_for_version must equal the plugin.json version being cut.
-        # Green during development (both are the last-released version); fails a
-        # release bump until the platform-contract-verification skill re-verifies
-        # each platform's current discovery format and re-stamps the marker.
-        run: python scripts/check_platform_contract_freshness.py
-
-      - name: Check platform install defaults have not drifted (v3.16.0 Phase 1)
-        # configs/platform-defaults.json is the single place a per-platform
-        # install-time behavioral default is declared. Every consuming artifact
-        # (catalog/hooks/settings.json's core keys, the nexus-hub init stub's
-        # offline fallback) is DERIVED from it. This fails the build when one is
-        # hand-edited away from the source, which is the drift that made the
-        # v3.15.5 effort-level change touch four declarations across two files.
-        run: python scripts/sync_platform_defaults.py --check
-
-      - name: Scan catalog for skill-security findings (v3.0.0 Phase 6)
-        # Deterministic static gate: fails on any HIGH/CRITICAL finding across
-        # catalog/skills and catalog/mcp-configs. MEDIUM/LOW findings in a
-        # producer catalog are expected and adjudicated by the
-        # skill-security-scan skill, not the gate.
-        run: python scripts/scan_skill_security.py catalog/skills catalog/mcp-configs --fail-on high
-
-      - name: Compression accuracy-regression gate (v3.2.0 Phase 5)
-        # Deterministic, offline structural-fidelity gate: fails if the
-        # context-compressor stops reversing dropped spans exactly (CCR
-        # round-trip), drops a code signature, or compresses below the
-        # documented effectiveness floor. No live LLM call; the harness
-        # bootstraps its own src/ so no package install is needed here.
-        run: cd extensions/nexus-context-compressor && python -m evals --check
+      - name: Publish the run summary
+        if: always()
+        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
 
   shellcheck:
+    # Required status check. Runs unconditionally.
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.11'
+
       - name: Install ShellCheck
         run: sudo apt-get install -y shellcheck
 
-      - name: Lint installer scripts
-        run: |
-          shellcheck --severity=warning scripts/installer.sh install.sh
+      - name: Lint catalog shell scripts
+        # Not in the profile: the catalog glob is a repository-shaped check
+        # rather than a named command, and it is cheap enough to inline.
+        run: find catalog -name '*.sh' -print0 | xargs -0 shellcheck --severity=warning
 
-      - name: Lint hook and per-skill scripts
-        # v3.15.6 Phase 4 (QG-1): the `|| true` that used to terminate this line is
-        # removed, so the catalog lint is a real gate. Safe as of this release:
-        # all 36 catalog *.sh files pass --severity=warning with zero warnings, so
-        # the gate starts green and any future regression fails CI instead of
-        # scrolling past. If a legitimate warning ever needs accepting, add a
-        # targeted `# shellcheck disable=` with a reason at the call site rather
-        # than restoring the blanket `|| true`.
+      - name: Shell and PowerShell profile groups
+        # shell-lint runs shellcheck over the installers; powershell-parse is
+        # the unconditional AST syntax floor over every catalog and scripts
+        # *.ps1 plus the root bootstrap. The ubuntu runner carries pwsh 7, so
+        # the parse runs here at 1x rather than on a 2x Windows runner. The
+        # 5.1 BEHAVIOR leg is a different claim and lives in tests-windows.
         run: |
-          find catalog -name '*.sh' -print0 | xargs -0 shellcheck --severity=warning
+          python scripts/ci/run.py --profile platform \
+            --only shell-lint,powershell-parse --reports-dir reports
 
-      - name: Parse catalog PowerShell hooks (v3.15.6 Phase 4)
-        # v3.15.6 introduced the first catalog *.ps1 files carrying security logic
-        # (escalation-trigger, git-guardrails, provenance-ledger). Their behavior is
-        # covered by the parametrized hook tests, but those SKIP when no PowerShell
-        # interpreter is present, and a skip emits no signal. This step is the
-        # unconditional syntax floor: it fails on a parse error even if the runner
-        # image ever drops pwsh.
-        shell: pwsh
+      - name: Publish the run summary
+        if: always()
+        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
+
+  tests:
+    # Each pytest invocation is scoped to its own tree so pytest does not adopt
+    # a nested pyproject.toml as rootdir, which previously broke module
+    # discovery. The profile preserves that scoping.
+    needs: changes
+    if: ${{ !cancelled() && needs.changes.outputs.relevant != 'false' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: 'extensions/*/pyproject.toml'
+
+      - name: Install test dependencies
+        # tomlkit and PyYAML are the optional seeding dependencies for platform
+        # install-time defaults. They are installed here because the seeding
+        # tests use pytest.importorskip, so without them the TOML and YAML
+        # coverage would SILENTLY SKIP -- a green run proving nothing about two
+        # of the four writable formats.
+        run: pip install pytest tomlkit PyYAML
+
+      - name: Install extension packages
         run: |
-          $failed = $false
-          # v3.16.2 Phase 5: scripts/*.ps1 and the root bootstrap join the
-          # catalog hooks here. scripts/installer.ps1 is the largest PowerShell
-          # file in the repo and was NEVER AST-parsed in CI -- the `bootstrap`
-          # job parses only ./install.ps1, and this step globbed only
-          # catalog/hooks. That is precisely the v3.11.0 failure mode
-          # (docs/incidents/powershell-sibling-parse-error-20260709.md) left
-          # open on the file with the most to lose from it.
-          $targets = @()
-          $targets += Get-ChildItem catalog/hooks -Filter *.ps1 -File
-          $targets += Get-ChildItem scripts -Filter *.ps1 -File
-          $targets += Get-ChildItem . -Filter install.ps1 -File
-          $targets | ForEach-Object {
-            $errs = $null
-            $null = [System.Management.Automation.Language.Parser]::ParseFile(
-              $_.FullName, [ref]$null, [ref]$errs)
-            if ($errs -and $errs.Count -gt 0) {
-              Write-Host "FAIL $($_.Name)"
-              $errs | ForEach-Object { Write-Host "  $($_.Message)" }
-              $failed = $true
-            } else {
-              Write-Host "OK   $($_.Name)"
-            }
-          }
-          if ($failed) { exit 1 }
+          pip install -e "extensions/nexus-skill-server/[dev]"
+          pip install -e "extensions/nexus-code-search/[dev]"
+          pip install -e "extensions/nexus-web-fetch/[dev]"
+          pip install -e "extensions/nexus-skill-scanner/[dev]"
+          pip install -e "extensions/nexus-context-compressor/[dev]"
+          pip install -e "extensions/nexus-memory/[dev]"
+
+      - name: Test profile groups
+        # `tests` runs the WHOLE catalog/hooks/tests and tests/ trees rather
+        # than enumerating directories. The enumeration was a standing
+        # fail-open: a new directory was invisible to CI until someone
+        # remembered to add a step, and tests/plans shipped in exactly that
+        # state. tests/workflows/test_ci_runs_every_repo_test.py holds the
+        # property so the enumeration cannot come back by accident.
+        run: |
+          python scripts/ci/run.py --profile full \
+            --only tests,extension-tests --reports-dir reports
+
+      - name: Publish the run summary
+        if: always()
+        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
+
+  tests-windows:
+    # Windows PowerShell 5.1 BEHAVIOR, which pwsh 7 cannot substitute for.
+    #
+    # Evidence-driven, not belt-and-braces: the v3.15.6 provenance ledger
+    # shipped a defect where `Add-Content -Encoding utf8` emits a UTF-8 BOM.
+    # That behavior is specific to 5.1 and does NOT reproduce under pwsh 7, so
+    # the ubuntu leg would have passed a ledger whose first field was
+    # unparseable on every Windows user's machine.
+    #
+    # v4.0.0: this now runs on the PULL REQUEST rather than only on push.
+    # Windows is a 2x-minute runner, and this is exactly the cost worth paying
+    # before a merge rather than after it.
+    needs: changes
+    runs-on: windows-latest
+    timeout-minutes: 60
+    if: ${{ !cancelled() && needs.changes.outputs.relevant != 'false' }}
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: '.github/workflows/ci.yml'
+
+      - name: Install test dependencies
+        run: pip install pytest PyYAML
+
+      - name: Windows platform profile group
+        # NEXUS_TEST_POWERSHELL is pinned inside the profile definition, not
+        # here, so a developer running `make ci-platform` on Windows gets the
+        # same edition under test as CI does.
+        run: python scripts/ci/run.py --profile platform --only windows-hooks --reports-dir reports
+
+      - name: Codex, Copilot, Kimi, Gemini CLI, and Qwen native delivery on Windows
+        # Scoped to the integration files whose behavior is Windows-specific
+        # (commandWindows registration, host-selected .ps1, config.toml marker
+        # splice, user-profile agent dirs). Running all of tests/integrations
+        # here would add Windows runner time for coverage the ubuntu job
+        # already provides.
+        env:
+          NEXUS_TEST_POWERSHELL: powershell
+        run: |
+          python -m pytest tests/integrations/test_codex_native.py `
+                           tests/integrations/test_copilot_hermes_native.py `
+                           tests/integrations/test_kimi_native.py `
+                           tests/integrations/test_settings_hooks.py `
+                           tests/integrations/test_catalog_adapters.py `
+                           tests/integrations/test_codex_invocation_policy.py -q
+
+      - name: Publish the run summary
+        if: always()
+        shell: bash
+        run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
 
   bootstrap:
-    # v3.7.0 Phase 1 + Phase 5: exercise the dual-mode self-fetching bootstrap
-    # end-to-end on a clean machine (no pre-existing clone). The bash entry point
-    # runs the FULL install from a GitHub-shaped tarball of the checkout and then
-    # asserts a working `nexus-hub --version` (the Phase 5 DoD); the PowerShell
-    # entry point is AST-parsed and precheck-run via pwsh here (the full Windows
-    # install runs end-to-end in the bootstrap-windows job below).
+    # Exercise the dual-mode self-fetching bootstrap end to end on a clean
+    # machine (no pre-existing clone). The bash entry point runs the FULL
+    # install from a GitHub-shaped tarball of the checkout and asserts a working
+    # `nexus-hub --version`; the PowerShell entry point is AST-parsed and
+    # precheck-run via pwsh here (the full Windows install runs in
+    # bootstrap-windows below).
     #
-    # Phase 5 widens the bash path to a macOS runner as well as ubuntu: the
-    # installer is bash-3.2-safe (no associative arrays / mapfile / case-mod
-    # expansions), so the same code path runs on the BSD-userland macOS runner.
-    # ubuntu remains the authoritative bash gate; macOS adds real-platform proof
-    # that the Mac smoke test (docs/v3/v3.7/development/mac-smoke-test.md) used to
-    # carry alone.
+    # The macOS leg is bash-3.2-safe (no associative arrays, mapfile, or
+    # case-mod expansions), so the same code path runs on the BSD-userland
+    # runner. ubuntu remains the authoritative bash gate for the ordinary
+    # reason that it is the reference POSIX environment.
     #
-    # This used to cite WN-v36-1 as "bash cannot be fully run on the Windows dev
-    # host". That premise was DISPROVEN in v3.15.6 Phase 4: the cause was PATH
-    # shadowing (the WSL launcher stub in System32 preceding Git Bash and unable to
-    # resolve a Windows-style script path), not host incapability. ubuntu is still
-    # the authoritative gate for the bash INSTALLER path, but for the ordinary
-    # reason that it is the reference POSIX environment, not because Windows cannot
-    # run bash.
+    # v4.0.0: the macOS leg moved from push to the pull request. macOS is a
+    # 10x-minute runner and this is the one leg where that cost buys real
+    # pre-merge proof.
     needs: changes
-    # v3.17.6 Phase 2: the path scoping that used to sit on the workflow trigger.
-    # Fail-closed by construction -- `!cancelled()` overrides GitHub's skip-on-
-    # failed-dependency rule and `!= 'false'` treats a missing output as run.
     if: ${{ !cancelled() && needs.changes.outputs.relevant != 'false' }}
     strategy:
       fail-fast: false
       matrix:
-        # Cost control: PRs run ubuntu-only; the macOS leg (10x minutes) runs on
-        # pushes to shared branches, where real-platform proof matters.
-        os: ${{ github.event_name == 'pull_request' && fromJSON('["ubuntu-latest"]') || fromJSON('["ubuntu-latest","macos-latest"]') }}
+        os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     steps:
@@ -506,13 +366,6 @@ jobs:
           test -d "$home/.nexus-hub" \
             || { echo "FAIL: ~/.nexus-hub not populated"; exit 1; }
           echo "OK: standalone bootstrap populated $home/.nexus-hub"
-          # The install drops a `nexus-hub` launcher on PATH (Phase 3 CLI). Assert
-          # `--version` reports a semver (the Phase 5 DoD). Prefer the installed
-          # launcher; fall back to the extracted CLI core (its plugin.json version
-          # fallback always resolves after extraction) so the version-reading path
-          # is proven on this OS even if the headless install stopped short of the
-          # launcher step. The launcher-wiring itself is unit-tested in
-          # tests/installer/test_upgrade_cli.py.
           launcher="$home/.nexus-hub/bin/nexus-hub"
           core="$home/.nexus-hub/src/scripts/nexus_hub_cli.py"
           export NEXUS_HUB_HOME="$home/.nexus-hub"
@@ -556,27 +409,18 @@ jobs:
           Write-Host "OK: pwsh precheck passed"
 
   bootstrap-windows:
-    # v3.7.0 Phase 5: run the standalone PowerShell bootstrap end-to-end on a real
-    # Windows runner. Before Phase 5 the Windows path had only been AST-parsed and
-    # precheck-run (under pwsh on Linux), so a Windows runner is the only place the
-    # real `irm | iex` standalone flow is exercised.
+    # The `irm | iex` standalone flow is a Windows-native path that only a
+    # Windows runner exercises. It drives install.ps1 in forced-standalone mode
+    # against a GitHub-shaped tarball of the checkout (zero network), then
+    # asserts a populated ~/.nexus-hub and a working `nexus-hub --version`.
     #
-    # This used to justify itself with WN-v36-1 ("the dev host cannot run the bash
-    # path at all"). That premise was DISPROVEN in v3.15.6 Phase 4: the cause was
-    # PATH shadowing, not host incapability. The job's real justification is
-    # unaffected and stands on its own: the `irm | iex` standalone flow is a
-    # Windows-native path that only a Windows runner exercises. It drives install.ps1 in forced-standalone mode
-    # against a GitHub-shaped tarball of the checkout (zero network), then asserts a
-    # populated ~/.nexus-hub and a working `nexus-hub --version`.
+    # v4.0.0: moved from push-only to the pull request, for the same reason as
+    # tests-windows. An installer failure discovered after merge is an incident;
+    # before merge it is a review comment.
     needs: changes
     runs-on: windows-latest
     timeout-minutes: 30
-    # Cost control: Windows is a 2x-minute runner. Run the real end-to-end
-    # bootstrap on pushes only, not on PRs (PRs still get the pwsh AST-parse in
-    # the `bootstrap` job).
-    # v3.17.6 Phase 2: ANDed with path relevance. `!cancelled()` and the
-    # `!= 'false'` comparison keep this fail-closed; see the `changes` job.
-    if: ${{ !cancelled() && github.event_name != 'pull_request' && needs.changes.outputs.relevant != 'false' }}
+    if: ${{ !cancelled() && needs.changes.outputs.relevant != 'false' }}
     steps:
       - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
 
@@ -597,20 +441,15 @@ jobs:
           $env:HOME = $nxHome
           $env:NEXUS_HUB_FORCE_STANDALONE = '1'
           $env:NEXUS_HUB_TARBALL = (Join-Path $env:RUNNER_TEMP 'catalog.tar.gz')
-          # Run the standalone bootstrap via Windows PowerShell 5.1 (the documented
-          # floor and the `irm | iex` default on Windows). Tolerate the core
-          # installer's exit code; the extraction + version assertions below are the
-          # real gate.
+          # Windows PowerShell 5.1 is the documented floor and the `irm | iex`
+          # default on Windows. Tolerate the core installer's exit code; the
+          # extraction and version assertions below are the real gate.
           & .\install.ps1
           Write-Host "bootstrap rc=$LASTEXITCODE (asserting artifacts below)"
           $nx = Join-Path $nxHome '.nexus-hub'
           if (-not (Test-Path (Join-Path $nx 'src\scripts\installer.ps1'))) { Write-Host 'FAIL: bootstrap did not extract the catalog to ~/.nexus-hub/src'; exit 1 }
           if (-not (Test-Path $nx)) { Write-Host 'FAIL: ~/.nexus-hub not populated'; exit 1 }
           Write-Host "OK: standalone bootstrap populated $nx"
-          # Assert a working `nexus-hub --version`. Prefer the installed .cmd
-          # launcher; fall back to the extracted CLI core (plugin.json version
-          # fallback) so the version path is proven on Windows Python even if the
-          # headless core install stopped short of the launcher step.
           $env:NEXUS_HUB_HOME = $nx
           $launcher = Join-Path $nx 'bin\nexus-hub.cmd'
           $core = Join-Path $nx 'src\scripts\nexus_hub_cli.py'
@@ -627,211 +466,19 @@ jobs:
           if ("$ver" -notmatch 'nexus-hub \d+\.\d+\.\d+') { Write-Host "FAIL: unexpected --version output: $ver"; exit 1 }
           Write-Host "OK: nexus-hub --version works ($ver)"
 
-  tests:
-    # Runs the Python test suite. Each pytest invocation is scoped to its own
-    # tree so pytest does not accidentally adopt a nested `pyproject.toml` as
-    # the rootdir (which previously broke module discovery when combining
-    # `catalog/hooks/tests/` with `extensions/nexus-skill-server/tests/`).
-    # Invoke pytest as a module so the checkout root remains importable by
-    # tests that exercise the repository's `scripts` package.
-    needs: changes
-    # v3.17.6 Phase 2: the path scoping that used to sit on the workflow trigger.
-    # Fail-closed by construction -- `!cancelled()` overrides GitHub's skip-on-
-    # failed-dependency rule and `!= 'false'` treats a missing output as run.
-    if: ${{ !cancelled() && needs.changes.outputs.relevant != 'false' }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 60
-    steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
-
-      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
-        with:
-          python-version: '3.11'
-          # v3.11.0 Phase 8.4: this job does pytest + 5 editable extension installs;
-          # cache the pip download dir keyed on the extension manifests (pydantic,
-          # mcp, and friends are the heaviest cold downloads).
-          cache: 'pip'
-          cache-dependency-path: 'extensions/*/pyproject.toml'
-
-      - name: Install pytest
-        # v3.16.0 Phase 3: tomlkit and PyYAML are the optional seeding
-        # dependencies for platform install-time defaults (TOML and YAML config
-        # targets). They are installed here because the seeding tests use
-        # pytest.importorskip, so without them the TOML/YAML coverage would
-        # SILENTLY SKIP in CI rather than fail -- a green run that proved
-        # nothing about two of the four writable formats.
-        run: pip install pytest tomlkit PyYAML
-
-      - name: Platform-parity + installer-smoke tests (v0.9.7 regression guards)
-        run: python -m pytest catalog/hooks/tests/test_platform_parity.py catalog/hooks/tests/test_installer_smoke.py -v
-
-      - name: Full catalog/hooks test suite
-        run: python -m pytest catalog/hooks/tests/ -v
-
-      - name: Repo-level integration-registry + installer tests (v2.2.0+)
-        run: python -m pytest tests/integrations tests/installer -v
-
-      - name: CI validator tests (v2.3.0 Phase 2)
-        run: python -m pytest tests/validators -v
-
-      - name: Skills-script tests (v3.14.3 media-key setup helper + docs-audit resolver; v3.15.14 spec-artifact agreement guard)
-        run: python -m pytest tests/skills -v
-
-      - name: Plan-contract + workflow-policy tests (v3.15.8 Phase 4.4)
-        # This job enumerates test directories by name rather than running
-        # `pytest tests`, so a new directory is invisible to CI until it is
-        # listed here. tests/plans (added in v3.15.8 Phase 1) was in exactly that
-        # state; tests/workflows (Phase 4.2) would have been too.
-        run: python -m pytest tests/plans tests/workflows -v
-
-      - name: Install skill-server (and transitive deps like pydantic via mcp)
-        run: pip install -e "extensions/nexus-skill-server/[dev]"
-
-      - name: Skill-server tests
-        run: python -m pytest extensions/nexus-skill-server/tests/ -v
-
-      - name: Install code-search MCP server (v1.0.0+)
-        run: pip install -e "extensions/nexus-code-search/[dev]"
-
-      - name: Code-search tests
-        run: python -m pytest extensions/nexus-code-search/tests/ -v
-
-      - name: Install web-fetch MCP server (v1.0.0+)
-        run: pip install -e "extensions/nexus-web-fetch/[dev]"
-
-      - name: Web-fetch tests
-        run: python -m pytest extensions/nexus-web-fetch/tests/ -v
-
-      - name: Install skill-security scanner (v3.0.0+)
-        run: pip install -e "extensions/nexus-skill-scanner/[dev]"
-
-      - name: Skill-scanner tests
-        run: python -m pytest extensions/nexus-skill-scanner/tests/ -v
-
-      - name: Install context-compressor engine (v3.2.0+)
-        run: pip install -e "extensions/nexus-context-compressor/[dev]"
-
-      - name: Context-compressor tests
-        run: python -m pytest extensions/nexus-context-compressor/tests/ -v
-
-      - name: Install nexus-memory store (v3.19.1)
-        run: pip install -e "extensions/nexus-memory/[dev]"
-
-      - name: Memory-store tests
-        run: python -m pytest extensions/nexus-memory/tests/ -v
-
-  tests-windows:
-    # v3.15.6 Phase 4: run the hook suite on a real Windows host so the catalog's
-    # *.ps1 hooks are exercised on Windows PowerShell 5.1, not only on the ubuntu
-    # leg's pwsh 7.
-    #
-    # This is evidence-driven, not belt-and-braces. The v3.15.6 Phase 3 provenance
-    # ledger shipped a defect where `Add-Content -Encoding utf8` emits a UTF-8 BOM:
-    # that behavior is specific to Windows PowerShell 5.1 and does NOT reproduce
-    # under pwsh 7, so the ubuntu leg would have passed a ledger whose first field
-    # was unparseable on every Windows user's machine. Only a 5.1 leg catches the
-    # class. NEXUS_TEST_POWERSHELL pins the edition, because the test fixture
-    # otherwise prefers pwsh and the Windows image has both.
-    #
-    # Cost control: windows-latest is a 2x-minute runner, so this runs on pushes
-    # only, matching the bootstrap-windows and install-smoke gating.
-    needs: changes
-    runs-on: windows-latest
-    timeout-minutes: 60
-    # v3.17.6 Phase 2: ANDed with path relevance. `!cancelled()` and the
-    # `!= 'false'` comparison keep this fail-closed; see the `changes` job.
-    if: ${{ !cancelled() && github.event_name != 'pull_request' && needs.changes.outputs.relevant != 'false' }}
-    steps:
-      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
-
-      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
-        with:
-          python-version: '3.11'
-          # v3.19.2 Phase 6: this job pip-installs pytest + PyYAML on every
-          # Windows run; cache the download dir keyed on this workflow (no
-          # requirements.txt; the pin lives in the Install pytest step).
-          # Do not add a workflow-level `paths:` filter: required checks must
-          # still be produced on every run (job-level `changes` already gates).
-          cache: 'pip'
-          cache-dependency-path: '.github/workflows/ci.yml'
-
-      - name: Install pytest
-        # PyYAML matches the ubuntu `tests` job (v3.17.6 Phase 2). This job runs
-        # tests/validators, which parses .github/workflows/*.yml, so without it
-        # the whole tree errored at COLLECTION -- taking every other validator
-        # test on Windows down with it rather than skipping one file.
-        run: pip install pytest PyYAML
-
-      - name: Hook suite on Windows PowerShell 5.1
-        env:
-          # Pin the edition under test; see the job comment above.
-          NEXUS_TEST_POWERSHELL: powershell
-        run: python -m pytest catalog/hooks/tests -q
-
-      - name: Installer + validator suites on Windows
-        env:
-          NEXUS_TEST_POWERSHELL: powershell
-        run: python -m pytest tests/installer tests/validators -q
-
-      - name: Codex native agent/hook delivery on Windows (v3.15.8 Phase 5)
-        # Scoped to the one integration file rather than all of tests/integrations,
-        # which would add ~15 minutes of Windows runner time for coverage the
-        # ubuntu `tests` job already provides. What is Windows-specific here is the
-        # commandWindows registration and the path handling that decides which
-        # hooks.json handlers Nexus-Hub owns, so that is what this leg proves.
-        env:
-          NEXUS_TEST_POWERSHELL: powershell
-        run: python -m pytest tests/integrations/test_codex_native.py -q
-
-      - name: Copilot agents + Hermes layout on Windows (v3.15.8 Phase 8)
-        # Copilot's global agent dir resolves off the user profile, and the
-        # Hermes depth-1 guard walks a delivered tree, so both are worth running
-        # where path semantics and case-insensitivity differ from ubuntu.
-        env:
-          NEXUS_TEST_POWERSHELL: powershell
-        run: python -m pytest tests/integrations/test_copilot_hermes_native.py -q
-
-      - name: Kimi native agent/hook delivery on Windows (v3.15.8 Phase 7)
-        # Two Windows-specific things here: the host-selected .ps1 command, and
-        # the config.toml marker-block splice, whose line handling is where a
-        # CRLF checkout could silently break the round trip.
-        env:
-          NEXUS_TEST_POWERSHELL: powershell
-        run: python -m pytest tests/integrations/test_kimi_native.py -q
-
-      - name: Gemini CLI + Qwen hook delivery on Windows (v3.15.8 Phase 6)
-        # Higher stakes on Windows than the Codex leg: neither platform has a
-        # commandWindows slot, so the command that gets registered is chosen from
-        # the HOST. On a Windows runner this asserts the real branch -- the .ps1
-        # sibling, the PowerShell-flavored guardrails, and the $env: form of the
-        # project-dir variable -- which an ubuntu-only run can only simulate.
-        env:
-          NEXUS_TEST_POWERSHELL: powershell
-        run: python -m pytest tests/integrations/test_settings_hooks.py -q
-
-      - name: Command-skill invocation-policy emission on Windows (v3.20.3 Phase 4)
-        # Tiny fixture catalog plus sidecar mapping. Ubuntu `tests` already runs
-        # the full 324-skill flatten suite; repeating that here would add Windows
-        # runner minutes for coverage the ubuntu job already provides.
-        env:
-          NEXUS_TEST_POWERSHELL: powershell
-        run: python -m pytest tests/integrations/test_catalog_adapters.py tests/integrations/test_codex_invocation_policy.py -q
-
   install-smoke:
-    # v3.11.0 Phase 7.5: prove the catalog lands at each platform's real read-path
-    # and that the project auto-seed produces .agents/workflows. Uses the registry
-    # installer (a fast, deterministic file mirror - no MCP/venv) so it runs cheaply
-    # on every OS. Cursor/Copilot GLOBAL slash surfaces are installer-block-owned and
-    # exercised by the `bootstrap` job. Cost control: ubuntu on PRs; +macOS/Windows on pushes.
+    # Prove the catalog lands at each platform's real read-path and that the
+    # project auto-seed produces .agents/workflows. Uses the registry installer
+    # (a fast, deterministic file mirror -- no MCP, no venv) so it runs cheaply
+    # on every OS.
+    #
+    # v4.0.0: the full three-OS matrix now runs on the pull request.
     needs: changes
-    # v3.17.6 Phase 2: the path scoping that used to sit on the workflow trigger.
-    # Fail-closed by construction -- `!cancelled()` overrides GitHub's skip-on-
-    # failed-dependency rule and `!= 'false'` treats a missing output as run.
     if: ${{ !cancelled() && needs.changes.outputs.relevant != 'false' }}
     strategy:
       fail-fast: false
       matrix:
-        os: ${{ github.event_name == 'pull_request' && fromJSON('["ubuntu-latest"]') || fromJSON('["ubuntu-latest","macos-latest","windows-latest"]') }}
+        os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     steps:
@@ -897,23 +544,16 @@ jobs:
           Write-Host "OK: global platform read-paths populated (Windows)"
 
   installer-smoke:
-    # Run the REAL platform-native installers into redirected HOME/workspace
+    # Run the REAL platform-native installers into redirected HOME and workspace
     # roots, then use one shared Python checker for identical postconditions on
     # every OS. GitHub-hosted runners are deliberate: contributors install no
     # hypervisor, and containers cannot provide a real macOS or Windows kernel.
-    #
-    # Installer smoke runs Ubuntu on protected-branch pushes and expands to
-    # macOS/Windows before merge, on release tags, or on manual dispatch. That catches installer failures before
-    # users receive them without making macOS the largest per-push minute cost.
     needs: changes
-    # v3.17.6 Phase 2: the path scoping that used to sit on the workflow trigger.
-    # Fail-closed by construction -- `!cancelled()` overrides GitHub's skip-on-
-    # failed-dependency rule and `!= 'false'` treats a missing output as run.
     if: ${{ !cancelled() && needs.changes.outputs.relevant != 'false' }}
     strategy:
       fail-fast: false
       matrix:
-        os: ${{ fromJSON((github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')) && '["ubuntu-latest","macos-latest","windows-latest"]' || '["ubuntu-latest"]') }}
+        os: [ubuntu-latest, macos-latest, windows-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     steps:
@@ -959,41 +599,29 @@ jobs:
           & python scripts\check_installer_smoke.py --home $smokeHome --workspace $workspace
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
-
-  # v3.17.6 Phase 2.2: ONE aggregate required context for the whole workflow.
+  # ONE aggregate required context for the whole workflow.
   #
-  # Sub-task 2.2's docs-only proof PR (#57) reached BLOCKED, not CLEAN, and
-  # exposed a platform behaviour the plan did not anticipate: GitHub evaluates a
-  # job-level `if:` BEFORE matrix expansion, so a SKIPPED matrix job publishes
-  # exactly one check run named after the bare job. On that PR the raw check-run
-  # API listed `installer-smoke`, never `installer-smoke (ubuntu-latest)` and its
-  # two siblings. Five of the ten required contexts therefore never came into
-  # existence and sat Pending forever -- the original defect in a new costume.
-  #
-  # `tests` skipped cleanly because it has no matrix: its check name IS its
-  # required context. That contrast is the whole diagnosis.
-  #
-  # Rather than un-gate the three matrix jobs (correct, but ~6.3 billed min on
-  # every docs-only PR, dominated by the 10x macOS leg), the required set
-  # collapses to this single context plus `colocation` and `verify`. Matrix jobs
-  # may now skip freely, and a renamed matrix leg can no longer silently drop a
-  # gate -- the per-leg names stop being load-bearing, which the plan's Phase 5
-  # consequences list flagged as the cost of the migration.
+  # GitHub evaluates a job-level `if:` BEFORE matrix expansion, so a SKIPPED
+  # matrix job publishes exactly one check run named after the bare job. On a
+  # docs-only proof PR the raw check-run API listed `installer-smoke`, never
+  # `installer-smoke (ubuntu-latest)` and its siblings, so five of ten required
+  # contexts never came into existence and sat Pending forever. The required set
+  # therefore collapses to this single context plus `colocation` and `verify`.
+  # Matrix jobs may skip freely, and a renamed matrix leg can no longer silently
+  # drop a gate.
   #
   # SAFETY: this job is the only thing standing between a broken build and a
   # green merge, so every ambiguous case fails.
-  #   - `if: always()` so it reports even when a needed job failed or the run was
-  #     cancelled. Without it a failed dependency would SKIP this job, and a
+  #   - `if: always()` so it reports even when a needed job failed or the run
+  #     was cancelled. Without it a failed dependency would SKIP this job, and a
   #     skipped required check reports Success -- the exact fail-open trap the
   #     rest of this workflow is built to avoid.
-  #   - The verdict is an ALLOWLIST (`success` or `skipped` pass, everything else
-  #     fails), not a denylist on `failure`/`cancelled`. A result value GitHub
-  #     has not used before therefore fails closed instead of slipping through.
+  #   - The verdict is an ALLOWLIST (`success` or `skipped` pass, everything
+  #     else fails), not a denylist on `failure`/`cancelled`. A result value
+  #     GitHub has not used before therefore fails closed.
   #   - Each result is passed as its own env var and checked in pure bash: no
   #     `jq`, no `python3`, nothing that could be absent on a runner or make the
-  #     logic untestable off-CI. The canonical
-  #     `contains(needs.*.result, 'failure')` one-liner was rejected because it
-  #     can only express a denylist.
+  #     logic untestable off-CI.
   #   - `changes` is included on purpose: a broken detector still lets the gated
   #     jobs run (that is what `!cancelled()` buys them), but it must be LOUD
   #     rather than merely survivable.
@@ -1006,10 +634,10 @@ jobs:
       - changes
       - validate
       - shellcheck
-      - bootstrap
-      - bootstrap-windows
       - tests
       - tests-windows
+      - bootstrap
+      - bootstrap-windows
       - install-smoke
       - installer-smoke
     if: always()
@@ -1021,10 +649,10 @@ jobs:
           R_changes: ${{ needs.changes.result }}
           R_validate: ${{ needs.validate.result }}
           R_shellcheck: ${{ needs.shellcheck.result }}
-          R_bootstrap: ${{ needs.bootstrap.result }}
-          R_bootstrap_windows: ${{ needs['bootstrap-windows'].result }}
           R_tests: ${{ needs.tests.result }}
           R_tests_windows: ${{ needs['tests-windows'].result }}
+          R_bootstrap: ${{ needs.bootstrap.result }}
+          R_bootstrap_windows: ${{ needs['bootstrap-windows'].result }}
           R_install_smoke: ${{ needs['install-smoke'].result }}
           R_installer_smoke: ${{ needs['installer-smoke'].result }}
         run: |
@@ -1036,7 +664,6 @@ jobs:
             # `installer-smoke` arrives as R_installer_smoke and would otherwise
             # be printed as `installer_smoke` -- a name that matches no job and
             # sends whoever reads the failed run looking for the wrong thing.
-            # `tr` rather than bash `${//}` so the script stays portable.
             job=$(printf '%s' "${var#R_}" | tr '_' '-')
             printf '  %-22s %s\n' "${job}" "${result:-<empty>}"
             case "${result}" in

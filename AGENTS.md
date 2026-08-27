@@ -1,6 +1,6 @@
 # AGENTS.md
 
-<!-- nexus-hub-version: 3.21.0 -->
+<!-- nexus-hub-version: 4.0.0 -->
 
 This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, Gemini CLI, etc.) when working with code in this repository.
 
@@ -8,7 +8,7 @@ This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, G
 
 Nexus-Hub is a production-grade skill harness for AI coding assistants. It is the **upstream catalog** consumed by Nexus (the local-first desktop AI Studio, see `https://github.com/bendourthe/Nexus-AI`) and by every other major agent platform: Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, and GitHub CLI. Skills, commands, hooks, agents, and rules are distributed via installer scripts into users' `~/.nexus-hub/` directory and into their AI assistant's per-platform config locations.
 
-Current catalog: **324 skills** across 23 categories, 18 commands (plus 3 permanent aliases), 33 hooks, 23 agents. The 40 v3.x deprecation shims were removed in v3.2.0.
+Current catalog: **325 skills** across 23 categories, 18 commands (plus 3 permanent aliases), 33 hooks, 23 agents. The 40 v3.x deprecation shims were removed in v3.2.0.
 
 ## Project Structure
 
@@ -24,7 +24,7 @@ Nexus-Hub/
 │   ├── mcp-configs/          # MCP server registry
 │   ├── memory/               # Memory template files
 │   ├── rules/                # Code style/security rules (4 languages)
-|   `-- skills/               # 324 skills across 23 categories
+|   `-- skills/               # 325 skills across 23 categories
 │       └── <category>/
 │           └── <skill-name>/
 │               └── SKILL.md
@@ -305,7 +305,7 @@ File naming: `kebab-case.md`. Commands use the same SKILL.md conventions for ins
 
 After adding a command, update `data/marketplace.json` `"total_commands"` if that field is present.
 
-**On a rename or deprecation**, decide whether to keep the old command name working through a deprecation shim at `catalog/commands/<old-name>.md` -- a `DEPRECATED (removed in vX.Y.Z). Forwarding to /NEW.` frontmatter `description` plus a short body that prints the notice and delegates to the new command -- or to remove it outright with a CHANGELOG `Removed` note. (The 40 v3.0.0-era shims followed the shim pattern and were removed in v3.2.0; see the v3.2.0 CHANGELOG and `docs/v3/v3.0/command-migration.md`.)
+**On a rename or deprecation**, decide whether to keep the old command name working through a deprecation shim at `catalog/commands/<old-name>.md` -- a `DEPRECATED (removed in vX.Y.Z). Forwarding to /NEW.` frontmatter `description` plus a short body that prints the notice and delegates to the new command -- or to remove it outright with a CHANGELOG `Removed` note. (The 40 v3.0.0-era shims followed the shim pattern and were removed in v3.2.0; see the v3.2.0 CHANGELOG and `docs/releases/v3/v3.0/command-migration.md`.)
 
 **Do not maintain a static command list anywhere.** `/skills list` derives the command cheatsheet -- the active commands, what each does, the deprecated name each one replaces, and common multi-command workflows -- at runtime from the command files themselves (see `catalog/style-guides/commands-cheatsheet.md`). Adding, renaming, refactoring, or deprecating a command therefore updates the cheatsheet automatically on the next `/skills list`; there is no table to hand-edit. The only command artifacts to touch on a change are the command file(s) and (on a rename) the deprecation shim.
 
@@ -335,7 +335,7 @@ The hook registration template is `catalog/hooks/settings.json`. Supported event
 Two of those are easy to misuse, so pick deliberately:
 
 - **`Notification`** fires when the agent needs permission for a tool, or has been idle waiting for input. It is the only event meaning "blocked on the human", which is why v3.15.10's `notify-attention-required` hook rides it.
-- **`Stop`** fires when the agent finishes responding, which is the end of EVERY turn, not the end of a task. A hook registered here runs constantly in a session driven by background work. Do not treat it as "task complete" without saying so honestly, and never register a notifier on `SubagentStop` (a sub-task milestone is not a reason to interrupt a human). See `docs/v3/v3.15/development/end-of-task-notification-contract.md`.
+- **`Stop`** fires when the agent finishes responding, which is the end of EVERY turn, not the end of a task. A hook registered here runs constantly in a session driven by background work. Do not treat it as "task complete" without saying so honestly, and never register a notifier on `SubagentStop` (a sub-task milestone is not a reason to interrupt a human). See `docs/releases/v3/v3.15/development/end-of-task-notification-contract.md`.
 
 *(This list previously named only four events while the template already registered six; corrected in v3.15.10 along with the addition of `Notification`.)*
 
@@ -476,6 +476,8 @@ Nexus-Hub uses a lightweight **`develop` + `main`** model (adopted 2026-06-04). 
 - **Release**: when a version's Definition of Done is met, run `/update release` (which bumps every version-carrying surface -- the `check_version_sync.py` guard enforces consistency across them -- finalizes the changelog, then commits, merges `develop` -> `main`, tags `vX.Y.Z`, pushes, and **publishes the GitHub Release** for that tag). Pushing a tag does NOT create a GitHub Release, so the publish step is what keeps the Releases page in step with the tags; it degrades gracefully (prints the `gh release create` command when `gh` is unavailable) and is idempotent + backfillable for any tag whose Release is missing.
 
 Rationale: Nexus-Hub is a catalog consumed directly from the repo by an installer across every supported AI platform, so `main` is effectively a release artifact. Isolating in-progress, multi-phase versions on `develop` protects downstream installer users from half-applied phases.
+
+**Plan lifecycle (v4.0.0).** This repository follows the same lifecycle it distributes. Every plan phase verifies locally and ends with ONE local commit; unrelated dirty-worktree changes are left untouched and only files tracing to the plan are staged. No non-final phase pushes, opens a pull request, or starts remote CI, because a pipeline run per phase bills to validate work the plan itself calls incomplete. A phase records its CI impact and edits `.github/workflows/` only when CI/CD is that phase's stated deliverable. The FINAL phase reconciles the pipeline against the canonical contract via `[[cicd-architect]]`, completes the local gate, then pushes ONCE and opens the integration pull request to `develop` -- the plan's first remote validation, run against the merge result. A red required check reopens that phase and is reproduced locally before any re-push. Post-merge work stays minimal, and `/update release` starts only after the `develop` result is green and merged. A `push`-filtered workflow means "a merge or a release happened" ONLY because `main` and `develop` reject direct pushes; that protection is an external repository setting, verified by hand and never mutated automatically. Contract: [`docs/releases/v4/v4.0/development/ci-cd-lifecycle-contract.md`](docs/releases/v4/v4.0/development/ci-cd-lifecycle-contract.md).
 
 **Capability usage gate (release notes).** A release that introduces or materially changes an OPT-IN capability, installer flag, managed skill, or host surface must document five things per surface in its release notes: the exact activation mechanism, a runnable validation command, the exact disable / rollback path, the authority or privacy boundary that activation does NOT grant, and a canonical documentation link. Nexus-Hub ships an unusually high density of such surfaces (`NEXUS_HUB_COPILOT_SKILLS`, `--enterprise` / `-Enterprise`, `NEXUS_DISABLED_HOOKS`, `NEXUS_HOOK_PROFILE=minimal`), and the fourth element is both the most-skipped and the only one that fails silently rather than loudly. The gate applies ONLY to opt-in surfaces; a release with none satisfies it with a single explicit no-change declaration. Full definition and worked examples: governance step 6 in [`catalog/commands/update.md`](catalog/commands/update.md).
 

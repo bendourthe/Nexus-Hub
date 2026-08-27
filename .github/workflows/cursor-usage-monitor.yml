@@ -11,17 +11,11 @@ name: cursor-usage-monitor
 # and vendor order. Adding the installers here would spin up a Node runner to
 # rebuild an unchanged VSIX on every installer edit.
 on:
-  push:
-    branches: [main, develop]
-    paths:
-      - 'extensions/cursor-usage-monitor/**'
-      # v3.15.12 Phase 1 (QG-6): the wire fixtures live at the repo root because
-      # tests/plans asserts over them too, but test/liveTransport.test.ts asserts
-      # that the committed fixture and the CURSOR_WIRE_CONTRACT constant agree.
-      # Without this path a fixture-only edit -- exactly what correcting the
-      # unverified wire shape looks like -- would merge with that check unrun.
-      - 'tests/fixtures/cursor-usage/**'
-      - '.github/workflows/cursor-usage-monitor.yml'
+  # v4.0.0 event separation: the `push` leg to the same protected branches was
+  # removed. Under a pull-request-only merge policy that push IS the merge commit
+  # of the pull request that just ran, so the tree is identical and the second run
+  # cannot discover anything the first did not. See
+  # docs/releases/v4/v4.0/development/ci-cd-lifecycle-contract.md section 4.
   pull_request:
     branches: [main, develop]
     paths:
@@ -106,7 +100,7 @@ jobs:
           echo "Packaged VSIX: ${VSIX}"
           if ! command -v cursor >/dev/null 2>&1; then
             echo "::notice::Cursor CLI not available on this runner; skipping profile install E2E."
-            echo "Required local verification: docs/v3/v3.15/development/cursor-usage-live-smoke.md"
+            echo "Required local verification: docs/releases/v3/v3.15/development/cursor-usage-live-smoke.md"
             exit 0
           fi
           PROFILE_DIR="${RUNNER_TEMP}/cursor-nexus-e2e-profile"

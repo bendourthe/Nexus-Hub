@@ -152,12 +152,38 @@ def test_every_action_is_pinned_to_a_full_sha(path: Path) -> None:
         )
 
 
+#: Workflows where cancel-in-progress is deliberately FALSE (v4.0.0).
+#:
+#: Cancelling superseded PULL-REQUEST validation is correct: a later commit
+#: supersedes an earlier one and the earlier answer no longer matters.
+#: Cancelling a release or a post-merge run is not. Each tag is a distinct
+#: artifact and each merge a distinct state, so there is no later run that
+#: covers the earlier one -- cancelling would silently drop the only signal that
+#: state will ever get.
+NO_CANCEL = {"release.yml", "post-merge.yml"}
+
+#: Workflows scoped by EVENT rather than by path (v4.0.0).
+#:
+#: The cost rule below says a workflow with no required check should scope
+#: itself to its own tree. These two are already scoped as tightly as the
+#: lifecycle allows -- one fires only on a protected-branch merge, the other
+#: only on a release tag -- and both are cheap by construction (post-merge runs
+#: the fast profile; release runs no test suite). Adding a path filter would
+#: make them skip the merge or the tag they exist to observe.
+LIFECYCLE_EVENT_WORKFLOWS = {"post-merge.yml", "release.yml"}
+
+
 @pytest.mark.parametrize("path", ALL)
 def test_superseded_runs_are_cancelled(path: Path) -> None:
     data = load(path)
     concurrency = data.get("concurrency")
     assert concurrency, f"{path.name} declares no concurrency group"
-    assert concurrency.get("cancel-in-progress") is True, path.name
+    expected = path.name not in NO_CANCEL
+    assert concurrency.get("cancel-in-progress") is expected, (
+        f"{path.name} sets cancel-in-progress="
+        f"{concurrency.get('cancel-in-progress')!r}; expected {expected!r}. "
+        "Pull-request validation cancels; release and post-merge runs do not."
+    )
 
 
 @pytest.mark.parametrize("path", ALL)
@@ -167,6 +193,14 @@ def test_no_ordinary_feature_branch_push_expansion(path: Path) -> None:
     push = triggers.get("push")
     if not isinstance(push, dict):
         return
+
+    # v4.0.0: a TAG-only push trigger is the release event, not a branch push.
+    # release.yml declares `tags: ['v*']` and no `branches:` at all, which is
+    # narrower than any branch list rather than broader.
+    if "tags" in push and "branches" not in push:
+        assert push["tags"], f"{path.name} declares an empty tag filter"
+        return
+
     branches = push.get("branches")
     assert branches, f"{path.name} pushes on every branch"
     assert set(branches) <= {"main", "develop"}, (
@@ -214,6 +248,8 @@ def test_focused_workflows_filter_by_path(path: Path) -> None:
     """
     if path.name in required_check_workflows():
         pytest.skip(f"{path.name} produces a required check; filtering it is unsafe")
+    if path.name in LIFECYCLE_EVENT_WORKFLOWS:
+        pytest.skip(f"{path.name} is scoped by EVENT rather than by path")
     triggers = load(path)[ON_KEY]
     filtered = [
         name

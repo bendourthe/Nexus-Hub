@@ -1,4 +1,4 @@
-.PHONY: all validate lint build-catalog test scan eval trigger-evals compress-eval benchmark clean help
+.PHONY: all validate lint build-catalog test scan eval trigger-evals compress-eval benchmark clean help \n        ci-fast ci-full ci-platform ci-report ci-release
 
 all: validate lint ## Run validation and linting
 
@@ -110,13 +110,43 @@ trigger-evals: ## Detect skill-description trigger-vocabulary near-collisions (w
 
 compress-eval: ## Run the context-compressor accuracy-regression harness + gate
 	@echo "Running context-compressor accuracy-regression harness..."
-	@cd extensions/nexus-context-compressor && python -m evals --check --out ../../docs/v3/v3.2/compression-eval-baseline.md
-	@echo "Compress-eval complete. Report: docs/v3/v3.2/compression-eval-baseline.md"
+	@cd extensions/nexus-context-compressor && python -m evals --check --out ../../docs/releases/v3/v3.2/compression-eval-baseline.md
+	@echo "Compress-eval complete. Report: docs/releases/v3/v3.2/compression-eval-baseline.md"
 
 benchmark: ## Benchmark internal MCP servers
 	@echo "Benchmarking internal MCPs..."
 	@python scripts/nexus_mcp_benchmark.py --append --quiet
 	@echo "Benchmark complete. Results: data/benchmarks/mcp.json"
+
+# --- Repository-native CI profiles (v4.0.0) --------------------------------
+#
+# These delegate to scripts/ci/run.py. They do NOT copy its command list: the
+# profiles are defined once, in scripts/ci/profiles.py, and both a developer and
+# .github/workflows/ call the same definition. Duplicating the list here would
+# recreate exactly the drift the engine was built to remove.
+#
+# `validate`, `lint`, and `test` above are retained and unchanged. Their
+# relationship to the profiles is explicit: `ci-full` runs a superset of
+# `validate` plus `test`, so a green `ci-full` implies a green `validate`, while
+# `validate` on its own stays the fastest way to check catalog integrity alone.
+#
+# Where make is unavailable (a plain Windows shell), call the script directly:
+#   python scripts/ci/run.py --profile fast --reports-dir reports
+
+ci-fast: ## Cheapest useful signal (seconds): parses, hygiene, workflows, version
+	@python scripts/ci/run.py --profile fast --reports-dir reports
+
+ci-full: ## Everything provable on this host (minutes): validators, catalog, tests
+	@python scripts/ci/run.py --profile full --reports-dir reports
+
+ci-platform: ## Only what differs by host (shell lint, PowerShell parse, Windows hooks)
+	@python scripts/ci/run.py --profile platform --reports-dir reports
+
+ci-report: ## Re-render reports from the last run without re-running any check
+	@python scripts/ci/run.py --profile report --reports-dir reports
+
+ci-release: ## Packaging and publication readiness. Never a validation re-run
+	@python scripts/ci/run.py --profile release --reports-dir reports
 
 clean: ## Remove build artifacts and caches
 	@echo "Cleaning..."

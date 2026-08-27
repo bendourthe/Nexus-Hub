@@ -10,7 +10,7 @@
  *   node scripts/probe-wire-shape.js --state-path "D:\\Cursor\\state.vscdb"
  *
  * What it does, and nothing more (the boundary in
- * docs/v3/v3.15/development/cursor-usage-auth-probe.md):
+ * docs/releases/v3/v3.15/development/cursor-usage-auth-probe.md):
  *   - resolves the platform's documented state-database candidate path
  *   - opens it READ-ONLY and reads ONE allowlisted key
  *   - issues ONE GET to ONE JSON route, never an HTML page

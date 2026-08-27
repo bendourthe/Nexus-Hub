@@ -10,6 +10,12 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+# v4.0.0: `ci.yml` calls scripts/ci/run.py rather than naming each guard in its
+# own `run:` step, so CI reachability is resolved through the profile
+# definitions. See tests/validators/_ci_reachability.py for why greping the
+# YAML would be both wrong and dangerous to "fix".
+from tests.validators._ci_reachability import assert_wired_into_ci
+
 
 SCRIPT = "build_framework_coverage.py"
 
@@ -247,9 +253,5 @@ def test_check_passes_against_committed_catalog_artifacts(runner) -> None:
 
 def test_check_wired_into_makefile_and_ci() -> None:
     makefile = (REPO_ROOT / "Makefile").read_text(encoding="utf-8")
-    workflow = (REPO_ROOT / ".github" / "workflows" / "ci.yml").read_text(
-        encoding="utf-8"
-    )
-    needle = "python scripts/build_framework_coverage.py --check"
-    assert needle in makefile
-    assert needle in workflow
+    assert "python scripts/build_framework_coverage.py --check" in makefile
+    assert_wired_into_ci("build_framework_coverage.py")

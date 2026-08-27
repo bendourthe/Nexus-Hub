@@ -1,8 +1,8 @@
 ---
 name: session-history
-description: Generate a comprehensive, standalone session history document at the end of a development session capturing chronological steps, troubleshooting, assumptions, testing results, and next steps. Use when finishing a coding session, documenting a development phase, or creating handoff context for the next session.
-summary_l0: "Generate standalone session history documents capturing steps, troubleshooting, and next steps"
-overview_l1: "This skill generates comprehensive session history documents at the end of a development session or retrospectively from archived sources. Use it when finishing a coding session, documenting a completed phase, creating handoff context for the next session, or reconstructing history from git and past session files. Key capabilities: conversation context mining, git delta analysis, plan cross-referencing with TODO tracking, troubleshooting trails with actual error messages, assumption tracking, verification gate tables, plan discrepancy detection, and next-steps generation. It operates in session mode (mines the live conversation) and retrospective mode (reconstructs from archived session files, git, DEVLOG, and plans). Output is a standalone Markdown file with 9 sections: Starting State, Chronological Steps, Verification Gate, Known Issues, Plan Discrepancies, Assumptions Made, Testing Summary, TODO Tracker, and Summary and Next Steps. Trigger phrases: session history, document session, session recap, end of session, session summary, session log, generate session history."
+description: Generate a comprehensive, standalone session history document at the end of a development session capturing chronological steps, troubleshooting, assumptions, testing results, decisions, error timelines, command outcomes, verification evidence, unresolved blockers, and next steps. Use when finishing a coding session, documenting a development phase, creating handoff context for the next session, writing a troubleshooting narrative, or recording a chronological work log. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.
+summary_l0: "Write standalone session histories only in release-scoped evidence trees"
+overview_l1: "This skill generates comprehensive session history documents at the end of a development session or retrospectively from archived sources. Use it when finishing a coding session, documenting a completed phase, creating handoff context for the next session, or reconstructing history from git and past session files. Key capabilities: conversation context mining, git delta analysis, plan cross-referencing with TODO tracking, troubleshooting trails with actual error messages, assumption tracking, verification gate tables, plan discrepancy detection, and next-steps generation. It operates in session mode (mines the live conversation) and retrospective mode (reconstructs from archived session files, git, DEVLOG, and plans). Output is a standalone Markdown file with 9 sections: Starting State, Chronological Steps, Verification Gate, Known Issues, Plan Discrepancies, Assumptions Made, Testing Summary, TODO Tracker, and Summary and Next Steps. Trigger phrases: session history, document session, session recap, end of session, session summary, session log, generate session history. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/."
 ---
 
 # Session History
@@ -44,6 +44,8 @@ Use this skill when you need to:
 ### Operating Modes
 
 **Session mode** (default): Run at the end of the current chat session. The live conversation is the primary and richest source of information, supplemented by git changes since the session started. Produces one file for the current session.
+
+**Output path**: resolve `<version_dir>` through `[[docs-layout-refactor]]`, then write `<version_dir>/development/history/<YYYY-MM-DD>_<slug>.md`. Session histories are frozen-at-close release evidence: never write them into a living subtree such as `docs/handbooks/` or an append-only subtree such as `docs/decisions/`.
 
 **Retrospective mode**: Reconstruct history from archived AI session files (Claude Code, Codex, Gemini, Copilot), git history, DEVLOG.md, CHANGELOG.md, and planning documents. Can produce one file per phase. Use this when the session has already ended and the conversation context is no longer available.
 
@@ -295,6 +297,7 @@ Before finalizing the output file, verify:
 - [ ] TODO Tracker aligns with the plan's subtask list (if a plan exists)
 - [ ] Verification Gate has a result for every check that was performed
 - [ ] Testing Summary records automated results; manual testing suggestions appear only on the last phase of a plan (or when there is no plan); non-final phases say "human QA is deferred to the last phase"
+- [ ] The file exists at `<version_dir>/development/history/<YYYY-MM-DD>_<slug>.md` and no session history was written into a living or append-only subtree
 - [ ] No fabricated content; thin sections are explicitly flagged
 - [ ] The file is standalone -- readable without access to the conversation
 - [ ] All 9 sections are present (with "None" or "N/A" for empty sections)

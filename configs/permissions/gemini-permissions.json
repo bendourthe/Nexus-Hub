@@ -2,7 +2,7 @@
   "_description": "Google Gemini CLI auto-approve permissions for safe, read-only operations. Merged into ~/.gemini/settings.json during installation. See trusted-domains.json for the domain allowlist.",
 
   "_hardening": {
-    "_note": "v3.17.0 Phase 1.1 rescoped this baseline to be read-only at the side-effect level. Gemini matches by PREFIX, so a bare entry such as run_shell_command(find) admitted 'find . -delete'. Unlike Claude Code there is no built-in read-only command set to fall back on, so removals here are a genuine coverage reduction and were limited to entries that are mutation-capable regardless of redirection. Full matcher evidence in docs/v3/v3.17/development/permission-matcher-findings.md.",
+    "_note": "v3.17.0 Phase 1.1 rescoped this baseline to be read-only at the side-effect level. Gemini matches by PREFIX, so a bare entry such as run_shell_command(find) admitted 'find . -delete'. Unlike Claude Code there is no built-in read-only command set to fall back on, so removals here are a genuine coverage reduction and were limited to entries that are mutation-capable regardless of redirection. Full matcher evidence in docs/releases/v3/v3.17/development/permission-matcher-findings.md.",
     "_reference_pattern": "run_shell_command(sed -n) - admits the read-only -n form while excluding sed -i.",
     "removed_v3_17_0": {
       "find": "Prefix match admits -delete, -exec, -fprintf and -execdir.",

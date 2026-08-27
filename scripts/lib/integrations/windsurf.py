@@ -22,7 +22,7 @@ surfaces are STILL SERVED, so this integration stays registered and its writes
 stay detection-gated (they degrade gracefully on an absent platform). It is
 marked deprecated because the standalone Windsurf brand is sunsetting into
 Devin Desktop; do not delete it - existing users still rely on the surface.
-See docs/v3/v3.11/development/roster-verification.md.
+See docs/releases/v3/v3.11/development/roster-verification.md.
 """
 
 from __future__ import annotations

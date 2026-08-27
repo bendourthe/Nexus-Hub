@@ -6,7 +6,7 @@
     Trigger B of the end-of-task notification contract: the agent finished
     responding and handed control back, so a human's attention is warranted.
 
-    Contract: docs/v3/v3.15/development/end-of-task-notification-contract.md
+    Contract: docs/releases/v3/v3.15/development/end-of-task-notification-contract.md
 
     What this hook deliberately does NOT do (v3.15.10):
       - It is NOT registered on SubagentStop. A sub-agent finishing is a sub-task

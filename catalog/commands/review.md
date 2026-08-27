@@ -64,7 +64,7 @@ For the `full` and `structure` scopes, `/review` emits the same read-only Projec
 | Version number | OK / MISSING | resolved version (tag / CHANGELOG / manifest), or none found |
 | Branch model | OK / MISSING | develop + main present? or which model is in use? |
 | Baseline docs | OK / MISSING | README / CHANGELOG / DEVLOG present with real content? |
-| Per-version docs tree | OK / MISSING | docs/v<MAJOR>/v<MAJOR>.<MINOR>/ with plans/ + comparisons/? |
+| Per-version docs tree | OK / MISSING | docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/ with plans/ + comparisons/? |
 
 When any surface is MISSING, end the block with the handoff offer, naming the gaps: "Setup needed: <gaps>. Run `/setup project` to bootstrap them." `/review` stays read-only (its contract below) - it detects and recommends but never mutates; remediation is the user's call via `/setup`. Use the exact wording from `[[analyze-codebase]]` so `/describe` and `/review` stay in sync.
 

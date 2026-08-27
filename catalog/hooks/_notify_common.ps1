@@ -8,7 +8,7 @@
     registerable hook, matching the _skill_rules.py convention; it is never
     registered in settings.json and never invoked directly.
 
-    Contract: docs/v3/v3.15/development/end-of-task-notification-contract.md
+    Contract: docs/releases/v3/v3.15/development/end-of-task-notification-contract.md
 
     Everything here is fail-open. A notification is a convenience, so no helper
     may abort a turn: each one degrades to a usable default instead of throwing.

@@ -36,6 +36,21 @@ Use this skill when you need to:
 
 ## Instructions
 
+Step 0 gates plan-driven releases; Steps 1 onward are the version mechanics and apply to every invocation.
+
+### Step 0: Verify the integration gate (plan-driven releases)
+
+When this skill runs as part of a plan-driven release, verify FOUR things before touching a single version-carrying file. A version bump is the point after which every later step assumes the release is happening, so an unwind costs more than a wait.
+
+1. The plan branch merged into the integration branch.
+2. Every required check on that integration pull request reached success, and the post-merge work (if any) succeeded. A pending check is not a green check.
+3. The working tree is clean and the local integration branch matches its remote.
+4. The proposed release notes were derived from the ACTUAL diff over the real tag range, not from the plan. Notes written from the plan describe what was intended, not what shipped.
+
+If any of the four fails, stop and say which one.
+
+This step is a no-op for an ad-hoc version bump outside a plan; a one-off patch has no integration pull request to gate on. See `[[git-branching-workflow]]` for the branch model and `[[cicd-architect]]` for what "green" means.
+
 ### Step 1: Determine Target Version
 
 Accept one of:
@@ -387,33 +402,9 @@ Y.Y.Y+20231215
 
 ## Language-Specific Checklists
 
-### Python Checklist
-- [ ] pyproject.toml version updated
-- [ ] __version__.py or __init__.py updated
-- [ ] setup.py version updated (if exists)
-- [ ] requirements.txt reviewed
-- [ ] docs/conf.py version updated (Sphinx)
+Per-ecosystem version-carrying files (Python, Node, Rust, Go, and others) and one end-to-end worked run: [`references/per-language-checklists.md`](references/per-language-checklists.md).
 
-### JavaScript/TypeScript Checklist
-- [ ] package.json version updated
-- [ ] package-lock.json regenerated
-- [ ] yarn.lock regenerated (if using Yarn)
-- [ ] docs version updated
-
-### Java Checklist
-- [ ] pom.xml version updated
-- [ ] build.gradle version updated (if Gradle)
-- [ ] META-INF/MANIFEST.MF updated
-
-### C# Checklist
-- [ ] *.csproj Version updated
-- [ ] AssemblyInfo.cs updated
-- [ ] NuGet package version updated
-
-### Go Checklist
-- [ ] version.go constant updated
-- [ ] go.mod reviewed
-- [ ] Git tag created
+The rule they serve, in one line: find EVERY file that states the version and bump them in one atomic change, because a half-bumped tree is worse than an un-bumped one.
 
 ## Common Rationalizations
 
@@ -439,45 +430,6 @@ Before finalizing the version upgrade:
 - [ ] All documentation links valid
 - [ ] Commit message generated and ready to copy
 - [ ] Version follows SemVer guidelines
-
-## Example Workflow
-
-```
-User: Upgrade version to 0.2.7
-
-Claude:
-1. Found current version: 0.2.6 (from pyproject.toml)
-2. Found last tag: v0.2.6
-3. Analyzing commits since v0.2.6...
-   - Found 5 commits with changes to 12 files
-4. Auto-generated CHANGELOG entries:
-   ### Added
-   - New FigureSettings class for configuration management
-   - ModernDateEdit widget for date selection
-   ### Changed
-   - Improved Matplotlib theming
-   ### Fixed
-   - Color picker initialization bug
-5. User confirms CHANGELOG is accurate
-6. Updating files:
-   - pyproject.toml: 0.2.6 → 0.2.7 ✓
-   - README.md: Updated title and "What's New" ✓
-   - src/__init__.py: __version__ = "0.2.7" ✓
-   - CHANGELOG.md: Added [0.2.7] entry ✓
-7. Deep scan found no additional version references
-8. Validation: No "0.2.6" references remain ✓
-9. Generated commit message:
-
-v0.2.7: Add figure settings management and improve theming
-
-Changes:
-- Add FigureSettings class for configuration management
-- Add ModernDateEdit widget for date selection
-- Improve Matplotlib theming
-- Fix color picker initialization bug
-
-Version upgrade complete! Copy the commit message above when ready.
-```
 
 ## Related Skills
 

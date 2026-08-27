@@ -14,5 +14,6 @@ Highest-priority rules when working inside this repo (these all trace back to th
 4. **Platform templates** (`templates/ai-instructions/base-*.md`): edit all five (claude/codex/cursor/gemini/opencode) in lockstep -- changes must be platform-agnostic.
 5. **Never edit `data/` files manually** except the three registry files in rule 2.
 6. **Validate** after edits: `make validate`, `make lint`, and (for hooks) `make test`.
+7. **Plan lifecycle**: every phase ends with one LOCAL commit; only a plan's final phase pushes, opens the integration PR, and reconciles CI/CD. See the AGENTS.md branching section.
 
 These rules apply **only to work inside this repo**. They do not override any global CLAUDE.md instructions for other projects.

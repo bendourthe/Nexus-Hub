@@ -39,6 +39,38 @@
 - Professional teaching tone
 - Never hard-wrap paragraph text at a fixed column width; write each paragraph or bullet point as a single continuous line and let the editor or terminal handle visual wrapping
 
+## Communication Contract
+
+- Outcome first, in language a non-engineer follows; define jargon in place; put detail beyond ~5 lines in a linked docs/ file.
+- Commands must run as pasted: fill derivable values, flag the rest with a REPLACE line and where to find it.
+- Number steps, prerequisites first, expected results. After an error, re-issue ALL remaining steps renumbered.
+- Close tasks with Completed / Verified / Open / Next.
+- Work still running at turn end: lead with a one-line status banner, cap the update at ~8 lines.
+
+Full contract: `~/.nexus-hub/style-guides/agent-communication.md`.
+
+## Documentation Layout
+
+Use lifespan as the single placement axis for project documentation.
+
+- Active release work: `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/`.
+- Closed release work: `docs/archives/v<MAJOR>/v<MAJOR>.<MINOR>/`.
+- Living product documentation: stable purpose-based roots such as `docs/handbooks/`, `docs/guides/`, `docs/reference/`, `docs/standards/`, `docs/runbooks/`, and `docs/decisions/`.
+
+Admission test: "Will this document still change after this release closes?" If yes, use a living root. If no, use the matching active release tree.
+
+Use the `docs-layout-refactor` skill for classification, migration, and link-integrity procedures.
+
+## Plan Lifecycle and CI/CD
+
+- Every plan phase verifies locally and ends with ONE local commit.
+- No non-final phase pushes or starts remote CI: a run per phase bills to validate work the plan itself calls incomplete.
+- A phase records its CI impact; it edits pipeline files only when CI/CD is that phase's stated deliverable.
+- The final phase reconciles the pipeline against the canonical contract, then publishes once. That pull request is the plan's first remote validation and tests the merge result.
+- Post-merge work stays minimal; release starts only after the integration result is green and merged.
+
+Skill: `cicd-architect`.
+
 ## Consequential Decisions
 
 Before asking the user to approve or choose anything consequential, give a short plain-language walkthrough. This rule applies when the choice changes security posture, deletes or overwrites data, changes distributed or user-facing behavior, or expands the agreed scope. It does not apply to routine clarification, formatting preferences, or a choice with an obvious default.
@@ -55,9 +87,7 @@ This is context guidance, not a mechanically enforced tool gate. A parity check 
 
 ## End-of-Task Summary
 - End every completed task with a short closing summary, even when the change was small
-- **Completed**: what actually changed, in one or two lines (files, behavior, or decisions)
-- **Next**: the concrete next step, or state plainly that nothing is outstanding
-- State blocked, skipped, or deferred work explicitly rather than omitting it
+- Use the labeled parts **Completed** (what changed), **Verified** (the evidence), **Open** (blocked, skipped, or deferred work; "nothing outstanding" when empty), **Next** (the concrete next step)
 - Keep it scannable and factual: do not restate the conversation or add preamble
 - Output-minimization rules never apply to this summary: suppress verbose logs, never the closing summary
 

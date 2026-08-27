@@ -156,6 +156,8 @@ def scan_workflow(path: Path) -> list[tuple[int, str]]:
                 f"{inj.group(0)} (use env: passthrough)",
             ))
 
+    findings.extend(scan_lifecycle(path, text))
+
     if WRITE_ALL_PERMISSIONS_RE.search(text):
         for line_no, line in enumerate(lines, start=1):
             if "permissions:" in line and "write-all" in line:
@@ -165,6 +167,144 @@ def scan_workflow(path: Path) -> list[tuple[int, str]]:
                     "(use least-privilege per-scope grants)",
                 ))
                 break
+
+    return findings
+
+
+
+# ---------------------------------------------------------------------------
+# v4.0.0 lifecycle rules.
+#
+# The checks above are supply-chain and privilege rules; these are COST and
+# EVENT-SEPARATION rules from
+# docs/releases/v4/v4.0/development/ci-cd-lifecycle-contract.md section 4. They are
+# deliberately written against workflow SHAPE rather than against Nexus-Hub job
+# names, so they stay meaningful in a fork or a downstream repository that
+# adopts the same contract with different jobs.
+# ---------------------------------------------------------------------------
+
+#: Branch names commonly used as an integration or release branch. A workflow
+#: that fires on both `pull_request` into one of these AND `push` to the same
+#: one runs twice over an identical tree under a pull-request-only merge policy.
+PROTECTED_BRANCH_NAMES = {"main", "master", "develop", "development", "trunk"}
+
+#: Triggers that indicate a workflow is a VALIDATION gate rather than a
+#: deployment, publication, or provenance step. Only these are subject to the
+#: duplicate-run rule; a post-merge or release workflow legitimately fires on a
+#: protected-branch push.
+_VALIDATION_MARKERS = ("pytest", "npm test", "npm run test", "shellcheck", "--profile full",
+                       "--profile fast", "--profile platform", "make validate", "make test")
+
+
+def _yaml_triggers(text: str):
+    """Return the parsed `on:` mapping, or None when it cannot be read.
+
+    PyYAML parses the bare key `on` as the BOOLEAN True (a YAML 1.1 legacy),
+    so a reader that looks only for the string key finds no triggers in any
+    workflow file and passes vacuously. Both spellings are accepted here for
+    that reason.
+    """
+    try:
+        import yaml  # noqa: PLC0415 - optional at import time
+    except ImportError:
+        return None
+    try:
+        data = yaml.safe_load(text)
+    except Exception:  # noqa: BLE001 - an unparseable workflow is handled by the caller
+        return None
+    if not isinstance(data, dict):
+        return None
+    triggers = data.get("on", data.get(True))
+    return triggers if isinstance(triggers, dict) else None
+
+
+def _looks_like_validation(text: str) -> bool:
+    return any(marker in text for marker in _VALIDATION_MARKERS)
+
+
+def _separates_events_per_job(text: str) -> bool:
+    """True when some job condition distinguishes the triggering event.
+
+    Deliberately a text match on the workflow rather than a parse of every job
+    condition: the expression grammar is GitHub's, not YAML's, and a partial
+    parser here would be a second source of truth for something this check only
+    needs a yes-or-no answer about.
+    """
+    return "github.event_name" in text
+
+
+def _uses_self_hosted_runner(text: str) -> bool:
+    """True when a `runs-on:` value names a self-hosted runner."""
+    for line in text.splitlines():
+        stripped = line.strip()
+        if not stripped.startswith("runs-on:"):
+            continue
+        if "self-hosted" in stripped:
+            return True
+    return False
+
+
+def scan_lifecycle(path: Path, text: str) -> list[tuple[int, str]]:
+    """Event-separation and cost findings for one workflow."""
+    findings: list[tuple[int, str]] = []
+    triggers = _yaml_triggers(text)
+    if triggers is None:
+        return findings
+
+    pr = triggers.get("pull_request")
+    push = triggers.get("push")
+
+    pr_branches = set(pr.get("branches") or []) if isinstance(pr, dict) else set()
+    push_branches = set(push.get("branches") or []) if isinstance(push, dict) else set()
+
+    # Rule 1: a validation workflow must not run on both the pull request into a
+    # protected branch and a push to that same branch. Those are the same tree.
+    #
+    # A workflow that separates the two events with a job-level condition on
+    # `github.event_name` is CONFORMING, not violating: that is precisely how a
+    # file can carry both a pull-request gate and a post-merge step without
+    # running either twice. presentify-extractor.yml has this shape (`verify` on
+    # the pull request, `render` on the merge), and flagging it would push the
+    # author toward splitting a coherent file for no benefit -- or, worse, toward
+    # disabling the check. A gate that cries wolf gets switched off.
+    both = pr_branches & push_branches & PROTECTED_BRANCH_NAMES
+    if both and _looks_like_validation(text) and not _separates_events_per_job(text):
+        findings.append((
+            1,
+            "validation runs on BOTH pull_request into and push to "
+            f"{sorted(both)} with no per-job github.event_name condition: under a "
+            "pull-request-only merge policy that is the same tree validated "
+            "twice. Move post-merge work to its own workflow, or gate the jobs.",
+        ))
+
+    # Rule 2: an ordinary feature-branch push must never start validation.
+    if isinstance(push, dict) and "branches" not in push and "tags" not in push:
+        findings.append((
+            1,
+            "push trigger has no branch or tag filter, so every feature-branch "
+            "push starts this workflow",
+        ))
+
+    # Rule 3: unbounded artifact retention.
+    if "upload-artifact" in text and "retention-days" not in text:
+        findings.append((
+            1,
+            "uploads an artifact with no retention-days; set an explicit short "
+            "retention rather than inheriting the 90-day default",
+        ))
+
+    # Rule 4: a self-hosted runner must not be reachable from an untrusted fork.
+    #
+    # Matched against the `runs-on:` VALUE rather than anywhere in the file. The
+    # phrase appears in ordinary prose ("on other images, self-hosted or
+    # future"), and a substring match over the whole text flagged a workflow
+    # that runs entirely on GitHub-hosted runners.
+    if _uses_self_hosted_runner(text) and "pull_request" in str(triggers):
+        findings.append((
+            1,
+            "self-hosted runner reachable from a pull_request trigger: a "
+            "persistent runner must never execute untrusted fork code",
+        ))
 
     return findings
 

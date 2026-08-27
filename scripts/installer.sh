@@ -7,7 +7,7 @@ set -e
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-NEXUS_HUB_VERSION="3.21.0"
+NEXUS_HUB_VERSION="4.0.0"
 
 # --- Window Title ---
 printf '\033]0;Nexus-Hub Installer\007'
@@ -1886,7 +1886,7 @@ resolve_python_executable() {
 # ---------------------------------------------------------------------------
 # Install selection (v3.16.1 Phase 6.1)
 #
-# Contract: docs/v3/v3.16/development/install-selection-contract.md
+# Contract: docs/releases/v3/v3.16/development/install-selection-contract.md
 #
 # Resolution delegates to scripts/lib/installer/selection.py rather than being
 # reimplemented here. The plan originally called for a native implementation so

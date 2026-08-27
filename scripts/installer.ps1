@@ -30,7 +30,7 @@ param(
     # configs/permissions/claude-permissions-strict.json.
     [switch]$StrictPermissions,
     # v3.16.1 -- install-selection selectors. Contract:
-    # docs/v3/v3.16/development/install-selection-contract.md
+    # docs/releases/v3/v3.16/development/install-selection-contract.md
     # Absent (the default) installs the full catalog, exactly as before.
     # Bound as -Profile for lockstep with the Bash --profile flag, but stored in
     # $InstallProfile: $Profile is a PowerShell AUTOMATIC variable (the path to
@@ -144,7 +144,7 @@ function Get-SanitizedBranchName {
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:NexusHubVersion = "3.21.0"
+$script:NexusHubVersion = "4.0.0"
 
 $Host.UI.RawUI.WindowTitle = "Nexus-Hub Installer"
 $script:InstallerTitle = "Nexus-Hub Installer"
@@ -2178,7 +2178,7 @@ function Resolve-PythonExecutable {
 # Install selection (v3.16.1 Phase 6.2) -- lockstep with the Bash implementation
 # in scripts/installer.sh.
 #
-# Contract: docs/v3/v3.16/development/install-selection-contract.md
+# Contract: docs/releases/v3/v3.16/development/install-selection-contract.md
 #
 # Resolution delegates to scripts/lib/installer/selection.py rather than being
 # reimplemented in PowerShell, matching the Bash decision and for the same

@@ -1,47 +1,15 @@
 ---
 name: implementation-plan
-description: >-
-  Guide the user through a structured discovery interview to generate a comprehensive
-  phased plan (docs/v<MAJOR>/v<MAJOR>.<MINOR>/plans/v<MAJOR>.<MINOR>.<PATCH>-<slug>.md) for their project. Works
-  for initial v0.1.0 builds, feature additions, UX enhancements, refactors, and bug-fix campaigns.
-  Asks targeted questions appropriate to the plan type, then generates a phased plan
-  where each phase contains sub-tasks with detailed executable prompts, ends with test
-  generation and troubleshooting, and closes with a session-history entry. Invoked via
-  /generate-plan. Use when starting a new project, when setup-project has just finished,
-  when /compare-project hands off a comparison report to operationalize, or when a user
-  asks to create an implementation plan, v0.1.0 plan, enhancement plan, refactor plan,
-  or roadmap.
-summary_l0: "Generate a phased plan through guided discovery, saved to docs/v<MAJOR>/v<MAJOR>.<MINOR>/plans/v<MAJOR>.<MINOR>.<PATCH>-<slug>.md"
-overview_l1: >-
-  This skill conducts a structured discovery interview -- asking one question at a
-  time -- to collect everything needed to write a comprehensive phased plan. The first
-  step establishes plan type (initial implementation, feature/enhancement, refactor,
-  other), target version, and an auto-suggested filename slug derived from a
-  one-sentence scope statement. For initial implementation plans the interview covers
-  core purpose, key features, installation/distribution, UI type, platform targets,
-  runtime behavior, integrations, performance, definition of done, and testing. For
-  enhancements/refactors the interview uses a shorter scope-focused question set:
-  goal, in/out scope, affected areas, constraints, definition of done, and testing.
-  After the interview the skill writes the plan to docs/v<MAJOR>/v<MAJOR>.<MINOR>/plans/v<MAJOR>.<MINOR>.<PATCH>-<slug>.md
-  (the legacy flat layout docs/<vSEMVER>/plans/<slug>.md is honored when already present;
-  see the docs-layout-refactor Version-directory resolution for the path-resolution algorithm) structured into numbered
-  phases with numbered sub-tasks. Every sub-task includes a
-  self-contained executable prompt that can be handed directly to Claude Code in a
-  future session. Each phase ends with a dedicated testing and troubleshooting
-  sub-task and a generate-session-history call. Phases do not advance until the
-  current phase is stable. Use websearch when research on libraries, toolchains, or
-  distribution packaging is needed.
-  Trigger phrases: implementation plan, v0.1.0 plan, build plan, project roadmap,
-  enhancement plan, refactor plan, what should I build first, create a plan,
-  generate plan, generate implementation plan, how do I build this, phased
-  development plan.
+description: Guide the user through a structured discovery interview to generate a comprehensive phased plan (docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/plans/v<MAJOR>.<MINOR>.<PATCH>-<slug>.md) for their project. Works for initial v0.1.0 builds, feature additions, UX enhancements, refactors, and bug-fix campaigns. Asks targeted questions appropriate to the plan type, then generates a phased plan where each phase contains sub-tasks with detailed executable prompts, ends with test generation and troubleshooting, and closes with a session-history entry. Invoked via /generate-plan. Use when starting a new project, when setup-project has just finished, when /compare-project hands off a comparison report to operationalize, or when a user asks to create an implementation plan, v0.1.0 plan, enhancement plan, refactor plan, or roadmap. Version-bound plans use docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.
+summary_l0: "Generate phased plans in the canonical release documentation tree"
+overview_l1: This skill conducts a structured discovery interview -- asking one question at a time -- to collect everything needed to write a comprehensive phased plan. The first step establishes plan type (initial implementation, feature/enhancement, refactor, other), target version, and an auto-suggested filename slug derived from a one-sentence scope statement. For initial implementation plans the interview covers core purpose, key features, installation/distribution, UI type, platform targets, runtime behavior, integrations, performance, definition of done, and testing. For enhancements/refactors the interview uses a shorter scope-focused question set - goal, in/out scope, affected areas, constraints, definition of done, and testing. After the interview the skill writes the plan to docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/plans/v<MAJOR>.<MINOR>.<PATCH>-<slug>.md (the legacy flat layout docs/<vSEMVER>/plans/<slug>.md is honored when already present; see the docs-layout-refactor Version-directory resolution for the path-resolution algorithm) structured into numbered phases with numbered sub-tasks. Every sub-task includes a self-contained executable prompt that can be handed directly to Claude Code in a future session. Each phase ends with a dedicated testing and troubleshooting sub-task and a generate-session-history call. Phases do not advance until the current phase is stable. Use websearch when research on libraries, toolchains, or distribution packaging is needed. Trigger phrases - implementation plan, v0.1.0 plan, build plan, project roadmap, enhancement plan, refactor plan, what should I build first, create a plan, generate plan, generate implementation plan, how do I build this, phased development plan. Version-bound plans use docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.
 ---
 
 # Implementation Plan
 
 Guide the user through a structured discovery interview, then generate a comprehensive plan at `<version_dir>/plans/<slug>.md` broken into phased sub-tasks -- each with an executable prompt -- so the full effort can be completed session by session.
 
-`<version_dir>` is resolved per the `[[docs-layout-refactor]]` skill's Version-directory resolution algorithm. The canonical layout is `docs/v<MAJOR>/v<MAJOR>.<MINOR>/` (e.g., `docs/v3/v3.11/`), with patch releases sharing their minor dir; legacy projects using the flat `docs/<vSEMVER>/` or the old three-level `docs/versions/<vMAJOR>/<vSEMVER>/` layout are auto-detected and respected to avoid mid-version path churn. Use `/update refactor` to migrate a legacy project to the canonical layout.
+`<version_dir>` is resolved per the `[[docs-layout-refactor]]` skill's Version-directory resolution algorithm. The canonical layout is `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/` (e.g., `docs/releases/v3/v3.11/`), with patch releases sharing their minor dir; legacy projects using the flat `docs/<vSEMVER>/` or the old three-level `docs/versions/<vMAJOR>/<vSEMVER>/` layout are auto-detected and respected to avoid mid-version path churn. Use `/update refactor` to migrate a legacy project to the canonical layout.
 
 The command entry point is `/generate-plan`. When invoked with a comparison report path (`/generate-plan <version_dir>/comparisons/v<MAJOR>.<MINOR>.<PATCH>-comparison-<name>.md`; glob `<version_dir>/comparisons/*-comparison-<name>.md` to find it), the command enters *From-comparison mode* (Step 0.5): it pre-seeds the interview from the report's Adoption Plan section, skipping questions the report already answers, and writes the plan **co-located with the seeding comparison**.
 
@@ -150,7 +118,7 @@ When neither file exists, note that and proceed - grounding is best-effort, not 
 
 ### Phase C: Generate the Plan File
 
-Resolve the target version (from git tags, CHANGELOG, or package manifests; default `v0.1.0` for fresh greenfield projects), then resolve `<version_dir>` per the `[[docs-layout-refactor]]` Version-directory resolution algorithm (canonical `docs/v<MAJOR>/v<MAJOR>.<MINOR>/` for new content, patch releases sharing their minor dir; legacy `docs/<vSEMVER>/` or `docs/versions/<vMAJOR>/<vSEMVER>/` preserved when already present). Derive a slug from the one-sentence scope statement collected at the start of the interview (lowercase, hyphen-separated, ~5 words, sanitized to `[a-z0-9-]+`); the plan file is then named with a release prefix - `v<MAJOR>.<MINOR>.<PATCH>-<slug>.md` - so multiple patch releases sharing one minor dir never collide. Confirm both with the user before writing.
+Resolve the target version (from git tags, CHANGELOG, or package manifests; default `v0.1.0` for fresh greenfield projects), then resolve `<version_dir>` per the `[[docs-layout-refactor]]` Version-directory resolution algorithm (canonical `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/` for new content, patch releases sharing their minor dir; legacy `docs/<vSEMVER>/` or `docs/versions/<vMAJOR>/<vSEMVER>/` preserved when already present). Derive a slug from the one-sentence scope statement collected at the start of the interview (lowercase, hyphen-separated, ~5 words, sanitized to `[a-z0-9-]+`); the plan file is then named with a release prefix - `v<MAJOR>.<MINOR>.<PATCH>-<slug>.md` - so multiple patch releases sharing one minor dir never collide. Confirm both with the user before writing.
 
 **From-comparison mode overrides the version resolution above.** When the plan is seeded from a comparison report (Step 0.5), do NOT resolve the target version fresh from git tags / CHANGELOG. Read the comparison's `Adoption target: vX.Y.Z` field and use it for both the target version and `<version_dir>`, so the plan co-locates with the comparison, and name the file `vX.Y.Z-adoption-<name>.md`. Only fall back to the fresh resolution above when the comparison lacks the field (a legacy comparison), emitting the one-line note described in From-comparison mode. Either way, still confirm the resolved target with the user before writing.
 
@@ -281,15 +249,21 @@ stable before advancing to Phase N+1.
 > Generate automated tests for everything built in Phase N. This should include:
 > [list the specific kinds of automated tests appropriate for this phase: unit tests, integration
 > tests, E2E tests, performance benchmarks, etc.]. Run the tests, fix any failures, and
-> iterate until all automated tests pass and the implementation is stable. Then create or update the
-> CI/CD pipeline to cover this phase's changes and optimize it to reduce CI action minutes
-> (path filters, concurrency cancel-in-progress, dependency caching, gating expensive-OS or
-> matrix jobs to merges/schedule) while keeping comprehensive coverage - keep the language
-> platform-agnostic, with GitHub Actions as the primary example. Do not proceed to Phase
-> N+1 until this phase is fully tested and verified.
+> iterate until all automated tests pass and the implementation is stable. Do not proceed to
+> Phase N+1 until this phase is fully tested and verified.
+> Then record this phase's CI IMPACT against `[[cicd-architect]]` without running remote CI:
+> name any new command, dependency, environment variable, test path, or artifact this phase
+> introduced, and state whether the existing pipeline already covers it. Changing a pipeline
+> file is out of scope for this phase unless CI/CD is this phase's explicit deliverable;
+> otherwise the record is prose and the reconciliation happens once, in the final phase. A
+> no-op record ("no new commands, dependencies, or test paths") is a valid outcome and must
+> still be written.
 > Do not ask the user to manually exercise an incomplete feature, and do not emit human or
 > manual testing suggestions on a non-final phase. Those belong only in the last phase.
-> After all automated tests pass, run `/generate-session-history` to document Phase N.
+> After all automated tests pass, run `/generate-session-history` to document Phase N, then
+> create ONE local commit scoped to this phase.
+> Do NOT push, do NOT open a pull request, and do NOT start remote CI. Branch publication and
+> remote validation belong to the final phase only.
 
 ---
 
@@ -308,7 +282,10 @@ stable before advancing to Phase N+1.
 - [ ] All sub-tasks completed
 - [ ] All tests passing (unit, integration, and any phase-specific tests)
 - [ ] No known regressions from prior phases
+- [ ] CI impact recorded against the canonical contract, with no remote CI run
 - [ ] Session history generated for this phase
+- [ ] One local commit created for this phase
+- [ ] No branch push, pull request, or remote CI run occurred
 - [ ] Ready to advance to Phase N+1
 ```
 
@@ -316,60 +293,25 @@ The `## Complexity Tracking` block sits near the end of the file, between the la
 
 #### Mandatory Final Phase (every plan)
 
-Every generated plan MUST end with a fail-closed last phase dedicated to architecture refactor, known-gaps reconciliation, living-docs architecture, git-tree hygiene, CI/CD, independent Goal-vs-codebase review, last-phase-only human testing, and full-suite stabilization. The heading is never enough: each duty writes a named section in `<version_dir>/development/last-phase-evidence.md`. An empty finding is allowed only when the scan output is quoted. A duty is omitted only by recording a known-gap (`QG` or `DF`) with Source phase, Plan reference, Reason, and Suggested next step. Automated tests still end every earlier phase; human/manual testing suggestions are forbidden until this last phase. Emit the block verbatim as the last `## Phase N`:
+Every generated plan MUST end with a fail-closed last phase dedicated to architecture refactor, known-gaps reconciliation, living-docs architecture, git-tree hygiene, terminal CI/CD reconciliation, independent Goal-vs-codebase review, last-phase-only human testing, full-suite local stabilization, and the plan's single publication and integration. This is also the ONLY phase permitted to push, open a pull request, or start remote CI.
 
-```markdown
-## Phase N: Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
+The heading is never enough: each duty writes a named section in `<version_dir>/development/last-phase-evidence.md`. An empty finding is allowed only when the scan output is quoted. A duty is omitted only by recording a known-gap (`QG` or `DF`) with Source phase, Plan reference, Reason, and Suggested next step. Automated tests still end every earlier phase; human/manual testing suggestions are forbidden until this last phase.
 
-**Goal**: Leave the project well-organized, its known gaps reconciled, its living docs architecture current, and its CI/CD complete and optimized, with independent evidence that the plan Goal landed.
-**Prerequisites**: All prior phases.
-**Stability Gate**: `<version_dir>/development/last-phase-evidence.md` exists with one quoted section per duty below. A missing Goal, a Goal-review miss without a recorded known-gap, or a missing evidence section blocks `/update release`.
-**Recommended model tier**: frontier
-**Recommended effort level**: max
-**Rationale**: Repo-wide refactor, Goal-vs-codebase review, known-gap reconciliation, and release gating carry high context volume and blast radius.
+Emit the verbatim template, with its nine sub-tasks N.1 through N.9, from [`references/mandatory-final-phase.md`](references/mandatory-final-phase.md).
 
-### Sub-tasks
+#### Strict Task-Line Format (required)
 
-#### N.1 - Architecture refactor
-**Objective**: Refactor toward a well-organized, intuitive layout and quote the scan.
-**Prompt**:
-> Identify deprecated/obsolete files, empty directories, redundant files/dirs, and overcomplicated structure, then refactor toward a clean, intuitive layout via [[project-refactor]] and [[docs-layout-refactor]] (propose-then-apply, with confirmation; repair every reference for anything that moves). Write the detector output into `<version_dir>/development/last-phase-evidence.md` under `## Architecture refactor`. An empty finding is allowed only when the scan output is quoted.
+Every actionable sub-task MUST also appear as a strict checklist line, because `[[tasks-to-issues]]` parses these lines to fan a plan out to issue tracking and a loosened line is silently dropped rather than reported:
 
-#### N.2 - Known-gaps reconciliation
-**Objective**: Reconcile this version and every other still-open known-gaps file.
-**Prompt**:
-> Via [[known-gaps-tracker]], reconcile this version's known gaps AND every other `docs/**/known-gaps.md` whose Status is in-progress or whose Open Items remain. Glob both canonical (`docs/v<MAJOR>/v<MAJOR>.<MINOR>/known-gaps.md`) and legacy layouts. If a file is unreachable, record the glob result and continue with what was found. Write the disposition into the evidence file under `## Known-gaps reconciliation`.
-
-#### N.3 - Living docs architecture
-**Objective**: Prove handbooks, decisions, and generated HTML match the required living tree.
-**Prompt**:
-> Check `docs/handbooks/` (markdown source of truth, generated `html/`, one atlas walkthrough, technical companions for key components), `docs/decisions/`, and living `docs/README.md` / `docs/DEVLOG.md` / `docs/todos.md`. Self-gated: never invent `docs/testing/` or `docs/validation/`. Markdown wins if HTML disagrees; regenerate or fail the check. Quote the check in the evidence file under `## Living docs architecture`. Details live in [[docs-layout-refactor]].
-
-#### N.4 - Git-tree hygiene
-**Objective**: Report branch and repository-settings hygiene without deleting anything.
-**Prompt**:
-> Run `python scripts/check_release_preconditions.py --branches --repo-settings`. Quote the output in the evidence file under `## Git-tree hygiene`. Report only; never delete branches.
-
-#### N.5 - CI/CD create/update/optimize
-**Objective**: CI/CD covers all changes in this plan and is optimized.
-**Prompt**:
-> Create or update the CI/CD pipeline so it covers every change in this plan, then optimize it to reduce action minutes (path filters, concurrency cancel-in-progress, dependency caching, gating expensive-OS or matrix jobs to merges/schedule) while keeping comprehensive testing. Keep it platform-agnostic; GitHub Actions is the primary example. If this repository ships more than one installer, run or add a declarative cross-installer parity gate covering distributed artifacts, supported platforms, named capability counterparts, and external-tool fallbacks, then execute the real installers on their target operating systems with identical postconditions. Cross-link [[platform-contract-verification]] so discovery and delivery are checked in the same pass. If the repository ships zero or one installer, record a silent no-op and continue. Quote coverage in the evidence file under `## CI/CD coverage`.
-
-#### N.6 - Independent Goal-vs-codebase review
-**Objective**: Prove the plan Goal landed in the codebase, not that checkboxes were ticked.
-**Prompt**:
-> Re-read the plan header Goal and the Goals First / Definition of Done. Inspect the codebase as if this agent had not implemented the phases. Write `## Goal-vs-codebase review` in `<version_dir>/development/last-phase-evidence.md` listing: the plan Goal restated; the code/docs artifacts that satisfy it; and any gap. A missing or malformed Goal is a fail-closed finding that names the missing Goal. Completing every prior-phase sub-task is not evidence the Goal landed. A miss is a blocking finding or a new known-gap, not a pass.
-
-#### N.7 - Human/manual testing suggestions (last phase only)
-**Objective**: Ask a human to exercise only what automated tests cannot cover, now that the feature is complete.
-**Prompt**:
-> Emit human/manual testing suggestions for user-facing workflows, external integrations, and environment-specific cases that automated tests cannot cover. Do not invent a fake walkthrough. This duty exists only on the last phase.
-
-#### N.8 - Testing and Stabilization
-**Objective**: Prove the refactor preserved behavior and CI/CD is green.
-**Prompt**:
-> Run the full validation/test suite, confirm the refactor changed no behavior, confirm CI/CD passes and the action-minute reduction is real, and iterate until clean. Quote the suite in the evidence file under `## Full-suite testing and stabilization`. Generate a session-history entry for this phase.
+```text
+- [ ] T### [P] [US#] <short description> <file-path>
 ```
+
+- `T###` is a zero-padded sequential id, unique across the whole plan.
+- `[P]` is optional and marks a task that can run in parallel with its siblings.
+- `[US#]` is optional and links the task to a user story.
+- The line ENDS with the primary file path the task creates or modifies.
+- The consumer's regex is `^- \[ \] T[0-9]{3,}( \[P\])?( \[US[0-9]+\])? .+$`. A line that starts with `- [ ]` and a `T###` token but does not match it makes `[[tasks-to-issues]]` abort rather than skip, so the format is a hard requirement, not a convention.
 
 #### Phase Design Guidelines
 
@@ -386,7 +328,9 @@ Apply these rules when deciding how many phases to create and how to split them:
 | Testing continuous | Every phase ends with an automated testing sub-task. Human/manual testing suggestions are forbidden until the last phase. Do not ask a human to exercise an incomplete feature mid-plan. |
 | Phase count | Target 4-8 phases for most plans; very small scopes may have 2-3; major refactors up to 10 |
 | Terminal refactor phase | Every plan ends with a fail-closed last phase. Each duty writes a section of `<version_dir>/development/last-phase-evidence.md`; an empty finding requires quoted scan output. Distinct from per-phase automated testing, which still applies to every phase. |
-| CI/CD per phase | Every phase's testing sub-task also creates or updates the CI/CD pipeline for that phase's changes and optimizes it (path filters, concurrency cancellation, caching, gating expensive jobs) to keep action minutes low while coverage stays comprehensive |
+| CI impact per phase | Every phase's testing sub-task RECORDS its CI impact against `[[cicd-architect]]` (new commands, dependencies, env vars, test paths, artifacts, and whether the pipeline already covers them). It does NOT author or optimize the pipeline. Actual reconciliation happens once, in the final phase, unless CI/CD is a given phase's explicit deliverable. Per-phase pipeline authorship is what produces a different topology per phase and a pipeline nobody can run locally. |
+| Local commit per phase | Every phase ends with exactly one local commit scoped to that phase. Non-final phases MUST NOT push, open a pull request, or start remote CI: seven runs on knowingly incomplete work cost seven times one run on complete work and produce worse signal, because a red check on incomplete work teaches the author to ignore red checks. |
+| Publication is terminal | The final phase owns the plan's single branch publication, the integration pull request, and the wait for required checks. Release work starts only after that integration result is green and merged. |
 
 ---
 
@@ -422,7 +366,7 @@ Once the phase breakdown is fixed and before writing the file, score every phase
 - **Cite the roster.** Emit `**Model map status**: fresh as of YYYY-MM-DD; sources cited below.` and include at least one official URL per provider under `### Model map sources`.
 - **Degrade visibly, never silently.** If web search or official docs are unavailable, use the dated bundled snapshot and emit `**Model map status**: offline fallback; stale as of YYYY-MM-DD.`. If no verified snapshot exists, fill all 16 cells with `assess at implementation time` and emit `**Model map status**: unavailable; assess at implementation time.`. Plan generation never blocks, but staleness is explicit.
 
-Web search is the only added network activity and uses public documentation without a new credential or dependency. The exact document contract is defined in `docs/v3/v3.15/development/cross-provider-routing-contract.md`. `/implement` re-confirms the phase tier and effort against a refreshed map and the selected provider's live platform surface before implementation.
+Web search is the only added network activity and uses public documentation without a new credential or dependency. The exact document contract is defined in `docs/releases/v3/v3.15/development/cross-provider-routing-contract.md`. `/implement` re-confirms the phase tier and effort against a refreshed map and the selected provider's live platform surface before implementation.
 
 ### Step 3.6: Name Each Sub-task's Failure Modes and Build Class
 
@@ -442,7 +386,7 @@ The build-class convention is adopted on its own merits rather than on precedent
 
 ### Step 4: Write the Plan
 
-Create `<version_dir>/plans/` if it does not exist (where `<version_dir>` is the path resolved earlier - canonically `docs/v<MAJOR>/v<MAJOR>.<MINOR>/`, with legacy `docs/<vSEMVER>/` or `docs/versions/<vMAJOR>/<vSEMVER>/` honored when already present), then write the release-prefixed `v<MAJOR>.<MINOR>.<PATCH>-<slug>.md` inside it following the structure above. If the target file already exists, follow the active instruction template's `Consequential Decisions` rule before asking the user whether to **Regenerate** (overwrite), **Append** (add phases), or **Rename** (pick a new slug).
+Create `<version_dir>/plans/` if it does not exist (where `<version_dir>` is the path resolved earlier - canonically `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/`, with legacy `docs/<vSEMVER>/` or `docs/versions/<vMAJOR>/<vSEMVER>/` honored when already present), then write the release-prefixed `v<MAJOR>.<MINOR>.<PATCH>-<slug>.md` inside it following the structure above. If the target file already exists, follow the active instruction template's `Consequential Decisions` rule before asking the user whether to **Regenerate** (overwrite), **Append** (add phases), or **Rename** (pick a new slug).
 
 #### Closing sanitize pass (mandatory)
 
@@ -492,8 +436,10 @@ Incorporate feedback, then write the final file and re-run the Step 4 closing sa
 - [ ] Every feature or goal from the interview appears in at least one sub-task
 - [ ] Phase 1 establishes the foundation needed for subsequent phases (toolchain + runnable build for initial implementations; test harness or scaffolding for enhancements/refactors)
 - [ ] For initial implementations: installation/packaging step appears before the halfway point
-- [ ] Every phase ends with an automated testing and stabilization sub-task (which also creates/updates and optimizes CI/CD for that phase's changes); human/manual testing suggestions appear only in the last phase
-- [ ] The plan's last phase is the fail-closed "Architecture Refactor, Known-Gaps Reconciliation, and CI/CD" phase (sub-tasks: N.1 architecture refactor, N.2 known-gaps across this version and other open files, N.3 living docs architecture, N.4 git-tree hygiene, N.5 CI/CD plus installer parity, N.6 Goal-vs-codebase review, N.7 last-phase-only human testing, N.8 full-suite testing) and requires `<version_dir>/development/last-phase-evidence.md`
+- [ ] Every phase ends with an automated testing and stabilization sub-task that records CI impact against `[[cicd-architect]]` WITHOUT authoring or optimizing the pipeline; human/manual testing suggestions appear only in the last phase
+- [ ] Every phase ends with exactly one local commit, and every non-final phase explicitly prohibits push, pull request, and remote CI
+- [ ] The final phase owns the single branch publication, the integration pull request, and the wait for required checks; release work is gated on a green integration result
+- [ ] The plan's last phase is the fail-closed "Architecture Refactor, Known-Gaps Reconciliation, and CI/CD" phase (sub-tasks: N.1 architecture refactor, N.2 known-gaps across this version and other open files, N.3 living docs architecture, N.4 git-tree hygiene, N.5 terminal pipeline reconciliation via `[[cicd-architect]]` plus installer parity, N.6 Goal-vs-codebase review, N.7 last-phase-only human testing, N.8 full-suite testing, N.9 publication and integration) and requires `<version_dir>/development/last-phase-evidence.md`
 - [ ] Every sub-task has a complete, self-contained executable prompt
 - [ ] Every sub-task that introduces or changes a component states its failure modes across all three situations (malformed or absent input, unreachable or slow dependency, conflicting operations), and no error-handling, data-model, interface, or schema detail was pushed back into the spec to achieve it
 - [ ] Sub-tasks producing provisional work carry a one-line `scaffolding` build class naming what replaces it and when; `load-bearing` is stated wherever a reader could not otherwise tell
@@ -502,7 +448,7 @@ Incorporate feedback, then write the final file and re-run the Step 4 closing sa
 - [ ] Every phase carries an allowed generic model tier and effort in both the glance table and its separate per-phase fields; concrete model ids appear only in the Current model map
 - [ ] `## Constitution Check` section present between `## Overview` and `## Phases at a Glance` (with PASS / FAIL / N/A per MUST principle, or the informational note when no constitution file exists)
 - [ ] `## Complexity Tracking` section present near the end of the file (empty table when no FAIL bullets; populated row per FAIL otherwise)
-- [ ] File written to the resolved `<version_dir>/plans/v<MAJOR>.<MINOR>.<PATCH>-<slug>.md` (canonical `docs/v<MAJOR>/v<MAJOR>.<MINOR>/plans/v<MAJOR>.<MINOR>.<PATCH>-<slug>.md` or legacy `docs/<vSEMVER>/plans/<slug>.md`)
+- [ ] File written to the resolved `<version_dir>/plans/v<MAJOR>.<MINOR>.<PATCH>-<slug>.md` (canonical `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/plans/v<MAJOR>.<MINOR>.<PATCH>-<slug>.md` or legacy `docs/<vSEMVER>/plans/<slug>.md`)
 - [ ] For From-comparison mode: the plan's target version, `<version_dir>`, `**Version**`, `**Filename**`, and `**Seeded from**` all derive from the comparison's `Adoption target:` field so the plan is co-located with its comparison; for a legacy comparison lacking the field, the fallback resolution ran and the one-line note was emitted
 - [ ] User confirmed the phase breakdown before final generation
 - [ ] Blocking questions are titled `decision:` and scheduled before the implementation sub-tasks they unblock

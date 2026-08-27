@@ -28,7 +28,8 @@ Resolve SCOPE from the first positional argument (`$ARGUMENTS`). Recognized scop
 
       Reply with a number or a scope name.
 
-- `release` runs the focused scopes in order - `docs`, then `gitignore`, then `version`, then `changelog`, then `devlog`, then `refactor` - then reconciles the version's known gaps and creates/updates/optimizes CI/CD, regenerates the supply-chain manifest, cleans up, commits, tags, pushes, and publishes the GitHub Release as one flow. It keeps every confirmation gate: never create a tag, push, or publish a release without explicit user confirmation.
+- `release` first verifies the integration gate (below), then runs the focused scopes in order - `docs`, then `gitignore`, then `version`, then `changelog`, then `devlog`, then `refactor` - then reconciles the version's known gaps, RE-CHECKS CI/CD conformance, regenerates the supply-chain manifest, cleans up, commits, tags, pushes, and publishes the GitHub Release as one flow. It keeps every confirmation gate: never create a tag, push, or publish a release without explicit user confirmation.
+    - The CI/CD step is a CONFORMANCE RE-CHECK, not an authoring pass. The plan's final phase already ran the terminal reconciliation via `[[cicd-architect]]` before it published; by release time the pipeline is reconciled and this step confirms it still is. If it finds unreconciled drift, that is a finding against the plan's final phase, and the fix belongs there rather than in a release-time rewrite of the pipeline.
 
 ## Delegation
 
@@ -42,7 +43,7 @@ Dispatch the resolved scope to the retained skill(s). These targets are skills u
       refactor  -> docs-layout-refactor + project-refactor (per-version docs structure + archive normalization + empty-dir/duplicate/orphan/structure-complexity detectors; see the refactor scope below)
       config    -> update-config (built-in) + config-consistency-checker / nexus-hub doctor (see below)
       commit    -> code-commit-workflow
-      release   -> docs -> gitignore -> version -> changelog -> devlog -> refactor (docs structure + cleanliness) -> known-gaps reconciliation -> CI/CD create/update/optimize -> manifest, then clean up, commit, tag, push, publish GitHub Release (see below)
+      release   -> integration gate (see below) -> docs -> gitignore -> version -> changelog -> devlog -> refactor (docs structure + cleanliness) -> known-gaps reconciliation -> CI/CD conformance re-check -> manifest, then clean up, commit, tag, push, publish GitHub Release (see below)
 
 Pass any remaining arguments through unchanged. Heavy logic stays in the retained skills; this file owns only scope resolution and the release sequencing.
 
@@ -54,7 +55,7 @@ The `docs` scope MUST refresh documentation CONTENT to the repo's current state,
 - **Internal MCP server list**: the README's "internal MCP servers" enumeration matches the `nexus-*` servers actually registered in `catalog/mcp-configs/mcp-servers.json` -- both the COUNT and the NAMES (e.g. when `nexus-context-compressor` was added in v3.2.0 the README still read "3 internal MCP servers").
 - **"What's New" narrative**: the README has a section summarizing the headline features of the release being shipped. Do NOT leave the latest release undocumented -- a release whose only README change is the version/count bump has skipped this step (the exact failure the v3.2.0 release hit).
 - **Removed / renamed surfaces**: no doc still presents a command, skill, flag, or path removed or renamed since the last release as if it were current.
-- **Per-version docs structure**: the active version's `docs/v<MAJOR>/v<MAJOR>.<MINOR>/` tree exists with `plans/` and `comparisons/` subdirs per the `[[docs-layout-refactor]]` Version-directory resolution scheme; create or repair it (and relocate any stray comparison reports into `comparisons/`) if not.
+- **Per-version docs structure**: the active version's `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/` tree exists with `plans/` and `comparisons/` subdirs per the `[[docs-layout-refactor]]` Version-directory resolution scheme; create or repair it (and relocate any stray comparison reports into `comparisons/`) if not.
 - **Handbook markdown against the code**: refresh `docs/handbooks/markdown/` so it describes current `main`, not just README counts. If generated `html/` exists and disagrees, regenerate or record the miss. Do not invent `docs/testing/` or `docs/validation/`.
 
 When the scope is `release`, run this reconciliation as the FIRST step, before the version bump. A release whose only documentation change is the version/count bump has not run `docs`.
@@ -91,6 +92,19 @@ The `version` scope MUST use `scripts/check_version_sync.py` so every version-ca
 After every version-carrying surface is bumped (`version`) and the docs / changelog / refactor scopes have run, regenerate the supply-chain manifest so it reflects the exact bytes being released, then stage it into the release commit (before the tag is cut). Run `python scripts/generate_manifest.py`, which writes `MANIFEST.sha256` at the repo root over the distributed catalog tree (`catalog/`, `templates/`, `scripts/`, `data/`) in `sha256sum -c` text format. This MUST run after the version bump so the manifest hashes the bumped files, and before the commit so the manifest ships inside the release tag (and therefore inside the `~/.nexus-hub/src` tree the install bootstrap materializes). The manifest is what `nexus-hub verify` later diffs the installed catalog against; a release whose manifest is stale or missing leaves `verify` unable to confirm an install. The generator is strictly local (stdlib `hashlib`, no outbound call) and deterministic (sorted by path), so re-running it on an unchanged tree is a no-op diff.
 
 Two properties of the generator worth knowing at release time, both learned from shipped defects. It hashes a tracked file's GIT BLOB bytes passed through the path's `eol` attribute, which is the DISTRIBUTED form, so the manifest no longer depends on the generating host's `core.autocrlf` (v3.16.7 `WN-1`) and correctly covers a path declared `text eol=crlf` (v3.16.8 `BG-2`). Two consequences: **stage before generating**, because tracked-but-unstaged edits are hashed as their staged form (the tool warns and names the dirty covered paths); and **a `.gitattributes` edit is a manifest-affecting change**, since altering an `eol` attribute alters the distributed bytes for every path it covers, so regenerate after one. The artifact round-trip gate below is what proves the result against the real download.
+
+## release scope: the integration gate (the FIRST check, before any version mutation)
+
+`release` starts only from a GREEN, MERGED integration result. Verify all four before touching a single version-carrying file:
+
+1. **The plan branch is integrated.** Its pull request merged into the integration branch. An unmerged branch means the release would ship a tree that was never reviewed as a whole.
+2. **Integration CI is green.** Every required check on that pull request reached success, and the post-merge work (if any) succeeded. A pending check is not a green check.
+3. **The working tree is clean** and the local integration branch matches its remote.
+4. **Release notes are approved from the ACTUAL diff.** Derive them from the real `<last-tag>..<integration-branch>` range and present them for approval before any mutation. Notes written from the plan rather than the diff describe what was intended, not what shipped.
+
+If any of the four fails, STOP and say which one. Do not bump a version to "get the release moving": a version bump is the point after which every subsequent step assumes the release is happening, and unwinding it is more work than waiting.
+
+This ordering is the release-side half of the plan lifecycle. The plan's final phase owns publication and integration; `/update release` owns everything after the merge lands green. Neither reaches into the other.
 
 ## release scope: pre-tag branch assertion (the LAST check before `git tag`)
 
@@ -164,7 +178,7 @@ The `config` scope validates installed platform configs and repairs drift, reusi
 
 The `refactor` scope delegates to `[[docs-layout-refactor]]` (the `docs/` tree) and `[[project-refactor]]` (everything else), and enforces the v3.11.0 governance:
 
-- **Whole docs-tree migration (any repo)**: migrate the ENTIRE docs tree - every version directory AND the archive, not just the active version - to the `docs/v<MAJOR>/v<MAJOR>.<MINOR>/` scheme (with `plans/` and `comparisons/` subdirs). Reshape any flat `docs/<vSEMVER>/` or old three-level `docs/versions/v<MAJOR>/<vSEMVER>/` directory into `docs/v<MAJOR>/v<MAJOR>.<MINOR>/`, merge patch releases into their shared minor dir, relocate stray comparison reports into `comparisons/`, normalize `docs/archive/` to `docs/archive/v<MAJOR>/v<MAJOR>.<MINOR>/`, and repair every internal reference. This generalizes to ANY repo: `/update refactor` (and, at release, `/update release`) canonicalizes that repo's whole docs tree via the `[[docs-layout-refactor]]` `--canonicalize-layout` path, so a project adopting Nexus-Hub gets the same migration with one command.
+- **Whole docs-tree migration (any repo)**: migrate the ENTIRE docs tree - every version directory AND the archive, not just the active version - to the `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/` scheme (with `plans/` and `comparisons/` subdirs). Reshape any flat `docs/<vSEMVER>/` or old three-level `docs/versions/v<MAJOR>/<vSEMVER>/` directory into `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/`, merge patch releases into their shared minor dir, relocate stray comparison reports into `comparisons/`, normalize `docs/archives/` to `docs/archives/v<MAJOR>/v<MAJOR>.<MINOR>/`, and repair every internal reference. This generalizes to ANY repo: `/update refactor` (and, at release, `/update release`) canonicalizes that repo's whole docs tree via the `[[docs-layout-refactor]]` `--canonicalize-layout` path, so a project adopting Nexus-Hub gets the same migration with one command.
 - **Living docs canonicalize**: if `docs/handbooks/` or `docs/decisions/` is missing, scaffold the required living tree (detection-first; never overwrite inherited files). Do not invent `docs/testing/` or `docs/validation/`.
 - **Project cleanliness**: run the `project-refactor` cleanliness detectors - empty directories (respecting `.gitkeep`), duplicate/redundant files, non-version orphans, and overcomplicated structure - propose-only, with the skill's confirmation gate.
 
@@ -178,7 +192,8 @@ Before stopping for any governance confirmation below, follow the active instruc
 
 1. **Known-gaps reconciliation** via `[[known-gaps-tracker]]`: resolve, defer, or transfer each open item for the version and finalize the per-minor `known-gaps.md`.
 2. **Full architecture refactor** via `[[project-refactor]]` (the empty-dir / duplicate / orphan / structure-complexity detectors) plus `[[docs-layout-refactor]]`, leaving a clean, intuitive layout.
-2a. **Living handbook regenerate-and-fail-on-stale**: regenerate generated handbook HTML from `docs/handbooks/markdown/` via `[[document-to-interactive-html]]` / `/presentify`. Fail the release if HTML is missing or stale when markdown exists. Snapshot living handbooks into `docs/archive/v<MAJOR>/v<MAJOR>.<MINOR>/handbooks/`. Require last-phase evidence (`<version_dir>/development/last-phase-evidence.md`) when a plan is in flight.
+2a. **Generated-doc regenerate-and-fail-on-stale**: discover every generated documentation surface and run its repository-owned generator in check mode, including `docs/handbooks/html/` from `docs/handbooks/markdown/` via `[[document-to-interactive-html]]` / `/presentify`. Fail the release when generated output is missing or stale. Self-gate to a no-op only when no generated documentation source exists.
+2b. **Living-reference snapshot**: snapshot living reference sources, including `docs/handbooks/`, into `docs/archives/v<MAJOR>/v<MAJOR>.<MINOR>/` at release close, with handbooks under `docs/archives/v<MAJOR>/v<MAJOR>.<MINOR>/handbooks/`. Name every snapshot for the version its content describes, not the release that merely prompted the copy. Require last-phase evidence (`<version_dir>/development/last-phase-evidence.md`) when a plan is in flight.
 3. **CI/CD create/update/optimize**: ensure the pipeline covers every change in the release and is optimized to reduce action minutes (path filters, concurrency cancel-in-progress, caching, gating expensive-OS/matrix jobs) while keeping comprehensive testing.
 4. **Platform read-contract re-verification** via `[[platform-contract-verification]]`: for a distribution catalog whose installer targets multiple external AI platforms, re-verify each supported platform's CURRENT skill/command/rule/hook discovery format (via targeted web searches) so the next release is guaranteed to surface the catalog everywhere. The skill self-gates: it does real work only in a repo that ships `docs/policy/platform-read-contracts.md` + `scripts/lib/integrations/` (i.e. Nexus-Hub itself) and is a silent no-op in any other project, so the release flow stays generic. On drift it updates the machine-readable `docs/policy/platform-read-contracts.json` (mirrored into the `.md` table), the affected integration adapter, and both installers, adds a CHANGELOG note, and re-runs `scripts/verify_platform_contracts.py`. It then re-stamps the JSON's `meta.verified_for_version` (+ `last_verified`) to the release version. This last step is mandatory, not advisory: `scripts/check_platform_contract_freshness.py` (in `make validate` and CI) fails the release the moment the version is bumped past the stamped value, so the release cannot ship on a stale contract. Degrades gracefully offline (record 'unverified this cycle').
 
@@ -232,7 +247,7 @@ Before stopping for any governance confirmation below, follow the active instruc
 7. **Unicode-hygiene gate on release artifacts (BLOCKING)**: sanitize what this release actually ships, before it is committed.
 
     ```bash
-    python scripts/validate_unicode_safety.py --strict --fix --root . --path CHANGELOG.md --path README.md --path docs/v<MAJOR>/v<MAJOR>.<MINOR>/
+    python scripts/validate_unicode_safety.py --strict --fix --root . --path CHANGELOG.md --path README.md --path docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/
     ```
 
     Add one `--path <file>` for any `RELEASE_NOTES` file the repo keeps. Five rules govern it:
@@ -244,6 +259,10 @@ Before stopping for any governance confirmation below, follow the active instruc
     - **The one-time historical normalization is already done (v3.16.8).** A changelog is a single file holding both the new entry and all past ones, so file-level scoping cannot spare its history: the gate's first run rewrote 7 non-ASCII dashes in already-released `CHANGELOG.md` sections. That was performed deliberately and once, in the release that introduced this gate, and is recorded in its changelog entry. Every subsequent run is a no-op on history, so a future release seeing a large `CHANGELOG.md` diff from this gate should stop and investigate rather than accept it.
 
 This mirrors the `implement-phase` final-phase gate - `/implement` hands off to `/update release` on a plan's last phase - so the same refactor + known-gaps + CI/CD + platform-contract + installer-parity + prompting-staleness + capability-usage work runs whether the release is reached through `/implement` or invoked directly.
+
+## Release closing output
+
+The message that closes a `release`-scope run uses the Completed / Verified / Open / Next shape from `catalog/style-guides/agent-communication.md`: **Completed** names the version shipped and the surfaces bumped; **Verified** carries the gate results (validate, tests, version-sync, capability-docs, contract freshness) and the published tag and Release URL; **Open** lists any hold condition, deferred gap, or advisory that did not block; **Next** states the follow-on action or that there is none. Link the finalized `## [X.Y.Z]` CHANGELOG section instead of inlining it, since that section is already the Release body. Skill: `[[agent-communication]]`.
 
 ## Notes
 

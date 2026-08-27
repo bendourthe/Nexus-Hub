@@ -2,7 +2,7 @@
   "_description": "Claude Code auto-approve permissions for safe, read-only operations. Merged into ~/.claude/settings.json during installation. See trusted-domains.json for the WebFetch domain allowlist.",
 
   "_hardening": {
-    "_note": "v3.17.0 Phase 1.1 rescoped this baseline to be read-only at the side-effect level, not the command-name level. Matcher evidence and the two empirical findings are in docs/v3/v3.17/development/permission-matcher-findings.md. Enforced by scripts/validate_permission_baseline.py.",
+    "_note": "v3.17.0 Phase 1.1 rescoped this baseline to be read-only at the side-effect level, not the command-name level. Matcher evidence and the two empirical findings are in docs/releases/v3/v3.17/development/permission-matcher-findings.md. Enforced by scripts/validate_permission_baseline.py.",
     "_reference_pattern_bash": "Bash(sed -n *) - admits the read-only -n form while excluding sed -i.",
     "_reference_pattern_powershell": "PowerShell(Get-CimInstance -ClassName Win32_OperatingSystem) - pins the class so no trailing wildcard can reach -CimSession or -ComputerName.",
     "removed_v3_17_0": {

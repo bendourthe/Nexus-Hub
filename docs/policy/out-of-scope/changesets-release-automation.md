@@ -12,7 +12,7 @@ The decline is not "we have not gotten to it". The v3.20.3 comparison scored the
 
 ## Prior requests
 
-- Decline record: [docs/v3/v3.20/comparisons/v3.20.3-comparison-skills-craft-and-prime-agent.md](../../v3/v3.20/comparisons/v3.20.3-comparison-skills-craft-and-prime-agent.md) (NOT recommended: changesets release automation).
-- Plan that operationalized the drop: [docs/v3/v3.20/plans/v3.20.3-skills-craft-and-prime-agent.md](../../v3/v3.20/plans/v3.20.3-skills-craft-and-prime-agent.md) Phase 1, sub-task 1.2.
+- Decline record: [docs/releases/v3/v3.20/comparisons/v3.20.3-comparison-skills-craft-and-prime-agent.md](../../releases/v3/v3.20/comparisons/v3.20.3-comparison-skills-craft-and-prime-agent.md) (NOT recommended: changesets release automation).
+- Plan that operationalized the drop: [docs/releases/v3/v3.20/plans/v3.20.3-skills-craft-and-prime-agent.md](../../releases/v3/v3.20/plans/v3.20.3-skills-craft-and-prime-agent.md) Phase 1, sub-task 1.2.
 - The release path that stays in force: `/update release` in `catalog/commands/update.md`, plus `scripts/check_version_sync.py`.
 - No dedicated GitHub issue asked to add changesets; the request arrived as a comparison candidate and was declined there.

@@ -28,7 +28,7 @@ Return ONLY a JSON array of findings (fields per [`catalog/skills/code-review/co
   {
     "title": "Phase 2 depends on the search index built in Phase 4",
     "severity": "P0",
-    "file": "docs/v1.2.0/plans/search.md",
+    "file": "docs/releases/v1/v1.2/plans/v1.2.0-search.md",
     "line": 140,
     "confidence": 75,
     "persona": "feasibility",

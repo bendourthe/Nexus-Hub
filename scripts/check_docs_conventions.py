@@ -35,6 +35,9 @@ from pathlib import Path
 SKIP_DIR_NAMES = frozenset(
     {
         "archive",
+        # v4.0.0 renamed the frozen container to the plural form; both are
+        # skipped so a legacy consuming tree behaves identically.
+        "archives",
         "__pycache__",
         ".git",
         ".venv",
@@ -109,12 +112,18 @@ def find_active_minor(root: Path) -> Path | None:
     canonical = read_canonical_major_minor(root)
     if canonical is not None:
         major, minor = canonical
-        exact = root / "docs" / f"v{major}" / f"v{major}.{minor}"
-        if exact.is_dir():
-            return exact
-        major_dir = root / "docs" / f"v{major}"
-        if major_dir.is_dir():
-            return _newest_minor_under(major_dir, major)
+        # Canonical (v4.0.0+) tree first, then the legacy v-bucket. Without the
+        # canonical branch this returns None on a migrated repo and
+        # resolve_scan_tree falls back to the WHOLE docs tree, re-opening the
+        # colocation fail-open this function exists to prevent.
+        for base in (root / "docs" / "releases" / f"v{major}", root / "docs" / f"v{major}"):
+            exact = base / f"v{major}.{minor}"
+            if exact.is_dir():
+                return exact
+            if base.is_dir():
+                newest = _newest_minor_under(base, major)
+                if newest is not None:
+                    return newest
         return None
     docs = root / "docs"
     if not docs.is_dir():
@@ -124,6 +133,9 @@ def find_active_minor(root: Path) -> Path | None:
         major_dirs = list(docs.iterdir())
     except OSError:
         return None
+    releases = docs / "releases"
+    if releases.is_dir():
+        major_dirs = list(releases.iterdir())
     for major_dir in major_dirs:
         if not major_dir.is_dir() or not re.match(r"^v\d+$", major_dir.name):
             continue

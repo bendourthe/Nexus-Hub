@@ -5,10 +5,11 @@ name: codex-usage-monitor
 # The extension is a Node/TypeScript VSIX with a Vitest provider-test suite; the
 # repo-wide ci.yml covers Python only, so this workflow is the extension's gate.
 on:
-  push:
-    branches: [main, develop]
-    paths:
-      - 'extensions/codex-usage-monitor/**'
+  # v4.0.0 event separation: the `push` leg to the same protected branches was
+  # removed. Under a pull-request-only merge policy that push IS the merge commit
+  # of the pull request that just ran, so the tree is identical and the second run
+  # cannot discover anything the first did not. See
+  # docs/releases/v4/v4.0/development/ci-cd-lifecycle-contract.md section 4.
   pull_request:
     branches: [main, develop]
     paths:
