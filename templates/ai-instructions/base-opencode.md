@@ -48,6 +48,18 @@
 
 Full contract: `~/.nexus-hub/style-guides/agent-communication.md`.
 
+## Documentation Layout
+
+Use lifespan as the single placement axis for project documentation.
+
+- Active release work: `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/`.
+- Closed release work: `docs/archives/v<MAJOR>/v<MAJOR>.<MINOR>/`.
+- Living product documentation: stable purpose-based roots such as `docs/handbooks/`, `docs/guides/`, `docs/reference/`, `docs/standards/`, `docs/runbooks/`, and `docs/decisions/`.
+
+Admission test: "Will this document still change after this release closes?" If yes, use a living root. If no, use the matching active release tree.
+
+Use the `docs-layout-refactor` skill for classification, migration, and link-integrity procedures.
+
 ## Branching
 
 - Follow the project's declared branching strategy. Do not commit feature or version work directly to the protected (release) branch -- branch off the integration branch and integrate through it. If the strategy is unstated, infer it (a `develop` branch implies a develop+main model; otherwise assume GitHub Flow) and confirm before branching. See the `git-branching-workflow` skill for the per-model discipline.

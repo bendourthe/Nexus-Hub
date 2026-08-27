@@ -65,3 +65,19 @@ The canonical prescription is now `docs/releases/` plus `docs/archives/`, while 
 ### Result
 
 The old-version guard is live for `docs/releases/`, `docs/archives/`, and all supported legacy layouts. Session-summary and notification hooks have no runtime dependency on the documentation tree; their remaining legacy paths are provenance-only comments. The workflow notice is proven against `docs/releases/v9/v9.9/plans/`. No documentation was moved, no duplicate policy was introduced, and the new aggregate validator rejects a deliberately reintroduced old prescription.
+
+## Phase 5 - Distribution to every platform class
+
+### Distribution artifacts
+
+| Path | Category | Disposition |
+|---|---|---|
+| `templates/ai-instructions/*.md` across the 12 substantive templates | Distributed instruction contract | Keep; each substantive platform template carries the same concise lifespan block. |
+| `scripts/check_base_template_parity.py` | Repository-only invariant gate | Keep; `Documentation Layout` is byte-locked across the five lockstep templates and remains listed in `DEV_ONLY_SCRIPTS`. |
+| `tests/validators/test_check_base_template_parity.py` | Negative mutation proof | Keep; it proves one deliberately divergent template fails the gate. |
+| `tests/validators/test_communication_contract_rollout.py` | Aggregate distribution proof | Keep; one data-driven roster covers all 12 substantive templates and the four inheriting stubs. |
+| `docs/v4/v4.0/development/history/2026-08-26_v4.0.0-docs-lifespan-phase-5-platform-distribution.md` | Active phase evidence | Keep under the current version's development history. |
+
+### Result
+
+All 12 substantive templates carry one byte-identical `Documentation Layout` body, while the four thin include stubs inherit without duplication. Isolated workspace renders proved Codex, Copilot, and Aider output paths and content. No product documentation moved in this phase. The attempted global throwaway proof exposed BG-2 in the integration runner's target-root handling; it is recorded rather than concealed or fixed outside the phase boundary.

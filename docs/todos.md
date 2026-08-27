@@ -14,7 +14,7 @@ Refreshing this file to the active plan (rather than appending another version's
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
-| v4.0.0 docs-lifespan phases complete | 4 | 7 | 3 |
+| v4.0.0 docs-lifespan phases complete | 5 | 7 | 2 |
 | Open release blockers | 0 | 0 | 0 |
 | Catalog skills | 325 | 325 | 0 |
 | Substantive templates carrying the plan-lifecycle block | 12 | 12 | 0 |
@@ -30,7 +30,7 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Phase 2 - Lifespan axis
 - [x] Phase 3 - Breaking rename of the prescription
 - [x] Phase 4 - Executable guards and anti-regression tests
-- [ ] Phase 5 - Distribution to every platform class
+- [x] Phase 5 - Distribution to every platform class
 - [ ] Phase 6 - Dogfood migration of Nexus-Hub's own tree
 - [ ] Phase 7 - Architecture refactor, known-gaps reconciliation, and CI/CD
 - [ ] Release - cut v4.0.0 only after all three bundle plans and the final integration gate are complete.

@@ -186,7 +186,7 @@ None.
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
-| Bugs / regressions (BG) | 1 | 0 |
+| Bugs / regressions (BG) | 2 | 0 |
 | Warnings (WN) | 0 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
@@ -202,6 +202,14 @@ None.
 - **Reproduction status**: the exact test passed twice immediately afterward, the complete `nexus-memory` suite then passed with 51 passes and 1 skip, and the final repository suite passed with 3,354 passes and 37 skips. The failure is intermittent but the traceback demonstrates a real unprotected read/write seam.
 - **Suggested next step**: in the post-Phase-7 known-gaps pass, make config creation atomic or retry a bounded transient empty read, add a deterministic concurrency regression test, and rerun the full extension suite.
 
+##### BG-2 - global integration runner ignores the explicit target root for home-relative destinations
+
+- **Source phase**: Phase 5 - Distribution to every platform class
+- **What was observed**: `runner.py install --scope global --target <throwaway>` documents the target as the global home root, but `SkillsIntegration.install_global` resolves configured destinations from `Path.home()` instead of `ctx.target_root`. A Phase 5 proof run therefore refreshed managed Codex and Copilot surfaces under the real user profile while writing only its manifest and summary under the throwaway target.
+- **Immediate containment**: the newly inserted `Documentation Layout` block was removed from the user-level Codex `AGENTS.md`, preserving the existing managed markers and surrounding content. The remaining touched files were installer-owned generated surfaces; the run manifest records each action and checksum at `%TEMP%/nexus-phase5-20260826-a7f34c/.nexus-hub/install-manifest.json`.
+- **Reproduction status**: deterministic. The run summary names `%USERPROFILE%\.codex\AGENTS.md` even though the supplied target was `%TEMP%/nexus-phase5-20260826-a7f34c`. The base implementation uses `(Path.home() / rel).resolve()` for global instruction destinations.
+- **Suggested next step**: in the user-requested post-Phase-7 known-gaps pass, make every global integration resolve through the explicit target root, add a regression test proving an isolated target cannot touch the process home, and verify the documented default still resolves to the actual home when `--target` is omitted.
+
 ### Resolved Items
 
-None through Phase 4.
+None through Phase 5.

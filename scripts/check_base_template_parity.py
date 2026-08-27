@@ -105,6 +105,7 @@ REQUIRED_HEADINGS = [
     "{{PRIMARY_LANGUAGE}} Conventions",
     "Branching",
     "Communication Contract",
+    "Documentation Layout",
     "Output Minimization",
     "End-of-Task Summary",
     "Consequential Decisions",
@@ -149,6 +150,10 @@ INVARIANT_SECTIONS = [
     # file must carry the heading, and the body must stay byte-identical so the
     # contract cannot drift on one platform.
     "Communication Contract",
+    # v4.0.0 docs-lifespan: placement by lifespan is platform-agnostic and has
+    # no valid per-platform variation. Require the heading and byte-lock the
+    # body across the five lockstep templates.
+    "Documentation Layout",
     # v3.15.10: the end-of-task summary rule is platform-agnostic by intent and
     # has no legitimate per-platform variation, unlike Output Minimization above
     # (base-claude.md carries a 5th bullet the other four do not). It therefore
