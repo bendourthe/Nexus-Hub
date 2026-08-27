@@ -125,7 +125,7 @@ jobs:
             reason="change touches a non-docs path"
           elif printf '%s\n' "${files}" | grep -qE '^docs/(policy|incidents|decisions)/'; then
             reason="change touches a validator-input docs path"
-          elif printf '%s\n' "${files}" | grep -qE '^docs/[^/]+/[^/]+/development/[^/]+\.md$'; then
+          elif printf '%s\n' "${files}" | grep -qE '^docs/(releases/)?[^/]+/[^/]+/development/[^/]+\.md$'; then
             reason="change touches a development contract doc"
           else
             relevant=false

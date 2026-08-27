@@ -4,7 +4,7 @@
 **Active plan:** [`docs/releases/v4/v4.0/plans/v4.0.0-docs-lifespan-tree-and-enforcement.md`](releases/v4/v4.0/plans/v4.0.0-docs-lifespan-tree-and-enforcement.md)
 **Last refreshed:** 2026-08-26
 
-This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its own `docs/v*/v*.*/known-gaps.md`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/v3/roadmap-prioritization.md`](roadmap-prioritization.md).
+This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its own `docs/v*/v*.*/known-gaps.md`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
 
 Refreshing this file to the active plan (rather than appending another version's section) resolves DF-2 in [`docs/releases/v3/v3.21/known-gaps.md`](releases/v3/v3.21/known-gaps.md), which recorded that the dashboard had drifted to describe an old feature branch and carried scores from earlier minors.
 
@@ -14,7 +14,7 @@ Refreshing this file to the active plan (rather than appending another version's
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
-| v4.0.0 docs-lifespan phases complete | 6 | 7 | 1 |
+| v4.0.0 docs-lifespan phases complete | 7 | 7 | 0 |
 | Open release blockers | 0 | 0 | 0 |
 | Catalog skills | 325 | 325 | 0 |
 | Substantive templates carrying the plan-lifecycle block | 12 | 12 | 0 |
@@ -32,7 +32,7 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Phase 4 - Executable guards and anti-regression tests
 - [x] Phase 5 - Distribution to every platform class
 - [x] Phase 6 - Dogfood migration of Nexus-Hub's own tree
-- [ ] Phase 7 - Architecture refactor, known-gaps reconciliation, and CI/CD
+- [x] Phase 7 - Architecture refactor, known-gaps reconciliation, and CI/CD
 - [ ] Release - cut v4.0.0 only after all three bundle plans and the final integration gate are complete.
 
 ### What this plan changes, in one paragraph

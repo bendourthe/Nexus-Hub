@@ -187,7 +187,7 @@ None.
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
 | Bugs / regressions (BG) | 4 | 1 |
-| Warnings (WN) | 1 | 0 |
+| Warnings (WN) | 2 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
@@ -251,6 +251,14 @@ None.
 - **Confirmed not caused by this migration**: the three compressor failures all assert `'regex' == 'ast'`, and `import tree_sitter_javascript` raises `ModuleNotFoundError` on this host, so the compressor is correctly falling back to its regex backend. `nexus_code_search.__file__` is `None`, meaning the name resolves to an empty namespace package rather than an installed distribution. This plan's only edits inside `extensions/nexus-context-compressor` are docstring and comment path references, which cannot affect language-backend selection.
 - **Relationship to existing gaps**: the same environment class as the carried DF-2, which already records that the extension suites need their packages pip-installed. Recorded separately because the specific missing pieces are now identified rather than assumed.
 - **Suggested next step**: install the missing language grammar and the two extension packages in the development environment, then re-run the six suites and record the result. Until then, CI is the authoritative run for these three suites, which is the same conclusion DF-2 reached for the aggregate profile.
+
+##### WN-2 - the migration makes the lifespan-contradiction detector report 243 findings at once
+
+- **Source phase**: Phase 7 - Architecture refactor, known-gaps reconciliation, and CI/CD
+- **What was observed**: `audit-docs.py lifespan-contradictions` reports 243 files across 20 release buckets, every one with today's `offending_commit_date`. The cause is structural rather than accidental: a whole-tree migration must rewrite link targets inside frozen release buckets to keep those documents navigable, and any commit touching a frozen file is by definition a lifespan contradiction. Two features shipping in the same release interact, and the detector is correct on its own terms.
+- **Blast radius**: none automated. The check is standalone - it is not in the `make validate` chain and no CI profile or workflow invokes it - so it gates nothing. It exits 1 when findings exist, which is its documented contract.
+- **Why it is not silently suppressed**: exempting the migration commit would require the detector to distinguish a link-target repair from a content edit, which it cannot do from commit dates alone, and adding a date-based amnesty would blunt the signal permanently for a one-time event.
+- **Suggested next step**: after v4.0.0 is tagged, re-run the detector and treat the post-tag result as the real baseline; a finding dated after that tag is a genuine contradiction. If the noise recurs on future migrations, the durable fix is an explicit re-baseline marker the detector reads, not a heuristic over diffs.
 
 ### Resolved Items
 
