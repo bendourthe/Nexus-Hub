@@ -232,3 +232,47 @@ def test_readme_states_stdlib_and_zero_outbound() -> None:
     assert "zero API keys" in readme
     assert "zero model downloads" in readme
     assert "calling agent" in readme
+
+
+def test_save_config_never_exposes_a_truncated_file(tmp_path: Path, monkeypatch) -> None:
+    """The destination stays whole right up to the atomic swap.
+
+    Deterministic regression test for the concurrency seam recorded as BG-1:
+    ``Path.write_text`` truncates before writing, so a reader that opened
+    ``config.json`` in that window got an empty string and raised
+    JSONDecodeError. The multiprocess test only caught it intermittently -- it
+    failed once in CI and passed on the retry -- so this asserts the property
+    directly instead of racing for it.
+    """
+    import json as _json
+
+    from nexus_memory import config as config_mod
+
+    config_mod.save_config(tmp_path, StoreConfig())
+    path = tmp_path / config_mod.CONFIG_NAME
+    original = path.read_text(encoding="utf-8")
+
+    seen: list[str] = []
+    real_replace = config_mod.os.replace
+
+    def spy(src, dst, *args, **kwargs):
+        # Exactly what a concurrent reader would observe an instant before the swap.
+        seen.append(Path(dst).read_text(encoding="utf-8"))
+        return real_replace(src, dst, *args, **kwargs)
+
+    monkeypatch.setattr(config_mod.os, "replace", spy)
+    config_mod.save_config(tmp_path, StoreConfig(read_budget=42))
+
+    assert seen, "save_config must publish through os.replace, not a truncating write"
+    assert seen[0] == original, "the destination was modified before the atomic swap"
+    assert _json.loads(path.read_text(encoding="utf-8"))["read_budget"] == 42
+
+
+def test_save_config_leaves_no_temp_file_behind(tmp_path: Path) -> None:
+    """The sibling temp file is always cleaned up, success or failure."""
+    from nexus_memory import config as config_mod
+
+    config_mod.save_config(tmp_path, StoreConfig(read_budget=55))
+    leftovers = sorted(p.name for p in tmp_path.glob(f"{config_mod.CONFIG_NAME}.tmp.*"))
+
+    assert leftovers == []
