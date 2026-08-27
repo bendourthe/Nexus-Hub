@@ -11,7 +11,9 @@ param(
     [Alias("before")]
     [string]$BeforePath,
     [Alias("after")]
-    [string]$AfterPath
+    [string]$AfterPath,
+    [Alias("rename-map")]
+    [string]$RenameMap
 )
 
 $ErrorActionPreference = "Stop"
@@ -20,6 +22,71 @@ $Utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 function Convert-ToPosix {
     param([string]$Path)
     return $Path.Replace("\", "/")
+}
+
+function Read-RenameMap {
+    # old<TAB>new pairs. `git diff --name-status -M` rename rows are
+    # R<score><TAB>old<TAB>new, so the last two fields win.
+    param([string]$Path)
+    $map = @{}
+    if (-not (Test-Path -LiteralPath $Path)) { throw "cannot read rename map $Path" }
+    foreach ($line in [System.IO.File]::ReadAllLines($Path)) {
+        if ([string]::IsNullOrWhiteSpace($line)) { continue }
+        if ($line.TrimStart().StartsWith("#")) { continue }
+        $fields = @($line.TrimEnd("`n") -split "`t" | Where-Object { $_ -ne "" })
+        if ($fields.Count -lt 2) { throw "invalid rename map at ${Path}: expected old<TAB>new" }
+        [void]($map[$fields[$fields.Count - 2]] = $fields[$fields.Count - 1])
+    }
+    return $map
+}
+
+function Get-PrefixMap {
+    # Mirrors _derive_prefix_map in link-baseline.py: candidate directory
+    # renames, kept only when nearly every mapped file under the prefix agrees.
+    param([hashtable]$FileMap)
+    $candidates = @{}
+    foreach ($old in $FileMap.Keys) {
+        $new = $FileMap[$old]
+        $oldParts = $old -split "/"
+        $newParts = $new -split "/"
+        for ($depth = 1; $depth -lt $oldParts.Count; $depth++) {
+            $tailLen = $oldParts.Count - $depth
+            if ($tailLen -ge $newParts.Count) { continue }
+            $oldTail = ($oldParts[$depth..($oldParts.Count - 1)]) -join "/"
+            $newTail = ($newParts[($newParts.Count - $tailLen)..($newParts.Count - 1)]) -join "/"
+            if ($oldTail -ne $newTail) { continue }
+            $oldPrefix = ($oldParts[0..($depth - 1)]) -join "/"
+            $newPrefix = ($newParts[0..($newParts.Count - $tailLen - 1)]) -join "/"
+            if (-not $newPrefix -or $oldPrefix -eq $newPrefix) { continue }
+            [void]($candidates["$oldPrefix`t$newPrefix"] = $true)
+        }
+    }
+    $kept = New-Object System.Collections.ArrayList
+    foreach ($key in $candidates.Keys) {
+        $parts = $key -split "`t"
+        $oldPrefix = $parts[0]; $newPrefix = $parts[1]
+        $under = 0; $mismatched = 0
+        foreach ($old in $FileMap.Keys) {
+            if ($old -eq $oldPrefix -or $old.StartsWith("$oldPrefix/")) {
+                $under++
+                if ($FileMap[$old] -ne ($newPrefix + $old.Substring($oldPrefix.Length))) { $mismatched++ }
+            }
+        }
+        if ($under -ge 2 -and ($mismatched * 20) -le $under) {
+            [void]$kept.Add([pscustomobject]@{ Old = $oldPrefix; New = $newPrefix })
+        }
+    }
+    return @($kept | Sort-Object -Property @{Expression = { $_.Old.Length }; Descending = $true}, Old)
+}
+
+function Convert-ProjectedPath {
+    param([string]$Path, [hashtable]$FileMap, $Prefixes)
+    if ($FileMap.ContainsKey($Path)) { return $FileMap[$Path] }
+    foreach ($rule in $Prefixes) {
+        if ($Path -eq $rule.Old) { return $rule.New }
+        if ($Path.StartsWith("$($rule.Old)/")) { return $rule.New + $Path.Substring($rule.Old.Length) }
+    }
+    return $Path
 }
 
 function Get-LinkKey {
@@ -138,13 +205,32 @@ try {
 
     if ([string]::IsNullOrWhiteSpace($BeforePath)) { throw "Missing required option --before" }
     if ([string]::IsNullOrWhiteSpace($AfterPath)) { throw "Missing required option --after" }
+    $useRenameMap = -not [string]::IsNullOrWhiteSpace($RenameMap)
+    $fileMap = $null; $prefixes = @()
+    if ($useRenameMap) {
+        $fileMap = Read-RenameMap $RenameMap
+        $prefixes = Get-PrefixMap $fileMap
+    }
+    # With a rename map the identity drops `link` and projects the before-side
+    # into post-move coordinates; a correct repair rewrites the link text, so
+    # keeping it would count every repair as fixed AND newly broken.
+    $keyOf = {
+        param($r, $project)
+        if ($project) {
+            $s = Convert-ProjectedPath $r.source $fileMap $prefixes
+            $t = Convert-ProjectedPath $r.resolved_target $fileMap $prefixes
+            return "$s$([char]31)$([char]31)$t"
+        }
+        if ($useRenameMap) { return "$($r.source)$([char]31)$([char]31)$($r.resolved_target)" }
+        return (Get-LinkKey $r)
+    }
     $beforeMap = @{}
     foreach ($record in @(Read-Ndjson $BeforePath)) {
-        [void]($beforeMap[(Get-LinkKey $record)] = $record)
+        [void]($beforeMap[(& $keyOf $record $useRenameMap)] = $record)
     }
     $afterMap = @{}
     foreach ($record in @(Read-Ndjson $AfterPath)) {
-        [void]($afterMap[(Get-LinkKey $record)] = $record)
+        [void]($afterMap[(& $keyOf $record $false)] = $record)
     }
     $newKeys = @($afterMap.Keys | Where-Object { -not $beforeMap.ContainsKey($_) })
     $fixedKeys = @($beforeMap.Keys | Where-Object { -not $afterMap.ContainsKey($_) })

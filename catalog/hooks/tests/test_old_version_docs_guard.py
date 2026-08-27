@@ -21,8 +21,14 @@ def run(request):
     """Run either sibling so every assertion also proves exit-code parity."""
     implementation = request.param
     if implementation == "sh":
-        if shutil.which("jq") is None:
-            pytest.skip("jq is required by the Bash hook")
+        # The Bash hook prefers jq but falls back to Python for JSON parsing, so
+        # skip only when NEITHER is present. Gating on jq alone silently retired
+        # the entire Bash leg on any host without it -- a green summary line
+        # standing in for coverage that never ran.
+        if shutil.which("jq") is None and not any(
+            shutil.which(name) for name in ("python3", "python")
+        ):
+            pytest.skip("the Bash hook needs jq or Python to parse its stdin payload")
         prefix = [request.getfixturevalue("bash_bin"), str(HOOK_SH)]
     else:
         prefix = [request.getfixturevalue("powershell_bin"), "-NoProfile", "-File", str(HOOK_PS1)]
@@ -141,6 +147,59 @@ def test_non_versioned_paths_are_silent(run, tmp_path: Path, path: str) -> None:
 
     assert result.returncode == 0
     assert result.stderr == ""
+
+
+def _declare_version(root: Path, version: str) -> None:
+    manifest = root / ".claude-plugin"
+    manifest.mkdir(parents=True, exist_ok=True)
+    (manifest / "plugin.json").write_text(
+        json.dumps({"name": "fixture", "version": version}), encoding="utf-8"
+    )
+
+
+def test_declared_version_beats_a_roadmapped_future_directory(run, tmp_path: Path) -> None:
+    """A future plan directory must not be mistaken for the active version.
+
+    Repositories keep directories for roadmapped work. Taking the newest
+    directory on disk made the version actually being built report as
+    historical, while writes to the future directory stayed silent -- noisy and
+    fail-open at once.
+    """
+    _declare_version(tmp_path, "3.21.0")
+    for version in ("3.21", "4.0", "4.2"):
+        _version_dir(tmp_path, "releases", version).mkdir(parents=True)
+
+    current = run(_path("releases", "3.21"), tmp_path)
+    future = run(_path("releases", "4.2"), tmp_path)
+
+    assert current.returncode == 0
+    assert "old-version-docs-guard" not in current.stderr, current.stderr
+    assert future.returncode == 0
+    assert "old-version-docs-guard" not in future.stderr, future.stderr
+
+
+def test_declared_version_still_warns_for_a_genuinely_old_directory(run, tmp_path: Path) -> None:
+    """Preferring the declared version must not blunt the actual guard."""
+    _declare_version(tmp_path, "3.21.0")
+    for version in ("3.1", "3.21", "4.2"):
+        _version_dir(tmp_path, "releases", version).mkdir(parents=True)
+
+    result = run(_path("releases", "3.1"), tmp_path)
+
+    assert result.returncode == 0
+    assert "old-version-docs-guard" in result.stderr
+    assert "active is v3.21" in result.stderr
+
+
+def test_directory_maximum_is_used_when_no_version_is_declared(run, tmp_path: Path) -> None:
+    """Without a manifest the previous behavior is preserved unchanged."""
+    for version in ("1.0", "2.0"):
+        _version_dir(tmp_path, "releases", version).mkdir(parents=True)
+
+    result = run(_path("releases", "1.0"), tmp_path)
+
+    assert result.returncode == 0
+    assert "active is v2.0" in result.stderr
 
 
 def test_no_active_version_is_silent(run, tmp_path: Path) -> None:

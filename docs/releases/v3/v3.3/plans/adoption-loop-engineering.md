@@ -5,7 +5,7 @@
 **Slug**: adoption-loop-engineering
 **Plan Type**: Feature / Enhancement (catalog content; additive)
 **Created**: 2026-06-09
-**Source**: [docs/releases/v3/v3.2/comparisons/v3.2.0-comparison-loop-engineering.md](../../v3.2.0/comparison-loop-engineering.md) (Section 7 Adoption Plan)
+**Source**: [docs/releases/v3/v3.2/comparisons/v3.2.0-comparison-loop-engineering.md](../../v3.2/comparisons/v3.2.0-comparison-loop-engineering.md) (Section 7 Adoption Plan)
 **Goal**: Ship a skill-native loop-engineering layer -- a loop-definition schema, a seeded local loop library, the five-pieces-to-primitive mapping, goal-based-stop guidance, a scheduled-triage recipe, and named loop anti-patterns -- so operators can compose Nexus-Hub's existing primitives into named, goal-terminated loops, with zero new outbound call, dependency, or credential.
 
 ## Goals-First (target problem, persona, definition of done)

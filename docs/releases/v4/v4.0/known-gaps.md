@@ -186,7 +186,7 @@ None.
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
-| Bugs / regressions (BG) | 4 | 1 |
+| Bugs / regressions (BG) | 1 | 4 |
 | Warnings (WN) | 2 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
@@ -210,36 +210,38 @@ None.
 - **Reproduction status**: deterministic. The run summary names `%USERPROFILE%\.codex\AGENTS.md` even though the supplied target was `%TEMP%/nexus-phase5-20260826-a7f34c`. The base implementation uses `(Path.home() / rel).resolve()` for global instruction destinations.
 - **Suggested next step**: in the user-requested post-Phase-7 known-gaps pass, make every global integration resolve through the explicit target root, add a regression test proving an isolated target cannot touch the process home, and verify the documented default still resolves to the actual home when `--target` is omitted.
 
-##### BG-3 - `link-baseline diff` is not move-aware, so its own gate cannot report zero on a whole-tree move
+##### BG-3 - RESOLVED - `link-baseline diff` was not move-aware, so its own gate could not report zero on a whole-tree move
 
 - **Source phase**: Phase 6 - Dogfood migration of Nexus-Hub's own tree
 - **Plan reference**: `docs/releases/v4/v4.0/plans/v4.0.0-docs-lifespan-tree-and-enforcement.md` (6.3)
 - **What was observed**: `cmd_diff` is a plain set difference over `(source, link, resolved_target)` tuples. A file that MOVES changes its `source` key, so every pre-existing broken link inside it is reported as `newly_broken` while its old tuple is reported as `fixed`. On this migration the raw diff read 873 `newly_broken` / 638 `fixed` when the true count of links broken BY the move was 444, and 0 after repair.
 - **Why it matters**: the plan's acceptance gate is "zero `newly_broken`". As shipped, that gate is unreachable for the exact operation it was built to prove, and a maintainer reading the raw number would either block a correct migration or learn to ignore the gate.
 - **How Phase 6 proved the property instead**: the before-baseline was normalized into post-move coordinates through the rename map, then compared on `(source, resolved_target)` pairs. That comparison reports 0 `newly_broken`, 59 `fixed`, 774 `unchanged`. The normalization script and its output are recorded in the phase session history.
-- **Suggested next step**: add an optional `--rename-map <tsv>` to `link-baseline diff` that applies the same normalization internally, so the shipped gate reports the true number without an external script. Cover it with a test that moves a fixture tree containing one pre-existing broken link and asserts `newly_broken == 0`.
+- **Resolution**: `link-baseline diff` now takes an optional `--rename-map`, accepting `git diff --name-status -M` output verbatim. It projects the before-baseline into post-move coordinates and drops `link` from the identity, because a correct repair rewrites the link text. Directory renames are inferred from the file pairs and a candidate rule is kept only when nearly every mapped file beneath it agrees, so a container holding two differently-relocated subtrees is rejected instead of being applied to unrelated siblings - the exact case that made a naive majority vote choose `docs -> docs/releases` during this migration. Run against this release's own 763-file move, the shipped tool now reports `newly_broken: 0, fixed: 59, unchanged: 774` and exits 0, matching the external proof exactly. Four tests cover it, parametrized over both the Python and PowerShell implementations: the un-mapped miscount, the clean pure move, a genuine break that the map must NOT launder, and `git --name-status` row parsing.
 
-##### BG-4 - `old-version-docs-guard` treats the highest version directory as the active version
+##### BG-4 - RESOLVED - `old-version-docs-guard` treated the highest version directory as the active version
 
 - **Source phase**: Phase 6 - Dogfood migration of Nexus-Hub's own tree
 - **Plan reference**: `docs/releases/v4/v4.0/plans/v4.0.0-docs-lifespan-tree-and-enforcement.md` (6.3, "prove the Phase 4 guard live rather than only in fixtures")
 - **What was observed**: active-version detection selects the newest `docs/releases/v*/v*/` directory on disk. This repository keeps directories for roadmapped future work (`v4.1`, `v4.2`), so the guard resolves active as `v4.2`. Writing to `docs/releases/v4/v4.0/known-gaps.md` - the version actually being built - emits `Writing to historical version v4.0 ... (active is v4.2)`, while writing to a future directory stays silent.
 - **Reproduction status**: deterministic via the `.ps1` sibling. Pre-existing rather than migration-caused: `docs/v4/v4.1/` and `docs/v4/v4.2/` are both present in the pre-move inventory, so the guard has mis-detected in this repository since those directories were created. Phase 6 is simply the first run against the real tree instead of fixtures.
-- **Suggested next step**: source the active version from a declared surface rather than from directory maximum, and treat a directory newer than the declared version as planned-future (silent) rather than as active. Add a fixture with a future-version directory asserting the current version does not warn.
+- **Resolution**: both siblings now read the declared version from `.claude-plugin/plugin.json` first and fall back to the directory maximum only when no manifest is present, so a roadmapped future directory can no longer be mistaken for the active version. Three regression tests, parametrized over both siblings, cover the future-directory case, a genuinely old directory still warning, and the unchanged no-manifest fallback. Verified live against the real tree: `docs/releases/v3/v3.21/` and `docs/releases/v4/v4.0/` are silent while `docs/releases/v3/v3.1/` and `docs/archives/v2/v2.1/` warn, identically on Bash and PowerShell.
 
-##### BG-5 - bash hooks silently no-op on this workstation because `jq` is absent
+##### BG-5 - RESOLVED - bash hooks silently no-opped on this workstation because `jq` was absent
 
 - **Source phase**: Phase 6 - Dogfood migration of Nexus-Hub's own tree
 - **What was observed**: `catalog/hooks/old-version-docs-guard.sh` gates its entire path-extraction step on `command -v jq`. No `jq` is installed on this host, so the hook exits 0 with no output for every payload, including ones it should warn on. The guard could only be exercised through its `.ps1` sibling, which parses with `ConvertFrom-Json` and needs no external binary.
 - **Relationship to existing gaps**: same fail-open class as the previously recorded secret-scan `jq` gap carried from a prior version. Recorded separately because it was observed on a different hook and because it blocked a specific Phase 6 verification step (bash-side exit-code parity could not be demonstrated on this host).
 - **The test suite hides it rather than catching it**: `catalog/hooks/tests/test_old_version_docs_guard.py` skips every Bash-leg case with `jq is required by the Bash hook`. On this workstation that suite reports `22 passed, 27 skipped` - green - while the entire Bash half of the sibling-parity contract goes unexercised. A skip standing in for an absent dependency is indistinguishable in the summary line from a passing assertion.
-- **Suggested next step**: give the bash hooks a `python3 -c` JSON fallback when `jq` is missing, or state the dependency loudly at install time. A hook whose failure mode is silence is indistinguishable from a hook that passed. Separately, make the absent-`jq` case an explicit xfail or a loud warning rather than a silent skip, so a host that cannot exercise the Bash leg says so.
+- **Resolution**: `old-version-docs-guard.sh` now falls back to `python3`/`python` for JSON parsing when `jq` is absent, which every supported platform already requires. The test fixture's skip condition was the other half of the defect: it gated on `jq` alone, so the entire Bash leg silently retired on any host without it. It now skips only when NEITHER parser is present. On this workstation that turns `22 passed, 27 skipped` into `46 passed, 0 skipped` -- the Bash leg is genuinely exercised for the first time here. Other bash hooks that gate on `jq` are NOT changed by this entry; they are a separate sweep, and this fix is deliberately scoped to the hook this plan touched.
 
-##### BG-6 - two dead documentation links predate the migration and remain unresolved
+##### BG-6 - PARTIALLY RESOLVED - two dead documentation links predated the migration; one is repaired
 
 - **Source phase**: Phase 6 - Dogfood migration of Nexus-Hub's own tree
 - **What was observed**: `docs/releases/v3/v3.18/development/github-drawdown-ledger.md` and `docs/releases/v3/v3.2/comparison-loop-engineering.md` are referenced but exist nowhere in the repository. Both appear in the pre-move baseline, so neither was caused by this migration. The referring link text was updated to the new container so it no longer names a directory that no longer exists; the targets themselves were not invented.
-- **Suggested next step**: decide per link whether the target should be restored from history or the reference removed. Do not create a placeholder file to silence the checker.
+- **Resolution of the first**: `comparison-loop-engineering.md` does exist, at `docs/releases/v3/v3.2/comparisons/v3.2.0-comparison-loop-engineering.md`. The stale reference used the pre-convention flat form; it now points at the real file and resolves.
+- **Still open, the second**: `github-drawdown-ledger.md` was added by commit `5b070c3b` under `docs/v3/v3.18/development/` and exists nowhere in the tree today. Only `v3.18/development/history/` was archived, so the file was DELETED rather than archived - which is itself a finding about that retention pass, not about this migration. It is cited as evidence by an implemented decision record, so the citation was left in place rather than silently re-aimed at a different document.
+- **Suggested next step**: recover the file from `5b070c3b` into `docs/archives/v3/v3.18/development/` so the decision record's evidence is readable again, or amend the record to state that its evidence was lost and why. Do not create a placeholder file to silence the checker.
 
 
 #### Warnings

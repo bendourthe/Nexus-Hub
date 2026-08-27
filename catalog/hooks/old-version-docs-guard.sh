@@ -44,9 +44,20 @@ COLOR_RESET='\033[0m'
 # --- Read JSON from stdin ---
 INPUT=$(cat)
 
-# --- Extract file path (requires jq) ---
+# --- Extract file path ---
+# jq is preferred, but a host without it must not silently lose the guard: a
+# hook whose failure mode is silence is indistinguishable from one that passed.
+# Python 3 is the fallback because every supported platform already requires it.
 if command -v jq >/dev/null 2>&1; then
   FILE_PATH=$(echo "$INPUT" | jq -r '.tool_input.file_path // .tool_input.path // empty' 2>/dev/null)
+elif command -v python3 >/dev/null 2>&1 || command -v python >/dev/null 2>&1; then
+  _PY=$(command -v python3 || command -v python)
+  FILE_PATH=$(printf '%s' "$INPUT" | "$_PY" -c 'import json,sys
+try:
+    d = json.load(sys.stdin).get("tool_input") or {}
+    print(d.get("file_path") or d.get("path") or "")
+except Exception:
+    print("")' 2>/dev/null)
 else
   exit 0
 fi
@@ -122,8 +133,21 @@ scan_version_dirs() {
   done
 }
 
+# Prefer the DECLARED project version over the newest directory on disk. A
+# repository that keeps directories for roadmapped future work would otherwise
+# resolve its active version to the furthest-future plan directory, making every
+# write to the version actually being built warn while writes to future
+# directories stayed silent -- fail-open and noisy at once.
+_declared_version() {
+  local manifest="$1"
+  [ -f "$manifest" ] || return 1
+  sed -n 's/.*"version"[[:space:]]*:[[:space:]]*"\([0-9][0-9]*\.[0-9][0-9]*\)[^"]*".*/\1/p' "$manifest" | head -n 1
+}
+ACTIVE_VERSION="$(_declared_version "${DOCS_ROOT}/../.claude-plugin/plugin.json" || true)"
+
 # Match the docs-layout-refactor resolution order. Once one layout yields an
 # active candidate, later legacy layouts cannot override it.
+[ -n "$ACTIVE_VERSION" ] ||
 scan_version_dirs '^v([0-9]+(\.[0-9]+){1,2})$' "$DOCS_ROOT"/releases/v*/v*
 if [ -z "$ACTIVE_VERSION" ]; then
   scan_version_dirs '^v([0-9]+(\.[0-9]+){1,2})$' "$DOCS_ROOT"/v*/v*

@@ -116,9 +116,30 @@ function Get-VersionChildren {
     return $children
 }
 
+function Get-DeclaredVersion {
+    # Prefer the DECLARED project version over the newest directory on disk. A
+    # repository that keeps directories for roadmapped future work would
+    # otherwise resolve its active version to the furthest-future plan
+    # directory, making every write to the version actually being built warn
+    # while writes to future directories stayed silent.
+    param([string]$DocsRoot)
+    $manifest = Join-Path (Split-Path -Parent $DocsRoot) '.claude-plugin/plugin.json'
+    if (-not (Test-Path -LiteralPath $manifest)) { return $null }
+    try {
+        $raw = Get-Content -LiteralPath $manifest -Raw -ErrorAction Stop | ConvertFrom-Json
+    } catch { return $null }
+    $version = [string]$raw.version
+    if ($version -match '^([0-9]+\.[0-9]+)') { return $matches[1] }
+    return $null
+}
+
+$active = Get-DeclaredVersion $docsRoot
+
 # Match the docs-layout-refactor resolution order. A populated canonical layout
 # wins; later legacy layouts are consulted only when the earlier one is absent.
-$active = Get-LatestVersion @(Get-VersionChildren (Join-Path $docsRoot 'releases')) '^v([0-9]+(\.[0-9]+){1,2})$'
+if (-not $active) {
+    $active = Get-LatestVersion @(Get-VersionChildren (Join-Path $docsRoot 'releases')) '^v([0-9]+(\.[0-9]+){1,2})$'
+}
 if (-not $active) {
     $active = Get-LatestVersion @(Get-VersionChildren $docsRoot) '^v([0-9]+(\.[0-9]+){1,2})$'
 }

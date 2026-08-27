@@ -101,6 +101,117 @@ def test_diff_detects_one_fixed_and_one_new_when_total_holds_level(command: list
     assert report["totals"] == {"before": 1, "after": 1, "newly_broken": 1, "fixed": 1, "unchanged": 0}
 
 
+def _seed_move(repo, files, body):
+    """Create docs/old/<files> with `body`, stage, then move them to docs/new/."""
+    docs = repo / "docs"
+    (docs / "old").mkdir()
+    for name in files:
+        (docs / "old" / name).write_text(body, encoding="utf-8")
+    subprocess.run(["git", "-C", str(repo), "add", "-A"], check=True)
+
+
+def _apply_move(repo, files):
+    docs = repo / "docs"
+    (docs / "new").mkdir()
+    for name in files:
+        (docs / "old" / name).rename(docs / "new" / name)
+    (docs / "old").rmdir()
+    subprocess.run(["git", "-C", str(repo), "add", "-A"], check=True)
+
+
+def _rename_map(repo, files, prefix=""):
+    path = repo / "renames.tsv"
+    path.write_text(
+        "".join(f"{prefix}docs/old/{n}\tdocs/new/{n}\n" for n in files), encoding="utf-8"
+    )
+    return path
+
+
+def test_diff_without_a_rename_map_miscounts_a_moved_file(command: list[str], repo: Path) -> None:
+    """A pure move must not read as breakage -- but without a map it does.
+
+    This is the BG-3 symptom, asserted so the reason --rename-map exists stays
+    visible: identity keys on `source`, so moving a file that already held a
+    broken link re-keys it and it reports as newly broken.
+    """
+    files = ["page.md"]
+    _seed_move(repo, files, "[dead](nowhere.md)\n")
+    before = repo / "before.ndjson"
+    assert _baseline(command, repo, before).returncode == 0
+    _apply_move(repo, files)
+    after = repo / "after.ndjson"
+    assert _baseline(command, repo, after).returncode == 0
+
+    result = _run(command, "diff", "--before", before, "--after", after)
+
+    assert result.returncode == 1
+    assert json.loads(result.stdout)["totals"]["newly_broken"] == 1
+
+
+def test_diff_with_a_rename_map_reports_a_pure_move_as_clean(command: list[str], repo: Path) -> None:
+    """The same move, with the map supplied, is correctly zero newly broken."""
+    files = ["page.md", "other.md"]
+    _seed_move(repo, files, "[dead](nowhere.md)\n")
+    before = repo / "before.ndjson"
+    assert _baseline(command, repo, before).returncode == 0
+    _apply_move(repo, files)
+    after = repo / "after.ndjson"
+    assert _baseline(command, repo, after).returncode == 0
+
+    result = _run(
+        command, "diff", "--before", before, "--after", after,
+        "--rename-map", _rename_map(repo, files),
+    )
+
+    assert result.returncode == 0, result.stderr
+    totals = json.loads(result.stdout)["totals"]
+    assert totals["newly_broken"] == 0
+    assert totals["unchanged"] == 2
+
+
+def test_rename_map_still_reports_a_genuine_break_across_a_move(
+    command: list[str], repo: Path
+) -> None:
+    """The map must not launder real breakage introduced during the move."""
+    files = ["page.md", "other.md"]
+    _seed_move(repo, files, "[ok](../target.md)\n")
+    before = repo / "before.ndjson"
+    assert _baseline(command, repo, before).returncode == 0
+    _apply_move(repo, files)
+    # One link is left pointing somewhere that does not exist after the move.
+    (repo / "docs" / "new" / "page.md").write_text("[broken](../../gone.md)\n", encoding="utf-8")
+    subprocess.run(["git", "-C", str(repo), "add", "-A"], check=True)
+    after = repo / "after.ndjson"
+    assert _baseline(command, repo, after).returncode == 0
+
+    result = _run(
+        command, "diff", "--before", before, "--after", after,
+        "--rename-map", _rename_map(repo, files),
+    )
+
+    assert result.returncode == 1, result.stdout
+    assert json.loads(result.stdout)["totals"]["newly_broken"] == 1
+
+
+def test_rename_map_accepts_git_name_status_rows(command: list[str], repo: Path) -> None:
+    """`git diff --name-status -M` output is usable verbatim, no reformatting."""
+    files = ["page.md", "other.md"]
+    _seed_move(repo, files, "[dead](nowhere.md)\n")
+    before = repo / "before.ndjson"
+    assert _baseline(command, repo, before).returncode == 0
+    _apply_move(repo, files)
+    after = repo / "after.ndjson"
+    assert _baseline(command, repo, after).returncode == 0
+
+    result = _run(
+        command, "diff", "--before", before, "--after", after,
+        "--rename-map", _rename_map(repo, files, prefix="R100\t"),
+    )
+
+    assert result.returncode == 0, result.stderr
+    assert json.loads(result.stdout)["totals"]["newly_broken"] == 0
+
+
 @pytest.mark.skipif(_powershell() is None, reason="PowerShell is not available")
 def test_powershell_script_ast_parses() -> None:
     executable = _powershell()

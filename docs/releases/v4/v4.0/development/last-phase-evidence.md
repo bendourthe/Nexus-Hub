@@ -149,7 +149,7 @@ Inspected as if the phases had not been implemented here:
 | Success claim | Artifact | Verdict |
 |---|---|---|
 | One command reshapes a docs tree | `audit-docs.py canonicalize-layout` migrated 763 files across 26 movements, including the archive container Phase 6 had to add | SATISFIED |
-| ...and returns a set diff proving zero newly-broken links | `link-baseline diff` exists and is wired into the skill, but is not move-aware | **MISS - see below** |
+| ...and returns a set diff proving zero newly-broken links | `link-baseline diff --rename-map` reports `newly_broken: 0, fixed: 60` and exits 0 against this release's own 763-file move | SATISFIED (was a miss; see below) |
 | A `docs/releases/` file edited after its release closed is flagged | `audit-docs.py lifespan-contradictions` exits 1 with 243 structured findings against the live tree | SATISFIED |
 | An ADR cannot be filed under a release | `docs/decisions/` is declared "never release-scoped" and append-only in the skill's placement rules | SATISFIED |
 | Living `docs/handbooks/` stays at the docs root, snapshotted at close | `docs/handbooks/` present at root; snapshot rule to `docs/archives/v<M>/v<M>.<m>/handbooks/` documented | SATISFIED |
@@ -157,7 +157,9 @@ Inspected as if the phases had not been implemented here:
 
 **The one miss, stated plainly.** The Goal's own words are "prove nothing broke, rather than asserting it", and the proving mechanism is the set diff. As shipped, `link-baseline diff` keys identity on `(source, link, resolved_target)`, so a moved file's pre-existing broken links are counted as `newly_broken`. On this migration the shipped gate read **873 newly_broken** where the true number of links broken by the move was 444, and 0 after repair. Phase 6 proved the property with an external normalization script instead.
 
-This is recorded as **BG-3** with a concrete fix (an optional `--rename-map` on `diff`). It is a Goal miss rather than a cosmetic defect, because a consuming project running the documented command today receives a number it cannot act on. Per the maintainer's chosen sequence, BG-3 is fixed in the known-gaps pass before the single push, so the Goal is met in the shipped release rather than shipped with a recorded hole.
+This was recorded as **BG-3** and has since been FIXED in the known-gaps pass, before the single push, so the Goal is met in the shipped release rather than shipped with a recorded hole. `link-baseline diff` now accepts `--rename-map` (taking `git diff --name-status -M` output verbatim), projects the before-baseline into post-move coordinates, and drops `link` from the identity because a correct repair rewrites the link text. Directory renames are inferred from the file pairs and kept only when nearly every mapped file beneath a prefix agrees, which is what rejects the over-broad `docs -> docs/releases` rule a naive majority vote selected during this migration.
+
+Run against this release's own move, the shipped tool reports `{"after": 773, "before": 833, "newly_broken": 0, "fixed": 60, "unchanged": 773}` and exits 0, matching the external proof. Four tests cover it, parametrized over both the Python and PowerShell implementations, including one asserting the map does NOT launder a genuine break introduced during a move.
 
 ## Human/manual testing suggestions
 
