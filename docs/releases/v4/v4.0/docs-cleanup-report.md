@@ -42,7 +42,7 @@ The admission test classifies an unrecognized living subtree without adding its 
 
 | Path | Category | Disposition |
 |---|---|---|
-| `docs/decisions/proposed/tooling/2026-08-20-docs-tree-organised-by-lifespan.md` | Proposed cross-release decision record | Keep outside release-scoped documentation; the decision remains relevant after v4.0 closes. |
+| `docs/decisions/implemented/tooling/2026-08-20-docs-tree-organised-by-lifespan.md` | Cross-release decision record, promoted to implemented at the v4.0.0 release | Keep outside release-scoped documentation; the decision remains relevant after v4.0 closes. |
 | `catalog/skills/code-cleanup/docs-layout-refactor/scripts/audit-docs.py` | Canonicalization and inventory helper | Keep; it recognizes releases, v-bucket, flat, and versions layouts and emits the exact layout per record. |
 | `tests/skills/test_docs_lifespan_phase3.py` | Durable migration contract | Keep; it guards the decision, canonical paths, generated registry, and intentional-legacy labeling rule. |
 | `catalog/skills/*/*/evals/trigger-cases.json` for the 15 newly covered consumers | Generated routing fixture inputs | Keep with their owning skills; the whole-catalog runner consumes them directly. |
