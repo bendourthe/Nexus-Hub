@@ -366,7 +366,7 @@ Once the phase breakdown is fixed and before writing the file, score every phase
 - **Cite the roster.** Emit `**Model map status**: fresh as of YYYY-MM-DD; sources cited below.` and include at least one official URL per provider under `### Model map sources`.
 - **Degrade visibly, never silently.** If web search or official docs are unavailable, use the dated bundled snapshot and emit `**Model map status**: offline fallback; stale as of YYYY-MM-DD.`. If no verified snapshot exists, fill all 16 cells with `assess at implementation time` and emit `**Model map status**: unavailable; assess at implementation time.`. Plan generation never blocks, but staleness is explicit.
 
-Web search is the only added network activity and uses public documentation without a new credential or dependency. The exact document contract is defined in `docs/v3/v3.15/development/cross-provider-routing-contract.md`. `/implement` re-confirms the phase tier and effort against a refreshed map and the selected provider's live platform surface before implementation.
+Web search is the only added network activity and uses public documentation without a new credential or dependency. The exact document contract is defined in `docs/releases/v3/v3.15/development/cross-provider-routing-contract.md`. `/implement` re-confirms the phase tier and effort against a refreshed map and the selected provider's live platform surface before implementation.
 
 ### Step 3.6: Name Each Sub-task's Failure Modes and Build Class
 

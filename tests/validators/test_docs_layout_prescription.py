@@ -26,10 +26,6 @@ ALLOWED_LEGACY_LINES = {
         "    # into the legacy migration source docs/archive/v0/ during v2.1.0 post-Phase-10 maintenance",
     ),
     (
-        "catalog/hooks/tests/test_installer_smoke.py",
-        '    "docs/archive/v0/v0.9/opus-4-7-migration.md",  # Legacy migration-source path until Phase 6.',
-    ),
-    (
         "catalog/hooks/tests/test_old_version_docs_guard.py",
         '        "docs/archive/v0/v0.8/history.md",  # Legacy detection fixture.',
     ),
@@ -64,6 +60,14 @@ ALLOWED_LEGACY_LINES = {
     (
         "catalog/skills/code-cleanup/docs-layout-refactor/scripts/audit-docs.py",
         f"    - {BT}{BT}v-bucket{BT}{BT}: legacy {BT}{BT}docs/v<MAJOR>/v<MAJOR>.<MINOR>/{BT}{BT}.",
+    ),
+    (
+        "catalog/skills/code-cleanup/docs-layout-refactor/scripts/audit-docs.py",
+        '        help="Move legacy active version directories into docs/releases/ and the legacy docs/archive/ container to docs/archives/.",',
+    ),
+    (
+        "catalog/skills/code-cleanup/docs-layout-refactor/scripts/audit-docs.py",
+        "    migration-source container is the singular ``docs/archive/``. Bucketing below",
     ),
     (
         "catalog/skills/code-cleanup/docs-layout-refactor/scripts/audit-docs.py",

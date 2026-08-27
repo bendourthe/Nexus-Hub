@@ -64,7 +64,7 @@ jobs:
           fi
 
           changed_files="$(git diff --name-only "$base" "$head")"
-          if grep -Eq '^(catalog/skills/specialized-domains/document-to-interactive-html/|catalog/commands/presentify\.md$|tests/skills/|tests/fixtures/presentify/|docs/v3/v3\.12/development/fixtures/(gen_fixtures|verify_phase1|enrich_models|verify_design_seed)\.py$|docs/v3/v3\.13/development/fixtures/(verify_universal_ingestion|verify_imagery)\.py$|\.github/workflows/presentify-extractor\.yml$)' <<< "$changed_files"; then
+          if grep -Eq '^(catalog/skills/specialized-domains/document-to-interactive-html/|catalog/commands/presentify\.md$|tests/skills/|tests/fixtures/presentify/|docs/releases/v3/v3\.12/development/fixtures/(gen_fixtures|verify_phase1|enrich_models|verify_design_seed)\.py$|docs/releases/v3/v3\.13/development/fixtures/(verify_universal_ingestion|verify_imagery)\.py$|\.github/workflows/presentify-extractor\.yml$)' <<< "$changed_files"; then
             echo "presentify=true" >> "$GITHUB_OUTPUT"
           else
             echo "presentify=false" >> "$GITHUB_OUTPUT"
@@ -120,27 +120,27 @@ jobs:
 
       - name: Generate fixtures
         if: needs.detect.outputs.presentify == 'true'
-        run: python docs/v3/v3.12/development/fixtures/gen_fixtures.py
+        run: python docs/releases/v3/v3.12/development/fixtures/gen_fixtures.py
 
       - name: Run the extraction-fidelity suite (45 checks)
         if: needs.detect.outputs.presentify == 'true'
-        run: python docs/v3/v3.12/development/fixtures/verify_phase1.py
+        run: python docs/releases/v3/v3.12/development/fixtures/verify_phase1.py
 
       - name: Run the protocol round-trip
         if: needs.detect.outputs.presentify == 'true'
-        run: python docs/v3/v3.12/development/fixtures/enrich_models.py
+        run: python docs/releases/v3/v3.12/development/fixtures/enrich_models.py
 
       - name: Run the design-entropy suite (10 checks)
         if: needs.detect.outputs.presentify == 'true'
-        run: python docs/v3/v3.12/development/fixtures/verify_design_seed.py
+        run: python docs/releases/v3/v3.12/development/fixtures/verify_design_seed.py
 
       - name: Run the v3.13 universal-ingestion suite (28 checks)
         if: needs.detect.outputs.presentify == 'true'
-        run: python docs/v3/v3.13/development/fixtures/verify_universal_ingestion.py
+        run: python docs/releases/v3/v3.13/development/fixtures/verify_universal_ingestion.py
 
       - name: Run the v3.13 imagery Tier 2/3 suite (offline, no network / GPU)
         if: needs.detect.outputs.presentify == 'true'
-        run: python docs/v3/v3.13/development/fixtures/verify_imagery.py
+        run: python docs/releases/v3/v3.13/development/fixtures/verify_imagery.py
 
   render:
     # The TRUE rendered checks (v3.16.5 Phase 3, closes v3.15 known-gap MT-1,

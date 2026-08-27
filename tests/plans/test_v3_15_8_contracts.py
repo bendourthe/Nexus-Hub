@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
-VERSION_DIR = ROOT / "docs" / "v3" / "v3.15"
+VERSION_DIR = ROOT / "docs" / "releases" / "v3" / "v3.15"
 DEVELOPMENT_DIR = VERSION_DIR / "development"
 OWNERSHIP_PATH = DEVELOPMENT_DIR / "platform-capability-ownership.md"
 DATA_CONTRACT_PATH = DEVELOPMENT_DIR / "github-usage-data-contract.md"

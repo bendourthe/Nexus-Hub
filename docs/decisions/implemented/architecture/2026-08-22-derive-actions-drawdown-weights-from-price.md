@@ -59,5 +59,5 @@ Evidence for weighting existing at all: measured 2026-08-19 against a private re
 ## Related
 
 - [`docs/policy/github-actions-minute-consumption.md`](../../../policy/github-actions-minute-consumption.md)
-- [`docs/v3/v3.18/development/github-drawdown-ledger.md`](../../../v3/v3.18/development/github-drawdown-ledger.md)
-- [`docs/v3/v3.18/plans/v3.18.1-github-usage-monitor-accuracy.md`](../../../v3/v3.18/plans/v3.18.1-github-usage-monitor-accuracy.md)
+- [`docs/releases/v3/v3.18/development/github-drawdown-ledger.md`](../../../releases/v3/v3.18/development/github-drawdown-ledger.md)
+- [`docs/releases/v3/v3.18/plans/v3.18.1-github-usage-monitor-accuracy.md`](../../../releases/v3/v3.18/plans/v3.18.1-github-usage-monitor-accuracy.md)

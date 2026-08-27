@@ -111,3 +111,52 @@ def test_canonicalize_layout_introduces_no_new_broken_links(tmp_path):
 
     assert result.returncode == 0, result.stderr
     assert json.loads(result.stdout)["totals"]["newly_broken"] == 0
+
+
+def test_canonicalize_migrates_the_legacy_archive_container(tmp_path, capsys):
+    """The frozen tree renames singular docs/archive/ to plural docs/archives/.
+
+    The inner v<MAJOR>/v<MAJOR>.<MINOR>/ shape is identical on both sides, so
+    this is a container rename and every descendant must survive it.
+    """
+    docs = tmp_path / "docs"
+    legacy = docs / "archive"
+    (legacy / "v2/v2.1/plans").mkdir(parents=True)
+    (legacy / "v2/v2.1/plans/plan.md").write_text("# Plan\n", encoding="utf-8")
+    (legacy / "README.md").write_text("# Archive\n", encoding="utf-8")
+
+    assert audit.main(["canonicalize-layout", "--root", str(docs)]) == 0
+
+    assert not legacy.exists()
+    assert (docs / "archives/v2/v2.1/plans/plan.md").read_text(encoding="utf-8") == "# Plan\n"
+    assert (docs / "archives/README.md").is_file()
+    records = json.loads(capsys.readouterr().out)
+    assert {"source": "docs/archive", "destination": "docs/archives", "layout": "archive-container"} in records
+
+
+def test_canonicalize_refuses_when_both_archive_containers_exist(tmp_path, capsys):
+    """A pre-existing docs/archives/ is a collision, not a merge target."""
+    docs = tmp_path / "docs"
+    (docs / "archive/v2/v2.1").mkdir(parents=True)
+    (docs / "archive/v2/v2.1/note.md").write_text("# Legacy\n", encoding="utf-8")
+    (docs / "archives/v2/v2.1").mkdir(parents=True)
+    (docs / "archives/v2/v2.1/note.md").write_text("# Canonical\n", encoding="utf-8")
+
+    assert audit.main(["canonicalize-layout", "--root", str(docs)]) == 2
+
+    # Neither side is touched when the command refuses.
+    assert (docs / "archive/v2/v2.1/note.md").read_text(encoding="utf-8") == "# Legacy\n"
+    assert (docs / "archives/v2/v2.1/note.md").read_text(encoding="utf-8") == "# Canonical\n"
+    assert "destination exists" in capsys.readouterr().err
+
+
+def test_canonicalize_leaves_an_already_canonical_archive_tree_alone(tmp_path, capsys):
+    """Re-running against a migrated tree is a no-op, so the command is idempotent."""
+    docs = tmp_path / "docs"
+    (docs / "archives/v2/v2.1").mkdir(parents=True)
+    (docs / "archives/v2/v2.1/note.md").write_text("# Canonical\n", encoding="utf-8")
+
+    assert audit.main(["canonicalize-layout", "--root", str(docs)]) == 0
+
+    assert (docs / "archives/v2/v2.1/note.md").read_text(encoding="utf-8") == "# Canonical\n"
+    assert json.loads(capsys.readouterr().out) == []

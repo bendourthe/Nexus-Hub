@@ -21,7 +21,7 @@ WORKFLOW_DIR = REPO_ROOT / ".github" / "workflows"
 WORKFLOW = WORKFLOW_DIR / "cursor-usage-monitor.yml"
 EXTENSION_DIR = "extensions/cursor-usage-monitor"
 LIVE_SMOKE = (
-    REPO_ROOT / "docs" / "v3" / "v3.15" / "development" / "cursor-usage-live-smoke.md"
+    REPO_ROOT / "docs" / "releases" / "v3" / "v3.15" / "development" / "cursor-usage-live-smoke.md"
 )
 
 SIBLING_MONITOR_WORKFLOWS = (
@@ -168,7 +168,7 @@ def test_e2e_job_degrades_when_cursor_cli_is_absent(workflow: dict[str, Any]) ->
 
 def test_live_smoke_checklist_exists_for_ci_degrade() -> None:
     assert LIVE_SMOKE.is_file(), (
-        "CI E2E skip-with-note requires docs/v3/v3.15/development/cursor-usage-live-smoke.md"
+        "CI E2E skip-with-note requires docs/releases/v3/v3.15/development/cursor-usage-live-smoke.md"
     )
     text = LIVE_SMOKE.read_text(encoding="utf-8")
     assert "Cursor Models" in text

@@ -7,7 +7,7 @@
     the human. Claude Code's `Notification` event fires when the agent needs
     permission to use a tool, and when it has been idle waiting for input.
 
-    Contract: docs/v3/v3.15/development/end-of-task-notification-contract.md
+    Contract: docs/releases/v3/v3.15/development/end-of-task-notification-contract.md
 
     This is the notification that was missing before v3.15.10, and the one most
     worth having: it fires when the agent is sitting blocked on a permission

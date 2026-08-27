@@ -293,7 +293,7 @@ class CopilotIntegration(MarkdownIntegration):
         seeds that bundle, and ``all`` seeds the full catalog (heavy). It seeds thin
         WRAPPER files (Copilot-safe ``name`` + ``description`` frontmatter plus a
         pointer to the installed ``~/.nexus-hub/`` content), ASCII-sanitized, never
-        overwriting an existing file. See docs/v3/v3.11/development/copilot-skills-design.md.
+        overwriting an existing file. See docs/releases/v3/v3.11/development/copilot-skills-design.md.
         """
         result = WriteResult()
         if not _copilot_skills_enabled(os.environ.get(_COPILOT_SKILLS_ENV)):

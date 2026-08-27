@@ -56,7 +56,7 @@ The native path is why broad patterns such as `Bash(find *)`, `Bash(echo *)`, an
 
 - [Platform read-contract log](policy/platform-read-contracts.md)
 
-- [Phase 1 matcher findings](v3/v3.17/development/permission-matcher-findings.md)
+- [Phase 1 matcher findings](releases/v3/v3.17/development/permission-matcher-findings.md)
 
 - [Claude Code permissions](https://code.claude.com/docs/en/permissions)
 

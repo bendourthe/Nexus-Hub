@@ -6928,7 +6928,7 @@
         "local-only"
       ],
       "priority": "MEDIUM",
-      "based_on": "docs/v3/v3.2/comparisons/v3.2.0-comparison-loop-engineering.md and docs/v3/v3.3/plans/adoption-loop-engineering.md",
+      "based_on": "docs/releases/v3/v3.2/comparisons/v3.2.0-comparison-loop-engineering.md and docs/releases/v3/v3.3/plans/adoption-loop-engineering.md",
       "tools_required": [
         "Read",
         "Write",
@@ -9343,7 +9343,7 @@
         "local-only"
       ],
       "priority": "MEDIUM",
-      "based_on": "net-new skill composing the session-query extractor and the dev-progress-tracker checklist pattern with a Socratic teach-back loop (see docs/v3/v3.2/comparisons/v3.2.0-comparison-teach.md)",
+      "based_on": "net-new skill composing the session-query extractor and the dev-progress-tracker checklist pattern with a Socratic teach-back loop (see docs/releases/v3/v3.2/comparisons/v3.2.0-comparison-teach.md)",
       "tools_required": [
         "Bash",
         "Read",
@@ -9385,7 +9385,7 @@
         "local-only"
       ],
       "priority": "MEDIUM",
-      "based_on": "docs/v3/v3.4/comparisons/v3.4.0-comparison-nessie-and-agency-agents.md and docs/v3/v3.4/plans/adoption-nessie-and-agency-agents.md",
+      "based_on": "docs/releases/v3/v3.4/comparisons/v3.4.0-comparison-nessie-and-agency-agents.md and docs/releases/v3/v3.4/plans/adoption-nessie-and-agency-agents.md",
       "tools_required": [
         "Read",
         "Write",
@@ -9614,7 +9614,7 @@
         "mitre-attack"
       ],
       "priority": "HIGH",
-      "based_on": "generalized from public OS-sandbox, ephemeral-container, credential-broker, and egress-boundary patterns plus the MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/v3/v3.20/plans/v3.20.0-adoption-agent-security-layers.md Phase 1)",
+      "based_on": "generalized from public OS-sandbox, ephemeral-container, credential-broker, and egress-boundary patterns plus the MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/releases/v3/v3.20/plans/v3.20.0-adoption-agent-security-layers.md Phase 1)",
       "tools_required": [],
       "path": "catalog/skills/security-operations/agent-execution-isolation/",
       "file": "catalog/skills/security-operations/agent-execution-isolation/SKILL.md",
@@ -9653,7 +9653,7 @@
         "mitre-attack"
       ],
       "priority": "HIGH",
-      "based_on": "reverse-engineered from public security advisories plus the MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/v3/v3.15/plans/v3.15.6-adoption-sandbox-escapes.md Phase 1)",
+      "based_on": "reverse-engineered from public security advisories plus the MITRE ATT&CK / D3FEND and NIST CSF frameworks (see docs/releases/v3/v3.15/plans/v3.15.6-adoption-sandbox-escapes.md Phase 1)",
       "tools_required": [],
       "path": "catalog/skills/security-operations/agentic-endpoint-hardening/",
       "file": "catalog/skills/security-operations/agentic-endpoint-hardening/SKILL.md",

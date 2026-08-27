@@ -1,6 +1,6 @@
 """Turn a run into the report artifacts the lifecycle contract requires.
 
-Section 6 of `docs/v4/v4.0/development/ci-cd-lifecycle-contract.md`: a concise
+Section 6 of `docs/releases/v4/v4.0/development/ci-cd-lifecycle-contract.md`: a concise
 human summary plus machine-readable evidence, produced by the SAME local
 execution a developer can reproduce, deterministic, ASCII-safe, and free of
 credentials.

@@ -235,6 +235,21 @@ def _canonical_destination(docs_root: Path, source: Path, layout: str) -> Option
     return docs_root / "releases" / major / minor
 
 
+def _legacy_archive_container(docs_root: Path) -> Optional[tuple[Path, Path, str]]:
+    """Return the singular-to-plural archive container rename, or None.
+
+    The frozen tree is prescribed as ``docs/archives/``; the legacy pre-rename
+    migration-source container is the singular ``docs/archive/``. Bucketing below
+    the container is identical on both sides, so this is a container rename
+    rather than a per-version migration. Returns None when that legacy container
+    is absent or the canonical one already exists.
+    """
+    legacy = docs_root / "archive"
+    if not legacy.is_dir():
+        return None
+    return legacy, docs_root / "archives", "archive-container"
+
+
 def _legacy_version_directories(docs_root: Path) -> list[tuple[Path, Path, str]]:
     migrations: list[tuple[Path, Path, str]] = []
     for major in sorted(docs_root.glob("v[0-9]*")):
@@ -543,6 +558,9 @@ def cmd_canonicalize_layout(args: argparse.Namespace) -> int:
         print(f"Error: docs root not found at {docs_root}", file=sys.stderr)
         return 2
     migrations = _legacy_version_directories(docs_root)
+    archive_migration = _legacy_archive_container(docs_root)
+    if archive_migration:
+        migrations.append(archive_migration)
     collisions = [str(destination) for _, destination, _ in migrations if destination.exists()]
     if collisions:
         print(json.dumps({"error": "destination exists", "paths": collisions}, indent=2), file=sys.stderr)
@@ -598,7 +616,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     canonicalize = sub.add_parser(
         "canonicalize-layout",
-        help="Move legacy active version directories into docs/releases/.",
+        help="Move legacy active version directories into docs/releases/ and the legacy docs/archive/ container to docs/archives/.",
     )
     canonicalize.add_argument("--root", default="./docs", help="Path to the docs root.")
     canonicalize.set_defaults(func=cmd_canonicalize_layout)

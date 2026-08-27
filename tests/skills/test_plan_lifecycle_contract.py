@@ -66,7 +66,7 @@ def test_skill_requires_the_strict_task_line_grammar(plan_skill: str):
 
 def test_this_plans_own_task_lines_parse(plan_skill: str):
     """A round-trip check against a real plan, not a synthetic fixture."""
-    plan = _ROOT / "docs" / "v4" / "v4.0" / "plans" / "v4.0.0-cost-effective-ci-cd.md"
+    plan = _ROOT / "docs" / "releases" / "v4" / "v4.0" / "plans" / "v4.0.0-cost-effective-ci-cd.md"
     lines = [
         ln
         for ln in plan.read_text(encoding="utf-8").splitlines()

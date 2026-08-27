@@ -15,7 +15,7 @@ name: Post-merge
 # ONLY because branch protection on `main` and `develop` rejects direct pushes.
 # That protection is an external repository setting, is verified by hand, and is
 # never mutated from here. See
-# docs/v4/v4.0/development/github-ci-settings-runbook.md.
+# docs/releases/v4/v4.0/development/github-ci-settings-runbook.md.
 #
 # Triggers are unfiltered by branch beyond main/develop and carry no `paths:`
 # filter, for the same reason as ci.yml: this workflow publishes no required
