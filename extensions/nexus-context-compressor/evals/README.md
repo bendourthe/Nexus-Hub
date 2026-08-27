@@ -37,7 +37,7 @@ python -m evals --check         # gate mode: exit non-zero on any regression
 Repo-level shortcuts (from the repo root):
 
 ```bash
-make compress-eval              # write a report to docs/v3/v3.2/ and run the gate
+make compress-eval              # write a report to docs/releases/v3/v3.2/ and run the gate
 make validate                   # runs the gate alongside the other catalog gates
 ```
 

@@ -1,8 +1,8 @@
 ---
 name: documentation-consistency
-description: Verify documentation is up-to-date and consistent across all files. Check for broken links, outdated references, deprecated content, and mismatched information. Use when auditing documentation, checking for stale content, verifying links, or ensuring docs match current codebase state.
-summary_l0: "Verify documentation consistency with link checking, staleness detection, and sync audits"
-overview_l1: "This skill verifies documentation is up-to-date and consistent across all files, checking for broken links, outdated references, deprecated content, and mismatched information. Use it when auditing documentation, checking for stale content, verifying links, or ensuring docs match current codebase state. Key capabilities include broken link detection (internal and external), outdated reference identification, deprecated content flagging, cross-file information consistency checking, code-to-documentation synchronization verification, version number consistency checking, and documentation freshness scoring. The expected output is a documentation consistency report with broken links, outdated references, mismatches, and recommended fixes. Trigger phrases: documentation audit, broken links, stale docs, outdated documentation, doc consistency, verify documentation, documentation sync, docs match code."
+description: Verify documentation is up-to-date and consistent across all files. Check for broken links, outdated references, deprecated content, and mismatched information. Use when auditing documentation, checking for stale content, verifying links, ensuring docs match current codebase state, running a link audit, detecting cross-file mismatches, or reviewing deprecated documentation. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.
+summary_l0: "Verify documentation links, lifespan placement, staleness, and cross-file consistency"
+overview_l1: "This skill verifies documentation is up-to-date and consistent across all files, checking for broken links, outdated references, deprecated content, and mismatched information. Use it when auditing documentation, checking for stale content, verifying links, or ensuring docs match current codebase state. Key capabilities include broken link detection (internal and external), outdated reference identification, deprecated content flagging, cross-file information consistency checking, code-to-documentation synchronization verification, version number consistency checking, and documentation freshness scoring. The expected output is a documentation consistency report with broken links, outdated references, mismatches, and recommended fixes. Trigger phrases: documentation audit, broken links, stale docs, outdated documentation, doc consistency, verify documentation, documentation sync, docs match code. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/."
 ---
 
 # Documentation Consistency Check
@@ -174,30 +174,30 @@ grep -rE "TBD|TBA|Coming soon|TODO" --include="*.md" .
 
 ### Step 7.5: Comparison / Adoption-Plan Co-location
 
-A `/compare` report and the `/plan from-comparison` plan it seeds must live in the SAME version directory (`docs/v<MAJOR>/v<MAJOR>.<MINOR>/`). A comparison is versioned and placed by its `Adoption target: vX.Y.Z` header field (`cross-project-comparison` Step 6.5), and `/plan from-comparison` co-locates the generated plan in that same tree (`implementation-plan` From-comparison mode). This check flags any drift between the two so the misplacement class cannot silently recur.
+A `/compare` report and the `/plan from-comparison` plan it seeds must live in the SAME version directory (`docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/`). A comparison is versioned and placed by its `Adoption target: vX.Y.Z` header field (`cross-project-comparison` Step 6.5), and `/plan from-comparison` co-locates the generated plan in that same tree (`implementation-plan` From-comparison mode). This check flags any drift between the two so the misplacement class cannot silently recur.
 
 Two directions catch all drift without false positives:
 
 - **plan -> comparison** (authoritative): for each plan carrying a `**Seeded from**:` line, the referenced comparison must live in the plan's own version directory.
 - **comparison -> adoption target**: for each comparison carrying an `Adoption target: vX.Y.Z`, the comparison must sit under that target's version directory. A comparison with no `Adoption target:` field is a legacy report (noted, not failed - give it the field so it can be enforced).
 
-**Grandfathering**: only the CURRENT major's active version directories are enforced. `docs/archive/**` and prior-major trees (`docs/v1/**`, `docs/v2/**`, ...) are intentionally excluded, mirroring the `[[docs-layout-refactor]]` grandfathering norm - the check achieves this simply by scoping its search to `docs/v<CURRENT_MAJOR>/`.
+**Grandfathering**: only the CURRENT major's active version directories are enforced. `docs/archives/**` and prior-major trees (`docs/v1/**`, `docs/v2/**`, ...) are intentionally excluded, mirroring the `[[docs-layout-refactor]]` grandfathering norm - the check achieves this simply by scoping its search to `docs/releases/v<CURRENT_MAJOR>/`.
 
 ```bash
 # Comparison / adoption-plan co-location check (assumes the canonical
-# docs/v<MAJOR>/v<MAJOR>.<MINOR>/ layout; legacy flat layouts are grandfathered).
+# docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/ layout; legacy flat layouts are grandfathered).
 
 # Current major = highest docs/v<N> directory.
 CURRENT_MAJOR=$(ls -d docs/v[0-9]* 2>/dev/null | sed -E 's|docs/v([0-9]+).*|\1|' | sort -n | tail -1)
-echo "Enforcing co-location under docs/v${CURRENT_MAJOR}/ (docs/archive/** and prior majors grandfathered)"
+echo "Enforcing co-location under docs/releases/v${CURRENT_MAJOR}/ (docs/archives/** and prior majors grandfathered)"
 
-# version_dir of a path: docs/v3/v3.15/comparisons/x.md -> docs/v3/v3.15
+# version_dir of a path: docs/releases/v3/v3.15/comparisons/x.md -> docs/releases/v3/v3.15
 verdir() { echo "$1" | sed -E 's|(docs/v[0-9]+/v[0-9]+\.[0-9]+)/.*|\1|'; }
 
 mismatches=0
 
 # Direction 1: plan -> comparison (anchored on the plan's `**Seeded from**:` line).
-find "docs/v${CURRENT_MAJOR}" -type f -path "*/plans/*.md" 2>/dev/null | while read -r plan; do
+find "docs/releases/v${CURRENT_MAJOR}" -type f -path "*/plans/*.md" 2>/dev/null | while read -r plan; do
   seeded=$(grep -E '\*\*Seeded from\*\*:' "$plan" | grep -oE 'docs/v[0-9]+/[^`) ]+\.md' | head -1)
   [ -z "$seeded" ] && continue
   pdir=$(verdir "$plan"); cdir=$(verdir "$seeded")
@@ -208,7 +208,7 @@ find "docs/v${CURRENT_MAJOR}" -type f -path "*/plans/*.md" 2>/dev/null | while r
 done
 
 # Direction 2: comparison -> its declared adoption target.
-find "docs/v${CURRENT_MAJOR}" -type f -path "*/comparisons/*.md" 2>/dev/null | while read -r cmp; do
+find "docs/releases/v${CURRENT_MAJOR}" -type f -path "*/comparisons/*.md" 2>/dev/null | while read -r cmp; do
   tgt=$(grep -iE 'Adoption target' "$cmp" | grep -oE 'v[0-9]+\.[0-9]+\.[0-9]+' | head -1)
   if [ -z "$tgt" ]; then
     echo "NOTE (legacy): $cmp has no 'Adoption target:' field - give it one so co-location can be enforced"
@@ -227,6 +227,10 @@ echo "Co-location check complete (MISMATCH lines above, if any, must be reconcil
 ```
 
 Report every `MISMATCH` line in the consistency report with both paths and the expected location, and reconcile it by moving the misplaced file and repairing references via `[[docs-layout-refactor]]` (propose-then-apply, with confirmation). Treat each `NOTE (legacy)` as a low-priority recommendation, not a failure.
+
+### Step 7.6: Lifespan Contradictions
+
+Run the standalone frozen-bucket edit-history check defined once in [`docs-layout-refactor`'s link-integrity reference](../../code-cleanup/docs-layout-refactor/references/link-integrity.md). Invoke `audit-docs.py lifespan-contradictions --root ./docs --repo-root .`, copy every returned record into a `## Lifespan contradictions` report section, and fail the audit when the command exits 1 or 2. Findings require human intent review; this skill never moves the file automatically.
 
 ### Step 8: Generate Consistency Report
 
@@ -391,7 +395,8 @@ Before completing documentation audit:
 - [ ] TODOs addressed or documented for follow-up
 - [ ] Deprecated content removed or marked
 - [ ] Documentation structure matches codebase
-- [ ] Every comparison and the adoption plan it seeds live in the same version dir (Step 7.5); mismatches for the current major reconciled, `docs/archive/**` and prior-major trees grandfathered
+- [ ] Every comparison and the adoption plan it seeds live in the same version dir (Step 7.5); mismatches for the current major reconciled, `docs/archives/**` and prior-major trees grandfathered
+- [ ] Frozen-bucket edit history checked through the shared lifespan-contradiction rule; every finding reports both dates and no file moved automatically
 - [ ] Dates updated where applicable
 - [ ] Consistency report generated
 
@@ -411,7 +416,7 @@ Before completing documentation audit:
 
 ---
 
-**Version**: 1.1.0
+**Version**: 1.2.0
 **Last Updated**: July 2026
 
 

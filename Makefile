@@ -110,8 +110,8 @@ trigger-evals: ## Detect skill-description trigger-vocabulary near-collisions (w
 
 compress-eval: ## Run the context-compressor accuracy-regression harness + gate
 	@echo "Running context-compressor accuracy-regression harness..."
-	@cd extensions/nexus-context-compressor && python -m evals --check --out ../../docs/v3/v3.2/compression-eval-baseline.md
-	@echo "Compress-eval complete. Report: docs/v3/v3.2/compression-eval-baseline.md"
+	@cd extensions/nexus-context-compressor && python -m evals --check --out ../../docs/releases/v3/v3.2/compression-eval-baseline.md
+	@echo "Compress-eval complete. Report: docs/releases/v3/v3.2/compression-eval-baseline.md"
 
 benchmark: ## Benchmark internal MCP servers
 	@echo "Benchmarking internal MCPs..."

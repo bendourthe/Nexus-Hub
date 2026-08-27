@@ -177,7 +177,7 @@ def scan_workflow(path: Path) -> list[tuple[int, str]]:
 #
 # The checks above are supply-chain and privilege rules; these are COST and
 # EVENT-SEPARATION rules from
-# docs/v4/v4.0/development/ci-cd-lifecycle-contract.md section 4. They are
+# docs/releases/v4/v4.0/development/ci-cd-lifecycle-contract.md section 4. They are
 # deliberately written against workflow SHAPE rather than against Nexus-Hub job
 # names, so they stay meaningful in a fork or a downstream repository that
 # adopts the same contract with different jobs.

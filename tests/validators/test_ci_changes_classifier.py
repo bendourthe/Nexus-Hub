@@ -161,6 +161,25 @@ BASE = ["README.md", "scripts/thing.py", "docs/v3/v3.17/plans/plan.md"]
         ("incidents", ["docs/incidents/note.md"], "true"),
         ("decisions", ["docs/decisions/implemented/tooling/d.md"], "true"),
         ("development contract", ["docs/v3/v3.17/development/contract.md"], "true"),
+        # v4.0.0 canonical tree: one level deeper than the legacy v-bucket. The
+        # contract branch matched three segments before development/, so after
+        # the rename a contract-doc change fell through to "ignorable prose" and
+        # skipped CI entirely. Both shapes are asserted so neither can regress.
+        (
+            "development contract, canonical tree",
+            ["docs/releases/v3/v3.17/development/contract.md"],
+            "true",
+        ),
+        (
+            "plan doc, canonical tree",
+            ["docs/releases/v3/v3.17/plans/plan.md"],
+            "false",
+        ),
+        (
+            "session history, canonical tree",
+            ["docs/releases/v3/v3.17/development/history/s.md"],
+            "false",
+        ),
         # Anything outside docs/.
         ("code", ["scripts/thing.py"], "true"),
         ("workflow", [".github/workflows/ci.yml"], "true"),

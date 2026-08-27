@@ -19,7 +19,7 @@ git log --oneline -5
 
 Then identify which documentation may be affected:
 - `README.md` -- if public interface, installation, or usage changed
-- `docs/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/` -- always; this is where the session narrative goes
+- `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/` -- always; this is where the session narrative goes
 - `docs/DEVLOG.md` -- only when a release is being cut; it is a per-release index, not a session log
 - `catalog/context/architecture.md` -- if module structure or data flow changed
 - `catalog/memory/decisions.md` -- if a significant decision was made
@@ -38,7 +38,7 @@ Only update sections that reflect the actual change:
 
 ### Session narrative
 
-The session's story goes in the per-version history file at `docs/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/<YYYY-MM-DD>_<slug>.md`, following this format:
+The session's story goes in the per-version history file at `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/development/history/<YYYY-MM-DD>_<slug>.md`, following this format:
 
 ```markdown
 # Session History -- Title

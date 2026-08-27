@@ -27,7 +27,7 @@ from __future__ import annotations
 __all__ = ["PROFILE_NAMES"]
 
 #: The canonical profile roster. Defined in
-#: `docs/v4/v4.0/development/ci-cd-lifecycle-contract.md` section 3 and owned by
+#: `docs/releases/v4/v4.0/development/ci-cd-lifecycle-contract.md` section 3 and owned by
 #: the `cicd-architect` skill. Do not rename; do not add a sixth without
 #: recording the decision.
 PROFILE_NAMES = ("fast", "full", "platform", "report", "release")

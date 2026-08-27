@@ -1,0 +1,8 @@
+{
+  "skill": "implementation-plan",
+  "purpose": "Route phased-plan generation into the canonical release documentation tree.",
+  "cases": [
+    {"id": "pos-plan", "prompt": "generate an implementation plan v0.1.0 build plan project roadmap enhancement plan and phased development plan", "should_trigger": true, "assert": "routes to implementation-plan first", "lexical": true},
+    {"id": "neg-weather", "prompt": "show the weather forecast for tomorrow", "should_trigger": false, "assert": "does not route to implementation-plan", "lexical": true}
+  ]
+}

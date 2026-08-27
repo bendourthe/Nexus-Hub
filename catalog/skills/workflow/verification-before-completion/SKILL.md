@@ -54,6 +54,7 @@ Every completion claim maps to a specific proving artifact. Never make the claim
 | Type check passes | the type checker (e.g. `mypy`, `tsc --noEmit`) | Zero type errors and a zero exit code. |
 | Bug fixed | the failing reproduction (a regression test, or the exact steps that triggered the bug) | The reproduction now produces the correct result, AND a test that fails without the fix passes with it. A fix with no reproduction is unconfirmed. |
 | Requirements met | the acceptance check named in the spec or plan (a test, a script, a manual procedure with observed output) | Each acceptance criterion has a corresponding observed pass. Map criteria to evidence one-to-one. |
+| References repaired | `link-baseline.py diff --before <baseline> --after <current>` | Zero `newly_broken` and a zero exit code; a completed search-and-replace is not evidence that links resolve. |
 | Feature works end to end | running the actual flow (start the app, hit the endpoint, drive the UI) | Observed correct behavior in the running system, not just green unit tests. Unit tests prove units; they do not prove integration. |
 | File / change is in place | reading the file back, or `git diff` / `git status` | The change is visible in the current file content, not just in your memory of having written it. |
 | Loop exit condition met | the loop's `check_command` (e.g. `npm test`, `gh pr checks`, `make validate`) | The `check_command` exits 0 and its output satisfies the loop's `exit_condition`, confirmed by a checker that did not produce the iteration -- not the maker's sense that the loop has converged. |
@@ -92,6 +93,7 @@ The rule: **run the narrowest set of checks that covers the outgoing diff.** Nar
 | Hook script edit | That hook's pytest module plus the sibling-parity test, in both implementations. |
 | Validator or guard script | Its own test module, run in both directions: prove it passes clean input AND fails the defect it exists to catch. |
 | Docs-only edit | Link and style checks, plus any validator that reads the doc as input rather than as prose. |
+| Docs-tree move | Set equality of the pre-move inventory against destinations, plus a link-set diff proving zero `newly_broken`. |
 | New file in a registered tree | Whatever test asserts registration completeness for that tree. This is the surface most often missed, because the file works fine and only its discoverability is broken. |
 | A catalog-wide count or total changes | Every test that asserts that number, including ones in unrelated suites. A count is a global invariant, so a test about one item may still freeze it; grep the old value across the whole test tree rather than reasoning about which suite "should" own it. |
 | Installer or packaging edit | The installer smoke tests on every platform the change touches. |
@@ -120,6 +122,7 @@ A report can look rigorous while claiming work its evidence does not support. Se
 | Completeness-unknown enumeration sold as complete | Compare the claimed denominator with affirmative pagination, limit, and truncation metadata proving the result set is complete; fail closed when completeness metadata is absent because absence of a truncation flag proves nothing. |
 | Dropped pending work | Diff the candidate, UNCOVERED, and awaiting-validation sets against terminal dispositions and explicit report caveats; any unmatched item is pending work omitted from the completion claim. |
 | Escalation avoidance | Compare each finding's observability boundary with its disposition and severity; a finding whose deciding layer is unobserved but is marked rejected or Low instead of `needs-live-validation` fails the comparison. |
+| Repair claimed from substitution rather than resolution | Compare the repair report with the post-move resolution receipt; a replacement count with no `link-baseline.py diff` result cannot support a references-repaired claim. |
 
 Record the result of each applicable comparison. A clean visual layout, detailed prose, or a long tool list is never a substitute for an empty mismatch set.
 

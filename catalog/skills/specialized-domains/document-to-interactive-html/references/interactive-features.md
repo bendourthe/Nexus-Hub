@@ -542,12 +542,12 @@ The same pipeline serves three intents; the mode is auto-detected from the input
 
 ## Two authoring rules from maintainer review (v3.16.5 errata E9)
 
-**Key-value cells render as bullet lists, never comma-run sentences.** A cell describing what a step reads, writes, and outputs is a LIST of facts, and a reader scans it to find one of them. Written as a comma-run sentence it has to be read start to finish to answer any question about it. Give each key its own bullet, and give every one a CONCRETE example value rather than a category name - `docs/v3/v3.16/plans/v3.16.5-presentify-visual-overhaul.md` teaches what "a plan file path" does not.
+**Key-value cells render as bullet lists, never comma-run sentences.** A cell describing what a step reads, writes, and outputs is a LIST of facts, and a reader scans it to find one of them. Written as a comma-run sentence it has to be read start to finish to answer any question about it. Give each key its own bullet, and give every one a CONCRETE example value rather than a category name - `docs/releases/v3/v3.16/plans/v3.16.5-presentify-visual-overhaul.md` teaches what "a plan file path" does not.
 
 ```html
 <!-- CORRECT - scannable, with real values -->
 <ul>
-  <li><b>Reads</b> <code>docs/v3/v3.16/plans/v3.16.5-presentify-visual-overhaul.md</code></li>
+  <li><b>Reads</b> <code>docs/releases/v3/v3.16/plans/v3.16.5-presentify-visual-overhaul.md</code></li>
   <li><b>Writes</b> <code>tests/skills/test_presentify_visual_qa.py</code></li>
   <li><b>Outputs</b> coverage 93% against an 80% threshold</li>
 </ul>

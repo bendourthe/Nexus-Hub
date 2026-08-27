@@ -1,0 +1,8 @@
+{
+  "skill": "session-history",
+  "purpose": "Route standalone session histories into release-scoped evidence trees.",
+  "cases": [
+    {"id": "pos-history", "prompt": "write a standalone session history with chronological steps troubleshooting assumptions testing decisions next steps and handoff context", "should_trigger": true, "assert": "routes to session-history first", "lexical": true},
+    {"id": "neg-weather", "prompt": "show the weather forecast for tomorrow", "should_trigger": false, "assert": "does not route to session-history", "lexical": true}
+  ]
+}

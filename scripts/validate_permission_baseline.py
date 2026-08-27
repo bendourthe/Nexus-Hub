@@ -12,7 +12,7 @@ entries that looked read-only *by command name*: ``Bash(gh api *)`` admits
 admits ``-D``, and ``Bash(xcrun *)`` executes an arbitrary named tool. Classifying
 by name is what let them through, so the checks below classify by *invocation
 shape* instead. This is the ``I6`` invariant recorded in
-``docs/v3/v3.15/comparisons/v3.15.6-comparison-sandbox-escapes.md``.
+``docs/releases/v3/v3.15/comparisons/v3.15.6-comparison-sandbox-escapes.md``.
 
 Detected shapes:
 
@@ -33,7 +33,7 @@ Detected shapes:
    "read-only" cannot drift apart.
 
 Matcher semantics this validator relies on are recorded, with sources, in
-``docs/v3/v3.17/development/permission-matcher-findings.md``.
+``docs/releases/v3/v3.17/development/permission-matcher-findings.md``.
 
 Usage::
 
@@ -531,7 +531,7 @@ def main(argv: list[str] | None = None) -> int:
         for violation in all_violations:
             print(f"  {violation}", file=sys.stderr)
         print(
-            "\nSee docs/v3/v3.17/development/permission-matcher-findings.md for the "
+            "\nSee docs/releases/v3/v3.17/development/permission-matcher-findings.md for the "
             "matcher semantics behind these rules.",
             file=sys.stderr,
         )

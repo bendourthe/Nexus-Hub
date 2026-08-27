@@ -28,7 +28,7 @@ Return ONLY a JSON array of findings (fields per [`catalog/skills/code-review/co
   {
     "title": "No success metric for the new onboarding flow",
     "severity": "P1",
-    "file": "docs/v1.2.0/plans/onboarding.md",
+    "file": "docs/releases/v1/v1.2/plans/v1.2.0-onboarding.md",
     "line": 22,
     "confidence": 75,
     "persona": "product-lens",

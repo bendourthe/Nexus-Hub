@@ -1,7 +1,7 @@
 """Contract tests for the canonical CI/CD lifecycle (v4.0.0 Phase 1).
 
 These assertions encode section 13 of
-`docs/v4/v4.0/development/ci-cd-lifecycle-contract.md`. They are written
+`docs/releases/v4/v4.0/development/ci-cd-lifecycle-contract.md`. They are written
 FAILING-FIRST on purpose: Phase 1 delivers the contract and these tests, and
 Phases 2 through 7 turn each remaining assertion green.
 
@@ -26,7 +26,7 @@ from pathlib import Path
 import pytest
 
 _ROOT = Path(__file__).resolve().parents[2]
-_DEV = _ROOT / "docs" / "v4" / "v4.0" / "development"
+_DEV = _ROOT / "docs" / "releases" / "v4" / "v4.0" / "development"
 
 CONTRACT = _DEV / "ci-cd-lifecycle-contract.md"
 HARNESS_AUDIT = _DEV / "ci-cd-harness-audit.md"

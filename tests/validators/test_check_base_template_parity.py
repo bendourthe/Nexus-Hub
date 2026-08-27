@@ -114,6 +114,22 @@ def test_communication_contract_divergence_fails(tmp_path: Path, runner) -> None
     assert "Communication Contract" in result.stderr
 
 
+def test_documentation_layout_divergence_fails(tmp_path: Path, runner) -> None:
+    # The Documentation Layout body is an invariant block. A one-word change
+    # in one template must fail and name both the file and section.
+    seed_lockstep_tree(tmp_path)
+    mutate(
+        tmp_path,
+        "base-gemini.md",
+        "Use lifespan as the single placement axis for project documentation.",
+        "Use topic as the single placement axis for project documentation.",
+    )
+    result = runner(SCRIPT, tmp_path)
+    assert result.returncode == 1
+    assert "base-gemini.md" in result.stderr
+    assert "Documentation Layout" in result.stderr
+
+
 def test_missing_communication_contract_heading_fails(tmp_path: Path, runner) -> None:
     # The heading is also in REQUIRED_HEADINGS, so dropping the section
     # entirely from one template is a distinct, separately-reported failure.

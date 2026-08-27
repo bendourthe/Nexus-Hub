@@ -15,7 +15,7 @@ on:
   # removed. Under a pull-request-only merge policy that push IS the merge commit
   # of the pull request that just ran, so the tree is identical and the second run
   # cannot discover anything the first did not. See
-  # docs/v4/v4.0/development/ci-cd-lifecycle-contract.md section 4.
+  # docs/releases/v4/v4.0/development/ci-cd-lifecycle-contract.md section 4.
   pull_request:
     branches: [main, develop]
     paths:
@@ -100,7 +100,7 @@ jobs:
           echo "Packaged VSIX: ${VSIX}"
           if ! command -v cursor >/dev/null 2>&1; then
             echo "::notice::Cursor CLI not available on this runner; skipping profile install E2E."
-            echo "Required local verification: docs/v3/v3.15/development/cursor-usage-live-smoke.md"
+            echo "Required local verification: docs/releases/v3/v3.15/development/cursor-usage-live-smoke.md"
             exit 0
           fi
           PROFILE_DIR="${RUNNER_TEMP}/cursor-nexus-e2e-profile"

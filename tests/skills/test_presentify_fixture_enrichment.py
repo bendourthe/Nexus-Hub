@@ -10,7 +10,7 @@ import pytest
 
 _ROOT = Path(__file__).resolve().parents[2]
 _ENRICH_PATH = (
-    _ROOT / "docs" / "v3" / "v3.12" / "development" / "fixtures" / "enrich_models.py"
+    _ROOT / "docs" / "releases" / "v3" / "v3.12" / "development" / "fixtures" / "enrich_models.py"
 )
 
 

@@ -1,6 +1,6 @@
-"""Aggregate coverage for the v4.0.0 Communication Contract template rollout.
+"""Aggregate coverage for the v4.0.0 cross-platform template contracts.
 
-`scripts/check_base_template_parity.py` byte-locks the contract across the five
+`scripts/check_base_template_parity.py` byte-locks invariant contracts across the five
 lockstep templates only. The other seven substantive templates (the guardrails
 five, `base-google-shared.md`, and `generic-instructions.md`) are outside that
 guard's roster by design, so nothing else would notice if the rollout skipped
@@ -22,8 +22,10 @@ import pytest
 REPO_ROOT = Path(__file__).resolve().parents[2]
 TEMPLATE_DIR = REPO_ROOT / "templates" / "ai-instructions"
 
-HEADING = "## Communication Contract"
-DEEP_LINK = "~/.nexus-hub/style-guides/agent-communication.md"
+COMMUNICATION_HEADING = "## Communication Contract"
+COMMUNICATION_DEEP_LINK = "~/.nexus-hub/style-guides/agent-communication.md"
+DOCS_LAYOUT_HEADING = "## Documentation Layout"
+DOCS_LAYOUT_SKILL = "`docs-layout-refactor`"
 
 LOCKSTEP = [
     "base-claude.md",
@@ -58,6 +60,14 @@ def _read(name: str) -> str:
     return (TEMPLATE_DIR / name).read_text(encoding="utf-8")
 
 
+def _section_body(name: str, heading: str) -> str:
+    text = _read(name)
+    start = text.index(heading)
+    rest = text[start + len(heading):]
+    end = rest.find("\n## ")
+    return (rest if end == -1 else rest[:end]).strip()
+
+
 def test_substantive_roster_matches_the_template_directory() -> None:
     """The roster is complete: every template file is classified exactly once.
 
@@ -77,8 +87,15 @@ def test_substantive_roster_matches_the_template_directory() -> None:
 @pytest.mark.parametrize("name", SUBSTANTIVE)
 def test_substantive_template_carries_the_contract(name: str) -> None:
     text = _read(name)
-    assert HEADING in text, f"{name} is missing the {HEADING!r} section"
-    assert DEEP_LINK in text, f"{name} is missing the deep link to the full contract"
+    assert COMMUNICATION_HEADING in text, f"{name} is missing the {COMMUNICATION_HEADING!r} section"
+    assert COMMUNICATION_DEEP_LINK in text, f"{name} is missing the deep link to the full contract"
+
+
+@pytest.mark.parametrize("name", SUBSTANTIVE)
+def test_substantive_template_carries_documentation_layout(name: str) -> None:
+    text = _read(name)
+    assert DOCS_LAYOUT_HEADING in text, f"{name} is missing the {DOCS_LAYOUT_HEADING!r} section"
+    assert DOCS_LAYOUT_SKILL in text, f"{name} is missing the docs-layout-refactor handoff"
 
 
 def test_all_twelve_substantive_templates_are_covered() -> None:
@@ -88,9 +105,9 @@ def test_all_twelve_substantive_templates_are_covered() -> None:
 
 @pytest.mark.parametrize("name", STUBS)
 def test_surface_note_stubs_are_left_alone(name: str) -> None:
-    assert HEADING not in _read(name), (
-        f"{name} is a surface-note stub and must not carry behavioral rules"
-    )
+    text = _read(name)
+    assert COMMUNICATION_HEADING not in text, f"{name} is a surface-note stub and must not duplicate the communication contract"
+    assert DOCS_LAYOUT_HEADING not in text, f"{name} is a surface-note stub and must inherit the documentation contract"
 
 
 def test_contract_body_is_identical_across_every_substantive_template() -> None:
@@ -102,17 +119,24 @@ def test_contract_body_is_identical_across_every_substantive_template() -> None:
     """
     bodies = {}
     for name in SUBSTANTIVE:
-        text = _read(name)
-        start = text.index(HEADING)
-        rest = text[start + len(HEADING):]
-        end = rest.find("\n## ")
-        bodies[name] = rest if end == -1 else rest[:end]
+        bodies[name] = _section_body(name, COMMUNICATION_HEADING)
 
     reference_name = SUBSTANTIVE[0]
     reference = bodies[reference_name].strip()
     drifted = [n for n, b in bodies.items() if b.strip() != reference]
     assert not drifted, (
         "Communication Contract body drifted from "
+        f"{reference_name} in: {drifted}. The section is identical by intent."
+    )
+
+
+def test_documentation_layout_body_is_identical_across_every_substantive_template() -> None:
+    bodies = {name: _section_body(name, DOCS_LAYOUT_HEADING) for name in SUBSTANTIVE}
+    reference_name = SUBSTANTIVE[0]
+    reference = bodies[reference_name]
+    drifted = [name for name, body in bodies.items() if body != reference]
+    assert not drifted, (
+        "Documentation Layout body drifted from "
         f"{reference_name} in: {drifted}. The section is identical by intent."
     )
 
