@@ -60,9 +60,9 @@ Open items for v4.0.0, all recorded with Source phase, Reason, and Suggested nex
 |---|---|
 | agent-communication-overhaul | DF-1, WN-2, MT-1, MT-3 |
 | cost-effective-ci-cd | DF-1, DF-2, WN-1 |
-| docs-lifespan (this plan) | BG-3, BG-4, BG-5, BG-6, WN-1, WN-2 (1 resolved) |
+| docs-lifespan (this plan) | BG-6 (half), WN-1, WN-2 -- BG-3, BG-4, BG-5 and one half of BG-6 were FIXED in the post-phase gaps pass |
 
-BG-3 is called out as the one that bears on the plan Goal; see the Goal review below.
+BG-3 bore directly on the plan Goal, so it was fixed rather than shipped: see the Goal review below. BG-4 and BG-5 were fixed in the same pass because both were defects this migration exposed in shipped tooling. What remains open is deliberately scoped: WN-1 is a local environment gap that CI already covers, WN-2 is a one-time detector sweep with no automated consequence, and BG-6's second half is a file deleted by an earlier retention pass whose citation must not be silently re-aimed.
 
 ## Living docs architecture
 
@@ -120,6 +120,13 @@ FAILED tests/validators/test_ci_changes_classifier.py::test_classification[devel
 ...
 3 passed, 23 deselected      (after restoring the fix)
 ```
+
+**Coverage re-confirmed after the gaps pass**, which touched two `.ps1` files and one `.sh`:
+
+- `shellcheck` over every `catalog/**/*.sh` runs unconditionally in the `shellcheck` job, and the changed hook passes locally.
+- `powershell-parse` is an unconditional AST floor over every `catalog` and `scripts` `*.ps1`; run locally it reports `1 passed` after the `link-baseline.ps1` and `old-version-docs-guard.ps1` changes.
+- The PowerShell **5.1 behavior** leg is a separate claim and lives in `tests-windows`, which runs the same suites on Windows.
+- No new script needs an installer copy step: both changed files are inside already-recursively-copied trees, and no new repo-internal guard was added.
 
 ## Platform contract and installer parity
 
