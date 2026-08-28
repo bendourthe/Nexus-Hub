@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Changed
+
+- **Procedural-anchor skill authoring.** `AGENTS.md` now states that a SKILL.md body is an executable runbook rather than a tutorial, `skill-create` requires numbered operational instructions with supporting pedagogy in Tier-3 references, and `skill-stocktake` reports mostly expository expert bodies as advisory `runbook-backlog` work without failing validation or rewriting them.
+
 ## [4.0.0] - 2026-08-27
 
 ### Capability usage gate

@@ -114,6 +114,8 @@ Sample each substantial section of the body (a section with more than roughly 10
 
 Record a section as **directive** if any one is present, **expository** if none is. Report the count and name the expository sections, for example: `6 of 7 substantial sections directive; "Background on retrieval" is expository`. A skill where most substantial sections are expository is a candidate for rewriting toward instruction, or for demotion to a Tier-3 reference where explanation is the point.
 
+When a `language-specialists/*-expert` skill, or a similarly shaped `framework-specialists/*-expert` skill, has mostly expository substantial sections, label it `runbook-backlog` in the report. Propose a later edit that keeps executable procedure in SKILL.md and moves pedagogy to `references/`; do not rewrite the expert skill during the stocktake and do not turn this advisory label into a `make validate` failure.
+
 This is an **advisory quality signal, not a gate**. It never fails a run, never blocks a merge, and never produces a numeric threshold anyone can tune against.
 
 **Non-goals - do not do these:**
@@ -162,6 +164,7 @@ Both the grade and the diff are advisory by default: they print and exit 0 regar
 - [ ] No `.nexus/` file is written outside the project root, and no network call is made.
 - [ ] No SKILL.md is edited by the stocktake itself; remediation is proposed, not applied.
 - [ ] The directive-density review reports a directive/expository count per scored skill and names the expository sections, without emitting any ratio, threshold, or pass/fail verdict.
+- [ ] Mostly expository language- or framework-specialist expert skills are labeled `runbook-backlog` with a later Tier-3 migration proposal, without being rewritten or failed by validation.
 - [ ] No Common Rationalizations or Verification section was removed or shortened as a result of the directive-density signal, and no `references/*.md` file was flagged by it.
 
 ## Related Skills

@@ -103,6 +103,8 @@ Practical implications for SKILL.md authoring:
 - If a step is deterministic and could be a 50-line shell script instead of 200 lines of body prose, ship the script under `scripts/` and let the agent execute it.
 - Keep Tier 1 fields tight (especially `description` and `summary_l0`); they cost tokens on every catalog read across every session. Tier 2 / Tier 3 budgets are per-trigger, not per-session.
 
+Treat every SKILL.md body as an operational runbook: actions, decision rules, artifacts, gates, and observable verification that an agent can execute. It is not a fact tutorial; supporting knowledge belongs in Tier-3 `references/` and loads only when the runbook needs it. An external study found procedural anchoring accounts for most successful skill cases.
+
 Cross-links: the body-size targets sit in the size-norm rule immediately below. The bundled-subdir convention is summarized in the "Per-skill Bundled Resources" subsection further down and documented in full in [`guides/reference/SKILL_BUNDLED_RESOURCES.md`](guides/reference/SKILL_BUNDLED_RESOURCES.md).
 
 #### Optional Invocation-Policy Frontmatter
