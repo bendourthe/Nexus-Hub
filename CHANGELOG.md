@@ -7,9 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [4.1.0] - 2026-08-28
 
-- Isolate every repository-native Python extension check to the current checkout's `src` tree, including the context compressor's declared code-search sibling, so stale editable installs cannot redirect the full CI profile; give the measured hour-scale Windows repository suite enough timeout headroom to report assertions instead of expiring at 3,600 seconds.
+### Capability usage gate
+
+This release adds one opt-in capability: the raw-memory comparison arm for skill evaluations.
+
+- **Activation**: add `"raw_memory": "raw_memory.md"` to an evaluation entry, with the path relative to `evals.json`, then run `python scripts/optimize_skill_description.py --evals <evals.json> --cli <claude|gemini|codex|opencode> --run-raw-memory --iteration-dir <iteration-N>`.
+- **Validation**: run `python scripts/aggregate_benchmark.py <iteration-N>` and confirm that `benchmark.json` reports `raw_memory.status` as `run` or `partial`; each completed arm also records `skill_loaded: false` and `memory_injected: true` in `raw_memory/outputs/run_metadata.json`.
+- **Rollback**: omit `--run-raw-memory` or remove the `raw_memory` fields from the evaluation set. The original with-skill versus without-skill benchmark remains unchanged, and removing a generated `raw_memory/` workspace directory removes only that optional arm's local artifacts.
+- **Authority**: raw notes are untrusted comparison input. They do not load the target skill, do not change the original benchmark delta, and do not gain authority from being labeled memory. The notes are passed verbatim to the selected CLI, so that CLI's configured provider and data policy govern any transmission.
+- **Docs**: [`catalog/skills/workflow/skill-eval-loop/SKILL.md`](catalog/skills/workflow/skill-eval-loop/SKILL.md) and [`catalog/skills/workflow/skill-eval-loop/references/schemas.md`](catalog/skills/workflow/skill-eval-loop/references/schemas.md).
 
 ### Added
 
@@ -24,6 +32,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Two-level skill triggers.** `skill-description-authoring` now pairs the catalog category/domain with a strict observable such as an error string, file type, command, schema field, hook event, or AST smell. Pushy synonyms, trigger nouns, confidence bands, and `SKIP` fences remain required, while exact intended invocation is treated as neither sufficient nor necessary for a useful runbook.
 - **Optional raw-memory evaluation arm.** `skill-eval-loop` can now compare the unchanged two-arm baseline with a third `raw_memory/` condition that injects the same prior notes distilled into SKILL.md. The existing optimizer executable dispatches readable sources and writes response metadata; missing notes record `raw_memory: "not_run"`, while incomplete, mismatched, or failed artifacts record `status: "invalid"` and do not affect aggregate metrics. Valid runs reuse the existing dispatcher and grader, remain blinded as A/B/C, aggregate separately without changing the with-vs-without delta, and render in the existing viewer without adding a model client, credential, or hosted judge.
 - **Oxlint vendor decision.** Nexus-Hub will keep typed-boundary hygiene skill-native and will not add Oxlint to its runtime or CI or ship a catalog skill that vendors a plugin into consumer repositories. The rejected decision and out-of-scope entry record the absent in-repo TypeScript proving ground, unowned `@oxlint/plugins` API drift, and the requirement for an explicit superseding decision before reconsideration.
+
+### Fixed
+
+- **Checkout-local extension tests.** Every repository-native Python extension check now uses the current checkout's `src` tree, including the context compressor's declared code-search sibling, so stale editable installs cannot redirect the full CI profile. The measured hour-scale Windows repository suite also has enough timeout headroom to report assertions instead of expiring at 3,600 seconds.
+
+### Documentation
+
+- **v4.1.1 planning record.** Added the OpenWorker security-refinement comparison and confirmed implementation plan as forward-looking documentation. Its implementation does not ship in v4.1.0.
+
+### Breaking changes
+
+None.
 
 ## [4.0.0] - 2026-08-27
 

@@ -1,6 +1,6 @@
 # Nexus-Hub Progress Dashboard
 
-**Branch:** `feat/v4.1.0-adoption-skill-trial-records-and-low-evidence-ts`
+**Branch:** `feat/v4.1.0-release`
 **Active plan:** [`docs/releases/v4/v4.1/plans/v4.1.0-adoption-skill-trial-records-and-low-evidence-ts.md`](releases/v4/v4.1/plans/v4.1.0-adoption-skill-trial-records-and-low-evidence-ts.md)
 **Last refreshed:** 2026-08-28
 
@@ -19,6 +19,16 @@ Refreshing this file to the active plan (rather than appending another version's
 | Catalog skills | 326 | 326 | 0 |
 | New typed-boundary skills | 1 | 1 | 0 |
 | Oxlint dependencies in Nexus-Hub | 0 | 0 | 0 |
+
+---
+
+## Release - v4.1.0 [LOCAL PREPARATION COMPLETE]
+
+- [x] Merge the six-phase implementation into `develop` with green integration checks
+- [x] Approve release notes derived from `v4.0.0..origin/develop`
+- [x] Prepare and verify the v4.1.0 release commit
+- [ ] Merge the release preparation into `develop`
+- [ ] Promote `develop` to `main`, tag v4.1.0, publish the GitHub Release, and back-merge
 
 ---
 

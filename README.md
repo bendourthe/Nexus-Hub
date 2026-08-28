@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.0.0 -->
+<!-- nexus-hub-version: 4.1.0 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 326 skills, 18 commands, 33 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -37,17 +37,21 @@ The two projects are designed to be useful independently: you can install Nexus-
 
 ---
 
-## What's New in v4.0.0
+## What's New in v4.1.0
 
-**Documentation is placed by lifespan, and the migration proves itself.** One admission question decides where a document goes: *when does it stop being true?* Release-bound work lives under `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/`, frozen snapshots under the structurally identical `docs/archives/â€¦`, and living material stays at stable roots like `docs/handbooks/` and `docs/decisions/`. The standard reaches every platform class, including the five that receive no skills at all and would otherwise never see it.
+**Skill guidance now starts from evidence and ends in action.** Skill authors must write executable procedural runbooks, label successful and failed observations before distillation, and pair domain language with an observable trigger. `skill-stocktake` adds bounded confusability reporting so overlapping descriptions can be repaired without a catalog-wide all-pairs scan.
 
-**Breaking, and honest about it.** The prescribed containers are renamed, so `docs-layout-refactor` goes to `2.0.0`. Your existing layout is not broken by upgrading: `docs/v<MAJOR>/â€¦`, singular `docs/archive/`, flat `docs/<vSEMVER>/`, and `docs/versions/â€¦` all remain recognised legacy layouts, honoured **in place** with a one-line notice. Migration is offered by `/update refactor` and during `/update release`, and it moves nothing until you approve the plan at the confirmation gate.
+**Typed-boundary hygiene is a first-class skill.** The new `typed-boundary-hygiene` runbook replaces low-evidence TypeScript assertions, unsafe dictionaries, reflection, and broad mocks with named types and checked seams. `typescript-expert` retains runtime parsing and narrowing ownership while handing downstream assertion evidence to the new skill.
 
-**Also in this release**, from the two sibling plans in the same bundle: a distributed agent communication contract carried byte-identically across all 12 substantive instruction templates, and a repository-native CI engine with five profiles that run without any GitHub context, behind an aggregate required check that can never sit pending.
+**Skill evaluation gains an optional raw-memory comparison.** The existing with-skill and without-skill benchmark can add a separately scored `raw_memory` arm using the same dispatcher, grader, aggregator, and viewer. It never changes the original benchmark delta, and missing or invalid evidence remains explicit rather than being inferred.
 
-Catalog counts were **325 skills**, **18 commands**, **33 hooks**, and **23 agents**.
+Catalog counts are **326 skills**, **18 commands**, **33 hooks**, and **23 agents**. This release has no breaking change and adds no dependency, installer flag, or host write surface.
 
-This release documents one opt-in capability, the docs-tree migration. See the changelog for Activation, Validation, Rollback, Authority, and Docs.
+The raw-memory comparison is opt-in. See the changelog for Activation, Validation, Rollback, Authority, and Docs.
+
+## Previously, in v4.0.0
+
+**Documentation is placed by lifespan, and the migration proves itself.** Release-bound work lives under `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/`, frozen snapshots live under `docs/archives/`, and living material stays at stable roots such as `docs/handbooks/` and `docs/decisions/`. Existing legacy layouts remain honored in place until an explicitly approved migration.
 
 ## Previously, in v3.21.0
 
