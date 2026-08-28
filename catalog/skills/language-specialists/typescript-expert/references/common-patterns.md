@@ -9,18 +9,21 @@ type EventMap = {
   error: { message: string; code: number };
 };
 
-class TypedEmitter<Events extends Record<string, unknown>> {
-  private handlers = new Map<keyof Events, Set<(data: never) => void>>();
+type EventHandlers<Events> = {
+  [K in keyof Events]?: Set<(data: Events[K]) => void>;
+};
+
+class TypedEmitter<Events> {
+  private handlers: EventHandlers<Events> = {};
 
   on<K extends keyof Events>(event: K, handler: (data: Events[K]) => void): void {
-    if (!this.handlers.has(event)) {
-      this.handlers.set(event, new Set());
-    }
-    this.handlers.get(event)!.add(handler as (data: never) => void);
+    const handlers = this.handlers[event] ?? new Set<(data: Events[K]) => void>();
+    handlers.add(handler);
+    this.handlers[event] = handlers;
   }
 
   emit<K extends keyof Events>(event: K, data: Events[K]): void {
-    this.handlers.get(event)?.forEach((handler) => handler(data as never));
+    this.handlers[event]?.forEach((handler) => handler(data));
   }
 }
 

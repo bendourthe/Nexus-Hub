@@ -1,5 +1,7 @@
 """Semantic contract tests for the v4.1.0 skill-mechanics adoption plan."""
 
+import re
+
 from pathlib import Path
 
 
@@ -22,6 +24,13 @@ TYPED_BOUNDARY = (
 TYPESCRIPT_EXPERT = (
     ROOT / "catalog" / "skills" / "language-specialists" / "typescript-expert" / "SKILL.md"
 ).read_text(encoding="utf-8")
+TYPESCRIPT_REFERENCE_DIR = (
+    ROOT / "catalog" / "skills" / "language-specialists" / "typescript-expert" / "references"
+)
+TYPESCRIPT_REFERENCE_FILES = sorted(TYPESCRIPT_REFERENCE_DIR.rglob("*.md"))
+TYPESCRIPT_REFERENCES = "\n".join(
+    path.read_text(encoding="utf-8") for path in TYPESCRIPT_REFERENCE_FILES
+)
 JAVASCRIPT_CLEANUP = (
     ROOT / "catalog" / "skills" / "code-cleanup" / "javascript-cleanup" / "SKILL.md"
 ).read_text(encoding="utf-8")
@@ -36,6 +45,34 @@ SKILL_DESCRIPTION_AUTHORING = (
     / "skill-description-authoring"
     / "SKILL.md"
 ).read_text(encoding="utf-8")
+
+
+def _typescript_assertion_columns(line: str) -> list[int]:
+    """Return `as` columns that are assertions rather than other TS syntax."""
+    code = line.split("//", 1)[0]
+    code = re.sub(
+        r'"(?:\\.|[^"\\])*"|\'(?:\\.|[^\'\\])*\'|`(?:\\.|[^`\\])*`',
+        '""',
+        code,
+    )
+    assertions: list[int] = []
+    for match in re.finditer(r"\bas\b", code):
+        before = code[: match.start()]
+        after = code[match.end() :].lstrip()
+        if after.startswith("const"):
+            continue
+        if after.startswith(("?:", ":", ",", "??", "=")):
+            continue
+        if re.search(r"\[[^\]]*\bin keyof\b[^\]]*$", before):
+            continue
+        if re.search(r"\b(?:import|export)\s*\{[^}]*$", before):
+            continue
+        if re.search(r"\b(?:import|export)(?:\s+type)?\s+\*\s*$", before):
+            continue
+        if re.search(r"[=(:,?]\s*$", before):
+            continue
+        assertions.append(match.start())
+    return assertions
 
 
 def test_agents_declares_skill_bodies_are_operational_runbooks():
@@ -79,6 +116,53 @@ def test_non_owners_hand_contract_hygiene_to_typed_boundary_skill():
     assert "replace with `unknown` and narrow" not in TYPESCRIPT_EXPERT
     assert "hand contract cleanup to [[typed-boundary-hygiene]]" in TYPESCRIPT_EXPERT
     assert "[[typed-boundary-hygiene]] -- owns low-evidence" in JAVASCRIPT_CLEANUP
+
+
+def test_runtime_narrowing_entrypoints_are_explicit_exceptions():
+    for skill in (TYPED_BOUNDARY, TYPESCRIPT_EXPERT):
+        assert "runtime parser" in skill
+        assert "type predicate" in skill
+        assert "assertion function" in skill or "assertion-function" in skill
+
+
+def test_typescript_reference_bundle_does_not_teach_low_evidence_dictionaries():
+    assert TYPESCRIPT_REFERENCE_FILES
+    assert "Record<string, unknown>" not in TYPESCRIPT_REFERENCES
+    assert "z.unknown()" not in TYPESCRIPT_REFERENCES
+    assert "handler as (data: never)" not in TYPESCRIPT_REFERENCES
+    assert "data as never" not in TYPESCRIPT_REFERENCES
+
+
+def test_all_non_const_assertions_name_their_invariant_in_full_reference_bundle():
+    for path in TYPESCRIPT_REFERENCE_FILES:
+        lines = path.read_text(encoding="utf-8").splitlines()
+        in_typescript = False
+        for index, line in enumerate(lines):
+            if line.startswith("```"):
+                in_typescript = line.strip() in {"```ts", "```typescript"}
+                continue
+            if in_typescript and _typescript_assertion_columns(line):
+                assert index > 0 and "SAFETY:" in lines[index - 1], (
+                    f"{path}:{index + 1}: assertion lacks an adjacent SAFETY invariant"
+                )
+
+
+def test_assertion_detector_covers_lowercase_unknown_and_object_targets():
+    for line in (
+        "const text = value as string;",
+        "const raw = value as unknown;",
+        "const record = value as { id: string };",
+    ):
+        assert _typescript_assertion_columns(line)
+    assert not _typescript_assertion_columns("const literal = value as const;")
+    assert not _typescript_assertion_columns("type Getters<T> = { [K in keyof T as `get${K}`]: T[K] };")
+    assert not _typescript_assertion_columns('const Component = as ?? "span";')
+    assert not _typescript_assertion_columns("as?: E;")
+    assert not _typescript_assertion_columns("as,")
+    assert not _typescript_assertion_columns('type Props = Omit<Base, "as">;')
+    assert not _typescript_assertion_columns('<Text as="label">Label</Text>')
+    assert not _typescript_assertion_columns("import * as React from module;")
+    assert not _typescript_assertion_columns("export * as api from module;")
 
 
 def test_distillation_refuses_unlabeled_mixed_evidence():

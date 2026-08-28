@@ -30,7 +30,7 @@ Fields:
 - `turns` (array of strings, optional) - an ordered list of conversation turns for a multi-turn trigger test. When present, `evaluate_multi_turn()` replays the turns in order and asserts the skill triggers at the designated turn (the deep-in-conversation failure mode). See `references/trigger-testing.md`.
 - `trigger_turn` (number, optional) - the 1-based turn index at which the skill is expected to FIRST trigger in a multi-turn flow. Defaults to the last turn. Triggering earlier or never both fail the multi-turn assertion.
 - `model` (string, optional) - run THIS eval against a specific (typically cheaper/faster) model to surface descriptions that only trigger on stronger models. Overrides the harness-level `--model` flag for this entry. See `references/trigger-testing.md`.
-- `raw_memory` (string, optional) - path, relative to `evals.json`, to raw logs or notes containing the same prior experience distilled into the target skill. When present and readable, the runner creates `raw_memory/` and injects the file verbatim alongside the unchanged query. When absent or unreadable, the runner does not invent a substitute and the benchmark records `raw_memory: "not_run"`.
+- `raw_memory` (string, optional) - path, relative to `evals.json`, to raw logs or notes containing the same prior experience distilled into the target skill. When present and readable, `python scripts/optimize_skill_description.py --evals <evals.json> --cli <cli> --run-raw-memory --iteration-dir <iteration-N>` creates `raw_memory/` through the existing dispatcher and injects the file verbatim after the unchanged query. When absent or unreadable, the runner does not invent a substitute and the benchmark records `raw_memory: "not_run"`.
 
 Both `turns`/`trigger_turn` and `model` are opt-in: a plain single-turn eval omits them and is unaffected.
 
@@ -57,7 +57,7 @@ Fields:
 - `skill_loaded` (bool, required) - `true` for `with_skill/`; `false` for `without_skill/` and `raw_memory/`. The aggregator uses this to compute the with-vs-without delta without filename inference.
 - `memory_injected` (bool, required for `raw_memory/`) - `true` confirms that the eval's declared raw-memory file was appended verbatim to the prompt. Omit it for the two standard arms.
 - `duration_ms`, `total_tokens` (number, required) - if the CLI does not report tokens directly, estimate via `len(prompt + response) / 4` and set `tokens_estimated: true`.
-- `exit_code` (number, required) - `0` for success; the aggregator excludes non-zero runs from the pass-rate denominator.
+- `exit_code` (number, required) - `0` for success; the aggregator marks a non-zero raw-memory run invalid and excludes it from aggregate metrics.
 
 ## `iteration-N/eval-XXX/{with_skill,without_skill,raw_memory}/grading.json`
 
@@ -120,7 +120,9 @@ Produced by `scripts/aggregate_benchmark.py`:
 }
 ```
 
-When an eval contains a completed `raw_memory/` directory, its `raw_memory` value is the same metrics object as the other run conditions. When at least one eval ran that arm, `overall.raw_memory` is an object with `status: "run"`, `n_evals`, `pass_rate`, `duration_ms_mean`, and `tokens_mean`. Otherwise both per-eval and overall values are the literal string `"not_run"`. Existing with-vs-without deltas never include the optional arm.
+When an eval contains a contract-valid completed `raw_memory/` directory, its `raw_memory` value is the same metrics object as the other run conditions plus `status: "run"`. Validity requires parseable metadata and grading, `skill_loaded: false`, `memory_injected: true`, numeric timing and token fields, `exit_code: 0`, a numeric grading pass rate, and one CLI identity shared by all three conditions. A present but invalid arm records `status: "invalid"` with an `errors` list and never enters aggregate metrics.
+
+When at least one eval has a valid arm, `overall.raw_memory` is an object with `status: "run"` or `status: "partial"`, `n_evals`, `pass_rate`, `duration_ms_mean`, and `tokens_mean`; `partial` also lists `invalid_evals`. If directories exist but none are valid, the overall object has `status: "invalid"`, `n_evals: 0`, and `invalid_evals`. When no optional directory exists, both per-eval and overall values are the literal string `"not_run"`. Existing with-vs-without deltas never include the optional arm.
 
 `benchmark.md` is the same data as a Markdown table for human review; the analyzer sub-agent reads `benchmark.json` (the structured form) for its non-discriminating-assertion detection.
 

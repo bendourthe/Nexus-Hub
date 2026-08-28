@@ -45,7 +45,7 @@ The two projects are designed to be useful independently: you can install Nexus-
 
 **Also in this release**, from the two sibling plans in the same bundle: a distributed agent communication contract carried byte-identically across all 12 substantive instruction templates, and a repository-native CI engine with five profiles that run without any GitHub context, behind an aggregate required check that can never sit pending.
 
-Catalog counts are **326 skills**, **18 commands**, **33 hooks**, and **23 agents**.
+Catalog counts were **325 skills**, **18 commands**, **33 hooks**, and **23 agents**.
 
 This release documents one opt-in capability, the docs-tree migration. See the changelog for Activation, Validation, Rollback, Authority, and Docs.
 

@@ -68,7 +68,7 @@ Full walkthrough: [step-7-configuration-and-tooling.md](references/step-7-config
 ## Best Practices
 
 - **Enable strict mode** - Never ship a project with `strict: false`; fix the underlying type issues instead
-- **Forbid any and parse I/O** - Parse external input with Zod (or equivalent) into a named type; do not publish `unknown`, `object`, or `Record<string, unknown>` as function or alias contracts, and hand contract cleanup to [[typed-boundary-hygiene]]
+- **Forbid any and parse I/O** - A named runtime parser, type predicate, or assertion function may accept `unknown` so it can prove a named type; do not publish `unknown`, `object`, or `Record<string, unknown>` in downstream function or alias contracts, and hand contract cleanup to [[typed-boundary-hygiene]]
 - **Infer where obvious, annotate where not** - Let TypeScript infer local variables; always annotate exported function signatures
 - **Prefer type aliases over interfaces for data** - Use interfaces only when you need declaration merging or extension points
 - **Validate at the boundary** - Use Zod (or a similar library) where data enters your system (API routes, form submissions, storage reads)
@@ -92,7 +92,7 @@ Detailed guidance lives in [common-patterns.md](references/common-patterns.md) (
 ## Verification
 
 - [ ] `strict: true` enabled in tsconfig with `noUncheckedIndexedAccess`
-- [ ] No uses of `any`; I/O boundaries parse into named types, and function or alias contracts do not publish `unknown`, `object`, or `Record<string, unknown>` (audit with [[typed-boundary-hygiene]])
+- [ ] No uses of `any`; I/O boundaries use named runtime parsers, type predicates, or assertion functions to narrow `unknown`, and downstream function or alias contracts do not publish `unknown`, `object`, or `Record<string, unknown>` (audit with [[typed-boundary-hygiene]])
 - [ ] All exported functions have explicit return types
 - [ ] Discriminated unions use exhaustive checks (`assertNever`)
 - [ ] API boundaries validated with Zod (or equivalent runtime validator)

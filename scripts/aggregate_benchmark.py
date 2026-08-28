@@ -100,11 +100,61 @@ def _aggregate_run_condition(eval_dir: Path, condition: str) -> dict[str, Any]:
     }
 
 
+def _is_number(value: Any) -> bool:
+    return isinstance(value, (int, float)) and not isinstance(value, bool)
+
+
+def _aggregate_raw_memory_condition(eval_dir: Path) -> dict[str, Any]:
+    """Validate and aggregate the optional arm without scoring partial artifacts."""
+    run_dir = eval_dir / _OPTIONAL_RUN_CONDITION
+    grading = _read_json(run_dir / "grading.json")
+    metadata = _read_json(run_dir / "outputs" / "run_metadata.json")
+    errors: list[str] = []
+
+    if metadata is None:
+        errors.append("missing or invalid outputs/run_metadata.json")
+    else:
+        if metadata.get("skill_loaded") is not False:
+            errors.append("skill_loaded must be false")
+        if metadata.get("memory_injected") is not True:
+            errors.append("memory_injected must be true")
+        if not _is_number(metadata.get("duration_ms")):
+            errors.append("duration_ms must be numeric")
+        if not _is_number(metadata.get("total_tokens")):
+            errors.append("total_tokens must be numeric")
+        if metadata.get("exit_code") != 0:
+            errors.append("exit_code must be 0")
+
+        paired_clis: set[str] = set()
+        for condition in _RUN_CONDITIONS:
+            paired = _read_json(eval_dir / condition / "outputs" / "run_metadata.json")
+            if paired is None or not isinstance(paired.get("cli"), str):
+                errors.append(f"{condition} CLI metadata is missing")
+            else:
+                paired_clis.add(paired["cli"])
+        raw_cli = metadata.get("cli")
+        if not isinstance(raw_cli, str):
+            errors.append("cli must be a string")
+        elif len(paired_clis) != 1 or raw_cli not in paired_clis:
+            errors.append("cli must match both paired runs")
+
+    if grading is None:
+        errors.append("missing or invalid grading.json")
+    elif not _is_number(grading.get("pass_rate")):
+        errors.append("grading pass_rate must be numeric")
+
+    if errors:
+        return {"status": "invalid", "errors": errors}
+
+    metrics = _aggregate_run_condition(eval_dir, _OPTIONAL_RUN_CONDITION)
+    return {"status": "run", **metrics}
+
+
 def _aggregate_eval(eval_dir: Path) -> dict[str, Any]:
     by_condition = {cond: _aggregate_run_condition(eval_dir, cond) for cond in _RUN_CONDITIONS}
     raw_memory_dir = eval_dir / _OPTIONAL_RUN_CONDITION
     raw_memory: dict[str, Any] | str = (
-        _aggregate_run_condition(eval_dir, _OPTIONAL_RUN_CONDITION)
+        _aggregate_raw_memory_condition(eval_dir)
         if raw_memory_dir.is_dir()
         else "not_run"
     )
@@ -167,17 +217,32 @@ def aggregate(iteration_dir: Path) -> dict[str, Any]:
         value[_OPTIONAL_RUN_CONDITION]
         for value in by_eval.values()
         if isinstance(value[_OPTIONAL_RUN_CONDITION], dict)
+        and value[_OPTIONAL_RUN_CONDITION].get("status") == "run"
+    ]
+    invalid_raw_memory = [
+        eval_id
+        for eval_id, value in by_eval.items()
+        if isinstance(value[_OPTIONAL_RUN_CONDITION], dict)
+        and value[_OPTIONAL_RUN_CONDITION].get("status") == "invalid"
     ]
     if raw_memory_runs:
         raw_pass_rate, _ = _safe_stats([run["pass_rate"] for run in raw_memory_runs])
         raw_duration, _ = _safe_stats([run["duration_ms_mean"] for run in raw_memory_runs])
         raw_tokens, _ = _safe_stats([run["tokens_mean"] for run in raw_memory_runs])
         overall[_OPTIONAL_RUN_CONDITION] = {
-            "status": "run",
+            "status": "partial" if invalid_raw_memory else "run",
             "n_evals": len(raw_memory_runs),
             "pass_rate": round(raw_pass_rate, 3),
             "duration_ms_mean": round(raw_duration, 1),
             "tokens_mean": round(raw_tokens, 1),
+        }
+        if invalid_raw_memory:
+            overall[_OPTIONAL_RUN_CONDITION]["invalid_evals"] = invalid_raw_memory
+    elif invalid_raw_memory:
+        overall[_OPTIONAL_RUN_CONDITION] = {
+            "status": "invalid",
+            "n_evals": 0,
+            "invalid_evals": invalid_raw_memory,
         }
     else:
         overall[_OPTIONAL_RUN_CONDITION] = "not_run"
@@ -234,7 +299,13 @@ def render_markdown(benchmark: dict[str, Any]) -> str:
     lines.append("")
     if raw_memory == "not_run":
         lines.append("Status: not_run")
+    elif raw_memory["status"] == "invalid":
+        lines.append(f"Status: invalid ({', '.join(raw_memory['invalid_evals'])})")
     else:
+        lines.append(f"Status: {raw_memory['status']}")
+        if raw_memory.get("invalid_evals"):
+            lines.append(f"Invalid evals: {', '.join(raw_memory['invalid_evals'])}")
+        lines.append("")
         lines.append("| Evals run | Pass rate | Duration mean (ms) | Tokens mean |")
         lines.append("|---|---|---|---|")
         lines.append(

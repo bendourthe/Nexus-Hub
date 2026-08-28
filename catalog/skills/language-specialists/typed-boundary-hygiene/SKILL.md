@@ -23,7 +23,7 @@ Replace types that merely silence the compiler with contracts justified by runti
 Use when:
 
 - A TypeScript change contains `as unknown as`, chained assertions, or widen-then-assert flows.
-- A function or type alias publishes `unknown`, `object`, or `Record<string, unknown | any | object>` as its contract.
+- A function or type alias publishes `unknown`, `object`, or `Record<string, unknown | any | object>` as its downstream contract rather than narrowing unknown input at a named runtime parser, type predicate, or assertion-function entrypoint.
 - A non-const assertion lacks a `SAFETY:` comment naming the checked invariant.
 - Tests use `vi.mock` or `jest.mock` where a real dependency seam can be injected.
 - Code uses conditional empty object spreads, `Reflect.get`, `Reflect.apply`, or repeated ad hoc `typeof` checks.
@@ -39,7 +39,7 @@ Use when:
 
 | Concern | Owning skill | Handoff |
 |---|---|---|
-| Function-contract `unknown` / `object` / unsafe dictionaries | `typed-boundary-hygiene` | Replace low-evidence public or internal contracts with named types. |
+| Function-contract `unknown` / `object` / unsafe dictionaries | `typed-boundary-hygiene` | Replace low-evidence downstream contracts with named types; hand runtime parser, type predicate, and assertion-function entrypoints to `typescript-expert`. |
 | Chained assertions, widen-then-assert, and assertion comments | `typed-boundary-hygiene` | Establish the invariant and remove or justify the assertion. |
 | Type-system design, generics, and discriminated unions | `typescript-expert` | Design the named types this runbook consumes. |
 | Boundary parsing of unknown I/O with Zod or `safeParse` | `typescript-expert` | Parse external input into a named type before this runbook evaluates downstream contracts. |
@@ -209,7 +209,7 @@ if (isSettings(value)) {
 }
 ```
 
-An ad hoc `typeof` check is allowed inside the predicate. Add property checks sufficient for the named type; `typeof value === "object"` alone is not proof.
+An ad hoc `typeof` check is allowed inside the predicate. A named runtime parser, type predicate, or assertion-function entrypoint may accept `unknown` because its job is to narrow that value before returning it downstream. Add property checks sufficient for the named type; `typeof value === "object"` alone is not proof.
 
 ### 9. Replace `unknown` contracts and unsafe dictionaries
 
@@ -233,7 +233,7 @@ type Metadata = {
 function normalize(input: RawRecord): NormalizedRecord;
 ```
 
-Use a named interface, discriminated union, `Map<K, V>`, or generic constraint that states the keys and values actually supported. `cause?: unknown` on an error is the explicit exception: JavaScript permits any thrown value, and the consumer must narrow it before use.
+Use a named interface, discriminated union, `Map<K, V>`, or generic constraint that states the keys and values actually supported. Explicit exceptions are `cause?: unknown` on an error, because JavaScript permits any thrown value, and named runtime parser, type predicate, or assertion-function entrypoints that narrow unknown input before returning a named type.
 
 ### 10. Eliminate widen-then-assert flows
 
@@ -294,7 +294,7 @@ Run the repository's TypeScript compiler, lint command, and focused tests for th
 
 - [ ] The audit is bounded to the TypeScript or JavaScript files in the task's scope.
 - [ ] No unexplained `as unknown as` or other chained assertion remains in the changed files.
-- [ ] No changed function or type alias publishes `unknown`, `object`, or `Record<string, unknown | any | object>` except the documented error-`cause` convention.
+- [ ] No changed downstream function or type alias publishes `unknown`, `object`, or `Record<string, unknown | any | object>` except the documented error-`cause` convention; named runtime parsers, type predicates, and assertion functions may accept `unknown` only when they prove a named type before return.
 - [ ] Every remaining non-`as const` assertion has an adjacent `SAFETY:` comment naming the checked invariant.
 - [ ] Known literals stay narrow through `satisfies` or `as const` rather than widen-then-assert.
 - [ ] Each retained module mock tests the module boundary itself or has been replaced with an injected seam.

@@ -14,7 +14,7 @@ Refreshing this file to the active plan (rather than appending another version's
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
-| v4.1.0 adoption phases complete | 5 | 6 | 1 |
+| v4.1.0 adoption phases complete | 6 | 6 | 0 |
 | Open release blockers | 0 | 0 | 0 |
 | Catalog skills | 326 | 326 | 0 |
 | New typed-boundary skills | 1 | 1 | 0 |
@@ -22,14 +22,14 @@ Refreshing this file to the active plan (rather than appending another version's
 
 ---
 
-## Plan - v4.1.0 Skill Trial Records and Typed-Boundary Hygiene [IN PROGRESS]
+## Plan - v4.1.0 Skill Trial Records and Typed-Boundary Hygiene [LOCAL IMPLEMENTATION COMPLETE]
 
 - [x] Phase 1 - Procedural-anchor authoring rule
 - [x] Phase 2 - Typed-boundary-hygiene skill and TypeScript handoff
 - [x] Phase 3 - Distillation labels, confusability, and two-level triggers
 - [x] Phase 4 - Eval-loop third arm
 - [x] Phase 5 - Decide whether to vendor Oxlint into user TypeScript repositories
-- [ ] Phase 6 - Architecture refactor, known-gaps reconciliation, and CI/CD
+- [x] Phase 6 - Architecture refactor, known-gaps reconciliation, and CI/CD
 
 ### What this plan changes, in one paragraph
 

@@ -93,6 +93,14 @@ Both runs must use the same CLI (the one declared in step 1). The "with_skill" r
 
 When the eval entry declares a readable `raw_memory` path, create `raw_memory/` beside those two directories and run a third condition through the same dispatcher, CLI, model, settings, and eval query. Do not load the target skill in this condition; append the declared file verbatim as prior notes and record `skill_loaded: false` plus `memory_injected: true`. The notes must contain the same prior experience distilled into SKILL.md, not a newly authored substitute.
 
+Run every readable optional arm through the existing dispatcher after the paired response runs exist:
+
+```bash
+python scripts/optimize_skill_description.py --evals <workspace>/evals/evals.json --cli <cli> --run-raw-memory --iteration-dir <workspace>/iteration-N
+```
+
+This mode resolves each source relative to `evals.json`, preserves the eval query, appends the source text verbatim, and writes `response.txt` plus `run_metadata.json`. It does not grade the response; step 5 sends all present conditions through the same assertion grader.
+
 If the field is absent or its file cannot be read, do not create `raw_memory/`, do not call another model or hosted judge to reconstruct it, and continue with the standard pair. The aggregator records `raw_memory: "not_run"`. This arm exists to test whether distillation adds value beyond supplying raw experience; the reported 6.06 percentage-point finding motivated the comparison but is not a pass threshold.
 
 #### 4. Capture timing and tokens
@@ -283,8 +291,9 @@ Binary checklist - each item must describe an observable artifact or state.
 - [ ] At least one iteration directory exists at `<workspace>/iteration-N/` for `N >= 1`.
 - [ ] Every `<workspace>/iteration-N/eval-XXX/` directory contains BOTH `with_skill/` and `without_skill/` subdirectories; `raw_memory/` exists only for an eval with a readable declared source.
 - [ ] Every `with_skill/outputs/run_metadata.json` and `without_skill/outputs/run_metadata.json` parses and contains `total_tokens` and `duration_ms` (estimated values OK if `tokens_estimated: true` is set).
-- [ ] Every present `raw_memory/outputs/run_metadata.json` parses, contains `total_tokens` and `duration_ms`, and records `skill_loaded: false` plus `memory_injected: true`.
-- [ ] `benchmark.json` records `raw_memory: "not_run"` when no optional source exists and aggregates the third arm when it does.
+- [ ] Every present `raw_memory/outputs/run_metadata.json` parses, contains `total_tokens`, `duration_ms`, and `exit_code: 0`, records `skill_loaded: false` plus `memory_injected: true`, and names the same CLI as both paired runs.
+- [ ] Every present `raw_memory/` has a completed `grading.json`; incomplete or failed artifacts appear as `status: "invalid"` and do not enter aggregate metrics.
+- [ ] `benchmark.json` records `raw_memory: "not_run"` when no optional source exists and aggregates only contract-valid third-arm runs when it does.
 - [ ] Every run directory has a `grading.json` produced by the grader sub-agent with the exact field names `text`, `passed`, `evidence`.
 - [ ] `<workspace>/iteration-N/benchmark.json` and `benchmark.md` exist and parse cleanly.
 - [ ] The viewer can be launched in either server mode (`scripts/skill_eval_viewer.py <iter>`) or static mode (`--static <path>`), and the static-mode HTML opens without errors in a browser.

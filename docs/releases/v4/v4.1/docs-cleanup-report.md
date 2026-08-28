@@ -79,3 +79,21 @@ The decision chose no, so Phase 5.2 added no catalog skill, bundled asset, packa
 ### Result
 
 No documentation move, duplicate, scratch artifact, or lifespan contradiction was introduced by Phase 5. The living decision and policy files pass their respective admission tests, and the phase history remains in the active release evidence tree.
+
+## Phase 6 - Terminal Architecture and Documentation Audit
+
+### Documentation layout
+
+The canonical audit reported 387 active documentation files, including 9 under `docs/releases/v4/v4.1/`. Its reference graph contained 102 targets with zero unreferenced targets and zero unreferenced v4.1 targets. The lifespan command retained its historical exit-1 baseline of 1,703 findings from post-tag edits in older release buckets; none mentions `docs/releases/v4/v4.1/`, so no current-plan contradiction was found.
+
+### Repository structure triage
+
+The root contains 24 files. Ignored `.coverage` and `pytest-out.log` are local test outputs, while the remaining root files are repository metadata, manifests, installers, or living project documents. Five obsolete-name candidates were inspected and retained because they are current old-version guards, the active `deprecated-api-updater` skill/agent, or a deliberate legacy marker.
+
+Ten filesystem-empty directories were found. `.antigravitycli/`, `.claude/worktrees/`, extension `.vite-temp/` directories, and benchmark `.work/` subdirectories are host-local or ignored outputs; `docs/decisions/proposed/process/` and `docs/decisions/proposed/tooling/` are untracked empty placeholders under the declared decisions taxonomy. None is a shipped tracked artifact, so no repository deletion is required.
+
+Six duplicate-content groups were inspected: a self-contained bundled checklist, extension license/icon/update-watcher/tsconfig copies, and the parity-locked base templates. Fourteen single-child directories were also inspected across platform configuration roots, package `src/` roots, and ignored benchmark workspaces. These structures encode distribution, package, or generated-workspace boundaries and are not redundant. The only unusually deep tracked file outside the expected catalog, docs, extension, guide, script, template, config, data, and test roots is the intentional organization-bundle schema example.
+
+### Result
+
+No tracked obsolete file, empty directory, redundant directory, misplaced document, or overcomplicated structure warranted a move or deletion. Because the audit proposed no repository mutation, the project-refactor and docs-layout confirmation gate did not activate. Phase 6 adds only its canonical session history and last-phase evidence under `docs/releases/v4/v4.1/development/`.
