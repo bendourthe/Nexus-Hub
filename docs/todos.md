@@ -2,7 +2,7 @@
 
 **Branch:** `feat/v4.0.0-docs-lifespan-tree-and-enforcement`
 **Active plan:** [`docs/releases/v4/v4.0/plans/v4.0.0-docs-lifespan-tree-and-enforcement.md`](releases/v4/v4.0/plans/v4.0.0-docs-lifespan-tree-and-enforcement.md)
-**Last refreshed:** 2026-08-26
+**Last refreshed:** 2026-08-27
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its own `docs/v*/v*.*/known-gaps.md`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
 
@@ -65,6 +65,7 @@ All eight phases complete; merged to `develop` via PR #124 with follow-up PR #12
 These are committed plan documents awaiting their own cycle. Listing them here is a pointer, not a claim of progress.
 
 - [`v4.1.0-adoption-skill-trial-records-and-low-evidence-ts.md`](releases/v4/v4.1/plans/v4.1.0-adoption-skill-trial-records-and-low-evidence-ts.md)
+- [`v4.1.1-adoption-openworker-security-refinement.md`](releases/v4/v4.1/plans/v4.1.1-adoption-openworker-security-refinement.md) (confirmed, not started)
 - [`v4.2.0-interactive-guide-redesign.md`](releases/v4/v4.2/plans/v4.2.0-interactive-guide-redesign.md)
 
 ---
