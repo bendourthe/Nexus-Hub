@@ -52,6 +52,16 @@ Look for:
 - **Manual multi-step workflows**: a recurring commit sequence (bump version -> regenerate index -> update changelog) that a skill could codify.
 - **A class of change**: many commits doing structurally the same edit across different files (e.g., "register new validator in both installers").
 
+### 1.1 Label the evidence outcomes
+
+Git history is success-biased: merged commits show what landed, not a balanced record of what failed along the way. Build an evidence table before drafting:
+
+| Commit, diff, or counterexample | Outcome | Observable basis |
+|---|---|---|
+| SHA, revert, follow-up fix, or user-supplied example | `success` or `failure` | Passing/failing gate, revert relationship, correction, or user confirmation |
+
+Every git-derived example used in the draft MUST carry an explicit `success` or `failure` label. Cite at least one real failure mode from a revert, a follow-up fix, or a user-supplied counterexample for Common Rationalizations; do not pretend ordinary git log is a balanced dataset. If the candidate set mixes successes and failures and any item is unlabeled, warn hard, list the unlabeled SHAs or examples, and refuse to draft until the user labels them or drops them from the evidence set. Never invent labels from commit-message sentiment and never send history to an outbound LLM-as-judge.
+
 ### 2. Confirm the pattern with the user
 
 State the candidate pattern in one paragraph, cite the supporting commit SHAs, and ask the user to confirm it is worth a skill before drafting. A pattern with only one or two occurrences is usually premature - say so.
@@ -104,10 +114,14 @@ And ideally clear the quality pass (`--quality --verbose`) with zero warnings.
 | "I will inline the writing theory so the draft cannot miss it" | The six concepts live in `skill-description-authoring/references/agent-writing-theory.md`. Inlining them here forks the rule. Link, apply, and keep this body as the git-history procedure. |
 | "A few extra 'be careful' lines in Instructions make the skill safer" | That fails the no-op test. Delete instructions the model already obeys. Safety that changes behavior is a named guardrail paired with the allowed alternative (never auto-register; surface for review). |
 | "This domain needs a tutorial first" | A tutorial-shaped body leaves the agent without an execution path. Keep the body as the numbered procedure and move the textbook material to `references/`, where it loads only when a runbook step needs it. |
+| "Merged commits are enough; failures are not part of the skill" | Git history is success-biased. Without a revert, follow-up fix, or user-supplied counterexample, Common Rationalizations become invented warnings rather than observed failure modes. Label the evidence and cite at least one failure. |
+| "The mixed examples are obvious, so labels would be ceremony" | Unlabeled mixed traces have been measured to collapse later success. List the unlabeled items and refuse to draft until the user labels or drops them; never infer outcomes to keep moving. |
 
 ## Verification
 
 - [ ] The candidate pattern was confirmed against concrete git evidence (commit SHAs cited), not invented.
+- [ ] Every example used as draft evidence is labeled `success` or `failure`, and at least one cited failure comes from a revert, follow-up fix, or user-supplied counterexample.
+- [ ] Any mixed set with unlabeled items was listed and refused before drafting; no outcome label was inferred or supplied by an outbound judge.
 - [ ] The drafted SKILL.md has all four required frontmatter fields, with `summary_l0` and `overview_l1` as quoted strings within their word limits.
 - [ ] The draft body has all required sections in order: When to Use (+ When NOT), Instructions, Common Rationalizations, Verification, Related Skills.
 - [ ] The Instructions section is an executable runbook with numbered actions, decision rules, artifacts, gates, and verification; supporting pedagogy is linked from Tier-3 `references/` rather than taught inline.

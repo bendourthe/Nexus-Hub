@@ -37,3 +37,17 @@ The new skill is registered in `data/SKILL_INDEX.md`, `data/skills.json`, `data/
 ### Result
 
 No documentation move, duplicate, scratch artifact, or release-tree contradiction was introduced by Phase 2. The phase adds only its canonical history record and appends this audit.
+
+## Phase 3 - Distillation Labels, Confusability, and Two-Level Triggers
+
+### Layout check
+
+Phase 3 edits four existing catalog skills, their machine-registry Tier-1 text where required, the shared semantic test file, and release-scoped records. No new bundled reference, scratch report, living document root, or installer artifact is introduced.
+
+### Generated and local outputs
+
+The `skill-stocktake` instructions define `.nexus/skill-stocktake/report.md` as a local, gitignored runtime output; the required language-specialists calibration was performed without committing that cache or report. The only durable evidence is the canonical Phase 3 history file under `docs/releases/v4/v4.1/development/history/`.
+
+### Result
+
+No documentation move, duplicate, scratch artifact, or lifespan contradiction was introduced by Phase 3. Existing v4.1 release records remain in the active release tree.

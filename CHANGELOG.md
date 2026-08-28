@@ -17,6 +17,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **Procedural-anchor skill authoring.** `AGENTS.md` now states that a SKILL.md body is an executable runbook rather than a tutorial, `skill-create` requires numbered operational instructions with supporting pedagogy in Tier-3 references, and `skill-stocktake` reports mostly expository expert bodies as advisory `runbook-backlog` work without failing validation or rewriting them.
 - **TypeScript contract ownership.** `typescript-expert` no longer recommends replacing public `any` contracts with `unknown`; it retains type-system design and I/O parsing while handing low-evidence contracts and assertion evidence to `typed-boundary-hygiene`. `javascript-cleanup` now makes the same one-line ownership handoff without duplicating the pattern catalog.
+- **Outcome-annotated skill distillation.** `continuous-learning` and `skill-create` now require explicit success/failure labels before observations or git examples enter an instinct or skill draft, refuse mixed evidence with unlabeled items, require a real failure source, and keep all judgment local instead of using an outbound LLM judge.
+- **Bounded trigger-confusability stocktake.** `skill-stocktake` now emits an advisory `Confusable clusters` section from changed or low-scoring same-category candidates plus a small named cross-category watchlist. The pass proposes description or `SKIP` repairs without running a catalog-wide all-pairs scan, auto-editing, deleting skills, or adding a validation error.
+- **Two-level skill triggers.** `skill-description-authoring` now pairs the catalog category/domain with a strict observable such as an error string, file type, command, schema field, hook event, or AST smell. Pushy synonyms, trigger nouns, confidence bands, and `SKIP` fences remain required, while exact intended invocation is treated as neither sufficient nor necessary for a useful runbook.
 
 ## [4.0.0] - 2026-08-27
 

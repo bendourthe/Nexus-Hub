@@ -25,6 +25,17 @@ TYPESCRIPT_EXPERT = (
 JAVASCRIPT_CLEANUP = (
     ROOT / "catalog" / "skills" / "code-cleanup" / "javascript-cleanup" / "SKILL.md"
 ).read_text(encoding="utf-8")
+CONTINUOUS_LEARNING = (
+    ROOT / "catalog" / "skills" / "workflow" / "continuous-learning" / "SKILL.md"
+).read_text(encoding="utf-8")
+SKILL_DESCRIPTION_AUTHORING = (
+    ROOT
+    / "catalog"
+    / "skills"
+    / "developer-experience"
+    / "skill-description-authoring"
+    / "SKILL.md"
+).read_text(encoding="utf-8")
 
 
 def test_agents_declares_skill_bodies_are_operational_runbooks():
@@ -68,3 +79,33 @@ def test_non_owners_hand_contract_hygiene_to_typed_boundary_skill():
     assert "replace with `unknown` and narrow" not in TYPESCRIPT_EXPERT
     assert "hand contract cleanup to [[typed-boundary-hygiene]]" in TYPESCRIPT_EXPERT
     assert "[[typed-boundary-hygiene]] -- owns low-evidence" in JAVASCRIPT_CLEANUP
+
+
+def test_distillation_refuses_unlabeled_mixed_evidence():
+    for skill in (CONTINUOUS_LEARNING, SKILL_CREATE):
+        assert "explicit `success` or `failure` label" in skill
+        assert "refuse" in skill
+        assert "unlabeled" in skill
+        assert "outbound LLM-as-judge" in skill
+
+
+def test_skill_create_names_git_history_success_bias_and_real_failures():
+    assert "Git history is success-biased" in SKILL_CREATE
+    assert "revert, a follow-up fix, or a user-supplied counterexample" in SKILL_CREATE
+
+
+def test_stocktake_confusability_pass_is_bounded_and_advisory():
+    assert "### 4c. Audit semantic confusability" in SKILL_STOCKTAKE
+    assert "Do not compare every pair in the catalog" in SKILL_STOCKTAKE
+    assert "## Confusable clusters" in SKILL_STOCKTAKE
+    assert "typed-boundary-hygiene` / `typescript-expert" in SKILL_STOCKTAKE
+    assert "never turn this advisory pass into a `validate_skills.py` error" in SKILL_STOCKTAKE
+
+
+def test_description_authoring_keeps_pushy_fences_and_adds_two_level_triggers():
+    assert "### Rule 7: Pair the category with a strict observable" in SKILL_DESCRIPTION_AUTHORING
+    assert "Level 1 - category or domain" in SKILL_DESCRIPTION_AUTHORING
+    assert "Level 2 - strict observable" in SKILL_DESCRIPTION_AUTHORING
+    assert "Exact invocation is neither sufficient nor necessary" in SKILL_DESCRIPTION_AUTHORING
+    assert "Synonyms and verbatim user phrases remain required" in SKILL_DESCRIPTION_AUTHORING
+    assert "`SKIP` fences are load-bearing" in SKILL_DESCRIPTION_AUTHORING

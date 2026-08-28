@@ -14,7 +14,7 @@ Refreshing this file to the active plan (rather than appending another version's
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
-| v4.1.0 adoption phases complete | 2 | 6 | 4 |
+| v4.1.0 adoption phases complete | 3 | 6 | 3 |
 | Open release blockers | 0 | 0 | 0 |
 | Catalog skills | 326 | 326 | 0 |
 | New typed-boundary skills | 1 | 1 | 0 |
@@ -26,7 +26,7 @@ Refreshing this file to the active plan (rather than appending another version's
 
 - [x] Phase 1 - Procedural-anchor authoring rule
 - [x] Phase 2 - Typed-boundary-hygiene skill and TypeScript handoff
-- [ ] Phase 3 - Distillation labels, confusability, and two-level triggers
+- [x] Phase 3 - Distillation labels, confusability, and two-level triggers
 - [ ] Phase 4 - Eval-loop third arm
 - [ ] Phase 5 - Decide whether to vendor Oxlint into user TypeScript repositories
 - [ ] Phase 6 - Architecture refactor, known-gaps reconciliation, and CI/CD
