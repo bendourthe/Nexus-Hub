@@ -41,6 +41,7 @@ Skill authors will write procedural runbooks with labeled evidence and confusabl
 
 These are committed plan documents awaiting their own cycle. Listing them here is a pointer, not a claim of progress.
 
+- [`v4.1.1-adoption-openworker-security-refinement.md`](releases/v4/v4.1/plans/v4.1.1-adoption-openworker-security-refinement.md) (confirmed, not started)
 - [`v4.2.0-interactive-guide-redesign.md`](releases/v4/v4.2/plans/v4.2.0-interactive-guide-redesign.md)
 
 ---
