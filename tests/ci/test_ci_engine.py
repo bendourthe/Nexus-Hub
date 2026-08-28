@@ -16,6 +16,7 @@ the easiest place to hide one.
 
 from __future__ import annotations
 
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -104,6 +105,17 @@ def test_every_command_declares_a_timeout():
         for group in groups_for(profile):
             for cmd in group.commands:
                 assert cmd.timeout > 0, f"{group.name}/{cmd.name} has no timeout"
+
+
+def test_repository_suite_timeout_covers_the_measured_windows_baseline():
+    repo_tests = next(
+        command
+        for group in groups_for("full")
+        if group.name == "tests"
+        for command in group.commands
+        if command.name == "repo-tests"
+    )
+    assert repo_tests.timeout >= 4500
 
 
 def test_no_command_is_a_shell_string():
@@ -457,3 +469,24 @@ def test_extension_suites_target_their_configured_test_path_not_the_package_root
                 f"{cmd.name} targets the package root, which overrides its "
                 "testpaths and collects non-test fixture code"
             )
+
+
+def test_extension_commands_isolate_imports_to_the_current_checkout():
+    """A stale editable install must not redirect tests to another checkout."""
+    commands = {
+        command.name: command
+        for group in groups_for("full")
+        if group.name == "extension-tests"
+        for command in group.commands
+    }
+    for name, command in commands.items():
+        paths = command.env.get("PYTHONPATH", "").split(os.pathsep)
+        assert paths[0] == "src", f"{name} does not prefer its current src tree"
+
+    expected_compressor_paths = ["src", "../nexus-code-search/src"]
+    assert commands["context-compressor"].env["PYTHONPATH"].split(os.pathsep) == (
+        expected_compressor_paths
+    )
+    assert commands["compression-accuracy-gate"].env["PYTHONPATH"].split(os.pathsep) == (
+        expected_compressor_paths
+    )

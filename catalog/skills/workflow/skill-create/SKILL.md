@@ -52,6 +52,16 @@ Look for:
 - **Manual multi-step workflows**: a recurring commit sequence (bump version -> regenerate index -> update changelog) that a skill could codify.
 - **A class of change**: many commits doing structurally the same edit across different files (e.g., "register new validator in both installers").
 
+### 1.1 Label the evidence outcomes
+
+Git history is success-biased: merged commits show what landed, not a balanced record of what failed along the way. Build an evidence table before drafting:
+
+| Commit, diff, or counterexample | Outcome | Observable basis |
+|---|---|---|
+| SHA, revert, follow-up fix, or user-supplied example | `success` or `failure` | Passing/failing gate, revert relationship, correction, or user confirmation |
+
+Every git-derived example used in the draft MUST carry an explicit `success` or `failure` label. Cite at least one real failure mode from a revert, a follow-up fix, or a user-supplied counterexample for Common Rationalizations; do not pretend ordinary git log is a balanced dataset. If the candidate set mixes successes and failures and any item is unlabeled, warn hard, list the unlabeled SHAs or examples, and refuse to draft until the user labels them or drops them from the evidence set. Never invent labels from commit-message sentiment and never send history to an outbound LLM-as-judge.
+
 ### 2. Confirm the pattern with the user
 
 State the candidate pattern in one paragraph, cite the supporting commit SHAs, and ask the user to confirm it is worth a skill before drafting. A pattern with only one or two occurrences is usually premature - say so.
@@ -65,7 +75,7 @@ Choose an existing category from `AGENTS.md` (do not invent a new one without si
 Write a draft that follows every Nexus-Hub convention:
 
 - **Frontmatter**: `name` (matching the directory), a pushy `description` (verbatim trigger phrases the user is likely to say, plus a `SKIP:` clause), quoted `summary_l0` (<= 15 words), quoted `overview_l1` (<= 150 words). Optional fields exist and are omitted by default: the invocation-policy booleans `disable-model-invocation` / `user-invocable`, and the security framework-mapping lists. Add an invocation-policy field only when the skill genuinely should not be model-invoked (a destructive or side-effecting workflow) or should not appear in the slash menu (pure background knowledge).
-- **Body, in order**: title, When to Use This Skill (with "When NOT to use"), Instructions (the step-by-step distilled from the actual commits - this is where the git evidence pays off), Common Rationalizations (each row citing a concrete failure mode seen in the history, not a platitude), binary Verification (observable artifacts/commands), Related Skills (`[[ ]]` cross-links).
+- **Body, in order**: title, When to Use This Skill (with "When NOT to use"), Instructions as an operational runbook distilled from the actual commits (numbered actions, decision rules, artifacts, gates, and verification the agent can execute, not a language or domain textbook), Common Rationalizations (each row citing a concrete failure mode seen in the history, not a platitude), binary Verification (observable artifacts/commands), Related Skills (`[[ ]]` cross-links). Put supporting pedagogy in Tier-3 `references/` and link it from the runbook only where needed.
 - Keep the body within the size norm (target <= 500 lines).
 - **Agent-writing discipline**: apply all six concepts at this draft step. The full treatment is `catalog/skills/developer-experience/skill-description-authoring/references/agent-writing-theory.md` (owned by [[skill-description-authoring]]; do not fork a second copy). Condensed:
 
@@ -103,12 +113,18 @@ And ideally clear the quality pass (`--quality --verbose`) with zero warnings.
 | "Verification can say 'the skill works'" | Not a valid criterion (AGENTS.md). Every Verification item must be an observable artifact, file path, or command. Distill them from what "done" looked like in the source commits (a passing test, a regenerated file, a green validator). |
 | "I will inline the writing theory so the draft cannot miss it" | The six concepts live in `skill-description-authoring/references/agent-writing-theory.md`. Inlining them here forks the rule. Link, apply, and keep this body as the git-history procedure. |
 | "A few extra 'be careful' lines in Instructions make the skill safer" | That fails the no-op test. Delete instructions the model already obeys. Safety that changes behavior is a named guardrail paired with the allowed alternative (never auto-register; surface for review). |
+| "This domain needs a tutorial first" | A tutorial-shaped body leaves the agent without an execution path. Keep the body as the numbered procedure and move the textbook material to `references/`, where it loads only when a runbook step needs it. |
+| "Merged commits are enough; failures are not part of the skill" | Git history is success-biased. Without a revert, follow-up fix, or user-supplied counterexample, Common Rationalizations become invented warnings rather than observed failure modes. Label the evidence and cite at least one failure. |
+| "The mixed examples are obvious, so labels would be ceremony" | Unlabeled mixed traces have been measured to collapse later success. List the unlabeled items and refuse to draft until the user labels or drops them; never infer outcomes to keep moving. |
 
 ## Verification
 
 - [ ] The candidate pattern was confirmed against concrete git evidence (commit SHAs cited), not invented.
+- [ ] Every example used as draft evidence is labeled `success` or `failure`, and at least one cited failure comes from a revert, follow-up fix, or user-supplied counterexample.
+- [ ] Any mixed set with unlabeled items was listed and refused before drafting; no outcome label was inferred or supplied by an outbound judge.
 - [ ] The drafted SKILL.md has all four required frontmatter fields, with `summary_l0` and `overview_l1` as quoted strings within their word limits.
 - [ ] The draft body has all required sections in order: When to Use (+ When NOT), Instructions, Common Rationalizations, Verification, Related Skills.
+- [ ] The Instructions section is an executable runbook with numbered actions, decision rules, artifacts, gates, and verification; supporting pedagogy is linked from Tier-3 `references/` rather than taught inline.
 - [ ] Every Common Rationalizations row cites a concrete failure mode; every Verification item is observable.
 - [ ] No file under `catalog/skills/` and none of the three data registry files were written without explicit maintainer approval.
 - [ ] When placed, the draft passes `python scripts/validate_skills.py --path <skill-dir>`.

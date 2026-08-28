@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+- Isolate every repository-native Python extension check to the current checkout's `src` tree, including the context compressor's declared code-search sibling, so stale editable installs cannot redirect the full CI profile; give the measured hour-scale Windows repository suite enough timeout headroom to report assertions instead of expiring at 3,600 seconds.
+
+### Added
+
+- **Typed-boundary hygiene skill.** Added `typed-boundary-hygiene`, a procedural TypeScript/JavaScript runbook for replacing chained assertions, weak function contracts, unsafe dictionaries, widen-then-assert flows, reflection, and broad module mocks with named types and checked seams. Eight trigger cases fence it from prose cleanup, general TypeScript design, ESLint cleanup, and Zod schema work; the skill is registered and reachable through the language-specialists module.
+
+### Changed
+
+- **Procedural-anchor skill authoring.** `AGENTS.md` now states that a SKILL.md body is an executable runbook rather than a tutorial, `skill-create` requires numbered operational instructions with supporting pedagogy in Tier-3 references, and `skill-stocktake` reports mostly expository expert bodies as advisory `runbook-backlog` work without failing validation or rewriting them.
+- **TypeScript contract ownership.** `typescript-expert` no longer recommends replacing public `any` contracts with `unknown`; it owns runtime parsers, type predicates, and assertion functions that narrow unknown I/O, while handing low-evidence downstream contracts and assertion evidence to `typed-boundary-hygiene`. Its bundled examples now use named metadata and evidence-backed assertions. `javascript-cleanup` makes the same one-line ownership handoff without duplicating the pattern catalog.
+- **Outcome-annotated skill distillation.** `continuous-learning` and `skill-create` now require explicit success/failure labels before observations or git examples enter an instinct or skill draft, refuse mixed evidence with unlabeled items, require a real failure source, and keep all judgment local instead of using an outbound LLM judge.
+- **Bounded trigger-confusability stocktake.** `skill-stocktake` now emits an advisory `Confusable clusters` section from changed or low-scoring same-category candidates plus a small named cross-category watchlist. The pass proposes description or `SKIP` repairs without running a catalog-wide all-pairs scan, auto-editing, deleting skills, or adding a validation error.
+- **Two-level skill triggers.** `skill-description-authoring` now pairs the catalog category/domain with a strict observable such as an error string, file type, command, schema field, hook event, or AST smell. Pushy synonyms, trigger nouns, confidence bands, and `SKIP` fences remain required, while exact intended invocation is treated as neither sufficient nor necessary for a useful runbook.
+- **Optional raw-memory evaluation arm.** `skill-eval-loop` can now compare the unchanged two-arm baseline with a third `raw_memory/` condition that injects the same prior notes distilled into SKILL.md. The existing optimizer executable dispatches readable sources and writes response metadata; missing notes record `raw_memory: "not_run"`, while incomplete, mismatched, or failed artifacts record `status: "invalid"` and do not affect aggregate metrics. Valid runs reuse the existing dispatcher and grader, remain blinded as A/B/C, aggregate separately without changing the with-vs-without delta, and render in the existing viewer without adding a model client, credential, or hosted judge.
+- **Oxlint vendor decision.** Nexus-Hub will keep typed-boundary hygiene skill-native and will not add Oxlint to its runtime or CI or ship a catalog skill that vendors a plugin into consumer repositories. The rejected decision and out-of-scope entry record the absent in-repo TypeScript proving ground, unowned `@oxlint/plugins` API drift, and the requirement for an explicit superseding decision before reconsideration.
+
 ## [4.0.0] - 2026-08-27
 
 ### Capability usage gate

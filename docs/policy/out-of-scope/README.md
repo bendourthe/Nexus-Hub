@@ -35,6 +35,7 @@ One file per deliberately-declined feature or request class:
 |---|---|
 | [search-as-service-mcps.md](search-as-service-mcps.md) | Search-as-service, embeddings-as-service, scraping-as-service, and generation-as-service MCP registry entries are never shipped. |
 | [changesets-release-automation.md](changesets-release-automation.md) | npm changesets (and a changesets-driven version-PR Action) are not the Nexus-Hub release path. |
+| [oxlint-in-nexus-hub.md](oxlint-in-nexus-hub.md) | Oxlint is not a Nexus-Hub dependency, CI gate, or consumer-plugin vendor workflow. |
 
 ## Adding an entry
 
