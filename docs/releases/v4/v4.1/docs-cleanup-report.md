@@ -51,3 +51,17 @@ The `skill-stocktake` instructions define `.nexus/skill-stocktake/report.md` as 
 ### Result
 
 No documentation move, duplicate, scratch artifact, or lifespan contradiction was introduced by Phase 3. Existing v4.1 release records remain in the active release tree.
+
+## Phase 4 - Eval-Loop Third Arm
+
+### Layout check
+
+Phase 4 edits the existing `skill-eval-loop` bundle, its two repository-level runtime scripts, the existing eval-loop test module, and release-scoped records. It introduces no new directory outside the established skill bundle, scripts root, test tree, or `docs/releases/v4/v4.1/` evidence tree.
+
+### Runtime artifacts
+
+The optional `raw_memory/` directory exists only inside a user's eval workspace when an eval entry declares a readable source file. Benchmark JSON, Markdown, viewer HTML, comparison JSON, and feedback remain workspace outputs rather than committed project documentation.
+
+### Result
+
+No documentation move, duplicate, scratch artifact, or lifespan contradiction was introduced by Phase 4. The phase adds only its canonical history record and appends this audit.

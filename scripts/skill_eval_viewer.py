@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Browser-based viewer for one iteration of the skill-eval-loop.
 
-Renders paired with_skill / without_skill outputs side-by-side, plus the
+Renders with_skill / without_skill outputs and optional raw_memory output, plus the
 benchmark table from benchmark.json. Collects user feedback into a structured
 feedback.json that the next iteration consumes.
 
@@ -46,6 +46,7 @@ from typing import Any
 
 
 _RUN_CONDITIONS = ("with_skill", "without_skill")
+_OPTIONAL_RUN_CONDITION = "raw_memory"
 
 
 def _read_text_safe(path: Path) -> str:
@@ -77,6 +78,13 @@ def collect_iteration_data(iteration_dir: Path) -> dict[str, Any]:
                 "response": _read_text_safe(run_dir / "outputs" / "response.txt"),
                 "metadata": _read_json_safe(run_dir / "outputs" / "run_metadata.json") or {},
                 "grading": _read_json_safe(run_dir / "grading.json") or {},
+            }
+        raw_memory_dir = eval_dir / _OPTIONAL_RUN_CONDITION
+        if raw_memory_dir.is_dir():
+            entry[_OPTIONAL_RUN_CONDITION] = {
+                "response": _read_text_safe(raw_memory_dir / "outputs" / "response.txt"),
+                "metadata": _read_json_safe(raw_memory_dir / "outputs" / "run_metadata.json") or {},
+                "grading": _read_json_safe(raw_memory_dir / "grading.json") or {},
             }
         evals.append(entry)
 
@@ -140,11 +148,21 @@ def _render_benchmark_table(benchmark: dict[str, Any]) -> str:
             f"<td>{ev['without_skill']['duration_ms_mean']:.0f}</td></tr>"
         )
 
-    return (
+    table = (
         "<table><thead><tr><th>Eval</th><th>with_skill pass</th>"
         "<th>without_skill pass</th><th>Delta</th>"
         "<th>with_skill ms</th><th>without_skill ms</th></tr></thead>"
         f"<tbody>{''.join(rows)}</tbody></table>"
+    )
+    raw_memory = overall.get(_OPTIONAL_RUN_CONDITION, "not_run")
+    if raw_memory == "not_run":
+        return table + "<p><strong>raw_memory:</strong> not_run</p>"
+    return (
+        table
+        + "<h3>Raw memory arm</h3>"
+        + "<table><thead><tr><th>Evals run</th><th>Pass rate</th><th>Duration mean (ms)</th><th>Tokens mean</th></tr></thead>"
+        + f"<tbody><tr><td>{raw_memory['n_evals']}</td><td>{raw_memory['pass_rate']:.3f}</td>"
+        + f"<td>{raw_memory['duration_ms_mean']:.0f}</td><td>{raw_memory['tokens_mean']:.0f}</td></tr></tbody></table>"
     )
 
 
@@ -152,6 +170,16 @@ def _render_eval_block(entry: dict[str, Any]) -> str:
     eval_id = entry["id"]
     ws = entry["with_skill"]
     wos = entry["without_skill"]
+    raw_memory = entry.get(_OPTIONAL_RUN_CONDITION)
+    raw_memory_block = ""
+    if raw_memory is not None:
+        raw_memory_block = f"""
+    <div class="run">
+      <h4>raw_memory (prior notes)</h4>
+      {_render_run_meta(raw_memory)}
+      <pre class="response">{_esc(raw_memory['response']) or '<em>(no response.txt)</em>'}</pre>
+      {_render_grading(raw_memory['grading'])}
+    </div>"""
 
     return f"""
 <section class="eval" data-eval-id="{_esc(eval_id)}">
@@ -169,6 +197,7 @@ def _render_eval_block(entry: dict[str, Any]) -> str:
       <pre class="response">{_esc(wos['response']) or '<em>(no response.txt)</em>'}</pre>
       {_render_grading(wos['grading'])}
     </div>
+    {raw_memory_block}
   </div>
   <div class="feedback">
     <label><strong>Verdict:</strong>
@@ -260,7 +289,7 @@ h1 {{ border-bottom: 2px solid #333; padding-bottom: 0.3em; }}
 .tab-btn.active {{ background: #333; color: white; }}
 .tab-content {{ display: none; }}
 .tab-content.active {{ display: block; }}
-.grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 1em; }}
+.grid {{ display: grid; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); gap: 1em; }}
 .run {{ background: #fafafa; padding: 0.8em; border: 1px solid #ddd; border-radius: 4px; }}
 .run h4 {{ margin-top: 0; }}
 .response {{ background: white; padding: 0.6em; border: 1px solid #eee; max-height: 24em; overflow: auto;

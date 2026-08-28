@@ -260,6 +260,42 @@ def _build_fixture_iteration(tmp_path: Path) -> Path:
     return iter_dir
 
 
+def _add_raw_memory_run(iter_dir: Path) -> Path:
+    """Add the optional third arm to the fixture iteration."""
+    run = iter_dir / "eval-001" / "raw_memory"
+    (run / "outputs").mkdir(parents=True)
+    (run / "outputs" / "response.txt").write_text(
+        "Response from raw memory run\n", encoding="utf-8"
+    )
+    (run / "outputs" / "run_metadata.json").write_text(
+        json.dumps(
+            {
+                "cli": "claude",
+                "skill_loaded": False,
+                "memory_injected": True,
+                "duration_ms": 14000,
+                "total_tokens": 3300,
+                "exit_code": 0,
+            }
+        ),
+        encoding="utf-8",
+    )
+    (run / "grading.json").write_text(
+        json.dumps(
+            {
+                "eval_id": "eval-001",
+                "skill_loaded": False,
+                "assertions": [
+                    {"text": "fixture assertion", "passed": True, "evidence": "fixture"}
+                ],
+                "pass_rate": 1.0,
+            }
+        ),
+        encoding="utf-8",
+    )
+    return run
+
+
 class TestAggregator:
     def test_aggregator_emits_benchmark_json_and_md(self, tmp_path: Path) -> None:
         iter_dir = _build_fixture_iteration(tmp_path)
@@ -276,6 +312,28 @@ class TestAggregator:
         assert data["overall"]["with_skill_pass_rate"] == 1.0
         assert data["overall"]["without_skill_pass_rate"] == 0.0
         assert data["overall"]["pass_rate_delta"] == 1.0
+        assert data["by_eval"]["eval-001"]["raw_memory"] == "not_run"
+        assert data["overall"]["raw_memory"] == "not_run"
+
+    def test_aggregator_includes_present_raw_memory_arm(self, tmp_path: Path) -> None:
+        iter_dir = _build_fixture_iteration(tmp_path)
+        raw_memory_dir = _add_raw_memory_run(iter_dir)
+        assert raw_memory_dir.is_dir()
+
+        result = subprocess.run(
+            [sys.executable, str(_AGGREGATOR), str(iter_dir)],
+            capture_output=True, text=True, timeout=30,
+        )
+        assert result.returncode == 0, f"aggregator failed: {result.stderr}"
+        data = json.loads((iter_dir / "benchmark.json").read_text(encoding="utf-8"))
+        assert data["by_eval"]["eval-001"]["raw_memory"]["pass_rate"] == 1.0
+        assert data["overall"]["raw_memory"] == {
+            "status": "run",
+            "n_evals": 1,
+            "pass_rate": 1.0,
+            "duration_ms_mean": 14000.0,
+            "tokens_mean": 3300.0,
+        }
 
 
 class TestViewerStaticMode:
@@ -301,6 +359,22 @@ class TestViewerStaticMode:
         assert "eval-001" in body
         assert "with_skill" in body and "without_skill" in body
         assert "submitFeedback" in body  # the JS handler is wired in
+
+    def test_static_html_renders_raw_memory_when_present(self, tmp_path: Path) -> None:
+        iter_dir = _build_fixture_iteration(tmp_path)
+        _add_raw_memory_run(iter_dir)
+        subprocess.run(
+            [sys.executable, str(_AGGREGATOR), str(iter_dir)],
+            capture_output=True, text=True, timeout=30, check=True,
+        )
+        out_html = tmp_path / "review.html"
+        subprocess.run(
+            [sys.executable, str(_VIEWER), str(iter_dir), "--static", str(out_html)],
+            capture_output=True, text=True, timeout=30, check=True,
+        )
+        body = out_html.read_text(encoding="utf-8")
+        assert "raw_memory (prior notes)" in body
+        assert "Response from raw memory run" in body
 
 
 # ── 4. Trigger-testing techniques (v2.3.0 Phase 4 / T014-T015) ───────────────
