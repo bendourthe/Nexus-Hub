@@ -9,9 +9,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Typed-boundary hygiene skill.** Added `typed-boundary-hygiene`, a procedural TypeScript/JavaScript runbook for replacing chained assertions, weak function contracts, unsafe dictionaries, widen-then-assert flows, reflection, and broad module mocks with named types and checked seams. Eight trigger cases fence it from prose cleanup, general TypeScript design, ESLint cleanup, and Zod schema work; the skill is registered and reachable through the language-specialists module.
+
 ### Changed
 
 - **Procedural-anchor skill authoring.** `AGENTS.md` now states that a SKILL.md body is an executable runbook rather than a tutorial, `skill-create` requires numbered operational instructions with supporting pedagogy in Tier-3 references, and `skill-stocktake` reports mostly expository expert bodies as advisory `runbook-backlog` work without failing validation or rewriting them.
+- **TypeScript contract ownership.** `typescript-expert` no longer recommends replacing public `any` contracts with `unknown`; it retains type-system design and I/O parsing while handing low-evidence contracts and assertion evidence to `typed-boundary-hygiene`. `javascript-cleanup` now makes the same one-line ownership handoff without duplicating the pattern catalog.
 
 ## [4.0.0] - 2026-08-27
 

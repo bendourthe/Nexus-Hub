@@ -23,3 +23,17 @@
 ### Result
 
 No duplicate, orphaned, scratch, or misplaced documentation was created by Phase 1. No file moved, and no cleanup change was approved or applied.
+
+## Phase 2 - Typed-Boundary Hygiene Skill and TypeScript Handoff
+
+### Layout check
+
+Phase 2 adds one catalog skill tree at `catalog/skills/language-specialists/typed-boundary-hygiene/` and one release-scoped session history under `docs/releases/v4/v4.1/development/history/`. The skill's trigger fixture is a bundled resource referenced by the skill body through its trigger-evaluation contract, and the existing recursive installers require no new copy line.
+
+### Registry and documentation placement
+
+The new skill is registered in `data/SKILL_INDEX.md`, `data/skills.json`, `data/marketplace.json`, and the language-specialists module in `data/bundles.json`. Live catalog counts in `README.md` and `AGENTS.md` moved from 325 to 326; v4.0 historical evidence remains unchanged at its recorded count.
+
+### Result
+
+No documentation move, duplicate, scratch artifact, or release-tree contradiction was introduced by Phase 2. The phase adds only its canonical history record and appends this audit.

@@ -130,6 +130,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | python-expert | language-specialists | "Write production Python with async patterns, type hints, and packaging best practices" | catalog/skills/language-specialists/python-expert/SKILL.md |
 | rust-expert | language-specialists | "Write Rust with ownership, borrowing, traits, async/await, and lifetime management" | catalog/skills/language-specialists/rust-expert/SKILL.md |
 | sql-expert | language-specialists | "Write optimized SQL queries with execution plan analysis and schema design" | catalog/skills/language-specialists/sql-expert/SKILL.md |
+| typed-boundary-hygiene | language-specialists | "Replace low-evidence TypeScript contracts with named, checked types" | catalog/skills/language-specialists/typed-boundary-hygiene/SKILL.md |
 | typescript-expert | language-specialists | "Write type-safe TypeScript with generics, discriminated unions, and strict configuration" | catalog/skills/language-specialists/typescript-expert/SKILL.md |
 | adversarial-verifier | orchestration | "Stress-test implementations with adversarial inputs, edge cases, and attack vectors" | catalog/skills/orchestration/adversarial-verifier/SKILL.md |
 | agent-access-policy | orchestration | "Configure least-privilege file access controls for AI coding agents" | catalog/skills/orchestration/agent-access-policy/SKILL.md |
@@ -330,4 +331,4 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | design-interview | developer-experience | "Interview until the design tree is resolved and keep a CONTEXT.md glossary" | catalog/skills/developer-experience/design-interview/SKILL.md |
 | setup-wizard-generator | developer-experience | "Generate a resumable human-only setup wizard with bash and PowerShell templates" | catalog/skills/developer-experience/setup-wizard-generator/SKILL.md |
 | decision-questionnaire | business-product | "Write an async Markdown questionnaire for the one stakeholder who can unblock" | catalog/skills/business-product/decision-questionnaire/SKILL.md |
-**Total: 325 skills across 23 categories**
+**Total: 326 skills across 23 categories**

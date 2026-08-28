@@ -14,10 +14,10 @@ Refreshing this file to the active plan (rather than appending another version's
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
-| v4.1.0 adoption phases complete | 1 | 6 | 5 |
+| v4.1.0 adoption phases complete | 2 | 6 | 4 |
 | Open release blockers | 0 | 0 | 0 |
-| Catalog skills | 325 | 325 | 0 |
-| New typed-boundary skills | 0 | 1 | 1 |
+| Catalog skills | 326 | 326 | 0 |
+| New typed-boundary skills | 1 | 1 | 0 |
 | Oxlint dependencies in Nexus-Hub | 0 | 0 | 0 |
 
 ---
@@ -25,7 +25,7 @@ Refreshing this file to the active plan (rather than appending another version's
 ## Plan - v4.1.0 Skill Trial Records and Typed-Boundary Hygiene [IN PROGRESS]
 
 - [x] Phase 1 - Procedural-anchor authoring rule
-- [ ] Phase 2 - Typed-boundary-hygiene skill and TypeScript handoff
+- [x] Phase 2 - Typed-boundary-hygiene skill and TypeScript handoff
 - [ ] Phase 3 - Distillation labels, confusability, and two-level triggers
 - [ ] Phase 4 - Eval-loop third arm
 - [ ] Phase 5 - Decide whether to vendor Oxlint into user TypeScript repositories

@@ -6,7 +6,7 @@
     "description": "Comprehensive catalog of Nexus-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-    "total_skills": 325,
+    "total_skills": 326,
     "categories": {
       "ai-development": 14,
       "architecture": 7,
@@ -19,7 +19,7 @@
       "documentation": 6,
       "framework-specialists": 6,
       "infrastructure": 19,
-      "language-specialists": 10,
+      "language-specialists": 11,
       "orchestration": 16,
       "project-setup": 5,
       "research": 3,
@@ -33,12 +33,12 @@
       "mobile-security": 5
     },
     "priorities": {
-      "MEDIUM": 272,
+      "MEDIUM": 273,
       "HIGH": 5
     },
-    "total_lines": 135856,
-    "total_tokens_estimate": 739006,
-    "average_lines_per_skill": 418,
+    "total_lines": 136172,
+    "total_tokens_estimate": 740960,
+    "average_lines_per_skill": 417,
     "languages_supported": [
       "Python",
       "JavaScript",
@@ -3784,6 +3784,47 @@
         "lines": 500,
         "characters": 14085,
         "tokens_estimate": 2033
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "typed-boundary-hygiene",
+      "title": "typed-boundary-hygiene",
+      "description": "Audit and rewrite low-evidence TypeScript and JavaScript contracts. Use for \"low-evidence TypeScript\", \"chained type assertion\", \"as unknown as\", \"Record<string, unknown>\", \"unknown parameter\", \"unknown return\", \"SAFETY comment for assertion\", \"vi.mock\", or \"conditional empty object spread\", including unsafe dictionaries, object parameters, Reflect access, and widen-then-assert code. SKIP - prose or voice slop (anti-slop-editing), ESLint dead-code cleanup (javascript-cleanup), type-system design, generics, or Zod schemas (typescript-expert), and Effect service constructors.",
+      "long_description": "Replace types that merely silence the compiler with contracts justified by runtime evidence or by a named internal invariant. Run this procedure on the TypeScript or JavaScript files in scope; it is a source-editing runbook, not a type-system tutorial.",
+      "summary_l0": "\"Replace low-evidence TypeScript contracts with named, checked types\"",
+      "overview_l1": "\"Run a bounded audit over the TypeScript or JavaScript files being edited. Find chained assertions, unknown or object function contracts, unsafe dictionaries, widen-then-assert flows, assertion comments, conditional empty spreads, Reflect access, and module mocks. For each finding, establish the real invariant, replace the weak contract with a named type or testable seam, and require a SAFETY comment on any remaining non-const assertion. This skill owns contract hygiene and assertion evidence; typescript-expert owns generics, discriminated unions, and parsing unknown I/O with Zod. Trigger phrases: low-evidence TypeScript, as unknown as, Record<string unknown>, unknown parameter, unknown return, SAFETY comment, vi.mock, conditional empty object spread.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "language-specialists",
+      "language": "Multi-language",
+      "tags": [
+        "typescript",
+        "javascript",
+        "type-safety",
+        "contracts",
+        "assertions"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Edit",
+        "Bash"
+      ],
+      "path": "catalog/skills/language-specialists/typed-boundary-hygiene/",
+      "file": "catalog/skills/language-specialists/typed-boundary-hygiene/SKILL.md",
+      "size": {
+        "lines": 316,
+        "characters": 13508,
+        "tokens_estimate": 1954
       },
       "downloads": 0,
       "status": "production",
