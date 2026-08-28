@@ -14,6 +14,8 @@ EXIT_CLOSURE_FAILURE = 1
 EXIT_USAGE_ERROR = 2
 
 SCHEMA_VERSION = 1
+SCHEMA_VERSION_V2 = 2
+SUPPORTED_SCHEMA_VERSIONS = {SCHEMA_VERSION, SCHEMA_VERSION_V2}
 DISPOSITIONS = {
     "confirmed",
     "needs-live-validation",
@@ -21,12 +23,29 @@ DISPOSITIONS = {
     "rejected",
 }
 REJECTION_RESULTS = {"observed-blocked", "observed-safe", "not-applicable"}
+RECEIPT_STATES = {
+    "RAN",
+    "NOT_APPLICABLE",
+    "UNAVAILABLE",
+    "FAILED",
+    "DECLINED",
+}
+COVERAGE_STATUSES = {"complete", "degraded"}
+NON_RUN_APPLICABLE_STATES = {"UNAVAILABLE", "FAILED", "DECLINED"}
 DIFF_NAMES = (
     "components_without_review_action_or_caveat",
     "findings_without_terminal_or_pending_disposition",
     "confirmed_findings_without_supporting_evidence",
     "rejected_findings_without_complete_rejection_record",
     "report_claims_without_matching_facts",
+)
+V2_DIFF_NAMES = (
+    "applicable_scanners_without_successful_run",
+    "malformed_or_unsupported_receipt_states",
+    "corrected_scanner_findings_without_equivalent_rescan",
+    "mismatched_detector_config_or_scope",
+    "unresolved_new_after_scan_findings",
+    "fixer_is_sole_verifier",
 )
 
 
@@ -158,12 +177,316 @@ def _rejection_is_complete(finding: dict[str, Any]) -> bool:
     return True
 
 
+def _is_int(value: object) -> bool:
+    return isinstance(value, int) and not isinstance(value, bool)
+
+
+def _scope_fingerprint(scope: object) -> str | None:
+    if not isinstance(scope, dict):
+        return None
+    fingerprint = scope.get("fingerprint")
+    if not _is_text(fingerprint):
+        return None
+    return fingerprint.strip()
+
+
+def _ran_fields_complete(receipt: dict[str, Any]) -> bool:
+    text_fields = (
+        "scanner_id",
+        "scanner_version",
+        "applicability_evidence",
+        "config_fingerprint",
+        "command",
+        "started_at",
+        "finished_at",
+        "artifact_path",
+    )
+    return (
+        all(_is_text(receipt.get(field)) for field in text_fields)
+        and _is_int(receipt.get("exit_code"))
+        and _scope_fingerprint(receipt.get("target_scope")) is not None
+    )
+
+
+def _not_applicable_complete(receipt: dict[str, Any]) -> bool:
+    return all(
+        _is_text(receipt.get(field))
+        for field in ("scanner_id", "applicability_evidence", "omission_reason")
+    )
+
+
+def _non_run_complete(receipt: dict[str, Any]) -> bool:
+    return all(
+        _is_text(receipt.get(field))
+        for field in ("scanner_id", "applicability_evidence", "omission_reason")
+    )
+
+
+def _failed_complete(receipt: dict[str, Any]) -> bool:
+    return (
+        _non_run_complete(receipt)
+        and _is_text(receipt.get("command"))
+        and _is_int(receipt.get("exit_code"))
+    )
+
+
+def _receipt_ran_successfully(receipt: dict[str, Any]) -> bool:
+    return receipt.get("state") == "RAN" and _ran_fields_complete(receipt)
+
+
+def _append_unique(values: list[str], item_id: str) -> None:
+    if item_id not in values:
+        values.append(item_id)
+
+
+def _record_receipt_shape(receipt: dict[str, Any], diffs: dict[str, list[str]]) -> None:
+    receipt_id = str(receipt["id"])
+    state = receipt.get("state")
+    if not isinstance(state, str) or state not in RECEIPT_STATES:
+        _append_unique(diffs["malformed_or_unsupported_receipt_states"], receipt_id)
+        return
+    complete = False
+    if state == "RAN":
+        complete = _ran_fields_complete(receipt)
+    elif state == "NOT_APPLICABLE":
+        complete = _not_applicable_complete(receipt)
+    elif state == "FAILED":
+        complete = _failed_complete(receipt)
+    else:
+        complete = _non_run_complete(receipt)
+    if not complete:
+        _append_unique(diffs["malformed_or_unsupported_receipt_states"], receipt_id)
+
+
+def _finding_is_dispositioned(finding: dict[str, Any] | None) -> bool:
+    if finding is None:
+        return False
+    disposition = finding.get("disposition")
+    if not isinstance(disposition, str) or disposition not in DISPOSITIONS:
+        return False
+    if disposition == "needs-live-validation":
+        return _live_validation_is_explicit(finding)
+    return True
+
+
+def _evaluate_scanner_inventory(
+    inventory: dict[str, dict[str, Any]],
+    receipts_by_scanner: dict[str, list[dict[str, Any]]],
+    coverage_status: str,
+    diffs: dict[str, list[str]],
+) -> None:
+    for scanner_id, item in inventory.items():
+        applicable = item.get("applicable")
+        if not isinstance(applicable, bool) or not _is_text(item.get("evidence")):
+            _append_unique(diffs["malformed_or_unsupported_receipt_states"], scanner_id)
+            continue
+
+        matching = receipts_by_scanner.get(scanner_id, [])
+        if not matching:
+            _append_unique(
+                diffs["applicable_scanners_without_successful_run"], scanner_id
+            )
+            continue
+
+        if not applicable:
+            has_valid_na = any(
+                receipt.get("state") == "NOT_APPLICABLE"
+                and _not_applicable_complete(receipt)
+                for receipt in matching
+            )
+            if has_valid_na:
+                continue
+            if any(receipt.get("state") == "NOT_APPLICABLE" for receipt in matching):
+                continue
+            _append_unique(
+                diffs["applicable_scanners_without_successful_run"], scanner_id
+            )
+            continue
+
+        if any(_receipt_ran_successfully(receipt) for receipt in matching):
+            continue
+        if any(receipt.get("state") == "RAN" for receipt in matching):
+            continue
+
+        honest_non_run = any(
+            receipt.get("state") in NON_RUN_APPLICABLE_STATES
+            and (
+                _failed_complete(receipt)
+                if receipt.get("state") == "FAILED"
+                else _non_run_complete(receipt)
+            )
+            for receipt in matching
+        )
+        if honest_non_run and coverage_status == "degraded":
+            continue
+        _append_unique(diffs["applicable_scanners_without_successful_run"], scanner_id)
+
+
+def _evaluate_remediations(
+    remediations: dict[str, dict[str, Any]],
+    receipts: dict[str, dict[str, Any]],
+    findings: dict[str, dict[str, Any]],
+    diffs: dict[str, list[str]],
+) -> list[str]:
+    fixer_identities: list[str] = []
+    for rem_id, remediation in remediations.items():
+        fixer = remediation.get("fixer_identity")
+        if _is_text(fixer):
+            fixer_identities.append(fixer.strip())
+        else:
+            _append_unique(diffs["malformed_or_unsupported_receipt_states"], rem_id)
+
+        finding_ids = _text_list(remediation.get("finding_ids"))
+        before_id = remediation.get("before_receipt_id")
+        after_id = remediation.get("after_receipt_id")
+        delta = remediation.get("finding_delta")
+        if (
+            finding_ids is None
+            or not finding_ids
+            or not _is_text(before_id)
+            or not _is_text(after_id)
+            or not isinstance(delta, dict)
+        ):
+            _append_unique(diffs["malformed_or_unsupported_receipt_states"], rem_id)
+            continue
+
+        before = receipts.get(before_id.strip())
+        after = receipts.get(after_id.strip())
+        for finding_id in finding_ids:
+            finding = findings.get(finding_id)
+            source = finding.get("source_scanner_id") if finding else None
+            if finding is None or finding.get("disposition") != "corrected":
+                continue
+            if not _is_text(source):
+                continue
+            if before is None or after is None:
+                _append_unique(
+                    diffs["corrected_scanner_findings_without_equivalent_rescan"],
+                    finding_id,
+                )
+                continue
+            same_detector = (
+                before.get("scanner_id") == source.strip()
+                and after.get("scanner_id") == source.strip()
+            )
+            same_config = _is_text(before.get("config_fingerprint")) and before.get(
+                "config_fingerprint"
+            ) == after.get("config_fingerprint")
+            same_scope = _scope_fingerprint(
+                before.get("target_scope")
+            ) is not None and _scope_fingerprint(
+                before.get("target_scope")
+            ) == _scope_fingerprint(after.get("target_scope"))
+            if not (same_detector and same_config and same_scope):
+                _append_unique(diffs["mismatched_detector_config_or_scope"], finding_id)
+
+        before_obs = (
+            set(_text_list(before.get("observed_finding_ids")) or [])
+            if before
+            else set()
+        )
+        after_obs = (
+            set(_text_list(after.get("observed_finding_ids")) or []) if after else set()
+        )
+        declared_new = set(_text_list(delta.get("new_finding_ids")) or [])
+        computed_new = (
+            (after_obs - before_obs) if (after_obs or before_obs) else declared_new
+        )
+        for new_id in sorted(computed_new | declared_new):
+            if not _finding_is_dispositioned(findings.get(new_id)):
+                _append_unique(diffs["unresolved_new_after_scan_findings"], new_id)
+
+    for finding_id, finding in findings.items():
+        if finding.get("disposition") != "corrected" or not _is_text(
+            finding.get("source_scanner_id")
+        ):
+            continue
+        linked = False
+        for remediation in remediations.values():
+            named = _text_list(remediation.get("finding_ids")) or []
+            if finding_id not in named:
+                continue
+            before = receipts.get(str(remediation.get("before_receipt_id", "")).strip())
+            after = receipts.get(str(remediation.get("after_receipt_id", "")).strip())
+            if before is not None and after is not None:
+                linked = True
+                break
+        if not linked:
+            _append_unique(
+                diffs["corrected_scanner_findings_without_equivalent_rescan"],
+                finding_id,
+            )
+
+    return fixer_identities
+
+
+def _evaluate_verifiers(
+    verifiers_raw: list[Any], fixer_identities: list[str], diffs: dict[str, list[str]]
+) -> None:
+    independent = False
+    fixer_set = set(fixer_identities)
+    for position, raw_verifier in enumerate(verifiers_raw):
+        verifier = _require_object(raw_verifier, f"verifiers[{position}]")
+        identity = verifier.get("identity")
+        read_only = verifier.get("read_only")
+        if not _is_text(identity) or not isinstance(read_only, bool):
+            raise RecordError(
+                f"verifiers[{position}] must include identity text and boolean read_only"
+            )
+        if identity.strip() not in fixer_set and read_only is True:
+            independent = True
+    if not independent:
+        diffs["fixer_is_sole_verifier"].append("verifiers")
+
+
+def _evaluate_schema_v2(
+    record: dict[str, Any],
+    findings: dict[str, dict[str, Any]],
+    diffs: dict[str, list[str]],
+) -> None:
+    for name in V2_DIFF_NAMES:
+        diffs[name] = []
+
+    coverage = _require_object(
+        record.get("deterministic_coverage"), "deterministic_coverage"
+    )
+    coverage_status = coverage.get("status")
+    if not isinstance(coverage_status, str) or coverage_status not in COVERAGE_STATUSES:
+        raise RecordError("deterministic_coverage.status must be complete or degraded")
+
+    inventory = _index_records(
+        _require_list(record, "scanner_inventory"), "scanner_inventory"
+    )
+    receipts = _index_records(
+        _require_list(record, "scanner_receipts"), "scanner_receipts"
+    )
+    remediations = _index_records(
+        _require_list(record, "remediation_receipts"), "remediation_receipts"
+    )
+    verifiers_raw = _require_list(record, "verifiers")
+
+    receipts_by_scanner: dict[str, list[dict[str, Any]]] = {}
+    for receipt in receipts.values():
+        _record_receipt_shape(receipt, diffs)
+        scanner_id = receipt.get("scanner_id")
+        if _is_text(scanner_id):
+            receipts_by_scanner.setdefault(scanner_id.strip(), []).append(receipt)
+
+    _evaluate_scanner_inventory(inventory, receipts_by_scanner, coverage_status, diffs)
+    fixer_identities = _evaluate_remediations(remediations, receipts, findings, diffs)
+    if remediations:
+        _evaluate_verifiers(verifiers_raw, fixer_identities, diffs)
+
+
 def evaluate_review_record(raw_record: object) -> dict[str, Any]:
     """Return the deterministic closure diff for a validated review record."""
     record = _require_object(raw_record, "review record")
     schema_version = record.get("schema_version")
-    if isinstance(schema_version, bool) or schema_version != SCHEMA_VERSION:
-        raise RecordError(f"schema_version must equal {SCHEMA_VERSION}")
+    if (
+        isinstance(schema_version, bool)
+        or schema_version not in SUPPORTED_SCHEMA_VERSIONS
+    ):
+        raise RecordError("schema_version must equal 1 or 2")
 
     components = _index_records(_require_list(record, "components"), "components")
     actions = _index_records(_require_list(record, "review_actions"), "review_actions")
@@ -203,6 +526,9 @@ def evaluate_review_record(raw_record: object) -> dict[str, Any]:
             not _fact_is_supported(facts.get(fact_id)) for fact_id in fact_ids
         ):
             diffs[DIFF_NAMES[4]].append(claim_id)
+
+    if schema_version == SCHEMA_VERSION_V2:
+        _evaluate_schema_v2(record, findings, diffs)
 
     for item_ids in diffs.values():
         item_ids.sort()

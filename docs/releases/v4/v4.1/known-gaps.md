@@ -1,7 +1,7 @@
 # Known Gaps - v4.1
 
 **Project**: Nexus-Hub
-**Status**: finalized
+**Status**: in-progress
 **Last updated**: 2026-08-28
 
 ## v4.1.0
@@ -64,3 +64,24 @@ All Not Implemented, Bug / Regression, and Missing Test categories have no open 
 - v3.20 DF-1 and DF-2 remain on `docs/releases/v3/v3.20/known-gaps.md`; this adoption plan did not absorb or relabel them.
 - v3.21 DF-1 remains on `docs/releases/v3/v3.21/known-gaps.md` because Nexus-Hub still has no authored catalog atlas.
 - v3.21 DF-2 is resolved on its original ledger by the v4.1.0 Phase 1 refresh of `docs/todos.md`.
+
+## v4.1.1
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+
+### Open Items
+
+All Not Implemented, Deferred, Bug / Regression, Warning, Missing Test, and Quality-Gate categories have no open v4.1.1 items after Phase 1.
+
+### Resolved
+
+None.

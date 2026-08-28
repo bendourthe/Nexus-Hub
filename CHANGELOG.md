@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Added
+
+- **Scanner-receipt closure contract.** Full security-audit runs now emit schema-v2 closure records with a scanner inventory, per-scanner receipts (`RAN`, `NOT_APPLICABLE`, `UNAVAILABLE`, `FAILED`, `DECLINED`), remediation linkage, and an independent read-only verifier. Schema-v1 records keep their previous fields, diffs, and exit codes.
+
+### Changed
+
+- **Security-review schema selection.** `security-review` uses schema v2 for a full security audit and may keep schema v1 for a focused review only when it states that deterministic scanner completeness is not claimed. The fixer cannot be the only post-fix verifier.
+
+### Documentation
+
+- **v4.1.2 planning record.** Added the Ponytail (minimal-construction) comparison as forward-looking documentation. Its implementation does not ship in v4.1.1.
+
+---
+
 ## [4.1.0] - 2026-08-28
 
 ### Capability usage gate

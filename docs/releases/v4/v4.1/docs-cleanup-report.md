@@ -97,3 +97,24 @@ Six duplicate-content groups were inspected: a self-contained bundled checklist,
 ### Result
 
 No tracked obsolete file, empty directory, redundant directory, misplaced document, or overcomplicated structure warranted a move or deletion. Because the audit proposed no repository mutation, the project-refactor and docs-layout confirmation gate did not activate. Phase 6 adds only its canonical session history and last-phase evidence under `docs/releases/v4/v4.1/development/`.
+
+## v4.1.1 Phase 1 - Scanner-Receipt and Independent-Verification Contract
+
+**Date**: 2026-08-28
+**Mode**: audit only; no files moved
+**Plan**: `docs/releases/v4/v4.1/plans/v4.1.1-adoption-openworker-security-refinement.md`
+
+### Layout check
+
+Phase 1 adds one version-bound contract at `docs/releases/v4/v4.1/development/v4.1.1-security-audit-contract.md` and one session-history file under `docs/releases/v4/v4.1/development/history/`. The closure-gate script and review-record reference remain inside the existing `security-review` skill tree, which recursive installers already copy.
+
+### New documentation artifacts
+
+| Path | Category | Disposition |
+|---|---|---|
+| `docs/releases/v4/v4.1/development/v4.1.1-security-audit-contract.md` | Active version-bound contract | Keep; it is the Phase 1 normative record and is not a distributed skill file. |
+| `docs/releases/v4/v4.1/development/history/2026-08-28_v4.1.1-adoption-openworker-security-refinement-phase-1-scanner-receipt-contract.md` | Active phase evidence | Keep under the current version's development history. |
+
+### Result
+
+No duplicate, orphaned, scratch, or misplaced documentation was created by v4.1.1 Phase 1. No file moved, and no cleanup change was approved or applied.
