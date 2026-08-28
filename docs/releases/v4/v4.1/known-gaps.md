@@ -64,6 +64,7 @@ All Not Implemented, Bug / Regression, and Missing Test categories have no open 
 - v3.20 DF-1 and DF-2 remain on `docs/releases/v3/v3.20/known-gaps.md`; this adoption plan did not absorb or relabel them.
 - v3.21 DF-1 remains on `docs/releases/v3/v3.21/known-gaps.md` because Nexus-Hub still has no authored catalog atlas.
 - v3.21 DF-2 is resolved on its original ledger by the v4.1.0 Phase 1 refresh of `docs/todos.md`.
+- v4.0 DF-1 (report-artifact upload) remains on `docs/releases/v4/v4.0/known-gaps.md`. The v4.1.1 pipeline comparison declined to reopen it.
 
 ## v4.1.1
 
@@ -72,15 +73,40 @@ All Not Implemented, Bug / Regression, and Missing Test categories have no open 
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 0 | 0 |
+| Deferred (DF) | 2 | 0 |
 | Bugs / regressions (BG) | 0 | 0 |
 | Warnings (WN) | 0 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
-| Quality-gate gaps (QG) | 0 | 0 |
+| Quality-gate gaps (QG) | 1 | 0 |
 
 ### Open Items
 
-All Not Implemented, Deferred, Bug / Regression, Warning, Missing Test, and Quality-Gate categories have no open v4.1.1 items after Phase 4.
+#### Deferred
+
+##### DF-1 - Live optional scanners were not executed on the implementation host
+
+- **Source phase**: Phase 5 - Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
+- **Plan reference**: `docs/releases/v4/v4.1/plans/v4.1.1-adoption-openworker-security-refinement.md` T025 / T032
+- **Evidence**: Fixture-driven closure-gate tests pass without invoking Semgrep, gitleaks, OSV-Scanner, npm audit, pip-audit, Trivy, or Checkov. Phase 4 history records that those binaries were not present or not executed.
+- **Reason deferred**: The plan forbids adding real scanner execution to Nexus-Hub CI. Host-local binaries are optional; missing tools must remain visible as `UNAVAILABLE`.
+- **Next action**: On a machine that already has the optional tools, run the `security-audit` preset once with some, none, and all applicable scanners and keep the receipts.
+
+##### DF-2 - POSIX installer dry-run was not executed on this Windows host
+
+- **Source phase**: Phase 5 - Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
+- **Plan reference**: T021 / T026
+- **Evidence**: `python scripts/check_installer_parity.py` passed. No `scripts/installer.sh` dry-run was performed on this host.
+- **Reason deferred**: The implementation host is Windows. Recursive skill copy is already asserted in Python (`flatten_skills`) and the parity checker covers both installer sources.
+- **Next action**: Remote `platform` CI on the integration pull request is the POSIX proof; do not claim a local POSIX install from this host.
+
+#### Quality-Gate Gaps
+
+##### QG-1 - Local full CI profile was not completed in this session
+
+- **Source phase**: Phase 5 - Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
+- **Evidence**: `python -m pytest tests/skills -q` passed 952 tests. `python scripts/ci/run.py --profile fast` failed `validate_unicode_safety` on untracked `docs/releases/v4/v4.1/comparisons/v4.1.2-comparison-ponytail.md`, which is outside this plan and is not staged. The hour-scale `python -m pytest tests -q` / `--profile full` run was not completed here.
+- **Impact**: Local full-profile evidence is incomplete, not failed. Remote CI on the integration pull request remains the complete suite proof.
+- **Next action**: After authorized publication, require the remote `full` and `platform` profiles to pass before merging to `develop`.
 
 ### Resolved
 

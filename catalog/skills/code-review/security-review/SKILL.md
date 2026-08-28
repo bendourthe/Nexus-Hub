@@ -428,6 +428,7 @@ Any non-empty diff is a FAILURE, not advice. The report does not ship until ever
 - [[adversarial-verifier]] -- owns the valid/invalid refutation taxonomy and the proof burden required to reject a candidate
 - [[pentest-reporting]] -- owns `needs-live-validation` receipts and the confirmed-versus-potential severity reporting discipline
 - [[model-prompting-research]] -- established precedent for reporting an unverified inventory item instead of omitting it silently
+- Local security-audit user guide -- `guides/reference/SECURITY_AUDIT.md`
 
 ---
 

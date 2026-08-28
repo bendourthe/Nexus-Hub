@@ -160,3 +160,17 @@ Phase 4 adds inert fixtures under `tests/fixtures/security-audit/`, one user-fac
 ### Result
 
 No duplicate, orphaned, scratch, or misplaced documentation was created by v4.1.1 Phase 4. No file moved.
+
+## v4.1.1 Phase 5 - Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
+
+**Date**: 2026-08-28
+**Mode**: audit only; no files moved
+**Plan**: `docs/releases/v4/v4.1/plans/v4.1.1-adoption-openworker-security-refinement.md`
+
+### Layout check
+
+`python catalog/skills/code-cleanup/docs-layout-refactor/scripts/audit-docs.py inventory --root docs` exited 0. `refgraph --root docs` exited 0. Phase 5 adds `docs/releases/v4/v4.1/development/v4.1.1-security-audit-final-audit.md`, replaces `docs/releases/v4/v4.1/development/last-phase-evidence.md` with v4.1.1 content (v4.1.0 evidence remains in git history), and appends this audit plus the Phase 5 session history. Discoverability pointers were added on `security-review` and `guides/reference/SELECTIVE_INSTALLATION.md`. No move, deletion, new living-docs root, or installer copy line is proposed.
+
+### Result
+
+No duplicate, orphaned, scratch, or misplaced documentation was created by v4.1.1 Phase 5. No file moved, and no cleanup change was approved or applied.

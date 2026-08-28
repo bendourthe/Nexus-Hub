@@ -27,7 +27,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Documentation
 
 - **v4.1.2 planning record.** Added the Ponytail (minimal-construction) comparison as forward-looking documentation. Its implementation does not ship in v4.1.1.
-- **Local security-audit guide.** `guides/reference/SECURITY_AUDIT.md` explains optional local scanners, receipt states, degraded coverage, remediation consent, same-detector re-scan, and independent verification. Tools are never auto-installed. Cloud review remains read-only.
+- **Local security-audit guide.** `guides/reference/SECURITY_AUDIT.md` explains optional local scanners, receipt states, degraded coverage, remediation consent, same-detector re-scan, and independent verification. Tools are never auto-installed. Cloud review remains read-only. `security-review` and the selective-install guide point at that file.
 
 ---
 
