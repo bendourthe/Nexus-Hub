@@ -102,6 +102,10 @@ mvn dependency-check:check
 
 ### Step 2: Static Security Analysis
 
+For a full security-audit workflow, follow `references/local-scanner-recipes.md`. Semgrep owns local SAST and gitleaks owns secrets scanning. Check that each binary exists before invoking it, prefer repository config, record version, target scope, config fingerprint, command, exit code, and artifact path, and never auto-install or fall back to a hosted scanner. Redact gitleaks matches. If a ruleset would fetch over the network, disclose it and require authorization.
+
+Focused reviews may still use language-native tools:
+
 ```bash
 # Python
 bandit -r src/
@@ -399,7 +403,7 @@ Any non-empty diff is a FAILURE, not advice. The report does not ship until ever
 - [ ] Every proven-dirty sink has a trigger-path sweep covering routes, commands, actions, internal callers, and subsystem deserialization or import paths where applicable
 - [ ] Negative evidence is scoped to the tested trigger path, and every unresolved path remains UNKNOWN or produces `needs-live-validation`
 - [ ] Dependency vulnerability scan completed and output saved (e.g., `pip-audit`, `npm audit`)
-- [ ] Static analysis tool run (bandit, eslint-plugin-security, or equivalent) with zero unreviewed findings
+- [ ] Static analysis followed `references/local-scanner-recipes.md` when this run is a full security audit: Semgrep and gitleaks were discovered locally or recorded `UNAVAILABLE`, no tool was auto-installed, and gitleaks output contains no matched secret values
 - [ ] Every finding includes severity (P0-P3), exploitability assessment, and remediation code
 - [ ] Every rejected finding satisfies `[[adversarial-verifier]]`'s observed, route-complete rejection record
 - [ ] Every candidate blocked only by an unobservable layer is routed to `needs-live-validation` rather than rejected or rated Low

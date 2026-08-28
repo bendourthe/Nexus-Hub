@@ -118,3 +118,17 @@ Phase 1 adds one version-bound contract at `docs/releases/v4/v4.1/development/v4
 ### Result
 
 No duplicate, orphaned, scratch, or misplaced documentation was created by v4.1.1 Phase 1. No file moved, and no cleanup change was approved or applied.
+
+## v4.1.1 Phase 2 - Local Scanner Recipes and Rule Ownership
+
+**Date**: 2026-08-28
+**Mode**: audit only; no files moved
+**Plan**: `docs/releases/v4/v4.1/plans/v4.1.1-adoption-openworker-security-refinement.md`
+
+### Layout check
+
+Phase 2 adds `catalog/skills/code-review/security-review/references/local-scanner-recipes.md`, linked from that skill's body, and edits existing owning skills in place. Recursive skill-tree copy already delivers the new reference. No installer copy line is required.
+
+### Result
+
+No duplicate, orphaned, scratch, or misplaced documentation was created by v4.1.1 Phase 2. No file moved.
