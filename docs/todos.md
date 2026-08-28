@@ -2,7 +2,7 @@
 
 **Branch:** `feat/v4.1.0-adoption-skill-trial-records-and-low-evidence-ts`
 **Active plan:** [`docs/releases/v4/v4.1/plans/v4.1.0-adoption-skill-trial-records-and-low-evidence-ts.md`](releases/v4/v4.1/plans/v4.1.0-adoption-skill-trial-records-and-low-evidence-ts.md)
-**Last refreshed:** 2026-08-27
+**Last refreshed:** 2026-08-28
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its own `docs/v*/v*.*/known-gaps.md`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
 
@@ -14,7 +14,7 @@ Refreshing this file to the active plan (rather than appending another version's
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
-| v4.1.0 adoption phases complete | 4 | 6 | 2 |
+| v4.1.0 adoption phases complete | 5 | 6 | 1 |
 | Open release blockers | 0 | 0 | 0 |
 | Catalog skills | 326 | 326 | 0 |
 | New typed-boundary skills | 1 | 1 | 0 |
@@ -28,7 +28,7 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Phase 2 - Typed-boundary-hygiene skill and TypeScript handoff
 - [x] Phase 3 - Distillation labels, confusability, and two-level triggers
 - [x] Phase 4 - Eval-loop third arm
-- [ ] Phase 5 - Decide whether to vendor Oxlint into user TypeScript repositories
+- [x] Phase 5 - Decide whether to vendor Oxlint into user TypeScript repositories
 - [ ] Phase 6 - Architecture refactor, known-gaps reconciliation, and CI/CD
 
 ### What this plan changes, in one paragraph

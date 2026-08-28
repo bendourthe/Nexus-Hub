@@ -65,3 +65,17 @@ The optional `raw_memory/` directory exists only inside a user's eval workspace 
 ### Result
 
 No documentation move, duplicate, scratch artifact, or lifespan contradiction was introduced by Phase 4. The phase adds only its canonical history record and appends this audit.
+
+## Phase 5 - Oxlint Vendor Decision
+
+### Layout check
+
+Phase 5 adds one rejected tooling decision under the living `docs/decisions/rejected/tooling/` tree, one durable out-of-scope policy entry under `docs/policy/out-of-scope/`, and one release-scoped history record. The decision remains living because it may be superseded after v4.1.0; the session evidence remains release-bound.
+
+### No-op implementation branch
+
+The decision chose no, so Phase 5.2 added no catalog skill, bundled asset, package manifest, installer line, workflow step, or runtime dependency. The out-of-scope index links the new policy entry, and the v4.1.0 known-gaps ledger remains empty because rejected work is not deferred work.
+
+### Result
+
+No documentation move, duplicate, scratch artifact, or lifespan contradiction was introduced by Phase 5. The living decision and policy files pass their respective admission tests, and the phase history remains in the active release evidence tree.
