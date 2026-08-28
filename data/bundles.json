@@ -353,6 +353,7 @@
         "python-expert",
         "rust-expert",
         "sql-expert",
+        "typed-boundary-hygiene",
         "typescript-expert"
       ]
     },

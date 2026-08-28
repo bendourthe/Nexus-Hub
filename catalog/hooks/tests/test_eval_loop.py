@@ -260,6 +260,136 @@ def _build_fixture_iteration(tmp_path: Path) -> Path:
     return iter_dir
 
 
+def _add_raw_memory_run(iter_dir: Path) -> Path:
+    """Add the optional third arm to the fixture iteration."""
+    run = iter_dir / "eval-001" / "raw_memory"
+    (run / "outputs").mkdir(parents=True)
+    (run / "outputs" / "response.txt").write_text(
+        "Response from raw memory run\n", encoding="utf-8"
+    )
+    (run / "outputs" / "run_metadata.json").write_text(
+        json.dumps(
+            {
+                "cli": "claude",
+                "skill_loaded": False,
+                "memory_injected": True,
+                "duration_ms": 14000,
+                "total_tokens": 3300,
+                "exit_code": 0,
+            }
+        ),
+        encoding="utf-8",
+    )
+    (run / "grading.json").write_text(
+        json.dumps(
+            {
+                "eval_id": "eval-001",
+                "skill_loaded": False,
+                "assertions": [
+                    {"text": "fixture assertion", "passed": True, "evidence": "fixture"}
+                ],
+                "pass_rate": 1.0,
+            }
+        ),
+        encoding="utf-8",
+    )
+    return run
+
+
+def _read_run_metadata(run_dir: Path) -> dict:
+    return json.loads((run_dir / "outputs" / "run_metadata.json").read_text(encoding="utf-8"))
+
+
+def _write_run_metadata(run_dir: Path, metadata: dict) -> None:
+    (run_dir / "outputs" / "run_metadata.json").write_text(
+        json.dumps(metadata), encoding="utf-8"
+    )
+
+
+class TestRawMemoryDispatch:
+    def test_declared_source_runs_through_existing_dispatcher(
+        self, optimizer_module, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        evals_dir = tmp_path / "evals"
+        notes_dir = evals_dir / "notes"
+        notes_dir.mkdir(parents=True)
+        raw_text = "attempt one failed\nattempt two succeeded\n"
+        (notes_dir / "raw-memory.md").write_text(raw_text, encoding="utf-8")
+        evals_path = evals_dir / "evals.json"
+        entry = {
+            "id": "eval-raw",
+            "query": "Solve the boundary problem.",
+            "raw_memory": "notes/raw-memory.md",
+            "model": "fixture-model",
+        }
+        evals_path.write_text(json.dumps([entry]), encoding="utf-8")
+        captured: dict = {}
+
+        def fake_invoke(cli: str, prompt: str, skill_path: Path | None, model: str | None):
+            captured.update(cli=cli, prompt=prompt, skill_path=skill_path, model=model)
+            return {
+                "stdout": "fixture response",
+                "stderr": "",
+                "exit_code": 0,
+                "duration_ms": 123,
+                "started_at": "2026-08-28T00:00:00Z",
+                "finished_at": "2026-08-28T00:00:01Z",
+            }
+
+        monkeypatch.setattr(optimizer_module, "invoke_cli", fake_invoke)
+        run_dir = optimizer_module.run_raw_memory_condition(
+            "claude", evals_path, entry, tmp_path / "iteration-1"
+        )
+
+        assert run_dir == tmp_path / "iteration-1" / "eval-raw" / "raw_memory"
+        assert captured["cli"] == "claude"
+        assert captured["skill_path"] is None
+        assert captured["model"] == "fixture-model"
+        assert captured["prompt"].startswith(entry["query"])
+        assert captured["prompt"].endswith(raw_text)
+        metadata = _read_run_metadata(run_dir)
+        assert metadata["skill_loaded"] is False
+        assert metadata["memory_injected"] is True
+        assert metadata["exit_code"] == 0
+        assert (run_dir / "outputs" / "response.txt").read_text(encoding="utf-8") == "fixture response"
+
+    def test_missing_source_is_not_run_and_does_not_dispatch(
+        self, optimizer_module, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        evals_path = tmp_path / "evals.json"
+        entry = {"id": "eval-raw", "query": "test", "raw_memory": "missing.md"}
+        evals_path.write_text(json.dumps([entry]), encoding="utf-8")
+
+        def unexpected_dispatch(*args, **kwargs):
+            raise AssertionError("missing raw memory must not invoke a CLI")
+
+        monkeypatch.setattr(optimizer_module, "invoke_cli", unexpected_dispatch)
+        report = optimizer_module.run_declared_raw_memory_evals(
+            "codex", evals_path, [entry], tmp_path / "iteration-1"
+        )
+        assert report == {"mode": "raw-memory", "run": [], "not_run": ["eval-raw"]}
+        assert not (tmp_path / "iteration-1" / "eval-raw" / "raw_memory").exists()
+
+    def test_undecodable_source_is_not_run_and_does_not_dispatch(
+        self, optimizer_module, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    ) -> None:
+        evals_path = tmp_path / "evals.json"
+        source = tmp_path / "raw-memory.bin"
+        source.write_bytes(b"\xff\xfe\x00")
+        entry = {"id": "eval-raw", "query": "test", "raw_memory": source.name}
+        evals_path.write_text(json.dumps([entry]), encoding="utf-8")
+
+        def unexpected_dispatch(*args, **kwargs):
+            raise AssertionError("undecodable raw memory must not invoke a CLI")
+
+        monkeypatch.setattr(optimizer_module, "invoke_cli", unexpected_dispatch)
+        report = optimizer_module.run_declared_raw_memory_evals(
+            "claude", evals_path, [entry], tmp_path / "iteration-1"
+        )
+        assert report == {"mode": "raw-memory", "run": [], "not_run": ["eval-raw"]}
+        assert not (tmp_path / "iteration-1" / "eval-raw" / "raw_memory").exists()
+
+
 class TestAggregator:
     def test_aggregator_emits_benchmark_json_and_md(self, tmp_path: Path) -> None:
         iter_dir = _build_fixture_iteration(tmp_path)
@@ -276,6 +406,74 @@ class TestAggregator:
         assert data["overall"]["with_skill_pass_rate"] == 1.0
         assert data["overall"]["without_skill_pass_rate"] == 0.0
         assert data["overall"]["pass_rate_delta"] == 1.0
+        assert data["by_eval"]["eval-001"]["raw_memory"] == "not_run"
+        assert data["overall"]["raw_memory"] == "not_run"
+
+    def test_aggregator_includes_present_raw_memory_arm(self, tmp_path: Path) -> None:
+        iter_dir = _build_fixture_iteration(tmp_path)
+        raw_memory_dir = _add_raw_memory_run(iter_dir)
+        assert raw_memory_dir.is_dir()
+
+        result = subprocess.run(
+            [sys.executable, str(_AGGREGATOR), str(iter_dir)],
+            capture_output=True, text=True, timeout=30,
+        )
+        assert result.returncode == 0, f"aggregator failed: {result.stderr}"
+        data = json.loads((iter_dir / "benchmark.json").read_text(encoding="utf-8"))
+        assert data["by_eval"]["eval-001"]["raw_memory"]["status"] == "run"
+        assert data["by_eval"]["eval-001"]["raw_memory"]["pass_rate"] == 1.0
+        assert data["overall"]["raw_memory"] == {
+            "status": "run",
+            "n_evals": 1,
+            "pass_rate": 1.0,
+            "duration_ms_mean": 14000.0,
+            "tokens_mean": 3300.0,
+        }
+
+    @pytest.mark.parametrize(
+        ("field", "value", "message"),
+        [
+            ("memory_injected", False, "memory_injected must be true"),
+            ("skill_loaded", True, "skill_loaded must be false"),
+            ("exit_code", 9, "exit_code must be 0"),
+            ("cli", "gemini", "cli must match both paired runs"),
+        ],
+    )
+    def test_aggregator_rejects_invalid_raw_memory_metadata(
+        self, tmp_path: Path, field: str, value: object, message: str
+    ) -> None:
+        iter_dir = _build_fixture_iteration(tmp_path)
+        run_dir = _add_raw_memory_run(iter_dir)
+        metadata = _read_run_metadata(run_dir)
+        metadata[field] = value
+        _write_run_metadata(run_dir, metadata)
+
+        result = subprocess.run(
+            [sys.executable, str(_AGGREGATOR), str(iter_dir)],
+            capture_output=True, text=True, timeout=30,
+        )
+        assert result.returncode == 0, f"aggregator failed: {result.stderr}"
+        data = json.loads((iter_dir / "benchmark.json").read_text(encoding="utf-8"))
+        raw = data["by_eval"]["eval-001"]["raw_memory"]
+        assert raw["status"] == "invalid"
+        assert message in raw["errors"]
+        assert data["overall"]["raw_memory"] == {
+            "status": "invalid", "n_evals": 0, "invalid_evals": ["eval-001"]
+        }
+
+    def test_aggregator_rejects_missing_raw_memory_metadata(self, tmp_path: Path) -> None:
+        iter_dir = _build_fixture_iteration(tmp_path)
+        run_dir = _add_raw_memory_run(iter_dir)
+        (run_dir / "outputs" / "run_metadata.json").unlink()
+
+        subprocess.run(
+            [sys.executable, str(_AGGREGATOR), str(iter_dir)],
+            capture_output=True, text=True, timeout=30, check=True,
+        )
+        data = json.loads((iter_dir / "benchmark.json").read_text(encoding="utf-8"))
+        raw = data["by_eval"]["eval-001"]["raw_memory"]
+        assert raw["status"] == "invalid"
+        assert "missing or invalid outputs/run_metadata.json" in raw["errors"]
 
 
 class TestViewerStaticMode:
@@ -301,6 +499,23 @@ class TestViewerStaticMode:
         assert "eval-001" in body
         assert "with_skill" in body and "without_skill" in body
         assert "submitFeedback" in body  # the JS handler is wired in
+        assert "<wbr>" in body
+
+    def test_static_html_renders_raw_memory_when_present(self, tmp_path: Path) -> None:
+        iter_dir = _build_fixture_iteration(tmp_path)
+        _add_raw_memory_run(iter_dir)
+        subprocess.run(
+            [sys.executable, str(_AGGREGATOR), str(iter_dir)],
+            capture_output=True, text=True, timeout=30, check=True,
+        )
+        out_html = tmp_path / "review.html"
+        subprocess.run(
+            [sys.executable, str(_VIEWER), str(iter_dir), "--static", str(out_html)],
+            capture_output=True, text=True, timeout=30, check=True,
+        )
+        body = out_html.read_text(encoding="utf-8")
+        assert "raw_memory (prior notes)" in body
+        assert "Response from raw memory run" in body
 
 
 # ── 4. Trigger-testing techniques (v2.3.0 Phase 4 / T014-T015) ───────────────

@@ -1,6 +1,6 @@
 # AGENTS.md
 
-<!-- nexus-hub-version: 4.0.0 -->
+<!-- nexus-hub-version: 4.1.0 -->
 
 This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, Gemini CLI, etc.) when working with code in this repository.
 
@@ -8,7 +8,7 @@ This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, G
 
 Nexus-Hub is a production-grade skill harness for AI coding assistants. It is the **upstream catalog** consumed by Nexus (the local-first desktop AI Studio, see `https://github.com/bendourthe/Nexus-AI`) and by every other major agent platform: Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, and GitHub CLI. Skills, commands, hooks, agents, and rules are distributed via installer scripts into users' `~/.nexus-hub/` directory and into their AI assistant's per-platform config locations.
 
-Current catalog: **325 skills** across 23 categories, 18 commands (plus 3 permanent aliases), 33 hooks, 23 agents. The 40 v3.x deprecation shims were removed in v3.2.0.
+Current catalog: **326 skills** across 23 categories, 18 commands (plus 3 permanent aliases), 33 hooks, 23 agents. The 40 v3.x deprecation shims were removed in v3.2.0.
 
 ## Project Structure
 
@@ -24,7 +24,7 @@ Nexus-Hub/
 │   ├── mcp-configs/          # MCP server registry
 │   ├── memory/               # Memory template files
 │   ├── rules/                # Code style/security rules (4 languages)
-|   `-- skills/               # 325 skills across 23 categories
+|   `-- skills/               # 326 skills across 23 categories
 │       └── <category>/
 │           └── <skill-name>/
 │               └── SKILL.md
@@ -102,6 +102,8 @@ Practical implications for SKILL.md authoring:
 - Resist the urge to inline everything into the body. If a piece of content is needed only some of the time, push it to a reference file.
 - If a step is deterministic and could be a 50-line shell script instead of 200 lines of body prose, ship the script under `scripts/` and let the agent execute it.
 - Keep Tier 1 fields tight (especially `description` and `summary_l0`); they cost tokens on every catalog read across every session. Tier 2 / Tier 3 budgets are per-trigger, not per-session.
+
+Treat every SKILL.md body as an operational runbook: actions, decision rules, artifacts, gates, and observable verification that an agent can execute. It is not a fact tutorial; supporting knowledge belongs in Tier-3 `references/` and loads only when the runbook needs it. An external study found procedural anchoring accounts for most successful skill cases.
 
 Cross-links: the body-size targets sit in the size-norm rule immediately below. The bundled-subdir convention is summarized in the "Per-skill Bundled Resources" subsection further down and documented in full in [`guides/reference/SKILL_BUNDLED_RESOURCES.md`](guides/reference/SKILL_BUNDLED_RESOURCES.md).
 

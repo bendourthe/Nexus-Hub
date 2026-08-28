@@ -1,8 +1,8 @@
 ---
 name: skill-description-authoring
-description: Author and rewrite SKILL.md frontmatter descriptions so they stay single-line, ASCII-sanitized, and preserve the four matching trigger nouns (product, tool, action, object). Use when writing a new skill description, compacting an over-long one, or fixing a description that no longer surfaces in search and trigger matching. Use when the user mentions confidence bands, match confidence, High/Medium/Low/Reject skill match, clarification ceiling, clarification-rate ceiling, under-triggering, over-triggering, a skill that always asks clarifying questions, context pointers, leading words, two loads, negation avoidance, sediment pruning, or hard vs soft setup-dependency. SKIP - writing the skill body (use skill-create), eval harness design, or unrelated copy-editing.
+description: Author and rewrite SKILL.md frontmatter descriptions so they stay single-line, ASCII-sanitized, and preserve the four matching trigger nouns (product, tool, action, object). Use when writing a new skill description, compacting an over-long one, or fixing a description that no longer surfaces in search and trigger matching. Use when the user mentions two-level triggers, strict observables, confidence bands, match confidence, High/Medium/Low/Reject skill match, clarification ceiling, clarification-rate ceiling, under-triggering, over-triggering, a skill that always asks clarifying questions, context pointers, leading words, two loads, negation avoidance, sediment pruning, or hard vs soft setup-dependency. SKIP - writing the skill body (use skill-create), eval harness design, or unrelated copy-editing.
 summary_l0: "Author single-line skill descriptions that preserve product, tool, action, and object trigger nouns"
-overview_l1: "Write and rewrite the SKILL.md description so the matcher loads the skill. Use when authoring, compacting, or repairing a description that stopped surfacing. Rules: one physical ASCII line; preserve product, tool, action, and object trigger nouns; name defaults to the parent directory; High/Medium/Low/Reject confidence bands; a skill that always defers to clarification is failing. Apply context-pointer, two-loads, leading-word, negation-avoidance, sediment-pruning, and hard/soft setup-dependency discipline; see references/agent-writing-theory.md. Trigger phrases: skill description, description authoring, trigger nouns, compact description, SKILL.md frontmatter, rewrite description, confidence bands, clarification ceiling, context pointers, leading words."
+overview_l1: "Write and rewrite the SKILL.md description so the matcher loads the skill. Use when authoring, compacting, or repairing a description that stopped surfacing. Rules: one physical ASCII line; preserve product, tool, action, and object trigger nouns; pair the category with a strict observable; name defaults to the parent directory; use High/Medium/Low/Reject confidence bands; treat exact invocation as neither sufficient nor necessary; a skill that always defers to clarification is failing. Apply context-pointer, two-loads, leading-word, negation-avoidance, sediment-pruning, and hard/soft setup-dependency discipline; see references/agent-writing-theory.md. Trigger phrases: skill description, two-level triggers, strict observable, trigger nouns, compact description, SKILL.md frontmatter, rewrite description, confidence bands, clarification ceiling."
 category: developer-experience
 ---
 
@@ -112,6 +112,23 @@ The description is a context pointer: its wording, not the body sitting on disk,
 
 When compacting a description, apply the no-op test and sediment prune before dropping a trigger noun. Trigger-noun preservation (Rule 2) still wins over compactness.
 
+### Rule 7: Pair the category with a strict observable
+
+Use two-level triggering in every description:
+
+1. **Level 1 - category or domain**: name the bucket the request belongs to, normally the category encoded by `catalog/skills/<category>/` (for example TypeScript contract hygiene, skill authoring, or incident response).
+2. **Level 2 - strict observable**: name something inspectable that distinguishes the skill inside that bucket, such as an error string, file type, command name, schema field, hook event, or AST smell.
+
+Synonyms and verbatim user phrases remain required; the strict observable is additive. A description that says only "TypeScript cleanup" has Level 1 but no discriminator. `as unknown as`, `Record<string, unknown>`, or `vi.mock` provide Level 2 observables that separate contract hygiene from general TypeScript design.
+
+Published retrieval results show precision falling sharply around 100 competing options. Nexus-Hub's 300-plus-skill always-loaded index is well past that point, so category ownership and `SKIP` fences are load-bearing. Do not respond by shrinking the catalog; give the matcher a category, an observable, and an explicit Reject fence.
+
+### Rule 8: Exact invocation is neither sufficient nor necessary
+
+An exact match to the intended skill name or trigger phrase is not sufficient if the body is a weak tutorial, and it is not necessary if a nearby skill in the same category provides a competent partial runbook. Write each body so a near-match still helps the agent inspect, decide, act, and verify within the shared domain.
+
+Do not over-fit a unique phrase merely to win routing. The description must distinguish ownership, but body quality remains the outcome control. A neighboring skill may hand off the specialized branch while still giving safe partial procedure for the shared category.
+
 ## Worked Examples
 
 ### Example 1: A good description
@@ -176,6 +193,8 @@ Now the description carries **product** (`dead code`), **tool** (`code`), **acti
 | "I will inline the whole writing theory so the agent cannot miss it." | The description is the pointer. Inlining spends context load on every session. Sharpen the pointer; keep the six concepts in `references/agent-writing-theory.md`. |
 | "A prohibition is clearer than a positive instruction." | Models overweight the forbidden object. State the target behavior. Reserve "do not" for hard guardrails and pair each with the allowed alternative. |
 | "This extra sentence does not hurt, and the model already knows it anyway." | If removing it would not change behavior, it is sediment or a no-op. Delete it. Restating a default dilutes the lines that actually change matching or rendering. |
+| "Pushy synonyms are enough; a strict observable would over-constrain matching." | Synonyms establish the category but do not separate neighbors inside a 300-plus-skill index. Add an error string, file type, command, schema field, hook event, or AST smell while keeping the synonyms and `SKIP` fence. |
+| "The exact intended skill must win every route, so body overlap is waste." | Exact invocation is neither sufficient nor necessary. A near-match still needs a competent partial runbook and an ownership handoff; routing precision cannot rescue a weak body. |
 
 ## Verification
 
@@ -184,6 +203,8 @@ Now the description carries **product** (`dead code`), **tool** (`code`), **acti
 - [ ] The description names a **product**, a **tool**, an **action**, and an **object** (or a deliberate subset when one genuinely does not apply).
 - [ ] The description is at most ~250 characters (the limit Phase 6's validate_skills.py check will enforce).
 - [ ] The description names High-band trigger phrases and a SKIP / Reject fence for look-alike requests.
+- [ ] The description has a Level 1 category/domain and at least one Level 2 strict observable (error string, file type, command, schema field, hook event, or AST smell).
+- [ ] The body remains a competent partial runbook for a nearby same-category match and does not over-fit one unique trigger phrase at the expense of procedure quality.
 - [ ] The description does not instruct the agent to ask a clarifying question on every invocation.
 - [ ] If `name:` is present, it matches the parent directory name exactly; the directory name is kebab-case.
 - [ ] Running `python scripts/validate_skills.py --path catalog/skills/<category>/<skill>/` reports PASS with no errors.

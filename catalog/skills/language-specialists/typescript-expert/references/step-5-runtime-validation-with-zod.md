@@ -12,6 +12,12 @@ const nameSchema = z.string().min(1).max(100);
 const ageSchema = z.number().int().positive().max(150);
 const emailSchema = z.string().email();
 
+// Named metadata schema: the accepted keys and value types are explicit.
+const UserMetadataSchema = z.object({
+  source: z.enum(["signup", "import", "admin"]),
+  marketingOptIn: z.boolean().optional(),
+}).strict();
+
 // Object schema
 const UserSchema = z.object({
   id: z.string().uuid(),
@@ -19,12 +25,12 @@ const UserSchema = z.object({
   email: z.string().email(),
   age: z.number().int().min(0).max(150),
   role: z.enum(["admin", "editor", "viewer"]),
-  metadata: z.record(z.string(), z.unknown()).optional(),
+  metadata: UserMetadataSchema.optional(),
 });
 
 // Infer the TypeScript type from the schema
 type User = z.infer<typeof UserSchema>;
-// { id: string; name: string; email: string; age: number; role: "admin" | "editor" | "viewer"; metadata?: Record<string, unknown> }
+// metadata?: { source: "signup" | "import" | "admin"; marketingOptIn?: boolean }
 
 // Nested and composed schemas
 const AddressSchema = z.object({

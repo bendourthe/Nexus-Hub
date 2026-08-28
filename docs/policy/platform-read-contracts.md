@@ -2,7 +2,7 @@
 
 This is the durable, sourced source of truth for where every supported platform READS each surface (instruction file, slash commands, skills, agents, rules, hooks) and where the Nexus-Hub installer WRITES it. It supersedes the point-in-time snapshot at `docs/v3/v3.11/platform-read-contracts.md` (which resolved the v3.11.0 Phase 7 audit but left the Codex and Antigravity contracts flagged as unverified).
 
-**Last verified**: 2026-08-25 for v3.21.0 (plan/implement lifecycle release; no discovery-path change; Claude and Cursor MATCH on re-fetch; Codex timeout, low DRIFT carried forward; OpenCode and Gemini CLI MATCH carried from 2026-08-24; Nexus-AI UNVERIFIED).
+**Last verified**: 2026-08-28 for v4.1.0 (full pass; eight public MATCH results, Codex low non-breaking DRIFT, Nexus-AI UNVERIFIED; no delivery-path change).
 
 ## Invocation-policy emission (v3.20.3)
 
@@ -161,6 +161,12 @@ The machine-readable source of truth is the sibling `docs/policy/platform-read-c
 The catalog itself is never reorganized per platform. Each integration is an adapter that materializes the canonical catalog into the shape below via the shared helpers in `scripts/lib/integrations/_catalog_adapters.py` (`flatten_skills`, `commands_to_skills`, `commands_to_slash`).
 
 ## Re-verification log
+
+### 2026-08-28 (v4.1.0 release - full re-verification)
+
+All nine public contract platforms were re-fetched from current first-party documentation. Claude Code, Antigravity, Cursor, Gemini Code Assist, Gemini CLI, Kimi, OpenCode, and Qwen remain MATCH. Codex retains low non-breaking DRIFT because its current documentation names the shared `.agents/skills` ladder, including `$HOME/.agents/skills`, but omits the redundant `~/.codex/skills` path; Nexus-Hub writes the confirmed shared path, so delivery remains functional. Nexus-AI remains UNVERIFIED because its source is private.
+
+The companion behavioral-defaults pass re-fetched all thirteen public source pages across the sixteen registered integrations. The outcome remains 13 VERIFIED and 3 UNVERIFIED, with no documented key rename, config-path move, or new cross-host redirect. No adapter, installer path, `contract_checks` row, `install_verify` row, or seeded default changed.
 
 ### 2026-08-23 (v3.20.1 release - catalog-only, same-day re-fetch)
 

@@ -183,6 +183,7 @@ function processUser(user: User): string {
 - [[docstrings]] -- add JSDoc documentation to the modernized functions
 - [[javascript-expert]] -- idiomatic modern JavaScript patterns this cleanup applies
 - [[typescript-expert]] -- type-safe patterns for the JavaScript-to-TypeScript conversion path
+- [[typed-boundary-hygiene]] -- owns low-evidence TypeScript/JavaScript contracts and assertion evidence; this skill retains ESLint, dead-code, and ES6+ modernization
 
 ---
 
