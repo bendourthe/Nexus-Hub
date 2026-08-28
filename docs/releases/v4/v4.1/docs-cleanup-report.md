@@ -132,3 +132,17 @@ Phase 2 adds `catalog/skills/code-review/security-review/references/local-scanne
 ### Result
 
 No duplicate, orphaned, scratch, or misplaced documentation was created by v4.1.1 Phase 2. No file moved.
+
+## v4.1.1 Phase 3 - Ordered Security-Audit Preset and Role Separation
+
+**Date**: 2026-08-28
+**Mode**: audit only; no files moved
+**Plan**: `docs/releases/v4/v4.1/plans/v4.1.1-adoption-openworker-security-refinement.md`
+
+### Layout check
+
+Phase 3 edits the existing `agent-presets` skill, adds bundled `evals/trigger-cases.json` under that skill tree, aligns the existing `security-audit` object in `data/workflows.json`, and updates `catalog/agents/security-reviewer.md`. Recursive skill-tree copy already delivers the eval file. No installer copy line is required. No new living document root is introduced.
+
+### Result
+
+No duplicate, orphaned, scratch, or misplaced documentation was created by v4.1.1 Phase 3. No file moved.

@@ -23,13 +23,17 @@
     {
       "id": "security-audit",
       "name": "Security Audit",
-      "description": "End-to-end security assessment covering authentication, dependencies, compliance, and code-level vulnerabilities.",
+      "description": "Ordered local security audit: scope and detect with scanner receipts, triage reachability, optionally remediate with user approval, re-scan with the same detector, independently verify, then close. Authentication and licensing remain in the sequence without duplicating their procedures.",
       "skills": [
         "security-review",
         "authentication-patterns",
         "dependency-security-audit",
+        "cve-reachability-analyzer",
+        "cloud-security-posture-detection",
         "licensing-compliance",
-        "pre-commit-checklist"
+        "security-patch-advisor",
+        "testing-review",
+        "adversarial-verifier"
       ],
       "estimated_time": "30-60 minutes",
       "trigger": "Before a production release, compliance audit, or after a security incident."
