@@ -650,9 +650,10 @@
     {
       "id": "security-specialist",
       "name": "Security Specialist",
-      "description": "Skills for application security, authentication, vulnerability analysis, and compliance auditing.",
+      "description": "Skills for application security, authentication, vulnerability analysis, compliance auditing, and the ordered local security-audit preset.",
       "skills": [
         "adversarial-verifier",
+        "agent-presets",
         "android-dynamic-app-analysis",
         "android-static-app-analysis",
         "api-inventory-and-undocumented-endpoints",
@@ -661,6 +662,7 @@
         "api-schema-and-gateway-enforcement",
         "authentication-patterns",
         "bluetooth-and-wireless-assessment",
+        "cloud-security-posture-detection",
         "cryptographic-control-audit",
         "cve-reachability-analyzer",
         "dependency-security-audit",
@@ -689,6 +691,7 @@
         "slsa-provenance-and-sigstore-verification",
         "smart-contract-security-review",
         "soc2-compliance",
+        "testing-review",
         "tls-certificate-lifecycle",
         "vulnerability-prioritization-with-ssvc",
         "zero-trust-architecture-design",

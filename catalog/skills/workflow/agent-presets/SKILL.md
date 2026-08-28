@@ -77,7 +77,7 @@ A local security-audit procedure over existing skills. Announce the preset, the 
 Run in order:
 
 1. **Scope** -- [[security-review]] Step 0 component denominator and schema-v2 choice. Authentication and licensing stay with [[authentication-patterns]] and [[licensing-compliance]]; do not duplicate those procedures.
-2. **Detect** -- application and secrets via [[security-review]] local-scanner recipes; dependencies via [[dependency-security-audit]] applicability; IaC via [[cloud-security-posture-detection]] when supported files exist. Record every scanner receipt.
+2. **Detect** -- application and secrets via [[security-review]] local-scanner recipes; dependencies via [[dependency-security-audit]] applicability; IaC via [[cloud-security-posture-detection]] when supported files exist. Record every scanner receipt as `RAN`, `NOT_APPLICABLE`, `UNAVAILABLE`, `FAILED`, or `DECLINED`.
 3. **Triage** -- [[cve-reachability-analyzer]] on surviving dependency findings, preserving original severity. A no-fix audit may stop after triage and still close with scanner coverage reported.
 4. **Remediate** -- only after detection and only with user approval, through [[security-patch-advisor]]. The fixer context is not the verifier.
 5. **Test** -- [[testing-review]] on the patched scope.
@@ -149,4 +149,4 @@ A preset or bundle definition is a manifest, and three authoring disciplines kee
 - [[create-custom-command]] -- formalize a frequently-used preset into a dedicated slash command.
 - [[dev-progress-tracker]] -- the tracker `morning-briefing` reads to report progress and next actions.
 - [[test-driven-development]] -- the red-green-refactor inner loop of the `coding-assistant` preset.
-- [[security-review]] -- detection, receipts, and closure gate for the `security-audit` preset.
+- [[security-review]] -- detection, receipts, and closure gate for the `security-audit` preset. User-facing procedure: `guides/reference/SECURITY_AUDIT.md`.

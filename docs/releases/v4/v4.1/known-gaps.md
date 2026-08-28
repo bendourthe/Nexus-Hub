@@ -80,7 +80,7 @@ All Not Implemented, Bug / Regression, and Missing Test categories have no open 
 
 ### Open Items
 
-All Not Implemented, Deferred, Bug / Regression, Warning, Missing Test, and Quality-Gate categories have no open v4.1.1 items after Phase 3.
+All Not Implemented, Deferred, Bug / Regression, Warning, Missing Test, and Quality-Gate categories have no open v4.1.1 items after Phase 4.
 
 ### Resolved
 

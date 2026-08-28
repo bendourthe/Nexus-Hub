@@ -146,3 +146,17 @@ Phase 3 edits the existing `agent-presets` skill, adds bundled `evals/trigger-ca
 ### Result
 
 No duplicate, orphaned, scratch, or misplaced documentation was created by v4.1.1 Phase 3. No file moved.
+
+## v4.1.1 Phase 4 - Evaluation, Distribution, and Documentation
+
+**Date**: 2026-08-28
+**Mode**: audit only; no files moved
+**Plan**: `docs/releases/v4/v4.1/plans/v4.1.1-adoption-openworker-security-refinement.md`
+
+### Layout check
+
+Phase 4 adds inert fixtures under `tests/fixtures/security-audit/`, one user-facing guide at `guides/reference/SECURITY_AUDIT.md`, and an end-to-end test under `tests/skills/`. Recursive skill-tree copy already delivers the edited `security-review` bundle and `agent-presets` evals. No installer copy line was added for `data/workflows.json`; it remains a catalog index. `security-reviewer` continues to travel with the agents folder copy.
+
+### Result
+
+No duplicate, orphaned, scratch, or misplaced documentation was created by v4.1.1 Phase 4. No file moved.
