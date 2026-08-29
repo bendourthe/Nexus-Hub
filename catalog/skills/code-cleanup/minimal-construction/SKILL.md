@@ -9,7 +9,7 @@ overview_l1: "Walk a seven-rung pre-write ladder after reading the real flow: sk
 
 Build at the first sufficient rung. Read the real flow first. This skill decides what new code is allowed to exist. It does not collapse existing code, hunt dead code, rewrite prose, or replace security, verification, or communication owners.
 
-Trigger routing cases live in `evals/trigger-cases.json`.
+Trigger routing cases live in `evals/trigger-cases.json`. Construction-eval assertions live in `evals/evals.json`. Deferred-ceiling harvest lives in `references/construction-debt.md`.
 
 ## When to Use This Skill
 
@@ -47,7 +47,7 @@ Use when:
 | How the agent talks | `agent-communication` plus End-of-Task Summary | Do not delete the explanation |
 | Version-level deferrals | `known-gaps-tracker` | Point at it |
 | SQALE / interest quantification | `technical-debt-analyzer` | Point at it |
-| In-code named ceilings with an upgrade trigger | `construction-debt:` harvest | Generic marker; do not start a second known-gaps ledger |
+| In-code named ceilings with an upgrade trigger | `construction-debt:` harvest | Generic marker; see `references/construction-debt.md` |
 
 ## Instructions
 
@@ -95,7 +95,7 @@ For each declined extra, emit one line:
 
 This is additive. It does not replace Completed / Verified / Open / Next.
 
-If a deliberate corner cuts a real ceiling, add a `construction-debt:` comment naming the limit and the revisit trigger. Do not invent a second known-gaps ledger.
+If a deliberate corner cuts a real ceiling, add a `construction-debt:` comment naming the limit and the revisit trigger. Harvest steps: `references/construction-debt.md`. Do not invent a second known-gaps ledger.
 
 ### 6. Stop
 

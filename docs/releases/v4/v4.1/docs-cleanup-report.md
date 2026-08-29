@@ -223,3 +223,17 @@ Phase 3 adds `catalog/skills/code-review/over-engineering-review/` and a session
 ### Result
 
 No documentation move, duplicate, scratch artifact, or release-tree contradiction was introduced by Phase 3.
+
+## v4.1.2 Phase 4 - Construction-Debt Harvest and Eval Proof
+
+**Date**: 2026-08-28
+**Mode**: audit only; no files moved
+**Plan**: `docs/releases/v4/v4.1/plans/v4.1.2-adoption-minimal-construction.md`
+
+### Layout check
+
+Phase 4 adds `catalog/skills/code-cleanup/minimal-construction/references/construction-debt.md` and `evals/evals.json`, both referenced from the skill body, plus Unreleased changelog lines. No new command file and no top-level installer-copied script.
+
+### Result
+
+No documentation move, duplicate, scratch artifact, or release-tree contradiction was introduced by Phase 4.
