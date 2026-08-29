@@ -56,13 +56,21 @@ None. DF-1 and QG-1 closed in the v4.2.1 last-phase close-out.
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 1 | 0 |
+| Deferred (DF) | 0 | 1 |
 | Bugs / regressions (BG) | 0 | 0 |
 | Warnings (WN) | 0 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
-| Quality-gate gaps (QG) | 1 | 0 |
+| Quality-gate gaps (QG) | 0 | 1 |
 
 ### Open Items
+
+None. DF-1 and QG-1 were reconciled in the v4.2.2 last-phase close-out (2026-08-29); see Resolved.
+
+### Superseded note
+
+v4.2.1's UI was never published. The v4.2.2 plan (`plans/v4.2.2-guide-cinematic-rebuild.md`) re-engineered the guide from the ground up and is the first public cut. v4.2.1's phase work remains in git history; its publication step (T026) was never run, by maintainer decision on 2026-08-29.
+
+### Resolved
 
 #### Deferred
 
@@ -72,6 +80,8 @@ None. DF-1 and QG-1 closed in the v4.2.1 last-phase close-out.
 - **Plan reference**: `docs/releases/v4/v4.2/plans/v4.2.1-guide-visual-education.md` T024
 - **Reason**: This Cursor session had no browser automation. Structural tests in `tests/guides/test_nexus_hub_guide.py` pass (38 passed, 1 skipped). No five-person workshop cohort was available; do not invent one.
 - **Suggested next step**: After merge, open `guides/website/nexus-hub-guide.html` and re-check the ten visual QA ledger items in light and dark at 1440x900, 1024x768, 390x844, and 1920x1080; run Lighthouse Accessibility in both themes (target >=90); confirm keyboard slideshow, reduced-motion Foundations, `file://` untrusted-origin warning, and Cheatsheets hash redirects. Record a bounded non-pass for workshop 4-of-5 if participants are unavailable.
+- **Resolution**: v4.2.2 made rendered browser QA a per-phase gate rather than a last-phase hope. `tests/guides/tools/render_guide.py` produced 77 committed screenshots across six phase sets, each reviewed with a written verdict in `development/guide-rebuild/render-review.md`; rendering caught six defects that markup tests could not see. Contrast was measured on 217 unique text styles in both themes (0 below WCAG AA, four tokens corrected), and keyboard reachability, reduced motion, and animation gating were verified in-browser. The `file://` untrusted-origin warning item is void: the warning box was removed by maintainer decision. The five-person workshop remains genuinely un-run and is NOT claimed; it is carried to v4.2.2 as a bounded non-pass under human testing, since no cohort exists to run it.
+- **Resolved in**: v4.2.2 Phase 7 close-out on 2026-08-29
 
 #### Quality-Gate Gaps
 
@@ -81,10 +91,8 @@ None. DF-1 and QG-1 closed in the v4.2.1 last-phase close-out.
 - **Plan reference**: `docs/releases/v4/v4.2/plans/v4.2.1-guide-visual-education.md` T025
 - **Reason**: `python -m pytest --collect-only -q tests` collected 3534 tests. CI budgets `tests` at 4500s. A local run reached about 16 percent after eight minutes and was stopped. Focused `tests/guides/test_nexus_hub_guide.py` (38 passed, 1 skipped) and `python scripts/ci/run.py --profile fast` (12 passed) are green.
 - **Suggested next step**: Treat the integration pull request `pytest tests` job as the full-suite proof. Do not merge on a red `ci-required`.
-
-### Resolved
-
-None yet.
+- **Resolution**: superseded by the v4.2.2 close-out, which runs the full local suite to completion before publication (see `development/last-phase-evidence.md`, "Full-suite testing and stabilization") and still gates the merge on a green `ci-required`.
+- **Resolved in**: v4.2.2 Phase 7 close-out on 2026-08-29
 
 ### Inherited Ledger Review
 
@@ -97,7 +105,7 @@ None yet.
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 1 | 0 |
+| Deferred (DF) | 2 | 0 |
 | Bugs / regressions (BG) | 0 | 0 |
 | Warnings (WN) | 0 | 0 |
 | Missing tests / coverage gaps (MT) | 1 | 0 |
@@ -106,6 +114,13 @@ None yet.
 ### Open Items
 
 #### Deferred
+
+##### DF-2 - The five-person workshop validation was not run
+
+- **Source phase**: Phase 7 - Architecture refactor, known-gaps, CI/CD
+- **Plan reference**: `docs/releases/v4/v4.2/plans/v4.2.2-guide-cinematic-rebuild.md` T027
+- **Reason**: Inherited from v4.2.1 DF-1. No cohort of five participants exists to run a workshop against. Rendered QA, WCAG AA contrast, keyboard, and reduced-motion checks were all run and are recorded; the workshop specifically was not, and is not claimed.
+- **Suggested next step**: When a cohort is available, run the eight-step Training walkthrough with five people and record where they stall. Until then this stays open rather than being marked satisfied by proxy evidence.
 
 ##### DF-1 - Unicode-safety validator does not scan `.html`, so the guide is outside the sanitize gate
 

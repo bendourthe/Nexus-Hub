@@ -1,7 +1,7 @@
 # Guide rebuild design brief (v4.2.2)
 
 **Date**: 2026-08-29
-**Inputs**: `reference-v4.1.2.html` (the live pre-redesign guide, 3,684 lines), the rejected v4.2.x guide (2,906 lines at branch point), the 2026-08-29 maintainer screenshot review, and the existing baseline audits (`../guide-redesign-baseline/`).
+**Inputs**: the live pre-redesign guide (3,684 lines; recover with `git show v4.1.2:guides/website/nexus-hub-guide.html`), the rejected v4.2.x guide (2,906 lines at branch point), the 2026-08-29 maintainer screenshot review, and the existing baseline audits (`../guide-redesign-baseline/`).
 **Consumers**: Phases 2-5 of `../../plans/v4.2.2-guide-cinematic-rebuild.md`. Every page phase designs against this file; a deviation from it is logged as `# DEVIATION:` in the phase session history.
 
 ## Verdict per reference

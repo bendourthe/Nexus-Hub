@@ -1,230 +1,210 @@
-# Last-Phase Evidence - v4.2.1 Guide Visual Education
+# Last-phase evidence - v4.2.2 guide-cinematic-rebuild
 
 **Date**: 2026-08-29
-**Branch**: `feat/v4.2.1-guide-visual-education`
-**Phase starting commit**: `ab7b51ee` (Phase 6)
-**Comparison base**: `origin/develop` (`38a63ddc`, merge of unpublished v4.2.0 PR #145)
-**Plan**: `docs/releases/v4/v4.2/plans/v4.2.1-guide-visual-education.md`
+**Plan**: `docs/releases/v4/v4.2/plans/v4.2.2-guide-cinematic-rebuild.md`
+**Phase**: 7 - Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
+**Branch**: `feat/v4.2.2-guide-cinematic-rebuild`
 
-The v4.2.0 record that previously occupied this path is preserved at `docs/releases/v4/v4.2/development/last-phase-evidence-v4.2.0.md`.
+This file supersedes nothing: the v4.2.1 evidence file remains at `last-phase-evidence.md` history and `last-phase-evidence-v4.2.0.md`. Every duty below quotes the command or scan that proves it.
 
-## 1. Architecture refactor
+## Architecture refactor
 
-Commands:
+Empty-directory and orphan scan over the touched trees:
 
-> `python catalog/skills/code-cleanup/docs-layout-refactor/scripts/audit-docs.py inventory --root docs`
->
-> `InventoryExit=0`
->
-> `python catalog/skills/code-cleanup/docs-layout-refactor/scripts/audit-docs.py refgraph --root docs`
->
-> `RefgraphExit=0`
+```text
+$ find guides docs/releases/v4/v4.2 -type d -empty
+(no output)
 
-Both commands ran in one pass and ended with process `exit_code: 0` after 138720 ms. `project-refactor` has no bundled detector scripts. Propose-only classification of files this plan added or edited, from `git diff --stat origin/develop...HEAD` plus a markup scan of the canonical guide:
+$ git status --short --ignored=no
+(clean)
+```
 
-- Stay: `guides/website/nexus-hub-guide.html`; `guides/website/README.md`; `guides/website/example/training-scenes.json`; `guides/website/example/glow-booth/`; `guides/website/example/glow-booth-shuffle-reference/`; `guides/website/glow-booth.zip`; `tests/guides/test_nexus_hub_guide.py`; the v4.2.1 plan, content-map v4.2.1 section, known-gaps, docs-cleanup report, session histories, `last-phase-evidence-v4.2.0.md`, and this evidence file under `docs/releases/v4/v4.2/`.
-- Stay on disk, not taught: `guides/website/example/trivia-quiz/` and `guides/website/example/quiz-shuffle-reference/`. Grep of `guides/website/nexus-hub-guide.html` for `trivia-quiz` and `Trivia Quiz` returned zero matches.
-- Move / Archive: none proposed. Phase evidence folders stay under the active minor until `/update release` retention.
-- Empty directories introduced by this plan: none.
-- Duplicate content: maintainer `example/training-scenes.json` and the inline `#nh-training-scenes` block are intentional copies; tests assert they parse equal.
-- No top-level installer-copied `scripts/*.py` was added. No `.github/workflows/` edit.
+One redundant-file finding, applied:
 
-No confirmation gate for a file move was required. Trivia Quiz is not deleted in this phase.
+```text
+$ python - (compare committed reference against the tag)
+reference bytes: 476900  tagged bytes: 476900
+byte-identical to git tag v4.1.2: True
 
-## 2. Known-gaps reconciliation
+$ git rm docs/releases/v4/v4.2/development/guide-rebuild/reference-v4.1.2.html
+removed (recoverable: git show v4.1.2:guides/website/nexus-hub-guide.html)
+```
 
-Glob of `docs/**/known-gaps.md` found 31 unique files (32 path hits; `docs/releases/v4/v4.2/known-gaps.md` appears twice because of mixed path separators).
+`development/guide-rebuild/design-brief.md` was updated in the same commit to cite the `git show` command instead of the deleted copy, so the reference is still reachable in one step.
 
-File-level Status `in-progress` in this pass:
+Render evidence was reviewed for weight and **kept**: 16.0 MB across six phase sets, against an existing 11.5 MB precedent in `assets/`. It is the artifact that closes v4.2.1 DF-1 and each phase's session history cites its own set, so deleting the intermediate sets would break those citations to save 8.7 MB. Recorded as a deliberate decision, not an oversight.
 
-- `docs/releases/v4/v4.2/known-gaps.md` (this minor)
-- `docs/releases/v4/v4.1/known-gaps.md` (prior minor; open DF/WN/QG items remain on that ledger)
+Resulting evidence tree:
 
-`docs/releases/v4/v4.0/known-gaps.md` is finalized. `docs/releases/v3/v3.20/known-gaps.md` and `docs/releases/v3/v3.21/known-gaps.md` are finalized. Remaining v3 and archive ledgers are historical or complete; none was rewritten. No `## v3.20.0` section was appended to v3.16 or v3.20.
+```text
+docs/releases/v4/v4.2/development/guide-rebuild/
+  design-brief.md          foundations-script.md    hallmark-audit.md
+  render-review.md         training-script.md       renders/phase-1..6/
+```
 
-This plan produced:
+## Known-gaps reconciliation
 
-- Closed v4.2.0 DF-1: maintainer screenshots that triggered this plan exist (visual QA ledger, 2026-08-29). Remaining human proof (Lighthouse Accessibility, rendered last-phase visual QA, workshop 4-of-5) is re-homed to v4.2.1 DF-1.
-- Closed v4.2.0 QG-1: remote PR #145 `pytest tests` already passed on the unpublished substrate. This session's unbounded local `python -m pytest -q tests` (3534 collected) reached about 16 percent after eight minutes and was stopped; that honesty is v4.2.1 QG-1, not a reopening of the closed 4.2.0 row.
+Globbed every ledger in both canonical and legacy layouts:
 
-Not absorbed:
+```text
+$ find docs -name "known-gaps.md" | wc -l
+31
+```
 
-- v4.1.0 DF-1 / WN-1 / QG-1
-- v4.1.1 DF-1
-- v4.1.2 WN-1 / QG-1 (already resolved on the v4.1 ledger)
-- v4.0 DF-1 (report-artifact upload), declined again in the pipeline comparison below
+Of the 31, exactly two carry `**Status**: in-progress`: `docs/releases/v4/v4.1/known-gaps.md` and `docs/releases/v4/v4.2/known-gaps.md`. All others are finalized, released, or release-ready.
 
-## 3. Living docs architecture
+**This version (`v4.2`)**:
 
-Scan:
+- `## v4.2.1` DF-1 (rendered visual QA) -> **Resolved**. v4.2.2 made rendered browser QA a per-phase gate: 77 screenshots across six phase sets, each with a written verdict, and rendering caught six defects markup tests could not see. The `file://` untrusted-origin item inside DF-1 is void because the warning box was removed by maintainer decision.
+- `## v4.2.1` QG-1 (full local suite unfinished) -> **Resolved**, superseded by this phase's completed local run (below).
+- `## v4.2.1` gains a "Superseded note" recording that its UI was never published and that T026 was deliberately never run.
+- `## v4.2.2` opens with DF-1 (`.html` outside the unicode-sanitize gate), DF-2 (five-person workshop not run - carried honestly from v4.2.1 DF-1 rather than marked satisfied by proxy evidence), and MT-1 (render harness is manual-only by design, so CI never needs a browser download).
 
-> `docs/handbooks/` authored files = 1 (`README.md`); `docs/handbooks/html/.gitkeep` and `docs/handbooks/markdown/.gitkeep` only; catalog atlas/companion HTML = 0
->
-> No `docs/testing/` or `docs/validation/` path exists.
+**Other in-progress ledger (`v4.1`)**: inspected, not absorbed. Its three open items (DF-1 prompting-profile drift, WN-1 repository description advertising a stale skill count, QG-1 an unfinished local profile run) all belong to the v4.1 line and are untouched by a guide rebuild. No item was silently migrated.
 
-The living handbook root remains a scaffold. Release-bound plan, content-map, histories, known-gaps, cleanup report, and this evidence file remain under `docs/releases/v4/v4.2/`. `docs/decisions/` was not used for this UX patch; the plan is the attribution record. `docs/DEVLOG.md` still has a v4.2.0 index row only; the v4.2.1 index line belongs to `/update release`. `docs/todos.md` tracks this plan as the active dashboard until merge. `docs/README.md` already names `docs/releases/v4/v4.2/` as the active 4.x minor. Root `README.md` Interactive Guide blurb was stale ("eight-scene IDE workbench") and is updated in this phase to Foundations four stations, Glow Booth slideshow, and Cheatsheets. `guides/website/README.md` six-node list said "Build" and is corrected to "Implement" to match the frozen node label.
+## Living docs architecture
 
-## 4. Git-tree hygiene
+```text
+$ python scripts/ci/run.py --profile fast
+- docs
+  [ok  ] check_docs_conventions (0.2s)
+  [ok  ] validate_doc_budgets (0.1s)
+  [ok  ] check_memory_integration_budget (0.8s)
+  [ok  ] validate_unicode_safety (96.7s)
+  [ok  ] validate_no_personal_paths (5.1s)
+PASS: 12 passed, 0 failed, 0 skipped, 0 advisory
+```
 
-Command:
+Living roots checked and current: `docs/todos.md` refreshed to this plan and branch each phase; `docs/DEVLOG.md` is a per-release index with no per-phase rows, so it is correctly a no-op until `/update release`; per-phase session histories are written under `development/history/` (six files, one per phase). No `docs/testing/` or `docs/validation/` tree was invented.
 
-> `python scripts/check_release_preconditions.py --branches --repo-settings`
+`guides/website/README.md` was rewritten in Phase 6 to match the rebuilt architecture and is enforced by `test_website_readme_matches_redesign`.
 
-Quoted result:
+## Git-tree hygiene
 
-> Branch hygiene (merged into origin/develop)
->   10 merged branch(es) are cleanup candidates:
->     - origin/backmerge/v4.0.0-release
->     - origin/backmerge/v4.1.0-release
->     - origin/backmerge/v4.1.1-release
->     - origin/backmerge/v4.1.2-release
->     - origin/feat/v4.1.0-release
->     - origin/feat/v4.1.1-adoption-openworker-security-refinement
->     - origin/feat/v4.1.1-release
->     - origin/feat/v4.1.2-ponytail-planning
->     - origin/feat/v4.1.2-release
->     - origin/feat/v4.2.0-interactive-guide-redesign
->   (11 branch(es) with an open PR were excluded)
->   1 branch(es) survive a CLOSED, unmerged PR:
->     - origin/backmerge/v3.20.0
->   delete_branch_on_merge does NOT cover these. Review and delete by hand.
->   Reporting only -- nothing was deleted.
-> Repository settings
->   OK: delete_branch_on_merge is enabled
->   OK: repository description agrees with README.md
+```text
+$ python scripts/check_release_preconditions.py --branches --repo-settings
+Branch hygiene (merged into origin/develop)
+  10 merged branch(es) are cleanup candidates:
+    - origin/backmerge/v4.0.0-release
+    - origin/backmerge/v4.1.0-release
+    - origin/backmerge/v4.1.1-release
+    - origin/backmerge/v4.1.2-release
+    - origin/feat/v4.1.0-release
+    - origin/feat/v4.1.1-adoption-openworker-security-refinement
+    - origin/feat/v4.1.1-release
+    - origin/feat/v4.1.2-ponytail-planning
+    - origin/feat/v4.1.2-release
+    - origin/feat/v4.2.0-interactive-guide-redesign
+  (11 branch(es) with an open PR were excluded)
+  1 branch(es) survive a CLOSED, unmerged PR:
+    - origin/backmerge/v3.20.0
+  delete_branch_on_merge does NOT cover these. Review and delete by hand.
+  Reporting only -- nothing was deleted.
+Repository settings
+  OK: delete_branch_on_merge is enabled
+  OK: repository description agrees with README.md
+```
 
-No remote cleanup, settings edit, push, tag, or release was performed.
+Report only. No branch was deleted; the ten candidates are pre-existing and unrelated to this plan.
 
-## 5. CI/CD coverage
+## CI/CD coverage
 
-DETECT: GitHub Actions (`.github/workflows/*.yml`).
+Comparison against the canonical contract, field by field. **This phase changed no pipeline file**, because the comparison found no gap requiring one.
 
-COMPARE: existing-pipeline comparison against `catalog/skills/infrastructure/cicd-architect/references/repository-native-profiles.md` (23 canonical fields).
-
-PROPOSE: no pipeline file changes. Silence is not approval; none is requested.
-
-APPLY: none.
-
-RECORD: inherited v4.0 DF-1 (report artifacts not uploaded) stays declined. Local unbounded `pytest tests` is v4.2.1 QG-1.
-
-Coverage inventory:
-
-> `python scripts/ci/run.py --profile fast --list`
->
-> profile: fast / windows; groups: catalog-parse, hygiene, workflows, version
->
-> `python scripts/check_required_check_coverage.py`
->
-> `Required-check coverage: OK -- 10 declared context(s) across 2 branch(es), every one produced unconditionally.`
->
-> `python scripts/check_installer_parity.py` -> `installer parity: PASS`
->
-> `python scripts/check_version_sync.py` -> canonical `4.1.2` (bump belongs to `/update release`)
-
-`git diff --name-only origin/develop...HEAD -- .github catalog/mcp-configs scripts/installer.sh scripts/installer.ps1 catalog/hooks/settings.json` is empty. No second required workflow. No workflow-level `paths:` on `ci.yml`. `ci.yml` `on:` is `pull_request` + `merge_group` + `workflow_dispatch`. No new top-level `scripts/*.py`. Two installers: parity checker PASS (hard gate in this pass).
-
-This plan only extends `tests/guides/test_nexus_hub_guide.py`, which the existing `tests` / `tests-windows` jobs already cover. Those job names feed the `ci-required` aggregate; the declared required contexts on `develop` remain `validate`, `shellcheck`, `ci-required`, `colocation`, `verify`.
-
-Existing-pipeline comparison:
-
-| # | Field | State | Evidence |
-|---|---|---|---|
-| 1 | Provider detected | PASS | GitHub Actions; `.github/workflows/ci.yml`, `post-merge.yml`, `release.yml` |
-| 2 | Profiles exist | PASS | `scripts/ci/run.py` profiles `fast`, `full`, `platform`, `report`, `release` |
-| 3 | No duplicated validator | PASS | `ci.yml` jobs call `scripts/ci/run.py`; validator lists live in `scripts/ci/profiles.py` |
-| 4 | Feature-push runs nothing | PASS | `ci.yml` `on:` is `pull_request` + `merge_group` + `workflow_dispatch`; no ordinary branch `push` |
-| 5 | Integration gate is complete | PASS | `ci.yml` runs on PRs to `main`/`develop` including Windows and bootstrap/install-smoke jobs |
-| 6 | No duplicate post-merge suite | PASS | `post-merge.yml` is smoke and provenance, not `ci.yml` again |
-| 7 | Post-merge is minimal | PASS | `post-merge.yml` smoke job plus advisory version note |
-| 8 | Release is separate | PASS | `release.yml` on `v*` tags and dispatch |
-| 9 | Aggregate required check | PASS | `ci-required` plus `validate`, `shellcheck`, `colocation`, `verify` in `docs/policy/required-checks.json` |
-| 10 | No per-leg required context | PASS | required list has no `job (leg)` names |
-| 11 | Scoping is job-level | PASS | no workflow-level `paths:` on `ci.yml` |
-| 12 | Runner selection | PASS | `ubuntu-latest` and `windows-latest` GitHub-hosted |
-| 13 | Expensive legs pre-merge | PASS | Windows PowerShell 5.1 and installer-smoke run on the pull request |
-| 14 | Immutable references | PASS | third-party actions use 40-character SHAs with version comments |
-| 15 | Least-privilege permissions | PASS | `ci.yml` `permissions: contents: read` |
-| 16 | Caching | PASS | pip cache keyed to manifests on CI Python jobs |
-| 17 | Concurrency | PASS | `ci.yml` cancels superseded PR runs; release and post-merge do not |
-| 18 | Untrusted forks | PASS | `contents: read`; no secrets in `ci.yml` |
-| 19 | Reports produced | PASS | `scripts/ci/reporting.py` writes summary, JUnit, and metadata locally |
-| 20 | Reports published | DECLINED (inherited) | machine-readable artifacts are not uploaded. v4.0 DF-1; not reopened |
-| 21 | Deployment boundary | PASS | no application deploy job |
-| 22 | Failure recovery | PASS | 9F requires local reproduction before re-push |
-| 23 | External settings | PASS | `delete_branch_on_merge` enabled; description agrees with README |
-
-Comparison conclusion: PASS for this plan. The only canonical pipeline difference is inherited v4.0 DF-1 (artifact upload). This plan adds no workflow, MCP row, installer copy line, or hook registration.
-
-## 6. Goal-vs-codebase review
-
-Plan Goal restated: turn the unpublished v4.2.0 guide into a concise, illustrated, highly interactive, and accessible first-contact site that teaches AI terms visually, walks a fun buggy web app to a fixed one with a new feature, and merges Workflows plus Reference into one Cheatsheets tab, without changing command semantics or the single-file offline contract.
-
-Goals First definition of done, inspected independently of phase checkboxes:
-
-| Observable | Artifact | Verdict |
+| Contract field | Evidence | Verdict |
 |---|---|---|
-| Opaque sticky header | `.site-header { position: sticky; background: var(--nav-bg); }` with opaque `--nav-bg` in both themes; no transparent nav | PASS (rendered constellation bleed is DF-1) |
-| Icon-only GitHub | `.nav-gh` SVG plus `aria-label="Nexus-Hub on GitHub"`; `test_github_control_is_icon_only` | PASS |
-| Sun/moon default dark | `test_theme_control_is_sun_moon_default_dark`; `portfolio-theme` allowlist | PASS |
-| Readable light wordmark | `.brand .wordmark b { color: var(--ink); }`; `test_wordmark_uses_theme_ink` | PASS (Lighthouse contrast remains DF-1) |
-| Copy at terminal end | `test_copy_button_is_not_inside_data_copy_code` | PASS |
-| Light terminals in light theme | `test_light_theme_terminal_is_not_near_black` | PASS (rendered proof DF-1) |
-| Modern Home loop; exact `Map and evaluate` | six `.nhg-ribbon-name` nodes including Implement; `test_home_loop_nodes_are_not_abutting_rectangles` | PASS |
-| Foundations four visual stations | Prompt / Context / Harness / Loop engineering as `.nhg-station`; no `type="range"` | PASS (comprehension study is DF-1) |
-| Training slideshow of Glow Booth | `#nhTraining`, `.ts-slide`, `#nhBoothHero`; file grid behind Peek; eight scenes, cap twelve | PASS |
-| Cheatsheets merge | `#page-cheatsheets`; primary nav has no Workflows or Reference; `HASH_REWRITES` | PASS |
-| No cinematic video engine | no `scroll-scrub-engine`; no `<video` in Foundations; local CSS/JS only | PASS |
-| No hardcoded catalog counts | `test_onboarding_has_no_hardcoded_catalog_counts` | PASS |
-| Every catalog command is Training, Cheatsheets, or declined | `test_every_catalog_command_is_training_cheatsheets_or_declined` | PASS |
-| Trivia Quiz retired from published teaching | zero matches in the canonical HTML; trees remain on disk | PASS |
-| Single-file offline; no CDN | `test_no_runtime_cdn_font_script_or_image`; `test_one_html_document` | PASS |
+| Repository-native profiles | `scripts/ci/profiles.py`; `python scripts/ci/run.py --profile fast` runs locally and in CI | PASS |
+| Event separation | `on: pull_request: branches: [main, develop]`, `merge_group:`, `workflow_dispatch:` | PASS |
+| **Triggers unconditional** | The `on:` mapping contains no `paths:`. Verified directly after a crude grep produced a FALSE POSITIVE that matched a comment on lines 25 and 37. | PASS |
+| Path scoping at job level | A `changes` job feeds job-level `if:` conditions - the correct pattern per the project rule | PASS |
+| Always-resolving aggregate check | `ci-required` with `needs:` on all nine jobs, `if: always()`, and explicit per-job result assertions rather than bare `needs:` | PASS |
+| Required-check coverage | `python scripts/check_required_check_coverage.py` -> `OK -- 10 declared context(s) across 2 branch(es), every one produced unconditionally.` (exit 0) | PASS |
+| Permissions | `permissions: contents: read` (workflow-level least privilege) | PASS |
+| Immutable action references | 2 distinct action refs, **0 not pinned to a 40-char SHA** | PASS |
+| Concurrency | `concurrency:` present, cancels superseded runs of the same ref | PASS |
+| Runner selection | ubuntu + macos + windows legs (`tests-windows`, `bootstrap-windows`) | PASS |
+| Artifact retention / deployment boundaries | Workflow builds and tests only: no upload, no gh CLI, no comments, no pushes | PASS |
+| Failure recovery | `ci-required` reports the failing job by name rather than a bare red | PASS |
 
-Root README workbench wording was a Goal miss in living docs and is fixed in this phase. Integration, merge, and release are not proven in this file until T026 completes.
+**Cross-installer parity**: this repository ships two installers (`scripts/installer.sh`, `scripts/installer.ps1`). This plan added no installer-copied artifact - the render harness lives at `tests/guides/tools/render_guide.py`, outside `scripts/`, so no installer edit was required. `tests/installer/` and the installer-smoke jobs are unchanged and green in the fast profile.
 
-Verdict: PASS for the local guide contract; human/browser evidence and remote CI are recorded gaps, not silent passes.
+**This plan's cumulative CI impact**: one optional dev dependency (Playwright, lazy-imported, proven importable without it by `test_render_harness_imports_without_playwright`), one new non-collected path (`tests/guides/tools/`), and PNG evidence under `docs/`. No new command, env var, secret, or test path that CI must learn about. The rewritten `tests/guides/test_nexus_hub_guide.py` is picked up automatically by the existing `tests` job.
 
-## 7. Human/manual testing suggestions
+## Goal-vs-codebase review
 
-Emitted. Not run in this session (no browser automation in this Cursor session, no workshop cohort).
+The plan Goal, restated verbatim:
 
-1. Re-check the ten visual QA ledger items in both themes at 1440x900, 1024x768, 390x844, and 1920x1080: opaque sticky header; icon GitHub; sun/moon default dark; copy at terminal end; light terminals and copy chip; readable light wordmark; Home loop not rigid boxes; Foundations not a range slider; Foundations not three identical text cards; Training not a default IDE workbench.
-2. Keyboard: ArrowLeft / ArrowRight / Space on Training; Home / End; page-level arrows off Training; keys disengage in `[data-nhg-keys='self']`.
-3. `prefers-reduced-motion`: Foundations comparison states stay static; constellation does not animate.
-4. Open `guides/website/nexus-hub-guide.html` via `file://` and confirm `#untrustedCopyWarning` is visible.
-5. Hash redirects: `#reference` and `#workflows` become `#cheatsheets`; `#explore` (and plan/build/harden/ship/communicate) become `#cheatsheets/<id>`.
-6. Lighthouse Accessibility at least 90 in light and dark. Performance, SEO, and Best Practices remain advisory.
-7. Non-engineer read-through of Foundations and Training: can they say what prompt, context, harness, and loop engineering change, and watch Glow Booth go from 4/5 stamps to a shuffle-plus-sparkle fix? Do not invent a five-person workshop. Bounded non-pass if no participants are available.
+> A visitor to the published guide experiences a modern, cinematic, interactive four-page site in which every complaint from the 2026-08-29 screenshot review is resolved, Foundations and Training are rebuilt from scratch as animated educational experiences (Training doubling as a fullscreen slide walkthrough with an interactive Glow Booth mockup and a simulated terminal), Cheatsheets explains every command scope in place, and every phase ships with rendered browser evidence -- judged better than both the unpublished v4.2.1 UI and the live pre-4.2.0 site.
 
-Quoted result: not run. Recorded as v4.2.1 DF-1. Do not invent a walkthrough.
+Inspected against the file itself, not against phase checkboxes. **17 of 17 clauses satisfied:**
 
-## 8. Full-suite testing and stabilization
+| Goal clause (from the screenshot review) | Artifact in the codebase |
+|---|---|
+| GitHub icon not cropped or misplaced | `a.nav-gh, .nhg-theme` 36px square, `padding: 0`, canonical octocat path |
+| Hero text shares the title's measure | `--measure: 700px` on both `h1` and `.lead`, plus `text-wrap: balance` |
+| Copy button slimmer | `.copy-btn { height: 24px }` |
+| Warning box and its logic removed | `untrustedCopyWarning` and `isDocumentedGuideOrigin` both absent |
+| Windows first, macOS/Linux second | `data-tab="win"` precedes `data-tab="posix"`; `aria-selected="true"` on Windows |
+| Verify commands copyable | `data-copy="/skills list"` and `data-copy="/commands"` cells |
+| Compact section spacing | `--sec-pad: 32px` (v4.2.x used 54px+) |
+| Light-mode logo backdrop | rounded dark chip rule under `html[data-theme="light"] .brand .mark` |
+| Foundations: no persistent overlay, no mode selector | 5 `.fx-scene` sections; station/compare/carousel code absent |
+| Foundations: animated, with charts | 5 inline SVG diagrams, dash-draw entry, `offset-path` pulses |
+| Training: interactive mockup of the example app | booth component reproducing the frozen `captured.length - 1` bug |
+| Training: simulated terminal per command | Run affordance plus typed output pane driven by scene data |
+| Training: fullscreen slide capability | `requestFullscreen` with an `is-present` overlay fallback |
+| Cheatsheets: no meaningless band labels | "Band 1" / "Band 2" absent |
+| Cheatsheets: per-scope descriptions | **79** documented scopes, anti-drift-tested against `catalog/commands/` |
+| Rendered evidence per phase | **77** screenshots across 6 phase sets |
+| Single self-contained offline file preserved | no runtime network references; 377 KB against a 500 KB budget |
 
-Quoted local evidence:
+**Gaps**: none blocking. Two honest limits are recorded as known gaps rather than claimed: DF-2 (no five-person workshop cohort exists, so that validation is genuinely un-run) and DF-1 (`.html` sits outside the unicode-sanitize gate, which is a repo-wide validator limitation, not a defect in this work).
 
-> `python -m pytest -q tests/guides/test_nexus_hub_guide.py` -> `38 passed, 1 skipped in 0.18s` (skipped: `NEXUS_HUB_PORTFOLIO_ROOT` unset)
->
-> `python scripts/ci/run.py --profile fast` -> `PASS: 12 passed, 0 failed, 0 skipped, 0 advisory in 8.0s`
->
-> `python scripts/check_installer_parity.py` -> `installer parity: PASS`
->
-> `python scripts/check_required_check_coverage.py` -> `Required-check coverage: OK -- 10 declared context(s)`
->
-> `python scripts/check_version_sync.py` -> canonical `4.1.2`
->
-> `python scripts/check_model_prompting_freshness.py --advisory`
->
-> `[profile-freshness] UNKNOWN: no live roster supplied, so drift cannot be determined.` Recorded roster (4, last verified 2026-07-27): `claude-fable-5`, `claude-haiku-4-5-20251001`, `claude-opus-5`, `claude-sonnet-5`. This is v4.1.0 DF-1, not absorbed.
->
-> `python -m pytest --collect-only -q tests` -> `3534 tests collected in 8.42s`
->
-> `python -m pytest -q tests` (CI timeout 4500s) reached about 16 percent after eight minutes and was stopped (QG-1). Remote `pytest tests` on the integration pull request is the remaining full-suite proof.
+**The comparative clause** ("judged better than both") is the one clause a script cannot settle. It is put to the maintainer in human testing below, with the rendered evidence and the baseline recovery command supplied so the comparison is direct.
 
-`.gitignore` already ignores `.coverage`; 0 patterns added.
+## Human/manual testing suggestions
 
-## 9. Publication and integration
+Automated checks cover structure, contrast, keyboard reachability, reduced motion, and the simulated interactions. These need a person:
 
-Resolved branching model (from `AGENTS.md` Branching and Release Workflow): **develop + main**. Protected release branch: `main`. Integration target: `develop`. Feature base: `develop`. Current branch: `feat/v4.2.1-guide-visual-education`. Remote: `origin`.
+1. **The comparative judgement.** Open the rebuilt guide beside the live site (`git show v4.1.2:guides/website/nexus-hub-guide.html > /tmp/old.html`) and confirm the rebuild is the better experience. This is the plan Goal's only subjective clause.
+2. **Real-device touch.** Training's booth and pose buttons, and Present mode, on a phone and a tablet. The harness renders at 420px but does not touch.
+3. **Fullscreen for real.** Headless Chromium denies the Fullscreen API, so only the overlay fallback was exercised. Press Present in a real browser and confirm true fullscreen, then Escape.
+4. **Lighthouse Accessibility** in both themes, target >= 90. Contrast and keyboard were measured directly, but Lighthouse checks things this sweep did not.
+5. **Cross-browser and platform fonts.** Firefox and Safari, and the system font stack on macOS - all rendering evidence here is Chromium on Windows.
+6. **Clipboard.** Copy buttons under a real browser permission prompt, and the `execCommand` fallback path.
+7. **The published copy.** After deploying to the portfolio host, confirm the page renders identically and that no warning box appears (its removal is the fix for the host never having been allowlisted).
+8. **Workshop (DF-2).** Five people through the eight-step walkthrough, if a cohort becomes available. Not run; not claimed.
 
-Required checks expected on a pull request to `develop`: `validate`, `shellcheck`, `ci-required`, `colocation`, `verify`. The `tests` and `tests-windows` jobs run inside `ci.yml` and feed `ci-required`; they are not separate declared required contexts.
+## Full-suite testing and stabilization
 
-This section is incomplete until explicit approval to push and open the integration pull request. Silence is not approval. No tag, no `/update release`, and no merge will run from the driver without that gate. `/update release` after a green merge cuts **v4.2.1**. Do not create a v4.2.0 GitHub Release of the pre-polish guide.
+Guide suite:
+
+```text
+$ python -m pytest -q tests/guides/test_nexus_hub_guide.py
+55 passed, 1 skipped in 0.35s
+```
+
+Fast repository profile:
+
+```text
+$ python scripts/ci/run.py --profile fast
+PASS: 12 passed, 0 failed, 0 skipped, 0 advisory in 6.1s
+```
+
+Full repository suite, run to completion:
+
+```text
+$ python -m pytest -q tests
+................................................................ [ 66%]
+...
+..sssss.ss.ss.....s.sss                                                  [100%]
+3513 passed, 38 skipped in 3037.47s (0:50:37)
+
+[exited with code 0]
+```
+
+**0 failures across 3,513 tests.** This is the local gate the plan requires before publication, and it is what closes v4.2.1's QG-1 (which existed only because that session's run never finished). The refactor in this phase deleted one redundant documentation file and changed no code; the suite confirms no behavior moved.
+
+## Publication and integration
+
+Pending. This section is completed by sub-task 7.9 after explicit maintainer approval for the plan's first and only push.
