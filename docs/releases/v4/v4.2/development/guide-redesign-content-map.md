@@ -89,7 +89,7 @@ One composed encoding:
 - Deck/scene keys disengage when focus is in the editor, terminal, file tree, or the Foundations slider (`event.target` containment). Escape returns focus to the page or workbench chrome.
 - Phase 2 implements page routing and `#training`. Phase 4's handoff is `#training`, not a scene URL. Phase 5 adds scene id and beat.
 
-Allowlisted page ids after Phase 3: `home`, `foundations`, `training`, `explore`, `plan`, `build`, `harden`, `ship`, `communicate`, `reference`. `setup` is removed from `PAGES` after migrating still-useful install detail.
+Allowlisted page ids after Phase 3: `home`, `foundations`, `training`, `explore`, `plan`, `build`, `harden`, `ship`, `communicate`, `reference`. Phase 3 removed `setup` from markup and `PAGES`. `#home/install` scrolls to the Home install block without adding a page id.
 
 Phase 2 parser must take the first hash segment only (`#training/describe` is page `training`, not an unknown id).
 

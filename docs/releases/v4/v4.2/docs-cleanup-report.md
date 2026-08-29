@@ -34,3 +34,13 @@ Phase 2 edits the canonical guide HTML in place and adds `docs/releases/v4/v4.2/
 ### Result
 
 No documentation move. Token-role table updated in the content-map.
+
+## Phase 3 - Concise Home and Embedded Installation
+
+### Layout check
+
+Phase 3 edits the canonical guide HTML in place, adds `docs/releases/v4/v4.2/development/guide-redesign-phase-3/`, and a session-history file. Temporary splice helpers were deleted and are not in the tree.
+
+### Result
+
+No documentation move. Setup-page content that still has a learning purpose now lives on Home or Reference.

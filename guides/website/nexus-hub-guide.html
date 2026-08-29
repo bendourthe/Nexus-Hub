@@ -210,6 +210,7 @@ a:hover { color: var(--ink); }
 main { position: relative; z-index: 1; }
 .page { display: none; padding: 0 0 40px; }
 .page.active { display: block; }
+html.no-js .page { display: block; }
 
 /* ---------- Typography ---------- */
 h1, h2, h3, h4 { line-height: 1.18; margin: 0 0 .5em; font-weight: 700; letter-spacing: 0; }
@@ -476,6 +477,7 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
 .tab-btn.active { background: var(--accent); color: var(--page-bg); border-color: transparent; font-weight: 700; }
 .tab-panel { display: none; }
 .tab-panel.active { display: block; }
+html.no-js .tab-panel { display: block; }
 
 /* ---------- Flow diagram ---------- */
 .flow { display: flex; align-items: stretch; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 10px 0; }
@@ -558,7 +560,70 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
 }
 
 /* copy-to-clipboard buttons on runnable command / prompt examples */
-.cmd-line { display: flex; align-items: center; gap: 8px; }
+.cmd-line {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 8px;
+  overflow-wrap: anywhere; word-break: break-word; min-width: 0;
+}
+.cmd-line code {
+  font: inherit; color: inherit; background: none; padding: 0;
+  overflow-wrap: anywhere; word-break: break-word; min-width: 0; flex: 1 1 12rem;
+}
+
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+
+.nhg-compare { width: 100%; border-collapse: collapse; margin: 12px 0 8px; }
+.nhg-compare th, .nhg-compare td {
+  text-align: left; vertical-align: top; padding: 10px 12px;
+  border-bottom: 1px solid var(--border); font-size: 14.5px;
+}
+.nhg-compare th { color: var(--ink); font-size: 13px; letter-spacing: .04em; text-transform: uppercase; }
+.nhg-compare td:first-child { color: var(--ink); font-weight: 700; width: 18%; }
+.nhg-compare td { color: var(--ink-dim); }
+
+.nhg-install-wrap { margin: 8px 0 16px; }
+.nhg-warn { border-color: var(--amber); }
+
+.nhg-ribbon { margin: 8px 0 6px; }
+.nhg-ribbon-track {
+  display: flex; align-items: stretch; gap: 0;
+  overflow-x: auto; padding: 4px 0 10px; scroll-snap-type: x proximity;
+}
+.nhg-ribbon-node {
+  flex: 1 0 9.5rem; max-width: 12.5rem; scroll-snap-align: start;
+  text-align: left; cursor: pointer;
+  padding: 12px 14px; margin: 0;
+  border: 1px solid var(--border); background: var(--surface); color: var(--ink);
+  font-family: inherit;
+}
+.nhg-ribbon-node + .nhg-ribbon-join + .nhg-ribbon-node { border-left: 0; }
+.nhg-ribbon-node:first-of-type { border-radius: 8px 0 0 8px; }
+.nhg-ribbon-node:last-of-type { border-radius: 0 8px 8px 0; }
+.nhg-ribbon-join {
+  width: 14px; flex: none; align-self: center; height: 2px;
+  background: var(--accent);
+}
+.nhg-ribbon-node.is-on { background: var(--accent); color: var(--page-bg); border-color: var(--accent); }
+.nhg-ribbon-name { display: block; font-weight: 700; font-size: 14px; }
+.nhg-ribbon-cmds { display: block; font: 600 12px var(--mono); margin-top: 6px; opacity: .92; }
+.nhg-ribbon-out { display: block; font-size: 12px; margin-top: 6px; opacity: .85; }
+.nhg-ribbon-detail { margin: 12px 0 8px; color: var(--ink-dim); max-width: 46em; }
+.nhg-ribbon-panel { display: none; }
+.nhg-ribbon-panel.is-on { display: block; }
+
+.nhg-platforms { margin: 18px 0 0; padding: 14px 16px; border: 1px solid var(--border); background: var(--surface); }
+.nhg-platforms h3 { margin: 0 0 8px; font-size: 1rem; }
+.nhg-platforms ul { margin: 0 0 8px; padding-left: 1.2em; color: var(--ink-dim); font-size: 14.5px; }
+.nhg-next { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
+
+@media (max-width: 720px) {
+  .nhg-ribbon-track { gap: 0; }
+  .nhg-ribbon-join { display: none; }
+  .nhg-ribbon-node { border-left: 1px solid var(--border); border-radius: 8px; margin-right: 8px; }
+  .nhg-ribbon-node + .nhg-ribbon-join + .nhg-ribbon-node { border-left: 1px solid var(--border); }
+}
 .copy-btn {
   margin-left: auto; flex: none;
   display: inline-flex; align-items: center; gap: 5px;
@@ -784,270 +849,188 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
   <!-- =====================================================================
        PAGE: HOME
        ===================================================================== -->
-  <section class="page" id="page-home" data-page="home">
+  <section class="page active" id="page-home" data-page="home">
     <div class="container">
 
       <div class="hero">
         <svg class="mark-xl" viewBox="0 0 100 100" aria-hidden="true"><use href="#nexus-mark"/></svg>
-        <h1>Upgrade your agentic AI platform with an <span class="gtext">autonomous team of world experts</span></h1>
-        <p class="lead">Nexus-Hub is an advanced harness for agentic AI coding platforms. It gives Codex, Claude Code, Gemini, Cursor, and Nexus-AI access to multidisciplinary field experts, governed workflows, and quality gates that cover the full software lifecycle - from inheriting an unfamiliar codebase to shipping a reviewed, tested release.</p>
+        <h1>Nexus-Hub is the experience layer for AI coding assistants</h1>
+        <p class="lead">It is a reusable, multi-platform harness: a catalog of skills, slash commands, hooks, agents, and rules that an installer copies onto your machine and wires into the assistants you already use. The model still supplies knowledge and reasoning. Nexus-Hub supplies reusable procedures, governed workflows, deterministic guardrails, durable artifacts, and quality gates.</p>
+        <p class="lead">The same loop then works on Claude Code, Codex, Cursor, Gemini / Antigravity, and GitHub Copilot. OpenCode receives the same command bodies through its instruction file, without a slash menu.</p>
         <div class="btn-row">
-          <a class="btn btn--primary" data-go="setup">Get started <span class="arr">&rarr;</span></a>
-          <a class="btn" data-go="training">Get trained</a>
-          <a class="btn" data-go="explore">Explore workflows</a>
-        </div>
-        <div class="stat-row">
-          <span class="stat"><b>252</b> skills</span>
-          <span class="stat"><b>14</b> commands</span>
-          <span class="stat"><b>22</b> hooks</span>
-          <span class="stat"><b>23</b> agents</span>
-          <span class="stat"><b>6+</b> AI platforms</span>
+          <a class="btn btn--primary" href="#home/install">Install <span class="arr">&rarr;</span></a>
+          <a class="btn" href="#training" data-go="training">Get trained</a>
+          <a class="btn" href="#explore" data-go="explore">Explore workflows</a>
         </div>
       </div>
 
       <div class="divider"></div>
 
-      <!-- What is it -->
       <section class="section">
-        <span class="eyebrow">What it is</span>
-        <h2>One catalog, installed into every assistant you use</h2>
-        <div class="grid grid-2" style="align-items:start">
-          <div>
-            <p class="lead" style="font-size:1.08rem">Nexus-Hub is the upstream <strong>catalog</strong> of skills, slash-commands, hooks, agents, and coding rules. An installer copies it into <code class="mono">~/.nexus-hub/</code> and wires it into your assistant's own config.</p>
-            <p>The same workflows then work identically across <strong>Claude Code, OpenAI Codex, Cursor, Gemini / Antigravity, GitHub Copilot</strong>, and the Nexus-AI desktop studio. Whatever tool a teammate prefers, they run the same governed commands and get the same disciplined output.</p>
-          </div>
-          <div class="card" style="background:var(--surface-2)">
-            <h3 style="margin-top:0">The five building blocks</h3>
-            <table class="tbl" style="margin:0">
-              <tr><td><code>Commands</code></td><td>Slash entry points like <code>/describe</code> that orchestrate a whole workflow.</td></tr>
-              <tr><td><code>Skills</code></td><td>Senior-level procedures the agent loads on demand (three-tier disclosure).</td></tr>
-              <tr><td><code>Hooks</code></td><td>Deterministic guardrails that fire on tool use - block secrets, guard destructive git.</td></tr>
-              <tr><td><code>Agents</code></td><td>Specialized reviewer personas (security, performance, testing, ...).</td></tr>
-              <tr><td><code>Rules</code></td><td>Per-language style &amp; security standards applied automatically.</td></tr>
-            </table>
-          </div>
-        </div>
-      </section>
-
-      <!-- Why it matters -->
-      <section class="section">
-        <span class="eyebrow">Why it matters</span>
-        <h2>What you get that raw prompting can't give you</h2>
-        <div class="grid grid-4">
-          <div class="card">
-            <div class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h10"/></svg></div>
-            <h3>Consistency</h3>
-            <p>Every engineer runs the same governed workflow. Output stops depending on who wrote the prompt that day.</p>
-          </div>
-          <div class="card">
-            <div class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3l8 4v6c0 5-3.5 7.5-8 8-4.5-.5-8-3-8-8V7z"/></svg></div>
-            <h3>Depth</h3>
-            <p>259 skills encode expert procedures for security, testing, and architecture - loaded only when the task needs them.</p>
-          </div>
-          <div class="card">
-            <div class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l7 4v6c0 5-3 8-7 10-4-2-7-5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg></div>
-            <h3>Safety</h3>
-            <p>Hooks block committed secrets and dangerous git. A reverse-engineer-first policy keeps your code from leaving the machine.</p>
-          </div>
-          <div class="card">
-            <div class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M5 21V8l7-5 7 5v13"/><path d="M9 21v-6h6v6"/></svg></div>
-            <h3>Governance</h3>
-            <p>Goals, a definition-of-done, and GO / NO-GO gates make AI output reviewable instead of a black box.</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- Why it's more powerful -->
-      <section class="section">
-        <span class="eyebrow">The difference</span>
-        <h2>Why it makes any model dramatically more capable</h2>
-        <p class="lead">Every assistant ships a handful of built-in commands and will happily answer a raw prompt. Nexus-Hub doesn't replace your model - it wraps it in the structure, depth, and guardrails a senior engineer brings. Same model, far better output.</p>
-        <div class="grid grid-2" style="align-items:stretch">
-          <div class="card" style="border-top:3px solid var(--ink-faint)">
-            <h3 style="color:var(--ink-dim)">Raw prompting &amp; built-in commands</h3>
-            <ul class="cmp cmp-bad">
-              <li>You re-explain the codebase from scratch every session</li>
-              <li>One-shot answers - no goal, no definition of done, no gate</li>
-              <li>Depth is whatever happens to be in the model's head that day</li>
-              <li>You trust the model to remember to be careful</li>
-              <li>Every engineer - and every tool - does it differently</li>
-              <li>Output you have to re-verify by hand</li>
-            </ul>
-          </div>
-          <div class="card" style="border-top:3px solid var(--teal)">
-            <h3 class="gtext">Nexus-Hub</h3>
-            <ul class="cmp cmp-good">
-              <li>Durable artifacts (analysis, review, plan) chain across sessions</li>
-              <li>Goal &rarr; definition-of-done &rarr; phased plan &rarr; GO / NO-GO gates</li>
-              <li>252 expert skills load on demand, exactly when the task needs them</li>
-              <li>Hooks enforce safety the model cannot talk its way past</li>
-              <li>One governed workflow for the whole team, on every platform</li>
-              <li>Reviewable, traceable, accountable to a written constitution</li>
-            </ul>
-          </div>
-        </div>
-        <div class="callout tip" style="margin-top:18px">
-          <span class="ci">&#9733;</span>
-          <p><strong>It doesn't change the model - it changes what the model knows and does at each step.</strong> The same Opus, Sonnet, GPT, or Gemini that gives a generic answer to a raw prompt produces senior-level, reviewed, tested work when Nexus-Hub feeds it the right expert procedure at the right moment, holds it to a definition of done, and stops it from skipping steps. The gain compounds across the workflow - and because it's model-agnostic, it lifts whatever model you (or your teammate) happen to prefer.</p>
-        </div>
-      </section>
-
-      <!-- Coming from generic commands -->
-      <section class="section">
-        <span class="eyebrow">Coming from Claude Code or Codex?</span>
-        <h2>Your favorite commands, leveled up</h2>
-        <p class="lead">Popular built-ins like <code>/goal</code>, <code>/loop</code>, and <code>/batch</code> are great <em>engines</em> - they keep the agent working, repeating, or parallelizing. What they don't give you is a goal worth pursuing or a standard to hit. That is exactly what Nexus-Hub adds. Here is how to adapt your habits.</p>
-
-        <table class="tbl tbl-migrate">
-          <colgroup><col class="c1"><col class="c2"><col class="c3"></colgroup>
-          <thead><tr><th>You're used to</th><th>In Nexus-Hub</th><th>What you gain &amp; how to adapt</th></tr></thead>
+        <span class="eyebrow">What it adds</span>
+        <h2>Same model. Different working method.</h2>
+        <p>These claims map to repository artifacts: the installer, <code>catalog/skills/</code>, <code>catalog/commands/</code>, <code>catalog/hooks/</code>, and the GO / NO-GO gates inside <code>/plan</code> and <code>/implement</code>. They are not a claim that one model is smarter than another.</p>
+        <table class="nhg-compare">
+          <thead>
+            <tr><th>Dimension</th><th>Raw assistant</th><th>With Nexus-Hub</th></tr>
+          </thead>
           <tbody>
             <tr>
-              <td><code>/goal &lt;condition&gt;</code><br><span class="muted" style="font-size:12px">work across turns until a validator says it's done</span></td>
-              <td><code>/plan</code> &rarr; <code>/implement</code></td>
-              <td>Nexus-Hub makes the goal <em>rigorous</em> - a written definition-of-done and a phased plan with GO / NO-GO gates. Keep using <code>/goal</code> as the engine, but point its condition at the plan's DoD instead of a one-line guess.</td>
+              <td>Portability</td>
+              <td>Built-in commands stay on that host.</td>
+              <td>One catalog is installed into each detected assistant's own config.</td>
             </tr>
             <tr>
-              <td><code>/grill</code> <span class="muted">(community)</span><br><span class="muted" style="font-size:12px">a tough, critical code grilling</span></td>
-              <td><code>/review</code> + <code>/spec clarify</code></td>
-              <td>A repeatable, scoped, <em>severity-ranked</em> audit with a written report and a verdict - not a one-off grilling. <code>/spec clarify</code> interrogates the requirements; <code>/review security</code> / <code>pentest</code> interrogates the code.</td>
+              <td>Reusable procedures</td>
+              <td>You re-explain the job every session.</td>
+              <td>Skills load on demand; slash commands start the same workflow each time.</td>
             </tr>
             <tr>
-              <td><code>/loop [interval] &lt;prompt&gt;</code><br><span class="muted" style="font-size:12px">re-run a prompt on a clock</span></td>
-              <td><code>/implement</code> + <code>/test</code></td>
-              <td>The loop gains structure: <code>/implement</code> runs the per-phase build-test-troubleshoot loop behind a quality gate, and <code>/test</code> loops to an 80% coverage threshold. Drive <em>those</em> with <code>/loop</code>, not raw prompts.</td>
+              <td>Deterministic enforcement</td>
+              <td>Safety depends on the model remembering to be careful.</td>
+              <td>Hooks block secrets and dangerous git regardless of the prompt.</td>
             </tr>
             <tr>
-              <td><code>/batch &lt;instruction&gt;</code><br><span class="muted" style="font-size:12px">split a big change into parallel worktrees</span></td>
-              <td><code>/plan</code> &rarr; <code>/implement</code></td>
-              <td>Decomposition by a <em>reviewed plan</em> with <code>T###</code> tasks and gates - so parallel work still converges on a definition of done instead of just finishing fast.</td>
+              <td>Durable artifacts</td>
+              <td>The useful output lives in a chat transcript.</td>
+              <td>Analyses, reviews, plans, and commits land on disk and chain to the next command.</td>
             </tr>
             <tr>
-              <td><code>/init</code><br><span class="muted" style="font-size:12px">generate a starter CLAUDE.md</span></td>
-              <td><code>/setup</code> + <code>/describe</code></td>
-              <td><code>/setup</code> scaffolds CLAUDE.md <em>and</em> structure, gitignore, and the review hook. On an inherited repo, <code>/describe</code> maps it first so the CLAUDE.md is grounded in reality.</td>
-            </tr>
-            <tr>
-              <td><code>/review</code>, <code>/security-review</code><br><span class="muted" style="font-size:12px">a built-in review pass</span></td>
-              <td><code>/review full</code></td>
-              <td>One scope-able entry point that runs every lens (structure, quality, coverage, security, changes) and <em>synthesizes</em> a single GO / NO-GO verdict - plus pentest, deps, SBOM, and skill-scan.</td>
-            </tr>
-            <tr>
-              <td><code>/compact</code>, <code>/rewind</code>, <code>/background</code><br><span class="muted" style="font-size:12px">session mechanics</span></td>
-              <td><span class="muted">keep using them</span></td>
-              <td>These are harness plumbing with no Nexus-Hub equivalent - keep them. Nexus-Hub layers a governed <em>workflow</em> on top; it does not touch session mechanics.</td>
+              <td>Team consistency</td>
+              <td>Each engineer invents a prompt.</td>
+              <td>The team shares one governed loop with written definition-of-done and GO / NO-GO gates.</td>
             </tr>
           </tbody>
         </table>
+        <details>
+          <summary>Commands, skills, hooks, agents, and rules</summary>
+          <p>Commands are slash entry points. Skills are procedures the agent loads when the task matches. Hooks are scripts that fire on tool events. Agents are specialist reviewer personas. Rules are per-language style and security standards. Details stay in <a href="#reference" data-go="reference">Reference</a>.</p>
+        </details>
+      </section>
 
-        <div class="callout tip">
-          <span class="ci">&#9733;</span>
-          <p><strong>The mental shift:</strong> generic commands optimize <em>how the agent runs</em> - autonomy, repetition, parallelism. Nexus-Hub optimizes <em>what it produces and to what standard</em> - a governed workflow with durable artifacts and quality gates. Use them together: the generic command is the engine, Nexus-Hub is the steering wheel and the finish line.</p>
+      <section class="section" id="nhg-install">
+        <span class="eyebrow">Install</span>
+        <h2>One command, then restart your assistant</h2>
+        <p>Paste the line for your system. The installer copies the catalog into <code class="mono">~/.nexus-hub/</code>, wires every assistant it detects, and preserves files you customized. There is no download to unzip first.</p>
+        <div id="untrustedCopyWarning" class="callout nhg-warn" role="status">
+          <span class="ci">!</span>
+          <p>This copy of the guide is not on a documented host (including <code>file://</code>). Treat copied install commands as untrusted until you confirm they match the project's GitHub repository.</p>
+        </div>
+        <div class="nhg-install-wrap" data-tabs data-nhg-keys="self">
+          <div class="tab-btns" role="tablist" aria-label="Install command by operating system">
+            <button type="button" class="tab-btn active" data-tab="posix" role="tab" aria-selected="true">macOS / Linux</button>
+            <button type="button" class="tab-btn" data-tab="win" role="tab" aria-selected="false">Windows</button>
+          </div>
+          <div class="tab-panel active" data-panel="posix" role="tabpanel">
+            <div class="term term--standalone">
+              <div class="term-bar"><div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div><span class="label">macOS / Linux &middot; paste into Terminal</span></div>
+              <div class="term-body">
+                <div class="cmd-line"><span class="t-teal" aria-hidden="true">$</span> <code data-copy="curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash">curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash</code></div>
+              </div>
+            </div>
+          </div>
+          <div class="tab-panel" data-panel="win" role="tabpanel">
+            <div class="term term--standalone">
+              <div class="term-bar"><div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div><span class="label">Windows &middot; paste into PowerShell</span></div>
+              <div class="term-body">
+                <div class="cmd-line"><span class="t-teal" aria-hidden="true">&gt;</span> <code data-copy="irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex">irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex</code></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="nhg-copy-status" class="visually-hidden" aria-live="polite"></div>
+        <details>
+          <summary>Need another option?</summary>
+          <p>No curl? Use <code>wget -qO- https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash</code>. Scope one repo with <code>--workspace</code>, limit assistants with <code>--platforms</code>, or skip the conflict prompt with <code>--yes</code>. Refresh later with <code>nexus-hub upgrade</code>. Advanced flags and what lands in <code>~/.nexus-hub/</code> versus per-tool config are on <a href="#reference" data-go="reference">Reference</a>.</p>
+        </details>
+        <div class="nhg-platforms">
+          <h3>Which platforms run the same slash commands</h3>
+          <ul>
+            <li>Claude Code, Codex, Cursor, Gemini / Antigravity, and GitHub Copilot expose the commands in a slash menu after install.</li>
+            <li>OpenCode has no slash surface; name the command in chat so the agent follows the same body.</li>
+          </ul>
+          <p style="margin:0; font-size:14.5px; color:var(--ink-dim)">First verify: run <code>/skills list</code> or <code>/commands</code>. You should see the command cheatsheet. Then restart the assistant so it picks up hooks and rules.</p>
         </div>
       </section>
 
-      <!-- The loop -->
       <section class="section">
-        <span class="eyebrow">The golden path</span>
-        <h2>The Nexus-Hub loop</h2>
-        <p class="lead">Each command produces a durable artifact that becomes the next command's input. That chaining is the whole idea - the workflow compounds.</p>
-        <div class="flow">
-          <div class="flow-node" data-go="explore"><div class="cmd">/describe</div><div class="lbl">understand</div></div>
-          <div class="flow-arrow">&rarr;</div>
-          <div class="flow-node" data-go="explore"><div class="cmd">/review</div><div class="lbl">evaluate</div></div>
-          <div class="flow-arrow">&rarr;</div>
-          <div class="flow-node" data-go="plan"><div class="cmd">/plan</div><div class="lbl">decompose</div></div>
-          <div class="flow-arrow">&rarr;</div>
-          <div class="flow-node" data-go="build"><div class="cmd">/implement</div><div class="lbl">build</div></div>
-          <div class="flow-arrow">&rarr;</div>
-          <div class="flow-node" data-go="harden"><div class="cmd">/test</div><div class="lbl">harden</div></div>
-          <div class="flow-arrow">&rarr;</div>
-          <div class="flow-node" data-go="ship"><div class="cmd">/update</div><div class="lbl">ship</div></div>
-        </div>
-        <p class="muted" style="font-size:13.5px"><code>/plan</code> and <code>/implement</code> also <strong>route the model per phase</strong>: each phase is scored and run on the cheapest capable model (defaulting up to the strongest tier on any doubt), so the easy majority of work costs less with no loss in quality. <code>/implement</code> re-confirms the choice at build time to pick up any newer or cheaper model shipped since planning. Run it standalone on any task any time with <code>/route</code>.</p>
-        <div class="callout tip">
-          <span class="ci">&#9733;</span>
-          <p><strong>Read this as a story.</strong> Across the next pages you'll inherit one made-up codebase - <strong>TaskFlow</strong>, a task-management SaaS - and take it from "I've never seen this repo" to "shipped, reviewed, and tested" using only Nexus-Hub commands.</p>
+        <span class="eyebrow">The loop</span>
+        <h2>Six stops from map to document</h2>
+        <p>Select a node for the command, the artifact it leaves, and the matching workflow page. This preview does not autoplay and does not replace Training.</p>
+        <div class="nhg-ribbon" data-nhg-keys="self" id="nhgRibbon">
+          <div class="nhg-ribbon-track" role="list">
+            <button type="button" class="nhg-ribbon-node is-on" data-ribbon="explore" aria-pressed="true" role="listitem">
+              <span class="nhg-ribbon-name">Map and evaluate</span>
+              <span class="nhg-ribbon-cmds">/describe, /review</span>
+              <span class="nhg-ribbon-out">analysis.md, review report</span>
+            </button>
+            <span class="nhg-ribbon-join" aria-hidden="true"></span>
+            <button type="button" class="nhg-ribbon-node" data-ribbon="plan" aria-pressed="false" role="listitem">
+              <span class="nhg-ribbon-name">Plan</span>
+              <span class="nhg-ribbon-cmds">/plan</span>
+              <span class="nhg-ribbon-out">phased plan with gates</span>
+            </button>
+            <span class="nhg-ribbon-join" aria-hidden="true"></span>
+            <button type="button" class="nhg-ribbon-node" data-ribbon="build" aria-pressed="false" role="listitem">
+              <span class="nhg-ribbon-name">Implement</span>
+              <span class="nhg-ribbon-cmds">/implement</span>
+              <span class="nhg-ribbon-out">code and a local commit</span>
+            </button>
+            <span class="nhg-ribbon-join" aria-hidden="true"></span>
+            <button type="button" class="nhg-ribbon-node" data-ribbon="harden" aria-pressed="false" role="listitem">
+              <span class="nhg-ribbon-name">Harden</span>
+              <span class="nhg-ribbon-cmds">/test</span>
+              <span class="nhg-ribbon-out">suite plus coverage gate</span>
+            </button>
+            <span class="nhg-ribbon-join" aria-hidden="true"></span>
+            <button type="button" class="nhg-ribbon-node" data-ribbon="ship" aria-pressed="false" role="listitem">
+              <span class="nhg-ribbon-name">Ship</span>
+              <span class="nhg-ribbon-cmds">/update</span>
+              <span class="nhg-ribbon-out">docs, changelog, release flow</span>
+            </button>
+            <span class="nhg-ribbon-join" aria-hidden="true"></span>
+            <button type="button" class="nhg-ribbon-node" data-ribbon="communicate" aria-pressed="false" role="listitem">
+              <span class="nhg-ribbon-name">Document</span>
+              <span class="nhg-ribbon-cmds">/presentify</span>
+              <span class="nhg-ribbon-out">offline interactive HTML</span>
+            </button>
+          </div>
+          <div class="nhg-ribbon-panel is-on" data-ribbon-panel="explore">
+            <p class="nhg-ribbon-detail">Map an inherited repo, then get a read-only verdict before you change it.</p>
+            <a class="btn" href="#explore" data-go="explore">Open Explore and evaluate</a>
+          </div>
+          <div class="nhg-ribbon-panel" data-ribbon-panel="plan">
+            <p class="nhg-ribbon-detail">Turn findings into a phased plan with a written definition of done.</p>
+            <a class="btn" href="#plan" data-go="plan">Open Plan the work</a>
+          </div>
+          <div class="nhg-ribbon-panel" data-ribbon-panel="build">
+            <p class="nhg-ribbon-detail">Build one phase with tests, a quality gate, and a local commit. No push until the plan's final phase.</p>
+            <a class="btn" href="#build" data-go="build">Open Implement</a>
+          </div>
+          <div class="nhg-ribbon-panel" data-ribbon-panel="harden">
+            <p class="nhg-ribbon-detail">Drive coverage to the project threshold and keep the suite green.</p>
+            <a class="btn" href="#harden" data-go="harden">Open Harden</a>
+          </div>
+          <div class="nhg-ribbon-panel" data-ribbon-panel="ship">
+            <p class="nhg-ribbon-detail">Sync documentation and run the release flow only after integration is green.</p>
+            <a class="btn" href="#ship" data-go="ship">Open Ship and maintain</a>
+          </div>
+          <div class="nhg-ribbon-panel" data-ribbon-panel="communicate">
+            <p class="nhg-ribbon-detail">Turn the written record into a self-contained HTML briefing with <code>/presentify</code>.</p>
+            <a class="btn" href="#communicate" data-go="communicate">Open Document</a>
+          </div>
         </div>
       </section>
 
-      <!-- How it works (folded in from the former Foundations page) -->
       <section class="section">
-        <span class="eyebrow">How it works</span>
-        <h2>Three things make this more than a prompt library</h2>
-        <p class="lead">Skills that load themselves, hooks the model cannot talk its way past, and governance that holds AI output to your written rules. Understand these three and the whole workflow makes sense.</p>
-        <div class="grid grid-3" style="margin-top:18px">
-          <div class="card" style="border-left:3px solid var(--teal)">
-            <div class="step-no" style="font:700 11px/1 var(--mono); color:var(--teal-soft); letter-spacing:1px; margin-bottom:8px">SKILLS</div>
-            <h3 style="font-size:1.05rem">Procedures that auto-load</h3>
-            <p>256 senior-level procedures (how to run a security review, how to write idiomatic Go, and more). The agent triggers the right one from your task. Three-tier loading keeps only a short summary in context until a skill is actually needed, so a large catalog stays affordable.</p>
-          </div>
-          <div class="card" style="border-left:3px solid var(--cyan)">
-            <div class="step-no" style="font:700 11px/1 var(--mono); color:var(--cyan-soft); letter-spacing:1px; margin-bottom:8px">HOOKS</div>
-            <h3 style="font-size:1.05rem">Guardrails it cannot bypass</h3>
-            <p>Where skills are advice, hooks are enforced. 23 scripts fire on tool events and block the action outright: secret scanning, destructive-git confirmation, large-file guards. The safety net does not depend on the model remembering to be careful.</p>
-          </div>
-          <div class="card" style="border-left:3px solid var(--blue)">
-            <div class="step-no" style="font:700 11px/1 var(--mono); color:var(--blue); letter-spacing:1px; margin-bottom:8px">GOVERNANCE</div>
-            <h3 style="font-size:1.05rem">Aligned to your rules</h3>
-            <p>Write your team's MUST and SHOULD norms with <code>/constitution</code>. Every <code>/plan</code> checks against them, and <code>/spec</code> clarifies a vague request before code is written. AI output answers to the same rules as the team.</p>
-          </div>
-        </div>
-      </section>
-
-      <!-- Use case nav -->
-      <section class="section">
-        <span class="eyebrow">Where to go</span>
-        <h2>Get started, then walk the workflows</h2>
-        <div class="grid grid-3">
-          <div class="card navcard" data-go="setup">
-            <div class="step-no">START HERE</div>
-            <h3>Installation</h3>
-            <p>Install Nexus-Hub on your machine, and see how the same workflows reach Claude Code, Codex, Antigravity, Cursor, and more.</p>
-            <span class="go">Open <span class="arr">&rarr;</span></span>
-          </div>
-          <div class="card navcard" data-go="explore">
-            <div class="step-no">WORKFLOW 01</div>
-            <h3>Explore &amp; evaluate</h3>
-            <p>Inherit TaskFlow. Map it with <code>/describe</code>, then get a brutally honest health check with <code>/review</code>.</p>
-            <span class="go">Open <span class="arr">&rarr;</span></span>
-          </div>
-          <div class="card navcard" data-go="plan">
-            <div class="step-no">WORKFLOW 02</div>
-            <h3>Plan the work</h3>
-            <p>Turn findings into a phased plan with <code>/plan</code>, or mine an open-source repo for ideas with <code>/compare</code>.</p>
-            <span class="go">Open <span class="arr">&rarr;</span></span>
-          </div>
-          <div class="card navcard" data-go="build">
-            <div class="step-no">WORKFLOW 03</div>
-            <h3>Implement</h3>
-            <p>Build the plan one phase at a time with <code>/implement</code> - feature branches, quality gates, clean commits.</p>
-            <span class="go">Open <span class="arr">&rarr;</span></span>
-          </div>
-          <div class="card navcard" data-go="harden">
-            <div class="step-no">WORKFLOW 04</div>
-            <h3>Harden</h3>
-            <p>Run a security audit and pentest with <code>/review</code>, then drive coverage to 80% and wire CI with <code>/test</code>.</p>
-            <span class="go">Open <span class="arr">&rarr;</span></span>
-          </div>
-          <div class="card navcard" data-go="ship">
-            <div class="step-no">WORKFLOW 05</div>
-            <h3>Ship &amp; maintain</h3>
-            <p>Sync docs, refactor the layout, and run the atomic release flow with <code>/update release</code>.</p>
-            <span class="go">Open <span class="arr">&rarr;</span></span>
-          </div>
-          <div class="card navcard" data-go="communicate">
-            <div class="step-no">WORKFLOW 06</div>
-            <h3>Document</h3>
-            <p>Capture the work in clean docs, then turn it into an interactive site with <code>/presentify</code>.</p>
-            <span class="go">Open <span class="arr">&rarr;</span></span>
-          </div>
-          <div class="card navcard" data-go="reference">
-            <div class="step-no">APPENDIX</div>
-            <h3>Reference</h3>
-            <p>The full command cheatsheet, install steps, and the golden-path recap to keep close while you work.</p>
-            <span class="go">Open <span class="arr">&rarr;</span></span>
-          </div>
+        <span class="eyebrow">Next</span>
+        <h2>Learn it, then run it on your repo</h2>
+        <p>Download <a href="trivia-quiz.zip">trivia-quiz.zip</a> when you want the Training example on disk. GitHub holds the catalog; this file is the workshop surface.</p>
+        <div class="nhg-next">
+          <a class="btn btn--primary" href="#training" data-go="training">Open Training</a>
+          <a class="btn" href="#explore" data-go="explore">Open Workflows</a>
+          <a class="btn" href="#reference" data-go="reference">Open Reference</a>
+          <a class="btn" href="https://github.com/bendourthe/Nexus-Hub">GitHub</a>
         </div>
       </section>
 
@@ -2026,267 +2009,6 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
     </div>
   </section>
 
-  <section class="page" id="page-setup" data-page="setup">
-    <div class="container">
-      <span class="eyebrow">Step zero</span>
-      <h1>Install once, work everywhere</h1>
-      <p class="lead">Nexus-Hub is the upstream <strong>catalog</strong>. A single installer copies it onto your machine and wires it into whichever AI assistants you already use - so the commands in this guide work the same whether you're in Claude Code, Codex, or Antigravity.</p>
-
-      <!-- Step 1: open a terminal -->
-      <div class="step">
-        <div class="step-head">
-          <div class="step-badge">1</div>
-          <div>
-            <h3>Open a terminal</h3>
-            <div class="sub">no download, no unzip - just a terminal window</div>
-          </div>
-        </div>
-        <p>Nexus-Hub installs from a <strong>single command</strong> you paste into a terminal. There is nothing to download, unzip, or <code>cd</code> into first. Open a terminal the way your operating system does it:</p>
-
-        <div class="grid grid-3 choice-cards" style="align-items:start; margin:6px 0 4px">
-          <div class="card">
-            <div class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 3c0 2-1.6 3.6-3.6 3.6C10.2 4.6 12 3 14 3z"/><path d="M5.5 12.2c0-3 2-5 4.7-5 1.1 0 1.9.5 2.7.5s1.6-.5 2.8-.5c2.1 0 3.8 1.6 3.8 4.1 0 3.2-2.3 8.4-4.4 8.4-1 0-1.5-.6-2.8-.6s-1.9.6-2.9.6C7 19.2 5.5 14.5 5.5 12.2z"/></svg></div>
-            <h3>macOS</h3>
-            <p style="margin:0; font-size:13.5px">Press <span class="kbd">Cmd</span> + <span class="kbd">Space</span>, type <strong>Terminal</strong>, press <span class="kbd">Enter</span>.</p>
-          </div>
-          <div class="card">
-            <div class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 5.5l8-1.1V11H3zM13 4.1L21 3v8h-8zM3 13h8v6.6l-8-1.1zM13 13h8v8l-8-1.1z"/></svg></div>
-            <h3>Windows</h3>
-            <p style="margin:0; font-size:13.5px">Click <strong>Start</strong>, type <strong>PowerShell</strong>, press <span class="kbd">Enter</span>.</p>
-          </div>
-          <div class="card">
-            <div class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4.5" width="18" height="15" rx="2"/><path d="M7 9.5l3 2.5-3 2.5M12.5 14.5h4.5"/></svg></div>
-            <h3>Linux</h3>
-            <p style="margin:0; font-size:13.5px">Press <span class="kbd">Ctrl</span> + <span class="kbd">Alt</span> + <span class="kbd">T</span>, or open your terminal app.</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Step 2: run one command -->
-      <div class="step">
-        <div class="step-head">
-          <div class="step-badge">2</div>
-          <div>
-            <h3>Run one command</h3>
-            <div class="sub">paste it, press Enter - it fetches the catalog and installs everything</div>
-          </div>
-        </div>
-        <p>Copy the line for your system, paste it into the terminal, and press <span class="kbd">Enter</span>. It downloads the catalog from the project's own GitHub and runs the installer for you - no clone, no unzip, no <code>cd</code>.</p>
-
-        <div class="term term--standalone" style="margin:6px 0 4px">
-          <div class="term-bar"><div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div><span class="label">macOS / Linux &middot; paste into Terminal</span></div>
-          <div class="term-body">
-            <div class="cmd-line" style="flex-wrap:wrap; overflow-wrap:anywhere" data-copy="curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash"><span class="t-teal">$</span> curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash</div>
-            <div class="spacer"></div>
-            <div class="term-line"><span class="t-dim"># No curl on this box? Use wget instead:</span></div>
-            <div class="cmd-line" style="flex-wrap:wrap; overflow-wrap:anywhere" data-copy="wget -qO- https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash"><span class="t-teal">$</span> wget -qO- https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash</div>
-          </div>
-        </div>
-
-        <div class="term term--standalone" style="margin:8px 0 4px">
-          <div class="term-bar"><div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div><span class="label">Windows &middot; paste into PowerShell</span></div>
-          <div class="term-body">
-            <div class="cmd-line" style="flex-wrap:wrap; overflow-wrap:anywhere" data-copy="irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex"><span class="t-teal">&gt;</span> irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex</div>
-          </div>
-        </div>
-
-        <div class="callout" style="margin:12px 0 6px">
-          <span class="ci">&#9432;</span>
-          <p>If a tool the installer needs is missing (a downloader, <code>tar</code>, or Python), it stops right away and tells you exactly what to install and how - never a cryptic failure.</p>
-        </div>
-
-        <h3 style="margin-top:24px">It opens with a welcome banner</h3>
-        <p>The command fetches the catalog into <code>~/.nexus-hub/src</code>, then runs the installer. It prints the Nexus-Hub banner and gets straight to work:</p>
-
-        <div class="term term--standalone">
-          <div class="term-bar">
-            <div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div>
-            <span class="label"><b>Nexus-Hub</b> installer</span>
-          </div>
-          <div class="term-body">
-<pre class="ascii">███╗   ██╗███████╗██╗  ██╗██╗   ██╗███████╗      ██╗  ██╗██╗   ██╗██████╗
-████╗  ██║██╔════╝╚██╗██╔╝██║   ██║██╔════╝      ██║  ██║██║   ██║██╔══██╗
-██╔██╗ ██║█████╗   ╚███╔╝ ██║   ██║███████╗█████╗███████║██║   ██║██████╔╝
-██║╚██╗██║██╔══╝   ██╔██╗ ██║   ██║╚════██║╚════╝██╔══██║██║   ██║██╔══██╗
-██║ ╚████║███████╗██╔╝ ██╗╚██████╔╝███████║      ██║  ██║╚██████╔╝██████╔╝
-╚═╝  ╚═══╝╚══════╝╚═╝  ╚═╝ ╚═════╝ ╚══════╝      ╚═╝  ╚═╝ ╚═════╝ ╚═════╝</pre>
-            <div class="t-dim">  Multi-platform AI skill harness  &middot;  v3.10.0  &middot;  github.com/bendourthe/Nexus-Hub</div>
-            <div class="spacer"></div>
-            <div class="t-teal">Welcome to the Nexus-Hub Universal Installer (v3.10.0)</div>
-          </div>
-        </div>
-
-        <h3 style="margin-top:26px">No questions asked</h3>
-        <p>There are no prompts. The installer picks sensible defaults and just runs - which is exactly why the same paste-one-command flow works for a person and for an automated setup script alike. Here is what it decides for you:</p>
-
-        <div class="grid grid-3" style="align-items:start; margin:14px 0">
-          <div class="card">
-            <h3 style="font-size:1.06rem; margin-bottom:6px">Installs globally</h3>
-            <p style="margin:0; font-size:13.5px; color:var(--ink-dim)">Available in every project on your machine - the normal setup. Power users can scope it to one repo with <code>--workspace &lt;path&gt;</code>.</p>
-          </div>
-          <div class="card">
-            <h3 style="font-size:1.06rem; margin-bottom:6px">Every assistant you have</h3>
-            <p style="margin:0; font-size:13.5px; color:var(--ink-dim)">Sets up each supported AI tool it detects; the ones you do not have are skipped with a note, never an error. Narrow it with <code>--platforms claude,codex,...</code>.</p>
-          </div>
-          <div class="card">
-            <h3 style="font-size:1.06rem; margin-bottom:6px">Your edits stay safe</h3>
-            <p style="margin:0; font-size:13.5px; color:var(--ink-dim)">Anything you customized is preserved. On a re-install it asks <strong>once</strong>, and only if it finds a managed file you changed that it would overwrite - naming the file.</p>
-          </div>
-        </div>
-
-        <p>That last point is the <em>only</em> prompt you might ever see, and only on a re-install over a file you hand-edited:</p>
-
-        <div class="term term--standalone" style="margin:8px 0 0">
-          <div class="term-bar"><div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div><span class="label">re-install &middot; the one conflict prompt</span></div>
-          <div class="term-body">
-            <div class="term-line t-dim">1 managed file differs from the catalog and would be overwritten:</div>
-            <div class="term-line">  <span class="t-warn">~/.claude/settings.json</span></div>
-            <div class="term-line">Overwrite it with the latest? [y/N]: <span class="t-cyan">N</span></div>
-            <div class="spacer"></div>
-            <div class="term-line t-ok">Kept your version. Everything else refreshed.</div>
-          </div>
-        </div>
-
-        <p style="margin-top:12px">Want a fully unattended run (CI, scripts)? Add <code>--yes</code> and it refreshes managed files to the latest with no prompt at all.</p>
-
-        <h3 style="margin-top:26px">Then it sets everything up</h3>
-        <p>It configures every assistant it finds and installs the shared add-ons. The real run prints a line per file; condensed, it looks like this:</p>
-
-        <div class="term term--standalone" data-anim data-speed="18">
-          <div class="term-bar">
-            <div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div>
-            <span class="label"><b>Nexus-Hub</b> installer &mdash; running</span>
-            <button class="term-replay" type="button">&#8635; replay</button>
-          </div>
-          <div class="term-body">
-            <div class="term-out">
-              <div class="t-dim">Checking user profile (C:\Users\you) ...</div>
-              <div class="spacer"></div>
-              <div><span class="t-violet">&#9656; Anthropic</span> &middot; Claude Code &nbsp;&nbsp;<span class="t-ok">&#10003;</span> skills &middot; commands &middot; agents &middot; rules &middot; hooks &middot; MCP config</div>
-              <div><span class="t-violet">&#9656; OpenAI</span> &middot; Codex &nbsp;&nbsp;<span class="t-ok">&#10003;</span> skills &middot; prompts &middot; AGENTS.md</div>
-              <div><span class="t-violet">&#9656; Google</span> &middot; Gemini / Antigravity &nbsp;&nbsp;<span class="t-ok">&#10003;</span> skills &middot; workflows &middot; Antigravity 2.0 + CLI</div>
-              <div><span class="t-violet">&#9656; Microsoft</span> &middot; Copilot &nbsp;&nbsp;<span class="t-ok">&#10003;</span> commands (VS Code prompt files) &middot; copilot-instructions.md</div>
-              <div><span class="t-violet">&#9656; Anysphere</span> &middot; Cursor &nbsp;&nbsp;<span class="t-ok">&#10003;</span> commands &middot; rules &middot; skill index</div>
-              <div><span class="t-violet">&#9656; OpenCode</span> &nbsp;&nbsp;<span class="t-ok">&#10003;</span> AGENTS.md</div>
-              <div><span class="t-violet">&#9656; Nexus</span> &middot; Nexus-AI &nbsp;&nbsp;<span class="t-ok">&#10003;</span> installed</div>
-              <div class="spacer"></div>
-              <div><span class="t-teal">&middot; Auto-approve permissions</span> &nbsp;<span class="t-ok">&#10003;</span> synced across providers</div>
-              <div><span class="t-teal">&middot; Claude Code Utilities</span> &nbsp;<span class="t-ok">&#10003;</span> Usage Monitor VS Code extension built + installed</div>
-              <div><span class="t-teal">&middot; Skill Discovery</span> &nbsp;<span class="t-ok">&#10003;</span> skill index + MCP servers (skill-search, code-search, web-fetch, compressor)</div>
-              <div><span class="t-teal">&middot; Git commit-msg hook</span> &nbsp;<span class="t-ok">&#10003;</span> installed to ~/.git-templates</div>
-              <div class="spacer"></div>
-              <div class="t-ok t-bold">&#10003; Nexus-Hub v3.10.0 installed (Global scope).</div>
-              <div class="t-warn">Restart your AI assistants so they pick up the new skills, hooks, and rules.</div>
-            </div>
-          </div>
-        </div>
-
-        <h3 style="margin-top:22px">What those add-ons do</h3>
-        <div class="grid grid-4">
-          <div class="card">
-            <h3 style="font-size:1rem">Auto-approve permissions</h3>
-            <p style="font-size:13.5px">Pre-approves safe, routine tool calls in each assistant's settings so the agent isn't constantly stopping to ask.</p>
-          </div>
-          <div class="card">
-            <h3 style="font-size:1rem">Claude Code Utilities</h3>
-            <p style="font-size:13.5px">Builds + installs the Usage Monitor VS Code extension - live usage in the status bar and model-switch hints.</p>
-          </div>
-          <div class="card">
-            <h3 style="font-size:1rem">Skill Discovery</h3>
-            <p style="font-size:13.5px">Installs the skill index and local MCP servers (skill search, code search, web fetch, context compression) so the agent auto-finds the right skill - no outbound calls.</p>
-          </div>
-          <div class="card">
-            <h3 style="font-size:1rem">Git commit-msg hook</h3>
-            <p style="font-size:13.5px">Adds a global git template hook that validates commit messages in every repo you work in.</p>
-          </div>
-        </div>
-
-        <div class="callout tip" style="margin-top:18px">
-          <span class="ci">&#9733;</span>
-          <p><strong>First time? Just paste the command.</strong> The defaults install for every project, set up every assistant you have, and protect anything you customize - so the same workflows work no matter which tool you (or a teammate) open later.</p>
-        </div>
-      </div>
-
-      <!-- What lands where -->
-      <div class="step">
-        <div class="step-head">
-          <div class="step-badge">3</div>
-          <div>
-            <h3>What lands where</h3>
-            <div class="sub">one shared catalog + per-tool surfaces</div>
-          </div>
-        </div>
-        <div class="grid grid-2" style="align-items:start">
-          <div class="card">
-            <div class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7l9-4 9 4-9 4-9-4z"/><path d="M3 7v10l9 4 9-4V7"/></svg></div>
-            <h3><code>~/.nexus-hub/</code></h3>
-            <p>The shared catalog on your machine - the single source of truth. Skills, commands, hooks, agents, rules, style-guides, and templates all live here.</p>
-          </div>
-          <div class="card">
-            <div class="ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 6h16M4 12h16M4 18h10"/></svg></div>
-            <h3>Per-tool config</h3>
-            <p>Each assistant gets the surfaces it understands copied into its own config dir (e.g. <code>~/.claude/</code>, <code>~/.codex/</code>) - so commands appear in that tool's native slash menu.</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Verify + update -->
-      <div class="grid grid-2" style="align-items:start; margin-top:8px">
-        <div>
-          <h3>Verify it worked</h3>
-          <ul style="color:var(--ink-dim); font-size:14.5px; line-height:1.9">
-            <li>Run <code>/skills list</code> (or <code>/commands</code>) - you should see the command cheatsheet.</li>
-            <li>Search the catalog with <code>/skills search &lt;topic&gt;</code>.</li>
-            <li>The <code>using-nexus-hub</code> skill orients a fresh session in under two minutes.</li>
-          </ul>
-        </div>
-        <div>
-          <h3>Keep it current</h3>
-          <ul style="color:var(--ink-dim); font-size:14.5px; line-height:1.9">
-            <li>Run <code>nexus-hub upgrade</code> - it checks the latest version, shows what's new, and updates in place on confirm.</li>
-            <li>Or just paste the install command again - it's idempotent, safe to re-run, and repairs drifted configs.</li>
-            <li><code>/update config</code> validates and repairs an assistant's installed config.</li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- Platforms -->
-      <div class="step">
-        <div class="step-head">
-          <div class="step-badge">4</div>
-          <div>
-            <h3>One catalog, every platform</h3>
-            <div class="sub">why your team can use different tools and still share workflows</div>
-          </div>
-        </div>
-        <p>This is the part that matters for a team. Nexus-Hub doesn't lock anyone into a single assistant. The installer fans the same catalog out to every major agentic platform. A teammate on Codex and you on Claude Code run the identical <code>/describe</code>, <code>/review</code>, and <code>/plan</code> - and get the same governed output.</p>
-
-        <table class="tbl">
-          <thead><tr><th>Provider</th><th>Skills</th><th>Slash&nbsp;commands</th><th>Command surface</th><th>Installs to</th></tr></thead>
-          <tbody>
-            <tr><td><strong>Anthropic</strong> &middot; Claude Code</td><td><span class="sev ok">Files</span></td><td><span class="sev ok">Yes</span></td><td><code>commands/</code></td><td><code>~/.claude/</code> + hooks</td></tr>
-            <tr><td><strong>OpenAI</strong> &middot; Codex</td><td><span class="sev ok">Files</span></td><td><span class="sev ok">Yes</span></td><td><code>prompts/</code></td><td><code>~/.codex/</code></td></tr>
-            <tr><td><strong>Google</strong> &middot; Gemini / Antigravity</td><td><span class="sev ok">Files</span></td><td><span class="sev ok">Yes</span></td><td><code>workflows/</code></td><td><code>~/.gemini/</code>, <code>.agents/</code> <span class="muted">(per repo)</span></td></tr>
-            <tr><td><strong>Anysphere</strong> &middot; Cursor</td><td><span class="sev low">Via index</span></td><td><span class="sev ok">Yes</span></td><td><code>~/.cursor/commands/</code></td><td><code>~/.cursor/commands/</code> + <code>.cursor/rules/</code></td></tr>
-            <tr><td><strong>Microsoft</strong> &middot; GitHub Copilot</td><td><span class="sev low">Via index</span></td><td><span class="sev ok">Yes</span></td><td><code>prompts/*.prompt.md</code></td><td>VS Code <code>prompts/</code> + <code>copilot-instructions.md</code></td></tr>
-            <tr><td><strong>OpenCode</strong></td><td><span class="sev low">Via index</span></td><td><span class="sev med">Body only</span></td><td><span class="muted">instruction file</span></td><td><code>AGENTS.md</code></td></tr>
-            <tr><td><strong>Nexus</strong> &middot; Nexus-AI</td><td><span class="sev ok">Files</span></td><td><span class="sev ok">Yes</span></td><td><span class="muted">native</span></td><td>desktop integration</td></tr>
-          </tbody>
-        </table>
-        <p class="muted" style="font-size:13px"><strong>Yes</strong> = the command appears in that tool's native slash menu. <strong>Body only</strong> = no slash entry, but the agent still follows the command's instructions when you name it. <strong>Via index</strong> = skills are exposed through a skill-index block in the tool's instruction file rather than as individual files. These seven providers are exactly the choices the installer's provider menu offers.</p>
-        <p class="muted" style="font-size:13px"><strong>Cursor and Copilot now get global slash commands too.</strong> A global install mirrors every command into Cursor's <code>~/.cursor/commands/</code> and into VS Code's user-profile <code>prompts/</code> folder, so <code>/&lt;command&gt;</code> works in <em>any</em> repo with no per-project setup. <strong>Antigravity is the exception:</strong> it reads slash commands only from the open project's <code>.agents/</code> folder, so run <code>nexus-hub init</code> once inside a repo to seed them there (one command, no reinstall).</p>
-
-        <div class="callout tip">
-          <span class="ci">&#9733;</span>
-          <p><strong>The catalog is the source of truth; the installer is the distribution.</strong> You maintain one set of skills and commands. Every platform inherits them. When a workflow improves, it improves for the whole team at the next install - regardless of which assistant each person prefers.</p>
-        </div>
-      </div>
-
-      <div class="progress" data-progress></div>
-      <div class="page-nav" data-pagenav></div>
-    </div>
-  </section>
-
   <!-- =====================================================================
        PAGE: EXPLORE
        ===================================================================== -->
@@ -3198,12 +2920,12 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
               </div>
               <div class="term-body">
                 <div class="term-line"><span class="t-dim"># macOS / Linux - paste into Terminal:</span></div>
-                <div class="cmd-line" style="flex-wrap:wrap; overflow-wrap:anywhere" data-copy="curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash"><span class="t-teal">$</span> curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash</div>
+                <div class="cmd-line" style="flex-wrap:wrap; overflow-wrap:anywhere"><span class="t-teal" aria-hidden="true">$</span> <code data-copy="curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash">curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash</code></div>
                 <div class="spacer"></div>
                 <div class="term-line"><span class="t-dim"># Windows - paste into PowerShell:</span></div>
-                <div class="cmd-line" style="flex-wrap:wrap; overflow-wrap:anywhere" data-copy="irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex"><span class="t-teal">&gt;</span> irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex</div>
+                <div class="cmd-line" style="flex-wrap:wrap; overflow-wrap:anywhere"><span class="t-teal" aria-hidden="true">&gt;</span> <code data-copy="irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex">irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex</code></div>
                 <div class="spacer"></div>
-                <div class="term-line t-dim">Full guided walkthrough on the Setup page.</div>
+                <div class="term-line t-dim">Need wget, flags, or platform paths? See Advanced install below.</div>
               </div>
             </div>
           </div>
@@ -3221,6 +2943,41 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
             </div>
           </div>
         </div>
+      </section>
+
+      <section class="section--tight">
+        <h2>Advanced install and platform reachability</h2>
+        <p>The Home page carries the two one-line installers. This block is the disclosure for wget, flags, where files land, and which hosts expose slash commands.</p>
+        <h3>wget fallback (macOS / Linux)</h3>
+        <div class="term term--standalone">
+          <div class="term-bar"><div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div><span class="label">wget</span></div>
+          <div class="term-body">
+            <div class="cmd-line"><span class="t-teal" aria-hidden="true">$</span> <code data-copy="wget -qO- https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash">wget -qO- https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash</code></div>
+          </div>
+        </div>
+        <h3>Flags</h3>
+        <ul>
+          <li><code>--workspace &lt;path&gt;</code> scopes the install to one repository.</li>
+          <li><code>--platforms claude,codex,...</code> limits which assistants are wired.</li>
+          <li><code>--yes</code> refreshes managed files with no conflict prompt (CI / scripts).</li>
+          <li><code>nexus-hub upgrade</code> refreshes an existing install in place.</li>
+          <li><code>/update config</code> validates and repairs an assistant's installed config.</li>
+        </ul>
+        <h3>What lands where</h3>
+        <p>The shared catalog lives in <code>~/.nexus-hub/</code>. Each assistant also receives the surfaces it understands in its own config directory (for example <code>~/.claude/</code>, <code>~/.codex/</code>, <code>~/.cursor/commands/</code>).</p>
+        <h3>Slash reachability</h3>
+        <table class="tbl">
+          <thead><tr><th>Provider</th><th>Slash commands</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>Anthropic &middot; Claude Code</td><td>Yes</td><td><code>~/.claude/</code> commands, hooks, skills</td></tr>
+            <tr><td>OpenAI &middot; Codex</td><td>Yes</td><td><code>~/.codex/</code> prompts</td></tr>
+            <tr><td>Google &middot; Gemini / Antigravity</td><td>Yes</td><td>Antigravity reads project <code>.agents/</code>; run <code>nexus-hub init</code> once in the repo</td></tr>
+            <tr><td>Anysphere &middot; Cursor</td><td>Yes</td><td>Global <code>~/.cursor/commands/</code></td></tr>
+            <tr><td>Microsoft &middot; GitHub Copilot</td><td>Yes</td><td>VS Code user-profile prompt files</td></tr>
+            <tr><td>OpenCode</td><td>Body only</td><td>No slash menu; name the command in chat</td></tr>
+            <tr><td>Nexus &middot; Nexus-AI</td><td>Yes</td><td>Desktop integration</td></tr>
+          </tbody>
+        </table>
       </section>
 
       <div class="center" style="margin-top:34px">
@@ -3254,7 +3011,6 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
 
     var PAGES = [
       { id: "home",        title: "Home" },
-      { id: "setup",       title: "Installation" },
       { id: "foundations", title: "Foundations" },
       { id: "training",    title: "Training" },
       { id: "explore",     title: "Explore & evaluate" },
@@ -3265,6 +3021,8 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
       { id: "communicate", title: "Document" },
       { id: "reference",   title: "Reference" }
     ];
+    var INSTALL_SH = "curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash";
+    var INSTALL_PS = "irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex";
     var THEME_KEY = "portfolio-theme";
     var REDUCE = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     var current = "home";
@@ -3365,14 +3123,23 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
       }
     }
     function go() {
-      var id = pageIdFromHash();
+      var raw = (location.hash || "#home").replace(/^#/, "");
+      var parts = raw.split("?")[0].split("/").filter(function (p) { return p.length > 0; });
+      var id = parts[0] || "home";
       var ok = false;
       for (var i = 0; i < PAGES.length; i++) { if (PAGES[i].id === id) ok = true; }
       if (!ok) {
         id = "home";
+        parts = ["home"];
         rewriteHash("home");
       }
       show(id);
+      if (id === "home" && parts[1] === "install") {
+        window.requestAnimationFrame(function () {
+          var el = document.getElementById("nhg-install");
+          if (el && el.scrollIntoView) el.scrollIntoView({ block: "start", behavior: "auto" });
+        });
+      }
     }
 
     /* delegated navigation: anything with [data-go] */
@@ -3430,7 +3197,11 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
           btns[b].addEventListener("click", function () {
             var tab = this.getAttribute("data-tab");
             var allBtns = group.querySelectorAll(".tab-btn");
-            for (var k = 0; k < allBtns.length; k++) { allBtns[k].classList.toggle("active", allBtns[k] === this); }
+            for (var k = 0; k < allBtns.length; k++) {
+              var on = allBtns[k] === this;
+              allBtns[k].classList.toggle("active", on);
+              allBtns[k].setAttribute("aria-selected", on ? "true" : "false");
+            }
             var panels = group.querySelectorAll(".tab-panel");
             for (var p = 0; p < panels.length; p++) {
               panels[p].classList.toggle("active", panels[p].getAttribute("data-panel") === tab);
@@ -3672,10 +3443,15 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
         btn.innerHTML = COPY_SVG + '<span class="cb-label">Copy</span>';
       }, 1600);
     }
+    function announceCopied() {
+      var live = document.getElementById("nhg-copy-status");
+      if (live) live.textContent = "Copied to clipboard";
+    }
     function copyText(text, btn) {
+      function done() { flashCopied(btn); announceCopied(); }
       if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(text).then(function () { flashCopied(btn); }, function () { fallbackCopy(text); flashCopied(btn); });
-      } else { fallbackCopy(text); flashCopied(btn); }
+        navigator.clipboard.writeText(text).then(done, function () { fallbackCopy(text); done(); });
+      } else { fallbackCopy(text); done(); }
     }
     function initCopyButtons() {
       var nodes = document.querySelectorAll("[data-copy]");
@@ -3688,12 +3464,50 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
           btn.innerHTML = COPY_SVG + '<span class="cb-label">Copy</span>';
           btn.addEventListener("click", function (ev) {
             ev.preventDefault(); ev.stopPropagation();
-            copyText(el.getAttribute("data-copy"), btn);
+            copyText(el.getAttribute("data-copy") || "", btn);
           });
           el.appendChild(btn);
         })(nodes[i]);
       }
     }
+
+    function isDocumentedGuideOrigin() {
+      try {
+        if (location.protocol === "file:") return false;
+        var host = (location.hostname || "").toLowerCase();
+        if (host === "127.0.0.1" || host === "localhost") return true;
+        if (host === "bendourthe.github.io") return true;
+        return false;
+      } catch (err) {
+        return false;
+      }
+    }
+    (function () {
+      var warn = document.getElementById("untrustedCopyWarning");
+      if (warn && isDocumentedGuideOrigin()) warn.hidden = true;
+    })();
+
+    (function initRibbon() {
+      var box = document.getElementById("nhgRibbon");
+      if (!box) return;
+      var nodes = box.querySelectorAll(".nhg-ribbon-node");
+      var panels = box.querySelectorAll(".nhg-ribbon-panel");
+      function select(rid) {
+        for (var i = 0; i < nodes.length; i++) {
+          var on = nodes[i].getAttribute("data-ribbon") === rid;
+          nodes[i].classList.toggle("is-on", on);
+          nodes[i].setAttribute("aria-pressed", on ? "true" : "false");
+        }
+        for (var j = 0; j < panels.length; j++) {
+          panels[j].classList.toggle("is-on", panels[j].getAttribute("data-ribbon-panel") === rid);
+        }
+      }
+      for (var n = 0; n < nodes.length; n++) {
+        nodes[n].addEventListener("click", function () {
+          select(this.getAttribute("data-ribbon"));
+        });
+      }
+    })();
 
     /* -------------------------------------------------- boot */
     go();

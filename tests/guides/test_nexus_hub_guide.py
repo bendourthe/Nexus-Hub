@@ -38,9 +38,6 @@ ONBOARDING_STALE = re.compile(
     re.IGNORECASE | re.VERBOSE,
 )
 
-_phase3 = pytest.mark.xfail(
-    strict=True, reason="Phase 3: Home install, comparison, and six-node ribbon not landed yet"
-)
 _phase4 = pytest.mark.xfail(
     strict=True, reason="Phase 4: Foundations three-role model and comparison control not landed yet"
 )
@@ -321,7 +318,6 @@ def test_reduced_motion_pauses_constellation(guide_text: str) -> None:
 # ---------------------------------------------------------------------------
 
 
-@_phase3
 def test_home_contains_both_canonical_install_commands(parsed: GuideParser) -> None:
     copies = {payload for payload, _visible in parsed.home_data_copy}
     home_text = re.sub(r"\s+", " ", "".join(parsed.home_text_parts))
@@ -332,7 +328,6 @@ def test_home_contains_both_canonical_install_commands(parsed: GuideParser) -> N
     assert INSTALL_PS in payloads
 
 
-@_phase3
 def test_home_install_copy_payload_equals_visible_text(parsed: GuideParser) -> None:
     found_sh = found_ps = False
     for payload, visible in parsed.home_data_copy:
@@ -348,14 +343,12 @@ def test_home_install_copy_payload_equals_visible_text(parsed: GuideParser) -> N
     assert found_sh and found_ps
 
 
-@_phase3
 def test_no_stale_setup_route_in_markup(parsed: GuideParser) -> None:
     assert "page-setup" not in parsed.page_ids
     static = [g for g in parsed.data_go if g == "setup"]
     assert not static
 
 
-@_phase3
 def test_home_has_six_node_preview_including_communicate(guide_text: str) -> None:
     home_markup = guide_text.split('id="page-home"', 1)[-1].split('id="page-foundations"', 1)[0]
     assert "Map and evaluate" in home_markup
@@ -366,7 +359,6 @@ def test_home_has_six_node_preview_including_communicate(guide_text: str) -> Non
         assert f'data-go="{node}"' in home_markup
 
 
-@_phase3
 def test_onboarding_has_no_hardcoded_catalog_counts(parsed: GuideParser) -> None:
     home = " ".join(parsed.home_text_parts)
     assert not ONBOARDING_STALE.search(home), home[:400]

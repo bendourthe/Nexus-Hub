@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **Interactive guide redesign (in progress).** Phase 1 froze the content contract and test scaffold. Phase 2 gives `guides/website/nexus-hub-guide.html` a dual theme (`portfolio-theme` light|dark), Installation-free primary nav, first-segment page hashes, and a dark-only constellation.
+- **Interactive guide redesign (in progress).** Phase 1 froze the content contract. Phase 2 gave the guide dual theme and Installation-free chrome. Phase 3 rewrites Home into definition, comparison, one-command install, platform reachability, and a six-node workflow ribbon; Installation is no longer a routed page.
 
 ---
 
