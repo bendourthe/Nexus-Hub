@@ -100,6 +100,11 @@ This is context guidance, not a mechanically enforced tool gate. A parity check 
 - Keep it scannable and factual: do not restate the conversation or add preamble
 - Output-minimization rules never apply to this summary: suppress verbose logs, never the closing summary
 
+## Construction Discipline
+- After reading the real flow, stop at the first sufficient rung: skip, reuse this codebase, stdlib, native feature, installed dependency, one line, then minimum.
+- Governs what you build, not how you talk. Do not drop trust-boundary, data-loss, security, accessibility, or a proving command owned by `verification-before-completion`.
+- End-of-Task Summary and user-requested explanation are not debt. `minimal-construction` and `over-engineering-review` own intensity and delete-lists. Mark a cut ceiling with `construction-debt:`.
+
 ## Context References
 - Skills: `.claude/skills/` (auto-activated by task context)
 - Architecture: `.claude/context/architecture.md`

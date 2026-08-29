@@ -8,6 +8,7 @@ Releases from v3.0.0 onward each carry their own line. Earlier releases predate 
 
 | Date | Version | Summary | Plan | History | Gaps |
 |---|---|---|---|---|---|
+| 2026-08-28 | v4.1.2 | Pre-write construction discipline (in progress) | [adoption-minimal-construction](releases/v4/v4.1/plans/v4.1.2-adoption-minimal-construction.md) | [history](releases/v4/v4.1/development/history/) | [gaps](releases/v4/v4.1/known-gaps.md) |
 | 2026-08-28 | v4.1.1 | Local security-audit scanner receipts, independent verification, and ordered audit preset | [adoption-openworker-security-refinement](releases/v4/v4.1/plans/v4.1.1-adoption-openworker-security-refinement.md) | [history](releases/v4/v4.1/development/history/) | [gaps](releases/v4/v4.1/known-gaps.md) |
 | 2026-08-28 | v4.1.0 | Procedural skill runbooks, typed-boundary hygiene, labeled distillation, confusable-trigger fences, optional raw-memory evals, and no Oxlint vendor surface | [adoption-skill-trial-records-and-low-evidence-ts](releases/v4/v4.1/plans/v4.1.0-adoption-skill-trial-records-and-low-evidence-ts.md) | [history](releases/v4/v4.1/development/history/) | [gaps](releases/v4/v4.1/known-gaps.md) |
 | 2026-08-25 | v3.21.0 | Fail-closed last phase, `/implement in-full` and `phase-by-phase`, and living `docs/handbooks/` | [plan-implement-lifecycle-and-docs-architecture](releases/v3/v3.21/plans/v3.21.0-plan-implement-lifecycle-and-docs-architecture.md) | [history](releases/v3/v3.21/development/history/) | [gaps](releases/v3/v3.21/known-gaps.md) |

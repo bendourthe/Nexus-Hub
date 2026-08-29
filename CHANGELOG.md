@@ -9,9 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Construction Discipline (always-on).** All 12 substantive instruction templates now carry a compact pre-write ladder (skip, reuse, stdlib, native, installed dependency, one line, then minimum). Include-only shims inherit it and do not duplicate the heading. Intensity and delete-list review stay in skills. Lockstep word ceilings rose by this section because the text is always-loaded by design.
+- **`minimal-construction` skill.** Pre-write seven-rung ladder with lite/full/ultra as a skill argument (no new env var or config file). Catalog size +1 in code-cleanup.
+- **`over-engineering-review` skill.** Tagged delete-list review (`diff` or `repo`) that does not apply fixes. Catalog size +1 in code-review. These two skills are +2 to the catalog, not a restated absolute total.
+- **`construction-debt:` marker.** Generic in-code ceiling comment with a read-only harvest path on `minimal-construction`. `known-gaps-tracker` and `technical-debt-analyzer` remain the owners of version ledgers and SQALE scoring.
+
+This plan adds skills, not a new `catalog/commands/` file. Cursor/OpenCode/Copilot slash reachability is unchanged. Attribution for the reverse-engineered ladder stays in `docs/releases/v4/v4.1/comparisons/v4.1.2-comparison-ponytail.md`.
+
 ### Documentation
 
-- **v4.1.2 planning record.** Added the Ponytail (minimal-construction) comparison as forward-looking documentation. Its implementation does not ship in v4.1.1.
+- **v4.1.2 planning record.** The Ponytail (minimal-construction) comparison and reverse-engineer-first adoption plan remain the attribution and phasing record.
 
 ---
 
