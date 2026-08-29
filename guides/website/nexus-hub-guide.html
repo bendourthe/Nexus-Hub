@@ -618,12 +618,27 @@ html.no-js .tab-panel { display: block; }
 .nhg-platforms ul { margin: 0 0 8px; padding-left: 1.2em; color: var(--ink-dim); font-size: 14.5px; }
 .nhg-next { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
 
-@media (max-width: 720px) {
-  .nhg-ribbon-track { gap: 0; }
-  .nhg-ribbon-join { display: none; }
-  .nhg-ribbon-node { border-left: 1px solid var(--border); border-radius: 8px; margin-right: 8px; }
-  .nhg-ribbon-node + .nhg-ribbon-join + .nhg-ribbon-node { border-left: 1px solid var(--border); }
+.nhg-roles { display: grid; gap: 14px; margin: 16px 0; }
+@media (min-width: 800px) { .nhg-roles { grid-template-columns: repeat(3, 1fr); } }
+.nhg-role {
+  border: 1px solid var(--border); background: var(--surface); padding: 16px 18px;
 }
+.nhg-role h3 { margin: 0 0 8px; font-size: 1.05rem; }
+.nhg-role p { margin: 0 0 8px; font-size: 14.5px; color: var(--ink-dim); }
+.nhg-role .nhg-limit { font-size: 13.5px; color: var(--ink-faint); }
+
+.nhg-compare-ctrl { margin: 12px 0 8px; }
+.nhg-compare-ctrl label { display: block; font-weight: 700; margin-bottom: 8px; }
+.nhg-compare-ctrl input[type="range"] { width: min(100%, 28rem); }
+.nhg-compare-state { font: 600 13px var(--mono); color: var(--accent); margin: 8px 0 12px; }
+.nhg-compare-panes { display: grid; gap: 14px; }
+@media (min-width: 800px) { .nhg-compare-panes { grid-template-columns: 1fr 1fr; } }
+.nhg-compare-pane {
+  border: 1px solid var(--border); background: var(--surface); padding: 16px 18px;
+}
+.nhg-compare-pane.is-on { border-color: var(--accent); }
+.nhg-compare-pane h3 { margin: 0 0 8px; font-size: 1.02rem; }
+.nhg-compare-pane p, .nhg-compare-pane ul { font-size: 14.5px; color: var(--ink-dim); }
 .copy-btn {
   margin-left: auto; flex: none;
   display: inline-flex; align-items: center; gap: 5px;
@@ -1045,441 +1060,79 @@ html.no-js .tab-panel { display: block; }
   <section class="page" id="page-foundations" data-page="foundations">
     <div class="container">
       <span class="eyebrow">Foundations</span>
-      <h1>How AI <span class="gtext">actually works</span></h1>
-      <p class="lead">Model, reasoning, agent, prompt, context, harness - six words that get used as if they all mean "the AI". They don't. Knowing the difference is what separates fighting your tools from getting senior-engineer work out of them. Here is the whole picture, built up one idea at a time.</p>
+      <h1>The model is the brain. The harness is the experience.</h1>
+      <p class="lead">A coding assistant already wraps a model in tools. Nexus-Hub does not replace that model or retrain it. It adds reusable experience: skills, commands, context-selection procedures, rules, hooks, gates, and durable workflow. Keep the three roles distinct and the rest of this guide makes sense.</p>
 
-      <div class="scenario">
-        <div class="pin" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 12a5 5 0 100-10 5 5 0 000 10z"/><path d="M3 22a9 9 0 0118 0"/></svg></div>
-        <div>
-          <h3>One analogy, all the way through</h3>
-          <p>Picture a <strong>brilliant new hire on their first morning</strong>. They have read more than anyone on the team, but they just walked in: no access to your code, no memory of yesterday, no idea how you do things. Every concept below is one more thing you give that hire to turn raw talent into reliable, senior-level work. By the end, the hire is an engineering team - which is exactly what Nexus-Hub is for.</p>
-        </div>
-      </div>
-
-      <!-- ===== Framing: two axes ===== -->
       <section class="section">
-        <span class="eyebrow">The mental model</span>
-        <h2>It all reduces to two questions</h2>
-        <p class="lead" style="font-size:1.08rem">Everything people call "AI" is really an answer to one of two questions: <strong>what can the system do</strong>, and <strong>how do you get good work out of it</strong>. Six terms, two ladders.</p>
-        <div class="grid grid-2" style="align-items:stretch; margin-top:8px">
-          <div class="card" style="border-top:3px solid var(--blue)">
-            <div class="step-no" style="color:var(--cyan-soft); font:700 12px var(--mono); letter-spacing:1px; margin-bottom:10px">AXIS 1 &middot; WHAT THE SYSTEM IS</div>
-            <h3 style="margin-top:0">The capability ladder</h3>
-            <div class="flow" style="justify-content:flex-start; margin:14px 0 10px">
-              <div class="flow-node"><div class="cmd">Model</div><div class="lbl">predicts text</div></div>
-              <span class="flow-arrow">&rarr;</span>
-              <div class="flow-node"><div class="cmd">Reasoning</div><div class="lbl">thinks first</div></div>
-              <span class="flow-arrow">&rarr;</span>
-              <div class="flow-node"><div class="cmd">Agent</div><div class="lbl">takes action</div></div>
-            </div>
-            <p style="margin:0; font-size:14px">Each rung <strong>adds a power the one below it does not have</strong>. A reasoning system is still a model; an agent is still a reasoning model. Nothing is replaced - capability stacks.</p>
-          </div>
-          <div class="card" style="border-top:3px solid var(--teal)">
-            <div class="step-no" style="color:var(--teal-soft); font:700 12px var(--mono); letter-spacing:1px; margin-bottom:10px">AXIS 2 &middot; HOW YOU STEER IT</div>
-            <h3 style="margin-top:0">The engineering disciplines</h3>
-            <div class="flow" style="justify-content:flex-start; margin:14px 0 10px">
-              <div class="flow-node"><div class="cmd">Prompt</div><div class="lbl">the request</div></div>
-              <span class="flow-arrow">&rarr;</span>
-              <div class="flow-node"><div class="cmd">Context</div><div class="lbl">what it sees</div></div>
-              <span class="flow-arrow">&rarr;</span>
-              <div class="flow-node"><div class="cmd">Harness</div><div class="lbl">the system around it</div></div>
-            </div>
-            <p style="margin:0; font-size:14px">Each layer is <strong>more durable than the last</strong>. A prompt lives for one message; context for one task; a harness is permanent and shared by the whole team.</p>
-          </div>
-        </div>
-        <div class="callout tip">
-          <span class="ci">&#10003;</span>
-          <p><strong>Where Nexus-Hub sits:</strong> it lives almost entirely on the far-right of both ladders - it turns any <em>model</em> into a governed <em>agent</em>, and it is the <em>harness</em> layer made reusable. That is why the same model produces dramatically better work once it is wrapped in Nexus-Hub. Keep that in mind as we climb.</p>
+        <span class="eyebrow">Three roles</span>
+        <h2>Brain, hands, experience</h2>
+        <div class="nhg-roles">
+          <article class="nhg-role">
+            <h3>Model = the brain</h3>
+            <p>Trained knowledge and reasoning. It predicts useful next text, including plans and patches, from what it was trained on plus what it can see in this turn.</p>
+            <p>Example: asked why a quiz scores 5/6 on a perfect run, it can propose an off-by-one in a loop from general programming knowledge.</p>
+            <p class="nhg-limit">Limitation: it cannot see your files unless the platform puts them in context, and it is not a lookup table or a person. It can sound sure while being wrong.</p>
+          </article>
+          <article class="nhg-role">
+            <h3>Agent / platform = the hands</h3>
+            <p>The coding assistant's tools and workspace: read, edit, run, and observe. Claude Code, Codex, Cursor, Gemini / Antigravity, Copilot, and similar hosts are this layer.</p>
+            <p>Example: the same model can open <code>logic.js</code>, run <code>npm test</code>, and apply a patch because the platform executed those tools.</p>
+            <p class="nhg-limit">Limitation: tools without a shared method still improvise. Two teammates on the same platform can get two different workflows.</p>
+          </article>
+          <article class="nhg-role">
+            <h3>Harness = experience</h3>
+            <p>Operating discipline around the model: which procedure to load, which context to select, which rules and hooks fire, which artifact to write, and when to stop at a gate.</p>
+            <p>Example: <code>/review</code> then <code>/plan</code> then <code>/implement</code> on Trivia Quiz writes a finding, a gated plan, and a local commit instead of a chat-only guess.</p>
+            <p class="nhg-limit">Limitation: a harness cannot invent facts the model does not have, and it cannot run if the platform has no tool loop. It changes the working method, not the weights.</p>
+          </article>
         </div>
       </section>
 
-      <div class="divider"></div>
-
-      <!-- =========================================================
-           AXIS 1 - THE CAPABILITY LADDER
-           ========================================================= -->
       <section class="section">
-        <span class="eyebrow">Axis 1 &middot; What the system is</span>
-        <h2>Model &rarr; reasoning &rarr; agent</h2>
-        <p class="lead">Three rungs. Each one adds a capability that unlocks a whole new category of work.</p>
-
-        <!-- STEP 1: MODEL -->
-        <div class="step">
-          <div class="step-head">
-            <div class="step-badge">1</div>
-            <div>
-              <h3>The <span class="gtext">model</span> - a next-word predictor</h3>
-              <div class="sub">a.k.a. the LLM &middot; the raw engine</div>
-            </div>
-          </div>
-          <p>A large language model (LLM) does exactly one thing: given some text, it predicts the most likely next chunk of text, over and over, until it has produced an answer. It learned those probabilities by training on an enormous amount of writing. That is the entire trick - there is no database lookup, no calculator, no internet. It answers <strong>from memory, in one continuous breath</strong>.</p>
-          <p>This is the original ChatGPT experience from late 2022: you type one prompt, the model streams one answer. Astonishingly fluent, and genuinely knowledgeable - but it cannot pause to think, it cannot check anything, and it cannot do anything other than emit text.</p>
-
-          <div class="term term--standalone" data-anim data-speed="26">
-            <div class="term-bar">
-              <div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div>
-              <span class="label"><b>model</b> &mdash; one prompt, one answer</span>
-              <button class="term-replay" type="button">&#8635; replay</button>
-            </div>
-            <div class="term-body">
-              <div class="term-cmd"><span class="prompt">&gt; </span><span class="typed" data-type="A bat and a ball cost $1.10. The bat costs $1.00 more than the ball. How much is the ball?">A bat and a ball cost $1.10. The bat costs $1.00 more than the ball. How much is the ball?</span></div>
-              <div class="term-out">
-                <div class="spacer"></div>
-                <div>The ball costs <span class="t-bad">$0.10</span>.</div>
-              </div>
-            </div>
-          </div>
-          <div class="callout warn">
-            <span class="ci">&#9888;</span>
-            <p><strong>Confidently wrong.</strong> The answer is $0.05 (ball $0.05 + bat $1.05 = $1.10). A pure model blurts out the first plausible-sounding number because it is predicting text, not working the problem. The new hire answered before thinking. That single limitation is what the next rung fixes.</p>
-          </div>
-        </div>
-
-        <!-- STEP 2: REASONING -->
-        <div class="step">
-          <div class="step-head">
-            <div class="step-badge">2</div>
-            <div>
-              <h3><span class="gtext">Reasoning</span> - the model thinks before it answers</h3>
-              <div class="sub">chain-of-thought &middot; "thinking" models</div>
-            </div>
-          </div>
-          <p>A reasoning model is the same next-word predictor, but it is trained (and prompted) to first write out its <strong>working</strong> - intermediate steps, self-checks, "wait, let me reconsider" - and only then commit to a final answer. Because the deliberation is itself text, the model can build on its own half-formed thoughts instead of having to be right in one shot.</p>
-          <p>The model did not get smarter. It got the chance to <strong>slow down</strong>. Watch the exact same question, same engine, produce a different result once it is allowed to think:</p>
-
-          <div class="term term--standalone" data-anim data-speed="14">
-            <div class="term-bar">
-              <div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div>
-              <span class="label"><b>reasoning</b> &mdash; thinks, then answers</span>
-              <button class="term-replay" type="button">&#8635; replay</button>
-            </div>
-            <div class="term-body">
-              <div class="term-cmd"><span class="prompt">&gt; </span><span class="typed" data-type="A bat and a ball cost $1.10. The bat costs $1.00 more than the ball. How much is the ball?">A bat and a ball cost $1.10. The bat costs $1.00 more than the ball. How much is the ball?</span></div>
-              <div class="term-out">
-                <div class="spacer"></div>
-                <div class="t-dim">&#9662; thinking</div>
-                <div class="t-dim">  Let the ball = x. Then the bat = x + 1.00.</div>
-                <div class="t-dim">  x + (x + 1.00) = 1.10</div>
-                <div class="t-dim">  2x + 1.00 = 1.10  &rarr;  2x = 0.10  &rarr;  x = 0.05</div>
-                <div class="t-dim">  Check: ball 0.05 + bat 1.05 = 1.10. Difference = 1.00. OK.</div>
-                <div class="spacer"></div>
-                <div>The ball costs <span class="t-ok">$0.05</span>.</div>
-              </div>
-            </div>
-          </div>
-          <div class="callout">
-            <span class="ci">&#9733;</span>
-            <p><strong>Same model, the deliberation flipped a wrong answer into a right one.</strong> Reasoning is the difference between a hire who answers off the cuff and one who scribbles on a notepad first. It is what makes AI trustworthy on multi-step work: math, debugging, planning, architecture. But notice - it still only produced <em>text</em>. It still has not touched your code.</p>
-          </div>
-        </div>
-
-        <!-- STEP 3: AGENT -->
-        <div class="step">
-          <div class="step-head">
-            <div class="step-badge">3</div>
-            <div>
-              <h3>The <span class="gtext">agent</span> - the model that takes action</h3>
-              <div class="sub">tool calls &middot; the agentic loop</div>
-            </div>
-          </div>
-          <p>An agent is a reasoning model wrapped in a loop and handed <strong>tools</strong>. A tool is any action the software around the model is willing to run on its behalf: search the web, run a shell command, read a file, edit a file, call an API. The model no longer just answers - it decides on an action, the surrounding software <em>executes</em> it, the result comes back, and the model decides what to do next. That cycle - <span class="mono">decide &rarr; act &rarr; observe &rarr; repeat</span> - is the "agentic loop".</p>
-          <p>This is the leap from a hire who can <em>describe</em> what they would do to one you have handed a laptop, a terminal, and the keys. Now they can actually do the work:</p>
-
-          <div class="term term--standalone" data-anim data-speed="22">
-            <div class="term-bar">
-              <div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div>
-              <span class="label"><b>agent</b> &mdash; decides, acts, observes</span>
-              <button class="term-replay" type="button">&#8635; replay</button>
-            </div>
-            <div class="term-body">
-              <div class="term-cmd"><span class="prompt">&gt; </span><span class="typed" data-type="How many test files does this repo have, and do they pass?">How many test files does this repo have, and do they pass?</span></div>
-              <div class="term-out">
-                <div class="spacer"></div>
-                <div class="t-tool">&bull; <b>Bash</b> &nbsp;<span class="t-dim">find . -name "*.test.ts" | wc -l</span></div>
-                <div class="t-dim">&nbsp;&nbsp;&#8627; 47</div>
-                <div class="t-tool">&bull; <b>Bash</b> &nbsp;<span class="t-dim">npm test</span></div>
-                <div class="t-dim">&nbsp;&nbsp;&#8627; 312 passing, <span class="t-bad">3 failing</span> &mdash; auth.test.ts</div>
-                <div class="t-tool">&bull; <b>Read</b> &nbsp;<span class="t-file">src/auth/session.ts:40-72</span></div>
-                <div class="spacer"></div>
-                <div>47 test files. <span class="t-warn">3 fail</span> in <span class="t-file">auth.test.ts</span> - session expiry is off by the</div>
-                <div>timezone offset. Want me to fix <span class="t-file">session.ts</span> and re-run the suite?</div>
-              </div>
-            </div>
-          </div>
-          <div class="callout tip">
-            <span class="ci">&#10003;</span>
-            <p><strong>A pure model could only guess</strong> at that answer from training data that knows nothing about your repo. The agent went and <em>looked</em> - ran a command, ran the tests, read the failing file - and grounded its answer in reality. Tools are what connect the model to your actual work. Claude Code, Cursor, and Codex are all agents in exactly this sense.</p>
-          </div>
-        </div>
-
-        <!-- Capability ladder recap -->
-        <div class="grid grid-3" style="margin-top:26px">
-          <div class="card">
-            <h3 style="margin-top:0">Model</h3>
-            <p style="margin-bottom:10px"><span class="mono t-dim">text in &rarr; text out</span></p>
-            <ul class="cmp cmp-good" style="margin-top:0">
-              <li>Fluent, broad knowledge</li>
-            </ul>
-            <ul class="cmp cmp-bad">
-              <li>No deliberation - one shot</li>
-              <li>Cannot check or act</li>
-            </ul>
-          </div>
-          <div class="card">
-            <h3 style="margin-top:0">Reasoning</h3>
-            <p style="margin-bottom:10px"><span class="mono t-dim">+ a thinking step</span></p>
-            <ul class="cmp cmp-good" style="margin-top:0">
-              <li>Handles multi-step problems</li>
-              <li>Catches its own errors</li>
-            </ul>
-            <ul class="cmp cmp-bad">
-              <li>Still only produces text</li>
-            </ul>
-          </div>
-          <div class="card" style="border:1px solid var(--border-bright)">
-            <h3 style="margin-top:0" class="gtext">Agent</h3>
-            <p style="margin-bottom:10px"><span class="mono t-dim">+ tools &amp; a loop</span></p>
-            <ul class="cmp cmp-good" style="margin-top:0">
-              <li>Acts on the real world</li>
-              <li>Grounds answers in your files</li>
-              <li>Works autonomously, step by step</li>
-            </ul>
-          </div>
-        </div>
-        <div class="callout warn">
-          <span class="ci">&#9888;</span>
-          <p><strong>More power, more need for governance.</strong> An agent that can edit files and run commands can also delete the wrong thing, leak a secret, or wander off-task. Raw capability is not enough - you need to steer it. That is the second ladder.</p>
-        </div>
-      </section>
-
-      <div class="divider"></div>
-
-      <!-- =========================================================
-           AXIS 2 - THE STEERING DISCIPLINES
-           ========================================================= -->
-      <section class="section">
-        <span class="eyebrow">Axis 2 &middot; How you steer it</span>
-        <h2>Prompt &rarr; context &rarr; harness engineering</h2>
-        <p class="lead">Three disciplines for getting good work out of the engine. They differ by <strong>what you tune</strong> and <strong>how long it lasts</strong> - and that is the whole point.</p>
-
-        <!-- PROMPT ENGINEERING -->
-        <div class="step">
-          <div class="step-head">
-            <div class="step-badge">A</div>
-            <div>
-              <h3><span class="gtext">Prompt</span> engineering - wording the request</h3>
-              <div class="sub">the instruction you type &middot; lives for one message</div>
-            </div>
-          </div>
-          <p>The prompt is the request itself: the words you send. Prompt engineering is the craft of writing that request so the model knows the role to play, the task, the constraints, and the exact format you want back. It is the most direct lever you have, and the first one everyone learns.</p>
-
-          <div class="grid grid-2" style="align-items:stretch">
-            <div class="card" style="border-top:3px solid var(--ink-faint)">
-              <h3 style="color:var(--ink-dim); margin-top:0">Vague prompt</h3>
-              <div class="term" style="background:var(--term-bg); border-radius:10px; border:1px solid var(--border); padding:12px 14px; margin:6px 0 12px">
-                <div class="term-cmd"><span class="prompt">&gt; </span>make a login page</div>
-              </div>
-              <ul class="cmp cmp-bad" style="margin-top:0">
-                <li>What stack? What framework?</li>
-                <li>What fields, what validation?</li>
-                <li>You get the model's generic guess</li>
+        <span class="eyebrow">See the difference</span>
+        <h2>Same model, same bug, two working methods</h2>
+        <p>Task: Trivia Quiz awards 5/6 after a perfect run. Both columns use one model. Drag the control or read both states; nothing autoplays.</p>
+        <div class="nhg-compare-ctrl" data-compare data-nhg-keys="self">
+          <label for="nhgHarnessRange">Working method</label>
+          <input id="nhgHarnessRange" type="range" min="0" max="1" step="1" value="0" aria-valuemin="0" aria-valuemax="1" aria-valuenow="0" aria-valuetext="Model alone" />
+          <p class="nhg-compare-state" id="nhgCompareState">Model alone</p>
+          <div class="nhg-compare-panes">
+            <article class="nhg-compare-pane is-on" id="nhgRawPane">
+              <h3>Model alone</h3>
+              <p>You paste the symptom. The model gives a plausible one-shot: "the loop probably stops at <code>length - 1</code>; change it." It does not open the repo, does not name a test, and does not write a file. The answer may even be in the right neighborhood.</p>
+              <ul>
+                <li>Unstated assumption: it guessed the file and the exact defect.</li>
+                <li>No durable artifact: the advice lives in the chat.</li>
+                <li>No verification: nobody ran the suite, so a second bug (restart keeps answers) stays hidden.</li>
               </ul>
-            </div>
-            <div class="card" style="border-top:3px solid var(--teal)">
-              <h3 class="gtext" style="margin-top:0">Engineered prompt</h3>
-              <div class="term" style="background:var(--term-bg); border-radius:10px; border:1px solid var(--border); padding:12px 14px; margin:6px 0 12px; font-size:12px">
-                <div class="term-cmd"><span class="prompt">&gt; </span>Create a React + TypeScript login form.<br>Email + password with inline validation, a<br>"remember me" checkbox, a submit-handler stub.<br>Match the styling of SignupForm.tsx. Return<br>only the component file.</div>
-              </div>
-              <ul class="cmp cmp-good" style="margin-top:0">
-                <li>Role, stack, fields, format - all fixed</li>
-                <li>One plausible output, not a guess</li>
+              <p>This is a fair raw session, not a cartoon. Fluent models often look finished after one reply.</p>
+            </article>
+            <article class="nhg-compare-pane" id="nhgHubPane">
+              <h3>Model with Nexus-Hub</h3>
+              <p>The same model, on the same platform, is steered. <code>/review</code> loads the review procedure, reads scoped files, and writes a report. <code>/plan</code> turns the finding into a gated phase. <code>/implement</code> edits <code>logic.js</code>, runs tests, and stops at GO / NO-GO. A hook still blocks a secret if one appears in the diff.</p>
+              <ul>
+                <li>Context is selected on purpose, not hoped for in the prompt.</li>
+                <li>Durable artifacts: review report, plan, and a local commit.</li>
+                <li>Visible gate: the phase does not claim done until tests pass.</li>
               </ul>
-            </div>
-          </div>
-          <div class="callout warn">
-            <span class="ci">&#9888;</span>
-            <p><strong>The ceiling of prompting:</strong> a perfectly worded request about information the model cannot see still fails. The engineered prompt above references <code>SignupForm.tsx</code> - but if the model has never been shown that file, "match its styling" is impossible. Wording is not enough. The model can only work with what is in front of it.</p>
-          </div>
-        </div>
-
-        <!-- CONTEXT ENGINEERING -->
-        <div class="step">
-          <div class="step-head">
-            <div class="step-badge">B</div>
-            <div>
-              <h3><span class="gtext">Context</span> engineering - choosing what it sees</h3>
-              <div class="sub">the information you supply &middot; lives for one task</div>
-            </div>
-          </div>
-          <p>A model can only reason over what is inside its <strong>context window</strong> - the working memory it has for this task. Context engineering is the discipline of deliberately filling that window with the <em>right</em> material: the specific file, the relevant link, the directory that matters, the prior decision, an example to imitate. On real codebases this is usually <strong>higher-leverage than the wording of the prompt</strong>.</p>
-          <p>Same request, two different context windows:</p>
-
-          <div class="grid grid-2" style="align-items:stretch">
-            <div class="card" style="border-top:3px solid var(--ink-faint)">
-              <h3 style="color:var(--ink-dim); margin-top:0">Thin context</h3>
-              <div style="background:var(--term-bg); border:1px dashed var(--border); border-radius:12px; padding:14px; margin:6px 0 12px; min-height:96px">
-                <div class="muted mono" style="font-size:10.5px; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px">context window</div>
-                <div class="pill-list" style="margin:0">
-                  <span><b>prompt</b></span>
-                </div>
-              </div>
-              <ul class="cmp cmp-bad" style="margin-top:0">
-                <li>Invents its own button + styles</li>
-                <li>Ignores your conventions</li>
-                <li>You rewrite half of it</li>
-              </ul>
-            </div>
-            <div class="card" style="border-top:3px solid var(--teal)">
-              <h3 class="gtext" style="margin-top:0">Engineered context</h3>
-              <div style="background:var(--term-bg); border:1px solid var(--border-bright); border-radius:12px; padding:14px; margin:6px 0 12px; min-height:96px">
-                <div class="muted mono" style="font-size:10.5px; text-transform:uppercase; letter-spacing:1px; margin-bottom:8px">context window</div>
-                <div class="pill-list" style="margin:0">
-                  <span><b>prompt</b></span>
-                  <span>SignupForm.tsx</span>
-                  <span>ui/Button.tsx</span>
-                  <span>ui/Input.tsx</span>
-                  <span>coding rules</span>
-                  <span>auth decision</span>
-                </div>
-              </div>
-              <ul class="cmp cmp-good" style="margin-top:0">
-                <li>Reuses your real components</li>
-                <li>Matches house style automatically</li>
-                <li>On-spec the first time</li>
-              </ul>
-            </div>
-          </div>
-          <div class="callout">
-            <span class="ci">&#9733;</span>
-            <p><strong>Context is the desk you set up for the new hire.</strong> Hand them the right three files and the style guide and they produce work that fits in; sit them in an empty room and they guess. Most "the AI gave me garbage" moments are really context problems, not model problems.</p>
-          </div>
-        </div>
-
-        <!-- HARNESS ENGINEERING -->
-        <div class="step">
-          <div class="step-head">
-            <div class="step-badge">C</div>
-            <div>
-              <h3><span class="gtext">Harness</span> engineering - the system around the agent</h3>
-              <div class="sub">rules, skills, commands, guardrails &middot; permanent &amp; shared</div>
-            </div>
-          </div>
-          <p>Prompts and context are things you supply <em>by hand, every time</em>. A harness is the <strong>software engineering layer built around the agent</strong> so you do not have to. It is the most traditional-feeling discipline of the three: reusable procedures, standard commands, deterministic guardrails, specialist sub-agents, multi-step workflows, and governance gates - all encoded once and applied automatically, the same way, for everyone.</p>
-          <p>This is the difference between telling each new hire "remember to write tests, never commit a secret, follow our review process" and having a team playbook, checklists, and a CI pipeline that <strong>enforce</strong> it whether anyone remembers or not.</p>
-
-          <!-- nested layers diagram -->
-          <div style="background:#0a1318; border:1px solid var(--border); border-radius:var(--radius); padding:22px; margin:14px 0">
-            <div style="background:rgba(120,224,238,.05); border:1px solid var(--border-bright); border-radius:14px; padding:16px 18px">
-              <div class="mono" style="color:var(--teal-soft); font-size:11.5px; letter-spacing:1px; text-transform:uppercase; margin-bottom:12px">Harness &mdash; rules &middot; skills &middot; commands &middot; hooks &middot; agents &middot; workflows</div>
-              <div style="background:rgba(56,189,248,.06); border:1px solid var(--border); border-radius:12px; padding:14px 16px">
-                <div class="mono" style="color:var(--cyan-soft); font-size:11.5px; letter-spacing:1px; text-transform:uppercase; margin-bottom:12px">Context &mdash; the right files, docs &amp; decisions</div>
-                <div style="background:var(--grad-soft); border:1px solid var(--border-bright); border-radius:10px; padding:18px; text-align:center">
-                  <div class="gtext mono" style="font-weight:700; font-size:15px">the model</div>
-                  <div class="muted" style="font-size:12px; margin-top:2px">reasoning + tools = an agent</div>
-                </div>
-              </div>
-            </div>
-            <p class="muted center" style="font-size:13px; margin:14px 0 0">The model is the engine. Context and the harness are concentric layers of control wrapped around it. <strong style="color:var(--ink)">Nexus-Hub is that outer layer, productized.</strong></p>
+              <p>The model did not get new weights. It received a procedure, a workspace, and a stop rule.</p>
+            </article>
           </div>
         </div>
       </section>
 
-      <div class="divider"></div>
+      <details>
+        <summary>Go deeper: prompt, context, reasoning</summary>
+        <p><strong>Prompt engineering</strong> is wording one request. It lasts for a message. A precise prompt still fails if the needed file is not in context.</p>
+        <p><strong>Context engineering</strong> is choosing what the model sees this turn. It lasts for a task. Nexus-Hub skills and commands encode those choices so the team does not reinvent them.</p>
+        <p><strong>Reasoning</strong> is extra deliberation the model may do before acting. It is still the model. It does not replace a harness: thinking harder without a test gate can still skip verification.</p>
+        <p><strong>Six-term recap.</strong> Model predicts. Reasoning deliberates. Agent/platform acts with tools. Prompt is the request. Context is the window. Harness is the durable operating system around them. Prompt and context sit inside the harness when the workflow is governed.</p>
+      </details>
 
-      <!-- =========================================================
-           PAYOFF - Nexus-Hub is harness engineering
-           ========================================================= -->
       <section class="section">
-        <span class="eyebrow">Why this matters</span>
-        <h2>Nexus-Hub <span class="gtext">is</span> harness engineering</h2>
-        <p class="lead">Put the two ladders together and the role of Nexus-Hub falls out cleanly. It does not give you a smarter model - it gives every model the steering layer that makes its output reliable, safe, and the same for the whole team.</p>
-
-        <h3 style="margin-top:26px">The three disciplines, by leverage and lifespan</h3>
-        <table class="tbl">
-          <thead><tr><th>Discipline</th><th>What you tune</th><th>Scope</th><th>Lives for</th></tr></thead>
-          <tbody>
-            <tr><td><strong>Prompt</strong> engineering</td><td>The words of a single request</td><td>One message</td><td>That message</td></tr>
-            <tr><td><strong>Context</strong> engineering</td><td>What information the model can see</td><td>One task or session</td><td>That task</td></tr>
-            <tr><td><strong>Harness</strong> engineering</td><td>The rules, skills &amp; guardrails around the agent</td><td>The whole team, every session</td><td><span class="t-teal">Permanently &middot; shared</span></td></tr>
-          </tbody>
-        </table>
-        <div class="callout tip">
-          <span class="ci">&#10003;</span>
-          <p><strong>Leverage compounds downward in this table.</strong> A great prompt helps one message. Good context helps one task. A good harness helps every task, every teammate, forever - which is why it is worth engineering once and reusing.</p>
-        </div>
-
-        <h3 style="margin-top:30px">What Nexus-Hub puts in the harness layer</h3>
-        <div class="grid grid-3" style="margin-top:8px">
-          <div class="card">
-            <h3 style="margin-top:0"><code>Commands</code></h3>
-            <p>Slash entry points like <code>/describe</code> or <code>/review</code> that run a whole governed workflow on demand.</p>
-          </div>
-          <div class="card">
-            <h3 style="margin-top:0"><code>Skills</code></h3>
-            <p>Senior-level procedures the agent loads only when the task needs them - encoded context + reasoning, reused.</p>
-          </div>
-          <div class="card">
-            <h3 style="margin-top:0"><code>Hooks</code></h3>
-            <p>Deterministic guardrails that fire on tool use - block a committed secret, stop a destructive git command.</p>
-          </div>
-          <div class="card">
-            <h3 style="margin-top:0"><code>Agents</code></h3>
-            <p>Specialist reviewer personas (security, performance, testing) the orchestrator can delegate to.</p>
-          </div>
-          <div class="card">
-            <h3 style="margin-top:0"><code>Rules</code></h3>
-            <p>Per-language style and security standards applied automatically, so output matches house conventions.</p>
-          </div>
-          <div class="card" style="border:1px solid var(--border-bright)">
-            <h3 style="margin-top:0" class="gtext">All of it, governed</h3>
-            <p>Goals, a definition-of-done, and GO / NO-GO gates make agent output reviewable instead of a black box.</p>
-          </div>
-        </div>
-
-        <div class="grid grid-2" style="align-items:stretch; margin-top:26px">
-          <div class="card" style="border-top:3px solid var(--ink-faint)">
-            <h3 style="color:var(--ink-dim); margin-top:0">A raw agent</h3>
-            <ul class="cmp cmp-bad">
-              <li>You re-supply prompt and context by hand, every session</li>
-              <li>Quality depends on who is typing that day</li>
-              <li>You trust it to remember to be careful</li>
-              <li>Every engineer and every tool does it differently</li>
-            </ul>
-          </div>
-          <div class="card" style="border-top:3px solid var(--teal)">
-            <h3 class="gtext" style="margin-top:0">An agent on Nexus-Hub</h3>
-            <ul class="cmp cmp-good">
-              <li>Skills and commands supply the context and procedure for you</li>
-              <li>The same governed workflow runs for the whole team</li>
-              <li>Hooks enforce safety the model cannot talk its way past</li>
-              <li>One harness, identical on Claude, Codex, Cursor, Gemini, and more</li>
-            </ul>
-          </div>
-        </div>
-      </section>
-
-      <div class="divider"></div>
-
-      <!-- ===== One-line recap ===== -->
-      <section class="section">
-        <span class="eyebrow">One-line recap</span>
-        <h2>Say each one in a sentence</h2>
-        <p class="lead">If your team remembers nothing else, remember this table.</p>
-        <table class="tbl">
-          <thead><tr><th>Term</th><th>In one sentence</th><th>The new hire</th></tr></thead>
-          <tbody>
-            <tr><td><strong>Model</strong></td><td>A next-word predictor that answers from memory in one shot.</td><td>Brilliant, just walked in, answers off the cuff.</td></tr>
-            <tr><td><strong>Reasoning</strong></td><td>The same model, allowed to think on a scratchpad before answering.</td><td>Now scribbles working before speaking.</td></tr>
-            <tr><td><strong>Agent</strong></td><td>A reasoning model that can call tools to act, observe, and repeat.</td><td>Handed a laptop and the keys - does the work.</td></tr>
-            <tr><td><strong>Prompt</strong> eng.</td><td>Wording the request so the role, task, and format are clear.</td><td>The instruction you give them.</td></tr>
-            <tr><td><strong>Context</strong> eng.</td><td>Choosing what information the model sees alongside the request.</td><td>The files and background on their desk.</td></tr>
-            <tr><td><strong>Harness</strong> eng.</td><td>The reusable rules, skills, and guardrails built around the agent.</td><td>The team playbook, checklists, and review process.</td></tr>
-          </tbody>
-        </table>
-        <div class="callout">
-          <span class="ci">&#9733;</span>
-          <p><strong>The throughline:</strong> a model is raw talent; a harness turns it into a disciplined team. <strong>Nexus-Hub is that harness</strong> - which is exactly what the rest of this guide will show you how to use. Head to <a data-go="training" style="font-weight:700">Training</a> next.</p>
-        </div>
+        <h2>Now watch the experience layer work</h2>
+        <p>The model supplies the brain, the coding assistant supplies the hands, and Nexus-Hub supplies reusable experience and guardrails. Training shows that loop on Trivia Quiz, one workbench at a time.</p>
+        <a class="btn btn--primary" href="#training" data-go="training">Open Training</a>
       </section>
 
       <div class="progress" data-progress></div>
@@ -1488,7 +1141,7 @@ html.no-js .tab-panel { display: block; }
   </section>
 
   <!-- =====================================================================
-       PAGE: SETUP & PLATFORMS
+       PAGE: TRAINING
        ===================================================================== -->
   <section class="page" id="page-training" data-page="training">
     <div class="container">
@@ -3507,6 +3160,25 @@ html.no-js .tab-panel { display: block; }
           select(this.getAttribute("data-ribbon"));
         });
       }
+    })();
+
+    (function initHarnessCompare() {
+      var range = document.getElementById("nhgHarnessRange");
+      if (!range) return;
+      var raw = document.getElementById("nhgRawPane");
+      var hub = document.getElementById("nhgHubPane");
+      var state = document.getElementById("nhgCompareState");
+      function apply() {
+        var on = String(range.value) === "1";
+        range.setAttribute("aria-valuenow", on ? "1" : "0");
+        range.setAttribute("aria-valuetext", on ? "Model with Nexus-Hub" : "Model alone");
+        if (state) state.textContent = on ? "Model with Nexus-Hub" : "Model alone";
+        if (raw) raw.classList.toggle("is-on", !on);
+        if (hub) hub.classList.toggle("is-on", on);
+      }
+      range.addEventListener("input", apply);
+      range.addEventListener("change", apply);
+      apply();
     })();
 
     /* -------------------------------------------------- boot */

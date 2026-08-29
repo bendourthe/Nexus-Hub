@@ -38,9 +38,6 @@ ONBOARDING_STALE = re.compile(
     re.IGNORECASE | re.VERBOSE,
 )
 
-_phase4 = pytest.mark.xfail(
-    strict=True, reason="Phase 4: Foundations three-role model and comparison control not landed yet"
-)
 _phase5 = pytest.mark.xfail(
     strict=True, reason="Phase 5: data-driven training workbench not landed yet"
 )
@@ -369,7 +366,6 @@ def test_onboarding_has_no_hardcoded_catalog_counts(parsed: GuideParser) -> None
 # ---------------------------------------------------------------------------
 
 
-@_phase4
 def test_foundations_three_roles(guide_text: str) -> None:
     fl = guide_text.lower()
     assert "page-foundations" in fl
@@ -378,18 +374,25 @@ def test_foundations_three_roles(guide_text: str) -> None:
     assert "agent" in fl or "platform" in fl
 
 
-@_phase4
 def test_foundations_has_user_initiated_comparison(guide_text: str) -> None:
     assert re.search(r'type=["\']range["\']|role=["\']slider["\']|data-compare', guide_text)
     assert "scroll-scrub-engine" not in guide_text
 
 
-@_phase4
 def test_foundations_handoff_is_training_page_hash(guide_text: str) -> None:
     foundations = guide_text.split('id="page-foundations"', 1)[-1].split('id="page-training"', 1)[0]
     assert "Now watch the experience layer work" in foundations
     assert re.search(r'data-go=["\']training["\']|#training(?!/)', foundations)
     assert "#training/" not in foundations
+
+
+def test_foundations_comparison_states_are_static_in_markup(guide_text: str) -> None:
+    foundations = guide_text.split('id="page-foundations"', 1)[-1].split('id="page-training"', 1)[0]
+    assert "Model alone" in foundations
+    assert "Model with Nexus-Hub" in foundations
+    assert 'data-nhg-keys="self"' in foundations
+    assert 'id="nhgRawPane"' in foundations
+    assert 'id="nhgHubPane"' in foundations
 
 
 # ---------------------------------------------------------------------------

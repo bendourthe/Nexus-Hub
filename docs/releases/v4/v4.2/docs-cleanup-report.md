@@ -44,3 +44,13 @@ Phase 3 edits the canonical guide HTML in place, adds `docs/releases/v4/v4.2/dev
 ### Result
 
 No documentation move. Setup-page content that still has a learning purpose now lives on Home or Reference.
+
+## Phase 4 - Model-versus-Harness Foundations
+
+### Layout check
+
+Phase 4 rewrites Foundations in the canonical guide HTML and adds `docs/releases/v4/v4.2/development/guide-redesign-phase-4/` plus a session-history file. Splice helpers were deleted before commit.
+
+### Result
+
+No documentation move.

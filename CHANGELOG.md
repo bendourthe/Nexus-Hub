@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **Interactive guide redesign (in progress).** Phase 1 froze the content contract. Phase 2 gave the guide dual theme and Installation-free chrome. Phase 3 rewrites Home into definition, comparison, one-command install, platform reachability, and a six-node workflow ribbon; Installation is no longer a routed page.
+- **Interactive guide redesign (in progress).** Phases 1-4: content contract, dual-theme shell, concise Home with install, and Foundations that teach model versus harness with a user-initiated comparison and a `#training` handoff.
 
 ---
 
