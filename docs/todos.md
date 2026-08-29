@@ -14,7 +14,7 @@ Refreshing this file to the active plan (rather than appending another version's
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
-| v4.2.2 guide-cinematic-rebuild phases complete | 2 | 7 | -5 |
+| v4.2.2 guide-cinematic-rebuild phases complete | 3 | 7 | -4 |
 | Open release blockers | 0 | 0 | 0 |
 | Catalog skills | 328 | 328 | 0 |
 | New MCP servers | 0 | 0 | 0 |
@@ -26,7 +26,7 @@ Refreshing this file to the active plan (rather than appending another version's
 
 - [x] Phase 1 - Design brief, design system, shell, and render harness
 - [x] Phase 2 - Home page rebuild
-- [ ] Phase 3 - Foundations rebuild
+- [x] Phase 3 - Foundations rebuild
 - [ ] Phase 4 - Training rebuild
 - [ ] Phase 5 - Cheatsheets rebuild
 - [ ] Phase 6 - Cross-page polish, accessibility, and hallmark audit

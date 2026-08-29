@@ -137,7 +137,8 @@ def main(argv: list[str] | None = None) -> int:
                             "var h = document.querySelector('.site-header');"
                             "if (h) { h.style.position = 'static'; }"
                         )
-                        page.wait_for_timeout(600)
+                        # Staggered scene transitions run up to ~1.6s delay + .8s.
+                        page.wait_for_timeout(2600)
                         dest = out_dir / f"{page_id}-{theme}-{width}{suffix}.png"
                         _atomic_screenshot(page, dest)
                         written.append(dest)

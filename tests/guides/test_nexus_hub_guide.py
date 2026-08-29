@@ -526,6 +526,58 @@ def test_home_verify_commands_are_copy_cells(parsed: GuideParser) -> None:
 
 
 # ---------------------------------------------------------------------------
+# Foundations (Phase 3)
+# ---------------------------------------------------------------------------
+
+
+def _foundations_markup(guide_text: str) -> str:
+    return guide_text.split('id="page-foundations"', 1)[-1].split('id="page-training"', 1)[0]
+
+
+def test_foundations_has_five_animated_scenes(guide_text: str) -> None:
+    fx = _foundations_markup(guide_text)
+    assert fx.count('class="fx-scene') == 5, "expected exactly five scrollytelling scenes"
+    for heading in (
+        "The model: text in, text out",
+        "The platform: the loop that gives it hands",
+        "Context: what the model actually sees",
+        "The harness: procedure, not vibes",
+        "One task, two runs",
+    ):
+        assert heading in fx, f"missing scene heading: {heading}"
+    assert fx.count("<svg") == 5, "each scene carries exactly one inline SVG diagram"
+    for svg_class in ("fx-pop", "fx-draw", "fx-pulse"):
+        assert svg_class in fx
+
+
+def test_foundations_comparison_is_side_by_side_not_toggled(guide_text: str) -> None:
+    """Both states are always visible; no selector chooses between them."""
+    fx = _foundations_markup(guide_text)
+    assert "FOCUSED CONTEXT" in fx and "NOISY CONTEXT" in fx
+    assert "RAW ASSISTANT" in fx and "WITH NEXUS-HUB" in fx
+    assert 'type="range"' not in fx
+    assert "nhgCompare" not in guide_text
+    assert "data-station-toggle" not in guide_text
+    assert "aria-pressed" not in fx
+
+
+def test_foundations_has_no_persistent_overlay(guide_text: str) -> None:
+    css = guide_text.split("<style>", 1)[-1].split("</style>", 1)[0]
+    fixed = re.findall(r"position:\s*fixed", css)
+    assert len(fixed) == 1, "only #constellation may be position fixed"
+    sticky = re.findall(r"position:\s*sticky", css)
+    assert len(sticky) == 1, "only the site header may be sticky"
+
+
+def test_foundations_animations_have_reduced_motion_fallback(guide_text: str) -> None:
+    reduce_block = guide_text.split("@media (prefers-reduced-motion: reduce)", 1)[-1]
+    reduce_block = reduce_block.split("}\n</style>", 1)[0] if "}\n</style>" in reduce_block else reduce_block
+    for cls in (".fx-pop", ".fx-draw", ".fx-grow", ".fx-fade", ".fx-pulse"):
+        assert cls in reduce_block, f"{cls} missing a reduced-motion static state"
+    assert "offset-path" in guide_text, "pulse dots ride CSS motion paths"
+
+
+# ---------------------------------------------------------------------------
 # Training scene data (JSON carried through the rebuild; Phase 4 redesigns it)
 # ---------------------------------------------------------------------------
 
