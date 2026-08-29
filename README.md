@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.1.0 -->
+<!-- nexus-hub-version: 4.1.1 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 326 skills, 18 commands, 33 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -37,17 +37,23 @@ The two projects are designed to be useful independently: you can install Nexus-
 
 ---
 
-## What's New in v4.1.0
+## What's New in v4.1.1
 
-**Skill guidance now starts from evidence and ends in action.** Skill authors must write executable procedural runbooks, label successful and failed observations before distillation, and pair domain language with an observable trigger. `skill-stocktake` adds bounded confusability reporting so overlapping descriptions can be repaired without a catalog-wide all-pairs scan.
+**Local security audits now prove which scanners ran.** A full security-audit run emits a schema-v2 closure record with a receipt for every applicable optional local scanner (`RAN`, `NOT_APPLICABLE`, `UNAVAILABLE`, `FAILED`, or `DECLINED`). Schema-v1 records keep their previous fields. Missing tools stay visible instead of looking complete.
 
-**Typed-boundary hygiene is a first-class skill.** The new `typed-boundary-hygiene` runbook replaces low-evidence TypeScript assertions, unsafe dictionaries, reflection, and broad mocks with named types and checked seams. `typescript-expert` retains runtime parsing and narrowing ownership while handing downstream assertion evidence to the new skill.
+**Detection, fix, and verification stay separate.** The ordered `security-audit` preset re-scans with the same detector after a user-approved patch, and the fixer cannot be the only post-fix verifier. Cloud posture remains read-only.
 
-**Skill evaluation gains an optional raw-memory comparison.** The existing with-skill and without-skill benchmark can add a separately scored `raw_memory` arm using the same dispatcher, grader, aggregator, and viewer. It never changes the original benchmark delta, and missing or invalid evidence remains explicit rather than being inferred.
+**Optional scanners stay local.** Semgrep, gitleaks, OSV-Scanner, npm audit, pip-audit, Trivy, and Checkov are recipes on existing skills. None is auto-installed or replaced by a hosted service. See [`guides/reference/SECURITY_AUDIT.md`](guides/reference/SECURITY_AUDIT.md).
 
-Catalog counts are **326 skills**, **18 commands**, **33 hooks**, and **23 agents**. This release has no breaking change and adds no dependency, installer flag, or host write surface.
+Catalog counts remain **326 skills**, **18 commands**, **33 hooks**, and **23 agents**. This release has no breaking change and changes no opt-in capability, installer flag, or host surface.
 
-The raw-memory comparison is opt-in. See the changelog for Activation, Validation, Rollback, Authority, and Docs.
+## Previously, in v4.1.0
+
+**Skill guidance now starts from evidence and ends in action.** Skill authors write executable procedural runbooks, label successful and failed observations before distillation, and pair domain language with an observable trigger.
+
+**Typed-boundary hygiene is a first-class skill.** The `typed-boundary-hygiene` runbook replaces low-evidence TypeScript assertions with named types and checked seams.
+
+**Skill evaluation can add an optional raw-memory comparison** beside the existing with-skill and without-skill benchmark. See the v4.1.0 changelog for Activation, Validation, Rollback, Authority, and Docs.
 
 ## Previously, in v4.0.0
 

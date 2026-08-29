@@ -21,7 +21,7 @@ Use this skill when you need to:
 - Prepare for penetration testing
 - Meet security compliance requirements
 
-**Trigger phrases**: "security review", "vulnerability scan", "OWASP", "security audit", "penetration test prep", "CVE check", "security assessment", "race condition"
+**Trigger phrases**: "security review", "vulnerability scan", "OWASP", "security audit", "penetration test prep", "CVE check", "security assessment", "race condition", "scanner receipt", "re-scan", "independent verifier"
 
 ## What This Skill Does
 
@@ -79,6 +79,12 @@ Let `M` be the complete component denominator, `N` the COVERED count, `O` the OM
 
 If time or budget cannot cover a large target, scale the number of review passes or state the incomplete coverage. Never shrink `M` to fit the available effort. This follows the established `[[model-prompting-research]]` pattern: an unresearched model is reported as UNVERIFIED rather than omitted silently.
 
+### Step 0A: Choose the Closure Schema
+
+A full security-audit workflow uses schema v2 from `references/closure-gate-review-record.md`. Schema v2 adds a scanner-receipt ledger, remediation receipts, and an independent verifier. A focused or manual review may keep schema v1 when it states, in the coverage artifact, that deterministic scanner completeness is not claimed.
+
+Do not copy the schema field list into this skill. The reference file is the record shape; this skill owns when to choose v1 versus v2 and where the receipts appear in the report.
+
 ### Step 1: Dependency Vulnerability Scan
 
 ```bash
@@ -95,6 +101,10 @@ mvn dependency-check:check
 ```
 
 ### Step 2: Static Security Analysis
+
+For a full security-audit workflow, follow `references/local-scanner-recipes.md`. Semgrep owns local SAST and gitleaks owns secrets scanning. Check that each binary exists before invoking it, prefer repository config, record version, target scope, config fingerprint, command, exit code, and artifact path, and never auto-install or fall back to a hosted scanner. Redact gitleaks matches. If a ruleset would fetch over the network, disclose it and require authorization.
+
+Focused reviews may still use language-native tools:
 
 ```bash
 # Python
@@ -234,7 +244,18 @@ For each finding, document both **exploitability** (how easy to exploit) and **i
 
 Apply the refutation-validity taxonomy and rejection proof burden owned by `[[adversarial-verifier]]` before marking any candidate rejected. A bare non-reproduction or route list is not enough: the owner requires a reason-specific counter-hypothesis, the sink's actual input sources, a result for every applicable route, and observed build or configuration evidence for reachability claims. When an unobservable layer is the only remaining barrier, route the candidate to `needs-live-validation` through `[[pentest-reporting]]` rather than rejecting or understating it. This skill references that gate but does not restate its taxonomy.
 
-Begin the report with the coverage artifact before listing individual findings:
+Begin the report with the coverage artifact before listing individual findings. For schema v2, insert the scanner-receipt ledger immediately after component and altitude coverage and before findings:
+
+```markdown
+### Scanner Receipts
+
+| Scanner | Applicable | State | Version | Target scope | Config fingerprint | Command | Exit | Artifact or omission |
+|---|---|---|---|---|---|---|---|---|
+| semgrep | yes | RAN | 1.2.3 | src/ (`scope-src`) | config-default | `semgrep --json src` | 0 | artifacts/semgrep.json |
+| checkov | no | NOT_APPLICABLE | n/a | n/a | n/a | n/a | n/a | No supported IaC files |
+```
+
+Deterministic coverage is `complete` only when every applicable scanner `RAN`. `UNAVAILABLE`, `FAILED`, and `DECLINED` make coverage degraded. Never claim complete scanner coverage while any applicable scanner is missing, unavailable, failed, or declined.
 
 ```markdown
 ## Security Review Coverage
@@ -306,17 +327,25 @@ Build the local review record defined in `references/closure-gate-review-record.
 python scripts/closure-gate.py review-record.json
 ```
 
-The gate computes five diffs:
+The gate computes five schema-v1 diffs, and six additional schema-v2 diffs when `schema_version` is `2`:
 
 - Component inventory minus components with a logged review action or an explicit `OMITTED` / `UNCOVERED` caveat, surfacing components silently implied as covered.
 - Findings minus findings with one of the four terminal or explicitly pending dispositions, surfacing dropped candidates. A `needs-live-validation` item counts as explicitly pending only when its safe-test receipt is complete.
 - Confirmed findings minus evidence-bearing facts, surfacing unproven confirmations.
 - Rejected findings minus the route-complete rejection record owned by `[[adversarial-verifier]]`, surfacing rejections that skipped their proof burden.
 - Report claims minus matching evidence-bearing facts, surfacing claims with no recorded support. Use the claim classes in `[[verification-before-completion]]`'s fraud-class table; do not invent a second taxonomy here.
+- Applicable scanners minus successful `RAN` receipts, including silent omissions and a complete-coverage claim over `UNAVAILABLE`, `FAILED`, or `DECLINED` scanners.
+- Malformed or unsupported receipt states, including missing tool version and `NOT_APPLICABLE` without evidence.
+- Scanner-sourced `corrected` findings minus equivalent before/after receipts.
+- Before/after pairs that disagree on detector, config fingerprint, or target scope.
+- New after-scan findings without a terminal or explicitly pending disposition.
+- A fixer who is the only verifier, or a remediation with no independent read-only verifier.
+
+After remediation, record the post-fix receipt before closing. The same detector, ruleset/config fingerprint, and target scope must re-scan the corrected finding. The patch-producing context cannot be the only verifier: a separate read-only reviewer must sign the before/after delta. A no-fix audit may omit remediations and verifiers, but it must still ship the scanner-receipt ledger.
 
 Any non-empty diff is a FAILURE, not advice. The report does not ship until every diff is empty or each remaining component is recorded as an explicit caveat. Verify coverage and rejection claims as aggressively as confirmations because those two claim types suppress further work. The gate is Nexus-Hub-native and deliberately does not reproduce an external run-directory layout.
 
-`tests/skills/test_closure_gate.py` seeds every mismatch class, proves a clean record passes, asserts the explicit-caveat path, checks the CLI exit codes, and verifies recursive installer distribution. Exit `0` is clean, exit `1` is a non-empty closure diff, and exit `2` is malformed or unreadable input.
+`tests/skills/test_closure_gate.py` seeds every mismatch class, proves a clean record passes, asserts the explicit-caveat path, checks the CLI exit codes, and verifies recursive installer distribution. Exit `0` is clean, exit `1` is a non-empty closure diff, and exit `2` is malformed or unreadable input. Schema-v1 fixtures must keep passing unchanged.
 
 ## Common Vulnerabilities by Language
 
@@ -362,6 +391,8 @@ Any non-empty diff is a FAILURE, not advice. The report does not ship until ever
 | "Race conditions only matter at scale" | Check-Then-Act race conditions in balance deduction logic have been exploited at low request volumes via simple two-tab browser attacks, enabling duplicate payments and negative balances. |
 | "I reviewed the security-sensitive modules, so the target is covered" | A hot-spot list is not the target denominator. Any module, package, service, transport, or deployable unit without a review action must remain visible as OMITTED or UNCOVERED. |
 | "One route to this sink is blocked, so the sink is safe" | The clean result applies only to that route. Another command, internal caller, decoded message, or import path may still reach the same operation and must be recorded separately. |
+| "The component ledger is complete, so every applicable scanner ran" | Component coverage is not scanner coverage. An applicable scanner without a receipt is a silent omission, and `UNAVAILABLE` or `DECLINED` degrades deterministic completeness. |
+| "I produced the patch, so I can sign the re-scan" | The fixer cannot be the only verifier. A separate read-only reviewer must consume the before/after receipts and the patch diff. |
 
 ## Verification
 
@@ -372,11 +403,14 @@ Any non-empty diff is a FAILURE, not advice. The report does not ship until ever
 - [ ] Every proven-dirty sink has a trigger-path sweep covering routes, commands, actions, internal callers, and subsystem deserialization or import paths where applicable
 - [ ] Negative evidence is scoped to the tested trigger path, and every unresolved path remains UNKNOWN or produces `needs-live-validation`
 - [ ] Dependency vulnerability scan completed and output saved (e.g., `pip-audit`, `npm audit`)
-- [ ] Static analysis tool run (bandit, eslint-plugin-security, or equivalent) with zero unreviewed findings
+- [ ] Static analysis followed `references/local-scanner-recipes.md` when this run is a full security audit: Semgrep and gitleaks were discovered locally or recorded `UNAVAILABLE`, no tool was auto-installed, and gitleaks output contains no matched secret values
 - [ ] Every finding includes severity (P0-P3), exploitability assessment, and remediation code
 - [ ] Every rejected finding satisfies `[[adversarial-verifier]]`'s observed, route-complete rejection record
 - [ ] Every candidate blocked only by an unobservable layer is routed to `needs-live-validation` rather than rejected or rated Low
-- [ ] `scripts/closure-gate.py` exits `0` for the current `references/closure-gate-review-record.md` shape, and all five reported diff sets are empty
+- [ ] `scripts/closure-gate.py` exits `0` for the current `references/closure-gate-review-record.md` shape, and all reported diff sets are empty
+- [ ] Full security-audit runs used schema v2; any schema-v1 review stated that deterministic scanner completeness is not claimed
+- [ ] Every inventory scanner has a receipt in `RAN`, `NOT_APPLICABLE`, `UNAVAILABLE`, `FAILED`, or `DECLINED`, and complete scanner coverage is claimed only when every applicable scanner `RAN`
+- [ ] Every scanner-sourced correction has equivalent before and after receipts, and an independent read-only verifier distinct from the fixer signed the delta
 - [ ] Every `OMITTED` or `UNCOVERED` component that has no logged review action carries an explicit caveat rather than disappearing from the closure record
 - [ ] `tests/skills/test_closure_gate.py` passes, including every seeded mismatch class, malformed-data handling, and recursive distribution
 - [ ] OWASP Top 10 items are explicitly mapped to findings or marked "not applicable" with justification
@@ -394,6 +428,7 @@ Any non-empty diff is a FAILURE, not advice. The report does not ship until ever
 - [[adversarial-verifier]] -- owns the valid/invalid refutation taxonomy and the proof burden required to reject a candidate
 - [[pentest-reporting]] -- owns `needs-live-validation` receipts and the confirmed-versus-potential severity reporting discipline
 - [[model-prompting-research]] -- established precedent for reporting an unverified inventory item instead of omitting it silently
+- Local security-audit user guide -- `guides/reference/SECURITY_AUDIT.md`
 
 ---
 

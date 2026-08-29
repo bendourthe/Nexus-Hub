@@ -97,3 +97,80 @@ Six duplicate-content groups were inspected: a self-contained bundled checklist,
 ### Result
 
 No tracked obsolete file, empty directory, redundant directory, misplaced document, or overcomplicated structure warranted a move or deletion. Because the audit proposed no repository mutation, the project-refactor and docs-layout confirmation gate did not activate. Phase 6 adds only its canonical session history and last-phase evidence under `docs/releases/v4/v4.1/development/`.
+
+## v4.1.1 Phase 1 - Scanner-Receipt and Independent-Verification Contract
+
+**Date**: 2026-08-28
+**Mode**: audit only; no files moved
+**Plan**: `docs/releases/v4/v4.1/plans/v4.1.1-adoption-openworker-security-refinement.md`
+
+### Layout check
+
+Phase 1 adds one version-bound contract at `docs/releases/v4/v4.1/development/v4.1.1-security-audit-contract.md` and one session-history file under `docs/releases/v4/v4.1/development/history/`. The closure-gate script and review-record reference remain inside the existing `security-review` skill tree, which recursive installers already copy.
+
+### New documentation artifacts
+
+| Path | Category | Disposition |
+|---|---|---|
+| `docs/releases/v4/v4.1/development/v4.1.1-security-audit-contract.md` | Active version-bound contract | Keep; it is the Phase 1 normative record and is not a distributed skill file. |
+| `docs/releases/v4/v4.1/development/history/2026-08-28_v4.1.1-adoption-openworker-security-refinement-phase-1-scanner-receipt-contract.md` | Active phase evidence | Keep under the current version's development history. |
+
+### Result
+
+No duplicate, orphaned, scratch, or misplaced documentation was created by v4.1.1 Phase 1. No file moved, and no cleanup change was approved or applied.
+
+## v4.1.1 Phase 2 - Local Scanner Recipes and Rule Ownership
+
+**Date**: 2026-08-28
+**Mode**: audit only; no files moved
+**Plan**: `docs/releases/v4/v4.1/plans/v4.1.1-adoption-openworker-security-refinement.md`
+
+### Layout check
+
+Phase 2 adds `catalog/skills/code-review/security-review/references/local-scanner-recipes.md`, linked from that skill's body, and edits existing owning skills in place. Recursive skill-tree copy already delivers the new reference. No installer copy line is required.
+
+### Result
+
+No duplicate, orphaned, scratch, or misplaced documentation was created by v4.1.1 Phase 2. No file moved.
+
+## v4.1.1 Phase 3 - Ordered Security-Audit Preset and Role Separation
+
+**Date**: 2026-08-28
+**Mode**: audit only; no files moved
+**Plan**: `docs/releases/v4/v4.1/plans/v4.1.1-adoption-openworker-security-refinement.md`
+
+### Layout check
+
+Phase 3 edits the existing `agent-presets` skill, adds bundled `evals/trigger-cases.json` under that skill tree, aligns the existing `security-audit` object in `data/workflows.json`, and updates `catalog/agents/security-reviewer.md`. Recursive skill-tree copy already delivers the eval file. No installer copy line is required. No new living document root is introduced.
+
+### Result
+
+No duplicate, orphaned, scratch, or misplaced documentation was created by v4.1.1 Phase 3. No file moved.
+
+## v4.1.1 Phase 4 - Evaluation, Distribution, and Documentation
+
+**Date**: 2026-08-28
+**Mode**: audit only; no files moved
+**Plan**: `docs/releases/v4/v4.1/plans/v4.1.1-adoption-openworker-security-refinement.md`
+
+### Layout check
+
+Phase 4 adds inert fixtures under `tests/fixtures/security-audit/`, one user-facing guide at `guides/reference/SECURITY_AUDIT.md`, and an end-to-end test under `tests/skills/`. Recursive skill-tree copy already delivers the edited `security-review` bundle and `agent-presets` evals. No installer copy line was added for `data/workflows.json`; it remains a catalog index. `security-reviewer` continues to travel with the agents folder copy.
+
+### Result
+
+No duplicate, orphaned, scratch, or misplaced documentation was created by v4.1.1 Phase 4. No file moved.
+
+## v4.1.1 Phase 5 - Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
+
+**Date**: 2026-08-28
+**Mode**: audit only; no files moved
+**Plan**: `docs/releases/v4/v4.1/plans/v4.1.1-adoption-openworker-security-refinement.md`
+
+### Layout check
+
+`python catalog/skills/code-cleanup/docs-layout-refactor/scripts/audit-docs.py inventory --root docs` exited 0. `refgraph --root docs` exited 0. Phase 5 adds `docs/releases/v4/v4.1/development/v4.1.1-security-audit-final-audit.md`, replaces `docs/releases/v4/v4.1/development/last-phase-evidence.md` with v4.1.1 content (v4.1.0 evidence remains in git history), and appends this audit plus the Phase 5 session history. Discoverability pointers were added on `security-review` and `guides/reference/SELECTIVE_INSTALLATION.md`. No move, deletion, new living-docs root, or installer copy line is proposed.
+
+### Result
+
+No duplicate, orphaned, scratch, or misplaced documentation was created by v4.1.1 Phase 5. No file moved, and no cleanup change was approved or applied.

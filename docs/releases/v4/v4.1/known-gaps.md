@@ -1,7 +1,7 @@
 # Known Gaps - v4.1
 
 **Project**: Nexus-Hub
-**Status**: finalized
+**Status**: in-progress
 **Last updated**: 2026-08-28
 
 ## v4.1.0
@@ -64,3 +64,52 @@ All Not Implemented, Bug / Regression, and Missing Test categories have no open 
 - v3.20 DF-1 and DF-2 remain on `docs/releases/v3/v3.20/known-gaps.md`; this adoption plan did not absorb or relabel them.
 - v3.21 DF-1 remains on `docs/releases/v3/v3.21/known-gaps.md` because Nexus-Hub still has no authored catalog atlas.
 - v3.21 DF-2 is resolved on its original ledger by the v4.1.0 Phase 1 refresh of `docs/todos.md`.
+- v4.0 DF-1 (report-artifact upload) remains on `docs/releases/v4/v4.0/known-gaps.md`. The v4.1.1 pipeline comparison declined to reopen it.
+
+## v4.1.1
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 1 | 1 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 1 |
+
+### Open Items
+
+#### Deferred
+
+##### DF-1 - Live optional scanners were not executed on the implementation host
+
+- **Source phase**: Phase 5 - Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
+- **Plan reference**: `docs/releases/v4/v4.1/plans/v4.1.1-adoption-openworker-security-refinement.md` T025 / T032
+- **Evidence**: Fixture-driven closure-gate tests pass without invoking Semgrep, gitleaks, OSV-Scanner, npm audit, pip-audit, Trivy, or Checkov. Phase 4 history records that those binaries were not present or not executed.
+- **Reason deferred**: The plan forbids adding real scanner execution to Nexus-Hub CI. Host-local binaries are optional; missing tools must remain visible as `UNAVAILABLE`.
+- **Next action**: On a machine that already has the optional tools, run the `security-audit` preset once with some, none, and all applicable scanners and keep the receipts.
+
+### Resolved
+
+#### Deferred
+
+##### DF-2 - POSIX installer dry-run was not executed on this Windows host
+
+- **Source phase**: Phase 5 - Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
+- **Plan reference**: T021 / T026
+- **Evidence at deferral**: `python scripts/check_installer_parity.py` passed. No `scripts/installer.sh` dry-run was performed on the Windows implementation host.
+- **Resolution**: Pull request [#137](https://github.com/bendourthe/Nexus-Hub/pull/137) ran `installer-smoke (ubuntu-latest)` and `installer-smoke (macos-latest)` to SUCCESS, plus Ubuntu and macOS `install-smoke` and `bootstrap`. That is the POSIX delivery proof. A local `installer.sh` dry-run on this Windows host remains unclaimed and is not required.
+- **Resolved in**: v4.1.1 release preparation on 2026-08-28
+
+#### Quality-Gate Gaps
+
+##### QG-1 - Local full CI profile was not completed in this session
+
+- **Source phase**: Phase 5 - Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
+- **Evidence at deferral**: `python -m pytest tests/skills -q` passed 952 tests. `python scripts/ci/run.py --profile fast` failed `validate_unicode_safety` on untracked `docs/releases/v4/v4.1/comparisons/v4.1.2-comparison-ponytail.md`, which is outside this plan and is not staged. The hour-scale local `--profile full` run was not completed in that session.
+- **Resolution**: Pull request [#137](https://github.com/bendourthe/Nexus-Hub/pull/137) merged to `develop` at `0787ebf9` with every required check green. Post-merge workflow run `33224364101` succeeded (`smoke` + `provenance`). Remote CI is the complete-suite proof named in the original next action.
+- **Resolved in**: v4.1.1 release preparation on 2026-08-28
+
+> Finalized on 2026-08-28 at the 4.1.1 bump. Remaining DF-1 stays on this ledger for the next `/plan` ingest. Do not absorb v4.1.0 DF-1, WN-1, or QG-1.
