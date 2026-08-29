@@ -288,9 +288,27 @@ html[data-theme="light"] .btn--primary:hover { color: #fffdf8; }
   font-size: 14.5px;
 }
 .callout p { margin: 0; }
+.verify-callout { margin-top: var(--sp-4); border-left-color: var(--green); }
+.verify-callout > span { color: var(--green); font-weight: 700; }
+.verify-callout .cmd-cell { vertical-align: middle; }
+
+/* ---------- Home loop strip ---------- */
+.loop-strip { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: var(--sp-4) 0 var(--sp-3); }
+.loop-step {
+  display: inline-flex; align-items: baseline; gap: 8px;
+  padding: 7px 14px; border: 1px solid var(--border); border-radius: 999px;
+  background: var(--surface); color: var(--ink); font-size: 13px;
+  transition: border-color .2s var(--ease), transform .2s var(--ease);
+}
+.loop-step:hover { border-color: var(--accent); color: var(--ink); transform: translateY(-1px); }
+.loop-step code { background: transparent; border: 0; padding: 0; color: var(--teal-soft); font-weight: 700; }
+.loop-step span { color: var(--ink-faint); }
+.loop-arrow { color: var(--ink-faint); flex: none; }
+.btn--gh svg { width: 16px; height: 16px; flex: none; }
 
 /* ---------- Comparison table ---------- */
-.nhg-compare { width: 100%; border-collapse: collapse; font-size: 14.5px; margin: var(--sp-3) 0; }
+.table-scroll { overflow-x: auto; margin: var(--sp-3) 0; }
+.nhg-compare { width: 100%; min-width: 560px; border-collapse: collapse; font-size: 14.5px; }
 .nhg-compare th, .nhg-compare td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
 .nhg-compare th { color: var(--teal-soft); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
 .nhg-compare td:first-child { color: var(--ink); font-weight: 600; white-space: nowrap; }
@@ -472,9 +490,90 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
           </div>
         </div>
         <div id="nhg-copy-status" class="visually-hidden" aria-live="polite"></div>
+        <div class="callout verify-callout">
+          <span aria-hidden="true">&#10003;</span>
+          <div>
+            <p>First verify: run <span class="cmd-cell"><code data-copy="/skills list">/skills list</code></span> or <span class="cmd-cell"><code data-copy="/commands">/commands</code></span> &mdash; you should see the command cheatsheet. Then restart the assistant so it picks up hooks and rules.</p>
+          </div>
+        </div>
+        <details>
+          <summary>Need another option?</summary>
+          <p>No curl? Use <code>wget -qO- https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash</code>. Scope one repo with <code>--workspace</code>, limit assistants with <code>--platforms</code>, or skip the conflict prompt with <code>--yes</code>. Refresh later with <code>nexus-hub upgrade</code>. Advanced flags and what lands in <code>~/.nexus-hub/</code> versus per-tool config are on <a href="#cheatsheets" data-go="cheatsheets">Cheatsheets</a>.</p>
+        </details>
       </section>
 
-      <div class="wip-note" data-wip="home">Home is being rebuilt (plan v4.2.2, Phase 2). The sections above are live; the rest of the page lands with Phase 2.</div>
+      <section class="section reveal">
+        <span class="eyebrow">What it adds</span>
+        <h2>Same model. Different working method.</h2>
+        <p>These claims map to repository artifacts: the installer, <code>catalog/skills/</code>, <code>catalog/commands/</code>, <code>catalog/hooks/</code>, and the GO / NO-GO gates inside <code>/plan</code> and <code>/implement</code>. They are not a claim that one model is smarter than another.</p>
+        <div class="table-scroll"><table class="nhg-compare">
+          <thead>
+            <tr><th>Dimension</th><th>Raw assistant</th><th>With Nexus-Hub</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Portability</td>
+              <td>Built-in commands stay on that host.</td>
+              <td>One catalog is installed into each detected assistant's own config.</td>
+            </tr>
+            <tr>
+              <td>Reusable procedures</td>
+              <td>You re-explain the job every session.</td>
+              <td>Skills load on demand; slash commands start the same workflow each time.</td>
+            </tr>
+            <tr>
+              <td>Deterministic enforcement</td>
+              <td>Safety depends on the model remembering to be careful.</td>
+              <td>Hooks block secrets and dangerous git regardless of the prompt.</td>
+            </tr>
+            <tr>
+              <td>Durable artifacts</td>
+              <td>The useful output lives in a chat transcript.</td>
+              <td>Analyses, reviews, plans, and commits land on disk and chain to the next command.</td>
+            </tr>
+            <tr>
+              <td>Team consistency</td>
+              <td>Each engineer invents a prompt.</td>
+              <td>The team shares one governed loop with written definition-of-done and GO / NO-GO gates.</td>
+            </tr>
+          </tbody>
+        </table></div>
+        <details>
+          <summary>Commands, skills, hooks, agents, and rules</summary>
+          <p>Commands are slash entry points. Skills are procedures the agent loads when the task matches. Hooks are scripts that fire on tool events. Agents are specialist reviewer personas. Rules are per-language style and security standards. Details stay in <a href="#cheatsheets" data-go="cheatsheets">Cheatsheets</a>.</p>
+        </details>
+      </section>
+
+      <section class="section reveal">
+        <span class="eyebrow">The loop</span>
+        <h2>One governed loop, from first look to shipped</h2>
+        <p>Every project runs the same sequence. Each command reads the artifact the previous one wrote, so nothing lives only in chat scrollback.</p>
+        <div class="loop-strip" role="list" aria-label="The core command loop">
+          <a role="listitem" class="loop-step" href="#cheatsheets/explore" data-go="cheatsheets/explore"><code>/describe</code><span>map it</span></a>
+          <span class="loop-arrow" aria-hidden="true">&rarr;</span>
+          <a role="listitem" class="loop-step" href="#cheatsheets/explore" data-go="cheatsheets/explore"><code>/review</code><span>judge it</span></a>
+          <span class="loop-arrow" aria-hidden="true">&rarr;</span>
+          <a role="listitem" class="loop-step" href="#cheatsheets/plan" data-go="cheatsheets/plan"><code>/plan</code><span>decompose it</span></a>
+          <span class="loop-arrow" aria-hidden="true">&rarr;</span>
+          <a role="listitem" class="loop-step" href="#cheatsheets/build" data-go="cheatsheets/build"><code>/implement</code><span>build it</span></a>
+          <span class="loop-arrow" aria-hidden="true">&rarr;</span>
+          <a role="listitem" class="loop-step" href="#cheatsheets/harden" data-go="cheatsheets/harden"><code>/test</code><span>harden it</span></a>
+          <span class="loop-arrow" aria-hidden="true">&rarr;</span>
+          <a role="listitem" class="loop-step" href="#cheatsheets/ship" data-go="cheatsheets/ship"><code>/update</code><span>ship it</span></a>
+        </div>
+        <p class="lead">Training walks this exact loop on a real, deliberately buggy app &mdash; with a simulated terminal you can run yourself.</p>
+      </section>
+
+      <section class="section reveal">
+        <span class="eyebrow">Next</span>
+        <h2>Learn it, then run it on your repo</h2>
+        <p>Training teaches the loop on the Glow Booth example. Download <a href="glow-booth.zip" download>glow-booth.zip</a> when you want the example on disk; GitHub holds the catalog itself.</p>
+        <div class="btn-row">
+          <a class="btn btn--primary" href="#training" data-go="training">Open Training</a>
+          <a class="btn" href="#cheatsheets" data-go="cheatsheets">Open Cheatsheets</a>
+          <a class="btn btn--gh" href="https://github.com/bendourthe/Nexus-Hub" target="_blank" rel="noopener"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.53-.49-.36-.92-.88-1.16-.88-1.16-.72-.49.05-.48.05-.48.8.06 1.22.82 1.22.82.71 1.21 1.87.86 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.65 7.65 0 0 1 2-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg> GitHub</a>
+        </div>
+      </section>
 
       <div class="pagenav" data-pagenav></div>
       <div class="progress-dots" data-progress></div>

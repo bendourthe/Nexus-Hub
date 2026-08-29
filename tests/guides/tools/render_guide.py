@@ -127,6 +127,17 @@ def main(argv: list[str] | None = None) -> int:
                     for page_id in args.pages:
                         page.goto(f"{url}#{page_id}{args.extra_hash}")
                         page.wait_for_timeout(900)  # settle reveals/typewriters
+                        # Full-page shots never scroll, so scroll-gated reveals
+                        # would render transparent; force their end state.
+                        page.evaluate(
+                            "document.querySelectorAll('.reveal:not(.in)')"
+                            ".forEach(function (el) { el.classList.add('in'); });"
+                            # Sticky + backdrop-filter headers stitch as a dark
+                            # band in full-page shots; pin the header in flow.
+                            "var h = document.querySelector('.site-header');"
+                            "if (h) { h.style.position = 'static'; }"
+                        )
+                        page.wait_for_timeout(600)
                         dest = out_dir / f"{page_id}-{theme}-{width}{suffix}.png"
                         _atomic_screenshot(page, dest)
                         written.append(dest)

@@ -516,7 +516,6 @@ def test_onboarding_has_no_hardcoded_catalog_counts(parsed: GuideParser) -> None
     assert not ONBOARDING_STALE.search(home), home[:400]
 
 
-@pytest.mark.xfail(strict=True, reason="Phase 2 adds copyable verify-command cells")
 def test_home_verify_commands_are_copy_cells(parsed: GuideParser) -> None:
     payloads = {p for p, _v in parsed.home_data_copy}
     assert "/skills list" in payloads
