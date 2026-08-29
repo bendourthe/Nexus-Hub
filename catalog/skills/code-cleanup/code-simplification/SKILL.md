@@ -18,7 +18,7 @@ Use when:
 - Dead code exists but has never been removed
 - The architecture was designed for scale that never arrived
 
-**When NOT to use:** When simplification would remove future-needed flexibility (verify this is actually needed, not hypothetical). For language-specific style issues, use `python-cleanup`, `javascript-cleanup`, etc. For dead code detection at scale, use `dead-code-eliminator`.
+**When NOT to use:** When simplification would remove future-needed flexibility (verify this is actually needed, not hypothetical). For language-specific style issues, use `python-cleanup`, `javascript-cleanup`, etc. For dead code detection at scale, use `dead-code-eliminator`. For pre-write construction (should this exist, stdlib, native, one line), use `minimal-construction`; this skill remains post-write behavior-preserving collapse.
 
 ## Complexity Assessment First
 
@@ -170,6 +170,7 @@ Abstraction for 2 callers is premature. Abstraction that is harder to understand
 ## Related Skills
 
 - [[dead-code-eliminator]] -- systematic dead code removal at codebase scale
+- [[minimal-construction]] -- pre-write ladder (should this exist, stdlib, native, one line); this skill does not restate that ladder
 - [[refactoring-expert]] -- behavior-preserving refactoring using Fowler's catalog
 - [[python-cleanup]] -- Python-specific style and pattern cleanup
 - [[javascript-cleanup]] -- JavaScript/TypeScript-specific cleanup

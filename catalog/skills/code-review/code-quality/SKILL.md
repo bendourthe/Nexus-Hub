@@ -21,6 +21,8 @@ Use this skill when you need to:
 - Evaluate SOLID principle adherence
 - Identify dead code removal candidates
 
+**When NOT to use:** Over-engineering delete-lists belong to `over-engineering-review` as an optional lens. Do not copy its tags. This skill keeps SOLID, maintainability, and complexity scoring.
+
 **Trigger phrases**: "code quality", "code review", "technical debt", "code smells", "maintainability", "complexity", "best practices", "clean code", "SOLID", "dead code"
 
 ## What This Skill Does
@@ -258,6 +260,7 @@ When proposing fixes, follow these 7 heuristics:
 - [[final-report]] -- Consolidated report (Phase 6)
 - [[code-smell-detector]] -- deeper Fowler-catalog smell detection beyond the quick smell table here
 - [[refactoring-expert]] -- behavior-preserving transforms that resolve the SOLID violations this skill flags
+- [[over-engineering-review]] -- optional tagged delete-list for extra machinery; not a replacement for SOLID or smells
 
 ---
 

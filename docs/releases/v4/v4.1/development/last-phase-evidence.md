@@ -1,10 +1,10 @@
-# Last-Phase Evidence - v4.1.1 Local Security-Audit Refinement
+# Last-Phase Evidence - v4.1.2 Minimal Construction Discipline
 
 **Date**: 2026-08-28
-**Branch**: `feat/v4.1.1-adoption-openworker-security-refinement`
-**Phase starting commit**: `a94bef54`
-**Comparison base**: `origin/develop` (`7ecfe3eb`)
-**Plan**: `docs/releases/v4/v4.1/plans/v4.1.1-adoption-openworker-security-refinement.md`
+**Branch**: `feat/v4.1.2-ponytail-planning`
+**Phase starting commit**: `4bb4e4ae`
+**Comparison base**: `origin/develop` (planning commit `9081e65d` is already on the open integration pull request)
+**Plan**: `docs/releases/v4/v4.1/plans/v4.1.2-adoption-minimal-construction.md`
 
 ## 1. Architecture refactor
 
@@ -18,30 +18,34 @@ Commands:
 >
 > `RefgraphExit=0`
 
-`project-refactor` and `docs-layout-refactor` ran in propose-only mode over files this plan touched. Classification:
+`project-refactor` has no bundled detector scripts. Propose-only classification of files this plan added, by glob of the two new skill trees and `git diff --stat origin/develop...HEAD`:
 
-- Stay: schema-v2 closure gate and recipes under `catalog/skills/code-review/security-review/`; owner recipes on existing skills; `agent-presets` evals; `catalog/agents/security-reviewer.md`; inert fixtures under `tests/fixtures/security-audit/`; e2e and installer tests; `guides/reference/SECURITY_AUDIT.md`; version-bound contract, histories, known-gaps, cleanup report, final audit, and this evidence file under `docs/releases/v4/v4.1/`.
+- Stay: the 12 substantive instruction templates plus lockstep parity and `tests/validators/test_construction_discipline_rule.py`; `catalog/skills/code-cleanup/minimal-construction/` (`SKILL.md`, `evals/trigger-cases.json`, `evals/evals.json`, `references/construction-debt.md`); `catalog/skills/code-review/over-engineering-review/` (`SKILL.md`, `evals/trigger-cases.json`); handoffs on `code-simplification`, `code-quality`, and `multi-agent-code-review`; registries; the version-bound contract, comparison, plan, histories, known-gaps, cleanup report, and this evidence file under `docs/releases/v4/v4.1/`.
 - Move / Archive / Prune: none proposed.
-- Empty directories introduced by this plan: none.
-- Duplicate content: none. The comparison names OpenWorker; distributed artifacts do not.
-- Untracked `docs/releases/v4/v4.1/comparisons/v4.1.2-comparison-ponytail.md` is outside this plan and was not staged.
+- Empty directories introduced by this plan: none. The two skill trees contain only the files listed above.
+- Duplicate content: none. The comparison and plan name the source repository; distributed skills and templates do not.
+- No top-level installer-copied `scripts/*.py` was added. `scripts/check_base_template_parity.py` already existed; this plan only added `Construction Discipline` to its heading lists.
 
-Ownership is recorded in `docs/releases/v4/v4.1/development/v4.1.1-security-audit-final-audit.md`. No confirmation gate activated because nothing is moved or deleted.
+Cluster ownership matches `docs/releases/v4/v4.1/development/v4.1.2-construction-discipline-contract.md`: one owner per concern (pre-write size, post-write collapse, dead code, delete-list, plan scope, security/a11y, proving commands, talk, version ledgers, SQALE, in-code ceilings). No confirmation gate activated because nothing is moved or deleted.
 
 ## 2. Known-gaps reconciliation
 
+Glob of `docs/**/known-gaps.md` found 30 unique files (canonical `docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/known-gaps.md` plus archive copies). File-level Status `in-progress` is only `docs/releases/v4/v4.1/known-gaps.md`. `docs/releases/v4/v4.0/known-gaps.md` is finalized. `docs/releases/v3/v3.20/known-gaps.md` and `docs/releases/v3/v3.21/known-gaps.md` are finalized. Remaining v3 and archive ledgers are historical or complete; none was rewritten.
+
 Evidence:
 
-> `docs/releases/v4/v4.1/known-gaps.md` `## v4.1.1`: Open DF=1, QG=0, NI/BG/WN/MT=0. Resolved DF=1, QG=1.
+> `docs/releases/v4/v4.1/known-gaps.md` `## v4.1.2`: Open WN=1, QG=1, NI/DF/BG/MT=0.
 
-DF-1 remains: live optional scanners were not executed on this host. DF-2 is resolved by Ubuntu and macOS `installer-smoke` on pull request #137. QG-1 is resolved by green required checks on that pull request plus post-merge run `33224364101`.
+This plan produced:
 
-Other ledgers:
+- WN-1: GitHub repository description still says 326 skills while README and the catalog say 328.
+- QG-1: hour-scale local `--profile full` was started and had not finished before this evidence file was written.
 
-- `docs/releases/v4/v4.1/known-gaps.md` `## v4.1.0` remains in-progress on the same file. Its DF-1, WN-1, and QG-1 were not absorbed.
-- `docs/releases/v4/v4.0/known-gaps.md` Status is finalized. Its DF-1 (report-artifact upload) was declined for reopen in the pipeline comparison below and stays on that ledger.
-- `docs/releases/v3/v3.20/known-gaps.md` and `docs/releases/v3/v3.21/known-gaps.md` Status is finalized. Their deferred items stay on those ledgers.
-- Remaining `docs/releases/v3/**/known-gaps.md` and archive ledgers are historical or finalized; none was rewritten.
+Not absorbed:
+
+- v4.1.0 DF-1, WN-1, QG-1.
+- v4.1.1 DF-1 (optional scanners not executed on this host).
+- v4.0 DF-1 (report-artifact upload), declined again in the pipeline comparison below.
 
 ## 3. Living docs architecture
 
@@ -49,7 +53,7 @@ Scan:
 
 > `docs/handbooks/` authored files = 1 (`README.md`); `docs/handbooks/html/.gitkeep` and `docs/handbooks/markdown/.gitkeep` only; catalog atlas/companion HTML = 0
 
-The living handbook root remains a scaffold. Release-bound plan, comparison, history, contract, cleanup, known-gap, final audit, and this evidence file remain under `docs/releases/v4/v4.1/`. The user guide lives at `guides/reference/SECURITY_AUDIT.md`, matching other reference guides. No `docs/testing/` or `docs/validation/` tree was invented.
+The living handbook root remains a scaffold. Release-bound plan, comparison, contract, history, known-gaps, cleanup report, and this evidence file remain under `docs/releases/v4/v4.1/`. `docs/decisions/` was not used for this adoption; the comparison and plan are the attribution record. `docs/DEVLOG.md` already has a v4.1.2 index row. `docs/todos.md` was not invented into a testing or validation tree. No `docs/testing/` or `docs/validation/` path exists.
 
 ## 4. Git-tree hygiene
 
@@ -60,20 +64,27 @@ Command:
 Quoted result:
 
 > Branch hygiene (merged into origin/develop)
->   3 merged branch(es) are cleanup candidates:
+>   6 merged branch(es) are cleanup candidates:
 >     - origin/backmerge/v4.0.0-release
 >     - origin/backmerge/v4.1.0-release
+>     - origin/backmerge/v4.1.1-release
 >     - origin/feat/v4.1.0-release
->   (11 branch(es) with an open PR were excluded)
+>     - origin/feat/v4.1.1-adoption-openworker-security-refinement
+>     - origin/feat/v4.1.1-release
+>   (12 branch(es) with an open PR were excluded)
 >   1 branch(es) survive a CLOSED, unmerged PR:
 >     - origin/backmerge/v3.20.0
 >   delete_branch_on_merge does NOT cover these. Review and delete by hand.
 >   Reporting only -- nothing was deleted.
 > Repository settings
 >   OK: delete_branch_on_merge is enabled
->   OK: repository description agrees with README.md
+>   NOTE: the repository description disagrees with README.md:
+>     - skills: description says 326, README.md declares 328
+>         The description is not a version-carrying surface, so
+>         check_version_sync.py cannot see it and it drifts silently
+>         across releases. Update it by hand.
 
-Working tree keeps untracked `docs/releases/v4/v4.1/comparisons/v4.1.2-comparison-ponytail.md` unstaged. No remote cleanup, settings edit, push, pull request, tag, or release was performed.
+No remote cleanup, settings edit, push, tag, or release was performed. The description drift is WN-1. Existing pull request [#141](https://github.com/bendourthe/Nexus-Hub/pull/141) already targets `develop` from this branch; it is not a second publication path.
 
 ## 5. CI/CD coverage
 
@@ -89,9 +100,11 @@ Coverage inventory:
 >
 > `python scripts/check_installer_parity.py` -> `installer parity: PASS`
 >
-> `python scripts/check_version_sync.py` -> canonical `4.1.0`
+> `python scripts/check_version_sync.py` -> canonical `4.1.1`
 
-Provider detected: GitHub Actions (`.github/workflows/*.yml`). No pipeline file change is proposed. Silence is not approval; none is requested. Real scanner execution must not be added to CI.
+Provider detected: GitHub Actions (`.github/workflows/*.yml`). `git diff --name-only origin/develop...HEAD -- .github catalog/mcp-configs scripts/installer.sh scripts/installer.ps1 catalog/hooks/settings.json` is empty. No pipeline file change is proposed. Silence is not approval; none is requested.
+
+The two new skills live under `catalog/skills/` and are copied recursively by both installers. No new top-level `scripts/*.py` needs an installer copy block. `check_base_template_parity.py` was already installer-independent (repo-internal guard).
 
 Existing-pipeline comparison (canonical fields from `catalog/skills/infrastructure/cicd-architect/references/repository-native-profiles.md`):
 
@@ -119,67 +132,70 @@ Existing-pipeline comparison (canonical fields from `catalog/skills/infrastructu
 | 20 | Reports published | DECLINED (inherited) | machine-readable artifacts are not uploaded. Recorded as v4.0 DF-1; not reopened here |
 | 21 | Deployment boundary | PASS | this repository has no application deploy job; `release.yml` is publication-readiness only |
 | 22 | Failure recovery | PASS | `implement-phase` 9F and `cicd-architect` section 6 require local reproduction before re-push |
-| 23 | External settings | PASS | `docs/releases/v4/v4.0/development/github-ci-settings-runbook.md`; `check_release_preconditions.py --repo-settings` reports OK; nothing mutated |
+| 23 | External settings | PASS with note | `delete_branch_on_merge` is enabled. Description skill-count drift is v4.1.2 WN-1, not a pipeline edit. Nothing mutated. |
 
-Comparison conclusion: PASS for this plan. The only canonical difference is inherited v4.0 DF-1 (artifact upload). This plan adds no workflow, dependency, scanner job, or installer copy line.
+Comparison conclusion: PASS for this plan. The only canonical pipeline difference is inherited v4.0 DF-1 (artifact upload). This plan adds no workflow, MCP row, installer copy line, or hook registration.
 
 ## 6. Goal-vs-codebase review
 
-Plan Goal restated: make Nexus-Hub's local security-audit workflow prove which deterministic scanners ran, separate remediation from verification, and require a same-detector post-fix re-scan, without OpenWorker, MCP, hosted scanning, or auto-install.
+Plan Goal restated: give every Nexus-Hub-backed agent a pre-write construction ladder (skip, reuse, stdlib, native, installed dependency, one line, then minimum) without vendoring Ponytail, adding an MCP, injecting a full ruleset through hooks, or weakening security, verification, or communication owners.
 
-Goals First definition of done, inspected independently:
+Goals First definition of done, inspected independently of phase checkboxes:
 
 | Observable | Artifact | Verdict |
 |---|---|---|
-| Schema-v1 remains valid; schema-v2 adds fail-closed receipts | `closure-gate.py`, `references/closure-gate-review-record.md`, `tests/skills/test_closure_gate.py` | PASS |
-| Every applicable scanner has one of five receipt states; none disappears silently | schema-v2 `scanner_inventory` + `scanner_receipts`; fixture `applicable-scanner-omitted` | PASS |
-| Corrected finding links equivalent before/after receipts | `corrected_scanner_findings_without_equivalent_rescan` and `mismatched_detector_config_or_scope` | PASS |
-| Patch-producing context cannot be the only verifier | `fixer_is_sole_verifier`; `security-reviewer.md` remains without Write/Edit | PASS |
-| Ordered `security-audit` preset aligned with `data/workflows.json` | `agent-presets/SKILL.md`, `data/workflows.json` id `security-audit` | PASS |
-| Optional local scanner recipes; no auto-install or hosted fallback | `local-scanner-recipes.md` and owning skills | PASS |
-| Cloud posture stays read-only | `cloud-security-posture-detection` recipes; guide | PASS |
+| All 12 substantive templates carry identical `Construction Discipline` | `tests/validators/test_construction_discipline_rule.py` `_SUBSTANTIVE` (5 lockstep + 7 unguarded); 32 tests passed; heading present on each listed file | PASS |
+| Include-only shims do not duplicate the heading | `_INCLUDE_ONLY` four files; grep of `*antigravity*` and `base-gemini-cli.md` found no heading | PASS |
+| Lockstep parity fails if the section drifts | `Construction Discipline` in `REQUIRED_HEADINGS` and `INVARIANT_SECTIONS`; `python scripts/check_base_template_parity.py` exit 0 | PASS |
+| `minimal-construction` registered with intensity as a skill argument | `catalog/skills/code-cleanup/minimal-construction/SKILL.md`; `data/skills.json`, `data/SKILL_INDEX.md`, `data/marketplace.json`, `data/bundles.json`; no env/config key in distributed trees | PASS |
+| Ownership table names existing owners | skill body plus contract table; `code-simplification` When NOT points here and does not copy the ladder | PASS |
+| `over-engineering-review` emits tagged delete-list and does not apply fixes | `catalog/skills/code-review/over-engineering-review/SKILL.md`; optional lens only on `code-quality` and `multi-agent-code-review` | PASS |
+| `construction-debt:` harvest is generic and grep-only | `references/construction-debt.md`; no top-level `scripts/*.py` | PASS |
+| Evals reward native/stdlib and refuse safety cuts | `evals/evals.json` ids `eval-native-date-control`, `eval-cache-stdlib`, `eval-refused-safety-cut` | PASS |
+| No MCP, no `settings.json` mutation, no new installer-copied script | `git diff` empty for `catalog/mcp-configs`, installers, hooks settings, `.github` | PASS |
+| No upstream product name in distributed skills or templates | grep of `catalog/skills` and `templates` for `ponytail` / `PONYTAIL`: no matches. Name remains in the comparison and this plan | PASS |
+| `verification-before-completion` not weakened | `git diff origin/develop...HEAD -- catalog/skills/testing/verification-before-completion catalog/skills/security catalog/hooks` empty | PASS |
 
-Gaps that remain visible: DF-1, DF-2, QG-1, and unpublished integration (this file does not claim a green pull request).
+Gaps that remain visible: WN-1, QG-1, and unpublished integration (this file does not claim a green pull request on the implementation commits).
 
 Verdict: PASS for the local catalog contract; integration, merge, and release are not proven here.
 
 ## 7. Human/manual testing suggestions
 
-- Run the `security-audit` preset on a repository with no optional scanners and confirm every applicable receipt is `UNAVAILABLE` or `NOT_APPLICABLE` and coverage is `degraded`.
-- Run it on a repository that has Semgrep and gitleaks installed and confirm gitleaks artifacts contain `[REDACTED]` rather than secret values.
-- After a user-approved patch, confirm the after receipt uses the same scanner id, config fingerprint, and target fingerprint as the before receipt.
-- Confirm cloud posture does not apply or deploy.
-- Confirm a one-CVE question does not activate the full preset.
-- On a POSIX host, dry-run `scripts/installer.sh` and confirm `security-review/scripts/`, `security-review/references/local-scanner-recipes.md`, and `agent-presets/evals/` land under the flattened skills tree.
+- After install, start a coding task that could add a date-picker or cache package and confirm the agent names a native control or stdlib option before adding a dependency.
+- Invoke `over-engineering-review` on a known-bloated diff and confirm it emits tagged lines or `Lean already. Ship.` without applying edits.
+- Run a security-review (or a focused trust-boundary check) on a change that omits input validation and confirm the missing check is still reported, not treated as construction debt.
+- Confirm lite/full/ultra is accepted only as a skill argument, not as an env var or config file.
+- On a POSIX host, dry-run `scripts/installer.sh` and confirm the two new skill trees land under the flattened `skills/<name>/` layout with no extra copy line.
 
 ## 8. Full-suite testing and stabilization
 
 Quoted local evidence:
 
-> `python -m pytest tests/skills/test_closure_gate.py tests/skills/test_security_audit_contract_e2e.py tests/skills/test_security_audit_workflow.py tests/skills/test_security_scanner_contract.py tests/installer/test_install_selection.py -q` -> `147 passed in 8.35s`
+> `python scripts/ci/run.py --profile fast` -> `PASS: 12 passed, 0 failed, 0 skipped, 0 advisory in 114.3s`
 >
-> `python -m pytest tests/skills -q` -> `952 passed` (Phase 4)
+> `python scripts/check_base_template_parity.py` -> 5 of 5 lockstep templates present, exit 0
 >
-> `python scripts/validate_skills.py --path catalog/skills/code-review/security-review --allow-existing` -> `PASS (0 errors, 6 warnings)`
+> `python -m pytest tests/validators/test_construction_discipline_rule.py tests/validators/test_check_base_template_parity.py -q` -> `32 passed in 4.08s`
 >
 > `python scripts/validate_skills.py --bundles-only` -> `PASS (0 errors, 64 warnings)`
 >
-> `python scripts/ci/run.py --profile fast --only catalog-parse,workflows,version` -> `PASS: 7 passed`
+> `python scripts/run_trigger_evals.py --gate` -> `RESULT: PASS (0 un-allowlisted collisions, 37 allowlisted; 0 routing failures across 88 skill(s) with cases)` (328 skills scanned)
 >
-> `python scripts/validate_no_personal_paths.py` -> exit 0
+> `python scripts/check_installer_parity.py` -> `installer parity: PASS`
 >
-> `python scripts/run_trigger_evals.py --gate` -> `0 routing failures` (Phase 4)
+> `python scripts/check_required_check_coverage.py` -> `Required-check coverage: OK -- 10 declared context(s)`
 >
-> `python scripts/ci/run.py --profile fast` (all groups) -> failed `validate_unicode_safety` on untracked `docs/releases/v4/v4.1/comparisons/v4.1.2-comparison-ponytail.md`, which is outside this plan and is not staged
->
-> Hour-scale `python -m pytest tests -q` / `--profile full` was not completed in this last phase (QG-1)
+> `python scripts/check_version_sync.py` -> canonical `4.1.1` (bump belongs to `/update release`)
 >
 > `python scripts/check_model_prompting_freshness.py --advisory`
 >
-> `[profile-freshness] UNKNOWN: no live roster supplied, so drift cannot be determined.` Recorded roster (4, last verified 2026-07-27): `claude-fable-5`, `claude-haiku-4-5-20251001`, `claude-opus-5`, `claude-sonnet-5`
+> `[profile-freshness] UNKNOWN: no live roster supplied, so drift cannot be determined.` Recorded roster (4, last verified 2026-07-27): `claude-fable-5`, `claude-haiku-4-5-20251001`, `claude-opus-5`, `claude-sonnet-5`. This is v4.1.0 DF-1, not absorbed.
+>
+> Hour-scale `python scripts/ci/run.py --profile full` was started on this host and had not produced a final profile report when this evidence was written (QG-1)
 
-No live scanner CLI was invoked. `.gitignore` already ignores `.coverage`; 0 patterns added.
+`.gitignore` already ignores `.coverage`; 0 patterns added.
 
 ## 9. Publication and integration
 
-Performed. Feature branch `feat/v4.1.1-adoption-openworker-security-refinement` was pushed once and opened as pull request [#137](https://github.com/bendourthe/Nexus-Hub/pull/137). Required checks were green. The pull request merged into `develop` at `0787ebf9` (2026-08-29T00:43:17Z). Post-merge workflow run `33224364101` succeeded (`smoke` + `provenance`). `/update release` for v4.1.1 proceeds from that green merged result.
+Performed. Feature branch `feat/v4.1.2-ponytail-planning` was pushed once (`9081e65d..2a575519`) and updated pull request [#141](https://github.com/bendourthe/Nexus-Hub/pull/141). Required checks on the merge result were green: `validate`, `shellcheck`, `ci-required`, `colocation`, and `verify`. The pull request merged into `develop` at `34d8272b` (2026-08-29T04:59:00Z). Post-merge workflow run `33235080095` succeeded (`smoke` + `provenance` only; it did not rerun the complete suite). `/update release` for v4.1.2 proceeds from that green merged result.

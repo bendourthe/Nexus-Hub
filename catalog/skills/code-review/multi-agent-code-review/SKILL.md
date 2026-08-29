@@ -25,6 +25,7 @@ Use when:
 - A whole-codebase health review - use the `/review full` orchestrator.
 - A security-only deep dive - use `/review security` (remediation loop) or `/review pentest` (parallel security hunters).
 - A trivial one-file glance where fanning out N agents is wasteful - read it directly.
+- An over-engineering delete-list - use [[over-engineering-review]] as an optional lens, not a mandatory extra report in this pipeline.
 
 ## Modes
 
@@ -158,3 +159,4 @@ See [[loop-engineering]] for the broader loop-control discipline this round-hist
 - `/review full` - whole-codebase deep review (8-phase); use that for breadth, this for a specific diff.
 - `/review pentest` - parallel security hunters with the same confidence-gated synthesis; security-only.
 - [[tool-design]] - defines the agent-native review lens the `agent-native-reviewer` persona applies.
+- [[over-engineering-review]] - optional tagged delete-list for extra machinery; not an always-on persona in this pipeline.

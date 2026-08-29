@@ -64,7 +64,21 @@ The optional `raw_memory/` directory exists only inside a user's eval workspace 
 
 ### Result
 
-No documentation move, duplicate, scratch artifact, or lifespan contradiction was introduced by Phase 4. The phase adds only its canonical history record and appends this audit.
+No documentation move, duplicate, scratch artifact, or lifespan contradiction was introduced by Phase 4.
+
+## v4.1.2 Phase 5 - Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
+
+**Date**: 2026-08-28
+**Mode**: audit only; no files moved
+**Plan**: `docs/releases/v4/v4.1/plans/v4.1.2-adoption-minimal-construction.md`
+
+### Layout check
+
+`python catalog/skills/code-cleanup/docs-layout-refactor/scripts/audit-docs.py inventory --root docs` exited 0. `refgraph --root docs` exited 0. Phase 5 replaces `docs/releases/v4/v4.1/development/last-phase-evidence.md` with v4.1.2 content (v4.1.1 evidence remains in git history), appends this audit plus the Phase 5 session history, and records WN-1 / QG-1 on the v4.1.2 known-gaps subsection. No move, deletion, new living-docs root, MCP row, workflow file, or installer copy line is proposed.
+
+### Result
+
+No duplicate, orphaned, scratch, or misplaced documentation was created by v4.1.2 Phase 5. No file moved, and no cleanup change was approved or applied. The phase adds only its canonical history record and appends this audit.
 
 ## Phase 5 - Oxlint Vendor Decision
 
@@ -174,3 +188,66 @@ No duplicate, orphaned, scratch, or misplaced documentation was created by v4.1.
 ### Result
 
 No duplicate, orphaned, scratch, or misplaced documentation was created by v4.1.1 Phase 5. No file moved, and no cleanup change was approved or applied.
+
+## v4.1.2 Phase 1 - Construction-Discipline Contract and Always-On Templates
+
+**Date**: 2026-08-28
+**Mode**: audit only; no files moved
+**Plan**: `docs/releases/v4/v4.1/plans/v4.1.2-adoption-minimal-construction.md`
+
+### Layout check
+
+Phase 1 adds the version-bound contract at `docs/releases/v4/v4.1/development/v4.1.2-construction-discipline-contract.md` and this history entry under the same release tree. Instruction-template edits live in `templates/ai-instructions/`, which is the existing always-loaded surface, not a new docs root. No scratch document, move, or installer copy line is proposed.
+
+### New documentation artifacts
+
+| Path | Category | Disposition |
+|---|---|---|
+| `docs/releases/v4/v4.1/development/v4.1.2-construction-discipline-contract.md` | Active release contract | Keep; wording source for the always-on section. |
+| `docs/releases/v4/v4.1/development/history/2026-08-28_v4.1.2-adoption-minimal-construction-phase-1-construction-discipline.md` | Active phase evidence | Keep under the current version's development history. |
+
+### Result
+
+No duplicate, orphaned, scratch, or misplaced documentation was created by v4.1.2 Phase 1. No file moved, and no cleanup change was approved or applied.
+
+## v4.1.2 Phase 2 - minimal-construction Skill
+
+**Date**: 2026-08-28
+**Mode**: audit only; no files moved
+**Plan**: `docs/releases/v4/v4.1/plans/v4.1.2-adoption-minimal-construction.md`
+
+### Layout check
+
+Phase 2 adds one catalog skill tree at `catalog/skills/code-cleanup/minimal-construction/` and one release-scoped session history. The trigger fixture is referenced from the skill body. Recursive installers copy the skill tree with no new copy line.
+
+### Result
+
+No documentation move, duplicate, scratch artifact, or release-tree contradiction was introduced by Phase 2.
+
+## v4.1.2 Phase 3 - over-engineering-review Skill
+
+**Date**: 2026-08-28
+**Mode**: audit only; no files moved
+**Plan**: `docs/releases/v4/v4.1/plans/v4.1.2-adoption-minimal-construction.md`
+
+### Layout check
+
+Phase 3 adds `catalog/skills/code-review/over-engineering-review/` and a session-history entry. Recursive installers copy the skill tree. No new living-docs root.
+
+### Result
+
+No documentation move, duplicate, scratch artifact, or release-tree contradiction was introduced by Phase 3.
+
+## v4.1.2 Phase 4 - Construction-Debt Harvest and Eval Proof
+
+**Date**: 2026-08-28
+**Mode**: audit only; no files moved
+**Plan**: `docs/releases/v4/v4.1/plans/v4.1.2-adoption-minimal-construction.md`
+
+### Layout check
+
+Phase 4 adds `catalog/skills/code-cleanup/minimal-construction/references/construction-debt.md` and `evals/evals.json`, both referenced from the skill body, plus Unreleased changelog lines. No new command file and no top-level installer-copied script.
+
+### Result
+
+No documentation move, duplicate, scratch artifact, or release-tree contradiction was introduced by Phase 4.

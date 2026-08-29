@@ -85,6 +85,7 @@
         "implementation-convergence",
         "intent-based-review",
         "multi-agent-code-review",
+        "over-engineering-review",
         "performance-review",
         "plan-review",
         "receiving-code-review",
@@ -254,6 +255,7 @@
         "go-cleanup",
         "java-cleanup",
         "javascript-cleanup",
+        "minimal-construction",
         "project-refactor",
         "python-cleanup"
       ]
