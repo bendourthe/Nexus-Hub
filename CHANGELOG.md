@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **Interactive guide visual education (v4.2.1, in progress).** Phases 1-4 local: contract, opaque chrome, modern Home loop, and Foundations as four visual stations (prompt / context / harness / loop) with a Glow Booth comparison and no range slider.
+- **Interactive guide visual education (v4.2.1, in progress).** Phases 1-5 local: contract, opaque chrome, modern Home loop, Foundations as four visual stations, and Training as a Glow Booth slideshow with optional file peek. Workflows and Reference still merge in Phase 6.
 - **Interactive guide redesign (v4.2.0 substrate, unpublished).** Dual-theme shell, concise Home with install, model-versus-harness Foundations, and an eight-scene IDE training workbench remain on disk as the starting markup. Do not cut a GitHub Release of that UI; v4.2.1 is the public cut.
 
 ---

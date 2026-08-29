@@ -587,7 +587,74 @@ html.no-js .tab-panel { display: block; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
 }
 
-/* Training workbench (wb-). Scene strings are never assigned to innerHTML. */
+/* Training slideshow (ts-). Peek workbench (wb-) stays optional. Scene strings are never assigned to innerHTML. */
+.ts-deck { margin: 12px 0 8px; border: 1px solid var(--border); background: var(--surface); border-radius: 20px; overflow: hidden; }
+.ts-slide {
+  position: relative; margin: 0; padding: 18px 16px 16px;
+  background:
+    radial-gradient(circle at 12% 18%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 42%),
+    var(--bg-2);
+}
+.gb-cmd { margin: 0 0 10px; font: 700 13px var(--mono); color: var(--accent); }
+.gb-pair { display: grid; gap: 12px; }
+#nhBoothHero[data-scene="compare"] .gb-pair {
+  grid-template-columns: 1fr;
+}
+@media (min-width: 800px) {
+  #nhBoothHero[data-scene="compare"] .gb-pair { grid-template-columns: 1fr 1fr; }
+}
+.gb-booth {
+  position: relative; border: 1px solid var(--border); border-radius: 22px;
+  padding: 14px; background: var(--surface);
+}
+.gb-booth-label { margin: 0 0 8px; font: 700 12px var(--sans); letter-spacing: .04em; text-transform: uppercase; color: var(--ink-faint); }
+.gb-stage {
+  height: 13rem; border-radius: 18px; margin-bottom: 10px;
+  display: grid; place-items: center; font: 700 1.35rem var(--sans); color: var(--ink);
+  background: radial-gradient(circle at 50% 38%, color-mix(in srgb, var(--accent) 30%, transparent), var(--bg));
+  transition: background .35s ease;
+}
+.gb-stage[data-pose="dawn"] { background: radial-gradient(circle at 40% 30%, #f4c27a, var(--bg)); }
+.gb-stage[data-pose="neon"] { background: radial-gradient(circle at 62% 40%, #67e8f9, #1a1030); }
+.gb-stage[data-pose="forest"] { background: radial-gradient(circle at 50% 60%, #4ade80, var(--bg)); }
+.gb-stage[data-pose="studio"] { background: radial-gradient(circle at 50% 20%, #dce8eb, #123038); }
+.gb-stage[data-pose="spark"] { background: radial-gradient(circle at 50% 50%, #e2b336, var(--bg)); }
+html[data-theme="light"] .gb-stage[data-pose="neon"] { background: radial-gradient(circle at 62% 40%, #67e8f9, #d7e3ea); color: #07141a; }
+html[data-theme="light"] .gb-stage[data-pose="studio"] { color: #07141a; }
+.gb-strip { display: flex; gap: 6px; margin: 0 0 10px; }
+.gb-strip span {
+  flex: 1; min-height: 10px; border-radius: 999px; background: var(--border);
+}
+.gb-strip span.is-shot { background: var(--accent); }
+.gb-meter { margin: 0; font: 700 14px var(--mono); color: var(--accent); }
+.gb-stamps { display: flex; gap: 8px; margin: 8px 0 0; }
+.gb-stamp {
+  width: 16px; height: 16px; border-radius: 50%; background: var(--border); display: inline-block;
+}
+.gb-stamp.is-on { background: var(--accent); }
+.gb-ghost { margin: 8px 0 0; font-size: 13px; color: var(--ink-dim); opacity: .8; }
+.gb-ghost[hidden], .gb-sparkle[hidden], .gb-shuffle[hidden], #nhBoothRef[hidden] { display: none; }
+.gb-sparkle {
+  position: absolute; top: 2.8rem; right: 1.4rem;
+  width: 14px; height: 18px; border-radius: 50%;
+  background: #e2b336; box-shadow: 0 0 16px #e2b336;
+}
+.gb-shuffle {
+  margin: 8px 0 0; display: inline-flex; align-items: center; min-height: 32px;
+  padding: 4px 12px; border-radius: 999px; border: 1px solid var(--accent);
+  font: 700 12px var(--sans); color: var(--accent);
+}
+.gb-overlay { margin: 12px 0 0; font-size: 1.05rem; color: var(--ink); }
+.wb-peek { margin: 0; border-top: 1px solid var(--border); }
+.wb-peek > summary {
+  min-height: 44px; padding: 10px 14px; cursor: pointer; font: 600 14px var(--sans); color: var(--ink);
+}
+.wb-peek[open] > summary { border-bottom: 1px solid var(--border); }
+@media (prefers-reduced-motion: reduce) {
+  .gb-stage { transition: none; }
+  .gb-sparkle { box-shadow: none; }
+}
+
 .wb { margin: 12px 0 8px; border: 1px solid var(--border); background: var(--surface); }
 .wb-toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 12px; border-bottom: 1px solid var(--border); }
 .wb-btn {
@@ -1032,7 +1099,7 @@ html.no-js .tab-panel { display: block; }
       <section class="section">
         <span class="eyebrow">Next</span>
         <h2>Learn it, then run it on your repo</h2>
-        <p>Download <a href="trivia-quiz.zip">trivia-quiz.zip</a> when you want the Training example on disk. GitHub holds the catalog; this file is the workshop surface.</p>
+        <p>Download <a href="glow-booth.zip">glow-booth.zip</a> when you want the Training example on disk. GitHub holds the catalog; this file is the workshop surface.</p>
         <div class="nhg-next">
           <a class="btn btn--primary" href="#training" data-go="training">Open Training</a>
           <a class="btn" href="#explore" data-go="explore">Open Workflows</a>
@@ -1053,7 +1120,7 @@ html.no-js .tab-panel { display: block; }
     <div class="container">
       <span class="eyebrow">Foundations</span>
       <h1>Four ways to change what the model does</h1>
-      <p class="lead">Pictures first. Each station is one move you can make. The stack below is the model (brain), the platform (hands), and the harness (experience). Trivia stays off this page; the booth is Glow Booth.</p>
+      <p class="lead">Pictures first. Each station is one move you can make. The stack below is the model (brain), the platform (hands), and the harness (experience). The worked example is Glow Booth.</p>
 
       <div class="nhg-stack" id="nhgStackStage" data-stage="0">
         <div class="nhg-layer" data-layer="0">
@@ -1171,9 +1238,9 @@ html.no-js .tab-panel { display: block; }
   <section class="page" id="page-training" data-page="training">
     <div class="container">
       <span class="eyebrow">Training</span>
-      <h1>Watch the experience layer work</h1>
-      <p class="lead">One IDE workbench. Eight scenes on Trivia Quiz. Previous, next, reset, outline, and copy. Nothing autoplays. Download <a href="trivia-quiz.zip">trivia-quiz.zip</a> to follow along on disk.</p>
-      <div class="wb" id="nhWorkbench">
+      <h1>Watch the booth change</h1>
+      <p class="lead">Eight slides. One command each. The hero is Glow Booth going from buggy to fixed, then Shuffle plus sparkle. Peek at the files only if you want them. Nothing autoplays. Download <a href="glow-booth.zip">glow-booth.zip</a> to follow along on disk.</p>
+      <div class="ts-deck" id="nhTraining">
         <div class="wb-toolbar">
           <button type="button" class="wb-btn" id="wbPrev">Previous</button>
           <button type="button" class="wb-btn" id="wbNext">Next</button>
@@ -1183,36 +1250,74 @@ html.no-js .tab-panel { display: block; }
           <span class="wb-pos" id="wbPos"></span>
         </div>
         <div class="wb-outline" id="wbOutline" hidden></div>
+        <article class="ts-slide" id="nhBoothHero" data-scene="describe">
+          <p class="gb-cmd" id="nhBoothCmd"></p>
+          <div class="gb-pair">
+            <div class="gb-booth" id="nhBoothNow">
+              <p class="gb-booth-label" id="nhBoothNowLabel">Glow Booth</p>
+              <div class="gb-stage" id="nhBoothStage">Spark</div>
+              <div class="gb-strip" id="nhBoothStrip" aria-hidden="true">
+                <span data-pose="dawn"></span>
+                <span data-pose="neon"></span>
+                <span data-pose="forest"></span>
+                <span data-pose="studio"></span>
+                <span data-pose="spark"></span>
+              </div>
+              <p class="gb-meter" id="nhBoothMeter">4 / 5 stamps</p>
+              <div class="gb-stamps" id="nhBoothStamps" aria-hidden="true">
+                <span class="gb-stamp is-on"></span>
+                <span class="gb-stamp is-on"></span>
+                <span class="gb-stamp is-on"></span>
+                <span class="gb-stamp is-on"></span>
+                <span class="gb-stamp"></span>
+              </div>
+              <p class="gb-ghost" id="nhBoothGhost">Last pose still on stage after Restart.</p>
+              <i class="gb-sparkle" id="nhBoothSparkle" hidden></i>
+              <span class="gb-shuffle" id="nhBoothShuffle" hidden>Shuffle poses</span>
+            </div>
+            <div class="gb-booth gb-ref" id="nhBoothRef" hidden>
+              <p class="gb-booth-label">Shuffle reference</p>
+              <div class="gb-stage" data-pose="neon">Neon</div>
+              <p class="gb-meter">5 / 5 stamps</p>
+              <i class="gb-sparkle"></i>
+              <span class="gb-shuffle">Shuffle poses</span>
+            </div>
+          </div>
+          <p class="gb-overlay" id="nhBoothOverlay">A perfect set still reads 4 of 5 stamps.</p>
+        </article>
         <p class="wb-claim" id="wbClaim"></p>
         <ol class="wb-timeline" id="wbTimeline"></ol>
-        <div class="wb-grid">
-          <section class="wb-pane" data-nhg-keys="self">
-            <h2>Files</h2>
-            <ul class="wb-tree" id="wbExplorer"></ul>
-          </section>
-          <section class="wb-pane" data-nhg-keys="self">
-            <h2 id="wbEditorLabel">Editor</h2>
-            <pre class="wb-pre" id="wbEditor"></pre>
-          </section>
-          <section class="wb-pane" data-nhg-keys="self">
-            <h2>Assistant</h2>
-            <p class="wb-prompt" id="wbPrompt"></p>
-            <ul id="wbAssistant"></ul>
-            <ul id="wbTools"></ul>
-          </section>
-          <section class="wb-pane" data-nhg-keys="self">
-            <h2>Terminal</h2>
-            <pre class="wb-pre" id="wbTerminal"></pre>
-          </section>
-          <section class="wb-pane">
-            <h2>Artifact</h2>
-            <p id="wbArtifact"></p>
-          </section>
-          <section class="wb-pane">
-            <h2>Gate</h2>
-            <p id="wbGate"></p>
-          </section>
-        </div>
+        <details class="wb-peek">
+          <summary>Peek at the files</summary>
+          <div class="wb-grid" id="nhWorkbench">
+            <section class="wb-pane" data-nhg-keys="self">
+              <h2>Files</h2>
+              <ul class="wb-tree" id="wbExplorer"></ul>
+            </section>
+            <section class="wb-pane" data-nhg-keys="self">
+              <h2 id="wbEditorLabel">Editor</h2>
+              <pre class="wb-pre" id="wbEditor"></pre>
+            </section>
+            <section class="wb-pane" data-nhg-keys="self">
+              <h2>Assistant</h2>
+              <p class="wb-prompt" id="wbPrompt"></p>
+              <ul id="wbAssistant"></ul>
+              <ul id="wbTools"></ul>
+            </section>
+            <section class="wb-pane" data-nhg-keys="self">
+              <h2>Terminal</h2>
+              <pre class="wb-pre" id="wbTerminal"></pre>
+            </section>
+            <section class="wb-pane">
+              <h2>Artifact</h2>
+              <p id="wbArtifact"></p>
+            </section>
+            <section class="wb-pane">
+              <h2>Gate</h2>
+              <p id="wbGate"></p>
+            </section>
+          </div>
+        </details>
         <p class="wb-takeaway" id="wbTakeaway"></p>
         <p class="visually-hidden" id="wbLive" aria-live="polite"></p>
       </div>
@@ -2801,54 +2906,54 @@ html.no-js .tab-panel { display: block; }
     {
       "id": "describe",
       "stage": "Understand",
-      "intent": "Map Trivia Quiz before changing it.",
+      "intent": "Map Glow Booth before changing it.",
       "command": "/describe full",
       "prompt": "/describe full",
       "assistant_events": [
-        "Detected a small vanilla HTML, CSS, and JavaScript quiz. Hostile fixture sample stays literal: <img onerror> and <\/script>",
+        "Detected a small vanilla HTML, CSS, and JavaScript booth. Hostile fixture sample stays literal: <img onerror> and <\/script>",
         "Wrote docs/v0.1.0/analysis.md"
       ],
       "tool_events": [
         {
           "name": "Glob",
-          "purpose": "List trivia-quiz files"
+          "purpose": "List glow-booth files"
         },
         {
           "name": "Read",
-          "purpose": "Open logic.js, app.js, questions.js"
+          "purpose": "Open logic.js, app.js, poses.js"
         }
       ],
       "file_state": [
         {
           "path": "logic.js",
           "status": "unchanged",
-          "excerpt": "for (var i = 0; i < selections.length - 1; i++)"
+          "excerpt": "for (var i = 0; i < captured.length - 1; i++)"
         },
         {
           "path": "app.js",
           "status": "unchanged"
         },
         {
-          "path": "questions.js",
+          "path": "poses.js",
           "status": "unchanged"
         }
       ],
       "editor_state": {
         "path": "docs/v0.1.0/analysis.md",
         "mode": "markdown",
-        "body": "# Trivia Quiz - analysis\n\nBrowser quiz. logic.js is pure scoring. app.js renders. questions.js is a six-question deck.\n\nRisks: score helper may stop one short; restart may keep selections; no tests; no shuffle."
+        "body": "# Glow Booth - analysis\n\nInstant-camera booth. logic.js is pure stamp math. app.js paints the stage. poses.js is a five-pose strip.\n\nRisks: stamp helper may stop one short; restart may keep lastPose; no tests; no shuffle."
       },
       "terminal_state": {
         "lines": [
           "> /describe full",
-          "Scanning example/trivia-quiz ...",
+          "Scanning example/glow-booth ...",
           "Wrote docs/v0.1.0/analysis.md"
         ]
       },
       "artifact": {
         "path": "docs/v0.1.0/analysis.md",
         "kind": "report",
-        "summary": "Structured map of Trivia Quiz"
+        "summary": "Structured map of Glow Booth"
       },
       "gate": {
         "name": "Map exists",
@@ -2884,19 +2989,19 @@ html.no-js .tab-panel { display: block; }
     {
       "id": "review",
       "stage": "Evaluate",
-      "intent": "Get a read-only verdict on scoring, restart, tests, and shuffle.",
+      "intent": "Get a read-only verdict on stamps, restart, tests, and shuffle.",
       "command": "/review",
       "prompt": "/review",
       "assistant_events": [
         "Read-only review. Findings ranked.",
-        "HIGH: computeScore stops at length - 1, so a perfect run scores 5/6.",
-        "HIGH: restartState keeps prev.selections.",
-        "MED: no tests. LOW: deck order never shuffles."
+        "HIGH: computeStamps stops at length - 1, so a perfect set awards 4/5.",
+        "HIGH: restartState keeps prev.lastPose.",
+        "MED: no tests. LOW: pose order never shuffles."
       ],
       "tool_events": [
         {
           "name": "Read",
-          "purpose": "Inspect computeScore and restartState"
+          "purpose": "Inspect computeStamps and restartState"
         },
         {
           "name": "Grep",
@@ -2907,13 +3012,13 @@ html.no-js .tab-panel { display: block; }
         {
           "path": "logic.js",
           "status": "unchanged",
-          "excerpt": "function restartState(prev) { return { index: 0, selections: prev.selections, finished: false }; }"
+          "excerpt": "function restartState(prev) { return { captured: [], lastPose: prev.lastPose, shuffled: prev.shuffled }; }"
         }
       ],
       "editor_state": {
         "path": "docs/v0.1.0/review.md",
         "mode": "markdown",
-        "body": "# Review\n\n- Score loop uses selections.length - 1\n- Restart reuses the previous selections array\n- No Vitest files yet\n- Shuffle is absent (feature, not a defect in the current loop)"
+        "body": "# Review\n\n- Stamp loop uses captured.length - 1\n- Restart reuses the previous lastPose\n- No Vitest files yet\n- Shuffle is absent (feature, not a defect in the current loop)"
       },
       "terminal_state": {
         "lines": [
@@ -2926,7 +3031,7 @@ html.no-js .tab-panel { display: block; }
       "artifact": {
         "path": "docs/v0.1.0/review.md",
         "kind": "report",
-        "summary": "Findings: score, restart, missing tests, no shuffle"
+        "summary": "Findings: stamps, restart, missing tests, no shuffle"
       },
       "gate": {
         "name": "Findings listed",
@@ -2948,7 +3053,7 @@ html.no-js .tab-panel { display: block; }
         },
         {
           "index": 1,
-          "claim": "The report names score, restart, tests, and shuffle.",
+          "claim": "The report names stamps, restart, tests, and shuffle.",
           "panes": [
             "editor",
             "artifact",
@@ -2961,13 +3066,13 @@ html.no-js .tab-panel { display: block; }
     {
       "id": "plan",
       "stage": "Decompose",
-      "intent": "One phase: fix scoring and restart. No shuffle yet. Local commit, no push.",
+      "intent": "One phase: fix stamps and restart. No shuffle yet. Local commit, no push.",
       "command": "/plan feature",
       "prompt": "/plan feature",
       "assistant_events": [
-        "Goal: perfect run scores 6/6; restart is a clean deck.",
+        "Goal: perfect set awards 5/5; restart clears the last pose.",
         "Phase 1 only. Rec. model re-confirmed at implement time.",
-        "DoD: unit tests for computeScore and restartState; local commit; do not push."
+        "DoD: unit tests for computeStamps and restartState; local commit; do not push."
       ],
       "tool_events": [
         {
@@ -2981,14 +3086,14 @@ html.no-js .tab-panel { display: block; }
       ],
       "file_state": [
         {
-          "path": "docs/releases/v0.1/plans/fix-scoring-and-restart.md",
+          "path": "docs/releases/v0.1/plans/fix-stamps-and-restart.md",
           "status": "added"
         }
       ],
       "editor_state": {
-        "path": "docs/releases/v0.1/plans/fix-scoring-and-restart.md",
+        "path": "docs/releases/v0.1/plans/fix-stamps-and-restart.md",
         "mode": "markdown",
-        "body": "# Plan - fix scoring and restart\n\nPhase 1: change computeScore to walk the full selections array; restartState returns freshState(); add Vitest.\n\nLifecycle: one local commit. No push. Shuffle is out of scope."
+        "body": "# Plan - fix stamps and restart\n\nPhase 1: change computeStamps to walk the full captured array; restartState returns freshState(); add Vitest.\n\nLifecycle: one local commit. No push. Shuffle is out of scope."
       },
       "terminal_state": {
         "lines": [
@@ -2998,7 +3103,7 @@ html.no-js .tab-panel { display: block; }
         ]
       },
       "artifact": {
-        "path": "docs/releases/v0.1/plans/fix-scoring-and-restart.md",
+        "path": "docs/releases/v0.1/plans/fix-stamps-and-restart.md",
         "kind": "plan",
         "summary": "One phase, written DoD, local-commit contract"
       },
@@ -3034,12 +3139,12 @@ html.no-js .tab-panel { display: block; }
     {
       "id": "implement",
       "stage": "Build",
-      "intent": "Fix scoring and restart on a branch, with tests, then a local commit.",
-      "command": "/implement fix-scoring-and-restart phase-1",
-      "prompt": "/implement fix-scoring-and-restart phase-1",
+      "intent": "Fix stamps and restart on a branch, with tests, then a local commit.",
+      "command": "/implement fix-stamps-and-restart phase-1",
+      "prompt": "/implement fix-stamps-and-restart phase-1",
       "assistant_events": [
         "Implementing phase 1. Quality gate requires tests.",
-        "computeScore now iterates selections.length. restartState returns freshState()."
+        "computeStamps now iterates captured.length. restartState returns freshState()."
       ],
       "tool_events": [
         {
@@ -3059,22 +3164,22 @@ html.no-js .tab-panel { display: block; }
         {
           "path": "logic.js",
           "status": "changed",
-          "excerpt": "for (var i = 0; i < selections.length; i++)"
+          "excerpt": "for (var i = 0; i < captured.length; i++)"
         },
         {
           "path": "logic.test.js",
           "status": "added",
-          "excerpt": "expect(computeScore(qs, [0,0,0,0,0,0])).toBe(6)"
+          "excerpt": "expect(computeStamps(['dawn','neon','forest','studio','spark'])).toBe(5)"
         }
       ],
       "editor_state": {
         "path": "logic.js",
         "mode": "diff",
-        "body": "- for (var i = 0; i < selections.length - 1; i++) {\n+ for (var i = 0; i < selections.length; i++) {\n- function restartState(prev) {\n-   return { index: 0, selections: prev.selections, finished: false };\n- }\n+ function restartState() {\n+   return freshState();\n+ }"
+        "body": "- for (var i = 0; i < captured.length - 1; i++) {\n+ for (var i = 0; i < captured.length; i++) {\n- function restartState(prev) {\n-   return { captured: [], lastPose: prev.lastPose, shuffled: prev.shuffled };\n- }\n+ function restartState() {\n+   return freshState();\n+ }"
       },
       "terminal_state": {
         "lines": [
-          "> /implement fix-scoring-and-restart phase-1",
+          "> /implement fix-stamps-and-restart phase-1",
           "vitest run",
           "8 passed",
           "local commit created",
@@ -3084,7 +3189,7 @@ html.no-js .tab-panel { display: block; }
       "artifact": {
         "path": "logic.js",
         "kind": "code",
-        "summary": "Score and restart fixed; tests added; local commit"
+        "summary": "Stamps and restart fixed; tests added; local commit"
       },
       "gate": {
         "name": "Phase GO",
@@ -3096,7 +3201,7 @@ html.no-js .tab-panel { display: block; }
       "beats": [
         {
           "index": 0,
-          "claim": "The editor shows the scoring and restart diff.",
+          "claim": "The editor shows the stamp and restart diff.",
           "panes": [
             "explorer",
             "editor",
@@ -3119,18 +3224,18 @@ html.no-js .tab-panel { display: block; }
     {
       "id": "compare",
       "stage": "Evaluate",
-      "intent": "Adopt shuffle from the local reference by reverse-engineering, not by wrapping it.",
-      "command": "/compare ../quiz-shuffle-reference",
-      "prompt": "/compare ../quiz-shuffle-reference",
+      "intent": "Adopt shuffle and sparkle from the local reference by reverse-engineering, not by wrapping it.",
+      "command": "/compare ../glow-booth-shuffle-reference",
+      "prompt": "/compare ../glow-booth-shuffle-reference",
       "assistant_events": [
         "Local path compare. Reverse-engineer-first.",
-        "Worth adopting: shuffle(items) plus startRun that deals a shuffled deck.",
+        "Worth adopting: shuffle(items) plus a sparkle overlay when the meter is full.",
         "/plan from-comparison writes the shuffle phase. /implement would run the same way as the bugfix; this scene does not add a ninth command."
       ],
       "tool_events": [
         {
           "name": "Read",
-          "purpose": "Read quiz-shuffle-reference/logic.js"
+          "purpose": "Read glow-booth-shuffle-reference/logic.js"
         },
         {
           "name": "Write",
@@ -3144,24 +3249,24 @@ html.no-js .tab-panel { display: block; }
           "excerpt": "function shuffle(items) { /* Fisher-Yates */ }"
         },
         {
-          "path": "docs/v0.1.0/compare-quizkit.md",
+          "path": "docs/v0.1.0/compare-booth.md",
           "status": "added"
         }
       ],
       "editor_state": {
-        "path": "docs/v0.1.0/compare-quizkit.md",
+        "path": "docs/v0.1.0/compare-booth.md",
         "mode": "markdown",
-        "body": "# Compare vs quiz-shuffle-reference\n\nAdopt shuffle and startRun. Do not import the reference as a dependency.\n\nNext: /plan from-comparison, then the same /implement loop as phase 1."
+        "body": "# Compare vs glow-booth-shuffle-reference\n\nAdopt shuffle and the sparkle overlay. Do not import the reference as a dependency.\n\nNext: /plan from-comparison, then the same /implement loop as phase 1."
       },
       "terminal_state": {
         "lines": [
-          "> /compare ../quiz-shuffle-reference",
-          "Gap: no shuffle on each run",
-          "Wrote docs/v0.1.0/compare-quizkit.md"
+          "> /compare ../glow-booth-shuffle-reference",
+          "Gap: no shuffle; no sparkle on a full meter",
+          "Wrote docs/v0.1.0/compare-booth.md"
         ]
       },
       "artifact": {
-        "path": "docs/v0.1.0/compare-quizkit.md",
+        "path": "docs/v0.1.0/compare-booth.md",
         "kind": "report",
         "summary": "Shuffle adoption plan; implement runs the same as before"
       },
@@ -3198,12 +3303,12 @@ html.no-js .tab-panel { display: block; }
     {
       "id": "test",
       "stage": "Harden",
-      "intent": "Prove scoring, restart, and shuffle with Vitest and a coverage gate.",
+      "intent": "Prove stamps, restart, and shuffle with Vitest and a coverage gate.",
       "command": "/test unit",
       "prompt": "/test unit",
       "assistant_events": [
         "Driving unit tests to the coverage threshold.",
-        "Score, restart, and shuffle cases pass."
+        "Stamp, restart, and shuffle cases pass."
       ],
       "tool_events": [
         {
@@ -3220,7 +3325,7 @@ html.no-js .tab-panel { display: block; }
       "editor_state": {
         "path": "logic.test.js",
         "mode": "test",
-        "body": "computeScore full deck -> 6\nrestartState -> empty selections\nshuffle -> same members, not always same order"
+        "body": "computeStamps full set -> 5\nrestartState -> lastPose is null\nshuffle -> same members, not always same order"
       },
       "terminal_state": {
         "lines": [
@@ -3272,7 +3377,7 @@ html.no-js .tab-panel { display: block; }
       "command": "/update",
       "prompt": "/update changelog",
       "assistant_events": [
-        "Changelog and docs synced for the Trivia Quiz fixes.",
+        "Changelog and docs synced for the Glow Booth fixes.",
         "A full /update release would still wait for green required checks. This example stops at the local record."
       ],
       "tool_events": [
@@ -3290,7 +3395,7 @@ html.no-js .tab-panel { display: block; }
       "editor_state": {
         "path": "CHANGELOG.md",
         "mode": "markdown",
-        "body": "## Unreleased\n\n- Fix Trivia Quiz scoring off-by-one and restart leak\n- Shuffle the deck on each run (adopted from a local reference)"
+        "body": "## Unreleased\n\n- Fix Glow Booth stamp off-by-one and restart leak\n- Shuffle poses and sparkle on a full meter (adopted from a local reference)"
       },
       "terminal_state": {
         "lines": [
@@ -3341,7 +3446,7 @@ html.no-js .tab-panel { display: block; }
       "prompt": "/presentify docs/v0.1.0/analysis.md docs/v0.1.0/review.md CHANGELOG.md",
       "assistant_events": [
         "Building a self-contained HTML file. No CDN, no runtime fetch.",
-        "Wrote trivia-quiz-briefing.html"
+        "Wrote glow-booth-briefing.html"
       ],
       "tool_events": [
         {
@@ -3355,24 +3460,24 @@ html.no-js .tab-panel { display: block; }
       ],
       "file_state": [
         {
-          "path": "trivia-quiz-briefing.html",
+          "path": "glow-booth-briefing.html",
           "status": "added"
         }
       ],
       "editor_state": {
-        "path": "trivia-quiz-briefing.html",
+        "path": "glow-booth-briefing.html",
         "mode": "source",
         "body": "<!doctype html><!-- self-contained briefing: map, review, changelog -->"
       },
       "terminal_state": {
         "lines": [
           "> /presentify ...",
-          "Wrote trivia-quiz-briefing.html",
+          "Wrote glow-booth-briefing.html",
           "offline = yes"
         ]
       },
       "artifact": {
-        "path": "trivia-quiz-briefing.html",
+        "path": "glow-booth-briefing.html",
         "kind": "html",
         "summary": "Stakeholder briefing; tour ends"
       },
@@ -3410,11 +3515,11 @@ html.no-js .tab-panel { display: block; }
 }
 </script>
 <script>
-/* Training workbench controller. Fixture strings use textContent only. */
+/* Training slideshow controller. Fixture strings use textContent only. Hero states are allowlisted, never innerHTML from JSON. */
 (function () {
   "use strict";
   var block = document.getElementById("nh-training-scenes");
-  var root = document.getElementById("nhWorkbench");
+  var root = document.getElementById("nhTraining");
   if (!block || !root) return;
   var data;
   try { data = JSON.parse(block.textContent); } catch (err) { return; }
@@ -3444,6 +3549,53 @@ html.no-js .tab-panel { display: block; }
     live: document.getElementById("wbLive"),
     outline: document.getElementById("wbOutline")
   };
+
+  var HERO = {
+    describe: { pose: "spark", stamps: 4, shots: 5, ghost: true, sparkle: false, shuffle: false, compare: false, overlay: "A perfect set still reads 4 of 5 stamps." },
+    review: { pose: "spark", stamps: 4, shots: 5, ghost: true, sparkle: false, shuffle: false, compare: false, overlay: "The meter is short. Restart leaves the last pose." },
+    plan: { pose: "spark", stamps: 4, shots: 5, ghost: true, sparkle: false, shuffle: false, compare: false, overlay: "Fix the meter and Restart. Shuffle waits for compare." },
+    implement: { pose: "", stamps: 5, shots: 0, ghost: false, sparkle: false, shuffle: false, compare: false, overlay: "Meter fills. Restart clears the stage." },
+    compare: { pose: "neon", stamps: 5, shots: 5, ghost: false, sparkle: true, shuffle: true, compare: true, overlay: "Adopt Shuffle poses and the sparkle overlay." },
+    test: { pose: "forest", stamps: 5, shots: 5, ghost: false, sparkle: false, shuffle: false, compare: false, overlay: "Tests prove stamp math and Restart." },
+    update: { pose: "studio", stamps: 5, shots: 5, ghost: false, sparkle: false, shuffle: false, compare: false, overlay: "Changelog written. A tag waits on green checks." },
+    presentify: { pose: "dawn", stamps: 5, shots: 5, ghost: false, sparkle: true, shuffle: false, compare: false, overlay: "One HTML briefing of the booth story." }
+  };
+  var POSE_LABEL = { dawn: "Dawn", neon: "Neon", forest: "Forest", studio: "Studio", spark: "Spark" };
+  function paintHero(id) {
+    var spec = HERO[id] || HERO.describe;
+    var hero = document.getElementById("nhBoothHero");
+    var stage = document.getElementById("nhBoothStage");
+    var meter = document.getElementById("nhBoothMeter");
+    var ghost = document.getElementById("nhBoothGhost");
+    var sparkle = document.getElementById("nhBoothSparkle");
+    var shuffle = document.getElementById("nhBoothShuffle");
+    var overlay = document.getElementById("nhBoothOverlay");
+    var cmd = document.getElementById("nhBoothCmd");
+    var ref = document.getElementById("nhBoothRef");
+    var stamps = document.getElementById("nhBoothStamps");
+    var strip = document.getElementById("nhBoothStrip");
+    var scene = BY[id];
+    if (hero) hero.setAttribute("data-scene", id);
+    if (cmd) cmd.textContent = (scene && scene.command) ? scene.command : "";
+    if (stage) {
+      stage.setAttribute("data-pose", spec.pose || "");
+      stage.textContent = spec.pose ? (POSE_LABEL[spec.pose] || spec.pose) : "Tap a pose";
+    }
+    if (meter) meter.textContent = spec.stamps + " / 5 stamps";
+    if (overlay) overlay.textContent = spec.overlay || "";
+    if (ghost) ghost.hidden = !spec.ghost;
+    if (sparkle) sparkle.hidden = !spec.sparkle;
+    if (shuffle) shuffle.hidden = !spec.shuffle;
+    if (ref) ref.hidden = !spec.compare;
+    if (stamps) {
+      var dots = stamps.querySelectorAll(".gb-stamp");
+      for (var d = 0; d < dots.length; d++) dots[d].classList.toggle("is-on", d < spec.stamps);
+    }
+    if (strip) {
+      var slots = strip.querySelectorAll("[data-pose]");
+      for (var s = 0; s < slots.length; s++) slots[s].classList.toggle("is-shot", s < spec.shots);
+    }
+  }
 
   function clear(node) {
     while (node && node.firstChild) node.removeChild(node.firstChild);
@@ -3507,6 +3659,7 @@ html.no-js .tab-panel { display: block; }
       els.timeline.appendChild(li);
     }
     if (els.live) els.live.textContent = scene.command + ". " + (beat.takeaway || scene.intent || "");
+    paintHero(scene.id);
     return snap;
   }
   function beatQuery(idx) {
@@ -3593,12 +3746,30 @@ html.no-js .tab-panel { display: block; }
     if (t && t.closest && t.closest("[data-nhg-keys='self']")) return;
     if (e.key === "ArrowRight" || e.key === " ") { e.preventDefault(); next(); }
     else if (e.key === "ArrowLeft") { e.preventDefault(); prev(); }
+    else if (e.key === "Home") { e.preventDefault(); goScene(ORDER[0], 0, true); }
+    else if (e.key === "End") { e.preventDefault(); goScene(ORDER[ORDER.length - 1], 0, true); }
     else if (e.key === "Escape") {
       els.outline.hidden = true;
       document.getElementById("wbOutlineBtn").setAttribute("aria-expanded", "false");
     }
   });
   window.NHTraining = { applyState: applyState, syncFromHash: syncFromHash, goScene: goScene };
+  (function swipe() {
+    var hero = document.getElementById("nhBoothHero");
+    if (!hero) return;
+    var x0 = null;
+    hero.addEventListener("touchstart", function (e) {
+      if (!e.changedTouches || !e.changedTouches[0]) return;
+      x0 = e.changedTouches[0].clientX;
+    }, { passive: true });
+    hero.addEventListener("touchend", function (e) {
+      if (x0 == null || !e.changedTouches || !e.changedTouches[0]) return;
+      var dx = e.changedTouches[0].clientX - x0;
+      x0 = null;
+      if (dx < -40) next();
+      else if (dx > 40) prev();
+    });
+  })();
   (function initFromHash() {
     var raw = (location.hash || "").replace(/^#/, "");
     var q = "";

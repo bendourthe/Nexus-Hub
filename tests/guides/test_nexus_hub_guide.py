@@ -17,7 +17,7 @@ import pytest
 
 _ROOT = Path(__file__).resolve().parents[2]
 GUIDE = _ROOT / "guides" / "website" / "nexus-hub-guide.html"
-EXAMPLE_ZIP_NAME = "trivia-quiz.zip"
+EXAMPLE_ZIP_NAME = "glow-booth.zip"
 
 INSTALL_SH = (
     "curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash"
@@ -263,6 +263,7 @@ def test_no_runtime_cdn_font_script_or_image(parsed: GuideParser, guide_text: st
 def test_example_zip_link_present(guide_text: str) -> None:
     assert EXAMPLE_ZIP_NAME in guide_text
     assert re.search(rf'href=["\'](?:[^"\']*/)?{re.escape(EXAMPLE_ZIP_NAME)}["\']', guide_text)
+    assert (GUIDE.parent / EXAMPLE_ZIP_NAME).is_file()
 
 
 def test_github_is_user_initiated_not_a_script(parsed: GuideParser) -> None:
@@ -497,6 +498,8 @@ def test_every_scene_exposes_gate_and_next_scene(parsed: GuideParser) -> None:
     ]
     for rid in required:
         assert rid in ids
+    assert len(ids) == 8
+    assert len(ids) <= 12
 
 
 def test_script_close_in_fixture_does_not_break_document(parsed: GuideParser) -> None:
@@ -516,12 +519,40 @@ def test_inline_scenes_match_example_json(parsed: GuideParser) -> None:
     assert inline == disk
 
 
-def test_training_workbench_is_not_a_slide_deck(guide_text: str) -> None:
-    assert 'id="nhWorkbench"' in guide_text
+def test_training_is_a_slideshow_with_booth_hero(guide_text: str) -> None:
+    training = guide_text.split('id="page-training"', 1)[-1].split('id="page-explore"', 1)[0]
+    assert 'class="ts-slide"' in training
+    assert 'id="nhBoothHero"' in training
+    assert 'id="nhTraining"' in training
+    assert "Peek at the files" in training
+    assert "Glow Booth" in training
+    assert "Trivia Quiz" not in training
     assert "function applyState" in guide_text
-    assert "textContent" in guide_text
-    assert 'class="ts-slide"' not in guide_text
+    assert "els.editor.textContent" in guide_text
     assert "scroll-scrub-engine" not in guide_text
+    assert "wb-grid" in training
+    peek_at = training.find("Peek at the files")
+    grid_at = training.find("wb-grid")
+    assert peek_at != -1 and grid_at > peek_at
+
+
+def test_glow_booth_example_ships_frozen_bugs() -> None:
+    logic = (
+        _ROOT / "guides" / "website" / "example" / "glow-booth" / "logic.js"
+    ).read_text(encoding="utf-8")
+    assert "captured.length - 1" in logic
+    assert "lastPose: prev.lastPose" in logic
+    ref = (
+        _ROOT
+        / "guides"
+        / "website"
+        / "example"
+        / "glow-booth-shuffle-reference"
+        / "logic.js"
+    ).read_text(encoding="utf-8")
+    assert "captured.length - 1" not in ref
+    assert "function shuffle" in ref
+    assert (_ROOT / "guides" / "website" / "example" / "glow-booth" / "index.html").is_file()
 
 
 def test_hostile_fixture_strings_are_present_for_textcontent(parsed: GuideParser) -> None:

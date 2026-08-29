@@ -140,3 +140,14 @@ Phase 4 edits the canonical guide HTML and the focused test file in place.
 ### Result
 
 No documentation move.
+
+## v4.2.1 Phase 5 - Training slideshow and Glow Booth
+
+**Date**: 2026-08-29
+**Mode**: audit only; no files moved
+
+Phase 5 adds `guides/website/example/glow-booth/`, `guides/website/example/glow-booth-shuffle-reference/`, and `guides/website/glow-booth.zip`. It rewrites Training in the canonical guide and updates `guides/website/README.md` plus the focused test file. Session history is the only new documentation file. `example/trivia-quiz/` stays on disk and is not taught. No `docs/testing/` or `docs/validation/` invented. No installer-copied `scripts/*.py` was added.
+
+### Result
+
+No documentation move. Temporary `_patch_phase5.py` was deleted before commit.

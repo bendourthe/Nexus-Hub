@@ -1,6 +1,6 @@
 # Nexus-Hub Interactive Guide
 
-This directory holds the public-facing Nexus-Hub guide and the Trivia Quiz example the Training workbench operates on. Everything is self-contained, opens in a browser, and needs no build step. This `README.md` is for maintainers.
+This directory holds the public-facing Nexus-Hub guide and the Glow Booth example the Training slideshow operates on. Everything is self-contained, opens in a browser, and needs no build step. This `README.md` is for maintainers.
 
 ## Contents
 
@@ -8,9 +8,10 @@ This directory holds the public-facing Nexus-Hub guide and the Trivia Quiz examp
 |---|---|
 | `nexus-hub-guide.html` | Canonical interactive guide. One HTML file. The main entry point. |
 | `example/training-scenes.json` | Maintainer source of truth for Training scenes. The guide inlines a verified copy. |
-| `example/trivia-quiz/` | Example app the workbench shows. |
-| `example/quiz-shuffle-reference/` | Local `/compare` target that already has deck shuffle. |
-| `trivia-quiz.zip` | Downloadable bundle learners extract. |
+| `example/glow-booth/` | Example app the Training hero shows. Open `index.html` from disk. |
+| `example/glow-booth-shuffle-reference/` | Local `/compare` target that already has Shuffle poses plus sparkle. |
+| `glow-booth.zip` | Downloadable bundle learners extract. |
+| `example/trivia-quiz/` | Previous example. Stays on disk. Not taught in the published guide. |
 
 The guide is the single home for orientation, installation, Foundations, Training, the six workflow pages, and Reference. It remains one self-contained HTML file with no runtime network dependency.
 
@@ -37,23 +38,25 @@ Home also shows platform reachability (which hosts expose slash commands, and th
 
 ## Foundations
 
-Foundations teaches one distinction: the model is the brain; the agent or platform is the hands; Nexus-Hub is the experience layer (workflows, skills, and guardrails). A user-initiated range slider compares "Model alone" with "Model with Nexus-Hub". Both states stay in the markup for no-JS and reduced motion. The handoff is `#training` (the Training page), not a scene URL.
+Foundations teaches prompt, context, harness, and loop engineering as four visual stations. A user-initiated two-state control compares "Model alone" with "Model with Nexus-Hub" on the Glow Booth stamp bug. Both states stay in the markup for no-JS and reduced motion. The handoff is `#training` (the Training page), not a scene URL. Do not restore a `type="range"` hero.
 
-## Training workbench
+## Training slideshow
 
-Training is one IDE workbench (`#nhWorkbench`), not a slide deck. Eight closed scenes, hard-capped at ten: `describe`, `review`, `plan`, `implement`, `compare`, `test`, `update`, `presentify`.
+Training is a slideshow (`#nhTraining`, `.ts-slide`). The hero is Glow Booth transforming (`#nhBoothHero`). File and IDE panes live behind **Peek at the files**, not as the default grid. Eight closed scenes, hard-capped at twelve: `describe`, `review`, `plan`, `implement`, `compare`, `test`, `update`, `presentify`. Intro or outro slides count toward the cap and must not add a ninth command.
 
 Controls:
 
 - Previous, Next, Reset, Outline, Copy command
 - ArrowLeft / ArrowRight / Space step beats while the Training page is showing
+- Home / End jump to the first or last scene
+- Swipe on the booth hero on touch devices
 - Escape closes the outline
-- Keys disengage inside `[data-nhg-keys='self']` panes (editor, files, assistant, terminal, and the Foundations slider)
+- Keys disengage inside `[data-nhg-keys='self']` panes (editor, files, assistant, terminal, and the Foundations comparison)
 - No autoplay, no speed control, no fullscreen control
 
 URL: `#training/<scene-id>?beat=n`. Beat changes use `history.replaceState`. Scene jumps use `location.hash`. Invalid scene or beat clamps to `describe` beat 0.
 
-Fixture strings are painted with `textContent` / `createElement` only. Do not assign scene JSON through `innerHTML`.
+Fixture strings are painted with `textContent` / `createElement` only. Do not assign scene JSON through `innerHTML`. Booth hero states are allowlisted in script, never taken from JSON as HTML.
 
 ## Keyboard and reduced motion
 
@@ -61,7 +64,7 @@ Page-level ArrowLeft / ArrowRight move between allowlisted pages when Training i
 
 ## Fixture maintenance
 
-1. Edit `example/training-scenes.json`. Keep eight scenes unless a later plan raises the cap (never above ten).
+1. Edit `example/training-scenes.json`. Keep eight scenes unless a later plan raises the cap (never above twelve).
 2. Copy the parsed JSON into the `<script type="application/json" id="nh-training-scenes">` block. Encode a literal `</script>` in a string as `<\/script>` so the HTML parser does not close the block.
 3. Run `python -m pytest -q tests/guides/test_nexus_hub_guide.py`. The suite asserts the inline JSON equals the file after parse, and that hostile fixture strings (`<img onerror>`, `</script>`) survive.
 
@@ -97,38 +100,37 @@ Every file in `catalog/commands/` is either a Training scene, a Reference row, o
 
 The same table is frozen in `docs/releases/v4/v4.2/development/guide-redesign-content-map.md`.
 
-## The example project (Trivia Quiz)
+## The example project (Glow Booth)
 
-A small vanilla HTML, CSS, and JavaScript quiz that runs by opening `example/trivia-quiz/index.html`. It works end to end but ships with two intentional bugs and no tests, plus one feature to add:
+A small vanilla HTML, CSS, and JavaScript instant-camera booth that runs by opening `example/glow-booth/index.html`. It works end to end but ships with two intentional bugs and no tests, plus one feature to add:
 
-- A perfect run scores one less than the total (the score helper stops one short).
-- Restart keeps the previous answers instead of clearing them.
-- Feature to add: shuffle the deck on every run.
+- A perfect set of poses awards 4/5 stamps (the stamp helper stops one short).
+- Restart leaves the last pose on stage.
+- Feature to add: Shuffle poses plus a sparkle overlay on a full meter.
 
-The Training scenes resolve those with the loop. `example/quiz-shuffle-reference/` already has shuffle; it is the local `/compare` target. `trivia-quiz.zip` bundles both folders plus a START-HERE note.
+The Training scenes resolve those with the loop. `example/glow-booth-shuffle-reference/` already has shuffle and sparkle; it is the local `/compare` target. `glow-booth.zip` bundles both folders plus a START-HERE note. Do not teach Trivia Quiz in the published guide.
 
 ## Running the training (self-guided)
 
 Prerequisites:
 
 - Nexus-Hub installed so the slash commands resolve. Paste one of the Home install commands above.
-- A modern browser to run the app.
-- Node 18+ and npm (the `/test` step uses Vitest).
+- A modern browser to open `index.html`.
 
-Setup: download `trivia-quiz.zip`, extract it, and open the app in your platform of choice. From the app folder, run `git init` and an initial commit, then `npm install`.
+Setup: download `glow-booth.zip`, extract it, and open the app in your platform of choice. From the app folder, run `git init` and an initial commit.
 
-The loop, in order (each prompt is on the matching workbench scene):
+The loop, in order (each prompt is on the matching Training slide):
 
 1. `/describe full`
 2. `/review`
 3. `/plan feature`
 4. `/implement` (one phase)
-5. `/compare ../quiz-shuffle-reference` then `/plan from-comparison` as a beat of compare or plan, not a ninth scene
+5. `/compare ../glow-booth-shuffle-reference` then `/plan from-comparison` as a beat of compare or plan, not a ninth scene
 6. `/test unit`
 7. `/update`
 8. `/presentify`
 
-Troubleshooting: if a slash command does not resolve, reinstall Nexus-Hub and reload the editor. If `/compare` cannot find the reference, keep `quiz-shuffle-reference` next to the app (`../quiz-shuffle-reference`). If Vitest is missing, run `npm install` in the app folder.
+Troubleshooting: if a slash command does not resolve, reinstall Nexus-Hub and reload the editor. If `/compare` cannot find the reference, keep `glow-booth-shuffle-reference` next to the app (`../glow-booth-shuffle-reference`).
 
 ## Copy contract (canonical publication)
 
@@ -152,8 +154,8 @@ Automated tests parse HTML and JSON. They do not execute JavaScript in a browser
 - Light and dark themes, including a reload (theme must persist only `light` or `dark`)
 - Reduced motion
 - Home install copy on macOS/Linux and Windows tabs
-- Foundations slider
-- All eight Training scenes, including outline, copy, and a mid-tour URL
+- Foundations four stations and the two-state comparison (not a range slider)
+- All eight Training slides, including the booth hero, peek, outline, copy, and a mid-tour URL
 - Keyboard-only path through Home, Foundations, Training, one workflow page, and Reference
 - `file://` boot (untrusted-origin warning stays visible)
 
@@ -161,4 +163,4 @@ Lighthouse Accessibility is a last-phase human bar, not a mid-plan merge gate.
 
 ## Editing
 
-The guide is a single HTML file: CSS in the `<style>` block, content in `<section class="page">` blocks, behavior in the `<script>` blocks at the bottom. Training styles use the `wb-` prefix. Scene data is `example/training-scenes.json` plus the matching inline JSON block. The example under `example/` is plain files; edit them in place and regenerate `trivia-quiz.zip` from those folders.
+The guide is a single HTML file: CSS in the `<style>` block, content in `<section class="page">` blocks, behavior in the `<script>` blocks at the bottom. Training styles use the `ts-` and `wb-` prefixes. Scene data is `example/training-scenes.json` plus the matching inline JSON block. The example under `example/` is plain files; edit them in place and regenerate `glow-booth.zip` from those folders.
