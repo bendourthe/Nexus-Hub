@@ -64,7 +64,21 @@ The optional `raw_memory/` directory exists only inside a user's eval workspace 
 
 ### Result
 
-No documentation move, duplicate, scratch artifact, or lifespan contradiction was introduced by Phase 4. The phase adds only its canonical history record and appends this audit.
+No documentation move, duplicate, scratch artifact, or lifespan contradiction was introduced by Phase 4.
+
+## v4.1.2 Phase 5 - Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
+
+**Date**: 2026-08-28
+**Mode**: audit only; no files moved
+**Plan**: `docs/releases/v4/v4.1/plans/v4.1.2-adoption-minimal-construction.md`
+
+### Layout check
+
+`python catalog/skills/code-cleanup/docs-layout-refactor/scripts/audit-docs.py inventory --root docs` exited 0. `refgraph --root docs` exited 0. Phase 5 replaces `docs/releases/v4/v4.1/development/last-phase-evidence.md` with v4.1.2 content (v4.1.1 evidence remains in git history), appends this audit plus the Phase 5 session history, and records WN-1 / QG-1 on the v4.1.2 known-gaps subsection. No move, deletion, new living-docs root, MCP row, workflow file, or installer copy line is proposed.
+
+### Result
+
+No duplicate, orphaned, scratch, or misplaced documentation was created by v4.1.2 Phase 5. No file moved, and no cleanup change was approved or applied. The phase adds only its canonical history record and appends this audit.
 
 ## Phase 5 - Oxlint Vendor Decision
 
