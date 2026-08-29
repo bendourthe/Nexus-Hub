@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Interactive guide redesign (in progress).** Phases 1-7 local: contract, dual-theme shell, concise Home with install, model-versus-harness Foundations, an eight-scene IDE training workbench driven by `guides/website/example/training-scenes.json`, a documented copy path to the sibling portfolio, a product-currency gate over every catalog command, and last-phase evidence. Publication to `develop` is the remaining remote step.
+
 ---
 
 ## [4.1.2] - 2026-08-28

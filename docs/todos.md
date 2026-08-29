@@ -1,7 +1,7 @@
 # Nexus-Hub Progress Dashboard
 
-**Branch:** `develop`
-**Active plan:** none (v4.1.2 shipped)
+**Branch:** `feat/v4.2.0-interactive-guide-redesign`
+**Active plan:** [v4.2.0 interactive-guide-redesign](releases/v4/v4.2/plans/v4.2.0-interactive-guide-redesign.md)
 **Last refreshed:** 2026-08-29
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its own `docs/releases/v*/v*.*/known-gaps.md`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
@@ -14,7 +14,7 @@ Refreshing this file to the active plan (rather than appending another version's
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
-| v4.1.2 adoption phases complete | 5 | 5 | 0 |
+| v4.2.0 guide-redesign phases complete | 6 | 7 | -1 |
 | Open release blockers | 0 | 0 | 0 |
 | Catalog skills | 328 | 328 | 0 |
 | New MCP servers | 0 | 0 | 0 |
@@ -22,34 +22,19 @@ Refreshing this file to the active plan (rather than appending another version's
 
 ---
 
-## Release - v4.1.2 [SHIPPED]
+## Plan - v4.2.0 Interactive Guide Redesign [IN PROGRESS]
 
-- [x] Merge the five-phase implementation into `develop` with green integration checks ([#141](https://github.com/bendourthe/Nexus-Hub/pull/141), `34d8272b`)
-- [x] Derive release notes from `v4.1.1..origin/develop`
-- [x] Prepare and verify the v4.1.2 release commit
-- [x] Promote `develop` to `main` ([#143](https://github.com/bendourthe/Nexus-Hub/pull/143)), tag [v4.1.2](https://github.com/bendourthe/Nexus-Hub/releases/tag/v4.1.2), publish the GitHub Release, and back-merge
-
----
-
-## Plan - v4.1.2 Minimal Construction Discipline [INTEGRATED]
-
-- [x] Phase 1 - Construction-discipline contract and always-on templates
-- [x] Phase 2 - `minimal-construction` skill
-- [x] Phase 3 - `over-engineering-review` skill
-- [x] Phase 4 - Construction-debt harvest and eval proof
-- [x] Phase 5 - Architecture refactor, known-gaps, CI/CD, publication, and integration
+- [x] Phase 1 - Baseline, content model, and UX contract
+- [x] Phase 2 - Portfolio-aligned shell, theme, and navigation
+- [x] Phase 3 - Concise Home and embedded installation
+- [x] Phase 4 - Model-versus-harness Foundations
+- [x] Phase 5 - Interactive IDE training workbench
+- [x] Phase 6 - Maintainer docs and copy contract
+- [ ] Phase 7 - Architecture refactor, known-gaps, CI/CD, publication, and integration
 
 ### What this plan changes, in one paragraph
 
-Every Nexus-Hub-backed agent now has an always-on pre-write construction ladder, plus two skills for intensity and delete-list review, without an MCP, Ponytail vendor, or a weaker security or verification owner.
-
----
-
-## Other queued plans (not started)
-
-These are committed plan documents awaiting their own cycle. Listing them here is a pointer, not a claim of progress.
-
-- [`v4.2.0-interactive-guide-redesign.md`](releases/v4/v4.2/plans/v4.2.0-interactive-guide-redesign.md)
+The public Nexus-Hub guide becomes a short orientation and install surface, a model-versus-harness Foundations page, and one data-driven IDE workbench for eight closed Training scenes, without changing command semantics or adding a runtime network dependency.
 
 ---
 
