@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.1.1 -->
+<!-- nexus-hub-version: 4.1.2 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 328 skills, 18 commands, 33 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -37,7 +37,15 @@ The two projects are designed to be useful independently: you can install Nexus-
 
 ---
 
-## What's New in v4.1.1
+## What's New in v4.1.2
+
+**Agents stop at the first sufficient construction before writing code.** All 12 substantive instruction templates now carry a compact always-on ladder: skip, reuse this codebase, stdlib, native feature, installed dependency, one line, then minimum. Include-only shims inherit it and do not duplicate the heading.
+
+**Two skills own intensity and delete-lists.** `minimal-construction` walks the seven rungs with lite/full/ultra as a skill argument (no env var or config file). `over-engineering-review` emits a tagged delete-list or `Lean already. Ship.` and does not apply fixes. Deferred ceilings use a generic `construction-debt:` marker.
+
+Catalog counts are **328 skills** (+2), **18 commands**, **33 hooks**, and **23 agents**. This release has no breaking change and changes no opt-in capability, installer flag, or host surface.
+
+## Previously, in v4.1.1
 
 **Local security audits now prove which scanners ran.** A full security-audit run emits a schema-v2 closure record with a receipt for every applicable optional local scanner (`RAN`, `NOT_APPLICABLE`, `UNAVAILABLE`, `FAILED`, or `DECLINED`). Schema-v1 records keep their previous fields. Missing tools stay visible instead of looking complete.
 
