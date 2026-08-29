@@ -34,7 +34,7 @@ Canonical install constants (must match `tests/guides/test_nexus_hub_guide.py`):
 - macOS / Linux: `curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash`
 - Windows: `irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex`
 
-Home also shows platform reachability (which hosts expose slash commands, and the first verify step) and a six-node ribbon: Map and evaluate, Plan, Build, Harden, Ship, Communicate. wget, flags, and `--workspace` live in a Home disclosure and in Cheatsheets. Do not hardcode skill counts, command counts, or installer versions on Home.
+Home also shows platform reachability (which hosts expose slash commands, and the first verify step) and a six-node ribbon: Map and evaluate, Plan, Implement, Harden, Ship, Communicate. wget, flags, and `--workspace` live in a Home disclosure and in Cheatsheets. Do not hardcode skill counts, command counts, or installer versions on Home.
 
 ## Foundations
 

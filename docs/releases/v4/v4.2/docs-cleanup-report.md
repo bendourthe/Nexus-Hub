@@ -163,3 +163,25 @@ Phase 6 removes Workflows and Reference from primary nav, adds `#page-cheatsheet
 
 No documentation move.
 
+## v4.2.1 Phase 7 - Architecture refactor, known-gaps, CI/CD
+
+**Date**: 2026-08-29
+**Mode**: audit only; no files moved
+**Plan**: `docs/releases/v4/v4.2/plans/v4.2.1-guide-visual-education.md`
+
+### Layout check
+
+Phase 7 copies the v4.2.0 last-phase record to `docs/releases/v4/v4.2/development/last-phase-evidence-v4.2.0.md` and overwrites `docs/releases/v4/v4.2/development/last-phase-evidence.md` with the v4.2.1 record. It updates root `README.md` and `guides/website/README.md` in place. `example/trivia-quiz/` stays on disk. No `docs/testing/` or `docs/validation/` invented. No installer-copied `scripts/*.py` was added. No `.github/workflows/` edit.
+
+### New documentation artifacts
+
+| Path | Category | Disposition |
+|---|---|---|
+| `docs/releases/v4/v4.2/development/last-phase-evidence-v4.2.0.md` | Preserved prior-patch evidence | Keep. |
+| `docs/releases/v4/v4.2/development/last-phase-evidence.md` | Active last-phase evidence | Keep; now the v4.2.1 record. |
+| `docs/releases/v4/v4.2/development/history/2026-08-29_v4.2.1-guide-visual-education-phase-7-closeout.md` | Active phase evidence | Keep under the current version's development history. |
+
+### Result
+
+No documentation move. Publication (push / PR) is gated on explicit approval.
+

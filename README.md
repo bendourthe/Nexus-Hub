@@ -10,7 +10,7 @@ Nexus-Hub is the upstream skill catalog for AI coding assistants: 328 skills, 18
 
 ## Interactive Guide -- start here
 
-**New to Nexus-Hub? [Open the interactive guide](guides/website/nexus-hub-guide.html).** It is a self-contained, offline HTML file: a concise Home with the install commands, a Foundations page that separates the model from the harness, and an eight-scene IDE workbench that shows each command's input, files, artifact, and gate. It is the fastest way to get a teammate productive, and it doubles as a live-demo-quality workshop.
+**New to Nexus-Hub? [Open the interactive guide](guides/website/nexus-hub-guide.html).** It is a self-contained, offline HTML file: a concise Home with the install commands, Foundations that teach prompt, context, harness, and loop engineering as four visual stations, a Training slideshow of Glow Booth going from buggy to fixed, and one Cheatsheets tab for the loop plus command arguments. It is the fastest way to get a teammate productive, and it doubles as a live-demo-quality workshop.
 
 - **File:** [`guides/website/nexus-hub-guide.html`](guides/website/nexus-hub-guide.html) -- one HTML file, fully offline, no server or install required.
 - **To view it:** GitHub does not render HTML inline. Open the file above and click **Download raw file** (top-right of the file view), then open the downloaded `.html` in any browser. Or clone the repo and double-click it.
