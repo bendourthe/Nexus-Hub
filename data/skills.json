@@ -6,14 +6,14 @@
     "description": "Comprehensive catalog of Nexus-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-    "total_skills": 327,
+    "total_skills": 328,
     "categories": {
       "ai-development": 14,
       "architecture": 7,
       "bug-fixing": 5,
       "business-product": 7,
       "code-cleanup": 11,
-      "code-review": 15,
+      "code-review": 16,
       "compliance": 9,
       "developer-experience": 41,
       "documentation": 6,
@@ -33,7 +33,7 @@
       "mobile-security": 5
     },
     "priorities": {
-      "MEDIUM": 274,
+      "MEDIUM": 275,
       "HIGH": 5
     },
     "total_lines": 136172,
@@ -1457,6 +1457,42 @@
         "lines": 132,
         "characters": 13307,
         "tokens_estimate": 1901
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "over-engineering-review",
+      "title": "over-engineering-review",
+      "description": "\"Review a diff or a repo for over-engineering and emit a tagged delete-list. Use this skill whenever the user says review for over-engineering, what can we delete, is this over-engineered, audit this repo for bloat, or wants a delete-list of extra machinery, even if they do not name this skill. SKIP: correctness, security, performance, Fowler smell catalogs, and post-write structural simplification (code-simplification). Do NOT apply fixes, and never tag a proving command or trust-boundary check as bloat.\"",
+      "long_description": "Hunt extra machinery in a diff or repo and emit a tagged delete-list. Do not apply fixes.",
+      "summary_l0": "\"Emit a tagged over-engineering delete-list without applying fixes\"",
+      "overview_l1": "\"Hunt extra machinery in a diff (default) or a whole repo and emit one tagged line per finding (delete, stdlib, native, yagni, shrink) plus a net line-count, or Lean already. Ship. This skill does not apply fixes, does not replace SOLID or Fowler reviews, and does not flag required proving commands or trust-boundary checks. Trigger phrases: review for over-engineering, what can we delete, is this over-engineered, audit this repo for bloat.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "code-review",
+      "language": "Multi-language",
+      "tags": [
+        "review",
+        "over-engineering",
+        "yagni",
+        "delete-list"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/code-review/over-engineering-review/",
+      "file": "catalog/skills/code-review/over-engineering-review/SKILL.md",
+      "size": {
+        "lines": 111,
+        "characters": 5796,
+        "tokens_estimate": 1449
       },
       "downloads": 0,
       "status": "production",

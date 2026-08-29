@@ -58,6 +58,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | final-report | code-review | "Consolidate review findings into structured reports with executive summary and action plan" | catalog/skills/code-review/final-report/SKILL.md |
 | intent-based-review | code-review | "Review AI-generated code by verifying acceptance criteria instead of line-by-line inspection" | catalog/skills/code-review/intent-based-review/SKILL.md |
 | multi-agent-code-review | code-review | "Review a diff with parallel reviewer personas and a confidence-gated findings pipeline" | catalog/skills/code-review/multi-agent-code-review/SKILL.md |
+| over-engineering-review | code-review | "Emit a tagged over-engineering delete-list without applying fixes" | catalog/skills/code-review/over-engineering-review/SKILL.md |
 | performance-review | code-review | "Detect performance bottlenecks, resource issues, and caching optimization opportunities" | catalog/skills/code-review/performance-review/SKILL.md |
 | plan-review | code-review | "Review a plan or requirements doc with parallel persona lenses before coding" | catalog/skills/code-review/plan-review/SKILL.md |
 | security-review | code-review | "Identify security vulnerabilities across OWASP Top 10 and supply chain domains" | catalog/skills/code-review/security-review/SKILL.md |
@@ -332,4 +333,4 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | design-interview | developer-experience | "Interview until the design tree is resolved and keep a CONTEXT.md glossary" | catalog/skills/developer-experience/design-interview/SKILL.md |
 | setup-wizard-generator | developer-experience | "Generate a resumable human-only setup wizard with bash and PowerShell templates" | catalog/skills/developer-experience/setup-wizard-generator/SKILL.md |
 | decision-questionnaire | business-product | "Write an async Markdown questionnaire for the one stakeholder who can unblock" | catalog/skills/business-product/decision-questionnaire/SKILL.md |
-**Total: 327 skills across 23 categories**
+**Total: 328 skills across 23 categories**
