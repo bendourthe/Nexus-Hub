@@ -207,4 +207,73 @@ $ python -m pytest -q tests
 
 ## Publication and integration
 
-Pending. This section is completed by sub-task 7.9 after explicit maintainer approval for the plan's first and only push.
+### Push 1 - 2026-08-29
+
+Approved by the maintainer, then pushed once. PR [#146](https://github.com/bendourthe/Nexus-Hub/pull/146) opened against `develop` (never against `main`).
+
+First run: **18 of 20 checks passed; `validate` failed, cascading to `ci-required`.**
+
+```text
+$ gh pr checks 146
+ci-required                   fail   4s
+validate                      fail   28s
+bootstrap (macos-latest)      pass   1m46s
+bootstrap (ubuntu-latest)     pass   2m1s
+bootstrap-windows             pass   3m4s
+changes                       pass   8s
+colocation                    pass   6s
+detect                        pass   10s
+install-smoke (macos-latest)  pass   11s
+install-smoke (ubuntu-latest) pass   10s
+install-smoke (windows-latest) pass  27s
+installer-smoke (macos-latest) pass  12s
+installer-smoke (ubuntu-latest) pass 9s
+installer-smoke (windows-latest) pass 28s
+shellcheck                    pass   23s
+tests                         pass   10m12s
+tests-windows                 pass   10m34s
+verify                        pass   2s
+render                        skipping
+```
+
+The aggregate behaved exactly as the contract intends: `ci-required` turned red because a needed job failed, rather than reporting green off a bare `needs:`.
+
+**Failure classified: IMPL, inherited.**
+
+```text
+$ gh run view --job 99175355325 --log-failed
+fix end of files.........................................................Failed
+- hook id: end-of-file-fixer
+- exit code: 1
+- files were modified by this hook
+
+Fixing docs/releases/v4/v4.2/docs-cleanup-report.md
+```
+
+**Reproduced locally before any re-push** (the rule is never to re-run a red check on a guess):
+
+```text
+develop version trailing newline bytes: 1
+this branch                            : 4   (a trailing blank line, CRLF file)
+
+$ git log --oneline origin/develop..HEAD -- docs/releases/v4/v4.2/docs-cleanup-report.md
+89e8e3dc docs(v4.2.1): record last-phase visual-education evidence
+... (7 v4.2.1 commits; NO v4.2.2 commit touches this file)
+```
+
+**Root cause**: the defect was introduced by the v4.2.1 commits, which ride along in this PR because the branch was cut from the never-merged v4.2.1 head. v4.2.1 never reached CI, so `end-of-file-fixer` had never seen the file. None of the v4.2.2 work touched it. This is precisely the risk surfaced to the maintainer before the push was approved.
+
+**Blast-radius check before fixing** - scanned all 47 text files this PR delivers for the same class of defect, so the fix would not become a fix-and-fail loop:
+
+```text
+files checked: 47
+MISSING final newline:      none
+EXTRA trailing blank lines: [('docs/releases/v4/v4.2/docs-cleanup-report.md', 4)]
+TRAILING whitespace:        none
+```
+
+Exactly one file affected. **Narrow fix applied**: normalized to a single trailing `\r\n`, preserving the file's own CRLF endings (the `mixed line ending` hook passes on CRLF). No content changed.
+
+### Push 2
+
+Pending: local gate re-run, then one narrowly scoped stabilization commit and a re-push, both behind maintainer approval.

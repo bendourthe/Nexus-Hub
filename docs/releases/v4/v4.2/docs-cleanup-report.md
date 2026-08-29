@@ -184,4 +184,3 @@ Phase 7 copies the v4.2.0 last-phase record to `docs/releases/v4/v4.2/developmen
 ### Result
 
 No documentation move. Publication (push / PR) is gated on explicit approval.
-
