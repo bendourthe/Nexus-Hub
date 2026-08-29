@@ -72,6 +72,8 @@ Full walkthrough: [step-2-configure-language-specific-checks.md](references/step
 
 Full walkthrough: [step-3-implement-secret-detection.md](references/step-3-implement-secret-detection.md) (load this step when you reach it).
 
+Users who explicitly want a fast local secret-prevention hook may add gitleaks to that hook set. `security-review` owns full repository and history audit scope and the schema-v2 scanner receipts. Do not copy that recipe here, never auto-install gitleaks, do not add it as a Nexus-Hub repository dependency, and do not fall back to a hosted secret-scanning service.
+
 ### Step 4: Configure Commit Message Validation
 
 Full walkthrough: [step-4-configure-commit-message-validation.md](references/step-4-configure-commit-message-validation.md) (load this step when you reach it).
@@ -118,7 +120,7 @@ Detailed guidance lives in [common-pitfalls-and-solutions.md](references/common-
 
 - [[dependency-security-audit]] -- dependency vulnerability scanning that can run as a hook
 - [[code-commit-workflow]] -- git commit conventions the commit-msg hook enforces
-- [[security-review]] -- deeper security audit beyond the fast pre-commit gate
+- [[security-review]] -- deeper security audit beyond the fast pre-commit gate. It owns full-repository and history secret-scan receipts. This skill may point at gitleaks as an optional local hook for users who explicitly want fast secret prevention; do not auto-install that hook, do not copy the full `security-review` gitleaks recipe, and do not add gitleaks as a Nexus-Hub dependency.
 - [[code-quality]] -- code quality assessment the linting hooks support
 
 ## Additional Resources

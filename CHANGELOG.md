@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+### Added
+
+- **Scanner-receipt closure contract.** Full security-audit runs now emit schema-v2 closure records with a scanner inventory, per-scanner receipts (`RAN`, `NOT_APPLICABLE`, `UNAVAILABLE`, `FAILED`, `DECLINED`), remediation linkage, and an independent read-only verifier. Schema-v1 records keep their previous fields, diffs, and exit codes.
+- **Optional local scanner recipes.** Semgrep and gitleaks recipes live on `security-review`; OSV-Scanner, npm audit, pip-audit, and Trivy vulnerability scanning on `dependency-security-audit`; Trivy config and Checkov on `cloud-security-posture-detection`. Missing tools are recorded honestly. None is auto-installed or replaced by a hosted service.
+- **Ordered `security-audit` preset.** `agent-presets` now includes a fourth preset that runs scope, detect, triage, optional user-approved remediation, test, same-detector re-scan, independent read-only verification, and closure. It announces active skills and scanner coverage (`complete` or `degraded`) and introduces no tool, MCP, service, credential, or automatic installation.
+- **Security-audit contract fixtures.** Inert schema-v2 (and one schema-v1) review records cover silent scanner omission, honest unavailable/failed/declined tools, forged non-applicability, re-scan mismatch, unresolved after-scan findings, fixer/verifier identity collision, and clean detection-only and remediated audits. Command strings in those fixtures are never executed.
+
+### Changed
+
+- **Security-review schema selection.** `security-review` uses schema v2 for a full security audit and may keep schema v1 for a focused review only when it states that deterministic scanner completeness is not claimed. The fixer cannot be the only post-fix verifier.
+- **Scanner availability is recorded, not installed.** Dependency, IaC, and secret-scan owners check for local binaries first. Package-manager install recipes are user-authorized only. Cloud posture remains read-only and never applies infrastructure changes.
+- **`security-audit` workflow sequence.** The existing `security-audit` workflow id now lists detection owners before `security-patch-advisor`, then `testing-review` and `adversarial-verifier`. Authentication and licensing remain in the sequence without duplicating their procedures. `pre-commit-checklist` is no longer a member of this workflow.
+- **`security-reviewer` post-fix role.** The generic reviewer stays read-only: it consumes before/after scanner receipts, reviews the patch diff, and must not apply patches, approve its own prior fixes, or claim complete scanner coverage when coverage is degraded.
+- **`security-specialist` bundle membership.** The focused security bundle now includes `agent-presets`, `cloud-security-posture-detection`, and `testing-review` so a security-specialist install closes the security-audit capability owners.
+
+### Documentation
+
+- **v4.1.2 planning record.** Added the Ponytail (minimal-construction) comparison as forward-looking documentation. Its implementation does not ship in v4.1.1.
+- **Local security-audit guide.** `guides/reference/SECURITY_AUDIT.md` explains optional local scanners, receipt states, degraded coverage, remediation consent, same-detector re-scan, and independent verification. Tools are never auto-installed. Cloud review remains read-only. `security-review` and the selective-install guide point at that file.
+
+---
+
 ## [4.1.0] - 2026-08-28
 
 ### Capability usage gate

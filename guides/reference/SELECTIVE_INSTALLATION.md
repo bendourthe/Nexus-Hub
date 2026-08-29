@@ -120,3 +120,4 @@ Exit codes are consistent across all three install paths: **2** means your selec
 - [`install-selection-contract.md`](../../docs/releases/v3/v3.16/development/install-selection-contract.md) - the normative rules
 - [`selective-install-baseline.md`](../../docs/releases/v3/v3.16/development/selective-install-baseline.md) - which install path owns which surface
 - [`data/bundles.json`](../../data/bundles.json) - profiles, modules, bundles, and `surface_requirements`
+- [`SECURITY_AUDIT.md`](SECURITY_AUDIT.md) - local security-audit procedure for a `security-specialist` (or equivalent) install
