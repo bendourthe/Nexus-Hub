@@ -1,11 +1,14 @@
 """Structural tests for guides/website/nexus-hub-guide.html.
 
-Baseline assertions pass against the current single-file guide.
-Redesign assertions use strict xfail until the named phase removes the marker.
+v4.2.2 rebuild gate. Baseline assertions pass against the rebuilt shell;
+assertions owned by a later rebuild phase use strict xfail until that phase
+removes the marker (plan: docs/releases/v4/v4.2/plans/
+v4.2.2-guide-cinematic-rebuild.md).
 """
 
 from __future__ import annotations
 
+import importlib.util
 import json
 import os
 import re
@@ -18,6 +21,7 @@ import pytest
 _ROOT = Path(__file__).resolve().parents[2]
 GUIDE = _ROOT / "guides" / "website" / "nexus-hub-guide.html"
 EXAMPLE_ZIP_NAME = "glow-booth.zip"
+SIZE_BUDGET_BYTES = 500_000
 
 INSTALL_SH = (
     "curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash"
@@ -26,7 +30,7 @@ INSTALL_PS = (
     "irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex"
 )
 
-# Onboarding catalog-count / installer-version patterns (Phase 3 removes these).
+# Onboarding catalog-count / installer-version patterns (must never reappear).
 ONBOARDING_STALE = re.compile(
     r"""(?:
         \b\d{2,4}\s+skills\b
@@ -80,6 +84,10 @@ class GuideParser(HTMLParser):
         self.all_data_copy: list[tuple[str, str]] = []
         self.has_theme_toggle = False
         self.raw_attrs: list[tuple[str, dict[str, str]]] = []
+        self.install_tab_order: list[str] = []
+        self.install_tab_selected: list[str] = []
+        self._in_install_wrap = False
+        self._install_depth = 0
 
     def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
         ad = {k: (v or "") for k, v in attrs}
@@ -99,6 +107,14 @@ class GuideParser(HTMLParser):
             self._page_section_depth = 1
         elif self.current_page and tag == "section":
             self._page_section_depth += 1
+        if "nhg-install-wrap" in ad.get("class", ""):
+            self._in_install_wrap = True
+            self._install_depth = 1
+        elif self._in_install_wrap and tag in {"div", "section"}:
+            self._install_depth += 1
+        if self._in_install_wrap and tag == "button" and "tab-btn" in ad.get("class", ""):
+            self.install_tab_order.append(ad.get("data-tab", ""))
+            self.install_tab_selected.append(ad.get("aria-selected", ""))
         if tag in {"h1", "h2", "h3"}:
             self._heading_tag = tag
             self._heading_parts = []
@@ -154,6 +170,10 @@ class GuideParser(HTMLParser):
             self._nav_links_depth -= 1
             if self._nav_links_depth <= 0:
                 self._in_nav_links = False
+        if self._in_install_wrap and tag in {"div", "section"}:
+            self._install_depth -= 1
+            if self._install_depth <= 0:
+                self._in_install_wrap = False
         if self.current_page and tag == "section":
             self._page_section_depth -= 1
             if self._page_section_depth <= 0:
@@ -200,7 +220,7 @@ def parsed(guide_text: str) -> GuideParser:
 
 
 # ---------------------------------------------------------------------------
-# Baseline (must pass on the current file)
+# Baseline document contract
 # ---------------------------------------------------------------------------
 
 
@@ -211,17 +231,18 @@ def test_one_html_document(parsed: GuideParser, guide_text: str) -> None:
     assert GUIDE.suffix == ".html"
 
 
+def test_file_size_budget() -> None:
+    size = GUIDE.stat().st_size
+    assert size < SIZE_BUDGET_BYTES, f"guide is {size} bytes; budget {SIZE_BUDGET_BYTES}"
+
+
 def test_each_page_has_a_primary_heading(parsed: GuideParser) -> None:
-    """Each page section has an H1, except Training which currently titles with H2."""
     assert parsed.page_ids, "no page sections found"
     for page_id in parsed.page_ids:
         headings = parsed.headings_by_page.get(page_id, [])
         assert headings, f"{page_id} has no h1-h3 heading"
         tag, _title = headings[0]
-        if page_id == "page-training":
-            assert tag in {"h1", "h2"}
-        else:
-            assert tag == "h1", f"{page_id} first heading is {tag}, expected h1"
+        assert tag == "h1", f"{page_id} first heading is {tag}, expected h1"
 
 
 def test_ids_are_unique(parsed: GuideParser) -> None:
@@ -274,7 +295,7 @@ def test_github_is_user_initiated_not_a_script(parsed: GuideParser) -> None:
 
 
 # ---------------------------------------------------------------------------
-# Redesign: Phase 2
+# Shell: nav, theming, routing (Phase 1)
 # ---------------------------------------------------------------------------
 
 
@@ -305,6 +326,18 @@ def test_github_control_is_icon_only(guide_text: str) -> None:
     assert "GitHub" not in visible
 
 
+def test_github_control_is_fixed_square(guide_text: str) -> None:
+    """Screenshot-1 regression: the octocat must sit centered in a fixed square."""
+    rule = re.search(r"a\.nav-gh,\s*\.nhg-theme\s*\{([^}]+)\}", guide_text)
+    assert rule, "expected shared a.nav-gh/.nhg-theme sizing rule"
+    body = rule.group(1)
+    assert "width: 36px" in body and "height: 36px" in body
+    assert "padding: 0" in body, "text-link padding must not crush the icon"
+    assert "inline-flex" in body
+    svg_rule = re.search(r"\.nav-gh svg\s*\{([^}]+)\}", guide_text)
+    assert svg_rule and "17px" in svg_rule.group(1)
+
+
 def test_theme_control_is_sun_moon_default_dark(guide_text: str) -> None:
     assert 'id="themeToggle"' in guide_text
     assert 'class="icon-sun"' in guide_text
@@ -322,13 +355,15 @@ def test_wordmark_uses_theme_ink(guide_text: str) -> None:
     assert "#fff" not in body
 
 
-def test_copy_button_is_not_inside_data_copy_code(guide_text: str) -> None:
-    fn = guide_text.split("function initCopyButtons()", 1)[-1].split(
-        "function isDocumentedGuideOrigin()", 1
-    )[0]
-    assert "host.appendChild(btn)" in fn
-    assert "el.appendChild(btn)" not in fn
-    assert 'closest(".cmd-line")' in fn
+def test_light_mode_brand_chip(guide_text: str) -> None:
+    """The glow logo sits on a rounded dark chip in light theme (screenshot 4)."""
+    rule = re.search(
+        r'html\[data-theme="light"\] \.brand \.mark[^{]*\{([^}]+)\}', guide_text
+    )
+    assert rule, "expected light-mode brand chip rule"
+    body = rule.group(1)
+    assert "border-radius" in body
+    assert "background" in body
 
 
 def test_light_theme_terminal_is_not_near_black(guide_text: str) -> None:
@@ -365,9 +400,90 @@ def test_reduced_motion_pauses_constellation(guide_text: str) -> None:
     assert "visibilitychange" in guide_text or "document.hidden" in guide_text
 
 
+def test_cheatsheets_hash_rewrites_exist(guide_text: str) -> None:
+    assert "HASH_REWRITES" in guide_text
+    assert "reference: \"cheatsheets\"" in guide_text or "reference: 'cheatsheets'" in guide_text
+    assert "explore: \"cheatsheets/explore\"" in guide_text or "explore: 'cheatsheets/explore'" in guide_text
+    assert 'id="page-cheatsheets"' in guide_text
+    assert 'id="page-explore"' not in guide_text
+    assert 'id="page-reference"' not in guide_text
+
+
+def test_no_stale_setup_route_in_markup(parsed: GuideParser) -> None:
+    assert "page-setup" not in parsed.page_ids
+    static = [g for g in parsed.data_go if g == "setup"]
+    assert not static
+
+
 # ---------------------------------------------------------------------------
-# Redesign: Phase 3
+# Shell: design system (Phase 1)
 # ---------------------------------------------------------------------------
+
+
+def test_compact_spacing_and_measure_tokens(guide_text: str) -> None:
+    sec_pad = re.search(r"--sec-pad:\s*(\d+)px", guide_text)
+    assert sec_pad, "expected --sec-pad token"
+    assert int(sec_pad.group(1)) <= 32, "section rhythm must stay compact"
+    assert "--measure:" in guide_text, "expected shared measure token"
+    assert "--violet" not in guide_text, "accent rainbow was trimmed by the design brief"
+
+
+def test_hero_title_and_lead_share_measure(guide_text: str) -> None:
+    h1_rule = re.search(r"(?<![\w-])h1\s*\{([^}]+)\}", guide_text)
+    assert h1_rule and "var(--measure)" in h1_rule.group(1)
+    lead_rule = re.search(r"\.lead\s*\{([^}]+)\}", guide_text)
+    assert lead_rule and "var(--measure)" in lead_rule.group(1)
+
+
+def test_reveal_motion_has_static_reduced_fallback(guide_text: str) -> None:
+    assert ".reveal" in guide_text
+    reduce_block = guide_text.split("@media (prefers-reduced-motion: reduce)", 1)
+    assert len(reduce_block) == 2, "expected a reduced-motion block"
+    assert "opacity: 1" in reduce_block[1].split("}", 3)[-2] or "opacity: 1" in reduce_block[1][:800]
+
+
+def test_copy_button_is_slim(guide_text: str) -> None:
+    rule = re.search(r"\.copy-btn\s*\{([^}]+)\}", guide_text)
+    assert rule, "expected .copy-btn rule"
+    height = re.search(r"height:\s*(\d+)px", rule.group(1))
+    assert height and int(height.group(1)) <= 26, "copy button must be slim (screenshot 2)"
+
+
+def test_copy_button_is_not_inside_data_copy_code(guide_text: str) -> None:
+    fn = guide_text.split("function initCopyButtons()", 1)[-1]
+    assert "host.appendChild(btn)" in fn
+    assert "el.appendChild(btn)" not in fn
+    assert 'closest(".cmd-line' in fn
+
+
+def test_untrusted_origin_warning_fully_removed(guide_text: str) -> None:
+    """Maintainer decision 2026-08-29: the warning box and its logic are gone."""
+    assert "untrustedCopyWarning" not in guide_text
+    assert "isDocumentedGuideOrigin" not in guide_text
+    assert "not on a documented host" not in guide_text
+
+
+def test_render_harness_imports_without_playwright() -> None:
+    tool = _ROOT / "tests" / "guides" / "tools" / "render_guide.py"
+    spec = importlib.util.spec_from_file_location("render_guide", tool)
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)  # lazy playwright import: must not raise
+    assert hasattr(module, "main")
+    assert module.PAGES == ("home", "foundations", "training", "cheatsheets")
+
+
+# ---------------------------------------------------------------------------
+# Home: install section (Phase 2 completes the page; install block live now)
+# ---------------------------------------------------------------------------
+
+
+def test_windows_install_tab_is_first_and_default(parsed: GuideParser, guide_text: str) -> None:
+    assert parsed.install_tab_order, "expected install tabs"
+    assert parsed.install_tab_order[0] == "win", "Windows tab must be first"
+    assert parsed.install_tab_selected[0] == "true", "Windows tab must be default-active"
+    first_panel = re.search(r'<div class="tab-panel([^"]*)" data-panel="([a-z]+)"', guide_text)
+    assert first_panel and first_panel.group(2) == "win" and "active" in first_panel.group(1)
 
 
 def test_home_contains_both_canonical_install_commands(parsed: GuideParser) -> None:
@@ -395,80 +511,23 @@ def test_home_install_copy_payload_equals_visible_text(parsed: GuideParser) -> N
     assert found_sh and found_ps
 
 
-def test_no_stale_setup_route_in_markup(parsed: GuideParser) -> None:
-    assert "page-setup" not in parsed.page_ids
-    static = [g for g in parsed.data_go if g == "setup"]
-    assert not static
-
-
-def test_home_has_six_node_preview_including_communicate(guide_text: str) -> None:
-    home_markup = guide_text.split('id="page-home"', 1)[-1].split('id="page-foundations"', 1)[0]
-    assert "Map and evaluate" in home_markup
-    assert "presentify" in home_markup.lower()
-    assert 'data-go="setup"' not in home_markup
-    for node in ("explore", "plan", "build", "harden", "ship", "communicate"):
-        assert f"cheatsheets/{node}" in home_markup
-
-
-def test_home_loop_nodes_are_not_abutting_rectangles(guide_text: str) -> None:
-    home_markup = guide_text.split('id="page-home"', 1)[-1].split('id="page-foundations"', 1)[0]
-    assert "nhg-loop-track" in home_markup
-    assert "nhg-ribbon-join" not in home_markup
-    assert "nhg-loop-index" in home_markup
-    assert home_markup.count("nhg-ribbon-node") == 6
-
-
 def test_onboarding_has_no_hardcoded_catalog_counts(parsed: GuideParser) -> None:
     home = " ".join(parsed.home_text_parts)
     assert not ONBOARDING_STALE.search(home), home[:400]
 
 
-# ---------------------------------------------------------------------------
-# Redesign: Phase 4
-# ---------------------------------------------------------------------------
-
-
-def test_foundations_four_engineering_stations(guide_text: str) -> None:
-    foundations = guide_text.split('id="page-foundations"', 1)[-1].split('id="page-training"', 1)[0]
-    for term in (
-        "Prompt engineering",
-        "Context engineering",
-        "Harness engineering",
-        "Loop engineering",
-    ):
-        assert term in foundations
-        before_details = foundations.split("<details>", 1)[0]
-        assert term in before_details
-    assert "Trivia Quiz" not in foundations
-
-
-def test_foundations_has_user_initiated_comparison(guide_text: str) -> None:
-    foundations = guide_text.split('id="page-foundations"', 1)[-1].split('id="page-training"', 1)[0]
-    assert 'type="range"' not in foundations
-    assert "nhgHarnessRange" not in foundations
-    assert "scroll-scrub-engine" not in guide_text
-    assert "data-compare" in foundations
-    assert "<video" not in foundations.lower()
-
-
-def test_foundations_handoff_is_training_page_hash(guide_text: str) -> None:
-    foundations = guide_text.split('id="page-foundations"', 1)[-1].split('id="page-training"', 1)[0]
-    assert "Now watch the experience layer work" in foundations
-    assert re.search(r'data-go=["\']training["\']|#training(?!/)', foundations)
-    assert "#training/" not in foundations
-
-
-def test_foundations_comparison_states_are_static_in_markup(guide_text: str) -> None:
-    foundations = guide_text.split('id="page-foundations"', 1)[-1].split('id="page-training"', 1)[0]
-    assert "Model alone" in foundations
-    assert "Model with Nexus-Hub" in foundations
-    assert 'data-nhg-keys="self"' in foundations
-    assert 'id="nhgRawPane"' in foundations
-    assert 'id="nhgHubPane"' in foundations
+@pytest.mark.xfail(strict=True, reason="Phase 2 adds copyable verify-command cells")
+def test_home_verify_commands_are_copy_cells(parsed: GuideParser) -> None:
+    payloads = {p for p, _v in parsed.home_data_copy}
+    assert "/skills list" in payloads
+    assert "/commands" in payloads
+    for payload, visible in parsed.home_data_copy:
+        if payload in {"/skills list", "/commands"}:
+            assert visible.strip() == payload
 
 
 # ---------------------------------------------------------------------------
-# Redesign: Phase 5
+# Training scene data (JSON carried through the rebuild; Phase 4 redesigns it)
 # ---------------------------------------------------------------------------
 
 
@@ -477,8 +536,6 @@ def test_training_scenes_are_data_driven_json(parsed: GuideParser) -> None:
 
 
 def test_every_scene_exposes_gate_and_next_scene(parsed: GuideParser) -> None:
-    import json
-
     assert parsed.json_script_contents
     data = json.loads(parsed.json_script_contents[0])
     scenes = data["scenes"] if isinstance(data, dict) and "scenes" in data else data
@@ -513,29 +570,10 @@ def test_script_close_in_fixture_does_not_break_document(parsed: GuideParser) ->
 
 
 def test_inline_scenes_match_example_json(parsed: GuideParser) -> None:
-    import json
-
     disk_path = _ROOT / "guides" / "website" / "example" / "training-scenes.json"
     disk = json.loads(disk_path.read_text(encoding="utf-8"))
     inline = json.loads(parsed.json_script_contents[0])
     assert inline == disk
-
-
-def test_training_is_a_slideshow_with_booth_hero(guide_text: str) -> None:
-    training = guide_text.split('id="page-training"', 1)[-1].split('id="page-explore"', 1)[0]
-    assert 'class="ts-slide"' in training
-    assert 'id="nhBoothHero"' in training
-    assert 'id="nhTraining"' in training
-    assert "Peek at the files" in training
-    assert "Glow Booth" in training
-    assert "Trivia Quiz" not in training
-    assert "function applyState" in guide_text
-    assert "els.editor.textContent" in guide_text
-    assert "scroll-scrub-engine" not in guide_text
-    assert "wb-grid" in training
-    peek_at = training.find("Peek at the files")
-    grid_at = training.find("wb-grid")
-    assert peek_at != -1 and grid_at > peek_at
 
 
 def test_glow_booth_example_ships_frozen_bugs() -> None:
@@ -557,20 +595,22 @@ def test_glow_booth_example_ships_frozen_bugs() -> None:
     assert (_ROOT / "guides" / "website" / "example" / "glow-booth" / "index.html").is_file()
 
 
-def test_hostile_fixture_strings_are_present_for_textcontent(parsed: GuideParser) -> None:
-    import json
-
+@pytest.mark.xfail(strict=True, reason="Phase 4 rebuilds the Training renderer with a textContent contract")
+def test_hostile_fixture_strings_are_rendered_via_textcontent(
+    parsed: GuideParser, guide_text: str
+) -> None:
     data = json.loads(parsed.json_script_contents[0])
     blob = json.dumps(data)
     assert "<img onerror>" in blob
     assert "</script>" in blob
-    # Rendering contract: workbench JS assigns fixture strings via textContent.
-    # (A live DOM is last-phase / DF-1; this is the static proof.)
-    assert "els.editor.textContent" in Path(GUIDE).read_text(encoding="utf-8")
+    assert re.search(r"\.textContent\s*=", guide_text.split("nh-training-scenes", 1)[0]), (
+        "scene-driven output must be assigned via textContent"
+    )
+    assert "data-training-root" in guide_text
 
 
 # ---------------------------------------------------------------------------
-# Redesign: Phase 6
+# Cross-page publication contracts
 # ---------------------------------------------------------------------------
 
 WEBSITE_README = _ROOT / "guides" / "website" / "README.md"
@@ -643,27 +683,15 @@ def test_every_catalog_command_is_training_cheatsheets_or_declined(
     assert not missing, f"unplaced catalog commands: {missing}"
 
 
-def test_cheatsheets_hash_rewrites_exist(guide_text: str) -> None:
-    assert "HASH_REWRITES" in guide_text
-    assert "reference: \"cheatsheets\"" in guide_text or "reference: 'cheatsheets'" in guide_text
-    assert "explore: \"cheatsheets/explore\"" in guide_text or "explore: 'cheatsheets/explore'" in guide_text
-    assert 'id="page-cheatsheets"' in guide_text
-    assert 'id="page-explore"' not in guide_text
-    assert 'id="page-reference"' not in guide_text
-
-
 def test_website_readme_matches_redesign() -> None:
     text = WEBSITE_README.read_text(encoding="utf-8")
     lower = text.lower()
     assert "31 slide" not in lower
     assert "20 slide" not in lower
     assert "guided tour" not in lower
-    assert "fullscreen button" not in lower
     assert "training-scenes.json" in text
     assert "nexus-hub/index.html" in text
     assert "NEXUS_HUB_PORTFOLIO_ROOT" in text
-    assert "sync-nexus-hub-guide.mjs" in text
-    assert "Installation is not a primary page" in text
     for scene in (
         "describe",
         "review",

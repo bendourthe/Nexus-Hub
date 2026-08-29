@@ -89,3 +89,44 @@ None yet.
 ### Inherited Ledger Review
 
 - Closed v4.2.0 DF-1 and QG-1 stay under `## v4.2.0` as Resolved. This patch does not absorb v4.1 or v4.0 gaps.
+
+## v4.2.2 - guide-cinematic-rebuild
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 1 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 1 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+
+### Open Items
+
+#### Deferred
+
+##### DF-1 - Unicode-safety validator does not scan `.html`, so the guide is outside the sanitize gate
+
+- **Source phase**: Phase 1 - Design brief, design system, shell, and render harness
+- **Plan reference**: `docs/releases/v4/v4.2/plans/v4.2.2-guide-cinematic-rebuild.md` T003
+- **Reason**: `scripts/validate_unicode_safety.py` `TEXT_EXTENSIONS` excludes `.html`; the rebuilt guide relies on HTML entities and review instead. Extending the validator is outside this plan's changed-line scope.
+- **Suggested next step**: A future patch adds `.html` (or a guide-specific entity allowlist) to the validator and grandfathers existing archives.
+
+#### Missing Tests
+
+##### MT-1 - Render harness has an import test but no functional test
+
+- **Source phase**: Phase 1 - Design brief, design system, shell, and render harness
+- **Plan reference**: `docs/releases/v4/v4.2/plans/v4.2.2-guide-cinematic-rebuild.md` T002
+- **Reason**: `tests/guides/tools/render_guide.py` is exercised manually per phase (24 screenshots per full sweep); an automated Playwright test would force a browser download in CI, which the offline-first pipeline deliberately avoids.
+- **Suggested next step**: Keep manual; if CI ever gains a browser cache, add one smoke render behind an opt-in marker.
+
+### Resolved
+
+None yet.
+
+### Inherited Ledger Review
+
+- v4.2.1 DF-1 (rendered visual QA) and QG-1 (full-suite proof) remain open on the `## v4.2.1` section; this plan's Phase 7 reconciles both (per-phase render evidence closes the visual half; the integration PR's `pytest tests` job closes the suite half).
