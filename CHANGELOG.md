@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Documentation
+
+- **v4.1.2 planning record.** Added the Ponytail (minimal-construction) comparison as forward-looking documentation. Its implementation does not ship in v4.1.1.
+
+---
+
+## [4.1.1] - 2026-08-28
+
+### Capability usage gate
+
+This release changes no opt-in capability, installer flag, or host surface.
+
 ### Added
 
 - **Scanner-receipt closure contract.** Full security-audit runs now emit schema-v2 closure records with a scanner inventory, per-scanner receipts (`RAN`, `NOT_APPLICABLE`, `UNAVAILABLE`, `FAILED`, `DECLINED`), remediation linkage, and an independent read-only verifier. Schema-v1 records keep their previous fields, diffs, and exit codes.
@@ -26,8 +38,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Documentation
 
-- **v4.1.2 planning record.** Added the Ponytail (minimal-construction) comparison as forward-looking documentation. Its implementation does not ship in v4.1.1.
 - **Local security-audit guide.** `guides/reference/SECURITY_AUDIT.md` explains optional local scanners, receipt states, degraded coverage, remediation consent, same-detector re-scan, and independent verification. Tools are never auto-installed. Cloud review remains read-only. `security-review` and the selective-install guide point at that file.
+
+### Breaking changes
+
+None.
 
 ---
 
@@ -5707,7 +5722,12 @@ repository_root/
 
 ---
 
-[Unreleased]: https://github.com/bendourthe/Nexus-Hub/compare/v3.20.2...HEAD
+[Unreleased]: https://github.com/bendourthe/Nexus-Hub/compare/v4.1.1...HEAD
+[4.1.1]: https://github.com/bendourthe/Nexus-Hub/compare/v4.1.0...v4.1.1
+[4.1.0]: https://github.com/bendourthe/Nexus-Hub/compare/v4.0.0...v4.1.0
+[4.0.0]: https://github.com/bendourthe/Nexus-Hub/compare/v3.21.0...v4.0.0
+[3.21.0]: https://github.com/bendourthe/Nexus-Hub/compare/v3.20.3...v3.21.0
+[3.20.3]: https://github.com/bendourthe/Nexus-Hub/compare/v3.20.2...v3.20.3
 [3.20.2]: https://github.com/bendourthe/Nexus-Hub/compare/v3.20.1...v3.20.2
 [3.20.1]: https://github.com/bendourthe/Nexus-Hub/compare/v3.20.0...v3.20.1
 [3.20.0]: https://github.com/bendourthe/Nexus-Hub/compare/v3.19.2...v3.20.0
