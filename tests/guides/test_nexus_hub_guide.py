@@ -561,12 +561,21 @@ def test_foundations_comparison_is_side_by_side_not_toggled(guide_text: str) -> 
     assert "aria-pressed" not in fx
 
 
-def test_foundations_has_no_persistent_overlay(guide_text: str) -> None:
+def test_no_unexpected_persistent_overlays(guide_text: str) -> None:
+    """Fixed/sticky positioning is allowlisted, so no panel can pin itself over content.
+
+    Foundations in particular must have none: its v4.2.x station overlay is what
+    made the page unreadable.
+    """
     css = guide_text.split("<style>", 1)[-1].split("</style>", 1)[0]
-    fixed = re.findall(r"position:\s*fixed", css)
-    assert len(fixed) == 1, "only #constellation may be position fixed"
-    sticky = re.findall(r"position:\s*sticky", css)
-    assert len(sticky) == 1, "only the site header may be sticky"
+    allowed_fixed = {"#constellation", ".nht.is-present"}
+    allowed_sticky = {".site-header", ".nht.is-present .nht-bar"}
+    for prop, allowed in (("fixed", allowed_fixed), ("sticky", allowed_sticky)):
+        for match in re.finditer(r"([^{}]+)\{[^}]*position:\s*" + prop, css):
+            selector = match.group(1).strip().splitlines()[-1].strip().rstrip(",")
+            assert selector in allowed, f"unexpected position: {prop} on {selector!r}"
+    fx = _foundations_markup(guide_text)
+    assert "position: fixed" not in fx and "position:fixed" not in fx
 
 
 def test_foundations_animations_have_reduced_motion_fallback(guide_text: str) -> None:
@@ -646,7 +655,11 @@ def test_glow_booth_example_ships_frozen_bugs() -> None:
     assert (_ROOT / "guides" / "website" / "example" / "glow-booth" / "index.html").is_file()
 
 
-@pytest.mark.xfail(strict=True, reason="Phase 4 rebuilds the Training renderer with a textContent contract")
+def _training_engine(guide_text: str) -> str:
+    """The engine script that renders scene data (last script in the file)."""
+    return guide_text.split('id="nh-training-scenes"', 1)[-1]
+
+
 def test_hostile_fixture_strings_are_rendered_via_textcontent(
     parsed: GuideParser, guide_text: str
 ) -> None:
@@ -654,10 +667,57 @@ def test_hostile_fixture_strings_are_rendered_via_textcontent(
     blob = json.dumps(data)
     assert "<img onerror>" in blob
     assert "</script>" in blob
-    assert re.search(r"\.textContent\s*=", guide_text.split("nh-training-scenes", 1)[0]), (
+    engine = _training_engine(guide_text)
+    assert re.search(r"\.textContent\s*=", engine), (
         "scene-driven output must be assigned via textContent"
     )
+    assert not re.search(r"\.innerHTML\s*=", engine), (
+        "the training engine must never assign innerHTML"
+    )
     assert "data-training-root" in guide_text
+
+
+def test_training_engine_reproduces_the_frozen_bugs(guide_text: str) -> None:
+    """The mockup must teach what the downloadable example actually does."""
+    engine = _training_engine(guide_text)
+    assert "captured.length - 1" in engine, "buggy stamp path must be simulated"
+    assert "fixed ? captured.length : captured.length - 1" in engine
+    assert "booth.fixed ? null : booth.lastPose" in engine, "sticky-restart bug must be simulated"
+
+
+def test_training_has_booth_terminal_and_present_mode(guide_text: str) -> None:
+    training = guide_text.split('id="page-training"', 1)[-1].split('id="page-cheatsheets"', 1)[0]
+    assert 'data-nht="booth"' in training
+    assert 'data-nht="terminal"' in training
+    assert 'data-nht="run"' in training
+    assert 'id="nhtPresent"' in training
+    assert 'data-nht="outline"' in training
+    engine = _training_engine(guide_text)
+    assert "requestFullscreen" in engine
+    assert "is-present" in engine, "overlay fallback class for denied fullscreen"
+    assert "fullscreenchange" in engine
+
+
+def test_training_deep_link_clamps_unknown_scene_and_beat(guide_text: str) -> None:
+    engine = _training_engine(guide_text)
+    sync = engine.split("syncFromHash", 1)[-1]
+    assert "if (idx < 0) idx = step;" in sync, "unknown scene id must clamp"
+    assert "beats.length - 1" in sync, "out-of-range beat must clamp"
+
+
+def test_every_scene_has_walkthrough_fields(parsed: GuideParser) -> None:
+    data = json.loads(parsed.json_script_contents[0])
+    for scene in data["scenes"]:
+        for field in ("title", "intent", "command", "output", "booth", "artifact", "tools"):
+            assert field in scene, f"{scene['id']} missing {field}"
+        assert isinstance(scene["booth"].get("captured"), list)
+        assert "fixed" in scene["booth"]
+    ids = [s["id"] for s in data["scenes"]]
+    fixed_from = ids.index("implement")
+    for scene in data["scenes"][:fixed_from]:
+        assert scene["booth"]["fixed"] is False, "bugs stay visible until /implement"
+    for scene in data["scenes"][fixed_from:]:
+        assert scene["booth"]["fixed"] is True, "the fix persists after /implement"
 
 
 # ---------------------------------------------------------------------------

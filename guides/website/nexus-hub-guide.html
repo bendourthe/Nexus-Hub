@@ -447,6 +447,174 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
   .fx-flip .fx-copy { order: 0; }
 }
 
+/* ---------- Training walkthrough ---------- */
+.nht {
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--surface); margin-top: var(--sp-4); overflow: hidden;
+}
+.nht-bar {
+  display: flex; flex-wrap: wrap; gap: var(--sp-3); align-items: center; justify-content: space-between;
+  padding: 10px 14px; border-bottom: 1px solid var(--border); background: var(--surface-2);
+}
+.nht-controls { display: flex; flex-wrap: wrap; gap: 6px; }
+.nht-btn {
+  padding: 5px 12px; font-size: 12.5px; font-weight: 600; font-family: var(--sans);
+  color: var(--ink-dim); background: var(--surface); border: 1px solid var(--border);
+  border-radius: 8px; cursor: pointer;
+}
+.nht-btn:hover:not(:disabled) { color: var(--ink); border-color: var(--border-bright); }
+.nht-btn:disabled { opacity: .4; cursor: default; }
+.nht-meta { display: flex; align-items: center; gap: 10px; font-size: 12px; }
+.nht-stage { color: var(--teal-soft); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.nht-count { color: var(--ink-faint); font-family: var(--mono); }
+.nht-outline { border-bottom: 1px solid var(--border); background: var(--bg-1); padding: var(--sp-3) var(--sp-4); }
+.nht-outline ol { margin: 0; padding-left: 20px; columns: 2; column-gap: var(--sp-5); }
+.nht-outline li { margin-bottom: 4px; font-size: 13.5px; break-inside: avoid; }
+.nht-outline button {
+  background: none; border: 0; padding: 0; cursor: pointer; text-align: left;
+  color: var(--ink-dim); font-size: 13.5px; font-family: var(--sans);
+}
+.nht-outline button:hover, .nht-outline li.on button { color: var(--accent); font-weight: 600; }
+.nht-progress { display: flex; gap: 3px; padding: 0; }
+.nht-progress i { flex: 1; height: 3px; background: var(--border); display: block; transition: background .3s var(--ease); }
+.nht-progress i.on { background: var(--accent); }
+.nht-slide { padding: var(--sp-5); }
+.nht-head { margin-bottom: var(--sp-4); }
+.nht-num {
+  display: inline-block; font-family: var(--mono); font-size: 11.5px; font-weight: 700;
+  color: var(--teal-soft); border: 1px solid var(--border); border-radius: 6px;
+  padding: 1px 7px; margin-bottom: var(--sp-2);
+}
+.nht-head h2 { margin-bottom: var(--sp-2); }
+.nht-intent { color: var(--ink-dim); font-size: 15px; max-width: 78ch; }
+.nht-grid { display: grid; grid-template-columns: minmax(280px, 4fr) minmax(320px, 6fr); gap: var(--sp-4); align-items: start; }
+.nht-col { min-width: 0; }
+
+/* booth mockup */
+.nht-booth { border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-1); overflow: hidden; }
+.nb-bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 7px 12px; border-bottom: 1px solid var(--border); background: var(--surface-2);
+}
+.nb-title { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; color: var(--ink-faint); }
+.nb-tag { font-size: 10.5px; font-weight: 700; padding: 1px 7px; border-radius: 999px; border: 1px solid var(--border); color: var(--ink-faint); }
+.nb-tag.is-buggy { color: var(--red); border-color: var(--red); }
+.nb-tag.is-fixed { color: var(--green); border-color: var(--green); }
+.nb-stage {
+  position: relative; height: 148px; display: flex; align-items: center; justify-content: center;
+  background: var(--bg-2); border-bottom: 1px solid var(--border); overflow: hidden;
+}
+.nb-shot {
+  display: none; width: 78%; height: 108px; border-radius: 10px;
+  align-items: flex-end; justify-content: center; padding-bottom: 10px;
+  font-size: 13px; font-weight: 700; color: #f4fbfd; text-shadow: 0 1px 6px rgba(0,0,0,.55);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.14);
+  animation: nbPop .34s var(--ease);
+}
+.nb-shot.on { display: flex; }
+.nb-shot[data-pose="dawn"] { background: linear-gradient(155deg, #f0a868, #b0537b); }
+.nb-shot[data-pose="neon"] { background: linear-gradient(155deg, #4be3f0, #7d4bd8); }
+.nb-shot[data-pose="forest"] { background: linear-gradient(155deg, #58c98f, #1d6b62); }
+.nb-shot[data-pose="studio"] { background: linear-gradient(155deg, #cfd8dc, #6b7d84); }
+.nb-shot[data-pose="spark"] { background: linear-gradient(155deg, #ffd76a, #e0705a); }
+@keyframes nbPop { from { opacity: 0; transform: scale(.94); } to { opacity: 1; transform: none; } }
+.nb-empty { color: var(--ink-faint); font-size: 12.5px; font-family: var(--mono); }
+.nb-empty.off { display: none; }
+.nb-sparkle { position: absolute; inset: 0; pointer-events: none; background:
+  radial-gradient(circle at 22% 30%, rgba(255,255,255,.9) 0 2px, transparent 3px),
+  radial-gradient(circle at 74% 24%, rgba(255,255,255,.8) 0 2px, transparent 3px),
+  radial-gradient(circle at 40% 72%, rgba(255,255,255,.85) 0 2px, transparent 3px),
+  radial-gradient(circle at 84% 66%, rgba(255,255,255,.75) 0 2px, transparent 3px);
+  animation: nbTwinkle 1.8s ease-in-out infinite;
+}
+@keyframes nbTwinkle { 0%, 100% { opacity: .35; } 50% { opacity: 1; } }
+.nb-poses { display: flex; flex-wrap: wrap; gap: 6px; padding: 12px; }
+.nb-pose {
+  flex: 1 1 auto; min-width: 62px; padding: 7px 6px; font-size: 12px; font-weight: 600;
+  font-family: var(--sans); color: var(--ink-dim); background: var(--surface);
+  border: 1px solid var(--border); border-radius: 8px; cursor: pointer;
+}
+.nb-pose:hover:not(:disabled) { color: var(--ink); border-color: var(--accent); }
+.nb-pose.shot { color: var(--accent); border-color: var(--accent); }
+.nb-pose:disabled { opacity: .45; cursor: default; }
+.nb-meter { padding: 0 12px 6px; }
+.nb-pills { display: flex; gap: 5px; margin-bottom: 6px; }
+.nb-pills i { flex: 1; height: 7px; border-radius: 4px; background: var(--border); display: block; transition: background .25s var(--ease); }
+.nb-pills i.on { background: var(--accent); }
+.nb-count { margin: 0; font-family: var(--mono); font-size: 13px; color: var(--ink-dim); }
+.nb-count b { color: var(--ink); font-size: 15px; }
+.nb-meter.flash .nb-count b { animation: nbFlash .7s var(--ease); }
+@keyframes nbFlash { 0%, 100% { color: var(--ink); } 40% { color: var(--amber); } }
+.nb-actions { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 12px 10px; }
+.nb-mode { font-size: 11px; font-family: var(--mono); color: var(--ink-faint); }
+.nb-note { margin: 0; padding: 10px 12px; border-top: 1px solid var(--border); background: var(--surface); font-size: 12.5px; color: var(--ink-dim); }
+
+/* simulated terminal */
+.term--nht { margin: 0; }
+.nht-cmd { border-bottom: 1px solid var(--term-border); padding-bottom: 8px; margin-bottom: 8px; }
+.nht-run {
+  flex: none; padding: 3px 12px; font-size: 11.5px; font-weight: 700; font-family: var(--sans);
+  color: var(--bg-deep); background: var(--accent); border: 1px solid transparent;
+  border-radius: 6px; cursor: pointer;
+}
+html[data-theme="light"] .nht-run { color: #fffdf8; }
+.nht-run:disabled { opacity: .5; cursor: default; }
+.nht-out { min-height: 122px; font-size: 12.5px; line-height: 1.65; }
+.nht-out div { opacity: 0; transform: translateY(3px); transition: opacity .3s var(--ease), transform .3s var(--ease); }
+.nht-out div.on { opacity: 1; transform: none; }
+.nht-out div.echo { color: var(--term-prompt); }
+.nht-hint { margin: 6px 0 0; font-size: 11.5px; color: var(--term-dim); font-family: var(--sans); }
+.nht-tools { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--sp-3); }
+.nht-tool {
+  font-size: 11px; font-family: var(--mono); color: var(--ink-faint);
+  border: 1px solid var(--border); border-radius: 6px; padding: 2px 8px;
+}
+.nht-tool b { color: var(--teal-soft); font-weight: 700; }
+.nht-after { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-3); margin-top: var(--sp-3); }
+.nht-artifact, .nht-gate { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; background: var(--bg-1); }
+.nht-artifact { border-left: 3px solid var(--accent); }
+.na-k, .ng-k { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-faint); margin-bottom: 3px; }
+.nht-artifact code { font-size: 11.5px; background: transparent; border: 0; padding: 0; color: var(--ink); word-break: break-all; }
+.nht-artifact p, .nht-gate p { margin: 4px 0 0; font-size: 12.5px; color: var(--ink-dim); }
+.nht-gate { border-left: 3px solid var(--border-bright); }
+.nht-gate.pass { border-left-color: var(--green); }
+.nht-gate.hold { border-left-color: var(--amber); }
+.nht-gate.pass .ng-k { color: var(--green); }
+.nht-gate.hold .ng-k { color: var(--amber); }
+.nht-peek { margin-top: var(--sp-3); }
+.nht-editor { border: 1px solid var(--border); border-radius: var(--radius-sm); overflow: hidden; }
+.ne-bar { padding: 6px 10px; background: var(--surface-2); border-bottom: 1px solid var(--border); }
+.ne-bar code { font-size: 11.5px; background: transparent; border: 0; padding: 0; color: var(--ink-dim); }
+.nht-editor pre {
+  margin: 0; padding: 10px 12px; font-family: var(--mono); font-size: 12px; line-height: 1.6;
+  color: var(--ink-dim); white-space: pre-wrap; word-break: break-word; max-height: 220px; overflow: auto;
+}
+.nht-takeaway {
+  margin: var(--sp-4) 0 0; padding-top: var(--sp-3); border-top: 1px solid var(--border);
+  font-size: 14.5px; color: var(--ink); max-width: 78ch;
+}
+.nht-takeaway b { color: var(--teal-soft); }
+
+/* present / slide mode */
+.nht.is-present {
+  position: fixed; inset: 0; z-index: 90; margin: 0; border-radius: 0; border: 0;
+  background: var(--page-bg); display: flex; flex-direction: column; overflow: auto;
+}
+.nht.is-present .nht-slide { flex: 1; max-width: 1180px; width: 100%; margin: 0 auto; padding: var(--sp-5) var(--sp-6); }
+.nht.is-present .nht-head h2 { font-size: clamp(1.5rem, 3vw, 2.1rem); }
+.nht.is-present .nht-bar { position: sticky; top: 0; z-index: 2; }
+@media (max-width: 900px) {
+  .nht-grid { grid-template-columns: 1fr; }
+  .nht-after { grid-template-columns: 1fr; }
+  .nht-outline ol { columns: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nb-shot { animation: none; }
+  .nb-sparkle { animation: none; opacity: .8; }
+  .nb-meter.flash .nb-count b { animation: none; }
+  .nht-out div { opacity: 1; transform: none; transition: none; }
+}
+
 /* ---------- Placeholder panels (removed as page phases land) ---------- */
 .wip-note { border: 1px dashed var(--border-bright); border-radius: var(--radius); padding: var(--sp-4) var(--sp-5); color: var(--ink-dim); margin-top: var(--sp-4); max-width: var(--measure); }
 
@@ -899,10 +1067,109 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
     <div class="container">
       <div class="hero">
         <span class="eyebrow">Training</span>
-        <h1>Learn the loop on a real example</h1>
-        <p class="lead">This page is being rebuilt from scratch (plan v4.2.2, Phase 4) as an interactive walkthrough with a simulated terminal and a fullscreen slide mode. The example project is still available: <a href="glow-booth.zip" download>glow-booth.zip</a>.</p>
+        <h1>Run the loop on a real app with real bugs</h1>
+        <p class="lead">Glow Booth is a five-pose instant-camera app. It ships with two genuine defects. Walk the eight commands below: press the booth to see each bug, run each command in the terminal, and watch what it leaves on disk. Nothing here is a video &mdash; the booth and the terminal are live.</p>
+        <div class="btn-row">
+          <button type="button" class="btn btn--primary" id="nhtPresent">Present <span aria-hidden="true">&#9974;</span></button>
+          <a class="btn" href="glow-booth.zip" download>Download the example</a>
+        </div>
       </div>
-      <div class="wip-note" data-wip="training">Training lands with Phase 4.</div>
+
+      <div class="nht" id="nhTraining" data-training-root data-nhg-keys="self">
+        <div class="nht-bar">
+          <div class="nht-controls">
+            <button type="button" class="nht-btn" data-nht="prev">&larr; Previous</button>
+            <button type="button" class="nht-btn" data-nht="next">Next &rarr;</button>
+            <button type="button" class="nht-btn" data-nht="restart">Restart</button>
+            <button type="button" class="nht-btn" data-nht="outline" aria-expanded="false" aria-controls="nhtOutline">Outline</button>
+          </div>
+          <div class="nht-meta">
+            <span class="nht-stage" data-nht="stage-label"></span>
+            <span class="nht-count" data-nht="counter"></span>
+          </div>
+        </div>
+
+        <div class="nht-outline" id="nhtOutline" hidden>
+          <ol data-nht="outline-list"></ol>
+        </div>
+
+        <div class="nht-progress" data-nht="progress" role="presentation"></div>
+
+        <div class="nht-slide">
+          <header class="nht-head">
+            <span class="nht-num" data-nht="step-num"></span>
+            <h2 data-nht="title"></h2>
+            <p class="nht-intent" data-nht="intent"></p>
+          </header>
+
+          <div class="nht-grid">
+            <div class="nht-col">
+              <div class="nht-booth" data-nht="booth">
+                <div class="nb-bar"><span class="nb-title">GLOW BOOTH</span><span class="nb-tag" data-nht="booth-tag"></span></div>
+                <div class="nb-stage" data-nht="booth-stage">
+                  <div class="nb-shot" data-nht="booth-shot"><span data-nht="booth-shot-label"></span></div>
+                  <div class="nb-empty" data-nht="booth-empty">stage is clear</div>
+                  <div class="nb-sparkle" data-nht="booth-sparkle" hidden aria-hidden="true"></div>
+                </div>
+                <div class="nb-poses" data-nht="booth-poses" role="group" aria-label="Strike a pose"></div>
+                <div class="nb-meter">
+                  <div class="nb-pills" data-nht="booth-pills" aria-hidden="true"></div>
+                  <p class="nb-count"><b data-nht="booth-count">0</b> <span>/ 5 stamps</span></p>
+                </div>
+                <div class="nb-actions">
+                  <button type="button" class="nht-btn nb-restart" data-nht="booth-restart">Restart booth</button>
+                  <span class="nb-mode" data-nht="booth-mode"></span>
+                </div>
+                <p class="nb-note" data-nht="booth-note"></p>
+                <p class="visually-hidden" aria-live="polite" data-nht="booth-live"></p>
+              </div>
+            </div>
+
+            <div class="nht-col">
+              <div class="term term--nht" data-nht="terminal">
+                <div class="term-bar">
+                  <div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div>
+                  <span class="label">your assistant &middot; simulated</span>
+                </div>
+                <div class="term-body">
+                  <div class="cmd-line nht-cmd">
+                    <span class="t-teal" aria-hidden="true">&gt;</span>
+                    <code data-nht="command" data-copy=""></code>
+                    <button type="button" class="nht-run" data-nht="run">Run</button>
+                  </div>
+                  <div class="nht-out" data-nht="output" aria-live="polite"></div>
+                  <p class="nht-hint" data-nht="hint">Press Run to send this command.</p>
+                </div>
+              </div>
+
+              <div class="nht-tools" data-nht="tools"></div>
+
+              <div class="nht-after">
+                <div class="nht-artifact" data-nht="artifact">
+                  <span class="na-k">Left on disk</span>
+                  <code data-nht="artifact-path"></code>
+                  <p data-nht="artifact-summary"></p>
+                </div>
+                <div class="nht-gate" data-nht="gate">
+                  <span class="ng-k" data-nht="gate-status"></span>
+                  <p><b data-nht="gate-name"></b> &mdash; <span data-nht="gate-prompt"></span></p>
+                </div>
+              </div>
+
+              <details class="nht-peek">
+                <summary>Peek at the files</summary>
+                <div class="nht-editor">
+                  <div class="ne-bar"><code data-nht="editor-path"></code></div>
+                  <pre data-nht="editor-body"></pre>
+                </div>
+              </details>
+            </div>
+          </div>
+
+          <p class="nht-takeaway" data-nht="takeaway"></p>
+        </div>
+      </div>
+
       <div class="pagenav" data-pagenav></div>
       <div class="progress-dots" data-progress></div>
     </div>
@@ -1472,54 +1739,41 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
     {
       "id": "describe",
       "stage": "Understand",
-      "intent": "Map Glow Booth before changing it.",
+      "title": "Map the app before touching it",
+      "intent": "Glow Booth is a tiny instant-camera app: strike five poses, collect five stamps. It ships with two real bugs. Before changing anything, ask the assistant to map it.",
       "command": "/describe full",
-      "prompt": "/describe full",
-      "assistant_events": [
-        "Detected a small vanilla HTML, CSS, and JavaScript booth. Hostile fixture sample stays literal: <img onerror> and <\/script>",
-        "Wrote docs/v0.1.0/analysis.md"
-      ],
-      "tool_events": [
+      "tools": [
         {
           "name": "Glob",
-          "purpose": "List glow-booth files"
+          "purpose": "list glow-booth files"
         },
         {
           "name": "Read",
-          "purpose": "Open logic.js, app.js, poses.js"
+          "purpose": "open logic.js, app.js, poses.js"
         }
       ],
-      "file_state": [
-        {
-          "path": "logic.js",
-          "status": "unchanged",
-          "excerpt": "for (var i = 0; i < captured.length - 1; i++)"
-        },
-        {
-          "path": "app.js",
-          "status": "unchanged"
-        },
-        {
-          "path": "poses.js",
-          "status": "unchanged"
-        }
+      "output": [
+        "Scanning example/glow-booth ...",
+        "Detected a small vanilla HTML, CSS, and JavaScript booth. Hostile fixture sample stays literal: <img onerror> and <\/script>",
+        "logic.js holds pure stamp math. app.js paints the stage. poses.js lists five poses.",
+        "Risks noted: the stamp helper may stop one short; Restart may keep the last pose; no tests; no shuffle.",
+        "Wrote docs/v0.1.0/analysis.md"
       ],
-      "editor_state": {
+      "editor": {
         "path": "docs/v0.1.0/analysis.md",
-        "mode": "markdown",
         "body": "# Glow Booth - analysis\n\nInstant-camera booth. logic.js is pure stamp math. app.js paints the stage. poses.js is a five-pose strip.\n\nRisks: stamp helper may stop one short; restart may keep lastPose; no tests; no shuffle."
-      },
-      "terminal_state": {
-        "lines": [
-          "> /describe full",
-          "Scanning example/glow-booth ...",
-          "Wrote docs/v0.1.0/analysis.md"
-        ]
       },
       "artifact": {
         "path": "docs/v0.1.0/analysis.md",
-        "kind": "report",
-        "summary": "Structured map of Glow Booth"
+        "summary": "a structured map of the app, on disk"
+      },
+      "booth": {
+        "captured": [],
+        "fixed": false,
+        "shuffle": false,
+        "sparkle": false,
+        "highlight": null,
+        "note": "Fresh session. Try the poses - the app promises five stamps for five poses."
       },
       "gate": {
         "name": "Map exists",
@@ -1527,27 +1781,13 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
         "prompt": "Accept the map. Do not edit yet."
       },
       "next_scene": "review",
-      "duration": 0,
       "beats": [
         {
-          "index": 0,
-          "claim": "The command scans the tree.",
-          "panes": [
-            "explorer",
-            "assistant",
-            "terminal",
-            "timeline"
-          ],
+          "claim": "The command scans the tree, it does not guess.",
           "takeaway": "Start with a map, not a guess."
         },
         {
-          "index": 1,
           "claim": "The analysis file is the durable output.",
-          "panes": [
-            "editor",
-            "artifact",
-            "gate"
-          ],
           "takeaway": "Later commands reuse this file."
         }
       ]
@@ -1555,49 +1795,47 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
     {
       "id": "review",
       "stage": "Evaluate",
-      "intent": "Get a read-only verdict on stamps, restart, tests, and shuffle.",
+      "title": "Get a verdict on the bugs",
+      "intent": "Now make the bugs visible. Capture all five poses in the booth: the meter reads 4 of 5. Then ask for a read-only review.",
       "command": "/review",
-      "prompt": "/review",
-      "assistant_events": [
-        "Read-only review. Findings ranked.",
-        "HIGH: computeStamps stops at length - 1, so a perfect set awards 4/5.",
-        "HIGH: restartState keeps prev.lastPose.",
-        "MED: no tests. LOW: pose order never shuffles."
-      ],
-      "tool_events": [
+      "tools": [
         {
           "name": "Read",
-          "purpose": "Inspect computeStamps and restartState"
+          "purpose": "inspect computeStamps and restartState"
         },
         {
           "name": "Grep",
-          "purpose": "Search for test files"
+          "purpose": "search for test files"
         }
       ],
-      "file_state": [
-        {
-          "path": "logic.js",
-          "status": "unchanged",
-          "excerpt": "function restartState(prev) { return { captured: [], lastPose: prev.lastPose, shuffled: prev.shuffled }; }"
-        }
+      "output": [
+        "Read-only review. Findings ranked.",
+        "HIGH computeStamps stops at captured.length - 1, so a perfect set awards 4/5.",
+        "HIGH restartState keeps prev.lastPose, so Restart leaves the last pose on stage.",
+        "MED no tests. LOW pose order never shuffles.",
+        "VERDICT: GO-WITH-CONDITIONS - wrote docs/v0.1.0/review.md"
       ],
-      "editor_state": {
+      "editor": {
         "path": "docs/v0.1.0/review.md",
-        "mode": "markdown",
-        "body": "# Review\n\n- Stamp loop uses captured.length - 1\n- Restart reuses the previous lastPose\n- No Vitest files yet\n- Shuffle is absent (feature, not a defect in the current loop)"
-      },
-      "terminal_state": {
-        "lines": [
-          "> /review",
-          "quality ... 2 HIGH",
-          "coverage ... no tests",
-          "VERDICT: GO-WITH-CONDITIONS"
-        ]
+        "body": "# Review\n\n- Stamp loop uses captured.length - 1\n- Restart reuses the previous lastPose\n- No Vitest files yet\n- Shuffle is absent (feature, not a defect)"
       },
       "artifact": {
         "path": "docs/v0.1.0/review.md",
-        "kind": "report",
-        "summary": "Findings: stamps, restart, missing tests, no shuffle"
+        "summary": "ranked findings: stamps, restart, missing tests"
+      },
+      "booth": {
+        "captured": [
+          "dawn",
+          "neon",
+          "forest",
+          "studio",
+          "spark"
+        ],
+        "fixed": false,
+        "shuffle": false,
+        "sparkle": false,
+        "highlight": "meter",
+        "note": "See it yourself: a perfect set reads 4 / 5. Now press Restart - the last pose stays on stage."
       },
       "gate": {
         "name": "Findings listed",
@@ -1605,26 +1843,13 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
         "prompt": "Confirm findings. Plan the bugfix only; leave shuffle for compare."
       },
       "next_scene": "plan",
-      "duration": 0,
       "beats": [
         {
-          "index": 0,
           "claim": "Review reads; it does not edit.",
-          "panes": [
-            "assistant",
-            "terminal",
-            "timeline"
-          ],
           "takeaway": "Verdict first, patches later."
         },
         {
-          "index": 1,
           "claim": "The report names stamps, restart, tests, and shuffle.",
-          "panes": [
-            "editor",
-            "artifact",
-            "gate"
-          ],
           "takeaway": "Pick a fix scope before coding."
         }
       ]
@@ -1632,46 +1857,45 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
     {
       "id": "plan",
       "stage": "Decompose",
-      "intent": "One phase: fix stamps and restart. No shuffle yet. Local commit, no push.",
+      "title": "Scope one gated phase",
+      "intent": "Turn the findings into a plan with a written definition of done: fix the stamp count and the sticky Restart, prove both with tests, commit locally. Shuffle is deliberately out of scope.",
       "command": "/plan feature",
-      "prompt": "/plan feature",
-      "assistant_events": [
-        "Goal: perfect set awards 5/5; restart clears the last pose.",
-        "Phase 1 only. Rec. model re-confirmed at implement time.",
-        "DoD: unit tests for computeStamps and restartState; local commit; do not push."
-      ],
-      "tool_events": [
+      "tools": [
         {
           "name": "Read",
-          "purpose": "Use analysis.md and review.md as inputs"
+          "purpose": "use analysis.md and review.md as inputs"
         },
         {
           "name": "Write",
-          "purpose": "Draft the plan file"
+          "purpose": "draft the plan file"
         }
       ],
-      "file_state": [
-        {
-          "path": "docs/releases/v0.1/plans/fix-stamps-and-restart.md",
-          "status": "added"
-        }
+      "output": [
+        "Goal: a perfect set awards 5/5; Restart clears the last pose.",
+        "Phase 1 only. Definition of done: unit tests for computeStamps and restartState; one local commit; no push.",
+        "Wrote docs/releases/v0.1/plans/fix-stamps-and-restart.md with a GO / NO-GO gate"
       ],
-      "editor_state": {
+      "editor": {
         "path": "docs/releases/v0.1/plans/fix-stamps-and-restart.md",
-        "mode": "markdown",
-        "body": "# Plan - fix stamps and restart\n\nPhase 1: change computeStamps to walk the full captured array; restartState returns freshState(); add Vitest.\n\nLifecycle: one local commit. No push. Shuffle is out of scope."
-      },
-      "terminal_state": {
-        "lines": [
-          "> /plan feature",
-          "Scored phase 1",
-          "Wrote plan with GO / NO-GO gate"
-        ]
+        "body": "# Plan - fix stamps and restart\n\nPhase 1: computeStamps walks the full captured array; restartState returns freshState(); add Vitest.\n\nLifecycle: one local commit. No push. Shuffle is out of scope."
       },
       "artifact": {
         "path": "docs/releases/v0.1/plans/fix-stamps-and-restart.md",
-        "kind": "plan",
-        "summary": "One phase, written DoD, local-commit contract"
+        "summary": "one phase, written DoD, local-commit contract"
+      },
+      "booth": {
+        "captured": [
+          "dawn",
+          "neon",
+          "forest",
+          "studio",
+          "spark"
+        ],
+        "fixed": false,
+        "shuffle": false,
+        "sparkle": false,
+        "highlight": null,
+        "note": "Scope locked: the stamp count and the sticky Restart. Shuffle waits for /compare."
       },
       "gate": {
         "name": "DoD written",
@@ -1679,110 +1903,80 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
         "prompt": "Approve phase 1 scope (bugs only)."
       },
       "next_scene": "implement",
-      "duration": 0,
       "beats": [
         {
-          "index": 0,
           "claim": "The plan is a gated phase, not a todo list.",
-          "panes": [
-            "assistant",
-            "timeline",
-            "editor"
-          ],
           "takeaway": "Scope excludes shuffle."
         },
         {
-          "index": 1,
           "claim": "The contract is local commit only.",
-          "panes": [
-            "artifact",
-            "gate"
-          ],
-          "takeaway": "Push waits for a later final phase."
+          "takeaway": "Push waits for the final phase."
         }
       ]
     },
     {
       "id": "implement",
       "stage": "Build",
-      "intent": "Fix stamps and restart on a branch, with tests, then a local commit.",
+      "title": "Fix both bugs, prove it, commit",
+      "intent": "Run the phase. Watch the diff land, the tests pass, and the booth change behavior: five poses now stamp 5 of 5, and Restart really clears the stage.",
       "command": "/implement fix-stamps-and-restart phase-1",
-      "prompt": "/implement fix-stamps-and-restart phase-1",
-      "assistant_events": [
-        "Implementing phase 1. Quality gate requires tests.",
-        "computeStamps now iterates captured.length. restartState returns freshState()."
-      ],
-      "tool_events": [
+      "tools": [
         {
           "name": "Edit",
-          "purpose": "Patch logic.js"
+          "purpose": "patch logic.js"
         },
         {
           "name": "Write",
-          "purpose": "Add logic.test.js"
+          "purpose": "add logic.test.js"
         },
         {
           "name": "Bash",
-          "purpose": "Run vitest"
+          "purpose": "run vitest"
         }
       ],
-      "file_state": [
-        {
-          "path": "logic.js",
-          "status": "changed",
-          "excerpt": "for (var i = 0; i < captured.length; i++)"
-        },
-        {
-          "path": "logic.test.js",
-          "status": "added",
-          "excerpt": "expect(computeStamps(['dawn','neon','forest','studio','spark'])).toBe(5)"
-        }
+      "output": [
+        "Implementing phase 1. The quality gate requires tests.",
+        "logic.js: for (var i = 0; i < captured.length; i++)  [was length - 1]",
+        "logic.js: restartState() now returns freshState()  [no more sticky lastPose]",
+        "logic.test.js: expect(computeStamps(['dawn','neon','forest','studio','spark'])).toBe(5)",
+        "vitest run - 8 passed",
+        "One local commit created. No push."
       ],
-      "editor_state": {
+      "editor": {
         "path": "logic.js",
-        "mode": "diff",
         "body": "- for (var i = 0; i < captured.length - 1; i++) {\n+ for (var i = 0; i < captured.length; i++) {\n- function restartState(prev) {\n-   return { captured: [], lastPose: prev.lastPose, shuffled: prev.shuffled };\n- }\n+ function restartState() {\n+   return freshState();\n+ }"
       },
-      "terminal_state": {
-        "lines": [
-          "> /implement fix-stamps-and-restart phase-1",
-          "vitest run",
-          "8 passed",
-          "local commit created",
-          "no push"
-        ]
-      },
       "artifact": {
-        "path": "logic.js",
-        "kind": "code",
-        "summary": "Stamps and restart fixed; tests added; local commit"
+        "path": "logic.js + logic.test.js",
+        "summary": "both bugs fixed, tests added, one local commit"
+      },
+      "booth": {
+        "captured": [
+          "dawn",
+          "neon",
+          "forest",
+          "studio",
+          "spark"
+        ],
+        "fixed": true,
+        "shuffle": false,
+        "sparkle": false,
+        "highlight": "meter",
+        "note": "Same five poses - the meter now reads 5 / 5, and Restart clears the stage. Try it."
       },
       "gate": {
         "name": "Phase GO",
         "status": "pass",
-        "prompt": "GO on the local commit. Do not push. Shuffle still comes from compare."
+        "prompt": "GO on the local commit. Do not push."
       },
       "next_scene": "compare",
-      "duration": 0,
       "beats": [
         {
-          "index": 0,
           "claim": "The editor shows the stamp and restart diff.",
-          "panes": [
-            "explorer",
-            "editor",
-            "assistant"
-          ],
           "takeaway": "The phase edits only what the plan named."
         },
         {
-          "index": 1,
           "claim": "Tests pass and the commit stays local.",
-          "panes": [
-            "terminal",
-            "gate",
-            "timeline"
-          ],
           "takeaway": "A green phase is still not a release."
         }
       ]
@@ -1790,121 +1984,97 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
     {
       "id": "compare",
       "stage": "Evaluate",
-      "intent": "Adopt shuffle and sparkle from the local reference by reverse-engineering, not by wrapping it.",
+      "title": "Learn from a reference, adopt the idea",
+      "intent": "A sibling folder holds a nicer booth with shuffled poses and a sparkle when the meter fills. Compare against it and adopt the ideas - reverse-engineered, never imported wholesale.",
       "command": "/compare ../glow-booth-shuffle-reference",
-      "prompt": "/compare ../glow-booth-shuffle-reference",
-      "assistant_events": [
-        "Local path compare. Reverse-engineer-first.",
-        "Worth adopting: shuffle(items) plus a sparkle overlay when the meter is full.",
-        "/plan from-comparison writes the shuffle phase. /implement would run the same way as the bugfix; this scene does not add a ninth command."
-      ],
-      "tool_events": [
+      "tools": [
         {
           "name": "Read",
-          "purpose": "Read glow-booth-shuffle-reference/logic.js"
+          "purpose": "read glow-booth-shuffle-reference/logic.js"
         },
         {
           "name": "Write",
-          "purpose": "Write compare report and from-comparison plan"
+          "purpose": "write the compare report and the from-comparison plan"
         }
       ],
-      "file_state": [
-        {
-          "path": "logic.js",
-          "status": "changed",
-          "excerpt": "function shuffle(items) { /* Fisher-Yates */ }"
-        },
-        {
-          "path": "docs/v0.1.0/compare-booth.md",
-          "status": "added"
-        }
+      "output": [
+        "Local path compare. Reverse-engineer first.",
+        "Worth adopting: shuffle(items) (Fisher-Yates) plus a sparkle overlay when the meter is full.",
+        "Not adopted wholesale: the reference stays a reference, never a dependency.",
+        "Wrote docs/v0.1.0/compare-booth.md - next: /plan from-comparison, then the same /implement loop as phase 1."
       ],
-      "editor_state": {
+      "editor": {
         "path": "docs/v0.1.0/compare-booth.md",
-        "mode": "markdown",
         "body": "# Compare vs glow-booth-shuffle-reference\n\nAdopt shuffle and the sparkle overlay. Do not import the reference as a dependency.\n\nNext: /plan from-comparison, then the same /implement loop as phase 1."
-      },
-      "terminal_state": {
-        "lines": [
-          "> /compare ../glow-booth-shuffle-reference",
-          "Gap: no shuffle; no sparkle on a full meter",
-          "Wrote docs/v0.1.0/compare-booth.md"
-        ]
       },
       "artifact": {
         "path": "docs/v0.1.0/compare-booth.md",
-        "kind": "report",
-        "summary": "Shuffle adoption plan; implement runs the same as before"
+        "summary": "gap analysis plus an adoption plan"
+      },
+      "booth": {
+        "captured": [],
+        "fixed": true,
+        "shuffle": false,
+        "sparkle": false,
+        "highlight": null,
+        "note": "The reference booth shuffles pose order and sparkles on a full meter. Ours does not - yet."
       },
       "gate": {
         "name": "Adopt shuffle",
         "status": "hold",
-        "prompt": "Adopt shuffle from the reference. The follow-on /implement is the same command, not a new scene."
+        "prompt": "Adopt shuffle from the reference. The follow-on /implement is the same command, not a new lesson."
       },
       "next_scene": "test",
-      "duration": 0,
       "beats": [
         {
-          "index": 0,
           "claim": "Compare reads a local reference, not a SaaS.",
-          "panes": [
-            "assistant",
-            "terminal",
-            "explorer"
-          ],
           "takeaway": "Reverse-engineer the idea, copy nothing wholesale."
         },
         {
-          "index": 1,
-          "claim": "from-comparison plus a note that implement runs again.",
-          "panes": [
-            "editor",
-            "artifact",
-            "gate"
-          ],
-          "takeaway": "Shuffle is in this scene's outcome, not a ninth scene."
+          "claim": "from-comparison chains into the same build loop.",
+          "takeaway": "Shuffle is this scene's outcome, not a ninth command."
         }
       ]
     },
     {
       "id": "test",
       "stage": "Harden",
-      "intent": "Prove stamps, restart, and shuffle with Vitest and a coverage gate.",
+      "title": "Prove it all with a coverage gate",
+      "intent": "After the shuffle phase lands the same way phase 1 did, drive the unit suite to the coverage threshold. The terminal is the proof; a number below the threshold is NO-GO.",
       "command": "/test unit",
-      "prompt": "/test unit",
-      "assistant_events": [
-        "Driving unit tests to the coverage threshold.",
-        "Stamp, restart, and shuffle cases pass."
-      ],
-      "tool_events": [
+      "tools": [
         {
           "name": "Bash",
           "purpose": "npx vitest run --coverage"
         }
       ],
-      "file_state": [
-        {
-          "path": "logic.test.js",
-          "status": "changed"
-        }
+      "output": [
+        "Driving unit tests to the coverage threshold.",
+        "computeStamps full set -> 5. restartState -> lastPose is null. shuffle -> same members, order varies.",
+        "vitest run --coverage: Tests 12 passed",
+        "Statements 92% - above the project threshold. Gate: PASS"
       ],
-      "editor_state": {
+      "editor": {
         "path": "logic.test.js",
-        "mode": "test",
-        "body": "computeStamps full set -> 5\nrestartState -> lastPose is null\nshuffle -> same members, not always same order"
-      },
-      "terminal_state": {
-        "lines": [
-          "> /test unit",
-          "vitest run --coverage",
-          "Tests 12 passed",
-          "Statements 92%"
-        ]
+        "body": "computeStamps full set -> 5\nrestartState -> lastPose is null\nshuffle -> same members, not always the same order"
       },
       "artifact": {
         "path": "coverage/index.html",
-        "kind": "report",
-        "summary": "Unit suite green; coverage above the project threshold"
+        "summary": "unit suite green; coverage above threshold"
+      },
+      "booth": {
+        "captured": [
+          "neon",
+          "dawn",
+          "spark",
+          "forest",
+          "studio"
+        ],
+        "fixed": true,
+        "shuffle": true,
+        "sparkle": false,
+        "highlight": null,
+        "note": "Pose order is shuffled now - and 12 tests prove stamps, restart, and shuffle."
       },
       "gate": {
         "name": "Coverage gate",
@@ -1912,26 +2082,13 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
         "prompt": "Accept the suite. Ship only after tests."
       },
       "next_scene": "update",
-      "duration": 0,
       "beats": [
         {
-          "index": 0,
           "claim": "The terminal is the proof.",
-          "panes": [
-            "terminal",
-            "assistant",
-            "timeline"
-          ],
-          "takeaway": "Both bugfix and shuffle are verified here."
+          "takeaway": "Both the bugfix and shuffle are verified here."
         },
         {
-          "index": 1,
           "claim": "Coverage is a gate, not a screenshot.",
-          "panes": [
-            "editor",
-            "gate",
-            "artifact"
-          ],
           "takeaway": "A number below the threshold is NO-GO."
         }
       ]
@@ -1939,41 +2096,42 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
     {
       "id": "update",
       "stage": "Ship",
-      "intent": "Record the change. Release stays gated on a green integration.",
-      "command": "/update",
-      "prompt": "/update changelog",
-      "assistant_events": [
-        "Changelog and docs synced for the Glow Booth fixes.",
-        "A full /update release would still wait for green required checks. This example stops at the local record."
-      ],
-      "tool_events": [
+      "title": "Record it; the tag still waits",
+      "intent": "Sync the written record. A full /update release would bump the version, tag, and publish - but only after a green integration. This example stops at the honest local record.",
+      "command": "/update changelog",
+      "tools": [
         {
           "name": "Edit",
-          "purpose": "Update CHANGELOG.md"
+          "purpose": "update CHANGELOG.md"
         }
       ],
-      "file_state": [
-        {
-          "path": "CHANGELOG.md",
-          "status": "changed"
-        }
+      "output": [
+        "CHANGELOG.md updated:",
+        "- Fix Glow Booth stamp off-by-one and restart leak",
+        "- Shuffle poses and sparkle on a full meter (adopted from a local reference)",
+        "Release stays blocked until integration is green. No tag is invented."
       ],
-      "editor_state": {
+      "editor": {
         "path": "CHANGELOG.md",
-        "mode": "markdown",
         "body": "## Unreleased\n\n- Fix Glow Booth stamp off-by-one and restart leak\n- Shuffle poses and sparkle on a full meter (adopted from a local reference)"
-      },
-      "terminal_state": {
-        "lines": [
-          "> /update changelog",
-          "CHANGELOG.md updated",
-          "release blocked until integration is green"
-        ]
       },
       "artifact": {
         "path": "CHANGELOG.md",
-        "kind": "docs",
-        "summary": "Written record; release still gated"
+        "summary": "a written record; the release stays gated"
+      },
+      "booth": {
+        "captured": [
+          "neon",
+          "dawn",
+          "spark",
+          "forest",
+          "studio"
+        ],
+        "fixed": true,
+        "shuffle": true,
+        "sparkle": true,
+        "highlight": "stage",
+        "note": "Full meter sparkles now. The record is written; the tag waits for green checks."
       },
       "gate": {
         "name": "Green integration",
@@ -1981,25 +2139,13 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
         "prompt": "Keep the changelog. Do not pretend a tag exists."
       },
       "next_scene": "presentify",
-      "duration": 0,
       "beats": [
         {
-          "index": 0,
           "claim": "Ship is documentation plus a gate.",
-          "panes": [
-            "editor",
-            "assistant",
-            "timeline"
-          ],
           "takeaway": "The record is real; the tag is not automatic."
         },
         {
-          "index": 1,
           "claim": "Integration still has to be green.",
-          "panes": [
-            "gate",
-            "terminal"
-          ],
           "takeaway": "Communicate after the work is real."
         }
       ]
@@ -2007,45 +2153,45 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
     {
       "id": "presentify",
       "stage": "Document",
-      "intent": "Turn the written record into one offline HTML briefing.",
-      "command": "/presentify",
-      "prompt": "/presentify docs/v0.1.0/analysis.md docs/v0.1.0/review.md CHANGELOG.md",
-      "assistant_events": [
-        "Building a self-contained HTML file. No CDN, no runtime fetch.",
-        "Wrote glow-booth-briefing.html"
-      ],
-      "tool_events": [
+      "title": "Turn the trail into a briefing",
+      "intent": "Every command left a file behind. Compile the analysis, the review, and the changelog into one self-contained HTML briefing a stakeholder can open with no setup.",
+      "command": "/presentify docs/v0.1.0/analysis.md docs/v0.1.0/review.md CHANGELOG.md",
+      "tools": [
         {
           "name": "Read",
-          "purpose": "Parse local documents"
+          "purpose": "parse the local documents"
         },
         {
           "name": "Write",
-          "purpose": "Emit one HTML file"
+          "purpose": "emit one HTML file"
         }
       ],
-      "file_state": [
-        {
-          "path": "glow-booth-briefing.html",
-          "status": "added"
-        }
+      "output": [
+        "Building a self-contained HTML file. No CDN, no runtime fetch.",
+        "Sections: the map, the findings, what changed, what is proven.",
+        "Wrote glow-booth-briefing.html - offline: yes"
       ],
-      "editor_state": {
+      "editor": {
         "path": "glow-booth-briefing.html",
-        "mode": "source",
         "body": "<!doctype html><!-- self-contained briefing: map, review, changelog -->"
-      },
-      "terminal_state": {
-        "lines": [
-          "> /presentify ...",
-          "Wrote glow-booth-briefing.html",
-          "offline = yes"
-        ]
       },
       "artifact": {
         "path": "glow-booth-briefing.html",
-        "kind": "html",
-        "summary": "Stakeholder briefing; tour ends"
+        "summary": "a stakeholder briefing; the tour is complete"
+      },
+      "booth": {
+        "captured": [
+          "neon",
+          "dawn",
+          "spark",
+          "forest",
+          "studio"
+        ],
+        "fixed": true,
+        "shuffle": true,
+        "sparkle": true,
+        "highlight": null,
+        "note": "Done: bugs fixed, features adopted, everything proven and written down."
       },
       "gate": {
         "name": "File exists",
@@ -2053,32 +2199,447 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
         "prompt": "Hand the HTML to a stakeholder. The tour is complete."
       },
       "next_scene": null,
-      "duration": 0,
       "beats": [
         {
-          "index": 0,
           "claim": "Presentify is a taught command, not this page's author.",
-          "panes": [
-            "assistant",
-            "terminal",
-            "timeline"
-          ],
-          "takeaway": "The briefing is a file, not a slide deck runtime."
+          "takeaway": "The briefing is a file, not a slide-deck runtime."
         },
         {
-          "index": 1,
           "claim": "The artifact is the closer.",
-          "panes": [
-            "artifact",
-            "editor",
-            "gate"
-          ],
-          "takeaway": "Experience became something you can send."
+          "takeaway": "The experience became something you can send."
         }
       ]
     }
   ]
 }
+</script>
+
+<script>
+(function () {
+  "use strict";
+
+  var root = document.getElementById("nhTraining");
+  var dataEl = document.getElementById("nh-training-scenes");
+  if (!root || !dataEl) return;
+
+  var SCENES = [];
+  try {
+    var parsed = JSON.parse(dataEl.textContent || "{}");
+    SCENES = parsed && parsed.scenes ? parsed.scenes : [];
+  } catch (err) {
+    SCENES = [];
+  }
+  if (!SCENES.length) return;
+
+  var POSES = [
+    { id: "dawn", label: "Dawn" },
+    { id: "neon", label: "Neon" },
+    { id: "forest", label: "Forest" },
+    { id: "studio", label: "Studio" },
+    { id: "spark", label: "Spark" }
+  ];
+  var TOTAL = POSES.length;
+  var REDUCE = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function q(name) { return root.querySelector('[data-nht="' + name + '"]'); }
+  var els = {
+    stageLabel: q("stage-label"), counter: q("counter"), progress: q("progress"),
+    outline: document.getElementById("nhtOutline"), outlineList: q("outline-list"),
+    stepNum: q("step-num"), title: q("title"), intent: q("intent"),
+    boothTag: q("booth-tag"), boothShot: q("booth-shot"), boothShotLabel: q("booth-shot-label"),
+    boothEmpty: q("booth-empty"), boothSparkle: q("booth-sparkle"), boothPoses: q("booth-poses"),
+    boothPills: q("booth-pills"), boothCount: q("booth-count"), boothRestart: q("booth-restart"),
+    boothMode: q("booth-mode"), boothNote: q("booth-note"), boothLive: q("booth-live"),
+    command: q("command"), run: q("run"), output: q("output"), hint: q("hint"),
+    tools: q("tools"), artifactPath: q("artifact-path"), artifactSummary: q("artifact-summary"),
+    gate: q("gate"), gateStatus: q("gate-status"), gateName: q("gate-name"), gatePrompt: q("gate-prompt"),
+    editorPath: q("editor-path"), editorBody: q("editor-body"), takeaway: q("takeaway"),
+    meter: root.querySelector(".nb-meter")
+  };
+
+  var step = 0;      /* scene index */
+  var beat = 0;      /* beat index inside the scene */
+  var booth = null;  /* live booth state, seeded per scene */
+  var runToken = null;
+
+  /* ---------------------------------------------- booth simulation */
+  /* Mirrors example/glow-booth/logic.js, including the frozen bugs. */
+  function computeStamps(captured, fixed) {
+    var n = 0;
+    var limit = fixed ? captured.length : captured.length - 1;
+    for (var i = 0; i < limit; i++) { if (captured[i]) n += 1; }
+    return n < 0 ? 0 : n;
+  }
+  function seedBooth(scene) {
+    var b = scene.booth || {};
+    var captured = (b.captured || []).slice();
+    return {
+      captured: captured,
+      lastPose: captured.length ? captured[captured.length - 1] : null,
+      fixed: !!b.fixed,
+      shuffle: !!b.shuffle,
+      sparkle: !!b.sparkle,
+      highlight: b.highlight || null,
+      note: b.note || ""
+    };
+  }
+  function poseOrder() {
+    if (!booth.shuffle) return POSES;
+    var order = ["neon", "dawn", "spark", "forest", "studio"];
+    return order.map(function (id) {
+      for (var i = 0; i < POSES.length; i++) { if (POSES[i].id === id) return POSES[i]; }
+      return POSES[0];
+    });
+  }
+  function capturePose(id) {
+    if (booth.captured.length >= TOTAL) return;
+    booth.captured.push(id);
+    booth.lastPose = id;
+    paintBooth(true);
+    var label = "";
+    for (var i = 0; i < POSES.length; i++) { if (POSES[i].id === id) label = POSES[i].label; }
+    announce(label + " captured. " + computeStamps(booth.captured, booth.fixed) + " of " + TOTAL + " stamps.");
+  }
+  function restartBooth() {
+    /* the frozen bug: restartState keeps prev.lastPose */
+    var keep = booth.fixed ? null : booth.lastPose;
+    booth.captured = [];
+    booth.lastPose = keep;
+    paintBooth(false);
+    announce(booth.fixed
+      ? "Booth restarted. The stage is clear."
+      : "Booth restarted, but the last pose is still on stage.");
+  }
+  function announce(msg) { if (els.boothLive) els.boothLive.textContent = msg; }
+
+  function paintBooth(flash) {
+    var stamps = computeStamps(booth.captured, booth.fixed);
+    var full = booth.captured.length === TOTAL;
+
+    if (els.boothTag) {
+      els.boothTag.textContent = booth.fixed ? "patched" : "as shipped";
+      els.boothTag.className = "nb-tag " + (booth.fixed ? "is-fixed" : "is-buggy");
+    }
+    if (els.boothShot) {
+      if (booth.lastPose) {
+        var label = "";
+        for (var i = 0; i < POSES.length; i++) { if (POSES[i].id === booth.lastPose) label = POSES[i].label; }
+        els.boothShot.setAttribute("data-pose", booth.lastPose);
+        els.boothShot.classList.add("on");
+        if (els.boothShotLabel) els.boothShotLabel.textContent = label;
+      } else {
+        els.boothShot.classList.remove("on");
+        if (els.boothShotLabel) els.boothShotLabel.textContent = "";
+      }
+    }
+    if (els.boothEmpty) els.boothEmpty.classList.toggle("off", !!booth.lastPose);
+    if (els.boothSparkle) els.boothSparkle.hidden = !(booth.sparkle && booth.fixed && full);
+
+    if (els.boothPoses) {
+      els.boothPoses.textContent = "";
+      poseOrder().forEach(function (pose) {
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "nb-pose" + (booth.captured.indexOf(pose.id) >= 0 ? " shot" : "");
+        btn.textContent = pose.label;
+        btn.disabled = booth.captured.length >= TOTAL;
+        btn.addEventListener("click", function () { capturePose(pose.id); });
+        els.boothPoses.appendChild(btn);
+      });
+    }
+    if (els.boothPills) {
+      els.boothPills.textContent = "";
+      for (var p = 0; p < TOTAL; p++) {
+        var pill = document.createElement("i");
+        if (p < stamps) pill.className = "on";
+        els.boothPills.appendChild(pill);
+      }
+    }
+    if (els.boothCount) els.boothCount.textContent = String(stamps);
+    if (els.boothMode) {
+      els.boothMode.textContent = booth.fixed
+        ? "logic.js: captured.length"
+        : "logic.js: captured.length - 1";
+    }
+    if (els.meter && flash && !REDUCE) {
+      els.meter.classList.remove("flash");
+      void els.meter.offsetWidth;
+      els.meter.classList.add("flash");
+    }
+  }
+
+  /* ---------------------------------------------- terminal */
+  function resetTerminal(scene) {
+    if (runToken) runToken.cancelled = true;
+    runToken = null;
+    if (els.output) els.output.textContent = "";
+    if (els.command) {
+      els.command.textContent = scene.command || "";
+      els.command.setAttribute("data-copy", scene.command || "");
+    }
+    if (els.run) { els.run.disabled = false; els.run.textContent = "Run"; }
+    if (els.hint) els.hint.textContent = "Press Run to send this command.";
+  }
+  function finishRun(scene) {
+    if (!els.output) return;
+    els.output.textContent = "";
+    var echo = document.createElement("div");
+    echo.className = "echo on";
+    echo.textContent = "> " + (scene.command || "");
+    els.output.appendChild(echo);
+    (scene.output || []).forEach(function (line) {
+      var row = document.createElement("div");
+      row.className = "on";
+      row.textContent = line;   /* textContent: fixture strings stay literal */
+      els.output.appendChild(row);
+    });
+    if (els.hint) els.hint.textContent = "This is a simulation of the real assistant's report.";
+    if (els.run) { els.run.disabled = false; els.run.textContent = "Run again"; }
+  }
+  function runCommand() {
+    var scene = SCENES[step];
+    if (!scene || !els.output) return;
+    if (runToken) { runToken.cancelled = true; finishRun(scene); return; }
+    if (REDUCE) { finishRun(scene); return; }
+
+    var tok = runToken = { cancelled: false };
+    els.output.textContent = "";
+    if (els.run) { els.run.disabled = true; els.run.textContent = "Running"; }
+    if (els.hint) els.hint.textContent = "Running (click Run to skip the animation).";
+
+    var echo = document.createElement("div");
+    echo.className = "echo";
+    els.output.appendChild(echo);
+    var cmd = scene.command || "";
+    var ci = 0;
+
+    function typeChar() {
+      if (tok.cancelled) return;
+      if (ci <= cmd.length) {
+        echo.textContent = "> " + cmd.slice(0, ci);
+        echo.classList.add("on");
+        ci++;
+        window.setTimeout(typeChar, 16);
+      } else {
+        revealLines();
+      }
+    }
+    var oi = 0;
+    var lines = scene.output || [];
+    function revealLines() {
+      if (tok.cancelled) return;
+      if (oi < lines.length) {
+        var row = document.createElement("div");
+        row.textContent = lines[oi];   /* textContent, never innerHTML */
+        els.output.appendChild(row);
+        window.requestAnimationFrame(function () { row.classList.add("on"); });
+        oi++;
+        window.setTimeout(revealLines, 220);
+      } else {
+        runToken = null;
+        if (els.run) { els.run.disabled = false; els.run.textContent = "Run again"; }
+        if (els.hint) els.hint.textContent = "This is a simulation of the real assistant's report.";
+      }
+    }
+    typeChar();
+  }
+
+  /* ---------------------------------------------- render a step */
+  function render(resetBooth) {
+    var scene = SCENES[step];
+    if (!scene) return;
+    var beats = scene.beats || [];
+    if (beat >= beats.length) beat = beats.length ? beats.length - 1 : 0;
+
+    if (els.stageLabel) els.stageLabel.textContent = scene.stage || "";
+    if (els.counter) {
+      els.counter.textContent = "step " + (step + 1) + " / " + SCENES.length +
+        (beats.length > 1 ? "  ·  beat " + (beat + 1) + " / " + beats.length : "");
+    }
+    if (els.stepNum) els.stepNum.textContent = ("0" + (step + 1)).slice(-2) + "  " + (scene.command || "");
+    if (els.title) els.title.textContent = scene.title || scene.id;
+    if (els.intent) els.intent.textContent = scene.intent || "";
+
+    if (els.progress) {
+      els.progress.textContent = "";
+      for (var i = 0; i < SCENES.length; i++) {
+        var bar = document.createElement("i");
+        if (i <= step) bar.className = "on";
+        els.progress.appendChild(bar);
+      }
+    }
+
+    if (els.tools) {
+      els.tools.textContent = "";
+      (scene.tools || []).forEach(function (tool) {
+        var chip = document.createElement("span");
+        chip.className = "nht-tool";
+        var b = document.createElement("b");
+        b.textContent = tool.name;
+        chip.appendChild(b);
+        chip.appendChild(document.createTextNode(" " + (tool.purpose || "")));
+        els.tools.appendChild(chip);
+      });
+    }
+
+    var art = scene.artifact || {};
+    if (els.artifactPath) els.artifactPath.textContent = art.path || "";
+    if (els.artifactSummary) els.artifactSummary.textContent = art.summary || "";
+
+    var gate = scene.gate || {};
+    if (els.gate) els.gate.className = "nht-gate " + (gate.status === "pass" ? "pass" : "hold");
+    if (els.gateStatus) els.gateStatus.textContent = gate.status === "pass" ? "Gate: pass" : "Gate: hold";
+    if (els.gateName) els.gateName.textContent = gate.name || "";
+    if (els.gatePrompt) els.gatePrompt.textContent = gate.prompt || "";
+
+    var editor = scene.editor || {};
+    if (els.editorPath) els.editorPath.textContent = editor.path || "";
+    if (els.editorBody) els.editorBody.textContent = editor.body || "";
+
+    if (els.takeaway) {
+      els.takeaway.textContent = "";
+      var current = beats[beat] || {};
+      var claim = document.createElement("b");
+      claim.textContent = current.claim || "";
+      els.takeaway.appendChild(claim);
+      els.takeaway.appendChild(document.createTextNode("  " + (current.takeaway || "")));
+    }
+
+    if (resetBooth) {
+      booth = seedBooth(scene);
+      if (els.boothNote) els.boothNote.textContent = booth.note;
+      paintBooth(false);
+      resetTerminal(scene);
+    }
+
+    var prev = root.querySelector('[data-nht="prev"]');
+    var next = root.querySelector('[data-nht="next"]');
+    if (prev) prev.disabled = step === 0 && beat === 0;
+    if (next) next.disabled = step === SCENES.length - 1 && beat === (beats.length ? beats.length - 1 : 0);
+
+    if (els.outlineList) {
+      var items = els.outlineList.querySelectorAll("li");
+      for (var k = 0; k < items.length; k++) { items[k].classList.toggle("on", k === step); }
+    }
+    syncHash();
+  }
+
+  function buildOutline() {
+    if (!els.outlineList) return;
+    els.outlineList.textContent = "";
+    SCENES.forEach(function (scene, idx) {
+      var li = document.createElement("li");
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.textContent = (scene.command || scene.id) + "  —  " + (scene.title || "");
+      btn.addEventListener("click", function () {
+        step = idx; beat = 0; render(true);
+        if (els.outline) els.outline.hidden = true;
+        var t = root.querySelector('[data-nht="outline"]');
+        if (t) t.setAttribute("aria-expanded", "false");
+      });
+      li.appendChild(btn);
+      els.outlineList.appendChild(li);
+    });
+  }
+
+  /* ---------------------------------------------- navigation */
+  function goNext() {
+    var beats = (SCENES[step].beats || []);
+    if (beat < beats.length - 1) { beat++; render(false); return; }
+    if (step < SCENES.length - 1) { step++; beat = 0; render(true); }
+  }
+  function goPrev() {
+    if (beat > 0) { beat--; render(false); return; }
+    if (step > 0) { step--; beat = 0; render(true); }
+  }
+  function syncHash() {
+    var scene = SCENES[step];
+    if (!scene) return;
+    var next = "#training/" + scene.id + (beat > 0 ? "?beat=" + beat : "");
+    if (location.hash !== next && history.replaceState) {
+      history.replaceState(null, "", next);
+    }
+  }
+
+  /* ---------------------------------------------- present mode */
+  function inPresent() { return root.classList.contains("is-present"); }
+  function enterPresent() {
+    root.classList.add("is-present");
+    var btn = document.getElementById("nhtPresent");
+    if (btn) btn.textContent = "Exit present";
+    if (root.requestFullscreen) {
+      var p = root.requestFullscreen();
+      if (p && p.catch) p.catch(function () { /* overlay fallback already applied */ });
+    }
+    root.focus();
+  }
+  function exitPresent() {
+    root.classList.remove("is-present");
+    var btn = document.getElementById("nhtPresent");
+    if (btn) btn.textContent = "Present";
+    if (document.fullscreenElement && document.exitFullscreen) {
+      var p = document.exitFullscreen();
+      if (p && p.catch) p.catch(function () {});
+    }
+  }
+  function togglePresent() { if (inPresent()) { exitPresent(); } else { enterPresent(); } }
+  document.addEventListener("fullscreenchange", function () {
+    if (!document.fullscreenElement && inPresent()) { root.classList.remove("is-present"); }
+    var btn = document.getElementById("nhtPresent");
+    if (btn) btn.textContent = inPresent() ? "Exit present" : "Present";
+  });
+
+  /* ---------------------------------------------- wiring */
+  root.setAttribute("tabindex", "-1");
+  root.addEventListener("click", function (e) {
+    var t = e.target.closest ? e.target.closest("[data-nht]") : null;
+    if (!t) return;
+    var action = t.getAttribute("data-nht");
+    if (action === "next") { goNext(); }
+    else if (action === "prev") { goPrev(); }
+    else if (action === "restart") { beat = 0; render(true); }
+    else if (action === "run") { runCommand(); }
+    else if (action === "booth-restart") { restartBooth(); }
+    else if (action === "outline") {
+      var open = els.outline && els.outline.hidden;
+      if (els.outline) els.outline.hidden = !open;
+      t.setAttribute("aria-expanded", open ? "true" : "false");
+    }
+  });
+  var presentBtn = document.getElementById("nhtPresent");
+  if (presentBtn) presentBtn.addEventListener("click", togglePresent);
+
+  document.addEventListener("keydown", function (e) {
+    if (document.body.getAttribute("data-page") !== "training") return;
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
+    var tag = (e.target.tagName || "").toLowerCase();
+    if (tag === "input" || tag === "textarea" || tag === "select") return;
+    if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") { e.preventDefault(); goNext(); }
+    else if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); goPrev(); }
+    else if (e.key === "Enter" && e.target === els.run) { runCommand(); }
+    else if (e.key === "f" || e.key === "F") { togglePresent(); }
+    else if (e.key === "Escape" && inPresent()) { exitPresent(); }
+  });
+
+  window.NHTraining = {
+    syncFromHash: function (sceneId, beatIndex) {
+      var idx = -1;
+      for (var i = 0; i < SCENES.length; i++) { if (SCENES[i].id === sceneId) idx = i; }
+      if (idx < 0) idx = step;                       /* unknown scene: clamp */
+      var beats = SCENES[idx].beats || [];
+      var b = parseInt(beatIndex, 10);
+      if (isNaN(b) || b < 0) b = 0;
+      if (beats.length && b > beats.length - 1) b = beats.length - 1;   /* clamp */
+      var sceneChanged = idx !== step;
+      step = idx; beat = b;
+      render(sceneChanged || booth === null);
+    }
+  };
+
+  buildOutline();
+  render(true);
+})();
 </script>
 
 </body>

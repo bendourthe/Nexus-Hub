@@ -3,264 +3,234 @@
     {
       "id": "describe",
       "stage": "Understand",
-      "intent": "Map Glow Booth before changing it.",
+      "title": "Map the app before touching it",
+      "intent": "Glow Booth is a tiny instant-camera app: strike five poses, collect five stamps. It ships with two real bugs. Before changing anything, ask the assistant to map it.",
       "command": "/describe full",
-      "prompt": "/describe full",
-      "assistant_events": [
+      "tools": [
+        {"name": "Glob", "purpose": "list glow-booth files"},
+        {"name": "Read", "purpose": "open logic.js, app.js, poses.js"}
+      ],
+      "output": [
+        "Scanning example/glow-booth ...",
         "Detected a small vanilla HTML, CSS, and JavaScript booth. Hostile fixture sample stays literal: <img onerror> and </script>",
+        "logic.js holds pure stamp math. app.js paints the stage. poses.js lists five poses.",
+        "Risks noted: the stamp helper may stop one short; Restart may keep the last pose; no tests; no shuffle.",
         "Wrote docs/v0.1.0/analysis.md"
       ],
-      "tool_events": [
-        {"name": "Glob", "purpose": "List glow-booth files"},
-        {"name": "Read", "purpose": "Open logic.js, app.js, poses.js"}
-      ],
-      "file_state": [
-        {"path": "logic.js", "status": "unchanged", "excerpt": "for (var i = 0; i < captured.length - 1; i++)"},
-        {"path": "app.js", "status": "unchanged"},
-        {"path": "poses.js", "status": "unchanged"}
-      ],
-      "editor_state": {
+      "editor": {
         "path": "docs/v0.1.0/analysis.md",
-        "mode": "markdown",
         "body": "# Glow Booth - analysis\n\nInstant-camera booth. logic.js is pure stamp math. app.js paints the stage. poses.js is a five-pose strip.\n\nRisks: stamp helper may stop one short; restart may keep lastPose; no tests; no shuffle."
       },
-      "terminal_state": {"lines": ["> /describe full", "Scanning example/glow-booth ...", "Wrote docs/v0.1.0/analysis.md"]},
-      "artifact": {"path": "docs/v0.1.0/analysis.md", "kind": "report", "summary": "Structured map of Glow Booth"},
+      "artifact": {"path": "docs/v0.1.0/analysis.md", "summary": "a structured map of the app, on disk"},
+      "booth": {"captured": [], "fixed": false, "shuffle": false, "sparkle": false, "highlight": null, "note": "Fresh session. Try the poses - the app promises five stamps for five poses."},
       "gate": {"name": "Map exists", "status": "pass", "prompt": "Accept the map. Do not edit yet."},
       "next_scene": "review",
-      "duration": 0,
       "beats": [
-        {"index": 0, "claim": "The command scans the tree.", "panes": ["explorer", "assistant", "terminal", "timeline"], "takeaway": "Start with a map, not a guess."},
-        {"index": 1, "claim": "The analysis file is the durable output.", "panes": ["editor", "artifact", "gate"], "takeaway": "Later commands reuse this file."}
+        {"claim": "The command scans the tree, it does not guess.", "takeaway": "Start with a map, not a guess."},
+        {"claim": "The analysis file is the durable output.", "takeaway": "Later commands reuse this file."}
       ]
     },
     {
       "id": "review",
       "stage": "Evaluate",
-      "intent": "Get a read-only verdict on stamps, restart, tests, and shuffle.",
+      "title": "Get a verdict on the bugs",
+      "intent": "Now make the bugs visible. Capture all five poses in the booth: the meter reads 4 of 5. Then ask for a read-only review.",
       "command": "/review",
-      "prompt": "/review",
-      "assistant_events": [
+      "tools": [
+        {"name": "Read", "purpose": "inspect computeStamps and restartState"},
+        {"name": "Grep", "purpose": "search for test files"}
+      ],
+      "output": [
         "Read-only review. Findings ranked.",
-        "HIGH: computeStamps stops at length - 1, so a perfect set awards 4/5.",
-        "HIGH: restartState keeps prev.lastPose.",
-        "MED: no tests. LOW: pose order never shuffles."
+        "HIGH computeStamps stops at captured.length - 1, so a perfect set awards 4/5.",
+        "HIGH restartState keeps prev.lastPose, so Restart leaves the last pose on stage.",
+        "MED no tests. LOW pose order never shuffles.",
+        "VERDICT: GO-WITH-CONDITIONS - wrote docs/v0.1.0/review.md"
       ],
-      "tool_events": [
-        {"name": "Read", "purpose": "Inspect computeStamps and restartState"},
-        {"name": "Grep", "purpose": "Search for test files"}
-      ],
-      "file_state": [
-        {"path": "logic.js", "status": "unchanged", "excerpt": "function restartState(prev) { return { captured: [], lastPose: prev.lastPose, shuffled: prev.shuffled }; }"}
-      ],
-      "editor_state": {
+      "editor": {
         "path": "docs/v0.1.0/review.md",
-        "mode": "markdown",
-        "body": "# Review\n\n- Stamp loop uses captured.length - 1\n- Restart reuses the previous lastPose\n- No Vitest files yet\n- Shuffle is absent (feature, not a defect in the current loop)"
+        "body": "# Review\n\n- Stamp loop uses captured.length - 1\n- Restart reuses the previous lastPose\n- No Vitest files yet\n- Shuffle is absent (feature, not a defect)"
       },
-      "terminal_state": {"lines": ["> /review", "quality ... 2 HIGH", "coverage ... no tests", "VERDICT: GO-WITH-CONDITIONS"]},
-      "artifact": {"path": "docs/v0.1.0/review.md", "kind": "report", "summary": "Findings: stamps, restart, missing tests, no shuffle"},
+      "artifact": {"path": "docs/v0.1.0/review.md", "summary": "ranked findings: stamps, restart, missing tests"},
+      "booth": {"captured": ["dawn", "neon", "forest", "studio", "spark"], "fixed": false, "shuffle": false, "sparkle": false, "highlight": "meter", "note": "See it yourself: a perfect set reads 4 / 5. Now press Restart - the last pose stays on stage."},
       "gate": {"name": "Findings listed", "status": "hold", "prompt": "Confirm findings. Plan the bugfix only; leave shuffle for compare."},
       "next_scene": "plan",
-      "duration": 0,
       "beats": [
-        {"index": 0, "claim": "Review reads; it does not edit.", "panes": ["assistant", "terminal", "timeline"], "takeaway": "Verdict first, patches later."},
-        {"index": 1, "claim": "The report names stamps, restart, tests, and shuffle.", "panes": ["editor", "artifact", "gate"], "takeaway": "Pick a fix scope before coding."}
+        {"claim": "Review reads; it does not edit.", "takeaway": "Verdict first, patches later."},
+        {"claim": "The report names stamps, restart, tests, and shuffle.", "takeaway": "Pick a fix scope before coding."}
       ]
     },
     {
       "id": "plan",
       "stage": "Decompose",
-      "intent": "One phase: fix stamps and restart. No shuffle yet. Local commit, no push.",
+      "title": "Scope one gated phase",
+      "intent": "Turn the findings into a plan with a written definition of done: fix the stamp count and the sticky Restart, prove both with tests, commit locally. Shuffle is deliberately out of scope.",
       "command": "/plan feature",
-      "prompt": "/plan feature",
-      "assistant_events": [
-        "Goal: perfect set awards 5/5; restart clears the last pose.",
-        "Phase 1 only. Rec. model re-confirmed at implement time.",
-        "DoD: unit tests for computeStamps and restartState; local commit; do not push."
+      "tools": [
+        {"name": "Read", "purpose": "use analysis.md and review.md as inputs"},
+        {"name": "Write", "purpose": "draft the plan file"}
       ],
-      "tool_events": [
-        {"name": "Read", "purpose": "Use analysis.md and review.md as inputs"},
-        {"name": "Write", "purpose": "Draft the plan file"}
+      "output": [
+        "Goal: a perfect set awards 5/5; Restart clears the last pose.",
+        "Phase 1 only. Definition of done: unit tests for computeStamps and restartState; one local commit; no push.",
+        "Wrote docs/releases/v0.1/plans/fix-stamps-and-restart.md with a GO / NO-GO gate"
       ],
-      "file_state": [
-        {"path": "docs/releases/v0.1/plans/fix-stamps-and-restart.md", "status": "added"}
-      ],
-      "editor_state": {
+      "editor": {
         "path": "docs/releases/v0.1/plans/fix-stamps-and-restart.md",
-        "mode": "markdown",
-        "body": "# Plan - fix stamps and restart\n\nPhase 1: change computeStamps to walk the full captured array; restartState returns freshState(); add Vitest.\n\nLifecycle: one local commit. No push. Shuffle is out of scope."
+        "body": "# Plan - fix stamps and restart\n\nPhase 1: computeStamps walks the full captured array; restartState returns freshState(); add Vitest.\n\nLifecycle: one local commit. No push. Shuffle is out of scope."
       },
-      "terminal_state": {"lines": ["> /plan feature", "Scored phase 1", "Wrote plan with GO / NO-GO gate"]},
-      "artifact": {"path": "docs/releases/v0.1/plans/fix-stamps-and-restart.md", "kind": "plan", "summary": "One phase, written DoD, local-commit contract"},
+      "artifact": {"path": "docs/releases/v0.1/plans/fix-stamps-and-restart.md", "summary": "one phase, written DoD, local-commit contract"},
+      "booth": {"captured": ["dawn", "neon", "forest", "studio", "spark"], "fixed": false, "shuffle": false, "sparkle": false, "highlight": null, "note": "Scope locked: the stamp count and the sticky Restart. Shuffle waits for /compare."},
       "gate": {"name": "DoD written", "status": "pass", "prompt": "Approve phase 1 scope (bugs only)."},
       "next_scene": "implement",
-      "duration": 0,
       "beats": [
-        {"index": 0, "claim": "The plan is a gated phase, not a todo list.", "panes": ["assistant", "timeline", "editor"], "takeaway": "Scope excludes shuffle."},
-        {"index": 1, "claim": "The contract is local commit only.", "panes": ["artifact", "gate"], "takeaway": "Push waits for a later final phase."}
+        {"claim": "The plan is a gated phase, not a todo list.", "takeaway": "Scope excludes shuffle."},
+        {"claim": "The contract is local commit only.", "takeaway": "Push waits for the final phase."}
       ]
     },
     {
       "id": "implement",
       "stage": "Build",
-      "intent": "Fix stamps and restart on a branch, with tests, then a local commit.",
+      "title": "Fix both bugs, prove it, commit",
+      "intent": "Run the phase. Watch the diff land, the tests pass, and the booth change behavior: five poses now stamp 5 of 5, and Restart really clears the stage.",
       "command": "/implement fix-stamps-and-restart phase-1",
-      "prompt": "/implement fix-stamps-and-restart phase-1",
-      "assistant_events": [
-        "Implementing phase 1. Quality gate requires tests.",
-        "computeStamps now iterates captured.length. restartState returns freshState()."
+      "tools": [
+        {"name": "Edit", "purpose": "patch logic.js"},
+        {"name": "Write", "purpose": "add logic.test.js"},
+        {"name": "Bash", "purpose": "run vitest"}
       ],
-      "tool_events": [
-        {"name": "Edit", "purpose": "Patch logic.js"},
-        {"name": "Write", "purpose": "Add logic.test.js"},
-        {"name": "Bash", "purpose": "Run vitest"}
+      "output": [
+        "Implementing phase 1. The quality gate requires tests.",
+        "logic.js: for (var i = 0; i < captured.length; i++)  [was length - 1]",
+        "logic.js: restartState() now returns freshState()  [no more sticky lastPose]",
+        "logic.test.js: expect(computeStamps(['dawn','neon','forest','studio','spark'])).toBe(5)",
+        "vitest run - 8 passed",
+        "One local commit created. No push."
       ],
-      "file_state": [
-        {"path": "logic.js", "status": "changed", "excerpt": "for (var i = 0; i < captured.length; i++)"},
-        {"path": "logic.test.js", "status": "added", "excerpt": "expect(computeStamps(['dawn','neon','forest','studio','spark'])).toBe(5)"}
-      ],
-      "editor_state": {
+      "editor": {
         "path": "logic.js",
-        "mode": "diff",
         "body": "- for (var i = 0; i < captured.length - 1; i++) {\n+ for (var i = 0; i < captured.length; i++) {\n- function restartState(prev) {\n-   return { captured: [], lastPose: prev.lastPose, shuffled: prev.shuffled };\n- }\n+ function restartState() {\n+   return freshState();\n+ }"
       },
-      "terminal_state": {"lines": ["> /implement fix-stamps-and-restart phase-1", "vitest run", "8 passed", "local commit created", "no push"]},
-      "artifact": {"path": "logic.js", "kind": "code", "summary": "Stamps and restart fixed; tests added; local commit"},
-      "gate": {"name": "Phase GO", "status": "pass", "prompt": "GO on the local commit. Do not push. Shuffle still comes from compare."},
+      "artifact": {"path": "logic.js + logic.test.js", "summary": "both bugs fixed, tests added, one local commit"},
+      "booth": {"captured": ["dawn", "neon", "forest", "studio", "spark"], "fixed": true, "shuffle": false, "sparkle": false, "highlight": "meter", "note": "Same five poses - the meter now reads 5 / 5, and Restart clears the stage. Try it."},
+      "gate": {"name": "Phase GO", "status": "pass", "prompt": "GO on the local commit. Do not push."},
       "next_scene": "compare",
-      "duration": 0,
       "beats": [
-        {"index": 0, "claim": "The editor shows the stamp and restart diff.", "panes": ["explorer", "editor", "assistant"], "takeaway": "The phase edits only what the plan named."},
-        {"index": 1, "claim": "Tests pass and the commit stays local.", "panes": ["terminal", "gate", "timeline"], "takeaway": "A green phase is still not a release."}
+        {"claim": "The editor shows the stamp and restart diff.", "takeaway": "The phase edits only what the plan named."},
+        {"claim": "Tests pass and the commit stays local.", "takeaway": "A green phase is still not a release."}
       ]
     },
     {
       "id": "compare",
       "stage": "Evaluate",
-      "intent": "Adopt shuffle and sparkle from the local reference by reverse-engineering, not by wrapping it.",
+      "title": "Learn from a reference, adopt the idea",
+      "intent": "A sibling folder holds a nicer booth with shuffled poses and a sparkle when the meter fills. Compare against it and adopt the ideas - reverse-engineered, never imported wholesale.",
       "command": "/compare ../glow-booth-shuffle-reference",
-      "prompt": "/compare ../glow-booth-shuffle-reference",
-      "assistant_events": [
-        "Local path compare. Reverse-engineer-first.",
-        "Worth adopting: shuffle(items) plus a sparkle overlay when the meter is full.",
-        "/plan from-comparison writes the shuffle phase. /implement would run the same way as the bugfix; this scene does not add a ninth command."
+      "tools": [
+        {"name": "Read", "purpose": "read glow-booth-shuffle-reference/logic.js"},
+        {"name": "Write", "purpose": "write the compare report and the from-comparison plan"}
       ],
-      "tool_events": [
-        {"name": "Read", "purpose": "Read glow-booth-shuffle-reference/logic.js"},
-        {"name": "Write", "purpose": "Write compare report and from-comparison plan"}
+      "output": [
+        "Local path compare. Reverse-engineer first.",
+        "Worth adopting: shuffle(items) (Fisher-Yates) plus a sparkle overlay when the meter is full.",
+        "Not adopted wholesale: the reference stays a reference, never a dependency.",
+        "Wrote docs/v0.1.0/compare-booth.md - next: /plan from-comparison, then the same /implement loop as phase 1."
       ],
-      "file_state": [
-        {"path": "logic.js", "status": "changed", "excerpt": "function shuffle(items) { /* Fisher-Yates */ }"},
-        {"path": "docs/v0.1.0/compare-booth.md", "status": "added"}
-      ],
-      "editor_state": {
+      "editor": {
         "path": "docs/v0.1.0/compare-booth.md",
-        "mode": "markdown",
         "body": "# Compare vs glow-booth-shuffle-reference\n\nAdopt shuffle and the sparkle overlay. Do not import the reference as a dependency.\n\nNext: /plan from-comparison, then the same /implement loop as phase 1."
       },
-      "terminal_state": {"lines": ["> /compare ../glow-booth-shuffle-reference", "Gap: no shuffle; no sparkle on a full meter", "Wrote docs/v0.1.0/compare-booth.md"]},
-      "artifact": {"path": "docs/v0.1.0/compare-booth.md", "kind": "report", "summary": "Shuffle adoption plan; implement runs the same as before"},
-      "gate": {"name": "Adopt shuffle", "status": "hold", "prompt": "Adopt shuffle from the reference. The follow-on /implement is the same command, not a new scene."},
+      "artifact": {"path": "docs/v0.1.0/compare-booth.md", "summary": "gap analysis plus an adoption plan"},
+      "booth": {"captured": [], "fixed": true, "shuffle": false, "sparkle": false, "highlight": null, "note": "The reference booth shuffles pose order and sparkles on a full meter. Ours does not - yet."},
+      "gate": {"name": "Adopt shuffle", "status": "hold", "prompt": "Adopt shuffle from the reference. The follow-on /implement is the same command, not a new lesson."},
       "next_scene": "test",
-      "duration": 0,
       "beats": [
-        {"index": 0, "claim": "Compare reads a local reference, not a SaaS.", "panes": ["assistant", "terminal", "explorer"], "takeaway": "Reverse-engineer the idea, copy nothing wholesale."},
-        {"index": 1, "claim": "from-comparison plus a note that implement runs again.", "panes": ["editor", "artifact", "gate"], "takeaway": "Shuffle is in this scene's outcome, not a ninth scene."}
+        {"claim": "Compare reads a local reference, not a SaaS.", "takeaway": "Reverse-engineer the idea, copy nothing wholesale."},
+        {"claim": "from-comparison chains into the same build loop.", "takeaway": "Shuffle is this scene's outcome, not a ninth command."}
       ]
     },
     {
       "id": "test",
       "stage": "Harden",
-      "intent": "Prove stamps, restart, and shuffle with Vitest and a coverage gate.",
+      "title": "Prove it all with a coverage gate",
+      "intent": "After the shuffle phase lands the same way phase 1 did, drive the unit suite to the coverage threshold. The terminal is the proof; a number below the threshold is NO-GO.",
       "command": "/test unit",
-      "prompt": "/test unit",
-      "assistant_events": [
-        "Driving unit tests to the coverage threshold.",
-        "Stamp, restart, and shuffle cases pass."
-      ],
-      "tool_events": [
+      "tools": [
         {"name": "Bash", "purpose": "npx vitest run --coverage"}
       ],
-      "file_state": [
-        {"path": "logic.test.js", "status": "changed"}
+      "output": [
+        "Driving unit tests to the coverage threshold.",
+        "computeStamps full set -> 5. restartState -> lastPose is null. shuffle -> same members, order varies.",
+        "vitest run --coverage: Tests 12 passed",
+        "Statements 92% - above the project threshold. Gate: PASS"
       ],
-      "editor_state": {
+      "editor": {
         "path": "logic.test.js",
-        "mode": "test",
-        "body": "computeStamps full set -> 5\nrestartState -> lastPose is null\nshuffle -> same members, not always same order"
+        "body": "computeStamps full set -> 5\nrestartState -> lastPose is null\nshuffle -> same members, not always the same order"
       },
-      "terminal_state": {"lines": ["> /test unit", "vitest run --coverage", "Tests 12 passed", "Statements 92%"]},
-      "artifact": {"path": "coverage/index.html", "kind": "report", "summary": "Unit suite green; coverage above the project threshold"},
+      "artifact": {"path": "coverage/index.html", "summary": "unit suite green; coverage above threshold"},
+      "booth": {"captured": ["neon", "dawn", "spark", "forest", "studio"], "fixed": true, "shuffle": true, "sparkle": false, "highlight": null, "note": "Pose order is shuffled now - and 12 tests prove stamps, restart, and shuffle."},
       "gate": {"name": "Coverage gate", "status": "pass", "prompt": "Accept the suite. Ship only after tests."},
       "next_scene": "update",
-      "duration": 0,
       "beats": [
-        {"index": 0, "claim": "The terminal is the proof.", "panes": ["terminal", "assistant", "timeline"], "takeaway": "Both bugfix and shuffle are verified here."},
-        {"index": 1, "claim": "Coverage is a gate, not a screenshot.", "panes": ["editor", "gate", "artifact"], "takeaway": "A number below the threshold is NO-GO."}
+        {"claim": "The terminal is the proof.", "takeaway": "Both the bugfix and shuffle are verified here."},
+        {"claim": "Coverage is a gate, not a screenshot.", "takeaway": "A number below the threshold is NO-GO."}
       ]
     },
     {
       "id": "update",
       "stage": "Ship",
-      "intent": "Record the change. Release stays gated on a green integration.",
-      "command": "/update",
-      "prompt": "/update changelog",
-      "assistant_events": [
-        "Changelog and docs synced for the Glow Booth fixes.",
-        "A full /update release would still wait for green required checks. This example stops at the local record."
+      "title": "Record it; the tag still waits",
+      "intent": "Sync the written record. A full /update release would bump the version, tag, and publish - but only after a green integration. This example stops at the honest local record.",
+      "command": "/update changelog",
+      "tools": [
+        {"name": "Edit", "purpose": "update CHANGELOG.md"}
       ],
-      "tool_events": [
-        {"name": "Edit", "purpose": "Update CHANGELOG.md"}
+      "output": [
+        "CHANGELOG.md updated:",
+        "- Fix Glow Booth stamp off-by-one and restart leak",
+        "- Shuffle poses and sparkle on a full meter (adopted from a local reference)",
+        "Release stays blocked until integration is green. No tag is invented."
       ],
-      "file_state": [
-        {"path": "CHANGELOG.md", "status": "changed"}
-      ],
-      "editor_state": {
+      "editor": {
         "path": "CHANGELOG.md",
-        "mode": "markdown",
         "body": "## Unreleased\n\n- Fix Glow Booth stamp off-by-one and restart leak\n- Shuffle poses and sparkle on a full meter (adopted from a local reference)"
       },
-      "terminal_state": {"lines": ["> /update changelog", "CHANGELOG.md updated", "release blocked until integration is green"]},
-      "artifact": {"path": "CHANGELOG.md", "kind": "docs", "summary": "Written record; release still gated"},
+      "artifact": {"path": "CHANGELOG.md", "summary": "a written record; the release stays gated"},
+      "booth": {"captured": ["neon", "dawn", "spark", "forest", "studio"], "fixed": true, "shuffle": true, "sparkle": true, "highlight": "stage", "note": "Full meter sparkles now. The record is written; the tag waits for green checks."},
       "gate": {"name": "Green integration", "status": "hold", "prompt": "Keep the changelog. Do not pretend a tag exists."},
       "next_scene": "presentify",
-      "duration": 0,
       "beats": [
-        {"index": 0, "claim": "Ship is documentation plus a gate.", "panes": ["editor", "assistant", "timeline"], "takeaway": "The record is real; the tag is not automatic."},
-        {"index": 1, "claim": "Integration still has to be green.", "panes": ["gate", "terminal"], "takeaway": "Communicate after the work is real."}
+        {"claim": "Ship is documentation plus a gate.", "takeaway": "The record is real; the tag is not automatic."},
+        {"claim": "Integration still has to be green.", "takeaway": "Communicate after the work is real."}
       ]
     },
     {
       "id": "presentify",
       "stage": "Document",
-      "intent": "Turn the written record into one offline HTML briefing.",
-      "command": "/presentify",
-      "prompt": "/presentify docs/v0.1.0/analysis.md docs/v0.1.0/review.md CHANGELOG.md",
-      "assistant_events": [
+      "title": "Turn the trail into a briefing",
+      "intent": "Every command left a file behind. Compile the analysis, the review, and the changelog into one self-contained HTML briefing a stakeholder can open with no setup.",
+      "command": "/presentify docs/v0.1.0/analysis.md docs/v0.1.0/review.md CHANGELOG.md",
+      "tools": [
+        {"name": "Read", "purpose": "parse the local documents"},
+        {"name": "Write", "purpose": "emit one HTML file"}
+      ],
+      "output": [
         "Building a self-contained HTML file. No CDN, no runtime fetch.",
-        "Wrote glow-booth-briefing.html"
+        "Sections: the map, the findings, what changed, what is proven.",
+        "Wrote glow-booth-briefing.html - offline: yes"
       ],
-      "tool_events": [
-        {"name": "Read", "purpose": "Parse local documents"},
-        {"name": "Write", "purpose": "Emit one HTML file"}
-      ],
-      "file_state": [
-        {"path": "glow-booth-briefing.html", "status": "added"}
-      ],
-      "editor_state": {
+      "editor": {
         "path": "glow-booth-briefing.html",
-        "mode": "source",
         "body": "<!doctype html><!-- self-contained briefing: map, review, changelog -->"
       },
-      "terminal_state": {"lines": ["> /presentify ...", "Wrote glow-booth-briefing.html", "offline = yes"]},
-      "artifact": {"path": "glow-booth-briefing.html", "kind": "html", "summary": "Stakeholder briefing; tour ends"},
+      "artifact": {"path": "glow-booth-briefing.html", "summary": "a stakeholder briefing; the tour is complete"},
+      "booth": {"captured": ["neon", "dawn", "spark", "forest", "studio"], "fixed": true, "shuffle": true, "sparkle": true, "highlight": null, "note": "Done: bugs fixed, features adopted, everything proven and written down."},
       "gate": {"name": "File exists", "status": "pass", "prompt": "Hand the HTML to a stakeholder. The tour is complete."},
       "next_scene": null,
-      "duration": 0,
       "beats": [
-        {"index": 0, "claim": "Presentify is a taught command, not this page's author.", "panes": ["assistant", "terminal", "timeline"], "takeaway": "The briefing is a file, not a slide deck runtime."},
-        {"index": 1, "claim": "The artifact is the closer.", "panes": ["artifact", "editor", "gate"], "takeaway": "Experience became something you can send."}
+        {"claim": "Presentify is a taught command, not this page's author.", "takeaway": "The briefing is a file, not a slide-deck runtime."},
+        {"claim": "The artifact is the closer.", "takeaway": "The experience became something you can send."}
       ]
     }
   ]
