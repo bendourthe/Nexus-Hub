@@ -118,3 +118,14 @@ Phase 2 edits the canonical guide HTML and the focused test file in place. Sessi
 ### Result
 
 No documentation move.
+
+## v4.2.1 Phase 3 - Home loop visual
+
+**Date**: 2026-08-29
+**Mode**: audit only; no files moved
+
+Phase 3 edits the canonical guide HTML and the focused test file in place.
+
+### Result
+
+No documentation move.

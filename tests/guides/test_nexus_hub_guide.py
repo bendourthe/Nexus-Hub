@@ -407,6 +407,14 @@ def test_home_has_six_node_preview_including_communicate(guide_text: str) -> Non
         assert f'data-go="{node}"' in home_markup
 
 
+def test_home_loop_nodes_are_not_abutting_rectangles(guide_text: str) -> None:
+    home_markup = guide_text.split('id="page-home"', 1)[-1].split('id="page-foundations"', 1)[0]
+    assert "nhg-loop-track" in home_markup
+    assert "nhg-ribbon-join" not in home_markup
+    assert "nhg-loop-index" in home_markup
+    assert home_markup.count("nhg-ribbon-node") == 6
+
+
 def test_onboarding_has_no_hardcoded_catalog_counts(parsed: GuideParser) -> None:
     home = " ".join(parsed.home_text_parts)
     assert not ONBOARDING_STALE.search(home), home[:400]

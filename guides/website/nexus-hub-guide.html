@@ -646,31 +646,61 @@ html.no-js .tab-panel { display: block; }
 .nhg-warn { border-color: var(--amber); }
 
 .nhg-ribbon { margin: 8px 0 6px; }
-.nhg-ribbon-track {
-  display: flex; align-items: stretch; gap: 0;
-  overflow-x: auto; padding: 4px 0 10px; scroll-snap-type: x proximity;
+.nhg-loop-track {
+  list-style: none; margin: 0; padding: 18px 0 8px;
+  display: grid; gap: 14px; position: relative;
 }
+@media (min-width: 900px) {
+  .nhg-loop-track {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    align-items: stretch;
+  }
+  .nhg-loop-track::before {
+    content: "";
+    position: absolute; top: 32px; left: 6%; right: 6%; height: 2px;
+    background: var(--accent); opacity: .35; border-radius: 2px; z-index: 0;
+  }
+}
+.nhg-loop-track > li { position: relative; z-index: 1; margin: 0; min-width: 0; }
 .nhg-ribbon-node {
-  flex: 1 0 9.5rem; max-width: 12.5rem; scroll-snap-align: start;
-  text-align: left; cursor: pointer;
-  padding: 12px 14px; margin: 0;
+  width: 100%; min-height: 44px; text-align: left; cursor: pointer;
+  padding: 14px 14px 16px; margin: 0;
   border: 1px solid var(--border); background: var(--surface); color: var(--ink);
-  font-family: inherit;
+  font-family: inherit; border-radius: 22px;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 4px;
+  box-shadow: var(--shadow);
 }
-.nhg-ribbon-node + .nhg-ribbon-join + .nhg-ribbon-node { border-left: 0; }
-.nhg-ribbon-node:first-of-type { border-radius: 8px 0 0 8px; }
-.nhg-ribbon-node:last-of-type { border-radius: 0 8px 8px 0; }
-.nhg-ribbon-join {
-  width: 14px; flex: none; align-self: center; height: 2px;
-  background: var(--accent);
+.nhg-loop-index {
+  width: 28px; height: 28px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font: 700 12px var(--sans); border: 2px solid var(--accent); color: var(--accent);
+  background: var(--page-bg); margin-bottom: 6px;
 }
-.nhg-ribbon-node.is-on { background: var(--accent); color: var(--page-bg); border-color: var(--accent); }
+.nhg-ribbon-node.is-on {
+  background: color-mix(in srgb, var(--accent) 16%, var(--surface));
+  border-color: var(--accent); color: var(--ink);
+  box-shadow: 0 0 0 2px var(--accent);
+}
+.nhg-ribbon-node.is-on .nhg-loop-index { background: var(--accent); color: var(--page-bg); }
 .nhg-ribbon-name { display: block; font-weight: 700; font-size: 14px; }
-.nhg-ribbon-cmds { display: block; font: 600 12px var(--mono); margin-top: 6px; opacity: .92; }
-.nhg-ribbon-out { display: block; font-size: 12px; margin-top: 6px; opacity: .85; }
+.nhg-ribbon-cmds { display: block; font: 600 12px var(--mono); margin-top: 4px; color: var(--accent); }
+.nhg-ribbon-out { display: block; font-size: 12px; margin-top: 2px; color: var(--ink-dim); }
 .nhg-ribbon-detail { margin: 12px 0 8px; color: var(--ink-dim); max-width: 46em; }
 .nhg-ribbon-panel { display: none; }
 .nhg-ribbon-panel.is-on { display: block; }
+@media (prefers-reduced-motion: no-preference) {
+  .nhg-ribbon-node {
+    animation: nhg-rise .45s ease both;
+    animation-delay: calc(var(--i, 0) * 55ms);
+  }
+}
+@keyframes nhg-rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .nhg-ribbon-node { animation: none; }
+}
 
 .nhg-platforms { margin: 18px 0 0; padding: 14px 16px; border: 1px solid var(--border); background: var(--surface); }
 .nhg-platforms h3 { margin: 0 0 8px; font-size: 1rem; }
@@ -868,46 +898,59 @@ html.no-js .tab-panel { display: block; }
 
       <section class="section">
         <span class="eyebrow">The loop</span>
-        <h2>Six stops from map to document</h2>
+        <h2>Six stops around the working loop</h2>
         <p>Select a node for the command, the artifact it leaves, and the matching workflow page. This preview does not autoplay and does not replace Training.</p>
         <div class="nhg-ribbon" data-nhg-keys="self" id="nhgRibbon">
-          <div class="nhg-ribbon-track" role="list">
-            <button type="button" class="nhg-ribbon-node is-on" data-ribbon="explore" aria-pressed="true" role="listitem">
-              <span class="nhg-ribbon-name">Map and evaluate</span>
-              <span class="nhg-ribbon-cmds">/describe, /review</span>
-              <span class="nhg-ribbon-out">analysis.md, review report</span>
-            </button>
-            <span class="nhg-ribbon-join" aria-hidden="true"></span>
-            <button type="button" class="nhg-ribbon-node" data-ribbon="plan" aria-pressed="false" role="listitem">
-              <span class="nhg-ribbon-name">Plan</span>
-              <span class="nhg-ribbon-cmds">/plan</span>
-              <span class="nhg-ribbon-out">phased plan with gates</span>
-            </button>
-            <span class="nhg-ribbon-join" aria-hidden="true"></span>
-            <button type="button" class="nhg-ribbon-node" data-ribbon="build" aria-pressed="false" role="listitem">
-              <span class="nhg-ribbon-name">Implement</span>
-              <span class="nhg-ribbon-cmds">/implement</span>
-              <span class="nhg-ribbon-out">code and a local commit</span>
-            </button>
-            <span class="nhg-ribbon-join" aria-hidden="true"></span>
-            <button type="button" class="nhg-ribbon-node" data-ribbon="harden" aria-pressed="false" role="listitem">
-              <span class="nhg-ribbon-name">Harden</span>
-              <span class="nhg-ribbon-cmds">/test</span>
-              <span class="nhg-ribbon-out">suite plus coverage gate</span>
-            </button>
-            <span class="nhg-ribbon-join" aria-hidden="true"></span>
-            <button type="button" class="nhg-ribbon-node" data-ribbon="ship" aria-pressed="false" role="listitem">
-              <span class="nhg-ribbon-name">Ship</span>
-              <span class="nhg-ribbon-cmds">/update</span>
-              <span class="nhg-ribbon-out">docs, changelog, release flow</span>
-            </button>
-            <span class="nhg-ribbon-join" aria-hidden="true"></span>
-            <button type="button" class="nhg-ribbon-node" data-ribbon="communicate" aria-pressed="false" role="listitem">
-              <span class="nhg-ribbon-name">Document</span>
-              <span class="nhg-ribbon-cmds">/presentify</span>
-              <span class="nhg-ribbon-out">offline interactive HTML</span>
-            </button>
-          </div>
+          <ol class="nhg-loop-track">
+            <li style="--i:0">
+              <button type="button" class="nhg-ribbon-node is-on" data-ribbon="explore" aria-pressed="true">
+                <span class="nhg-loop-index" aria-hidden="true">1</span>
+                <span class="nhg-ribbon-name">Map and evaluate</span>
+                <span class="nhg-ribbon-cmds">/describe, /review</span>
+                <span class="nhg-ribbon-out">analysis.md, review report</span>
+              </button>
+            </li>
+            <li style="--i:1">
+              <button type="button" class="nhg-ribbon-node" data-ribbon="plan" aria-pressed="false">
+                <span class="nhg-loop-index" aria-hidden="true">2</span>
+                <span class="nhg-ribbon-name">Plan</span>
+                <span class="nhg-ribbon-cmds">/plan</span>
+                <span class="nhg-ribbon-out">phased plan with gates</span>
+              </button>
+            </li>
+            <li style="--i:2">
+              <button type="button" class="nhg-ribbon-node" data-ribbon="build" aria-pressed="false">
+                <span class="nhg-loop-index" aria-hidden="true">3</span>
+                <span class="nhg-ribbon-name">Implement</span>
+                <span class="nhg-ribbon-cmds">/implement</span>
+                <span class="nhg-ribbon-out">code and a local commit</span>
+              </button>
+            </li>
+            <li style="--i:3">
+              <button type="button" class="nhg-ribbon-node" data-ribbon="harden" aria-pressed="false">
+                <span class="nhg-loop-index" aria-hidden="true">4</span>
+                <span class="nhg-ribbon-name">Harden</span>
+                <span class="nhg-ribbon-cmds">/test</span>
+                <span class="nhg-ribbon-out">suite plus coverage gate</span>
+              </button>
+            </li>
+            <li style="--i:4">
+              <button type="button" class="nhg-ribbon-node" data-ribbon="ship" aria-pressed="false">
+                <span class="nhg-loop-index" aria-hidden="true">5</span>
+                <span class="nhg-ribbon-name">Ship</span>
+                <span class="nhg-ribbon-cmds">/update</span>
+                <span class="nhg-ribbon-out">docs, changelog, release flow</span>
+              </button>
+            </li>
+            <li style="--i:5">
+              <button type="button" class="nhg-ribbon-node" data-ribbon="communicate" aria-pressed="false">
+                <span class="nhg-loop-index" aria-hidden="true">6</span>
+                <span class="nhg-ribbon-name">Communicate</span>
+                <span class="nhg-ribbon-cmds">/presentify</span>
+                <span class="nhg-ribbon-out">offline interactive HTML</span>
+              </button>
+            </li>
+          </ol>
           <div class="nhg-ribbon-panel is-on" data-ribbon-panel="explore">
             <p class="nhg-ribbon-detail">Map an inherited repo, then get a read-only verdict before you change it.</p>
             <a class="btn" href="#explore" data-go="explore">Open Explore and evaluate</a>
@@ -930,7 +973,7 @@ html.no-js .tab-panel { display: block; }
           </div>
           <div class="nhg-ribbon-panel" data-ribbon-panel="communicate">
             <p class="nhg-ribbon-detail">Turn the written record into a self-contained HTML briefing with <code>/presentify</code>.</p>
-            <a class="btn" href="#communicate" data-go="communicate">Open Document</a>
+            <a class="btn" href="#communicate" data-go="communicate">Open Communicate</a>
           </div>
         </div>
       </section>

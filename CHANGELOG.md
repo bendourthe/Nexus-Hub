@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **Interactive guide visual education (v4.2.1, in progress).** Phase 1 local: working contract. Phase 2 local: opaque sticky header, icon-only GitHub, sun/moon theme defaulting to dark, theme-ink wordmark, copy pinned to the terminal edge, and light-theme terminals.
+- **Interactive guide visual education (v4.2.1, in progress).** Phases 1-3 local: contract, opaque chrome and light terminals, and a modern six-stop Home loop (same commands, including communicate / `/presentify`).
 - **Interactive guide redesign (v4.2.0 substrate, unpublished).** Dual-theme shell, concise Home with install, model-versus-harness Foundations, and an eight-scene IDE training workbench remain on disk as the starting markup. Do not cut a GitHub Release of that UI; v4.2.1 is the public cut.
 
 ---
