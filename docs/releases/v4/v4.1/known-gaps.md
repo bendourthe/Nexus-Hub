@@ -113,3 +113,24 @@ All Not Implemented, Bug / Regression, and Missing Test categories have no open 
 - **Resolved in**: v4.1.1 release preparation on 2026-08-28
 
 > Finalized on 2026-08-28 at the 4.1.1 bump. Remaining DF-1 stays on this ledger for the next `/plan` ingest. Do not absorb v4.1.0 DF-1, WN-1, or QG-1.
+
+## v4.1.2
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+
+### Open Items
+
+Phase 1 produced no NI, DF, BG, WN, MT, or QG items. Do not absorb v4.1.0 DF-1/WN-1/QG-1 or v4.1.1 DF-1.
+
+### Resolved
+
+None.

@@ -108,6 +108,7 @@ REQUIRED_HEADINGS = [
     "Documentation Layout",
     "Output Minimization",
     "End-of-Task Summary",
+    "Construction Discipline",
     "Consequential Decisions",
     "MCP Registry Policy",
     "Skill Discovery",
@@ -160,6 +161,12 @@ INVARIANT_SECTIONS = [
     # belongs in BOTH lists: every lockstep file must carry the heading, and the
     # body must stay byte-identical so the rule cannot drift on one platform.
     "End-of-Task Summary",
+    # v4.1.2: the pre-write construction ladder is platform-agnostic by intent
+    # and has no legitimate per-platform variation. Require the heading and
+    # byte-lock the body across the five lockstep templates. Coverage of the
+    # other seven substantive templates lives in
+    # tests/validators/test_construction_discipline_rule.py.
+    "Construction Discipline",
     "Consequential Decisions",
     "MCP Registry Policy",
 ]

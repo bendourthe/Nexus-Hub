@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Construction Discipline (always-on).** All 12 substantive instruction templates now carry a compact pre-write ladder (skip, reuse, stdlib, native, installed dependency, one line, then minimum). Include-only shims inherit it and do not duplicate the heading. Intensity and delete-list review stay in skills. Lockstep word ceilings rose by this section because the text is always-loaded by design.
+
 ### Documentation
 
 - **v4.1.2 planning record.** Added the Ponytail (minimal-construction) comparison and the reverse-engineer-first adoption plan as forward-looking documentation. Implementation does not ship until that plan runs.

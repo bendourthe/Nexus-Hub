@@ -174,3 +174,24 @@ No duplicate, orphaned, scratch, or misplaced documentation was created by v4.1.
 ### Result
 
 No duplicate, orphaned, scratch, or misplaced documentation was created by v4.1.1 Phase 5. No file moved, and no cleanup change was approved or applied.
+
+## v4.1.2 Phase 1 - Construction-Discipline Contract and Always-On Templates
+
+**Date**: 2026-08-28
+**Mode**: audit only; no files moved
+**Plan**: `docs/releases/v4/v4.1/plans/v4.1.2-adoption-minimal-construction.md`
+
+### Layout check
+
+Phase 1 adds the version-bound contract at `docs/releases/v4/v4.1/development/v4.1.2-construction-discipline-contract.md` and this history entry under the same release tree. Instruction-template edits live in `templates/ai-instructions/`, which is the existing always-loaded surface, not a new docs root. No scratch document, move, or installer copy line is proposed.
+
+### New documentation artifacts
+
+| Path | Category | Disposition |
+|---|---|---|
+| `docs/releases/v4/v4.1/development/v4.1.2-construction-discipline-contract.md` | Active release contract | Keep; wording source for the always-on section. |
+| `docs/releases/v4/v4.1/development/history/2026-08-28_v4.1.2-adoption-minimal-construction-phase-1-construction-discipline.md` | Active phase evidence | Keep under the current version's development history. |
+
+### Result
+
+No duplicate, orphaned, scratch, or misplaced documentation was created by v4.1.2 Phase 1. No file moved, and no cleanup change was approved or applied.
