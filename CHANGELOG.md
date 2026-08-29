@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **Interactive guide redesign (in progress).** Phase 1 lands a measured content and UX contract for `guides/website/nexus-hub-guide.html`: static baseline, hallmark-from-markup audit, frozen command inventory, eight-scene schema, and focused tests under `tests/guides/`. The HTML file is unchanged. Cursor/OpenCode/Copilot slash reachability is unchanged.
+- **Interactive guide redesign (in progress).** Phase 1 froze the content contract and test scaffold. Phase 2 gives `guides/website/nexus-hub-guide.html` a dual theme (`portfolio-theme` light|dark), Installation-free primary nav, first-segment page hashes, and a dark-only constellation.
 
 ---
 

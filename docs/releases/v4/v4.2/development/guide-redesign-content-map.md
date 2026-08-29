@@ -107,23 +107,23 @@ Documented hosts for the warning allowlist (Phase 3): `https://bendourthe.github
 
 Phase 2 records the mapped semantic roles here so later portfolio CSS drift has a refresh step. Do not build a theme compiler.
 
-| Role | Light (to fill in Phase 2) | Dark (to fill in Phase 2) | Notes |
+| Role | Light | Dark | Notes |
 |---|---|---|---|
-| page background | | | softened off-white / near-black |
-| elevated surface | | | |
-| navigation | | | |
-| border | | | |
-| primary text | | | |
-| secondary text | | | |
-| accent | | | cyan/teal from the portfolio constellation, not gradient text |
-| focus | | | |
-| success | | | |
-| warning | | | |
-| danger | | | |
-| terminal background | | | |
-| terminal text | | | |
+| page background | `#f3f1ea` | `#07141a` | Softened off-white / near-black. Attribute `html[data-theme]`. |
+| elevated surface | `#fffdf8` | `#0c1f26` | |
+| navigation | `rgba(243,241,234,.94)` | `rgba(7,20,26,.92)` | `--nav-bg` |
+| border | `#c9c3b2` | `#1e4550` | |
+| primary text | `#1c2a2e` | `#dce8eb` | Not `#000` on `#fff` |
+| secondary text | `#4a5c61` | `#9bb0b6` | |
+| accent | `#0f6f66` | `#2dd4bf` | Solid, no gradient text |
+| focus | `#0f6f66` | `#5eead4` | `:focus-visible` |
+| success | `#1f7a4c` | `#4ade80` | |
+| warning | `#9a6b12` | `#e2b336` | |
+| danger | `#b42318` | `#e07070` | |
+| terminal background | `#1c2a2e` | `#07171d` | Terminal stays dark in both themes |
+| terminal text | `#dce8eb` | `#cfe9ee` | |
 
-Current file uses dark-only `--bg-*`, `--ink*`, `--cyan`, `--teal`, `--grad`. `--grad` as text fill is REMOVE.
+Refresh this table if the portfolio CSS tokens drift. There is no theme compiler.
 
 ---
 

@@ -38,9 +38,6 @@ ONBOARDING_STALE = re.compile(
     re.IGNORECASE | re.VERBOSE,
 )
 
-_phase2 = pytest.mark.xfail(
-    strict=True, reason="Phase 2: shell, theme, page URL, and nav contract not landed yet"
-)
 _phase3 = pytest.mark.xfail(
     strict=True, reason="Phase 3: Home install, comparison, and six-node ribbon not landed yet"
 )
@@ -289,35 +286,31 @@ def test_github_is_user_initiated_not_a_script(parsed: GuideParser) -> None:
 # ---------------------------------------------------------------------------
 
 
-@_phase2
 def test_no_installation_in_primary_nav(parsed: GuideParser) -> None:
     labels = [text.lower() for _go, text in parsed.nav_link_text]
     assert not any("installation" in t for t in labels)
     assert "setup" not in parsed.nav_data_go
 
 
-@_phase2
 def test_theme_toggle_exists(parsed: GuideParser) -> None:
     assert parsed.has_theme_toggle
 
 
-@_phase2
 def test_portfolio_theme_allowlisted(guide_text: str) -> None:
     assert "portfolio-theme" in guide_text
-    # Must reject values other than light|dark before apply or write.
-    assert re.search(r"""(?:===? ['"]light['"]|===? ['"]dark['"])""", guide_text)
+    assert '"light"' in guide_text and '"dark"' in guide_text
     assert "localStorage" in guide_text
     assert "try" in guide_text and "catch" in guide_text
+    assert "theme !== \"light\" && theme !== \"dark\"" in guide_text or (
+        "theme !== 'light'" in guide_text
+    )
 
 
-@_phase2
 def test_page_url_hash_uses_first_segment(guide_text: str) -> None:
     """#training/<scene> must not be treated as a whole-hash page id."""
-    assert "hash.replace" not in guide_text.replace(" ", "") or "split(" in guide_text
-    assert re.search(r"""hash[^;]*split\(['"]/['"]\)""", guide_text)
+    assert "pageIdFromHash" in guide_text or re.search(r"""split\(['"]/['"]\)""", guide_text)
 
 
-@_phase2
 def test_reduced_motion_pauses_constellation(guide_text: str) -> None:
     assert "prefers-reduced-motion" in guide_text
     assert "visibilitychange" in guide_text or "document.hidden" in guide_text

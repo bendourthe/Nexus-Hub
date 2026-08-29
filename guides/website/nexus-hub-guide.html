@@ -3,9 +3,21 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<meta name="color-scheme" content="dark" />
-<meta name="theme-color" content="#04141a" />
+<meta name="color-scheme" content="light dark" />
+<meta name="theme-color" content="#04141a" id="themeColorMeta" />
 <title>Nexus Hub - Interactive Team Guide</title>
+<script>
+(function () {
+  var KEY = "portfolio-theme";
+  var theme = null;
+  try { theme = window.localStorage.getItem(KEY); } catch (e) { theme = null; }
+  if (theme !== "light" && theme !== "dark") {
+    theme = (window.matchMedia && window.matchMedia("(prefers-color-scheme: light)").matches) ? "light" : "dark";
+  }
+  document.documentElement.setAttribute("data-theme", theme);
+  document.documentElement.style.colorScheme = theme;
+})();
+</script>
 <link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,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" />
 <link rel="icon" type="image/png" sizes="16x16" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAADJklEQVR4AURTaUhUURT+zn05M06NM5U2RUmWaZYtSGW0Q9G+QBEEEVS0aIT/2iCCgsKCKKgICuxHVARBy48MK1psAwvCskxNHUcNl3HmOS4z8+bNu533Ruvw7nfPOfd85373vvcEhox4Ngcs4OC/w0EySVYuiZy0HmHl2J0Wldtma7IAEkMpdiyPMGySFwulkZsTkbuSOYKAJJyW0tPcl3jQpuNGSVhmmFRYZNPjQTysGGiOoLRBjd9eK418guQGDKeJ1EwHHRIO2D87sTTf33+1oLYnK9kE4BIL5hlyDjmQO2mkOLIIVAtuKoYFpvl7Pk8NRYobFJxxelPf+UOhp95HH0sgpQDbAinzWwl3cmL6wZHtgU+8qWEeSZjieB2+hqbsmorqssmh6GGfTZzKnjvp3IAj9UR6+dcXq6Sc2Qbcy47Gi789r7no/+krMDn4p4BlJIJBDLb48+oq629mqdGSVmfK8SUr5x7NWzzzcaPE3SxdP1TzoflCn69tEQW6iY35fAfDChDRADWMgc6u6b986o3loKKTNpy/5LGfWEjYV9/Yf6HvT+cS9PRA7x/kk5lMMi8RLIRAiTigRYF4HKOiscoGI5H3C+iqhWxtk3KpXddeU4JJMQ1S05gAvlxWwNNQN/aUFIz1ji5zFWa+bxfK/svV7U/O1wUf/gZtcuVlBDK8Y86S3QYig7gaYBQgRhBEWhpc0yeXjd264F0viaIZ3eE9LV9+bKt/WVXqrKx7oSrYPHrNjIA7J/OMfdx43h3MIgiSLItf9OJ1C79m7l39MaSI4nnh3o1vxrl/Ryp657tGjdjd0dx60PaqtiKoKJu9O1eEV25fUUFMN6nWazzW3e1663BV+Q1Rmg9sKPd4QgTe5MGOhLpn7Z2oN2vW4MCANqGp81ZHQjnwLKZUrzaMKVzCChiz09Ojzphe5R7Uy96QULk5a+IFC/lz2ZAbC24pvPJ9ive+O2Jcc2r6lxSCyltAgK2IKB4Yb1/f7rGd5NDMw7oaK2Dgf8E8KPjAfrdyPTQxdVk5UYhXYDUAsWtVwHKToYkc80RDazDN6mz+RuBawl8AAAD//09DhdIAAAAGSURBVAMA2Q9KP1qSUPIAAAAASUVORK5CYII=" />
 <meta name="description" content="An interactive, self-contained guide to using Nexus-Hub across the software development lifecycle: describe, review, plan, compare, implement, test, and ship." />
@@ -17,20 +29,13 @@
    network mark on deep teal-to-black gradients).
    ============================================================ */
 
-/* ---------- Design tokens ---------- */
+/* ---------- Design tokens (semantic roles; light + dark) ---------- */
 :root {
-  /* Backgrounds */
-  --bg-deep: #02090c;
-  --bg-0: #04141a;
-  --bg-1: #072530;
-  --bg-2: #0a3a47;
-
-  /* Ink */
-  --ink: #eaf6f8;
-  --ink-dim: #a7c1c8;
-  --ink-faint: #6f8990;
-
-  /* Brand */
+  --sans: "Segoe UI", -apple-system, BlinkMacSystemFont, system-ui, Roboto, Helvetica, Arial, sans-serif;
+  --mono: "Cascadia Code", "JetBrains Mono", "SF Mono", "Consolas", "Liberation Mono", Menlo, monospace;
+  --maxw: 1120px;
+  --radius: 12px;
+  --radius-sm: 8px;
   --cyan: #22d3ee;
   --cyan-soft: #67e8f9;
   --teal: #2dd4bf;
@@ -38,54 +43,103 @@
   --blue: #38bdf8;
   --node-blue: #2f9ee6;
   --glow: #d7fbff;
-
-  /* Semantic */
+  --violet: #7c6bc4;
+  --grad: var(--accent);
+  --grad-soft: color-mix(in srgb, var(--accent) 16%, transparent);
+  --page-bg: #07141a;
+  --bg-deep: #041014;
+  --bg-0: #07141a;
+  --bg-1: #0c1f26;
+  --bg-2: #123038;
+  --surface: #0c1f26;
+  --surface-2: #123038;
+  --surface-3: #173a44;
+  --nav-bg: rgba(7,20,26,.92);
+  --border: #1e4550;
+  --border-bright: #2a6570;
+  --ink: #dce8eb;
+  --ink-dim: #9bb0b6;
+  --ink-faint: #6f8990;
+  --accent: #2dd4bf;
+  --focus: #5eead4;
   --green: #4ade80;
-  --amber: #fbbf24;
-  --red: #f87171;
-  --violet: #a78bfa;
-
-  /* Surfaces */
-  --surface: rgba(255,255,255,.035);
-  --surface-2: rgba(255,255,255,.06);
-  --surface-3: rgba(255,255,255,.09);
-  --border: rgba(120,224,238,.14);
-  --border-bright: rgba(94,234,212,.34);
-
-  /* Accent gradient */
-  --grad: linear-gradient(100deg, #38bdf8 0%, #22d3ee 45%, #2dd4bf 100%);
-  --grad-soft: linear-gradient(100deg, rgba(56,189,248,.16), rgba(45,212,191,.16));
-
-  /* Terminal */
+  --amber: #e2b336;
+  --red: #e07070;
   --term-bg: #07171d;
   --term-ink: #cfe9ee;
   --term-dim: #5f7d84;
   --term-prompt: #5eead4;
+  --shadow: 0 18px 40px -24px rgba(0,0,0,.7);
+  --shadow-glow: 0 0 0 1px var(--border);
+}
 
-  /* Type */
-  --sans: "Segoe UI", -apple-system, BlinkMacSystemFont, "Inter", system-ui, Roboto, Helvetica, Arial, sans-serif;
-  --mono: "Cascadia Code", "JetBrains Mono", "SF Mono", "Consolas", "Liberation Mono", Menlo, monospace;
+html[data-theme="dark"] {
+  --page-bg: #07141a;
+  --bg-deep: #041014;
+  --bg-0: #07141a;
+  --bg-1: #0c1f26;
+  --bg-2: #123038;
+  --surface: #0c1f26;
+  --surface-2: #123038;
+  --surface-3: #173a44;
+  --nav-bg: rgba(7,20,26,.92);
+  --border: #1e4550;
+  --border-bright: #2a6570;
+  --ink: #dce8eb;
+  --ink-dim: #9bb0b6;
+  --ink-faint: #6f8990;
+  --accent: #2dd4bf;
+  --focus: #5eead4;
+  --green: #4ade80;
+  --amber: #e2b336;
+  --red: #e07070;
+  --term-bg: #07171d;
+  --term-ink: #cfe9ee;
+  --term-dim: #5f7d84;
+  --term-prompt: #5eead4;
+  --shadow: 0 18px 40px -24px rgba(0,0,0,.7);
+  --shadow-glow: 0 0 0 1px var(--border);
+}
 
-  /* Layout */
-  --maxw: 1120px;
-  --radius: 16px;
-  --radius-sm: 10px;
-  --shadow: 0 24px 60px -28px rgba(0,0,0,.8);
-  --shadow-glow: 0 0 0 1px var(--border), 0 22px 50px -24px rgba(0,0,0,.85);
+html[data-theme="light"] {
+  --page-bg: #f3f1ea;
+  --bg-deep: #ebe7dc;
+  --bg-0: #f3f1ea;
+  --bg-1: #fffdf8;
+  --bg-2: #e7efe8;
+  --surface: #fffdf8;
+  --surface-2: #f7f4ec;
+  --surface-3: #ebe7dc;
+  --nav-bg: rgba(243,241,234,.94);
+  --border: #c9c3b2;
+  --border-bright: #9aa89a;
+  --ink: #1c2a2e;
+  --ink-dim: #4a5c61;
+  --ink-faint: #6b7c80;
+  --accent: #0f6f66;
+  --focus: #0f6f66;
+  --green: #1f7a4c;
+  --amber: #9a6b12;
+  --red: #b42318;
+  --term-bg: #1c2a2e;
+  --term-ink: #dce8eb;
+  --term-dim: #7a9096;
+  --term-prompt: #5eead4;
+  --shadow: 0 12px 28px -20px rgba(28,42,46,.35);
+  --shadow-glow: 0 0 0 1px var(--border);
+  --teal-soft: #0f6f66;
+  --cyan-soft: #0b6e7a;
 }
 
 /* ---------- Reset ---------- */
 *, *::before, *::after { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
 html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+html[data-theme="light"] #constellation { display: none; }
 body {
   font-family: var(--sans);
   color: var(--ink);
-  background:
-    radial-gradient(1200px 700px at 80% -10%, rgba(45,212,191,.12), transparent 60%),
-    radial-gradient(1100px 800px at -10% 0%, rgba(56,189,248,.12), transparent 55%),
-    linear-gradient(180deg, var(--bg-0) 0%, var(--bg-deep) 65%, #010608 100%);
-  background-attachment: fixed;
+  background: var(--page-bg);
   min-height: 100vh;
   line-height: 1.62;
   font-size: 16.5px;
@@ -95,9 +149,10 @@ body {
   overflow-x: hidden;
 }
 img { max-width: 100%; display: block; }
-a { color: var(--cyan-soft); text-decoration: none; }
-a:hover { color: var(--teal-soft); }
-::selection { background: rgba(45,212,191,.3); color: #fff; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { color: var(--ink); }
+::selection { background: color-mix(in srgb, var(--accent) 30%, transparent); color: var(--ink); }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
 
 /* ---------- Background constellation canvas ---------- */
 #constellation {
@@ -112,8 +167,7 @@ a:hover { color: var(--teal-soft); }
 /* ---------- Header / nav ---------- */
 .site-header {
   position: sticky; top: 0; z-index: 50;
-  backdrop-filter: blur(14px);
-  background: linear-gradient(180deg, rgba(4,20,26,.92), rgba(4,20,26,.62));
+  background: var(--nav-bg);
   border-bottom: 1px solid var(--border);
 }
 .nav {
@@ -124,7 +178,7 @@ a:hover { color: var(--teal-soft); }
 .brand .mark { width: 34px; height: 34px; flex: none; filter: drop-shadow(0 0 10px rgba(45,212,191,.5)); }
 .brand .wordmark { font-weight: 700; font-size: 19px; letter-spacing: .3px; }
 .brand .wordmark b { color: #fff; font-weight: 700; }
-.brand .wordmark span { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.brand .wordmark span { color: var(--accent); font-weight: 700; }
 .nav-links { display: flex; align-items: center; gap: 4px; margin-left: auto; }
 .nav-links a {
   color: var(--ink-dim); font-size: 14px; font-weight: 600;
@@ -132,7 +186,18 @@ a:hover { color: var(--teal-soft); }
   border: 1px solid transparent; white-space: nowrap;
 }
 .nav-links a:hover { color: var(--ink); background: var(--surface); }
-.nav-links a.active { color: #04141a; background: var(--grad); border-color: transparent; }
+.nav-links a.active { color: var(--page-bg); background: var(--accent); border-color: transparent; }
+.nhg-theme {
+  margin-left: 8px;
+  font: 600 13px var(--sans);
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--ink);
+  cursor: pointer;
+}
+.nhg-theme:hover { border-color: var(--border-bright); }
 .nav-gh { display: inline-flex; align-items: center; gap: 6px; color: var(--teal-soft) !important; border-color: var(--border) !important; }
 .nav-gh:hover { border-color: var(--border-bright) !important; background: var(--surface) !important; }
 .nav-gh svg { width: 15px; height: 15px; }
@@ -143,9 +208,8 @@ a:hover { color: var(--teal-soft); }
 
 /* ---------- Page system ---------- */
 main { position: relative; z-index: 1; }
-.page { display: none; animation: fadeUp .4s ease both; padding: 0 0 40px; }
+.page { display: none; padding: 0 0 40px; }
 .page.active { display: block; }
-@keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
 
 /* ---------- Typography ---------- */
 h1, h2, h3, h4 { line-height: 1.18; margin: 0 0 .5em; font-weight: 700; letter-spacing: 0; }
@@ -159,21 +223,20 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
   font-size: 12.5px; font-weight: 700; letter-spacing: 1.6px; text-transform: uppercase;
   color: var(--teal-soft); margin-bottom: 14px;
 }
-.eyebrow::before { content: ""; width: 22px; height: 2px; background: var(--grad); border-radius: 2px; }
+.eyebrow::before { content: ""; width: 22px; height: 2px; background: var(--accent); border-radius: 2px; }
 .section { padding: 54px 0; }
 .section--tight { padding: 34px 0; }
 .divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent); margin: 8px 0; }
 
 /* gradient text helper */
-.gtext { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.gtext { color: var(--accent); }
 
 /* ---------- Hero ---------- */
-.hero { padding: 70px 0 30px; text-align: center; position: relative; }
-.hero .mark-xl { width: 116px; height: 116px; margin: 0 auto 22px; filter: drop-shadow(0 0 28px rgba(45,212,191,.55)); animation: float 7s ease-in-out infinite; }
-@keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-9px); } }
+.hero { padding: 48px 0 24px; text-align: left; position: relative; }
+.hero .mark-xl { width: 72px; height: 72px; margin: 0 0 18px; filter: none; }
 .hero h1 { margin-bottom: .35em; }
-.hero .lead { max-width: 100%; margin: 0 auto 26px; }
-.stat-row { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 26px 0 4px; }
+.hero .lead { max-width: 42em; margin: 0 0 22px; }
+.stat-row { display: flex; flex-wrap: wrap; gap: 10px; justify-content: flex-start; margin: 22px 0 4px; }
 .stat {
   display: inline-flex; align-items: baseline; gap: 7px;
   background: var(--surface); border: 1px solid var(--border); border-radius: 999px;
@@ -189,9 +252,9 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
   background: var(--surface-2); color: var(--ink); transition: .16s; text-decoration: none;
 }
 .btn:hover { background: var(--surface-3); transform: translateY(-1px); color: var(--ink); }
-.btn--primary { background: var(--grad); color: #04141a; border-color: transparent; box-shadow: 0 14px 30px -14px rgba(45,212,191,.6); }
-.btn--primary:hover { background: var(--grad); color: #04141a; filter: brightness(1.08); box-shadow: 0 18px 36px -14px rgba(45,212,191,.75); }
-.btn-row { display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 8px; }
+.btn--primary { background: var(--accent); color: var(--page-bg); border-color: transparent; box-shadow: none; }
+.btn--primary:hover { background: var(--accent); color: var(--page-bg); filter: brightness(1.08); box-shadow: none; }
+.btn-row { display: flex; flex-wrap: wrap; gap: 12px; justify-content: flex-start; margin-top: 8px; }
 .btn .arr { transition: transform .16s; }
 .btn:hover .arr { transform: translateX(3px); }
 
@@ -204,7 +267,7 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
   background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
   padding: 22px; transition: .18s; position: relative; overflow: hidden;
 }
-.card:hover { border-color: var(--border-bright); background: var(--surface-2); transform: translateY(-2px); }
+.card:hover { border-color: var(--border-bright); background: var(--surface-2); }
 .card h3 { color: var(--ink); margin-bottom: .35em; }
 .card p { margin: 0; font-size: 14.5px; }
 .card .ico {
@@ -410,8 +473,8 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
   background: var(--surface); border: 1px solid var(--border); color: var(--ink-dim); transition: .14s;
 }
 .tab-btn:hover { color: var(--ink); }
-.tab-btn.active { background: var(--grad); color: #04141a; border-color: transparent; font-weight: 700; }
-.tab-panel { display: none; animation: fadeUp .3s ease both; }
+.tab-btn.active { background: var(--accent); color: var(--page-bg); border-color: transparent; font-weight: 700; }
+.tab-panel { display: none; }
 .tab-panel.active { display: block; }
 
 /* ---------- Flow diagram ---------- */
@@ -444,7 +507,7 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
   display: flex; flex-direction: column; gap: 2px; padding: 14px 20px; border-radius: 13px; min-width: 0;
   background: var(--surface); border: 1px solid var(--border); transition: .16s; flex: 0 1 auto; max-width: 48%;
 }
-.page-nav a:hover { border-color: var(--border-bright); background: var(--surface-2); transform: translateY(-2px); }
+.page-nav a:hover { border-color: var(--border-bright); background: var(--surface-2); }
 .page-nav a.next { text-align: right; margin-left: auto; }
 .page-nav .pn-k { font-size: 11px; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 1px; }
 .page-nav .pn-t { color: var(--ink); font-weight: 700; font-size: 15px; }
@@ -456,7 +519,7 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
 /* progress dots */
 .progress { display: flex; gap: 7px; justify-content: center; margin: 28px 0 4px; }
 .progress i { width: 8px; height: 8px; border-radius: 50%; background: var(--surface-3); transition: .2s; cursor: pointer; }
-.progress i.on { background: var(--grad); width: 24px; border-radius: 6px; }
+.progress i.on { background: var(--accent); width: 24px; border-radius: 6px; }
 
 /* misc */
 .kbd { font: 600 11.5px var(--mono); background: var(--surface-2); border: 1px solid var(--border); border-bottom-width: 2px; border-radius: 6px; padding: 2px 7px; color: var(--ink); }
@@ -476,7 +539,7 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
 }
 @media (max-width: 960px) {
   .nav-links { position: fixed; inset: 64px 0 auto 0; flex-direction: column; align-items: stretch; gap: 4px;
-    background: rgba(4,20,26,.98); border-bottom: 1px solid var(--border); padding: 12px 16px; display: none; max-height: calc(100vh - 64px); overflow:auto; }
+    background: var(--nav-bg); border-bottom: 1px solid var(--border); padding: 12px 16px; display: none; max-height: calc(100vh - 64px); overflow:auto; }
   .nav-links.open { display: flex; }
   .nav-links a { font-size: 15px; padding: 11px 12px; }
   .nav-toggle { display: block; }
@@ -490,8 +553,8 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
 
 /* reduced motion */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: .001ms !important; transition-duration: .001ms !important; }
-  .hero .mark-xl { animation: none; }
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { animation: none !important; transition: none !important; }
 }
 
 /* copy-to-clipboard buttons on runnable command / prompt examples */
@@ -699,19 +762,19 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
   <!-- ===== Header ===== -->
   <header class="site-header">
     <nav class="nav container" aria-label="Primary">
-      <div class="brand" data-go="home" role="button" tabindex="0" aria-label="Nexus Hub home">
+      <a class="brand" href="#home" data-go="home" aria-label="Nexus Hub home">
         <svg class="mark" viewBox="0 0 100 100"><use href="#nexus-mark"/></svg>
         <span class="wordmark"><b>Nexus</b> <span>Hub</span></span>
-      </div>
-      <button class="nav-toggle" aria-label="Toggle navigation" id="navToggle">&#9776;</button>
+      </a>
+      <button class="nav-toggle" type="button" aria-label="Toggle navigation" aria-expanded="false" id="navToggle">&#9776;</button>
       <div class="nav-links" id="navLinks">
-        <a data-go="home">Home</a>
-        <a data-go="setup">Installation</a>
-        <a data-go="foundations">Foundations</a>
-        <a data-go="training">Training</a>
-        <a data-go="explore" data-group="workflow">Workflows</a>
-        <a data-go="reference">Cheatsheets</a>
-        <a class="nav-gh" href="https://github.com/bendourthe/Nexus-Hub" target="_blank" rel="noopener" title="View Nexus-Hub on GitHub"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 012-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg> GitHub</a>
+        <a href="#home" data-go="home">Home</a>
+        <a href="#foundations" data-go="foundations">Foundations</a>
+        <a href="#training" data-go="training">Training</a>
+        <a href="#explore" data-go="explore" data-group="workflow">Workflows</a>
+        <a href="#reference" data-go="reference">Reference</a>
+        <a class="nav-gh" href="https://github.com/bendourthe/Nexus-Hub" target="_blank" rel="noopener" title="View Nexus-Hub on GitHub"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.53-.49-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 012-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg> GitHub</a>
+        <button type="button" class="nhg-theme" id="themeToggle" aria-pressed="false">Theme: dark</button>
       </div>
     </nav>
   </header>
@@ -3200,10 +3263,38 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
       { id: "harden",      title: "Harden" },
       { id: "ship",        title: "Ship & maintain" },
       { id: "communicate", title: "Document" },
-      { id: "reference",   title: "Cheatsheets" }
+      { id: "reference",   title: "Reference" }
     ];
+    var THEME_KEY = "portfolio-theme";
     var REDUCE = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     var current = "home";
+
+    function currentTheme() {
+      var t = document.documentElement.getAttribute("data-theme");
+      return t === "light" ? "light" : "dark";
+    }
+    function applyTheme(theme) {
+      if (theme !== "light" && theme !== "dark") return;
+      document.documentElement.setAttribute("data-theme", theme);
+      document.documentElement.style.colorScheme = theme;
+      try { window.localStorage.setItem(THEME_KEY, theme); } catch (err) {}
+      var meta = document.getElementById("themeColorMeta");
+      if (meta) meta.setAttribute("content", theme === "light" ? "#f3f1ea" : "#07141a");
+      var btn = document.getElementById("themeToggle");
+      if (btn) {
+        btn.setAttribute("aria-pressed", theme === "dark" ? "true" : "false");
+        btn.textContent = "Theme: " + theme;
+        btn.setAttribute("aria-label", "Color theme is " + theme + ". Activate to switch to " + (theme === "dark" ? "light" : "dark") + ".");
+      }
+      if (typeof syncConstellation === "function") syncConstellation();
+    }
+    applyTheme(currentTheme());
+    var themeBtn = document.getElementById("themeToggle");
+    if (themeBtn) {
+      themeBtn.addEventListener("click", function () {
+        applyTheme(currentTheme() === "dark" ? "light" : "dark");
+      });
+    }
 
     /* -------------------------------------------------- routing */
     function pageIndex(id) {
@@ -3216,10 +3307,10 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
       var next = idx < PAGES.length - 1 ? PAGES[idx + 1] : null;
       var html = "";
       html += prev
-        ? '<a class="prev" data-go="' + prev.id + '"><span class="pn-k">Previous</span><span class="pn-t">&larr; ' + prev.title + "</span></a>"
+        ? '<a class="prev" href="#' + prev.id + '" data-go="' + prev.id + '"><span class="pn-k">Previous</span><span class="pn-t">&larr; ' + prev.title + "</span></a>"
         : '<a class="prev disabled"><span class="pn-k">Previous</span><span class="pn-t">&larr; Start</span></a>';
       html += next
-        ? '<a class="next" data-go="' + next.id + '"><span class="pn-k">Next</span><span class="pn-t">' + next.title + " &rarr;</span></a>"
+        ? '<a class="next" href="#' + next.id + '" data-go="' + next.id + '"><span class="pn-k">Next</span><span class="pn-t">' + next.title + " &rarr;</span></a>"
         : '<a class="next disabled"><span class="pn-k">Next</span><span class="pn-t">Done &#10003;</span></a>';
       var holders = document.querySelectorAll("#page-" + PAGES[idx].id + " [data-pagenav]");
       for (var i = 0; i < holders.length; i++) { holders[i].innerHTML = html; }
@@ -3255,18 +3346,32 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
       window.scrollTo(0, 0);
       var nl = document.getElementById("navLinks");
       if (nl) nl.classList.remove("open");
+      if (navToggle) navToggle.setAttribute("aria-expanded", "false");
       document.body.setAttribute("data-page", id);
-      if (constel) {
-        if (id === "home") { canvas.style.opacity = "0.55"; constel.start(); }
-        else { canvas.style.opacity = "0.16"; constel.stop(); }
-      }
+      if (typeof syncConstellation === "function") syncConstellation();
     }
 
+    function pageIdFromHash() {
+      var raw = (location.hash || "#home").replace(/^#/, "");
+      return raw.split("?")[0].split("/")[0];
+    }
+    function rewriteHash(page) {
+      var next = "#" + page;
+      if (location.hash === next) return;
+      if (history.replaceState) {
+        history.replaceState(null, "", next);
+      } else {
+        location.hash = page;
+      }
+    }
     function go() {
-      var id = (location.hash || "#home").replace("#", "");
+      var id = pageIdFromHash();
       var ok = false;
       for (var i = 0; i < PAGES.length; i++) { if (PAGES[i].id === id) ok = true; }
-      if (!ok) id = "home";
+      if (!ok) {
+        id = "home";
+        rewriteHash("home");
+      }
       show(id);
     }
 
@@ -3291,15 +3396,25 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
     var navToggle = document.getElementById("navToggle");
     if (navToggle) {
       navToggle.addEventListener("click", function () {
-        document.getElementById("navLinks").classList.toggle("open");
+        var links = document.getElementById("navLinks");
+        var open = links.classList.toggle("open");
+        navToggle.setAttribute("aria-expanded", open ? "true" : "false");
       });
+    }
+
+    function keysOwnedByTarget(el) {
+      if (!el || el === document.body || el === document.documentElement) return false;
+      var tag = (el.tagName || "").toLowerCase();
+      if (tag === "input" || tag === "textarea" || tag === "select" || tag === "button") return tag !== "button";
+      if (el.isContentEditable) return true;
+      if (el.closest && el.closest("input, textarea, select, [contenteditable='true'], [data-nhg-keys='self']")) return true;
+      return false;
     }
 
     /* arrow-key paging */
     window.addEventListener("keydown", function (e) {
       if (e.altKey || e.ctrlKey || e.metaKey) return;
-      var tag = (e.target.tagName || "").toLowerCase();
-      if (tag === "input" || tag === "textarea") return;
+      if (keysOwnedByTarget(e.target)) return;
       if (current === "training") return;
       var idx = pageIndex(current);
       if (e.key === "ArrowRight" && idx < PAGES.length - 1) { location.hash = PAGES[idx + 1].id; }
@@ -3443,6 +3558,18 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
     /* -------------------------------------------------- constellation background */
     var canvas = document.getElementById("constellation");
     var constel = null;
+    function syncConstellation() {
+      if (!constel || !canvas) return;
+      var dark = currentTheme() === "dark";
+      var hidden = document.hidden;
+      if (!dark || hidden) {
+        canvas.style.opacity = "0";
+        constel.stop();
+        return;
+      }
+      canvas.style.opacity = current === "home" ? "0.55" : "0.16";
+      constel.start();
+    }
     if (canvas && canvas.getContext) {
       constel = (function () {
         var ctx = canvas.getContext("2d");
@@ -3492,15 +3619,30 @@ p { margin: 0 0 1em; color: var(--ink-dim); }
           }
           ctx.globalAlpha = 1;
         }
-        function loop() { frame(true); raf = window.requestAnimationFrame(loop); }
+        function loop() {
+          if (!running) return;
+          frame(true);
+          raf = window.requestAnimationFrame(loop);
+        }
         resize(); build();
-        window.addEventListener("resize", function () { resize(); build(); if (!running && !REDUCE) frame(false); });
+        window.addEventListener("resize", function () {
+          resize();
+          build();
+          if (running && REDUCE) frame(false);
+        });
+        document.addEventListener("visibilitychange", function () { syncConstellation(); });
         return {
           start: function () {
+            if (currentTheme() !== "dark" || document.hidden) return;
+            if (REDUCE) {
+              running = false;
+              if (raf) { window.cancelAnimationFrame(raf); raf = null; }
+              frame(false);
+              return;
+            }
             if (running) return;
             running = true;
-            if (REDUCE) { frame(false); }
-            else { loop(); }
+            loop();
           },
           stop: function () {
             running = false;

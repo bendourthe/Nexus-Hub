@@ -24,3 +24,13 @@ Phase 1 adds only release-scoped design evidence and a focused test module. Path
 ### Result
 
 No duplicate, orphaned, scratch, or misplaced documentation was created by Phase 1. No file moved, and no cleanup change was approved or applied.
+
+## Phase 2 - Portfolio-Aligned Shell, Theme, and Navigation
+
+### Layout check
+
+Phase 2 edits the canonical guide HTML in place and adds `docs/releases/v4/v4.2/development/guide-redesign-phase-2/` plus a session-history file. No move.
+
+### Result
+
+No documentation move. Token-role table updated in the content-map.
