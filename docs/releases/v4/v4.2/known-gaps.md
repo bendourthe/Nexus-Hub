@@ -46,3 +46,24 @@ None yet.
 - v4.1.0 DF-1 / WN-1 / QG-1 and v4.1.1 DF-1 stay on `docs/releases/v4/v4.1/known-gaps.md`. This plan does not absorb them.
 - v4.0 DF-1 stays on `docs/releases/v4/v4.0/known-gaps.md`.
 - No `## v3.20.0` section is appended to v3.16 or v3.20 ledgers.
+
+## v4.2.1 - guide-visual-education
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 0 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+
+### Open Items
+
+None yet. v4.2.0 DF-1 and QG-1 stay under `## v4.2.0` until Phase 7 closes or re-homes them. This patch does not absorb v4.1 or v4.0 gaps.
+
+### Resolved
+
+None yet.

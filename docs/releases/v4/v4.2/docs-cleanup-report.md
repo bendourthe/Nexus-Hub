@@ -84,3 +84,26 @@ Phase 7 writes `docs/releases/v4/v4.2/development/last-phase-evidence.md` and a 
 ### Result
 
 No documentation move. Dead slide-deck CSS pruned in place. Publication (push / PR) is gated on explicit approval.
+
+## v4.2.1 Phase 1 - Contract, IA, and example freeze
+
+**Date**: 2026-08-29
+**Mode**: audit only; no files moved
+**Plan**: `docs/releases/v4/v4.2/plans/v4.2.1-guide-visual-education.md`
+
+### Layout check
+
+Phase 1 adds a dated v4.2.1 section to the existing content map, a v4.2.1 known-gaps subsection, and a session-history file. The v4.2.0 tables stay in the same content-map file, marked superseded. No scratch document is proposed for deletion. No `docs/testing/` or `docs/validation/` invented.
+
+### New documentation artifacts
+
+| Path | Category | Disposition |
+|---|---|---|
+| `docs/releases/v4/v4.2/plans/v4.2.1-guide-visual-education.md` | Active plan | Keep. |
+| `docs/releases/v4/v4.2/development/guide-redesign-content-map.md` | Active contract | Keep; v4.2.1 section appended in place. |
+| `docs/releases/v4/v4.2/known-gaps.md` | Active release gap ledger | Keep; new patch subsection, header unchanged. |
+| `docs/releases/v4/v4.2/development/history/2026-08-29_v4.2.1-guide-visual-education-phase-1-contract.md` | Active phase evidence | Keep under the current version's development history. |
+
+### Result
+
+No duplicate, orphaned, scratch, or misplaced documentation was created by Phase 1. No file moved, and no cleanup change was approved or applied.

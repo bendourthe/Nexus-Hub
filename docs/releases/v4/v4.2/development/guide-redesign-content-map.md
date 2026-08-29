@@ -2,10 +2,12 @@
 
 **Date**: 2026-08-29
 **Source markup**: `guides/website/nexus-hub-guide.html`
-**Plan**: `docs/releases/v4/v4.2/plans/v4.2.0-interactive-guide-redesign.md`
+**Plans**: `docs/releases/v4/v4.2/plans/v4.2.0-interactive-guide-redesign.md` (historical; unpublished) and `docs/releases/v4/v4.2/plans/v4.2.1-guide-visual-education.md` (current)
 **Baseline**: `docs/releases/v4/v4.2/development/guide-redesign-baseline/`
 
 This file is the working contract for Phases 2-6. Frozen tables below are copied from the plan. Do not paraphrase the inherit/reject table into "use presentify".
+
+**Status (2026-08-29)**: The v4.2.0 tables in this file remain as historical contract. They are **superseded** by the dated **v4.2.1** section at the end of this file. Implement Phases 2-6 of `v4.2.1-guide-visual-education` from that section only. Do not treat the v4.2.0 rejections of `nav=slides` or cinematic *patterns* as the current freeze. Those two rows were un-frozen with limits in v4.2.1.
 
 Disposition values: KEEP, MERGE, MOVE TO DISCLOSURE, REMOVE.
 
@@ -337,3 +339,236 @@ applyState(sceneId, beatIndex) -> snapshot
 ## Catalog command verification (T003)
 
 Listed from `catalog/commands/` on 2026-08-29: `commit`, `commands`, `compare`, `constitution`, `describe`, `implement`, `memory`, `org`, `plan`, `presentify`, `research`, `review`, `route`, `session`, `setup`, `skills`, `spec`, `test`, `tune-prompting`, `update`, `usage`. Each has a row in the frozen inventory. No extra Training scene added.
+
+---
+
+# v4.2.1 contract (dated 2026-08-29)
+
+**Plan**: `docs/releases/v4/v4.2/plans/v4.2.1-guide-visual-education.md`
+**Supersedes**: every v4.2.0 freeze in this file that conflicts with the tables below, especially `nav=slides` reject, cinematic reject, Training-as-workbench, Trivia Quiz as the taught example, and Workflows plus Reference as separate primary pages.
+**Do not re-litigate**: Cheatsheets as the merged tab name; Glow Booth as the taught example; the closed eight-command Training set; the single-file offline contract; no CDN; no video; no copy of `scroll-scrub-engine.js`.
+
+A later agent can implement Phases 2-6 from this section without the chat transcript. Copy the tables; do not paraphrase them into "use presentify".
+
+## Presentify inherit / reject (v4.2.1)
+
+v4.2.0 rejected `nav=slides` as the Training page model and rejected cinematic motion for this HTML file. v4.2.1 un-freezes both, with limits.
+
+| Capability | Guide use | Reason |
+|---|---|---|
+| `nav=scroll` | Inherit for Home, Foundations, Cheatsheets | Those pages remain a scrolling field guide |
+| `nav=slides` inside Training only | Inherit with a cap | Maintainer asked to keep slideshow capability. Whole-site slide routing stays rejected |
+| `applyState(scene, beat)` idempotence, fragment beats, key-disengage, `replaceState` for beat ticks | Inherit | Cold URLs must render a full snapshot |
+| Rich before/after, pinned graphic, click-to-swap visual states | Inherit for Foundations | Replace the range slider as the hero comparison |
+| Scroll-driven / cinematic *patterns* (pinned stage, progress-linked illustration, reveal) | Inherit for Home and Foundations | User asked for presentify-like motion. CSS/JS only. No video. One loop maximum |
+| Copying `scroll-scrub-engine.js` or embedding video clips | Reject | Size, offline budget, and reduced-motion deletion of video |
+| `design_seed` uniqueness / entropy | Reject | The guide must still match the portfolio, not look new every generation |
+| html-output-conventions, hallmark-design, visual-QA viewports | Inherit | Offline, no CDN, reduced-motion static equivalents |
+| `/presentify` as a taught command | Keep | Cheatsheets lists `--nav` and `--interactivity` flags. Training closer still produces the HTML artifact |
+
+**Cinematic means**: local CSS and JS that update illustration states from scroll progress (pinned or sticky stages, reveal classes, progress-linked SVG frames). It does **not** mean copying `scroll-scrub-engine.js`. It does **not** mean `<video>` clips, hosted media, or a camera fly-through. Under `prefers-reduced-motion: reduce`, show the completed frames with no motion.
+
+**`nav=slides` means**: previous/next (and optional Home/End, swipe) change Training slides only while the page is `training` and focus is not inside an interactive region. Arrow keys never change the primary page. Whole-site slide routing stays rejected.
+
+## Visual QA ledger (ten closed defects)
+
+These are closed defects from maintainer screenshots dated 2026-08-29, not suggestions. Phase 2 clears items 1-6. Phase 3 clears item 7. Phase 4 clears items 8-9. Phase 5 clears item 10. Phase 7 human testing re-checks all ten.
+
+1. Sticky header must be opaque in both themes (no constellation bleeding through).
+2. GitHub control is icon-only.
+3. Theme control is sun/moon, default dark.
+4. Copy control is at the right end of the terminal box.
+5. Light-theme terminals are light, including the copy chip.
+6. Light-theme wordmark is readable (Nexus is not white on beige).
+7. Home loop nodes are not a row of rigid squared boxes.
+8. Foundations comparison is not a range slider plus two plain text columns.
+9. Foundations is not three identical text cards as the educational core.
+10. Training is not a text-heavy IDE workbench as the default view.
+
+## Nav and Cheatsheets IA
+
+Primary nav: **Home, Foundations, Training, Cheatsheets**. Installation is not a primary page. GitHub is an external icon control. Theme is a sun/moon toggle.
+
+The merged tab is named **Cheatsheets**. Not Workflows. Not Reference.
+
+Cheatsheets has three bands, in this order:
+
+1. Loop overview (the same six stops as Home: Map and evaluate, Plan, Implement, Harden, Ship, Communicate). Visual, not a second squared ribbon.
+2. Command cheatsheet with **real** arguments from `catalog/commands/*.md`. Do not invent flags.
+3. Extra workflow notes only when they add something Training does not already show; otherwise link to the Training scene.
+
+Home ribbon versus Cheatsheets (commands shown on Home stay the same; deep links retarget):
+
+| Home node | Commands shown | Deep link |
+|---|---|---|
+| Map and evaluate | `/describe`, `/review` | `#cheatsheets/explore` or Training describe |
+| Plan | `/plan` | `#cheatsheets/plan` |
+| Implement | `/implement` | `#cheatsheets/build` |
+| Harden | `/test` | `#cheatsheets/harden` |
+| Ship | `/update` | `#cheatsheets/ship` |
+| Communicate | `/presentify` | `#cheatsheets/communicate` |
+
+Do not invent a seventh review page. Do not drop communicate. The ribbon CTA may open Training at that command's slide when the teaching is already on Training; Cheatsheets holds the argument table.
+
+## Command inventory (unchanged placement, Cheatsheets replaces Reference)
+
+Copied from the v4.2.1 plan. New catalog commands that land after this plan is confirmed do not require new Training scenes. Cheatsheets inherits every row that v4.2.0 put in Reference.
+
+| Command | Placement | Reason |
+|---|---|---|
+| `/describe` | Training scene | Daily loop start |
+| `/review` | Training scene | Daily loop |
+| `/plan` | Training scene | Daily loop |
+| `/implement` | Training scene | Daily loop |
+| `/compare` | Training scene | Daily loop |
+| `/test` | Training scene | Daily loop |
+| `/update` | Training scene | Daily loop |
+| `/presentify` | Training scene (communicate closer) | Visitor sees the durable HTML artifact |
+| `/spec` | Cheatsheets | Optional beat inside `/plan` |
+| `/constitution` | Cheatsheets as alias of `/spec constitution` | Permanent alias |
+| `/setup` | Cheatsheets | Post-install bootstrap |
+| `/skills` | Cheatsheets | First verify step after install |
+| `/commands` | Cheatsheets as alias of `/skills list` | Permanent alias |
+| `/route` | Cheatsheets | Optional beat inside `/plan` and `/implement` |
+| `/session` | Cheatsheets | Session hygiene |
+| `/commit` | Cheatsheets as alias of `/update commit` | Permanent alias |
+| `/memory` | Cheatsheets; declined as Training | Maintenance |
+| `/usage` | Cheatsheets; declined as Training | Host-specific |
+| `/research` | Cheatsheets; declined as Training | Adjacent to compare |
+| `/org` | Cheatsheets; declined as Training | Optional org layer |
+| `/tune-prompting` | Cheatsheets; declined as Training | Specialist calibration |
+
+Closed Training set: eight scenes, hard cap **twelve** slides (v4.2.0 said ten; v4.2.1 raises the cap so an intro or outro can exist without a ninth command). Scene order: describe, review, plan, implement, compare, test, update, presentify. Intro or outro slides count toward the cap and must not add a ninth command.
+
+## URL grammar and compatibility rewrites
+
+- Pages: `home`, `foundations`, `training`, `cheatsheets`. Unknown page id maps to `home` and rewrites the URL.
+- Compatibility rewrites (`replaceState`, no extra history): `#reference` and `#workflows` to `#cheatsheets`. `#explore`, `#plan`, `#build`, `#harden`, `#ship`, `#communicate` to `#cheatsheets/<id>` when those were page ids, or to Cheatsheets plus the matching section id.
+- Training: `#training/<scene-id>` with optional `?beat=<n>` via `replaceState`. `#training` loads slide 1.
+- ArrowLeft / ArrowRight / Space on Training change slides only while the page is `training` and focus is not inside an interactive region. They never change the primary page.
+- `#home/install` still scrolls to `#nhg-install`.
+
+Allowlisted `data-go` after Phase 6: `home`, `foundations`, `training`, `cheatsheets`, plus Cheatsheets section ids used as `cheatsheets/explore` (or equivalent that the router accepts). Workflow page sections `page-explore` through `page-communicate` and `page-reference` are removed from primary nav and from `PAGES`.
+
+Trust boundary is unchanged from v4.2.0: `textContent` / `createTextNode` for fixture strings; inline JSON in `<script type="application/json">` with `</script>` encoded; `portfolio-theme` accepts only `light` or `dark`; wrap `localStorage` in try/catch; no runtime CDN, fonts, analytics, or fetch.
+
+## Glow Booth spec
+
+Published teaching uses **Glow Booth**, not Trivia Quiz. No quiz copy. No Trivia Quiz branding in the published guide. Keep `guides/website/example/trivia-quiz/` on disk until Phase 7 confirms nothing published still points at it.
+
+### Files
+
+| Path | Role |
+|---|---|
+| `guides/website/example/glow-booth/index.html` | Self-contained booth. Open from disk. No bundler. |
+| `guides/website/example/glow-booth/` CSS/JS as needed | Same folder. Vanilla only. No CDN. |
+| `guides/website/example/glow-booth-shuffle-reference/` | Local `/compare` target that already has Shuffle poses plus sparkle-stamp overlay. |
+| `guides/website/glow-booth.zip` | Downloadable bundle. Point the guide download link here in Phase 5. |
+| `guides/website/example/trivia-quiz/` | Stay on disk. Do not teach it. |
+
+### Product (frozen)
+
+Glow Booth is a tiny vanilla HTML/CSS/JS instant-camera booth: a large live-looking stage, a film-strip of poses, and stamp counts.
+
+**Frozen defects** (the buggy starting app):
+
+1. Off-by-one stamps: a perfect set of poses awards **4/5** stamps.
+2. Restart leak: the last pose remains visible after Restart.
+
+**Frozen fun feature** (after the fix, taught via `/compare` then a second `/implement` beat that must not become a ninth scene): Shuffle poses plus a sparkle-stamp overlay.
+
+### Training scene map (eight scenes, hero is the booth stage)
+
+Hero view is the booth transforming. Assistant / file / terminal content lives behind an optional "Peek at the files" disclosure.
+
+| id | command | Booth hero | Bugs / feature shown | Peek (optional) | Why next follows |
+|---|---|---|---|---|---|
+| describe | `/describe` | Full booth: stage, five pose slots, stamp meter reading 4 on a perfect set | Both bugs visible as the current app | describe report | You cannot review what you have not mapped |
+| review | `/review` | Callouts on the stamp meter (4/5) and the ghost pose after Restart | Findings listed | review report | Findings become a plan |
+| plan | `/plan` | Same booth, overlay of the two bug fixes (not shuffle yet) | Scope: stamps + restart only | plan file | Implementation is per phase |
+| implement | `/implement` | After GO: stamp meter 5/5, Restart clears the last pose | Bugs fixed | diffs | Compare is how shuffle is sourced |
+| compare | `/compare` | Side-by-side or swap: current booth vs reference with Shuffle + sparkle | Adopt shuffle + sparkle; beat `/plan from-comparison`; the follow-up `/implement` is a beat, not a ninth scene | comparison report | Test the combined result |
+| test | `/test` | Booth still visual; tests pass | Coverage on stamp math and restart | test output | Ship only after tests |
+| update | `/update` | Changelog overlay on the booth chrome | Release gated on green integration | changelog | Communicate the result |
+| presentify | `/presentify` | Durable HTML briefing of the booth story | presentify HTML | Tour ends |
+
+Shuffle after compare stays inside the closed eight-scene set (compare beats plus the note that `/implement` runs again). Do not add a ninth scene.
+
+No autoplay. Hard cap twelve slides. Prefer eight visual slides with beats rather than a 31-slide text deck.
+
+## Four Foundations stations
+
+Lead with a visual stack, then four interactive stations. Model / platform / harness remain a **visual layer stack**, not three identical essays. Trivia Quiz must not appear in Foundations copy.
+
+Layer stack (pictures first):
+
+1. **Model** (brain): the language model.
+2. **Platform** (hands): the agent that can read files and run tools.
+3. **Harness** (experience): reusable procedures, hooks, and gates around that agent.
+
+Four stations (visible without opening a `<details>` dump). Each: short title, one sentence, original inline SVG or CSS illustration the user can click/tap for a before/after on Glow Booth.
+
+| Station | One-line definition | Glow Booth worked example |
+|---|---|---|
+| Prompt engineering | Wording one request. | Same booth, two prompts: a vague "fix it" versus a specific "the stamp meter counts 4 on a perfect set". |
+| Context engineering | Choosing what the model sees. | Booth files in vs out of context: `app.js` stamp helper included or omitted. |
+| Harness engineering | Reusable procedures, hooks, and gates. | `/review` then `/plan` then `/implement` as a saved path, not a one-off chat. |
+| Loop engineering | The repeating six-stop working method. | Map and evaluate through Communicate on this booth. |
+
+Comparison (replaces `#nhgHarnessRange`): visual two-state control of "model alone" versus "model with Nexus-Hub" on the Glow Booth stamp bug. Both states stay in the DOM for no-JS and screen readers. Not a `type="range"` hero. Not two plain methodology columns. Causal attribution stays fair (not a straw man). Keys used by Training disengage when this control is focused. Handoff to `#training` (page hash, no scene id in the Foundations CTA). The exact heading `Now watch the experience layer work` may stay or become a shorter equivalent that still links to `#training`.
+
+## Token-role updates Phase 2 must apply
+
+The v4.2.0 token table left `--nav-bg` translucent and terminal tokens dark in light theme. Phase 2 must:
+
+| Role | Light (required) | Dark | Notes |
+|---|---|---|---|
+| navigation | solid (no alpha), e.g. `#f3f1ea` | solid, e.g. `#07141a` | Opaque sticky header. Not `rgba(..., .92)` / `.94`. |
+| wordmark "Nexus" | `var(--ink)` | `var(--ink)` | Never hardcoded `#fff` on `.wordmark b`. Hub may stay `var(--accent)` if contrast holds. |
+| terminal background | light surface | dark terminal OK | Light theme must not reuse `#1c2a2e` / `#07171d`. |
+| terminal text | dark ink on the light terminal | light ink | |
+| copy chip | light-theme chip on the light terminal | may stay dark-on-dark | Pin to the **right edge of the terminal panel**, not inside `code[data-copy]`. |
+
+Default with no `portfolio-theme` key is **dark**. Persist only `light` or `dark`.
+
+## Tests that invert in v4.2.1
+
+Do not change `tests/guides/test_nexus_hub_guide.py` in Phase 1. Focused tests must still pass against unmodified v4.2.0 markup. Phase 2+ rewrites the assertions below rather than xfailing them forever.
+
+| Current test | Why it inverts | Replacement assertion (one sentence) | First rewrite phase |
+|---|---|---|---|
+| `test_training_workbench_is_not_a_slide_deck` | Requires `#nhWorkbench` and forbids `.ts-slide`. | Training has a slide/stage runtime (previous/next, eight scene ids, cap of twelve) and the default view is not an IDE workbench grid. | 5 |
+| `test_hostile_fixture_strings_are_present_for_textcontent` | Requires `els.editor.textContent` as the workbench renderer. | Hostile strings remain in JSON; peek/editor text (when present) is assigned with `textContent`, not `innerHTML`. | 5 |
+| `test_foundations_has_user_initiated_comparison` | Requires `type="range"` / `nhgHarnessRange`. | Primary comparison is not `type="range"`; a visual two-state control exists; `scroll-scrub-engine` is still absent. | 4 |
+| `test_foundations_three_roles` | Treats three role cards as the educational core. | Visible (not collapsed-details-only) labels exist for prompt engineering, context engineering, harness engineering, and loop engineering. | 4 |
+| `test_foundations_comparison_states_are_static_in_markup` | Requires `#nhgRawPane`, `#nhgHubPane`, and `data-nhg-keys="self"`. | Both comparison states remain in markup; those range-slider ids are not required. | 4 |
+| `test_foundations_handoff_is_training_page_hash` | Exact heading `Now watch the experience layer work`. | A `#training` (not `#training/`) handoff remains; the heading may be that string or a shorter equivalent. | 4 |
+| `test_no_installation_in_primary_nav` | Only forbids Installation; still allows Workflows and Reference. | Primary nav includes Cheatsheets and does not include Installation, Workflows, or Reference as primary labels. | 6 |
+| `test_every_catalog_command_is_training_reference_or_declined` | Splits on `id="page-reference"`. | Rename and point the lookup at Cheatsheets markup (plus README / this content map). | 6 |
+| `test_internal_data_go_targets_exist` | Treats `explore`/`plan`/`build`/`harden`/`ship`/`communicate` as page ids. | After Phase 6 those ids must resolve as Cheatsheets sections or Training, not missing `page-*` sections. | 6 (selectors may need a Phase 3 update if Home `data-go` changes first) |
+| `test_home_has_six_node_preview_including_communicate` | Asserts `data-go="communicate"` and the six workflow ids on Home. | Keep six nodes, `Map and evaluate`, communicate, and `/presentify`; update selectors if class names change, not the six-stop contract. | 3 |
+| `test_example_zip_link_present` | Requires `trivia-quiz.zip`. | If the download href changes, require `glow-booth.zip` (or the documented zip name) instead. | 5 |
+| `test_website_readme_matches_redesign` | Documents Trivia Quiz, workbench, Installation-is-not-a-page, and Workflows/Reference. | README matches Cheatsheets, Glow Booth, slideshow Training, and still forbids a 31-slide deck, autoplay, and hardcoded catalog counts. | 5-6 |
+| `test_theme_toggle_exists` / `test_github_is_user_initiated_not_a_script` | Too weak for the screenshot defects. | Add: GitHub is icon-only with accessible name; theme is sun/moon; default-dark when storage is empty; `.wordmark b` is not hardcoded `#fff`; copy button is not a descendant of `code[data-copy]`; light-theme `--term-bg` is not the dark-theme near-black. | 2 |
+
+Tests that **must keep passing** without invert (unless a selector-only update is required): `test_one_html_document`, `test_ids_are_unique`, `test_no_runtime_cdn_font_script_or_image`, `test_portfolio_theme_allowlisted`, `test_page_url_hash_uses_first_segment`, `test_reduced_motion_pauses_constellation`, `test_home_contains_both_canonical_install_commands`, `test_home_install_copy_payload_equals_visible_text`, `test_no_stale_setup_route_in_markup`, `test_onboarding_has_no_hardcoded_catalog_counts`, `test_training_scenes_are_data_driven_json`, `test_every_scene_exposes_gate_and_next_scene`, `test_script_close_in_fixture_does_not_break_document`, `test_inline_scenes_match_example_json`, `test_publication_check_self_contained_and_offline`, `test_optional_portfolio_copy_when_env_set`.
+
+## Phase ownership (v4.2.1)
+
+| Concern | Owner |
+|---|---|
+| Opaque nav, icon GitHub, sun/moon, wordmark, copy layout, light terminals | Phase 2 |
+| Home loop graphic (six stops, `Map and evaluate`) | Phase 3 |
+| Four-station Foundations, visual comparison, scroll/cinematic *patterns* | Phase 4 |
+| Glow Booth app, zip, Training slideshow, scene JSON | Phase 5 |
+| Cheatsheets merge, hash redirects, README | Phase 6 |
+| Trivia Quiz published-reference sweep, evidence, publication | Phase 7 |
+
+## Token reminder for later agents
+
+- Do not import video.
+- Do not copy `scroll-scrub-engine.js`.
+- Do not keep Trivia Quiz in published teaching copy.
+- Do not invent command flags.
+- Do not author GitHub Actions in Phases 1-6.
+- Do not push, open a pull request, or start remote CI until Phase 7 with explicit approval.
