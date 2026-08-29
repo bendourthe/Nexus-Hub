@@ -1,0 +1,267 @@
+{
+  "scenes": [
+    {
+      "id": "describe",
+      "stage": "Understand",
+      "intent": "Map Trivia Quiz before changing it.",
+      "command": "/describe full",
+      "prompt": "/describe full",
+      "assistant_events": [
+        "Detected a small vanilla HTML, CSS, and JavaScript quiz. Hostile fixture sample stays literal: <img onerror> and </script>",
+        "Wrote docs/v0.1.0/analysis.md"
+      ],
+      "tool_events": [
+        {"name": "Glob", "purpose": "List trivia-quiz files"},
+        {"name": "Read", "purpose": "Open logic.js, app.js, questions.js"}
+      ],
+      "file_state": [
+        {"path": "logic.js", "status": "unchanged", "excerpt": "for (var i = 0; i < selections.length - 1; i++)"},
+        {"path": "app.js", "status": "unchanged"},
+        {"path": "questions.js", "status": "unchanged"}
+      ],
+      "editor_state": {
+        "path": "docs/v0.1.0/analysis.md",
+        "mode": "markdown",
+        "body": "# Trivia Quiz - analysis\n\nBrowser quiz. logic.js is pure scoring. app.js renders. questions.js is a six-question deck.\n\nRisks: score helper may stop one short; restart may keep selections; no tests; no shuffle."
+      },
+      "terminal_state": {"lines": ["> /describe full", "Scanning example/trivia-quiz ...", "Wrote docs/v0.1.0/analysis.md"]},
+      "artifact": {"path": "docs/v0.1.0/analysis.md", "kind": "report", "summary": "Structured map of Trivia Quiz"},
+      "gate": {"name": "Map exists", "status": "pass", "prompt": "Accept the map. Do not edit yet."},
+      "next_scene": "review",
+      "duration": 0,
+      "beats": [
+        {"index": 0, "claim": "The command scans the tree.", "panes": ["explorer", "assistant", "terminal", "timeline"], "takeaway": "Start with a map, not a guess."},
+        {"index": 1, "claim": "The analysis file is the durable output.", "panes": ["editor", "artifact", "gate"], "takeaway": "Later commands reuse this file."}
+      ]
+    },
+    {
+      "id": "review",
+      "stage": "Evaluate",
+      "intent": "Get a read-only verdict on scoring, restart, tests, and shuffle.",
+      "command": "/review",
+      "prompt": "/review",
+      "assistant_events": [
+        "Read-only review. Findings ranked.",
+        "HIGH: computeScore stops at length - 1, so a perfect run scores 5/6.",
+        "HIGH: restartState keeps prev.selections.",
+        "MED: no tests. LOW: deck order never shuffles."
+      ],
+      "tool_events": [
+        {"name": "Read", "purpose": "Inspect computeScore and restartState"},
+        {"name": "Grep", "purpose": "Search for test files"}
+      ],
+      "file_state": [
+        {"path": "logic.js", "status": "unchanged", "excerpt": "function restartState(prev) { return { index: 0, selections: prev.selections, finished: false }; }"}
+      ],
+      "editor_state": {
+        "path": "docs/v0.1.0/review.md",
+        "mode": "markdown",
+        "body": "# Review\n\n- Score loop uses selections.length - 1\n- Restart reuses the previous selections array\n- No Vitest files yet\n- Shuffle is absent (feature, not a defect in the current loop)"
+      },
+      "terminal_state": {"lines": ["> /review", "quality ... 2 HIGH", "coverage ... no tests", "VERDICT: GO-WITH-CONDITIONS"]},
+      "artifact": {"path": "docs/v0.1.0/review.md", "kind": "report", "summary": "Findings: score, restart, missing tests, no shuffle"},
+      "gate": {"name": "Findings listed", "status": "hold", "prompt": "Confirm findings. Plan the bugfix only; leave shuffle for compare."},
+      "next_scene": "plan",
+      "duration": 0,
+      "beats": [
+        {"index": 0, "claim": "Review reads; it does not edit.", "panes": ["assistant", "terminal", "timeline"], "takeaway": "Verdict first, patches later."},
+        {"index": 1, "claim": "The report names score, restart, tests, and shuffle.", "panes": ["editor", "artifact", "gate"], "takeaway": "Pick a fix scope before coding."}
+      ]
+    },
+    {
+      "id": "plan",
+      "stage": "Decompose",
+      "intent": "One phase: fix scoring and restart. No shuffle yet. Local commit, no push.",
+      "command": "/plan feature",
+      "prompt": "/plan feature",
+      "assistant_events": [
+        "Goal: perfect run scores 6/6; restart is a clean deck.",
+        "Phase 1 only. Rec. model re-confirmed at implement time.",
+        "DoD: unit tests for computeScore and restartState; local commit; do not push."
+      ],
+      "tool_events": [
+        {"name": "Read", "purpose": "Use analysis.md and review.md as inputs"},
+        {"name": "Write", "purpose": "Draft the plan file"}
+      ],
+      "file_state": [
+        {"path": "docs/releases/v0.1/plans/fix-scoring-and-restart.md", "status": "added"}
+      ],
+      "editor_state": {
+        "path": "docs/releases/v0.1/plans/fix-scoring-and-restart.md",
+        "mode": "markdown",
+        "body": "# Plan - fix scoring and restart\n\nPhase 1: change computeScore to walk the full selections array; restartState returns freshState(); add Vitest.\n\nLifecycle: one local commit. No push. Shuffle is out of scope."
+      },
+      "terminal_state": {"lines": ["> /plan feature", "Scored phase 1", "Wrote plan with GO / NO-GO gate"]},
+      "artifact": {"path": "docs/releases/v0.1/plans/fix-scoring-and-restart.md", "kind": "plan", "summary": "One phase, written DoD, local-commit contract"},
+      "gate": {"name": "DoD written", "status": "pass", "prompt": "Approve phase 1 scope (bugs only)."},
+      "next_scene": "implement",
+      "duration": 0,
+      "beats": [
+        {"index": 0, "claim": "The plan is a gated phase, not a todo list.", "panes": ["assistant", "timeline", "editor"], "takeaway": "Scope excludes shuffle."},
+        {"index": 1, "claim": "The contract is local commit only.", "panes": ["artifact", "gate"], "takeaway": "Push waits for a later final phase."}
+      ]
+    },
+    {
+      "id": "implement",
+      "stage": "Build",
+      "intent": "Fix scoring and restart on a branch, with tests, then a local commit.",
+      "command": "/implement fix-scoring-and-restart phase-1",
+      "prompt": "/implement fix-scoring-and-restart phase-1",
+      "assistant_events": [
+        "Implementing phase 1. Quality gate requires tests.",
+        "computeScore now iterates selections.length. restartState returns freshState()."
+      ],
+      "tool_events": [
+        {"name": "Edit", "purpose": "Patch logic.js"},
+        {"name": "Write", "purpose": "Add logic.test.js"},
+        {"name": "Bash", "purpose": "Run vitest"}
+      ],
+      "file_state": [
+        {"path": "logic.js", "status": "changed", "excerpt": "for (var i = 0; i < selections.length; i++)"},
+        {"path": "logic.test.js", "status": "added", "excerpt": "expect(computeScore(qs, [0,0,0,0,0,0])).toBe(6)"}
+      ],
+      "editor_state": {
+        "path": "logic.js",
+        "mode": "diff",
+        "body": "- for (var i = 0; i < selections.length - 1; i++) {\n+ for (var i = 0; i < selections.length; i++) {\n- function restartState(prev) {\n-   return { index: 0, selections: prev.selections, finished: false };\n- }\n+ function restartState() {\n+   return freshState();\n+ }"
+      },
+      "terminal_state": {"lines": ["> /implement fix-scoring-and-restart phase-1", "vitest run", "8 passed", "local commit created", "no push"]},
+      "artifact": {"path": "logic.js", "kind": "code", "summary": "Score and restart fixed; tests added; local commit"},
+      "gate": {"name": "Phase GO", "status": "pass", "prompt": "GO on the local commit. Do not push. Shuffle still comes from compare."},
+      "next_scene": "compare",
+      "duration": 0,
+      "beats": [
+        {"index": 0, "claim": "The editor shows the scoring and restart diff.", "panes": ["explorer", "editor", "assistant"], "takeaway": "The phase edits only what the plan named."},
+        {"index": 1, "claim": "Tests pass and the commit stays local.", "panes": ["terminal", "gate", "timeline"], "takeaway": "A green phase is still not a release."}
+      ]
+    },
+    {
+      "id": "compare",
+      "stage": "Evaluate",
+      "intent": "Adopt shuffle from the local reference by reverse-engineering, not by wrapping it.",
+      "command": "/compare ../quiz-shuffle-reference",
+      "prompt": "/compare ../quiz-shuffle-reference",
+      "assistant_events": [
+        "Local path compare. Reverse-engineer-first.",
+        "Worth adopting: shuffle(items) plus startRun that deals a shuffled deck.",
+        "/plan from-comparison writes the shuffle phase. /implement would run the same way as the bugfix; this scene does not add a ninth command."
+      ],
+      "tool_events": [
+        {"name": "Read", "purpose": "Read quiz-shuffle-reference/logic.js"},
+        {"name": "Write", "purpose": "Write compare report and from-comparison plan"}
+      ],
+      "file_state": [
+        {"path": "logic.js", "status": "changed", "excerpt": "function shuffle(items) { /* Fisher-Yates */ }"},
+        {"path": "docs/v0.1.0/compare-quizkit.md", "status": "added"}
+      ],
+      "editor_state": {
+        "path": "docs/v0.1.0/compare-quizkit.md",
+        "mode": "markdown",
+        "body": "# Compare vs quiz-shuffle-reference\n\nAdopt shuffle and startRun. Do not import the reference as a dependency.\n\nNext: /plan from-comparison, then the same /implement loop as phase 1."
+      },
+      "terminal_state": {"lines": ["> /compare ../quiz-shuffle-reference", "Gap: no shuffle on each run", "Wrote docs/v0.1.0/compare-quizkit.md"]},
+      "artifact": {"path": "docs/v0.1.0/compare-quizkit.md", "kind": "report", "summary": "Shuffle adoption plan; implement runs the same as before"},
+      "gate": {"name": "Adopt shuffle", "status": "hold", "prompt": "Adopt shuffle from the reference. The follow-on /implement is the same command, not a new scene."},
+      "next_scene": "test",
+      "duration": 0,
+      "beats": [
+        {"index": 0, "claim": "Compare reads a local reference, not a SaaS.", "panes": ["assistant", "terminal", "explorer"], "takeaway": "Reverse-engineer the idea, copy nothing wholesale."},
+        {"index": 1, "claim": "from-comparison plus a note that implement runs again.", "panes": ["editor", "artifact", "gate"], "takeaway": "Shuffle is in this scene's outcome, not a ninth scene."}
+      ]
+    },
+    {
+      "id": "test",
+      "stage": "Harden",
+      "intent": "Prove scoring, restart, and shuffle with Vitest and a coverage gate.",
+      "command": "/test unit",
+      "prompt": "/test unit",
+      "assistant_events": [
+        "Driving unit tests to the coverage threshold.",
+        "Score, restart, and shuffle cases pass."
+      ],
+      "tool_events": [
+        {"name": "Bash", "purpose": "npx vitest run --coverage"}
+      ],
+      "file_state": [
+        {"path": "logic.test.js", "status": "changed"}
+      ],
+      "editor_state": {
+        "path": "logic.test.js",
+        "mode": "test",
+        "body": "computeScore full deck -> 6\nrestartState -> empty selections\nshuffle -> same members, not always same order"
+      },
+      "terminal_state": {"lines": ["> /test unit", "vitest run --coverage", "Tests 12 passed", "Statements 92%"]},
+      "artifact": {"path": "coverage/index.html", "kind": "report", "summary": "Unit suite green; coverage above the project threshold"},
+      "gate": {"name": "Coverage gate", "status": "pass", "prompt": "Accept the suite. Ship only after tests."},
+      "next_scene": "update",
+      "duration": 0,
+      "beats": [
+        {"index": 0, "claim": "The terminal is the proof.", "panes": ["terminal", "assistant", "timeline"], "takeaway": "Both bugfix and shuffle are verified here."},
+        {"index": 1, "claim": "Coverage is a gate, not a screenshot.", "panes": ["editor", "gate", "artifact"], "takeaway": "A number below the threshold is NO-GO."}
+      ]
+    },
+    {
+      "id": "update",
+      "stage": "Ship",
+      "intent": "Record the change. Release stays gated on a green integration.",
+      "command": "/update",
+      "prompt": "/update changelog",
+      "assistant_events": [
+        "Changelog and docs synced for the Trivia Quiz fixes.",
+        "A full /update release would still wait for green required checks. This example stops at the local record."
+      ],
+      "tool_events": [
+        {"name": "Edit", "purpose": "Update CHANGELOG.md"}
+      ],
+      "file_state": [
+        {"path": "CHANGELOG.md", "status": "changed"}
+      ],
+      "editor_state": {
+        "path": "CHANGELOG.md",
+        "mode": "markdown",
+        "body": "## Unreleased\n\n- Fix Trivia Quiz scoring off-by-one and restart leak\n- Shuffle the deck on each run (adopted from a local reference)"
+      },
+      "terminal_state": {"lines": ["> /update changelog", "CHANGELOG.md updated", "release blocked until integration is green"]},
+      "artifact": {"path": "CHANGELOG.md", "kind": "docs", "summary": "Written record; release still gated"},
+      "gate": {"name": "Green integration", "status": "hold", "prompt": "Keep the changelog. Do not pretend a tag exists."},
+      "next_scene": "presentify",
+      "duration": 0,
+      "beats": [
+        {"index": 0, "claim": "Ship is documentation plus a gate.", "panes": ["editor", "assistant", "timeline"], "takeaway": "The record is real; the tag is not automatic."},
+        {"index": 1, "claim": "Integration still has to be green.", "panes": ["gate", "terminal"], "takeaway": "Communicate after the work is real."}
+      ]
+    },
+    {
+      "id": "presentify",
+      "stage": "Document",
+      "intent": "Turn the written record into one offline HTML briefing.",
+      "command": "/presentify",
+      "prompt": "/presentify docs/v0.1.0/analysis.md docs/v0.1.0/review.md CHANGELOG.md",
+      "assistant_events": [
+        "Building a self-contained HTML file. No CDN, no runtime fetch.",
+        "Wrote trivia-quiz-briefing.html"
+      ],
+      "tool_events": [
+        {"name": "Read", "purpose": "Parse local documents"},
+        {"name": "Write", "purpose": "Emit one HTML file"}
+      ],
+      "file_state": [
+        {"path": "trivia-quiz-briefing.html", "status": "added"}
+      ],
+      "editor_state": {
+        "path": "trivia-quiz-briefing.html",
+        "mode": "source",
+        "body": "<!doctype html><!-- self-contained briefing: map, review, changelog -->"
+      },
+      "terminal_state": {"lines": ["> /presentify ...", "Wrote trivia-quiz-briefing.html", "offline = yes"]},
+      "artifact": {"path": "trivia-quiz-briefing.html", "kind": "html", "summary": "Stakeholder briefing; tour ends"},
+      "gate": {"name": "File exists", "status": "pass", "prompt": "Hand the HTML to a stakeholder. The tour is complete."},
+      "next_scene": null,
+      "duration": 0,
+      "beats": [
+        {"index": 0, "claim": "Presentify is a taught command, not this page's author.", "panes": ["assistant", "terminal", "timeline"], "takeaway": "The briefing is a file, not a slide deck runtime."},
+        {"index": 1, "claim": "The artifact is the closer.", "panes": ["artifact", "editor", "gate"], "takeaway": "Experience became something you can send."}
+      ]
+    }
+  ]
+}

@@ -54,3 +54,13 @@ Phase 4 rewrites Foundations in the canonical guide HTML and adds `docs/releases
 ### Result
 
 No documentation move.
+
+## Phase 5 - Interactive IDE Training Workbench
+
+### Layout check
+
+Phase 5 adds `guides/website/example/training-scenes.json`, rewrites Training in the canonical guide, and adds a session-history file. Splice helpers were deleted before commit.
+
+### Result
+
+No documentation move. Unused `.nht` slide CSS remains in the guide as dead rules; removing it is optional cleanup, not a layout move.

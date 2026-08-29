@@ -38,11 +38,6 @@ ONBOARDING_STALE = re.compile(
     re.IGNORECASE | re.VERBOSE,
 )
 
-_phase5 = pytest.mark.xfail(
-    strict=True, reason="Phase 5: data-driven training workbench not landed yet"
-)
-
-
 class GuideParser(HTMLParser):
     """Collect structure from the guide without executing JavaScript."""
 
@@ -400,12 +395,10 @@ def test_foundations_comparison_states_are_static_in_markup(guide_text: str) -> 
 # ---------------------------------------------------------------------------
 
 
-@_phase5
 def test_training_scenes_are_data_driven_json(parsed: GuideParser) -> None:
     assert parsed.json_script_contents, "expected application/json scene block"
 
 
-@_phase5
 def test_every_scene_exposes_gate_and_next_scene(parsed: GuideParser) -> None:
     import json
 
@@ -432,10 +425,38 @@ def test_every_scene_exposes_gate_and_next_scene(parsed: GuideParser) -> None:
         assert rid in ids
 
 
-@_phase5
 def test_script_close_in_fixture_does_not_break_document(parsed: GuideParser) -> None:
     assert parsed.json_script_contents, "fixture JSON block required before encoding can be checked"
     joined = "\n".join(parsed.json_script_contents)
     assert "&lt;/script&gt;" in joined or r"<\/script>" in joined
     assert parsed.html_count == 1
     assert "page-training" in parsed.page_ids
+
+
+def test_inline_scenes_match_example_json(parsed: GuideParser) -> None:
+    import json
+
+    disk_path = _ROOT / "guides" / "website" / "example" / "training-scenes.json"
+    disk = json.loads(disk_path.read_text(encoding="utf-8"))
+    inline = json.loads(parsed.json_script_contents[0])
+    assert inline == disk
+
+
+def test_training_workbench_is_not_a_slide_deck(guide_text: str) -> None:
+    assert 'id="nhWorkbench"' in guide_text
+    assert "function applyState" in guide_text
+    assert "textContent" in guide_text
+    assert 'class="ts-slide"' not in guide_text
+    assert "scroll-scrub-engine" not in guide_text
+
+
+def test_hostile_fixture_strings_are_present_for_textcontent(parsed: GuideParser) -> None:
+    import json
+
+    data = json.loads(parsed.json_script_contents[0])
+    blob = json.dumps(data)
+    assert "<img onerror>" in blob
+    assert "</script>" in blob
+    # Rendering contract: workbench JS assigns fixture strings via textContent.
+    # (A live DOM is last-phase / DF-1; this is the static proof.)
+    assert "els.editor.textContent" in Path(GUIDE).read_text(encoding="utf-8")
