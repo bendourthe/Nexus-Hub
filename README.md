@@ -10,7 +10,7 @@ Nexus-Hub is the upstream skill catalog for AI coding assistants: 328 skills, 18
 
 ## Interactive Guide -- start here
 
-**New to Nexus-Hub? [Open the interactive guide](guides/website/nexus-hub-guide.html).** It is a self-contained, click-through walkthrough of the entire workflow -- install, onboard an unfamiliar codebase, plan, implement, harden, and ship -- with simulated VS Code / terminal sessions and the artifact each command produces. It is the fastest way to get a teammate productive, and it doubles as a live-demo-quality presentation.
+**New to Nexus-Hub? [Open the interactive guide](guides/website/nexus-hub-guide.html).** It is a self-contained, offline HTML file: a concise Home with the install commands, a Foundations page that separates the model from the harness, and an eight-scene IDE workbench that shows each command's input, files, artifact, and gate. It is the fastest way to get a teammate productive, and it doubles as a live-demo-quality workshop.
 
 - **File:** [`guides/website/nexus-hub-guide.html`](guides/website/nexus-hub-guide.html) -- one HTML file, fully offline, no server or install required.
 - **To view it:** GitHub does not render HTML inline. Open the file above and click **Download raw file** (top-right of the file view), then open the downloaded `.html` in any browser. Or clone the repo and double-click it.

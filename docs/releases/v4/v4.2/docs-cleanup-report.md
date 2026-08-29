@@ -74,3 +74,13 @@ Phase 6 rewrites `guides/website/README.md` in place, extends `tests/guides/test
 ### Result
 
 No documentation move. The sibling portfolio remains outside this tree; the copy contract is documentation plus an optional env-gated diff.
+
+## Phase 7 - Architecture Refactor, Known-Gaps, CI/CD
+
+### Layout check
+
+Phase 7 writes `docs/releases/v4/v4.2/development/last-phase-evidence.md` and a hallmark re-audit. It deletes unused `.nht` / `.ts-` CSS from the canonical guide (no matching markup). No documentation file moved. No `docs/testing/` or `docs/validation/` invented.
+
+### Result
+
+No documentation move. Dead slide-deck CSS pruned in place. Publication (push / PR) is gated on explicit approval.
