@@ -6,13 +6,13 @@
     "description": "Comprehensive catalog of Nexus-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-    "total_skills": 326,
+    "total_skills": 327,
     "categories": {
       "ai-development": 14,
       "architecture": 7,
       "bug-fixing": 5,
       "business-product": 7,
-      "code-cleanup": 10,
+      "code-cleanup": 11,
       "code-review": 15,
       "compliance": 9,
       "developer-experience": 41,
@@ -33,7 +33,7 @@
       "mobile-security": 5
     },
     "priorities": {
-      "MEDIUM": 273,
+      "MEDIUM": 274,
       "HIGH": 5
     },
     "total_lines": 136172,
@@ -49,7 +49,7 @@
       "C++"
     ],
     "repository": "https://github.com/bendourthe/Nexus-Hub",
-    "last_updated": "2026-08-16"
+    "last_updated": "2026-08-28"
   },
   "skills": [
     {
@@ -1074,6 +1074,42 @@
         "lines": 189,
         "characters": 5162,
         "tokens_estimate": 777
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "minimal-construction",
+      "title": "minimal-construction",
+      "description": "\"Pick the smallest correct construction before writing code. Use this skill whenever the user wants the simplest solution, YAGNI, to do less, the shortest path, to avoid over-engineering or unnecessary dependencies, or to be lazy about what you build, even if they never say 'minimal'. SKIP: non-coding prose, security audits, post-write refactors, dead-code campaigns, and plan-scope review. Do NOT use to collapse existing code (code-simplification), hunt dead code (dead-code-eliminator), emit a delete-list (over-engineering-review), or drop trust-boundary, security, accessibility, or proving-command work.\"",
+      "long_description": "Walk a seven-rung pre-write ladder after reading the real flow and stop at the first sufficient rung. Intensity is a skill argument, not host config.",
+      "summary_l0": "\"Stop at the first sufficient pre-write rung instead of adding machinery\"",
+      "overview_l1": "\"Walk a seven-rung pre-write ladder after reading the real flow: skip unneeded work, reuse this codebase, stdlib, native platform feature, already-installed dependency, one line, then the minimum new code. Intensity is a skill argument (lite, full, ultra; default full), not an env var or config file. Safety, tests, talk, dead code, and post-write collapse stay with their owning skills. Trigger phrases: simplest solution, yagni, do less, shortest path, over-engineering, unnecessary dependencies, be lazy about what you build.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "code-cleanup",
+      "language": "Multi-language",
+      "tags": [
+        "yagni",
+        "construction",
+        "stdlib",
+        "minimal"
+      ],
+      "priority": "MEDIUM",
+      "based_on": "",
+      "tools_required": [],
+      "path": "catalog/skills/code-cleanup/minimal-construction/",
+      "file": "catalog/skills/code-cleanup/minimal-construction/SKILL.md",
+      "size": {
+        "lines": 137,
+        "characters": 9421,
+        "tokens_estimate": 2355
       },
       "downloads": 0,
       "status": "production",

@@ -47,6 +47,7 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | go-cleanup | code-cleanup | "Clean up Go codebases with gofmt, idiomatic patterns, and improved error handling" | catalog/skills/code-cleanup/go-cleanup/SKILL.md |
 | java-cleanup | code-cleanup | "Clean up Java codebases with modern patterns, deprecated API updates, and dead code removal" | catalog/skills/code-cleanup/java-cleanup/SKILL.md |
 | javascript-cleanup | code-cleanup | "Clean up JavaScript/TypeScript with ES6+ modernization, ESLint fixes, and dead code removal" | catalog/skills/code-cleanup/javascript-cleanup/SKILL.md |
+| minimal-construction | code-cleanup | "Stop at the first sufficient pre-write rung instead of adding machinery" | catalog/skills/code-cleanup/minimal-construction/SKILL.md |
 | project-refactor | code-cleanup | "Refactor project artifacts with detection, archive placement, and reference repair" | catalog/skills/code-cleanup/project-refactor/SKILL.md |
 | docs-layout-refactor | code-cleanup | "Audit, categorize, and reorganize docs/ folders with a propose-then-apply workflow and a versioned archive subtree" | catalog/skills/code-cleanup/docs-layout-refactor/SKILL.md |
 | python-cleanup | code-cleanup | "Clean up Python codebases with PEP 8 fixes, type hints, and dead code removal" | catalog/skills/code-cleanup/python-cleanup/SKILL.md |
@@ -331,4 +332,4 @@ Quick-reference index of all available skills. Use the skill name or summary to 
 | design-interview | developer-experience | "Interview until the design tree is resolved and keep a CONTEXT.md glossary" | catalog/skills/developer-experience/design-interview/SKILL.md |
 | setup-wizard-generator | developer-experience | "Generate a resumable human-only setup wizard with bash and PowerShell templates" | catalog/skills/developer-experience/setup-wizard-generator/SKILL.md |
 | decision-questionnaire | business-product | "Write an async Markdown questionnaire for the one stakeholder who can unblock" | catalog/skills/business-product/decision-questionnaire/SKILL.md |
-**Total: 326 skills across 23 categories**
+**Total: 327 skills across 23 categories**

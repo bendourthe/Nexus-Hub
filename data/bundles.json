@@ -254,6 +254,7 @@
         "go-cleanup",
         "java-cleanup",
         "javascript-cleanup",
+        "minimal-construction",
         "project-refactor",
         "python-cleanup"
       ]

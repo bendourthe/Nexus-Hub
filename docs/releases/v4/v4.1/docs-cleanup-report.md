@@ -195,3 +195,17 @@ Phase 1 adds the version-bound contract at `docs/releases/v4/v4.1/development/v4
 ### Result
 
 No duplicate, orphaned, scratch, or misplaced documentation was created by v4.1.2 Phase 1. No file moved, and no cleanup change was approved or applied.
+
+## v4.1.2 Phase 2 - minimal-construction Skill
+
+**Date**: 2026-08-28
+**Mode**: audit only; no files moved
+**Plan**: `docs/releases/v4/v4.1/plans/v4.1.2-adoption-minimal-construction.md`
+
+### Layout check
+
+Phase 2 adds one catalog skill tree at `catalog/skills/code-cleanup/minimal-construction/` and one release-scoped session history. The trigger fixture is referenced from the skill body. Recursive installers copy the skill tree with no new copy line.
+
+### Result
+
+No documentation move, duplicate, scratch artifact, or release-tree contradiction was introduced by Phase 2.
