@@ -425,17 +425,27 @@ def test_onboarding_has_no_hardcoded_catalog_counts(parsed: GuideParser) -> None
 # ---------------------------------------------------------------------------
 
 
-def test_foundations_three_roles(guide_text: str) -> None:
-    fl = guide_text.lower()
-    assert "page-foundations" in fl
-    assert "harness" in fl
-    assert re.search(r"model\s*=\s*the brain|the brain", fl)
-    assert "agent" in fl or "platform" in fl
+def test_foundations_four_engineering_stations(guide_text: str) -> None:
+    foundations = guide_text.split('id="page-foundations"', 1)[-1].split('id="page-training"', 1)[0]
+    for term in (
+        "Prompt engineering",
+        "Context engineering",
+        "Harness engineering",
+        "Loop engineering",
+    ):
+        assert term in foundations
+        before_details = foundations.split("<details>", 1)[0]
+        assert term in before_details
+    assert "Trivia Quiz" not in foundations
 
 
 def test_foundations_has_user_initiated_comparison(guide_text: str) -> None:
-    assert re.search(r'type=["\']range["\']|role=["\']slider["\']|data-compare', guide_text)
+    foundations = guide_text.split('id="page-foundations"', 1)[-1].split('id="page-training"', 1)[0]
+    assert 'type="range"' not in foundations
+    assert "nhgHarnessRange" not in foundations
     assert "scroll-scrub-engine" not in guide_text
+    assert "data-compare" in foundations
+    assert "<video" not in foundations.lower()
 
 
 def test_foundations_handoff_is_training_page_hash(guide_text: str) -> None:

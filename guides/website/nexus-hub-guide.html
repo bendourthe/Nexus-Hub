@@ -707,27 +707,78 @@ html.no-js .tab-panel { display: block; }
 .nhg-platforms ul { margin: 0 0 8px; padding-left: 1.2em; color: var(--ink-dim); font-size: 14.5px; }
 .nhg-next { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 8px; }
 
-.nhg-roles { display: grid; gap: 14px; margin: 16px 0; }
-@media (min-width: 800px) { .nhg-roles { grid-template-columns: repeat(3, 1fr); } }
-.nhg-role {
-  border: 1px solid var(--border); background: var(--surface); padding: 16px 18px;
+.nhg-stack {
+  display: grid; gap: 10px; margin: 18px 0 8px;
 }
-.nhg-role h3 { margin: 0 0 8px; font-size: 1.05rem; }
-.nhg-role p { margin: 0 0 8px; font-size: 14.5px; color: var(--ink-dim); }
-.nhg-role .nhg-limit { font-size: 13.5px; color: var(--ink-faint); }
-
+@media (min-width: 900px) {
+  .nhg-stack { position: sticky; top: 80px; }
+}
+.nhg-layer {
+  display: grid; grid-template-columns: 64px 1fr; gap: 14px; align-items: center;
+  border: 1px solid var(--border); background: var(--surface); border-radius: 18px;
+  padding: 12px 16px;
+}
+.nhg-layer.is-lit { border-color: var(--accent); }
+.nhg-layer svg { width: 56px; height: 56px; }
+.nhg-layer strong { display: block; font-size: 1.02rem; }
+.nhg-layer span { color: var(--ink-dim); font-size: 14.5px; }
+.nhg-stations { display: grid; gap: 22px; margin: 20px 0; }
+.nhg-station {
+  display: grid; gap: 12px;
+  border: 1px solid var(--border); background: var(--surface); border-radius: 20px;
+  padding: 18px 18px 16px;
+}
+@media (min-width: 800px) {
+  .nhg-station { grid-template-columns: 1fr 220px; align-items: center; }
+  .nhg-station:nth-child(even) { grid-template-columns: 220px 1fr; }
+  .nhg-station:nth-child(even) .nhg-station-copy { order: 2; }
+}
+.nhg-station h2 { margin: 0 0 6px; font-size: 1.18rem; }
+.nhg-station p { margin: 0; font-size: 15px; }
+.nhg-station-toggle {
+  margin-top: 10px; min-height: 44px;
+  font: 600 13px var(--sans); color: var(--ink);
+  background: var(--surface-2); border: 1px solid var(--border); border-radius: 999px;
+  padding: 8px 14px; cursor: pointer;
+}
+.nhg-booth {
+  border-radius: 16px; background: var(--bg-2); padding: 12px; color: var(--ink);
+  border: 1px solid var(--border);
+}
+.nhg-booth-stage {
+  height: 72px; border-radius: 12px; margin-bottom: 8px;
+  background: radial-gradient(circle at 50% 40%, color-mix(in srgb, var(--accent) 28%, transparent), var(--surface));
+  display: flex; align-items: center; justify-content: center; font: 700 13px var(--sans);
+}
+.nhg-stamps { display: flex; gap: 6px; justify-content: center; }
+.nhg-stamp {
+  width: 14px; height: 14px; border-radius: 50%; background: var(--border); display: inline-block;
+}
+.nhg-stamp.is-on { background: var(--accent); }
+.nhg-booth-ghost { opacity: .45; font-size: 12px; text-align: center; margin-top: 6px; }
+.nhg-booth[hidden], .nhg-station .nhg-booth-alt[hidden] { display: none; }
 .nhg-compare-ctrl { margin: 12px 0 8px; }
-.nhg-compare-ctrl label { display: block; font-weight: 700; margin-bottom: 8px; }
-.nhg-compare-ctrl input[type="range"] { width: min(100%, 28rem); }
+.nhg-seg {
+  display: inline-flex; gap: 0; border: 1px solid var(--border); border-radius: 999px; padding: 4px;
+  background: var(--surface);
+}
+.nhg-seg button {
+  min-height: 44px; min-width: 9rem; border: 0; background: transparent; color: var(--ink-dim);
+  font: 600 13px var(--sans); border-radius: 999px; cursor: pointer; padding: 0 14px;
+}
+.nhg-seg button[aria-pressed="true"] { background: var(--accent); color: var(--page-bg); }
 .nhg-compare-state { font: 600 13px var(--mono); color: var(--accent); margin: 8px 0 12px; }
 .nhg-compare-panes { display: grid; gap: 14px; }
 @media (min-width: 800px) { .nhg-compare-panes { grid-template-columns: 1fr 1fr; } }
 .nhg-compare-pane {
-  border: 1px solid var(--border); background: var(--surface); padding: 16px 18px;
+  border: 1px solid var(--border); background: var(--surface); padding: 16px 18px; border-radius: 16px;
 }
-.nhg-compare-pane.is-on { border-color: var(--accent); }
+.nhg-compare-pane.is-on { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent); }
 .nhg-compare-pane h3 { margin: 0 0 8px; font-size: 1.02rem; }
 .nhg-compare-pane p, .nhg-compare-pane ul { font-size: 14.5px; color: var(--ink-dim); }
+@media (prefers-reduced-motion: reduce) {
+  .nhg-stack { position: static; }
+}
 .copy-btn {
   margin-left: auto; flex: none;
   display: inline-flex; align-items: center; justify-content: center; gap: 5px;
@@ -1001,78 +1052,111 @@ html.no-js .tab-panel { display: block; }
   <section class="page" id="page-foundations" data-page="foundations">
     <div class="container">
       <span class="eyebrow">Foundations</span>
-      <h1>The model is the brain. The harness is the experience.</h1>
-      <p class="lead">A coding assistant already wraps a model in tools. Nexus-Hub does not replace that model or retrain it. It adds reusable experience: skills, commands, context-selection procedures, rules, hooks, gates, and durable workflow. Keep the three roles distinct and the rest of this guide makes sense.</p>
+      <h1>Four ways to change what the model does</h1>
+      <p class="lead">Pictures first. Each station is one move you can make. The stack below is the model (brain), the platform (hands), and the harness (experience). Trivia stays off this page; the booth is Glow Booth.</p>
 
-      <section class="section">
-        <span class="eyebrow">Three roles</span>
-        <h2>Brain, hands, experience</h2>
-        <div class="nhg-roles">
-          <article class="nhg-role">
-            <h3>Model = the brain</h3>
-            <p>Trained knowledge and reasoning. It predicts useful next text, including plans and patches, from what it was trained on plus what it can see in this turn.</p>
-            <p>Example: asked why a quiz scores 5/6 on a perfect run, it can propose an off-by-one in a loop from general programming knowledge.</p>
-            <p class="nhg-limit">Limitation: it cannot see your files unless the platform puts them in context, and it is not a lookup table or a person. It can sound sure while being wrong.</p>
-          </article>
-          <article class="nhg-role">
-            <h3>Agent / platform = the hands</h3>
-            <p>The coding assistant's tools and workspace: read, edit, run, and observe. Claude Code, Codex, Cursor, Gemini / Antigravity, Copilot, and similar hosts are this layer.</p>
-            <p>Example: the same model can open <code>logic.js</code>, run <code>npm test</code>, and apply a patch because the platform executed those tools.</p>
-            <p class="nhg-limit">Limitation: tools without a shared method still improvise. Two teammates on the same platform can get two different workflows.</p>
-          </article>
-          <article class="nhg-role">
-            <h3>Harness = experience</h3>
-            <p>Operating discipline around the model: which procedure to load, which context to select, which rules and hooks fire, which artifact to write, and when to stop at a gate.</p>
-            <p>Example: <code>/review</code> then <code>/plan</code> then <code>/implement</code> on Trivia Quiz writes a finding, a gated plan, and a local commit instead of a chat-only guess.</p>
-            <p class="nhg-limit">Limitation: a harness cannot invent facts the model does not have, and it cannot run if the platform has no tool loop. It changes the working method, not the weights.</p>
-          </article>
+      <div class="nhg-stack" id="nhgStackStage" data-stage="0">
+        <div class="nhg-layer" data-layer="0">
+          <svg viewBox="0 0 56 56" fill="none" aria-hidden="true"><circle cx="28" cy="28" r="16" stroke="currentColor" stroke-width="2"/><circle cx="22" cy="24" r="2" fill="currentColor"/><circle cx="34" cy="24" r="2" fill="currentColor"/><path d="M20 34c3 4 13 4 16 0" stroke="currentColor" stroke-width="2"/></svg>
+          <div><strong>Model (brain)</strong><span>Predicts the next useful text from training plus this turn.</span></div>
         </div>
-      </section>
+        <div class="nhg-layer" data-layer="1">
+          <svg viewBox="0 0 56 56" fill="none" aria-hidden="true"><rect x="10" y="18" width="16" height="22" rx="3" stroke="currentColor" stroke-width="2"/><rect x="30" y="14" width="16" height="26" rx="3" stroke="currentColor" stroke-width="2"/><path d="M18 40v6M38 40v8" stroke="currentColor" stroke-width="2"/></svg>
+          <div><strong>Platform (hands)</strong><span>Reads files, runs tools, and edits the repo on your machine.</span></div>
+        </div>
+        <div class="nhg-layer" data-layer="2">
+          <svg viewBox="0 0 56 56" fill="none" aria-hidden="true"><rect x="8" y="10" width="40" height="36" rx="8" stroke="currentColor" stroke-width="2"/><path d="M16 22h24M16 28h18M16 34h12" stroke="currentColor" stroke-width="2"/></svg>
+          <div><strong>Harness (experience)</strong><span>Reusable procedures, hooks, and gates around that agent.</span></div>
+        </div>
+      </div>
+
+      <div class="nhg-stations">
+        <article class="nhg-station">
+          <div class="nhg-station-copy">
+            <h2>Prompt engineering</h2>
+            <p>Wording one request.</p>
+            <button type="button" class="nhg-station-toggle" data-station-toggle="prompt">Show a specific prompt</button>
+          </div>
+          <div class="nhg-booth" data-station="prompt">
+            <div class="nhg-booth-stage" data-prompt-a>Fix it</div>
+            <div class="nhg-booth-stage nhg-booth-alt" data-prompt-b hidden>The stamp meter counts 4 on a perfect set</div>
+            <div class="nhg-stamps" aria-hidden="true"><i class="nhg-stamp is-on"></i><i class="nhg-stamp is-on"></i><i class="nhg-stamp is-on"></i><i class="nhg-stamp is-on"></i><i class="nhg-stamp"></i></div>
+          </div>
+        </article>
+        <article class="nhg-station">
+          <div class="nhg-station-copy">
+            <h2>Context engineering</h2>
+            <p>Choosing what the model sees.</p>
+            <button type="button" class="nhg-station-toggle" data-station-toggle="context">Include the stamp helper</button>
+          </div>
+          <div class="nhg-booth" data-station="context">
+            <div class="nhg-booth-stage" data-context-a>app.js only</div>
+            <div class="nhg-booth-stage nhg-booth-alt" data-context-b hidden>app.js + stamp.js</div>
+            <div class="nhg-stamps" aria-hidden="true"><i class="nhg-stamp is-on"></i><i class="nhg-stamp is-on"></i><i class="nhg-stamp is-on"></i><i class="nhg-stamp is-on"></i><i class="nhg-stamp"></i></div>
+          </div>
+        </article>
+        <article class="nhg-station">
+          <div class="nhg-station-copy">
+            <h2>Harness engineering</h2>
+            <p>Reusable procedures, hooks, and gates.</p>
+            <button type="button" class="nhg-station-toggle" data-station-toggle="harness">Show the saved path</button>
+          </div>
+          <div class="nhg-booth" data-station="harness">
+            <div class="nhg-booth-stage" data-harness-a>One-off chat</div>
+            <div class="nhg-booth-stage nhg-booth-alt" data-harness-b hidden>/review then /plan then /implement</div>
+            <div class="nhg-stamps" aria-hidden="true"><i class="nhg-stamp is-on"></i><i class="nhg-stamp is-on"></i><i class="nhg-stamp is-on"></i><i class="nhg-stamp is-on"></i><i class="nhg-stamp"></i></div>
+          </div>
+        </article>
+        <article class="nhg-station">
+          <div class="nhg-station-copy">
+            <h2>Loop engineering</h2>
+            <p>The repeating six-stop working method.</p>
+            <button type="button" class="nhg-station-toggle" data-station-toggle="loop">Show the six stops</button>
+          </div>
+          <div class="nhg-booth" data-station="loop">
+            <div class="nhg-booth-stage" data-loop-a>Map once</div>
+            <div class="nhg-booth-stage nhg-booth-alt" data-loop-b hidden>Map, plan, build, harden, ship, communicate</div>
+            <div class="nhg-stamps" aria-hidden="true"><i class="nhg-stamp is-on"></i><i class="nhg-stamp is-on"></i><i class="nhg-stamp is-on"></i><i class="nhg-stamp is-on"></i><i class="nhg-stamp is-on"></i></div>
+          </div>
+        </article>
+      </div>
 
       <section class="section">
         <span class="eyebrow">See the difference</span>
-        <h2>Same model, same bug, two working methods</h2>
-        <p>Task: Trivia Quiz awards 5/6 after a perfect run. Both columns use one model. Drag the control or read both states; nothing autoplays.</p>
+        <h2>Same model, same stamp bug, two working methods</h2>
+        <p>Glow Booth awards 4/5 after a perfect set. Both states stay on the page. Pick a method; nothing autoplays.</p>
         <div class="nhg-compare-ctrl" data-compare data-nhg-keys="self">
-          <label for="nhgHarnessRange">Working method</label>
-          <input id="nhgHarnessRange" type="range" min="0" max="1" step="1" value="0" aria-valuemin="0" aria-valuemax="1" aria-valuenow="0" aria-valuetext="Model alone" />
+          <div class="nhg-seg" role="group" aria-label="Working method">
+            <button type="button" id="nhgCompareRaw" aria-pressed="true">Model alone</button>
+            <button type="button" id="nhgCompareHub" aria-pressed="false">Model with Nexus-Hub</button>
+          </div>
           <p class="nhg-compare-state" id="nhgCompareState">Model alone</p>
           <div class="nhg-compare-panes">
             <article class="nhg-compare-pane is-on" id="nhgRawPane">
               <h3>Model alone</h3>
-              <p>You paste the symptom. The model gives a plausible one-shot: "the loop probably stops at <code>length - 1</code>; change it." It does not open the repo, does not name a test, and does not write a file. The answer may even be in the right neighborhood.</p>
-              <ul>
-                <li>Unstated assumption: it guessed the file and the exact defect.</li>
-                <li>No durable artifact: the advice lives in the chat.</li>
-                <li>No verification: nobody ran the suite, so a second bug (restart keeps answers) stays hidden.</li>
-              </ul>
-              <p>This is a fair raw session, not a cartoon. Fluent models often look finished after one reply.</p>
+              <div class="nhg-booth">
+                <div class="nhg-booth-stage">Perfect set</div>
+                <div class="nhg-stamps" aria-hidden="true"><i class="nhg-stamp is-on"></i><i class="nhg-stamp is-on"></i><i class="nhg-stamp is-on"></i><i class="nhg-stamp is-on"></i><i class="nhg-stamp"></i></div>
+                <p class="nhg-booth-ghost">Stamp meter 4/5. Last pose still on stage after Restart.</p>
+              </div>
+              <p>You paste the symptom. The model guesses a loop bound. It does not open the booth files, name a test, or write a report. A second bug (restart leak) stays hidden.</p>
             </article>
             <article class="nhg-compare-pane" id="nhgHubPane">
               <h3>Model with Nexus-Hub</h3>
-              <p>The same model, on the same platform, is steered. <code>/review</code> loads the review procedure, reads scoped files, and writes a report. <code>/plan</code> turns the finding into a gated phase. <code>/implement</code> edits <code>logic.js</code>, runs tests, and stops at GO / NO-GO. A hook still blocks a secret if one appears in the diff.</p>
-              <ul>
-                <li>Context is selected on purpose, not hoped for in the prompt.</li>
-                <li>Durable artifacts: review report, plan, and a local commit.</li>
-                <li>Visible gate: the phase does not claim done until tests pass.</li>
-              </ul>
-              <p>The model did not get new weights. It received a procedure, a workspace, and a stop rule.</p>
+              <div class="nhg-booth">
+                <div class="nhg-booth-stage">Perfect set</div>
+                <div class="nhg-stamps" aria-hidden="true"><i class="nhg-stamp is-on"></i><i class="nhg-stamp is-on"></i><i class="nhg-stamp is-on"></i><i class="nhg-stamp is-on"></i><i class="nhg-stamp is-on"></i></div>
+                <p class="nhg-booth-ghost">Stamp meter 5/5. Restart clears the last pose.</p>
+              </div>
+              <p>The same model is steered. <code>/review</code> names the 4/5 meter and the restart leak. <code>/plan</code> writes a gated phase. <code>/implement</code> edits the booth and stops at GO / NO-GO. The model did not get new weights.</p>
             </article>
           </div>
         </div>
       </section>
 
-      <details>
-        <summary>Go deeper: prompt, context, reasoning</summary>
-        <p><strong>Prompt engineering</strong> is wording one request. It lasts for a message. A precise prompt still fails if the needed file is not in context.</p>
-        <p><strong>Context engineering</strong> is choosing what the model sees this turn. It lasts for a task. Nexus-Hub skills and commands encode those choices so the team does not reinvent them.</p>
-        <p><strong>Reasoning</strong> is extra deliberation the model may do before acting. It is still the model. It does not replace a harness: thinking harder without a test gate can still skip verification.</p>
-        <p><strong>Six-term recap.</strong> Model predicts. Reasoning deliberates. Agent/platform acts with tools. Prompt is the request. Context is the window. Harness is the durable operating system around them. Prompt and context sit inside the harness when the workflow is governed.</p>
-      </details>
-
       <section class="section">
         <h2>Now watch the experience layer work</h2>
-        <p>The model supplies the brain, the coding assistant supplies the hands, and Nexus-Hub supplies reusable experience and guardrails. Training shows that loop on Trivia Quiz, one workbench at a time.</p>
+        <p>Training is a slideshow of Glow Booth going from buggy to fixed, then one fun feature, using the eight daily commands.</p>
         <a class="btn btn--primary" href="#training" data-go="training">Open Training</a>
       </section>
 
@@ -2652,23 +2736,58 @@ html.no-js .tab-panel { display: block; }
       }
     })();
 
-    (function initHarnessCompare() {
-      var range = document.getElementById("nhgHarnessRange");
-      if (!range) return;
+    (function initFoundations() {
+      var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      var stage = document.getElementById("nhgStackStage");
+      var layers = stage ? stage.querySelectorAll("[data-layer]") : [];
+      function paintStack(n) {
+        if (!stage) return;
+        stage.setAttribute("data-stage", String(n));
+        for (var i = 0; i < layers.length; i++) {
+          layers[i].classList.toggle("is-lit", i <= n);
+        }
+      }
+      if (reduce) {
+        paintStack(2);
+      } else if (stage) {
+        function onScroll() {
+          var rect = stage.getBoundingClientRect();
+          var vh = window.innerHeight || 1;
+          var p = 1 - Math.max(0, Math.min(1, rect.top / vh));
+          paintStack(p < 0.33 ? 0 : p < 0.66 ? 1 : 2);
+        }
+        window.addEventListener("scroll", onScroll, { passive: true });
+        onScroll();
+      }
+      var toggles = document.querySelectorAll("[data-station-toggle]");
+      for (var t = 0; t < toggles.length; t++) {
+        toggles[t].addEventListener("click", function () {
+          var id = this.getAttribute("data-station-toggle");
+          var booth = document.querySelector('.nhg-booth[data-station="' + id + '"]');
+          if (!booth) return;
+          var a = booth.querySelector(".nhg-booth-stage:not(.nhg-booth-alt)");
+          var b = booth.querySelector(".nhg-booth-alt");
+          if (!a || !b) return;
+          var showAlt = b.hasAttribute("hidden");
+          if (showAlt) { b.removeAttribute("hidden"); a.setAttribute("hidden", ""); }
+          else { a.removeAttribute("hidden"); b.setAttribute("hidden", ""); }
+        });
+      }
+      var rawBtn = document.getElementById("nhgCompareRaw");
+      var hubBtn = document.getElementById("nhgCompareHub");
       var raw = document.getElementById("nhgRawPane");
       var hub = document.getElementById("nhgHubPane");
       var state = document.getElementById("nhgCompareState");
-      function apply() {
-        var on = String(range.value) === "1";
-        range.setAttribute("aria-valuenow", on ? "1" : "0");
-        range.setAttribute("aria-valuetext", on ? "Model with Nexus-Hub" : "Model alone");
+      function applyCompare(on) {
+        if (rawBtn) rawBtn.setAttribute("aria-pressed", on ? "false" : "true");
+        if (hubBtn) hubBtn.setAttribute("aria-pressed", on ? "true" : "false");
         if (state) state.textContent = on ? "Model with Nexus-Hub" : "Model alone";
         if (raw) raw.classList.toggle("is-on", !on);
         if (hub) hub.classList.toggle("is-on", on);
       }
-      range.addEventListener("input", apply);
-      range.addEventListener("change", apply);
-      apply();
+      if (rawBtn) rawBtn.addEventListener("click", function () { applyCompare(false); });
+      if (hubBtn) hubBtn.addEventListener("click", function () { applyCompare(true); });
+      applyCompare(false);
     })();
 
     /* -------------------------------------------------- boot */

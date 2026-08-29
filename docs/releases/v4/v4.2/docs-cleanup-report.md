@@ -129,3 +129,14 @@ Phase 3 edits the canonical guide HTML and the focused test file in place.
 ### Result
 
 No documentation move.
+
+## v4.2.1 Phase 4 - Foundations visual education
+
+**Date**: 2026-08-29
+**Mode**: audit only; no files moved
+
+Phase 4 edits the canonical guide HTML and the focused test file in place.
+
+### Result
+
+No documentation move.
