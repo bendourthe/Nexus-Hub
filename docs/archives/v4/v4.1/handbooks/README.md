@@ -1,6 +1,6 @@
 # Handbooks
 
-**Snapshot version**: v4.1.0
+**Snapshot version**: v4.1.1
 **Snapshot date**: 2026-08-28
 **Source**: `docs/handbooks/README.md`
 

@@ -32,9 +32,9 @@ Ownership is recorded in `docs/releases/v4/v4.1/development/v4.1.1-security-audi
 
 Evidence:
 
-> `docs/releases/v4/v4.1/known-gaps.md` `## v4.1.1`: Open DF=2, QG=1, NI/BG/WN/MT=0
+> `docs/releases/v4/v4.1/known-gaps.md` `## v4.1.1`: Open DF=1, QG=0, NI/BG/WN/MT=0. Resolved DF=1, QG=1.
 
-DF-1: live optional scanners were not executed on this host. DF-2: POSIX installer dry-run was not executed on this Windows host. QG-1: local full CI profile was not completed here.
+DF-1 remains: live optional scanners were not executed on this host. DF-2 is resolved by Ubuntu and macOS `installer-smoke` on pull request #137. QG-1 is resolved by green required checks on that pull request plus post-merge run `33224364101`.
 
 Other ledgers:
 
@@ -182,4 +182,4 @@ No live scanner CLI was invoked. `.gitignore` already ignores `.coverage`; 0 pat
 
 ## 9. Publication and integration
 
-Not performed. The branch is local only (`24771ad2` .. `a94bef54` plus this Phase 5 commit once created). Explicit approval is required before the first push and before opening the integration pull request to `develop`. `/update release` is blocked until that pull request is green and merged.
+Performed. Feature branch `feat/v4.1.1-adoption-openworker-security-refinement` was pushed once and opened as pull request [#137](https://github.com/bendourthe/Nexus-Hub/pull/137). Required checks were green. The pull request merged into `develop` at `0787ebf9` (2026-08-29T00:43:17Z). Post-merge workflow run `33224364101` succeeded (`smoke` + `provenance`). `/update release` for v4.1.1 proceeds from that green merged result.
