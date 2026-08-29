@@ -1,8 +1,8 @@
 # Nexus-Hub Progress Dashboard
 
-**Branch:** `feat/v4.1.2-release`
-**Active plan:** [`docs/releases/v4/v4.1/plans/v4.1.2-adoption-minimal-construction.md`](releases/v4/v4.1/plans/v4.1.2-adoption-minimal-construction.md)
-**Last refreshed:** 2026-08-28
+**Branch:** `develop`
+**Active plan:** none (v4.1.2 shipped)
+**Last refreshed:** 2026-08-29
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its own `docs/releases/v*/v*.*/known-gaps.md`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
 
@@ -22,12 +22,12 @@ Refreshing this file to the active plan (rather than appending another version's
 
 ---
 
-## Release - v4.1.2 [LOCAL PREPARATION]
+## Release - v4.1.2 [SHIPPED]
 
 - [x] Merge the five-phase implementation into `develop` with green integration checks ([#141](https://github.com/bendourthe/Nexus-Hub/pull/141), `34d8272b`)
 - [x] Derive release notes from `v4.1.1..origin/develop`
 - [x] Prepare and verify the v4.1.2 release commit
-- [ ] Promote `develop` to `main`, tag v4.1.2, publish the GitHub Release, and back-merge
+- [x] Promote `develop` to `main` ([#143](https://github.com/bendourthe/Nexus-Hub/pull/143)), tag [v4.1.2](https://github.com/bendourthe/Nexus-Hub/releases/tag/v4.1.2), publish the GitHub Release, and back-merge
 
 ---
 
