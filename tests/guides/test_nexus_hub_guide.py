@@ -721,6 +721,84 @@ def test_every_scene_has_walkthrough_fields(parsed: GuideParser) -> None:
 
 
 # ---------------------------------------------------------------------------
+# Cheatsheets (Phase 5)
+# ---------------------------------------------------------------------------
+
+
+def _cheatsheets_markup(guide_text: str) -> str:
+    return guide_text.split('id="page-cheatsheets"', 1)[-1]
+
+
+def test_cheatsheets_sections_are_intent_named(guide_text: str) -> None:
+    """"Band 1 / Band 2" said nothing; sections now name the job they do."""
+    cs = _cheatsheets_markup(guide_text)
+    assert "Band 1" not in cs and "Band 2" not in cs
+    for heading in (
+        "Understand and evaluate",
+        "Plan the work",
+        "Build it",
+        "Prove it",
+        "Ship and govern",
+        "Communicate",
+        "Catalog and session",
+    ):
+        assert heading in cs, f"missing section: {heading}"
+
+
+def test_cheatsheets_deep_link_stops_exist(guide_text: str) -> None:
+    """The router scrolls to cs-<stop>; every legacy stop must still land."""
+    cs = _cheatsheets_markup(guide_text)
+    for stop in ("explore", "plan", "build", "harden", "ship", "communicate", "catalog"):
+        assert f'id="cs-{stop}"' in cs, f"missing deep-link target cs-{stop}"
+
+
+def test_every_command_documents_its_scopes(guide_text: str) -> None:
+    """Every catalog command appears with either scope rows or an explicit no-scopes note."""
+    cs = _cheatsheets_markup(guide_text)
+    names = sorted(p.stem for p in COMMANDS_DIR.glob("*.md"))
+    for name in names:
+        block = re.search(
+            r'<span class="cs-name">/' + re.escape(name) + r"</span>[\s\S]*?</article>", cs
+        )
+        assert block, f"/{name} has no cheatsheet entry"
+        body = block.group(0)
+        assert 'class="cs-scope"' in body or 'class="cs-none"' in body, (
+            f"/{name} lists neither scopes nor an explicit no-scopes note"
+        )
+
+
+def test_rendered_scopes_match_their_command_files(guide_text: str) -> None:
+    """Anti-drift: a scope shown here must exist in that command's own file."""
+    cs = _cheatsheets_markup(guide_text)
+    pseudo = {"(bare)"}
+    unmatched: list[str] = []
+    for block in re.finditer(
+        r'<span class="cs-name">/([a-z-]+)</span>([\s\S]*?)</article>', cs
+    ):
+        name, body = block.group(1), block.group(2)
+        source = COMMANDS_DIR / f"{name}.md"
+        if not source.is_file():
+            continue
+        text = source.read_text(encoding="utf-8")
+        for scope in re.findall(r'<div class="cs-scope"><code>([^<]+)</code>', body):
+            scope = scope.strip()
+            if scope in pseudo or scope.startswith("&lt;") or " " in scope:
+                continue
+            if scope not in text:
+                unmatched.append(f"/{name} {scope}")
+    assert not unmatched, f"scopes not found in their command files: {unmatched}"
+
+
+def test_cheatsheets_commands_are_copyable(parsed: GuideParser, guide_text: str) -> None:
+    cs = _cheatsheets_markup(guide_text)
+    payloads = re.findall(r'data-copy="(/[^"]+)"', cs)
+    assert len(payloads) >= 15, "each command should offer a copyable invocation"
+    for payload, visible in parsed.all_data_copy:
+        if payload.startswith("/") and payload in payloads:
+            assert visible.strip() == payload, f"copy payload differs from visible text: {payload}"
+
+
+# ---------------------------------------------------------------------------
 # Cross-page publication contracts
 # ---------------------------------------------------------------------------
 

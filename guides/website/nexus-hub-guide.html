@@ -615,6 +615,41 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
   .nht-out div { opacity: 1; transform: none; transition: none; }
 }
 
+/* ---------- Cheatsheets ---------- */
+.cs-jump { display: flex; flex-wrap: wrap; gap: 6px; margin: var(--sp-4) 0 var(--sp-2); }
+.cs-jump a {
+  font-size: 12.5px; font-weight: 600; color: var(--ink-dim);
+  border: 1px solid var(--border); border-radius: 999px; padding: 5px 13px;
+}
+.cs-jump a:hover { color: var(--ink); border-color: var(--accent); }
+.cs-group { padding: var(--sec-pad) 0 0; border-top: 1px solid var(--border); margin-top: var(--sp-5); scroll-margin-top: 74px; }
+.cs-group:first-of-type { border-top: 0; margin-top: 0; }
+.cs-group > p { color: var(--ink-dim); font-size: 15px; }
+.cs-cmd { border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); margin-top: var(--sp-3); overflow: hidden; }
+.cs-head {
+  display: flex; flex-wrap: wrap; align-items: baseline; gap: 10px;
+  padding: 12px 16px; border-bottom: 1px solid var(--border); background: var(--surface-2);
+}
+.cs-name { font-family: var(--mono); font-size: 15px; font-weight: 700; color: var(--teal-soft); }
+.cs-alias { font-size: 11px; font-family: var(--mono); color: var(--ink-faint); border: 1px solid var(--border); border-radius: 5px; padding: 1px 6px; }
+.cs-desc { flex: 1 1 320px; min-width: 0; font-size: 13.5px; color: var(--ink-dim); }
+.cs-body { padding: 12px 16px; }
+.cs-scopes { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 3px 20px; }
+.cs-scope { display: flex; gap: 9px; align-items: baseline; padding: 4px 0; border-bottom: 1px dotted var(--border); }
+.cs-scope:last-child { border-bottom: 0; }
+.cs-scope code {
+  flex: none; min-width: 92px; background: transparent; border: 0; padding: 0;
+  font-size: 12.5px; font-weight: 700; color: var(--ink);
+}
+.cs-scope span { font-size: 12.5px; color: var(--ink-dim); }
+.cs-none { font-size: 12.5px; color: var(--ink-faint); font-style: italic; margin: 0; }
+.cs-flags { margin-top: 10px; padding-top: 9px; border-top: 1px solid var(--border); font-size: 12px; color: var(--ink-faint); }
+.cs-flags code { font-size: 11.5px; }
+.cs-run { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
+.cs-run .cmd-cell { margin: 0; }
+.cs-teach { font-size: 11.5px; color: var(--ink-faint); }
+.cs-teach a { font-weight: 600; }
+
 /* ---------- Placeholder panels (removed as page phases land) ---------- */
 .wip-note { border: 1px dashed var(--border-bright); border-radius: var(--radius); padding: var(--sp-4) var(--sp-5); color: var(--ink-dim); margin-top: var(--sp-4); max-width: var(--measure); }
 
@@ -1183,9 +1218,347 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
       <div class="hero">
         <span class="eyebrow">Cheatsheets</span>
         <h1>Every command, every scope, explained</h1>
-        <p class="lead">This page is being rebuilt (plan v4.2.2, Phase 5) with per-scope descriptions for every command.</p>
+        <p class="lead">Each command takes a <em>scope</em> &mdash; the first word after it &mdash; that picks which job it does. Every scope is listed below with what it actually does. Invoking a command bare usually offers the same list as a menu, so nothing here needs memorizing.</p>
+        <nav class="cs-jump" aria-label="Jump to a section">
+          <a href="#cheatsheets/explore" data-go="cheatsheets/explore">Understand and evaluate</a>
+          <a href="#cheatsheets/plan" data-go="cheatsheets/plan">Plan the work</a>
+          <a href="#cheatsheets/build" data-go="cheatsheets/build">Build it</a>
+          <a href="#cheatsheets/harden" data-go="cheatsheets/harden">Prove it</a>
+          <a href="#cheatsheets/ship" data-go="cheatsheets/ship">Ship and govern</a>
+          <a href="#cheatsheets/communicate" data-go="cheatsheets/communicate">Communicate</a>
+          <a href="#cheatsheets/catalog" data-go="cheatsheets/catalog">Catalog and session</a>
+        </nav>
       </div>
-      <div class="wip-note" data-wip="cheatsheets">Cheatsheets lands with Phase 5.</div>
+
+      <section class="cs-group" id="cs-explore">
+        <span class="eyebrow">Understand and evaluate</span>
+        <h2>Find out what you are dealing with</h2>
+        <p>Read-only commands. They write reports; they never edit your code.</p>
+
+        <article class="cs-cmd">
+          <div class="cs-head"><span class="cs-name">/describe</span><span class="cs-desc">Produce a structured description of any directory, software or not.</span></div>
+          <div class="cs-body">
+            <div class="cs-scopes">
+              <div class="cs-scope"><code>full</code><span>Complete structured description. The default.</span></div>
+              <div class="cs-scope"><code>structure</code><span>Layout, modules, and how the pieces are organized.</span></div>
+              <div class="cs-scope"><code>deps</code><span>Dependencies, external services, and version constraints.</span></div>
+              <div class="cs-scope"><code>architecture</code><span>Design, data flow, and key components, with diagrams.</span></div>
+              <div class="cs-scope"><code>onboarding</code><span>Fast start: what to read first and how to run it.</span></div>
+            </div>
+            <div class="cs-run">
+              <span class="cmd-cell"><code data-copy="/describe full">/describe full</code></span>
+              <span class="cs-teach">A directory path may follow the scope. <a href="#training/describe" data-go="training">See it in Training</a></span>
+            </div>
+          </div>
+        </article>
+
+        <article class="cs-cmd">
+          <div class="cs-head"><span class="cs-name">/review</span><span class="cs-desc">Scope-able read-only review across every review lens.</span></div>
+          <div class="cs-body">
+            <div class="cs-scopes">
+              <div class="cs-scope"><code>full</code><span>Runs every lens in order, then one synthesized verdict.</span></div>
+              <div class="cs-scope"><code>structure</code><span>Module boundaries, layering, and the dependency map.</span></div>
+              <div class="cs-scope"><code>quality</code><span>SOLID, complexity, maintainability, code smells.</span></div>
+              <div class="cs-scope"><code>coverage</code><span>Test-coverage analysis and gap identification.</span></div>
+              <div class="cs-scope"><code>security</code><span>Secrets, auth, input validation, dangerous patterns.</span></div>
+              <div class="cs-scope"><code>pentest</code><span>Deep penetration test with proof-of-concept findings.</span></div>
+              <div class="cs-scope"><code>changes</code><span>Multi-persona review of the pending diff only.</span></div>
+              <div class="cs-scope"><code>skill-scan</code><span>Security-scan a skill, or the catalog, before install.</span></div>
+              <div class="cs-scope"><code>sbom</code><span>Generate a Software Bill of Materials.</span></div>
+              <div class="cs-scope"><code>deps</code><span>Dependency CVE, license, and supply-chain scan.</span></div>
+            </div>
+            <p class="cs-flags">Flags: <code>--scope &lt;glob&gt;</code> and depth flags pass through unchanged.</p>
+            <div class="cs-run">
+              <span class="cmd-cell"><code data-copy="/review changes">/review changes</code></span>
+              <span class="cs-teach"><a href="#training/review" data-go="training">See it in Training</a></span>
+            </div>
+          </div>
+        </article>
+
+        <article class="cs-cmd">
+          <div class="cs-head"><span class="cs-name">/compare</span><span class="cs-desc">Compare this project to an external source; produce a gap analysis and an adoption plan.</span></div>
+          <div class="cs-body">
+            <div class="cs-scopes">
+              <div class="cs-scope"><code>repo</code><span>Clone a Git repo; compare structure, dependencies, patterns.</span></div>
+              <div class="cs-scope"><code>article</code><span>Fetch a web article; compare its claims and recommendations.</span></div>
+              <div class="cs-scope"><code>local</code><span>Compare against a path already on your disk.</span></div>
+            </div>
+            <div class="cs-run">
+              <span class="cmd-cell"><code data-copy="/compare ../some-reference-repo">/compare ../some-reference-repo</code></span>
+              <span class="cs-teach">Scope is inferred from the source, never prompted. Chains into <code>/plan from-comparison</code>. <a href="#training/compare" data-go="training">See it in Training</a></span>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="cs-group" id="cs-plan">
+        <span class="eyebrow">Plan the work</span>
+        <h2>Decide what to build before building it</h2>
+        <p>These write plans, specs, and governing principles &mdash; the artifacts the build commands read.</p>
+
+        <article class="cs-cmd">
+          <div class="cs-head"><span class="cs-name">/plan</span><span class="cs-desc">Define goals and produce a phased plan for any multi-step effort.</span></div>
+          <div class="cs-body">
+            <div class="cs-scopes">
+              <div class="cs-scope"><code>feature</code><span>Plan a feature or enhancement on an existing project.</span></div>
+              <div class="cs-scope"><code>goals</code><span>Fix the problem, persona, and definition-of-done only.</span></div>
+              <div class="cs-scope"><code>new</code><span>Greenfield v0.1.0 build, with the full discovery interview.</span></div>
+              <div class="cs-scope"><code>refactor</code><span>Plan a refactor or cleanup campaign.</span></div>
+              <div class="cs-scope"><code>from-comparison</code><span>Seed a plan from a /compare adoption report.</span></div>
+              <div class="cs-scope"><code>todos</code><span>Bootstrap docs/todos.md as a living progress tracker.</span></div>
+              <div class="cs-scope"><code>issues</code><span>Fan a plan's task lines out to GitHub issues.</span></div>
+            </div>
+            <div class="cs-run">
+              <span class="cmd-cell"><code data-copy="/plan feature">/plan feature</code></span>
+              <span class="cs-teach"><code>/plan goals &lt;one-liner&gt;</code> takes an inline goal. <a href="#training/plan" data-go="training">See it in Training</a></span>
+            </div>
+          </div>
+        </article>
+
+        <article class="cs-cmd">
+          <div class="cs-head"><span class="cs-name">/spec</span><span class="cs-desc">Specification and governance workflow.</span></div>
+          <div class="cs-body">
+            <div class="cs-scopes">
+              <div class="cs-scope"><code>clarify</code><span>A five-question loop that resolves spec ambiguities.</span></div>
+              <div class="cs-scope"><code>analyze</code><span>Cross-artifact consistency, coverage, and ambiguity audit.</span></div>
+              <div class="cs-scope"><code>converge</code><span>Post-build code-vs-plan gap check; appends the remaining work.</span></div>
+              <div class="cs-scope"><code>constitution</code><span>Author or amend the project's governing principles.</span></div>
+            </div>
+            <div class="cs-run"><span class="cmd-cell"><code data-copy="/spec clarify">/spec clarify</code></span></div>
+          </div>
+        </article>
+
+        <article class="cs-cmd">
+          <div class="cs-head"><span class="cs-name">/constitution</span><span class="cs-alias">alias of /spec constitution</span><span class="cs-desc">Author or amend the versioned project constitution.</span></div>
+          <div class="cs-body">
+            <div class="cs-scopes">
+              <div class="cs-scope"><code>(bare)</code><span>Author, or amend if a constitution already exists.</span></div>
+              <div class="cs-scope"><code>amend</code><span>Explicit amend mode.</span></div>
+              <div class="cs-scope"><code>check &lt;path&gt;</code><span>Read-only Constitution Check against a plan or spec.</span></div>
+            </div>
+            <div class="cs-run"><span class="cmd-cell"><code data-copy="/constitution check">/constitution check</code></span></div>
+          </div>
+        </article>
+      </section>
+
+      <section class="cs-group" id="cs-build">
+        <span class="eyebrow">Build it</span>
+        <h2>Turn the plan into committed code</h2>
+        <p>The only commands here that write source. Non-final phases commit locally and never push.</p>
+
+        <article class="cs-cmd">
+          <div class="cs-head"><span class="cs-name">/implement</span><span class="cs-desc">Implement one plan phase end to end: code, lint, test, troubleshoot, document, commit.</span></div>
+          <div class="cs-body">
+            <div class="cs-scopes">
+              <div class="cs-scope"><code>(bare)</code><span>Find the plan, then ask which phase to run.</span></div>
+              <div class="cs-scope"><code>&lt;slug&gt;</code><span>Use that plan (or a path to the plan file).</span></div>
+              <div class="cs-scope"><code>&lt;slug&gt; phase-N</code><span>Implement that specific phase.</span></div>
+              <div class="cs-scope"><code>&lt;slug&gt; next</code><span>Implement the first phase not yet complete.</span></div>
+              <div class="cs-scope"><code>in-full</code><span>Run every incomplete phase in order (alias: full).</span></div>
+              <div class="cs-scope"><code>phase-by-phase</code><span>Same loop, pausing for a choice after each phase.</span></div>
+            </div>
+            <div class="cs-run">
+              <span class="cmd-cell"><code data-copy="/implement my-plan phase-1">/implement my-plan phase-1</code></span>
+              <span class="cs-teach"><a href="#training/implement" data-go="training">See it in Training</a></span>
+            </div>
+          </div>
+        </article>
+
+        <article class="cs-cmd">
+          <div class="cs-head"><span class="cs-name">/route</span><span class="cs-desc">Score the task and recommend the cheapest sufficient model and reasoning effort.</span></div>
+          <div class="cs-body">
+            <div class="cs-scopes">
+              <div class="cs-scope"><code>(bare)</code><span>Assess the task currently in flight.</span></div>
+              <div class="cs-scope"><code>phase N of &lt;plan&gt;</code><span>Assess one specific plan phase.</span></div>
+              <div class="cs-scope"><code>"&lt;task text&gt;"</code><span>Assess a quoted task description directly.</span></div>
+            </div>
+            <div class="cs-run"><span class="cmd-cell"><code data-copy="/route">/route</code></span></div>
+          </div>
+        </article>
+      </section>
+
+      <section class="cs-group" id="cs-harden">
+        <span class="eyebrow">Prove it</span>
+        <h2>Make the quality claim testable</h2>
+
+        <article class="cs-cmd">
+          <div class="cs-head"><span class="cs-name">/test</span><span class="cs-desc">Drive coverage to a threshold across test tiers until it and a 100% pass rate are met.</span></div>
+          <div class="cs-body">
+            <div class="cs-scopes">
+              <div class="cs-scope"><code>all</code><span>Unit, then integration, then e2e, then CI &mdash; each to threshold.</span></div>
+              <div class="cs-scope"><code>unit</code><span>Drive unit-test coverage to threshold.</span></div>
+              <div class="cs-scope"><code>integration</code><span>Drive integration-test coverage to threshold.</span></div>
+              <div class="cs-scope"><code>e2e</code><span>Drive end-to-end coverage to threshold.</span></div>
+              <div class="cs-scope"><code>ci</code><span>Verify the pipeline runs the suite and gates coverage.</span></div>
+              <div class="cs-scope"><code>tdd</code><span>Red-green-refactor cycle for one feature or bug.</span></div>
+            </div>
+            <p class="cs-flags">Flags: <code>--threshold</code> overrides the 80% line-coverage target; <code>--pass-rate</code> overrides the 100% pass gate.</p>
+            <div class="cs-run">
+              <span class="cmd-cell"><code data-copy="/test unit">/test unit</code></span>
+              <span class="cs-teach"><a href="#training/test" data-go="training">See it in Training</a></span>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="cs-group" id="cs-ship">
+        <span class="eyebrow">Ship and govern</span>
+        <h2>Record it, release it, keep the org in step</h2>
+
+        <article class="cs-cmd">
+          <div class="cs-head"><span class="cs-name">/update</span><span class="cs-desc">Sync the repo to its current state and, at release scope, ship it.</span></div>
+          <div class="cs-body">
+            <div class="cs-scopes">
+              <div class="cs-scope"><code>release</code><span>The full ship flow: commit, tag, push, publish the release.</span></div>
+              <div class="cs-scope"><code>docs</code><span>Sync README, API docs, architecture docs, inline guides.</span></div>
+              <div class="cs-scope"><code>devlog</code><span>Refresh the DEVLOG index line for this release.</span></div>
+              <div class="cs-scope"><code>gitignore</code><span>Audit .gitignore, clean the index, recommend LFS.</span></div>
+              <div class="cs-scope"><code>version</code><span>Bump the version atomically across every surface.</span></div>
+              <div class="cs-scope"><code>changelog</code><span>Regenerate or extend CHANGELOG.md from git history.</span></div>
+              <div class="cs-scope"><code>refactor</code><span>Reorganize docs and project artifacts to conventions.</span></div>
+              <div class="cs-scope"><code>config</code><span>Validate and repair installed platform configs.</span></div>
+              <div class="cs-scope"><code>commit</code><span>Generate a structured message for the staged changes.</span></div>
+            </div>
+            <div class="cs-run">
+              <span class="cmd-cell"><code data-copy="/update changelog">/update changelog</code></span>
+              <span class="cs-teach"><a href="#training/update" data-go="training">See it in Training</a></span>
+            </div>
+          </div>
+        </article>
+
+        <article class="cs-cmd">
+          <div class="cs-head"><span class="cs-name">/commit</span><span class="cs-alias">alias of /update commit</span><span class="cs-desc">Generate a structured commit message for the staged changes.</span></div>
+          <div class="cs-body">
+            <p class="cs-none">No scopes. Kept as a permanent alias because it runs many times a day.</p>
+            <div class="cs-run"><span class="cmd-cell"><code data-copy="/commit">/commit</code></span></div>
+          </div>
+        </article>
+
+        <article class="cs-cmd">
+          <div class="cs-head"><span class="cs-name">/org</span><span class="cs-desc">Connect, sync, inspect, or author an organization knowledge bundle.</span></div>
+          <div class="cs-body">
+            <div class="cs-scopes">
+              <div class="cs-scope"><code>status</code><span>Inspect the current connection and per-platform posture.</span></div>
+              <div class="cs-scope"><code>connect</code><span>Validate and connect a directory or a git URL.</span></div>
+              <div class="cs-scope"><code>sync</code><span>Refresh the currently connected organization source.</span></div>
+              <div class="cs-scope"><code>author</code><span>Build a valid standards bundle through a guided flow.</span></div>
+            </div>
+            <div class="cs-run"><span class="cmd-cell"><code data-copy="/org status">/org status</code></span></div>
+          </div>
+        </article>
+      </section>
+
+      <section class="cs-group" id="cs-communicate">
+        <span class="eyebrow">Communicate</span>
+        <h2>Turn the work into something you can send</h2>
+
+        <article class="cs-cmd">
+          <div class="cs-head"><span class="cs-name">/presentify</span><span class="cs-desc">Turn documents, code, or a whole folder into one self-contained offline interactive website.</span></div>
+          <div class="cs-body">
+            <div class="cs-scopes">
+              <div class="cs-scope"><code>deck</code><span>One .pptx: keep the source flow as an interactive site.</span></div>
+              <div class="cs-scope"><code>report</code><span>One .docx, .pdf, or .xlsx, with structure and charts.</span></div>
+              <div class="cs-scope"><code>compile</code><span>Two or more files: each source a labeled, attributed area.</span></div>
+              <div class="cs-scope"><code>project</code><span>A directory: overview, file tree, grouped source code.</span></div>
+            </div>
+            <p class="cs-flags">Modes are auto-detected; override with <code>--mode</code>. Design: <code>--style</code>, <code>--theme</code>, <code>--layout</code>, <code>--nav</code> (scroll or slides), <code>--interactivity</code>, <code>--images</code>, <code>--verbosity</code>, <code>--qa-depth</code>, <code>--out</code>.</p>
+            <div class="cs-run">
+              <span class="cmd-cell"><code data-copy="/presentify ./docs --nav slides">/presentify ./docs --nav slides</code></span>
+              <span class="cs-teach"><a href="#training/presentify" data-go="training">See it in Training</a></span>
+            </div>
+          </div>
+        </article>
+
+        <article class="cs-cmd">
+          <div class="cs-head"><span class="cs-name">/research</span><span class="cs-desc">Multi-source research, report compilation, and document export.</span></div>
+          <div class="cs-body">
+            <div class="cs-scopes">
+              <div class="cs-scope"><code>deep</code><span>Fan-out web research, verified adversarially, then cited.</span></div>
+              <div class="cs-scope"><code>compile</code><span>Merge several reports into one deduplicated document.</span></div>
+              <div class="cs-scope"><code>report</code><span>Export Markdown to .docx or .pptx via a template.</span></div>
+            </div>
+            <div class="cs-run"><span class="cmd-cell"><code data-copy="/research deep">/research deep</code></span></div>
+          </div>
+        </article>
+      </section>
+
+      <section class="cs-group" id="cs-catalog">
+        <span class="eyebrow">Catalog and session</span>
+        <h2>Manage the harness itself</h2>
+
+        <article class="cs-cmd">
+          <div class="cs-head"><span class="cs-name">/skills</span><span class="cs-desc">Browse, search, create, import, and scan the skill and command catalog.</span></div>
+          <div class="cs-body">
+            <div class="cs-scopes">
+              <div class="cs-scope"><code>search</code><span>Find skills by keyword, category, or role.</span></div>
+              <div class="cs-scope"><code>list</code><span>The unified cheatsheet of every skill and command.</span></div>
+              <div class="cs-scope"><code>create</code><span>Scaffold a new skill or command interactively.</span></div>
+              <div class="cs-scope"><code>import</code><span>Import catalog skills into a project, with a hygiene gate.</span></div>
+              <div class="cs-scope"><code>scan</code><span>Security-scan a skill, or the catalog, before install.</span></div>
+            </div>
+            <div class="cs-run"><span class="cmd-cell"><code data-copy="/skills list">/skills list</code></span></div>
+          </div>
+        </article>
+
+        <article class="cs-cmd">
+          <div class="cs-head"><span class="cs-name">/commands</span><span class="cs-alias">alias of /skills list</span><span class="cs-desc">Show the command cheatsheet, derived at runtime from the command files.</span></div>
+          <div class="cs-body">
+            <p class="cs-none">No scopes. An optional term filters the list.</p>
+            <div class="cs-run"><span class="cmd-cell"><code data-copy="/commands">/commands</code></span></div>
+          </div>
+        </article>
+
+        <article class="cs-cmd">
+          <div class="cs-head"><span class="cs-name">/session</span><span class="cs-desc">Manage the session boundary: resume, wrap up, or write history.</span></div>
+          <div class="cs-body">
+            <div class="cs-scopes">
+              <div class="cs-scope"><code>continue</code><span>Resume: what was in progress, and what comes next.</span></div>
+              <div class="cs-scope"><code>wrap-up</code><span>End-of-session sequence: history, cleanup, docs, commit.</span></div>
+              <div class="cs-scope"><code>history</code><span>Generate a standalone session-history document.</span></div>
+            </div>
+            <div class="cs-run"><span class="cmd-cell"><code data-copy="/session continue">/session continue</code></span></div>
+          </div>
+        </article>
+
+        <article class="cs-cmd">
+          <div class="cs-head"><span class="cs-name">/setup</span><span class="cs-desc">Bootstrap a project, or install the opt-in pre-commit review hook.</span></div>
+          <div class="cs-body">
+            <div class="cs-scopes">
+              <div class="cs-scope"><code>project</code><span>Bootstrap instructions, scaffolding, .gitignore, core docs.</span></div>
+              <div class="cs-scope"><code>hooks</code><span>Install the opt-in pre-commit AI review hook.</span></div>
+            </div>
+            <div class="cs-run"><span class="cmd-cell"><code data-copy="/setup project">/setup project</code></span></div>
+          </div>
+        </article>
+
+        <article class="cs-cmd">
+          <div class="cs-head"><span class="cs-name">/tune-prompting</span><span class="cs-desc">Refresh how the catalog prompts each current model.</span></div>
+          <div class="cs-body">
+            <div class="cs-scopes">
+              <div class="cs-scope"><code>(bare)</code><span>Full flow across every model needing research.</span></div>
+              <div class="cs-scope"><code>&lt;model-id&gt;</code><span>Restrict the run to one model.</span></div>
+            </div>
+            <p class="cs-flags">Flags: <code>--dry-run</code> proposes without applying; <code>--profiles-only</code> skips the shared-body stage entirely.</p>
+            <div class="cs-run"><span class="cmd-cell"><code data-copy="/tune-prompting --dry-run">/tune-prompting --dry-run</code></span></div>
+          </div>
+        </article>
+
+        <article class="cs-cmd">
+          <div class="cs-head"><span class="cs-name">/memory</span><span class="cs-desc">Audit, prune, and reorganize the instruction and memory files.</span></div>
+          <div class="cs-body">
+            <p class="cs-none">No scopes. Runs the audit-and-propose flow directly.</p>
+            <div class="cs-run"><span class="cmd-cell"><code data-copy="/memory">/memory</code></span></div>
+          </div>
+        </article>
+
+        <article class="cs-cmd">
+          <div class="cs-head"><span class="cs-name">/usage</span><span class="cs-desc">Check usage limits and get a model-switching recommendation.</span></div>
+          <div class="cs-body">
+            <p class="cs-none">No scopes. Reports usage and advice directly.</p>
+            <div class="cs-run"><span class="cmd-cell"><code data-copy="/usage">/usage</code></span></div>
+          </div>
+        </article>
+      </section>
       <div class="pagenav" data-pagenav></div>
       <div class="progress-dots" data-progress></div>
     </div>
