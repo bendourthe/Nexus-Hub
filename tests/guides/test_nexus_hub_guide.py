@@ -287,6 +287,60 @@ def test_theme_toggle_exists(parsed: GuideParser) -> None:
     assert parsed.has_theme_toggle
 
 
+def test_github_control_is_icon_only(guide_text: str) -> None:
+    match = re.search(
+        r'<a class="nav-gh"[^>]*>.*?</a>',
+        guide_text,
+        flags=re.DOTALL,
+    )
+    assert match, "expected .nav-gh GitHub control"
+    tag = match.group(0)
+    assert 'aria-label="Nexus-Hub on GitHub"' in tag
+    visible = re.sub(r"<svg[\s\S]*?</svg>", "", tag)
+    visible = re.sub(r"<[^>]+>", "", visible)
+    assert "GitHub" not in visible
+
+
+def test_theme_control_is_sun_moon_default_dark(guide_text: str) -> None:
+    assert 'id="themeToggle"' in guide_text
+    assert 'class="icon-sun"' in guide_text
+    assert 'class="icon-moon"' in guide_text
+    boot = guide_text.split("</script>", 1)[0]
+    assert 'theme = "dark"' in boot
+    assert "prefers-color-scheme" not in boot
+
+
+def test_wordmark_uses_theme_ink(guide_text: str) -> None:
+    rule = re.search(r"\.brand \.wordmark b\s*\{([^}]+)\}", guide_text)
+    assert rule, "expected .wordmark b rule"
+    body = rule.group(1)
+    assert "var(--ink)" in body
+    assert "#fff" not in body
+
+
+def test_copy_button_is_not_inside_data_copy_code(guide_text: str) -> None:
+    fn = guide_text.split("function initCopyButtons()", 1)[-1].split(
+        "function isDocumentedGuideOrigin()", 1
+    )[0]
+    assert "host.appendChild(btn)" in fn
+    assert "el.appendChild(btn)" not in fn
+    assert 'closest(".cmd-line")' in fn
+
+
+def test_light_theme_terminal_is_not_near_black(guide_text: str) -> None:
+    light = guide_text.split('html[data-theme="light"]', 1)[-1].split(
+        "/* ---------- Reset ---------- */", 1
+    )[0]
+    term_bg = re.search(r"--term-bg:\s*([^;]+);", light)
+    assert term_bg, "light --term-bg missing"
+    value = term_bg.group(1).strip().lower()
+    assert value not in {"#1c2a2e", "#07171d", "#0a1c23"}
+    assert value.startswith("#")
+    nav_values = re.findall(r"--nav-bg:\s*([^;]+);", guide_text)
+    assert nav_values, "expected --nav-bg"
+    assert all(not v.strip().lower().startswith("rgba(") for v in nav_values)
+
+
 def test_portfolio_theme_allowlisted(guide_text: str) -> None:
     assert "portfolio-theme" in guide_text
     assert '"light"' in guide_text and '"dark"' in guide_text
