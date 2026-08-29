@@ -13,7 +13,7 @@ This directory holds the public-facing Nexus-Hub guide and the Glow Booth exampl
 | `glow-booth.zip` | Downloadable bundle learners extract. |
 | `example/trivia-quiz/` | Previous example. Stays on disk. Not taught in the published guide. |
 
-The guide is the single home for orientation, installation, Foundations, Training, the six workflow pages, and Reference. It remains one self-contained HTML file with no runtime network dependency.
+The guide is the single home for orientation, installation, Foundations, Training, and Cheatsheets. It remains one self-contained HTML file with no runtime network dependency.
 
 ## The interactive guide
 
@@ -21,9 +21,9 @@ The guide is the single home for orientation, installation, Foundations, Trainin
 
 - **To open:** double-click the file. It opens in any modern browser and works fully offline. GitHub does not render HTML inline, so use Download raw file, then open the download.
 - **To share:** send that one file.
-- **Primary navigation:** Home, Foundations, Training, Workflows, Reference. Installation is not a primary page. GitHub is an external link. Theme toggles light and dark and persists only those two values under `portfolio-theme`.
+- **Primary navigation:** Home, Foundations, Training, Cheatsheets. Installation is not a primary page. GitHub is an external link. Theme toggles light and dark and persists only those two values under `portfolio-theme`.
 
-URL grammar: `#<page-id>` for pages; `#training/<scene-id>?beat=n` for Training. `#home/install` scrolls to the Home install block. Unknown page ids rewrite to Home.
+URL grammar: `#<page-id>` for pages; `#training/<scene-id>?beat=n` for Training; `#cheatsheets/<stop>` for Cheatsheets sections. Compatibility: `#reference` and `#workflows` rewrite to `#cheatsheets`; `#explore`, `#plan`, `#build`, `#harden`, `#ship`, `#communicate` rewrite to `#cheatsheets/<id>`. `#home/install` scrolls to the Home install block. Unknown page ids rewrite to Home.
 
 ## Home
 
@@ -34,7 +34,7 @@ Canonical install constants (must match `tests/guides/test_nexus_hub_guide.py`):
 - macOS / Linux: `curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash`
 - Windows: `irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex`
 
-Home also shows platform reachability (which hosts expose slash commands, and the first verify step) and a six-node ribbon: Map and evaluate, Plan, Build, Harden, Ship, Communicate. wget, flags, and `--workspace` live in a Home disclosure and in Reference. Do not hardcode skill counts, command counts, or installer versions on Home.
+Home also shows platform reachability (which hosts expose slash commands, and the first verify step) and a six-node ribbon: Map and evaluate, Plan, Build, Harden, Ship, Communicate. wget, flags, and `--workspace` live in a Home disclosure and in Cheatsheets. Do not hardcode skill counts, command counts, or installer versions on Home.
 
 ## Foundations
 
@@ -58,6 +58,10 @@ URL: `#training/<scene-id>?beat=n`. Beat changes use `history.replaceState`. Sce
 
 Fixture strings are painted with `textContent` / `createElement` only. Do not assign scene JSON through `innerHTML`. Booth hero states are allowlisted in script, never taken from JSON as HTML.
 
+## Cheatsheets
+
+Cheatsheets is one page with three bands: the six-stop loop, the command argument table (real flags from `catalog/commands/`), then extra notes only when they are not a repeat of Training. Primary nav is Home, Foundations, Training, Cheatsheets. Old hashes `#reference`, `#workflows`, `#explore`, `#plan`, `#build`, `#harden`, `#ship`, and `#communicate` rewrite with `replaceState`.
+
 ## Keyboard and reduced motion
 
 Page-level ArrowLeft / ArrowRight move between allowlisted pages when Training is not the current page and focus is not in a self-keyed pane. Dark mode may show the constellation; light mode must not. `prefers-reduced-motion` keeps comparison states static and does not run constellation animation.
@@ -72,7 +76,7 @@ Do not invent a ninth Training scene for a follow-on `/implement` after `/compar
 
 ## Command inventory
 
-Every file in `catalog/commands/` is either a Training scene, a Reference row, or declined as Training with a reason. New catalog commands after this redesign do not require new Training scenes.
+Every file in `catalog/commands/` is either a Training scene, a Cheatsheets row, or declined as Training with a reason. New catalog commands after this redesign do not require new Training scenes.
 
 | Command | Placement |
 |---|---|
@@ -84,19 +88,19 @@ Every file in `catalog/commands/` is either a Training scene, a Reference row, o
 | `/test` | Training |
 | `/update` | Training |
 | `/presentify` | Training (communicate closer) |
-| `/spec` | Reference |
-| `/constitution` | Reference (alias of `/spec constitution`) |
-| `/setup` | Reference |
-| `/skills` | Reference |
-| `/commands` | Reference (alias of `/skills list`) |
-| `/route` | Reference |
-| `/session` | Reference |
-| `/commit` | Reference (alias of `/update commit`) |
-| `/memory` | Reference; declined as Training |
-| `/usage` | Reference; declined as Training |
-| `/research` | Reference; declined as Training |
-| `/org` | Reference; declined as Training |
-| `/tune-prompting` | Reference; declined as Training |
+| `/spec` | Cheatsheets |
+| `/constitution` | Cheatsheets (alias of `/spec constitution`) |
+| `/setup` | Cheatsheets |
+| `/skills` | Cheatsheets |
+| `/commands` | Cheatsheets (alias of `/skills list`) |
+| `/route` | Cheatsheets |
+| `/session` | Cheatsheets |
+| `/commit` | Cheatsheets (alias of `/update commit`) |
+| `/memory` | Cheatsheets; declined as Training |
+| `/usage` | Cheatsheets; declined as Training |
+| `/research` | Cheatsheets; declined as Training |
+| `/org` | Cheatsheets; declined as Training |
+| `/tune-prompting` | Cheatsheets; declined as Training |
 
 The same table is frozen in `docs/releases/v4/v4.2/development/guide-redesign-content-map.md`.
 
@@ -156,7 +160,7 @@ Automated tests parse HTML and JSON. They do not execute JavaScript in a browser
 - Home install copy on macOS/Linux and Windows tabs
 - Foundations four stations and the two-state comparison (not a range slider)
 - All eight Training slides, including the booth hero, peek, outline, copy, and a mid-tour URL
-- Keyboard-only path through Home, Foundations, Training, one workflow page, and Reference
+- Keyboard-only path through Home, Foundations, Training, and Cheatsheets
 - `file://` boot (untrusted-origin warning stays visible)
 
 Lighthouse Accessibility is a last-phase human bar, not a mid-plan merge gate.

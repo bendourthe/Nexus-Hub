@@ -650,6 +650,11 @@ html[data-theme="light"] .gb-stage[data-pose="studio"] { color: #07141a; }
   min-height: 44px; padding: 10px 14px; cursor: pointer; font: 600 14px var(--sans); color: var(--ink);
 }
 .wb-peek[open] > summary { border-bottom: 1px solid var(--border); }
+
+#page-cheatsheets [id^="cs-"] { scroll-margin-top: 5.5rem; }
+.cs-loop { margin: 12px 0 8px; }
+.cs-loop .nhg-ribbon-node { text-decoration: none; color: inherit; display: flex; }
+
 @media (prefers-reduced-motion: reduce) {
   .gb-stage { transition: none; }
   .gb-sparkle { box-shadow: none; }
@@ -897,8 +902,7 @@ html[data-theme="light"] .gb-stage[data-pose="studio"] { color: #07141a; }
         <a href="#home" data-go="home">Home</a>
         <a href="#foundations" data-go="foundations">Foundations</a>
         <a href="#training" data-go="training">Training</a>
-        <a href="#explore" data-go="explore" data-group="workflow">Workflows</a>
-        <a href="#reference" data-go="reference">Reference</a>
+        <a href="#cheatsheets" data-go="cheatsheets">Cheatsheets</a>
         <a class="nav-gh" href="https://github.com/bendourthe/Nexus-Hub" target="_blank" rel="noopener" aria-label="Nexus-Hub on GitHub"><svg viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.53-.49-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 012-.27c.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg></a>
         <button type="button" class="nhg-theme" id="themeToggle" aria-pressed="true" aria-label="Switch to light theme"><svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 14.5A8.5 8.5 0 1 1 9.5 3 7 7 0 0 0 21 14.5z"/></svg></button>
       </div>
@@ -921,7 +925,7 @@ html[data-theme="light"] .gb-stage[data-pose="studio"] { color: #07141a; }
         <div class="btn-row">
           <a class="btn btn--primary" href="#home/install">Install <span class="arr">&rarr;</span></a>
           <a class="btn" href="#training" data-go="training">Get trained</a>
-          <a class="btn" href="#explore" data-go="explore">Explore workflows</a>
+          <a class="btn" href="#cheatsheets" data-go="cheatsheets">Open Cheatsheets</a>
         </div>
       </div>
 
@@ -965,7 +969,7 @@ html[data-theme="light"] .gb-stage[data-pose="studio"] { color: #07141a; }
         </table>
         <details>
           <summary>Commands, skills, hooks, agents, and rules</summary>
-          <p>Commands are slash entry points. Skills are procedures the agent loads when the task matches. Hooks are scripts that fire on tool events. Agents are specialist reviewer personas. Rules are per-language style and security standards. Details stay in <a href="#reference" data-go="reference">Reference</a>.</p>
+          <p>Commands are slash entry points. Skills are procedures the agent loads when the task matches. Hooks are scripts that fire on tool events. Agents are specialist reviewer personas. Rules are per-language style and security standards. Details stay in <a href="#cheatsheets" data-go="cheatsheets">Cheatsheets</a>.</p>
         </details>
       </section>
 
@@ -1002,7 +1006,7 @@ html[data-theme="light"] .gb-stage[data-pose="studio"] { color: #07141a; }
         <div id="nhg-copy-status" class="visually-hidden" aria-live="polite"></div>
         <details>
           <summary>Need another option?</summary>
-          <p>No curl? Use <code>wget -qO- https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash</code>. Scope one repo with <code>--workspace</code>, limit assistants with <code>--platforms</code>, or skip the conflict prompt with <code>--yes</code>. Refresh later with <code>nexus-hub upgrade</code>. Advanced flags and what lands in <code>~/.nexus-hub/</code> versus per-tool config are on <a href="#reference" data-go="reference">Reference</a>.</p>
+          <p>No curl? Use <code>wget -qO- https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash</code>. Scope one repo with <code>--workspace</code>, limit assistants with <code>--platforms</code>, or skip the conflict prompt with <code>--yes</code>. Refresh later with <code>nexus-hub upgrade</code>. Advanced flags and what lands in <code>~/.nexus-hub/</code> versus per-tool config are on <a href="#cheatsheets" data-go="cheatsheets">Cheatsheets</a>.</p>
         </details>
         <div class="nhg-platforms">
           <h3>Which platforms run the same slash commands</h3>
@@ -1017,7 +1021,7 @@ html[data-theme="light"] .gb-stage[data-pose="studio"] { color: #07141a; }
       <section class="section">
         <span class="eyebrow">The loop</span>
         <h2>Six stops around the working loop</h2>
-        <p>Select a node for the command, the artifact it leaves, and the matching workflow page. This preview does not autoplay and does not replace Training.</p>
+        <p>Select a node for the command, the artifact it leaves, and the matching Cheatsheets section. This preview does not autoplay and does not replace Training.</p>
         <div class="nhg-ribbon" data-nhg-keys="self" id="nhgRibbon">
           <ol class="nhg-loop-track">
             <li style="--i:0">
@@ -1071,27 +1075,27 @@ html[data-theme="light"] .gb-stage[data-pose="studio"] { color: #07141a; }
           </ol>
           <div class="nhg-ribbon-panel is-on" data-ribbon-panel="explore">
             <p class="nhg-ribbon-detail">Map an inherited repo, then get a read-only verdict before you change it.</p>
-            <a class="btn" href="#explore" data-go="explore">Open Explore and evaluate</a>
+            <a class="btn" href="#cheatsheets/explore" data-go="cheatsheets/explore">Look up Map and evaluate</a>
           </div>
           <div class="nhg-ribbon-panel" data-ribbon-panel="plan">
             <p class="nhg-ribbon-detail">Turn findings into a phased plan with a written definition of done.</p>
-            <a class="btn" href="#plan" data-go="plan">Open Plan the work</a>
+            <a class="btn" href="#cheatsheets/plan" data-go="cheatsheets/plan">Look up Plan</a>
           </div>
           <div class="nhg-ribbon-panel" data-ribbon-panel="build">
             <p class="nhg-ribbon-detail">Build one phase with tests, a quality gate, and a local commit. No push until the plan's final phase.</p>
-            <a class="btn" href="#build" data-go="build">Open Implement</a>
+            <a class="btn" href="#cheatsheets/build" data-go="cheatsheets/build">Look up Implement</a>
           </div>
           <div class="nhg-ribbon-panel" data-ribbon-panel="harden">
             <p class="nhg-ribbon-detail">Drive coverage to the project threshold and keep the suite green.</p>
-            <a class="btn" href="#harden" data-go="harden">Open Harden</a>
+            <a class="btn" href="#cheatsheets/harden" data-go="cheatsheets/harden">Look up Harden</a>
           </div>
           <div class="nhg-ribbon-panel" data-ribbon-panel="ship">
             <p class="nhg-ribbon-detail">Sync documentation and run the release flow only after integration is green.</p>
-            <a class="btn" href="#ship" data-go="ship">Open Ship and maintain</a>
+            <a class="btn" href="#cheatsheets/ship" data-go="cheatsheets/ship">Look up Ship</a>
           </div>
           <div class="nhg-ribbon-panel" data-ribbon-panel="communicate">
             <p class="nhg-ribbon-detail">Turn the written record into a self-contained HTML briefing with <code>/presentify</code>.</p>
-            <a class="btn" href="#communicate" data-go="communicate">Open Communicate</a>
+            <a class="btn" href="#cheatsheets/communicate" data-go="cheatsheets/communicate">Look up Communicate</a>
           </div>
         </div>
       </section>
@@ -1102,8 +1106,7 @@ html[data-theme="light"] .gb-stage[data-pose="studio"] { color: #07141a; }
         <p>Download <a href="glow-booth.zip">glow-booth.zip</a> when you want the Training example on disk. GitHub holds the catalog; this file is the workshop surface.</p>
         <div class="nhg-next">
           <a class="btn btn--primary" href="#training" data-go="training">Open Training</a>
-          <a class="btn" href="#explore" data-go="explore">Open Workflows</a>
-          <a class="btn" href="#reference" data-go="reference">Open Reference</a>
+          <a class="btn" href="#cheatsheets" data-go="cheatsheets">Open Cheatsheets</a>
           <a class="btn" href="https://github.com/bendourthe/Nexus-Hub">GitHub</a>
         </div>
       </section>
@@ -1326,995 +1329,95 @@ html[data-theme="light"] .gb-stage[data-pose="studio"] { color: #07141a; }
     </div>
   </section>
 
-  <!-- =====================================================================
-       PAGE: EXPLORE
-       ===================================================================== -->
-  <section class="page" id="page-explore" data-page="explore">
+  <section class="page" id="page-cheatsheets" data-page="cheatsheets">
     <div class="container">
-      <span class="eyebrow">Explore &amp; evaluate</span>
-      <h1>You just inherited a codebase</h1>
-      <p class="lead">Day one on <strong>TaskFlow</strong>. Nobody is left who wrote it. Before touching a single line, you need two things: a map of what it is, and an honest verdict on what shape it's in. Two commands give you both.</p>
+      <span class="eyebrow">Cheatsheets</span>
+      <h1>Look up the loop, then the arguments</h1>
+      <p class="lead">Training already walked Glow Booth. This tab is the lookup surface: the six stops, then real command arguments from the catalog, then notes Training does not repeat.</p>
 
-      <div class="scenario">
-        <div class="pin" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s-7-5.5-7-11a7 7 0 0114 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></div>
-        <div>
-          <h3>The example: TaskFlow</h3>
-          <p>A task-management SaaS. React + TypeScript frontend, Python / FastAPI backend, PostgreSQL, Redis, Docker. ~22k lines, version <code>0.4.0</code>, no README beyond a stub. Exactly the kind of repo you get handed with "good luck".</p>
-        </div>
-      </div>
-
-      <!-- STEP 1: describe -->
-      <div class="step">
-        <div class="step-head">
-          <div class="step-badge">1</div>
-          <div>
-            <h3>Map it with <span class="gtext">/describe</span></h3>
-            <div class="sub">understand &middot; writes docs/v0.1.0/analysis.md</div>
-          </div>
-        </div>
-        <p><code>/describe</code> produces a clear, structured description of any directory. It auto-detects whether the target is a software project, picks the sections that apply, and writes a durable report you'll feed into every later command. You can scope it (<code>structure</code>, <code>deps</code>, <code>architecture</code>, <code>onboarding</code>) or run <code>full</code>.</p>
-
-        <div class="vscode">
-          <div class="vsc-title">
-            <div class="vsc-dots"><i class="r"></i><i class="y"></i><i class="g"></i></div>
-            <span class="vsc-file">taskflow &mdash; Visual Studio Code</span>
-            <span class="vsc-ext"><svg width="12" height="12" viewBox="0 0 100 100"><use href="#nexus-mark"/></svg> Claude Code</span>
-          </div>
-          <div class="vsc-body">
-            <div class="vsc-sidebar">
-              <div class="vsc-sb-head">Explorer &mdash; TASKFLOW</div>
-              <ul class="tree">
-                <li class="dir">&#9662; backend</li>
-                <li class="dir ind">&#9662; app</li>
-                <li class="dir ind2">&#9656; api</li>
-                <li class="ind2"><span class="dot">&#9656;</span> models</li>
-                <li class="ind2">db.py</li>
-                <li class="bad ind2">config.py</li>
-                <li class="ind">requirements.txt</li>
-                <li class="dir">&#9662; frontend</li>
-                <li class="dir ind">&#9656; src</li>
-                <li class="ind">package.json</li>
-                <li>docker-compose.yml</li>
-                <li class="warn">README.md</li>
-              </ul>
-            </div>
-            <div class="vsc-main">
-              <div class="term" data-anim data-speed="34">
-                <div class="term-bar">
-                  <div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div>
-                  <span class="label"><b>claude</b> &mdash; taskflow</span>
-                  <button class="term-replay" type="button">&#8635; replay</button>
-                </div>
-                <div class="term-body">
-                  <div class="term-cmd"><span class="prompt">&gt; </span><span class="typed" data-type="/describe">/describe</span></div>
-                  <div class="term-out">
-                    <div class="t-dim">What scope?</div>
-                    <div class="t-dim">  1. full          (recommended) - complete structured description</div>
-                    <div class="t-dim">  2. structure     3. deps     4. architecture     5. onboarding</div>
-                    <div class="spacer"></div>
-                    <div><span class="t-prompt t-teal">&rsaquo;</span> <span class="t-cyan">full</span></div>
-                    <div class="spacer"></div>
-                    <div class="t-tool">&bull; Detected <b>software project</b> (FastAPI + Vite manifests, git repo). Version <span class="t-cyan">0.4.0</span> from <span class="t-file">backend/app/__init__.py</span>.</div>
-                    <div class="t-tool">&bull; <b>Scanning</b> 318 files across backend/, frontend/, infra ...</div>
-                    <div class="t-tool">&bull; Mapping modules, dependencies, data flow, entry points ...</div>
-                    <div class="spacer"></div>
-                    <div class="t-ok">&#10003; Wrote <span class="t-file">docs/0.4.0/analysis.md</span> (12 sections, 2 Mermaid diagrams)</div>
-                    <div class="spacer"></div>
-                    <div class="t-bold">TaskFlow at a glance</div>
-                    <div>A multi-tenant task-management SaaS. <span class="t-teal">FastAPI</span> REST backend, <span class="t-teal">React + TS</span> SPA,</div>
-                    <div><span class="t-teal">Postgres</span> + <span class="t-teal">Redis</span>. 6 API route groups; auth is JWT-based. Billing is</div>
-                    <div>stubbed. No CI config found. Full map saved to the analysis file above.</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <p class="muted" style="font-size:13.5px">The command is a thin dispatcher; the real work happens in the retained <code>analyze-codebase</code> skill. Here is the artifact it leaves behind:</p>
-
-        <div class="artifact">
-          <div class="artifact-bar"><span class="doc">&#9783;</span> docs/0.4.0/analysis.md <span class="tag">generated</span></div>
-          <div class="artifact-body">
-            <h1>TaskFlow - Project Analysis</h1>
-            <div class="md-meta">Generated by /describe full &middot; version 0.4.0 &middot; mode: software project</div>
-            <h2>1. Overview</h2>
-            <p>TaskFlow is a multi-tenant SaaS for team task management: workspaces, projects, tasks, assignments, comments, and a (partial) billing layer. Users authenticate with email + password and receive a JWT. The product is pre-1.0 and several flagged areas are incomplete.</p>
-            <h2>2. Tech stack</h2>
-            <ul>
-              <li><strong>Backend:</strong> Python 3.11, FastAPI, SQLAlchemy, Alembic, Pydantic v2, Redis (RQ queue)</li>
-              <li><strong>Frontend:</strong> React 18, TypeScript 5, Vite, TanStack Query, Tailwind</li>
-              <li><strong>Data:</strong> PostgreSQL 15; <strong>Infra:</strong> docker-compose (no Kubernetes, no CI/CD)</li>
-            </ul>
-            <h2>3. Structure &amp; key modules</h2>
-            <ul>
-              <li><code>backend/app/api/</code> - 6 route groups: <code>auth</code>, <code>tasks</code>, <code>projects</code>, <code>search</code>, <code>billing</code>, <code>webhooks</code></li>
-              <li><code>backend/app/models/</code> - SQLAlchemy ORM models (referenced directly by routes - tight coupling)</li>
-              <li><code>backend/app/config.py</code> - settings &amp; secrets loading</li>
-              <li><code>frontend/src/</code> - <code>pages/</code>, <code>components/</code>, <code>api/</code> (typed client)</li>
-            </ul>
-            <h2>4. Data flow</h2>
-            <p>SPA &rarr; <code>/api/*</code> (JWT bearer) &rarr; FastAPI route &rarr; ORM model &rarr; Postgres. Background jobs (email, billing reconcile) are pushed to Redis and processed by an RQ worker.</p>
-            <h2>5. How to run</h2>
-            <ul>
-              <li><code>docker compose up</code> brings up api + worker + postgres + redis</li>
-              <li>Frontend dev server: <code>cd frontend &amp;&amp; npm run dev</code></li>
-            </ul>
-            <h2>6. Risks &amp; unknowns (flagged for review)</h2>
-            <ul>
-              <li>Billing endpoints return <code>501 Not Implemented</code> - feature is a stub</li>
-              <li>No <code>.github/workflows</code> - nothing runs on push</li>
-              <li><code>config.py</code> appears to contain a hard-coded credential - <strong>verify in /review security</strong></li>
-              <li>Test directory is sparse - coverage looks low</li>
-            </ul>
-          </div>
-        </div>
-
-        <div class="callout tip">
-          <span class="ci">&#9733;</span>
-          <p><strong>Why it's durable, not disposable.</strong> The analysis lands in <code>docs/0.4.0/analysis.md</code>, version-scoped on disk. You'll point <code>/plan</code> and <code>/review</code> straight at it - so the understanding you build on day one is reused for the life of the project instead of living only in one chat session.</p>
-        </div>
-      </div>
-
-      <!-- STEP 2: review -->
-      <div class="step">
-        <div class="step-head">
-          <div class="step-badge">2</div>
-          <div>
-            <h3>Get the verdict with <span class="gtext">/review</span></h3>
-            <div class="sub">read-only &middot; full = structure &rarr; quality &rarr; coverage &rarr; security &rarr; changes &rarr; synthesis</div>
-          </div>
-        </div>
-        <p><code>/review</code> is the single entry point for every read-only review lens. The <code>full</code> scope runs them in order and synthesizes one deduplicated, severity-ranked report ending in a <strong>GO / GO-WITH-CONDITIONS / NO-GO</strong> verdict. Crucially it is <em>read-only</em>: it tells you where you stand and hands remediation off to a plan - it never edits the tree.</p>
-
-        <div class="term term--standalone" data-anim data-speed="30">
-          <div class="term-bar">
-            <div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div>
-            <span class="label"><b>claude</b> &mdash; taskflow</span>
-            <button class="term-replay" type="button">&#8635; replay</button>
-          </div>
-          <div class="term-body">
-            <div class="term-cmd"><span class="prompt">&gt; </span><span class="typed" data-type="/review full">/review full</span></div>
-            <div class="term-out">
-              <div class="t-tool">&bull; <b>structure</b> ... module boundaries mapped, 1 layering smell</div>
-              <div class="t-tool">&bull; <b>quality</b> ...... SOLID + complexity scan, 4 findings</div>
-              <div class="t-tool">&bull; <b>coverage</b> ..... pytest --cov + vitest ... <span class="t-warn">34% lines</span></div>
-              <div class="t-tool">&bull; <b>security</b> ..... secrets, auth, input validation, dangerous patterns</div>
-              <div class="t-tool">&bull; <b>changes</b> ...... working tree clean, nothing to diff</div>
-              <div class="spacer"></div>
-              <div class="t-ok">&#10003; Synthesized <span class="t-file">docs/0.4.0/review-full.md</span> &mdash; 6 findings, deduped &amp; ranked</div>
-              <div class="spacer"></div>
-              <div class="t-bad">&#9632; 1 CRITICAL  </div><div class="t-warn">&#9632; 2 HIGH   &#9632; 2 MEDIUM   </div><div class="t-cyan">&#9632; 1 LOW</div>
-              <div class="spacer"></div>
-              <div><span class="t-warn t-bold">VERDICT: GO-WITH-CONDITIONS</span></div>
-              <div>Safe to build on once the CRITICAL SQLi and the leaked secret are</div>
-              <div>resolved. Coverage and CI must be raised before a production tag.</div>
-            </div>
-          </div>
-        </div>
-
-        <p class="muted" style="font-size:13.5px">The synthesized report. Notice every finding carries a severity and a concrete location - this is what you hand to <code>/plan</code> next.</p>
-
-        <div class="artifact">
-          <div class="artifact-bar"><span class="doc">&#9783;</span> docs/0.4.0/review-full.md <span class="tag">generated</span></div>
-          <div class="artifact-body">
-            <h1>TaskFlow - Deep Review</h1>
-            <div class="md-meta">/review full &middot; 5 lenses &middot; read-only</div>
-            <div class="verdict cond">
-              <span class="vbadge">GO-WITH-CONDITIONS</span>
-              <p>The architecture is sound and buildable. Two issues are release-blocking and must be fixed first; coverage and CI/CD are conditions for a production tag.</p>
-            </div>
-            <h2>Findings</h2>
-            <table class="tbl">
-              <thead><tr><th>Sev</th><th>Finding</th><th>Location</th><th>Lens</th></tr></thead>
-              <tbody>
-                <tr><td><span class="sev crit">CRITICAL</span></td><td>SQL injection - user search term interpolated into a raw query via f-string</td><td><code>api/search.py:48</code></td><td>security</td></tr>
-                <tr><td><span class="sev high">HIGH</span></td><td>Hard-coded payment secret committed to source (<code>sk_live_&lt;redacted&gt;</code>)</td><td><code>config.py:12</code></td><td>security</td></tr>
-                <tr><td><span class="sev high">HIGH</span></td><td>No CI/CD - no workflow runs tests, lint, or coverage on push</td><td><code>.github/ (missing)</code></td><td>coverage</td></tr>
-                <tr><td><span class="sev med">MEDIUM</span></td><td>Test coverage 34% - <code>auth</code> and <code>billing</code> have zero tests</td><td><code>backend/tests/</code></td><td>coverage</td></tr>
-                <tr><td><span class="sev med">MEDIUM</span></td><td>Billing feature incomplete - 3 endpoints return <code>501</code></td><td><code>api/billing.py</code></td><td>quality</td></tr>
-                <tr><td><span class="sev low">LOW</span></td><td>Routes import ORM models directly - no service/repository layer</td><td><code>api/*.py</code></td><td>structure</td></tr>
-              </tbody>
-            </table>
-            <h2>Production-readiness scorecard</h2>
-            <ul>
-              <li><strong>Security:</strong> failing - 1 critical, 1 high open</li>
-              <li><strong>Tests:</strong> 34% coverage, no CI gate - not production-grade</li>
-              <li><strong>Feature completeness:</strong> billing unfinished</li>
-              <li><strong>Architecture:</strong> clean enough; one optional refactor (service layer)</li>
-            </ul>
-            <h2>Recommended next step</h2>
-            <p>Feed this report to <code>/plan</code>. Order the remediation security-first, then CI/CD, then coverage, then the billing feature.</p>
-          </div>
-        </div>
-
-        <div class="callout">
-          <span class="ci">&#9733;</span>
-          <p><strong>Review reports; it does not fix.</strong> Every <code>/review</code> scope is read-only by design. That separation is deliberate: you get an objective assessment you can trust, and the act of changing code happens later under <code>/plan</code> + <code>/implement</code>, where it's tracked, gated, and committed cleanly.</p>
-        </div>
-      </div>
-
-      <div class="callout tip">
-        <span class="ci">&#10003;</span>
-        <p><strong>20 minutes in, here's what you have:</strong> a structured <code>analysis.md</code> (what it is) and a severity-ranked <code>review-full.md</code> with a GO/NO-GO verdict (what shape it's in). Full situational awareness, on disk, ready to drive the next command. That's the onboarding workflow.</p>
-      </div>
-
-      <div class="progress" data-progress></div>
-      <div class="page-nav" data-pagenav></div>
-    </div>
-  </section>
-
-  <!-- =====================================================================
-       PAGE: PLAN - turn findings into a phased plan
-       ===================================================================== -->
-  <section class="page" id="page-plan" data-page="plan">
-    <div class="container">
-      <span class="eyebrow">Plan the work</span>
-      <h1>Turn findings into a phased plan</h1>
-      <p class="lead">The review handed you a list of problems and a feature idea. Before any code, <code>/plan</code> turns them into a goal-gated, phased plan with a clear definition of done - and <code>/compare</code> mines an external repo or article for ideas worth adopting, feeding them straight into the plan.</p>
-
-      <div class="grid grid-3" style="margin-bottom:8px">
-        <div class="card">
-          <div class="step-no" style="font:700 12px/1 var(--mono); color:var(--teal-soft); letter-spacing:1px; margin-bottom:8px">/plan</div>
-          <h3>Decompose into phases</h3>
-          <p>Fix the goal and definition of done first, then break the work into phases - each with prerequisites and a stability gate - and seed <code>docs/todos.md</code> as the living tracker.</p>
-        </div>
-        <div class="card">
-          <div class="step-no" style="font:700 12px/1 var(--mono); color:var(--teal-soft); letter-spacing:1px; margin-bottom:8px">/compare</div>
-          <h3>Mine for ideas</h3>
-          <p>Run a gap analysis against an open-source repo, an article, or a local path, and get a reverse-engineer-first adoption plan. Take the ideas, not the code.</p>
-        </div>
-        <div class="card">
-          <div class="step-no" style="font:700 12px/1 var(--mono); color:var(--teal-soft); letter-spacing:1px; margin-bottom:8px">/plan from-comparison</div>
-          <h3>Adopt what fits</h3>
-          <p>Fold the comparison's adoption items into the phased plan, so an external idea becomes concrete, sequenced work with its own gates.</p>
-        </div>
-      </div>
-
-      <div class="scenario">
-        <div class="pin" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg></div>
-        <div>
-          <h3>Plan the TaskFlow fixes and the shuffle feature</h3>
-          <p>The two bugs from the review, plus the deck-shuffle idea, become a four-phase plan with an explicit definition of done - green tests and 80% coverage - and a per-phase model recommendation, before a single line is written.</p>
-        </div>
-      </div>
-
-      <div class="term term--standalone" data-anim data-speed="22">
-        <div class="term-bar">
-          <div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div>
-          <span class="label"><b>claude</b> &mdash; taskflow</span>
-          <button class="term-replay" type="button">&#8635; replay</button>
-        </div>
-        <div class="term-body">
-          <div class="term-cmd"><span class="prompt">&gt; </span><span class="typed" data-type="/plan feature">/plan feature</span></div>
-          <div class="term-out">
-            <div class="t-tool">&bull; <b>goal</b> ...... fix 2 bugs + adopt deck shuffle; DoD = tests green, 80% coverage</div>
-            <div class="t-tool">&bull; <b>phases</b> .... decomposed into 4, each with a stability gate</div>
-            <div class="t-tool">&nbsp;&nbsp;&nbsp;&nbsp;1 &middot; fix scoring + restart bugs</div>
-            <div class="t-tool">&nbsp;&nbsp;&nbsp;&nbsp;2 &middot; adopt deck shuffle (reverse-engineered)</div>
-            <div class="t-tool">&nbsp;&nbsp;&nbsp;&nbsp;3 &middot; cover logic with tests to 80%</div>
-            <div class="t-tool">&nbsp;&nbsp;&nbsp;&nbsp;4 &middot; docs + release</div>
-            <div class="t-tool">&bull; <b>routing</b> ... per-phase model + effort recorded (via /route)</div>
-            <div class="t-tool">&bull; <b>todos</b> ..... <span class="t-cyan">docs/todos.md</span> seeded with the phases</div>
-            <div class="spacer"></div>
-            <div class="t-ok t-bold">&#10003; Plan written to docs/plans/taskflow-fixes.md</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="grid grid-2" style="align-items:start">
-        <div class="artifact">
-          <div class="artifact-bar"><span class="doc">&#9783;</span> taskflow-fixes.md <span class="tag">generated</span></div>
-          <div class="artifact-body">
-            <h1 style="font-size:1.2rem">Plan - TaskFlow fixes + shuffle</h1>
-            <h3 style="color:var(--cyan-soft)">Definition of Done</h3>
-            <ul>
-              <li>All review findings resolved</li>
-              <li>Tests green; 80% line coverage</li>
-            </ul>
-            <h3 style="color:var(--ink)">Phases</h3>
-            <ul>
-              <li>1 - Fix scoring + restart bugs</li>
-              <li>2 - Adopt deck shuffle (reverse-engineered)</li>
-              <li>3 - Cover logic with tests to 80%</li>
-              <li>4 - Docs + release</li>
-            </ul>
-          </div>
-        </div>
-        <div>
-          <h3>Why phases, not a to-do dump</h3>
-          <p class="muted" style="font-size:13.5px">Each phase carries its own prerequisites and a stability gate, so <code>/implement</code> can build, test, and verify one slice at a time instead of producing a giant, untestable diff. The definition of done is fixed up front, so "done" is a checklist, not a feeling.</p>
-          <div class="callout tip">
-            <span class="ci">&#9733;</span>
-            <p><strong>Model routing, per phase.</strong> <code>/plan</code> records a recommended model and reasoning effort for each phase (via <code>/route</code>), so the cheap phases run cheap and the hard ones get the strong tier - re-confirmed at implementation time.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="progress" data-progress></div>
-      <div class="page-nav" data-pagenav></div>
-    </div>
-  </section>
-
-  <!-- =====================================================================
-       PAGE: BUILD
-       ===================================================================== -->
-  <section class="page" id="page-build" data-page="build">
-    <div class="container">
-      <span class="eyebrow">Implementation</span>
-      <h1>Build the plan, one phase at a time</h1>
-      <p class="lead">A plan is only as good as the discipline used to execute it. <code>/implement</code> takes a single phase from end to end - review, code, lint, test, troubleshoot, gate, document, commit - and refuses to advance until the quality gate passes. The result is a clean git history where every commit is a complete, tested unit of work.</p>
-
-      <div class="scenario">
-        <div class="pin" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 3v12a3 3 0 003 3h8"/><circle cx="5" cy="18" r="2.5"/><circle cx="18" cy="18" r="2.5"/><circle cx="18" cy="6" r="2.5"/><path d="M18 8.5v3a3 3 0 01-3 3"/></svg></div>
-        <div>
-          <h3>Implement Phase 1 of the harden-and-complete plan</h3>
-          <p>You run <code>/implement</code>. It discovers the plan, asks which phase (defaulting to the first incomplete one), and offers to create a feature branch before writing any code.</p>
-        </div>
-      </div>
-
-      <div class="term term--standalone" data-anim data-speed="22">
-        <div class="term-bar">
-          <div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div>
-          <span class="label"><b>claude</b> &mdash; taskflow</span>
-          <button class="term-replay" type="button">&#8635; replay</button>
-        </div>
-        <div class="term-body">
-          <div class="term-cmd"><span class="prompt">&gt; </span><span class="typed" data-type="/implement harden-and-complete phase-1">/implement harden-and-complete phase-1</span></div>
-          <div class="term-out">
-            <div class="t-tool">&bull; Resolved plan <span class="t-file">docs/0.4.0/plans/harden-and-complete.md</span>, Phase 1 (Security fixes).</div>
-            <div class="spacer"></div>
-            <div><span class="t-teal">&rsaquo;</span> Create a feature branch for this phase? <span class="t-cyan">feat/security-fixes</span> off <span class="t-cyan">develop</span> <span class="t-dim">[Y/n]</span> <span class="t-cyan">Y</span></div>
-            <div class="t-ok">&#10003; Switched to a new branch <span class="t-cyan">feat/security-fixes</span></div>
-            <div class="spacer"></div>
-            <div class="t-tool">&bull; <b>Pre-implementation review</b> of Phase 1 against the codebase ... 3 tasks confirmed in scope.</div>
-            <div class="spacer"></div>
-            <div class="t-tool">&bull; <b>T001</b> parameterize search query ... <span class="t-file">api/search.py</span></div>
-            <div class="t-tool">&bull; <b>T002</b> move payment secret to env, add <span class="t-file">.env.example</span> ... <span class="t-file">config.py</span></div>
-            <div class="t-tool">&bull; <b>T003</b> add injection regression test ... <span class="t-file">tests/test_search_security.py</span></div>
-            <div class="spacer"></div>
-            <div class="t-tool">&bull; <b>Lint + format</b> .... ruff <span class="t-ok">clean</span>, formatting applied</div>
-            <div class="t-tool">&bull; <b>Tests</b> ......... pytest <span class="t-ok">28 passed</span>, coverage of touched files <span class="t-ok">+9%</span></div>
-            <div class="spacer"></div>
-            <div><span class="t-ok t-bold">GO</span> &mdash; quality gate passed (lint clean, tests green, scope respected)</div>
-            <div class="spacer"></div>
-            <div class="t-tool">&bull; Post-phase sequence: known-gaps &rarr; CI check &rarr; devlog &rarr; docs &rarr; session history</div>
-            <div class="t-ok">&#10003; Commit message drafted: <span class="t-cyan">fix(security): parameterize search, externalize payment secret</span></div>
-            <div><span class="t-teal">&rsaquo;</span> Commit and push <span class="t-cyan">feat/security-fixes</span>? <span class="t-dim">[Y/n]</span> <span class="t-cyan">Y</span></div>
-            <div class="t-ok">&#10003; Phase 1 complete. 2 of 4 findings resolved. Next: <span class="t-cyan">/implement ... phase-2</span></div>
-          </div>
-        </div>
-      </div>
-
-      <h2 style="margin-top:38px">What just happened (the discipline)</h2>
-      <div class="grid grid-2">
-        <div class="card">
-          <h3>The per-phase workflow</h3>
-          <p style="margin-bottom:10px">Every phase runs the same sequence, so output quality doesn't depend on the engineer remembering the steps:</p>
-          <ol class="mono" style="font-size:12.5px; color:var(--ink-dim); padding-left:20px; margin:0; line-height:1.9">
-            <li>Resolve plan + phase</li>
-            <li>Offer a feature branch</li>
-            <li>Pre-implementation review</li>
-            <li>Implement subtask by subtask</li>
-            <li>Lint + format</li>
-            <li>Run tests + coverage</li>
-            <li>Troubleshooting loop (fix until green)</li>
-            <li>GO / NO-GO quality gate</li>
-            <li>Post-phase: docs, devlog, commit, push</li>
-          </ol>
-        </div>
-        <div class="card">
-          <h3>The branching model</h3>
-          <p style="margin-bottom:10px">Each phase lands on its own short-lived <code>feat/*</code> branch off <code>develop</code>, keeping the git graph legible and every phase independently reviewable:</p>
-          <div class="gitgraph" style="margin:0; padding:14px 16px">
-            <div class="row main"><span class="node"></span><span class="branch">main</span> <span class="hash">v0.4.0</span></div>
-            <div class="row dev ind"><span class="node"></span><span class="branch">develop</span> <span class="lbl">integration</span></div>
-            <div class="row feat ind2"><span class="node"></span><span class="branch">feat/security-fixes</span></div>
-            <div class="row feat ind2"><span class="node"></span><span class="lbl">fix(security): parameterize search ...</span></div>
-            <div class="row dev ind"><span class="node"></span><span class="lbl">merge feat/security-fixes</span></div>
-            <div class="row feat ind2"><span class="node"></span><span class="branch">feat/ci-pipeline</span> <span class="lbl">(phase 2)</span></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="callout tip">
-        <span class="ci">&#9733;</span>
-        <p><strong>NO-GO actually stops it.</strong> The quality gate is not decorative. If lint fails, a test is red, or the change drifts outside the phase's scope, <code>/implement</code> enters a troubleshooting loop and will not run the commit step. You never get a half-broken phase quietly committed - which is the failure mode unstructured AI coding produces most.</p>
-      </div>
-
-      <div class="callout">
-        <span class="ci">&#9873;</span>
-        <p><strong>The final phase ships itself.</strong> When the phase you implement is the <em>last</em> phase of the plan, <code>/implement</code> auto-detects it and runs release readiness, handing off to <code>/update release</code> (covered in the Ship stage). The plan literally drives the project from "inherited" to "tagged release".</p>
-      </div>
-
-      <div class="progress" data-progress></div>
-      <div class="page-nav" data-pagenav></div>
-    </div>
-  </section>
-
-  <!-- =====================================================================
-       PAGE: HARDEN
-       ===================================================================== -->
-  <section class="page" id="page-harden" data-page="harden">
-    <div class="container">
-      <span class="eyebrow">Hardening</span>
-      <h1>Make it secure and well-tested</h1>
-      <p class="lead">Two pillars of production-readiness, two commands. <code>/review</code> finds the problems (read-only); <code>/test</code> closes the coverage gap and wires the CI gate that keeps it closed. This is where TaskFlow's CRITICAL SQLi and its 34% coverage get dealt with for good.</p>
-
-      <div class="tabs" data-tabs>
-        <div class="tab-btns">
-          <button class="tab-btn active" data-tab="sec">Security &middot; /review security + pentest</button>
-          <button class="tab-btn" data-tab="supply">Supply chain &middot; deps, SBOM, skill-scan</button>
-          <button class="tab-btn" data-tab="tests">Tests &amp; CI/CD &middot; /test</button>
-        </div>
-
-        <!-- SECURITY -->
-        <div class="tab-panel active" data-panel="sec">
-          <p><code>/review security</code> runs a focused audit - secrets, auth, input validation, dangerous patterns - and reports. <code>/review pentest</code> goes deeper: an OWASP-WSTG-aligned penetration test that produces proof-of-concept findings, not just warnings. Both are read-only; the fixes happen under <code>/implement</code> (which is exactly what Phase 1 did).</p>
-
-          <div class="term term--standalone" data-anim data-speed="26">
-            <div class="term-bar">
-              <div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div>
-              <span class="label"><b>claude</b> &mdash; taskflow</span>
-              <button class="term-replay" type="button">&#8635; replay</button>
-            </div>
-            <div class="term-body">
-              <div class="term-cmd"><span class="prompt">&gt; </span><span class="typed" data-type="/review pentest">/review pentest</span></div>
-              <div class="term-out">
-                <div class="t-tool">&bull; OWASP-WSTG-aligned pass: injection, auth, access control, config ...</div>
-                <div class="spacer"></div>
-                <div class="t-bad t-bold">[CRITICAL] SQL injection - /api/search</div>
-                <div class="t-dim">  proof-of-concept:</div>
-                <div>  GET /api/search?q=<span class="t-bad">a' OR '1'='1' --</span></div>
-                <div class="t-dim">  -> returns every task across all tenants (tenant isolation bypass)</div>
-                <div class="t-dim">  root cause: f-string query in <span class="t-file">api/search.py:48</span></div>
-                <div class="spacer"></div>
-                <div class="t-warn t-bold">[HIGH] Secret in source - config.py:12</div>
-                <div class="t-dim">  live payment key <span class="t-bad">sk_live_&lt;redacted&gt;</span> committed; rotate + purge history</div>
-                <div class="spacer"></div>
-                <div class="t-warn">[MEDIUM] JWT has no <span class="t-cyan">aud</span>/<span class="t-cyan">iss</span> validation - accept-any-issuer risk</div>
-                <div class="spacer"></div>
-                <div class="t-ok">&#10003; Wrote <span class="t-file">docs/0.4.0/pentest-report.md</span> with PoCs + remediation</div>
-                <div class="t-dim">  (read-only - remediation goes into the plan, see Phase 1 / T001-T002)</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="artifact">
-            <div class="artifact-bar"><span class="doc">&#9783;</span> docs/0.4.0/pentest-report.md <span class="tag">generated</span></div>
-            <div class="artifact-body">
-              <h1>TaskFlow - Penetration Test</h1>
-              <div class="md-meta">/review pentest &middot; OWASP WSTG &middot; proof-of-concept findings</div>
-              <h2>F-01 &middot; SQL Injection (CRITICAL)</h2>
-              <p><strong>Endpoint:</strong> <code>GET /api/search</code> &nbsp; <strong>CWE-89.</strong> The <code>q</code> parameter is interpolated into a raw SQL string. A crafted payload bypasses tenant isolation and dumps all rows.</p>
-              <ul>
-                <li><strong>PoC:</strong> <code>?q=a' OR '1'='1' --</code></li>
-                <li><strong>Fix:</strong> use a parameterized query / ORM filter (Phase 1 / <code>T001</code>)</li>
-                <li><strong>Verify:</strong> regression test asserting the payload returns 0 cross-tenant rows (<code>T003</code>)</li>
-              </ul>
-              <h2>F-02 &middot; Hard-coded secret (HIGH)</h2>
-              <p>Live payment key committed at <code>config.py:12</code>. Rotate the key at the provider, load from an env var, and purge it from git history (Phase 1 / <code>T002</code>).</p>
-              <h2>F-03 &middot; Weak JWT validation (MEDIUM)</h2>
-              <p>Tokens are decoded without verifying <code>aud</code> / <code>iss</code>. Add claim validation to the auth dependency.</p>
-            </div>
-          </div>
-
-          <div class="callout warn">
-            <span class="ci">&#9888;</span>
-            <p><strong>Find here, fix elsewhere.</strong> Even a pentest is read-only. That's intentional: you want an untainted record of what was exploitable, separate from the commits that fixed it. The report's CWE IDs and PoCs map one-to-one onto plan tasks, so the audit trail from "found" to "fixed and tested" is complete.</p>
-          </div>
-        </div>
-
-        <!-- SUPPLY CHAIN -->
-        <div class="tab-panel" data-panel="supply">
-          <p>Your running code is only part of the attack surface. Third-party <strong>dependencies</strong> ship CVEs, and any <strong>skill you import</strong> into the catalog runs inside your agent's context. Three read-only scopes cover the supply side: a dependency CVE / license scan, an SBOM for compliance, and a pre-install security scan for skills.</p>
-
-          <div class="term term--standalone" data-anim data-speed="26">
-            <div class="term-bar">
-              <div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div>
-              <span class="label"><b>claude</b> &mdash; taskflow</span>
-              <button class="term-replay" type="button">&#8635; replay</button>
-            </div>
-            <div class="term-body">
-              <div class="term-cmd"><span class="prompt">&gt; </span><span class="typed" data-type="/review deps">/review deps</span></div>
-              <div class="term-out">
-                <div class="t-tool">&bull; pip-audit + npm audit + license scan across both lockfiles ...</div>
-                <div class="t-tool">&bull; cross-referencing CVEs with call paths (is it actually reachable?)</div>
-                <div class="spacer"></div>
-                <div class="t-bad">[HIGH] CVE-2024-XXXX  <span class="t-file">pyjwt 2.3.0</span> &rarr; fixed in 2.8.0  <span class="t-warn">reachable</span> (auth.decode)</div>
-                <div class="t-cyan">[LOW]  CVE-2023-YYYY  <span class="t-file">dev-tool 1.1</span>  not reachable (dev-only)</div>
-                <div class="t-warn">[note] 1 GPL-licensed transitive dep - review before distribution</div>
-                <div class="spacer"></div>
-                <div class="t-ok">&#10003; Wrote <span class="t-file">docs/0.4.0/deps-report.md</span> - remediation goes into the plan</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="grid grid-2" style="align-items:start">
-            <div class="artifact" style="margin-top:16px">
-              <div class="artifact-bar"><span class="doc">&#9783;</span> dependency findings</div>
-              <div class="artifact-body">
-                <table class="tbl" style="margin:0">
-                  <thead><tr><th>Sev</th><th>Package</th><th>Reachable?</th></tr></thead>
-                  <tbody>
-                    <tr><td><span class="sev high">HIGH</span></td><td><code>pyjwt 2.3.0</code></td><td>yes - <code>auth.decode</code></td></tr>
-                    <tr><td><span class="sev low">LOW</span></td><td><code>dev-tool 1.1</code></td><td>no (dev-only)</td></tr>
-                  </tbody>
-                </table>
-                <p class="muted" style="font-size:12.5px; margin:10px 0 0">Reachability matters: an unreachable CVE is noise. <code>/review deps</code> tells you which advisories actually touch your code.</p>
-              </div>
-            </div>
-            <div class="artifact" style="margin-top:16px">
-              <div class="artifact-bar"><span class="doc">&#9783;</span> /review sbom</div>
-              <div class="artifact-body">
-                <p style="font-size:14px; margin-top:0">Generates a Software Bill of Materials in <strong>CycloneDX</strong> and <strong>SPDX</strong> - the dependency inventory auditors and downstream consumers ask for.</p>
-                <pre style="font-family:var(--mono); font-size:12px; color:var(--term-ink); background:var(--term-bg); padding:12px; border-radius:8px; margin:0; overflow:auto">&#10003; sbom.cdx.json   (CycloneDX)
-&#10003; sbom.spdx.json  (SPDX)
-  142 components, 6 direct, 136 transitive</pre>
-              </div>
-            </div>
-          </div>
-
-          <h3 style="margin-top:26px">Scan a skill before you import it</h3>
-          <p>The catalog is shared and extensible - but an imported skill runs in your agent's context, so it's part of your trust boundary. <code>/review skill-scan</code> (the same lens <code>/skills import</code> runs automatically) statically and semantically scans a skill, filters false positives, and gives a verdict before anything is installed.</p>
-
-          <div class="term term--standalone" data-anim data-speed="26">
-            <div class="term-bar">
-              <div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div>
-              <span class="label"><b>claude</b> &mdash; taskflow</span>
-              <button class="term-replay" type="button">&#8635; replay</button>
-            </div>
-            <div class="term-body">
-              <div class="term-cmd"><span class="prompt">&gt; </span><span class="typed" data-type="/review skill-scan ./imported/cool-formatter">/review skill-scan ./imported/cool-formatter</span></div>
-              <div class="term-out">
-                <div class="t-tool">&bull; scanning: secrets, outbound network calls, dangerous shell, prompt-injection</div>
-                <div class="t-tool">&bull; 3 raw flags &rarr; 2 are fenced-code examples in the docs (false positives, adjudicated)</div>
-                <div class="spacer"></div>
-                <div class="t-warn t-bold">VERDICT: REVIEW</div>
-                <div>1 real finding: <span class="t-file">scripts/run.sh</span> makes an outbound <span class="t-cyan">curl</span> to an external host.</div>
-                <div class="t-dim">Recommendation: confirm the host is expected, or reverse-engineer the step locally.</div>
-                <div class="spacer"></div>
-                <div class="t-ok">&#10003; Wrote <span class="t-file">skill-scan-cool-formatter.md</span> (SAFE / REVIEW / BLOCK verdict + evidence)</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="callout tip">
-            <span class="ci">&#9733;</span>
-            <p><strong>Never import an unscanned skill.</strong> A skill is code-adjacent: it can carry scripts and instructions that run in your session. Scanning before install is the catalog equivalent of the secret-scan hook - it ties directly back to Nexus-Hub's reverse-engineer-first policy (prefer local logic over an outbound call you can't see).</p>
-          </div>
-        </div>
-
-        <!-- TESTS -->
-        <div class="tab-panel" data-panel="tests">
-          <p><code>/test</code> drives coverage to a standardized threshold - <strong>80% lines, 100% pass-rate</strong> - across tiers. It runs an iterative loop per tier (analyze &rarr; generate &rarr; run &rarr; check both gates &rarr; repeat), then advances: <code>unit</code> &rarr; <code>integration</code> &rarr; <code>e2e</code> &rarr; <code>ci</code>. This is Phase 3 of the plan, made concrete.</p>
-
-          <div class="term term--standalone" data-anim data-speed="22">
-            <div class="term-bar">
-              <div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div>
-              <span class="label"><b>claude</b> &mdash; taskflow</span>
-              <button class="term-replay" type="button">&#8635; replay</button>
-            </div>
-            <div class="term-body">
-              <div class="term-cmd"><span class="prompt">&gt; </span><span class="typed" data-type="/test all">/test all</span></div>
-              <div class="term-out">
-                <div class="t-tool">&bull; Baseline coverage: <span class="t-warn">34%</span> lines (auth 0%, billing 0%)</div>
-                <div class="spacer"></div>
-                <div class="t-bold">tier: unit</div>
-                <div class="t-tool">&bull; generated 41 tests (AAA, parametrized) for auth, search, models ...</div>
-                <div class="t-tool">&bull; run: <span class="t-ok">41 passed</span> &nbsp; coverage <span class="t-warn">34%</span> &rarr; <span class="t-ok">81%</span> &nbsp; gate <span class="t-ok">met</span></div>
-                <div class="spacer"></div>
-                <div class="t-bold">tier: integration</div>
-                <div class="t-tool">&bull; generated 12 tests (API + Postgres via fixtures) ...</div>
-                <div class="t-tool">&bull; run: <span class="t-ok">12 passed</span> &nbsp; coverage <span class="t-ok">82%</span> &nbsp; gate <span class="t-ok">met</span></div>
-                <div class="spacer"></div>
-                <div class="t-bold">tier: e2e</div>
-                <div class="t-tool">&bull; 4 Playwright flows (login &rarr; create task &rarr; recurring &rarr; logout) <span class="t-ok">passed</span></div>
-                <div class="spacer"></div>
-                <div class="t-bold">tier: ci</div>
-                <div class="t-tool">&bull; verified <span class="t-file">.github/workflows/ci.yml</span> runs the suite and gates on 80%</div>
-                <div class="spacer"></div>
-                <div class="t-ok t-bold">&#10003; All tiers at threshold. 57 tests added. Coverage 34% -> 82%.</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="grid grid-2" style="align-items:start">
-            <div class="artifact" style="margin-top:18px">
-              <div class="artifact-bar"><span class="doc">&#9783;</span> coverage summary</div>
-              <div class="artifact-body">
-                <table class="tbl" style="margin:0">
-                  <thead><tr><th>Module</th><th>Before</th><th>After</th></tr></thead>
-                  <tbody>
-                    <tr><td><code>auth</code></td><td><span class="sev high">0%</span></td><td><span class="sev ok">88%</span></td></tr>
-                    <tr><td><code>billing</code></td><td><span class="sev high">0%</span></td><td><span class="sev ok">84%</span></td></tr>
-                    <tr><td><code>search</code></td><td><span class="sev med">41%</span></td><td><span class="sev ok">90%</span></td></tr>
-                    <tr><td><code>tasks</code></td><td><span class="sev med">52%</span></td><td><span class="sev ok">86%</span></td></tr>
-                    <tr><td><strong>overall</strong></td><td><span class="sev med">34%</span></td><td><span class="sev ok">82%</span></td></tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <div class="artifact" style="margin-top:18px">
-              <div class="artifact-bar"><span class="doc">&#9783;</span> .github/workflows/ci.yml <span class="tag">generated</span></div>
-              <div class="artifact-body">
-                <pre style="font-family:var(--mono); font-size:12px; color:var(--term-ink); background:var(--term-bg); padding:14px; border-radius:10px; overflow:auto; margin:0; line-height:1.7"><span class="t-teal">name:</span> CI
-<span class="t-teal">on:</span> [push, pull_request]
-<span class="t-teal">jobs:</span>
-  <span class="t-cyan">test:</span>
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - run: ruff check .
-      - run: pytest --cov=app \
-               <span class="t-warn">--cov-fail-under=80</span>
-      - run: npm run test --prefix frontend</pre>
-              </div>
-            </div>
-          </div>
-
-          <div class="callout tip">
-            <span class="ci">&#9733;</span>
-            <p><strong>Coverage that can't regress.</strong> Driving coverage to 80% once is easy to undo. The <code>ci</code> tier closes the loop: the pipeline runs the suite on every push and <code>--cov-fail-under=80</code> fails the build if coverage drops. The threshold becomes a property of the repo, not a one-time effort. Generated tests follow the repo's standards automatically - AAA structure, parametrized cases, fixtures over inline setup, no sleeps.</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="progress" data-progress></div>
-      <div class="page-nav" data-pagenav></div>
-    </div>
-  </section>
-
-  <!-- =====================================================================
-       PAGE: SHIP
-       ===================================================================== -->
-  <section class="page" id="page-ship" data-page="ship">
-    <div class="container">
-      <span class="eyebrow">Ship &amp; maintain</span>
-      <h1>Sync everything, then ship it</h1>
-      <p class="lead">All four findings resolved, coverage at 82%, CI green. The last mile is making sure documentation reflects reality and cutting a clean release. <code>/update</code> owns every "bring the repo up to date" action - and at <code>release</code> scope, runs the whole ship flow as one gated sequence.</p>
-
-      <div class="grid grid-3" style="margin-bottom:8px">
-        <div class="card">
-          <div class="step-no" style="font:700 12px/1 var(--mono); color:var(--teal-soft); letter-spacing:1px; margin-bottom:8px">/update docs</div>
-          <h3>Sync the docs to reality</h3>
-          <p>Refreshes README, architecture docs, and inline guides to the repo's <em>current</em> state - headline counts, a "what's new" narrative, and a link/staleness audit. Not just version-string bumps.</p>
-        </div>
-        <div class="card">
-          <div class="step-no" style="font:700 12px/1 var(--mono); color:var(--teal-soft); letter-spacing:1px; margin-bottom:8px">/update refactor</div>
-          <h3>Tidy the layout</h3>
-          <p>Reorganizes <code>docs/</code> and project artifacts to convention and archives prior-version files - with full reference repair so nothing dangles.</p>
-        </div>
-        <div class="card">
-          <div class="step-no" style="font:700 12px/1 var(--mono); color:var(--teal-soft); letter-spacing:1px; margin-bottom:8px">/update release</div>
-          <h3>Cut the release</h3>
-          <p>The full flow: docs &rarr; devlog &rarr; gitignore &rarr; version &rarr; changelog &rarr; refactor, then commit, tag, push. Atomic, drift-guarded, gated.</p>
-        </div>
-      </div>
-
-      <div class="scenario">
-        <div class="pin" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg></div>
-        <div>
-          <h3>Ship v0.5.0</h3>
-          <p><code>/update release</code> runs the focused scopes in order, then commits, tags, and pushes - <strong>never creating a tag or pushing without explicit confirmation</strong>. The version bump is atomic across every version-carrying surface and verified by a drift guard.</p>
-        </div>
-      </div>
-
-      <div class="term term--standalone" data-anim data-speed="22">
-        <div class="term-bar">
-          <div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div>
-          <span class="label"><b>claude</b> &mdash; taskflow</span>
-          <button class="term-replay" type="button">&#8635; replay</button>
-        </div>
-        <div class="term-body">
-          <div class="term-cmd"><span class="prompt">&gt; </span><span class="typed" data-type="/update release">/update release</span></div>
-          <div class="term-out">
-            <div class="t-tool">&bull; <b>docs</b> ...... reconciled counts + &quot;what's new&quot; section, link audit clean</div>
-            <div class="t-tool">&bull; <b>devlog</b> .... appended entry for the harden-and-complete work</div>
-            <div class="t-tool">&bull; <b>gitignore</b> . audited; index clean</div>
-            <div class="t-tool">&bull; <b>version</b> ... 0.4.0 &rarr; <span class="t-cyan">0.5.0</span> across all surfaces</div>
-            <div class="t-tool">&nbsp;&nbsp;&nbsp;&nbsp;&#8627; <span class="t-ok">check_version_sync.py: in sync</span> (no drift)</div>
-            <div class="t-tool">&bull; <b>changelog</b> . generated CHANGELOG entry from git history since last tag</div>
-            <div class="t-tool">&bull; <b>refactor</b> .. docs/ + project layout to convention, references repaired</div>
-            <div class="spacer"></div>
-            <div><span class="t-teal">&rsaquo;</span> Merge <span class="t-cyan">develop</span> &rarr; <span class="t-cyan">main</span> and tag <span class="t-cyan">v0.5.0</span>? <span class="t-dim">[y/N]</span> <span class="t-cyan">y</span></div>
-            <div class="t-ok">&#10003; Committed, tagged <span class="t-cyan">v0.5.0</span>, pushed main + tag</div>
-            <div class="spacer"></div>
-            <div class="t-ok t-bold">&#10003; TaskFlow v0.5.0 shipped. 0 open critical/high. CI green. Coverage 82%.</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="grid grid-2" style="align-items:start">
-        <div class="artifact">
-          <div class="artifact-bar"><span class="doc">&#9783;</span> CHANGELOG.md <span class="tag">generated</span></div>
-          <div class="artifact-body">
-            <h1 style="font-size:1.2rem">## [0.5.0] - 2026-06-11</h1>
-            <h3 style="color:var(--green)">Security</h3>
-            <ul>
-              <li>Fix SQL injection in task search (CWE-89); add injection regression test</li>
-              <li>Externalize payment secret; rotate leaked key</li>
-              <li>Validate JWT <code>aud</code> / <code>iss</code> claims</li>
-            </ul>
-            <h3 style="color:var(--cyan-soft)">Added</h3>
-            <ul>
-              <li>CI pipeline with an 80% coverage gate</li>
-              <li>Recurring tasks + reminder engine (reverse-engineered)</li>
-              <li>Completed billing endpoints</li>
-            </ul>
-            <h3 style="color:var(--ink)">Tests</h3>
-            <ul><li>Coverage 34% &rarr; 82%; 57 tests added across tiers</li></ul>
-          </div>
-        </div>
-        <div>
-          <h3>The branching model, completed</h3>
-          <div class="gitgraph">
-            <div class="row dev"><span class="node"></span><span class="branch">develop</span></div>
-            <div class="row feat ind"><span class="node"></span><span class="lbl">merge feat/security-fixes</span></div>
-            <div class="row feat ind"><span class="node"></span><span class="lbl">merge feat/ci-pipeline</span></div>
-            <div class="row feat ind"><span class="node"></span><span class="lbl">merge feat/coverage-80</span></div>
-            <div class="row feat ind"><span class="node"></span><span class="lbl">merge feat/billing</span></div>
-            <div class="row main"><span class="node"></span><span class="branch">main</span> <span class="hash">tag v0.5.0</span></div>
-          </div>
-          <p class="muted" style="font-size:13px">A lightweight <code>develop</code> + <code>main</code> model: all work integrates on <code>develop</code>; <code>main</code> only moves at release time, each cut as a <code>vX.Y.Z</code> tag.</p>
-        </div>
-      </div>
-
-      <div class="callout tip">
-        <span class="ci">&#9733;</span>
-        <p><strong>Atomic, drift-guarded, gated.</strong> The version bump touches every surface that carries a version at once, and a guard (<code>check_version_sync.py</code>) fails the build if any surface lags behind - a whole class of "the installer still says v0.4.0" bugs, prevented systemically. And nothing is tagged or pushed without you saying yes. Shipping is the one place you most want a human in the loop, so the gates stay even inside the automated flow.</p>
-      </div>
-
-      <div class="callout">
-        <span class="ci">&#9851;</span>
-        <p><strong>And then the loop repeats.</strong> v0.5.0 is shipped, but the next set of features starts the same way: <code>/plan</code> the work (now seeded by the known-gaps the last cycle recorded), <code>/implement</code> the phases, <code>/test</code>, <code>/update release</code>. The workflow is a cycle, and each lap leaves the codebase more understood, more tested, and more documented than the last.</p>
-      </div>
-
-      <div class="progress" data-progress></div>
-      <div class="page-nav" data-pagenav></div>
-    </div>
-  </section>
-
-  <!-- =====================================================================
-       PAGE: COMMUNICATE - document and present the work
-       ===================================================================== -->
-  <section class="page" id="page-communicate" data-page="communicate">
-    <div class="container">
-      <span class="eyebrow">Document</span>
-      <h1>Capture the work, then present it</h1>
-      <p class="lead">v0.5.0 is shipped - but the work only pays off if others can see and understand it. This last stage does two things at once: it makes sure the work is <em>captured</em> in clean, organized documentation, and then turns that documentation into an interactive briefing you can hand to a stakeholder or a teammate. The artifacts you already produced - README, dev log, plans, todos, session history, git history - are the raw material, so there is no slide deck to build by hand.</p>
-
-      <div class="grid grid-3" style="margin-bottom:8px">
-        <div class="card">
-          <div class="step-no" style="font:700 12px/1 var(--mono); color:var(--teal-soft); letter-spacing:1px; margin-bottom:8px">/update docs</div>
-          <h3>Capture the work</h3>
-          <p>Reconcile README, architecture docs, the development log, and the changelog to the repo's <em>current</em> state - so the documentation tells the true story before anyone reads it.</p>
-        </div>
-        <div class="card">
-          <div class="step-no" style="font:700 12px/1 var(--mono); color:var(--teal-soft); letter-spacing:1px; margin-bottom:8px">/session history</div>
-          <h3>Keep the record</h3>
-          <p>Write a standalone session history and update the <code>docs/todos.md</code> progress tracker, so plans, todos, and development history stay organized lap after lap.</p>
-        </div>
-        <div class="card">
-          <div class="step-no" style="font:700 12px/1 var(--mono); color:var(--teal-soft); letter-spacing:1px; margin-bottom:8px">/presentify</div>
-          <h3>Present it, interactively</h3>
-          <p>Turn those documents into <em>one</em> self-contained, offline, interactive HTML deck - inline charts, an outline, keyboard navigation - higher quality and more interactive than a slide deck, and versionable as a single file.</p>
-        </div>
-      </div>
-
-      <div class="scenario">
-        <div class="pin" aria-hidden="true"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12l5 5L20 7"/></svg></div>
-        <div>
-          <h3>Brief the team on TaskFlow v0.5.0</h3>
-          <p><code>/presentify</code> ingests the release docs - the CHANGELOG, the dev log, and the analysis and pentest reports - and compiles one interactive deck that opens offline with zero external requests: the security findings as a paced section, the coverage jump as an inline chart, the roadmap as a closing slide. One <code>.html</code> file you can commit, email, or open on any laptop.</p>
-        </div>
-      </div>
-
-      <div class="term term--standalone" data-anim data-speed="22">
-        <div class="term-bar">
-          <div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div>
-          <span class="label"><b>claude</b> &mdash; taskflow</span>
-          <button class="term-replay" type="button">&#8635; replay</button>
-        </div>
-        <div class="term-body">
-          <div class="term-cmd"><span class="prompt">&gt; </span><span class="typed" data-type="/presentify docs/v0.5.0/ CHANGELOG.md">/presentify docs/v0.5.0/ CHANGELOG.md</span></div>
-          <div class="term-out">
-            <div class="t-tool">&bull; <b>extract</b> .. 4 sources (changelog, devlog, analysis, pentest) &rarr; content model</div>
-            <div class="t-tool">&bull; <b>theme</b> .... applied brand tokens; system font stacks (no web fonts)</div>
-            <div class="t-tool">&bull; <b>build</b> .... one self-contained <span class="t-cyan">taskflow-v0.5.0.html</span></div>
-            <div class="t-tool">&nbsp;&nbsp;&nbsp;&nbsp;&#8627; <span class="t-ok">assert_no_external: 0 external requests</span></div>
-            <div class="t-tool">&bull; <b>enrich</b> ... coverage 34 &rarr; 82 as an inline chart; findings paced as a section</div>
-            <div class="spacer"></div>
-            <div class="t-ok t-bold">&#10003; taskflow-v0.5.0.html - opens offline, 11 slides, interactive</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="callout tip">
-        <span class="ci">&#9733;</span>
-        <p><strong>Local-first, like everything else.</strong> Parsing runs on your machine with lazy-imported libraries, the deck is the model authoring HTML, and the output makes zero network requests. No document leaves the machine and there is no slide-as-a-service in the loop - the same posture that lets you run it on a confidential report or an internal spreadsheet.</p>
-      </div>
-
-      <div class="callout">
-        <span class="ci">&#9851;</span>
-        <p><strong>Now the loop is complete.</strong> Understand, plan, build, harden, ship - and communicate. Each lap leaves the codebase more understood, more tested, and more documented than the last, and now the people around you can see it.</p>
-      </div>
-
-      <div class="progress" data-progress></div>
-      <div class="page-nav" data-pagenav></div>
-    </div>
-  </section>
-
-  <!-- =====================================================================
-       PAGE: REFERENCE
-       ===================================================================== -->
-  <section class="page" id="page-reference" data-page="reference">
-    <div class="container">
-      <span class="eyebrow">Appendix</span>
-      <h1>Cheatsheet</h1>
-      <p class="lead">Keep this page open while you work. The full command set, how it's installed, and the golden path you just walked - condensed to a single screen.</p>
-
-      <!-- Golden path recap -->
-      <section class="section--tight">
-        <h2>The golden path, end to end</h2>
-        <div class="flow">
-          <div class="flow-node" data-go="explore"><div class="cmd">/describe</div><div class="lbl">map it</div></div>
-          <div class="flow-arrow">&rarr;</div>
-          <div class="flow-node" data-go="explore"><div class="cmd">/review</div><div class="lbl">verdict</div></div>
-          <div class="flow-arrow">&rarr;</div>
-          <div class="flow-node" data-go="plan"><div class="cmd">/plan</div><div class="lbl">+/compare</div></div>
-          <div class="flow-arrow">&rarr;</div>
-          <div class="flow-node" data-go="build"><div class="cmd">/implement</div><div class="lbl">phase x N</div></div>
-          <div class="flow-arrow">&rarr;</div>
-          <div class="flow-node" data-go="harden"><div class="cmd">/test</div><div class="lbl">+/review</div></div>
-          <div class="flow-arrow">&rarr;</div>
-          <div class="flow-node" data-go="ship"><div class="cmd">/update</div><div class="lbl">release</div></div>
-        </div>
+      <section class="section" id="cs-loop">
+        <span class="eyebrow">Band 1</span>
+        <h2>The working loop</h2>
+        <ol class="nhg-loop-track cs-loop">
+          <li style="--i:0"><a class="nhg-ribbon-node" href="#cheatsheets/explore" data-go="cheatsheets/explore" id="cs-explore"><span class="nhg-loop-index" aria-hidden="true">1</span><span class="nhg-ribbon-name">Map and evaluate</span><span class="nhg-ribbon-cmds">/describe, /review</span></a></li>
+          <li style="--i:1"><a class="nhg-ribbon-node" href="#cheatsheets/plan" data-go="cheatsheets/plan" id="cs-plan"><span class="nhg-loop-index" aria-hidden="true">2</span><span class="nhg-ribbon-name">Plan</span><span class="nhg-ribbon-cmds">/plan</span></a></li>
+          <li style="--i:2"><a class="nhg-ribbon-node" href="#cheatsheets/build" data-go="cheatsheets/build" id="cs-build"><span class="nhg-loop-index" aria-hidden="true">3</span><span class="nhg-ribbon-name">Implement</span><span class="nhg-ribbon-cmds">/implement</span></a></li>
+          <li style="--i:3"><a class="nhg-ribbon-node" href="#cheatsheets/harden" data-go="cheatsheets/harden" id="cs-harden"><span class="nhg-loop-index" aria-hidden="true">4</span><span class="nhg-ribbon-name">Harden</span><span class="nhg-ribbon-cmds">/test</span></a></li>
+          <li style="--i:4"><a class="nhg-ribbon-node" href="#cheatsheets/ship" data-go="cheatsheets/ship" id="cs-ship"><span class="nhg-loop-index" aria-hidden="true">5</span><span class="nhg-ribbon-name">Ship</span><span class="nhg-ribbon-cmds">/update</span></a></li>
+          <li style="--i:5"><a class="nhg-ribbon-node" href="#cheatsheets/communicate" data-go="cheatsheets/communicate" id="cs-communicate"><span class="nhg-loop-index" aria-hidden="true">6</span><span class="nhg-ribbon-name">Communicate</span><span class="nhg-ribbon-cmds">/presentify</span></a></li>
+        </ol>
+        <p>Each stop also has a Training slide. Use Cheatsheets for flags; open Training when you want to watch the booth.</p>
       </section>
 
-      <!-- Command cheatsheet -->
-      <section class="section--tight">
+      <section class="section" id="cs-commands">
+        <span class="eyebrow">Band 2</span>
         <h2>Command cheatsheet</h2>
-        <p class="muted" style="font-size:13.5px">Most commands take a <strong>scope</strong> as the first argument (e.g. <code>/review security</code>). Run a command bare to get a scope menu. Three permanent aliases - <code>/commit</code>, <code>/commands</code>, <code>/constitution</code> - forward to their parent.</p>
+        <p class="muted">Arguments are copied from <code>catalog/commands/</code>. Do not invent flags. Bare invocation usually offers a scope menu.</p>
 
-        <h3 style="color:var(--teal-soft); margin-top:24px">Understand</h3>
+        <h3>Daily loop (Training)</h3>
         <table class="tbl">
           <tbody>
-            <tr><td><code>/describe</code></td><td>Structured description of any directory. Scopes: <code>full</code>, <code>structure</code>, <code>deps</code>, <code>architecture</code>, <code>onboarding</code>.</td></tr>
-            <tr><td><code>/review</code></td><td>Read-only review. Scopes: <code>full</code>, <code>quality</code>, <code>coverage</code>, <code>security</code>, <code>pentest</code>, <code>changes</code>, <code>deps</code>, <code>sbom</code>, <code>skill-scan</code>.</td></tr>
+            <tr><td><code>/describe</code></td><td>Scopes: <code>full</code>, <code>structure</code>, <code>deps</code>, <code>architecture</code>, <code>onboarding</code>. A directory path is the target. <a href="#training/describe">Training</a></td></tr>
+            <tr><td><code>/review</code></td><td>Scopes: <code>full</code>, <code>structure</code>, <code>quality</code>, <code>coverage</code>, <code>security</code>, <code>pentest</code>, <code>changes</code>, <code>skill-scan</code>, <code>sbom</code>, <code>deps</code>. <a href="#training/review">Training</a></td></tr>
+            <tr><td><code>/plan</code></td><td>Scopes: <code>goals</code>, <code>new</code>, <code>feature</code>, <code>refactor</code>, <code>from-comparison</code>, <code>todos</code>, <code>issues</code>. <a href="#training/plan">Training</a></td></tr>
+            <tr><td><code>/implement</code></td><td>Args: <code>&lt;slug&gt;</code>, <code>phase-N</code>, <code>next</code>, <code>in-full</code> (alias <code>full</code>), <code>phase-by-phase</code>. Non-final phases commit locally and do not push. <a href="#training/implement">Training</a></td></tr>
+            <tr><td><code>/compare</code></td><td>Scopes inferred from the source: <code>repo</code>, <code>article</code>, <code>local</code>. Chains to <code>/plan from-comparison</code>. <a href="#training/compare">Training</a></td></tr>
+            <tr><td><code>/test</code></td><td>Scopes: <code>unit</code>, <code>integration</code>, <code>e2e</code>, <code>ci</code>, <code>tdd</code>, <code>all</code>. Optional <code>--threshold</code> and <code>--pass-rate</code>. <a href="#training/test">Training</a></td></tr>
+            <tr><td><code>/update</code></td><td>Scopes: <code>docs</code>, <code>devlog</code>, <code>gitignore</code>, <code>version</code>, <code>changelog</code>, <code>refactor</code>, <code>config</code>, <code>commit</code>, <code>release</code>. <a href="#training/update">Training</a></td></tr>
+            <tr><td><code>/presentify</code></td><td>Flags include <code>--style</code>, <code>--theme</code>, <code>--layout</code>, <code>--nav</code> (<code>scroll</code> or <code>slides</code>), <code>--interactivity</code> (<code>restrained</code>, <code>balanced</code>, <code>rich</code>, <code>cinematic</code>), <code>--images</code>, <code>--verbosity</code>, <code>--qa-depth</code>, <code>--out</code>, <code>--mode</code>. <a href="#training/presentify">Training</a></td></tr>
           </tbody>
         </table>
 
-        <h3 style="color:var(--teal-soft); margin-top:18px">Plan</h3>
+        <h3>Also in the catalog</h3>
         <table class="tbl">
           <tbody>
-            <tr><td><code>/plan</code></td><td>Goal-gated, phased plan. Scopes: <code>feature</code>, <code>goals</code>, <code>new</code>, <code>refactor</code>, <code>from-comparison</code>, <code>todos</code>, <code>issues</code>.</td></tr>
-            <tr><td><code>/route</code></td><td>Route a task or plan phase to the cheapest capable model + reasoning effort; detects the platform and enumerates models live. Auto-run per phase inside <code>/plan</code> and <code>/implement</code>.</td></tr>
-            <tr><td><code>/compare</code></td><td>Gap analysis vs a repo / article / local path; reverse-engineer-first adoption plan; chains to <code>/plan</code>.</td></tr>
-            <tr><td><code>/spec</code></td><td>Clarify a spec, analyze a feature dir for coverage, or author/amend the project constitution.</td></tr>
-          </tbody>
-        </table>
-
-        <h3 style="color:var(--teal-soft); margin-top:18px">Build &amp; harden</h3>
-        <table class="tbl">
-          <tbody>
-            <tr><td><code>/implement</code></td><td>Implement one plan phase end-to-end; branches, gates, post-phase docs + commit. Final phase &rarr; release.</td></tr>
-            <tr><td><code>/test</code></td><td>Drive coverage to threshold (80% + 100% pass). Tiers: <code>unit</code>, <code>integration</code>, <code>e2e</code>, <code>ci</code>, <code>tdd</code>, <code>all</code>.</td></tr>
-          </tbody>
-        </table>
-
-        <h3 style="color:var(--teal-soft); margin-top:18px">Ship &amp; maintain</h3>
-        <table class="tbl">
-          <tbody>
-            <tr><td><code>/update</code></td><td>Sync + ship. Scopes: <code>docs</code>, <code>devlog</code>, <code>version</code>, <code>changelog</code>, <code>refactor</code>, <code>config</code>, <code>commit</code>, <code>release</code>.</td></tr>
-            <tr><td><code>/session</code></td><td>Resume where you left off, wrap up cleanly, or write a session-history document.</td></tr>
-          </tbody>
-        </table>
-
-        <h3 style="color:var(--teal-soft); margin-top:18px">Meta &amp; catalog</h3>
-        <table class="tbl">
-          <tbody>
-            <tr><td><code>/skills</code></td><td>Browse, search, create, import, and security-scan the skill + command catalog. <code>/commands</code> lists the cheatsheet.</td></tr>
-            <tr><td><code>/research</code></td><td>Deep multi-source research, report compilation, and document export.</td></tr>
-            <tr><td><code>/presentify</code></td><td>Turn one or more documents (PDF / Word / Excel / PowerPoint) into a single self-contained, offline, interactive HTML presentation. Local-only parsing; inline charts; no external requests.</td></tr>
-            <tr><td><code>/setup</code></td><td>Bootstrap a project: scaffold CLAUDE.md, structure, .gitignore, README, optional pre-commit review hook.</td></tr>
-            <tr><td><code>/memory</code> &middot; <code>/usage</code></td><td>Audit + prune CLAUDE.md / memory files &middot; check Claude Code usage limits and model recommendations.</td></tr>
-            <tr><td><code>/org</code></td><td>Optional organization-knowledge layer. Declined as a Training scene.</td></tr>
-            <tr><td><code>/tune-prompting</code></td><td>Specialist calibration. Declined as a Training scene.</td></tr>
-            <tr><td><code>/commit</code></td><td>Permanent alias of <code>/update commit</code>.</td></tr>
-            <tr><td><code>/commands</code></td><td>Permanent alias of <code>/skills list</code>.</td></tr>
+            <tr><td><code>/spec</code></td><td>Scopes: <code>clarify</code>, <code>analyze</code>, <code>converge</code>, <code>constitution</code>. Optional beat inside <code>/plan</code>.</td></tr>
             <tr><td><code>/constitution</code></td><td>Permanent alias of <code>/spec constitution</code>.</td></tr>
+            <tr><td><code>/setup</code></td><td>Scopes: <code>project</code>, <code>hooks</code>. Post-install bootstrap.</td></tr>
+            <tr><td><code>/skills</code></td><td>Scopes: <code>search</code>, <code>list</code>, <code>create</code>, <code>import</code>, <code>scan</code>. First verify after install: <code>/skills list</code>.</td></tr>
+            <tr><td><code>/commands</code></td><td>Permanent alias of <code>/skills list</code>.</td></tr>
+            <tr><td><code>/route</code></td><td>Target a plan phase, a quoted task, or the in-flight task. Optional beat inside <code>/plan</code> and <code>/implement</code>.</td></tr>
+            <tr><td><code>/session</code></td><td>Scopes: <code>continue</code>, <code>wrap-up</code>, <code>history</code>.</td></tr>
+            <tr><td><code>/commit</code></td><td>Permanent alias of <code>/update commit</code>.</td></tr>
+            <tr><td><code>/memory</code></td><td>No scopes. Audit and prune CLAUDE.md and memory files. Declined as Training.</td></tr>
+            <tr><td><code>/usage</code></td><td>No scopes. Claude Code usage limits. Declined as Training.</td></tr>
+            <tr><td><code>/research</code></td><td>Scopes: <code>deep</code>, <code>compile</code>, <code>report</code>. Declined as Training.</td></tr>
+            <tr><td><code>/org</code></td><td>Scopes: <code>status</code>, <code>connect</code>, <code>sync</code>, <code>author</code>. Declined as Training.</td></tr>
+            <tr><td><code>/tune-prompting</code></td><td>Optional <code>&lt;model-id&gt;</code>, <code>--dry-run</code>, <code>--profiles-only</code>. Declined as Training.</td></tr>
           </tbody>
         </table>
       </section>
 
-      <!-- Getting started -->
-      <section class="section--tight">
-        <h2>Getting started</h2>
-        <div class="grid grid-2" style="align-items:start">
-          <div>
-            <h3>Install the catalog</h3>
-            <p>One command copies the catalog into <code>~/.nexus-hub/</code> and wires it into each AI assistant's own config location. Run it once per machine.</p>
-            <div class="term term--standalone" style="margin-top:10px">
-              <div class="term-bar">
-                <div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div>
-                <span class="label">install</span>
-              </div>
-              <div class="term-body">
-                <div class="term-line"><span class="t-dim"># macOS / Linux - paste into Terminal:</span></div>
-                <div class="cmd-line" style="flex-wrap:wrap; overflow-wrap:anywhere"><span class="t-teal" aria-hidden="true">$</span> <code data-copy="curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash">curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash</code></div>
-                <div class="spacer"></div>
-                <div class="term-line"><span class="t-dim"># Windows - paste into PowerShell:</span></div>
-                <div class="cmd-line" style="flex-wrap:wrap; overflow-wrap:anywhere"><span class="t-teal" aria-hidden="true">&gt;</span> <code data-copy="irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex">irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex</code></div>
-                <div class="spacer"></div>
-                <div class="term-line t-dim">Need wget, flags, or platform paths? See Advanced install below.</div>
-              </div>
-            </div>
-          </div>
-          <div>
-            <h3>First five minutes</h3>
-            <ul style="color:var(--ink-dim); font-size:14.5px; line-height:1.9">
-              <li>Run <code>/skills list</code> (or <code>/commands</code>) to see every command and common multi-command workflows.</li>
-              <li>Search the catalog by topic with <code>/skills search &lt;topic&gt;</code>.</li>
-              <li>On an unfamiliar repo, always start with <code>/describe</code> then <code>/review</code>.</li>
-              <li>The <code>using-nexus-hub</code> skill orients a fresh AI session to the catalog in under two minutes.</li>
-            </ul>
-            <div class="callout tip" style="margin-top:6px">
-              <span class="ci">&#9733;</span>
-              <p>Works the same across Claude Code, Codex, Cursor, Gemini / Antigravity, and Copilot. A teammate on a different tool runs the identical commands.</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="section--tight">
-        <h2>Advanced install and platform reachability</h2>
-        <p>The Home page carries the two one-line installers. This block is the disclosure for wget, flags, where files land, and which hosts expose slash commands.</p>
-        <h3>wget fallback (macOS / Linux)</h3>
-        <div class="term term--standalone">
-          <div class="term-bar"><div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div><span class="label">wget</span></div>
-          <div class="term-body">
-            <div class="cmd-line"><span class="t-teal" aria-hidden="true">$</span> <code data-copy="wget -qO- https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash">wget -qO- https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash</code></div>
-          </div>
-        </div>
-        <h3>Flags</h3>
+      <section class="section" id="cs-extra">
+        <span class="eyebrow">Band 3</span>
+        <h2>Extra notes (not a second Training)</h2>
         <ul>
-          <li><code>--workspace &lt;path&gt;</code> scopes the install to one repository.</li>
-          <li><code>--platforms claude,codex,...</code> limits which assistants are wired.</li>
-          <li><code>--yes</code> refreshes managed files with no conflict prompt (CI / scripts).</li>
-          <li><code>nexus-hub upgrade</code> refreshes an existing install in place.</li>
-          <li><code>/update config</code> validates and repairs an assistant's installed config.</li>
+          <li><code>/plan from-comparison</code> seeds a plan from a compare report. The follow-on <code>/implement</code> is the same command, not a ninth Training scene.</li>
+          <li><code>/implement in-full</code> walks every incomplete phase. Each non-final phase is a local commit only.</li>
+          <li><code>/presentify --nav slides</code> is that command's slide mode. This guide uses slides only inside Training.</li>
+          <li>Install flags (Home also lists them): <code>--workspace</code>, <code>--platforms</code>, <code>--yes</code>, <code>nexus-hub upgrade</code>, wget fallback. Shared catalog: <code>~/.nexus-hub/</code>.</li>
         </ul>
-        <h3>What lands where</h3>
-        <p>The shared catalog lives in <code>~/.nexus-hub/</code>. Each assistant also receives the surfaces it understands in its own config directory (for example <code>~/.claude/</code>, <code>~/.codex/</code>, <code>~/.cursor/commands/</code>).</p>
         <h3>Slash reachability</h3>
         <table class="tbl">
-          <thead><tr><th>Provider</th><th>Slash commands</th><th>Notes</th></tr></thead>
+          <thead><tr><th>Provider</th><th>Slash commands</th></tr></thead>
           <tbody>
-            <tr><td>Anthropic &middot; Claude Code</td><td>Yes</td><td><code>~/.claude/</code> commands, hooks, skills</td></tr>
-            <tr><td>OpenAI &middot; Codex</td><td>Yes</td><td><code>~/.codex/</code> prompts</td></tr>
-            <tr><td>Google &middot; Gemini / Antigravity</td><td>Yes</td><td>Antigravity reads project <code>.agents/</code>; run <code>nexus-hub init</code> once in the repo</td></tr>
-            <tr><td>Anysphere &middot; Cursor</td><td>Yes</td><td>Global <code>~/.cursor/commands/</code></td></tr>
-            <tr><td>Microsoft &middot; GitHub Copilot</td><td>Yes</td><td>VS Code user-profile prompt files</td></tr>
-            <tr><td>OpenCode</td><td>Body only</td><td>No slash menu; name the command in chat</td></tr>
-            <tr><td>Nexus &middot; Nexus-AI</td><td>Yes</td><td>Desktop integration</td></tr>
+            <tr><td>Claude Code</td><td>Yes</td></tr>
+            <tr><td>Codex</td><td>Yes</td></tr>
+            <tr><td>Gemini / Antigravity</td><td>Yes</td></tr>
+            <tr><td>Cursor</td><td>Yes</td></tr>
+            <tr><td>GitHub Copilot</td><td>Yes</td></tr>
+            <tr><td>OpenCode</td><td>Body only; name the command in chat</td></tr>
+            <tr><td>Nexus-AI</td><td>Yes</td></tr>
           </tbody>
         </table>
+        <p><a class="btn" href="#training" data-go="training">Back to Training</a></p>
       </section>
-
-      <div class="center" style="margin-top:34px">
-        <h2>That's the whole tour</h2>
-        <p class="lead" style="margin:0 auto 20px">You've seen TaskFlow go from inherited mystery to a shipped, tested, documented v0.5.0 - without a single ad-hoc prompt. That's Nexus-Hub.</p>
-        <div class="btn-row">
-          <a class="btn btn--primary" data-go="home">Back to the top <span class="arr">&rarr;</span></a>
-          <a class="btn" data-go="explore">Replay the walkthrough</a>
-        </div>
-      </div>
 
       <div class="progress" data-progress></div>
       <div class="page-nav" data-pagenav></div>
     </div>
   </section>
+
 
   </main>
 
@@ -2335,14 +1438,19 @@ html[data-theme="light"] .gb-stage[data-pose="studio"] { color: #07141a; }
       { id: "home",        title: "Home" },
       { id: "foundations", title: "Foundations" },
       { id: "training",    title: "Training" },
-      { id: "explore",     title: "Explore & evaluate" },
-      { id: "plan",        title: "Plan the work" },
-      { id: "build",       title: "Implement" },
-      { id: "harden",      title: "Harden" },
-      { id: "ship",        title: "Ship & maintain" },
-      { id: "communicate", title: "Document" },
-      { id: "reference",   title: "Reference" }
+      { id: "cheatsheets", title: "Cheatsheets" }
     ];
+    var HASH_REWRITES = {
+      reference: "cheatsheets",
+      workflows: "cheatsheets",
+      explore: "cheatsheets/explore",
+      plan: "cheatsheets/plan",
+      build: "cheatsheets/build",
+      harden: "cheatsheets/harden",
+      ship: "cheatsheets/ship",
+      communicate: "cheatsheets/communicate"
+    };
+
     var INSTALL_SH = "curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash";
     var INSTALL_PS = "irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex";
     var THEME_KEY = "portfolio-theme";
@@ -2416,10 +1524,6 @@ html[data-theme="light"] .gb-stage[data-pose="studio"] { color: #07141a; }
       for (var j = 0; j < links.length; j++) {
         links[j].classList.toggle("active", links[j].getAttribute("data-go") === id);
       }
-      if (["explore", "plan", "build", "harden", "ship", "communicate"].indexOf(id) >= 0) {
-        var wfNav = document.querySelector('.nav-links a[data-group="workflow"]');
-        if (wfNav) wfNav.classList.add("active");
-      }
       renderPageNav(idx);
       renderProgress(idx);
       window.scrollTo(0, 0);
@@ -2435,18 +1539,24 @@ html[data-theme="light"] .gb-stage[data-pose="studio"] { color: #07141a; }
       return raw.split("?")[0].split("/")[0];
     }
     function rewriteHash(page) {
-      var next = "#" + page;
+      var next = page.charAt(0) === "#" ? page : "#" + page;
       if (location.hash === next) return;
       if (history.replaceState) {
         history.replaceState(null, "", next);
       } else {
-        location.hash = page;
+        location.hash = next.replace(/^#/, "");
       }
     }
     function go() {
       var raw = (location.hash || "#home").replace(/^#/, "");
       var parts = raw.split("?")[0].split("/").filter(function (p) { return p.length > 0; });
       var id = parts[0] || "home";
+      if (HASH_REWRITES[id] && parts.length === 1) {
+        rewriteHash(HASH_REWRITES[id]);
+        raw = HASH_REWRITES[id];
+        parts = raw.split("/").filter(function (p) { return p.length > 0; });
+        id = parts[0] || "home";
+      }
       var ok = false;
       for (var i = 0; i < PAGES.length; i++) { if (PAGES[i].id === id) ok = true; }
       if (!ok) {
@@ -2458,6 +1568,12 @@ html[data-theme="light"] .gb-stage[data-pose="studio"] { color: #07141a; }
       if (id === "home" && parts[1] === "install") {
         window.requestAnimationFrame(function () {
           var el = document.getElementById("nhg-install");
+          if (el && el.scrollIntoView) el.scrollIntoView({ block: "start", behavior: "auto" });
+        });
+      }
+      if (id === "cheatsheets" && parts[1]) {
+        window.requestAnimationFrame(function () {
+          var el = document.getElementById("cs-" + parts[1]);
           if (el && el.scrollIntoView) el.scrollIntoView({ block: "start", behavior: "auto" });
         });
       }
@@ -2478,7 +1594,8 @@ html[data-theme="light"] .gb-stage[data-pose="studio"] { color: #07141a; }
       if (!t) return;
       e.preventDefault();
       var id = t.getAttribute("data-go");
-      if ("#" + id === location.hash) { show(id); } else { location.hash = id; }
+      var page = (id || "").split("/")[0];
+      if ("#" + id === location.hash) { show(page); } else { location.hash = id; }
     });
     document.addEventListener("keydown", function (e) {
       if (e.key !== "Enter" && e.key !== " ") return;
@@ -3785,24 +2902,5 @@ html[data-theme="light"] .gb-stage[data-pose="studio"] { color: #07141a; }
 })();
 </script>
 
-<script>
-/* Workflow subtabs: inject a secondary tab bar into each workflow page. */
-(function () {
-  "use strict";
-  var WF = [["explore", "Explore"], ["plan", "Plan"], ["build", "Build"], ["harden", "Harden"], ["ship", "Ship"], ["communicate", "Document"]];
-  WF.forEach(function (pair) {
-    var page = document.getElementById("page-" + pair[0]);
-    if (!page) return;
-    var container = page.querySelector(".container");
-    if (!container) return;
-    var bar = document.createElement("div");
-    bar.className = "wf-subtabs";
-    bar.innerHTML = WF.map(function (p) {
-      return '<a data-go="' + p[0] + '" class="wf-subtab' + (p[0] === pair[0] ? " cur" : "") + '">' + p[1] + "</a>";
-    }).join("");
-    container.insertBefore(bar, container.firstChild);
-  });
-})();
-</script>
 </body>
 </html>

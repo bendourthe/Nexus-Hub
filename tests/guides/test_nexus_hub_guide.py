@@ -282,6 +282,9 @@ def test_no_installation_in_primary_nav(parsed: GuideParser) -> None:
     labels = [text.lower() for _go, text in parsed.nav_link_text]
     assert not any("installation" in t for t in labels)
     assert "setup" not in parsed.nav_data_go
+    assert any("cheatsheets" in t for t in labels)
+    assert not any("workflow" in t for t in labels)
+    assert not any(t.strip() == "reference" for t in labels)
 
 
 def test_theme_toggle_exists(parsed: GuideParser) -> None:
@@ -401,11 +404,10 @@ def test_no_stale_setup_route_in_markup(parsed: GuideParser) -> None:
 def test_home_has_six_node_preview_including_communicate(guide_text: str) -> None:
     home_markup = guide_text.split('id="page-home"', 1)[-1].split('id="page-foundations"', 1)[0]
     assert "Map and evaluate" in home_markup
-    assert 'data-go="communicate"' in home_markup
     assert "presentify" in home_markup.lower()
     assert 'data-go="setup"' not in home_markup
     for node in ("explore", "plan", "build", "harden", "ship", "communicate"):
-        assert f'data-go="{node}"' in home_markup
+        assert f"cheatsheets/{node}" in home_markup
 
 
 def test_home_loop_nodes_are_not_abutting_rectangles(guide_text: str) -> None:
@@ -619,7 +621,7 @@ def test_optional_portfolio_copy_when_env_set() -> None:
     )
 
 
-def test_every_catalog_command_is_training_reference_or_declined(
+def test_every_catalog_command_is_training_cheatsheets_or_declined(
     parsed: GuideParser, guide_text: str
 ) -> None:
     names = sorted(p.stem for p in COMMANDS_DIR.glob("*.md"))
@@ -627,18 +629,27 @@ def test_every_catalog_command_is_training_reference_or_declined(
     data = json.loads(parsed.json_script_contents[0])
     scenes = data["scenes"] if isinstance(data, dict) and "scenes" in data else data
     scene_ids = {scene["id"] for scene in scenes}
-    reference = guide_text.split('id="page-reference"', 1)[-1]
+    cheatsheets = guide_text.split('id="page-cheatsheets"', 1)[-1]
     readme = WEBSITE_README.read_text(encoding="utf-8")
     content_map = CONTENT_MAP.read_text(encoding="utf-8")
     missing = []
     for name in names:
         token = f"/{name}"
         in_scene = name in scene_ids
-        in_reference = token in reference
+        in_cheatsheets = token in cheatsheets
         in_docs = token in readme or token in content_map
-        if not (in_scene or in_reference or in_docs):
+        if not (in_scene or in_cheatsheets or in_docs):
             missing.append(name)
     assert not missing, f"unplaced catalog commands: {missing}"
+
+
+def test_cheatsheets_hash_rewrites_exist(guide_text: str) -> None:
+    assert "HASH_REWRITES" in guide_text
+    assert "reference: \"cheatsheets\"" in guide_text or "reference: 'cheatsheets'" in guide_text
+    assert "explore: \"cheatsheets/explore\"" in guide_text or "explore: 'cheatsheets/explore'" in guide_text
+    assert 'id="page-cheatsheets"' in guide_text
+    assert 'id="page-explore"' not in guide_text
+    assert 'id="page-reference"' not in guide_text
 
 
 def test_website_readme_matches_redesign() -> None:

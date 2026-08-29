@@ -151,3 +151,15 @@ Phase 5 adds `guides/website/example/glow-booth/`, `guides/website/example/glow-
 ### Result
 
 No documentation move. Temporary `_patch_phase5.py` was deleted before commit.
+
+## v4.2.1 Phase 6 - Cheatsheets merge
+
+**Date**: 2026-08-29
+**Mode**: audit only; no files moved
+
+Phase 6 removes Workflows and Reference from primary nav, adds `#page-cheatsheets`, and rewrites `guides/website/README.md` plus the focused test file. Temporary `_patch_phase6.py` was deleted before commit. No `docs/testing/` or `docs/validation/` invented.
+
+### Result
+
+No documentation move.
+

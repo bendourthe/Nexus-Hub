@@ -14,7 +14,7 @@ Refreshing this file to the active plan (rather than appending another version's
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
-| v4.2.1 guide-visual-education phases complete | 5 | 7 | -2 |
+| v4.2.1 guide-visual-education phases complete | 6 | 7 | -1 |
 | Open release blockers | 0 | 0 | 0 |
 | Catalog skills | 328 | 328 | 0 |
 | New MCP servers | 0 | 0 | 0 |
@@ -29,7 +29,7 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Phase 3 - Home loop visual
 - [x] Phase 4 - Foundations visual education
 - [x] Phase 5 - Training slideshow and Glow Booth
-- [ ] Phase 6 - Cheatsheets merge
+- [x] Phase 6 - Cheatsheets merge
 - [ ] Phase 7 - Architecture refactor, known-gaps, CI/CD, publication, and integration
 
 ### What this plan changes, in one paragraph
