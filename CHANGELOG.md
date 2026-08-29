@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **Interactive guide redesign (in progress).** Phases 1-5: contract, dual-theme shell, concise Home with install, model-versus-harness Foundations, and an eight-scene IDE training workbench driven by `guides/website/example/training-scenes.json`.
+- **Interactive guide redesign (in progress).** Phases 1-6: contract, dual-theme shell, concise Home with install, model-versus-harness Foundations, an eight-scene IDE training workbench driven by `guides/website/example/training-scenes.json`, a documented copy path to the sibling portfolio, and a product-currency gate over every catalog command.
 
 ---
 

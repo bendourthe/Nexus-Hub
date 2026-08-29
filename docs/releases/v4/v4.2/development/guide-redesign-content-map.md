@@ -58,7 +58,7 @@ Copied from the plan. Every file in `catalog/commands/` is placed once. Verified
 
 Closed Training set: eight scenes, hard cap ten. Scene order: describe, review, plan, implement, compare, test, update, presentify.
 
-Current Reference (`#page-reference`) already lists most of these. `/org` and `/tune-prompting` are absent from the live cheatsheet and must be added as Reference rows in Phase 6 (product-currency gate). `/commit`, `/commands`, and `/constitution` appear as aliases in prose; keep them as explicit rows.
+Current Reference (`#page-reference`) lists every catalog command. Phase 6 added `/org`, `/tune-prompting`, and explicit alias rows for `/commit`, `/commands`, and `/constitution`. Training remains the closed eight-scene set.
 
 ## Presentify inherit / reject (frozen)
 

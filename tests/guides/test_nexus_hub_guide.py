@@ -6,6 +6,8 @@ Redesign assertions use strict xfail until the named phase removes the marker.
 
 from __future__ import annotations
 
+import json
+import os
 import re
 from collections import Counter, defaultdict
 from html.parser import HTMLParser
@@ -460,3 +462,104 @@ def test_hostile_fixture_strings_are_present_for_textcontent(parsed: GuideParser
     # Rendering contract: workbench JS assigns fixture strings via textContent.
     # (A live DOM is last-phase / DF-1; this is the static proof.)
     assert "els.editor.textContent" in Path(GUIDE).read_text(encoding="utf-8")
+
+
+# ---------------------------------------------------------------------------
+# Redesign: Phase 6
+# ---------------------------------------------------------------------------
+
+WEBSITE_README = _ROOT / "guides" / "website" / "README.md"
+CONTENT_MAP = (
+    _ROOT
+    / "docs"
+    / "releases"
+    / "v4"
+    / "v4.2"
+    / "development"
+    / "guide-redesign-content-map.md"
+)
+COMMANDS_DIR = _ROOT / "catalog" / "commands"
+
+
+def _strip_allowlisted_favicon(html: str) -> str:
+    return re.sub(
+        r"""<link[^>]+rel=["'](?:shortcut )?icon["'][^>]*>""",
+        "",
+        html,
+        flags=re.IGNORECASE,
+    )
+
+
+def test_publication_check_self_contained_and_offline(
+    parsed: GuideParser, guide_text: str
+) -> None:
+    """Canonical guide is checkable without the sibling portfolio or a network fetch."""
+    assert parsed.json_script_contents, "inline Training JSON required"
+    json.loads(parsed.json_script_contents[0])
+    assert INSTALL_SH in guide_text
+    assert INSTALL_PS in guide_text
+    assert not parsed.script_src
+
+
+def test_optional_portfolio_copy_when_env_set() -> None:
+    root = os.environ.get("NEXUS_HUB_PORTFOLIO_ROOT")
+    if not root:
+        pytest.skip("NEXUS_HUB_PORTFOLIO_ROOT unset; sibling copy not required")
+    dest = Path(root) / "nexus-hub" / "index.html"
+    assert dest.is_file(), f"env set but missing published copy at {dest}"
+    src = GUIDE.read_text(encoding="utf-8")
+    other = dest.read_text(encoding="utf-8")
+    if src == other:
+        return
+    assert _strip_allowlisted_favicon(src) == _strip_allowlisted_favicon(other), (
+        "portfolio copy drifted beyond an allowlisted favicon head delta"
+    )
+
+
+def test_every_catalog_command_is_training_reference_or_declined(
+    parsed: GuideParser, guide_text: str
+) -> None:
+    names = sorted(p.stem for p in COMMANDS_DIR.glob("*.md"))
+    assert names, "catalog/commands is empty"
+    data = json.loads(parsed.json_script_contents[0])
+    scenes = data["scenes"] if isinstance(data, dict) and "scenes" in data else data
+    scene_ids = {scene["id"] for scene in scenes}
+    reference = guide_text.split('id="page-reference"', 1)[-1]
+    readme = WEBSITE_README.read_text(encoding="utf-8")
+    content_map = CONTENT_MAP.read_text(encoding="utf-8")
+    missing = []
+    for name in names:
+        token = f"/{name}"
+        in_scene = name in scene_ids
+        in_reference = token in reference
+        in_docs = token in readme or token in content_map
+        if not (in_scene or in_reference or in_docs):
+            missing.append(name)
+    assert not missing, f"unplaced catalog commands: {missing}"
+
+
+def test_website_readme_matches_redesign() -> None:
+    text = WEBSITE_README.read_text(encoding="utf-8")
+    lower = text.lower()
+    assert "31 slide" not in lower
+    assert "20 slide" not in lower
+    assert "guided tour" not in lower
+    assert "fullscreen button" not in lower
+    assert "training-scenes.json" in text
+    assert "nexus-hub/index.html" in text
+    assert "NEXUS_HUB_PORTFOLIO_ROOT" in text
+    assert "sync-nexus-hub-guide.mjs" in text
+    assert "Installation is not a primary page" in text
+    for scene in (
+        "describe",
+        "review",
+        "plan",
+        "implement",
+        "compare",
+        "test",
+        "update",
+        "presentify",
+    ):
+        assert f"`/{scene}`" in text
+    assert "`/org`" in text
+    assert "`/tune-prompting`" in text

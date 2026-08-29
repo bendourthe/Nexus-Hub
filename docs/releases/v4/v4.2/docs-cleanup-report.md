@@ -64,3 +64,13 @@ Phase 5 adds `guides/website/example/training-scenes.json`, rewrites Training in
 ### Result
 
 No documentation move. Unused `.nht` slide CSS remains in the guide as dead rules; removing it is optional cleanup, not a layout move.
+
+## Phase 6 - Maintainer Docs and Copy Contract
+
+### Layout check
+
+Phase 6 rewrites `guides/website/README.md` in place, extends `tests/guides/test_nexus_hub_guide.py`, adds Reference rows in the canonical HTML, and adds `docs/releases/v4/v4.2/development/guide-redesign-phase-6/`. No file moved. No installer-copied `scripts/*.py` was added.
+
+### Result
+
+No documentation move. The sibling portfolio remains outside this tree; the copy contract is documentation plus an optional env-gated diff.

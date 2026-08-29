@@ -687,9 +687,8 @@ html.no-js .tab-panel { display: block; }
 .copyable > .copy-btn { position: absolute; top: 8px; right: 8px; margin-left: 0; }
 
   /* ============================================================
-     Guided tour: embedded slide-show. All rules scoped under .nht
-     and all classes prefixed ts- so nothing collides with the guide.
-     Reuses the guide's existing CSS custom properties for the palette.
+     Unused leftover .nht / .ts- slide-deck rules. Training uses the
+     .wb workbench styles above. Safe to delete in last-phase cleanup.
      ============================================================ */
   .nht { position: relative; color: var(--ink); font-family: var(--sans); }
   .nht .ts-intro { max-width: 100%; margin: 0 0 22px; }
@@ -2119,6 +2118,11 @@ html.no-js .tab-panel { display: block; }
             <tr><td><code>/presentify</code></td><td>Turn one or more documents (PDF / Word / Excel / PowerPoint) into a single self-contained, offline, interactive HTML presentation. Local-only parsing; inline charts; no external requests.</td></tr>
             <tr><td><code>/setup</code></td><td>Bootstrap a project: scaffold CLAUDE.md, structure, .gitignore, README, optional pre-commit review hook.</td></tr>
             <tr><td><code>/memory</code> &middot; <code>/usage</code></td><td>Audit + prune CLAUDE.md / memory files &middot; check Claude Code usage limits and model recommendations.</td></tr>
+            <tr><td><code>/org</code></td><td>Optional organization-knowledge layer. Declined as a Training scene.</td></tr>
+            <tr><td><code>/tune-prompting</code></td><td>Specialist calibration. Declined as a Training scene.</td></tr>
+            <tr><td><code>/commit</code></td><td>Permanent alias of <code>/update commit</code>.</td></tr>
+            <tr><td><code>/commands</code></td><td>Permanent alias of <code>/skills list</code>.</td></tr>
+            <tr><td><code>/constitution</code></td><td>Permanent alias of <code>/spec constitution</code>.</td></tr>
           </tbody>
         </table>
       </section>
