@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Documentation
 
-- **v4.1.2 planning record.** Added the Ponytail (minimal-construction) comparison as forward-looking documentation. Its implementation does not ship in v4.1.1.
+- **v4.1.2 planning record.** Added the Ponytail (minimal-construction) comparison and the reverse-engineer-first adoption plan as forward-looking documentation. Implementation does not ship until that plan runs.
 
 ---
 
