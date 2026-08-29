@@ -2,7 +2,7 @@
 
 This is the durable, sourced source of truth for where every supported platform READS each surface (instruction file, slash commands, skills, agents, rules, hooks) and where the Nexus-Hub installer WRITES it. It supersedes the point-in-time snapshot at `docs/v3/v3.11/platform-read-contracts.md` (which resolved the v3.11.0 Phase 7 audit but left the Codex and Antigravity contracts flagged as unverified).
 
-**Last verified**: 2026-08-28 for v4.1.1 (targeted pass; Claude Code and Cursor MATCH, Codex low non-breaking DRIFT, remaining public platforms carried forward from the same-day v4.1.0 MATCH, Nexus-AI UNVERIFIED; no delivery-path change).
+**Last verified**: 2026-08-28 for v4.1.2 (targeted pass; Claude Code and Cursor MATCH, Codex low non-breaking DRIFT, remaining public platforms carried forward from the same-day v4.1.1 MATCH, Nexus-AI UNVERIFIED; no delivery-path change).
 
 ## Invocation-policy emission (v3.20.3)
 
@@ -17,7 +17,9 @@ This is not a discovery-path change. Command-skills synthesized at install time 
 | Codex / ChatGPT | `policy.allow_implicit_invocation` in `agents/openai.yaml` (inverted) | After command-skill write, `codex_invocation_policy` emits `allow_implicit_invocation: false`. Re-fetched 2026-08-24; mapping unchanged. |
 | Antigravity 2.0, OpenCode, Kimi, Hermes, Nexus-AI | none documented | The SKILL.md field is still emitted and ignored. Honest gap; no invented mapping. |
 
-The living per-skill lever survey remains [`skill-invocation-policy-levers.md`](skill-invocation-policy-levers.md). `meta.verified_for_version` is 4.1.1.
+The living per-skill lever survey remains [`skill-invocation-policy-levers.md`](skill-invocation-policy-levers.md). `meta.verified_for_version` is 4.1.2.
+
+**v4.1.2 pass (targeted).** Construction-discipline catalog release; no discovery-path, adapter write-target, or `contract_checks` change. Re-fetch: Claude MATCH ([code.claude.com/docs/en/skills](https://code.claude.com/docs/en/skills)), Cursor MATCH ([cursor.com/docs/skills](https://cursor.com/docs/skills), recursive `.cursor/skills` and `.agents/skills` at project and user scope, plus `disable-model-invocation`). Codex **DRIFT (low)** carried forward ([learn.chatgpt.com/docs/build-skills](https://learn.chatgpt.com/docs/build-skills)): documents the `.agents/skills` ladder including `$HOME/.agents/skills`; still omits `~/.codex/skills`. Remaining public platforms were not re-fetched this cycle and are carried forward from the v4.1.1 MATCH, not assumed. Nexus-AI remains UNVERIFIED.
 
 **v3.21.0 pass (targeted).** Plan/implement lifecycle and living-docs release; no discovery-path, adapter write-target, or `contract_checks` change. Re-fetch: Claude MATCH ([code.claude.com/docs/en/skills](https://code.claude.com/docs/en/skills)), Cursor MATCH ([cursor.com/docs/skills](https://cursor.com/docs/skills)). Codex **timeout this cycle**; low non-breaking DRIFT carried forward (ninth consecutive; documents the `.agents/skills` ladder including `$HOME/.agents/skills`; still omits `~/.codex/skills`). OpenCode MATCH, Gemini CLI MATCH, Antigravity, Gemini Code Assist, Kimi, and Qwen were not re-fetched this cycle and are carried forward from the 2026-08-24 MATCH, not assumed. Nexus-AI remains UNVERIFIED.
 

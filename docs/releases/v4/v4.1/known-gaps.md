@@ -125,7 +125,7 @@ All Not Implemented, Bug / Regression, and Missing Test categories have no open 
 | Bugs / regressions (BG) | 0 | 0 |
 | Warnings (WN) | 1 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
-| Quality-gate gaps (QG) | 1 | 0 |
+| Quality-gate gaps (QG) | 0 | 1 |
 
 ### Open Items
 
@@ -136,20 +136,17 @@ All Not Implemented, Bug / Regression, and Missing Test categories have no open 
 - **Source phase**: Phase 5 - Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
 - **Plan reference**: `docs/releases/v4/v4.1/plans/v4.1.2-adoption-minimal-construction.md` T023 / T028
 - **Evidence**: `python scripts/check_release_preconditions.py --branches --repo-settings` reports `skills: description says 326, README.md declares 328`. This plan added two catalog skills. It is not v4.1.0 WN-1 (that item was 324 versus 326).
-- **Next action**: Update the GitHub repository description from 326 to 328 during the authorized publication or `/update release` step, then rerun `python scripts/check_release_preconditions.py --branches --repo-settings`. Do not mutate repository settings without that approval.
+- **Next action**: Update the GitHub repository description from 326 to 328 during the authorized GitHub Release / publication step, then rerun `python scripts/check_release_preconditions.py --branches --repo-settings`.
+
+Do not absorb v4.1.0 DF-1/WN-1/QG-1 or v4.1.1 DF-1.
+
+### Resolved
 
 #### Quality-Gate Gaps
 
 ##### QG-1 - Local full CI profile was not completed in this session
 
 - **Source phase**: Phase 5 - Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
-- **Plan reference**: T027
-- **Evidence**: `python scripts/ci/run.py --profile fast` passed 12 of 12. Construction-discipline pytest, lockstep parity, bundles-only skill validation, trigger-eval gate, installer parity, and required-check coverage all passed. Hour-scale `python scripts/ci/run.py --profile full` (including `pytest tests` at 4500s) was started and had not produced a final profile report when last-phase evidence was written.
-- **Impact**: The local full-profile result is incomplete, not failed or passed. Remote CI on the integration pull request remains the complete-suite proof before merge.
-- **Next action**: After explicit approval, push once and require `validate`, `shellcheck`, `ci-required`, `colocation`, and `verify` green on pull request [#141](https://github.com/bendourthe/Nexus-Hub/pull/141) before merging to `develop`.
-
-Do not absorb v4.1.0 DF-1/WN-1/QG-1 or v4.1.1 DF-1.
-
-### Resolved
-
-None.
+- **Evidence at deferral**: `python scripts/ci/run.py --profile fast` passed 12 of 12. Hour-scale local `--profile full` had not produced a final report when last-phase evidence was written.
+- **Resolution**: Pull request [#141](https://github.com/bendourthe/Nexus-Hub/pull/141) merged to `develop` at `34d8272b` with every required check green (`validate`, `shellcheck`, `ci-required`, `colocation`, `verify`). Post-merge workflow run `33235080095` succeeded (`smoke` + `provenance`). Remote CI is the complete-suite proof named in the original next action.
+- **Resolved in**: v4.1.2 release preparation on 2026-08-28
