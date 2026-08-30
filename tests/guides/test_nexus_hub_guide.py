@@ -631,23 +631,80 @@ def test_foundations_has_five_animated_scenes(guide_text: str) -> None:
         "The platform: the loop that gives it hands",
         "Context: what the model actually sees",
         "The harness: procedure, not vibes",
-        "One task, two runs",
+        "One job, two runs",
     ):
         assert heading in fx, f"missing scene heading: {heading}"
     assert fx.count("<svg") == 5, "each scene carries exactly one inline SVG diagram"
     for svg_class in ("fx-pop", "fx-draw", "fx-pulse"):
         assert svg_class in fx
+    assert 'class="fx-num"' not in fx, "the scene number line was removed in v4.2.3"
 
 
 def test_foundations_comparison_is_side_by_side_not_toggled(guide_text: str) -> None:
     """Both states are always visible; no selector chooses between them."""
     fx = _foundations_markup(guide_text)
     assert "FOCUSED CONTEXT" in fx and "NOISY CONTEXT" in fx
-    assert "RAW ASSISTANT" in fx and "WITH NEXUS-HUB" in fx
+    assert "WITHOUT NEXUS-HUB" in fx and "WITH NEXUS-HUB" in fx
     assert 'type="range"' not in fx
     assert "nhgCompare" not in guide_text
     assert "data-station-toggle" not in guide_text
     assert "aria-pressed" not in fx
+
+
+def test_foundations_orders_unaided_state_first(guide_text: str) -> None:
+    """v4.2.3: every comparison reads without-then-with, the same direction."""
+    fx = _foundations_markup(guide_text)
+    assert fx.index("NOISY CONTEXT") < fx.index("FOCUSED CONTEXT"), (
+        "the unaided context must come first"
+    )
+    assert fx.index("WITHOUT NEXUS-HUB") < fx.index("WITH NEXUS-HUB"), (
+        "the unaided run must come first"
+    )
+
+
+def test_foundations_arrowheads_are_filled_not_half_chevrons(guide_text: str) -> None:
+    fx = _foundations_markup(guide_text)
+    assert "fx-arrow" not in guide_text, "the open half-chevron arrow was replaced"
+    assert 'class="fx-head' in fx, "filled arrowheads present"
+    rule = re.search(r"\.fx-head\s*\{([^}]+)\}", guide_text)
+    assert rule and "fill:" in rule.group(1) and "stroke: none" in rule.group(1)
+    # a filled head is a closed path
+    for head in re.findall(r'class="fx-head[^"]*"[^>]*d="([^"]+)"', fx):
+        assert head.strip().endswith("Z"), f"arrowhead path is not closed: {head}"
+
+
+def test_foundations_loop_labels_have_hierarchy(guide_text: str) -> None:
+    """The old labels were all one bold accent font, which read as noise."""
+    fx = _foundations_markup(guide_text)
+    assert "fxt--role" in fx and "fxt--detail" in fx
+    role = re.search(r"\.fxt--role\s*\{([^}]+)\}", guide_text)
+    detail = re.search(r"\.fxt--detail\s*\{([^}]+)\}", guide_text)
+    assert role and detail
+    assert "var(--ink-faint)" in role.group(1) and "700" in role.group(1)
+    assert "var(--ink-dim)" in detail.group(1) and "400" in detail.group(1)
+    assert "action: read" not in fx and "result: file text" not in fx
+
+
+def test_foundations_pulses_are_painted_behind_nodes(guide_text: str) -> None:
+    """SVG has no z-index: paint order is document order, so a pulse that
+    should pass behind a box must be declared before it."""
+    fx = _foundations_markup(guide_text)
+    for svg in re.findall(r"<svg class=\"fx-svg\"[\s\S]*?</svg>", fx):
+        if "fx-pulse" not in svg:
+            continue
+        first_pulse = svg.index("fx-pulse")
+        first_node = svg.index("<g class=\"fx-pop")
+        assert first_pulse < first_node, (
+            "pulse must be declared before the node groups it crosses"
+        )
+
+
+def test_foundations_is_project_generic(guide_text: str) -> None:
+    """Teaching copy must not assume the reader's project is code."""
+    fx = _foundations_markup(guide_text)
+    text = re.sub(r"<[^>]+>", " ", fx).lower()
+    for term in ("repo", "repository", "terminal", "git ", "codebase"):
+        assert term not in text, f"coding-only term in Foundations teaching copy: {term!r}"
 
 
 def test_no_unexpected_persistent_overlays(guide_text: str) -> None:

@@ -464,11 +464,6 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
 .fx-scene:first-of-type { border-top: 0; }
 .fx-flip .fx-copy { order: 2; }
 .fx-wide { grid-template-columns: 1fr; }
-.fx-num {
-  display: inline-block; font-family: var(--mono); font-size: 12px; font-weight: 700;
-  color: var(--teal-soft); border: 1px solid var(--border); border-radius: 7px;
-  padding: 2px 8px; margin-bottom: var(--sp-2);
-}
 .fx-copy h2 { max-width: 26ch; }
 .fx-copy p { font-size: 15.5px; color: var(--ink-dim); }
 .fx-copy strong, .fx-copy em { color: var(--ink); }
@@ -495,7 +490,26 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
 .fxp { fill: none; stroke: var(--border-bright); stroke-width: 1.6; stroke-linecap: round; }
 .fxp--ghost { stroke-dasharray: 4 4; stroke-opacity: .6; }
 .fxp--arc { stroke: var(--accent); stroke-width: 2.4; }
-.fx-arrow { fill: none; stroke: var(--border-bright); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+/* Filled arrowheads. The old open chevron drew only one side, which
+   read as half an arrow. */
+.fx-head { fill: var(--border-bright); stroke: none; }
+.fx-head--good { fill: var(--green); }
+.fx-head--bad { fill: var(--red); }
+/* Loop labels: a dim role line, then the plain-language detail. Not
+   both bold accent, which is what made them unreadable. */
+.fxt--role { fill: var(--ink-faint); font-size: 10px; font-weight: 700; letter-spacing: .12em; }
+.fxt--detail { fill: var(--ink-dim); font-size: 11.5px; font-weight: 400; }
+.fxt--warn { fill: var(--amber); font-weight: 700; letter-spacing: .06em; }
+/* Side colouring: the unaided path is muted/warning, the harnessed
+   path is accent/positive, applied to lanes and nodes, not just the
+   outcome badge. */
+.fxp--warn { stroke: color-mix(in srgb, var(--amber) 60%, var(--border-bright)); }
+.fxp--good { stroke: color-mix(in srgb, var(--accent) 60%, var(--border-bright)); }
+.fxchip--warn { stroke: color-mix(in srgb, var(--amber) 55%, transparent); }
+.fxchip--good { stroke: color-mix(in srgb, var(--accent) 65%, transparent); }
+.fxwin--bad { stroke: color-mix(in srgb, var(--amber) 50%, var(--border-bright)); }
+.fxwin--good { stroke: color-mix(in srgb, var(--accent) 55%, var(--border-bright)); }
+.fxblock--keep { stroke: color-mix(in srgb, var(--accent) 45%, var(--border)); }
 .fxbar { fill: var(--teal-soft); opacity: .85; }
 .fx-hookdot { fill: var(--green); stroke: var(--surface); stroke-width: 2; }
 .fx-pulse { fill: var(--cyan); display: none; }
@@ -512,6 +526,11 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
 .js .fx-scene .fx-hookdot { fill: var(--red); transition: fill .4s var(--ease) 1.6s; }
 .js .fx-scene.in .fx-hookdot { fill: var(--green); }
 .fx-scene.live .fx-pulse { display: block; animation: fxTravel var(--t, 4s) linear infinite; }
+/* Guardrails sweep into place one by one instead of merely appearing. */
+.js .fx-scene .fx-guard { opacity: 0; }
+.js .fx-scene.in .fx-guard { opacity: 1; transition: opacity .3s var(--ease) var(--d, 0ms); }
+.js .fx-scene .fx-sweep { stroke-dasharray: 1; stroke-dashoffset: 1; }
+.js .fx-scene.in .fx-sweep { stroke-dashoffset: 0; transition: stroke-dashoffset .7s var(--ease) var(--d, 0ms); }
 @keyframes fxTravel {
   from { offset-distance: 0%; }
   to { offset-distance: 100%; }
@@ -762,6 +781,8 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
   .js .fx-scene .fx-fade { opacity: .38; transition: none; }
   .js .fx-scene .fx-hookdot { fill: var(--green); transition: none; }
   .fx-scene.live .fx-pulse { display: none; animation: none; }
+  .js .fx-scene .fx-guard { opacity: 1; transition: none; }
+  .js .fx-scene .fx-sweep { stroke-dasharray: none; stroke-dashoffset: 0; transition: none; }
 }
 </style>
 </head>
@@ -867,14 +888,14 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
         </ol>
         <details>
           <summary>Need another option?</summary>
-          <p>No curl? Use <code>wget -qO- https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash</code>. Scope one repo with <code>--workspace</code>, limit assistants with <code>--platforms</code>, or skip the conflict prompt with <code>--yes</code>. Refresh later with <code>nexus-hub upgrade</code>. Advanced flags and what lands in <code>~/.nexus-hub/</code> versus per-tool config are on <a href="#cheatsheets" data-go="cheatsheets">Cheatsheets</a>.</p>
+          <p>No curl? Use <code>wget -qO- https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash</code>. Scope one project with <code>--workspace</code>, limit assistants with <code>--platforms</code>, or skip the conflict prompt with <code>--yes</code>. Refresh later with <code>nexus-hub upgrade</code>. Advanced flags and what lands in <code>~/.nexus-hub/</code> versus per-tool config are on <a href="#cheatsheets" data-go="cheatsheets">Cheatsheets</a>.</p>
         </details>
       </section>
 
       <section class="section reveal">
         <span class="eyebrow">What it adds</span>
         <h2>Same model. Different working method.</h2>
-        <p>These claims map to repository artifacts: the installer, <code>catalog/skills/</code>, <code>catalog/commands/</code>, <code>catalog/hooks/</code>, and the GO / NO-GO gates inside <code>/plan</code> and <code>/implement</code>. They are not a claim that one model is smarter than another.</p>
+        <p>These claims map to real files in the catalog: the installer, <code>catalog/skills/</code>, <code>catalog/commands/</code>, <code>catalog/hooks/</code>, and the GO / NO-GO gates inside <code>/plan</code> and <code>/implement</code>. They are not a claim that one model is smarter than another.</p>
                 <div class="cmp reveal" data-cmp>
           <div class="cmp-head" aria-hidden="true">
             <span class="cmp-side cmp-side--without">Without Nexus-Hub</span>
@@ -932,7 +953,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
       <section class="section reveal">
         <span class="eyebrow">The loop</span>
         <h2>One governed loop, from first look to shipped</h2>
-        <p>Every project runs the same sequence. Each command reads the artifact the previous one wrote, so nothing lives only in chat scrollback.</p>
+        <p>Every project runs the same sequence. Each command reads what the previous one wrote, so nothing lives only in chat scrollback.</p>
         <div class="loop-strip" role="list" aria-label="The core command loop">
           <a role="listitem" class="loop-step" href="#cheatsheets/explore" data-go="cheatsheets/explore"><code>/describe</code><span>map it</span></a>
           <span class="loop-arrow" aria-hidden="true">&rarr;</span>
@@ -951,7 +972,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 
       <section class="section reveal">
         <span class="eyebrow">Next</span>
-        <h2>Learn it, then run it on your repo</h2>
+        <h2>Learn it, then run it on your project</h2>
         <p>Training teaches the loop on the Glow Booth example. Download <a href="glow-booth.zip" download>glow-booth.zip</a> when you want the example on disk; GitHub holds the catalog itself.</p>
         <div class="btn-row">
           <a class="btn btn--primary" href="#training" data-go="training">Open Training</a>
@@ -972,18 +993,17 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
     <div class="container">
       <div class="hero">
         <span class="eyebrow">Foundations</span>
-        <h1>What actually happens when an AI edits your code</h1>
+        <h1>What actually happens when an AI works on your project</h1>
         <p class="lead">Five minutes, four ideas: the model, the platform that gives it hands, the context it actually sees, and the harness that turns it into a governed teammate. No marketing &mdash; just the mental model the rest of this guide builds on.</p>
       </div>
 
       <section class="fx-scene reveal" aria-labelledby="fx-h1">
         <div class="fx-copy">
-          <span class="fx-num">01</span>
           <h2 id="fx-h1">The model: text in, text out</h2>
-          <p>A language model does one thing: given everything in the current request, it predicts useful next text. It is very good at that. It also has no hands &mdash; it cannot open your files, run your tests, or remember what you did yesterday. On its own, it can only <em>talk about</em> your code.</p>
+          <p>A language model does one thing: given everything in the current request, it predicts useful next text. It is very good at that. It also has no hands &mdash; it cannot open your files, run anything, or remember what you did yesterday. On its own, it can only <em>talk about</em> your work.</p>
         </div>
         <div class="fx-diagram">
-          <svg class="fx-svg" viewBox="0 0 520 240" role="img" aria-label="Diagram: training and your message flow into the model, which outputs only text">
+          <svg class="fx-svg" viewBox="0 0 520 240" role="img" aria-label="Diagram: training and your message flow into the model, which produces only text">
             <g class="fx-pop" style="--d:0ms">
               <rect class="fxr" x="10" y="30" width="128" height="40" rx="10"/>
               <text class="fxt" x="74" y="55" text-anchor="middle">Training</text>
@@ -996,16 +1016,16 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
               <rect class="fxr fxr--ghost" x="10" y="170" width="128" height="40" rx="10"/>
               <text class="fxt fxt--dim" x="74" y="195" text-anchor="middle">Nothing else</text>
             </g>
-            <path class="fxp fx-draw" style="--d:200ms" pathLength="1" d="M 138 50 C 180 50 180 110 214 116"/>
-            <path class="fxp fx-draw" style="--d:300ms" pathLength="1" d="M 138 120 L 214 120"/>
-            <path class="fxp fx-draw fxp--ghost" style="--d:400ms" pathLength="1" d="M 138 190 C 180 190 180 130 214 124"/>
+            <path class="fxp fx-draw" style="--d:200ms" pathLength="1" d="M 138 50 C 180 50 180 110 210 116"/>
+            <path class="fxp fx-draw" style="--d:300ms" pathLength="1" d="M 138 120 L 210 120"/>
+            <path class="fxp fx-draw fxp--ghost" style="--d:400ms" pathLength="1" d="M 138 190 C 180 190 180 130 210 124"/>
             <g class="fx-pop" style="--d:350ms">
               <rect class="fxr fxr--hero" x="216" y="80" width="112" height="80" rx="16"/>
               <text class="fxt fxt--hero" x="272" y="115" text-anchor="middle">MODEL</text>
               <text class="fxt fxt--dim" x="272" y="138" text-anchor="middle" font-size="11">predicts text</text>
             </g>
-            <path class="fxp fx-draw" style="--d:550ms" pathLength="1" d="M 328 120 L 382 120"/>
-            <path class="fxp fx-arrow" d="M 376 114 L 386 120 L 376 126"/>
+            <path class="fxp fx-draw" style="--d:550ms" pathLength="1" d="M 328 120 L 378 120"/>
+            <path class="fx-head fx-pop" style="--d:700ms" d="M 376 114 L 388 120 L 376 126 Z"/>
             <rect class="fxbar fx-grow" style="--d:650ms" x="392" y="96" width="118" height="9" rx="4"/>
             <rect class="fxbar fx-grow" style="--d:780ms" x="392" y="115" width="86" height="9" rx="4"/>
             <rect class="fxbar fx-grow" style="--d:910ms" x="392" y="134" width="104" height="9" rx="4"/>
@@ -1016,12 +1036,12 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 
       <section class="fx-scene fx-flip reveal" aria-labelledby="fx-h2">
         <div class="fx-copy">
-          <span class="fx-num">02</span>
           <h2 id="fx-h2">The platform: the loop that gives it hands</h2>
-          <p>An agent platform &mdash; Claude Code, Codex, Cursor, Antigravity, Copilot &mdash; wraps the model in a loop. The platform shows the model your repo; the model answers with an action (&ldquo;read this file&rdquo;, &ldquo;run the tests&rdquo;, &ldquo;apply this edit&rdquo;); the platform executes it and feeds the result back. Round and round until the task is done. This loop is what people mean by <em>an agent</em>.</p>
+          <p>An agent platform &mdash; Claude Code, Codex, Cursor, Antigravity, Copilot &mdash; wraps the model in a loop. The platform shows the model your project; the model replies with something to do; the platform does it and hands back what happened. Round and round until the job is done. That loop is what people mean by <em>an agent</em>.</p>
         </div>
         <div class="fx-diagram">
-          <svg class="fx-svg" viewBox="0 0 520 260" role="img" aria-label="Diagram: the agent loop - the model proposes actions, the platform runs them against your repo and returns results">
+          <svg class="fx-svg" viewBox="0 0 520 268" role="img" aria-label="Diagram: the model proposes an action, the platform carries it out on your project and returns the result">
+            <circle class="fx-pulse" r="5" style="offset-path: path('M 160 100 C 230 40 290 40 360 100 L 360 160 C 290 220 230 220 160 160 Z'); --t: 5s"/>
             <g class="fx-pop" style="--d:0ms">
               <rect class="fxr fxr--hero" x="40" y="90" width="120" height="80" rx="16"/>
               <text class="fxt fxt--hero" x="100" y="125" text-anchor="middle">MODEL</text>
@@ -1029,66 +1049,70 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
             </g>
             <g class="fx-pop" style="--d:150ms">
               <rect class="fxr" x="360" y="80" width="130" height="100" rx="16"/>
-              <text class="fxt" x="425" y="106" text-anchor="middle">YOUR REPO</text>
+              <text class="fxt" x="425" y="106" text-anchor="middle">YOUR PROJECT</text>
               <rect class="fxchip" x="374" y="118" width="46" height="20" rx="6"/>
               <text class="fxt fxt--dim" x="397" y="132" text-anchor="middle" font-size="10">files</text>
               <rect class="fxchip" x="426" y="118" width="50" height="20" rx="6"/>
-              <text class="fxt fxt--dim" x="451" y="132" text-anchor="middle" font-size="10">tests</text>
+              <text class="fxt fxt--dim" x="451" y="132" text-anchor="middle" font-size="10">tools</text>
               <rect class="fxchip" x="374" y="144" width="102" height="20" rx="6"/>
-              <text class="fxt fxt--dim" x="425" y="158" text-anchor="middle" font-size="10">terminal &middot; git</text>
+              <text class="fxt fxt--dim" x="425" y="158" text-anchor="middle" font-size="10">whatever it runs on</text>
             </g>
-            <path class="fxp fx-draw" style="--d:300ms" pathLength="1" d="M 160 100 C 230 36 290 36 360 100"/>
-            <path class="fxp fx-arrow" d="M 351 92 L 360 100 L 349 102"/>
-            <text class="fxt fxt--accent" x="260" y="36" text-anchor="middle" font-size="12">action: read &middot; run &middot; edit</text>
-            <path class="fxp fx-draw" style="--d:450ms" pathLength="1" d="M 360 160 C 290 224 230 224 160 160"/>
-            <path class="fxp fx-arrow" d="M 169 168 L 160 160 L 171 158"/>
-            <text class="fxt fxt--accent" x="260" y="242" text-anchor="middle" font-size="12">result: file text &middot; test output</text>
-            <circle class="fx-pulse" r="5" style="offset-path: path('M 160 100 C 230 36 290 36 360 100 L 360 160 C 290 224 230 224 160 160 Z'); --t: 5s"/>
+            <path class="fxp fx-draw" style="--d:300ms" pathLength="1" d="M 160 100 C 230 40 290 40 356 98"/>
+            <path class="fx-head fx-pop" style="--d:900ms" d="M 348 88 L 362 100 L 344 100 Z"/>
+            <text class="fxt fxt--role" x="260" y="30" text-anchor="middle">THE MODEL ASKS</text>
+            <text class="fxt fxt--detail" x="260" y="46" text-anchor="middle">&ldquo;open that file&rdquo; &middot; &ldquo;try this change&rdquo;</text>
+            <path class="fxp fx-draw" style="--d:450ms" pathLength="1" d="M 360 162 C 290 220 230 220 164 162"/>
+            <path class="fx-head fx-pop" style="--d:1050ms" d="M 172 172 L 158 160 L 176 160 Z"/>
+            <text class="fxt fxt--role" x="260" y="240" text-anchor="middle">THE PLATFORM ANSWERS</text>
+            <text class="fxt fxt--detail" x="260" y="256" text-anchor="middle">what the file says &middot; whether it worked</text>
           </svg>
         </div>
       </section>
 
       <section class="fx-scene reveal" aria-labelledby="fx-h3">
         <div class="fx-copy">
-          <span class="fx-num">03</span>
           <h2 id="fx-h3">Context: what the model actually sees</h2>
-          <p>The model sees exactly one thing: the <em>context window</em> &mdash; the text the platform packs into this turn. Rules, the task, file excerpts, tool results. Pack it with the right material and the answer lands; pack it with noise and the model confidently edits the wrong file. Choosing what the model sees is <em>context engineering</em>, and it is half the game.</p>
+          <p>The model sees exactly one thing: the <em>context window</em> &mdash; the text the platform packs into this turn. The rules, the job, the relevant excerpts, the results so far. Pack it with the right material and the answer lands; pack it with noise and the model confidently changes the wrong thing. Choosing what the model sees is <em>context engineering</em>, and it is half the game.</p>
         </div>
         <div class="fx-diagram">
-          <svg class="fx-svg" viewBox="0 0 560 312" role="img" aria-label="Diagram: the same model with focused context produces a clean diff; with noisy context it edits the wrong file">
+          <svg class="fx-svg" viewBox="0 0 560 312" role="img" aria-label="Diagram: the same model with noisy context changes the wrong thing; with focused context it produces a clean result">
             <g class="fx-pop">
               <rect class="fxr fxr--hero" x="228" y="6" width="104" height="30" rx="9"/>
               <text class="fxt fxt--hero" x="280" y="26" text-anchor="middle" font-size="12">same model</text>
             </g>
             <path class="fxp fx-draw fxp--ghost" style="--d:150ms" pathLength="1" d="M 244 36 C 200 46 160 46 130 52"/>
             <path class="fxp fx-draw fxp--ghost" style="--d:150ms" pathLength="1" d="M 316 36 C 360 46 400 46 430 52"/>
+
             <g class="fx-pop" style="--d:200ms">
-              <rect class="fxwin" x="30" y="56" width="200" height="168" rx="12"/>
-              <text class="fxt fxt--accent" x="130" y="76" text-anchor="middle" font-size="11">FOCUSED CONTEXT</text>
+              <rect class="fxwin fxwin--bad" x="30" y="56" width="200" height="168" rx="12"/>
+              <text class="fxt fxt--warn" x="130" y="76" text-anchor="middle" font-size="11">NOISY CONTEXT</text>
             </g>
-            <g class="fx-pop" style="--d:340ms"><rect class="fxblock" x="45" y="86" width="170" height="24" rx="6"/><text class="fxt" x="130" y="102" text-anchor="middle" font-size="11">Rules</text></g>
-            <g class="fx-pop" style="--d:460ms"><rect class="fxblock" x="45" y="116" width="170" height="24" rx="6"/><text class="fxt" x="130" y="132" text-anchor="middle" font-size="11">The task</text></g>
-            <g class="fx-pop" style="--d:580ms"><rect class="fxblock" x="45" y="146" width="170" height="24" rx="6"/><text class="fxt" x="130" y="162" text-anchor="middle" font-size="11">The 2 files that matter</text></g>
-            <g class="fx-pop" style="--d:700ms"><rect class="fxblock" x="45" y="176" width="170" height="24" rx="6"/><text class="fxt" x="130" y="192" text-anchor="middle" font-size="11">Failing test output</text></g>
-            <path class="fxp fx-draw" style="--d:800ms" pathLength="1" d="M 130 224 L 130 248"/>
+            <g class="fx-pop" style="--d:340ms"><rect class="fxblock" x="45" y="86" width="170" height="24" rx="6"/><text class="fxt" x="130" y="102" text-anchor="middle" font-size="11">The rules</text></g>
+            <g class="fx-pop" style="--d:460ms"><rect class="fxblock" x="45" y="116" width="170" height="24" rx="6"/><text class="fxt" x="130" y="132" text-anchor="middle" font-size="11">The job</text></g>
+            <g class="fx-pop" style="--d:580ms"><rect class="fxblock fxblock--noise" x="45" y="146" width="170" height="24" rx="6"/><text class="fxt fxt--dim" x="130" y="162" text-anchor="middle" font-size="11">40 unrelated files</text></g>
+            <g class="fx-pop" style="--d:700ms"><rect class="fxblock fxblock--noise" x="45" y="176" width="170" height="24" rx="6"/><text class="fxt fxt--dim" x="130" y="192" text-anchor="middle" font-size="11">Old chat scrollback</text></g>
+            <path class="fxp fx-draw" style="--d:800ms" pathLength="1" d="M 130 224 L 130 244"/>
+            <path class="fx-head fx-head--bad fx-pop" style="--d:880ms" d="M 124 242 L 130 252 L 136 242 Z"/>
             <g class="fx-pop" style="--d:900ms">
-              <rect class="fxcard fxcard--good" x="45" y="250" width="170" height="44" rx="10"/>
-              <text class="fxt fxt--good" x="66" y="277" font-size="13">&#10003;</text>
-              <text class="fxt" x="82" y="277" font-size="11">clean diff, test passes</text>
+              <rect class="fxcard fxcard--bad" x="45" y="254" width="170" height="44" rx="10"/>
+              <text class="fxt fxt--bad" x="66" y="281" font-size="13">&#10007;</text>
+              <text class="fxt" x="82" y="281" font-size="11">changes the wrong thing</text>
             </g>
+
             <g class="fx-pop" style="--d:200ms">
-              <rect class="fxwin" x="330" y="56" width="200" height="168" rx="12"/>
-              <text class="fxt fxt--dim" x="430" y="76" text-anchor="middle" font-size="11">NOISY CONTEXT</text>
+              <rect class="fxwin fxwin--good" x="330" y="56" width="200" height="168" rx="12"/>
+              <text class="fxt fxt--accent" x="430" y="76" text-anchor="middle" font-size="11">FOCUSED CONTEXT</text>
             </g>
-            <g class="fx-pop" style="--d:340ms"><rect class="fxblock" x="345" y="86" width="170" height="24" rx="6"/><text class="fxt" x="430" y="102" text-anchor="middle" font-size="11">Rules</text></g>
-            <g class="fx-pop" style="--d:460ms"><rect class="fxblock" x="345" y="116" width="170" height="24" rx="6"/><text class="fxt" x="430" y="132" text-anchor="middle" font-size="11">The task</text></g>
-            <g class="fx-pop" style="--d:580ms"><rect class="fxblock fxblock--noise" x="345" y="146" width="170" height="24" rx="6"/><text class="fxt fxt--dim" x="430" y="162" text-anchor="middle" font-size="11">40 unrelated files</text></g>
-            <g class="fx-pop" style="--d:700ms"><rect class="fxblock fxblock--noise" x="345" y="176" width="170" height="24" rx="6"/><text class="fxt fxt--dim" x="430" y="192" text-anchor="middle" font-size="11">Old chat scrollback</text></g>
-            <path class="fxp fx-draw" style="--d:800ms" pathLength="1" d="M 430 224 L 430 248"/>
+            <g class="fx-pop" style="--d:340ms"><rect class="fxblock" x="345" y="86" width="170" height="24" rx="6"/><text class="fxt" x="430" y="102" text-anchor="middle" font-size="11">The rules</text></g>
+            <g class="fx-pop" style="--d:460ms"><rect class="fxblock" x="345" y="116" width="170" height="24" rx="6"/><text class="fxt" x="430" y="132" text-anchor="middle" font-size="11">The job</text></g>
+            <g class="fx-pop" style="--d:580ms"><rect class="fxblock fxblock--keep" x="345" y="146" width="170" height="24" rx="6"/><text class="fxt" x="430" y="162" text-anchor="middle" font-size="11">The 2 files that matter</text></g>
+            <g class="fx-pop" style="--d:700ms"><rect class="fxblock fxblock--keep" x="345" y="176" width="170" height="24" rx="6"/><text class="fxt" x="430" y="192" text-anchor="middle" font-size="11">What failed last time</text></g>
+            <path class="fxp fx-draw" style="--d:800ms" pathLength="1" d="M 430 224 L 430 244"/>
+            <path class="fx-head fx-head--good fx-pop" style="--d:880ms" d="M 424 242 L 430 252 L 436 242 Z"/>
             <g class="fx-pop" style="--d:900ms">
-              <rect class="fxcard fxcard--bad" x="345" y="250" width="170" height="44" rx="10"/>
-              <text class="fxt fxt--bad" x="366" y="277" font-size="13">&#10007;</text>
-              <text class="fxt" x="382" y="277" font-size="11">edits the wrong file</text>
+              <rect class="fxcard fxcard--good" x="345" y="254" width="170" height="44" rx="10"/>
+              <text class="fxt fxt--good" x="366" y="281" font-size="13">&#10003;</text>
+              <text class="fxt" x="382" y="281" font-size="11">one clean change</text>
             </g>
           </svg>
         </div>
@@ -1096,37 +1120,39 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 
       <section class="fx-scene fx-flip reveal" aria-labelledby="fx-h4">
         <div class="fx-copy">
-          <span class="fx-num">04</span>
           <h2 id="fx-h4">The harness: procedure, not vibes</h2>
-          <p>Nexus-Hub is a harness around that loop. <strong>Skills</strong> load written procedures the moment the task matches. <strong>Commands</strong> start the same governed workflow every time. <strong>Hooks</strong> fire deterministically on tool events &mdash; the secret scan blocks a commit whether or not the model &ldquo;remembered&rdquo; to be careful. <strong>Gates</strong> hold the work to a written definition of done. The model still does the thinking; the harness decides how the work is allowed to happen.</p>
+          <p>Nexus-Hub wraps that loop in four guardrails. <strong>Skills</strong> load a written procedure the moment the job matches one. <strong>Commands</strong> start the same workflow every time. <strong>Hooks</strong> fire on every action, whatever the prompt said. <strong>Gates</strong> hold the work to a written definition of done.</p>
+          <p>The model still does the thinking. The harness decides how the work is allowed to happen.</p>
         </div>
         <div class="fx-diagram">
-          <svg class="fx-svg" viewBox="0 0 520 320" role="img" aria-label="Diagram: skills, commands, hooks, and gates form guardrails around the agent loop">
+          <svg class="fx-svg" viewBox="0 0 520 320" role="img" aria-label="Diagram: skills, commands, hooks, and gates close around the agent loop as guardrails">
             <g class="fx-pop">
               <rect class="fxr fxr--hero" x="185" y="130" width="66" height="52" rx="12"/>
               <text class="fxt fxt--hero" x="218" y="160" text-anchor="middle" font-size="11">MODEL</text>
               <rect class="fxr" x="271" y="130" width="66" height="52" rx="12"/>
-              <text class="fxt" x="304" y="160" text-anchor="middle" font-size="11">REPO</text>
-              <path class="fxp" d="M 251 143 L 271 143"/>
-              <path class="fxp" d="M 271 169 L 251 169"/>
+              <text class="fxt" x="304" y="160" text-anchor="middle" font-size="11">PROJECT</text>
+              <path class="fxp" d="M 251 143 L 267 143"/>
+              <path class="fx-head" d="M 265 139 L 272 143 L 265 147 Z"/>
+              <path class="fxp" d="M 271 169 L 255 169"/>
+              <path class="fx-head" d="M 257 165 L 250 169 L 257 173 Z"/>
             </g>
-            <path class="fxp fxp--arc fx-draw" style="--d:200ms" pathLength="1" d="M 161.9 67.7 A 132 132 0 0 1 358.1 67.7"/>
-            <g class="fx-pop" style="--d:420ms">
+            <g class="fx-guard" style="--d:250ms">
+              <path class="fxp fxp--arc fx-sweep" pathLength="1" d="M 161.9 67.7 A 132 132 0 0 1 358.1 67.7"/>
               <rect class="fxchip fxchip--big" x="212" y="10" width="96" height="26" rx="8"/>
               <text class="fxt fxt--accent" x="260" y="27" text-anchor="middle" font-size="12">Skills</text>
             </g>
-            <path class="fxp fxp--arc fx-draw" style="--d:500ms" pathLength="1" d="M 371.9 86.1 A 132 132 0 0 1 371.9 225.9"/>
-            <g class="fx-pop" style="--d:720ms">
+            <g class="fx-guard" style="--d:550ms">
+              <path class="fxp fxp--arc fx-sweep" pathLength="1" d="M 371.9 86.1 A 132 132 0 0 1 371.9 225.9"/>
               <rect class="fxchip fxchip--big" x="404" y="143" width="106" height="26" rx="8"/>
               <text class="fxt fxt--accent" x="457" y="160" text-anchor="middle" font-size="12">Commands</text>
             </g>
-            <path class="fxp fxp--arc fx-draw" style="--d:800ms" pathLength="1" d="M 348.3 254.1 A 132 132 0 0 1 171.7 254.1"/>
-            <g class="fx-pop" style="--d:1020ms">
+            <g class="fx-guard" style="--d:850ms">
+              <path class="fxp fxp--arc fx-sweep" pathLength="1" d="M 348.3 254.1 A 132 132 0 0 1 171.7 254.1"/>
               <rect class="fxchip fxchip--big" x="212" y="276" width="96" height="26" rx="8"/>
               <text class="fxt fxt--accent" x="260" y="293" text-anchor="middle" font-size="12">Hooks</text>
             </g>
-            <path class="fxp fxp--arc fx-draw" style="--d:1100ms" pathLength="1" d="M 148.1 225.9 A 132 132 0 0 1 148.1 86.1"/>
-            <g class="fx-pop" style="--d:1320ms">
+            <g class="fx-guard" style="--d:1150ms">
+              <path class="fxp fxp--arc fx-sweep" pathLength="1" d="M 148.1 225.9 A 132 132 0 0 1 148.1 86.1"/>
               <rect class="fxchip fxchip--big" x="10" y="143" width="96" height="26" rx="8"/>
               <text class="fxt fxt--accent" x="58" y="160" text-anchor="middle" font-size="12">Gates</text>
             </g>
@@ -1136,55 +1162,56 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 
       <section class="fx-scene fx-wide reveal" aria-labelledby="fx-h5">
         <div class="fx-copy">
-          <span class="fx-num">05</span>
-          <h2 id="fx-h5">One task, two runs</h2>
-          <p>Follow one real task &mdash; <em>fix the failing checkout test</em> &mdash; through both setups. Same model, same repo. The unharnessed run answers in chat and evaporates when the tab closes. The harnessed run loads the testing skill, runs the loop, gets blocked once by the secret-scan hook, passes the gate, and leaves a tested commit plus a written trail. The difference is not intelligence; it is what survives the session.</p>
+          <h2 id="fx-h5">One job, two runs</h2>
+          <p>Follow one real job &mdash; <em>fix the thing that keeps failing</em> &mdash; through both setups. Same model, same project. The unharnessed run answers in chat and evaporates when the tab closes. The harnessed run loads the right procedure, works the loop, gets stopped once by a guardrail, passes the gate, and leaves a finished result plus a written trail. The difference is not intelligence; it is what survives the session.</p>
         </div>
         <div class="fx-diagram">
-          <svg class="fx-svg" viewBox="0 0 690 300" role="img" aria-label="Diagram: the same task run raw ends as a chat answer that fades; run with Nexus-Hub it passes the hook and gate and ends as a tested commit on disk">
+          <svg class="fx-svg" viewBox="0 0 700 306" role="img" aria-label="Diagram: run without the harness and the answer is a chat message that fades; run with it and the result is saved with the project">
+            <circle class="fx-pulse" r="4" style="offset-path: path('M 120 136 C 150 136 150 72 178 72 L 416 72'); --t: 3.6s"/>
+            <circle class="fx-pulse" r="4" style="offset-path: path('M 120 164 C 150 164 150 240 178 240 L 558 240'); --t: 4.4s"/>
             <g class="fx-pop">
               <rect class="fxr fxr--hero" x="8" y="122" width="112" height="56" rx="12"/>
-              <text class="fxt" x="64" y="145" text-anchor="middle" font-size="11">fix the failing</text>
-              <text class="fxt" x="64" y="161" text-anchor="middle" font-size="11">checkout test</text>
+              <text class="fxt" x="64" y="145" text-anchor="middle" font-size="11">fix the thing</text>
+              <text class="fxt" x="64" y="161" text-anchor="middle" font-size="11">that keeps failing</text>
             </g>
-            <path class="fxp fx-draw" style="--d:150ms" pathLength="1" d="M 120 136 C 150 136 150 72 178 72"/>
-            <path class="fxp fx-draw" style="--d:150ms" pathLength="1" d="M 120 164 C 150 164 150 240 178 240"/>
-            <text class="fxt fxt--dim" x="182" y="34" font-size="11">RAW ASSISTANT</text>
-            <g class="fx-pop" style="--d:300ms"><rect class="fxchip fxchip--big" x="182" y="56" width="72" height="30" rx="8"/><text class="fxt" x="218" y="76" text-anchor="middle" font-size="11">prompt</text></g>
-            <path class="fxp fx-draw" style="--d:420ms" pathLength="1" d="M 254 72 L 286 72"/>
-            <g class="fx-pop" style="--d:480ms"><rect class="fxchip fxchip--big" x="288" y="56" width="72" height="30" rx="8"/><text class="fxt" x="324" y="76" text-anchor="middle" font-size="11">model</text></g>
-            <path class="fxp fx-draw" style="--d:600ms" pathLength="1" d="M 360 72 L 416 72"/>
+            <path class="fxp fxp--warn fx-draw" style="--d:150ms" pathLength="1" d="M 120 136 C 150 136 150 72 178 72"/>
+            <path class="fxp fxp--good fx-draw" style="--d:150ms" pathLength="1" d="M 120 164 C 150 164 150 240 178 240"/>
+
+            <text class="fxt fxt--warn" x="182" y="34" font-size="11">WITHOUT NEXUS-HUB</text>
+            <g class="fx-pop" style="--d:300ms"><rect class="fxchip fxchip--big fxchip--warn" x="182" y="56" width="72" height="30" rx="8"/><text class="fxt" x="218" y="76" text-anchor="middle" font-size="11">ask</text></g>
+            <path class="fxp fxp--warn fx-draw" style="--d:420ms" pathLength="1" d="M 254 72 L 286 72"/>
+            <g class="fx-pop" style="--d:480ms"><rect class="fxchip fxchip--big fxchip--warn" x="288" y="56" width="72" height="30" rx="8"/><text class="fxt" x="324" y="76" text-anchor="middle" font-size="11">model</text></g>
+            <path class="fxp fxp--warn fx-draw" style="--d:600ms" pathLength="1" d="M 360 72 L 412 72"/>
             <g class="fx-fade" style="--d:900ms">
               <rect class="fxbubble" x="420" y="42" width="164" height="60" rx="14"/>
-              <text class="fxt" x="502" y="68" text-anchor="middle" font-size="11">chat answer</text>
+              <text class="fxt" x="502" y="68" text-anchor="middle" font-size="11">an answer in chat</text>
               <text class="fxt fxt--dim" x="502" y="86" text-anchor="middle" font-size="10">maybe right, maybe not</text>
             </g>
-            <text class="fxt fxt--dim" x="502" y="122" text-anchor="middle" font-size="10">gone at tab close</text>
-            <circle class="fx-pulse" r="4" style="offset-path: path('M 120 136 C 150 136 150 72 178 72 L 416 72'); --t: 3.6s"/>
+            <text class="fxt fxt--warn" x="502" y="122" text-anchor="middle" font-size="10">gone at tab close</text>
+
             <text class="fxt fxt--accent" x="182" y="204" font-size="11">WITH NEXUS-HUB</text>
-            <g class="fx-pop" style="--d:300ms"><rect class="fxchip fxchip--big" x="182" y="224" width="58" height="30" rx="8"/><text class="fxt fxt--accent" x="211" y="244" text-anchor="middle" font-size="11">/test</text></g>
-            <path class="fxp fx-draw" style="--d:420ms" pathLength="1" d="M 240 240 L 260 240"/>
-            <g class="fx-pop" style="--d:480ms"><rect class="fxchip fxchip--big" x="262" y="224" width="80" height="30" rx="8"/><text class="fxt" x="302" y="244" text-anchor="middle" font-size="11">skill loads</text></g>
-            <path class="fxp fx-draw" style="--d:600ms" pathLength="1" d="M 342 240 L 362 240"/>
-            <g class="fx-pop" style="--d:660ms"><rect class="fxchip fxchip--big" x="364" y="224" width="76" height="30" rx="8"/><text class="fxt" x="402" y="244" text-anchor="middle" font-size="11">loop runs</text></g>
-            <path class="fxp fx-draw" style="--d:780ms" pathLength="1" d="M 440 240 L 460 240"/>
+            <g class="fx-pop" style="--d:300ms"><rect class="fxchip fxchip--big fxchip--good" x="182" y="224" width="86" height="30" rx="8"/><text class="fxt fxt--accent" x="225" y="244" text-anchor="middle" font-size="11">a command</text></g>
+            <path class="fxp fxp--good fx-draw" style="--d:420ms" pathLength="1" d="M 268 240 L 284 240"/>
+            <g class="fx-pop" style="--d:480ms"><rect class="fxchip fxchip--big fxchip--good" x="286" y="224" width="80" height="30" rx="8"/><text class="fxt" x="326" y="244" text-anchor="middle" font-size="11">procedure</text></g>
+            <path class="fxp fxp--good fx-draw" style="--d:600ms" pathLength="1" d="M 366 240 L 382 240"/>
+            <g class="fx-pop" style="--d:660ms"><rect class="fxchip fxchip--big fxchip--good" x="384" y="224" width="70" height="30" rx="8"/><text class="fxt" x="419" y="244" text-anchor="middle" font-size="11">the loop</text></g>
+            <path class="fxp fxp--good fx-draw" style="--d:780ms" pathLength="1" d="M 454 240 L 468 240"/>
             <g class="fx-pop" style="--d:840ms">
-              <circle class="fx-hookdot" cx="474" cy="240" r="9"/>
-              <text class="fxt fxt--dim" x="452" y="272" text-anchor="middle" font-size="10">hook: blocked once</text>
+              <circle class="fx-hookdot" cx="480" cy="240" r="9"/>
+              <text class="fxt fxt--dim" x="452" y="276" text-anchor="middle" font-size="10">a guardrail stops it once</text>
             </g>
-            <path class="fxp fx-draw" style="--d:960ms" pathLength="1" d="M 486 240 L 504 240"/>
+            <path class="fxp fxp--good fx-draw" style="--d:960ms" pathLength="1" d="M 492 240 L 506 240"/>
             <g class="fx-pop" style="--d:1020ms">
-              <polygon class="fxchip fxchip--big" points="530,222 548,240 530,258 512,240"/>
-              <text class="fxt fxt--dim" x="530" y="288" text-anchor="middle" font-size="10">gate</text>
+              <polygon class="fxchip fxchip--good" points="530,222 548,240 530,258 512,240"/>
+              <text class="fxt fxt--dim" x="547" y="276" text-anchor="middle" font-size="10">gate</text>
               <text class="fxt fxt--good" x="530" y="245" text-anchor="middle" font-size="11">&#10003;</text>
             </g>
-            <path class="fxp fx-draw" style="--d:1140ms" pathLength="1" d="M 548 240 L 566 240"/>
+            <path class="fxp fxp--good fx-draw" style="--d:1140ms" pathLength="1" d="M 548 240 L 558 240"/>
             <g class="fx-pop" style="--d:1200ms">
-              <rect class="fxcard fxcard--good" x="568" y="212" width="116" height="56" rx="10"/>
-              <text class="fxt" x="626" y="235" text-anchor="middle" font-size="11">tested commit</text>
-              <text class="fxt fxt--dim" x="626" y="252" text-anchor="middle" font-size="10">on disk, in git</text>
+              <rect class="fxcard fxcard--good" x="560" y="210" width="126" height="60" rx="10"/>
+              <text class="fxt" x="623" y="234" text-anchor="middle" font-size="11">a finished result</text>
+              <text class="fxt fxt--good" x="623" y="252" text-anchor="middle" font-size="10">saved, not lost</text>
             </g>
-            <circle class="fx-pulse" r="4" style="offset-path: path('M 120 164 C 150 164 150 240 178 240 L 566 240'); --t: 4.4s"/>
           </svg>
         </div>
       </section>
@@ -1192,7 +1219,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
       <section class="section reveal fx-bridge">
         <span class="eyebrow">Next</span>
         <h2>That is the whole mental model</h2>
-        <p>Training runs this loop for real on a small app with real bugs &mdash; you press the keys, a simulated terminal answers.</p>
+        <p>Training runs this loop on a small project with real problems in it &mdash; you press the keys and watch each step happen.</p>
         <div class="btn-row">
           <a class="btn btn--primary" href="#training" data-go="training">Open Training</a>
           <a class="btn" href="#cheatsheets" data-go="cheatsheets">Open Cheatsheets</a>
