@@ -63,14 +63,16 @@ These are non-negotiable for production UIs:
 ### Step 4: Responsive Layout
 
 Start from mobile, expand to larger screens. Never start from desktop and squeeze down.
+Follow `catalog/rules/html/responsive-layout.md` as the canonical width contract. Keep fixed `px` or `ch` caps off text-bearing elements; use the structural page shell for the primary responsive cap, while allowing the rule's independent media bounds when composition requires them.
 
 ```css
 /* Mobile first -- base styles apply to all sizes */
 .card { padding: 1rem; }
+.page-shell { width: calc(100% - 2rem); margin-inline: auto; }
 
 /* Progressively enhance for larger screens */
 @media (min-width: 768px) { .card { padding: 2rem; } }
-@media (min-width: 1200px) { .card { max-width: 1200px; margin: 0 auto; } }
+@media (min-width: 1200px) { .page-shell { max-width: 1200px; } }
 ```
 
 Layout hierarchy:

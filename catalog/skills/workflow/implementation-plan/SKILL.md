@@ -194,6 +194,7 @@ Each phase must follow this template exactly:
 **Goal**: [One sentence describing what this phase delivers.]
 **Prerequisites**: [Phases that must be complete before starting, or "None".]
 **Stability Gate**: [The observable condition that proves this phase is complete and stable.]
+**Verification Expectation**: [Name the real command, interaction, or generated artifact a reader can run or open, the specific result they must observe, and any delegated procedure from [[functional-verification]]. "Tests pass" alone is not sufficient.]
 **Recommended model tier**: [frontier / strong / standard / fast]
 **Recommended effort level**: [low / medium / high / max]
 **Rationale**: [One sentence tying the tier and effort to the phase's complexity signals. Do not name a concrete provider model here.]
@@ -251,6 +252,7 @@ stable before advancing to Phase N+1.
 > tests, E2E tests, performance benchmarks, etc.]. Run the tests, fix any failures, and
 > iterate until all automated tests pass and the implementation is stable. Do not proceed to
 > Phase N+1 until this phase is fully tested and verified.
+> Exercise the phase's declared Verification Expectation through [[functional-verification]] and record the observed result. The plan names the artifact, action, and expected observation; the delegated skill owns the procedure.
 > Then record this phase's CI IMPACT against `[[cicd-architect]]` without running remote CI:
 > name any new command, dependency, environment variable, test path, or artifact this phase
 > introduced, and state whether the existing pipeline already covers it. Changing a pipeline
@@ -282,6 +284,7 @@ stable before advancing to Phase N+1.
 - [ ] All sub-tasks completed
 - [ ] All tests passing (unit, integration, and any phase-specific tests)
 - [ ] No known regressions from prior phases
+- [ ] Verification expectation exercised and its observable result recorded
 - [ ] CI impact recorded against the canonical contract, with no remote CI run
 - [ ] Session history generated for this phase
 - [ ] One local commit created for this phase
@@ -293,11 +296,11 @@ The `## Complexity Tracking` block sits near the end of the file, between the la
 
 #### Mandatory Final Phase (every plan)
 
-Every generated plan MUST end with a fail-closed last phase dedicated to architecture refactor, known-gaps reconciliation, living-docs architecture, git-tree hygiene, terminal CI/CD reconciliation, independent Goal-vs-codebase review, last-phase-only human testing, full-suite local stabilization, and the plan's single publication and integration. This is also the ONLY phase permitted to push, open a pull request, or start remote CI.
+Every generated plan MUST end with a fail-closed last phase dedicated to architecture refactor, known-gaps reconciliation, living-docs architecture, git-tree hygiene, terminal CI/CD reconciliation, the Tier 3 deep pass via `[[functional-verification]]`, independent Goal-vs-codebase review, last-phase-only human testing, full-suite local stabilization, and the plan's single publication and integration. This is also the ONLY phase permitted to push, open a pull request, or start remote CI.
 
 The heading is never enough: each duty writes a named section in `<version_dir>/development/last-phase-evidence.md`. An empty finding is allowed only when the scan output is quoted. A duty is omitted only by recording a known-gap (`QG` or `DF`) with Source phase, Plan reference, Reason, and Suggested next step. Automated tests still end every earlier phase; human/manual testing suggestions are forbidden until this last phase.
 
-Emit the verbatim template, with its nine sub-tasks N.1 through N.9, from [`references/mandatory-final-phase.md`](references/mandatory-final-phase.md).
+Emit the verbatim template, with its ten sub-tasks N.1 through N.10, from [`references/mandatory-final-phase.md`](references/mandatory-final-phase.md).
 
 #### Strict Task-Line Format (required)
 
@@ -326,8 +329,9 @@ Apply these rules when deciding how many phases to create and how to split them:
 | UI and backend separated | If there is a UI, give it its own phase rather than mixing it with business logic |
 | Integration phase | If external APIs or local models are involved, create a dedicated integration phase with clear mocking/stubbing strategies for early phases |
 | Testing continuous | Every phase ends with an automated testing sub-task. Human/manual testing suggestions are forbidden until the last phase. Do not ask a human to exercise an incomplete feature mid-plan. |
+| Functional expectation per phase | Beside each Stability Gate, name the real command, interaction, or generated artifact a reader can run or open and the specific result they must observe. Delegate the exercise procedure to `[[functional-verification]]`; "tests pass" alone is not a behavioral expectation. |
 | Phase count | Target 4-8 phases for most plans; very small scopes may have 2-3; major refactors up to 10 |
-| Terminal refactor phase | Every plan ends with a fail-closed last phase. Each duty writes a section of `<version_dir>/development/last-phase-evidence.md`; an empty finding requires quoted scan output. Distinct from per-phase automated testing, which still applies to every phase. |
+| Terminal refactor phase | Every plan ends with a fail-closed last phase that includes `[[functional-verification]]`'s Tier 3 deep pass. Each duty writes a section of `<version_dir>/development/last-phase-evidence.md`; an empty finding requires quoted scan output. Distinct from per-phase automated testing, which still applies to every phase. |
 | CI impact per phase | Every phase's testing sub-task RECORDS its CI impact against `[[cicd-architect]]` (new commands, dependencies, env vars, test paths, artifacts, and whether the pipeline already covers them). It does NOT author or optimize the pipeline. Actual reconciliation happens once, in the final phase, unless CI/CD is a given phase's explicit deliverable. Per-phase pipeline authorship is what produces a different topology per phase and a pipeline nobody can run locally. |
 | Local commit per phase | Every phase ends with exactly one local commit scoped to that phase. Non-final phases MUST NOT push, open a pull request, or start remote CI: seven runs on knowingly incomplete work cost seven times one run on complete work and produce worse signal, because a red check on incomplete work teaches the author to ignore red checks. |
 | Publication is terminal | The final phase owns the plan's single branch publication, the integration pull request, and the wait for required checks. Release work starts only after that integration result is green and merged. |
@@ -436,10 +440,11 @@ Incorporate feedback, then write the final file and re-run the Step 4 closing sa
 - [ ] Every feature or goal from the interview appears in at least one sub-task
 - [ ] Phase 1 establishes the foundation needed for subsequent phases (toolchain + runnable build for initial implementations; test harness or scaffolding for enhancements/refactors)
 - [ ] For initial implementations: installation/packaging step appears before the halfway point
+- [ ] Every phase states a Verification Expectation beside its Stability Gate that names what a reader can run or open and the specific result they must observe, with the exercise procedure delegated to `[[functional-verification]]`
 - [ ] Every phase ends with an automated testing and stabilization sub-task that records CI impact against `[[cicd-architect]]` WITHOUT authoring or optimizing the pipeline; human/manual testing suggestions appear only in the last phase
 - [ ] Every phase ends with exactly one local commit, and every non-final phase explicitly prohibits push, pull request, and remote CI
 - [ ] The final phase owns the single branch publication, the integration pull request, and the wait for required checks; release work is gated on a green integration result
-- [ ] The plan's last phase is the fail-closed "Architecture Refactor, Known-Gaps Reconciliation, and CI/CD" phase (sub-tasks: N.1 architecture refactor, N.2 known-gaps across this version and other open files, N.3 living docs architecture, N.4 git-tree hygiene, N.5 terminal pipeline reconciliation via `[[cicd-architect]]` plus installer parity, N.6 Goal-vs-codebase review, N.7 last-phase-only human testing, N.8 full-suite testing, N.9 publication and integration) and requires `<version_dir>/development/last-phase-evidence.md`
+- [ ] The plan's last phase is the fail-closed "Architecture Refactor, Known-Gaps Reconciliation, and CI/CD" phase (sub-tasks: N.1 architecture refactor, N.2 known-gaps across this version and other open files, N.3 living docs architecture, N.4 git-tree hygiene, N.5 terminal pipeline reconciliation via `[[cicd-architect]]` plus installer parity, N.6 Tier 3 deep pass via `[[functional-verification]]`, N.7 Goal-vs-codebase review, N.8 last-phase-only human testing, N.9 full-suite testing, N.10 publication and integration) and requires `<version_dir>/development/last-phase-evidence.md`, including `## Tier 3 deep pass`
 - [ ] Every sub-task has a complete, self-contained executable prompt
 - [ ] Every sub-task that introduces or changes a component states its failure modes across all three situations (malformed or absent input, unreachable or slow dependency, conflicting operations), and no error-handling, data-model, interface, or schema detail was pushed back into the spec to achieve it
 - [ ] Sub-tasks producing provisional work carry a one-line `scaffolding` build class naming what replaces it and when; `load-bearing` is stated wherever a reader could not otherwise tell

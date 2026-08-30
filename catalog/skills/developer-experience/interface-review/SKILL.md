@@ -144,6 +144,7 @@ Overflow beyond the cap goes to a ranked appendix, never deleted, never mixed in
 
 ## Related Skills
 
+- [[functional-verification]] -- owns real-boundary exercise and rendered evidence; this skill consolidates findings from the interface-review domains.
 - `accessibility-engineering`, `layout-and-spacing`, `interface-copy`, `web-typography`, `color-systems`, `hallmark-design` -- delegates; this skill does not override them
 - `multi-agent-code-review` -- code/diff review, not UI-domain orchestration
 - `code-quality` -- maintainability, not interface craft

@@ -55,6 +55,8 @@ Every completion claim maps to a specific proving artifact. Never make the claim
 | Bug fixed | the failing reproduction (a regression test, or the exact steps that triggered the bug) | The reproduction now produces the correct result, AND a test that fails without the fix passes with it. A fix with no reproduction is unconfirmed. |
 | Requirements met | the acceptance check named in the spec or plan (a test, a script, a manual procedure with observed output) | Each acceptance criterion has a corresponding observed pass. Map criteria to evidence one-to-one. |
 | References repaired | `link-baseline.py diff --before <baseline> --after <current>` | Zero `newly_broken` and a zero exit code; a completed search-and-replace is not evidence that links resolve. |
+| Behavioral output is correct | invoke `[[functional-verification]]`, the procedure owner for exercising a built artifact through its real boundary | A fresh evidence record from that procedure shows the current artifact produced the expected consumer-visible behavior. |
+| Rendered output is correct | invoke `[[functional-verification]]`, the procedure owner for exercising rendered artifacts | A fresh evidence record from that procedure shows the current render produced the expected measured result. |
 | Feature works end to end | running the actual flow (start the app, hit the endpoint, drive the UI) | Observed correct behavior in the running system, not just green unit tests. Unit tests prove units; they do not prove integration. |
 | File / change is in place | reading the file back, or `git diff` / `git status` | The change is visible in the current file content, not just in your memory of having written it. |
 | Loop exit condition met | the loop's `check_command` (e.g. `npm test`, `gh pr checks`, `make validate`) | The `check_command` exits 0 and its output satisfies the loop's `exit_condition`, confirmed by a checker that did not produce the iteration -- not the maker's sense that the loop has converged. |
@@ -140,6 +142,7 @@ Each row is an excuse that precedes a false completion claim, with the concrete 
 | "Running everything is safer than picking checks." | Full-suite-by-default is the habit that gets abandoned first when time is short, so it trains skipping verification entirely. It also hides which check covers the diff, so a later regression has no owning gate. Select the narrowest set that COVERS the change; if that set is slow, run it anyway. |
 | "The error is unrelated to my change." | You do not know that until you have read the full output and traced the error. Many "unrelated" failures are the direct downstream effect of the change. Investigate before dismissing. |
 | "Partial output looked fine." | A suite prints passes before it prints the failure. Reading the first screen and stopping is how a red suite gets reported as green. Read to the end and check the exit code. |
+| "the screenshots looked fine" | Eyeballing is not evidence; it is the exact mechanism by which every defect in this project reached the maintainer. Invoke `[[functional-verification]]` and require its fresh rendered evidence before claiming the output is correct. |
 | "Great, that's done!" / "Perfect!" | Expressions of satisfaction are completion claims in disguise and often arrive before any verification. Catch yourself: before the celebratory sentence, run the gate. |
 | "The user is in a hurry, I'll skip the check." | A fast wrong answer costs more than a slightly slower correct one, because the user now has to discover the error and ask again. Speed that ships regressions is not speed. |
 
@@ -162,6 +165,7 @@ The rule is "no completion claim without fresh proving evidence", not "run a com
 - [ ] The chosen check set covers the outgoing diff (every changed surface maps to a check that reads it), and no check was included that does not touch the change.
 - [ ] The full output was read to the end and the exit code was checked.
 - [ ] The observed evidence matches the specific claim (passing summary line, zero exit, correct observed behavior).
+- [ ] Every behavioral or rendered-output claim has fresh evidence produced through `[[functional-verification]]`, not an eyeballed screenshot.
 - [ ] The completion statement quotes the proving artifact so the user can see why it is true.
 - [ ] Every applicable anti-costume-rigor row was checked through its concrete artifact comparison, with no subjective tell accepted.
 - [ ] No celebratory or satisfaction phrase ("done", "perfect", "great") was emitted before the gate completed.
@@ -170,6 +174,7 @@ The rule is "no completion claim without fresh proving evidence", not "run a com
 
 - [[pre-commit-checklist]] -- wires the smallest sufficient evidence set into an automated pre-commit gate, so the selection is made once rather than re-derived under time pressure.
 - [[quality-gate-definitions]] -- defines the GO/NO-GO thresholds (tests, coverage, lint, build) that this gate proves at each checkpoint.
+- [[functional-verification]] -- owns the procedures for exercising behavioral and rendered artifacts; this skill owns evidence freshness before a completion claim.
 - [[adversarial-verifier]] -- goes beyond "does it pass" to stress-test the change against edge cases and attack inputs once the basic gate is green.
 - [[receiving-code-review]] -- applies the same verify-before-claiming discipline when acting on review feedback (verify the suggestion against the codebase before agreeing it is correct).
 - [[review-trapdoors]] -- the project-specific counterpart: before a review-ready claim, check the project's curated recurring-blocker list as part of the evidence.

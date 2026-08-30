@@ -160,6 +160,7 @@ Use when a page or interaction feels slow.
 
 ## Related Skills
 
+- [[functional-verification]] -- owns artifact-level exercise and its evidence record; this skill supplies browser observations and diagnostics.
 - [[frontend-ui-engineering]] -- accessibility and responsive design practices
 - [[e2e-testing-automation]] -- automate browser flows with Playwright or Cypress
 - [[performance-review]] -- systematic performance bottleneck identification

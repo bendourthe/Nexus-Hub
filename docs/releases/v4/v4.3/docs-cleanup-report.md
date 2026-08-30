@@ -1,6 +1,6 @@
 # Docs Cleanup Audit - v4.3.0 Agentic Verification Discipline
 
-**Date**: 2026-08-29
+**Date**: 2026-08-30
 **Mode**: audit only; no files moved
 **Plan**: `docs/releases/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md`
 
@@ -73,3 +73,25 @@ Result: `docs-audit: files=7; duplicate-sets=0; refgraph-paths=2; active-tree=Ca
 ### Result
 
 No documentation move or deletion is required. The new history remains release-scoped, `docs/todos.md` remains the living dashboard, `docs/DEVLOG.md` remains unchanged for unreleased work, and the unrelated v4.4 plan remains untouched.
+
+## Phase 4 - Wire the Discipline Into the Harness
+
+### Layout check
+
+Phase 4 changes catalog skills, installer scripts, validation code, and tests outside `docs/`, then adds one standalone history under the existing active v4.3 release tree. The active plan and living tracker advance in place. No living product document, archive boundary, or v4.4 artifact moved.
+
+### New documentation artifacts
+
+| Path | Category | Disposition |
+|---|---|---|
+| `docs/releases/v4/v4.3/development/history/2026-08-30_v4.3.0-agentic-verification-discipline-phase-4-wiring.md` | Active phase evidence | Keep in the v4.3 development history through release closure. |
+
+### Audit evidence
+
+Command: `python catalog/skills/code-cleanup/docs-layout-refactor/scripts/audit-docs.py inventory --root ./docs/releases/v4/v4.3` plus `refgraph` against the same root.
+
+Result: `docs-audit: files=8; duplicate-sets=0; refgraph-paths=2; active-tree=Cat4; moves=0`.
+
+### Result
+
+No documentation move or deletion is required. The Phase 4 history remains release-scoped, `docs/todos.md` remains the living dashboard, `docs/DEVLOG.md` remains unchanged for unreleased work, and the unrelated v4.4 plan remains untouched.

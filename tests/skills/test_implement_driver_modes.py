@@ -1,6 +1,6 @@
-"""Contract tests for /implement driver modes (v3.21.0 Phase 2).
+"""Contract tests for /implement driver modes (v3.21.0 Phase 2, v4.3.0 T012).
 
-Locks argument tokens and per-mode 8.10 behavior.
+Locks argument tokens and per-mode 8.11 behavior.
 
 v4.0.0 Phase 4 changed what this file protects. The push options it used to
 pin - the one-phase "2. Commit and push" and the phase-by-phase five-option
@@ -12,7 +12,7 @@ The removed options are covered by NEGATIVE fixtures in
 `test_implement_lifecycle_contract.py`, which owns the lifecycle contract.
 This file keeps its original job: proving the three modes exist, are named
 consistently across the command, the skill, and the runbook, and each resolves
-to a defined 8.10 behavior.
+to a defined 8.11 behavior.
 """
 
 from __future__ import annotations
@@ -79,8 +79,8 @@ def test_runbook_documents_driver_loop_and_commit_only_non_final() -> None:
     assert "Never tag or push the release from the driver" in text
 
 
-def test_one_phase_commit_prompt_is_not_the_only_810_path() -> None:
-    """Negative fixture: the old always-ask-then-stop 8.10 is not exclusive."""
+def test_one_phase_commit_prompt_is_not_the_only_811_path() -> None:
+    """Negative fixture: the old always-ask-then-stop commit path is not exclusive."""
     runbook = _read(RUNBOOK)
     command = _read(IMPLEMENT_CMD)
     # v4.0.0 Phase 4: three options, not four. "Commit and push" was removed
@@ -95,9 +95,9 @@ def test_one_phase_commit_prompt_is_not_the_only_810_path() -> None:
     options = ["1. Commit only", "2. Amend", "3. Stop"]
     positions = [runbook.find(opt) for opt in options]
     missing = [opt for opt, pos in zip(options, positions) if pos == -1]
-    assert not missing, "missing 8.10 option(s): " + repr(missing)
-    assert positions == sorted(positions), "8.10 options are out of order"
-    assert "loop to 8.9" in runbook
+    assert not missing, "missing 8.11 option(s): " + repr(missing)
+    assert positions == sorted(positions), "8.11 options are out of order"
+    assert "loop to 8.10" in runbook
     assert "One-phase (default), non-final:" in runbook
     assert "**`in-full` non-final:** auto-select commit-only" in runbook
     assert "always ask" not in command
@@ -109,5 +109,5 @@ def test_skill_overview_mentions_driver_loop() -> None:
     assert "in-full" in text
     assert "phase-by-phase" in text
     assert "commit-only" in text
-    # v4.0.0: the skill states the per-mode 8.10 shapes rather than a menu size.
+    # v4.3.0: the skill states the per-mode 8.11 shapes rather than a menu size.
     assert "COMMIT-ONLY on every non-final phase in every mode" in text

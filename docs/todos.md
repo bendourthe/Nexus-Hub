@@ -2,7 +2,7 @@
 
 **Branch:** `feat/v4.2.2-guide-cinematic-rebuild` (v4.2.2, v4.2.3, and v4.3.0 fold into the same branch and PR #146)
 **Active plan:** [v4.3.0 agentic-verification-discipline](releases/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md)
-**Last refreshed:** 2026-08-29
+**Last refreshed:** 2026-08-30
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its own `docs/releases/v*/v*.*/known-gaps.md`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
 
@@ -14,7 +14,7 @@ Refreshing this file to the active plan (rather than appending another version's
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
-| v4.3.0 agentic-verification-discipline phases complete | 3 | 5 | -2 |
+| v4.3.0 agentic-verification-discipline phases complete | 4 | 5 | -1 |
 | Open release blockers | 0 | 0 | 0 |
 | Catalog skills | 329 | 329 | 0 |
 | New paired hooks | 1 | 1 | 0 |
@@ -27,7 +27,7 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Phase 1 - Design the verification ladder
 - [x] Phase 2 - Build the instruments
 - [x] Phase 3 - The functional-verification skill
-- [ ] Phase 4 - Wire the discipline into the harness
+- [x] Phase 4 - Wire the discipline into the harness
 - [ ] Phase 5 - Architecture refactor, known-gaps, CI/CD, publication, and integration
 
 ### What this plan changes, in one paragraph

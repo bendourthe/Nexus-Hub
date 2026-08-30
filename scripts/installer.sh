@@ -494,6 +494,46 @@ convert_claude_hook_commands_for_posix() {
         --scope "$(printf '%s' "$scope" | tr '[:upper:]' '[:lower:]')"
 }
 
+merge_managed_claude_hooks() {
+    local settings_file="$1"
+    local template_file="$2"
+
+    jq -s '
+        def hook_stem:
+            (.command // "") as $command |
+            (([
+                $command |
+                match("(?<stem>[A-Za-z0-9_-]+)\\.(?:sh|ps1|py)"; "g") |
+                .captures[0].string
+            ] | last) // $command);
+        def hook_exists($hooks; $event; $matcher; $candidate):
+            any(($hooks[$event] // [])[];
+                (.matcher // "") == $matcher and
+                any((.hooks // [])[];
+                    (.type // "") == ($candidate.type // "") and
+                    hook_stem == ($candidate | hook_stem)
+                )
+            );
+        .[0] as $existing | .[1] as $template |
+        reduce (($template.hooks // {}) | to_entries[]) as $event (
+            ($existing |
+                if (.hooks | type) == "object" then .
+                else . + {hooks: {}}
+                end
+            );
+            reduce (($event.value // [])[]) as $entry (.;
+                reduce (($entry.hooks // [])[]) as $hook (.;
+                    if hook_exists(.hooks; $event.key; ($entry.matcher // ""); $hook) then .
+                    else .hooks[$event.key] = (
+                        (.hooks[$event.key] // []) + [($entry | .hooks = [$hook])]
+                    )
+                    end
+                )
+            )
+        )
+    ' "$settings_file" "$template_file" 2>/dev/null
+}
+
 install_git_guardrails() {
     local repo_root="$1"
     local target_claude_dir="$2"
@@ -526,33 +566,17 @@ install_git_guardrails() {
     fi
 
     if [ -f "$settings_file" ]; then
-        # Check if guardrails already installed
-        if grep -q "git-guardrails" "$settings_file" 2>/dev/null; then
-            convert_claude_hook_commands_for_posix "$repo_root" "$settings_file" "$scope"
-            write_item "[OK] Git guardrails hook already configured in settings.json" "$GREEN"
-            return
-        fi
-
-        # Merge using jq if available
+        # Reconcile every managed template hook. Hook identity ignores the host
+        # suffix so an existing .ps1 registration and a template .sh registration
+        # represent the same managed hook during cross-host upgrades.
         if command -v jq >/dev/null 2>&1; then
             local merged
-            merged=$(jq -s '
-                .[0] as $existing | .[1] as $template |
-                if $existing.hooks then
-                    if $existing.hooks.PreToolUse then
-                        $existing | .hooks.PreToolUse += $template.hooks.PreToolUse
-                    else
-                        $existing | .hooks.PreToolUse = $template.hooks.PreToolUse
-                    end
-                else
-                    $existing + {hooks: $template.hooks}
-                end
-            ' "$settings_file" "$template_file" 2>/dev/null)
+            merged=$(merge_managed_claude_hooks "$settings_file" "$template_file")
 
             if [ -n "$merged" ]; then
-                echo "$merged" > "$settings_file"
+                printf '%s\n' "$merged" > "$settings_file"
                 convert_claude_hook_commands_for_posix "$repo_root" "$settings_file" "$scope"
-                write_item "[OK] $scope settings.json updated with git guardrails hook" "$GREEN"
+                write_item "[OK] $scope settings.json reconciled with managed hooks" "$GREEN"
             else
                 write_item "Warning: Could not merge into existing settings.json" "$YELLOW"
                 write_item "  You may need to manually add the hook config" "$YELLOW"
