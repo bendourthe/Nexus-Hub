@@ -80,6 +80,8 @@ class GuideParser(HTMLParser):
         self._copy_value = ""
         self._copy_parts: list[str] = []
         self._copy_home = False
+        self._copy_tag = ""
+        self._copy_depth = 0
         self._page_section_depth = 0
         self.all_data_copy: list[tuple[str, str]] = []
         self.has_theme_toggle = False
@@ -144,11 +146,16 @@ class GuideParser(HTMLParser):
             self._anchor_go = go
             self._anchor_parts = []
         copy = ad.get("data-copy", "")
-        if copy:
+        if copy and not self._copy_el:
             self._copy_el = True
             self._copy_value = copy
             self._copy_parts = []
             self._copy_home = self.current_page == "page-home"
+            self._copy_tag = tag
+            self._copy_depth = 1
+        elif self._copy_el and tag == self._copy_tag:
+            # Same tag nested inside; count it so the matching close wins.
+            self._copy_depth += 1
         label = (ad.get("aria-label", "") + " " + ad.get("id", "") + " " + ad.get("class", "")).lower()
         if "theme" in label and tag in {"button", "input"}:
             self.has_theme_toggle = True
@@ -186,12 +193,17 @@ class GuideParser(HTMLParser):
                 if self._in_nav_links:
                     self.nav_link_text.append((self._anchor_go, text))
             self._in_anchor = False
-        if self._copy_el and tag in {"div", "pre", "code", "span", "button"}:
-            visible = re.sub(r"\s+", " ", "".join(self._copy_parts)).strip()
-            self.all_data_copy.append((self._copy_value, visible))
-            if self._copy_home:
-                self.home_data_copy.append((self._copy_value, visible))
-            self._copy_el = False
+        # Close on the MATCHING end tag, not the first nested one: an
+        # invocation splits its text across inner spans, and closing early
+        # would capture a truncated payload and under-report real drift.
+        if self._copy_el and tag == self._copy_tag:
+            self._copy_depth -= 1
+            if self._copy_depth <= 0:
+                visible = re.sub(r"\s+", " ", "".join(self._copy_parts)).strip()
+                self.all_data_copy.append((self._copy_value, visible))
+                if self._copy_home:
+                    self.home_data_copy.append((self._copy_value, visible))
+                self._copy_el = False
 
     def handle_data(self, data: str) -> None:
         if self._heading_tag:
@@ -420,19 +432,61 @@ def test_no_stale_setup_route_in_markup(parsed: GuideParser) -> None:
 # ---------------------------------------------------------------------------
 
 
-def test_compact_spacing_and_measure_tokens(guide_text: str) -> None:
+def test_compact_spacing_tokens(guide_text: str) -> None:
     sec_pad = re.search(r"--sec-pad:\s*(\d+)px", guide_text)
     assert sec_pad, "expected --sec-pad token"
     assert int(sec_pad.group(1)) <= 32, "section rhythm must stay compact"
-    assert "--measure:" in guide_text, "expected shared measure token"
     assert "--violet" not in guide_text, "accent rainbow was trimmed by the design brief"
 
 
-def test_hero_title_and_lead_share_measure(guide_text: str) -> None:
-    h1_rule = re.search(r"(?<![\w-])h1\s*\{([^}]+)\}", guide_text)
-    assert h1_rule and "var(--measure)" in h1_rule.group(1)
-    lead_rule = re.search(r"\.lead\s*\{([^}]+)\}", guide_text)
-    assert lead_rule and "var(--measure)" in lead_rule.group(1)
+def test_body_text_is_fluid_with_no_measure_cap(guide_text: str) -> None:
+    """v4.2.3: text fills the content column; the container is the only cap."""
+    assert "--measure" not in guide_text, "the per-text measure cap was removed"
+    css = guide_text.split("<style>", 1)[-1].split("</style>", 1)[0]
+    for selector in (r"(?<![\w-])h1\s*\{", r"(?<![\w.-])p\s*\{", r"\.lead\s*\{"):
+        rule = re.search(selector + r"([^}]+)\}", css)
+        assert rule, f"expected a rule matching {selector}"
+        assert "max-width" not in rule.group(1), (
+            f"{selector} must not cap its width; the container governs"
+        )
+    assert "--maxw" in css, "the container keeps the only width constraint"
+
+
+def test_copy_button_has_a_bare_icon_variant(guide_text: str) -> None:
+    """Inline hosts draw the chip; the button inside must not draw a second."""
+    rule = re.search(r"\.copy-btn--bare\s*\{([^}]+)\}", guide_text)
+    assert rule, "expected a bare copy-button variant"
+    body = rule.group(1)
+    assert "background: transparent" in body
+    assert "border: 0" in body
+    assert re.search(r"min-width:\s*24px", body), "hit area stays >= 24px"
+    assert ".copy-btn--bare .cb-label { display: none" in guide_text, "icon only"
+    assert ".copy-btn--bare:focus-visible" in guide_text, "focus must stay visible"
+    injector = guide_text.split("function initCopyButtons()", 1)[-1]
+    assert 'contains("cmd-cell")' in injector, "inline hosts get the bare variant"
+    assert 'setAttribute("aria-label", "Copy to clipboard")' in injector
+
+
+def test_pagenav_controls_hug_their_label(guide_text: str) -> None:
+    rule = re.search(r"\.pagenav a\s*\{([^}]+)\}", guide_text)
+    assert rule, "expected .pagenav a rule"
+    body = rule.group(1)
+    assert "flex: 0 1 260px" not in body, "fixed-width nav slabs were the defect"
+    assert "flex: 0 0 auto" in body and "width: auto" in body
+
+
+def test_invocation_convention_exists_and_is_used(
+    parsed: GuideParser, guide_text: str
+) -> None:
+    for cls in (".inv-cmd", ".inv-arg", ".inv-ph"):
+        assert re.search(re.escape(cls) + r"\s*\{", guide_text), f"missing {cls} rule"
+    assert 'class="inv-cmd"' in guide_text, "the convention must be used, not just defined"
+    # A split invocation must still copy as its plain text.
+    for payload, visible in parsed.all_data_copy:
+        if payload in {"/skills list", "/commands"}:
+            assert visible.strip() == payload, (
+                f"split markup broke copy parity for {payload}"
+            )
 
 
 def test_reveal_motion_has_static_reduced_fallback(guide_text: str) -> None:

@@ -33,7 +33,6 @@
   --sans: "Segoe UI", -apple-system, BlinkMacSystemFont, system-ui, Roboto, Helvetica, Arial, sans-serif;
   --mono: "Cascadia Code", "JetBrains Mono", "SF Mono", "Consolas", "Liberation Mono", Menlo, monospace;
   --maxw: 1120px;
-  --measure: 700px;
   --radius: 12px;
   --radius-sm: 8px;
   --sp-1: 4px;
@@ -244,11 +243,11 @@ html[data-theme="light"] .nhg-theme .icon-sun { display: none; }
 .js .reveal.in { opacity: 1; transform: none; }
 
 /* ---------- Type ---------- */
-h1 { font-size: clamp(2rem, 4.5vw, 2.9rem); line-height: 1.12; letter-spacing: -.015em; margin: 0 0 var(--sp-4); max-width: var(--measure); text-wrap: balance; }
+h1 { font-size: clamp(2rem, 4.5vw, 2.9rem); line-height: 1.12; letter-spacing: -.015em; margin: 0 0 var(--sp-4); text-wrap: balance; }
 h2 { font-size: clamp(1.35rem, 2.6vw, 1.7rem); line-height: 1.2; letter-spacing: -.01em; margin: 0 0 var(--sp-3); }
 h3 { font-size: 1.1rem; margin: 0 0 var(--sp-2); }
-p { margin: 0 0 var(--sp-3); max-width: var(--measure); }
-.lead { font-size: 17.5px; color: var(--ink-dim); max-width: var(--measure); }
+p { margin: 0 0 var(--sp-3); }
+.lead { font-size: 17.5px; color: var(--ink-dim); }
 .eyebrow {
   display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .14em;
   text-transform: uppercase; color: var(--teal-soft); margin-bottom: var(--sp-2);
@@ -333,7 +332,11 @@ html[data-theme="light"] .btn--primary:hover { color: #fffdf8; }
 .cmd-line code { background: transparent; border: 0; padding: 0; flex: 1 1 auto; min-width: 0; overflow-x: auto; white-space: nowrap; }
 .t-teal { color: var(--term-prompt); flex: none; }
 
-/* ---------- Copy button (slim) ---------- */
+/* ---------- Copy affordance ----------
+   Labelled variant only where the control stands alone in a wide
+   terminal row. Everywhere else it is a BARE icon: the host chip
+   already draws the container, so the button must not draw a second
+   one (no chip inside a chip). */
 .copy-btn {
   display: inline-flex; align-items: center; gap: 5px; flex: none;
   height: 24px; padding: 0 8px;
@@ -345,8 +348,29 @@ html[data-theme="light"] .btn--primary:hover { color: #fffdf8; }
 .copy-btn:hover { color: var(--ink); border-color: var(--border-bright); }
 .copy-btn.copied { color: var(--green); border-color: var(--green); }
 .copy-btn svg { width: 13px; height: 13px; display: block; }
-.cmd-cell { display: inline-flex; align-items: center; gap: 8px; background: var(--copy-bg); border: 1px solid var(--copy-border); border-radius: 7px; padding: 3px 4px 3px 10px; margin: 2px 2px 2px 0; }
+
+.copy-btn--bare {
+  background: transparent; border: 0; border-radius: 5px;
+  height: 24px; min-width: 24px; padding: 0 4px;   /* >=24px hit area, no chrome */
+  color: var(--ink-faint);
+}
+.copy-btn--bare:hover { color: var(--ink); background: transparent; border: 0; }
+.copy-btn--bare.copied { color: var(--green); border: 0; }
+.copy-btn--bare .cb-label { display: none; }      /* icon only */
+.copy-btn--bare svg { width: 14px; height: 14px; }
+.copy-btn--bare:focus-visible { outline: 2px solid var(--focus); outline-offset: 1px; }
+
+.cmd-cell { display: inline-flex; align-items: center; gap: 4px; background: var(--copy-bg); border: 1px solid var(--copy-border); border-radius: 7px; padding: 2px 4px 2px 10px; margin: 2px 2px 2px 0; }
 .cmd-cell code { background: transparent; border: 0; padding: 0; }
+
+/* ---------- Invocation convention ----------
+   One shared way to render an example: the command in accent, the
+   scope/argument in plain ink, a placeholder dim and italic, so a
+   reader sees which part they replace. */
+.inv { font-family: var(--mono); font-size: .92em; white-space: nowrap; }
+.inv-cmd { color: var(--teal-soft); font-weight: 700; }
+.inv-arg { color: var(--ink); font-weight: 400; }
+.inv-ph { color: var(--ink-faint); font-style: italic; }
 
 /* ---------- Tabs ---------- */
 .tab-btns { display: flex; gap: var(--sp-2); margin-bottom: var(--sp-3); }
@@ -368,7 +392,7 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
 /* ---------- Page prev/next ---------- */
 .pagenav { display: flex; justify-content: space-between; gap: var(--sp-3); margin-top: var(--sp-7); }
 .pagenav a {
-  flex: 0 1 260px; padding: 10px 14px; border: 1px solid var(--border);
+  flex: 0 0 auto; width: auto; padding: 8px 16px; border: 1px solid var(--border);
   border-radius: var(--radius-sm); background: var(--surface); color: var(--ink-dim);
 }
 .pagenav a:hover:not(.disabled) { border-color: var(--border-bright); color: var(--ink); }
@@ -651,7 +675,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 .cs-teach a { font-weight: 600; }
 
 /* ---------- Placeholder panels (removed as page phases land) ---------- */
-.wip-note { border: 1px dashed var(--border-bright); border-radius: var(--radius); padding: var(--sp-4) var(--sp-5); color: var(--ink-dim); margin-top: var(--sp-4); max-width: var(--measure); }
+.wip-note { border: 1px dashed var(--border-bright); border-radius: var(--radius); padding: var(--sp-4) var(--sp-5); color: var(--ink-dim); margin-top: var(--sp-4); }
 
 /* ---------- Responsive ---------- */
 @media (max-width: 860px) {
@@ -769,7 +793,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
         <div class="callout verify-callout">
           <span aria-hidden="true">&#10003;</span>
           <div>
-            <p>First verify: run <span class="cmd-cell"><code data-copy="/skills list">/skills list</code></span> or <span class="cmd-cell"><code data-copy="/commands">/commands</code></span> &mdash; you should see the command cheatsheet. Then restart the assistant so it picks up hooks and rules.</p>
+            <p>First verify: run <span class="cmd-cell"><code class="inv" data-copy="/skills list"><span class="inv-cmd">/skills</span> <span class="inv-arg">list</span></code></span> or <span class="cmd-cell"><code class="inv" data-copy="/commands"><span class="inv-cmd">/commands</span></code></span> &mdash; you should see the command cheatsheet. Then restart the assistant so it picks up hooks and rules.</p>
           </div>
         </div>
         <details>
@@ -2087,7 +2111,11 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
         if (!host) host = el.parentNode;
         if (!host || host.querySelector(".copy-btn")) return;
         var btn = document.createElement("button");
-        btn.type = "button"; btn.className = "copy-btn";
+        btn.type = "button";
+        /* An inline host already draws its own chip, so the button
+           inside it must be bare -- never a chip within a chip. */
+        var bare = host.classList && host.classList.contains("cmd-cell");
+        btn.className = bare ? "copy-btn copy-btn--bare" : "copy-btn";
         btn.setAttribute("aria-label", "Copy to clipboard");
         btn.innerHTML = COPY_SVG + '<span class="cb-label">Copy</span>';
         btn.addEventListener("click", function (ev) {
