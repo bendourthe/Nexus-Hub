@@ -14,7 +14,7 @@ Refreshing this file to the active plan (rather than appending another version's
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
-| v4.2.3 guide-refinement phases complete | 5 | 7 | -2 |
+| v4.2.3 guide-refinement phases complete | 6 | 7 | -1 |
 | Open release blockers | 0 | 0 | 0 |
 | Catalog skills | 328 | 328 | 0 |
 | New MCP servers | 0 | 0 | 0 |
@@ -29,7 +29,7 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Phase 3 - Foundations: project-generic content and diagram repair
 - [x] Phase 4 - Training: full-screen present mode and loop-stage progress
 - [x] Phase 5 - Cheatsheets: terminal usage illustration and readable scopes
-- [ ] Phase 6 - Cross-page polish, accessibility, and hallmark audit
+- [x] Phase 6 - Cross-page polish, accessibility, and hallmark audit
 - [ ] Phase 7 - Architecture refactor, known-gaps, CI/CD, publication, and integration
 
 ### What this plan changes, in one paragraph

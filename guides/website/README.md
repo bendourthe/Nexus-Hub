@@ -25,14 +25,16 @@ The guide is the single home for orientation, installation, Foundations, Trainin
 
 URL grammar: `#<page-id>` for pages; `#training/<scene-id>?beat=n` for Training; `#cheatsheets/<stop>` for Cheatsheets sections. Compatibility: `#reference` and `#workflows` rewrite to `#cheatsheets`; `#explore`, `#plan`, `#build`, `#harden`, `#ship`, `#communicate` rewrite to `#cheatsheets/<id>`. `#home/install` scrolls to the Home install block. Unknown page ids rewrite to Home.
 
-## Design system (v4.2.2)
+## Design system (v4.2.2, refined in v4.2.3)
 
 The design language is fixed in `docs/releases/v4/v4.2/development/guide-rebuild/design-brief.md`. The load-bearing decisions:
 
-- **Shared measure.** `--measure: 700px` caps the hero H1 *and* its lead paragraphs, so the title and the copy under it wrap on the same width.
+- **Fluid width (v4.2.3).** There is no per-text width cap. `.container`'s `--maxw` is the ONLY width constraint in the file: body copy fills the content column at every viewport. A test fails on any `max-width` in `px` or `ch` other than the present-mode stage bound, so a measure cannot creep back in. Headings use `text-wrap: balance` to shape wrapping without imposing one.
+- **Copy affordance (v4.2.3).** A labelled button only where the control stands alone in a wide terminal row. Inside an inline `.cmd-cell` the button is bare - no background, no border, no label - because the host chip already draws the container and a chip inside a chip reads as a mistake. The bare variant keeps a 24px hit area, its `aria-label`, the live-region announcement, and an explicit focus ring.
+- **Invocation convention (v4.2.3).** `.inv-cmd` renders a slash command in accent, `.inv-arg` its scope in plain ink, `.inv-ph` a placeholder dim italic. Used on Home, in Training's terminal, and in every Cheatsheets example. The `data-copy` payload is always the plain full string, so copy parity survives the split markup.
 - **Compact rhythm.** A 4px spacing scale (`--sp-1` to `--sp-8`) with `--sec-pad: 32px` (22px under 720px). Sections are separated by an eyebrow and a heading, not by empty space.
 - **Motion vocabulary.** `.reveal` elements fade and rise via one shared IntersectionObserver. Continuous motion (constellation, Foundations pulses) runs only while its scene is on screen. `prefers-reduced-motion` renders a complete static equivalent, never a crushed duration.
-- **Themes.** All colors are tokens defined on `:root`, `html[data-theme="dark"]`, and `html[data-theme="light"]`. Every text style in both themes meets WCAG AA contrast (verified in Phase 6 across 217 sampled styles).
+- **Themes.** All colors are tokens defined on `:root`, `html[data-theme="dark"]`, and `html[data-theme="light"]`. Every text style in both themes meets WCAG AA contrast, re-verified after every colour change (v4.2.3: 242 sampled styles, 0 below AA).
 - **Light-mode brand chip.** In light theme the glow logo mark sits on a rounded dark chip so it reads against the light ground.
 
 ## Home
@@ -53,12 +55,19 @@ There is no untrusted-origin warning box. It was removed in v4.2.2 along with `i
 Foundations is five scrollytelling scenes, each teaching one concept with one hand-authored inline SVG diagram:
 
 1. **The model** - text in, text out, and what it cannot do.
-2. **The platform** - the agent loop, with a pulse travelling model to repo and back.
+2. **The platform** - the agent loop, with a pulse travelling from the model to your project and back.
 3. **Context** - a focused context window and a noisy one, side by side under one "same model" chip.
 4. **The harness** - Skills, Commands, Hooks, and Gates snapping around the loop as guardrail arcs.
-5. **One task, two runs** - the same task run raw (fading chat bubble) and harnessed (hook, gate, tested commit).
+5. **One job, two runs** - the same job run unaided (a chat answer that fades) and harnessed (guardrail, gate, a result that is saved rather than lost).
 
-Hard rules: no element pins itself over the content, and there is **no toggle** between "model alone" and "model with Nexus-Hub" - both states are always visible, because a selector for something already on screen is noise. Diagram colors come from theme tokens so one markup serves both themes. Do not restore a `type="range"` hero, the station cards, or the carousel.
+Hard rules: no element pins itself over the content, and there is **no toggle** between the two states - both are always visible, because a selector for something already on screen is noise. Diagram colors come from theme tokens so one markup serves both themes. Do not restore a `type="range"` hero, the station cards, the carousel, or the per-scene number badges (removed in v4.2.3 as a full line carrying no information).
+
+**Conventions added in v4.2.3, enforced by tests:**
+
+- **Without-then-with ordering.** Every comparison in the guide reads unaided state first, harnessed state second - Foundations scenes 3 and 5, and Home's comparison. Differentiation is carried by colour across the whole lane (amber unaided, accent harnessed), not only on the outcome badge.
+- **Filled arrowheads.** `.fx-head` draws a closed filled triangle. The earlier open two-line chevron drew a single side and read as half an arrow.
+- **Pulse paint order.** SVG has no `z-index`; paint order is document order. Every `.fx-pulse` is declared BEFORE the node groups it crosses so it passes behind them. A test enforces this, because a later edit that reorders elements would silently restore the defect.
+- **Project-generic teaching language.** Explanatory copy avoids "repo", "repository", "terminal", "git", and "codebase" - a vocabulary test guards the Foundations section. Factual claims stay accurate: the hero still names the AI coding assistants, "paste into Terminal" still says Terminal because you literally do, and Cheatsheets still describes what each command really does.
 
 ## Training walkthrough
 
@@ -66,10 +75,14 @@ Training is an eight-step interactive walkthrough (`#nhTraining`, `[data-trainin
 
 1. The step's intent, in second person.
 2. **The interactive Glow Booth mockup** - a faithful re-implementation of `example/glow-booth/logic.js`, *including both frozen bugs*. While `booth.fixed` is false, `computeStamps` walks `captured.length - 1` (a perfect set reads 4 of 5) and Restart keeps `lastPose` on stage. Learners click it freely.
-3. **The simulated terminal** - the step's command pre-filled with a Run affordance; running types the echo then reveals the output lines.
+3. **The simulated terminal** - the step's command pre-filled with a Run affordance; running shows a brief working line, then reveals the reply. The command is NOT echoed a second time, because the prompt line above already shows it.
 4. The artifact card and gate verdict.
 
-Controls: Previous, Next, Restart, Outline, and Present. ArrowLeft / ArrowRight / Space step beats; `f` toggles Present; Escape exits it. **Present mode** requests fullscreen on the training root and applies a viewport overlay class either way, so a denied or unavailable Fullscreen API still presents as slides.
+Controls (reworked in v4.2.3): Previous, Next, and Restart are icon buttons in a right-aligned cluster BELOW the takeaway, each with an `aria-label`, a `title`, and a visible focus ring. Outline keeps a text label because a glyph does not carry its meaning. ArrowLeft / ArrowRight / Space advance; `f` toggles Present; Escape exits it.
+
+**Present mode** requests fullscreen on the training root and applies a viewport overlay class either way, so a denied or unavailable Fullscreen API still presents as slides. Since v4.2.3 it FILLS the viewport: a full-height flex column where the slide grows to consume the space and the booth and terminal stretch inside it, rather than centring an in-page-sized block in an empty screen.
+
+**Position and progress** read in plain language: `Understand . 1 of 8 . /describe full`. The progress strip is eight labelled loop stages - each names its command, the current one carries `aria-current="step"`, completed ones dim, and clicking one jumps to it. The word "beat" must not appear in the UI; it survives only as the underlying mechanism and in the `?beat=n` URL grammar, which is a compatibility contract.
 
 URL: `#training/<scene-id>?beat=n`. Beat changes use `history.replaceState`. An unknown scene id or an out-of-range beat clamps to the nearest valid step.
 
@@ -81,7 +94,9 @@ Eight closed scenes, hard-capped at twelve: `describe`, `review`, `plan`, `imple
 
 Cheatsheets groups every command under seven **intent-named** sections - Understand and evaluate, Plan the work, Build it, Prove it, Ship and govern, Communicate, Catalog and session. The "Band 1 / Band 2" labels are gone and must not return.
 
-Each command lists **every scope with a one-line description of what that scope does**, plus flags, an alias badge where one applies, a copyable invocation, and a Training deep link for the eight taught commands. Commands with no scopes say so explicitly.
+Each command lists **every scope with a one-line description of what that scope does**, plus flags, an alias badge where one applies, and a Training deep link for the eight taught commands. Commands with no scopes say so explicitly.
+
+Since v4.2.3 the scope list is a **single column** (reading across columns was the readability complaint), and every command carries a small terminal captioned "type it like this" showing a real invocation. That terminal reuses the shared `.term` chrome rather than inventing a third terminal style, and the invocation convention colours the command apart from its argument - which is what makes the ordering legible: the scope visibly follows the command instead of floating as a bare token.
 
 A scope shown on the page must exist in that command's own file in `catalog/commands/` - `test_rendered_scopes_match_their_command_files` enforces this, so the page cannot silently rot when a command changes. Old hashes still rewrite with `replaceState`, and every `cs-<stop>` anchor resolves.
 
