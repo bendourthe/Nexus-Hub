@@ -14,7 +14,7 @@ Refreshing this file to the active plan (rather than appending another version's
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
-| v4.2.3 guide-refinement phases complete | 1 | 7 | -6 |
+| v4.2.3 guide-refinement phases complete | 2 | 7 | -5 |
 | Open release blockers | 0 | 0 | 0 |
 | Catalog skills | 328 | 328 | 0 |
 | New MCP servers | 0 | 0 | 0 |
@@ -25,7 +25,7 @@ Refreshing this file to the active plan (rather than appending another version's
 ## Plan - v4.2.3 Interactive Guide Refinement [IN PROGRESS]
 
 - [x] Phase 1 - Fluid layout, copy affordance, and shared conventions
-- [ ] Phase 2 - Home: readable install verify and an animated comparison
+- [x] Phase 2 - Home: readable install verify and an animated comparison
 - [ ] Phase 3 - Foundations: project-generic content and diagram repair
 - [ ] Phase 4 - Training: full-screen present mode and loop-stage progress
 - [ ] Phase 5 - Cheatsheets: terminal usage illustration and readable scopes

@@ -287,9 +287,6 @@ html[data-theme="light"] .btn--primary:hover { color: #fffdf8; }
   font-size: 14.5px;
 }
 .callout p { margin: 0; }
-.verify-callout { margin-top: var(--sp-4); border-left-color: var(--green); }
-.verify-callout > span { color: var(--green); font-weight: 700; }
-.verify-callout .cmd-cell { vertical-align: middle; }
 
 /* ---------- Home loop strip ---------- */
 .loop-strip { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: var(--sp-4) 0 var(--sp-3); }
@@ -305,13 +302,67 @@ html[data-theme="light"] .btn--primary:hover { color: #fffdf8; }
 .loop-arrow { color: var(--ink-faint); flex: none; }
 .btn--gh svg { width: 16px; height: 16px; flex: none; }
 
-/* ---------- Comparison table ---------- */
-.table-scroll { overflow-x: auto; margin: var(--sp-3) 0; }
-.nhg-compare { width: 100%; min-width: 560px; border-collapse: collapse; font-size: 14.5px; }
-.nhg-compare th, .nhg-compare td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--border); vertical-align: top; }
-.nhg-compare th { color: var(--teal-soft); font-size: 12px; text-transform: uppercase; letter-spacing: .08em; }
-.nhg-compare td:first-child { color: var(--ink); font-weight: 600; white-space: nowrap; }
-.nhg-compare td { color: var(--ink-dim); }
+/* ---------- Install verify steps ----------
+   One body type size throughout; spacing, not size, makes the
+   hierarchy. Two clearly separated actions instead of one dense
+   wrapped sentence. */
+.verify-steps {
+  list-style: none; margin: var(--sp-4) 0 0; padding: var(--sp-4) var(--sp-5);
+  border: 1px solid var(--border); border-left: 3px solid var(--green);
+  border-radius: var(--radius-sm); background: var(--surface);
+}
+.verify-steps > li { display: flex; gap: var(--sp-4); align-items: flex-start; }
+.verify-steps > li + li { margin-top: var(--sp-4); padding-top: var(--sp-4); border-top: 1px solid var(--border); }
+.vs-n {
+  flex: none; width: 24px; height: 24px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--green); color: var(--bg-deep);
+  font-size: 13px; font-weight: 700; font-family: var(--mono);
+}
+html[data-theme="light"] .vs-n { color: #fffdf8; }
+.vs-body { min-width: 0; }
+.vs-do { margin: 0; font-size: 15px; color: var(--ink); }
+.vs-cmds { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin: var(--sp-3) 0 0; }
+.vs-note { margin: var(--sp-2) 0 0; font-size: 15px; color: var(--ink-dim); }
+
+/* ---------- Animated comparison ----------
+   Replaces the old five-row table. Reads without-then-with, the same
+   direction every comparison in the guide runs. Deliberately not a
+   two-card grid and not a stat-pill row (hallmark gates 2 and 20). */
+.cmp { margin: var(--sp-4) 0 0; }
+.cmp-head { display: flex; gap: var(--sp-4); margin-bottom: var(--sp-2); padding: 0 2px; }
+.cmp-side { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; flex: 1 1 0; }
+.cmp-side--without { color: var(--amber); }
+.cmp-side--with { color: var(--accent); text-align: right; }
+.cmp-rows { list-style: none; margin: 0; padding: 0; }
+.cmp-row { padding: var(--sp-3) 0; border-top: 1px solid var(--border); }
+.cmp-k { margin: 0 0 6px; font-size: 12.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-faint); }
+.cmp-pair { display: grid; grid-template-columns: 1fr auto 1fr; gap: var(--sp-3); align-items: center; }
+.cmp-a, .cmp-b { margin: 0; font-size: 15px; padding: 9px 13px; border-radius: var(--radius-sm); }
+.cmp-a { color: var(--ink-dim); border: 1px dashed color-mix(in srgb, var(--amber) 55%, transparent); background: color-mix(in srgb, var(--amber) 6%, transparent); }
+.cmp-b { color: var(--ink); border: 1px solid var(--accent); background: color-mix(in srgb, var(--accent) 9%, transparent); }
+.cmp-go { flex: none; }
+.cmp-go svg { width: 40px; height: 12px; display: block; overflow: visible; }
+.cmp-line { fill: none; stroke: var(--border-bright); stroke-width: 1.6; stroke-linecap: round; }
+.cmp-tip { fill: var(--accent); }
+
+/* staggered entry, gated on the section reveal */
+.js .cmp .cmp-row { opacity: 0; transform: translateY(10px); transition: opacity .45s var(--ease), transform .45s var(--ease); transition-delay: calc(var(--i) * 110ms); }
+.js .cmp.in .cmp-row { opacity: 1; transform: none; }
+.js .cmp .cmp-line { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset .5s var(--ease); transition-delay: calc(var(--i) * 110ms + 160ms); }
+.js .cmp.in .cmp-line { stroke-dashoffset: 0; }
+.js .cmp .cmp-tip { opacity: 0; transition: opacity .3s var(--ease); transition-delay: calc(var(--i) * 110ms + 480ms); }
+.js .cmp.in .cmp-tip { opacity: 1; }
+.js .cmp .cmp-b { opacity: .25; transition: opacity .45s var(--ease); transition-delay: calc(var(--i) * 110ms + 520ms); }
+.js .cmp.in .cmp-b { opacity: 1; }
+
+@media (max-width: 720px) {
+  .cmp-head { display: none; }
+  .cmp-pair { grid-template-columns: 1fr; gap: var(--sp-2); }
+  .cmp-go svg { transform: rotate(90deg); margin: 2px auto; }
+  .cmp-a::before { content: "Without"; display: block; font-size: 10.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--amber); margin-bottom: 3px; }
+  .cmp-b::before { content: "With Nexus-Hub"; display: block; font-size: 10.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); margin-bottom: 3px; }
+}
 
 /* ---------- Terminal ---------- */
 .term {
@@ -701,6 +752,10 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
   .js .page.active { animation: none; }
   .js .reveal { opacity: 1; transform: none; transition: none; }
   .btn:hover { transform: none; }
+  .js .cmp .cmp-row { opacity: 1; transform: none; transition: none; }
+  .js .cmp .cmp-line { stroke-dasharray: none; stroke-dashoffset: 0; transition: none; }
+  .js .cmp .cmp-tip { opacity: 1; transition: none; }
+  .js .cmp .cmp-b { opacity: 1; transition: none; }
   .js .fx-scene .fx-pop { opacity: 1; transform: none; transition: none; }
   .js .fx-scene .fx-draw { stroke-dasharray: none; stroke-dashoffset: 0; transition: none; }
   .js .fx-scene .fx-grow { transform: none; transition: none; }
@@ -790,12 +845,26 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
           </div>
         </div>
         <div id="nhg-copy-status" class="visually-hidden" aria-live="polite"></div>
-        <div class="callout verify-callout">
-          <span aria-hidden="true">&#10003;</span>
-          <div>
-            <p>First verify: run <span class="cmd-cell"><code class="inv" data-copy="/skills list"><span class="inv-cmd">/skills</span> <span class="inv-arg">list</span></code></span> or <span class="cmd-cell"><code class="inv" data-copy="/commands"><span class="inv-cmd">/commands</span></code></span> &mdash; you should see the command cheatsheet. Then restart the assistant so it picks up hooks and rules.</p>
-          </div>
-        </div>
+        <ol class="verify-steps">
+          <li>
+            <span class="vs-n" aria-hidden="true">1</span>
+            <div class="vs-body">
+              <p class="vs-do">Check that it installed. Run either command in your assistant:</p>
+              <div class="vs-cmds">
+                <span class="cmd-cell"><code class="inv" data-copy="/skills list"><span class="inv-cmd">/skills</span> <span class="inv-arg">list</span></code></span>
+                <span class="cmd-cell"><code class="inv" data-copy="/commands"><span class="inv-cmd">/commands</span></code></span>
+              </div>
+              <p class="vs-note">You should see the command cheatsheet.</p>
+            </div>
+          </li>
+          <li>
+            <span class="vs-n" aria-hidden="true">2</span>
+            <div class="vs-body">
+              <p class="vs-do">Restart your assistant.</p>
+              <p class="vs-note">Hooks and rules load at startup, so they only take effect after a restart.</p>
+            </div>
+          </li>
+        </ol>
         <details>
           <summary>Need another option?</summary>
           <p>No curl? Use <code>wget -qO- https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash</code>. Scope one repo with <code>--workspace</code>, limit assistants with <code>--platforms</code>, or skip the conflict prompt with <code>--yes</code>. Refresh later with <code>nexus-hub upgrade</code>. Advanced flags and what lands in <code>~/.nexus-hub/</code> versus per-tool config are on <a href="#cheatsheets" data-go="cheatsheets">Cheatsheets</a>.</p>
@@ -806,38 +875,54 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
         <span class="eyebrow">What it adds</span>
         <h2>Same model. Different working method.</h2>
         <p>These claims map to repository artifacts: the installer, <code>catalog/skills/</code>, <code>catalog/commands/</code>, <code>catalog/hooks/</code>, and the GO / NO-GO gates inside <code>/plan</code> and <code>/implement</code>. They are not a claim that one model is smarter than another.</p>
-        <div class="table-scroll"><table class="nhg-compare">
-          <thead>
-            <tr><th>Dimension</th><th>Raw assistant</th><th>With Nexus-Hub</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Portability</td>
-              <td>Built-in commands stay on that host.</td>
-              <td>One catalog is installed into each detected assistant's own config.</td>
-            </tr>
-            <tr>
-              <td>Reusable procedures</td>
-              <td>You re-explain the job every session.</td>
-              <td>Skills load on demand; slash commands start the same workflow each time.</td>
-            </tr>
-            <tr>
-              <td>Deterministic enforcement</td>
-              <td>Safety depends on the model remembering to be careful.</td>
-              <td>Hooks block secrets and dangerous git regardless of the prompt.</td>
-            </tr>
-            <tr>
-              <td>Durable artifacts</td>
-              <td>The useful output lives in a chat transcript.</td>
-              <td>Analyses, reviews, plans, and commits land on disk and chain to the next command.</td>
-            </tr>
-            <tr>
-              <td>Team consistency</td>
-              <td>Each engineer invents a prompt.</td>
-              <td>The team shares one governed loop with written definition-of-done and GO / NO-GO gates.</td>
-            </tr>
-          </tbody>
-        </table></div>
+                <div class="cmp reveal" data-cmp>
+          <div class="cmp-head" aria-hidden="true">
+            <span class="cmp-side cmp-side--without">Without Nexus-Hub</span>
+            <span class="cmp-side cmp-side--with">With Nexus-Hub</span>
+          </div>
+          <ol class="cmp-rows">
+            <li class="cmp-row" style="--i:0">
+              <h3 class="cmp-k">Portability</h3>
+              <div class="cmp-pair">
+                <p class="cmp-a">Built-in commands stay on the assistant you set them up in.</p>
+                <span class="cmp-go" aria-hidden="true"><svg viewBox="0 0 40 12"><path class="cmp-line" pathLength="1" d="M2 6 H30"/><path class="cmp-tip" d="M28 2 L34 6 L28 10 Z"/></svg></span>
+                <p class="cmp-b">One catalog installs into every assistant it detects.</p>
+              </div>
+            </li>
+            <li class="cmp-row" style="--i:1">
+              <h3 class="cmp-k">Reusable procedures</h3>
+              <div class="cmp-pair">
+                <p class="cmp-a">You re-explain the job every session.</p>
+                <span class="cmp-go" aria-hidden="true"><svg viewBox="0 0 40 12"><path class="cmp-line" pathLength="1" d="M2 6 H30"/><path class="cmp-tip" d="M28 2 L34 6 L28 10 Z"/></svg></span>
+                <p class="cmp-b">Skills load on demand; a command starts the same workflow each time.</p>
+              </div>
+            </li>
+            <li class="cmp-row" style="--i:2">
+              <h3 class="cmp-k">Enforcement</h3>
+              <div class="cmp-pair">
+                <p class="cmp-a">Safety depends on the model remembering to be careful.</p>
+                <span class="cmp-go" aria-hidden="true"><svg viewBox="0 0 40 12"><path class="cmp-line" pathLength="1" d="M2 6 H30"/><path class="cmp-tip" d="M28 2 L34 6 L28 10 Z"/></svg></span>
+                <p class="cmp-b">Hooks fire on every action, whatever the prompt said.</p>
+              </div>
+            </li>
+            <li class="cmp-row" style="--i:3">
+              <h3 class="cmp-k">What survives</h3>
+              <div class="cmp-pair">
+                <p class="cmp-a">The useful output lives in a chat transcript.</p>
+                <span class="cmp-go" aria-hidden="true"><svg viewBox="0 0 40 12"><path class="cmp-line" pathLength="1" d="M2 6 H30"/><path class="cmp-tip" d="M28 2 L34 6 L28 10 Z"/></svg></span>
+                <p class="cmp-b">Every step leaves a file that the next step reads.</p>
+              </div>
+            </li>
+            <li class="cmp-row" style="--i:4">
+              <h3 class="cmp-k">Team consistency</h3>
+              <div class="cmp-pair">
+                <p class="cmp-a">Everyone invents their own prompt.</p>
+                <span class="cmp-go" aria-hidden="true"><svg viewBox="0 0 40 12"><path class="cmp-line" pathLength="1" d="M2 6 H30"/><path class="cmp-tip" d="M28 2 L34 6 L28 10 Z"/></svg></span>
+                <p class="cmp-b">One shared loop, with a written definition of done.</p>
+              </div>
+            </li>
+          </ol>
+        </div>
         <details>
           <summary>Commands, skills, hooks, agents, and rules</summary>
           <p>Commands are slash entry points. Skills are procedures the agent loads when the task matches. Hooks are scripts that fire on tool events. Agents are specialist reviewer personas. Rules are per-language style and security standards. Details stay in <a href="#cheatsheets" data-go="cheatsheets">Cheatsheets</a>.</p>

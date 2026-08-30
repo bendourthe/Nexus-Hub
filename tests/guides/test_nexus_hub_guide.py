@@ -565,6 +565,41 @@ def test_home_install_copy_payload_equals_visible_text(parsed: GuideParser) -> N
     assert found_sh and found_ps
 
 
+def test_install_verify_is_a_two_step_sequence(guide_text: str, parsed: GuideParser) -> None:
+    """v4.2.3: the dense wrapped verify sentence became two clear steps."""
+    home = guide_text.split('id="page-home"', 1)[-1].split('id="page-foundations"', 1)[0]
+    assert 'class="verify-steps"' in home
+    assert home.count('class="vs-n"') == 2, "exactly two numbered steps"
+    assert "verify-callout" not in guide_text, "the old dense callout is gone"
+    rule = re.search(r"\.vs-do\s*\{([^}]+)\}", guide_text)
+    note = re.search(r"\.vs-note\s*\{([^}]+)\}", guide_text)
+    assert rule and note, "expected both verify text rules"
+    size_do = re.search(r"font-size:\s*([\d.]+)px", rule.group(1))
+    size_note = re.search(r"font-size:\s*([\d.]+)px", note.group(1))
+    assert size_do and size_note and size_do.group(1) == size_note.group(1), (
+        "one body type size; spacing makes the hierarchy, not size changes"
+    )
+    payloads = {p for p, _v in parsed.home_data_copy}
+    assert "/skills list" in payloads and "/commands" in payloads
+
+
+def test_home_comparison_is_animated_not_a_table(guide_text: str) -> None:
+    home = guide_text.split('id="page-home"', 1)[-1].split('id="page-foundations"', 1)[0]
+    assert "nhg-compare" not in guide_text, "the plain table was replaced"
+    assert 'class="cmp reveal"' in home
+    assert home.count('class="cmp-row"') == 5, "all five concerns survive the rewrite"
+    # without-then-with ordering: the muted side precedes the accent side
+    row = re.search(r'<div class="cmp-pair">([\s\S]*?)</div>', home)
+    assert row and row.group(1).index("cmp-a") < row.group(1).index("cmp-b")
+    assert ".cmp-side--without" in guide_text and ".cmp-side--with" in guide_text
+    # animated, and not a card grid or pill row
+    assert ".js .cmp.in .cmp-row" in guide_text, "staggered entry animation"
+    assert ".js .cmp.in .cmp-line" in guide_text, "the connector draws"
+    reduce_block = guide_text.split("@media (prefers-reduced-motion: reduce)", 1)[-1]
+    for cls in (".cmp-row", ".cmp-line", ".cmp-tip", ".cmp-b"):
+        assert cls in reduce_block, f"{cls} needs a reduced-motion static state"
+
+
 def test_onboarding_has_no_hardcoded_catalog_counts(parsed: GuideParser) -> None:
     home = " ".join(parsed.home_text_parts)
     assert not ONBOARDING_STALE.search(home), home[:400]
