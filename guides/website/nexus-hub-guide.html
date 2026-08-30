@@ -769,7 +769,9 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 .cs-alias { font-size: 11px; font-family: var(--mono); color: var(--ink-faint); border: 1px solid var(--border); border-radius: 5px; padding: 1px 6px; }
 .cs-desc { flex: 1 1 320px; min-width: 0; font-size: 13.5px; color: var(--ink-dim); }
 .cs-body { padding: 12px 16px; }
-.cs-scopes { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 3px 20px; }
+/* Single column: crossing columns to read a scope list was the
+   readability complaint. */
+.cs-scopes { display: block; }
 .cs-scope { display: flex; gap: 9px; align-items: baseline; padding: 4px 0; border-bottom: 1px dotted var(--border); }
 .cs-scope:last-child { border-bottom: 0; }
 .cs-scope code {
@@ -780,8 +782,15 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 .cs-none { font-size: 12.5px; color: var(--ink-faint); font-style: italic; margin: 0; }
 .cs-flags { margin-top: 10px; padding-top: 9px; border-top: 1px solid var(--border); font-size: 12px; color: var(--ink-faint); }
 .cs-flags code { font-size: 11.5px; }
-.cs-run { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-top: 10px; }
-.cs-run .cmd-cell { margin: 0; }
+/* A small terminal per command: the scope is visibly typed AFTER the
+   command, which a bare token list never conveyed. Reuses the shared
+   .term chrome so the guide has one terminal language, not three. */
+.cs-usage { margin-top: 12px; }
+.term--mini { margin: 0; }
+.term--mini .term-bar { padding: 5px 10px; }
+.term--mini .term-bar .label { font-size: 10.5px; letter-spacing: .04em; }
+.term--mini .term-body { padding: 9px 12px; }
+.cs-usage .cs-teach { margin: 8px 0 0; }
 .cs-teach { font-size: 11.5px; color: var(--ink-faint); }
 .cs-teach a { font-weight: 600; }
 
@@ -1427,10 +1436,15 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
               <div class="cs-scope"><code>architecture</code><span>Design, data flow, and key components, with diagrams.</span></div>
               <div class="cs-scope"><code>onboarding</code><span>Fast start: what to read first and how to run it.</span></div>
             </div>
-            <div class="cs-run">
-              <span class="cmd-cell"><code data-copy="/describe full">/describe full</code></span>
-              <span class="cs-teach">A directory path may follow the scope. <a href="#training/describe" data-go="training">See it in Training</a></span>
+            <div class="cs-usage">
+            <div class="term term--mini">
+              <div class="term-bar"><span class="label">type it like this</span></div>
+              <div class="term-body">
+                <div class="cmd-line"><span class="t-teal" aria-hidden="true">&gt;</span> <code class="inv" data-copy="/describe full"><span class="inv-cmd">/describe</span><span class="inv-arg"> full</span></code></div>
+              </div>
             </div>
+            <p class="cs-teach">A directory path may follow the scope. <a href="#training/describe" data-go="training">See it in Training</a></p>
+          </div>
           </div>
         </article>
 
@@ -1450,10 +1464,15 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
               <div class="cs-scope"><code>deps</code><span>Dependency CVE, license, and supply-chain scan.</span></div>
             </div>
             <p class="cs-flags">Flags: <code>--scope &lt;glob&gt;</code> and depth flags pass through unchanged.</p>
-            <div class="cs-run">
-              <span class="cmd-cell"><code data-copy="/review changes">/review changes</code></span>
-              <span class="cs-teach"><a href="#training/review" data-go="training">See it in Training</a></span>
+            <div class="cs-usage">
+            <div class="term term--mini">
+              <div class="term-bar"><span class="label">type it like this</span></div>
+              <div class="term-body">
+                <div class="cmd-line"><span class="t-teal" aria-hidden="true">&gt;</span> <code class="inv" data-copy="/review changes"><span class="inv-cmd">/review</span><span class="inv-arg"> changes</span></code></div>
+              </div>
             </div>
+            <p class="cs-teach"><a href="#training/review" data-go="training">See it in Training</a></p>
+          </div>
           </div>
         </article>
 
@@ -1465,10 +1484,15 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
               <div class="cs-scope"><code>article</code><span>Fetch a web article; compare its claims and recommendations.</span></div>
               <div class="cs-scope"><code>local</code><span>Compare against a path already on your disk.</span></div>
             </div>
-            <div class="cs-run">
-              <span class="cmd-cell"><code data-copy="/compare ../some-reference-repo">/compare ../some-reference-repo</code></span>
-              <span class="cs-teach">Scope is inferred from the source, never prompted. Chains into <code>/plan from-comparison</code>. <a href="#training/compare" data-go="training">See it in Training</a></span>
+            <div class="cs-usage">
+            <div class="term term--mini">
+              <div class="term-bar"><span class="label">type it like this</span></div>
+              <div class="term-body">
+                <div class="cmd-line"><span class="t-teal" aria-hidden="true">&gt;</span> <code class="inv" data-copy="/compare ../some-reference-repo"><span class="inv-cmd">/compare</span><span class="inv-arg"> ../some-reference-repo</span></code></div>
+              </div>
             </div>
+            <p class="cs-teach">Scope is inferred from the source, never prompted. Chains into <code>/plan from-comparison</code>. <a href="#training/compare" data-go="training">See it in Training</a></p>
+          </div>
           </div>
         </article>
       </section>
@@ -1490,10 +1514,15 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
               <div class="cs-scope"><code>todos</code><span>Bootstrap docs/todos.md as a living progress tracker.</span></div>
               <div class="cs-scope"><code>issues</code><span>Fan a plan's task lines out to GitHub issues.</span></div>
             </div>
-            <div class="cs-run">
-              <span class="cmd-cell"><code data-copy="/plan feature">/plan feature</code></span>
-              <span class="cs-teach"><code>/plan goals &lt;one-liner&gt;</code> takes an inline goal. <a href="#training/plan" data-go="training">See it in Training</a></span>
+            <div class="cs-usage">
+            <div class="term term--mini">
+              <div class="term-bar"><span class="label">type it like this</span></div>
+              <div class="term-body">
+                <div class="cmd-line"><span class="t-teal" aria-hidden="true">&gt;</span> <code class="inv" data-copy="/plan feature"><span class="inv-cmd">/plan</span><span class="inv-arg"> feature</span></code></div>
+              </div>
             </div>
+            <p class="cs-teach"><code>/plan goals &lt;one-liner&gt;</code> takes an inline goal. <a href="#training/plan" data-go="training">See it in Training</a></p>
+          </div>
           </div>
         </article>
 
@@ -1506,7 +1535,14 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
               <div class="cs-scope"><code>converge</code><span>Post-build code-vs-plan gap check; appends the remaining work.</span></div>
               <div class="cs-scope"><code>constitution</code><span>Author or amend the project's governing principles.</span></div>
             </div>
-            <div class="cs-run"><span class="cmd-cell"><code data-copy="/spec clarify">/spec clarify</code></span></div>
+            <div class="cs-usage">
+            <div class="term term--mini">
+              <div class="term-bar"><span class="label">type it like this</span></div>
+              <div class="term-body">
+                <div class="cmd-line"><span class="t-teal" aria-hidden="true">&gt;</span> <code class="inv" data-copy="/spec clarify"><span class="inv-cmd">/spec</span><span class="inv-arg"> clarify</span></code></div>
+              </div>
+            </div>
+          </div>
           </div>
         </article>
 
@@ -1518,7 +1554,14 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
               <div class="cs-scope"><code>amend</code><span>Explicit amend mode.</span></div>
               <div class="cs-scope"><code>check &lt;path&gt;</code><span>Read-only Constitution Check against a plan or spec.</span></div>
             </div>
-            <div class="cs-run"><span class="cmd-cell"><code data-copy="/constitution check">/constitution check</code></span></div>
+            <div class="cs-usage">
+            <div class="term term--mini">
+              <div class="term-bar"><span class="label">type it like this</span></div>
+              <div class="term-body">
+                <div class="cmd-line"><span class="t-teal" aria-hidden="true">&gt;</span> <code class="inv" data-copy="/constitution check"><span class="inv-cmd">/constitution</span><span class="inv-arg"> check</span></code></div>
+              </div>
+            </div>
+          </div>
           </div>
         </article>
       </section>
@@ -1539,10 +1582,15 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
               <div class="cs-scope"><code>in-full</code><span>Run every incomplete phase in order (alias: full).</span></div>
               <div class="cs-scope"><code>phase-by-phase</code><span>Same loop, pausing for a choice after each phase.</span></div>
             </div>
-            <div class="cs-run">
-              <span class="cmd-cell"><code data-copy="/implement my-plan phase-1">/implement my-plan phase-1</code></span>
-              <span class="cs-teach"><a href="#training/implement" data-go="training">See it in Training</a></span>
+            <div class="cs-usage">
+            <div class="term term--mini">
+              <div class="term-bar"><span class="label">type it like this</span></div>
+              <div class="term-body">
+                <div class="cmd-line"><span class="t-teal" aria-hidden="true">&gt;</span> <code class="inv" data-copy="/implement my-plan phase-1"><span class="inv-cmd">/implement</span><span class="inv-arg"> my-plan phase-1</span></code></div>
+              </div>
             </div>
+            <p class="cs-teach"><a href="#training/implement" data-go="training">See it in Training</a></p>
+          </div>
           </div>
         </article>
 
@@ -1554,7 +1602,14 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
               <div class="cs-scope"><code>phase N of &lt;plan&gt;</code><span>Assess one specific plan phase.</span></div>
               <div class="cs-scope"><code>"&lt;task text&gt;"</code><span>Assess a quoted task description directly.</span></div>
             </div>
-            <div class="cs-run"><span class="cmd-cell"><code data-copy="/route">/route</code></span></div>
+            <div class="cs-usage">
+            <div class="term term--mini">
+              <div class="term-bar"><span class="label">type it like this</span></div>
+              <div class="term-body">
+                <div class="cmd-line"><span class="t-teal" aria-hidden="true">&gt;</span> <code class="inv" data-copy="/route"><span class="inv-cmd">/route</span></code></div>
+              </div>
+            </div>
+          </div>
           </div>
         </article>
       </section>
@@ -1575,10 +1630,15 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
               <div class="cs-scope"><code>tdd</code><span>Red-green-refactor cycle for one feature or bug.</span></div>
             </div>
             <p class="cs-flags">Flags: <code>--threshold</code> overrides the 80% line-coverage target; <code>--pass-rate</code> overrides the 100% pass gate.</p>
-            <div class="cs-run">
-              <span class="cmd-cell"><code data-copy="/test unit">/test unit</code></span>
-              <span class="cs-teach"><a href="#training/test" data-go="training">See it in Training</a></span>
+            <div class="cs-usage">
+            <div class="term term--mini">
+              <div class="term-bar"><span class="label">type it like this</span></div>
+              <div class="term-body">
+                <div class="cmd-line"><span class="t-teal" aria-hidden="true">&gt;</span> <code class="inv" data-copy="/test unit"><span class="inv-cmd">/test</span><span class="inv-arg"> unit</span></code></div>
+              </div>
             </div>
+            <p class="cs-teach"><a href="#training/test" data-go="training">See it in Training</a></p>
+          </div>
           </div>
         </article>
       </section>
@@ -1601,10 +1661,15 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
               <div class="cs-scope"><code>config</code><span>Validate and repair installed platform configs.</span></div>
               <div class="cs-scope"><code>commit</code><span>Generate a structured message for the staged changes.</span></div>
             </div>
-            <div class="cs-run">
-              <span class="cmd-cell"><code data-copy="/update changelog">/update changelog</code></span>
-              <span class="cs-teach"><a href="#training/update" data-go="training">See it in Training</a></span>
+            <div class="cs-usage">
+            <div class="term term--mini">
+              <div class="term-bar"><span class="label">type it like this</span></div>
+              <div class="term-body">
+                <div class="cmd-line"><span class="t-teal" aria-hidden="true">&gt;</span> <code class="inv" data-copy="/update changelog"><span class="inv-cmd">/update</span><span class="inv-arg"> changelog</span></code></div>
+              </div>
             </div>
+            <p class="cs-teach"><a href="#training/update" data-go="training">See it in Training</a></p>
+          </div>
           </div>
         </article>
 
@@ -1612,7 +1677,14 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
           <div class="cs-head"><span class="cs-name">/commit</span><span class="cs-alias">alias of /update commit</span><span class="cs-desc">Generate a structured commit message for the staged changes.</span></div>
           <div class="cs-body">
             <p class="cs-none">No scopes. Kept as a permanent alias because it runs many times a day.</p>
-            <div class="cs-run"><span class="cmd-cell"><code data-copy="/commit">/commit</code></span></div>
+            <div class="cs-usage">
+            <div class="term term--mini">
+              <div class="term-bar"><span class="label">type it like this</span></div>
+              <div class="term-body">
+                <div class="cmd-line"><span class="t-teal" aria-hidden="true">&gt;</span> <code class="inv" data-copy="/commit"><span class="inv-cmd">/commit</span></code></div>
+              </div>
+            </div>
+          </div>
           </div>
         </article>
 
@@ -1625,7 +1697,14 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
               <div class="cs-scope"><code>sync</code><span>Refresh the currently connected organization source.</span></div>
               <div class="cs-scope"><code>author</code><span>Build a valid standards bundle through a guided flow.</span></div>
             </div>
-            <div class="cs-run"><span class="cmd-cell"><code data-copy="/org status">/org status</code></span></div>
+            <div class="cs-usage">
+            <div class="term term--mini">
+              <div class="term-bar"><span class="label">type it like this</span></div>
+              <div class="term-body">
+                <div class="cmd-line"><span class="t-teal" aria-hidden="true">&gt;</span> <code class="inv" data-copy="/org status"><span class="inv-cmd">/org</span><span class="inv-arg"> status</span></code></div>
+              </div>
+            </div>
+          </div>
           </div>
         </article>
       </section>
@@ -1644,10 +1723,15 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
               <div class="cs-scope"><code>project</code><span>A directory: overview, file tree, grouped source code.</span></div>
             </div>
             <p class="cs-flags">Modes are auto-detected; override with <code>--mode</code>. Design: <code>--style</code>, <code>--theme</code>, <code>--layout</code>, <code>--nav</code> (scroll or slides), <code>--interactivity</code>, <code>--images</code>, <code>--verbosity</code>, <code>--qa-depth</code>, <code>--out</code>.</p>
-            <div class="cs-run">
-              <span class="cmd-cell"><code data-copy="/presentify ./docs --nav slides">/presentify ./docs --nav slides</code></span>
-              <span class="cs-teach"><a href="#training/presentify" data-go="training">See it in Training</a></span>
+            <div class="cs-usage">
+            <div class="term term--mini">
+              <div class="term-bar"><span class="label">type it like this</span></div>
+              <div class="term-body">
+                <div class="cmd-line"><span class="t-teal" aria-hidden="true">&gt;</span> <code class="inv" data-copy="/presentify ./docs --nav slides"><span class="inv-cmd">/presentify</span><span class="inv-arg"> ./docs --nav slides</span></code></div>
+              </div>
             </div>
+            <p class="cs-teach"><a href="#training/presentify" data-go="training">See it in Training</a></p>
+          </div>
           </div>
         </article>
 
@@ -1659,7 +1743,14 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
               <div class="cs-scope"><code>compile</code><span>Merge several reports into one deduplicated document.</span></div>
               <div class="cs-scope"><code>report</code><span>Export Markdown to .docx or .pptx via a template.</span></div>
             </div>
-            <div class="cs-run"><span class="cmd-cell"><code data-copy="/research deep">/research deep</code></span></div>
+            <div class="cs-usage">
+            <div class="term term--mini">
+              <div class="term-bar"><span class="label">type it like this</span></div>
+              <div class="term-body">
+                <div class="cmd-line"><span class="t-teal" aria-hidden="true">&gt;</span> <code class="inv" data-copy="/research deep"><span class="inv-cmd">/research</span><span class="inv-arg"> deep</span></code></div>
+              </div>
+            </div>
+          </div>
           </div>
         </article>
       </section>
@@ -1678,7 +1769,14 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
               <div class="cs-scope"><code>import</code><span>Import catalog skills into a project, with a hygiene gate.</span></div>
               <div class="cs-scope"><code>scan</code><span>Security-scan a skill, or the catalog, before install.</span></div>
             </div>
-            <div class="cs-run"><span class="cmd-cell"><code data-copy="/skills list">/skills list</code></span></div>
+            <div class="cs-usage">
+            <div class="term term--mini">
+              <div class="term-bar"><span class="label">type it like this</span></div>
+              <div class="term-body">
+                <div class="cmd-line"><span class="t-teal" aria-hidden="true">&gt;</span> <code class="inv" data-copy="/skills list"><span class="inv-cmd">/skills</span><span class="inv-arg"> list</span></code></div>
+              </div>
+            </div>
+          </div>
           </div>
         </article>
 
@@ -1686,7 +1784,14 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
           <div class="cs-head"><span class="cs-name">/commands</span><span class="cs-alias">alias of /skills list</span><span class="cs-desc">Show the command cheatsheet, derived at runtime from the command files.</span></div>
           <div class="cs-body">
             <p class="cs-none">No scopes. An optional term filters the list.</p>
-            <div class="cs-run"><span class="cmd-cell"><code data-copy="/commands">/commands</code></span></div>
+            <div class="cs-usage">
+            <div class="term term--mini">
+              <div class="term-bar"><span class="label">type it like this</span></div>
+              <div class="term-body">
+                <div class="cmd-line"><span class="t-teal" aria-hidden="true">&gt;</span> <code class="inv" data-copy="/commands"><span class="inv-cmd">/commands</span></code></div>
+              </div>
+            </div>
+          </div>
           </div>
         </article>
 
@@ -1698,7 +1803,14 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
               <div class="cs-scope"><code>wrap-up</code><span>End-of-session sequence: history, cleanup, docs, commit.</span></div>
               <div class="cs-scope"><code>history</code><span>Generate a standalone session-history document.</span></div>
             </div>
-            <div class="cs-run"><span class="cmd-cell"><code data-copy="/session continue">/session continue</code></span></div>
+            <div class="cs-usage">
+            <div class="term term--mini">
+              <div class="term-bar"><span class="label">type it like this</span></div>
+              <div class="term-body">
+                <div class="cmd-line"><span class="t-teal" aria-hidden="true">&gt;</span> <code class="inv" data-copy="/session continue"><span class="inv-cmd">/session</span><span class="inv-arg"> continue</span></code></div>
+              </div>
+            </div>
+          </div>
           </div>
         </article>
 
@@ -1709,7 +1821,14 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
               <div class="cs-scope"><code>project</code><span>Bootstrap instructions, scaffolding, .gitignore, core docs.</span></div>
               <div class="cs-scope"><code>hooks</code><span>Install the opt-in pre-commit AI review hook.</span></div>
             </div>
-            <div class="cs-run"><span class="cmd-cell"><code data-copy="/setup project">/setup project</code></span></div>
+            <div class="cs-usage">
+            <div class="term term--mini">
+              <div class="term-bar"><span class="label">type it like this</span></div>
+              <div class="term-body">
+                <div class="cmd-line"><span class="t-teal" aria-hidden="true">&gt;</span> <code class="inv" data-copy="/setup project"><span class="inv-cmd">/setup</span><span class="inv-arg"> project</span></code></div>
+              </div>
+            </div>
+          </div>
           </div>
         </article>
 
@@ -1721,7 +1840,14 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
               <div class="cs-scope"><code>&lt;model-id&gt;</code><span>Restrict the run to one model.</span></div>
             </div>
             <p class="cs-flags">Flags: <code>--dry-run</code> proposes without applying; <code>--profiles-only</code> skips the shared-body stage entirely.</p>
-            <div class="cs-run"><span class="cmd-cell"><code data-copy="/tune-prompting --dry-run">/tune-prompting --dry-run</code></span></div>
+            <div class="cs-usage">
+            <div class="term term--mini">
+              <div class="term-bar"><span class="label">type it like this</span></div>
+              <div class="term-body">
+                <div class="cmd-line"><span class="t-teal" aria-hidden="true">&gt;</span> <code class="inv" data-copy="/tune-prompting --dry-run"><span class="inv-cmd">/tune-prompting</span><span class="inv-arg"> --dry-run</span></code></div>
+              </div>
+            </div>
+          </div>
           </div>
         </article>
 
@@ -1729,7 +1855,14 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
           <div class="cs-head"><span class="cs-name">/memory</span><span class="cs-desc">Audit, prune, and reorganize the instruction and memory files.</span></div>
           <div class="cs-body">
             <p class="cs-none">No scopes. Runs the audit-and-propose flow directly.</p>
-            <div class="cs-run"><span class="cmd-cell"><code data-copy="/memory">/memory</code></span></div>
+            <div class="cs-usage">
+            <div class="term term--mini">
+              <div class="term-bar"><span class="label">type it like this</span></div>
+              <div class="term-body">
+                <div class="cmd-line"><span class="t-teal" aria-hidden="true">&gt;</span> <code class="inv" data-copy="/memory"><span class="inv-cmd">/memory</span></code></div>
+              </div>
+            </div>
+          </div>
           </div>
         </article>
 
@@ -1737,7 +1870,14 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
           <div class="cs-head"><span class="cs-name">/usage</span><span class="cs-desc">Check usage limits and get a model-switching recommendation.</span></div>
           <div class="cs-body">
             <p class="cs-none">No scopes. Reports usage and advice directly.</p>
-            <div class="cs-run"><span class="cmd-cell"><code data-copy="/usage">/usage</code></span></div>
+            <div class="cs-usage">
+            <div class="term term--mini">
+              <div class="term-bar"><span class="label">type it like this</span></div>
+              <div class="term-body">
+                <div class="cmd-line"><span class="t-teal" aria-hidden="true">&gt;</span> <code class="inv" data-copy="/usage"><span class="inv-cmd">/usage</span></code></div>
+              </div>
+            </div>
+          </div>
           </div>
         </article>
       </section>

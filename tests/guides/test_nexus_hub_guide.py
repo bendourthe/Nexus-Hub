@@ -1000,6 +1000,49 @@ def test_rendered_scopes_match_their_command_files(guide_text: str) -> None:
     assert not unmatched, f"scopes not found in their command files: {unmatched}"
 
 
+def test_cheatsheets_scopes_are_single_column(guide_text: str) -> None:
+    """v4.2.3: reading across columns was the readability complaint."""
+    rule = re.search(r"\.cs-scopes \{([^}]+)\}", guide_text)
+    assert rule, "expected .cs-scopes rule"
+    body = rule.group(1)
+    assert "grid-template-columns" not in body, "the multi-column grid was removed"
+    assert "display: block" in body
+
+
+def test_every_command_shows_terminal_usage(guide_text: str) -> None:
+    """A bare token list never showed that the scope is typed AFTER the command."""
+    cs = _cheatsheets_markup(guide_text)
+    names = sorted(p.stem for p in COMMANDS_DIR.glob("*.md"))
+    assert cs.count('class="cs-usage"') >= len(names), (
+        "each command needs a usage example"
+    )
+    assert cs.count("term--mini") >= len(names)
+    assert "cs-run" not in guide_text, "the old inline run row was replaced"
+    # reuse the shared terminal chrome rather than inventing a third style
+    assert 'class="term term--mini"' in cs
+
+
+def test_cheatsheets_examples_colour_command_apart_from_argument(
+    parsed: GuideParser, guide_text: str
+) -> None:
+    cs = _cheatsheets_markup(guide_text)
+    invs = re.findall(
+        r'<code class="inv" data-copy="([^"]+)">(.*?)</code>', cs, flags=re.DOTALL
+    )
+    assert len(invs) >= 15, "expected an invocation per command"
+    split = [(pay, mk) for pay, mk in invs if " " in pay]
+    assert split, "at least one example should carry an argument"
+    for payload, markup in split:
+        assert 'class="inv-cmd"' in markup and 'class="inv-arg"' in markup, (
+            f"{payload} does not colour its argument apart"
+        )
+    # payload parity survives the split markup
+    lookup = {p for p, _ in invs}
+    for payload, visible in parsed.all_data_copy:
+        if payload in lookup:
+            assert visible.strip() == payload, f"copy parity broken for {payload}"
+
+
 def test_cheatsheets_commands_are_copyable(parsed: GuideParser, guide_text: str) -> None:
     cs = _cheatsheets_markup(guide_text)
     payloads = re.findall(r'data-copy="(/[^"]+)"', cs)
