@@ -14,18 +14,18 @@ Refreshing this file to the active plan (rather than appending another version's
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
-| v4.3.0 agentic-verification-discipline phases complete | 1 | 5 | -4 |
+| v4.3.0 agentic-verification-discipline phases complete | 2 | 5 | -3 |
 | Open release blockers | 0 | 0 | 0 |
 | Catalog skills | 328 | 329 | -1 |
-| New paired hooks | 0 | 1 | -1 |
-| New rules language directories | 0 | 1 | -1 |
+| New paired hooks | 1 | 1 | 0 |
+| New rules language directories | 1 | 1 | 0 |
 
 ---
 
 ## Plan - v4.3.0 Agentic Verification Discipline [IN PROGRESS]
 
 - [x] Phase 1 - Design the verification ladder
-- [ ] Phase 2 - Build the instruments
+- [x] Phase 2 - Build the instruments
 - [ ] Phase 3 - The functional-verification skill
 - [ ] Phase 4 - Wire the discipline into the harness
 - [ ] Phase 5 - Architecture refactor, known-gaps, CI/CD, publication, and integration

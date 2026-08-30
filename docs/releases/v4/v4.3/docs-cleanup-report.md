@@ -29,3 +29,25 @@ Result: `docs-audit: files=5; duplicate-sets=0; refgraph-paths=2; active-tree=Ca
 ### Result
 
 No duplicate, orphaned, scratch, or misplaced documentation was created by Phase 1. No file moved, and no cleanup change was approved or applied.
+
+## Phase 2 - Build the instruments
+
+### Layout check
+
+Phase 2 adds executable catalog and test artifacts outside `docs/` plus one phase history under the existing canonical release tree. No living product document, release-plan placement, archive boundary, or v4.4 artifact moved.
+
+### New documentation artifacts
+
+| Path | Category | Disposition |
+|---|---|---|
+| `docs/releases/v4/v4.3/development/history/2026-08-29_v4.3.0-agentic-verification-discipline-phase-2-instruments.md` | Active phase evidence | Keep in the v4.3 development history through release closure. |
+
+### Audit evidence
+
+Command: `python catalog/skills/code-cleanup/docs-layout-refactor/scripts/audit-docs.py inventory --root ./docs/releases/v4/v4.3` plus `refgraph` against the same root.
+
+Result: `docs-audit: files=6; duplicate-sets=0; refgraph-paths=2; active-tree=Cat4; moves=0`.
+
+### Result
+
+No documentation move or deletion is required. The Phase 2 history remains release-scoped, `docs/todos.md` remains the living dashboard, and `docs/DEVLOG.md` remains unchanged because unreleased phase work does not belong in the release index.
