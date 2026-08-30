@@ -464,7 +464,7 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
 .fx-scene:first-of-type { border-top: 0; }
 .fx-flip .fx-copy { order: 2; }
 .fx-wide { grid-template-columns: 1fr; }
-.fx-copy h2 { max-width: 26ch; }
+.fx-copy h2 { text-wrap: balance; }
 .fx-copy p { font-size: 15.5px; color: var(--ink-dim); }
 .fx-copy strong, .fx-copy em { color: var(--ink); }
 .fx-diagram { min-width: 0; }
@@ -550,7 +550,7 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
   display: flex; flex-wrap: wrap; gap: var(--sp-3); align-items: center; justify-content: space-between;
   padding: 10px 14px; border-bottom: 1px solid var(--border); background: var(--surface-2);
 }
-.nht-controls { display: flex; flex-wrap: wrap; gap: 6px; }
+.nht-where { margin: 0; font-size: 12.5px; color: var(--ink-dim); font-family: var(--mono); }
 .nht-btn {
   padding: 5px 12px; font-size: 12.5px; font-weight: 600; font-family: var(--sans);
   color: var(--ink-dim); background: var(--surface); border: 1px solid var(--border);
@@ -558,20 +558,36 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
 }
 .nht-btn:hover:not(:disabled) { color: var(--ink); border-color: var(--border-bright); }
 .nht-btn:disabled { opacity: .4; cursor: default; }
-.nht-meta { display: flex; align-items: center; gap: 10px; font-size: 12px; }
-.nht-stage { color: var(--teal-soft); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
-.nht-count { color: var(--ink-faint); font-family: var(--mono); }
-.nht-outline { border-bottom: 1px solid var(--border); background: var(--bg-1); padding: var(--sp-3) var(--sp-4); }
-.nht-outline ol { margin: 0; padding-left: 20px; columns: 2; column-gap: var(--sp-5); }
-.nht-outline li { margin-bottom: 4px; font-size: 13.5px; break-inside: avoid; }
-.nht-outline button {
-  background: none; border: 0; padding: 0; cursor: pointer; text-align: left;
-  color: var(--ink-dim); font-size: 13.5px; font-family: var(--sans);
+
+/* Loop-stage progress: each segment names its command. */
+.nht-loop { display: flex; gap: 2px; padding: 0; overflow-x: auto; }
+.nht-seg {
+  flex: 1 1 0; min-width: 68px; padding: 6px 4px 7px;
+  background: transparent; border: 0; border-top: 3px solid var(--border);
+  color: var(--ink-faint); font-family: var(--mono); font-size: 10.5px;
+  cursor: pointer; text-align: center; white-space: nowrap;
 }
-.nht-outline button:hover, .nht-outline li.on button { color: var(--accent); font-weight: 600; }
-.nht-progress { display: flex; gap: 3px; padding: 0; }
-.nht-progress i { flex: 1; height: 3px; background: var(--border); display: block; transition: background .3s var(--ease); }
-.nht-progress i.on { background: var(--accent); }
+.nht-seg:hover { color: var(--ink); }
+.nht-seg.is-done { border-top-color: color-mix(in srgb, var(--accent) 45%, var(--border)); color: var(--ink-dim); }
+.nht-seg.is-now { border-top-color: var(--accent); color: var(--accent); font-weight: 700; background: color-mix(in srgb, var(--accent) 8%, transparent); }
+.nht-seg-k::before { content: "/"; opacity: .5; }
+
+/* Controls: bottom-right, icon-first. */
+.nht-controls { display: flex; gap: 8px; justify-content: flex-end; margin-top: var(--sp-4); }
+.nht-ico {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 38px; height: 38px; flex: none; padding: 0;
+  color: var(--ink-dim); background: var(--surface);
+  border: 1px solid var(--border); border-radius: 10px; cursor: pointer;
+  transition: color .15s, border-color .15s;
+}
+.nht-ico:hover:not(:disabled) { color: var(--ink); border-color: var(--border-bright); }
+.nht-ico:disabled { opacity: .35; cursor: default; }
+.nht-ico svg { width: 18px; height: 18px; display: block; }
+.nht-ico--go { background: var(--accent); color: var(--bg-deep); border-color: transparent; }
+html[data-theme="light"] .nht-ico--go { color: #fffdf8; }
+.nht-ico--go:hover:not(:disabled) { color: var(--bg-deep); filter: brightness(1.08); }
+html[data-theme="light"] .nht-ico--go:hover:not(:disabled) { color: #fffdf8; }
 .nht-slide { padding: var(--sp-5); }
 .nht-head { margin-bottom: var(--sp-4); }
 .nht-num {
@@ -580,7 +596,7 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
   padding: 1px 7px; margin-bottom: var(--sp-2);
 }
 .nht-head h2 { margin-bottom: var(--sp-2); }
-.nht-intent { color: var(--ink-dim); font-size: 15px; max-width: 78ch; }
+.nht-intent { color: var(--ink-dim); font-size: 15px; }
 .nht-grid { display: grid; grid-template-columns: minmax(280px, 4fr) minmax(320px, 6fr); gap: var(--sp-4); align-items: start; }
 .nht-col { min-width: 0; }
 
@@ -658,6 +674,13 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 .nht-out div.on { opacity: 1; transform: none; }
 .nht-out div.echo { color: var(--term-prompt); }
 .nht-hint { margin: 6px 0 0; font-size: 11.5px; color: var(--term-dim); font-family: var(--sans); }
+.nht-idle {
+  margin: 0; padding: var(--sp-5) 0; text-align: center;
+  font-size: 12.5px; color: var(--term-dim); font-family: var(--sans);
+  border: 1px dashed var(--term-border); border-radius: var(--radius-sm);
+}
+.term--nht.has-run .nht-idle { display: none; }
+.nht.is-present .nht-idle { margin: auto 0; }
 .nht-tools { display: flex; flex-wrap: wrap; gap: 6px; margin-top: var(--sp-3); }
 .nht-tool {
   font-size: 11px; font-family: var(--mono); color: var(--ink-faint);
@@ -685,18 +708,36 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 }
 .nht-takeaway {
   margin: var(--sp-4) 0 0; padding-top: var(--sp-3); border-top: 1px solid var(--border);
-  font-size: 14.5px; color: var(--ink); max-width: 78ch;
+  font-size: 14.5px; color: var(--ink);
 }
 .nht-takeaway b { color: var(--teal-soft); }
 
-/* present / slide mode */
+/* present / slide mode -- fills the viewport rather than centring a
+   small in-page slide, which left most of the screen empty. */
 .nht.is-present {
   position: fixed; inset: 0; z-index: 90; margin: 0; border-radius: 0; border: 0;
-  background: var(--page-bg); display: flex; flex-direction: column; overflow: auto;
+  background: var(--page-bg); display: flex; flex-direction: column; overflow: hidden;
 }
-.nht.is-present .nht-slide { flex: 1; max-width: 1180px; width: 100%; margin: 0 auto; padding: var(--sp-5) var(--sp-6); }
-.nht.is-present .nht-head h2 { font-size: clamp(1.5rem, 3vw, 2.1rem); }
-.nht.is-present .nht-bar { position: sticky; top: 0; z-index: 2; }
+.nht.is-present .nht-bar,
+.nht.is-present .nht-loop { flex: none; }
+.nht.is-present .nht-slide {
+  flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column;
+  width: 100%; max-width: 1600px; margin: 0 auto; padding: var(--sp-5) var(--sp-6) var(--sp-4);
+  overflow-y: auto;
+}
+.nht.is-present .nht-head { flex: none; }
+.nht.is-present .nht-head h2 { font-size: clamp(1.6rem, 3.2vw, 2.4rem); }
+.nht.is-present .nht-intent { font-size: clamp(15px, 1.4vw, 18px); }
+.nht.is-present .nht-grid { flex: 1 1 auto; min-height: 0; align-items: stretch; }
+.nht.is-present .nht-col { display: flex; flex-direction: column; gap: var(--sp-3); }
+.nht.is-present .nht-booth { flex: 1 1 auto; display: flex; flex-direction: column; }
+.nht.is-present .nb-stage { flex: 0 1 auto; height: clamp(180px, 30vh, 300px); }
+.nht.is-present .nb-shot { height: auto; min-height: 130px; align-self: center; width: 62%; }
+.nht.is-present .term--nht { flex: 1 1 auto; display: flex; flex-direction: column; }
+.nht.is-present .term--nht .term-body { flex: 1 1 auto; display: flex; flex-direction: column; }
+.nht.is-present .nht-out { flex: 1 1 auto; }
+.nht.is-present .nht-takeaway { flex: none; }
+.nht.is-present .nht-controls { flex: none; }
 @media (max-width: 900px) {
   .nht-grid { grid-template-columns: 1fr; }
   .nht-after { grid-template-columns: 1fr; }
@@ -1248,23 +1289,15 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 
       <div class="nht" id="nhTraining" data-training-root data-nhg-keys="self">
         <div class="nht-bar">
-          <div class="nht-controls">
-            <button type="button" class="nht-btn" data-nht="prev">&larr; Previous</button>
-            <button type="button" class="nht-btn" data-nht="next">Next &rarr;</button>
-            <button type="button" class="nht-btn" data-nht="restart">Restart</button>
-            <button type="button" class="nht-btn" data-nht="outline" aria-expanded="false" aria-controls="nhtOutline">Outline</button>
-          </div>
-          <div class="nht-meta">
-            <span class="nht-stage" data-nht="stage-label"></span>
-            <span class="nht-count" data-nht="counter"></span>
-          </div>
+          <p class="nht-where" data-nht="where"></p>
+          <button type="button" class="nht-btn nht-outline-toggle" data-nht="outline" aria-expanded="false" aria-controls="nhtOutline">Outline</button>
         </div>
 
         <div class="nht-outline" id="nhtOutline" hidden>
           <ol data-nht="outline-list"></ol>
         </div>
 
-        <div class="nht-progress" data-nht="progress" role="presentation"></div>
+        <nav class="nht-loop" data-nht="progress" aria-label="Progress through the loop"></nav>
 
         <div class="nht-slide">
           <header class="nht-head">
@@ -1310,6 +1343,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
                   </div>
                   <div class="nht-out" data-nht="output" aria-live="polite"></div>
                   <p class="nht-hint" data-nht="hint">Press Run to send this command.</p>
+                  <p class="nht-idle" data-nht="idle">The assistant's reply will appear here.</p>
                 </div>
               </div>
 
@@ -1338,6 +1372,18 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
           </div>
 
           <p class="nht-takeaway" data-nht="takeaway"></p>
+
+          <div class="nht-controls">
+            <button type="button" class="nht-ico" data-nht="restart" aria-label="Restart this step" title="Restart this step">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
+            </button>
+            <button type="button" class="nht-ico" data-nht="prev" aria-label="Previous" title="Previous">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>
+            </button>
+            <button type="button" class="nht-ico nht-ico--go" data-nht="next" aria-label="Next" title="Next">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+            </button>
+          </div>
         </div>
       </div>
 
@@ -2067,7 +2113,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
       }
     }
 
-    if (typed && full) { typeChar(); } else { revealOut(); }
+
   }
 
   var animTerms = document.querySelectorAll(".term[data-anim]");
@@ -2756,7 +2802,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 
   function q(name) { return root.querySelector('[data-nht="' + name + '"]'); }
   var els = {
-    stageLabel: q("stage-label"), counter: q("counter"), progress: q("progress"),
+    where: q("where"), progress: q("progress"),
     outline: document.getElementById("nhtOutline"), outlineList: q("outline-list"),
     stepNum: q("step-num"), title: q("title"), intent: q("intent"),
     boothTag: q("booth-tag"), boothShot: q("booth-shot"), boothShotLabel: q("booth-shot-label"),
@@ -2885,10 +2931,26 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
   function resetTerminal(scene) {
     if (runToken) runToken.cancelled = true;
     runToken = null;
+    var term = root.querySelector('[data-nht="terminal"]');
+    if (term) term.classList.remove("has-run");
     if (els.output) els.output.textContent = "";
     if (els.command) {
-      els.command.textContent = scene.command || "";
-      els.command.setAttribute("data-copy", scene.command || "");
+      /* Colour the command apart from its argument (the shared .inv
+         convention); the copy payload stays the plain full string. */
+      els.command.textContent = "";
+      var full = scene.command || "";
+      var sp = full.indexOf(" ");
+      var c = document.createElement("span");
+      c.className = "inv-cmd";
+      c.textContent = sp < 0 ? full : full.slice(0, sp);
+      els.command.appendChild(c);
+      if (sp >= 0) {
+        var a = document.createElement("span");
+        a.className = "inv-arg";
+        a.textContent = full.slice(sp);
+        els.command.appendChild(a);
+      }
+      els.command.setAttribute("data-copy", full);
     }
     if (els.run) { els.run.disabled = false; els.run.textContent = "Run"; }
     if (els.hint) els.hint.textContent = "Press Run to send this command.";
@@ -2896,10 +2958,6 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
   function finishRun(scene) {
     if (!els.output) return;
     els.output.textContent = "";
-    var echo = document.createElement("div");
-    echo.className = "echo on";
-    echo.textContent = "> " + (scene.command || "");
-    els.output.appendChild(echo);
     (scene.output || []).forEach(function (line) {
       var row = document.createElement("div");
       row.className = "on";
@@ -2912,6 +2970,8 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
   function runCommand() {
     var scene = SCENES[step];
     if (!scene || !els.output) return;
+    var term = root.querySelector('[data-nht="terminal"]');
+    if (term) term.classList.add("has-run");
     if (runToken) { runToken.cancelled = true; finishRun(scene); return; }
     if (REDUCE) { finishRun(scene); return; }
 
@@ -2920,22 +2980,20 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
     if (els.run) { els.run.disabled = true; els.run.textContent = "Running"; }
     if (els.hint) els.hint.textContent = "Running (click Run to skip the animation).";
 
+    /* The prompt line above is the echo; typing it twice reads as a
+       duplicate. Show a working line instead, then the reply. */
     var echo = document.createElement("div");
-    echo.className = "echo";
+    echo.className = "echo on";
+    echo.textContent = "working…";
     els.output.appendChild(echo);
-    var cmd = scene.command || "";
-    var ci = 0;
 
     function typeChar() {
       if (tok.cancelled) return;
-      if (ci <= cmd.length) {
-        echo.textContent = "> " + cmd.slice(0, ci);
-        echo.classList.add("on");
-        ci++;
-        window.setTimeout(typeChar, 16);
-      } else {
+      window.setTimeout(function () {
+        if (tok.cancelled) return;
+        if (echo.parentNode) echo.parentNode.removeChild(echo);
         revealLines();
-      }
+      }, 420);
     }
     var oi = 0;
     var lines = scene.output || [];
@@ -2964,21 +3022,34 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
     var beats = scene.beats || [];
     if (beat >= beats.length) beat = beats.length ? beats.length - 1 : 0;
 
-    if (els.stageLabel) els.stageLabel.textContent = scene.stage || "";
-    if (els.counter) {
-      els.counter.textContent = "step " + (step + 1) + " / " + SCENES.length +
-        (beats.length > 1 ? "  ·  beat " + (beat + 1) + " / " + beats.length : "");
+    if (els.where) {
+      /* Plain language: name the stage, not internal step/beat counters. */
+      els.where.textContent = (scene.stage || "") + " · " +
+        (step + 1) + " of " + SCENES.length + " · " + (scene.command || "");
     }
-    if (els.stepNum) els.stepNum.textContent = ("0" + (step + 1)).slice(-2) + "  " + (scene.command || "");
+    if (els.stepNum) els.stepNum.textContent = scene.command || "";
     if (els.title) els.title.textContent = scene.title || scene.id;
     if (els.intent) els.intent.textContent = scene.intent || "";
 
     if (els.progress) {
+      /* Each segment names its command, so the bar says WHERE in the
+         loop you are rather than showing eight anonymous bars. */
       els.progress.textContent = "";
       for (var i = 0; i < SCENES.length; i++) {
-        var bar = document.createElement("i");
-        if (i <= step) bar.className = "on";
-        els.progress.appendChild(bar);
+        (function (idx) {
+          var seg = document.createElement("button");
+          seg.type = "button";
+          seg.className = "nht-seg" + (idx === step ? " is-now" : (idx < step ? " is-done" : ""));
+          if (idx === step) seg.setAttribute("aria-current", "step");
+          seg.setAttribute("aria-label",
+            (SCENES[idx].stage || "") + ": " + (SCENES[idx].command || SCENES[idx].id));
+          var nm = document.createElement("span");
+          nm.className = "nht-seg-k";
+          nm.textContent = (SCENES[idx].command || "").replace(/^[/]/, "").split(" ")[0];
+          seg.appendChild(nm);
+          seg.addEventListener("click", function () { step = idx; beat = 0; render(true); });
+          els.progress.appendChild(seg);
+        })(i);
       }
     }
 

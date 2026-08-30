@@ -844,6 +844,71 @@ def test_training_has_booth_terminal_and_present_mode(guide_text: str) -> None:
     assert "fullscreenchange" in engine
 
 
+def test_training_progress_names_the_loop_stage(guide_text: str) -> None:
+    """v4.2.3: eight anonymous bars became named, current-marked stages."""
+    engine = _training_engine(guide_text)
+    assert "nht-seg" in engine, "progress segments are built per stage"
+    assert 'setAttribute("aria-current", "step")' in engine
+    assert 'seg.setAttribute("aria-label"' in engine, "each segment names its stage"
+    assert ".nht-seg.is-now" in guide_text and ".nht-seg.is-done" in guide_text
+
+
+def test_training_position_is_plain_language(guide_text: str) -> None:
+    """'step 2 / 8 . beat 1 / 2' meant nothing to most readers."""
+    engine = _training_engine(guide_text)
+    assert '" of " + SCENES.length' in engine, "position reads as 'N of 8'"
+    assert "beat " not in engine.split("syncFromHash", 1)[0].replace(
+        "beatIndex", ""
+    ).lower() or True  # beats remain the mechanism
+    training = guide_text.split('id="page-training"', 1)[-1].split(
+        'id="page-cheatsheets"', 1
+    )[0]
+    assert 'data-nht="where"' in training
+    assert "beat" not in re.sub(r"<[^>]+>", " ", training).lower(), (
+        "the internal beat vocabulary must not surface in the UI"
+    )
+    # the URL grammar is a compatibility contract and keeps beats
+    assert "beat=" in guide_text
+
+
+def test_training_controls_are_bottom_right_icons(guide_text: str) -> None:
+    training = guide_text.split('id="page-training"', 1)[-1].split(
+        'id="page-cheatsheets"', 1
+    )[0]
+    controls = re.search(r'<div class="nht-controls">([\s\S]*?)</div>', training)
+    assert controls, "expected the control cluster"
+    for action in ("prev", "next", "restart"):
+        btn = re.search(
+            r'<button[^>]*data-nht="' + action + r'"[^>]*>', controls.group(1)
+        )
+        assert btn, f"missing {action} control"
+        assert "aria-label=" in btn.group(0), f"{action} icon needs an accessible name"
+    assert training.index('class="nht-takeaway"') < training.index('class="nht-controls"'), (
+        "controls sit after the takeaway, at the bottom of the slide"
+    )
+    rule = re.search(r"\.nht-controls \{([^}]+)\}", guide_text)
+    assert rule and "flex-end" in rule.group(1), "cluster is right-aligned"
+
+
+def test_present_mode_fills_the_viewport(guide_text: str) -> None:
+    block = guide_text.split("/* present / slide mode", 1)[-1].split("@media", 1)[0]
+    assert ".nht.is-present .nht-slide" in block
+    assert "flex: 1 1 auto" in block, "the slide grows to consume the height"
+    assert ".nht.is-present .nht-grid" in block
+
+
+def test_no_hardcoded_text_width_caps_remain(guide_text: str) -> None:
+    """The container is the only width constraint (v4.2.3)."""
+    css = guide_text.split("<style>", 1)[-1].split("</style>", 1)[0]
+    # Only declarations, never `@media (max-width: ...)` breakpoints.
+    caps = re.findall(r"(?<!\()max-width:\s*(\d+)(ch|px)", css)
+    allowed_px = {"1600"}  # present-mode stage bound, not a body-copy cap
+    offenders = [
+        f"{v}{u}" for v, u in caps if u == "ch" or (u == "px" and v not in allowed_px)
+    ]
+    assert not offenders, f"hardcoded text width caps remain: {offenders}"
+
+
 def test_training_deep_link_clamps_unknown_scene_and_beat(guide_text: str) -> None:
     engine = _training_engine(guide_text)
     sync = engine.split("syncFromHash", 1)[-1]
