@@ -274,6 +274,153 @@ TRAILING whitespace:        none
 
 Exactly one file affected. **Narrow fix applied**: normalized to a single trailing `\r\n`, preserving the file's own CRLF endings (the `mixed line ending` hook passes on CRLF). No content changed.
 
-### Push 2
+### Push 2 - v4.2.3 folds in
 
-Pending: local gate re-run, then one narrowly scoped stabilization commit and a re-push, both behind maintainer approval.
+Maintainer decision 2026-08-29: rather than pushing the v4.2.2 stabilization fix on its own, the v4.2.3 refinement plan was implemented on the same branch. PR #146 will therefore deliver v4.2.2, its fix, and all of v4.2.3 in one merge. Nothing was ever published, so no user saw an intermediate state.
+
+See the v4.2.3 sections below for that plan's own last-phase evidence.
+
+---
+
+# v4.2.3 guide-refinement - last-phase evidence
+
+**Date**: 2026-08-29
+**Plan**: `docs/releases/v4/v4.2/plans/v4.2.3-guide-refinement.md`
+**Phase**: 7 of 7
+**Branch**: `feat/v4.2.2-guide-cinematic-rebuild` (shared with v4.2.2 by maintainer decision)
+
+## Architecture refactor
+
+```text
+$ find guides docs/releases/v4/v4.2 -type d -empty
+(no output)
+```
+
+**Render-evidence consolidation.** Evidence had grown to 38.4 MB across twelve phase sets, against an 11.5 MB precedent in `assets/`, in a repository users clone. Decided deliberately (the plan's T025 asks for a decision either way) and applied:
+
+```text
+before: 38.4 MB across 12 sets
+removed 30.3 MB of superseded standard sweeps
+after:   8.1 MB
+```
+
+Kept: the final full sweep (`renders/v423-phase-6/`, 24 captures) and all six captures that exist nowhere else - reduced motion, present mode before and after a run, and the diagram and command crops. Removed: superseded 24-shot sweeps, including all six v4.2.2 sets, which document pages this release then rewrote. Every pruned image remains in git history at the commit that added it, and both render-review files carry a note recording the consolidation, so no citation dangles silently.
+
+## Known-gaps reconciliation
+
+Two ledgers carry `Status: in-progress`: `docs/releases/v4/v4.1/known-gaps.md` and `docs/releases/v4/v4.2/known-gaps.md`.
+
+- A `## v4.2.3` section carries v4.2.2's three gaps forward honestly rather than closing them by assertion: DF-1 (`.html` outside the unicode-sanitize gate), DF-2 (no five-person workshop cohort exists), MT-1 (render harness is manual-only by design).
+- DF-1 earned a concrete illustration this cycle: writing the v4.2.3 plan introduced a stray CJK character that `validate_unicode_safety.py` scanned and passed, because it flags invisible characters and smart punctuation, not a valid-but-wrong-script glyph. A separate scan caught it. The gap is real and now has evidence.
+- v4.1's three open items were inspected and deliberately not absorbed.
+
+## Living docs architecture
+
+```text
+$ python scripts/ci/run.py --profile fast
+PASS: 12 passed, 0 failed, 0 skipped, 0 advisory
+```
+
+`docs/todos.md` was refreshed to this plan at Phase 1 and ticked each phase. Six session histories written, one per phase. `guides/website/README.md` updated in Phase 6, including four stale statements corrected in sections this plan did not otherwise touch. No `docs/testing/` or `docs/validation/` tree invented.
+
+## Git-tree hygiene
+
+```text
+$ python scripts/check_release_preconditions.py --branches --repo-settings
+  (12 branch(es) with an open PR were excluded)
+  1 branch(es) survive a CLOSED, unmerged PR:
+    - origin/backmerge/v3.20.0
+  Reporting only -- nothing was deleted.
+Repository settings
+  OK: delete_branch_on_merge is enabled
+  OK: repository description agrees with README.md
+```
+
+Report only. The one flagged branch is pre-existing and unrelated.
+
+## CI/CD coverage
+
+```text
+$ python scripts/check_required_check_coverage.py
+Required-check coverage: OK -- 10 declared context(s) across 2 branch(es),
+every one produced unconditionally.
+```
+
+**No pipeline file changed.** The v4.2.2 field-by-field comparison against the canonical contract concluded PASS on all twelve fields, and nothing in v4.2.3 alters any of them: no new command, dependency, environment variable, secret, test path, or artifact. The rewritten test module and the pruned render PNGs both sit inside paths the existing `tests` job already collects.
+
+Per the plan's explicit warning, the workflow-level `paths:` check was read from the `on:` mapping directly rather than grepped, since a naive grep matches the explanatory comments in `ci.yml` and produced a false positive in v4.2.2. The trigger block carries no path filter.
+
+## Goal-vs-codebase review
+
+The plan Goal restated: every defect from the 2026-08-29 second review resolved - fluid text, bare copy icons, a readable verify block, an animated comparison, project-generic Foundations with repaired and consistently-ordered diagrams, a full-screen Training present mode with icon controls and loop-stage progress, Cheatsheets terminal usage with commands coloured apart from arguments, and correctly scaled page-nav buttons - all verified by rendered screenshots before each commit.
+
+Inspected against the file itself, item by item, as if this agent had not implemented the phases. **19 of 19 review items satisfied, 0 outstanding:**
+
+| Review item | Artifact |
+|---|---|
+| Text fills the page, no hardcoded width | no `--measure`, no `ch` cap; `.container --maxw` is the only constraint |
+| Copy icon not a bubble in a bubble | `.copy-btn--bare`, transparent and borderless, inside `.cmd-cell` hosts |
+| Verify segment readable | `.verify-steps`, two numbered steps, one type size |
+| Comparison visual and animated | `nhg-compare` gone; six animated rows with drawing connectors |
+| Foundations numbers removed | no `.fx-num` markup |
+| Project-generic, not coding-only | no coding-only vocabulary in Foundations teaching copy |
+| Arrowheads are full chevrons | closed filled `.fx-head` paths; `fx-arrow` gone |
+| Loop labels clear and differentiated | dim uppercase role over plain-weight detail |
+| Dots pass behind the boxes | every pulse declared before its node groups |
+| Clear with/without difference via colour | amber unaided vs accent harnessed, across nodes and connectors |
+| Without first, with second | unaided state leads in both comparisons |
+| Present mode uses the screen | full-height flex column, measured 823 of 900 px |
+| Top-right text is clear | "Understand . 1 of 8 . /describe full"; no step/beat jargon |
+| Controls bottom-right, icons | icon cluster after the takeaway, right-aligned |
+| Progress shows the loop stage | eight labelled stages, current marked with `aria-current` |
+| Cheatsheets single column | no `grid-template-columns` on `.cs-scopes` |
+| Terminal illustration for usage | 21 usage terminals, one per command |
+| Command coloured apart from argument | `.inv-cmd` accent, `.inv-arg` plain ink |
+| Nav buttons fit their text | `flex: 0 0 auto`; the 260 px slab is gone |
+
+**Gaps**: none blocking. The three carried gaps above are recorded rather than claimed closed.
+
+## Human/manual testing suggestions
+
+Automated checks now cover structure, contrast, keyboard reachability, reduced motion, and the simulated interactions. These still need a person:
+
+1. **The comparative judgement.** Whether the refined guide is now shippable. That is the question this cycle exists to answer, and no script settles it.
+2. **Real-device touch.** The booth, the new bottom-right icon controls, and the loop-stage segments on a phone and a tablet. The harness renders at 420 px but does not touch.
+3. **True fullscreen.** Headless Chromium denies the Fullscreen API, so only the overlay fallback is ever exercised automatically. Press Present in a real browser, then Escape.
+4. **Lighthouse Accessibility** in both themes, target >= 90.
+5. **Cross-browser and platform fonts.** Firefox and Safari, and the macOS system font stack. All rendering evidence is Chromium on Windows.
+6. **Clipboard** behind a real permission prompt, including the bare-icon variant, which no longer has a chip to signal it is a button.
+7. **Long-line readability.** The maintainer chose container-filling text over a measure. Worth reading a full paragraph at 1920 px to confirm the choice still feels right at the widest common desktop.
+8. **Workshop (DF-2).** Five people through the walkthrough, if a cohort becomes available. Not run; not claimed.
+
+## Full-suite testing and stabilization
+
+Guide suite:
+
+```text
+$ python -m pytest -q tests/guides/test_nexus_hub_guide.py
+73 passed, 1 skipped
+```
+
+Fast repository profile:
+
+```text
+$ python scripts/ci/run.py --profile fast
+PASS: 12 passed, 0 failed, 0 skipped, 0 advisory
+```
+
+Full repository suite, run to completion:
+
+```text
+$ python -m pytest -q tests
+....................sssss.ss.ss.....s.sss                                [100%]
+3531 passed, 38 skipped in 3192.61s (0:53:12)
+
+[exited with code 0]
+```
+
+**0 failures across 3,531 tests** (18 more than v4.2.2's 3,513, the net of this release's new guards). The only non-test change in Phase 7 was deleting superseded PNGs; the suite confirms no behavior moved.
+
+## Publication and integration
+
+Pending: sub-task 7.9, after explicit maintainer approval. This push UPDATES the existing PR #146 rather than opening a new one, and carries v4.2.2, its stabilization commit `f4203850`, and all of v4.2.3.

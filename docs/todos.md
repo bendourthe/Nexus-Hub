@@ -14,7 +14,7 @@ Refreshing this file to the active plan (rather than appending another version's
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
-| v4.2.3 guide-refinement phases complete | 6 | 7 | -1 |
+| v4.2.3 guide-refinement phases complete | 6 | 7 | -1 (Phase 7 local evidence complete; publication pending approval) |
 | Open release blockers | 0 | 0 | 0 |
 | Catalog skills | 328 | 328 | 0 |
 | New MCP servers | 0 | 0 | 0 |

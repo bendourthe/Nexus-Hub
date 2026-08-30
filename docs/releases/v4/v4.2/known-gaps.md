@@ -145,3 +145,53 @@ None yet.
 ### Inherited Ledger Review
 
 - v4.2.1 DF-1 (rendered visual QA) and QG-1 (full-suite proof) remain open on the `## v4.2.1` section; this plan's Phase 7 reconciles both (per-phase render evidence closes the visual half; the integration PR's `pytest tests` job closes the suite half).
+
+## v4.2.3 - guide-refinement
+
+### Summary
+
+| Category | Open | Resolved |
+|---|---|---|
+| Not implemented (NI) | 0 | 0 |
+| Deferred (DF) | 2 | 0 |
+| Bugs / regressions (BG) | 0 | 0 |
+| Warnings (WN) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 1 | 0 |
+| Quality-gate gaps (QG) | 0 | 0 |
+
+### Open Items
+
+All three are carried forward from v4.2.2 rather than closed by assertion, because none was actually resolved by this release.
+
+#### Deferred
+
+##### DF-1 - Unicode-safety validator does not scan `.html`, and misses wrong-script glyphs
+
+- **Source phase**: carried from v4.2.2 DF-1; re-confirmed in v4.2.3 Phase 7
+- **Plan reference**: `docs/releases/v4/v4.2/plans/v4.2.3-guide-refinement.md` T026
+- **Reason**: `scripts/validate_unicode_safety.py` excludes `.html` from `TEXT_EXTENSIONS`, so the guide is outside the gate entirely. This cycle also showed the validator misses a second class in files it DOES scan: writing the v4.2.3 plan introduced a stray CJK character (U+6539) into a `.md` file, the validator scanned it and reported "repaired 0 files", and a separate scan caught it. The tool flags invisible characters and smart punctuation, not a valid-but-wrong-script glyph.
+- **Suggested next step**: add `.html` to `TEXT_EXTENSIONS` (grandfathering existing archives), and add a script-range check that flags characters outside the expected scripts for an English document.
+
+##### DF-2 - The five-person workshop validation was not run
+
+- **Source phase**: carried from v4.2.2 DF-2
+- **Plan reference**: `docs/releases/v4/v4.2/plans/v4.2.3-guide-refinement.md` T031
+- **Reason**: no cohort of five participants exists. Rendered QA, WCAG AA contrast, keyboard, and reduced-motion checks were all run and recorded; the workshop specifically was not, and is not claimed.
+- **Suggested next step**: when a cohort is available, run the eight-step Training walkthrough with five people and record where they stall.
+
+#### Missing Tests
+
+##### MT-1 - Render harness has an import test but no functional test
+
+- **Source phase**: carried from v4.2.2 MT-1
+- **Plan reference**: `docs/releases/v4/v4.2/plans/v4.2.3-guide-refinement.md` T026
+- **Reason**: `tests/guides/tools/render_guide.py` is exercised manually every phase; an automated Playwright test would force a browser download in CI, which the offline-first pipeline deliberately avoids.
+- **Suggested next step**: keep manual; if CI ever gains a browser cache, add one smoke render behind an opt-in marker.
+
+### Resolved
+
+None. This release resolved user-reported UI defects, which are tracked in the plan's Goal review rather than as known gaps.
+
+### Inherited Ledger Review
+
+- v4.2.1's DF-1 and QG-1 stay Resolved under `## v4.2.1`. v4.1's three open items were inspected and deliberately not absorbed: they belong to the v4.1 line and are untouched by a guide refinement.

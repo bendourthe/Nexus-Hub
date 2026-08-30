@@ -33,3 +33,11 @@ Rendering found seven defects the markup tests could not see:
 ## Budget
 
 Guide file: **397 KB** against the 500 KB budget. No runtime network references.
+
+## Note on render evidence (v4.2.3 Phase 7 consolidation)
+
+The per-phase render sets this file references were consolidated on 2026-08-29. Evidence had grown to 38.4 MB across twelve sets, against an 11.5 MB precedent in `assets/`, in a repository that users clone.
+
+Kept: the final full sweep (`renders/v423-phase-6/`, 24 captures) and every capture that exists nowhere else - reduced motion, present mode before and after a run, and the diagram and command crops. Removed: the superseded standard 24-shot sweeps from earlier phases, including all six v4.2.2 sets, which document pages that v4.2.3 subsequently rewrote.
+
+Nothing is lost: every pruned image remains in git history at the commit that added it. The written verdicts, measurements, and defect lists in this file and in `render-review-v4.2.3.md` are unaffected.
