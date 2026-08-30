@@ -56,6 +56,7 @@
         "e2e-testing-automation",
         "edge-case-generator",
         "flaky-test-detector",
+        "functional-verification",
         "fuzzing-input-generator",
         "integration-test-generator",
         "metamorphic-test-generator",

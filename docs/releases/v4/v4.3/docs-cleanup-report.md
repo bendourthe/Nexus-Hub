@@ -51,3 +51,25 @@ Result: `docs-audit: files=6; duplicate-sets=0; refgraph-paths=2; active-tree=Ca
 ### Result
 
 No documentation move or deletion is required. The Phase 2 history remains release-scoped, `docs/todos.md` remains the living dashboard, and `docs/DEVLOG.md` remains unchanged because unreleased phase work does not belong in the release index.
+
+## Phase 3 - The Functional-Verification Skill
+
+### Layout check
+
+Phase 3 adds one bundled catalog reference outside `docs/` plus one standalone history under the existing active v4.3 release tree. Registry and live-count edits do not change documentation lifespan placement. No living product document, archive boundary, or v4.4 artifact moved.
+
+### New documentation artifacts
+
+| Path | Category | Disposition |
+|---|---|---|
+| `docs/releases/v4/v4.3/development/history/2026-08-29_v4.3.0-agentic-verification-discipline-phase-3-skill.md` | Active phase evidence | Keep in the v4.3 development history through release closure. |
+
+### Audit evidence
+
+Command: `python catalog/skills/code-cleanup/docs-layout-refactor/scripts/audit-docs.py inventory --root ./docs/releases/v4/v4.3` plus `refgraph` against the same root.
+
+Result: `docs-audit: files=7; duplicate-sets=0; refgraph-paths=2; active-tree=Cat4; moves=0`.
+
+### Result
+
+No documentation move or deletion is required. The new history remains release-scoped, `docs/todos.md` remains the living dashboard, `docs/DEVLOG.md` remains unchanged for unreleased work, and the unrelated v4.4 plan remains untouched.

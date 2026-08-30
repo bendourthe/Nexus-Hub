@@ -14,9 +14,9 @@ Refreshing this file to the active plan (rather than appending another version's
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
-| v4.3.0 agentic-verification-discipline phases complete | 2 | 5 | -3 |
+| v4.3.0 agentic-verification-discipline phases complete | 3 | 5 | -2 |
 | Open release blockers | 0 | 0 | 0 |
-| Catalog skills | 328 | 329 | -1 |
+| Catalog skills | 329 | 329 | 0 |
 | New paired hooks | 1 | 1 | 0 |
 | New rules language directories | 1 | 1 | 0 |
 
@@ -26,7 +26,7 @@ Refreshing this file to the active plan (rather than appending another version's
 
 - [x] Phase 1 - Design the verification ladder
 - [x] Phase 2 - Build the instruments
-- [ ] Phase 3 - The functional-verification skill
+- [x] Phase 3 - The functional-verification skill
 - [ ] Phase 4 - Wire the discipline into the harness
 - [ ] Phase 5 - Architecture refactor, known-gaps, CI/CD, publication, and integration
 

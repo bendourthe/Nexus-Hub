@@ -6,7 +6,7 @@
     "description": "Comprehensive catalog of Nexus-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-    "total_skills": 328,
+    "total_skills": 329,
     "categories": {
       "ai-development": 14,
       "architecture": 7,
@@ -25,7 +25,7 @@
       "research": 3,
       "security": 33,
       "specialized-domains": 14,
-      "testing": 3,
+      "testing": 4,
       "tests-generation": 18,
       "workflow": 45,
       "security-operations": 29,
@@ -34,7 +34,7 @@
     },
     "priorities": {
       "MEDIUM": 275,
-      "HIGH": 5
+      "HIGH": 6
     },
     "total_lines": 136172,
     "total_tokens_estimate": 740960,
@@ -49,7 +49,7 @@
       "C++"
     ],
     "repository": "https://github.com/bendourthe/Nexus-Hub",
-    "last_updated": "2026-08-28"
+    "last_updated": "2026-08-29"
   },
   "skills": [
     {
@@ -11595,6 +11595,45 @@
         "lines": 85,
         "characters": 6394,
         "tokens_estimate": 799
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "functional-verification",
+      "title": "functional-verification",
+      "description": "Exercise built artifacts. Use for \"did you actually test it\", \"verify this works\", \"check the feature runs\", \"does the UI actually render\", or \"exercise the feature\". SKIP writing unit tests, accessibility audits, visual-design reviews.",
+      "long_description": "Exercise built behavior through real consumer boundaries and record exact inputs, actions, exits, outputs, states, measurements, and evidence paths. Covers proportional phase smokes for CLI, public APIs, browser UI, hooks and scripts, generators, configuration, and narrow documentation-only changes, plus a bounded whole-plan deep pass.",
+      "summary_l0": "\"Exercise built artifacts through real boundaries and record observable behavioral evidence\"",
+      "overview_l1": "\"Exercise shipped behavior through the artifact's real boundary and capture output as well as execution. Select a proportional path for CLI, library or API, web UI, hook or script, generator, configuration, or narrow documentation changes. For a final whole-plan review, follow references/deep-pass.md to inventory every feature, invoke domain delegates, audit Goal-vs-plan sufficiency, and bound fixes to three rerun cycles. This skill owns exercise procedure and the plan-sufficiency audit; adjacent skills own evidence freshness, gate policy, accessibility, visual judgment, browser diagnosis, E2E architecture, adversarial rules, code-vs-plan convergence, and gap records.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "testing",
+      "language": "Multi-language",
+      "tags": [
+        "functional-verification",
+        "smoke-testing",
+        "behavioral-evidence",
+        "quality-gates"
+      ],
+      "priority": "HIGH",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Bash"
+      ],
+      "path": "catalog/skills/testing/functional-verification/",
+      "file": "catalog/skills/testing/functional-verification/SKILL.md",
+      "size": {
+        "lines": 147,
+        "characters": 13149,
+        "tokens_estimate": 3287
       },
       "downloads": 0,
       "status": "production",
