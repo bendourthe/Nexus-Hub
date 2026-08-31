@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Horizontal overflow defect</title>
+  <style>
+    * { box-sizing: border-box; } html { font-family: Arial, sans-serif; font-size: 16px; } body { margin: 0; padding: 16px; } main { display: grid; gap: 24px; }
+    .component { position: relative; width: 320px; min-height: 72px; padding: 12px; border: 1px solid #aaa; } .contained-child { width: 100%; height: 24px; background: #eef; }
+    .captions { position: relative; height: 62px; } .caption { position: absolute; top: 8px; width: 112px; height: 28px; padding: 4px; background: #eef; } .caption-one { left: 8px; } .caption-two { left: 144px; }
+    .overflow-component { overflow-x: auto; } .scroller { width: 240px; overflow-x: visible; } .reveal-shell { width: 240px; overflow-x: visible; } .wide-row { display: block; width: 480px; height: 28px; }
+    .responsive-copy { max-width: min(100%, 40rem); } .badge { display: inline-block; width: 32px; height: 20px; } .legible { font-size: 16px; }
+    .scroll-reveal { width: 480px; height: 24px; opacity: 0; transform: translateX(40px); } svg { display: block; width: 200px; height: 100px; }
+    @media (max-width: 720px) { .component { width: 100%; } }
+  </style>
+</head>
+<body><main>
+  <section class="component"><div class="contained-child">Contained text</div></section>
+  <section class="component"><svg viewBox="0 0 200 100"><rect x="10" y="10" width="180" height="80"></rect><text x="20" y="55">Inside viewBox</text></svg></section>
+  <section class="component captions"><span class="caption caption-one">First caption</span><span class="caption caption-two">Second caption</span></section>
+  <section class="component overflow-component"><div id="overflow:target" class="scroller"><span class="wide-row">Content that has no horizontal scroller</span></div></section>
+  <section class="component"><p class="responsive-copy">Responsive copy follows its container.</p></section>
+  <section class="component"><span class="badge">OK</span></section><section class="component"><p class="legible">Legible copy.</p></section>
+  <section class="component"><div class="reveal-shell"><div class="scroll-reveal" data-reveal="pending">Scroll-gated content</div></div></section>
+</main></body>
+</html>

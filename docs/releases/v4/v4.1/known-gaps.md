@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: in-progress
-**Last updated**: 2026-08-28 (v4.1.2 Phase 5 reconciliation)
+**Last updated**: 2026-08-29 (v4.1.2 publication)
 
 ## v4.1.0
 
@@ -123,11 +123,17 @@ All Not Implemented, Bug / Regression, and Missing Test categories have no open 
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 0 | 0 |
 | Bugs / regressions (BG) | 0 | 0 |
-| Warnings (WN) | 1 | 0 |
+| Warnings (WN) | 0 | 1 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 1 |
 
 ### Open Items
+
+None.
+
+Do not absorb v4.1.0 DF-1/WN-1/QG-1 or v4.1.1 DF-1.
+
+### Resolved
 
 #### Warnings
 
@@ -135,12 +141,9 @@ All Not Implemented, Bug / Regression, and Missing Test categories have no open 
 
 - **Source phase**: Phase 5 - Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
 - **Plan reference**: `docs/releases/v4/v4.1/plans/v4.1.2-adoption-minimal-construction.md` T023 / T028
-- **Evidence**: `python scripts/check_release_preconditions.py --branches --repo-settings` reports `skills: description says 326, README.md declares 328`. This plan added two catalog skills. It is not v4.1.0 WN-1 (that item was 324 versus 326).
-- **Next action**: Update the GitHub repository description from 326 to 328 during the authorized GitHub Release / publication step, then rerun `python scripts/check_release_preconditions.py --branches --repo-settings`.
-
-Do not absorb v4.1.0 DF-1/WN-1/QG-1 or v4.1.1 DF-1.
-
-### Resolved
+- **Evidence at deferral**: `python scripts/check_release_preconditions.py --branches --repo-settings` reported `skills: description says 326, README.md declares 328`.
+- **Resolution**: `gh repo edit` updated the description to 328 during the v4.1.2 GitHub Release step. A re-run of `python scripts/check_release_preconditions.py --branches --repo-settings` reported `OK: repository description agrees with README.md`.
+- **Resolved in**: v4.1.2 publication on 2026-08-29
 
 #### Quality-Gate Gaps
 
@@ -150,3 +153,5 @@ Do not absorb v4.1.0 DF-1/WN-1/QG-1 or v4.1.1 DF-1.
 - **Evidence at deferral**: `python scripts/ci/run.py --profile fast` passed 12 of 12. Hour-scale local `--profile full` had not produced a final report when last-phase evidence was written.
 - **Resolution**: Pull request [#141](https://github.com/bendourthe/Nexus-Hub/pull/141) merged to `develop` at `34d8272b` with every required check green (`validate`, `shellcheck`, `ci-required`, `colocation`, `verify`). Post-merge workflow run `33235080095` succeeded (`smoke` + `provenance`). Remote CI is the complete-suite proof named in the original next action.
 - **Resolved in**: v4.1.2 release preparation on 2026-08-28
+
+> Finalized on 2026-08-29 at the v4.1.2 publication. Do not absorb v4.1.0 DF-1/WN-1/QG-1 or v4.1.1 DF-1.

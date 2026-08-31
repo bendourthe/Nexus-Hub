@@ -417,6 +417,7 @@ The collaborator rules (O1/O2) are deliberately CONFIGURABLE convention, not man
 
 ## Related Skills
 
+- [[functional-verification]] - owns the procedure that produces functional evidence; this skill defines the criterion, threshold, and GO/NO-GO outcome that consume it.
 - [[workflow-orchestrator]] - Orchestrating multi-phase workflows that use these gates
 - [[task-coordinator]] - Coordinating tasks within gated phases
 - [[plan-before-code]] - Planning phase that feeds into the plan-approved gate

@@ -40,11 +40,10 @@ from __future__ import annotations
 
 import json
 import os
-import re
 from pathlib import Path
 
 from ._catalog_adapters import _split_frontmatter
-from ._hooks_common import script_basename, strip_owned_handlers
+from ._hooks_common import script_basename, sourced_modules, strip_owned_handlers
 from ._owned import write_owned_file
 from .base import IntegrationBase
 from .result import FileAction
@@ -85,38 +84,6 @@ CODEX_MATCHERLESS_EVENTS = frozenset({"UserPromptSubmit", "Stop"})
 # attention-required trigger.
 CODEX_EVENT_ALIASES = {"Notification": "PermissionRequest"}
 
-
-def _sourced_modules(scripts: set[str], src_hooks_dir: Path) -> set[str]:
-    """Return `_`-prefixed sibling modules that any delivered script sources.
-
-    A hook that sources a shared module needs that module beside it, or it exits
-    silently on every run: registered, executable, and permanently inert. Modules
-    are deliberately never registered in ``settings.json`` (that is what makes
-    them modules rather than hooks), so they are invisible to the settings-driven
-    collection and must be resolved from the delivered script bodies instead.
-
-    Both shell variants of a module are taken once either is referenced, because
-    the ``.sh`` body names only its own sibling while the ``.ps1`` hook needs the
-    ``.ps1`` module.
-    """
-    found: set[str] = set()
-    modules = [p for p in src_hooks_dir.glob("_*") if p.suffix in (".sh", ".ps1")]
-    for script in sorted(scripts):
-        path = src_hooks_dir / script
-        if path.suffix not in (".sh", ".ps1") or not path.exists():
-            continue
-        try:
-            body = path.read_text(encoding="utf-8", errors="replace")
-        except OSError:
-            continue
-        for module in modules:
-            if module.name == script or module.name not in body:
-                continue
-            found.add(module.name)
-            sibling = module.with_suffix(".ps1" if module.suffix == ".sh" else ".sh")
-            if sibling.exists():
-                found.add(sibling.name)
-    return found
 
 # Tool-name matcher tokens Codex recognizes for PreToolUse / PostToolUse.
 # `apply_patch` is the canonical name for file edits; `Edit` and `Write` are its
@@ -341,7 +308,7 @@ def build_hook_entries(
     # Shared modules are not registered anywhere, so they must be resolved from
     # the delivered script bodies. Without this a hook that sources one is copied
     # and registered but exits silently on every run.
-    scripts |= _sourced_modules(scripts, src_hooks_dir)
+    scripts |= sourced_modules(scripts, src_hooks_dir)
 
     return events, scripts, skipped
 
@@ -436,87 +403,12 @@ def prune_hooks_json(dst: Path, owned_base: str, dry_run: bool) -> FileAction:
     return FileAction(path=str(dst), action="updated")
 
 
-# ----- config.toml feature flag -------------------------------------------
-
-_FEATURES_HEADER = re.compile(r"^\s*\[features\]\s*$")
-_ANY_TABLE_HEADER = re.compile(r"^\s*\[")
-_HOOKS_KEY = re.compile(r"^\s*(hooks|codex_hooks)\s*=\s*(true|false)\s*$")
-
-FEATURE_FLAG_LINE = "hooks = true"
-
-
-def enable_hooks_feature(ctx, key: str, config_path: Path) -> FileAction:
-    """Set ``[features].hooks = true`` in ``config.toml`` without clobbering it.
-
-    Codex ships the hook engine disabled, so a hooks.json that Codex never reads
-    is worse than no hooks at all -- the install summary would claim a guardrail
-    the user does not have. This enables the documented feature key
-    (``codex_hooks`` is the deprecated alias) with a line-level edit rather than
-    a TOML round-trip, so comments, formatting, and every unrelated table survive
-    byte-for-byte.
-
-    An explicit ``hooks = false`` is left alone. That is a deliberate user or
-    administrator decision, and silently reversing it would be exactly the kind
-    of unannounced behavior change this contract exists to prevent.
-    """
-    if not config_path.exists():
-        content = f"[features]\n{FEATURE_FLAG_LINE}\n"
-        if not ctx.dry_run:
-            config_path.parent.mkdir(parents=True, exist_ok=True)
-            config_path.write_text(content, encoding="utf-8")
-        ctx.manifest.track(key, str(config_path))
-        return FileAction(path=str(config_path), action="created")
-
-    original = config_path.read_text(encoding="utf-8")
-    lines = original.splitlines(keepends=True)
-    in_features = False
-    features_at = None
-    for index, line in enumerate(lines):
-        if _FEATURES_HEADER.match(line):
-            in_features = True
-            features_at = index
-            continue
-        if in_features and _ANY_TABLE_HEADER.match(line):
-            in_features = False
-        if in_features:
-            match = _HOOKS_KEY.match(line)
-            if match:
-                if match.group(2) == "false":
-                    ctx.manifest.log(
-                        key,
-                        f"keep-user-choice ({match.group(1)} = false): {config_path}",
-                    )
-                    return FileAction(path=str(config_path), action="kept")
-                return FileAction(path=str(config_path), action="unchanged")
-
-    if features_at is None:
-        if not original.strip():
-            separator = ""
-        else:
-            separator = "\n" if original.endswith("\n") else "\n\n"
-        updated = f"{original}{separator}[features]\n{FEATURE_FLAG_LINE}\n"
-    else:
-        lines.insert(features_at + 1, f"{FEATURE_FLAG_LINE}\n")
-        updated = "".join(lines)
-
-    if not ctx.dry_run:
-        backup = config_path.with_suffix(config_path.suffix + ".nexus-hub.bak")
-        backup.write_bytes(config_path.read_bytes())
-        ctx.manifest.track(key, str(backup))
-        tmp = config_path.with_suffix(config_path.suffix + ".nexus-hub.tmp")
-        tmp.write_text(updated, encoding="utf-8")
-        os.replace(tmp, config_path)
-    return FileAction(path=str(config_path), action="updated")
-
-
 __all__ = [
     "CODEX_HOOK_EVENTS",
     "CODEX_MATCHERLESS_EVENTS",
     "CODEX_TOOL_MATCHERS",
-    "FEATURE_FLAG_LINE",
     "agents_to_codex_toml",
     "build_hook_entries",
-    "enable_hooks_feature",
     "infer_sandbox_mode",
     "merge_hooks_json",
     "prune_hooks_json",

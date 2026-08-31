@@ -4,13 +4,13 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.1.2 -->
+<!-- nexus-hub-version: 4.3.0 -->
 
-Nexus-Hub is the upstream skill catalog for AI coding assistants: 328 skills, 18 commands, 33 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
+Nexus-Hub is the upstream skill catalog for AI coding assistants: 329 skills, 18 commands, 34 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
 ## Interactive Guide -- start here
 
-**New to Nexus-Hub? [Open the interactive guide](guides/website/nexus-hub-guide.html).** It is a self-contained, click-through walkthrough of the entire workflow -- install, onboard an unfamiliar codebase, plan, implement, harden, and ship -- with simulated VS Code / terminal sessions and the artifact each command produces. It is the fastest way to get a teammate productive, and it doubles as a live-demo-quality presentation.
+**New to Nexus-Hub? [Open the interactive guide](guides/website/nexus-hub-guide.html).** It is a self-contained, offline HTML file: a concise Home with the install commands, Foundations that teach prompt, context, harness, and loop engineering as four visual stations, a Training slideshow of Glow Booth going from buggy to fixed, and one Cheatsheets tab for the loop plus command arguments. It is the fastest way to get a teammate productive, and it doubles as a live-demo-quality workshop.
 
 - **File:** [`guides/website/nexus-hub-guide.html`](guides/website/nexus-hub-guide.html) -- one HTML file, fully offline, no server or install required.
 - **To view it:** GitHub does not render HTML inline. Open the file above and click **Download raw file** (top-right of the file view), then open the downloaded `.html` in any browser. Or clone the repo and double-click it.
@@ -30,14 +30,38 @@ Nexus-Hub is the upstream skill catalog for AI coding assistants: 328 skills, 18
 
 Nexus-Hub and [Nexus](https://github.com/bendourthe/Nexus-AI) are two halves of the same idea, split along a deliberate seam.
 
-- **Nexus-Hub (this repo)** is the catalog: 328 curated skills, 18 commands, 33 hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`) and the local `nexus-memory` CLI store. It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
+- **Nexus-Hub (this repo)** is the catalog: 329 curated skills, 18 commands, 34 hooks, 23 agents, 4 rule families, plus 4 internal MCP servers (`nexus-skill-server`, `nexus-code-search`, `nexus-web-fetch`, `nexus-context-compressor`) and the local `nexus-memory` CLI store. It is content-only, platform-agnostic, and shipped via an installer that writes to `~/.nexus-hub/` and into each AI assistant's per-platform config locations.
 - **Nexus** is a local-first desktop AI Studio that consumes Nexus-Hub as its skill feed. Nexus's `AGENTS.md` names this repo as "the only external project we deliberately link to" -- the upstream feed for its skill harness.
 
 The two projects are designed to be useful independently: you can install Nexus-Hub into any supported agent platform without touching Nexus, and Nexus can run with or without the upstream catalog wired in. The combination is what gives a single curated skill set to every agent surface a developer touches: terminal, IDE, desktop app, and CLI.
 
 ---
 
-## What's New in v4.1.2
+## What's New in v4.3.0
+
+**The harness verifies behaviour, not just artifacts.** The phase gate previously checked four things - tests pass, coverage holds, lint is clean, build succeeds - and every one can be true of a feature that has never been run once. A page whose text spills outside its container satisfies all four. A tiered verification ladder now ships in the catalog and every consuming project inherits it on install: a cheap proportional functional smoke at every phase gate, a recorded plan-delta note so the plan is questioned as it is executed rather than trusted to the end, and a fail-closed deep pass before release that dynamically exercises every feature the plan produced, checks rendered output with a real visual-defect detector, runs an adversarial pass, and audits whether the plan itself was complete. Depth scales with blast radius from objective diff-evidenced triggers, and ambiguous classification escalates rather than skips.
+
+**The instruments exist, not just the instructions.** One skill (`functional-verification`) owns the procedure, a renderer-backed detector finds visual defects in real pages, a responsive-layout rule lands in the new `catalog/rules/html/` family, and a paired `html-responsive-guard` hook enforces it at write time on both Bash and PowerShell.
+
+**The interactive guide was rebuilt, and rebuilding it is what exposed the gap above.** The guide is now a dual-theme site with a compact Home, five animated scrollytelling Foundations scenes, an interactive Training walkthrough, and per-scope Cheatsheets, verified to WCAG AA across both themes. The v4.3.0 discipline was built after that rebuild precisely so the guide's successor is not produced by the process that produced its defects.
+
+**A silent Windows failure was found and fixed on the way out.** On a host whose PATH `bash` is the WSL launcher stub, every guarded tool call was denied with no actionable diagnostic, because the stub prints to stdout and exits non-zero without touching stderr. Hook children now resolve a real interpreter, `nexus-hub doctor` reports an unusable one as NEEDS-ACTION, and a new `interpreters` gate group catches the whole class locally instead of on a CI runner.
+
+### Capability usage - `html-responsive-guard` (new default-on hook)
+
+This release adds a hook that can BLOCK a write, so its operation is documented in full rather than left to discovery.
+
+| Element | Detail |
+|---|---|
+| **Activation** | Installed and registered automatically as a `PreToolUse` hook by `nexus-hub upgrade` (or a fresh install). No flag or env var enables it; it is on once installed. |
+| **Validation** | `printf '{"tool_name":"Write","tool_input":{"file_path":"x.html","content":"<style>p{max-width:600px}</style>"}}' \| bash ~/.claude/hooks/html-responsive-guard.sh; echo $?` prints the rule violation and exits `2`. Malformed or unrelated input exits `0`. |
+| **Rollback** | `NEXUS_DISABLED_HOOKS=html-responsive-guard` disables just this hook for the session; `NEXUS_HOOK_PROFILE=minimal` disables the advisory set. Neither removes installed files; re-running the installer restores registration. |
+| **Authority** | Disabling the hook does NOT make a fixed text cap correct - it only removes write-time enforcement, and the rendered-output detector and the `catalog/rules/html/responsive-layout.md` rule still apply. The hook reads only the write payload it is handed: it makes no outbound call, does not scan your project, and never rewrites your file. It blocks or permits; it does not edit. |
+| **Docs** | [`catalog/rules/html/responsive-layout.md`](catalog/rules/html/responsive-layout.md) and [`catalog/skills/testing/functional-verification/SKILL.md`](catalog/skills/testing/functional-verification/SKILL.md) |
+
+Catalog counts are **329 skills** (+1), **18 commands**, **34 hooks** (+1), and **23 agents**. This release has no breaking change. It adds one default-on hook, documented above; it adds no installer flag and no opt-in host surface.
+
+## Previously, in v4.1.2
 
 **Agents stop at the first sufficient construction before writing code.** All 12 substantive instruction templates now carry a compact always-on ladder: skip, reuse this codebase, stdlib, native feature, installed dependency, one line, then minimum. Include-only shims inherit it and do not duplicate the heading.
 
@@ -218,7 +242,7 @@ That is the whole setup -- no prompts. The installer prechecks its dependencies 
 
 After the installer completes:
 
-- **Globally**: your user profile has all 328 skills, 18 commands, 33 hooks, 23 agents, plus Gemini and Codex instructions.
+- **Globally**: your user profile has all 329 skills, 18 commands, 34 hooks, 23 agents, plus Gemini and Codex instructions.
 - **Locally**: your project has `copilot-instructions.md` and `AGENTS.md` tailored to your language.
 
 **Power-user flags**: `--workspace <path>` installs into a single repo instead of globally; `--platforms <comma-list>` limits the install to a subset of assistants; `--yes` runs fully unattended (refreshes managed files with no prompt -- ideal for CI). Prefer to clone first? `git clone` the repo and run `./install.sh` (macOS / Linux) or `install.bat` (Windows) -- the in-repo path still works exactly as before.

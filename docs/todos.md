@@ -1,8 +1,8 @@
 # Nexus-Hub Progress Dashboard
 
-**Branch:** `feat/v4.1.2-release`
-**Active plan:** [`docs/releases/v4/v4.1/plans/v4.1.2-adoption-minimal-construction.md`](releases/v4/v4.1/plans/v4.1.2-adoption-minimal-construction.md)
-**Last refreshed:** 2026-08-28
+**Branch:** `feat/v4.2.2-guide-cinematic-rebuild` (v4.2.2, v4.2.3, and v4.3.0 fold into the same branch and PR #146)
+**Active plan:** [v4.3.0 agentic-verification-discipline](releases/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md)
+**Last refreshed:** 2026-08-30
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its own `docs/releases/v*/v*.*/known-gaps.md`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
 
@@ -14,42 +14,29 @@ Refreshing this file to the active plan (rather than appending another version's
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
-| v4.1.2 adoption phases complete | 5 | 5 | 0 |
+| v4.3.0 agentic-verification-discipline phases complete | 4 | 5 | -1 |
 | Open release blockers | 0 | 0 | 0 |
-| Catalog skills | 328 | 328 | 0 |
-| New MCP servers | 0 | 0 | 0 |
-| New installer-copied top-level scripts | 0 | 0 | 0 |
+| Catalog skills | 329 | 329 | 0 |
+| New paired hooks | 1 | 1 | 0 |
+| New rules language directories | 1 | 1 | 0 |
 
 ---
 
-## Release - v4.1.2 [LOCAL PREPARATION]
+## Plan - v4.3.0 Agentic Verification Discipline [IN PROGRESS]
 
-- [x] Merge the five-phase implementation into `develop` with green integration checks ([#141](https://github.com/bendourthe/Nexus-Hub/pull/141), `34d8272b`)
-- [x] Derive release notes from `v4.1.1..origin/develop`
-- [x] Prepare and verify the v4.1.2 release commit
-- [ ] Promote `develop` to `main`, tag v4.1.2, publish the GitHub Release, and back-merge
-
----
-
-## Plan - v4.1.2 Minimal Construction Discipline [INTEGRATED]
-
-- [x] Phase 1 - Construction-discipline contract and always-on templates
-- [x] Phase 2 - `minimal-construction` skill
-- [x] Phase 3 - `over-engineering-review` skill
-- [x] Phase 4 - Construction-debt harvest and eval proof
-- [x] Phase 5 - Architecture refactor, known-gaps, CI/CD, publication, and integration
+- [x] Phase 1 - Design the verification ladder
+- [x] Phase 2 - Build the instruments
+- [x] Phase 3 - The functional-verification skill
+- [x] Phase 4 - Wire the discipline into the harness
+- [ ] Phase 5 - Architecture refactor, known-gaps, CI/CD, publication, and integration
 
 ### What this plan changes, in one paragraph
 
-Every Nexus-Hub-backed agent now has an always-on pre-write construction ladder, plus two skills for intensity and delete-list review, without an MCP, Ponytail vendor, or a weaker security or verification owner.
+Adds a four-tier verification ladder to the harness: cheap compile/import checks per subtask, a deterministic functional smoke and plan-delta record at every phase boundary, and one fail-closed deep pass before release. The release also adds a renderer-backed visual-defect detector, an HTML responsive-layout rule with a paired enforcement hook, and the `functional-verification` skill, then wires those capabilities into planning, implementation, distribution, and final evidence.
 
----
+### Prior local release status
 
-## Other queued plans (not started)
-
-These are committed plan documents awaiting their own cycle. Listing them here is a pointer, not a claim of progress.
-
-- [`v4.2.0-interactive-guide-redesign.md`](releases/v4/v4.2/plans/v4.2.0-interactive-guide-redesign.md)
+v4.2.2 is complete and committed. v4.2.3 has completed its local final-phase evidence at `8ace852a`; its publication step is intentionally folded into v4.3.0 Phase 5 so PR #146 receives one combined update after the new verification discipline is dogfooded.
 
 ---
 

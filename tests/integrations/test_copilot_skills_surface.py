@@ -111,7 +111,13 @@ def test_selector_bundle_id_seeds_that_bundle(
     """A bundle id selects that bundle's skills (distinct from the default)."""
     monkeypatch.setenv(_COPILOT_SKILLS_ENV, "security-specialist")
     result = CopilotIntegration().wire_project_surfaces(_ctx(tmp_path))
-    created = {Path(fa.path).parent.name for fa in result.files if fa.action == "created"}
+    # Scope to the skills tree: with the opt-in set, wire_project_surfaces also
+    # seeds .github/agents/ and .github/hooks/, whose parent names are not skills.
+    created = {
+        Path(fa.path).parent.name
+        for fa in result.files
+        if fa.action == "created" and Path(fa.path).parent.parent.name == "skills"
+    }
     expected = set(CopilotIntegration._bundle_skill_names(_ctx(tmp_path), "security-specialist"))
     assert created, "expected the security-specialist bundle to seed wrappers"
     assert created.issubset(expected), f"seeded skills not in the bundle: {created - expected}"

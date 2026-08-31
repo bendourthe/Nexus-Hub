@@ -870,18 +870,28 @@ _CONTRACT_JSON = REPO_ROOT / "docs" / "policy" / "platform-read-contracts.json"
 
 
 def _resolve_contract_path(spec: str, home: Path, target_root: Path) -> Path:
-    """Resolve a contract path token: ``~/`` -> home, ``{project}/`` -> target_root."""
+    """Resolve home, project, and configured OpenClaw workspace path tokens."""
     if spec.startswith("~/"):
         return home / spec[2:]
     if spec.startswith("{project}/"):
         return target_root / spec[len("{project}/"):]
+    if spec.startswith("{openclaw_workspace}/"):
+        from scripts.lib.integrations.openclaw import _configured_workspace
+
+        workspace = _configured_workspace(home / ".openclaw")
+        return workspace / spec[len("{openclaw_workspace}/"):]
     return Path(spec)
 
 
 def _evaluate_surface(surface: dict, home: Path, target_root: Path) -> tuple:
     """Evaluate one JSON surface check into ``(label, ok_bool)``."""
     label = str(surface.get("label", "?"))
-    path = _resolve_contract_path(str(surface.get("path", "")), home, target_root)
+    try:
+        path = _resolve_contract_path(
+            str(surface.get("path", "")), home, target_root
+        )
+    except (OSError, ValueError):
+        return (label, False)
     kind = surface.get("kind")
     if kind == "nonempty_dir":
         ok = _nonempty_dir(path)
@@ -916,11 +926,19 @@ def _verify_checks(home: Path, target_root: Path) -> list:
     for entry in entries:
         if not isinstance(entry, dict):
             continue
-        detected = any(
-            _resolve_contract_path(str(d), home, target_root).exists()
-            for d in entry.get("detect", [])
-            if isinstance(d, str)
-        )
+        if entry.get("label") == "OpenClaw":
+            from scripts.lib.integrations.openclaw import _openclaw_is_active
+
+            try:
+                detected = _openclaw_is_active(home / ".openclaw")
+            except (OSError, ValueError):
+                detected = True
+        else:
+            detected = any(
+                _resolve_contract_path(str(d), home, target_root).exists()
+                for d in entry.get("detect", [])
+                if isinstance(d, str)
+            )
         if not detected:
             continue
         surfaces = [
@@ -987,6 +1005,29 @@ def cmd_verify(args: argparse.Namespace) -> int:
         print(f"[verify] {status} {platform} -- {detail}")
         if not ok and remediation:
             print(f"             -> {remediation}")
+    # Host interpreter check (v4.3.0). Every surface above can be present and
+    # correct while the hooks are still inert, because the HOST launches them as
+    # `bash <script>` and Nexus-Hub does not control that resolution. A Windows
+    # host whose PATH `bash` is the WSL launcher stub exits non-zero with an empty
+    # stderr, so the failure is silent at exactly the moment it matters. Reported
+    # here rather than raised: an unusable interpreter is a host condition the
+    # user fixes on PATH, not an install error, and it must never fail an install
+    # that otherwise delivered every file correctly.
+    try:
+        from scripts.lib.integrations._interpreters import check_all as _check_interpreters
+
+        for status in _check_interpreters():
+            if status.usable:
+                if not args.quiet:
+                    print(f"[verify] PASS         interpreter {status.name} -- {status.resolved}")
+                continue
+            any_action = True
+            print(f"[verify] NEEDS-ACTION interpreter {status.name} -- cannot run a script")
+            print(f"             -> {status.detail}")
+    except Exception as exc:  # never let a diagnostic break an otherwise good install
+        if not args.quiet:
+            print(f"[verify] interpreter check skipped: {exc}")
+
     if not args.quiet:
         print(
             "[verify] all detected platforms surface the catalog."

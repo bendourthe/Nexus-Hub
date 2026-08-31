@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Variable fixed text max-width defects</title>
+  <link rel="stylesheet" href="fixed-text-max-width-variable.css">
+  <style>
+    html { font-family: Arial, sans-serif; font-size: 16px; }
+    body { margin: 0; padding: 16px; }
+    main { display: grid; gap: 24px; }
+    :root { --embedded-cap: 60ch; }
+    .embedded-copy { max-width: var(--embedded-cap); }
+  </style>
+</head>
+<body>
+  <main>
+    <p id="embedded-variable-cap" class="embedded-copy">Embedded CSS variables must not hide fixed text caps.</p>
+    <p id="inline-variable-cap" style="--inline-cap: 48ch; max-width: var(--inline-cap)">Inline CSS variables must not hide fixed text caps.</p>
+    <p id="linked-variable-cap" class="linked-copy">Linked CSS variables must not hide fixed text caps.</p>
+  </main>
+</body>
+</html>

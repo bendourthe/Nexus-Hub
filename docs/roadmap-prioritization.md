@@ -7,6 +7,7 @@
 **Relocated**: 2026-08-21 (moving every unshipped plan into the directory matching its target version, moving the six coupled comparison reports with them, and fixing three fail-open defects in the co-location gate that the move exposed)
 **Amended**: 2026-08-24 (inserting `adoption-skill-trial-records-and-low-evidence-ts` at v4.1.0 as rank 15 by maintainer direction, and moving `interactive-guide-redesign` last to v4.2.0 as rank 16)
 **Amended**: 2026-08-24 (inserting `plan-implement-lifecycle-and-docs-architecture` at v3.21.0 as rank 12, bumping the v4.0.0 bundle to ranks 13-15, v4.1.0 to rank 16, and v4.2.0 to rank 17)
+**Amended**: 2026-08-29 (appending `guide-visual-education` at v4.2.1 as rank 18, after the unpublished v4.2.0 guide redesign)
 **Purpose**: establish a priority order for unshipped work, classify each plan as patch, feature, or breaking, and make the ORDER readable from one place instead of from filenames.
 
 ---
@@ -102,7 +103,8 @@ Filenames now agree with targets, so the former `Filename says` column has been 
 | 14 | agent-communication-overhaul | **v4.0.0** | **Breaking** | Changes how every installed agent communicates on every platform. Ships with rank 13 because both change installed behavior, and one migration note is cheaper for users than two. |
 | 15 | docs-lifespan-tree-and-enforcement | **v4.0.0** | **Breaking** | **Added 2026-08-20; target CONFIRMED 2026-08-21** after both breaking claims were verified against the repository rather than accepted from this plan. Renames the prescribed docs containers, and `/update release` canonicalizes the change for consuming projects. Sequenced after rank 2 so the lifecycle work it builds on is already in place. **Amended 2026-08-24** to consume the v3.21.0 handbooks equivalent rather than declining it. |
 | 16 | adoption-skill-trial-records-and-low-evidence-ts | v4.1.0 | Feature | **Inserted 2026-08-24 by maintainer direction, taking the v4.1.0 slot.** Catalog authoring (procedural runbooks, outcome-labeled distillation, confusable-trigger fences) plus TypeScript typed-boundary hygiene. Ships before the guide so the last plan can describe it. |
-| 17 | interactive-guide-redesign | v4.2.0 | Feature | **Last by explicit direction.** It describes the product rather than changing it, so it must run after everything else in order to capture all updates, including the v4.0.0 bundle and the v4.1.0 catalog work. |
+| 17 | interactive-guide-redesign | v4.2.0 | Feature | **Merged to develop 2026-08-29 (PR #145), not a public GitHub Release.** It describes the product rather than changing it, so it ran after the v4.0.0 bundle and the v4.1 catalog work. Maintainer visual QA rejected shipping that draft as the public 4.2 guide. |
+| 18 | guide-visual-education | v4.2.1 | Feature | **Inserted 2026-08-29 by maintainer direction.** Next draft of the interactive guide: chrome and theme bugs, visual Foundations education, Training slideshow with Glow Booth, Cheatsheets merge. Public `/update release` targets v4.2.1 and must not tag the rejected v4.2.0 UI. |
 
 ## Findings that are not about ordering
 

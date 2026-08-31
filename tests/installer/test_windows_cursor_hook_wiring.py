@@ -73,4 +73,5 @@ def test_posix_installer_materializes_and_migrates_all_hook_files() -> None:
         )
     ]
     assert "install_claude_hook_files" in install_body
-    assert install_body.count("convert_claude_hook_commands_for_posix") >= 3
+    assert 'merge_managed_claude_hooks "$settings_file" "$template_file"' in install_body
+    assert install_body.count("convert_claude_hook_commands_for_posix") >= 2

@@ -17,10 +17,81 @@ EXPECTED_SCRIPTS = (
     "run_trigger_evals.py",
     "validate_permission_baseline.py",
 )
+EXPECTED_WORKSPACE_ARTIFACTS = (
+    Path(".claude") / "skills" / "functional-verification" / "SKILL.md",
+    Path(".claude")
+    / "skills"
+    / "functional-verification"
+    / "scripts"
+    / "detect_visual_defects.py",
+    Path(".claude")
+    / "skills"
+    / "functional-verification"
+    / "references"
+    / "deep-pass.md",
+    Path(".claude") / "rules" / "html" / "responsive-layout.md",
+)
+HTML_HOOK_STEM = "html-responsive-guard"
 NEXUS_END_MARKER = "<!-- NEXUS_HUB_END -->"
 ORG_START_MARKER = "<!-- NEXUS_HUB_ORG_START -->"
 ORG_END_MARKER = "<!-- NEXUS_HUB_ORG_END -->"
 ORG_RULE_PATH = Path(".claude") / "rules" / "org" / "python" / "code-style.md"
+
+
+def _host_hook_suffix() -> str:
+    return ".ps1" if os.name == "nt" else ".sh"
+
+
+def _html_hook_findings(workspace: Path) -> list[str]:
+    findings: list[str] = []
+    suffix = _host_hook_suffix()
+    hook_name = f"{HTML_HOOK_STEM}{suffix}"
+    hook_path = Path(".claude") / "hooks" / hook_name
+    if not (workspace / hook_path).is_file():
+        findings.append(f"expected host hook is missing: {hook_path}")
+
+    settings_path = workspace / ".claude" / "settings.json"
+    try:
+        settings = json.loads(settings_path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, json.JSONDecodeError) as exc:
+        return findings + [
+            f"hook settings are missing or invalid at {settings_path}: {exc}"
+        ]
+
+    hooks = settings.get("hooks") if isinstance(settings, dict) else None
+    if not isinstance(hooks, dict):
+        return findings + ["hook settings require hooks to be an object"]
+    pre_tool_use = hooks.get("PreToolUse", [])
+    if not isinstance(pre_tool_use, list):
+        return findings + ["hook settings require hooks.PreToolUse to be a list"]
+
+    for matcher in ("Write", "Edit"):
+        registrations = 0
+        host_registrations = 0
+        for entry in pre_tool_use:
+            if not isinstance(entry, dict) or entry.get("matcher") != matcher:
+                continue
+            hooks = entry.get("hooks", [])
+            if not isinstance(hooks, list):
+                continue
+            for hook in hooks:
+                if not isinstance(hook, dict):
+                    continue
+                command = hook.get("command")
+                if not isinstance(command, str) or HTML_HOOK_STEM not in command:
+                    continue
+                registrations += 1
+                if hook_name in command:
+                    host_registrations += 1
+        if registrations != 1:
+            findings.append(
+                f"hook settings require exactly one {matcher} registration for {HTML_HOOK_STEM}; found {registrations}"
+            )
+        if registrations and host_registrations != registrations:
+            findings.append(
+                f"hook settings require a host-correct registration for {matcher}: {hook_name}"
+            )
+    return findings
 
 
 def _metadata_paths(value: Any, prefix: str = "$") -> list[str]:
@@ -88,6 +159,11 @@ def collect_findings(home: Path, workspace: Path) -> list[str]:
     if metadata:
         findings.append(f"merged config leaked template metadata: {', '.join(metadata)}")
     findings.extend(_org_findings(workspace))
+
+    for relative_path in EXPECTED_WORKSPACE_ARTIFACTS:
+        if not (workspace / relative_path).is_file():
+            findings.append(f"expected workspace artifact is missing: {relative_path}")
+    findings.extend(_html_hook_findings(workspace))
 
     for name in EXPECTED_SCRIPTS:
         if not (install_root / "scripts" / name).is_file():

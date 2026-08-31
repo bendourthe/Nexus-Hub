@@ -501,8 +501,8 @@ jobs:
           printf '%s\n' "$out"
           for expect in \
             "Claude -- commands:ok, skills:ok" \
-            "Codex / ChatGPT -- skills:ok" \
-            "Gemini IDE -- skills:ok, workflows:ok" \
+            "Codex / ChatGPT -- ~/.agents/skills:ok" \
+            "Gemini IDE -- GEMINI.md:ok" \
             "Antigravity 2.0 IDE (global) -- skills:ok" \
             "OpenCode -- skills:ok"; do
             printf '%s\n' "$out" | grep -qF "$expect" \
@@ -535,8 +535,8 @@ jobs:
           Write-Host $out
           foreach ($expect in @(
             "Claude -- commands:ok, skills:ok",
-            "Codex / ChatGPT -- skills:ok",
-            "Gemini IDE -- skills:ok, workflows:ok",
+            "Codex / ChatGPT -- ~/.agents/skills:ok",
+            "Gemini IDE -- GEMINI.md:ok",
             "Antigravity 2.0 IDE (global) -- skills:ok",
             "OpenCode -- skills:ok")) {
             if ($out -notmatch [regex]::Escape($expect)) { Write-Host "FAIL: read-path not populated: $expect"; exit 1 }

@@ -6,7 +6,7 @@
     "description": "Comprehensive catalog of Nexus-Hub skills with L0/L1 tiered summaries"
   },
   "statistics": {
-    "total_skills": 328,
+    "total_skills": 329,
     "categories": {
       "ai-development": 14,
       "architecture": 7,
@@ -25,7 +25,7 @@
       "research": 3,
       "security": 33,
       "specialized-domains": 14,
-      "testing": 3,
+      "testing": 4,
       "tests-generation": 18,
       "workflow": 45,
       "security-operations": 29,
@@ -34,7 +34,7 @@
     },
     "priorities": {
       "MEDIUM": 275,
-      "HIGH": 5
+      "HIGH": 6
     },
     "total_lines": 136172,
     "total_tokens_estimate": 740960,
@@ -49,7 +49,7 @@
       "C++"
     ],
     "repository": "https://github.com/bendourthe/Nexus-Hub",
-    "last_updated": "2026-08-28"
+    "last_updated": "2026-08-29"
   },
   "skills": [
     {
@@ -9165,7 +9165,7 @@
       "description": "Implement one phase of a plan end-to-end - discover the plan and phase, review against the codebase, code subtask by subtask, lint, test with coverage, augment tests, run the troubleshooting loop and GO/NO-GO gate, then the full post-phase documentation and commit sequence. On a plan's final phase it also runs the mandatory architecture-refactor + known-gaps + CI/CD gate and the release-readiness workflow, handing off to /update release. This is the delegate behind /implement. Use whenever the user says \"implement phase N\", \"build the next phase\", \"do phase 3 of the plan\", \"execute the plan\", \"continue implementing\", or points at a plan file. SKIP - creating the plan itself (use /plan), or one-off edits with no plan to track. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.",
       "long_description": "Implement one phase of a plan end-to-end: discover the right plan and phase, review it against the codebase, write the code subtask by subtask, lint, test with coverage, troubleshoot failures, augment missing tests, pass a quality gate, and run the full post-phase documentation and commit sequence. ...",
       "summary_l0": "\"Implement one release-plan phase with tests, evidence, documentation, and commit gates\"",
-      "overview_l1": "\"The delegate behind /implement. It runs one plan phase end-to-end: Phase 0 resolves the plan and phase and detects the final phase from five signals; Phase 1 reviews the plan against the codebase; Phase 2 implements subtask by subtask in scope; Phases 3-7 lint, run tests with coverage, augment missing tests, loop on failures up to three times, and apply a four-part GO/NO-GO quality gate; Phase 8 runs the ten-step post-phase sequence (gitignore, test review, CI/CD readiness plus optimization, known-gaps append, docs-cleanup audit, devlog, docs, session history, commit message, and a required commit-and-push prompt). On the final phase it additionally runs the mandatory architecture-refactor plus known-gaps plus CI/CD-optimize gate and the release-readiness workflow, handing the version bump and tag off to /update release. The full ordered procedure lives in references/implement-phase-runbook.md. Trigger phrases: implement phase N, build the next phase, execute the plan, continue implementing. Version-bound documentation uses docs/releases/v<MAJOR>/v<MAJOR>.<MINOR>/; closed snapshots use docs/archives/.\"",
+      "overview_l1": "\"The delegate behind /implement. It runs one plan phase end-to-end: resolve the phase and final-phase signals; review the plan against the codebase; implement each subtask in scope; lint, test with coverage, augment missing tests, troubleshoot, and apply a five-part GO/NO-GO gate including a proportional real-boundary smoke. Phase 8 runs eleven ordered steps, records CI impact without editing pipelines, always writes the Plan delta, maintains gaps and release evidence, and ends every non-final phase commit-only. Phase 9 runs only on the final phase: reconcile architecture, gaps, and CI/CD; execute the Tier 3 deep pass; independently review the resulting tree against the plan Goal; pass the full local gate; then publish once with explicit approval and green integration checks. The ordered procedure lives in references/implement-phase-runbook.md. Trigger phrases include implement phase N, execute the plan, continue implementing, and implement in-full.\"",
       "version": "1.0.0",
       "author": "Benjamin Dourthe",
       "category": "workflow",
@@ -11595,6 +11595,45 @@
         "lines": 85,
         "characters": 6394,
         "tokens_estimate": 799
+      },
+      "downloads": 0,
+      "status": "production",
+      "security": {
+        "structural": 100,
+        "integrity": 100,
+        "semantic": 95,
+        "validated": true
+      }
+    },
+    {
+      "name": "functional-verification",
+      "title": "functional-verification",
+      "description": "Exercise built artifacts. Use for \"did you actually test it\", \"verify this works\", \"check the feature runs\", \"does the UI actually render\", or \"exercise the feature\". SKIP writing unit tests, accessibility audits, visual-design reviews.",
+      "long_description": "Exercise built behavior through real consumer boundaries and record exact inputs, actions, exits, outputs, states, measurements, and evidence paths. Covers proportional phase smokes for CLI, public APIs, browser UI, hooks and scripts, generators, configuration, and narrow documentation-only changes, plus a bounded whole-plan deep pass.",
+      "summary_l0": "\"Exercise built artifacts through real boundaries and record observable behavioral evidence\"",
+      "overview_l1": "\"Exercise shipped behavior through the artifact's real boundary and capture output as well as execution. Select a proportional path for CLI, library or API, web UI, hook or script, generator, configuration, or narrow documentation changes. For a final whole-plan review, follow references/deep-pass.md to inventory every feature, invoke domain delegates, audit Goal-vs-plan sufficiency, and bound fixes to three rerun cycles. This skill owns exercise procedure and the plan-sufficiency audit; adjacent skills own evidence freshness, gate policy, accessibility, visual judgment, browser diagnosis, E2E architecture, adversarial rules, code-vs-plan convergence, and gap records.\"",
+      "version": "1.0.0",
+      "author": "Benjamin Dourthe",
+      "category": "testing",
+      "language": "Multi-language",
+      "tags": [
+        "functional-verification",
+        "smoke-testing",
+        "behavioral-evidence",
+        "quality-gates"
+      ],
+      "priority": "HIGH",
+      "based_on": "",
+      "tools_required": [
+        "Read",
+        "Bash"
+      ],
+      "path": "catalog/skills/testing/functional-verification/",
+      "file": "catalog/skills/testing/functional-verification/SKILL.md",
+      "size": {
+        "lines": 147,
+        "characters": 13149,
+        "tokens_estimate": 3287
       },
       "downloads": 0,
       "status": "production",

@@ -164,6 +164,33 @@ def test_json_seeding_is_idempotent(tmp_path: Path):
     assert [a.action for a in second] == ["kept"]
 
 
+def test_antigravity_seeds_documented_default_agent_mode(tmp_path: Path, monkeypatch):
+    fake_home = tmp_path / "home"
+    fake_home.mkdir()
+    monkeypatch.setattr(Path, "home", classmethod(lambda cls: fake_home))
+
+    actions = pd.seed_platform_defaults("antigravity2", Ctx())
+
+    target = fake_home / ".gemini" / "antigravity-cli" / "settings.json"
+    assert json.loads(target.read_text(encoding="utf-8")) == {"agentMode": "default"}
+    assert [a.action for a in actions] == ["created"]
+
+
+def test_antigravity_never_overwrites_user_agent_mode(tmp_path: Path, monkeypatch):
+    fake_home = tmp_path / "home"
+    target = fake_home / ".gemini" / "antigravity-cli" / "settings.json"
+    target.parent.mkdir(parents=True)
+    target.write_text(json.dumps({"agentMode": "accept-edits"}), encoding="utf-8")
+    monkeypatch.setattr(Path, "home", classmethod(lambda cls: fake_home))
+
+    actions = pd.seed_platform_defaults("antigravity2", Ctx())
+
+    assert json.loads(target.read_text(encoding="utf-8")) == {
+        "agentMode": "accept-edits"
+    }
+    assert [a.action for a in actions] == ["kept"]
+
+
 def test_json_leaves_a_scalar_where_a_table_was_expected(tmp_path: Path):
     """A user who set a scalar where we expect a table made a choice; respect it."""
     target = tmp_path / "settings.json"

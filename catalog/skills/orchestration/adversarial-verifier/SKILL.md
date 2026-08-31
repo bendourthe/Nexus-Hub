@@ -246,6 +246,7 @@ Generate ADVERSARIAL-REPORT.md as an independent artifact:
 
 ## Related Skills
 
+- [[functional-verification]] - owns normal real-boundary exercise and its evidence record; this skill owns hostile inputs and adversarial findings.
 - [[cross-model-orchestrator]] - Multi-model workflow where breaker is the fifth role
 - [[intent-based-review]] - Criteria-based review that the breaker complements
 - [[edge-case-generator]] - Generate edge cases (used as a sub-technique by this skill)
