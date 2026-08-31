@@ -740,21 +740,102 @@ def _foundations_markup(guide_text: str) -> str:
     return guide_text.split('id="page-foundations"', 1)[-1].split('id="page-training"', 1)[0]
 
 
-def test_foundations_has_five_animated_scenes(guide_text: str) -> None:
+def test_foundations_phase2_has_seven_title_subtitle_scenes(guide_text: str) -> None:
     fx = _foundations_markup(guide_text)
-    assert fx.count('class="fx-scene') == 5, "expected exactly five scrollytelling scenes"
+    assert fx.count('class="fx-scene') == 7, "expected seven Phase 2 scenes"
+    assert fx.count('class="fx-title"') == 7
+    assert fx.count('class="fx-subtitle"') == 7
     for heading in (
-        "The model: text in, text out",
-        "The platform: the loop that gives it hands",
-        "Context: what the model actually sees",
-        "The harness: procedure, not vibes",
-        "One job, two runs",
+        "What Is a Model",
+        "What Are Tokens",
+        "What Is Prompt Engineering",
+        "What Is an Agent Platform",
+        "What Is Context",
+        "What Is a Harness",
+        "What Changes in Practice",
     ):
         assert heading in fx, f"missing scene heading: {heading}"
-    assert fx.count("<svg") == 5, "each scene carries exactly one inline SVG diagram"
+    assert fx.count("<svg") >= 7, "each scene carries inline visual teaching"
     for svg_class in ("fx-pop", "fx-draw", "fx-pulse"):
         assert svg_class in fx
     assert 'class="fx-num"' not in fx, "the scene number line was removed in v4.2.3"
+
+
+def test_foundations_model_lifecycle_is_chronological_and_responsive(
+    guide_text: str,
+) -> None:
+    fx = _foundations_markup(guide_text)
+    lifecycle = re.search(
+        r'<section[^>]+id="fx-model-lifecycle"[\s\S]*?</section>', fx
+    )
+    assert lifecycle, "missing model lifecycle scene"
+    scene = lifecycle.group(0)
+    stages = ("training", "integration", "request", "reasoning", "output")
+    first_positions = []
+    for stage in stages:
+        marker = f'data-stage="{stage}"'
+        assert scene.count(marker) == 2, f"desktop and mobile need {stage!r} nodes"
+        first_positions.append(scene.index(marker))
+    assert first_positions == sorted(first_positions), "lifecycle stages are out of order"
+    assert "happens long before your request" in scene
+    assert "files, workspace, documents, scripts" in scene
+    assert "Nothing else" not in scene
+    assert scene.count('data-phase2-diagram="model-lifecycle"') == 2
+    assert 'class="fx-svg fx-svg--desktop"' in scene
+    assert 'class="fx-svg fx-svg--mobile"' in scene
+
+
+def test_foundations_tokens_use_a_reproducible_nonuniversal_example(
+    guide_text: str,
+) -> None:
+    fx = _foundations_markup(guide_text)
+    tokens = re.search(r'<section[^>]+id="fx-tokens"[\s\S]*?</section>', fx)
+    assert tokens, "missing tokens scene"
+    scene = tokens.group(0)
+    assert 'data-tokenizer="cl100k_base"' in scene
+    for piece in ("Fresh", "ly", " baked", " bread", " smells", " wonderful", "."):
+        assert f'data-token-piece="{piece}"' in scene
+    assert "one tokenizer" in scene.lower()
+    assert "different models can split it differently" in scene.lower()
+    assert 'class="fx-image-token-grid"' in scene
+    assert scene.index('data-image-stage="source"') < scene.index(
+        'data-image-stage="tokens"'
+    )
+    assert 'data-phase2-connector="image-tokenization"' in scene
+    assert "text and images" in scene.lower()
+    assert "cost" in scene.lower() and "speed" in scene.lower()
+    assert not re.search(
+        r"\b\d+(?:\.\d+)?\s+tokens?\s+per\s+word\b", scene, re.IGNORECASE
+    )
+
+
+def test_foundations_prompt_engineering_uses_one_non_coding_job(
+    guide_text: str,
+) -> None:
+    fx = _foundations_markup(guide_text)
+    prompt = re.search(r'<section[^>]+id="fx-prompts"[\s\S]*?</section>', fx)
+    assert prompt, "missing prompt-engineering scene"
+    scene = prompt.group(0)
+    assert scene.index("Weak prompt") < scene.index("Strong prompt")
+    for ingredient in ("Goal", "Material", "Done", "Format"):
+        assert ingredient in scene
+    for detail in ("community garden", "Saturday", "Oak Street", "RSVP"):
+        assert detail in scene
+    assert "Nexus-Hub" in scene and "commands" in scene
+    assert scene.count('data-phase2-diagram="prompt-engineering"') == 2
+    assert "generic and may invent missing details" in scene.lower()
+    assert "more likely to be a fact-bound, checkable draft" in scene.lower()
+    assert "terminal" not in scene.lower() and "source code" not in scene.lower()
+
+
+def test_foundations_mobile_phase2_diagrams_are_centered_and_bounded(
+    guide_text: str,
+) -> None:
+    rule = re.search(r"\.fx-svg--mobile\s*\{([^}]+)\}", guide_text)
+    assert rule
+    declarations = rule.group(1)
+    assert "width: min(100%, 22.5rem)" in declarations
+    assert "margin-inline: auto" in declarations
 
 
 def test_foundations_comparison_is_side_by_side_not_toggled(guide_text: str) -> None:

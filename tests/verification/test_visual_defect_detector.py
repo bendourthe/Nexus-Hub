@@ -162,6 +162,77 @@ def test_unsupported_theme_is_rejected() -> None:
     assert "invalid choice" in result.stderr.lower()
 
 
+def test_fragment_activates_hash_routed_page(
+    rendered_detector: None,
+    tmp_path: Path,
+) -> None:
+    routed_page = tmp_path / "routed.html"
+    routed_page.write_text(
+        """<!doctype html>
+<html lang="en">
+<head>
+<style>
+body { margin: 0; }
+.page { display: none; }
+.page.active { display: block; }
+p { width: 180px; height: 30px; margin: 0; font: 16px/30px sans-serif; }
+#foundations p { font-size: 8px; }
+</style>
+</head>
+<body>
+<section class="page" id="home"><p>Home is clean</p></section>
+<section class="page" id="foundations"><p>Foundations is broken</p></section>
+<script>
+const target = location.hash.slice(1) || "home";
+document.getElementById(target).classList.add("active");
+</script>
+</body>
+</html>
+""",
+        encoding="utf-8",
+    )
+
+    default_result = _run_path(routed_page, "--viewports", "900")
+    fragment_result = _run_path(
+        routed_page,
+        "--viewports",
+        "900",
+        "--fragment",
+        "foundations",
+    )
+    typo_result = _run_path(
+        routed_page,
+        "--viewports",
+        "900",
+        "--fragment",
+        "foundatons",
+    )
+
+    assert default_result.returncode == 0
+    assert _payload(default_result)["fragment"] is None
+    assert fragment_result.returncode == 1
+    fragment_report = _payload(fragment_result)
+    assert fragment_report["fragment"] == "foundations"
+    assert {finding["rule"] for finding in fragment_report["findings"]} == {  # type: ignore[union-attr]
+        "font-size-floor"
+    }
+    assert typo_result.returncode == 1
+    typo_report = _payload(typo_result)
+    assert typo_report["fragment"] == "foundatons"
+    assert {finding["rule"] for finding in typo_report["findings"]} == {  # type: ignore[union-attr]
+        "fragment-target"
+    }
+
+
+@pytest.mark.parametrize("fragment", ("", "#", "../foundations", "foundations?next=home"))
+def test_invalid_fragment_is_rejected(fragment: str) -> None:
+    result = _run("clean.html", "--fragment", fragment)
+
+    assert result.returncode == 2
+    assert result.stdout == ""
+    assert "fragment" in result.stderr.lower()
+
+
 @pytest.mark.parametrize(("fixture", "expected_rule"), BROKEN_FIXTURES)
 def test_each_broken_fixture_yields_exactly_its_rule(
     rendered_detector: None,

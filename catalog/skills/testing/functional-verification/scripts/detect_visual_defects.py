@@ -17,6 +17,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import re
 import sys
 from pathlib import Path
 from typing import Any
@@ -599,6 +600,14 @@ def _positive_float(value: str) -> float:
     return parsed
 
 
+def _fragment(value: str) -> str:
+    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9._:-]*", value):
+        raise argparse.ArgumentTypeError(
+            "fragment must be a non-empty local element id without '#', '/', or '?'"
+        )
+    return value
+
+
 def _parse_args(argv: list[str]) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Render local HTML and detect deterministic visual defects."
@@ -660,6 +669,11 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
         choices=SUPPORTED_THEMES,
         help="seed the Nexus-Hub guide theme before page scripts run",
     )
+    parser.add_argument(
+        "--fragment",
+        type=_fragment,
+        help="activate a hash-routed local page by element id, e.g. foundations",
+    )
     return parser.parse_args(argv)
 
 
@@ -677,6 +691,7 @@ def _base_report(path: Path, args: argparse.Namespace) -> dict[str, Any]:
         },
         "font_floor_px": args.font_floor,
         "theme": args.theme,
+        "fragment": args.fragment,
         "allowlist": str(args.allowlist.resolve()) if args.allowlist else None,
         "findings": [],
         "gate_findings": 0,
@@ -859,6 +874,56 @@ def _scan_viewport(
 
     if settle_ms:
         page.wait_for_timeout(settle_ms)
+    fragment = urlsplit(file_uri).fragment
+    if fragment:
+        try:
+            fragment_state = page.evaluate(
+                """
+                (fragment) => {
+                  const candidates = [
+                    document.getElementById(fragment),
+                    document.getElementById(`page-${fragment}`),
+                    ...Array.from(document.querySelectorAll('[data-page]')).filter(
+                      (element) => element.getAttribute('data-page') === fragment,
+                    ),
+                  ].filter((element, index, values) =>
+                    element && values.indexOf(element) === index
+                  );
+                  const visible = candidates.find((element) => {
+                    const style = getComputedStyle(element);
+                    const rect = element.getBoundingClientRect();
+                    return style.display !== 'none'
+                      && style.visibility !== 'hidden'
+                      && rect.width > 0
+                      && rect.height > 0;
+                  });
+                  return {
+                    exists: candidates.length > 0,
+                    visible: Boolean(visible),
+                    matched: candidates.map((element) => ({
+                      id: element.id || null,
+                      page: element.getAttribute('data-page'),
+                    })),
+                  };
+                }
+                """,
+                fragment,
+            )
+        except Exception as error:  # noqa: BLE001 - fragment proof is a gate contract
+            fragment_state = {"exists": False, "visible": False, "error": _error_text(error)}
+        if not fragment_state.get("exists") or not fragment_state.get("visible"):
+            return {
+                "findings": [
+                    _finding(
+                        "fragment-target",
+                        "Requested hash-routed target did not exist or become visible",
+                        selector=f"#{fragment}",
+                        viewport=viewport,
+                        measurements={"fragment": fragment, **fragment_state},
+                    )
+                ],
+                "suppressed": 0,
+            }
     linked_stylesheets = _read_linked_local_stylesheets(page)
     try:
         return page.evaluate(
@@ -967,6 +1032,9 @@ def _run_detector(
         with sync_playwright() as playwright:
             browser = playwright.chromium.launch(headless=True)
             try:
+                file_uri = path.resolve().as_uri()
+                if args.fragment:
+                    file_uri = f"{file_uri}#{args.fragment}"
                 for width in args.viewports:
                     context = browser.new_context(
                         viewport={"width": width, "height": args.height},
@@ -977,7 +1045,7 @@ def _run_detector(
                         page = context.new_page()
                         result = _scan_viewport(
                             page,
-                            path.resolve().as_uri(),
+                            file_uri,
                             width=width,
                             height=args.height,
                             tolerance=args.tolerance,

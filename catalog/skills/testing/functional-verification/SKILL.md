@@ -58,6 +58,8 @@ For a web UI, replace `path/to/page.html` with the affected local HTML path and 
 python scripts/detect_visual_defects.py path/to/page.html --viewports 420 900 1440
 ```
 
+When the affected view is hash-routed, add its validated route name so the detector measures that view instead of the default page: `python scripts/detect_visual_defects.py path/to/page.html --fragment foundations --viewports 420 900 1440`.
+
 Exit `0` with JSON `status` equal to `pass` is a clean geometry result. Exit `1` reports rendered findings, exit `2` reports invalid input, and exit `3` reports an unavailable renderer with an installation hint. Preserve stdout as the JSON artifact and stderr as the readable diagnostic; a nonzero cannot-run result is evidence of missing coverage, not a clean result.
 
 ### 4. Invoke adjacent owners without copying their rules
