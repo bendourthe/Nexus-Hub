@@ -220,7 +220,6 @@ def test_home_runtime_contract_across_themes_and_widths(
 
     renderer = _load_renderer()
     guide_url = renderer.GUIDE.resolve().as_uri()
-
     with sync_playwright() as playwright:
         browser = playwright.chromium.launch(headless=True)
         try:
@@ -523,6 +522,462 @@ def test_foundations_phase2_diagrams_are_legible_at_release_and_breakpoint_width
                                         f'{theme}/{diagram["name"]}/{node["name"]}: '
                                         f'label escapes {edge}: {label}'
                                     )
+                finally:
+                    context.close()
+        finally:
+            browser.close()
+
+
+def test_training_cold_deep_link_preserves_scene_and_beat(
+    render_gate: object,
+) -> None:
+    _require_browser(render_gate)
+    from playwright.sync_api import sync_playwright
+
+    renderer = _load_renderer()
+    guide_url = renderer.GUIDE.resolve().as_uri()
+
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch(headless=True)
+        try:
+            context = browser.new_context(viewport={"width": 900, "height": 940})
+            context.route(re.compile(r"^https?://"), lambda route: route.abort())
+            page = context.new_page()
+            try:
+                page.goto(
+                    f"{guide_url}#training/review?beat=1",
+                    wait_until="load",
+                )
+                page.wait_for_selector(
+                    '.page.active[data-page="training"]',
+                    state="visible",
+                    timeout=3000,
+                )
+                page.wait_for_function(
+                    """
+                    () => document.querySelector('[data-nht="title"]')?.textContent
+                      === "Get a verdict on the bugs"
+                    """,
+                    timeout=3000,
+                )
+                assert page.evaluate("location.hash") == "#training/review?beat=1"
+                assert page.locator('[data-nht="title"]').inner_text() == (
+                    "Get a verdict on the bugs"
+                )
+                assert "The report names stamps, restart, tests, and shuffle." in (
+                    page.locator('[data-nht="takeaway"]').inner_text()
+                )
+            finally:
+                context.close()
+        finally:
+            browser.close()
+
+
+@pytest.mark.parametrize("width", (320, 420, 720, 721, 900, 1440))
+def test_foundations_phase3_route_motion_and_label_containment(
+    render_gate: object,
+    width: int,
+) -> None:
+    _require_browser(render_gate)
+    from playwright.sync_api import sync_playwright
+
+    renderer = _load_renderer()
+    guide_url = renderer.GUIDE.resolve().as_uri()
+    desktop_nodes = {
+        "agent-loop": {"agent-model", "agent-platform"},
+        "chatbot-agent": {"shared-request", "chatbot-handoff", "agent-handoff"},
+        "context-budget": {"finite-window", "noisy-budget", "focused-budget"},
+        "harness-layers": {"nexus-hub", "platform", "model"},
+        "durable-result": {
+            "practice-request",
+            "platform-work",
+            "platform-check",
+            "platform-result",
+            "matched-procedure",
+            "nexus-loop",
+            "written-gate",
+            "durable-trail",
+        },
+    }
+    mobile_nodes = {
+        "agent-loop": {"agent-model-mobile", "agent-platform-mobile"},
+        "chatbot-agent": {
+            "shared-request-mobile",
+            "chatbot-handoff-mobile",
+            "agent-handoff-mobile",
+        },
+        "context-budget": {
+            "finite-window-mobile",
+            "noisy-budget-mobile",
+            "focused-budget-mobile",
+        },
+        "harness-layers": {
+            "nexus-hub-mobile",
+            "platform-mobile",
+            "model-mobile",
+        },
+        "durable-result": {
+            "practice-request-mobile",
+            "platform-result-mobile",
+            "durable-trail-mobile",
+            "written-gate-mobile",
+        },
+    }
+
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch(headless=True)
+        try:
+            for reduced_motion in ("no-preference", "reduce"):
+                case = f"{width}px/{reduced_motion}"
+                context = browser.new_context(
+                    viewport={"width": width, "height": 940},
+                    reduced_motion=reduced_motion,
+                )
+                context.add_init_script(
+                    'window.localStorage.setItem("portfolio-theme", "dark");'
+                )
+                context.route(re.compile(r"^https?://"), lambda route: route.abort())
+                page = context.new_page()
+                console_errors: list[str] = []
+                page_errors: list[str] = []
+                page.on(
+                    "console",
+                    lambda message, errors=console_errors: errors.append(message.text)
+                    if message.type == "error"
+                    else None,
+                )
+                page.on(
+                    "pageerror",
+                    lambda error, errors=page_errors: errors.append(str(error)),
+                )
+
+                try:
+                    page.goto(f"{guide_url}#foundations", wait_until="load")
+                    page.wait_for_selector(
+                        '.page.active[data-page="foundations"]',
+                        state="visible",
+                        timeout=3000,
+                    )
+                    page.wait_for_timeout(50)
+                    assert page.evaluate("location.hash") == "#foundations", (
+                        f"{case}: another page rewrote the requested Foundations route"
+                    )
+                    target = page.locator(
+                        '[data-phase3-diagram="durable-result"]:visible'
+                    ).first
+                    assert target.count() == 1, (
+                        f"{case}: missing durable-result Phase 3 diagram"
+                    )
+                    target_scene = target.locator("xpath=ancestor::section[1]")
+                    initially_revealed = target_scene.evaluate(
+                        "element => element.classList.contains('in')"
+                    )
+                    target.scroll_into_view_if_needed()
+                    page.wait_for_function(
+                        """
+                        () => document.querySelector(
+                          '[data-phase3-diagram="durable-result"]',
+                        )?.closest('.fx-scene')?.classList.contains('in')
+                        """,
+                        timeout=3000,
+                    )
+                    if reduced_motion == "no-preference":
+                        page.wait_for_function(
+                            """
+                            () => document.querySelector('#fx-practice')
+                              ?.classList.contains('live')
+                            """,
+                            timeout=3000,
+                        )
+                    metrics = page.evaluate(
+                        r"""
+                        () => {
+                          const visible = (element) => {
+                            const style = getComputedStyle(element);
+                            const rect = element.getBoundingClientRect();
+                            return style.display !== "none"
+                              && style.visibility !== "hidden"
+                              && rect.width > 0
+                              && rect.height > 0;
+                          };
+                          const diagrams = Array.from(document.querySelectorAll(
+                            "svg[data-phase3-diagram]",
+                          )).filter(visible).map((diagram) => {
+                            const frame = diagram.getBoundingClientRect();
+                            const nodes = Array.from(diagram.querySelectorAll(
+                              '[data-phase3-node], [data-phase3-harness-layer]',
+                            )).map((node) => {
+                              const children = Array.from(node.children);
+                              const shape = children.find((child) =>
+                                ["rect", "circle", "ellipse", "polygon"].includes(
+                                  child.tagName.toLowerCase(),
+                                ),
+                              );
+                              const containmentShape = shape?.tagName.toLowerCase()
+                                === "polygon"
+                                ? children.find((child) =>
+                                    child.hasAttribute("data-phase3-text-safe"),
+                                  )
+                                : shape;
+                              const polygonSafeContained = shape?.tagName.toLowerCase()
+                                !== "polygon" || Boolean(
+                                  containmentShape
+                                  && [
+                                    [
+                                      Number(containmentShape.getAttribute("x")),
+                                      Number(containmentShape.getAttribute("y")),
+                                    ],
+                                    [
+                                      Number(containmentShape.getAttribute("x"))
+                                        + Number(containmentShape.getAttribute("width")),
+                                      Number(containmentShape.getAttribute("y")),
+                                    ],
+                                    [
+                                      Number(containmentShape.getAttribute("x")),
+                                      Number(containmentShape.getAttribute("y"))
+                                        + Number(containmentShape.getAttribute("height")),
+                                    ],
+                                    [
+                                      Number(containmentShape.getAttribute("x"))
+                                        + Number(containmentShape.getAttribute("width")),
+                                      Number(containmentShape.getAttribute("y"))
+                                        + Number(containmentShape.getAttribute("height")),
+                                    ],
+                                  ].every(([x, y]) =>
+                                    shape.isPointInFill(new DOMPoint(x, y)),
+                                  )
+                                );
+                              const shapeRect = containmentShape?.getBoundingClientRect();
+                              const labels = children
+                                .filter((child) => child.tagName.toLowerCase() === "text")
+                                .map((label) => {
+                                  const rect = label.getBoundingClientRect();
+                                  return shapeRect ? {
+                                    text: label.textContent.trim(),
+                                    left: rect.left - shapeRect.left,
+                                    right: shapeRect.right - rect.right,
+                                    top: rect.top - shapeRect.top,
+                                    bottom: shapeRect.bottom - rect.bottom,
+                                  } : null;
+                                }).filter(Boolean);
+                              return {
+                                name: node.getAttribute("data-phase3-node")
+                                  || node.getAttribute("data-phase3-harness-layer"),
+                                measurable: Boolean(shapeRect && labels.length),
+                                polygonSafeContained,
+                                labels,
+                              };
+                            });
+                            return {
+                              name: diagram.getAttribute("data-phase3-diagram"),
+                              variant: diagram.classList.contains("fx-svg--mobile")
+                                ? "mobile"
+                                : "desktop",
+                              texts: Array.from(diagram.querySelectorAll("text"))
+                                .filter(visible)
+                                .map((label) => {
+                                  const rect = label.getBoundingClientRect();
+                                  return {
+                                    text: label.textContent.trim(),
+                                    height: rect.height,
+                                    left: rect.left - frame.left,
+                                    right: frame.right - rect.right,
+                                    top: rect.top - frame.top,
+                                    bottom: frame.bottom - rect.bottom,
+                                  };
+                                }),
+                              nodes,
+                            };
+                          });
+                          const targetScene = document.querySelector("#fx-practice");
+                          const targetPulses = Array.from(
+                            targetScene?.querySelectorAll(".fx-pulse") || [],
+                          );
+                          const noTransition = (element) => getComputedStyle(element)
+                            .transitionDuration.split(",")
+                            .every((duration) => parseFloat(duration) === 0);
+                          const phase3Root = document.querySelector("#page-foundations");
+                          const popElements = Array.from(
+                            phase3Root?.querySelectorAll(
+                              'svg[data-phase3-diagram] .fx-pop',
+                            ) || [],
+                          );
+                          const drawElements = Array.from(
+                            phase3Root?.querySelectorAll(
+                              'svg[data-phase3-diagram] .fx-draw',
+                            ) || [],
+                          );
+                          const growElements = Array.from(
+                            phase3Root?.querySelectorAll(
+                              'svg[data-phase3-diagram] .fx-grow',
+                            ) || [],
+                          );
+                          const liveScenes = Array.from(document.querySelectorAll(
+                            "#page-foundations .fx-scene.live",
+                          ));
+                          return {
+                            hash: location.hash,
+                            foundationsActive: Boolean(document.querySelector(
+                              '.page.active[data-page="foundations"]',
+                            )),
+                            homeActive: Boolean(document.querySelector(
+                              '.page.active[data-page="home"]',
+                            )),
+                            bodyOverflow:
+                              document.documentElement.scrollWidth - window.innerWidth,
+                            sceneCount: document.querySelectorAll(
+                              '#page-foundations .fx-scene',
+                            ).length,
+                            revealedCount: document.querySelectorAll(
+                              '#page-foundations .fx-scene.in',
+                            ).length,
+                            liveCount: document.querySelectorAll(
+                              '#page-foundations .fx-scene.live',
+                            ).length,
+                            offscreenLiveCount: liveScenes.filter((scene) => {
+                              const rect = scene.getBoundingClientRect();
+                              return rect.bottom <= 0 || rect.top >= innerHeight;
+                            }).length,
+                            targetLive: Boolean(targetScene?.classList.contains("live")),
+                            targetPulseAnimations: targetPulses.map(
+                              (pulse) => getComputedStyle(pulse).animationName,
+                            ),
+                            pulseAnimations: Array.from(document.querySelectorAll(
+                              '#page-foundations .fx-pulse',
+                            )).map((pulse) => getComputedStyle(pulse).animationName),
+                            staticStates: {
+                              popFinal: popElements.length > 0 && popElements.every(
+                                (element) => getComputedStyle(element).opacity === "1"
+                                  && getComputedStyle(element).transform === "none"
+                                  && noTransition(element),
+                              ),
+                              drawFinal: drawElements.length > 0 && drawElements.every(
+                                (element) => getComputedStyle(element).strokeDasharray
+                                  === "none"
+                                  && parseFloat(
+                                    getComputedStyle(element).strokeDashoffset,
+                                  ) === 0
+                                  && noTransition(element),
+                              ),
+                              growFinal: growElements.length > 0 && growElements.every(
+                                (element) => getComputedStyle(element).transform === "none"
+                                  && noTransition(element),
+                              ),
+                              pulsesStopped: targetPulses.length > 0 && targetPulses.every(
+                                (pulse) => getComputedStyle(pulse).display === "none"
+                                  && getComputedStyle(pulse).animationName === "none",
+                              ),
+                            },
+                            diagrams,
+                          };
+                        }
+                        """
+                    )
+
+                    assert not console_errors, f"{case}: {console_errors}"
+                    assert not page_errors, f"{case}: {page_errors}"
+                    assert metrics["hash"] == "#foundations"
+                    assert metrics["foundationsActive"] and not metrics["homeActive"]
+                    assert metrics["bodyOverflow"] <= 1, (
+                        f"{case}: Foundations scrolls horizontally"
+                    )
+                    assert metrics["sceneCount"] == 8
+                    assert len(metrics["diagrams"]) == 5, (
+                        f"{case}: expected exactly one visible variant per diagram"
+                    )
+                    assert {diagram["name"] for diagram in metrics["diagrams"]} == {
+                        "agent-loop",
+                        "chatbot-agent",
+                        "context-budget",
+                        "harness-layers",
+                        "durable-result",
+                    }
+                    expected_variant = "mobile" if width <= 720 else "desktop"
+                    expected_nodes = mobile_nodes if width <= 720 else desktop_nodes
+                    for diagram in metrics["diagrams"]:
+                        assert diagram["variant"] == expected_variant, (
+                            f"{case}/{diagram['name']}: wrong responsive variant"
+                        )
+                        assert diagram["texts"], f"{case}/{diagram['name']}: no labels"
+                        for label in diagram["texts"]:
+                            assert label["height"] >= 11.5, (
+                                f"{case}/{diagram['name']}: label too small: {label}"
+                            )
+                            for edge in ("left", "right", "top", "bottom"):
+                                assert label[edge] >= -1, (
+                                    f"{case}/{diagram['name']}: label escapes {edge}: "
+                                    f"{label}"
+                                )
+                        assert diagram["nodes"], (
+                            f"{case}/{diagram['name']}: no measurable labeled nodes"
+                        )
+                        assert {node["name"] for node in diagram["nodes"]} == (
+                            expected_nodes[diagram["name"]]
+                        ), f"{case}/{diagram['name']}: node inventory drift"
+                        for node in diagram["nodes"]:
+                            assert node["measurable"], (
+                                f"{case}/{diagram['name']}/{node['name']}: "
+                                "declared node lacks a measurable shape or direct label"
+                            )
+                            assert node["polygonSafeContained"], (
+                                f"{case}/{diagram['name']}/{node['name']}: "
+                                "declared polygon text-safe rectangle escapes its shape"
+                            )
+                            for label in node["labels"]:
+                                for edge in ("left", "right", "top", "bottom"):
+                                    assert label[edge] >= -1, (
+                                        f"{case}/{diagram['name']}: node label escapes "
+                                        f"{edge}: {label}"
+                                    )
+                    if reduced_motion == "reduce":
+                        assert initially_revealed
+                        assert metrics["revealedCount"] == metrics["sceneCount"]
+                        assert metrics["liveCount"] == 0
+                        assert not metrics["targetLive"]
+                        assert all(
+                            animation == "none"
+                            for animation in metrics["pulseAnimations"]
+                        )
+                        assert all(metrics["staticStates"].values()), (
+                            f"{case}: incomplete reduced-motion static state: "
+                            f"{metrics['staticStates']}"
+                        )
+                    else:
+                        assert not initially_revealed
+                        assert metrics["revealedCount"] < metrics["sceneCount"]
+                        assert metrics["liveCount"] >= 1
+                        assert metrics["targetLive"]
+                        assert metrics["offscreenLiveCount"] == 0
+                        assert metrics["targetPulseAnimations"]
+                        assert all(
+                            animation == "fxTravel"
+                            for animation in metrics["targetPulseAnimations"]
+                        )
+                        page.locator("#page-foundations .hero").scroll_into_view_if_needed()
+                        page.wait_for_function(
+                            """
+                            () => !document.querySelector('#fx-practice')
+                              ?.classList.contains('live')
+                            """,
+                            timeout=3000,
+                        )
+                        stopped = page.evaluate(
+                            """
+                            () => ({
+                              live: document.querySelector('#fx-practice')
+                                ?.classList.contains('live'),
+                              animations: Array.from(document.querySelectorAll(
+                                '#fx-practice .fx-pulse',
+                              )).map((pulse) => getComputedStyle(pulse).animationName),
+                            })
+                            """
+                        )
+                        assert not stopped["live"]
+                        assert stopped["animations"]
+                        assert all(
+                            animation == "none"
+                            for animation in stopped["animations"]
+                        )
                 finally:
                     context.close()
         finally:

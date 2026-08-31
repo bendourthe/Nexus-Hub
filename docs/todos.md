@@ -14,11 +14,11 @@ Refreshing this file to the active plan (rather than appending another version's
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
-| v4.4.0 guide-depth-and-training-rebuild phases complete | 2 | 7 | -5 |
+| v4.4.0 guide-depth-and-training-rebuild phases complete | 3 | 7 | -4 |
 | Open release blockers | 0 | 0 | 0 |
 | Catalog skills | 329 | 329 | 0 |
 | Guide pages with clean v4.4.0 verification evidence | 2 | 4 | -2 |
-| Local phase commits | 2 | 7 | -5 |
+| Local phase commits | 3 | 7 | -4 |
 
 ---
 
@@ -26,7 +26,7 @@ Refreshing this file to the active plan (rather than appending another version's
 
 - [x] Phase 1 - Home identity, platforms, installation, and comparison
 - [x] Phase 2 - Foundations structure, model, tokens, and prompts
-- [ ] Phase 3 - Chatbot vs agent, context, harness, and loop
+- [x] Phase 3 - Chatbot vs agent, context, harness, and loop
 - [ ] Phase 4 - Playable Asteroids with a seeded bug
 - [ ] Phase 5 - Training terminal, file explorer, and command loop
 - [ ] Phase 6 - Cross-page polish, accessibility, budget, and hallmark audit
@@ -42,7 +42,7 @@ v4.3.0 is tagged and released, so its verification discipline is available to ga
 
 ### Current checkpoint
 
-Phase 2 is locally complete with its single phase commit. Foundations now has seven titled scenes, a corrected model lifecycle, verified token and qualified prompt examples, direct SVG label-to-shape coverage, and zero detector findings on the actual hash-routed page in both themes. DF-1 and MT-1 remain open; the detector route gap QG-1 was resolved in Phase 2. No push, pull request, or remote CI run has occurred.
+Phase 3 is locally complete at its commit gate. Foundations now has eight titled scenes covering the model lifecycle, tokens, prompt engineering, agent platforms, chatbot-versus-agent workflow, finite context budgets, built-in versus portable harness layers, and durable workflow evidence. Its five Phase 3 diagrams have exact desktop/mobile inventories, connector-pulse-node paint ordering, observer start-and-stop proof, complete reduced-motion states, polygon-safe label containment, and zero detector findings on the routed page in both themes. DF-1 and MT-1 remain open. No push, pull request, or remote CI run has occurred.
 
 ---
 

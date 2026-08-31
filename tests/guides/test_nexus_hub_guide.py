@@ -740,16 +740,26 @@ def _foundations_markup(guide_text: str) -> str:
     return guide_text.split('id="page-foundations"', 1)[-1].split('id="page-training"', 1)[0]
 
 
-def test_foundations_phase2_has_seven_title_subtitle_scenes(guide_text: str) -> None:
+def _foundation_scene(guide_text: str, scene_id: str) -> str:
     fx = _foundations_markup(guide_text)
-    assert fx.count('class="fx-scene') == 7, "expected seven Phase 2 scenes"
-    assert fx.count('class="fx-title"') == 7
-    assert fx.count('class="fx-subtitle"') == 7
+    scene = re.search(
+        rf'<section[^>]+id="{re.escape(scene_id)}"[\s\S]*?</section>', fx
+    )
+    assert scene, f"missing Foundations scene: {scene_id}"
+    return scene.group(0)
+
+
+def test_foundations_phase3_has_eight_title_subtitle_scenes(guide_text: str) -> None:
+    fx = _foundations_markup(guide_text)
+    assert fx.count('class="fx-scene') == 8, "expected eight Phase 3 scenes"
+    assert fx.count('class="fx-title"') == 8
+    assert fx.count('class="fx-subtitle"') == 8
     for heading in (
         "What Is a Model",
         "What Are Tokens",
         "What Is Prompt Engineering",
         "What Is an Agent Platform",
+        "Chatbot or Agentic Platform?",
         "What Is Context",
         "What Is a Harness",
         "What Changes in Practice",
@@ -759,6 +769,101 @@ def test_foundations_phase2_has_seven_title_subtitle_scenes(guide_text: str) -> 
     for svg_class in ("fx-pop", "fx-draw", "fx-pulse"):
         assert svg_class in fx
     assert 'class="fx-num"' not in fx, "the scene number line was removed in v4.2.3"
+
+
+def test_foundations_chatbot_and_agent_share_a_request_but_not_the_handoff(
+    guide_text: str,
+) -> None:
+    scene = _foundation_scene(guide_text, "fx-chatbot-agent")
+    assert "Chatbot or Agentic Platform?" in scene
+    assert "Same request, different handoff" in scene
+    assert 'data-phase3-diagram="chatbot-agent"' in scene
+    assert scene.count('data-phase3-node="shared-request"') == 1
+    assert scene.index('data-phase3-node="chatbot-handoff"') < scene.index(
+        'data-phase3-node="agent-handoff"'
+    )
+    text = re.sub(r"<[^>]+>", " ", scene).lower()
+    assert "same request" in text
+    assert "answer handoff" in text and "you apply and check" in text
+    assert "work handoff" in text and "saved change" in text and "check result" in text
+    assert re.search(r"chatbots?.{0,100}(?:can|may|increasingly).{0,60}tools", text)
+    assert "where the work happens" in text
+    assert re.search(r"what .{0,30} leaves behind", text)
+
+
+def test_foundations_context_makes_budget_competition_and_full_behavior_visible(
+    guide_text: str,
+) -> None:
+    scene = _foundation_scene(guide_text, "fx-context")
+    assert 'data-phase3-diagram="context-budget"' in scene
+    assert 'data-context-budget-meter="noisy"' in scene
+    assert 'data-context-budget-meter="focused"' in scene
+    for item in (
+        "instructions",
+        "request",
+        "old-history",
+        "unrelated-material",
+        "relevant-material",
+        "matched-skill",
+    ):
+        assert f'data-context-item="{item}"' in scene
+    text = re.sub(r"<[^>]+>", " ", scene).lower()
+    for concept in ("tokens", "instructions", "request", "conversation", "tool results"):
+        assert concept in text
+    assert re.search(r"finite.{0,30}(?:capacity|budget)", text)
+    assert "capacity full" in text and "room for results" in text
+    assert re.search(r"(?:omit|compact|summarize|replace|reject)", text)
+    assert "matched skill" in text and re.search(r"loads? when .{0,30}matched", text)
+
+
+def test_foundations_harness_layers_are_honest_and_repository_anchored(
+    guide_text: str,
+) -> None:
+    scene = _foundation_scene(guide_text, "fx-harness")
+    assert 'data-phase3-diagram="harness-layers"' in scene
+    for layer in ("model", "platform", "nexus-hub"):
+        assert f'data-phase3-harness-layer="{layer}"' in scene
+    claims = re.findall(
+        r'data-phase3-claim="([^"]+)"\s+data-artifact="([^"]+)"', scene
+    )
+    assert {claim for claim, _artifact in claims} == {
+        "one-source-catalog",
+        "matched-procedures",
+        "event-hooks",
+        "written-gates",
+        "durable-artifacts",
+    }
+    assert all(artifact.strip() for _claim, artifact in claims)
+    text = re.sub(r"<[^>]+>", " ", scene).lower()
+    assert re.search(r"(?:every|agentic) platform.{0,80}already.{0,40}harness", text)
+    for claim in ("one catalog", "hooks", "prompt-independent", "definition of done"):
+        assert claim in text
+    assert "chain" in text, "the diagram must show artifacts chaining between commands"
+    for vendor in ("claude", "codex", "cursor", "copilot", "antigravity"):
+        assert not re.search(rf"{vendor}.{{0,30}}(?:lacks?|cannot|does not)", text)
+
+
+def test_foundations_phase3_diagrams_animate_with_observer_and_static_fallback(
+    guide_text: str,
+) -> None:
+    fx = _foundations_markup(guide_text)
+    for diagram in (
+        "agent-loop",
+        "chatbot-agent",
+        "context-budget",
+        "harness-layers",
+        "durable-result",
+    ):
+        match = re.search(
+            rf'<svg[^>]+data-phase3-diagram="{diagram}"[\s\S]*?</svg>', fx
+        )
+        assert match, f"missing Phase 3 diagram: {diagram}"
+        assert re.search(r'class="[^"]*fx-(?:pop|draw|grow|pulse)', match.group(0))
+    assert 'document.querySelectorAll(".fx-scene")' in guide_text
+    assert "IntersectionObserver" in guide_text
+    reduce_block = guide_text.split("@media (prefers-reduced-motion: reduce)", 1)[-1]
+    for cls in (".fx-pop", ".fx-draw", ".fx-grow", ".fx-pulse"):
+        assert cls in reduce_block
 
 
 def test_foundations_model_lifecycle_is_chronological_and_responsive(
@@ -838,11 +943,16 @@ def test_foundations_mobile_phase2_diagrams_are_centered_and_bounded(
     assert "margin-inline: auto" in declarations
 
 
-def test_foundations_comparison_is_side_by_side_not_toggled(guide_text: str) -> None:
-    """Both states are always visible; no selector chooses between them."""
+def test_foundations_comparisons_show_both_states_without_a_toggle(
+    guide_text: str,
+) -> None:
+    """Each teaching comparison keeps both states available in the same scene."""
     fx = _foundations_markup(guide_text)
     assert "FOCUSED CONTEXT" in fx and "NOISY CONTEXT" in fx
-    assert "WITHOUT NEXUS-HUB" in fx and "WITH NEXUS-HUB" in fx
+    assert "BROWSER CHATBOT" in fx and "AGENTIC PLATFORM" in fx
+    practice = _foundation_scene(guide_text, "fx-practice")
+    assert ">PLATFORM LOOP<" in practice
+    assert ">PLATFORM LOOP + NEXUS-HUB<" in practice
     assert 'type="range"' not in fx
     assert "nhgCompare" not in guide_text
     assert "data-station-toggle" not in guide_text
@@ -855,9 +965,13 @@ def test_foundations_orders_unaided_state_first(guide_text: str) -> None:
     assert fx.index("NOISY CONTEXT") < fx.index("FOCUSED CONTEXT"), (
         "the unaided context must come first"
     )
-    assert fx.index("WITHOUT NEXUS-HUB") < fx.index("WITH NEXUS-HUB"), (
-        "the unaided run must come first"
+    assert fx.index("BROWSER CHATBOT") < fx.index("AGENTIC PLATFORM"), (
+        "the answer-handoff workflow must come first"
     )
+    practice = _foundation_scene(guide_text, "fx-practice")
+    assert practice.index(">PLATFORM LOOP<") < practice.index(
+        ">PLATFORM LOOP + NEXUS-HUB<"
+    ), "the host-native run must come before the augmented run"
 
 
 def test_foundations_arrowheads_are_filled_not_half_chevrons(guide_text: str) -> None:
@@ -883,26 +997,35 @@ def test_foundations_loop_labels_have_hierarchy(guide_text: str) -> None:
     assert "action: read" not in fx and "result: file text" not in fx
 
 
-def test_foundations_pulses_are_painted_behind_nodes(guide_text: str) -> None:
-    """SVG has no z-index: paint order is document order, so a pulse that
-    should pass behind a box must be declared before it."""
+def test_foundations_pulses_are_painted_above_connectors_and_behind_nodes(
+    guide_text: str,
+) -> None:
+    """SVG paint order is source order: lines, then traveling pulse, then boxes."""
     fx = _foundations_markup(guide_text)
-    for svg in re.findall(r"<svg class=\"fx-svg\"[\s\S]*?</svg>", fx):
+    pulsed = []
+    for svg in re.findall(
+        r'<svg[^>]+data-phase3-diagram="[^"]+"[\s\S]*?</svg>', fx
+    ):
         if "fx-pulse" not in svg:
             continue
-        first_pulse = svg.index("fx-pulse")
-        first_node = svg.index("<g class=\"fx-pop")
-        assert first_pulse < first_node, (
-            "pulse must be declared before the node groups it crosses"
+        pulsed.append(svg)
+        connectors = svg.index('data-phase3-layer="connectors"')
+        pulses = svg.index('data-phase3-layer="pulses"')
+        nodes = svg.index('data-phase3-layer="nodes"')
+        assert connectors < pulses < nodes, (
+            "paint order must be connector lines, traveling pulses, then nodes"
         )
+    assert pulsed, "expected at least one Phase 3 diagram with a traveling pulse"
 
 
 def test_foundations_is_project_generic(guide_text: str) -> None:
     """Teaching copy must not assume the reader's project is code."""
     fx = _foundations_markup(guide_text)
     text = re.sub(r"<[^>]+>", " ", fx).lower()
-    for term in ("repo", "repository", "terminal", "git ", "codebase"):
-        assert term not in text, f"coding-only term in Foundations teaching copy: {term!r}"
+    for term in ("repo", "repository", "terminal", "git", "codebase"):
+        assert not re.search(rf"\b{re.escape(term)}\b", text), (
+            f"coding-only term in Foundations teaching copy: {term!r}"
+        )
 
 
 def test_no_unexpected_persistent_overlays(guide_text: str) -> None:

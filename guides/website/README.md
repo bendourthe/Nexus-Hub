@@ -52,21 +52,24 @@ There is no untrusted-origin warning box. It was removed in v4.2.2 along with `i
 
 ## Foundations
 
-Foundations is five scrollytelling scenes, each teaching one concept with one hand-authored inline SVG diagram:
+Foundations is eight scrollytelling scenes, each teaching one concept through a title-plus-subtitle lesson and a hand-authored inline SVG diagram:
 
-1. **The model** - text in, text out, and what it cannot do.
-2. **The platform** - the agent loop, with a pulse travelling from the model to your project and back.
-3. **Context** - a focused context window and a noisy one, side by side under one "same model" chip.
-4. **The harness** - Skills, Commands, Hooks, and Gates snapping around the loop as guardrail arcs.
-5. **One job, two runs** - the same job run unaided (a chat answer that fades) and harnessed (guardrail, gate, a result that is saved rather than lost).
+1. **What Is a Model** - training precedes platform integration; a later request carries context into processing and a result comes out.
+2. **What Is a Token** - one verified sentence split into tokenizer pieces, plus an illustrative image-to-token grid.
+3. **What Is Prompt Engineering** - the same non-coding job shown first as a weak request and then with Goal, Material, Done, and Format.
+4. **What Is an Agent Platform** - a model operating inside a host loop that can propose actions, observe results, and continue.
+5. **Chatbot or Agentic Platform?** - the same request ending as guidance to apply or as checked work completed in the active work surface.
+6. **What Is Context** - a finite token budget shown noisy and focused, including what can happen when it fills and why task-matched loading matters.
+7. **What Is a Harness** - the model, platform loop and built-in harness, and Nexus-Hub's portable workflow layer shown as distinct nested layers.
+8. **What Changes in Practice** - an honest comparison between a saved platform result and the same job with matched procedure, written gate, and durable evidence.
 
 Hard rules: no element pins itself over the content, and there is **no toggle** between the two states - both are always visible, because a selector for something already on screen is noise. Diagram colors come from theme tokens so one markup serves both themes. Do not restore a `type="range"` hero, the station cards, the carousel, or the per-scene number badges (removed in v4.2.3 as a full line carrying no information).
 
 **Conventions added in v4.2.3, enforced by tests:**
 
-- **Without-then-with ordering.** Every comparison in the guide reads unaided state first, harnessed state second - Foundations scenes 3 and 5, and Home's comparison. Differentiation is carried by colour across the whole lane (amber unaided, accent harnessed), not only on the outcome badge.
+- **Without-then-with ordering.** Every comparison in the guide reads the less structured state first and the more structured state second - Foundations scenes 3, 5, 6, and 8, and Home's comparison. Differentiation is carried by colour across the whole lane (amber for the weaker path, accent for the stronger path), not only on the outcome badge.
 - **Filled arrowheads.** `.fx-head` draws a closed filled triangle. The earlier open two-line chevron drew a single side and read as half an arrow.
-- **Pulse paint order.** SVG has no `z-index`; paint order is document order. Every `.fx-pulse` is declared BEFORE the node groups it crosses so it passes behind them. A test enforces this, because a later edit that reorders elements would silently restore the defect.
+- **Pulse paint order.** SVG has no `z-index`; paint order is document order. Phase 3 diagrams declare connectors first, pulses second, and node groups last, so a pulse remains above its path but behind the boxes it crosses. A test enforces the exact layer sequence.
 - **Project-generic teaching language.** Explanatory copy avoids "repo", "repository", "terminal", "git", and "codebase" - a vocabulary test guards the Foundations section. Factual claims stay accurate: the hero still names the AI coding assistants, "paste into Terminal" still says Terminal because you literally do, and Cheatsheets still describes what each command really does.
 
 ## Training walkthrough
@@ -202,7 +205,7 @@ Before a workshop or a portfolio publish, also open the file by hand and check:
 - Light and dark themes, including a reload (theme must persist only `light` or `dark`)
 - Reduced motion across Foundations and the Training terminal
 - Home install copy on the Windows and macOS/Linux tabs, and the verify-command copy cells
-- Foundations: five scenes, no pinned overlay, no comparison toggle
+- Foundations: eight scenes, correct responsive diagram variant, no pinned overlay, no comparison toggle
 - Training: the booth's 4/5 bug and sticky Restart, the fix at `/implement`, the terminal, the outline, Present mode, and a mid-walkthrough URL
 - Cheatsheets: every scope readable, jump nav, and a deep link such as `#cheatsheets/explore`
 - Keyboard-only path through all four pages
