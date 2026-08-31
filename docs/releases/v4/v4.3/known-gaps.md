@@ -1,7 +1,8 @@
 # Known Gaps - v4.3
 
 **Project**: Nexus-Hub
-**Status**: in-progress
+**Status**: finalized for the v4.3.0 release
+**Finalized**: 2026-08-31, at `/update release`. The five deferred items and three warnings below remain OPEN and owned by this ledger; they are deferrals recorded with an owner and a next step, not unfinished release work. The four resolved bugs and one resolved coverage gap were fixed within this release.
 **Last updated**: 2026-08-30
 
 ## v4.3.0 - agentic-verification-discipline

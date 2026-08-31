@@ -2,7 +2,7 @@
 
 This is the durable, sourced source of truth for where every supported platform READS each surface (instruction file, slash commands, skills, agents, rules, hooks) and where the Nexus-Hub installer WRITES it. It supersedes the point-in-time snapshot at `docs/v3/v3.11/platform-read-contracts.md` (which resolved the v3.11.0 Phase 7 audit but left the Codex and Antigravity contracts flagged as unverified).
 
-**Last verified**: 2026-08-30 for v4.1.2 (full correction pass; verified native surfaces are reflected below, unsupported or undocumented surfaces are marked UNVERIFIED, and Nexus-AI remains UNVERIFIED).
+**Last verified**: 2026-08-30, stamped for v4.3.0 (full correction pass; verified native surfaces are reflected below, unsupported or undocumented surfaces are marked UNVERIFIED, and Nexus-AI remains UNVERIFIED).
 
 ## Invocation-policy emission (v3.20.3)
 
@@ -163,6 +163,8 @@ The machine-readable source of truth is the sibling `docs/policy/platform-read-c
 The catalog itself is never reorganized per platform. Each integration is an adapter that materializes the canonical catalog into the shape below via the shared helpers in `scripts/lib/integrations/_catalog_adapters.py` (`flatten_skills`, `commands_to_skills`, `commands_to_slash`).
 
 ## Re-verification log
+
+**v4.3.0 cut (re-stamp, no new pass).** The 2026-08-30 full correction pass below is the verification behind the v4.3.0 stamp. It ran while the canonical version still read 4.1.2, and nothing between that pass and this cut changed a discovery path, an adapter write-target, or a `contract_checks` entry, so the stamp moves without a new fetch rather than a new pass being claimed. `scripts/verify_platform_contracts.py` exits 0 on the cut tree.
 
 ### 2026-08-30 (v4.1.2 - full platform-contract correction)
 

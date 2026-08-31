@@ -1,7 +1,8 @@
 # Known Gaps - v4.2
 
 **Project**: Nexus-Hub
-**Status**: in-progress
+**Status**: finalized 2026-08-31, at `/update release`; shipped within the v4.3.0 cut
+**Note**: v4.2.0 through v4.2.3 were developed and documented as separate minors but were never tagged, so their work is published inside v4.3.0. Items still open below remain owned by THIS ledger and were deliberately not absorbed into v4.3's, matching the convention v4.1's ledger states; v4.3's Phase 5 reconciliation judged each on evidence and recorded why it stayed open.
 **Last updated**: 2026-08-29
 
 ## v4.2.0 - interactive-guide-redesign
