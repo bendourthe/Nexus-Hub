@@ -537,9 +537,19 @@ def test_copilot_reinstall_refuses_owned_junction_without_touching_contents(
     assert install_ctx.manifest.files_for("copilot").count(str(rewrite)) == 1
 
 
-def test_owned_junction_detection_supports_python_without_path_is_junction():
+def test_owned_junction_detection_supports_python_without_path_is_junction(monkeypatch):
+    """The reparse-tag fallback is exercised on every host, not only on Windows.
+
+    `stat.IO_REPARSE_TAG_MOUNT_POINT` does not exist on POSIX, so reading it at
+    class-definition time made this test an unconditional Linux error rather than
+    a check of the fallback branch. Pinning the documented tag value keeps the
+    assertion host-independent.
+    """
+    mount_point_tag = getattr(stat, "IO_REPARSE_TAG_MOUNT_POINT", 0xA0000003)
+    monkeypatch.setattr(stat, "IO_REPARSE_TAG_MOUNT_POINT", mount_point_tag, raising=False)
+
     class LegacyWindowsStat:
-        st_reparse_tag = stat.IO_REPARSE_TAG_MOUNT_POINT
+        st_reparse_tag = mount_point_tag
 
     class LegacyWindowsPath:
         def lstat(self):
@@ -1350,3 +1360,44 @@ def test_owned_write_outside_target_root_still_refuses_a_junction_leaf(
     assert external.read_bytes() == sentinel, "external hard-link target was clobbered"
     assert outside.read_bytes() == b"replacement bytes\n"
     assert not outside.samefile(external)
+
+
+def test_copilot_authority_tolerates_an_unavailable_hard_link_count(
+    copilot, install_ctx, monkeypatch
+):
+    """Authority must survive a host that cannot report a hard-link count.
+
+    Regression (v4.3.0 Phase 5): the bridge required `st_nlink == 1` exactly.
+    Windows populates `st_nlink` only when the stat call opens a handle, so a
+    host that takes the fast path reports 0 and every authoritative rewrite was
+    denied. The predicate that detects a hard link is `> 1`, which is what the
+    ownership helper already uses; `0` means unknown, not shared.
+    """
+    copilot.install_workspace(install_ctx)
+    scripts = install_ctx.target_root / ".github" / "hooks" / "nexus-hub-scripts"
+    rewrite = scripts / "rewrite-command.sh"
+    compat = scripts / "copilot-hook-compat.py"
+    digest = hashlib.sha256(rewrite.read_bytes()).hexdigest()
+
+    real_stat = Path.stat
+
+    class _ZeroLinkStat:
+        def __init__(self, wrapped):
+            self._wrapped = wrapped
+
+        st_nlink = 0
+
+        def __getattr__(self, name):
+            return getattr(self._wrapped, name)
+
+    def stat_without_link_count(self, *args, **kwargs):
+        return _ZeroLinkStat(real_stat(self, *args, **kwargs))
+
+    monkeypatch.setattr(Path, "stat", stat_without_link_count)
+
+    assert hook_compat._copilot_permission_authoritative(
+        "rewrite-command.sh",
+        ["bash", str(rewrite)],
+        digest,
+        compat_path=compat,
+    )

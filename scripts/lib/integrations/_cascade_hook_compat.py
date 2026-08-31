@@ -95,7 +95,11 @@ def _copilot_permission_authoritative(
         wrapper = wrapper_path.resolve(strict=True)
         child = child_path.resolve(strict=True)
         expected_child = (wrapper.parent / child_path.name).resolve(strict=True)
-        if wrapper.stat().st_nlink != 1 or child.stat().st_nlink != 1:
+        # A hard link is st_nlink > 1. Windows populates st_nlink only when the
+        # stat call opens a handle, so a host taking the fast path reports 0;
+        # requiring exactly 1 denied every authoritative rewrite there. This
+        # matches _owned._is_link_like, which already treats > 1 as the signal.
+        if wrapper.stat().st_nlink > 1 or child.stat().st_nlink > 1:
             return False
         actual_sha256 = hashlib.sha256(child.read_bytes()).hexdigest()
     except OSError:

@@ -282,7 +282,52 @@ Reporting limitation stated honestly: both full runs used `--quiet`, which repor
 
 **Authorization**: the maintainer authorized ONE push updating PR #146 and the required-check wait. Merge is NOT authorized and requires a separate explicit approval after the checks reach a terminal state.
 
-PENDING: push, required-check results, and merge decision.
+### Push 1 - commit 89bf4e40 (RED)
+
+The branch was pushed once (`971096fa..89bf4e40`, clean fast-forward) and PR #146 was retitled and rewritten to describe both the guide and the harness capability. Required-check results:
+
+| Check | Result |
+|---|---|
+| `validate` | pass (37s) |
+| `shellcheck` | pass (19s) |
+| `verify` | pass (1m38s) |
+| `colocation` | pass (7s) |
+| `ci-required` | **fail** (2s, aggregate) |
+| `tests` | **fail** (11m31s) |
+| `tests-windows` | **fail** (10m39s, 1 failed / 247 passed) |
+| `install-smoke` (ubuntu, macos, windows) | **fail** |
+| CodeQL, `Analyze` (js/py), `bootstrap` (3 OS), `installer-smoke` (3 OS), `changes`, `detect` | pass |
+| `render` | skipping (browser-free PR path, by design) |
+
+A red required check REOPENED the phase. Each failure was reproduced locally before any fix, and nothing was re-run blind.
+
+**Why a green local gate did not predict this.** Three of the four causes are host- or environment-dependent and are unreachable from a single Windows developer host: a Windows-only `stat` constant, a Windows `st_nlink` value that differs between hosts, and CI assertion strings exercised only by the real installer smoke. This is the case FOR the PR being the plan's first remote validation, not an argument against the local gate.
+
+1. **`tests` (Linux).** `test_owned_junction_detection_supports_python_without_path_is_junction` read `stat.IO_REPARSE_TAG_MOUNT_POINT` at class-definition time. That constant is Windows-only, so on Linux the test was an unconditional `AttributeError` rather than a check of the reparse-tag fallback branch. It now pins the documented tag value and exercises the branch on every host.
+
+2. **`tests-windows`.** `test_copilot_canonical_authoritative_child_may_allow` expected `allow` and received `deny`. The Copilot permission bridge required `st_nlink == 1` exactly; Windows populates `st_nlink` only when the stat call opens a handle, so a host taking the fast path reports `0` and EVERY authoritative rewrite was denied. Reproduced locally by simulating `st_nlink = 0` (a failing-first regression test), then fixed by testing `> 1`, which is the predicate that actually detects a hard link and the one `_owned._is_link_like` already uses. Hard-link and junction protection re-verified: 17 passed, 2 skipped.
+
+3. **`install-smoke` (all three OS).** `ci.yml` asserted the literal `"Codex / ChatGPT -- skills:ok"`, but the verify label became `"Codex / ChatGPT -- ~/.agents/skills:ok"` when Codex skills moved to the shared `.agents` ladder. Confirmed against live `runner.py verify` output on this host.
+
+4. **A second stale assertion the CI never reached.** The smoke's expectation loop exits on first mismatch, so fixing cause 3 immediately exposed `"Gemini IDE -- skills:ok, workflows:ok"`. The current verified read contract records Gemini Code Assist as MATCH ONLY for the documented `GEMINI.md` instruction hierarchy, with IDE-specific workflow, skill, agent, rule-directory, and hook discovery UNVERIFIED and "excluded from the enforced install check" (`docs/policy/platform-read-contracts.md`). The assertion was stale, not the product; it is now `"Gemini IDE -- GEMINI.md:ok"`. The contract was checked BEFORE the assertion was edited, specifically so a test was not rewritten to match broken output.
+
+Causes 3 and 4 are edits to `.github/workflows/ci.yml`. That is in scope: terminal CI/CD reconciliation is this phase's stated deliverable (sub-task 5.5), not opportunistic pipeline work.
+
+**Local re-verification before any re-push.** CI's exact install-smoke assertion loop was replayed against a throwaway `HOME` on this host and all five expectations matched. The full local gate was then re-run:
+
+```
+PASS: 42 passed, 0 failed, 0 skipped, 0 advisory in 2956.7s
+PROFILE_EXIT=0
+```
+
+```
+PASS: 12 passed, 0 failed, 0 skipped, 0 advisory in 18.3s   (fast)
+FAST_EXIT=0
+```
+
+### Push 2 - stabilization
+
+PENDING: one narrowly scoped stabilization commit, its push (separately approved), the second required-check result, and the merge decision.
 
 - Branching model: feature branch into `develop`, then release flow to `main`.
 - Remote: `origin`.
