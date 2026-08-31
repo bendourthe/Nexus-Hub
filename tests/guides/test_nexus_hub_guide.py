@@ -528,8 +528,125 @@ def test_render_harness_imports_without_playwright() -> None:
 
 
 # ---------------------------------------------------------------------------
-# Home: install section (Phase 2 completes the page; install block live now)
+# Home: v4.4.0 identity, compatibility, installation, and comparison
 # ---------------------------------------------------------------------------
+
+
+def _home_markup(guide_text: str) -> str:
+    return guide_text.split('id="page-home"', 1)[-1].split('id="page-foundations"', 1)[0]
+
+
+def test_home_identity_is_centered_nonwrapping_and_observer_gated(guide_text: str) -> None:
+    home = _home_markup(guide_text)
+    assert 'class="hero-lockup reveal"' in home
+    assert re.search(
+        r'<div class="hero-lockup reveal">\s*<svg class="hero-mark"[\s\S]*?</svg>\s*'
+        r'<h1 class="hero-wordmark">Nexus-Hub</h1>',
+        home,
+    )
+    lockup_rule = re.search(r"\.hero-lockup\s*\{([^}]+)\}", guide_text)
+    assert lockup_rule and "justify-content: center" in lockup_rule.group(1)
+    assert "flex-wrap: nowrap" in lockup_rule.group(1)
+    wordmark_rule = re.search(r"\.hero-wordmark\s*\{([^}]+)\}", guide_text)
+    assert wordmark_rule and "white-space: nowrap" in wordmark_rule.group(1)
+    assert "clamp(" in wordmark_rule.group(1), "the 320 px lockup needs fluid type"
+    assert ".js .hero-lockup.reveal .hero-mark" in guide_text
+    assert ".js .hero-lockup.in .hero-mark" in guide_text
+    reduced_motion = guide_text.split("@media (prefers-reduced-motion: reduce)", 1)[-1]
+    assert ".js .hero-lockup.reveal .hero-mark" in reduced_motion
+
+
+def test_home_uses_a_short_outcome_tagline(guide_text: str) -> None:
+    home = _home_markup(guide_text)
+    match = re.search(r'<p class="hero-tagline">([^<]+)</p>', home)
+    assert match, "expected a dedicated selling tagline"
+    assert len(match.group(1).split()) <= 14
+    assert "catalog of" not in match.group(1).lower()
+
+
+def test_home_lists_six_platforms_without_invented_marks(guide_text: str) -> None:
+    home = _home_markup(guide_text)
+    rail = re.search(r'<ul class="platform-rail"[\s\S]*?</ul>', home)
+    assert rail, "expected a dedicated compatibility rail"
+    items = re.findall(r'<li class="platform-item([^\"]*)"[^>]*data-platform="([^\"]+)"[^>]*>([\s\S]*?)</li>', rail.group(0))
+    assert len(items) == 6
+    assert [platform for _classes, platform, _body in items] == [
+        "Claude",
+        "ChatGPT",
+        "Gemini",
+        "Cursor",
+        "GitHub Copilot",
+        "OpenCode",
+    ]
+    official = {"Claude", "Cursor", "OpenCode"}
+    for classes, platform, body in items:
+        assert f'<span class="platform-name">{platform}</span>' in body
+        if platform in official:
+            assert 'class="platform-mark"' in body
+            assert 'aria-hidden="true"' in body and 'focusable="false"' in body
+            assert "<image" not in body and "http" not in body
+            assert 'data-logo-source="official"' in body
+        else:
+            assert "platform-item--text" in classes
+            assert f'<span class="platform-text-mark"><span class="platform-name">{platform}</span></span>' in body
+            assert "<svg" not in body
+    assert "OpenCode receives commands through its instruction file" in home
+
+
+def test_home_platform_labels_use_legible_theme_token(guide_text: str) -> None:
+    rule = re.search(r"\.platform-name\s*\{([^}]+)\}", guide_text)
+    assert rule and "color: var(--ink)" in rule.group(1)
+    size = re.search(r"font-size:\s*([\d.]+)px", rule.group(1))
+    assert size and float(size.group(1)) >= 12
+
+
+def test_installation_terminal_precedes_subordinate_verification(guide_text: str) -> None:
+    home = _home_markup(guide_text)
+    assert '<span class="eyebrow">Installation</span>' in home
+    assert 'class="term term--standalone term--install"' in home
+    assert 'class="verify-steps verify-steps--secondary"' in home
+    assert home.index("term--install") < home.index("verify-steps--secondary")
+    terminal_rule = re.search(r"\.term--install\s*\{([^}]+)\}", guide_text)
+    secondary_rule = re.search(r"\.verify-steps--secondary\s*\{([^}]+)\}", guide_text)
+    assert terminal_rule and "box-shadow:" in terminal_rule.group(1)
+    assert secondary_rule and "border-left:" not in secondary_rule.group(1)
+
+
+def test_home_troubleshooting_is_structured_and_copyable(guide_text: str) -> None:
+    home = _home_markup(guide_text)
+    block = re.search(r'<details class="support-details">([\s\S]*?)</details>', home)
+    assert block and "<summary>Troubleshooting</summary>" in block.group(1)
+    assert 'class="support-list"' in block.group(1)
+    for label in ("No curl", "One project", "Selected assistants", "No prompts", "Upgrade"):
+        assert f"<dt>{label}</dt>" in block.group(1)
+    for command in (
+        "wget -qO- https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash",
+        "nexus-hub upgrade",
+    ):
+        assert f'data-copy="{command}"' in block.group(1)
+
+
+def test_home_comparison_has_centered_explicit_sides(guide_text: str) -> None:
+    home = _home_markup(guide_text)
+    assert "Keep your platform. Add the workflow." in home
+    assert '<div class="cmp-head">' in home
+    head_rule = re.search(r"\.cmp-head\s*\{([^}]+)\}", guide_text)
+    side_rule = re.search(r"\.cmp-side\s*\{([^}]+)\}", guide_text)
+    assert head_rule and "grid-template-columns: 1fr auto 1fr" in head_rule.group(1)
+    assert side_rule and "text-align: center" in side_rule.group(1)
+    size = re.search(r"font-size:\s*([\d.]+)px", side_rule.group(1))
+    assert size and float(size.group(1)) >= 12
+    assert ".cmp-side--without" in guide_text and ".cmp-side--with" in guide_text
+
+
+def test_home_definitions_are_structured_and_link_to_foundations(guide_text: str) -> None:
+    home = _home_markup(guide_text)
+    block = re.search(r'<details class="definition-details">([\s\S]*?)</details>', home)
+    assert block and 'class="definition-list"' in block.group(1)
+    for term in ("Command", "Skill", "Hook", "Agent", "Rule"):
+        assert f"<dt>{term}</dt>" in block.group(1)
+    assert 'data-go="foundations"' in block.group(1)
+    assert 'data-go="cheatsheets"' not in block.group(1)
 
 
 def test_windows_install_tab_is_first_and_default(parsed: GuideParser, guide_text: str) -> None:
@@ -568,7 +685,7 @@ def test_home_install_copy_payload_equals_visible_text(parsed: GuideParser) -> N
 def test_install_verify_is_a_two_step_sequence(guide_text: str, parsed: GuideParser) -> None:
     """v4.2.3: the dense wrapped verify sentence became two clear steps."""
     home = guide_text.split('id="page-home"', 1)[-1].split('id="page-foundations"', 1)[0]
-    assert 'class="verify-steps"' in home
+    assert 'class="verify-steps ' in home
     assert home.count('class="vs-n"') == 2, "exactly two numbered steps"
     assert "verify-callout" not in guide_text, "the old dense callout is gone"
     rule = re.search(r"\.vs-do\s*\{([^}]+)\}", guide_text)

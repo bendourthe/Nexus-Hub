@@ -257,8 +257,25 @@ p { margin: 0 0 var(--sp-3); }
 /* ---------- Sections ---------- */
 .section { padding: var(--sec-pad) 0 0; }
 .hero { padding: var(--sp-7) 0 var(--sp-4); }
-.hero .mark-xl { width: 64px; height: 64px; margin-bottom: var(--sp-4); border-radius: 14px; }
-html[data-theme="light"] .hero .mark-xl { background: #07141a; padding: 5px; box-shadow: 0 0 0 1px #c9c3b2; }
+.hero-lockup { display: flex; flex-wrap: nowrap; align-items: center; justify-content: center; gap: clamp(10px, 2.6vw, 20px); }
+.hero-mark { flex: none; width: clamp(44px, 9vw, 72px); height: clamp(44px, 9vw, 72px); border-radius: clamp(10px, 2vw, 16px); }
+.hero-wordmark { margin: 0; white-space: nowrap; font-size: clamp(2rem, 7.2vw, 4.25rem); line-height: 1; letter-spacing: -.035em; }
+.hero-tagline { margin: var(--sp-4) 0 0; text-align: center; color: var(--ink-dim); font-size: clamp(18px, 2.3vw, 22px); }
+.hero .btn-row { justify-content: center; }
+html[data-theme="light"] .hero-mark { background: #07141a; padding: 5px; box-shadow: 0 0 0 1px #c9c3b2; }
+.js .hero-lockup.reveal .hero-mark { opacity: 0; transform: translateY(8px) scale(.88); transition: opacity .45s var(--ease), transform .55s var(--ease); }
+.js .hero-lockup.in .hero-mark { opacity: 1; transform: none; }
+
+/* ---------- Platform compatibility rail ---------- */
+.platform-rail { list-style: none; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--sp-3); margin: var(--sp-5) 0 var(--sp-2); padding: var(--sp-4) 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.platform-item { min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; }
+.platform-mark { display: block; width: 30px; height: 30px; object-fit: contain; }
+.platform-mark-shell { display: flex; width: 36px; height: 36px; align-items: center; justify-content: center; padding: 4px; border: 1px solid #d8d3c8; border-radius: 8px; background: #f7f4ec; }
+.platform-mark-shell .platform-mark { width: 26px; height: 26px; }
+.platform-name { color: var(--ink); font-size: 13px; font-weight: 650; line-height: 1.2; }
+.platform-item--text { justify-content: center; }
+.platform-text-mark { display: flex; min-height: 36px; align-items: center; justify-content: center; padding: 5px 10px; border: 1px solid var(--border-bright); border-radius: 8px; background: var(--surface); }
+.platform-note { margin: 0; color: var(--ink-faint); font-size: 13px; text-align: center; }
 
 /* ---------- Buttons ---------- */
 .btn-row { display: flex; flex-wrap: wrap; gap: var(--sp-3); margin-top: var(--sp-4); }
@@ -311,6 +328,20 @@ html[data-theme="light"] .btn--primary:hover { color: #fffdf8; }
   border: 1px solid var(--border); border-left: 3px solid var(--green);
   border-radius: var(--radius-sm); background: var(--surface);
 }
+.verify-steps--secondary { border: 0; border-top: 1px solid var(--border); border-radius: 0; background: transparent; padding: var(--sp-4) 0 0; }
+.verify-steps--secondary .vs-n { background: var(--surface-2); color: var(--ink-dim); border: 1px solid var(--border-bright); }
+.term--install { margin: var(--sp-4) 0 var(--sp-5); border: 2px solid var(--accent); box-shadow: 0 18px 48px rgba(0, 0, 0, .28), 0 0 0 1px color-mix(in srgb, var(--accent) 22%, transparent); }
+.term--install .term-bar { padding: 10px 14px; }
+.term--install .term-body { padding: 18px; font-size: clamp(15px, 2.3vw, 18px); }
+
+/* ---------- Structured disclosures ---------- */
+.support-list, .definition-list { display: grid; grid-template-columns: minmax(118px, .32fr) minmax(0, 1fr); gap: 0 var(--sp-4); margin: 0; }
+.support-list dt, .definition-list dt { padding: var(--sp-3) 0; color: var(--ink); font-size: 13.5px; font-weight: 700; border-top: 1px solid var(--border); }
+.support-list dd, .definition-list dd { min-width: 0; margin: 0; padding: var(--sp-3) 0; color: var(--ink-dim); border-top: 1px solid var(--border); }
+.support-list dt:first-of-type, .support-list dd:first-of-type, .definition-list dt:first-of-type, .definition-list dd:first-of-type { border-top: 0; }
+.support-list dd p, .definition-list dd p { margin: 0; }
+.support-list .cmd-cell { margin-top: var(--sp-2); max-width: 100%; }
+.support-list .cmd-cell code { overflow-x: auto; white-space: nowrap; }
 .verify-steps > li { display: flex; gap: var(--sp-4); align-items: flex-start; }
 .verify-steps > li + li { margin-top: var(--sp-4); padding-top: var(--sp-4); border-top: 1px solid var(--border); }
 .vs-n {
@@ -320,6 +351,7 @@ html[data-theme="light"] .btn--primary:hover { color: #fffdf8; }
   font-size: 13px; font-weight: 700; font-family: var(--mono);
 }
 html[data-theme="light"] .vs-n { color: #fffdf8; }
+html[data-theme="light"] .verify-steps--secondary .vs-n { color: var(--ink-dim); }
 .vs-body { min-width: 0; }
 .vs-do { margin: 0; font-size: 15px; color: var(--ink); }
 .vs-cmds { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin: var(--sp-3) 0 0; }
@@ -330,10 +362,11 @@ html[data-theme="light"] .vs-n { color: #fffdf8; }
    direction every comparison in the guide runs. Deliberately not a
    two-card grid and not a stat-pill row (hallmark gates 2 and 20). */
 .cmp { margin: var(--sp-4) 0 0; }
-.cmp-head { display: flex; gap: var(--sp-4); margin-bottom: var(--sp-2); padding: 0 2px; }
-.cmp-side { font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; flex: 1 1 0; }
+.cmp-head { display: grid; grid-template-columns: 1fr auto 1fr; gap: var(--sp-3); align-items: center; margin-bottom: var(--sp-2); padding: 0 2px var(--sp-2); border-bottom: 1px solid var(--border); }
+.cmp-side { font-size: 13px; font-weight: 750; letter-spacing: .09em; text-transform: uppercase; text-align: center; }
 .cmp-side--without { color: var(--amber); }
-.cmp-side--with { color: var(--accent); text-align: right; }
+.cmp-head-arrow { color: var(--ink-faint); font-size: 16px; }
+.cmp-side--with { color: var(--accent); }
 .cmp-rows { list-style: none; margin: 0; padding: 0; }
 .cmp-row { padding: var(--sp-3) 0; border-top: 1px solid var(--border); }
 .cmp-k { margin: 0 0 6px; font-size: 12.5px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; color: var(--ink-faint); }
@@ -357,11 +390,16 @@ html[data-theme="light"] .vs-n { color: #fffdf8; }
 .js .cmp.in .cmp-b { opacity: 1; }
 
 @media (max-width: 720px) {
+  .platform-rail { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .support-list, .definition-list { grid-template-columns: 1fr; }
+  .support-list dt, .definition-list dt { padding-bottom: 0; }
+  .support-list dd, .definition-list dd { padding-top: 5px; border-top: 0; }
+  .support-list dt:not(:first-of-type), .definition-list dt:not(:first-of-type) { margin-top: var(--sp-2); }
   .cmp-head { display: none; }
   .cmp-pair { grid-template-columns: 1fr; gap: var(--sp-2); }
   .cmp-go svg { transform: rotate(90deg); margin: 2px auto; }
-  .cmp-a::before { content: "Without"; display: block; font-size: 10.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--amber); margin-bottom: 3px; }
-  .cmp-b::before { content: "With Nexus-Hub"; display: block; font-size: 10.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--accent); margin-bottom: 3px; }
+  .cmp-a::before { content: "Without Nexus-Hub"; display: block; font-size: 12px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--amber); margin-bottom: 4px; }
+  .cmp-b::before { content: "With Nexus-Hub"; display: block; font-size: 12px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--accent); margin-bottom: 4px; }
 }
 
 /* ---------- Terminal ---------- */
@@ -820,6 +858,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
   html { scroll-behavior: auto; }
   .js .page.active { animation: none; }
   .js .reveal { opacity: 1; transform: none; transition: none; }
+  .js .hero-lockup.reveal .hero-mark { opacity: 1; transform: none; transition: none; }
   .btn:hover { transform: none; }
   .js .cmp .cmp-row { opacity: 1; transform: none; transition: none; }
   .js .cmp .cmp-line { stroke-dasharray: none; stroke-dashoffset: 0; transition: none; }
@@ -878,10 +917,46 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
     <div class="container">
 
       <div class="hero">
-        <svg class="mark-xl" viewBox="0 0 100 100" aria-hidden="true"><use href="#nexus-mark"/></svg>
-        <h1>Nexus-Hub is the experience layer for AI coding assistants</h1>
-        <p class="lead">A reusable, multi-platform harness: a catalog of skills, slash commands, hooks, agents, and rules that an installer copies onto your machine and wires into the assistants you already use. The model still supplies knowledge and reasoning. Nexus-Hub supplies reusable procedures, governed workflows, deterministic guardrails, durable artifacts, and quality gates.</p>
-        <p class="lead">The same loop works on Claude Code, Codex, Cursor, Gemini / Antigravity, and GitHub Copilot. OpenCode receives the same command bodies through its instruction file, without a slash menu.</p>
+        <div class="hero-lockup reveal">
+          <svg class="hero-mark" viewBox="0 0 100 100" aria-hidden="true"><use href="#nexus-mark"/></svg>
+          <h1 class="hero-wordmark">Nexus-Hub</h1>
+        </div>
+        <p class="hero-tagline">Take your AI assistant from prompt to finished, verified work.</p>
+        <ul class="platform-rail" aria-label="Compatible AI platforms">
+          <li class="platform-item" data-platform="Claude">
+            <svg class="platform-mark" data-logo-source="official" viewBox="0 0 128 128" fill="none" aria-hidden="true" focusable="false">
+              <g clip-path="url(#nhg-claude-clip)">
+                <rect width="128" height="128" fill="url(#nhg-claude-gradient)"/>
+                <rect opacity="0.35" width="128" height="128" fill="#D97757"/>
+                <path d="M35.0157 79.6937L53.4322 69.3667L53.7357 68.4622L53.4322 67.9585H52.5215L49.4352 67.7708L38.9115 67.4891L29.8045 67.1136L20.9504 66.6442L18.7243 66.1748L16.6499 63.4053L16.8523 62.044L18.7243 60.7766L21.4058 61.0113L27.3254 61.4337L36.23 62.044L42.6555 62.4195L52.2179 63.4053H53.7357L53.9381 62.795L53.4322 62.4195L53.0274 62.044L43.8192 55.8008L33.8521 49.2291L28.6408 45.4269L25.8581 43.5024L24.4415 41.7186L23.8343 37.7756L26.3641 34.9591L29.8045 35.1938L30.6646 35.4285L34.1556 38.1042L41.593 43.8779L51.3072 51.0129L52.7239 52.1864L53.2943 51.8014L53.3816 51.5292L52.7239 50.4496L47.462 40.9206L41.846 31.2039L39.3163 27.1669L38.6586 24.773C38.4038 23.7683 38.2538 22.9371 38.2538 21.9096L41.1377 17.9665L42.7567 17.4502L46.6525 17.9665L48.2715 19.3748L50.7001 24.9138L54.5958 33.5978L60.6672 45.4269L62.438 48.9475L63.3993 52.1864L63.7535 53.1722H64.3606V52.6089L64.8666 45.9433L65.7773 37.7756L66.688 27.2608L66.9915 24.3036L68.4588 20.7361L71.3933 18.8115L73.67 19.8911L75.542 22.5667L75.289 24.3036L74.176 31.5324L72.0004 42.8452L70.5837 50.4496H71.3933L72.3546 49.4638L76.1997 44.3942L82.6252 36.3204L85.4585 33.1284L88.7978 29.6079L90.9228 27.918H94.9703L97.9048 32.3304L96.5894 36.8837L92.4406 42.1411L89.0002 46.6004L84.0672 53.2095L81.0062 58.5234L81.2807 58.9618L82.0181 58.8989L93.1489 56.505L99.1697 55.4253L106.354 54.2049L109.592 55.707L109.946 57.256L108.681 60.401L100.991 62.2787L91.9853 64.1094L78.5744 67.2664L78.4259 67.3858L78.6012 67.6458L84.649 68.1932L87.2294 68.334H93.5537L105.342 69.2259L108.428 71.2444L110.25 73.7322L109.946 75.6568L105.19 78.0508L98.8155 76.5487L83.8901 72.9812L78.7801 71.7138H78.0717V72.1362L82.3217 76.314L90.1639 83.3551L99.9286 92.4616L100.435 94.7148L99.1697 96.4985L97.8542 96.3108L89.2532 89.8329L85.9139 86.9226L78.4259 80.5856H77.92V81.2428L79.6402 83.7776L88.7978 97.5312L89.2532 101.756L88.5954 103.117L86.2175 103.962L83.6371 103.493L78.2235 95.9352L72.7087 87.4859L68.2564 79.8815L67.7187 80.221L65.0689 108.515L63.8547 109.971L61.0214 111.05L58.6434 109.266L57.3786 106.356L58.6434 100.582L60.1613 93.0719L61.3755 87.1104L62.4886 79.6937L63.1684 77.2161L63.1083 77.0503L62.5653 77.1416L56.9738 84.8103L48.4739 96.3108L41.7448 103.493L40.1258 104.15L37.3431 102.695L37.5961 100.113L39.1645 97.8129L48.4739 85.9838L54.0899 78.6141L57.7094 74.3837L57.6742 73.7718L57.4744 73.7548L32.739 89.8799L28.3373 90.4432L26.4147 88.6594L26.6676 85.7491L27.5783 84.8103L35.0157 79.6937Z" fill="#FAF9F5"/>
+              </g>
+              <defs>
+                <linearGradient id="nhg-claude-gradient" x1="52.5" y1="128" x2="52.5" y2="0" gradientUnits="userSpaceOnUse"><stop stop-color="#DC6038"/><stop offset="1" stop-color="#D97757"/></linearGradient>
+                <clipPath id="nhg-claude-clip"><rect width="128" height="128" fill="white"/></clipPath>
+              </defs>
+            </svg>
+            <span class="platform-name">Claude</span>
+          </li>
+          <li class="platform-item platform-item--text" data-platform="ChatGPT"><span class="platform-text-mark"><span class="platform-name">ChatGPT</span></span></li>
+          <li class="platform-item platform-item--text" data-platform="Gemini"><span class="platform-text-mark"><span class="platform-name">Gemini</span></span></li>
+          <li class="platform-item" data-platform="Cursor">
+            <span class="platform-mark-shell">
+              <svg class="platform-mark" data-logo-source="official" viewBox="0 0 466.73 532.09" aria-hidden="true" focusable="false"><path fill="#26251e" d="M457.43,125.94L244.42,2.96c-6.84-3.95-15.28-3.95-22.12,0L9.3,125.94c-5.75,3.32-9.3,9.46-9.3,16.11v247.99c0,6.65,3.55,12.79,9.3,16.11l213.01,122.98c6.84,3.95,15.28,3.95,22.12,0l213.01-122.98c5.75-3.32,9.3-9.46,9.3-16.11v-247.99c0-6.65-3.55-12.79-9.3-16.11h-.01ZM444.05,151.99l-205.63,356.16c-1.39,2.4-5.06,1.42-5.06-1.36v-233.21c0-4.66-2.49-8.97-6.53-11.31L24.87,145.67c-2.4-1.39-1.42-5.06,1.36-5.06h411.26c5.84,0,9.49,6.33,6.57,11.39h-.01Z"/></svg>
+            </span>
+            <span class="platform-name">Cursor</span>
+          </li>
+          <li class="platform-item platform-item--text" data-platform="GitHub Copilot"><span class="platform-text-mark"><span class="platform-name">GitHub Copilot</span></span></li>
+          <li class="platform-item" data-platform="OpenCode">
+            <span class="platform-mark-shell">
+              <svg class="platform-mark" data-logo-source="official" viewBox="0 0 240 300" fill="none" aria-hidden="true" focusable="false">
+                <g clip-path="url(#nhg-opencode-clip)"><mask id="nhg-opencode-mask" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="0" y="0" width="240" height="300"><path d="M240 0H0V300H240V0Z" fill="white"/></mask><g mask="url(#nhg-opencode-mask)"><path d="M180 240H60V120H180V240Z" fill="#CFCECD"/><path d="M180 60H60V240H180V60ZM240 300H0V0H240V300Z" fill="#211E1E"/></g></g>
+                <defs><clipPath id="nhg-opencode-clip"><rect width="240" height="300" fill="white"/></clipPath></defs>
+              </svg>
+            </span>
+            <span class="platform-name">OpenCode</span>
+          </li>
+        </ul>
+        <p class="platform-note">OpenCode receives commands through its instruction file instead of a slash menu.</p>
         <div class="btn-row">
           <a class="btn btn--primary" href="#home/install">Install <span aria-hidden="true">&rarr;</span></a>
           <a class="btn" href="#training" data-go="training">Get trained</a>
@@ -890,7 +965,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
       </div>
 
       <section class="section reveal" id="nhg-install">
-        <span class="eyebrow">Install</span>
+        <span class="eyebrow">Installation</span>
         <h2>One command, then restart your assistant</h2>
         <p>Paste the line for your system. The installer copies the catalog into <code>~/.nexus-hub/</code>, wires every assistant it detects, and preserves files you customized. There is no download to unzip first.</p>
         <div class="nhg-install-wrap" data-tabs data-nhg-keys="self">
@@ -899,7 +974,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
             <button type="button" class="tab-btn" data-tab="posix" role="tab" aria-selected="false">macOS / Linux</button>
           </div>
           <div class="tab-panel active" data-panel="win" role="tabpanel">
-            <div class="term term--standalone">
+            <div class="term term--standalone term--install">
               <div class="term-bar"><div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div><span class="label">Windows &middot; paste into PowerShell</span></div>
               <div class="term-body">
                 <div class="cmd-line"><span class="t-teal" aria-hidden="true">&gt;</span> <code data-copy="irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex">irm https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.ps1 | iex</code></div>
@@ -907,7 +982,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
             </div>
           </div>
           <div class="tab-panel" data-panel="posix" role="tabpanel">
-            <div class="term term--standalone">
+            <div class="term term--standalone term--install">
               <div class="term-bar"><div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div><span class="label">macOS / Linux &middot; paste into Terminal</span></div>
               <div class="term-body">
                 <div class="cmd-line"><span class="t-teal" aria-hidden="true">$</span> <code data-copy="curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash">curl -fsSL https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash</code></div>
@@ -916,7 +991,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
           </div>
         </div>
         <div id="nhg-copy-status" class="visually-hidden" aria-live="polite"></div>
-        <ol class="verify-steps">
+        <ol class="verify-steps verify-steps--secondary">
           <li>
             <span class="vs-n" aria-hidden="true">1</span>
             <div class="vs-body">
@@ -936,19 +1011,32 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
             </div>
           </li>
         </ol>
-        <details>
-          <summary>Need another option?</summary>
-          <p>No curl? Use <code>wget -qO- https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash</code>. Scope one project with <code>--workspace</code>, limit assistants with <code>--platforms</code>, or skip the conflict prompt with <code>--yes</code>. Refresh later with <code>nexus-hub upgrade</code>. Advanced flags and what lands in <code>~/.nexus-hub/</code> versus per-tool config are on <a href="#cheatsheets" data-go="cheatsheets">Cheatsheets</a>.</p>
+        <details class="support-details">
+          <summary>Troubleshooting</summary>
+          <dl class="support-list">
+            <dt>No curl</dt>
+            <dd><p>Use the wget fallback.</p><span class="cmd-cell"><code data-copy="wget -qO- https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash">wget -qO- https://raw.githubusercontent.com/bendourthe/Nexus-Hub/main/install.sh | bash</code></span></dd>
+            <dt>One project</dt>
+            <dd><p>Add <code>--workspace &lt;path&gt;</code> to install into one project instead of globally.</p></dd>
+            <dt>Selected assistants</dt>
+            <dd><p>Add <code>--platforms &lt;comma-list&gt;</code> to limit which integrations are installed.</p></dd>
+            <dt>No prompts</dt>
+            <dd><p>Add <code>--yes</code> for an unattended refresh of managed files.</p></dd>
+            <dt>Upgrade</dt>
+            <dd><p>Refresh the installed catalog in place.</p><span class="cmd-cell"><code data-copy="nexus-hub upgrade">nexus-hub upgrade</code></span></dd>
+          </dl>
+          <p>Advanced flags and install locations are on <a href="#cheatsheets" data-go="cheatsheets">Cheatsheets</a>.</p>
         </details>
       </section>
 
       <section class="section reveal">
         <span class="eyebrow">What it adds</span>
-        <h2>Same model. Different working method.</h2>
-        <p>These claims map to real files in the catalog: the installer, <code>catalog/skills/</code>, <code>catalog/commands/</code>, <code>catalog/hooks/</code>, and the GO / NO-GO gates inside <code>/plan</code> and <code>/implement</code>. They are not a claim that one model is smarter than another.</p>
+        <h2>Keep your platform. Add the workflow.</h2>
+        <p>Use the assistant you prefer; Nexus-Hub adds reusable procedures, guardrails, and quality gates around it. The differences below map to the installer, catalog files, and GO / NO-GO gates, not to a claim that one model is smarter.</p>
                 <div class="cmp reveal" data-cmp>
-          <div class="cmp-head" aria-hidden="true">
+          <div class="cmp-head">
             <span class="cmp-side cmp-side--without">Without Nexus-Hub</span>
+            <span class="cmp-head-arrow" aria-hidden="true">&rarr;</span>
             <span class="cmp-side cmp-side--with">With Nexus-Hub</span>
           </div>
           <ol class="cmp-rows">
@@ -994,9 +1082,16 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
             </li>
           </ol>
         </div>
-        <details>
+        <details class="definition-details">
           <summary>Commands, skills, hooks, agents, and rules</summary>
-          <p>Commands are slash entry points. Skills are procedures the agent loads when the task matches. Hooks are scripts that fire on tool events. Agents are specialist reviewer personas. Rules are per-language style and security standards. Details stay in <a href="#cheatsheets" data-go="cheatsheets">Cheatsheets</a>.</p>
+          <dl class="definition-list">
+            <dt>Command</dt><dd><p>A slash entry point that starts a repeatable workflow.</p></dd>
+            <dt>Skill</dt><dd><p>A procedure the assistant loads when the task matches.</p></dd>
+            <dt>Hook</dt><dd><p>A script that reacts automatically at a tool or session event.</p></dd>
+            <dt>Agent</dt><dd><p>A specialist role used for a bounded piece of work or review.</p></dd>
+            <dt>Rule</dt><dd><p>A standing language, security, or artifact standard.</p></dd>
+          </dl>
+          <p>See <a href="#foundations" data-go="foundations">Foundations</a> for how these parts work together.</p>
         </details>
       </section>
 

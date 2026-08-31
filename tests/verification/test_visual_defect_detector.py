@@ -66,10 +66,18 @@ def _run(
     *args: str,
     no_site: bool = False,
 ) -> subprocess.CompletedProcess[str]:
+    return _run_path(FIXTURES / fixture, *args, no_site=no_site)
+
+
+def _run_path(
+    path: Path,
+    *args: str,
+    no_site: bool = False,
+) -> subprocess.CompletedProcess[str]:
     command = [sys.executable]
     if no_site:
         command.append("-S")
-    command.extend([str(SCRIPT), str(FIXTURES / fixture), *args])
+    command.extend([str(SCRIPT), str(path), *args])
     return subprocess.run(
         command,
         text=True,
@@ -102,6 +110,56 @@ def test_clean_fixture_passes_full_viewport_matrix(rendered_detector: None) -> N
     assert report["findings"] == []
     assert [viewport["width"] for viewport in report["viewports"]] == [420, 900, 1440]  # type: ignore[index]
     assert "PASS visual-defect detector" in result.stderr
+
+
+def test_explicit_theme_override_is_applied_before_page_bootstrap(
+    rendered_detector: None,
+    tmp_path: Path,
+) -> None:
+    themed_page = tmp_path / "themed.html"
+    themed_page.write_text(
+        """<!doctype html>
+<html lang="en">
+<head>
+<script>
+(function () {
+  var theme = window.localStorage.getItem("portfolio-theme");
+  if (theme !== "light" && theme !== "dark") theme = "dark";
+  document.documentElement.setAttribute("data-theme", theme);
+})();
+</script>
+<style>
+body { margin: 0; }
+p { width: 100px; height: 30px; margin: 0; font: 16px/30px sans-serif; }
+html[data-theme="light"] p { font-size: 8px; }
+</style>
+</head>
+<body><p>Theme probe</p></body>
+</html>
+""",
+        encoding="utf-8",
+    )
+
+    default_result = _run_path(themed_page, "--viewports", "900")
+    dark_result = _run_path(themed_page, "--viewports", "900", "--theme", "dark")
+    light_result = _run_path(themed_page, "--viewports", "900", "--theme", "light")
+
+    assert default_result.returncode == 0
+    assert _payload(default_result)["theme"] is None
+    assert dark_result.returncode == 0
+    assert _payload(dark_result)["theme"] == "dark"
+    assert light_result.returncode == 1
+    light_report = _payload(light_result)
+    assert light_report["theme"] == "light"
+    assert {finding["rule"] for finding in light_report["findings"]} == {"font-size-floor"}  # type: ignore[union-attr]
+
+
+def test_unsupported_theme_is_rejected() -> None:
+    result = _run("clean.html", "--theme", "sepia")
+
+    assert result.returncode == 2
+    assert result.stdout == ""
+    assert "invalid choice" in result.stderr.lower()
 
 
 @pytest.mark.parametrize(("fixture", "expected_rule"), BROKEN_FIXTURES)
@@ -350,6 +408,39 @@ def test_page_load_failure_is_a_gate_finding() -> None:
     assert finding["severity"] == "error"
     assert finding["viewport"] == {"width": 900, "height": 900}
     assert "synthetic local load failure" in finding["measurements"]["error"]
+
+
+def test_theme_setup_failure_is_a_gate_finding() -> None:
+    detector = _load_detector_module()
+
+    class FailingPage:
+        def add_init_script(self, *_args: object, **_kwargs: object) -> None:
+            raise RuntimeError("synthetic theme setup failure")
+
+        def goto(self, *_args: object, **_kwargs: object) -> None:
+            raise AssertionError("navigation must not continue after theme setup fails")
+
+    result = detector._scan_viewport(
+        FailingPage(),
+        (FIXTURES / "clean.html").resolve().as_uri(),
+        width=900,
+        height=900,
+        tolerance=1.0,
+        minimum_text_width=16.0,
+        minimum_text_height=12.0,
+        font_floor=12.0,
+        allowlist=[],
+        timeout_ms=100,
+        settle_ms=0,
+        theme="light",
+    )
+    finding = result["findings"][0]
+
+    assert finding["rule"] == "theme-setup"
+    assert finding["severity"] == "error"
+    assert finding["viewport"] == {"width": 900, "height": 900}
+    assert finding["measurements"]["requested_theme"] == "light"
+    assert "synthetic theme setup failure" in finding["measurements"]["error"]
 
 
 def test_route_boundary_allows_local_and_blocks_network() -> None:

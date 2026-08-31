@@ -32,6 +32,8 @@ DEFAULT_FONT_FLOOR_PX = 12.0
 DEFAULT_TIMEOUT_MS = 10_000
 DEFAULT_SETTLE_MS = 100
 MAX_LOCAL_STYLESHEET_BYTES = 5 * 1024 * 1024
+THEME_STORAGE_KEY = "portfolio-theme"
+SUPPORTED_THEMES = ("dark", "light")
 
 PLAYWRIGHT_INSTALL_HINT = (
     "Install the renderer with: python -m pip install playwright && "
@@ -653,6 +655,11 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
         default=DEFAULT_SETTLE_MS,
         help="delay after load before measurement",
     )
+    parser.add_argument(
+        "--theme",
+        choices=SUPPORTED_THEMES,
+        help="seed the Nexus-Hub guide theme before page scripts run",
+    )
     return parser.parse_args(argv)
 
 
@@ -669,6 +676,7 @@ def _base_report(path: Path, args: argparse.Namespace) -> dict[str, Any]:
             "height": args.minimum_text_height,
         },
         "font_floor_px": args.font_floor,
+        "theme": args.theme,
         "allowlist": str(args.allowlist.resolve()) if args.allowlist else None,
         "findings": [],
         "gate_findings": 0,
@@ -772,9 +780,37 @@ def _scan_viewport(
     allowlist: list[dict[str, Any]],
     timeout_ms: int,
     settle_ms: float,
+    theme: str | None = None,
 ) -> dict[str, Any]:
     """Load and measure one viewport, returning findings instead of raising."""
     viewport = {"width": width, "height": height}
+    if theme is not None:
+        try:
+            page.add_init_script(
+                "try {"
+                f"localStorage.setItem({json.dumps(THEME_STORAGE_KEY)}, {json.dumps(theme)});"
+                "window.__nexusVisualDetectorThemeSeeded = true;"
+                "} catch (error) {"
+                "window.__nexusVisualDetectorThemeSeeded = String("
+                "error && error.message ? error.message : error);"
+                "}"
+            )
+        except Exception as error:  # noqa: BLE001 - requested theme is a gate contract
+            return {
+                "findings": [
+                    _finding(
+                        "theme-setup",
+                        "Could not seed the requested guide theme",
+                        selector="<document>",
+                        viewport=viewport,
+                        measurements={
+                            "requested_theme": theme,
+                            "error": _error_text(error),
+                        },
+                    )
+                ],
+                "suppressed": 0,
+            }
     try:
         page.goto(file_uri, wait_until="load", timeout=timeout_ms)
     except Exception as error:  # noqa: BLE001 - a failed load is a gate finding
@@ -790,6 +826,36 @@ def _scan_viewport(
             ],
             "suppressed": 0,
         }
+
+    if theme is not None:
+        try:
+            theme_state = page.evaluate(
+                "() => [window.__nexusVisualDetectorThemeSeeded || false, "
+                "document.documentElement.getAttribute('data-theme')]"
+            )
+        except Exception as error:  # noqa: BLE001 - requested theme is a gate contract
+            theme_state = [_error_text(error), None]
+        if theme_state != [True, theme]:
+            return {
+                "findings": [
+                    _finding(
+                        "theme-setup",
+                        "Loaded document did not honor the requested guide theme",
+                        selector="<document>",
+                        viewport=viewport,
+                        measurements={
+                            "requested_theme": theme,
+                            "actual_theme": theme_state[1]
+                            if isinstance(theme_state, list) and len(theme_state) > 1
+                            else None,
+                            "storage_state": theme_state[0]
+                            if isinstance(theme_state, list) and theme_state
+                            else "theme state was not an array",
+                        },
+                    )
+                ],
+                "suppressed": 0,
+            }
 
     if settle_ms:
         page.wait_for_timeout(settle_ms)
@@ -921,6 +987,7 @@ def _run_detector(
                             allowlist=allowlist,
                             timeout_ms=args.timeout_ms,
                             settle_ms=args.settle_ms,
+                            theme=args.theme,
                         )
                         report["findings"].extend(result["findings"])
                         report["suppressed_findings"] += int(result["suppressed"])
