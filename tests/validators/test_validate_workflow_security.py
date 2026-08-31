@@ -2,11 +2,16 @@
 
 from __future__ import annotations
 
+import subprocess
+import sys
 from pathlib import Path
 from textwrap import dedent
 
+import pytest
+
 
 SCRIPT = "validate_workflow_security.py"
+SCRIPT_PATH = Path(__file__).resolve().parents[2] / "scripts" / SCRIPT
 
 
 def write(path: Path, body: str) -> None:
@@ -188,3 +193,133 @@ def test_third_party_tag_pin_errors_under_strict_sha_pinning(
     )
     result = runner(SCRIPT, tmp_path, ["--strict-sha-pinning"])
     assert result.returncode == 1
+
+
+def test_each_artifact_upload_requires_its_own_retention(
+    tmp_path: Path, runner
+) -> None:
+    write(
+        tmp_path / ".github" / "workflows" / "artifacts.yml",
+        dedent(
+            """\
+            name: Artifacts
+            on: push
+            jobs:
+              report:
+                runs-on: ubuntu-latest
+                steps:
+                  - name: Upload bounded report
+                    uses: actions/upload-artifact@v4
+                    with:
+                      name: bounded
+                      path: bounded.json
+                      retention-days: 7
+                  - name: Upload unbounded report
+                    uses: actions/upload-artifact@v4
+                    with:
+                      name: unbounded
+                      path: unbounded.json
+            """
+        ),
+    )
+    result = runner(SCRIPT, tmp_path)
+    assert result.returncode == 1
+    assert "uploads an artifact with no retention-days" in result.stderr
+
+
+@pytest.mark.parametrize(
+    "uses, retention",
+    [
+        ('"actions/upload-artifact@v4"', ""),
+        ("actions/upload-artifact@v4", "retention-days:"),
+        ("actions/upload-artifact@v4", "retention-days: 0"),
+        ("actions/upload-artifact@v4", "retention-days: -1"),
+    ],
+)
+def test_artifact_upload_requires_a_positive_explicit_retention(
+    tmp_path: Path, runner, uses: str, retention: str
+) -> None:
+    write(
+        tmp_path / ".github" / "workflows" / "artifact.yml",
+        dedent(
+            f"""\
+            name: Artifact
+            on: push
+            jobs:
+              report:
+                runs-on: ubuntu-latest
+                steps:
+                  - uses: {uses}
+                    with:
+                      name: report
+                      path: report.json
+                      {retention}
+            """
+        ),
+    )
+    result = runner(SCRIPT, tmp_path)
+    assert result.returncode == 1
+    assert "uploads an artifact with no retention-days" in result.stderr
+
+
+@pytest.mark.parametrize(
+    "retention",
+    ["7", '"7"', "${{ inputs.retention_days }}"],
+)
+def test_artifact_upload_accepts_positive_or_dynamic_retention(
+    tmp_path: Path, runner, retention: str
+) -> None:
+    write(
+        tmp_path / ".github" / "workflows" / "artifact.yml",
+        dedent(
+            f"""\
+            name: Artifact
+            on: push
+            jobs:
+              report:
+                runs-on: ubuntu-latest
+                steps:
+                  - uses: actions/upload-artifact@v4
+                    with:
+                      name: report
+                      path: report.json
+                      retention-days: {retention}
+            """
+        ),
+    )
+    result = runner(SCRIPT, tmp_path)
+    assert result.returncode == 0, result.stderr
+
+
+def test_missing_pyyaml_is_an_explicit_cannot_validate_result(
+    tmp_path: Path,
+) -> None:
+    write(
+        tmp_path / ".github" / "workflows" / "artifact.yml",
+        dedent(
+            """\
+            name: Artifact
+            on: push
+            jobs:
+              report:
+                runs-on: ubuntu-latest
+                steps:
+                  - uses: actions/upload-artifact@v4
+                    with:
+                      path: report.json
+                      retention-days: 7
+            """
+        ),
+    )
+    result = subprocess.run(
+        [sys.executable, "-S", str(SCRIPT_PATH), "--root", str(tmp_path)],
+        capture_output=True,
+        text=True,
+        encoding="utf-8",
+        errors="replace",
+        timeout=30,
+        check=False,
+    )
+    assert result.returncode == 2
+    assert "PyYAML is required" in result.stderr
+    assert "uploads an artifact with no retention-days" not in result.stderr

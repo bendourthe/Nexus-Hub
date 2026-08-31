@@ -1,8 +1,8 @@
 # Nexus-Hub Progress Dashboard
 
-**Branch:** `feat/v4.2.0-interactive-guide-redesign`
-**Active plan:** [v4.2.0 interactive-guide-redesign](releases/v4/v4.2/plans/v4.2.0-interactive-guide-redesign.md)
-**Last refreshed:** 2026-08-29
+**Branch:** `feat/v4.2.2-guide-cinematic-rebuild` (v4.2.2, v4.2.3, and v4.3.0 fold into the same branch and PR #146)
+**Active plan:** [v4.3.0 agentic-verification-discipline](releases/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md)
+**Last refreshed:** 2026-08-30
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its own `docs/releases/v*/v*.*/known-gaps.md`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
 
@@ -14,27 +14,29 @@ Refreshing this file to the active plan (rather than appending another version's
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
-| v4.2.0 guide-redesign phases complete | 6 | 7 | -1 |
+| v4.3.0 agentic-verification-discipline phases complete | 4 | 5 | -1 |
 | Open release blockers | 0 | 0 | 0 |
-| Catalog skills | 328 | 328 | 0 |
-| New MCP servers | 0 | 0 | 0 |
-| New installer-copied top-level scripts | 0 | 0 | 0 |
+| Catalog skills | 329 | 329 | 0 |
+| New paired hooks | 1 | 1 | 0 |
+| New rules language directories | 1 | 1 | 0 |
 
 ---
 
-## Plan - v4.2.0 Interactive Guide Redesign [IN PROGRESS]
+## Plan - v4.3.0 Agentic Verification Discipline [IN PROGRESS]
 
-- [x] Phase 1 - Baseline, content model, and UX contract
-- [x] Phase 2 - Portfolio-aligned shell, theme, and navigation
-- [x] Phase 3 - Concise Home and embedded installation
-- [x] Phase 4 - Model-versus-harness Foundations
-- [x] Phase 5 - Interactive IDE training workbench
-- [x] Phase 6 - Maintainer docs and copy contract
-- [ ] Phase 7 - Architecture refactor, known-gaps, CI/CD, publication, and integration
+- [x] Phase 1 - Design the verification ladder
+- [x] Phase 2 - Build the instruments
+- [x] Phase 3 - The functional-verification skill
+- [x] Phase 4 - Wire the discipline into the harness
+- [ ] Phase 5 - Architecture refactor, known-gaps, CI/CD, publication, and integration
 
 ### What this plan changes, in one paragraph
 
-The public Nexus-Hub guide becomes a short orientation and install surface, a model-versus-harness Foundations page, and one data-driven IDE workbench for eight closed Training scenes, without changing command semantics or adding a runtime network dependency.
+Adds a four-tier verification ladder to the harness: cheap compile/import checks per subtask, a deterministic functional smoke and plan-delta record at every phase boundary, and one fail-closed deep pass before release. The release also adds a renderer-backed visual-defect detector, an HTML responsive-layout rule with a paired enforcement hook, and the `functional-verification` skill, then wires those capabilities into planning, implementation, distribution, and final evidence.
+
+### Prior local release status
+
+v4.2.2 is complete and committed. v4.2.3 has completed its local final-phase evidence at `8ace852a`; its publication step is intentionally folded into v4.3.0 Phase 5 so PR #146 receives one combined update after the new verification discipline is dogfooded.
 
 ---
 

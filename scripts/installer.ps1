@@ -743,6 +743,90 @@ function Install-ClaudeHookFiles {
     }
 }
 
+function Get-ManagedHookStem {
+    param([object]$Hook)
+
+    if ($null -eq $Hook) { return "" }
+    $commandProperty = $Hook.PSObject.Properties["command"]
+    if (-not $commandProperty -or -not $commandProperty.Value) { return "" }
+    $matches = [regex]::Matches(
+        [string]$commandProperty.Value,
+        '(?<stem>[A-Za-z0-9_-]+)\.(?:sh|ps1|py)'
+    )
+    if ($matches.Count -gt 0) {
+        return $matches[$matches.Count - 1].Groups["stem"].Value
+    }
+    return [string]$commandProperty.Value
+}
+
+function Merge-ManagedClaudeHooks {
+    param(
+        [Parameter(Mandatory = $true)][object]$ExistingJson,
+        [Parameter(Mandatory = $true)][object]$TemplateJson
+    )
+
+    $hooksProperty = $ExistingJson.PSObject.Properties["hooks"]
+    if (-not $hooksProperty) {
+        $ExistingJson | Add-Member -NotePropertyName "hooks" -NotePropertyValue ([pscustomobject]@{})
+    }
+    elseif ($null -eq $hooksProperty.Value -or -not ($hooksProperty.Value -is [pscustomobject])) {
+        $hooksProperty.Value = [pscustomobject]@{}
+    }
+
+    foreach ($eventProperty in $TemplateJson.hooks.PSObject.Properties) {
+        $eventName = $eventProperty.Name
+        $existingEventProperty = $ExistingJson.hooks.PSObject.Properties[$eventName]
+        if (-not $existingEventProperty) {
+            $ExistingJson.hooks | Add-Member -NotePropertyName $eventName -NotePropertyValue @($eventProperty.Value)
+            continue
+        }
+
+        $existingEntries = @($existingEventProperty.Value)
+        foreach ($templateEntry in @($eventProperty.Value)) {
+            $templateMatcherProperty = $templateEntry.PSObject.Properties["matcher"]
+            $templateMatcher = if ($templateMatcherProperty) { [string]$templateMatcherProperty.Value } else { "" }
+            foreach ($templateHook in @($templateEntry.hooks)) {
+                $templateTypeProperty = $templateHook.PSObject.Properties["type"]
+                $templateType = if ($templateTypeProperty) { [string]$templateTypeProperty.Value } else { "" }
+                $templateStem = Get-ManagedHookStem -Hook $templateHook
+                $alreadyInstalled = $false
+
+                foreach ($existingEntry in $existingEntries) {
+                    $existingMatcherProperty = $existingEntry.PSObject.Properties["matcher"]
+                    $existingMatcher = if ($existingMatcherProperty) { [string]$existingMatcherProperty.Value } else { "" }
+                    if ($existingMatcher -ne $templateMatcher) { continue }
+                    foreach ($existingHook in @($existingEntry.hooks)) {
+                        $existingTypeProperty = $existingHook.PSObject.Properties["type"]
+                        $existingType = if ($existingTypeProperty) { [string]$existingTypeProperty.Value } else { "" }
+                        if (
+                            $existingType -eq $templateType -and
+                            (Get-ManagedHookStem -Hook $existingHook) -eq $templateStem
+                        ) {
+                            $alreadyInstalled = $true
+                            break
+                        }
+                    }
+                    if ($alreadyInstalled) { break }
+                }
+
+                if (-not $alreadyInstalled) {
+                    $newEntry = [ordered]@{}
+                    foreach ($property in $templateEntry.PSObject.Properties) {
+                        if ($property.Name -ne "hooks") {
+                            $newEntry[$property.Name] = $property.Value
+                        }
+                    }
+                    $newEntry["hooks"] = @($templateHook)
+                    $existingEntries += [pscustomobject]$newEntry
+                }
+            }
+        }
+        $existingEventProperty.Value = $existingEntries
+    }
+
+    return $ExistingJson
+}
+
 function Install-GitGuardrails {
     param(
         [string]$RepoRoot,
@@ -788,45 +872,10 @@ function Install-GitGuardrails {
     if (Test-Path $settingsFile) {
         try {
             $existingJson = Get-Content $settingsFile -Raw | ConvertFrom-Json
-
-            # Check if hooks.PreToolUse already has our guardrail
-            $alreadyInstalled = $false
-            if ($existingJson.hooks -and $existingJson.hooks.PreToolUse) {
-                foreach ($hookEntry in $existingJson.hooks.PreToolUse) {
-                    foreach ($h in $hookEntry.hooks) {
-                        if ($h.command -and $h.command -like "*git-guardrails*") {
-                            $alreadyInstalled = $true
-                            break
-                        }
-                    }
-                }
-            }
-
-            if ($alreadyInstalled) {
-                Convert-ClaudeHookCommandsForWindows -SettingsFile $settingsFile -RepoRoot $RepoRoot -Scope $Scope
-                Write-Item -Message "✓ Git guardrails hook already configured in settings.json" -Color "DarkGreen"
-            }
-            else {
-                # Add hooks key if missing
-                if (-not $existingJson.hooks) {
-                    $existingJson | Add-Member -NotePropertyName "hooks" -NotePropertyValue $templateJson.hooks
-                }
-                else {
-                    if (-not $existingJson.hooks.PreToolUse) {
-                        $existingJson.hooks | Add-Member -NotePropertyName "PreToolUse" -NotePropertyValue $templateJson.hooks.PreToolUse
-                    }
-                    else {
-                        # Append our hook entry to existing PreToolUse array
-                        $existingArray = @($existingJson.hooks.PreToolUse)
-                        $existingArray += $templateJson.hooks.PreToolUse
-                        $existingJson.hooks.PreToolUse = $existingArray
-                    }
-                }
-
-                Write-JsonFile -Path $settingsFile -Object $existingJson
-                Convert-ClaudeHookCommandsForWindows -SettingsFile $settingsFile -RepoRoot $RepoRoot -Scope $Scope
-                Write-Item -Message "✓ $Scope settings.json updated with git guardrails hook" -Color "DarkGreen"
-            }
+            $existingJson = Merge-ManagedClaudeHooks -ExistingJson $existingJson -TemplateJson $templateJson
+            Write-JsonFile -Path $settingsFile -Object $existingJson
+            Convert-ClaudeHookCommandsForWindows -SettingsFile $settingsFile -RepoRoot $RepoRoot -Scope $Scope
+            Write-Item -Message "✓ $Scope settings.json reconciled with managed hooks" -Color "DarkGreen"
         }
         catch {
             Write-Item -Message "Warning: Could not merge into existing settings.json ($($_.Exception.Message))" -Color "Yellow"

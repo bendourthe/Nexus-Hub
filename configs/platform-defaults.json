@@ -17,7 +17,7 @@
     "claude": {
       "display_name": "Claude Code",
       "source_url": "https://code.claude.com/docs/en/settings",
-      "verified": "2026-08-15",
+      "verified": "2026-08-30",
       "doc_statement": "The Claude Code settings.json reference documents effortLevel (\"Persist the effort level across sessions. Accepts low, medium, high, or xhigh.\"), model (read once at session start), and env (\"Environment variables applied to every session and to subprocesses Claude Code spawns from it.\"). The same page states that CLAUDE_CODE_EFFORT_LEVEL overrides effortLevel for a session, which is why both are declared together here.",
       "settings": {
         "effortLevel": "medium",
@@ -66,7 +66,7 @@
     "codex": {
       "display_name": "Codex (OpenAI)",
       "source_url": "https://learn.chatgpt.com/docs/config-file/config-reference",
-      "verified": "2026-08-15",
+      "verified": "2026-08-30",
       "doc_statement": "config.toml documents model_reasoning_effort (minimal | low | medium | high | xhigh), approval_policy (untrusted | on-request | never), and sandbox_mode (read-only | workspace-write | danger-full-access). The docs state approval_policy and sandbox_mode cannot be overridden from a project-scoped config and must be set at user level.",
       "settings": {
         "model_reasoning_effort": "medium",
@@ -94,7 +94,7 @@
     "qwen": {
       "display_name": "Qwen Code",
       "source_url": "https://qwenlm.github.io/qwen-code-docs/en/users/configuration/settings/",
-      "verified": "2026-08-15",
+      "verified": "2026-08-30",
       "doc_statement": "settings.json documents model.reasoningEffort ('How hard reasoning-capable models think, applied across all providers'; low | medium | high | xhigh | max) and tools.approvalMode (plan | default | auto-edit | auto | yolo, documented default 'auto').",
       "settings": {
         "model": {
@@ -123,7 +123,7 @@
     "kimi": {
       "display_name": "Kimi Code CLI",
       "source_url": "https://www.kimi.com/code/docs/en/kimi-code-cli/configuration/config-files.html",
-      "verified": "2026-08-15",
+      "verified": "2026-08-30",
       "doc_statement": "config.toml documents a [thinking] table with effort ('Thinking effort level (for example low, medium, high, xhigh, max)') and default_permission_mode (manual | yolo | auto).",
       "settings": {
         "thinking": {
@@ -150,7 +150,7 @@
     "hermes": {
       "display_name": "Hermes",
       "source_url": "https://hermes-agent.nousresearch.com/docs/user-guide/configuration/",
-      "verified": "2026-08-15",
+      "verified": "2026-08-30",
       "doc_statement": "config.yaml documents agent.reasoning_effort (none | minimal | low | medium | high | xhigh | max | ultra) and the approval gates skills.write_approval, skills.guard_agent_created, and memory.write_approval. Resolution order is CLI arguments, config.yaml, .env, built-in defaults.",
       "settings": {
         "agent": {
@@ -184,7 +184,7 @@
     "aider": {
       "display_name": "Aider",
       "source_url": "https://aider.chat/docs/config/aider_conf.html",
-      "verified": "2026-08-15",
+      "verified": "2026-08-30",
       "doc_statement": ".aider.conf.yml documents model, reasoning-effort ('Set the reasoning_effort API parameter'), thinking-tokens, yes-always ('Always say yes to every confirmation'), and auto-commits (default True). The file is searched in the home directory, then the git repo root, then the current directory, with later files taking priority.",
       "settings": {},
       "rationale": {},
@@ -205,7 +205,7 @@
     "gemini-cli": {
       "display_name": "Gemini CLI (Google)",
       "source_url": "https://geminicli.com/docs/cli/settings/",
-      "verified": "2026-08-15",
+      "verified": "2026-08-30",
       "doc_statement": "settings.json documents general.defaultApprovalMode (enum 'default' | 'auto_edit' | 'plan', default 'default'; the docs note YOLO mode is command-line only) and model.name (default undefined). A thinking budget exists only nested per model alias.",
       "settings": {
         "general": {
@@ -232,7 +232,7 @@
     "gemini": {
       "display_name": "Gemini Code Assist",
       "source_url": "https://docs.cloud.google.com/gemini/docs/codeassist/use-agentic-chat-pair-programmer",
-      "verified": "2026-08-15",
+      "verified": "2026-08-30",
       "doc_statement": "Gemini Code Assist documents geminicodeassist.agentYoloMode in the VS Code user settings JSON. The setting enables full automatic approval in trusted workspaces but is not documented for project .vscode/settings.json or ~/.gemini/settings.json.",
       "settings": {},
       "rationale": {},
@@ -245,7 +245,7 @@
     "cursor": {
       "display_name": "Cursor",
       "source_url": "https://cursor.com/docs/cli/reference/configuration",
-      "verified": "2026-08-15",
+      "verified": "2026-08-30",
       "doc_statement": "The CLI configuration reference documents approvalMode ('allowlist' | 'auto-review' | 'unrestricted'), sandbox.mode, and sandbox.networkAccess. Model selection happens through the /model slash command at runtime; the docs state there is no default-model mechanism in the config file. Only permissions are configurable at project level.",
       "settings": {
         "approvalMode": "allowlist"
@@ -270,7 +270,7 @@
     "copilot": {
       "display_name": "GitHub Copilot (Microsoft)",
       "source_url": "https://docs.github.com/en/copilot/reference/copilot-cli-reference/cli-config-dir-reference",
-      "verified": "2026-08-15",
+      "verified": "2026-08-30",
       "doc_statement": "The Copilot CLI configuration directory reference documents model ('AI model to use. Set to auto to let Copilot pick the best available model automatically'), permissions.disableBypassPermissionsMode, sandbox.enabled, and sandbox.allowBypass at ~/.copilot/settings.json (or $COPILOT_HOME/settings.json).",
       "settings": {
         "model": "auto",
@@ -294,25 +294,38 @@
         "merge": "seed-if-absent"
       },
       "derived_artifacts": [],
-      "notes": "SURFACE EXPANSION, decided deliberately (known gap NI-2). Nexus-Hub's copilot integration otherwise targets the instruction surface only (.github/copilot-instructions.md plus VS Code prompt files) and installs nothing into ~/.copilot. Writing this file adopts the Copilot CLI as a new product surface."
+      "notes": "SURFACE EXPANSION, decided deliberately (known gap NI-2). The Copilot integration now owns personal instructions, agents, and hooks under ~/.copilot, so this seed-if-absent settings write is aligned with the adopted native Copilot CLI surface."
     },
     "antigravity2": {
       "display_name": "Antigravity 2.0 + CLI",
-      "source_url": "https://antigravity.google/docs/cli/settings",
-      "verified": "2026-08-15",
-      "doc_statement": "The vendor names toolPermission, artifactReviewPolicy, enableTerminalSandbox, and allowNonWorkspaceAccess but does NOT enumerate their allowed values, so any seeded value would be invented. Declared for the record; re-verify when the docs enumerate values.",
-      "settings": {},
-      "rationale": {},
-      "install_target": {
-        "mode": "not-writable",
-        "reason": "The vendor names toolPermission, artifactReviewPolicy, enableTerminalSandbox, and allowNonWorkspaceAccess but does NOT enumerate their allowed values, so any seeded value would be invented. Declared for the record; re-verify when the docs enumerate values."
+      "source_url": "https://www.antigravity.google/docs/cli/modes/",
+      "verified": "2026-08-30",
+      "doc_statement": "The CLI modes reference documents agentMode in ~/.gemini/antigravity-cli/settings.json with values default, accept-edits, and plan. The default mode asks for confirmation before tool execution; accept-edits automatically approves edit tools and plan disables tool use.",
+      "settings": {
+        "agentMode": "default"
       },
-      "derived_artifacts": []
+      "rationale": {
+        "agentMode": "The vendor's default mode preserves interactive confirmation before tool execution and does not silently enable automatic edits."
+      },
+      "install_target": {
+        "mode": "write",
+        "path": "~/.gemini/antigravity-cli/settings.json",
+        "format": "json",
+        "scope": "global",
+        "merge": "seed-if-absent"
+      },
+      "derived_artifacts": [],
+      "omitted": {
+        "toolPermission": "The settings reference names the key but does not enumerate a stable value domain.",
+        "artifactReviewPolicy": "The settings reference names the key but does not enumerate a stable value domain.",
+        "enableTerminalSandbox": "The settings reference names the key but does not document a safe cross-platform default.",
+        "allowNonWorkspaceAccess": "The settings reference names the key but does not document a safe value for automatic seeding."
+      }
     },
     "opencode": {
       "display_name": "OpenCode",
       "source_url": "https://opencode.ai/docs/config/",
-      "verified": "2026-08-15",
+      "verified": "2026-08-30",
       "doc_statement": "model and small_model are provider-scoped ids with no documented safe default, and the permission key's full schema is not enumerated in the configuration reference (only that it accepts values such as 'ask'). Nothing is seedable without inventing a value.",
       "settings": {},
       "rationale": {},
@@ -325,7 +338,7 @@
     "openclaw": {
       "display_name": "OpenClaw",
       "source_url": "https://docs.openclaw.ai/gateway/configuration",
-      "verified": "2026-08-15",
+      "verified": "2026-08-30",
       "doc_statement": "The only documented lever is agents.defaults.model.primary, a provider-scoped model pin with no vendor-documented safe default. There is no documented effort or approval lever.",
       "settings": {},
       "rationale": {},

@@ -84,3 +84,103 @@ Phase 7 writes `docs/releases/v4/v4.2/development/last-phase-evidence.md` and a 
 ### Result
 
 No documentation move. Dead slide-deck CSS pruned in place. Publication (push / PR) is gated on explicit approval.
+
+## v4.2.1 Phase 1 - Contract, IA, and example freeze
+
+**Date**: 2026-08-29
+**Mode**: audit only; no files moved
+**Plan**: `docs/releases/v4/v4.2/plans/v4.2.1-guide-visual-education.md`
+
+### Layout check
+
+Phase 1 adds a dated v4.2.1 section to the existing content map, a v4.2.1 known-gaps subsection, and a session-history file. The v4.2.0 tables stay in the same content-map file, marked superseded. No scratch document is proposed for deletion. No `docs/testing/` or `docs/validation/` invented.
+
+### New documentation artifacts
+
+| Path | Category | Disposition |
+|---|---|---|
+| `docs/releases/v4/v4.2/plans/v4.2.1-guide-visual-education.md` | Active plan | Keep. |
+| `docs/releases/v4/v4.2/development/guide-redesign-content-map.md` | Active contract | Keep; v4.2.1 section appended in place. |
+| `docs/releases/v4/v4.2/known-gaps.md` | Active release gap ledger | Keep; new patch subsection, header unchanged. |
+| `docs/releases/v4/v4.2/development/history/2026-08-29_v4.2.1-guide-visual-education-phase-1-contract.md` | Active phase evidence | Keep under the current version's development history. |
+
+### Result
+
+No duplicate, orphaned, scratch, or misplaced documentation was created by Phase 1. No file moved, and no cleanup change was approved or applied.
+
+## v4.2.1 Phase 2 - Chrome, theme, and install terminals
+
+**Date**: 2026-08-29
+**Mode**: audit only; no files moved
+
+Phase 2 edits the canonical guide HTML and the focused test file in place. Session history is the only new documentation file.
+
+### Result
+
+No documentation move.
+
+## v4.2.1 Phase 3 - Home loop visual
+
+**Date**: 2026-08-29
+**Mode**: audit only; no files moved
+
+Phase 3 edits the canonical guide HTML and the focused test file in place.
+
+### Result
+
+No documentation move.
+
+## v4.2.1 Phase 4 - Foundations visual education
+
+**Date**: 2026-08-29
+**Mode**: audit only; no files moved
+
+Phase 4 edits the canonical guide HTML and the focused test file in place.
+
+### Result
+
+No documentation move.
+
+## v4.2.1 Phase 5 - Training slideshow and Glow Booth
+
+**Date**: 2026-08-29
+**Mode**: audit only; no files moved
+
+Phase 5 adds `guides/website/example/glow-booth/`, `guides/website/example/glow-booth-shuffle-reference/`, and `guides/website/glow-booth.zip`. It rewrites Training in the canonical guide and updates `guides/website/README.md` plus the focused test file. Session history is the only new documentation file. `example/trivia-quiz/` stays on disk and is not taught. No `docs/testing/` or `docs/validation/` invented. No installer-copied `scripts/*.py` was added.
+
+### Result
+
+No documentation move. Temporary `_patch_phase5.py` was deleted before commit.
+
+## v4.2.1 Phase 6 - Cheatsheets merge
+
+**Date**: 2026-08-29
+**Mode**: audit only; no files moved
+
+Phase 6 removes Workflows and Reference from primary nav, adds `#page-cheatsheets`, and rewrites `guides/website/README.md` plus the focused test file. Temporary `_patch_phase6.py` was deleted before commit. No `docs/testing/` or `docs/validation/` invented.
+
+### Result
+
+No documentation move.
+
+## v4.2.1 Phase 7 - Architecture refactor, known-gaps, CI/CD
+
+**Date**: 2026-08-29
+**Mode**: audit only; no files moved
+**Plan**: `docs/releases/v4/v4.2/plans/v4.2.1-guide-visual-education.md`
+
+### Layout check
+
+Phase 7 copies the v4.2.0 last-phase record to `docs/releases/v4/v4.2/development/last-phase-evidence-v4.2.0.md` and overwrites `docs/releases/v4/v4.2/development/last-phase-evidence.md` with the v4.2.1 record. It updates root `README.md` and `guides/website/README.md` in place. `example/trivia-quiz/` stays on disk. No `docs/testing/` or `docs/validation/` invented. No installer-copied `scripts/*.py` was added. No `.github/workflows/` edit.
+
+### New documentation artifacts
+
+| Path | Category | Disposition |
+|---|---|---|
+| `docs/releases/v4/v4.2/development/last-phase-evidence-v4.2.0.md` | Preserved prior-patch evidence | Keep. |
+| `docs/releases/v4/v4.2/development/last-phase-evidence.md` | Active last-phase evidence | Keep; now the v4.2.1 record. |
+| `docs/releases/v4/v4.2/development/history/2026-08-29_v4.2.1-guide-visual-education-phase-7-closeout.md` | Active phase evidence | Keep under the current version's development history. |
+
+### Result
+
+No documentation move. Publication (push / PR) is gated on explicit approval.

@@ -72,7 +72,11 @@ def test_dedicated_mode_overwrites_full_file(install_ctx: InstallContext) -> Non
 
 def test_teardown_removes_only_marker_block(install_ctx: InstallContext) -> None:
     integ = get("opencode")
-    workspace_agents = install_ctx.target_root / ".opencode" / "AGENTS.md"
+    # Derive the path from the config rather than hardcoding it: OpenCode reads the
+    # workspace-ROOT AGENTS.md (the .opencode/AGENTS.md claim was removed once the
+    # vendor docs were re-verified), and the config is what declares that.
+    _iwd = integ.config.get("instruction_workspace_dir", integ.config["workspace_dir"])
+    workspace_agents = install_ctx.target_root / _iwd / integ.config["instruction_file"]
     integ.install(install_ctx)
     # Add user content around the marker block.
     text = workspace_agents.read_text(encoding="utf-8")

@@ -8,7 +8,7 @@ This file provides guidance to AI coding agents (Claude Code, Cursor, Copilot, G
 
 Nexus-Hub is a production-grade skill harness for AI coding assistants. It is the **upstream catalog** consumed by Nexus (the local-first desktop AI Studio, see `https://github.com/bendourthe/Nexus-AI`) and by every other major agent platform: Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, and GitHub CLI. Skills, commands, hooks, agents, and rules are distributed via installer scripts into users' `~/.nexus-hub/` directory and into their AI assistant's per-platform config locations.
 
-Current catalog: **328 skills** across 23 categories, 18 commands (plus 3 permanent aliases), 33 hooks, 23 agents. The 40 v3.x deprecation shims were removed in v3.2.0.
+Current catalog: **329 skills** across 23 categories, 18 commands (plus 3 permanent aliases), 33 hooks, 23 agents. The 40 v3.x deprecation shims were removed in v3.2.0.
 
 ## Project Structure
 
@@ -23,8 +23,8 @@ Nexus-Hub/
 │   │   └── tests/            # pytest suite for hook scripts
 │   ├── mcp-configs/          # MCP server registry
 │   ├── memory/               # Memory template files
-│   ├── rules/                # Code style/security rules (4 languages)
-|   `-- skills/               # 328 skills across 23 categories
+│   ├── rules/                # Language, security, and artifact rules
+|   `-- skills/               # 329 skills across 23 categories
 │       └── <category>/
 │           └── <skill-name>/
 │               └── SKILL.md
@@ -40,6 +40,8 @@ Nexus-Hub/
 ├── scripts/                  # Installer scripts (installer.sh, installer.ps1)
 └── templates/                # AI instruction templates for multi-IDE support
 ```
+
+The responsive HTML rule family lives under `catalog/rules/html/`. Repository-level detector coverage and its visual fixtures live under `tests/verification/`.
 
 ## Adding a New Skill
 
@@ -412,7 +414,7 @@ Nexus-Hub is a **template repository**. Nothing you add is "live" until a user r
 | `catalog/style-guides/<name>.md` (companion reference for a command, NOT a slash command) | No -- folder auto-copied to `~/.nexus-hub/style-guides/` by `install_templates` | All platforms (shared). Located outside `catalog/commands/` so the file does not surface in the slash menu. |
 | `catalog/agents/<name>.md` | No -- folder auto-copied | Claude, Gemini, Codex |
 | `catalog/hooks/<name>.{sh,py}` | No for the file; **you must register it** in `catalog/hooks/settings.json` | Platforms that honor Claude-style hooks |
-| `catalog/rules/<lang>/<name>.md` | No -- folder auto-copied | Claude, Gemini, Codex |
+| `catalog/rules/<category>/<name>.md` (including `catalog/rules/html/`) | No -- folder auto-copied | Claude, Gemini, Codex |
 | `templates/documentation/<name>.{docx,pptx,xlsx,...}` | No -- folder auto-copied to `~/.nexus-hub/templates/documentation/` | All platforms (shared) |
 | `templates/ai-instructions/base-*.md` | **Yes -- edit all 5 lockstep files** (claude, codex, cursor, gemini, opencode). **But 5 is not the full set**: 16 template files exist and 12 are substantive. A behavioral rule meant for every agent must also reach `base-google-shared.md` (which covers Antigravity 1.0, Antigravity 2.0, and Gemini CLI by `@`-include, and Antigravity CLI transitively via `@base-antigravity-20.md`), the guardrails-only `base-{aider,kimi,openclaw,qwen,windsurf}.md`, and `generic-instructions.md`. Only the lockstep five are machine-guarded; the other seven are not, so they are the ones a change silently misses. | The respective platform |
 | `scripts/<name>.py` or `scripts/<name>.js` | **Yes -- MUST add a copy step** in BOTH `scripts/installer.sh` AND `scripts/installer.ps1`, modeled after the existing `generate_report.py` entry. The installer copies scripts by **explicit name**, never by folder. | All platforms (shared under `~/.nexus-hub/scripts/`) |

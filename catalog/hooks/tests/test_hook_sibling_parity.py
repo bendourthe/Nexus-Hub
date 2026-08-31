@@ -182,15 +182,27 @@ def test_pair_agrees_on_exit_code(
 
 
 # --- Targeted parity for the BLOCKING hooks ---------------------------------
-# These three are the hooks whose disagreement would matter most: they are the only
-# ones that refuse an operation, so a divergence means an action blocked on one
-# platform and allowed on the other.
+# These are the hooks whose disagreement would matter most: they refuse an
+# operation, so a divergence means an action blocked on one platform and allowed
+# on the other.
 
 _BLOCKING_CASES = [
     # (stem, payload, expected exit code)
     (
         "secret-scan",
         json.dumps({"tool_input": {"file_path": "ok.py", "content": "x = 1\n"}}),
+        0,
+    ),
+    (
+        "html-responsive-guard",
+        json.dumps({"tool_input": {"file_path": "report.html",
+                                   "content": "<style>.copy { max-width: 60ch; }</style>"}}),
+        2,
+    ),
+    (
+        "html-responsive-guard",
+        json.dumps({"tool_input": {"file_path": "report.html",
+                                   "content": "<style>.container { max-width: 1200px; }</style>"}}),
         0,
     ),
     (
@@ -302,9 +314,9 @@ def test_secret_scan_ps1_does_not_echo_the_secret(
 
 # --- Runtime-control parity -------------------------------------------------
 
-# Hooks that document the shared disable controls. The blocking hooks
-# (secret-scan, require-*) and compress-output deliberately do NOT honor them:
-# a security gate that any env var can switch off is not a gate.
+# Hooks that document the shared disable controls. The essential security blockers
+# (secret-scan, require-*) and compress-output deliberately do NOT honor them. The
+# responsive-layout guard does honor them as its documented per-session escape.
 _CONTROLLED = sorted(
     (SH_STEMS & PS1_STEMS)
     - {"secret-scan", "memory-store-guard", "require-description",

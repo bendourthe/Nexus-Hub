@@ -56,6 +56,15 @@ RUN_INLINE_RE = re.compile(r"^(\s*)(?:-\s+)?run:\s*(.+?)\s*$")
 RUN_BLOCK_START_RE = re.compile(r"^(\s*)(?:-\s+)?run:\s*[|>][\-+]?\s*$")
 
 WRITE_ALL_PERMISSIONS_RE = re.compile(r"^\s*permissions:\s*write-all\s*$", re.MULTILINE)
+UPLOAD_ARTIFACT_USES_RE = re.compile(
+    r"^\s*(?:-\s*)?uses:\s*[\"']?actions/upload-artifact@[^\s#\"']+",
+    re.IGNORECASE | re.MULTILINE,
+)
+GITHUB_EXPRESSION_RE = re.compile(r"^\$\{\{.+\}\}$", re.DOTALL)
+
+
+class WorkflowYamlUnavailable(RuntimeError):
+    """Raised when workflow shape cannot be validated safely."""
 
 
 def iter_run_lines(text: str):
@@ -196,6 +205,23 @@ _VALIDATION_MARKERS = ("pytest", "npm test", "npm run test", "shellcheck", "--pr
                        "--profile fast", "--profile platform", "make validate", "make test")
 
 
+def _yaml_document(text: str) -> dict[object, object]:
+    """Return a parsed workflow mapping or raise cannot-validate."""
+    try:
+        import yaml  # noqa: PLC0415 - optional at import time
+    except ImportError as error:
+        raise WorkflowYamlUnavailable(
+            "PyYAML is required for workflow shape and artifact-retention validation"
+        ) from error
+    try:
+        data = yaml.safe_load(text)
+    except Exception as error:  # noqa: BLE001 - converted to explicit cannot-validate
+        raise WorkflowYamlUnavailable(f"workflow YAML could not be parsed: {error}") from error
+    if not isinstance(data, dict):
+        raise WorkflowYamlUnavailable("workflow YAML root must be a mapping")
+    return data
+
+
 def _yaml_triggers(text: str):
     """Return the parsed `on:` mapping, or None when it cannot be read.
 
@@ -204,18 +230,57 @@ def _yaml_triggers(text: str):
     workflow file and passes vacuously. Both spellings are accepted here for
     that reason.
     """
-    try:
-        import yaml  # noqa: PLC0415 - optional at import time
-    except ImportError:
-        return None
-    try:
-        data = yaml.safe_load(text)
-    except Exception:  # noqa: BLE001 - an unparseable workflow is handled by the caller
-        return None
-    if not isinstance(data, dict):
-        return None
+    data = _yaml_document(text)
     triggers = data.get("on", data.get(True))
     return triggers if isinstance(triggers, dict) else None
+
+
+def _unbounded_artifact_upload_lines(text: str) -> list[int]:
+    """Return line numbers for upload steps without step-local retention."""
+    upload_lines = [
+        text[: match.start()].count("\n") + 1
+        for match in UPLOAD_ARTIFACT_USES_RE.finditer(text)
+    ]
+    data = _yaml_document(text)
+    jobs = data.get("jobs")
+    if not isinstance(jobs, dict):
+        return upload_lines
+
+    unbounded: list[int] = []
+    upload_index = 0
+    for job in jobs.values():
+        if not isinstance(job, dict):
+            continue
+        steps = job.get("steps")
+        if not isinstance(steps, list):
+            continue
+        for step in steps:
+            if not isinstance(step, dict):
+                continue
+            uses = step.get("uses")
+            if not isinstance(uses, str) or not uses.casefold().startswith(
+                "actions/upload-artifact@"
+            ):
+                continue
+            line_no = upload_lines[upload_index] if upload_index < len(upload_lines) else 1
+            upload_index += 1
+            options = step.get("with")
+            retention = options.get("retention-days") if isinstance(options, dict) else None
+            if isinstance(retention, bool):
+                unbounded.append(line_no)
+            elif isinstance(retention, int):
+                if retention <= 0:
+                    unbounded.append(line_no)
+            elif isinstance(retention, str):
+                value = retention.strip()
+                if not value or not (
+                    (value.isdecimal() and int(value) > 0)
+                    or GITHUB_EXPRESSION_RE.fullmatch(value)
+                ):
+                    unbounded.append(line_no)
+            else:
+                unbounded.append(line_no)
+    return unbounded
 
 
 def _looks_like_validation(text: str) -> bool:
@@ -247,6 +312,16 @@ def _uses_self_hosted_runner(text: str) -> bool:
 def scan_lifecycle(path: Path, text: str) -> list[tuple[int, str]]:
     """Event-separation and cost findings for one workflow."""
     findings: list[tuple[int, str]] = []
+
+    # Rule 3: unbounded artifact retention. Each upload owns its own bound; one
+    # compliant step cannot mask a later unbounded step in the same workflow.
+    for line_no in _unbounded_artifact_upload_lines(text):
+        findings.append((
+            line_no,
+            "uploads an artifact with no retention-days; set an explicit short "
+            "retention rather than inheriting the repository default",
+        ))
+
     triggers = _yaml_triggers(text)
     if triggers is None:
         return findings
@@ -261,12 +336,11 @@ def scan_lifecycle(path: Path, text: str) -> list[tuple[int, str]]:
     # protected branch and a push to that same branch. Those are the same tree.
     #
     # A workflow that separates the two events with a job-level condition on
-    # `github.event_name` is CONFORMING, not violating: that is precisely how a
-    # file can carry both a pull-request gate and a post-merge step without
-    # running either twice. presentify-extractor.yml has this shape (`verify` on
-    # the pull request, `render` on the merge), and flagging it would push the
-    # author toward splitting a coherent file for no benefit -- or, worse, toward
-    # disabling the check. A gate that cries wolf gets switched off.
+    # `github.event_name` is CONFORMING, not violating: that is how a file can
+    # carry both a pull-request gate and a distinct post-merge step without
+    # running either twice. Flagging that shape would push the author toward
+    # splitting a coherent file for no benefit -- or, worse, toward disabling
+    # the check. A gate that cries wolf gets switched off.
     both = pr_branches & push_branches & PROTECTED_BRANCH_NAMES
     if both and _looks_like_validation(text) and not _separates_events_per_job(text):
         findings.append((
@@ -283,14 +357,6 @@ def scan_lifecycle(path: Path, text: str) -> list[tuple[int, str]]:
             1,
             "push trigger has no branch or tag filter, so every feature-branch "
             "push starts this workflow",
-        ))
-
-    # Rule 3: unbounded artifact retention.
-    if "upload-artifact" in text and "retention-days" not in text:
-        findings.append((
-            1,
-            "uploads an artifact with no retention-days; set an explicit short "
-            "retention rather than inheriting the 90-day default",
         ))
 
     # Rule 4: a self-hosted runner must not be reachable from an untrusted fork.
@@ -357,7 +423,12 @@ def main() -> int:
     total_errors = 0
     total_warnings = 0
     for path in files:
-        findings = scan_workflow(path)
+        try:
+            findings = scan_workflow(path)
+        except WorkflowYamlUnavailable as error:
+            rel = path.relative_to(root)
+            print(f"ERROR: cannot validate {rel}: {error}", file=sys.stderr)
+            return 2
         if not findings:
             continue
         rel = path.relative_to(root)

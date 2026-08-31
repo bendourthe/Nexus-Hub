@@ -57,6 +57,23 @@ def test_runbook_has_no_casual_phase_9_skip() -> None:
     assert "accept `skip <X>`" not in text
 
 
+def test_runbook_requires_the_tier_3_deep_pass_evidence_section() -> None:
+    text = _read(RUNBOOK)
+    gate = text[text.index("### 9.0"):text.index("### 9A")]
+    assert "[[functional-verification]]" in gate
+    assert "references/deep-pass.md" in gate
+    assert "<version_dir>/development/last-phase-evidence.md" in gate
+    assert "`## Tier 3 deep pass`" in gate
+
+
+def test_tier_3_omission_requires_a_recorded_quality_or_deferral_gap() -> None:
+    text = _read(RUNBOOK)
+    gate = text[text.index("### 9.0"):text.index("### 9A")]
+    assert "may be omitted only by recording a `QG` or `DF` known gap" in gate
+    for field in ("Source phase", "Plan reference", "Reason", "Suggested next step"):
+        assert field in gate
+
+
 def test_plan_command_is_thin_and_mentions_fail_closed_last_phase() -> None:
     text = _read(PLAN_CMD)
     line_count = len(text.splitlines())

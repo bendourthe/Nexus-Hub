@@ -494,6 +494,162 @@ convert_claude_hook_commands_for_posix() {
         --scope "$(printf '%s' "$scope" | tr '[:upper:]' '[:lower:]')"
 }
 
+resolve_settings_write_target() {
+    local path="$1"
+    local link_target target_dir
+    local depth=0
+
+    while [ -L "$path" ]; do
+        depth=$((depth + 1))
+        if [ "$depth" -gt 40 ]; then
+            return 1
+        fi
+        if ! link_target=$(readlink "$path"); then
+            return 1
+        fi
+        case "$link_target" in
+            /*) path="$link_target" ;;
+            *) path="$(dirname "$path")/$link_target" ;;
+        esac
+    done
+
+    if ! target_dir=$(cd -P "$(dirname "$path")" 2>/dev/null && pwd); then
+        return 1
+    fi
+    printf '%s/%s\n' "$target_dir" "$(basename "$path")"
+}
+
+merge_managed_claude_hooks() {
+    local settings_file="$1"
+    local template_file="$2"
+
+    if command -v jq >/dev/null 2>&1; then
+        jq -s '
+            def hook_stem:
+                (.command // "") as $command |
+                (([
+                    $command |
+                    match("(?<stem>[A-Za-z0-9_-]+)\\.(?:sh|ps1|py)"; "g") |
+                    .captures[0].string
+                ] | last) // $command);
+            def hook_exists($hooks; $event; $matcher; $candidate):
+                any(($hooks[$event] // [])[];
+                    (.matcher // "") == $matcher and
+                    any((.hooks // [])[];
+                        (.type // "") == ($candidate.type // "") and
+                        hook_stem == ($candidate | hook_stem)
+                    )
+                );
+            .[0] as $existing | .[1] as $template |
+            reduce (($template.hooks // {}) | to_entries[]) as $event (
+                ($existing |
+                    if (.hooks | type) == "object" then .
+                    else . + {hooks: {}}
+                    end
+                );
+                reduce (($event.value // [])[]) as $entry (.;
+                    reduce (($entry.hooks // [])[]) as $hook (.;
+                        if hook_exists(.hooks; $event.key; ($entry.matcher // ""); $hook) then .
+                        else .hooks[$event.key] = (
+                            (.hooks[$event.key] // []) + [($entry | .hooks = [$hook])]
+                        )
+                        end
+                    )
+                )
+            )
+        ' "$settings_file" "$template_file" 2>/dev/null
+        return
+    fi
+
+    local python_bin
+    if ! python_bin=$(resolve_python_executable); then
+        return 127
+    fi
+
+    "$python_bin" - "$settings_file" "$template_file" <<'PY'
+import json
+import re
+import sys
+
+
+HOOK_STEM_PATTERN = re.compile(r"(?P<stem>[A-Za-z0-9_-]+)\.(?:sh|ps1|py)")
+
+
+def load_object(path):
+    with open(path, encoding="utf-8-sig") as handle:
+        value = json.load(handle)
+    if not isinstance(value, dict):
+        raise ValueError(f"{path} must contain a JSON object")
+    return value
+
+
+def hook_stem(hook):
+    command = hook.get("command") or ""
+    if not isinstance(command, str):
+        raise ValueError("managed hook command must be a string")
+    matches = list(HOOK_STEM_PATTERN.finditer(command))
+    return matches[-1].group("stem") if matches else command
+
+
+def hook_exists(hooks, event, matcher, candidate):
+    entries = hooks.get(event, [])
+    if not isinstance(entries, list):
+        raise ValueError(f"existing hooks.{event} must be an array")
+    for entry in entries:
+        if not isinstance(entry, dict) or (entry.get("matcher") or "") != matcher:
+            continue
+        installed_hooks = entry.get("hooks") or []
+        if not isinstance(installed_hooks, list):
+            raise ValueError(f"existing hooks.{event}[].hooks must be an array")
+        for installed in installed_hooks:
+            if not isinstance(installed, dict):
+                continue
+            if (installed.get("type") or "") == (candidate.get("type") or "") and hook_stem(installed) == hook_stem(candidate):
+                return True
+    return False
+
+
+try:
+    existing = load_object(sys.argv[1])
+    template = load_object(sys.argv[2])
+    hooks = existing.get("hooks")
+    if not isinstance(hooks, dict):
+        hooks = {}
+        existing["hooks"] = hooks
+    template_hooks = template.get("hooks") or {}
+    if not isinstance(template_hooks, dict):
+        raise ValueError("template hooks must be an object")
+
+    for event, entries in template_hooks.items():
+        if not isinstance(entries, list):
+            raise ValueError(f"template hooks.{event} must be an array")
+        for entry in entries:
+            if not isinstance(entry, dict):
+                raise ValueError(f"template hooks.{event} entries must be objects")
+            matcher = entry.get("matcher") or ""
+            candidates = entry.get("hooks") or []
+            if not isinstance(candidates, list):
+                raise ValueError(f"template hooks.{event}[].hooks must be an array")
+            for candidate in candidates:
+                if not isinstance(candidate, dict):
+                    raise ValueError(f"template hooks.{event}[].hooks entries must be objects")
+                if hook_exists(hooks, event, matcher, candidate):
+                    continue
+                event_hooks = hooks.setdefault(event, [])
+                if not isinstance(event_hooks, list):
+                    raise ValueError(f"existing hooks.{event} must be an array")
+                new_entry = dict(entry)
+                new_entry["hooks"] = [candidate]
+                event_hooks.append(new_entry)
+
+    json.dump(existing, sys.stdout, ensure_ascii=False, indent=2)
+    sys.stdout.write("\n")
+except (OSError, TypeError, ValueError) as error:
+    print(f"managed hook merge failed: {error}", file=sys.stderr)
+    raise SystemExit(1)
+PY
+}
+
 install_git_guardrails() {
     local repo_root="$1"
     local target_claude_dir="$2"
@@ -519,52 +675,82 @@ install_git_guardrails() {
     # Merge hook config into settings.json
     local settings_file="$target_claude_dir/settings.json"
     local template_file="$repo_root/catalog/hooks/settings.json"
+    local settings_write_target
 
     if [ ! -f "$template_file" ]; then
         write_item "Skip: Hook template not found" "$GRAY"
         return
     fi
 
+    if ! settings_write_target=$(resolve_settings_write_target "$settings_file"); then
+        write_item "ERROR: Could not resolve the settings write target for $settings_file" "$RED" >&2
+        return 1
+    fi
+
     if [ -f "$settings_file" ]; then
-        # Check if guardrails already installed
-        if grep -q "git-guardrails" "$settings_file" 2>/dev/null; then
-            convert_claude_hook_commands_for_posix "$repo_root" "$settings_file" "$scope"
-            write_item "[OK] Git guardrails hook already configured in settings.json" "$GREEN"
-            return
-        fi
-
-        # Merge using jq if available
-        if command -v jq >/dev/null 2>&1; then
-            local merged
-            merged=$(jq -s '
-                .[0] as $existing | .[1] as $template |
-                if $existing.hooks then
-                    if $existing.hooks.PreToolUse then
-                        $existing | .hooks.PreToolUse += $template.hooks.PreToolUse
-                    else
-                        $existing | .hooks.PreToolUse = $template.hooks.PreToolUse
-                    end
-                else
-                    $existing + {hooks: $template.hooks}
-                end
-            ' "$settings_file" "$template_file" 2>/dev/null)
-
-            if [ -n "$merged" ]; then
-                echo "$merged" > "$settings_file"
-                convert_claude_hook_commands_for_posix "$repo_root" "$settings_file" "$scope"
-                write_item "[OK] $scope settings.json updated with git guardrails hook" "$GREEN"
+        # Reconcile every managed template hook. Hook identity ignores the host
+        # suffix so an existing .ps1 registration and a template .sh registration
+        # represent the same managed hook during cross-host upgrades.
+        local merged merge_status candidate_file
+        if merged=$(merge_managed_claude_hooks "$settings_file" "$template_file"); then
+            if [ -z "$merged" ]; then
+                write_item "ERROR: Managed hook reconciliation produced no settings content for $settings_file" "$RED" >&2
+                return 1
             else
-                write_item "Warning: Could not merge into existing settings.json" "$YELLOW"
-                write_item "  You may need to manually add the hook config" "$YELLOW"
+                if ! candidate_file=$(mktemp "${settings_write_target}.nexus-candidate.XXXXXX"); then
+                    write_item "ERROR: Could not create a transactional settings candidate for $settings_file" "$RED" >&2
+                    return 1
+                fi
+                if ! printf '%s\n' "$merged" > "$candidate_file"; then
+                    rm -f "$candidate_file"
+                    write_item "ERROR: Could not stage reconciled settings for $settings_file" "$RED" >&2
+                    return 1
+                fi
+                if ! convert_claude_hook_commands_for_posix "$repo_root" "$candidate_file" "$scope"; then
+                    rm -f "$candidate_file"
+                    write_item "ERROR: Hook command conversion failed; $settings_file was left unchanged" "$RED" >&2
+                    return 1
+                fi
+                if ! mv -f "$candidate_file" "$settings_write_target"; then
+                    rm -f "$candidate_file"
+                    write_item "ERROR: Could not replace $settings_file with reconciled settings" "$RED" >&2
+                    return 1
+                fi
+                write_item "[OK] $scope settings.json reconciled with managed hooks" "$GREEN"
             fi
         else
-            write_item "Warning: jq not found, cannot merge settings.json automatically" "$YELLOW"
-            write_item "  Please manually add hook config from: $template_file" "$YELLOW"
+            merge_status=$?
+            if [ "$merge_status" -eq 127 ]; then
+                write_item "ERROR: Cannot safely upgrade $settings_file without jq, python3, or python" "$RED" >&2
+                write_item "Install one of these JSON parsers and rerun the installer; settings were left unchanged." "$RED" >&2
+            else
+                write_item "ERROR: Could not safely reconcile $settings_file with managed hooks" "$RED" >&2
+            fi
+            return 1
         fi
     else
-        # No existing settings.json, copy template
-        cp "$template_file" "$settings_file"
-        convert_claude_hook_commands_for_posix "$repo_root" "$settings_file" "$scope"
+        # A fresh settings file is also transactional: conversion failure must
+        # not leave a copied but non-runnable hook registration behind.
+        local candidate_file
+        if ! candidate_file=$(mktemp "${settings_write_target}.nexus-candidate.XXXXXX"); then
+            write_item "ERROR: Could not create a transactional settings candidate for $settings_file" "$RED" >&2
+            return 1
+        fi
+        if ! cp "$template_file" "$candidate_file"; then
+            rm -f "$candidate_file"
+            write_item "ERROR: Could not stage hook settings from $template_file" "$RED" >&2
+            return 1
+        fi
+        if ! convert_claude_hook_commands_for_posix "$repo_root" "$candidate_file" "$scope"; then
+            rm -f "$candidate_file"
+            write_item "ERROR: Hook command conversion failed; $settings_file was not created" "$RED" >&2
+            return 1
+        fi
+        if ! mv -f "$candidate_file" "$settings_write_target"; then
+            rm -f "$candidate_file"
+            write_item "ERROR: Could not create $settings_file from converted settings" "$RED" >&2
+            return 1
+        fi
         write_item "[OK] $scope settings.json created with git guardrails hook" "$GREEN"
     fi
 }

@@ -119,6 +119,23 @@ def test_phase_exit_checklist_requires_a_ci_impact_record_without_a_remote_run(p
     assert "- [ ] CI impact recorded against the canonical contract, with no remote CI run" in plan_skill
 
 
+def test_phase_template_pairs_stability_with_a_concrete_verification_expectation(plan_skill: str):
+    template = plan_skill.split("#### Phase Structure", 1)[1].split("## Complexity Tracking", 1)[0]
+    assert re.search(
+        r"\*\*Stability Gate\*\*: \[[^\n]+\]\n"
+        r"\*\*Verification Expectation\*\*: \[[^\n]+\]",
+        template,
+    ), "the functional expectation must sit directly beside the Stability Gate"
+    assert "reader can run or open" in template
+    assert "must observe" in template
+    assert "[[functional-verification]]" in template
+    assert '"Tests pass" alone is not sufficient.' in template
+
+
+def test_phase_exit_checklist_requires_recorded_functional_evidence(plan_skill: str):
+    assert "- [ ] Verification expectation exercised and its observable result recorded" in plan_skill
+
+
 # ---------------------------------------------------------------------------
 # Mandatory final phase.
 # ---------------------------------------------------------------------------
@@ -145,20 +162,40 @@ def test_final_phase_records_declined_differences_as_known_gaps(final_phase: str
     assert "owner and a next step" in body
 
 
+def test_final_phase_runs_the_tier_three_deep_pass(final_phase: str):
+    body = final_phase.split("#### N.6 - Tier 3 deep pass", 1)[1].split("#### N.7", 1)[0]
+    assert "[[functional-verification]]" in body
+    assert "references/deep-pass.md" in body
+    assert "every artifact this plan produced" in body
+    assert "`## Tier 3 deep pass`" in body
+    assert "global iteration budget" in body
+
+
+def test_final_phase_gate_names_its_functional_expectation(final_phase: str):
+    header = final_phase.split("### Sub-tasks", 1)[0]
+    assert re.search(
+        r"\*\*Stability Gate\*\*: [^\n]+\n"
+        r"\*\*Verification Expectation\*\*: [^\n]+",
+        header,
+    )
+    assert "[[functional-verification]]" in header
+    assert "`## Tier 3 deep pass`" in header
+
+
 def test_final_phase_gate_is_local_before_publication(final_phase: str):
-    body = final_phase.split("#### N.8 - Testing and Stabilization", 1)[1].split("#### N.9", 1)[0]
+    body = final_phase.split("#### N.9 - Testing and Stabilization", 1)[1].split("#### N.10", 1)[0]
     assert "local" in body.lower()
     assert "before the branch is published" in body
 
 
 def test_final_phase_publishes_once_with_explicit_approval(final_phase: str):
-    body = final_phase.split("#### N.9 - Publication and integration", 1)[1].split("```", 1)[0]
+    body = final_phase.split("#### N.10 - Publication and integration", 1)[1].split("```", 1)[0]
     assert "EXPLICIT approval before the plan's first branch push" in body
     assert "Push once" in body
 
 
 def test_a_red_required_check_reopens_the_final_phase(final_phase: str):
-    body = final_phase.split("#### N.9 - Publication and integration", 1)[1].split("```", 1)[0]
+    body = final_phase.split("#### N.10 - Publication and integration", 1)[1].split("```", 1)[0]
     assert "REOPENS this phase" in body
     assert "reproduce it locally" in body
     assert "without a local reproduction" in body, (
@@ -167,13 +204,13 @@ def test_a_red_required_check_reopens_the_final_phase(final_phase: str):
 
 
 def test_release_handoff_waits_for_green_integration(final_phase: str):
-    body = final_phase.split("#### N.9 - Publication and integration", 1)[1].split("```", 1)[0]
+    body = final_phase.split("#### N.10 - Publication and integration", 1)[1].split("```", 1)[0]
     assert "Merge only after every required check is green" in body
     assert "Only then hand off to `/update release`" in body
 
 
 def test_final_phase_verifies_post_merge_did_not_rerun_the_suite(final_phase: str):
-    body = final_phase.split("#### N.9 - Publication and integration", 1)[1].split("```", 1)[0]
+    body = final_phase.split("#### N.10 - Publication and integration", 1)[1].split("```", 1)[0]
     assert "did not rerun the complete suite" in body
 
 
@@ -239,7 +276,7 @@ def test_plan_review_does_not_restate_the_full_lifecycle_policy():
 def test_body_points_at_the_final_phase_reference(plan_skill: str):
     """The template moved to Tier 3; the body must still name it, or it is an orphan."""
     assert "references/mandatory-final-phase.md" in plan_skill
-    assert "N.1 through N.9" in plan_skill
+    assert "N.1 through N.10" in plan_skill
 
 
 def test_final_phase_reference_is_the_only_copy_of_the_template(plan_skill: str, final_phase: str):
