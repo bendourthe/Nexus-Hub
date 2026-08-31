@@ -364,7 +364,41 @@ PROFILE_EXIT=0
 
 ### Push 3 - interpreter resolution
 
-PENDING: the second stabilization commit, its push (separately approved), the third required-check result, and the merge decision.
+Commit `185e8937` was pushed after approval. `tests-windows` **passed**, confirming the WSL-stub diagnosis and the interpreter resolver. `tests` (Linux) failed on a defect in the TEST written during that round, not in the product: it patched `os.name` to `"nt"`, and `pathlib.Path()` selects `WindowsPath` from `os.name` at call time, so every later `Path(...)` raised `NotImplementedError` on Linux instead of taking the branch under test. The bridge now exposes a `_windows_host()` indirection so the Windows branch is exercisable on any host without hijacking `Path` class selection.
+
+### The blind spot behind three red rounds, and its closure
+
+Three of the four causes across two red rounds shared one property: they were invisible to a green local suite because they depended on how the HOST resolves or provides something, not on the code under test. That is a gap in the gate itself, and it was closed in this release rather than deferred, because a verification release that ships a known hole in its own verification is self-defeating.
+
+The exposure is larger than the bridge. Nexus-Hub registers hooks as `bash <script>` and the assistant HOST performs that launch. On a Windows host whose PATH `bash` is the WSL launcher stub, EVERY Nexus-Hub bash hook is silently inert, and Nexus-Hub cannot rewrite how the host invokes them. So the fix has two halves: repair what we control, and make what we do not control visible.
+
+1. **End-to-end regression test.** `test_guard_survives_a_wsl_stub_first_on_path` places a stub `bash` (talks on stdout, exits non-zero, silent on stderr) first on PATH and asserts the guard still allows. Its failure mode was verified by disabling the resolver: it denies, exactly reproducing the CI symptom. A regression test that cannot fail proves nothing, so this was checked rather than assumed.
+
+2. **Install-time and doctor detection.** `scripts/lib/integrations/_interpreters.py` probes whether each interpreter hook registrations depend on can actually execute a script, requiring an exact marker on stdout AND exit 0 (an exit-code-only check would accept a shim that swallows the script and returns 0). `runner.py verify` reports an unusable interpreter as a `NEEDS-ACTION` line naming Git Bash and the PATH remedy. It is fail-soft by construction: an unusable interpreter is a host condition the user fixes on PATH, and it must never fail an install that delivered every file correctly.
+
+3. **Local-gate coverage.** A new `interpreters` group runs `scripts/check_interpreter_resolution.py --gate` in the `fast`, `full`, and `platform` profiles. The script is repo-internal and registered in `DEV_ONLY_SCRIPTS`; the user-facing equivalent is the doctor line above. It is a GROUP inside existing profiles rather than a new workflow job, so it introduces no new required status context and cannot reproduce the v3.17.5 pending-check trap.
+
+Six focused tests cover the probe, including both ways a stub can fool a naive check, and the gate's advisory-versus-`--gate` exit contract.
+
+Final local gate with the coverage in place:
+
+```
+profile: full   platform: windows
+- catalog-parse / hygiene / interpreters / catalog / security / workflows
+- platform-contracts / docs / version / tests / extension-tests
+PASS: 43 passed, 0 failed, 0 skipped, 0 advisory in 2813.3s
+PROFILE_EXIT=0
+```
+
+```
+PASS: 13 passed, 0 failed, 0 skipped, 0 advisory   (fast, now 13 groups)
+```
+
+`tests/integrations/test_copilot_hermes_native.py` plus `tests/validators/test_interpreter_resolution.py`: 71 passed, 2 skipped.
+
+### Push 4 - interpreter coverage
+
+PENDING: the push (separately approved), the fourth required-check result, and the merge decision.
 
 - Branching model: feature branch into `develop`, then release flow to `main`.
 - Remote: `origin`.

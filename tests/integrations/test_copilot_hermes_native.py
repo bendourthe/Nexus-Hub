@@ -1362,31 +1362,32 @@ def test_owned_write_outside_target_root_still_refuses_a_junction_leaf(
     assert not outside.samefile(external)
 
 
-def test_bare_bash_resolves_to_a_real_interpreter_on_windows(monkeypatch):
+def test_bare_bash_resolves_to_a_real_interpreter_on_windows(tmp_path, monkeypatch):
     """A bare `bash` is rewritten to a verified Git Bash on Windows.
 
     Regression (v4.3.0 Phase 5): on a Windows host whose PATH `bash` is the WSL
     launcher stub, the guard child exits non-zero and prints its notice to stdout,
     so the bridge denied every tool call with an empty stderr and no diagnostic.
     """
-    monkeypatch.setattr(os, "name", "nt")
-    monkeypatch.setattr(
-        hook_compat, "_WINDOWS_BASH_CANDIDATES", (r"C:\Program Files\Git\bin\bash.exe",)
-    )
-    monkeypatch.setattr(Path, "is_file", lambda self: True)
+    real_bash = tmp_path / "bash.exe"
+    real_bash.write_text("", encoding="utf-8")
+    monkeypatch.setattr(hook_compat, "_windows_host", lambda: True)
+    monkeypatch.setattr(hook_compat, "_WINDOWS_BASH_CANDIDATES", (str(real_bash),))
 
     assert hook_compat._resolve_bash_command(["bash", "child.sh"]) == [
-        r"C:\Program Files\Git\bin\bash.exe",
+        str(real_bash),
         "child.sh",
     ]
 
 
-def test_absolute_interpreter_is_never_second_guessed(monkeypatch):
+def test_absolute_interpreter_is_never_second_guessed(tmp_path, monkeypatch):
     """Only a BARE `bash` is rewritten; a chosen absolute path is left alone."""
-    monkeypatch.setattr(os, "name", "nt")
-    monkeypatch.setattr(Path, "is_file", lambda self: True)
+    real_bash = tmp_path / "bash.exe"
+    real_bash.write_text("", encoding="utf-8")
+    monkeypatch.setattr(hook_compat, "_windows_host", lambda: True)
+    monkeypatch.setattr(hook_compat, "_WINDOWS_BASH_CANDIDATES", (str(real_bash),))
 
-    chosen = [r"D:\custom\bash.exe", "child.sh"]
+    chosen = [str(tmp_path / "custom-bash.exe"), "child.sh"]
     assert hook_compat._resolve_bash_command(chosen) == chosen
     powershell = ["powershell", "-NoProfile", "-File", "child.ps1"]
     assert hook_compat._resolve_bash_command(powershell) == powershell
@@ -1394,7 +1395,7 @@ def test_absolute_interpreter_is_never_second_guessed(monkeypatch):
 
 def test_bash_command_is_unchanged_when_no_git_bash_is_present(monkeypatch):
     """With no Git Bash on disk the original command survives for PATH lookup."""
-    monkeypatch.setattr(os, "name", "nt")
+    monkeypatch.setattr(hook_compat, "_windows_host", lambda: True)
     monkeypatch.setattr(hook_compat, "_WINDOWS_BASH_CANDIDATES", ())
 
     assert hook_compat._resolve_bash_command(["bash", "child.sh"]) == ["bash", "child.sh"]
@@ -1402,6 +1403,83 @@ def test_bash_command_is_unchanged_when_no_git_bash_is_present(monkeypatch):
 
 def test_posix_bash_command_is_left_to_path(monkeypatch):
     """POSIX has no WSL stub problem, so PATH resolution is correct there."""
-    monkeypatch.setattr(os, "name", "posix")
+    monkeypatch.setattr(hook_compat, "_windows_host", lambda: False)
 
     assert hook_compat._resolve_bash_command(["bash", "child.sh"]) == ["bash", "child.sh"]
+
+
+def test_guard_survives_a_wsl_stub_first_on_path(tmp_path, monkeypatch, capsys):
+    """End-to-end: a stub `bash` first on PATH must not silently deny every call.
+
+    This is the regression for the defect the v4.3.0 integration run surfaced. A
+    Windows host whose PATH `bash` is the WSL launcher stub gets a child that
+    prints its notice to STDOUT and exits non-zero, so the bridge saw a non-zero
+    child with an empty stderr and denied. The unit tests around
+    `_resolve_bash_command` check its return value; this one checks that the
+    guard still WORKS with a hostile PATH, which is the property users depend on.
+    """
+    real_bash = shutil.which("bash")
+    if real_bash is None:
+        pytest.skip("no usable bash on this host")
+
+    # A stand-in for the WSL stub: writes to stdout, never stderr, exits non-zero.
+    stub_dir = tmp_path / "stub"
+    stub_dir.mkdir()
+    stub = stub_dir / ("bash.exe" if os.name == "nt" else "bash")
+    stub.write_text(
+        "#!/usr/bin/env python3\n"
+        "import sys\n"
+        "print('Windows Subsystem for Linux has no installed distributions.')\n"
+        "sys.exit(1)\n",
+        encoding="utf-8",
+    )
+    stub.chmod(0o755)
+    monkeypatch.setenv("PATH", str(stub_dir) + os.pathsep + os.environ.get("PATH", ""))
+
+    hooks = tmp_path / "nexus-hub-scripts"
+    hooks.mkdir()
+    compat = hooks / "copilot-hook-compat.py"
+    child = hooks / "rewrite-command.sh"
+    _write_hook_file(compat)
+    _write_hook_file(
+        child,
+        "#!/usr/bin/env bash\n"
+        "cat >/dev/null\n"
+        "printf '%s' '{\"hookSpecificOutput\":{\"permissionDecision\":\"allow\","
+        "\"permissionDecisionReason\":\"validated child\","
+        "\"updatedInput\":{\"command\":\"git status\"}}}'\n",
+    )
+    digest = hashlib.sha256(child.read_bytes()).hexdigest()
+
+    # Take the Windows branch on any host, pointing it at this host's real bash.
+    monkeypatch.setattr(hook_compat, "_windows_host", lambda: True)
+    monkeypatch.setattr(hook_compat, "_WINDOWS_BASH_CANDIDATES", (real_bash,))
+    monkeypatch.setattr(hook_compat, "__file__", str(compat))
+    monkeypatch.setattr(
+        sys,
+        "stdin",
+        io.StringIO(json.dumps({"toolName": "bash", "toolArgs": '{"command":"git status"}'})),
+    )
+
+    wrapper_exit = hook_compat.main(
+        [
+            "copilot",
+            "PreToolUse",
+            "--handler",
+            "rewrite-command.sh",
+            "--handler-sha256",
+            digest,
+            "--",
+            "bash",
+            str(child),
+        ]
+    )
+
+    assert wrapper_exit == 0
+    decision = json.loads(capsys.readouterr().out)
+    assert decision.get("permissionDecision") != "deny", (
+        "a stub bash first on PATH silently denied the tool call; "
+        "the interpreter resolver did not rescue the child"
+    )
+    assert decision["permissionDecision"] == "allow"
+    assert decision["modifiedArgs"] == {"command": "git status"}

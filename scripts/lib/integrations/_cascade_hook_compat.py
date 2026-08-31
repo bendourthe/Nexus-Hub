@@ -43,6 +43,18 @@ _COPILOT_AUTHORITY_CHILDREN = {
 }
 
 
+def _windows_host() -> bool:
+    """Whether this host is Windows.
+
+    Indirected so a test can exercise the Windows branch on any platform.
+    Patching ``os.name`` directly is not viable: ``pathlib.Path()`` selects
+    ``WindowsPath`` from ``os.name`` AT CALL TIME, so faking it on POSIX makes
+    every later ``Path(...)`` raise ``NotImplementedError`` instead of taking
+    the branch under test.
+    """
+    return os.name == "nt"
+
+
 _WINDOWS_BASH_CANDIDATES = (
     r"C:\Program Files\Git\bin\bash.exe",
     r"C:\Program Files (x86)\Git\bin\bash.exe",
@@ -67,7 +79,7 @@ def _resolve_bash_command(command: Sequence[str]) -> list[str]:
     check still inspects the ORIGINAL command, so its binding is unchanged.
     """
     resolved = list(command)
-    if os.name != "nt" or not resolved or resolved[0] != "bash":
+    if not _windows_host() or not resolved or resolved[0] != "bash":
         return resolved
     for candidate in _WINDOWS_BASH_CANDIDATES:
         if Path(candidate).is_file():

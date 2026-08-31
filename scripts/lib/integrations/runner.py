@@ -1005,6 +1005,29 @@ def cmd_verify(args: argparse.Namespace) -> int:
         print(f"[verify] {status} {platform} -- {detail}")
         if not ok and remediation:
             print(f"             -> {remediation}")
+    # Host interpreter check (v4.3.0). Every surface above can be present and
+    # correct while the hooks are still inert, because the HOST launches them as
+    # `bash <script>` and Nexus-Hub does not control that resolution. A Windows
+    # host whose PATH `bash` is the WSL launcher stub exits non-zero with an empty
+    # stderr, so the failure is silent at exactly the moment it matters. Reported
+    # here rather than raised: an unusable interpreter is a host condition the
+    # user fixes on PATH, not an install error, and it must never fail an install
+    # that otherwise delivered every file correctly.
+    try:
+        from scripts.lib.integrations._interpreters import check_all as _check_interpreters
+
+        for status in _check_interpreters():
+            if status.usable:
+                if not args.quiet:
+                    print(f"[verify] PASS         interpreter {status.name} -- {status.resolved}")
+                continue
+            any_action = True
+            print(f"[verify] NEEDS-ACTION interpreter {status.name} -- cannot run a script")
+            print(f"             -> {status.detail}")
+    except Exception as exc:  # never let a diagnostic break an otherwise good install
+        if not args.quiet:
+            print(f"[verify] interpreter check skipped: {exc}")
+
     if not args.quiet:
         print(
             "[verify] all detected platforms surface the catalog."

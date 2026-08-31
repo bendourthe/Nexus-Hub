@@ -557,6 +557,13 @@ DEV_ONLY_SCRIPTS = {
     # .github/workflows/doc-colocation.yml so its three fail-open defects
     # could be unit-tested. Runs in CI and make validate; meaningless in an
     # end-user ~/.nexus-hub/scripts/.
+    # Repo-internal host-interpreter gate (v4.3.0): probes that the
+    # interpreters hook registrations are launched with (`bash <script>`)
+    # can actually execute a script on this host. Runs in the fast, full,
+    # and platform profiles. Meaningless in an end-user
+    # ~/.nexus-hub/scripts/; the equivalent user-facing report is the
+    # NEEDS-ACTION line that `runner.py verify` (nexus-hub doctor) emits.
+    "check_interpreter_resolution.py",
     "check_doc_colocation.py",
     # Repo-internal retention reporter (v3.18.0): reports per-version
     # development/ subtrees due for archival per docs/policy/docs-retention.md.

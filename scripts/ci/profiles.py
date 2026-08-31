@@ -382,13 +382,28 @@ RELEASE_CHECKS = Group(
 # Profiles
 # ---------------------------------------------------------------------------
 
+INTERPRETERS = Group(
+    name="interpreters",
+    commands=(
+        # Nexus-Hub registers hooks as `bash <script>` and the HOST performs that
+        # launch, so a host whose `bash` cannot execute a script leaves every hook
+        # silently inert. No other group can see this: they all run Python
+        # directly rather than through the interpreter the hooks actually use.
+        # v4.3.0 Phase 5 went red twice on a Windows runner for this reason while
+        # the full local suite was green.
+        _py("check_interpreter_resolution", "--gate", timeout=300),
+    ),
+)
+
+
 PROFILES: dict[str, tuple[Group, ...]] = {
     # Cheapest useful signal. No test suite, no install, no network.
-    "fast": (CATALOG_PARSE, HYGIENE, WORKFLOWS, VERSION),
+    "fast": (CATALOG_PARSE, HYGIENE, INTERPRETERS, WORKFLOWS, VERSION),
     # Everything provable on this host.
     "full": (
         CATALOG_PARSE,
         HYGIENE,
+        INTERPRETERS,
         CATALOG,
         SECURITY,
         WORKFLOWS,
@@ -400,7 +415,7 @@ PROFILES: dict[str, tuple[Group, ...]] = {
     ),
     # Only what differs by host. Deliberately small: a leg that runs everywhere
     # belongs in `full`, where it is paid for once.
-    "platform": (SHELL_LINT, POWERSHELL_PARSE, WINDOWS_HOOKS),
+    "platform": (SHELL_LINT, POWERSHELL_PARSE, INTERPRETERS, WINDOWS_HOOKS),
     # Aggregation only. Reads what the other profiles wrote; never re-runs a
     # check, which is what makes it safe to call after a failure.
     "report": (),

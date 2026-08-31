@@ -12,9 +12,9 @@
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 5 | 0 |
-| Bugs / regressions (BG) | 0 | 3 |
+| Bugs / regressions (BG) | 0 | 4 |
 | Warnings (WN) | 3 | 0 |
-| Missing tests / coverage gaps (MT) | 0 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 1 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
 ### Open Items
@@ -125,3 +125,20 @@
 - **Impact**: A POSIX upgrade could contain the new hook on disk without registering it, so the consuming project did not inherit the discipline through its active settings.
 - **Resolution**: The POSIX installer now uses jq first and a Python JSON fallback, fails before write when neither safe parser is available, writes and converts a same-directory candidate before atomic replacement, preserves symlinked settings targets through a bounded resolver, and reads PowerShell 5.1 BOM input through `utf-8-sig`. Direct WSL exercises proved no-jq upgrade, no-parser no-write, conversion rollback for existing and fresh settings, symlink preservation, and BOM fallback. The consolidated current-tree installer/platform gate passed 188 tests with 6 expected host skips, the declarative parity check passed, and independent review returned APPROVE with no P0-P3 finding.
 - **Resolved in**: v4.3.0 Phase 5 bounded stabilization on 2026-08-30
+##### BG-4 - A WSL-stub `bash` silently denied every guarded tool call
+
+- **Source phase**: Phase 5 publication and integration (second red required-check round)
+- **Plan reference**: `docs/releases/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` T026
+- **Evidence at discovery**: `tests-windows` failed with the Copilot bridge returning `deny` where `allow` was expected. Comparing the observed output against the branches that can produce it settled the cause: a `deny` with the default reason is emitted ONLY when the child returns non-zero, whereas an authority rejection emits `modifiedArgs` with no `permissionDecision`. The child had exited non-zero with an EMPTY stderr, and a missing interpreter would instead have raised `OSError` and surfaced a `hook-compat:` reason. That is the signature of the Windows WSL launcher stub answering to `bash`, which prints its no-distribution notice to stdout.
+- **Impact**: User-facing, not merely a CI artifact. On any Windows host whose PATH `bash` is that stub, every guarded tool call was denied with no actionable diagnostic, which reads as a broken agent rather than a missing interpreter. The guard failed closed, which is correct, but for a reason no user could act on.
+- **Resolution**: `_resolve_bash_command` rewrites a BARE `bash` to a verified absolute Git Bash on Windows. A caller-chosen absolute interpreter is never second-guessed, a host with no Git Bash keeps the original command so PATH resolution still applies, POSIX is untouched, and the rewrite happens at the execution site only so `_copilot_permission_authoritative` still inspects the original command and its binding is unchanged. An earlier fix in this same round attributed the failure to the `st_nlink == 1` predicate; that hypothesis was disproven and BOTH the predicate change and its regression test were reverted rather than kept for tidiness, because a security predicate must not be loosened on disproven evidence. `tests-windows` passed on the following integration round.
+- **Resolved in**: v4.3.0 Phase 5 integration stabilization on 2026-08-30
+
+##### MT-1 - The local gate could not observe host interpreter resolution
+
+- **Source phase**: Phase 5 publication and integration (raised after two red rounds)
+- **Plan reference**: `docs/releases/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` T025 / T026
+- **Evidence at discovery**: Three of the four causes across two red integration rounds were invisible to a fully green local suite because each depended on how the HOST resolves or provides something rather than on the code under test. No gate group could observe that class at all: every group runs Python directly rather than through the interpreter the hooks are actually launched with.
+- **Impact**: Broader than the bridge that exposed it. Nexus-Hub registers hooks as `bash <script>` and the assistant host performs that launch, so a host with an unusable `bash` leaves every Nexus-Hub bash hook silently inert, and Nexus-Hub cannot rewrite how the host invokes them. A green local gate therefore certified a configuration in which the shipped discipline does not run.
+- **Resolution**: Closed in this release at the maintainer's direction rather than deferred, in three parts. (1) `test_guard_survives_a_wsl_stub_first_on_path` places a stub `bash` first on PATH and asserts the guard still allows; its failure mode was verified by disabling the resolver, so the test is proven capable of failing. (2) `scripts/lib/integrations/_interpreters.py` probes whether each interpreter can execute a script, requiring an exact marker on stdout AND exit 0 so a shim that swallows the script and returns 0 cannot pass; `runner.py verify` reports an unusable interpreter as a NEEDS-ACTION line naming Git Bash and the PATH remedy, fail-soft so it never fails an install that delivered every file correctly. (3) A new `interpreters` group runs `scripts/check_interpreter_resolution.py --gate` in the fast, full, and platform profiles, registered repo-internal in `DEV_ONLY_SCRIPTS`. It is a GROUP inside existing profiles, not a new workflow job, so it adds no required status context and cannot reproduce the v3.17.5 pending-check trap. Six focused tests cover the probe and the advisory-versus-gate exit contract. Final local gate: 43 passed, 0 failed, 0 skipped, 0 advisory, profile exit 0.
+- **Resolved in**: v4.3.0 Phase 5 integration stabilization on 2026-08-30
