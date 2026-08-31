@@ -16,10 +16,12 @@ from __future__ import annotations
 
 import argparse
 import json
+import math
 import sys
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlsplit
+from urllib.request import url2pathname
 
 DEFAULT_VIEWPORTS = (420, 900, 1440)
 DEFAULT_VIEWPORT_HEIGHT = 900
@@ -29,6 +31,7 @@ DEFAULT_MINIMUM_TEXT_HEIGHT_PX = 12.0
 DEFAULT_FONT_FLOOR_PX = 12.0
 DEFAULT_TIMEOUT_MS = 10_000
 DEFAULT_SETTLE_MS = 100
+MAX_LOCAL_STYLESHEET_BYTES = 5 * 1024 * 1024
 
 PLAYWRIGHT_INSTALL_HINT = (
     "Install the renderer with: python -m pip install playwright && "
@@ -56,7 +59,8 @@ _DETECTOR_JS = r"""
   fontFloor,
   viewportWidth,
   viewportHeight,
-  allowlist
+  allowlist,
+  linkedStylesheets
 }) => {
   const severityRank = { low: 1, medium: 2, high: 3, error: 4 };
   const findingsByElement = new Map();
@@ -88,10 +92,13 @@ _DETECTOR_JS = r"""
   const hiddenByDesign = (element) => {
     let current = element;
     while (current && current.nodeType === Node.ELEMENT_NODE) {
+      if (current.tagName === "DETAILS" && !current.open && current !== element) {
+        const summary = Array.from(current.children).find((child) => child.tagName === "SUMMARY");
+        if (!summary || (element !== summary && !summary.contains(element))) return true;
+      }
       const style = getComputedStyle(current);
       if (
         current.hidden ||
-        current.getAttribute("aria-hidden") === "true" ||
         style.display === "none" ||
         style.visibility === "hidden" ||
         style.visibility === "collapse" ||
@@ -399,12 +406,31 @@ _DETECTOR_JS = r"""
 
   // Collect active fixed-unit max-width declarations once, then match them.
   const fixedWidthPattern = /(?:^|[^a-z0-9_-])(?:\d+(?:\.\d+)?|\.\d+)\s*(?:px|ch)\b/i;
+  const variableWidthPattern = /\bvar\(/i;
+  const variableReferencePattern = /var\(\s*(--[a-z0-9_-]+)/gi;
+  const resolveFixedWidth = (element, value, seen = new Set()) => {
+    const source = String(value || "").trim();
+    if (!source) return null;
+    if (fixedWidthPattern.test(source)) return source;
+    for (const match of source.matchAll(variableReferencePattern)) {
+      const name = match[1];
+      if (seen.has(name)) continue;
+      const nextSeen = new Set(seen);
+      nextSeen.add(name);
+      const resolved = getComputedStyle(element).getPropertyValue(name).trim();
+      const fixed = resolveFixedWidth(element, resolved, nextSeen);
+      if (fixed) return `${source} -> ${name}: ${fixed}`;
+    }
+    return null;
+  };
   const fixedRules = [];
   const visitRules = (rules) => {
     for (const rule of Array.from(rules || [])) {
       if (rule.type === CSSRule.STYLE_RULE) {
         const value = rule.style && rule.style.getPropertyValue("max-width");
-        if (value && fixedWidthPattern.test(value)) fixedRules.push({ selector: rule.selectorText, value: value.trim() });
+        if (value && (fixedWidthPattern.test(value) || variableWidthPattern.test(value))) {
+          fixedRules.push({ selector: rule.selectorText, value: value.trim() });
+        }
         continue;
       }
       if (!rule.cssRules) continue;
@@ -421,6 +447,33 @@ _DETECTOR_JS = r"""
       // and their absence is reflected by the page's computed layout.
     }
   }
+  for (const linked of linkedStylesheets || []) {
+    if (linked.error) {
+      addFinding(
+        "stylesheet-evaluation",
+        "error",
+        null,
+        { href: linked.href, error: linked.error },
+        `Could not inspect local stylesheet ${linked.href}`,
+        linked.href
+      );
+      continue;
+    }
+    try {
+      const sheet = new CSSStyleSheet();
+      sheet.replaceSync(linked.source);
+      visitRules(sheet.cssRules);
+    } catch (error) {
+      addFinding(
+        "stylesheet-evaluation",
+        "error",
+        null,
+        { href: linked.href, error: String(error && error.message ? error.message : error) },
+        `Could not parse local stylesheet ${linked.href}`,
+        linked.href
+      );
+    }
+  }
 
   // Rule 5: text must not be capped by a fixed px/ch max-width declaration.
   for (const element of htmlElements) {
@@ -428,12 +481,16 @@ _DETECTOR_JS = r"""
     if (!textEvidence) continue;
     const declarations = [];
     const inlineValue = element.style && element.style.getPropertyValue("max-width");
-    if (inlineValue && fixedWidthPattern.test(inlineValue)) {
-      declarations.push({ selector: "[style]", value: inlineValue.trim() });
+    const resolvedInlineValue = resolveFixedWidth(element, inlineValue);
+    if (resolvedInlineValue) {
+      declarations.push({ selector: "[style]", value: inlineValue.trim(), resolved_value: resolvedInlineValue });
     }
     for (const rule of fixedRules) {
       try {
-        if (element.matches(rule.selector)) declarations.push(rule);
+        if (element.matches(rule.selector)) {
+          const resolvedRuleValue = resolveFixedWidth(element, rule.value);
+          if (resolvedRuleValue) declarations.push({ ...rule, resolved_value: resolvedRuleValue });
+        }
       } catch (error) {
         const key = `stylesheet:${rule.selector}`;
         if (!invalidSelectorKeys.has(key)) {
@@ -464,8 +521,15 @@ _DETECTOR_JS = r"""
     );
   }
 
+  // aria-hidden content still participates in pixel geometry checks above, but
+  // decorative text intentionally removed from the accessibility tree does not
+  // establish a semantic legibility floor.
+  const semanticTextElements = htmlElements.filter(
+    (element) => ownText(element) && !element.closest('[aria-hidden="true"]')
+  );
+
   // Rule 6: a non-inline rendered box holding text must meet the minimum size.
-  for (const element of htmlElements.filter(ownText)) {
+  for (const element of semanticTextElements) {
     const style = getComputedStyle(element);
     if (style.display === "inline") continue;
     const rect = element.getBoundingClientRect();
@@ -487,7 +551,7 @@ _DETECTOR_JS = r"""
   }
 
   // Rule 7: directly rendered text must remain above the legibility floor.
-  for (const element of htmlElements.filter(ownText)) {
+  for (const element of semanticTextElements) {
     const size = Number.parseFloat(getComputedStyle(element).fontSize);
     if (Number.isFinite(size) && size < fontFloor - tolerance) {
       addFinding(
@@ -521,15 +585,15 @@ def _positive_int(value: str) -> int:
 
 def _non_negative_float(value: str) -> float:
     parsed = float(value)
-    if parsed < 0:
-        raise argparse.ArgumentTypeError("must be zero or greater")
+    if not math.isfinite(parsed) or parsed < 0:
+        raise argparse.ArgumentTypeError("must be a finite number zero or greater")
     return parsed
 
 
 def _positive_float(value: str) -> float:
     parsed = float(value)
-    if parsed <= 0:
-        raise argparse.ArgumentTypeError("must be greater than zero")
+    if not math.isfinite(parsed) or parsed <= 0:
+        raise argparse.ArgumentTypeError("must be a finite number greater than zero")
     return parsed
 
 
@@ -729,6 +793,7 @@ def _scan_viewport(
 
     if settle_ms:
         page.wait_for_timeout(settle_ms)
+    linked_stylesheets = _read_linked_local_stylesheets(page)
     try:
         return page.evaluate(
             _DETECTOR_JS,
@@ -740,6 +805,7 @@ def _scan_viewport(
                 "viewportWidth": width,
                 "viewportHeight": height,
                 "allowlist": allowlist,
+                "linkedStylesheets": linked_stylesheets,
             },
         )
     except Exception as error:  # noqa: BLE001 - evaluation failure must be visible
@@ -755,6 +821,45 @@ def _scan_viewport(
             ],
             "suppressed": 0,
         }
+
+
+def _read_linked_local_stylesheets(page: Any) -> list[dict[str, str]]:
+    """Return bounded local linked CSS without relaxing browser file isolation."""
+    try:
+        hrefs = page.eval_on_selector_all(
+            'link[rel~="stylesheet"][href]',
+            "(links) => links.map((link) => link.href)",
+        )
+    except Exception as error:  # noqa: BLE001 - inspection failure must be visible
+        return [{"href": "<document>", "error": _error_text(error)}]
+
+    linked_stylesheets: list[dict[str, str]] = []
+    seen: set[Path] = set()
+    for href in hrefs:
+        if not isinstance(href, str):
+            continue
+        parsed = urlsplit(href)
+        if parsed.scheme.lower() != "file":
+            continue
+        try:
+            path_text = url2pathname(parsed.path)
+            if parsed.netloc:
+                path_text = f"//{parsed.netloc}{path_text}"
+            path = Path(path_text).resolve(strict=True)
+            if path in seen:
+                continue
+            seen.add(path)
+            size = path.stat().st_size
+            if size > MAX_LOCAL_STYLESHEET_BYTES:
+                raise ValueError(
+                    f"stylesheet is {size} bytes; limit is {MAX_LOCAL_STYLESHEET_BYTES}"
+                )
+            source = path.read_bytes().decode("utf-8-sig", errors="replace")
+        except (OSError, ValueError) as error:
+            linked_stylesheets.append({"href": href, "error": _error_text(error)})
+            continue
+        linked_stylesheets.append({"href": href, "source": source})
+    return linked_stylesheets
 
 
 def _route_local_only(route: Any) -> None:

@@ -1,23 +1,11 @@
 """Hermes integration.
 
 Hermes is a skills-native 2026 agent that discovers folder-per-skill ``SKILL.md``
-directly (the open standard shared by Claude Code, Codex, Gemini CLI, OpenCode, and
-Antigravity), so it needs no rendered instruction file. It reads skills from:
-
-  - its NATIVE root ``~/.hermes/skills/<name>/`` (global) and ``.hermes/skills/``
-    (project), and
-  - the cross-tool open-standard alias ``~/.agents/skills/<name>/`` (global) and the
-    project ``.agents/skills/`` -- the same shared surfaces Codex and Antigravity 2.0
-    already populate.
-
-This integration therefore writes ONLY Hermes's native ``~/.hermes/skills`` (global,
-detection-gated) and ``.hermes/skills`` (project). It deliberately does NOT write the
-shared ``~/.agents/skills`` (owned by the ``codex`` integration) or the project
-``.agents/skills`` (seeded by ``antigravity2``'s ``wire_project_surfaces`` on
-``nexus-hub init``) -- writing them here would create an ``uninstall --platforms
-hermes`` teardown conflict with the integration that owns each shared path, the same
-conflict the Kimi integration is designed around. Hermes reads those shared paths;
-it does not own them.
+directly from its native ``~/.hermes/skills/<name>/`` (global) and
+``.hermes/skills/<name>/`` (project) roots, so it needs no rendered instruction
+file. Additional roots such as ``~/.agents/skills`` are read only when the user
+adds them to Hermes's ``skills.external_dirs`` setting; Nexus-Hub does not alter
+that user-owned setting and therefore does not claim automatic shared-root reach.
 
 Skills-only surface: Hermes has no instruction-file surface (no ``base-hermes.md``),
 so this is a ``SkillsIntegration`` (not ``MarkdownIntegration``). Skills are flattened
@@ -58,9 +46,8 @@ class HermesIntegration(SkillsIntegration):
 
         Detection: the Hermes config root ``~/.hermes`` must exist. When it does not,
         Hermes is not installed for this user and the global write is skipped (the
-        workspace-scope ``.hermes/`` surfaces are unaffected). The shared
-        ``~/.agents/skills`` alias Hermes also reads is populated by the ``codex``
-        integration, not here.
+        workspace-scope ``.hermes/`` surfaces are unaffected). Nexus-Hub does not
+        add ``~/.agents/skills`` to the user-owned ``skills.external_dirs`` list.
         """
         result = WriteResult()
         hermes_root = (Path.home() / ".hermes").resolve()

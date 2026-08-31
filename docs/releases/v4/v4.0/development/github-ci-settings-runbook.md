@@ -74,6 +74,8 @@ Optional. `ci.yml` declares `merge_group:`, so enabling the queue is a settings 
 
 When enabled, the queue validates the QUEUED merge result, which is a stronger signal than a pull request's synthetic merge because it accounts for everything ahead of it in the queue. Point the queue at the same required contexts as section 2.
 
+The REST rulesets and classic branch-protection responses do not prove whether a merge queue is enabled. Confirm the setting in the GitHub UI under Settings, Rules, Rulesets, and record the observation in release evidence.
+
 ## 4. Fork pull requests
 
 | Setting | Value | Why |
@@ -117,11 +119,28 @@ The other half of the saving is behavioral and does not appear in any setting: u
 
 ## 7. Artifact retention
 
-The repository default is 90 days. No Nexus-Hub workflow currently uploads an artifact; the run summary is published to `$GITHUB_STEP_SUMMARY` instead, which the default retention already covers.
+Confirm the repository default in Settings, Actions, General, Artifact and log retention. The REST settings queried during the v4.3.0 audit did not expose that value, so this runbook does not infer it from a platform default.
 
-If artifact upload is added later, set `retention-days: 7` explicitly on the upload step. `validate_workflow_security.py` fails an `upload-artifact` step with no `retention-days`, so this cannot be forgotten silently.
+`cursor-usage-monitor.yml` uploads its built VSIX and sets `retention-days: 7` explicitly; a later job downloads the same artifact. Any additional upload must also set an explicit retention. `validate_workflow_security.py` fails an `upload-artifact` step with no `retention-days`, so this cannot be forgotten silently.
 
-## 8. Verification checklist
+## 8. Dated live-settings evidence
+
+The v4.3.0 final-phase audit observed the following read-only state on 2026-08-30. This snapshot is evidence for that audit, not a substitute for rechecking settings after a later change.
+
+| Surface | Observed state | Verification boundary |
+|---|---|---|
+| Repository | public; default branch `main`; delete branches on merge enabled | repository API |
+| Actions policy | Actions enabled; all actions allowed | Actions permissions API |
+| Workflow token | default permission `read`; pull-request approval disabled | workflow-permissions API |
+| `main` protection | pull requests required; strict status checks; administrator enforcement; force pushes and deletion blocked; conversation resolution required | classic branch-protection API |
+| `develop` protection | same controls as `main` | classic branch-protection API |
+| Required contexts | `validate`, `shellcheck`, `colocation`, `verify`, `ci-required` on both protected branches | classic branch-protection API |
+| Rulesets | no repository rulesets returned | rulesets API; this does not prove merge-queue state |
+| Actions caches | 3,726,625,920 bytes across 71 active caches | cache-usage API |
+| Artifact default retention | not observed | confirm in Settings, Actions, General |
+| Merge queue | not observed | confirm in Settings, Rules, Rulesets |
+
+## 9. Verification checklist
 
 Run through this after any change to branch protection or to the workflow topology.
 
@@ -135,3 +154,6 @@ Run through this after any change to branch protection or to the workflow topolo
 - [ ] Confirm no workflow run was triggered by an ordinary feature-branch push
 - [ ] After a release tag, confirm `release.yml` ran and `ci.yml` did NOT
 - [ ] Read the billing page and record per-runner-class minutes for the period
+- [ ] Confirm the default artifact retention in Settings, Actions, General
+- [ ] Confirm merge-queue state in Settings, Rules, Rulesets
+- [ ] Every `upload-artifact` step sets an explicit `retention-days`

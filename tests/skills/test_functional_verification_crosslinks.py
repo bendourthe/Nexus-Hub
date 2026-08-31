@@ -74,6 +74,17 @@ HTML_SURFACES = (
 )
 
 RESPONSIVE_RULE = "catalog/rules/html/responsive-layout.md"
+DEEP_PASS = (
+    ROOT
+    / "catalog"
+    / "skills"
+    / "testing"
+    / "functional-verification"
+    / "references"
+    / "deep-pass.md"
+)
+
+
 def _read(path: Path) -> str:
     return path.read_text(encoding="utf-8")
 
@@ -153,3 +164,11 @@ def test_project_guidance_names_the_new_rule_and_verification_trees() -> None:
     assert "tests/verification/" in agents
     assert "Language, security, and artifact rules" in agents
     assert "Code style/security rules (4 languages)" not in agents
+
+
+def test_deep_pass_has_no_pre_counter_repair_window() -> None:
+    text = _read(DEEP_PASS)
+
+    assert "initial evidence-collection pass does not increment the counter" in text
+    assert "Every tree-changing correction caused by this deep pass consumes a cycle" in text
+    assert "there is no pre-counter repair window" in text

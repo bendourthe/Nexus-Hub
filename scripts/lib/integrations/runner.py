@@ -870,18 +870,28 @@ _CONTRACT_JSON = REPO_ROOT / "docs" / "policy" / "platform-read-contracts.json"
 
 
 def _resolve_contract_path(spec: str, home: Path, target_root: Path) -> Path:
-    """Resolve a contract path token: ``~/`` -> home, ``{project}/`` -> target_root."""
+    """Resolve home, project, and configured OpenClaw workspace path tokens."""
     if spec.startswith("~/"):
         return home / spec[2:]
     if spec.startswith("{project}/"):
         return target_root / spec[len("{project}/"):]
+    if spec.startswith("{openclaw_workspace}/"):
+        from scripts.lib.integrations.openclaw import _configured_workspace
+
+        workspace = _configured_workspace(home / ".openclaw")
+        return workspace / spec[len("{openclaw_workspace}/"):]
     return Path(spec)
 
 
 def _evaluate_surface(surface: dict, home: Path, target_root: Path) -> tuple:
     """Evaluate one JSON surface check into ``(label, ok_bool)``."""
     label = str(surface.get("label", "?"))
-    path = _resolve_contract_path(str(surface.get("path", "")), home, target_root)
+    try:
+        path = _resolve_contract_path(
+            str(surface.get("path", "")), home, target_root
+        )
+    except (OSError, ValueError):
+        return (label, False)
     kind = surface.get("kind")
     if kind == "nonempty_dir":
         ok = _nonempty_dir(path)
@@ -916,11 +926,19 @@ def _verify_checks(home: Path, target_root: Path) -> list:
     for entry in entries:
         if not isinstance(entry, dict):
             continue
-        detected = any(
-            _resolve_contract_path(str(d), home, target_root).exists()
-            for d in entry.get("detect", [])
-            if isinstance(d, str)
-        )
+        if entry.get("label") == "OpenClaw":
+            from scripts.lib.integrations.openclaw import _openclaw_is_active
+
+            try:
+                detected = _openclaw_is_active(home / ".openclaw")
+            except (OSError, ValueError):
+                detected = True
+        else:
+            detected = any(
+                _resolve_contract_path(str(d), home, target_root).exists()
+                for d in entry.get("detect", [])
+                if isinstance(d, str)
+            )
         if not detected:
             continue
         surfaces = [

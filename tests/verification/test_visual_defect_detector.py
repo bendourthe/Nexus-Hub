@@ -135,6 +135,7 @@ def test_false_positive_controls_are_present_in_clean_fixture(
     assert "overflow-x: auto" in html
     assert 'data-reveal="pending"' in html
     assert "opacity: 0" in html
+    assert 'class="collapsed-copy"' in html
     assert "@media (max-width: 720px)" in html
     assert '.page-container { width: 100%; max-width: 1200px;' in html
 
@@ -201,6 +202,57 @@ def test_tolerance_suppresses_subthreshold_geometry(rendered_detector: None) -> 
 
     assert result.returncode == 0
     assert report["findings"] == []
+
+
+@pytest.mark.parametrize(
+    ("flag", "value"),
+    [
+        ("--tolerance", "Infinity"),
+        ("--tolerance", "NaN"),
+        ("--minimum-text-width", "Infinity"),
+        ("--minimum-text-height", "NaN"),
+        ("--font-floor", "Infinity"),
+        ("--settle-ms", "NaN"),
+    ],
+)
+def test_non_finite_float_controls_are_rejected(flag: str, value: str) -> None:
+    result = _run("clean.html", flag, value)
+
+    assert result.returncode == 2
+    assert result.stdout == ""
+    assert "finite" in result.stderr.lower()
+
+
+def test_custom_property_text_caps_are_detected_across_css_routes(
+    rendered_detector: None,
+) -> None:
+    result = _run("fixed-text-max-width-variable.html", "--viewports", "900")
+    report = _payload(result)
+    findings = report["findings"]
+
+    assert result.returncode == 1
+    assert report["gate_findings"] == 3
+    assert {finding["rule"] for finding in findings} == {"fixed-text-max-width"}  # type: ignore[union-attr]
+    assert {finding["selector"] for finding in findings} == {  # type: ignore[union-attr]
+        "#embedded-variable-cap",
+        "#inline-variable-cap",
+        "#linked-variable-cap",
+    }
+    assert all("resolved_value" in finding["measurements"]["declarations"][0] for finding in findings)  # type: ignore[union-attr]
+
+
+def test_aria_hidden_pixels_remain_in_geometry_checks(
+    rendered_detector: None,
+) -> None:
+    result = _run("aria-hidden-visible.html", "--viewports", "900")
+    report = _payload(result)
+    findings = report["findings"]
+    rules = {finding["rule"] for finding in findings}  # type: ignore[union-attr]
+
+    assert result.returncode == 1
+    assert "horizontal-overflow" in rules
+    assert "font-size-floor" not in rules
+    assert any(finding["selector"] == "#aria-hidden-container" for finding in findings)  # type: ignore[union-attr]
 
 
 def test_invalid_allowlist_selector_is_an_explicit_finding(

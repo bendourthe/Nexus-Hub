@@ -25,7 +25,6 @@ from scripts.lib.integrations._codex_native import (
     CODEX_HOOK_EVENTS,
     CODEX_TOOL_MATCHERS,
     build_hook_entries,
-    enable_hooks_feature,
     infer_sandbox_mode,
     merge_hooks_json,
     render_agent_toml,
@@ -365,70 +364,15 @@ def test_teardown_keeps_a_user_authored_agent_and_its_directory(codex, install_c
     assert mine.read_text(encoding="utf-8") == 'name = "mine"\n'
 
 
-# ----- config.toml feature switch ------------------------------------------
+# ----- hook discovery has no mandatory feature switch --------------------
 
 
-@pytest.mark.parametrize(
-    "initial,expected_action,must_contain",
-    [
-        (None, "created", "hooks = true"),
-        ("", "updated", "[features]\nhooks = true\n"),
-        ("[tui]\nx = 1\n", "updated", "[tui]\nx = 1\n\n[features]\nhooks = true\n"),
-        ("[features]\nweb_search = true\n", "updated", "hooks = true\nweb_search = true"),
-        ("[features]\nhooks = true\n", "unchanged", "hooks = true"),
-        ("[features]\ncodex_hooks = true\n", "unchanged", "codex_hooks = true"),
-    ],
-)
-def test_feature_switch_matrix(install_ctx, tmp_path, initial, expected_action, must_contain):
-    cfg = tmp_path / "config.toml"
-    if initial is not None:
-        cfg.write_text(initial, encoding="utf-8")
-
-    action = enable_hooks_feature(install_ctx, "codex", cfg)
-
-    assert action.action == expected_action
-    assert must_contain in cfg.read_text(encoding="utf-8")
-    assert tomllib.loads(cfg.read_text(encoding="utf-8"))
-
-
-def test_explicit_user_opt_out_is_respected(install_ctx, tmp_path):
-    """`hooks = false` is a deliberate choice; silently flipping it is the bug."""
-    cfg = tmp_path / "config.toml"
-    cfg.write_text("[features]\nhooks = false\n", encoding="utf-8")
-
-    action = enable_hooks_feature(install_ctx, "codex", cfg)
-
-    assert action.action == "kept"
-    assert cfg.read_text(encoding="utf-8") == "[features]\nhooks = false\n"
-
-
-def test_feature_switch_preserves_comments_and_other_tables(install_ctx, tmp_path):
-    cfg = tmp_path / "config.toml"
-    original = (
-        "# my codex config\n"
-        "model = \"gpt-5.6\"\n\n"
-        "[features]\n"
-        "# keep this comment\n"
-        "web_search = true\n\n"
-        "[tui]\n"
-        "theme = \"dark\"\n"
-    )
-    cfg.write_text(original, encoding="utf-8")
-
-    enable_hooks_feature(install_ctx, "codex", cfg)
-
-    updated = cfg.read_text(encoding="utf-8")
-    for fragment in ("# my codex config", "# keep this comment", '[tui]', 'theme = "dark"'):
-        assert fragment in updated
-    assert tomllib.loads(updated)["features"]["hooks"] is True
-    assert tomllib.loads(updated)["tui"]["theme"] == "dark"
-
-
-def test_workspace_install_does_not_touch_the_global_config(codex, install_ctx, codex_root):
-    """The switch is user-global, so a workspace install must only advise."""
+def test_workspace_install_does_not_create_or_advise_a_feature_switch(
+    codex, install_ctx, codex_root
+):
     result = codex.install_workspace(install_ctx)
     assert not (codex_root / "config.toml").exists()
-    assert any("[features] hooks = true" in note for note in result.notes)
+    assert not any("[features]" in note or "hooks = true" in note for note in result.notes)
 
 
 def test_install_summary_does_not_claim_hooks_are_active(codex, install_ctx):

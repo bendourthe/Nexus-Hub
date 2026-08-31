@@ -23,6 +23,7 @@
     .badge { display: inline-block; width: 32px; height: 20px; }
     .legible { font-size: 16px; }
     .scroll-reveal { width: 480px; height: 24px; opacity: 0; transform: translateX(40px); }
+    .collapsed-copy { width: 480px; height: 100px; margin: 0; font-size: 10px; }
     svg { display: block; width: 200px; height: 100px; }
     @media (max-width: 720px) {
       .component { width: 100%; }
@@ -39,6 +40,7 @@
     <section class="component"><span class="badge">OK</span></section>
     <section class="component"><p class="legible">Legible supporting copy.</p></section>
     <section class="component"><div class="reveal-shell"><div class="scroll-reveal" data-reveal="pending">Scroll-gated content</div></div></section>
+    <details class="component"><summary>Collapsed disclosure</summary><p class="collapsed-copy">Hidden content must not enter rendered geometry checks.</p></details>
   </main>
 </body>
 </html>

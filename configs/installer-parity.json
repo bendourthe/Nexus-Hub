@@ -54,6 +54,7 @@
     {"posix": ["resolve_conflicts"], "windows": ["Resolve-Conflicts"], "reason": "Deferred overwrite conflict resolution."},
     {"posix": ["install_claude_hook_files"], "windows": ["Install-ClaudeHookFiles"], "reason": "Complete host-native Claude hook file materialization."},
     {"posix": ["convert_claude_hook_commands_for_posix"], "windows": ["Convert-ClaudeHookCommandsForWindows"], "reason": "Host-native Claude hook command migration through the Cursor compatibility launcher."},
+    {"posix": ["resolve_settings_write_target"], "windows": [], "reason": "POSIX atomic replacement would overwrite a settings symlink, so Bash resolves a bounded link chain and transacts beside the real target; the Windows writer does not use this rename pattern."},
     {"posix": ["merge_managed_claude_hooks"], "windows": ["Get-ManagedHookStem", "Merge-ManagedClaudeHooks"], "reason": "Idempotent managed-hook reconciliation; PowerShell factors script-stem normalization into a helper."},
     {"posix": ["install_git_guardrails"], "windows": ["Install-GitGuardrails"], "reason": "Git guardrail hook installation."},
     {"posix": ["install_usage_display"], "windows": ["Install-UsageDisplay"], "reason": "Usage-display hook installation."},

@@ -104,7 +104,7 @@ Fix in-scope findings during this phase. Invoke [[known-gaps-tracker]] for resid
 
 ## 9. Fix findings within one global rerun budget
 
-Set `fix_rerun_cycles_used` to `0` after the initial deep pass. Use one global maximum of three fix-and-rerun cycles across all features and delegates, not three cycles per feature, finding, or section.
+Set `fix_rerun_cycles_used` to `0` before the initial deep pass. Complete Steps 1 through 8 and record the initial finding set before changing the tree whenever the remaining exercises can still run. The initial evidence-collection pass does not increment the counter because it does not change the tree. If a finding blocks completion of the initial pass, its correction starts cycle 1 and the remaining initial exercises finish inside that cycle. Every tree-changing correction caused by this deep pass consumes a cycle; there is no pre-counter repair window. Use one global maximum of three fix-and-rerun cycles across all features and delegates, not three cycles per feature, finding, or section.
 
 For each cycle:
 
