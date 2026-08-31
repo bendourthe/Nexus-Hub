@@ -25,21 +25,21 @@ The guide is the single home for orientation, installation, Foundations, Trainin
 
 URL grammar: `#<page-id>` for pages; `#training/<scene-id>` for Training; `#cheatsheets/<stop>` for Cheatsheets sections. A legacy `?beat=n` suffix is accepted and ignored. Compatibility: `#reference` and `#workflows` rewrite to `#cheatsheets`; `#explore`, `#plan`, `#build`, `#harden`, `#ship`, `#communicate` rewrite to `#cheatsheets/<id>`. `#home/install` scrolls to the Home install block. Unknown page ids rewrite to Home.
 
-## Design system (v4.2.2, refined in v4.2.3)
+## Design system (v4.4.0, evolved from v4.2.2 and v4.2.3)
 
-The design language is fixed in `docs/releases/v4/v4.2/development/guide-rebuild/design-brief.md`. The load-bearing decisions:
+The original design language remains recorded in `docs/releases/v4/v4.2/development/guide-rebuild/design-brief.md`. v4.4.0 keeps that visual system while rebuilding Home, expanding Foundations to eight scenes, and replacing the old walkthrough with a playable Asteroids training loop. The load-bearing decisions:
 
 - **Fluid width (v4.2.3).** There is no per-text width cap. `.container`'s `--maxw` is the ONLY width constraint in the file: body copy fills the content column at every viewport. A test fails on any `max-width` in `px` or `ch` other than the present-mode stage bound, so a measure cannot creep back in. Headings use `text-wrap: balance` to shape wrapping without imposing one.
 - **Copy affordance (v4.2.3).** A labelled button only where the control stands alone in a wide terminal row. Inside an inline `.cmd-cell` the button is bare - no background, no border, no label - because the host chip already draws the container and a chip inside a chip reads as a mistake. The bare variant keeps a 24px hit area, its `aria-label`, the live-region announcement, and an explicit focus ring.
 - **Invocation convention (v4.2.3).** `.inv-cmd` renders a slash command in accent, `.inv-arg` its scope in plain ink, `.inv-ph` a placeholder dim italic. Used on Home, in Training's terminal, and in every Cheatsheets example. The `data-copy` payload is always the plain full string, so copy parity survives the split markup.
 - **Compact rhythm.** A 4px spacing scale (`--sp-1` to `--sp-8`) with `--sec-pad: 32px` (22px under 720px). Sections are separated by an eyebrow and a heading, not by empty space.
-- **Motion vocabulary.** `.reveal` elements fade and rise via one shared IntersectionObserver. Continuous motion (constellation, Foundations pulses) runs only while its scene is on screen. `prefers-reduced-motion` renders a complete static equivalent, never a crushed duration.
-- **Themes.** All colors are tokens defined on `:root`, `html[data-theme="dark"]`, and `html[data-theme="light"]`. Every text style in both themes meets WCAG AA contrast, re-verified after every colour change (v4.2.3: 242 sampled styles, 0 below AA).
+- **Motion vocabulary.** `.reveal` elements fade and rise via one shared IntersectionObserver. Continuous motion (constellation, Foundations pulses, and the Asteroids loop) runs only while its surface is visible. `prefers-reduced-motion` renders a complete static equivalent, pauses the game, exposes Advance one step, and prints terminal output immediately; it never substitutes a crushed duration.
+- **Themes.** All colors are tokens defined on `:root`, `html[data-theme="dark"]`, and `html[data-theme="light"]`. Every measured text style in both themes meets WCAG AA contrast. The v4.4.0 Phase 6 browser sweep measured 11,008 visible text samples across all pages and all eight Training states, including 552 generated pseudo-text samples and 265 unique computed styles, and found 0 below AA.
 - **Light-mode brand chip.** In light theme the glow logo mark sits on a rounded dark chip so it reads against the light ground.
 
 ## Home
 
-Home is a short orientation, not a catalog dump. It states what Nexus-Hub is, embeds the two canonical install commands behind OS tabs (**Windows first and default**), compares a model-only assistant to a harnessed one, shows the six-step loop, and closes with next steps.
+Home is a short orientation, not a catalog dump. It states the outcome, shows six supported platforms in a compatibility rail, embeds the two canonical install commands behind OS tabs (**Windows first and default**), compares an unaided assistant to one using Nexus-Hub, shows the six-step loop, and closes with next steps.
 
 Canonical install constants (must match `tests/guides/test_nexus_hub_guide.py`):
 
@@ -82,7 +82,7 @@ Training is an eight-step interactive Asteroids walkthrough (`#nhTraining`, `[da
 4. **The cumulative file explorer** - the tree shows everything created so far, marks the current step's new and changed files, and paints the selected file or diff with text nodes only. A requested path that does not exist yet says so explicitly.
 5. The artifact, gate verdict, and takeaway that explain what the command produced and why it matters.
 
-Controls (reworked in v4.2.3): Previous, Next, and Restart are icon buttons in a right-aligned cluster BELOW the takeaway, each with an `aria-label`, a `title`, and a visible focus ring. Outline keeps a text label because a glyph does not carry its meaning. ArrowLeft / ArrowRight / Space advance; `f` toggles Present; Escape exits it.
+Training navigation uses Previous, Next, and Restart icon buttons in a right-aligned cluster below the takeaway, each with an `aria-label`, a `title`, and a visible focus ring. Outline keeps a text label because a glyph does not carry its meaning. ArrowRight, Space, and PageDown advance; ArrowLeft and PageUp go back; `f` toggles Present; Escape exits it. The file explorer is a labelled tree: ArrowUp, ArrowDown, Home, and End move focus, while Enter or Space activates the focused file. The focused game owns Left / Right or A / D for rotation, Up or W for thrust, and Space for fire; equivalent touch controls and labelled pause/reset buttons remain available.
 
 **Present mode** requests fullscreen on the training root and applies a viewport overlay class either way, so a denied or unavailable Fullscreen API still presents as slides. Since v4.2.3 it FILLS the viewport: a full-height flex column where the slide grows to consume the space and the game and terminal stretch inside it, rather than centring an in-page-sized block in an empty screen.
 
@@ -106,7 +106,7 @@ A scope shown on the page must exist in that command's own file in `catalog/comm
 
 ## Keyboard and reduced motion
 
-Page-level ArrowLeft / ArrowRight move between pages when Training is not current and focus is not in a self-keyed pane (`[data-nhg-keys='self']`). Dark mode may show the constellation; light mode must not. `prefers-reduced-motion` shows every diagram in its final state, hides the motion-path pulses, and prints terminal output instantly.
+Page-level ArrowLeft / ArrowRight move between pages when Training is not current and focus is not in a self-keyed pane (`[data-nhg-keys='self']`). The six platform marks are labelled compatibility information, not interactive controls. Dark mode may show the constellation; light mode must not. `prefers-reduced-motion` stops decorative transitions, shows every reveal and diagram in its final state, hides the Foundations motion-path pulses, pauses Asteroids with Advance one step available, and prints Training terminal output instantly.
 
 ## Fixture maintenance
 
@@ -161,22 +161,22 @@ Publication is a copy:
 - Maintainers copy by hand, or a later portfolio-side script may copy. This release does not add `scripts/sync-nexus-hub-guide.mjs` to the sibling repository.
 - Never fetch the guide from the network to check it.
 
-Local publication check: `python -m pytest -q tests/guides/test_nexus_hub_guide.py`. That module lives in this repo (not installer-copied). It asserts the file is self-contained, the inline Training JSON is valid, the install constants match, and the file stays under the 500 KB budget. If `NEXUS_HUB_PORTFOLIO_ROOT` is set, the suite diffs `<portfolio-root>/nexus-hub/index.html` against the canonical file and fails on unexpected drift. If the env var is unset, that leg is skipped and the rest of the suite still passes.
+Local publication check: `python -m pytest -q tests/guides/test_nexus_hub_guide.py`. That module lives in this repo (not installer-copied). It asserts the file is self-contained, the inline Training JSON is valid, the install constants match, and the file stays below the strict 500,000-byte (500 KB) budget. If `NEXUS_HUB_PORTFOLIO_ROOT` is set, the suite diffs `<portfolio-root>/nexus-hub/index.html` against the canonical file and fails on unexpected drift. If the env var is unset, that leg is skipped and the rest of the suite still passes.
 
 ## Browser verification
 
 The pytest suite parses HTML and JSON; it does not execute JavaScript. Rendered verification is a first-class step, run per phase with the local harness:
 
 ```bash
-python tests/guides/tools/render_guide.py --label phase-N
+python tests/guides/tools/render_guide.py --label phase-6 --output-dir docs/releases/v4/v4.4/development/guide-rebuild/renders --widths 320 420 900 1440
 ```
 
-That renders every page in both themes at 420 / 900 / 1440 px and writes PNGs under `docs/releases/v4/v4.2/development/guide-rebuild/renders/<label>/`. It needs Playwright (`pip install playwright && playwright install chromium`), which is an optional dev dependency: CI never requires it, and the harness fails with an install hint rather than a traceback. Useful flags: `--pages`, `--themes`, `--widths`, `--reduced-motion`, `--hash`.
+That renders every page in both themes at 320 / 420 / 900 / 1440 px and writes 32 PNGs under `docs/releases/v4/v4.4/development/guide-rebuild/renders/phase-6/`. It needs Playwright (`pip install playwright && playwright install chromium`), which is an optional dev dependency: CI does not currently require it, and the harness fails with an install hint rather than a traceback. Useful flags: `--pages`, `--themes`, `--widths`, `--reduced-motion`, `--hash`.
 
 Before a workshop or a portfolio publish, also open the file by hand and check:
 
 - Light and dark themes, including a reload (theme must persist only `light` or `dark`)
-- Reduced motion across Foundations and the Training terminal
+- Reduced motion across all four pages, including the static Foundations end states, paused Asteroids step control, and immediate Training terminal output
 - Home install copy on the Windows and macOS/Linux tabs, and the verify-command copy cells
 - Foundations: eight scenes, correct responsive diagram variant, no pinned overlay, no comparison toggle
 - Training: playable Asteroids controls, the wrap-boundary fix at `/implement`, splitting after `/compare` and its follow-on implementation, terminal output, cumulative explorer, missing-file state, outline, Present mode, and a mid-walkthrough URL

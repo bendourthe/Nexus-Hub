@@ -129,9 +129,9 @@ def test_phase_by_phase_non_final_offers_no_push_option(runbook: str):
     assert "push" not in menu.lower(), f"a push option survives in the phase-by-phase menu: {menu!r}"
 
 
-def test_in_full_non_final_still_auto_commits_without_pushing(runbook: str):
+def test_full_non_final_still_auto_commits_without_pushing(runbook: str):
     step = _step_811(runbook)
-    assert "**`in-full` non-final:** auto-select commit-only" in step
+    assert "**`full` non-final:** auto-select commit-only" in step
     assert "Do not push." in step
 
 

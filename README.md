@@ -10,7 +10,7 @@ Nexus-Hub is the upstream skill catalog for AI coding assistants: 329 skills, 18
 
 ## Interactive Guide -- start here
 
-**New to Nexus-Hub? [Open the interactive guide](guides/website/nexus-hub-guide.html).** It is a self-contained, offline HTML file: a concise Home with the install commands, Foundations that teach prompt, context, harness, and loop engineering as four visual stations, a Training slideshow of Glow Booth going from buggy to fixed, and one Cheatsheets tab for the loop plus command arguments. It is the fastest way to get a teammate productive, and it doubles as a live-demo-quality workshop.
+**New to Nexus-Hub? [Open the interactive guide](guides/website/nexus-hub-guide.html).** It is a self-contained, offline HTML file: a concise Home with the install commands, eight Foundations scenes that build a practical mental model from tokens through harnesses, a playable Asteroids Training loop with a cumulative file explorer, and one Cheatsheets tab for the loop plus command arguments. It is the fastest way to get a teammate productive, and it doubles as a live-demo-quality workshop.
 
 - **File:** [`guides/website/nexus-hub-guide.html`](guides/website/nexus-hub-guide.html) -- one HTML file, fully offline, no server or install required.
 - **To view it:** GitHub does not render HTML inline. Open the file above and click **Download raw file** (top-right of the file view), then open the downloaded `.html` in any browser. Or clone the repo and double-click it.
@@ -93,7 +93,7 @@ Catalog counts remain **326 skills**, **18 commands**, **33 hooks**, and **23 ag
 
 ## Previously, in v3.21.0
 
-**Fail-closed last phase, implement drivers, and living handbooks.** `/plan` and `/implement` last-phase runs must write `last-phase-evidence.md` with Goal-vs-codebase review; a heading is not done work. `/implement <slug> in-full` (alias `full`) and `phase-by-phase` encode the multi-phase loop; bare `/implement` stays one-phase. Living `docs/handbooks/` and `docs/decisions/` are required on the current path scheme; v4.0 will snapshot them, not decline them.
+**Fail-closed last phase, implement drivers, and living handbooks.** `/plan` and `/implement` last-phase runs must write `last-phase-evidence.md` with Goal-vs-codebase review; a heading is not done work. `/implement <slug> full` (alias `in-full`) and `phase-by-phase` encode the multi-phase loop; bare `/implement` stays one-phase. Living `docs/handbooks/` and `docs/decisions/` are required on the current path scheme; v4.0 will snapshot them, not decline them.
 
 This release changes no opt-in capability, installer flag, or host surface.
 

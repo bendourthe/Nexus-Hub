@@ -486,12 +486,13 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
 }
 .pagenav a:hover:not(.disabled) { border-color: var(--border-bright); color: var(--ink); }
 .pagenav a.next { text-align: right; }
-.pagenav a.disabled { opacity: .4; pointer-events: none; }
+.pagenav a.disabled { color: var(--ink-faint); background: transparent; pointer-events: none; }
 .pagenav .pn-k { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-faint); }
 .pagenav .pn-t { font-weight: 600; font-size: 14px; }
-.progress-dots { display: flex; gap: 7px; justify-content: center; margin-top: var(--sp-4); }
-.progress-dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--border); cursor: pointer; }
-.progress-dots i.on { background: var(--accent); }
+.progress-dots { display: flex; gap: 2px; justify-content: center; margin-top: var(--sp-4); }
+.progress-dots a { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; }
+.progress-dots a::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--ink-faint); }
+.progress-dots a.on::before { background: var(--accent); }
 
 /* ---------- Foundations scenes ---------- */
 .fx-scene {
@@ -630,7 +631,7 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
 .nht-seg:hover { color: var(--ink); }
 .nht-seg.is-done { border-top-color: color-mix(in srgb, var(--accent) 45%, var(--border)); color: var(--ink-dim); }
 .nht-seg.is-now { border-top-color: var(--accent); color: var(--accent); font-weight: 700; background: color-mix(in srgb, var(--accent) 8%, transparent); }
-.nht-seg-k::before { content: "/"; opacity: .5; }
+.nht-seg-k::before { content: "/"; }
 
 /* Controls: bottom-right, icon-first. */
 .nht-controls { display: flex; gap: 8px; justify-content: flex-end; margin-top: var(--sp-4); }
@@ -870,10 +871,10 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 .cs-usage { margin-top: 12px; }
 .term--mini { margin: 0; }
 .term--mini .term-bar { padding: 5px 10px; }
-.term--mini .term-bar .label { font-size: 10.5px; letter-spacing: .04em; }
+.term--mini .term-bar .label { font-size: 12px; letter-spacing: .04em; }
 .term--mini .term-body { padding: 9px 12px; }
 .cs-usage .cs-teach { margin: 8px 0 0; }
-.cs-teach { font-size: 11.5px; color: var(--ink-faint); }
+.cs-teach { font-size: 13px; color: var(--ink-faint); }
 .cs-teach a { font-weight: 600; }
 
 /* ---------- Placeholder panels (removed as page phases land) ---------- */
@@ -900,6 +901,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 /* ---------- Reduced motion: static equivalents ---------- */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
+  #constellation { transition: none; }
   .js .page.active { animation: none; }
   .js .reveal { opacity: 1; transform: none; transition: none; }
   .js .hero-lockup.reveal .hero-mark { opacity: 1; transform: none; transition: none; }
@@ -1014,10 +1016,10 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
         <p>Paste the line for your system. The installer copies the catalog into <code>~/.nexus-hub/</code>, wires every assistant it detects, and preserves files you customized. There is no download to unzip first.</p>
         <div class="nhg-install-wrap" data-tabs data-nhg-keys="self">
           <div class="tab-btns" role="tablist" aria-label="Install command by operating system">
-            <button type="button" class="tab-btn active" data-tab="win" role="tab" aria-selected="true">Windows</button>
-            <button type="button" class="tab-btn" data-tab="posix" role="tab" aria-selected="false">macOS / Linux</button>
+            <button type="button" class="tab-btn active" id="install-tab-win" data-tab="win" role="tab" aria-selected="true" aria-controls="install-panel-win">Windows</button>
+            <button type="button" class="tab-btn" id="install-tab-posix" data-tab="posix" role="tab" aria-selected="false" aria-controls="install-panel-posix">macOS / Linux</button>
           </div>
-          <div class="tab-panel active" data-panel="win" role="tabpanel">
+          <div class="tab-panel active" data-panel="win" id="install-panel-win" role="tabpanel" aria-labelledby="install-tab-win">
             <div class="term term--standalone term--install">
               <div class="term-bar"><div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div><span class="label">Windows &middot; paste into PowerShell</span></div>
               <div class="term-body">
@@ -1025,7 +1027,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
               </div>
             </div>
           </div>
-          <div class="tab-panel" data-panel="posix" role="tabpanel">
+          <div class="tab-panel" data-panel="posix" id="install-panel-posix" role="tabpanel" aria-labelledby="install-tab-posix" hidden>
             <div class="term term--standalone term--install">
               <div class="term-bar"><div class="tdots"><i style="background:#ff5f56"></i><i style="background:#ffbd2e"></i><i style="background:#27c93f"></i></div><span class="label">macOS / Linux &middot; paste into Terminal</span></div>
               <div class="term-body">
@@ -2256,7 +2258,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
               <div class="cs-scope"><code>&lt;slug&gt;</code><span>Use that plan (or a path to the plan file).</span></div>
               <div class="cs-scope"><code>&lt;slug&gt; phase-N</code><span>Implement that specific phase.</span></div>
               <div class="cs-scope"><code>&lt;slug&gt; next</code><span>Implement the first phase not yet complete.</span></div>
-              <div class="cs-scope"><code>in-full</code><span>Run every incomplete phase in order (alias: full).</span></div>
+              <div class="cs-scope"><code>full</code><span>Run every incomplete phase in order (alias: in-full).</span></div>
               <div class="cs-scope"><code>phase-by-phase</code><span>Same loop, pausing for a choice after each phase.</span></div>
             </div>
             <div class="cs-usage">
@@ -2635,10 +2637,10 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
     var html = "";
     html += prev
       ? '<a class="prev" href="#' + prev.id + '" data-go="' + prev.id + '"><span class="pn-k">Previous</span><span class="pn-t">&larr; ' + prev.title + "</span></a>"
-      : '<a class="prev disabled"><span class="pn-k">Previous</span><span class="pn-t">&larr; Start</span></a>';
+      : '<a class="prev disabled" aria-disabled="true"><span class="pn-k">Previous</span><span class="pn-t">&larr; Start</span></a>';
     html += next
       ? '<a class="next" href="#' + next.id + '" data-go="' + next.id + '"><span class="pn-k">Next</span><span class="pn-t">' + next.title + " &rarr;</span></a>"
-      : '<a class="next disabled"><span class="pn-k">Next</span><span class="pn-t">Done &#10003;</span></a>';
+      : '<a class="next disabled" aria-disabled="true"><span class="pn-k">Next</span><span class="pn-t">Done &#10003;</span></a>';
     var holders = document.querySelectorAll("#page-" + PAGES[idx].id + " [data-pagenav]");
     for (var i = 0; i < holders.length; i++) { holders[i].innerHTML = html; }
   }
@@ -2646,7 +2648,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
   function renderProgress(idx) {
     var dots = "";
     for (var i = 0; i < PAGES.length; i++) {
-      dots += '<i class="' + (i === idx ? "on" : "") + '" data-go="' + PAGES[i].id + '" title="' + PAGES[i].title + '"></i>';
+      dots += '<a class="' + (i === idx ? "on" : "") + '" href="#' + PAGES[i].id + '" data-go="' + PAGES[i].id + '" aria-label="Go to ' + PAGES[i].title + '"' + (i === idx ? ' aria-current="page"' : "") + ' title="' + PAGES[i].title + '"></a>';
     }
     var holder = document.querySelector("#page-" + PAGES[idx].id + " [data-progress]");
     if (holder) holder.innerHTML = dots;
@@ -2814,23 +2816,45 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
   for (var g = 0; g < tabGroups.length; g++) {
     (function (group) {
       var btns = group.querySelectorAll(".tab-btn");
+      function activateTab(button, moveFocus) {
+        var tab = button.getAttribute("data-tab");
+        var allBtns = group.querySelectorAll(".tab-btn");
+        for (var k = 0; k < allBtns.length; k++) {
+          var on = allBtns[k] === button;
+          allBtns[k].classList.toggle("active", on);
+          allBtns[k].setAttribute("aria-selected", on ? "true" : "false");
+          allBtns[k].setAttribute("tabindex", on ? "0" : "-1");
+        }
+        var panels = group.querySelectorAll(".tab-panel");
+        var matched = false;
+        for (var p = 0; p < panels.length; p++) {
+          var onp = panels[p].getAttribute("data-panel") === tab;
+          if (onp) matched = true;
+          panels[p].classList.toggle("active", onp);
+          panels[p].hidden = !onp;
+        }
+        if (!matched && panels.length) {
+          panels[0].classList.add("active");
+          panels[0].hidden = false;
+        }
+        if (moveFocus) button.focus();
+      }
       for (var b = 0; b < btns.length; b++) {
+        btns[b].setAttribute("tabindex", b === 0 ? "0" : "-1");
         btns[b].addEventListener("click", function () {
-          var tab = this.getAttribute("data-tab");
-          var allBtns = group.querySelectorAll(".tab-btn");
-          for (var k = 0; k < allBtns.length; k++) {
-            var on = allBtns[k] === this;
-            allBtns[k].classList.toggle("active", on);
-            allBtns[k].setAttribute("aria-selected", on ? "true" : "false");
-          }
-          var panels = group.querySelectorAll(".tab-panel");
-          var matched = false;
-          for (var p = 0; p < panels.length; p++) {
-            var onp = panels[p].getAttribute("data-panel") === tab;
-            if (onp) matched = true;
-            panels[p].classList.toggle("active", onp);
-          }
-          if (!matched && panels.length) { panels[0].classList.add("active"); }
+          activateTab(this, false);
+        });
+        btns[b].addEventListener("keydown", function (event) {
+          var current = Array.prototype.indexOf.call(btns, this);
+          var target = current;
+          if (event.key === "ArrowRight") target = (current + 1) % btns.length;
+          else if (event.key === "ArrowLeft") target = (current - 1 + btns.length) % btns.length;
+          else if (event.key === "Home") target = 0;
+          else if (event.key === "End") target = btns.length - 1;
+          else return;
+          event.preventDefault();
+          event.stopPropagation();
+          activateTab(btns[target], true);
         });
       }
     })(tabGroups[g]);

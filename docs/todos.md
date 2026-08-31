@@ -14,11 +14,11 @@ Refreshing this file to the active plan (rather than appending another version's
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
-| v4.4.0 guide-depth-and-training-rebuild phases complete | 5 | 7 | -2 |
+| v4.4.0 guide-depth-and-training-rebuild phases complete | 6 | 7 | -1 |
 | Open release blockers | 0 | 0 | 0 |
 | Catalog skills | 329 | 329 | 0 |
 | Guide pages with clean v4.4.0 verification evidence | 4 | 4 | 0 |
-| Local phase commits | 5 | 7 | -2 |
+| Local phase commits | 6 | 7 | -1 |
 
 ---
 
@@ -29,7 +29,7 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Phase 3 - Chatbot vs agent, context, harness, and loop
 - [x] Phase 4 - Playable Asteroids with a seeded bug
 - [x] Phase 5 - Training terminal, file explorer, and command loop
-- [ ] Phase 6 - Cross-page polish, accessibility, budget, and hallmark audit
+- [x] Phase 6 - Cross-page polish, accessibility, budget, hallmark audit, and harness defaults
 - [ ] Phase 7 - Architecture refactor, known-gaps, CI/CD, publication, and integration
 
 ### What this plan changes, in one paragraph
@@ -42,7 +42,7 @@ v4.3.0 is tagged and released, so its verification discipline is available to ga
 
 ### Current checkpoint
 
-Phase 5 is locally complete at its commit gate. All eight Training commands now run against the Asteroids game and a cumulative, keyboard-accessible file explorer with real artifacts. The seeded shot visibly changes from a miss to a fixed hit at `/implement`, then produces two fragments after `/compare`; reruns and direct jumps remain coherent. The fail-closed guide and detector aggregate is green at 148 passed with one expected portfolio-copy skip, both Training theme sweeps report zero findings, and independent re-review approved the corrected implementation with no P0-P3 findings. DF-1 and MT-1 remain open. No push, pull request, or remote CI run has occurred.
+Phase 6 is locally complete at its commit gate. The fail-closed browser sweep covered all four routes, both themes, and four release widths with 11,008 visible text samples, 32 detector-clean cases, and 32 retained screenshots; the guide remains below its 500,000-byte budget. Claude Code now seeds `high` effort only when the precedence-linked pair is absent, `/implement full` is canonical with `in-full` retained, two independent exact-index reviews found no P0-P3 issues, and the authoritative isolated repository suite finished with 3,752 passed and 56 skipped. DF-1 and MT-1 remain open for Phase 7. No push, pull request, or remote CI run has occurred.
 
 ---
 

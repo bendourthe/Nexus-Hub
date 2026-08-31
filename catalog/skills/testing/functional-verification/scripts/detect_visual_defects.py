@@ -342,10 +342,56 @@ _DETECTOR_JS = r"""
     }
   }
 
-  // Rule 3: text-bearing siblings must not occupy the same rendered area.
+  // Rule 3: painted direct-text fragments must not occupy the same rendered area.
+  const clippingOverflow = new Set(["auto", "clip", "hidden", "scroll"]);
+  const clipToPaintedAncestors = (rect, element) => {
+    const clipped = {
+      left: rect.left,
+      top: rect.top,
+      right: rect.right,
+      bottom: rect.bottom
+    };
+    let current = element;
+    while (current && current !== document.documentElement) {
+      const style = getComputedStyle(current);
+      const overflowApplies = !["contents", "inline"].includes(style.display);
+      const clipX = overflowApplies && clippingOverflow.has(style.overflowX);
+      const clipY = overflowApplies && clippingOverflow.has(style.overflowY);
+      if (clipX || clipY) {
+        const currentRect = current.getBoundingClientRect();
+        const clientBox = {
+          left: currentRect.left + current.clientLeft,
+          top: currentRect.top + current.clientTop,
+          right: currentRect.left + current.clientLeft + current.clientWidth,
+          bottom: currentRect.top + current.clientTop + current.clientHeight
+        };
+        if (clipX) {
+          clipped.left = Math.max(clipped.left, clientBox.left);
+          clipped.right = Math.min(clipped.right, clientBox.right);
+        }
+        if (clipY) {
+          clipped.top = Math.max(clipped.top, clientBox.top);
+          clipped.bottom = Math.min(clipped.bottom, clientBox.bottom);
+        }
+        if (clipped.right <= clipped.left || clipped.bottom <= clipped.top) return null;
+      }
+      current = current.parentElement;
+    }
+    return clipped;
+  };
+  const directTextFragments = (element) => Array.from(element.childNodes)
+    .filter((node) => node.nodeType === Node.TEXT_NODE && Boolean(node.textContent.trim()))
+    .flatMap((node) => {
+      const range = document.createRange();
+      range.selectNodeContents(node);
+      return Array.from(range.getClientRects())
+        .filter((rect) => rect.width > 0 && rect.height > 0)
+        .map((rect) => clipToPaintedAncestors(rect, element))
+        .filter(Boolean);
+    });
   const textNodes = htmlElements
     .filter(ownText)
-    .map((element) => ({ element, rect: element.getBoundingClientRect() }))
+    .flatMap((element) => directTextFragments(element).map((rect) => ({ element, rect })))
     .sort((left, right) => left.rect.top - right.rect.top || left.rect.left - right.rect.left);
   for (let leftIndex = 0; leftIndex < textNodes.length; leftIndex += 1) {
     const left = textNodes[leftIndex];

@@ -273,6 +273,94 @@ def test_false_positive_controls_are_present_in_clean_fixture(
     assert _payload(result)["findings"] == []
 
 
+def test_text_overlap_compares_only_painted_direct_text_fragments(
+    rendered_detector: None,
+    tmp_path: Path,
+) -> None:
+    fragment_page = tmp_path / "painted-text-fragments.html"
+    fragment_page.write_text(
+        """<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Painted text fragments</title>
+<style>
+* { box-sizing: border-box; }
+html { font: 16px/24px Arial, sans-serif; }
+body { margin: 0; padding: 16px; }
+.wrapped { width: 190px; margin: 0; }
+.wrapped code, .wrapped a { font: inherit; }
+.clip-stage { position: relative; width: 300px; height: 32px; margin-top: 24px; }
+.scroller { width: 96px; height: 24px; overflow-x: auto; white-space: nowrap; }
+.outside { position: absolute; top: 0; left: 150px; }
+.captions { position: relative; width: 300px; height: 40px; margin-top: 24px; }
+.caption { position: absolute; top: 0; width: 110px; height: 28px; padding: 2px 4px; background: #eef; }
+.caption-one { left: 0; }
+.caption-two { left: 55px; }
+</style>
+</head>
+<body>
+<p class="wrapped"><code>alpha beta gamma delta tail</code> <a id="wrapped-following" href="#target">Open guide</a></p>
+<div class="clip-stage"><div class="scroller"><span>A long clipped line that extends behind the outside label</span></div><span id="outside-label" class="outside">Outside label</span></div>
+<div class="captions"><span class="caption caption-one">First caption</span><span id="true-overlap" class="caption caption-two">Second caption</span></div>
+</body>
+</html>
+""",
+        encoding="utf-8",
+    )
+
+    result = _run_path(fragment_page, "--viewports", "900")
+    report = _payload(result)
+    findings = report["findings"]
+
+    assert result.returncode == 1
+    assert report["gate_findings"] == 1
+    assert len(findings) == 1  # type: ignore[arg-type]
+    assert findings[0]["rule"] == "text-overlap"  # type: ignore[index]
+    assert findings[0]["selector"] == "#true-overlap"  # type: ignore[index]
+
+
+def test_inline_overflow_does_not_erase_text_but_zero_sized_block_clip_does(
+    rendered_detector: None,
+    tmp_path: Path,
+) -> None:
+    inline_page = tmp_path / "inline-overflow-overlap.html"
+    inline_page.write_text(
+        """<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Inline overflow overlap</title>
+<style>
+* { box-sizing: border-box; }
+html { font: 16px/24px Arial, sans-serif; }
+body { margin: 0; padding: 16px; }
+p { width: 300px; margin: 0; }
+.inline-source { overflow: hidden; }
+.inline-target { position: relative; left: -56px; }
+.zero-stage { position: relative; width: 300px; height: 24px; margin-top: 24px; }
+.zero-clip { position: absolute; width: 0; height: 0; overflow: hidden; }
+.visible-label { position: absolute; top: 0; left: 0; }
+</style>
+</head>
+<body>
+<p><span class="inline-source">First caption</span><span id="inline-overlap" class="inline-target">Second caption</span></p>
+<div class="zero-stage"><div class="zero-clip"><span>Clipped collision</span></div><span id="visible-label" class="visible-label">Clipped collision</span></div>
+</body>
+</html>
+""",
+        encoding="utf-8",
+    )
+
+    result = _run_path(inline_page, "--viewports", "900")
+    report = _payload(result)
+    findings = report["findings"]
+
+    assert result.returncode == 1
+    assert report["gate_findings"] == 1
+    assert len(findings) == 1  # type: ignore[arg-type]
+    assert findings[0]["rule"] == "text-overlap"  # type: ignore[index]
+    assert findings[0]["selector"] == "#inline-overlap"  # type: ignore[index]
+
+
 def test_defect_repeats_once_per_requested_viewport(rendered_detector: None) -> None:
     result = _run("fixed-text-max-width.html")
     report = _payload(result)

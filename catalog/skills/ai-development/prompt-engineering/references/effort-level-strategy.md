@@ -12,9 +12,9 @@ Claude Code surfaces an `effortLevel` control that governs how much reasoning th
 | `medium` | Balanced reasoning and speed | Moderate | Fast |
 | `low` | Minimal reasoning, fastest turn-around | Low | Fastest |
 
-### Default: `medium`
+### Default: `high`
 
-Nexus-Hub ships `"effortLevel": "medium"` as the installer default, with the matching `env.CLAUDE_CODE_EFFORT_LEVEL` pinned alongside it. Both are declared in `configs/platform-defaults.json`, the single source for per-platform install defaults; `catalog/hooks/settings.json` is generated from it, so consult the source rather than this paragraph if the two ever disagree. `medium` keeps routine coding turns fast and cheap, and makes the deeper tiers a deliberate escalation rather than a standing cost on every turn. Escalate for a single session via `/effort xhigh`, the `--effort xhigh` CLI flag, or the `CLAUDE_CODE_EFFORT_LEVEL` environment variable; because that environment variable is the highest-precedence lever, moving your standing default means editing both keys in `settings.json`.
+Nexus-Hub ships `"effortLevel": "high"` as the Claude Code installer default (raised from `medium` in v4.4.0), with the matching `env.CLAUDE_CODE_EFFORT_LEVEL` pinned alongside it. Both are declared in `configs/platform-defaults.json`, the single source for per-platform install defaults; `catalog/hooks/settings.json` is generated from it, so consult the source rather than this paragraph if the two ever disagree. `high` matches the plan-driven, multi-step work this harness is built around, where a shallow turn costs more in rework than the extra reasoning costs to run. Drop to `medium` if you want routine turns cheaper, or escalate for a single session via `/effort xhigh`, the `--effort xhigh` CLI flag, or the `CLAUDE_CODE_EFFORT_LEVEL` environment variable; because that environment variable is the highest-precedence lever, moving your standing default means editing both keys in `settings.json`.
 
 ### When to escalate to `max`
 
@@ -57,7 +57,7 @@ Use `medium` or `low` for latency-sensitive, tightly-scoped tasks where reasonin
 
 | Task shape | Recommended tier |
 |------------|------------------|
-| Interactive coding on a familiar codebase | `xhigh` (escalate from the `medium` default) |
+| Interactive coding on a familiar codebase | `xhigh` (escalate from the `high` default) |
 | One-shot deep architecture / root-cause analysis | `max` |
 | Multi-agent parallel fan-out (N >= 2 subagents) | `high` per agent |
 | Long-running loop-operator / temporal workflow | `high` (never `max`) |
