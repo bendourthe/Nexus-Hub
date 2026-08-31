@@ -398,7 +398,48 @@ PASS: 13 passed, 0 failed, 0 skipped, 0 advisory   (fast, now 13 groups)
 
 ### Push 4 - interpreter coverage
 
-PENDING: the push (separately approved), the fourth required-check result, and the merge decision.
+Commit `a004efd5` was pushed after approval. **Every required check is green** (`gh pr checks 146` exit 0):
+
+| Check | Result |
+|---|---|
+| `ci-required` (aggregate) | pass (2s) |
+| `validate` | pass (38s) |
+| `shellcheck` | pass (18s) |
+| `verify` | pass (1m24s) |
+| `colocation` | pass (5s) |
+| `tests` | pass (11m44s) |
+| `tests-windows` | pass (11m3s) |
+| `install-smoke` (ubuntu / macos / windows) | pass |
+| `installer-smoke` (ubuntu / macos / windows) | pass |
+| `bootstrap` (ubuntu / macos) + `bootstrap-windows` | pass |
+| CodeQL, `Analyze` (javascript-typescript / python) | pass |
+| `changes`, `detect` | pass |
+| `render` | skipping (browser-free pull-request path, by design) |
+
+Four integration rounds were required. That is recorded rather than smoothed over, because the sequence is the evidence that the discipline works: the local gate certified a tree that the integration result then falsified three separate times, each time for a host-dependent reason a single developer machine could not reach. The blind spot itself is now closed and gated (MT-1), so the same class fails locally in future.
+
+| Round | Commit | Outcome |
+|---|---|---|
+| 1 | `89bf4e40` | red: 3 causes (Linux-only `stat` constant, two stale CI assertions) plus one misdiagnosed |
+| 2 | `2248cc6e` | 3 confirmed fixed; `tests-windows` still red, and the round-1 diagnosis proved wrong |
+| 3 | `185e8937` | `tests-windows` green (WSL-stub resolver); `tests` red on a defect in that round's own test |
+| 4 | `a004efd5` | **all green**, with the host-interpreter blind spot closed and gated |
+
+### Merge and post-merge verification
+
+PR #146 was merged into `develop` with an explicit merge commit (`c6afeed0`, merged 2026-08-31T05:11:50Z), preserving all four commits so the red-then-green integration sequence stays auditable from git alone rather than only from this file.
+
+The post-merge workflow was then checked against the plan's requirement that it perform only its intended smoke, publication, or provenance work:
+
+```
+Post-merge | push | completed | success | 2026-08-31T05:11:52Z
+  smoke      | success
+  provenance | success
+```
+
+Two jobs, both green, and no re-run of the validation suite. No other workflow triggered on the merge.
+
+This completes Phase 5. The `/update release` handoff follows, and it owns the version bump, changelog finalization, `develop` -> `main` merge, tag, push, and GitHub Release behind its own confirmation gates.
 
 - Branching model: feature branch into `develop`, then release flow to `main`.
 - Remote: `origin`.
