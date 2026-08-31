@@ -622,9 +622,9 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
 /* Loop-stage progress: each segment names its command. */
 .nht-loop { display: flex; gap: 2px; padding: 0; overflow-x: auto; }
 .nht-seg {
-  flex: 1 1 0; min-width: 68px; padding: 6px 4px 7px;
+  flex: 1 1 0; min-width: 88px; padding: 6px 4px 7px;
   background: transparent; border: 0; border-top: 3px solid var(--border);
-  color: var(--ink-faint); font-family: var(--mono); font-size: 10.5px;
+  color: var(--ink-faint); font-family: var(--mono); font-size: 12px;
   cursor: pointer; text-align: center; white-space: nowrap;
 }
 .nht-seg:hover { color: var(--ink); }
@@ -660,64 +660,55 @@ html[data-theme="light"] .nht-ico--go:hover:not(:disabled) { color: #fffdf8; }
 .nht-grid { display: grid; grid-template-columns: minmax(280px, 4fr) minmax(320px, 6fr); gap: var(--sp-4); align-items: start; }
 .nht-col { min-width: 0; }
 
-/* booth mockup */
-.nht-booth { border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-1); overflow: hidden; }
-.nb-bar {
+/* playable Asteroids */
+.nht-game { border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--bg-1); overflow: hidden; }
+.nag-bar {
   display: flex; align-items: center; justify-content: space-between; gap: 8px;
   padding: 7px 12px; border-bottom: 1px solid var(--border); background: var(--surface-2);
 }
-.nb-title { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; color: var(--ink-faint); }
-.nb-tag { font-size: 10.5px; font-weight: 700; padding: 1px 7px; border-radius: 999px; border: 1px solid var(--border); color: var(--ink-faint); }
-.nb-tag.is-buggy { color: var(--red); border-color: var(--red); }
-.nb-tag.is-fixed { color: var(--green); border-color: var(--green); }
-.nb-stage {
-  position: relative; height: 148px; display: flex; align-items: center; justify-content: center;
-  background: var(--bg-2); border-bottom: 1px solid var(--border); overflow: hidden;
+.nag-title { font-family: var(--mono); font-size: 11px; letter-spacing: .1em; color: var(--ink-faint); }
+.nag-tag { font-size: 12px; font-weight: 700; padding: 1px 7px; border-radius: 999px; border: 1px solid var(--red); color: var(--red); }
+.nag-tag.is-fixed { border-color: var(--green); color: var(--green); }
+.nag-stage { position: relative; aspect-ratio: 16 / 9; min-height: 0; background: var(--bg-deep); border-bottom: 1px solid var(--border); overflow: hidden; }
+.nag-canvas { width: 100%; height: 100%; display: block; touch-action: none; outline: 0; }
+.nag-overlay {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 7px 9px; border: 1px solid color-mix(in srgb, var(--border) 75%, transparent); border-radius: 8px;
+  margin: 8px 10px 0; background: var(--surface-2); color: var(--ink-dim); font-family: var(--mono); font-size: 12px;
 }
-.nb-shot {
-  display: none; width: 78%; height: 108px; border-radius: 10px;
-  align-items: flex-end; justify-content: center; padding-bottom: 10px;
-  font-size: 13px; font-weight: 700; color: #f4fbfd; text-shadow: 0 1px 6px rgba(0,0,0,.55);
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.14);
-  animation: nbPop .34s var(--ease);
+.nag-overlay[hidden] { display: none; }
+.nag-cue {
+  position: absolute; top: 10px; left: 50%; translate: -50% 0; min-width: min(86%, 300px); padding: 7px 10px;
+  border: 1px solid var(--red); border-radius: 8px; background: #101a1f;
+  color: #ffb4ab; font-family: var(--mono); font-size: 11px; font-weight: 700; text-align: center;
 }
-.nb-shot.on { display: flex; }
-.nb-shot[data-pose="dawn"] { background: linear-gradient(155deg, #f0a868, #b0537b); }
-.nb-shot[data-pose="neon"] { background: linear-gradient(155deg, #4be3f0, #7d4bd8); }
-.nb-shot[data-pose="forest"] { background: linear-gradient(155deg, #58c98f, #1d6b62); }
-.nb-shot[data-pose="studio"] { background: linear-gradient(155deg, #cfd8dc, #6b7d84); }
-.nb-shot[data-pose="spark"] { background: linear-gradient(155deg, #ffd76a, #e0705a); }
-@keyframes nbPop { from { opacity: 0; transform: scale(.94); } to { opacity: 1; transform: none; } }
-.nb-empty { color: var(--ink-faint); font-size: 12.5px; font-family: var(--mono); }
-.nb-empty.off { display: none; }
-.nb-sparkle { position: absolute; inset: 0; pointer-events: none; background:
-  radial-gradient(circle at 22% 30%, rgba(255,255,255,.9) 0 2px, transparent 3px),
-  radial-gradient(circle at 74% 24%, rgba(255,255,255,.8) 0 2px, transparent 3px),
-  radial-gradient(circle at 40% 72%, rgba(255,255,255,.85) 0 2px, transparent 3px),
-  radial-gradient(circle at 84% 66%, rgba(255,255,255,.75) 0 2px, transparent 3px);
-  animation: nbTwinkle 1.8s ease-in-out infinite;
+.nag-cue.is-hit { border-color: var(--green); color: #a9f1c7; }
+.nag-cue[hidden] { display: none; }
+.nag-fallback { min-height: 190px; padding: var(--sp-5); display: grid; place-content: center; text-align: center; color: var(--ink-dim); }
+.nag-fallback[hidden] { display: none; }
+.nag-hud { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: var(--border); border-bottom: 1px solid var(--border); }
+.nag-stat { padding: 7px 9px; background: var(--surface); text-align: center; font-family: var(--mono); font-size: 12px; color: var(--ink-faint); }
+.nag-stat b { display: block; margin-top: 2px; color: var(--ink); font-size: 13px; }
+.nag-controls { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; padding: 10px 10px 6px; }
+.nag-control, .nag-action {
+  min-height: 38px; padding: 6px 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface);
+  color: var(--ink-dim); font-family: var(--mono); font-size: 11px; font-weight: 700; cursor: pointer; touch-action: none;
 }
-@keyframes nbTwinkle { 0%, 100% { opacity: .35; } 50% { opacity: 1; } }
-.nb-poses { display: flex; flex-wrap: wrap; gap: 6px; padding: 12px; }
-.nb-pose {
-  flex: 1 1 auto; min-width: 62px; padding: 7px 6px; font-size: 12px; font-weight: 600;
-  font-family: var(--sans); color: var(--ink-dim); background: var(--surface);
-  border: 1px solid var(--border); border-radius: 8px; cursor: pointer;
+.nag-control:hover, .nag-action:hover { border-color: var(--accent); color: var(--ink); }
+.nag-control:active, .nag-control.is-held { background: color-mix(in srgb, var(--accent) 18%, var(--surface)); color: var(--accent); }
+.nag-actions { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 10px 10px; }
+.nag-action { flex: 1 1 90px; }
+.nag-action--primary { background: var(--accent); border-color: transparent; color: var(--bg-deep); }
+.nag-step { display: none; }
+.nag-note { margin: 0; padding: 10px 12px; border-top: 1px solid var(--border); background: var(--surface); font-size: 12px; color: var(--ink-dim); }
+.nag-note strong { color: var(--ink); }
+.nht-game.no-canvas .nag-stage { aspect-ratio: auto; }
+.nht-game.no-canvas .nag-controls, .nht-game.no-canvas .nag-actions { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .nag-step { display: inline-block; }
+  .nag-action--primary { display: none; }
 }
-.nb-pose:hover:not(:disabled) { color: var(--ink); border-color: var(--accent); }
-.nb-pose.shot { color: var(--accent); border-color: var(--accent); }
-.nb-pose:disabled { opacity: .45; cursor: default; }
-.nb-meter { padding: 0 12px 6px; }
-.nb-pills { display: flex; gap: 5px; margin-bottom: 6px; }
-.nb-pills i { flex: 1; height: 7px; border-radius: 4px; background: var(--border); display: block; transition: background .25s var(--ease); }
-.nb-pills i.on { background: var(--accent); }
-.nb-count { margin: 0; font-family: var(--mono); font-size: 13px; color: var(--ink-dim); }
-.nb-count b { color: var(--ink); font-size: 15px; }
-.nb-meter.flash .nb-count b { animation: nbFlash .7s var(--ease); }
-@keyframes nbFlash { 0%, 100% { color: var(--ink); } 40% { color: var(--amber); } }
-.nb-actions { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 12px 10px; }
-.nb-mode { font-size: 11px; font-family: var(--mono); color: var(--ink-faint); }
-.nb-note { margin: 0; padding: 10px 12px; border-top: 1px solid var(--border); background: var(--surface); font-size: 12.5px; color: var(--ink-dim); }
 
 /* simulated terminal */
 .term--nht { margin: 0; }
@@ -750,7 +741,9 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 .nht-after { display: grid; grid-template-columns: 1fr 1fr; gap: var(--sp-3); margin-top: var(--sp-3); }
 .nht-artifact, .nht-gate { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; background: var(--bg-1); }
 .nht-artifact { border-left: 3px solid var(--accent); }
-.na-k, .ng-k { display: block; font-size: 10px; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-faint); margin-bottom: 3px; }
+.na-k, .ng-k { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .1em; color: var(--ink-faint); margin-bottom: 3px; }
+.nht-gate b, .ng-prompt { display: block; }
+.ng-prompt { margin-top: 4px; }
 .nht-artifact code { font-size: 11.5px; background: transparent; border: 0; padding: 0; color: var(--ink); word-break: break-all; }
 .nht-artifact p, .nht-gate p { margin: 4px 0 0; font-size: 12.5px; color: var(--ink-dim); }
 .nht-gate { border-left: 3px solid var(--border-bright); }
@@ -790,9 +783,8 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 .nht.is-present .nht-intent { font-size: clamp(15px, 1.4vw, 18px); }
 .nht.is-present .nht-grid { flex: 1 1 auto; min-height: 0; align-items: stretch; }
 .nht.is-present .nht-col { display: flex; flex-direction: column; gap: var(--sp-3); }
-.nht.is-present .nht-booth { flex: 1 1 auto; display: flex; flex-direction: column; }
-.nht.is-present .nb-stage { flex: 0 1 auto; height: clamp(180px, 30vh, 300px); }
-.nht.is-present .nb-shot { height: auto; min-height: 130px; align-self: center; width: 62%; }
+.nht.is-present .nht-game { flex: 1 1 auto; display: flex; flex-direction: column; }
+.nht.is-present .nag-stage { flex: 0 1 auto; min-height: 0; }
 .nht.is-present .term--nht { flex: 1 1 auto; display: flex; flex-direction: column; }
 .nht.is-present .term--nht .term-body { flex: 1 1 auto; display: flex; flex-direction: column; }
 .nht.is-present .nht-out { flex: 1 1 auto; }
@@ -803,10 +795,13 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
   .nht-after { grid-template-columns: 1fr; }
   .nht-outline ol { columns: 1; }
 }
+@media (max-width: 420px) {
+  .nag-controls { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .nag-overlay { flex-wrap: wrap; justify-content: center; text-align: center; }
+  .nht-cmd { flex-wrap: wrap; align-items: flex-start; }
+  .nht-cmd .nht-run { flex: 1 1 100%; margin-left: 20px; }
+}
 @media (prefers-reduced-motion: reduce) {
-  .nb-shot { animation: none; }
-  .nb-sparkle { animation: none; opacity: .8; }
-  .nb-meter.flash .nb-count b { animation: none; }
   .nht-out div { opacity: 1; transform: none; transition: none; }
 }
 
@@ -1927,11 +1922,11 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
     <div class="container">
       <div class="hero">
         <span class="eyebrow">Training</span>
-        <h1>Run the loop on a real app with real bugs</h1>
-        <p class="lead">Glow Booth is a five-pose instant-camera app. It ships with two genuine defects. Walk the eight commands below: press the booth to see each bug, run each command in the terminal, and watch what it leaves on disk. Nothing here is a video &mdash; the booth and the terminal are live.</p>
+        <h1>Find the edge case by playing it</h1>
+        <p class="lead">This playable Asteroids build starts with one deliberate wrap-boundary collision bug. Fire once in the seeded setup: the shot overlaps the asteroid drawn across the edge, but the score stays still and a red hit cue makes the miss unmistakable. The next phase connects that real defect and the later splitting feature to the full eight-command loop.</p>
         <div class="btn-row">
           <button type="button" class="btn btn--primary" id="nhtPresent">Present <span aria-hidden="true">&#9974;</span></button>
-          <a class="btn" href="glow-booth.zip" download>Download the example</a>
+          <a class="btn" href="glow-booth.zip" download>Download the current example</a>
         </div>
       </div>
 
@@ -1956,24 +1951,37 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 
           <div class="nht-grid">
             <div class="nht-col">
-              <div class="nht-booth" data-nht="booth">
-                <div class="nb-bar"><span class="nb-title">GLOW BOOTH</span><span class="nb-tag" data-nht="booth-tag"></span></div>
-                <div class="nb-stage" data-nht="booth-stage">
-                  <div class="nb-shot" data-nht="booth-shot"><span data-nht="booth-shot-label"></span></div>
-                  <div class="nb-empty" data-nht="booth-empty">stage is clear</div>
-                  <div class="nb-sparkle" data-nht="booth-sparkle" hidden aria-hidden="true"></div>
+              <div class="nht-game" data-asteroids-game data-seeded-bug="wrap-boundary-collision" data-added-feature="asteroid-splitting" data-nhg-keys="self" tabindex="0" aria-label="Playable Asteroids bug demonstration" aria-describedby="nagInstructions">
+                <div class="nag-bar">
+                  <span class="nag-title">WRAP//BREAKERS</span>
+                  <span class="nag-tag" data-asteroids="mode">seeded bug</span>
                 </div>
-                <div class="nb-poses" data-nht="booth-poses" role="group" aria-label="Strike a pose"></div>
-                <div class="nb-meter">
-                  <div class="nb-pills" data-nht="booth-pills" aria-hidden="true"></div>
-                  <p class="nb-count"><b data-nht="booth-count">0</b> <span>/ 5 stamps</span></p>
+                <div class="nag-stage" data-asteroids="stage">
+                  <canvas class="nag-canvas" data-asteroids-canvas width="640" height="360" aria-label="Playable Asteroids. Use Left and Right arrows or A and D to rotate, Up Arrow or W to thrust, and Space to fire.">Your browser cannot display the Asteroids canvas. The seeded state places a ship and an asteroid on opposite sides of the same wrapped edge.</canvas>
+                  <div class="nag-fallback" id="nagFallback" data-asteroids-fallback hidden role="img" aria-label="Static Asteroids wrap-boundary demonstration">
+                    <p><strong>Static game state:</strong> a shot at the right edge visually overlaps an asteroid wrapped from the left edge, but the buggy collision check reports no hit.</p>
+                  </div>
+                  <div class="nag-cue" data-asteroids-bug-cue hidden aria-hidden="true"></div>
                 </div>
-                <div class="nb-actions">
-                  <button type="button" class="nht-btn nb-restart" data-nht="booth-restart">Restart booth</button>
-                  <span class="nb-mode" data-nht="booth-mode"></span>
+                <div class="visually-hidden" data-asteroids-live-status aria-live="polite" aria-atomic="true"></div>
+                <div class="nag-overlay" data-asteroids="overlay"><span>Focus the game, then fire once.</span><span>Left / Right / Up or A / D / W + Space</span></div>
+                <div class="nag-hud" aria-label="Game status">
+                  <div class="nag-stat">Score<b data-asteroids-score>0</b></div>
+                  <div class="nag-stat">Lives<b data-asteroids-lives>3</b></div>
+                  <div class="nag-stat">State<b data-asteroids="state">ready</b></div>
                 </div>
-                <p class="nb-note" data-nht="booth-note"></p>
-                <p class="visually-hidden" aria-live="polite" data-nht="booth-live"></p>
+                <div class="nag-controls" role="group" aria-label="Touch game controls">
+                  <button type="button" class="nag-control" data-asteroids-control="left" aria-label="Rotate left">&#8634; Left</button>
+                  <button type="button" class="nag-control" data-asteroids-control="thrust" aria-label="Thrust forward">&#9650; Thrust</button>
+                  <button type="button" class="nag-control" data-asteroids-control="right" aria-label="Rotate right">Right &#8635;</button>
+                  <button type="button" class="nag-control" data-asteroids-control="fire" aria-label="Fire">&#9679; Fire</button>
+                </div>
+                <div class="nag-actions">
+                  <button type="button" class="nag-action nag-action--primary" data-asteroids-action="toggle">Pause game</button>
+                  <button type="button" class="nag-action" data-asteroids-action="reset">Reset bug demo</button>
+                  <button type="button" class="nag-action nag-step" data-asteroids-action="step" data-asteroids-step>Advance one step</button>
+                </div>
+                <p class="nag-note" id="nagInstructions"><strong>Controls:</strong> focus the game, use Left and Right arrows or A and D to rotate, Up Arrow or W to thrust, and Space to fire; equivalent touch controls follow the game. <strong>Seeded defect:</strong> collision uses flat-screen distance while drawing wraps at the edge. The red cue compares that result with the correct wrapped-distance check, so the miss cannot be mistaken for bad aim.</p>
               </div>
             </div>
 
@@ -2005,7 +2013,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
                 </div>
                 <div class="nht-gate" data-nht="gate">
                   <span class="ng-k" data-nht="gate-status"></span>
-                  <p><b data-nht="gate-name"></b> &mdash; <span data-nht="gate-prompt"></span></p>
+                  <p><b data-nht="gate-name"></b><span class="ng-prompt" data-nht="gate-prompt"></span></p>
                 </div>
               </div>
 
@@ -3556,6 +3564,708 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 (function () {
   "use strict";
 
+  var game = document.querySelector("[data-asteroids-game]");
+  if (!game) return;
+
+  var canvas = game.querySelector("[data-asteroids-canvas]");
+  var fallback = game.querySelector("[data-asteroids-fallback]");
+  var cue = game.querySelector("[data-asteroids-bug-cue]");
+  var liveStatus = game.querySelector("[data-asteroids-live-status]");
+  var overlay = game.querySelector('[data-asteroids="overlay"]');
+  var scoreEl = game.querySelector("[data-asteroids-score]");
+  var livesEl = game.querySelector("[data-asteroids-lives]");
+  var stateEl = game.querySelector('[data-asteroids="state"]');
+  var modeEl = game.querySelector('[data-asteroids="mode"]');
+  var toggleEl = game.querySelector('[data-asteroids-action="toggle"]');
+  var WIDTH = 640;
+  var HEIGHT = 360;
+  var MAX_DELTA_SECONDS = 0.05;
+  var reduceQuery = window.matchMedia
+    ? window.matchMedia("(prefers-reduced-motion: reduce)")
+    : null;
+  var reduceMotion = !!(reduceQuery && reduceQuery.matches);
+  var context = null;
+  try {
+    context = canvas && canvas.getContext ? canvas.getContext("2d") : null;
+  } catch (error) {
+    context = null;
+  }
+
+  var held = { left: false, right: false, thrust: false };
+  var paused = Object.create(null);
+  var desiredRunning = true;
+  var frameRequest = 0;
+  var lastFrameTime = 0;
+  var nextEntityId = 10;
+  var state = null;
+
+  if (reduceMotion) paused["reduced-motion"] = true;
+  if (document.hidden) paused["document-hidden"] = true;
+  paused.offscreen = true;
+
+  function wrap(value, size) {
+    return ((value % size) + size) % size;
+  }
+
+  function collides(first, second, bounds, wrapAware) {
+    var width = Number(bounds && bounds.width) || WIDTH;
+    var height = Number(bounds && bounds.height) || HEIGHT;
+    var dx = Math.abs(Number(first.x) - Number(second.x)) % width;
+    var dy = Math.abs(Number(first.y) - Number(second.y)) % height;
+    if (wrapAware) {
+      dx = Math.min(dx, width - dx);
+      dy = Math.min(dy, height - dy);
+    }
+    var radius = (Number(first.radius) || 0) + (Number(second.radius) || 0);
+    return dx * dx + dy * dy <= radius * radius;
+  }
+
+  function asteroid(id, x, y, radius, size, vx, vy) {
+    return { id: id, x: x, y: y, radius: radius, size: size, vx: vx, vy: vy };
+  }
+
+  function bullet(id, x, y, vx, vy) {
+    return {
+      id: id, x: x, y: y, vx: vx, vy: vy, radius: 3, life: 1.8,
+      missedAsteroids: Object.create(null)
+    };
+  }
+
+  function seededState(situation) {
+    var ship = {
+      x: 590, y: 180, vx: 0, vy: 0, angle: 0, radius: 10,
+      invulnerable: 0
+    };
+    var asteroids = [asteroid("edge-rock", 8, 180, 32, 2, 0, 0)];
+    var bullets = [bullet("seed-shot", 624, 180, 80, 0)];
+
+    if (situation === "ship-impact") {
+      ship = {
+        x: 320, y: 180, vx: 0, vy: 0, angle: 0, radius: 10,
+        invulnerable: 0
+      };
+      asteroids = [asteroid("impact-rock", 320, 180, 20, 1, 0, 0)];
+      bullets = [];
+    } else if (situation === "play") {
+      ship = {
+        x: 320, y: 180, vx: 0, vy: 0, angle: -Math.PI / 2, radius: 10,
+        invulnerable: 1
+      };
+      asteroids = [
+        asteroid("play-a", 94, 82, 30, 2, 18, 12),
+        asteroid("play-b", 532, 92, 25, 2, -14, 16),
+        asteroid("play-c", 474, 290, 20, 1, -20, -11)
+      ];
+      bullets = [];
+    }
+
+    return {
+      situation: situation || "wrap-boundary",
+      ship: ship,
+      bullets: bullets,
+      asteroids: asteroids,
+      score: 0,
+      lives: 3,
+      collisionMode: "buggy",
+      splittingEnabled: false,
+      frame: 0,
+      lastDeltaSeconds: 0,
+      missedWrapHits: 0,
+      bugCue: false,
+      cueText: "",
+      cueKind: "",
+      cueSeconds: 0,
+      interacted: false
+    };
+  }
+
+  function pausedReasons() {
+    return Object.keys(paused).filter(function (reason) { return paused[reason]; }).sort();
+  }
+
+  function canAnimate() {
+    return !!context && desiredRunning && pausedReasons().length === 0;
+  }
+
+  function snapshot() {
+    return {
+      available: !!context,
+      situation: state.situation,
+      bounds: { width: WIDTH, height: HEIGHT },
+      ship: {
+        x: state.ship.x, y: state.ship.y, vx: state.ship.vx, vy: state.ship.vy,
+        angle: state.ship.angle, radius: state.ship.radius
+      },
+      bullets: state.bullets.map(function (item) {
+        return {
+          id: item.id, x: item.x, y: item.y, vx: item.vx, vy: item.vy,
+          radius: item.radius, life: item.life
+        };
+      }),
+      asteroids: state.asteroids.map(function (item) {
+        return {
+          id: item.id, x: item.x, y: item.y, radius: item.radius,
+          size: item.size, vx: item.vx, vy: item.vy
+        };
+      }),
+      score: state.score,
+      lives: state.lives,
+      collisionMode: state.collisionMode,
+      splittingEnabled: state.splittingEnabled,
+      missedWrapHits: state.missedWrapHits,
+      bugCue: state.bugCue,
+      cueText: state.cueText,
+      frame: state.frame,
+      lastDeltaSeconds: state.lastDeltaSeconds,
+      running: canAnimate() && !!frameRequest,
+      pausedReasons: pausedReasons()
+    };
+  }
+
+  function setCue(kind, message) {
+    state.bugCue = kind === "miss";
+    state.cueKind = kind;
+    state.cueText = message;
+    state.cueSeconds = 2.6;
+  }
+
+  function fragmentsFor(hit, enabled, firstId) {
+    if (enabled !== true || hit.size <= 1) return [];
+    var radius = Math.max(10, hit.radius * 0.58);
+    var speed = 48 + hit.size * 8;
+    return [
+      asteroid("fragment-" + firstId, hit.x, hit.y, radius, hit.size - 1, speed, -speed * 0.62),
+      asteroid("fragment-" + (firstId + 1), hit.x, hit.y, radius, hit.size - 1, -speed, speed * 0.62)
+    ];
+  }
+
+  function hitOutcome(hit, splittingEnabled, firstId, wrappedOnly) {
+    var fragments = fragmentsFor(hit, splittingEnabled, firstId);
+    return {
+      scoreDelta: 100,
+      fragments: fragments,
+      cueText: (wrappedOnly ? "WRAP HIT" : "HIT") + " COUNTED +100"
+        + (fragments.length ? " - asteroid split" : "")
+    };
+  }
+
+  function resolveBulletHits() {
+    for (var bi = state.bullets.length - 1; bi >= 0; bi--) {
+      var shot = state.bullets[bi];
+      var resolved = false;
+      for (var ai = state.asteroids.length - 1; ai >= 0; ai--) {
+        var rock = state.asteroids[ai];
+        var directHit = collides(shot, rock, { width: WIDTH, height: HEIGHT }, false);
+        var wrapHit = collides(shot, rock, { width: WIDTH, height: HEIGHT }, true);
+        var activeHit = state.collisionMode === "fixed" ? wrapHit : directHit;
+
+        if (!activeHit && wrapHit) {
+          if (!shot.missedAsteroids[rock.id]) {
+            shot.missedAsteroids[rock.id] = true;
+            state.missedWrapHits += 1;
+            setCue("miss", "WRAP HIT MISSED - visual contact, score unchanged");
+          }
+          continue;
+        }
+        if (!activeHit) continue;
+
+        var outcome = hitOutcome(
+          rock, state.splittingEnabled, nextEntityId, !directHit && wrapHit
+        );
+        var fragments = outcome.fragments;
+        nextEntityId += fragments.length;
+        state.asteroids.splice(ai, 1);
+        Array.prototype.push.apply(state.asteroids, fragments);
+        state.bullets.splice(bi, 1);
+        state.score += outcome.scoreDelta;
+        setCue("hit", outcome.cueText);
+        resolved = true;
+        break;
+      }
+      if (resolved) continue;
+    }
+  }
+
+  function fire() {
+    var nose = 34;
+    var speed = 300;
+    var angle = state.ship.angle;
+    state.interacted = true;
+    state.bullets.push(bullet(
+      "shot-" + nextEntityId++,
+      state.ship.x + Math.cos(angle) * nose,
+      state.ship.y + Math.sin(angle) * nose,
+      state.ship.vx + Math.cos(angle) * speed,
+      state.ship.vy + Math.sin(angle) * speed
+    ));
+    resolveBulletHits();
+    paint();
+    return snapshot();
+  }
+
+  function updateShip(deltaSeconds) {
+    var rotation = (held.right ? 1 : 0) - (held.left ? 1 : 0);
+    state.ship.angle += rotation * 3.2 * deltaSeconds;
+    var acceleration = held.thrust ? 140 : 0;
+    var ax = Math.cos(state.ship.angle) * acceleration;
+    var ay = Math.sin(state.ship.angle) * acceleration;
+    state.ship.x = wrap(
+      state.ship.x + state.ship.vx * deltaSeconds + 0.5 * ax * deltaSeconds * deltaSeconds,
+      WIDTH
+    );
+    state.ship.y = wrap(
+      state.ship.y + state.ship.vy * deltaSeconds + 0.5 * ay * deltaSeconds * deltaSeconds,
+      HEIGHT
+    );
+    state.ship.vx += ax * deltaSeconds;
+    state.ship.vy += ay * deltaSeconds;
+    var speed = Math.hypot(state.ship.vx, state.ship.vy);
+    if (speed > 240) {
+      state.ship.vx = state.ship.vx / speed * 240;
+      state.ship.vy = state.ship.vy / speed * 240;
+    }
+  }
+
+  function resolveShipHit() {
+    if (state.ship.invulnerable > 0 || state.lives <= 0) return;
+    for (var i = 0; i < state.asteroids.length; i++) {
+      if (!collides(state.ship, state.asteroids[i], { width: WIDTH, height: HEIGHT }, true)) continue;
+      state.lives -= 1;
+      state.ship.x = WIDTH / 2;
+      state.ship.y = HEIGHT * 0.75;
+      state.ship.vx = 0;
+      state.ship.vy = 0;
+      state.ship.invulnerable = 1.4;
+      setCue("warning", "SHIP HIT - life lost");
+      break;
+    }
+  }
+
+  function step(deltaSeconds) {
+    var delta = Number(deltaSeconds);
+    if (!isFinite(delta) || delta < 0) delta = 0;
+    delta = Math.min(delta, MAX_DELTA_SECONDS);
+    state.lastDeltaSeconds = delta;
+    state.frame += 1;
+    updateShip(delta);
+
+    for (var ai = 0; ai < state.asteroids.length; ai++) {
+      state.asteroids[ai].x = wrap(state.asteroids[ai].x + state.asteroids[ai].vx * delta, WIDTH);
+      state.asteroids[ai].y = wrap(state.asteroids[ai].y + state.asteroids[ai].vy * delta, HEIGHT);
+    }
+    for (var bi = state.bullets.length - 1; bi >= 0; bi--) {
+      var shot = state.bullets[bi];
+      shot.x += shot.vx * delta;
+      shot.y += shot.vy * delta;
+      shot.life -= delta;
+      if (shot.life <= 0 || shot.x < 0 || shot.x > WIDTH || shot.y < 0 || shot.y > HEIGHT) {
+        state.bullets.splice(bi, 1);
+      }
+    }
+
+    resolveBulletHits();
+    if (state.ship.invulnerable > 0) state.ship.invulnerable -= delta;
+    resolveShipHit();
+    if (state.cueSeconds > 0) {
+      state.cueSeconds -= delta;
+      if (state.cueSeconds <= 0) {
+        state.bugCue = false;
+        state.cueText = "";
+        state.cueKind = "";
+      }
+    }
+    paint();
+    return snapshot();
+  }
+
+  function themeColor(token, fallbackColor) {
+    var value = getComputedStyle(document.documentElement).getPropertyValue(token).trim();
+    return value || fallbackColor;
+  }
+
+  function drawWrapped(item, drawAt) {
+    var offsets = [-1, 0, 1];
+    for (var xi = 0; xi < offsets.length; xi++) {
+      for (var yi = 0; yi < offsets.length; yi++) {
+        drawAt(item.x + offsets[xi] * WIDTH, item.y + offsets[yi] * HEIGHT);
+      }
+    }
+  }
+
+  function drawAsteroid(item) {
+    drawWrapped(item, function (x, y) {
+      context.save();
+      context.translate(x, y);
+      context.beginPath();
+      for (var i = 0; i < 9; i++) {
+        var angle = Math.PI * 2 * i / 9;
+        var wobble = 0.82 + ((i * 7 + item.id.length) % 4) * 0.06;
+        var px = Math.cos(angle) * item.radius * wobble;
+        var py = Math.sin(angle) * item.radius * wobble;
+        if (i === 0) context.moveTo(px, py); else context.lineTo(px, py);
+      }
+      context.closePath();
+      context.stroke();
+      context.restore();
+    });
+  }
+
+  function drawShip() {
+    drawWrapped(state.ship, function (x, y) {
+      context.save();
+      context.translate(x, y);
+      context.rotate(state.ship.angle);
+      context.beginPath();
+      context.moveTo(16, 0);
+      context.lineTo(-11, -9);
+      context.lineTo(-6, 0);
+      context.lineTo(-11, 9);
+      context.closePath();
+      context.stroke();
+      if (held.thrust) {
+        context.beginPath();
+        context.moveTo(-8, -5);
+        context.lineTo(-19, 0);
+        context.lineTo(-8, 5);
+        context.strokeStyle = themeColor("--amber", "#ffbd69");
+        context.stroke();
+      }
+      context.restore();
+    });
+  }
+
+  function paintCanvas() {
+    if (!context) return;
+    var rect = canvas.getBoundingClientRect();
+    var pixelRatio = Math.min(Number(window.devicePixelRatio) || 1, 2);
+    var renderWidth = Math.max(1, Math.round(rect.width * pixelRatio));
+    var renderHeight = Math.max(1, Math.round(rect.height * pixelRatio));
+    if (canvas.width !== renderWidth || canvas.height !== renderHeight) {
+      canvas.width = renderWidth;
+      canvas.height = renderHeight;
+    }
+    context.setTransform(canvas.width / WIDTH, 0, 0, canvas.height / HEIGHT, 0, 0);
+    context.clearRect(0, 0, WIDTH, HEIGHT);
+    context.fillStyle = themeColor("--bg-deep", "#071015");
+    context.fillRect(0, 0, WIDTH, HEIGHT);
+    context.fillStyle = themeColor("--ink-faint", "#71818a");
+    for (var i = 0; i < 44; i++) {
+      var sx = (i * 97 + 31) % WIDTH;
+      var sy = (i * 53 + 19) % HEIGHT;
+      context.globalAlpha = 0.25 + (i % 4) * 0.12;
+      context.fillRect(sx, sy, 1.5, 1.5);
+    }
+    context.globalAlpha = 1;
+    context.save();
+    context.setLineDash([4, 7]);
+    context.strokeStyle = themeColor("--border-bright", "#47606b");
+    context.beginPath();
+    context.moveTo(1, 0);
+    context.lineTo(1, HEIGHT);
+    context.moveTo(WIDTH - 1, 0);
+    context.lineTo(WIDTH - 1, HEIGHT);
+    context.stroke();
+    context.restore();
+
+    context.strokeStyle = themeColor("--ink", "#e7f0f3");
+    context.lineWidth = 1.6;
+    for (var ai = 0; ai < state.asteroids.length; ai++) drawAsteroid(state.asteroids[ai]);
+    drawShip();
+    context.fillStyle = themeColor("--accent", "#58d6c7");
+    for (var bi = 0; bi < state.bullets.length; bi++) {
+      context.beginPath();
+      context.arc(state.bullets[bi].x, state.bullets[bi].y, 3, 0, Math.PI * 2);
+      context.fill();
+    }
+    if (state.bugCue) {
+      context.save();
+      context.strokeStyle = themeColor("--red", "#ff6f61");
+      context.lineWidth = 2;
+      context.beginPath();
+      context.arc(WIDTH - 12, 180, 22, 0, Math.PI * 2);
+      context.stroke();
+      context.restore();
+    }
+  }
+
+  function paint() {
+    paintCanvas();
+    if (scoreEl) scoreEl.textContent = String(state.score);
+    if (livesEl) livesEl.textContent = String(state.lives);
+    if (modeEl) {
+      modeEl.textContent = state.collisionMode === "fixed" ? "wrap-aware" : "seeded bug";
+      modeEl.className = "nag-tag" + (state.collisionMode === "fixed" ? " is-fixed" : "");
+    }
+    if (stateEl) {
+      var reasons = pausedReasons();
+      stateEl.textContent = canAnimate() ? "playing" : (reasons[0] || "paused");
+    }
+    if (cue) {
+      cue.hidden = !state.cueText;
+      cue.textContent = state.cueText;
+      cue.className = "nag-cue" + (state.cueKind === "hit" ? " is-hit" : "");
+    }
+    if (liveStatus && liveStatus.textContent !== state.cueText) {
+      liveStatus.textContent = state.cueText;
+    }
+    if (overlay) {
+      overlay.hidden = state.interacted && !reduceMotion;
+      overlay.firstElementChild.textContent = reduceMotion
+        ? "Reduced motion: use Advance one step."
+        : "Focus the game, then fire once.";
+    }
+    if (toggleEl) toggleEl.textContent = desiredRunning ? "Pause game" : "Resume game";
+    if (fallback) {
+      var fallbackText = "Static game state: ";
+      if (state.situation === "ship-impact") {
+        fallbackText += "the ship and an asteroid overlap, demonstrating the lives contract.";
+      } else if (state.situation === "play") {
+        fallbackText += "the ship and three moving asteroids are ready for free play.";
+      } else if (state.collisionMode === "buggy") {
+        fallbackText += "a shot overlaps the wrapped asteroid silhouette, but the buggy collision path reports no hit.";
+      } else if (state.splittingEnabled) {
+        fallbackText += "the wrap-aware shot registers and replaces the large asteroid with two smaller fragments.";
+      } else {
+        fallbackText += "the wrap-aware shot registers, adds 100 points, and removes the asteroid.";
+      }
+      fallback.textContent = fallbackText;
+      fallback.setAttribute("aria-label", fallbackText);
+    }
+  }
+
+  function animationFrame(time) {
+    frameRequest = 0;
+    if (!canAnimate()) return;
+    var deltaSeconds = lastFrameTime ? (time - lastFrameTime) / 1000 : 1 / 60;
+    lastFrameTime = time;
+    step(deltaSeconds);
+    if (canAnimate()) frameRequest = window.requestAnimationFrame(animationFrame);
+  }
+
+  function syncAnimation() {
+    if (canAnimate() && !frameRequest) {
+      lastFrameTime = 0;
+      frameRequest = window.requestAnimationFrame(animationFrame);
+    } else if (!canAnimate() && frameRequest) {
+      window.cancelAnimationFrame(frameRequest);
+      frameRequest = 0;
+      lastFrameTime = 0;
+    }
+    paint();
+  }
+
+  function releaseControls() {
+    held.left = false;
+    held.right = false;
+    held.thrust = false;
+    var activeControls = game.querySelectorAll("[data-asteroids-control].is-held");
+    for (var i = 0; i < activeControls.length; i++) {
+      activeControls[i].classList.remove("is-held");
+    }
+  }
+
+  function pause(reason) {
+    releaseControls();
+    paused[String(reason || "manual")] = true;
+    syncAnimation();
+    return snapshot();
+  }
+
+  function resume(reason) {
+    delete paused[String(reason || "manual")];
+    syncAnimation();
+    return snapshot();
+  }
+
+  function reset(situation) {
+    situation = situation || "wrap-boundary";
+    if (situation !== "wrap-boundary" && situation !== "ship-impact" && situation !== "play") {
+      throw new Error("Unknown game situation: " + situation);
+    }
+    nextEntityId = 10;
+    state = seededState(situation);
+    held.left = false;
+    held.right = false;
+    held.thrust = false;
+    paint();
+    return snapshot();
+  }
+
+  function setCollisionMode(mode) {
+    if (mode !== "buggy" && mode !== "fixed") throw new Error("Unknown collision mode: " + mode);
+    state.collisionMode = mode;
+    paint();
+    return snapshot();
+  }
+
+  function setSplittingEnabled(enabled) {
+    if (typeof enabled !== "boolean") throw new Error("Splitting flag must be boolean");
+    state.splittingEnabled = enabled;
+    paint();
+    return snapshot();
+  }
+
+  function controlForKey(key) {
+    var value = String(key || "").toLowerCase();
+    if (value === "arrowleft" || value === "a") return "left";
+    if (value === "arrowright" || value === "d") return "right";
+    if (value === "arrowup" || value === "w") return "thrust";
+    if (value === " " || value === "spacebar") return "fire";
+    return "";
+  }
+
+  game.addEventListener("keydown", function (event) {
+    if (event.target.closest && event.target.closest("button, input, select, textarea")) return;
+    if (event.altKey || event.ctrlKey || event.metaKey) return;
+    var control = controlForKey(event.key);
+    if (!control) return;
+    event.preventDefault();
+    event.stopPropagation();
+    state.interacted = true;
+    if (control === "fire") {
+      if (!event.repeat) fire();
+    } else {
+      held[control] = true;
+    }
+    paint();
+  });
+  game.addEventListener("keyup", function (event) {
+    if (event.target.closest && event.target.closest("button, input, select, textarea")) return;
+    var control = controlForKey(event.key);
+    if (!control) return;
+    if (event.altKey || event.ctrlKey || event.metaKey) {
+      if (control !== "fire") held[control] = false;
+      return;
+    }
+    event.preventDefault();
+    event.stopPropagation();
+    if (control !== "fire") held[control] = false;
+  });
+  game.addEventListener("blur", function () {
+    releaseControls();
+  }, true);
+  window.addEventListener("blur", releaseControls);
+
+  var controlButtons = game.querySelectorAll("[data-asteroids-control]");
+  for (var ci = 0; ci < controlButtons.length; ci++) {
+    (function (buttonElement) {
+      var control = buttonElement.getAttribute("data-asteroids-control");
+      buttonElement.addEventListener("pointerdown", function (event) {
+        event.preventDefault();
+        state.interacted = true;
+        buttonElement.classList.add("is-held");
+        if (control !== "fire") held[control] = true;
+      });
+      function release() {
+        buttonElement.classList.remove("is-held");
+        if (control !== "fire") held[control] = false;
+      }
+      buttonElement.addEventListener("pointerup", release);
+      buttonElement.addEventListener("pointercancel", release);
+      buttonElement.addEventListener("pointerleave", release);
+      buttonElement.addEventListener("click", function (event) {
+        if (control === "fire") fire();
+        else if (reduceMotion || event.detail === 0) {
+          held[control] = true;
+          step(1 / 30);
+          held[control] = false;
+        }
+      });
+    })(controlButtons[ci]);
+  }
+
+  game.addEventListener("click", function (event) {
+    var actionButton = event.target.closest
+      ? event.target.closest("[data-asteroids-action]")
+      : null;
+    if (!actionButton) return;
+    var action = actionButton.getAttribute("data-asteroids-action");
+    if (action === "reset") reset("wrap-boundary");
+    else if (action === "step") step(1 / 30);
+    else if (action === "toggle") {
+      desiredRunning = !desiredRunning;
+      syncAnimation();
+    }
+  });
+
+  document.addEventListener("visibilitychange", function () {
+    if (document.hidden) pause("document-hidden"); else resume("document-hidden");
+  });
+  function syncReducedMotion(event) {
+    reduceMotion = !!event.matches;
+    if (reduceMotion) pause("reduced-motion"); else resume("reduced-motion");
+  }
+  if (reduceQuery) {
+    if (reduceQuery.addEventListener) reduceQuery.addEventListener("change", syncReducedMotion);
+    else if (reduceQuery.addListener) reduceQuery.addListener(syncReducedMotion);
+  }
+  if ("IntersectionObserver" in window) {
+    var gameObserver = new IntersectionObserver(function (entries) {
+      for (var i = 0; i < entries.length; i++) {
+        if (entries[i].target !== game) continue;
+        if (entries[i].isIntersecting) resume("offscreen"); else pause("offscreen");
+      }
+    }, { threshold: 0.05 });
+    gameObserver.observe(game);
+  } else {
+    var syncFallbackVisibility = function () {
+      var rect = game.getBoundingClientRect();
+      var visible = document.body.getAttribute("data-page") === "training"
+        && rect.bottom > 0 && rect.top < window.innerHeight;
+      if (visible) resume("offscreen"); else pause("offscreen");
+    };
+    window.addEventListener("hashchange", syncFallbackVisibility);
+    window.addEventListener("resize", syncFallbackVisibility);
+    window.addEventListener("scroll", syncFallbackVisibility, { passive: true });
+    syncFallbackVisibility();
+  }
+  if ("ResizeObserver" in window) {
+    new ResizeObserver(function () { paint(); }).observe(canvas);
+  } else {
+    window.addEventListener("resize", paint);
+  }
+  new MutationObserver(function () { paint(); }).observe(document.documentElement, {
+    attributes: true, attributeFilter: ["data-theme"]
+  });
+
+  if (!context) {
+    game.classList.add("no-canvas");
+    game.removeAttribute("tabindex");
+    game.setAttribute("aria-label", "Static Asteroids wrap-boundary demonstration");
+    game.setAttribute("aria-describedby", "nagFallback");
+    if (canvas) canvas.hidden = true;
+    if (fallback) fallback.hidden = false;
+    desiredRunning = false;
+    paused["canvas-unavailable"] = true;
+  } else if (fallback) {
+    fallback.hidden = true;
+  }
+
+  reset("wrap-boundary");
+  window.NexusAsteroids = Object.freeze({
+    snapshot: snapshot,
+    reset: reset,
+    step: step,
+    fire: fire,
+    setCollisionMode: setCollisionMode,
+    setSplittingEnabled: setSplittingEnabled,
+    pause: pause,
+    resume: resume,
+    logic: Object.freeze({
+      wrap: wrap,
+      collides: collides,
+      fragmentsFor: fragmentsFor,
+      hitOutcome: hitOutcome
+    })
+  });
+  syncAnimation();
+})();
+</script>
+
+<script>
+(function () {
+  "use strict";
+
   var root = document.getElementById("nhTraining");
   var dataEl = document.getElementById("nh-training-scenes");
   if (!root || !dataEl) return;
@@ -3569,14 +4279,6 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
   }
   if (!SCENES.length) return;
 
-  var POSES = [
-    { id: "dawn", label: "Dawn" },
-    { id: "neon", label: "Neon" },
-    { id: "forest", label: "Forest" },
-    { id: "studio", label: "Studio" },
-    { id: "spark", label: "Spark" }
-  ];
-  var TOTAL = POSES.length;
   var REDUCE = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   function q(name) { return root.querySelector('[data-nht="' + name + '"]'); }
@@ -3584,126 +4286,29 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
     where: q("where"), progress: q("progress"),
     outline: document.getElementById("nhtOutline"), outlineList: q("outline-list"),
     stepNum: q("step-num"), title: q("title"), intent: q("intent"),
-    boothTag: q("booth-tag"), boothShot: q("booth-shot"), boothShotLabel: q("booth-shot-label"),
-    boothEmpty: q("booth-empty"), boothSparkle: q("booth-sparkle"), boothPoses: q("booth-poses"),
-    boothPills: q("booth-pills"), boothCount: q("booth-count"), boothRestart: q("booth-restart"),
-    boothMode: q("booth-mode"), boothNote: q("booth-note"), boothLive: q("booth-live"),
     command: q("command"), run: q("run"), output: q("output"), hint: q("hint"),
     tools: q("tools"), artifactPath: q("artifact-path"), artifactSummary: q("artifact-summary"),
     gate: q("gate"), gateStatus: q("gate-status"), gateName: q("gate-name"), gatePrompt: q("gate-prompt"),
-    editorPath: q("editor-path"), editorBody: q("editor-body"), takeaway: q("takeaway"),
-    meter: root.querySelector(".nb-meter")
+    editorPath: q("editor-path"), editorBody: q("editor-body"), takeaway: q("takeaway")
   };
 
   var step = 0;      /* scene index */
   var beat = 0;      /* beat index inside the scene */
-  var booth = null;  /* live booth state, seeded per scene */
+  var gameSeeded = false;
   var runToken = null;
 
-  /* ---------------------------------------------- booth simulation */
-  /* Mirrors example/glow-booth/logic.js, including the frozen bugs. */
-  function computeStamps(captured, fixed) {
-    var n = 0;
-    var limit = fixed ? captured.length : captured.length - 1;
-    for (var i = 0; i < limit; i++) { if (captured[i]) n += 1; }
-    return n < 0 ? 0 : n;
-  }
-  function seedBooth(scene) {
-    var b = scene.booth || {};
-    var captured = (b.captured || []).slice();
-    return {
-      captured: captured,
-      lastPose: captured.length ? captured[captured.length - 1] : null,
-      fixed: !!b.fixed,
-      shuffle: !!b.shuffle,
-      sparkle: !!b.sparkle,
-      highlight: b.highlight || null,
-      note: b.note || ""
-    };
-  }
-  function poseOrder() {
-    if (!booth.shuffle) return POSES;
-    var order = ["neon", "dawn", "spark", "forest", "studio"];
-    return order.map(function (id) {
-      for (var i = 0; i < POSES.length; i++) { if (POSES[i].id === id) return POSES[i]; }
-      return POSES[0];
-    });
-  }
-  function capturePose(id) {
-    if (booth.captured.length >= TOTAL) return;
-    booth.captured.push(id);
-    booth.lastPose = id;
-    paintBooth(true);
-    var label = "";
-    for (var i = 0; i < POSES.length; i++) { if (POSES[i].id === id) label = POSES[i].label; }
-    announce(label + " captured. " + computeStamps(booth.captured, booth.fixed) + " of " + TOTAL + " stamps.");
-  }
-  function restartBooth() {
-    /* the frozen bug: restartState keeps prev.lastPose */
-    var keep = booth.fixed ? null : booth.lastPose;
-    booth.captured = [];
-    booth.lastPose = keep;
-    paintBooth(false);
-    announce(booth.fixed
-      ? "Booth restarted. The stage is clear."
-      : "Booth restarted, but the last pose is still on stage.");
-  }
-  function announce(msg) { if (els.boothLive) els.boothLive.textContent = msg; }
-
-  function paintBooth(flash) {
-    var stamps = computeStamps(booth.captured, booth.fixed);
-    var full = booth.captured.length === TOTAL;
-
-    if (els.boothTag) {
-      els.boothTag.textContent = booth.fixed ? "patched" : "as shipped";
-      els.boothTag.className = "nb-tag " + (booth.fixed ? "is-fixed" : "is-buggy");
-    }
-    if (els.boothShot) {
-      if (booth.lastPose) {
-        var label = "";
-        for (var i = 0; i < POSES.length; i++) { if (POSES[i].id === booth.lastPose) label = POSES[i].label; }
-        els.boothShot.setAttribute("data-pose", booth.lastPose);
-        els.boothShot.classList.add("on");
-        if (els.boothShotLabel) els.boothShotLabel.textContent = label;
-      } else {
-        els.boothShot.classList.remove("on");
-        if (els.boothShotLabel) els.boothShotLabel.textContent = "";
-      }
-    }
-    if (els.boothEmpty) els.boothEmpty.classList.toggle("off", !!booth.lastPose);
-    if (els.boothSparkle) els.boothSparkle.hidden = !(booth.sparkle && booth.fixed && full);
-
-    if (els.boothPoses) {
-      els.boothPoses.textContent = "";
-      poseOrder().forEach(function (pose) {
-        var btn = document.createElement("button");
-        btn.type = "button";
-        btn.className = "nb-pose" + (booth.captured.indexOf(pose.id) >= 0 ? " shot" : "");
-        btn.textContent = pose.label;
-        btn.disabled = booth.captured.length >= TOTAL;
-        btn.addEventListener("click", function () { capturePose(pose.id); });
-        els.boothPoses.appendChild(btn);
-      });
-    }
-    if (els.boothPills) {
-      els.boothPills.textContent = "";
-      for (var p = 0; p < TOTAL; p++) {
-        var pill = document.createElement("i");
-        if (p < stamps) pill.className = "on";
-        els.boothPills.appendChild(pill);
-      }
-    }
-    if (els.boothCount) els.boothCount.textContent = String(stamps);
-    if (els.boothMode) {
-      els.boothMode.textContent = booth.fixed
-        ? "logic.js: captured.length"
-        : "logic.js: captured.length - 1";
-    }
-    if (els.meter && flash && !REDUCE) {
-      els.meter.classList.remove("flash");
-      void els.meter.offsetWidth;
-      els.meter.classList.add("flash");
-    }
+  /* ---------------------------------------------- Asteroids scene adapter */
+  function configureGame(scene) {
+    if (!window.NexusAsteroids) return;
+    var config = scene.game || {};
+    var legacy = scene.booth || {};
+    var mode = config.collisionMode || (legacy.fixed ? "fixed" : "buggy");
+    var splitting = config.splittingEnabled;
+    if (typeof splitting !== "boolean") splitting = !!legacy.shuffle;
+    window.NexusAsteroids.reset(config.situation || config.preset || "wrap-boundary");
+    window.NexusAsteroids.setCollisionMode(mode);
+    window.NexusAsteroids.setSplittingEnabled(splitting);
+    gameSeeded = true;
   }
 
   /* ---------------------------------------------- terminal */
@@ -3795,7 +4400,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
   }
 
   /* ---------------------------------------------- render a step */
-  function render(resetBooth) {
+  function render(resetGame) {
     var scene = SCENES[step];
     if (!scene) return;
     var beats = scene.beats || [];
@@ -3868,10 +4473,8 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
       els.takeaway.appendChild(document.createTextNode("  " + (current.takeaway || "")));
     }
 
-    if (resetBooth) {
-      booth = seedBooth(scene);
-      if (els.boothNote) els.boothNote.textContent = booth.note;
-      paintBooth(false);
+    if (resetGame) {
+      configureGame(scene);
       resetTerminal(scene);
     }
 
@@ -3965,7 +4568,6 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
     else if (action === "prev") { goPrev(); }
     else if (action === "restart") { beat = 0; render(true); }
     else if (action === "run") { runCommand(); }
-    else if (action === "booth-restart") { restartBooth(); }
     else if (action === "outline") {
       var open = els.outline && els.outline.hidden;
       if (els.outline) els.outline.hidden = !open;
@@ -3978,6 +4580,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
   document.addEventListener("keydown", function (e) {
     if (document.body.getAttribute("data-page") !== "training") return;
     if (e.altKey || e.ctrlKey || e.metaKey) return;
+    if (e.target.closest && e.target.closest("[data-asteroids-game]")) return;
     var tag = (e.target.tagName || "").toLowerCase();
     if (tag === "input" || tag === "textarea" || tag === "select") return;
     if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") { e.preventDefault(); goNext(); }
@@ -3998,7 +4601,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
       if (beats.length && b > beats.length - 1) b = beats.length - 1;   /* clamp */
       var sceneChanged = idx !== step;
       step = idx; beat = b;
-      render(sceneChanged || booth === null);
+      render(sceneChanged || !gameSeeded);
     }
   };
 

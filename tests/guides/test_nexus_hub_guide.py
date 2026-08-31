@@ -1144,17 +1144,18 @@ def test_hostile_fixture_strings_are_rendered_via_textcontent(
     assert "data-training-root" in guide_text
 
 
-def test_training_engine_reproduces_the_frozen_bugs(guide_text: str) -> None:
-    """The mockup must teach what the downloadable example actually does."""
+def test_training_engine_uses_asteroids_collision_contract(guide_text: str) -> None:
+    """Phase 4 replaces the booth runtime with the seeded Asteroids defect."""
     engine = _training_engine(guide_text)
-    assert "captured.length - 1" in engine, "buggy stamp path must be simulated"
-    assert "fixed ? captured.length : captured.length - 1" in engine
-    assert "booth.fixed ? null : booth.lastPose" in engine, "sticky-restart bug must be simulated"
+    assert "function collides" in engine
+    assert 'state.collisionMode === "fixed"' in engine
+    assert "missedWrapHits" in engine and "WRAP HIT MISSED" in engine
+    assert "function computeStamps" not in engine and "function paintBooth" not in engine
 
 
-def test_training_has_booth_terminal_and_present_mode(guide_text: str) -> None:
+def test_training_has_game_terminal_and_present_mode(guide_text: str) -> None:
     training = guide_text.split('id="page-training"', 1)[-1].split('id="page-cheatsheets"', 1)[0]
-    assert 'data-nht="booth"' in training
+    assert "data-asteroids-game" in training
     assert 'data-nht="terminal"' in training
     assert 'data-nht="run"' in training
     assert 'id="nhtPresent"' in training
