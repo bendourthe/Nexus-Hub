@@ -7,14 +7,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [Unreleased]
+## [4.3.0] - 2026-08-31
+
+This release ships the interactive guide rebuild (developed as v4.2.0 through v4.2.3, never tagged) and the agentic verification discipline (v4.3.0) as a single cut. The intermediate versions were never published, so their work is folded here; per-version detail remains under `docs/releases/v4/`.
+
+### Capability usage
+
+This release adds one default-on hook that can BLOCK a write, so its operation is documented in full.
+
+#### html-responsive-guard
+
+- Activation: installed and registered automatically as a `PreToolUse` hook by `nexus-hub upgrade` or a fresh installer run. No flag or environment variable enables it; it is active once installed.
+- Validation: `printf '{"tool_name":"Write","tool_input":{"file_path":"x.html","content":"<style>p{max-width:600px}</style>"}}' | bash ~/.claude/hooks/html-responsive-guard.sh; echo $?` prints the violation and exits `2`. Unrelated or malformed input exits `0`.
+- Rollback: `NEXUS_DISABLED_HOOKS=html-responsive-guard` disables this hook for the session, and `NEXUS_HOOK_PROFILE=minimal` disables the advisory set. Neither removes installed files; re-running the installer restores registration.
+- Authority: disabling the hook does NOT make a fixed text cap correct. It removes write-time enforcement only, while the rendered-output detector and `catalog/rules/html/responsive-layout.md` still apply. The hook reads only the write payload it is handed: it makes no outbound call, does not scan the project, and never rewrites a file. It blocks or permits; it does not edit.
+- Docs: `catalog/rules/html/responsive-layout.md` and `catalog/skills/testing/functional-verification/SKILL.md`
+
+No other opt-in capability, installer flag, or host surface changed in this release.
 
 ### Added
 
-- **Interactive guide visual education (v4.2.1, in progress).** Phases 1-7 local: contract, chrome, Home loop, Foundations stations, Glow Booth Training slideshow, Cheatsheets, and last-phase evidence. Publication and `/update release` still require a green integration to `develop`.
-- **Interactive guide redesign (v4.2.0 substrate, unpublished).** Dual-theme shell, concise Home with install, model-versus-harness Foundations, and an eight-scene IDE training workbench remain on disk as the starting markup. Do not cut a GitHub Release of that UI; v4.2.1 is the public cut.
+- **Tiered verification ladder, inherited by every consuming project on install.** The phase gate previously evaluated four things - tests pass, coverage at threshold, zero lint errors, build succeeds - all of which can be true of a feature that has never been run. The ladder adds Tier 1 (a cheap proportional functional smoke of what the phase actually built, now the fifth part of the GO/NO-GO gate), Tier 2 (a recorded plan-delta note written at every phase, where `No delta` is an explicit result rather than an omitted section), and Tier 3 (a fail-closed deep pass before release that dynamically exercises every feature the plan produced, checks rendered output with a real detector, runs an adversarial pass, and audits whether the plan itself was complete). Depth scales with blast radius from objective diff-evidenced triggers; ambiguous classification escalates to the full pass.
+- **`functional-verification` skill** owning the procedure per artifact type and depth, with a bundled deep-pass runbook and a renderer-backed visual-defect detector that runs against real pages.
+- **`catalog/rules/html/` rule family** with `responsive-layout.md`, plus the paired `html-responsive-guard.sh` / `.ps1` hook that enforces it at write time. The hook is default-on once installed; its activation, validation, rollback, and authority boundary are documented in the README.
+- **Interactive guide rebuild.** Dual-theme shell with hash routing, a compact Home folding in installation, model-versus-harness Foundations rebuilt as five animated scrollytelling scenes, Training as an interactive walkthrough, and Workflows plus Reference merged into per-scope Cheatsheets. Verified to WCAG AA across both themes.
+- **`interpreters` gate group** in the fast, full, and platform profiles, plus a `nexus-hub doctor` NEEDS-ACTION line, so a host that cannot execute the interpreter its hooks are launched with is reported instead of failing silently.
 
----
+### Fixed
+
+- **A WSL-stub `bash` silently denied every guarded tool call.** On a Windows host whose PATH `bash` is the WSL launcher stub, the guard child exited non-zero and printed its notice to stdout without touching stderr, so the bridge denied with no actionable diagnostic. Hook children now resolve a bare `bash` to a verified Git Bash on Windows; a caller-chosen absolute interpreter is never second-guessed, POSIX is untouched, and the permission-authority binding still inspects the original command.
+- **Managed writes were silently refused under an aliased path spelling.** The ownership guard compared only `os.path.abspath` spellings, which normalizes neither Windows 8.3 short names nor POSIX symlinked parents, so writes returned `kept` with nothing on disk and no error. Containment now falls back to a canonical comparison while the ancestor walk keeps the original spelling, so symlink and junction detection is unchanged.
+- **Global-scope managed writes were refused outright.** Destinations outside `target_root` (`~/.copilot`, `~/.claude`, the VS Code user directory) were rejected and reported as `kept`. Outside the managed root there is no managed ancestor to police; leaf-level symlink, junction, and hard-link protection is retained and covered by regressions.
+- **The Copilot project surface ignored its own opt-in.** Agent and native-hook installation ran above the `NEXUS_HUB_COPILOT_SKILLS` gate, writing into the commit-visible `.github/` tree regardless of the opt-in. It now runs below the gate.
+- **Antigravity 2.0 wrote its instruction file to the wrong path.** The adapter moved `AGENTS.md` to the workspace root per the verified read contract, but its config still declared `.agents`, so code and configuration disagreed.
+
+### Changed
+
+- Catalog counts are **329 skills**, **18 commands**, **34 hooks**, and **23 agents**.
+- `implement-phase` now runs a five-part GO/NO-GO gate, an eleven-step post-phase sequence that always writes a plan delta, and a fail-closed final-phase duty set.
 
 ## [4.1.2] - 2026-08-28
 
