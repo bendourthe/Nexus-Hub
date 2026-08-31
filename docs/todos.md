@@ -14,11 +14,11 @@ Refreshing this file to the active plan (rather than appending another version's
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
-| v4.4.0 guide-depth-and-training-rebuild phases complete | 4 | 7 | -3 |
+| v4.4.0 guide-depth-and-training-rebuild phases complete | 5 | 7 | -2 |
 | Open release blockers | 0 | 0 | 0 |
 | Catalog skills | 329 | 329 | 0 |
-| Guide pages with clean v4.4.0 verification evidence | 3 | 4 | -1 |
-| Local phase commits | 4 | 7 | -3 |
+| Guide pages with clean v4.4.0 verification evidence | 4 | 4 | 0 |
+| Local phase commits | 5 | 7 | -2 |
 
 ---
 
@@ -28,7 +28,7 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Phase 2 - Foundations structure, model, tokens, and prompts
 - [x] Phase 3 - Chatbot vs agent, context, harness, and loop
 - [x] Phase 4 - Playable Asteroids with a seeded bug
-- [ ] Phase 5 - Training terminal, file explorer, and command loop
+- [x] Phase 5 - Training terminal, file explorer, and command loop
 - [ ] Phase 6 - Cross-page polish, accessibility, budget, and hallmark audit
 - [ ] Phase 7 - Architecture refactor, known-gaps, CI/CD, publication, and integration
 
@@ -42,7 +42,7 @@ v4.3.0 is tagged and released, so its verification discipline is available to ga
 
 ### Current checkpoint
 
-Phase 4 is locally complete at its commit gate. Training now has a deterministic playable Asteroids game with an unmistakable wrap-boundary collision bug, the corrected collision path and splitting seam Phase 5 will drive, keyboard and touch controls, composed lifecycle pauses, live reduced-motion handling, a truthful no-canvas fallback, and a frozen state API. The fail-closed guide and detector aggregate is green at 145 passed with one expected portfolio-sync skip, both Training theme sweeps report zero findings, and independent stable-tree review approved the implementation with no P0-P3 findings. DF-1 and MT-1 remain open. No push, pull request, or remote CI run has occurred.
+Phase 5 is locally complete at its commit gate. All eight Training commands now run against the Asteroids game and a cumulative, keyboard-accessible file explorer with real artifacts. The seeded shot visibly changes from a miss to a fixed hit at `/implement`, then produces two fragments after `/compare`; reruns and direct jumps remain coherent. The fail-closed guide and detector aggregate is green at 148 passed with one expected portfolio-copy skip, both Training theme sweeps report zero findings, and independent re-review approved the corrected implementation with no P0-P3 findings. DF-1 and MT-1 remain open. No push, pull request, or remote CI run has occurred.
 
 ---
 

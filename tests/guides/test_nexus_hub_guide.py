@@ -20,7 +20,6 @@ import pytest
 
 _ROOT = Path(__file__).resolve().parents[2]
 GUIDE = _ROOT / "guides" / "website" / "nexus-hub-guide.html"
-EXAMPLE_ZIP_NAME = "glow-booth.zip"
 SIZE_BUDGET_BYTES = 500_000
 
 INSTALL_SH = (
@@ -293,10 +292,14 @@ def test_no_runtime_cdn_font_script_or_image(parsed: GuideParser, guide_text: st
     assert not css_http, "CSS url() points at a network href"
 
 
-def test_example_zip_link_present(guide_text: str) -> None:
-    assert EXAMPLE_ZIP_NAME in guide_text
-    assert re.search(rf'href=["\'](?:[^"\']*/)?{re.escape(EXAMPLE_ZIP_NAME)}["\']', guide_text)
-    assert (GUIDE.parent / EXAMPLE_ZIP_NAME).is_file()
+def test_legacy_example_assets_are_not_in_the_reader_path(guide_text: str) -> None:
+    lower = guide_text.lower()
+    assert "glow booth" not in lower
+    assert "glow-booth" not in lower
+    assert not re.search(r'<a[^>]+download(?:\s|=|>)', guide_text, re.IGNORECASE)
+    assert (GUIDE.parent / "glow-booth.zip").is_file(), (
+        "the legacy regression fixture remains until a separately approved deletion"
+    )
 
 
 def test_github_is_user_initiated_not_a_script(parsed: GuideParser) -> None:
@@ -1054,7 +1057,7 @@ def test_foundations_animations_have_reduced_motion_fallback(guide_text: str) ->
 
 
 # ---------------------------------------------------------------------------
-# Training scene data (JSON carried through the rebuild; Phase 4 redesigns it)
+# Training scene data and cumulative project explorer (Phase 5)
 # ---------------------------------------------------------------------------
 
 
@@ -1070,8 +1073,6 @@ def test_every_scene_exposes_gate_and_next_scene(parsed: GuideParser) -> None:
     for scene in scenes:
         ids.append(scene["id"])
         assert "gate" in scene
-        assert "next_scene" in scene
-        assert "beats" in scene
     required = [
         "describe",
         "review",
@@ -1091,7 +1092,9 @@ def test_every_scene_exposes_gate_and_next_scene(parsed: GuideParser) -> None:
 def test_script_close_in_fixture_does_not_break_document(parsed: GuideParser) -> None:
     assert parsed.json_script_contents, "fixture JSON block required before encoding can be checked"
     joined = "\n".join(parsed.json_script_contents)
-    assert "&lt;/script&gt;" in joined or r"<\/script>" in joined
+    safe_closes = ("&lt;/script&gt;", r"<\/script>", r"\u003c/script\u003e")
+    assert any(token in joined for token in safe_closes)
+    assert "</script>" in json.dumps(json.loads(joined))
     assert parsed.html_count == 1
     assert "page-training" in parsed.page_ids
 
@@ -1103,23 +1106,101 @@ def test_inline_scenes_match_example_json(parsed: GuideParser) -> None:
     assert inline == disk
 
 
-def test_glow_booth_example_ships_frozen_bugs() -> None:
-    logic = (
-        _ROOT / "guides" / "website" / "example" / "glow-booth" / "logic.js"
-    ).read_text(encoding="utf-8")
-    assert "captured.length - 1" in logic
-    assert "lastPose: prev.lastPose" in logic
-    ref = (
-        _ROOT
-        / "guides"
-        / "website"
-        / "example"
-        / "glow-booth-shuffle-reference"
-        / "logic.js"
-    ).read_text(encoding="utf-8")
-    assert "captured.length - 1" not in ref
-    assert "function shuffle" in ref
-    assert (_ROOT / "guides" / "website" / "example" / "glow-booth" / "index.html").is_file()
+def test_training_scene_schema_is_strict_and_cumulative(parsed: GuideParser) -> None:
+    data = json.loads(parsed.json_script_contents[0])
+    assert set(data) == {"initial", "scenes"}
+    assert set(data["initial"]) == {"game", "files"}
+    assert data["initial"]["game"] == {
+        "collisionMode": "buggy",
+        "splittingEnabled": False,
+        "situation": "wrap-boundary",
+    }
+    initial_files = data["initial"]["files"]
+    assert initial_files, "the explorer needs the files that exist before /describe"
+    assert {item["path"] for item in initial_files} >= {
+        "src/collision.js",
+        "src/game.js",
+    }
+    assert len({item["path"] for item in initial_files}) == len(initial_files)
+    for item in initial_files:
+        assert set(item) >= {"path", "language", "content"}
+        assert item["path"] and item["language"] and item["content"].strip()
+
+    current = {item["path"]: item["content"] for item in initial_files}
+    seen_actions: set[str] = set()
+    for scene in data["scenes"]:
+        assert set(scene) == {
+            "id",
+            "stage",
+            "title",
+            "intent",
+            "command",
+            "tools",
+            "output",
+            "game",
+            "files",
+            "focus_file",
+            "artifact",
+            "gate",
+            "takeaway",
+        }
+        assert re.search(r"\byou\b", scene["intent"], re.IGNORECASE)
+        assert scene["command"].startswith(f"/{scene['id']}")
+        assert scene["tools"] and all(
+            set(tool) == {"name", "purpose"} and all(tool.values())
+            for tool in scene["tools"]
+        )
+        assert scene["output"] and all(
+            isinstance(line, str) and line.strip() for line in scene["output"]
+        )
+        assert set(scene["game"]) == {
+            "collisionMode",
+            "splittingEnabled",
+            "situation",
+        }
+        assert scene["game"]["collisionMode"] in {"buggy", "fixed"}
+        assert isinstance(scene["game"]["splittingEnabled"], bool)
+        assert scene["game"]["situation"] in {"wrap-boundary", "play"}
+        assert scene["files"]
+        for file_change in scene["files"]:
+            assert set(file_change) >= {"path", "action", "language", "content"}
+            action = file_change["action"]
+            path = file_change["path"]
+            seen_actions.add(action)
+            assert action in {"create", "modify"}
+            assert file_change["content"].strip(), f"{path} needs real file content"
+            if action == "create":
+                assert path not in current, f"{path} cannot be created twice"
+            else:
+                assert path in current, f"{path} must exist before it is modified"
+                assert current[path] != file_change["content"], (
+                    f"{path} modify action must change its content"
+                )
+            current[path] = file_change["content"]
+        assert scene["focus_file"] in current
+        assert set(scene["artifact"]) == {"path", "summary"}
+        assert set(scene["gate"]) == {"name", "status", "prompt"}
+        assert scene["gate"]["status"] == "pass"
+        assert scene["takeaway"].strip()
+    assert seen_actions == {"create", "modify"}
+
+
+def test_training_game_state_changes_at_implement_and_compare(parsed: GuideParser) -> None:
+    scenes = json.loads(parsed.json_script_contents[0])["scenes"]
+    states = {scene["id"]: scene["game"] for scene in scenes}
+    for scene_id in ("describe", "review", "plan"):
+        assert states[scene_id]["collisionMode"] == "buggy"
+        assert states[scene_id]["splittingEnabled"] is False
+    assert states["implement"] == {
+        "collisionMode": "fixed",
+        "splittingEnabled": False,
+        "situation": "wrap-boundary",
+    }
+    for scene_id in ("compare", "test", "update", "presentify"):
+        assert states[scene_id]["collisionMode"] == "fixed"
+        assert states[scene_id]["splittingEnabled"] is True
+    compare = next(scene for scene in scenes if scene["id"] == "compare")
+    assert any("Follow-on /plan and /implement" in line for line in compare["output"])
 
 
 def _training_engine(guide_text: str) -> str:
@@ -1142,6 +1223,43 @@ def test_hostile_fixture_strings_are_rendered_via_textcontent(
         "the training engine must never assign innerHTML"
     )
     assert "data-training-root" in guide_text
+
+
+def test_training_explorer_is_accessible_and_uses_text_only_rendering(
+    guide_text: str,
+) -> None:
+    training = guide_text.split('id="page-training"', 1)[-1].split(
+        'id="page-cheatsheets"', 1
+    )[0]
+    for marker in (
+        'data-nht="file-tree"',
+        'data-nht="file-path"',
+        'data-nht="file-state"',
+        'data-nht="file-body"',
+    ):
+        assert marker in training
+    assert re.search(r'data-nht="file-tree"[^>]+role="tree"', training)
+    engine = _training_engine(guide_text)
+    assert "Not created yet" in engine
+    assert "diff-add" in engine and "diff-remove" in engine
+    assert 'setAttribute("role", "treeitem")' in engine
+    assert 'setAttribute("aria-selected"' in engine
+    assert re.search(r"fileBody\.textContent\s*=", engine)
+    assert not re.search(r"(?:fileBody|fileTree)\.innerHTML\s*=", engine)
+
+
+def test_training_runtime_exposes_deterministic_state_contract(guide_text: str) -> None:
+    engine = _training_engine(guide_text)
+    assert "window.NexusTraining" in engine
+    for member in ("go:", "run:", "selectFile:", "snapshot:"):
+        assert member in engine
+    assert "Object.freeze" in engine
+    assert "parsed.initial" in engine
+    assert "projectStateThrough" in engine
+    assert "appliedThrough" in engine
+    assert "scene.booth" not in engine
+    assert "scene.editor" not in engine
+    assert "config.preset" not in engine
 
 
 def test_training_engine_uses_asteroids_collision_contract(guide_text: str) -> None:
@@ -1231,26 +1349,15 @@ def test_no_hardcoded_text_width_caps_remain(guide_text: str) -> None:
     assert not offenders, f"hardcoded text width caps remain: {offenders}"
 
 
-def test_training_deep_link_clamps_unknown_scene_and_beat(guide_text: str) -> None:
+def test_training_deep_link_clamps_unknown_scene_and_ignores_legacy_beat(
+    guide_text: str,
+) -> None:
     engine = _training_engine(guide_text)
     sync = engine.split("syncFromHash", 1)[-1]
     assert "if (idx < 0) idx = step;" in sync, "unknown scene id must clamp"
-    assert "beats.length - 1" in sync, "out-of-range beat must clamp"
-
-
-def test_every_scene_has_walkthrough_fields(parsed: GuideParser) -> None:
-    data = json.loads(parsed.json_script_contents[0])
-    for scene in data["scenes"]:
-        for field in ("title", "intent", "command", "output", "booth", "artifact", "tools"):
-            assert field in scene, f"{scene['id']} missing {field}"
-        assert isinstance(scene["booth"].get("captured"), list)
-        assert "fixed" in scene["booth"]
-    ids = [s["id"] for s in data["scenes"]]
-    fixed_from = ids.index("implement")
-    for scene in data["scenes"][:fixed_from]:
-        assert scene["booth"]["fixed"] is False, "bugs stay visible until /implement"
-    for scene in data["scenes"][fixed_from:]:
-        assert scene["booth"]["fixed"] is True, "the fix persists after /implement"
+    assert re.search(r"syncFromHash:\s*function\s*\(sceneId\)", engine)
+    assert "beatIndex" not in sync, "legacy beat values no longer control scene state"
+    assert r"(?:\?beat=([^&]+))?" in engine, "old deep links remain parse-compatible"
 
 
 # ---------------------------------------------------------------------------

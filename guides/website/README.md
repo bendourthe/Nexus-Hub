@@ -1,6 +1,6 @@
 # Nexus-Hub Interactive Guide
 
-This directory holds the public-facing Nexus-Hub guide and the Glow Booth example the Training walkthrough operates on. Everything is self-contained, opens in a browser, and needs no build step. This `README.md` is for maintainers.
+This directory holds the public-facing Nexus-Hub guide, its Asteroids Training data, and retained legacy fixtures. Everything reader-facing is self-contained, opens in a browser, and needs no build step. This `README.md` is for maintainers.
 
 ## Contents
 
@@ -8,9 +8,9 @@ This directory holds the public-facing Nexus-Hub guide and the Glow Booth exampl
 |---|---|
 | `nexus-hub-guide.html` | Canonical interactive guide. One HTML file. The main entry point. |
 | `example/training-scenes.json` | Maintainer source of truth for Training scenes. The guide inlines a verified copy. |
-| `example/glow-booth/` | Example app the Training mockup reproduces. Open `index.html` from disk. |
-| `example/glow-booth-shuffle-reference/` | Local `/compare` target that already has shuffled poses plus sparkle. |
-| `glow-booth.zip` | Downloadable bundle learners extract. |
+| `example/glow-booth/` | Legacy regression fixture retained pending explicit removal approval. Not reader-facing. |
+| `example/glow-booth-shuffle-reference/` | Legacy comparison fixture retained pending explicit removal approval. Not reader-facing. |
+| `glow-booth.zip` | Legacy archive fixture retained pending explicit removal approval. Not a reader download. |
 | `example/trivia-quiz/` | Previous example. Stays on disk. Not taught in the published guide. |
 
 The guide is the single home for orientation, installation, Foundations, Training, and Cheatsheets. It remains one self-contained HTML file with no runtime network dependency.
@@ -23,7 +23,7 @@ The guide is the single home for orientation, installation, Foundations, Trainin
 - **To share:** send that one file.
 - **Primary navigation:** Home, Foundations, Training, Cheatsheets. Installation is not a primary page. GitHub is an icon-only external link. Theme toggles light and dark and persists only those two values under `portfolio-theme`.
 
-URL grammar: `#<page-id>` for pages; `#training/<scene-id>?beat=n` for Training; `#cheatsheets/<stop>` for Cheatsheets sections. Compatibility: `#reference` and `#workflows` rewrite to `#cheatsheets`; `#explore`, `#plan`, `#build`, `#harden`, `#ship`, `#communicate` rewrite to `#cheatsheets/<id>`. `#home/install` scrolls to the Home install block. Unknown page ids rewrite to Home.
+URL grammar: `#<page-id>` for pages; `#training/<scene-id>` for Training; `#cheatsheets/<stop>` for Cheatsheets sections. A legacy `?beat=n` suffix is accepted and ignored. Compatibility: `#reference` and `#workflows` rewrite to `#cheatsheets`; `#explore`, `#plan`, `#build`, `#harden`, `#ship`, `#communicate` rewrite to `#cheatsheets/<id>`. `#home/install` scrolls to the Home install block. Unknown page ids rewrite to Home.
 
 ## Design system (v4.2.2, refined in v4.2.3)
 
@@ -74,20 +74,21 @@ Hard rules: no element pins itself over the content, and there is **no toggle** 
 
 ## Training walkthrough
 
-Training is an eight-step interactive walkthrough (`#nhTraining`, `[data-training-root]`) driven entirely by the scene JSON. Each step composes four things:
+Training is an eight-step interactive Asteroids walkthrough (`#nhTraining`, `[data-training-root]`) driven entirely by the scene JSON. Each step composes five things:
 
 1. The step's intent, in second person.
-2. **The interactive Glow Booth mockup** - a faithful re-implementation of `example/glow-booth/logic.js`, *including both frozen bugs*. While `booth.fixed` is false, `computeStamps` walks `captured.length - 1` (a perfect set reads 4 of 5) and Restart keeps `lastPose` on stage. Learners click it freely.
-3. **The simulated terminal** - the step's command pre-filled with a Run affordance; running shows a brief working line, then reveals the reply. The command is NOT echoed a second time, because the prompt line above already shows it.
-4. The artifact card and gate verdict.
+2. **The playable Asteroids arena** - a deterministic wrap-boundary collision makes the bug observable before `/implement`; the implementation step switches to wrap-aware collision, and `/compare` plus its follow-on implementation enables asteroid splitting.
+3. **The simulated terminal** - the step's command is pre-filled with a Run affordance; running shows a brief working line, reveals the reply, applies the file changes, and advances the game state. The command is not echoed a second time because the prompt line above already shows it.
+4. **The cumulative file explorer** - the tree shows everything created so far, marks the current step's new and changed files, and paints the selected file or diff with text nodes only. A requested path that does not exist yet says so explicitly.
+5. The artifact, gate verdict, and takeaway that explain what the command produced and why it matters.
 
 Controls (reworked in v4.2.3): Previous, Next, and Restart are icon buttons in a right-aligned cluster BELOW the takeaway, each with an `aria-label`, a `title`, and a visible focus ring. Outline keeps a text label because a glyph does not carry its meaning. ArrowLeft / ArrowRight / Space advance; `f` toggles Present; Escape exits it.
 
-**Present mode** requests fullscreen on the training root and applies a viewport overlay class either way, so a denied or unavailable Fullscreen API still presents as slides. Since v4.2.3 it FILLS the viewport: a full-height flex column where the slide grows to consume the space and the booth and terminal stretch inside it, rather than centring an in-page-sized block in an empty screen.
+**Present mode** requests fullscreen on the training root and applies a viewport overlay class either way, so a denied or unavailable Fullscreen API still presents as slides. Since v4.2.3 it FILLS the viewport: a full-height flex column where the slide grows to consume the space and the game and terminal stretch inside it, rather than centring an in-page-sized block in an empty screen.
 
-**Position and progress** read in plain language: `Understand . 1 of 8 . /describe full`. The progress strip is eight labelled loop stages - each names its command, the current one carries `aria-current="step"`, completed ones dim, and clicking one jumps to it. The word "beat" must not appear in the UI; it survives only as the underlying mechanism and in the `?beat=n` URL grammar, which is a compatibility contract.
+**Position and progress** read in plain language: `Understand | 1 of 8 | /describe full`. The progress strip is eight labelled loop stages - each names its command, the current one carries `aria-current="step"`, completed ones dim, and clicking one jumps to it.
 
-URL: `#training/<scene-id>?beat=n`. Beat changes use `history.replaceState`. An unknown scene id or an out-of-range beat clamps to the nearest valid step.
+URL: `#training/<scene-id>`. The legacy `?beat=n` suffix remains accepted but no longer changes state. An unknown scene id keeps the current step.
 
 Fixture strings are painted with `textContent` / `createElement` only. The Training engine assigns `innerHTML` nowhere, and a test enforces that, so the hostile fixture strings (`<img onerror>`, `</script>`) can never execute.
 
@@ -109,9 +110,9 @@ Page-level ArrowLeft / ArrowRight move between pages when Training is not curren
 
 ## Fixture maintenance
 
-1. Edit `example/training-scenes.json`. Keep eight scenes unless a later plan raises the cap (never above twelve). Every scene needs `title`, `intent`, `command`, `tools`, `output`, `editor`, `artifact`, `booth`, `gate`, `next_scene`, and `beats`.
+1. Edit `example/training-scenes.json`. Keep eight scenes unless a later plan raises the cap (never above twelve). The top-level `initial` object defines the starting game and source files. Every scene needs `title`, second-person `intent`, `command`, `tools`, `output`, `game`, `files`, `focus_file`, `artifact`, `gate`, and `takeaway`. File entries carry real display content and declare whether they are created or modified.
 2. Copy the parsed JSON into the `<script type="application/json" id="nh-training-scenes">` block. Encode a literal `</script>` inside a string as `<\/script>` so the HTML parser does not close the block.
-3. Run `python -m pytest -q tests/guides/test_nexus_hub_guide.py`. The suite asserts the inline JSON equals the file after parse, that hostile fixture strings survive, and that `booth.fixed` is false before `/implement` and true after.
+3. Run `python -m pytest -q tests/guides/test_nexus_hub_guide.py tests/guides/test_asteroids_game.py`. The suite asserts the inline JSON equals the file after parse, hostile fixture strings survive as text, direct step entry is coherent, rerunning a command is idempotent, `/implement` fixes wrap collision, and `/compare` records its follow-on implementation before splitting appears.
 
 ## Command inventory
 
@@ -143,37 +144,9 @@ Every file in `catalog/commands/` is either a Training scene, a Cheatsheets entr
 
 The same table is frozen in `docs/releases/v4/v4.2/development/guide-redesign-content-map.md`.
 
-## The example project (Glow Booth)
+## Legacy example fixtures
 
-A small vanilla HTML, CSS, and JavaScript instant-camera booth that runs by opening `example/glow-booth/index.html`. It works end to end but ships with two intentional bugs and no tests, plus one feature to add:
-
-- A perfect set of poses awards 4/5 stamps (the stamp helper stops one short).
-- Restart leaves the last pose on stage.
-- Feature to add: shuffle poses plus a sparkle overlay on a full meter.
-
-The Training scenes resolve those with the loop, and the in-guide mockup reproduces both bugs so a learner sees them before any fix. `example/glow-booth-shuffle-reference/` already has shuffle and sparkle; it is the local `/compare` target. `glow-booth.zip` bundles both folders plus a START-HERE note. Do not teach Trivia Quiz in the published guide.
-
-## Running the training (self-guided)
-
-Prerequisites:
-
-- Nexus-Hub installed so the slash commands resolve. Paste one of the Home install commands above.
-- A modern browser to open `index.html`.
-
-Setup: download `glow-booth.zip`, extract it, and open the app in your platform of choice. From the app folder, run `git init` and an initial commit.
-
-The loop, in order (each command is on the matching Training step):
-
-1. `/describe full`
-2. `/review`
-3. `/plan feature`
-4. `/implement` (one phase)
-5. `/compare ../glow-booth-shuffle-reference` then `/plan from-comparison` as a beat of compare, not a ninth scene
-6. `/test unit`
-7. `/update`
-8. `/presentify`
-
-Troubleshooting: if a slash command does not resolve, reinstall Nexus-Hub and reload the editor. If `/compare` cannot find the reference, keep `glow-booth-shuffle-reference` next to the app (`../glow-booth-shuffle-reference`).
+`example/glow-booth/`, `example/glow-booth-shuffle-reference/`, and `glow-booth.zip` remain in the repository only as legacy regression fixtures while removal awaits explicit approval. They are not linked from the guide, offered as a reader download, or used by the Asteroids walkthrough. Tests may inspect their frozen historical behavior, but new Training work must use `example/training-scenes.json` and the in-browser game.
 
 ## Copy contract (canonical publication)
 
@@ -206,7 +179,7 @@ Before a workshop or a portfolio publish, also open the file by hand and check:
 - Reduced motion across Foundations and the Training terminal
 - Home install copy on the Windows and macOS/Linux tabs, and the verify-command copy cells
 - Foundations: eight scenes, correct responsive diagram variant, no pinned overlay, no comparison toggle
-- Training: the booth's 4/5 bug and sticky Restart, the fix at `/implement`, the terminal, the outline, Present mode, and a mid-walkthrough URL
+- Training: playable Asteroids controls, the wrap-boundary fix at `/implement`, splitting after `/compare` and its follow-on implementation, terminal output, cumulative explorer, missing-file state, outline, Present mode, and a mid-walkthrough URL
 - Cheatsheets: every scope readable, jump nav, and a deep link such as `#cheatsheets/explore`
 - Keyboard-only path through all four pages
 
@@ -214,4 +187,4 @@ Lighthouse Accessibility is a last-phase human bar, not a mid-plan merge gate.
 
 ## Editing
 
-The guide is a single HTML file: CSS in the `<style>` block, content in `<section class="page">` blocks, behavior in the two `<script>` blocks at the bottom (the app shell, then the Training engine after the scene JSON). Class prefixes: `fx-` for Foundations scenes, `nht-` / `nb-` for Training and the booth, `cs-` for Cheatsheets. Scene data is `example/training-scenes.json` plus the matching inline JSON block. The example under `example/` is plain files; edit them in place and regenerate `glow-booth.zip` from those folders.
+The guide is a single HTML file: CSS in the `<style>` block, content in `<section class="page">` blocks, behavior in the two `<script>` blocks at the bottom (the app shell, then the Training engine after the scene JSON). Class prefixes: `fx-` for Foundations scenes, `nht-` for Training and Asteroids, and `cs-` for Cheatsheets. Scene data is `example/training-scenes.json` plus the matching inline JSON block. Do not edit or regenerate the retained Glow Booth fixtures as part of reader-facing Training work.

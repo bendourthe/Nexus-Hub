@@ -528,7 +528,7 @@ def test_foundations_phase2_diagrams_are_legible_at_release_and_breakpoint_width
             browser.close()
 
 
-def test_training_cold_deep_link_preserves_scene_and_beat(
+def test_training_cold_deep_link_accepts_and_discards_legacy_beat(
     render_gate: object,
 ) -> None:
     _require_browser(render_gate)
@@ -556,15 +556,15 @@ def test_training_cold_deep_link_preserves_scene_and_beat(
                 page.wait_for_function(
                     """
                     () => document.querySelector('[data-nht="title"]')?.textContent
-                      === "Get a verdict on the bugs"
+                      === "Turn the symptom into a finding"
                     """,
                     timeout=3000,
                 )
-                assert page.evaluate("location.hash") == "#training/review?beat=1"
+                assert page.evaluate("location.hash") == "#training/review"
                 assert page.locator('[data-nht="title"]').inner_text() == (
-                    "Get a verdict on the bugs"
+                    "Turn the symptom into a finding"
                 )
-                assert "The report names stamps, restart, tests, and shuffle." in (
+                assert "distinguish a real boundary defect from a missed shot" in (
                     page.locator('[data-nht="takeaway"]').inner_text()
                 )
             finally:
