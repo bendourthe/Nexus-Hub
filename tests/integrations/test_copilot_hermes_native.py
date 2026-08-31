@@ -1362,42 +1362,46 @@ def test_owned_write_outside_target_root_still_refuses_a_junction_leaf(
     assert not outside.samefile(external)
 
 
-def test_copilot_authority_tolerates_an_unavailable_hard_link_count(
-    copilot, install_ctx, monkeypatch
-):
-    """Authority must survive a host that cannot report a hard-link count.
+def test_bare_bash_resolves_to_a_real_interpreter_on_windows(monkeypatch):
+    """A bare `bash` is rewritten to a verified Git Bash on Windows.
 
-    Regression (v4.3.0 Phase 5): the bridge required `st_nlink == 1` exactly.
-    Windows populates `st_nlink` only when the stat call opens a handle, so a
-    host that takes the fast path reports 0 and every authoritative rewrite was
-    denied. The predicate that detects a hard link is `> 1`, which is what the
-    ownership helper already uses; `0` means unknown, not shared.
+    Regression (v4.3.0 Phase 5): on a Windows host whose PATH `bash` is the WSL
+    launcher stub, the guard child exits non-zero and prints its notice to stdout,
+    so the bridge denied every tool call with an empty stderr and no diagnostic.
     """
-    copilot.install_workspace(install_ctx)
-    scripts = install_ctx.target_root / ".github" / "hooks" / "nexus-hub-scripts"
-    rewrite = scripts / "rewrite-command.sh"
-    compat = scripts / "copilot-hook-compat.py"
-    digest = hashlib.sha256(rewrite.read_bytes()).hexdigest()
-
-    real_stat = Path.stat
-
-    class _ZeroLinkStat:
-        def __init__(self, wrapped):
-            self._wrapped = wrapped
-
-        st_nlink = 0
-
-        def __getattr__(self, name):
-            return getattr(self._wrapped, name)
-
-    def stat_without_link_count(self, *args, **kwargs):
-        return _ZeroLinkStat(real_stat(self, *args, **kwargs))
-
-    monkeypatch.setattr(Path, "stat", stat_without_link_count)
-
-    assert hook_compat._copilot_permission_authoritative(
-        "rewrite-command.sh",
-        ["bash", str(rewrite)],
-        digest,
-        compat_path=compat,
+    monkeypatch.setattr(os, "name", "nt")
+    monkeypatch.setattr(
+        hook_compat, "_WINDOWS_BASH_CANDIDATES", (r"C:\Program Files\Git\bin\bash.exe",)
     )
+    monkeypatch.setattr(Path, "is_file", lambda self: True)
+
+    assert hook_compat._resolve_bash_command(["bash", "child.sh"]) == [
+        r"C:\Program Files\Git\bin\bash.exe",
+        "child.sh",
+    ]
+
+
+def test_absolute_interpreter_is_never_second_guessed(monkeypatch):
+    """Only a BARE `bash` is rewritten; a chosen absolute path is left alone."""
+    monkeypatch.setattr(os, "name", "nt")
+    monkeypatch.setattr(Path, "is_file", lambda self: True)
+
+    chosen = [r"D:\custom\bash.exe", "child.sh"]
+    assert hook_compat._resolve_bash_command(chosen) == chosen
+    powershell = ["powershell", "-NoProfile", "-File", "child.ps1"]
+    assert hook_compat._resolve_bash_command(powershell) == powershell
+
+
+def test_bash_command_is_unchanged_when_no_git_bash_is_present(monkeypatch):
+    """With no Git Bash on disk the original command survives for PATH lookup."""
+    monkeypatch.setattr(os, "name", "nt")
+    monkeypatch.setattr(hook_compat, "_WINDOWS_BASH_CANDIDATES", ())
+
+    assert hook_compat._resolve_bash_command(["bash", "child.sh"]) == ["bash", "child.sh"]
+
+
+def test_posix_bash_command_is_left_to_path(monkeypatch):
+    """POSIX has no WSL stub problem, so PATH resolution is correct there."""
+    monkeypatch.setattr(os, "name", "posix")
+
+    assert hook_compat._resolve_bash_command(["bash", "child.sh"]) == ["bash", "child.sh"]

@@ -327,7 +327,44 @@ FAST_EXIT=0
 
 ### Push 2 - stabilization
 
-PENDING: one narrowly scoped stabilization commit, its push (separately approved), the second required-check result, and the merge decision.
+Commit `2248cc6e` was pushed after approval. Three of the four causes were confirmed fixed remotely; one was not.
+
+| Check | Push 1 | Push 2 |
+|---|---|---|
+| `tests` (Linux) | fail | **pass** |
+| `install-smoke` (ubuntu / macos / windows) | fail | **pass** |
+| `validate`, `shellcheck`, `verify`, `colocation`, CodeQL, `bootstrap`, `installer-smoke` | pass | pass |
+| `tests-windows` | fail | **fail** (1 failed / 248 passed) |
+| `ci-required` | fail | fail (aggregate) |
+
+**A wrong diagnosis, corrected.** The Push 1 analysis attributed the `tests-windows` failure to the `st_nlink == 1` predicate. That was wrong, and the fix based on it did not change the result. The decisive evidence was reading which branch emits the observed message rather than reasoning further about the test:
+
+| Condition | Bridge output |
+|---|---|
+| child `returncode != 0` | `{"permissionDecision": "deny", "permissionDecisionReason": "Nexus-Hub guard denied the tool call."}` |
+| authority denied | `{"modifiedArgs": {"command": "git status"}}` |
+| authority granted | `{"permissionDecision": "allow", ...}` |
+
+CI's observed output matched the first row exactly and the second row not at all, so permission authority was never involved. The `st_nlink` change was therefore **reverted** along with the regression test written for it: its motivating hypothesis was disproven, and loosening a security predicate without evidence is not justified by tidiness.
+
+**The actual cause, and why it is a user-facing bug.** The child exited non-zero with an EMPTY stderr and the default reason. A missing interpreter raises `OSError` and surfaces a `hook-compat:` reason instead, so `bash` was found, ran, exited non-zero, and wrote nothing to stderr. That is the signature of the Windows WSL launcher stub at `C:\Windows\System32\bash.exe`, which prints its "no installed distributions" notice to STDOUT. `tests/conftest.py` already documents this exact hazard for the test suite; the bridge had no equivalent protection.
+
+The consequence reaches users, not only CI. On a Windows host whose PATH `bash` is that stub, EVERY guarded tool call would be denied with no diagnostic, which reads as a broken agent rather than a missing interpreter. The guard failed closed, which is correct, but for a reason no user could act on.
+
+`_resolve_bash_command` now rewrites a BARE `bash` to a verified absolute Git Bash on Windows. Its boundaries are deliberate and tested: an absolute interpreter the caller chose is never second-guessed; a host with no Git Bash keeps the original command so PATH resolution still applies; POSIX is untouched; and the rewrite happens at the execution site ONLY, so `_copilot_permission_authoritative` still inspects the original command and its binding is unchanged. Five focused tests cover those boundaries.
+
+Local gate after the correction:
+
+```
+PASS: 42 passed, 0 failed, 0 skipped, 0 advisory in 2796.0s
+PROFILE_EXIT=0
+```
+
+`tests/integrations/test_copilot_hermes_native.py`: 64 passed, 2 skipped.
+
+### Push 3 - interpreter resolution
+
+PENDING: the second stabilization commit, its push (separately approved), the third required-check result, and the merge decision.
 
 - Branching model: feature branch into `develop`, then release flow to `main`.
 - Remote: `origin`.

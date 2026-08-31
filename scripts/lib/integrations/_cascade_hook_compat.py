@@ -10,6 +10,7 @@ from __future__ import annotations
 import hashlib
 import hmac
 import json
+import os
 import re
 import subprocess
 import sys
@@ -40,6 +41,39 @@ _COPILOT_AUTHORITY_CHILDREN = {
     "rewrite-command.sh": ("rewrite-command.sh", "bash"),
     "rewrite-command.ps1": ("rewrite-command.sh", "powershell"),
 }
+
+
+_WINDOWS_BASH_CANDIDATES = (
+    r"C:\Program Files\Git\bin\bash.exe",
+    r"C:\Program Files (x86)\Git\bin\bash.exe",
+    r"C:\Program Files\Git\usr\bin\bash.exe",
+)
+
+
+def _resolve_bash_command(command: Sequence[str]) -> list[str]:
+    """Return ``command`` with a bare ``bash`` resolved to an interpreter that runs.
+
+    On Windows, ``bash`` on PATH is commonly the WSL launcher stub in System32.
+    With no distribution installed it prints its notice to STDOUT and exits
+    non-zero without writing to stderr, so the bridge sees a non-zero child with
+    no diagnostic and denies. The guard then refuses every tool call it was meant
+    to police, which reads to the user as a broken agent rather than a missing
+    interpreter. `tests/conftest.py` documents the same hazard for the suite.
+
+    Only a BARE ``bash`` is rewritten, and only to a verified absolute Git Bash.
+    An absolute interpreter the caller chose is never second-guessed, and a host
+    with no Git Bash keeps the original command so PATH resolution still applies.
+    The rewrite happens at the execution site only: the permission-authority
+    check still inspects the ORIGINAL command, so its binding is unchanged.
+    """
+    resolved = list(command)
+    if os.name != "nt" or not resolved or resolved[0] != "bash":
+        return resolved
+    for candidate in _WINDOWS_BASH_CANDIDATES:
+        if Path(candidate).is_file():
+            resolved[0] = candidate
+            break
+    return resolved
 
 
 def _link_like(path: Path) -> bool:
@@ -95,11 +129,7 @@ def _copilot_permission_authoritative(
         wrapper = wrapper_path.resolve(strict=True)
         child = child_path.resolve(strict=True)
         expected_child = (wrapper.parent / child_path.name).resolve(strict=True)
-        # A hard link is st_nlink > 1. Windows populates st_nlink only when the
-        # stat call opens a handle, so a host taking the fast path reports 0;
-        # requiring exactly 1 denied every authoritative rewrite there. This
-        # matches _owned._is_link_like, which already treats > 1 as the signal.
-        if wrapper.stat().st_nlink > 1 or child.stat().st_nlink > 1:
+        if wrapper.stat().st_nlink != 1 or child.stat().st_nlink != 1:
             return False
         actual_sha256 = hashlib.sha256(child.read_bytes()).hexdigest()
     except OSError:
@@ -432,7 +462,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         translated = translate_payload(payload, event, tool_name)
     try:
         completed = subprocess.run(
-            command,
+            _resolve_bash_command(command),
             input=json.dumps(translated),
             text=True,
             capture_output=True,
