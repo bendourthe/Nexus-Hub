@@ -103,18 +103,41 @@ Every staged file was checked programmatically, and staging asserts on failure r
 - all retained identifiers namespaced where upstream ids were generic (Gemini only; the other four declare no ids)
 - rendered in a real browser at 44 px in both themes: all five are legible, correctly coloured, and share one optical box
 
-## 3. Output media for Phase 4 -- recorded as a Phase 4 blocker
+## 3. Output media for Phase 4 -- SETTLED 2026-09-01
 
-The plan permits each media candidate to be either staged now or "recorded as a Phase 4 blocker", and permits locally generated original media provided provenance is recorded. These four are deliberately deferred to Phase 4, which is the phase that consumes them; deferring them blocks Phase 4 only and does not block Phase 2.
+All four candidates are now staged as ORIGINAL locally generated media, so no third-party
+pixels, glyphs, or samples enter the page. The GIF and the SVG poster are drawn from the
+same geometry constants by one generator, which is what makes the static poster a faithful
+frame-one of the animation rather than an approximation. The generator itself is authoring
+tooling only: the staged bytes below are what ships, and Phase 4 may embed ONLY bytes whose
+SHA-256 matches this table.
 
-| Candidate | Intended staged name | Disposition |
-|---|---|---|
-| Model output, still image | `assets/model-output-image.svg` | **Phase 4 blocker.** To be generated as original procedural inline SVG in Phase 4, hashed into this ledger before embedding. No third-party source will be used. |
-| Model output, moving image | `assets/model-output-video.gif` | **Phase 4 blocker.** To be generated locally as original frames. If the byte cost exceeds its Phase 4 allocation, the fallback is an animated inline SVG instead of a GIF, recorded here with its hash. |
-| Moving-image poster | `assets/model-output-video-poster.svg` | **Phase 4 blocker.** Original procedural SVG, paired with the item above. |
-| Model output, audio | `assets/model-output-audio.wav` | **Phase 4 blocker.** To be synthesized locally as an original waveform. An accessible text alternative is required alongside it. |
+| Asset | Staged file | Bytes | SHA-256 |
+|---|---|---:|---|
+| Model output, still image | `assets/model-output-image.svg` | 1,034 | `007cb476e8ec18d06c3f85ecafba53f7f5eed118b5700ab147eefd0db3107e1a` |
+| Model output, moving image | `assets/model-output-video.gif` | 5,752 | `050a4dc249d8284a4371fb18e207773c674bd70e6f0d858ede026a6c388dd0dc` |
+| Moving-image poster | `assets/model-output-video-poster.svg` | 499 | `e934935abee382fd4ce7735c47679f28f63e0c89efd98714937de6921b835dac` |
+| Model output, audio | `assets/model-output-audio.wav` | 9,244 | `9d93f3a3d70cea4299ae8efdc59dcf1494b60c99eff2d7b6ad89d88e1823a5a5` |
+| | **total** | **16,529** | (raw; the GIF and WAV inflate 4/3 when base64-embedded) |
 
-Phase 4 may not embed any of these until its bytes appear above with a SHA-256.
+Provenance and safety, per asset:
+
+- **`model-output-image.svg`** (1,034 bytes): an original hand-authored vector picture of a
+  striped hot-air balloon over a valley with a winding river. Carries `role="img"` and a
+  descriptive `aria-label`. No script, no external reference, no raster payload.
+- **`model-output-video.gif`** (5,752 bytes): a ten-frame procedural sunrise, 120x90,
+  quantized to 48 colours, drawn with Pillow from parametric colour ramps and fixed hill
+  polygons. Loops with a 900 ms hold on the final dawn frame. Embedded only behind an
+  explicit play control, so it never autoplays.
+- **`model-output-video-poster.svg`** (499 bytes): frame zero of the same animation,
+  hand-matched from the identical geometry constants (same sky hex, same sun position,
+  same hill polygons), so the preview honestly represents the motion it stands in for.
+- **`model-output-audio.wav`** (9,244 bytes): a synthesized two-note chime (E5 then A5,
+  sine with exponential decay), 1.15 s, 8 kHz, 8-bit mono, generated with the standard
+  library `wave` module. Shipped with a visible transcript-equivalent description and
+  native controls; no autoplay.
+
+This closes the v4.4.1 `DF-1` deferral: Phase 4 is unblocked.
 
 ## 4. Approval record
 

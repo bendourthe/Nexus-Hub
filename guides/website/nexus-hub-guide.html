@@ -515,7 +515,6 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
   padding: 26px 0; border-top: 1px solid var(--border);
 }
 .fx-scene:first-of-type { border-top: 0; }
-.fx-flip .fx-copy { order: 2; }
 /* Full width is the exception now: only a scene whose content is intrinsically two-across
    keeps it. Making it the default is what made Foundations 7,235px tall at 1440. */
 .fx-wide { grid-template-columns: 1fr; }
@@ -525,6 +524,63 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
 .fx-copy h2 { text-wrap: balance; }
 .fx-copy p { font-size: 15.5px; color: var(--ink-dim); }
 .fx-copy strong, .fx-copy em { color: var(--ink); }
+/* ---------- Foundations scenes 4-8 shared grammar (v4.4.1 Phase 4) ---------- */
+.fx-model-flow { display: grid; gap: 10px; justify-items: stretch; }
+.fx-flow-link { display: flex; justify-content: center; }
+.fx-flow-link .fx-inline-arrow { transform: rotate(90deg); }
+.fx-region { padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); }
+.fx-region-tag { margin: 0 0 10px; color: var(--ink-faint); font-size: 11.5px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; }
+.fx-provider-row, .fx-obs-row { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: center; }
+.fx-mini-card { min-width: 0; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-0); }
+.fx-mini-card--report { border-color: var(--accent); }
+.fx-mini-tag { display: block; color: var(--teal-soft); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.fx-mini-card p { margin: 4px 0 0; color: var(--ink-dim); font-size: 13px; line-height: 1.45; }
+.fx-entry { display: grid; grid-template-columns: minmax(0, 1.4fr) auto minmax(0, 1fr); gap: 10px; align-items: center; }
+.fx-ctx-kinds--row { display: flex; flex-wrap: wrap; gap: 6px; }
+.fx-cycle { margin: 0; display: grid; grid-template-columns: 76px minmax(0, 1fr); gap: 12px; align-items: center; padding: 10px 12px; border: 1px dashed var(--border-bright); border-radius: var(--radius-sm); }
+.fx-cycle svg { width: 76px; height: 76px; overflow: visible; }
+.fx-cycle-ring { fill: none; stroke: var(--border-bright); stroke-width: 3; }
+.fx-cycle-dot { fill: var(--accent); }
+.fx-cycle figcaption { color: var(--ink-dim); font-size: 12.5px; line-height: 1.5; }
+@keyframes nhg-cycle-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.js .fx-scene.live .fx-cycle svg { animation: nhg-cycle-spin 6s linear infinite; }
+.js .fx-scene.live .fx-cycle svg text { display: none; }
+.fx-outs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.fx-out { margin: 0; min-width: 0; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-0); }
+.fx-out-tag { color: var(--teal-soft); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.fx-out-text { margin: 6px 0 0; padding: 0 0 0 10px; border-left: 3px solid var(--border-bright); }
+.fx-out-text p { margin: 0; color: var(--ink-dim); font-size: 13px; line-height: 1.5; }
+.fx-out-media { display: block; margin-top: 8px; }
+.fx-out-media svg, .fx-out-motion { display: block; width: min(100%, 180px); height: auto; border-radius: 6px; }
+.fx-media-toggle { margin-top: 8px; padding: 5px 14px; border: 1px solid var(--border-bright); border-radius: 999px; background: var(--surface); color: var(--ink); font-size: 12.5px; font-weight: 600; cursor: pointer; }
+.fx-media-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.fx-out-note { margin: 8px 0 0; color: var(--ink-faint); font-size: 12px; line-height: 1.45; }
+.fx-out-audio { display: block; margin-top: 8px; width: min(100%, 220px); }
+.fx-lanes { list-style: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 0; padding: 0; }
+.fx-lane { min-width: 0; padding: 10px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-0); border-top: 3px solid var(--accent); }
+.fx-lane-tag { display: block; color: var(--ink); font-size: 13px; font-weight: 650; line-height: 1.3; }
+.fx-lane p { margin: 4px 0 0; color: var(--ink-dim); font-size: 12.5px; line-height: 1.45; }
+.fx-boundary { padding: 10px 14px; border: 1.5px dashed var(--accent); border-radius: var(--radius-sm); background: color-mix(in srgb, var(--accent) 6%, var(--surface)); }
+.fx-boundary-tag { display: block; color: var(--teal-soft); font-size: 11.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.fx-boundary-list { margin: 6px 0 0; padding: 0 0 0 18px; color: var(--ink-dim); font-size: 13px; line-height: 1.55; }
+.fx-boundary-list em { color: var(--ink-faint); font-style: normal; font-size: 12px; }
+.fx-layer { padding: 12px 14px; border: 1px solid var(--border-bright); border-radius: var(--radius-sm); background: var(--surface); }
+.fx-layer--nexus { border-color: var(--accent); }
+.fx-layer--model, .fx-layer--inner { margin-top: 10px; background: var(--bg-0); }
+.fx-layer-tag { display: block; color: var(--teal-soft); font-size: 12px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; overflow-wrap: break-word; }
+.fx-layer-note { margin: 4px 0 0; color: var(--ink-faint); font-size: 12.5px; }
+.fx-layer-list { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 0; padding: 0; }
+.fx-layer-list li { padding: 4px 10px; border: 1px solid var(--border); border-radius: 999px; background: var(--bg-0); color: var(--ink-dim); font-size: 12.5px; }
+.fx-claims { list-style: none; display: grid; gap: 7px; margin: 10px 0 0; padding: 0; }
+.fx-claims li { padding: 8px 11px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-0); color: var(--ink-dim); font-size: 13px; line-height: 1.5; overflow-wrap: break-word; }
+.fx-trail { margin-top: 14px; }
+/* Placed after every definition above: @media adds no specificity, so position is load-bearing. */
+@media (max-width: 720px) {
+  .fx-entry, .fx-provider-row, .fx-obs-row { grid-template-columns: 1fr; }
+  .fx-entry .fx-inline-arrow, .fx-provider-row > .fx-inline-arrow, .fx-obs-row > .fx-inline-arrow { transform: rotate(90deg); justify-self: center; }
+  .fx-outs, .fx-lanes { grid-template-columns: 1fr; }
+  .fx-ctx-plus { text-align: left; }
+}
 /* ---------- Prompt + Context request story (v4.4.1 Phase 3) ---------- */
 /* Weaker state always precedes stronger state in DOM order, so reading order and
    screen-reader order match the teaching sequence at every breakpoint. */
@@ -597,7 +653,6 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
 .fx-diagram--medium { width: min(100%, 42rem); margin-inline: auto; }
 .fx-diagram--narrow { width: min(100%, 26.25rem); margin-inline: auto; }
 .fx-svg { width: 100%; height: auto; display: block; }
-.fx-svg--mobile { display: none; width: min(100%, 22.5rem); margin-inline: auto; }
 .fx-svg text { font-family: var(--sans); }
 .fxt { fill: var(--ink); font-size: 13px; }
 .fxt--dim { fill: var(--ink-faint); }
@@ -608,13 +663,10 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
 .fxr { fill: var(--surface); stroke: var(--border); stroke-width: 1.4; }
 .fxr--hero { stroke: var(--accent); fill: color-mix(in srgb, var(--accent) 8%, var(--surface)); }
 .fxr--ghost { stroke-dasharray: 4 4; fill: transparent; }
-.fxwin { fill: var(--surface); stroke: var(--border-bright); stroke-width: 1.4; }
 .fxblock { fill: var(--surface-2); stroke: var(--border); stroke-width: 1; }
 .fxblock--noise { fill: transparent; stroke: var(--red); stroke-opacity: .45; stroke-dasharray: 3 3; }
 .fxchip { fill: var(--surface-2); stroke: var(--border); stroke-width: 1; }
 .fxchip--big { fill: var(--surface); stroke: var(--border-bright); }
-.fxcard--good { fill: color-mix(in srgb, var(--green) 9%, var(--surface)); stroke: var(--green); stroke-width: 1.3; }
-.fxcard--bad { fill: color-mix(in srgb, var(--red) 8%, var(--surface)); stroke: var(--red); stroke-width: 1.3; }
 .fxbubble { fill: transparent; stroke: var(--ink-faint); stroke-width: 1.3; stroke-dasharray: 5 4; }
 .fxp { fill: none; stroke: var(--border-bright); stroke-width: 1.6; stroke-linecap: round; }
 .fxp--ghost { stroke-dasharray: 4 4; stroke-opacity: .6; }
@@ -627,23 +679,10 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
 /* Loop labels: a dim role line, then the plain-language detail. Not
    both bold accent, which is what made them unreadable. */
 .fxt--role { fill: var(--ink-faint); font-size: 10px; font-weight: 700; letter-spacing: .12em; }
-.fxt--detail { fill: var(--ink-dim); font-size: 11.5px; font-weight: 400; }
-.fx-svg[data-phase2-diagram] .fxt--role,
-.fx-svg[data-phase2-diagram] .fxt--detail,
-.fx-svg[data-phase3-diagram] .fxt--role,
-.fx-svg[data-phase3-diagram] .fxt--detail { font-size: 13px; }
+.fx-svg[data-phase2-diagram] .fxt--role { font-size: 13px; }
 .fx-svg[data-phase2-diagram] .fxt { font-size: 14px; }
-.fx-svg[data-phase3-diagram] .fxt { font-size: 14px; }
-.fx-svg--mobile[data-phase3-diagram] .fxt { font-size: 15px; }
-.fx-svg[data-phase3-diagram] .fxt--detail { font-size: 13px; }
-.fx-svg--mobile[data-phase3-diagram] .fxt--detail { font-size: 14px; }
-.fx-svg[data-phase3-diagram] [data-phase3-claim] .fxt { font-size: 13px; }
-.fx-svg--mobile[data-phase3-diagram] [data-phase3-claim] .fxt { font-size: 14px; }
-.fx-svg[data-phase3-diagram] [data-phase3-claim] .fxt--role { letter-spacing: 0; }
 .fx-svg[data-phase2-diagram] [data-image-stage="source"] .fxt--role { letter-spacing: 0; }
 .fx-svg[data-phase2-diagram] [data-stage="integration"] .fxt--hero { letter-spacing: 0; }
-.fx-svg[data-phase3-diagram] [data-phase3-node="written-gate"] .fxt { font-size: 13px; }
-.fx-svg--mobile[data-phase3-diagram] [data-phase3-node="written-gate-mobile"] .fxt { font-size: 14px; }
 .fxt--warn { fill: var(--amber); font-weight: 700; letter-spacing: .06em; }
 /* Side colouring: the unaided path is muted/warning, the harnessed
    path is accent/positive, applied to lanes and nodes, not just the
@@ -652,8 +691,6 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
 .fxp--good { stroke: color-mix(in srgb, var(--accent) 60%, var(--border-bright)); }
 .fxchip--warn { stroke: color-mix(in srgb, var(--amber) 55%, transparent); }
 .fxchip--good { stroke: color-mix(in srgb, var(--accent) 65%, transparent); }
-.fxwin--bad { stroke: color-mix(in srgb, var(--amber) 50%, var(--border-bright)); }
-.fxwin--good { stroke: color-mix(in srgb, var(--accent) 55%, var(--border-bright)); }
 .fxblock--keep { stroke: color-mix(in srgb, var(--accent) 45%, var(--border)); }
 .fxbar { fill: var(--teal-soft); opacity: .85; }
 .fxmeter-track { fill: var(--surface-2); stroke: var(--border-bright); stroke-width: 1.3; }
@@ -662,35 +699,23 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
 .fxlayer--platform { fill: color-mix(in srgb, var(--cyan) 8%, var(--surface)); stroke: var(--cyan); stroke-width: 1.4; }
 .fxlayer--nexus { fill: color-mix(in srgb, var(--green) 8%, var(--surface)); stroke: var(--green); stroke-width: 1.6; }
 .fx-hookdot { fill: var(--green); stroke: var(--surface); stroke-width: 2; }
-.fx-pulse { fill: var(--cyan); display: none; }
 
 /* entry animations (gated on scene .in) */
 .js .fx-scene .fx-pop { opacity: 0; transform: translateY(8px); transition: opacity .5s var(--ease) var(--d, 0ms), transform .5s var(--ease) var(--d, 0ms); }
 .js .fx-scene.in .fx-pop { opacity: 1; transform: none; }
 .js .fx-scene .fx-draw { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset .8s var(--ease) var(--d, 0ms); }
 .js .fx-scene.in .fx-draw { stroke-dashoffset: 0; }
-.js .fx-scene .fx-fade { opacity: 0; transition: opacity .6s var(--ease) var(--d, 0ms); }
-.js .fx-scene.in .fx-fade { opacity: .38; }
 .js .fx-scene .fx-hookdot { fill: var(--red); transition: fill .4s var(--ease) 1.6s; }
 .js .fx-scene.in .fx-hookdot { fill: var(--green); }
-.fx-scene.live .fx-pulse { display: block; animation: fxTravel var(--t, 4s) linear infinite; }
 /* Guardrails sweep into place one by one instead of merely appearing. */
 .js .fx-scene .fx-guard { opacity: 0; }
 .js .fx-scene.in .fx-guard { opacity: 1; transition: opacity .3s var(--ease) var(--d, 0ms); }
 .js .fx-scene .fx-sweep { stroke-dasharray: 1; stroke-dashoffset: 1; }
 .js .fx-scene.in .fx-sweep { stroke-dashoffset: 0; transition: stroke-dashoffset .7s var(--ease) var(--d, 0ms); }
-@keyframes fxTravel {
-  from { offset-distance: 0%; }
-  to { offset-distance: 100%; }
 }
 .fx-bridge { border-top: 1px solid var(--border); }
 @media (max-width: 980px) {
   .fx-scene { grid-template-columns: 1fr; gap: var(--sp-4); }
-  .fx-flip .fx-copy { order: 0; }
-}
-@media (max-width: 720px) {
-  .fx-svg--desktop { display: none; }
-  .fx-svg--mobile { display: block; }
 }
 
 /* ---------- Training walkthrough ---------- */
@@ -999,6 +1024,8 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
   .js .reveal { opacity: 1; transform: none; transition: none; }
   .js .hero-lockup.reveal .hero-mark { opacity: 1; transform: none; transition: none; }
   .js .fx-scene .fx-tokchip { opacity: 1; transform: none; transition: none; }
+  .js .fx-scene.live .fx-cycle svg { animation: none; }
+  .js .fx-scene.live .fx-cycle svg text { display: block; }
   .btn:hover { transform: none; }
   .js .cmp .cmp-row { opacity: 1; transform: none; transition: none; }
   .js .cmp .cmp-line { stroke-dasharray: none; stroke-dashoffset: 0; transition: none; }
@@ -1006,9 +1033,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
   .js .cmp .cmp-b { opacity: 1; transition: none; }
   .js .fx-scene .fx-pop { opacity: 1; transform: none; transition: none; }
   .js .fx-scene .fx-draw { stroke-dasharray: none; stroke-dashoffset: 0; transition: none; }
-  .js .fx-scene .fx-fade { opacity: .38; transition: none; }
   .js .fx-scene .fx-hookdot { fill: var(--green); transition: none; }
-  .fx-scene.live .fx-pulse { display: none; animation: none; }
   .js .fx-scene .fx-guard { opacity: 1; transition: none; }
   .js .fx-scene .fx-sweep { stroke-dasharray: none; stroke-dashoffset: 0; transition: none; }
 }
@@ -1479,85 +1504,52 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
             <h2 id="fx-model-title">Models</h2>
             <p class="fx-subtitle">Trained patterns, used one request at a time</p>
           </div>
-          <p>A model is a trained system that turns the information in a request into an output. Training happens long before your request. A platform later integrates the trained model, gathers your request and useful context such as files, workspace, documents, scripts, and lets the model process or reason over that material before returning a result.</p>
-          <p>The result can be an answer, a draft, an image, or a request to use a tool. It is not a guaranteed transcript of the model's internal reasoning.</p>
+          <p>A model is a trained system that turns a request into an output. Training <strong>happens long before your request</strong>: a provider trains on broad material, then releases the finished model into products and services. Your prompt never retrains it; each request simply runs through the patterns it already has.</p>
+          <p>Some model and platform combinations expose an <strong>effort level</strong> that, when supported, can allocate more computation or more work cycles to a request. More effort does not promise a fixed number of iterations; it buys the model room to work.</p>
+          <p>The cycle shown here is an <strong>abstraction of work in progress, not a transcript of hidden reasoning</strong>. What comes back out can take more than one shape.</p>
         </div>
-        <div class="fx-diagram fx-diagram--wide">
-          <svg class="fx-svg fx-svg--desktop" data-phase2-diagram="model-lifecycle" viewBox="0 0 900 252" role="img" aria-label="Chronological model lifecycle from training through platform integration to a later request, processing, and output">
-            <g class="fx-pop" data-stage="training" style="--d:0ms">
-              <rect class="fxr" x="16" y="82" width="142" height="76" rx="14"/>
-              <text class="fxt fxt--role" x="87" y="108" text-anchor="middle">TRAIN FIRST</text>
-              <text class="fxt" x="87" y="132" text-anchor="middle">Learn patterns</text>
-              <text class="fxt fxt--detail" x="87" y="149" text-anchor="middle">before this request</text>
-            </g>
-            <path class="fxp fx-draw" style="--d:140ms" pathLength="1" d="M 158 120 L 182 120"/>
-            <path class="fx-head fx-pop" style="--d:240ms" d="M 178 114 L 190 120 L 178 126 Z"/>
-            <g class="fx-pop" data-stage="integration" style="--d:260ms">
-              <rect class="fxr fxr--hero" x="190" y="72" width="166" height="96" rx="14"/>
-              <text class="fxt fxt--role" x="273" y="100" text-anchor="middle">THEN INTEGRATE</text>
-              <text class="fxt fxt--hero" x="273" y="125" text-anchor="middle">MODEL + PLATFORM</text>
-              <text class="fxt fxt--detail" x="273" y="148" text-anchor="middle">ready for later requests</text>
-            </g>
-            <path class="fxp fxp--ghost fx-draw" style="--d:400ms" pathLength="1" d="M 384 38 L 384 204"/>
-            <text class="fxt fxt--role" x="408" y="48">LATER: ONE LIVE REQUEST</text>
-            <g class="fx-pop" data-stage="request" style="--d:460ms">
-              <rect class="fxr" x="408" y="82" width="148" height="76" rx="14"/>
-              <text class="fxt fxt--role" x="482" y="108" text-anchor="middle">REQUEST</text>
-              <text class="fxt" x="482" y="132" text-anchor="middle">Goal + context</text>
-              <text class="fxt fxt--detail" x="482" y="149" text-anchor="middle">assembled this turn</text>
-            </g>
-            <path class="fxp fx-draw" style="--d:580ms" pathLength="1" d="M 556 120 L 570 120"/>
-            <path class="fx-head fx-pop" style="--d:680ms" d="M 566 114 L 578 120 L 566 126 Z"/>
-            <g class="fx-pop" data-stage="reasoning" style="--d:700ms">
-              <rect class="fxr fxr--hero" x="578" y="82" width="136" height="76" rx="14"/>
-              <text class="fxt fxt--role" x="646" y="108" text-anchor="middle">PROCESS</text>
-              <text class="fxt" x="646" y="132" text-anchor="middle">Reason over inputs</text>
-              <text class="fxt fxt--detail" x="646" y="149" text-anchor="middle">inside the model</text>
-            </g>
-            <path class="fxp fx-draw" style="--d:820ms" pathLength="1" d="M 714 120 L 732 120"/>
-            <path class="fx-head fx-pop" style="--d:920ms" d="M 728 114 L 740 120 L 728 126 Z"/>
-            <g class="fx-pop" data-stage="output" style="--d:940ms">
-              <rect class="fxr" x="740" y="82" width="150" height="76" rx="14"/>
-              <text class="fxt fxt--role" x="815" y="108" text-anchor="middle">OUTPUT</text>
-              <text class="fxt" x="815" y="132" text-anchor="middle">Useful result</text>
-              <text class="fxt fxt--detail" x="815" y="149" text-anchor="middle">returned to platform</text>
-            </g>
-          </svg>
-          <svg class="fx-svg fx-svg--mobile" data-phase2-diagram="model-lifecycle" viewBox="0 0 360 548" role="img" aria-label="Chronological model lifecycle stacked for mobile from training to output">
-            <g class="fx-pop" data-stage="training">
-              <rect class="fxr" x="36" y="10" width="288" height="76" rx="14"/>
-              <text class="fxt fxt--role" x="180" y="36" text-anchor="middle">TRAIN FIRST</text>
-              <text class="fxt" x="180" y="60" text-anchor="middle">Learn patterns long before this request</text>
-            </g>
-            <path class="fxp fx-draw" pathLength="1" d="M 180 86 L 180 102"/>
-            <path class="fx-head fx-pop" d="M 174 98 L 180 110 L 186 98 Z"/>
-            <g class="fx-pop" data-stage="integration" style="--d:180ms">
-              <rect class="fxr fxr--hero" x="36" y="110" width="288" height="76" rx="14"/>
-              <text class="fxt fxt--role" x="180" y="136" text-anchor="middle">THEN INTEGRATE</text>
-              <text class="fxt fxt--hero" x="180" y="160" text-anchor="middle">MODEL + PLATFORM</text>
-            </g>
-            <path class="fxp fxp--ghost fx-draw" style="--d:300ms" pathLength="1" d="M 36 210 L 324 210"/>
-            <text class="fxt fxt--role" x="180" y="203" text-anchor="middle">LATER: ONE LIVE REQUEST</text>
-            <g class="fx-pop" data-stage="request" style="--d:360ms">
-              <rect class="fxr" x="36" y="226" width="288" height="76" rx="14"/>
-              <text class="fxt fxt--role" x="180" y="252" text-anchor="middle">REQUEST</text>
-              <text class="fxt" x="180" y="276" text-anchor="middle">Goal + context assembled this turn</text>
-            </g>
-            <path class="fxp fx-draw" style="--d:460ms" pathLength="1" d="M 180 302 L 180 318"/>
-            <path class="fx-head fx-pop" style="--d:520ms" d="M 174 314 L 180 326 L 186 314 Z"/>
-            <g class="fx-pop" data-stage="reasoning" style="--d:560ms">
-              <rect class="fxr fxr--hero" x="36" y="326" width="288" height="76" rx="14"/>
-              <text class="fxt fxt--role" x="180" y="352" text-anchor="middle">PROCESS / REASON</text>
-              <text class="fxt" x="180" y="376" text-anchor="middle">Work over the supplied inputs</text>
-            </g>
-            <path class="fxp fx-draw" style="--d:660ms" pathLength="1" d="M 180 402 L 180 418"/>
-            <path class="fx-head fx-pop" style="--d:720ms" d="M 174 414 L 180 426 L 186 414 Z"/>
-            <g class="fx-pop" data-stage="output" style="--d:760ms">
-              <rect class="fxr" x="36" y="426" width="288" height="76" rx="14"/>
-              <text class="fxt fxt--role" x="180" y="452" text-anchor="middle">OUTPUT</text>
-              <text class="fxt" x="180" y="476" text-anchor="middle">Return a useful result to the platform</text>
-            </g>
-          </svg>
+        <div class="fx-diagram">
+          <div class="fx-model-flow">
+            <div class="fx-region" data-stage="training" data-region="provider">
+              <h3 class="fx-region-tag">The provider, long before you</h3>
+              <div class="fx-provider-row">
+                <div class="fx-mini-card"><span class="fx-mini-tag">Training</span><p>Learns patterns from broad material, once, at enormous scale</p></div>
+                <svg class="fx-inline-arrow" viewBox="0 0 34 12" aria-hidden="true" focusable="false"><path class="fxp" d="M1 6 H24" pathLength="1"/><path class="fx-head" d="M22 1.5 L32 6 L22 10.5 Z"/></svg>
+                <div class="fx-mini-card" data-stage="delivery"><span class="fx-mini-tag">Release</span><p>The finished model is delivered into platforms and products</p></div>
+              </div>
+            </div>
+            <div class="fx-flow-link" aria-hidden="true"><svg class="fx-inline-arrow" viewBox="0 0 34 12" aria-hidden="true" focusable="false"><path class="fxp" d="M1 6 H24" pathLength="1"/><path class="fx-head" d="M22 1.5 L32 6 L22 10.5 Z"/></svg></div>
+            <div class="fx-region" data-stage="request" data-region="user">
+              <h3 class="fx-region-tag">Your request, much later</h3>
+              <div class="fx-entry" data-grammar="entry"><div class="fx-ctx-query"><span class="fx-ctx-tag">Prompt</span><p>Summarise this contract and list every deadline.</p></div><div class="fx-ctx-plus" aria-hidden="true">+</div><ul class="fx-ctx-kinds fx-ctx-kinds--row" aria-label="Optional context attached to the request"><li><span class="fx-ctx-kind">Image</span></li><li><span class="fx-ctx-kind">File or document</span></li><li><span class="fx-ctx-kind">Project folder or workspace</span></li><li><span class="fx-ctx-kind">Codebase</span></li></ul></div>
+              <div class="fx-flow-link" aria-hidden="true"><svg class="fx-inline-arrow" viewBox="0 0 34 12" aria-hidden="true" focusable="false"><path class="fxp" d="M1 6 H24" pathLength="1"/><path class="fx-head" d="M22 1.5 L32 6 L22 10.5 Z"/></svg></div>
+              <div data-stage="work-cycle"><figure class="fx-cycle" data-grammar="work-cycle"><svg viewBox="0 0 76 76" role="img" aria-labelledby="fx-model-cycle-title"><title id="fx-model-cycle-title">An abstract work cycle: assess, act, check, repeated as needed</title><circle class="fx-cycle-ring" cx="38" cy="38" r="27" pathLength="1"/><path class="fx-head" d="M62 30 L69 38 L60 41 Z"/><circle class="fx-cycle-dot" cx="38" cy="11" r="4.5"/><text class="fxt fxt--accent" x="38" y="42" text-anchor="middle">work</text></svg><figcaption>An abstract work cycle inside the model. With a higher effort level, when supported, it can run longer. This is an illustration, not hidden chain-of-thought.</figcaption></figure></div>
+              <div class="fx-flow-link" aria-hidden="true"><svg class="fx-inline-arrow" viewBox="0 0 34 12" aria-hidden="true" focusable="false"><path class="fxp" d="M1 6 H24" pathLength="1"/><path class="fx-head" d="M22 1.5 L32 6 L22 10.5 Z"/></svg></div>
+              <div class="fx-outs" data-stage="output" aria-label="Four kinds of output one request can produce">
+                <figure class="fx-out" data-output-kind="text">
+                  <figcaption class="fx-out-tag">Text</figcaption>
+                  <blockquote class="fx-out-text"><p>Three deadlines found: payment by 15 March (clause 4.2), notice by 30 June (clause 6.1), renewal by 1 September (clause 9.4).</p></blockquote>
+                </figure>
+                <figure class="fx-out" data-output-kind="image">
+                  <figcaption class="fx-out-tag">Image</figcaption>
+                  <span class="fx-out-media" data-media="image"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 120" role="img" aria-label="A striped hot-air balloon drifting above a green valley with a winding river"><rect width="160" height="120" fill="#aee0f2"/><circle cx="128" cy="22" r="10" fill="#fff3c4"/><polygon points="0,86 34,66 66,82 104,62 132,76 160,66 160,120 0,120" fill="#7cc08a"/><polygon points="0,100 40,86 84,98 126,84 160,92 160,120 0,120" fill="#5aa86f"/><path d="M18 120 C 44 104 60 112 78 100 C 96 88 118 96 140 86" fill="none" stroke="#7fd4e8" stroke-width="6" stroke-linecap="round"/><g><path d="M56 18 a24 26 0 0 1 24 26 c0 12 -10 18 -24 18 c-14 0 -24 -6 -24 -18 a24 26 0 0 1 24 -26 z" fill="#e8604c"/><path d="M56 18 a24 26 0 0 1 8 51 c-3 1 -5 1 -8 1 c-3 0 -5 0 -8 -1 a24 26 0 0 1 8 -51 z" fill="#f2a03d"/><path d="M56 18 a24 26 0 0 1 2 51.8 l-2 .2 l-2 -.2 a24 26 0 0 1 2 -51.8 z" fill="#f7d154"/><path d="M48 60 L52 72 L60 72 L64 60" fill="none" stroke="#7a5334" stroke-width="1.6"/><rect x="50" y="72" width="12" height="9" rx="2" fill="#8a6240"/></g></svg></span>
+                </figure>
+                <figure class="fx-out" data-output-kind="video">
+                  <figcaption class="fx-out-tag">Moving image</figcaption>
+                  <span class="fx-out-media">
+                    <img class="fx-out-motion" data-media="video" alt="A ten-frame sunrise: the sun climbs from behind two dark hills while the sky warms from night blue to dawn orange." src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgOTAiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iRGF3biBza3kgYWJvdmUgdHdvIGRhcmsgaGlsbHMgd2l0aCB0aGUgc3VuIGp1c3QgY2xlYXJpbmcgdGhlIHJpZGdlOiB0aGUgZmlyc3QgZnJhbWUgb2YgYSBzdW5yaXNlIGFuaW1hdGlvbiI+PHJlY3Qgd2lkdGg9IjEyMCIgaGVpZ2h0PSI5MCIgZmlsbD0iIzE2MjY0NiIvPjxjaXJjbGUgY3g9Ijg0IiBjeT0iNTYuMCIgcj0iMTMiIGZpbGw9IiNmZmQ2NzgiLz48Y2lyY2xlIGN4PSI4NCIgY3k9IjU2LjAiIHI9IjkiIGZpbGw9IiNmZmVjYWEiLz48cG9seWdvbiBwb2ludHM9IjAsNjYgMjYsNTIgNTgsNjIgODgsNDggMTIwLDU4IDEyMCw5MCAwLDkwIiBmaWxsPSIjMTgyYzQyIi8+PHBvbHlnb24gcG9pbnRzPSIwLDc0IDE4LDYyIDQ0LDcyIDc0LDU4IDk4LDY4IDEyMCw2MCAxMjAsOTAgMCw5MCIgZmlsbD0iIzEwMjAyZSIvPjwvc3ZnPg==" data-poster-src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxMjAgOTAiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iRGF3biBza3kgYWJvdmUgdHdvIGRhcmsgaGlsbHMgd2l0aCB0aGUgc3VuIGp1c3QgY2xlYXJpbmcgdGhlIHJpZGdlOiB0aGUgZmlyc3QgZnJhbWUgb2YgYSBzdW5yaXNlIGFuaW1hdGlvbiI+PHJlY3Qgd2lkdGg9IjEyMCIgaGVpZ2h0PSI5MCIgZmlsbD0iIzE2MjY0NiIvPjxjaXJjbGUgY3g9Ijg0IiBjeT0iNTYuMCIgcj0iMTMiIGZpbGw9IiNmZmQ2NzgiLz48Y2lyY2xlIGN4PSI4NCIgY3k9IjU2LjAiIHI9IjkiIGZpbGw9IiNmZmVjYWEiLz48cG9seWdvbiBwb2ludHM9IjAsNjYgMjYsNTIgNTgsNjIgODgsNDggMTIwLDU4IDEyMCw5MCAwLDkwIiBmaWxsPSIjMTgyYzQyIi8+PHBvbHlnb24gcG9pbnRzPSIwLDc0IDE4LDYyIDQ0LDcyIDc0LDU4IDk4LDY4IDEyMCw2MCAxMjAsOTAgMCw5MCIgZmlsbD0iIzEwMjAyZSIvPjwvc3ZnPg==" data-motion-src="data:image/gif;base64,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" width="120" height="90">
+                    <button type="button" class="fx-media-toggle" data-media-toggle aria-pressed="false">Play</button>
+                  </span>
+                  <p class="fx-out-note">Plays only when you ask; the still poster is the resting state.</p>
+                </figure>
+                <figure class="fx-out" data-output-kind="audio">
+                  <figcaption class="fx-out-tag">Audio</figcaption>
+                  <audio class="fx-out-audio" data-media="audio" controls preload="none" src="data:audio/wav;base64,UklGRhQkAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YfAjAACAmq21rpuBZ1NLUGJ8lqu0r56FalVLT194k6izsKGJblhMTl11j6aysaOMcltOTltxjKOxsqWPdV5PTVluiKCvsqeTeWFRTVdrhJ2tsqmWfGRTTVVogZqrsquYgGdVTlRlfZapsaybg2pXTlNjepOnsK2eh25ZT1Jgd5Ckr66ginFcUFFedIyirq6ijXRfUlFccImfra+kkHhhU1BabYacq6+mk3tkVVBYa4KZqa6nln5nV1FXaH+Wp66pmIJqWVFWZXyTpa2qm4VtW1JVY3mQo62rnYhxXVNUYXaNoayrn4t0YFRUX3OKnqqsoY53YlVTXXCGm6mso5F6ZVdTW22DmaespJN9aFhUWmqAlqarppaAa1pUWWh9k6Srp5iDbVxUWGZ6kKKqp5qGcF5VV2R3jZ+pqJyJc2FWV2J1ip2oqZ6MdmNXVmByh5unqaCOeWZZVl5vhJimqaGRfGhaVl1tgZakqaOTf2tcVlxqf5OiqKSWgm1eV1tofJCgqKWYhXBgWFpmeY2ep6Wah3NiWFlkdoucpqacinZkWVljdIiapaadjXhmW1lhcYWYpKafj3tpXFlgb4KVoqagkX5rXllebYCToaahk4FuX1lda32Qn6WilYNwYVpdaXqOnaWjl4ZzY1tcZ3iLm6SjmYh1ZVtcZXWImaOkm4t4Z11bZHOGl6KknI16aV5bYnGDlaGknY99a19bYW+Bkp+kn5F/bmFcYG1+kJ6jn5OCcGJcX2t8jpyjoJWEcmRdXml5i5qioZeHdWZdXmd3iZihoZiJd2heXmZ1h5agoZqLempfXmVzhJSfoZuNfGxhXmNxgpKeoZyPf25iXmJvf5CcoZ2RgXBjXmJtfY6boZ6Tg3JlX2Fre4yZoJ6VhXVnX2BqeImXn5+WiHdoYGBodoeWn5+YinlqYWBndIWUnZ+ZjHtsYmBmcoKSnJ+ajn5uY2BlcICQm5+bj4BwZWBkb36Omp+ckYJyZmBjbXyMmJ6ck4R0aGFibHqKl56dlIZ3aWJianiHlZ2dloh5a2NiaXaFk5ydl4p7bWNiaHSDkZudmIx9bmViZ3KBkJqdmY5/cGZiZnB/jpmdmo+BcmdiZW99jJedmpGDdGhjZG17ipacm5KFdmpjZGx5iJSbm5SHeGxkZGt3hpObm5WJem1lZGp1hJGam5aKfG9mZGl0go+Zm5eMfnFnZGhygI6Ym5iOgHJoZGdxfoyWm5iPgnRpZGZvfIqVmpmRhHZrZWZueoiUmpmShnhsZWZteIaSmZqTh3puZmVrd4SRmJqUiXxvZ2VqdYKPl5qVi35xaGVqdIGNlpqWjH9zaWZpcn+MlZmWjoF0amZocX2KlJmXj4N2a2Zob3uIk5iXkIV4bWdnbnqGkpiYkYZ5bmhnbXiFkJeYkoh7cGhnbHaDj5aYk4l9cWlna3WBjZWYlIt/c2pna3OAjJSYlYyAdGtnanJ+ipOXlY2CdmxoaXF8iJKXlo+Ed21oaXB7h5GXlpCFeW9paW95hZCWlpGHe3BpaW54g46VlpKIfHFqaW12go2UlpKKfnNraWx1gIuTlpOLgHRsaWxzf4qSlpSMgXZtaWtyfYiRlpSNg3duaWtxfIeQlZWOhHlvampweoWPlZWPhnpxa2pveYSOlJWQh3xya2pud4KNk5WRiH1zbGpudoGLk5WSin90bWptdX+KkpWSi4B2bmpsdH6IkZSTjIJ3b2tsc3yHkJSTjYN5cGtscnuGj5STjoV6cWxscXqEjZOUj4Z8cmxrcHiDjJKUkId9c21rb3eBi5KUkIl+dW5rbnaAipGTkYqAdm9sbnV+iJCTkYuBd29sbXR9h4+TkoyDeXBsbXN8ho6Tko2EenFtbXJ7hI2Sko6Fe3NtbXF5g4yRko6GfXRubXB4gouRko+HfnVvbXB3gIqQkpCJf3ZvbW92f4iPkpCKgXdwbW91foeOkpCLgnhxbW50fYaOkpGLg3pybm5ze4WNkZGMhHtzbm5yeoOMkZGNhXx0b25yeYKKkJGOh351b25xeIGJj5GOiH92cG5wd4CIj5GPiYB3cW5wdn6HjpGPioF4cm5wdX2GjZGQioJ6cm9vdHyFjJCQi4R7c29vc3uEi5CQjIV8dHBvc3qCio+QjYZ9dXBvcnmBiY+QjYd+dnFvcniAiI6Qjoh/d3FvcXd/h42QjomBeHJvcXZ+hoyQjomCenNwcHV9hYyPj4qDe3RwcHV8hIuPj4uEfHVwcHR7g4qOj4uFfXZxcHN6gomOj4yGfnZxcHN5gYiNj42Hf3dycHJ4f4eNj42IgHhzcHJ3foaMj42IgXlzcHJ2fYWLjo6Jgnt0cXF1fISKjo6Kg3x1cXF1e4OKjo6KhH12cnF0eoKJjY6LhX53cnF0eoGIjY6Mhn94c3FzeYCHjI6Mh4B5c3FzeH+Gi46MiIF5dHFzd36Fi46NiIJ6dXJydn2Eio2NiYN7dXJydnyDiY2NioN8dnJydXuCiY2NioR9d3NydXqBiIyNi4V+eHNydHmAh4yNi4Z/eXRydHl/houNi4eAeXRyc3h+hYqNjIeBenVyc3d9hIqNjIiCe3Zzc3d9g4mMjImDfHZzc3Z8goiMjImEfXdzc3Z7gYeLjIqFfnh0c3V6gYeLjIqFf3l0c3V5gIaKjIqGgHp1c3R5f4WKjIuHgXp1c3R4foSJjIuHgXt2c3R3fYOJjIuIgnx3dHR3fIOIi4uIg313dHR2fIKHi4uJhH54dHR2e4GHiouJhX95dXR2eoCGiouKhX96dXR1eX+FiYuKhoB6dnR1eX6EiYuKh4F7dnR1eH6DiIuKh4J8d3R1eH2DiIuLiIN9eHV0d3yCh4qLiIN+eHV0d3uBhoqLiYR+eXV0dnuAhomLiYV/enZ0dnqAhYmLiYWAenZ0dnl/hImKiYaBe3d1dXl+hIiKioaBfHd1dXh9g4eKioeCfXh1dXh9goeKioeDfXh1dXd8gYaJioiDfnl2dXd7gYaJioiEf3p2dXd7gIWJioiFgHp3dXZ6f4SIiomFgHt3dXZ5foSIiomGgXx4dXZ5foOHiYmGgnx4dnZ5fYKHiYmHgn15dnZ4fIGGiYmHg355dnZ4fIGFiYmHhH96d3Z3e4CFiImIhH96d3Z3e3+EiImIhYB7d3Z3en+Eh4mIhYF8eHZ3en6Dh4mIhoF8eHZ2eX2ChomJhoJ9eXZ2eX2ChoiJhoJ+eXd2eHyBhYiJh4N+end2eHyAhYiJh4R/e3d2eHuAhIeJh4SAe3h2d3t/hIeJiIWAfHh3d3p+g4eIiIWBfHl3d3p+goaIiIWBfXl3d3l9goaIiIaCfnp3d3l9gYWIiIaDfnp3d3l8gYWHiIeDf3t4d3h8gISHiIeEf3t4d3h7f4SHiIeEgHx4d3h7f4OGiIeFgXx5d3h6foKGiIeFgX15d3h6fqS6tpt1VUlVdJetrZh4XFNffJqsqZFvVExcfaG3tZt0UkNPb5azuaaDX0tPaIumr6GEZVVZcZCnrJt8XU1UcJSwt6aDXkdJYoiqua+QbFFMXn6draePcFlWZ4WgrKOIZ1FQZYent66Qa05GV3qetbSceVpMVnKTqauYe2BVX3mXqqiTc1hOW3qcs7OdeVdHT2yRrramhmRQUWeHoqyghmlXWm+NpKqcf2FQVW6QrLWmhmNLSmGEpbWuk3BWT158maqmkHNcV2aCnaqjimtUUWODo7Otk3BTSVd2mbGynX1eUFdwj6WpmX1jWGB3lKenlHZcUFt3mK+xnn1cS1BqjamzpolpVFNnhJ6poIdsWltuiqGpnIJkU1VsjKiyp4poUE1ggKCxrJR0WlJeeZanpZF1X1lmgJqoooxvWFNigJ6wrZV0V0xXdJWsr56AY1NZb4yip5l/ZlpgdpGkppV5X1NbdJOrsJ+AYU9SaImlsKaLbVhVZoKbpp+Jb11cbYeep52EaFZWaoijr6eMbFRPX32brauWd15VX3eTpKOSeGJbZn2XpaKOcltUYXyarauXeFxPWHGRqK2eg2dXWm6Jn6WZgWlcYXSOoaWWfGNVW3KPp62ghGVSU2eFoK2ljXBbWGZ/mKSeinFgXWyFm6WdhmtZV2iEn62mj3BYUV96l6mplntiWGB2kKGiknplXWZ8lKOhj3VfVmF6lqmqmHtgUlhvjaSqnoVqWlxth5yjmYNsXmFzi5+jl39mWFxwjKOroIZqVlVmgpyppI90X1pmfZWhnot0Yl9sgpmjnYhvXFlngZuqppF0XFRfd5Omp5d9ZlpgdI2eoJN8aF9mepGhoZF4Ylhhd5KmqZl/ZFZZbomgqJ6Hbl1dbYSZoZmFbmFicomcopiBaVpcboigqaCJbVpXZX+YpqOQdmJcZnuSn52MdmRga4CWoZ2Kcl9aZn+Yp6WSd2BXX3WQoqWYgGldYXOKm5+TfmpgZniOnqCSe2VaYXWPoqeagWhZW2yGnKWdiXFgX2yClp+YhnFjY3GHmaGYhGxdXW2FnKagi3FdWWV9laOhkXllXmZ6j52cjXhnYWt+k5+cjHViXGZ8lKSkk3pkWV9zjJ+jmIJsYGJyiJmdk4BsYmZ3jJyfk31oXWFzjJ+lmoRsXFxrg5mjnYpzY2BsgJOdmIdzZWRwhJefmIVvYF5sg5mkn410YVtlepKgoJJ8aGBneY2am456aWNrfZGdnI13ZF1mepGhopR9Z1xgcomcoZiEb2JjcoaWnJOBb2RndoqanpN/a19hcomco5qGb19da4GWoJyLdmZibH+Rm5eIdWdlb4KVnZiHcmJfa4CWop+Od2RdZXiPnZ+SfmtiZ3eLmJqOfGtka3uOm5uOemdfZniOnqGVgGpeYXGHmZ+XhXFkZXGElJqTg3FmZ3WIl5yUgW1hYnGGmaGaiHJiX2p/k56bjHhoZGx9j5mXiXdpZm+BkpyYiXVlYWp+k5+ej3pnX2V3jJudkn9tZGh3iZaYj31tZmt6jJmaj3xqYWZ2i5uflYJtYWJwhJadl4d0Z2ZxgpKZk4RzZ2h0hpWblINwY2NvhJafmol1ZWFqfZCbmo16a2VsfI2Xlop5a2dvf5CamIp3Z2JqfJCdnZB8amFmdomYnJKBcGZpdoeUl49/b2dreYqXmpB+bGNmdYmZnpaEcGNjb4KTm5aIdmlncYGQl5OFdWlpc4STmpSFcmVkb4GTnZqLd2dianuNmZmOfG1nbHuLlZWKem1obn2OmJeLeWljanqNmpyRfm1jZnSHlpqSg3JoanWFkpaPgHFpa3iIlZmQgG9lZ3SGlpyWhXNmZG+AkZmWiXhraHB/jpaShnZraXKCkZiUhnVoZW5/kZuZjHlqZGp6i5eYjn5vaG16iZSUi3xuaW58jJeXjHtsZWp5i5ibkYBvZWd0hZOYkoR0amp1hJGVj4Fzamt3hpOYkYFxZ2dzhJSalYd1aGZvf4+XlYl5bWlwfoyUkod4bGpygY+XlId3amZufo6ZmI18bGZreImVl45/cWpteYiSlIt9cGpue4qVlo19bmdqd4iWmZKCcmdoc4ORl5KFdmxrdIKPlI+DdGtsdoWSlpGDc2hocoKRmZWId2pnbn2MlZSKe29rcH2Lk5KHeW5rcn+NlZSIeWxnbnyMl5eNfW9oa3eHk5aOgHNrbniGkZOMf3JrbnqIk5WNf3BoanaGk5iSg3RpaXOBj5WRhndtbHSBjZOPg3ZtbHWDkJWRhHVqaXGAj5eViXltaG58ipSUinxxbHF8iZGRiHtwbHF+jJSTiXtuaW57ipWWjn9xaWx3hZGUjoJ0bW54hY+SjIBzbG95h5KUjoByamt1hJGWkoV2a2pygI2UkYZ5b210gIySj4R4bm11go6UkYV3bGpxf42VlIp7b2pve4mSk4t+cm1xe4iQkIl8cW1xfYqTk4t+cmxveYeRk4x/c2xueIaQk42BdGxud4SPk46CdW1tdoOPk4+Ddm1tdYKOk4+Ed25tdIGNk5CFeG9sc4CMkpCHem9scn6LkpGIe3Bscn2KkpGJfHFscXyJkZKKfXJtcHuIkZKLfnNtcHqGkJKMf3Ntb3mFj5KMgXRtb3iEj5KNgnVubneDjpKOg3dubnaCjZKOhHhvbnWBjJKPhXlvbXSAi5KQhnpwbXN+ipGQh3txbXJ9iZGQiHxybXJ8iJCRiX1ybnF7h5CRin5zbnB6ho+Ri390bnB5hY+RjIF1bm94hI6RjIJ2b293g42RjYN3b292goyRjoR4cG91gYuRjoV5cG50gIuRj4Z6cW50foqQj4d7cm5zfYmQkIh8cm5yfIiPkIl9c25ye4ePkIp+dG9xeoaOkIp/dW9xeYWOkIuBdm9weISNkIyCd3Bwd4OMkIyDd3Bwd4KMkI2EeHBvdoGLkI2FeXFvdYCKkI6GenJvdH6Jj46Ge3JvdH2Ij4+HfHNvc3yHj4+IfXRvcnuGjo+JfnRwcnuFjo+Kf3VwcXqEjY+KgXZwcXmDjI+LgXdwcXiCjI+MgnhxcHeBi4+Mg3lxcHaAio+NhHpycHaAiY+NhXtycHV/iY+OhnxzcHR+iI6Oh310cHR9h46OiH50cHN8ho2OiX91cHN7hY2OiYB2cXJ6hIyPioB3cXJ5g4yPi4F3cXF4gouPi4J4cnF3gYqOjIN5cnF3gIqOjIR6cnF2f4mOjIV7c3F1f4iOjYZ8dHF1foeNjYd9dHF0fYeNjYd+dXF0fIaNjoh/dnFze4WMjomAdnFzeoSMjomAd3JzeYOLjoqBeHJyeYKKjoqCeXJyeIGKjouDeXNyd4CJjouEenNyd4CIjYyFe3Rydn+IjYyFfHRydX6HjYyGfXVydX2GjI2HfnVydHyFjI2If3ZydHuFjI2IgHdydHqEi42JgHdyc3qDio2JgXhzc3mCio2Kgnlzc3iBiY2Kg3pzc3iAiY2LhHt0cnd/iI2LhHt0cnZ/h4yLhXx1cnZ+h4yMhn11cnV9hoyMh352cnV8hYuMh393c3V7hIuMiIB3c3R7hIqMiIB4c3R6g4qMiYF5c3R5gomMiYJ5dHN5gYmMioN6dHN4gIiMioN7dHN3f4iMi4R8dXN3f4eMi4V8dXN2foaLi4Z9dnN2fYWLi4Z+dnN1fIWLi4d/d3N1fISKjId/eHN1e4OKjIiAeHR0eoOJjIiBeXR0eoKJjImCenR0eYGIjImDenV0eICIi4qDe3V0eICHi4qEfHV0d3+Hi4qFfXZ0d36Gi4uFfXZ0dn2FiouGfnd0dn2FiouGf3d0dnyEiouHgHh0dXuDiYuHgHl0dXuCiYuIgXl1dXqCiIuIgnp1dXmBiIuJgnt1dHmAh4uJg3t2dHh/h4uJhHx2dHh/hoqKhH12dHd+hoqKhX13dHd9hYqKhX53dHZ9hIqKhn94dHZ8hImKh394dXZ7g4mKh4B5dXZ7goiKh4F6dXV6goiKiIJ6dXV6gYeKiIJ7dnV5gIeKiYN8dnV5gIaKiYN8dnV4f4aKiYR9d3V4foWKiYV+d3V3foWJioV+eHV3fYSJioZ/eHV3fIOJioaAeXV2fIOIioeAeXV2e4KIioeBenZ2e4GHioeBe3Z2eoGHioiCe3Z2eYCHioiDfHd1eYCGioiDfHd1eX+FiYmEfXd1eH6FiYmEfnh1eH6EiYmFfnh1d32EiYmFf3l2d3yDiImGf3l2d3yDiImGgHp2d3uCh4mHgXp2dnuBh4mHgXt2dnqBh4mHgnt3dnqAhomIgnx3dnmAhomIg313dnl/hYmIhH14dnl+hYmIhH54dnh+hIiJhX55dnh9hIiJhX95dnh9g4iJhn95dnd8goeJhoB6dnd8goeJhoF7d3d7gYeJh4F7d3d7gYaJh4J8d3d6gIaJh4J8d3Z6gIWJiIN9eHZ5f4WIiIN9eHZ5foSIiIR+eXZ5foSIiIR+eXd4fYOIiIV/eXd4fYOHiIV/end4fIKHiIaAend3fIKHiIaBe3d3e4GGiIaBe3d3e4GGiIeCfHh3eoCFiIeCfHh3eoCFiIeDfXh3en+FiIeDfXl3eX6EiIeEfnl3eX6Eh4iEfnl3eX2Dh4iFf3p3eH2Dh4iFf3p3eHyCh4iFgHt3eHyChoiGgXt4eHuBhoiGgXt4eHuBhoiGgnx4d3uAhYiGgnx4d3p/hYiHg315d3p/hIeHg315d3p+hIeHg355d3l+g4eHhH56d3l9g4eHhH96eHl9goeHhX96eHh9goaHhYB7eHh8gYaHhYB7eHh8gYaHhoF8eHh7gIWHhoF8eHh7gIWHhoJ9eXh7gISHhoJ9eXh6f4SHh4N+eXh6f4SHh4N+enh6foOHh4R/enh5foOGh4R/enh5fYKGh4R/e3h5fYKGh4WAe3h5fIGGh4WAe3h4fIGFh4WBfHl4e4CFh4aBfHl4e4CFh4aCfXl4e4CEh4aCfXl4en+Eh4aDfnp4en+DhoaDfnp4en6DhoaDf3p4en6DhoeEf3t4eX2ChoeEf3t4eX2ChoeEgHt5eXyBhYeFgHx5eXyBhYeFgXx5eXyAhYeFgXx5eXuAhIaFgn15eXuAhIaGgn16eXt/hIaGgn56eXp/g4aGg356eXp+g4aGg396eXp+goaGhH97eXp9goaGhH97eXp9goWGhIB7eXl9gYWGhIB8eXl8gYWGhYF8eXl8gISGhYF9eXl8gISGhYJ9enl7gISGhYJ9enl7f4OGhYJ+enl7f4OGhoN+enl6foOGhoN/e3l6foKFhoN/e3l6fYKFhoR/e3l6fYGFhoSAfHl6fYGFhoSAfHl6fIGEhoSBfHp5fICEhoWBfXp5fICEhoWBfXp5e4CEhoWCfnp5e3+DhoWCfnp5e3+DhYWDfnt5e36ChYWDf3t5en6ChYWDf3t5en6ChYaDf3x5en2BhYaEgHx6en2BhIaEgHx6en2BhIaEgX16enyAhIaEgX16enyAhIWFgX16enyAg4WFgn56ent/g4WFgn57ent/g4WFgn57ent+goWFg397ent+goWFg397ent+goWFg398enp9gYSFg4B8enp9gYSFhIB8enp9gYSFhIF9enp8gISFhIF9enp8gIOFhIF9e3p8gIOFhIJ+e3p8f4OFhYJ+e3p7f4OFhYJ+e3p7foKFhYJ/e3p7foKFhYN/fHp7foKEhYN/fHp7fYGEhYOAfHp7fYGEhYOAfXp6fYGEhYSBfXp6fYCDhYSBfXt6fICDhYSBfnt6fICDhYSBfnt6fH+DhYSCfnt6fH+ChYSCf3t6e3+ChIWCf3x6e36ChIWDf3x6e36BhIWDf3x6e36BhIWDgHx6e32BhIWDgH17e32Ag4WDgH17e32Ag4WEgX17e3yAg4WEgX57enyAg4WEgX57enx/goSEgn57enx/goSEgn98enx/goSEgn98ent+goSEgn98e3t+gYSEg398e3t+gYSEg4B9e3t9gYOEg4B9e3t9gIOEg4B9e3t9gIOEg4F9e3t9gIOEhIF+e3t8gIOEhIF+e3t8f4KEhIJ+fHt8f4KEhIJ/fHt8f4KEhIJ/fHt8foKEhIJ/fHt8foGEhIN/fHt7foGDhIOAfXt7foGDhIOAfXt7fYCDhIOAfXt7fYCDhIOBfnt7fYCDhIOBfnt7fYCChISBfnx7fH+ChISBfnx7fH+ChISCf3x7fH+ChISCf3x7fH6BhISCf3x7fH6Bg4SCgH17fH6Bg4SDgH17e36Bg4SDgH17e32Ag4SDgH17e32Ag4SDgX58e32AgoSDgX58e31/goSDgX58e31/goSDgX58e3x/goSDgn98e3x/goOEgn98e3x+gYOEgn99e3x+gYOEgoB9e3x+gYOEgoB9e3x+gYOEg4B9fHx9gIOEg4B9fHx9gIOEg4F+fHt9gIKEg4F+fHt9f4KEg4F+fHt9f4KDg4F+fHt9f4KDg4F/fHt8f4GDg4J/fXt8foGDg4J/fXx8foGDg4KAfXx8foGDg4KAfXx8foCDg4KAfXx8foCDg4OAfnx8fYCCg4OAfnx8fYCCg4OBfnx8fX+Cg4OBfnx8fX+Cg4OBf3x8fX+Cg4OBf318fX+Bg4OCf318fH+Bg4OCf318fH6Bg4OCgH18fH6Bg4OCgH18fH6Ag4OCgH18fH6AgoOCgH58fH2AgoODgH58fH2AgoODgX58fH2AgoODgX58fH1/goODgX99fH1/gYODgX99fH1/gYODgX99fH1/gYODgn99fHx+gYODgn99fHx+gYODgoB9fHx+gIKDgoB+fHx+gIKDgoB+fHx+gIKDgoB+fHx9gIKDgoF+fHx9f4KDg4F+fXx9f4KDg4F/fXx9f4GDg4F/fXx9f4GDg4F/fXx9f4GDg4J/fXx9foGDg4KAfXx9foGCg4KAfXx8foCCg4KAfnx8foCCg4KAfnx8foCCg4KAfnx8foCCg4KBfn18fX+Cg4KBfn18fX+Bg4KBf318fX+Bg4OBf318fX+Bg4OBf318fX+BgoOBf318fX6BgoOCgH18fX6AgoOCgH58fX6AgoOCgH58fX6AgoOCgH59fH6AgoOCgH59fH6AgoOCgH59fH1/goOCgX99fH1/gYOCgX99fH1/gYKCgX99fH1/gYKCgX99fH1/gYKCgX99fH1/gYKDgYB+fH1+gIKDgoB+fX1+gIKDgoB+fX1+gIKDgoB+fX1+gIKDgoB+fX1+gIKCgoB+fX1+f4GCgoF/fX19f4GCgoF/fX19f4GCgoF/fX19f4GCgoF/fX19f4GCgoF/fX19f4GCgoF/fn19foCCgoGAfn19foCCgoKAfn19foCCgoKAfn19foCCgoKAfn19foCBgoKAfn19foCBgoKBf319fn+BgoKBf319fX+BgoKBf319fX+BgoKBf319fX+BgoKBf359fX+BgoKBf359fX6AgoKBgH59fX6AgoKBgH59fX6AgoKCgH59fX6AgYKCgH59fX6AgYKCgH99fX6AgYKCgH99fX5/gYKCgX99fX5/gYKCgX99fX1/gYKCgX9+fX1/gYKCgX9+fX1/gIKCgYB+fX1/gIKCgYB+fX1+gIKCgYB+fX1+gIGCgYB+fX1+gIGCgoB+fX1+gIGCgoB/fX1+f4GCgoB/fX1+f4GCgoF/fX1+f4GCgoF/fn1+f4GCgoF/fn19f4GCgoF/fn19f4CCgoGAfn19f4CCgoGAfn19foCBgoGAfn19foCBgoGAfn19foCBgoGAfn19foCBgoKAf319fn+BgoKAf319fn+BgoKBf359fn+BgoKBf359fn+BgoKBf359fn+BgoKBf359fn+AgoKBgH59fX+AgYKBgH59fX+AgYKBgH59fX6AgYKBgH59fX6AgYKBgH99fX6AgYKBgH99fX6AgYKCgH9+fX5/gYKCgH9+fX5/gYKCgX9+fX5/gYKCgX9+fX5/gIKCgX9+fX5/gIGCgX9+fX5/gIGCgYB+fX1/gIGCgYB+fX1+gIGCgYB+fX1+gIGCgYB/fn1+gIGCgYB/fn1+gICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgA=="></audio>
+                  <p class="fx-out-note">A soft two-note chime, low then high, fading out. That description is the transcript equivalent.</p>
+                </figure>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
       <section class="fx-scene reveal" id="fx-agent-platform" aria-labelledby="fx-platform-title">
@@ -1566,71 +1558,33 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
             <h2 id="fx-platform-title">Agentic Platform</h2>
             <p class="fx-subtitle">A loop that gives the model tools</p>
           </div>
-          <p>An agent platform wraps the model in a working loop. It assembles context, offers tools and permissions, carries out approved actions, returns each result to the model, and stops when the job reaches a finish condition or needs you.</p>
-          <p>The model proposes the next step; the platform owns the work surface and execution boundary. Together they can inspect material, act on it, check what happened, and report back.</p>
+          <p>An agentic platform wraps the same model in a loop that can <strong>do</strong> things, not just say things. It starts exactly like the last scene: the same prompt, the same optional context.</p>
+          <p>The difference is what happens next. The platform's model plans the job and, when useful, coordinates <strong>specialized agents</strong> that work in parallel where the work is genuinely independent. Every action they take is routed through one <strong>permission and tool boundary</strong>: an agent can read or modify files and documents, and can generate and run commands or processes, only when the platform supports it and you permit it.</p>
+          <p>Results come back as <strong>observations</strong>: errors, status, output. The loop checks them, works again if needed, and ends with a report. No platform changes your machine unbidden; capability is always "can", "when supported", "when permitted".</p>
         </div>
-        <div class="fx-diagram fx-diagram--medium">
-          <svg class="fx-svg fx-svg--desktop" data-phase3-diagram="agent-loop" viewBox="0 0 600 330" role="img" aria-label="The model and an agent platform exchange proposed actions and observed results in a working loop">
-            <g data-phase3-layer="connectors">
-              <path class="fxp fx-draw" style="--d:260ms" pathLength="1" d="M 175 125 C 245 65 355 65 425 125"/>
-              <path class="fx-head fx-pop" style="--d:760ms" d="M 413 115 L 427 125 L 410 129 Z"/>
-              <path class="fxp fx-draw" style="--d:420ms" pathLength="1" d="M 425 195 C 355 255 245 255 175 195"/>
-              <path class="fx-head fx-pop" style="--d:920ms" d="M 187 205 L 173 195 L 190 191 Z"/>
-            </g>
-            <g data-phase3-layer="pulses">
-              <circle class="fx-pulse" r="6" style="offset-path: path('M 175 125 C 245 65 355 65 425 125 L 425 195 C 355 255 245 255 175 195 Z'); --t: 5s"/>
-            </g>
-            <g data-phase3-layer="nodes">
-              <text class="fxt fxt--role" x="300" y="58" text-anchor="middle">PROPOSED ACTION</text>
-              <text class="fxt fxt--detail" x="300" y="80" text-anchor="middle">inspect &middot; change &middot; verify</text>
-              <text class="fxt fxt--role" x="300" y="272" text-anchor="middle">OBSERVED RESULT</text>
-              <text class="fxt fxt--detail" x="300" y="294" text-anchor="middle">content &middot; output &middot; error &middot; status</text>
-              <g class="fx-pop" data-phase3-node="agent-model">
-                <rect class="fxr fxr--hero" x="28" y="108" width="147" height="104" rx="16"/>
-                <text class="fxt fxt--hero" x="101.5" y="141" text-anchor="middle">MODEL</text>
-                <text class="fxt" x="101.5" y="168" text-anchor="middle">chooses a step</text>
-                <text class="fxt fxt--detail" x="101.5" y="192" text-anchor="middle">from supplied context</text>
-              </g>
-              <g class="fx-pop" data-phase3-node="agent-platform" style="--d:140ms">
-                <rect class="fxr" x="425" y="94" width="147" height="132" rx="16"/>
-                <text class="fxt fxt--accent" x="498.5" y="125" text-anchor="middle">PLATFORM</text>
-                <text class="fxt" x="498.5" y="151" text-anchor="middle">context + tools</text>
-                <text class="fxt" x="498.5" y="176" text-anchor="middle">permissions + action</text>
-                <text class="fxt fxt--detail" x="498.5" y="202" text-anchor="middle">owns the boundary</text>
-              </g>
-            </g>
-          </svg>
-          <svg class="fx-svg fx-svg--mobile" data-phase3-diagram="agent-loop" viewBox="0 0 360 530" role="img" aria-label="Mobile diagram of the model and agent platform exchanging a proposed action and an observed result">
-            <g data-phase3-layer="connectors">
-              <path class="fxp fx-draw" pathLength="1" d="M 180 176 L 180 294"/>
-              <path class="fx-head fx-pop" style="--d:560ms" d="M 173 282 L 180 296 L 187 282 Z"/>
-              <path class="fxp fx-draw" style="--d:260ms" pathLength="1" d="M 320 382 C 342 382 342 102 320 102"/>
-              <path class="fx-head fx-pop" style="--d:720ms" d="M 324 90 L 316 102 L 328 110 Z"/>
-            </g>
-            <g data-phase3-layer="pulses">
-              <circle class="fx-pulse" r="7" style="offset-path: path('M 180 176 L 180 294'); --t: 3.2s"/>
-              <circle class="fx-pulse" r="7" style="offset-path: path('M 320 382 C 342 382 342 102 320 102'); --t: 4.6s"/>
-            </g>
-            <g data-phase3-layer="nodes">
-              <g class="fx-pop" data-phase3-node="agent-model-mobile">
-                <rect class="fxr fxr--hero" x="24" y="20" width="312" height="156" rx="18"/>
-                <text class="fxt fxt--hero" x="180" y="62" text-anchor="middle">MODEL</text>
-                <text class="fxt" x="180" y="98" text-anchor="middle">chooses a step</text>
-                <text class="fxt fxt--detail" x="180" y="128" text-anchor="middle">from supplied context</text>
-                <text class="fxt fxt--role" x="180" y="158" text-anchor="middle">PROPOSED ACTION</text>
-              </g>
-              <text class="fxt fxt--detail" x="184" y="225">inspect &middot; change &middot; verify</text>
-              <text class="fxt fxt--detail" x="184" y="270">content &middot; output &middot; status</text>
-              <g class="fx-pop" data-phase3-node="agent-platform-mobile" style="--d:180ms">
-                <rect class="fxr" x="24" y="296" width="312" height="180" rx="18"/>
-                <text class="fxt fxt--accent" x="180" y="338" text-anchor="middle">PLATFORM</text>
-                <text class="fxt" x="180" y="374" text-anchor="middle">context + tools</text>
-                <text class="fxt" x="180" y="406" text-anchor="middle">permissions + action</text>
-                <text class="fxt fxt--role" x="180" y="440" text-anchor="middle">OBSERVED RESULT</text>
-              </g>
-              <text class="fxt fxt--detail" x="180" y="510" text-anchor="middle">The platform owns the execution boundary.</text>
-            </g>
-          </svg>
+        <div class="fx-diagram">
+          <div class="fx-model-flow">
+            <div class="fx-entry" data-grammar="entry"><div class="fx-ctx-query"><span class="fx-ctx-tag">Prompt</span><p>Summarise this contract and list every deadline.</p></div><div class="fx-ctx-plus" aria-hidden="true">+</div><ul class="fx-ctx-kinds fx-ctx-kinds--row" aria-label="Optional context attached to the request"><li><span class="fx-ctx-kind">Image</span></li><li><span class="fx-ctx-kind">File or document</span></li><li><span class="fx-ctx-kind">Project folder or workspace</span></li><li><span class="fx-ctx-kind">Codebase</span></li></ul></div>
+            <div class="fx-flow-link" aria-hidden="true"><svg class="fx-inline-arrow" viewBox="0 0 34 12" aria-hidden="true" focusable="false"><path class="fxp" d="M1 6 H24" pathLength="1"/><path class="fx-head" d="M22 1.5 L32 6 L22 10.5 Z"/></svg></div>
+            <div data-stage="work-cycle"><figure class="fx-cycle" data-grammar="work-cycle"><svg viewBox="0 0 76 76" role="img" aria-labelledby="fx-platform-cycle-title"><title id="fx-platform-cycle-title">An abstract work cycle: assess, act, check, repeated as needed</title><circle class="fx-cycle-ring" cx="38" cy="38" r="27" pathLength="1"/><path class="fx-head" d="M62 30 L69 38 L60 41 Z"/><circle class="fx-cycle-dot" cx="38" cy="11" r="4.5"/><text class="fxt fxt--accent" x="38" y="42" text-anchor="middle">work</text></svg><figcaption>The platform's model plans with the same abstract work cycle, then hands out missions.</figcaption></figure></div>
+            <div class="fx-flow-link" aria-hidden="true"><svg class="fx-inline-arrow" viewBox="0 0 34 12" aria-hidden="true" focusable="false"><path class="fxp" d="M1 6 H24" pathLength="1"/><path class="fx-head" d="M22 1.5 L32 6 L22 10.5 Z"/></svg></div>
+            <ul class="fx-lanes" data-grammar="missions" aria-label="Three specialized agent missions running in parallel where independent"><li class="fx-lane" data-agent-mission><span class="fx-lane-tag">Investigate the project</span><p>Reads the relevant files or documents and maps what is already there</p></li><li class="fx-lane" data-agent-mission><span class="fx-lane-tag">Research the material</span><p>Pulls the sections, records, or references the request actually needs</p></li><li class="fx-lane" data-agent-mission><span class="fx-lane-tag">Verify the result</span><p>Runs checks against the finished work and reports what it observed</p></li></ul>
+            <div class="fx-flow-link" aria-hidden="true"><svg class="fx-inline-arrow" viewBox="0 0 34 12" aria-hidden="true" focusable="false"><path class="fxp" d="M1 6 H24" pathLength="1"/><path class="fx-head" d="M22 1.5 L32 6 L22 10.5 Z"/></svg></div>
+            <div class="fx-boundary" data-grammar="boundary" role="group" aria-label="The platform permission and tool boundary every action passes through">
+              <span class="fx-boundary-tag">Permission and tool boundary</span>
+              <ul class="fx-boundary-list">
+                <li>read or modify files and documents <em>when permitted</em></li>
+                <li>generate and run commands or processes <em>when supported</em></li>
+                <li>check the observed result of each action</li>
+              </ul>
+            </div>
+            <div class="fx-flow-link" aria-hidden="true"><svg class="fx-inline-arrow" viewBox="0 0 34 12" aria-hidden="true" focusable="false"><path class="fxp" d="M1 6 H24" pathLength="1"/><path class="fx-head" d="M22 1.5 L32 6 L22 10.5 Z"/></svg></div>
+            <div class="fx-obs-row">
+              <div class="fx-mini-card" data-stage="observations"><span class="fx-mini-tag">Observations</span><p>Errors, status, and output return to the loop, which works again if the check fails</p></div>
+              <svg class="fx-inline-arrow" viewBox="0 0 34 12" aria-hidden="true" focusable="false"><path class="fxp" d="M1 6 H24" pathLength="1"/><path class="fx-head" d="M22 1.5 L32 6 L22 10.5 Z"/></svg>
+              <div class="fx-mini-card fx-mini-card--report" data-stage="report"><span class="fx-mini-tag">Report</span><p>A final report of what was done, what was checked, and what changed</p></div>
+            </div>
+          </div>
         </div>
       </section>
       <section class="fx-scene fx-wide reveal" id="fx-chatbot-agent" aria-labelledby="fx-chatbot-agent-title">
@@ -1639,332 +1593,91 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
             <h2 id="fx-chatbot-agent-title">Chatbot vs. Agentic Platform</h2>
             <p class="fx-subtitle">Same request, different handoff</p>
           </div>
-          <p>In a browser chat, the usual handoff is an answer: you carry the useful parts into the place where the work lives. In an agentic platform with access to that work surface, the handoff can be the changed material, a check of what happened, and a report.</p>
-          <p>This is not a hard capability wall. Chatbots can also gain tools, and agentic platforms can be limited to conversation. The practical question is <strong>where the work happens and what the exchange leaves behind</strong>.</p>
+          <p>Send the <strong>same request</strong> with the same context to both, and the difference is not intelligence. It is <strong>where the work happens</strong> and <strong>what each lane leaves behind</strong>. Chatbots can increasingly use tools too; the lane below shows their most common shape.</p>
         </div>
-        <div class="fx-diagram fx-diagram--wide">
-          <svg class="fx-svg fx-svg--desktop" data-phase3-diagram="chatbot-agent" viewBox="0 0 760 410" role="img" aria-label="The same event-plan request ends with guidance to apply in a chatbot and with a saved, checked change in an agentic platform">
-            <g data-phase3-layer="connectors">
-              <path class="fxp fxp--warn fx-draw" pathLength="1" d="M 380 74 C 320 92 250 96 190 120"/>
-              <path class="fx-head fx-head--bad fx-pop" style="--d:420ms" d="M 202 111 L 188 121 L 205 124 Z"/>
-              <path class="fxp fxp--good fx-draw" pathLength="1" d="M 380 74 C 440 92 510 96 570 120"/>
-              <path class="fx-head fx-head--good fx-pop" style="--d:420ms" d="M 555 124 L 572 121 L 558 111 Z"/>
-            </g>
-            <g data-phase3-layer="pulses">
-              <circle class="fx-pulse" r="6" style="offset-path: path('M 380 74 C 320 92 250 96 190 120'); --t: 3.8s"/>
-              <circle class="fx-pulse" r="6" style="offset-path: path('M 380 74 C 440 92 510 96 570 120'); --t: 3.8s"/>
-            </g>
-            <g data-phase3-layer="nodes">
-              <g class="fx-pop" data-phase3-node="shared-request">
-                <rect class="fxr fxr--hero" x="136" y="12" width="488" height="62" rx="14"/>
-                <text class="fxt fxt--role" x="380" y="36" text-anchor="middle">SAME REQUEST</text>
-                <text class="fxt" x="380" y="59" text-anchor="middle">Update the event plan with the approved date, then check the total.</text>
-              </g>
-              <g class="fx-pop" data-phase3-node="chatbot-handoff" style="--d:180ms">
-                <rect class="fxwin fxwin--bad" x="20" y="120" width="340" height="258" rx="16"/>
-                <text class="fxt fxt--warn" x="190" y="151" text-anchor="middle">BROWSER CHATBOT</text>
-                <rect class="fxbubble" x="48" y="174" width="284" height="74" rx="13"/>
-                <text class="fxt" x="190" y="204" text-anchor="middle">Returns revised wording</text>
-                <text class="fxt fxt--detail" x="190" y="228" text-anchor="middle">and explains the new total</text>
-                <path class="fxp fxp--warn" d="M 190 248 L 190 270"/>
-                <path class="fx-head fx-head--bad" d="M 184 266 L 190 278 L 196 266 Z"/>
-                <rect class="fxcard fxcard--bad" x="48" y="278" width="284" height="72" rx="12"/>
-                <text class="fxt fxt--role" x="190" y="305" text-anchor="middle">ANSWER HANDOFF</text>
-                <text class="fxt" x="190" y="330" text-anchor="middle">You apply and check it in the project.</text>
-              </g>
-              <g class="fx-pop" data-phase3-node="agent-handoff" style="--d:320ms">
-                <rect class="fxwin fxwin--good" x="400" y="120" width="340" height="258" rx="16"/>
-                <text class="fxt fxt--accent" x="570" y="151" text-anchor="middle">AGENTIC PLATFORM</text>
-                <rect class="fxchip fxchip--good" x="428" y="174" width="84" height="46" rx="10"/>
-                <text class="fxt" x="470" y="202" text-anchor="middle">reads</text>
-                <rect class="fxchip" x="528" y="174" width="84" height="46" rx="10"/>
-                <text class="fxt" x="570" y="202" text-anchor="middle">changes</text>
-                <rect class="fxchip fxchip--good" x="628" y="174" width="84" height="46" rx="10"/>
-                <text class="fxt" x="670" y="202" text-anchor="middle">checks</text>
-                <path class="fxp fxp--good" d="M 570 220 L 570 270"/>
-                <path class="fx-head fx-head--good" d="M 564 266 L 570 278 L 576 266 Z"/>
-                <rect class="fxcard fxcard--good" x="428" y="278" width="284" height="72" rx="12"/>
-                <text class="fxt fxt--role" x="570" y="305" text-anchor="middle">WORK HANDOFF</text>
-                <text class="fxt" x="570" y="330" text-anchor="middle">Saved change, check result, and report.</text>
-              </g>
-            </g>
-          </svg>
-          <svg class="fx-svg fx-svg--mobile" data-phase3-diagram="chatbot-agent" viewBox="0 0 360 800" role="img" aria-label="Mobile comparison of one event-plan request handed back as an answer and completed in an agentic work surface">
-            <g data-phase3-layer="connectors">
-              <path class="fxp fxp--warn fx-draw" pathLength="1" d="M 180 94 L 180 132"/>
-              <path class="fx-head fx-head--bad fx-pop" style="--d:420ms" d="M 173 120 L 180 134 L 187 120 Z"/>
-              <path class="fxp fxp--good fx-draw" pathLength="1" d="M 330 54 C 350 54 350 500 330 500"/>
-              <path class="fx-head fx-head--good fx-pop" style="--d:620ms" d="M 332 492 L 322 501 L 334 508 Z"/>
-            </g>
-            <g data-phase3-layer="pulses">
-              <circle class="fx-pulse" r="7" style="offset-path: path('M 180 94 L 180 132'); --t: 2.8s"/>
-              <circle class="fx-pulse" r="7" style="offset-path: path('M 330 54 C 350 54 350 500 330 500'); --t: 4.8s"/>
-            </g>
-            <g data-phase3-layer="nodes">
-              <g class="fx-pop" data-phase3-node="shared-request-mobile">
-                <rect class="fxr fxr--hero" x="20" y="12" width="320" height="82" rx="16"/>
-                <text class="fxt fxt--role" x="180" y="40" text-anchor="middle">SAME REQUEST</text>
-                <text class="fxt" x="180" y="66" text-anchor="middle">Update the date, then check the total.</text>
-              </g>
-              <g class="fx-pop" data-phase3-node="chatbot-handoff-mobile" style="--d:180ms">
-                <rect class="fxwin fxwin--bad" x="20" y="134" width="320" height="270" rx="18"/>
-                <text class="fxt fxt--warn" x="180" y="168" text-anchor="middle">BROWSER CHATBOT</text>
-                <rect class="fxbubble" x="46" y="192" width="268" height="78" rx="13"/>
-                <text class="fxt" x="180" y="222" text-anchor="middle">revised wording</text>
-                <text class="fxt fxt--detail" x="180" y="249" text-anchor="middle">and an explained total</text>
-                <path class="fxp fxp--warn" d="M 180 270 L 180 298"/>
-                <path class="fx-head fx-head--bad" d="M 173 286 L 180 300 L 187 286 Z"/>
-                <rect class="fxcard fxcard--bad" x="46" y="300" width="268" height="76" rx="12"/>
-                <text class="fxt fxt--role" x="180" y="329" text-anchor="middle">ANSWER HANDOFF</text>
-                <text class="fxt" x="180" y="356" text-anchor="middle">You apply and check it.</text>
-              </g>
-              <text class="fxt fxt--detail" x="180" y="447" text-anchor="middle">Same request, different work surface</text>
-              <g class="fx-pop" data-phase3-node="agent-handoff-mobile" style="--d:340ms">
-                <rect class="fxwin fxwin--good" x="20" y="500" width="320" height="260" rx="18"/>
-                <text class="fxt fxt--accent" x="180" y="534" text-anchor="middle">AGENTIC PLATFORM</text>
-                <rect class="fxchip fxchip--good" x="44" y="558" width="78" height="48" rx="9"/>
-                <text class="fxt" x="83" y="588" text-anchor="middle">reads</text>
-                <rect class="fxchip" x="141" y="558" width="78" height="48" rx="9"/>
-                <text class="fxt" x="180" y="588" text-anchor="middle">changes</text>
-                <rect class="fxchip fxchip--good" x="238" y="558" width="78" height="48" rx="9"/>
-                <text class="fxt" x="277" y="588" text-anchor="middle">checks</text>
-                <path class="fxp fxp--good" d="M 180 606 L 180 632"/>
-                <path class="fx-head fx-head--good" d="M 173 620 L 180 634 L 187 620 Z"/>
-                <rect class="fxcard fxcard--good" x="44" y="634" width="272" height="92" rx="12"/>
-                <text class="fxt fxt--role" x="180" y="665" text-anchor="middle">WORK HANDOFF</text>
-                <text class="fxt" x="180" y="693" text-anchor="middle">saved change + check result</text>
-                <text class="fxt fxt--detail" x="180" y="718" text-anchor="middle">then a report</text>
-              </g>
-            </g>
-          </svg>
+        <div class="fx-diagram">
+          <div class="fx-states" role="group" aria-label="One request handled by a chatbot and by an agentic platform">
+            <article class="fx-state fx-state--weak" data-phase3-node="chatbot-handoff">
+              <h3 class="fx-state-tag">Chatbot</h3>
+              <p class="fx-state-line" data-phase3-node="shared-request">&ldquo;Summarise this contract and list every deadline.&rdquo;</p>
+              <dl class="fx-parts">
+                <div class="fx-part"><dt>Boundary</dt><dd>The conversation window. The work surface stays untouched.</dd></div>
+                <div class="fx-part"><dt>Action</dt><dd>Generates guidance and a draft summary in the chat.</dd></div>
+                <div class="fx-part"><dt>Outcome</dt><dd>An <strong>answer handoff</strong>: you apply and check every step yourself.</dd></div>
+                <div class="fx-part"><dt>Leaves behind</dt><dd>A transcript to copy from.</dd></div>
+              </dl>
+            </article>
+            <div class="fx-state-link" aria-hidden="true"><svg class="fx-inline-arrow" viewBox="0 0 34 12" aria-hidden="true" focusable="false"><path class="fxp" d="M1 6 H24" pathLength="1"/><path class="fx-head" d="M22 1.5 L32 6 L22 10.5 Z"/></svg></div>
+            <article class="fx-state fx-state--strong" data-phase3-node="agent-handoff">
+              <h3 class="fx-state-tag">Agentic platform</h3>
+              <p class="fx-state-line">The same request, the same context.</p>
+              <dl class="fx-parts">
+                <div class="fx-part"><dt>Boundary</dt><dd>Your work surface, behind the permission and tool boundary.</dd></div>
+                <div class="fx-part"><dt>Action</dt><dd>May, when permitted and supported, inspect the material, run processes, edit files or documents, and verify the result.</dd></div>
+                <div class="fx-part"><dt>Outcome</dt><dd>A <strong>work handoff</strong>: a report plus a saved change you can check result by result.</dd></div>
+                <div class="fx-part"><dt>Leaves behind</dt><dd>Durable artifacts in the work itself, not only words about it.</dd></div>
+              </dl>
+            </article>
+          </div>
+          <p class="fx-diagram-note">Neither lane promises success. The chatbot lane hands you an answer to act on; the agentic lane, with your permission, acts and shows its checks.</p>
         </div>
       </section>
-      <section class="fx-scene fx-wide reveal" id="fx-harness" aria-labelledby="fx-harness-title">
+      <section class="fx-scene reveal" id="fx-harness" aria-labelledby="fx-harness-title">
         <div class="fx-copy">
           <div class="fx-title">
             <h2 id="fx-harness-title">Harnesses</h2>
-            <p class="fx-subtitle">Portable workflow discipline above the built-in loop</p>
+            <p class="fx-subtitle">The runtime loop every platform already ships</p>
           </div>
-          <p>An agentic platform already supplies the inner harness: the runtime loop that gives a model context and tools, runs permitted actions, and feeds observations back. Nexus-Hub does not replace that runtime.</p>
-          <p>It adds a portable workflow layer: one source catalog adapted into each supported assistant's native files; procedures that load when invoked or matched; hooks triggered by supported host events rather than prompt wording; written verification gates; and durable artifacts that chain forward, such as a plan into <code>/implement</code> and phase history or known gaps into later work.</p>
-          <p>The platform makes the agentic turn possible. Nexus-Hub makes selected workflows portable, repeatable, and auditable.</p>
+          <p>Every agentic platform already ships a <strong>harness</strong>: the built-in runtime loop wrapped around its model. It assembles the context, offers the tools, enforces the permissions, executes the actions, and feeds the observations back in.</p>
+          <p>That loop is what made the last two scenes possible, and it belongs to the platform. Each one builds its own, with its own defaults and its own reach.</p>
         </div>
-        <div class="fx-diagram fx-diagram--wide">
-          <svg class="fx-svg fx-svg--desktop" data-phase3-diagram="harness-layers" viewBox="0 0 760 440" role="img" aria-label="Three nested layers show the model inside the platform loop and built-in harness, with Nexus-Hub adding portable workflow artifacts above them">
-            <g data-phase3-layer="nodes">
-            <g class="fx-pop" data-phase3-harness-layer="nexus-hub" style="--d:0ms">
-              <rect class="fxlayer--nexus" x="18" y="14" width="724" height="410" rx="22"/>
-              <text class="fxt fxt--good" x="380" y="46" text-anchor="middle">NEXUS-HUB PORTABLE WORKFLOW LAYER</text>
-              <g data-phase3-claim="one-source-catalog" data-artifact="catalog/">
-                <rect class="fxchip fxchip--good" x="40" y="66" width="128" height="58" rx="10"/>
-                <text class="fxt fxt--role" x="104" y="90" text-anchor="middle">ONE CATALOG</text>
-                <text class="fxt fxt--detail" x="104" y="111" text-anchor="middle">host adapters</text>
-              </g>
-              <g data-phase3-claim="matched-procedures" data-artifact="catalog/skills">
-                <rect class="fxchip fxchip--good" x="178" y="66" width="128" height="58" rx="10"/>
-                <text class="fxt fxt--role" x="242" y="90" text-anchor="middle">MATCHED SKILLS</text>
-                <text class="fxt fxt--detail" x="242" y="111" text-anchor="middle">load on demand</text>
-              </g>
-              <g data-phase3-claim="event-hooks" data-artifact="catalog/hooks/settings.json">
-                <rect class="fxchip fxchip--good" x="307" y="66" width="146" height="58" rx="10"/>
-                <text class="fxt fxt--role" x="380" y="90" text-anchor="middle">EVENT HOOKS*</text>
-                <text class="fxt fxt--detail" x="380" y="111" text-anchor="middle">prompt-independent</text>
-              </g>
-              <g data-phase3-claim="written-gates" data-artifact="catalog/commands/implement.md">
-                <rect class="fxchip fxchip--good" x="454" y="66" width="128" height="58" rx="10"/>
-                <text class="fxt fxt--role" x="518" y="90" text-anchor="middle">WRITTEN GATES</text>
-                <text class="fxt fxt--detail" x="518" y="111" text-anchor="middle">definition of done</text>
-              </g>
-              <g data-phase3-claim="durable-artifacts" data-artifact="docs/releases">
-                <rect class="fxchip fxchip--good" x="592" y="66" width="128" height="58" rx="10"/>
-                <text class="fxt fxt--role" x="656" y="90" text-anchor="middle">DURABLE TRAIL</text>
-                <text class="fxt fxt--detail" x="656" y="111" text-anchor="middle">chain forward</text>
-              </g>
-              <text class="fxt fxt--detail" x="380" y="407" text-anchor="middle">* Event hooks run where the host exposes the registered event.</text>
-            </g>
-            <g class="fx-pop" data-phase3-harness-layer="platform" style="--d:300ms">
-              <rect class="fxlayer--platform" x="112" y="154" width="536" height="222" rx="20"/>
-              <text class="fxt fxt--accent" x="380" y="185" text-anchor="middle">PLATFORM LOOP + BUILT-IN HARNESS</text>
-              <text class="fxt" x="380" y="210" text-anchor="middle">context &middot; tools &middot; permissions &middot; execution &middot; observations</text>
-            </g>
-            <g class="fx-pop" data-phase3-harness-layer="model" style="--d:620ms">
-              <rect class="fxr fxr--hero" x="238" y="244" width="284" height="94" rx="18"/>
-              <text class="fxt fxt--hero" x="380" y="278" text-anchor="middle">MODEL</text>
-              <text class="fxt" x="380" y="307" text-anchor="middle">works from the current context</text>
-              <text class="fxt fxt--detail" x="380" y="329" text-anchor="middle">proposes the next step</text>
-            </g>
-            </g>
-          </svg>
-          <svg class="fx-svg fx-svg--mobile" data-phase3-diagram="harness-layers" viewBox="0 0 360 800" role="img" aria-label="Mobile nested-layer diagram with the model inside the platform harness and Nexus-Hub portable workflow layer">
-            <g data-phase3-layer="nodes">
-              <g class="fx-pop" data-phase3-harness-layer="nexus-hub-mobile">
-                <rect class="fxlayer--nexus" x="10" y="10" width="340" height="760" rx="22"/>
-                <text class="fxt fxt--good" x="180" y="42" text-anchor="middle">NEXUS-HUB WORKFLOW LAYER</text>
-                <g data-phase3-claim="one-source-catalog" data-artifact="catalog/">
-                <rect class="fxchip fxchip--good" x="28" y="66" width="146" height="66" rx="10"/>
-                <text class="fxt fxt--role" x="101" y="92" text-anchor="middle">ONE CATALOG</text>
-                <text class="fxt fxt--detail" x="101" y="117" text-anchor="middle">host adapters</text>
-                </g>
-                <g data-phase3-claim="matched-procedures" data-artifact="catalog/skills">
-                <rect class="fxchip fxchip--good" x="186" y="66" width="146" height="66" rx="10"/>
-                <text class="fxt fxt--role" x="259" y="92" text-anchor="middle">MATCHED SKILLS</text>
-                <text class="fxt fxt--detail" x="259" y="117" text-anchor="middle">load on demand</text>
-                </g>
-                <g data-phase3-claim="event-hooks" data-artifact="catalog/hooks/settings.json">
-                <rect class="fxchip fxchip--good" x="28" y="144" width="146" height="66" rx="10"/>
-                <text class="fxt fxt--role" x="101" y="170" text-anchor="middle">EVENT HOOKS*</text>
-                <text class="fxt fxt--detail" x="101" y="195" text-anchor="middle">prompt-independent</text>
-                </g>
-                <g data-phase3-claim="written-gates" data-artifact="catalog/commands/implement.md">
-                <rect class="fxchip fxchip--good" x="186" y="144" width="146" height="66" rx="10"/>
-                <text class="fxt fxt--role" x="259" y="170" text-anchor="middle">WRITTEN GATES</text>
-                <text class="fxt fxt--detail" x="259" y="195" text-anchor="middle">definition of done</text>
-                </g>
-                <g data-phase3-claim="durable-artifacts" data-artifact="docs/releases">
-                <rect class="fxchip fxchip--good" x="80" y="222" width="200" height="72" rx="10"/>
-                <text class="fxt fxt--role" x="180" y="250" text-anchor="middle">DURABLE TRAIL</text>
-                <text class="fxt fxt--detail" x="180" y="276" text-anchor="middle">artifacts chain forward</text>
-                </g>
-                <text class="fxt fxt--detail" x="180" y="746" text-anchor="middle">* Where the host exposes the event.</text>
-              </g>
-              <g class="fx-pop" data-phase3-harness-layer="platform-mobile" style="--d:300ms">
-                <rect class="fxlayer--platform" x="30" y="330" width="300" height="350" rx="20"/>
-                <text class="fxt fxt--accent" x="180" y="364" text-anchor="middle">PLATFORM LOOP</text>
-                <text class="fxt fxt--accent" x="180" y="390" text-anchor="middle">+ BUILT-IN HARNESS</text>
-                <text class="fxt" x="180" y="426" text-anchor="middle">context + tools</text>
-                <text class="fxt" x="180" y="454" text-anchor="middle">permissions + execution</text>
-                <text class="fxt" x="180" y="482" text-anchor="middle">observations return to model</text>
-              </g>
-              <g class="fx-pop" data-phase3-harness-layer="model-mobile" style="--d:620ms">
-                <rect class="fxr fxr--hero" x="58" y="524" width="244" height="112" rx="18"/>
-                <text class="fxt fxt--hero" x="180" y="562" text-anchor="middle">MODEL</text>
-                <text class="fxt" x="180" y="591" text-anchor="middle">uses current context</text>
-                <text class="fxt fxt--detail" x="180" y="618" text-anchor="middle">proposes the next step</text>
-              </g>
-            </g>
-          </svg>
+        <div class="fx-diagram">
+          <div class="fx-layer fx-layer--platform" data-phase3-harness-layer="platform" role="group" aria-label="The platform's built-in harness wrapping the model">
+            <span class="fx-layer-tag">Platform harness &mdash; the built-in runtime loop</span>
+            <ul class="fx-layer-list">
+              <li>context</li><li>tools</li><li>permissions</li><li>execution</li><li>observations</li>
+            </ul>
+            <div class="fx-layer fx-layer--model" data-phase3-harness-layer="model">
+              <span class="fx-layer-tag">Model</span>
+              <p class="fx-layer-note">the trained system doing the work cycles</p>
+            </div>
+          </div>
         </div>
       </section>
-      <section class="fx-scene reveal" id="fx-practice" aria-labelledby="fx-practice-title">
+      <section class="fx-scene fx-wide reveal" id="fx-practice" aria-labelledby="fx-practice-title">
         <div class="fx-copy">
           <div class="fx-title">
             <h2 id="fx-practice-title">Nexus-Hub Harness</h2>
             <p class="fx-subtitle">One governed loop that leaves a durable trail</p>
           </div>
-          <p>Follow one job &mdash; <em>fix the thing that keeps failing</em> &mdash; through both setups. Same model, same permitted material, same platform loop. A host-native run can inspect, change, verify, save the result, and report it.</p>
-          <p>With Nexus-Hub, that same loop also loads the matched procedure, follows a written gate, and leaves durable plan, test, history, and known-gap artifacts for the next workflow. The added value is not extra model intelligence; it is portable process and a checkable trail.</p>
+          <p>Nexus-Hub is a <strong>portable workflow layer above</strong> that built-in capability. It does not replace the model, and it does not replace the platform runtime; it standardizes how the work is asked for, gated, and recorded, whichever platform you prefer.</p>
         </div>
-        <div class="fx-diagram fx-diagram--wide">
-          <svg class="fx-svg fx-svg--desktop" data-phase3-diagram="durable-result" viewBox="0 0 760 390" role="img" aria-label="The same agentic job can save a checked change, while Nexus-Hub adds a matched procedure, written gate, and durable evidence trail">
-            <g data-phase3-layer="connectors">
-              <path class="fxp fxp--warn fx-draw" pathLength="1" d="M 156 153 C 184 153 184 105 212 105 L 626 105"/>
-              <path class="fx-head fx-head--bad fx-pop" style="--d:760ms" d="M 614 99 L 628 105 L 614 111 Z"/>
-              <path class="fxp fxp--good fx-draw" pathLength="1" d="M 156 187 C 184 187 184 286 212 286 L 694 286"/>
-              <path class="fx-head fx-head--good fx-pop" style="--d:920ms" d="M 682 280 L 696 286 L 682 292 Z"/>
-            </g>
-            <g data-phase3-layer="pulses">
-              <circle class="fx-pulse" r="6" style="offset-path: path('M 156 153 C 184 153 184 105 212 105 L 626 105'); --t: 4.2s"/>
-              <circle class="fx-pulse" r="6" style="offset-path: path('M 156 187 C 184 187 184 286 212 286 L 694 286'); --t: 5.1s"/>
-            </g>
-            <g data-phase3-layer="nodes">
-              <g class="fx-pop" data-phase3-node="practice-request">
-                <rect class="fxr fxr--hero" x="16" y="126" width="140" height="88" rx="14"/>
-                <text class="fxt fxt--role" x="86" y="152" text-anchor="middle">SAME JOB</text>
-                <text class="fxt" x="86" y="177" text-anchor="middle">fix the recurring</text>
-                <text class="fxt" x="86" y="199" text-anchor="middle">failure</text>
-              </g>
-              <text class="fxt fxt--warn" x="212" y="45">PLATFORM LOOP</text>
-              <text class="fxt fxt--detail" x="212" y="68">host-native process and report</text>
-              <g class="fx-pop" data-phase3-node="platform-work" style="--d:220ms">
-                <rect class="fxchip fxchip--warn" x="212" y="84" width="118" height="44" rx="10"/>
-                <text class="fxt" x="271" y="111" text-anchor="middle">inspect + act</text>
-              </g>
-              <g class="fx-pop" data-phase3-node="platform-check" style="--d:380ms">
-                <rect class="fxchip fxchip--warn" x="350" y="84" width="112" height="44" rx="10"/>
-                <text class="fxt" x="406" y="111" text-anchor="middle">verify</text>
-              </g>
-              <g class="fx-pop" data-phase3-node="platform-result" style="--d:540ms">
-                <rect class="fxcard fxcard--bad" x="482" y="72" width="144" height="68" rx="12"/>
-                <text class="fxt" x="554" y="101" text-anchor="middle">saved change</text>
-                <text class="fxt fxt--detail" x="554" y="124" text-anchor="middle">+ host report</text>
-              </g>
-              <text class="fxt fxt--accent" x="212" y="218">PLATFORM LOOP + NEXUS-HUB</text>
-              <text class="fxt fxt--detail" x="212" y="241">portable procedure and evidence contract</text>
-              <g class="fx-pop" data-phase3-node="matched-procedure" style="--d:220ms">
-                <rect class="fxchip fxchip--good" x="212" y="264" width="112" height="44" rx="10"/>
-                <text class="fxt" x="268" y="291" text-anchor="middle">matched skill</text>
-              </g>
-              <g class="fx-pop" data-phase3-node="nexus-loop" style="--d:380ms">
-                <rect class="fxchip fxchip--good" x="344" y="264" width="104" height="44" rx="10"/>
-                <text class="fxt" x="396" y="291" text-anchor="middle">agent loop</text>
-              </g>
-              <g class="fx-pop" data-phase3-node="written-gate" style="--d:540ms">
-                <polygon class="fxchip fxchip--good" points="490,252 522,286 490,320 458,286"/>
-                <rect data-phase3-text-safe x="470" y="276" width="40" height="22" fill="none" stroke="none"/>
-                <text class="fxt fxt--good" x="490" y="291" text-anchor="middle">GATE</text>
-              </g>
-              <g class="fx-pop" data-phase3-node="durable-trail" style="--d:700ms">
-                <rect class="fxcard fxcard--good" x="538" y="252" width="156" height="68" rx="12"/>
-                <text class="fxt" x="616" y="280" text-anchor="middle">saved change</text>
-                <text class="fxt fxt--good" x="616" y="303" text-anchor="middle">+ plan/test/history</text>
-              </g>
-              <text class="fxt fxt--detail" x="380" y="362" text-anchor="middle">Both paths can complete the work; the lower path also preserves a portable, checkable trail.</text>
-            </g>
-          </svg>
-          <svg class="fx-svg fx-svg--mobile" data-phase3-diagram="durable-result" viewBox="0 0 360 850" role="img" aria-label="Mobile comparison of a completed platform run with the same run plus a matched Nexus-Hub procedure, gate, and durable trail">
-            <g data-phase3-layer="connectors">
-              <path class="fxp fxp--warn fx-draw" pathLength="1" d="M 180 102 L 180 142"/>
-              <path class="fx-head fx-head--bad fx-pop" style="--d:420ms" d="M 173 130 L 180 144 L 187 130 Z"/>
-              <path class="fxp fxp--good fx-draw" pathLength="1" d="M 330 58 C 350 58 350 512 330 512"/>
-              <path class="fx-head fx-head--good fx-pop" style="--d:620ms" d="M 332 504 L 322 513 L 334 520 Z"/>
-            </g>
-            <g data-phase3-layer="pulses">
-              <circle class="fx-pulse" r="7" style="offset-path: path('M 180 102 L 180 142'); --t: 2.8s"/>
-              <circle class="fx-pulse" r="7" style="offset-path: path('M 330 58 C 350 58 350 512 330 512'); --t: 5s"/>
-            </g>
-            <g data-phase3-layer="nodes">
-              <g class="fx-pop" data-phase3-node="practice-request-mobile">
-                <rect class="fxr fxr--hero" x="20" y="12" width="320" height="90" rx="16"/>
-                <text class="fxt fxt--role" x="180" y="43" text-anchor="middle">SAME AGENTIC JOB</text>
-                <text class="fxt" x="180" y="72" text-anchor="middle">fix the recurring failure</text>
-              </g>
-              <g class="fx-pop" data-phase3-node="platform-result-mobile" style="--d:180ms">
-                <rect class="fxwin fxwin--bad" x="20" y="144" width="320" height="280" rx="18"/>
-                <text class="fxt fxt--warn" x="180" y="178" text-anchor="middle">PLATFORM LOOP</text>
-                <text class="fxt fxt--detail" x="180" y="205" text-anchor="middle">host-native process and report</text>
-                <rect class="fxchip fxchip--warn" x="44" y="232" width="120" height="50" rx="10"/>
-                <text class="fxt" x="104" y="263" text-anchor="middle">inspect + act</text>
-                <rect class="fxchip fxchip--warn" x="196" y="232" width="120" height="50" rx="10"/>
-                <text class="fxt" x="256" y="263" text-anchor="middle">verify</text>
-                <path class="fxp fxp--warn" d="M 180 282 L 180 310"/>
-                <path class="fx-head fx-head--bad" d="M 173 298 L 180 312 L 187 298 Z"/>
-                <rect class="fxcard fxcard--bad" x="44" y="312" width="272" height="82" rx="12"/>
-                <text class="fxt" x="180" y="344" text-anchor="middle">saved change</text>
-                <text class="fxt fxt--detail" x="180" y="374" text-anchor="middle">+ host report</text>
-              </g>
-              <text class="fxt fxt--detail" x="180" y="469" text-anchor="middle">Both paths can complete the work.</text>
-              <g class="fx-pop" data-phase3-node="durable-trail-mobile" style="--d:360ms">
-                <rect class="fxwin fxwin--good" x="20" y="512" width="320" height="292" rx="18"/>
-                <text class="fxt fxt--accent" x="180" y="546" text-anchor="middle">PLATFORM + NEXUS-HUB</text>
-                <rect class="fxchip fxchip--good" x="38" y="574" width="116" height="50" rx="10"/>
-                <text class="fxt" x="96" y="605" text-anchor="middle">matched skill</text>
-                <rect class="fxchip fxchip--good" x="166" y="574" width="76" height="50" rx="10"/>
-                <text class="fxt" x="204" y="605" text-anchor="middle">loop</text>
-                <g data-phase3-node="written-gate-mobile">
-                  <polygon class="fxchip fxchip--good" points="284,570 314,599 284,628 254,599"/>
-                  <rect data-phase3-text-safe x="264" y="590" width="40" height="18" fill="none" stroke="none"/>
-                  <text class="fxt fxt--good" x="284" y="605" text-anchor="middle">GATE</text>
-                </g>
-                <path class="fxp fxp--good" d="M 180 628 L 180 656"/>
-                <path class="fx-head fx-head--good" d="M 173 644 L 180 658 L 187 644 Z"/>
-                <rect class="fxcard fxcard--good" x="38" y="658" width="284" height="112" rx="12"/>
-                <text class="fxt" x="180" y="692" text-anchor="middle">saved change</text>
-                <text class="fxt fxt--good" x="180" y="722" text-anchor="middle">+ plan/test/history trail</text>
-                <text class="fxt fxt--detail" x="180" y="750" text-anchor="middle">portable and checkable</text>
-              </g>
-              <text class="fxt fxt--detail" x="180" y="836" text-anchor="middle">The added value is process and evidence.</text>
-            </g>
-          </svg>
+        <div class="fx-diagram">
+          <div class="fx-layer fx-layer--nexus" data-phase3-harness-layer="nexus-hub" role="group" aria-label="The Nexus-Hub portable workflow layer above any platform harness">
+            <span class="fx-layer-tag">Nexus-Hub &mdash; the portable workflow layer</span>
+            <ul class="fx-claims">
+              <li data-phase3-claim="one-source-catalog" data-artifact="catalog/ + installer adapters">One catalog with host adapters: <strong>one source</strong> installs into every supported platform</li>
+              <li data-phase3-claim="matched-procedures" data-artifact="catalog/skills/**/SKILL.md">Matched procedures load on demand, so the workflow is <strong>prompt-independent</strong> instead of retyped</li>
+              <li data-phase3-claim="event-hooks" data-artifact="catalog/hooks/ + settings.json">Hooks fire on supported events &mdash; only where the host exposes the registered event</li>
+              <li data-phase3-claim="written-gates" data-artifact="GO/NO-GO gates in plans and skills">Written gates carry a <strong>definition of done</strong> the work must meet before it advances</li>
+              <li data-phase3-claim="durable-artifacts" data-artifact="plans, histories, known-gaps, reports">Durable artifacts chain forward: each command reads what the previous one wrote</li>
+            </ul>
+            <div class="fx-layer fx-layer--inner">
+              <span class="fx-layer-tag">Any platform harness</span>
+              <p class="fx-layer-note">the built-in loop from the previous scene, unchanged underneath</p>
+            </div>
+          </div>
+          <div class="fx-ctx-budgets fx-trail" data-grammar="trail">
+            <div class="fx-budget" role="group" aria-label="The platform loop alone: useful output that lives in the conversation">
+              <h3 class="fx-state-tag">PLATFORM LOOP</h3>
+              <p class="fx-state-why">The request succeeds, and the useful output lives in the conversation. The next session starts from zero.</p>
+            </div>
+            <div class="fx-budget fx-budget--focused" role="group" aria-label="The platform loop plus Nexus-Hub: every step leaves a file the next step reads">
+              <h3 class="fx-state-tag">PLATFORM LOOP + NEXUS-HUB</h3>
+              <p class="fx-state-why">Each step leaves a file the next step reads &mdash; the artifacts <strong>chain</strong>, so the work survives the session that produced it.</p>
+            </div>
+          </div>
+          <p class="fx-diagram-note">The takeaway: keep the platform you prefer, add the workflow. The same job, asked the same way, gated the same way, leaving the same trail &mdash; everywhere.</p>
         </div>
       </section>
 
@@ -2833,6 +2546,23 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
     }
     for (var j = 0; j < els.length; j++) { revealIO.observe(els[j]); }
   }
+
+  /* Phase 4: the moving-image example plays only on request and rests on its poster. */
+  (function initMediaToggles() {
+    var toggles = document.querySelectorAll("[data-media-toggle]");
+    for (var i = 0; i < toggles.length; i++) {
+      (function (btn) {
+        var img = btn.parentElement.querySelector(".fx-out-motion");
+        if (!img) return;
+        btn.addEventListener("click", function () {
+          var playing = btn.getAttribute("aria-pressed") === "true";
+          img.src = playing ? img.getAttribute("data-poster-src") : img.getAttribute("data-motion-src");
+          btn.setAttribute("aria-pressed", playing ? "false" : "true");
+          btn.textContent = playing ? "Play" : "Show still";
+        });
+      })(toggles[i]);
+    }
+  })();
 
   /* continuous scene motion runs only while the scene is on screen.
      The hero lockup joins this observer rather than adding a second mechanism: it needs the

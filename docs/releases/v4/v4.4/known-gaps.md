@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v4.4.0 finalized 2026-09-01 at `/update release`; v4.4.1 in progress on the same minor
-**Last updated**: 2026-09-01 (v4.4.1 Phase 3)
+**Last updated**: 2026-09-01 (v4.4.1 Phase 4)
 
 ## v4.4.0 - guide-depth-and-training-rebuild
 
@@ -50,23 +50,13 @@
 | Category | Open | Resolved |
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
-| Deferred (DF) | 1 | 0 |
+| Deferred (DF) | 0 | 1 |
 | Bugs / regressions (BG) | 0 | 7 |
 | Warnings (WN) | 2 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
 ### Open Items
-
-#### Deferred
-
-##### DF-1 - The four Phase 4 output-media assets are not yet staged
-
-- **Source phase**: Phase 1 - Contracts, asset provenance, and byte budget (sub-task 1.3).
-- **Plan reference**: `docs/releases/v4/v4.4/plans/v4.4.1-guide-visual-and-arcade-rebuild.md` sub-task 1.3 / T003.
-- **Reason**: The plan's Phase 1 stability gate permits each output-media candidate to be either staged now or "recorded as a Phase 4 blocker", and the maintainer approved the deferral. `model-output-image.svg`, `model-output-video.gif`, `model-output-video-poster.svg`, and `model-output-audio.wav` will be generated as ORIGINAL local media in the phase that consumes them, so no third-party media enters the ledger.
-- **Impact**: Blocks Phase 4 only. Phase 2 and Phase 3 are unblocked, because they consume the five approved platform marks rather than output media.
-- **Suggested next step**: In Phase 4, generate each asset locally, record its provenance and SHA-256 in `asset-provenance.md` section 3, and only then embed it. If the GIF exceeds its Phase 4 byte allocation, fall back to an animated inline SVG and record that substitution with its hash.
 
 #### Warnings
 
@@ -91,6 +81,7 @@
 | ID | Title | Resolved in | Notes |
 |---|---|---|---|
 | BG-1 | The plan document leaked personal filesystem paths | Phase 1 | Sub-task 1.3 named the local Cursor candidates as absolute `C:/Users/<user>/Downloads/...` paths. `validate_no_personal_paths.py` reported 4 findings against the plan file, and that validator runs in `make validate` and CI, so the plan as authored would have failed the pipeline on commit. Redacted to a username-free `~/Downloads/...` form; the scanner is clean. |
+| DF-1 | The four Phase 4 output-media assets were not yet staged | Phase 4 | All four generated as ORIGINAL local media (procedural balloon SVG, ten-frame Pillow sunrise GIF, a poster drawn from the same geometry constants, and a stdlib-synthesized two-note chime WAV), hashed into ledger section 3 as SETTLED, then embedded. `test_v441_phase4_foundations.py` decodes every embedded payload and hash-matches it against the staged file, so the approved-bytes-only rule is enforced, not assumed. |
 | BG-7 | A dead animation primitive kept a reduced-motion check alive | Phase 3 | `fx-grow` lost its only consumer when the SVG context-budget diagram became an HTML node tree, leaving three orphan CSS rules and a reduced-motion assertion that failed on an empty element set. The CSS was deleted and the check made vacuously safe while staying strict for any element that exists, plus a guard asserting `fx-grow` is absent so a reintroduced consumer must restore its static state. |
 | BG-6 | Tokens diagram caption text was clipped at the SVG viewBox edge | Phase 3 | Two caption lines ran past the 360-unit viewBox width and were cut mid-word. SVG text does not wrap, so the captions moved to an HTML paragraph below the diagram and the viewBox height was trimmed to match. |
 | BG-5 | Unbalanced HTML re-parented the Training page out of `main` | Phase 3 | A two-step `<section>`-to-`<div>` conversion had its first step refused by a guard assertion, but the second step ran anyway, pairing `<section>` openings with `</div>` closings. The browser re-parented everything after the error, so `#page-training` became a direct child of `<body>` and presentation mode's inert walk never reached `.site-header`. A Training test caught a Foundations markup bug. Both opening tags were converted and the ancestor chains re-verified in the browser. |

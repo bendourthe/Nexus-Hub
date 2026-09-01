@@ -159,6 +159,19 @@ The recovered space is allocated rather than left as slack, so a later phase can
 
 A phase that needs more than its allocation must take it from the reserve and record that here, not raise the ceiling. The ceiling is not raised in this plan.
 
+### 3.3 Measured actuals
+
+The projections above were budget ceilings, not forecasts; the measured spend runs far
+under them because each rebuilt scene DELETED more bespoke SVG than its replacement added.
+
+| Phase | Projected running total | Measured page bytes |
+|---|---:|---:|
+| 1 | 269,441 | 269,441 |
+| 2 | 299,441 | 281,301 |
+| 3 | 324,441 | 275,316 |
+| 4 (media embedded) | 384,441 | **280,351** |
+
+
 ## 4. Verification performed in this phase
 
 ```text

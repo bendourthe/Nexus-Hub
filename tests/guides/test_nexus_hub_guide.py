@@ -836,8 +836,6 @@ def test_foundations_phase3_has_eight_title_subtitle_scenes(guide_text: str) -> 
     assert fx.count('class="fx-scene') == 8, "expected eight Phase 3 scenes"
     assert fx.count('class="fx-title"') == 8
     assert fx.count('class="fx-subtitle"') == 8
-    # v4.4.1 Phase 3: the accepted professional headings, checked as an ORDERED sequence.
-    # Membership alone would pass on a page whose scenes are in the wrong teaching order.
     expected = [
         "Tokens Definition",
         "Prompt Engineering",
@@ -856,7 +854,9 @@ def test_foundations_phase3_has_eight_title_subtitle_scenes(guide_text: str) -> 
         "the old 'What Is / What Are' heading construction must not survive"
     )
     assert fx.count("<svg") >= 7, "each scene carries inline visual teaching"
-    for svg_class in ("fx-pop", "fx-draw", "fx-pulse"):
+    # v4.4.1 Phase 4 retired fx-pulse with the last SVG story diagram; pop and draw remain
+    # live on the tokens connector, and the chip/cycle primitives carry the rest.
+    for svg_class in ("fx-pop", "fx-draw"):
         assert svg_class in fx
     assert 'class="fx-num"' not in fx, "the scene number line was removed in v4.2.3"
 
@@ -865,13 +865,17 @@ def test_foundations_chatbot_and_agent_share_a_request_but_not_the_handoff(
     guide_text: str,
 ) -> None:
     scene = _foundation_scene(guide_text, "fx-chatbot-agent")
-    assert "Chatbot vs. Agentic Platform" in scene  # retitled in v4.4.1 Phase 3
+    assert "Chatbot vs. Agentic Platform" in scene
     assert "Same request, different handoff" in scene
-    assert 'data-phase3-diagram="chatbot-agent"' in scene
+    # v4.4.1 Phase 4: the comparison is an HTML two-lane group, chatbot lane first.
     assert scene.count('data-phase3-node="shared-request"') == 1
     assert scene.index('data-phase3-node="chatbot-handoff"') < scene.index(
         'data-phase3-node="agent-handoff"'
     )
+    for part in ("Boundary", "Action", "Outcome", "Leaves behind"):
+        assert scene.count("<dt>" + part + "</dt>") == 2, (
+            "both lanes must carry an explicit " + part + " label"
+        )
     text = re.sub(r"<[^>]+>", " ", scene).lower()
     assert "same request" in text
     assert "answer handoff" in text and "you apply and check" in text
@@ -879,6 +883,9 @@ def test_foundations_chatbot_and_agent_share_a_request_but_not_the_handoff(
     assert re.search(r"chatbots?.{0,100}(?:can|may|increasingly).{0,60}tools", text)
     assert "where the work happens" in text
     assert re.search(r"what .{0,30} leaves behind", text)
+    # Honest capability language, never a promise.
+    assert "when permitted" in text and "supported" in text
+    assert "promises success" in text or "promise" in text
 
 
 def test_foundations_context_makes_budget_competition_and_full_behavior_visible(
@@ -905,12 +912,20 @@ def test_foundations_context_makes_budget_competition_and_full_behavior_visible(
 def test_foundations_harness_layers_are_honest_and_repository_anchored(
     guide_text: str,
 ) -> None:
-    scene = _foundation_scene(guide_text, "fx-harness")
-    assert 'data-phase3-diagram="harness-layers"' in scene
-    for layer in ("model", "platform", "nexus-hub"):
-        assert f'data-phase3-harness-layer="{layer}"' in scene
+    """v4.4.1 Phase 4 split the hierarchy: fx-harness holds the built-in platform loop,
+    fx-practice holds the Nexus-Hub layer with the five repository-anchored claims."""
+    harness = _foundation_scene(guide_text, "fx-harness")
+    for layer in ("model", "platform"):
+        assert f'data-phase3-harness-layer="{layer}"' in harness
+    htext = re.sub(r"<[^>]+>", " ", harness).lower()
+    assert re.search(r"(?:every|agentic) platform.{0,80}(?:already|ships).{0,40}harness", htext)
+    for part in ("context", "tools", "permissions", "execution", "observations"):
+        assert part in htext, f"the built-in loop must name {part}"
+
+    practice = _foundation_scene(guide_text, "fx-practice")
+    assert 'data-phase3-harness-layer="nexus-hub"' in practice
     claims = re.findall(
-        r'data-phase3-claim="([^"]+)"\s+data-artifact="([^"]+)"', scene
+        r'data-phase3-claim="([^"]+)" data-artifact="([^"]+)"', practice
     )
     assert {claim for claim, _artifact in claims} == {
         "one-source-catalog",
@@ -920,53 +935,63 @@ def test_foundations_harness_layers_are_honest_and_repository_anchored(
         "durable-artifacts",
     }
     assert all(artifact.strip() for _claim, artifact in claims)
-    text = re.sub(r"<[^>]+>", " ", scene).lower()
-    assert re.search(r"(?:every|agentic) platform.{0,80}already.{0,40}harness", text)
-    for claim in ("one catalog", "hooks", "prompt-independent", "definition of done"):
-        assert claim in text
-    assert "chain" in text, "the diagram must show artifacts chaining between commands"
+    ptext = re.sub(r"<[^>]+>", " ", practice).lower()
+    for claim in ("one source", "hooks", "prompt-independent", "definition of done"):
+        assert claim in ptext
+    assert "chain" in ptext, "the trail must show artifacts chaining between commands"
+    assert "does not replace the model" in ptext, "the honest scope qualifier is required"
+    assert re.search(r"only where the host exposes the registered event", ptext)
     for vendor in ("claude", "codex", "cursor", "copilot", "antigravity"):
-        assert not re.search(rf"{vendor}.{{0,30}}(?:lacks?|cannot|does not)", text)
+        assert not re.search(rf"{vendor}.{{0,30}}(?:lacks?|cannot|does not)", ptext)
 
 
 def test_foundations_phase3_diagrams_animate_with_observer_and_static_fallback(
     guide_text: str,
 ) -> None:
+    """v4.4.1 Phase 4: the story diagrams are HTML node trees; the remaining continuous
+    motion (the shared work-cycle glyph) is observer-gated and statically complete."""
     fx = _foundations_markup(guide_text)
-    for diagram in ("agent-loop", "chatbot-agent", "harness-layers", "durable-result"):
-        match = re.search(
-            r'<svg[^>]+data-phase3-diagram="' + diagram + r'"[\s\S]*?</svg>', fx
-        )
-        assert match, "missing Phase 3 diagram: " + diagram
-        assert re.search(r'class="[^"]*fx-(?:pop|draw|grow|pulse)', match.group(0))
+    assert fx.count('data-grammar="work-cycle"') == 2, (
+        "Models and Agentic Platform must share the same work-cycle glyph"
+    )
+    assert ".js .fx-scene.live .fx-cycle svg" in guide_text, (
+        "the cycle spin must be gated on scene liveness, not free-running"
+    )
     assert 'document.querySelectorAll(".fx-scene, .hero-lockup")' in guide_text
     assert "IntersectionObserver" in guide_text
     reduce_block = guide_text.split("@media (prefers-reduced-motion: reduce)", 1)[-1]
     assert ".fx-tokchip" in reduce_block, "token chips need a static reduced-motion state"
+    assert ".fx-cycle svg" in reduce_block, "the cycle needs a static reduced-motion state"
+    for retired in ("fx-pulse", "fx-grow", "fx-fade", "offset-path"):
+        assert retired not in guide_text, (
+            retired + " was retired; a reintroduced consumer must restore its states"
+        )
 
 
 def test_foundations_model_lifecycle_is_chronological_and_responsive(
     guide_text: str,
 ) -> None:
-    fx = _foundations_markup(guide_text)
-    lifecycle = re.search(
-        r'<section[^>]+id="fx-model-lifecycle"[\s\S]*?</section>', fx
-    )
-    assert lifecycle, "missing model lifecycle scene"
-    scene = lifecycle.group(0)
-    stages = ("training", "integration", "request", "reasoning", "output")
-    first_positions = []
+    """v4.4.1 Phase 4: one HTML flow, provider region strictly before the user region."""
+    scene = _foundation_scene(guide_text, "fx-model-lifecycle")
+    stages = ("training", "delivery", "request", "work-cycle", "output")
+    positions = []
     for stage in stages:
         marker = f'data-stage="{stage}"'
-        assert scene.count(marker) == 2, f"desktop and mobile need {stage!r} nodes"
-        first_positions.append(scene.index(marker))
-    assert first_positions == sorted(first_positions), "lifecycle stages are out of order"
+        assert scene.count(marker) == 1, f"expected exactly one {stage!r} stage node"
+        positions.append(scene.index(marker))
+    assert positions == sorted(positions), "lifecycle stages are out of order"
+    assert scene.index('data-region="provider"') < scene.index('data-region="user"')
     assert "happens long before your request" in scene
-    assert "files, workspace, documents, scripts" in scene
-    assert "Nothing else" not in scene
-    assert scene.count('data-phase2-diagram="model-lifecycle"') == 2
-    assert 'class="fx-svg fx-svg--desktop"' in scene
-    assert 'class="fx-svg fx-svg--mobile"' in scene
+    assert "never retrains" in scene
+    text = re.sub(r"<[^>]+>", " ", scene).lower()
+    assert re.search(r"effort level.{0,200}when supported", text, re.DOTALL)
+    assert "does not promise a fixed number of iterations" in text
+    assert "not a transcript of hidden reasoning" in text or "not hidden chain-of-thought" in text
+    # The four output kinds, each an approved inline asset or accessible equivalent.
+    for kind in ("text", "image", "video", "audio"):
+        assert f'data-output-kind="{kind}"' in scene, f"missing output kind {kind}"
+    assert 'preload="none"' in scene and "autoplay" not in scene
+    assert "transcript equivalent" in text
 
 
 def test_foundations_tokens_use_a_reproducible_nonuniversal_example(
@@ -1023,11 +1048,11 @@ def test_foundations_prompt_engineering_uses_one_non_coding_job(
 def test_foundations_mobile_phase2_diagrams_are_centered_and_bounded(
     guide_text: str,
 ) -> None:
-    rule = re.search(r"\.fx-svg--mobile\s*\{([^}]+)\}", guide_text)
-    assert rule
-    declarations = rule.group(1)
-    assert "width: min(100%, 22.5rem)" in declarations
-    assert "margin-inline: auto" in declarations
+    """v4.4.1 Phase 4 retired the dual desktop/mobile SVG variant system: the HTML scenes
+    stack through one media query instead of shipping two drawings. This guard keeps the
+    retirement honest; reintroducing a variant system must restore its bounding rules."""
+    assert "fx-svg--mobile" not in guide_text
+    assert "fx-svg--desktop" not in guide_text
 
 
 def test_foundations_comparisons_show_both_states_without_a_toggle(
@@ -1036,14 +1061,19 @@ def test_foundations_comparisons_show_both_states_without_a_toggle(
     """Each teaching comparison keeps both states available in the same scene."""
     fx = _foundations_markup(guide_text)
     assert "fx-budget--noisy" in fx and "fx-budget--focused" in fx
-    assert "BROWSER CHATBOT" in fx and "AGENTIC PLATFORM" in fx
+    assert 'data-phase3-node="chatbot-handoff"' in fx
+    assert 'data-phase3-node="agent-handoff"' in fx
     practice = _foundation_scene(guide_text, "fx-practice")
     assert ">PLATFORM LOOP<" in practice
     assert ">PLATFORM LOOP + NEXUS-HUB<" in practice
     assert 'type="range"' not in fx
     assert "nhgCompare" not in guide_text
     assert "data-station-toggle" not in guide_text
-    assert "aria-pressed" not in fx
+    # aria-pressed may appear ONLY on the media play toggle, never on a comparison.
+    pressed = re.findall(r"<[^>]*aria-pressed[^>]*>", fx)
+    assert all("data-media-toggle" in tag for tag in pressed), (
+        "aria-pressed outside the media toggle suggests a comparison hidden behind a control"
+    )
 
 
 def test_foundations_orders_unaided_state_first(guide_text: str) -> None:
@@ -1053,11 +1083,11 @@ def test_foundations_orders_unaided_state_first(guide_text: str) -> None:
         "the unaided context must come first"
     )
     assert fx.index("fx-state--weak") < fx.index("fx-state--strong"), (
-        "the vague prompt must come before the precise one"
+        "the weaker lane must come before the stronger one"
     )
-    assert fx.index("BROWSER CHATBOT") < fx.index("AGENTIC PLATFORM"), (
-        "the answer-handoff workflow must come first"
-    )
+    assert fx.index('data-phase3-node="chatbot-handoff"') < fx.index(
+        'data-phase3-node="agent-handoff"'
+    ), "the answer-handoff lane must come first"
     practice = _foundation_scene(guide_text, "fx-practice")
     assert practice.index(">PLATFORM LOOP<") < practice.index(
         ">PLATFORM LOOP + NEXUS-HUB<"
@@ -1078,34 +1108,28 @@ def test_foundations_arrowheads_are_filled_not_half_chevrons(guide_text: str) ->
 def test_foundations_loop_labels_have_hierarchy(guide_text: str) -> None:
     """The old labels were all one bold accent font, which read as noise."""
     fx = _foundations_markup(guide_text)
-    assert "fxt--role" in fx and "fxt--detail" in fx
+    # The surviving SVG labels keep the role class; the HTML scenes express the same
+    # hierarchy through tag/body class pairs with distinct computed weight and colour.
+    assert "fxt--role" in fx
     role = re.search(r"\.fxt--role\s*\{([^}]+)\}", guide_text)
-    detail = re.search(r"\.fxt--detail\s*\{([^}]+)\}", guide_text)
-    assert role and detail
-    assert "var(--ink-faint)" in role.group(1) and "700" in role.group(1)
-    assert "var(--ink-dim)" in detail.group(1) and "400" in detail.group(1)
+    assert role and "var(--ink-faint)" in role.group(1) and "700" in role.group(1)
+    for tag_cls in (".fx-region-tag", ".fx-out-tag", ".fx-mini-tag", ".fx-layer-tag"):
+        rule = re.search(re.escape(tag_cls) + r"[^{]*\{([^}]+)\}", guide_text)
+        assert rule, f"missing hierarchy tag rule {tag_cls}"
+        assert "700" in rule.group(1) and "uppercase" in rule.group(1), (
+            f"{tag_cls} must read as a small-caps role label"
+        )
     assert "action: read" not in fx and "result: file text" not in fx
 
 
 def test_foundations_pulses_are_painted_above_connectors_and_behind_nodes(
     guide_text: str,
 ) -> None:
-    """SVG paint order is source order: lines, then traveling pulse, then boxes."""
-    fx = _foundations_markup(guide_text)
-    pulsed = []
-    for svg in re.findall(
-        r'<svg[^>]+data-phase3-diagram="[^"]+"[\s\S]*?</svg>', fx
-    ):
-        if "fx-pulse" not in svg:
-            continue
-        pulsed.append(svg)
-        connectors = svg.index('data-phase3-layer="connectors"')
-        pulses = svg.index('data-phase3-layer="pulses"')
-        nodes = svg.index('data-phase3-layer="nodes"')
-        assert connectors < pulses < nodes, (
-            "paint order must be connector lines, traveling pulses, then nodes"
-        )
-    assert pulsed, "expected at least one Phase 3 diagram with a traveling pulse"
+    """v4.4.1 Phase 4 retired the traveling-pulse primitive with the last SVG story
+    diagram. This guard stays so a reintroduced pulse must also restore its paint-order
+    and reduced-motion contracts rather than riding back in silently."""
+    assert "fx-pulse" not in guide_text
+    assert "offset-path" not in guide_text
 
 
 def test_foundations_is_project_generic(guide_text: str) -> None:
@@ -1148,19 +1172,10 @@ def test_no_unexpected_persistent_overlays(guide_text: str) -> None:
 def test_foundations_animations_have_reduced_motion_fallback(guide_text: str) -> None:
     reduce_block = guide_text.split("@media (prefers-reduced-motion: reduce)", 1)[-1]
     reduce_block = reduce_block.split("}\n</style>", 1)[0] if "}\n</style>" in reduce_block else reduce_block
-    # .fx-grow retired in v4.4.1 Phase 3 with the SVG context-budget diagram; .fx-tokchip
-    # is the reveal primitive that replaced it in the rebuilt Tokens scene.
-    for cls in (".fx-pop", ".fx-draw", ".fx-tokchip", ".fx-fade", ".fx-pulse"):
+    # The live motion primitives after the Phase 4 rebuild: reveal pops, drawn connectors,
+    # token-chip reveals, and the shared work-cycle spin.
+    for cls in (".fx-pop", ".fx-draw", ".fx-tokchip", ".fx-cycle svg"):
         assert cls in reduce_block, f"{cls} missing a reduced-motion static state"
-    assert ".fx-grow" not in guide_text, (
-        "the fx-grow primitive was retired; a reintroduced consumer needs its static state back"
-    )
-    assert "offset-path" in guide_text, "pulse dots ride CSS motion paths"
-
-
-# ---------------------------------------------------------------------------
-# Training scene data and cumulative project explorer (Phase 5)
-# ---------------------------------------------------------------------------
 
 
 def test_training_scenes_are_data_driven_json(parsed: GuideParser) -> None:

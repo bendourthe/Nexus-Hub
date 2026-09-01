@@ -14,11 +14,11 @@ Refreshing this file to the active plan (rather than appending another version's
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
-| v4.4.1 guide-visual-and-arcade-rebuild phases complete | 3 | 7 | -4 |
-| Local phase commits | 3 | 7 | -4 |
+| v4.4.1 guide-visual-and-arcade-rebuild phases complete | 4 | 7 | -3 |
+| Local phase commits | 4 | 7 | -3 |
 | Open release blockers | 0 | 0 | 0 |
 | Catalog skills | 329 | 329 | 0 |
-| Canonical guide bytes (strict ceiling 500,000) | 275,316 | < 500,000 | met |
+| Canonical guide bytes (strict ceiling 500,000) | 280,351 | < 500,000 | met |
 | Platform marks approved with staged hashes | 5 | 5 | 0 |
 
 ---
@@ -28,7 +28,7 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Phase 1 - Contracts, asset provenance, and byte budget
 - [x] Phase 2 - Home identity, platform rail, and workflow loop
 - [x] Phase 3 - Foundations structure, Tokens, Prompt, and Context
-- [ ] Phase 4 - Foundations Models, Agentic Platform, comparison, and harnesses
+- [x] Phase 4 - Foundations Models, Agentic Platform, comparison, and harnesses
 - [ ] Phase 5 - Deterministic arcade-shooter engine
 - [ ] Phase 6 - Training workspace, fullscreen, and integrated loop
 - [ ] Phase 7 - Architecture refactor, known-gaps, CI/CD, publication, and integration
@@ -43,7 +43,7 @@ Met. v4.4.0 is released: integration PR #150 merged at `46518d01`, release PR #1
 
 ### Current checkpoint
 
-Phase 3 complete. Foundations is reordered to the eight accepted titles with no `What Is` or `What Are` headings left, and its 1440 px height fell from 7,235 px to 5,152 px, a 29.4% cut against the plan's 20% gate, by making the full-width scene treatment the exception rather than the default. Tokens Definition now shows a realistic prompt at a 19 px floor beside its verified `cl100k_base` split into ten identically styled chips, and nine image cells that each hold a real 1:1 crop of one original inline picture. Prompt and Context were rebuilt as one continuous contract request in semantic HTML, 14 KB smaller than the SVG they replaced. Visual detector passes both themes at six viewports with zero findings; the guide sits at 275,316 bytes. Next: Phase 4 rebuilds Foundations scenes 4 through 8 and owns the deferred output media.
+Phase 4 complete; Foundations is finished end to end. Scenes 4 through 8 became semantic HTML on the shared grammar: Models separates provider training from the live request and shows four output kinds whose embedded bytes hash-match the settled media ledger (DF-1 closed); Agentic Platform reuses the byte-identical entry motif and work-cycle glyph before three mission lanes, one permission-and-tool boundary, observations, and a report; the chatbot comparison keeps its honest-copy contracts; and the harness hierarchy is split into the built-in platform loop and the Nexus-Hub layer with its five repository-anchored claims. The rebuild orphaned and removed the traveling-pulse, fade, flip, dual-variant, and phase3-diagram CSS machinery, each retirement guarded in the suite. 165 passed, 1 skipped with rendering required; detector clean both themes at six viewports; guide at 280,351 bytes. Next: Phase 5 builds the deterministic arcade-shooter engine.
 
 ---
 

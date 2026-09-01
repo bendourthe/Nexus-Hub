@@ -66,10 +66,13 @@ def ledger_hashes(ledger_text: str) -> dict[str, str]:
     """Parse the section 1 staging table into {stem: sha256}.
 
     Parsed, not hardcoded, so this test enforces the approval record instead of a copy of it.
+    Scoped to section 1: the Phase 4 output-media table in section 3 stages .svg files too,
+    and those are governed by their own hash tests rather than the mark roster.
     """
+    section_one = ledger_text.split("## 2.", 1)[0]
     rows = re.findall(
         r"^\|\s*[^|]+\|\s*`assets/([a-z0-9-]+)\.svg`\s*\|\s*([\d,]+)\s*\|\s*`([0-9a-f]{64})`\s*\|$",
-        ledger_text,
+        section_one,
         re.MULTILINE,
     )
     return {stem: sha for stem, _size, sha in rows}
