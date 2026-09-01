@@ -4,7 +4,7 @@
 
 # Nexus-Hub
 
-<!-- nexus-hub-version: 4.3.0 -->
+<!-- nexus-hub-version: 4.4.0 -->
 
 Nexus-Hub is the upstream skill catalog for AI coding assistants: 329 skills, 18 commands, 34 hooks, 23 agents, and 4 language rule families. It installs in one step on Windows, macOS, and Linux, and it works the same across Claude Code, OpenAI Codex, Gemini (via Antigravity), GitHub Copilot, Cursor, GitHub CLI, and the sibling Nexus desktop app and VS Code extension. The catalog is reverse-engineering-first by policy: zero third-party data processors, zero outbound calls from skills / commands / hooks, zero telemetry.
 
@@ -37,7 +37,31 @@ The two projects are designed to be useful independently: you can install Nexus-
 
 ---
 
-## What's New in v4.3.0
+## What's New in v4.4.0
+
+**The guide now teaches and demonstrates instead of describing.** Home opens on a centred animated mark and wordmark that never wraps, a tagline that sells an outcome rather than listing contents, six honest platform compatibility treatments, and an Installation section where the install command dominates rather than the verification step. Three of those six platforms use labelled text treatments rather than invented trademark geometry, because their vendors publish no distributable standalone product mark; that limit is recorded as a known gap rather than papered over.
+
+**Foundations teaches a non-technical reader what the words actually mean.** The model diagram was corrected to the real sequence (trained, then integrated into a platform, then a request arrives carrying context, then internal reasoning, then output), and five missing concepts were added: tokens for text and images, prompt engineering with worked examples, chatbot versus agentic platform, context engineering and the context window, and harness and loop engineering. The last section ends on an honest account of what Nexus-Hub adds above a platform's own built-in harness.
+
+**Training dropped the download for a game you actually play.** A real in-page Asteroids ships with a seeded wrap-boundary collision bug. The learner plays it, observes the defect, then drives the eight-command loop through a simulated terminal to fix the bug and add asteroid splitting, with an explorable cumulative file tree showing what each command wrote. Everything stays in one self-contained offline HTML file at 480.5 KB against a 500 KB budget, with zero runtime network calls.
+
+**This release is also the first real test of the v4.3.0 verification discipline, and the discipline earned its place.** Every phase ran under the fail-closed ladder, and the Tier 3 deep pass found seven defects that a passing test suite had not: non-integer numeric Training navigation corrupting exported state, presentation mode painting the game over later regions, focus escaping the presentation dialog, a denied-fullscreen fallback surviving route changes and leaving the destination inert, a presentation dialog with no visible close control, and harness claim chips missing from the rendered label-containment inventory. Each was reproduced, fixed, and re-proved in a real browser on Windows and Ubuntu. Browser-backed guide verification is now enforced in CI by a scoped `guide-render` job wired into the `ci-required` aggregate, closing the last gap that let visual defects ship unexercised.
+
+### Capability usage - Claude Code reasoning-effort seeding (changed default)
+
+This release raises the reasoning effort that a Claude Code install seeds, which writes into a file you own, so its operation is documented in full.
+
+| Element | Detail |
+|---|---|
+| **Activation** | No flag or opt-in. `nexus-hub upgrade` (or a fresh install) seeds `effortLevel: "high"` and `env.CLAUDE_CODE_EFFORT_LEVEL: "high"` into `~/.claude/settings.json`. Seeding is absent-only: an existing value of either key is never overwritten, and the pair is treated as one upgrade unit, so a config already carrying either key receives neither. |
+| **Validation** | `python -c "import json;d=json.load(open('$HOME/.claude/settings.json'));print(d.get('effortLevel'), d.get('env',{}).get('CLAUDE_CODE_EFFORT_LEVEL'))"` prints `high high` when both were seeded, and your own prior values when they were preserved. |
+| **Rollback** | Set both keys to `"medium"` in `~/.claude/settings.json`. Re-running the installer will not raise them again, because seeding only fills an absent key. Nothing else is written and no file is removed. |
+| **Authority** | Raising effort does NOT grant Claude Code any new permission, tool, file access, or network capability, and does NOT change what the hooks allow or block. It only changes how much reasoning the model spends per turn, which raises token cost. This change is scoped to Claude Code alone: Codex, Qwen, Kimi, and Hermes stay at `medium`. A malformed user-owned `env` is preserved and receives no nested key, so a reinstall cannot add an env pin that bypasses the VS Code effort toggle. |
+| **Docs** | [`configs/README.md`](configs/README.md) and [`guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md`](guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md) |
+
+Catalog counts remain **329 skills**, **18 commands**, **34 hooks**, and **23 agents**. This release has no breaking change and adds no installer flag and no opt-in host surface; the one changed default-on surface is documented above.
+
+## Previously, in v4.3.0
 
 **The harness verifies behaviour, not just artifacts.** The phase gate previously checked four things - tests pass, coverage holds, lint is clean, build succeeds - and every one can be true of a feature that has never been run once. A page whose text spills outside its container satisfies all four. A tiered verification ladder now ships in the catalog and every consuming project inherits it on install: a cheap proportional functional smoke at every phase gate, a recorded plan-delta note so the plan is questioned as it is executed rather than trusted to the end, and a fail-closed deep pass before release that dynamically exercises every feature the plan produced, checks rendered output with a real visual-defect detector, runs an adversarial pass, and audits whether the plan itself was complete. Depth scales with blast radius from objective diff-evidenced triggers, and ambiguous classification escalates rather than skips.
 

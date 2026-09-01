@@ -268,3 +268,55 @@ Ubuntu fail-closed guide and detector aggregate
 The skip remains the optional portfolio-copy contract because `NEXUS_HUB_PORTFOLIO_ROOT` is unset. Ubuntu used the official `mcr.microsoft.com/playwright/python:v1.62.0-noble` image with Playwright 1.62.0 and a read-only workspace mount.
 
 **Disposition**: First push, PR creation, and remote CodeQL remediation are COMPLETE. The guide-render portability correction is PASS on Windows and Ubuntu but remains PENDING remote replacement execution. Integration stays NO-GO until the correction is committed and published, every replacement required check including `guide-render` and `ci-required` is terminal green, and the user explicitly approves merge. Release and back-merge remain later approval and verification gates.
+
+### Terminal integration result (T036)
+
+The `guide-render` portability correction was published as `78255a3e`, and every required check reached a terminal state on the replacement run before merge. Full check roster on pull request [#150](https://github.com/bendourthe/Nexus-Hub/pull/150), all 24 contexts terminal with zero failures:
+
+```text
+Analyze (javascript-typescript)  pass   1m28s
+Analyze (python)                 pass   2m14s
+CodeQL                           pass   4s
+bootstrap (macos-latest)         pass   2m37s
+bootstrap (ubuntu-latest)        pass   4m9s
+bootstrap-windows                pass   3m55s
+build-and-test                   pass   50s
+changes                          pass   8s
+ci-required                      pass   2s
+colocation                       pass   9s
+detect                           pass   8s
+guide-render                     pass   1m51s
+install-smoke (macos-latest)     pass   16s
+install-smoke (ubuntu-latest)    pass   8s
+install-smoke (windows-latest)   pass   1m3s
+installer-smoke (macos-latest)   pass   17s
+installer-smoke (ubuntu-latest)  pass   12s
+installer-smoke (windows-latest) pass   24s
+shellcheck                       pass   18s
+tests                            pass   12m6s
+tests-windows                    pass   10m56s
+validate                         pass   45s
+verify                           pass   1m3s
+render                           skipping
+```
+
+The five named required checks (`validate`, `shellcheck`, `ci-required`, `colocation`, `verify`) are all green, and the approved `guide-render` job executed on clean remote runners, closing the PENDING remote-execution condition recorded above for MT-1. The single `skipping` context is `render`, whose path filter did not match this diff; it is not a required check.
+
+Merged with the user's explicit approval as a merge commit:
+
+```text
+pull request #150  state MERGED  mergedAt 2026-09-01T16:12:44Z
+merge commit 46518d015534f2d0a21654d12db98e0f54705a4d
+develop HEAD 46518d01 Merge pull request #150 from bendourthe/feat/v4.4.0-guide-depth-and-training-rebuild
+```
+
+Post-merge workflow run [`33530447033`](https://github.com/bendourthe/Nexus-Hub/actions/runs/33530447033) on `46518d01` performed only its intended work and did not rerun the complete suite:
+
+```text
+smoke        success  16:12:51-16:13:07
+provenance   success  16:12:51-16:13:00
+```
+
+Two jobs totalling 25 seconds of runner time, versus the 12-minute `tests` job on the pull request, confirms the post-merge event is scoped to smoke and provenance only.
+
+**Disposition**: PASS. Publication and integration are COMPLETE. The single authorized push, the green integration pull request, the approved merge, and the scoped post-merge result are all recorded. Phase 7 is closed and the release flow may proceed to `/update release`, which owns the version bump, changelog, tag, push, and GitHub Release behind its own confirmation gates.

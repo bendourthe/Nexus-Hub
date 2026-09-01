@@ -3,7 +3,7 @@
 **Project**: Nexus-Hub
 **Status**: finalized 2026-08-31, at `/update release`; shipped within the v4.3.0 cut
 **Note**: v4.2.0 through v4.2.3 were developed and documented as separate minors but were never tagged, so their work is published inside v4.3.0. Items still open below remain owned by THIS ledger and were deliberately not absorbed into v4.3's, matching the convention v4.1's ledger states; v4.3's Phase 5 reconciliation judged each on evidence and recorded why it stayed open.
-**Last updated**: 2026-08-29
+**Last updated**: 2026-08-31 (v4.4.0 Phase 7 reconciliation)
 
 ## v4.2.0 - interactive-guide-redesign
 
@@ -109,7 +109,7 @@ v4.2.1's UI was never published. The v4.2.2 plan (`plans/v4.2.2-guide-cinematic-
 | Deferred (DF) | 2 | 0 |
 | Bugs / regressions (BG) | 0 | 0 |
 | Warnings (WN) | 0 | 0 |
-| Missing tests / coverage gaps (MT) | 1 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 1 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
 ### Open Items
@@ -128,7 +128,10 @@ v4.2.1's UI was never published. The v4.2.2 plan (`plans/v4.2.2-guide-cinematic-
 - **Source phase**: Phase 1 - Design brief, design system, shell, and render harness
 - **Plan reference**: `docs/releases/v4/v4.2/plans/v4.2.2-guide-cinematic-rebuild.md` T003
 - **Reason**: `scripts/validate_unicode_safety.py` `TEXT_EXTENSIONS` excludes `.html`; the rebuilt guide relies on HTML entities and review instead. Extending the validator is outside this plan's changed-line scope.
+- **Reconciliation evidence**: On 2026-08-31, `scripts/validate_unicode_safety.py` still omitted `.html` from `TEXT_EXTENSIONS`, so the visual HTML detector did not close this text-sanitization gap.
 - **Suggested next step**: A future patch adds `.html` (or a guide-specific entity allowlist) to the validator and grandfathers existing archives.
+
+### Resolved
 
 #### Missing Tests
 
@@ -136,16 +139,13 @@ v4.2.1's UI was never published. The v4.2.2 plan (`plans/v4.2.2-guide-cinematic-
 
 - **Source phase**: Phase 1 - Design brief, design system, shell, and render harness
 - **Plan reference**: `docs/releases/v4/v4.2/plans/v4.2.2-guide-cinematic-rebuild.md` T002
-- **Reason**: `tests/guides/tools/render_guide.py` is exercised manually per phase (24 screenshots per full sweep); an automated Playwright test would force a browser download in CI, which the offline-first pipeline deliberately avoids.
-- **Suggested next step**: Keep manual; if CI ever gains a browser cache, add one smoke render behind an opt-in marker.
-
-### Resolved
-
-None yet.
+- **Evidence at deferral**: `tests/guides/tools/render_guide.py` was exercised manually per phase, but no automated functional browser test existed.
+- **Resolution**: v4.4.0 added `tests/guides/test_render_guide_tool.py::test_explicit_output_root_writes_local_browser_evidence`, which invokes the renderer through a real Chromium context and verifies a non-empty PNG in an isolated output root. A fresh fail-closed run with `NEXUS_REQUIRE_RENDER=1` returned `1 passed, 17 deselected`.
+- **Resolved in**: v4.4.0 Phase 7 reconciliation on 2026-08-31
 
 ### Inherited Ledger Review
 
-- v4.2.1 DF-1 (rendered visual QA) and QG-1 (full-suite proof) remain open on the `## v4.2.1` section; this plan's Phase 7 reconciles both (per-phase render evidence closes the visual half; the integration PR's `pytest tests` job closes the suite half).
+- v4.2.1 DF-1 (rendered visual QA) and QG-1 (full-suite proof) are resolved under `## v4.2.1` by the evidence recorded there.
 
 ## v4.2.3 - guide-refinement
 
@@ -157,12 +157,12 @@ None yet.
 | Deferred (DF) | 2 | 0 |
 | Bugs / regressions (BG) | 0 | 0 |
 | Warnings (WN) | 0 | 0 |
-| Missing tests / coverage gaps (MT) | 1 | 0 |
+| Missing tests / coverage gaps (MT) | 0 | 1 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
 ### Open Items
 
-All three are carried forward from v4.2.2 rather than closed by assertion, because none was actually resolved by this release.
+DF-1 and DF-2 remain open from v4.2.2. MT-1 is resolved below by functional browser evidence added in v4.4.0.
 
 #### Deferred
 
@@ -171,6 +171,7 @@ All three are carried forward from v4.2.2 rather than closed by assertion, becau
 - **Source phase**: carried from v4.2.2 DF-1; re-confirmed in v4.2.3 Phase 7
 - **Plan reference**: `docs/releases/v4/v4.2/plans/v4.2.3-guide-refinement.md` T026
 - **Reason**: `scripts/validate_unicode_safety.py` excludes `.html` from `TEXT_EXTENSIONS`, so the guide is outside the gate entirely. This cycle also showed the validator misses a second class in files it DOES scan: writing the v4.2.3 plan introduced a stray CJK character (U+6539) into a `.md` file, the validator scanned it and reported "repaired 0 files", and a separate scan caught it. The tool flags invisible characters and smart punctuation, not a valid-but-wrong-script glyph.
+- **Reconciliation evidence**: On 2026-08-31, `.html` remained absent from `TEXT_EXTENSIONS` and no script-range check was present, so both parts of this gap remain open.
 - **Suggested next step**: add `.html` to `TEXT_EXTENSIONS` (grandfathering existing archives), and add a script-range check that flags characters outside the expected scripts for an English document.
 
 ##### DF-2 - The five-person workshop validation was not run
@@ -180,19 +181,20 @@ All three are carried forward from v4.2.2 rather than closed by assertion, becau
 - **Reason**: no cohort of five participants exists. Rendered QA, WCAG AA contrast, keyboard, and reduced-motion checks were all run and recorded; the workshop specifically was not, and is not claimed.
 - **Suggested next step**: when a cohort is available, run the eight-step Training walkthrough with five people and record where they stall.
 
+### Resolved
+
 #### Missing Tests
 
 ##### MT-1 - Render harness has an import test but no functional test
 
 - **Source phase**: carried from v4.2.2 MT-1
 - **Plan reference**: `docs/releases/v4/v4.2/plans/v4.2.3-guide-refinement.md` T026
-- **Reason**: `tests/guides/tools/render_guide.py` is exercised manually every phase; an automated Playwright test would force a browser download in CI, which the offline-first pipeline deliberately avoids.
-- **Suggested next step**: keep manual; if CI ever gains a browser cache, add one smoke render behind an opt-in marker.
+- **Evidence at deferral**: `tests/guides/tools/render_guide.py` was exercised manually every phase, but no automated functional browser test existed.
+- **Resolution**: v4.4.0 added `tests/guides/test_render_guide_tool.py::test_explicit_output_root_writes_local_browser_evidence`, which invokes the renderer through a real Chromium context and verifies a non-empty PNG in an isolated output root. A fresh fail-closed run with `NEXUS_REQUIRE_RENDER=1` returned `1 passed, 17 deselected`.
+- **Resolved in**: v4.4.0 Phase 7 reconciliation on 2026-08-31
 
-### Resolved
-
-None. This release resolved user-reported UI defects, which are tracked in the plan's Goal review rather than as known gaps.
+This release also resolved user-reported UI defects, which are tracked in the plan's Goal review rather than as known gaps.
 
 ### Inherited Ledger Review
 
-- v4.2.1's DF-1 and QG-1 stay Resolved under `## v4.2.1`. v4.1's three open items were inspected and deliberately not absorbed: they belong to the v4.1 line and are untouched by a guide refinement.
+- v4.2.1's DF-1 and QG-1 stay Resolved under `## v4.2.1`. The v4.1.0 and v4.1.1 DF-1 items remain open on their source ledger; v4.1.0 WN-1 and QG-1 were resolved during the v4.4.0 Phase 7 reconciliation.
