@@ -4,7 +4,7 @@ The complete, ordered procedure for the `implement-phase` skill. `SKILL.md` link
 
 ## Phase 0: Resolve plan, version, and phase
 
-1. **Parse the invocation.** First positional arg is a plan slug, a plan file path, or a version label; later args may be a phase and/or a driver mode. Disambiguate the first arg: contains `/` or ends in `.md` -> file path; matches `v?\d+\.\d+\.\d+` -> version; else -> slug. Phase accepted as a number (`3`), slug (`phase-3`), or quoted name. Driver mode is a later whole token only: `in-full` (alias `full`) or `phase-by-phase`. Do not treat a slug that contains "full" as a substring as a driver mode. An unknown later token prints usage and does not start a phase. Bare `/implement` stays one-phase.
+1. **Parse the invocation.** First positional arg is a plan slug, a plan file path, or a version label; later args may be a phase and/or a driver mode. Disambiguate the first arg: contains `/` or ends in `.md` -> file path; matches `v?\d+\.\d+\.\d+` -> version; else -> slug. Phase accepted as a number (`3`), slug (`phase-3`), or quoted name. Driver mode is a later whole token only: `full` (alias `in-full`) or `phase-by-phase`. Do not treat a slug that contains "full" as a substring as a driver mode. An unknown later token prints usage and does not start a phase. Bare `/implement` stays one-phase.
 2. **Search for plans**, deduping by absolute path:
     - Canonical: `docs/v*/v*/plans/*.md` (the two-level minor-grouped scheme).
     - Legacy: `docs/v*/plans/*.md` (flat) and `docs/versions/v*/v*/plans/*.md` (old three-level), plus the pre-rename `docs/**/implementation-plan.md`.
@@ -79,20 +79,20 @@ Run every step in strict order at the end of EVERY phase (validation first, then
 - **8.11 Commit prompt (REQUIRED, every phase)** - a NON-FINAL phase is commit-only in every mode. Push, pull request, and remote CI belong to the final phase (Phase 9), which owns the plan's single publication. Offering push here would bill a full pipeline run to validate work the plan itself says is incomplete, and a red check on incomplete work teaches the reader to ignore red checks. Behavior by mode:
     - **One-phase (default), non-final:** follow the active instruction template's `Consequential Decisions` rule, then always ask, as a numbered list with one plain-language consequence each: 1. Commit only (the work is saved locally; nothing leaves this machine); 2. Amend (loop to 8.10 to reword the commit message before saving); 3. Stop (nothing is saved; the changes stay uncommitted in the working tree). Never proceed past 8.11 without a definite answer. On commit, use a heredoc and report the SHA.
     - **One-phase, FINAL phase:** do not ask this question at all. Run Phase 9, whose 9F step owns the final commit, the approval gate, and the single push.
-    - **`in-full` non-final:** auto-select commit-only. Still generate the commit message (8.10); still use a heredoc; still report the SHA. Do not push.
-    - **`in-full` last phase:** run Phase 9 in full. After the evidence file is complete AND the integration result is green and merged, hand off to `/update release` (that command owns tag/push confirmation). Never tag or push the release from the driver.
+    - **`full` non-final:** auto-select commit-only. Still generate the commit message (8.10); still use a heredoc; still report the SHA. Do not push.
+    - **`full` last phase:** run Phase 9 in full. After the evidence file is complete AND the integration result is green and merged, hand off to `/update release` (that command owns tag/push confirmation). Never tag or push the release from the driver.
     - **`phase-by-phase`, non-final:** replace the one-phase ask with this three-option menu and wait: (1) commit and continue; (2) commit and pause; (3) other. Cross-link `[[code-commit-workflow]]` for the commit itself.
     - **A user who explicitly asks to push a non-final phase** is making a deliberate exception, not hitting a menu option. State the cost in one line (a full pipeline run against knowingly incomplete work), then do what they ask. The rule removes the DEFAULT, not the user's authority.
 
-## Driver loop (`in-full` / `phase-by-phase`)
+## Driver loop (`full` / `phase-by-phase`)
 
-Used only when the resolved mode is `in-full` (alias `full`) or `phase-by-phase`. One-phase invocations skip this section and run Phase 0-8 once.
+Used only when the resolved mode is `full` (alias `in-full`) or `phase-by-phase`. One-phase invocations skip this section and run Phase 0-8 once.
 
 1. Resolve the plan as in Phase 0. Start at the first incomplete phase even if the user named a later start. Preserve model-routing pre-flight per phase.
 2. For each incomplete phase, run the existing Phase 0-8 sequence unchanged (review, implement, lint, test, quality gate, post-phase docs). Apply the 8.11 variant above.
-3. **Stop the driver** (do not start the next phase) when a GO/NO-GO gate fails, the user pauses, or context is exhausted. On context exhaustion, write session history and a continuation prompt naming the next phase and the mode (`/implement <slug> in-full` or `phase-by-phase` from the next incomplete phase). Do not silently continue degraded.
+3. **Stop the driver** (do not start the next phase) when a GO/NO-GO gate fails, the user pauses, or context is exhausted. On context exhaustion, write session history and a continuation prompt naming the next phase and the mode (`/implement <slug> full` or `phase-by-phase` from the next incomplete phase). Do not silently continue degraded.
 4. After a successful last phase, require `<version_dir>/development/last-phase-evidence.md`, then hand off to `/update release`. Never tag or push the release from the driver.
-5. If the user is mid-`in-full` and chooses to stop, leave a continuation line they can paste.
+5. If the user is mid-`full` and chooses to stop, leave a continuation line they can paste.
 
 ## Phase 9: Final-phase completion workflow (release-readiness)
 

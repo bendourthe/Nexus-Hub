@@ -31,10 +31,10 @@ _DEFAULTS_CANDIDATES = (
 # `python scripts/sync_platform_defaults.py --check`, which fails the build when
 # they drift away from the declared values.
 _FALLBACK_SETTINGS = {
-    "effortLevel": "medium",
+    "effortLevel": "high",
     "model": "opus",
     "env": {
-        "CLAUDE_CODE_EFFORT_LEVEL": "medium",
+        "CLAUDE_CODE_EFFORT_LEVEL": "high",
     },
 }
 
@@ -46,8 +46,8 @@ _STUB_COMMENT = (
     "/ high / xhigh). model pins the default model. "
     "env.CLAUDE_CODE_EFFORT_LEVEL is the highest-precedence effort lever: it "
     "pins the effort past the VS Code effort toggle on every new session. "
-    "Raise all three to 'high' or 'xhigh' for deeper reasoning on hard work, "
-    "or remove model to use your account default."
+    "Keep both effort keys aligned: set them to 'medium' for cheaper routine "
+    "work or 'xhigh' for deeper reasoning. Remove model to use your account default."
 )
 
 _STUB_PERMISSIONS = {

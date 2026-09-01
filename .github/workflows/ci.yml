@@ -264,6 +264,49 @@ jobs:
         if: always()
         run: cat reports/summary.md >> "$GITHUB_STEP_SUMMARY" || true
 
+  guide-render:
+    # The complete repo test job intentionally carries no browser, so the
+    # guide's browser contracts skip-with-note there. This focused job installs
+    # Chromium and turns those same skips into failures, closing the MT-1 gap
+    # without adding a browser download to every test run.
+    needs: changes
+    if: ${{ !cancelled() && needs.changes.outputs.relevant != 'false' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
+
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: '.github/workflows/ci.yml'
+
+      - name: Install guide render test dependencies
+        run: pip install pytest playwright
+
+      # Chromium is about 130 MB. Key the cache to Playwright's resolved
+      # version so a browser revision is reused only by the matching client.
+      - name: Resolve the Playwright version for the cache key
+        id: pw
+        run: echo "version=$(python -c 'import importlib.metadata as m; print(m.version("playwright"))')" >> "$GITHUB_OUTPUT"
+
+      - name: Cache the Playwright browser download
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ms-playwright-chromium-${{ runner.os }}-${{ steps.pw.outputs.version }}
+
+      - name: Install Chromium
+        run: python -m playwright install --with-deps chromium
+
+      - name: Run guide and visual detector browser contracts
+        # A missing or unlaunchable browser must fail this job, never degrade to
+        # a quiet skip inside an otherwise green test run.
+        env:
+          NEXUS_REQUIRE_RENDER: '1'
+        run: python -m pytest -q tests/guides/ tests/verification/test_visual_defect_detector.py
+
   tests-windows:
     # Windows PowerShell 5.1 BEHAVIOR, which pwsh 7 cannot substitute for.
     #
@@ -635,6 +678,7 @@ jobs:
       - validate
       - shellcheck
       - tests
+      - guide-render
       - tests-windows
       - bootstrap
       - bootstrap-windows
@@ -650,6 +694,7 @@ jobs:
           R_validate: ${{ needs.validate.result }}
           R_shellcheck: ${{ needs.shellcheck.result }}
           R_tests: ${{ needs.tests.result }}
+          R_guide_render: ${{ needs['guide-render'].result }}
           R_tests_windows: ${{ needs['tests-windows'].result }}
           R_bootstrap: ${{ needs.bootstrap.result }}
           R_bootstrap_windows: ${{ needs['bootstrap-windows'].result }}

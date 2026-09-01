@@ -7,7 +7,7 @@ set -e
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-NEXUS_HUB_VERSION="4.3.0"
+NEXUS_HUB_VERSION="4.4.0"
 
 # --- Window Title ---
 printf '\033]0;Nexus-Hub Installer\007'
@@ -895,8 +895,8 @@ install_core_settings() {
     fi
 
     if ! command -v jq >/dev/null 2>&1; then
-        write_item "Warning: jq not found, cannot set core settings (effortLevel, model, env)" "$YELLOW"
-        write_item "  Manually copy effortLevel/model/env from $template_file to $settings_file" "$YELLOW"
+        write_item "Warning: jq not found, cannot set core settings (effortLevel, model, env)" "$YELLOW" >&2
+        write_item "  Manually copy effortLevel/model/env from $template_file to $settings_file" "$YELLOW" >&2
         return
     fi
 
@@ -904,36 +904,62 @@ install_core_settings() {
     # env.CLAUDE_CODE_EFFORT_LEVEL override. The env var is the highest-precedence
     # effort lever per the Claude Code docs, so it forces the effort past the VS
     # Code effort toggle (which otherwise resets to the model default each session).
-    local template_effort template_model template_env_effort
-    template_effort=$(jq -r '.effortLevel' "$template_file" 2>/dev/null)
-    template_model=$(jq -r '.model' "$template_file" 2>/dev/null)
-    template_env_effort=$(jq -r '.env.CLAUDE_CODE_EFFORT_LEVEL' "$template_file" 2>/dev/null)
-
-    # Idempotency: skip only if all three already match the template.
-    if jq -e -s '
-        .[0] as $e | .[1] as $t |
-        ($e.effortLevel == $t.effortLevel)
-        and ($e.model == $t.model)
-        and ($e.env.CLAUDE_CODE_EFFORT_LEVEL == $t.env.CLAUDE_CODE_EFFORT_LEVEL)
-    ' "$settings_file" "$template_file" >/dev/null 2>&1; then
-        write_item "[OK] Core settings (effortLevel, model, env effort) already current in settings.json" "$GREEN"
+    # Seed-if-absent: a reinstall must not replace a value the user already chose.
+    if jq -e '
+        has("model")
+        and (
+            has("effortLevel")
+            or (if ((.env | type) == "object") then
+                (.env | has("CLAUDE_CODE_EFFORT_LEVEL"))
+              else false end)
+        )
+    ' "$settings_file" >/dev/null 2>&1; then
+        write_item "[OK] Core settings already present or user-set; existing values preserved in settings.json" "$GREEN"
         return
     fi
 
-    # Merge scalars and deep-merge the env key, preserving any sibling env vars.
+    local env_seed_blocked=0
+    if jq -e '(has("effortLevel") | not) and has("env") and ((.env | type) != "object")' "$settings_file" >/dev/null 2>&1; then
+        env_seed_blocked=1
+        write_item "Warning: existing env is not an object; preserving it and skipping env.CLAUDE_CODE_EFFORT_LEVEL" "$YELLOW" >&2
+    fi
+
+    # Treat the scalar and higher-precedence env lever as one user-owned pair:
+    # when either exists, preserve the pair exactly. Only a config with neither
+    # effort lever and an absent or object-shaped env receives both defaults,
+    # avoiding a new env pin on upgrade.
     local merged
     merged=$(jq -s '
         .[0] as $e | .[1] as $t |
+        ($e | has("effortLevel")) as $has_scalar_effort |
+        (if (($e.env | type) == "object") then
+            ($e.env | has("CLAUDE_CODE_EFFORT_LEVEL"))
+          else false end) as $has_env_effort |
+        ($has_scalar_effort or $has_env_effort) as $has_any_effort |
         $e
-        + {effortLevel: $t.effortLevel, model: $t.model}
-        | .env = ((.env // {}) + {CLAUDE_CODE_EFFORT_LEVEL: $t.env.CLAUDE_CODE_EFFORT_LEVEL})
+        | if $has_any_effort then . else .effortLevel = $t.effortLevel end
+        | if has("model") then . else .model = $t.model end
+        | if $has_any_effort then .
+          elif has("env") then
+            if ((.env | type) == "object") then
+                .env.CLAUDE_CODE_EFFORT_LEVEL = $t.env.CLAUDE_CODE_EFFORT_LEVEL
+            else . end
+          else .env = {CLAUDE_CODE_EFFORT_LEVEL: $t.env.CLAUDE_CODE_EFFORT_LEVEL} end
     ' "$settings_file" "$template_file" 2>/dev/null)
 
     if [ -n "$merged" ]; then
+        if printf '%s\n' "$merged" | jq -e --slurpfile existing "$settings_file" '. == $existing[0]' >/dev/null 2>&1; then
+            if [ "$env_seed_blocked" -eq 1 ]; then
+                write_item "[OK] Core settings unchanged; existing non-object env preserved" "$GREEN"
+            else
+                write_item "[OK] Core settings already present in settings.json" "$GREEN"
+            fi
+            return
+        fi
         echo "$merged" > "$settings_file"
-        write_item "[OK] $scope settings.json updated core settings (effortLevel: ${template_effort}, model: ${template_model}, env CLAUDE_CODE_EFFORT_LEVEL: ${template_env_effort})" "$GREEN"
+        write_item "[OK] $scope settings.json seeded absent core settings; existing values preserved" "$GREEN"
     else
-        write_item "Warning: Could not merge core settings into settings.json" "$YELLOW"
+        write_item "Warning: Could not merge core settings into settings.json" "$YELLOW" >&2
     fi
 }
 
@@ -1505,7 +1531,7 @@ install_global() {
     [ -d "$global_claude/rules" ]     && write_checklist_row "Rules" "ok" "$global_claude/rules"
     if [ -f "$global_claude/settings.json" ]; then
         write_checklist_row "Hooks" "ok" "git-guardrails, usage, require-description, compress-output"
-        write_checklist_row "Core Settings" "ok" "effortLevel, model, env (settings.json)"
+        write_checklist_row "Core Settings" "ok" "settings.json retained; existing values preserved (see warnings above)"
     fi
     fi
 

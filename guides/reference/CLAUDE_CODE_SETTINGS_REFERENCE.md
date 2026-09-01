@@ -126,12 +126,12 @@ Permissions control which tools Claude Code can use and what operations it can p
 | Level | Behavior | Use Case |
 |-------|----------|----------|
 | `xhigh` | Extended reasoning with adaptive thinking | Most interactive coding work, balanced intelligence and cost |
-| `high` | Strong reasoning at lower aggregate cost than `xhigh` | Multi-agent fan-out, cost-sensitive concurrent runs, long-running loops |
+| `high` | Strong reasoning at lower aggregate cost than `xhigh` (Nexus-Hub shipped default) | Plan-driven multi-step work, multi-agent fan-out, and long-running loops |
 | `max` | Deepest reasoning at highest cost | One-shot hard problems, off-peak analysis - never on loops |
-| `medium` | Balanced speed and quality (Nexus-Hub shipped default) | Tightly scoped tasks, general development |
+| `medium` | Balanced speed and quality | Tightly scoped or cost-sensitive tasks, general development |
 | `low` | Fastest responses | Simple edits, formatting, latency-sensitive interactive work |
 
-The Nexus-Hub installer writes `effortLevel: medium` by default, and pins the matching `env.CLAUDE_CODE_EFFORT_LEVEL` alongside it. Both values are **declared** in [`configs/platform-defaults.json`](../../configs/platform-defaults.json), the single source for per-platform install defaults; `catalog/hooks/settings.json` is generated from it and must not be hand-edited (a drift check fails the build if it is). If the value quoted here ever disagrees with that file, the file is right. Because the environment variable is the highest-precedence lever, raising the effort for a single session via the `/effort` command (interactive slider or direct set, e.g. `/effort xhigh`) or the `--effort` CLI flag holds only for that session; edit both keys in your `settings.json` to move your standing default. For the full decision guidance, see the **Effort-Level Strategy** section of [catalog/skills/ai-development/prompt-engineering/SKILL.md](../../catalog/skills/ai-development/prompt-engineering/SKILL.md).
+The Nexus-Hub installer writes `effortLevel: high` by default, and pins the matching `env.CLAUDE_CODE_EFFORT_LEVEL` alongside it. Both values are **declared** in [`configs/platform-defaults.json`](../../configs/platform-defaults.json), the single source for per-platform install defaults; `catalog/hooks/settings.json` is generated from it and must not be hand-edited (a drift check fails the build if it is). If the value quoted here ever disagrees with that file, the file is right. Because the environment variable is the highest-precedence lever, changing the effort for a single session via the `/effort` command (interactive slider or direct set, e.g. `/effort xhigh`) or the `--effort` CLI flag holds only for that session; edit both keys in your `settings.json` to move your standing default. For the full decision guidance, see the **Effort-Level Strategy** section of [catalog/skills/ai-development/prompt-engineering/SKILL.md](../../catalog/skills/ai-development/prompt-engineering/SKILL.md).
 
 ---
 

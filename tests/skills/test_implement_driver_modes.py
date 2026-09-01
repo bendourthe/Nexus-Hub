@@ -31,6 +31,9 @@ RUNBOOK = (
     / "implement-phase-runbook.md"
 )
 SKILL = ROOT / "catalog" / "skills" / "workflow" / "implement-phase" / "SKILL.md"
+README = ROOT / "README.md"
+GUIDE = ROOT / "guides" / "website" / "nexus-hub-guide.html"
+SKILL_REGISTRY = ROOT / "data" / "skills.json"
 COMMAND_SCOPE_LINE_BUDGET = 150
 
 
@@ -48,6 +51,27 @@ def test_implement_command_names_driver_tokens_and_aliases() -> None:
     assert "(1) commit and continue" in text
     assert "(2) commit and pause" in text
     assert "(3) other" in text
+
+
+def test_full_is_canonical_and_in_full_is_the_compatibility_alias() -> None:
+    command = _read(IMPLEMENT_CMD)
+    runbook = _read(RUNBOOK)
+    skill = _read(SKILL)
+    readme = _read(README)
+    guide = _read(GUIDE)
+    registry = _read(SKILL_REGISTRY)
+
+    assert "`/implement <slug-or-path> full` (alias `in-full`)" in command
+    assert "Driver mode is a later whole token only: `full` (alias `in-full`)" in runbook
+    assert "mode is `full` (alias `in-full`)" in skill
+    assert "`/implement <slug> full` (alias `in-full`)" in readme
+    assert "<code>full</code><span>Run every incomplete phase in order (alias: in-full)." in guide
+    assert "implement full (alias in-full)" in registry
+
+    for text in (command, runbook, skill, readme):
+        assert "`in-full` (alias `full`)" not in text
+    assert "<code>in-full</code><span>Run every incomplete phase in order (alias: full)." not in guide
+    assert "implement in-full (alias full)" not in registry
 
 
 def test_implement_command_stays_thin_and_one_phase_by_default() -> None:
@@ -99,7 +123,7 @@ def test_one_phase_commit_prompt_is_not_the_only_811_path() -> None:
     assert positions == sorted(positions), "8.11 options are out of order"
     assert "loop to 8.10" in runbook
     assert "One-phase (default), non-final:" in runbook
-    assert "**`in-full` non-final:** auto-select commit-only" in runbook
+    assert "**`full` non-final:** auto-select commit-only" in runbook
     assert "always ask" not in command
     assert "the only path" not in runbook.lower()
 

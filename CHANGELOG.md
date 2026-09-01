@@ -7,6 +7,62 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [Unreleased]
+
+---
+
+## [4.4.0] - 2026-09-01
+
+This release rebuilds the interactive guide so it teaches and demonstrates rather than describes, and it is the first release produced entirely under the v4.3.0 verification discipline. That discipline found seven defects a passing test suite had not, all of them fixed and re-proved in a real browser before publication.
+
+### Capability usage
+
+This release adds no opt-in capability, installer flag, or host surface. It does change one default-on surface that writes into a file the user owns, so that surface is documented in full.
+
+#### CLAUDE_CODE_EFFORT_LEVEL
+
+- Activation: no flag or opt-in. `nexus-hub upgrade` (or a fresh install) seeds `effortLevel: "high"` and `env.CLAUDE_CODE_EFFORT_LEVEL: "high"` into `~/.claude/settings.json`. Seeding is absent-only and treats the two keys as one unit, so a config already carrying either key receives neither.
+- Validation: `python -c "import json;d=json.load(open('$HOME/.claude/settings.json'));print(d.get('effortLevel'), d.get('env',{}).get('CLAUDE_CODE_EFFORT_LEVEL'))"` prints `high high` when both were seeded, or your own prior values when they were preserved.
+- Rollback: set both keys to `"medium"` in `~/.claude/settings.json`. Re-running the installer will not raise them again, because seeding only fills an absent key. Nothing else is written and no file is removed.
+- Authority: raising effort does NOT grant Claude Code any new permission, tool, file access, or network capability, and does NOT change what the hooks allow or block. It only changes how much reasoning the model spends per turn, which raises token cost. Scoped to Claude Code alone; Codex, Qwen, Kimi, and Hermes stay at `medium`. A malformed user-owned `env` is preserved and receives no nested key, so a reinstall cannot add an env pin that bypasses the VS Code effort toggle.
+- Docs: [`configs/README.md`](configs/README.md) and [`guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md`](guides/reference/CLAUDE_CODE_SETTINGS_REFERENCE.md)
+
+### Added
+
+- **A playable in-page Asteroids game replaces the Training download.** The game ships with a seeded wrap-boundary collision bug the learner can observe by playing. The eight-command loop then fixes that bug and adds asteroid splitting, driven through a simulated terminal, with an explorable cumulative file tree showing what each command actually wrote. Scenario source: `docs/releases/v4/v4.4/development/asteroids-scenario.md`.
+- **Five new Foundations sections for a non-technical reader**: tokens for text and images, prompt engineering with worked examples, chatbot versus agentic platform, context engineering and the context window, and harness and loop engineering. The last ends on an honest account of what Nexus-Hub adds above a platform's own built-in harness.
+- **A scoped `guide-render` CI job enforcing browser-backed guide verification.** It installs Playwright Chromium in that job only, runs with `NEXUS_REQUIRE_RENDER=1` so the render cases execute fail-closed rather than skipping, and is wired into the always-resolving `ci-required` aggregate. This closes v4.4.0 `MT-1`.
+- **Four new guide test suites**: `tests/guides/test_asteroids_game.py`, `test_phase6_verification_sweep.py`, `test_render_guide_tool.py`, and `test_training_explorer.py`, plus `tests/installer/test_core_settings_seeding.py` for the effort-seeding pair.
+- **Three decision records** covering the raised Claude effort default, the canonicalized `/implement full` driver token, and the requirement for explicit rendered state in the visual gate.
+
+### Changed
+
+- **Home leads with identity and the install command.** A centred animated mark and wordmark that never wraps, a tagline selling an outcome rather than listing contents, six platform compatibility treatments, an Installation section where the install command dominates rather than the verification step, a structured Troubleshooting disclosure, and a reframed comparison stating the reader keeps the platform they prefer and gains the workflows.
+- **The Foundations model diagram was corrected to the real sequence**: trained first, then integrated into a platform, then a request arrives carrying context, then internal reasoning, then output. The previous diagram implied an order that does not happen.
+- **The visual-defect detector now requires explicit rendered state** and gained validated `--fragment` routing with visible-target proof, so it can activate hash-routed guide pages instead of silently measuring an inactive one. This closes v4.4.0 `QG-1`.
+- **Claude Code installs at `high` reasoning effort instead of `medium`.** `configs/platform-defaults.json` now declares `effortLevel: "high"` for Claude Code, with the higher-precedence `env.CLAUDE_CODE_EFFORT_LEVEL` moved in lockstep so the scalar does not become decorative. The derived artifacts (`catalog/hooks/settings.json` and the `_FALLBACK_SETTINGS` stub in `scripts/lib/integrations/claude.py`) were regenerated by `scripts/sync_platform_defaults.py --apply`. Both global installers now seed only absent core settings: an existing user value is never overwritten, and the two effort levers are treated as one upgrade pair. If either effort lever already exists, its configuration shape is preserved exactly; only a config with neither and an absent or object-shaped `env` receives both `high` keys. A malformed user-owned `env` is preserved and receives no nested effort key, with a warning when that shape blocks fresh effort-pair seeding, so reinstall cannot add a new env pin that bypasses the VS Code effort toggle. Lower both effort keys to `medium` in `~/.claude/settings.json` for cheaper routine turns. This change is scoped to Claude Code alone: Codex, Qwen, Kimi, and Hermes stay at `medium`.
+- **`/implement full` is now the canonical driver token, with `in-full` retained as an alias.** `full` is the form documented first in `catalog/commands/implement.md`, the `implement-phase` skill, and the runbook. Argument parsing is unchanged: both tokens are still matched as whole later-positional tokens only, so a plan slug containing "full" as a substring is still not a driver mode, and existing `/implement <slug> in-full` invocations keep working.
+
+### Fixed
+
+- **Training navigation rejected non-integer numeric scene indexes.** `NaN` and fractional indexes previously corrupted exported state; numeric navigation is now restricted to in-range integers, with browser proof that the current scene is preserved (`BG-1`).
+- **Presentation mode painted the game and terminal over later regions.** Natural grid height was restored inside the scrollable presentation slide, with rectangle-separation checks at 1920x1080, 1440x900, 1024x768, and 900x900 (`BG-2`).
+- **Presentation mode let focus escape and did not restore its invoker.** Added dialog semantics, background isolation, a Tab loop, early Escape handling, and post-fullscreen focus restoration (`BG-3`).
+- **A denied-fullscreen presentation fallback survived route changes and left the destination inert.** Presentation now exits when hash routing leaves Training, and the recorded inert states are restored (`BG-4`).
+- **Presentation mode had no visible close control inside its isolated dialog.** Added an in-dialog `Exit presentation` control, preserving Escape behavior and invoker focus restoration (`BG-5`).
+- **Harness claim chips were omitted from the rendered label-containment inventory.** All five desktop and mobile claims are now measurable nodes with readable font sizes and corrected chip geometry, passing all 6 responsive widths in both motion modes (`QG-2`).
+- **Cross-platform guide rendering was hardened** so the page-navigation controls can shrink, the Phase 2 and Phase 3 font hierarchy is preserved, and widened SVG nodes keep their connectors and arrowheads aligned. Verified on Windows and Ubuntu across all 6 widths.
+- **A dormant DOM injection sink was removed** from the guide.
+- **The model map listed a Flash model as the Google frontier tier.** `last-known-model-map.json` had `gemini-3.7-flash` in the frontier slot while Google documents `gemini-3.1-pro-preview` as its advanced-intelligence offering. The Google column is corrected to frontier `gemini-3.1-pro-preview`, strong `gemini-3.7-flash`, standard `gemini-3.6-flash`, fast `gemini-3.5-flash-lite`, and re-stamped to 2026-09-01. Anthropic and Cursor columns were re-verified unchanged. The strong/standard split is recorded in the file as a maintainer judgment, because the vendor publishes capability descriptions rather than a four-tier ranking.
+
+### Known gaps
+
+The advisory model-prompting freshness check reports DRIFTED: the three live Codex ids (`gpt-5.6-sol`, `gpt-5.6-terra`, `gpt-5.6-luna`) remain unprofiled. This is the separately tracked v4.1.0 `DF-1`, is advisory by design, and does not gate this release.
+
+One deferred item remains open for this version: `DF-1`, three platform entries (ChatGPT, Gemini, GitHub Copilot) use labelled text treatments because their vendors publish no distributable standalone product mark. See `docs/releases/v4/v4.4/known-gaps.md`.
+
+---
+
 ## [4.3.0] - 2026-08-31
 
 This release ships the interactive guide rebuild (developed as v4.2.0 through v4.2.3, never tagged) and the agentic verification discipline (v4.3.0) as a single cut. The intermediate versions were never published, so their work is folded here; per-version detail remains under `docs/releases/v4/`.

@@ -66,10 +66,18 @@ def _run(
     *args: str,
     no_site: bool = False,
 ) -> subprocess.CompletedProcess[str]:
+    return _run_path(FIXTURES / fixture, *args, no_site=no_site)
+
+
+def _run_path(
+    path: Path,
+    *args: str,
+    no_site: bool = False,
+) -> subprocess.CompletedProcess[str]:
     command = [sys.executable]
     if no_site:
         command.append("-S")
-    command.extend([str(SCRIPT), str(FIXTURES / fixture), *args])
+    command.extend([str(SCRIPT), str(path), *args])
     return subprocess.run(
         command,
         text=True,
@@ -102,6 +110,127 @@ def test_clean_fixture_passes_full_viewport_matrix(rendered_detector: None) -> N
     assert report["findings"] == []
     assert [viewport["width"] for viewport in report["viewports"]] == [420, 900, 1440]  # type: ignore[index]
     assert "PASS visual-defect detector" in result.stderr
+
+
+def test_explicit_theme_override_is_applied_before_page_bootstrap(
+    rendered_detector: None,
+    tmp_path: Path,
+) -> None:
+    themed_page = tmp_path / "themed.html"
+    themed_page.write_text(
+        """<!doctype html>
+<html lang="en">
+<head>
+<script>
+(function () {
+  var theme = window.localStorage.getItem("portfolio-theme");
+  if (theme !== "light" && theme !== "dark") theme = "dark";
+  document.documentElement.setAttribute("data-theme", theme);
+})();
+</script>
+<style>
+body { margin: 0; }
+p { width: 100px; height: 30px; margin: 0; font: 16px/30px sans-serif; }
+html[data-theme="light"] p { font-size: 8px; }
+</style>
+</head>
+<body><p>Theme probe</p></body>
+</html>
+""",
+        encoding="utf-8",
+    )
+
+    default_result = _run_path(themed_page, "--viewports", "900")
+    dark_result = _run_path(themed_page, "--viewports", "900", "--theme", "dark")
+    light_result = _run_path(themed_page, "--viewports", "900", "--theme", "light")
+
+    assert default_result.returncode == 0
+    assert _payload(default_result)["theme"] is None
+    assert dark_result.returncode == 0
+    assert _payload(dark_result)["theme"] == "dark"
+    assert light_result.returncode == 1
+    light_report = _payload(light_result)
+    assert light_report["theme"] == "light"
+    assert {finding["rule"] for finding in light_report["findings"]} == {"font-size-floor"}  # type: ignore[union-attr]
+
+
+def test_unsupported_theme_is_rejected() -> None:
+    result = _run("clean.html", "--theme", "sepia")
+
+    assert result.returncode == 2
+    assert result.stdout == ""
+    assert "invalid choice" in result.stderr.lower()
+
+
+def test_fragment_activates_hash_routed_page(
+    rendered_detector: None,
+    tmp_path: Path,
+) -> None:
+    routed_page = tmp_path / "routed.html"
+    routed_page.write_text(
+        """<!doctype html>
+<html lang="en">
+<head>
+<style>
+body { margin: 0; }
+.page { display: none; }
+.page.active { display: block; }
+p { width: 180px; height: 30px; margin: 0; font: 16px/30px sans-serif; }
+#foundations p { font-size: 8px; }
+</style>
+</head>
+<body>
+<section class="page" id="home"><p>Home is clean</p></section>
+<section class="page" id="foundations"><p>Foundations is broken</p></section>
+<script>
+const target = location.hash.slice(1) || "home";
+document.getElementById(target).classList.add("active");
+</script>
+</body>
+</html>
+""",
+        encoding="utf-8",
+    )
+
+    default_result = _run_path(routed_page, "--viewports", "900")
+    fragment_result = _run_path(
+        routed_page,
+        "--viewports",
+        "900",
+        "--fragment",
+        "foundations",
+    )
+    typo_result = _run_path(
+        routed_page,
+        "--viewports",
+        "900",
+        "--fragment",
+        "foundatons",
+    )
+
+    assert default_result.returncode == 0
+    assert _payload(default_result)["fragment"] is None
+    assert fragment_result.returncode == 1
+    fragment_report = _payload(fragment_result)
+    assert fragment_report["fragment"] == "foundations"
+    assert {finding["rule"] for finding in fragment_report["findings"]} == {  # type: ignore[union-attr]
+        "font-size-floor"
+    }
+    assert typo_result.returncode == 1
+    typo_report = _payload(typo_result)
+    assert typo_report["fragment"] == "foundatons"
+    assert {finding["rule"] for finding in typo_report["findings"]} == {  # type: ignore[union-attr]
+        "fragment-target"
+    }
+
+
+@pytest.mark.parametrize("fragment", ("", "#", "../foundations", "foundations?next=home"))
+def test_invalid_fragment_is_rejected(fragment: str) -> None:
+    result = _run("clean.html", "--fragment", fragment)
+
+    assert result.returncode == 2
+    assert result.stdout == ""
+    assert "fragment" in result.stderr.lower()
 
 
 @pytest.mark.parametrize(("fixture", "expected_rule"), BROKEN_FIXTURES)
@@ -142,6 +271,94 @@ def test_false_positive_controls_are_present_in_clean_fixture(
     result = _run("clean.html", "--viewports", "420")
     assert result.returncode == 0
     assert _payload(result)["findings"] == []
+
+
+def test_text_overlap_compares_only_painted_direct_text_fragments(
+    rendered_detector: None,
+    tmp_path: Path,
+) -> None:
+    fragment_page = tmp_path / "painted-text-fragments.html"
+    fragment_page.write_text(
+        """<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Painted text fragments</title>
+<style>
+* { box-sizing: border-box; }
+html { font: 16px/24px Arial, sans-serif; }
+body { margin: 0; padding: 16px; }
+.wrapped { width: 190px; margin: 0; }
+.wrapped code, .wrapped a { font: inherit; }
+.clip-stage { position: relative; width: 300px; height: 32px; margin-top: 24px; }
+.scroller { width: 96px; height: 24px; overflow-x: auto; white-space: nowrap; }
+.outside { position: absolute; top: 0; left: 150px; }
+.captions { position: relative; width: 300px; height: 40px; margin-top: 24px; }
+.caption { position: absolute; top: 0; width: 110px; height: 28px; padding: 2px 4px; background: #eef; }
+.caption-one { left: 0; }
+.caption-two { left: 55px; }
+</style>
+</head>
+<body>
+<p class="wrapped"><code>alpha beta gamma delta tail</code> <a id="wrapped-following" href="#target">Open guide</a></p>
+<div class="clip-stage"><div class="scroller"><span>A long clipped line that extends behind the outside label</span></div><span id="outside-label" class="outside">Outside label</span></div>
+<div class="captions"><span class="caption caption-one">First caption</span><span id="true-overlap" class="caption caption-two">Second caption</span></div>
+</body>
+</html>
+""",
+        encoding="utf-8",
+    )
+
+    result = _run_path(fragment_page, "--viewports", "900")
+    report = _payload(result)
+    findings = report["findings"]
+
+    assert result.returncode == 1
+    assert report["gate_findings"] == 1
+    assert len(findings) == 1  # type: ignore[arg-type]
+    assert findings[0]["rule"] == "text-overlap"  # type: ignore[index]
+    assert findings[0]["selector"] == "#true-overlap"  # type: ignore[index]
+
+
+def test_inline_overflow_does_not_erase_text_but_zero_sized_block_clip_does(
+    rendered_detector: None,
+    tmp_path: Path,
+) -> None:
+    inline_page = tmp_path / "inline-overflow-overlap.html"
+    inline_page.write_text(
+        """<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Inline overflow overlap</title>
+<style>
+* { box-sizing: border-box; }
+html { font: 16px/24px Arial, sans-serif; }
+body { margin: 0; padding: 16px; }
+p { width: 300px; margin: 0; }
+.inline-source { overflow: hidden; }
+.inline-target { position: relative; left: -56px; }
+.zero-stage { position: relative; width: 300px; height: 24px; margin-top: 24px; }
+.zero-clip { position: absolute; width: 0; height: 0; overflow: hidden; }
+.visible-label { position: absolute; top: 0; left: 0; }
+</style>
+</head>
+<body>
+<p><span class="inline-source">First caption</span><span id="inline-overlap" class="inline-target">Second caption</span></p>
+<div class="zero-stage"><div class="zero-clip"><span>Clipped collision</span></div><span id="visible-label" class="visible-label">Clipped collision</span></div>
+</body>
+</html>
+""",
+        encoding="utf-8",
+    )
+
+    result = _run_path(inline_page, "--viewports", "900")
+    report = _payload(result)
+    findings = report["findings"]
+
+    assert result.returncode == 1
+    assert report["gate_findings"] == 1
+    assert len(findings) == 1  # type: ignore[arg-type]
+    assert findings[0]["rule"] == "text-overlap"  # type: ignore[index]
+    assert findings[0]["selector"] == "#inline-overlap"  # type: ignore[index]
 
 
 def test_defect_repeats_once_per_requested_viewport(rendered_detector: None) -> None:
@@ -350,6 +567,39 @@ def test_page_load_failure_is_a_gate_finding() -> None:
     assert finding["severity"] == "error"
     assert finding["viewport"] == {"width": 900, "height": 900}
     assert "synthetic local load failure" in finding["measurements"]["error"]
+
+
+def test_theme_setup_failure_is_a_gate_finding() -> None:
+    detector = _load_detector_module()
+
+    class FailingPage:
+        def add_init_script(self, *_args: object, **_kwargs: object) -> None:
+            raise RuntimeError("synthetic theme setup failure")
+
+        def goto(self, *_args: object, **_kwargs: object) -> None:
+            raise AssertionError("navigation must not continue after theme setup fails")
+
+    result = detector._scan_viewport(
+        FailingPage(),
+        (FIXTURES / "clean.html").resolve().as_uri(),
+        width=900,
+        height=900,
+        tolerance=1.0,
+        minimum_text_width=16.0,
+        minimum_text_height=12.0,
+        font_floor=12.0,
+        allowlist=[],
+        timeout_ms=100,
+        settle_ms=0,
+        theme="light",
+    )
+    finding = result["findings"][0]
+
+    assert finding["rule"] == "theme-setup"
+    assert finding["severity"] == "error"
+    assert finding["viewport"] == {"width": 900, "height": 900}
+    assert finding["measurements"]["requested_theme"] == "light"
+    assert "synthetic theme setup failure" in finding["measurements"]["error"]
 
 
 def test_route_boundary_allows_local_and_blocks_network() -> None:

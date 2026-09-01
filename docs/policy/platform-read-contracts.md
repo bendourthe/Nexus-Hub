@@ -2,7 +2,7 @@
 
 This is the durable, sourced source of truth for where every supported platform READS each surface (instruction file, slash commands, skills, agents, rules, hooks) and where the Nexus-Hub installer WRITES it. It supersedes the point-in-time snapshot at `docs/v3/v3.11/platform-read-contracts.md` (which resolved the v3.11.0 Phase 7 audit but left the Codex and Antigravity contracts flagged as unverified).
 
-**Last verified**: 2026-08-30, stamped for v4.3.0 (full correction pass; verified native surfaces are reflected below, unsupported or undocumented surfaces are marked UNVERIFIED, and Nexus-AI remains UNVERIFIED).
+**Last verified**: 2026-09-01, stamped for v4.4.0 (re-verification pass, no correction required: 11 of 13 platforms re-fetched from live first-party vendor docs and classified MATCH with zero drift; gemini carried forward with its `~/.gemini/` root independently corroborated; Nexus-AI remains UNVERIFIED because its source is private. Several platforms have added cross-agent `~/.agents/skills` alias roots alongside the declared native paths -- additional surfaces, not drift, so no adapter changed).
 
 ## Invocation-policy emission (v3.20.3)
 

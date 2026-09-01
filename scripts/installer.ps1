@@ -144,7 +144,7 @@ function Get-SanitizedBranchName {
 # --- Version ---
 # Single source of truth for the installer banner version label.
 # Keep in sync with .claude-plugin/plugin.json and CHANGELOG.md.
-$script:NexusHubVersion = "4.3.0"
+$script:NexusHubVersion = "4.4.0"
 
 $Host.UI.RawUI.WindowTitle = "Nexus-Hub Installer"
 $script:InstallerTitle = "Nexus-Hub Installer"
@@ -1114,47 +1114,55 @@ function Install-CoreSettings {
         $coreKeys = @("effortLevel", "model")
         $applied = @()
 
+        # Treat the scalar and higher-precedence env lever as one user-owned
+        # pair. If either exists, preserve the pair exactly; only a config with
+        # neither effort key and an absent or object-shaped env receives both
+        # defaults.
+        $hasScalarEffort = [bool]$existingJson.PSObject.Properties["effortLevel"]
+        $hasEnvEffort = (
+            $existingJson.PSObject.Properties["env"] -and
+            $existingJson.env -is [System.Management.Automation.PSCustomObject] -and
+            $existingJson.env.PSObject.Properties["CLAUDE_CODE_EFFORT_LEVEL"]
+        )
+        $hasAnyEffort = $hasScalarEffort -or $hasEnvEffort
+
         foreach ($key in $coreKeys) {
             if (-not $templateJson.PSObject.Properties[$key]) { continue }
+            if ($key -eq "effortLevel" -and $hasAnyEffort) { continue }
             $templateValue = $templateJson.$key
-            if ($existingJson.PSObject.Properties[$key] -and $existingJson.$key -eq $templateValue) {
+            if ($existingJson.PSObject.Properties[$key]) {
                 continue
             }
-            if ($existingJson.PSObject.Properties[$key]) {
-                $existingJson.$key = $templateValue
-            } else {
-                $existingJson | Add-Member -NotePropertyName $key -NotePropertyValue $templateValue
-            }
+            $existingJson | Add-Member -NotePropertyName $key -NotePropertyValue $templateValue
             $applied += "${key}: ${templateValue}"
         }
 
-        # Deep-merge the env effort override, preserving any sibling env vars.
-        if ($templateJson.PSObject.Properties["env"] -and $templateJson.env.PSObject.Properties["CLAUDE_CODE_EFFORT_LEVEL"]) {
+        # Seed the env effort override with the scalar only when the entire
+        # effort pair is absent. Any existing pair shape remains user-owned.
+        if (-not $hasAnyEffort -and $templateJson.PSObject.Properties["env"] -and $templateJson.env.PSObject.Properties["CLAUDE_CODE_EFFORT_LEVEL"]) {
             $envEffort = $templateJson.env.CLAUDE_CODE_EFFORT_LEVEL
             if (-not $existingJson.PSObject.Properties["env"]) {
                 $existingJson | Add-Member -NotePropertyName "env" -NotePropertyValue ([PSCustomObject]@{})
             }
-            if ($existingJson.env.PSObject.Properties["CLAUDE_CODE_EFFORT_LEVEL"]) {
-                if ($existingJson.env.CLAUDE_CODE_EFFORT_LEVEL -ne $envEffort) {
-                    $existingJson.env.CLAUDE_CODE_EFFORT_LEVEL = $envEffort
-                    $applied += "env.CLAUDE_CODE_EFFORT_LEVEL: $envEffort"
-                }
-            } else {
+            if ($existingJson.env -is [System.Management.Automation.PSCustomObject] -and -not $existingJson.env.PSObject.Properties["CLAUDE_CODE_EFFORT_LEVEL"]) {
                 $existingJson.env | Add-Member -NotePropertyName "CLAUDE_CODE_EFFORT_LEVEL" -NotePropertyValue $envEffort
                 $applied += "env.CLAUDE_CODE_EFFORT_LEVEL: $envEffort"
+            }
+            elseif ($existingJson.env -isnot [System.Management.Automation.PSCustomObject]) {
+                Write-Warning "existing env is not an object; preserving it and skipping env.CLAUDE_CODE_EFFORT_LEVEL"
             }
         }
 
         if ($applied.Count -eq 0) {
-            Write-Item -Message "✓ Core settings (effortLevel, model, env effort) already current in settings.json" -Color "DarkGreen"
+            Write-Item -Message "✓ Core settings already present; existing values preserved in settings.json" -Color "DarkGreen"
             return
         }
         Write-JsonFile -Path $settingsFile -Object $existingJson
-        Write-Item -Message "✓ $Scope settings.json updated core settings ($($applied -join ', '))" -Color "DarkGreen"
+        Write-Item -Message "✓ $Scope settings.json seeded absent core settings ($($applied -join ', ')); existing values preserved" -Color "DarkGreen"
     }
     catch {
-        Write-Item -Message "Warning: Could not set core settings ($($_.Exception.Message))" -Color "Yellow"
-        Write-Item -Message "  Manually copy effortLevel/model/env from $templateFile to $settingsFile" -Color "Yellow"
+        Write-Warning "Could not set core settings ($($_.Exception.Message))"
+        Write-Warning "Manually copy effortLevel/model/env from $templateFile to $settingsFile"
     }
 }
 
@@ -1693,7 +1701,7 @@ function Install-Global {
         if (Test-Path (Join-Path $globalClaude "rules"))     { Write-ChecklistRow -Label "Rules" -State "ok" -Detail (Join-Path $globalClaude "rules") }
         if (Test-Path (Join-Path $globalClaude "settings.json")) {
             Write-ChecklistRow -Label "Hooks" -State "ok" -Detail "git-guardrails, usage, require-description, compress-output"
-            Write-ChecklistRow -Label "Core Settings" -State "ok" -Detail "effortLevel, model, env (settings.json)"
+            Write-ChecklistRow -Label "Core Settings" -State "ok" -Detail "settings.json retained; existing values preserved (see warnings above)"
         }
     }
 
