@@ -570,7 +570,7 @@ def test_training_cold_deep_link_accepts_and_discards_legacy_beat(
                 assert page.locator('[data-nht="title"]').inner_text() == (
                     "Turn the symptom into a finding"
                 )
-                assert "distinguish a real boundary defect from a missed shot" in (
+                assert "tell a real damage defect from hard difficulty" in (
                     page.locator('[data-nht="takeaway"]').inner_text()
                 )
             finally:

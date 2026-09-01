@@ -66,7 +66,7 @@ def test_training_runtime_reduces_files_and_game_state_deterministically(
                 "verticalMovementEnabled": False,
                 "fixture": "enemy-hit",
             }
-            assert set(initial["filePaths"]) == {"src/collision.js", "src/game.js"}
+            assert set(initial["filePaths"]) == {"src/damage.js", "src/game.js"}
             assert page.locator('[data-nht="file-body"] img').count() == 0
 
             invalid_numeric_snapshots = page.evaluate(
@@ -146,15 +146,15 @@ def test_training_runtime_reduces_files_and_game_state_deterministically(
                     assert "<img onerror>" in terminal_text
                     assert terminal.locator("img").count() == 0
                     source_item = page.locator(
-                        '[data-nht="file"][data-file-path="src/collision.js"]'
+                        '[data-nht="file"][data-file-path="src/damage.js"]'
                     )
                     source_item.focus()
                     source_item.press("Enter")
                     active_path = page.evaluate(
                         "document.activeElement && document.activeElement.dataset.filePath"
                     )
-                    assert active_path == "src/collision.js"
-                    page.locator('[data-file-path="src/collision.js"]').press(
+                    assert active_path == "src/damage.js"
+                    page.locator('[data-file-path="src/damage.js"]').press(
                         "ArrowDown"
                     )
                     assert page.evaluate(
@@ -190,9 +190,7 @@ def test_training_runtime_reduces_files_and_game_state_deterministically(
                         assert result["verticalMovementEnabled"] is True
                         assert result["fixture"] == "play"
 
-            # Phase 6 rewrites the scene FILES to the shooter story; until then the
-            # cumulative tree still ends at the v4.4.0 briefing artifact.
-            assert "asteroids-briefing.html" in expected_paths
+            assert "shooter-briefing.html" in expected_paths
             body = page.locator('[data-nht="file-body"]')
             assert body.locator("img").count() == 0
             assert not console_errors, f"console errors: {console_errors}"

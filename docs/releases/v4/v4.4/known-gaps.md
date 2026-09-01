@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v4.4.0 finalized 2026-09-01 at `/update release`; v4.4.1 in progress on the same minor
-**Last updated**: 2026-09-01 (v4.4.1 Phase 5)
+**Last updated**: 2026-09-01 (v4.4.1 Phase 6)
 
 ## v4.4.0 - guide-depth-and-training-rebuild
 
@@ -81,6 +81,7 @@
 | ID | Title | Resolved in | Notes |
 |---|---|---|---|
 | BG-1 | The plan document leaked personal filesystem paths | Phase 1 | Sub-task 1.3 named the local Cursor candidates as absolute `C:/Users/<user>/Downloads/...` paths. `validate_no_personal_paths.py` reported 4 findings against the plan file, and that validator runs in `make validate` and CI, so the plan as authored would have failed the pipeline on commit. Redacted to a username-free `~/Downloads/...` form; the scanner is clean. |
+| BG-11 | Opening Outline permanently collapsed the presentation game stage | Phase 6 | In present mode the game column was content-sized (`flex: 0 0 auto` with `max-height: 58%`) while `.nag-stage` inside it was fill-sized (`flex: 1 1 auto`), with `.nht-game` between them also content-sized. A fill-sized child has no definite height to resolve against inside a content-sized parent, so Chromium answered from layout history: opening Outline drove the stage to min-content (180 px to 42 px) and closing Outline never restored it, leaving `Click to start` outside the clipped stage and unclickable. The column was given a definite `height: 58%` and `.nht-game` was made `flex: 1 1 auto`. The fix then lost to the narrow-viewport reset, because a media query adds no specificity and the reset matched one fewer class-level component (the second occurrence of BG-4's lesson in this file), so the reset repeats the `:first-child` shape. Found only because fixed test sleeps were replaced with explicit condition waits, which turned an apparent flake into a consistent failure. |
 | BG-10 | reset() created an unstartable idle game | Phase 5 | The engine's reset returned the world to `idle` without re-arming the Click-to-start overlay, so any reset after the first start (including every Training route change through `configureGame`) left an idle game with no visible way to begin. Every reset now re-arms the overlay and `restart()` hides it again immediately. Caught by the Phase 6 keyboard sweep timing out on a game that could never reach `paused`. |
 | BG-9 | The fixed-damage fixture could not demonstrate its own rule | Phase 5 | The seeded enemy never re-fired, so after the single pre-placed shot the `enemy-hit` fixture could never walk lives 3 -> 2 -> 1 -> 0 in fixed mode. The enemy now re-fires on a deterministic cadence timed to land after each 90-tick invulnerability window; the buggy-mode tick-75 first hit is unchanged, and the scenario contract records the cadence. |
 | BG-8 | The shooter engine crashed on page load | Phase 5 | The reduced-motion probe and the intersection observer both call `pause()`, which snapshots, and both were wired before the first `reset()` created state, so boot died on `Cannot read properties of null`. State creation moved above all DOM wiring with a load-bearing-position comment. |
@@ -91,5 +92,9 @@
 | BG-4 | Narrow-screen layout overrides lost to source order | Phase 3 | The stacking rules for the new Foundations components were placed in a `@media` block ABOVE the base rules they override. A media query adds no specificity, so the later base rule won and `.fx-states` still computed three columns at 320 px, overflowing the viewport. The overrides were moved below their definitions with a comment recording why the position is load-bearing. |
 | BG-3 | The hero heading's line box could not contain its own text | Phase 2 | `.hero-wordmark` used `line-height: 1`, making the h1 line box (68 px at 1440) shorter than its inline children's content boxes (90 px). The visual-defect detector reported 12 HIGH `parent-padding-escape` findings once Phase 2's two-span title gave it child elements to measure; the condition pre-dated Phase 2 and was simply unobservable with a bare text node. Raised to `line-height: 1.34`, which contains the font ascent and descent at every clamp size. Detector then passed both themes with 0 findings. |
 | BG-2 | The plan's model map listed a Flash model as the Google frontier tier | Phase 1 | `## Current model map` carried `gemini-3.7-flash` in the frontier slot where the vendor documents `gemini-3.1-pro-preview`. The identical defect was corrected in `catalog/skills/ai-development/model-routing/references/last-known-model-map.json` during the v4.4.0 release, so the plan had inherited it. The plan's map is corrected and annotated, with the strong/standard split recorded as a maintainer judgment. |
+
+### Deferred from v4.4.1 Phase 6
+
+- **Outline reflows the presentation slide while open.** The Outline panel is an in-flow block, so in present mode it squeezes the game panel for as long as it is open. State restores exactly on close (proved by BG-11's fix), and no acceptance criterion covers the open state, so overlaying the panel was left out of a late, unvalidated layout diff. Revisit alongside any future presentation-layout work.
 
 > Not finalized. v4.4.1 is in progress; this section is appended per phase and reconciled at the plan's final phase.

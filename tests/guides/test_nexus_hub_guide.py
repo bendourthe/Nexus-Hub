@@ -1235,7 +1235,7 @@ def test_training_scene_schema_is_strict_and_cumulative(parsed: GuideParser) -> 
     initial_files = data["initial"]["files"]
     assert initial_files, "the explorer needs the files that exist before /describe"
     assert {item["path"] for item in initial_files} >= {
-        "src/collision.js",
+        "src/damage.js",
         "src/game.js",
     }
     assert len({item["path"] for item in initial_files}) == len(initial_files)
@@ -1453,10 +1453,11 @@ def test_training_controls_are_bottom_right_icons(guide_text: str) -> None:
 
 
 def test_present_mode_fills_the_viewport(guide_text: str) -> None:
-    block = guide_text.split("/* present / slide mode", 1)[-1].split("@media", 1)[0]
+    block = guide_text.split("/* Full-screen slide mode (v4.4.1 Phase 6)", 1)[-1].split("@media", 1)[0]
     assert ".nht.is-present .nht-slide" in block
     assert "flex: 1 1 auto" in block, "the slide grows to consume the height"
     assert ".nht.is-present .nht-grid" in block
+    assert "overflow-y: auto" in block, "the terminal keeps the one bounded secondary scroll"
 
 
 def test_no_hardcoded_text_width_caps_remain(guide_text: str) -> None:

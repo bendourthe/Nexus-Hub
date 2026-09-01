@@ -1,6 +1,6 @@
 # Nexus-Hub Interactive Guide
 
-This directory holds the public-facing Nexus-Hub guide, its Asteroids Training data, and retained legacy fixtures. Everything reader-facing is self-contained, opens in a browser, and needs no build step. This `README.md` is for maintainers.
+This directory holds the public-facing Nexus-Hub guide, its arcade-shooter Training data, and retained legacy fixtures. Everything reader-facing is self-contained, opens in a browser, and needs no build step. This `README.md` is for maintainers.
 
 ## Contents
 
@@ -27,16 +27,50 @@ URL grammar: `#<page-id>` for pages; `#training/<scene-id>` for Training; `#chea
 
 ## Design system (v4.4.0, evolved from v4.2.2 and v4.2.3)
 
-The original design language remains recorded in `docs/releases/v4/v4.2/development/guide-rebuild/design-brief.md`. v4.4.0 keeps that visual system while rebuilding Home, expanding Foundations to eight scenes, and replacing the old walkthrough with a playable Asteroids training loop. The load-bearing decisions:
+The original design language remains recorded in `docs/releases/v4/v4.2/development/guide-rebuild/design-brief.md`. v4.4.1 keeps that visual system while rebuilding Home around a five-platform rail, reordering Foundations into eight professionally titled scenes, and replacing the Asteroids walkthrough with a deterministic arcade shooter. The load-bearing decisions:
 
 - **Fluid width (v4.2.3).** There is no per-text width cap. `.container`'s `--maxw` is the ONLY width constraint in the file: body copy fills the content column at every viewport. A test fails on any `max-width` in `px` or `ch` other than the present-mode stage bound, so a measure cannot creep back in. Headings use `text-wrap: balance` to shape wrapping without imposing one.
 - **Copy affordance (v4.2.3).** A labelled button only where the control stands alone in a wide terminal row. Inside an inline `.cmd-cell` the button is bare - no background, no border, no label - because the host chip already draws the container and a chip inside a chip reads as a mistake. The bare variant keeps a 24px hit area, its `aria-label`, the live-region announcement, and an explicit focus ring.
 - **Invocation convention (v4.2.3).** `.inv-cmd` renders a slash command in accent, `.inv-arg` its scope in plain ink, `.inv-ph` a placeholder dim italic. Used on Home, in Training's terminal, and in every Cheatsheets example. The `data-copy` payload is always the plain full string, so copy parity survives the split markup.
 - **Compact rhythm.** A 4px spacing scale (`--sp-1` to `--sp-8`) with `--sec-pad: 32px` (22px under 720px). Sections are separated by an eyebrow and a heading, not by empty space.
-- **Motion vocabulary.** `.reveal` elements fade and rise via one shared IntersectionObserver. Continuous motion (constellation, Foundations pulses, and the Asteroids loop) runs only while its surface is visible. `prefers-reduced-motion` renders a complete static equivalent, pauses the game, exposes Advance one step, and prints terminal output immediately; it never substitutes a crushed duration.
+- **Motion vocabulary.** `.reveal` elements fade and rise via one shared IntersectionObserver. Continuous motion (constellation, the Foundations work-cycle glyph, and the shooter loop) runs only while its surface is visible. `prefers-reduced-motion` renders a complete static equivalent, pauses the game, exposes Advance one step, and prints terminal output immediately; it never substitutes a crushed duration.
 - **Themes.** All colors are tokens defined on `:root`, `html[data-theme="dark"]`, and `html[data-theme="light"]`. Every measured text style in both themes meets WCAG AA contrast. The v4.4.0 Phase 6 browser sweep measured 11,008 visible text samples across all pages and all eight Training states, including 552 generated pseudo-text samples and 265 unique computed styles, and found 0 below AA.
 - **Light-mode brand chip.** In light theme the glow logo mark sits on a rounded dark chip so it reads against the light ground.
 - **The Nexus mark is true vector geometry, and must stay that way (v4.4.1).** `#nexus-mark` was a single 220 KB base64 PNG inside an `<image>` element until v4.4.1 replaced it with about 2.1 KB of reviewed paths, circles, gradients, and one `feGaussianBlur` glow layer, measured from the original raster so the geometry is preserved. That one change bought roughly 218 KB of the 500,000-byte budget, and every later phase's byte allocation is drawn against that headroom. Do NOT re-embed a raster here, and do not reuse `assets/nexus-hub-primary_no-background.svg`: it is a 1 MB SVG-wrapped raster with zero `<path>` elements, not a vector source. `tests/guides/test_v441_phase1_contract.py` asserts the symbol has no base64 payload, carries real geometry rather than an empty shell, and stays compact.
+
+## Foundations (v4.4.1)
+
+Eight scenes in this exact order, each `.fx-scene` with one `.fx-title` and one `.fx-subtitle`:
+
+1. **Tokens Definition** - a real prompt at a 19 px floor, its VERIFIED `cl100k_base` split into ten identically styled chips (`Summarise` costs three, which is the teaching point), and nine image cells that each hold a real 1:1 crop of one original inline picture through namespaced clip paths.
+2. **Prompt Engineering** - the same contract request shown vague, then precise as Goal / Material / Done / Format.
+3. **Context Engineering** - the request separated from four kinds of optional material (image, file or document, project folder or workspace, codebase), then one finite budget spent two ways.
+4. **Models** - a provider region (training then release) strictly before the user region; a prompt never retrains the model. Carries the qualified effort-level statement and four output kinds whose embedded bytes hash-match the media ledger.
+5. **Agentic Platform** - the SAME entry motif and work-cycle glyph as Models, emitted by the same code so they are byte-identical, then three mission lanes, one permission-and-tool boundary, observations, and a report.
+6. **Chatbot vs. Agentic Platform** - two lanes, chatbot first, with explicit Boundary / Action / Outcome / Leaves-behind labels.
+7. **Harnesses** - the built-in platform runtime loop with the model nested inside.
+8. **Nexus-Hub Harness** - the portable workflow layer with its five repository-anchored claims, the does-not-replace qualifier, and the durable-trail comparison.
+
+Terminology is load-bearing: any reasoning visual is labelled an ABSTRACT work cycle, never a transcript of hidden chain-of-thought, and platform capability is always stated as "can", "when supported", "when permitted".
+
+The story diagrams are semantic HTML node trees with small connector SVGs, not bespoke per-scene drawings. That change is what cut the 1440 px Foundations height from 7,235 px to about 5,150 px; `data-phase3-diagram` no longer exists and a guard test fails if an SVG story diagram returns without restoring its containment coverage.
+
+## Browser evidence matrix (v4.4.1 Phase 6)
+
+The retained browser gate is Cartesian only across dimensions that own a distinct layout, theme, state, or interaction contract:
+
+| Case group | Dimensions | Cases |
+|---|---|---:|
+| Base pages | 4 pages x 2 themes x 320/420/900/1440 | 32 |
+| Foundations seam | 2 themes x 720/721 | 4 |
+| Training states | 8 scene IDs x 2 themes at 1440x900 | 16 |
+| Desktop fullscreen | 2 routes x native/fallback x 2 themes x 1280x720, 1366x768, 1440x900, 1920x1080 | 32 |
+| Narrow fallback | 2 routes x 2 themes x 320/420/900 | 12 |
+| Reduced motion | 3 surfaces x 2 themes at 1440x900 | 6 |
+| 200 percent zoom | 2 routes x 2 themes x 1280x720, 1366x768 | 8 |
+| **Total** | | **110** |
+
+Retained screenshots live under `docs/releases/v4/v4.4/development/guide-visual-and-arcade-rebuild/renders/`, alongside one JSON geometry and console summary. Evidence stays under 30 MiB, and the focused run targets 20 minutes; if one invocation times out, split the same declared cases into labelled batches rather than dropping or structurally scoring any case.
 
 ## Home
 
@@ -75,17 +109,23 @@ Hard rules: no element pins itself over the content, and there is **no toggle** 
 
 ## Training walkthrough
 
-Training is an eight-step interactive Asteroids walkthrough (`#nhTraining`, `[data-training-root]`) driven entirely by the scene JSON. Each step composes five things:
+Training is an eight-step interactive arcade-shooter walkthrough (`#nhTraining`, `[data-training-root]`) driven entirely by the scene JSON. Each step composes five things:
 
 1. The step's intent, in second person.
-2. **The playable Asteroids arena** - a deterministic wrap-boundary collision makes the bug observable before `/implement`; the implementation step switches to wrap-aware collision, and `/compare` plus its follow-on implementation enables asteroid splitting.
+2. **The playable arcade shooter** - a seeded damage bug destroys the ship on the FIRST enemy shot while the HUD still reads three lives, so the defect is observable before `/implement`; the implementation step makes a hit cost one life (3, 2, 1, 0, with a 90-tick invulnerability window), and `/compare` plus its follow-on implementation enables band-clamped vertical movement. Asteroid contact is always fatal in both modes. The full contract is `docs/releases/v4/v4.4/development/arcade-shooter-scenario.md`.
 3. **The simulated terminal** - the step's command is pre-filled with a Run affordance; running shows a brief working line, reveals the reply, applies the file changes, and advances the game state. The command is not echoed a second time because the prompt line above already shows it.
 4. **The cumulative file explorer** - the tree shows everything created so far, marks the current step's new and changed files, and paints the selected file or diff with text nodes only. A requested path that does not exist yet says so explicitly.
 5. The artifact, gate verdict, and takeaway that explain what the command produced and why it matters.
 
-Training navigation uses Previous, Next, and Restart icon buttons in a right-aligned cluster below the takeaway, each with an `aria-label`, a `title`, and a visible focus ring. Outline keeps a text label because a glyph does not carry its meaning. ArrowRight, Space, and PageDown advance; ArrowLeft and PageUp go back; `f` toggles Present; Escape exits it. The file explorer is a labelled tree: ArrowUp, ArrowDown, Home, and End move focus, while Enter or Space activates the focused file. The focused game owns Left / Right or A / D for rotation, Up or W for thrust, and Space for fire; equivalent touch controls and labelled pause/reset buttons remain available.
+Training navigation uses Previous, Next, and Restart icon buttons in a right-aligned cluster below the takeaway, each with an `aria-label`, a `title`, and a visible focus ring. Outline keeps a text label because a glyph does not carry its meaning. ArrowRight, Space, and PageDown advance; ArrowLeft and PageUp go back; `f` toggles full screen when focus is not in the game or a form field. The file explorer is a labelled tree: ArrowUp, ArrowDown, Home, and End move focus, while Enter or Space activates the focused file. The focused game owns Left / Right or A / D for horizontal movement and Space for fire; Up / Down or W / S move vertically only after `/compare` enables the feature. The game starts idle behind a real `Click to start` button, so page-level arrow and Space behavior is untouched until the reader opts in. Escape pauses the game, clears held keys, releases key ownership, and focuses Resume. Equivalent touch controls and labelled pause, reset, and step buttons remain available.
 
-**Present mode** requests fullscreen on the training root and applies a viewport overlay class either way, so a denied or unavailable Fullscreen API still presents as slides. Since v4.2.3 it FILLS the viewport: a full-height flex column where the slide grows to consume the space and the game and terminal stretch inside it, rather than centring an in-page-sized block in an empty screen.
+**Full screen mode** requests fullscreen on the training root and applies a viewport overlay class either way, so a denied or unavailable Fullscreen API still presents as slides. The control lives INSIDE the fullscreen root, in `.nht-bar` immediately before Outline, labelled `Full screen` / `Exit full screen` with a four-corner icon and an `aria-pressed` state synchronized from `fullscreenchange` (the user agent may consume Escape and exit natively, so the handler reconciles rather than assuming script initiated the change).
+
+**Outline** is a nonmodal disclosure, not a dialog: `aria-expanded` on the trigger, a labelled `region` panel, normal tab order, no focus trap, and dismissal by outside click or Escape with focus returning to the trigger.
+
+**Escape precedence** in the overlay is exactly: close Outline first; otherwise, if focus is inside the active game, the game pauses and releases its keys; otherwise the overlay exits and focus returns to the fullscreen trigger.
+
+**Presentation layout (v4.4.1).** The slide is a two-column grid because the explorer is a sibling of `.nht-grid`, not a child: head, takeaway, and controls span both columns, the game column takes a bounded share, and the evidence column owns the one permitted secondary scroll. Every earlier attempt let one panel's content decide another panel's position, which produced overlaps that moved between viewport sizes as free height changed. Below 1024 px (which 200 percent zoom also reaches) the whole slide reflows into ONE vertical scroll surface. `tests/guides/test_v441_phase6_workspace.py` measures real pairwise intersection AREA at 1920x1080, 1440x900, 1366x768, 1280x720, 900x900, 420x900, and 320x900, clipping each region to its clipping ancestors so it scores what a reader can actually see.
 
 **Position and progress** read in plain language: `Understand | 1 of 8 | /describe full`. The progress strip is eight labelled loop stages - each names its command, the current one carries `aria-current="step"`, completed ones dim, and clicking one jumps to it.
 
@@ -107,13 +147,13 @@ A scope shown on the page must exist in that command's own file in `catalog/comm
 
 ## Keyboard and reduced motion
 
-Page-level ArrowLeft / ArrowRight move between pages when Training is not current and focus is not in a self-keyed pane (`[data-nhg-keys='self']`). The five platform marks (Claude, ChatGPT, Gemini, Cursor, GitHub Copilot) are labelled compatibility information, not interactive controls. Each is inlined verbatim from an approved asset in the v4.4.1 provenance ledger, and the suite hashes the embedded bytes against that ledger, so a re-fetched or hand-edited mark fails rather than ships. Dark mode may show the constellation; light mode must not. `prefers-reduced-motion` stops decorative transitions, shows every reveal and diagram in its final state, hides the Foundations motion-path pulses, pauses Asteroids with Advance one step available, and prints Training terminal output instantly.
+Page-level ArrowLeft / ArrowRight move between pages when Training is not current and focus is not in a self-keyed pane (`[data-nhg-keys='self']`). The five platform marks (Claude, ChatGPT, Gemini, Cursor, GitHub Copilot) are labelled compatibility information, not interactive controls. Each is inlined verbatim from an approved asset in the v4.4.1 provenance ledger, and the suite hashes the embedded bytes against that ledger, so a re-fetched or hand-edited mark fails rather than ships. Dark mode may show the constellation; light mode must not. `prefers-reduced-motion` stops decorative transitions, shows every reveal and diagram in its final state, hides the Foundations motion-path pulses, pauses the shooter with Advance one step available, and prints Training terminal output instantly.
 
 ## Fixture maintenance
 
 1. Edit `example/training-scenes.json`. Keep eight scenes unless a later plan raises the cap (never above twelve). The top-level `initial` object defines the starting game and source files. Every scene needs `title`, second-person `intent`, `command`, `tools`, `output`, `game`, `files`, `focus_file`, `artifact`, `gate`, and `takeaway`. File entries carry real display content and declare whether they are created or modified.
 2. Copy the parsed JSON into the `<script type="application/json" id="nh-training-scenes">` block. Encode a literal `</script>` inside a string as `<\/script>` so the HTML parser does not close the block.
-3. Run `python -m pytest -q tests/guides/test_nexus_hub_guide.py tests/guides/test_asteroids_game.py`. The suite asserts the inline JSON equals the file after parse, hostile fixture strings survive as text, direct step entry is coherent, rerunning a command is idempotent, `/implement` fixes wrap collision, and `/compare` records its follow-on implementation before splitting appears.
+3. Run `python -m pytest -q tests/guides/test_nexus_hub_guide.py tests/guides/test_arcade_shooter_game.py`. The suite asserts the inline JSON equals the file after parse, hostile fixture strings survive as text, direct step entry is coherent, rerunning a command is idempotent, `/implement` changes damage to one life per hit, and `/compare` records its follow-on implementation before vertical movement appears.
 
 ## Command inventory
 
@@ -147,7 +187,7 @@ The same table is frozen in `docs/releases/v4/v4.2/development/guide-redesign-co
 
 ## Legacy example fixtures
 
-`example/glow-booth/`, `example/glow-booth-shuffle-reference/`, and `glow-booth.zip` remain in the repository only as legacy regression fixtures while removal awaits explicit approval. They are not linked from the guide, offered as a reader download, or used by the Asteroids walkthrough. Tests may inspect their frozen historical behavior, but new Training work must use `example/training-scenes.json` and the in-browser game.
+`example/glow-booth/`, `example/glow-booth-shuffle-reference/`, and `glow-booth.zip` remain in the repository only as legacy regression fixtures while removal awaits explicit approval. They are not linked from the guide, offered as a reader download, or used by the shooter walkthrough. Tests may inspect their frozen historical behavior, but new Training work must use `example/training-scenes.json` and the in-browser game.
 
 ## Copy contract (canonical publication)
 
@@ -177,10 +217,10 @@ That renders every page in both themes at 320 / 420 / 900 / 1440 px and writes 3
 Before a workshop or a portfolio publish, also open the file by hand and check:
 
 - Light and dark themes, including a reload (theme must persist only `light` or `dark`)
-- Reduced motion across all four pages, including the static Foundations end states, paused Asteroids step control, and immediate Training terminal output
+- Reduced motion across all four pages, including the static Foundations end states, the paused shooter with its single-step control, and immediate Training terminal output
 - Home install copy on the Windows and macOS/Linux tabs, and the verify-command copy cells
 - Foundations: eight scenes, correct responsive diagram variant, no pinned overlay, no comparison toggle
-- Training: playable Asteroids controls, the wrap-boundary fix at `/implement`, splitting after `/compare` and its follow-on implementation, terminal output, cumulative explorer, missing-file state, outline, Present mode, and a mid-walkthrough URL
+- Training: playable shooter controls, the damage fix at `/implement`, vertical movement after `/compare` and its follow-on implementation, terminal output, cumulative explorer, missing-file state, Outline, full screen mode, and a mid-walkthrough URL
 - Cheatsheets: every scope readable, jump nav, and a deep link such as `#cheatsheets/explore`
 - Keyboard-only path through all four pages
 
@@ -188,4 +228,4 @@ Lighthouse Accessibility is a last-phase human bar, not a mid-plan merge gate.
 
 ## Editing
 
-The guide is a single HTML file: CSS in the `<style>` block, content in `<section class="page">` blocks, behavior in the two `<script>` blocks at the bottom (the app shell, then the Training engine after the scene JSON). Class prefixes: `fx-` for Foundations scenes, `nht-` for Training and Asteroids, and `cs-` for Cheatsheets. Scene data is `example/training-scenes.json` plus the matching inline JSON block. Do not edit or regenerate the retained Glow Booth fixtures as part of reader-facing Training work.
+The guide is a single HTML file: CSS in the `<style>` block, content in `<section class="page">` blocks, behavior in the two `<script>` blocks at the bottom (the app shell, then the Training engine after the scene JSON). Class prefixes: `fx-` for Foundations scenes, `nht-` for Training, `nag-` for the arcade game, and `cs-` for Cheatsheets. Scene data is `example/training-scenes.json` plus the matching inline JSON block. Do not edit or regenerate the retained Glow Booth fixtures as part of reader-facing Training work.

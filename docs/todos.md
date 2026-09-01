@@ -14,11 +14,11 @@ Refreshing this file to the active plan (rather than appending another version's
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
-| v4.4.1 guide-visual-and-arcade-rebuild phases complete | 5 | 7 | -2 |
-| Local phase commits | 5 | 7 | -2 |
+| v4.4.1 guide-visual-and-arcade-rebuild phases complete | 6 | 7 | -1 |
+| Local phase commits | 6 | 7 | -1 |
 | Open release blockers | 0 | 0 | 0 |
 | Catalog skills | 329 | 329 | 0 |
-| Canonical guide bytes (strict ceiling 500,000) | 284,278 | < 500,000 | met |
+| Canonical guide bytes (strict ceiling 500,000) | 292,339 | < 500,000 | met |
 | Platform marks approved with staged hashes | 5 | 5 | 0 |
 
 ---
@@ -30,7 +30,7 @@ Refreshing this file to the active plan (rather than appending another version's
 - [x] Phase 3 - Foundations structure, Tokens, Prompt, and Context
 - [x] Phase 4 - Foundations Models, Agentic Platform, comparison, and harnesses
 - [x] Phase 5 - Deterministic arcade-shooter engine
-- [ ] Phase 6 - Training workspace, fullscreen, and integrated loop
+- [x] Phase 6 - Training workspace, fullscreen, and integrated loop
 - [ ] Phase 7 - Architecture refactor, known-gaps, CI/CD, publication, and integration
 
 ### What this plan changes, in one paragraph
