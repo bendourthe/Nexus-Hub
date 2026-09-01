@@ -114,8 +114,12 @@ Every row below is currently GREEN and must stay green until its owning phase la
 | `test_foundations_is_project_generic` | `test_nexus_hub_guide.py:1032` | forbids `repo`, `repository`, `terminal`, `git`, `codebase` | forbids `repo`, `repository`, `terminal`, `git`; permits `codebase`; ADDS a positive requirement for at least one broad non-coding context example | 3 |
 | `WIDTHS` | `test_phase6_verification_sweep.py:14` | `(320, 420, 900, 1440)` | `(320, 420, 720, 721, 900, 1440)` | 2 |
 | Asteroids scenario suite | `test_asteroids_game.py` | wrap-boundary collision scenario, seeded wrap bug, splitting feature | arcade-shooter scenario: descending enemies, falling asteroids, three lives, seeded first-projectile-kills bug, vertical-movement feature | 5 |
+| `test_home_identity_is_centered_nonwrapping_and_observer_gated` | `test_nexus_hub_guide.py` | asserts the literal hero markup `<h1 class="hero-wordmark">Nexus-Hub</h1>` and reads `flex-wrap: nowrap` off `.hero-lockup` | asserts the two-span `Nexus Hub` title inside `.hero-lockup-float`, and reads `flex-wrap: nowrap` off the new inner wrapper | 2 (ADDED during Phase 2; missed by the Phase 1 register) |
+| `test_foundations_phase3_diagrams_animate_with_observer_and_static_fallback` | `test_nexus_hub_guide.py` | asserts the literal selector string `document.querySelectorAll(".fx-scene")` | asserts `document.querySelectorAll(".fx-scene, .hero-lockup")`, since the hero float joins the same liveness observer | 2 (ADDED during Phase 2; missed by the Phase 1 register) |
 
 A phase that changes one of these behaviors without updating its register row has left the suite asserting history. A phase that updates the row without changing the assertion has weakened coverage. Both are Phase 7 findings.
+
+**The register was incomplete when Phase 1 closed, and the last two rows record that.** Phase 2 broke two assertions this register had not anticipated: one pinned the exact hero markup string, and one pinned the exact text of a `querySelectorAll` selector. Both were found by running the suite rather than by reading the register, which is the failure mode the register exists to prevent. The rows were added when the breakage surfaced, and the lesson generalizes: an assertion that pins a literal implementation string is invisible to a requirements-level register, so a phase that edits shared markup or shared script should grep the suite for the strings it is about to change before assuming the register is complete.
 
 ## 3. Byte ledger
 

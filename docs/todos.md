@@ -14,11 +14,11 @@ Refreshing this file to the active plan (rather than appending another version's
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
-| v4.4.1 guide-visual-and-arcade-rebuild phases complete | 1 | 7 | -6 |
-| Local phase commits | 1 | 7 | -6 |
+| v4.4.1 guide-visual-and-arcade-rebuild phases complete | 2 | 7 | -5 |
+| Local phase commits | 2 | 7 | -5 |
 | Open release blockers | 0 | 0 | 0 |
 | Catalog skills | 329 | 329 | 0 |
-| Canonical guide bytes (strict ceiling 500,000) | 269,441 | < 400,000 | met |
+| Canonical guide bytes (strict ceiling 500,000) | 281,301 | < 500,000 | met |
 | Platform marks approved with staged hashes | 5 | 5 | 0 |
 
 ---
@@ -26,7 +26,7 @@ Refreshing this file to the active plan (rather than appending another version's
 ## Plan - v4.4.1 Guide Visual and Arcade Rebuild [IN PROGRESS]
 
 - [x] Phase 1 - Contracts, asset provenance, and byte budget
-- [ ] Phase 2 - Home identity, platform rail, and workflow loop
+- [x] Phase 2 - Home identity, platform rail, and workflow loop
 - [ ] Phase 3 - Foundations structure, Tokens, Prompt, and Context
 - [ ] Phase 4 - Foundations Models, Agentic Platform, comparison, and harnesses
 - [ ] Phase 5 - Deterministic arcade-shooter engine
@@ -43,7 +43,7 @@ Met. v4.4.0 is released: integration PR #150 merged at `46518d01`, release PR #1
 
 ### Current checkpoint
 
-Phase 1 in progress. The oversized embedded Nexus mark has been replaced with reviewed compact vector geometry: the `#nexus-mark` symbol went from 220,358 bytes to 2,118, taking the canonical guide from 487,681 to 269,441 bytes against an unchanged strict 500,000-byte ceiling and the phase's own 400,000-byte gate. Visual equivalence was confirmed by browser render in both themes, and the 92 existing structural guide assertions still pass. Remaining in this phase: the requirement-to-test contract, the five platform-mark approvals tied to staged SHA-256 values, and the phase commit.
+Phase 2 complete. Home leads with one floating `Nexus Hub` lockup whose mark and both wordmark spans share a single observer-gated 7s float, five approved platform marks inlined verbatim and hash-checked against the provenance ledger, a CC BY 4.0 credits disclosure, and readable two-line workflow pills. OpenCode and the text-treatment fallback are gone. The visual detector passes both themes at six viewports with 0 findings and 60 documented allowlisted entries covering the Gemini mark's blur construction. Guide at 281,301 bytes, 218,699 under the ceiling. Next: Phase 3 must cut the 1440 px Foundations scroll height from 7,294 px to at most 5,835 px and land the first three accepted scene titles.
 
 ---
 

@@ -11,7 +11,9 @@ GUIDE = Path(__file__).resolve().parents[2] / "guides" / "website" / "nexus-hub-
 GUIDE_README = GUIDE.with_name("README.md")
 PAGES = ("home", "foundations", "training", "cheatsheets")
 THEMES = ("dark", "light")
-WIDTHS = (320, 420, 900, 1440)
+# v4.4.1 Phase 2 widened this set. 720 and 721 straddle the narrow-layout breakpoint so an
+# off-by-one error is caught on the pixel where it happens, not averaged away between 420 and 900.
+WIDTHS = (320, 420, 720, 721, 900, 1440)
 TRAINING_SCENES = (
     "describe",
     "review",
@@ -766,7 +768,8 @@ def test_keyboard_and_reduced_motion_are_complete(render_gate: object) -> None:
                 page.goto(f"{guide_url}#home", wait_until="load")
                 page.wait_for_function("document.body.dataset.page === 'home'")
                 platforms = page.locator(".platform-rail > .platform-item")
-                assert platforms.count() == 6
+                # v4.4.1 Phase 2: five approved marks; OpenCode and the text treatments retired.
+                assert platforms.count() == 5
                 assert page.locator(".platform-rail").get_attribute("aria-label") == (
                     "Compatible AI platforms"
                 )
@@ -779,7 +782,6 @@ def test_keyboard_and_reduced_motion_are_complete(render_gate: object) -> None:
                     "Gemini",
                     "Cursor",
                     "GitHub Copilot",
-                    "OpenCode",
                 ]
 
                 untabbable_actions = page.evaluate(

@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v4.4.0 finalized 2026-09-01 at `/update release`; v4.4.1 in progress on the same minor
-**Last updated**: 2026-09-01 (v4.4.1 Phase 1)
+**Last updated**: 2026-09-01 (v4.4.1 Phase 2)
 
 ## v4.4.0 - guide-depth-and-training-rebuild
 
@@ -51,8 +51,8 @@
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 1 | 0 |
-| Bugs / regressions (BG) | 0 | 2 |
-| Warnings (WN) | 1 | 0 |
+| Bugs / regressions (BG) | 0 | 3 |
+| Warnings (WN) | 2 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
@@ -78,11 +78,20 @@
 - **Impact**: None observed. Every Phase 1 gate passed, including the fail-closed browser suite, and the two load-bearing outputs (the measured vector mark and the asset ledger) were independently verified by render and by hash.
 - **Suggested next step**: Re-surface the tier recommendation at each subsequent phase pre-flight. Phases 3, 4, 5, and 7 are also rated frontier/max and carry more implementation risk than Phase 1, so the same choice should be made deliberately rather than inherited.
 
+##### WN-2 - The Phase 1 superseded-assertion register was incomplete
+
+- **Source phase**: Phase 2 - Home identity, platform rail, and workflow loop.
+- **Plan reference**: `docs/releases/v4/v4.4/development/guide-visual-and-arcade-rebuild/phase-1-contract.md` section 2.
+- **Reason**: Phase 2 broke four assertions the register had not listed. Three pinned literal implementation strings (the exact hero markup, the exact text of a `querySelectorAll` selector, and a `data-logo-source` attribute selector inside a browser evaluation block) and are structurally invisible to a register built by reading requirements. The fourth was a measurement that became wrong rather than stale: `Range.getClientRects()` counts inline fragments, so a two-span title reported five "lines" on one visual line.
+- **Impact**: None shipped. Every case was caught by running the suite, corrected in the same commit, and the two structural rows plus the generalized lesson were added to the register. The risk is to LATER phases, which edit the same shared markup and script.
+- **Suggested next step**: Before Phases 3 through 6 change shared markup or shared script, grep the test suite for the literal strings being changed rather than trusting the register alone. Re-check at Phase 7 whether any register row was updated without a matching assertion change, or the reverse.
+
 ### Resolved
 
 | ID | Title | Resolved in | Notes |
 |---|---|---|---|
 | BG-1 | The plan document leaked personal filesystem paths | Phase 1 | Sub-task 1.3 named the local Cursor candidates as absolute `C:/Users/<user>/Downloads/...` paths. `validate_no_personal_paths.py` reported 4 findings against the plan file, and that validator runs in `make validate` and CI, so the plan as authored would have failed the pipeline on commit. Redacted to a username-free `~/Downloads/...` form; the scanner is clean. |
+| BG-3 | The hero heading's line box could not contain its own text | Phase 2 | `.hero-wordmark` used `line-height: 1`, making the h1 line box (68 px at 1440) shorter than its inline children's content boxes (90 px). The visual-defect detector reported 12 HIGH `parent-padding-escape` findings once Phase 2's two-span title gave it child elements to measure; the condition pre-dated Phase 2 and was simply unobservable with a bare text node. Raised to `line-height: 1.34`, which contains the font ascent and descent at every clamp size. Detector then passed both themes with 0 findings. |
 | BG-2 | The plan's model map listed a Flash model as the Google frontier tier | Phase 1 | `## Current model map` carried `gemini-3.7-flash` in the frontier slot where the vendor documents `gemini-3.1-pro-preview`. The identical defect was corrected in `catalog/skills/ai-development/model-routing/references/last-known-model-map.json` during the v4.4.0 release, so the plan had inherited it. The plan's map is corrected and annotated, with the strong/standard split recorded as a maintainer judgment. |
 
 > Not finalized. v4.4.1 is in progress; this section is appended per phase and reconciled at the plan's final phase.

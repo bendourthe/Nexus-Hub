@@ -550,14 +550,19 @@ def _home_markup(guide_text: str) -> str:
 def test_home_identity_is_centered_nonwrapping_and_observer_gated(guide_text: str) -> None:
     home = _home_markup(guide_text)
     assert 'class="hero-lockup reveal"' in home
+    # v4.4.1 Phase 2: the mark and wordmark share an inner float wrapper, and the title is
+    # two nav-matched spans rather than the hyphenated single string.
     assert re.search(
-        r'<div class="hero-lockup reveal">\s*<svg class="hero-mark"[\s\S]*?</svg>\s*'
-        r'<h1 class="hero-wordmark">Nexus-Hub</h1>',
+        r'<div class="hero-lockup reveal">\s*<div class="hero-lockup-float">\s*'
+        r'<svg class="hero-mark"[\s\S]*?</svg>\s*'
+        r'<h1 class="hero-wordmark"><b>Nexus</b> <span>Hub</span></h1>',
         home,
     )
+    assert "Nexus-Hub" not in home.split("</h1>", 1)[0]
     lockup_rule = re.search(r"\.hero-lockup\s*\{([^}]+)\}", guide_text)
     assert lockup_rule and "justify-content: center" in lockup_rule.group(1)
-    assert "flex-wrap: nowrap" in lockup_rule.group(1)
+    float_rule = re.search(r"\.hero-lockup-float\s*\{([^}]+)\}", guide_text)
+    assert float_rule and "flex-wrap: nowrap" in float_rule.group(1)
     wordmark_rule = re.search(r"\.hero-wordmark\s*\{([^}]+)\}", guide_text)
     assert wordmark_rule and "white-space: nowrap" in wordmark_rule.group(1)
     assert "clamp(" in wordmark_rule.group(1), "the 320 px lockup needs fluid type"
@@ -575,33 +580,99 @@ def test_home_uses_a_short_outcome_tagline(guide_text: str) -> None:
     assert "catalog of" not in match.group(1).lower()
 
 
-def test_home_lists_six_platforms_without_invented_marks(guide_text: str) -> None:
+def test_home_lists_the_five_approved_platforms_from_ledger_bytes(guide_text: str) -> None:
+    """v4.4.1 Phase 2 replaces the six-item rail, and every mark must be an APPROVED byte sequence.
+
+    The hash comparison runs against the raw embedded substring before any normalization, so a
+    re-fetched, re-minified, or hand-edited mark fails here instead of shipping an unreviewed
+    third-party asset into a published page.
+    """
+    import hashlib
+
     home = _home_markup(guide_text)
     rail = re.search(r'<ul class="platform-rail"[\s\S]*?</ul>', home)
     assert rail, "expected a dedicated compatibility rail"
-    items = re.findall(r'<li class="platform-item([^\"]*)"[^>]*data-platform="([^\"]+)"[^>]*>([\s\S]*?)</li>', rail.group(0))
-    assert len(items) == 6
-    assert [platform for _classes, platform, _body in items] == [
+    items = re.findall(
+        r'<li class="platform-item"[^>]*data-platform="([^"]+)"[^>]*>([\s\S]*?)</li>', rail.group(0)
+    )
+    assert [platform for platform, _body in items] == [
         "Claude",
         "ChatGPT",
         "Gemini",
         "Cursor",
         "GitHub Copilot",
-        "OpenCode",
     ]
-    official = {"Claude", "Cursor", "OpenCode"}
-    for classes, platform, body in items:
+
+    staged_dir = (
+        _ROOT
+        / "docs"
+        / "releases"
+        / "v4"
+        / "v4.4"
+        / "development"
+        / "guide-visual-and-arcade-rebuild"
+        / "assets"
+    )
+    stems = {
+        "Claude": "claude",
+        "ChatGPT": "chatgpt",
+        "Gemini": "gemini",
+        "Cursor": "cursor",
+        "GitHub Copilot": "github-copilot",
+    }
+    for platform, body in items:
+        stem = stems[platform]
         assert f'<span class="platform-name">{platform}</span>' in body
-        if platform in official:
-            assert 'class="platform-mark"' in body
-            assert 'aria-hidden="true"' in body and 'focusable="false"' in body
-            assert "<image" not in body and "http" not in body
-            assert 'data-logo-source="official"' in body
-        else:
-            assert "platform-item--text" in classes
-            assert f'<span class="platform-text-mark"><span class="platform-name">{platform}</span></span>' in body
-            assert "<svg" not in body
-    assert "OpenCode receives commands through its instruction file" in home
+        assert f'data-mark="{stem}"' in body, f"{platform} mark is not tagged with its ledger stem"
+        assert 'aria-hidden="true"' in body, f"{platform} decorative mark must be hidden from AT"
+        embedded = re.search(r"(<svg[\s\S]*?</svg>)", body)
+        assert embedded, f"{platform} has no inline geometry"
+        blob = embedded.group(1)
+        assert "<image" not in blob and "base64," not in blob, f"{platform} embeds a raster"
+        assert "http" not in blob.replace('xmlns="http://www.w3.org/2000/svg"', ""), (
+            f"{platform} references an external URL"
+        )
+        staged = (staged_dir / f"{stem}.svg").read_text(encoding="utf-8").strip()
+        assert hashlib.sha256(blob.encode("utf-8")).hexdigest() == hashlib.sha256(
+            staged.encode("utf-8")
+        ).hexdigest(), (
+            f"{platform} embedded bytes do not match the approved staged asset {stem}.svg; "
+            "re-approval is required rather than a ledger update"
+        )
+
+    # The opaque shell and the text-treatment fallback both retired with the six-item rail.
+    assert "platform-mark-shell" not in home
+    assert "platform-item--text" not in home
+    assert "OpenCode" not in home, "OpenCode and its instruction-file note were removed in v4.4.1"
+
+
+def test_home_platform_rail_carries_the_required_attribution(guide_text: str) -> None:
+    """The GitHub Copilot codicon is CC BY 4.0, so attribution is a licence term, not a nicety."""
+    home = _home_markup(guide_text)
+    credits = re.search(r'<details class="platform-credits"[\s\S]*?</details>', home)
+    assert credits, "the platform rail must ship an accessible credits disclosure"
+    body = credits.group(0)
+    assert "<summary>" in body, "the disclosure must be a real details/summary, not a static block"
+    assert "CC BY 4.0" in body
+    assert "Microsoft Corporation" in body
+    assert "Codicons" in body
+    assert "no affiliation or endorsement" in body, "nominative-use statement is missing"
+
+
+def test_home_hero_is_the_unhyphenated_nexus_hub_lockup(guide_text: str) -> None:
+    """v4.4.1 Phase 2: the hero title matches the nav wordmark and is no longer hyphenated."""
+    home = _home_markup(guide_text)
+    heading = re.search(r'<h1 class="hero-wordmark">([\s\S]*?)</h1>', home)
+    assert heading, "expected the hero wordmark heading"
+    inner = heading.group(1)
+    assert inner == "<b>Nexus</b> <span>Hub</span>", (
+        f"hero wordmark must mirror the nav structure exactly; got {inner!r}"
+    )
+    text = re.sub(r"<[^>]+>", "", inner).strip()
+    assert text == "Nexus Hub", f"hero title must read 'Nexus Hub'; got {text!r}"
+    assert "Nexus-Hub" not in heading.group(0)
+    # The float lives on an inner wrapper so it never competes with the .reveal entry transform.
+    assert '<div class="hero-lockup-float">' in home
 
 
 def test_home_platform_labels_use_legible_theme_token(guide_text: str) -> None:
@@ -870,7 +941,8 @@ def test_foundations_phase3_diagrams_animate_with_observer_and_static_fallback(
         )
         assert match, f"missing Phase 3 diagram: {diagram}"
         assert re.search(r'class="[^"]*fx-(?:pop|draw|grow|pulse)', match.group(0))
-    assert 'document.querySelectorAll(".fx-scene")' in guide_text
+    # v4.4.1 Phase 2 widened this observer to also gate the hero lockup float.
+    assert 'document.querySelectorAll(".fx-scene, .hero-lockup")' in guide_text
     assert "IntersectionObserver" in guide_text
     reduce_block = guide_text.split("@media (prefers-reduced-motion: reduce)", 1)[-1]
     for cls in (".fx-pop", ".fx-draw", ".fx-grow", ".fx-pulse"):

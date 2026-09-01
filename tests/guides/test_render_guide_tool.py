@@ -95,15 +95,21 @@ HOME_RUNTIME_METRICS = r"""
     lockup: rectFor(lockup),
     wordmark: {
       ...rectFor(wordmark),
-      lineCount: Array.from(wordmarkRange.getClientRects())
-        .filter((rect) => rect.width > 0 && rect.height > 0).length,
+      lineCount: new Set(
+        Array.from(wordmarkRange.getClientRects())
+          .filter((rect) => rect.width > 0 && rect.height > 0)
+          .map((rect) => Math.round(rect.top))
+      ).size,
     },
     platforms: Array.from(document.querySelectorAll(".platform-item")).map((item) => ({
       name: item.getAttribute("data-platform"),
       ...rectFor(item),
     })),
     officialMarks: Array.from(
-      document.querySelectorAll('svg.platform-mark[data-logo-source="official"]'),
+      // v4.4.1 Phase 2: `platform-mark` moved to the wrapper so each approved SVG stays
+      // byte-verbatim and hash-checkable. All five marks are official geometry now, so the
+      // old data-logo-source split no longer distinguishes anything.
+      document.querySelectorAll('.platform-mark > svg'),
     ).map((mark) => {
       const geometry = mark.getBBox();
       return {
@@ -283,12 +289,12 @@ def test_home_runtime_contract_across_themes_and_widths(
                                 f"{case}: {subject} escapes the right viewport edge: {box}"
                             )
                         assert metrics["wordmark"]["lineCount"] == 1, (
-                            f"{case}: Nexus-Hub wordmark wrapped to multiple lines"
+                            f"{case}: Nexus Hub wordmark wrapped to multiple lines"
                         )
 
                         platforms = metrics["platforms"]
-                        assert len(platforms) == 6, (
-                            f"{case}: expected six platform items, got {len(platforms)}"
+                        assert len(platforms) == 5, (
+                            f"{case}: expected five platform items, got {len(platforms)}"
                         )
                         empty_platforms = [
                             platform["name"]
@@ -300,7 +306,9 @@ def test_home_runtime_contract_across_themes_and_widths(
                         )
 
                         official_marks = metrics["officialMarks"]
-                        assert official_marks, f"{case}: no official SVG marks were rendered"
+                        assert len(official_marks) == 5, (
+                            f"{case}: expected five inline platform marks, got {len(official_marks)}"
+                        )
                         empty_marks = [
                             mark["platform"]
                             for mark in official_marks
@@ -314,8 +322,8 @@ def test_home_runtime_contract_across_themes_and_widths(
                         )
 
                         contrasts = metrics["contrasts"]
-                        assert len(contrasts) == 6, (
-                            f"{case}: expected six visible platform names, got {len(contrasts)}"
+                        assert len(contrasts) == 5, (
+                            f"{case}: expected five visible platform names, got {len(contrasts)}"
                         )
                         low_contrast = [
                             f'{result["name"]}={result["ratio"]:.2f}:1'

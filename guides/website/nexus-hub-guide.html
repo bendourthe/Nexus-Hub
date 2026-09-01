@@ -257,9 +257,17 @@ p { margin: 0 0 var(--sp-3); }
 /* ---------- Sections ---------- */
 .section { padding: var(--sec-pad) 0 0; }
 .hero { padding: var(--sp-7) 0 var(--sp-4); }
-.hero-lockup { display: flex; flex-wrap: nowrap; align-items: center; justify-content: center; gap: clamp(10px, 2.6vw, 20px); }
+.hero-lockup { display: flex; justify-content: center; }
+.hero-lockup-float { display: flex; flex-wrap: nowrap; align-items: center; justify-content: center; gap: clamp(10px, 2.6vw, 20px); }
+/* One transform on the inner wrapper so the float never competes with the .reveal entry transform. */
+@keyframes nhg-lockup-float { from { transform: translateY(0); } to { transform: translateY(-9px); } }
+.js .hero-lockup.live .hero-lockup-float { animation: nhg-lockup-float 7s ease-in-out infinite alternate; }
 .hero-mark { flex: none; width: clamp(44px, 9vw, 72px); height: clamp(44px, 9vw, 72px); border-radius: clamp(10px, 2vw, 16px); }
-.hero-wordmark { margin: 0; white-space: nowrap; font-size: clamp(2rem, 7.2vw, 4.25rem); line-height: 1; letter-spacing: -.035em; }
+/* line-height 1 made the line box shorter than the inline content box of the wordmark spans, so they escaped the h1. 1.34 contains the font ascent+descent at every clamp size. */
+.hero-wordmark { margin: 0; white-space: nowrap; font-size: clamp(1.85rem, 7.2vw, 4.25rem); line-height: 1.34; letter-spacing: -.035em; }
+/* Hero wordmark mirrors the nav wordmark exactly: same roles, same weights, same theme tokens. */
+.hero-wordmark b { color: var(--ink); font-weight: 700; }
+.hero-wordmark span { color: var(--teal-soft); font-weight: 600; }
 .hero-tagline { margin: var(--sp-4) 0 0; text-align: center; color: var(--ink-dim); font-size: clamp(18px, 2.3vw, 22px); }
 .hero .btn-row { justify-content: center; }
 html[data-theme="light"] .hero-mark { background: #07141a; padding: 5px; box-shadow: 0 0 0 1px #c9c3b2; }
@@ -267,15 +275,18 @@ html[data-theme="light"] .hero-mark { background: #07141a; padding: 5px; box-sha
 .js .hero-lockup.in .hero-mark { opacity: 1; transform: none; }
 
 /* ---------- Platform compatibility rail ---------- */
-.platform-rail { list-style: none; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: var(--sp-3); margin: var(--sp-5) 0 var(--sp-2); padding: var(--sp-4) 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.platform-rail { list-style: none; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--sp-3); margin: var(--sp-5) 0 var(--sp-2); padding: var(--sp-4) 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
 .platform-item { min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; text-align: center; }
-.platform-mark { display: block; width: 30px; height: 30px; object-fit: contain; }
-.platform-mark-shell { display: flex; width: 36px; height: 36px; align-items: center; justify-content: center; padding: 4px; border: 1px solid #d8d3c8; border-radius: 8px; background: #f7f4ec; }
-.platform-mark-shell .platform-mark { width: 26px; height: 26px; }
+.platform-mark { display: flex; width: 34px; height: 34px; align-items: center; justify-content: center; color: var(--ink); }
+.platform-mark svg { display: block; width: 100%; height: 100%; }
+.platform-mark[data-mark="cursor"] svg { transform: scale(1.06); }
+.platform-mark[data-mark="gemini"] svg { transform: scale(1.04); }
 .platform-name { color: var(--ink); font-size: 13px; font-weight: 650; line-height: 1.2; }
-.platform-item--text { justify-content: center; }
-.platform-text-mark { display: flex; min-height: 36px; align-items: center; justify-content: center; padding: 5px 10px; border: 1px solid var(--border-bright); border-radius: 8px; background: var(--surface); }
-.platform-note { margin: 0; color: var(--ink-faint); font-size: 13px; text-align: center; }
+/* Overrides the global panel-style details: attribution is a quiet legal note, not a card. */
+.platform-credits { margin: var(--sp-2) 0 0; padding: 0; border: 0; background: none; color: var(--ink-faint); font-size: 12.5px; text-align: center; }
+.platform-credits summary { cursor: pointer; display: inline-block; padding: 2px 6px; border-radius: 6px; font-weight: 500; font-size: 12.5px; color: var(--ink-faint); }
+.platform-credits summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.platform-credits p { margin: 8px auto 0; line-height: 1.5; }
 
 /* ---------- Buttons ---------- */
 .btn-row { display: flex; flex-wrap: wrap; gap: var(--sp-3); margin-top: var(--sp-4); }
@@ -308,14 +319,14 @@ html[data-theme="light"] .btn--primary:hover { color: #fffdf8; }
 /* ---------- Home loop strip ---------- */
 .loop-strip { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: var(--sp-4) 0 var(--sp-3); }
 .loop-step {
-  display: inline-flex; align-items: baseline; gap: 8px;
-  padding: 7px 14px; border: 1px solid var(--border); border-radius: 999px;
-  background: var(--surface); color: var(--ink); font-size: 13px;
+  display: inline-flex; flex-direction: column; align-items: flex-start; gap: 2px;
+  padding: 9px 16px; border: 1px solid var(--border); border-radius: 14px;
+  background: var(--surface); color: var(--ink);
   transition: border-color .2s var(--ease), transform .2s var(--ease);
 }
 .loop-step:hover { border-color: var(--accent); color: var(--ink); transform: translateY(-1px); }
-.loop-step code { background: transparent; border: 0; padding: 0; color: var(--teal-soft); font-weight: 700; }
-.loop-step span { color: var(--ink-faint); }
+.loop-step code { background: transparent; border: 0; padding: 0; color: var(--teal-soft); font-weight: 700; font-size: 15px; line-height: 1.25; white-space: nowrap; }
+.loop-step span { color: var(--ink-faint); font-size: 14px; line-height: 1.3; }
 .loop-arrow { color: var(--ink-faint); flex: none; }
 .btn--gh svg { width: 16px; height: 16px; flex: none; }
 
@@ -390,7 +401,10 @@ html[data-theme="light"] .verify-steps--secondary .vs-n { color: var(--ink-dim);
 .js .cmp.in .cmp-b { opacity: 1; }
 
 @media (max-width: 720px) {
-  .platform-rail { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  /* Five items cannot divide into a 3-column grid without leaving an orphan cell, so the
+     narrow layout becomes a centred wrap: the final short row centres instead of hanging left. */
+  .platform-rail { display: flex; flex-wrap: wrap; justify-content: center; column-gap: var(--sp-4); row-gap: var(--sp-3); }
+  .platform-rail .platform-item { flex: 0 1 auto; min-width: 78px; max-width: 40%; }
   .support-list, .definition-list { grid-template-columns: 1fr; }
   .support-list dt, .definition-list dt { padding-bottom: 0; }
   .support-list dd, .definition-list dd { padding-top: 5px; border-top: 0; }
@@ -1009,45 +1023,38 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 
       <div class="hero">
         <div class="hero-lockup reveal">
-          <svg class="hero-mark" viewBox="0 0 100 100" aria-hidden="true"><use href="#nexus-mark"/></svg>
-          <h1 class="hero-wordmark">Nexus-Hub</h1>
+          <div class="hero-lockup-float">
+            <svg class="hero-mark" viewBox="0 0 100 100" aria-hidden="true"><use href="#nexus-mark"/></svg>
+            <h1 class="hero-wordmark"><b>Nexus</b> <span>Hub</span></h1>
+          </div>
         </div>
         <p class="hero-tagline">Take your AI assistant from prompt to finished, verified work.</p>
         <ul class="platform-rail" aria-label="Compatible AI platforms">
           <li class="platform-item" data-platform="Claude">
-            <svg class="platform-mark" data-logo-source="official" viewBox="0 0 128 128" fill="none" aria-hidden="true" focusable="false">
-              <g clip-path="url(#nhg-claude-clip)">
-                <rect width="128" height="128" fill="url(#nhg-claude-gradient)"/>
-                <rect opacity="0.35" width="128" height="128" fill="#D97757"/>
-                <path d="M35.0157 79.6937L53.4322 69.3667L53.7357 68.4622L53.4322 67.9585H52.5215L49.4352 67.7708L38.9115 67.4891L29.8045 67.1136L20.9504 66.6442L18.7243 66.1748L16.6499 63.4053L16.8523 62.044L18.7243 60.7766L21.4058 61.0113L27.3254 61.4337L36.23 62.044L42.6555 62.4195L52.2179 63.4053H53.7357L53.9381 62.795L53.4322 62.4195L53.0274 62.044L43.8192 55.8008L33.8521 49.2291L28.6408 45.4269L25.8581 43.5024L24.4415 41.7186L23.8343 37.7756L26.3641 34.9591L29.8045 35.1938L30.6646 35.4285L34.1556 38.1042L41.593 43.8779L51.3072 51.0129L52.7239 52.1864L53.2943 51.8014L53.3816 51.5292L52.7239 50.4496L47.462 40.9206L41.846 31.2039L39.3163 27.1669L38.6586 24.773C38.4038 23.7683 38.2538 22.9371 38.2538 21.9096L41.1377 17.9665L42.7567 17.4502L46.6525 17.9665L48.2715 19.3748L50.7001 24.9138L54.5958 33.5978L60.6672 45.4269L62.438 48.9475L63.3993 52.1864L63.7535 53.1722H64.3606V52.6089L64.8666 45.9433L65.7773 37.7756L66.688 27.2608L66.9915 24.3036L68.4588 20.7361L71.3933 18.8115L73.67 19.8911L75.542 22.5667L75.289 24.3036L74.176 31.5324L72.0004 42.8452L70.5837 50.4496H71.3933L72.3546 49.4638L76.1997 44.3942L82.6252 36.3204L85.4585 33.1284L88.7978 29.6079L90.9228 27.918H94.9703L97.9048 32.3304L96.5894 36.8837L92.4406 42.1411L89.0002 46.6004L84.0672 53.2095L81.0062 58.5234L81.2807 58.9618L82.0181 58.8989L93.1489 56.505L99.1697 55.4253L106.354 54.2049L109.592 55.707L109.946 57.256L108.681 60.401L100.991 62.2787L91.9853 64.1094L78.5744 67.2664L78.4259 67.3858L78.6012 67.6458L84.649 68.1932L87.2294 68.334H93.5537L105.342 69.2259L108.428 71.2444L110.25 73.7322L109.946 75.6568L105.19 78.0508L98.8155 76.5487L83.8901 72.9812L78.7801 71.7138H78.0717V72.1362L82.3217 76.314L90.1639 83.3551L99.9286 92.4616L100.435 94.7148L99.1697 96.4985L97.8542 96.3108L89.2532 89.8329L85.9139 86.9226L78.4259 80.5856H77.92V81.2428L79.6402 83.7776L88.7978 97.5312L89.2532 101.756L88.5954 103.117L86.2175 103.962L83.6371 103.493L78.2235 95.9352L72.7087 87.4859L68.2564 79.8815L67.7187 80.221L65.0689 108.515L63.8547 109.971L61.0214 111.05L58.6434 109.266L57.3786 106.356L58.6434 100.582L60.1613 93.0719L61.3755 87.1104L62.4886 79.6937L63.1684 77.2161L63.1083 77.0503L62.5653 77.1416L56.9738 84.8103L48.4739 96.3108L41.7448 103.493L40.1258 104.15L37.3431 102.695L37.5961 100.113L39.1645 97.8129L48.4739 85.9838L54.0899 78.6141L57.7094 74.3837L57.6742 73.7718L57.4744 73.7548L32.739 89.8799L28.3373 90.4432L26.4147 88.6594L26.6676 85.7491L27.5783 84.8103L35.0157 79.6937Z" fill="#FAF9F5"/>
-              </g>
-              <defs>
-                <linearGradient id="nhg-claude-gradient" x1="52.5" y1="128" x2="52.5" y2="0" gradientUnits="userSpaceOnUse"><stop stop-color="#DC6038"/><stop offset="1" stop-color="#D97757"/></linearGradient>
-                <clipPath id="nhg-claude-clip"><rect width="128" height="128" fill="white"/></clipPath>
-              </defs>
-            </svg>
+            <span class="platform-mark" data-mark="claude" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="hsl(14.8, 63.1%, 59.6%)"><path d="m19.6 66.5 19.7-11 .3-1-.3-.5h-1l-3.3-.2-11.2-.3L14 53l-9.5-.5-2.4-.5L0 49l.2-1.5 2-1.3 2.9.2 6.3.5 9.5.6 6.9.4L38 49.1h1.6l.2-.7-.5-.4-.4-.4L29 41l-10.6-7-5.6-4.1-3-2-1.5-2-.6-4.2 2.7-3 3.7.3.9.2 3.7 2.9 8 6.1L37 36l1.5 1.2.6-.4.1-.3-.7-1.1L33 25l-6-10.4-2.7-4.3-.7-2.6c-.3-1-.4-2-.4-3l3-4.2L28 0l4.2.6L33.8 2l2.6 6 4.1 9.3L47 29.9l2 3.8 1 3.4.3 1h.7v-.5l.5-7.2 1-8.7 1-11.2.3-3.2 1.6-3.8 3-2L61 2.6l2 2.9-.3 1.8-1.1 7.7L59 27.1l-1.5 8.2h.9l1-1.1 4.1-5.4 6.9-8.6 3-3.5L77 13l2.3-1.8h4.3l3.1 4.7-1.4 4.9-4.4 5.6-3.7 4.7-5.3 7.1-3.2 5.7.3.4h.7l12-2.6 6.4-1.1 7.6-1.3 3.5 1.6.4 1.6-1.4 3.4-8.2 2-9.6 2-14.3 3.3-.2.1.2.3 6.4.6 2.8.2h6.8l12.6 1 3.3 2 1.9 2.7-.3 2-5.1 2.6-6.8-1.6-16-3.8-5.4-1.3h-.8v.4l4.6 4.5 8.3 7.5L89 80.1l.5 2.4-1.3 2-1.4-.2-9.2-7-3.6-3-8-6.8h-.5v.7l1.8 2.7 9.8 14.7.5 4.5-.7 1.4-2.6 1-2.7-.6-5.8-8-6-9-4.7-8.2-.5.4-2.9 30.2-1.3 1.5-3 1.2-2.5-2-1.4-3 1.4-6.2 1.6-8 1.3-6.4 1.2-7.9.7-2.6v-.2H49L43 72l-9 12.3-7.2 7.6-1.7.7-3-1.5.3-2.8L24 86l10-12.8 6-7.9 4-4.6-.1-.5h-.3L17.2 77.4l-4.7.6-2-2 .2-3 1-1 8-5.5Z"></path></svg></span>
             <span class="platform-name">Claude</span>
           </li>
-          <li class="platform-item platform-item--text" data-platform="ChatGPT"><span class="platform-text-mark"><span class="platform-name">ChatGPT</span></span></li>
-          <li class="platform-item platform-item--text" data-platform="Gemini"><span class="platform-text-mark"><span class="platform-name">Gemini</span></span></li>
+          <li class="platform-item" data-platform="ChatGPT">
+            <span class="platform-mark" data-mark="chatgpt" aria-hidden="true"><svg fill="currentColor" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg"><path d="m297.06 130.97c7.26-21.79 4.76-45.66-6.85-65.48-17.46-30.4-52.56-46.04-86.84-38.68-15.25-17.18-37.16-26.95-60.13-26.81-35.04-.08-66.13 22.48-76.91 55.82-22.51 4.61-41.94 18.7-53.31 38.67-17.59 30.32-13.58 68.54 9.92 94.54-7.26 21.79-4.76 45.66 6.85 65.48 17.46 30.4 52.56 46.04 86.84 38.68 15.24 17.18 37.16 26.95 60.13 26.8 35.06.09 66.16-22.49 76.94-55.86 22.51-4.61 41.94-18.7 53.31-38.67 17.57-30.32 13.55-68.51-9.94-94.51zm-120.28 168.11c-14.03.02-27.62-4.89-38.39-13.88.49-.26 1.34-.73 1.89-1.07l63.72-36.8c3.26-1.85 5.26-5.32 5.24-9.07v-89.83l26.93 15.55c.29.14.48.42.52.74v74.39c-.04 33.08-26.83 59.9-59.91 59.97zm-128.84-55.03c-7.03-12.14-9.56-26.37-7.15-40.18.47.28 1.3.79 1.89 1.13l63.72 36.8c3.23 1.89 7.23 1.89 10.47 0l77.79-44.92v31.1c.02.32-.13.63-.38.83l-64.41 37.19c-28.69 16.52-65.33 6.7-81.92-21.95zm-16.77-139.09c7-12.16 18.05-21.46 31.21-26.29 0 .55-.03 1.52-.03 2.2v73.61c-.02 3.74 1.98 7.21 5.23 9.06l77.79 44.91-26.93 15.55c-.27.18-.61.21-.91.08l-64.42-37.22c-28.63-16.58-38.45-53.21-21.95-81.89zm221.26 51.49-77.79-44.92 26.93-15.54c.27-.18.61-.21.91-.08l64.42 37.19c28.68 16.57 38.51 53.26 21.94 81.94-7.01 12.14-18.05 21.44-31.2 26.28v-75.81c.03-3.74-1.96-7.2-5.2-9.06zm26.8-40.34c-.47-.29-1.3-.79-1.89-1.13l-63.72-36.8c-3.23-1.89-7.23-1.89-10.47 0l-77.79 44.92v-31.1c-.02-.32.13-.63.38-.83l64.41-37.16c28.69-16.55 65.37-6.7 81.91 22 6.99 12.12 9.52 26.31 7.15 40.1zm-168.51 55.43-26.94-15.55c-.29-.14-.48-.42-.52-.74v-74.39c.02-33.12 26.89-59.96 60.01-59.94 14.01 0 27.57 4.92 38.34 13.88-.49.26-1.33.73-1.89 1.07l-63.72 36.8c-3.26 1.85-5.26 5.31-5.24 9.06l-.04 89.79zm14.63-31.54 34.65-20.01 34.65 20v40.01l-34.65 20-34.65-20z"/></svg></span>
+            <span class="platform-name">ChatGPT</span>
+          </li>
+          <li class="platform-item" data-platform="Gemini">
+            <span class="platform-mark" data-mark="gemini" aria-hidden="true"><svg fill="none" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 65 65"><mask id="nxp-gm-maskme" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="0" y="0"><path d="M32.447 0c.68 0 1.273.465 1.439 1.125a38.904 38.904 0 001.999 5.905c2.152 5 5.105 9.376 8.854 13.125 3.751 3.75 8.126 6.703 13.125 8.855a38.98 38.98 0 005.906 1.999c.66.166 1.124.758 1.124 1.438 0 .68-.464 1.273-1.125 1.439a38.902 38.902 0 00-5.905 1.999c-5 2.152-9.375 5.105-13.125 8.854-3.749 3.751-6.702 8.126-8.854 13.125a38.973 38.973 0 00-2 5.906 1.485 1.485 0 01-1.438 1.124c-.68 0-1.272-.464-1.438-1.125a38.913 38.913 0 00-2-5.905c-2.151-5-5.103-9.375-8.854-13.125-3.75-3.749-8.125-6.702-13.125-8.854a38.973 38.973 0 00-5.905-2A1.485 1.485 0 010 32.448c0-.68.465-1.272 1.125-1.438a38.903 38.903 0 005.905-2c5-2.151 9.376-5.104 13.125-8.854 3.75-3.749 6.703-8.125 8.855-13.125a38.972 38.972 0 001.999-5.905A1.485 1.485 0 0132.447 0z" fill="#000"/><path d="M32.447 0c.68 0 1.273.465 1.439 1.125a38.904 38.904 0 001.999 5.905c2.152 5 5.105 9.376 8.854 13.125 3.751 3.75 8.126 6.703 13.125 8.855a38.98 38.98 0 005.906 1.999c.66.166 1.124.758 1.124 1.438 0 .68-.464 1.273-1.125 1.439a38.902 38.902 0 00-5.905 1.999c-5 2.152-9.375 5.105-13.125 8.854-3.749 3.751-6.702 8.126-8.854 13.125a38.973 38.973 0 00-2 5.906 1.485 1.485 0 01-1.438 1.124c-.68 0-1.272-.464-1.438-1.125a38.913 38.913 0 00-2-5.905c-2.151-5-5.103-9.375-8.854-13.125-3.75-3.749-8.125-6.702-13.125-8.854a38.973 38.973 0 00-5.905-2A1.485 1.485 0 010 32.448c0-.68.465-1.272 1.125-1.438a38.903 38.903 0 005.905-2c5-2.151 9.376-5.104 13.125-8.854 3.75-3.749 6.703-8.125 8.855-13.125a38.972 38.972 0 001.999-5.905A1.485 1.485 0 0132.447 0z" fill="url(#nxp-gm-prefix__paint0_linear_2001_67)"/></mask><g mask="url(#nxp-gm-maskme)"><g filter="url(#nxp-gm-prefix__filter0_f_2001_67)"><path d="M-5.859 50.734c7.498 2.663 16.116-2.33 19.249-11.152 3.133-8.821-.406-18.131-7.904-20.794-7.498-2.663-16.116 2.33-19.25 11.151-3.132 8.822.407 18.132 7.905 20.795z" fill="#FFE432"/></g><g filter="url(#nxp-gm-prefix__filter1_f_2001_67)"><path d="M27.433 21.649c10.3 0 18.651-8.535 18.651-19.062 0-10.528-8.35-19.062-18.651-19.062S8.78-7.94 8.78 2.587c0 10.527 8.35 19.062 18.652 19.062z" fill="#FC413D"/></g><g filter="url(#nxp-gm-prefix__filter2_f_2001_67)"><path d="M20.184 82.608c10.753-.525 18.918-12.244 18.237-26.174-.68-13.93-9.95-24.797-20.703-24.271C6.965 32.689-1.2 44.407-.519 58.337c.681 13.93 9.95 24.797 20.703 24.271z" fill="#00B95C"/></g><g filter="url(#nxp-gm-prefix__filter3_f_2001_67)"><path d="M20.184 82.608c10.753-.525 18.918-12.244 18.237-26.174-.68-13.93-9.95-24.797-20.703-24.271C6.965 32.689-1.2 44.407-.519 58.337c.681 13.93 9.95 24.797 20.703 24.271z" fill="#00B95C"/></g><g filter="url(#nxp-gm-prefix__filter4_f_2001_67)"><path d="M30.954 74.181c9.014-5.485 11.427-17.976 5.389-27.9-6.038-9.925-18.241-13.524-27.256-8.04-9.015 5.486-11.428 17.977-5.39 27.902 6.04 9.924 18.242 13.523 27.257 8.038z" fill="#00B95C"/></g><g filter="url(#nxp-gm-prefix__filter5_f_2001_67)"><path d="M67.391 42.993c10.132 0 18.346-7.91 18.346-17.666 0-9.757-8.214-17.667-18.346-17.667s-18.346 7.91-18.346 17.667c0 9.757 8.214 17.666 18.346 17.666z" fill="#3186FF"/></g><g filter="url(#nxp-gm-prefix__filter6_f_2001_67)"><path d="M-13.065 40.944c9.33 7.094 22.959 4.869 30.442-4.972 7.483-9.84 5.987-23.569-3.343-30.663C4.704-1.786-8.924.439-16.408 10.28c-7.483 9.84-5.986 23.57 3.343 30.664z" fill="#FBBC04"/></g><g filter="url(#nxp-gm-prefix__filter7_f_2001_67)"><path d="M34.74 51.43c11.135 7.656 25.896 5.524 32.968-4.764 7.073-10.287 3.779-24.832-7.357-32.488C49.215 6.52 34.455 8.654 27.382 18.94c-7.072 10.288-3.779 24.833 7.357 32.49z" fill="#3186FF"/></g><g filter="url(#nxp-gm-prefix__filter8_f_2001_67)"><path d="M54.984-2.336c2.833 3.852-.808 11.34-8.131 16.727-7.324 5.387-15.557 6.631-18.39 2.78-2.833-3.853.807-11.342 8.13-16.728 7.324-5.387 15.558-6.631 18.39-2.78z" fill="#749BFF"/></g><g filter="url(#nxp-gm-prefix__filter9_f_2001_67)"><path d="M31.727 16.104C43.053 5.598 46.94-8.626 40.41-15.666c-6.53-7.04-21.006-4.232-32.332 6.274s-15.214 24.73-8.683 31.77c6.53 7.04 21.006 4.232 32.332-6.274z" fill="#FC413D"/></g><g filter="url(#nxp-gm-prefix__filter10_f_2001_67)"><path d="M8.51 53.838c6.732 4.818 14.46 5.55 17.262 1.636 2.802-3.915-.384-10.994-7.116-15.812-6.731-4.818-14.46-5.55-17.261-1.636-2.802 3.915.383 10.994 7.115 15.812z" fill="#FFEE48"/></g></g><defs><filter id="nxp-gm-prefix__filter0_f_2001_67" x="-19.824" y="13.152" width="39.274" height="43.217" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur stdDeviation="2.46" result="effect1_foregroundBlur_2001_67"/></filter><filter id="nxp-gm-prefix__filter1_f_2001_67" x="-15.001" y="-40.257" width="84.868" height="85.688" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur stdDeviation="11.891" result="effect1_foregroundBlur_2001_67"/></filter><filter id="nxp-gm-prefix__filter2_f_2001_67" x="-20.776" y="11.927" width="79.454" height="90.916" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur stdDeviation="10.109" result="effect1_foregroundBlur_2001_67"/></filter><filter id="nxp-gm-prefix__filter3_f_2001_67" x="-20.776" y="11.927" width="79.454" height="90.916" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur stdDeviation="10.109" result="effect1_foregroundBlur_2001_67"/></filter><filter id="nxp-gm-prefix__filter4_f_2001_67" x="-19.845" y="15.459" width="79.731" height="81.505" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur stdDeviation="10.109" result="effect1_foregroundBlur_2001_67"/></filter><filter id="nxp-gm-prefix__filter5_f_2001_67" x="29.832" y="-11.552" width="75.117" height="73.758" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur stdDeviation="9.606" result="effect1_foregroundBlur_2001_67"/></filter><filter id="nxp-gm-prefix__filter6_f_2001_67" x="-38.583" y="-16.253" width="78.135" height="78.758" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur stdDeviation="8.706" result="effect1_foregroundBlur_2001_67"/></filter><filter id="nxp-gm-prefix__filter7_f_2001_67" x="8.107" y="-5.966" width="78.877" height="77.539" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur stdDeviation="7.775" result="effect1_foregroundBlur_2001_67"/></filter><filter id="nxp-gm-prefix__filter8_f_2001_67" x="13.587" y="-18.488" width="56.272" height="51.81" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur stdDeviation="6.957" result="effect1_foregroundBlur_2001_67"/></filter><filter id="nxp-gm-prefix__filter9_f_2001_67" x="-15.526" y="-31.297" width="70.856" height="69.306" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur stdDeviation="5.876" result="effect1_foregroundBlur_2001_67"/></filter><filter id="nxp-gm-prefix__filter10_f_2001_67" x="-14.168" y="20.964" width="55.501" height="51.571" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB"><feFlood flood-opacity="0" result="BackgroundImageFix"/><feBlend in="SourceGraphic" in2="BackgroundImageFix" result="shape"/><feGaussianBlur stdDeviation="7.273" result="effect1_foregroundBlur_2001_67"/></filter><linearGradient id="nxp-gm-prefix__paint0_linear_2001_67" x1="18.447" y1="43.42" x2="52.153" y2="15.004" gradientUnits="userSpaceOnUse"><stop stop-color="#4893FC"/><stop offset=".27" stop-color="#4893FC"/><stop offset=".777" stop-color="#969DFF"/><stop offset="1" stop-color="#BD99FE"/></linearGradient></defs></svg></span>
+            <span class="platform-name">Gemini</span>
+          </li>
           <li class="platform-item" data-platform="Cursor">
-            <span class="platform-mark-shell">
-              <svg class="platform-mark" data-logo-source="official" viewBox="0 0 466.73 532.09" aria-hidden="true" focusable="false"><path fill="#26251e" d="M457.43,125.94L244.42,2.96c-6.84-3.95-15.28-3.95-22.12,0L9.3,125.94c-5.75,3.32-9.3,9.46-9.3,16.11v247.99c0,6.65,3.55,12.79,9.3,16.11l213.01,122.98c6.84,3.95,15.28,3.95,22.12,0l213.01-122.98c5.75-3.32,9.3-9.46,9.3-16.11v-247.99c0-6.65-3.55-12.79-9.3-16.11h-.01ZM444.05,151.99l-205.63,356.16c-1.39,2.4-5.06,1.42-5.06-1.36v-233.21c0-4.66-2.49-8.97-6.53-11.31L24.87,145.67c-2.4-1.39-1.42-5.06,1.36-5.06h411.26c5.84,0,9.49,6.33,6.57,11.39h-.01Z"/></svg>
-            </span>
+            <span class="platform-mark" data-mark="cursor" aria-hidden="true"><svg fill="currentColor" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 466.73 532.09"><path d="M457.43,125.94L244.42,2.96c-6.84-3.95-15.28-3.95-22.12,0L9.3,125.94c-5.75,3.32-9.3,9.46-9.3,16.11v247.99c0,6.65,3.55,12.79,9.3,16.11l213.01,122.98c6.84,3.95,15.28,3.95,22.12,0l213.01-122.98c5.75-3.32,9.3-9.46,9.3-16.11v-247.99c0-6.65-3.55-12.79-9.3-16.11h-.01ZM444.05,151.99l-205.63,356.16c-1.39,2.4-5.06,1.42-5.06-1.36v-233.21c0-4.66-2.49-8.97-6.53-11.31L24.87,145.67c-2.4-1.39-1.42-5.06,1.36-5.06h411.26c5.84,0,9.49,6.33,6.57,11.39h-.01Z"/></svg></span>
             <span class="platform-name">Cursor</span>
           </li>
-          <li class="platform-item platform-item--text" data-platform="GitHub Copilot"><span class="platform-text-mark"><span class="platform-name">GitHub Copilot</span></span></li>
-          <li class="platform-item" data-platform="OpenCode">
-            <span class="platform-mark-shell">
-              <svg class="platform-mark" data-logo-source="official" viewBox="0 0 240 300" fill="none" aria-hidden="true" focusable="false">
-                <g clip-path="url(#nhg-opencode-clip)"><mask id="nhg-opencode-mask" style="mask-type:luminance" maskUnits="userSpaceOnUse" x="0" y="0" width="240" height="300"><path d="M240 0H0V300H240V0Z" fill="white"/></mask><g mask="url(#nhg-opencode-mask)"><path d="M180 240H60V120H180V240Z" fill="#CFCECD"/><path d="M180 60H60V240H180V60ZM240 300H0V0H240V300Z" fill="#211E1E"/></g></g>
-                <defs><clipPath id="nhg-opencode-clip"><rect width="240" height="300" fill="white"/></clipPath></defs>
-              </svg>
-            </span>
-            <span class="platform-name">OpenCode</span>
+          <li class="platform-item" data-platform="GitHub Copilot">
+            <span class="platform-mark" data-mark="github-copilot" aria-hidden="true"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" fill="currentColor"><path d="M47.801 34.003c-1.72 2.988-11.706 10.037-23.82 10.037S1.881 36.991.161 34.003a1.309 1.309 0 0 1-.161-.57v-5.615c.012-.17.047-.338.11-.498.744-1.867 2.692-4.58 5.206-5.308.333-.855.826-2.106 1.287-3.029a20.112 20.112 0 0 1-.104-2.171c0-2.659.563-4.992 2.262-6.729.793-.811 1.777-1.433 2.945-1.901C14.502 5.911 18.483 4 23.938 4c5.455 0 9.523 1.911 12.319 4.182 1.167.468 2.151 1.09 2.944 1.901 1.699 1.737 2.263 4.07 2.263 6.729 0 .736-.027 1.465-.105 2.171.461.923.954 2.174 1.288 3.029 2.513.728 4.461 3.441 5.205 5.308.081.205.115.424.115.645v5.318c0 .252-.04.502-.166.72ZM24.325 22.031h-.688a8.52 8.52 0 0 1-.709 1.016c-1.537 1.892-3.833 2.98-7.008 2.98-3.447 0-5.972-.717-7.557-2.514a4.408 4.408 0 0 1-.171-.21l-.195.21v13.155c2.867 1.558 9.02 4.353 15.984 4.353s13.117-2.795 15.984-4.353V23.513l-.195-.21s-.066.091-.171.21c-1.584 1.797-4.11 2.514-7.557 2.514-3.175 0-5.47-1.088-7.008-2.98a8.637 8.637 0 0 1-.709-1.016h-.033.033Zm-1.969-5.864a14.31 14.31 0 0 0 .127-1.785v-.042c-.003-1.537-.339-2.538-.876-3.152-.681-.78-2.09-1.378-5.06-1.057-3.008.326-4.69 1.073-5.643 2.048-.923.944-1.408 2.356-1.408 4.633 0 2.42.348 3.849 1.115 4.719.729.827 2.165 1.499 5.309 1.499 2.417 0 3.799-.786 4.683-1.873.948-1.168 1.482-2.878 1.753-4.99Zm3.25 0c.271 2.112.805 3.822 1.754 4.99.883 1.087 2.265 1.873 4.682 1.873 3.145 0 4.58-.672 5.309-1.499.767-.87 1.116-2.299 1.116-4.719 0-2.277-.485-3.689-1.408-4.633-.954-.975-2.635-1.722-5.644-2.048-2.969-.321-4.378.277-5.06 1.057-.537.614-.873 1.615-.876 3.152v.042c.002.53.042 1.123.127 1.785Z"/><path d="M28.998 28.516c1.104 0 1.999.895 1.999 1.999v3.998a2 2 0 1 1-3.998 0v-3.998c0-1.104.895-1.999 1.999-1.999Zm-9.996 0c1.104 0 1.999.895 1.999 1.999v3.998a2 2 0 1 1-3.998 0v-3.998c0-1.104.895-1.999 1.999-1.999Z"/></svg></span>
+            <span class="platform-name">GitHub Copilot</span>
           </li>
         </ul>
-        <p class="platform-note">OpenCode receives commands through its instruction file instead of a slash menu.</p>
+        <details class="platform-credits">
+          <summary>Trademarks and credits</summary>
+          <p>Claude, ChatGPT, Gemini, Cursor, and GitHub Copilot are trademarks of their respective owners. They appear here only to identify the assistants Nexus-Hub installs into, and imply no affiliation or endorsement. The GitHub Copilot mark is from the Codicons icon set by Microsoft Corporation, used under <a href="https://creativecommons.org/licenses/by/4.0/" rel="noreferrer noopener" target="_blank">CC BY 4.0</a>.</p>
+        </details>
         <div class="btn-row">
           <a class="btn btn--primary" href="#home/install">Install <span aria-hidden="true">&rarr;</span></a>
           <a class="btn" href="#training" data-go="training">Get trained</a>
@@ -2850,9 +2857,11 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
     for (var j = 0; j < els.length; j++) { revealIO.observe(els[j]); }
   }
 
-  /* continuous scene motion runs only while the scene is on screen */
+  /* continuous scene motion runs only while the scene is on screen.
+     The hero lockup joins this observer rather than adding a second mechanism: it needs the
+     same three guarantees (stop offscreen, stop under reduced motion, no-op without IO). */
   (function initSceneLiveness() {
-    var scenes = document.querySelectorAll(".fx-scene");
+    var scenes = document.querySelectorAll(".fx-scene, .hero-lockup");
     if (!scenes.length || REDUCE || !("IntersectionObserver" in window)) return;
     var io = new IntersectionObserver(function (entries) {
       for (var i = 0; i < entries.length; i++) {

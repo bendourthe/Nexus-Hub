@@ -107,7 +107,7 @@ A scope shown on the page must exist in that command's own file in `catalog/comm
 
 ## Keyboard and reduced motion
 
-Page-level ArrowLeft / ArrowRight move between pages when Training is not current and focus is not in a self-keyed pane (`[data-nhg-keys='self']`). The six platform marks are labelled compatibility information, not interactive controls. Dark mode may show the constellation; light mode must not. `prefers-reduced-motion` stops decorative transitions, shows every reveal and diagram in its final state, hides the Foundations motion-path pulses, pauses Asteroids with Advance one step available, and prints Training terminal output instantly.
+Page-level ArrowLeft / ArrowRight move between pages when Training is not current and focus is not in a self-keyed pane (`[data-nhg-keys='self']`). The five platform marks (Claude, ChatGPT, Gemini, Cursor, GitHub Copilot) are labelled compatibility information, not interactive controls. Each is inlined verbatim from an approved asset in the v4.4.1 provenance ledger, and the suite hashes the embedded bytes against that ledger, so a re-fetched or hand-edited mark fails rather than ships. Dark mode may show the constellation; light mode must not. `prefers-reduced-motion` stops decorative transitions, shows every reveal and diagram in its final state, hides the Foundations motion-path pulses, pauses Asteroids with Advance one step available, and prints Training terminal output instantly.
 
 ## Fixture maintenance
 
