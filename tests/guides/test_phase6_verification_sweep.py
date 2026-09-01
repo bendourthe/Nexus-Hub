@@ -8,6 +8,7 @@ from pathlib import Path
 from typing import Any
 
 GUIDE = Path(__file__).resolve().parents[2] / "guides" / "website" / "nexus-hub-guide.html"
+GUIDE_README = GUIDE.with_name("README.md")
 PAGES = ("home", "foundations", "training", "cheatsheets")
 THEMES = ("dark", "light")
 WIDTHS = (320, 420, 900, 1440)
@@ -21,6 +22,14 @@ TRAINING_SCENES = (
     "update",
     "presentify",
 )
+
+
+def test_browser_verification_docs_match_required_ci_contract() -> None:
+    readme = GUIDE_README.read_text(encoding="utf-8")
+
+    assert "CI does not currently require it" not in readme
+    for contract in ("required `guide-render` job", "NEXUS_REQUIRE_RENDER=1", "`ci-required`"):
+        assert contract in readme
 
 
 def _require_browser(render_gate: object) -> None:

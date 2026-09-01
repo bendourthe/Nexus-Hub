@@ -171,7 +171,7 @@ The pytest suite parses HTML and JSON; it does not execute JavaScript. Rendered 
 python tests/guides/tools/render_guide.py --label phase-6 --output-dir docs/releases/v4/v4.4/development/guide-rebuild/renders --widths 320 420 900 1440
 ```
 
-That renders every page in both themes at 320 / 420 / 900 / 1440 px and writes 32 PNGs under `docs/releases/v4/v4.4/development/guide-rebuild/renders/phase-6/`. It needs Playwright (`pip install playwright && playwright install chromium`), which is an optional dev dependency: CI does not currently require it, and the harness fails with an install hint rather than a traceback. Useful flags: `--pages`, `--themes`, `--widths`, `--reduced-motion`, `--hash`.
+That renders every page in both themes at 320 / 420 / 900 / 1440 px and writes 32 PNGs under `docs/releases/v4/v4.4/development/guide-rebuild/renders/phase-6/`. Local use needs Playwright (`pip install playwright && playwright install chromium`); when it is absent, the harness fails with an install hint rather than a traceback. On guide-relevant pull requests, the required `guide-render` job installs Playwright and Chromium, sets `NEXUS_REQUIRE_RENDER=1`, runs the fail-closed guide aggregate, and reports its terminal result through `ci-required`. Useful flags: `--pages`, `--themes`, `--widths`, `--reduced-motion`, `--hash`.
 
 Before a workshop or a portfolio publish, also open the file by hand and check:
 

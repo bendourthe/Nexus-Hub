@@ -201,12 +201,25 @@ The structured report records all 11 groups as `pass`: catalog-parse, hygiene, i
 
 **Disposition**: PASS. T035 is complete for the exact v4.4.0 candidate. The first contaminated-worktree attempt remains retained troubleshooting evidence rather than being rewritten as success.
 
+### Pre-PR independent cross-check
+
+After the user approved the first push, the Phase 7 commit was published at `560c8d4843dbabdad4b9b0c2d264a357446a9dc7`. An independent diff cross-check then found two non-runtime defects before the integration pull request opened: `guides/website/README.md` still described Playwright CI as optional despite the new required `guide-render` job, and `test_training_position_is_plain_language` ended one source assertion with `or True`.
+
+The README now describes the fail-closed `guide-render` and `ci-required` contract. A new static regression binds that documentation to the required job, and the Training test now inspects the actual `els.where.textContent` assignment while preserving the separate legacy URL-grammar assertion. The focused correction slice passed 53 tests in 0.68 seconds. The complete fail-closed guide and detector aggregate then passed on the exact corrected pre-commit tree:
+
+```text
+NEXUS_REQUIRE_RENDER=1 python -m pytest -q -p no:cacheprovider tests/guides/ tests/verification/test_visual_defect_detector.py
+155 passed, 1 skipped in 93.86s
+```
+
+The skip remains the optional portfolio-copy contract because `NEXUS_HUB_PORTFOLIO_ROOT` is unset. These fixes are recorded in a follow-up commit because the original Phase 7 commit was already published; its history is not rewritten.
+
 ## Publication and integration
 
 Resolved branching model: feature branches start from `develop`, integration pull requests target `develop`, release promotion later moves through `main`, and release completion back-merges as required by the project flow. The configured remote is `origin`; the publication branch is `feat/v4.4.0-guide-depth-and-training-rebuild`; the integration target is `develop`.
 
 Expected required checks are `validate`, `shellcheck`, `ci-required`, `colocation`, and `verify`.
 
-This scoped Phase 7 local commit closes the local implementation boundary. No push, pull request, remote CI result, merge, release tag, GitHub Release, artifact verification, or back-merge is claimed. The first push requires explicit user approval. Merge and release each require their own later evidence and approval gates.
+The scoped Phase 7 local commit closed the local implementation boundary. At that checkpoint no remote action was claimed. The user explicitly approved the first push on 2026-09-01, and the feature branch was published at `560c8d4843dbabdad4b9b0c2d264a357446a9dc7`; pull-request creation was deliberately held until the independent cross-check corrections above were committed. No remote CI result, merge, release tag, GitHub Release, artifact verification, or back-merge is claimed in this evidence checkpoint. Merge and release each require their own later evidence and approval gates.
 
-**Disposition**: PENDING / NO-GO for remote publication until the user explicitly approves the first push, every expected required check is terminal and green, and the user explicitly approves the merge. Release and back-merge remain later approval and verification gates.
+**Disposition**: First push COMPLETE. Integration pull-request creation and remote checks remain PENDING; merge is NO-GO until every expected required check is terminal and green and the user explicitly approves it. Release and back-merge remain later approval and verification gates.

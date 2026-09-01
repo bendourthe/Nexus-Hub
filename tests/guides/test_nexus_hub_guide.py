@@ -1297,9 +1297,12 @@ def test_training_position_is_plain_language(guide_text: str) -> None:
     """'step 2 / 8 . beat 1 / 2' meant nothing to most readers."""
     engine = _training_engine(guide_text)
     assert '" of " + SCENES.length' in engine, "position reads as 'N of 8'"
-    assert "beat " not in engine.split("syncFromHash", 1)[0].replace(
-        "beatIndex", ""
-    ).lower() or True  # beats remain the mechanism
+    where_assignment = re.search(
+        r"els\.where\.textContent\s*=\s*([\s\S]*?);",
+        engine,
+    )
+    assert where_assignment, "expected the Training position-label assignment"
+    assert "beat" not in where_assignment.group(1).lower()
     training = guide_text.split('id="page-training"', 1)[-1].split(
         'id="page-cheatsheets"', 1
     )[0]
