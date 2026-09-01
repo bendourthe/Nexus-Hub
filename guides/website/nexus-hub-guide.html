@@ -551,6 +551,7 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
 .fx-svg[data-phase3-diagram] .fxt--detail { font-size: 13px; }
 .fx-svg[data-phase3-diagram] .fxt { font-size: 14px; }
 .fx-svg--mobile[data-phase3-diagram] .fxt { font-size: 15px; }
+.fx-svg[data-phase3-diagram] [data-phase3-claim] .fxt--role { letter-spacing: .05em; }
 .fxt--warn { fill: var(--amber); font-weight: 700; letter-spacing: .06em; }
 /* Side colouring: the unaided path is muted/warning, the harnessed
    path is accent/positive, applied to lanes and nodes, not just the
@@ -618,6 +619,8 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
   border-radius: 8px; cursor: pointer;
 }
 .nht-btn:hover:not(:disabled) { color: var(--ink); border-color: var(--border-bright); }
+.nht-exit-present { display: none; }
+.nht.is-present .nht-exit-present { display: inline-flex; }
 .nht-btn:disabled { opacity: .4; cursor: default; }
 
 /* Loop-stage progress: each segment names its command. */
@@ -807,7 +810,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
 .nht.is-present .nht-head { flex: none; }
 .nht.is-present .nht-head h2 { font-size: clamp(1.6rem, 3.2vw, 2.4rem); }
 .nht.is-present .nht-intent { font-size: clamp(15px, 1.4vw, 18px); }
-.nht.is-present .nht-grid { flex: 1 1 auto; min-height: 0; align-items: stretch; }
+.nht.is-present .nht-grid { flex: 0 0 auto; min-height: 0; align-items: start; }
 .nht.is-present .nht-col { display: flex; flex-direction: column; gap: var(--sp-3); }
 .nht.is-present .nht-game { flex: 1 1 auto; display: flex; flex-direction: column; }
 .nht.is-present .nag-stage { flex: 0 1 auto; min-height: 0; }
@@ -1736,7 +1739,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
                 <text class="fxt fxt--detail" x="242" y="111" text-anchor="middle">load on demand</text>
               </g>
               <g data-phase3-claim="event-hooks" data-artifact="catalog/hooks/settings.json">
-                <rect class="fxchip fxchip--good" x="316" y="66" width="128" height="58" rx="10"/>
+                <rect class="fxchip fxchip--good" x="307" y="66" width="146" height="58" rx="10"/>
                 <text class="fxt fxt--role" x="380" y="90" text-anchor="middle">EVENT HOOKS*</text>
                 <text class="fxt fxt--detail" x="380" y="111" text-anchor="middle">prompt-independent</text>
               </g>
@@ -1770,21 +1773,31 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
               <g class="fx-pop" data-phase3-harness-layer="nexus-hub-mobile">
                 <rect class="fxlayer--nexus" x="10" y="10" width="340" height="760" rx="22"/>
                 <text class="fxt fxt--good" x="180" y="42" text-anchor="middle">NEXUS-HUB WORKFLOW LAYER</text>
+                <g data-phase3-claim="one-source-catalog" data-artifact="catalog/">
                 <rect class="fxchip fxchip--good" x="28" y="66" width="146" height="66" rx="10"/>
                 <text class="fxt fxt--role" x="101" y="92" text-anchor="middle">ONE CATALOG</text>
                 <text class="fxt fxt--detail" x="101" y="117" text-anchor="middle">host adapters</text>
+                </g>
+                <g data-phase3-claim="matched-procedures" data-artifact="catalog/skills">
                 <rect class="fxchip fxchip--good" x="186" y="66" width="146" height="66" rx="10"/>
                 <text class="fxt fxt--role" x="259" y="92" text-anchor="middle">MATCHED SKILLS</text>
                 <text class="fxt fxt--detail" x="259" y="117" text-anchor="middle">load on demand</text>
+                </g>
+                <g data-phase3-claim="event-hooks" data-artifact="catalog/hooks/settings.json">
                 <rect class="fxchip fxchip--good" x="28" y="144" width="146" height="66" rx="10"/>
                 <text class="fxt fxt--role" x="101" y="170" text-anchor="middle">EVENT HOOKS*</text>
                 <text class="fxt fxt--detail" x="101" y="195" text-anchor="middle">prompt-independent</text>
+                </g>
+                <g data-phase3-claim="written-gates" data-artifact="catalog/commands/implement.md">
                 <rect class="fxchip fxchip--good" x="186" y="144" width="146" height="66" rx="10"/>
                 <text class="fxt fxt--role" x="259" y="170" text-anchor="middle">WRITTEN GATES</text>
                 <text class="fxt fxt--detail" x="259" y="195" text-anchor="middle">definition of done</text>
+                </g>
+                <g data-phase3-claim="durable-artifacts" data-artifact="docs/releases">
                 <rect class="fxchip fxchip--good" x="80" y="222" width="200" height="72" rx="10"/>
                 <text class="fxt fxt--role" x="180" y="250" text-anchor="middle">DURABLE TRAIL</text>
                 <text class="fxt fxt--detail" x="180" y="276" text-anchor="middle">artifacts chain forward</text>
+                </g>
                 <text class="fxt fxt--detail" x="180" y="746" text-anchor="middle">* Where the host exposes the event.</text>
               </g>
               <g class="fx-pop" data-phase3-harness-layer="platform-mobile" style="--d:300ms">
@@ -1962,6 +1975,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
         <div class="nht-bar">
           <p class="nht-where" data-nht="where"></p>
           <button type="button" class="nht-btn nht-outline-toggle" data-nht="outline" aria-expanded="false" aria-controls="nhtOutline">Outline</button>
+          <button type="button" class="nht-btn nht-exit-present" data-nht="exit-present">Exit presentation</button>
         </div>
 
         <div class="nht-outline" id="nhtOutline" hidden>
@@ -4205,9 +4219,50 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
   }
 
   /* ---------------------------------------------- present mode */
+  var presentReturnFocus = null;
+  var presentInerted = [];
   function inPresent() { return root.classList.contains("is-present"); }
+  function setPresentIsolation(active) {
+    if (!active) {
+      presentInerted.forEach(function (element) { element.inert = false; });
+      presentInerted = [];
+      return;
+    }
+    var branch = root;
+    while (branch && branch.parentElement && branch !== document.body) {
+      Array.prototype.forEach.call(branch.parentElement.children, function (sibling) {
+        if (sibling !== branch && !sibling.inert) {
+          sibling.inert = true;
+          presentInerted.push(sibling);
+        }
+      });
+      branch = branch.parentElement;
+    }
+  }
+  function presentFocusables() {
+    return Array.prototype.filter.call(
+      root.querySelectorAll('a[href], button:not([disabled]), [tabindex]:not([tabindex="-1"])'),
+      function (element) { return !element.hidden && element.getClientRects().length > 0; }
+    );
+  }
+  function finishPresent() {
+    root.classList.remove("is-present");
+    root.removeAttribute("role");
+    root.removeAttribute("aria-modal");
+    root.removeAttribute("aria-label");
+    setPresentIsolation(false);
+    var btn = document.getElementById("nhtPresent");
+    if (btn) btn.textContent = "Present";
+    if (presentReturnFocus && presentReturnFocus.focus) presentReturnFocus.focus();
+    presentReturnFocus = null;
+  }
   function enterPresent() {
+    presentReturnFocus = document.activeElement;
     root.classList.add("is-present");
+    root.setAttribute("role", "dialog");
+    root.setAttribute("aria-modal", "true");
+    root.setAttribute("aria-label", "Nexus-Hub training presentation");
+    setPresentIsolation(true);
     var btn = document.getElementById("nhtPresent");
     if (btn) btn.textContent = "Exit present";
     if (root.requestFullscreen) {
@@ -4217,19 +4272,21 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
     root.focus();
   }
   function exitPresent() {
-    root.classList.remove("is-present");
-    var btn = document.getElementById("nhtPresent");
-    if (btn) btn.textContent = "Present";
     if (document.fullscreenElement && document.exitFullscreen) {
       var p = document.exitFullscreen();
-      if (p && p.catch) p.catch(function () {});
+      if (p && p.catch) p.catch(finishPresent);
+      return;
     }
+    finishPresent();
   }
   function togglePresent() { if (inPresent()) { exitPresent(); } else { enterPresent(); } }
   document.addEventListener("fullscreenchange", function () {
-    if (!document.fullscreenElement && inPresent()) { root.classList.remove("is-present"); }
+    if (!document.fullscreenElement && inPresent()) finishPresent();
     var btn = document.getElementById("nhtPresent");
     if (btn) btn.textContent = inPresent() ? "Exit present" : "Present";
+  });
+  window.addEventListener("hashchange", function () {
+    if (document.body.getAttribute("data-page") !== "training" && inPresent()) exitPresent();
   });
 
   /* ---------------------------------------------- wiring */
@@ -4252,6 +4309,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
       if (els.outline) els.outline.hidden = !open;
       t.setAttribute("aria-expanded", open ? "true" : "false");
     }
+    else if (action === "exit-present") { exitPresent(); }
   });
   var presentBtn = document.getElementById("nhtPresent");
   if (presentBtn) presentBtn.addEventListener("click", togglePresent);
@@ -4277,6 +4335,20 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
   document.addEventListener("keydown", function (e) {
     if (document.body.getAttribute("data-page") !== "training") return;
     if (e.altKey || e.ctrlKey || e.metaKey) return;
+    if (e.key === "Escape" && inPresent()) { e.preventDefault(); exitPresent(); return; }
+    if (e.key === "Tab" && inPresent()) {
+      var focusables = presentFocusables();
+      if (!focusables.length) { e.preventDefault(); root.focus(); return; }
+      var first = focusables[0];
+      var last = focusables[focusables.length - 1];
+      var active = document.activeElement;
+      if (e.shiftKey && (active === root || active === first || !root.contains(active))) {
+        e.preventDefault(); last.focus(); return;
+      }
+      if (!e.shiftKey && (active === last || !root.contains(active))) {
+        e.preventDefault(); first.focus(); return;
+      }
+    }
     if (e.target.closest && e.target.closest("[data-asteroids-game]")) return;
     if (e.target.closest && e.target.closest('[data-nht="explorer"]')) return;
     var tag = (e.target.tagName || "").toLowerCase();
@@ -4285,11 +4357,10 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
     else if (e.key === "ArrowLeft" || e.key === "PageUp") { e.preventDefault(); goPrev(); }
     else if (e.key === "Enter" && e.target === els.run) { runCommand(); }
     else if (e.key === "f" || e.key === "F") { togglePresent(); }
-    else if (e.key === "Escape" && inPresent()) { exitPresent(); }
   });
 
   function goTo(indexOrId) {
-    var idx = typeof indexOrId === "number" ? indexOrId : -1;
+    var idx = typeof indexOrId === "number" && Number.isInteger(indexOrId) ? indexOrId : -1;
     if (typeof indexOrId === "string") {
       for (var i = 0; i < SCENES.length; i++) {
         if (SCENES[i].id === indexOrId) idx = i;

@@ -587,7 +587,16 @@ def test_foundations_phase3_route_motion_and_label_containment(
         "agent-loop": {"agent-model", "agent-platform"},
         "chatbot-agent": {"shared-request", "chatbot-handoff", "agent-handoff"},
         "context-budget": {"finite-window", "noisy-budget", "focused-budget"},
-        "harness-layers": {"nexus-hub", "platform", "model"},
+        "harness-layers": {
+            "nexus-hub",
+            "platform",
+            "model",
+            "one-source-catalog",
+            "matched-procedures",
+            "event-hooks",
+            "written-gates",
+            "durable-artifacts",
+        },
         "durable-result": {
             "practice-request",
             "platform-work",
@@ -615,6 +624,11 @@ def test_foundations_phase3_route_motion_and_label_containment(
             "nexus-hub-mobile",
             "platform-mobile",
             "model-mobile",
+            "one-source-catalog",
+            "matched-procedures",
+            "event-hooks",
+            "written-gates",
+            "durable-artifacts",
         },
         "durable-result": {
             "practice-request-mobile",
@@ -705,7 +719,7 @@ def test_foundations_phase3_route_motion_and_label_containment(
                           )).filter(visible).map((diagram) => {
                             const frame = diagram.getBoundingClientRect();
                             const nodes = Array.from(diagram.querySelectorAll(
-                              '[data-phase3-node], [data-phase3-harness-layer]',
+                              '[data-phase3-node], [data-phase3-harness-layer], [data-phase3-claim]',
                             )).map((node) => {
                               const children = Array.from(node.children);
                               const shape = children.find((child) =>
@@ -762,7 +776,8 @@ def test_foundations_phase3_route_motion_and_label_containment(
                                 }).filter(Boolean);
                               return {
                                 name: node.getAttribute("data-phase3-node")
-                                  || node.getAttribute("data-phase3-harness-layer"),
+                                  || node.getAttribute("data-phase3-harness-layer")
+                                  || node.getAttribute("data-phase3-claim"),
                                 measurable: Boolean(shapeRect && labels.length),
                                 polygonSafeContained,
                                 labels,

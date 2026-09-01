@@ -18,7 +18,7 @@ Refreshing this file to the active plan (rather than appending another version's
 | Open release blockers | 0 | 0 | 0 |
 | Catalog skills | 329 | 329 | 0 |
 | Guide pages with clean v4.4.0 verification evidence | 4 | 4 | 0 |
-| Local phase commits | 6 | 7 | -1 |
+| Local phase commits | 7 | 7 | 0 |
 
 ---
 
@@ -42,7 +42,7 @@ v4.3.0 is tagged and released, so its verification discipline is available to ga
 
 ### Current checkpoint
 
-Phase 6 is locally complete at its commit gate. The fail-closed browser sweep covered all four routes, both themes, and four release widths with 11,008 visible text samples, 32 detector-clean cases, and 32 retained screenshots; the guide remains below its 500,000-byte budget. Claude Code now seeds `high` effort only when the precedence-linked pair is absent, `/implement full` is canonical with `in-full` retained, two independent exact-index reviews found no P0-P3 issues, and the authoritative isolated repository suite finished with 3,752 passed and 56 skipped. DF-1 and MT-1 remain open for Phase 7. No push, pull request, or remote CI run has occurred.
+Phase 7 local closeout is complete in this scoped seventh commit. The corrected guide and detector aggregate passes 154 tests with one expected optional portfolio-copy skip, 27 of 27 implementation tasks and 9 of 9 Goal clauses converge, and the approved `guide-render` CI job closes MT-1. The corrected platform profile passed overall with 4 commands across 3 groups and the expected empty Windows shell-lint skip. The isolated exact-candidate full profile passed all 43 commands across 11 groups with no failure, skip, or advisory in 3,685.4 seconds; the earlier primary-worktree failure remains recorded as contamination from the excluded v4.4.1 plan. The three owner-authorized v4.4.0 decision records pass isolated candidate validation. DF-1 is the only open v4.4 product gap. No push, pull request, remote CI run, merge, tag, release, or back-merge has occurred.
 
 ---
 

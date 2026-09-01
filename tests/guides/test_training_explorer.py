@@ -69,6 +69,16 @@ def test_training_runtime_reduces_files_and_game_state_deterministically(
             assert set(initial["filePaths"]) == {"src/collision.js", "src/game.js"}
             assert page.locator('[data-nht="file-body"] img').count() == 0
 
+            invalid_numeric_snapshots = page.evaluate(
+                """
+                () => [
+                  window.NexusTraining.go(NaN),
+                  window.NexusTraining.go(1.5)
+                ]
+                """
+            )
+            assert invalid_numeric_snapshots == [initial, initial]
+
             page.evaluate("window.NexusTraining.selectFile('not-created-yet.md')")
             assert page.locator('[data-nht="file-path"]').inner_text() == "not-created-yet.md"
             assert "Not created yet" in page.locator('[data-nht="file-body"]').inner_text()
@@ -182,5 +192,154 @@ def test_training_runtime_reduces_files_and_game_state_deterministically(
             assert body.locator("img").count() == 0
             assert not console_errors, f"console errors: {console_errors}"
             assert not page_errors, f"page errors: {page_errors}"
+        finally:
+            browser.close()
+
+
+def test_training_present_mode_keeps_major_regions_separate(
+    render_gate: object,
+) -> None:
+    _require_browser(render_gate)
+    from playwright.sync_api import sync_playwright
+
+    selectors = {
+        "game": ".nht-game",
+        "terminal": ".term--nht",
+        "explorer": ".nht-explorer",
+        "takeaway": ".nht-takeaway",
+        "controls": ".nht-controls",
+    }
+    pairs = (
+        ("game", "terminal"),
+        ("game", "explorer"),
+        ("terminal", "explorer"),
+        ("explorer", "takeaway"),
+        ("takeaway", "controls"),
+    )
+
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch(headless=True)
+        try:
+            for width, height in (
+                (1920, 1080),
+                (1440, 900),
+                (1024, 768),
+                (900, 900),
+            ):
+                context = browser.new_context(viewport={"width": width, "height": height})
+                context.route(re.compile(r"^https?://"), lambda route: route.abort())
+                page = context.new_page()
+                page.goto(f"{GUIDE.resolve().as_uri()}#training/describe", wait_until="load")
+                page.wait_for_function("window.NexusTraining && window.NexusAsteroids")
+                page.locator("#nhtPresent").click()
+                page.wait_for_function(
+                    "document.getElementById('nhTraining').classList.contains('is-present')"
+                )
+                assert page.locator("#nhTraining").get_attribute("role") == "dialog"
+                assert page.locator("#nhTraining").get_attribute("aria-modal") == "true"
+                assert page.locator(".site-header").evaluate("element => element.inert")
+                assert page.locator('[data-nht="exit-present"]').is_visible()
+                rectangles = {
+                    name: page.locator(selector).bounding_box()
+                    for name, selector in selectors.items()
+                }
+                assert all(rectangles.values()), (
+                    f"missing presentation region at {width}x{height}: {rectangles}"
+                )
+                for first, second in pairs:
+                    first_box = rectangles[first]
+                    second_box = rectangles[second]
+                    assert first_box is not None and second_box is not None
+                    overlap_width = max(
+                        0,
+                        min(
+                            first_box["x"] + first_box["width"],
+                            second_box["x"] + second_box["width"],
+                        )
+                        - max(first_box["x"], second_box["x"]),
+                    )
+                    overlap_height = max(
+                        0,
+                        min(
+                            first_box["y"] + first_box["height"],
+                            second_box["y"] + second_box["height"],
+                        )
+                        - max(first_box["y"], second_box["y"]),
+                    )
+                    assert overlap_width * overlap_height < 1, (
+                        f"{first} overlaps {second} at {width}x{height}: "
+                        f"{first_box} vs {second_box}"
+                    )
+                page.keyboard.press("Shift+Tab")
+                assert page.evaluate(
+                    "document.getElementById('nhTraining').contains(document.activeElement)"
+                )
+                page.keyboard.press("Escape")
+                page.wait_for_function(
+                    "!document.getElementById('nhTraining').classList.contains('is-present')"
+                )
+                assert page.evaluate("document.activeElement.id") == "nhtPresent"
+                assert not page.locator(".site-header").evaluate("element => element.inert")
+                page.locator("#nhtPresent").click()
+                page.wait_for_function(
+                    "document.getElementById('nhTraining').classList.contains('is-present')"
+                )
+                page.locator('[data-nht="exit-present"]').click()
+                page.wait_for_function(
+                    "!document.getElementById('nhTraining').classList.contains('is-present')"
+                )
+                assert page.evaluate("document.activeElement.id") == "nhtPresent"
+                context.close()
+        finally:
+            browser.close()
+
+
+def test_training_present_fallback_cleans_up_when_route_changes(
+    render_gate: object,
+) -> None:
+    _require_browser(render_gate)
+    from playwright.sync_api import sync_playwright
+
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch(headless=True)
+        try:
+            context = browser.new_context(viewport={"width": 1000, "height": 900})
+            context.route(re.compile(r"^https?://"), lambda route: route.abort())
+            page = context.new_page()
+            page_errors: list[str] = []
+            page.on("pageerror", lambda error: page_errors.append(str(error)))
+            page.goto(f"{GUIDE.resolve().as_uri()}#training/describe", wait_until="load")
+            page.wait_for_function("window.NexusTraining && window.NexusAsteroids")
+            page.evaluate(
+                """
+                () => Object.defineProperty(
+                  document.getElementById("nhTraining"),
+                  "requestFullscreen",
+                  {
+                    configurable: true,
+                    value: () => Promise.reject(new Error("fullscreen blocked for test"))
+                  }
+                )
+                """
+            )
+
+            page.locator("#nhtPresent").click()
+            page.wait_for_function(
+                "document.getElementById('nhTraining').classList.contains('is-present')"
+            )
+            page.evaluate("location.hash = '#home'")
+            page.wait_for_function(
+                """
+                document.body.getAttribute('data-page') === 'home'
+                && !document.getElementById('nhTraining').classList.contains('is-present')
+                """
+            )
+
+            assert not page.locator(".site-header").evaluate("element => element.inert")
+            assert not page.locator("#page-home").evaluate("element => element.inert")
+            assert page.locator("#nhTraining").get_attribute("role") is None
+            assert page.locator("#nhTraining").get_attribute("aria-modal") is None
+            assert not page_errors, f"page errors: {page_errors}"
+            context.close()
         finally:
             browser.close()
