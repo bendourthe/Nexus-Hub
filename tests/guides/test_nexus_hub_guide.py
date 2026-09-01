@@ -309,6 +309,13 @@ def test_github_is_user_initiated_not_a_script(parsed: GuideParser) -> None:
     assert github, "expected a GitHub navigation link"
 
 
+def test_global_runtime_does_not_round_trip_dom_content_through_html(
+    guide_text: str,
+) -> None:
+    assert 'setAttribute("data-html"' not in guide_text
+    assert not re.search(r"typed\.innerHTML\s*=", guide_text)
+
+
 # ---------------------------------------------------------------------------
 # Shell: nav, theming, routing (Phase 1)
 # ---------------------------------------------------------------------------

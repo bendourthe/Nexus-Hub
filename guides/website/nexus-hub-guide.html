@@ -2629,7 +2629,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
       btn.setAttribute("aria-pressed", theme === "dark" ? "true" : "false");
       btn.setAttribute("aria-label", theme === "dark" ? "Switch to light theme" : "Switch to dark theme");
     }
-    if (typeof syncConstellation === "function") syncConstellation();
+    syncConstellation();
   }
   applyTheme(currentTheme());
   var themeBtn = document.getElementById("themeToggle");
@@ -2687,13 +2687,8 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
     if (nl) nl.classList.remove("open");
     if (navToggle) navToggle.setAttribute("aria-expanded", "false");
     document.body.setAttribute("data-page", id);
-    if (typeof syncConstellation === "function") syncConstellation();
+    syncConstellation();
     observeReveals();
-  }
-
-  function pageIdFromHash() {
-    var raw = (location.hash || "#home").replace(/^#/, "");
-    return raw.split("?")[0].split("/")[0];
   }
   function rewriteHash(page) {
     var next = page.charAt(0) === "#" ? page : "#" + page;
@@ -2860,7 +2855,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
         });
         btns[b].addEventListener("keydown", function (event) {
           var current = Array.prototype.indexOf.call(btns, this);
-          var target = current;
+          var target;
           if (event.key === "ArrowRight") target = (current + 1) % btns.length;
           else if (event.key === "ArrowLeft") target = (current - 1 + btns.length) % btns.length;
           else if (event.key === "Home") target = 0;
@@ -2872,121 +2867,6 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
         });
       }
     })(tabGroups[g]);
-  }
-
-  /* -------------------------------------------------- terminal typewriter */
-  function prepTerminal(term) {
-    var typed = term.querySelector(".term-cmd .typed");
-    if (typed && !typed.getAttribute("data-ready")) {
-      typed.setAttribute("data-full", typed.getAttribute("data-type") || typed.textContent);
-      typed.setAttribute("data-html", typed.innerHTML);
-      typed.textContent = "";
-      typed.setAttribute("data-ready", "1");
-    }
-    var replay = term.querySelector(".term-replay");
-    if (replay) {
-      replay.addEventListener("click", function (e) {
-        e.stopPropagation();
-        playTerminal(term);
-      });
-    }
-    var body = term.querySelector(".term-body");
-    if (body) {
-      body.addEventListener("click", function (e) {
-        if (e.target.closest(".term-replay")) return;
-        skipTerminal(term);
-      });
-    }
-  }
-
-  function clearCaret(term) {
-    var c = term.querySelector(".term-cmd .caret");
-    if (c) c.parentNode.removeChild(c);
-  }
-
-  function skipTerminal(term) {
-    if (term._tok) term._tok.cancelled = true;
-    clearCaret(term);
-    var typed = term.querySelector(".term-cmd .typed");
-    if (typed) typed.innerHTML = typed.getAttribute("data-html") || "";
-    var outs = term.querySelectorAll(".term-out > *");
-    for (var i = 0; i < outs.length; i++) { outs[i].classList.add("revealed"); }
-    term.classList.add("is-done");
-  }
-
-  function playTerminal(term) {
-    var typed = term.querySelector(".term-cmd .typed");
-    var outs = term.querySelectorAll(".term-out > *");
-    var body = term.querySelector(".term-body");
-
-    if (term._tok) term._tok.cancelled = true;
-    var tok = term._tok = { cancelled: false };
-    term.classList.remove("is-done");
-    for (var i = 0; i < outs.length; i++) { outs[i].classList.remove("revealed"); }
-    clearCaret(term);
-
-    if (REDUCE) { skipTerminal(term); return; }
-
-    var speed = parseInt(term.getAttribute("data-speed") || "26", 10);
-    var full = typed ? (typed.getAttribute("data-full") || "") : "";
-    if (typed) typed.textContent = "";
-
-    var caret = null;
-    if (typed) {
-      caret = document.createElement("span");
-      caret.className = "caret";
-      caret.textContent = " ";
-      typed.parentNode.insertBefore(caret, typed.nextSibling);
-    }
-
-    var ci = 0;
-    function typeChar() {
-      if (tok.cancelled) return;
-      if (typed && ci <= full.length) {
-        typed.textContent = full.slice(0, ci);
-        ci++;
-        setTimeout(typeChar, speed);
-      } else {
-        if (typed) typed.innerHTML = typed.getAttribute("data-html") || full;
-        clearCaret(term);
-        revealOut();
-      }
-    }
-
-    var oi = 0;
-    function revealOut() {
-      if (tok.cancelled) return;
-      if (oi < outs.length) {
-        var el = outs[oi];
-        el.classList.add("revealed");
-        oi++;
-        if (body) body.scrollTop = body.scrollHeight;
-        var isSpacer = el.classList && el.classList.contains("spacer");
-        setTimeout(revealOut, isSpacer ? 26 : 115);
-      } else {
-        term.classList.add("is-done");
-      }
-    }
-
-
-  }
-
-  var animTerms = document.querySelectorAll(".term[data-anim]");
-  for (var t2 = 0; t2 < animTerms.length; t2++) { prepTerminal(animTerms[t2]); }
-
-  if ("IntersectionObserver" in window) {
-    var io = new IntersectionObserver(function (entries) {
-      for (var i = 0; i < entries.length; i++) {
-        var en = entries[i];
-        if (en.isIntersecting && !en.target.getAttribute("data-played")) {
-          en.target.setAttribute("data-played", "1");
-          playTerminal(en.target);
-        }
-      }
-    }, { threshold: 0.2 });
-    for (var t3 = 0; t3 < animTerms.length; t3++) { io.observe(animTerms[t3]); }
-  } else {
-    for (var t4 = 0; t4 < animTerms.length; t4++) { skipTerminal(animTerms[t4]); }
   }
 
   /* -------------------------------------------------- constellation */
@@ -3251,7 +3131,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
     }
 
     return {
-      situation: situation || "wrap-boundary",
+      situation: situation,
       ship: ship,
       bullets: bullets,
       asteroids: asteroids,
@@ -3861,12 +3741,10 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
   var dataEl = document.getElementById("nh-training-scenes");
   if (!root || !dataEl) return;
 
-  var DATA = {};
   var SCENES = [];
   var INITIAL = { game: { collisionMode: "buggy", splittingEnabled: false, situation: "wrap-boundary" }, files: [] };
   try {
     var parsed = JSON.parse(dataEl.textContent || "{}");
-    DATA = parsed || {};
     SCENES = parsed && parsed.scenes ? parsed.scenes : [];
     if (parsed && parsed.initial) INITIAL = parsed.initial;
   } catch (err) {
@@ -4318,7 +4196,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
     els.fileTree.addEventListener("keydown", function (e) {
       var items = Array.prototype.slice.call(els.fileTree.querySelectorAll('[role="treeitem"]'));
       var at = items.indexOf(document.activeElement);
-      var target = at;
+      var target;
       if (e.key === "ArrowDown") target = Math.min(items.length - 1, at + 1);
       else if (e.key === "ArrowUp") target = Math.max(0, at - 1);
       else if (e.key === "Home") target = 0;

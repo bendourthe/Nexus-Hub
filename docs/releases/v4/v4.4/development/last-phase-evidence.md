@@ -220,6 +220,20 @@ Resolved branching model: feature branches start from `develop`, integration pul
 
 Expected required checks are `validate`, `shellcheck`, `ci-required`, `colocation`, and `verify`.
 
-The scoped Phase 7 local commit closed the local implementation boundary. At that checkpoint no remote action was claimed. The user explicitly approved the first push on 2026-09-01, and the feature branch was published at `560c8d4843dbabdad4b9b0c2d264a357446a9dc7`; pull-request creation was deliberately held until the independent cross-check corrections above were committed. No remote CI result, merge, release tag, GitHub Release, artifact verification, or back-merge is claimed in this evidence checkpoint. Merge and release each require their own later evidence and approval gates.
+The scoped Phase 7 local commit closed the local implementation boundary. At that checkpoint no remote action was claimed. The user explicitly approved the first push and integration pull-request creation on 2026-09-01. The feature branch was published at `560c8d4843dbabdad4b9b0c2d264a357446a9dc7`, the independent pre-PR corrections were published at `d23611a36b3056c6f09ea49f005acc1d2bdb8188`, and integration PR #150 opened against `develop`.
 
-**Disposition**: First push COMPLETE. Integration pull-request creation and remote checks remain PENDING; merge is NO-GO until every expected required check is terminal and green and the user explicitly approves it. Release and back-merge remain later approval and verification gates.
+The initial remote run made `validate`, `shellcheck`, `colocation`, and `verify` green, but GitHub Advanced Security check-run `99885507186` failed on the `d23611a3` PR head with 9 CodeQL annotations, including 2 high-severity `js/xss-through-dom` findings. The findings traced `.typed` DOM content serialized into `data-html` and later reparsed through `innerHTML` at the former guide lines 2911 and 2950. No `.term[data-anim]` or `.term-cmd .typed` instance exists in the current guide, so the subsystem was unreachable, but the latent DOM-to-HTML sink correctly blocked integration.
+
+The local correction deletes that orphaned typewriter subsystem rather than preserving an unused parser, adds a structural regression that first failed on the original source-to-sink pattern, and applies behavior-preserving cleanup for the other 7 CodeQL annotations. An equivalent-sink sweep leaves only 5 `innerHTML` writes built from fixed local page metadata or fixed SVG/label constants, with no DOM- or attribute-derived input. Verification on the corrected tree is terminal green:
+
+```text
+python -m pytest -q -p no:cacheprovider tests/guides/test_nexus_hub_guide.py tests/guides/test_asteroids_game.py tests/guides/test_training_explorer.py
+99 passed, 1 skipped in 29.49s
+
+NEXUS_REQUIRE_RENDER=1 python -m pytest -q -p no:cacheprovider tests/guides/ tests/verification/test_visual_defect_detector.py
+156 passed, 1 skipped in 93.90s
+```
+
+The skip in each result is the optional portfolio-copy contract. The remote CodeQL detector has not yet rerun against this local correction, so no remote closure is claimed.
+
+**Disposition**: First push and PR creation COMPLETE. The local CodeQL correction is PASS, but remote integration remains PENDING / NO-GO until the correction is published, the same detector and every expected required check are terminal and green, and the user explicitly approves the merge. Release and back-merge remain later approval and verification gates.
