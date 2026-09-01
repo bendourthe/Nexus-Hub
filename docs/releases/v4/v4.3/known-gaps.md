@@ -2,8 +2,8 @@
 
 **Project**: Nexus-Hub
 **Status**: finalized for the v4.3.0 release
-**Finalized**: 2026-08-31, at `/update release`. The five deferred items and three warnings below remain OPEN and owned by this ledger; they are deferrals recorded with an owner and a next step, not unfinished release work. The four resolved bugs and one resolved coverage gap were fixed within this release.
-**Last updated**: 2026-08-30
+**Finalized**: 2026-08-31, at `/update release`. The five deferred items and two warnings below remain OPEN and owned by this ledger; they are deferrals recorded with an owner and a next step, not unfinished release work. One warning was resolved during v4.4.0 Phase 7 reconciliation; the four resolved bugs and one resolved coverage gap were fixed within this release.
+**Last updated**: 2026-08-31 (v4.4.0 Phase 7 reconciliation)
 
 ## v4.3.0 - agentic-verification-discipline
 
@@ -14,7 +14,7 @@
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 5 | 0 |
 | Bugs / regressions (BG) | 0 | 4 |
-| Warnings (WN) | 3 | 0 |
+| Warnings (WN) | 2 | 1 |
 | Missing tests / coverage gaps (MT) | 0 | 1 |
 | Quality-gate gaps (QG) | 0 | 0 |
 
@@ -69,15 +69,6 @@
 
 #### Warnings
 
-##### WN-1 - GitHub repository description advertises 328 skills
-
-- **Source phase**: Phase 5 - Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
-- **Plan reference**: `docs/releases/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` T020 / T026
-- **Evidence**: `python scripts/check_release_preconditions.py --branches --repo-settings` reported that the live GitHub description says 328 skills while README and the generated catalog say 329.
-- **Impact**: Repository metadata understates the catalog by one skill. It does not change installed behavior or the local verification result.
-- **Owner**: Authorized publication flow.
-- **Next step**: With explicit approval for the external metadata change, update the GitHub repository description to 329 skills and rerun `python scripts/check_release_preconditions.py --branches --repo-settings` before resolving this warning.
-
 ##### WN-2 - GitHub settings that require the web UI remain unverified
 
 - **Source phase**: Phase 5 CI/CD contract comparison, approved bundle F
@@ -97,6 +88,16 @@
 - **Next step**: Recheck each surface against dated official documentation or a live-host artifact before adding a destination, default, or verification gate.
 
 ### Resolved
+
+#### Warnings
+
+##### WN-1 - GitHub repository description advertises 328 skills
+
+- **Source phase**: Phase 5 - Architecture Refactor, Known-Gaps Reconciliation, and CI/CD
+- **Plan reference**: `docs/releases/v4/v4.3/plans/v4.3.0-agentic-verification-discipline.md` T020 / T026
+- **Evidence at deferral**: `python scripts/check_release_preconditions.py --branches --repo-settings` reported that the live GitHub description said 328 skills while README and the generated catalog said 329.
+- **Resolution**: `python scripts/check_release_preconditions.py --repo-settings` returned `OK: repository description agrees with README.md`; `README.md` and the generated catalog declare 329 skills.
+- **Resolved in**: v4.4.0 Phase 7 reconciliation on 2026-08-31
 
 #### Bugs / Regressions
 
