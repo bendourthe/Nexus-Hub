@@ -482,7 +482,8 @@ def test_pagenav_controls_hug_their_label(guide_text: str) -> None:
     assert rule, "expected .pagenav a rule"
     body = rule.group(1)
     assert "flex: 0 1 260px" not in body, "fixed-width nav slabs were the defect"
-    assert "flex: 0 0 auto" in body and "width: auto" in body
+    assert "flex: 0 0 auto" not in body, "nav labels must shrink on narrow screens"
+    assert "flex: 0 1 auto" in body and "width: auto" in body
 
 
 def test_invocation_convention_exists_and_is_used(

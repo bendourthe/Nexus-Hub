@@ -481,7 +481,7 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
 /* ---------- Page prev/next ---------- */
 .pagenav { display: flex; justify-content: space-between; gap: var(--sp-3); margin-top: var(--sp-7); }
 .pagenav a {
-  flex: 0 0 auto; width: auto; padding: 8px 16px; border: 1px solid var(--border);
+  flex: 0 1 auto; width: auto; padding: 8px 16px; border: 1px solid var(--border);
   border-radius: var(--radius-sm); background: var(--surface); color: var(--ink-dim);
 }
 .pagenav a:hover:not(.disabled) { border-color: var(--border-bright); color: var(--ink); }
@@ -549,9 +549,18 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
 .fx-svg[data-phase2-diagram] .fxt--detail,
 .fx-svg[data-phase3-diagram] .fxt--role,
 .fx-svg[data-phase3-diagram] .fxt--detail { font-size: 13px; }
+.fx-svg[data-phase2-diagram] .fxt { font-size: 14px; }
 .fx-svg[data-phase3-diagram] .fxt { font-size: 14px; }
 .fx-svg--mobile[data-phase3-diagram] .fxt { font-size: 15px; }
-.fx-svg[data-phase3-diagram] [data-phase3-claim] .fxt--role { letter-spacing: .05em; }
+.fx-svg[data-phase3-diagram] .fxt--detail { font-size: 13px; }
+.fx-svg--mobile[data-phase3-diagram] .fxt--detail { font-size: 14px; }
+.fx-svg[data-phase3-diagram] [data-phase3-claim] .fxt { font-size: 13px; }
+.fx-svg--mobile[data-phase3-diagram] [data-phase3-claim] .fxt { font-size: 14px; }
+.fx-svg[data-phase3-diagram] [data-phase3-claim] .fxt--role { letter-spacing: 0; }
+.fx-svg[data-phase2-diagram] [data-image-stage="source"] .fxt--role { letter-spacing: 0; }
+.fx-svg[data-phase2-diagram] [data-stage="integration"] .fxt--hero { letter-spacing: 0; }
+.fx-svg[data-phase3-diagram] [data-phase3-node="written-gate"] .fxt { font-size: 13px; }
+.fx-svg--mobile[data-phase3-diagram] [data-phase3-node="written-gate-mobile"] .fxt { font-size: 14px; }
 .fxt--warn { fill: var(--amber); font-weight: 700; letter-spacing: .06em; }
 /* Side colouring: the unaided path is muted/warning, the harnessed
    path is accent/positive, applied to lanes and nodes, not just the
@@ -1219,12 +1228,12 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
             <path class="fxp fxp--ghost fx-draw" style="--d:400ms" pathLength="1" d="M 384 38 L 384 204"/>
             <text class="fxt fxt--role" x="408" y="48">LATER: ONE LIVE REQUEST</text>
             <g class="fx-pop" data-stage="request" style="--d:460ms">
-              <rect class="fxr" x="418" y="82" width="128" height="76" rx="14"/>
+              <rect class="fxr" x="408" y="82" width="148" height="76" rx="14"/>
               <text class="fxt fxt--role" x="482" y="108" text-anchor="middle">REQUEST</text>
               <text class="fxt" x="482" y="132" text-anchor="middle">Goal + context</text>
               <text class="fxt fxt--detail" x="482" y="149" text-anchor="middle">assembled this turn</text>
             </g>
-            <path class="fxp fx-draw" style="--d:580ms" pathLength="1" d="M 546 120 L 570 120"/>
+            <path class="fxp fx-draw" style="--d:580ms" pathLength="1" d="M 556 120 L 570 120"/>
             <path class="fx-head fx-pop" style="--d:680ms" d="M 566 114 L 578 120 L 566 126 Z"/>
             <g class="fx-pop" data-stage="reasoning" style="--d:700ms">
               <rect class="fxr fxr--hero" x="578" y="82" width="136" height="76" rx="14"/>
@@ -1232,10 +1241,10 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
               <text class="fxt" x="646" y="132" text-anchor="middle">Reason over inputs</text>
               <text class="fxt fxt--detail" x="646" y="149" text-anchor="middle">inside the model</text>
             </g>
-            <path class="fxp fx-draw" style="--d:820ms" pathLength="1" d="M 714 120 L 738 120"/>
-            <path class="fx-head fx-pop" style="--d:920ms" d="M 734 114 L 746 120 L 734 126 Z"/>
+            <path class="fxp fx-draw" style="--d:820ms" pathLength="1" d="M 714 120 L 732 120"/>
+            <path class="fx-head fx-pop" style="--d:920ms" d="M 728 114 L 740 120 L 728 126 Z"/>
             <g class="fx-pop" data-stage="output" style="--d:940ms">
-              <rect class="fxr" x="746" y="82" width="138" height="76" rx="14"/>
+              <rect class="fxr" x="740" y="82" width="150" height="76" rx="14"/>
               <text class="fxt fxt--role" x="815" y="108" text-anchor="middle">OUTPUT</text>
               <text class="fxt" x="815" y="132" text-anchor="middle">Useful result</text>
               <text class="fxt fxt--detail" x="815" y="149" text-anchor="middle">returned to platform</text>
@@ -1387,11 +1396,11 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
             <g class="fx-pop" data-phase2-node="strong-prompt-mobile" style="--d:320ms">
               <rect class="fxwin fxwin--good" x="24" y="246" width="312" height="452" rx="16"/>
               <text class="fxt fxt--accent" x="180" y="278" text-anchor="middle">STRONG PROMPT</text>
-              <g data-phase2-node="prompt-goal-mobile"><rect class="fxchip fxchip--good" x="44" y="298" width="272" height="62" rx="10"/><text class="fxt fxt--role" x="60" y="319">GOAL</text><text class="fxt" x="60" y="343">Welcome community garden members</text></g>
+              <g data-phase2-node="prompt-goal-mobile"><rect class="fxchip fxchip--good" x="44" y="298" width="272" height="62" rx="10"/><text class="fxt fxt--role" x="60" y="319">GOAL</text><text class="fxt" x="180" y="343" text-anchor="middle">Welcome community garden members</text></g>
               <g data-phase2-node="prompt-material-mobile"><rect class="fxchip" x="44" y="370" width="272" height="92" rx="10"/><text class="fxt fxt--role" x="60" y="391">MATERIAL</text><text class="fxt" x="60" y="415">Saturday, 10:00 AM</text><text class="fxt" x="60" y="437">Oak Street gate &middot; gloves &middot; water</text></g>
               <g data-phase2-node="prompt-done-mobile"><rect class="fxchip" x="44" y="472" width="272" height="72" rx="10"/><text class="fxt fxt--role" x="60" y="493">DONE</text><text class="fxt" x="60" y="517">Friendly, factual, ends with RSVP</text></g>
               <g data-phase2-node="prompt-format-mobile"><rect class="fxchip fxchip--good" x="44" y="554" width="272" height="62" rx="10"/><text class="fxt fxt--role" x="60" y="575">FORMAT</text><text class="fxt" x="60" y="599">Subject + email under 120 words</text></g>
-              <g data-phase2-node="strong-result-mobile"><rect class="fxcard fxcard--good" x="44" y="626" width="272" height="52" rx="10"/><text class="fxt fxt--role" x="60" y="647">MORE LIKELY</text><text class="fxt fxt--good" x="60" y="670">Checkable, fact-constrained draft</text></g>
+              <g data-phase2-node="strong-result-mobile"><rect class="fxcard fxcard--good" x="44" y="626" width="272" height="52" rx="10"/><text class="fxt fxt--role" x="60" y="647">MORE LIKELY</text><text class="fxt fxt--good" x="180" y="670" text-anchor="middle">Checkable, fact-constrained draft</text></g>
             </g>
           </svg>
         </div>
@@ -1456,8 +1465,8 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
                 <text class="fxt fxt--detail" x="180" y="128" text-anchor="middle">from supplied context</text>
                 <text class="fxt fxt--role" x="180" y="158" text-anchor="middle">PROPOSED ACTION</text>
               </g>
-              <text class="fxt fxt--detail" x="196" y="225">inspect &middot; change &middot; verify</text>
-              <text class="fxt fxt--detail" x="196" y="270">content &middot; output &middot; status</text>
+              <text class="fxt fxt--detail" x="184" y="225">inspect &middot; change &middot; verify</text>
+              <text class="fxt fxt--detail" x="184" y="270">content &middot; output &middot; status</text>
               <g class="fx-pop" data-phase3-node="agent-platform-mobile" style="--d:180ms">
                 <rect class="fxr" x="24" y="296" width="312" height="180" rx="18"/>
                 <text class="fxt fxt--accent" x="180" y="338" text-anchor="middle">PLATFORM</text>
@@ -1494,7 +1503,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
             </g>
             <g data-phase3-layer="nodes">
               <g class="fx-pop" data-phase3-node="shared-request">
-                <rect class="fxr fxr--hero" x="150" y="12" width="460" height="62" rx="14"/>
+                <rect class="fxr fxr--hero" x="136" y="12" width="488" height="62" rx="14"/>
                 <text class="fxt fxt--role" x="380" y="36" text-anchor="middle">SAME REQUEST</text>
                 <text class="fxt" x="380" y="59" text-anchor="middle">Update the event plan with the approved date, then check the total.</text>
               </g>
@@ -1602,7 +1611,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
             </g>
             <g data-phase3-layer="nodes">
               <g class="fx-pop" data-phase3-node="finite-window">
-                <rect class="fxr fxr--hero" x="250" y="12" width="260" height="64" rx="14"/>
+                <rect class="fxr fxr--hero" x="232" y="12" width="296" height="64" rx="14"/>
                 <text class="fxt fxt--role" x="380" y="37" text-anchor="middle">SAME MODEL, FINITE WINDOW</text>
                 <text class="fxt" x="380" y="61" text-anchor="middle">one shared token budget</text>
               </g>
@@ -1874,7 +1883,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
               </g>
               <g class="fx-pop" data-phase3-node="written-gate" style="--d:540ms">
                 <polygon class="fxchip fxchip--good" points="490,252 522,286 490,320 458,286"/>
-                <rect data-phase3-text-safe x="472" y="276" width="36" height="22" fill="none" stroke="none"/>
+                <rect data-phase3-text-safe x="470" y="276" width="40" height="22" fill="none" stroke="none"/>
                 <text class="fxt fxt--good" x="490" y="291" text-anchor="middle">GATE</text>
               </g>
               <g class="fx-pop" data-phase3-node="durable-trail" style="--d:700ms">

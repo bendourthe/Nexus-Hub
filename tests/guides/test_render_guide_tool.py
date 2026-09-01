@@ -573,6 +573,61 @@ def test_training_cold_deep_link_accepts_and_discards_legacy_beat(
             browser.close()
 
 
+@pytest.mark.parametrize("theme", ("dark", "light"))
+def test_training_page_navigation_does_not_overflow_at_320px(
+    render_gate: object,
+    theme: str,
+) -> None:
+    _require_browser(render_gate)
+    from playwright.sync_api import sync_playwright
+
+    renderer = _load_renderer()
+    guide_url = renderer.GUIDE.resolve().as_uri()
+
+    with sync_playwright() as playwright:
+        browser = playwright.chromium.launch(headless=True)
+        try:
+            context = browser.new_context(viewport={"width": 320, "height": 940})
+            context.route(re.compile(r"^https?://"), lambda route: route.abort())
+            context.add_init_script(
+                f'window.localStorage.setItem("portfolio-theme", "{theme}");'
+            )
+            page = context.new_page()
+            try:
+                page.goto(f"{guide_url}#training", wait_until="load")
+                page.wait_for_selector(
+                    '.page.active[data-page="training"]',
+                    state="visible",
+                    timeout=3000,
+                )
+                page.add_style_tag(
+                    content=".pagenav, .pagenav * { font-family: Arial, sans-serif !important; }"
+                )
+                metrics = page.locator(
+                    '.page.active[data-page="training"] .pagenav'
+                ).evaluate(
+                    """
+                    nav => ({
+                      documentWidth: document.documentElement.scrollWidth,
+                      viewportWidth: window.innerWidth,
+                      navigationWidth: nav.clientWidth,
+                      navigationScrollWidth: nav.scrollWidth,
+                    })
+                    """
+                )
+                assert metrics["documentWidth"] <= metrics["viewportWidth"] + 1, (
+                    f"{theme}: training document overflow: {metrics}"
+                )
+                assert (
+                    metrics["navigationScrollWidth"]
+                    <= metrics["navigationWidth"] + 1
+                ), f"{theme}: training page navigation overflow: {metrics}"
+            finally:
+                context.close()
+        finally:
+            browser.close()
+
+
 @pytest.mark.parametrize("width", (320, 420, 720, 721, 900, 1440))
 def test_foundations_phase3_route_motion_and_label_containment(
     render_gate: object,

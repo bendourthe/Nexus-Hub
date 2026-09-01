@@ -3,7 +3,7 @@
 **Date**: 2026-08-31
 **Branch**: `feat/v4.4.0-guide-depth-and-training-rebuild`
 **Phase 7 base revision**: `5ddf83c34f1a6ea4e6029fe6b01942be5fb1cf53`
-**Publication state**: Local-only; no Phase 7 commit, push, pull request, merge, tag, or release is claimed by this record.
+**Publication state**: PR #150 is open against `develop`. The approved branch publication and pull-request creation are complete; merge, tag, release, back-merge, and branch deletion are not claimed by this record.
 
 ## Architecture refactor
 
@@ -133,7 +133,7 @@ The deep pass inventoried user-visible Home, Foundations, Training, Cheatsheets,
 
 The presentation correction intentionally permits vertical scrolling when the complete Training surface exceeds viewport height. This is the no-overlap fallback for v4.4.0; the broader v4.4.1 visual and arcade rebuild may optimize density without reopening the v4.4.0 containment contract.
 
-Fresh independent rendered proof covered 32 route, theme, and viewport cases with zero detector findings and zero allowlisted cases. It also found one visible H1 per route, no heading-rank skips, unnamed focusables, positive tabindex, or focusables inside `aria-hidden`, and passing reduced-motion and measured-contrast contracts in both themes. The current guide SHA256 is `C3655425490DA85754FFD94B1EDCC5DA634389A0CA54FA4A3F3258B0310D8A77`.
+Fresh independent rendered proof covered 32 route, theme, and viewport cases with zero detector findings and zero allowlisted cases. It also found one visible H1 per route, no heading-rank skips, unnamed focusables, positive tabindex, or focusables inside `aria-hidden`, and passing reduced-motion and measured-contrast contracts in both themes. After the PR guide-render portability correction, the current guide SHA256 is `C8E34A098150123D47B7799719551351BC0B8827315FA4F299B1C012A7FE52E0`.
 
 **Disposition**: PASS. The rendered, accessibility, color, runtime, geometry, hallmark, and convergence reviewers report no remaining release-blocking finding. Real screen-reader testing, Firefox/WebKit, explicit 200 percent zoom and text-spacing overrides, Lighthouse, retained post-fix screenshots, and optional portfolio synchronization remain human or environment-specific coverage rather than claimed automation.
 
@@ -149,9 +149,9 @@ The plan Goal is to leave the project organized, reconcile known gaps and living
 | Cheatsheets and shell behavior | Guide Cheatsheets contracts, hash routing, theme, reduced-motion, offline, and copy interactions in the guide sweep. | Satisfied locally. |
 | v4.3 verification-discipline prerequisite | Distributed responsive rule, registered Bash/PowerShell hook pair, three skill registries, and named visual-gate language passed a 440-test prerequisite slice; the testing-module selector resolves `functional-verification`. | Satisfied locally. |
 | Organized release records and reconciled gaps | Canonical v4.4 tree, cleanup report, known-gap ledger, this evidence record, progress dashboard, and three owner-authorized decision records. | Satisfied in the isolated staged candidate; 29 records, 30 living-doc tests, docs conventions, personal-path scan, and cached diff check pass. |
-| Publish and integrate | No remote mutation has occurred. | PENDING explicit push approval, terminal required checks, and explicit merge approval. |
+| Publish and integrate | PR #150 is open; the approved branch publication and CodeQL correction are published, while the guide-render portability correction remains local. | PARTIAL: publish the correction, obtain terminal-green replacement checks, then request explicit merge approval. |
 
-The independent convergence review checked every prior implementation task and every named Goal clause against the current bytes. It reports 27 of 27 tasks satisfied, 9 of 9 Goal clauses satisfied, 0 partial, 0 missing, 0 contradictory, and no current code-vs-plan blocker. The guide is 495,319 bytes against the 500,000-byte gate. Platform-default agreement remains 13 of 13 surfaces, and the focused defaults, driver, lifecycle, and installer slice passed 96 tests with 10 explicit environment skips.
+The independent convergence review checked every prior implementation task and every named Goal clause against the current bytes. It reports 27 of 27 tasks satisfied, 9 of 9 Goal clauses satisfied, 0 partial, 0 missing, 0 contradictory, and no current code-vs-plan blocker. The guide is 491,812 bytes against the 500,000-byte gate. Platform-default agreement remains 13 of 13 surfaces, and the focused defaults, driver, lifecycle, and installer slice passed 96 tests with 10 explicit environment skips.
 
 **Disposition**: PASS for current v4.4.0 code versus T001 through T027, the written Goal, the v4.3 prerequisite, the decision-record boundary, and the final local profiles. Publication remains the separate lifecycle gate.
 
@@ -234,6 +234,37 @@ NEXUS_REQUIRE_RENDER=1 python -m pytest -q -p no:cacheprovider tests/guides/ tes
 156 passed, 1 skipped in 93.90s
 ```
 
-The skip in each result is the optional portfolio-copy contract. The remote CodeQL detector has not yet rerun against this local correction, so no remote closure is claimed.
+The skip in each result is the optional portfolio-copy contract. Commit `7e54a6eb30da60d0658b1975275a53211d3de489` published the correction, and the replacement CodeQL composite plus its JavaScript/TypeScript and Python analyses reached terminal green. The required `validate`, `shellcheck`, `colocation`, and `verify` checks also passed on that head.
 
-**Disposition**: First push and PR creation COMPLETE. The local CodeQL correction is PASS, but remote integration remains PENDING / NO-GO until the correction is published, the same detector and every expected required check are terminal and green, and the user explicitly approves the merge. Release and back-merge remain later approval and verification gates.
+### PR guide-render portability checkpoint
+
+GitHub Actions run `33518225492`, job `99890645036`, then executed the fail-closed browser suite on the PR merge result and reported 13 failed, 143 passed, and 1 skipped. The failures were not accepted as runner noise. They reproduced three cross-platform font-metric defects:
+
+- At 320 px, Training's `Foundations` and `Cheatsheets` page-navigation controls used `flex: 0 0 auto`, so Linux fallback metrics made the 283 px row overflow its 272 px content box in every Training scene and both themes.
+- Phase 2's 13-unit SVG text scaled to an 11 px glyph box at narrow and breakpoint widths, while several Linux fallback labels exceeded their original nodes.
+- Phase 3's later generic `.fxt` rules overrode the intended role/detail hierarchy, so Linux fallback glyphs escaped agent-loop lanes, comparison headers, harness claims, and the written-gate safe area. The first assertion at each width masked the later labels until a forced DejaVu probe enumerated them.
+
+The correction lets page-navigation controls shrink, adds a two-theme 320 px browser regression that failed at 283 versus 272 before the CSS change, restores the Phase 2 and Phase 3 font hierarchy, removes excess claim tracking, and widens or recenters only the affected SVG nodes and labels. Text remains uncompressed; no `textLength` workaround is retained. An independent correction-diff review then found that the widened output node covered the old arrowhead tip; the connector and arrowhead were aligned to the new boundary, and the Phase 2 matrix passed all 6 widths on both Windows and Ubuntu.
+
+Fresh local proof on the corrected tree:
+
+```text
+Windows focused navigation plus Phase 2 and Phase 3 matrices
+14 passed in 24.29s
+
+Ubuntu Playwright 1.62.0 focused navigation plus Phase 2 and Phase 3 matrices
+14 passed in 21.14s
+
+Ubuntu original page, theme, and Training-scene overflow matrix
+1 passed in 6.04s
+
+Windows fail-closed guide and detector aggregate
+158 passed, 1 skipped in 93.06s
+
+Ubuntu fail-closed guide and detector aggregate
+158 passed, 1 skipped in 104.90s
+```
+
+The skip remains the optional portfolio-copy contract because `NEXUS_HUB_PORTFOLIO_ROOT` is unset. Ubuntu used the official `mcr.microsoft.com/playwright/python:v1.62.0-noble` image with Playwright 1.62.0 and a read-only workspace mount.
+
+**Disposition**: First push, PR creation, and remote CodeQL remediation are COMPLETE. The guide-render portability correction is PASS on Windows and Ubuntu but remains PENDING remote replacement execution. Integration stays NO-GO until the correction is committed and published, every replacement required check including `guide-render` and `ci-required` is terminal green, and the user explicitly approves merge. Release and back-merge remain later approval and verification gates.

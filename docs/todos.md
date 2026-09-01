@@ -2,7 +2,7 @@
 
 **Branch:** `feat/v4.4.0-guide-depth-and-training-rebuild`
 **Active plan:** [v4.4.0 guide-depth-and-training-rebuild](releases/v4/v4.4/plans/v4.4.0-guide-depth-and-training-rebuild.md)
-**Last refreshed:** 2026-08-31
+**Last refreshed:** 2026-09-01
 
 This dashboard tracks the work in flight right now. It is deliberately short. Finished versions are not listed here: each one's outcome lives in its own `docs/releases/v*/v*.*/known-gaps.md`, and what shipped lives in [`CHANGELOG.md`](../CHANGELOG.md). Sequencing beyond the active plan lives in [`docs/roadmap-prioritization.md`](roadmap-prioritization.md).
 
@@ -42,7 +42,7 @@ v4.3.0 is tagged and released, so its verification discipline is available to ga
 
 ### Current checkpoint
 
-Phase 7 local closeout is complete in this scoped seventh commit. The corrected guide and detector aggregate passes 154 tests with one expected optional portfolio-copy skip, 27 of 27 implementation tasks and 9 of 9 Goal clauses converge, and the approved `guide-render` CI job closes MT-1. The corrected platform profile passed overall with 4 commands across 3 groups and the expected empty Windows shell-lint skip. The isolated exact-candidate full profile passed all 43 commands across 11 groups with no failure, skip, or advisory in 3,685.4 seconds; the earlier primary-worktree failure remains recorded as contamination from the excluded v4.4.1 plan. The three owner-authorized v4.4.0 decision records pass isolated candidate validation. DF-1 is the only open v4.4 product gap. No push, pull request, remote CI run, merge, tag, release, or back-merge has occurred.
+Phase 7 local closeout and the approved first publication are complete, and integration PR #150 is open against `develop`. CodeQL is terminal green after commit `7e54a6eb` removed the dormant DOM-to-HTML sink. The first Linux `guide-render` job then retained a 13-failure receipt for cross-platform navigation and SVG font metrics; the corrective tree now passes 158 tests with one expected optional portfolio-copy skip on both Windows and Ubuntu. The corrected platform profile passed overall with 4 commands across 3 groups, and the isolated exact-candidate full profile passed all 43 commands across 11 groups. The three owner-authorized v4.4.0 decision records pass isolated candidate validation, and DF-1 is the only open v4.4 product gap. Phase 7 remains open until the portability correction is published, every replacement check is terminal green, and merge receives separate explicit approval; tag, release, and back-merge remain later gates.
 
 ---
 
