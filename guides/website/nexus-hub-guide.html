@@ -511,11 +511,13 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
 /* ---------- Foundations scenes ---------- */
 .fx-scene {
   display: grid; grid-template-columns: minmax(280px, 5fr) minmax(320px, 7fr);
-  gap: var(--sp-6); align-items: center;
-  padding: var(--sec-pad) 0; border-top: 1px solid var(--border);
+  gap: 30px; align-items: center;
+  padding: 26px 0; border-top: 1px solid var(--border);
 }
 .fx-scene:first-of-type { border-top: 0; }
 .fx-flip .fx-copy { order: 2; }
+/* Full width is the exception now: only a scene whose content is intrinsically two-across
+   keeps it. Making it the default is what made Foundations 7,235px tall at 1440. */
 .fx-wide { grid-template-columns: 1fr; }
 .fx-title { margin-bottom: var(--sp-3); }
 .fx-title h2 { margin-bottom: 6px; }
@@ -523,6 +525,73 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
 .fx-copy h2 { text-wrap: balance; }
 .fx-copy p { font-size: 15.5px; color: var(--ink-dim); }
 .fx-copy strong, .fx-copy em { color: var(--ink); }
+/* ---------- Prompt + Context request story (v4.4.1 Phase 3) ---------- */
+/* Weaker state always precedes stronger state in DOM order, so reading order and
+   screen-reader order match the teaching sequence at every breakpoint. */
+.fx-states { display: grid; grid-template-columns: 1fr auto 1fr; gap: 14px; align-items: stretch; }
+.fx-state { min-width: 0; margin: 0; padding: 13px 15px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); }
+.fx-state--weak { border-style: dashed; }
+.fx-state--strong { border-color: var(--border-bright); }
+.fx-state-tag { margin: 0 0 8px; color: var(--teal-soft); font-size: 12px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; }
+.fx-state--weak .fx-state-tag { color: var(--ink-faint); }
+.fx-state-line { margin: 0; color: var(--ink); font-size: 15px; line-height: 1.45; }
+.fx-state-why { margin: 10px 0 0; color: var(--ink-dim); font-size: 13px; line-height: 1.5; }
+.fx-state-link { display: flex; align-items: center; }
+.fx-inline-arrow { width: 34px; height: 12px; overflow: visible; }
+.fx-parts { margin: 0; display: grid; gap: 7px; }
+.fx-part { display: grid; grid-template-columns: 4.6rem 1fr; gap: 10px; align-items: baseline; }
+.fx-part dt { color: var(--teal-soft); font-size: 11.5px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; }
+.fx-part dd { margin: 0; color: var(--ink); font-size: 14px; line-height: 1.4; }
+.fx-ctx { display: grid; gap: 16px; }
+.fx-ctx-row { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); gap: 12px; align-items: center; }
+.fx-ctx-query { padding: 12px 14px; border: 1px solid var(--border-bright); border-radius: var(--radius-sm); background: var(--surface); }
+.fx-ctx-query p { margin: 5px 0 0; color: var(--ink); font-size: 14.5px; line-height: 1.4; }
+.fx-ctx-tag { color: var(--teal-soft); font-size: 11.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.fx-ctx-plus { color: var(--ink-faint); font-size: 20px; font-weight: 700; text-align: center; }
+.fx-ctx-kinds { list-style: none; display: grid; gap: 6px; margin: 0; padding: 0; }
+.fx-ctx-kind { display: block; padding: 7px 11px; border: 1px dashed var(--border); border-radius: 7px; background: var(--bg-0); color: var(--ink-dim); font-size: 13.5px; }
+.fx-ctx-budgets { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.fx-budget { min-width: 0; padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); }
+/* One budget, two ways of spending it: both bars are the same width on purpose. */
+.fx-bar { display: flex; height: 16px; margin: 4px 0 0; border-radius: 5px; overflow: hidden; background: var(--bg-0); border: 1px solid var(--border); }
+.fx-bar-seg { display: block; width: var(--w); }
+.fx-bar-seg--on { background: var(--accent); }
+.fx-bar-seg--off { background: var(--border-bright); }
+.fx-bar-seg--rest { background: transparent; }
+.fx-bar-seg--split { border-left: 1px solid var(--surface); }
+.fx-legend { list-style: none; display: grid; gap: 3px; margin: 8px 0 0; padding: 0; color: var(--ink-dim); font-size: 12.5px; line-height: 1.4; }
+.fx-legend li { display: flex; align-items: center; gap: 7px; min-width: 0; }
+.fx-key { flex: none; width: 11px; height: 11px; border-radius: 3px; border: 1px solid var(--border); }
+.fx-key--on { background: var(--accent); }
+.fx-key--off { background: var(--border-bright); }
+.fx-key--rest { background: transparent; }
+/* ---------- Tokens scene (v4.4.1 Phase 3) ---------- */
+.fx-tokfig { margin: var(--sp-3) 0; padding: 14px 16px; border: 1px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); }
+.fx-copy .fx-tokfig-cap { margin: 0; color: var(--ink-faint); font-size: 12px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; }
+.fx-copy .fx-tokfig-cap--mid { margin-top: 12px; }
+/* The source prompt must stay legible and dominant, so it is HTML with a real font-size
+   floor rather than SVG text whose computed size depends on the viewBox scale. */
+.fx-copy .fx-tokprompt { margin: 6px 0 0; font-size: 19px; line-height: 1.4; color: var(--ink); font-weight: 600; }
+.fx-tokchips { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; margin: 8px 0 0; padding: 0; }
+/* Every token is one equivalent unit, so every chip gets ONE style. A second colour here
+   would imply a category the tokenizer does not have. */
+.fx-tokchip { display: inline-flex; align-items: baseline; padding: 5px 9px; border: 1px solid var(--border-bright); border-radius: 7px; background: var(--bg-0); font-size: 14px; line-height: 1.2; color: var(--ink); }
+.fx-tokchip-txt { font-family: var(--mono, ui-monospace, SFMono-Regular, Menlo, monospace); white-space: pre; min-width: 2ch; text-align: center; }
+.fx-copy .fx-tokfig-note { margin: 10px 0 0; color: var(--ink-dim); font-size: 13.5px; line-height: 1.5; }
+.fx-tokcell-edge { fill: none; stroke: var(--border-bright); stroke-width: 1; }
+.fx-tokcard { fill: none; stroke: var(--border); stroke-width: 1; }
+.fx-diagram-note { margin: 10px 0 0; color: var(--ink-faint); font-size: 13px; line-height: 1.5; }
+/* Placed AFTER the definitions above on purpose: @media adds no specificity, so these
+   overrides only win by source order. One stack point, weak-before-strong order preserved. */
+@media (max-width: 720px) {
+  .fx-states, .fx-ctx-row, .fx-ctx-budgets { grid-template-columns: 1fr; }
+  .fx-part { grid-template-columns: 1fr; gap: 2px; }
+  .fx-state-link { justify-content: center; align-items: center; min-height: 38px; }
+  .fx-state-link .fx-inline-arrow { transform: rotate(90deg); }
+  .fx-ctx-plus { text-align: left; }
+}
+.js .fx-scene .fx-tokchip { opacity: 0; transform: translateY(5px); transition: opacity .3s var(--ease), transform .3s var(--ease); transition-delay: var(--d, 0ms); }
+.js .fx-scene.in .fx-tokchip { opacity: 1; transform: none; }
 .fx-diagram { min-width: 0; }
 .fx-diagram--wide { width: 100%; margin-inline: auto; }
 .fx-diagram--medium { width: min(100%, 42rem); margin-inline: auto; }
@@ -600,8 +669,6 @@ details[open] summary { margin-bottom: var(--sp-2); color: var(--ink); }
 .js .fx-scene.in .fx-pop { opacity: 1; transform: none; }
 .js .fx-scene .fx-draw { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset .8s var(--ease) var(--d, 0ms); }
 .js .fx-scene.in .fx-draw { stroke-dashoffset: 0; }
-.js .fx-scene .fx-grow { transform: scaleX(0); transform-origin: left center; transform-box: fill-box; transition: transform .6s var(--ease) var(--d, 0ms); }
-.js .fx-scene.in .fx-grow { transform: none; }
 .js .fx-scene .fx-fade { opacity: 0; transition: opacity .6s var(--ease) var(--d, 0ms); }
 .js .fx-scene.in .fx-fade { opacity: .38; }
 .js .fx-scene .fx-hookdot { fill: var(--red); transition: fill .4s var(--ease) 1.6s; }
@@ -931,6 +998,7 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
   .js .page.active { animation: none; }
   .js .reveal { opacity: 1; transform: none; transition: none; }
   .js .hero-lockup.reveal .hero-mark { opacity: 1; transform: none; transition: none; }
+  .js .fx-scene .fx-tokchip { opacity: 1; transform: none; transition: none; }
   .btn:hover { transform: none; }
   .js .cmp .cmp-row { opacity: 1; transform: none; transition: none; }
   .js .cmp .cmp-line { stroke-dasharray: none; stroke-dashoffset: 0; transition: none; }
@@ -938,7 +1006,6 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
   .js .cmp .cmp-b { opacity: 1; transition: none; }
   .js .fx-scene .fx-pop { opacity: 1; transform: none; transition: none; }
   .js .fx-scene .fx-draw { stroke-dasharray: none; stroke-dashoffset: 0; transition: none; }
-  .js .fx-scene .fx-grow { transform: none; transition: none; }
   .js .fx-scene .fx-fade { opacity: .38; transition: none; }
   .js .fx-scene .fx-hookdot { fill: var(--green); transition: none; }
   .fx-scene.live .fx-pulse { display: none; animation: none; }
@@ -1240,10 +1307,176 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
         <p class="lead">Build the mental model behind useful AI work: how a model is trained, what a platform adds, how tokens and prompts shape one request, and how a harness makes the result repeatable.</p>
       </div>
 
-      <section class="fx-scene fx-wide reveal" id="fx-model-lifecycle" aria-labelledby="fx-model-title">
+      <section class="fx-scene reveal" id="fx-tokens" aria-labelledby="fx-tokens-title">
         <div class="fx-copy">
           <div class="fx-title">
-            <h2 id="fx-model-title">What Is a Model</h2>
+            <h2 id="fx-tokens-title">Tokens Definition</h2>
+            <p class="fx-subtitle">The units a model actually reads</p>
+          </div>
+          <p>A model never sees your words. It sees <strong>tokens</strong>: the small pieces your text is cut into first. A token can be a whole word, part of one, a punctuation mark, or a space attached to the word after it.</p>
+          <figure class="fx-tokfig">
+            <figcaption class="fx-tokfig-cap">A prompt you might actually send</figcaption>
+            <p class="fx-tokprompt">Summarise this contract and list every deadline.</p>
+            <p class="fx-tokfig-cap fx-tokfig-cap--mid">becomes 10 tokens</p>
+            <ol class="fx-tokchips" aria-label="The ten tokens this prompt becomes, in order">
+              <li class="fx-tokchip" style="--d:0ms"><span class="fx-tokchip-txt">Sum</span></li>
+              <li class="fx-tokchip" style="--d:60ms"><span class="fx-tokchip-txt">mar</span></li>
+              <li class="fx-tokchip" style="--d:120ms"><span class="fx-tokchip-txt">ise</span></li>
+              <li class="fx-tokchip" style="--d:180ms"><span class="fx-tokchip-txt">␣this</span></li>
+              <li class="fx-tokchip" style="--d:240ms"><span class="fx-tokchip-txt">␣contract</span></li>
+              <li class="fx-tokchip" style="--d:300ms"><span class="fx-tokchip-txt">␣and</span></li>
+              <li class="fx-tokchip" style="--d:360ms"><span class="fx-tokchip-txt">␣list</span></li>
+              <li class="fx-tokchip" style="--d:420ms"><span class="fx-tokchip-txt">␣every</span></li>
+              <li class="fx-tokchip" style="--d:480ms"><span class="fx-tokchip-txt">␣deadline</span></li>
+              <li class="fx-tokchip" style="--d:540ms"><span class="fx-tokchip-txt">.</span></li>
+            </ol>
+            <p class="fx-tokfig-note">Every chip is one token and they all count the same, which is why they all look the same. &#9251; marks a leading space. Notice that <strong>Summarise</strong> alone costs three tokens: a token is not a word.</p>
+          </figure>
+          <p>This is the real <code>cl100k_base</code> split. Other models cut the same sentence differently, so there is no fixed words-to-tokens ratio. The count matters because it is what fills the working budget, and it is one factor in speed and in metered cost.</p>
+        </div>
+        <div class="fx-diagram fx-diagram--narrow">
+          <svg class="fx-svg" data-phase2-diagram="tokens" data-tokenizer="cl100k_base" viewBox="0 0 360 174" role="img" aria-labelledby="fx-tokimg-title fx-tokimg-desc">
+            <title id="fx-tokimg-title">An image is divided into tokens</title>
+            <desc id="fx-tokimg-desc">A picture of a tree on a hill under a sun is divided into a three-by-three grid. Each grid square holds the part of the picture that sits underneath it, showing that the image is split into pieces the same way the sentence was.</desc>
+            <defs>
+              <clipPath id="nxp-tokimg-frame"><rect x="10" y="40" width="108" height="108" rx="8"/></clipPath>
+              <clipPath id="nxp-tokcell-00"><rect x="232" y="40" width="36" height="36" rx="5"/></clipPath>
+              <clipPath id="nxp-tokcell-01"><rect x="274" y="40" width="36" height="36" rx="5"/></clipPath>
+              <clipPath id="nxp-tokcell-02"><rect x="316" y="40" width="36" height="36" rx="5"/></clipPath>
+              <clipPath id="nxp-tokcell-10"><rect x="232" y="82" width="36" height="36" rx="5"/></clipPath>
+              <clipPath id="nxp-tokcell-11"><rect x="274" y="82" width="36" height="36" rx="5"/></clipPath>
+              <clipPath id="nxp-tokcell-12"><rect x="316" y="82" width="36" height="36" rx="5"/></clipPath>
+              <clipPath id="nxp-tokcell-20"><rect x="232" y="124" width="36" height="36" rx="5"/></clipPath>
+              <clipPath id="nxp-tokcell-21"><rect x="274" y="124" width="36" height="36" rx="5"/></clipPath>
+              <clipPath id="nxp-tokcell-22"><rect x="316" y="124" width="36" height="36" rx="5"/></clipPath>
+              <g id="nxp-tokimg">
+                <g clip-path="url(#nxp-tokimg-frame)">
+                  <rect x="10" y="40" width="108" height="108" fill="#9fd8ef"/>
+                  <circle cx="96" cy="62" r="11" fill="#ffd66b"/>
+                  <path d="M10 118 Q42 92 74 116 T118 104 L118 148 L10 148 Z" fill="#6cbf7b"/>
+                  <path d="M10 132 Q46 116 82 134 T118 126 L118 148 L10 148 Z" fill="#4e9e60"/>
+                  <rect x="44" y="104" width="7" height="30" rx="2" fill="#7a5334"/>
+                  <circle cx="47" cy="98" r="18" fill="#3f8f57"/>
+                  <circle cx="35" cy="104" r="12" fill="#4aa365"/>
+                  <circle cx="59" cy="104" r="12" fill="#4aa365"/>
+                </g>
+              </g>
+            </defs>
+            <g data-image-stage="source">
+              <rect class="fx-tokcard" x="6" y="8" width="116" height="146" rx="10"/>
+              <text class="fxt fxt--role" x="14" y="28">ONE PICTURE</text>
+              <use href="#nxp-tokimg"/>
+              <rect class="fx-tokcell-edge" x="10" y="40" width="108" height="108" rx="8"/>
+            </g>
+            <path class="fxp fx-draw" data-phase2-connector="image-tokenization" style="--d:700ms" pathLength="1" d="M 132 94 L 196 94"/>
+            <path class="fx-head fx-pop" style="--d:780ms" d="M 192 88 L 206 94 L 192 100 Z"/>
+            <g data-image-stage="tokens">
+            <rect class="fx-tokcard" x="228" y="8" width="128" height="158" rx="10"/>
+            <text class="fxt fxt--role" x="236" y="28">NINE PIECES</text>
+            <g clip-path="url(#nxp-tokcell-00)"><use href="#nxp-tokimg" transform="translate(222 0)"/></g><rect class="fx-tokcell-edge" x="232" y="40" width="36" height="36" rx="5"/>
+            <g clip-path="url(#nxp-tokcell-01)"><use href="#nxp-tokimg" transform="translate(228 0)"/></g><rect class="fx-tokcell-edge" x="274" y="40" width="36" height="36" rx="5"/>
+            <g clip-path="url(#nxp-tokcell-02)"><use href="#nxp-tokimg" transform="translate(234 0)"/></g><rect class="fx-tokcell-edge" x="316" y="40" width="36" height="36" rx="5"/>
+            <g clip-path="url(#nxp-tokcell-10)"><use href="#nxp-tokimg" transform="translate(222 6)"/></g><rect class="fx-tokcell-edge" x="232" y="82" width="36" height="36" rx="5"/>
+            <g clip-path="url(#nxp-tokcell-11)"><use href="#nxp-tokimg" transform="translate(228 6)"/></g><rect class="fx-tokcell-edge" x="274" y="82" width="36" height="36" rx="5"/>
+            <g clip-path="url(#nxp-tokcell-12)"><use href="#nxp-tokimg" transform="translate(234 6)"/></g><rect class="fx-tokcell-edge" x="316" y="82" width="36" height="36" rx="5"/>
+            <g clip-path="url(#nxp-tokcell-20)"><use href="#nxp-tokimg" transform="translate(222 12)"/></g><rect class="fx-tokcell-edge" x="232" y="124" width="36" height="36" rx="5"/>
+            <g clip-path="url(#nxp-tokcell-21)"><use href="#nxp-tokimg" transform="translate(228 12)"/></g><rect class="fx-tokcell-edge" x="274" y="124" width="36" height="36" rx="5"/>
+            <g clip-path="url(#nxp-tokcell-22)"><use href="#nxp-tokimg" transform="translate(234 12)"/></g><rect class="fx-tokcell-edge" x="316" y="124" width="36" height="36" rx="5"/>
+            </g>
+          </svg>
+          <p class="fx-diagram-note">Images are split too. Every square above holds real pixels from the picture beside it. The nine-square grid illustrates the idea; it is not a literal token count.</p>
+        </div>
+      </section>
+      <section class="fx-scene reveal" id="fx-prompts" aria-labelledby="fx-prompts-title">
+        <div class="fx-copy">
+          <div class="fx-title">
+            <h2 id="fx-prompts-title">Prompt Engineering</h2>
+            <p class="fx-subtitle">Stating the job so the result is checkable</p>
+          </div>
+          <p>The prompt is where you state <strong>the job</strong>. The same request can be asked in a way nobody could grade, or in a way anyone could check. That difference is the whole skill.</p>
+          <p>A useful prompt names the <strong>Goal</strong>, points at the <strong>Material</strong>, defines what <strong>Done</strong> means, and asks for a <strong>Format</strong> you can use. Miss one and the model has to guess, and it will guess confidently.</p>
+        </div>
+        <div class="fx-diagram">
+          <div class="fx-states" role="group" aria-label="The same request asked vaguely and then asked precisely">
+            <article class="fx-state fx-state--weak">
+              <h3 class="fx-state-tag">Vague</h3>
+              <p class="fx-state-line">&ldquo;Look at this contract.&rdquo;</p>
+              <p class="fx-state-why">No goal, no finish line, no shape. Any answer is arguably correct, so none can be wrong.</p>
+            </article>
+            <div class="fx-state-link" aria-hidden="true"><svg class="fx-inline-arrow" viewBox="0 0 34 12" aria-hidden="true" focusable="false"><path class="fxp" d="M1 6 H24" pathLength="1"/><path class="fx-head" d="M22 1.5 L32 6 L22 10.5 Z"/></svg></div>
+            <article class="fx-state fx-state--strong">
+              <h3 class="fx-state-tag">Precise</h3>
+              <dl class="fx-parts">
+                <div class="fx-part"><dt>Goal</dt><dd>Summarise this contract and list every deadline.</dd></div>
+                <div class="fx-part"><dt>Material</dt><dd>The signed PDF I attached, sections 4 to 9 only.</dd></div>
+                <div class="fx-part"><dt>Done</dt><dd>Every dated obligation appears once, with its clause number.</dd></div>
+                <div class="fx-part"><dt>Format</dt><dd>A table: date, obligation, clause, who owes it.</dd></div>
+              </dl>
+              <p class="fx-state-why">Now the answer can be checked against the contract, line by line.</p>
+            </article>
+          </div>
+        </div>
+      </section>
+      <section class="fx-scene reveal" id="fx-context" aria-labelledby="fx-context-title">
+        <div class="fx-copy">
+          <div class="fx-title">
+            <h2 id="fx-context-title">Context Engineering</h2>
+            <p class="fx-subtitle">Choosing the material the job needs</p>
+          </div>
+          <p>The prompt states the job. <strong>Context</strong> is the material the job runs on, and it is separate from the words of your request. It can be an image, a file or document, a project folder or workspace, or a codebase.</p>
+          <p>Context is optional, and it is not free. Everything you attach shares one finite working budget measured in tokens, alongside the instructions, the conversation so far, and any tool results. Material can also be stale, duplicated, or simply too large to be worth its space.</p>
+          <p>So the skill is selection, not volume. Attaching the whole drive is not more helpful than attaching the two sections the question is about.</p>
+        </div>
+        <div class="fx-diagram">
+          <div class="fx-ctx" role="group" aria-label="The request plus the optional material it can carry, then two ways of filling the same budget">
+            <div class="fx-ctx-row">
+              <div class="fx-ctx-query"><span class="fx-ctx-tag">The request</span><p>Summarise this contract and list every deadline.</p></div>
+              <div class="fx-ctx-plus" aria-hidden="true">+</div>
+              <ul class="fx-ctx-kinds" aria-label="Optional context you can attach">
+                <li><span class="fx-ctx-kind">Image</span></li>
+                <li><span class="fx-ctx-kind">File or document</span></li>
+                <li><span class="fx-ctx-kind">Project folder or workspace</span></li>
+                <li><span class="fx-ctx-kind">Codebase</span></li>
+              </ul>
+            </div>
+            <div class="fx-ctx-budgets">
+              <div class="fx-budget fx-budget--noisy" role="group" aria-label="Unfocused selection: the budget is full of material the question never needed">
+                <h3 class="fx-state-tag">Unfocused</h3>
+                <div class="fx-bar" aria-hidden="true">
+                  <span class="fx-bar-seg fx-bar-seg--off" style="--w:44%"></span>
+                  <span class="fx-bar-seg fx-bar-seg--off" style="--w:26%"></span>
+                  <span class="fx-bar-seg fx-bar-seg--on" style="--w:14%"></span>
+                  <span class="fx-bar-seg fx-bar-seg--rest" style="--w:16%"></span>
+                </div>
+                <ul class="fx-legend">
+                  <li><span class="fx-key fx-key--off"></span>Unrelated folders 44%</li>
+                  <li><span class="fx-key fx-key--off"></span>Old chat history 26%</li>
+                  <li><span class="fx-key fx-key--on"></span>The contract 14%</li>
+                </ul>
+                <p class="fx-state-why">The contract itself gets a sliver. The budget went to material nobody asked about.</p>
+              </div>
+              <div class="fx-budget fx-budget--focused" role="group" aria-label="Task-matched selection: the budget holds the material the question needs">
+                <h3 class="fx-state-tag">Task-matched</h3>
+                <div class="fx-bar" aria-hidden="true">
+                  <span class="fx-bar-seg fx-bar-seg--on" style="--w:58%"></span>
+                  <span class="fx-bar-seg fx-bar-seg--on fx-bar-seg--split" style="--w:12%"></span>
+                  <span class="fx-bar-seg fx-bar-seg--rest" style="--w:30%"></span>
+                </div>
+                <ul class="fx-legend">
+                  <li><span class="fx-key fx-key--on"></span>Contract sections 4 to 9, 58%</li>
+                  <li><span class="fx-key fx-key--on"></span>The request 12%</li>
+                  <li><span class="fx-key fx-key--rest"></span>Room left to answer 30%</li>
+                </ul>
+                <p class="fx-state-why">Same budget, spent on the sections the question is about, with room left to answer.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="fx-scene reveal" id="fx-model-lifecycle" aria-labelledby="fx-model-title">
+        <div class="fx-copy">
+          <div class="fx-title">
+            <h2 id="fx-model-title">Models</h2>
             <p class="fx-subtitle">Trained patterns, used one request at a time</p>
           </div>
           <p>A model is a trained system that turns the information in a request into an output. Training happens long before your request. A platform later integrates the trained model, gathers your request and useful context such as files, workspace, documents, scripts, and lets the model process or reason over that material before returning a result.</p>
@@ -1327,129 +1560,10 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
           </svg>
         </div>
       </section>
-
-      <section class="fx-scene reveal" id="fx-tokens" aria-labelledby="fx-tokens-title">
+      <section class="fx-scene reveal" id="fx-agent-platform" aria-labelledby="fx-platform-title">
         <div class="fx-copy">
           <div class="fx-title">
-            <h2 id="fx-tokens-title">What Are Tokens</h2>
-            <p class="fx-subtitle">The pieces a model processes</p>
-          </div>
-          <p>Systems encode text and images into tokens: small pieces a model can process. A text token may be a whole word, part of one, punctuation, or a leading space. Images become visual tokens too; the grid here is an illustration, not one square per token.</p>
-          <p>This actual <code>cl100k_base</code> split shows one tokenizer; different models can split it differently. Token count limits how much context fits and is one factor in speed and metered API cost. It does not create a universal words-to-tokens ratio.</p>
-        </div>
-        <div class="fx-diagram fx-diagram--narrow">
-          <svg class="fx-svg" data-phase2-diagram="tokens" data-tokenizer="cl100k_base" viewBox="0 0 360 520" role="img" aria-label="One verified text token split beside an illustrative image token grid">
-            <text class="fxt fxt--role" x="16" y="24">ACTUAL TEXT SPLIT</text>
-            <text class="fxt" x="16" y="49">Freshly baked bread smells wonderful.</text>
-            <g class="fx-pop" data-token-piece="Fresh"><rect class="fxchip fxchip--good" x="16" y="68" width="62" height="38" rx="9"/><text class="fxt" x="47" y="92" text-anchor="middle">Fresh</text></g>
-            <g class="fx-pop" data-token-piece="ly" style="--d:90ms"><rect class="fxchip" x="84" y="68" width="42" height="38" rx="9"/><text class="fxt" x="105" y="92" text-anchor="middle">ly</text></g>
-            <g class="fx-pop" data-token-piece=" baked" style="--d:180ms"><rect class="fxchip" x="132" y="68" width="86" height="38" rx="9"/><text class="fxt" x="175" y="92" text-anchor="middle">&#9251;baked</text></g>
-            <g class="fx-pop" data-token-piece=" bread" style="--d:270ms"><rect class="fxchip" x="224" y="68" width="94" height="38" rx="9"/><text class="fxt" x="271" y="92" text-anchor="middle">&#9251;bread</text></g>
-            <g class="fx-pop" data-token-piece=" smells" style="--d:360ms"><rect class="fxchip" x="16" y="114" width="94" height="38" rx="9"/><text class="fxt" x="63" y="138" text-anchor="middle">&#9251;smells</text></g>
-            <g class="fx-pop" data-token-piece=" wonderful" style="--d:450ms"><rect class="fxchip fxchip--good" x="116" y="114" width="124" height="38" rx="9"/><text class="fxt" x="178" y="138" text-anchor="middle">&#9251;wonderful</text></g>
-            <g class="fx-pop" data-token-piece="." style="--d:540ms"><rect class="fxchip" x="246" y="114" width="42" height="38" rx="9"/><text class="fxt" x="267" y="138" text-anchor="middle">.</text></g>
-            <text class="fxt fxt--detail" x="16" y="176">&#9251; marks a leading space in this display.</text>
-            <text class="fxt fxt--role" x="16" y="216">ILLUSTRATIVE IMAGE ENCODING</text>
-            <g class="fx-image-token-grid">
-              <g class="fx-pop" data-image-stage="source" style="--d:620ms">
-                <rect class="fxwin" x="16" y="232" width="126" height="160" rx="14"/>
-                <rect class="fxr fxr--hero" x="28" y="248" width="102" height="94" rx="9"/>
-                <rect class="fxchip fxchip--good" x="28" y="310" width="102" height="32" rx="0"/>
-                <circle cx="110" cy="266" r="10" fill="var(--amber)"/>
-                <path class="fxp fxp--good" d="M 78 330 L 78 280 M 78 302 C 62 298 58 288 54 280 M 78 294 C 92 290 98 282 102 274"/>
-                <text class="fxt fxt--role" x="79" y="374" text-anchor="middle">SOURCE IMAGE</text>
-              </g>
-              <path class="fxp fx-draw" data-phase2-connector="image-tokenization" style="--d:700ms" pathLength="1" d="M 148 310 L 178 310"/>
-              <path class="fx-head fx-pop" style="--d:780ms" d="M 174 304 L 186 310 L 174 316 Z"/>
-              <g class="fx-pop" data-image-stage="tokens" style="--d:800ms">
-                <rect class="fxwin" x="186" y="232" width="158" height="160" rx="14"/>
-                <rect class="fxr fxr--hero" x="198" y="250" width="38" height="30" rx="6"/>
-                <rect class="fxchip" x="246" y="250" width="38" height="30" rx="6"/>
-                <rect class="fxchip fxchip--good" x="294" y="250" width="38" height="30" rx="6"/>
-                <rect class="fxchip" x="198" y="290" width="38" height="30" rx="6"/>
-                <rect class="fxchip fxchip--good" x="246" y="290" width="38" height="30" rx="6"/>
-                <rect class="fxr fxr--hero" x="294" y="290" width="38" height="30" rx="6"/>
-                <rect class="fxchip fxchip--good" x="198" y="330" width="38" height="30" rx="6"/>
-                <rect class="fxchip" x="246" y="330" width="38" height="30" rx="6"/>
-                <rect class="fxchip" x="294" y="330" width="38" height="30" rx="6"/>
-                <text class="fxt fxt--role" x="265" y="378" text-anchor="middle">TOKEN GRID</text>
-              </g>
-            </g>
-            <g class="fx-pop" data-phase2-node="token-budget" style="--d:920ms">
-              <rect class="fxcard fxcard--good" x="16" y="414" width="328" height="76" rx="12"/>
-              <text class="fxt fxt--accent" x="180" y="442" text-anchor="middle">TOKENS SET THE WORKING BUDGET</text>
-              <text class="fxt" x="180" y="466" text-anchor="middle">context capacity &middot; speed factor &middot; cost factor</text>
-            </g>
-          </svg>
-        </div>
-      </section>
-
-      <section class="fx-scene fx-wide reveal" id="fx-prompts" aria-labelledby="fx-prompts-title">
-        <div class="fx-copy">
-          <div class="fx-title">
-            <h2 id="fx-prompts-title">What Is Prompt Engineering</h2>
-            <p class="fx-subtitle">A clear job with a checkable finish</p>
-          </div>
-          <p><strong>Weak prompt:</strong> &ldquo;Write a welcome email.&rdquo; It leaves the audience, facts, finish line, and shape of the answer unstated.</p>
-          <p><strong>Strong prompt:</strong> asks for a community garden welcome email using the supplied Saturday details, the Oak Street meeting point, and an RSVP question.</p>
-          <p>A useful prompt names the <strong>Goal</strong>, supplies the <strong>Material</strong>, defines <strong>Done</strong>, and requests a <strong>Format</strong>. The weak result is generic and may invent missing details; the strong result is more likely to be a fact-bound, checkable draft. Nexus-Hub commands preserve that structure for repeatable work instead of making you remember it every time.</p>
-        </div>
-        <div class="fx-diagram fx-diagram--wide">
-          <svg class="fx-svg fx-svg--desktop" data-phase2-diagram="prompt-engineering" viewBox="0 0 760 410" role="img" aria-label="The same community garden email job as a weak prompt and as a strong prompt with goal, material, done, format, and contrasting results">
-            <g class="fx-pop" data-phase2-node="weak-prompt">
-              <rect class="fxwin fxwin--bad" x="16" y="42" width="242" height="326" rx="16"/>
-              <text class="fxt fxt--warn" x="137" y="72" text-anchor="middle">WEAK PROMPT</text>
-              <g data-phase2-node="weak-message">
-                <rect class="fxbubble" x="38" y="96" width="198" height="68" rx="14"/>
-                <text class="fxt" x="137" y="126" text-anchor="middle">Write a welcome email.</text>
-              </g>
-              <text class="fxt fxt--detail" x="137" y="194" text-anchor="middle">The model must guess</text>
-              <text class="fxt fxt--detail" x="137" y="216" text-anchor="middle">the facts and finish line.</text>
-              <g data-phase2-node="weak-result">
-                <rect class="fxcard fxcard--bad" x="38" y="242" width="198" height="88" rx="12"/>
-                <text class="fxt fxt--role" x="137" y="268" text-anchor="middle">RESULT</text>
-                <text class="fxt fxt--warn" x="137" y="292" text-anchor="middle">GENERIC DRAFT</text>
-                <text class="fxt fxt--detail" x="137" y="314" text-anchor="middle">may invent missing details</text>
-              </g>
-            </g>
-            <path class="fxp fx-draw" style="--d:200ms" pathLength="1" d="M 280 205 L 310 205"/>
-            <path class="fx-head fx-pop" style="--d:320ms" d="M 306 199 L 318 205 L 306 211 Z"/>
-            <g class="fx-pop" data-phase2-node="strong-prompt" style="--d:340ms">
-              <rect class="fxwin fxwin--good" x="318" y="18" width="426" height="376" rx="16"/>
-              <text class="fxt fxt--accent" x="531" y="50" text-anchor="middle">STRONG PROMPT</text>
-              <g data-phase2-node="prompt-goal"><rect class="fxchip fxchip--good" x="340" y="72" width="382" height="46" rx="10"/><text class="fxt fxt--role" x="358" y="91">GOAL</text><text class="fxt" x="358" y="108">Welcome new community garden members</text></g>
-              <g data-phase2-node="prompt-material"><rect class="fxchip" x="340" y="128" width="382" height="62" rx="10"/><text class="fxt fxt--role" x="358" y="147">MATERIAL</text><text class="fxt" x="358" y="165">Saturday, 10:00 AM &middot; Oak Street gate</text><text class="fxt" x="358" y="182">Bring gloves and water</text></g>
-              <g data-phase2-node="prompt-done"><rect class="fxchip" x="340" y="200" width="382" height="46" rx="10"/><text class="fxt fxt--role" x="358" y="219">DONE</text><text class="fxt" x="358" y="236">Friendly, factual, and ends with an RSVP question</text></g>
-              <g data-phase2-node="prompt-format"><rect class="fxchip fxchip--good" x="340" y="256" width="382" height="46" rx="10"/><text class="fxt fxt--role" x="358" y="275">FORMAT</text><text class="fxt" x="358" y="292">Subject line + email under 120 words</text></g>
-              <g data-phase2-node="strong-result"><rect class="fxcard fxcard--good" x="340" y="312" width="382" height="62" rx="10"/><text class="fxt fxt--role" x="358" y="333">MORE LIKELY</text><text class="fxt fxt--good" x="358" y="357">Checkable draft constrained by supplied facts</text></g>
-            </g>
-          </svg>
-          <svg class="fx-svg fx-svg--mobile" data-phase2-diagram="prompt-engineering" viewBox="0 0 360 714" role="img" aria-label="Mobile layout comparing a weak community garden email prompt and generic result with a strong structured prompt and checkable result">
-            <g class="fx-pop" data-phase2-node="weak-prompt-mobile">
-              <rect class="fxwin fxwin--bad" x="24" y="12" width="312" height="206" rx="16"/>
-              <text class="fxt fxt--warn" x="180" y="42" text-anchor="middle">WEAK PROMPT</text>
-              <g data-phase2-node="weak-message-mobile"><rect class="fxbubble" x="48" y="60" width="264" height="52" rx="14"/><text class="fxt" x="180" y="92" text-anchor="middle">Write a welcome email.</text></g>
-              <g data-phase2-node="weak-result-mobile"><rect class="fxcard fxcard--bad" x="48" y="126" width="264" height="68" rx="12"/><text class="fxt fxt--role" x="180" y="149" text-anchor="middle">RESULT</text><text class="fxt fxt--warn" x="180" y="176" text-anchor="middle">Generic, may invent details</text></g>
-            </g>
-            <path class="fxp fx-draw" style="--d:180ms" pathLength="1" d="M 180 218 L 180 238"/>
-            <path class="fx-head fx-pop" style="--d:280ms" d="M 174 234 L 180 246 L 186 234 Z"/>
-            <g class="fx-pop" data-phase2-node="strong-prompt-mobile" style="--d:320ms">
-              <rect class="fxwin fxwin--good" x="24" y="246" width="312" height="452" rx="16"/>
-              <text class="fxt fxt--accent" x="180" y="278" text-anchor="middle">STRONG PROMPT</text>
-              <g data-phase2-node="prompt-goal-mobile"><rect class="fxchip fxchip--good" x="44" y="298" width="272" height="62" rx="10"/><text class="fxt fxt--role" x="60" y="319">GOAL</text><text class="fxt" x="180" y="343" text-anchor="middle">Welcome community garden members</text></g>
-              <g data-phase2-node="prompt-material-mobile"><rect class="fxchip" x="44" y="370" width="272" height="92" rx="10"/><text class="fxt fxt--role" x="60" y="391">MATERIAL</text><text class="fxt" x="60" y="415">Saturday, 10:00 AM</text><text class="fxt" x="60" y="437">Oak Street gate &middot; gloves &middot; water</text></g>
-              <g data-phase2-node="prompt-done-mobile"><rect class="fxchip" x="44" y="472" width="272" height="72" rx="10"/><text class="fxt fxt--role" x="60" y="493">DONE</text><text class="fxt" x="60" y="517">Friendly, factual, ends with RSVP</text></g>
-              <g data-phase2-node="prompt-format-mobile"><rect class="fxchip fxchip--good" x="44" y="554" width="272" height="62" rx="10"/><text class="fxt fxt--role" x="60" y="575">FORMAT</text><text class="fxt" x="60" y="599">Subject + email under 120 words</text></g>
-              <g data-phase2-node="strong-result-mobile"><rect class="fxcard fxcard--good" x="44" y="626" width="272" height="52" rx="10"/><text class="fxt fxt--role" x="60" y="647">MORE LIKELY</text><text class="fxt fxt--good" x="180" y="670" text-anchor="middle">Checkable, fact-constrained draft</text></g>
-            </g>
-          </svg>
-        </div>
-      </section>
-
-      <section class="fx-scene fx-wide reveal" id="fx-agent-platform" aria-labelledby="fx-platform-title">
-        <div class="fx-copy">
-          <div class="fx-title">
-            <h2 id="fx-platform-title">What Is an Agent Platform</h2>
+            <h2 id="fx-platform-title">Agentic Platform</h2>
             <p class="fx-subtitle">A loop that gives the model tools</p>
           </div>
           <p>An agent platform wraps the model in a working loop. It assembles context, offers tools and permissions, carries out approved actions, returns each result to the model, and stops when the job reaches a finish condition or needs you.</p>
@@ -1519,11 +1633,10 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
           </svg>
         </div>
       </section>
-
       <section class="fx-scene fx-wide reveal" id="fx-chatbot-agent" aria-labelledby="fx-chatbot-agent-title">
         <div class="fx-copy">
           <div class="fx-title">
-            <h2 id="fx-chatbot-agent-title">Chatbot or Agentic Platform?</h2>
+            <h2 id="fx-chatbot-agent-title">Chatbot vs. Agentic Platform</h2>
             <p class="fx-subtitle">Same request, different handoff</p>
           </div>
           <p>In a browser chat, the usual handoff is an answer: you carry the useful parts into the place where the work lives. In an agentic platform with access to that work surface, the handoff can be the changed material, a check of what happened, and a report.</p>
@@ -1626,145 +1739,10 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
           </svg>
         </div>
       </section>
-
-      <section class="fx-scene fx-wide reveal" id="fx-context" aria-labelledby="fx-context-title">
-        <div class="fx-copy">
-          <div class="fx-title">
-            <h2 id="fx-context-title">What Is Context</h2>
-            <p class="fx-subtitle">A finite token budget for this request</p>
-          </div>
-          <p>For each request, the model receives an assembled <em>context window</em> with a finite capacity measured in tokens. Instructions, your request, conversation history, selected material, tool definitions, and tool results all compete for that same working budget.</p>
-          <p>Near or beyond the limit, a host may omit, compact, summarize, replace, or reject material; the exact policy varies. Even before the limit, irrelevant material can bury the constraints that matter. <strong>Context engineering</strong> means selecting the smallest relevant set at the right moment.</p>
-          <p>Nexus-Hub supports that selection through progressive disclosure: compact metadata helps match the task, the procedure loads when invoked or matched, and supporting references load only when needed.</p>
-        </div>
-        <div class="fx-diagram fx-diagram--wide">
-          <svg class="fx-svg fx-svg--desktop" data-phase3-diagram="context-budget" viewBox="0 0 760 480" role="img" aria-label="The same finite token budget is crowded by noisy context and preserved by focused, task-matched context">
-            <g data-phase3-layer="connectors">
-              <path class="fxp fxp--warn fx-draw" pathLength="1" d="M 380 76 C 310 92 250 96 190 118"/>
-              <path class="fx-head fx-head--bad fx-pop" style="--d:360ms" d="M 204 109 L 188 119 L 206 122 Z"/>
-              <path class="fxp fxp--good fx-draw" pathLength="1" d="M 380 76 C 450 92 510 96 570 118"/>
-              <path class="fx-head fx-head--good fx-pop" style="--d:360ms" d="M 554 122 L 572 119 L 556 109 Z"/>
-            </g>
-            <g data-phase3-layer="pulses">
-              <circle class="fx-pulse" r="6" style="offset-path: path('M 380 76 C 310 92 250 96 190 118'); --t: 4.2s"/>
-              <circle class="fx-pulse" r="6" style="offset-path: path('M 380 76 C 450 92 510 96 570 118'); --t: 4.2s"/>
-            </g>
-            <g data-phase3-layer="nodes">
-              <g class="fx-pop" data-phase3-node="finite-window">
-                <rect class="fxr fxr--hero" x="232" y="12" width="296" height="64" rx="14"/>
-                <text class="fxt fxt--role" x="380" y="37" text-anchor="middle">SAME MODEL, FINITE WINDOW</text>
-                <text class="fxt" x="380" y="61" text-anchor="middle">one shared token budget</text>
-              </g>
-              <g class="fx-pop" data-phase3-node="noisy-budget" style="--d:180ms">
-                <rect class="fxwin fxwin--bad" x="20" y="118" width="340" height="334" rx="16"/>
-                <text class="fxt fxt--warn" x="190" y="149" text-anchor="middle">NOISY CONTEXT</text>
-                <g data-context-item="instructions"><rect class="fxblock" x="48" y="172" width="128" height="42" rx="9"/><text class="fxt" x="112" y="198" text-anchor="middle">instructions</text></g>
-                <g data-context-item="request"><rect class="fxblock" x="190" y="172" width="142" height="42" rx="9"/><text class="fxt" x="261" y="198" text-anchor="middle">your request</text></g>
-                <g data-context-item="old-history"><rect class="fxblock fxblock--noise" x="48" y="226" width="128" height="42" rx="9"/><text class="fxt fxt--dim" x="112" y="252" text-anchor="middle">old history</text></g>
-                <g data-context-item="unrelated-material"><rect class="fxblock fxblock--noise" x="190" y="226" width="142" height="42" rx="9"/><text class="fxt fxt--dim" x="261" y="252" text-anchor="middle">unrelated material</text></g>
-                <text class="fxt fxt--role" x="48" y="301">TOKEN BUDGET</text>
-                <g data-context-budget-meter="noisy">
-                  <rect class="fxmeter-track" x="48" y="316" width="284" height="32" rx="9"/>
-                  <rect class="fxmeter-fill fx-grow" x="50" y="318" width="60" height="28" rx="7"/>
-                  <rect class="fxmeter-fill fx-grow" x="112" y="318" width="60" height="28" rx="2"/>
-                  <rect class="fxmeter-noise fx-grow" x="174" y="318" width="82" height="28" rx="2"/>
-                  <rect class="fxmeter-noise fx-grow" x="258" y="318" width="72" height="28" rx="7"/>
-                </g>
-                <text class="fxt fxt--warn" x="190" y="374" text-anchor="middle">CAPACITY FULL</text>
-                <text class="fxt fxt--detail" x="190" y="397" text-anchor="middle">important constraints can be buried</text>
-                <text class="fxt" x="190" y="429" text-anchor="middle">Less reliable, harder to inspect</text>
-              </g>
-              <g class="fx-pop" data-phase3-node="focused-budget" style="--d:320ms">
-                <rect class="fxwin fxwin--good" x="400" y="118" width="340" height="334" rx="16"/>
-                <text class="fxt fxt--accent" x="570" y="149" text-anchor="middle">FOCUSED CONTEXT</text>
-                <g data-context-item="focused-instructions"><rect class="fxblock" x="428" y="172" width="128" height="42" rx="9"/><text class="fxt" x="492" y="198" text-anchor="middle">instructions</text></g>
-                <g data-context-item="focused-request"><rect class="fxblock" x="570" y="172" width="142" height="42" rx="9"/><text class="fxt" x="641" y="198" text-anchor="middle">your request</text></g>
-                <g data-context-item="relevant-material"><rect class="fxblock fxblock--keep" x="428" y="226" width="128" height="42" rx="9"/><text class="fxt" x="492" y="252" text-anchor="middle">relevant material</text></g>
-                <g data-context-item="matched-skill"><rect class="fxblock fxblock--keep" x="570" y="226" width="142" height="42" rx="9"/><text class="fxt" x="641" y="252" text-anchor="middle">matched skill</text></g>
-                <text class="fxt fxt--role" x="428" y="301">TOKEN BUDGET</text>
-                <g data-context-budget-meter="focused">
-                  <rect class="fxmeter-track" x="428" y="316" width="284" height="32" rx="9"/>
-                  <rect class="fxmeter-fill fx-grow" x="430" y="318" width="54" height="28" rx="7"/>
-                  <rect class="fxmeter-fill fx-grow" x="486" y="318" width="58" height="28" rx="2"/>
-                  <rect class="fxmeter-fill fx-grow" x="546" y="318" width="68" height="28" rx="2"/>
-                  <rect class="fxmeter-fill fx-grow" x="616" y="318" width="48" height="28" rx="2"/>
-                </g>
-                <text class="fxt fxt--good" x="570" y="374" text-anchor="middle">ROOM FOR RESULTS</text>
-                <text class="fxt fxt--detail" x="570" y="397" text-anchor="middle">matched procedure loads when needed</text>
-                <text class="fxt" x="570" y="429" text-anchor="middle">Relevant signal, easier to check</text>
-              </g>
-              <text class="fxt fxt--detail" x="380" y="475" text-anchor="middle">Illustrative budget meters, not to scale. Capacity and host policy vary.</text>
-            </g>
-          </svg>
-          <svg class="fx-svg fx-svg--mobile" data-phase3-diagram="context-budget" viewBox="0 0 360 970" role="img" aria-label="Mobile comparison of a finite token budget filled with noisy material and focused with task-matched material">
-            <g data-phase3-layer="connectors">
-              <path class="fxp fxp--warn fx-draw" pathLength="1" d="M 180 92 L 180 126"/>
-              <path class="fx-head fx-head--bad fx-pop" style="--d:360ms" d="M 173 114 L 180 128 L 187 114 Z"/>
-              <path class="fxp fxp--good fx-draw" pathLength="1" d="M 330 52 C 350 52 350 548 330 548"/>
-              <path class="fx-head fx-head--good fx-pop" style="--d:560ms" d="M 332 540 L 322 549 L 334 556 Z"/>
-            </g>
-            <g data-phase3-layer="pulses">
-              <circle class="fx-pulse" r="7" style="offset-path: path('M 180 92 L 180 126'); --t: 2.8s"/>
-              <circle class="fx-pulse" r="7" style="offset-path: path('M 330 52 C 350 52 350 548 330 548'); --t: 5.2s"/>
-            </g>
-            <g data-phase3-layer="nodes">
-              <g class="fx-pop" data-phase3-node="finite-window-mobile">
-                <rect class="fxr fxr--hero" x="20" y="12" width="320" height="80" rx="16"/>
-                <text class="fxt fxt--role" x="180" y="41" text-anchor="middle">FINITE CONTEXT WINDOW</text>
-                <text class="fxt" x="180" y="68" text-anchor="middle">one shared token budget</text>
-              </g>
-              <g class="fx-pop" data-phase3-node="noisy-budget-mobile" style="--d:180ms">
-                <rect class="fxwin fxwin--bad" x="20" y="128" width="320" height="350" rx="18"/>
-                <text class="fxt fxt--warn" x="180" y="162" text-anchor="middle">NOISY CONTEXT</text>
-                <rect class="fxblock" x="44" y="184" width="124" height="44" rx="9"/>
-                <text class="fxt" x="106" y="212" text-anchor="middle">instructions</text>
-                <rect class="fxblock" x="184" y="184" width="132" height="44" rx="9"/>
-                <text class="fxt" x="250" y="212" text-anchor="middle">your request</text>
-                <rect class="fxblock fxblock--noise" x="44" y="240" width="124" height="44" rx="9"/>
-                <text class="fxt fxt--dim" x="106" y="268" text-anchor="middle">old history</text>
-                <rect class="fxblock fxblock--noise" x="184" y="240" width="132" height="44" rx="9"/>
-                <text class="fxt fxt--dim" x="250" y="268" text-anchor="middle">unrelated items</text>
-                <text class="fxt fxt--role" x="44" y="317">TOKEN BUDGET</text>
-                <rect class="fxmeter-track" x="44" y="332" width="272" height="34" rx="9"/>
-                <rect class="fxmeter-fill fx-grow" x="46" y="334" width="58" height="30" rx="7"/>
-                <rect class="fxmeter-fill fx-grow" x="106" y="334" width="56" height="30" rx="2"/>
-                <rect class="fxmeter-noise fx-grow" x="164" y="334" width="76" height="30" rx="2"/>
-                <rect class="fxmeter-noise fx-grow" x="242" y="334" width="72" height="30" rx="7"/>
-                <text class="fxt fxt--warn" x="180" y="400" text-anchor="middle">CAPACITY FULL</text>
-                <text class="fxt fxt--detail" x="180" y="428" text-anchor="middle">important constraints can be buried</text>
-                <text class="fxt" x="180" y="456" text-anchor="middle">Less reliable, harder to inspect</text>
-              </g>
-              <g class="fx-pop" data-phase3-node="focused-budget-mobile" style="--d:340ms">
-                <rect class="fxwin fxwin--good" x="20" y="550" width="320" height="350" rx="18"/>
-                <text class="fxt fxt--accent" x="180" y="584" text-anchor="middle">FOCUSED CONTEXT</text>
-                <rect class="fxblock" x="44" y="606" width="124" height="44" rx="9"/>
-                <text class="fxt" x="106" y="634" text-anchor="middle">instructions</text>
-                <rect class="fxblock" x="184" y="606" width="132" height="44" rx="9"/>
-                <text class="fxt" x="250" y="634" text-anchor="middle">your request</text>
-                <rect class="fxblock fxblock--keep" x="44" y="662" width="124" height="44" rx="9"/>
-                <text class="fxt" x="106" y="690" text-anchor="middle">relevant items</text>
-                <rect class="fxblock fxblock--keep" x="184" y="662" width="132" height="44" rx="9"/>
-                <text class="fxt" x="250" y="690" text-anchor="middle">matched skill</text>
-                <text class="fxt fxt--role" x="44" y="739">TOKEN BUDGET</text>
-                <rect class="fxmeter-track" x="44" y="754" width="272" height="34" rx="9"/>
-                <rect class="fxmeter-fill fx-grow" x="46" y="756" width="52" height="30" rx="7"/>
-                <rect class="fxmeter-fill fx-grow" x="100" y="756" width="54" height="30" rx="2"/>
-                <rect class="fxmeter-fill fx-grow" x="156" y="756" width="64" height="30" rx="2"/>
-                <rect class="fxmeter-fill fx-grow" x="222" y="756" width="46" height="30" rx="2"/>
-                <text class="fxt fxt--good" x="180" y="822" text-anchor="middle">ROOM FOR RESULTS</text>
-                <text class="fxt fxt--detail" x="180" y="850" text-anchor="middle">matched procedure loads when needed</text>
-                <text class="fxt" x="180" y="878" text-anchor="middle">Relevant signal, easier to check</text>
-              </g>
-              <text class="fxt fxt--detail" x="180" y="944" text-anchor="middle">Illustrative, not to scale. Host policy varies.</text>
-            </g>
-          </svg>
-        </div>
-      </section>
-
       <section class="fx-scene fx-wide reveal" id="fx-harness" aria-labelledby="fx-harness-title">
         <div class="fx-copy">
           <div class="fx-title">
-            <h2 id="fx-harness-title">What Is a Harness</h2>
+            <h2 id="fx-harness-title">Harnesses</h2>
             <p class="fx-subtitle">Portable workflow discipline above the built-in loop</p>
           </div>
           <p>An agentic platform already supplies the inner harness: the runtime loop that gives a model context and tools, runs permitted actions, and feeds observations back. Nexus-Hub does not replace that runtime.</p>
@@ -1867,12 +1845,11 @@ html[data-theme="light"] .nht-run { color: #fffdf8; }
           </svg>
         </div>
       </section>
-
-      <section class="fx-scene fx-wide reveal" id="fx-practice" aria-labelledby="fx-practice-title">
+      <section class="fx-scene reveal" id="fx-practice" aria-labelledby="fx-practice-title">
         <div class="fx-copy">
           <div class="fx-title">
-            <h2 id="fx-practice-title">What Changes in Practice</h2>
-            <p class="fx-subtitle">The same job leaves a durable result</p>
+            <h2 id="fx-practice-title">Nexus-Hub Harness</h2>
+            <p class="fx-subtitle">One governed loop that leaves a durable trail</p>
           </div>
           <p>Follow one job &mdash; <em>fix the thing that keeps failing</em> &mdash; through both setups. Same model, same permitted material, same platform loop. A host-native run can inspect, change, verify, save the result, and report it.</p>
           <p>With Nexus-Hub, that same loop also loads the matched procedure, follows a written gate, and leaves durable plan, test, history, and known-gap artifacts for the next workflow. The added value is not extra model intelligence; it is portable process and a checkable trail.</p>

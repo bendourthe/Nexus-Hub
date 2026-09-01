@@ -2,7 +2,7 @@
 
 **Project**: Nexus-Hub
 **Status**: v4.4.0 finalized 2026-09-01 at `/update release`; v4.4.1 in progress on the same minor
-**Last updated**: 2026-09-01 (v4.4.1 Phase 2)
+**Last updated**: 2026-09-01 (v4.4.1 Phase 3)
 
 ## v4.4.0 - guide-depth-and-training-rebuild
 
@@ -51,7 +51,7 @@
 |---|---|---|
 | Not implemented (NI) | 0 | 0 |
 | Deferred (DF) | 1 | 0 |
-| Bugs / regressions (BG) | 0 | 3 |
+| Bugs / regressions (BG) | 0 | 7 |
 | Warnings (WN) | 2 | 0 |
 | Missing tests / coverage gaps (MT) | 0 | 0 |
 | Quality-gate gaps (QG) | 0 | 0 |
@@ -91,6 +91,10 @@
 | ID | Title | Resolved in | Notes |
 |---|---|---|---|
 | BG-1 | The plan document leaked personal filesystem paths | Phase 1 | Sub-task 1.3 named the local Cursor candidates as absolute `C:/Users/<user>/Downloads/...` paths. `validate_no_personal_paths.py` reported 4 findings against the plan file, and that validator runs in `make validate` and CI, so the plan as authored would have failed the pipeline on commit. Redacted to a username-free `~/Downloads/...` form; the scanner is clean. |
+| BG-7 | A dead animation primitive kept a reduced-motion check alive | Phase 3 | `fx-grow` lost its only consumer when the SVG context-budget diagram became an HTML node tree, leaving three orphan CSS rules and a reduced-motion assertion that failed on an empty element set. The CSS was deleted and the check made vacuously safe while staying strict for any element that exists, plus a guard asserting `fx-grow` is absent so a reintroduced consumer must restore its static state. |
+| BG-6 | Tokens diagram caption text was clipped at the SVG viewBox edge | Phase 3 | Two caption lines ran past the 360-unit viewBox width and were cut mid-word. SVG text does not wrap, so the captions moved to an HTML paragraph below the diagram and the viewBox height was trimmed to match. |
+| BG-5 | Unbalanced HTML re-parented the Training page out of `main` | Phase 3 | A two-step `<section>`-to-`<div>` conversion had its first step refused by a guard assertion, but the second step ran anyway, pairing `<section>` openings with `</div>` closings. The browser re-parented everything after the error, so `#page-training` became a direct child of `<body>` and presentation mode's inert walk never reached `.site-header`. A Training test caught a Foundations markup bug. Both opening tags were converted and the ancestor chains re-verified in the browser. |
+| BG-4 | Narrow-screen layout overrides lost to source order | Phase 3 | The stacking rules for the new Foundations components were placed in a `@media` block ABOVE the base rules they override. A media query adds no specificity, so the later base rule won and `.fx-states` still computed three columns at 320 px, overflowing the viewport. The overrides were moved below their definitions with a comment recording why the position is load-bearing. |
 | BG-3 | The hero heading's line box could not contain its own text | Phase 2 | `.hero-wordmark` used `line-height: 1`, making the h1 line box (68 px at 1440) shorter than its inline children's content boxes (90 px). The visual-defect detector reported 12 HIGH `parent-padding-escape` findings once Phase 2's two-span title gave it child elements to measure; the condition pre-dated Phase 2 and was simply unobservable with a bare text node. Raised to `line-height: 1.34`, which contains the font ascent and descent at every clamp size. Detector then passed both themes with 0 findings. |
 | BG-2 | The plan's model map listed a Flash model as the Google frontier tier | Phase 1 | `## Current model map` carried `gemini-3.7-flash` in the frontier slot where the vendor documents `gemini-3.1-pro-preview`. The identical defect was corrected in `catalog/skills/ai-development/model-routing/references/last-known-model-map.json` during the v4.4.0 release, so the plan had inherited it. The plan's map is corrected and annotated, with the strong/standard split recorded as a maintainer judgment. |
 

@@ -836,17 +836,25 @@ def test_foundations_phase3_has_eight_title_subtitle_scenes(guide_text: str) -> 
     assert fx.count('class="fx-scene') == 8, "expected eight Phase 3 scenes"
     assert fx.count('class="fx-title"') == 8
     assert fx.count('class="fx-subtitle"') == 8
-    for heading in (
-        "What Is a Model",
-        "What Are Tokens",
-        "What Is Prompt Engineering",
-        "What Is an Agent Platform",
-        "Chatbot or Agentic Platform?",
-        "What Is Context",
-        "What Is a Harness",
-        "What Changes in Practice",
-    ):
-        assert heading in fx, f"missing scene heading: {heading}"
+    # v4.4.1 Phase 3: the accepted professional headings, checked as an ORDERED sequence.
+    # Membership alone would pass on a page whose scenes are in the wrong teaching order.
+    expected = [
+        "Tokens Definition",
+        "Prompt Engineering",
+        "Context Engineering",
+        "Models",
+        "Agentic Platform",
+        "Chatbot vs. Agentic Platform",
+        "Harnesses",
+        "Nexus-Hub Harness",
+    ]
+    found = re.findall(r'<h2 id="[^"]+">([^<]*)</h2>', fx)
+    assert found == expected, (
+        f"Foundations scene order is wrong; got {found} expected {expected}"
+    )
+    assert not re.search(r"What (?:Is|Are)", fx), (
+        "the old 'What Is / What Are' heading construction must not survive"
+    )
     assert fx.count("<svg") >= 7, "each scene carries inline visual teaching"
     for svg_class in ("fx-pop", "fx-draw", "fx-pulse"):
         assert svg_class in fx
@@ -857,7 +865,7 @@ def test_foundations_chatbot_and_agent_share_a_request_but_not_the_handoff(
     guide_text: str,
 ) -> None:
     scene = _foundation_scene(guide_text, "fx-chatbot-agent")
-    assert "Chatbot or Agentic Platform?" in scene
+    assert "Chatbot vs. Agentic Platform" in scene  # retitled in v4.4.1 Phase 3
     assert "Same request, different handoff" in scene
     assert 'data-phase3-diagram="chatbot-agent"' in scene
     assert scene.count('data-phase3-node="shared-request"') == 1
@@ -876,26 +884,22 @@ def test_foundations_chatbot_and_agent_share_a_request_but_not_the_handoff(
 def test_foundations_context_makes_budget_competition_and_full_behavior_visible(
     guide_text: str,
 ) -> None:
+    """v4.4.1 Phase 3: context is separable from the request, finite, and selectable."""
     scene = _foundation_scene(guide_text, "fx-context")
-    assert 'data-phase3-diagram="context-budget"' in scene
-    assert 'data-context-budget-meter="noisy"' in scene
-    assert 'data-context-budget-meter="focused"' in scene
-    for item in (
-        "instructions",
-        "request",
-        "old-history",
-        "unrelated-material",
-        "relevant-material",
-        "matched-skill",
-    ):
-        assert f'data-context-item="{item}"' in scene
+    assert 'class="fx-ctx-query"' in scene and 'class="fx-ctx-kinds"' in scene
+    for kind in ("Image", "File or document", "Project folder or workspace", "Codebase"):
+        assert '<span class="fx-ctx-kind">' + kind + "</span>" in scene, (
+            "missing context kind: " + kind
+        )
+    assert scene.index("fx-budget--noisy") < scene.index("fx-budget--focused"), (
+        "the unfocused selection must read before the task-matched one"
+    )
     text = re.sub(r"<[^>]+>", " ", scene).lower()
-    for concept in ("tokens", "instructions", "request", "conversation", "tool results"):
-        assert concept in text
-    assert re.search(r"finite.{0,30}(?:capacity|budget)", text)
-    assert "capacity full" in text and "room for results" in text
-    assert re.search(r"(?:omit|compact|summarize|replace|reject)", text)
-    assert "matched skill" in text and re.search(r"loads? when .{0,30}matched", text)
+    for concept in ("token", "finite", "optional", "stale", "duplicated", "too large"):
+        assert concept in text, "missing context concept: " + concept
+    assert "conversation" in text and "tool results" in text
+    assert 'type="range"' not in scene and "aria-pressed" not in scene
+    assert not re.search(r"\b\d+(?:\.\d+)?\s+tokens?\s+per\s+word\b", scene, re.IGNORECASE)
 
 
 def test_foundations_harness_layers_are_honest_and_repository_anchored(
@@ -929,24 +933,16 @@ def test_foundations_phase3_diagrams_animate_with_observer_and_static_fallback(
     guide_text: str,
 ) -> None:
     fx = _foundations_markup(guide_text)
-    for diagram in (
-        "agent-loop",
-        "chatbot-agent",
-        "context-budget",
-        "harness-layers",
-        "durable-result",
-    ):
+    for diagram in ("agent-loop", "chatbot-agent", "harness-layers", "durable-result"):
         match = re.search(
-            rf'<svg[^>]+data-phase3-diagram="{diagram}"[\s\S]*?</svg>', fx
+            r'<svg[^>]+data-phase3-diagram="' + diagram + r'"[\s\S]*?</svg>', fx
         )
-        assert match, f"missing Phase 3 diagram: {diagram}"
+        assert match, "missing Phase 3 diagram: " + diagram
         assert re.search(r'class="[^"]*fx-(?:pop|draw|grow|pulse)', match.group(0))
-    # v4.4.1 Phase 2 widened this observer to also gate the hero lockup float.
     assert 'document.querySelectorAll(".fx-scene, .hero-lockup")' in guide_text
     assert "IntersectionObserver" in guide_text
     reduce_block = guide_text.split("@media (prefers-reduced-motion: reduce)", 1)[-1]
-    for cls in (".fx-pop", ".fx-draw", ".fx-grow", ".fx-pulse"):
-        assert cls in reduce_block
+    assert ".fx-tokchip" in reduce_block, "token chips need a static reduced-motion state"
 
 
 def test_foundations_model_lifecycle_is_chronological_and_responsive(
@@ -976,43 +972,51 @@ def test_foundations_model_lifecycle_is_chronological_and_responsive(
 def test_foundations_tokens_use_a_reproducible_nonuniversal_example(
     guide_text: str,
 ) -> None:
-    fx = _foundations_markup(guide_text)
-    tokens = re.search(r'<section[^>]+id="fx-tokens"[\s\S]*?</section>', fx)
-    assert tokens, "missing tokens scene"
-    scene = tokens.group(0)
+    """v4.4.1 Phase 3: a real prompt, a verified split, and equivalent chips.
+
+    The split asserted below is the actual cl100k_base encoding of the displayed prompt,
+    so the example is reproducible rather than illustrative. "Summarise" costing three
+    tokens is the whole teaching point: a token is not a word.
+    """
+    scene = _foundation_scene(guide_text, "fx-tokens")
     assert 'data-tokenizer="cl100k_base"' in scene
-    for piece in ("Fresh", "ly", " baked", " bread", " smells", " wonderful", "."):
-        assert f'data-token-piece="{piece}"' in scene
-    assert "one tokenizer" in scene.lower()
-    assert "different models can split it differently" in scene.lower()
-    assert 'class="fx-image-token-grid"' in scene
-    assert scene.index('data-image-stage="source"') < scene.index(
-        'data-image-stage="tokens"'
+    assert "Summarise this contract and list every deadline." in scene
+    space = "\u2423"
+    expected = [
+        "Sum", "mar", "ise", space + "this", space + "contract", space + "and",
+        space + "list", space + "every", space + "deadline", ".",
+    ]
+    chips = re.findall(r'<span class="fx-tokchip-txt">([^<]*)</span>', scene)
+    assert chips == expected, "token chips do not match the verified split: " + repr(chips)
+    assert "fxchip--good" not in scene, (
+        "a second chip style implies a category the tokenizer does not have"
+    )
+    lowered = scene.lower()
+    assert "becomes 10 tokens" in lowered
+    assert "a token is not a word" in lowered
+    assert "other models cut the same sentence differently" in lowered
+    assert scene.count('clip-path="url(#nxp-tokcell-') == 9, "expected nine cropped image cells"
+    assert scene.count('href="#nxp-tokimg"') >= 10, (
+        "the source plus every cell must draw the same artwork, so no cell can be empty"
     )
     assert 'data-phase2-connector="image-tokenization"' in scene
-    assert "text and images" in scene.lower()
-    assert "cost" in scene.lower() and "speed" in scene.lower()
-    assert not re.search(
-        r"\b\d+(?:\.\d+)?\s+tokens?\s+per\s+word\b", scene, re.IGNORECASE
-    )
+    assert "holds real pixels" in lowered
+    assert "not a literal token count" in lowered
+    assert not re.search(r"\b\d+(?:\.\d+)?\s+tokens?\s+per\s+word\b", scene, re.IGNORECASE)
 
 
 def test_foundations_prompt_engineering_uses_one_non_coding_job(
     guide_text: str,
 ) -> None:
-    fx = _foundations_markup(guide_text)
-    prompt = re.search(r'<section[^>]+id="fx-prompts"[\s\S]*?</section>', fx)
-    assert prompt, "missing prompt-engineering scene"
-    scene = prompt.group(0)
-    assert scene.index("Weak prompt") < scene.index("Strong prompt")
-    for ingredient in ("Goal", "Material", "Done", "Format"):
-        assert ingredient in scene
-    for detail in ("community garden", "Saturday", "Oak Street", "RSVP"):
-        assert detail in scene
-    assert "Nexus-Hub" in scene and "commands" in scene
-    assert scene.count('data-phase2-diagram="prompt-engineering"') == 2
-    assert "generic and may invent missing details" in scene.lower()
-    assert "more likely to be a fact-bound, checkable draft" in scene.lower()
+    """v4.4.1 Phase 3: one non-coding request, shown vague and then precise."""
+    scene = _foundation_scene(guide_text, "fx-prompts")
+    assert scene.index("Vague") < scene.index("Precise"), "the weaker state must read first"
+    for part in ("Goal", "Material", "Done", "Format"):
+        assert "<dt>" + part + "</dt>" in scene, "missing prompt part: " + part
+    assert "Summarise this contract and list every deadline." in scene
+    assert "Look at this contract." in scene
+    assert 'class="fx-state fx-state--weak"' in scene
+    assert 'class="fx-state fx-state--strong"' in scene
     assert "terminal" not in scene.lower() and "source code" not in scene.lower()
 
 
@@ -1031,7 +1035,7 @@ def test_foundations_comparisons_show_both_states_without_a_toggle(
 ) -> None:
     """Each teaching comparison keeps both states available in the same scene."""
     fx = _foundations_markup(guide_text)
-    assert "FOCUSED CONTEXT" in fx and "NOISY CONTEXT" in fx
+    assert "fx-budget--noisy" in fx and "fx-budget--focused" in fx
     assert "BROWSER CHATBOT" in fx and "AGENTIC PLATFORM" in fx
     practice = _foundation_scene(guide_text, "fx-practice")
     assert ">PLATFORM LOOP<" in practice
@@ -1045,8 +1049,11 @@ def test_foundations_comparisons_show_both_states_without_a_toggle(
 def test_foundations_orders_unaided_state_first(guide_text: str) -> None:
     """v4.2.3: every comparison reads without-then-with, the same direction."""
     fx = _foundations_markup(guide_text)
-    assert fx.index("NOISY CONTEXT") < fx.index("FOCUSED CONTEXT"), (
+    assert fx.index("fx-budget--noisy") < fx.index("fx-budget--focused"), (
         "the unaided context must come first"
+    )
+    assert fx.index("fx-state--weak") < fx.index("fx-state--strong"), (
+        "the vague prompt must come before the precise one"
     )
     assert fx.index("BROWSER CHATBOT") < fx.index("AGENTIC PLATFORM"), (
         "the answer-handoff workflow must come first"
@@ -1102,12 +1109,22 @@ def test_foundations_pulses_are_painted_above_connectors_and_behind_nodes(
 
 
 def test_foundations_is_project_generic(guide_text: str) -> None:
-    """Teaching copy must not assume the reader's project is code."""
+    """Teaching copy must not assume the reader's project is code.
+
+    v4.4.1 Phase 3 narrows this guard: "codebase" is now PERMITTED, because Context
+    Engineering lists it as one of several kinds of material a request can carry. The
+    positive requirement below is what stops that concession from quietly making the
+    scene code-only, so the broad non-coding kinds must still appear alongside it.
+    """
     fx = _foundations_markup(guide_text)
     text = re.sub(r"<[^>]+>", " ", fx).lower()
-    for term in ("repo", "repository", "terminal", "git", "codebase"):
-        assert not re.search(rf"\b{re.escape(term)}\b", text), (
-            f"coding-only term in Foundations teaching copy: {term!r}"
+    for term in ("repo", "repository", "terminal", "git"):
+        assert not re.search(r"\b" + re.escape(term) + r"\b", text), (
+            "coding-only term in Foundations teaching copy: " + repr(term)
+        )
+    for broad in ("image", "file or document", "project folder or workspace"):
+        assert broad in text, (
+            "Foundations must keep broad non-coding context examples; missing " + repr(broad)
         )
 
 
@@ -1131,8 +1148,13 @@ def test_no_unexpected_persistent_overlays(guide_text: str) -> None:
 def test_foundations_animations_have_reduced_motion_fallback(guide_text: str) -> None:
     reduce_block = guide_text.split("@media (prefers-reduced-motion: reduce)", 1)[-1]
     reduce_block = reduce_block.split("}\n</style>", 1)[0] if "}\n</style>" in reduce_block else reduce_block
-    for cls in (".fx-pop", ".fx-draw", ".fx-grow", ".fx-fade", ".fx-pulse"):
+    # .fx-grow retired in v4.4.1 Phase 3 with the SVG context-budget diagram; .fx-tokchip
+    # is the reveal primitive that replaced it in the rebuilt Tokens scene.
+    for cls in (".fx-pop", ".fx-draw", ".fx-tokchip", ".fx-fade", ".fx-pulse"):
         assert cls in reduce_block, f"{cls} missing a reduced-motion static state"
+    assert ".fx-grow" not in guide_text, (
+        "the fx-grow primitive was retired; a reintroduced consumer needs its static state back"
+    )
     assert "offset-path" in guide_text, "pulse dots ride CSS motion paths"
 
 

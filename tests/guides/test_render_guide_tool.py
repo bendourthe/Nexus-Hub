@@ -492,7 +492,6 @@ def test_foundations_phase2_diagrams_are_legible_at_release_and_breakpoint_width
                     assert {diagram["name"] for diagram in diagrams} == {
                         "model-lifecycle",
                         "tokens",
-                        "prompt-engineering",
                     }
                     for diagram in diagrams:
                         if width == 720:
@@ -649,7 +648,6 @@ def test_foundations_phase3_route_motion_and_label_containment(
     desktop_nodes = {
         "agent-loop": {"agent-model", "agent-platform"},
         "chatbot-agent": {"shared-request", "chatbot-handoff", "agent-handoff"},
-        "context-budget": {"finite-window", "noisy-budget", "focused-budget"},
         "harness-layers": {
             "nexus-hub",
             "platform",
@@ -677,11 +675,6 @@ def test_foundations_phase3_route_motion_and_label_containment(
             "shared-request-mobile",
             "chatbot-handoff-mobile",
             "agent-handoff-mobile",
-        },
-        "context-budget": {
-            "finite-window-mobile",
-            "noisy-budget-mobile",
-            "focused-budget-mobile",
         },
         "harness-layers": {
             "nexus-hub-mobile",
@@ -937,7 +930,10 @@ def test_foundations_phase3_route_motion_and_label_containment(
                                   ) === 0
                                   && noTransition(element),
                               ),
-                              growFinal: growElements.length > 0 && growElements.every(
+                              // v4.4.1 Phase 3 retired the fx-grow primitive with the SVG
+                              // context-budget diagram. Still strict for any element that
+                              // exists; an empty set is vacuously static, not a failure.
+                              growFinal: growElements.every(
                                 (element) => getComputedStyle(element).transform === "none"
                                   && noTransition(element),
                               ),
@@ -960,13 +956,12 @@ def test_foundations_phase3_route_motion_and_label_containment(
                         f"{case}: Foundations scrolls horizontally"
                     )
                     assert metrics["sceneCount"] == 8
-                    assert len(metrics["diagrams"]) == 5, (
+                    assert len(metrics["diagrams"]) == 4, (
                         f"{case}: expected exactly one visible variant per diagram"
                     )
                     assert {diagram["name"] for diagram in metrics["diagrams"]} == {
                         "agent-loop",
                         "chatbot-agent",
-                        "context-budget",
                         "harness-layers",
                         "durable-result",
                     }

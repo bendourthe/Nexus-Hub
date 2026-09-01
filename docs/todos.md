@@ -14,11 +14,11 @@ Refreshing this file to the active plan (rather than appending another version's
 
 | Metric | Current | Target | Delta |
 |--------|---------|--------|-------|
-| v4.4.1 guide-visual-and-arcade-rebuild phases complete | 2 | 7 | -5 |
-| Local phase commits | 2 | 7 | -5 |
+| v4.4.1 guide-visual-and-arcade-rebuild phases complete | 3 | 7 | -4 |
+| Local phase commits | 3 | 7 | -4 |
 | Open release blockers | 0 | 0 | 0 |
 | Catalog skills | 329 | 329 | 0 |
-| Canonical guide bytes (strict ceiling 500,000) | 281,301 | < 500,000 | met |
+| Canonical guide bytes (strict ceiling 500,000) | 275,316 | < 500,000 | met |
 | Platform marks approved with staged hashes | 5 | 5 | 0 |
 
 ---
@@ -27,7 +27,7 @@ Refreshing this file to the active plan (rather than appending another version's
 
 - [x] Phase 1 - Contracts, asset provenance, and byte budget
 - [x] Phase 2 - Home identity, platform rail, and workflow loop
-- [ ] Phase 3 - Foundations structure, Tokens, Prompt, and Context
+- [x] Phase 3 - Foundations structure, Tokens, Prompt, and Context
 - [ ] Phase 4 - Foundations Models, Agentic Platform, comparison, and harnesses
 - [ ] Phase 5 - Deterministic arcade-shooter engine
 - [ ] Phase 6 - Training workspace, fullscreen, and integrated loop
@@ -43,7 +43,7 @@ Met. v4.4.0 is released: integration PR #150 merged at `46518d01`, release PR #1
 
 ### Current checkpoint
 
-Phase 2 complete. Home leads with one floating `Nexus Hub` lockup whose mark and both wordmark spans share a single observer-gated 7s float, five approved platform marks inlined verbatim and hash-checked against the provenance ledger, a CC BY 4.0 credits disclosure, and readable two-line workflow pills. OpenCode and the text-treatment fallback are gone. The visual detector passes both themes at six viewports with 0 findings and 60 documented allowlisted entries covering the Gemini mark's blur construction. Guide at 281,301 bytes, 218,699 under the ceiling. Next: Phase 3 must cut the 1440 px Foundations scroll height from 7,294 px to at most 5,835 px and land the first three accepted scene titles.
+Phase 3 complete. Foundations is reordered to the eight accepted titles with no `What Is` or `What Are` headings left, and its 1440 px height fell from 7,235 px to 5,152 px, a 29.4% cut against the plan's 20% gate, by making the full-width scene treatment the exception rather than the default. Tokens Definition now shows a realistic prompt at a 19 px floor beside its verified `cl100k_base` split into ten identically styled chips, and nine image cells that each hold a real 1:1 crop of one original inline picture. Prompt and Context were rebuilt as one continuous contract request in semantic HTML, 14 KB smaller than the SVG they replaced. Visual detector passes both themes at six viewports with zero findings; the guide sits at 275,316 bytes. Next: Phase 4 rebuilds Foundations scenes 4 through 8 and owns the deferred output media.
 
 ---
 
